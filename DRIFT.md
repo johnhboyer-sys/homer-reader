@@ -169,6 +169,44 @@ a comment at the top of `shared/styles/global.css` (just above `:root`).
 - `shared/components/Search.svelte` — CSV export filename `plato-search-*` →
   `homer-search-*` (cosmetic string only, no logic touched).
 - `pipeline/homer_pipeline/preflight.py` — module docstring Plato→Homer.
+
+## Phase 3 — Reading Mode posture + docked lexicon rail (Homer, 2026-07-17)
+
+- `shared/components/LexiconPanel.svelte` — NEW, no plato-reader counterpart:
+  the shared BODY of the word lookup (entry-fetch via `lookupWord`, headword +
+  short gloss + analysis cards, the EXPAND disclosure to the full LSJ/Cunliffe
+  entry, and the LSJ · Cunliffe · Logeion↗ tab row). Extracted out of WordPopup
+  so the docked desktop rail and the mobile popup share one source of truth
+  (DESIGN.md 2026-07-17). A future plato sync should fold WordPopup's dictionary
+  body into this component rather than diverging.
+- `shared/components/WordPopup.svelte` — refactored from a monolithic modal
+  into a thin PRESENTATION shell around `<LexiconPanel>`, gaining `docked` +
+  `autofocus` props: `docked=true` renders a NON-modal in-layout lexicon rail
+  (no backdrop, no aria-modal, no focus-trap — desktop ≥1100px) while the
+  default stays the modal anchored popup/sheet (<1100px). The dictionary tabs
+  and the "Appears N× across Homer" lemma link moved into LexiconPanel.
+- `shared/components/Reader.svelte` — Reading Mode posture (`r` keystroke +
+  header `.posture-btn`, input-focus-guarded, aria-live announced,
+  `?mode=reading` shareable, persisted global `reader-posture`): a single-column
+  `readingView` snippet reusing `transFlow`/`primaryEng`/`altEng`, with
+  `sceneChip` marginal chips driven by the new optional `BookData.scenes`.
+  Lookup presentation now chooses docked-rail vs popup by
+  `matchMedia('(min-width: 1100px)')` (`computeDocked`, recomputed on resize);
+  `handleTokenClick` takes a `viaKeyboard` flag so a keyboard-opened docked rail
+  takes focus and returns it to the token on close.
+- `shared/lib/data.ts` — new optional `Scene` interface + `BookData.scenes?`
+  (Landmark scene apparatus; absent on every payload today, inert like
+  `GreekLine.bracketed`).
+- `shared/styles/global.css` — new additive "Phase 3 — Reading Mode posture +
+  docked lexicon rail" section (`.posture-btn`, `.reading-col`, `.scene-chip`
+  family, `.word-sidebar.docked`, reading-mode chrome trims) — Aegean tokens
+  only, no new palette values.
+- `shared/__tests__/word-popup.test.ts` — extended: EXPAND disclosure (gloss
+  first, tabs revealed on expand), "Logeion is the only target=_blank", and
+  docked-vs-modal presentation.
+- `shared/__tests__/components.test.ts` — new describe blocks: Reading Mode
+  posture (`r` key, input guard, button, `?mode=reading`) and the
+  docked/modal lexicon breakpoint (mocked matchMedia).
 - `app/public/{manifest.webmanifest,offline.html,robots.txt,sw.js}` — PWA
   name/short_name/description, offline-page title + hardcoded colours (now
   the Aegean ground/ink hex), sitemap URL, and the service worker's cache-key

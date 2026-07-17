@@ -167,12 +167,31 @@ export interface ChapterRef {
   bekker: string;
 }
 
+// A narrative scene of a Homer book (Landmark-style apparatus): a one-line
+// summary anchored to a Greek vulgate line range, optionally naming where the
+// scene is set and who is in it. Reading Mode renders each as a marginal
+// summary chip with a quiet line-range tick and subtle place/person markers.
+// NO book payload carries this today — no pipeline stage emits it yet
+// (CLAUDE.md apparatus honesty), so `scenes` is absent everywhere and Reading
+// Mode degrades to plain single-column prose until a future apparatus pass
+// (draft status + certainty tiers) populates it. Same inert-until-present
+// posture as GreekLine.bracketed and the cartouche apparatus slots.
+export interface Scene {
+  summary: string;
+  startLine: number;    // opening Greek vulgate line (n) this scene covers
+  endLine?: number;     // closing line n (inclusive); omitted ⇒ open-ended
+  place?: string;       // where the scene is set (small-caps marker)
+  people?: string[];    // named persons in the scene (subtle markers)
+}
+
 export interface BookData {
   book: number;
   segments: Segment[];
   // Global turn flow for a dialogue book (see TurnFlow). Absent for narrated
   // books and non-stephanus works, which render the segment array as before.
   turnFlow?: TurnFlow;
+  // Landmark-style scene apparatus (see Scene). Optional and absent today.
+  scenes?: Scene[];
 }
 
 export interface Analysis {

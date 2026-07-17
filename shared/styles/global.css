@@ -3202,3 +3202,116 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
     color: #5a5248;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Phase 3 — Reading Mode posture + docked lexicon rail (additive; Aegean tokens
+   only, no new palette values). See Reader.svelte / LexiconPanel.svelte and
+   docs/DESIGN.md (2026-07-17).
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Posture toggle in the controls strip (Scholar ⇄ Reading Mode). Matches the
+   view-toggle button aesthetic; --accent fill when pressed (Reading Mode on).
+   Contrast: --text-mid on --col-bg and --on-accent on --accent both clear AA in
+   each theme (same pairings the view toggle already ships). */
+.posture-btn {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.22rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--col-bg);
+  color: var(--text-mid);
+  white-space: nowrap;
+}
+.posture-btn:hover { border-color: var(--accent); color: var(--accent); }
+.posture-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.posture-btn[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+/* Reading Mode: one generous single column (~65ch), quiet chrome. */
+.reading-col {
+  max-width: 65ch;
+  margin: 0 auto;
+  font-family: var(--font-english);
+  font-size: var(--fs-english);
+  line-height: var(--lh-english);
+  color: var(--text);
+}
+/* No Bekker gutter numbers and no gutter indent in Reading Mode — "nothing
+   beyond quiet line-range ticks at scene boundaries" (the scene chips). */
+.reader-body.reading-mode .reading-col .bk-num { display: none; }
+.reader-body.reading-mode .reading-col .ross-prose { padding-left: 0; }
+.reading-col .reading-row + .reading-row { margin-top: 0.9rem; }
+/* Trim Scholar-only chrome the single column doesn't use. The translation
+   picker and the posture button stay; the parallel-view toggle, the Bekker
+   estimate note, and the athetized-line legend are hidden. */
+.reader-body.reading-mode .view-toggle,
+.reader-body.reading-mode .bekker-info,
+.reader-body.reading-mode .verse-bracket-legend { display: none; }
+
+/* Marginal scene chip: a quiet Landmark summary block introducing the scene.
+   Left accent rule at all widths; pulled into the left margin on wide screens.
+   Contrast: --text on ground (primary), --accent bronze place label ≈5:1 light
+   / ≈7:1 dark, --text-mid people line ≈6.6:1 light / ≈8.6:1 dark — all AA. */
+.scene-chip {
+  margin: 1.7rem 0 0.9rem;
+  padding: 0.1rem 0 0.15rem 0.9rem;
+  border-left: 2px solid var(--accent);
+  font-family: var(--font-ui);
+}
+.scene-lines {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+.scene-place {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  font-variant: small-caps;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--accent);
+}
+.scene-summary {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--text);
+}
+.scene-people {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--text-mid);
+}
+@media (min-width: 1400px) {
+  .reading-col { position: relative; }
+  .scene-chip {
+    float: left;
+    width: 11rem;
+    margin-left: -13rem;
+    margin-top: 0.1rem;
+    padding: 0 0.9rem 0 0;
+    border-left: none;
+    border-right: 2px solid var(--accent);
+    text-align: right;
+  }
+}
+
+/* Docked lexicon rail (desktop ≥1100px): the non-modal counterpart of the
+   anchored .word-sidebar popup. Sits below the sticky header, quiet divider
+   instead of a floating drop-shadow; the reader body already reserves its strip
+   via .reader-body.word-open. */
+.word-sidebar.docked {
+  top: var(--header-h, 92px);
+  box-shadow: none;
+  border-left: 1px solid var(--border);
+}

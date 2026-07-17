@@ -89,12 +89,19 @@ vi.mock('../lib/data', async (importOriginal) => {
     fetchChapters: vi.fn(async () => ({
       '1': [{ chapter: '1', column: '1094a', line: '1', bekker: '1094a' }],
     })),
+    // WordPopup → LexiconPanel resolves an entry on token click; stub it so the
+    // lookup presentation renders without a network fetch.
+    lookupWord: vi.fn(async () => ({ analyses: [], lsj: [], cunliffe: [] })),
+    fetchLemmata: vi.fn(async () => ({})),
   };
 });
 
 afterEach(() => {
   vi.clearAllMocks();
   window.history.replaceState(null, '', '/');
+  // Posture/view/translation choices persist in localStorage; clear so one
+  // test's saved posture can't leak into the next render.
+  try { localStorage.clear(); } catch { /* jsdom */ }
 });
 
 describe('Search.svelte', () => {
@@ -187,6 +194,110 @@ describe('Reader.svelte', () => {
     expect(container.textContent).toContain('Alpha beta gamma.');
     expect(container.textContent).not.toContain('[[s1]]');
     expect(container.textContent).not.toContain('[[fig2]]');
+  });
+});
+
+describe('Reader.svelte — Reading Mode posture', () => {
+  it('toggles Reading Mode with the `r` key and persists the posture', async () => {
+    window.history.replaceState(null, '', '/EN/book/1');
+    const { container } = render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+    await screen.findByText('1094a');
+
+    const body = container.querySelector('.reader-body')!;
+    expect(body).not.toHaveClass('reading-mode');
+
+    await fireEvent.keyDown(window, { key: 'r' });
+    expect(body).toHaveClass('reading-mode');
+    expect(localStorage.getItem('reader-posture')).toBe('reading');
+
+    await fireEvent.keyDown(window, { key: 'r' });
+    expect(body).not.toHaveClass('reading-mode');
+    expect(localStorage.getItem('reader-posture')).toBe('scholar');
+  });
+
+  it('ignores the `r` key while focus is in a text field', async () => {
+    window.history.replaceState(null, '', '/EN/book/1');
+    const { container } = render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+    await screen.findByText('1094a');
+
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+    input.focus();
+    await fireEvent.keyDown(window, { key: 'r' });
+    expect(container.querySelector('.reader-body')).not.toHaveClass('reading-mode');
+    input.remove();
+  });
+
+  it('the posture button toggles Reading Mode and reflects aria-pressed', async () => {
+    window.history.replaceState(null, '', '/EN/book/1');
+    const { container } = render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+    const btn = await screen.findByRole('button', { name: /Reading Mode/i });
+    expect(btn).toHaveAttribute('aria-pressed', 'false');
+
+    await fireEvent.click(btn);
+    expect(container.querySelector('.reader-body')).toHaveClass('reading-mode');
+    const scholarBtn = screen.getByRole('button', { name: /Scholar view/i });
+    expect(scholarBtn).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('opens in Reading Mode from ?mode=reading', async () => {
+    window.history.replaceState(null, '', '/EN/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+    await screen.findByText(/Virtue/i);
+    expect(container.querySelector('.reader-body')).toHaveClass('reading-mode');
+    // Single reading column present; no parallel Greek column in the reading body.
+    expect(container.querySelector('.reading-col')).not.toBeNull();
+  });
+});
+
+describe('Reader.svelte — lexicon presentation breakpoint', () => {
+  const defaultMatchMedia = () =>
+    vi.fn().mockImplementation((query: string) => ({
+      matches: false, media: query, onchange: null,
+      addListener: vi.fn(), removeListener: vi.fn(),
+      addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
+    }));
+
+  function setMatchMedia(matcher: (q: string) => boolean) {
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: matcher(query), media: query, onchange: null,
+      addListener: vi.fn(), removeListener: vi.fn(),
+      addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
+    })) as unknown as typeof window.matchMedia;
+  }
+
+  afterEach(() => {
+    // Restore the setup's matches:false default so this describe can't leak a
+    // custom matchMedia into other suites.
+    window.matchMedia = defaultMatchMedia() as unknown as typeof window.matchMedia;
+  });
+
+  it('opens a DOCKED, non-modal lexicon rail at ≥1100px', async () => {
+    setMatchMedia((q) => q.includes('min-width: 1100px'));
+    window.history.replaceState(null, '', '/EN/book/1');
+    render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+
+    const tok = await screen.findByText('λόγος');
+    await fireEvent.click(tok);
+
+    const sidebar = document.querySelector('.word-sidebar');
+    expect(sidebar).toHaveClass('docked');
+    expect(sidebar).toHaveAttribute('role', 'region');
+    expect(document.querySelector('.popup-backdrop')).toBeNull();
+  });
+
+  it('opens the anchored MODAL popup below 1100px', async () => {
+    setMatchMedia(() => false);
+    window.history.replaceState(null, '', '/EN/book/1');
+    render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+
+    const tok = await screen.findByText('λόγος');
+    await fireEvent.click(tok);
+
+    const sidebar = document.querySelector('.word-sidebar');
+    expect(sidebar).not.toHaveClass('docked');
+    expect(sidebar).toHaveAttribute('role', 'dialog');
+    expect(document.querySelector('.popup-backdrop')).not.toBeNull();
   });
 });
 

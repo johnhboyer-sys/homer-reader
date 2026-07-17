@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
-  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, type Segment, type GreekLine, type Token, type BookData, type RossPiece } from '../lib/data';
+  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, type Segment, type GreekLine, type Token, type BookData, type RossPiece, type Scene } from '../lib/data';
   import { schemeFor, formatCite } from '../lib/citation';
   import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
@@ -319,6 +319,67 @@
     if (spyArmed) setupScrollSpy();
   }
 
+  // ── Reading Mode posture (Phase 3 flagship) ──────────────────────────────
+  // Two postures: Scholar (the parallel-column reader above) and Reading Mode —
+  // a single generous column of ONE translation, minimal chrome, with optional
+  // marginal scene chips. Toggled by the `r` keystroke (guarded against firing
+  // in form fields) or the header button. Persisted GLOBALLY (like reader-view),
+  // and openable via ?mode=reading. Announced to screen readers (aria-live).
+  const POSTURE_KEY = 'reader-posture';
+  let reading = false;
+  let postureMsg = '';
+  function savePosture() { try { localStorage.setItem(POSTURE_KEY, reading ? 'reading' : 'scholar'); } catch {} }
+  function setReading(on: boolean) {
+    if (reading === on) return;
+    reading = on;
+    postureMsg = on ? 'Reading mode' : 'Scholar view';
+    savePosture();
+  }
+  function toggleReading() { setReading(!reading); }
+  // `r` toggles posture — but never while focus is in a text field (a reader
+  // typing in the Bekker jump / search box, or a future note input), and never
+  // as part of a shortcut chord.
+  function onGlobalKey(e: KeyboardEvent) {
+    if (e.key !== 'r' && e.key !== 'R') return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const ae = document.activeElement as HTMLElement | null;
+    const tag = ae?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || ae?.isContentEditable) return;
+    e.preventDefault();
+    toggleReading();
+  }
+  // The single translation Reading Mode shows: the current selection, or — in
+  // compare mode — the last single choice (pickValue already resolves this).
+  // Never 'compare'.
+  $: readingTransId = pickValue;
+
+  // Landmark-style scene apparatus for this book (see data.ts Scene). Absent on
+  // every payload today, so `scenes` is empty and Reading Mode renders plain
+  // single-column prose; a chip appears only where real scene data lands.
+  let scenes: Scene[] = bookData?.scenes ?? [];
+  // The scenes opening within a segment's Greek line range — rendered as
+  // marginal chips ahead of that segment's prose in Reading Mode.
+  function scenesForSegment(seg: Segment): Scene[] {
+    if (!scenes.length || !seg.greek.length) return [];
+    const lo = seg.greek[0].n;
+    const hi = seg.greek[seg.greek.length - 1].n;
+    return scenes.filter((s) => s.startLine >= lo && s.startLine <= hi);
+  }
+
+  // ── Lookup presentation: docked rail (≥1100px) vs anchored popup (<1100px) ──
+  // DESIGN.md 2026-07-17: a docked, non-modal lexicon rail on desktop; the
+  // anchored WordPopup below it. Recomputed on mount and resize so a viewport
+  // crossing 1100px swaps presentation for the next lookup.
+  let dockedLexicon = false;
+  // Whether the OPEN popup was raised by keyboard (Enter/Space on a token). Drives
+  // focus: a keyboard open moves focus into the docked rail and Escape returns it
+  // to the token; a mouse open leaves focus in the reading flow.
+  let popupViaKb = false;
+  function computeDocked() {
+    dockedLexicon = typeof window !== 'undefined'
+      && window.matchMedia('(min-width: 1100px)').matches;
+  }
+
   // Print / Save-as-PDF: hand the currently-rendered view to the browser's
   // native print engine. The @media print stylesheet (global.css) strips the
   // app chrome, sets page breaks, and reveals a print-only title. We print the
@@ -513,6 +574,7 @@
 
   function onResize() {
     clearTimeout(resizeTimer);
+    computeDocked();
     resizeTimer = setTimeout(() => { if (spyArmed) setupScrollSpy(); }, 200);
   }
 
@@ -1013,6 +1075,11 @@
     if (savedCite !== null) citeCopy = savedCite === 'true';
     const savedSpk = (() => { try { return localStorage.getItem(SPK_KEY); } catch { return null; } })();
     if (savedSpk !== null) spkColor = savedSpk === 'true';
+    // Restore the reading/scholar posture (global, like reader-view).
+    const savedPosture = (() => { try { return localStorage.getItem(POSTURE_KEY); } catch { return null; } })();
+    if (savedPosture === 'reading') reading = true;
+    // Pick the lookup presentation for this viewport (recomputed on resize below).
+    computeDocked();
 
     // Settings sidebar events (dispatched by ReaderShell.astro and Escape handler).
     _onToggleSettings = () => { settingsOpen ? closeSettings() : openSettings(); };
@@ -1068,6 +1135,11 @@
     if (qView === 'greek' || qView === 'both' || qView === 'english') view = qView;
     const qTrans = params.get('trans');
     if (qTrans && validTrans.has(qTrans)) { trans = qTrans; if (view === 'greek') view = 'both'; }
+    // A shareable ?mode=reading|scholar overrides the saved posture (matches the
+    // read-on-load convention of ?view / ?trans; posture is not written back).
+    const qMode = params.get('mode');
+    if (qMode === 'reading') reading = true;
+    else if (qMode === 'scholar') reading = false;
     try {
       // Already seeded from the build-time prop in the normal (SSR) path; only
       // fetch when the reader was mounted without it.
@@ -1075,6 +1147,7 @@
         const data = await fetchBook(work, bookNum);
         segments = data.segments;
         turnFlow = data.turnFlow ?? null;
+        scenes = data.scenes ?? [];
       }
     } catch (e) {
       error = String(e);
@@ -1185,21 +1258,36 @@
   // scrolled it out of view, in which case we keep the current top line fixed.
   let pinnedTok: HTMLElement | null = null;
 
-  function handleTokenClick(e: MouseEvent, token: Token | null) {
+  function handleTokenClick(e: MouseEvent, token: Token | null, viaKeyboard = false) {
     if (!token) return;
     e.stopPropagation();
     const el = e.currentTarget as HTMLElement;
     const rect = el.getBoundingClientRect();
     // Only the first open reflows the body (adds .word-open); switching words
     // while the sidebar is already open changes nothing about the layout.
-    if (!popup) { pinnedTok = el; pinAcrossReflow(el); }
+    if (!popup) pinAcrossReflow(el);
+    // Remember the token so a keyboard-opened docked rail can hand focus back to
+    // it on Escape/close, and whether this open was keyboard-driven at all.
+    pinnedTok = el;
+    popupViaKb = viaKeyboard;
     popup = { token, anchor: { x: rect.left, y: rect.bottom } };
+    // Keyboard activation moves focus INTO the docked rail (WAI-ARIA); a mouse
+    // open leaves focus in the reading flow. The modal popup handles its own
+    // focus (autofocus is irrelevant there).
+    if (dockedLexicon && viaKeyboard) {
+      tick().then(() => document.querySelector<HTMLElement>('.word-sidebar.docked')?.focus());
+    }
   }
 
   function closePopup() {
+    // A keyboard-opened docked rail returns focus to the originating token
+    // (Escape restores context); the modal popup does its own focus restore.
+    const returnTo = dockedLexicon && popupViaKb && pinnedTok && inViewport(pinnedTok) ? pinnedTok : null;
     if (popup) pinAcrossReflow(pinnedTok && inViewport(pinnedTok) ? pinnedTok : topAnchor());
     popup = null;
     pinnedTok = null;
+    popupViaKb = false;
+    returnTo?.focus();
   }
 
   // ── Keyboard access to Greek tokens ──────────────────────────────────────
@@ -1220,7 +1308,7 @@
   function onTokenKey(e: KeyboardEvent, token: Token) {
     if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
       e.preventDefault();
-      handleTokenClick(e as unknown as MouseEvent, token);
+      handleTokenClick(e as unknown as MouseEvent, token, true);
       return;
     }
     const step: Record<string, number | 'first' | 'last'> = {
@@ -1624,14 +1712,55 @@
     </div>
   {/snippet}
 
+  <!-- A Landmark scene chip: line-range tick + optional place (small caps) +
+       one-line summary + the people in the scene. Marginal in Reading Mode.
+       Rendered only where real scene data exists (inert otherwise). -->
+  {#snippet sceneChip(s: Scene)}
+    <aside class="scene-chip" aria-label="Scene summary">
+      <span class="scene-lines">{s.startLine}{#if s.endLine && s.endLine !== s.startLine}–{s.endLine}{/if}</span>
+      {#if s.place}<span class="scene-place">{s.place}</span>{/if}
+      <p class="scene-summary">{s.summary}</p>
+      {#if s.people && s.people.length}<p class="scene-people">{s.people.join(' · ')}</p>{/if}
+    </aside>
+  {/snippet}
+
+  <!-- Reading Mode body: ONE translation in a single generous column, no
+       parallel Greek, no gutters. Reuses the existing prose snippets (transFlow
+       / primaryEng / altEng) so the wording, footnotes and paragraphing match
+       Scholar view exactly; the single-column measure and quiet chrome are CSS
+       (.reading-mode). Scene chips float in the margin where scene data exists;
+       with none, this is simply clean single-column reading. -->
+  {#snippet readingView()}
+    <div class="reading-col">
+      {#if flowRows}
+        {#each flowRows as row, ri}
+          <div class="reading-row">
+            {#if readingTransId === engSlot?.id}{@render primaryEng(row, ri)}{:else}{@render altEng(row, ri, readingTransId)}{/if}
+          </div>
+        {/each}
+      {:else}
+        {#each enrichedSegments as { seg, blocks } (seg.id)}
+          {#each scenesForSegment(seg) as s}{@render sceneChip(s)}{/each}
+          {#each blocks as block}
+            {#if block.chapter}{@render chapterHead(block)}{/if}
+            {@render transFlow(block, readingTransId)}
+          {/each}
+        {/each}
+      {/if}
+    </div>
+  {/snippet}
+
   <div class="reader-body view-{view} trans-{trans}" role="main"
     bind:this={readerBodyEl}
     class:busse={busse}
     class:stephanus={stephanus}
     class:verse-line={epicVerse}
+    class:reading-mode={reading}
     class:word-open={!!popup}
     style="--fs-greek:{fsGreek}rem;--fs-english:{fsEng}rem;--lh-greek:{lhGreek};--lh-english:{lhEng};--colw-scale:{colScale};--fs-scale:{fsScale}"
     on:copy={handleCopy}>
+    <!-- Screen-reader announcement of a posture change (Scholar ⇄ Reading). -->
+    <p class="sr-only" aria-live="polite">{postureMsg}</p>
     <div class="reader-controls">
       {#if liveChapter}
         <span class="rc-context">{liveChapter}</span>
@@ -1663,6 +1792,16 @@
             {/each}
           </select>
         {/if}
+        <!-- Posture toggle: Scholar ⇄ Reading Mode (keystroke `r`). Kept in the
+             always-visible strip (not the desktop-only group) so it's reachable
+             on phones too; the aria-pressed state doubles as the SR cue. -->
+        <button
+          type="button"
+          class="posture-btn"
+          aria-pressed={reading}
+          on:click={toggleReading}
+          title={reading ? 'Return to Scholar view (r)' : 'Enter Reading Mode (r)'}
+        >{reading ? 'Scholar view' : 'Reading Mode'}</button>
         <!-- Desktop only — on mobile these live in the ⚙ Settings sidebar. -->
         <div class="rc-desktop-controls">
           {@render viewToggle()}
@@ -1710,6 +1849,10 @@
         <span class="bracket-sample" aria-hidden="true">[ ]</span> marks lines athetized/bracketed in the editorial tradition.
       </div>
     {/if}
+    {#if reading}
+      <!-- Reading Mode: single column, one translation, minimal chrome. -->
+      {@render readingView()}
+    {:else}
     {#if flowRows}
       <!-- Dialogue book: the continuous turn flow replaces the per-section
            segment blocks; Stephanus tokens float as gutter ticks. -->
@@ -1823,6 +1966,7 @@
         {/each}
       </div>
     {/each}
+    {/if}
     {/if}
   </div>
 {/if}
@@ -1991,11 +2135,13 @@
     token={popup.token}
     anchor={popup.anchor}
     asSheet={trans === 'compare'}
+    docked={dockedLexicon}
+    autofocus={popupViaKb}
     onClose={closePopup}
   />
 {/if}
 
-<svelte:window on:pointerdown={onDocPointerDown} />
+<svelte:window on:pointerdown={onDocPointerDown} on:keydown={onGlobalKey} />
 
 {#if footnote}
   <FootnotePopup
