@@ -182,6 +182,26 @@ export interface Scene {
   endLine?: number;     // closing line n (inclusive); omitted ⇒ open-ended
   place?: string;       // where the scene is set (small-caps marker)
   people?: string[];    // named persons in the scene (subtle markers)
+  // Narrative day the scene falls on (the epic's internal chronology), carried
+  // through from the pipeline's `dayNumber`. `null`/absent ⇒ no day marker (e.g.
+  // the proem). The scene rail shows it as a "Day N" meta marker.
+  day?: number | null;
+}
+
+// The scene index whose line range contains (or last opens at or before) a given
+// Greek vulgate line — used to keep the scene rail's current-scene highlight in
+// sync with the reading position. Order-independent (does not assume the scenes
+// array is sorted): returns the index of the latest-opening scene whose startLine
+// is ≤ the line, 0 when the line precedes every scene, and -1 for no scenes.
+export function activeSceneIndex(scenes: Scene[], line: number): number {
+  let idx = -1;
+  let best = -Infinity;
+  for (let i = 0; i < scenes.length; i++) {
+    const s = scenes[i].startLine;
+    if (s <= line && s > best) { best = s; idx = i; }
+  }
+  if (idx === -1 && scenes.length) return 0;
+  return idx;
 }
 
 export interface BookData {
@@ -296,6 +316,7 @@ export function normalizeBookData(d: RawBookData): BookData {
       startLine: s.lines[0],
       endLine: s.lines[1],
       place: s.location,
+      day: s.dayNumber,
     }));
   }
   return d;

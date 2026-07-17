@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
-  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene } from '../lib/data';
+  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene } from '../lib/data';
   import { takeSsrBook } from '../lib/ssr-book';
   import { schemeFor, formatCite } from '../lib/citation';
   import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
@@ -437,6 +437,139 @@
     return scenes.filter((s) => s.startLine >= lo && s.startLine <= hi);
   }
 
+  // ── Scene rail (in-book navigation flyout) ───────────────────────────────
+  // A thin left drawer listing this book's scenes (line range · day · place +
+  // summary), mirroring the Contents/Settings drawer pattern: the toggle lives
+  // in the SSR header (ReaderShell.astro) and speaks to this island via window
+  // CustomEvents; the island owns the panel markup, open state, and focus dance.
+  // The current-scene highlight tracks the reading position live while the rail
+  // is open (a rAF-throttled scroll scan, wired only while open so the closed —
+  // common — case costs nothing and the perf/CLS gates hold).
+  let sceneRailOpen = false;
+  let currentSceneIndex = 0;
+  let sceneRailEl: HTMLElement | undefined;
+  let sceneRailReturnFocus: HTMLElement | null = null;
+  let sceneRaf = 0;
+  let _onToggleScenes: () => void;
+  let _onCloseScenes: () => void;
+
+  // The Greek line-id column that owns a given vulgate line (ids are `L{col}-{n}`).
+  // Homer books are a single segment (column "1"), but resolve through segments
+  // so a multi-segment work still targets the right column.
+  function columnForLine(n: number): string {
+    for (const seg of segments) {
+      const g = seg.greek;
+      if (g && g.length && n >= g[0].n && n <= g[g.length - 1].n) return String(seg.column);
+    }
+    return String(segments[0]?.column ?? '');
+  }
+  // Detection line just below the sticky chrome (header + controls strip): the
+  // reading position is the last anchor at or above it. Same idiom as
+  // updateChapterContext.
+  function sceneBoundary(): number {
+    const ctrl = document.querySelector('.reader-controls')?.getBoundingClientRect().bottom ?? 0;
+    return ctrl + 12;
+  }
+  // Recompute the current scene from the reading position: the lowest on-screen
+  // Greek line still above the detection line gives the vulgate line we're
+  // reading; activeSceneIndex maps it to a scene. Hidden lines (the Greek column
+  // in English-only view) are skipped so they can't pin the highlight to the last
+  // line. Scholar view only: Reading Mode renders all of a Homer book's scene
+  // chips clustered at the top (single segment, no interleaved line anchors), so
+  // a scroll scan there is meaningless — the highlight follows the last click
+  // instead of snapping to the last scene.
+  function computeCurrentScene() {
+    if (!scenes.length || reading) return;
+    const boundary = sceneBoundary();
+    let line: number | null = null;
+    for (const el of document.querySelectorAll<HTMLElement>('.greek-line[id]')) {
+      if (el.offsetParent === null) continue;
+      if (el.getBoundingClientRect().top > boundary) continue;
+      const m = el.id.match(/^L.+-(\d+)$/);
+      if (m) line = Number(m[1]);
+    }
+    if (line != null) currentSceneIndex = activeSceneIndex(scenes, line);
+  }
+  function onSceneScroll() {
+    if (sceneRaf) return;
+    sceneRaf = requestAnimationFrame(() => { sceneRaf = 0; computeCurrentScene(); });
+  }
+  // Scroll the reader to a scene's opening line. Prefers the Greek line anchor
+  // (Scholar view); falls back to the marginal scene chip (Reading Mode). The
+  // highlight is set eagerly so the click feels instant; block:'start' lands the
+  // line at the detection boundary (see .greek-line scroll-margin-top) so the
+  // live scan agrees with the eager pick once the scroll settles.
+  function jumpToScene(i: number) {
+    const s = scenes[i];
+    if (!s) return;
+    currentSceneIndex = i;
+    suppressArmUntil = Date.now() + 900;
+    const greek = document.getElementById(`L${columnForLine(s.startLine)}-${s.startLine}`);
+    const chip = document.getElementById(`scene-${s.startLine}`);
+    const el = (greek && greek.offsetParent !== null) ? greek
+             : (chip && chip.offsetParent !== null) ? chip
+             : greek ?? chip;
+    el?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  function sceneItems(): HTMLElement[] {
+    return sceneRailEl ? Array.from(sceneRailEl.querySelectorAll<HTMLElement>('.scene-item')) : [];
+  }
+  function sceneRailFocusables(): HTMLElement[] {
+    return sceneRailEl
+      ? Array.from(sceneRailEl.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        )).filter((el) => el.offsetParent !== null)
+      : [];
+  }
+  // Arrow keys rove the scene list; Home/End jump to ends; Tab is trapped inside
+  // the open drawer; Escape closes and restores focus to the header toggle.
+  function onSceneRailKey(e: KeyboardEvent) {
+    if (e.key === 'Escape') { e.preventDefault(); closeSceneRail(); return; }
+    if (e.key === 'Tab') {
+      const f = sceneRailFocusables();
+      if (!f.length) { e.preventDefault(); sceneRailEl?.focus(); return; }
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      return;
+    }
+    const items = sceneItems();
+    if (!items.length) return;
+    const i = items.indexOf(document.activeElement as HTMLElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[i < 0 ? 0 : Math.min(items.length - 1, i + 1)].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[i < 0 ? items.length - 1 : Math.max(0, i - 1)].focus(); }
+    else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+    else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
+  }
+  function openSceneRail() {
+    if (sceneRailOpen) return;
+    sceneRailReturnFocus = document.activeElement as HTMLElement | null;
+    sceneRailOpen = true;
+    window.dispatchEvent(new CustomEvent('scenes-state', { detail: { open: true } }));
+    computeCurrentScene();
+    window.addEventListener('scroll', onSceneScroll, { passive: true });
+    tick().then(() => {
+      const items = sceneItems();
+      (items[currentSceneIndex] ?? items[0]
+        ?? sceneRailEl?.querySelector<HTMLElement>('.scene-rail-close'))?.focus();
+    });
+  }
+  function closeSceneRail() {
+    if (!sceneRailOpen) return;
+    sceneRailOpen = false;
+    window.dispatchEvent(new CustomEvent('scenes-state', { detail: { open: false } }));
+    window.removeEventListener('scroll', onSceneScroll);
+    (sceneRailReturnFocus ?? document.querySelector<HTMLElement>('.scenes-toggle'))?.focus();
+    sceneRailReturnFocus = null;
+  }
+  // Keep the highlighted item visible within the rail as the reading position
+  // moves it (scoped to the rail's own scroll container — the drawer is fixed).
+  $: if (mounted && sceneRailOpen) {
+    const _i = currentSceneIndex;
+    tick().then(() => { if (sceneRailOpen) sceneItems()[_i]?.scrollIntoView({ block: 'nearest' }); });
+  }
+
   // ── Lookup presentation: docked rail (≥1100px) vs anchored popup (<1100px) ──
   // DESIGN.md 2026-07-17: a docked, non-modal lexicon rail on desktop; the
   // anchored WordPopup below it. Recomputed on mount and resize so a viewport
@@ -683,6 +816,9 @@
       window.removeEventListener('resize', onResize);
       if (_onToggleSettings) window.removeEventListener('toggle-settings', _onToggleSettings);
       if (_onCloseSettings)  window.removeEventListener('close-settings',  _onCloseSettings);
+      if (_onToggleScenes) window.removeEventListener('toggle-scenes', _onToggleScenes);
+      if (_onCloseScenes)  window.removeEventListener('close-scenes',  _onCloseScenes);
+      window.removeEventListener('scroll', onSceneScroll);
       readerBodyEl?.removeEventListener('click', onReaderClick);
       readerBodyEl?.removeEventListener('keydown', onReaderKeydown);
       document.removeEventListener('mouseup', checkCopyBtn);
@@ -1159,6 +1295,11 @@
     _onCloseSettings  = () => { if (settingsOpen) closeSettings(); };
     window.addEventListener('toggle-settings', _onToggleSettings);
     window.addEventListener('close-settings',  _onCloseSettings);
+    // Scene rail events (dispatched by ReaderShell.astro's .scenes-toggle + Esc).
+    _onToggleScenes = () => { sceneRailOpen ? closeSceneRail() : openSceneRail(); };
+    _onCloseScenes  = () => { if (sceneRailOpen) closeSceneRail(); };
+    window.addEventListener('toggle-scenes', _onToggleScenes);
+    window.addEventListener('close-scenes',  _onCloseScenes);
     // Delegated token interaction: one click + one keydown for the whole book,
     // instead of a listener pair on each of ~7000 token spans (see greekToks).
     readerBodyEl?.addEventListener('click', onReaderClick);
@@ -1856,7 +1997,7 @@
        one-line summary + the people in the scene. Marginal in Reading Mode.
        Rendered only where real scene data exists (inert otherwise). -->
   {#snippet sceneChip(s: Scene)}
-    <aside class="scene-chip" aria-label="Scene summary">
+    <aside class="scene-chip" id="scene-{s.startLine}" data-line={s.startLine} aria-label="Scene summary">
       <span class="scene-lines">{s.startLine}{#if s.endLine && s.endLine !== s.startLine}–{s.endLine}{/if}</span>
       {#if s.place}<span class="scene-place">{s.place}</span>{/if}
       {#if scenesDraft}<span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>{/if}
@@ -2110,6 +2251,44 @@
     {/if}
     {/if}
   </div>
+{/if}
+
+<!-- Scene rail: a thin left drawer of this book's scenes (in-book navigation).
+     Owned by the island (live scene data + scroll-tracked highlight); the header
+     toggle lives in ReaderShell.astro and speaks via CustomEvents. Rendered only
+     when the book carries scene apparatus. -->
+{#if scenes.length}
+<aside class="scene-rail" id="scene-rail" class:open={sceneRailOpen} aria-label="Scenes in this book" aria-hidden={!sceneRailOpen} inert={!sceneRailOpen} bind:this={sceneRailEl} on:keydown={onSceneRailKey}>
+  <div class="scene-rail-head">
+    <span class="scene-rail-title">Scenes</span>
+    {#if scenesDraft}<span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>{/if}
+    <button type="button" class="scene-rail-close" on:click={closeSceneRail} aria-label="Close scenes">×</button>
+  </div>
+  <ul class="scene-list">
+    {#each scenes as s, i}
+      <li>
+        <button
+          type="button"
+          class="scene-item"
+          class:current={i === currentSceneIndex}
+          aria-current={i === currentSceneIndex ? 'true' : undefined}
+          on:click={() => jumpToScene(i)}
+        >
+          <span class="scene-item-meta">
+            <span class="scene-item-lines">{s.startLine}{#if s.endLine && s.endLine !== s.startLine}–{s.endLine}{/if}</span>
+            {#if typeof s.day === 'number'}<span class="scene-item-day">Day {s.day}</span>{/if}
+            {#if s.place}<span class="scene-item-place">{s.place}</span>{/if}
+          </span>
+          <span class="scene-item-summary">{s.summary}</span>
+        </button>
+      </li>
+    {/each}
+  </ul>
+</aside>
+{#if sceneRailOpen}
+  <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+  <div class="scenes-backdrop" on:click={closeSceneRail} transition:fade={{ duration: reduceMotion ? 0 : 180 }}></div>
+{/if}
 {/if}
 
 <aside class="settings-sidebar" class:open={settingsOpen} aria-label="Reader settings" aria-hidden={!settingsOpen} inert={!settingsOpen} bind:this={settingsEl} on:keydown={onSettingsKey}>

@@ -1087,6 +1087,10 @@ body {
   display: flex;
   align-items: baseline;
   gap: 0.35rem;
+  /* A scene-rail jump (scrollIntoView block:'start') lands the target line just
+     below the sticky header + controls strip, not under them — and at the scene
+     tracker's detection boundary, so the live highlight agrees with the click. */
+  scroll-margin-top: calc(var(--header-h, 92px) + 3rem);
 }
 
 .line-num {
@@ -2093,6 +2097,7 @@ body {
    the portrait rules regardless of source order. */
 @media (orientation: landscape) and (max-height: 500px) {
   .toc-toggle-text { display: none; }
+  .scenes-toggle-text { display: none; }
   .header-search .hs-text { display: none; }
   .header-search { padding: 0.4rem 0.5rem; }
   .header-support .hsup-text { display: none; }
@@ -2109,6 +2114,7 @@ body {
      narrow-landscape overlap described above. */
   .page-header .header-title { flex: 1 1 auto; margin-right: auto; }
   .page-header .toc-toggle { order: 0; }
+  .page-header .scenes-toggle { order: 0; }
   .page-header .bar-actions { order: 0; flex: 0 0 auto; }
   .page-header .bar-actions .header-search,
   .page-header .bar-actions .header-support,
@@ -2139,6 +2145,7 @@ body {
   }
   /* Contents + Search go icon-only so the title + ☰ + 🔍 + ☾ always fit. */
   .toc-toggle-text { display: none; }
+  .scenes-toggle-text { display: none; }
   .header-search .hs-text { display: none; }
   .header-search { padding: 0.4rem 0.5rem; }
   .header-support .hsup-text { display: none; }
@@ -2168,6 +2175,7 @@ body {
      one-row was tried but felt cramped/unbalanced on a phone.) */
   .header-title { flex: 1 1 100%; margin-right: 0; }
   .toc-toggle { order: 2; }
+  .scenes-toggle { order: 2; }
   .bar-actions { order: 3; flex: 1 1 auto; }
   .bar-actions .header-search   { order: 1; }
   .bar-actions .header-support  { order: 1; }
@@ -2619,6 +2627,7 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 
 @media (prefers-reduced-motion: reduce) {
   .toc-sidebar, .toc-backdrop { transition: none; }
+  .scene-rail { transition: none; }
   /* Honour reduced-motion: no press-scale, no popup rise. */
   .popup { animation: none; }
   .view-toggle button:active:not(:disabled),
@@ -2661,6 +2670,115 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 }
 .settings-toggle:hover { color: var(--text); background: var(--border); }
 @media (max-width: 480px) { .settings-text { display: none; } }
+
+/* --- Scenes rail drawer (in-book scene navigation) ----------------------- */
+.scenes-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.4rem 0.7rem;
+  min-height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--col-bg);
+  color: var(--text-mid);
+}
+.scenes-toggle:hover { border-color: var(--accent-light); color: var(--text); }
+.scenes-toggle-icon { font-size: 0.95rem; line-height: 1; }
+.scenes-toggle[aria-expanded="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+.scenes-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 40;
+}
+
+.scene-rail {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: min(20rem, 86vw);
+  background: var(--col-bg);
+  border-right: 1px solid var(--border);
+  z-index: 50;
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 18px rgba(0, 0, 0, 0.14);
+}
+.scene-rail.open { transform: translateX(0); }
+
+.scene-rail-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.scene-rail-title {
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+}
+.scene-rail-close {
+  margin-left: auto;
+  border: none; background: none; cursor: pointer;
+  font-size: 1.5rem; line-height: 1; color: var(--text-mid);
+  padding: 0 0.3rem;
+}
+.scene-rail-close:hover { color: var(--text); }
+
+.scene-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+.scene-list li { margin: 0; }
+.scene-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: none;
+  cursor: pointer;
+  padding: 0.6rem 0.9rem;
+  color: var(--text);
+  font-family: var(--font-ui);
+}
+.scene-item:hover { background: var(--page-bg); }
+.scene-item.current,
+.scene-item[aria-current="true"] { background: var(--accent); color: var(--on-accent); }
+.scene-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.66rem;
+  font-variant: small-caps;
+  letter-spacing: 0.04em;
+  color: var(--text-mid);
+  margin-bottom: 0.15rem;
+}
+.scene-item[aria-current="true"] .scene-item-meta { color: var(--on-accent); }
+.scene-item-lines { font-weight: 700; }
+.scene-item-summary {
+  display: block;
+  font-family: var(--font-english);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.scene-rail-head .draft-badge { margin: 0; }
 
 .settings-backdrop {
   position: fixed;
@@ -3309,6 +3427,7 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   padding: 0.1rem 0 0.15rem 0.9rem;
   border-left: 2px solid var(--accent);
   font-family: var(--font-ui);
+  scroll-margin-top: calc(var(--header-h, 92px) + 3rem);
 }
 .scene-lines {
   display: block;

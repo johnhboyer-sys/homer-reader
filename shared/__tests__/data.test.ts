@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cunliffeShard, fetchBook, fetchCunliffeShard, fetchFootnotes, fetchLsjShard, invalidateBookCache, lookupWord, lsjShard, normalizeBookData, parseBekker, parseLocation, resolveBekker, stripBookForClient } from '../lib/data';
+import { activeSceneIndex, cunliffeShard, fetchBook, fetchCunliffeShard, fetchFootnotes, fetchLsjShard, invalidateBookCache, lookupWord, lsjShard, normalizeBookData, parseBekker, parseLocation, resolveBekker, stripBookForClient, type Scene } from '../lib/data';
 
 function mockFetch(map: Record<string, unknown>) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
@@ -64,6 +64,37 @@ describe('parseLocation (per-work scheme dispatch)', () => {
   });
 });
 
+describe('activeSceneIndex (scene-rail current-scene mapping)', () => {
+  const scenes: Scene[] = [
+    { summary: 'a', startLine: 1 },
+    { summary: 'b', startLine: 8 },
+    { summary: 'c', startLine: 53 },
+  ];
+  it.each([
+    [1, 0],     // first line of the first scene
+    [7, 0],     // still inside the first scene's span
+    [8, 1],     // opening line of the second scene
+    [52, 1],    // inside the second scene
+    [53, 2],    // opening line of the third
+    [900, 2],   // past the last opening → last scene
+    [0, 0],     // before every scene → first scene
+  ])('line %i → scene %i', (line, expected) => {
+    expect(activeSceneIndex(scenes, line)).toBe(expected);
+  });
+  it('returns -1 when there are no scenes', () => {
+    expect(activeSceneIndex([], 5)).toBe(-1);
+  });
+  it('is order-independent (unsorted scene list)', () => {
+    const unsorted: Scene[] = [
+      { summary: 'c', startLine: 53 },
+      { summary: 'a', startLine: 1 },
+      { summary: 'b', startLine: 8 },
+    ];
+    expect(activeSceneIndex(unsorted, 52)).toBe(2); // the startLine:8 scene
+    expect(activeSceneIndex(unsorted, 53)).toBe(0); // the startLine:53 scene
+  });
+});
+
 describe('fetch and lookup helpers', () => {
   it('fetchBook normalizes emitted apparatus.scenes into top-level Scene[]', async () => {
     mockFetch({
@@ -82,8 +113,26 @@ describe('fetch and lookup helpers', () => {
     });
     const d = await fetchBook('ScenesWork', 1);
     expect(d.scenes).toEqual([
-      { summary: 'Invocation.', startLine: 1, endLine: 7, place: 'Achaean camp' },
-      { summary: 'Chryses is refused.', startLine: 8, endLine: 52, place: 'Achaean camp' },
+      { summary: 'Invocation.', startLine: 1, endLine: 7, place: 'Achaean camp', day: 1 },
+      { summary: 'Chryses is refused.', startLine: 8, endLine: 52, place: 'Achaean camp', day: 1 },
+    ]);
+  });
+
+  it('normalizeBookData carries the scene day (dayNumber → day), null included', () => {
+    const raw = {
+      book: 1,
+      segments: [],
+      apparatus: {
+        scenes: [
+          { lines: [1, 7] as [number, number], summary: 'Proem.', location: 'proem', dayNumber: null },
+          { lines: [8, 52] as [number, number], summary: 'Chryses.', location: 'camp', dayNumber: 2 },
+        ],
+      },
+    };
+    const d = normalizeBookData(raw);
+    expect(d.scenes).toEqual([
+      { summary: 'Proem.', startLine: 1, endLine: 7, place: 'proem', day: null },
+      { summary: 'Chryses.', startLine: 8, endLine: 52, place: 'camp', day: 2 },
     ]);
   });
 

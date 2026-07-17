@@ -102,6 +102,10 @@ const bookData = normalizeBookData(JSON.parse(
 // translations on demand (see Reader.svelte, stripBookForClient, ssr-book.ts).
 setSsrBook(bookData);
 const clientBookData = stripBookForClient(bookData);
+// The in-book scene rail toggle only ships when this book carries scene
+// apparatus (drafted apparatus.scenes → normalized bookData.scenes); books
+// without it get no empty flyout.
+const sceneCount = bookData.scenes?.length ?? 0;
 
 // Cartouche apparatus slots (argument line + where/who/day strip): optional,
 // Phase-4 fields on a book's data. Absent today (no pipeline stage emits
@@ -282,6 +286,11 @@ const intro =
       <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar">
         <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text">Contents</span>
       </button>
+      {sceneCount > 0 && (
+        <button type="button" class="scenes-toggle" aria-expanded="false" aria-controls="scene-rail">
+          <span class="scenes-toggle-icon" aria-hidden="true">❦</span><span class="scenes-toggle-text">Scenes</span>
+        </button>
+      )}
       <div class="header-title">
         <a class="home-link home-wordmark" href={`${base}/`} aria-label="The Homer Reader — all works">
           <span class="wordmark-name">The Homer Reader</span>
@@ -579,9 +588,21 @@ const intro =
       settingsToggle?.setAttribute('aria-expanded', String(open));
     });
 
+    // Scene rail toggle — same island bridge as Settings. The button is only
+    // present when the book carries scene apparatus (see sceneCount gate above).
+    const scenesToggle = header?.querySelector('.scenes-toggle');
+    scenesToggle?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('toggle-scenes'));
+    });
+    window.addEventListener('scenes-state', (e) => {
+      const open = (e as CustomEvent<{ open: boolean }>).detail.open;
+      scenesToggle?.setAttribute('aria-expanded', String(open));
+    });
+
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
       if (document.body.classList.contains('toc-open')) { setToc(false); return; }
+      window.dispatchEvent(new CustomEvent('close-scenes'));
       window.dispatchEvent(new CustomEvent('close-settings'));
     });
     // Clicking a chapter that's on this page (a #hash link) just scrolls — close

@@ -341,3 +341,28 @@ here because the new files live in `shared/`.
   `public/data/*` readFileSync convention used elsewhere on this page family.
 - `app/src/pages/index.astro` — primary nav gained a "Genealogies" link
   (between Odyssey and Search).
+
+- `shared/lib/data.ts` — `Scene` gained optional `day?: number | null`;
+  `normalizeBookData` now carries `apparatus.scenes[].dayNumber → day` (the scene
+  rail shows a "Day N" marker); new pure export `activeSceneIndex(scenes, line)`
+  (order-independent line→scene mapping for the rail's live current-scene
+  highlight). Homer-specific; no plato-reader counterpart.
+- `shared/components/Reader.svelte` — new Scene rail (in-book scene-navigation
+  flyout): left drawer of the book's scenes, mirroring the Settings-drawer
+  island/CustomEvent pattern (`toggle-scenes`/`close-scenes`/`scenes-state`).
+  Adds open/close + focus-trap + Esc + arrow-key roving, a rAF-throttled
+  scroll scan (`computeCurrentScene`, wired only while open) that drives the
+  `aria-current` highlight, and `jumpToScene` (scrollIntoView to the Greek line,
+  or the Reading-Mode scene chip). The `sceneChip` snippet gained
+  `id="scene-{startLine}"` + `data-line` anchors. No plato-reader counterpart.
+- `shared/__tests__/data.test.ts` — new coverage for the `dayNumber → day`
+  passthrough and for `activeSceneIndex` (Homer-specific).
+- `shared/styles/global.css` — new "Scenes rail drawer" section
+  (`.scenes-toggle`, `.scene-rail*`, `.scene-item*`, `.scenes-backdrop`;
+  reduced-motion + mobile rules); `.greek-line` and `.scene-chip` gained
+  `scroll-margin-top` so rail jumps clear the sticky chrome. No plato-reader
+  counterpart.
+- `app/src/components/ReaderShell.astro` — header gained a `.scenes-toggle`
+  button (gated on `bookData.scenes?.length`), its click→`toggle-scenes` bridge
+  and `scenes-state`→aria-expanded sync (mirroring the Settings toggle), and the
+  Escape handler now also dispatches `close-scenes`. Homer-specific.
