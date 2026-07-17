@@ -189,3 +189,69 @@ describe('Reader.svelte', () => {
     expect(container.textContent).not.toContain('[[fig2]]');
   });
 });
+
+describe('Reader.svelte — verse-line (epic) rendering', () => {
+  // 'iliad' is the real registry work (citation.scheme: 'verse-line'), not a
+  // fixture — no mock needed for epicVerse to derive true off schemeFor. Lines
+  // n=1..5,7 (a real vulgate gap: 6 is missing) exercise gutter-tick logic
+  // (1 and every multiple of 5) against the line's OWN n, never a computed
+  // index; n=7 is bracketed (athetized/bracketed in the editorial tradition).
+  const verseBook = (bracketLine7: boolean): BookData => ({
+    book: 1,
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: [1, 2, 3, 4, 5, 7].map((n) => ({
+          n,
+          text: `Greek line ${n}`,
+          tokens: [{ t: `tok${n}`, o: 0, k: `key${n}` }],
+          ...(n === 7 && bracketLine7 ? { bracketed: true } : {}),
+        })),
+        english: { text: 'English filler.', notes: [], markers: [] },
+      },
+    ],
+  });
+
+  it('renders one block per Greek line with gutter ticks on 1 and 5 only (n=7 gap keeps its own id)', async () => {
+    window.history.replaceState(null, '', '/iliad/book/1');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: verseBook(true) } });
+
+    const lines = container.querySelectorAll('.greek-line');
+    expect(lines).toHaveLength(6);
+
+    const nums = Array.from(container.querySelectorAll('.line-num')).map((el) => el.textContent);
+    expect(nums).toEqual(['1', '', '', '', '5', '']);
+
+    // The scheme-derived epicVerse flag scopes the verse-line class.
+    expect(container.querySelector('.reader-body')).toHaveClass('verse-line');
+    // Line 7's DOM id carries its real vulgate number (the gap is data, not a
+    // bug) — a computed index would have produced "L1-6".
+    expect(container.querySelector('#L1-7')).not.toBeNull();
+    // Token interactivity flows through unchanged even inside a verse line.
+    expect(container.querySelector('#L1-7 .tok')).not.toBeNull();
+  });
+
+  it('marks a bracketed line with the bracket class/tooltip/glyphs and shows the legend once', async () => {
+    window.history.replaceState(null, '', '/iliad/book/1');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: verseBook(true) } });
+
+    const bracketedLine = container.querySelector('#L1-7');
+    expect(bracketedLine).toHaveClass('bracketed');
+    expect(bracketedLine?.getAttribute('title')).toBe('athetized/bracketed in the editorial tradition');
+    expect(container.querySelectorAll('.line-bracket')).toHaveLength(2);
+    expect(container.querySelectorAll('.verse-bracket-legend')).toHaveLength(1);
+
+    // No other line is affected.
+    expect(container.querySelector('#L1-5')).not.toHaveClass('bracketed');
+  });
+
+  it('is inert (no bracket class, no legend) when the book carries no bracketed lines', async () => {
+    window.history.replaceState(null, '', '/iliad/book/1');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: verseBook(false) } });
+
+    expect(container.querySelectorAll('.bracketed')).toHaveLength(0);
+    expect(container.querySelectorAll('.line-bracket')).toHaveLength(0);
+    expect(container.querySelectorAll('.verse-bracket-legend')).toHaveLength(0);
+  });
+});

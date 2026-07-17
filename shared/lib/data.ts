@@ -15,6 +15,13 @@ export interface GreekLine {
   text: string;
   joined?: boolean;
   tokens: Token[];
+  // Athetized/bracketed in the editorial tradition (a line the vulgate keeps
+  // numbered but a scholarly edition marks spurious with square brackets —
+  // e.g. disputed Iliad/Odyssey lines). The reader wraps the line in editorial
+  // brackets with a muted style + tooltip when set. No pipeline data sets this
+  // yet (that's a future apparatus pass); absent/false ⇒ an ordinary line, so
+  // the feature is inert until then.
+  bracketed?: boolean;
   // Table row: present when the Greek line is part of an inline table (the TLG
   // ⎪ column divider, e.g. the De Int 22a modal square). Each cell carries its
   // own text + clickable tokens (offsets rebased to the cell).

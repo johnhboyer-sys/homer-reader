@@ -1162,6 +1162,46 @@ body {
 .reader-body.busse .greek-line .line-num { display: none; }
 .reader-body.busse .greek-col { text-align: justify; }
 
+/* ── Verse-line (Homer) ────────────────────────────────────────────────
+   Il./Od. carry real per-line vulgate numbers laid out as hexameter, not
+   prose: .greek-line's base flex layout already gives each line its own
+   block (never reflowing into a paragraph), so the only verse-specific need
+   is the wrapped-line hanging indent — a long hexameter that wraps at the
+   column edge should read as a CONTINUATION of the same poetic line, hung
+   under the line's own text start, not flush under the gutter number.
+   Ported from classical-philosophy-reader's dk-verse pilot (Reader.svelte
+   :49-54 / global.css :1097-1103). */
+.reader-body.verse-line .line-text {
+  padding-left: 1.6em;
+  text-indent: -1.6em;
+}
+
+/* An athetized/bracketed line (editorial tradition marks it spurious, e.g. a
+   disputed Iliad/Odyssey verse): visibly set apart by a muted text colour —
+   AA-contrast checked (see DRIFT.md) — plus the bracket glyphs themselves at
+   the gutter number's quieter weight. Tokens are untouched (still `.tok`
+   spans) so click-to-parse and keyboard roving-tabindex both keep working. */
+.greek-line.bracketed .line-text {
+  color: var(--text-mid);
+}
+.greek-line.bracketed .line-bracket {
+  color: var(--text-light);
+  padding: 0 0.15em;
+}
+
+/* One-line legend explaining the bracket convention above, shown once per
+   book view (Reader.svelte gates it on hasBracketedLines) rather than as
+   permanent front matter. */
+.verse-bracket-legend {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--text-light);
+  margin: 0 0 0.75rem;
+}
+.verse-bracket-legend .bracket-sample {
+  font-family: var(--font-greek);
+}
+
 /* ── Stephanus (Plato) ────────────────────────────────────────────────
    Cited by page+letter only (17a), no user-facing Greek line numbers — drop
    the empty line-num gutter so the Greek sits flush-left. The section token is

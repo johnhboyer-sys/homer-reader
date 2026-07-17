@@ -42,6 +42,11 @@
   // user-facing Greek line numbers, and each segment shows its section token in
   // the gutter. Speaker turns are rendered as inline lead-ins (see speakers.ts).
   const stephanus = cscheme.id === 'stephanus';
+  // Verse-line (Homer) works: real per-line vulgate numbers laid out as
+  // genuine hexameter verse, not prose flow — scopes the hanging-indent wrap
+  // CSS below (mirrors classical-philosophy-reader's dk-verse pilot, minus the
+  // dk-specific fragment machinery Homer doesn't have).
+  const epicVerse = cscheme.id === 'verse-line';
   // Suppress the per-line Greek numerals whenever the scheme has no user-facing
   // lines (stephanus), or a busse work that opts in via hideLineNumbers.
   const hideLineNums = !cscheme.hasUserFacingLines
@@ -399,6 +404,13 @@
   $: chaptersInBook = [...new Set(
     enrichedSegments.flatMap(s => s.blocks.map(b => b.currentChapter)).filter(Boolean)
   )];
+
+  // Whether this book's Greek carries at least one athetized/bracketed line —
+  // drives the one-line legend shown once per book view (verse-line works
+  // only; no pipeline data sets `bracketed` yet, so this is false everywhere
+  // today). Reactive on `segments` so it recomputes after the fetch-fallback
+  // path resolves.
+  $: hasBracketedLines = epicVerse && segments.some(s => s.greek.some(l => l.bracketed));
 
   // ── Live URL tracking (aquinas.cc style) ─────────────────────────────────
   // As the reader scrolls, rewrite the location hash to the Bekker citation at
@@ -1616,6 +1628,7 @@
     bind:this={readerBodyEl}
     class:busse={busse}
     class:stephanus={stephanus}
+    class:verse-line={epicVerse}
     class:word-open={!!popup}
     style="--fs-greek:{fsGreek}rem;--fs-english:{fsEng}rem;--lh-greek:{lhGreek};--lh-english:{lhEng};--colw-scale:{colScale};--fs-scale:{fsScale}"
     on:copy={handleCopy}>
@@ -1689,6 +1702,14 @@
         {/if}
       </div>
     {/if}
+    {#if hasBracketedLines}
+      <!-- Once per book view, only when this book actually carries a
+           bracketed line (John's apparatus-honesty rule: the convention is
+           explained where it's used, not as permanent front matter). -->
+      <div class="verse-bracket-legend">
+        <span class="bracket-sample" aria-hidden="true">[ ]</span> marks lines athetized/bracketed in the editorial tradition.
+      </div>
+    {/if}
     {#if flowRows}
       <!-- Dialogue book: the continuous turn flow replaces the per-section
            segment blocks; Stephanus tokens float as gutter ticks. -->
@@ -1742,9 +1763,9 @@
                     {/each}
                   </tbody></table>
                 {:else}
-                  <div class="greek-line" id={item.line.cont ? `L${seg.column}-${item.line.n}-c` : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && targetId === `L${seg.column}-${item.line.n}`} class:cont={item.line.cont}>
+                  <div class="greek-line" id={item.line.cont ? `L${seg.column}-${item.line.n}-c` : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && targetId === `L${seg.column}-${item.line.n}`} class:cont={item.line.cont} class:bracketed={!!item.line.bracketed} title={item.line.bracketed ? 'athetized/bracketed in the editorial tradition' : undefined}>
                     <span class="line-num">{item.line.cont ? '' : showLineNum(item.line.n)}</span>
-                    <span class="line-text" lang="grc">{@render greekToks(lineRenderParts(item.line.text, item.line.tokens, speakerEvents(seg, item.line)))}</span>
+                    <span class="line-text" lang="grc">{#if item.line.bracketed}<span class="line-bracket" aria-hidden="true">[</span>{/if}{@render greekToks(lineRenderParts(item.line.text, item.line.tokens, speakerEvents(seg, item.line)))}{#if item.line.bracketed}<span class="line-bracket" aria-hidden="true">]</span>{/if}</span>
                   </div>
                 {/if}
               {/each}

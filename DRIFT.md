@@ -25,6 +25,23 @@ Homer-specific reason.
   round-trip coverage (Homer-only, no plato-reader counterpart).
 - `shared/__tests__/data.test.ts` — comment reference `plato_pipeline` →
   `homer_pipeline` (no logic change).
+- `shared/components/Reader.svelte` — new `epicVerse` const (`cscheme.id ===
+  'verse-line'`) scoping a `verse-line` class on `.reader-body` (parallel to
+  `busse`/`stephanus`, no plato-reader counterpart); `hasBracketedLines`
+  reactive + a one-line legend gated on it; the segment-path `.greek-line` div
+  gained `class:bracketed` + a `title` tooltip and `.line-text` gained
+  `[`/`]` glyph spans for `GreekLine.bracketed`. Not ported from
+  classical-philosophy-reader's `dkVerse` (that's per-fragment DK verse, a
+  different scheme) — an independent verse-line implementation.
+- `shared/lib/data.ts` — `GreekLine` gained optional `bracketed?: boolean`
+  (type-only; inert until a future apparatus pass sets it).
+- `shared/styles/global.css` — new "Verse-line (Homer)" section:
+  `.reader-body.verse-line .line-text` hanging indent (ported from
+  classical-philosophy-reader's dk-verse CSS), `.greek-line.bracketed` +
+  `.line-bracket` muted styling, `.verse-bracket-legend`.
+- `shared/__tests__/components.test.ts` — new `describe` block: verse-line
+  (epic) rendering coverage against the real `iliad` registry work (Homer-only,
+  no plato-reader counterpart).
 - `app/astro.config.mjs` — `site` set to placeholder `https://example.invalid`
   (`// TODO real domain (John)`); `base` changed from `/plato-reader` to `/`
   (GitHub Pages one-off, domain root, no Cloudflare/R2 — John, 2026-07-17).
