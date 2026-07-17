@@ -9,8 +9,8 @@
       "who": ["Odysseus", "Alcinous", "Arete", "Athena", "Poseidon", "Zeus"],
       "days": "34-35",
       "scenes": [
-        {"lines": [1, 18], "summary": "Alcinous pledges further gifts and the Phaeacian lords retire for the night.", "location": "Scheria, palace of Alcinous", "dayNumber": 34},
-        {"lines": [19, 49], "summary": "At dawn the Phaeacians load Odysseus's gifts, feast, and sacrifice to Zeus.", "location": "Scheria", "dayNumber": 34},
+        {"lines": [1, 17], "summary": "Alcinous pledges further gifts and the Phaeacian lords retire for the night.", "location": "Scheria, palace of Alcinous", "dayNumber": 34},
+        {"lines": [18, 49], "summary": "At dawn the Phaeacians load Odysseus's gifts, feast, and sacrifice to Zeus.", "location": "Scheria", "dayNumber": 34},
         {"lines": [50, 69], "summary": "At sunset Odysseus bids Alcinous, the assembled lords, and Arete farewell and boards ship.", "location": "Scheria", "dayNumber": 34},
         {"lines": [70, 92], "summary": "The Phaeacian ship sails through the night while Odysseus sleeps a deep, deathlike sleep.", "location": "at sea", "dayNumber": 34},
         {"lines": [93, 120], "summary": "At dawn the ship reaches Ithaca's harbor of Phorcys; the crew lay the sleeping Odysseus ashore with his goods.", "location": "Ithaca, harbor of Phorcys", "dayNumber": 35},

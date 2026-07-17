@@ -60,7 +60,7 @@
       80,
       102
      ],
-     "summary": "Athena sends Hermes toward Calypso and descends herself to Ithaca, arriving at Odysseus's gate as Mentes.",
+     "summary": "Athena proposes sending Hermes to Calypso, then herself leaves Olympus for Ithaca.",
      "location": "Olympus; Ithaca",
      "dayNumber": 1
     },
@@ -317,7 +317,7 @@
     "Agamemnon",
     "Aegisthus"
    ],
-   "days": "3-5",
+   "days": "3-4",
    "scenes": [
     {
      "lines": [
@@ -718,7 +718,7 @@
       43,
       77
      ],
-     "summary": "Hermes flies to Calypso's island, marveling at its beauty, and delivers Zeus's decree to the nymph.",
+     "summary": "Hermes flies to Calypso's island, marveling at its beauty, and enters her cave.",
      "location": "Ogygia",
      "dayNumber": 7
     },
@@ -1003,7 +1003,7 @@
     "Arete",
     "Nausicaa"
    ],
-   "days": "31",
+   "days": "33",
    "scenes": [
     {
      "lines": [
@@ -1091,7 +1091,7 @@
       207,
       225
      ],
-     "summary": "Guests depart; alone with the king and queen, Odysseus eats and asks leave to speak later.",
+     "summary": "Odysseus begs to eat despite his grief and asks for an escort home at dawn.",
      "location": "the palace of Alcinous",
      "dayNumber": 33
     },
@@ -1100,7 +1100,7 @@
       226,
       239
      ],
-     "summary": "Arete recognizes the raiment she wove and questions Odysseus about his identity and voyage.",
+     "summary": "Guests withdraw for the night; alone with Alcinous and Arete, she questions Odysseus about his robe and identity.",
      "location": "the palace of Alcinous",
      "dayNumber": 33
     },
@@ -1149,7 +1149,7 @@
     "Nausicaa",
     "Arete"
    ],
-   "days": "32",
+   "days": "34",
    "scenes": [
     {
      "lines": [
@@ -1314,7 +1314,7 @@
     "the Lotus-eaters",
     "Odysseus's crew"
    ],
-   "days": "32",
+   "days": "34",
    "scenes": [
     {
      "lines": [
@@ -1465,7 +1465,7 @@
       537,
       566
      ],
-     "summary": "The crew reunites, sacrifices the ram to Zeus, and sails on grieving toward Aeolus's island.",
+     "summary": "The crew reunites, sacrifices the ram to Zeus, and sails on grieving, having lost dear comrades.",
      "location": "at sea",
      "dayNumber": 34
     }
@@ -1488,7 +1488,7 @@
     "Eurylochus",
     "Elpenor"
    ],
-   "days": "32",
+   "days": "34",
    "scenes": [
     {
      "lines": [
@@ -1688,7 +1688,7 @@
     "Achilles",
     "Ajax"
    ],
-   "days": "32",
+   "days": "34",
    "scenes": [
     {
      "lines": [
@@ -1758,7 +1758,7 @@
       354,
       384
      ],
-     "summary": "Odysseus agrees to continue, though eager for home, and Alcinous presses him for news of the Trojan dead.",
+     "summary": "Odysseus answers Alcinous's request to stay; Alcinous then asks about the Trojan dead, and Odysseus agrees to continue his tale.",
      "location": "the palace of Alcinous",
      "dayNumber": 34
     },
@@ -1836,7 +1836,7 @@
     "Eurylochus",
     "Helios"
    ],
-   "days": "32",
+   "days": "34",
    "scenes": [
     {
      "lines": [
@@ -1852,7 +1852,7 @@
       16,
       27
      ],
-     "summary": "Circe welcomes the crew, provisions the ship, and privately warns Odysseus of the perils ahead.",
+     "summary": "Circe welcomes the crew, provisions the ship, and publicly tells them to eat and sail at dawn.",
      "location": "Aeaea",
      "dayNumber": 34
     },
@@ -2032,7 +2032,7 @@
     {
      "lines": [
       1,
-      18
+      17
      ],
      "summary": "Alcinous pledges further gifts and the Phaeacian lords retire for the night.",
      "location": "Scheria, palace of Alcinous",
@@ -2040,7 +2040,7 @@
     },
     {
      "lines": [
-      19,
+      18,
       49
      ],
      "summary": "At dawn the Phaeacians load Odysseus's gifts, feast, and sacrifice to Zeus.",
@@ -2924,7 +2924,7 @@
     "Eurycleia",
     "Melantho"
    ],
-   "days": "37",
+   "days": "39",
    "scenes": [
     {
      "lines": [
@@ -3142,7 +3142,7 @@
     "Philoetius",
     "Theoclymenus"
    ],
-   "days": "38",
+   "days": "40",
    "scenes": [
     {
      "lines": [
@@ -3340,7 +3340,7 @@
     "Eurymachus",
     "Eumaeus"
    ],
-   "days": "38",
+   "days": "40",
    "scenes": [
     {
      "lines": [
@@ -3554,7 +3554,7 @@
     "Athena",
     "Eurycleia"
    ],
-   "days": "38",
+   "days": "40",
    "scenes": [
     {
      "lines": [
@@ -3810,7 +3810,7 @@
     "Telemachus",
     "Athena"
    ],
-   "days": "38-39",
+   "days": "40-41",
    "scenes": [
     {
      "lines": [
@@ -4050,7 +4050,7 @@
     "Achilles",
     "Athena"
    ],
-   "days": "39",
+   "days": "41",
    "scenes": [
     {
      "lines": [
