@@ -25,6 +25,28 @@
   full entry in place (no navigation). **Nothing opens a new tab except the
   Logeion external link.** Tabs: LSJ · Cunliffe · Logeion ↗.
 
+## Palette — LOCKED (John, 2026-07-17): WINE-DARK
+
+From the four-palette explorer: **Wine-dark** (οἴνοπα garnet lead accent,
+cool grey-biased bone grounds, deep indigo-black night; slate-blue draft
+badge — NOT terracotta, NOT bronze/brown). Values per the explorer's
+contrast-verified table (light: ground #E7E7E9, panel #DBD8DC, ink #241827,
+ink-soft #5B4C58, rule-strong #5C2A40, accent #6E1F3A, accent-bright
+#8C3A57, draft #375065; dark: #181120/#211828/#EDE6E8/#B7A9B4/#C77E97/
+#D98BA3/#E8A6BA/#8FB0C9). "We might revisit particular shades" — shade
+tweaks welcome later; the system is locked. Supersedes the bronze/marble
+Aegean values in global.css (which themselves remain recorded for revert).
+
+## Homepage (John, 2026-07-17: "looks great")
+
+Homepage v1 mock APPROVED (with header-margin fix): monumental asymmetric
+ΙΛΙΑΣ/ΟΔΥΣΣΕΙΑ hero on fixed wine-dark ground (both themes), contour band
+promoted to diagonal horizon-seam signature, real line-1 epigraphs, three
+Start Here doors on the homepage, factual apparatus band, no catalog
+cards, no "Landmark" wording. Implementation target: app/src/pages/
+index.astro + Landing.astro, pending the palette decision (mock is
+token-driven — palette swap re-skins it).
+
 ## Phase 3 implications
 
 - Token system starts from Aegean's custom-property palette (marble ground,
