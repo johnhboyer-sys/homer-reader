@@ -81,6 +81,25 @@ def scan_analyses(path: Path, needed: set[str]) -> dict[str, list[dict]]:
     return found
 
 
+def resolve_key(
+    key: str, capitalized: bool, found: dict[str, list[dict]]
+) -> str | None:
+    """First variant (in lookup_variants' ranked order) present in `found`.
+
+    Pure and testable without touching Diogenes: `found` is whatever
+    scan_analyses (or a fixture) returned. When `capitalized` is True,
+    lookup_variants ranks the '*'-prefixed (proper-name) variants ahead of
+    the plain-lowercase ones, so a capitalized source token prefers a
+    proper-name analysis when one exists in `found` and only falls back to
+    the common-word reading when Diogenes has no capitalized entry for the
+    key (e.g. ordinary words that happen to be capitalized sentence-initial
+    in verse)."""
+    return next(
+        (v for v in lookup_variants(key, capitalized) if v in found),
+        None,
+    )
+
+
 def run(manifest: Manifest) -> Path:
     tokens_doc = json.loads(
         (BUILD_DIR / "stage3" / "tokens.json").read_text(encoding="utf-8")
@@ -101,14 +120,7 @@ def run(manifest: Manifest) -> Path:
     resolved: dict[str, str] = {}
     unmatched: list[dict] = []
     for key, count in freq.most_common():
-        hit = next(
-            (
-                v
-                for v in lookup_variants(key, samples[key]["capitalized"])
-                if v in found
-            ),
-            None,
-        )
+        hit = resolve_key(key, samples[key]["capitalized"], found)
         if hit is not None:
             resolved[key] = hit
         else:

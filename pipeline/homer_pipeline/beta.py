@@ -79,12 +79,21 @@ def lookup_variants(key: str, capitalized: bool = False) -> list[str]:
     """Candidate analyses keys to try, in order. Words printed with a
     diaeresis are keyed under the underlying breathing in greek-analyses.txt
     (pro+i/ento is keyed proi(/ento), so expand '+' accordingly. Proper
-    names exist only under their '*'-prefixed capital keys."""
+    names exist only under their '*'-prefixed capital keys.
+
+    When `capitalized` is True (the source token was capitalized), the
+    '*'-prefixed variants are tried FIRST: capitalization in Homeric verse is
+    weak evidence on its own (every line may open capitalized regardless of
+    part of speech), but a capitalized *analysis actually existing* in
+    Diogenes' data is strong evidence of a proper name, and a homonymous
+    common word must not shadow it. The plain-lowercase variants remain as
+    fallback for capitalized tokens whose key has no '*' entry at all (the
+    ordinary, sentence-initial-happenstance case)."""
     variants = [key]
     if "+" in key:
         variants.append(key.replace("+", ""))
         variants.append(key.replace("+", "("))
         variants.append(key.replace("+", ")"))
     if capitalized:
-        variants.extend(capital_key(v) for v in list(variants))
+        return [capital_key(v) for v in variants] + variants
     return variants
