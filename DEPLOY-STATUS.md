@@ -115,6 +115,15 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
   mentions (Greek-verified). Trojans contingent keeps places:["troy"]
   as muster-point per schema (2.816 has ethnic Τρωσί, and places.json
   troy claims no Il.2 mention — nothing false to fix).
+- **Loeb real-notes extraction (two-cycle cross-model loop): high band
+  SHIPPABLE** (2026-07-17). Grok extracted from first-printing scans
+  (texts verified genuine, PD evidence recorded); Codex audit FAILED
+  attachment v1 (14%/50%/89% wrong-locus by band); Sonnet re-attached
+  deterministically (page running-heads + dual-page pairing); Grok
+  audit v2: high 0/22 wrong-locus, medium 33%, low 90%. DECISION:
+  ship confidence:high only (~187 notes) + internal-line-ref distance
+  post-filter + drop pure app-crit strings; medium/low/null retained
+  in sources for human review. Integration lane dispatched.
 - **Iliad scenes apparatus re-gate: PASS** (2026-07-17). Sonnet fix pass
   corrected all blockers plus wider unsampled cascade members in Bks
   16/17 (Greek-cited); Grok exhaustive re-verify of Bks 6/16/17 (51
