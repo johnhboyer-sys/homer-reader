@@ -316,3 +316,28 @@ works: `iliad`, `odyssey`).
   this task's scope. The hero's fixed (non-swapping) `--hero-*` tokens are
   re-based on Wine-dark's dark-theme hex (previously Aegean's) so the hero and
   the re-skinned rest of the page read as one accent family.
+
+## Genealogies page (2026-07-17)
+
+New Homer-only apparatus feature — the four Landmark-style family trees
+(House of Atreus, House of Aeacus, House of Troy/Dardanids, the Olympians)
+drawn from `apparatus/characters.json`'s `genealogy` field. No plato-reader
+counterpart (Plato's corpus has no character genealogy apparatus); listed
+here because the new files live in `shared/`.
+
+- `shared/lib/genealogy.ts` — new: `buildGenealogyTree`/`flattenGenealogy`,
+  pure flat-list-to-forest transform (patrilineal nesting; external/cross-tree
+  parent resolution; `nonHomeric` flag carried per parent). No runtime fetch —
+  called once at build time by `app/src/pages/genealogies/index.astro`.
+- `shared/__tests__/genealogy.test.ts` — new: fixture-based coverage of the
+  above (single-root chain, multi-root sibling tree, nonHomeric flag, external
+  vs. known-cross-tree parent resolution, empty-tree case).
+- `app/src/pages/genealogies/index.astro` (new page, `/genealogies/`) and
+  `app/src/components/GenNode.astro` (new recursive node renderer) — not
+  shared-core, but the page reads `apparatus/characters.json` via
+  `readFileSync('../apparatus/characters.json', ...)` since that file isn't
+  copied into `public/data` by any pipeline stage (it's raw apparatus source,
+  not per-work build output) — a deliberate, narrow exception to the
+  `public/data/*` readFileSync convention used elsewhere on this page family.
+- `app/src/pages/index.astro` — primary nav gained a "Genealogies" link
+  (between Odyssey and Search).

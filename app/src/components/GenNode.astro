@@ -1,0 +1,42 @@
+---
+// One member of a genealogy tree (see /genealogies/) — recursive: renders
+// itself for every child. Pure presentation over shared/lib/genealogy's
+// GenealogyNode; no data fetching here (the page reads apparatus/characters.json
+// once at build time and passes the already-built forest down).
+import type { GenealogyNode } from '@shared/lib/genealogy';
+
+interface Props {
+  node: GenealogyNode;
+}
+const { node } = Astro.props;
+const NON_HOMERIC_NOTE = 'link from later tradition, not Homer';
+---
+<li class="gen-node">
+  <div class="gen-card">
+    <span class="gen-name">{node.name}</span>
+    {node.greek && <span class="gen-greek" lang="grc">{node.greek}</span>}
+    {node.role && <span class="gen-role">{node.role}</span>}
+    {node.parents.length > 0 && (
+      <p class="gen-parentage">
+        {node.parents.map((p) => (
+          <span
+            class:list={['parent-chip', { 'non-homeric': p.nonHomeric, external: !p.known }]}
+            title={p.nonHomeric ? `Link from later tradition, not Homer: ${p.name}` : undefined}
+          >
+            <span class="parent-key" aria-hidden="true">{p.key === 'father' ? 'f.' : 'm.'}</span>
+            <span class="sr-only">{p.key === 'father' ? 'father: ' : 'mother: '}</span>
+            {p.name}
+            {p.nonHomeric && <span class="sr-only"> ({NON_HOMERIC_NOTE})</span>}
+          </span>
+        ))}
+      </p>
+    )}
+  </div>
+  {node.children.length > 0 && (
+    <ul class="gen-children">
+      {node.children.map((child) => (
+        <Astro.self node={child} />
+      ))}
+    </ul>
+  )}
+</li>

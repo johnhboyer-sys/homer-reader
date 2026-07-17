@@ -1,0 +1,291 @@
+---
+// The four Landmark-style family trees (House of Atreus, House of Aeacus,
+// House of Troy/Dardanids, the Olympians), rendered entirely from
+// apparatus/characters.json's `genealogy` field — build-time only, never
+// fetched at runtime (the whole corpus is 100 characters; there's nothing to
+// lazily load). Not a ReaderShell page: this is an apparatus/reference page
+// like /attribution or /search, so it follows their simple-header + <main>
+// pattern instead.
+//
+// Data flow: readFileSync the raw apparatus file (same posture as
+// index.astro's/Landing.astro's build-time readFileSync of public/data/*;
+// apparatus/ isn't copied into public/data, so this reads the source
+// directly — no pipeline stage produces or duplicates it), then
+// shared/lib/genealogy's buildGenealogyTree (pure, tested) turns the flat
+// list into each tree's forest. GenNode.astro renders the forest recursively.
+import { readFileSync } from 'node:fs';
+import ThemeInit from '../../components/ThemeInit.astro';
+import ThemeToggle from '../../components/ThemeToggle.astro';
+import Pwa from '../../components/Pwa.astro';
+import GenNode from '../../components/GenNode.astro';
+import { jsonLdSafe } from '../../lib/jsonld';
+import { buildGenealogyTree, type CharacterRecord } from '@shared/lib/genealogy';
+import '@shared/styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+interface CharactersFile {
+  status: 'draft' | 'reviewed';
+  characters: CharacterRecord[];
+}
+const raw: CharactersFile = JSON.parse(readFileSync('../apparatus/characters.json', 'utf-8'));
+const isDraft = raw.status === 'draft';
+
+const TREES = [
+  { id: 'atreus', label: 'House of Atreus' },
+  { id: 'aeacus', label: 'House of Aeacus' },
+  { id: 'troy', label: 'House of Troy (Dardanids)' },
+  { id: 'olympians', label: 'The Olympians' },
+] as const;
+
+const trees = TREES.map((t) => ({ ...t, roots: buildGenealogyTree(raw.characters, t.id) }));
+
+const pageTitle = 'Genealogies — The Homer Reader';
+const metaDescription =
+  'The four family trees of the Iliad and Odyssey: the House of Atreus, the House of Aeacus, ' +
+  'the House of Troy, and the Olympian gods — with links from later tradition (not Homer) honestly marked.';
+const canonical = Astro.site ? new URL(`${base}/genealogies/`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: pageTitle,
+  description: metaDescription,
+  ...(canonical ? { url: canonical } : {}),
+  isPartOf: { '@type': 'WebSite', name: 'The Homer Reader' },
+};
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  <meta property="og:site_name" content="The Homer Reader" />
+  {canonical && <meta property="og:url" content={canonical} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={metaDescription} />
+  {ogImage && <meta name="twitter:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(jsonLd)} />
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <style>
+    body { overflow-x: hidden; max-width: 100%; }
+
+    .gen-body {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4.5rem;
+      font-family: var(--font-english);
+      color: var(--text);
+    }
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 1.9rem;
+      margin-bottom: 0.6rem;
+    }
+    .gen-intro {
+      max-width: 42rem;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text-mid);
+      margin-bottom: 1.5rem;
+    }
+
+    .gen-jump {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem 1.15rem;
+      margin-bottom: 1.4rem;
+      font-family: var(--font-ui);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .gen-jump a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      padding-bottom: 1px;
+    }
+    .gen-jump a:hover { border-bottom-color: var(--accent); }
+    .gen-jump a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .gen-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.35rem;
+      margin-bottom: 2.25rem;
+      padding: 0.6rem 0.85rem;
+      border: 1px solid var(--border);
+      font-family: var(--font-ui);
+      font-size: 0.66rem;
+      color: var(--text-mid);
+    }
+    .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+    .legend-swatch { display: inline-block; width: 18px; border-top: 1.5px solid var(--text-mid); }
+    .legend-swatch.dashed { border-top-style: dashed; border-top-color: var(--accent); }
+    .legend-swatch.muted { border-top-style: dotted; opacity: 0.7; }
+
+    .gen-tree {
+      margin: 2.75rem 0;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--border);
+      scroll-margin-top: 1rem;
+    }
+    .gen-tree h2 {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 1.35rem;
+      margin-bottom: 1.1rem;
+      color: var(--text);
+    }
+
+    /* Chart-Room discipline: wide trees (Troy: 22 members, several
+       generations deep) scroll inside their own container, never the page. */
+    .gen-scroll {
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+    .gen-scroll:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    ul.gen-roots, ul.gen-children { list-style: none; margin: 0; padding: 0; }
+    ul.gen-roots {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      min-width: max-content;
+    }
+    ul.gen-children {
+      margin: 0.65rem 0 0 1.4rem;
+      padding-left: 1.1rem;
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .gen-card {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 0.18rem;
+      padding: 0.42rem 0.7rem;
+      border: 1px solid var(--border);
+      background: var(--col-bg);
+      min-width: 9rem;
+    }
+    .gen-name { font-family: var(--font-ui); font-weight: 600; font-size: 0.82rem; color: var(--text); }
+    .gen-greek { font-family: var(--font-greek); font-size: 0.86rem; color: var(--text-mid); }
+    .gen-role {
+      font-family: var(--font-english);
+      font-style: italic;
+      font-size: 0.72rem;
+      line-height: 1.4;
+      color: var(--text-mid);
+      max-width: 22rem;
+    }
+
+    .gen-parentage { margin-top: 0.35rem; display: flex; flex-wrap: wrap; gap: 0.32rem; }
+    .parent-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.22rem;
+      font-family: var(--font-ui);
+      font-size: 0.62rem;
+      letter-spacing: 0.02em;
+      padding: 0.06em 0.42em;
+      border: 1px solid var(--text-mid);
+      border-radius: 2px;
+      color: var(--text-mid);
+      white-space: nowrap;
+    }
+    .parent-chip .parent-key { font-variant-caps: small-caps; font-weight: 700; }
+    /* Honesty rendering: nonHomeric links are dashed + carry a title
+       annotation (screen-reader text is inline in the markup too). */
+    .parent-chip.non-homeric {
+      border-style: dashed;
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    /* External-string parents (not a character id in the file): muted,
+       terminal — never invented data beyond the humanized raw id. */
+    .parent-chip.external {
+      border-style: dotted;
+      color: var(--text-light);
+      font-style: italic;
+      opacity: 0.85;
+    }
+    .parent-chip.external.non-homeric { border-style: dashed; }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.55rem; }
+      .gen-card { min-width: 8rem; }
+    }
+  </style>
+  <Pwa />
+</head>
+<body>
+  <header class="simple-header">
+    <div class="header-title">
+      <a class="home-link" href={`${base}/`}>Homer</a>
+      <span class="title-sep">›</span>
+      <span class="header-static">Genealogies</span>
+    </div>
+    <nav class="header-actions" aria-label="Navigation">
+      <a href={`${base}/`} class="search-link">All works</a>
+      <a href={`${base}/search`} class="search-link">Search</a>
+      <ThemeToggle />
+    </nav>
+  </header>
+
+  <main class="gen-body">
+    <h1>
+      Genealogies
+      {isDraft && <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>}
+    </h1>
+    <p class="gen-intro">
+      The four family lines that structure the poems: the House of Atreus (Agamemnon and
+      Menelaus), the House of Aeacus (Achilles), the House of Troy (Priam and the Dardanid
+      kings), and the Olympian gods. Every member below comes from this edition&rsquo;s
+      character apparatus; names in dashed boxes are identifications the Homeric poems
+      themselves don&rsquo;t make &mdash; links added by later tradition.
+    </p>
+
+    <nav class="gen-jump" aria-label="Jump to a tree">
+      {trees.map((t) => <a href={`#${t.id}`}>{t.label}</a>)}
+    </nav>
+
+    <div class="gen-legend">
+      <span class="legend-item"><span class="legend-swatch" aria-hidden="true"></span>attested in Homer</span>
+      <span class="legend-item"><span class="legend-swatch dashed" aria-hidden="true"></span>later tradition, not Homer</span>
+      <span class="legend-item"><span class="legend-swatch muted" aria-hidden="true"></span>named, not a character in this edition</span>
+    </div>
+
+    {trees.map((t) => (
+      <section class="gen-tree" id={t.id} aria-labelledby={`${t.id}-h`}>
+        <h2 id={`${t.id}-h`}>{t.label}</h2>
+        <div class="gen-scroll" tabindex="0" role="group" aria-label={`${t.label} family tree, scrollable`}>
+          <ul class="gen-roots">
+            {t.roots.map((root) => <GenNode node={root} />)}
+          </ul>
+        </div>
+      </section>
+    ))}
+  </main>
+</body>
+</html>
