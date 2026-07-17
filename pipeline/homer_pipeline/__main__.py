@@ -14,21 +14,35 @@ def _stage1(manifest):
 
     sch = scheme_mod.for_manifest(manifest)
 
-    # Verse-line works (Homer): Perseus grc2 TEI reader, then (Phase 2) the
-    # milestoned Perseus English pass (Murray primary, Butler secondary).
+    # Verse-line works (Homer): Greek reader varies per-work via
+    # work.greek_source_kind ("tlg" = Diogenes TLG verse-mode export, Allen
+    # 1931 for the Iliad; default/absent = Perseus grc2 TEI, still the
+    # Odyssey's source). Then (Phase 2) the milestoned Perseus English pass
+    # (Murray primary, Butler secondary) runs the same way for both.
     if sch.name == "verse-line":
-        from . import stage1_perseus_greek
+        greek_kind = manifest.data["work"].get("greek_source_kind") or "perseus"
+        if greek_kind == "tlg":
+            from . import stage1_tlg_iliad
 
-        spine_path = stage1_perseus_greek.run(manifest)
+            spine_path = stage1_tlg_iliad.run(manifest)
+            reader_label = "tlg-allen, verse-line"
+        else:
+            from . import stage1_perseus_greek
+
+            spine_path = stage1_perseus_greek.run(manifest)
+            reader_label = "perseus-grc, verse-line"
         spine = json.loads(spine_path.read_text(encoding="utf-8"))
         for scratch in ("third_chunks.json", "third_footnotes.json", "overlays.json"):
             (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
         n_lines = sum(len(s["lines"]) for s in spine["segments"])
         skipped = spine.get("skipped_line_attrs") or {}
+        n_bracketed = sum(
+            1 for s in spine["segments"] for l in s["lines"] if l.get("bracketed")
+        )
         print(
-            f"stage1 (perseus-grc, verse-line): books={len(spine['segments'])} "
+            f"stage1 ({reader_label}): books={len(spine['segments'])} "
             f"lines={n_lines} title_lines_skipped={spine.get('title_lines_skipped', 0)} "
-            f"skipped_n={skipped or '{}'}"
+            f"skipped_n={skipped or '{}'} bracketed={n_bracketed}"
         )
         if (manifest.data.get("english") or {}).get("primary"):
             from . import stage1_perseus_milestone_english as mseng

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="../tei_all.rnc" type="application/relax-ng-compact-syntax"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Fixture</title>
+        <author>Homerus Epic. Homer</author>
+      </titleStmt>
+      <publicationStmt><p>test</p></publicationStmt>
+      <sourceDesc><p>synthetic TLG verse-mode export, fixture only</p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+<div type="Book" n="1">
+<l n="t"><label type="head">ΙΛΙΑΔΟΣ Α</label> </l>
+<l n="1">Μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος </l>
+<l n="2"><seg rend="Marginalia">—</seg> οὐλομένην, ἣ μυρί' Ἀχαιοῖς ἄλγε' ἔθηκε, </l>
+<l n="3"><seg rend="Marginalia">&gt;</seg> πολλὰς δ' ἰφθίμους ψυχὰς Ἄϊδι προΐαψεν </l>
+<l n="4"><seg rend="Marginalia">※—</seg> ἡρώων, αὐτοὺς δὲ ἑλώρια τεῦχε κύνεσσιν </l>
+<l n="5*" rend="indent(1)">οἰωνοῖσί τε πᾶσι, Διὸς δ' ἐτελείετο βουλή, <pb/> </l>
+</div>
+<div type="Book" n="2">
+<l n="1">ἄνδρα μοι ἔννεπε, μοῦσα, πολύτροπον, ὃς μάλα πολλὰ </l>
+<l n="2">πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε· </l>
+<!-- synthetic Allen-style omission: n=3 absent, n=4 present -->
+<l n="4">πολλῶν δ' ἀνθρώπων ἴδεν ἄστεα καὶ νόον ἔγνω, <space/></l>
+</div>
+    </body>
+  </text>
+</TEI>

@@ -169,6 +169,11 @@ def emit_books(spine, tokens_doc, english, range_map, out_dir: Path, ross=None,
                         "n": line["n"],
                         "text": line["text"],
                         **({"joined": True} if line.get("joined") else {}),
+                        # Athetized/bracketed (obelos or a supplied-line flag
+                        # from stage1_tlg_iliad) and the verbatim Alexandrian
+                        # sigla that produced it (see GreekLine.bracketed).
+                        **({"bracketed": True} if line.get("bracketed") else {}),
+                        **({"sigla": line["sigla"]} if line.get("sigla") else {}),
                         "tokens": tok_lines[line["n"]],
                         **({"cells": cells} if (cells := _greek_cells(line["text"], tok_lines[line["n"]])) else {}),
                     }

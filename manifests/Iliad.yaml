@@ -1,10 +1,27 @@
-# Iliad — pipeline manifest (Perseus grc2 Greek, verse-line scheme)
+# Iliad — pipeline manifest (TLG Allen 1931 Greek, verse-line scheme)
 #
-# Greek source is PerseusDL canonical-greekLit tlg0012.tlg001.perseus-grc2
-# (Monro–Allen OCT Editio Tertia 1908–1920, PD-US). Cited book.line with the
+# Greek source (John's decision, 2026-07-17, binding — re-based off Perseus):
+# the TLG Diogenes verse-mode export of Allen, T.W., Homeri Ilias, vols. 2-3,
+# Oxford: Clarendon Press, 1931 (editio maior; PD-US, pre-1931 cutoff met by
+# one year). Read by stage1_tlg_iliad (work.greek_source_kind: tlg), not the
+# Perseus TEI reader the Odyssey still uses. Gate A (line-set identity vs. the
+# prior Perseus-based build) found 23/24 books identical; two edition-level
+# deltas this pipeline stage handles and documents in stage1_tlg_iliad.py's
+# module docstring:
+#   - Book 18: TLG's line 605 is tagged n="605*" (cosmetic export artifact);
+#     normalized to 605.
+#   - Book 8: Allen omits lines 548, 550-552 outright (the "hecatomb" lines,
+#     traditionally athetized, schol. ad loc.). Allen + supplement: those four
+#     lines are supplied from the Perseus Monro-Allen text and flagged
+#     `bracketed: true` (see stage1_tlg_iliad.SUPPLEMENTED_LINES). Vulgate
+#     numbering stays unbroken; no new expected_line_gaps entry needed.
+# Alexandrian critical sigla (obelos, diplē, diplē periestigmenē, asteriskos,
+# antisigma) are preserved verbatim per line (optional `sigla` field); only
+# the obelos (athetesis) maps to `bracketed: true`. Cited book.line with the
 # sacred vulgate lineation: n= attributes are never renumbered. Genuine
 # numbering skips are listed under expected_line_gaps (verified against the
-# raw TEI). English translations land in Phase 2.
+# raw TEI/export). English translations still come from the Perseus TEI
+# (Murray/Butler/Pope), aligned onto this spine by vulgate line number.
 
 work:
   id: iliad
@@ -12,8 +29,11 @@ work:
   author: "Homer"
   tlg_author: "0012"
   tlg_work: "001"
-  greek_edition: "Monro–Allen OCT, 3rd ed. (1908–1920)"
-  # Path under sources/ to the vendored Perseus Greek TEI.
+  greek_edition: "Allen, T.W., Homeri Ilias (Oxford: Clarendon Press, 1931), with Il. 8.548, 550-552 supplied from the Perseus Monro–Allen OCT text (bracketed)"
+  greek_source_kind: "tlg"
+  # Legacy field: the Perseus Greek TEI path, kept as the source of the four
+  # Book 8 supplemented lines above and as the Odyssey-style fallback path
+  # (unused while greek_source_kind: tlg selects stage1_tlg_iliad).
   greek_source: "perseus/tlg0012.tlg001.perseus-grc2.xml"
 
 citation:
