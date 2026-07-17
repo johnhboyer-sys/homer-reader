@@ -62,6 +62,16 @@ cards, no "Landmark" wording. Implementation target: app/src/pages/
 index.astro + Landing.astro, pending the palette decision (mock is
 token-driven — palette swap re-skins it).
 
+## In-book navigation — DECIDED (John, 2026-07-17): SCENE RAIL
+
+From the three mock treatments (nav-mocks-v1 artifact): **Treatment 2,
+the scene rail flyout** — a thin drawer off the reader header listing the
+current book's scenes (summary + line range + day + place), current
+scene highlighted from scroll position, click scrolls to the scene's
+first line. Reuses the toc-sidebar drawer pattern. Treatments 1
+(cartouche stepper + book grid) and 3 (Go-to palette) not selected;
+available as future additions if John asks.
+
 ## Phase 3 implications
 
 - Token system starts from Aegean's custom-property palette (marble ground,
