@@ -65,6 +65,34 @@ describe('parseLocation (per-work scheme dispatch)', () => {
 });
 
 describe('fetch and lookup helpers', () => {
+  it('fetchBook normalizes emitted apparatus.scenes into top-level Scene[]', async () => {
+    mockFetch({
+      'ScenesWork/book-01.json': {
+        book: 1,
+        segments: [],
+        apparatus: {
+          argument: 'The quarrel.',
+          draft: true,
+          scenes: [
+            { lines: [1, 7], summary: 'Invocation.', location: 'Achaean camp', dayNumber: 1 },
+            { lines: [8, 52], summary: 'Chryses is refused.', location: 'Achaean camp', dayNumber: 1 },
+          ],
+        },
+      },
+    });
+    const d = await fetchBook('ScenesWork', 1);
+    expect(d.scenes).toEqual([
+      { summary: 'Invocation.', startLine: 1, endLine: 7, place: 'Achaean camp' },
+      { summary: 'Chryses is refused.', startLine: 8, endLine: 52, place: 'Achaean camp' },
+    ]);
+  });
+
+  it('fetchBook leaves scenes absent when the payload has no apparatus', async () => {
+    mockFetch({ 'NoScenesWork/book-01.json': { book: 1, segments: [] } });
+    const d = await fetchBook('NoScenesWork', 1);
+    expect(d.scenes).toBeUndefined();
+  });
+
   it('fetchBook returns JSON data and applies the runtime hook', async () => {
     mockFetch({
       'HookWork/book-01.json': { book: 1, segments: [] },

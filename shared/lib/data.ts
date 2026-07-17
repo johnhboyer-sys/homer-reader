@@ -171,11 +171,11 @@ export interface ChapterRef {
 // summary anchored to a Greek vulgate line range, optionally naming where the
 // scene is set and who is in it. Reading Mode renders each as a marginal
 // summary chip with a quiet line-range tick and subtle place/person markers.
-// NO book payload carries this today — no pipeline stage emits it yet
-// (CLAUDE.md apparatus honesty), so `scenes` is absent everywhere and Reading
-// Mode degrades to plain single-column prose until a future apparatus pass
-// (draft status + certainty tiers) populates it. Same inert-until-present
-// posture as GreekLine.bracketed and the cartouche apparatus slots.
+// Populated by fetchBook's normalization of the emitted `apparatus.scenes`
+// (drafted Phase 4a data, status:draft until John's review); absent on any
+// book without staged apparatus, in which case Reading Mode degrades to
+// plain single-column prose. Same inert-until-present posture as
+// GreekLine.bracketed and the cartouche apparatus slots.
 export interface Scene {
   summary: string;
   startLine: number;    // opening Greek vulgate line (n) this scene covers
@@ -249,7 +249,24 @@ export function fetchBook(work: string, n: number): Promise<BookData> {
   const p = fetch(`${workBase(work)}/book-${String(n).padStart(2, '0')}.json`).then(r => {
     if (!r.ok) throw new Error(`${work} book ${n}: ${r.status}`);
     return r.json();
-  }).then((d: BookData) => {
+  }).then((d: BookData & {
+    apparatus?: {
+      scenes?: { lines: [number, number]; summary: string; location?: string;
+                 dayNumber?: number | null }[];
+    };
+  }) => {
+    // The pipeline emits scene apparatus under `apparatus.scenes` with
+    // {lines:[lo,hi], summary, location} (the cartouche consumes the sibling
+    // fields server-side); the reader's scene chips read the normalized
+    // top-level `scenes` in the Scene shape.
+    if (!d.scenes && d.apparatus?.scenes) {
+      d.scenes = d.apparatus.scenes.map(s => ({
+        summary: s.summary,
+        startLine: s.lines[0],
+        endLine: s.lines[1],
+        place: s.location,
+      }));
+    }
     // A non-Astro host (the desktop app) can overlay runtime content — e.g.
     // user-imported translations merged into seg.overlays — via this hook.
     // The site never sets it; the fetched data passes through untouched.
