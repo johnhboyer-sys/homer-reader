@@ -75,6 +75,13 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
   for proems/elisions/unpinned spans). Evidence: scratchpad
   scenes-verify/findings.md. Sonnet fix lane dispatched; Grok re-verifies
   Bks 6/16/17 before the gate flips.
+- **Iliad scenes apparatus re-gate: PASS** (2026-07-17). Sonnet fix pass
+  corrected all blockers plus wider unsampled cascade members in Bks
+  16/17 (Greek-cited); Grok exhaustive re-verify of Bks 6/16/17 (51
+  scenes, every scene) found 2 residual defects (16[4] stale Bk-17
+  duplicate; 17[8] "fights on"), orchestrator-fixed with line evidence,
+  Grok re-checked both: OK. Tiling/lineation confirmed untouched
+  throughout. Both epics' scenes now verified (790 scenes total).
 
 ## Trademark decision (2026-07-17)
 
