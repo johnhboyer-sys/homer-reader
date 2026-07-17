@@ -49,9 +49,15 @@ def _stage1(manifest):
 
             result = mseng.run(manifest, spine)
             for tid, s in result["summary"].items():
+                loeb = (
+                    f" loeb_notes_applied={s['loeb_notes_applied']} "
+                    f"loeb_notes_excluded={s['loeb_notes_excluded']}"
+                    if "loeb_notes_applied" in s
+                    else ""
+                )
                 print(f"  english ({tid}, milestone): chunks={s['chunks']} "
                       f"footnotes={s.get('footnotes', 0)} anomalies={s['anomalies']} "
-                      f"coverage_holes={s['holes']}")
+                      f"coverage_holes={s['holes']}{loeb}")
         else:
             for scratch in ("ross_chunks.json",):
                 (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)

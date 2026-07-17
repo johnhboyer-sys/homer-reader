@@ -11,8 +11,12 @@ from homer_pipeline import stage1_perseus_milestone_english as s1
 FIXTURE = Path(__file__).parent / "fixtures" / "perseus_milestone_english" / "tiny.xml"
 DEFECTS_FIXTURE = Path(__file__).parent / "fixtures" / "perseus_milestone_english" / "defects.xml"
 
-# Book 1: no vulgate gap. Book 2: line 4 is a vulgate gap (3 -> 5).
-VALID_LINES = {1: {1, 2, 3, 4, 5}, 2: {1, 2, 3, 5, 6}}
+# Book 1: no vulgate gap. Book 2: line 4 is a vulgate gap (3 -> 5). Book 3 is
+# deliberately absent from the fixture (missing_book_div tests rely on that).
+# Book 4: two Loeb notes, each the first footnote on its own (simulated)
+# page, so both carry the same printed citation number "1" — the collision
+# fixture.
+VALID_LINES = {1: {1, 2, 3, 4, 5}, 2: {1, 2, 3, 5, 6}, 4: {1, 2}}
 
 # Defect-regression fixture (defects.xml):
 #   Book 1: terminal milestone (n=5) has no following text at all (B1).
@@ -96,13 +100,36 @@ def test_gap_adjacent_milestone_snaps_to_nearest_existing_line():
 
 
 def test_footnote_extraction_anchors_loeb_note_and_strips_it_from_prose():
+    # Label = {book}.{seqInBook}.{raw}: book 1's lone Loeb note is its first
+    # (seqInBook=1), citation number "1" -> "1.1.1". seqInBook sits BEFORE
+    # raw so the label's trailing segment (what the reader displays, see
+    # fnDisplay in Reader.svelte/FootnotePopup.svelte) is still bare "1",
+    # unchanged from the pre-fix scheme.
     parsed = _parse(extract_footnotes=True)
-    assert parsed["footnotes"] == {"1.1": "1"}
+    assert parsed["footnotes"] == {"1.1.1": "1"}
+    assert parsed["label_by_book_seq"] == {(1, 1): "1.1.1"}
     text = parsed["chunks"][1]["text"]
-    assert "[^1.1]" in text
+    assert "[^1.1.1]" in text
     # The note's own content ("1") isn't left dangling in the prose stream.
     assert "the wrath.1 Of" not in text
-    assert "the wrath.[^1.1] Of Peleus" in text
+    assert "the wrath.[^1.1.1] Of Peleus" in text
+
+
+def test_footnote_labels_are_unique_even_when_citation_numbers_collide():
+    """The historic bug: Murray's Loeb pages each restart their own
+    footnote numbering, so two different notes in the same book can both
+    print citation number "1". The old `{book}.{raw}` label scheme collapsed
+    them into one key (336 TEI markers -> ~145 unique keys); the fixed
+    `{book}.{seqInBook}.{raw}` scheme keeps both, distinguished by document
+    order, and both markers in the prose point at their own distinct key."""
+    parsed = _parse(book_ns=(1, 2, 4), extract_footnotes=True)
+    assert parsed["footnotes"]["4.1.1"] == "1"
+    assert parsed["footnotes"]["4.2.1"] == "1"
+    assert parsed["label_by_book_seq"][(4, 1)] == "4.1.1"
+    assert parsed["label_by_book_seq"][(4, 2)] == "4.2.1"
+    text = parsed["chunks"][4]["text"]
+    assert "[^4.1.1]" in text
+    assert "[^4.2.1]" in text
 
 
 def test_footnotes_not_extracted_when_flag_is_off_but_note_body_still_stripped():
@@ -200,7 +227,7 @@ def test_footnote_marker_offset_lands_on_marker_not_preceding_space():
     parsed = _parse_defects()
     chunk = parsed["chunks"][3]
     text = chunk["text"]
-    marker_pos = text.index("[^3.1]")
+    marker_pos = text.index("[^3.1.1]")
     assert chunk["notes"] == [{"offset": marker_pos, "text": "1"}]
     # Rendered text is untouched — still exactly one space before the marker.
     assert text[marker_pos - 1] == " "
@@ -225,3 +252,116 @@ def test_book_final_milestone_lag_is_not_fabricated():
         {4: sorted(DEFECTS_VALID_LINES[4])}, {4: ticks4}, [4],
     )
     assert holes == []
+
+
+# --- Loeb note real-text join (sources/loeb-notes/notes-<work>.json) ---
+
+
+def _note(markerId, book, approxLine, noteText, confidence="high"):
+    return {
+        "work": markerId.split(".")[0],
+        "book": book,
+        "approxLine": approxLine,
+        "marker": markerId.rsplit(".", 1)[-1],
+        "markerId": markerId,
+        "teiLabel": f"{book}.{markerId.rsplit('.', 1)[-1]}",
+        "noteText": noteText,
+        "confidence": confidence,
+    }
+
+
+def test_far_line_ref_within_tolerance_returns_none():
+    assert s1.far_line_ref("Line 352 was rejected by Aristarchus.", 345) is None
+    assert s1.far_line_ref("No internal line reference here at all.", 1) is None
+
+
+def test_far_line_ref_detects_distant_single_reference():
+    # "line 716" is 116 lines from approxLine=600 — well past the 25-line
+    # tolerance (real case: iliad.13.9).
+    text = "the sling is clearly alluded to in line 716 of this book"
+    assert s1.far_line_ref(text, 600) == 716
+
+
+def test_far_line_ref_expands_abbreviated_range_and_detects_near_hit():
+    # "Lines 454-6" means 454-456 (abbreviated second number shares the
+    # first's leading digit); both ends are within tolerance of 475.
+    assert s1.far_line_ref("Lines 454-6 were lacking in most editions.", 475) is None
+    # "Lines 18-20" measured against a marker at line 870 is far on both ends.
+    assert s1.far_line_ref("Lines 18-20 were rejected by Zenodotus.", 870) == 18
+
+
+def test_filter_loeb_notes_keeps_high_excludes_medium_and_low():
+    notes = [
+        _note("iliad.1.1", 1, 5, "Real explanatory prose.", confidence="high"),
+        _note("iliad.1.2", 1, 10, "Medium-confidence text.", confidence="medium"),
+        _note("iliad.1.3", 1, 15, "Low-confidence text.", confidence="low"),
+    ]
+    kept, excluded = s1.filter_loeb_notes(notes)
+    assert [n["markerId"] for n in kept] == ["iliad.1.1"]
+    reasons = {n["markerId"]: n["exclusionReason"] for n in excluded}
+    assert reasons["iliad.1.2"] == "confidence:medium"
+    assert reasons["iliad.1.3"] == "confidence:low"
+
+
+def test_filter_loeb_notes_excludes_distant_line_ref_even_if_high():
+    notes = [_note("iliad.13.9", 13, 600, "alluded to in line 716 of this book")]
+    kept, excluded = s1.filter_loeb_notes(notes)
+    assert kept == []
+    assert excluded[0]["exclusionReason"] == "distant_line_ref:716"
+
+
+def test_filter_loeb_notes_excludes_curated_apparatus_only_marker():
+    # iliad.17.4 is on the curated apparatus-criticus-only exclusion list
+    # (pure variant-rejection notice, no English explanatory prose) even
+    # though its own text carries no distant internal line reference.
+    notes = [_note("iliad.17.4", 17, 545, "Line 545 was rejected by Zenodotus")]
+    kept, excluded = s1.filter_loeb_notes(notes)
+    assert kept == []
+    assert excluded[0]["exclusionReason"] == "apparatus_criticus_only"
+
+
+def test_apply_loeb_note_overrides_merges_high_note_at_correct_collision_key():
+    # Mirrors the fixture collision case: book 3 has two Loeb notes, both
+    # citation "1" (seqInBook 1 and 2), emitted as "3.1.1" and "3.2.1". The
+    # join must land the real text on the SECOND occurrence's key without
+    # touching the first, using (book, seqInBook) — not the colliding raw
+    # citation number — as the join key.
+    footnotes = {"3.1.1": "1", "3.2.1": "1"}
+    label_by_book_seq = {(3, 1): "3.1.1", (3, 2): "3.2.1"}
+    notes = [_note("odyssey.3.2", 3, 20, "Real recovered note text for the second note.")]
+    report = s1.apply_loeb_note_overrides(footnotes, label_by_book_seq, notes)
+    assert footnotes == {
+        "3.1.1": "1",  # untouched: no shippable note -> bare-number behavior
+        "3.2.1": "Real recovered note text for the second note.",
+    }
+    assert report["applied"] == [{"markerId": "odyssey.3.2", "label": "3.2.1"}]
+    assert report["excluded"] == []
+    assert report["missing"] == []
+
+
+def test_apply_loeb_note_overrides_reports_missing_marker_without_inventing_a_key():
+    footnotes = {"1.1.1": "1"}
+    label_by_book_seq = {(1, 1): "1.1.1"}
+    notes = [_note("iliad.9.9", 9, 5, "No pipeline marker exists at book 9 seq 9.")]
+    report = s1.apply_loeb_note_overrides(footnotes, label_by_book_seq, notes)
+    assert footnotes == {"1.1.1": "1"}
+    assert report["applied"] == []
+    assert report["missing"][0]["markerId"] == "iliad.9.9"
+
+
+def test_apply_loeb_note_overrides_is_deterministic():
+    footnotes_a = {"3.1.1": "1", "3.2.1": "1"}
+    footnotes_b = dict(footnotes_a)
+    label_by_book_seq = {(3, 1): "3.1.1", (3, 2): "3.2.1"}
+    notes = [
+        _note("odyssey.3.1", 3, 5, "First note text."),
+        _note("odyssey.3.2", 3, 20, "Second note text."),
+    ]
+    report_a = s1.apply_loeb_note_overrides(footnotes_a, label_by_book_seq, notes)
+    report_b = s1.apply_loeb_note_overrides(footnotes_b, label_by_book_seq, notes)
+    assert footnotes_a == footnotes_b
+    assert report_a == report_b
+
+
+def test_load_loeb_notes_returns_none_for_a_work_with_no_file():
+    assert s1.load_loeb_notes("not-a-real-work") is None

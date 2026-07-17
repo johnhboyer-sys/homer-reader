@@ -24,9 +24,27 @@ already consume — no reader changes required.
 Loeb ``<note>`` footnotes (Murray only) are spliced into the prose as inline
 ``[^label]`` markers (the reader's existing footnote-popup convention) and
 collected into a ``{label: html}`` map. The source TEI's Loeb notes carry only
-a bare Loeb page.footnote citation number as their content (no annotation
-prose survives in this Perseus digitization) — the popup will show that
-citation number verbatim; we do not fabricate commentary that isn't there.
+a bare Loeb page.footnote citation number as their content by default; where
+``sources/loeb-notes/notes-<work>.json`` supplies audited, high-confidence
+real note text for a marker (see ``apply_loeb_note_overrides``), that text
+replaces the bare citation number. Markers with no shippable note keep the
+bare-number behavior.
+
+Label uniqueness: a label is ``{book}.{seqInBook}.{raw}`` — ``seqInBook`` is
+this book's Nth Loeb note in document order (matches the loeb-notes JSON's
+``markerId`` third component exactly), and ``raw`` is the printed citation
+number (unchanged from the pre-fix scheme). ``seqInBook`` alone guarantees
+uniqueness, since the Reader's footnote popup (``FootnotePopup.svelte`` /
+Reader.svelte's ``fnDisplay``) only ever shows the label's text AFTER its
+LAST ``.`` — i.e. ``raw`` — so inserting ``seqInBook`` in the middle leaves
+the on-page displayed footnote number byte-identical to before. This is a
+pipeline-only fix: no reader change needed. The prior scheme, ``{book}.
+{raw}``, collided whenever a book's Loeb pages each restarted their own
+citation numbering (e.g. two different pages each print a footnote "1"),
+which is why the TEI's 336 real markers previously collapsed into ~145
+unique keys — later occurrences silently overwrote earlier ones in the
+footnotes map even though both inline markers were still present and
+visually distinct in the prose.
 
 Milestone anomalies (non-numeric ``n``, duplicate/out-of-order ``n``, a
 milestone landing on a vulgate gap line) are handled rather than crashing, and
@@ -37,6 +55,7 @@ from __future__ import annotations
 
 import bisect
 import json
+import re
 from pathlib import Path
 
 from lxml import etree
@@ -85,6 +104,11 @@ class _BookWalker(StandoffChunkMixin):
         self.footnotes: dict[str, str] = {}
         self.anomalies: list[dict] = []
         self._note_ctr = 0
+        # seqInBook (this book's Nth Loeb note, document order) -> the label
+        # assigned to it. Lets the loeb-notes override join recover the exact
+        # emitted label for a given (book, seqInBook) markerId without having
+        # to recompute/guess the label formula independently.
+        self.label_by_seq: dict[int, str] = {}
 
     def add_milestone(self, n_attr: str | None) -> None:
         if not n_attr or not n_attr.isdigit():
@@ -175,7 +199,12 @@ class _BookWalker(StandoffChunkMixin):
             )
             return
         self._note_ctr += 1
-        label = f"{self.book}.{raw}" if raw else f"{self.book}.n{self._note_ctr}"
+        # seqInBook (self._note_ctr) is inserted BEFORE raw so the label's
+        # trailing segment (everything after the last '.') stays exactly
+        # `raw` — see the module docstring's "Label uniqueness" note.
+        suffix = raw if raw else f"n{self._note_ctr}"
+        label = f"{self.book}.{self._note_ctr}.{suffix}"
+        self.label_by_seq[self._note_ctr] = label
         # The marker is appended verbatim right after whatever's currently in
         # chunk["text"] (add_text does not strip a pre-existing trailing
         # space before a piece that doesn't itself start with whitespace), so
@@ -230,10 +259,11 @@ def parse_translation(
     """Parse one milestoned Perseus English TEI into per-book chunks.
 
     Returns ``{chunks: {book: chunk}, footnotes: {label: text}, anomalies:
-    [...], ticks_by_book: {book: [tick,...]}}``. ``book_ns`` is the manifest's
-    declared book list, walked in order; a book with no matching TEI div is
-    reported as a ``missing_book_div`` anomaly and simply produces no chunk
-    (the coverage check then reports it as a full hole)."""
+    [...], ticks_by_book: {book: [tick,...]}, label_by_book_seq: {(book,
+    seqInBook): label}}``. ``book_ns`` is the manifest's declared book list,
+    walked in order; a book with no matching TEI div is reported as a
+    ``missing_book_div`` anomaly and simply produces no chunk (the coverage
+    check then reports it as a full hole)."""
     tree = etree.parse(str(xml_path))
     body = tree.find(".//{*}body")
     if body is None:
@@ -245,6 +275,7 @@ def parse_translation(
     footnotes: dict[str, str] = {}
     anomalies: list[dict] = []
     ticks_by_book: dict[int, list[dict]] = {}
+    label_by_book_seq: dict[tuple[int, int], str] = {}
 
     for book in book_ns:
         div = book_divs.get(book)
@@ -277,12 +308,15 @@ def parse_translation(
         ticks_by_book[book] = w.ticks
         footnotes.update(w.footnotes)
         anomalies.extend(w.anomalies)
+        for seq, label in w.label_by_seq.items():
+            label_by_book_seq[(book, seq)] = label
 
     return {
         "chunks": chunks,
         "footnotes": footnotes,
         "anomalies": anomalies,
         "ticks_by_book": ticks_by_book,
+        "label_by_book_seq": label_by_book_seq,
     }
 
 
@@ -321,6 +355,142 @@ def check_coverage(
                 }
             )
     return holes
+
+
+# --- Loeb footnote real-text join (sources/loeb-notes/notes-<work>.json) ---
+#
+# The loeb-notes directory (see its README.md) holds an audited re-match of
+# Murray's Loeb apparatus/explanatory notes against the bare-number TEI
+# markers this module extracts. John's binding audit verdict (2026-07-17):
+# ship `confidence: "high"` only (~187 of 336 markers), further filtered by
+# the two post-filters below. Everything else keeps the bare citation-number
+# behavior (`self.footnotes[label] = raw`, already in place before this
+# join runs).
+
+# A note whose own prose contains an internal "Line(s) N[-M]" self-reference
+# more than this many lines from its own marker's approxLine is presumed
+# contaminated (e.g. two adjacent Loeb footnotes concatenated by the OCR
+# extraction into one candidate) and excluded, even from the "high" band.
+_LINE_REF_TOLERANCE = 25
+
+_LINE_REF_RE = re.compile(
+    r"\bLines?\s+(\d{1,4})"
+    r"(?:\s*(?:[-–—]|\band\b)\s*(\d{1,4}))?",
+    re.IGNORECASE,
+)
+
+
+def _expand_abbreviated_range(first: str, second: str) -> int:
+    """"313-5" style abbreviated ranges print fewer digits for the second
+    number than the first (it shares the first's leading digits). If the
+    second number is already full-width (or longer), it stands on its own."""
+    if len(second) < len(first):
+        second = first[: len(first) - len(second)] + second
+    return int(second)
+
+
+def far_line_ref(note_text: str, approx_line: int, tol: int = _LINE_REF_TOLERANCE) -> int | None:
+    """The first internal "Line(s) N[-M]" reference in `note_text` whose
+    number is more than `tol` lines from `approx_line`, or None if every such
+    reference (there may be zero) falls within tolerance. Deterministic: a
+    given (note_text, approx_line) always yields the same verdict."""
+    for m in _LINE_REF_RE.finditer(note_text):
+        n1 = int(m.group(1))
+        if abs(n1 - approx_line) > tol:
+            return n1
+        if m.group(2):
+            n2 = _expand_abbreviated_range(m.group(1), m.group(2))
+            if abs(n2 - approx_line) > tol:
+                return n2
+    return None
+
+
+# Post-filter 2 (John's audit verdict, judgment call): "high"-confidence
+# notes whose entire recovered text is apparatus criticus — a bare variant
+# list or rejection/omission notice naming ancient editors (Zenodotus,
+# Aristophanes of Byzantium, Aristarchus, Rhianus) or manuscript witnesses,
+# with no English explanatory prose about meaning/translation — are excluded
+# even though nothing in them is factually wrong. Reviewed by hand against
+# every "high" note in both works (2026-07-17); markers with MIXED content
+# (an apparatus fragment followed by real explanatory prose, e.g.
+# iliad.5.2's "Aristarchus took ... to mean a coat of mail") are kept.
+APPARATUS_ONLY_HIGH_MARKER_IDS: frozenset[str] = frozenset(
+    {
+        # Iliad
+        "iliad.2.10", "iliad.4.2", "iliad.4.4", "iliad.7.3", "iliad.8.2",
+        "iliad.16.2", "iliad.16.3", "iliad.17.2", "iliad.17.4", "iliad.19.8",
+        "iliad.19.10", "iliad.23.2",
+        # Odyssey
+        "odyssey.1.13", "odyssey.2.6", "odyssey.4.11", "odyssey.6.8",
+        "odyssey.8.6", "odyssey.10.7", "odyssey.11.5", "odyssey.11.6",
+        "odyssey.14.3", "odyssey.15.1", "odyssey.15.5", "odyssey.21.6",
+        "odyssey.22.2", "odyssey.22.3",
+    }
+)
+
+
+def filter_loeb_notes(notes: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Split loeb-notes records into (kept, excluded). Only `confidence:
+    "high"` records are ever kept; every exclusion (including the tier
+    filter) is reported so a caller can log/audit the decision — see
+    `apply_loeb_note_overrides`'s report and stage1_perseus_milestone_
+    english's module docstring for what "kept" means downstream."""
+    kept: list[dict] = []
+    excluded: list[dict] = []
+    for n in notes:
+        if n.get("confidence") != "high":
+            excluded.append({**n, "exclusionReason": f"confidence:{n.get('confidence')}"})
+            continue
+        far = far_line_ref(n.get("noteText") or "", n["approxLine"])
+        if far is not None:
+            excluded.append({**n, "exclusionReason": f"distant_line_ref:{far}"})
+            continue
+        if n["markerId"] in APPARATUS_ONLY_HIGH_MARKER_IDS:
+            excluded.append({**n, "exclusionReason": "apparatus_criticus_only"})
+            continue
+        kept.append(n)
+    return kept, excluded
+
+
+def apply_loeb_note_overrides(
+    footnotes: dict[str, str],
+    label_by_book_seq: dict[tuple[int, int], str],
+    notes: list[dict],
+) -> dict:
+    """Mutate `footnotes` in place, replacing the bare-citation-number text
+    at each surviving high-confidence marker's emitted label with its real
+    noteText. `label_by_book_seq` (from `parse_translation`) maps a
+    markerId's (book, seqInBook) — the SAME document-order count this
+    module's own walker used — to the exact label under which that
+    occurrence was emitted, so the join lands on the correct key even
+    though `raw` (the printed citation number) may repeat within a book.
+    Returns a report: {applied: [...], excluded: [...], missing: [...]}."""
+    kept, excluded = filter_loeb_notes(notes)
+    applied: list[dict] = []
+    missing: list[dict] = []
+    for n in kept:
+        seq = int(n["markerId"].rsplit(".", 1)[-1])
+        label = label_by_book_seq.get((n["book"], seq))
+        if label is None:
+            # No pipeline marker at this (book, seqInBook) — e.g. the TEI
+            # changed since the loeb-notes extraction ran. Never invent a
+            # key; report it instead.
+            missing.append(n)
+            continue
+        footnotes[label] = n["noteText"]
+        applied.append({"markerId": n["markerId"], "label": label})
+    return {"applied": applied, "excluded": excluded, "missing": missing}
+
+
+def load_loeb_notes(work_id: str) -> list[dict] | None:
+    """Load sources/loeb-notes/notes-<work_id>.json's `notes` list, or None
+    if this work has no audited Loeb-note file (works other than Iliad/
+    Odyssey, or a not-yet-extracted work)."""
+    path = SOURCES_DIR / "loeb-notes" / f"notes-{work_id}.json"
+    if not path.exists():
+        return None
+    data = json.loads(path.read_text(encoding="utf-8"))
+    return data.get("notes", [])
 
 
 def _build_english_chunks(work_id: str, source_name: str, translation_id: str,
@@ -399,6 +569,18 @@ def run(manifest: Manifest, spine: dict) -> dict:
         english = _build_english_chunks(manifest.work_id, xml_path.name, primary["id"], parsed, book_ns)
         write_json(out_dir / "english_chunks.json", english)
         write_json(out_dir / "alignment.json", _build_alignment(manifest.work_id, spine, english))
+
+        # Splice in audited real note text (sources/loeb-notes/) where
+        # available, before writing murray_footnotes.json — see module
+        # docstring and apply_loeb_note_overrides. Only Murray (primary) ever
+        # carries Loeb notes; absent for works with no loeb-notes file.
+        loeb_notes = load_loeb_notes(manifest.work_id)
+        loeb_report = (
+            apply_loeb_note_overrides(parsed["footnotes"], parsed["label_by_book_seq"], loeb_notes)
+            if loeb_notes is not None
+            else None
+        )
+
         write_json(out_dir / "murray_footnotes.json", parsed["footnotes"])
         holes = check_coverage(valid_lines_by_book, parsed["ticks_by_book"], book_ns)
         report["translations"][primary["id"]] = {
@@ -406,12 +588,21 @@ def run(manifest: Manifest, spine: dict) -> dict:
             "footnotes": len(parsed["footnotes"]),
             "anomalies": parsed["anomalies"],
             "coverage_holes": holes,
+            **({"loeb_notes": loeb_report} if loeb_report is not None else {}),
         }
         summary[primary["id"]] = {
             "chunks": len(english["chunks"]),
             "footnotes": len(parsed["footnotes"]),
             "anomalies": len(parsed["anomalies"]),
             "holes": len(holes),
+            **(
+                {
+                    "loeb_notes_applied": len(loeb_report["applied"]),
+                    "loeb_notes_excluded": len(loeb_report["excluded"]),
+                }
+                if loeb_report is not None
+                else {}
+            ),
         }
     else:
         write_json(out_dir / "english_chunks.json", {"work": manifest.work_id, "translation": None, "chunks": [], "chapters": []})

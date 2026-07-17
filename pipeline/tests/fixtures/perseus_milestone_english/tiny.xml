@@ -22,6 +22,11 @@
             <p><milestone n="1" unit="line"/>Tell me, Muse, of the man.<milestone n="4" unit="line"/> Of many turns, who wandered far.<milestone n="99" unit="line"/> A garbled far-out-of-range marker.<milestone n="6" unit="line"/> After he sacked Troy.<milestone n="3" unit="line"/> A stray out-of-order marker.</p>
           </div>
         </div>
+        <div type="textpart" subtype="book" n="4">
+          <div type="textpart" subtype="card" n="1">
+            <p><milestone n="1" unit="line"/>First page's opening line.<note resp="Loeb" anchored="true">1</note> More text follows.<milestone n="2" unit="line"/> Second page's opening line, restarting the citation count.<note resp="Loeb" anchored="true">1</note> Trailing text.</p>
+          </div>
+        </div>
       </div>
     </body>
   </text>
