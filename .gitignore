@@ -1,0 +1,8 @@
+node_modules/
+build
+build/
+dist/
+.venv/
+.DS_Store
+*.log
+.astro/
