@@ -16,7 +16,7 @@
   border: 0;
 }
 
-/* ── Aegean skin (2026-07-17) ─────────────────────────────────────────────
+/* ── Wine-dark skin (2026-07-17) ──────────────────────────────────────────
    The palette below is a TOKEN LAYER: every colour/font var keeps its
    original NAME (from the aristotle/plato-reader lineage) and only the
    VALUE changed, so the skin is revertible by swapping values back — no
@@ -33,16 +33,31 @@
      --greek-hover rgba(31,111,122,.08) / dark rgba(255,255,255,.10)
      --greek-hover-border rgba(31,111,122,.16) / dark rgba(255,255,255,.18)
      --greek-active #cdeef0 / dark #1d3e40
-   New Aegean values sourced from docs/DESIGN.md + the hybrid-v2 mock
-   (marble ground, wine-dark indigo night mode, metallic bronze; terracotta
-   reserved for the draft badge only — see --terracotta below). Existing var
-   NAMES are reused for the roles the mock calls --ground/--ground-panel/
-   --ink/--ink-soft/--rule/--rule-strong/--bronze so every component that
-   already reads var(--col-bg), var(--text), var(--accent), etc. recolors
-   automatically; no component CSS needed to change for the recolor itself.
-   Type roles (Big Caslon/Palatino/Iowan Old Style/Optima system stacks —
-   see docs/DESIGN.md "TYPE ROLES") replace the prior Google-Fonts pairing;
-   the <link> webfont loads were removed from every page <head> in the same
+   AEGEAN values (bronze/marble skin, live 2026-07-17 through the Wine-dark
+   swap below), kept here for revert — swap these back into the :root and
+   :root[data-theme="dark"] blocks to restore the Aegean skin verbatim:
+     --col-bg #DFDCCE / dark #101E33   --page-bg #E9E7DD / dark #0B1526
+     --text #1B2233 / dark #EDE6D6     --text-mid/--text-light #4A4F5C / dark #B9B2A0
+     --accent #7C5A2E / dark #C89B5C   --accent-light #9C7539 / dark #E0B876
+     --border #C9C4B0 / dark #24354C   --popup-bg #DFDCCE / dark #101E33
+     --rule-strong #23405C / dark #35506E
+     --terracotta (draft badge) #9C4530 / dark #D97A61
+     --greek-hover/--greek-hover-border/--greek-active: same color-mix()
+       formulas as below, evaluated against the Aegean --accent/--page-bg
+       above (the formulas are palette-agnostic, only the inputs change).
+   WINE-DARK values (current, LOCKED per docs/DESIGN.md 2026-07-17): from
+   the four-palette explorer's "wine" palette (οἴνοπα garnet lead accent,
+   cool grey-biased bone grounds, deep indigo-black night; slate-blue draft
+   badge). Existing var NAMES are reused for the roles the mock calls
+   --ground/--ground-panel/--ink/--ink-soft/--rule/--rule-strong/--route-red
+   so every component that already reads var(--col-bg), var(--text),
+   var(--accent), etc. recolors automatically; no component CSS needed to
+   change for the recolor itself. The draft-badge token is named --draft
+   (renamed from --terracotta, which it replaces — the new colour is a
+   slate-blue, not a terracotta, so the old name would mislead). Type roles
+   (Big Caslon/Palatino/Iowan Old Style/Optima system stacks — see
+   docs/DESIGN.md "TYPE ROLES") replace the prior Google-Fonts pairing; the
+   <link> webfont loads were removed from every page <head> in the same
    change, so these are system-only stacks (font-display swap is moot with
    no network request, but harmless to note: no blocking font fetch remains). */
 :root {
@@ -54,33 +69,37 @@
      prior value to record above. */
   --font-display: "Big Caslon", "Hoefler Text", "Palatino Linotype", Palatino, Georgia, serif;
 
-  --col-bg:       #DFDCCE;  /* Aegean --ground-panel: marble, raised surfaces */
-  --page-bg:      #E9E7DD;  /* Aegean --ground: marble, page background */
-  --text:         #1B2233;  /* Aegean --ink: wine-dark indigo */
-  --text-mid:     #4A4F5C;  /* Aegean --ink-soft */
-  --text-light:   #4A4F5C;  /* collapsed onto --ink-soft: Aegean defines only two ink
-                                shades (see docs/DESIGN.md); both pass AA (6.61:1 on
-                                --page-bg, 4.54:1+ on --col-bg), so no third invented
+  --col-bg:       #DBD8DC;  /* Wine-dark --ground-panel: cool bone, raised surfaces */
+  --page-bg:      #E7E7E9;  /* Wine-dark --ground: cool bone, page background */
+  --text:         #241827;  /* Wine-dark --ink */
+  --text-mid:     #5B4C58;  /* Wine-dark --ink-soft */
+  --text-light:   #5B4C58;  /* collapsed onto --ink-soft: the palette defines only two
+                                ink shades (see docs/DESIGN.md); both pass AA (13.77:1 on
+                                --page-bg, 6.49:1 on --page-bg), so no third invented
                                 shade — deliberate collapse, not an oversight. */
-  --accent:       #7C5A2E;  /* Aegean --bronze: the single wayfinding/structural accent
-                                (nav hover, work-switcher, chapter-nav active, etc.) */
-  --accent-light: #9C7539;  /* Aegean --bronze-bright: decorative/hover-emphasis tint */
-  --border:       #C9C4B0;  /* Aegean --rule: soft decorative hairline */
-  --popup-bg:     #DFDCCE;  /* same raised surface as --col-bg */
+  --accent:       #6E1F3A;  /* Wine-dark --route-red / garnet: the single wayfinding/
+                                structural accent (nav hover, work-switcher, chapter-nav
+                                active, etc.) */
+  --accent-light: #8C3A57;  /* Wine-dark --gold-deco role: decorative/hover-emphasis tint */
+  --border:       #CFC7CC;  /* Wine-dark --rule: soft decorative hairline */
+  --popup-bg:     #DBD8DC;  /* same raised surface as --col-bg */
   --popup-shadow: 0 4px 24px rgba(0,0,0,.18);
   --greek-hover:        color-mix(in srgb, var(--accent) 10%, transparent);
   --greek-hover-border: color-mix(in srgb, var(--accent) 20%, transparent);
   --greek-active:       color-mix(in srgb, var(--accent) 24%, var(--page-bg));
 
   /* A strong hairline / gutter-number colour, one step darker than --border —
-     Aegean's --rule-strong role (verse-line gutter numbers, masthead rule,
-     cartouche double-hairline). New token: the prior palette had no second
-     rule strength (a single --border did both jobs). */
-  --rule-strong:  #23405C;
+     Wine-dark's --rule-strong role (verse-line gutter numbers, masthead rule,
+     cartouche double-hairline). */
+  --rule-strong:  #5C2A40;
   /* Honesty-flag colour for draft/unreviewed apparatus (CLAUDE.md "Apparatus
-     honesty"). New token, wired to .draft-badge / .status-tag-draft ONLY —
-     never a general accent, per the project's one-red-flag-only rule. */
-  --terracotta:   #9C4530;
+     honesty"). Slate-blue, per docs/DESIGN.md's LOCKED Wine-dark table —
+     deliberately NOT a wine/garnet tint, so the draft flag reads as a
+     distinct hue from the site's wayfinding accent. Wired to .draft-badge /
+     .status-tag-draft ONLY — never a general accent, per the project's
+     one-red-flag-only rule. (Renamed from --terracotta, which this token
+     replaced — see the Aegean revert block above.) */
+  --draft:        #375065;
 
   /* Semantic colours used in a few hardcoded spots; aliased here so the dark
      theme can remap them. */
@@ -104,31 +123,29 @@
 }
 
 /* ── Night mode ───────────────────────────────────────────────────────
-   Wine-dark indigo night mode (Aegean), not the prior teal-black. Activated
-   by data-theme="dark" on <html>, set by ThemeInit before paint. */
+   Deep indigo-black night (Wine-dark), not Aegean's wine-dark-indigo nor the
+   prior teal-black. Activated by data-theme="dark" on <html>, set by
+   ThemeInit before paint. */
 :root[data-theme="dark"] {
-  --col-bg:       #101E33;  /* Aegean --ground-panel dark */
-  --page-bg:      #0B1526;  /* Aegean --ground dark */
-  --text:         #EDE6D6;  /* Aegean --ink dark (bone) */
-  --text-mid:     #B9B2A0;  /* Aegean --ink-soft dark */
-  --text-light:   #B9B2A0;  /* same collapse as light mode, see note above */
-  --accent:       #C89B5C;  /* Aegean --bronze dark */
-  --accent-light: #E0B876;  /* Aegean --bronze-bright dark */
-  --border:       #24354C;  /* Aegean --rule dark */
-  --popup-bg:     #101E33;
+  --col-bg:       #211828;  /* Wine-dark --ground-panel dark */
+  --page-bg:      #181120;  /* Wine-dark --ground dark */
+  --text:         #EDE6E8;  /* Wine-dark --ink dark (bone) */
+  --text-mid:     #B7A9B4;  /* Wine-dark --ink-soft dark */
+  --text-light:   #B7A9B4;  /* same collapse as light mode, see note above */
+  --accent:       #D98BA3;  /* Wine-dark --route-red dark */
+  --accent-light: #E8A6BA;  /* Wine-dark --gold-deco dark */
+  --border:       #3A2C38;  /* Wine-dark --rule dark */
+  --popup-bg:     #211828;
   --popup-shadow: 0 6px 28px rgba(0,0,0,.55);
   --greek-hover:        color-mix(in srgb, var(--accent) 14%, transparent);
   --greek-hover-border: color-mix(in srgb, var(--accent) 24%, transparent);
   --greek-active:       color-mix(in srgb, var(--accent) 26%, var(--page-bg));
 
-  /* Derived, not a straight Aegean token: raw --sea-line (#17304A) sits at
-     only ~1.4:1 against --page-bg dark and nearly vanishes as a hairline.
-     #35506E (a lightened, same-hue --rule-strong) lands at 2.20:1 —
-     decorative-only threshold (3:1 UI-component/non-text), matching rather
-     than regressing the mock's own dark rule-strong precedent. See
-     docs/DESIGN.md's CONTRAST TABLE for the full computed set. */
-  --rule-strong:  #35506E;
-  --terracotta:   #D97A61;
+  /* Wine-dark's --rule-strong dark: a lightened, same-hue rule (contrast-
+     verified in docs/DESIGN.md's four-palette explorer) for gutter numbers,
+     masthead rule, cartouche double-hairline. */
+  --rule-strong:  #C77E97;
+  --draft:        #8FB0C9;  /* slate-blue, see the light-theme --draft comment above */
 
   --on-accent:    #0d1415;   /* dark text reads on the lighter dark-mode accent */
   --input-bg:     #1d2426;
@@ -3321,10 +3338,11 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   font-style: italic;
   color: var(--text-mid);
 }
-/* Draft badge: a discreet tiny uppercase outline chip in --terracotta (the tone
-   reserved for the apparatus-honesty draft marker; AA on both grounds — 5.12/
-   4.62 light, 6.10 dark). Shown on AI-drafted apparatus that John hasn't yet
-   flipped to reviewed: on each Reading-Mode scene chip and on the cartouche. */
+/* Draft badge: a discreet tiny uppercase outline chip in --draft (the
+   slate-blue tone reserved for the apparatus-honesty draft marker; AA on
+   both grounds — 6.81/5.95 light, 8.09/7.52 dark). Shown on AI-drafted
+   apparatus that John hasn't yet flipped to reviewed: on each Reading-Mode
+   scene chip and on the cartouche. */
 .draft-badge {
   display: inline-block;
   vertical-align: middle;
@@ -3335,9 +3353,9 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   text-transform: uppercase;
   line-height: 1.35;
   padding: 0.02em 0.4em;
-  border: 1px solid var(--terracotta);
+  border: 1px solid var(--draft);
   border-radius: 3px;
-  color: var(--terracotta);
+  color: var(--draft);
   white-space: nowrap;
 }
 .scene-chip .draft-badge { margin-top: 0.2rem; }

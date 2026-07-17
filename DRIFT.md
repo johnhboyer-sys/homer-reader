@@ -283,3 +283,36 @@ the non-default translations weren't in the default view at all.
 - `app/src/components/ReaderShell.astro` — passes `stripBookForClient(bookData)`
   to the island and `setSsrBook(bookData)` for the server render; the local
   `bookData` (cartouche/apparatus reads) is unchanged.
+
+## Wine-dark token swap + homepage v1.5 rebuild (2026-07-17)
+
+Token layer per `docs/DESIGN.md`'s LOCKED Wine-dark palette (John, 2026-07-17),
+superseding the Aegean bronze/marble skin from the rollout above (same posture:
+revert by swapping `:root`/`:root[data-theme="dark"]` values back — the Aegean
+values are now recorded in the same revert comment, alongside the original
+"Ionian teal" block). Homepage rebuilt per `docs/mocks-homepage-v1.5.html`
+(John: "better for now") — no more catalog cards (the corpus is only ever two
+works: `iliad`, `odyssey`).
+
+- `shared/styles/global.css` — `:root`/`:root[data-theme="dark"]` re-valued to
+  Wine-dark (cool grey-biased bone grounds, deep indigo-black night, οἴνοπα
+  garnet accent). `--terracotta` renamed to `--draft` (slate-blue #375065
+  light / #8FB0C9 dark — the new colour is not a terracotta, so the old name
+  would mislead); `.draft-badge` repainted off `var(--draft)`. No other
+  selectors touched — pure token-value swap, contrast re-verified (all pairs
+  ≥4.5:1, see the implementation report).
+- `app/src/pages/index.astro` — full rewrite: monumental asymmetric
+  ΙΛΙΑΣ/ΟΔΥΣΣΕΙΑ hero (fixed wine-dark ground, both themes, dusk/night
+  variants) with per-epic watchfire/star ambient animation, diagonal
+  horizon-seam SVG, three "Start Here" doors, and a factual apparatus band
+  (scene chip + day marker read LIVE off `public/data/iliad/book-01.json`'s
+  `apparatus` block, not hardcoded — see the implementation report for why).
+  Catalog/shelf browsing (`SHELVES`, `START_HERE` cards, mobile
+  collapse-toggle) and the "Continue reading" resume-card removed — no longer
+  reachable from the homepage (both still work from a work's landing page /
+  the reader itself). The feedback modal (Request a Feature / Report an
+  Error) kept — the mock doesn't show it, but it's the site's only bug/feature
+  report channel and dropping it would have been a silent regression outside
+  this task's scope. The hero's fixed (non-swapping) `--hero-*` tokens are
+  re-based on Wine-dark's dark-theme hex (previously Aegean's) so the hero and
+  the re-skinned rest of the page read as one accent family.
