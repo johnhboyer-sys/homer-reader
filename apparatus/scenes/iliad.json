@@ -1,0 +1,4209 @@
+{
+ "work": "iliad",
+ "status": "draft",
+ "books": [
+  {
+   "book": 1,
+   "argument": "Agamemnon and Achilles quarrel over Briseis; Achilles withdraws, and Zeus is petitioned.",
+   "where": [
+    "Achaean camp",
+    "Chryse",
+    "Olympus"
+   ],
+   "who": [
+    "Achilles",
+    "Agamemnon",
+    "Chryses",
+    "Apollo",
+    "Thetis",
+    "Zeus"
+   ],
+   "days": "1-21",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      7
+     ],
+     "summary": "The poet invokes the Muse to sing the wrath of Achilles and its cost.",
+     "location": "proem",
+     "dayNumber": null
+    },
+    {
+     "lines": [
+      8,
+      32
+     ],
+     "summary": "Chryses comes to ransom his daughter Chryseis; Agamemnon spurns and threatens the priest.",
+     "location": "Achaean camp",
+     "dayNumber": null
+    },
+    {
+     "lines": [
+      33,
+      42
+     ],
+     "summary": "Chryses withdraws along the shore and prays to Apollo for vengeance.",
+     "location": "shore near Troy",
+     "dayNumber": null
+    },
+    {
+     "lines": [
+      43,
+      52
+     ],
+     "summary": "Apollo descends in wrath and looses nine days of plague on the Achaean army.",
+     "location": "Achaean camp",
+     "dayNumber": 1
+    },
+    {
+     "lines": [
+      53,
+      100
+     ],
+     "summary": "On the tenth day Achilles calls an assembly; Calchas names Chryseis as the plague's cause.",
+     "location": "Achaean assembly",
+     "dayNumber": 10
+    },
+    {
+     "lines": [
+      101,
+      120
+     ],
+     "summary": "Agamemnon agrees to return Chryseis but demands another prize in compensation.",
+     "location": "Achaean assembly",
+     "dayNumber": 10
+    },
+    {
+     "lines": [
+      121,
+      187
+     ],
+     "summary": "Achilles and Agamemnon trade bitter words; Agamemnon threatens to seize Briseis.",
+     "location": "Achaean assembly",
+     "dayNumber": 10
+    },
+    {
+     "lines": [
+      188,
+      222
+     ],
+     "summary": "Achilles nearly draws his sword on Agamemnon; Athena, seen only by him, restrains his hand.",
+     "location": "Achaean assembly",
+     "dayNumber": 10
+    },
+    {
+     "lines": [
+      223,
+      244
+     ],
+     "summary": "Achilles denounces Agamemnon and swears by his sceptre to withhold aid from the army.",
+     "location": "Achaean assembly",
+     "dayNumber": 10
+    },
+    {
+     "lines": [
+      245,
+      284
+     ],
+     "summary": "Nestor urges reconciliation, recalling the Lapiths, and appeals to both men to yield.",
+     "location": "Achaean assembly",
+     "dayNumber": 10
+    },
+    {
+     "lines": [
+      285,
+      317
+     ],
+     "summary": "The quarrel ends unresolved; the assembly disperses; Odysseus is sent to restore Chryseis.",
+     "location": "Achaean assembly",
+     "dayNumber": 10
+    },
+    {
+     "lines": [
+      318,
+      348
+     ],
+     "summary": "Heralds Talthybius and Eurybates lead Briseis away from Achilles' tent.",
+     "location": "Achilles' camp",
+     "dayNumber": 10
+    },
+    {
+     "lines": [
+      349,
+      357
+     ],
+     "summary": "Achilles weeps alone by the sea and calls on his mother Thetis for help.",
+     "location": "seashore",
+     "dayNumber": 10
+    },
+    {
+     "lines": [
+      358,
+      427
+     ],
+     "summary": "Thetis rises from the sea to comfort Achilles and agrees to beg Zeus to honor him.",
+     "location": "seashore",
+     "dayNumber": 10
+    },
+    {
+     "lines": [
+      428,
+      447
+     ],
+     "summary": "Odysseus reaches Chryse and restores Chryseis to her father Chryses.",
+     "location": "Chryse",
+     "dayNumber": 10
+    },
+    {
+     "lines": [
+      448,
+      487
+     ],
+     "summary": "The Achaeans sacrifice a hecatomb to Apollo, feast, sing a hymn, then sail home at dawn.",
+     "location": "Chryse",
+     "dayNumber": null
+    },
+    {
+     "lines": [
+      488,
+      492
+     ],
+     "summary": "Achilles remains apart from the fighting, nursing his anger by the ships.",
+     "location": "Achaean camp",
+     "dayNumber": null
+    },
+    {
+     "lines": [
+      493,
+      530
+     ],
+     "summary": "After twelve days Thetis ascends Olympus and wins Zeus's reluctant nod to honor Achilles.",
+     "location": "Olympus",
+     "dayNumber": 21
+    },
+    {
+     "lines": [
+      531,
+      570
+     ],
+     "summary": "Zeus returns to his throne; Hera, suspecting collusion with Thetis, confronts him sharply.",
+     "location": "Olympus",
+     "dayNumber": 21
+    },
+    {
+     "lines": [
+      571,
+      611
+     ],
+     "summary": "Hephaestus calms the gods with an old tale; they feast, laugh, and retire to sleep.",
+     "location": "Olympus",
+     "dayNumber": 21
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 2,
+   "argument": "Agamemnon tests the troops; Odysseus quells the panic; the opposing armies are catalogued.",
+   "where": [
+    "Achaean camp",
+    "Troy",
+    "the Trojan plain"
+   ],
+   "who": [
+    "Agamemnon",
+    "Nestor",
+    "Odysseus",
+    "Thersites",
+    "Achilles",
+    "Hector"
+   ],
+   "days": "21-22",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      40
+     ],
+     "summary": "Zeus sends a deceptive Dream, in Nestor's likeness, urging Agamemnon to attack at once.",
+     "location": "Achaean camp (night)",
+     "dayNumber": 21
+    },
+    {
+     "lines": [
+      41,
+      52
+     ],
+     "summary": "Agamemnon wakes and dresses in the dark as dawn rises over the camp.",
+     "location": "Achaean camp",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      53,
+      86
+     ],
+     "summary": "Agamemnon convenes the council of elders, recounts the dream, and summons the full army.",
+     "location": "Achaean camp",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      87,
+      154
+     ],
+     "summary": "The assembly gathers; Agamemnon tests resolve by proposing retreat, and the men rush for the ships.",
+     "location": "Achaean assembly",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      155,
+      210
+     ],
+     "summary": "Athena, sent by Hera, halts the rout; Odysseus restrains leaders with words, common men with blows.",
+     "location": "Achaean camp",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      211,
+      244
+     ],
+     "summary": "Thersites alone rails on against the kings, mocking Agamemnon and Achilles.",
+     "location": "Achaean assembly",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      245,
+      277
+     ],
+     "summary": "Odysseus rebukes Thersites and strikes him with the sceptre; the army laughs approvingly.",
+     "location": "Achaean assembly",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      278,
+      332
+     ],
+     "summary": "Odysseus urges perseverance, recalling the omen of the snake and nine sparrows at Aulis.",
+     "location": "Achaean assembly",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      333,
+      368
+     ],
+     "summary": "The army shouts assent; Nestor urges Agamemnon to organize the host by tribe and phratry.",
+     "location": "Achaean assembly",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      369,
+      393
+     ],
+     "summary": "Agamemnon praises Nestor, laments Achilles' absence, and orders the meal before battle.",
+     "location": "Achaean assembly",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      394,
+      483
+     ],
+     "summary": "The army feasts after sacrifice; Agamemnon's prayer to Zeus goes unfulfilled as the host musters.",
+     "location": "Achaean camp",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      484,
+      493
+     ],
+     "summary": "The poet invokes the Muses before naming the Achaean leaders and their ships.",
+     "location": "proem",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      494,
+      568
+     ],
+     "summary": "Catalogue of Ships: Boeotian, central Greek, Athenian, and Salaminian contingents, with Diomedes' Argives.",
+     "location": "Achaean camp",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      569,
+      644
+     ],
+     "summary": "Catalogue of Ships: Mycenae, Lacedaemon, Pylos, Arcadia, Elis, and the western-island contingents.",
+     "location": "Achaean camp",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      645,
+      680
+     ],
+     "summary": "Catalogue of Ships: Aetolians, Cretans under Idomeneus, Rhodians under Tlepolemus, and nearby islands.",
+     "location": "Achaean camp",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      681,
+      759
+     ],
+     "summary": "Catalogue of Ships: Achilles' idle Myrmidons, the leaderless men of slain Protesilaus, and Thessaly.",
+     "location": "Achaean camp",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      760,
+      785
+     ],
+     "summary": "Ajax is named best of the Achaeans present, Eumelus' mares finest; the host advances like wildfire.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      786,
+      808
+     ],
+     "summary": "Iris warns Priam that the Achaeans approach; the Trojans hold an assembly.",
+     "location": "Troy",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      809,
+      815
+     ],
+     "summary": "The Trojans and their allies march out and array themselves on the plain.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      816,
+      877
+     ],
+     "summary": "Catalogue of the Trojans and their allies, arrayed under Hector and other leaders.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 3,
+   "argument": "Paris duels Menelaus for Helen; Aphrodite rescues him from defeat.",
+   "where": [
+    "the Trojan plain",
+    "Troy (the walls)",
+    "Paris's chamber"
+   ],
+   "who": [
+    "Paris",
+    "Menelaus",
+    "Hector",
+    "Helen",
+    "Priam",
+    "Aphrodite"
+   ],
+   "days": "22",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      14
+     ],
+     "summary": "The Trojans advance with cries like cranes; the Achaeans march on in disciplined silence.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      15,
+      37
+     ],
+     "summary": "Paris strides out as champion but shrinks back in fear at the sight of Menelaus.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      38,
+      75
+     ],
+     "summary": "Hector rebukes Paris for cowardice; Paris proposes a duel with Menelaus for Helen.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      76,
+      120
+     ],
+     "summary": "Hector announces the truce; Agamemnon accepts, and heralds are sent to fetch lambs and Priam.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      121,
+      160
+     ],
+     "summary": "Iris tells Helen of the coming duel; Helen goes to the wall, thinking of her past.",
+     "location": "Troy (the walls)",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      161,
+      190
+     ],
+     "summary": "The teichoscopia begins: Priam asks Helen to name the tall warrior, and she answers.",
+     "location": "Troy (the walls)",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      191,
+      224
+     ],
+     "summary": "Priam asks about Odysseus; Helen and Antenor describe his eloquence and bearing.",
+     "location": "Troy (the walls)",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      225,
+      244
+     ],
+     "summary": "Priam asks about Ajax; Helen looks in vain for her brothers, already dead at home.",
+     "location": "Troy (the walls)",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      245,
+      258
+     ],
+     "summary": "Heralds bring the oath-sacrifice lambs and wine, and Idaeus summons Priam to the field.",
+     "location": "Troy / the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      259,
+      301
+     ],
+     "summary": "Priam rides out; Agamemnon swears the oath before Zeus, Sun, and Earth as witnesses.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      302,
+      313
+     ],
+     "summary": "Priam, unable to watch his son fight, returns to Troy.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      314,
+      323
+     ],
+     "summary": "Hector and Odysseus measure the ground and cast lots for who casts first.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      324,
+      345
+     ],
+     "summary": "Paris and Menelaus arm and advance, shaking their spears at one another in fury.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      346,
+      380
+     ],
+     "summary": "In the duel Menelaus shatters his sword and drags Paris by the helmet; Aphrodite snatches him away.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      381,
+      420
+     ],
+     "summary": "Aphrodite, disguised as an old woman, compels the reluctant Helen to go to Paris.",
+     "location": "Troy (the walls)",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      421,
+      447
+     ],
+     "summary": "Helen reaches Paris's chamber and reproaches his cowardice; he urges her to bed instead.",
+     "location": "Paris's chamber",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      448,
+      461
+     ],
+     "summary": "As the two lie together, Menelaus searches the field for Paris; Agamemnon claims victory.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 4,
+   "argument": "The gods renew the war; Pandarus wounds Menelaus, breaking the truce; battle resumes.",
+   "where": [
+    "Olympus",
+    "the Trojan plain"
+   ],
+   "who": [
+    "Zeus",
+    "Hera",
+    "Athena",
+    "Pandarus",
+    "Menelaus",
+    "Agamemnon"
+   ],
+   "days": "22",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      19
+     ],
+     "summary": "Zeus opens the divine council, provocatively suggesting the war end since Menelaus has won.",
+     "location": "Olympus",
+     "dayNumber": null
+    },
+    {
+     "lines": [
+      20,
+      72
+     ],
+     "summary": "Hera demands Troy's destruction; Zeus yields but sends Athena down to break the truce.",
+     "location": "Olympus",
+     "dayNumber": null
+    },
+    {
+     "lines": [
+      73,
+      104
+     ],
+     "summary": "Athena, disguised as Laodocus, persuades the Trojan archer Pandarus to shoot at Menelaus.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      105,
+      140
+     ],
+     "summary": "Pandarus looses his arrow; Athena deflects it, and Menelaus is wounded, his blood flowing.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      141,
+      182
+     ],
+     "summary": "Agamemnon, terrified for his brother, comforts him but voices dread of Troy's future taunts.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      183,
+      219
+     ],
+     "summary": "Menelaus reassures Agamemnon; Machaon is summoned and treats the wound with Chiron's herbs.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      220,
+      250
+     ],
+     "summary": "As Menelaus is tended, the Trojans advance and Agamemnon begins his review of the troops.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      251,
+      271
+     ],
+     "summary": "Agamemnon praises Idomeneus and the Cretans for their eagerness to fight.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      272,
+      291
+     ],
+     "summary": "Agamemnon praises the two Ajaxes, seeing their ranks arrayed and ready.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      292,
+      325
+     ],
+     "summary": "Agamemnon praises Nestor's skillful deployment of the Pylian chariots and foot.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      326,
+      363
+     ],
+     "summary": "Agamemnon rebukes Odysseus and Menestheus for seeming slack; Odysseus retorts angrily.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      364,
+      421
+     ],
+     "summary": "Agamemnon rebukes Diomedes, comparing him to his father; Sthenelus objects, but Diomedes stays silent.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      422,
+      456
+     ],
+     "summary": "The armies clash; a great simile likens the Achaean advance to surf breaking on shore.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      457,
+      500
+     ],
+     "summary": "Antilochus and Ajax open the killing; Simoisius falls, likened to a felled poplar tree.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      501,
+      544
+     ],
+     "summary": "Further Achaean and Trojan warriors fall as the close fighting intensifies.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 5,
+   "argument": "Diomedes' aristeia: he routs Trojans, wounds Aphrodite and Ares, aided throughout by Athena.",
+   "where": [
+    "the Trojan plain",
+    "Olympus"
+   ],
+   "who": [
+    "Diomedes",
+    "Athena",
+    "Aeneas",
+    "Aphrodite",
+    "Ares",
+    "Pandarus"
+   ],
+   "days": "22",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      36
+     ],
+     "summary": "Athena kindles fire-like courage in Diomedes and leads Ares from the battle.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      37,
+      94
+     ],
+     "summary": "Diomedes storms through the Trojan ranks like a flooding river, felling many warriors.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      95,
+      165
+     ],
+     "summary": "Pandarus wounds Diomedes; Athena restores his strength and sight to know gods from men.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      166,
+      238
+     ],
+     "summary": "Pandarus and Aeneas, dismayed by Diomedes, resolve to face him together in Aeneas's chariot.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      239,
+      296
+     ],
+     "summary": "Diomedes kills Pandarus with a spear through the face and wounds Aeneas with a great stone.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      297,
+      351
+     ],
+     "summary": "Aphrodite shields and rescues her son Aeneas; Diomedes wounds her hand and she flees.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      352,
+      431
+     ],
+     "summary": "Aphrodite, borrowing Ares' chariot, flees to Olympus and is comforted by her mother Dione.",
+     "location": "Olympus",
+     "dayNumber": null
+    },
+    {
+     "lines": [
+      432,
+      470
+     ],
+     "summary": "Apollo shields Aeneas from Diomedes and restores him to the field, then rouses Ares to aid Troy.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      471,
+      518
+     ],
+     "summary": "Sarpedon rebukes Hector for holding back; Hector rejoins the fight as Ares spurs on the Trojans.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      519,
+      589
+     ],
+     "summary": "Aeneas, healed, rejoins the ranks; fierce fighting resumes with losses on both sides.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      590,
+      627
+     ],
+     "summary": "Hector, aided by Ares, cuts down several Achaeans as the Trojans press their advantage.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      628,
+      662
+     ],
+     "summary": "Sarpedon and Tlepolemus trade taunts and fight; each gravely wounds the other.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      663,
+      698
+     ],
+     "summary": "The dying Tlepolemus is borne from the field; the badly wounded Sarpedon fights on.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      699,
+      710
+     ],
+     "summary": "The Achaeans give ground on learning that Ares himself fights for the Trojans.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      711,
+      747
+     ],
+     "summary": "Alarmed, Hera persuades Zeus and arms her chariot with Athena to intervene for the Achaeans.",
+     "location": "Olympus / the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      748,
+      792
+     ],
+     "summary": "Hera and Athena descend to the field and rally the disheartened Achaeans and Diomedes.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      793,
+      834
+     ],
+     "summary": "Athena mounts Diomedes' chariot in Sthenelus's place and urges him to attack Ares directly.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      835,
+      863
+     ],
+     "summary": "Diomedes, guided by Athena's hand, wounds Ares with his spear; the god cries out in pain.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      864,
+      909
+     ],
+     "summary": "Ares flees to Olympus and complains to Zeus, who rebukes him but has Paeon heal his wound.",
+     "location": "Olympus",
+     "dayNumber": null
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 6,
+   "argument": "Hector returns to Troy for prayers; meets Glaucus, then Andromache, before rejoining battle.",
+   "where": [
+    "the Trojan plain",
+    "Troy"
+   ],
+   "who": [
+    "Hector",
+    "Diomedes",
+    "Glaucus",
+    "Andromache",
+    "Helen",
+    "Paris"
+   ],
+   "days": "22",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      72
+     ],
+     "summary": "Fighting continues; Menelaus spares the suppliant Adrestus, but Agamemnon orders him slain.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      73,
+      118
+     ],
+     "summary": "Helenus urges Hector to have the Trojan women supplicate Athena; Hector departs for the city.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      119,
+      143
+     ],
+     "summary": "Diomedes challenges the advancing Glaucus, wary he might be a god in disguise.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      144,
+      211
+     ],
+     "summary": "Glaucus answers with the leaves simile and recounts his lineage back to Bellerophon.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      212,
+      236
+     ],
+     "summary": "Diomedes recognizes an ancestral guest-friendship; the two agree not to fight and swap armor.",
+     "location": "the Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      237,
+      268
+     ],
+     "summary": "Hector reaches Troy; the women crowd around him, and he declines Hecuba's offer of wine.",
+     "location": "Troy",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      269,
+      311
+     ],
+     "summary": "Hector asks Hecuba to lead the women in offering Athena a robe; the goddess refuses the prayer.",
+     "location": "Troy",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      312,
+      341
+     ],
+     "summary": "Hector finds Paris idling with his armor and rebukes him for shirking the battle.",
+     "location": "Troy",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      342,
+      368
+     ],
+     "summary": "Helen laments and invites Hector to sit, but he declines, anxious to see his own household.",
+     "location": "Troy",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      369,
+      389
+     ],
+     "summary": "Paris promises to follow; Hector goes home but finds Andromache gone to the wall.",
+     "location": "Troy",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      390,
+      413
+     ],
+     "summary": "Hector hastens to the Scaean gates and meets Andromache and the nurse with their infant son.",
+     "location": "Troy (Scaean gates)",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      414,
+      439
+     ],
+     "summary": "Andromache recalls the deaths of her father and brothers and begs Hector to fight from the wall.",
+     "location": "Troy (Scaean gates)",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      440,
+      465
+     ],
+     "summary": "Hector answers that honor forbids retreat, dreading Andromache's future slavery above his own death.",
+     "location": "Troy (Scaean gates)",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      466,
+      493
+     ],
+     "summary": "Hector's son is frightened by his helmet; Hector laughs, removes it, and prays for the boy's glory.",
+     "location": "Troy (Scaean gates)",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      494,
+      502
+     ],
+     "summary": "Hector comforts Andromache and sends her home to her weaving, saying war is for men.",
+     "location": "Troy (Scaean gates)",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      503,
+      529
+     ],
+     "summary": "Andromache returns home mourning Hector as if dead; Paris rejoins Hector and both return to battle.",
+     "location": "Troy / the Trojan plain",
+     "dayNumber": 22
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 7,
+   "argument": "Hector duels Ajax; armies truce to bury their dead and build the Achaean wall.",
+   "where": [
+    "Trojan plain",
+    "Achaean camp",
+    "Troy"
+   ],
+   "who": [
+    "Hector",
+    "Ajax",
+    "Agamemnon",
+    "Nestor",
+    "Apollo",
+    "Athena"
+   ],
+   "days": "22-23",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      16
+     ],
+     "summary": "Hector and Paris sally from Troy; Glaucus wounds Iphinous as Trojans kill two Achaeans.",
+     "location": "Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      17,
+      43
+     ],
+     "summary": "Apollo and Athena meet at the oak tree and agree to end the day's fighting with a duel.",
+     "location": "the oak tree, Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      44,
+      53
+     ],
+     "summary": "Helenus urges Hector to challenge an Achaean champion to single combat; Hector halts the Trojans.",
+     "location": "Trojan plain",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      54,
+      91
+     ],
+     "summary": "Hector challenges any Achaean to single combat, vowing honorable treatment of the fallen either way.",
+     "location": "between the armies",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      92,
+      122
+     ],
+     "summary": "Menelaus volunteers in shame at the Achaeans' silence; Agamemnon restrains him as unequal to Hector.",
+     "location": "Achaean assembly",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      123,
+      160
+     ],
+     "summary": "Nestor rebukes the Achaeans' fear, recalling his youthful duel with Ereuthalion.",
+     "location": "Achaean assembly",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      161,
+      183
+     ],
+     "summary": "Nine champions volunteer; lots are cast in Agamemnon's helmet to choose Hector's opponent.",
+     "location": "Achaean assembly",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      184,
+      205
+     ],
+     "summary": "The lot falls to Ajax; the Achaeans pray for his victory or an even match.",
+     "location": "Achaean assembly",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      206,
+      243
+     ],
+     "summary": "Ajax arms and advances; he and Hector exchange defiant boasts before the combat.",
+     "location": "between the armies",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      244,
+      273
+     ],
+     "summary": "Ajax and Hector trade spear-casts, then wrestle and hurl boulders at each other's shields.",
+     "location": "between the armies",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      274,
+      312
+     ],
+     "summary": "Heralds part the duelists at nightfall; Hector and Ajax exchange gifts and part as friends.",
+     "location": "between the armies",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      313,
+      344
+     ],
+     "summary": "At a feast, Nestor proposes a truce to burn the dead and build a wall and trench.",
+     "location": "Agamemnon's hut",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      345,
+      379
+     ],
+     "summary": "In Troy, Antenor urges returning Helen; Paris refuses but offers treasure; Priam sends Idaeus at dawn.",
+     "location": "Troy",
+     "dayNumber": 22
+    },
+    {
+     "lines": [
+      380,
+      411
+     ],
+     "summary": "At dawn, Idaeus relays Paris's offer; Diomedes rejects it; Agamemnon accepts only the burial truce.",
+     "location": "Achaean camp",
+     "dayNumber": 23
+    },
+    {
+     "lines": [
+      412,
+      432
+     ],
+     "summary": "Both sides gather and cremate their dead on the battlefield.",
+     "location": "Trojan plain",
+     "dayNumber": 23
+    },
+    {
+     "lines": [
+      433,
+      441
+     ],
+     "summary": "The Achaeans build a wall and dig a trench to defend their ships.",
+     "location": "Achaean camp",
+     "dayNumber": 23
+    },
+    {
+     "lines": [
+      442,
+      464
+     ],
+     "summary": "Poseidon protests the new wall to Zeus, who assures him it will be destroyed once the Achaeans sail home.",
+     "location": "Olympus",
+     "dayNumber": 23
+    },
+    {
+     "lines": [
+      465,
+      482
+     ],
+     "summary": "At night, the Achaeans feast on Lemnian wine while Zeus thunders ominously overhead.",
+     "location": "Achaean camp",
+     "dayNumber": 23
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 8,
+   "argument": "Zeus bars the gods from war; Trojans rout the Achaeans and camp on the plain.",
+   "where": [
+    "Mount Ida",
+    "Trojan plain",
+    "Achaean camp",
+    "Olympus"
+   ],
+   "who": [
+    "Zeus",
+    "Hector",
+    "Diomedes",
+    "Nestor",
+    "Hera",
+    "Athena"
+   ],
+   "days": "24",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      27
+     ],
+     "summary": "At dawn, Zeus assembles the gods and forbids any of them to aid either side in battle.",
+     "location": "Olympus",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      28,
+      40
+     ],
+     "summary": "Athena voices pity for the Danaans; Zeus reassures her he does not mean it fully.",
+     "location": "Olympus",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      41,
+      52
+     ],
+     "summary": "Zeus drives to Mount Ida to watch the battle from above.",
+     "location": "Mount Ida",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      53,
+      65
+     ],
+     "summary": "Both armies arm and clash on the plain between the camp and the city.",
+     "location": "Trojan plain",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      66,
+      77
+     ],
+     "summary": "At midday Zeus weighs the fates in golden scales and dooms the Achaeans; he thunders and hurls fire.",
+     "location": "Trojan plain",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      78,
+      129
+     ],
+     "summary": "Paris wounds Nestor's horse; Diomedes rescues the old man and they attack Hector, killing his charioteer.",
+     "location": "Trojan plain",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      130,
+      166
+     ],
+     "summary": "Zeus's thunderbolt drives Diomedes back; Nestor turns their chariot in retreat as Hector taunts him.",
+     "location": "Trojan plain",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      167,
+      197
+     ],
+     "summary": "Hector rallies the Trojans, boasts of burning the ships, and urges on his horses by name.",
+     "location": "Trojan plain",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      198,
+      211
+     ],
+     "summary": "Hera protests to Poseidon at the Trojan advance, but he declines to defy Zeus.",
+     "location": "Olympus",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      212,
+      252
+     ],
+     "summary": "The Trojans press the Achaeans to the trench; Agamemnon prays and Zeus sends a favorable eagle omen.",
+     "location": "Achaean camp",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      253,
+      334
+     ],
+     "summary": "Diomedes and Teucer strike down many Trojans; Hector wounds Teucer with a stone as Ajax shields him.",
+     "location": "Trojan plain",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      335,
+      349
+     ],
+     "summary": "The Trojans push the Achaeans back to the ditch as Hector leads the pursuit.",
+     "location": "Achaean trench",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      350,
+      380
+     ],
+     "summary": "Hera and Athena, pitying the Danaans, prepare to defy Zeus and intervene in the battle.",
+     "location": "Olympus",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      381,
+      437
+     ],
+     "summary": "Hera and Athena arm for battle, but Zeus sends Iris to turn them back to Olympus.",
+     "location": "Olympus",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      438,
+      484
+     ],
+     "summary": "Zeus rebukes Athena and Hera and foretells Hector's rampage will continue until Achilles returns and Patroclus falls.",
+     "location": "Olympus",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      485,
+      488
+     ],
+     "summary": "The sun sets, ending the day's fighting.",
+     "location": "Trojan plain",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      489,
+      541
+     ],
+     "summary": "Hector orders watch-fires lit to trap the Achaeans and plans to renew battle at dawn.",
+     "location": "Trojan plain",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      542,
+      565
+     ],
+     "summary": "The Trojans camp on the plain, feasting by a thousand fires as they await dawn.",
+     "location": "Trojan plain",
+     "dayNumber": 24
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 9,
+   "argument": "Agamemnon's envoys offer Achilles rich gifts to return; he refuses to rejoin the fight.",
+   "where": [
+    "Achaean camp",
+    "Achilles's hut",
+    "Agamemnon's hut"
+   ],
+   "who": [
+    "Agamemnon",
+    "Achilles",
+    "Odysseus",
+    "Phoenix",
+    "Ajax",
+    "Nestor"
+   ],
+   "days": "24",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      31
+     ],
+     "summary": "Panic grips the Achaeans at night; Agamemnon weeps and proposes abandoning the war.",
+     "location": "Achaean assembly",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      32,
+      49
+     ],
+     "summary": "Diomedes rebukes Agamemnon's despair and vows to keep fighting even alone.",
+     "location": "Achaean assembly",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      50,
+      78
+     ],
+     "summary": "Nestor counsels posting sentinels and holding a council of elders over supper.",
+     "location": "Achaean assembly",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      79,
+      88
+     ],
+     "summary": "Seven captains post sentinels between the trench and the wall.",
+     "location": "Achaean trench",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      89,
+      113
+     ],
+     "summary": "At a feast of elders, Nestor urges Agamemnon to win back Achilles with gifts.",
+     "location": "Agamemnon's hut",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      114,
+      161
+     ],
+     "summary": "Agamemnon agrees, listing lavish gifts and offering his daughter in marriage to Achilles.",
+     "location": "Agamemnon's hut",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      162,
+      184
+     ],
+     "summary": "Nestor proposes an embassy of Phoenix, Ajax, and Odysseus; the Achaeans pray to Poseidon.",
+     "location": "Agamemnon's hut",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      185,
+      224
+     ],
+     "summary": "The envoys find Achilles playing the lyre; he welcomes them and orders a feast prepared.",
+     "location": "Achilles's hut",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      225,
+      306
+     ],
+     "summary": "Odysseus relays the Trojan threat and Agamemnon's gifts, urging Achilles to save the ships.",
+     "location": "Achilles's hut",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      307,
+      429
+     ],
+     "summary": "Achilles refuses the gifts, announces his plan to sail home, and reveals his choice between two fates.",
+     "location": "Achilles's hut",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      430,
+      457
+     ],
+     "summary": "Phoenix pleads with Achilles, recalling his own youth and exile after cursing his father.",
+     "location": "Achilles's hut",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      462,
+      522
+     ],
+     "summary": "Phoenix continues: Peleus raised him after his flight; he urges Achilles to respect the Prayers of Zeus.",
+     "location": "Achilles's hut",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      523,
+      599
+     ],
+     "summary": "Phoenix tells how Meleager's wrath nearly lost Calydon until his wife's pleading roused him.",
+     "location": "Achilles's hut",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      600,
+      619
+     ],
+     "summary": "Phoenix warns against a hardened heart; Achilles offers him a bed but refuses further persuasion.",
+     "location": "Achilles's hut",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      620,
+      655
+     ],
+     "summary": "Ajax speaks bluntly of Achilles's hard heart; Achilles agrees to fight only if Hector reaches his own ships.",
+     "location": "Achilles's hut",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      656,
+      668
+     ],
+     "summary": "The envoys depart; Phoenix beds down while Achilles and Patroclus retire with their women.",
+     "location": "Achilles's hut",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      669,
+      713
+     ],
+     "summary": "Odysseus reports Achilles's refusal to Agamemnon; Diomedes urges preparing for battle at dawn.",
+     "location": "Agamemnon's hut",
+     "dayNumber": 24
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 10,
+   "argument": "Odysseus and Diomedes raid the Trojan camp by night, killing Dolon and Rhesus.",
+   "where": [
+    "Achaean camp",
+    "Trojan plain",
+    "Trojan camp"
+   ],
+   "who": [
+    "Agamemnon",
+    "Nestor",
+    "Diomedes",
+    "Odysseus",
+    "Dolon",
+    "Rhesus"
+   ],
+   "days": "24",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      24
+     ],
+     "summary": "Sleepless with worry, Agamemnon rises before dawn and arms himself.",
+     "location": "Achaean camp",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      25,
+      53
+     ],
+     "summary": "Menelaus, also sleepless, arms and joins his brother to discuss the crisis.",
+     "location": "Achaean camp",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      54,
+      71
+     ],
+     "summary": "Agamemnon sends Menelaus to rouse Ajax and Idomeneus while he seeks Nestor.",
+     "location": "Achaean camp",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      72,
+      130
+     ],
+     "summary": "Agamemnon wakes Nestor; they resolve to check the sentinels and gather the council.",
+     "location": "Nestor's hut",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      131,
+      179
+     ],
+     "summary": "Nestor rouses Odysseus and Diomedes to join the night council.",
+     "location": "Achaean camp",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      180,
+      217
+     ],
+     "summary": "The chiefs inspect the wakeful sentinels; Nestor proposes sending a spy into the Trojan camp.",
+     "location": "Achaean trench",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      218,
+      253
+     ],
+     "summary": "Diomedes volunteers for the mission and chooses Odysseus as his companion.",
+     "location": "Achaean trench",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      254,
+      298
+     ],
+     "summary": "The two arm themselves; a heron's cry is taken as a favorable omen from Athena.",
+     "location": "Achaean trench",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      299,
+      337
+     ],
+     "summary": "Hector convenes his council; Dolon volunteers to spy for the promised horses of Achilles.",
+     "location": "Trojan plain",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      338,
+      368
+     ],
+     "summary": "Odysseus and Diomedes spot Dolon, let him pass, then run him down.",
+     "location": "Trojan plain",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      369,
+      445
+     ],
+     "summary": "Dolon is captured and, begging for ransom, reveals the Trojan dispositions and the camp of Rhesus.",
+     "location": "Trojan plain",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      446,
+      468
+     ],
+     "summary": "Diomedes kills Dolon despite his information; the spoils are dedicated to Athena.",
+     "location": "Trojan plain",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      469,
+      502
+     ],
+     "summary": "Diomedes slaughters the sleeping Thracians and King Rhesus while Odysseus frees the horses.",
+     "location": "Trojan camp",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      503,
+      514
+     ],
+     "summary": "Athena warns Diomedes to retreat before another god rouses the Trojans.",
+     "location": "Trojan camp",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      515,
+      525
+     ],
+     "summary": "Apollo rouses a Thracian kinsman of Rhesus, who discovers the slaughter and raises the alarm.",
+     "location": "Trojan camp",
+     "dayNumber": 24
+    },
+    {
+     "lines": [
+      526,
+      579
+     ],
+     "summary": "Odysseus and Diomedes escape with Rhesus's horses; Nestor and the Achaeans welcome them and hear their tale.",
+     "location": "Achaean camp",
+     "dayNumber": 24
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 11,
+   "argument": "Agamemnon's aristeia gives way to Trojan gains as Hector nears the ships.",
+   "where": [
+    "Trojan plain",
+    "Achaean camp",
+    "Nestor's hut"
+   ],
+   "who": [
+    "Agamemnon",
+    "Hector",
+    "Diomedes",
+    "Odysseus",
+    "Ajax",
+    "Patroclus"
+   ],
+   "days": "25",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      14
+     ],
+     "summary": "Zeus sends Strife to the ships, kindling the Achaeans' desire for battle over retreat.",
+     "location": "Achaean camp",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      15,
+      46
+     ],
+     "summary": "Agamemnon arms in splendid bronze armor as Athena and Hera thunder in his honor.",
+     "location": "Achaean camp",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      47,
+      83
+     ],
+     "summary": "The armies clash at dawn; Zeus favors the Trojans while the other gods hold back.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      84,
+      121
+     ],
+     "summary": "Agamemnon's aristeia begins: he kills Bienor, Oileus, and two sons of Priam.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      122,
+      147
+     ],
+     "summary": "Agamemnon kills Antimachus's two sons despite their pleas for ransom.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      148,
+      180
+     ],
+     "summary": "Agamemnon routs the Trojans, pursuing them toward the Scaean gates and the oak tree.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      181,
+      210
+     ],
+     "summary": "Zeus sends Iris to tell Hector to hold back until Agamemnon is wounded.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      211,
+      248
+     ],
+     "summary": "Hector rallies the Trojans as Agamemnon kills Iphidamas, son of Antenor.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      249,
+      283
+     ],
+     "summary": "Coön wounds Agamemnon avenging his brother; Agamemnon kills Coön too, then withdraws in pain.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      284,
+      330
+     ],
+     "summary": "Hector drives the Trojans forward as Agamemnon leaves; Odysseus rallies Diomedes to hold the line.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      331,
+      368
+     ],
+     "summary": "Diomedes's spear dents Hector's helmet; Hector rallies and flees by chariot, mocked by Diomedes.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      369,
+      400
+     ],
+     "summary": "Paris wounds Diomedes's foot with an arrow; Diomedes scorns him and withdraws to the ships.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      401,
+      460
+     ],
+     "summary": "Left alone, Odysseus kills several Trojans including Socus, who wounds him before dying.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      461,
+      488
+     ],
+     "summary": "Hearing Odysseus's cry, Menelaus and Ajax fight through and rescue him from the Trojans.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      489,
+      520
+     ],
+     "summary": "Ajax routs more Trojans; Paris wounds Machaon, whom Nestor drives to the ships.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      521,
+      548
+     ],
+     "summary": "Cebriones directs Hector toward Ajax's sector as Zeus makes Ajax falter and give ground.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      549,
+      598
+     ],
+     "summary": "Ajax retreats stubbornly under fire; Eurypylus aids him and is wounded by Paris in turn.",
+     "location": "Trojan plain",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      599,
+      654
+     ],
+     "summary": "Achilles, watching from his ship, sends Patroclus to learn who Nestor carried from the field wounded.",
+     "location": "Achaean camp",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      655,
+      803
+     ],
+     "summary": "At his hut, Nestor lists the wounded Achaean leaders and urges Patroclus to rouse Achilles or wear his armor.",
+     "location": "Nestor's hut",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      804,
+      848
+     ],
+     "summary": "Hurrying back, Patroclus stops to treat the wounded Eurypylus, delaying his return to Achilles.",
+     "location": "Achaean camp",
+     "dayNumber": 25
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 12,
+   "argument": "Hector breaches the Achaean wall and drives the Danaans back to their ships.",
+   "where": [
+    "Achaean wall",
+    "Trojan plain"
+   ],
+   "who": [
+    "Hector",
+    "Polydamas",
+    "Sarpedon",
+    "Glaucus",
+    "Ajax",
+    "Teucer"
+   ],
+   "days": "25",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      35
+     ],
+     "summary": "The narrator foretells that Poseidon and Apollo will later sweep away the Achaean wall with rivers.",
+     "location": "Achaean wall",
+     "dayNumber": null
+    },
+    {
+     "lines": [
+      36,
+      59
+     ],
+     "summary": "Fighting resumes at the wall; Hector presses on, but the trench blocks his horses.",
+     "location": "Achaean trench",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      60,
+      87
+     ],
+     "summary": "Polydamas advises attacking on foot; Hector agrees and the Trojans dismount in five companies.",
+     "location": "Achaean trench",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      88,
+      107
+     ],
+     "summary": "The five Trojan companies and their leaders, including Sarpedon and Glaucus, are named.",
+     "location": "Achaean trench",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      108,
+      134
+     ],
+     "summary": "Asius alone keeps his chariot and drives for an open gate, where two Lapiths bar his way.",
+     "location": "Achaean wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      135,
+      171
+     ],
+     "summary": "Asius storms the gate; the Lapiths hold firm as Achaeans hurl stones and Asius complains to Zeus.",
+     "location": "Achaean wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      172,
+      194
+     ],
+     "summary": "The Lapiths Polypoetes and Leonteus cut down several Trojan attackers at the gate.",
+     "location": "Achaean wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      195,
+      209
+     ],
+     "summary": "An eagle drops a writhing serpent among the Trojans, an ominous portent at the trench.",
+     "location": "Achaean trench",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      210,
+      229
+     ],
+     "summary": "Polydamas interprets the omen as a warning and urges retreat from the ships.",
+     "location": "Achaean trench",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      230,
+      250
+     ],
+     "summary": "Hector angrily dismisses the omen, insists on Zeus's promise, and threatens Polydamas with death.",
+     "location": "Achaean trench",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      251,
+      289
+     ],
+     "summary": "The Trojans advance in a Zeus-sent dust storm; the two Ajaxes rally the Achaeans under a hail of stones.",
+     "location": "Achaean wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      290,
+      330
+     ],
+     "summary": "Zeus rouses Sarpedon, who urges Glaucus to fight for the honor Lycia grants them.",
+     "location": "Achaean wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      331,
+      364
+     ],
+     "summary": "Alarmed by Sarpedon's approach, Menestheus sends a herald to summon Ajax and Teucer.",
+     "location": "Achaean wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      365,
+      399
+     ],
+     "summary": "Ajax kills Epicles and Teucer wounds Glaucus as Sarpedon tears open a breach in the battlement.",
+     "location": "Achaean wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      400,
+      420
+     ],
+     "summary": "Ajax and Teucer strike at Sarpedon, driving him back without killing him.",
+     "location": "Achaean wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      421,
+      436
+     ],
+     "summary": "The battle at the wall hangs even, like a weaver's honest scales, until Zeus favors Hector.",
+     "location": "Achaean wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      437,
+      471
+     ],
+     "summary": "Hector hurls a boulder that shatters the gate; the Trojans pour through and rout the Achaeans among the ships.",
+     "location": "Achaean wall",
+     "dayNumber": 25
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 13,
+   "argument": "Poseidon secretly rallies the Achaeans while Idomeneus wins a bloody aristeia at the ships.",
+   "where": [
+    "the Achaean ships",
+    "the plain before Troy",
+    "the sea near Samothrace"
+   ],
+   "who": [
+    "Poseidon",
+    "Idomeneus",
+    "Hector",
+    "Aias",
+    "Menelaus",
+    "Meriones"
+   ],
+   "days": "25",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      10
+     ],
+     "summary": "Zeus turns his gaze from Troy toward the distant Thracians, Mysians, and Abii, trusting the gods stay clear.",
+     "location": "Mount Ida",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      11,
+      40
+     ],
+     "summary": "Poseidon, pitying the Achaeans, descends from Samothrace, arms in gold, and drives his chariot to a hidden sea-cave.",
+     "location": "the sea near Samothrace and Imbros",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      41,
+      90
+     ],
+     "summary": "Disguised as Calchas, Poseidon rouses the two Aiantes and other captains to hold the ships against Hector.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      91,
+      135
+     ],
+     "summary": "Poseidon rebukes the Achaeans' slackness; the Aiantes' companies lock shields into a dense unbroken line.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      136,
+      170
+     ],
+     "summary": "Hector's charge is checked at the packed Achaean line; Meriones' spear-cast at Deiphobus misses.",
+     "location": "the Achaean wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      171,
+      239
+     ],
+     "summary": "Teucer kills Imbrius, Hector kills Amphimachus; the Aiantes strip and behead Imbrius as Poseidon goes to rouse Idomeneus.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      240,
+      329
+     ],
+     "summary": "Idomeneus arms and meets Meriones fetching a spear; the two debate courage and head to the left flank.",
+     "location": "the Achaean huts",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      330,
+      360
+     ],
+     "summary": "Battle clashes anew as Zeus and Poseidon, opposed in purpose, each work grief for mortal warriors.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      361,
+      423
+     ],
+     "summary": "Idomeneus kills Othryoneus, then Asius; Antilochus kills Asius's charioteer and drives off his horses.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      424,
+      454
+     ],
+     "summary": "Deiphobus kills Hypsenor as Antilochus defends the body; Idomeneus, aided by Poseidon, kills the rooted Alcathous.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      455,
+      520
+     ],
+     "summary": "Idomeneus taunts Deiphobus, who fetches Aeneas; Aeneas kills Oenomaus instead, and Deiphobus's throw kills Ascalaphus.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      521,
+      539
+     ],
+     "summary": "Deiphobus and Meriones fight over Ascalaphus's helm; Meriones wounds Deiphobus's arm, and Polites leads him off.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      540,
+      575
+     ],
+     "summary": "Aeneas kills Aphareus, Antilochus kills Thoon; Adamas, wounded by Antilochus, is finished off by Meriones.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      576,
+      620
+     ],
+     "summary": "Helenus wounds Deipyrus; Menelaus and Helenus trade shots, wounding his hand; Menelaus then kills Peisander.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      621,
+      673
+     ],
+     "summary": "Menelaus strips Peisander and rails at Trojan insatiability; Meriones fatally wounds Harpalion, and Paris kills Euchenor in revenge.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      674,
+      722
+     ],
+     "summary": "Hector, unaware of losses on the left, presses the ships; Boeotians, Locrians, and Phthians hold the line.",
+     "location": "the ships of Aias and Protesilaus",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      723,
+      753
+     ],
+     "summary": "Polydamas urges Hector to rally the bravest and take counsel, fearing Achilles; Hector agrees and departs.",
+     "location": "the Trojan ranks",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      754,
+      794
+     ],
+     "summary": "Hector finds many leaders dead or wounded, rebukes Paris for absence, and both rejoin the fight.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      795,
+      837
+     ],
+     "summary": "The Trojans surge forward; Hector and Aias trade defiant speeches over an omen as the armies clash again.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 14,
+   "argument": "Hera seduces Zeus asleep on Ida while Poseidon secretly turns the battle for the Achaeans.",
+   "where": [
+    "the Achaean ships",
+    "Mount Ida",
+    "Lemnos"
+   ],
+   "who": [
+    "Nestor",
+    "Agamemnon",
+    "Poseidon",
+    "Hera",
+    "Zeus",
+    "Hector"
+   ],
+   "days": "25",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      24
+     ],
+     "summary": "Nestor, hearing the din of battle, arms himself and sees the Achaeans routed and the wall broken.",
+     "location": "the Achaean huts",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      25,
+      64
+     ],
+     "summary": "Nestor meets the wounded kings; Agamemnon despairs and proposes launching the ships to flee by night.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      65,
+      109
+     ],
+     "summary": "Odysseus sharply rebukes Agamemnon's plan as ruinous; Diomedes proposes the wounded leaders encourage the fighters from behind.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      110,
+      152
+     ],
+     "summary": "Poseidon, disguised as an old man, clasps Agamemnon's hand, shouts encouragement, and fills the Achaeans with strength.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      153,
+      199
+     ],
+     "summary": "Hera spies Zeus on Ida and resolves to seduce him; she adorns herself and asks Aphrodite's help.",
+     "location": "Olympus",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      200,
+      229
+     ],
+     "summary": "Aphrodite lends Hera her charmed girdle of allurement, believing Hera's story about reconciling Oceanus and Tethys.",
+     "location": "Olympus",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      230,
+      291
+     ],
+     "summary": "Hera flies to Lemnos and persuades Sleep, brother of Death, to lull Zeus, promising him a Grace as wife.",
+     "location": "Lemnos",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      292,
+      353
+     ],
+     "summary": "Hera and Sleep reach Ida; overcome with desire, Zeus lies with her and sleeps beneath a golden cloud.",
+     "location": "Mount Ida",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      354,
+      401
+     ],
+     "summary": "Sleep hastens to tell Poseidon that Zeus sleeps; Poseidon, bearing a dread sword, leads the Achaeans against Hector.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      402,
+      439
+     ],
+     "summary": "Hector casts at Aias and misses; Aias fells him with a stone, and Trojans bear the stunned Hector away.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      440,
+      477
+     ],
+     "summary": "With Hector down, Aias son of Oileus kills Satnius; Polydamas and Aias trade kills over two more Trojans.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      478,
+      507
+     ],
+     "summary": "Acamas kills Promachus and taunts the Argives; Peneleos avenges him, killing Ilioneus and displaying his severed head.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      508,
+      522
+     ],
+     "summary": "The Achaeans, led by the greater Aias, strip Trojan spoils as Poseidon turns the tide of battle.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 15,
+   "argument": "Zeus revives Hector through Apollo and drives the Achaeans back to their ships.",
+   "where": [
+    "Mount Ida",
+    "Olympus",
+    "the Achaean ships"
+   ],
+   "who": [
+    "Zeus",
+    "Poseidon",
+    "Apollo",
+    "Hector",
+    "Aias",
+    "Patroclus"
+   ],
+   "days": "25",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      33
+     ],
+     "summary": "Zeus wakes on Ida, sees Hector fallen and the rout reversed, and angrily accuses Hera of scheming.",
+     "location": "Mount Ida",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      34,
+      77
+     ],
+     "summary": "Hera swears she did not incite Poseidon; softened, Zeus sends her to summon Iris and Apollo.",
+     "location": "Mount Ida",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      78,
+      113
+     ],
+     "summary": "Hera returns to Olympus and warns the feasting gods of Zeus's anger, provoking Ares' fury over Ascalaphus.",
+     "location": "Olympus",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      114,
+      143
+     ],
+     "summary": "Athena disarms and restrains furious Ares, warning his revenge would provoke Zeus's wrath against all the gods.",
+     "location": "Olympus",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      144,
+      183
+     ],
+     "summary": "Hera dispatches Iris and Apollo to Zeus on Ida; he orders Iris to make Poseidon quit the field.",
+     "location": "Olympus",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      184,
+      219
+     ],
+     "summary": "Iris delivers Zeus's ultimatum to Poseidon; indignant at being ranked inferior, Poseidon yields and withdraws into the sea.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      220,
+      262
+     ],
+     "summary": "Zeus sends Apollo to revive Hector with the aegis and rout the Achaeans back toward the ships.",
+     "location": "Mount Ida",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      263,
+      321
+     ],
+     "summary": "Apollo revives Hector, who charges again; the terrified Danaans, briefly rallied by Thoas, form a line against him.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      322,
+      366
+     ],
+     "summary": "Apollo, bearing the aegis before the Trojans, breaks the Achaean wall and casts down the trench, driving them back.",
+     "location": "the Achaean wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      367,
+      414
+     ],
+     "summary": "Patroclus, hearing the rout, leaves wounded Eurypylus to urge Achilles into the war as fighting nears the ships.",
+     "location": "Eurypylus's hut",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      415,
+      459
+     ],
+     "summary": "Hector nearly fires Aias's ship; Aias kills Caletor, but Hector kills Lycophron, and Zeus breaks Teucer's bowstring.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      460,
+      514
+     ],
+     "summary": "Teucer takes up spear and shield; Hector rallies the Trojans, declaring death in war no disgrace.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      515,
+      565
+     ],
+     "summary": "Named duels continue as Trojans and Achaeans trade kills; Hector chides Melanippus and leads him into the fight.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      566,
+      619
+     ],
+     "summary": "Menelaus urges Antilochus into battle; he kills Melanippus, but Hector's charge drives him back to the Achaean line.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      620,
+      662
+     ],
+     "summary": "Zeus drives the Trojans toward the ships; Nestor implores the Achaeans by their absent families to hold firm.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      663,
+      707
+     ],
+     "summary": "Athena clears the mist from Achaean eyes; Aias ranges the decks with a great pike, defying Hector's assault.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      708,
+      746
+     ],
+     "summary": "Hector seizes the stern of Protesilaus's ship and calls for fire; Aias, beset by darts, alone holds off the flames.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 16,
+   "argument": "Patroclus, wearing Achilles's armor, routs the Trojans, kills Sarpedon, and is slain by Hector.",
+   "where": [
+    "the Achaean ships",
+    "the plain before Troy",
+    "the Trojan wall"
+   ],
+   "who": [
+    "Patroclus",
+    "Achilles",
+    "Hector",
+    "Sarpedon",
+    "Zeus",
+    "Apollo"
+   ],
+   "days": "25",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      54
+     ],
+     "summary": "Patroclus, weeping, begs Achilles to let him lead the Myrmidons wearing his armor to save the ships.",
+     "location": "the Achaean huts",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      55,
+      100
+     ],
+     "summary": "Achilles agrees, recalling his grievance against Agamemnon, but orders Patroclus to drive off the Trojans and return.",
+     "location": "the Achaean huts",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      101,
+      124
+     ],
+     "summary": "Aias, exhausted and beset by darts, is disarmed by Hector's sword-stroke and forced back from the ships.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      125,
+      167
+     ],
+     "summary": "Trojans set fire to a ship; Achilles calls Patroclus to arm quickly while he gathers the Myrmidon host.",
+     "location": "the Achaean huts",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      168,
+      220
+     ],
+     "summary": "Patroclus dons Achilles's armor, save the great Pelian spear, as the Myrmidon companies form ranks under their captains.",
+     "location": "the Achaean huts",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      221,
+      256
+     ],
+     "summary": "Achilles rouses the Myrmidons with a rebuke, then privately prays to Zeus for Patroclus's victory and safe return.",
+     "location": "the Achaean huts",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      257,
+      305
+     ],
+     "summary": "The Myrmidons, likened to wasps, charge; Patroclus kills the Paeonian leader Pyraechmes and quenches the fire on a ship.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      306,
+      368
+     ],
+     "summary": "Patroclus and the Danaan captains slay Trojan and Lycian warriors as the Trojans are pushed back over the trench.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      369,
+      418
+     ],
+     "summary": "Patroclus pursues Hector's fleeing chariot across the trench and slaughters Trojans trapped in the space near the wall.",
+     "location": "the Trojan wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      419,
+      461
+     ],
+     "summary": "Sarpedon rallies the Lycians and meets Patroclus in combat; Zeus, pitying his son, debates snatching him from death.",
+     "location": "the Trojan wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      462,
+      507
+     ],
+     "summary": "Hera dissuades Zeus from saving Sarpedon; Patroclus kills his squire, then Sarpedon himself, who dies calling on Glaucus.",
+     "location": "the Trojan wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      508,
+      555
+     ],
+     "summary": "Wounded Glaucus prays to Apollo for healing, then rallies the Lycians and Trojans to fight over Sarpedon's corpse.",
+     "location": "the Trojan wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      556,
+      600
+     ],
+     "summary": "Achaeans and Trojans battle fiercely over Sarpedon's body under gathering darkness that Zeus draws over the fight.",
+     "location": "the Trojan wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      601,
+      644
+     ],
+     "summary": "Meriones and Aeneas duel indecisively; Patroclus rebukes their boasting and presses the fight, driving the Trojans back.",
+     "location": "the Trojan wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      645,
+      683
+     ],
+     "summary": "Zeus, having let the Achaeans strip Sarpedon's armor, sends Apollo to bear the body home to Lycia.",
+     "location": "the Trojan wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      684,
+      731
+     ],
+     "summary": "Patroclus, forgetting Achilles's warning, drives the Trojans toward the city walls, slaying many as he presses on.",
+     "location": "the Trojan wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      732,
+      782
+     ],
+     "summary": "Apollo three times repels Patroclus from the wall, then, disguised, urges Hector to drive against him.",
+     "location": "the Trojan wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      783,
+      822
+     ],
+     "summary": "Patroclus kills Hector's charioteer Cebriones with a stone; the two sides fight over the body until dusk favors the Achaeans.",
+     "location": "the Trojan wall",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      823,
+      867
+     ],
+     "summary": "Apollo strips Patroclus of his armor and senses; Euphorbus spears him first, and Hector delivers the fatal blow.",
+     "location": "the Trojan wall",
+     "dayNumber": 25
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 17,
+   "argument": "Menelaus and Aias guard Patroclus's corpse through fierce fighting as Antilochus runs to warn Achilles.",
+   "where": [
+    "the plain before Troy",
+    "the trench and the Achaean ships"
+   ],
+   "who": [
+    "Menelaus",
+    "Hector",
+    "Aias",
+    "Aeneas",
+    "Automedon",
+    "Antilochus"
+   ],
+   "days": "25",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      49
+     ],
+     "summary": "Menelaus stands guard over fallen Patroclus and kills Euphorbus, who had first speared him, in single combat.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      50,
+      84
+     ],
+     "summary": "Menelaus prepares to strip Euphorbus's armor, but Apollo incites Hector against him by pointing out the slain man.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      85,
+      124
+     ],
+     "summary": "Hector's furious shout forces Menelaus to retreat, unwilling to face him alone over Patroclus's corpse.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      125,
+      164
+     ],
+     "summary": "Menelaus finds Aias and begs help to save Patroclus's body; Hector strips the corpse's armor and withdraws.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      165,
+      236
+     ],
+     "summary": "Glaucus rebukes Hector for abandoning Sarpedon and shrinking from Aias; stung, Hector dons Achilles's stripped armor.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      237,
+      285
+     ],
+     "summary": "Zeus marvels at doomed Hector wearing Achilles's arms and grants him brief might, though his death draws near.",
+     "location": "Mount Ida",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      286,
+      342
+     ],
+     "summary": "Hector rallies the Trojan allies with promise of spoils; renewed fighting rages fiercely around Patroclus's corpse.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      343,
+      401
+     ],
+     "summary": "Aias urges Menelaus to summon the other Danaan chieftains; a fierce, darkness-shrouded struggle rages over the corpse.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      402,
+      459
+     ],
+     "summary": "The armies fight all day around Patroclus in strange gloom while the rest of the field lies in sunlight.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      460,
+      507
+     ],
+     "summary": "Achilles's immortal horses, grieving for Patroclus, refuse to move; Zeus pities them and grants strength to flee Hector.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      508,
+      552
+     ],
+     "summary": "Automedon fights alone from the chariot until Alcimedon takes the reins; Hector and Aeneas move to seize the horses.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      553,
+      592
+     ],
+     "summary": "Automedon prays to Zeus and kills Aretus with a spear-cast; the Aiantes intervene to save him from Hector.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      593,
+      648
+     ],
+     "summary": "Athena rouses the Achaeans through Menelaus; Zeus grants the Trojans victory with thunder and the aegis, driving them back.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      649,
+      691
+     ],
+     "summary": "Zeus clears the battle-mist at Aias's prayer; Aias sends Menelaus to find Antilochus and warn Achilles of the death.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      692,
+      731
+     ],
+     "summary": "Menelaus tells Antilochus the news; Antilochus, horrified, runs to Achilles while Menelaus returns to guard the corpse.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      732,
+      761
+     ],
+     "summary": "The two Aiantes cover the retreat as Menelaus and Meriones lift Patroclus's body and bear it toward the ships.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 18,
+   "argument": "Achilles mourns Patroclus, routs Trojans unarmed at the trench, and Thetis secures him new armor.",
+   "where": [
+    "the Achaean ships",
+    "Olympus",
+    "the Trojan assembly"
+   ],
+   "who": [
+    "Achilles",
+    "Thetis",
+    "Hephaestus",
+    "Hector",
+    "Iris",
+    "Polydamas"
+   ],
+   "days": "25",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      34
+     ],
+     "summary": "Antilochus brings Achilles news that Patroclus is dead; Achilles collapses in grief, defiling his face with dust.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      35,
+      64
+     ],
+     "summary": "Thetis, hearing her son's cry from the sea, rises in lament with her chorus of Nereid sisters.",
+     "location": "the depths of the sea",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      65,
+      96
+     ],
+     "summary": "Thetis comforts Achilles, who vows to kill Hector in revenge though he knows it seals his own death.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      97,
+      126
+     ],
+     "summary": "Thetis warns that Achilles's own death follows swiftly after Hector's; Achilles accepts fate to win glory avenging his friend.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      127,
+      148
+     ],
+     "summary": "Thetis promises new armor from Hephaestus by dawn and departs for Olympus while her sisters return to the sea.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      149,
+      199
+     ],
+     "summary": "Hector nearly drags off Patroclus's corpse until Iris, sent secretly by Hera, urges unarmed Achilles to intervene.",
+     "location": "the plain before Troy",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      200,
+      229
+     ],
+     "summary": "Achilles, wreathed in fire and Athena's aegis, shouts from the trench, routing the Trojans in terror.",
+     "location": "the trench",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      230,
+      242
+     ],
+     "summary": "The Achaeans recover Patroclus's body and lay him on a bier as the sun sets, ending the day's battle.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      243,
+      283
+     ],
+     "summary": "The Trojans hold a fearful night assembly; Polydamas urges retreat within the walls before Achilles can attack at dawn.",
+     "location": "the Trojan assembly",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      284,
+      314
+     ],
+     "summary": "Hector rejects Polydamas's counsel, scorning retreat, and vows to face Achilles openly at dawn outside the walls.",
+     "location": "the Trojan assembly",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      315,
+      355
+     ],
+     "summary": "Achilles leads the Myrmidons in nightlong lament over Patroclus and has the body washed and anointed for burial.",
+     "location": "the Achaean ships",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      356,
+      367
+     ],
+     "summary": "Zeus and Hera spar over her success in rousing Achilles against the Trojans.",
+     "location": "Olympus",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      368,
+      410
+     ],
+     "summary": "Thetis reaches Hephaestus's bronze palace on Olympus and is welcomed by Charis while he forges golden tripods.",
+     "location": "Olympus",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      411,
+      461
+     ],
+     "summary": "Thetis begs Hephaestus, who owes her a debt from infancy, to forge new armor for doomed Achilles.",
+     "location": "Hephaestus's forge",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      462,
+      489
+     ],
+     "summary": "Hephaestus promises magnificent armor and sets his bellows to work, gathering bronze, tin, silver, and gold.",
+     "location": "Hephaestus's forge",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      490,
+      540
+     ],
+     "summary": "Hephaestus forges the shield's cosmic field, a wedding and a lawsuit, and a besieged city with an ambush.",
+     "location": "Hephaestus's forge",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      541,
+      589
+     ],
+     "summary": "The shield depicts plowland, a king's harvest, a golden vineyard, dancers, and a herd of cattle attacked by lions.",
+     "location": "Hephaestus's forge",
+     "dayNumber": 25
+    },
+    {
+     "lines": [
+      590,
+      617
+     ],
+     "summary": "Hephaestus completes the shield with a dancing-floor and Ocean's stream, then forges corselet, helm, and greaves for Thetis.",
+     "location": "Hephaestus's forge",
+     "dayNumber": 25
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 19,
+   "argument": "Achilles ends his wrath, receives divine armor, and returns to battle after mourning Patroclus.",
+   "where": [
+    "Achaean camp"
+   ],
+   "who": [
+    "Achilles",
+    "Agamemnon",
+    "Thetis",
+    "Odysseus",
+    "Briseis",
+    "Zeus"
+   ],
+   "days": "26",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      39
+     ],
+     "summary": "Dawn breaks; Thetis brings Achilles new armor from Hephaestus and vows to keep Patroclus's corpse from decay.",
+     "location": "Achaean camp",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      40,
+      53
+     ],
+     "summary": "Achilles summons the Achaeans; wounded Diomedes, Odysseus, and Agamemnon limp to the assembly.",
+     "location": "Achaean camp",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      54,
+      76
+     ],
+     "summary": "Achilles publicly renounces his wrath against Agamemnon and urges the army to battle at once.",
+     "location": "Achaean assembly",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      77,
+      153
+     ],
+     "summary": "Agamemnon blames Ate for the quarrel, recounts Zeus's deception at Heracles's birth, and offers restitution.",
+     "location": "Achaean assembly",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      154,
+      183
+     ],
+     "summary": "Odysseus counsels the army to eat before battle and urges Agamemnon to present the gifts and swear his oath.",
+     "location": "Achaean assembly",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      184,
+      214
+     ],
+     "summary": "Agamemnon orders the gifts and Briseis brought forward; Achilles refuses food, vowing to fast until Hector falls.",
+     "location": "Achaean assembly",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      215,
+      237
+     ],
+     "summary": "Odysseus insists the weary army must eat before fighting; Achilles yields and lets the gift-bearers go.",
+     "location": "Achaean assembly",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      238,
+      275
+     ],
+     "summary": "Agamemnon's gifts and Briseis are delivered; he sacrifices a boar to Zeus and swears he never touched her.",
+     "location": "Achaean assembly",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      276,
+      302
+     ],
+     "summary": "The Myrmidons store the gifts; Briseis finds Patroclus's body and laments him and her own slain kin.",
+     "location": "Achilles's hut",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      303,
+      339
+     ],
+     "summary": "Achilles refuses to eat, grieving for Patroclus and fearing for his aged father and young son at home.",
+     "location": "Achaean camp",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      340,
+      356
+     ],
+     "summary": "Zeus pities the fasting Achilles and sends Athena to feed him nectar and ambrosia unseen.",
+     "location": "Olympus / Achaean camp",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      357,
+      391
+     ],
+     "summary": "The Achaeans arm for war; Achilles dons Hephaestus's armor and takes up his father's ash spear.",
+     "location": "Achaean camp",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      392,
+      403
+     ],
+     "summary": "Automedon yokes the immortal horses; Achilles charges Xanthus and Balius to bring him home alive.",
+     "location": "Achaean camp",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      404,
+      424
+     ],
+     "summary": "Given human speech by Hera, Xanthus foretells Achilles's death; Achilles accepts his fate and drives to battle.",
+     "location": "Achaean camp",
+     "dayNumber": 26
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 20,
+   "argument": "The gods join the war as Achilles duels Aeneas and rampages through the Trojan ranks.",
+   "where": [
+    "Trojan plain",
+    "Olympus"
+   ],
+   "who": [
+    "Achilles",
+    "Aeneas",
+    "Poseidon",
+    "Hector",
+    "Zeus",
+    "Polydorus"
+   ],
+   "days": "26",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      31
+     ],
+     "summary": "Zeus convenes the gods and permits them to intervene in the battle on either side.",
+     "location": "Olympus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      32,
+      75
+     ],
+     "summary": "The gods take sides and descend to battle; Poseidon's earthquake shakes Olympus, earth, and the underworld.",
+     "location": "Trojan plain",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      76,
+      155
+     ],
+     "summary": "Apollo, disguised as Lycaon, spurs Aeneas to face Achilles; Hera rallies Poseidon and Athena to intervene.",
+     "location": "Trojan plain",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      156,
+      206
+     ],
+     "summary": "Achilles and Aeneas meet between the armies; Achilles taunts him over rumored Trojan kingship.",
+     "location": "Trojan plain",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      207,
+      254
+     ],
+     "summary": "Aeneas answers with his full genealogy from Dardanus through Priam and Anchises before charging.",
+     "location": "Trojan plain",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      255,
+      305
+     ],
+     "summary": "Achilles and Aeneas duel with spears; Achilles draws his sword as Aeneas seizes a boulder.",
+     "location": "Trojan plain",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      306,
+      340
+     ],
+     "summary": "Poseidon pities Aeneas, shrouds Achilles in mist, and lifts Aeneas from the field to safety.",
+     "location": "Trojan plain",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      341,
+      364
+     ],
+     "summary": "Achilles, mist cleared, marvels at Aeneas's escape and rallies the Achaeans against the Trojans.",
+     "location": "Trojan plain",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      365,
+      380
+     ],
+     "summary": "Hector vows to face Achilles, but Apollo warns him to wait within the throng.",
+     "location": "Trojan plain",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      381,
+      420
+     ],
+     "summary": "Achilles kills Iphition, Demoleon, Hippodamas, and Priam's son Polydorus.",
+     "location": "Trojan plain",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      421,
+      455
+     ],
+     "summary": "Hector charges to avenge Polydorus; Athena turns aside his spear, and Apollo hides him in mist.",
+     "location": "Trojan plain",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      456,
+      503
+     ],
+     "summary": "Achilles slaughters more Trojans in a rampage, his hands and chariot drenched in gore.",
+     "location": "Trojan plain",
+     "dayNumber": 26
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 21,
+   "argument": "Achilles slaughters Trojans at the Scamander, battles the river, and nears Troy's walls.",
+   "where": [
+    "the river Scamander (Xanthus)",
+    "before Troy",
+    "Olympus"
+   ],
+   "who": [
+    "Achilles",
+    "Lycaon",
+    "Asteropaeus",
+    "Scamander",
+    "Hephaestus",
+    "Agenor"
+   ],
+   "days": "26",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      20
+     ],
+     "summary": "Achilles splits the fleeing Trojans, driving many into the river Xanthus, and cuts them down.",
+     "location": "the river Xanthus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      21,
+      33
+     ],
+     "summary": "Exhausted from slaughter, Achilles seizes twelve Trojan youths alive as a blood-price for Patroclus.",
+     "location": "the river Xanthus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      34,
+      63
+     ],
+     "summary": "Fleeing the river unarmed, Priam's son Lycaon meets Achilles, who once sold and ransomed him.",
+     "location": "the river Xanthus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      64,
+      113
+     ],
+     "summary": "Lycaon clasps Achilles's knees and begs for his life as a former suppliant guest-friend.",
+     "location": "the river Xanthus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      114,
+      135
+     ],
+     "summary": "Achilles refuses ransom, kills Lycaon, and flings his body into the river with a taunt.",
+     "location": "the river Xanthus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      136,
+      200
+     ],
+     "summary": "Achilles kills Asteropaeus, son of the river-god Axius, after an exchange of spear-casts.",
+     "location": "the river Xanthus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      201,
+      224
+     ],
+     "summary": "Achilles slaughters fleeing Paeonians until the river Scamander, choked with corpses, protests.",
+     "location": "the river Xanthus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      225,
+      271
+     ],
+     "summary": "Achilles defies the river's warning and keeps killing; Scamander rises against him in flood.",
+     "location": "the river Xanthus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      272,
+      304
+     ],
+     "summary": "Nearly drowned, Achilles prays to Zeus; Poseidon and Athena reassure him he will not die here.",
+     "location": "the river Xanthus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      305,
+      350
+     ],
+     "summary": "Scamander calls on the river Simois for aid and surges again to overwhelm Achilles.",
+     "location": "the river Xanthus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      351,
+      384
+     ],
+     "summary": "Hera sends Hephaestus, who scorches the plain and the riverbanks with fire to master the flood.",
+     "location": "the river Xanthus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      385,
+      414
+     ],
+     "summary": "The river begs for mercy, and Hera bids Hephaestus quench his flame.",
+     "location": "the river Xanthus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      415,
+      460
+     ],
+     "summary": "The gods clash: Ares strikes Athena, who fells him with a stone; Aphrodite is struck leading him away.",
+     "location": "Olympus / battlefield",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      461,
+      513
+     ],
+     "summary": "Poseidon spars with Apollo, who withdraws; Artemis, mocked by Hera, is beaten with her own bow.",
+     "location": "Olympus / battlefield",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      514,
+      520
+     ],
+     "summary": "Apollo enters Troy to guard its wall while the other gods return to Olympus.",
+     "location": "Troy / Olympus",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      521,
+      543
+     ],
+     "summary": "Achilles keeps slaughtering; Priam orders the gates opened to receive the routed Trojans.",
+     "location": "before Troy",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      544,
+      611
+     ],
+     "summary": "Apollo rouses Agenor to face Achilles, then lures Achilles from the gates as Trojans flee inside.",
+     "location": "before Troy",
+     "dayNumber": 26
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 22,
+   "argument": "Achilles chases Hector around Troy's walls, kills him, and drags his body toward the ships.",
+   "where": [
+    "before the walls of Troy"
+   ],
+   "who": [
+    "Achilles",
+    "Hector",
+    "Priam",
+    "Hecuba",
+    "Andromache",
+    "Athena"
+   ],
+   "days": "26",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      24
+     ],
+     "summary": "Apollo unveils himself to Achilles, rebuking his pursuit of a god; Achilles turns back toward Troy.",
+     "location": "before Troy",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      25,
+      76
+     ],
+     "summary": "Priam sees Achilles coming and begs Hector to retreat inside the walls, naming his lost sons.",
+     "location": "the walls of Troy",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      77,
+      92
+     ],
+     "summary": "Hecuba bares her breast, pleading with Hector to face Achilles safely from behind the wall.",
+     "location": "the walls of Troy",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      93,
+      130
+     ],
+     "summary": "Alone at the gates, Hector debates retreat, negotiation, and combat, and resolves to fight.",
+     "location": "before the Scaean gate",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      131,
+      166
+     ],
+     "summary": "Terror seizes Hector as Achilles closes in; he flees, and the chase around Troy begins.",
+     "location": "before Troy",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      167,
+      225
+     ],
+     "summary": "The gods watch the chase; Zeus weighs sparing Hector, then lets fate decide; the scales sink for him.",
+     "location": "Olympus / before Troy",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      226,
+      247
+     ],
+     "summary": "Athena tells Achilles to rest while she lures Hector into a stand disguised as Deiphobus.",
+     "location": "before Troy",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      248,
+      272
+     ],
+     "summary": "Deceived, Hector agrees to face Achilles together with the false Deiphobus.",
+     "location": "before Troy",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      273,
+      305
+     ],
+     "summary": "Hector and Achilles exchange spear-casts; Hector's missile fails, and he finds Deiphobus gone.",
+     "location": "before Troy",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      306,
+      330
+     ],
+     "summary": "Hector realizes Athena's trick and charges with his sword; Achilles spears him through the throat.",
+     "location": "before Troy",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      331,
+      366
+     ],
+     "summary": "Dying, Hector begs for his body's return and foretells Achilles's death; Achilles refuses and gloats.",
+     "location": "before Troy",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      367,
+      404
+     ],
+     "summary": "Achaeans stab Hector's corpse; Achilles strips his armor and mutilates the body, binding it to his chariot.",
+     "location": "before Troy",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      405,
+      447
+     ],
+     "summary": "Achilles drags Hector's body toward the ships as Priam and Hecuba watch and wail from the walls.",
+     "location": "the walls of Troy",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      448,
+      515
+     ],
+     "summary": "Unaware at her loom, Andromache hears the cries, sees Hector dragged, and laments his and Astyanax's fate.",
+     "location": "the walls of Troy",
+     "dayNumber": 26
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 23,
+   "argument": "The Achaeans cremate Patroclus overnight and hold funeral games the next day in his honor.",
+   "where": [
+    "Achaean camp",
+    "the pyre",
+    "the funeral games ground"
+   ],
+   "who": [
+    "Achilles",
+    "Patroclus",
+    "Nestor",
+    "Diomedes",
+    "Odysseus",
+    "Antilochus"
+   ],
+   "days": "26-28",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      17
+     ],
+     "summary": "The army returns to camp; Achilles keeps the Myrmidons armed, circling Patroclus's body three times in mourning.",
+     "location": "Achaean camp",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      18,
+      34
+     ],
+     "summary": "Achilles vows to sacrifice twelve Trojan youths and feed Hector to dogs; a funeral feast follows.",
+     "location": "Achaean camp",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      35,
+      58
+     ],
+     "summary": "Achilles refuses to bathe until Patroclus is buried and asks Agamemnon to gather wood for the pyre.",
+     "location": "Agamemnon's hut",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      59,
+      107
+     ],
+     "summary": "That night Patroclus's ghost visits the sleeping Achilles, begging for swift burial and shared bones.",
+     "location": "Achaean camp",
+     "dayNumber": 26
+    },
+    {
+     "lines": [
+      108,
+      127
+     ],
+     "summary": "At dawn Agamemnon sends men and mules under Meriones to fetch wood from Mount Ida.",
+     "location": "Mount Ida",
+     "dayNumber": 27
+    },
+    {
+     "lines": [
+      128,
+      153
+     ],
+     "summary": "The armed Myrmidons escort Patroclus's body in procession, their shorn hair covering the corpse.",
+     "location": "Achaean camp",
+     "dayNumber": 27
+    },
+    {
+     "lines": [
+      154,
+      175
+     ],
+     "summary": "Achilles cuts a lock of hair vowed to the river Spercheius and gives it to Patroclus instead.",
+     "location": "the pyre site",
+     "dayNumber": 27
+    },
+    {
+     "lines": [
+      176,
+      188
+     ],
+     "summary": "Achilles dismisses the wider host and, with the chief mourners, builds a great pyre for the body.",
+     "location": "the pyre site",
+     "dayNumber": 27
+    },
+    {
+     "lines": [
+      189,
+      207
+     ],
+     "summary": "Achilles sacrifices sheep, oxen, horses, dogs, and twelve Trojan captives on the pyre for Patroclus.",
+     "location": "the pyre site",
+     "dayNumber": 27
+    },
+    {
+     "lines": [
+      208,
+      225
+     ],
+     "summary": "The pyre will not catch; Achilles prays to the winds, which come and burn it through the night.",
+     "location": "the pyre site",
+     "dayNumber": 27
+    },
+    {
+     "lines": [
+      226,
+      257
+     ],
+     "summary": "At dawn the fire dies; the Achaeans quench it, gather Patroclus's bones into a golden urn, and raise a barrow.",
+     "location": "the pyre site",
+     "dayNumber": 28
+    },
+    {
+     "lines": [
+      258,
+      362
+     ],
+     "summary": "Achilles sets prizes for a chariot race; Nestor advises his son Antilochus on rounding the turning-post.",
+     "location": "the funeral games ground",
+     "dayNumber": 28
+    },
+    {
+     "lines": [
+      363,
+      447
+     ],
+     "summary": "The chariot race runs; Apollo and Athena intervene, and Diomedes finishes first, ahead of Antilochus and Menelaus.",
+     "location": "the funeral games ground",
+     "dayNumber": 28
+    },
+    {
+     "lines": [
+      448,
+      565
+     ],
+     "summary": "Antilochus's reckless driving nearly costs Menelaus second place; Achilles adds a prize and settles their quarrel.",
+     "location": "the funeral games ground",
+     "dayNumber": 28
+    },
+    {
+     "lines": [
+      566,
+      652
+     ],
+     "summary": "Nestor receives an honorary prize and recalls his own youthful victories at Amarynceus's funeral games.",
+     "location": "the funeral games ground",
+     "dayNumber": 28
+    },
+    {
+     "lines": [
+      653,
+      699
+     ],
+     "summary": "Epeius knocks out Euryalus with a single blow to win the boxing match.",
+     "location": "the funeral games ground",
+     "dayNumber": 28
+    },
+    {
+     "lines": [
+      700,
+      739
+     ],
+     "summary": "Telamonian Aias and Odysseus wrestle to a draw; Achilles stops the match and awards them equal prizes.",
+     "location": "the funeral games ground",
+     "dayNumber": 28
+    },
+    {
+     "lines": [
+      740,
+      797
+     ],
+     "summary": "In the footrace, Athena trips Oïlean Aias to let Odysseus win; Antilochus praises Achilles's own speed.",
+     "location": "the funeral games ground",
+     "dayNumber": 28
+    },
+    {
+     "lines": [
+      798,
+      825
+     ],
+     "summary": "Telamonian Aias and Diomedes duel in armor for a sword; the Achaeans halt the contest for Aias's safety.",
+     "location": "the funeral games ground",
+     "dayNumber": 28
+    },
+    {
+     "lines": [
+      826,
+      897
+     ],
+     "summary": "Achilles holds contests in weight-throwing, archery, and javelin, honoring Polypoetes, Meriones, Teucer, and Agamemnon.",
+     "location": "the funeral games ground",
+     "dayNumber": 28
+    }
+   ],
+   "status": "draft"
+  },
+  {
+   "book": 24,
+   "argument": "The gods relent; Priam ransoms Hector's body from Achilles by night, and Troy buries him.",
+   "where": [
+    "Olympus",
+    "Achaean camp",
+    "Troy"
+   ],
+   "who": [
+    "Priam",
+    "Achilles",
+    "Hermes",
+    "Zeus",
+    "Thetis",
+    "Hector"
+   ],
+   "days": "37-48",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      30
+     ],
+     "summary": "Each night Achilles drags Hector's body around Patroclus's tomb, though Apollo shields it from harm.",
+     "location": "Achaean camp",
+     "dayNumber": null
+    },
+    {
+     "lines": [
+      31,
+      54
+     ],
+     "summary": "On the twelfth day, Apollo protests the gods' cruelty in letting Achilles abuse Hector's corpse.",
+     "location": "Olympus",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      55,
+      76
+     ],
+     "summary": "Hera argues Hector deserves less honor than goddess-born Achilles; Zeus insists both were dear to him.",
+     "location": "Olympus",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      77,
+      120
+     ],
+     "summary": "Zeus sends Iris to summon Thetis, telling her Achilles must return Hector's body for ransom.",
+     "location": "Olympus / the sea",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      121,
+      140
+     ],
+     "summary": "Thetis delivers Zeus's command to the grieving Achilles, who agrees to accept ransom for Hector.",
+     "location": "Achaean camp",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      141,
+      187
+     ],
+     "summary": "Zeus sends Iris to Priam, instructing him to ransom Hector alone with Hermes as his guide.",
+     "location": "Troy",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      188,
+      227
+     ],
+     "summary": "Priam tells Hecabe of the divine message; she begs him not to go, but he insists.",
+     "location": "Priam's palace, Troy",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      228,
+      265
+     ],
+     "summary": "Priam gathers rich robes, gold, and vessels as ransom, driving his grieving household away in anger.",
+     "location": "Priam's palace, Troy",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      266,
+      321
+     ],
+     "summary": "Priam prays for a sign, receives a favorable eagle omen, and sets out with the herald Idaeus.",
+     "location": "Troy",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      322,
+      352
+     ],
+     "summary": "At dusk near Ilus's tomb, Priam and Idaeus halt to water the animals as Hermes draws near.",
+     "location": "the Trojan plain",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      353,
+      439
+     ],
+     "summary": "Disguised as a young squire, Hermes reassures the frightened Priam and offers to guide him to Achilles.",
+     "location": "the Trojan plain",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      440,
+      467
+     ],
+     "summary": "Hermes lulls the Achaean sentries to sleep and leads Priam's wagon unseen into the camp.",
+     "location": "Achaean camp",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      468,
+      512
+     ],
+     "summary": "Unseen, Priam enters Achilles's hut, clasps his knees, and begs him by his own father's grief.",
+     "location": "Achilles's hut",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      513,
+      551
+     ],
+     "summary": "Moved to tears for his father and Patroclus, Achilles raises Priam and speaks of mortal sorrow.",
+     "location": "Achilles's hut",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      552,
+      595
+     ],
+     "summary": "Achilles agrees to free Hector's body, which is washed, anointed, and laid on a bier unseen.",
+     "location": "Achilles's hut",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      596,
+      676
+     ],
+     "summary": "Achilles and Priam share a meal, and Achilles pledges to hold back the army for eleven days.",
+     "location": "Achilles's hut",
+     "dayNumber": 37
+    },
+    {
+     "lines": [
+      677,
+      694
+     ],
+     "summary": "The household sleeps, but Hermes wakes Priam before dawn to slip unseen from the camp.",
+     "location": "Achaean camp",
+     "dayNumber": null
+    },
+    {
+     "lines": [
+      695,
+      717
+     ],
+     "summary": "At dawn Priam nears Troy with Hector's body; Cassandra spies them and raises the city's lament.",
+     "location": "Troy",
+     "dayNumber": 38
+    },
+    {
+     "lines": [
+      718,
+      776
+     ],
+     "summary": "Hector's body is borne into Troy; Andromache, Hecuba, and Helen each lead the lament over him.",
+     "location": "Priam's palace, Troy",
+     "dayNumber": 38
+    },
+    {
+     "lines": [
+      777,
+      804
+     ],
+     "summary": "The Trojans gather wood for nine days, cremate Hector on the tenth, and bury him on the eleventh.",
+     "location": "Troy",
+     "dayNumber": null
+    }
+   ],
+   "status": "draft"
+  }
+ ]
+}

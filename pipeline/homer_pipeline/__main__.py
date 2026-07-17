@@ -290,6 +290,26 @@ def _stage7(manifest):
           f"cunliffe_entries={man['cunliffe']['cunliffe_entries_kept']}")
 
 
+def _stage_apparatus(manifest):
+    from . import apparatus_scenes
+
+    result = apparatus_scenes.run(manifest)
+    if not result["staging_files"]:
+        print(f"apparatus: {manifest.work_id}: no staging files found, nothing to merge")
+        return
+    print(
+        f"apparatus: {manifest.work_id}: staged={len(result['staging_files'])} "
+        f"books_merged={result['books_merged']} books_emitted={len(result['books_emitted'])}"
+    )
+    if result["books_missing_emit_target"]:
+        print(
+            f"  WARNING: no book-NN.json yet for books "
+            f"{result['books_missing_emit_target']} — run stage7 first"
+        )
+    if result["books_without_staging"]:
+        print(f"  books without staged apparatus yet: {result['books_without_staging']}")
+
+
 _STAGES = {
     "stage1": _stage1,
     "stage2": _stage2,
@@ -298,6 +318,7 @@ _STAGES = {
     "stage5": _stage5,
     "stage6": _stage6,
     "stage7": _stage7,
+    "apparatus": _stage_apparatus,
 }
 
 

@@ -360,6 +360,8 @@ def _validate_work_data(data_dir: Path, manifest: WorkManifest, problems: list[P
     _validate_columns(manifest, loaded.get("columns.json"), segments, problems, verse=verse)
     _validate_analyses(manifest, data_dir, loaded.get("analyses.json"), token_keys, problems)
     _validate_public_gating(manifest, loaded, problems)
+    if verse:
+        _validate_apparatus(manifest, loaded, problems)
 
 
 def _validate_emitted_manifest(manifest: WorkManifest, emitted: Any, problems: list[Problem]) -> None:
@@ -790,6 +792,39 @@ def _validate_public_gating(
                     overlays = segment.get("overlays")
                     if isinstance(overlays, dict) and overlay_id in overlays:
                         problems.append((manifest.work_id, file_name, f"private overlay {overlay_id!r} appears in public data"))
+
+
+def _validate_apparatus(
+    manifest: WorkManifest,
+    loaded: dict[str, Any],
+    problems: list[Problem],
+) -> None:
+    """Validate the optional `apparatus` object on each emitted book-{n}.json
+    (scenes chips + cartouche metadata, see apparatus_scenes.py). A book with
+    no apparatus yet (a still-in-flight drafting sweep) is not a failure —
+    apparatus coverage is allowed to be partial across a work — but a book
+    that DOES carry one must be fully clean: real line bounds, no coverage
+    holes/overlaps, gap-boundary respected, summaries <=20 words, draft flag
+    present."""
+    from . import apparatus_scenes
+
+    bounds = apparatus_scenes.book_bounds(manifest.data)
+    gaps = apparatus_scenes.gaps_by_book(manifest.data)
+    for book in manifest.data.get("books", []):
+        n = book.get("n") if isinstance(book, dict) else None
+        if not isinstance(n, int):
+            continue
+        file_name = f"book-{n:02d}.json"
+        doc = loaded.get(file_name)
+        if not isinstance(doc, dict) or "apparatus" not in doc:
+            continue
+        book_end = bounds.get(n)
+        if book_end is None:
+            continue
+        for message in apparatus_scenes.validate_emitted_apparatus(
+            n, doc["apparatus"], book_end, gaps.get(n, [])
+        ):
+            problems.append((manifest.work_id, file_name, message))
 
 
 def _omitted_translation_slots(private: dict[str, Any], public: dict[str, Any]) -> set[str]:

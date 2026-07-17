@@ -68,3 +68,64 @@ def test_preflight_schema_rejects_bad_verse_ref():
     data["books"][0]["start"] = "1a1"  # Bekker-shaped, not book.line
     problems = _schema_problems(data, "Iliad.yaml")
     assert any("books[0].start must be a verse book.line ref" in p for p in problems)
+
+
+def _apparatus_manifest() -> "WorkManifest":
+    from homer_pipeline.preflight import WorkManifest
+
+    return WorkManifest(
+        work_id="testwork",
+        path=MANIFESTS / "Iliad.yaml",
+        data={"books": [{"n": 1, "start": "1.1", "end": "1.10"}], "expected_line_gaps": []},
+    )
+
+
+def test_validate_apparatus_skips_books_with_no_apparatus_yet():
+    from homer_pipeline.preflight import _validate_apparatus
+
+    problems: list = []
+    _validate_apparatus(_apparatus_manifest(), {"book-01.json": {"book": 1}}, problems)
+    assert problems == []
+
+
+def test_validate_apparatus_accepts_clean_apparatus():
+    from homer_pipeline.preflight import _validate_apparatus
+
+    loaded = {
+        "book-01.json": {
+            "book": 1,
+            "apparatus": {
+                "argument": "A clean argument.",
+                "who": ["A"],
+                "draft": True,
+                "scenes": [
+                    {"lines": [1, 10], "summary": "ok", "location": "x", "dayNumber": 1}
+                ],
+            },
+        }
+    }
+    problems: list = []
+    _validate_apparatus(_apparatus_manifest(), loaded, problems)
+    assert problems == []
+
+
+def test_validate_apparatus_fails_loudly_on_missing_draft_flag_and_coverage_hole():
+    from homer_pipeline.preflight import _validate_apparatus
+
+    loaded = {
+        "book-01.json": {
+            "book": 1,
+            "apparatus": {
+                "argument": "A clean argument.",
+                "scenes": [
+                    {"lines": [1, 4], "summary": "ok", "location": "x", "dayNumber": 1},
+                    {"lines": [6, 10], "summary": "ok", "location": "x", "dayNumber": 1},
+                ],
+            },
+        }
+    }
+    problems: list = []
+    _validate_apparatus(_apparatus_manifest(), loaded, problems)
+    messages = [p[2] for p in problems]
+    assert any("draft flag" in m for m in messages)
+    assert any("coverage hole" in m for m in messages)
