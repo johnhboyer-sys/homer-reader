@@ -9,8 +9,8 @@
   const HOUSE_WORKS = SORTED_WORKS.filter(w => w.author === HOUSE_AUTHOR);
   const COMMENTARIES = SORTED_WORKS.filter(w => w.author !== HOUSE_AUTHOR);
   // The closed select shows the chosen option's text, so carry the author into
-  // the label ONLY for a non-house work ("Isagoge (Porphyry)"): a Plato work on
-  // the Plato site is just its title, never "Euthyphro (Plato)".
+  // the label ONLY for a non-house work ("Isagoge (Porphyry)"): a Homer work on
+  // the Homer site is just its title, never "Iliad (Homer)".
   const optLabel = (w: { title: string; author: string }) =>
     w.author === HOUSE_AUTHOR ? w.title : `${w.title} (${w.author})`;
 

@@ -178,7 +178,7 @@ const breadcrumbLd = Astro.site
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'The Plato Reader',
+        { '@type': 'ListItem', position: 1, name: 'The Homer Reader',
           item: new URL(`${base}/`, Astro.site).href },
         { '@type': 'ListItem', position: 2, name: work.title,
           item: new URL(`${base}${workLanding(workId)}/`, Astro.site).href },
@@ -198,7 +198,7 @@ const breadcrumbLd = Astro.site
   <meta property="og:title" content={pageTitle} />
   <meta property="og:description" content={metaDescription} />
   {canonical && <meta property="og:url" content={canonical} />}
-  <meta property="og:site_name" content="The Plato Reader" />
+  <meta property="og:site_name" content="The Homer Reader" />
   {ogImage && <meta property="og:image" content={ogImage} />}
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -211,9 +211,6 @@ const breadcrumbLd = Astro.site
   <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
   <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cardo:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
   <style>
     .lp-body { max-width: 760px; margin: 0 auto; padding: 2rem 1rem 5rem; font-family: var(--font-english); color: var(--text); }
     .lp-eyebrow { font-family: var(--font-ui); font-size: 0.8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--text-mid); margin: 0 0 0.3rem; }
@@ -226,7 +223,7 @@ const breadcrumbLd = Astro.site
     .lp-btn[hidden] { display: none; }
     .lp-btn { display: inline-flex; align-items: center; gap: 0.4rem; font-family: var(--font-ui); font-size: 0.9rem; font-weight: 600; padding: 0.6rem 1.1rem; border-radius: 6px; text-decoration: none; border: 1px solid var(--border); color: var(--text); transition: transform .08s ease; }
     .lp-btn:active { transform: scale(0.97); }
-    .lp-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .lp-btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
     h2.lp-h { font-family: var(--font-ui); font-size: 0.95rem; font-weight: 700; letter-spacing: .03em; color: var(--accent); margin: 2.2rem 0 0.7rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
     /* Dramatis personae — each speaker in the hue the reader gives their name.
        data-spk resolves to one of the shared --spk-* palette vars (global.css). */
@@ -256,7 +253,7 @@ const breadcrumbLd = Astro.site
     .comm-title { font-family: var(--font-ui); font-weight: 700; font-size: 1rem; color: var(--text); }
     .comm-greek { font-weight: 500; color: var(--text-mid); }
     .comm-blurb { font-size: 0.86rem; line-height: 1.5; color: var(--text-mid); }
-    .comm-cta { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.2rem; font-family: var(--font-ui); font-weight: 600; font-size: 0.86rem; color: #fff; background: var(--accent); border: 1px solid var(--accent); border-radius: 6px; padding: 0.45rem 0.9rem; transition: transform .08s ease; }
+    .comm-cta { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.2rem; font-family: var(--font-ui); font-weight: 600; font-size: 0.86rem; color: var(--on-accent); background: var(--accent); border: 1px solid var(--accent); border-radius: 6px; padding: 0.45rem 0.9rem; transition: transform .08s ease; }
     .comm-card:hover .comm-cta { transform: translateX(2px); }
     .book-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: 0.5rem; }
     .book-list a { display: flex; justify-content: space-between; gap: 0.6rem; align-items: baseline; text-decoration: none; color: var(--text); padding: 0.55rem 0.7rem; border: 1px solid var(--border); border-radius: 6px; }
@@ -278,7 +275,10 @@ const breadcrumbLd = Astro.site
   <CommandPalette work={workId} client:load />
   <header class="simple-header">
     <div class="header-title">
-      <a class="home-link" href={`${base}/`} aria-label="All works">Home</a>
+      <a class="home-link home-wordmark" href={`${base}/`} aria-label="The Homer Reader — all works">
+        <span class="wordmark-name">The Homer Reader</span>
+        <span class="wordmark-eyebrow">Digital Landmark Edition</span>
+      </a>
       <span class="title-sep">›</span>
       <span class="header-static">{work.title}</span>
     </div>
@@ -289,6 +289,14 @@ const breadcrumbLd = Astro.site
       <ThemeToggle />
     </nav>
   </header>
+
+  <div class="contour-band" aria-hidden="true">
+    <svg viewBox="0 0 1200 46" preserveAspectRatio="none">
+      <path class="n1" d="M0 30 C 100 10, 180 42, 280 26 S 460 6, 560 24 S 740 40, 860 22 S 1040 8, 1200 26" />
+      <path class="n2" d="M0 38 C 120 22, 220 44, 340 32 S 520 16, 640 34 S 820 44, 940 30 S 1120 18, 1200 34" />
+      <path class="n3" d="M0 12 C 140 26, 260 4, 400 16 S 600 30, 760 12 S 980 2, 1200 14" />
+    </svg>
+  </div>
 
   <main class="lp-body">
     <p class="lp-eyebrow">{work.author} · {work.abbr}</p>
@@ -301,7 +309,7 @@ const breadcrumbLd = Astro.site
     )}
     {work.greekTitle && <p class="lp-greek" lang="grc">{work.greekTitle}</p>}
     {work.period && (
-      <p class="lp-period">Traditionally dated to Plato’s {work.period} period.</p>
+      <p class="lp-period">Traditionally dated to {work.author}’s {work.period} period.</p>
     )}
     <p class="lp-lede">{work.blurb}</p>
     <p class="lp-desc">
@@ -472,11 +480,19 @@ const breadcrumbLd = Astro.site
 
     <section class="support-card lp-support">
       <div class="eyebrow">Support <span class="gk">χάρις</span></div>
-      <h2>Support the Plato Reader</h2>
+      <h2>Support the Homer Reader</h2>
       <p>The reader is free and open. A contribution helps defray development costs and keeps it that way.</p>
       <a class="btn-donate" href={SUPPORT_URL} target="_blank" rel="noopener">Make a gift</a>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <span>Greek text: {work.greekSource.short} (Perseus, CC BY-SA)</span>
+    <span class="footer-sep" aria-hidden="true">·</span>
+    <span>Translations: public domain (Murray, Butler, Pope)</span>
+    <span class="footer-sep" aria-hidden="true">·</span>
+    <a href={`${base}/attribution`}>Texts &amp; Licences</a>
+  </footer>
 <script>
   // "Resume" CTA: appears when the reader has a saved position for this work
   // (localStorage — see shared/lib/resume.ts), linking to the remembered

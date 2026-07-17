@@ -16,26 +16,71 @@
   border: 0;
 }
 
+/* ── Aegean skin (2026-07-17) ─────────────────────────────────────────────
+   The palette below is a TOKEN LAYER: every colour/font var keeps its
+   original NAME (from the aristotle/plato-reader lineage) and only the
+   VALUE changed, so the skin is revertible by swapping values back — no
+   selector or markup depends on the palette. Previous ("Ionian teal")
+   values, for revert:
+     --font-greek:   "Cardo","Gentium Plus","Noto Serif",Georgia,serif
+     --font-english: "EB Garamond",Georgia,"Times New Roman",serif
+     --font-ui:      system-ui,-apple-system,sans-serif
+     --col-bg #f5f6f2 / dark #171d1e   --page-bg #eceee7 / dark #101415
+     --text   #171a1c / dark #dde4e3   --text-mid #545b5c / dark #a2adac
+     --text-light #616d6e / dark #808b8a
+     --accent #1f6f7a / dark #4fb8c4   --accent-light #4fa3ab / dark #82d2da
+     --border #d4d8d3 / dark #2a3334   --popup-bg #ffffff / dark #1d2426
+     --greek-hover rgba(31,111,122,.08) / dark rgba(255,255,255,.10)
+     --greek-hover-border rgba(31,111,122,.16) / dark rgba(255,255,255,.18)
+     --greek-active #cdeef0 / dark #1d3e40
+   New Aegean values sourced from docs/DESIGN.md + the hybrid-v2 mock
+   (marble ground, wine-dark indigo night mode, metallic bronze; terracotta
+   reserved for the draft badge only — see --terracotta below). Existing var
+   NAMES are reused for the roles the mock calls --ground/--ground-panel/
+   --ink/--ink-soft/--rule/--rule-strong/--bronze so every component that
+   already reads var(--col-bg), var(--text), var(--accent), etc. recolors
+   automatically; no component CSS needed to change for the recolor itself.
+   Type roles (Big Caslon/Palatino/Iowan Old Style/Optima system stacks —
+   see docs/DESIGN.md "TYPE ROLES") replace the prior Google-Fonts pairing;
+   the <link> webfont loads were removed from every page <head> in the same
+   change, so these are system-only stacks (font-display swap is moot with
+   no network request, but harmless to note: no blocking font fetch remains). */
 :root {
-  /* Cardo and EB Garamond loaded from Google Fonts in each page <head>.
-     Fallback chain works without the network load. */
-  --font-greek:   "Cardo", "Gentium Plus", "Noto Serif", Georgia, serif;
-  --font-english: "EB Garamond", Georgia, "Times New Roman", serif;
-  --font-ui:      system-ui, -apple-system, sans-serif;
+  --font-greek:   Palatino, "Palatino Linotype", "Times New Roman", Georgia, serif;
+  --font-english: "Iowan Old Style", Charter, Georgia, serif;
+  --font-ui:      Optima, Seravek, "Gill Sans", "Gill Sans MT", sans-serif;
+  /* Display face: cartouche titles, masthead wordmark, section headings that
+     want a bit more presence than the UI face. Not used pre-Aegean, so no
+     prior value to record above. */
+  --font-display: "Big Caslon", "Hoefler Text", "Palatino Linotype", Palatino, Georgia, serif;
 
-  --col-bg:       #f5f6f2;
-  --page-bg:      #eceee7;
-  --text:         #171a1c;
-  --text-mid:     #545b5c;
-  --text-light:   #616d6e;
-  --accent:       #1f6f7a;
-  --accent-light: #4fa3ab;
-  --border:       #d4d8d3;
-  --popup-bg:     #ffffff;
+  --col-bg:       #DFDCCE;  /* Aegean --ground-panel: marble, raised surfaces */
+  --page-bg:      #E9E7DD;  /* Aegean --ground: marble, page background */
+  --text:         #1B2233;  /* Aegean --ink: wine-dark indigo */
+  --text-mid:     #4A4F5C;  /* Aegean --ink-soft */
+  --text-light:   #4A4F5C;  /* collapsed onto --ink-soft: Aegean defines only two ink
+                                shades (see docs/DESIGN.md); both pass AA (6.61:1 on
+                                --page-bg, 4.54:1+ on --col-bg), so no third invented
+                                shade — deliberate collapse, not an oversight. */
+  --accent:       #7C5A2E;  /* Aegean --bronze: the single wayfinding/structural accent
+                                (nav hover, work-switcher, chapter-nav active, etc.) */
+  --accent-light: #9C7539;  /* Aegean --bronze-bright: decorative/hover-emphasis tint */
+  --border:       #C9C4B0;  /* Aegean --rule: soft decorative hairline */
+  --popup-bg:     #DFDCCE;  /* same raised surface as --col-bg */
   --popup-shadow: 0 4px 24px rgba(0,0,0,.18);
-  --greek-hover:        rgba(31, 111, 122, 0.08);
-  --greek-hover-border: rgba(31, 111, 122, 0.16);
-  --greek-active: #cdeef0;
+  --greek-hover:        color-mix(in srgb, var(--accent) 10%, transparent);
+  --greek-hover-border: color-mix(in srgb, var(--accent) 20%, transparent);
+  --greek-active:       color-mix(in srgb, var(--accent) 24%, var(--page-bg));
+
+  /* A strong hairline / gutter-number colour, one step darker than --border —
+     Aegean's --rule-strong role (verse-line gutter numbers, masthead rule,
+     cartouche double-hairline). New token: the prior palette had no second
+     rule strength (a single --border did both jobs). */
+  --rule-strong:  #23405C;
+  /* Honesty-flag colour for draft/unreviewed apparatus (CLAUDE.md "Apparatus
+     honesty"). New token, wired to .draft-badge / .status-tag-draft ONLY —
+     never a general accent, per the project's one-red-flag-only rule. */
+  --terracotta:   #9C4530;
 
   /* Semantic colours used in a few hardcoded spots; aliased here so the dark
      theme can remap them. */
@@ -47,34 +92,43 @@
   --error:        #b22323;
   color-scheme:   light;
 
-  /* Greek (Cardo) and English (EB Garamond) balanced so neither column
+  /* Greek (Palatino) and English (Iowan Old Style) balanced so neither column
      dominates: equal-ish optical size, and Greek verse leading compressed
      toward the English so the two columns sit at roughly the same height. */
   --lh-greek:     1.7;
   --lh-english:   1.72;
   --fs-greek:     1.05rem;
-  --fs-english:   1.08rem;  /* nudged up: EB Garamond x-height < Cardo, so 1.08 reads equal to Greek 1.05 */
+  --fs-english:   1.08rem;  /* nudged up to balance the two typefaces' x-heights */
   --fs-ref:       0.78rem;
   --fs-linenum:   0.72rem;
 }
 
 /* ── Night mode ───────────────────────────────────────────────────────
-   Warm dark palette (not pure black) to keep the parchment-reader feel.
-   Activated by data-theme="dark" on <html>, set by ThemeInit before paint. */
+   Wine-dark indigo night mode (Aegean), not the prior teal-black. Activated
+   by data-theme="dark" on <html>, set by ThemeInit before paint. */
 :root[data-theme="dark"] {
-  --col-bg:       #171d1e;
-  --page-bg:      #101415;
-  --text:         #dde4e3;
-  --text-mid:     #a2adac;
-  --text-light:   #808b8a;
-  --accent:       #4fb8c4;
-  --accent-light: #82d2da;
-  --border:       #2a3334;
-  --popup-bg:     #1d2426;
+  --col-bg:       #101E33;  /* Aegean --ground-panel dark */
+  --page-bg:      #0B1526;  /* Aegean --ground dark */
+  --text:         #EDE6D6;  /* Aegean --ink dark (bone) */
+  --text-mid:     #B9B2A0;  /* Aegean --ink-soft dark */
+  --text-light:   #B9B2A0;  /* same collapse as light mode, see note above */
+  --accent:       #C89B5C;  /* Aegean --bronze dark */
+  --accent-light: #E0B876;  /* Aegean --bronze-bright dark */
+  --border:       #24354C;  /* Aegean --rule dark */
+  --popup-bg:     #101E33;
   --popup-shadow: 0 6px 28px rgba(0,0,0,.55);
-  --greek-hover:        rgba(255, 255, 255, 0.10);
-  --greek-hover-border: rgba(255, 255, 255, 0.18);
-  --greek-active: #1d3e40;
+  --greek-hover:        color-mix(in srgb, var(--accent) 14%, transparent);
+  --greek-hover-border: color-mix(in srgb, var(--accent) 24%, transparent);
+  --greek-active:       color-mix(in srgb, var(--accent) 26%, var(--page-bg));
+
+  /* Derived, not a straight Aegean token: raw --sea-line (#17304A) sits at
+     only ~1.4:1 against --page-bg dark and nearly vanishes as a hairline.
+     #35506E (a lightened, same-hue --rule-strong) lands at 2.20:1 —
+     decorative-only threshold (3:1 UI-component/non-text), matching rather
+     than regressing the mock's own dark rule-strong precedent. See
+     docs/DESIGN.md's CONTRAST TABLE for the full computed set. */
+  --rule-strong:  #35506E;
+  --terracotta:   #D97A61;
 
   --on-accent:    #0d1415;   /* dark text reads on the lighter dark-mode accent */
   --input-bg:     #1d2426;
@@ -87,10 +141,10 @@
 
 /* Dark-mode select chevron (lighter stroke to match the dark accent). */
 :root[data-theme="dark"] .trans-picker select {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%234fb8c4' stroke-width='1.5'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%23C89B5C' stroke-width='1.5'/></svg>");
 }
 :root[data-theme="dark"] .work-switcher {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.75l5 5 5-5' fill='none' stroke='%234fb8c4' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.75l5 5 5-5' fill='none' stroke='%23C89B5C' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
 }
 
 html {
@@ -201,7 +255,7 @@ body {
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.75l5 5 5-5' fill='none' stroke='%231f6f7a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1.75l5 5 5-5' fill='none' stroke='%237C5A2E' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
   background-repeat: no-repeat;
   background-position: right 0.6rem center;
 }
@@ -733,7 +787,7 @@ body {
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%231f6f7a' stroke-width='1.5'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%237C5A2E' stroke-width='1.5'/></svg>");
   background-repeat: no-repeat;
   background-position: right 0.55rem center;
 }
@@ -919,7 +973,7 @@ body {
 .chapter-head::after {
   content: "";
   flex: 1;
-  border-top: 2px solid var(--accent, #1f6f7a);
+  border-top: 2px solid var(--accent, #7C5A2E);
   opacity: 0.35;
 }
 .chapter-label {
@@ -927,7 +981,7 @@ body {
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: .04em;
-  color: var(--accent, #1f6f7a);
+  color: var(--accent, #7C5A2E);
   text-transform: uppercase;
 }
 .chapter-bekker {
@@ -1175,6 +1229,22 @@ body {
   padding-left: 1.6em;
   text-indent: -1.6em;
 }
+
+/* Aegean skin (2026-07-17): gutter numerals in the wayfinding accent. Every
+   number `showLineNum()` (Reader.svelte) ever renders IS a tick (line 1, or a
+   multiple of 5 — the same 5-line cadence the hybrid-v2 mock marks with
+   data-marked="1"); non-tick lines render an empty string, so there is no
+   separate "unmarked" gutter state to give a second colour to here. Applies
+   to both the Greek gutter (.line-num) and the English floated milestone
+   marker (.bk-num) so the two columns' ticks read as one system. AA: bronze
+   on --page-bg is 5.04:1 (light) / 7.22:1 (dark) — see docs/DESIGN.md's
+   contrast table. */
+.reader-body.verse-line .line-num,
+.reader-body.verse-line .bk-num {
+  color: var(--accent);
+  font-weight: 600;
+}
+.reader-body.verse-line .bk-num.approx { font-weight: 400; }
 
 /* An athetized/bracketed line (editorial tradition marks it spurious, e.g. a
    disputed Iliad/Odyssey verse): visibly set apart by a muted text colour —
@@ -2208,7 +2278,7 @@ body {
 }
 .toc-toggle:hover { border-color: var(--accent-light); color: var(--text); }
 .toc-toggle-icon { font-size: 1rem; line-height: 1; }
-body.toc-open .toc-toggle { background: var(--accent); border-color: var(--accent); color: #fff; }
+body.toc-open .toc-toggle { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 
 .toc-backdrop {
   position: fixed;
@@ -2733,7 +2803,7 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   position: fixed;
   z-index: 300;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   border: none;
   border-radius: 5px;
   padding: 0.28rem 0.55rem;
@@ -2815,6 +2885,130 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 @media (prefers-reduced-motion: reduce) {
   .settings-sidebar { transition: none; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Aegean chrome (2026-07-17): masthead wordmark, contour band, cartouche
+   book plate, site footer credits — per docs/DESIGN.md and the hybrid-v2
+   mock. Everything here reads existing tokens only; no new palette values.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Masthead wordmark + eyebrow: replaces the bare "Home" text link in the
+   reader/landing/simple-header identity slot on every page. Compact enough
+   to sit in the existing sticky header row (unlike the mock's full-height
+   masthead, which John rejected in favour of Chart-Room's restraint — see
+   docs/DESIGN.md). */
+.home-wordmark {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.05;
+  gap: 0.1rem;
+}
+.home-wordmark .wordmark-name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+}
+.home-wordmark .wordmark-eyebrow {
+  font-family: var(--font-ui);
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+.home-wordmark:hover .wordmark-name { color: var(--accent); }
+
+/* Contour band: a decorative topographic hairline strip under the masthead
+   (inline SVG from the hybrid-v2 mock, recoloured to the Aegean rule/bronze
+   tokens). aria-hidden — pure ornament, no content. */
+.contour-band {
+  border-bottom: 1px solid var(--border);
+  background: var(--page-bg);
+  line-height: 0;
+}
+.contour-band svg { display: block; width: 100%; height: 22px; }
+.contour-band path { fill: none; stroke: var(--rule-strong); stroke-width: 1; }
+.contour-band path.n2 { stroke: var(--border); }
+.contour-band path.n3 { stroke: var(--accent-light); opacity: 0.55; }
+
+/* Cartouche: the compact double-hairline book plate (per docs/DESIGN.md
+   "Book plate: compact"). Renders unconditionally (title); the argument
+   line and where/who/day strip render only when the optional book-data
+   fields are present — no placeholder text ships ahead of real apparatus
+   data (Phase 4). */
+.book-plate {
+  margin: 1.25rem 0 1.75rem;
+  border: 1px solid var(--rule-strong);
+  padding: 0.85rem 1.4rem 0.95rem;
+  position: relative;
+}
+.book-plate::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--border);
+  pointer-events: none;
+}
+.book-plate-titles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.9rem;
+}
+.book-plate-greek {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  color: var(--text);
+}
+.book-plate-en {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.book-plate-argument {
+  margin: 0.45rem 0 0.6rem;
+  max-width: 64ch;
+  font-style: italic;
+  color: var(--text-mid);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+.book-plate-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  color: var(--text-mid);
+}
+.book-plate-meta .sep { margin: 0 0.5rem; color: var(--rule-strong); }
+
+/* Site footer: the three source credits (Greek text, translation, lexica),
+   present on every reader page (requirement: kill the standalone pages'
+   missing-footer gap; Landing.astro already carries a longer credits block
+   for its own work, so this stays terse and points there for detail). */
+.site-footer {
+  border-top: 1px solid var(--rule-strong);
+  margin-top: 2.5rem;
+  padding: 1.1rem 1.5rem 2rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--text-mid);
+  line-height: 1.7;
+  text-align: center;
+}
+.site-footer a { color: var(--text-mid); }
+.site-footer a:hover { color: var(--accent); }
+.site-footer .footer-sep { margin: 0 0.5rem; color: var(--border); }
 
 /* ─────────────────────────────────────────────────────────────────────────
    Print / Save-as-PDF (static-web tier)

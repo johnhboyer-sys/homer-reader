@@ -32,7 +32,23 @@ const busse = work.citation?.scheme === 'busse';
 // Stephanus pages (from sections.json) instead of chapters (chapters.json is
 // empty for them).
 const stephanus = work.citation?.scheme === 'stephanus';
+const verseLine = work.citation?.scheme === 'verse-line';
 const label = bookLabel(work, n);
+
+// Cartouche book-plate title: the traditional Greek-letter book citation
+// (Ἰλιάδος Α, Ὀδυσσείας α — Iliad books Α–Ω capital, Odyssey books α–ω
+// lowercase, the inherited Alexandrian convention; both epics run exactly
+// 24 books, so no digamma/stigma numeral extension is needed). Genitive
+// title stems are the standard dictionary genitives of Ἰλιάς/Ὀδύσσεια.
+const GREEK_BOOK_LETTERS = ['Α','Β','Γ','Δ','Ε','Ζ','Η','Θ','Ι','Κ','Λ','Μ','Ν','Ξ','Ο','Π','Ρ','Σ','Τ','Υ','Φ','Χ','Ψ','Ω'];
+const GREEK_TITLE_GENITIVE: Record<string, string> = { iliad: 'ΙΛΙΑΔΟΣ', odyssey: 'ΟΔΥΣΣΕΙΑΣ' };
+const bookGreekLetter = (): string => {
+  const letter = GREEK_BOOK_LETTERS[n - 1] ?? String(n);
+  return workId === 'odyssey' ? letter.toLowerCase() : letter;
+};
+const cartoucheGreek = GREEK_TITLE_GENITIVE[workId]
+  ? `${GREEK_TITLE_GENITIVE[workId]} ${bookGreekLetter()}`
+  : undefined;
 
 interface ChapterRef { chapter: string; column: string; line: string; bekker: string; }
 const allChapters: Record<string, ChapterRef[]> = JSON.parse(
@@ -73,6 +89,14 @@ const pageHref = (b: number, column: string) =>
 const bookData = JSON.parse(
   readFileSync(`public/data/${workId}/book-${String(n).padStart(2, '0')}.json`, 'utf-8'),
 );
+
+// Cartouche apparatus slots (argument line + where/who/day strip): optional,
+// Phase-4 fields on a book's data. Absent today (no pipeline stage emits
+// them yet), so the cartouche renders title-only until a future apparatus
+// pass populates `bookData.apparatus` — no lorem/placeholder text ships in
+// the meantime (CLAUDE.md "Apparatus honesty").
+interface BookApparatus { argument?: string; where?: string; who?: string[]; day?: string; }
+const apparatus: BookApparatus | undefined = bookData.apparatus;
 
 // Whole-work speaker-display roster (memoized), so speaker-name colours are
 // stable across books and match the landing cast list (see speaker-roster.ts).
@@ -187,7 +211,7 @@ const intro =
   <meta property="og:title" content={pageTitle} />
   <meta property="og:description" content={metaDescription} />
   {canonical && <meta property="og:url" content={canonical} />}
-  <meta property="og:site_name" content="The Plato Reader" />
+  <meta property="og:site_name" content="The Homer Reader" />
   {ogImage && <meta property="og:image" content={ogImage} />}
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -200,12 +224,6 @@ const intro =
   <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
   <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cardo:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
-  <!-- Display faces used only by the print masthead; media="print" defers the
-       fetch so it never costs the on-screen reader. -->
-  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@1,600&family=DM+Mono:wght@400&display=swap" rel="stylesheet" media="print" />
   <Pwa />
 </head>
 <body>
@@ -223,7 +241,10 @@ const intro =
         <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text">Contents</span>
       </button>
       <div class="header-title">
-        <a class="home-link" href={`${base}/`} aria-label="All works">Home</a>
+        <a class="home-link home-wordmark" href={`${base}/`} aria-label="The Homer Reader — all works">
+          <span class="wordmark-name">The Homer Reader</span>
+          <span class="wordmark-eyebrow">Digital Landmark Edition</span>
+        </a>
         <span class="title-sep">›</span>
         <WorkSwitcher work={workId} client:load />
       </div>
@@ -320,6 +341,14 @@ const intro =
       )}
     </div>
   </header>
+
+  <div class="contour-band" aria-hidden="true">
+    <svg viewBox="0 0 1200 46" preserveAspectRatio="none">
+      <path class="n1" d="M0 30 C 100 10, 180 42, 280 26 S 460 6, 560 24 S 740 40, 860 22 S 1040 8, 1200 26" />
+      <path class="n2" d="M0 38 C 120 22, 220 44, 340 32 S 520 16, 640 34 S 820 44, 940 30 S 1120 18, 1200 34" />
+      <path class="n3" d="M0 12 C 140 26, 260 4, 400 16 S 600 30, 760 12 S 980 2, 1200 14" />
+    </svg>
+  </div>
 
   <div class="toc-backdrop" id="toc-backdrop" hidden></div>
   <aside class="toc-sidebar" id="toc-sidebar" aria-label={`${work.title} — table of contents`} aria-hidden="true">
@@ -557,7 +586,41 @@ const intro =
     }
   </script>
 
+  {verseLine && !bookless && (
+    <section class="book-plate" aria-label={`${work.title}, Book ${label} — book plate`}>
+      <div class="book-plate-titles">
+        {cartoucheGreek && <div class="book-plate-greek" lang="grc">{cartoucheGreek}</div>}
+        <div class="book-plate-en">{work.title} · Book {label}</div>
+      </div>
+      {apparatus?.argument && <p class="book-plate-argument">{apparatus.argument}</p>}
+      {apparatus && (apparatus.where || apparatus.who?.length || apparatus.day) && (
+        <div class="book-plate-meta">
+          {apparatus.where && <span>{apparatus.where}</span>}
+          {apparatus.who?.map((w) => (
+            <>
+              <span class="sep">·</span>
+              <span>{w}</span>
+            </>
+          ))}
+          {apparatus.day && (
+            <>
+              <span class="sep">·</span>
+              <span>{apparatus.day}</span>
+            </>
+          )}
+        </div>
+      )}
+    </section>
+  )}
   <Reader work={workId} bookNum={n} bookData={bookData} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:load />
   <CommandPalette work={workId} client:load />
+
+  <footer class="site-footer">
+    <span>Greek text: {work.greekSource.short} (Perseus, CC BY-SA)</span>
+    <span class="footer-sep" aria-hidden="true">·</span>
+    <span>Translations: public domain (Murray, Butler, Pope)</span>
+    <span class="footer-sep" aria-hidden="true">·</span>
+    <a href={`${base}/attribution`}>Texts &amp; Licences</a>
+  </footer>
 </body>
 </html>

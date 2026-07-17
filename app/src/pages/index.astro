@@ -12,9 +12,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 // Home-page SEO + social card (absolute URLs need Astro.site, set in config).
 const homeDescription =
-  'Read the complete works of Plato with the original Greek and a facing' +
+  'Read Homer’s Iliad and Odyssey with the original Greek and a facing' +
   ' English translation, side by side — with click-to-parse morphology,' +
-  ' dictionary lookup, Stephanus citation, and full-text search across the corpus.';
+  ' dictionary lookup, vulgate line citation, and full-text search across the corpus.';
 const canonical = Astro.site ? new URL(`${base}/`, Astro.site).href : undefined;
 const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
 // Resolve the corpus taxonomy into per-shelf view models. Each shelf holds a
@@ -65,15 +65,15 @@ const structuredData = Astro.site
       {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
-        name: 'The Plato Reader',
-        alternateName: 'Plato in Greek & English',
+        name: 'The Homer Reader',
+        alternateName: 'Homer in Greek & English',
         url: new URL(`${base}/`, Astro.site).href,
         description: homeDescription,
       },
       {
         '@context': 'https://schema.org',
         '@type': 'ItemList',
-        name: 'The Complete Works of Plato',
+        name: 'The Iliad and the Odyssey',
         numberOfItems: builtWorks.length,
         itemListElement: builtWorks.map((c, i) => ({
           '@type': 'ListItem',
@@ -93,19 +93,19 @@ const structuredData = Astro.site
        verification token here (a sibling reader's token was intentionally
        removed from this file — it belongs to a different GSC property). -->
   <ThemeInit />
-  <title>The Plato Reader — Complete Works in Greek &amp; English</title>
+  <title>The Homer Reader — The Iliad &amp; Odyssey in Greek &amp; English</title>
   <meta name="description" content={homeDescription} />
   {canonical && <link rel="canonical" href={canonical} />}
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="The Plato Reader — Complete Works in Greek & English" />
+  <meta property="og:title" content="The Homer Reader — The Iliad & Odyssey in Greek & English" />
   <meta property="og:description" content={homeDescription} />
-  <meta property="og:site_name" content="The Plato Reader" />
+  <meta property="og:site_name" content="The Homer Reader" />
   {canonical && <meta property="og:url" content={canonical} />}
   {ogImage && <meta property="og:image" content={ogImage} />}
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="The Plato Reader — Complete Works in Greek & English" />
+  <meta name="twitter:title" content="The Homer Reader — The Iliad & Odyssey in Greek & English" />
   <meta name="twitter:description" content={homeDescription} />
   {ogImage && <meta name="twitter:image" content={ogImage} />}
   {structuredData && structuredData.map((sd) => (
@@ -114,9 +114,6 @@ const structuredData = Astro.site
   <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
   <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cardo:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
   <Pwa />
 </head>
 <body class="home">
@@ -124,15 +121,23 @@ const structuredData = Astro.site
   <div class="home-theme"><ThemeToggle /></div>
   <main class="corpus">
     <header class="masthead">
-      <p class="eyebrow">Plato</p>
-      <h1>The Plato Reader</h1>
-      <p class="lede">A parallel-text reader with morphology, dictionary, and Stephanus citation. Choose a dialogue to begin.</p>
+      <p class="eyebrow">Digital Landmark Edition</p>
+      <h1>The Homer Reader</h1>
+      <p class="lede">A parallel-text edition of the Iliad and the Odyssey, with morphology, dictionary lookup, and vulgate line citation. Choose an epic to begin.</p>
       <p class="wip-note">
         <strong>Work in progress.</strong> The translation alignment is still
         being refined. Spotted an error or have a suggestion?
         <button id="feedback-btn-wip" style="background:none;border:none;padding:0;cursor:pointer;font:inherit;color:var(--accent);text-decoration:underline;">Let me know</button>.
       </p>
     </header>
+
+    <div class="contour-band" aria-hidden="true">
+      <svg viewBox="0 0 1200 46" preserveAspectRatio="none">
+        <path class="n1" d="M0 30 C 100 10, 180 42, 280 26 S 460 6, 560 24 S 740 40, 860 22 S 1040 8, 1200 26" />
+        <path class="n2" d="M0 38 C 120 22, 220 44, 340 32 S 520 16, 640 34 S 820 44, 940 30 S 1120 18, 1200 34" />
+        <path class="n3" d="M0 12 C 140 26, 260 4, 400 16 S 600 30, 760 12 S 980 2, 1200 14" />
+      </svg>
+    </div>
 
     <a
       class="search-card resume-card"
@@ -162,7 +167,7 @@ const structuredData = Astro.site
 
     <section class="support-card">
       <div class="eyebrow">Support <span class="gk">χάρις</span></div>
-      <h2>Support the Plato Reader</h2>
+      <h2>Support the Homer Reader</h2>
       <p>The reader is free and open. A contribution helps defray development costs and keeps it that way.</p>
       <a class="btn-donate" href={SUPPORT_URL} target="_blank" rel="noopener">Make a gift</a>
     </section>
@@ -218,8 +223,6 @@ const structuredData = Astro.site
     </div>
 
     <nav class="home-foot">
-      <a class="foot-sibling" href="https://johnhboyer-sys.github.io/aristotle-reader/" target="_blank" rel="noopener">Also: The Aristotle Reader ↗</a>
-      <span aria-hidden="true">·</span>
       <a href={`${base}/attribution`}>Texts &amp; Licences</a>
       <span aria-hidden="true">·</span>
       <a href={`${base}/support`}>Support</a>
@@ -546,7 +549,7 @@ const structuredData = Astro.site
     }
     .fb-cancel:hover { border-color: var(--text-mid); }
     .fb-submit {
-      background: var(--accent); color: #fff; border: none; border-radius: 4px;
+      background: var(--accent); color: var(--on-accent); border: none; border-radius: 4px;
       padding: .4rem 1rem; cursor: pointer; font: inherit; font-size: .85rem;
       font-weight: 600;
     }
@@ -625,8 +628,8 @@ const structuredData = Astro.site
       if (!msg) return;
       const type = (document.querySelector('input[name="fb-type"]:checked') as HTMLInputElement).value;
       const subject = type === 'feature'
-        ? 'Plato Reader: Feature Request'
-        : 'Plato Reader: Bug Report';
+        ? 'Homer Reader: Feature Request'
+        : 'Homer Reader: Bug Report';
       window.location.href =
         `mailto:jhboyer@loyno.edu?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}`;
       close();

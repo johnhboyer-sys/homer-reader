@@ -10,11 +10,11 @@ import { jsonLdSafe } from '../lib/jsonld';
 import '@shared/styles/global.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const pageTitle = 'Support the Plato Reader';
+const pageTitle = 'Support the Homer Reader';
 const metaDescription =
-  'Help keep the Plato Reader free and open — an ad-free parallel ' +
-  'Greek–English edition of Plato’s dialogues, with click-to-parse ' +
-  'morphology, dictionary entries, and exact Stephanus citation.';
+  'Help keep the Homer Reader free and open — an ad-free parallel ' +
+  'Greek–English edition of the Iliad and the Odyssey, with click-to-parse ' +
+  'morphology, dictionary entries, and exact vulgate line citation.';
 const canonical = Astro.site
   ? new URL(`${base}/support/`, Astro.site).href : undefined;
 const ogImage = Astro.site
@@ -25,7 +25,7 @@ const jsonLd = {
   name: pageTitle,
   description: metaDescription,
   ...(canonical ? { url: canonical } : {}),
-  isPartOf: { '@type': 'WebSite', name: 'The Plato Reader' },
+  isPartOf: { '@type': 'WebSite', name: 'The Homer Reader' },
   potentialAction: {
     '@type': 'DonateAction',
     target: SUPPORT_URL,
@@ -44,7 +44,7 @@ const jsonLd = {
   <meta property="og:title" content={pageTitle} />
   <meta property="og:description" content={metaDescription} />
   {canonical && <meta property="og:url" content={canonical} />}
-  <meta property="og:site_name" content="The Plato Reader" />
+  <meta property="og:site_name" content="The Homer Reader" />
   {ogImage && <meta property="og:image" content={ogImage} />}
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -56,9 +56,6 @@ const jsonLd = {
   <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
   <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cardo:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
   <style>
     .sp-body { max-width: 600px; margin: 0 auto; padding: 3rem 1rem 5rem; font-family: var(--font-english); color: var(--text); }
     .sp-eyebrow {
@@ -82,7 +79,7 @@ const jsonLd = {
 <body>
   <header class="simple-header">
     <div class="header-title">
-      <a class="home-link" href={`${base}/`}>Plato</a>
+      <a class="home-link" href={`${base}/`}>Homer</a>
       <span class="title-sep">›</span>
       <span class="header-static">Support</span>
     </div>
@@ -95,11 +92,11 @@ const jsonLd = {
 
   <main class="sp-body">
     <p class="sp-eyebrow">Support <span class="gk">χάρις</span></p>
-    <h1>Support the Plato Reader</h1>
+    <h1>Support the Homer Reader</h1>
     <p class="sp-lede">
-      The Plato Reader is an ad-free parallel Greek–English edition of
-      Plato’s dialogues — with click-to-parse morphology, dictionary
-      entries, and exact Stephanus citation. It is free to read and always will be.
+      The Homer Reader is an ad-free parallel Greek–English edition of
+      the Iliad and the Odyssey — with click-to-parse morphology, dictionary
+      entries, and exact vulgate line citation. It is free to read and always will be.
     </p>
     <p>
       It is built and maintained by one person, and runs on no advertising and no

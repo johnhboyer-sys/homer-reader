@@ -2,7 +2,7 @@
 // A single lemma's reference page (the "lemma pages" spike), served at
 // /lemma/<slug>. Fuses three layers over one Greek word:
 //   ① LSJ definition (English)            — what it means
-//   ② corpus-wide frequency + per-work    — how much Plato uses it
+//   ② corpus-wide frequency + per-work    — how much Homer uses it
 //   ③ a concordance sample                — every use links back into the reader
 // Data is precomputed by scripts/build-lemmata.mjs into
 // public/data/lemmata/<slug>.json; this page just renders it at build time.
@@ -81,12 +81,12 @@ const worksView = data.instancesByWork.map((w) => {
 
 // ── SEO ─────────────────────────────────────────────────────────────────────
 const gloss = data.glosses[0] ?? '';
-const pageTitle = `${data.head} (${data.slug}) — Plato's Greek Lexicon: ${gloss || 'definition & occurrences'}`;
+const pageTitle = `${data.head} (${data.slug}) — Homer's Greek Lexicon: ${gloss || 'definition & occurrences'}`;
 const metaDescription =
-  `${data.head} in Plato${gloss ? ` — "${gloss}"` : ''}. Appears ${data.count}` +
+  `${data.head} in Homer${gloss ? ` — "${gloss}"` : ''}. Appears ${data.count}` +
   ` times across the corpus (${data.byWork.slice(0, 3).map((b) => b.title).join(', ')}…),` +
   ` with the LSJ definition, frequency by work, and every occurrence linked to the` +
-  ` parallel Greek–English text with Stephanus citation.`;
+  ` parallel Greek–English text with vulgate line citation.`;
 const canonical = Astro.site
   ? new URL(`${base}/lemma/${data.slug}/`, Astro.site).href : undefined;
 const ogImage = Astro.site
@@ -100,7 +100,7 @@ const definedTerm = {
   ...(canonical ? { url: canonical } : {}),
   inDefinedTermSet: {
     '@type': 'DefinedTermSet',
-    name: "Lexicon of Plato's Greek",
+    name: "Lexicon of Homer's Greek",
     url: Astro.site ? new URL(`${base}/lemma/`, Astro.site).href : undefined,
   },
 };
@@ -108,7 +108,7 @@ const breadcrumb = Astro.site ? {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Plato', item: new URL(`${base}/`, Astro.site).href },
+    { '@type': 'ListItem', position: 1, name: 'Homer', item: new URL(`${base}/`, Astro.site).href },
     { '@type': 'ListItem', position: 2, name: 'Greek Lexicon', item: new URL(`${base}/lemma/`, Astro.site).href },
     { '@type': 'ListItem', position: 3, name: data.head, item: canonical },
   ],
@@ -126,7 +126,7 @@ const breadcrumb = Astro.site ? {
   <meta property="og:title" content={pageTitle} />
   <meta property="og:description" content={metaDescription} />
   {canonical && <meta property="og:url" content={canonical} />}
-  <meta property="og:site_name" content="The Plato Reader" />
+  <meta property="og:site_name" content="The Homer Reader" />
   {ogImage && <meta property="og:image" content={ogImage} />}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={pageTitle} />
@@ -137,9 +137,6 @@ const breadcrumb = Astro.site ? {
   <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
   <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cardo:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
   <style>
     .lx-body { max-width: 820px; margin: 0 auto; padding: 2rem 1rem 5rem; font-family: var(--font-english); color: var(--text); }
     .lx-head-gk { font-family: var(--font-greek); font-size: 2.6rem; font-weight: 600; line-height: 1.1; margin: 0; }
@@ -205,7 +202,7 @@ const breadcrumb = Astro.site ? {
 <body>
   <header class="simple-header">
     <div class="header-title">
-      <a class="home-link" href={`${base}/`}>Plato</a>
+      <a class="home-link" href={`${base}/`}>Homer</a>
       <span class="title-sep">›</span>
       <a class="home-link" href={`${base}/lemma/`}>Greek Lexicon</a>
       <span class="title-sep">›</span>
@@ -223,10 +220,10 @@ const breadcrumb = Astro.site ? {
     <h1 class="lx-head-gk" lang="grc">{data.head}</h1>
     <p class="lx-translit">{data.slug}</p>
     {gloss && <p class="lx-gloss">{data.glosses.join('; ')}</p>}
-    <p class="lx-freq">Appears <b>{data.count.toLocaleString()}</b> times across Plato's dialogues.</p>
+    <p class="lx-freq">Appears <b>{data.count.toLocaleString()}</b> times across Homer's epics.</p>
 
     <h2 class="lx-h">Frequency by work</h2>
-    <p class="lx-note">Click a work to list every occurrence by Stephanus page — each links into the reader.</p>
+    <p class="lx-note">Click a work to list every occurrence by book &amp; line — each links into the reader.</p>
     <ul class="lx-freqbars">
       {worksView.map((w) => (
         <li>

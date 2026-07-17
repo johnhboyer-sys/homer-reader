@@ -10,9 +10,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 // encumbered overlays are carried; every production/public build drops them
 // entirely, so the "local only" legend below is suppressed there.
 const hasPrivate = WORKS.some((w) => w.translations.some((t) => t.private));
-const pageTitle = 'Texts & Licences — Plato Reader';
+const pageTitle = 'Texts & Licences — Homer Reader';
 const metaDescription =
-  'Source and licence information for the Plato Reader: Greek texts, English translations, LSJ lexicon data, Stephanus pagination, and open-source code.';
+  'Source and licence information for the Homer Reader: Greek texts, English translations, LSJ and Cunliffe lexicon data, vulgate line numbering, and open-source code.';
 const canonical = Astro.site ? new URL(`${base}/attribution/`, Astro.site).href : undefined;
 const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
 const jsonLd = {
@@ -21,7 +21,7 @@ const jsonLd = {
   name: pageTitle,
   description: metaDescription,
   ...(canonical ? { url: canonical } : {}),
-  isPartOf: { '@type': 'WebSite', name: 'The Plato Reader' },
+  isPartOf: { '@type': 'WebSite', name: 'The Homer Reader' },
 };
 ---
 <html lang="en">
@@ -35,7 +35,7 @@ const jsonLd = {
   <meta property="og:type" content="website" />
   <meta property="og:title" content={pageTitle} />
   <meta property="og:description" content={metaDescription} />
-  <meta property="og:site_name" content="The Plato Reader" />
+  <meta property="og:site_name" content="The Homer Reader" />
   {canonical && <meta property="og:url" content={canonical} />}
   {ogImage && <meta property="og:image" content={ogImage} />}
   <meta name="twitter:card" content="summary_large_image" />
@@ -46,9 +46,6 @@ const jsonLd = {
   <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
   <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cardo:ital@0;1&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
   <style>
     .attr-body {
       max-width: 680px;
@@ -130,7 +127,7 @@ const jsonLd = {
 <body>
   <header class="simple-header">
     <div class="header-title">
-      <a class="home-link" href={`${base}/`}>Plato</a>
+      <a class="home-link" href={`${base}/`}>Homer</a>
       <span class="title-sep">›</span>
       <span class="header-static">Texts &amp; Licences</span>
     </div>
@@ -142,7 +139,7 @@ const jsonLd = {
   </header>
 
   <main class="attr-body">
-    <h1 class="sr-only">Texts and licences for the Plato Reader</h1>
+    <h1 class="sr-only">Texts and licences for the Homer Reader</h1>
     <h2>Texts &amp; Licences</h2>
     <p>
       This reader presents Greek texts, English translations, and reference
@@ -151,21 +148,24 @@ const jsonLd = {
     </p>
 
     <h2>
-      Greek Lexicon (LSJ)
+      Greek Lexicon (LSJ &amp; Cunliffe)
       <span class="licence-badge cc">CC BY-SA 3.0</span>
     </h2>
     <p>
-      The word popups and lemma entries are drawn from the
+      The word popups and lemma entries draw first on the
       <em>Greek–English Lexicon</em> of Henry George Liddell and Robert Scott,
       revised by Sir Henry Stuart Jones with the assistance of Roderick McKenzie
-      (Oxford: Clarendon Press, 9th ed. 1940; supplement 1996).
+      (Oxford: Clarendon Press, 9th ed. 1940; supplement 1996), and second on
+      Richard John Cunliffe's <em>A Lexicon of the Homeric Dialect</em>
+      (1924), a dictionary compiled specifically from Homeric usage.
     </p>
     <p>
-      The machine-readable edition used here is the XML transcription prepared
+      The machine-readable LSJ edition used here is the XML transcription prepared
       by the <a href="https://www.perseus.tufts.edu/">Perseus Digital Library</a>
       at Tufts University and is made available under a
       <a href="https://creativecommons.org/licenses/by-sa/3.0/us/">
         Creative Commons Attribution-ShareAlike 3.0 United States</a> licence.
+      Cunliffe's lexicon (1924) is in the public domain in the US.
     </p>
     <blockquote>
       Liddell, Henry George, and Robert Scott.
@@ -176,25 +176,30 @@ const jsonLd = {
       Trustees of Tufts University.
       <a href="https://creativecommons.org/licenses/by-sa/3.0/us/">CC BY-SA 3.0 US</a>.
     </blockquote>
+    <blockquote>
+      Cunliffe, Richard John.
+      <em>A Lexicon of the Homeric Dialect.</em>
+      London: Blackie &amp; Son, 1924. Public domain (US).
+    </blockquote>
     <p>
       The CC BY-SA licence requires that any derivative work be distributed
-      under the same terms. This application's lexical data is a subset and
+      under the same terms. This application's LSJ data is a subset and
       derivative of that work; users who redistribute it must carry this
       attribution notice and the same CC BY-SA licence.
     </p>
 
     <h2>
       English Translations
-      <span class="licence-badge cc">CC BY-SA 4.0 (encoding)</span>
+      <span class="licence-badge pd">Public domain</span>
     </h2>
     <p>
-      Every dialogue carries its Loeb Classical Library translation — Harold
-      North Fowler, W. R. M. Lamb, Robert Gregg Bury, or Paul Shorey (for the
-      <em>Republic</em>). Some dialogues additionally carry an older
-      public-domain translation as a second voice, which the reader can show
-      beside the Loeb in a side-by-side compare view. The list below is
-      generated directly from the corpus registry, so it always matches what the
-      reader carries and names each translator with their year.
+      Every book carries a public-domain English translation, judged eligible
+      under US copyright rules: A. T. Murray's Loeb Classical Library prose
+      translation (1919/1924–25) as the primary text, with Samuel Butler's
+      prose translation (1898/1900) and Alexander Pope's verse translation
+      (1715–26) available as alternate voices, which the reader can show
+      side by side in a compare view. The list below is generated directly
+      from the corpus registry, so it always matches what the reader carries.
     </p>
     <ul class="trans-list">
       {WORKS.filter((w) => w.translations.length > 0).map((w) => (
@@ -212,34 +217,29 @@ const jsonLd = {
       ))}
     </ul>
     <p>
-      The English texts are reproduced from the
+      Murray's translation is reproduced from the
       <a href="https://github.com/PerseusDL/canonical-greekLit">Perseus canonical-greekLit</a>
-      corpus, which carries them as TEI XML. Perseus's TEI encoding — the
-      markup, section milestones, and file structure — is licensed
+      corpus, which carries it as TEI XML with milestone-anchored footnotes.
+      Perseus's TEI encoding — the markup, milestones, and file structure — is
+      licensed
       <a href="https://creativecommons.org/licenses/by-sa/4.0/">
         Creative Commons Attribution-ShareAlike 4.0 International</a>,
       per the repository's licence file; this site uses that encoding and
       carries this attribution accordingly.
     </p>
     <p>
-      The additional public-domain translations (e.g. Benjamin Jowett's) are
-      long out of copyright and are drawn from digitisations such as
-      <a href="https://www.gutenberg.org/">Project Gutenberg</a>. They do not
-      carry Stephanus milestones of their own; each is aligned to the Loeb
-      reference speaker&#8209;turn by speaker&#8209;turn, so it inherits the
-      exact Stephanus anchor of the turn it translates — the reader lines the
-      two up row for row.
+      Butler's and Pope's translations are long out of copyright and are
+      drawn from public-domain digitisations. They do not carry the same
+      milestone structure as Murray's Perseus text; each is aligned to the
+      Greek independently (Pope's alignment is book-anchored only, with no
+      intra-book proportional gutter — see the site's build notes).
     </p>
     <p>
       The files used here are pinned to a specific commit rather than tracking
       the corpus as it moves, so a rebuild is always reproducible; the exact
       revision, per-file checksums, and source paths are recorded in
-      <a href="https://github.com/johnhboyer-sys/plato-reader/blob/main/sources/INVENTORY.md">
-        sources/INVENTORY.md</a>. A handful of Perseus files were missing a
-      Stephanus section milestone at a sentence boundary; the four hand-verified
-      corrections (checked against the Greek incipit at each point) are documented
-      in <a href="https://github.com/johnhboyer-sys/plato-reader/blob/main/sources/perseus-eng/PATCHES.md">
-        sources/perseus-eng/PATCHES.md</a>.
+      <a href="https://github.com/johnhboyer-sys/homer-reader/blob/main/sources/INVENTORY.md">
+        sources/INVENTORY.md</a>.
       {hasPrivate && (
         <span> Entries marked <span class="licence-badge local">local only</span> are
         copyright-encumbered and are excluded from the public edition of this site.</span>
@@ -248,29 +248,27 @@ const jsonLd = {
       touch.
     </p>
 
-    <h2>Stephanus Pagination</h2>
+    <h2>Vulgate Line Numbering</h2>
     <p>
-      Plato is cited by <strong>Stephanus page and section letter</strong>
-      (e.g.&nbsp;<em>17a</em>), keyed to Henri Estienne's 1578 Geneva edition —
-      by page and section only, with no user-facing line numbers. The Greek
-      text here preserves that page/section structure directly from the TLG's
-      TEI markup, so <strong>every Stephanus token shown beside the Greek is
-      exact</strong>.
+      The Iliad and the Odyssey are cited by <strong>book and vulgate line
+      number</strong> (e.g.&nbsp;<em>Il. 1.1</em>), the traditional lineation
+      inherited from the ancient scholarly editions and preserved unbroken
+      since. Numbering gaps and bracketed/athetized lines (verses the
+      manuscript tradition marks as suspect) are preserved verbatim, never
+      renumbered — a line's number is a citation, not a sequence count.
     </p>
     <p>
-      The Loeb translations carry their own Stephanus milestones from
-      Perseus's TEI encoding, and these are used to align the English to the
-      Greek section for section directly — no interpolation or estimation is
-      involved. (The additional public-domain translations inherit their
-      Stephanus by turn alignment, as described above.) A few Perseus files were missing a milestone or two at odd
-      points; see the patches noted above.
+      Murray's translation carries its own milestone markers from Perseus's
+      TEI encoding, used to align the English to the Greek at fixed points
+      within each book (see the parallel-column gutter). Butler's and Pope's
+      translations are aligned independently, as noted above.
     </p>
 
     <h2>Greek Text</h2>
     <p>
-      The Greek text of each dialogue follows John Burnet's <em>Platonis
-      Opera</em> (Oxford Classical Texts, 1900–1907). The scholarly print
-      edition it follows is listed below.
+      The Greek text of each epic follows the Monro–Allen Oxford Classical
+      Text, 3rd edition (1908–1920). The scholarly print edition it follows is
+      listed below.
     </p>
     <ul>
       {WORKS.map((w) => (
@@ -280,11 +278,12 @@ const jsonLd = {
     <p>
       The digital text was extracted using the <a href="https://d.iogen.es/">Diogenes</a>
       tool against the <a href="https://stephanus.tlg.uci.edu/">Thesaurus Linguae
-      Graecae</a> (TLG) corpus, which supplied the Stephanus-paginated XML
-      structure for Burnet's edition. The TLG's own digital text is a licensed,
-      subscription resource — it is used here only as a build-time export tool
-      and is <strong>not itself redistributed</strong>; what this site publishes
-      is Burnet's Greek, structurally lineated by that tooling.
+      Graecae</a> (TLG) corpus, which supplied the vulgate-lineated XML
+      structure for the Monro–Allen edition. The TLG's own digital text is a
+      licensed, subscription resource — it is used here only as a build-time
+      export tool and is <strong>not itself redistributed</strong>; what this
+      site publishes is the Monro–Allen Greek, structurally lineated by that
+      tooling.
     </p>
 
     <h2>
@@ -294,7 +293,8 @@ const jsonLd = {
     <p>
       Morphological analyses (lemma, gloss, grammatical parse) are produced
       by the Morpheus morphological analyser as distributed with
-      <a href="https://d.iogen.es/">Diogenes</a>.
+      <a href="https://d.iogen.es/">Diogenes</a>, using Autenrieth's Homeric
+      dictionary as an additional glossing source where noted.
       See the Diogenes and Perseus project pages for applicable terms.
     </p>
 

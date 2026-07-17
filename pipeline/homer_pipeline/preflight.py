@@ -1,4 +1,4 @@
-"""Preflight validation for emitted Plato Reader corpus data."""
+"""Preflight validation for emitted Homer Reader corpus data."""
 
 from __future__ import annotations
 

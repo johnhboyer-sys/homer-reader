@@ -99,3 +99,91 @@ reference across the repo: `pipeline/plato_pipeline/` was renamed to
 and `pipeline/pyproject.toml`'s project name changed `plato-pipeline` →
 `homer-pipeline`. Not file-by-file listed here since it's a mechanical,
 repo-wide package rename rather than incremental content drift.
+
+## Aegean skin + rebrand (2026-07-17)
+
+Token layer per `docs/DESIGN.md` (John's hybrid-v2 verdict). **Revert
+mechanism:** every colour/font custom property kept its EXISTING name — only
+the VALUE changed — so the skin reverts by swapping `:root` /
+`:root[data-theme="dark"]` values back to the "Ionian teal" block recorded in
+a comment at the top of `shared/styles/global.css` (just above `:root`).
+
+- `shared/styles/global.css` — `:root`/`:root[data-theme="dark"]` re-valued to
+  the Aegean palette (marble ground, wine-dark indigo night mode, metallic
+  bronze; old teal values preserved in a comment for revert). Two NEW tokens:
+  `--rule-strong` (strong hairline/gutter-number colour) and `--terracotta`
+  (draft-badge only, per CLAUDE.md's apparatus-honesty rule — not yet wired to
+  a component, no draft-badge UI exists yet). `--text-light` collapsed onto
+  the same value as `--text-mid` (Aegean defines only two ink shades; both
+  pass AA — see contrast table in the PR/report). `--greek-hover`/
+  `-hover-border`/`-active` now `color-mix()` off `--accent`/`--page-bg` so
+  they auto-track the active theme instead of duplicating hex per theme.
+  Fonts: `--font-greek`→Palatino stack, `--font-english`→Iowan Old
+  Style/Charter stack, `--font-ui`→Optima stack, new `--font-display` (Big
+  Caslon/Hoefler) for cartouche/masthead titles — all system stacks, zero
+  webfont network requests. New "Aegean chrome" CSS block (masthead wordmark,
+  `.contour-band`, `.book-plate` cartouche, `.site-footer`) added before the
+  print media query. New "Verse-line (Homer)" rule: gutter numerals
+  (`.line-num`/`.bk-num`) coloured `--accent` (bronze) in `.reader-body.verse-line`
+  — `showLineNum()` (Reader.svelte) already only ever renders the 1/5/10…
+  tick cadence, so there's no separate "unmarked gutter" state to colour
+  differently. Hardcoded dark/light chevron SVG hex + `var(--accent, #1f6f7a)`
+  fallbacks recoloured to match. Several hardcoded `color: #fff` button-text
+  rules (paired with `background: var(--accent)`) swapped to `color:
+  var(--on-accent)` — the old teal dark-mode accent already failed AA there
+  (2.34:1); bronze doesn't fix that on its own, `--on-accent` does (5.89:1 /
+  7.36:1, both themes, computed).
+- `app/src/components/ReaderShell.astro` — home-link replaced with a
+  `.home-wordmark` (name + "Digital Landmark Edition" eyebrow); contour-band
+  SVG inserted under the header; new `.book-plate` cartouche section (Greek
+  genitive title + Α–Ω/α–ω book letter — Iliad capital, Odyssey lowercase,
+  the inherited Alexandrian convention — computed locally, no registry
+  change) rendered before `<Reader>` for verse-line, non-bookless works only;
+  argument/where-who-day slots read an optional `bookData.apparatus` field
+  that no pipeline stage emits yet (renders nothing until Phase 4 populates
+  it — no placeholder text); new `.site-footer` with the three source
+  credits. Google Fonts `<link>`s (Cardo/EB Garamond + print-only Bodoni
+  Moda/DM Mono) removed.
+- `app/src/components/Landing.astro` — same wordmark + contour-band +
+  `.site-footer` treatment; `og:site_name`/breadcrumb/support-heading
+  Plato→Homer; `work.period` string no longer hardcodes "Plato's" (now
+  `{work.author}'s`, a latent bug independent of this rollout); Google Fonts
+  link removed.
+- `app/src/pages/index.astro` — homepage masthead eyebrow "Plato" →
+  "Digital Landmark Edition", h1/lede/meta/JSON-LD Homer-ized, contour-band
+  added, aristotle-reader footer cross-link removed (per brief), Google Fonts
+  link removed.
+- `app/src/pages/attribution.astro` — content sections rewritten from
+  Plato-reader inheritance (Stephanus/Loeb/Burnet, still describing a
+  different site) to the facts this build actually carries: vulgate line
+  numbering (not Stephanus), Murray/Butler/Pope (not Loeb), Monro–Allen OCT
+  (not Burnet), Cunliffe added as a credited lexicon alongside LSJ, github
+  links repointed `plato-reader`→`homer-reader`. Google Fonts link removed.
+- `app/src/pages/{404,support,search,lemma/index}.astro`,
+  `app/src/components/{LemmaPage,WorkSwitcher}.astro` — title/meta/JSON-LD/
+  home-link Plato→Homer strings; 404's Meno-geometry joke replaced with an
+  Odyssey/nostos-themed one (same structure, different classical reference,
+  no fabricated quotations); Google Fonts links removed from all.
+- `shared/components/WordPopup.svelte` — "Appears N× across Plato" →
+  "…across Homer" (matches `HOUSE_AUTHOR`).
+- `shared/components/Search.svelte` — CSV export filename `plato-search-*` →
+  `homer-search-*` (cosmetic string only, no logic touched).
+- `pipeline/homer_pipeline/preflight.py` — module docstring Plato→Homer.
+- `app/public/{manifest.webmanifest,offline.html,robots.txt,sw.js}` — PWA
+  name/short_name/description, offline-page title + hardcoded colours (now
+  the Aegean ground/ink hex), sitemap URL, and the service worker's cache-key
+  prefix (`plato-reader-`→`homer-reader-`, a fresh cache namespace post-deploy,
+  harmless) — all Plato→Homer. Not `shared/`/`app/src`, but clearly
+  in-scope for a rebrand pass (PWA install name, offline page) and low-risk.
+- Grep sweep (case-insensitive "plato") on rendered `dist/` output found only
+  two justified remainders: LSJ dictionary entries and lemma pages that
+  legitimately cite the classical author "Plato" (LSJ usage citations, e.g.
+  "Neo-Platonists") — real lexicographic content, not branding; and
+  `dist/sw.js`'s dormant `fonts.googleapis.com`/`fonts.gstatic.com`
+  cache-first hostname rule, now unreachable dead code since no page loads a
+  webfont — left in place as zero-impact, out of this pass's blast radius.
+  Source-level remainders (doc comments in `shared/lib/{speakers,palette}.ts`,
+  `pipeline/homer_pipeline/*.py` Stephanus-scheme infrastructure comments,
+  `shared/glossary/EN.md`'s Nicomachean-Ethics glossary prose) are inert,
+  non-user-facing, and outside this agent's blast radius (not
+  `app/src`/`shared/styles`/`shared/components`).

@@ -1,12 +1,12 @@
 {
-  "name": "The Plato Reader",
-  "short_name": "Plato",
-  "description": "The complete works of Plato in Greek and English, side by side — morphology, dictionary, Stephanus citation, full-text search.",
+  "name": "The Homer Reader",
+  "short_name": "Homer",
+  "description": "The Iliad and the Odyssey in Greek and English, side by side — morphology, dictionary, vulgate line citation, full-text search.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#eceee7",
-  "theme_color": "#eceee7",
+  "background_color": "#E9E7DD",
+  "theme_color": "#E9E7DD",
   "icons": [
     { "src": "./favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
     { "src": "./apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
