@@ -37,9 +37,11 @@ non-negotiable.
   2026-07-17).** Reuse aristotle-reader's incremental gh-pages deploy recipe.
   Creating the GitHub remote and the first push are also John-gated. Stay in free
   tier; surface anything that would incur cost **before** doing it.
-- Before committing on the main working branch: summarize the work and wait for
-  John's go-ahead. EXCEPTION — worktrees auto-clean: in a worktree, commit early
-  and often; push to a `claude/` branch promptly; review gate applies at PR time.
+- Git flow (John, 2026-07-17): private repo
+  `github.com/johnhboyer-sys/homer-reader`; work on `claude/*` branches,
+  commit early and often, **push promptly after every commit** (backup), PRs
+  as we go — review gate applies at PR time; merging to `main` is John's.
+  Never enable GH Pages / deploy without explicit go-ahead.
 - Verify functionally, not with screenshots.
 - All data fetches go through the `data.ts` data-root override — never bypass it.
 - Accessibility: WCAG AA contrast in BOTH themes; keyboard access on Greek tokens
