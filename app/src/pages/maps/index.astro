@@ -1,0 +1,148 @@
+---
+// The four Landmark-style maps (Ships/Catalogue explorer, Troad, Wanderings,
+// Greece) — an apparatus/reference page like /genealogies or /attribution, so
+// it follows their simple-header + <main> pattern rather than ReaderShell.
+// Leaflet needs `window`/the DOM, so the whole explorer is one client:only
+// Svelte island (MapsPage) — it never runs during SSR, and Leaflet is never
+// imported by any other page (kept out of the shared bundle for / and the
+// reader — CLAUDE.md "Leaflet must not load on non-map pages").
+//
+// Data flow: readFileSync the raw apparatus files directly (same posture as
+// genealogies/index.astro's `readFileSync('../apparatus/characters.json', ...)`
+// — apparatus/ isn't copied into public/data by any pipeline stage), then hand
+// the arrays to MapsPage as plain serializable props. All sorting/scaling/
+// route-membership logic lives in @shared/lib/maps (pure, tested); this page
+// does no computation of its own beyond picking which fields to serialize.
+import { readFileSync } from 'node:fs';
+import ThemeInit from '../../components/ThemeInit.astro';
+import ThemeToggle from '../../components/ThemeToggle.astro';
+import Pwa from '../../components/Pwa.astro';
+import MapsPage from '../../components/MapsPage.svelte';
+import { jsonLdSafe } from '../../lib/jsonld';
+import type { Place, Contingent, CharacterRef } from '@shared/lib/maps';
+import '@shared/styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+interface PlacesFile { status: 'draft' | 'reviewed'; places: Place[]; }
+interface CatalogueFile { status: 'draft' | 'reviewed'; achaean: Contingent[]; trojan: Contingent[]; }
+interface CharactersFile { status: 'draft' | 'reviewed'; characters: (CharacterRef & { [k: string]: unknown })[]; }
+
+const placesRaw: PlacesFile = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8'));
+const catalogueRaw: CatalogueFile = JSON.parse(readFileSync('../apparatus/catalogue.json', 'utf-8'));
+const charactersRaw: CharactersFile = JSON.parse(readFileSync('../apparatus/characters.json', 'utf-8'));
+
+const places = placesRaw.places;
+const achaean = catalogueRaw.achaean;
+const trojan = catalogueRaw.trojan;
+// Only the fields MapsPage/ContingentPanel actually read (id/name/greek) —
+// the full character record carries genealogy/epithets/etc. that the maps
+// have no use for.
+const characters: CharacterRef[] = charactersRaw.characters.map((c) => ({ id: c.id, name: c.name, greek: c.greek }));
+
+const placesDraft = placesRaw.status === 'draft';
+const catalogueDraft = catalogueRaw.status === 'draft';
+
+const pageTitle = 'Maps — The Homer Reader';
+const metaDescription =
+  'Four Landmark-style maps of the Iliad and Odyssey: the Catalogue of Ships explorer, ' +
+  'the Troad, the Wanderings of Odysseus, and Greece — every place plotted with its ' +
+  'identification’s certainty honestly marked.';
+const canonical = Astro.site ? new URL(`${base}/maps/`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: pageTitle,
+  description: metaDescription,
+  ...(canonical ? { url: canonical } : {}),
+  isPartOf: { '@type': 'WebSite', name: 'The Homer Reader' },
+};
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  <meta property="og:site_name" content="The Homer Reader" />
+  {canonical && <meta property="og:url" content={canonical} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={metaDescription} />
+  {ogImage && <meta name="twitter:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(jsonLd)} />
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <style>
+    body { overflow-x: hidden; max-width: 100%; }
+    .maps-body {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4.5rem;
+      font-family: var(--font-english);
+      color: var(--text);
+    }
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 1.9rem;
+      margin-bottom: 0.6rem;
+    }
+    .maps-intro {
+      max-width: 62ch;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text-mid);
+      margin-bottom: 1.6rem;
+    }
+    @media (max-width: 480px) { h1 { font-size: 1.55rem; } }
+  </style>
+  <Pwa />
+</head>
+<body>
+  <header class="simple-header">
+    <div class="header-title">
+      <a class="home-link" href={`${base}/`}>Homer</a>
+      <span class="title-sep">&rsaquo;</span>
+      <span class="header-static">Maps</span>
+    </div>
+    <nav class="header-actions" aria-label="Navigation">
+      <a href={`${base}/`} class="search-link">All works</a>
+      <a href={`${base}/search`} class="search-link">Search</a>
+      <ThemeToggle />
+    </nav>
+  </header>
+
+  <main class="maps-body">
+    <h1>Maps</h1>
+    <p class="maps-intro">
+      Every place named in the Iliad and Odyssey that a real map can show:
+      the Catalogue of Ships as an explorable atlas, the country around Troy,
+      Odysseus&rsquo;s sea voyage, and the homes and homecomings of Greece
+      &mdash; each pin marked with how certain its identification actually is.
+    </p>
+
+    <MapsPage
+      client:only="svelte"
+      {base}
+      {places}
+      {achaean}
+      {trojan}
+      {characters}
+      {placesDraft}
+      {catalogueDraft}
+    />
+  </main>
+</body>
+</html>

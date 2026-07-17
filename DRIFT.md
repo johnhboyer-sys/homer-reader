@@ -366,3 +366,76 @@ here because the new files live in `shared/`.
   button (gated on `bookData.scenes?.length`), its click→`toggle-scenes` bridge
   and `scenes-state`→aria-expanded sync (mirroring the Settings toggle), and the
   Escape handler now also dispatches `close-scenes`. Homer-specific.
+
+## Maps pages (2026-07-17)
+
+New Homer-only apparatus feature — the four Landmark-style maps (Ships/
+Catalogue of Ships explorer, Troad, Wanderings, Greece) at `/maps/`, drawn
+from `apparatus/places.json` (274 places) and `apparatus/catalogue.json` (29
+Achaean + 16 Trojan contingents). No plato-reader counterpart (Plato's corpus
+has no geographic apparatus); listed here because the new pure-logic files
+live in `shared/`. First use of `leaflet` in this repo — see the package.json
+note below for the justification.
+
+- `shared/lib/maps.ts` — new: pure, DOM-free helpers only (no Leaflet import).
+  `placesForMap`/`splitByCoords` (map-tag filtering + located/unlocated split,
+  the "not locatable" honesty list); `sortContingents` (catalogue/ships-desc/
+  alpha, the panel's sort toggles); `shipCircleRadius` (area-proportional
+  circle sizing: radius = maxRadius·sqrt(ships/maxShips), so circle AREA, not
+  radius, scales with ship count); `principalPlace`/`placesById` (a
+  contingent's first coord-bearing toponym — never invents a position);
+  `contingentLocValue` (the reader `?loc=` colon-grammar value for a
+  contingent's first line, per `shared/lib/citation.ts`'s
+  `formatLocValue` — NOT the dot copy-citation form); `humanizeId`/
+  `leaderDisplayName` (Catalogue leader display name: real
+  characters.json name when the leader has an entry — only 16 of 73 leader
+  refs do — else a humanized id, same posture as `genealogy.ts`'s
+  `humanize`); `wanderingsRoute` (the Apologoi Od. 9–12 sea-voyage stations
+  in narrative/voyage order for the dashed route line — a documented,
+  narrow scope decision: restricted to book 9–12 mentions with coords and
+  non-mythical certainty, one explicit exclusion (`zacynthus`, Od. 9.24,
+  named in Odysseus's description of Ithaca's neighbors, not a waypoint) —
+  other wanderings-tagged places (Ithaca, Sparta, Menelaus's Egypt/Cyprus/
+  Libya travels, Ogygia, Scheria) are real pins but not connected, since
+  they aren't stations on Odysseus's own voyage).
+- `shared/__tests__/maps.test.ts` — new: fixture-based coverage of the above
+  plus two regression tests against the REAL `apparatus/places.json` and
+  `apparatus/catalogue.json` (the exact wanderings route id order; the exact
+  achaean ships-desc order, Mycenae 100 → Symaeans 3, used by the Playwright
+  QA pass as its ground truth).
+- `app/src/pages/maps/index.astro` (new page, `/maps/`), `app/src/components/
+  MapsPage.svelte` (tablist orchestrator: Ships/Troad/Wanderings/Greece, plus
+  the Achaean/Trojan sub-tablist), `app/src/components/maps/LandmarkMap.svelte`
+  (generic Leaflet canvas: CAWM tiles, certainty-tier marker styling via CSS
+  classes — never inline color options, so theme tokens win over Leaflet's
+  SVG presentation-attribute defaults — popups built with createElement/
+  textContent only, no innerHTML), `app/src/components/maps/
+  ContingentPanel.svelte` (fully keyboard-operable sort+listbox+detail panel,
+  independent of map mouse interaction) — none shared-core (app-only, like
+  `genealogies/index.astro`/`GenNode.astro`); `index.astro` reads
+  `apparatus/places.json`/`catalogue.json`/`characters.json` directly via
+  `readFileSync('../apparatus/...', ...)`, same narrow exception as the
+  Genealogies page.
+- `app/src/types/leaflet.d.ts` (new) — `declare module 'leaflet';` ambient
+  stub. Leaflet ships no bundled TS types and `@types/leaflet` is out of
+  scope (only the `leaflet` runtime package itself was pre-authorized); this
+  repo's `npm run build` doesn't run `astro check`/`tsc`, so it's a dev-
+  ergonomics aid, not a build gate.
+- `app/src/pages/index.astro` — header nav gained a "Maps" link (between
+  Genealogies and Search); "The Maps" door now points at `/maps/` instead of
+  the Iliad landing-page placeholder it shipped with.
+- `app/package.json`/`package-lock.json` — added `leaflet` (exact-pinned
+  `1.9.4`, plain Leaflet only — no react-leaflet, no plugins) as a
+  **dependency**, not dev: it ships to the built `/maps/` bundle. Justification
+  for this repo's one pre-authorized new package: there is no existing
+  mapping primitive in the shared reader core, the corpus apparatus has real
+  lat/lon coordinates to plot, and Leaflet is the smallest well-maintained
+  library that does area-scaled markers + custom tiles + popups without a
+  hosted-map-provider API key (CAWM's ancient-world tiles are free/CC BY
+  4.0). `leaflet/dist/leaflet.css` and the Leaflet JS are imported ONLY from
+  `LandmarkMap.svelte`, which is reachable ONLY from the `client:only="svelte"`
+  `MapsPage` island on `/maps/` — confirmed by build-output inspection that
+  neither `/index.html` nor `/iliad/book/1/index.html` reference the
+  `MapsPage.*.js` chunk (Leaflet is bundled inside it) or make any
+  `cawm.lib.uiowa.edu` request; Reader.svelte and global.css were not
+  touched by this feature.

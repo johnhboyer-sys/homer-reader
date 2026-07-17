@@ -82,11 +82,6 @@ const [dayStart, dayTotal] = (iliadBook1.apparatus?.day ?? '').split('-');
 const dayLabel = dayStart && dayTotal ? `Day ${dayStart} of ${dayTotal}` : '';
 
 // ── Routes. Every href below resolves to a real, working page in this build.
-// "The Maps" door and the header's would-be "Maps"/"Timeline" nav items are
-// the one exception: no maps/timeline feature exists yet, so "The Maps" door
-// points at the Iliad landing page (the nearest real destination) and the
-// header nav omits Maps/Timeline entirely rather than link to nothing — see
-// the implementation report for the flag.
 const iliadBook1Href = `${base}${workPath('iliad', 1)}`;
 const odysseyBook1Href = `${base}${workPath('odyssey', 1)}`;
 const odyssey9ReadingHref = `${base}${workPath('odyssey', 9)}?mode=reading`;
@@ -96,6 +91,7 @@ const odysseyLandingHref = `${base}${workLanding('odyssey')}`;
 const lemmaHref = `${base}/lemma/`;
 const searchHref = `${base}/search`;
 const genealogiesHref = `${base}/genealogies/`;
+const mapsHref = `${base}/maps/`;
 const attributionHref = `${base}/attribution`;
 const supportHref = `${base}/support`;
 ---
@@ -144,6 +140,7 @@ const supportHref = `${base}/support`;
         <a href={iliadLandingHref}>Iliad</a>
         <a href={odysseyLandingHref}>Odyssey</a>
         <a href={genealogiesHref}>Genealogies</a>
+        <a href={mapsHref}>Maps</a>
         <a href={searchHref}>Search</a>
         <a href={lemmaHref}>Lexicon</a>
         <ThemeToggle />
@@ -215,7 +212,7 @@ const supportHref = `${base}/support`;
           <p>Parallel text with parse popups on every word, LSJ and Cunliffe one click away.</p>
           <span class="door-go">Open scholar view &rarr;</span>
         </a>
-        <a class="door-card" href={iliadLandingHref}>
+        <a class="door-card" href={mapsHref}>
           <span class="door-label">The Maps</span>
           <p>Every place named in the poems, plotted, with its identification&rsquo;s certainty marked.</p>
           <span class="door-go">Browse the maps &rarr;</span>
