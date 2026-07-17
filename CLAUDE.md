@@ -95,6 +95,13 @@ decisions, not on file contents.
   wrong output, a failed verification gate traceable to the agent's
   sloppiness, or a second failure on the same brief. Claude is the
   trust anchor; economy never outranks correctness.**
+  **Cross-model brief discipline (John, same day): Codex/Grok briefs
+  must be tighter than Claude briefs — zero implicit context. Spell
+  out: exact file paths, exact commands (venv, nvm), the output schema,
+  what NOT to touch, every known gotcha from this file, and the
+  machine-checkable pass/fail criteria. Assume the model has never seen
+  this repo and will not infer conventions. If a brief leans on "follow
+  existing conventions," name the file that exemplifies them.**
 
 ### Context discipline
 
