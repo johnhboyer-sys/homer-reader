@@ -202,6 +202,10 @@ And from his expanded set, the ones this project adopts:
 
 ## Failure-mode registry (append dated lessons — a lesson not written down will be repeated)
 
+- **`git add -A` while agents are in flight** (2026-07-17, twice): sweeps
+  concurrent agents' uncommitted work into unrelated commits. Orchestrator
+  commits must stage explicit paths whenever any agent is running.
+
 - **Fork drift** (aristotle→plato: ~20 files diverged in 4 days): this repo is the
   fourth fork. `DRIFT.md` is the mitigation; keep it current.
 - **Renumbering corruption:** sequential renumbering corrupts every citation.
