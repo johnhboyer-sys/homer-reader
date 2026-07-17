@@ -14,14 +14,14 @@ def _stage1(manifest):
 
     sch = scheme_mod.for_manifest(manifest)
 
-    # Verse-line works (Homer): Perseus grc2 TEI reader, Greek-only for Phase 1.
+    # Verse-line works (Homer): Perseus grc2 TEI reader, then (Phase 2) the
+    # milestoned Perseus English pass (Murray primary, Butler secondary).
     if sch.name == "verse-line":
         from . import stage1_perseus_greek
 
         spine_path = stage1_perseus_greek.run(manifest)
         spine = json.loads(spine_path.read_text(encoding="utf-8"))
-        for scratch in ("ross_chunks.json", "third_chunks.json", "third_footnotes.json",
-                        "overlays.json"):
+        for scratch in ("third_chunks.json", "third_footnotes.json", "overlays.json"):
             (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
         n_lines = sum(len(s["lines"]) for s in spine["segments"])
         skipped = spine.get("skipped_line_attrs") or {}
@@ -30,6 +30,17 @@ def _stage1(manifest):
             f"lines={n_lines} title_lines_skipped={spine.get('title_lines_skipped', 0)} "
             f"skipped_n={skipped or '{}'}"
         )
+        if (manifest.data.get("english") or {}).get("primary"):
+            from . import stage1_perseus_milestone_english as mseng
+
+            result = mseng.run(manifest, spine)
+            for tid, s in result["summary"].items():
+                print(f"  english ({tid}, milestone): chunks={s['chunks']} "
+                      f"footnotes={s.get('footnotes', 0)} anomalies={s['anomalies']} "
+                      f"coverage_holes={s['holes']}")
+        else:
+            for scratch in ("ross_chunks.json",):
+                (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
         return
 
     from . import stage1_greek

@@ -48,6 +48,10 @@ Homer-specific reason.
 - `scripts/build-public.mjs` — env var override renamed `PLATO_PY` →
   `HOMER_PY`; internal `plato_pipeline` module-invocation strings renamed
   `homer_pipeline` (tracks the `pipeline/` package rename below).
+- `shared/lib/works.ts` — both epics' `murray` translation entries gained
+  `footnotes: true` (Phase 2: Loeb `<note>` apparatus, milestone-anchored,
+  spliced into the prose as `[^label]` markers; see
+  `pipeline/homer_pipeline/stage1_perseus_milestone_english.py`).
 
 Not shared-core but worth noting here since it touches every pipeline
 reference across the repo: `pipeline/plato_pipeline/` was renamed to

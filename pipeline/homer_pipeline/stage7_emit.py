@@ -409,8 +409,13 @@ def run(manifest: Manifest) -> Path:
     # Translation footnotes and related ancillary files are emitted only after
     # the hard-failure checks above.
     footnotes_path = BUILD_DIR / "stage1" / "third_footnotes.json"
+    # Verse-line works' primary (Murray, milestone-anchored): Loeb <note>
+    # footnotes, see stage1_perseus_milestone_english.
+    murray_footnotes_path = BUILD_DIR / "stage1" / "murray_footnotes.json"
     if footnotes_path.exists():
         shutil.copy(footnotes_path, out_dir / "footnotes.json")
+    elif murray_footnotes_path.exists():
+        shutil.copy(murray_footnotes_path, out_dir / "footnotes.json")
     else:
         prim = (manifest.data.get("english") or {}).get("primary") or {}
         if prim.get("dir"):
@@ -519,4 +524,12 @@ def run(manifest: Manifest) -> Path:
         "stage5/missing_lemmata.json",
     ]:
         shutil.copy(BUILD_DIR / rel, reports / Path(rel).name)
+    # Verse-line works only: milestone parsing anomalies + coverage holes for
+    # both translations (see stage1_perseus_milestone_english). Absent for
+    # non-verse-line works, so this copy is conditional.
+    milestone_report = BUILD_DIR / "stage1" / "milestone_report.json"
+    if milestone_report.exists():
+        shutil.copy(
+            milestone_report, reports / f"milestone_report_{manifest.work_id}.json"
+        )
     return out_dir

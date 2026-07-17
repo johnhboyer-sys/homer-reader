@@ -139,7 +139,7 @@ export const WORKS: Work[] = [
     greekEdition: 'Monro–Allen OCT, 3rd ed. (1908–1920)',
     greekSource: PERSEUS_GREEK_SOURCE,
     translations: [
-      { id: 'murray', name: 'A. T. Murray (Loeb, 1924–25)', short: 'Murray', slot: 'english' },
+      { id: 'murray', name: 'A. T. Murray (Loeb, 1924–25)', short: 'Murray', slot: 'english', footnotes: true },
       { id: 'butler', name: 'Samuel Butler (1898)', short: 'Butler', slot: 'ross' },
       { id: 'pope', name: 'Alexander Pope (literary translation), 1715–20', short: 'Pope', slot: 'third' },
     ],
@@ -159,7 +159,7 @@ export const WORKS: Work[] = [
     greekEdition: 'Greek text of the Loeb edition (1919)',
     greekSource: PERSEUS_GREEK_SOURCE,
     translations: [
-      { id: 'murray', name: 'A. T. Murray (Loeb, 1919)', short: 'Murray', slot: 'english' },
+      { id: 'murray', name: 'A. T. Murray (Loeb, 1919)', short: 'Murray', slot: 'english', footnotes: true },
       { id: 'butler', name: 'Samuel Butler (1900)', short: 'Butler', slot: 'ross' },
       { id: 'pope', name: 'Alexander Pope (literary translation), 1725–26', short: 'Pope', slot: 'third' },
     ],

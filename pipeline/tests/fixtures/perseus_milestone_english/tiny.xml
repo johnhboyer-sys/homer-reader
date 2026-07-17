@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt><title>Fixture EN</title></titleStmt>
+      <publicationStmt><publisher>test</publisher></publicationStmt>
+      <sourceDesc><p>synthetic</p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text xml:lang="eng">
+    <body>
+      <div type="translation" n="urn:cts:greekLit:fixture-eng" xml:lang="eng">
+        <div type="textpart" subtype="book" n="1">
+          <head>Book 1</head>
+          <div type="textpart" subtype="card" n="1">
+            <p><milestone n="1" unit="line"/>Sing, goddess, the wrath.<note resp="Loeb" anchored="true">1</note> Of Peleus' son,<milestone n="1" unit="line"/> that brought countless woes.</p>
+            <p><milestone n="3" unit="line"/>Many souls it sent to Hades,<milestone n="5" unit="line"/> and made them prey for dogs.</p>
+          </div>
+        </div>
+        <div type="textpart" subtype="book" n="2">
+          <div type="textpart" subtype="card" n="1">
+            <p><milestone n="1" unit="line"/>Tell me, Muse, of the man.<milestone n="4" unit="line"/> Of many turns, who wandered far.<milestone n="99" unit="line"/> A garbled far-out-of-range marker.<milestone n="6" unit="line"/> After he sacked Troy.<milestone n="3" unit="line"/> A stray out-of-order marker.</p>
+          </div>
+        </div>
+      </div>
+    </body>
+  </text>
+</TEI>

@@ -19,8 +19,20 @@ work:
 citation:
   scheme: verse-line
 
-# No English yet (Phase 2). Empty object satisfies the shared schema frame.
-english: {}
+# Phase 2: both translations come from the vendored Perseus TEI, aligned to
+# the Greek spine by their own <milestone unit="line"> anchors (Murray ~every
+# 5 lines with inline Loeb <note> footnotes; Butler sparser, ~10-15 lines).
+# `source` is a path under sources/. Murray fills the primary 'english' reader
+# slot; Butler fills the 'ross' overlay slot (see shared/lib/works.ts).
+english:
+  primary:
+    id: murray
+    name: "A. T. Murray (Loeb, 1919)"
+    source: "perseus/tlg0012.tlg002.perseus-eng3.xml"
+  secondary:
+    id: butler
+    name: "Samuel Butler (1900)"
+    source: "perseus/tlg0012.tlg002.perseus-eng4.xml"
 
 # Verified vulgate numbering skips in perseus-grc2 (lines absent from the TEI).
 # Shape matches scheme.validate_line_sequence: after → next within `book`.
