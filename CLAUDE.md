@@ -89,10 +89,12 @@ decisions, not on file contents.
   24% used. Well-specified implementation defaults to GPT-5.6-Terra-High
   (Codex) or Grok; Sonnet/Opus reserved for reader-core subtleties,
   philological judgment, and integration-heavy work. Judgment allowed.
-  **Escalation rule (John, same day): if a Codex/Grok lane botches a
-  brief — wrong output, failed gates, second failure on the same task —
-  route the retry to Claude (Sonnet, or Opus on difficulty). Claude is
-  the trust anchor; economy never outranks correctness.**
+  **Escalation rule (John, same day, refined): minor stumbles stay in
+  the Codex/Grok lane — nudge, clarify the brief, retry once. Escalate
+  to Claude (Sonnet; Opus on difficulty) only on a BAD fuckup: badly
+  wrong output, a failed verification gate traceable to the agent's
+  sloppiness, or a second failure on the same brief. Claude is the
+  trust anchor; economy never outranks correctness.**
 
 ### Context discipline
 
