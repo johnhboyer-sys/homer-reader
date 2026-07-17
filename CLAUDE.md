@@ -67,6 +67,14 @@ non-negotiable.
   refreshed" — clear that state dir and start a `--fresh` thread. `codex login
   status` saying "Logged in" is not sufficient evidence the plugin runtime works.
 
+- Verification gotcha (2026-07-17, cost a full Opus diagnostic lane):
+  John often has the sibling classical-philosophy-reader dev server
+  holding port 4321, so Homer's `astro preview` silently bumps to
+  another port — a browser pointed at the conventional :4321 tests the
+  WRONG SITE (symptom: SSR fine via curl, "empty" DOM in the browser).
+  Any browser-based verification must read the actual bound port from
+  the server log first, and hard-reload past service workers.
+
 ## Orchestration
 
 You (Fable) are the **orchestrator**. Your job is planning, decomposition,

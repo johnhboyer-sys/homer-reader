@@ -266,9 +266,12 @@ const jsonLd = {
 
     <h2>Greek Text</h2>
     <p>
-      The Greek text of each epic follows the Monro–Allen Oxford Classical
-      Text, 3rd edition (1908–1920). The scholarly print edition it follows is
-      listed below.
+      The Greek text of the <em>Iliad</em> is T. W. Allen's editio maior
+      (Oxford, 1931); lines athetized by Allen carry the obelos and render
+      bracketed, and the four lines Allen omits at 8.548–552 are supplied
+      from the vulgate, marked as athetized. The Greek text of the
+      <em>Odyssey</em> follows the text printed in A. T. Murray's Loeb
+      edition (1919), as digitized by the Perseus Digital Library.
     </p>
     <ul>
       {WORKS.map((w) => (
@@ -276,14 +279,12 @@ const jsonLd = {
       ))}
     </ul>
     <p>
-      The digital text was extracted using the <a href="https://d.iogen.es/">Diogenes</a>
-      tool against the <a href="https://stephanus.tlg.uci.edu/">Thesaurus Linguae
-      Graecae</a> (TLG) corpus, which supplied the vulgate-lineated XML
-      structure for the Monro–Allen edition. The TLG's own digital text is a
-      licensed, subscription resource — it is used here only as a build-time
-      export tool and is <strong>not itself redistributed</strong>; what this
-      site publishes is the Monro–Allen Greek, structurally lineated by that
-      tooling.
+      The Allen text was extracted at build time using the
+      <a href="https://d.iogen.es/">Diogenes</a> tool against a licensed copy
+      of the <a href="https://stephanus.tlg.uci.edu/">Thesaurus Linguae
+      Graecae</a> (TLG) corpus. The TLG's digital corpus is a licensed,
+      subscription resource — it is used here only as a build-time export
+      tool and is <strong>not itself redistributed</strong>.
     </p>
 
     <h2>

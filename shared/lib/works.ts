@@ -125,6 +125,12 @@ const PERSEUS_GREEK_SOURCE = {
   full: 'Digital Greek text from the Perseus Digital Library (PerseusDL, '
     + 'canonical-greekLit), licensed CC BY-SA 4.0.',
 };
+const TLG_ALLEN_GREEK_SOURCE = {
+  short: 'Allen 1931',
+  full: 'Greek text of T. W. Allen’s editio maior (Oxford, 1931), from a '
+    + 'licensed TLG export; Il. 8.548, 550–552, omitted by Allen, are '
+    + 'supplied from the vulgate (Perseus) and rendered as athetized.',
+};
 
 export const WORKS: Work[] = [
   {
@@ -136,8 +142,8 @@ export const WORKS: Work[] = [
     authorAbbr: 'Hom.',
     books: 24,
     bookLabels: BOOK_LABELS_24,
-    greekEdition: 'Monro–Allen OCT, 3rd ed. (1908–1920)',
-    greekSource: PERSEUS_GREEK_SOURCE,
+    greekEdition: 'T. W. Allen, editio maior (Oxford, 1931)',
+    greekSource: TLG_ALLEN_GREEK_SOURCE,
     translations: [
       { id: 'murray', name: 'A. T. Murray (Loeb, 1924–25)', short: 'Murray', slot: 'english', footnotes: true },
       { id: 'butler', name: 'Samuel Butler (1898)', short: 'Butler', slot: 'ross' },
