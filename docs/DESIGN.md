@@ -37,6 +37,21 @@ ink-soft #5B4C58, rule-strong #5C2A40, accent #6E1F3A, accent-bright
 tweaks welcome later; the system is locked. Supersedes the bronze/marble
 Aegean values in global.css (which themselves remain recorded for revert).
 
+## Homepage hero animation spec (John's steers, 2026-07-17)
+
+- Ambient background animation: subtle, SEAMLESS loops only (no visible
+  resets); transform/opacity only; loops ≥20s (twinkle ≥6s); fully static
+  under prefers-reduced-motion.
+- Per-epic backgrounds sharing one vocabulary of glowing points, split by
+  the diagonal horizon-seam (warrant: Il. 8.553–565, watchfires likened to
+  stars): ILIAD = warm ember watchfires, low, clustered, irregular slow
+  flicker; ODYSSEY = cool silver stars, high, sparse, slow twinkle;
+  moonlight glint on the sea side only.
+- Slight theme response: light = DUSK (hero lifted toward violet-slate,
+  rose cast at the seam, 3–5 faint stars, fires kindling); dark = DEEP
+  NIGHT (full treatment). Both must read as siblings; AA on hero text in
+  both.
+
 ## Homepage (John, 2026-07-17: "looks great")
 
 Homepage v1 mock APPROVED (with header-margin fix): monumental asymmetric
