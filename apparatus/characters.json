@@ -17,7 +17,7 @@
         "mother": "thetis"
       },
       "note": "Son of Peleus and the sea-nymph Thetis; his quarrel with Agamemnon opens the poem, his grief for Patroclus and duel with Hector its climax, his mercy to Priam its close.",
-      "dicesId": null
+      "dicesId": "7BA3"
     },
     {
       "id": "agamemnon",
@@ -34,7 +34,7 @@
         "father": "atreus"
       },
       "note": "Son of Atreus, brother of Menelaus. His seizure of Briseis from Achilles provokes the wrath that opens the Iliad; murdered by Clytemnestra and Aegisthus on his return, the Odyssey's recurring cautionary tale.",
-      "dicesId": null
+      "dicesId": "D644"
     },
     {
       "id": "menelaus",
@@ -51,7 +51,7 @@
         "father": "atreus"
       },
       "note": "Son of Atreus. Wounded by Pandarus's treaty-breaking arrow (Iliad 4); nearly kills Paris in single combat (Iliad 3). Hosts Telemachus at Sparta (Odyssey 4), recounting his own wanderings and wrestling with Proteus.",
-      "dicesId": null
+      "dicesId": "214F"
     },
     {
       "id": "odysseus",
@@ -65,7 +65,7 @@
       ],
       "role": "King of Ithaca; mastermind of the Trojan Horse, ten-year wanderer home.",
       "note": "Son of Laertes, husband of Penelope, father of Telemachus. Protagonist of the Odyssey; the wooden horse is his device, alluded to but not narrated within the Iliad itself (Odyssey 8, 11).",
-      "dicesId": null
+      "dicesId": "A52D"
     },
     {
       "id": "diomedes",
@@ -77,7 +77,7 @@
       ],
       "role": "King of Argos; the Iliad's most successful mortal warrior after Achilles withdraws.",
       "note": "Son of Tydeus. Wounds Aphrodite and Ares in his aristeia (Iliad 5); exchanges armor with his guest-friend Glaucus rather than fight him (Iliad 6).",
-      "dicesId": null
+      "dicesId": "1B23"
     },
     {
       "id": "ajax-telamonian",
@@ -94,7 +94,7 @@
         "father": "telamon"
       },
       "note": "Son of Telamon, of the Aeacid line. Duels Hector to a draw (Iliad 7); defends the ships and Patroclus's corpse. His suicide after losing Achilles' arms is not narrated in the Iliad but his enduring anger is met by Odysseus in the underworld (Odyssey 11).",
-      "dicesId": null
+      "dicesId": "1A6A"
     },
     {
       "id": "ajax-oileus",
@@ -107,7 +107,7 @@
       ],
       "role": "Locrian leader; the fast-running 'lesser' Ajax.",
       "note": "Son of Oileus, king of Locris. Odyssey 4.499-511 tells of his drowning by Poseidon after an impious boast; his assault on Cassandra at Athena's altar is post-Homeric tradition presupposed by that punishment.",
-      "dicesId": null
+      "dicesId": "54B7"
     },
     {
       "id": "nestor",
@@ -119,7 +119,7 @@
       ],
       "role": "Aged king of Pylos; the Achaeans' elder statesman and counselor.",
       "note": "Son of Neleus; sole survivor of an earlier generation of heroes. His long reminiscences frame counsel throughout both epics, and Telemachus visits him first in the Odyssey.",
-      "dicesId": null
+      "dicesId": "9745"
     },
     {
       "id": "idomeneus",
@@ -131,7 +131,7 @@
       ],
       "role": "King of Crete; leads the Cretan contingent at Troy.",
       "note": "Grandson of Minos; fights prominently in Iliad 13, often paired with his companion Meriones.",
-      "dicesId": null
+      "dicesId": "79D5"
     },
     {
       "id": "meriones",
@@ -142,7 +142,7 @@
       ],
       "role": "Idomeneus's charioteer and companion; skilled archer and spearman.",
       "note": "Cretan warrior; wins the archery contest at Patroclus's funeral games (Iliad 23).",
-      "dicesId": null
+      "dicesId": "9B5E"
     },
     {
       "id": "patroclus",
@@ -154,7 +154,7 @@
       ],
       "role": "Achilles' closest companion; his death drives Achilles back into battle.",
       "note": "Son of Menoetius, raised alongside Achilles at Phthia. Wears Achilles' armor into battle and is killed by Hector, with Apollo's direct intervention (Iliad 16).",
-      "dicesId": null
+      "dicesId": "ABCD"
     },
     {
       "id": "teucer",
@@ -169,7 +169,7 @@
         "father": "telamon"
       },
       "note": "Telamon's bastard son by an unnamed mother (Iliad 8.283-284, νόθον περ ἐόντα); later tradition names his mother as the Trojan princess Hesione, captured by Heracles, but Homer never names her.",
-      "dicesId": null
+      "dicesId": "AE71"
     },
     {
       "id": "antilochus",
@@ -180,7 +180,7 @@
       ],
       "role": "Nestor's son; a swift young warrior, close friend of Achilles.",
       "note": "In the cyclic Aethiopis (not the Iliad), killed by Memnon while defending his father Nestor; his death, unnarrated within the Iliad, is recalled as a paradigm of noble self-sacrifice at Odyssey 24.78-79, where he is honored above all Achilles' companions after Patroclus.",
-      "dicesId": null
+      "dicesId": "5CDE"
     },
     {
       "id": "phoenix",
@@ -191,7 +191,7 @@
       ],
       "role": "Achilles' tutor; sent to Phthia by Peleus to raise him.",
       "note": "Member of the embassy to Achilles in Iliad 9; tells the parable of the Litai (Prayers) to persuade him to relent.",
-      "dicesId": null
+      "dicesId": "5A08"
     },
     {
       "id": "machaon",
@@ -202,7 +202,7 @@
       ],
       "role": "Achaean healer, son of Asclepius; treats wounded warriors.",
       "note": "Tends Menelaus's arrow wound (Iliad 4) and is himself wounded by Paris (Iliad 11).",
-      "dicesId": null
+      "dicesId": "37D9"
     },
     {
       "id": "calchas",
@@ -213,7 +213,7 @@
       ],
       "role": "Achaean seer; interprets omens and identifies the cause of the plague.",
       "note": "Reveals that Agamemnon's seizure of Chryseis caused Apollo's plague (Iliad 1), speaking only once Achilles guarantees his protection.",
-      "dicesId": null
+      "dicesId": "43DA"
     },
     {
       "id": "thersites",
@@ -224,7 +224,7 @@
       ],
       "role": "Common soldier who publicly mocks Agamemnon; beaten by Odysseus.",
       "note": "The Iliad's sole named common-soldier speaker (Iliad 2); his ugliness and railing mark him as a foil to the aristocratic heroes.",
-      "dicesId": null
+      "dicesId": "2E91"
     },
     {
       "id": "automedon",
@@ -233,7 +233,7 @@
       "epithets": [],
       "role": "Achilles' charioteer; drives the immortal horses Xanthus and Balius.",
       "note": "Drives for Patroclus in the fatal foray of Iliad 16 and for Achilles thereafter.",
-      "dicesId": null
+      "dicesId": "D581"
     },
     {
       "id": "chryseis",
@@ -253,7 +253,7 @@
       ],
       "role": "Achilles' war-prize; her seizure by Agamemnon provokes his wrath.",
       "note": "A captive from Lyrnessus; mourns Patroclus at length in Iliad 19, recalling his kindness to her after her city's sack.",
-      "dicesId": null
+      "dicesId": "4748"
     },
     {
       "id": "priam",
@@ -269,7 +269,7 @@
         "father": "laomedon"
       },
       "note": "Ransoms Hector's body from Achilles in the Iliad's final book, a scene of mutual grief and recognition. His mother is not named in Homer.",
-      "dicesId": null
+      "dicesId": "028F"
     },
     {
       "id": "hecuba",
@@ -278,7 +278,7 @@
       "epithets": [],
       "role": "Queen of Troy; Priam's wife, mother of Hector, Paris, Cassandra.",
       "note": "Daughter of Dymas of Phrygia per Homer (Iliad 16.718-719); a later tradition (e.g. Euripides) instead names her father Cisseus. Grieves openly for Hector in Iliad 22 and 24.",
-      "dicesId": null
+      "dicesId": "275A"
     },
     {
       "id": "hector",
@@ -296,7 +296,7 @@
         "mother": "hecuba"
       },
       "note": "Kills Patroclus; killed by Achilles, his corpse dragged before Troy's walls and ransomed by Priam in the Iliad's closing book.",
-      "dicesId": null
+      "dicesId": "9360"
     },
     {
       "id": "paris",
@@ -313,7 +313,7 @@
         "mother": "hecuba"
       },
       "note": "Duels Menelaus in Iliad 3 and is rescued by Aphrodite mid-fight. His killing of Achilles with Apollo's aid is only foretold within the Iliad's own text, never narrated there.",
-      "dicesId": null
+      "dicesId": "FF8C"
     },
     {
       "id": "deiphobus",
@@ -327,7 +327,7 @@
         "mother": "hecuba"
       },
       "note": "Fights beside Hector and takes his place after his death; the tradition that he marries Helen after Paris dies is presupposed by Odyssey 8.517 but not narrated in Homer.",
-      "dicesId": null
+      "dicesId": "AED4"
     },
     {
       "id": "helenus",
@@ -343,7 +343,7 @@
         "mother": "hecuba"
       },
       "note": "Interprets divine will for Hector in Iliad 7; the later tradition of his defection to the Achaeans is not narrated by Homer.",
-      "dicesId": null
+      "dicesId": "4E3D"
     },
     {
       "id": "cassandra",
@@ -359,7 +359,7 @@
         "mother": "hecuba"
       },
       "note": "Homer (Iliad 24.699-706) gives her no prophetic gift; the doomed-prophetess tradition is post-Homeric (Aeschylus's Agamemnon, the Cyclic epics). She is first to see Priam bringing Hector's body home.",
-      "dicesId": null
+      "dicesId": "9B88"
     },
     {
       "id": "polites",
@@ -373,7 +373,7 @@
         "mother": "hecuba"
       },
       "note": "Named at Iliad 2.791 as the shape Iris takes; the Trojan prince sits as lookout on old Aesyetes' tomb, trusting his swiftness of foot (2.792-793) — a one-off description, not a recurring formula.",
-      "dicesId": null
+      "dicesId": "4AC9"
     },
     {
       "id": "polydorus",
@@ -422,7 +422,7 @@
         "mother": "aphrodite"
       },
       "note": "Rescued from Achilles and Diomedes by his divine mother and by Poseidon, who prophesies (Iliad 20.302-308) that Aeneas's line will rule the Trojans after Priam's house falls.",
-      "dicesId": null
+      "dicesId": "45DC"
     },
     {
       "id": "anchises",
@@ -451,7 +451,7 @@
         "mother": "laodamia"
       },
       "note": "Son of Zeus and Laodamia, daughter of Bellerophon (Iliad 6.196-199). His death at Patroclus's hands (Iliad 16) grieves Zeus, who considers and rejects saving him from fate.",
-      "dicesId": null
+      "dicesId": "D610"
     },
     {
       "id": "glaucus",
@@ -460,7 +460,7 @@
       "epithets": [],
       "role": "Lycian co-commander with Sarpedon; Bellerophon's grandson.",
       "note": "Exchanges armor with Diomedes as guest-friends despite facing each other in battle (Iliad 6) -- the famous 'gold for bronze' trade.",
-      "dicesId": null
+      "dicesId": "5C3C"
     },
     {
       "id": "pandarus",
@@ -471,7 +471,7 @@
       ],
       "role": "Lycian archer allied to Troy; breaks the truce by wounding Menelaus.",
       "note": "Shoots Menelaus at Athena's instigation (Iliad 4), reigniting the war after the single-combat truce; killed by Diomedes.",
-      "dicesId": null
+      "dicesId": "517A"
     },
     {
       "id": "antenor",
@@ -482,7 +482,7 @@
       ],
       "role": "Trojan elder; counsels returning Helen to end the war.",
       "note": "Hosted Odysseus and Menelaus on their pre-war embassy (Iliad 3.205-207); consistently the peace party's voice in the Trojan council.",
-      "dicesId": null
+      "dicesId": "1B4B"
     },
     {
       "id": "polydamas",
@@ -493,7 +493,7 @@
       ],
       "role": "Hector's age-mate and foil; cautious counselor of the Trojans.",
       "note": "Repeatedly urges caution that Hector rejects, most fatefully before the final retreat behind the walls (Iliad 18, 22).",
-      "dicesId": null
+      "dicesId": "75FA"
     },
     {
       "id": "dolon",
@@ -504,7 +504,7 @@
       ],
       "role": "Trojan sent to spy on the Achaean camp by night.",
       "note": "Captured and killed by Odysseus and Diomedes in the night raid of Iliad 10 (the Doloneia), after betraying Trojan and Thracian dispositions.",
-      "dicesId": null
+      "dicesId": "C842"
     },
     {
       "id": "astyanax",
@@ -518,7 +518,7 @@
         "mother": "andromache"
       },
       "note": "Called Scamandrius by his parents, Astyanax ('lord of the city') by the Trojans (Iliad 6.402-403). Frightened by his father's helmet crest in the parting scene of Iliad 6; his eventual fate is only foreshadowed, not narrated, in the Iliad.",
-      "dicesId": null
+      "dicesId": "4066"
     },
     {
       "id": "andromache",
@@ -529,7 +529,7 @@
       ],
       "role": "Hector's wife; daughter of Eetion, king of Cilician Thebe.",
       "note": "Her farewell to Hector (Iliad 6) and lament over his body (Iliad 22, 24) are among the Iliad's most powerful domestic scenes; her father and seven brothers were killed by Achilles.",
-      "dicesId": null
+      "dicesId": "4B6A"
     },
     {
       "id": "memnon",
@@ -818,7 +818,7 @@
         "father": "aeacus"
       },
       "note": "Married the sea-nymph Thetis; Achilles constantly invokes his aged father, still living, whom he expects never to see again.",
-      "dicesId": null
+      "dicesId": "81D1"
     },
     {
       "id": "telamon",
@@ -849,7 +849,7 @@
         "mother": "rhea"
       },
       "note": "Son of Cronus and Rhea per Poseidon's own account (Iliad 15.187-193); Homer elsewhere preserves a rival, older cosmogony naming Oceanus and Tethys as origin of the gods (Iliad 14.201, 246). Weighs the fates of Hector and Achilles in golden scales (Iliad 22).",
-      "dicesId": null
+      "dicesId": "5861"
     },
     {
       "id": "hera",
@@ -867,7 +867,7 @@
         "mother": "rhea"
       },
       "note": "Called daughter of Cronus at Iliad 4.59; seduces Zeus on Ida to distract him from the battle (Iliad 14).",
-      "dicesId": null
+      "dicesId": "6743"
     },
     {
       "id": "poseidon",
@@ -884,7 +884,7 @@
         "mother": "rhea"
       },
       "note": "States his own genealogy at Iliad 15.187-193: one of three sons of Cronus and Rhea with Zeus and Hades, who divided sky, sea, and underworld by lot.",
-      "dicesId": null
+      "dicesId": "A0CE"
     },
     {
       "id": "hades",
@@ -919,7 +919,7 @@
         "father": "zeus"
       },
       "note": "Homer does not narrate her birth or name a mother; the head-birth story is post-Homeric (Hesiod, the Homeric Hymn to Athena). Restrains Achilles' sword in Iliad 1 and guides Telemachus and Odysseus throughout the Odyssey.",
-      "dicesId": null
+      "dicesId": "2A74"
     },
     {
       "id": "apollo",
@@ -937,7 +937,7 @@
         "mother": "leto"
       },
       "note": "Sends the plague that opens the Iliad, angered at Agamemnon's treatment of his priest Chryses.",
-      "dicesId": null
+      "dicesId": "3376"
     },
     {
       "id": "artemis",
@@ -955,7 +955,7 @@
         "mother": "leto"
       },
       "note": "Boxed on the ears by Hera in the Theomachy (Iliad 21.479-496); her wrath over Oeneus's forgotten sacrifice underlies the Calydonian boar story told in Iliad 9.",
-      "dicesId": null
+      "dicesId": "AD12"
     },
     {
       "id": "ares",
@@ -973,7 +973,7 @@
         "mother": "hera"
       },
       "note": "Zeus calls him most hateful of his children at Iliad 5.890-891. Wounded by Diomedes with Athena's aid and roars 'as loud as nine or ten thousand men' (Iliad 5).",
-      "dicesId": null
+      "dicesId": "E328"
     },
     {
       "id": "aphrodite",
@@ -991,7 +991,7 @@
         "mother": "dione"
       },
       "note": "Daughter of Zeus and Dione in Homer's own account (Iliad 5.370-371) -- distinct from Hesiod's later foam-birth tradition (Theogony 188-206). Wounded by Diomedes while rescuing Aeneas (Iliad 5).",
-      "dicesId": null
+      "dicesId": "D9EF"
     },
     {
       "id": "hephaestus",
@@ -1009,7 +1009,7 @@
         "mother": "hera"
       },
       "note": "Cast from Olympus by Hera in shame at his lameness, by his own account (Iliad 18.394-397), and raised in secret by Thetis; forges the great Shield of Achilles.",
-      "dicesId": null
+      "dicesId": "6650"
     },
     {
       "id": "hermes",
@@ -1027,7 +1027,7 @@
         "mother": "maia"
       },
       "note": "Son of Zeus and Maia (Odyssey 14.435). Escorts Priam through the Achaean camp in Iliad 24 and later leads the suitors' souls to the underworld (Odyssey 24).",
-      "dicesId": null
+      "dicesId": "FD6A"
     },
     {
       "id": "iris",
@@ -1039,7 +1039,7 @@
       ],
       "role": "Messenger goddess of the gods, especially Zeus and Hera.",
       "note": "Homer gives no parentage for Iris; the later tradition naming Thaumas and Electra as her parents (Hesiod, Theogony 265-266) is not in the Homeric text.",
-      "dicesId": null
+      "dicesId": "80F3"
     },
     {
       "id": "thetis",
@@ -1051,7 +1051,7 @@
       ],
       "role": "Sea-nymph; Achilles' mother, intercedes with Zeus on his behalf.",
       "note": "A Nereid married to the mortal Peleus; secures from Zeus the promise that honors Achilles by letting the Trojans prevail while he withdraws (Iliad 1), and brings him Hephaestus's new armor (Iliad 18).",
-      "dicesId": null
+      "dicesId": "FA9C"
     },
     {
       "id": "leto",
@@ -1063,7 +1063,7 @@
       ],
       "role": "Titaness; mother of Apollo and Artemis.",
       "note": "Gathers her children's weapons after the Theomachy (Iliad 21.505-511); her own parentage (the Titans Coeus and Phoebe, per Hesiod) goes unmentioned in Homer.",
-      "dicesId": null
+      "dicesId": "BB88"
     },
     {
       "id": "dione",
@@ -1072,7 +1072,7 @@
       "epithets": [],
       "role": "Minor goddess; Aphrodite's mother, comforts her on Olympus.",
       "note": "Appears only once (Iliad 5.370-417), tending Aphrodite's wound and reciting a catalogue of gods who have suffered at mortal hands.",
-      "dicesId": null
+      "dicesId": "332E"
     },
     {
       "id": "helen",
@@ -1090,7 +1090,7 @@
         "mother": "leda"
       },
       "note": "Repeatedly called 'sprung from Zeus' (Iliad 3.199, Odyssey 4.184). Her mother is Leda: Helen calls Castor and Polydeuces 'brothers of one mother' at Iliad 3.238, and Odyssey 11.298 names Leda as their mother.",
-      "dicesId": null
+      "dicesId": "10CA"
     },
     {
       "id": "penelope",
@@ -1102,7 +1102,7 @@
       ],
       "role": "Odysseus's wife; holds off the suitors for twenty years.",
       "note": "Daughter of Icarius of Sparta. Her weaving-and-unweaving ruse and the eventual bow-contest test frame the Odyssey's homecoming plot.",
-      "dicesId": null
+      "dicesId": "F5D7"
     },
     {
       "id": "telemachus",
@@ -1114,7 +1114,7 @@
       ],
       "role": "Odysseus and Penelope's son; comes of age across the poem.",
       "note": "His journey to Pylos and Sparta (Odyssey 1-4) parallels his father's homecoming and is repeatedly measured against Orestes' vengeance.",
-      "dicesId": null
+      "dicesId": "A417"
     },
     {
       "id": "laertes",
@@ -1126,7 +1126,7 @@
       ],
       "role": "Odysseus's father; lives in rustic retirement on his farm.",
       "note": "Reunited with Odysseus in the Odyssey's final book, recognizing him by an old scar and by the fruit trees his father once gave him as a boy.",
-      "dicesId": null
+      "dicesId": "5F53"
     },
     {
       "id": "anticlea",
@@ -1135,7 +1135,7 @@
       "epithets": [],
       "role": "Odysseus's mother; died of grief during his absence.",
       "note": "Odysseus meets her shade in the underworld (Odyssey 11), learning of her death and of conditions at home.",
-      "dicesId": null
+      "dicesId": "EABE"
     },
     {
       "id": "eurycleia",
@@ -1146,7 +1146,7 @@
       ],
       "role": "Odysseus's old nurse; loyal servant of the household.",
       "note": "Recognizes Odysseus by his scar while washing his feet (Odyssey 19) and later helps identify the household's disloyal maidservants.",
-      "dicesId": null
+      "dicesId": "AC75"
     },
     {
       "id": "eumaeus",
@@ -1159,7 +1159,7 @@
       ],
       "role": "Odysseus's loyal swineherd; hosts him unknowingly on his return.",
       "note": "Of noble birth -- a kidnapped prince of Syrie (Odyssey 15) -- but enslaved as a child; his loyalty contrasts with the suitors' retainers.",
-      "dicesId": null
+      "dicesId": "52CF"
     },
     {
       "id": "antinous",
@@ -1168,7 +1168,7 @@
       "epithets": [],
       "role": "Most arrogant of Penelope's suitors; ringleader of the plot against Telemachus.",
       "note": "The first suitor Odysseus kills, struck through the throat as he raises a cup (Odyssey 22).",
-      "dicesId": null
+      "dicesId": "1C9F"
     },
     {
       "id": "eurymachus",
@@ -1177,7 +1177,7 @@
       "epithets": [],
       "role": "Second-ranking suitor; smooth-tongued rival to Antinous for leadership.",
       "note": "Attempts to bargain with Odysseus after Antinous's death before being killed himself (Odyssey 22).",
-      "dicesId": null
+      "dicesId": "1310"
     },
     {
       "id": "amphinomus",
@@ -1186,7 +1186,7 @@
       "epithets": [],
       "role": "Suitor from Dulichium; the most decent of Penelope's suitors.",
       "note": "Both Penelope and Odysseus find him relatively sympathetic, but he is killed with the rest in Odyssey 22.",
-      "dicesId": null
+      "dicesId": "DA76"
     },
     {
       "id": "melanthius",
@@ -1195,7 +1195,7 @@
       "epithets": [],
       "role": "Disloyal goatherd who sides with the suitors against Odysseus.",
       "note": "Insults the disguised Odysseus and arms the suitors during the final battle; mutilated in punishment (Odyssey 22).",
-      "dicesId": null
+      "dicesId": "DCAB"
     },
     {
       "id": "mentor",
@@ -1204,7 +1204,7 @@
       "epithets": [],
       "role": "Ithacan elder; Athena repeatedly assumes his form to guide Telemachus.",
       "note": "Left in charge of Odysseus's household at his departure for Troy; his name became the English word for a wise guide.",
-      "dicesId": null
+      "dicesId": "2D16"
     },
     {
       "id": "eurylochus",
@@ -1213,7 +1213,7 @@
       "epithets": [],
       "role": "Odysseus's second-in-command; leads the fatal Thrinacia mutiny.",
       "note": "Persuades the crew to eat the Cattle of the Sun despite Odysseus's warning, bringing destruction on the whole ship (Odyssey 12).",
-      "dicesId": null
+      "dicesId": "EFE2"
     },
     {
       "id": "tiresias",
@@ -1224,7 +1224,7 @@
       ],
       "role": "Theban prophet; the only shade in Hades with unclouded reason.",
       "note": "Odysseus consults him in the underworld (Odyssey 11) for the route home and a prophecy of his own eventual death.",
-      "dicesId": null
+      "dicesId": "6266"
     },
     {
       "id": "elpenor",
@@ -1233,7 +1233,7 @@
       "epithets": [],
       "role": "Youngest of Odysseus's crew; dies in a fall on Circe's island.",
       "note": "Breaks his neck falling from Circe's roof; his unburied shade is the first Odysseus meets in the underworld, begging for proper rites (Odyssey 11).",
-      "dicesId": null
+      "dicesId": "99C0"
     },
     {
       "id": "circe",
@@ -1245,7 +1245,7 @@
       ],
       "role": "Sorceress who transforms Odysseus's men into swine on Aeaea.",
       "note": "Daughter of Helios and the Oceanid Perse (Odyssey 10.137-139); becomes Odysseus's host and lover for a year and guides him to the underworld.",
-      "dicesId": null
+      "dicesId": "9DFA"
     },
     {
       "id": "calypso",
@@ -1257,7 +1257,7 @@
       ],
       "role": "Nymph who detains Odysseus seven years on Ogygia.",
       "note": "Offers him immortality to stay; releases him only at Zeus's direct command via Hermes (Odyssey 5).",
-      "dicesId": null
+      "dicesId": "A96C"
     },
     {
       "id": "polyphemus",
@@ -1266,7 +1266,7 @@
       "epithets": [],
       "role": "Cyclops, son of Poseidon; blinded by Odysseus in his cave.",
       "note": "His father Poseidon's resulting wrath drives much of the Odyssey's plot of delayed homecoming (Odyssey 9).",
-      "dicesId": null
+      "dicesId": "DD81"
     },
     {
       "id": "aeolus",
@@ -1277,7 +1277,7 @@
       ],
       "role": "Keeper of the winds; gives Odysseus a bag of them.",
       "note": "His gift is opened by curious crewmen just before reaching Ithaca, blowing the ships back to his island (Odyssey 10).",
-      "dicesId": null
+      "dicesId": "416B"
     },
     {
       "id": "alcinous",
@@ -1288,7 +1288,7 @@
       ],
       "role": "King of the Phaeacians; hosts Odysseus and hears his tale.",
       "note": "His court at Scheria hears Odysseus's full account of his wanderings (Odyssey 9-12) before providing the ship home.",
-      "dicesId": null
+      "dicesId": "E745"
     },
     {
       "id": "arete",
@@ -1299,7 +1299,7 @@
       ],
       "role": "Queen of the Phaeacians; Alcinous's wife, whom Odysseus supplicates first.",
       "note": "Nausicaa advises Odysseus to appeal to her rather than the king, as she holds real influence at court (Odyssey 6-7).",
-      "dicesId": null
+      "dicesId": "D6A1"
     },
     {
       "id": "nausicaa",
@@ -1310,7 +1310,7 @@
       ],
       "role": "Phaeacian princess; finds Odysseus washed ashore.",
       "note": "Provides clothing and guidance to the palace (Odyssey 6); a wistful hint of a marriage that never happens closes their acquaintance.",
-      "dicesId": null
+      "dicesId": "19E4"
     },
     {
       "id": "proteus",
@@ -1322,7 +1322,7 @@
       ],
       "role": "Shape-shifting sea-god; forced by Menelaus to reveal news of the fleet.",
       "note": "Menelaus wrestles him through many forms on the island of Pharos to learn his own route home and Agamemnon's fate (Odyssey 4).",
-      "dicesId": null
+      "dicesId": "EEA8"
     }
   ]
 }

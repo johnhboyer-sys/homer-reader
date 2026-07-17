@@ -323,6 +323,23 @@ def _stage_epithets(manifest):
         print(f"  unresolved entity headwords (not in Diogenes): {result['entities_unresolved']}")
 
 
+def _stage_speeches(manifest):
+    from . import apparatus_speeches
+
+    result = apparatus_speeches.run(manifest)
+    print(
+        f"speeches: {result['work']}: speeches={result['speech_count']} "
+        f"crossBook={result['cross_book_count']} levels={result['level_counts']} "
+        f"characters_filled={result['characters_filled']}"
+    )
+    if result["unmatched_names"]:
+        print(f"  unmatched DICES names: {result['unmatched_names']}")
+    if result["line_ref_errors"]:
+        print("  WARNING: line ref errors:")
+        for msg in result["line_ref_errors"]:
+            print(f"    {msg}")
+
+
 def _stage_repetitions(manifest):
     # Cross-epic: discovers every work from manifests/*.yaml itself, so the
     # (per-CLI-invocation) `manifest` argument is unused here but kept for a
@@ -348,6 +365,7 @@ _STAGES = {
     "stage7": _stage7,
     "apparatus": _stage_apparatus,
     "epithets": _stage_epithets,
+    "speeches": _stage_speeches,
     "repetitions": _stage_repetitions,
 }
 

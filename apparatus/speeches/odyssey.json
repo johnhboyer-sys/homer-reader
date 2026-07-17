@@ -1,0 +1,12163 @@
+{
+ "work": "odyssey",
+ "status": "imported",
+ "speeches": [
+  {
+   "id": "odyssey-699",
+   "book": 1,
+   "lines": [
+    32,
+    43
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "gods"
+   ],
+   "level": 0,
+   "cluster": 2001,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-700",
+   "book": 1,
+   "lines": [
+    45,
+    62
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 2001,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-701",
+   "book": 1,
+   "lines": [
+    64,
+    79
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2001,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-702",
+   "book": 1,
+   "lines": [
+    81,
+    95
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 2001,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-703",
+   "book": 1,
+   "lines": [
+    123,
+    124
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2002,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-704",
+   "book": 1,
+   "lines": [
+    158,
+    177
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2003,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-705",
+   "book": 1,
+   "lines": [
+    179,
+    212
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2003,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-706",
+   "book": 1,
+   "lines": [
+    214,
+    220
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2003,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-707",
+   "book": 1,
+   "lines": [
+    222,
+    229
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2003,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-708",
+   "book": 1,
+   "lines": [
+    231,
+    251
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2003,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-709",
+   "book": 1,
+   "lines": [
+    253,
+    305
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2003,
+   "part": 6,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-710",
+   "book": 1,
+   "lines": [
+    307,
+    313
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2003,
+   "part": 7,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-711",
+   "book": 1,
+   "lines": [
+    315,
+    318
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2003,
+   "part": 8,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-712",
+   "book": 1,
+   "lines": [
+    337,
+    344
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "phemius"
+   ],
+   "level": 0,
+   "cluster": 2004,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-713",
+   "book": 1,
+   "lines": [
+    346,
+    359
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2004,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-714",
+   "book": 1,
+   "lines": [
+    368,
+    380
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2005,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-715",
+   "book": 1,
+   "lines": [
+    384,
+    387
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2005,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-716",
+   "book": 1,
+   "lines": [
+    389,
+    398
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "antinous"
+   ],
+   "level": 0,
+   "cluster": 2005,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-717",
+   "book": 1,
+   "lines": [
+    400,
+    411
+   ],
+   "speaker": [
+    "eurymachus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2005,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-718",
+   "book": 1,
+   "lines": [
+    413,
+    419
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eurymachus"
+   ],
+   "level": 0,
+   "cluster": 2005,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-719",
+   "book": 2,
+   "lines": [
+    25,
+    34
+   ],
+   "speaker": [
+    "aegyptius"
+   ],
+   "addressee": [
+    "assembly of the ithacans"
+   ],
+   "level": 0,
+   "cluster": 2006,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-720",
+   "book": 2,
+   "lines": [
+    40,
+    79
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "aegyptius"
+   ],
+   "level": 0,
+   "cluster": 2006,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-721",
+   "book": 2,
+   "lines": [
+    85,
+    128
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2006,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-722",
+   "book": 2,
+   "lines": [
+    96,
+    102
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 1,
+   "cluster": 2007,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-723",
+   "book": 2,
+   "lines": [
+    130,
+    145
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "antinous"
+   ],
+   "level": 0,
+   "cluster": 2006,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-724",
+   "book": 2,
+   "lines": [
+    161,
+    176
+   ],
+   "speaker": [
+    "halitherses"
+   ],
+   "addressee": [
+    "assembly of the ithacans"
+   ],
+   "level": 0,
+   "cluster": 2006,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-725",
+   "book": 2,
+   "lines": [
+    178,
+    207
+   ],
+   "speaker": [
+    "eurymachus"
+   ],
+   "addressee": [
+    "halitherses"
+   ],
+   "level": 0,
+   "cluster": 2006,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-726",
+   "book": 2,
+   "lines": [
+    209,
+    223
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eurymachus"
+   ],
+   "level": 0,
+   "cluster": 2006,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-727",
+   "book": 2,
+   "lines": [
+    229,
+    241
+   ],
+   "speaker": [
+    "mentor"
+   ],
+   "addressee": [
+    "assembly of the ithacans"
+   ],
+   "level": 0,
+   "cluster": 2006,
+   "part": 8,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-728",
+   "book": 2,
+   "lines": [
+    243,
+    256
+   ],
+   "speaker": [
+    "leocritus"
+   ],
+   "addressee": [
+    "mentor"
+   ],
+   "level": 0,
+   "cluster": 2006,
+   "part": 9,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-729",
+   "book": 2,
+   "lines": [
+    263,
+    266
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2008,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-730",
+   "book": 2,
+   "lines": [
+    270,
+    295
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2009,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-731",
+   "book": 2,
+   "lines": [
+    303,
+    308
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2010,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-732",
+   "book": 2,
+   "lines": [
+    310,
+    320
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "antinous"
+   ],
+   "level": 0,
+   "cluster": 2010,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-733",
+   "book": 2,
+   "lines": [
+    325,
+    330
+   ],
+   "speaker": [
+    "suitor of penelope.3"
+   ],
+   "addressee": [
+    "suitor of penelope.4"
+   ],
+   "level": 0,
+   "cluster": 2011,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-734",
+   "book": 2,
+   "lines": [
+    332,
+    336
+   ],
+   "speaker": [
+    "suitor of penelope.5"
+   ],
+   "addressee": [
+    "suitor of penelope.6"
+   ],
+   "level": 0,
+   "cluster": 2012,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-735",
+   "book": 2,
+   "lines": [
+    349,
+    360
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2013,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-736",
+   "book": 2,
+   "lines": [
+    363,
+    370
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2013,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-737",
+   "book": 2,
+   "lines": [
+    372,
+    376
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2013,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-738",
+   "book": 2,
+   "lines": [
+    402,
+    404
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2014,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-739",
+   "book": 2,
+   "lines": [
+    410,
+    412
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "companions of telemachus"
+   ],
+   "level": 0,
+   "cluster": 2015,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-740",
+   "book": 3,
+   "lines": [
+    14,
+    20
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2016,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-741",
+   "book": 3,
+   "lines": [
+    22,
+    24
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2016,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-742",
+   "book": 3,
+   "lines": [
+    26,
+    28
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2016,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-743",
+   "book": 3,
+   "lines": [
+    43,
+    50
+   ],
+   "speaker": [
+    "peisistratus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2017,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-744",
+   "book": 3,
+   "lines": [
+    55,
+    61
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 2018,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-745",
+   "book": 3,
+   "lines": [
+    69,
+    74
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "athena",
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2019,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-746",
+   "book": 3,
+   "lines": [
+    79,
+    101
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 2019,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-747",
+   "book": 3,
+   "lines": [
+    103,
+    200
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2019,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-748",
+   "book": 3,
+   "lines": [
+    202,
+    209
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 2019,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-749",
+   "book": 3,
+   "lines": [
+    211,
+    224
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2019,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-750",
+   "book": 3,
+   "lines": [
+    226,
+    228
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 2019,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-751",
+   "book": 3,
+   "lines": [
+    230,
+    238
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2019,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-752",
+   "book": 3,
+   "lines": [
+    240,
+    252
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "athena",
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 2019,
+   "part": 8,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-753",
+   "book": 3,
+   "lines": [
+    254,
+    328
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2019,
+   "part": 9,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-754",
+   "book": 3,
+   "lines": [
+    331,
+    336
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 2019,
+   "part": 10,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-755",
+   "book": 3,
+   "lines": [
+    346,
+    355
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "athena",
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2020,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-756",
+   "book": 3,
+   "lines": [
+    357,
+    370
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 2020,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-757",
+   "book": 3,
+   "lines": [
+    375,
+    384
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2020,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-758",
+   "book": 3,
+   "lines": [
+    418,
+    429
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "sons of nestor"
+   ],
+   "level": 0,
+   "cluster": 2021,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-759",
+   "book": 3,
+   "lines": [
+    475,
+    476
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "sons of nestor"
+   ],
+   "level": 0,
+   "cluster": 2022,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-760",
+   "book": 4,
+   "lines": [
+    26,
+    29
+   ],
+   "speaker": [
+    "etoneus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 2023,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-761",
+   "book": 4,
+   "lines": [
+    31,
+    36
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "eteoneus"
+   ],
+   "level": 0,
+   "cluster": 2023,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-762",
+   "book": 4,
+   "lines": [
+    60,
+    64
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "peisistratus",
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2024,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-763",
+   "book": 4,
+   "lines": [
+    71,
+    75
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "peisistratus"
+   ],
+   "level": 0,
+   "cluster": 2025,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-764",
+   "book": 4,
+   "lines": [
+    78,
+    112
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "peisistratus",
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2024,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-765",
+   "book": 4,
+   "lines": [
+    138,
+    146
+   ],
+   "speaker": [
+    "helen"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 2024,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-766",
+   "book": 4,
+   "lines": [
+    148,
+    154
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "helen"
+   ],
+   "level": 0,
+   "cluster": 2024,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-767",
+   "book": 4,
+   "lines": [
+    156,
+    167
+   ],
+   "speaker": [
+    "peisistratus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 2024,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-768",
+   "book": 4,
+   "lines": [
+    169,
+    182
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2024,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-769",
+   "book": 4,
+   "lines": [
+    190,
+    202
+   ],
+   "speaker": [
+    "peisistratus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 2024,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-770",
+   "book": 4,
+   "lines": [
+    204,
+    215
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "peisistratus"
+   ],
+   "level": 0,
+   "cluster": 2024,
+   "part": 8,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-771",
+   "book": 4,
+   "lines": [
+    235,
+    264
+   ],
+   "speaker": [
+    "helen"
+   ],
+   "addressee": [
+    "peisistratus",
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2024,
+   "part": 9,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-772",
+   "book": 4,
+   "lines": [
+    266,
+    289
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "peisistratus",
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2024,
+   "part": 10,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-773",
+   "book": 4,
+   "lines": [
+    291,
+    295
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 2024,
+   "part": 11,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-774",
+   "book": 4,
+   "lines": [
+    312,
+    314
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2026,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-775",
+   "book": 4,
+   "lines": [
+    316,
+    331
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 2026,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-776",
+   "book": 4,
+   "lines": [
+    333,
+    592
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2026,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-777",
+   "book": 4,
+   "lines": [
+    371,
+    374
+   ],
+   "speaker": [
+    "eidothea"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 1,
+   "cluster": 2027,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-778",
+   "book": 4,
+   "lines": [
+    376,
+    381
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "eidothea"
+   ],
+   "level": 1,
+   "cluster": 2027,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-779",
+   "book": 4,
+   "lines": [
+    383,
+    393
+   ],
+   "speaker": [
+    "eidothea"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 1,
+   "cluster": 2027,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-780",
+   "book": 4,
+   "lines": [
+    395,
+    397
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "eidothea"
+   ],
+   "level": 1,
+   "cluster": 2027,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-781",
+   "book": 4,
+   "lines": [
+    399,
+    426
+   ],
+   "speaker": [
+    "eidothea"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 1,
+   "cluster": 2027,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-782",
+   "book": 4,
+   "lines": [
+    462,
+    463
+   ],
+   "speaker": [
+    "proteus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 1,
+   "cluster": 2028,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-783",
+   "book": 4,
+   "lines": [
+    465,
+    470
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "proteus"
+   ],
+   "level": 1,
+   "cluster": 2028,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-784",
+   "book": 4,
+   "lines": [
+    472,
+    480
+   ],
+   "speaker": [
+    "proteus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 1,
+   "cluster": 2028,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-785",
+   "book": 4,
+   "lines": [
+    485,
+    490
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "proteus"
+   ],
+   "level": 1,
+   "cluster": 2028,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-786",
+   "book": 4,
+   "lines": [
+    492,
+    537
+   ],
+   "speaker": [
+    "proteus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 1,
+   "cluster": 2028,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-787",
+   "book": 4,
+   "lines": [
+    543,
+    547
+   ],
+   "speaker": [
+    "proteus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 1,
+   "cluster": 2028,
+   "part": 6,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-788",
+   "book": 4,
+   "lines": [
+    551,
+    553
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "proteus"
+   ],
+   "level": 1,
+   "cluster": 2028,
+   "part": 7,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-789",
+   "book": 4,
+   "lines": [
+    555,
+    569
+   ],
+   "speaker": [
+    "proteus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 1,
+   "cluster": 2028,
+   "part": 8,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-790",
+   "book": 4,
+   "lines": [
+    594,
+    608
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 2026,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-791",
+   "book": 4,
+   "lines": [
+    611,
+    619
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2026,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-792",
+   "book": 4,
+   "lines": [
+    632,
+    637
+   ],
+   "speaker": [
+    "noemon"
+   ],
+   "addressee": [
+    "antinous"
+   ],
+   "level": 0,
+   "cluster": 2029,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-793",
+   "book": 4,
+   "lines": [
+    642,
+    647
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "noemon"
+   ],
+   "level": 0,
+   "cluster": 2029,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-794",
+   "book": 4,
+   "lines": [
+    649,
+    656
+   ],
+   "speaker": [
+    "noemon"
+   ],
+   "addressee": [
+    "antinous"
+   ],
+   "level": 0,
+   "cluster": 2029,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-795",
+   "book": 4,
+   "lines": [
+    663,
+    672
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2030,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-796",
+   "book": 4,
+   "lines": [
+    681,
+    695
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "medon"
+   ],
+   "level": 0,
+   "cluster": 2031,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-797",
+   "book": 4,
+   "lines": [
+    697,
+    702
+   ],
+   "speaker": [
+    "medon"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2031,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-798",
+   "book": 4,
+   "lines": [
+    707,
+    710
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "medon"
+   ],
+   "level": 0,
+   "cluster": 2031,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-799",
+   "book": 4,
+   "lines": [
+    712,
+    714
+   ],
+   "speaker": [
+    "medon"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2031,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-800",
+   "book": 4,
+   "lines": [
+    722,
+    741
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "female servants of penelope"
+   ],
+   "level": 0,
+   "cluster": 2032,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-801",
+   "book": 4,
+   "lines": [
+    743,
+    757
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2032,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-802",
+   "book": 4,
+   "lines": [
+    762,
+    766
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2033,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-803",
+   "book": 4,
+   "lines": [
+    770,
+    771
+   ],
+   "speaker": [
+    "suitor of penelope.7"
+   ],
+   "addressee": [
+    "suitor of penelope.8"
+   ],
+   "level": 0,
+   "cluster": 2034,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-804",
+   "book": 4,
+   "lines": [
+    774,
+    777
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2034,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-805",
+   "book": 4,
+   "lines": [
+    804,
+    807
+   ],
+   "speaker": [
+    "dream-iphthime"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2035,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-806",
+   "book": 4,
+   "lines": [
+    810,
+    823
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "dream-iphthime"
+   ],
+   "level": 0,
+   "cluster": 2035,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-807",
+   "book": 4,
+   "lines": [
+    825,
+    829
+   ],
+   "speaker": [
+    "dream-iphthime"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2035,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-808",
+   "book": 4,
+   "lines": [
+    831,
+    834
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "dream-iphthime"
+   ],
+   "level": 0,
+   "cluster": 2035,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-809",
+   "book": 4,
+   "lines": [
+    836,
+    837
+   ],
+   "speaker": [
+    "dream-iphthime"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2035,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-810",
+   "book": 5,
+   "lines": [
+    7,
+    20
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 2036,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-811",
+   "book": 5,
+   "lines": [
+    22,
+    27
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2036,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-812",
+   "book": 5,
+   "lines": [
+    29,
+    42
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hermes"
+   ],
+   "level": 0,
+   "cluster": 2036,
+   "part": 3,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-813",
+   "book": 5,
+   "lines": [
+    87,
+    91
+   ],
+   "speaker": [
+    "calypso"
+   ],
+   "addressee": [
+    "hermes"
+   ],
+   "level": 0,
+   "cluster": 2037,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-814",
+   "book": 5,
+   "lines": [
+    97,
+    115
+   ],
+   "speaker": [
+    "hermes"
+   ],
+   "addressee": [
+    "calypso"
+   ],
+   "level": 0,
+   "cluster": 2037,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-815",
+   "book": 5,
+   "lines": [
+    118,
+    144
+   ],
+   "speaker": [
+    "calypso"
+   ],
+   "addressee": [
+    "hermes"
+   ],
+   "level": 0,
+   "cluster": 2037,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-816",
+   "book": 5,
+   "lines": [
+    146,
+    147
+   ],
+   "speaker": [
+    "hermes"
+   ],
+   "addressee": [
+    "calypso"
+   ],
+   "level": 0,
+   "cluster": 2037,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-817",
+   "book": 5,
+   "lines": [
+    160,
+    170
+   ],
+   "speaker": [
+    "calypso"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2038,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-818",
+   "book": 5,
+   "lines": [
+    173,
+    179
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "calypso"
+   ],
+   "level": 0,
+   "cluster": 2038,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-819",
+   "book": 5,
+   "lines": [
+    182,
+    191
+   ],
+   "speaker": [
+    "calypso"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2038,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-820",
+   "book": 5,
+   "lines": [
+    203,
+    213
+   ],
+   "speaker": [
+    "calypso"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2039,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-821",
+   "book": 5,
+   "lines": [
+    215,
+    224
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "calypso"
+   ],
+   "level": 0,
+   "cluster": 2039,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-822",
+   "book": 5,
+   "lines": [
+    286,
+    290
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 2040,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "odyssey-823",
+   "book": 5,
+   "lines": [
+    299,
+    312
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2041,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "odyssey-824",
+   "book": 5,
+   "lines": [
+    339,
+    350
+   ],
+   "speaker": [
+    "ino"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2042,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-825",
+   "book": 5,
+   "lines": [
+    356,
+    364
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2043,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "odyssey-826",
+   "book": 5,
+   "lines": [
+    377,
+    379
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 2044,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "odyssey-827",
+   "book": 5,
+   "lines": [
+    408,
+    422
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2045,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "odyssey-828",
+   "book": 5,
+   "lines": [
+    445,
+    450
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "river god"
+   ],
+   "level": 0,
+   "cluster": 2046,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-829",
+   "book": 5,
+   "lines": [
+    465,
+    473
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2047,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "odyssey-830",
+   "book": 6,
+   "lines": [
+    25,
+    40
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "nausicaa"
+   ],
+   "level": 0,
+   "cluster": 2048,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-831",
+   "book": 6,
+   "lines": [
+    57,
+    65
+   ],
+   "speaker": [
+    "nausicaa"
+   ],
+   "addressee": [
+    "alcinous"
+   ],
+   "level": 0,
+   "cluster": 2049,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-832",
+   "book": 6,
+   "lines": [
+    68,
+    70
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "nausicaa"
+   ],
+   "level": 0,
+   "cluster": 2049,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-833",
+   "book": 6,
+   "lines": [
+    119,
+    126
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2050,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "odyssey-834",
+   "book": 6,
+   "lines": [
+    149,
+    185
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "nausicaa"
+   ],
+   "level": 0,
+   "cluster": 2051,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-835",
+   "book": 6,
+   "lines": [
+    187,
+    197
+   ],
+   "speaker": [
+    "nausicaa"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2051,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-836",
+   "book": 6,
+   "lines": [
+    199,
+    210
+   ],
+   "speaker": [
+    "nausicaa"
+   ],
+   "addressee": [
+    "companions of nausicaa"
+   ],
+   "level": 0,
+   "cluster": 2051,
+   "part": 3,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-837",
+   "book": 6,
+   "lines": [
+    218,
+    222
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "companions of nausicaa"
+   ],
+   "level": 0,
+   "cluster": 2052,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-838",
+   "book": 6,
+   "lines": [
+    239,
+    246
+   ],
+   "speaker": [
+    "nausicaa"
+   ],
+   "addressee": [
+    "companions of nausicaa"
+   ],
+   "level": 0,
+   "cluster": 2053,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-839",
+   "book": 6,
+   "lines": [
+    255,
+    315
+   ],
+   "speaker": [
+    "nausicaa"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2054,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-840",
+   "book": 6,
+   "lines": [
+    276,
+    284
+   ],
+   "speaker": [
+    "phaeacian.1"
+   ],
+   "addressee": [
+    "phaeacian.1"
+   ],
+   "level": 1,
+   "cluster": 2055,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "odyssey-841",
+   "book": 6,
+   "lines": [
+    324,
+    328
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2056,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-842",
+   "book": 7,
+   "lines": [
+    22,
+    26
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2057,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-843",
+   "book": 7,
+   "lines": [
+    28,
+    36
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2057,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-844",
+   "book": 7,
+   "lines": [
+    48,
+    77
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2058,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-845",
+   "book": 7,
+   "lines": [
+    146,
+    152
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "arete"
+   ],
+   "level": 0,
+   "cluster": 2059,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-846",
+   "book": 7,
+   "lines": [
+    159,
+    166
+   ],
+   "speaker": [
+    "echeneus"
+   ],
+   "addressee": [
+    "alcinous"
+   ],
+   "level": 0,
+   "cluster": 2059,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-847",
+   "book": 7,
+   "lines": [
+    179,
+    181
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "pontonous"
+   ],
+   "level": 0,
+   "cluster": 2059,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-848",
+   "book": 7,
+   "lines": [
+    186,
+    206
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "phaeacians"
+   ],
+   "level": 0,
+   "cluster": 2059,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-849",
+   "book": 7,
+   "lines": [
+    208,
+    225
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "alcinous"
+   ],
+   "level": 0,
+   "cluster": 2059,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-850",
+   "book": 7,
+   "lines": [
+    237,
+    239
+   ],
+   "speaker": [
+    "arete"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2060,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-851",
+   "book": 7,
+   "lines": [
+    241,
+    297
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "arete"
+   ],
+   "level": 0,
+   "cluster": 2060,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-852",
+   "book": 7,
+   "lines": [
+    299,
+    301
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2060,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-853",
+   "book": 7,
+   "lines": [
+    303,
+    307
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "alcinous"
+   ],
+   "level": 0,
+   "cluster": 2060,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-854",
+   "book": 7,
+   "lines": [
+    309,
+    328
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2060,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-855",
+   "book": 7,
+   "lines": [
+    331,
+    333
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 2061,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-856",
+   "book": 7,
+   "lines": [
+    342,
+    342
+   ],
+   "speaker": [
+    "female servants of arete"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2062,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-857",
+   "book": 8,
+   "lines": [
+    11,
+    14
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "phaeacians"
+   ],
+   "level": 0,
+   "cluster": 2063,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-858",
+   "book": 8,
+   "lines": [
+    26,
+    45
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "phaeacians"
+   ],
+   "level": 0,
+   "cluster": 2064,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-859",
+   "book": 8,
+   "lines": [
+    97,
+    103
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "phaeacians"
+   ],
+   "level": 0,
+   "cluster": 2065,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-860",
+   "book": 8,
+   "lines": [
+    133,
+    139
+   ],
+   "speaker": [
+    "laodamas"
+   ],
+   "addressee": [
+    "phaeacians"
+   ],
+   "level": 0,
+   "cluster": 2066,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-861",
+   "book": 8,
+   "lines": [
+    141,
+    142
+   ],
+   "speaker": [
+    "euryalus (phaeacian)"
+   ],
+   "addressee": [
+    "laodamas"
+   ],
+   "level": 0,
+   "cluster": 2066,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-862",
+   "book": 8,
+   "lines": [
+    145,
+    151
+   ],
+   "speaker": [
+    "laodamas"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2066,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-863",
+   "book": 8,
+   "lines": [
+    153,
+    157
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "laodamas"
+   ],
+   "level": 0,
+   "cluster": 2066,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-864",
+   "book": 8,
+   "lines": [
+    159,
+    164
+   ],
+   "speaker": [
+    "euryalus (phaeacian)"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2066,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-865",
+   "book": 8,
+   "lines": [
+    166,
+    185
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "euryalus (phaeacian)"
+   ],
+   "level": 0,
+   "cluster": 2066,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-866",
+   "book": 8,
+   "lines": [
+    195,
+    198
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2066,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-867",
+   "book": 8,
+   "lines": [
+    202,
+    233
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "phaeacians"
+   ],
+   "level": 0,
+   "cluster": 2066,
+   "part": 8,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-868",
+   "book": 8,
+   "lines": [
+    236,
+    255
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2066,
+   "part": 9,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-869",
+   "book": 8,
+   "lines": [
+    292,
+    294
+   ],
+   "speaker": [
+    "ares"
+   ],
+   "addressee": [
+    "aphrodite"
+   ],
+   "level": 1,
+   "cluster": 2067,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-870",
+   "book": 8,
+   "lines": [
+    306,
+    320
+   ],
+   "speaker": [
+    "hephaestus"
+   ],
+   "addressee": [
+    "zeus",
+    "gods"
+   ],
+   "level": 1,
+   "cluster": 2068,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-871",
+   "book": 8,
+   "lines": [
+    329,
+    332
+   ],
+   "speaker": [
+    "god"
+   ],
+   "addressee": [
+    "gods"
+   ],
+   "level": 1,
+   "cluster": 2069,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-872",
+   "book": 8,
+   "lines": [
+    335,
+    337
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "hermes"
+   ],
+   "level": 1,
+   "cluster": 2070,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-873",
+   "book": 8,
+   "lines": [
+    339,
+    342
+   ],
+   "speaker": [
+    "hermes"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 1,
+   "cluster": 2070,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-874",
+   "book": 8,
+   "lines": [
+    347,
+    348
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "hephaestus"
+   ],
+   "level": 1,
+   "cluster": 2070,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-875",
+   "book": 8,
+   "lines": [
+    350,
+    353
+   ],
+   "speaker": [
+    "hephaestus"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 1,
+   "cluster": 2070,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-876",
+   "book": 8,
+   "lines": [
+    355,
+    356
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "hephaestus"
+   ],
+   "level": 1,
+   "cluster": 2070,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-877",
+   "book": 8,
+   "lines": [
+    358,
+    358
+   ],
+   "speaker": [
+    "hephaestus"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 1,
+   "cluster": 2070,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-878",
+   "book": 8,
+   "lines": [
+    382,
+    384
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "alcinous"
+   ],
+   "level": 0,
+   "cluster": 2071,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-879",
+   "book": 8,
+   "lines": [
+    387,
+    397
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "phaeacians"
+   ],
+   "level": 0,
+   "cluster": 2071,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-880",
+   "book": 8,
+   "lines": [
+    401,
+    405
+   ],
+   "speaker": [
+    "euryalus (phaeacian)"
+   ],
+   "addressee": [
+    "alcinous"
+   ],
+   "level": 0,
+   "cluster": 2071,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-881",
+   "book": 8,
+   "lines": [
+    408,
+    411
+   ],
+   "speaker": [
+    "euryalus (phaeacian)"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2071,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-882",
+   "book": 8,
+   "lines": [
+    413,
+    415
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "euryalus (phaeacian)"
+   ],
+   "level": 0,
+   "cluster": 2071,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-883",
+   "book": 8,
+   "lines": [
+    424,
+    432
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "arete"
+   ],
+   "level": 0,
+   "cluster": 2072,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-884",
+   "book": 8,
+   "lines": [
+    443,
+    445
+   ],
+   "speaker": [
+    "arete"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2073,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-885",
+   "book": 8,
+   "lines": [
+    461,
+    462
+   ],
+   "speaker": [
+    "nausicaa"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2074,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-886",
+   "book": 8,
+   "lines": [
+    464,
+    468
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "nausicaa"
+   ],
+   "level": 0,
+   "cluster": 2074,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-887",
+   "book": 8,
+   "lines": [
+    477,
+    481
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "herald"
+   ],
+   "level": 0,
+   "cluster": 2075,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-888",
+   "book": 8,
+   "lines": [
+    487,
+    498
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "demodocus"
+   ],
+   "level": 0,
+   "cluster": 2076,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-889",
+   "book": 8,
+   "lines": [
+    536,
+    586
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2077,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-890",
+   "book": 9,
+   "lines": [
+    2,
+    332
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "alcinous"
+   ],
+   "level": 0,
+   "cluster": 2077,
+   "part": 2,
+   "type": "G",
+   "crossBook": true
+  },
+  {
+   "id": "odyssey-891",
+   "book": 9,
+   "lines": [
+    172,
+    176
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2078,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-892",
+   "book": 9,
+   "lines": [
+    252,
+    255
+   ],
+   "speaker": [
+    "polyphemus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2079,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-893",
+   "book": 9,
+   "lines": [
+    259,
+    271
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "polyphemus"
+   ],
+   "level": 1,
+   "cluster": 2079,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-894",
+   "book": 9,
+   "lines": [
+    273,
+    280
+   ],
+   "speaker": [
+    "polyphemus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2079,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-895",
+   "book": 9,
+   "lines": [
+    283,
+    286
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "polyphemus"
+   ],
+   "level": 1,
+   "cluster": 2079,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-896",
+   "book": 9,
+   "lines": [
+    347,
+    352
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "polyphemus"
+   ],
+   "level": 1,
+   "cluster": 2080,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-897",
+   "book": 9,
+   "lines": [
+    355,
+    359
+   ],
+   "speaker": [
+    "polyphemus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2080,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-898",
+   "book": 9,
+   "lines": [
+    364,
+    367
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "polyphemus"
+   ],
+   "level": 1,
+   "cluster": 2080,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-899",
+   "book": 9,
+   "lines": [
+    369,
+    370
+   ],
+   "speaker": [
+    "polyphemus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2080,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-900",
+   "book": 9,
+   "lines": [
+    403,
+    406
+   ],
+   "speaker": [
+    "cyclopes"
+   ],
+   "addressee": [
+    "polyphemus"
+   ],
+   "level": 1,
+   "cluster": 2081,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-901",
+   "book": 9,
+   "lines": [
+    408,
+    408
+   ],
+   "speaker": [
+    "polyphemus"
+   ],
+   "addressee": [
+    "cyclopes"
+   ],
+   "level": 1,
+   "cluster": 2081,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-902",
+   "book": 9,
+   "lines": [
+    410,
+    412
+   ],
+   "speaker": [
+    "cyclopes"
+   ],
+   "addressee": [
+    "polyphemus"
+   ],
+   "level": 1,
+   "cluster": 2081,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-903",
+   "book": 9,
+   "lines": [
+    447,
+    460
+   ],
+   "speaker": [
+    "polyphemus"
+   ],
+   "addressee": [
+    "ram"
+   ],
+   "level": 1,
+   "cluster": 2082,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-904",
+   "book": 9,
+   "lines": [
+    475,
+    479
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "polyphemus"
+   ],
+   "level": 1,
+   "cluster": 2083,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-905",
+   "book": 9,
+   "lines": [
+    494,
+    499
+   ],
+   "speaker": [
+    "companions of odysseus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2084,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-906",
+   "book": 9,
+   "lines": [
+    502,
+    505
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "polyphemus"
+   ],
+   "level": 1,
+   "cluster": 2083,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-907",
+   "book": 9,
+   "lines": [
+    507,
+    521
+   ],
+   "speaker": [
+    "polyphemus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2083,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-908",
+   "book": 9,
+   "lines": [
+    523,
+    525
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "polyphemus"
+   ],
+   "level": 1,
+   "cluster": 2083,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-909",
+   "book": 9,
+   "lines": [
+    528,
+    535
+   ],
+   "speaker": [
+    "polyphemus"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 1,
+   "cluster": 2085,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-910",
+   "book": 10,
+   "lines": [
+    38,
+    45
+   ],
+   "speaker": [
+    "companion of odysseus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2086,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-911",
+   "book": 10,
+   "lines": [
+    64,
+    66
+   ],
+   "speaker": [
+    "sons of aeolus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2087,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-912",
+   "book": 10,
+   "lines": [
+    68,
+    69
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "sons of aeolus"
+   ],
+   "level": 1,
+   "cluster": 2087,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-913",
+   "book": 10,
+   "lines": [
+    72,
+    75
+   ],
+   "speaker": [
+    "aeolus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2087,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-914",
+   "book": 10,
+   "lines": [
+    174,
+    177
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2088,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-915",
+   "book": 10,
+   "lines": [
+    189,
+    197
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2089,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-916",
+   "book": 10,
+   "lines": [
+    226,
+    228
+   ],
+   "speaker": [
+    "polites"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2090,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-917",
+   "book": 10,
+   "lines": [
+    251,
+    260
+   ],
+   "speaker": [
+    "eurylochus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2091,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-918",
+   "book": 10,
+   "lines": [
+    266,
+    269
+   ],
+   "speaker": [
+    "eurylochus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2091,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-919",
+   "book": 10,
+   "lines": [
+    271,
+    273
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eurylochus"
+   ],
+   "level": 1,
+   "cluster": 2091,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-920",
+   "book": 10,
+   "lines": [
+    281,
+    301
+   ],
+   "speaker": [
+    "hermes"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2092,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-921",
+   "book": 10,
+   "lines": [
+    320,
+    320
+   ],
+   "speaker": [
+    "circe"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2093,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-922",
+   "book": 10,
+   "lines": [
+    325,
+    335
+   ],
+   "speaker": [
+    "circe"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2093,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-923",
+   "book": 10,
+   "lines": [
+    337,
+    344
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "circe"
+   ],
+   "level": 1,
+   "cluster": 2093,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-924",
+   "book": 10,
+   "lines": [
+    378,
+    381
+   ],
+   "speaker": [
+    "circe"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2094,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-925",
+   "book": 10,
+   "lines": [
+    383,
+    387
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "circe"
+   ],
+   "level": 1,
+   "cluster": 2094,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-926",
+   "book": 10,
+   "lines": [
+    401,
+    405
+   ],
+   "speaker": [
+    "circe"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2094,
+   "part": 3,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-927",
+   "book": 10,
+   "lines": [
+    419,
+    421
+   ],
+   "speaker": [
+    "companions of odysseus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2095,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-928",
+   "book": 10,
+   "lines": [
+    423,
+    427
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2095,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-929",
+   "book": 10,
+   "lines": [
+    431,
+    437
+   ],
+   "speaker": [
+    "eurylochus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2095,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-930",
+   "book": 10,
+   "lines": [
+    443,
+    445
+   ],
+   "speaker": [
+    "companions of odysseus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2095,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-931",
+   "book": 10,
+   "lines": [
+    456,
+    465
+   ],
+   "speaker": [
+    "circe"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2096,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-932",
+   "book": 10,
+   "lines": [
+    472,
+    474
+   ],
+   "speaker": [
+    "companions of odysseus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2097,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-933",
+   "book": 10,
+   "lines": [
+    483,
+    486
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "circe"
+   ],
+   "level": 1,
+   "cluster": 2098,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-934",
+   "book": 10,
+   "lines": [
+    488,
+    495
+   ],
+   "speaker": [
+    "circe"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2098,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-935",
+   "book": 10,
+   "lines": [
+    501,
+    502
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "circe"
+   ],
+   "level": 1,
+   "cluster": 2098,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-936",
+   "book": 10,
+   "lines": [
+    504,
+    540
+   ],
+   "speaker": [
+    "circe"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2098,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-937",
+   "book": 10,
+   "lines": [
+    549,
+    550
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2099,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-938",
+   "book": 10,
+   "lines": [
+    562,
+    565
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2100,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-939",
+   "book": 11,
+   "lines": [
+    57,
+    58
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "elpenor"
+   ],
+   "level": 1,
+   "cluster": 2101,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-940",
+   "book": 11,
+   "lines": [
+    60,
+    78
+   ],
+   "speaker": [
+    "elpenor"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2101,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-941",
+   "book": 11,
+   "lines": [
+    80,
+    80
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "elpenor"
+   ],
+   "level": 1,
+   "cluster": 2101,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-942",
+   "book": 11,
+   "lines": [
+    92,
+    96
+   ],
+   "speaker": [
+    "tiresias"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2102,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-943",
+   "book": 11,
+   "lines": [
+    100,
+    137
+   ],
+   "speaker": [
+    "tiresias"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2102,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-944",
+   "book": 11,
+   "lines": [
+    139,
+    144
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "tiresias"
+   ],
+   "level": 1,
+   "cluster": 2102,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-945",
+   "book": 11,
+   "lines": [
+    146,
+    149
+   ],
+   "speaker": [
+    "tiresias"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2102,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-946",
+   "book": 11,
+   "lines": [
+    155,
+    162
+   ],
+   "speaker": [
+    "anticlea"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2103,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-947",
+   "book": 11,
+   "lines": [
+    164,
+    179
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "anticlea"
+   ],
+   "level": 1,
+   "cluster": 2103,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-948",
+   "book": 11,
+   "lines": [
+    181,
+    203
+   ],
+   "speaker": [
+    "anticlea"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2103,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-949",
+   "book": 11,
+   "lines": [
+    210,
+    214
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "anticlea"
+   ],
+   "level": 1,
+   "cluster": 2103,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-950",
+   "book": 11,
+   "lines": [
+    216,
+    224
+   ],
+   "speaker": [
+    "anticlea"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2103,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-951",
+   "book": 11,
+   "lines": [
+    248,
+    252
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "tyro"
+   ],
+   "level": 1,
+   "cluster": 2104,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-952",
+   "book": 11,
+   "lines": [
+    336,
+    341
+   ],
+   "speaker": [
+    "arete"
+   ],
+   "addressee": [
+    "phaeacians"
+   ],
+   "level": 0,
+   "cluster": 2105,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-953",
+   "book": 11,
+   "lines": [
+    344,
+    346
+   ],
+   "speaker": [
+    "echeneus"
+   ],
+   "addressee": [
+    "phaeacians"
+   ],
+   "level": 0,
+   "cluster": 2105,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-954",
+   "book": 11,
+   "lines": [
+    348,
+    353
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "phaeacians"
+   ],
+   "level": 0,
+   "cluster": 2105,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-955",
+   "book": 11,
+   "lines": [
+    355,
+    361
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "alcinous"
+   ],
+   "level": 0,
+   "cluster": 2105,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-956",
+   "book": 11,
+   "lines": [
+    363,
+    376
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2105,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-957",
+   "book": 11,
+   "lines": [
+    378,
+    453
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "alcinous"
+   ],
+   "level": 0,
+   "cluster": 2105,
+   "part": 6,
+   "type": "G",
+   "crossBook": true
+  },
+  {
+   "id": "odyssey-958",
+   "book": 11,
+   "lines": [
+    397,
+    403
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 1,
+   "cluster": 2106,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-959",
+   "book": 11,
+   "lines": [
+    404,
+    434
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2106,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-960",
+   "book": 11,
+   "lines": [
+    436,
+    439
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 1,
+   "cluster": 2106,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-961",
+   "book": 11,
+   "lines": [
+    441,
+    461
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2106,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-962",
+   "book": 11,
+   "lines": [
+    463,
+    464
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 1,
+   "cluster": 2106,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-963",
+   "book": 11,
+   "lines": [
+    473,
+    476
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2107,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-964",
+   "book": 11,
+   "lines": [
+    478,
+    486
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 1,
+   "cluster": 2107,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-965",
+   "book": 11,
+   "lines": [
+    488,
+    503
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2107,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-966",
+   "book": 11,
+   "lines": [
+    505,
+    537
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 1,
+   "cluster": 2107,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-967",
+   "book": 11,
+   "lines": [
+    553,
+    562
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "ajax-telamonian"
+   ],
+   "level": 1,
+   "cluster": 2108,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-968",
+   "book": 11,
+   "lines": [
+    617,
+    626
+   ],
+   "speaker": [
+    "heracles"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2109,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-969",
+   "book": 12,
+   "lines": [
+    21,
+    27
+   ],
+   "speaker": [
+    "circe"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2110,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-970",
+   "book": 12,
+   "lines": [
+    37,
+    110
+   ],
+   "speaker": [
+    "circe"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2111,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-971",
+   "book": 12,
+   "lines": [
+    112,
+    114
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "circe"
+   ],
+   "level": 1,
+   "cluster": 2111,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-972",
+   "book": 12,
+   "lines": [
+    116,
+    141
+   ],
+   "speaker": [
+    "circe"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2111,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-973",
+   "book": 12,
+   "lines": [
+    154,
+    164
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2112,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-974",
+   "book": 12,
+   "lines": [
+    184,
+    191
+   ],
+   "speaker": [
+    "siren"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2113,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-975",
+   "book": 12,
+   "lines": [
+    208,
+    221
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2114,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-976",
+   "book": 12,
+   "lines": [
+    271,
+    276
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2115,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-977",
+   "book": 12,
+   "lines": [
+    279,
+    293
+   ],
+   "speaker": [
+    "eurylochus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2115,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-978",
+   "book": 12,
+   "lines": [
+    297,
+    302
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eurylochus"
+   ],
+   "level": 1,
+   "cluster": 2115,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-979",
+   "book": 12,
+   "lines": [
+    320,
+    323
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2116,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-980",
+   "book": 12,
+   "lines": [
+    340,
+    351
+   ],
+   "speaker": [
+    "eurylochus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2117,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-981",
+   "book": 12,
+   "lines": [
+    371,
+    373
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "zeus",
+    "gods"
+   ],
+   "level": 1,
+   "cluster": 2118,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-982",
+   "book": 12,
+   "lines": [
+    377,
+    383
+   ],
+   "speaker": [
+    "helios"
+   ],
+   "addressee": [
+    "zeus",
+    "gods"
+   ],
+   "level": 1,
+   "cluster": 2119,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-983",
+   "book": 12,
+   "lines": [
+    385,
+    388
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "helios"
+   ],
+   "level": 1,
+   "cluster": 2119,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-984",
+   "book": 13,
+   "lines": [
+    4,
+    15
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2120,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-985",
+   "book": 13,
+   "lines": [
+    38,
+    46
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "alcinous"
+   ],
+   "level": 0,
+   "cluster": 2121,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-986",
+   "book": 13,
+   "lines": [
+    50,
+    52
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "pontonous"
+   ],
+   "level": 0,
+   "cluster": 2121,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-987",
+   "book": 13,
+   "lines": [
+    59,
+    62
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "arete"
+   ],
+   "level": 0,
+   "cluster": 2121,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-988",
+   "book": 13,
+   "lines": [
+    128,
+    138
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 2122,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-989",
+   "book": 13,
+   "lines": [
+    140,
+    145
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 2122,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-990",
+   "book": 13,
+   "lines": [
+    147,
+    152
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 2122,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-991",
+   "book": 13,
+   "lines": [
+    154,
+    158
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 2122,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-992",
+   "book": 13,
+   "lines": [
+    168,
+    169
+   ],
+   "speaker": [
+    "phaeacian.2"
+   ],
+   "addressee": [
+    "phaeacian.3"
+   ],
+   "level": 0,
+   "cluster": 2123,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-993",
+   "book": 13,
+   "lines": [
+    172,
+    183
+   ],
+   "speaker": [
+    "alcinous"
+   ],
+   "addressee": [
+    "phaeacians"
+   ],
+   "level": 0,
+   "cluster": 2123,
+   "part": 2,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-994",
+   "book": 13,
+   "lines": [
+    200,
+    216
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2124,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "odyssey-995",
+   "book": 13,
+   "lines": [
+    228,
+    235
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2125,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-996",
+   "book": 13,
+   "lines": [
+    237,
+    249
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2125,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-997",
+   "book": 13,
+   "lines": [
+    256,
+    286
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2125,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-998",
+   "book": 13,
+   "lines": [
+    291,
+    310
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2125,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-999",
+   "book": 13,
+   "lines": [
+    312,
+    328
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2125,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1000",
+   "book": 13,
+   "lines": [
+    330,
+    351
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2125,
+   "part": 6,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1001",
+   "book": 13,
+   "lines": [
+    356,
+    360
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "nymphs"
+   ],
+   "level": 0,
+   "cluster": 2126,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1002",
+   "book": 13,
+   "lines": [
+    362,
+    365
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2125,
+   "part": 7,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1003",
+   "book": 13,
+   "lines": [
+    375,
+    381
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2127,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1004",
+   "book": 13,
+   "lines": [
+    383,
+    391
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2127,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1005",
+   "book": 13,
+   "lines": [
+    393,
+    415
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2127,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1006",
+   "book": 13,
+   "lines": [
+    417,
+    419
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2127,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1007",
+   "book": 13,
+   "lines": [
+    421,
+    428
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2127,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1008",
+   "book": 14,
+   "lines": [
+    37,
+    47
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2128,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1009",
+   "book": 14,
+   "lines": [
+    53,
+    54
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2128,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1010",
+   "book": 14,
+   "lines": [
+    56,
+    71
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2128,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1011",
+   "book": 14,
+   "lines": [
+    80,
+    108
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2128,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1012",
+   "book": 14,
+   "lines": [
+    115,
+    120
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2128,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1013",
+   "book": 14,
+   "lines": [
+    122,
+    147
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2128,
+   "part": 6,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1014",
+   "book": 14,
+   "lines": [
+    149,
+    164
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2128,
+   "part": 7,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1015",
+   "book": 14,
+   "lines": [
+    166,
+    190
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2128,
+   "part": 8,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1016",
+   "book": 14,
+   "lines": [
+    192,
+    359
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2128,
+   "part": 9,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1017",
+   "book": 14,
+   "lines": [
+    361,
+    389
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2128,
+   "part": 10,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1018",
+   "book": 14,
+   "lines": [
+    391,
+    400
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2128,
+   "part": 11,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1019",
+   "book": 14,
+   "lines": [
+    402,
+    408
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2128,
+   "part": 12,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1020",
+   "book": 14,
+   "lines": [
+    414,
+    417
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "swineherds"
+   ],
+   "level": 0,
+   "cluster": 2129,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1021",
+   "book": 14,
+   "lines": [
+    440,
+    441
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2130,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1022",
+   "book": 14,
+   "lines": [
+    443,
+    445
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2130,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1023",
+   "book": 14,
+   "lines": [
+    462,
+    506
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2131,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1024",
+   "book": 14,
+   "lines": [
+    486,
+    489
+   ],
+   "speaker": [
+    "beggar"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 1,
+   "cluster": 2132,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1025",
+   "book": 14,
+   "lines": [
+    493,
+    493
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "beggar"
+   ],
+   "level": 1,
+   "cluster": 2132,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1026",
+   "book": 14,
+   "lines": [
+    495,
+    498
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "companions of odysseus"
+   ],
+   "level": 1,
+   "cluster": 2133,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1027",
+   "book": 14,
+   "lines": [
+    508,
+    517
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2131,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1028",
+   "book": 15,
+   "lines": [
+    10,
+    42
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2134,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1029",
+   "book": 15,
+   "lines": [
+    46,
+    47
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "peisistratus"
+   ],
+   "level": 0,
+   "cluster": 2135,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1030",
+   "book": 15,
+   "lines": [
+    49,
+    55
+   ],
+   "speaker": [
+    "peisistratus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2135,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1031",
+   "book": 15,
+   "lines": [
+    64,
+    66
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 2136,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1032",
+   "book": 15,
+   "lines": [
+    68,
+    85
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2136,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1033",
+   "book": 15,
+   "lines": [
+    87,
+    91
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 2136,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1034",
+   "book": 15,
+   "lines": [
+    111,
+    119
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2137,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1035",
+   "book": 15,
+   "lines": [
+    125,
+    129
+   ],
+   "speaker": [
+    "helen"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2137,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1036",
+   "book": 15,
+   "lines": [
+    151,
+    153
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "peisistratus",
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2138,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1037",
+   "book": 15,
+   "lines": [
+    155,
+    159
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 2138,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1038",
+   "book": 15,
+   "lines": [
+    167,
+    168
+   ],
+   "speaker": [
+    "peisistratus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 2138,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1039",
+   "book": 15,
+   "lines": [
+    172,
+    178
+   ],
+   "speaker": [
+    "helen"
+   ],
+   "addressee": [
+    "menelaus",
+    "peisistratus",
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2138,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1040",
+   "book": 15,
+   "lines": [
+    180,
+    181
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "helen"
+   ],
+   "level": 0,
+   "cluster": 2138,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1041",
+   "book": 15,
+   "lines": [
+    195,
+    201
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "peisistratus"
+   ],
+   "level": 0,
+   "cluster": 2139,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1042",
+   "book": 15,
+   "lines": [
+    209,
+    214
+   ],
+   "speaker": [
+    "peisistratus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2139,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1043",
+   "book": 15,
+   "lines": [
+    218,
+    219
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "companions of telemachus"
+   ],
+   "level": 0,
+   "cluster": 2140,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1044",
+   "book": 15,
+   "lines": [
+    260,
+    264
+   ],
+   "speaker": [
+    "theoclymenus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2141,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1045",
+   "book": 15,
+   "lines": [
+    266,
+    270
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "theoclymenus"
+   ],
+   "level": 0,
+   "cluster": 2141,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1046",
+   "book": 15,
+   "lines": [
+    272,
+    278
+   ],
+   "speaker": [
+    "theoclymenus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2141,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1047",
+   "book": 15,
+   "lines": [
+    280,
+    281
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "theoclymenus"
+   ],
+   "level": 0,
+   "cluster": 2141,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1048",
+   "book": 15,
+   "lines": [
+    307,
+    324
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2142,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1049",
+   "book": 15,
+   "lines": [
+    326,
+    339
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2142,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1050",
+   "book": 15,
+   "lines": [
+    341,
+    350
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2142,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1051",
+   "book": 15,
+   "lines": [
+    352,
+    379
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2142,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1052",
+   "book": 15,
+   "lines": [
+    381,
+    388
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2142,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1053",
+   "book": 15,
+   "lines": [
+    390,
+    484
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2142,
+   "part": 6,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1054",
+   "book": 15,
+   "lines": [
+    425,
+    429
+   ],
+   "speaker": [
+    "phoenician woman"
+   ],
+   "addressee": [
+    "phoenician man"
+   ],
+   "level": 1,
+   "cluster": 2143,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1055",
+   "book": 15,
+   "lines": [
+    431,
+    433
+   ],
+   "speaker": [
+    "phoenician man"
+   ],
+   "addressee": [
+    "phoenician woman"
+   ],
+   "level": 1,
+   "cluster": 2143,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1056",
+   "book": 15,
+   "lines": [
+    435,
+    436
+   ],
+   "speaker": [
+    "phoenician woman"
+   ],
+   "addressee": [
+    "phoenician man"
+   ],
+   "level": 1,
+   "cluster": 2143,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1057",
+   "book": 15,
+   "lines": [
+    440,
+    458
+   ],
+   "speaker": [
+    "phoenician woman"
+   ],
+   "addressee": [
+    "phoenician man"
+   ],
+   "level": 1,
+   "cluster": 2143,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1058",
+   "book": 15,
+   "lines": [
+    486,
+    492
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2142,
+   "part": 7,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1059",
+   "book": 15,
+   "lines": [
+    503,
+    507
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "companions of telemachus"
+   ],
+   "level": 0,
+   "cluster": 2144,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1060",
+   "book": 15,
+   "lines": [
+    509,
+    511
+   ],
+   "speaker": [
+    "theoclymenus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2144,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1061",
+   "book": 15,
+   "lines": [
+    513,
+    524
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "theoclymenus"
+   ],
+   "level": 0,
+   "cluster": 2144,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1062",
+   "book": 15,
+   "lines": [
+    531,
+    534
+   ],
+   "speaker": [
+    "theoclymenus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2144,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1063",
+   "book": 15,
+   "lines": [
+    536,
+    538
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "theoclymenus"
+   ],
+   "level": 0,
+   "cluster": 2144,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1064",
+   "book": 15,
+   "lines": [
+    540,
+    543
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "peiraeus"
+   ],
+   "level": 0,
+   "cluster": 2145,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1065",
+   "book": 15,
+   "lines": [
+    545,
+    546
+   ],
+   "speaker": [
+    "peiraeus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2145,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1066",
+   "book": 16,
+   "lines": [
+    8,
+    10
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2146,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1067",
+   "book": 16,
+   "lines": [
+    23,
+    29
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2146,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1068",
+   "book": 16,
+   "lines": [
+    31,
+    35
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2146,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1069",
+   "book": 16,
+   "lines": [
+    37,
+    39
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2146,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1070",
+   "book": 16,
+   "lines": [
+    44,
+    45
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2146,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1071",
+   "book": 16,
+   "lines": [
+    57,
+    59
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2147,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1072",
+   "book": 16,
+   "lines": [
+    61,
+    67
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2147,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1073",
+   "book": 16,
+   "lines": [
+    69,
+    89
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2147,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1074",
+   "book": 16,
+   "lines": [
+    91,
+    111
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2147,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1075",
+   "book": 16,
+   "lines": [
+    113,
+    134
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2147,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1076",
+   "book": 16,
+   "lines": [
+    136,
+    145
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2147,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1077",
+   "book": 16,
+   "lines": [
+    147,
+    153
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2147,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1078",
+   "book": 16,
+   "lines": [
+    167,
+    171
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2148,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1079",
+   "book": 16,
+   "lines": [
+    181,
+    185
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2149,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1080",
+   "book": 16,
+   "lines": [
+    187,
+    189
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2149,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1081",
+   "book": 16,
+   "lines": [
+    194,
+    200
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2149,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1082",
+   "book": 16,
+   "lines": [
+    202,
+    212
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2149,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1083",
+   "book": 16,
+   "lines": [
+    222,
+    224
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2149,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1084",
+   "book": 16,
+   "lines": [
+    226,
+    239
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2149,
+   "part": 6,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1085",
+   "book": 16,
+   "lines": [
+    241,
+    257
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2149,
+   "part": 7,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1086",
+   "book": 16,
+   "lines": [
+    259,
+    261
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2149,
+   "part": 8,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1087",
+   "book": 16,
+   "lines": [
+    263,
+    265
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2149,
+   "part": 9,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1088",
+   "book": 16,
+   "lines": [
+    267,
+    307
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2149,
+   "part": 10,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1089",
+   "book": 16,
+   "lines": [
+    288,
+    294
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 1,
+   "cluster": 2150,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1090",
+   "book": 16,
+   "lines": [
+    309,
+    320
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2149,
+   "part": 11,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1091",
+   "book": 16,
+   "lines": [
+    337,
+    337
+   ],
+   "speaker": [
+    "herald"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2151,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1092",
+   "book": 16,
+   "lines": [
+    346,
+    350
+   ],
+   "speaker": [
+    "eurymachus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2152,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1093",
+   "book": 16,
+   "lines": [
+    355,
+    357
+   ],
+   "speaker": [
+    "amphinomus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2152,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1094",
+   "book": 16,
+   "lines": [
+    364,
+    392
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2153,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1095",
+   "book": 16,
+   "lines": [
+    400,
+    405
+   ],
+   "speaker": [
+    "amphinomus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2153,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1096",
+   "book": 16,
+   "lines": [
+    418,
+    433
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "antinous"
+   ],
+   "level": 0,
+   "cluster": 2154,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1097",
+   "book": 16,
+   "lines": [
+    435,
+    447
+   ],
+   "speaker": [
+    "eurymachus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2154,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1098",
+   "book": 16,
+   "lines": [
+    461,
+    463
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2155,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1099",
+   "book": 16,
+   "lines": [
+    465,
+    475
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2155,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1100",
+   "book": 17,
+   "lines": [
+    6,
+    15
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2156,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1101",
+   "book": 17,
+   "lines": [
+    17,
+    25
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2156,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1102",
+   "book": 17,
+   "lines": [
+    41,
+    44
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2157,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1103",
+   "book": 17,
+   "lines": [
+    46,
+    56
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2157,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1104",
+   "book": 17,
+   "lines": [
+    75,
+    76
+   ],
+   "speaker": [
+    "peiraeus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2158,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1105",
+   "book": 17,
+   "lines": [
+    78,
+    83
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "peiraeus"
+   ],
+   "level": 0,
+   "cluster": 2158,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1106",
+   "book": 17,
+   "lines": [
+    101,
+    106
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2159,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1107",
+   "book": 17,
+   "lines": [
+    108,
+    149
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2159,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1108",
+   "book": 17,
+   "lines": [
+    124,
+    146
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 1,
+   "cluster": 2160,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1109",
+   "book": 17,
+   "lines": [
+    152,
+    161
+   ],
+   "speaker": [
+    "theoclymenus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2159,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1110",
+   "book": 17,
+   "lines": [
+    163,
+    165
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "theoclymenus"
+   ],
+   "level": 0,
+   "cluster": 2159,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1111",
+   "book": 17,
+   "lines": [
+    174,
+    176
+   ],
+   "speaker": [
+    "medon"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2161,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1112",
+   "book": 17,
+   "lines": [
+    185,
+    191
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2162,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1113",
+   "book": 17,
+   "lines": [
+    193,
+    196
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2162,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1114",
+   "book": 17,
+   "lines": [
+    217,
+    232
+   ],
+   "speaker": [
+    "melanthius"
+   ],
+   "addressee": [
+    "eumaeus",
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2163,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1115",
+   "book": 17,
+   "lines": [
+    240,
+    246
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "nymphs"
+   ],
+   "level": 0,
+   "cluster": 2163,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1116",
+   "book": 17,
+   "lines": [
+    248,
+    253
+   ],
+   "speaker": [
+    "melanthius"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2163,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1117",
+   "book": 17,
+   "lines": [
+    264,
+    271
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2164,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1118",
+   "book": 17,
+   "lines": [
+    273,
+    279
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2164,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1119",
+   "book": 17,
+   "lines": [
+    281,
+    289
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2164,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1120",
+   "book": 17,
+   "lines": [
+    306,
+    310
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2165,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1121",
+   "book": 17,
+   "lines": [
+    312,
+    323
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2165,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1122",
+   "book": 17,
+   "lines": [
+    345,
+    347
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2166,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1123",
+   "book": 17,
+   "lines": [
+    350,
+    352
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2167,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1124",
+   "book": 17,
+   "lines": [
+    354,
+    355
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 2168,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1125",
+   "book": 17,
+   "lines": [
+    370,
+    373
+   ],
+   "speaker": [
+    "melanthius"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2169,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1126",
+   "book": 17,
+   "lines": [
+    375,
+    379
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2169,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1127",
+   "book": 17,
+   "lines": [
+    381,
+    391
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "antinous"
+   ],
+   "level": 0,
+   "cluster": 2169,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1128",
+   "book": 17,
+   "lines": [
+    393,
+    395
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2169,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1129",
+   "book": 17,
+   "lines": [
+    397,
+    404
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "antinous"
+   ],
+   "level": 0,
+   "cluster": 2169,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1130",
+   "book": 17,
+   "lines": [
+    406,
+    408
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2169,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1131",
+   "book": 17,
+   "lines": [
+    415,
+    444
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "antinous"
+   ],
+   "level": 0,
+   "cluster": 2170,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1132",
+   "book": 17,
+   "lines": [
+    446,
+    452
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2170,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1133",
+   "book": 17,
+   "lines": [
+    454,
+    457
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "antinous"
+   ],
+   "level": 0,
+   "cluster": 2170,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1134",
+   "book": 17,
+   "lines": [
+    460,
+    461
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2170,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1135",
+   "book": 17,
+   "lines": [
+    468,
+    476
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2171,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1136",
+   "book": 17,
+   "lines": [
+    478,
+    480
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2171,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1137",
+   "book": 17,
+   "lines": [
+    483,
+    487
+   ],
+   "speaker": [
+    "suitor of penelope.9"
+   ],
+   "addressee": [
+    "antinous"
+   ],
+   "level": 0,
+   "cluster": 2171,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1138",
+   "book": 17,
+   "lines": [
+    494,
+    494
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "antinous"
+   ],
+   "level": 0,
+   "cluster": 2172,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1139",
+   "book": 17,
+   "lines": [
+    496,
+    497
+   ],
+   "speaker": [
+    "eurynome (slave of penelope)"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2172,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1140",
+   "book": 17,
+   "lines": [
+    499,
+    504
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eurynome (slave of penelope)"
+   ],
+   "level": 0,
+   "cluster": 2172,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1141",
+   "book": 17,
+   "lines": [
+    508,
+    511
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2173,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1142",
+   "book": 17,
+   "lines": [
+    513,
+    527
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2173,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1143",
+   "book": 17,
+   "lines": [
+    529,
+    540
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2173,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1144",
+   "book": 17,
+   "lines": [
+    544,
+    550
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2173,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1145",
+   "book": 17,
+   "lines": [
+    553,
+    559
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2174,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1146",
+   "book": 17,
+   "lines": [
+    561,
+    573
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2174,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1147",
+   "book": 17,
+   "lines": [
+    576,
+    578
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2175,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1148",
+   "book": 17,
+   "lines": [
+    580,
+    584
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2175,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1149",
+   "book": 17,
+   "lines": [
+    586,
+    588
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2175,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1150",
+   "book": 17,
+   "lines": [
+    593,
+    597
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2176,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1151",
+   "book": 17,
+   "lines": [
+    599,
+    601
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2176,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1152",
+   "book": 18,
+   "lines": [
+    10,
+    13
+   ],
+   "speaker": [
+    "irus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2177,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1153",
+   "book": 18,
+   "lines": [
+    15,
+    24
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "irus"
+   ],
+   "level": 0,
+   "cluster": 2177,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1154",
+   "book": 18,
+   "lines": [
+    26,
+    31
+   ],
+   "speaker": [
+    "irus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2177,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1155",
+   "book": 18,
+   "lines": [
+    36,
+    39
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2178,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1156",
+   "book": 18,
+   "lines": [
+    43,
+    49
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "irus",
+    "odysseus",
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2178,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1157",
+   "book": 18,
+   "lines": [
+    52,
+    57
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "irus",
+    "odysseus",
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2178,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1158",
+   "book": 18,
+   "lines": [
+    61,
+    65
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2178,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1159",
+   "book": 18,
+   "lines": [
+    73,
+    74
+   ],
+   "speaker": [
+    "suitor of penelope.1"
+   ],
+   "addressee": [
+    "suitor of penelope.2"
+   ],
+   "level": 0,
+   "cluster": 2179,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1160",
+   "book": 18,
+   "lines": [
+    79,
+    87
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "irus"
+   ],
+   "level": 0,
+   "cluster": 2180,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1161",
+   "book": 18,
+   "lines": [
+    105,
+    107
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "irus"
+   ],
+   "level": 0,
+   "cluster": 2181,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1162",
+   "book": 18,
+   "lines": [
+    112,
+    116
+   ],
+   "speaker": [
+    "suitors of penelope"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2182,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1163",
+   "book": 18,
+   "lines": [
+    122,
+    123
+   ],
+   "speaker": [
+    "amphinomus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2183,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1164",
+   "book": 18,
+   "lines": [
+    125,
+    150
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "amphinomus"
+   ],
+   "level": 0,
+   "cluster": 2183,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1165",
+   "book": 18,
+   "lines": [
+    164,
+    168
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eurynome (slave of penelope)"
+   ],
+   "level": 0,
+   "cluster": 2184,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1166",
+   "book": 18,
+   "lines": [
+    170,
+    176
+   ],
+   "speaker": [
+    "eurynome (slave of penelope)"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2184,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1167",
+   "book": 18,
+   "lines": [
+    178,
+    184
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eurynome (slave of penelope)"
+   ],
+   "level": 0,
+   "cluster": 2184,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1168",
+   "book": 18,
+   "lines": [
+    201,
+    205
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2185,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "odyssey-1169",
+   "book": 18,
+   "lines": [
+    215,
+    225
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2186,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1170",
+   "book": 18,
+   "lines": [
+    227,
+    242
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2186,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1171",
+   "book": 18,
+   "lines": [
+    245,
+    249
+   ],
+   "speaker": [
+    "eurymachus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2187,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1172",
+   "book": 18,
+   "lines": [
+    251,
+    280
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eurymachus"
+   ],
+   "level": 0,
+   "cluster": 2187,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1173",
+   "book": 18,
+   "lines": [
+    259,
+    270
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eurymachus"
+   ],
+   "level": 1,
+   "cluster": 2188,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1174",
+   "book": 18,
+   "lines": [
+    285,
+    289
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2187,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1175",
+   "book": 18,
+   "lines": [
+    313,
+    319
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "female servants of penelope"
+   ],
+   "level": 0,
+   "cluster": 2189,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1176",
+   "book": 18,
+   "lines": [
+    327,
+    336
+   ],
+   "speaker": [
+    "melantho"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2189,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1177",
+   "book": 18,
+   "lines": [
+    338,
+    339
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "melantho"
+   ],
+   "level": 0,
+   "cluster": 2189,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1178",
+   "book": 18,
+   "lines": [
+    351,
+    355
+   ],
+   "speaker": [
+    "eurymachus"
+   ],
+   "addressee": [
+    "odysseus",
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2190,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1179",
+   "book": 18,
+   "lines": [
+    357,
+    364
+   ],
+   "speaker": [
+    "eurymachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2190,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1180",
+   "book": 18,
+   "lines": [
+    366,
+    386
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eurymachus"
+   ],
+   "level": 0,
+   "cluster": 2190,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1181",
+   "book": 18,
+   "lines": [
+    389,
+    393
+   ],
+   "speaker": [
+    "eurymachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2190,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1182",
+   "book": 18,
+   "lines": [
+    401,
+    404
+   ],
+   "speaker": [
+    "suitor of penelope.10"
+   ],
+   "addressee": [
+    "suitor of penelope.11"
+   ],
+   "level": 0,
+   "cluster": 2191,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1183",
+   "book": 18,
+   "lines": [
+    406,
+    409
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2192,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1184",
+   "book": 18,
+   "lines": [
+    414,
+    421
+   ],
+   "speaker": [
+    "amphinomus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2192,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1185",
+   "book": 19,
+   "lines": [
+    4,
+    13
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2193,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1186",
+   "book": 19,
+   "lines": [
+    7,
+    13
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 1,
+   "cluster": 2194,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1187",
+   "book": 19,
+   "lines": [
+    16,
+    20
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2193,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1188",
+   "book": 19,
+   "lines": [
+    22,
+    25
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2193,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1189",
+   "book": 19,
+   "lines": [
+    27,
+    28
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2193,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1190",
+   "book": 19,
+   "lines": [
+    36,
+    40
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2195,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1191",
+   "book": 19,
+   "lines": [
+    42,
+    46
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2195,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1192",
+   "book": 19,
+   "lines": [
+    66,
+    69
+   ],
+   "speaker": [
+    "melantho"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2196,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1193",
+   "book": 19,
+   "lines": [
+    71,
+    88
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "melantho"
+   ],
+   "level": 0,
+   "cluster": 2196,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1194",
+   "book": 19,
+   "lines": [
+    91,
+    95
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "melantho"
+   ],
+   "level": 0,
+   "cluster": 2196,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1195",
+   "book": 19,
+   "lines": [
+    97,
+    99
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eurynome (slave of penelope)"
+   ],
+   "level": 0,
+   "cluster": 2197,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1196",
+   "book": 19,
+   "lines": [
+    104,
+    105
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2198,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1197",
+   "book": 19,
+   "lines": [
+    107,
+    122
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2198,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1198",
+   "book": 19,
+   "lines": [
+    124,
+    163
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2198,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1199",
+   "book": 19,
+   "lines": [
+    141,
+    147
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 1,
+   "cluster": 2199,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1200",
+   "book": 19,
+   "lines": [
+    165,
+    202
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2198,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1201",
+   "book": 19,
+   "lines": [
+    215,
+    219
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2198,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1202",
+   "book": 19,
+   "lines": [
+    221,
+    248
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2198,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1203",
+   "book": 19,
+   "lines": [
+    253,
+    260
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2198,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1204",
+   "book": 19,
+   "lines": [
+    262,
+    307
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2198,
+   "part": 8,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1205",
+   "book": 19,
+   "lines": [
+    309,
+    334
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2198,
+   "part": 9,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1206",
+   "book": 19,
+   "lines": [
+    336,
+    348
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2198,
+   "part": 10,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1207",
+   "book": 19,
+   "lines": [
+    350,
+    360
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eurycleia",
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2198,
+   "part": 11,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1208",
+   "book": 19,
+   "lines": [
+    363,
+    381
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2198,
+   "part": 12,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1209",
+   "book": 19,
+   "lines": [
+    383,
+    385
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2198,
+   "part": 13,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1210",
+   "book": 19,
+   "lines": [
+    403,
+    404
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "autolycus"
+   ],
+   "level": 0,
+   "cluster": 2200,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1211",
+   "book": 19,
+   "lines": [
+    406,
+    412
+   ],
+   "speaker": [
+    "autolycus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2200,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1212",
+   "book": 19,
+   "lines": [
+    474,
+    475
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2262,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1213",
+   "book": 19,
+   "lines": [
+    482,
+    490
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2262,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1214",
+   "book": 19,
+   "lines": [
+    492,
+    498
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2262,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1215",
+   "book": 19,
+   "lines": [
+    500,
+    502
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2262,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1216",
+   "book": 19,
+   "lines": [
+    509,
+    553
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2201,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1217",
+   "book": 19,
+   "lines": [
+    546,
+    550
+   ],
+   "speaker": [
+    "dream-eagle"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 1,
+   "cluster": 2202,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1218",
+   "book": 19,
+   "lines": [
+    555,
+    558
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2201,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1219",
+   "book": 19,
+   "lines": [
+    560,
+    581
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2201,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1220",
+   "book": 19,
+   "lines": [
+    583,
+    587
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2201,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1221",
+   "book": 19,
+   "lines": [
+    589,
+    599
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2201,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1222",
+   "book": 20,
+   "lines": [
+    18,
+    21
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2203,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "odyssey-1223",
+   "book": 20,
+   "lines": [
+    33,
+    35
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2204,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1224",
+   "book": 20,
+   "lines": [
+    37,
+    43
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2204,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1225",
+   "book": 20,
+   "lines": [
+    45,
+    53
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2204,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1226",
+   "book": 20,
+   "lines": [
+    61,
+    90
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "artemis"
+   ],
+   "level": 0,
+   "cluster": 2205,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1227",
+   "book": 20,
+   "lines": [
+    98,
+    101
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 2206,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1228",
+   "book": 20,
+   "lines": [
+    112,
+    119
+   ],
+   "speaker": [
+    "woman"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 2207,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1229",
+   "book": 20,
+   "lines": [
+    129,
+    133
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2208,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1230",
+   "book": 20,
+   "lines": [
+    135,
+    143
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2208,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1231",
+   "book": 20,
+   "lines": [
+    149,
+    156
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "female servants of penelope"
+   ],
+   "level": 0,
+   "cluster": 2209,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1232",
+   "book": 20,
+   "lines": [
+    166,
+    167
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2210,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1233",
+   "book": 20,
+   "lines": [
+    169,
+    171
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2210,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1234",
+   "book": 20,
+   "lines": [
+    178,
+    182
+   ],
+   "speaker": [
+    "melanthius"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2211,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1235",
+   "book": 20,
+   "lines": [
+    191,
+    196
+   ],
+   "speaker": [
+    "philoetius"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2212,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1236",
+   "book": 20,
+   "lines": [
+    199,
+    225
+   ],
+   "speaker": [
+    "philoetius"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2212,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1237",
+   "book": 20,
+   "lines": [
+    227,
+    234
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "philoetius"
+   ],
+   "level": 0,
+   "cluster": 2212,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1238",
+   "book": 20,
+   "lines": [
+    236,
+    237
+   ],
+   "speaker": [
+    "philoetius"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2212,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1239",
+   "book": 20,
+   "lines": [
+    245,
+    246
+   ],
+   "speaker": [
+    "amphinomus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2213,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1240",
+   "book": 20,
+   "lines": [
+    262,
+    267
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus",
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2214,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1241",
+   "book": 20,
+   "lines": [
+    271,
+    274
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2214,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1242",
+   "book": 20,
+   "lines": [
+    292,
+    298
+   ],
+   "speaker": [
+    "ctesippus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2215,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1243",
+   "book": 20,
+   "lines": [
+    304,
+    319
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "ctesippus",
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2215,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1244",
+   "book": 20,
+   "lines": [
+    322,
+    337
+   ],
+   "speaker": [
+    "agelaus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2215,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1245",
+   "book": 20,
+   "lines": [
+    339,
+    344
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "agelaus"
+   ],
+   "level": 0,
+   "cluster": 2215,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1246",
+   "book": 20,
+   "lines": [
+    351,
+    357
+   ],
+   "speaker": [
+    "theoclymenus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2216,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1247",
+   "book": 20,
+   "lines": [
+    360,
+    362
+   ],
+   "speaker": [
+    "eurymachus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2216,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1248",
+   "book": 20,
+   "lines": [
+    364,
+    370
+   ],
+   "speaker": [
+    "theoclymenus"
+   ],
+   "addressee": [
+    "eurymachus"
+   ],
+   "level": 0,
+   "cluster": 2216,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1249",
+   "book": 20,
+   "lines": [
+    376,
+    383
+   ],
+   "speaker": [
+    "suitor of penelope.13"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2217,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1250",
+   "book": 21,
+   "lines": [
+    68,
+    79
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2218,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1251",
+   "book": 21,
+   "lines": [
+    85,
+    95
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "eumaeus",
+    "philoetius"
+   ],
+   "level": 0,
+   "cluster": 2218,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1252",
+   "book": 21,
+   "lines": [
+    102,
+    117
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2218,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1253",
+   "book": 21,
+   "lines": [
+    131,
+    135
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2218,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1254",
+   "book": 21,
+   "lines": [
+    141,
+    142
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2218,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1255",
+   "book": 21,
+   "lines": [
+    152,
+    162
+   ],
+   "speaker": [
+    "leodes"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2218,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1256",
+   "book": 21,
+   "lines": [
+    168,
+    174
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "leodes"
+   ],
+   "level": 0,
+   "cluster": 2218,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1257",
+   "book": 21,
+   "lines": [
+    176,
+    180
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "melanthius"
+   ],
+   "level": 0,
+   "cluster": 2218,
+   "part": 8,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1258",
+   "book": 21,
+   "lines": [
+    193,
+    198
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus",
+    "philoetius"
+   ],
+   "level": 0,
+   "cluster": 2219,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1259",
+   "book": 21,
+   "lines": [
+    200,
+    202
+   ],
+   "speaker": [
+    "philoetius"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2219,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1260",
+   "book": 21,
+   "lines": [
+    207,
+    218
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "philoetius"
+   ],
+   "level": 0,
+   "cluster": 2219,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1261",
+   "book": 21,
+   "lines": [
+    228,
+    241
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus",
+    "philoetius"
+   ],
+   "level": 0,
+   "cluster": 2219,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1262",
+   "book": 21,
+   "lines": [
+    249,
+    255
+   ],
+   "speaker": [
+    "eurymachus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2220,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1263",
+   "book": 21,
+   "lines": [
+    257,
+    268
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "eurymachus"
+   ],
+   "level": 0,
+   "cluster": 2220,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1264",
+   "book": 21,
+   "lines": [
+    275,
+    284
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2220,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1265",
+   "book": 21,
+   "lines": [
+    288,
+    310
+   ],
+   "speaker": [
+    "antinous"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2220,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1266",
+   "book": 21,
+   "lines": [
+    312,
+    319
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "antinous"
+   ],
+   "level": 0,
+   "cluster": 2220,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1267",
+   "book": 21,
+   "lines": [
+    321,
+    329
+   ],
+   "speaker": [
+    "eurymachus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2220,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1268",
+   "book": 21,
+   "lines": [
+    325,
+    328
+   ],
+   "speaker": [
+    "greek.6"
+   ],
+   "addressee": [
+    "greek.6"
+   ],
+   "level": 1,
+   "cluster": 2221,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "odyssey-1269",
+   "book": 21,
+   "lines": [
+    331,
+    342
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eurymachus"
+   ],
+   "level": 0,
+   "cluster": 2220,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1270",
+   "book": 21,
+   "lines": [
+    344,
+    353
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2220,
+   "part": 8,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1271",
+   "book": 21,
+   "lines": [
+    362,
+    365
+   ],
+   "speaker": [
+    "suitor of penelope.14"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2222,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1272",
+   "book": 21,
+   "lines": [
+    369,
+    375
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eumaeus"
+   ],
+   "level": 0,
+   "cluster": 2222,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1273",
+   "book": 21,
+   "lines": [
+    381,
+    385
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2223,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1274",
+   "book": 21,
+   "lines": [
+    397,
+    400
+   ],
+   "speaker": [
+    "suitor of penelope.15"
+   ],
+   "addressee": [
+    "suitor of penelope.16"
+   ],
+   "level": 0,
+   "cluster": 2224,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1275",
+   "book": 21,
+   "lines": [
+    402,
+    403
+   ],
+   "speaker": [
+    "suitor of penelope.17"
+   ],
+   "addressee": [
+    "suitor of penelope.18"
+   ],
+   "level": 0,
+   "cluster": 2225,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1276",
+   "book": 21,
+   "lines": [
+    424,
+    430
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2226,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1277",
+   "book": 22,
+   "lines": [
+    5,
+    7
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2226,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1278",
+   "book": 22,
+   "lines": [
+    27,
+    30
+   ],
+   "speaker": [
+    "suitors of penelope"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2226,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1279",
+   "book": 22,
+   "lines": [
+    35,
+    41
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2226,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1280",
+   "book": 22,
+   "lines": [
+    45,
+    59
+   ],
+   "speaker": [
+    "eurymachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2226,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1281",
+   "book": 22,
+   "lines": [
+    61,
+    67
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eurymachus"
+   ],
+   "level": 0,
+   "cluster": 2226,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1282",
+   "book": 22,
+   "lines": [
+    70,
+    78
+   ],
+   "speaker": [
+    "eurymachus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2226,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1283",
+   "book": 22,
+   "lines": [
+    101,
+    104
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2227,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1284",
+   "book": 22,
+   "lines": [
+    106,
+    107
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2227,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1285",
+   "book": 22,
+   "lines": [
+    132,
+    134
+   ],
+   "speaker": [
+    "agelaus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2228,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1286",
+   "book": 22,
+   "lines": [
+    136,
+    141
+   ],
+   "speaker": [
+    "melanthius"
+   ],
+   "addressee": [
+    "agelaus"
+   ],
+   "level": 0,
+   "cluster": 2228,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1287",
+   "book": 22,
+   "lines": [
+    151,
+    152
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2229,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1288",
+   "book": 22,
+   "lines": [
+    154,
+    159
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2229,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1289",
+   "book": 22,
+   "lines": [
+    164,
+    169
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2229,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1290",
+   "book": 22,
+   "lines": [
+    171,
+    177
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus",
+    "philoetius"
+   ],
+   "level": 0,
+   "cluster": 2229,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1291",
+   "book": 22,
+   "lines": [
+    195,
+    199
+   ],
+   "speaker": [
+    "eumaeus"
+   ],
+   "addressee": [
+    "melanthius"
+   ],
+   "level": 0,
+   "cluster": 2230,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1292",
+   "book": 22,
+   "lines": [
+    208,
+    209
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2231,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1293",
+   "book": 22,
+   "lines": [
+    213,
+    223
+   ],
+   "speaker": [
+    "agelaus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2231,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1294",
+   "book": 22,
+   "lines": [
+    226,
+    235
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2232,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1295",
+   "book": 22,
+   "lines": [
+    248,
+    254
+   ],
+   "speaker": [
+    "agelaus"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 0,
+   "cluster": 2233,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1296",
+   "book": 22,
+   "lines": [
+    262,
+    264
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus",
+    "philoetius",
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2234,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1297",
+   "book": 22,
+   "lines": [
+    287,
+    291
+   ],
+   "speaker": [
+    "philoetius"
+   ],
+   "addressee": [
+    "ctesippus"
+   ],
+   "level": 0,
+   "cluster": 2235,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1298",
+   "book": 22,
+   "lines": [
+    312,
+    319
+   ],
+   "speaker": [
+    "leodes"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2236,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1299",
+   "book": 22,
+   "lines": [
+    321,
+    325
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "leodes"
+   ],
+   "level": 0,
+   "cluster": 2236,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1300",
+   "book": 22,
+   "lines": [
+    344,
+    353
+   ],
+   "speaker": [
+    "phemius"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2237,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1301",
+   "book": 22,
+   "lines": [
+    356,
+    360
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2237,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1302",
+   "book": 22,
+   "lines": [
+    356,
+    360
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2237,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1303",
+   "book": 22,
+   "lines": [
+    367,
+    370
+   ],
+   "speaker": [
+    "medon"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2238,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1304",
+   "book": 22,
+   "lines": [
+    372,
+    377
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "medon"
+   ],
+   "level": 0,
+   "cluster": 2238,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1305",
+   "book": 22,
+   "lines": [
+    391,
+    392
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2239,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1306",
+   "book": 22,
+   "lines": [
+    395,
+    397
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2239,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1307",
+   "book": 22,
+   "lines": [
+    411,
+    418
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2239,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1308",
+   "book": 22,
+   "lines": [
+    420,
+    429
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2239,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1309",
+   "book": 22,
+   "lines": [
+    431,
+    432
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2239,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1310",
+   "book": 22,
+   "lines": [
+    437,
+    445
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus",
+    "philoetius",
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2239,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1311",
+   "book": 22,
+   "lines": [
+    462,
+    464
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "eumaeus",
+    "odysseus",
+    "philoetius"
+   ],
+   "level": 0,
+   "cluster": 2240,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1312",
+   "book": 22,
+   "lines": [
+    481,
+    484
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2241,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1313",
+   "book": 22,
+   "lines": [
+    486,
+    489
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2241,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1314",
+   "book": 22,
+   "lines": [
+    491,
+    491
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2241,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1315",
+   "book": 23,
+   "lines": [
+    5,
+    9
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2242,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1316",
+   "book": 23,
+   "lines": [
+    11,
+    24
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2242,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1317",
+   "book": 23,
+   "lines": [
+    26,
+    31
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2242,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1318",
+   "book": 23,
+   "lines": [
+    35,
+    38
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2242,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1319",
+   "book": 23,
+   "lines": [
+    40,
+    57
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2242,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1320",
+   "book": 23,
+   "lines": [
+    59,
+    68
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2242,
+   "part": 6,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1321",
+   "book": 23,
+   "lines": [
+    70,
+    79
+   ],
+   "speaker": [
+    "eurycleia"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2242,
+   "part": 7,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1322",
+   "book": 23,
+   "lines": [
+    81,
+    84
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eurycleia"
+   ],
+   "level": 0,
+   "cluster": 2242,
+   "part": 8,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1323",
+   "book": 23,
+   "lines": [
+    97,
+    103
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2243,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1324",
+   "book": 23,
+   "lines": [
+    105,
+    110
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2243,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1325",
+   "book": 23,
+   "lines": [
+    113,
+    122
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2243,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1326",
+   "book": 23,
+   "lines": [
+    124,
+    128
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2243,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1327",
+   "book": 23,
+   "lines": [
+    130,
+    140
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2243,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1328",
+   "book": 23,
+   "lines": [
+    149,
+    151
+   ],
+   "speaker": [
+    "someone.1"
+   ],
+   "addressee": [
+    "someone.1"
+   ],
+   "level": 0,
+   "cluster": 2244,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "odyssey-1329",
+   "book": 23,
+   "lines": [
+    166,
+    172
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eurycleia",
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2245,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1330",
+   "book": 23,
+   "lines": [
+    174,
+    180
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "eurycleia",
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2245,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1331",
+   "book": 23,
+   "lines": [
+    183,
+    204
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2245,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1332",
+   "book": 23,
+   "lines": [
+    209,
+    230
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2245,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1333",
+   "book": 23,
+   "lines": [
+    248,
+    255
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2246,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1334",
+   "book": 23,
+   "lines": [
+    257,
+    262
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2246,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1335",
+   "book": 23,
+   "lines": [
+    264,
+    284
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2246,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1336",
+   "book": 23,
+   "lines": [
+    286,
+    287
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2246,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1337",
+   "book": 23,
+   "lines": [
+    350,
+    365
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "penelope"
+   ],
+   "level": 0,
+   "cluster": 2247,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1338",
+   "book": 24,
+   "lines": [
+    24,
+    34
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 2248,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1339",
+   "book": 24,
+   "lines": [
+    36,
+    97
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 2248,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1340",
+   "book": 24,
+   "lines": [
+    54,
+    55
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 1,
+   "cluster": 2249,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1341",
+   "book": 24,
+   "lines": [
+    106,
+    119
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "amphimedon"
+   ],
+   "level": 0,
+   "cluster": 2248,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1342",
+   "book": 24,
+   "lines": [
+    121,
+    190
+   ],
+   "speaker": [
+    "amphimedon"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 2248,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1343",
+   "book": 24,
+   "lines": [
+    131,
+    137
+   ],
+   "speaker": [
+    "penelope"
+   ],
+   "addressee": [
+    "suitors of penelope"
+   ],
+   "level": 1,
+   "cluster": 2250,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1344",
+   "book": 24,
+   "lines": [
+    192,
+    202
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "amphimedon"
+   ],
+   "level": 0,
+   "cluster": 2248,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1345",
+   "book": 24,
+   "lines": [
+    214,
+    218
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "eumaeus",
+    "philoetius",
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2251,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1346",
+   "book": 24,
+   "lines": [
+    244,
+    279
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "laertes"
+   ],
+   "level": 0,
+   "cluster": 2252,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1347",
+   "book": 24,
+   "lines": [
+    281,
+    301
+   ],
+   "speaker": [
+    "laertes"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2252,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1348",
+   "book": 24,
+   "lines": [
+    303,
+    314
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "laertes"
+   ],
+   "level": 0,
+   "cluster": 2252,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1349",
+   "book": 24,
+   "lines": [
+    321,
+    326
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "laertes"
+   ],
+   "level": 0,
+   "cluster": 2252,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1350",
+   "book": 24,
+   "lines": [
+    328,
+    329
+   ],
+   "speaker": [
+    "laertes"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2252,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1351",
+   "book": 24,
+   "lines": [
+    331,
+    344
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "laertes"
+   ],
+   "level": 0,
+   "cluster": 2252,
+   "part": 6,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1352",
+   "book": 24,
+   "lines": [
+    351,
+    355
+   ],
+   "speaker": [
+    "laertes"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2252,
+   "part": 7,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1353",
+   "book": 24,
+   "lines": [
+    357,
+    360
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "laertes"
+   ],
+   "level": 0,
+   "cluster": 2252,
+   "part": 8,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1354",
+   "book": 24,
+   "lines": [
+    373,
+    374
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "laertes"
+   ],
+   "level": 0,
+   "cluster": 2253,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1355",
+   "book": 24,
+   "lines": [
+    376,
+    382
+   ],
+   "speaker": [
+    "laertes"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2253,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1356",
+   "book": 24,
+   "lines": [
+    389,
+    391
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "dolius"
+   ],
+   "level": 0,
+   "cluster": 2254,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1357",
+   "book": 24,
+   "lines": [
+    400,
+    405
+   ],
+   "speaker": [
+    "dolius"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2254,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1358",
+   "book": 24,
+   "lines": [
+    407,
+    407
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "dolius"
+   ],
+   "level": 0,
+   "cluster": 2254,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1359",
+   "book": 24,
+   "lines": [
+    426,
+    437
+   ],
+   "speaker": [
+    "eupithes"
+   ],
+   "addressee": [
+    "assembly of the ithacans"
+   ],
+   "level": 0,
+   "cluster": 2255,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1360",
+   "book": 24,
+   "lines": [
+    443,
+    449
+   ],
+   "speaker": [
+    "medon"
+   ],
+   "addressee": [
+    "assembly of the ithacans"
+   ],
+   "level": 0,
+   "cluster": 2255,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1361",
+   "book": 24,
+   "lines": [
+    454,
+    462
+   ],
+   "speaker": [
+    "halitherses"
+   ],
+   "addressee": [
+    "assembly of the ithacans"
+   ],
+   "level": 0,
+   "cluster": 2255,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1362",
+   "book": 24,
+   "lines": [
+    473,
+    476
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 2256,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1363",
+   "book": 24,
+   "lines": [
+    478,
+    486
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 2256,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "odyssey-1364",
+   "book": 24,
+   "lines": [
+    491,
+    491
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "dolius",
+    "eumaeus",
+    "laertes",
+    "philoetius",
+    "telemachus",
+    "sons of dolius"
+   ],
+   "level": 0,
+   "cluster": 2257,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1365",
+   "book": 24,
+   "lines": [
+    495,
+    495
+   ],
+   "speaker": [
+    "son of dolius"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2257,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1366",
+   "book": 24,
+   "lines": [
+    506,
+    509
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "telemachus"
+   ],
+   "level": 0,
+   "cluster": 2258,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1367",
+   "book": 24,
+   "lines": [
+    511,
+    512
+   ],
+   "speaker": [
+    "telemachus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2258,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1368",
+   "book": 24,
+   "lines": [
+    514,
+    515
+   ],
+   "speaker": [
+    "laertes"
+   ],
+   "addressee": [
+    "laertes"
+   ],
+   "level": 0,
+   "cluster": 2258,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "odyssey-1369",
+   "book": 24,
+   "lines": [
+    517,
+    519
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "laertes"
+   ],
+   "level": 0,
+   "cluster": 2259,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1370",
+   "book": 24,
+   "lines": [
+    531,
+    532
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "ithacan men"
+   ],
+   "level": 0,
+   "cluster": 2260,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "odyssey-1371",
+   "book": 24,
+   "lines": [
+    542,
+    544
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 2261,
+   "part": 1,
+   "type": "M"
+  }
+ ]
+}

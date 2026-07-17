@@ -1,0 +1,12630 @@
+{
+ "work": "iliad",
+ "status": "imported",
+ "speeches": [
+  {
+   "id": "iliad-1",
+   "book": 1,
+   "lines": [
+    17,
+    21
+   ],
+   "speaker": [
+    "chryses"
+   ],
+   "addressee": [
+    "agamemnon",
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1001,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-2",
+   "book": 1,
+   "lines": [
+    26,
+    32
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "chryses"
+   ],
+   "level": 0,
+   "cluster": 1001,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-3",
+   "book": 1,
+   "lines": [
+    37,
+    42
+   ],
+   "speaker": [
+    "chryses"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 0,
+   "cluster": 1002,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-4",
+   "book": 1,
+   "lines": [
+    59,
+    67
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1003,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-5",
+   "book": 1,
+   "lines": [
+    74,
+    83
+   ],
+   "speaker": [
+    "calchas"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1003,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-6",
+   "book": 1,
+   "lines": [
+    85,
+    91
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "calchas"
+   ],
+   "level": 0,
+   "cluster": 1003,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-7",
+   "book": 1,
+   "lines": [
+    93,
+    100
+   ],
+   "speaker": [
+    "calchas"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1003,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "iliad-8",
+   "book": 1,
+   "lines": [
+    106,
+    120
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "calchas"
+   ],
+   "level": 0,
+   "cluster": 1003,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "iliad-9",
+   "book": 1,
+   "lines": [
+    122,
+    129
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1003,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "iliad-10",
+   "book": 1,
+   "lines": [
+    131,
+    147
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1003,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "iliad-11",
+   "book": 1,
+   "lines": [
+    149,
+    171
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1003,
+   "part": 8,
+   "type": "G"
+  },
+  {
+   "id": "iliad-12",
+   "book": 1,
+   "lines": [
+    173,
+    187
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1003,
+   "part": 9,
+   "type": "G"
+  },
+  {
+   "id": "iliad-13",
+   "book": 1,
+   "lines": [
+    202,
+    205
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1004,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-14",
+   "book": 1,
+   "lines": [
+    207,
+    214
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1004,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-15",
+   "book": 1,
+   "lines": [
+    216,
+    218
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1004,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-16",
+   "book": 1,
+   "lines": [
+    225,
+    244
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1003,
+   "part": 10,
+   "type": "G"
+  },
+  {
+   "id": "iliad-17",
+   "book": 1,
+   "lines": [
+    254,
+    284
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "achilles",
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1003,
+   "part": 11,
+   "type": "G"
+  },
+  {
+   "id": "iliad-18",
+   "book": 1,
+   "lines": [
+    286,
+    291
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1003,
+   "part": 12,
+   "type": "G"
+  },
+  {
+   "id": "iliad-19",
+   "book": 1,
+   "lines": [
+    293,
+    303
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1003,
+   "part": 13,
+   "type": "G"
+  },
+  {
+   "id": "iliad-20",
+   "book": 1,
+   "lines": [
+    322,
+    325
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "eurybates",
+    "talthybius"
+   ],
+   "level": 0,
+   "cluster": 1005,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-21",
+   "book": 1,
+   "lines": [
+    334,
+    344
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "eurybates",
+    "patroclus",
+    "talthybius"
+   ],
+   "level": 0,
+   "cluster": 1006,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-22",
+   "book": 1,
+   "lines": [
+    352,
+    356
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "thetis"
+   ],
+   "level": 0,
+   "cluster": 1007,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-23",
+   "book": 1,
+   "lines": [
+    362,
+    363
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1007,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-24",
+   "book": 1,
+   "lines": [
+    365,
+    412
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "thetis"
+   ],
+   "level": 0,
+   "cluster": 1007,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-25",
+   "book": 1,
+   "lines": [
+    414,
+    427
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1007,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-26",
+   "book": 1,
+   "lines": [
+    442,
+    445
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "chryses"
+   ],
+   "level": 0,
+   "cluster": 1008,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-27",
+   "book": 1,
+   "lines": [
+    451,
+    456
+   ],
+   "speaker": [
+    "chryses"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 0,
+   "cluster": 1009,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-28",
+   "book": 1,
+   "lines": [
+    503,
+    510
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1010,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-29",
+   "book": 1,
+   "lines": [
+    514,
+    516
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1010,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-30",
+   "book": 1,
+   "lines": [
+    518,
+    527
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "thetis"
+   ],
+   "level": 0,
+   "cluster": 1010,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-31",
+   "book": 1,
+   "lines": [
+    540,
+    543
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1011,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-32",
+   "book": 1,
+   "lines": [
+    545,
+    550
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1011,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-33",
+   "book": 1,
+   "lines": [
+    552,
+    559
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1011,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-34",
+   "book": 1,
+   "lines": [
+    561,
+    567
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1011,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-35",
+   "book": 1,
+   "lines": [
+    573,
+    583
+   ],
+   "speaker": [
+    "hephaestus"
+   ],
+   "addressee": [
+    "gods"
+   ],
+   "level": 0,
+   "cluster": 1012,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-36",
+   "book": 1,
+   "lines": [
+    586,
+    594
+   ],
+   "speaker": [
+    "hephaestus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1013,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-37",
+   "book": 2,
+   "lines": [
+    8,
+    15
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "dream"
+   ],
+   "level": 0,
+   "cluster": 1014,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-38",
+   "book": 2,
+   "lines": [
+    23,
+    34
+   ],
+   "speaker": [
+    "dream-nestor"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1015,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-39",
+   "book": 2,
+   "lines": [
+    56,
+    75
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "leaders of the greeks (greek soldiers)"
+   ],
+   "level": 0,
+   "cluster": 1016,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-40",
+   "book": 2,
+   "lines": [
+    60,
+    70
+   ],
+   "speaker": [
+    "dream-nestor"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 1,
+   "cluster": 1017,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-41",
+   "book": 2,
+   "lines": [
+    79,
+    83
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "leaders of the greeks (greek soldiers)"
+   ],
+   "level": 0,
+   "cluster": 1017,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-42",
+   "book": 2,
+   "lines": [
+    110,
+    141
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1018,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-43",
+   "book": 2,
+   "lines": [
+    157,
+    165
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1019,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-44",
+   "book": 2,
+   "lines": [
+    173,
+    181
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1020,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-45",
+   "book": 2,
+   "lines": [
+    190,
+    197
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "leaders of the greeks (greek soldiers)"
+   ],
+   "level": 0,
+   "cluster": 1021,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-46",
+   "book": 2,
+   "lines": [
+    200,
+    206
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1022,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-47",
+   "book": 2,
+   "lines": [
+    225,
+    242
+   ],
+   "speaker": [
+    "thersites"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1023,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-48",
+   "book": 2,
+   "lines": [
+    246,
+    264
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "thersites"
+   ],
+   "level": 0,
+   "cluster": 1023,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-49",
+   "book": 2,
+   "lines": [
+    272,
+    277
+   ],
+   "speaker": [
+    "greeks"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1024,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-50",
+   "book": 2,
+   "lines": [
+    284,
+    332
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1025,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-51",
+   "book": 2,
+   "lines": [
+    323,
+    329
+   ],
+   "speaker": [
+    "calchas"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 1,
+   "cluster": 1026,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-52",
+   "book": 2,
+   "lines": [
+    337,
+    368
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1025,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-53",
+   "book": 2,
+   "lines": [
+    370,
+    393
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "apollo",
+    "athena",
+    "greeks",
+    "nestor",
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1025,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-54",
+   "book": 2,
+   "lines": [
+    412,
+    418
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1027,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-55",
+   "book": 2,
+   "lines": [
+    434,
+    440
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1028,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-56",
+   "book": 2,
+   "lines": [
+    796,
+    806
+   ],
+   "speaker": [
+    "iris"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1029,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-57",
+   "book": 3,
+   "lines": [
+    39,
+    57
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "paris"
+   ],
+   "level": 0,
+   "cluster": 1030,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-58",
+   "book": 3,
+   "lines": [
+    59,
+    75
+   ],
+   "speaker": [
+    "paris"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1030,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-59",
+   "book": 3,
+   "lines": [
+    82,
+    83
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1031,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-60",
+   "book": 3,
+   "lines": [
+    86,
+    94
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "greeks",
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1032,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-61",
+   "book": 3,
+   "lines": [
+    97,
+    110
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "greeks",
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1032,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-62",
+   "book": 3,
+   "lines": [
+    130,
+    138
+   ],
+   "speaker": [
+    "iris"
+   ],
+   "addressee": [
+    "helen"
+   ],
+   "level": 0,
+   "cluster": 1033,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-63",
+   "book": 3,
+   "lines": [
+    156,
+    160
+   ],
+   "speaker": [
+    "trojan old men"
+   ],
+   "addressee": [
+    "trojan old men"
+   ],
+   "level": 0,
+   "cluster": 1034,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-64",
+   "book": 3,
+   "lines": [
+    162,
+    170
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "helen"
+   ],
+   "level": 0,
+   "cluster": 1035,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-65",
+   "book": 3,
+   "lines": [
+    172,
+    180
+   ],
+   "speaker": [
+    "helen"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1035,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-66",
+   "book": 3,
+   "lines": [
+    182,
+    190
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "helen"
+   ],
+   "level": 0,
+   "cluster": 1035,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-67",
+   "book": 3,
+   "lines": [
+    192,
+    198
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "helen"
+   ],
+   "level": 0,
+   "cluster": 1035,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "iliad-68",
+   "book": 3,
+   "lines": [
+    200,
+    202
+   ],
+   "speaker": [
+    "helen"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1035,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "iliad-69",
+   "book": 3,
+   "lines": [
+    204,
+    224
+   ],
+   "speaker": [
+    "antenor"
+   ],
+   "addressee": [
+    "helen"
+   ],
+   "level": 0,
+   "cluster": 1035,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "iliad-70",
+   "book": 3,
+   "lines": [
+    226,
+    227
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "helen"
+   ],
+   "level": 0,
+   "cluster": 1035,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "iliad-71",
+   "book": 3,
+   "lines": [
+    229,
+    242
+   ],
+   "speaker": [
+    "helen"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1035,
+   "part": 8,
+   "type": "G"
+  },
+  {
+   "id": "iliad-72",
+   "book": 3,
+   "lines": [
+    250,
+    258
+   ],
+   "speaker": [
+    "idaeus"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1036,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-73",
+   "book": 3,
+   "lines": [
+    276,
+    291
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1037,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-74",
+   "book": 3,
+   "lines": [
+    298,
+    301
+   ],
+   "speaker": [
+    "greek or trojan.1"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1038,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-75",
+   "book": 3,
+   "lines": [
+    304,
+    309
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "greeks",
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1039,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-76",
+   "book": 3,
+   "lines": [
+    320,
+    323
+   ],
+   "speaker": [
+    "greek or trojan.2"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1040,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-77",
+   "book": 3,
+   "lines": [
+    351,
+    354
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1041,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-78",
+   "book": 3,
+   "lines": [
+    365,
+    368
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1042,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-79",
+   "book": 3,
+   "lines": [
+    390,
+    394
+   ],
+   "speaker": [
+    "aphrodite"
+   ],
+   "addressee": [
+    "helen"
+   ],
+   "level": 0,
+   "cluster": 1043,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-80",
+   "book": 3,
+   "lines": [
+    399,
+    412
+   ],
+   "speaker": [
+    "helen"
+   ],
+   "addressee": [
+    "aphrodite"
+   ],
+   "level": 0,
+   "cluster": 1043,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-81",
+   "book": 3,
+   "lines": [
+    414,
+    417
+   ],
+   "speaker": [
+    "aphrodite"
+   ],
+   "addressee": [
+    "helen"
+   ],
+   "level": 0,
+   "cluster": 1043,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-82",
+   "book": 3,
+   "lines": [
+    428,
+    436
+   ],
+   "speaker": [
+    "helen"
+   ],
+   "addressee": [
+    "paris"
+   ],
+   "level": 0,
+   "cluster": 1044,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-83",
+   "book": 3,
+   "lines": [
+    438,
+    446
+   ],
+   "speaker": [
+    "paris"
+   ],
+   "addressee": [
+    "helen"
+   ],
+   "level": 0,
+   "cluster": 1044,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-84",
+   "book": 3,
+   "lines": [
+    456,
+    460
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "greeks",
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1045,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-85",
+   "book": 4,
+   "lines": [
+    7,
+    19
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera",
+    "gods"
+   ],
+   "level": 0,
+   "cluster": 1046,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-86",
+   "book": 4,
+   "lines": [
+    25,
+    29
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1046,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-87",
+   "book": 4,
+   "lines": [
+    31,
+    49
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1046,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-88",
+   "book": 4,
+   "lines": [
+    51,
+    67
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1046,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "iliad-89",
+   "book": 4,
+   "lines": [
+    70,
+    72
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1046,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "iliad-90",
+   "book": 4,
+   "lines": [
+    82,
+    84
+   ],
+   "speaker": [
+    "greek or trojan.3"
+   ],
+   "addressee": [
+    "greek or trojan.4"
+   ],
+   "level": 0,
+   "cluster": 1047,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-91",
+   "book": 4,
+   "lines": [
+    93,
+    103
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "pandarus"
+   ],
+   "level": 0,
+   "cluster": 1048,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-92",
+   "book": 4,
+   "lines": [
+    155,
+    182
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1049,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-93",
+   "book": 4,
+   "lines": [
+    178,
+    181
+   ],
+   "speaker": [
+    "trojan.1"
+   ],
+   "addressee": [
+    "trojan.1"
+   ],
+   "level": 1,
+   "cluster": 1050,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-94",
+   "book": 4,
+   "lines": [
+    184,
+    187
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1049,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-95",
+   "book": 4,
+   "lines": [
+    189,
+    191
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1049,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-96",
+   "book": 4,
+   "lines": [
+    193,
+    197
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "talthybius"
+   ],
+   "level": 0,
+   "cluster": 1051,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-97",
+   "book": 4,
+   "lines": [
+    204,
+    207
+   ],
+   "speaker": [
+    "talthybius"
+   ],
+   "addressee": [
+    "machaon"
+   ],
+   "level": 0,
+   "cluster": 1052,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-98",
+   "book": 4,
+   "lines": [
+    234,
+    239
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1053,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-99",
+   "book": 4,
+   "lines": [
+    242,
+    249
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1054,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-100",
+   "book": 4,
+   "lines": [
+    257,
+    264
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "idomeneus"
+   ],
+   "level": 0,
+   "cluster": 1055,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-101",
+   "book": 4,
+   "lines": [
+    266,
+    271
+   ],
+   "speaker": [
+    "idomeneus"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1055,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-102",
+   "book": 4,
+   "lines": [
+    285,
+    291
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "ajax-oileus",
+    "ajax-telamonian"
+   ],
+   "level": 0,
+   "cluster": 1056,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-103",
+   "book": 4,
+   "lines": [
+    303,
+    309
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1057,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-104",
+   "book": 4,
+   "lines": [
+    313,
+    316
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1058,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-105",
+   "book": 4,
+   "lines": [
+    318,
+    325
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1058,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-106",
+   "book": 4,
+   "lines": [
+    338,
+    348
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "menestheus",
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1059,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-107",
+   "book": 4,
+   "lines": [
+    350,
+    355
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1059,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-108",
+   "book": 4,
+   "lines": [
+    358,
+    363
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1059,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-109",
+   "book": 4,
+   "lines": [
+    370,
+    400
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1060,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-110",
+   "book": 4,
+   "lines": [
+    404,
+    410
+   ],
+   "speaker": [
+    "sthenelus"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1060,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-111",
+   "book": 4,
+   "lines": [
+    412,
+    418
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "sthenelus"
+   ],
+   "level": 0,
+   "cluster": 1060,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-112",
+   "book": 4,
+   "lines": [
+    509,
+    513
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1061,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-113",
+   "book": 5,
+   "lines": [
+    31,
+    34
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "ares"
+   ],
+   "level": 0,
+   "cluster": 1062,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-114",
+   "book": 5,
+   "lines": [
+    102,
+    105
+   ],
+   "speaker": [
+    "pandarus"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1063,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-115",
+   "book": 5,
+   "lines": [
+    109,
+    110
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "sthenelus"
+   ],
+   "level": 0,
+   "cluster": 1064,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-116",
+   "book": 5,
+   "lines": [
+    115,
+    120
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1065,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-117",
+   "book": 5,
+   "lines": [
+    124,
+    132
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1065,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-118",
+   "book": 5,
+   "lines": [
+    171,
+    178
+   ],
+   "speaker": [
+    "aeneas"
+   ],
+   "addressee": [
+    "pandarus"
+   ],
+   "level": 0,
+   "cluster": 1066,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-119",
+   "book": 5,
+   "lines": [
+    180,
+    216
+   ],
+   "speaker": [
+    "pandarus"
+   ],
+   "addressee": [
+    "aeneas"
+   ],
+   "level": 0,
+   "cluster": 1066,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-120",
+   "book": 5,
+   "lines": [
+    218,
+    228
+   ],
+   "speaker": [
+    "aeneas"
+   ],
+   "addressee": [
+    "pandarus"
+   ],
+   "level": 0,
+   "cluster": 1066,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-121",
+   "book": 5,
+   "lines": [
+    230,
+    238
+   ],
+   "speaker": [
+    "pandarus"
+   ],
+   "addressee": [
+    "aeneas"
+   ],
+   "level": 0,
+   "cluster": 1066,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-122",
+   "book": 5,
+   "lines": [
+    243,
+    250
+   ],
+   "speaker": [
+    "sthenelus"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1067,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-123",
+   "book": 5,
+   "lines": [
+    252,
+    273
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "sthenelus"
+   ],
+   "level": 0,
+   "cluster": 1067,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-124",
+   "book": 5,
+   "lines": [
+    277,
+    279
+   ],
+   "speaker": [
+    "pandarus"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1068,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-125",
+   "book": 5,
+   "lines": [
+    284,
+    285
+   ],
+   "speaker": [
+    "pandarus"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1068,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-126",
+   "book": 5,
+   "lines": [
+    287,
+    289
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "pandarus"
+   ],
+   "level": 0,
+   "cluster": 1068,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-127",
+   "book": 5,
+   "lines": [
+    348,
+    351
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "aphrodite"
+   ],
+   "level": 0,
+   "cluster": 1069,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-128",
+   "book": 5,
+   "lines": [
+    359,
+    362
+   ],
+   "speaker": [
+    "aphrodite"
+   ],
+   "addressee": [
+    "ares"
+   ],
+   "level": 0,
+   "cluster": 1070,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-129",
+   "book": 5,
+   "lines": [
+    373,
+    374
+   ],
+   "speaker": [
+    "dione"
+   ],
+   "addressee": [
+    "aphrodite"
+   ],
+   "level": 0,
+   "cluster": 1071,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-130",
+   "book": 5,
+   "lines": [
+    376,
+    380
+   ],
+   "speaker": [
+    "aphrodite"
+   ],
+   "addressee": [
+    "dione"
+   ],
+   "level": 0,
+   "cluster": 1071,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-131",
+   "book": 5,
+   "lines": [
+    382,
+    415
+   ],
+   "speaker": [
+    "dione"
+   ],
+   "addressee": [
+    "aphrodite"
+   ],
+   "level": 0,
+   "cluster": 1071,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-132",
+   "book": 5,
+   "lines": [
+    421,
+    425
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1072,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-133",
+   "book": 5,
+   "lines": [
+    428,
+    430
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "aphrodite"
+   ],
+   "level": 0,
+   "cluster": 1072,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-134",
+   "book": 5,
+   "lines": [
+    440,
+    442
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1073,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-135",
+   "book": 5,
+   "lines": [
+    455,
+    459
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "ares"
+   ],
+   "level": 0,
+   "cluster": 1074,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-136",
+   "book": 5,
+   "lines": [
+    464,
+    469
+   ],
+   "speaker": [
+    "ares"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1075,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-137",
+   "book": 5,
+   "lines": [
+    472,
+    492
+   ],
+   "speaker": [
+    "sarpedon"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1075,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-138",
+   "book": 5,
+   "lines": [
+    529,
+    532
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1076,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-139",
+   "book": 5,
+   "lines": [
+    601,
+    606
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1077,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-140",
+   "book": 5,
+   "lines": [
+    633,
+    646
+   ],
+   "speaker": [
+    "tlepolemus"
+   ],
+   "addressee": [
+    "sarpedon"
+   ],
+   "level": 0,
+   "cluster": 1078,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-141",
+   "book": 5,
+   "lines": [
+    648,
+    654
+   ],
+   "speaker": [
+    "sarpedon"
+   ],
+   "addressee": [
+    "tlepolemus"
+   ],
+   "level": 0,
+   "cluster": 1078,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-142",
+   "book": 5,
+   "lines": [
+    684,
+    688
+   ],
+   "speaker": [
+    "sarpedon"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1079,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-143",
+   "book": 5,
+   "lines": [
+    714,
+    718
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1080,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-144",
+   "book": 5,
+   "lines": [
+    757,
+    763
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1081,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-145",
+   "book": 5,
+   "lines": [
+    765,
+    766
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1081,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-146",
+   "book": 5,
+   "lines": [
+    787,
+    791
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1082,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-147",
+   "book": 5,
+   "lines": [
+    800,
+    813
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1083,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-148",
+   "book": 5,
+   "lines": [
+    815,
+    824
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1083,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-149",
+   "book": 5,
+   "lines": [
+    826,
+    834
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1083,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-150",
+   "book": 5,
+   "lines": [
+    872,
+    887
+   ],
+   "speaker": [
+    "ares"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1084,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-151",
+   "book": 5,
+   "lines": [
+    889,
+    898
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "ares"
+   ],
+   "level": 0,
+   "cluster": 1084,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-152",
+   "book": 6,
+   "lines": [
+    46,
+    50
+   ],
+   "speaker": [
+    "adrastus (trojan)"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1085,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-153",
+   "book": 6,
+   "lines": [
+    55,
+    60
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1086,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-154",
+   "book": 6,
+   "lines": [
+    67,
+    71
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1087,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-155",
+   "book": 6,
+   "lines": [
+    77,
+    101
+   ],
+   "speaker": [
+    "helenus"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1088,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-156",
+   "book": 6,
+   "lines": [
+    111,
+    115
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1089,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-157",
+   "book": 6,
+   "lines": [
+    123,
+    143
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "glaucus"
+   ],
+   "level": 0,
+   "cluster": 1090,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-158",
+   "book": 6,
+   "lines": [
+    145,
+    211
+   ],
+   "speaker": [
+    "glaucus"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1090,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-159",
+   "book": 6,
+   "lines": [
+    164,
+    165
+   ],
+   "speaker": [
+    "antea"
+   ],
+   "addressee": [
+    "proetus"
+   ],
+   "level": 1,
+   "cluster": 1091,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-160",
+   "book": 6,
+   "lines": [
+    215,
+    231
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "glaucus"
+   ],
+   "level": 0,
+   "cluster": 1090,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-161",
+   "book": 6,
+   "lines": [
+    254,
+    262
+   ],
+   "speaker": [
+    "hecuba"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1092,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-162",
+   "book": 6,
+   "lines": [
+    264,
+    285
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "hecuba"
+   ],
+   "level": 0,
+   "cluster": 1092,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-163",
+   "book": 6,
+   "lines": [
+    305,
+    310
+   ],
+   "speaker": [
+    "theano"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1093,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-164",
+   "book": 6,
+   "lines": [
+    326,
+    331
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "paris"
+   ],
+   "level": 0,
+   "cluster": 1094,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-165",
+   "book": 6,
+   "lines": [
+    333,
+    341
+   ],
+   "speaker": [
+    "paris"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1094,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-166",
+   "book": 6,
+   "lines": [
+    344,
+    358
+   ],
+   "speaker": [
+    "helen"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1094,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-167",
+   "book": 6,
+   "lines": [
+    360,
+    368
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "helen"
+   ],
+   "level": 0,
+   "cluster": 1094,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "iliad-168",
+   "book": 6,
+   "lines": [
+    376,
+    380
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "female servants of andromache"
+   ],
+   "level": 0,
+   "cluster": 1095,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-169",
+   "book": 6,
+   "lines": [
+    382,
+    389
+   ],
+   "speaker": [
+    "female servant of andromache"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1095,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-170",
+   "book": 6,
+   "lines": [
+    407,
+    439
+   ],
+   "speaker": [
+    "andromache"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1096,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-171",
+   "book": 6,
+   "lines": [
+    441,
+    465
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "andromache"
+   ],
+   "level": 0,
+   "cluster": 1096,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-172",
+   "book": 6,
+   "lines": [
+    460,
+    461
+   ],
+   "speaker": [
+    "argive.1"
+   ],
+   "addressee": [
+    "argive.1"
+   ],
+   "level": 1,
+   "cluster": 1097,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-173",
+   "book": 6,
+   "lines": [
+    476,
+    481
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1098,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-174",
+   "book": 6,
+   "lines": [
+    479,
+    479
+   ],
+   "speaker": [
+    "trojan.2"
+   ],
+   "addressee": [
+    "trojan.2"
+   ],
+   "level": 1,
+   "cluster": 1099,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-175",
+   "book": 6,
+   "lines": [
+    486,
+    493
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "andromache"
+   ],
+   "level": 0,
+   "cluster": 1096,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-176",
+   "book": 6,
+   "lines": [
+    518,
+    519
+   ],
+   "speaker": [
+    "paris"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1100,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-177",
+   "book": 6,
+   "lines": [
+    521,
+    529
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "paris"
+   ],
+   "level": 0,
+   "cluster": 1100,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-178",
+   "book": 7,
+   "lines": [
+    24,
+    32
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1101,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-179",
+   "book": 7,
+   "lines": [
+    34,
+    36
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 0,
+   "cluster": 1101,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-180",
+   "book": 7,
+   "lines": [
+    38,
+    42
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1101,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-181",
+   "book": 7,
+   "lines": [
+    47,
+    53
+   ],
+   "speaker": [
+    "helenus"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1102,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-182",
+   "book": 7,
+   "lines": [
+    67,
+    91
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "greeks",
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1103,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-183",
+   "book": 7,
+   "lines": [
+    89,
+    90
+   ],
+   "speaker": [
+    "sailor.1"
+   ],
+   "addressee": [
+    "sailor.1"
+   ],
+   "level": 1,
+   "cluster": 1104,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-184",
+   "book": 7,
+   "lines": [
+    96,
+    102
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1103,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-185",
+   "book": 7,
+   "lines": [
+    109,
+    119
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1105,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-186",
+   "book": 7,
+   "lines": [
+    124,
+    160
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1103,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-187",
+   "book": 7,
+   "lines": [
+    171,
+    174
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1103,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "iliad-188",
+   "book": 7,
+   "lines": [
+    179,
+    180
+   ],
+   "speaker": [
+    "greek.1"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1106,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-189",
+   "book": 7,
+   "lines": [
+    191,
+    199
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1103,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "iliad-190",
+   "book": 7,
+   "lines": [
+    202,
+    205
+   ],
+   "speaker": [
+    "greek.2"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1107,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-191",
+   "book": 7,
+   "lines": [
+    226,
+    232
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1103,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "iliad-192",
+   "book": 7,
+   "lines": [
+    234,
+    243
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "ajax-telamonian"
+   ],
+   "level": 0,
+   "cluster": 1103,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "iliad-193",
+   "book": 7,
+   "lines": [
+    279,
+    282
+   ],
+   "speaker": [
+    "idaeus"
+   ],
+   "addressee": [
+    "ajax-telamonian",
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1103,
+   "part": 8,
+   "type": "G"
+  },
+  {
+   "id": "iliad-194",
+   "book": 7,
+   "lines": [
+    284,
+    286
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "idaeus"
+   ],
+   "level": 0,
+   "cluster": 1103,
+   "part": 9,
+   "type": "G"
+  },
+  {
+   "id": "iliad-195",
+   "book": 7,
+   "lines": [
+    288,
+    302
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "ajax-telamonian"
+   ],
+   "level": 0,
+   "cluster": 1103,
+   "part": 10,
+   "type": "G"
+  },
+  {
+   "id": "iliad-196",
+   "book": 7,
+   "lines": [
+    301,
+    302
+   ],
+   "speaker": [
+    "greek or trojan.5"
+   ],
+   "addressee": [
+    "greek or trojan.5"
+   ],
+   "level": 1,
+   "cluster": 1108,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-197",
+   "book": 7,
+   "lines": [
+    327,
+    343
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "leaders of the greeks (greek soldiers)"
+   ],
+   "level": 0,
+   "cluster": 1109,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-198",
+   "book": 7,
+   "lines": [
+    348,
+    353
+   ],
+   "speaker": [
+    "antenor"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1110,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-199",
+   "book": 7,
+   "lines": [
+    357,
+    364
+   ],
+   "speaker": [
+    "paris"
+   ],
+   "addressee": [
+    "antenor"
+   ],
+   "level": 0,
+   "cluster": 1110,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-200",
+   "book": 7,
+   "lines": [
+    368,
+    378
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1110,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-201",
+   "book": 7,
+   "lines": [
+    385,
+    397
+   ],
+   "speaker": [
+    "idaeus"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1111,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-202",
+   "book": 7,
+   "lines": [
+    400,
+    402
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1111,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-203",
+   "book": 7,
+   "lines": [
+    406,
+    411
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "idaeus"
+   ],
+   "level": 0,
+   "cluster": 1111,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-204",
+   "book": 7,
+   "lines": [
+    446,
+    453
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1112,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-205",
+   "book": 7,
+   "lines": [
+    455,
+    463
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 1112,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-206",
+   "book": 8,
+   "lines": [
+    5,
+    27
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "gods"
+   ],
+   "level": 0,
+   "cluster": 1113,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-207",
+   "book": 8,
+   "lines": [
+    31,
+    37
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1113,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-208",
+   "book": 8,
+   "lines": [
+    39,
+    40
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1113,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-209",
+   "book": 8,
+   "lines": [
+    93,
+    96
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1114,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-210",
+   "book": 8,
+   "lines": [
+    102,
+    111
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1115,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-211",
+   "book": 8,
+   "lines": [
+    139,
+    144
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1116,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-212",
+   "book": 8,
+   "lines": [
+    146,
+    150
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1116,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-213",
+   "book": 8,
+   "lines": [
+    149,
+    149
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 1,
+   "cluster": 1117,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-214",
+   "book": 8,
+   "lines": [
+    152,
+    156
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1116,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-215",
+   "book": 8,
+   "lines": [
+    161,
+    166
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1118,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-216",
+   "book": 8,
+   "lines": [
+    173,
+    183
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1119,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-217",
+   "book": 8,
+   "lines": [
+    185,
+    197
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "horses of hector"
+   ],
+   "level": 0,
+   "cluster": 1120,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-218",
+   "book": 8,
+   "lines": [
+    201,
+    207
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 1121,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-219",
+   "book": 8,
+   "lines": [
+    209,
+    211
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1121,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-220",
+   "book": 8,
+   "lines": [
+    228,
+    244
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "greeks",
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1122,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-221",
+   "book": 8,
+   "lines": [
+    281,
+    291
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "teucer"
+   ],
+   "level": 0,
+   "cluster": 1123,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-222",
+   "book": 8,
+   "lines": [
+    293,
+    299
+   ],
+   "speaker": [
+    "teucer"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1123,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-223",
+   "book": 8,
+   "lines": [
+    352,
+    356
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1124,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-224",
+   "book": 8,
+   "lines": [
+    358,
+    380
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1124,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-225",
+   "book": 8,
+   "lines": [
+    399,
+    408
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "iris"
+   ],
+   "level": 0,
+   "cluster": 1125,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-226",
+   "book": 8,
+   "lines": [
+    413,
+    424
+   ],
+   "speaker": [
+    "iris"
+   ],
+   "addressee": [
+    "athena",
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1126,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-227",
+   "book": 8,
+   "lines": [
+    427,
+    431
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1127,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-228",
+   "book": 8,
+   "lines": [
+    447,
+    456
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "athena",
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1128,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-229",
+   "book": 8,
+   "lines": [
+    462,
+    468
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1128,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-230",
+   "book": 8,
+   "lines": [
+    470,
+    483
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1128,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-231",
+   "book": 8,
+   "lines": [
+    497,
+    541
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1129,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-232",
+   "book": 9,
+   "lines": [
+    17,
+    28
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1130,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-233",
+   "book": 9,
+   "lines": [
+    32,
+    49
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1130,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-234",
+   "book": 9,
+   "lines": [
+    53,
+    78
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "agamemnon",
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1130,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-235",
+   "book": 9,
+   "lines": [
+    96,
+    113
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1131,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-236",
+   "book": 9,
+   "lines": [
+    115,
+    161
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1131,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-237",
+   "book": 9,
+   "lines": [
+    163,
+    172
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1131,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-238",
+   "book": 9,
+   "lines": [
+    197,
+    198
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "ajax-telamonian",
+    "odysseus",
+    "phoenix"
+   ],
+   "level": 0,
+   "cluster": 1132,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-239",
+   "book": 9,
+   "lines": [
+    202,
+    204
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1133,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-240",
+   "book": 9,
+   "lines": [
+    225,
+    306
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1134,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-241",
+   "book": 9,
+   "lines": [
+    254,
+    258
+   ],
+   "speaker": [
+    "peleus"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 1,
+   "cluster": 1135,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-242",
+   "book": 9,
+   "lines": [
+    308,
+    429
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1134,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-243",
+   "book": 9,
+   "lines": [
+    434,
+    605
+   ],
+   "speaker": [
+    "phoenix"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1134,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-244",
+   "book": 9,
+   "lines": [
+    607,
+    619
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "phoenix"
+   ],
+   "level": 0,
+   "cluster": 1134,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "iliad-245",
+   "book": 9,
+   "lines": [
+    624,
+    642
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1134,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "iliad-246",
+   "book": 9,
+   "lines": [
+    644,
+    655
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "ajax-telamonian"
+   ],
+   "level": 0,
+   "cluster": 1134,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "iliad-247",
+   "book": 9,
+   "lines": [
+    673,
+    675
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1136,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-248",
+   "book": 9,
+   "lines": [
+    677,
+    692
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1136,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-249",
+   "book": 9,
+   "lines": [
+    697,
+    709
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1136,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-250",
+   "book": 10,
+   "lines": [
+    37,
+    41
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1137,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-251",
+   "book": 10,
+   "lines": [
+    43,
+    59
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1137,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-252",
+   "book": 10,
+   "lines": [
+    61,
+    63
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1137,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-253",
+   "book": 10,
+   "lines": [
+    65,
+    71
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1137,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-254",
+   "book": 10,
+   "lines": [
+    82,
+    85
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1138,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-255",
+   "book": 10,
+   "lines": [
+    87,
+    101
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1138,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-256",
+   "book": 10,
+   "lines": [
+    103,
+    118
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1138,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-257",
+   "book": 10,
+   "lines": [
+    120,
+    127
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1138,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-258",
+   "book": 10,
+   "lines": [
+    129,
+    130
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1138,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "iliad-259",
+   "book": 10,
+   "lines": [
+    141,
+    142
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1139,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-260",
+   "book": 10,
+   "lines": [
+    144,
+    147
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1139,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-261",
+   "book": 10,
+   "lines": [
+    159,
+    161
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1140,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-262",
+   "book": 10,
+   "lines": [
+    164,
+    167
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1140,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-263",
+   "book": 10,
+   "lines": [
+    169,
+    176
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1140,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-264",
+   "book": 10,
+   "lines": [
+    192,
+    193
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "greek guards"
+   ],
+   "level": 0,
+   "cluster": 1141,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-265",
+   "book": 10,
+   "lines": [
+    204,
+    217
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1142,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-266",
+   "book": 10,
+   "lines": [
+    220,
+    226
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1142,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-267",
+   "book": 10,
+   "lines": [
+    234,
+    239
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1142,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-268",
+   "book": 10,
+   "lines": [
+    242,
+    247
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1142,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "iliad-269",
+   "book": 10,
+   "lines": [
+    249,
+    253
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1142,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "iliad-270",
+   "book": 10,
+   "lines": [
+    278,
+    282
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1143,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-271",
+   "book": 10,
+   "lines": [
+    284,
+    294
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1144,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-272",
+   "book": 10,
+   "lines": [
+    303,
+    312
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1145,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-273",
+   "book": 10,
+   "lines": [
+    319,
+    327
+   ],
+   "speaker": [
+    "dolon"
+   ],
+   "addressee": [
+    "hector",
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1145,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-274",
+   "book": 10,
+   "lines": [
+    329,
+    331
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "dolon"
+   ],
+   "level": 0,
+   "cluster": 1145,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-275",
+   "book": 10,
+   "lines": [
+    341,
+    348
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1146,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-276",
+   "book": 10,
+   "lines": [
+    370,
+    371
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "dolon"
+   ],
+   "level": 0,
+   "cluster": 1147,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-277",
+   "book": 10,
+   "lines": [
+    378,
+    381
+   ],
+   "speaker": [
+    "dolon"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1147,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-278",
+   "book": 10,
+   "lines": [
+    383,
+    389
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "dolon"
+   ],
+   "level": 0,
+   "cluster": 1147,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-279",
+   "book": 10,
+   "lines": [
+    391,
+    399
+   ],
+   "speaker": [
+    "dolon"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1147,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "iliad-280",
+   "book": 10,
+   "lines": [
+    401,
+    411
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "dolon"
+   ],
+   "level": 0,
+   "cluster": 1147,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "iliad-281",
+   "book": 10,
+   "lines": [
+    413,
+    422
+   ],
+   "speaker": [
+    "dolon"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1147,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "iliad-282",
+   "book": 10,
+   "lines": [
+    424,
+    425
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "dolon"
+   ],
+   "level": 0,
+   "cluster": 1147,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "iliad-283",
+   "book": 10,
+   "lines": [
+    427,
+    445
+   ],
+   "speaker": [
+    "dolon"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1147,
+   "part": 8,
+   "type": "G"
+  },
+  {
+   "id": "iliad-284",
+   "book": 10,
+   "lines": [
+    447,
+    453
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "dolon"
+   ],
+   "level": 0,
+   "cluster": 1147,
+   "part": 9,
+   "type": "G"
+  },
+  {
+   "id": "iliad-285",
+   "book": 10,
+   "lines": [
+    462,
+    464
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1148,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-286",
+   "book": 10,
+   "lines": [
+    477,
+    481
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1149,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-287",
+   "book": 10,
+   "lines": [
+    509,
+    511
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1150,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-288",
+   "book": 10,
+   "lines": [
+    533,
+    539
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1151,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-289",
+   "book": 10,
+   "lines": [
+    544,
+    553
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "diomedes",
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1152,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-290",
+   "book": 10,
+   "lines": [
+    555,
+    563
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1152,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-291",
+   "book": 11,
+   "lines": [
+    131,
+    135
+   ],
+   "speaker": [
+    "hippolochus",
+    "peisander"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1153,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-292",
+   "book": 11,
+   "lines": [
+    138,
+    142
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "hippolochus",
+    "peisander"
+   ],
+   "level": 0,
+   "cluster": 1153,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-293",
+   "book": 11,
+   "lines": [
+    186,
+    194
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "iris"
+   ],
+   "level": 0,
+   "cluster": 1154,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-294",
+   "book": 11,
+   "lines": [
+    200,
+    209
+   ],
+   "speaker": [
+    "iris"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1155,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-295",
+   "book": 11,
+   "lines": [
+    276,
+    279
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1156,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-296",
+   "book": 11,
+   "lines": [
+    286,
+    290
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1157,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-297",
+   "book": 11,
+   "lines": [
+    313,
+    315
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1158,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-298",
+   "book": 11,
+   "lines": [
+    317,
+    319
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1158,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-299",
+   "book": 11,
+   "lines": [
+    347,
+    348
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1159,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-300",
+   "book": 11,
+   "lines": [
+    362,
+    367
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1160,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-301",
+   "book": 11,
+   "lines": [
+    380,
+    383
+   ],
+   "speaker": [
+    "paris"
+   ],
+   "addressee": [
+    "diomedes"
+   ],
+   "level": 0,
+   "cluster": 1161,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-302",
+   "book": 11,
+   "lines": [
+    385,
+    395
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "paris"
+   ],
+   "level": 0,
+   "cluster": 1161,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-303",
+   "book": 11,
+   "lines": [
+    404,
+    410
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1162,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-304",
+   "book": 11,
+   "lines": [
+    430,
+    433
+   ],
+   "speaker": [
+    "socus"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1163,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-305",
+   "book": 11,
+   "lines": [
+    441,
+    445
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "socus"
+   ],
+   "level": 0,
+   "cluster": 1163,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-306",
+   "book": 11,
+   "lines": [
+    450,
+    455
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "socus"
+   ],
+   "level": 0,
+   "cluster": 1163,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-307",
+   "book": 11,
+   "lines": [
+    465,
+    471
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "ajax-telamonian"
+   ],
+   "level": 0,
+   "cluster": 1164,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-308",
+   "book": 11,
+   "lines": [
+    511,
+    515
+   ],
+   "speaker": [
+    "idomeneus"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1165,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-309",
+   "book": 11,
+   "lines": [
+    523,
+    530
+   ],
+   "speaker": [
+    "cebriones"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1166,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-310",
+   "book": 11,
+   "lines": [
+    587,
+    591
+   ],
+   "speaker": [
+    "eurypylus"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1167,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-311",
+   "book": 11,
+   "lines": [
+    606,
+    606
+   ],
+   "speaker": [
+    "patroclus"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1168,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-312",
+   "book": 11,
+   "lines": [
+    608,
+    615
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1168,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-313",
+   "book": 11,
+   "lines": [
+    648,
+    654
+   ],
+   "speaker": [
+    "patroclus"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1169,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-314",
+   "book": 11,
+   "lines": [
+    656,
+    803
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1169,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-315",
+   "book": 11,
+   "lines": [
+    786,
+    789
+   ],
+   "speaker": [
+    "menoetius"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 1,
+   "cluster": 1170,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-316",
+   "book": 11,
+   "lines": [
+    816,
+    821
+   ],
+   "speaker": [
+    "patroclus"
+   ],
+   "addressee": [
+    "eurypylus"
+   ],
+   "level": 0,
+   "cluster": 1171,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-317",
+   "book": 11,
+   "lines": [
+    823,
+    836
+   ],
+   "speaker": [
+    "eurypylus"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1171,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-318",
+   "book": 11,
+   "lines": [
+    838,
+    841
+   ],
+   "speaker": [
+    "patroclus"
+   ],
+   "addressee": [
+    "eurypylus"
+   ],
+   "level": 0,
+   "cluster": 1171,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-319",
+   "book": 12,
+   "lines": [
+    61,
+    79
+   ],
+   "speaker": [
+    "polydamas"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1172,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-320",
+   "book": 12,
+   "lines": [
+    164,
+    172
+   ],
+   "speaker": [
+    "asius"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1173,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-321",
+   "book": 12,
+   "lines": [
+    211,
+    229
+   ],
+   "speaker": [
+    "polydamas"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1174,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-322",
+   "book": 12,
+   "lines": [
+    231,
+    250
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "polydamas"
+   ],
+   "level": 0,
+   "cluster": 1174,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-323",
+   "book": 12,
+   "lines": [
+    269,
+    276
+   ],
+   "speaker": [
+    "ajax-oileus",
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1175,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-324",
+   "book": 12,
+   "lines": [
+    310,
+    328
+   ],
+   "speaker": [
+    "sarpedon"
+   ],
+   "addressee": [
+    "glaucus"
+   ],
+   "level": 0,
+   "cluster": 1176,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-325",
+   "book": 12,
+   "lines": [
+    318,
+    321
+   ],
+   "speaker": [
+    "lycian"
+   ],
+   "addressee": [
+    "lycian"
+   ],
+   "level": 1,
+   "cluster": 1177,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-326",
+   "book": 12,
+   "lines": [
+    343,
+    350
+   ],
+   "speaker": [
+    "menestheus"
+   ],
+   "addressee": [
+    "thootes"
+   ],
+   "level": 0,
+   "cluster": 1178,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-327",
+   "book": 12,
+   "lines": [
+    354,
+    363
+   ],
+   "speaker": [
+    "thootes"
+   ],
+   "addressee": [
+    "ajax-oileus",
+    "ajax-telamonian"
+   ],
+   "level": 0,
+   "cluster": 1179,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-328",
+   "book": 12,
+   "lines": [
+    366,
+    369
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "ajax-oileus"
+   ],
+   "level": 0,
+   "cluster": 1179,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-329",
+   "book": 12,
+   "lines": [
+    409,
+    412
+   ],
+   "speaker": [
+    "sarpedon"
+   ],
+   "addressee": [
+    "lycians"
+   ],
+   "level": 0,
+   "cluster": 1180,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-330",
+   "book": 12,
+   "lines": [
+    440,
+    441
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1181,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-331",
+   "book": 13,
+   "lines": [
+    47,
+    58
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "ajax-oileus",
+    "ajax-telamonian"
+   ],
+   "level": 0,
+   "cluster": 1182,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-332",
+   "book": 13,
+   "lines": [
+    68,
+    75
+   ],
+   "speaker": [
+    "ajax-oileus"
+   ],
+   "addressee": [
+    "ajax-telamonian"
+   ],
+   "level": 0,
+   "cluster": 1183,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-333",
+   "book": 13,
+   "lines": [
+    77,
+    80
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "ajax-oileus"
+   ],
+   "level": 0,
+   "cluster": 1183,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-334",
+   "book": 13,
+   "lines": [
+    95,
+    124
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1184,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-335",
+   "book": 13,
+   "lines": [
+    150,
+    154
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1185,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-336",
+   "book": 13,
+   "lines": [
+    219,
+    220
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "idomeneus"
+   ],
+   "level": 0,
+   "cluster": 1186,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-337",
+   "book": 13,
+   "lines": [
+    222,
+    230
+   ],
+   "speaker": [
+    "idomeneus"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 1186,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-338",
+   "book": 13,
+   "lines": [
+    232,
+    238
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "idomeneus"
+   ],
+   "level": 0,
+   "cluster": 1186,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-339",
+   "book": 13,
+   "lines": [
+    249,
+    253
+   ],
+   "speaker": [
+    "idomeneus"
+   ],
+   "addressee": [
+    "meriones"
+   ],
+   "level": 0,
+   "cluster": 1187,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-340",
+   "book": 13,
+   "lines": [
+    255,
+    258
+   ],
+   "speaker": [
+    "meriones"
+   ],
+   "addressee": [
+    "idomeneus"
+   ],
+   "level": 0,
+   "cluster": 1187,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-341",
+   "book": 13,
+   "lines": [
+    260,
+    265
+   ],
+   "speaker": [
+    "idomeneus"
+   ],
+   "addressee": [
+    "meriones"
+   ],
+   "level": 0,
+   "cluster": 1187,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-342",
+   "book": 13,
+   "lines": [
+    267,
+    273
+   ],
+   "speaker": [
+    "meriones"
+   ],
+   "addressee": [
+    "idomeneus"
+   ],
+   "level": 0,
+   "cluster": 1187,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-343",
+   "book": 13,
+   "lines": [
+    275,
+    294
+   ],
+   "speaker": [
+    "idomeneus"
+   ],
+   "addressee": [
+    "meriones"
+   ],
+   "level": 0,
+   "cluster": 1187,
+   "part": 6,
+   "type": "D"
+  },
+  {
+   "id": "iliad-344",
+   "book": 13,
+   "lines": [
+    307,
+    310
+   ],
+   "speaker": [
+    "meriones"
+   ],
+   "addressee": [
+    "idomeneus"
+   ],
+   "level": 0,
+   "cluster": 1187,
+   "part": 7,
+   "type": "D"
+  },
+  {
+   "id": "iliad-345",
+   "book": 13,
+   "lines": [
+    312,
+    327
+   ],
+   "speaker": [
+    "idomeneus"
+   ],
+   "addressee": [
+    "meriones"
+   ],
+   "level": 0,
+   "cluster": 1187,
+   "part": 8,
+   "type": "D"
+  },
+  {
+   "id": "iliad-346",
+   "book": 13,
+   "lines": [
+    374,
+    382
+   ],
+   "speaker": [
+    "idomeneus"
+   ],
+   "addressee": [
+    "othryoneus"
+   ],
+   "level": 0,
+   "cluster": 1188,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-347",
+   "book": 13,
+   "lines": [
+    414,
+    416
+   ],
+   "speaker": [
+    "deiphobus"
+   ],
+   "addressee": [
+    "hypsenor"
+   ],
+   "level": 0,
+   "cluster": 1189,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-348",
+   "book": 13,
+   "lines": [
+    446,
+    454
+   ],
+   "speaker": [
+    "idomeneus"
+   ],
+   "addressee": [
+    "deiphobus"
+   ],
+   "level": 0,
+   "cluster": 1190,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-349",
+   "book": 13,
+   "lines": [
+    463,
+    467
+   ],
+   "speaker": [
+    "deiphobus"
+   ],
+   "addressee": [
+    "aeneas"
+   ],
+   "level": 0,
+   "cluster": 1191,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-350",
+   "book": 13,
+   "lines": [
+    481,
+    486
+   ],
+   "speaker": [
+    "idomeneus"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1192,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-351",
+   "book": 13,
+   "lines": [
+    620,
+    639
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "trojans",
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1193,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-352",
+   "book": 13,
+   "lines": [
+    726,
+    747
+   ],
+   "speaker": [
+    "polydamas"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1194,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-353",
+   "book": 13,
+   "lines": [
+    751,
+    753
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "polydamas"
+   ],
+   "level": 0,
+   "cluster": 1194,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-354",
+   "book": 13,
+   "lines": [
+    769,
+    773
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "paris"
+   ],
+   "level": 0,
+   "cluster": 1195,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-355",
+   "book": 13,
+   "lines": [
+    775,
+    787
+   ],
+   "speaker": [
+    "paris"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1195,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-356",
+   "book": 13,
+   "lines": [
+    810,
+    820
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1196,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-357",
+   "book": 13,
+   "lines": [
+    824,
+    832
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "ajax-telamonian"
+   ],
+   "level": 0,
+   "cluster": 1196,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-358",
+   "book": 14,
+   "lines": [
+    3,
+    8
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "machaon"
+   ],
+   "level": 0,
+   "cluster": 1197,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-359",
+   "book": 14,
+   "lines": [
+    42,
+    51
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1198,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-360",
+   "book": 14,
+   "lines": [
+    53,
+    63
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1198,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-361",
+   "book": 14,
+   "lines": [
+    65,
+    81
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1198,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-362",
+   "book": 14,
+   "lines": [
+    83,
+    102
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1198,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "iliad-363",
+   "book": 14,
+   "lines": [
+    104,
+    108
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1198,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "iliad-364",
+   "book": 14,
+   "lines": [
+    110,
+    132
+   ],
+   "speaker": [
+    "diomedes"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1198,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "iliad-365",
+   "book": 14,
+   "lines": [
+    139,
+    146
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1199,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-366",
+   "book": 14,
+   "lines": [
+    190,
+    192
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "aphrodite"
+   ],
+   "level": 0,
+   "cluster": 1200,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-367",
+   "book": 14,
+   "lines": [
+    194,
+    196
+   ],
+   "speaker": [
+    "aphrodite"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1200,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-368",
+   "book": 14,
+   "lines": [
+    198,
+    210
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "aphrodite"
+   ],
+   "level": 0,
+   "cluster": 1200,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-369",
+   "book": 14,
+   "lines": [
+    212,
+    213
+   ],
+   "speaker": [
+    "aphrodite"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1200,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-370",
+   "book": 14,
+   "lines": [
+    219,
+    221
+   ],
+   "speaker": [
+    "aphrodite"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1200,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "iliad-371",
+   "book": 14,
+   "lines": [
+    233,
+    241
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "hypnus"
+   ],
+   "level": 0,
+   "cluster": 1201,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-372",
+   "book": 14,
+   "lines": [
+    243,
+    262
+   ],
+   "speaker": [
+    "hypnus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1201,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-373",
+   "book": 14,
+   "lines": [
+    264,
+    268
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "hypnus"
+   ],
+   "level": 0,
+   "cluster": 1201,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-374",
+   "book": 14,
+   "lines": [
+    271,
+    276
+   ],
+   "speaker": [
+    "hypnus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1201,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-375",
+   "book": 14,
+   "lines": [
+    298,
+    299
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1202,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-376",
+   "book": 14,
+   "lines": [
+    301,
+    311
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1202,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-377",
+   "book": 14,
+   "lines": [
+    313,
+    328
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1202,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-378",
+   "book": 14,
+   "lines": [
+    330,
+    340
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1202,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-379",
+   "book": 14,
+   "lines": [
+    342,
+    345
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1202,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "iliad-380",
+   "book": 14,
+   "lines": [
+    357,
+    360
+   ],
+   "speaker": [
+    "hypnus"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 1203,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-381",
+   "book": 14,
+   "lines": [
+    364,
+    377
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1204,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-382",
+   "book": 14,
+   "lines": [
+    454,
+    457
+   ],
+   "speaker": [
+    "polydamas"
+   ],
+   "addressee": [
+    "protoenor"
+   ],
+   "level": 0,
+   "cluster": 1205,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-383",
+   "book": 14,
+   "lines": [
+    470,
+    474
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "polydamas"
+   ],
+   "level": 0,
+   "cluster": 1206,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-384",
+   "book": 14,
+   "lines": [
+    479,
+    485
+   ],
+   "speaker": [
+    "acamas (son of antenor)"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1207,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-385",
+   "book": 14,
+   "lines": [
+    501,
+    505
+   ],
+   "speaker": [
+    "peneleus"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1208,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-386",
+   "book": 15,
+   "lines": [
+    14,
+    33
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1209,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-387",
+   "book": 15,
+   "lines": [
+    36,
+    46
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1209,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-388",
+   "book": 15,
+   "lines": [
+    49,
+    77
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1209,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-389",
+   "book": 15,
+   "lines": [
+    90,
+    91
+   ],
+   "speaker": [
+    "themis"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1210,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-390",
+   "book": 15,
+   "lines": [
+    93,
+    99
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "themis"
+   ],
+   "level": 0,
+   "cluster": 1210,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-391",
+   "book": 15,
+   "lines": [
+    104,
+    112
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "gods"
+   ],
+   "level": 0,
+   "cluster": 1211,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-392",
+   "book": 15,
+   "lines": [
+    115,
+    118
+   ],
+   "speaker": [
+    "ares"
+   ],
+   "addressee": [
+    "gods"
+   ],
+   "level": 0,
+   "cluster": 1211,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-393",
+   "book": 15,
+   "lines": [
+    128,
+    141
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "ares"
+   ],
+   "level": 0,
+   "cluster": 1211,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-394",
+   "book": 15,
+   "lines": [
+    146,
+    148
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "apollo",
+    "iris"
+   ],
+   "level": 0,
+   "cluster": 1212,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-395",
+   "book": 15,
+   "lines": [
+    158,
+    167
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "iris"
+   ],
+   "level": 0,
+   "cluster": 1213,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-396",
+   "book": 15,
+   "lines": [
+    174,
+    183
+   ],
+   "speaker": [
+    "iris"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 1214,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-397",
+   "book": 15,
+   "lines": [
+    185,
+    199
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "iris"
+   ],
+   "level": 0,
+   "cluster": 1214,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-398",
+   "book": 15,
+   "lines": [
+    201,
+    204
+   ],
+   "speaker": [
+    "iris"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 1214,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-399",
+   "book": 15,
+   "lines": [
+    206,
+    217
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "iris"
+   ],
+   "level": 0,
+   "cluster": 1214,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-400",
+   "book": 15,
+   "lines": [
+    221,
+    235
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 0,
+   "cluster": 1215,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-401",
+   "book": 15,
+   "lines": [
+    244,
+    245
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1216,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-402",
+   "book": 15,
+   "lines": [
+    247,
+    252
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 0,
+   "cluster": 1216,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-403",
+   "book": 15,
+   "lines": [
+    254,
+    261
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1216,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-404",
+   "book": 15,
+   "lines": [
+    286,
+    299
+   ],
+   "speaker": [
+    "thoas"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1217,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-405",
+   "book": 15,
+   "lines": [
+    347,
+    351
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1218,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-406",
+   "book": 15,
+   "lines": [
+    372,
+    376
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1219,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-407",
+   "book": 15,
+   "lines": [
+    399,
+    404
+   ],
+   "speaker": [
+    "patroclus"
+   ],
+   "addressee": [
+    "eurypylus"
+   ],
+   "level": 0,
+   "cluster": 1220,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-408",
+   "book": 15,
+   "lines": [
+    425,
+    428
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1221,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-409",
+   "book": 15,
+   "lines": [
+    437,
+    441
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "teucer"
+   ],
+   "level": 0,
+   "cluster": 1222,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-410",
+   "book": 15,
+   "lines": [
+    467,
+    470
+   ],
+   "speaker": [
+    "teucer"
+   ],
+   "addressee": [
+    "ajax-telamonian"
+   ],
+   "level": 0,
+   "cluster": 1222,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-411",
+   "book": 15,
+   "lines": [
+    472,
+    477
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "teucer"
+   ],
+   "level": 0,
+   "cluster": 1222,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-412",
+   "book": 15,
+   "lines": [
+    486,
+    499
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1223,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-413",
+   "book": 15,
+   "lines": [
+    502,
+    513
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1224,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-414",
+   "book": 15,
+   "lines": [
+    553,
+    558
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "melanippus"
+   ],
+   "level": 0,
+   "cluster": 1225,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-415",
+   "book": 15,
+   "lines": [
+    561,
+    564
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1226,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-416",
+   "book": 15,
+   "lines": [
+    569,
+    571
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "antilochus"
+   ],
+   "level": 0,
+   "cluster": 1227,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-417",
+   "book": 15,
+   "lines": [
+    661,
+    666
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1228,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-418",
+   "book": 15,
+   "lines": [
+    718,
+    725
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1229,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-419",
+   "book": 15,
+   "lines": [
+    733,
+    741
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1230,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-420",
+   "book": 16,
+   "lines": [
+    7,
+    19
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1231,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-421",
+   "book": 16,
+   "lines": [
+    21,
+    45
+   ],
+   "speaker": [
+    "patroclus"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1231,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-422",
+   "book": 16,
+   "lines": [
+    49,
+    100
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1231,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-423",
+   "book": 16,
+   "lines": [
+    126,
+    129
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1232,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-424",
+   "book": 16,
+   "lines": [
+    200,
+    209
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "myrmidons"
+   ],
+   "level": 0,
+   "cluster": 1233,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-425",
+   "book": 16,
+   "lines": [
+    203,
+    206
+   ],
+   "speaker": [
+    "myrmidons"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 1,
+   "cluster": 1234,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-426",
+   "book": 16,
+   "lines": [
+    233,
+    248
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1235,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-427",
+   "book": 16,
+   "lines": [
+    269,
+    274
+   ],
+   "speaker": [
+    "patroclus"
+   ],
+   "addressee": [
+    "myrmidons"
+   ],
+   "level": 0,
+   "cluster": 1236,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-428",
+   "book": 16,
+   "lines": [
+    422,
+    425
+   ],
+   "speaker": [
+    "sarpedon"
+   ],
+   "addressee": [
+    "lycians"
+   ],
+   "level": 0,
+   "cluster": 1237,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-429",
+   "book": 16,
+   "lines": [
+    433,
+    438
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1238,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-430",
+   "book": 16,
+   "lines": [
+    440,
+    457
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1238,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-431",
+   "book": 16,
+   "lines": [
+    492,
+    502
+   ],
+   "speaker": [
+    "sarpedon"
+   ],
+   "addressee": [
+    "glaucus"
+   ],
+   "level": 0,
+   "cluster": 1239,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-432",
+   "book": 16,
+   "lines": [
+    514,
+    526
+   ],
+   "speaker": [
+    "glaucus"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 0,
+   "cluster": 1240,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-433",
+   "book": 16,
+   "lines": [
+    538,
+    547
+   ],
+   "speaker": [
+    "glaucus"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1241,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-434",
+   "book": 16,
+   "lines": [
+    556,
+    561
+   ],
+   "speaker": [
+    "patroclus"
+   ],
+   "addressee": [
+    "ajax-oileus",
+    "ajax-telamonian"
+   ],
+   "level": 0,
+   "cluster": 1242,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-435",
+   "book": 16,
+   "lines": [
+    617,
+    618
+   ],
+   "speaker": [
+    "aeneas"
+   ],
+   "addressee": [
+    "meriones"
+   ],
+   "level": 0,
+   "cluster": 1243,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-436",
+   "book": 16,
+   "lines": [
+    620,
+    625
+   ],
+   "speaker": [
+    "meriones"
+   ],
+   "addressee": [
+    "aeneas"
+   ],
+   "level": 0,
+   "cluster": 1243,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-437",
+   "book": 16,
+   "lines": [
+    627,
+    631
+   ],
+   "speaker": [
+    "patroclus"
+   ],
+   "addressee": [
+    "meriones"
+   ],
+   "level": 0,
+   "cluster": 1243,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-438",
+   "book": 16,
+   "lines": [
+    667,
+    675
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 0,
+   "cluster": 1244,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-439",
+   "book": 16,
+   "lines": [
+    707,
+    709
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1245,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-440",
+   "book": 16,
+   "lines": [
+    721,
+    725
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1246,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-441",
+   "book": 16,
+   "lines": [
+    745,
+    750
+   ],
+   "speaker": [
+    "patroclus"
+   ],
+   "addressee": [
+    "cebriones"
+   ],
+   "level": 0,
+   "cluster": 1247,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-442",
+   "book": 16,
+   "lines": [
+    830,
+    842
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1248,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-443",
+   "book": 16,
+   "lines": [
+    839,
+    841
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 1,
+   "cluster": 1249,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-444",
+   "book": 16,
+   "lines": [
+    844,
+    854
+   ],
+   "speaker": [
+    "patroclus"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1248,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-445",
+   "book": 16,
+   "lines": [
+    859,
+    861
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1248,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-446",
+   "book": 17,
+   "lines": [
+    12,
+    17
+   ],
+   "speaker": [
+    "euphorbus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1250,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-447",
+   "book": 17,
+   "lines": [
+    19,
+    32
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "euphorbus"
+   ],
+   "level": 0,
+   "cluster": 1250,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-448",
+   "book": 17,
+   "lines": [
+    34,
+    42
+   ],
+   "speaker": [
+    "euphorbus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1250,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-449",
+   "book": 17,
+   "lines": [
+    75,
+    81
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1251,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-450",
+   "book": 17,
+   "lines": [
+    91,
+    105
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1252,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-451",
+   "book": 17,
+   "lines": [
+    120,
+    122
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "ajax-telamonian"
+   ],
+   "level": 0,
+   "cluster": 1253,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-452",
+   "book": 17,
+   "lines": [
+    142,
+    168
+   ],
+   "speaker": [
+    "glaucus"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1254,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-453",
+   "book": 17,
+   "lines": [
+    170,
+    182
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "glaucus"
+   ],
+   "level": 0,
+   "cluster": 1254,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-454",
+   "book": 17,
+   "lines": [
+    184,
+    187
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1254,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-455",
+   "book": 17,
+   "lines": [
+    201,
+    208
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1255,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-456",
+   "book": 17,
+   "lines": [
+    220,
+    232
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1256,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-457",
+   "book": 17,
+   "lines": [
+    238,
+    245
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1257,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-458",
+   "book": 17,
+   "lines": [
+    248,
+    255
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "leaders of the greeks (greek soldiers)"
+   ],
+   "level": 0,
+   "cluster": 1257,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-459",
+   "book": 17,
+   "lines": [
+    327,
+    332
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "aeneas"
+   ],
+   "level": 0,
+   "cluster": 1258,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-460",
+   "book": 17,
+   "lines": [
+    335,
+    341
+   ],
+   "speaker": [
+    "aeneas"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1259,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-461",
+   "book": 17,
+   "lines": [
+    415,
+    419
+   ],
+   "speaker": [
+    "greek.3"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1260,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-462",
+   "book": 17,
+   "lines": [
+    421,
+    422
+   ],
+   "speaker": [
+    "trojan.3"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1261,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-463",
+   "book": 17,
+   "lines": [
+    443,
+    455
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "balios",
+    "xanthos"
+   ],
+   "level": 0,
+   "cluster": 1262,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-464",
+   "book": 17,
+   "lines": [
+    469,
+    473
+   ],
+   "speaker": [
+    "alcimedon"
+   ],
+   "addressee": [
+    "automedon"
+   ],
+   "level": 0,
+   "cluster": 1263,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-465",
+   "book": 17,
+   "lines": [
+    475,
+    480
+   ],
+   "speaker": [
+    "automedon"
+   ],
+   "addressee": [
+    "alcimedon"
+   ],
+   "level": 0,
+   "cluster": 1263,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-466",
+   "book": 17,
+   "lines": [
+    485,
+    490
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "aeneas"
+   ],
+   "level": 0,
+   "cluster": 1264,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-467",
+   "book": 17,
+   "lines": [
+    501,
+    506
+   ],
+   "speaker": [
+    "automedon"
+   ],
+   "addressee": [
+    "alcimedon"
+   ],
+   "level": 0,
+   "cluster": 1265,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-468",
+   "book": 17,
+   "lines": [
+    508,
+    515
+   ],
+   "speaker": [
+    "automedon"
+   ],
+   "addressee": [
+    "ajax-oileus",
+    "ajax-telamonian",
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1266,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-469",
+   "book": 17,
+   "lines": [
+    538,
+    539
+   ],
+   "speaker": [
+    "automedon"
+   ],
+   "addressee": [
+    "automedon"
+   ],
+   "level": 0,
+   "cluster": 1267,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-470",
+   "book": 17,
+   "lines": [
+    556,
+    559
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1268,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-471",
+   "book": 17,
+   "lines": [
+    561,
+    566
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1268,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-472",
+   "book": 17,
+   "lines": [
+    586,
+    590
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1269,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-473",
+   "book": 17,
+   "lines": [
+    622,
+    623
+   ],
+   "speaker": [
+    "meriones"
+   ],
+   "addressee": [
+    "idomeneus"
+   ],
+   "level": 0,
+   "cluster": 1270,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-474",
+   "book": 17,
+   "lines": [
+    629,
+    647
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "greeks",
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1271,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-475",
+   "book": 17,
+   "lines": [
+    652,
+    655
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1272,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-476",
+   "book": 17,
+   "lines": [
+    669,
+    672
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "ajax-oileus",
+    "ajax-telamonian",
+    "meriones"
+   ],
+   "level": 0,
+   "cluster": 1272,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-477",
+   "book": 17,
+   "lines": [
+    685,
+    693
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "antilochus"
+   ],
+   "level": 0,
+   "cluster": 1273,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-478",
+   "book": 17,
+   "lines": [
+    708,
+    714
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "ajax-oileus",
+    "ajax-telamonian"
+   ],
+   "level": 0,
+   "cluster": 1274,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-479",
+   "book": 17,
+   "lines": [
+    716,
+    721
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1274,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-480",
+   "book": 18,
+   "lines": [
+    6,
+    14
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1275,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-481",
+   "book": 18,
+   "lines": [
+    18,
+    21
+   ],
+   "speaker": [
+    "antilochus"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1276,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-482",
+   "book": 18,
+   "lines": [
+    52,
+    64
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "nereids"
+   ],
+   "level": 0,
+   "cluster": 1277,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-483",
+   "book": 18,
+   "lines": [
+    73,
+    77
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1278,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-484",
+   "book": 18,
+   "lines": [
+    79,
+    93
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "thetis"
+   ],
+   "level": 0,
+   "cluster": 1278,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-485",
+   "book": 18,
+   "lines": [
+    95,
+    96
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1278,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-486",
+   "book": 18,
+   "lines": [
+    98,
+    126
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "thetis"
+   ],
+   "level": 0,
+   "cluster": 1278,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-487",
+   "book": 18,
+   "lines": [
+    128,
+    137
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1278,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "iliad-488",
+   "book": 18,
+   "lines": [
+    140,
+    144
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "nereids"
+   ],
+   "level": 0,
+   "cluster": 1279,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-489",
+   "book": 18,
+   "lines": [
+    170,
+    180
+   ],
+   "speaker": [
+    "iris"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1280,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-490",
+   "book": 18,
+   "lines": [
+    182,
+    182
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "iris"
+   ],
+   "level": 0,
+   "cluster": 1280,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-491",
+   "book": 18,
+   "lines": [
+    184,
+    186
+   ],
+   "speaker": [
+    "iris"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1280,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-492",
+   "book": 18,
+   "lines": [
+    188,
+    195
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "iris"
+   ],
+   "level": 0,
+   "cluster": 1280,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-493",
+   "book": 18,
+   "lines": [
+    197,
+    201
+   ],
+   "speaker": [
+    "iris"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1280,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "iliad-494",
+   "book": 18,
+   "lines": [
+    254,
+    283
+   ],
+   "speaker": [
+    "polydamas"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1281,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-495",
+   "book": 18,
+   "lines": [
+    285,
+    309
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "polydamas"
+   ],
+   "level": 0,
+   "cluster": 1281,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-496",
+   "book": 18,
+   "lines": [
+    324,
+    342
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "achilles",
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1282,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-497",
+   "book": 18,
+   "lines": [
+    357,
+    359
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1283,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-498",
+   "book": 18,
+   "lines": [
+    361,
+    367
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1283,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-499",
+   "book": 18,
+   "lines": [
+    385,
+    387
+   ],
+   "speaker": [
+    "charis"
+   ],
+   "addressee": [
+    "thetis"
+   ],
+   "level": 0,
+   "cluster": 1284,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-500",
+   "book": 18,
+   "lines": [
+    392,
+    392
+   ],
+   "speaker": [
+    "charis"
+   ],
+   "addressee": [
+    "hephaestus"
+   ],
+   "level": 0,
+   "cluster": 1285,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-501",
+   "book": 18,
+   "lines": [
+    394,
+    409
+   ],
+   "speaker": [
+    "hephaestus"
+   ],
+   "addressee": [
+    "charis"
+   ],
+   "level": 0,
+   "cluster": 1285,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-502",
+   "book": 18,
+   "lines": [
+    424,
+    427
+   ],
+   "speaker": [
+    "hephaestus"
+   ],
+   "addressee": [
+    "thetis"
+   ],
+   "level": 0,
+   "cluster": 1286,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-503",
+   "book": 18,
+   "lines": [
+    429,
+    461
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "hephaestus"
+   ],
+   "level": 0,
+   "cluster": 1286,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-504",
+   "book": 18,
+   "lines": [
+    463,
+    467
+   ],
+   "speaker": [
+    "hephaestus"
+   ],
+   "addressee": [
+    "thetis"
+   ],
+   "level": 0,
+   "cluster": 1286,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-505",
+   "book": 19,
+   "lines": [
+    8,
+    11
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1287,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-506",
+   "book": 19,
+   "lines": [
+    21,
+    27
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "thetis"
+   ],
+   "level": 0,
+   "cluster": 1287,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-507",
+   "book": 19,
+   "lines": [
+    29,
+    36
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1287,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-508",
+   "book": 19,
+   "lines": [
+    56,
+    73
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1288,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-509",
+   "book": 19,
+   "lines": [
+    78,
+    144
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1288,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-510",
+   "book": 19,
+   "lines": [
+    101,
+    105
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 1,
+   "cluster": 1289,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-511",
+   "book": 19,
+   "lines": [
+    107,
+    111
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 1,
+   "cluster": 1289,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-512",
+   "book": 19,
+   "lines": [
+    121,
+    124
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 1,
+   "cluster": 1290,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-513",
+   "book": 19,
+   "lines": [
+    146,
+    153
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1288,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-514",
+   "book": 19,
+   "lines": [
+    155,
+    183
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1288,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "iliad-515",
+   "book": 19,
+   "lines": [
+    185,
+    197
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1288,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "iliad-516",
+   "book": 19,
+   "lines": [
+    199,
+    214
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1288,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "iliad-517",
+   "book": 19,
+   "lines": [
+    216,
+    237
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1288,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "iliad-518",
+   "book": 19,
+   "lines": [
+    258,
+    265
+   ],
+   "speaker": [
+    "agamemnon"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1291,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-519",
+   "book": 19,
+   "lines": [
+    270,
+    275
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1292,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-520",
+   "book": 19,
+   "lines": [
+    287,
+    300
+   ],
+   "speaker": [
+    "briseis"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1293,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-521",
+   "book": 19,
+   "lines": [
+    305,
+    308
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1294,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-522",
+   "book": 19,
+   "lines": [
+    315,
+    337
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1295,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-523",
+   "book": 19,
+   "lines": [
+    342,
+    348
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1296,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-524",
+   "book": 19,
+   "lines": [
+    400,
+    403
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "balios",
+    "xanthos"
+   ],
+   "level": 0,
+   "cluster": 1297,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-525",
+   "book": 19,
+   "lines": [
+    408,
+    417
+   ],
+   "speaker": [
+    "balios",
+    "xanthos"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1297,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-526",
+   "book": 19,
+   "lines": [
+    420,
+    423
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "balios",
+    "xanthos"
+   ],
+   "level": 0,
+   "cluster": 1297,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-527",
+   "book": 20,
+   "lines": [
+    16,
+    18
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1298,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-528",
+   "book": 20,
+   "lines": [
+    20,
+    30
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 1298,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-529",
+   "book": 20,
+   "lines": [
+    83,
+    85
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "aeneas"
+   ],
+   "level": 0,
+   "cluster": 1299,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-530",
+   "book": 20,
+   "lines": [
+    87,
+    102
+   ],
+   "speaker": [
+    "aeneas"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 0,
+   "cluster": 1299,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-531",
+   "book": 20,
+   "lines": [
+    104,
+    109
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "aeneas"
+   ],
+   "level": 0,
+   "cluster": 1299,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-532",
+   "book": 20,
+   "lines": [
+    115,
+    131
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "athena",
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 1300,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-533",
+   "book": 20,
+   "lines": [
+    133,
+    143
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1300,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-534",
+   "book": 20,
+   "lines": [
+    178,
+    198
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "aeneas"
+   ],
+   "level": 0,
+   "cluster": 1301,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-535",
+   "book": 20,
+   "lines": [
+    200,
+    258
+   ],
+   "speaker": [
+    "aeneas"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1301,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-536",
+   "book": 20,
+   "lines": [
+    293,
+    308
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "gods"
+   ],
+   "level": 0,
+   "cluster": 1302,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-537",
+   "book": 20,
+   "lines": [
+    310,
+    317
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 1302,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-538",
+   "book": 20,
+   "lines": [
+    332,
+    339
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "aeneas"
+   ],
+   "level": 0,
+   "cluster": 1303,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-539",
+   "book": 20,
+   "lines": [
+    344,
+    352
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1304,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-540",
+   "book": 20,
+   "lines": [
+    354,
+    363
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1305,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-541",
+   "book": 20,
+   "lines": [
+    366,
+    372
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1306,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-542",
+   "book": 20,
+   "lines": [
+    376,
+    378
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1307,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-543",
+   "book": 20,
+   "lines": [
+    389,
+    392
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "iphition"
+   ],
+   "level": 0,
+   "cluster": 1308,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-544",
+   "book": 20,
+   "lines": [
+    425,
+    427
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1309,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-545",
+   "book": 20,
+   "lines": [
+    429,
+    429
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1310,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-546",
+   "book": 20,
+   "lines": [
+    431,
+    437
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1310,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-547",
+   "book": 20,
+   "lines": [
+    449,
+    454
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1310,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-548",
+   "book": 21,
+   "lines": [
+    54,
+    63
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "lycaon"
+   ],
+   "level": 0,
+   "cluster": 1311,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-549",
+   "book": 21,
+   "lines": [
+    74,
+    96
+   ],
+   "speaker": [
+    "lycaon (son of priam)"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1311,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-550",
+   "book": 21,
+   "lines": [
+    99,
+    113
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "lycaon"
+   ],
+   "level": 0,
+   "cluster": 1311,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-551",
+   "book": 21,
+   "lines": [
+    122,
+    135
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "lycaon"
+   ],
+   "level": 0,
+   "cluster": 1311,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-552",
+   "book": 21,
+   "lines": [
+    150,
+    151
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "asteropaeus"
+   ],
+   "level": 0,
+   "cluster": 1312,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-553",
+   "book": 21,
+   "lines": [
+    153,
+    160
+   ],
+   "speaker": [
+    "asteropaeus"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1312,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-554",
+   "book": 21,
+   "lines": [
+    184,
+    199
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "asteropaeus"
+   ],
+   "level": 0,
+   "cluster": 1312,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-555",
+   "book": 21,
+   "lines": [
+    214,
+    221
+   ],
+   "speaker": [
+    "scamander"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1313,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-556",
+   "book": 21,
+   "lines": [
+    223,
+    226
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "scamander"
+   ],
+   "level": 0,
+   "cluster": 1313,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-557",
+   "book": 21,
+   "lines": [
+    229,
+    232
+   ],
+   "speaker": [
+    "scamander"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 0,
+   "cluster": 1314,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-558",
+   "book": 21,
+   "lines": [
+    273,
+    283
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1315,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-559",
+   "book": 21,
+   "lines": [
+    288,
+    297
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1315,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-560",
+   "book": 21,
+   "lines": [
+    308,
+    323
+   ],
+   "speaker": [
+    "scamander"
+   ],
+   "addressee": [
+    "simoeis"
+   ],
+   "level": 0,
+   "cluster": 1316,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-561",
+   "book": 21,
+   "lines": [
+    331,
+    341
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "hephaestus"
+   ],
+   "level": 0,
+   "cluster": 1317,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-562",
+   "book": 21,
+   "lines": [
+    357,
+    360
+   ],
+   "speaker": [
+    "scamander"
+   ],
+   "addressee": [
+    "hephaestus"
+   ],
+   "level": 0,
+   "cluster": 1318,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-563",
+   "book": 21,
+   "lines": [
+    369,
+    376
+   ],
+   "speaker": [
+    "scamander"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1319,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-564",
+   "book": 21,
+   "lines": [
+    379,
+    380
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "hephaestus"
+   ],
+   "level": 0,
+   "cluster": 1320,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-565",
+   "book": 21,
+   "lines": [
+    394,
+    399
+   ],
+   "speaker": [
+    "ares"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1321,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-566",
+   "book": 21,
+   "lines": [
+    410,
+    414
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "ares"
+   ],
+   "level": 0,
+   "cluster": 1321,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-567",
+   "book": 21,
+   "lines": [
+    420,
+    422
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1322,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-568",
+   "book": 21,
+   "lines": [
+    428,
+    433
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "aphrodite",
+    "ares"
+   ],
+   "level": 0,
+   "cluster": 1323,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-569",
+   "book": 21,
+   "lines": [
+    436,
+    460
+   ],
+   "speaker": [
+    "poseidon"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 0,
+   "cluster": 1324,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-570",
+   "book": 21,
+   "lines": [
+    462,
+    467
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "poseidon"
+   ],
+   "level": 0,
+   "cluster": 1324,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-571",
+   "book": 21,
+   "lines": [
+    472,
+    477
+   ],
+   "speaker": [
+    "artemis"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 0,
+   "cluster": 1324,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-572",
+   "book": 21,
+   "lines": [
+    481,
+    488
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "artemis"
+   ],
+   "level": 0,
+   "cluster": 1324,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "iliad-573",
+   "book": 21,
+   "lines": [
+    498,
+    501
+   ],
+   "speaker": [
+    "hermes"
+   ],
+   "addressee": [
+    "leto"
+   ],
+   "level": 0,
+   "cluster": 1325,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-574",
+   "book": 21,
+   "lines": [
+    509,
+    510
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "artemis"
+   ],
+   "level": 0,
+   "cluster": 1326,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-575",
+   "book": 21,
+   "lines": [
+    512,
+    513
+   ],
+   "speaker": [
+    "artemis"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1326,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-576",
+   "book": 21,
+   "lines": [
+    531,
+    536
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1327,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-577",
+   "book": 21,
+   "lines": [
+    553,
+    570
+   ],
+   "speaker": [
+    "agenor"
+   ],
+   "addressee": [
+    "agenor"
+   ],
+   "level": 0,
+   "cluster": 1328,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-578",
+   "book": 21,
+   "lines": [
+    583,
+    589
+   ],
+   "speaker": [
+    "agenor"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1329,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-579",
+   "book": 22,
+   "lines": [
+    8,
+    13
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1330,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-580",
+   "book": 22,
+   "lines": [
+    15,
+    20
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 0,
+   "cluster": 1330,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-581",
+   "book": 22,
+   "lines": [
+    38,
+    76
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1331,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-582",
+   "book": 22,
+   "lines": [
+    82,
+    89
+   ],
+   "speaker": [
+    "hecuba"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1331,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-583",
+   "book": 22,
+   "lines": [
+    99,
+    130
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1332,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-584",
+   "book": 22,
+   "lines": [
+    107,
+    107
+   ],
+   "speaker": [
+    "trojan man or woman"
+   ],
+   "addressee": [
+    "trojan man or woman"
+   ],
+   "level": 1,
+   "cluster": 1333,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-585",
+   "book": 22,
+   "lines": [
+    168,
+    176
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "gods"
+   ],
+   "level": 0,
+   "cluster": 1334,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-586",
+   "book": 22,
+   "lines": [
+    178,
+    181
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1334,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-587",
+   "book": 22,
+   "lines": [
+    183,
+    185
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1334,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-588",
+   "book": 22,
+   "lines": [
+    216,
+    223
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1335,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-589",
+   "book": 22,
+   "lines": [
+    229,
+    231
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1336,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-590",
+   "book": 22,
+   "lines": [
+    233,
+    237
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1336,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-591",
+   "book": 22,
+   "lines": [
+    239,
+    246
+   ],
+   "speaker": [
+    "athena"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1336,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-592",
+   "book": 22,
+   "lines": [
+    250,
+    259
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1337,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-593",
+   "book": 22,
+   "lines": [
+    261,
+    272
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1337,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-594",
+   "book": 22,
+   "lines": [
+    279,
+    288
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1337,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-595",
+   "book": 22,
+   "lines": [
+    297,
+    305
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1338,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-596",
+   "book": 22,
+   "lines": [
+    331,
+    336
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1337,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-597",
+   "book": 22,
+   "lines": [
+    338,
+    343
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1337,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "iliad-598",
+   "book": 22,
+   "lines": [
+    345,
+    354
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1337,
+   "part": 6,
+   "type": "D"
+  },
+  {
+   "id": "iliad-599",
+   "book": 22,
+   "lines": [
+    356,
+    360
+   ],
+   "speaker": [
+    "hector"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1337,
+   "part": 7,
+   "type": "D"
+  },
+  {
+   "id": "iliad-600",
+   "book": 22,
+   "lines": [
+    365,
+    366
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1337,
+   "part": 8,
+   "type": "D"
+  },
+  {
+   "id": "iliad-601",
+   "book": 22,
+   "lines": [
+    373,
+    374
+   ],
+   "speaker": [
+    "greek.4"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1339,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-602",
+   "book": 22,
+   "lines": [
+    378,
+    394
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1340,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-603",
+   "book": 22,
+   "lines": [
+    416,
+    428
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1341,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-604",
+   "book": 22,
+   "lines": [
+    431,
+    436
+   ],
+   "speaker": [
+    "hecuba"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1342,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-605",
+   "book": 22,
+   "lines": [
+    450,
+    459
+   ],
+   "speaker": [
+    "andromache"
+   ],
+   "addressee": [
+    "servants of andromache"
+   ],
+   "level": 0,
+   "cluster": 1343,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-606",
+   "book": 22,
+   "lines": [
+    477,
+    514
+   ],
+   "speaker": [
+    "andromache"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1344,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-607",
+   "book": 22,
+   "lines": [
+    498,
+    498
+   ],
+   "speaker": [
+    "future children of troy"
+   ],
+   "addressee": [
+    "astyanax"
+   ],
+   "level": 1,
+   "cluster": 1345,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-608",
+   "book": 23,
+   "lines": [
+    6,
+    11
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "myrmidons"
+   ],
+   "level": 0,
+   "cluster": 1346,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-609",
+   "book": 23,
+   "lines": [
+    19,
+    23
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1347,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-610",
+   "book": 23,
+   "lines": [
+    43,
+    53
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1348,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-611",
+   "book": 23,
+   "lines": [
+    69,
+    92
+   ],
+   "speaker": [
+    "patroclus"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1349,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-612",
+   "book": 23,
+   "lines": [
+    94,
+    98
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1349,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-613",
+   "book": 23,
+   "lines": [
+    103,
+    107
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1350,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-614",
+   "book": 23,
+   "lines": [
+    144,
+    151
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "spercheius"
+   ],
+   "level": 0,
+   "cluster": 1351,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-615",
+   "book": 23,
+   "lines": [
+    156,
+    160
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1352,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-616",
+   "book": 23,
+   "lines": [
+    179,
+    183
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1353,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-617",
+   "book": 23,
+   "lines": [
+    205,
+    211
+   ],
+   "speaker": [
+    "iris"
+   ],
+   "addressee": [
+    "winds"
+   ],
+   "level": 0,
+   "cluster": 1354,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-618",
+   "book": 23,
+   "lines": [
+    236,
+    248
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon",
+    "leaders of the greeks (greek soldiers)"
+   ],
+   "level": 0,
+   "cluster": 1355,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-619",
+   "book": 23,
+   "lines": [
+    272,
+    286
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon",
+    "leaders of the greeks (greek soldiers)"
+   ],
+   "level": 0,
+   "cluster": 1356,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-620",
+   "book": 23,
+   "lines": [
+    306,
+    348
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "antilochus"
+   ],
+   "level": 0,
+   "cluster": 1357,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-621",
+   "book": 23,
+   "lines": [
+    403,
+    416
+   ],
+   "speaker": [
+    "antilochus"
+   ],
+   "addressee": [
+    "horses of nestor"
+   ],
+   "level": 0,
+   "cluster": 1358,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-622",
+   "book": 23,
+   "lines": [
+    426,
+    428
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "antilochus"
+   ],
+   "level": 0,
+   "cluster": 1359,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-623",
+   "book": 23,
+   "lines": [
+    439,
+    441
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "antilochus"
+   ],
+   "level": 0,
+   "cluster": 1360,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-624",
+   "book": 23,
+   "lines": [
+    443,
+    445
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "horses of menelaus"
+   ],
+   "level": 0,
+   "cluster": 1361,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-625",
+   "book": 23,
+   "lines": [
+    457,
+    472
+   ],
+   "speaker": [
+    "idomeneus"
+   ],
+   "addressee": [
+    "leaders of the greeks (greek soldiers)"
+   ],
+   "level": 0,
+   "cluster": 1362,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-626",
+   "book": 23,
+   "lines": [
+    474,
+    481
+   ],
+   "speaker": [
+    "ajax-oileus"
+   ],
+   "addressee": [
+    "idomeneus"
+   ],
+   "level": 0,
+   "cluster": 1362,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-627",
+   "book": 23,
+   "lines": [
+    483,
+    487
+   ],
+   "speaker": [
+    "idomeneus"
+   ],
+   "addressee": [
+    "ajax-oileus"
+   ],
+   "level": 0,
+   "cluster": 1362,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-628",
+   "book": 23,
+   "lines": [
+    492,
+    498
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "ajax-oileus",
+    "idomeneus"
+   ],
+   "level": 0,
+   "cluster": 1362,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "iliad-629",
+   "book": 23,
+   "lines": [
+    536,
+    538
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1363,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-630",
+   "book": 23,
+   "lines": [
+    543,
+    554
+   ],
+   "speaker": [
+    "antilochus"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1363,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-631",
+   "book": 23,
+   "lines": [
+    558,
+    562
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "antilochus"
+   ],
+   "level": 0,
+   "cluster": 1363,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-632",
+   "book": 23,
+   "lines": [
+    570,
+    585
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "antilochus",
+    "leaders of the greeks (greek soldiers)"
+   ],
+   "level": 0,
+   "cluster": 1363,
+   "part": 4,
+   "type": "G"
+  },
+  {
+   "id": "iliad-633",
+   "book": 23,
+   "lines": [
+    576,
+    578
+   ],
+   "speaker": [
+    "greek.5"
+   ],
+   "addressee": [
+    "greek.5"
+   ],
+   "level": 1,
+   "cluster": 1364,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-634",
+   "book": 23,
+   "lines": [
+    587,
+    595
+   ],
+   "speaker": [
+    "antilochus"
+   ],
+   "addressee": [
+    "menelaus"
+   ],
+   "level": 0,
+   "cluster": 1363,
+   "part": 5,
+   "type": "G"
+  },
+  {
+   "id": "iliad-635",
+   "book": 23,
+   "lines": [
+    602,
+    611
+   ],
+   "speaker": [
+    "menelaus"
+   ],
+   "addressee": [
+    "antilochus"
+   ],
+   "level": 0,
+   "cluster": 1363,
+   "part": 6,
+   "type": "G"
+  },
+  {
+   "id": "iliad-636",
+   "book": 23,
+   "lines": [
+    618,
+    623
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "nestor"
+   ],
+   "level": 0,
+   "cluster": 1363,
+   "part": 7,
+   "type": "G"
+  },
+  {
+   "id": "iliad-637",
+   "book": 23,
+   "lines": [
+    626,
+    650
+   ],
+   "speaker": [
+    "nestor"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1363,
+   "part": 8,
+   "type": "G"
+  },
+  {
+   "id": "iliad-638",
+   "book": 23,
+   "lines": [
+    658,
+    663
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1365,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-639",
+   "book": 23,
+   "lines": [
+    667,
+    675
+   ],
+   "speaker": [
+    "epeius"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1365,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-640",
+   "book": 23,
+   "lines": [
+    707,
+    707
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1366,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-641",
+   "book": 23,
+   "lines": [
+    723,
+    724
+   ],
+   "speaker": [
+    "ajax-telamonian"
+   ],
+   "addressee": [
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1367,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-642",
+   "book": 23,
+   "lines": [
+    735,
+    737
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "ajax-telamonian",
+    "odysseus"
+   ],
+   "level": 0,
+   "cluster": 1368,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-643",
+   "book": 23,
+   "lines": [
+    753,
+    753
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1369,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-644",
+   "book": 23,
+   "lines": [
+    770,
+    770
+   ],
+   "speaker": [
+    "odysseus"
+   ],
+   "addressee": [
+    "athena"
+   ],
+   "level": 0,
+   "cluster": 1370,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-645",
+   "book": 23,
+   "lines": [
+    782,
+    783
+   ],
+   "speaker": [
+    "ajax-oileus"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1371,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-646",
+   "book": 23,
+   "lines": [
+    787,
+    792
+   ],
+   "speaker": [
+    "antilochus"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1371,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-647",
+   "book": 23,
+   "lines": [
+    795,
+    796
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "antilochus"
+   ],
+   "level": 0,
+   "cluster": 1371,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-648",
+   "book": 23,
+   "lines": [
+    802,
+    810
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1372,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-649",
+   "book": 23,
+   "lines": [
+    831,
+    835
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1373,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-650",
+   "book": 23,
+   "lines": [
+    855,
+    858
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "greeks"
+   ],
+   "level": 0,
+   "cluster": 1374,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-651",
+   "book": 23,
+   "lines": [
+    890,
+    894
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "agamemnon"
+   ],
+   "level": 0,
+   "cluster": 1375,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-652",
+   "book": 24,
+   "lines": [
+    33,
+    54
+   ],
+   "speaker": [
+    "apollo"
+   ],
+   "addressee": [
+    "gods"
+   ],
+   "level": 0,
+   "cluster": 1376,
+   "part": 1,
+   "type": "G"
+  },
+  {
+   "id": "iliad-653",
+   "book": 24,
+   "lines": [
+    56,
+    63
+   ],
+   "speaker": [
+    "hera"
+   ],
+   "addressee": [
+    "apollo"
+   ],
+   "level": 0,
+   "cluster": 1376,
+   "part": 2,
+   "type": "G"
+  },
+  {
+   "id": "iliad-654",
+   "book": 24,
+   "lines": [
+    65,
+    76
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hera"
+   ],
+   "level": 0,
+   "cluster": 1376,
+   "part": 3,
+   "type": "G"
+  },
+  {
+   "id": "iliad-655",
+   "book": 24,
+   "lines": [
+    88,
+    88
+   ],
+   "speaker": [
+    "iris"
+   ],
+   "addressee": [
+    "thetis"
+   ],
+   "level": 0,
+   "cluster": 1377,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-656",
+   "book": 24,
+   "lines": [
+    90,
+    92
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "iris"
+   ],
+   "level": 0,
+   "cluster": 1377,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-657",
+   "book": 24,
+   "lines": [
+    104,
+    119
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "thetis"
+   ],
+   "level": 0,
+   "cluster": 1378,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-658",
+   "book": 24,
+   "lines": [
+    128,
+    137
+   ],
+   "speaker": [
+    "thetis"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1379,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-659",
+   "book": 24,
+   "lines": [
+    139,
+    140
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "thetis"
+   ],
+   "level": 0,
+   "cluster": 1379,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-660",
+   "book": 24,
+   "lines": [
+    144,
+    158
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "iris"
+   ],
+   "level": 0,
+   "cluster": 1380,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-661",
+   "book": 24,
+   "lines": [
+    171,
+    187
+   ],
+   "speaker": [
+    "iris"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1381,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-662",
+   "book": 24,
+   "lines": [
+    194,
+    199
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "hecuba"
+   ],
+   "level": 0,
+   "cluster": 1382,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-663",
+   "book": 24,
+   "lines": [
+    201,
+    216
+   ],
+   "speaker": [
+    "hecuba"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1382,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-664",
+   "book": 24,
+   "lines": [
+    218,
+    227
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "hecuba"
+   ],
+   "level": 0,
+   "cluster": 1382,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-665",
+   "book": 24,
+   "lines": [
+    239,
+    246
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1383,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-666",
+   "book": 24,
+   "lines": [
+    253,
+    264
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "agathon",
+    "antiphonus",
+    "deiphobus",
+    "dius",
+    "helenus",
+    "hippothous",
+    "pammon",
+    "paris",
+    "polites"
+   ],
+   "level": 0,
+   "cluster": 1384,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-667",
+   "book": 24,
+   "lines": [
+    287,
+    298
+   ],
+   "speaker": [
+    "hecuba"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1385,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-668",
+   "book": 24,
+   "lines": [
+    300,
+    301
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "hecuba"
+   ],
+   "level": 0,
+   "cluster": 1385,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-669",
+   "book": 24,
+   "lines": [
+    308,
+    313
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "zeus"
+   ],
+   "level": 0,
+   "cluster": 1386,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-670",
+   "book": 24,
+   "lines": [
+    334,
+    338
+   ],
+   "speaker": [
+    "zeus"
+   ],
+   "addressee": [
+    "hermes"
+   ],
+   "level": 0,
+   "cluster": 1387,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-671",
+   "book": 24,
+   "lines": [
+    354,
+    357
+   ],
+   "speaker": [
+    "idaeus"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1388,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-672",
+   "book": 24,
+   "lines": [
+    362,
+    371
+   ],
+   "speaker": [
+    "hermes"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1389,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-673",
+   "book": 24,
+   "lines": [
+    373,
+    377
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "hermes"
+   ],
+   "level": 0,
+   "cluster": 1389,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-674",
+   "book": 24,
+   "lines": [
+    379,
+    385
+   ],
+   "speaker": [
+    "hermes"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1389,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-675",
+   "book": 24,
+   "lines": [
+    387,
+    388
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "hermes"
+   ],
+   "level": 0,
+   "cluster": 1389,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-676",
+   "book": 24,
+   "lines": [
+    390,
+    404
+   ],
+   "speaker": [
+    "hermes"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1389,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "iliad-677",
+   "book": 24,
+   "lines": [
+    406,
+    409
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "hermes"
+   ],
+   "level": 0,
+   "cluster": 1389,
+   "part": 6,
+   "type": "D"
+  },
+  {
+   "id": "iliad-678",
+   "book": 24,
+   "lines": [
+    411,
+    423
+   ],
+   "speaker": [
+    "hermes"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1389,
+   "part": 7,
+   "type": "D"
+  },
+  {
+   "id": "iliad-679",
+   "book": 24,
+   "lines": [
+    425,
+    431
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "hermes"
+   ],
+   "level": 0,
+   "cluster": 1389,
+   "part": 8,
+   "type": "D"
+  },
+  {
+   "id": "iliad-680",
+   "book": 24,
+   "lines": [
+    433,
+    439
+   ],
+   "speaker": [
+    "hermes"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1389,
+   "part": 9,
+   "type": "D"
+  },
+  {
+   "id": "iliad-681",
+   "book": 24,
+   "lines": [
+    460,
+    467
+   ],
+   "speaker": [
+    "hermes"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1390,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-682",
+   "book": 24,
+   "lines": [
+    486,
+    506
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1391,
+   "part": 1,
+   "type": "D"
+  },
+  {
+   "id": "iliad-683",
+   "book": 24,
+   "lines": [
+    518,
+    551
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1391,
+   "part": 2,
+   "type": "D"
+  },
+  {
+   "id": "iliad-684",
+   "book": 24,
+   "lines": [
+    553,
+    558
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1391,
+   "part": 3,
+   "type": "D"
+  },
+  {
+   "id": "iliad-685",
+   "book": 24,
+   "lines": [
+    560,
+    570
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1391,
+   "part": 4,
+   "type": "D"
+  },
+  {
+   "id": "iliad-686",
+   "book": 24,
+   "lines": [
+    592,
+    595
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "patroclus"
+   ],
+   "level": 0,
+   "cluster": 1392,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-687",
+   "book": 24,
+   "lines": [
+    599,
+    620
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1391,
+   "part": 5,
+   "type": "D"
+  },
+  {
+   "id": "iliad-688",
+   "book": 24,
+   "lines": [
+    635,
+    642
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1391,
+   "part": 6,
+   "type": "D"
+  },
+  {
+   "id": "iliad-689",
+   "book": 24,
+   "lines": [
+    650,
+    658
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1391,
+   "part": 7,
+   "type": "D"
+  },
+  {
+   "id": "iliad-690",
+   "book": 24,
+   "lines": [
+    660,
+    667
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "achilles"
+   ],
+   "level": 0,
+   "cluster": 1391,
+   "part": 8,
+   "type": "D"
+  },
+  {
+   "id": "iliad-691",
+   "book": 24,
+   "lines": [
+    669,
+    670
+   ],
+   "speaker": [
+    "achilles"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1391,
+   "part": 9,
+   "type": "D"
+  },
+  {
+   "id": "iliad-692",
+   "book": 24,
+   "lines": [
+    683,
+    688
+   ],
+   "speaker": [
+    "hermes"
+   ],
+   "addressee": [
+    "priam"
+   ],
+   "level": 0,
+   "cluster": 1393,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-693",
+   "book": 24,
+   "lines": [
+    704,
+    706
+   ],
+   "speaker": [
+    "cassandra"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1394,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-694",
+   "book": 24,
+   "lines": [
+    716,
+    717
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1395,
+   "part": 1,
+   "type": "M"
+  },
+  {
+   "id": "iliad-695",
+   "book": 24,
+   "lines": [
+    725,
+    745
+   ],
+   "speaker": [
+    "andromache"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1396,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-696",
+   "book": 24,
+   "lines": [
+    748,
+    759
+   ],
+   "speaker": [
+    "hecuba"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1397,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-697",
+   "book": 24,
+   "lines": [
+    762,
+    775
+   ],
+   "speaker": [
+    "helen"
+   ],
+   "addressee": [
+    "hector"
+   ],
+   "level": 0,
+   "cluster": 1398,
+   "part": 1,
+   "type": "S"
+  },
+  {
+   "id": "iliad-698",
+   "book": 24,
+   "lines": [
+    778,
+    781
+   ],
+   "speaker": [
+    "priam"
+   ],
+   "addressee": [
+    "trojans"
+   ],
+   "level": 0,
+   "cluster": 1399,
+   "part": 1,
+   "type": "M"
+  }
+ ]
+}
