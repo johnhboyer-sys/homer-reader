@@ -2,6 +2,7 @@
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
   import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene } from '../lib/data';
+  import { takeSsrBook } from '../lib/ssr-book';
   import { schemeFor, formatCite } from '../lib/citation';
   import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
@@ -136,13 +137,67 @@
     saveCompare(); setTrans('compare');
   }
 
+  // Client-hydrate helper: refill each Greek line's stripped `tokens` array from
+  // the server-rendered token spans (`<span class="tok" data-k data-o>surface</span>`)
+  // already in the DOM, keyed by the line's DOM id (`L{column}-{n}`, the template's
+  // formula). This runs in component init — BEFORE the first hydration render — so
+  // lineRenderParts reproduces the exact same parts and Svelte claims the existing
+  // spans instead of wiping them. Only the token markup is stripped from the props
+  // (stripBookForClient); everything the renderer needs is either kept in the prop
+  // or recovered here. Mutates `d` in place.
+  function rebuildTokensFromDom(d: BookData): void {
+    if (typeof document === 'undefined') return;
+    for (const seg of d.segments) {
+      for (const line of seg.greek) {
+        if (line.tokens.length) continue;
+        const el = document.getElementById(`L${seg.column}-${line.n}`);
+        const spans = el?.querySelectorAll<HTMLElement>('.line-text .tok');
+        if (!spans || !spans.length) continue;
+        line.tokens = Array.from(spans, (s) => ({
+          t: s.textContent ?? '',
+          o: Number(s.dataset.o ?? '0'),
+          k: s.dataset.k ?? '',
+        }));
+      }
+    }
+  }
+
+  // Resolve the book this render consumes. On the SERVER, ReaderShell stashed the
+  // FULL book (with Greek tokens) in the SSR channel so the static render emits the
+  // token spans; the island's serialized props instead carry the token-stripped
+  // copy. On the CLIENT we take that stripped prop and rebuild its tokens from the
+  // SSR DOM before the first render (no wipe). The non-default translations were
+  // stripped too — ensureFullBook fetches them lazily on the first switch/compare.
+  const ssrFull = typeof window === 'undefined' ? takeSsrBook() : null;
+  if (!ssrFull && bookData?.tokensStripped) rebuildTokensFromDom(bookData);
+  const activeBook = ssrFull ?? bookData;
+
   // Seeded from the build-time prop so SSR renders the text; stays empty (and
   // `loading` true) only in the fetch-fallback path.
-  let segments: Segment[] = bookData?.segments ?? [];
+  let segments: Segment[] = activeBook?.segments ?? [];
   // Global turn flow of a dialogue book (stephanus): drives the turn-row
   // rendering; null keeps the section-segment rendering.
-  let turnFlow = bookData?.turnFlow ?? null;
-  let loading = !bookData;
+  let turnFlow = activeBook?.turnFlow ?? null;
+  let loading = !activeBook;
+  // Whether the reader already holds the FULL book (Greek tokens + every
+  // translation). False only on the client after a token-stripped prop: the
+  // default (English-slot) view renders from the stripped prop, but switching to
+  // a non-default translation or compare must first pull the full book in.
+  let fullLoaded = !bookData?.tokensStripped;
+  let mounted = false;
+  async function ensureFullBook(): Promise<void> {
+    if (fullLoaded) return;
+    fullLoaded = true; // guard re-entry; reset below if the fetch fails
+    try {
+      const data = await fetchBook(work, bookNum);
+      segments = data.segments;
+      turnFlow = data.turnFlow ?? null;
+      scenes = data.scenes ?? scenes;
+      scenesDraft = (data as RawBookData).apparatus?.draft === true || scenesDraft;
+    } catch {
+      fullLoaded = false; // allow a later retry
+    }
+  }
   let error = '';
   // OS "reduce motion" preference — gates the JS fade transitions below, which
   // the CSS @media (prefers-reduced-motion) query can't reach. Set in onMount.
@@ -353,16 +408,26 @@
   // Never 'compare'.
   $: readingTransId = pickValue;
 
+  // Lazy full-book load: the token-stripped prop carries only the English-slot
+  // translation, so the moment a NON-default translation becomes visible (single,
+  // either compare column, or Reading Mode's chosen translation) we pull the full
+  // book in (Greek tokens + every translation). No-op once loaded, and never fires
+  // for the default English view — which renders entirely from the stripped prop.
+  $: wantsNonDefaultTrans =
+    shownTransIds.some((id) => !!id && id !== engSlot?.id) ||
+    (reading && readingTransId !== engSlot?.id);
+  $: if (mounted && !fullLoaded && wantsNonDefaultTrans) ensureFullBook();
+
   // Landmark-style scene apparatus for this book (see data.ts Scene). Absent on
   // every payload today, so `scenes` is empty and Reading Mode renders plain
   // single-column prose; a chip appears only where real scene data lands.
-  let scenes: Scene[] = bookData?.scenes ?? [];
+  let scenes: Scene[] = activeBook?.scenes ?? [];
   // Whether this book's apparatus (scenes + cartouche fields) is AI-drafted and
   // still pending John's review. Drives the discreet DRAFT badge on each scene
   // chip — CLAUDE.md's apparatus-honesty rule. Set from the same `apparatus.draft`
   // the cartouche reads; refreshed in the desktop fetch path below.
   let scenesDraft: boolean =
-    (bookData as RawBookData | null)?.apparatus?.draft === true;
+    (activeBook as RawBookData | null)?.apparatus?.draft === true;
   // The scenes opening within a segment's Greek line range — rendered as
   // marginal chips ahead of that segment's prose in Reading Mode.
   function scenesForSegment(seg: Segment): Scene[] {
@@ -1147,6 +1212,10 @@
     if (qView === 'greek' || qView === 'both' || qView === 'english') view = qView;
     const qTrans = params.get('trans');
     if (qTrans && validTrans.has(qTrans)) { trans = qTrans; if (view === 'greek') view = 'both'; }
+    // All translation/compare restoration is settled: arm the lazy full-book
+    // reactive so a restored NON-default translation pulls the full book in (the
+    // default English view keeps rendering from the token-stripped prop).
+    mounted = true;
     // The pre-paint view bridge (ReaderShell's data-rview) has served its purpose
     // now that Svelte's `view` state (and its view-* class) is authoritative;
     // drop it so a later manual toggle back to Both isn't overridden by the

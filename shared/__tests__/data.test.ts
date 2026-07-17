@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cunliffeShard, fetchBook, fetchCunliffeShard, fetchFootnotes, fetchLsjShard, invalidateBookCache, lookupWord, lsjShard, normalizeBookData, parseBekker, parseLocation, resolveBekker } from '../lib/data';
+import { cunliffeShard, fetchBook, fetchCunliffeShard, fetchFootnotes, fetchLsjShard, invalidateBookCache, lookupWord, lsjShard, normalizeBookData, parseBekker, parseLocation, resolveBekker, stripBookForClient } from '../lib/data';
 
 function mockFetch(map: Record<string, unknown>) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
@@ -115,6 +115,35 @@ describe('fetch and lookup helpers', () => {
     const scenes = [{ summary: 'x', startLine: 1 }];
     const d = normalizeBookData({ book: 1, segments: [], scenes });
     expect(d.scenes).toBe(scenes);
+  });
+
+  it('stripBookForClient drops Greek tokens + non-default translations, keeps the rest', () => {
+    const full = {
+      book: 1,
+      scenes: [{ summary: 'Invocation.', startLine: 1 }],
+      segments: [{
+        id: '1:1', column: '1',
+        greek: [{ n: 1, text: 'μῆνιν ἄειδε', tokens: [
+          { t: 'μῆνιν', o: 0, k: 'mh=nin' }, { t: 'ἄειδε', o: 6, k: 'a)/eide' },
+        ] }],
+        english: { text: 'The wrath sing', notes: [], markers: [] },
+        ross: [{ chapter: '1', text: 'Butler', cont: false }],
+        third: [{ chapter: '1', text: 'Pope', cont: false }],
+      }],
+    };
+    const client = stripBookForClient(full);
+    // Tokens emptied on the copy; text/english/scenes preserved.
+    expect(client.segments[0].greek[0].tokens).toEqual([]);
+    expect(client.segments[0].greek[0].text).toBe('μῆνιν ἄειδε');
+    expect(client.segments[0].english).toEqual(full.segments[0].english);
+    expect(client.scenes).toEqual(full.scenes);
+    expect(client.tokensStripped).toBe(true);
+    // Non-default translations dropped (fetched on demand).
+    expect(client.segments[0].ross).toBeUndefined();
+    expect(client.segments[0].third).toBeUndefined();
+    // Input is left intact (the server render still uses the full book).
+    expect(full.segments[0].greek[0].tokens).toHaveLength(2);
+    expect(full.segments[0].ross).toBeDefined();
   });
 
   it('fetchBook returns JSON data and applies the runtime hook', async () => {

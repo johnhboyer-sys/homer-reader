@@ -15,7 +15,8 @@ import WorkSwitcher from './WorkSwitcher.svelte';
 import ThemeInit from './ThemeInit.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import { getWork, bookLabel, isBookless, workPath, workLanding, HOUSE_AUTHOR } from '@shared/lib/works';
-import { normalizeBookData } from '@shared/lib/data';
+import { normalizeBookData, stripBookForClient } from '@shared/lib/data';
+import { setSsrBook } from '@shared/lib/ssr-book';
 import { speakerRoster } from '../lib/speaker-roster';
 import { SUPPORT_URL } from '../lib/support';
 import { jsonLdSafe } from '../lib/jsonld';
@@ -93,6 +94,14 @@ const pageHref = (b: number, column: string) =>
 const bookData = normalizeBookData(JSON.parse(
   readFileSync(`public/data/${workId}/book-${String(n).padStart(2, '0')}.json`, 'utf-8'),
 ));
+// The island's server render reads the FULL book (with Greek tokens) from the
+// SSR channel so the static markup carries every token span; its SERIALIZED
+// props instead get a token-stripped copy — ~half the payload, since the token
+// arrays and the non-default translations duplicate/aren't-in the default SSR
+// view. The client rebuilds tokens from the DOM and fetches the other
+// translations on demand (see Reader.svelte, stripBookForClient, ssr-book.ts).
+setSsrBook(bookData);
+const clientBookData = stripBookForClient(bookData);
 
 // Cartouche apparatus slots (argument line + where/who/day strip): optional,
 // Phase-4 fields on a book's data. Absent today (no pipeline stage emits
@@ -657,7 +666,7 @@ const intro =
        still runs (idle fires after initial layout, so there's LESS churn to
        cancel the scroll, not more). The big hydration-cost win is the token
        event-delegation in Reader.svelte, which removed the ~1.2s scripting task. -->
-  <Reader work={workId} bookNum={n} bookData={bookData} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:idle />
+  <Reader work={workId} bookNum={n} bookData={clientBookData} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:idle />
   <CommandPalette work={workId} client:idle />
 
   <footer class="site-footer">

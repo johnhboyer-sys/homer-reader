@@ -192,6 +192,37 @@ export interface BookData {
   turnFlow?: TurnFlow;
   // Landmark-style scene apparatus (see Scene). Optional and absent today.
   scenes?: Scene[];
+  // Set by stripBookForClient on the token-stripped copy handed to the Reader
+  // island's serialized props: signals the client hydrate to rebuild each Greek
+  // line's `tokens` from the SSR DOM spans, and to fetch the full book (with the
+  // non-default translations) lazily on the first translation switch / compare.
+  // Absent on a full book (fetchBook result, desktop mount) — nothing to rebuild.
+  tokensStripped?: boolean;
+}
+
+// Build the token-stripped copy of a book for the Reader island's serialized
+// props. The Greek token arrays are ~half the book payload and DUPLICATE the SSR
+// DOM (every token is already an inert `<span class="tok" data-k data-o>` in the
+// server-rendered markup), so they are dropped and the client rebuilds them from
+// those spans on hydrate (Reader.svelte's rebuildTokensFromDom). The non-default
+// translations (ross/third/overlays) are not in the default SSR view at all, so
+// they are dropped too and fetched on demand (fetchBook) when the reader switches
+// translation or enters compare. The active English chunk, Greek line text, and
+// scene apparatus are kept — the client needs their structure and they aren't
+// fully recoverable from the DOM. Returns a fresh object; the input (used for the
+// server render) is left intact.
+export function stripBookForClient(d: BookData): BookData {
+  return {
+    ...d,
+    tokensStripped: true,
+    segments: d.segments.map((seg) => {
+      const clean: Segment = { ...seg, greek: seg.greek.map((line) => ({ ...line, tokens: [] })) };
+      delete clean.ross;
+      delete clean.third;
+      delete clean.overlays;
+      return clean;
+    }),
+  };
 }
 
 export interface Analysis {

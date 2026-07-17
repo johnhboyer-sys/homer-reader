@@ -252,3 +252,34 @@ a comment at the top of `shared/styles/global.css` (just above `:root`).
   `data-rview` head script.
 - `shared/__tests__/data.test.ts` — added two `normalizeBookData` cases (SSR-path
   shape + already-normalized passthrough).
+
+## Gate-3 payload follow-up: token-stripped island props (2026-07-17)
+
+Eliminates the redundant serialized `bookData` the Reader island inlined (mobile
+Lighthouse on `/iliad/book/1/` 88 → 90; HTML gzip 216 KB → 138 KB; Reader island
+props 668 KB → 139 KB). The Greek token arrays duplicated the SSR token spans and
+the non-default translations weren't in the default view at all.
+
+- `shared/lib/ssr-book.ts` — NEW. Build-time SSR channel (`setSsrBook`/
+  `takeSsrBook`): ReaderShell stashes the FULL book here so the island's SERVER
+  render still emits every token span, while its serialized props carry a
+  token-stripped copy. Server-only (null in the browser). Not in plato-reader.
+- `shared/lib/data.ts` — added `stripBookForClient(BookData)` (drops each Greek
+  line's `tokens` → `[]` and the non-default `ross`/`third`/`overlays`, keeps
+  active English + line text + scenes, sets `tokensStripped`) and the
+  `BookData.tokensStripped?` flag. Homer-specific payload divergence beyond the
+  verse-line entries above.
+- `shared/components/Reader.svelte` — Homer-specific perf divergence beyond the
+  Gate-3 entry: (1) on the SERVER the render sources the full book from the SSR
+  channel (`takeSsrBook`); on the CLIENT `rebuildTokensFromDom` refills each
+  stripped line's `tokens` from the SSR `.tok` spans (data-k/data-o/text) in
+  component init — BEFORE first hydration render, so parts match and Svelte
+  claims the existing spans (no wipe). (2) `ensureFullBook` lazily `fetchBook`s
+  the full book (with the other translations) the first time a NON-english-slot
+  translation becomes visible (single / either compare column / Reading Mode) —
+  reactive-gated on `wantsNonDefaultTrans` + `mounted`.
+- `shared/__tests__/data.test.ts` — added a `stripBookForClient` case (strips
+  tokens + ross/third, keeps text/english/scenes, input left intact).
+- `app/src/components/ReaderShell.astro` — passes `stripBookForClient(bookData)`
+  to the island and `setSsrBook(bookData)` for the server render; the local
+  `bookData` (cartouche/apparatus reads) is unchanged.
