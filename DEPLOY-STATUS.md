@@ -14,8 +14,15 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
   full pipeline (stages 1–7) runs for both epics; dev server serves Il. 1
   (611 lines, n=1..611) and Od. 9 with tokenized Greek + verse layout.
   Tests: shared 218/218, app 2/2, pipeline pytest 125 pass.
-- **Phase 2 in progress**: Murray + Butler TEI ingestion; Autenrieth
-  acquisition.
+- **Gate 2 PASSED** (2026-07-17, checked in main loop): preflight 0 errors;
+  Od. 9.105–115 verified — Greek + Murray/Butler blocks aligned at tick 105,
+  Pope standalone per degrade rule. All three translations emitted for all
+  48 books. Cunliffe pane live (LSJ/Cunliffe/Logeion tabs). Corpus-wide
+  gates PASS (LSJ 13,472 keys; Cunliffe 11,003 keys). Autenrieth =
+  fast-follow (YELLOW).
+- **Phase 3 begun**: design locked (Chart-Room base × Aegean palette,
+  docs/DESIGN.md); lookup UX = docked sidebar desktop / popup mobile,
+  EXPAND control, no new tabs except Logeion.
 
 ## Corpus facts
 

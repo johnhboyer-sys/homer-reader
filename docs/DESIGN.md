@@ -19,8 +19,11 @@
   (scene description) — in a compact band.
 - Aegean type roles adopted: Big Caslon display / Palatino Greek /
   Iowan Old Style English / Optima UI.
-- **Open question (v2 explores it)**: lookup UX — anchored popup at the
-  clicked word vs a docked lexicon sidebar. v2 page demos both; John picks.
+- **Lookup UX — DECIDED (John, 2026-07-17, on the v2 page):**
+  **docked lexicon sidebar on desktop; anchored popup on mobile.** The
+  definition shows a short gloss with an **EXPAND** control that opens the
+  full entry in place (no navigation). **Nothing opens a new tab except the
+  Logeion external link.** Tabs: LSJ · Cunliffe · Logeion ↗.
 
 ## Phase 3 implications
 
