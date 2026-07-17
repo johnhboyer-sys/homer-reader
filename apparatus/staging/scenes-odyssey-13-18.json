@@ -1,0 +1,147 @@
+{
+  "work": "odyssey",
+  "status": "draft",
+  "books": [
+    {
+      "book": 13,
+      "argument": "The Phaeacians land Odysseus on Ithaca; Poseidon punishes their ship; Athena reveals him home.",
+      "where": ["Scheria", "Ithaca (harbor of Phorcys)"],
+      "who": ["Odysseus", "Alcinous", "Arete", "Athena", "Poseidon", "Zeus"],
+      "days": "34-35",
+      "scenes": [
+        {"lines": [1, 18], "summary": "Alcinous pledges further gifts and the Phaeacian lords retire for the night.", "location": "Scheria, palace of Alcinous", "dayNumber": 34},
+        {"lines": [19, 49], "summary": "At dawn the Phaeacians load Odysseus's gifts, feast, and sacrifice to Zeus.", "location": "Scheria", "dayNumber": 34},
+        {"lines": [50, 69], "summary": "At sunset Odysseus bids Alcinous, the assembled lords, and Arete farewell and boards ship.", "location": "Scheria", "dayNumber": 34},
+        {"lines": [70, 92], "summary": "The Phaeacian ship sails through the night while Odysseus sleeps a deep, deathlike sleep.", "location": "at sea", "dayNumber": 34},
+        {"lines": [93, 120], "summary": "At dawn the ship reaches Ithaca's harbor of Phorcys; the crew lay the sleeping Odysseus ashore with his goods.", "location": "Ithaca, harbor of Phorcys", "dayNumber": 35},
+        {"lines": [121, 164], "summary": "Poseidon protests to Zeus that Odysseus reached home safely and wins leave to punish the Phaeacian ship.", "location": "Olympus / Scheria", "dayNumber": 35},
+        {"lines": [165, 184], "summary": "As the city watches, Poseidon turns the returning Phaeacian ship to stone; Alcinous orders a propitiary sacrifice.", "location": "Scheria", "dayNumber": 35},
+        {"lines": [185, 220], "summary": "Odysseus wakes on his own shore unrecognizing it beneath Athena's mist; he grieves and counts his treasure.", "location": "Ithaca, the shore", "dayNumber": 35},
+        {"lines": [221, 286], "summary": "Disguised as a young shepherd, Athena questions Odysseus, who answers with a false Cretan cover story.", "location": "Ithaca, the shore", "dayNumber": 35},
+        {"lines": [287, 330], "summary": "Amused, Athena reveals her true form and outlines her plan to hide his treasure and defeat the suitors.", "location": "Ithaca, the shore", "dayNumber": 35},
+        {"lines": [331, 360], "summary": "Still doubting he is home, Odysseus is convinced when Athena dispels the mist; he kisses the earth and prays.", "location": "Ithaca, the shore", "dayNumber": 35},
+        {"lines": [361, 440], "summary": "They hide the treasure in the nymphs' cave, plot the suitors' deaths; Athena disguises Odysseus as a beggar.", "location": "Ithaca, the cave of the Naiads", "dayNumber": 35}
+      ]
+    },
+    {
+      "book": 14,
+      "argument": "Disguised Odysseus is welcomed by Eumaeus the swineherd and tells a false tale.",
+      "where": ["Ithaca (Eumaeus's farmstead)"],
+      "who": ["Odysseus", "Eumaeus"],
+      "days": "35",
+      "scenes": [
+        {"lines": [1, 25], "summary": "Odysseus climbs to Eumaeus's remote steading, walled and fenced, with its many sties of swine.", "location": "Ithaca, Eumaeus's farmstead", "dayNumber": 35},
+        {"lines": [26, 45], "summary": "The guard dogs rush Odysseus; Eumaeus drives them off and laments his absent master.", "location": "Ithaca, Eumaeus's farmstead", "dayNumber": 35},
+        {"lines": [46, 71], "summary": "Eumaeus receives the stranger hospitably, seats him on a goatskin, and explains a slave's dutiful piety.", "location": "Eumaeus's hut", "dayNumber": 35},
+        {"lines": [72, 112], "summary": "Eumaeus slaughters two pigs for the meal and denounces the suitors' impious plundering of Odysseus's estate.", "location": "Eumaeus's hut", "dayNumber": 35},
+        {"lines": [113, 147], "summary": "Testing Eumaeus, Odysseus asks after his master; Eumaeus, wary of lying wanderers, mourns him all the same.", "location": "Eumaeus's hut", "dayNumber": 35},
+        {"lines": [148, 190], "summary": "Eumaeus recounts Telemachus's voyage to Pylos and the suitors' ambush, then asks the stranger's own story.", "location": "Eumaeus's hut", "dayNumber": 35},
+        {"lines": [191, 234], "summary": "Odysseus invents a Cretan identity: a wealthy man's bastard son, proud in raiding and war.", "location": "Eumaeus's hut", "dayNumber": 35},
+        {"lines": [235, 284], "summary": "The false tale continues: Trojan War service, a disastrous raid on Egypt, and mercy from its king.", "location": "Eumaeus's hut", "dayNumber": 35},
+        {"lines": [285, 359], "summary": "The tale continues: years in Egypt, betrayal by a Phoenician trader, shipwreck, and a Thesprotian rescue with news of Odysseus.", "location": "Eumaeus's hut", "dayNumber": 35},
+        {"lines": [360, 408], "summary": "Eumaeus, moved yet unpersuaded, refuses to believe Odysseus will return, recalling an earlier wanderer's lie.", "location": "Eumaeus's hut", "dayNumber": 35},
+        {"lines": [409, 455], "summary": "The herdsmen return with the swine; a boar is sacrificed, and Odysseus is honored with the choicest cut.", "location": "Eumaeus's hut", "dayNumber": 35},
+        {"lines": [456, 506], "summary": "In a cold, stormy night Odysseus tells an old ambush anecdote at Troy, hinting for a cloak.", "location": "Eumaeus's hut", "dayNumber": 35},
+        {"lines": [507, 533], "summary": "Eumaeus gives him a bed by the fire and goes out armed to guard the swine himself.", "location": "Eumaeus's hut", "dayNumber": 35}
+      ]
+    },
+    {
+      "book": 15,
+      "argument": "Athena hastens Telemachus's return from Sparta as Odysseus lingers with Eumaeus, testing him.",
+      "where": ["Sparta", "Pylos", "Ithaca"],
+      "who": ["Telemachus", "Athena", "Menelaus", "Helen", "Odysseus", "Eumaeus"],
+      "days": "35-38",
+      "scenes": [
+        {"lines": [1, 42], "summary": "By night at Sparta, Athena warns Telemachus of an ambush and urges him toward Eumaeus first.", "location": "Sparta, palace of Menelaus", "dayNumber": 35},
+        {"lines": [43, 56], "summary": "At dawn, Telemachus rouses Peisistratus to hasten their departure from Sparta.", "location": "Sparta", "dayNumber": 36},
+        {"lines": [57, 94], "summary": "Telemachus asks Menelaus to send him home at once; Menelaus orders a parting meal prepared.", "location": "Sparta, palace of Menelaus", "dayNumber": 36},
+        {"lines": [95, 134], "summary": "Menelaus and Helen bring treasures from the storeroom, choosing a mixing-bowl and an embroidered robe for Telemachus.", "location": "Sparta, palace of Menelaus", "dayNumber": 36},
+        {"lines": [135, 159], "summary": "A farewell feast is served, and Menelaus formally presents his gifts to Telemachus.", "location": "Sparta, palace of Menelaus", "dayNumber": 36},
+        {"lines": [160, 184], "summary": "An eagle seizes a goose as the chariot departs; Helen reads it as a sign of Odysseus's vengeful return.", "location": "Sparta", "dayNumber": 36},
+        {"lines": [185, 197], "summary": "They drive to Pherae, lodge overnight with Diocles, and at dawn resume toward Pylos.", "location": "Pherae", "dayNumber": 36},
+        {"lines": [198, 220], "summary": "Reaching Pylos, Telemachus persuades Peisistratus to leave him at the ship, avoiding delay with Nestor.", "location": "Pylos", "dayNumber": 37},
+        {"lines": [221, 260], "summary": "At the ship, Telemachus sacrifices to Athena; the fugitive seer Theoclymenus approaches, fleeing a blood feud.", "location": "Pylos, the shore", "dayNumber": 37},
+        {"lines": [261, 300], "summary": "Telemachus takes Theoclymenus aboard; they sail with a fair wind, coasting past Elis into the night.", "location": "at sea", "dayNumber": 37},
+        {"lines": [301, 345], "summary": "At Eumaeus's hut, Odysseus proposes going to town to beg among the suitors.", "location": "Ithaca, Eumaeus's hut", "dayNumber": 37},
+        {"lines": [346, 400], "summary": "Eumaeus urges him to wait for Telemachus; Odysseus, still probing, asks after Laertes and Odysseus's mother.", "location": "Eumaeus's hut", "dayNumber": 37},
+        {"lines": [401, 484], "summary": "Eumaeus recounts his own history: a chieftain's son kidnapped by a nurse and Phoenician traders, sold into slavery.", "location": "Eumaeus's hut", "dayNumber": 37},
+        {"lines": [485, 494], "summary": "The two finally lie down for a brief night's sleep.", "location": "Eumaeus's hut", "dayNumber": 37},
+        {"lines": [495, 524], "summary": "At dawn Telemachus's ship reaches Ithaca; he disembarks and sends the ship on to town.", "location": "Ithaca, the shore", "dayNumber": 38},
+        {"lines": [525, 557], "summary": "Telemachus entrusts Theoclymenus to Peiraeus, reads a hawk-and-dove omen, and walks toward Eumaeus's farmstead.", "location": "Ithaca", "dayNumber": 38}
+      ]
+    },
+    {
+      "book": 16,
+      "argument": "Telemachus returns to Eumaeus's hut, where Odysseus reveals himself; the suitors plot his death.",
+      "where": ["Ithaca (Eumaeus's farmstead)", "the palace of Odysseus"],
+      "who": ["Telemachus", "Odysseus", "Eumaeus", "Athena", "Penelope", "Antinous"],
+      "days": "38",
+      "scenes": [
+        {"lines": [1, 14], "summary": "At dawn at the hut, the hounds fawn rather than bark, signaling Telemachus's arrival.", "location": "Ithaca, Eumaeus's hut", "dayNumber": 38},
+        {"lines": [15, 29], "summary": "Eumaeus rushes out and embraces Telemachus like a father welcoming home a beloved son.", "location": "Eumaeus's hut", "dayNumber": 38},
+        {"lines": [30, 54], "summary": "Telemachus enters, gives the disguised Odysseus his seat, and they share a meal together.", "location": "Eumaeus's hut", "dayNumber": 38},
+        {"lines": [55, 90], "summary": "Telemachus, hearing the stranger's story, hesitates to shelter him amid the suitors' danger; the stranger denounces their outrages.", "location": "Eumaeus's hut", "dayNumber": 38},
+        {"lines": [91, 134], "summary": "Telemachus explains his family's thin, only-child lineage leaves him without kin to resist the suitors.", "location": "Eumaeus's hut", "dayNumber": 38},
+        {"lines": [135, 154], "summary": "Telemachus sends Eumaeus to tell Penelope privately of his return, withholding the news from Laertes.", "location": "Eumaeus's hut", "dayNumber": 38},
+        {"lines": [155, 182], "summary": "Eumaeus departs; Athena, unseen by Telemachus, restores Odysseus to his true, youthful form.", "location": "Eumaeus's hut", "dayNumber": 38},
+        {"lines": [183, 220], "summary": "Telemachus, disbelieving, takes the transformed man for a god until Odysseus reveals himself as his father.", "location": "Eumaeus's hut", "dayNumber": 38},
+        {"lines": [221, 265], "summary": "Odysseus explains the Phaeacians' voyage and the hidden treasure, then asks the suitors' numbers and strength.", "location": "Eumaeus's hut", "dayNumber": 38},
+        {"lines": [266, 320], "summary": "Telemachus counts over a hundred suitors; Odysseus proposes trusting Athena and Zeus and outlines his plan for vengeance.", "location": "Eumaeus's hut", "dayNumber": 38},
+        {"lines": [321, 341], "summary": "Telemachus's ship reaches Ithaca; the crew stores the gifts and sends word of his return to Penelope.", "location": "Ithaca harbor", "dayNumber": 38},
+        {"lines": [342, 405], "summary": "The alarmed suitors debate; Antinous urges killing Telemachus outright, but Amphinomus persuades them to await a sign from the gods.", "location": "palace of Odysseus", "dayNumber": 38},
+        {"lines": [406, 450], "summary": "Penelope publicly rebukes Antinous for plotting against her son; Eurymachus falsely reassures her while secretly conspiring.", "location": "palace of Odysseus", "dayNumber": 38},
+        {"lines": [451, 481], "summary": "That evening Eumaeus returns; Athena disguises Odysseus again as a beggar before they sup and retire.", "location": "Eumaeus's hut", "dayNumber": 38}
+      ]
+    },
+    {
+      "book": 17,
+      "argument": "Telemachus returns to town; Eumaeus leads disguised Odysseus there to beg among the suitors.",
+      "where": ["Ithaca (Eumaeus's farmstead)", "the road to town", "the palace of Odysseus"],
+      "who": ["Telemachus", "Penelope", "Eumaeus", "Odysseus", "Antinous", "Melanthius"],
+      "days": "39",
+      "scenes": [
+        {"lines": [1, 26], "summary": "At dawn Telemachus sets off for town, telling Eumaeus to bring the stranger along later.", "location": "Ithaca, Eumaeus's hut", "dayNumber": 39},
+        {"lines": [27, 44], "summary": "Odysseus agrees to follow once warmed by the sun, preferring to beg in the town.", "location": "Eumaeus's hut", "dayNumber": 39},
+        {"lines": [45, 63], "summary": "At the palace, the household and Penelope greet Telemachus with tears; she presses him for news.", "location": "palace of Odysseus", "dayNumber": 39},
+        {"lines": [64, 84], "summary": "Telemachus meets Theoclymenus and Peiraeus, and brings the seer home rather than risk him among the suitors.", "location": "town, place of assembly", "dayNumber": 39},
+        {"lines": [85, 99], "summary": "Telemachus and his guest bathe and dine at the palace while Penelope spins nearby.", "location": "palace of Odysseus", "dayNumber": 39},
+        {"lines": [100, 149], "summary": "Penelope questions Telemachus, who relates Nestor's and Menelaus's news that Odysseus is held captive by Calypso.", "location": "palace of Odysseus", "dayNumber": 39},
+        {"lines": [150, 165], "summary": "Theoclymenus prophesies that Odysseus is already in Ithaca, plotting against the suitors.", "location": "palace of Odysseus", "dayNumber": 39},
+        {"lines": [166, 197], "summary": "The suitors sport before their midday meal, while Eumaeus and Odysseus set out for town.", "location": "outside the palace / road to town", "dayNumber": 39},
+        {"lines": [198, 234], "summary": "On the road the goatherd Melanthius reviles and kicks Odysseus, who restrains his anger.", "location": "road to town", "dayNumber": 39},
+        {"lines": [235, 259], "summary": "Eumaeus prays to the local nymphs for his master's return as Melanthius hurries ahead.", "location": "the fountain of the nymphs", "dayNumber": 39},
+        {"lines": [260, 289], "summary": "Nearing the hall, Eumaeus and Odysseus debate who should enter first.", "location": "outside the palace", "dayNumber": 39},
+        {"lines": [290, 327], "summary": "The aged hound Argos recognizes his master, wags his tail, and dies.", "location": "courtyard of the palace", "dayNumber": 39},
+        {"lines": [328, 360], "summary": "Odysseus sits at the threshold; Telemachus sends him food while the minstrel Phemius sings.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [361, 411], "summary": "Athena prompts Odysseus to beg from the suitors in turn; Antinous rebukes Eumaeus for bringing him.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [412, 465], "summary": "Odysseus tells Antinous a false tale of Egypt and Cyprus and asks for alms; Antinous refuses with insults.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [466, 506], "summary": "Antinous hurls a footstool at Odysseus; the suitors murmur, and Penelope, informed, prays for Antinous's death.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [507, 575], "summary": "Penelope summons the stranger, but Odysseus, through Eumaeus, asks to wait until evening for safety.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [576, 606], "summary": "Eumaeus reports back, warns Telemachus to be watchful, and returns to the farm as evening merriment continues.", "location": "hall of the palace", "dayNumber": 39}
+      ]
+    },
+    {
+      "book": 18,
+      "argument": "Irus challenges Odysseus and loses; Penelope charms gifts from the suitors that evening.",
+      "where": ["the palace of Odysseus"],
+      "who": ["Odysseus", "Irus", "Antinous", "Penelope", "Eurymachus", "Melantho"],
+      "days": "39",
+      "scenes": [
+        {"lines": [1, 33], "summary": "The town beggar Irus tries to drive Odysseus from the threshold, and the two exchange threats.", "location": "palace threshold", "dayNumber": 39},
+        {"lines": [34, 61], "summary": "Antinous arranges a boxing match between them, offering a goat's paunch as the prize.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [62, 90], "summary": "Odysseus strips to reveal a powerful frame, enhanced by Athena, terrifying Irus.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [91, 107], "summary": "Odysseus fells Irus with a single blow and drags him from the hall.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [108, 125], "summary": "Amphinomus toasts the victorious stranger with bread and wine.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [126, 157], "summary": "Odysseus warns Amphinomus of fortune's fragility and urges him to leave before Odysseus returns, though his doom is fixed.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [158, 187], "summary": "Athena inspires Penelope to appear before the suitors; she debates with Eurynome over grooming herself.", "location": "upper chamber", "dayNumber": 39},
+        {"lines": [188, 206], "summary": "Athena lulls Penelope to sleep and beautifies her with divine gifts.", "location": "upper chamber", "dayNumber": 39},
+        {"lines": [207, 249], "summary": "Veiled, Penelope appears before the suitors and rebukes Telemachus for allowing the stranger's abuse.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [250, 283], "summary": "Eurymachus flatters her; Penelope recalls Odysseus's parting words and faults the suitors for not courting properly.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [284, 311], "summary": "Antinous calls for gifts; each suitor sends for treasures, and Penelope withdraws with them.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [312, 345], "summary": "Odysseus offers to tend the torches; the maid Melantho insults him, and he threatens to report her.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [346, 393], "summary": "Eurymachus mocks Odysseus's baldness and offers him farm labor; Odysseus retorts, boasting of his old prowess.", "location": "hall of the palace", "dayNumber": 39},
+        {"lines": [394, 428], "summary": "Enraged, Eurymachus hurls a stool and misses; Telemachus rebukes the uproar, and the suitors retire for the night.", "location": "hall of the palace", "dayNumber": 39}
+      ]
+    }
+  ]
+}
