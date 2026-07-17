@@ -1,0 +1,1941 @@
+{
+  "status": "draft",
+  "places": [
+    {
+      "id": "ismarus",
+      "name": "Ismarus",
+      "greek": "Ἴσμαρος",
+      "certainty": "traditional",
+      "pleiades": "https://pleiades.stoa.org/places/507409",
+      "tradition": "Thracian coast near Maroneia (Strabo 7 fr. 44; Barrington Atlas lists as unlocated)",
+      "coords": [
+        40.87,
+        25.52
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 9,
+          "lines": [
+            39,
+            40
+          ]
+        }
+      ],
+      "note": "City of the Cicones sacked by Odysseus's men on leaving Troy. Ancient tradition (Strabo 7 fr. 44) locates it near Maroneia on the Thracian coast."
+    },
+    {
+      "id": "cape-malea",
+      "name": "Cape Malea",
+      "greek": "Μάλεια",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/570455",
+      "coords": [
+        36.43,
+        23.19
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 9,
+          "lines": [
+            80,
+            80
+          ]
+        }
+      ],
+      "note": "Southeastern promontory of the Peloponnese; the storm that rounds Odysseus off course begins here."
+    },
+    {
+      "id": "cythera",
+      "name": "Cythera",
+      "greek": "Κύθηρα",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/570186",
+      "coords": [
+        36.25,
+        23.0
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 9,
+          "lines": [
+            81,
+            81
+          ]
+        }
+      ],
+      "note": "Island south of the Peloponnese past which the north wind and current drive Odysseus's ships off course."
+    },
+    {
+      "id": "lotus-eaters-land",
+      "name": "Land of the Lotus-eaters",
+      "greek": "Λωτοφάγοι",
+      "certainty": "traditional",
+      "pleiades": "https://pleiades.stoa.org/places/344440",
+      "tradition": "Meninx/Djerba, Tunisia, called Lotophagitis in antiquity (Polybius ap. Pliny NH 5.41)",
+      "coords": [
+        33.8,
+        10.9
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 9,
+          "lines": [
+            84,
+            84
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 23,
+          "lines": [
+            311,
+            311
+          ]
+        }
+      ],
+      "note": "Coast where three of Odysseus's men eat the lotus and lose all wish to return home. Ancient tradition (Polybius, Pliny NH 5.41) locates it at Meninx/Djerba off Tunisia."
+    },
+    {
+      "id": "cyclopes-land",
+      "name": "Land of the Cyclopes",
+      "greek": "Κύκλωπες",
+      "certainty": "traditional",
+      "tradition": "Sicily, near Mount Etna (Thucydides 6.2.1; Euripides' Cyclops)",
+      "coords": [
+        37.75,
+        15.02
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 9,
+          "lines": [
+            106,
+            106
+          ]
+        }
+      ],
+      "note": "Land of the lawless, one-eyed Cyclopes where Polyphemus blinds and imprisons Odysseus's crew. Ancient tradition (Thucydides 6.2.1) locates the Cyclopes in Sicily."
+    },
+    {
+      "id": "aeolia",
+      "name": "Aeolia",
+      "greek": "Αἰολίη",
+      "certainty": "traditional",
+      "tradition": "Aeolian/Lipari Islands off Sicily (Thucydides 3.88)",
+      "coords": [
+        38.79,
+        15.21
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 10,
+          "lines": [
+            1,
+            1
+          ]
+        }
+      ],
+      "note": "Floating island home of Aeolus, keeper of the winds, who gives Odysseus the bag of storm-winds. Ancient tradition (Thucydides 3.88) identifies it with the Aeolian (Lipari) Islands."
+    },
+    {
+      "id": "laestrygonia",
+      "name": "Laestrygonia (Telepylus)",
+      "greek": "Τηλέπυλος",
+      "certainty": "traditional",
+      "pleiades": "https://pleiades.stoa.org/places/432839",
+      "tradition": "Formiae, Italy (Roman literary tradition, Horace Odes 3.17; Homer's own text suggests a near-polar 'land of the long day', Od. 10.82-86)",
+      "coords": [
+        41.26,
+        13.6
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 10,
+          "lines": [
+            81,
+            82
+          ]
+        }
+      ],
+      "note": "Harbor city of the cannibal Laestrygonians, where all of Odysseus's ships but one are destroyed. Roman tradition (Horace, Odes 3.17) places it at Formiae, Italy."
+    },
+    {
+      "id": "aeaea",
+      "name": "Aeaea",
+      "greek": "Αἰαίη",
+      "certainty": "traditional",
+      "pleiades": "https://pleiades.stoa.org/places/432783",
+      "tradition": "Monte Circeo (ancient Circeii), Italy (Theophrastus HP 5.8.3; Roman literary tradition)",
+      "coords": [
+        41.24,
+        13.08
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 10,
+          "lines": [
+            135,
+            135
+          ]
+        }
+      ],
+      "note": "Island of the enchantress Circe, who transforms Odysseus's men into swine. Roman-era tradition (Theophrastus HP 5.8.3; later Latin poets) locates it at Monte Circeo on the Italian coast."
+    },
+    {
+      "id": "cimmerians-underworld",
+      "name": "Land of the Cimmerians / entrance to the underworld",
+      "greek": "Κιμμέριοι",
+      "certainty": "mythical",
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 11,
+          "lines": [
+            14,
+            14
+          ]
+        }
+      ],
+      "note": "Sunless land at the edge of Ocean where Odysseus performs the nekyia. Homer gives no real-world geography; no ancient tradition fixes a location."
+    },
+    {
+      "id": "sirens-island",
+      "name": "Island of the Sirens",
+      "greek": "Σειρῆνες",
+      "certainty": "traditional",
+      "tradition": "Sirenusas (Li Galli islands) off Sorrento, Italy (Strabo 1.2.12, 5.4.8)",
+      "coords": [
+        40.586,
+        14.47
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 12,
+          "lines": [
+            39,
+            39
+          ]
+        }
+      ],
+      "note": "Unnamed island where the Sirens' song lures sailors to death; Odysseus sails past bound to the mast. Strabo (1.2.12, 5.4.8) locates it off the Sirenusas near Sorrento."
+    },
+    {
+      "id": "planctae",
+      "name": "Planctae (Wandering Rocks)",
+      "greek": "Πλαγκταί",
+      "certainty": "mythical",
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 12,
+          "lines": [
+            61,
+            61
+          ]
+        }
+      ],
+      "note": "Colliding rocks that only the Argo has ever passed safely; Circe advises Odysseus to avoid them for Scylla's strait instead. Ancient scholiasts disagreed on location, some conflating them with the Symplegades."
+    },
+    {
+      "id": "scylla",
+      "name": "Scylla's rock",
+      "greek": "Σκύλλη",
+      "certainty": "traditional",
+      "tradition": "Strait of Messina, Italian shore (Thucydides 4.24.5)",
+      "coords": [
+        38.25,
+        15.63
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 12,
+          "lines": [
+            85,
+            85
+          ]
+        }
+      ],
+      "note": "Six-headed monster inhabiting a cliff opposite Charybdis, who seizes six of Odysseus's men. Thucydides (4.24.5) identifies the strait as the Strait of Messina."
+    },
+    {
+      "id": "charybdis",
+      "name": "Charybdis",
+      "greek": "Χάρυβδις",
+      "certainty": "traditional",
+      "tradition": "Strait of Messina, Sicilian shore (Thucydides 4.24.5)",
+      "coords": [
+        38.19,
+        15.56
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 12,
+          "lines": [
+            104,
+            104
+          ]
+        }
+      ],
+      "note": "Whirlpool opposite Scylla that swallows the sea three times a day. Thucydides (4.24.5) identifies the strait as the Strait of Messina."
+    },
+    {
+      "id": "thrinacia",
+      "name": "Thrinacia",
+      "greek": "Θρινακίη",
+      "certainty": "traditional",
+      "tradition": "Sicily, whose ancient name Trinacria echoes Thrinacia (Thucydides 6.2.2)",
+      "coords": [
+        37.5,
+        15.1
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 12,
+          "lines": [
+            127,
+            127
+          ]
+        }
+      ],
+      "note": "Island of the Sun-god's cattle; the crew's slaughter of the sacred herd dooms them. Thucydides (6.2.2) connects the name to Sicily (Trinacria)."
+    },
+    {
+      "id": "ogygia",
+      "name": "Ogygia",
+      "greek": "Ὠγυγίη",
+      "certainty": "mythical",
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 7,
+          "lines": [
+            244,
+            244
+          ]
+        }
+      ],
+      "note": "Remote island of the nymph Calypso, where Odysseus is detained seven years. No ancient source offers a real-world identification commanding consensus; kept unlocated."
+    },
+    {
+      "id": "scheria",
+      "name": "Scheria (Phaeacia)",
+      "greek": "Σχερίη",
+      "certainty": "traditional",
+      "pleiades": "https://pleiades.stoa.org/places/530835",
+      "tradition": "Corcyra (modern Corfu), ancient tradition since Thucydides 1.25",
+      "coords": [
+        39.62,
+        19.92
+      ],
+      "maps": [
+        "wanderings",
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 6,
+          "lines": [
+            8,
+            8
+          ]
+        }
+      ],
+      "note": "Island home of the seafaring Phaeacians, who ferry Odysseus to Ithaca. Ancient tradition, beginning with Thucydides (1.25), identifies it with Corcyra (Corfu)."
+    },
+    {
+      "id": "egypt",
+      "name": "Egypt",
+      "greek": "Αἴγυπτος",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/981503",
+      "coords": [
+        31.2,
+        30.0
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 4,
+          "lines": [
+            483,
+            483
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 14,
+          "lines": [
+            257,
+            257
+          ]
+        }
+      ],
+      "note": "Land and river of the Nile; destination of Menelaus's wandering and of Odysseus's Cretan false tales."
+    },
+    {
+      "id": "pharos",
+      "name": "Pharos",
+      "greek": "Φάρος",
+      "certainty": "certain",
+      "coords": [
+        31.21,
+        29.89
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 4,
+          "lines": [
+            354,
+            355
+          ]
+        }
+      ],
+      "note": "Island off the Egyptian coast where Menelaus, becalmed, ambushes Proteus for sailing directions home."
+    },
+    {
+      "id": "cyprus",
+      "name": "Cyprus",
+      "greek": "Κύπρος",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/707498",
+      "coords": [
+        35.13,
+        33.43
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 4,
+          "lines": [
+            83,
+            83
+          ]
+        }
+      ],
+      "note": "Island named among the far shores of Menelaus's wandering and, elsewhere, as Aphrodite's own."
+    },
+    {
+      "id": "sidon-phoenicia",
+      "name": "Sidon / Phoenicia",
+      "greek": "Σιδών",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/678393",
+      "coords": [
+        33.56,
+        35.38
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 4,
+          "lines": [
+            83,
+            84
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 4,
+          "lines": [
+            618,
+            618
+          ]
+        }
+      ],
+      "note": "Phoenician city and coast; source of the traders and the ornate silver bowl given to Menelaus."
+    },
+    {
+      "id": "libya",
+      "name": "Libya",
+      "greek": "Λιβύη",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/716588",
+      "coords": [
+        32.8,
+        21.9
+      ],
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 4,
+          "lines": [
+            85,
+            85
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 14,
+          "lines": [
+            295,
+            295
+          ]
+        }
+      ],
+      "note": "North African coast west of Egypt, named among the wonder-lands of Menelaus's wandering and Odysseus's false tales."
+    },
+    {
+      "id": "thesprotia",
+      "name": "Thesprotia",
+      "greek": "Θεσπρωτοί",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/531117",
+      "coords": [
+        39.4,
+        20.4
+      ],
+      "maps": [
+        "wanderings",
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 14,
+          "lines": [
+            315,
+            316
+          ]
+        }
+      ],
+      "note": "Region of Epirus on the mainland; setting of several of Odysseus's false tales and home to King Pheidon."
+    },
+    {
+      "id": "dodona",
+      "name": "Dodona",
+      "greek": "Δωδώνη",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/530843",
+      "coords": [
+        39.54,
+        20.79
+      ],
+      "maps": [
+        "wanderings",
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 14,
+          "lines": [
+            327,
+            327
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 19,
+          "lines": [
+            296,
+            296
+          ]
+        }
+      ],
+      "note": "Oracular sanctuary of Zeus in Epirus, consulted in Odysseus's false tale to learn whether to return openly or in secret."
+    },
+    {
+      "id": "ethiopians-land",
+      "name": "Land of the Ethiopians",
+      "greek": "Αἰθίοπες",
+      "certainty": "mythical",
+      "maps": [
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 1,
+          "lines": [
+            22,
+            23
+          ]
+        }
+      ],
+      "note": "Distant people 'sundered in twain' at the world's edge whom Poseidon visits at the poem's opening. Homer's own geography is schematic, not a fixed real-world location."
+    },
+    {
+      "id": "troy",
+      "name": "Troy (Ilios)",
+      "greek": "Τροίη",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/550595",
+      "coords": [
+        39.957,
+        26.239
+      ],
+      "maps": [
+        "troad",
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 1,
+          "lines": [
+            129,
+            129
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 1,
+          "lines": [
+            2,
+            2
+          ]
+        }
+      ],
+      "note": "The besieged city; identified since Schliemann's 1870s excavations with the mound of Hisarlik in northwest Turkey."
+    },
+    {
+      "id": "scamander",
+      "name": "Scamander (Xanthus)",
+      "greek": "Σκάμανδρος",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/550871",
+      "coords": [
+        39.93,
+        26.24
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 21,
+          "lines": [
+            223,
+            223
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 20,
+          "lines": [
+            74,
+            74
+          ]
+        }
+      ],
+      "note": "Principal river of the Trojan plain, called Xanthus by the gods; its god fights Achilles in Iliad 21. Modern Karamenderes."
+    },
+    {
+      "id": "simoeis",
+      "name": "Simoeis",
+      "greek": "Σιμόεις",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/550883",
+      "coords": [
+        39.94,
+        26.25
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 6,
+          "lines": [
+            4,
+            4
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 5,
+          "lines": [
+            774,
+            774
+          ]
+        }
+      ],
+      "note": "Tributary stream of the Scamander crossing the Trojan plain, paired with it as a boundary marker."
+    },
+    {
+      "id": "ida",
+      "name": "Mount Ida",
+      "greek": "Ἴδη",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/550592",
+      "coords": [
+        39.7,
+        26.9
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 8,
+          "lines": [
+            47,
+            47
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 3,
+          "lines": [
+            276,
+            276
+          ]
+        }
+      ],
+      "note": "Mountain range south of Troy where Zeus watches the war and to which Paris's judgment is traditionally set; modern Kaz Dağı."
+    },
+    {
+      "id": "tenedos",
+      "name": "Tenedos",
+      "greek": "Τένεδος",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/550912",
+      "coords": [
+        39.82,
+        26.06
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 1,
+          "lines": [
+            38,
+            38
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 3,
+          "lines": [
+            159,
+            159
+          ]
+        }
+      ],
+      "note": "Small island off the Trojan coast where the Achaean fleet hides to fake a withdrawal."
+    },
+    {
+      "id": "imbros",
+      "name": "Imbros",
+      "greek": "Ἴμβρος",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/501438",
+      "coords": [
+        40.17,
+        25.85
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 13,
+          "lines": [
+            33,
+            33
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 14,
+          "lines": [
+            281,
+            281
+          ]
+        }
+      ],
+      "note": "Island near the Hellespont mouth, a waystation for gods travelling between Troy and Samothrace."
+    },
+    {
+      "id": "samothrace",
+      "name": "Samothrace",
+      "greek": "Σάμος Θρηικίη",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/501597",
+      "coords": [
+        40.5,
+        25.53
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 13,
+          "lines": [
+            12,
+            13
+          ]
+        }
+      ],
+      "note": "Northern Aegean island whose peak gives Poseidon a full view of the Trojan plain."
+    },
+    {
+      "id": "lemnos",
+      "name": "Lemnos",
+      "greek": "Λῆμνος",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/550693",
+      "coords": [
+        39.92,
+        25.24
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 1,
+          "lines": [
+            593,
+            593
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 21,
+          "lines": [
+            40,
+            40
+          ]
+        }
+      ],
+      "note": "Aegean island where Hephaestus fell after being cast from Olympus; also the market for wine shipped to the Achaean camp and where Achilles sold Lycaon."
+    },
+    {
+      "id": "chryse",
+      "name": "Chryse",
+      "greek": "Χρύση",
+      "certainty": "speculative",
+      "pleiades": "https://pleiades.stoa.org/places/550501",
+      "tradition": "Near Hamaxitos/Smintheion, Troad (Strabo 13.1.48, who reports the town already gone by his day)",
+      "coords": [
+        39.55,
+        26.17
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 1,
+          "lines": [
+            37,
+            38
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 1,
+          "lines": [
+            431,
+            431
+          ]
+        }
+      ],
+      "note": "Coastal town of the priest Chryses, sacred to Apollo Smintheus. Site disputed; Strabo (13.1.48) already found it vanished, tentatively placed near Hamaxitos."
+    },
+    {
+      "id": "cilla",
+      "name": "Cilla",
+      "greek": "Κίλλα",
+      "certainty": "speculative",
+      "tradition": "Troad, near Thebe under Placus (Strabo 13.1.62, site disputed and unlocated)",
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 1,
+          "lines": [
+            38,
+            38
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 1,
+          "lines": [
+            452,
+            452
+          ]
+        }
+      ],
+      "note": "Town sacred to Apollo paired with Chryse in the priest's prayer; exact site unrecovered."
+    },
+    {
+      "id": "thebe-hypoplacia",
+      "name": "Thebe (under Placus)",
+      "greek": "Θήβη Ὑποπλακίη",
+      "certainty": "traditional",
+      "tradition": "Near Adramyttium (modern Edremit), Troad (Strabo 13.1.65-70)",
+      "coords": [
+        39.4,
+        26.9
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 6,
+          "lines": [
+            397,
+            397
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 1,
+          "lines": [
+            366,
+            366
+          ]
+        }
+      ],
+      "note": "Andromache's home city, sacked by Achilles, who kills her father Eetion. Strabo (13.1.65-70) places it near Adramyttium (modern Edremit)."
+    },
+    {
+      "id": "lyrnessus",
+      "name": "Lyrnessus",
+      "greek": "Λυρνησσός",
+      "certainty": "speculative",
+      "pleiades": "https://pleiades.stoa.org/places/550703",
+      "tradition": "Troad, exact site disputed already in antiquity (Strabo 13.1.60-70)",
+      "coords": [
+        39.4,
+        26.85
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            690,
+            691
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 19,
+          "lines": [
+            60,
+            60
+          ]
+        }
+      ],
+      "note": "City sacked by Achilles where Briseis was captured; Strabo himself calls the site's identification uncertain."
+    },
+    {
+      "id": "pedasus-troad",
+      "name": "Pedasus (Troad)",
+      "greek": "Πήδασος",
+      "certainty": "speculative",
+      "tradition": "On the Satnioeis river, Troad, site unrecovered (Strabo 13.1.51)",
+      "coords": [
+        39.5,
+        26.7
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 20,
+          "lines": [
+            92,
+            92
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 6,
+          "lines": [
+            35,
+            35
+          ]
+        }
+      ],
+      "note": "Town on the Satnioeis river sacked with Lyrnessus; not securely located by modern archaeology."
+    },
+    {
+      "id": "abydos",
+      "name": "Abydos",
+      "greek": "Ἄβυδος",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/501325",
+      "coords": [
+        40.19,
+        26.41
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            836,
+            836
+          ]
+        }
+      ],
+      "note": "City on the Asian shore of the Hellespont, the narrowest crossing point; home of Trojan allies under Asius."
+    },
+    {
+      "id": "sestos",
+      "name": "Sestos",
+      "greek": "Σηστός",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/501609",
+      "coords": [
+        40.2,
+        26.4
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            836,
+            836
+          ]
+        }
+      ],
+      "note": "City on the European shore of the Hellespont opposite Abydos."
+    },
+    {
+      "id": "hellespont",
+      "name": "Hellespont",
+      "greek": "Ἑλλήσποντος",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/501434",
+      "coords": [
+        40.15,
+        26.4
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 24,
+          "lines": [
+            346,
+            346
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 7,
+          "lines": [
+            86,
+            86
+          ]
+        }
+      ],
+      "note": "Strait (modern Dardanelles) bounding the Troad, repeatedly named as the edge of the Achaeans' world."
+    },
+    {
+      "id": "batieia",
+      "name": "Batieia",
+      "greek": "Βατίεια",
+      "certainty": "mythical",
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            813,
+            814
+          ]
+        }
+      ],
+      "note": "A mound before Troy that men call Batieia but the gods call the barrow of swift Myrina; a legendary landmark, not securely located."
+    },
+    {
+      "id": "callicolone",
+      "name": "Callicolone",
+      "greek": "Καλλικολώνη",
+      "certainty": "speculative",
+      "tradition": "Ridge east of Troy near the Simoeis (J. M. Cook, The Troad, 1973, tentative)",
+      "coords": [
+        39.96,
+        26.28
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 20,
+          "lines": [
+            53,
+            53
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 20,
+          "lines": [
+            151,
+            151
+          ]
+        }
+      ],
+      "note": "'Fair hill' near the Simoeis where gods sit to watch the battle of the gods. Modern topographers (J. M. Cook, The Troad, 1973) propose a ridge east of Troy without certainty."
+    },
+    {
+      "id": "thymbra",
+      "name": "Thymbra",
+      "greek": "Θύμβρη",
+      "certainty": "traditional",
+      "tradition": "Confluence of the Thymbrios and Scamander rivers (Strabo 13.1.35)",
+      "coords": [
+        39.9,
+        26.33
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 10,
+          "lines": [
+            430,
+            430
+          ]
+        }
+      ],
+      "note": "District where the Trojans' Lycian and Mysian allies are posted; site of the later Thymbraion temple of Apollo. Strabo (13.1.35) places it at the Thymbrios-Scamander confluence."
+    },
+    {
+      "id": "dardania",
+      "name": "Dardania",
+      "greek": "Δαρδανίη",
+      "certainty": "traditional",
+      "pleiades": "https://pleiades.stoa.org/places/501393",
+      "tradition": "Near modern Çanakkale, south of Abydos (Strabo 13.1.25-33)",
+      "coords": [
+        40.14,
+        26.42
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 20,
+          "lines": [
+            215,
+            216
+          ]
+        }
+      ],
+      "note": "City founded by Dardanus before Ilios itself existed on the plain; ancient tradition places it near modern Çanakkale, south of Abydos."
+    },
+    {
+      "id": "zeleia",
+      "name": "Zeleia",
+      "greek": "Ζέλεια",
+      "certainty": "traditional",
+      "pleiades": "https://pleiades.stoa.org/places/511461",
+      "tradition": "Aesepus valley, near modern Sarıköy (Strabo 13.1.9)",
+      "coords": [
+        40.35,
+        27.15
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            824,
+            824
+          ]
+        }
+      ],
+      "note": "City under the foot of Ida on the Aesepus, home of Pandarus and his Trojan-allied archers. Strabo places it near the Aesepus valley."
+    },
+    {
+      "id": "washing-troughs",
+      "name": "The washing-troughs",
+      "greek": "πλυνοί",
+      "certainty": "traditional",
+      "tradition": "Beside Troy/Hisarlik, following the certain city identification",
+      "coords": [
+        39.96,
+        26.24
+      ],
+      "maps": [
+        "troad"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 22,
+          "lines": [
+            147,
+            156
+          ]
+        }
+      ],
+      "note": "Twin springs, one hot and one cold, beside the road from Troy where Achilles runs down Hector; a fixture of the Trojan plain in the certain Hisarlik identification."
+    },
+    {
+      "id": "phthia",
+      "name": "Phthia",
+      "greek": "Φθίη",
+      "certainty": "traditional",
+      "tradition": "Spercheios river valley, Thessaly, near ancient Halos/Pharsalus (disputed; Strabo 9.5.6)",
+      "coords": [
+        39.1,
+        22.4
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 1,
+          "lines": [
+            155,
+            155
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 9,
+          "lines": [
+            363,
+            363
+          ]
+        }
+      ],
+      "note": "Achilles' homeland in Thessaly, whose exact site (Spercheios valley, near Pharsalus/Halos) is disputed among ancient and modern geographers."
+    },
+    {
+      "id": "mycenae",
+      "name": "Mycenae",
+      "greek": "Μυκήνη",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/570491",
+      "coords": [
+        37.731,
+        22.756
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            569,
+            569
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 3,
+          "lines": [
+            305,
+            305
+          ]
+        }
+      ],
+      "note": "Agamemnon's citadel, the wealthiest of the Achaean cities; identified with the Bronze Age site excavated by Schliemann from 1874."
+    },
+    {
+      "id": "argos",
+      "name": "Argos",
+      "greek": "Ἄργος",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/570106",
+      "coords": [
+        37.63,
+        22.72
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 4,
+          "lines": [
+            174,
+            174
+          ]
+        }
+      ],
+      "note": "City of the Argolid; Homer also uses 'Argos' loosely for the wider Peloponnese/Achaea, a usage noted since antiquity."
+    },
+    {
+      "id": "salamis",
+      "name": "Salamis",
+      "greek": "Σαλαμίς",
+      "certainty": "certain",
+      "coords": [
+        37.965,
+        23.499
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 7,
+          "lines": [
+            198,
+            199
+          ]
+        }
+      ],
+      "note": "Island home of Telamonian Ajax, named in his own prayer before facing Hector in single combat."
+    },
+    {
+      "id": "locris",
+      "name": "Locris",
+      "greek": "Λοκροί",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/540986",
+      "coords": [
+        38.82,
+        23.13
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 13,
+          "lines": [
+            686,
+            686
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 13,
+          "lines": [
+            712,
+            712
+          ]
+        }
+      ],
+      "note": "Homeland of the Locrians under the lesser Ajax, on the Greek mainland opposite Euboea."
+    },
+    {
+      "id": "euboea",
+      "name": "Euboea",
+      "greek": "Εὔβοια",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/540703",
+      "coords": [
+        38.46,
+        23.6
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 3,
+          "lines": [
+            174,
+            174
+          ]
+        }
+      ],
+      "note": "Long island off the eastern coast of central Greece; Nestor's route home runs past it via the open sea crossing."
+    },
+    {
+      "id": "calydon",
+      "name": "Calydon",
+      "greek": "Καλυδών",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/540699",
+      "coords": [
+        38.37,
+        21.55
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 9,
+          "lines": [
+            530,
+            530
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 9,
+          "lines": [
+            531,
+            531
+          ]
+        }
+      ],
+      "note": "Aetolian city at the center of the Meleager story told by Phoenix in his appeal to Achilles."
+    },
+    {
+      "id": "aetolia",
+      "name": "Aetolia",
+      "greek": "Αἰτωλοί",
+      "certainty": "certain",
+      "coords": [
+        38.4,
+        21.6
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 14,
+          "lines": [
+            379,
+            379
+          ]
+        }
+      ],
+      "note": "Region of west-central Greece around Calydon; named as the homeland of the man who tricks Eumaeus's false Cretan into a lie about Odysseus."
+    },
+    {
+      "id": "same-cephallenia",
+      "name": "Same",
+      "greek": "Σάμη",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/531093",
+      "coords": [
+        38.25,
+        20.65
+      ],
+      "maps": [
+        "greece",
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 1,
+          "lines": [
+            246,
+            246
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 9,
+          "lines": [
+            24,
+            24
+          ]
+        }
+      ],
+      "note": "Island in Odysseus's kingdom alongside Ithaca, Dulichium, and Zacynthus; identified with modern Kefalonia (ancient town of Same/Sami)."
+    },
+    {
+      "id": "zacynthus",
+      "name": "Zacynthus",
+      "greek": "Ζάκυνθος",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/531154",
+      "coords": [
+        37.79,
+        20.9
+      ],
+      "maps": [
+        "greece",
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 9,
+          "lines": [
+            24,
+            24
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 1,
+          "lines": [
+            246,
+            246
+          ]
+        }
+      ],
+      "note": "Wooded island in Odysseus's kingdom, south of Cephallenia; modern Zakynthos."
+    },
+    {
+      "id": "dulichium",
+      "name": "Dulichium",
+      "greek": "Δουλίχιον",
+      "certainty": "speculative",
+      "pleiades": "https://pleiades.stoa.org/places/530845",
+      "tradition": "Possibly the Echinades group or an island near Cephallenia; disputed since antiquity (Strabo 10.2.19)",
+      "coords": [
+        38.35,
+        21.2
+      ],
+      "maps": [
+        "greece",
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 14,
+          "lines": [
+            335,
+            335
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 1,
+          "lines": [
+            246,
+            246
+          ]
+        }
+      ],
+      "note": "Fourth island of Odysseus's realm, supplying the largest single contingent of suitors. Its identity was already disputed in antiquity."
+    },
+    {
+      "id": "athens",
+      "name": "Athens",
+      "greek": "Ἀθῆναι",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/579885",
+      "coords": [
+        37.97,
+        23.73
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 7,
+          "lines": [
+            80,
+            80
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 11,
+          "lines": [
+            323,
+            323
+          ]
+        }
+      ],
+      "note": "City of Attica, Athena's own city, visited by the goddess herself in the Odyssey."
+    },
+    {
+      "id": "elis",
+      "name": "Elis",
+      "greek": "Ἦλις",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/570220",
+      "coords": [
+        37.9,
+        21.37
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 11,
+          "lines": [
+            673,
+            673
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 11,
+          "lines": [
+            686,
+            686
+          ]
+        }
+      ],
+      "note": "Region of the northwest Peloponnese, home of the Epeans, named in Nestor's account of a cattle-raid."
+    },
+    {
+      "id": "orchomenus-boeotian",
+      "name": "Orchomenus (Minyan)",
+      "greek": "Ὀρχομενός",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/540987",
+      "coords": [
+        38.5,
+        22.98
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 9,
+          "lines": [
+            381,
+            381
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 11,
+          "lines": [
+            284,
+            284
+          ]
+        }
+      ],
+      "note": "Wealthy Boeotian city, invoked by Achilles as a byword for riches he will refuse from Agamemnon."
+    },
+    {
+      "id": "thebes-boeotia",
+      "name": "Thebes (Boeotia)",
+      "greek": "Θήβη ἑπτάπυλος",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/541138",
+      "coords": [
+        38.32,
+        23.32
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 4,
+          "lines": [
+            406,
+            406
+          ]
+        }
+      ],
+      "note": "Seven-gated Boeotian city captured by the Epigoni; distinct from the Cilician Thebe of the Troad."
+    },
+    {
+      "id": "aulis",
+      "name": "Aulis",
+      "greek": "Αὐλίς",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/579889",
+      "coords": [
+        38.4,
+        23.6
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            303,
+            303
+          ]
+        }
+      ],
+      "note": "Boeotian harbor where the Achaean fleet gathered before Troy; site of the portent Odysseus recalls."
+    },
+    {
+      "id": "delphi-pytho",
+      "name": "Delphi (Pytho)",
+      "greek": "Πυθώ",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/540726",
+      "coords": [
+        38.48,
+        22.5
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 8,
+          "lines": [
+            80,
+            80
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 9,
+          "lines": [
+            404,
+            405
+          ]
+        }
+      ],
+      "note": "Sanctuary of Apollo at the foot of Parnassus, named for its treasuries in both epics."
+    },
+    {
+      "id": "ithaca",
+      "name": "Ithaca",
+      "greek": "Ἰθάκη",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/530906",
+      "coords": [
+        38.42,
+        20.71
+      ],
+      "maps": [
+        "greece",
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 1,
+          "lines": [
+            18,
+            18
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 1,
+          "lines": [
+            103,
+            103
+          ]
+        }
+      ],
+      "note": "Odysseus's home island, ruled by continuity of name with the modern island of Ithaki since antiquity (Strabo 10.2.10-13)."
+    },
+    {
+      "id": "pylos",
+      "name": "Pylos",
+      "greek": "Πύλος",
+      "certainty": "traditional",
+      "tradition": "Ano Englianos, Messenia (Blegen's excavations from 1939, identifying the 'Palace of Nestor')",
+      "coords": [
+        37.03,
+        21.695
+      ],
+      "maps": [
+        "greece",
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 1,
+          "lines": [
+            93,
+            93
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 3,
+          "lines": [
+            4,
+            5
+          ]
+        }
+      ],
+      "note": "Nestor's 'sandy Pylos' in Messenia, identified by most archaeologists with the excavated Bronze Age palace at Ano Englianos (Blegen, from 1939)."
+    },
+    {
+      "id": "sparta",
+      "name": "Sparta (Lacedaemon)",
+      "greek": "Σπάρτη",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/570685",
+      "coords": [
+        37.08,
+        22.43
+      ],
+      "maps": [
+        "greece",
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 1,
+          "lines": [
+            93,
+            93
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 4,
+          "lines": [
+            10,
+            10
+          ]
+        }
+      ],
+      "note": "Menelaus and Helen's home in Laconia, Telemachus's second stop on his journey for news of his father."
+    },
+    {
+      "id": "crete-knossos",
+      "name": "Crete (Cnossus)",
+      "greek": "Κνωσός",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/781961476",
+      "coords": [
+        35.298,
+        25.163
+      ],
+      "maps": [
+        "greece",
+        "wanderings"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 19,
+          "lines": [
+            178,
+            179
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 18,
+          "lines": [
+            591,
+            591
+          ]
+        }
+      ],
+      "note": "Idomeneus's kingdom and, in the Odyssey, Cnossus is named as Minos's great city; also the setting of Odysseus's recurring false Cretan identity."
+    }
+  ]
+}
