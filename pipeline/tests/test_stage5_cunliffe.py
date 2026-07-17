@@ -43,11 +43,21 @@ def test_cunliffe_candidates_includes_destarred_forms_for_proper_nouns():
 
 
 def test_cunliffe_candidates_ionic_alpha_eta_fallback():
-    # a(rmoni/a (Attic-normalized lemma) should offer the Ionic a(rmoni/h
-    # fold variant as a last-resort candidate (Cunliffe keys the epic form).
-    cands = sc.cunliffe_candidates("a(rmoni/a")
+    # Hera: Morpheus's Attic-normalized lemma is *(/hra (ending -a); Cunliffe
+    # keys the Ionic/epic headword Ἥρη (ending -h, key h(/rh). The swap is
+    # tried on the destarred fold ("h(ra" -> "h(rh"), which is exactly what
+    # lets this proper noun resolve (confirmed against the real corpus build:
+    # "*(/hra" is NOT in build/stage5/cunliffe_missing_lemmata.json).
+    cands = sc.cunliffe_candidates("*(/hra")
     values = [v for k, v in cands if k == "fold"]
-    assert "a(rmoni/h" in values
+    assert "h(rh" in values
+
+
+def test_ionic_variants_does_not_fire_across_a_diphthong():
+    # ἁρμονία's stem before the final -α is -ι- (hiatus, not a real Ionic
+    # target here in fold-space terms); the guard must not swap it, so the
+    # heuristic stays narrow rather than over-firing on any trailing -a.
+    assert sc._ionic_variants("a(rmonia") == []
 
 
 # ── linkify_definition: citation refs -> internal link markers ─────────────

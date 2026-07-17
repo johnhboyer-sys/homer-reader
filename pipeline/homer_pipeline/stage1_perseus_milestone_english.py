@@ -142,6 +142,27 @@ class _BookWalker(StandoffChunkMixin):
         chunk = self._chunk()
         self.ticks.append({"n": n, "offset": len(chunk["text"].rstrip()), "real": True})
 
+    def add_milestone_tail(self, tail: str | None) -> None:
+        """Text immediately following a removed <milestone/>. The source
+        sometimes drops a milestone mid-sentence with no whitespace on
+        either side (e.g. "in no wise<milestone .../>will they" -> glued
+        "wisewill" once the tag is stripped and the two text nodes are
+        concatenated). Insert exactly one space in that case only: when the
+        text accumulated so far ends in a word character and the tail
+        begins with one. Genuine hyphenation at a milestone would need the
+        *preceding* text to end in "-" (not a word character), which this
+        check leaves untouched — verified against the Iliad/Odyssey
+        Murray/Butler TEIs: the only "-<milestone" adjacency in either
+        corpus is an em-dash used as punctuation, not a hyphenated
+        compound, so no such case exists to break here."""
+        if not tail:
+            return
+        chunk = self._chunk()
+        text = chunk["text"]
+        if text and text[-1].isalnum() and tail[0].isalnum():
+            chunk["text"] = text + " "
+        self.add_text(tail)
+
     def add_footnote(self, el) -> None:
         chunk = self._chunk()
         raw = collapse_ws("".join(el.itertext())).strip()
@@ -155,7 +176,14 @@ class _BookWalker(StandoffChunkMixin):
             return
         self._note_ctr += 1
         label = f"{self.book}.{raw}" if raw else f"{self.book}.n{self._note_ctr}"
-        chunk["notes"].append({"offset": len(chunk["text"].rstrip()), "text": raw})
+        # The marker is appended verbatim right after whatever's currently in
+        # chunk["text"] (add_text does not strip a pre-existing trailing
+        # space before a piece that doesn't itself start with whitespace), so
+        # its first char ('[') always lands at the CURRENT length — not the
+        # rstripped length, which undercounts by one whenever the source has
+        # a trailing space before <note> and points the offset at that space
+        # instead of at the marker.
+        chunk["notes"].append({"offset": len(chunk["text"]), "text": raw})
         self.add_text(f"[^{label}]")
         self.footnotes[label] = raw
 
@@ -177,7 +205,7 @@ def _walk(w: _BookWalker, el, is_root: bool = False) -> None:
     if tag == "milestone":
         if el.get("unit") == "line":
             w.add_milestone(el.get("n"))
-        w.add_text(el.tail)
+        w.add_milestone_tail(el.tail)
         return
     if tag == "p" and not is_root:
         w.add_paragraph()
@@ -227,6 +255,23 @@ def parse_translation(
         _walk(w, div, is_root=True)
         chunk = w._chunk()
         chunk["text"] = chunk["text"].strip()
+        # A milestone right at the very end of a book's prose (nothing real
+        # follows it) would otherwise survive as a tick whose window is
+        # empty (offset == len(text)). That's not useful — the real final
+        # English lives in the previous tick's window — so it's dropped and
+        # folded into that previous block, and reported rather than left as
+        # a silent dead end.
+        final_len = len(chunk["text"])
+        while w.ticks and w.ticks[-1]["offset"] >= final_len:
+            dropped = w.ticks.pop()
+            w.anomalies.append(
+                {
+                    "kind": "terminal_empty_dropped",
+                    "book": book,
+                    "n": dropped["n"],
+                    "offset": dropped["offset"],
+                }
+            )
         if chunk["text"]:
             chunks[book] = chunk
         ticks_by_book[book] = w.ticks

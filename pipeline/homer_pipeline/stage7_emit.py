@@ -6,8 +6,9 @@ Per the approved formats:
                       analysis keys, paired English chunk with standoff
                       notes/markers.
   - analyses.json     token key -> analyses (lemma, gloss, parse) with the
-                      LSJ keys for each lemma merged in.
-  - lsj/{letter}.json letter-sharded entries, corpus lemmata only.
+                      LSJ and Cunliffe keys for each lemma merged in.
+  - lsj/{letter}.json       letter-sharded LSJ entries, corpus lemmata only.
+  - cunliffe/{letter}.json  letter-sharded Cunliffe entries, corpus lemmata only.
   - manifest.json     work metadata and per-book stats.
 Reports (validation, unmatched tokens, sigla, missing lemmata) are copied
 to build/dist/reports/ for the Milestone 2 review.
@@ -266,6 +267,7 @@ def emit_analyses(out_dir: Path) -> dict:
     analyses = _load("stage4/analyses.json")
     key_map = _load("stage4/key_map.json")
     lemma_map = _load("stage5/lemma_map.json")
+    cunliffe_lemma_map = _load("stage5/cunliffe_lemma_map.json")
     merged: dict[str, list[dict]] = {}
     dropped = 0
     for token_key, stored_key in key_map.items():
@@ -275,6 +277,7 @@ def emit_analyses(out_dir: Path) -> dict:
                 "gloss": g["gloss"].strip(),
                 "parse": g["parse"],
                 "lsj": lemma_map.get(g["lemma"], []),
+                "cunliffe": cunliffe_lemma_map.get(g["lemma"], []),
             }
             for g in analyses[stored_key]
         ]
@@ -302,6 +305,25 @@ def _merge_shared_lsj() -> None:
     shared = BUILD_DIR / "dist" / "lsj"
     shared.mkdir(parents=True, exist_ok=True)
     for shard in sorted((BUILD_DIR / "stage5" / "lsj").glob("*.json")):
+        src = json.loads(shard.read_text(encoding="utf-8"))
+        dest = shared / shard.name
+        if dest.exists():
+            merged = json.loads(dest.read_text(encoding="utf-8"))
+            merged.update(src)
+        else:
+            merged = src
+        dest.write_text(json.dumps(merged, ensure_ascii=False), encoding="utf-8")
+
+
+def _merge_shared_cunliffe() -> None:
+    """Merge this work's Cunliffe shards into the corpus-wide shared
+    dictionary at build/dist/cunliffe/<letter>.json (union by key) — the same
+    scheme as _merge_shared_lsj, for the same reason (one shared copy instead
+    of a per-work duplicate; entry bodies are identical across works since
+    both come from the same two source JSONL files)."""
+    shared = BUILD_DIR / "dist" / "cunliffe"
+    shared.mkdir(parents=True, exist_ok=True)
+    for shard in sorted((BUILD_DIR / "stage5" / "cunliffe").glob("*.json")):
         src = json.loads(shard.read_text(encoding="utf-8"))
         dest = shared / shard.name
         if dest.exists():
@@ -491,6 +513,7 @@ def run(manifest: Manifest) -> Path:
     )
 
     _merge_shared_lsj()
+    _merge_shared_cunliffe()
 
     (out_dir / "search").mkdir(exist_ok=True)
     for f in ["greek_lemma.json", "greek_form.json", "english.json", "meta.json"]:
@@ -504,6 +527,7 @@ def run(manifest: Manifest) -> Path:
                 "books": book_stats,
                 "analyses": analyses_stats,
                 "lsj": _load("stage5/summary.json"),
+                "cunliffe": _load("stage5/cunliffe_summary.json"),
                 **({"turn_reconciliation": turn_report} if turn_report else {}),
                 **({"prose_flow": prose_report} if prose_report else {}),
             },
