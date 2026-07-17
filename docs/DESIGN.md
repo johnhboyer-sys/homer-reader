@@ -68,9 +68,11 @@ From the three mock treatments (nav-mocks-v1 artifact): **Treatment 2,
 the scene rail flyout** — a thin drawer off the reader header listing the
 current book's scenes (summary + line range + day + place), current
 scene highlighted from scroll position, click scrolls to the scene's
-first line. Reuses the toc-sidebar drawer pattern. Treatments 1
-(cartouche stepper + book grid) and 3 (Go-to palette) not selected;
-available as future additions if John asks.
+first line. Reuses the toc-sidebar drawer pattern. Treatment 3 (the
+Cmd/Ctrl-K "Go to..." palette) ADDED by John 2026-07-17 ("Command K
+palette is cool. Wire that in") — books + scenes + citation parse in
+one ranked list, additive to the rail. Treatment 1 (cartouche stepper
++ book grid) stays shelved.
 
 ## Phase 3 implications
 

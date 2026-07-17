@@ -127,6 +127,29 @@ registration status could not be confirmed by automated search (tools
 blocked) — if certainty is wanted pre-launch, a human clearance search is
 the step. "Digital Landmark Homer" remains internal-docs-only vocabulary.
 
+## John's decisions (2026-07-17, review-queue round 1)
+
+1. **Iliad Greek re-bases to TLG Allen 1931** ("Allen ships") — John
+   accepts the ~6-months-to-PD copyright posture; not launch-gating.
+   Odyssey STAYS Perseus (TLG's Odyssey is von der Muehll 1962, in
+   copyright for decades; the OCT Odyssey is not in TLG). Re-base lane
+   dispatched with a hard line-set-identity gate before anything else.
+2. Odyssey credit wording: draft shown to John (pending his edit).
+3. Pope: keep "alignment approximate" (drift is Pope's uneven couplet
+   expansion, not an edition mismatch — not cheaply fixable).
+4. Murray footnotes: REAL Loeb notes wanted — acquisition/extraction
+   lane queued (PD Loeb scans -> note text -> join to markers).
+5. Autenrieth: one-liner re-sent to John for an unconstrained network.
+6. Catalogue coords + omitted Pleiades URIs: accepted for now,
+   revisit during QA (Phase 6 item).
+7. Contested-identification recordings (Oechalia single entry, Zeleia
+   included): accepted as recorded.
+8. Troop-total extrapolation: omitted from site data AND About;
+   instead add a courtesy "see also" link to Mollick's
+   catalogue-of-ships.netlify.app visualization (maps page).
+9. Nav: wire in the Cmd/Ctrl-K "Go to..." palette (Treatment 3) in
+   addition to the scene rail; book-grid stepper stays shelved.
+
 ## John's review queue (accumulating; final list at handoff)
 
 1. Greek-source copyright call: confirm Perseus fallback (Allen 1931 enters US
