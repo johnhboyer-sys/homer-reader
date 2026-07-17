@@ -62,6 +62,19 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
   B1 MAJOR (Butler terminal empty tick window in 34 books), M1 (~38 glued
   word pairs at milestone strips), M2/M5 minor — fix agent dispatched
   (in progress).
+- **Odyssey scenes apparatus (Grok-4.5 content gate): PASS-WITH-FIXES**,
+  fixes applied (Od.1 ὀτρύνομεν cohortative, Od.7 span, 5 minors) and
+  merged to apparatus/scenes/odyssey.json.
+- **Iliad scenes apparatus (Grok-4.5 content gate): FAIL** (2026-07-17).
+  Concentrated defects: Bk 16 (Patroclus death sequence scenes shifted/
+  misattributed), Bk 17 (scene [11] credits Automedon with Aretus — the
+  kill is Menelaus→Podes), Bk 6 (Hector–Andromache farewell climax
+  swapped across scenes 13–15); plus Bk 1 [3] nine-days boundary, Bk 12
+  [6] boundary, Bk 23 [4] location, and a day-calendar ruling (divine
+  scenes synchronized with battle action take the battle day; null only
+  for proems/elisions/unpinned spans). Evidence: scratchpad
+  scenes-verify/findings.md. Sonnet fix lane dispatched; Grok re-verifies
+  Bks 6/16/17 before the gate flips.
 
 ## Trademark decision (2026-07-17)
 
