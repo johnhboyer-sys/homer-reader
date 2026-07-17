@@ -189,13 +189,14 @@ export function formatHash(work: string, column: string, line?: number | null): 
   return `#${formatCite(work, column, line)}`;
 }
 
-// The `loc=` query VALUE (not URL-encoded) for a jump-in link: "1097a:15" when
-// the scheme has user-facing lines and a line is given, otherwise the bare
-// column — so a stephanus Search-result link reads as a clean "?loc=17a"
-// rather than a line-level citation a Plato reader never sees elsewhere.
+// The `loc=` query VALUE (not URL-encoded) for a jump-in link: "1097a:15" for
+// Bekker/Busse, but the Homeric book.line convention stays dotted ("5.239").
+// A lineless scheme remains a bare column, so a Stephanus result reads as a
+// clean "?loc=17a" rather than a line-level citation a Plato reader never sees.
 export function formatLocValue(work: string, column: string, line?: number | null): string {
   const s = schemeFor(work);
-  return s.hasUserFacingLines && line != null ? `${column}:${line}` : column;
+  if (!s.hasUserFacingLines || line == null) return column;
+  return s.id === 'verse-line' ? `${column}.${line}` : `${column}:${line}`;
 }
 
 // ── Verse-line (Homer) work-aware helpers ───────────────────────────────────

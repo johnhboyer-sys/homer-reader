@@ -1,5 +1,6 @@
 import axe from 'axe-core';
-import { cleanup, render, screen } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
+import CommandPalette from '../components/CommandPalette.svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import FootnotePopup from '../components/FootnotePopup.svelte';
 import Reader from '../components/Reader.svelte';
@@ -80,6 +81,7 @@ afterEach(() => {
   cleanup();
   vi.clearAllMocks();
   window.history.replaceState(null, '', '/');
+  document.documentElement.removeAttribute('data-theme');
 });
 
 async function expectNoSeriousAxeViolations(container: HTMLElement) {
@@ -128,6 +130,21 @@ describe('component accessibility', () => {
     const { container } = render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
 
     expect(await screen.findByText('1094a')).toBeInTheDocument();
+    await expectNoSeriousAxeViolations(container);
+  });
+
+  it.each(['light', 'dark'])('CommandPalette has no serious or critical axe violations in %s mode', async (theme) => {
+    document.documentElement.dataset.theme = theme;
+    const { container } = render(CommandPalette, {
+      props: {
+        work: 'iliad',
+        bookNum: 1,
+        scenes: [{ summary: 'Chryses seeks ransom.', startLine: 8, endLine: 32, place: 'Achaean camp' }],
+      },
+    });
+
+    await fireEvent.keyDown(window, { key: 'k', ctrlKey: true });
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
     await expectNoSeriousAxeViolations(container);
   });
 });

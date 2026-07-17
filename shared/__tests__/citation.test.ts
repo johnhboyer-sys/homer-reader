@@ -133,5 +133,6 @@ describe('work-level convenience composers', () => {
     expect(formatLocValue('EN', '1097a', 15)).toBe('1097a:15');
     expect(formatLocValue('EN', '1097a', null)).toBe('1097a');
     expect(formatLocValue('EN', '1097a')).toBe('1097a');
+    expect(formatLocValue('iliad', '5', 239)).toBe('5.239');
   });
 });

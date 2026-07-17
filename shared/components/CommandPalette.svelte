@@ -1,22 +1,21 @@
 <script lang="ts">
-  import { tick } from 'svelte';
-  import { fetchColumns, fetchLemmata, resolveBekker, type LemmaRef } from '../lib/data';
-  import { workPath, getWork } from '../lib/works';
-  import { schemeFor, formatLocValue } from '../lib/citation';
-  import { resumeFor } from '../lib/resume';
-  import { hasGreek, rankLemmata, rankWorks } from '../lib/palette';
+  import { onDestroy, onMount, tick } from 'svelte';
+  import { parseLocation, type Scene } from '../lib/data';
+  import { formatLocValue } from '../lib/citation';
+  import { getWork, workPath } from '../lib/works';
+  import { rankBooks } from '../lib/palette';
 
-  // The work currently open in the reader (enables citation jumps); null on
-  // pages with no work context (home, landings).
+  // The reader passes its already-normalized book apparatus. This deliberately
+  // stays outside Reader.svelte so the token-stripped hydration path is untouched.
   export let work: string | null = null;
-  // Hosts with their own routing pass a callback; the site default navigates
-  // the tab (same contract as BekkerJump's onJump).
+  export let bookNum = 1;
+  export let scenes: Scene[] = [];
   export let onNavigate: ((href: string) => void) | null = null;
 
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
   interface Item {
-    kind: 'cite' | 'work' | 'lemma' | 'search';
+    kind: 'Citation' | 'Book' | 'Scene';
     label: string;
     detail: string;
     href: string;
@@ -27,10 +26,8 @@
   let items: Item[] = [];
   let selected = 0;
   let inputEl: HTMLInputElement | undefined;
-  let lemmata: Record<string, LemmaRef> | null = null;
-  let seq = 0; // stale-async guard
   let boxEl: HTMLDivElement | undefined;
-  let restoreEl: HTMLElement | null = null; // focus to give back on close
+  let restoreEl: HTMLElement | null = null;
 
   function navigate(href: string) {
     close();
@@ -39,21 +36,80 @@
   }
 
   export async function openPalette() {
+    if (open) return;
     restoreEl = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     open = true;
     query = '';
-    items = [];
-    selected = 0;
+    compute('');
     await tick();
     inputEl?.focus();
   }
 
   function close() {
+    if (!open) return;
     open = false;
     query = '';
     items = [];
     restoreEl?.focus();
     restoreEl = null;
+  }
+
+  function sceneMatches(q: string): Scene[] {
+    const needle = q.trim().toLowerCase();
+    if (!needle) return [];
+    return scenes.filter((scene) =>
+      `${scene.summary} ${scene.place ?? ''} ${(scene.people ?? []).join(' ')}`.toLowerCase().includes(needle),
+    );
+  }
+
+  function compute(raw: string) {
+    const trimmed = raw.trim();
+    const out: Item[] = [];
+    const currentWork = work ? getWork(work) : undefined;
+    const citation = work ? parseLocation(work, trimmed) : null;
+
+    // Citation parsing belongs to data.ts/the work's citation scheme. For Homer,
+    // the parsed column is the book number; range-check it before offering a URL.
+    if (work && currentWork && citation) {
+      const targetBook = Number(citation.column);
+      if (Number.isInteger(targetBook) && targetBook >= 1 && targetBook <= currentWork.books) {
+        out.push({
+          kind: 'Citation',
+          label: citation.line != null
+            ? `${currentWork.title} · Book ${targetBook}, line ${citation.line}`
+            : `${currentWork.title} · Book ${targetBook}`,
+          detail: 'Citation',
+          href: `${base}${workPath(work, targetBook)}?loc=${formatLocValue(work, citation.column, citation.line)}`,
+        });
+      }
+    }
+
+    // Treatment 3's ranked index is citation, then canonical book matches,
+    // then scenes in THIS book. It opens on the first eight books and limits
+    // typed matches to twelve, exactly as the approved mock does.
+    for (const book of rankBooks(trimmed, undefined, trimmed ? 12 : 8)) {
+      out.push({
+        kind: 'Book',
+        label: book.label,
+        detail: 'Book',
+        href: `${base}${workPath(book.work.id, book.book)}`,
+      });
+    }
+    for (const scene of sceneMatches(trimmed)) {
+      if (out.length >= (trimmed ? 13 : 8)) break;
+      const range = scene.endLine != null ? `${scene.startLine}–${scene.endLine}` : String(scene.startLine);
+      out.push({
+        kind: 'Scene',
+        label: `${range} — ${scene.summary}`,
+        detail: `Scene · ${currentWork?.title ?? 'Current book'} ${bookNum}`,
+        href: work
+          ? `${base}${workPath(work, bookNum)}?loc=${formatLocValue(work, String(bookNum), scene.startLine)}`
+          : '#',
+      });
+    }
+
+    items = out;
+    selected = 0;
   }
 
   function onWindowKey(e: KeyboardEvent) {
@@ -66,73 +122,8 @@
     if (open && e.key === 'Escape') { e.preventDefault(); close(); }
   }
 
-  async function compute(q: string) {
-    const mySeq = ++seq;
-    const out: Item[] = [];
-    const trimmed = q.trim();
-    if (!trimmed) { items = []; selected = 0; return; }
-
-    // 1. A citation (Stephanus page, e.g. "34b") jumps within the current work.
-    //    Parsing dispatches on the work's own scheme, so a line-bearing scheme
-    //    (Bekker/Busse, were this shared reader mounted on one) still works.
-    const cite = work ? schemeFor(work).parseLocation(trimmed) : null;
-    if (cite && work) {
-      const cols = await fetchColumns(work).catch(() => null);
-      if (mySeq !== seq) return; // a newer keystroke superseded this pass
-      const book = cols ? resolveBekker(cols, cite.column, cite.line ?? 1) : null;
-      if (book != null) {
-        const w = getWork(work);
-        out.push({
-          kind: 'cite',
-          label: `Go to ${schemeFor(work).formatCitation(cite.column, cite.line)}`,
-          detail: w ? w.title : 'this work',
-          href: `${base}${workPath(work, book)}?loc=${formatLocValue(work, cite.column, cite.line)}`,
-        });
-      }
-    }
-
-    // 2. Works by name/abbreviation — resuming a saved position when one exists.
-    for (const w of rankWorks(trimmed)) {
-      const pos = resumeFor(w.id);
-      const book = pos ? Math.min(Math.max(1, pos.book), w.books) : 1;
-      out.push({
-        kind: 'work',
-        label: w.title,
-        detail: pos?.cite ? `resumes at ${pos.cite}` : w.blurb,
-        href: `${base}${workPath(w.id, book)}${pos?.cite ? `#${pos.cite}` : ''}`,
-      });
-    }
-
-    // 3. Greek input also matches lemma pages (concordance + LSJ).
-    if (hasGreek(trimmed)) {
-      lemmata ??= await fetchLemmata().catch(() => ({}));
-      if (mySeq !== seq) return;
-      for (const ref of rankLemmata(trimmed, lemmata)) {
-        out.push({
-          kind: 'lemma',
-          label: ref.head,
-          detail: `lexicon · ${ref.count.toLocaleString()} occurrences`,
-          href: `${base}/lemma/${ref.slug}/`,
-        });
-      }
-    }
-
-    // 4. Always offer the full corpus search.
-    out.push({
-      kind: 'search',
-      label: `Search the corpus for “${trimmed}”`,
-      detail: 'Greek & English · all works',
-      href: `${base}/search?${hasGreek(trimmed) ? 'g' : 'e'}=${encodeURIComponent(trimmed)}`,
-    });
-
-    items = out;
-    selected = 0;
-  }
-
-  $: if (open) compute(query);
-
   // aria-modal promises focus stays inside: wrap Tab within the dialog's
-  // focusable controls (the input + result buttons).
+  // input and result buttons.
   function onBoxKey(e: KeyboardEvent) {
     if (e.key !== 'Tab' || !boxEl) return;
     const focusables = boxEl.querySelectorAll<HTMLElement>('input, button');
@@ -144,30 +135,44 @@
   }
 
   function onInputKey(e: KeyboardEvent) {
-    if (e.key === 'ArrowDown') { e.preventDefault(); selected = Math.min(selected + 1, items.length - 1); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); selected = Math.max(selected - 1, 0); }
-    else if (e.key === 'Enter') {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      selected = Math.min(selected + 1, items.length - 1);
+      document.getElementById(`cp-item-${selected}`)?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      selected = Math.max(selected - 1, 0);
+      document.getElementById(`cp-item-${selected}`)?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
       e.preventDefault();
       const item = items[selected];
       if (item) navigate(item.href);
     }
   }
+
+  function onOpenRequest() { openPalette(); }
+  onMount(() => {
+    window.addEventListener('open-command-palette', onOpenRequest);
+    return () => window.removeEventListener('open-command-palette', onOpenRequest);
+  });
+  onDestroy(() => { restoreEl = null; });
 </script>
 
 <svelte:window on:keydown={onWindowKey} />
 
 {#if open}
   <div class="cp-backdrop" on:click={(e) => { if (e.target === e.currentTarget) close(); }} role="presentation">
-    <div class="cp-box" role="dialog" aria-modal="true" aria-label="Jump to a work, citation, or lemma" tabindex="-1"
+    <div class="cp-box" role="dialog" aria-modal="true" aria-label="Go to book, scene, or citation" tabindex="-1"
          bind:this={boxEl} on:keydown={onBoxKey}>
       <input
         class="cp-input"
         type="text"
         bind:this={inputEl}
         bind:value={query}
+        on:input={(e) => compute(e.currentTarget.value)}
         on:keydown={onInputKey}
-        placeholder="Work, Stephanus page, or Greek word…"
-        aria-label="Jump to a work, Stephanus page, or Greek word"
+        placeholder="Book, scene, or citation (e.g. 5.239)"
+        aria-label="Book, scene, or citation"
         role="combobox"
         aria-expanded={items.length > 0}
         aria-controls="cp-list"
@@ -179,25 +184,19 @@
       {#if items.length}
         <ul class="cp-list" id="cp-list" role="listbox">
           {#each items as item, i}
-            <li
-              id={`cp-item-${i}`}
-              role="option"
-              aria-selected={i === selected}
-              class="cp-item"
-              class:active={i === selected}
-            >
-              <button type="button" on:click={() => navigate(item.href)} on:mousemove={() => (selected = i)}>
-                <span class="cp-kind">{item.kind === 'cite' ? '§' : item.kind === 'work' ? '📖' : item.kind === 'lemma' ? 'λ' : '🔍'}</span>
-                <span class="cp-label" class:gk={item.kind === 'lemma'}>{item.label}</span>
-                <span class="cp-detail">{item.detail}</span>
+            <li role="presentation">
+              <button id={`cp-item-${i}`} type="button" role="option" aria-selected={i === selected}
+                      class:active={i === selected} on:click={() => navigate(item.href)} on:mousemove={() => (selected = i)}>
+                <span class="cp-label">{item.label}</span>
+                <span class="cp-kind">{item.detail}</span>
               </button>
             </li>
           {/each}
         </ul>
-      {:else if query.trim()}
-        <p class="cp-empty">Keep typing — a work name, “34b”, or a Greek word.</p>
+      {:else}
+        <p class="cp-empty">No matches.</p>
       {/if}
-      <p class="cp-hint"><kbd>↑↓</kbd> select · <kbd>⏎</kbd> open · <kbd>esc</kbd> close</p>
+      <p class="cp-status" aria-live="polite"><kbd>↑↓</kbd> select · <kbd>⏎</kbd> open · <kbd>esc</kbd> close</p>
     </div>
   </div>
 {/if}
@@ -207,70 +206,57 @@
     position: fixed;
     inset: 0;
     z-index: 1200;
-    background: rgba(0, 0, 0, 0.35);
+    background: color-mix(in srgb, var(--text) 45%, transparent);
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding-top: clamp(3rem, 16vh, 9rem);
+    padding-top: 10vh;
   }
   .cp-box {
-    width: min(34rem, 92vw);
+    width: min(92%, 34rem);
+    overflow: hidden;
     background: var(--page-bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--rule-strong);
     border-radius: 10px;
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.22);
-    padding: 0.65rem;
+    box-shadow: var(--popup-shadow);
     font-family: var(--font-ui);
   }
   .cp-input {
-    width: 100%;
     box-sizing: border-box;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--rule-strong);
+    background: transparent;
+    color: var(--text);
     font: inherit;
     font-size: 1rem;
-    padding: 0.55rem 0.7rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--col-bg);
-    color: var(--text);
+    padding: 0.8rem 0.9rem;
   }
-  .cp-input:focus { outline: none; border-color: var(--accent); }
-  .cp-list { list-style: none; margin: 0.45rem 0 0; padding: 0; max-height: 20rem; overflow-y: auto; }
-  .cp-item button {
+  .cp-input:focus-visible { outline-offset: -2px; }
+  .cp-list { list-style: none; margin: 0; padding: 0.3rem; max-height: 20rem; overflow-y: auto; }
+  .cp-list li { border-radius: 5px; }
+  .cp-list button {
     display: flex;
     align-items: baseline;
-    gap: 0.55rem;
+    justify-content: space-between;
+    gap: 0.6rem;
     width: 100%;
-    background: none;
-    border: none;
-    border-radius: 6px;
-    padding: 0.5rem 0.6rem;
-    font: inherit;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
     color: var(--text);
-    text-align: left;
     cursor: pointer;
-  }
-  .cp-item.active button { background: var(--col-bg); }
-  .cp-kind { flex-shrink: 0; width: 1.3rem; text-align: center; color: var(--text-light); font-size: 0.85rem; }
-  .cp-label { font-weight: 600; }
-  .cp-label.gk { font-family: var(--font-greek); font-weight: 400; font-size: 1.05rem; }
-  .cp-detail {
-    margin-left: auto;
-    color: var(--text-light);
-    font-size: 0.74rem;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 55%;
-  }
-  .cp-empty { margin: 0.6rem 0.2rem 0.2rem; color: var(--text-light); font-size: 0.85rem; }
-  .cp-hint { margin: 0.5rem 0.2rem 0; color: var(--text-light); font-size: 0.72rem; }
-  .cp-hint kbd {
     font: inherit;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 0 0.3rem;
-    background: var(--col-bg);
+    font-size: 0.88rem;
+    padding: 0.45rem 0.6rem;
+    text-align: left;
   }
+  .cp-list button.active { background: var(--accent); color: var(--on-accent); }
+  .cp-label { min-width: 0; }
+  .cp-kind { flex: 0 0 auto; color: var(--text-mid); font-size: 0.64rem; font-variant: small-caps; letter-spacing: 0.05em; }
+  .cp-list button.active .cp-kind { color: var(--on-accent); opacity: 0.8; }
+  .cp-empty { color: var(--text-mid); font-family: var(--font-english); font-size: 0.82rem; font-style: italic; margin: 0; padding: 0.8rem 0.9rem; }
+  .cp-status { border-top: 1px solid var(--rule-strong); color: var(--draft); font-family: var(--font-english); font-size: 0.76rem; margin: 0; min-height: 1.2em; padding: 0.5rem 0.9rem; }
+  .cp-status kbd { background: var(--col-bg); border: 1px solid var(--rule-strong); border-radius: 4px; color: var(--text-mid); font: inherit; padding: 0 0.3rem; }
+  @media (prefers-reduced-motion: reduce) { .cp-list { scroll-behavior: auto; } }
 </style>

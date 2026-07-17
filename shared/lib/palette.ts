@@ -5,7 +5,7 @@
 // (open that work, resuming its saved position), or Greek (lemma lookup).
 // Everything else falls through to corpus search.
 
-import { WORKS, type Work } from './works';
+import { GREEK_BOOK_LETTERS, WORKS, type Work } from './works';
 import { greekFold } from './search';
 import type { LemmaRef } from './data';
 
@@ -39,6 +39,37 @@ export function rankWorks(q: string, works: readonly Work[] = WORKS, limit = 6):
     .sort((a, b) => a.t - b.t || a.w.title.localeCompare(b.w.title))
     .slice(0, limit)
     .map((x) => x.w);
+}
+
+export interface BookResult {
+  work: Work;
+  book: number;
+  greekLetter: string;
+  label: string;
+  hay: string;
+}
+
+// The approved reader palette indexes every book, rather than just a work's
+// landing page. Its deliberately simple substring ranking mirrors the mock:
+// citation first (in the component), then book matches in canonical epic order.
+export function rankBooks(q: string, works: readonly Work[] = WORKS, limit = 12): BookResult[] {
+  const needle = q.trim().toLowerCase();
+  const index: BookResult[] = [];
+  for (const work of works) {
+    for (let book = 1; book <= work.books; book++) {
+      const letter = (GREEK_BOOK_LETTERS[book - 1] ?? String(book));
+      const greekLetter = work.id === 'odyssey' ? letter.toLowerCase() : letter;
+      const label = `${work.title} · Book ${work.bookLabels[book - 1] ?? book} (${greekLetter})`;
+      index.push({
+        work,
+        book,
+        greekLetter,
+        label,
+        hay: `${work.id} ${work.title} book ${book} ${greekLetter}`.toLowerCase(),
+      });
+    }
+  }
+  return (needle ? index.filter((item) => item.hay.includes(needle)) : index).slice(0, limit);
 }
 
 // Rank lemmata for a Greek query: fold-prefix matches on the headword,

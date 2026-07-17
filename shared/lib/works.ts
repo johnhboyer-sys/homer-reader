@@ -120,6 +120,10 @@ export const HOUSE_AUTHOR = 'Homer';
 // edition that text was keyed from. Translations are public-domain only, judged
 // by US copyright rules: Murray (Loeb, primary), Butler (prose), Pope (verse).
 const BOOK_LABELS_24 = Array.from({ length: 24 }, (_, i) => String(i + 1));
+// The traditional Alexandrian book numerals shared by the reader cartouche and
+// its keyboard navigator. Iliad uses capitals; Odyssey lowercases these at the
+// point of display (both epics have exactly twenty-four books).
+export const GREEK_BOOK_LETTERS = ['Α','Β','Γ','Δ','Ε','Ζ','Η','Θ','Ι','Κ','Λ','Μ','Ν','Ξ','Ο','Π','Ρ','Σ','Τ','Υ','Φ','Χ','Ψ','Ω'];
 const PERSEUS_GREEK_SOURCE = {
   short: 'Perseus',
   full: 'Digital Greek text from the Perseus Digital Library (PerseusDL, '

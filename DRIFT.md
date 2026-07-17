@@ -439,3 +439,12 @@ note below for the justification.
   `MapsPage.*.js` chunk (Leaflet is bundled inside it) or make any
   `cawm.lib.uiowa.edu` request; Reader.svelte and global.css were not
   touched by this feature.
+
+## Go-to command palette (Codex lane, Sonnet-verified, 2026-07-17)
+
+- shared/components/CommandPalette.svelte — ancestor search-palette extended
+  into the Treatment-3 "Go to…": books/scenes/citation sources, Wine-dark
+  tokens, dialog a11y kept from ancestor.
+- shared/lib/palette.ts — ranked 48-book index (new vs plato-reader).
+- shared/lib/citation.ts — formatLocValue verse-line branch (additive).
+- shared/lib/works.ts — GREEK_BOOK_LETTERS hoisted here from ReaderShell.

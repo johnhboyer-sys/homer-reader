@@ -14,7 +14,7 @@ import HelpButton from './HelpButton.svelte';
 import WorkSwitcher from './WorkSwitcher.svelte';
 import ThemeInit from './ThemeInit.astro';
 import ThemeToggle from './ThemeToggle.astro';
-import { getWork, bookLabel, isBookless, workPath, workLanding, HOUSE_AUTHOR } from '@shared/lib/works';
+import { getWork, bookLabel, isBookless, workPath, workLanding, HOUSE_AUTHOR, GREEK_BOOK_LETTERS } from '@shared/lib/works';
 import { normalizeBookData, stripBookForClient } from '@shared/lib/data';
 import { setSsrBook } from '@shared/lib/ssr-book';
 import { speakerRoster } from '../lib/speaker-roster';
@@ -42,7 +42,6 @@ const label = bookLabel(work, n);
 // lowercase, the inherited Alexandrian convention; both epics run exactly
 // 24 books, so no digamma/stigma numeral extension is needed). Genitive
 // title stems are the standard dictionary genitives of Ἰλιάς/Ὀδύσσεια.
-const GREEK_BOOK_LETTERS = ['Α','Β','Γ','Δ','Ε','Ζ','Η','Θ','Ι','Κ','Λ','Μ','Ν','Ξ','Ο','Π','Ρ','Σ','Τ','Υ','Φ','Χ','Ψ','Ω'];
 const GREEK_TITLE_GENITIVE: Record<string, string> = { iliad: 'ΙΛΙΑΔΟΣ', odyssey: 'ΟΔΥΣΣΕΙΑΣ' };
 const bookGreekLetter = (): string => {
   const letter = GREEK_BOOK_LETTERS[n - 1] ?? String(n);
@@ -91,9 +90,10 @@ const pageHref = (b: number, column: string) =>
 // normalization fetchBook uses so `scenes` (drafted from apparatus.scenes) is
 // present on the static page — otherwise the raw JSON.parse leaves scenes
 // undefined and Reading Mode never shows the marginal scene chips.
-const bookData = normalizeBookData(JSON.parse(
+const rawBookData = JSON.parse(
   readFileSync(`public/data/${workId}/book-${String(n).padStart(2, '0')}.json`, 'utf-8'),
-));
+);
+const bookData = normalizeBookData(rawBookData);
 // The island's server render reads the FULL book (with Greek tokens) from the
 // SSR channel so the static markup carries every token span; its SERIALIZED
 // props instead get a token-stripped copy — ~half the payload, since the token
@@ -304,11 +304,11 @@ const intro =
           <span class="hsup-heart" aria-hidden="true">♥</span>
           <span class="hsup-text">Support</span>
         </a>
-        <a class="header-search" href={`${base}/search`} aria-label="Search Greek &amp; English">
+        <button type="button" class="header-search command-palette-trigger" aria-label="Go to book, scene, or citation">
           <svg class="hs-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.8" cy="6.8" r="4.6"/><line x1="10.4" y1="10.4" x2="14" y2="14"/></svg>
-          <span class="hs-text">Search</span>
+          <span class="hs-text">Go to</span>
           <kbd class="hs-kbd" aria-hidden="true">⌘K</kbd>
-        </a>
+        </button>
         <a class="header-search header-lexicon" href={`${base}/lemma/`} aria-label="Greek Lexicon">
           <svg class="hs-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M8 3.6C6.6 2.6 4.2 2.6 2.6 3.1v9C4.2 11.6 6.6 11.6 8 12.6M8 3.6C9.4 2.6 11.8 2.6 13.4 3.1v9C11.8 11.6 9.4 11.6 8 12.6M8 3.6v9"/></svg>
           <span class="hs-text">Lexicon</span>
@@ -527,10 +527,13 @@ const intro =
     const header = document.querySelector('.page-header');
     const tocToggle = header?.querySelector('.toc-toggle');
 
-    // The Search button's ⌘K hint is rendered ⌘K (macOS) by default; the command
+    // The Go to button's ⌘K hint is rendered ⌘K (macOS) by default; the command
     // palette binds Ctrl+K on non-Mac platforms, so correct the visible label there.
     const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
     if (!isMac) header?.querySelector('.hs-kbd')?.replaceChildren('Ctrl K');
+    header?.querySelector('.command-palette-trigger')?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('open-command-palette'));
+    });
     const sidebar = document.getElementById('toc-sidebar');
     const backdrop = document.getElementById('toc-backdrop');
     // The closed drawer is off-screen but its links/buttons stay in the DOM, so
@@ -688,7 +691,7 @@ const intro =
        cancel the scroll, not more). The big hydration-cost win is the token
        event-delegation in Reader.svelte, which removed the ~1.2s scripting task. -->
   <Reader work={workId} bookNum={n} bookData={clientBookData} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:idle />
-  <CommandPalette work={workId} client:idle />
+  <CommandPalette work={workId} bookNum={n} scenes={clientBookData.scenes ?? []} client:idle />
 
   <footer class="site-footer">
     <span>Greek text: {work.greekSource.short} (Perseus, CC BY-SA)</span>

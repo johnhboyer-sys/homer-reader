@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hasGreek, rankLemmata, rankWorks } from '../lib/palette';
+import { hasGreek, rankBooks, rankLemmata, rankWorks } from '../lib/palette';
 import type { LemmaRef } from '../lib/data';
 
 // Note: citation parsing for the palette is delegated to the work's own
@@ -34,6 +34,23 @@ describe('rankWorks', () => {
   });
   it('caps the result count', () => {
     expect(rankWorks('a', undefined, 3).length).toBeLessThanOrEqual(3);
+  });
+});
+
+describe('rankBooks', () => {
+  it('keeps the canonical Iliad-then-Odyssey order and offers eight books on open', () => {
+    expect(rankBooks('', undefined, 8).map((x) => x.label)).toEqual([
+      'Iliad · Book 1 (Α)', 'Iliad · Book 2 (Β)', 'Iliad · Book 3 (Γ)', 'Iliad · Book 4 (Δ)',
+      'Iliad · Book 5 (Ε)', 'Iliad · Book 6 (Ζ)', 'Iliad · Book 7 (Η)', 'Iliad · Book 8 (Θ)',
+    ]);
+  });
+  it('matches work names, book numerals, and the epic Greek-letter convention', () => {
+    expect(rankBooks('od').every((x) => x.work.id === 'odyssey')).toBe(true);
+    expect(rankBooks('9').map((x) => `${x.work.id}:${x.book}`)).toEqual([
+      'iliad:9', 'iliad:19', 'odyssey:9', 'odyssey:19',
+    ]);
+    expect(rankBooks('ι').map((x) => `${x.work.id}:${x.book}`)).toEqual(['iliad:9', 'odyssey:9']);
+    expect(rankBooks('ω').map((x) => `${x.work.id}:${x.book}`)).toEqual(['iliad:24', 'odyssey:24']);
   });
 });
 
