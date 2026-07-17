@@ -52,6 +52,14 @@ Homer-specific reason.
   `footnotes: true` (Phase 2: Loeb `<note>` apparatus, milestone-anchored,
   spliced into the prose as `[^label]` markers; see
   `pipeline/homer_pipeline/stage1_perseus_milestone_english.py`).
+- `shared/lib/works.ts` — both epics' `pope` translation `name` gained
+  "— alignment approximate" (Phase 3: Pope ingested book-anchored only, no
+  intra-book proportional gutter — see
+  `pipeline/homer_pipeline/stage1_pope.py`'s module docstring for the
+  spot-check evidence behind that decision; label text pre-authorized by
+  John, 2026-07-17). No new `TranslationRef` field — the existing `name`
+  string already flows straight into the picker's `<option>` label
+  (`shared/components/Reader.svelte`), so no component change was needed.
 
 Not shared-core but worth noting here since it touches every pipeline
 reference across the repo: `pipeline/plato_pipeline/` was renamed to

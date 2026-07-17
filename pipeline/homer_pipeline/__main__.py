@@ -41,6 +41,17 @@ def _stage1(manifest):
         else:
             for scratch in ("ross_chunks.json",):
                 (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
+        # Third translation (Pope, verse, book-anchored only — see
+        # stage1_pope's module docstring for the degrade decision).
+        if (manifest.data.get("english") or {}).get("third"):
+            from . import stage1_pope
+
+            result = stage1_pope.run(manifest, spine)
+            print(f"  third (pope, book-anchored): chunks={result['chunks']} "
+                  f"books={result['books']} "
+                  f"footnote_markers_stripped={result.get('footnote_markers_stripped', 0)} "
+                  f"illustrations_dropped={result.get('illustrations_dropped', 0)} "
+                  f"no_argument_marker={result['no_argument_marker']}")
         return
 
     from . import stage1_greek
@@ -247,11 +258,17 @@ def _stage4(manifest):
 
 
 def _stage5(manifest):
-    from . import stage5_lsj
+    from . import stage5_cunliffe, stage5_lsj
 
     out_dir = stage5_lsj.run(manifest)
     summary = json.loads((out_dir / "summary.json").read_text())
-    print("stage5: " + " ".join(f"{k}={v}" for k, v in summary.items()))
+    print("stage5 (lsj): " + " ".join(f"{k}={v}" for k, v in summary.items()))
+
+    stage5_cunliffe.run(manifest)
+    cun_summary = json.loads(
+        (BUILD_DIR / "stage5" / "cunliffe_summary.json").read_text()
+    )
+    print("stage5 (cunliffe): " + " ".join(f"{k}={v}" for k, v in cun_summary.items()))
 
 
 def _stage6(manifest):
@@ -269,7 +286,8 @@ def _stage7(manifest):
     man = json.loads((out_dir / "manifest.json").read_text(encoding="utf-8"))
     print(f"stage7: {out_dir}")
     print(f"  books={len(man['books'])} token_keys={man['analyses']['token_keys']} "
-          f"lsj_entries={man['lsj']['lsj_entries_kept']}")
+          f"lsj_entries={man['lsj']['lsj_entries_kept']} "
+          f"cunliffe_entries={man['cunliffe']['cunliffe_entries_kept']}")
 
 
 _STAGES = {

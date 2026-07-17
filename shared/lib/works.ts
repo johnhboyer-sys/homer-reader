@@ -141,7 +141,7 @@ export const WORKS: Work[] = [
     translations: [
       { id: 'murray', name: 'A. T. Murray (Loeb, 1924–25)', short: 'Murray', slot: 'english', footnotes: true },
       { id: 'butler', name: 'Samuel Butler (1898)', short: 'Butler', slot: 'ross' },
-      { id: 'pope', name: 'Alexander Pope (literary translation), 1715–20', short: 'Pope', slot: 'third' },
+      { id: 'pope', name: 'Alexander Pope (literary translation — alignment approximate), 1715–20', short: 'Pope', slot: 'third' },
     ],
     blurb: 'The wrath of Achilles and the war at Troy.',
     citation: { scheme: 'verse-line' },
@@ -161,7 +161,7 @@ export const WORKS: Work[] = [
     translations: [
       { id: 'murray', name: 'A. T. Murray (Loeb, 1919)', short: 'Murray', slot: 'english', footnotes: true },
       { id: 'butler', name: 'Samuel Butler (1900)', short: 'Butler', slot: 'ross' },
-      { id: 'pope', name: 'Alexander Pope (literary translation), 1725–26', short: 'Pope', slot: 'third' },
+      { id: 'pope', name: 'Alexander Pope (literary translation — alignment approximate), 1725–26', short: 'Pope', slot: 'third' },
     ],
     blurb: 'The long homecoming of Odysseus from Troy to Ithaca.',
     citation: { scheme: 'verse-line' },

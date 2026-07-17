@@ -9,13 +9,31 @@ from pathlib import Path
 from homer_pipeline import stage1_perseus_milestone_english as s1
 
 FIXTURE = Path(__file__).parent / "fixtures" / "perseus_milestone_english" / "tiny.xml"
+DEFECTS_FIXTURE = Path(__file__).parent / "fixtures" / "perseus_milestone_english" / "defects.xml"
 
 # Book 1: no vulgate gap. Book 2: line 4 is a vulgate gap (3 -> 5).
 VALID_LINES = {1: {1, 2, 3, 4, 5}, 2: {1, 2, 3, 5, 6}}
 
+# Defect-regression fixture (defects.xml):
+#   Book 1: terminal milestone (n=5) has no following text at all (B1).
+#   Book 2: two milestones glued mid-word with no surrounding whitespace (M1).
+#   Book 3: a Loeb note preceded by a trailing space in the source (M5).
+#   Book 4: the book's last real milestone (n=3) lags one line behind the
+#           book's last valid line (4) — no milestone tags n=4 (M2 shape).
+DEFECTS_VALID_LINES = {
+    1: {1, 2, 3, 4, 5},
+    2: {1, 2, 3, 4},
+    3: {1, 2, 3},
+    4: {1, 2, 3, 4},
+}
+
 
 def _parse(book_ns=(1, 2), extract_footnotes=True):
     return s1.parse_translation(FIXTURE, VALID_LINES, list(book_ns), extract_footnotes)
+
+
+def _parse_defects(book_ns=(1, 2, 3, 4), extract_footnotes=True):
+    return s1.parse_translation(DEFECTS_FIXTURE, DEFECTS_VALID_LINES, list(book_ns), extract_footnotes)
 
 
 def test_normal_milestones_produce_monotonic_real_ticks():
@@ -136,3 +154,74 @@ def test_nearest_line_ties_snap_forward():
     assert s1._nearest_line([1, 2, 3, 5, 6], 4) == 5
     assert s1._nearest_line([1, 2, 3, 6, 7], 4) == 3  # unambiguous nearest
     assert s1._nearest_line([1, 2, 3, 6, 7], 5) == 6  # unambiguous nearest
+
+
+# --- Defect regression tests (align-verify gate findings B1, M1, M2, M5) ---
+
+
+def test_terminal_milestone_with_no_following_text_is_dropped_not_empty():
+    """B1: a milestone at the very end of a book's prose (nothing follows it)
+    must not survive as a tick — that would create a zero-width window. It is
+    dropped and recorded as `terminal_empty_dropped`; the real final English
+    stays reachable via the previous (non-empty) tick."""
+    parsed = _parse_defects()
+    ticks1 = parsed["ticks_by_book"][1]
+    ns = [t["n"] for t in ticks1]
+    assert 5 not in ns
+    assert ns == [1, 3]
+    text = parsed["chunks"][1]["text"]
+    assert text == "Word one line. Word three line text."
+    # No tick may have an empty window.
+    for t in ticks1:
+        assert t["offset"] < len(text)
+    dropped = [a for a in parsed["anomalies"] if a["kind"] == "terminal_empty_dropped"]
+    assert dropped == [{"kind": "terminal_empty_dropped", "book": 1, "n": 5, "offset": len(text)}]
+
+
+def test_milestone_strip_inserts_space_when_source_has_none():
+    """M1: stripping a <milestone/> that sits between two words with no
+    surrounding whitespace must not glue them together."""
+    parsed = _parse_defects()
+    text = parsed["chunks"][2]["text"]
+    assert "wisewill" not in text
+    assert "didHector" not in text
+    assert "wise will they hearken" in text
+    assert "did Hector move on" in text
+    # A milestone that already had real whitespace on its far side must not
+    # gain a second, spurious space.
+    assert "on.  The end" not in text
+    assert "on. The end line four." in text
+
+
+def test_footnote_marker_offset_lands_on_marker_not_preceding_space():
+    """M5: when the source has a trailing space before the <note>, the
+    recorded note offset must point at the marker's actual first character
+    ('['), not at the space before it."""
+    parsed = _parse_defects()
+    chunk = parsed["chunks"][3]
+    text = chunk["text"]
+    marker_pos = text.index("[^3.1]")
+    assert chunk["notes"] == [{"offset": marker_pos, "text": "1"}]
+    # Rendered text is untouched — still exactly one space before the marker.
+    assert text[marker_pos - 1] == " "
+    assert text[marker_pos - 2] != " "
+
+
+def test_book_final_milestone_lag_is_not_fabricated():
+    """M2 shape: when the source's last real milestone in a book doesn't sit
+    on the book's last valid line (sparser tagging near a book's end), the
+    parser must not invent a tick for that trailing line — it's real source
+    granularity, not a parser slice error. The last real tick's block simply
+    runs on to cover the remaining (untagged) content."""
+    parsed = _parse_defects()
+    ticks4 = parsed["ticks_by_book"][4]
+    ns = [t["n"] for t in ticks4]
+    assert ns == [1, 3]
+    assert 4 not in ns
+    text = parsed["chunks"][4]["text"]
+    # The line-4 content is real and present, just inside tick 3's window.
+    assert "also covers line four content" in text
+    holes = s1.check_coverage(
+        {4: sorted(DEFECTS_VALID_LINES[4])}, {4: ticks4}, [4],
+    )
+    assert holes == []

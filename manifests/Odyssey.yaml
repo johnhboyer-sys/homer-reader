@@ -33,6 +33,14 @@ english:
     id: butler
     name: "Samuel Butler (1900)"
     source: "perseus/tlg0012.tlg002.perseus-eng4.xml"
+  # Phase 3: Pope's verse translation (Project Gutenberg #3160 plaintext),
+  # 'third' overlay slot. Book-anchored only, not proportionally aligned
+  # within a book — see stage1_pope.py's module docstring for the measured
+  # spot-check drift behind that decision.
+  third:
+    id: pope
+    name: "Alexander Pope (1725-26)"
+    source: "pope/pope-odyssey.txt"
 
 # Verified vulgate numbering skips in perseus-grc2 (lines absent from the TEI).
 # Shape matches scheme.validate_line_sequence: after → next within `book`.
