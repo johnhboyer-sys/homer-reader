@@ -84,6 +84,11 @@ decisions, not on file contents.
 - **Fable never spawns fable subagents unless John explicitly says to.**
 - **Grok-4.5 is available again (John, 2026-07-17: upgraded, free trial).**
   Content-verification gates route to Grok per the routing table below.
+- **Usage rebalance (John, 2026-07-17 ~17:00): conserve Claude; lean on
+  Codex + Grok.** Claude 7d at 57%, Codex has two resets banked, Grok at
+  24% used. Well-specified implementation defaults to GPT-5.6-Terra-High
+  (Codex) or Grok; Sonnet/Opus reserved for reader-core subtleties,
+  philological judgment, and integration-heavy work. Judgment allowed.
 
 ### Context discipline
 
