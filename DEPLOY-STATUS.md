@@ -35,6 +35,16 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
   homepage implementation (Wine-dark token swap), in-book nav (mocks
   with John).
 
+- **Iliad re-based onto TLG Allen 1931** (2026-07-17, John's call +
+  Allen-supplement ruling): line-set identity all 24 books, totals
+  unchanged (15,687), Murray ticks byte-identical, preflight 0 errors.
+  bracketed flag now live: 528 lines (524 Allen obeloi + Il. 8.548/
+  550-552 supplied from the vulgate). Stage4 unparsed 0.075% (was
+  0.04%). 8,648 Greek lines differ from the Perseus text (Allen
+  orthography + genuine variants). PENDING before deploy: attribution
+  page + works.ts still credit Monro-Allen/Perseus for the Iliad
+  (queued behind the hydration-diagnosis lane).
+
 ## Corpus facts
 
 - Line totals (verbatim from Perseus grc2, independently re-derived): Iliad
@@ -160,6 +170,11 @@ the step. "Digital Landmark Homer" remains internal-docs-only vocabulary.
    addition to the scene rail; book-grid stepper stays shelved.
 
 ## John's review queue (accumulating; final list at handoff)
+
+0. NEW: Il. 8.538-541 — TLG carries a bare Beta Code %11 bullet inside
+   the line text (not the usual sigla markup) at a known Aristarchan
+   athetesis locus. Currently preserved as data, NOT bracketed (obelos-
+   only rule). Call: should 8.538-541 render athetized?
 
 1. Greek-source copyright call: confirm Perseus fallback (Allen 1931 enters US
    PD in 2027 — optional future re-basing to the TLG text).
