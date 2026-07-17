@@ -6,3 +6,8 @@ dist/
 .DS_Store
 *.log
 .astro/
+.remember/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
