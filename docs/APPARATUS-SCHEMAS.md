@@ -91,6 +91,14 @@ in `tradition`). NEVER invent an identification. `maps`: which of
 Genealogy trees: `atreus | aeacus | troy | olympians`. `dicesId` filled by the
 speech-span stage join, not by drafters.
 
+Genealogy honesty (added after the 2026-07-17 Grok gate): a parent link not
+attested in Homer may remain in the structured fields ONLY when the tree needs
+it to connect, and must then be flagged: `"genealogy": {..., "nonHomeric":
+["father"]}` with the source tradition named in `note`. The UI renders
+flagged links visually distinct (dashed). Unflagged links assert Homeric
+attestation. Figures never named in Homer get no entry unless a tree
+structurally requires them (then the whole entry's note states the source).
+
 ## speeches.json (per work, from DICES: `apparatus/speeches/<work>.json`)
 
 Computed from sources/dices/speechdb.json (CC-BY 4.0), not authored:
@@ -106,5 +114,9 @@ high-confidence spans (level 0 and clean level 1).
   `{entity, formulas: [{text, lemmaKeys, count, refs: [{book, line}]}]}`.
 - repetitions: `build/dist/repetitions.json` — exact repeated lines + 4-word+
   n-grams occurring >= 2x, cross-epic: `{key, text, count, refs}`.
+Maximal-n-gram rule (both stages, explosion control): a shorter candidate is
+dropped only when a strictly longer *accepted* candidate contains it as a
+contiguous sub-sequence AND has the identical ref set; a shorter candidate
+with a broader/different ref set is kept independently.
 Both deterministic, pipeline-tested (fixture + determinism test re-run twice,
 byte-identical output).

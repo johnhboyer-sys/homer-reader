@@ -23,6 +23,17 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
 - **Phase 3 begun**: design locked (Chart-Room base × Aegean palette,
   docs/DESIGN.md); lookup UX = docked sidebar desktop / popup mobile,
   EXPAND control, no new tabs except Logeion.
+- **Gate 3 PASSED** (2026-07-17, checked in main loop): axe 0
+  serious/critical both themes (/ and book page); AA both themes;
+  Lighthouse /iliad/book/1/ mobile 90 (median of 3, stable), desktop
+  100, CLS 0.000. Two Opus perf lanes: delegated token events (~7000
+  per-token listeners -> 1 handler; longest task 1250ms -> 75ms) then
+  island-prop stripping with DOM token reconstruction (book-1 HTML
+  gzip 216KB -> 138KB). Reading Mode, scene chips + draft badges,
+  lexicon, deep links, translation switch, compare all verified on the
+  built site. Remaining Phase-3-adjacent work tracked separately:
+  homepage implementation (Wine-dark token swap), in-book nav (mocks
+  with John).
 
 ## Corpus facts
 

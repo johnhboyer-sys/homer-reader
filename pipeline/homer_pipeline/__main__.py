@@ -310,6 +310,34 @@ def _stage_apparatus(manifest):
         print(f"  books without staged apparatus yet: {result['books_without_staging']}")
 
 
+def _stage_epithets(manifest):
+    from . import apparatus_epithets
+
+    result = apparatus_epithets.run(manifest)
+    print(
+        f"epithets: {result['work']}: entities_with_formulas="
+        f"{result['entities_with_formulas']}/{result['entities_total']} "
+        f"total_formulas={result['total_formulas']}"
+    )
+    if result["entities_unresolved"]:
+        print(f"  unresolved entity headwords (not in Diogenes): {result['entities_unresolved']}")
+
+
+def _stage_repetitions(manifest):
+    # Cross-epic: discovers every work from manifests/*.yaml itself, so the
+    # (per-CLI-invocation) `manifest` argument is unused here but kept for a
+    # uniform _STAGES[...](manifest) call signature. Safe to re-run as more
+    # works come online -- see apparatus_repetitions._load_lines.
+    del manifest
+    from . import apparatus_repetitions
+
+    result = apparatus_repetitions.run()
+    print(
+        f"repetitions: works={result['works']} lines_scanned={result['lines_scanned']} "
+        f"repetitions={result['repetitions']}"
+    )
+
+
 _STAGES = {
     "stage1": _stage1,
     "stage2": _stage2,
@@ -319,6 +347,8 @@ _STAGES = {
     "stage6": _stage6,
     "stage7": _stage7,
     "apparatus": _stage_apparatus,
+    "epithets": _stage_epithets,
+    "repetitions": _stage_repetitions,
 }
 
 

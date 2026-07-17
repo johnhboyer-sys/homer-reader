@@ -1135,7 +1135,7 @@
       "id": "batieia",
       "name": "Batieia",
       "greek": "Βατίεια",
-      "certainty": "mythical",
+      "certainty": "speculative",
       "maps": [
         "troad"
       ],
@@ -1149,7 +1149,8 @@
           ]
         }
       ],
-      "note": "A mound before Troy that men call Batieia but the gods call the barrow of swift Myrina; a legendary landmark, not securely located."
+      "note": "A mound before Troy that men call Batieia but the gods call the barrow of swift Myrina (Iliad 2.811-814); a real narrated landmark within the story, not merely mythical, but its physical site is not securely identified.",
+      "tradition": "A tumulus on the Trojan plain, one of several (with the tombs of Ilus and Aesyetes) discussed in Troad topography since Strabo (13.1.36-37); no ancient or modern survey (e.g. Leaf, Troy: A Study in Homeric Geography, 1912) securely matches a surviving mound to Batieia."
     },
     {
       "id": "callicolone",
@@ -1517,10 +1518,10 @@
       "note": "Region of west-central Greece around Calydon; named as the homeland of the man who tricks Eumaeus's false Cretan into a lie about Odysseus."
     },
     {
-      "id": "same-cephallenia",
+      "id": "same",
       "name": "Same",
       "greek": "Σάμη",
-      "certainty": "certain",
+      "certainty": "traditional",
       "pleiades": "https://pleiades.stoa.org/places/531093",
       "coords": [
         38.25,
@@ -1546,9 +1547,18 @@
             24,
             24
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            634,
+            634
+          ]
         }
       ],
-      "note": "Island in Odysseus's kingdom alongside Ithaca, Dulichium, and Zacynthus; identified with modern Kefalonia (ancient town of Same/Sami)."
+      "note": "One of the islands in Odysseus's kingdom, alongside Ithaca, Dulichium, and Zacynthus (Odyssey 1.246, 9.24). The Iliad's Catalogue of Ships names it in the older form Σάμος (2.634); identified with modern Kefalonia.",
+      "tradition": "Identified with the island now called Cephalonia (Kefalonia), whose principal town Sami preserves the ancient name. In Homer 'Same' names one island in Odysseus's realm; it is distinct from 'Cephallenians' (Κεφαλλῆνες, Iliad 2.631), the ethnonym covering Odysseus's whole people across Ithaca, Same, Dulichium, Zacynthus, and the mainland opposite."
     },
     {
       "id": "zacynthus",
@@ -1805,7 +1815,7 @@
       "id": "ithaca",
       "name": "Ithaca",
       "greek": "Ἰθάκη",
-      "certainty": "certain",
+      "certainty": "traditional",
       "pleiades": "https://pleiades.stoa.org/places/530906",
       "coords": [
         38.42,
@@ -1833,7 +1843,8 @@
           ]
         }
       ],
-      "note": "Odysseus's home island, ruled by continuity of name with the modern island of Ithaki since antiquity (Strabo 10.2.10-13)."
+      "note": "Odysseus's home island, ruled by continuity of name with the modern island of Ithaki since antiquity (Strabo 10.2.10-13).",
+      "tradition": "Identified since antiquity with the island of Ithaki (Strabo 10.2.10-13). A minority 'Paliki thesis' (Bittlestone, Diggle & Underhill, Odysseus Unbound, 2005) argues Homer's Ithaca is instead the Paliki peninsula of Kefalonia, once a separate island; the Ithaki identification remains the mainstream tradition."
     },
     {
       "id": "pylos",

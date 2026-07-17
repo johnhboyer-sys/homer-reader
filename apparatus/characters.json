@@ -166,10 +166,9 @@
       "role": "Half-brother of the greater Ajax; the Achaeans' best archer at Troy.",
       "genealogy": {
         "tree": "aeacus",
-        "father": "telamon",
-        "mother": "hesione"
+        "father": "telamon"
       },
-      "note": "Son of Telamon and the Trojan princess Hesione, making him nephew to Priam; fights from behind his brother's shield (Iliad 8).",
+      "note": "Telamon's bastard son by an unnamed mother (Iliad 8.283-284, νόθον περ ἐόντα); later tradition names his mother as the Trojan princess Hesione, captured by Heracles, but Homer never names her.",
       "dicesId": null
     },
     {
@@ -180,7 +179,7 @@
         "swift of foot"
       ],
       "role": "Nestor's son; a swift young warrior, close friend of Achilles.",
-      "note": "Killed by Memnon while defending his father; his death, only foreshadowed within the Iliad, is a paradigm of noble self-sacrifice recalled in Odyssey 24.",
+      "note": "In the cyclic Aethiopis (not the Iliad), killed by Memnon while defending his father Nestor; his death, unnarrated within the Iliad, is recalled as a paradigm of noble self-sacrifice at Odyssey 24.78-79, where he is honored above all Achilles' companions after Patroclus.",
       "dicesId": null
     },
     {
@@ -288,7 +287,7 @@
       "epithets": [
         "of the glancing helm",
         "tamer of horses",
-        "breaker of horses"
+        "glorious"
       ],
       "role": "Troy's foremost warrior and defender; eldest son of Priam.",
       "genealogy": {
@@ -366,16 +365,14 @@
       "id": "polites",
       "name": "Polites",
       "greek": "Πολίτης",
-      "epithets": [
-        "swift of foot"
-      ],
+      "epithets": [],
       "role": "Trojan prince; a scout for the Trojans.",
       "genealogy": {
         "tree": "troy",
         "father": "priam",
         "mother": "hecuba"
       },
-      "note": "Iliad 2.791 has him seated as lookout on the tomb of old Aesyetes, watching for an Achaean advance.",
+      "note": "Named at Iliad 2.791 as the shape Iris takes; the Trojan prince sits as lookout on old Aesyetes' tomb, trusting his swiftness of foot (2.792-793) — a one-off description, not a recurring formula.",
       "dicesId": null
     },
     {
@@ -582,7 +579,10 @@
       "genealogy": {
         "tree": "troy",
         "father": "zeus",
-        "mother": "electra"
+        "mother": "electra",
+        "nonHomeric": [
+          "mother"
+        ]
       },
       "note": "Named by Aeneas as Zeus's son and Troy's founding ancestor (Iliad 20.215-216). Homer does not name his mother; 'Electra' is the later tradition (e.g. Apollodorus).",
       "dicesId": null
@@ -667,7 +667,7 @@
         "tree": "troy",
         "father": "ilus"
       },
-      "note": "Refused payment to Apollo and Poseidon for building Troy's walls (Iliad 21.441-457) and to Heracles for rescuing his daughter Hesione, bringing disaster on the city both times.",
+      "note": "Refused payment to Apollo and Poseidon for building Troy's walls (Iliad 21.441-457), and cheated Heracles of the horses promised for an earlier service, prompting Heracles to sack Troy with a small force (Iliad 5.640-651). Homer does not specify the service; later tradition identifies it as rescuing Hesione from a sea-monster.",
       "dicesId": null
     },
     {
@@ -681,19 +681,6 @@
         "father": "assaracus"
       },
       "note": "Named in Aeneas's genealogy speech at Iliad 20.239.",
-      "dicesId": null
-    },
-    {
-      "id": "hesione",
-      "name": "Hesione",
-      "greek": "Ἡσιόνη",
-      "epithets": [],
-      "role": "Laomedon's daughter, Priam's sister; given to Telamon as war-prize.",
-      "genealogy": {
-        "tree": "troy",
-        "father": "laomedon"
-      },
-      "note": "Rescued by Heracles from a sea-monster after Laomedon's broken bargain, background to an earlier sack of Troy; mother of Teucer by Telamon.",
       "dicesId": null
     },
     {
@@ -716,9 +703,12 @@
       "role": "Son of Tantalus; his scepter passes down to found the Atreid dynasty.",
       "genealogy": {
         "tree": "atreus",
-        "father": "tantalus"
+        "father": "tantalus",
+        "nonHomeric": [
+          "father"
+        ]
       },
-      "note": "Named only via the scepter's history at Iliad 2.100-108: Hephaestus made it for Zeus, who gave it to Hermes, to Pelops, to Atreus, to Thyestes, to Agamemnon.",
+      "note": "Named only via the scepter's history at Iliad 2.100-108: Hephaestus made it for Zeus, who gave it to Hermes, to Pelops, to Atreus, to Thyestes, to Agamemnon. Homer never links him to Tantalus; the father-son connection is cyclic/lyric tradition (e.g. Pindar, Olympian 1).",
       "dicesId": null
     },
     {
@@ -757,7 +747,7 @@
         "tree": "atreus",
         "father": "thyestes"
       },
-      "note": "His crime and Orestes' revenge are the Odyssey's recurring moral exemplum, held up repeatedly against Telemachus and Odysseus's own household troubles. Homer implies but never states outright his descent from Thyestes.",
+      "note": "His crime and Orestes' revenge are the Odyssey's recurring moral exemplum, held up repeatedly against Telemachus and Odysseus's own household troubles. Homer explicitly calls him Θυεστιάδης, 'son of Thyestes' (Odyssey 4.518).",
       "dicesId": null
     },
     {
@@ -806,9 +796,12 @@
       "genealogy": {
         "tree": "aeacus",
         "father": "zeus",
-        "mother": "aegina"
+        "mother": "aegina",
+        "nonHomeric": [
+          "mother"
+        ]
       },
-      "note": "Never appears on stage in Homer; known only through the patronymic 'Aeacides' applied to Achilles. His parentage by Zeus and the nymph Aegina is post-Homeric (e.g. Pindar).",
+      "note": "Never appears on stage in Homer, known otherwise only through the patronymic 'Aeacides' applied to Achilles and Peleus; but his father Zeus is stated outright (Iliad 21.189, ὃ δʼ ἄρʼ Αἰακὸς ἐκ Διὸς ἦεν). His mother, the nymph Aegina, is post-Homeric (e.g. Pindar).",
       "dicesId": null
     },
     {
@@ -832,7 +825,7 @@
       "name": "Telamon",
       "greek": "Τελαμών",
       "epithets": [],
-      "role": "King of Salamis; father of the greater Ajax and, by Hesione, Teucer.",
+      "role": "King of Salamis; father of the greater Ajax and Teucer.",
       "genealogy": {
         "tree": "aeacus",
         "father": "aeacus"
@@ -898,7 +891,9 @@
       "name": "Hades",
       "greek": "Ἀΐδης",
       "epithets": [
-        "host of many"
+        "of famous foals",
+        "lord of those below",
+        "gate-fastener"
       ],
       "role": "God of the underworld; rarely active, but constantly referenced.",
       "genealogy": {
@@ -906,7 +901,7 @@
         "father": "cronus",
         "mother": "rhea"
       },
-      "note": "Named as Zeus's and Poseidon's brother, ruler of the dead by lot (Iliad 15.187-193); briefly terrified by Poseidon's earthquake in the Theomachy (Iliad 20.61-65).",
+      "note": "Named as Zeus's and Poseidon's brother, ruler of the dead by lot (Iliad 15.187-193, ἐνέροισιν ἀνάσσων); briefly terrified by Poseidon's earthquake in the Theomachy (Iliad 20.61-65).",
       "dicesId": null
     },
     {
@@ -933,7 +928,7 @@
       "epithets": [
         "far-shooter",
         "of the silver bow",
-        "lord of Delos"
+        "Phoebus"
       ],
       "role": "God of plague, prophecy, and music; Troy's most active divine patron.",
       "genealogy": {
@@ -1063,8 +1058,8 @@
       "name": "Leto",
       "greek": "Λητώ",
       "epithets": [
-        "gentle",
-        "of the braided hair"
+        "of the braided hair",
+        "glorious"
       ],
       "role": "Titaness; mother of Apollo and Artemis.",
       "note": "Gathers her children's weapons after the Theomachy (Iliad 21.505-511); her own parentage (the Titans Coeus and Phoebe, per Hesiod) goes unmentioned in Homer.",
@@ -1103,7 +1098,7 @@
       "greek": "Πηνελόπεια",
       "epithets": [
         "circumspect",
-        "constant"
+        "prudent"
       ],
       "role": "Odysseus's wife; holds off the suitors for twenty years.",
       "note": "Daughter of Icarius of Sparta. Her weaving-and-unweaving ruse and the eventual bow-contest test frame the Odyssey's homecoming plot.",
