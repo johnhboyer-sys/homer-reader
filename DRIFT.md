@@ -448,3 +448,13 @@ note below for the justification.
 - shared/lib/palette.ts — ranked 48-book index (new vs plato-reader).
 - shared/lib/citation.ts — formatLocValue verse-line branch (additive).
 - shared/lib/works.ts — GREEK_BOOK_LETTERS hoisted here from ReaderShell.
+
+## `?loc=` initial-scroll fix (2026-07-17)
+
+- `shared/components/Reader.svelte` — the `onMount` `?loc=` jump-to-line scroll
+  changed `behavior: 'smooth'` → `'auto'` (instant), matching the sibling
+  hash-citation path a few lines below (`col-<col>` branch) whose comment
+  already documents why: a smooth animation started during `client:idle`
+  hydration can be delayed/interrupted by layout churn. The `?loc` path had the
+  same risk but was never updated to match; brought in line. No plato-reader
+  counterpart (this repo's `?loc` scheme is Homer-only verse-line).

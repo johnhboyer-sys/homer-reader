@@ -1404,7 +1404,12 @@
             });
             if (best) { el = best as HTMLElement; targetId = (best as HTMLElement).id; }
           }
-          if (el) { suppressArmUntil = Date.now() + 1500; el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+          // Instant, like the hash-citation path below: a smooth animation
+          // started during client:idle hydration can be delayed/interrupted by
+          // layout churn (viewport resize, reactive re-renders settling) and
+          // strand the reader before it reaches the target. Reduced-motion
+          // users need instant regardless, so there's no behavior split here.
+          if (el) { suppressArmUntil = Date.now() + 1500; el.scrollIntoView({ behavior: 'auto', block: 'center' }); }
         } else if (hash) {
           const ref = parseBekker(hash);
           if (ref) {
