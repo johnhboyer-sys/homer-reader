@@ -95,6 +95,16 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
   to the schema; targeted Grok re-check confirms every item. Note: the
   fixer overturned one gate claim with evidence (Aeacus's Zeus paternity
   is Homeric, Il. 21.189) and Grok independently confirmed.
+- **Catalogue of Ships (Grok-4.5 content gate): PASS-WITH-FIXES ->
+  fixed** (2026-07-17). All 29 Achaean ship counts verified against
+  Greek numerals (fleet total 1,186 = traditional count); spans tile
+  exactly; leader traps (Phocians, two Ajaxes, Protesilaus/Philoctetes
+  replacements) all correct; 60-toponym stratified sample + full
+  237-entry scan: 0 false citations; 8 homonym pairs genuine. Fixes
+  applied in main loop: pelion +Il.2.757, peneius-river +2.753/757
+  mentions (Greek-verified). Trojans contingent keeps places:["troy"]
+  as muster-point per schema (2.816 has ethnic Τρωσί, and places.json
+  troy claims no Il.2 mention — nothing false to fix).
 - **Iliad scenes apparatus re-gate: PASS** (2026-07-17). Sonnet fix pass
   corrected all blockers plus wider unsampled cascade members in Bks
   16/17 (Greek-cited); Grok exhaustive re-verify of Bks 6/16/17 (51
