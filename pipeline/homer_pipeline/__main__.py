@@ -10,6 +10,28 @@ from .config import BUILD_DIR, Manifest
 
 
 def _stage1(manifest):
+    from . import scheme as scheme_mod
+
+    sch = scheme_mod.for_manifest(manifest)
+
+    # Verse-line works (Homer): Perseus grc2 TEI reader, Greek-only for Phase 1.
+    if sch.name == "verse-line":
+        from . import stage1_perseus_greek
+
+        spine_path = stage1_perseus_greek.run(manifest)
+        spine = json.loads(spine_path.read_text(encoding="utf-8"))
+        for scratch in ("ross_chunks.json", "third_chunks.json", "third_footnotes.json",
+                        "overlays.json"):
+            (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
+        n_lines = sum(len(s["lines"]) for s in spine["segments"])
+        skipped = spine.get("skipped_line_attrs") or {}
+        print(
+            f"stage1 (perseus-grc, verse-line): books={len(spine['segments'])} "
+            f"lines={n_lines} title_lines_skipped={spine.get('title_lines_skipped', 0)} "
+            f"skipped_n={skipped or '{}'}"
+        )
+        return
+
     from . import stage1_greek
 
     spine_path = stage1_greek.run(manifest)
@@ -24,7 +46,6 @@ def _stage1(manifest):
 
     # Section-scheme works can opt into a parallel Perseus Stephanus TEI pass.
     # Others remain Greek-only, with stale English scratch removed.
-    from . import scheme as scheme_mod
     if scheme_mod.for_manifest(manifest).has_sections:
         primary = ((manifest.data.get("english") or {}).get("primary") or {})
         if primary.get("model") == "perseus_stephanus":

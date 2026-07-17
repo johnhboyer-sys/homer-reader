@@ -53,20 +53,41 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
     # pages are not guaranteed to hold every section letter, so their expected
     # column set is the OBSERVED spine, never a rectangular page x side range;
     # editorial line-number gaps on those schemes are demoted (not failures).
+    # "verse" schemes (Homer): the column IS the book number; expected set is
+    # the manifest's book list; line continuity uses validate_line_sequence.
     sch = scheme_mod.for_manifest(manifest)
     observed = sch.validation_mode == "observed"
+    verse = sch.validation_mode == "verse"
 
     # --- 1. column completeness + monotonicity --------------------------
     seen_cols: list[str] = []
     for seg in segments:
         if seg["column"] not in seen_cols:
             seen_cols.append(seg["column"])
-    expected = list(seen_cols) if observed else column_range(
-        manifest.first_column, manifest.last_column, sch.range_sides)
-    missing = sorted(set(expected) - set(seen_cols), key=column_key)
-    extra = sorted(set(seen_cols) - set(expected), key=column_key)
-    keys = [column_key(c) for c in seen_cols]
-    monotonic = all(a <= b for a, b in zip(keys, keys[1:]))
+    if verse:
+        # One column token per book ("1".."24"); order by book number.
+        expected = [str(b["n"]) for b in manifest.books]
+        missing = sorted(set(expected) - set(seen_cols), key=lambda c: int(c) if c.isdigit() else c)
+        extra = sorted(set(seen_cols) - set(expected), key=lambda c: int(c) if c.isdigit() else c)
+        try:
+            keys = [int(c) for c in seen_cols]
+            monotonic = all(a <= b for a, b in zip(keys, keys[1:]))
+        except ValueError:
+            keys = seen_cols
+            monotonic = False
+    elif observed:
+        expected = list(seen_cols)
+        missing = sorted(set(expected) - set(seen_cols), key=column_key)
+        extra = sorted(set(seen_cols) - set(expected), key=column_key)
+        keys = [column_key(c) for c in seen_cols]
+        monotonic = all(a <= b for a, b in zip(keys, keys[1:]))
+    else:
+        expected = column_range(
+            manifest.first_column, manifest.last_column, sch.range_sides)
+        missing = sorted(set(expected) - set(seen_cols), key=column_key)
+        extra = sorted(set(seen_cols) - set(expected), key=column_key)
+        keys = [column_key(c) for c in seen_cols]
+        monotonic = all(a <= b for a, b in zip(keys, keys[1:]))
     report["checks"]["columns"] = {
         "expected": len(expected),
         "found": len(seen_cols),
@@ -200,49 +221,92 @@ def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) ->
         }
 
     # --- 2. line-number gaps ---------------------------------------------
-    # Expected gaps: between one book's end and the next book's start when
-    # they share a column (Bekker numbering skips the heading lines). Only
-    # line-bearing schemes declare book boundaries with a line number; section
-    # schemes (stephanus) bound books by a page+letter column and demote all
-    # intra-column line gaps below, so their book table is skipped here.
-    expected_gaps = set()
-    books = manifest.books
-    if not observed:
-        for prev, nxt in zip(books, books[1:]):
-            e_page, e_side, e_line = ref_key(prev["end"])
-            s_page, s_side, s_line = ref_key(nxt["start"])
-            if (e_page, e_side) == (s_page, s_side):
-                expected_gaps.add((f"{e_page}{e_side}", e_line, s_line))
-    # Edition quirks declared in the manifest (e.g. a repeated line number).
-    for g in manifest.data.get("expected_line_gaps", []):
-        expected_gaps.add((g["column"], g["after"], g["next"]))
-    gaps = []
-    lines_by_col: dict[str, list[int]] = defaultdict(list)
-    for seg in segments:
-        lines_by_col[seg["column"]].extend(l["n"] for l in seg["lines"])
-    for col, nums in lines_by_col.items():
-        for a, b in zip(nums, nums[1:]):
-            if b != a + 1:
-                entry = {
-                    "column": col,
-                    "after_line": a,
-                    "next_line": b,
-                    "expected": (col, a, b) in expected_gaps,
+    # Verse-line: within each book, line numbers must ascend by one; genuine
+    # vulgate skips are declared as expected_line_gaps {book, after, next}.
+    # Bekker: expected gaps also include book-boundary shared-column jumps.
+    # Section schemes demote all intra-column gaps (editorial line numbers).
+    if verse:
+        lines_by_book: dict[int, list[int]] = defaultdict(list)
+        for seg in segments:
+            lines_by_book[seg["book"]].extend(l["n"] for l in seg["lines"])
+        declared = list(manifest.data.get("expected_line_gaps") or [])
+        unexpected = scheme_mod.validate_line_sequence(lines_by_book, declared)
+        gaps = [
+            {
+                "column": str(g["book"]),
+                "book": g["book"],
+                "after_line": g["after"],
+                "next_line": g["next"],
+                "expected": True,
+            }
+            for g in declared
+            if isinstance(g, dict) and {"book", "after", "next"} <= g.keys()
+        ]
+        # Also surface any undeclared gaps as unexpected.
+        for g in unexpected:
+            gaps.append(
+                {
+                    "column": str(g["book"]),
+                    "book": g["book"],
+                    "after_line": g["after"],
+                    "next_line": g["next"],
+                    "expected": False,
                 }
-                gaps.append(entry)
-    # observed schemes: line numbers are editorial (busse per-page numbering with
-    # section headings dropped; stephanus lines restart per section and are not
-    # user-facing citation targets), so intra-column line-number gaps are demoted
-    # to non-failing warnings rather than treated as spine defects.
-    if observed:
-        for g in gaps:
-            g["expected"] = True
-    unexpected_gaps = [g for g in gaps if not g["expected"]]
-    report["checks"]["line_gaps"] = {
-        "gaps": gaps,
-        "unexpected": unexpected_gaps,
-        "ok": not unexpected_gaps,
-    }
+            )
+        report["checks"]["line_gaps"] = {
+            "gaps": gaps,
+            "unexpected": [
+                {
+                    "column": str(g["book"]),
+                    "book": g["book"],
+                    "after_line": g["after"],
+                    "next_line": g["next"],
+                    "expected": False,
+                }
+                for g in unexpected
+            ],
+            "ok": not unexpected,
+        }
+    else:
+        expected_gaps = set()
+        books = manifest.books
+        if not observed:
+            for prev, nxt in zip(books, books[1:]):
+                e_page, e_side, e_line = ref_key(prev["end"])
+                s_page, s_side, s_line = ref_key(nxt["start"])
+                if (e_page, e_side) == (s_page, s_side):
+                    expected_gaps.add((f"{e_page}{e_side}", e_line, s_line))
+        # Edition quirks declared in the manifest (e.g. a repeated line number).
+        for g in manifest.data.get("expected_line_gaps", []):
+            if "column" in g:
+                expected_gaps.add((g["column"], g["after"], g["next"]))
+        gaps = []
+        lines_by_col: dict[str, list[int]] = defaultdict(list)
+        for seg in segments:
+            lines_by_col[seg["column"]].extend(l["n"] for l in seg["lines"])
+        for col, nums in lines_by_col.items():
+            for a, b in zip(nums, nums[1:]):
+                if b != a + 1:
+                    entry = {
+                        "column": col,
+                        "after_line": a,
+                        "next_line": b,
+                        "expected": (col, a, b) in expected_gaps,
+                    }
+                    gaps.append(entry)
+        # observed schemes: line numbers are editorial (busse per-page numbering with
+        # section headings dropped; stephanus lines restart per section and are not
+        # user-facing citation targets), so intra-column line-number gaps are demoted
+        # to non-failing warnings rather than treated as spine defects.
+        if observed:
+            for g in gaps:
+                g["expected"] = True
+        unexpected_gaps = [g for g in gaps if not g["expected"]]
+        report["checks"]["line_gaps"] = {
+            "gaps": gaps,
+            "unexpected": unexpected_gaps,
+            "ok": not unexpected_gaps,
+        }
 
     # --- 3. alignment coverage -------------------------------------------
     unmatched = [p["segment"] for p in alignment["pairs"] if p["english"] is None]

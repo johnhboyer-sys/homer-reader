@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -126,6 +127,8 @@ def _validate_manifest_schema(manifest: WorkManifest, problems: list[Problem]) -
 
     if scheme.bekker_native:
         _validate_bekker_manifest_schema(manifest, problems)
+    elif scheme.name == "verse-line":
+        _validate_verse_manifest_schema(manifest, problems)
     else:
         _validate_section_manifest_schema(manifest, problems)
 
@@ -169,6 +172,49 @@ def _validate_bekker_manifest_schema(manifest: WorkManifest, problems: list[Prob
                 if previous is not None and current < previous:
                     problems.append((manifest.work_id, file_name, f"chapters.list[{i}].bekker is out of order"))
                 previous = current
+
+
+def _is_verse_ref(value: Any) -> bool:
+    """True for a book.line token like '9.366'."""
+    return isinstance(value, str) and bool(re.fullmatch(r"\d+\.\d+", value))
+
+
+def _verse_ref_key(ref: str) -> tuple[int, int]:
+    book, line = ref.split(".", 1)
+    return (int(book), int(line))
+
+
+def _validate_verse_manifest_schema(manifest: WorkManifest, problems: list[Problem]) -> None:
+    """Verse-line (Homer) manifest rules: books bounded by book.line refs, no
+    Bekker range / section spine / required english.primary (Greek-only builds
+    are legal; Phase 2 adds translations). expected_line_gaps entries, when
+    present, must carry {book, after, next}."""
+    data = manifest.data
+    file_name = manifest.path.name
+
+    _validate_books_schema(
+        manifest, problems,
+        token_ok=_is_verse_ref, sort_key=_verse_ref_key,
+        token_label="a verse book.line ref (e.g. '1.1')",
+    )
+
+    for i, g in enumerate(data.get("expected_line_gaps") or []):
+        if not isinstance(g, dict):
+            problems.append((manifest.work_id, file_name, f"expected_line_gaps[{i}] must be an object"))
+            continue
+        if not isinstance(g.get("book"), int):
+            problems.append((manifest.work_id, file_name, f"expected_line_gaps[{i}].book must be an integer"))
+        if not isinstance(g.get("after"), int) or not isinstance(g.get("next"), int):
+            problems.append(
+                (manifest.work_id, file_name,
+                 f"expected_line_gaps[{i}] must have integer after/next")
+            )
+
+    # greek_source (path under sources/) is the preferred Perseus path key.
+    work = data.get("work") if isinstance(data.get("work"), dict) else {}
+    gs = work.get("greek_source")
+    if gs is not None and (not isinstance(gs, str) or not gs):
+        problems.append((manifest.work_id, file_name, "work.greek_source must be a non-empty string when set"))
 
 
 def _validate_section_manifest_schema(manifest: WorkManifest, problems: list[Problem]) -> None:
@@ -284,29 +330,34 @@ def _validate_work_data(data_dir: Path, manifest: WorkManifest, problems: list[P
         except Exception as exc:
             problems.append((manifest.work_id, name, f"invalid JSON: {exc}"))
 
-    # Non-Bekker works (e.g. Porphyry's Isagoge, citation.scheme: busse) carry
-    # synthetic column/line numbers that do not obey Bekker ordering/anchoring
-    # semantics, so the Bekker-specific structural checks are skipped for them
-    # (schema, file existence, JSON validity, columns, analyses, and public
-    # gating still run).
-    bekker_native = scheme_mod.for_manifest(manifest.data).bekker_native
+    # Non-Bekker works (e.g. Porphyry's Isagoge, citation.scheme: busse; Homer
+    # verse-line) carry synthetic column/line numbers that do not obey Bekker
+    # ordering/anchoring semantics, so the Bekker-specific structural checks are
+    # skipped for them (schema, file existence, JSON validity, columns, analyses,
+    # and public gating still run).
+    scheme = scheme_mod.for_manifest(manifest.data)
+    bekker_native = scheme.bekker_native
+    verse = scheme.name == "verse-line"
 
-    # Manifests declare known, verified irregularities in the TLG line numbering
-    # (`expected_line_gaps`: within `column`, after line `after` the sequence
-    # legitimately continues at `next` — including backwards jumps and repeats,
-    # where the Greek text itself is continuous). These are intentional, so the
-    # Greek-line-order and duplicate-anchor checks must not flag the declared
-    # transitions.
-    expected_gaps = {
-        (g["column"], g["after"], g["next"])
-        for g in (manifest.data.get("expected_line_gaps") or [])
-        if isinstance(g, dict) and {"column", "after", "next"} <= g.keys()
-    }
+    # Manifests declare known, verified irregularities in the line numbering
+    # (`expected_line_gaps`). Bekker shape: {column, after, next}. Verse shape:
+    # {book, after, next} — normalised below to (column_str, after, next) so the
+    # shared book walker can honour them.
+    expected_gaps: set[tuple[str, int, int]] = set()
+    for g in (manifest.data.get("expected_line_gaps") or []):
+        if not isinstance(g, dict):
+            continue
+        if {"column", "after", "next"} <= g.keys():
+            expected_gaps.add((g["column"], g["after"], g["next"]))
+        elif verse and {"book", "after", "next"} <= g.keys():
+            expected_gaps.add((str(g["book"]), g["after"], g["next"]))
 
     _validate_emitted_manifest(manifest, loaded.get("manifest.json"), problems)
-    segments, anchors, token_keys = _validate_books(manifest, loaded, problems, bekker_native, expected_gaps)
+    segments, anchors, token_keys = _validate_books(
+        manifest, loaded, problems, bekker_native, expected_gaps, verse=verse,
+    )
     _validate_chapters(manifest, loaded.get("chapters.json"), segments, anchors, problems, bekker_native)
-    _validate_columns(manifest, loaded.get("columns.json"), segments, problems)
+    _validate_columns(manifest, loaded.get("columns.json"), segments, problems, verse=verse)
     _validate_analyses(manifest, data_dir, loaded.get("analyses.json"), token_keys, problems)
     _validate_public_gating(manifest, loaded, problems)
 
@@ -331,6 +382,8 @@ def _validate_books(
     problems: list[Problem],
     bekker_native: bool = True,
     expected_gaps: set[tuple[str, int, int]] | None = None,
+    *,
+    verse: bool = False,
 ) -> tuple[dict[tuple[int, str], dict[str, Any]], set[tuple[int, str, int]], set[str]]:
     expected_gaps = expected_gaps or set()
     segments_by_book_col: dict[tuple[int, str], dict[str, Any]] = {}
@@ -368,8 +421,12 @@ def _validate_books(
                 problems.append((manifest.work_id, name, f"duplicate segment id {seg_id}"))
             else:
                 seen_segment_ids.add(seg_id)
-            if not _is_column(column):
-                problems.append((manifest.work_id, name, f"segments[{i}].column must be a Bekker column string"))
+            col_ok = (
+                (isinstance(column, str) and column.isdigit()) if verse else _is_column(column)
+            )
+            if not col_ok:
+                label = "a book-number column" if verse else "a Bekker column string"
+                problems.append((manifest.work_id, name, f"segments[{i}].column must be {label}"))
                 continue
             greek = segment.get("greek")
             if not isinstance(greek, list) or not greek:
@@ -387,18 +444,37 @@ def _validate_books(
                     continue
                 prior_line = previous_line
                 declared_gap = (column, prior_line, n) in expected_gaps
-                if bekker_native and prior_line is not None and n < prior_line and not declared_gap:
-                    problems.append((manifest.work_id, name, f"{seg_id}: Greek Bekker lines are out of order at {column}{n}"))
+                if (bekker_native or verse) and prior_line is not None and n < prior_line and not declared_gap:
+                    kind = "verse" if verse else "Bekker"
+                    problems.append(
+                        (manifest.work_id, name,
+                         f"{seg_id}: Greek {kind} lines are out of order at {column}.{n}" if verse
+                         else f"{seg_id}: Greek Bekker lines are out of order at {column}{n}")
+                    )
+                # Verse continuity: n must be prior+1 unless a declared gap.
+                if verse and prior_line is not None and n != prior_line + 1 and not declared_gap:
+                    problems.append(
+                        (manifest.work_id, name,
+                         f"{seg_id}: unexpected verse gap {prior_line} -> {n} in book {column}")
+                    )
                 previous_line = n
                 anchor = (book["n"], column, n)
-                if bekker_native and anchor in anchors and not declared_gap:
-                    problems.append((manifest.work_id, name, f"duplicate Bekker anchor {column}{n}"))
+                if (bekker_native or verse) and anchor in anchors and not declared_gap:
+                    problems.append(
+                        (manifest.work_id, name,
+                         f"duplicate verse anchor {column}.{n}" if verse
+                         else f"duplicate Bekker anchor {column}{n}")
+                    )
                 anchors.add(anchor)
                 line_numbers.add(n)
                 _collect_token_keys(manifest, name, seg_id or f"segments[{i}]", line, token_keys, problems)
 
-            first_line = min(line_numbers)
-            current_key = line_key(column, first_line)
+            first_line = min(line_numbers) if line_numbers else 0
+            if verse:
+                # Sort key: (book, line) — column IS the book number string.
+                current_key = (book["n"], "", first_line)
+            else:
+                current_key = line_key(column, first_line)
             if bekker_native and previous_in_book is not None and current_key < previous_in_book:
                 problems.append((manifest.work_id, name, f"{seg_id}: segment Bekker order moved backwards at {column}{first_line}"))
             if bekker_native and previous_segment_key is not None and current_key < previous_segment_key:
@@ -406,8 +482,9 @@ def _validate_books(
             previous_in_book = current_key
             previous_segment_key = current_key
             segments_by_book_col[(book["n"], column)] = {"segment": segment, "lines": line_numbers, "file": name}
-            _validate_english_bekker(manifest, name, seg_id or f"segments[{i}]", segment, line_numbers, problems)
-            _validate_chapter_starts(manifest, name, seg_id or f"segments[{i}]", segment, line_numbers, anchors, book["n"], column, problems, bekker_native)
+            if not verse:
+                _validate_english_bekker(manifest, name, seg_id or f"segments[{i}]", segment, line_numbers, problems)
+                _validate_chapter_starts(manifest, name, seg_id or f"segments[{i}]", segment, line_numbers, anchors, book["n"], column, problems, bekker_native)
     return segments_by_book_col, anchors, token_keys
 
 
@@ -571,6 +648,8 @@ def _validate_columns(
     columns: Any,
     segments: dict[tuple[int, str], dict[str, Any]],
     problems: list[Problem],
+    *,
+    verse: bool = False,
 ) -> None:
     if columns is None:
         return
@@ -578,8 +657,10 @@ def _validate_columns(
         problems.append((manifest.work_id, "columns.json", "root must be an object"))
         return
     for column, entries in columns.items():
-        if not _is_column(column):
-            problems.append((manifest.work_id, "columns.json", f"column key {column!r} is not a Bekker column"))
+        col_ok = (isinstance(column, str) and column.isdigit()) if verse else _is_column(column)
+        if not col_ok:
+            label = "a book-number column" if verse else "a Bekker column"
+            problems.append((manifest.work_id, "columns.json", f"column key {column!r} is not {label}"))
             continue
         if not isinstance(entries, list):
             problems.append((manifest.work_id, "columns.json", f"{column} entries must be a list"))

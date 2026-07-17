@@ -95,6 +95,26 @@ class Manifest:
         legacy = (self.data.get("sources") or {}).get("perseus_eng")
         return Path(legacy) if legacy else vendored
 
+    def perseus_grc(self) -> Path:
+        """Vendored Perseus Greek TEI for this work (Homer perseus-grc2 path).
+
+        Resolves ``work.greek_source`` (path relative to ``sources/``), then
+        ``sources.perseus_grc``, then a tlg-derived default under sources/perseus/.
+        """
+        name = self.data["work"].get("greek_source")
+        if name:
+            return (SOURCES_DIR / name).resolve()
+        legacy = (self.data.get("sources") or {}).get("perseus_grc")
+        if legacy:
+            p = Path(legacy)
+            return p if p.is_absolute() else (SOURCES_DIR / legacy).resolve()
+        w = self.data["work"]
+        return (
+            SOURCES_DIR
+            / "perseus"
+            / f"tlg{w['tlg_author']}.tlg{w['tlg_work']}.perseus-grc2.xml"
+        ).resolve()
+
     def book_for_line(self, column: str, line: int) -> int | None:
         """Book number containing Bekker position (column, line), or None
         if the position falls in an inter-book numbering gap."""

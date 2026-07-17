@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt><title>Fixture</title><author>Homer</author></titleStmt>
+      <publicationStmt><publisher>test</publisher></publicationStmt>
+      <sourceDesc><p>synthetic</p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text xml:lang="grc">
+    <body>
+      <div type="edition" n="urn:cts:greekLit:fixture" xml:lang="grc">
+        <div type="textpart" subtype="Book" n="1">
+          <l n="1">μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος</l>
+          <l n="2">οὐλομένην, ἣ μυρίʼ Ἀχαιοῖς ἄλγεʼ ἔθηκε,</l>
+          <!-- synthetic vulgate gap: n=3 and n=4 absent; n=5 present -->
+          <l n="5">οἰωνοῖσί τε πᾶσι, Διὸς δʼ ἐτελείετο βουλή,</l>
+        </div>
+        <div type="textpart" subtype="book" n="2">
+          <!-- lowercase subtype; document-order glitch 3 before 2 -->
+          <l n="1">ἄνδρα μοι ἔννεπε, μοῦσα, πολύτροπον, ὃς μάλα πολλὰ</l>
+          <l n="3">πολλῶν δʼ ἀνθρώπων ἴδεν ἄστεα καὶ νόον ἔγνω,</l>
+          <l n="2">πλάγχθη, ἐπεὶ Τροίης ἱερὸν πτολίεθρον ἔπερσε·</l>
+        </div>
+      </div>
+    </body>
+  </text>
+</TEI>

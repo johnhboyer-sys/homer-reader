@@ -56,17 +56,15 @@ def test_preflight_broken_fixture_reports_bekker_order_and_dangling_reference():
     assert "chapter '1' has dangling Bekker anchor 1094a5" in output
 
 
-def test_preflight_schema_accepts_real_stephanus_manifests():
-    # A section-scheme manifest carries no bekker_range/chapters and no
-    # work.english_translation; it must pass the scheme-dispatched schema.
-    assert _schema_problems(_load_manifest("Euthyphro.yaml")) == []
-    assert _schema_problems(_load_manifest("Republic.yaml"), "Republic.yaml") == []
+def test_preflight_schema_accepts_real_homer_manifests():
+    # Verse-line manifests: no bekker_range/chapters/section_spine; books bounded
+    # by book.line refs; expected_line_gaps use {book, after, next}.
+    assert _schema_problems(_load_manifest("Iliad.yaml"), "Iliad.yaml") == []
+    assert _schema_problems(_load_manifest("Odyssey.yaml"), "Odyssey.yaml") == []
 
 
-def test_preflight_schema_rejects_bad_section_token_and_missing_spine():
-    data = _load_manifest("Euthyphro.yaml")
-    data["books"][0]["start"] = "2z9"  # not a page+section token
-    del data["section_spine"]  # the observed-spine fingerprint is required
-    problems = _schema_problems(data)
-    assert any("books[0].start must be a Stephanus section token" in p for p in problems)
-    assert any("section_spine must be an object" in p for p in problems)
+def test_preflight_schema_rejects_bad_verse_ref():
+    data = _load_manifest("Iliad.yaml")
+    data["books"][0]["start"] = "1a1"  # Bekker-shaped, not book.line
+    problems = _schema_problems(data, "Iliad.yaml")
+    assert any("books[0].start must be a verse book.line ref" in p for p in problems)

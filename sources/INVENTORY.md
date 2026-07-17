@@ -31,9 +31,15 @@ are eng3/eng4 (verified via __cts__.xml). Attribute Perseus on the About page.
   2026-07-17** ("I'm not worried about cunliffe being half a year out").
   1,591 entries.
 
+## pope/ — Project Gutenberg (PD)
+
+- pope-iliad.txt — PG #6130, "The Iliad", Translator: Alexander Pope (1715–20).
+- pope-odyssey.txt — PG #3160, "The Odyssey", Translator: Alexander Pope
+  (1725–26; Odyssey co-authored with Broome/Fenton — translation note must
+  disclose, per PROMPT.md).
+
 ## Still to vendor (later phases)
 
-- Pope (Iliad 1715–20, Odyssey 1725–26) — Project Gutenberg plaintext/HTML (PD).
 - Autenrieth, A Homeric Dictionary (Eng. tr. 1880s, PD) — no clean structured
   source exists; legacy Perseus Hopper scrape is a time-boxed Phase 2 attempt,
   else fast-follow (see docs/PHASE0-FINDINGS.md (c)/(d)).
