@@ -110,6 +110,12 @@ decisions, not on file contents.
   machine-checkable pass/fail criteria. Assume the model has never seen
   this repo and will not infer conventions. If a brief leans on "follow
   existing conventions," name the file that exemplifies them.**
+  **Codex output verification (John, same day: "it can be sloppy"):
+  every Codex implementation lane gets a quick Claude (Sonnet)
+  verification pass — tests re-run, functional smoke, diff review
+  against the brief's blast radius — BEFORE the orchestrator commits.
+  Not a full adversarial gate; a competence check. Grok content gates
+  are unchanged.**
 
 ### Context discipline
 
