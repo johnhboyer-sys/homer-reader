@@ -86,6 +86,15 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
   for proems/elisions/unpinned spans). Evidence: scratchpad
   scenes-verify/findings.md. Sonnet fix lane dispatched; Grok re-verifies
   Bks 6/16/17 before the gate flips.
+- **characters.json + places.json (Grok-4.5 content gate): PASS** after
+  one fix cycle (2026-07-17). First pass: places PASS-WITH-FIXES (3 tier
+  corrections incl. Ithaca certain->traditional, Same unfused from the
+  Cephallenian ethnonym), characters FAIL (Hesione presented as Homeric;
+  7 majors incl. a note contradicting Od. 4.518; 5 epithet minors). All
+  fixed with corpus evidence; nonHomeric genealogy-flag convention added
+  to the schema; targeted Grok re-check confirms every item. Note: the
+  fixer overturned one gate claim with evidence (Aeacus's Zeus paternity
+  is Homeric, Il. 21.189) and Grok independently confirmed.
 - **Iliad scenes apparatus re-gate: PASS** (2026-07-17). Sonnet fix pass
   corrected all blockers plus wider unsampled cascade members in Bks
   16/17 (Greek-cited); Grok exhaustive re-verify of Bks 6/16/17 (51
