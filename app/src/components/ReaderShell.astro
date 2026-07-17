@@ -227,15 +227,18 @@ const intro =
   <Pwa />
 </head>
 <body>
-  <!-- Semantic page heading + topical intro for search engines and screen
-       readers. Visually hidden because the visible title is the work-switcher
-       control; this gives the document a real, descriptive <h1> and a prose
-       summary without altering the design. -->
-  <header class="sr-only">
-    <h1>{h1Text}</h1>
-    <p>{intro}</p>
-  </header>
   <header class="page-header">
+    <!-- Semantic page heading + topical intro for search engines and screen
+         readers. Visually hidden because the visible title is the work-switcher
+         control; this gives the document a real, descriptive <h1> and a prose
+         summary without altering the design. Nested inside the one banner
+         landmark (not a second top-level <header>) so it stays contained by a
+         landmark (axe: region) without duplicating the banner role (axe:
+         landmark-no-duplicate-banner / landmark-unique). -->
+    <div class="sr-only">
+      <h1>{h1Text}</h1>
+      <p>{intro}</p>
+    </div>
     <div class="header-bar">
       <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar">
         <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text">Contents</span>
@@ -243,7 +246,7 @@ const intro =
       <div class="header-title">
         <a class="home-link home-wordmark" href={`${base}/`} aria-label="The Homer Reader — all works">
           <span class="wordmark-name">The Homer Reader</span>
-          <span class="wordmark-eyebrow">Digital Landmark Edition</span>
+          <span class="wordmark-eyebrow">The Iliad &amp; Odyssey · Greek and English</span>
         </a>
         <span class="title-sep">›</span>
         <WorkSwitcher work={workId} client:load />

@@ -63,6 +63,20 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
   word pairs at milestone strips), M2/M5 minor — fix agent dispatched
   (in progress).
 
+## Trademark decision (2026-07-17)
+
+Research (Sonnet, sourced; not legal advice): "Landmark" is a live series
+brand of Penguin Random House/Pantheon (continuous use since 1996; Random
+House "Landmark Books" lineage since 1950). Masthead use = medium-high risk;
+descriptive attributed prose = low (nominative fair use); structural
+inspiration = none. **Applied: "Digital Landmark Edition" removed from all
+user-facing chrome** (replaced with "The Iliad & Odyssey · Greek and
+English"); the word appears publicly only in attributed About-page prose
+("in the tradition of Robert Strassler's Landmark editions"). USPTO
+registration status could not be confirmed by automated search (tools
+blocked) — if certainty is wanted pre-launch, a human clearance search is
+the step. "Digital Landmark Homer" remains internal-docs-only vocabulary.
+
 ## John's review queue (accumulating; final list at handoff)
 
 1. Greek-source copyright call: confirm Perseus fallback (Allen 1931 enters US
