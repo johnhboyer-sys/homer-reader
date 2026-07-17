@@ -38,10 +38,12 @@ non-negotiable.
   Creating the GitHub remote and the first push are also John-gated. Stay in free
   tier; surface anything that would incur cost **before** doing it.
 - Git flow (John, 2026-07-17): private repo
-  `github.com/johnhboyer-sys/homer-reader`; work on `claude/*` branches,
-  commit early and often, **push promptly after every commit** (backup), PRs
-  as we go — review gate applies at PR time; merging to `main` is John's.
-  Never enable GH Pages / deploy without explicit go-ahead.
+  `github.com/johnhboyer-sys/homer-reader`; commit as we go, **push promptly
+  after every commit** (backup). PR bundling at the orchestrator's judgment
+  (John): PR #1 = claude/build → main umbrella (phases 0–3 + scenes);
+  subsequent coherent units get branches off claude/build with stacked PRs
+  into claude/build. Review gate applies at PR time; merging `main` is
+  John's. Never enable GH Pages / deploy without explicit go-ahead.
 - Verify functionally, not with screenshots.
 - All data fetches go through the `data.ts` data-root override — never bypass it.
 - Accessibility: WCAG AA contrast in BOTH themes; keyboard access on Greek tokens
