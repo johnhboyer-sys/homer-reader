@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fetchBook, fetchFootnotes, fetchLsjShard, invalidateBookCache, lookupWord, lsjShard, parseBekker, parseLocation, resolveBekker } from '../lib/data';
+import { cunliffeShard, fetchBook, fetchCunliffeShard, fetchFootnotes, fetchLsjShard, invalidateBookCache, lookupWord, lsjShard, parseBekker, parseLocation, resolveBekker } from '../lib/data';
 
 function mockFetch(map: Record<string, unknown>) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
@@ -121,12 +121,13 @@ describe('fetch and lookup helpers', () => {
     mockFetch({
       'LookupWork/analyses.json': {
         logos: [
-          { lemma: 'lo/gos', gloss: 'word', parse: 'noun', lsj: ['lo/gos', '*a)rxh/'] },
-          { lemma: 'lo/gos', gloss: 'speech', parse: 'noun', lsj: ['lo/gos'] },
+          { lemma: 'lo/gos', gloss: 'word', parse: 'noun', lsj: ['lo/gos', '*a)rxh/'], cunliffe: ['lo/gos'] },
+          { lemma: 'lo/gos', gloss: 'speech', parse: 'noun', lsj: ['lo/gos'], cunliffe: ['lo/gos'] },
         ],
       },
       '/lsj/l.json': { 'lo/gos': { key: 'lo/gos', head: 'λόγος', html: '<p>word</p>' } },
       '/lsj/a.json': { '*a)rxh/': { key: '*a)rxh/', head: 'ἀρχή', html: '<p>beginning</p>' } },
+      '/cunliffe/l.json': { 'lo/gos': { key: 'lo/gos', head: 'λόγος', html: '<p>word, tale</p>', src: 'lex' } },
     });
 
     expect(lsjShard('*a)rxh/')).toBe('a');
@@ -134,6 +135,28 @@ describe('fetch and lookup helpers', () => {
     const result = await lookupWord('LookupWork', 'logos');
     expect(result.analyses).toHaveLength(2);
     expect(result.lsj.map((e) => e.key)).toEqual(['lo/gos', '*a)rxh/']);
+    // Same key referenced by both parses de-duplicates to one Cunliffe entry.
+    expect(result.cunliffe.map((e) => e.key)).toEqual(['lo/gos']);
     await expect(fetchLsjShard('missing')).resolves.toEqual({});
+    await expect(fetchCunliffeShard('missing')).resolves.toEqual({});
+  });
+
+  it('cunliffeShard mirrors lsjShard\'s letter rule exactly (same fixture, both dictionaries)', () => {
+    // Parity fixture: identical to the one in
+    // pipeline/tests/test_stage5_cunliffe.py's SHARD_FIXTURE and asserted
+    // against Python's front_end_shard there — this is the TS half of that
+    // cross-language parity check.
+    const fixture: Array<[string, string]> = [
+      ['mh=nis', 'm'],
+      ['a)ga/qwn', 'a'],
+      ['*mastori/dhs', 'm'],
+      ['e(/ktwr', 'e'],
+      ['*(/ektwr', 'e'],
+      ['999', '_'],
+    ];
+    for (const [key, expected] of fixture) {
+      expect(cunliffeShard(key)).toBe(expected);
+      expect(lsjShard(key)).toBe(expected);
+    }
   });
 });

@@ -179,13 +179,26 @@ export interface Analysis {
   lemma: string;   // Beta Code
   gloss: string;
   parse: string;
-  lsj: string[];   // LSJ key(s)
+  lsj: string[];       // LSJ key(s)
+  cunliffe: string[];  // Cunliffe key(s) — see CunliffeEntry
 }
 
 export interface LsjEntry {
   key: string;
   head: string;    // Unicode Greek
   html: string;
+}
+
+// A Cunliffe (Lexicon of the Homeric Dialect) entry — the second native
+// lexicon pane beside LSJ in the word popup. `src` records which source
+// volume(s) contributed: "lex" (cunliffe-1-lex.jsonl), "hompers" (the
+// cunliffe-2-hompers.jsonl proper-name volume), or "both" when the two
+// volumes' keys collided (see pipeline/homer_pipeline/stage5_cunliffe.py).
+export interface CunliffeEntry {
+  key: string;
+  head: string;    // Unicode Greek
+  html: string;
+  src: 'lex' | 'hompers' | 'both';
 }
 
 // Honour Astro's base path so data fetches work under a project Pages site as
@@ -204,6 +217,7 @@ const workBase = (work: string) => `${ROOT()}/${work}`;
 // search) never collide.
 const _analysesCache = new Map<string, Promise<Record<string, Analysis[]>>>();
 const _lsjCache = new Map<string, Record<string, LsjEntry>>();
+const _cunliffeCache = new Map<string, Record<string, CunliffeEntry>>();
 const _bookCache = new Map<string, Promise<BookData>>();
 const _chaptersCache = new Map<string, Promise<Record<string, ChapterRef[]>>>();
 const _columnsCache = new Map<string, Promise<Record<string, ColumnRef[]>>>();
@@ -451,6 +465,21 @@ export function lsjShard(key: string): string {
   return '_';
 }
 
+// Same rule as lsjShard, exactly — Cunliffe keys shard by the same letter
+// grammar. Kept as a separate (identical-bodied) function rather than a
+// shared helper because pipeline/homer_pipeline/verify_shared_lsj.py and
+// verify_shared_cunliffe.py cross-reference these two by name in their own
+// (also duplicated) `front_end_shard` — the Python/TS pair must agree on
+// each dictionary's rule independently; see the parity tests in
+// shared/__tests__/data.test.ts and pipeline/tests/test_stage5_cunliffe.py.
+export function cunliffeShard(key: string): string {
+  for (const ch of key) {
+    if (ch === '*') continue;
+    if (/[a-z]/.test(ch)) return ch;
+  }
+  return '_';
+}
+
 // The LSJ dictionary is shared across the whole corpus — one copy at
 // /data/lsj/<letter>.json (the union of every work's lemmas), not a per-work
 // subset — so entries aren't duplicated ~30× across works. Keys are global
@@ -465,22 +494,42 @@ export async function fetchLsjShard(letter: string): Promise<Record<string, LsjE
   return shard;
 }
 
+// The Cunliffe dictionary — same shared-corpus-wide-shard scheme as LSJ (see
+// fetchLsjShard), at /data/cunliffe/<letter>.json.
+export async function fetchCunliffeShard(letter: string): Promise<Record<string, CunliffeEntry>> {
+  if (_cunliffeCache.has(letter)) return _cunliffeCache.get(letter)!;
+  const r = await fetch(`${ROOT()}/cunliffe/${letter}.json`);
+  if (!r.ok) return {};
+  const shard = await r.json();
+  _cunliffeCache.set(letter, shard);
+  return shard;
+}
+
 export async function lookupWord(
   work: string,
   key: string
-): Promise<{ analyses: Analysis[]; lsj: LsjEntry[] }> {
+): Promise<{ analyses: Analysis[]; lsj: LsjEntry[]; cunliffe: CunliffeEntry[] }> {
   const allAnalyses = await fetchAnalyses(work);
   const entries = allAnalyses[key] ?? [];
   const lsjEntries: LsjEntry[] = [];
-  const seen = new Set<string>();
+  const seenLsj = new Set<string>();
+  const cunliffeEntries: CunliffeEntry[] = [];
+  const seenCunliffe = new Set<string>();
   for (const a of entries) {
     for (const lsjKey of a.lsj) {
-      if (seen.has(lsjKey)) continue;
-      seen.add(lsjKey);
+      if (seenLsj.has(lsjKey)) continue;
+      seenLsj.add(lsjKey);
       const letter = lsjShard(lsjKey);
       const shard = await fetchLsjShard(letter);
       if (shard[lsjKey]) lsjEntries.push(shard[lsjKey]);
     }
+    for (const cunliffeKey of a.cunliffe) {
+      if (seenCunliffe.has(cunliffeKey)) continue;
+      seenCunliffe.add(cunliffeKey);
+      const letter = cunliffeShard(cunliffeKey);
+      const shard = await fetchCunliffeShard(letter);
+      if (shard[cunliffeKey]) cunliffeEntries.push(shard[cunliffeKey]);
+    }
   }
-  return { analyses: entries, lsj: lsjEntries };
+  return { analyses: entries, lsj: lsjEntries, cunliffe: cunliffeEntries };
 }

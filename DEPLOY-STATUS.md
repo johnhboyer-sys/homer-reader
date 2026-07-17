@@ -46,6 +46,16 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
 - app vitest.config.ts has a pre-existing vite/vitest Plugin type mismatch
   (does not affect runs).
 
+## Verification gates run
+
+- **Murray/Butler alignment (Grok-4.5 content gate): PASS-WITH-ISSUES.**
+  144 tick samples across all 48 books: 0 WRONG, 1 off-by-one-block; all 4
+  documented anomaly resolutions and all 6 vulgate-gap boundaries verified
+  honest against raw TEI; footnote markers 336/336 consistent. Defects found:
+  B1 MAJOR (Butler terminal empty tick window in 34 books), M1 (~38 glued
+  word pairs at milestone strips), M2/M5 minor — fix agent dispatched
+  (in progress).
+
 ## John's review queue (accumulating; final list at handoff)
 
 1. Greek-source copyright call: confirm Perseus fallback (Allen 1931 enters US
@@ -53,4 +63,16 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
 2. Odyssey Greek is the 1919 Loeb text, not the OCT — edition credits must say
    so (About page wording).
 3. Autenrieth vs Cunliffe as the launch second-lexicon pane (data reality
-   favors Cunliffe; PROMPT.md named Autenrieth) — resolution in progress.
+   favors Cunliffe; PROMPT.md named Autenrieth). Cunliffe pane in build;
+   Autenrieth fast-follow (partial scrape + RESUME.md in sources/autenrieth/;
+   bulk download needs an unconstrained network — one-liner curl in the
+   conversation log).
+4. **Pope alignment verdict** (PROMPT queue item): shipped STANDALONE
+   (book-level anchors only) per the written degrade rule — proportional
+   anchoring drifted ~15% (~77 lines) on Il. 6 Hector/Andromache. Picker
+   label says "alignment approximate"; confirm wording or change to
+   "unaligned".
+5. Murray's Loeb footnotes are bare citation numbers (no annotation prose
+   survives in Perseus's TEI) — popup shows the number verbatim. Decide:
+   drop the markers at launch, or fast-follow real Loeb notes from another
+   PD source.

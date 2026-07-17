@@ -119,6 +119,9 @@ are a Sonnet subagent" does nothing. Every spawn must pass `model:` explicitly,
 matching the label** (caught by John 2026-07-16). CLI forwarders run a Claude
 wrapper around the external CLI — label them "<wrapper>→<worker>: …" (e.g.
 "Sonnet→GPT-5.6-Sol-High: review X") so the status line tells the whole story.
+**Every agent label/description starts with its model** (John, 2026-07-17):
+"Sonnet: fix alignment defects", "Opus: verse-line scheme" — no unlabeled
+spawns.
 **Resuming a completed agent (SendMessage) does NOT re-apply its model override —
 the resumed turn runs on the session model (Fable). For tier-sensitive
 follow-ups, launch a FRESH agent with `model:` set and hand it the needed

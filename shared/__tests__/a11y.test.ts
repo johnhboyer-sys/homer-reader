@@ -69,8 +69,9 @@ vi.mock('../lib/data', async (importOriginal) => {
       logos: { slug: 'logos', head: 'λόγος', count: 2 },
     })),
     lookupWord: vi.fn(async () => ({
-      analyses: [{ lemma: 'logos', gloss: 'word, account', parse: 'noun nominative singular', lsj: ['logos'] }],
+      analyses: [{ lemma: 'logos', gloss: 'word, account', parse: 'noun nominative singular', lsj: ['logos'], cunliffe: ['logos'] }],
       lsj: [{ key: 'logos', head: 'λόγος', html: '<p>word, speech, account</p>' }],
+      cunliffe: [{ key: 'logos', head: 'λόγος', html: '<p>word, tale</p>', src: 'lex' }],
     })),
   };
 });

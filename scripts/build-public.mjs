@@ -103,6 +103,12 @@ run(PY, ['-m', 'homer_pipeline.verify_shared_lsj'], {
   cwd: join(ROOT, 'pipeline'),
 });
 
+// Same gate, Cunliffe's shared dictionary.
+console.log('\nVerifying shared Cunliffe dictionary covers every referenced key');
+run(PY, ['-m', 'homer_pipeline.verify_shared_cunliffe'], {
+  cwd: join(ROOT, 'pipeline'),
+});
+
 if (!existsSync(join(ROOT, 'app', 'node_modules'))) {
   console.log('\nInstalling app dependencies');
   run('npm', ['ci'], { cwd: join(ROOT, 'app') });

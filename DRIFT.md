@@ -61,6 +61,38 @@ Homer-specific reason.
   string already flows straight into the picker's `<option>` label
   (`shared/components/Reader.svelte`), so no component change was needed.
 
+- `shared/lib/data.ts` — Cunliffe added as a second native lexicon dictionary
+  beside LSJ: `Analysis` gained `cunliffe: string[]`; new `CunliffeEntry`
+  interface, `_cunliffeCache`, `cunliffeShard` (identical letter rule to
+  `lsjShard`, kept as a separate function — see its own comment), and
+  `fetchCunliffeShard`; `lookupWord`'s return gained `cunliffe: CunliffeEntry[]`
+  resolved the same de-duped way as `lsj`. No plato-reader counterpart.
+- `shared/components/WordPopup.svelte` — the unconditional LSJ-only section
+  replaced with an ARIA-tabs dictionary row ("LSJ · Cunliffe · Logeion ↗"),
+  LSJ default; both dictionary panels gained a quiet empty state ("Not in
+  LSJ."/"Not in Cunliffe."); new `onCunliffeClick` resolves a Cunliffe entry's
+  internal `<a class="cunliffe-cite" data-work data-book data-line>` citation
+  markers to a real reader URL via `workPath`/`formatLocValue` (same pattern as
+  `BekkerJump.svelte`); new `onTabRowKey` for arrow-key tab navigation; new
+  `logeionHref` reactive. No plato-reader counterpart (Cunliffe is Homer-only).
+- `shared/styles/global.css` — new `.dict-tabs`/`.dict-tablist`/`.dict-tab`/
+  `.dict-tab-link` (the tab row) and `.cunliffe-entry` + its `.cunliffe-sense`/
+  `.cunliffe-cite` child rules (Cunliffe HTML classes from stage5_cunliffe),
+  placed beside the existing `.lsj-section`/`.lsj-entry` rules. Reuses only
+  existing CSS custom properties — no new palette values. No plato-reader
+  counterpart.
+- `shared/__tests__/a11y.test.ts`, `shared/__tests__/data.test.ts` — `lsj`-only
+  `lookupWord`/`Analysis` fixtures extended with `cunliffe` fields (required by
+  the new field); `data.test.ts` gained a Cunliffe shard-selection assertion
+  and the TS half of the Python/TS shard-letter parity check (see
+  `pipeline/tests/test_stage5_cunliffe.py`'s `SHARD_FIXTURE`).
+- `shared/__tests__/word-popup.test.ts` — new: WordPopup dictionary-tab
+  coverage (tab presence/default, Cunliffe empty state, arrow-key nav, Logeion
+  link attributes). No plato-reader counterpart.
+- `scripts/build-public.mjs` — added a `verify_shared_cunliffe` gate call
+  right after the existing `verify_shared_lsj` one (same pattern, second
+  dictionary). No plato-reader counterpart (Cunliffe is Homer-only).
+
 Not shared-core but worth noting here since it touches every pipeline
 reference across the repo: `pipeline/plato_pipeline/` was renamed to
 `pipeline/homer_pipeline/` (directory + all imports/docstrings/tool scripts),
