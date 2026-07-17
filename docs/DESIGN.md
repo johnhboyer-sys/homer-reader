@@ -73,3 +73,16 @@ token-driven — palette swap re-skins it).
   implicitly by the parallel-columns requirement).
 - Reading Mode remains a separate posture; its design revisits On-Ramp ideas
   only insofar as they serve the single-column reading view.
+
+## Homepage hero — v1.5 state (John: "better for now", 2026-07-17)
+
+Accepted with tweaks-later status: split atmospheres (Iliad panel = warm
+firelit umber gradient + 7 glowing watchfires 3.8–5.5px, double-layer warm
+glows; Odyssey panel = cool sea-light gradient from above + 6 haloed stars),
+points live INSIDE their panels (mobile stacking fix — hero-level
+positioning inverted the sides), ember wash 0.4, brightened flicker/twinkle
+baselines. Seamless loops, dusk/night variants, reduced-motion static — all
+per the earlier spec. Live at the artifact URL; source of truth:
+scratchpad design-directions/homepage-v1.html (copy into app at
+implementation, task #9). Copy: "…what it costs the Greeks outside the
+walls of Troy" (John's wording).
