@@ -27,6 +27,7 @@ Column-token composition:
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 
@@ -72,7 +73,10 @@ class Scheme:
     def compose_column(self, page_n: str, section_n: str | None = None) -> str:
         """The column token for a page div (and, for section schemes, the
         current section letter)."""
-        if self.name == "bekker":
+        if self.name in ("bekker", "verse-line"):
+            # bekker: the page div already carries the full column ("16a").
+            # verse-line: the "column" is the book number itself ("9"); a book
+            # contains lines directly, so there is no section to compose.
             return page_n
         if self.name == "busse":
             return f"{page_n}a"
@@ -84,6 +88,11 @@ class Scheme:
 # a-e. refs.py parses the same range, so a single a-e regex serves both.
 _COLUMN_RE = re.compile(r"^(\d+)([a-e])$")
 _REF_RE = re.compile(r"^(\d+)([a-e])(\d+)$")
+
+# Verse-line (Homer) grammar: the container is a plain book number ("9") and a
+# full ref is book + line joined by a dot ("9.366"). No letter axis.
+_BOOK_RE = re.compile(r"^(\d+)$")
+_VERSE_REF_RE = re.compile(r"^(\d+)\.(\d+)$")
 
 
 SCHEMES: dict[str, Scheme] = {
@@ -123,6 +132,26 @@ SCHEMES: dict[str, Scheme] = {
         column_re=_COLUMN_RE,
         ref_re=_REF_RE,
     ),
+    # Homer (and any verse work): cited book.line ("Il. 1.1", "Od. 9.366"). The
+    # book is the container (the "column"); lines ascend continuously within it.
+    # Modeled on bekker's line machinery — line numbers are user-facing citation
+    # targets and must ascend by one — but the container is a bare book number
+    # rather than a page+side token, so there is no letter axis and no
+    # rectangular range to enumerate. The vulgate lineation is sacred: genuine
+    # numbering skips / athetized-line gaps are declared per book via a manifest
+    # `expected_line_gaps` allowlist and checked by `validate_line_sequence`.
+    "verse-line": Scheme(
+        name="verse-line",
+        page_div_type="Book",
+        section_div_type=None,
+        section_letters=(),
+        lines_user_facing=True,
+        validation_mode="verse",
+        range_sides=None,
+        display_label="line",
+        column_re=_BOOK_RE,
+        ref_re=_VERSE_REF_RE,
+    ),
 }
 
 
@@ -138,3 +167,35 @@ def for_manifest(manifest) -> Scheme:
     data = getattr(manifest, "data", manifest)
     name = (data.get("citation") or {}).get("scheme") if isinstance(data, dict) else None
     return get(name)
+
+
+def validate_line_sequence(
+    lines_by_book: dict[int, list[int]],
+    expected_gaps: Iterable[dict] = (),
+) -> list[dict]:
+    """Unexpected line-number gaps in a verse (``verse-line``) work.
+
+    Within each book, line numbers must ascend by exactly one. Any other
+    transition — a forward jump, a backward step, or a repeat — is a gap, and a
+    gap is a defect UNLESS it's declared in ``expected_gaps``. The vulgate
+    lineation is sacred: real numbering skips and athetized/bracketed lines are
+    data, not bugs, so an edition's known irregularities are whitelisted rather
+    than renumbered away.
+
+    ``expected_gaps`` mirrors the pipeline's ``expected_line_gaps`` manifest key,
+    but scoped by book: each entry is ``{"book": int, "after": int, "next": int}``
+    whitelisting a single ``after → next`` transition within that book. Returns
+    the list of unexpected gaps (each the same ``{book, after, next}`` shape);
+    an empty list means the sequence is clean.
+    """
+    allow = {
+        (g["book"], g["after"], g["next"])
+        for g in expected_gaps
+        if isinstance(g, dict) and {"book", "after", "next"} <= g.keys()
+    }
+    unexpected: list[dict] = []
+    for book, nums in lines_by_book.items():
+        for a, b in zip(nums, nums[1:]):
+            if b != a + 1 and (book, a, b) not in allow:
+                unexpected.append({"book": book, "after": a, "next": b})
+    return unexpected

@@ -18,16 +18,16 @@ describe('hasGreek', () => {
 
 describe('rankWorks', () => {
   it('ranks a title-prefix match first', () => {
-    const r = rankWorks('republic');
-    expect(r[0]?.id).toBe('Republic');
+    const r = rankWorks('ili');
+    expect(r[0]?.id).toBe('iliad');
   });
-  it('matches a Plato abbreviation, ignoring its trailing dot', () => {
-    // "Rep." → "rep"; "Grg." → "grg"; both are exact-abbr (top-tier) hits.
-    expect(rankWorks('rep')[0]?.id).toBe('Republic');
-    expect(rankWorks('grg')[0]?.id).toBe('Gorgias');
+  it('matches a Homer abbreviation, ignoring its trailing dot', () => {
+    // "Il." → "il"; "Od." → "od"; both are exact-abbr (top-tier) hits.
+    expect(rankWorks('il')[0]?.id).toBe('iliad');
+    expect(rankWorks('od')[0]?.id).toBe('odyssey');
   });
   it('matches on the id', () => {
-    expect(rankWorks('laws').some((w) => w.id === 'Laws')).toBe(true);
+    expect(rankWorks('odyssey').some((w) => w.id === 'odyssey')).toBe(true);
   });
   it('returns nothing for an empty query', () => {
     expect(rankWorks('  ')).toEqual([]);

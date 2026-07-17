@@ -14,11 +14,13 @@ def test_default_and_named_lookup():
     assert scheme_mod.get("").name == "bekker"
     assert scheme_mod.get("busse").name == "busse"
     assert scheme_mod.get("stephanus").name == "stephanus"
+    assert scheme_mod.get("verse-line").name == "verse-line"
 
 
 def test_for_manifest_reads_citation_scheme():
     assert scheme_mod.for_manifest({}).name == "bekker"
     assert scheme_mod.for_manifest({"citation": {"scheme": "stephanus"}}).name == "stephanus"
+    assert scheme_mod.for_manifest({"citation": {"scheme": "verse-line"}}).name == "verse-line"
 
     class M:
         data = {"citation": {"scheme": "busse"}}
@@ -59,6 +61,45 @@ def test_stephanus_capabilities_compose_page_plus_section():
     assert s.section_letters == ("a", "b", "c", "d", "e")
     assert s.compose_column("2", "a") == "2a"
     assert s.compose_column("17", "e") == "17e"
+
+
+def test_verse_line_capabilities_book_container_no_sections():
+    s = scheme_mod.get("verse-line")
+    assert s.name == "verse-line"
+    assert s.page_div_type == "Book"
+    assert s.section_div_type is None
+    assert not s.has_sections
+    assert not s.bekker_native
+    assert s.lines_user_facing            # Homer is cited book.line
+    assert s.validation_mode == "verse"
+    assert s.range_sides is None          # books are a linear container, never a rectangle
+    assert s.section_letters == ()        # no letter axis in verse
+    assert s.compose_column("9") == "9"   # the book number IS the column token
+
+
+def test_verse_line_validation_clean_and_declared_gap_pass():
+    # Continuous ascent within each book is clean.
+    assert scheme_mod.validate_line_sequence({1: [1, 2, 3], 2: [1, 2]}) == []
+    # A declared gap (the vulgate legitimately skips line 367 in book 9) passes.
+    assert (
+        scheme_mod.validate_line_sequence(
+            {9: [364, 365, 366, 368]},
+            [{"book": 9, "after": 366, "next": 368}],
+        )
+        == []
+    )
+
+
+def test_verse_line_validation_undeclared_gap_fails():
+    # The same skip, undeclared, is reported as an unexpected gap.
+    assert scheme_mod.validate_line_sequence({9: [364, 365, 366, 368]}) == [
+        {"book": 9, "after": 366, "next": 368}
+    ]
+    # A declared gap in a DIFFERENT book does not excuse this one.
+    assert scheme_mod.validate_line_sequence(
+        {9: [364, 365, 366, 368]},
+        [{"book": 1, "after": 366, "next": 368}],
+    ) == [{"book": 9, "after": 366, "next": 368}]
 
 
 def test_unknown_scheme_raises():

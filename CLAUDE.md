@@ -74,11 +74,12 @@ decisions, not on file contents.
 
 - **Concurrency cap: 5 agents maximum, simultaneously.** Queue the rest. Absolute,
   regardless of tooling defaults.
-- **Subagent models: Opus, Sonnet, Codex only.**
+- **Subagent models: Opus, Sonnet, Codex, Grok.** (Grok off probation — John,
+  2026-07-17 — full implementer status; ~85% of trial balance available as of
+  2026-07-17, use liberally.)
 - **Fable never spawns fable subagents unless John explicitly says to.**
-- **Grok-4.5 is unavailable until the weekly balance reset (~2026-07-24;
-  exhausted 2026-07-17; John: no top-up).** Route content-verification gates to
-  independent Codex runs meanwhile; note the substitution in DEPLOY-STATUS.
+- **Grok-4.5 is available again (John, 2026-07-17: upgraded, free trial).**
+  Content-verification gates route to Grok per the routing table below.
 
 ### Context discipline
 
@@ -109,7 +110,7 @@ decisions, not on file contents.
 | **Sonnet** | Workhorse (default subagent) | Well-specified implementation, tests, mechanical multi-file edits, exploration/search sweeps, doc updates, data-build babysitting, per-book apparatus batches (~5 books/agent) |
 | **GPT-5.6-Sol-High** (Codex CLI, `--effort high`) | Adversarial reviewer | Red-team review of finished work before John's review gates and before any deploy; cross-model second opinion on designs. Precedent: the plato-reader 14th-deploy whole-site adversarial review (15 confirmed findings). |
 | **GPT-5.6-Terra-High** (Codex CLI, `--effort high`) | Cross-model implementer | Independent implementation of isolated, well-specified tasks; independent bug reproduction; second implementation when comparing approaches |
-| **Grok-4.5** (Grok CLI, `grok-cc:grok-rescue`) | Content verifier + mechanical implementer — **UNAVAILABLE until the weekly reset (~2026-07-24)** | Content/extraction verification gates (its specialty — twice found defect classes Sol/Opus/Claude all missed, with raw-line evidence), additional adversarial passes, mechanical coding tasks. Forwarder quirk (BOTH grok-rescue and codex-rescue): the runner may background the CLI task and end its turn with no result — nudge via SendMessage ("wait for the run and return the findings"). Gotcha: read-only task mode gets Cancelled by the runtime — use write-capable with a no-tracked-file-edits constraint. |
+| **Grok-4.5** (Grok CLI, `grok-cc:grok-rescue`) | Full implementer + content verifier (off probation, John 2026-07-17; free trial) | Content/extraction verification gates (its specialty — twice found defect classes Sol/Opus/Claude all missed, with raw-line evidence), additional adversarial passes, mechanical coding tasks. Forwarder quirk (BOTH grok-rescue and codex-rescue): the runner may background the CLI task and end its turn with no result — nudge via SendMessage ("wait for the run and return the findings"). Gotcha: read-only task mode gets Cancelled by the runtime — use write-capable with a no-tracked-file-edits constraint. |
 
 Routing principles: default subagent is Sonnet; escalate to Opus on genuine
 difficulty, not on volume. **The Agent tool inherits the orchestrator's model

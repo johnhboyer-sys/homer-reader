@@ -24,33 +24,34 @@ describe('works registry helpers', () => {
   });
 
   it('clamps workPath to a real registry work\'s book range', () => {
-    const euthyphro = getWork('Euthyphro');
-    expect(euthyphro?.books).toBe(1);
-    expect(workPath('Euthyphro', 99)).toBe('/Euthyphro/book/1');
-    expect(workPath('Euthyphro', -3)).toBe('/Euthyphro/book/1');
-    expect(workLanding('Euthyphro')).toBe('/Euthyphro');
+    const iliad = getWork('iliad');
+    expect(iliad?.books).toBe(24);
+    expect(workPath('iliad', 99)).toBe('/iliad/book/24');  // over the top -> clamped to 24
+    expect(workPath('iliad', -3)).toBe('/iliad/book/1');
+    expect(workLanding('iliad')).toBe('/iliad');
   });
 
-  it('reports bookless works and visible translations', () => {
-    const euthyphro = getWork('Euthyphro');
-    expect(euthyphro && isBookless(euthyphro)).toBe(true);
-    expect(euthyphro && visibleTranslations(euthyphro).every((t) => !t.private)).toBe(true);
-    expect(WORKS.length).toBeGreaterThan(10);
+  it('reports non-bookless works and visible translations', () => {
+    // Both Homeric epics are 24-book works — no Homer work is bookless.
+    const iliad = getWork('iliad');
+    expect(iliad && isBookless(iliad)).toBe(false);
+    expect(iliad && visibleTranslations(iliad).every((t) => !t.private)).toBe(true);
+    expect(WORKS.length).toBe(2);
   });
 
   it('adds runtime extra translations without mutating the registry entry', () => {
-    const euthyphro = getWork('Euthyphro')!;
+    const iliad = getWork('iliad')!;
     (globalThis as { __ARISTOTLE_EXTRA_TRANSLATIONS__?: unknown }).__ARISTOTLE_EXTRA_TRANSLATIONS__ = {
-      Euthyphro: [{ id: 'mine', name: 'Local Import', short: 'Local', slot: 'overlay' }],
+      iliad: [{ id: 'mine', name: 'Local Import', short: 'Local', slot: 'overlay' }],
     };
-    expect(visibleTranslations(euthyphro).map((t) => t.id)).toContain('mine');
+    expect(visibleTranslations(iliad).map((t) => t.id)).toContain('mine');
     delete (globalThis as { __ARISTOTLE_EXTRA_TRANSLATIONS__?: unknown }).__ARISTOTLE_EXTRA_TRANSLATIONS__;
   });
 
   it('creates stable in-print links from curated metadata (empty for this rollout)', () => {
-    // No Plato work has curated FURTHER_READING metadata yet — the function
+    // No Homer work has curated FURTHER_READING metadata yet — the function
     // still resolves to an empty array rather than throwing.
-    expect(furtherReading('Euthyphro')).toEqual([]);
+    expect(furtherReading('iliad')).toEqual([]);
     expect(inPrintHref({ kind: 'translation', cite: 'A <em>Book</em> & commentary' })).toBe(
       'https://www.google.com/search?tbm=bks&q=A%20Book%20%26%20commentary',
     );
@@ -60,8 +61,9 @@ describe('works registry helpers', () => {
 describe('home-page thematic shelves (SHELVES)', () => {
   const shelfIds = SHELVES.flatMap((s) => s.works.map((w) => w.id).filter((id): id is string => Boolean(id)));
 
-  it('carries every work in WORKS exactly once across the six shelves', () => {
-    expect(SHELVES.length).toBe(6);
+  it('carries every work in WORKS exactly once across the shelves', () => {
+    // The two-work Homer rollout uses a single "The Epics" shelf.
+    expect(SHELVES.length).toBe(1);
     // Every real work appears exactly once.
     for (const w of WORKS) {
       const count = shelfIds.filter((id) => id === w.id).length;
@@ -85,28 +87,19 @@ describe('home-page thematic shelves (SHELVES)', () => {
 });
 
 describe('"Start here" featured strip (START_HERE)', () => {
-  it('lists exactly the curated six, in order, each resolving to a real work', () => {
-    expect(START_HERE).toEqual(['Apology', 'Republic', 'Symposium', 'Meno', 'Phaedo', 'Gorgias']);
+  it('lists both epics, in order, each resolving to a real work', () => {
+    expect(START_HERE).toEqual(['iliad', 'odyssey']);
     for (const id of START_HERE) expect(getWork(id), `${id} should be a real WORKS entry`).toBeDefined();
   });
 });
 
 describe('traditional dating (Work.period)', () => {
-  it('only uses period on works that have a settled traditional chronology', () => {
-    const disputedOrLetters = new Set(
-      WORKS.filter((w) => w.authenticity === 'dubious' || w.authenticity === 'spurious' || w.id === 'Letters')
-        .map((w) => w.id),
-    );
+  it('keeps period optional and valid; the Homeric epics carry no Platonic period', () => {
     for (const w of WORKS) {
       if (w.period) expect(['early', 'middle', 'late']).toContain(w.period);
     }
-    // Phaedo is a clear middle-period sanity check for the landing-page line.
-    expect(getWork('Phaedo')?.period).toBe('middle');
-    // Sanity: the disputed/Letters set and the period-bearing set are disjoint,
-    // aside from HippiasMajor (dubious authorship, but a settled early date).
-    for (const id of disputedOrLetters) {
-      if (id === 'HippiasMajor') continue;
-      expect(getWork(id)?.period).toBeUndefined();
-    }
+    // period is a Platonic-chronology concept — not applicable to Homer.
+    expect(getWork('iliad')?.period).toBeUndefined();
+    expect(getWork('odyssey')?.period).toBeUndefined();
   });
 });

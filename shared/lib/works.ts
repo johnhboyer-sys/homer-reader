@@ -51,6 +51,10 @@ export interface Work {
   greekTitle?: string;  // polytonic Greek title, shown in the print masthead
   abbr: string;     // display abbreviation (may differ from id styling)
   author: string;
+  // Standard scholarly abbreviation of the author, for a copy-able citation
+  // that names the author ("Hom. Il. 1.1"). Omitted ⇒ the citation carries no
+  // author prefix (the pre-Homer convention, where the work context is implicit).
+  authorAbbr?: string;
   books: number;
   bookLabels: string[];   // per-book display labels (Arabic for a bookless work)
   missingBooks?: MissingBooks;  // annotate a gap in the book sequence
@@ -67,7 +71,7 @@ export interface Work {
   // Most works are cited by Bekker (column:line). Plato is cited by Stephanus
   // page + section only — no user-facing line numbers at all (see
   // shared/lib/citation.ts). Default (omitted) = bekker.
-  citation?: { scheme: 'bekker' | 'busse' | 'stephanus'; hideLineNumbers?: boolean };
+  citation?: { scheme: 'bekker' | 'busse' | 'stephanus' | 'verse-line'; hideLineNumbers?: boolean };
   // Cross-links to closely related works, shown on the landing page. Each
   // `id` must be a built work.
   related?: { id: string; label: string }[];
@@ -107,16 +111,62 @@ const SHOW_PRIVATE = import.meta.env.PUBLIC_SHOW_PRIVATE === '1';
 // scattered string comparison.
 export const HOUSE_AUTHOR = 'Homer';
 
-// Display order follows the Thrasyllan tetralogies (the traditional ancient
-// arrangement of the Platonic corpus, TLG work order 001–036 = ceil(n/4)),
-// per docs/registry-draft.md. The full 36-work Thrasyllan canon is carried:
-// the P6b bookless rollout, the Republic/Laws/Letters multi-book follow-up,
-// and the four works whose Perseus milestone gaps were patched
-// (sources/perseus-eng/PATCHES.md). Phase-2 appendix (Definitions, Spuria)
-// is not yet here — see docs/registry-draft.md.
+// The two Homeric epics, in traditional (Iliad-before-Odyssey) order. Both are
+// cited by the verse-line scheme (book.line — the sacred vulgate lineation; see
+// shared/lib/citation.ts). Book labels are Arabic numerals 1–24, matching the
+// citation display ("Il. 1.1"); the Greek-letter book convention (Α–Ω) is not
+// used for navigation labels. The digital Greek text is Perseus' PerseusDL
+// canonical-greekLit (CC BY-SA 4.0); each work's `greekEdition` names the print
+// edition that text was keyed from. Translations are public-domain only, judged
+// by US copyright rules: Murray (Loeb, primary), Butler (prose), Pope (verse).
+const BOOK_LABELS_24 = Array.from({ length: 24 }, (_, i) => String(i + 1));
+const PERSEUS_GREEK_SOURCE = {
+  short: 'Perseus',
+  full: 'Digital Greek text from the Perseus Digital Library (PerseusDL, '
+    + 'canonical-greekLit), licensed CC BY-SA 4.0.',
+};
+
 export const WORKS: Work[] = [
-  // Homer works are registered in a later task (verse-line scheme + iliad/odyssey
-  // entries). Empty for this fork-baseline commit.
+  {
+    id: 'iliad',
+    title: 'Iliad',
+    greekTitle: 'Ἰλιάς',
+    abbr: 'Il.',
+    author: 'Homer',
+    authorAbbr: 'Hom.',
+    books: 24,
+    bookLabels: BOOK_LABELS_24,
+    greekEdition: 'Monro–Allen OCT, 3rd ed. (1908–1920)',
+    greekSource: PERSEUS_GREEK_SOURCE,
+    translations: [
+      { id: 'murray', name: 'A. T. Murray (Loeb, 1924–25)', short: 'Murray', slot: 'english' },
+      { id: 'butler', name: 'Samuel Butler (1898)', short: 'Butler', slot: 'ross' },
+      { id: 'pope', name: 'Alexander Pope (literary translation), 1715–20', short: 'Pope', slot: 'third' },
+    ],
+    blurb: 'The wrath of Achilles and the war at Troy.',
+    citation: { scheme: 'verse-line' },
+    related: [{ id: 'odyssey', label: 'Odyssey' }],
+  },
+  {
+    id: 'odyssey',
+    title: 'Odyssey',
+    greekTitle: 'Ὀδύσσεια',
+    abbr: 'Od.',
+    author: 'Homer',
+    authorAbbr: 'Hom.',
+    books: 24,
+    bookLabels: BOOK_LABELS_24,
+    greekEdition: 'Greek text of the Loeb edition (1919)',
+    greekSource: PERSEUS_GREEK_SOURCE,
+    translations: [
+      { id: 'murray', name: 'A. T. Murray (Loeb, 1919)', short: 'Murray', slot: 'english' },
+      { id: 'butler', name: 'Samuel Butler (1900)', short: 'Butler', slot: 'ross' },
+      { id: 'pope', name: 'Alexander Pope (literary translation), 1725–26', short: 'Pope', slot: 'third' },
+    ],
+    blurb: 'The long homecoming of Odysseus from Troy to Ithaca.',
+    citation: { scheme: 'verse-line' },
+    related: [{ id: 'iliad', label: 'Iliad' }],
+  },
 ];
 
 const BY_ID = new Map(WORKS.map((w) => [w.id, w]));
@@ -256,7 +306,7 @@ export interface Shelf {
 }
 
 export const SHELVES: Shelf[] = [
-  // Populated once the Homer works registry is added.
+  { numeral: '1', title: 'The Epics', works: [{ id: 'iliad' }, { id: 'odyssey' }] },
 ];
 
 // "Start here" — a curated front-table strip of six approachable works for
@@ -266,9 +316,7 @@ export const SHELVES: Shelf[] = [
 // division, so the "every work exactly once" invariant is checked against
 // SHELVES only. Every id here must resolve to a real WORKS entry — verified
 // in shared/__tests__/works.test.ts.
-export const START_HERE: string[] = [
-  // Populated once the Homer works registry is added.
-];
+export const START_HERE: string[] = ['iliad', 'odyssey'];
 
 // A named group of works for the search "works to include" selector: one entry
 // per home-page shelf, in home-page order, holding only the existing works
