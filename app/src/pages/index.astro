@@ -238,7 +238,11 @@ const structuredData = Astro.site
       max-width: 40rem;
       font-size: 0.85rem;
       line-height: 1.5;
-      opacity: 0.8;
+      /* A group `opacity` here dimmed the inline "Let me know" button too,
+         dropping its --accent link colour to ~3.4:1 (AA fail). Mute the note
+         with an AA-safe text colour instead, so the full-opacity button keeps
+         its ~5:1 accent contrast. */
+      color: var(--text-mid);
       text-wrap: pretty;
     }
     .wip-note a { text-decoration: underline; }
@@ -263,9 +267,14 @@ const structuredData = Astro.site
       text-transform: uppercase;
       letter-spacing: .28em;
       font-size: .72rem;
-      color: var(--accent-light);
+      /* --accent-light (bronze-bright) is a decorative tint that fails AA as
+         small text on the light cream ground (~3.4:1). Use the AA-safe --accent
+         (bronze, ~5:1) in light; keep the brighter tint in dark, where it clears
+         AA comfortably (~10:1). Same swap for .cat-num and the support .gk. */
+      color: var(--accent);
       margin-bottom: .6rem;
     }
+    :root[data-theme="dark"] .eyebrow { color: var(--accent-light); }
     .masthead h1 {
       font-family: var(--font-greek);
       font-weight: 400;
@@ -377,8 +386,13 @@ const structuredData = Astro.site
       font-size: .95rem;
       font-weight: 600;
       letter-spacing: .04em;
-      color: var(--accent-light);
+      color: var(--accent);
     }
+    :root[data-theme="dark"] .cat-num { color: var(--accent-light); }
+    /* The support-card eyebrow's Greek χάρις inherits --accent-light from
+       global.css; same AA swap as .eyebrow above (fails ~3:1 on the panel). */
+    .support-card .eyebrow .gk { color: var(--accent); }
+    :root[data-theme="dark"] .support-card .eyebrow .gk { color: var(--accent-light); }
     .cat-count {
       font-family: var(--font-ui);
       font-size: .72rem;

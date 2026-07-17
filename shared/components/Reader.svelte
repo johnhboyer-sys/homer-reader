@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
-  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, type Segment, type GreekLine, type Token, type BookData, type RossPiece, type Scene } from '../lib/data';
+  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene } from '../lib/data';
   import { schemeFor, formatCite } from '../lib/citation';
   import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
@@ -357,6 +357,12 @@
   // every payload today, so `scenes` is empty and Reading Mode renders plain
   // single-column prose; a chip appears only where real scene data lands.
   let scenes: Scene[] = bookData?.scenes ?? [];
+  // Whether this book's apparatus (scenes + cartouche fields) is AI-drafted and
+  // still pending John's review. Drives the discreet DRAFT badge on each scene
+  // chip — CLAUDE.md's apparatus-honesty rule. Set from the same `apparatus.draft`
+  // the cartouche reads; refreshed in the desktop fetch path below.
+  let scenesDraft: boolean =
+    (bookData as RawBookData | null)?.apparatus?.draft === true;
   // The scenes opening within a segment's Greek line range — rendered as
   // marginal chips ahead of that segment's prose in Reading Mode.
   function scenesForSegment(seg: Segment): Scene[] {
@@ -612,6 +618,8 @@
       window.removeEventListener('resize', onResize);
       if (_onToggleSettings) window.removeEventListener('toggle-settings', _onToggleSettings);
       if (_onCloseSettings)  window.removeEventListener('close-settings',  _onCloseSettings);
+      readerBodyEl?.removeEventListener('click', onReaderClick);
+      readerBodyEl?.removeEventListener('keydown', onReaderKeydown);
       document.removeEventListener('mouseup', checkCopyBtn);
       document.removeEventListener('selectionchange', onSelectionChange);
     }
@@ -1086,6 +1094,10 @@
     _onCloseSettings  = () => { if (settingsOpen) closeSettings(); };
     window.addEventListener('toggle-settings', _onToggleSettings);
     window.addEventListener('close-settings',  _onCloseSettings);
+    // Delegated token interaction: one click + one keydown for the whole book,
+    // instead of a listener pair on each of ~7000 token spans (see greekToks).
+    readerBodyEl?.addEventListener('click', onReaderClick);
+    readerBodyEl?.addEventListener('keydown', onReaderKeydown);
     const params = new URLSearchParams(window.location.search);
     hlGrkFolds = (params.get('hlg') ?? '').trim().split(/\s+/).filter(Boolean)
       .map(t => greekFold(t.replace(/\*/g, ''))).filter(Boolean);
@@ -1135,6 +1147,12 @@
     if (qView === 'greek' || qView === 'both' || qView === 'english') view = qView;
     const qTrans = params.get('trans');
     if (qTrans && validTrans.has(qTrans)) { trans = qTrans; if (view === 'greek') view = 'both'; }
+    // The pre-paint view bridge (ReaderShell's data-rview) has served its purpose
+    // now that Svelte's `view` state (and its view-* class) is authoritative;
+    // drop it so a later manual toggle back to Both isn't overridden by the
+    // bridge's single-language CSS. The class Svelte will render matches what the
+    // bridge painted, so removing it here causes no layout shift.
+    document.documentElement.removeAttribute('data-rview');
     // A shareable ?mode=reading|scholar overrides the saved posture (matches the
     // read-on-load convention of ?view / ?trans; posture is not written back).
     const qMode = params.get('mode');
@@ -1148,6 +1166,7 @@
         segments = data.segments;
         turnFlow = data.turnFlow ?? null;
         scenes = data.scenes ?? [];
+        scenesDraft = (data as RawBookData).apparatus?.draft === true;
       }
     } catch (e) {
       error = String(e);
@@ -1209,6 +1228,10 @@
         document.addEventListener('mouseup', checkCopyBtn);
         document.addEventListener('selectionchange', onSelectionChange);
         updateChapterContext();
+        // Paint search-hit tokens once the mount-time view/trans state settled
+        // (a ?hlg deep-link set hlGrkFolds above; tokens carry no reactive
+        // class:hit, so apply it here — a no-op when there are no folds).
+        refreshTokenDecorations();
       }, 0);
     }
   });
@@ -1257,11 +1280,20 @@
   // passage lands back exactly where it opened (symmetric), unless the reader
   // scrolled it out of view, in which case we keep the current top line fixed.
   let pinnedTok: HTMLElement | null = null;
+  // The token span currently wearing the .active ring. Toggled imperatively (the
+  // token markup carries no reactive class:active — see the greekToks snippet).
+  let activeTokEl: HTMLElement | null = null;
 
-  function handleTokenClick(e: MouseEvent, token: Token | null, viaKeyboard = false) {
-    if (!token) return;
-    e.stopPropagation();
-    const el = e.currentTarget as HTMLElement;
+  // Reconstruct a Token from a delegated target's data attributes. The surface
+  // form is the span's text; the popup/lexicon only read `t` and `k`, and `o`
+  // is preserved for completeness.
+  function tokenFromEl(el: HTMLElement): Token {
+    return { t: el.textContent ?? '', o: Number(el.dataset.o ?? '0'), k: el.dataset.k ?? '' };
+  }
+
+  function activateToken(el: HTMLElement, viaKeyboard = false) {
+    const token = tokenFromEl(el);
+    if (!token.k) return;
     const rect = el.getBoundingClientRect();
     // Only the first open reflows the body (adds .word-open); switching words
     // while the sidebar is already open changes nothing about the layout.
@@ -1270,6 +1302,9 @@
     // it on Escape/close, and whether this open was keyboard-driven at all.
     pinnedTok = el;
     popupViaKb = viaKeyboard;
+    if (activeTokEl && activeTokEl !== el) activeTokEl.classList.remove('active');
+    activeTokEl = el;
+    el.classList.add('active');
     popup = { token, anchor: { x: rect.left, y: rect.bottom } };
     // Keyboard activation moves focus INTO the docked rail (WAI-ARIA); a mouse
     // open leaves focus in the reading flow. The modal popup handles its own
@@ -1279,12 +1314,28 @@
     }
   }
 
+  // Delegated token interaction: one click + one keydown listener on the reader
+  // body (wired in onMount) instead of a pair per token. `closest('.tok')`
+  // resolves the token span; non-token clicks/keys fall through untouched.
+  function onReaderClick(e: MouseEvent) {
+    const el = (e.target as Element | null)?.closest?.('.tok') as HTMLElement | null;
+    if (!el) return;
+    e.stopPropagation();
+    activateToken(el, false);
+  }
+  function onReaderKeydown(e: KeyboardEvent) {
+    const el = (e.target as Element | null)?.closest?.('.tok') as HTMLElement | null;
+    if (!el) return;
+    onTokenKey(e, el);
+  }
+
   function closePopup() {
     // A keyboard-opened docked rail returns focus to the originating token
     // (Escape restores context); the modal popup does its own focus restore.
     const returnTo = dockedLexicon && popupViaKb && pinnedTok && inViewport(pinnedTok) ? pinnedTok : null;
     if (popup) pinAcrossReflow(pinnedTok && inViewport(pinnedTok) ? pinnedTok : topAnchor());
     popup = null;
+    if (activeTokEl) { activeTokEl.classList.remove('active'); activeTokEl = null; }
     pinnedTok = null;
     popupViaKb = false;
     returnTo?.focus();
@@ -1303,12 +1354,27 @@
     const first = readerBodyEl.querySelector<HTMLElement>('.tok');
     first?.setAttribute('tabindex', '0');
   }
-  afterUpdate(ensureRovingTab);
+  // Re-apply the imperative token decorations after any Svelte re-render (which
+  // rebuilds token spans and drops the classes we set by hand). ensureRovingTab
+  // keeps exactly one token tabbable; the search-hit paint only runs when a
+  // ?hlg deep-link actually set folds (the common case is a no-op); the active
+  // ring is restored if its element survived the render.
+  function refreshTokenDecorations() {
+    if (!readerBodyEl) return;
+    ensureRovingTab();
+    if (hlGrkFolds.length) {
+      readerBodyEl.querySelectorAll<HTMLElement>('.tok').forEach(el => {
+        if (isHit(el.textContent ?? '')) el.classList.add('hit');
+      });
+    }
+    if (activeTokEl && activeTokEl.isConnected) activeTokEl.classList.add('active');
+  }
+  afterUpdate(refreshTokenDecorations);
 
-  function onTokenKey(e: KeyboardEvent, token: Token) {
+  function onTokenKey(e: KeyboardEvent, cur: HTMLElement) {
     if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
       e.preventDefault();
-      handleTokenClick(e as unknown as MouseEvent, token, true);
+      activateToken(cur, true);
       return;
     }
     const step: Record<string, number | 'first' | 'last'> = {
@@ -1316,7 +1382,6 @@
     };
     if (!(e.key in step)) return;
     e.preventDefault();
-    const cur = e.currentTarget as HTMLElement;
     const toks = Array.from(readerBodyEl?.querySelectorAll<HTMLElement>('.tok') ?? []);
     const i = toks.indexOf(cur);
     if (i < 0) return;
@@ -1461,16 +1526,22 @@
 {:else if error}
   <p style="padding:2rem;color:red">{error}</p>
 {:else}
+  <!-- Token markup is deliberately INERT: no per-token event listeners and no
+       reactive `class:` bindings. A book is ~7000 tokens; giving each an on:click
+       + on:keydown + a class:active effect subscribed to `popup` cost ~1s of
+       hydration scripting and blocked the main thread. Instead the container
+       (.reader-body) carries ONE delegated click + keydown handler (see onMount),
+       resolving the token from data-k/data-o; the active-word ring and search-hit
+       highlight are applied imperatively (activateToken / refreshTokenDecorations).
+       The keyboard roving-tabindex model is unchanged. -->
   {#snippet greekToks(parts: LineRenderPart[])}{#each parts as part}{#if part.kind === 'token'}<span
         class="tok"
-        class:active={popup?.token === part.tok}
-        class:hit={isHit(part.text)}
         role="button"
         tabindex="-1"
         aria-label="Analyse {part.text}"
         aria-haspopup="dialog"
-        on:click={(e) => handleTokenClick(e, part.tok)}
-        on:keydown={(e) => onTokenKey(e, part.tok)}
+        data-k={part.tok.k}
+        data-o={part.tok.o}
       >{part.text}</span>{:else if part.kind === 'speaker'}<span class="speaker" class:speaker-dash={part.dash} lang="grc">{part.label}</span>{:else}{part.text}{/if}{/each}{/snippet}
   {#snippet chapterHead(block: Block)}
     <div class="chapter-head" id="ch-{bookNum}-{block.chapter}">
@@ -1719,6 +1790,7 @@
     <aside class="scene-chip" aria-label="Scene summary">
       <span class="scene-lines">{s.startLine}{#if s.endLine && s.endLine !== s.startLine}–{s.endLine}{/if}</span>
       {#if s.place}<span class="scene-place">{s.place}</span>{/if}
+      {#if scenesDraft}<span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>{/if}
       <p class="scene-summary">{s.summary}</p>
       {#if s.people && s.people.length}<p class="scene-people">{s.people.join(' · ')}</p>{/if}
     </aside>

@@ -903,6 +903,35 @@ body {
 .reader-body.view-greek .turn-flow .greek-col,
 .reader-body.view-english .turn-flow .english-col { width: 100%; }
 
+/* Pre-hydration single-language bridge (see ReaderShell's data-rview script and
+   Reader.svelte's onMount). Before the island hydrates the reader-body still
+   carries the server-rendered `view-both` class, so mirror the monolingual
+   rules above onto `view-both` while <html data-rview> names the pending single
+   language. This makes the first paint match the hydrated layout instead of
+   reflowing the English column full-width (a large .ross-prose CLS). Reader
+   removes data-rview in onMount, after which the real view-* class takes over. */
+:root[data-rview="english"] .reader-body.view-both .greek-col,
+:root[data-rview="greek"]   .reader-body.view-both .english-col { display: none; }
+:root[data-rview="english"] .reader-body.view-both .seg-row,
+:root[data-rview="greek"]   .reader-body.view-both .seg-row { grid-template-columns: 1fr; }
+:root[data-rview="english"] .reader-body.view-both .english-col,
+:root[data-rview="greek"]   .reader-body.view-both .greek-col { max-width: calc(42rem * var(--colw-scale, 1)); margin: 0 auto; }
+:root[data-rview="greek"]   .reader-body.view-both .turn-flow .greek-col,
+:root[data-rview="english"] .reader-body.view-both .turn-flow .english-col { width: 100%; }
+/* …and the monolingual TYPE SIZE. view-both shrinks each column's font on a
+   phone (the @media(max-width:680px) `.view-both .english-col{font-size:0.9rem}`
+   rule) so the cramped bilingual measures stay legible; the single-language
+   views keep the larger comfortable size. Without this, the bridged column
+   paints at 0.9rem then reflows up to the full size when the island swaps to
+   view-english — a residual ~0.12 CLS on the tall English block. Restore the
+   monolingual font-size/line-height so the first paint already matches. */
+:root[data-rview="english"] .reader-body.view-both .english-col {
+  font-size: var(--fs-english); line-height: var(--lh-english);
+}
+:root[data-rview="greek"] .reader-body.view-both .greek-col {
+  font-size: var(--fs-greek); line-height: var(--lh-greek);
+}
+
 /* Compare both: Greek | Rackham | Ross (or Rackham | Ross in English-only).
    A third translation column joins the seg-row grid. */
 .reader-body.trans-compare.view-both .seg-row { grid-template-columns: 1fr 1fr 1fr; }
@@ -3292,6 +3321,27 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   font-style: italic;
   color: var(--text-mid);
 }
+/* Draft badge: a discreet tiny uppercase outline chip in --terracotta (the tone
+   reserved for the apparatus-honesty draft marker; AA on both grounds — 5.12/
+   4.62 light, 6.10 dark). Shown on AI-drafted apparatus that John hasn't yet
+   flipped to reviewed: on each Reading-Mode scene chip and on the cartouche. */
+.draft-badge {
+  display: inline-block;
+  vertical-align: middle;
+  font-family: var(--font-ui);
+  font-size: 0.56rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.35;
+  padding: 0.02em 0.4em;
+  border: 1px solid var(--terracotta);
+  border-radius: 3px;
+  color: var(--terracotta);
+  white-space: nowrap;
+}
+.scene-chip .draft-badge { margin-top: 0.2rem; }
+.book-plate-titles .draft-badge { margin-top: 0.35rem; }
 @media (min-width: 1400px) {
   .reading-col { position: relative; }
   .scene-chip {

@@ -225,3 +225,30 @@ a comment at the top of `shared/styles/global.css` (just above `:root`).
   `shared/glossary/EN.md`'s Nicomachean-Ethics glossary prose) are inert,
   non-user-facing, and outside this agent's blast radius (not
   `app/src`/`shared/styles`/`shared/components`).
+
+## Gate-3 performance + apparatus pass (2026-07-17)
+
+- `shared/components/Reader.svelte` — Homer-specific perf + apparatus divergence
+  beyond the verse-line entries above: (1) Greek token markup in the `greekToks`
+  snippet is now INERT (no per-token `class:active`/`class:hit` or
+  `on:click`/`on:keydown`; carries `data-k`/`data-o`) with ONE delegated
+  click+keydown handler on `.reader-body` (`onReaderClick`/`onReaderKeydown`/
+  `activateToken`) — removed the ~1.2s hydration task on a ~7000-token book.
+  Active-word ring + search-hit paint are imperative (`refreshTokenDecorations`
+  in `afterUpdate`). (2) onMount clears the `data-rview` pre-paint view bridge
+  once Svelte owns the view class. (3) `scenesDraft` + a `.draft-badge` on each
+  Reading-Mode scene chip (apparatus-honesty). Uses new `RawBookData` import.
+- `shared/lib/data.ts` — extracted `normalizeBookData(RawBookData): BookData`
+  (+ exported `RawBookData` interface) as the ONE authoritative
+  `apparatus.scenes → scenes` normalizer, now called by BOTH `fetchBook` and the
+  build-time SSR path (`ReaderShell.astro`); previously the normalization lived
+  inline in `fetchBook` only, so static pages had `scenes` undefined.
+- `shared/styles/global.css` — (1) `:root[data-rview="english"|"greek"]
+  .reader-body.view-both …` pre-hydration view bridge (mirrors the monolingual
+  column display/width AND the mobile font-size, so the SSR `view-both` paint
+  matches the hydrated single-language layout — kills a ~0.16 CLS on
+  `.ross-prose`). (2) `.draft-badge` (terracotta outline chip, both grounds AA)
+  for the scene chips + cartouche. Paired with `ReaderShell.astro`'s inline
+  `data-rview` head script.
+- `shared/__tests__/data.test.ts` — added two `normalizeBookData` cases (SSR-path
+  shape + already-normalized passthrough).

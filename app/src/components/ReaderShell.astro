@@ -15,6 +15,7 @@ import WorkSwitcher from './WorkSwitcher.svelte';
 import ThemeInit from './ThemeInit.astro';
 import ThemeToggle from './ThemeToggle.astro';
 import { getWork, bookLabel, isBookless, workPath, workLanding, HOUSE_AUTHOR } from '@shared/lib/works';
+import { normalizeBookData } from '@shared/lib/data';
 import { speakerRoster } from '../lib/speaker-roster';
 import { SUPPORT_URL } from '../lib/support';
 import { jsonLdSafe } from '../lib/jsonld';
@@ -85,17 +86,20 @@ const pageHref = (b: number, column: string) =>
 
 // The book's reading data, read at build time and handed to the Reader island so
 // the Greek + English text is server-rendered into the static HTML (crawlable +
-// instant paint) instead of fetched client-side. Same shape fetchBook returns.
-const bookData = JSON.parse(
+// instant paint) instead of fetched client-side. Run it through the SAME
+// normalization fetchBook uses so `scenes` (drafted from apparatus.scenes) is
+// present on the static page — otherwise the raw JSON.parse leaves scenes
+// undefined and Reading Mode never shows the marginal scene chips.
+const bookData = normalizeBookData(JSON.parse(
   readFileSync(`public/data/${workId}/book-${String(n).padStart(2, '0')}.json`, 'utf-8'),
-);
+));
 
 // Cartouche apparatus slots (argument line + where/who/day strip): optional,
 // Phase-4 fields on a book's data. Absent today (no pipeline stage emits
 // them yet), so the cartouche renders title-only until a future apparatus
 // pass populates `bookData.apparatus` — no lorem/placeholder text ships in
 // the meantime (CLAUDE.md "Apparatus honesty").
-interface BookApparatus { argument?: string; where?: string; who?: string[]; day?: string; }
+interface BookApparatus { argument?: string; where?: string; who?: string[]; day?: string; draft?: boolean; }
 const apparatus: BookApparatus | undefined = bookData.apparatus;
 
 // Whole-work speaker-display roster (memoized), so speaker-name colours are
@@ -204,6 +208,32 @@ const intro =
        verification token here (a sibling reader's token was intentionally
        removed from this file — it belongs to a different GSC property). -->
   <ThemeInit />
+  <!-- Pre-hydration view bridge. The Reader island is server-rendered as the
+       bilingual `view-both` layout, but on load the client picks a single
+       language on a narrow screen (or from a saved/`?view=` choice). Doing that
+       after first paint reflows the English column from a parallel column to
+       full width — a ~0.16 CLS on the giant .ross-prose block. This inline
+       script (runs before paint, like ThemeInit) computes the SAME choice the
+       island's onMount will make and stamps it on <html data-rview>, which CSS
+       uses to paint the final single-column layout immediately. Reader clears
+       the attribute in onMount once Svelte owns the reader-body class. -->
+  <script is:inline>
+    (function () {
+      try {
+        var p = new URLSearchParams(location.search);
+        var qv = p.get('view'), v;
+        if (qv === 'greek' || qv === 'english' || qv === 'both') v = qv;
+        else if (p.get('loc') || (p.get('hlg') || '').trim()) v = 'both';
+        else {
+          var s = localStorage.getItem('reader-view');
+          if (s === 'greek' || s === 'english' || s === 'both') v = s;
+          else if (window.matchMedia('(max-width: 680px)').matches) v = 'english';
+          else v = 'both';
+        }
+        if (v !== 'both') document.documentElement.setAttribute('data-rview', v);
+      } catch (e) { /* no bridge: falls back to the (pre-fix) reflow */ }
+    })();
+  </script>
   <title>{pageTitle}</title>
   <meta name="description" content={metaDescription} />
   {canonical && <link rel="canonical" href={canonical} />}
@@ -594,6 +624,9 @@ const intro =
       <div class="book-plate-titles">
         {cartoucheGreek && <div class="book-plate-greek" lang="grc">{cartoucheGreek}</div>}
         <div class="book-plate-en">{work.title} · Book {label}</div>
+        {apparatus?.draft && (apparatus.argument || apparatus.where || apparatus.who?.length || apparatus.day) && (
+          <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>
+        )}
       </div>
       {apparatus?.argument && <p class="book-plate-argument">{apparatus.argument}</p>}
       {apparatus && (apparatus.where || apparatus.who?.length || apparatus.day) && (
@@ -615,8 +648,17 @@ const intro =
       )}
     </section>
   )}
-  <Reader work={workId} bookNum={n} bookData={bookData} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:load />
-  <CommandPalette work={workId} client:load />
+  <!-- The reading surface is fully server-rendered above (text is in the static
+       HTML), so the island only needs to hydrate the INTERACTIVITY (token
+       lookup, posture / translation toggles, jump-to-line). Deferred to idle so
+       the hydration work no longer competes with first paint / LCP of the
+       already-visible text; the data-rview CSS bridge holds the layout stable
+       until the island takes over (no CLS), and the mount-time deep-link scroll
+       still runs (idle fires after initial layout, so there's LESS churn to
+       cancel the scroll, not more). The big hydration-cost win is the token
+       event-delegation in Reader.svelte, which removed the ~1.2s scripting task. -->
+  <Reader work={workId} bookNum={n} bookData={bookData} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:idle />
+  <CommandPalette work={workId} client:idle />
 
   <footer class="site-footer">
     <span>Greek text: {work.greekSource.short} (Perseus, CC BY-SA)</span>

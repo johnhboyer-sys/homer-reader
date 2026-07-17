@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cunliffeShard, fetchBook, fetchCunliffeShard, fetchFootnotes, fetchLsjShard, invalidateBookCache, lookupWord, lsjShard, parseBekker, parseLocation, resolveBekker } from '../lib/data';
+import { cunliffeShard, fetchBook, fetchCunliffeShard, fetchFootnotes, fetchLsjShard, invalidateBookCache, lookupWord, lsjShard, normalizeBookData, parseBekker, parseLocation, resolveBekker } from '../lib/data';
 
 function mockFetch(map: Record<string, unknown>) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
@@ -91,6 +91,30 @@ describe('fetch and lookup helpers', () => {
     mockFetch({ 'NoScenesWork/book-01.json': { book: 1, segments: [] } });
     const d = await fetchBook('NoScenesWork', 1);
     expect(d.scenes).toBeUndefined();
+  });
+
+  // The SSR path (ReaderShell.astro's readFileSync + JSON.parse) calls the same
+  // normalization the fetch path does, so a static page's bookData.scenes has the
+  // reader's Scene shape — not the raw apparatus.scenes the old raw-parse left it.
+  it('normalizeBookData is the shared SSR-path normalizer (apparatus.scenes → Scene[])', () => {
+    const raw = {
+      book: 1,
+      segments: [],
+      apparatus: {
+        draft: true,
+        scenes: [{ lines: [1, 7] as [number, number], summary: 'Invocation.', location: 'proem' }],
+      },
+    };
+    const d = normalizeBookData(raw);
+    expect(d.scenes).toEqual([{ summary: 'Invocation.', startLine: 1, endLine: 7, place: 'proem' }]);
+    // The raw apparatus (the cartouche's draft flag + sibling fields) is preserved.
+    expect((d as typeof raw).apparatus.draft).toBe(true);
+  });
+
+  it('normalizeBookData leaves an already-normalized book untouched', () => {
+    const scenes = [{ summary: 'x', startLine: 1 }];
+    const d = normalizeBookData({ book: 1, segments: [], scenes });
+    expect(d.scenes).toBe(scenes);
   });
 
   it('fetchBook returns JSON data and applies the runtime hook', async () => {

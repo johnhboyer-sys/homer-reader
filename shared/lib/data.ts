@@ -242,6 +242,34 @@ const _chaptersCache = new Map<string, Promise<Record<string, ChapterRef[]>>>();
 const _columnsCache = new Map<string, Promise<Record<string, ColumnRef[]>>>();
 const _footnotesCache = new Map<string, Promise<Record<string, string>>>();
 
+// Raw book JSON as it sits on disk: the reading data plus an `apparatus` block
+// whose `scenes` use the pipeline's {lines:[lo,hi], summary, location} shape.
+export interface RawBookData extends BookData {
+  apparatus?: {
+    scenes?: { lines: [number, number]; summary: string; location?: string;
+               dayNumber?: number | null }[];
+  };
+}
+
+// Normalize a freshly-parsed book into the shape the reader consumes: the
+// pipeline emits scene apparatus under `apparatus.scenes` (the cartouche reads
+// the sibling fields server-side), but Reader.svelte's scene chips read the
+// top-level `scenes` in the Scene shape. This is the ONE authoritative
+// normalization — both the client fetch path (fetchBook) and the build-time SSR
+// path (ReaderShell.astro's readFileSync + JSON.parse) call it, so a static
+// page and a fetched book agree on `scenes`. Mutates and returns `d`.
+export function normalizeBookData(d: RawBookData): BookData {
+  if (!d.scenes && d.apparatus?.scenes) {
+    d.scenes = d.apparatus.scenes.map(s => ({
+      summary: s.summary,
+      startLine: s.lines[0],
+      endLine: s.lines[1],
+      place: s.location,
+    }));
+  }
+  return d;
+}
+
 export function fetchBook(work: string, n: number): Promise<BookData> {
   const key = `${work}:${n}`;
   const cached = _bookCache.get(key);
@@ -249,24 +277,8 @@ export function fetchBook(work: string, n: number): Promise<BookData> {
   const p = fetch(`${workBase(work)}/book-${String(n).padStart(2, '0')}.json`).then(r => {
     if (!r.ok) throw new Error(`${work} book ${n}: ${r.status}`);
     return r.json();
-  }).then((d: BookData & {
-    apparatus?: {
-      scenes?: { lines: [number, number]; summary: string; location?: string;
-                 dayNumber?: number | null }[];
-    };
-  }) => {
-    // The pipeline emits scene apparatus under `apparatus.scenes` with
-    // {lines:[lo,hi], summary, location} (the cartouche consumes the sibling
-    // fields server-side); the reader's scene chips read the normalized
-    // top-level `scenes` in the Scene shape.
-    if (!d.scenes && d.apparatus?.scenes) {
-      d.scenes = d.apparatus.scenes.map(s => ({
-        summary: s.summary,
-        startLine: s.lines[0],
-        endLine: s.lines[1],
-        place: s.location,
-      }));
-    }
+  }).then((raw: RawBookData) => {
+    const d = normalizeBookData(raw);
     // A non-Astro host (the desktop app) can overlay runtime content — e.g.
     // user-imported translations merged into seg.overlays — via this hook.
     // The site never sets it; the fetched data passes through untouched.
