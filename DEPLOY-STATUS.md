@@ -135,6 +135,15 @@ the step. "Digital Landmark Homer" remains internal-docs-only vocabulary.
    copyright for decades; the OCT Odyssey is not in TLG). Re-base lane
    dispatched with a hard line-set-identity gate before anything else.
 2. Odyssey credit wording: draft shown to John (pending his edit).
+1a. **Il. 8.548/550-552 ruling (John, 2026-07-17): Allen + supplement.**
+   Allen 1931 omits the four "gods hated sacred Ilios" lines that the
+   Perseus/OCT vulgate prints. Decision: ship Allen's text with the four
+   lines supplied from the vulgate, rendered bracketed/athetized with
+   recorded provenance — every vulgate line number stays citable; corpus
+   total stays 15,687. Gate A also inventoried Allen's Alexandrian
+   sigla (1,789 diplai / 411 obeloi / 290 dotted diplai / 69 asterisks);
+   obelos maps to the bracketed flag, other sigla preserved as data only.
+
 3. Pope: keep "alignment approximate" (drift is Pope's uneven couplet
    expansion, not an edition mismatch — not cheaply fixable).
 4. Murray footnotes: REAL Loeb notes wanted — acquisition/extraction
