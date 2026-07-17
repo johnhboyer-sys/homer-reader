@@ -562,7 +562,7 @@
             168,
             220
           ],
-          "summary": "Patroclus dons Achilles's armor, save the great Pelian spear, as the Myrmidon companies form ranks under their captains.",
+          "summary": "Hector answers Glaucus, dons Achilles's stripped armor; Zeus marvels and grants him might; he promises spoils for Patroclus's body.",
           "location": "the Achaean huts",
           "dayNumber": 25
         },
@@ -571,7 +571,7 @@
             221,
             256
           ],
-          "summary": "Achilles rouses the Myrmidons with a rebuke, then privately prays to Zeus for Patroclus's victory and safe return.",
+          "summary": "Achilles opens Thetis's chest for his sacred cup, pours a libation, and prays to Zeus for Patroclus's safe return.",
           "location": "the Achaean huts",
           "dayNumber": 25
         },
@@ -607,7 +607,7 @@
             419,
             461
           ],
-          "summary": "Sarpedon rallies the Lycians and meets Patroclus in combat; Zeus, pitying his son, debates snatching him from death.",
+          "summary": "Sarpedon rallies the Lycians against Patroclus; Zeus, pitying his doomed son, is dissuaded by Hera from saving him.",
           "location": "the Trojan wall",
           "dayNumber": 25
         },
@@ -616,7 +616,7 @@
             462,
             507
           ],
-          "summary": "Hera dissuades Zeus from saving Sarpedon; Patroclus kills his squire, then Sarpedon himself, who dies calling on Glaucus.",
+          "summary": "Patroclus kills Sarpedon's squire Thrasymelus, then Sarpedon himself, who dies urging Glaucus to defend his body.",
           "location": "the Trojan wall",
           "dayNumber": 25
         },
@@ -661,7 +661,7 @@
             684,
             731
           ],
-          "summary": "Patroclus, forgetting Achilles's warning, drives the Trojans toward the city walls, slaying many as he presses on.",
+          "summary": "Forgetting Achilles's warning, Patroclus kills many nearing the wall; Apollo thrice repels him, then, as Asius, spurs Hector on.",
           "location": "the Trojan wall",
           "dayNumber": 25
         },
@@ -670,7 +670,7 @@
             732,
             782
           ],
-          "summary": "Apollo three times repels Patroclus from the wall, then, disguised, urges Hector to drive against him.",
+          "summary": "Patroclus kills Hector's charioteer Cebriones with a stone; Trojans and Achaeans battle over the corpse until evening favors the Achaeans.",
           "location": "the Trojan wall",
           "dayNumber": 25
         },
@@ -679,7 +679,7 @@
             783,
             822
           ],
-          "summary": "Patroclus kills Hector's charioteer Cebriones with a stone; the two sides fight over the body until dusk favors the Achaeans.",
+          "summary": "Patroclus, killing thrice-nine Trojans, is stunned and stripped by Apollo, wounded first by Euphorbus's spear, then struck dead by Hector.",
           "location": "the Trojan wall",
           "dayNumber": 25
         },
@@ -688,7 +688,7 @@
             823,
             867
           ],
-          "summary": "Apollo strips Patroclus of his armor and senses; Euphorbus spears him first, and Hector delivers the fatal blow.",
+          "summary": "Hector, lion-like, vaunts over the dying Patroclus, who foretells his death by Achilles; his soul flees, and Hector pursues Automedon.",
           "location": "the Trojan wall",
           "dayNumber": 25
         }
@@ -734,7 +734,7 @@
             85,
             124
           ],
-          "summary": "Hector's furious shout forces Menelaus to retreat, unwilling to face him alone over Patroclus's corpse.",
+          "summary": "Hector's fury drives Menelaus back from the corpse; he finds Aias and begs him to help save Patroclus's body.",
           "location": "the plain before Troy",
           "dayNumber": 25
         },
@@ -743,7 +743,7 @@
             125,
             164
           ],
-          "summary": "Menelaus finds Aias and begs help to save Patroclus's body; Hector strips the corpse's armor and withdraws.",
+          "summary": "Hector strips Patroclus's armor and withdraws as Aias arrives to guard the corpse; Glaucus begins rebuking Hector's cowardice.",
           "location": "the plain before Troy",
           "dayNumber": 25
         },
@@ -752,7 +752,7 @@
             165,
             236
           ],
-          "summary": "Glaucus rebukes Hector for abandoning Sarpedon and shrinking from Aias; stung, Hector dons Achilles's stripped armor.",
+          "summary": "Hector answers Glaucus, dons Achilles's stripped armor; Zeus marvels and grants him might; he promises spoils for Patroclus's body.",
           "location": "the plain before Troy",
           "dayNumber": 25
         },
@@ -761,8 +761,8 @@
             237,
             285
           ],
-          "summary": "Zeus marvels at doomed Hector wearing Achilles's arms and grants him brief might, though his death draws near.",
-          "location": "Mount Ida",
+          "summary": "Aias fears for their lives; Menelaus summons the Danaan chiefs as fierce fighting resumes; Aias routs the Trojan ranks.",
+          "location": "the plain before Troy",
           "dayNumber": 25
         },
         {
@@ -770,7 +770,7 @@
             286,
             342
           ],
-          "summary": "Hector rallies the Trojan allies with promise of spoils; renewed fighting rages fiercely around Patroclus's corpse.",
+          "summary": "Aias kills Hippothous as he drags the corpse, and Phorcys; Apollo, disguised, rouses Aeneas to rally the wavering Trojans.",
           "location": "the plain before Troy",
           "dayNumber": 25
         },
@@ -779,7 +779,7 @@
             343,
             401
           ],
-          "summary": "Aias urges Menelaus to summon the other Danaan chieftains; a fierce, darkness-shrouded struggle rages over the corpse.",
+          "summary": "Aias holds the line as both sides tug Patroclus's corpse like a stretched oxhide, fighting on in Zeus's dark mist.",
           "location": "the plain before Troy",
           "dayNumber": 25
         },
@@ -788,7 +788,7 @@
             402,
             459
           ],
-          "summary": "The armies fight all day around Patroclus in strange gloom while the rest of the field lies in sunlight.",
+          "summary": "Achilles, unaware Patroclus has died, fights on; his immortal horses grieve and refuse to move until Zeus rouses their spirit.",
           "location": "the plain before Troy",
           "dayNumber": 25
         },
@@ -797,7 +797,7 @@
             460,
             507
           ],
-          "summary": "Achilles's immortal horses, grieving for Patroclus, refuse to move; Zeus pities them and grants strength to flee Hector.",
+          "summary": "Automedon fights on alone till Alcimedon takes the reins; Hector, spotting the horses, summons Aeneas to help seize them.",
           "location": "the plain before Troy",
           "dayNumber": 25
         },
@@ -806,7 +806,7 @@
             508,
             552
           ],
-          "summary": "Automedon fights alone from the chariot until Alcimedon takes the reins; Hector and Aeneas move to seize the horses.",
+          "summary": "Automedon prays and kills Aretus with a spear-cast; the Aiantes arrive as Athena descends to rouse the Achaeans.",
           "location": "the plain before Troy",
           "dayNumber": 25
         },
@@ -815,7 +815,7 @@
             553,
             592
           ],
-          "summary": "Automedon prays to Zeus and kills Aretus with a spear-cast; the Aiantes intervene to save him from Hector.",
+          "summary": "Athena, as Phoenix, emboldens Menelaus, who kills Podes son of Eetion; Apollo, disguised, spurs the grieving Hector onward.",
           "location": "the plain before Troy",
           "dayNumber": 25
         },
@@ -824,7 +824,7 @@
             593,
             648
           ],
-          "summary": "Athena rouses the Achaeans through Menelaus; Zeus grants the Trojans victory with thunder and the aegis, driving them back.",
+          "summary": "Zeus's aegis and thunder rout the Achaeans, wounding several; Aias, sensing Zeus's hand, prays for clear skies to see.",
           "location": "the plain before Troy",
           "dayNumber": 25
         },
@@ -842,7 +842,7 @@
             692,
             731
           ],
-          "summary": "Menelaus tells Antilochus the news; Antilochus, horrified, runs to Achilles while Menelaus returns to guard the corpse.",
+          "summary": "Antilochus, grief-stricken, runs to tell Achilles; Aias has Menelaus and Meriones lift Patroclus's body while the Aiantes cover their retreat.",
           "location": "the plain before Troy",
           "dayNumber": 25
         },
@@ -851,7 +851,7 @@
             732,
             761
           ],
-          "summary": "The two Aiantes cover the retreat as Menelaus and Meriones lift Patroclus's body and bear it toward the ships.",
+          "summary": "The Aiantes, like a headland stemming a flood, hold off the pursuing Trojans under Aeneas and Hector as Achaeans flee.",
           "location": "the plain before Troy",
           "dayNumber": 25
         }

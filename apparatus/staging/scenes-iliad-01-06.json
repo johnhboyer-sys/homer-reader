@@ -52,7 +52,7 @@
             43,
             52
           ],
-          "summary": "Apollo descends in wrath and looses nine days of plague on the Achaean army.",
+          "summary": "Apollo descends in wrath, shoots mules and dogs first, then men; pyres of the dead burn continually.",
           "location": "Achaean camp",
           "dayNumber": 1
         },
@@ -61,7 +61,7 @@
             53,
             100
           ],
-          "summary": "On the tenth day Achilles calls an assembly; Calchas names Chryseis as the plague's cause.",
+          "summary": "For nine days the plague rages; on the tenth, Achilles calls an assembly, and Calchas names Chryseis its cause.",
           "location": "Achaean assembly",
           "dayNumber": 10
         },
@@ -599,7 +599,7 @@
           ],
           "summary": "Zeus opens the divine council, provocatively suggesting the war end since Menelaus has won.",
           "location": "Olympus",
-          "dayNumber": null
+          "dayNumber": 22
         },
         {
           "lines": [
@@ -608,7 +608,7 @@
           ],
           "summary": "Hera demands Troy's destruction; Zeus yields but sends Athena down to break the truce.",
           "location": "Olympus",
-          "dayNumber": null
+          "dayNumber": 22
         },
         {
           "lines": [
@@ -807,7 +807,7 @@
           ],
           "summary": "Aphrodite, borrowing Ares' chariot, flees to Olympus and is comforted by her mother Dione.",
           "location": "Olympus",
-          "dayNumber": null
+          "dayNumber": 22
         },
         {
           "lines": [
@@ -915,7 +915,7 @@
           ],
           "summary": "Ares flees to Olympus and complains to Zeus, who rebukes him but has Paeon heal his wound.",
           "location": "Olympus",
-          "dayNumber": null
+          "dayNumber": 22
         }
       ]
     },
@@ -1058,7 +1058,7 @@
             466,
             493
           ],
-          "summary": "Hector's son is frightened by his helmet; Hector laughs, removes it, and prays for the boy's glory.",
+          "summary": "Hector's son, frightened by the helmet, is calmed; Hector prays for him, then sends Andromache home—war is for men.",
           "location": "Troy (Scaean gates)",
           "dayNumber": 22
         },
@@ -1067,7 +1067,7 @@
             494,
             502
           ],
-          "summary": "Hector comforts Andromache and sends her home to her weaving, saying war is for men.",
+          "summary": "Andromache goes home weeping, looking back; her handmaids raise a lament for Hector as though he were already dead.",
           "location": "Troy (Scaean gates)",
           "dayNumber": 22
         },
@@ -1076,7 +1076,7 @@
             503,
             529
           ],
-          "summary": "Andromache returns home mourning Hector as if dead; Paris rejoins Hector and both return to battle.",
+          "summary": "Paris arms and hastens through the city to rejoin Hector; the brothers reconcile and set out together for battle.",
           "location": "Troy / the Trojan plain",
           "dayNumber": 22
         }
