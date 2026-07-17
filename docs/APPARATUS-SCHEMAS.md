@@ -99,6 +99,38 @@ flagged links visually distinct (dashed). Unflagged links assert Homeric
 attestation. Figures never named in Homer get no entry unless a tree
 structurally requires them (then the whole entry's note states the source).
 
+## catalogue.json (single file `apparatus/catalogue.json` — Catalogue of Ships)
+
+```json
+{
+  "status": "draft",
+  "achaean": [
+    {
+      "id": "boeotians",
+      "name": "Boeotians",
+      "lines": [494, 510],
+      "leaders": ["peneleos", "leitus"],
+      "ships": 50,
+      "places": ["hyria", "aulis"],
+      "note": "<= 30 words"
+    }
+  ],
+  "trojan": [
+    { "id": "trojans", "name": "Trojans", "lines": [816, 818],
+      "leaders": ["hector"], "ships": null, "places": ["troy"] }
+  ]
+}
+```
+
+`lines` are vulgate lines within Il. 2 (Achaean 494–759, Trojan 816–877),
+non-overlapping, ascending. `ships` = the number Homer states (null for the
+Trojan catalogue, which counts no ships). `leaders`/`places` are kebab-case
+ids; leaders SHOULD resolve to characters.json when the figure is there,
+else remain plain strings (catalogue-only leaders are NOT added to
+characters.json). `places` entries MUST exist in places.json (the ships-map
+entries added by the same lane). Ship counts are data: verify each against
+the Greek line that states it.
+
 ## speeches.json (per work, from DICES: `apparatus/speeches/<work>.json`)
 
 Computed from sources/dices/speechdb.json (CC-BY 4.0), not authored:

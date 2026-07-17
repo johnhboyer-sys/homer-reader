@@ -586,7 +586,8 @@
       ],
       "maps": [
         "wanderings",
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -603,6 +604,14 @@
           "lines": [
             296,
             296
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            750,
+            750
           ]
         }
       ],
@@ -640,7 +649,8 @@
       ],
       "maps": [
         "troad",
-        "wanderings"
+        "wanderings",
+        "ships"
       ],
       "mentions": [
         {
@@ -739,7 +749,8 @@
         26.9
       ],
       "maps": [
-        "troad"
+        "troad",
+        "ships"
       ],
       "mentions": [
         {
@@ -756,6 +767,14 @@
           "lines": [
             276,
             276
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            821,
+            821
           ]
         }
       ],
@@ -863,7 +882,8 @@
         25.24
       ],
       "maps": [
-        "troad"
+        "troad",
+        "ships"
       ],
       "mentions": [
         {
@@ -880,6 +900,14 @@
           "lines": [
             40,
             40
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            722,
+            722
           ]
         }
       ],
@@ -959,7 +987,8 @@
         26.9
       ],
       "maps": [
-        "troad"
+        "troad",
+        "ships"
       ],
       "mentions": [
         {
@@ -977,6 +1006,14 @@
             366,
             366
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            691,
+            691
+          ]
         }
       ],
       "note": "Andromache's home city, sacked by Achilles, who kills her father Eetion. Strabo (13.1.65-70) places it near Adramyttium (modern Edremit)."
@@ -993,7 +1030,8 @@
         26.85
       ],
       "maps": [
-        "troad"
+        "troad",
+        "ships"
       ],
       "mentions": [
         {
@@ -1059,7 +1097,8 @@
         26.41
       ],
       "maps": [
-        "troad"
+        "troad",
+        "ships"
       ],
       "mentions": [
         {
@@ -1084,7 +1123,8 @@
         26.4
       ],
       "maps": [
-        "troad"
+        "troad",
+        "ships"
       ],
       "mentions": [
         {
@@ -1109,7 +1149,8 @@
         26.4
       ],
       "maps": [
-        "troad"
+        "troad",
+        "ships"
       ],
       "mentions": [
         {
@@ -1126,6 +1167,14 @@
           "lines": [
             86,
             86
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            845,
+            845
           ]
         }
       ],
@@ -1248,7 +1297,8 @@
         27.15
       ],
       "maps": [
-        "troad"
+        "troad",
+        "ships"
       ],
       "mentions": [
         {
@@ -1298,7 +1348,8 @@
         22.4
       ],
       "maps": [
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -1316,6 +1367,14 @@
             363,
             363
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            683,
+            683
+          ]
         }
       ],
       "note": "Achilles' homeland in Thessaly, whose exact site (Spercheios valley, near Pharsalus/Halos) is disputed among ancient and modern geographers."
@@ -1331,7 +1390,8 @@
         22.756
       ],
       "maps": [
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -1364,7 +1424,8 @@
         22.72
       ],
       "maps": [
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -1373,6 +1434,14 @@
           "lines": [
             174,
             174
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            559,
+            559
           ]
         }
       ],
@@ -1388,7 +1457,8 @@
         23.499
       ],
       "maps": [
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -1397,6 +1467,14 @@
           "lines": [
             198,
             199
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            557,
+            557
           ]
         }
       ],
@@ -1413,7 +1491,8 @@
         23.13
       ],
       "maps": [
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -1431,6 +1510,14 @@
             712,
             712
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            527,
+            527
+          ]
         }
       ],
       "note": "Homeland of the Locrians under the lesser Ajax, on the Greek mainland opposite Euboea."
@@ -1446,7 +1533,8 @@
         23.6
       ],
       "maps": [
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -1455,6 +1543,14 @@
           "lines": [
             174,
             174
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            536,
+            536
           ]
         }
       ],
@@ -1471,7 +1567,8 @@
         21.55
       ],
       "maps": [
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -1489,6 +1586,14 @@
             531,
             531
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            640,
+            640
+          ]
         }
       ],
       "note": "Aetolian city at the center of the Meleager story told by Phoenix in his appeal to Achilles."
@@ -1503,7 +1608,8 @@
         21.6
       ],
       "maps": [
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -1512,6 +1618,14 @@
           "lines": [
             379,
             379
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            638,
+            638
           ]
         }
       ],
@@ -1529,7 +1643,8 @@
       ],
       "maps": [
         "greece",
-        "wanderings"
+        "wanderings",
+        "ships"
       ],
       "mentions": [
         {
@@ -1572,7 +1687,8 @@
       ],
       "maps": [
         "greece",
-        "wanderings"
+        "wanderings",
+        "ships"
       ],
       "mentions": [
         {
@@ -1589,6 +1705,14 @@
           "lines": [
             246,
             246
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            634,
+            634
           ]
         }
       ],
@@ -1607,7 +1731,8 @@
       ],
       "maps": [
         "greece",
-        "wanderings"
+        "wanderings",
+        "ships"
       ],
       "mentions": [
         {
@@ -1625,6 +1750,14 @@
             246,
             246
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            625,
+            625
+          ]
         }
       ],
       "note": "Fourth island of Odysseus's realm, supplying the largest single contingent of suitors. Its identity was already disputed in antiquity."
@@ -1640,7 +1773,8 @@
         23.73
       ],
       "maps": [
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -1658,6 +1792,14 @@
             323,
             323
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            546,
+            546
+          ]
         }
       ],
       "note": "City of Attica, Athena's own city, visited by the goddess herself in the Odyssey."
@@ -1673,7 +1815,8 @@
         21.37
       ],
       "maps": [
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -1691,6 +1834,14 @@
             686,
             686
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            615,
+            615
+          ]
         }
       ],
       "note": "Region of the northwest Peloponnese, home of the Epeans, named in Nestor's account of a cattle-raid."
@@ -1706,7 +1857,8 @@
         22.98
       ],
       "maps": [
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -1723,6 +1875,14 @@
           "lines": [
             284,
             284
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            511,
+            511
           ]
         }
       ],
@@ -1764,7 +1924,8 @@
         23.6
       ],
       "maps": [
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -1773,6 +1934,14 @@
           "lines": [
             303,
             303
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            496,
+            496
           ]
         }
       ],
@@ -1789,7 +1958,8 @@
         22.5
       ],
       "maps": [
-        "greece"
+        "greece",
+        "ships"
       ],
       "mentions": [
         {
@@ -1807,6 +1977,14 @@
             404,
             405
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            519,
+            519
+          ]
         }
       ],
       "note": "Sanctuary of Apollo at the foot of Parnassus, named for its treasuries in both epics."
@@ -1823,7 +2001,8 @@
       ],
       "maps": [
         "greece",
-        "wanderings"
+        "wanderings",
+        "ships"
       ],
       "mentions": [
         {
@@ -1840,6 +2019,14 @@
           "lines": [
             103,
             103
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            632,
+            632
           ]
         }
       ],
@@ -1858,7 +2045,8 @@
       ],
       "maps": [
         "greece",
-        "wanderings"
+        "wanderings",
+        "ships"
       ],
       "mentions": [
         {
@@ -1876,6 +2064,14 @@
             4,
             5
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            591,
+            591
+          ]
         }
       ],
       "note": "Nestor's 'sandy Pylos' in Messenia, identified by most archaeologists with the excavated Bronze Age palace at Ano Englianos (Blegen, from 1939)."
@@ -1892,7 +2088,8 @@
       ],
       "maps": [
         "greece",
-        "wanderings"
+        "wanderings",
+        "ships"
       ],
       "mentions": [
         {
@@ -1910,6 +2107,14 @@
             10,
             10
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            582,
+            582
+          ]
         }
       ],
       "note": "Menelaus and Helen's home in Laconia, Telemachus's second stop on his journey for news of his father."
@@ -1926,7 +2131,8 @@
       ],
       "maps": [
         "greece",
-        "wanderings"
+        "wanderings",
+        "ships"
       ],
       "mentions": [
         {
@@ -1944,9 +2150,4867 @@
             591,
             591
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            646,
+            646
+          ]
         }
       ],
       "note": "Idomeneus's kingdom and, in the Odyssey, Cnossus is named as Minos's great city; also the setting of Odysseus's recurring false Cretan identity."
+    },
+    {
+      "id": "hyria",
+      "name": "Hyria",
+      "greek": "Ὑρίη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            496,
+            496
+          ]
+        }
+      ],
+      "note": "Coastal town opposite Aulis in Strabo's account; no firm modern site identified.",
+      "tradition": "Coastal Boeotia opposite Aulis (Strabo 9.2.12); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)",
+      "coords": [
+        38.31,
+        23.55
+      ]
+    },
+    {
+      "id": "schoenus",
+      "name": "Schoenus",
+      "greek": "Σχοῖνος",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            497,
+            497
+          ]
+        }
+      ],
+      "note": "Boeotian village on the Theban-Anthedon road per Strabo; site not confirmed archaeologically.",
+      "tradition": "Near Thebes on the road to Anthedon (Strabo 9.2.24); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "scolus",
+      "name": "Scolus",
+      "greek": "Σκῶλος",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            497,
+            497
+          ]
+        }
+      ],
+      "note": "Village below Cithaeron that Strabo calls a rough, hardly livable place; unlocated precisely.",
+      "tradition": "Foothills of Cithaeron near Thebes (Strabo 9.2.23; Paus. 9.4.4); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "eteonus",
+      "name": "Eteonus",
+      "greek": "Ἐτεωνός",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            497,
+            497
+          ]
+        }
+      ],
+      "note": "\"Many-ridged\" Boeotian village; Strabo says it was later called Scarphe. Site unconfirmed.",
+      "tradition": "Cithaeron foothills, later renamed Scarphe per Strabo 9.2.25; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "thespiae",
+      "name": "Thespiae",
+      "greek": "Θέσπεια",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            498,
+            498
+          ]
+        }
+      ],
+      "note": "Boeotian city under Mt Helicon; modern Thespies preserves the name over the excavated remains.",
+      "tradition": "Identified with the excavated site near modern Thespies/Erimokastro, Boeotia (Paus. 9.26)",
+      "coords": [
+        38.295,
+        23.145
+      ]
+    },
+    {
+      "id": "graea",
+      "name": "Graea",
+      "greek": "Γραῖα",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            498,
+            498
+          ]
+        }
+      ],
+      "note": "Strabo equates Graea with Tanagra, but the identification is his own inference, not certain.",
+      "tradition": "Possibly Tanagra or Oropus area, East Boeotia (Strabo 9.2.6, identifies it with Tanagra); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "mycalessus",
+      "name": "Mycalessus",
+      "greek": "Μυκαλησσός",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            498,
+            498
+          ]
+        }
+      ],
+      "note": "\"Wide-lawned\" Boeotian town on the road to Chalcis; the Thucydidean massacre site near Ritsona.",
+      "tradition": "Near modern Ritsona, East Boeotia (site of the Thucydides 7.29 massacre; Paus. 9.19.4)",
+      "coords": [
+        38.42,
+        23.5
+      ]
+    },
+    {
+      "id": "harma",
+      "name": "Harma",
+      "greek": "Ἅρμα",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            499,
+            499
+          ]
+        }
+      ],
+      "note": "Village near Mycalessus and Tanagra; Strabo links its name to Amphiaraus's chariot. Unconfirmed site.",
+      "tradition": "Near modern Kastro, East Boeotia, associated with lightning omens (Strabo 9.2.11); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "eilesium",
+      "name": "Eilesium",
+      "greek": "Εἰλέσιον",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            499,
+            499
+          ]
+        }
+      ],
+      "note": "Minor Boeotian village grouped with Harma and Erythrae; no confirmed modern site.",
+      "tradition": "East Boeotia, exact site unknown; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "erythrae-boeotia",
+      "name": "Erythrae (Boeotia)",
+      "greek": "Ἐρυθραί",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            499,
+            499
+          ]
+        }
+      ],
+      "note": "Boeotian village distinct from Ionian Erythrae; no confirmed modern site.",
+      "tradition": "East Boeotia, near Mycalessus; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "eleon",
+      "name": "Eleon",
+      "greek": "Ἐλεών",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            500,
+            500
+          ]
+        }
+      ],
+      "note": "Boeotian town excavated since 2011 by the Eastern Boeotia Archaeological Project near modern Arma.",
+      "tradition": "Excavated at the site called Ancient Eleon near modern Arma/Dritsa, East Boeotia (excavations from 2011)",
+      "coords": [
+        38.38,
+        23.42
+      ]
+    },
+    {
+      "id": "hyle",
+      "name": "Hyle",
+      "greek": "Ὕλη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            500,
+            500
+          ]
+        }
+      ],
+      "note": "Village by the lake Strabo calls Hylica (a Copais inlet); precise site unconfirmed.",
+      "tradition": "Shore of Lake Copais/Hylica, Boeotia (Strabo 9.2.20); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)",
+      "coords": [
+        38.38,
+        23.28
+      ]
+    },
+    {
+      "id": "peteon",
+      "name": "Peteon",
+      "greek": "Πετεών",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            500,
+            500
+          ]
+        }
+      ],
+      "note": "Minor Boeotian village; Strabo places it on the road from Thebes toward the coast.",
+      "tradition": "Between Thebes and the coast, Boeotia (Strabo 9.2.28); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "ocalea",
+      "name": "Ocalea",
+      "greek": "Ὠκαλέη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            501,
+            501
+          ]
+        }
+      ],
+      "note": "Village Strabo places on the road between Haliartus and Alalcomenae; site unconfirmed.",
+      "tradition": "Midway between Haliartus and Alalcomenae, Boeotia (Strabo 9.2.27); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "medeon-boeotia",
+      "name": "Medeon (Boeotia)",
+      "greek": "Μεδεών",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            501,
+            501
+          ]
+        }
+      ],
+      "note": "Boeotian coastal town, distinct from Phocian Medeon; excavated remains near modern Kastraki.",
+      "tradition": "Identified with the excavated site near modern Kastraki on the Gulf of Corinth (Boeotian Medeon)",
+      "coords": [
+        38.28,
+        22.87
+      ]
+    },
+    {
+      "id": "copae",
+      "name": "Copae",
+      "greek": "Κώπαι",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            502,
+            502
+          ]
+        }
+      ],
+      "note": "Lake-shore town giving Copais its name; site at modern Kastro on the drained lake's edge.",
+      "tradition": "Identified with the site at modern Kastro/Topolia on the former Lake Copais shore",
+      "coords": [
+        38.45,
+        23.02
+      ]
+    },
+    {
+      "id": "eutresis",
+      "name": "Eutresis",
+      "greek": "Εὔτρησις",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            502,
+            502
+          ]
+        }
+      ],
+      "note": "Boeotian village excavated by Hetty Goldman (1924-27) near modern Leuktra; continuous Bronze Age habitation.",
+      "tradition": "Excavated Bronze Age site near modern Leuktra, Boeotia (Goldman excavations, 1924-1927)",
+      "coords": [
+        38.27,
+        23.17
+      ]
+    },
+    {
+      "id": "thisbe",
+      "name": "Thisbe",
+      "greek": "Θίσβη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            502,
+            502
+          ]
+        }
+      ],
+      "note": "\"Many-doved\" Boeotian town; modern Thisvi sits on/near the ancient site below Mt Helicon.",
+      "tradition": "Modern village of Thisvi, Boeotia, preserves the ancient name (Paus. 9.32.2-3)",
+      "coords": [
+        38.27,
+        22.97
+      ]
+    },
+    {
+      "id": "coroneia",
+      "name": "Coroneia",
+      "greek": "Κορώνεια",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            503,
+            503
+          ]
+        }
+      ],
+      "note": "Site of the federal Boeotian sanctuary of Athena Itonia; modern Koroneia preserves the name.",
+      "tradition": "Modern village of Koroneia, Boeotia, on the site of the ancient city (Paus. 9.34)",
+      "coords": [
+        38.42,
+        22.98
+      ]
+    },
+    {
+      "id": "haliartus",
+      "name": "Haliartus",
+      "greek": "Ἁλίαρτος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            503,
+            503
+          ]
+        }
+      ],
+      "note": "Boeotian city on Lake Copais's south shore, destroyed 171 BC; modern Aliartos preserves the name.",
+      "tradition": "Excavated site near modern Aliartos, Boeotia (Paus. 9.33)",
+      "coords": [
+        38.37,
+        23.1
+      ]
+    },
+    {
+      "id": "plataea",
+      "name": "Plataea",
+      "greek": "Πλάταια",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            504,
+            504
+          ]
+        }
+      ],
+      "note": "Boeotian city of the 479 BC battle; modern Plataies preserves the name over the excavated remains.",
+      "tradition": "Excavated site near modern Plataies, Boeotia, below Mt Cithaeron (Paus. 9.1-4)",
+      "coords": [
+        38.22,
+        23.28
+      ]
+    },
+    {
+      "id": "glisas",
+      "name": "Glisas",
+      "greek": "Γλισᾱς",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            504,
+            504
+          ]
+        }
+      ],
+      "note": "Village near Teumessus at the foot of Mt Hypatus per Strabo/Pausanias; precise site unconfirmed.",
+      "tradition": "Foot of Mt Hypatus, East Boeotia (Strabo 9.2.34; Paus. 9.19.3); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)",
+      "coords": [
+        38.35,
+        23.4
+      ]
+    },
+    {
+      "id": "hypothebae",
+      "name": "Hypothebae",
+      "greek": "Ὑποθῆβαι",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            505,
+            505
+          ]
+        }
+      ],
+      "note": "\"Lower Thebes\": the Catalogue names this, not ruined Thebes itself, per the tradition that the Epigoni sacked Thebes one generation before Troy.",
+      "tradition": "The Theban settlement re-founded after the Epigoni destroyed seven-gated Thebes (schol. Il. 2.505; Paus. 9.8.4-9.5)",
+      "coords": [
+        38.32,
+        23.32
+      ]
+    },
+    {
+      "id": "onchestus",
+      "name": "Onchestus",
+      "greek": "Ὀγχηστός",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            506,
+            506
+          ]
+        }
+      ],
+      "note": "Grove and sanctuary of Poseidon on the road from Haliartus to Thebes, still visible in antiquity.",
+      "tradition": "Sanctuary of Poseidon located near modern Steni/Haliartos, Boeotia (Paus. 9.26.5; Strabo 9.2.33)",
+      "coords": [
+        38.38,
+        23.13
+      ]
+    },
+    {
+      "id": "arne",
+      "name": "Arne",
+      "greek": "Ἄρνη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            507,
+            507
+          ]
+        }
+      ],
+      "note": "Boeotian city Strabo says may have been swallowed by Lake Copais; identification disputed since antiquity.",
+      "tradition": "Possibly submerged under Lake Copais or identified with Acraephnium (Strabo 9.2.34-35); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "midea-boeotia",
+      "name": "Midea (Boeotia)",
+      "greek": "Μίδεια",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            507,
+            507
+          ]
+        }
+      ],
+      "note": "Boeotian town distinct from Argive Midea; Strabo places it near Lake Copais without precision.",
+      "tradition": "Copaic basin, Boeotia, exact site unknown (Strabo 9.2.35); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "nisa",
+      "name": "Nisa",
+      "greek": "Νῖσα",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            508,
+            508
+          ]
+        }
+      ],
+      "note": "Strabo himself questions whether a Boeotian Nisa existed, suggesting the line may name Isus instead.",
+      "tradition": "Site disputed; Strabo doubts a Boeotian Nisa existed and proposes emending the text (Strabo 9.2.14); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "anthedon",
+      "name": "Anthedon",
+      "greek": "Ἀνθηδών",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            508,
+            508
+          ]
+        }
+      ],
+      "note": "\"Farthest-lying\" Boeotian coastal town facing Euboea; site located near modern Loukisia.",
+      "tradition": "Coastal site near modern Loukisia, East Boeotia (Strabo 9.2.13; Paus. 9.22.5)",
+      "coords": [
+        38.47,
+        23.52
+      ]
+    },
+    {
+      "id": "aspledon",
+      "name": "Aspledon",
+      "greek": "Ἀσπληδών",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            511,
+            511
+          ]
+        }
+      ],
+      "note": "Minyan town paired with Orchomenus; Strabo places it a short distance north of Orchomenus.",
+      "tradition": "Near modern Pyrgos, north of Orchomenus, Boeotia (Strabo 9.2.26)",
+      "coords": [
+        38.53,
+        22.95
+      ]
+    },
+    {
+      "id": "cyparissus-phocis",
+      "name": "Cyparissus (Phocis)",
+      "greek": "Κυπάρισσος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            519,
+            519
+          ]
+        }
+      ],
+      "note": "Phocian town near Delphi; Strabo connects the name to later Anticyra on the Corinthian Gulf.",
+      "tradition": "Identified with Anticyra or its vicinity on the Corinthian Gulf, Phocis (Strabo 9.3.13)",
+      "coords": [
+        38.37,
+        22.65
+      ]
+    },
+    {
+      "id": "crisa",
+      "name": "Crisa",
+      "greek": "Κρῖσα",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            520,
+            520
+          ]
+        }
+      ],
+      "note": "City on the height above the Crisaean/Cirrhaean plain, the harbor-district of Delphi.",
+      "tradition": "Excavated site above the Crisaean plain near Delphi, Phocis (Strabo 9.3.3)",
+      "coords": [
+        38.48,
+        22.47
+      ]
+    },
+    {
+      "id": "daulis",
+      "name": "Daulis",
+      "greek": "Δαυλίς",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            520,
+            520
+          ]
+        }
+      ],
+      "note": "Phocian city of the Procne/Philomela myth; modern Davleia preserves the name over the ancient site.",
+      "tradition": "Modern village of Davleia/Daulis, Phocis, on the ancient site (Paus. 10.4.7)",
+      "coords": [
+        38.5,
+        22.75
+      ]
+    },
+    {
+      "id": "panopeus",
+      "name": "Panopeus",
+      "greek": "Πανοπεύς",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            520,
+            520
+          ]
+        }
+      ],
+      "note": "Small Phocian city on the border with Boeotia; Pausanias describes its walls as still standing.",
+      "tradition": "Excavated walls near modern Agios Vlasios, Phocis (Paus. 10.4.1-4)",
+      "coords": [
+        38.48,
+        22.83
+      ]
+    },
+    {
+      "id": "anemoreia",
+      "name": "Anemoreia",
+      "greek": "Ἀνεμώρεια",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            521,
+            521
+          ]
+        }
+      ],
+      "note": "\"Windy\" Phocian settlement Strabo says was later renamed Anemolea; precise site unconfirmed.",
+      "tradition": "Windy pass site near Delphi, later called Anemolea per Strabo 9.3.15; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "hyampolis",
+      "name": "Hyampolis",
+      "greek": "Ὑάμπολις",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            521,
+            521
+          ]
+        }
+      ],
+      "note": "Northeast Phocian town near the excavated Kalapodi sanctuary; site attested by Pausanias.",
+      "tradition": "Near modern Exarchos/Kalapodi, Phocis (Paus. 10.35.5; excavations at the Kalapodi sanctuary)",
+      "coords": [
+        38.63,
+        23.05
+      ]
+    },
+    {
+      "id": "cephisus-phocis",
+      "name": "Cephisus (river)",
+      "greek": "Κηφισός",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            522,
+            522
+          ]
+        }
+      ],
+      "note": "River draining Phocis into the Copaic basin of Boeotia; the modern Kifisos still bears the name.",
+      "coords": [
+        38.5,
+        22.9
+      ]
+    },
+    {
+      "id": "lilaea",
+      "name": "Lilaea",
+      "greek": "Λίλαια",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            523,
+            523
+          ]
+        }
+      ],
+      "note": "Town at the Cephisus's source on Parnassus; modern Lilaia preserves the ancient name and site.",
+      "tradition": "Modern village of Lilaia, Phocis, at the springs of the Cephisus on Mt Parnassus (Paus. 10.33.4)",
+      "coords": [
+        38.58,
+        22.4
+      ]
+    },
+    {
+      "id": "cynus",
+      "name": "Cynus",
+      "greek": "Κῦνος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            531,
+            531
+          ]
+        }
+      ],
+      "note": "Harbor-town of Opus on the Euboean Gulf; located near modern Livanates.",
+      "tradition": "Port of Opus near modern Livanates, East Locris (Strabo 9.4.2)",
+      "coords": [
+        38.78,
+        23.05
+      ]
+    },
+    {
+      "id": "opoeis",
+      "name": "Opus",
+      "greek": "Ὀπόεις",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            531,
+            531
+          ]
+        }
+      ],
+      "note": "Chief city of the Opuntian Locrians and, in tradition, Patroclus's birthplace.",
+      "tradition": "Modern town of Atalanti area, East Locris, capital of the Opuntian Locrians (Strabo 9.4.2)",
+      "coords": [
+        38.68,
+        23.05
+      ]
+    },
+    {
+      "id": "calliarus",
+      "name": "Calliarus",
+      "greek": "Καλλίαρος",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            531,
+            531
+          ]
+        }
+      ],
+      "note": "Locrian town Strabo says had vanished by his own day; no confirmed site.",
+      "tradition": "East Locris, exact site unknown; already lost by Strabo's time (Strabo 9.4.5); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "bessa",
+      "name": "Bessa",
+      "greek": "Βῆσσα",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            532,
+            532
+          ]
+        }
+      ],
+      "note": "\"Wooded glen\" Locrian town, likewise vanished by antiquity per Strabo; unlocated.",
+      "tradition": "East Locris, exact site unknown; also lost by Strabo's time (Strabo 9.4.5); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "scarphe",
+      "name": "Scarphe",
+      "greek": "Σκάρφη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            532,
+            532
+          ]
+        }
+      ],
+      "note": "East Locrian coastal town on the road to Thermopylae, near modern Molos.",
+      "tradition": "Near modern Molos, East Locris, on the coast road (Strabo 9.4.6)",
+      "coords": [
+        38.75,
+        22.75
+      ]
+    },
+    {
+      "id": "augeiae-locris",
+      "name": "Augeiae (Locris)",
+      "greek": "Αὐγειαί",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            532,
+            532
+          ]
+        }
+      ],
+      "note": "Locrian town of the same name as one in Laconia; vanished by Strabo's day, unlocated.",
+      "tradition": "East Locris, exact site unknown, distinct from the Laconian Augeiae; already lost by Strabo's time (9.4.5); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "tarphe",
+      "name": "Tarphe",
+      "greek": "Τάρφη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            533,
+            533
+          ]
+        }
+      ],
+      "note": "Wooded Locrian town, later called Pharygae per Strabo, near the modern Kalapodi sanctuary area.",
+      "tradition": "Later renamed Pharygae, near modern Kalapodi/Mendenitsa, East Locris (Strabo 9.4.6)",
+      "coords": [
+        38.68,
+        22.9
+      ]
+    },
+    {
+      "id": "thronium",
+      "name": "Thronium",
+      "greek": "Θρόνιον",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            533,
+            533
+          ]
+        }
+      ],
+      "note": "Locrian town on the Boagrius river's banks, capital-adjacent to Thermopylae's approach.",
+      "tradition": "Near modern Kainourgio/Pikraki, East Locris, on the Boagrius (Strabo 9.4.4)",
+      "coords": [
+        38.77,
+        22.72
+      ]
+    },
+    {
+      "id": "boagrius",
+      "name": "Boagrius (river)",
+      "greek": "Βοάγριος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            533,
+            533
+          ]
+        }
+      ],
+      "note": "Torrent-river at Thronium in East Locris; Strabo notes it also went by the name Manes.",
+      "tradition": "The stream by Thronium, East Locris, called Manes/Boagrius in antiquity (Strabo 9.4.4)",
+      "coords": [
+        38.77,
+        22.73
+      ]
+    },
+    {
+      "id": "chalcis-euboea",
+      "name": "Chalcis (Euboea)",
+      "greek": "Χαλκίς",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            537,
+            537
+          ]
+        }
+      ],
+      "note": "Chief city of Euboea on the Euripus strait; modern Chalkida occupies the same site.",
+      "coords": [
+        38.46,
+        23.6
+      ]
+    },
+    {
+      "id": "eretria",
+      "name": "Eretria",
+      "greek": "Εἰρέτρια",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            537,
+            537
+          ]
+        }
+      ],
+      "note": "Excavated Euboean city (Homeric \"Eiretria\"); modern Eretria sits on the ancient site.",
+      "coords": [
+        38.4,
+        23.8
+      ]
+    },
+    {
+      "id": "histiaea",
+      "name": "Histiaea",
+      "greek": "Ἱστίαια",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            537,
+            537
+          ]
+        }
+      ],
+      "note": "North Euboean city; classical Histiaea/Oreus is generally located near modern Oreoi.",
+      "tradition": "North Euboea, near modern Oreoi (Strabo 10.1.3-4)",
+      "coords": [
+        38.98,
+        23.28
+      ]
+    },
+    {
+      "id": "cerinthus",
+      "name": "Cerinthus",
+      "greek": "Κήρινθος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            538,
+            538
+          ]
+        }
+      ],
+      "note": "Small coastal Euboean town on the Aegean side, near modern Mantoudi/Kerinthos.",
+      "tradition": "Coastal North Euboea near modern Mantoudi (Strabo 10.1.3)",
+      "coords": [
+        38.85,
+        23.55
+      ]
+    },
+    {
+      "id": "dium-euboea",
+      "name": "Dium (Euboea)",
+      "greek": "Δῖον",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            538,
+            538
+          ]
+        }
+      ],
+      "note": "\"Steep\" Euboean town near Cape Cenaeum at the island's northwest tip; precise site unconfirmed.",
+      "tradition": "North Euboea near Cape Cenaeum, exact site unknown; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "carystus",
+      "name": "Carystus",
+      "greek": "Κάρυστος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            539,
+            539
+          ]
+        }
+      ],
+      "note": "South Euboean city famed for its marble quarries; modern Karystos occupies the ancient site.",
+      "coords": [
+        38.02,
+        24.42
+      ]
+    },
+    {
+      "id": "styra",
+      "name": "Styra",
+      "greek": "Στύρα",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            539,
+            539
+          ]
+        }
+      ],
+      "note": "South Euboean town between Carystus and Eretria; modern Nea Styra preserves the name nearby.",
+      "tradition": "South Euboea near modern Nea Styra (Strabo 10.1.6)",
+      "coords": [
+        38.15,
+        24.22
+      ]
+    },
+    {
+      "id": "tiryns",
+      "name": "Tiryns",
+      "greek": "Τίρυνς",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            559,
+            559
+          ]
+        }
+      ],
+      "note": "Bronze Age citadel of the Argolid, famed for its Cyclopean walls; excavated by Schliemann from 1884.",
+      "coords": [
+        37.599,
+        22.8
+      ]
+    },
+    {
+      "id": "hermione",
+      "name": "Hermione",
+      "greek": "Ἑρμιόνη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            560,
+            560
+          ]
+        }
+      ],
+      "note": "Argolid coastal city; modern Ermioni occupies the ancient site on its own peninsula.",
+      "coords": [
+        37.4,
+        23.25
+      ]
+    },
+    {
+      "id": "asine",
+      "name": "Asine",
+      "greek": "Ἀσίνη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            560,
+            560
+          ]
+        }
+      ],
+      "note": "Excavated Argolid coastal town near modern Tolo/Asini; Swedish excavations from 1922.",
+      "coords": [
+        37.34,
+        23.05
+      ]
+    },
+    {
+      "id": "troezen",
+      "name": "Troezen",
+      "greek": "Τροιζήν",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            561,
+            561
+          ]
+        }
+      ],
+      "note": "Argolid city, Theseus's traditional birthplace; modern Troizina preserves the name.",
+      "coords": [
+        37.52,
+        23.35
+      ]
+    },
+    {
+      "id": "eionae",
+      "name": "Eionae",
+      "greek": "Ἠϊόνες",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            561,
+            561
+          ]
+        }
+      ],
+      "note": "Small Argolid port Strabo says was later abandoned, its people moving to Argos; unlocated precisely.",
+      "tradition": "Argolid coast near Epidaurus, exact site unknown (Strabo 8.6.14); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "epidaurus",
+      "name": "Epidaurus",
+      "greek": "Ἐπίδαυρος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            561,
+            561
+          ]
+        }
+      ],
+      "note": "Argolid city famed for the sanctuary of Asclepius; modern Palaia Epidavros occupies the ancient site.",
+      "coords": [
+        37.59,
+        23.16
+      ]
+    },
+    {
+      "id": "aegina",
+      "name": "Aegina",
+      "greek": "Αἴγινα",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            562,
+            562
+          ]
+        }
+      ],
+      "note": "Saronic Gulf island-city; modern Aegina preserves the name over the ancient site.",
+      "coords": [
+        37.75,
+        23.43
+      ]
+    },
+    {
+      "id": "mases",
+      "name": "Mases",
+      "greek": "Μάσης",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            562,
+            562
+          ]
+        }
+      ],
+      "note": "Small Argolid port Strabo says was a dependency of Hermione by his own time; unlocated precisely.",
+      "tradition": "Argolid coast near Hermione, already absorbed by Hermione in Strabo's day (Strabo 8.6.15); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "corinth",
+      "name": "Corinth",
+      "greek": "Κόρινθος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            570,
+            570
+          ]
+        }
+      ],
+      "note": "Isthmus city commanding two seas; the classical/Roman site underlies modern ancient Corinth.",
+      "coords": [
+        37.906,
+        22.878
+      ]
+    },
+    {
+      "id": "cleonae",
+      "name": "Cleonae",
+      "greek": "Κλεωναί",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            570,
+            570
+          ]
+        }
+      ],
+      "note": "Argolid city between Corinth and Argos; site excavated near modern Archaies Kleones.",
+      "coords": [
+        37.82,
+        22.75
+      ]
+    },
+    {
+      "id": "orneiae",
+      "name": "Orneiae",
+      "greek": "Ὀρνειαί",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            571,
+            571
+          ]
+        }
+      ],
+      "note": "Argolid town between Sicyon and Phlius; Strabo notes it later stood deserted.",
+      "tradition": "Between Sicyon and Argos, Argolid, near modern Sterna/Kaparelli (Strabo 8.6.24)",
+      "coords": [
+        37.75,
+        22.65
+      ]
+    },
+    {
+      "id": "araethyrea",
+      "name": "Araethyrea",
+      "greek": "Ἀραιθυρέη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            571,
+            571
+          ]
+        }
+      ],
+      "note": "\"Lovely\" district Strabo identifies with the later city of Phlius; precise Homeric-era site unconfirmed.",
+      "tradition": "Sicyonian territory, later called Phlius per Strabo 8.6.24; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "sicyon",
+      "name": "Sicyon",
+      "greek": "Σικυών",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            572,
+            572
+          ]
+        }
+      ],
+      "note": "City of the Corinthian Gulf coast, Adrastus's first kingdom per Homer; excavated near modern Vasiliko.",
+      "coords": [
+        37.98,
+        22.72
+      ]
+    },
+    {
+      "id": "hyperesia",
+      "name": "Hyperesia",
+      "greek": "Ὑπερησίη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            573,
+            573
+          ]
+        }
+      ],
+      "note": "Achaean coastal town, later renamed Aegira; site near modern Aigeira on the Gulf of Corinth.",
+      "tradition": "Later renamed Aegira, on the Corinthian Gulf, Achaea (Strabo 8.7.5; Paus. 7.26.1)",
+      "coords": [
+        38.15,
+        22.35
+      ]
+    },
+    {
+      "id": "gonoessa",
+      "name": "Gonoessa",
+      "greek": "Γονόεσσα",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            573,
+            573
+          ]
+        }
+      ],
+      "note": "\"Steep\" Achaean town Strabo could not securely place; sometimes emended to Donoessa.",
+      "tradition": "Achaean coast near Aegira, exact site unknown; possibly = Donoessa (Strabo 8.7.5); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "pellene",
+      "name": "Pellene",
+      "greek": "Πελλήνη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            574,
+            574
+          ]
+        }
+      ],
+      "note": "Easternmost of the twelve Achaean cities; site near modern Pellini, above Xylokastro.",
+      "tradition": "Achaean city near modern Pellini/Zougra (Strabo 8.7.5; Paus. 7.26-27)",
+      "coords": [
+        38.02,
+        22.45
+      ]
+    },
+    {
+      "id": "aegium",
+      "name": "Aegium",
+      "greek": "Αἴγιον",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            574,
+            574
+          ]
+        }
+      ],
+      "note": "Chief city of Achaea, meeting-place of the Achaean League; modern Aigio occupies the ancient site.",
+      "coords": [
+        38.25,
+        22.08
+      ]
+    },
+    {
+      "id": "aegialus-achaea",
+      "name": "Aegialus (Achaea)",
+      "greek": "Αἰγιαλός",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            575,
+            575
+          ]
+        }
+      ],
+      "note": "\"The coastland\": Homer's name for the whole Corinthian Gulf shore later called Achaea.",
+      "coords": [
+        38.15,
+        22.2
+      ]
+    },
+    {
+      "id": "helice",
+      "name": "Helice",
+      "greek": "Ἑλίκη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            575,
+            575
+          ]
+        }
+      ],
+      "note": "Achaean city submerged by earthquake/tsunami in 373 BC; site located offshore near modern Rodia/Elike.",
+      "coords": [
+        38.22,
+        22.15
+      ]
+    },
+    {
+      "id": "pharis",
+      "name": "Pharis",
+      "greek": "Φᾶρις",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            582,
+            582
+          ]
+        }
+      ],
+      "note": "Laconian town Strabo groups with Amyclae as later absorbed into Sparta's territory; unlocated precisely.",
+      "tradition": "Laconia, near Amyclae, exact site unknown (Strabo 8.5.3); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "messe",
+      "name": "Messe",
+      "greek": "Μέσση",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            582,
+            582
+          ]
+        }
+      ],
+      "note": "\"Many-doved\" Laconian town Strabo could not confidently locate; possibly related to Messa on the gulf.",
+      "tradition": "Laconia, possibly = later Messa on the Messenian Gulf (Strabo 8.5.3); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "bryseiae",
+      "name": "Bryseiae",
+      "greek": "Βρυσειαί",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            583,
+            583
+          ]
+        }
+      ],
+      "note": "Minor Laconian town paired with Augeiae in the Catalogue; no confirmed site.",
+      "tradition": "Laconia, exact site unknown; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "augeiae-laconia",
+      "name": "Augeiae (Laconia)",
+      "greek": "Αὐγειαί",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            583,
+            583
+          ]
+        }
+      ],
+      "note": "Laconian town of the same name as one in East Locris; unlocated.",
+      "tradition": "Laconia, exact site unknown, distinct from the Locrian Augeiae; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "amyclae",
+      "name": "Amyclae",
+      "greek": "Ἀμύκλαι",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            584,
+            584
+          ]
+        }
+      ],
+      "note": "Excavated sanctuary of Apollo south of Sparta; the pre-Dorian settlement absorbed into Lacedaemon.",
+      "coords": [
+        37.03,
+        22.43
+      ]
+    },
+    {
+      "id": "helos-laconia",
+      "name": "Helos (Laconia)",
+      "greek": "Ἕλος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            584,
+            584
+          ]
+        }
+      ],
+      "note": "Coastal marsh-town at the Eurotas's mouth; ancient tradition derives 'helot' from its conquest.",
+      "tradition": "Marsh town near the Eurotas mouth, Laconia, later giving 'helot' its name (Strabo 8.5.4; Paus. 3.20.6)",
+      "coords": [
+        36.83,
+        22.7
+      ]
+    },
+    {
+      "id": "laas",
+      "name": "Laas",
+      "greek": "Λάας",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            585,
+            585
+          ]
+        }
+      ],
+      "note": "Laconian town on the Mani coast; Pausanias locates its ruins near a hill by the same name.",
+      "tradition": "South Laconia near modern Passava/Kyparissos (Paus. 3.24.6-8)",
+      "coords": [
+        36.62,
+        22.55
+      ]
+    },
+    {
+      "id": "oetylus",
+      "name": "Oetylus",
+      "greek": "Οἴτυλος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            585,
+            585
+          ]
+        }
+      ],
+      "note": "Mani-coast Laconian town; modern Oitylo preserves the ancient name on the same site.",
+      "coords": [
+        36.63,
+        22.45
+      ]
+    },
+    {
+      "id": "arene",
+      "name": "Arene",
+      "greek": "Ἀρήνη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            591,
+            591
+          ]
+        }
+      ],
+      "note": "Town Strabo could not confidently place, near the Minyeius in Triphylia; disputed since antiquity.",
+      "tradition": "Messenia/Triphylia, near the Minyeius river, exact site disputed (Strabo 8.3.19); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "thryum",
+      "name": "Thryum",
+      "greek": "Θρύον",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            592,
+            592
+          ]
+        }
+      ],
+      "note": "Named as \"the ford of Alpheius\"; Strabo locates it in Triphylia near the river crossing.",
+      "tradition": "The ford of the Alpheius in Triphylia, near modern Epitalio (Strabo 8.3.13)",
+      "coords": [
+        37.62,
+        21.53
+      ]
+    },
+    {
+      "id": "aipy",
+      "name": "Aipy",
+      "greek": "Αἰπύ",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            592,
+            592
+          ]
+        }
+      ],
+      "note": "\"Steep\" town in Triphylian territory; Strabo notes only the descriptive name, not a firm site.",
+      "tradition": "Triphylia, 'the steep town,' exact site unknown (Strabo 8.3.24); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "cyparisseis",
+      "name": "Cyparisseeis",
+      "greek": "Κυπαρισσήεις",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            593,
+            593
+          ]
+        }
+      ],
+      "note": "Messenian coastal town; modern Kyparissia preserves the ancient name in the same region.",
+      "tradition": "Near modern Kyparissia, Messenia (Strabo 8.3.24-25)",
+      "coords": [
+        37.25,
+        21.67
+      ]
+    },
+    {
+      "id": "amphigeneia",
+      "name": "Amphigeneia",
+      "greek": "Ἀμφιγένεια",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            593,
+            593
+          ]
+        }
+      ],
+      "note": "Triphylian town with a sanctuary of Leto per Strabo; precise site unconfirmed.",
+      "tradition": "Triphylia, near the Hypsoeis river, exact site unknown (Strabo 8.3.25); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "pteleos-messenia",
+      "name": "Pteleos (Messenia)",
+      "greek": "Πτελεός",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            594,
+            594
+          ]
+        }
+      ],
+      "note": "Messenian-area town, homonymous with a Thessalian town in the same Catalogue; unlocated.",
+      "tradition": "Triphylia/Messenia, exact site unknown, distinct from the Thessalian Pteleos (Strabo 8.3.25); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "helos-messenia",
+      "name": "Helos (Messenia)",
+      "greek": "Ἕλος",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            594,
+            594
+          ]
+        }
+      ],
+      "note": "Messenian coastal town sharing its name with the Laconian Helos in the same Catalogue; unlocated.",
+      "tradition": "Messenia, exact site unknown, distinct from the Laconian Helos; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "dorium",
+      "name": "Dorium",
+      "greek": "Δώριον",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            594,
+            594
+          ]
+        }
+      ],
+      "note": "Site where the Muses blinded Thamyris; often linked with the Bronze Age site of Malthi in Messenia.",
+      "tradition": "Messenia/Triphylia, site of the Thamyris myth, near modern Malthi (Strabo 8.3.25; Paus. 4.33.3)",
+      "coords": [
+        37.27,
+        21.85
+      ]
+    },
+    {
+      "id": "oechalia",
+      "name": "Oechalia",
+      "greek": "Οἰχαλίη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            596,
+            596
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            730,
+            730
+          ]
+        }
+      ],
+      "note": "Eurytus's city; already in antiquity Strabo lists rival Thessalian, Messenian, and Euboean claimants to the name.",
+      "tradition": "Named at Il. 2.596 (Messenia, home of Eurytus) and 2.730 (Thessaly); ancient sources dispute whether one or several places bore the name (Strabo 9.5.17; 10.1.10); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "cyllene",
+      "name": "Mount Cyllene",
+      "greek": "Κυλλήνη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            603,
+            603
+          ]
+        }
+      ],
+      "note": "Highest mountain in the Peloponnese, birthplace of Hermes; modern Mt Ziria/Kyllini.",
+      "coords": [
+        37.83,
+        22.35
+      ]
+    },
+    {
+      "id": "aepytus-tomb",
+      "name": "Tomb of Aepytus",
+      "greek": "Αἰπύτιον",
+      "certainty": "mythical",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            604,
+            604
+          ]
+        }
+      ],
+      "note": "Landmark tomb of the legendary Arcadian king Aepytus; Pausanias reports a real tumulus was pointed out near Heraea.",
+      "tradition": "A tumulus near Heraea, Arcadia, was shown as Aepytus's tomb in antiquity (Paus. 8.16.3)",
+      "coords": [
+        37.6,
+        22.05
+      ]
+    },
+    {
+      "id": "pheneus",
+      "name": "Pheneus",
+      "greek": "Φενεός",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            605,
+            605
+          ]
+        }
+      ],
+      "note": "Northern Arcadian city in its own mountain basin; excavated site near modern Fonia/Pheneos.",
+      "coords": [
+        37.9,
+        22.4
+      ]
+    },
+    {
+      "id": "orchomenus-arcadian",
+      "name": "Orchomenus (Arcadia)",
+      "greek": "Ὀρχομενός",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            605,
+            605
+          ]
+        }
+      ],
+      "note": "\"Sheep-rich\" Arcadian city, distinct from the Boeotian Orchomenus in the same Catalogue; excavated near modern Kalpaki.",
+      "coords": [
+        37.72,
+        22.35
+      ]
+    },
+    {
+      "id": "rhipe",
+      "name": "Rhipe",
+      "greek": "Ῥίπη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            606,
+            606
+          ]
+        }
+      ],
+      "note": "Strabo explicitly says these three towns, and their location, could not be found even in his day.",
+      "tradition": "One of a trio of Arcadian names (with Stratie, Enispe) already unlocatable to ancient scholars (Strabo 8.8.2); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "stratie",
+      "name": "Stratie",
+      "greek": "Στρατίη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            606,
+            606
+          ]
+        }
+      ],
+      "note": "Paired with Rhipe and Enispe as a byword for an untraceable Homeric place already in antiquity.",
+      "tradition": "Unlocated Arcadian town, grouped with Rhipe and Enispe by ancient scholars (Strabo 8.8.2); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "enispe",
+      "name": "Enispe",
+      "greek": "Ἐνίσπη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            606,
+            606
+          ]
+        }
+      ],
+      "note": "\"Windy Enispe\" became the ancient scholiasts' stock example of a Homeric place no one could locate.",
+      "tradition": "'Windy Enispe': proverbial in antiquity for an unfindable place (Strabo 8.8.2); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "tegea",
+      "name": "Tegea",
+      "greek": "Τεγέη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            607,
+            607
+          ]
+        }
+      ],
+      "note": "Major southeast Arcadian city; excavated sanctuary of Athena Alea near modern Tegea village.",
+      "coords": [
+        37.46,
+        22.42
+      ]
+    },
+    {
+      "id": "mantinea",
+      "name": "Mantinea",
+      "greek": "Μαντινέη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            607,
+            607
+          ]
+        }
+      ],
+      "note": "Central Arcadian city, site of major classical battles; excavated remains near modern Mantineia.",
+      "coords": [
+        37.6,
+        22.4
+      ]
+    },
+    {
+      "id": "stymphalus",
+      "name": "Stymphalus",
+      "greek": "Στύμφηλος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            608,
+            608
+          ]
+        }
+      ],
+      "note": "Northeast Arcadian city by its namesake lake, home of the mythical Stymphalian birds; excavated site survives.",
+      "coords": [
+        37.87,
+        22.68
+      ]
+    },
+    {
+      "id": "parrhasia",
+      "name": "Parrhasia",
+      "greek": "Παρρασίη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            608,
+            608
+          ]
+        }
+      ],
+      "note": "District/town-group of southwest Arcadia, later absorbed into the synoecism of Megalopolis.",
+      "tradition": "Southwest Arcadian district around modern Megalopolis basin (Strabo 8.8.1)",
+      "coords": [
+        37.4,
+        22.13
+      ]
+    },
+    {
+      "id": "buprasium",
+      "name": "Buprasium",
+      "greek": "Βουπράσιον",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            615,
+            615
+          ]
+        }
+      ],
+      "note": "District/town of northeast Elis bordering Achaea; already partly deserted by Strabo's time.",
+      "tradition": "Northeast Elis, between the Larisus and the sea (Strabo 8.3.7)",
+      "coords": [
+        37.98,
+        21.5
+      ]
+    },
+    {
+      "id": "hyrmine",
+      "name": "Hyrmine",
+      "greek": "Ὑρμίνη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            616,
+            616
+          ]
+        }
+      ],
+      "note": "Elean coastal village Strabo says had disappeared, its name surviving in the nearby fort Hormina.",
+      "tradition": "Elis coast, vanished village later refounded as the fort Hormina (Strabo 8.3.10); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "myrsinus",
+      "name": "Myrsinus",
+      "greek": "Μύρσινος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            616,
+            616
+          ]
+        }
+      ],
+      "note": "Elean coastal village on the road from Elis to Dyme, near a sacred myrtle grove per Strabo.",
+      "tradition": "Elis coast near modern Agios Ilias, on the road to Dyme (Strabo 8.3.10)",
+      "coords": [
+        37.95,
+        21.42
+      ]
+    },
+    {
+      "id": "olenian-rock",
+      "name": "Olenian Rock",
+      "greek": "Ὠλενίη πέτρη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            617,
+            617
+          ]
+        }
+      ],
+      "note": "Rock-landmark in Elis, not the Aetolian city of the same root name; Strabo notes the identity was disputed.",
+      "tradition": "Elis, a rock landmark of disputed location, distinct from Aetolian Olenus (Strabo 8.3.10); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "alesium",
+      "name": "Alesium",
+      "greek": "Ἀλήσιον",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            617,
+            617
+          ]
+        }
+      ],
+      "note": "Elean landmark Strabo tentatively connects with a hill called Alesiaeum; unconfirmed.",
+      "tradition": "Elis, possibly a hill near Amphidolis, exact site unknown (Strabo 8.3.10); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "echinades",
+      "name": "Echinades Islands",
+      "greek": "Ἐχινάδες",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            625,
+            625
+          ]
+        }
+      ],
+      "note": "Small island group off the Acarnanian coast at the Achelous's mouth; modern Echinades retain the name.",
+      "coords": [
+        38.35,
+        21.15
+      ]
+    },
+    {
+      "id": "neritum",
+      "name": "Neritum",
+      "greek": "Νήριτον",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            632,
+            632
+          ]
+        }
+      ],
+      "note": "\"Leaf-quivering\" mountain of Ithaca named alongside the island itself; traditionally the island's main ridge.",
+      "tradition": "Ithaca's principal mountain, traditionally Mt Neriton/Anogi (Strabo 10.2.10)",
+      "coords": [
+        38.43,
+        20.7
+      ]
+    },
+    {
+      "id": "crocyleia",
+      "name": "Crocyleia",
+      "greek": "Κροκύλεια",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            633,
+            633
+          ]
+        }
+      ],
+      "note": "Strabo himself calls this and Aegilips obscure places within Odysseus's realm; unlocated.",
+      "tradition": "Cephallenian/Ithacan territory, exact site unknown (Strabo 10.2.10, calls it obscure); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "aegilips",
+      "name": "Aegilips",
+      "greek": "Αἰγίλιψ",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            633,
+            633
+          ]
+        }
+      ],
+      "note": "\"Rugged\" place in Odysseus's kingdom that Strabo could not identify with confidence.",
+      "tradition": "Cephallenian/Ithacan territory, exact site unknown (Strabo 10.2.10); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "pleuron",
+      "name": "Pleuron",
+      "greek": "Πλευρών",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            639,
+            639
+          ]
+        }
+      ],
+      "note": "Aetolian city of the Meleager saga; the Classical-era city was refounded near the original Homeric site.",
+      "tradition": "Old Pleuron near modern Gyphtokastro, Aetolia; refounded nearby after the Homeric site's destruction (Strabo 10.2.4)",
+      "coords": [
+        38.42,
+        21.35
+      ]
+    },
+    {
+      "id": "olenus-aetolia",
+      "name": "Olenus (Aetolia)",
+      "greek": "Ὤλενος",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            639,
+            639
+          ]
+        }
+      ],
+      "note": "Aetolian city Strabo reports as already razed and its territory absorbed by neighbors; unlocated.",
+      "tradition": "Aetolia, already destroyed and deserted by Strabo's time (Strabo 10.2.6); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "pylene",
+      "name": "Pylene",
+      "greek": "Πυλήνη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            639,
+            639
+          ]
+        }
+      ],
+      "note": "Aetolian town Strabo says was moved to higher ground and renamed Proschium; original site unlocated.",
+      "tradition": "Aetolia, relocated and renamed Proschium per Strabo 10.2.6; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "chalcis-aetolia",
+      "name": "Chalcis (Aetolia)",
+      "greek": "Χαλκίς",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            640,
+            640
+          ]
+        }
+      ],
+      "note": "Aetolian coastal town on the gulf, distinct from Euboean Chalcis named in the same Catalogue.",
+      "tradition": "Aetolian coastal town near modern Vasiliki, homonymous with Euboean Chalcis (Strabo 10.2.4)",
+      "coords": [
+        38.35,
+        21.45
+      ]
+    },
+    {
+      "id": "gortyn",
+      "name": "Gortyn",
+      "greek": "Γόρτυν",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            646,
+            646
+          ]
+        }
+      ],
+      "note": "Major Cretan city, later Roman provincial capital; extensively excavated site survives near modern Gortyna.",
+      "coords": [
+        35.07,
+        24.95
+      ]
+    },
+    {
+      "id": "lyctus",
+      "name": "Lyctus",
+      "greek": "Λύκτος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            647,
+            647
+          ]
+        }
+      ],
+      "note": "Old Cretan city, a Spartan colony per tradition; modern Lyttos village preserves the name nearby.",
+      "tradition": "East-central Crete near modern Xidas/Lyttos village (Strabo 10.4.14)",
+      "coords": [
+        35.18,
+        25.35
+      ]
+    },
+    {
+      "id": "miletus-crete",
+      "name": "Miletus (Crete)",
+      "greek": "Μίλητος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            647,
+            647
+          ]
+        }
+      ],
+      "note": "Cretan city sharing its name with Anatolian Miletus named later in this Catalogue's Trojan half.",
+      "tradition": "South-central Crete, near modern Miletos village, homonymous with Anatolian Miletus (Strabo 10.4.14)",
+      "coords": [
+        35.13,
+        25.28
+      ]
+    },
+    {
+      "id": "lycastus",
+      "name": "Lycastus",
+      "greek": "Λύκαστος",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            647,
+            647
+          ]
+        }
+      ],
+      "note": "Cretan city Strabo lists among those absorbed by Cnossus or Gortyn well before his own day.",
+      "tradition": "Crete, exact site unknown, already vanished by Strabo's time (Strabo 10.4.14); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "phaestus",
+      "name": "Phaestus",
+      "greek": "Φαιστός",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            648,
+            648
+          ]
+        }
+      ],
+      "note": "Major Minoan palatial site in the Messara plain, south-central Crete; extensively excavated.",
+      "coords": [
+        35.05,
+        24.81
+      ]
+    },
+    {
+      "id": "rhytium",
+      "name": "Rhytium",
+      "greek": "Ῥύτιον",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            648,
+            648
+          ]
+        }
+      ],
+      "note": "Small Cretan town Strabo lists as a dependency of Gortyn; near-namesake modern Rotasi village.",
+      "tradition": "South-central Crete near modern Rotasi, subject to Gortyn (Strabo 10.4.14)",
+      "coords": [
+        35.08,
+        25.02
+      ]
+    },
+    {
+      "id": "crete",
+      "name": "Crete",
+      "greek": "Κρήτη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            649,
+            649
+          ]
+        }
+      ],
+      "note": "Large island south of the Aegean, called \"hundred-citied\" in this line; Idomeneus's and Minos's traditional realm.",
+      "coords": [
+        35.24,
+        24.81
+      ]
+    },
+    {
+      "id": "rhodes",
+      "name": "Rhodes",
+      "greek": "Ῥόδος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            654,
+            654
+          ]
+        }
+      ],
+      "note": "Dodecanese island later unified from three cities (Lindus, Ialysus, Camirus); Tlepolemus's kingdom.",
+      "coords": [
+        36.18,
+        27.95
+      ]
+    },
+    {
+      "id": "lindus",
+      "name": "Lindus",
+      "greek": "Λίνδος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            656,
+            656
+          ]
+        }
+      ],
+      "note": "East-coast Rhodian city with its acropolis sanctuary of Athena Lindia; modern Lindos occupies the site.",
+      "coords": [
+        36.09,
+        28.09
+      ]
+    },
+    {
+      "id": "ialysus",
+      "name": "Ialysus",
+      "greek": "Ἰηλυσός",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            656,
+            656
+          ]
+        }
+      ],
+      "note": "Northwest Rhodian city near modern Trianta/Ialysos; one of the island's three pre-synoecism cities.",
+      "coords": [
+        36.4,
+        28.15
+      ]
+    },
+    {
+      "id": "camirus",
+      "name": "Camirus",
+      "greek": "Κάμειρος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            656,
+            656
+          ]
+        }
+      ],
+      "note": "Excavated west-coast Rhodian city, one of the island's three pre-synoecism cities.",
+      "coords": [
+        36.33,
+        27.95
+      ]
+    },
+    {
+      "id": "ephyra-elis",
+      "name": "Ephyra",
+      "greek": "Ἐφύρη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            659,
+            659
+          ]
+        }
+      ],
+      "note": "Astyocheia's city, captured by Heracles; Strabo catalogues rival Homeric Ephyras and cannot fix this one.",
+      "tradition": "One of several Homeric Ephyras (also claimed for Corinth and Thesprotia); this one on the river Selleeis, location disputed since antiquity (Strabo 8.3.5, 7.7.9); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "selleeis-ephyra",
+      "name": "Selleeis (river, by Ephyra)",
+      "greek": "Σελλήεις",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            659,
+            659
+          ]
+        }
+      ],
+      "note": "River Strabo could not securely place; a namesake Selleeis also flows past Arisbe in the Troad half of this Catalogue.",
+      "tradition": "River by the Ephyra of Tlepolemus's mother's capture, unlocated, distinct from the Troad river of the same name (Strabo 8.3.5); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "syme",
+      "name": "Syme",
+      "greek": "Σύμη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            671,
+            671
+          ]
+        }
+      ],
+      "note": "Small Dodecanese island between Rhodes and the Carian coast; Nireus's kingdom, modern Symi.",
+      "coords": [
+        36.62,
+        27.83
+      ]
+    },
+    {
+      "id": "nisyros",
+      "name": "Nisyros",
+      "greek": "Νίσυρος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            676,
+            676
+          ]
+        }
+      ],
+      "note": "Volcanic Dodecanese island; modern Nisyros preserves the ancient name.",
+      "coords": [
+        36.6,
+        27.17
+      ]
+    },
+    {
+      "id": "carpathus",
+      "name": "Carpathus",
+      "greek": "Κράπαθος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            676,
+            676
+          ]
+        }
+      ],
+      "note": "Large Dodecanese island between Rhodes and Crete; modern Karpathos preserves the ancient name (Homeric Crapathus).",
+      "coords": [
+        35.6,
+        27.15
+      ]
+    },
+    {
+      "id": "casus",
+      "name": "Casus",
+      "greek": "Κάσος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            676,
+            676
+          ]
+        }
+      ],
+      "note": "Small island south of Carpathos; modern Kasos preserves the ancient name.",
+      "coords": [
+        35.42,
+        26.93
+      ]
+    },
+    {
+      "id": "cos",
+      "name": "Cos",
+      "greek": "Κῶν",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            677,
+            677
+          ]
+        }
+      ],
+      "note": "Dodecanese island, Eurypylus's kingdom before the Catalogue's own Cos-contingent leaders; modern Kos.",
+      "coords": [
+        36.85,
+        27.15
+      ]
+    },
+    {
+      "id": "calydnae",
+      "name": "Calydnae Islands",
+      "greek": "Καλύδναι",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            677,
+            677
+          ]
+        }
+      ],
+      "note": "Small island group near Cos; Strabo and later tradition identify them chiefly with Kalymnos.",
+      "tradition": "Islets near Cos, identified with modern Kalymnos and the smaller Leros group (Strabo 10.5.19)",
+      "coords": [
+        36.95,
+        26.98
+      ]
+    },
+    {
+      "id": "argos-pelasgicum",
+      "name": "Pelasgian Argos",
+      "greek": "Ἄργος Πελασγικόν",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            681,
+            681
+          ]
+        }
+      ],
+      "note": "Homonym of Peloponnesian Argos; ancient tradition places this 'Pelasgian Argos' in the Thessalian plain, Achilles's realm.",
+      "tradition": "Identified with the plain of Thessaly (not the Peloponnesian Argos of the same name), per ancient scholiasts and Strabo 9.5.6",
+      "coords": [
+        39.4,
+        22.4
+      ]
+    },
+    {
+      "id": "alus",
+      "name": "Alus",
+      "greek": "Ἄλος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            682,
+            682
+          ]
+        }
+      ],
+      "note": "Achaea Phthiotis town near the Malian Gulf; site associated with modern Almyros/Halos.",
+      "tradition": "Thessalian coastal town near modern Almyros, on the Malian Gulf road (Strabo 9.5.8)",
+      "coords": [
+        39.15,
+        22.75
+      ]
+    },
+    {
+      "id": "alope",
+      "name": "Alope",
+      "greek": "Ἀλόπη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            682,
+            682
+          ]
+        }
+      ],
+      "note": "Small Achaea Phthiotis town grouped with Alus and Trachis; unlocated precisely.",
+      "tradition": "Achaea Phthiotis, near Alus, exact site unknown (Strabo 9.5.8); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "trachis",
+      "name": "Trachis",
+      "greek": "Τρηχίς",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            682,
+            682
+          ]
+        }
+      ],
+      "note": "Town below Oeta later refounded as Spartan-colonized Heraclea Trachinia; site near modern Ypati.",
+      "tradition": "Near modern Ypati at the foot of Mt Oeta, associated with Heraclea Trachinia (Strabo 9.4.13-17)",
+      "coords": [
+        38.87,
+        22.23
+      ]
+    },
+    {
+      "id": "hellas-thessaly",
+      "name": "Hellas",
+      "greek": "Ἑλλάς",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            683,
+            683
+          ]
+        }
+      ],
+      "note": "Homer's original, narrow 'Hellas': a district of Achaea Phthiotis, not yet the whole Greek world.",
+      "coords": [
+        39.05,
+        22.55
+      ]
+    },
+    {
+      "id": "phylace",
+      "name": "Phylace",
+      "greek": "Φυλάκη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            695,
+            695
+          ]
+        }
+      ],
+      "note": "Protesilaus's city in Achaea Phthiotis; Strabo places it in the same coastal district as Phthiotic Thebes.",
+      "tradition": "Achaea Phthiotis, near modern Nea Anchialos/Phthiotic Thebes (Strabo 9.5.8)",
+      "coords": [
+        39.22,
+        22.8
+      ]
+    },
+    {
+      "id": "pyrasus",
+      "name": "Pyrasus",
+      "greek": "Πύρασος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            695,
+            695
+          ]
+        }
+      ],
+      "note": "Coastal town with a precinct of Demeter; later absorbed into/near Phthiotic Thebes per Strabo.",
+      "tradition": "Site of a Demeter sanctuary, near modern Nea Anchialos, Achaea Phthiotis (Strabo 9.5.14)",
+      "coords": [
+        39.23,
+        22.79
+      ]
+    },
+    {
+      "id": "iton",
+      "name": "Iton",
+      "greek": "Ἰτών",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            696,
+            696
+          ]
+        }
+      ],
+      "note": "\"Mother of flocks\": site of the Thessalian federal sanctuary of Athena Itonia.",
+      "tradition": "Site of the federal Thessalian sanctuary of Athena Itonia, near modern Philia (Strabo 9.5.14)",
+      "coords": [
+        39.4,
+        22.05
+      ]
+    },
+    {
+      "id": "antron",
+      "name": "Antron",
+      "greek": "Ἄντρων",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            697,
+            697
+          ]
+        }
+      ],
+      "note": "Coastal Achaea Phthiotis town facing Euboea across the strait; approximate site near modern Glypha.",
+      "tradition": "Achaea Phthiotis coast opposite Euboea, near modern Glypha (Strabo 9.5.14)",
+      "coords": [
+        39.03,
+        22.95
+      ]
+    },
+    {
+      "id": "pteleos-thessalian",
+      "name": "Pteleos (Thessaly)",
+      "greek": "Πτελεός",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            697,
+            697
+          ]
+        }
+      ],
+      "note": "Thessalian coastal town whose name modern Pteleos village preserves; homonymous with a Messenian town in this Catalogue.",
+      "tradition": "Achaea Phthiotis coast near modern Pteleos village, homonymous with the Messenian Pteleos (Strabo 9.5.14)",
+      "coords": [
+        39.05,
+        22.9
+      ]
+    },
+    {
+      "id": "pherae-thessaly",
+      "name": "Pherae",
+      "greek": "Φεραί",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            711,
+            711
+          ]
+        }
+      ],
+      "note": "Major Thessalian city on Lake Boebeis, later home of the tyrant Jason of Pherae; near modern Velestino.",
+      "coords": [
+        39.3,
+        22.75
+      ]
+    },
+    {
+      "id": "lake-boebeis",
+      "name": "Lake Boebeis",
+      "greek": "Βοιβηίς",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            711,
+            711
+          ]
+        }
+      ],
+      "note": "Thessalian lake by Pherae; the modern (much reduced) Lake Karla/Boibeis.",
+      "coords": [
+        39.42,
+        22.78
+      ]
+    },
+    {
+      "id": "boebe",
+      "name": "Boebe",
+      "greek": "Βοίβη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            712,
+            712
+          ]
+        }
+      ],
+      "note": "Small Thessalian town giving the nearby lake its name; precise site unconfirmed.",
+      "tradition": "Thessaly, on Lake Boebeis, exact site unknown; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "glaphyrae",
+      "name": "Glaphyrae",
+      "greek": "Γλαφύραι",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            712,
+            712
+          ]
+        }
+      ],
+      "note": "Minor Thessalian town in Eumelus's territory near Pherae and Iolcus; unlocated precisely.",
+      "tradition": "Thessaly, near Pherae, exact site unknown; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "iolcus",
+      "name": "Iolcus",
+      "greek": "Ἰαωλκός",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            712,
+            712
+          ]
+        }
+      ],
+      "note": "Jason and the Argonauts' port city; excavated Bronze Age site near modern Volos.",
+      "coords": [
+        39.35,
+        22.93
+      ]
+    },
+    {
+      "id": "methone-thessalian",
+      "name": "Methone (Thessaly)",
+      "greek": "Μηθώνη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            716,
+            716
+          ]
+        }
+      ],
+      "note": "Magnesian coastal town in Philoctetes's realm; homonymous with an unrelated Methone in Messenia.",
+      "tradition": "Magnesian coast of Thessaly, near modern Nea Agchialos/Volos area, homonymous with Messenian Methone (Strabo 9.5.18)",
+      "coords": [
+        39.4,
+        23.05
+      ]
+    },
+    {
+      "id": "thaumacia",
+      "name": "Thaumacia",
+      "greek": "Θαυμακίη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            716,
+            716
+          ]
+        }
+      ],
+      "note": "Small Magnesian coastal town in Philoctetes's realm; no confirmed modern site.",
+      "tradition": "Magnesian coast of Thessaly, exact site unknown; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "meliboea",
+      "name": "Meliboea",
+      "greek": "Μελίβοια",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            717,
+            717
+          ]
+        }
+      ],
+      "note": "Magnesian coastal town famed later for a purple dye; modern Melivoia village preserves the name.",
+      "tradition": "Magnesian coast of Thessaly near modern Kato Ollympos/Melivoia (Strabo 9.5.15)",
+      "coords": [
+        39.65,
+        22.98
+      ]
+    },
+    {
+      "id": "olizon",
+      "name": "Olizon",
+      "greek": "Ὀλιζών",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            717,
+            717
+          ]
+        }
+      ],
+      "note": "Southern Magnesian coastal town in Philoctetes's realm; approximate site near modern Milina.",
+      "tradition": "Southern tip of the Magnesian peninsula, Thessaly, near modern Milina (Strabo 9.5.15)",
+      "coords": [
+        39.15,
+        23.28
+      ]
+    },
+    {
+      "id": "tricca",
+      "name": "Tricca",
+      "greek": "Τρίκκη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            729,
+            729
+          ]
+        }
+      ],
+      "note": "Thessalian city with the oldest sanctuary of Asclepius in Greek tradition; modern Trikala occupies the site.",
+      "coords": [
+        39.55,
+        21.77
+      ]
+    },
+    {
+      "id": "ithome-thessalian",
+      "name": "Ithome (Thessaly)",
+      "greek": "Ἰθώμη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            729,
+            729
+          ]
+        }
+      ],
+      "note": "\"Craggy\" Thessalian town near Tricca, homonymous with the far better-known Messenian Ithome; unlocated precisely.",
+      "tradition": "West Thessaly near Tricca, 'craggy,' exact site unknown, distinct from the famous Messenian Ithome; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "ormenium",
+      "name": "Ormenium",
+      "greek": "Ὀρμένιον",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            734,
+            734
+          ]
+        }
+      ],
+      "note": "Thessalian town at the foot of Pelion in Eurypylus's realm; Strabo places it near the Magnesian border.",
+      "tradition": "Thessaly/Magnesia border, near modern Ormenio or the foot of Mt Pelion (Strabo 9.5.18)",
+      "coords": [
+        39.4,
+        22.9
+      ]
+    },
+    {
+      "id": "hypereia-spring",
+      "name": "Spring Hypereia",
+      "greek": "Ὑπερείη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            734,
+            734
+          ]
+        }
+      ],
+      "note": "Named spring Strabo locates in the middle of Pherae itself, not a separate town.",
+      "tradition": "Spring at Pherae, Thessaly, per Strabo 9.5.18",
+      "coords": [
+        39.3,
+        22.75
+      ]
+    },
+    {
+      "id": "asterium",
+      "name": "Asterium",
+      "greek": "Ἀστέριον",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            735,
+            735
+          ]
+        }
+      ],
+      "note": "Thessalian town Strabo pairs with the white-peaked Titanus; unlocated precisely.",
+      "tradition": "Thessaly, near Mt Titanus, exact site unknown (Strabo 9.5.18); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "titanus",
+      "name": "Titanus",
+      "greek": "Τιτάνος",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            735,
+            735
+          ]
+        }
+      ],
+      "note": "\"White-peaked\" hill Strabo describes as a mass of white earth near Asterium; unlocated precisely.",
+      "tradition": "Thessaly, a hill of white chalky earth near Asterium (Strabo 9.5.18); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "argissa",
+      "name": "Argissa",
+      "greek": "Ἄργισσα",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            738,
+            738
+          ]
+        }
+      ],
+      "note": "Lapith town on the Peneius near later Larissa; Strabo notes some identified it with Argura.",
+      "tradition": "On the Peneius, near modern Larissa, Thessaly, sometimes identified with Argura (Strabo 9.5.19)",
+      "coords": [
+        39.65,
+        22.42
+      ]
+    },
+    {
+      "id": "gyrton",
+      "name": "Gyrton",
+      "greek": "Γυρτώνη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            738,
+            738
+          ]
+        }
+      ],
+      "note": "Lapith city in northeast Thessaly, associated in tradition with Peirithous's family.",
+      "tradition": "Northeast Thessaly near modern Aghia, home of the Perrhaebian/Lapith Peirithous line (Strabo 9.5.19)",
+      "coords": [
+        39.72,
+        22.7
+      ]
+    },
+    {
+      "id": "orthe",
+      "name": "Orthe",
+      "greek": "Ὀρθη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            739,
+            739
+          ]
+        }
+      ],
+      "note": "Thessalian town Strabo tentatively equates with the citadel of Phalanna; unconfirmed.",
+      "tradition": "Thessaly, possibly the acropolis of Phalanna per Strabo 9.5.19; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "elone",
+      "name": "Elone",
+      "greek": "Ἠλώνη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            739,
+            739
+          ]
+        }
+      ],
+      "note": "Thessalian town Strabo says was later called Leimone; precise original site unconfirmed.",
+      "tradition": "Thessaly, later renamed Leimone per Strabo 9.5.19; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "oloosson",
+      "name": "Oloosson",
+      "greek": "Ὀλοοσσών",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            739,
+            739
+          ]
+        }
+      ],
+      "note": "\"White\" Thessalian town in Perrhaebian territory; located near modern Elassona.",
+      "tradition": "Northwest Thessaly near modern Elassona (Strabo 9.5.19)",
+      "coords": [
+        39.9,
+        22.18
+      ]
+    },
+    {
+      "id": "pelion",
+      "name": "Mount Pelion",
+      "greek": "Πήλιον",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            744,
+            744
+          ]
+        }
+      ],
+      "note": "Wooded mountain of the Magnesian peninsula, Thessaly, home of Chiron in myth; modern Pilio.",
+      "coords": [
+        39.35,
+        23.05
+      ]
+    },
+    {
+      "id": "aethices",
+      "name": "Aethices",
+      "greek": "Αἴθικες",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            744,
+            744
+          ]
+        }
+      ],
+      "note": "Mountain people on Thessaly's western fringe, near the Perrhaebians and Pindus; territory only vaguely fixed.",
+      "tradition": "A people/district on the western Thessalian-Epirote border, near Mt Pindus, exact bounds unknown (Strabo 9.5.11); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "cyphus",
+      "name": "Cyphus",
+      "greek": "Κῦφος",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            748,
+            748
+          ]
+        }
+      ],
+      "note": "Gouneus's home town in Perrhaebian territory; Strabo does not fix a precise site.",
+      "tradition": "Northwest Thessaly/Perrhaebia, exact site unknown (Strabo 9.5.19); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "titaressus",
+      "name": "Titaressus (river)",
+      "greek": "Τιταρησσός",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            751,
+            751
+          ]
+        }
+      ],
+      "note": "River said to flow atop the Peneius without mixing, as an offshoot of the Styx; identified with the modern Xerias.",
+      "tradition": "Tributary of the Peneius in northwest Thessaly, identified with the modern Xerias/Titarisios (Strabo 9.5.19-20)",
+      "coords": [
+        39.85,
+        22.05
+      ]
+    },
+    {
+      "id": "peneius-river",
+      "name": "Peneius (river)",
+      "greek": "Πηνειός",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            752,
+            752
+          ]
+        }
+      ],
+      "note": "Principal river of Thessaly, running through the Vale of Tempe; the modern Pineios.",
+      "coords": [
+        39.85,
+        22.5
+      ]
+    },
+    {
+      "id": "styx",
+      "name": "Styx",
+      "greek": "Στύξ",
+      "certainty": "mythical",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            755,
+            755
+          ]
+        }
+      ],
+      "note": "River of the underworld by which the gods swear their most solemn oath; ancient tradition placed its earthly outlet at Nonacris in Arcadia.",
+      "tradition": "Localized in antiquity at the waterfall of Nonacris, Arcadia, called Mavroneri (Herodotus 6.74; Paus. 8.17.6-18.6)",
+      "coords": [
+        37.97,
+        22.2
+      ]
+    },
+    {
+      "id": "magnesia",
+      "name": "Magnesia (Thessaly)",
+      "greek": "Μαγνῆτες",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            756,
+            756
+          ]
+        }
+      ],
+      "note": "Coastal district comprising the Pelion peninsula and lower Peneius valley, Thessaly; Prothous's contingent.",
+      "coords": [
+        39.35,
+        23.0
+      ]
+    },
+    {
+      "id": "aesepus",
+      "name": "Aesepus (river)",
+      "greek": "Αἴσηπος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            825,
+            825
+          ]
+        }
+      ],
+      "note": "River of the northern Troad flowing from Ida past Zeleia; the modern Gönen Çayı.",
+      "coords": [
+        40.35,
+        27.15
+      ]
+    },
+    {
+      "id": "adrasteia",
+      "name": "Adrasteia",
+      "greek": "Ἀδρήστεια",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            828,
+            828
+          ]
+        }
+      ],
+      "note": "Troad-Propontis town giving its name to the plain of Adrasteia and, later, to the epithet of Nemesis/Adrasteia.",
+      "tradition": "Plain and town near modern Karacabey/Erdek area, southern Propontis coast (Strabo 13.1.13)",
+      "coords": [
+        40.35,
+        27.55
+      ]
+    },
+    {
+      "id": "apaesus",
+      "name": "Apaesus",
+      "greek": "Ἄπαισος",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            828,
+            828
+          ]
+        }
+      ],
+      "note": "Small Propontis-coast town Strabo says was later called Paesus; precise site unconfirmed.",
+      "tradition": "Propontis coast near Adrasteia, later renamed Paesus/Apaesus, exact site unknown (Strabo 13.1.19); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "pityeia",
+      "name": "Pityeia",
+      "greek": "Πιτύεια",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            829,
+            829
+          ]
+        }
+      ],
+      "note": "\"Pine\" town on the Propontis coast; Strabo connects the district with later Lampsacus.",
+      "tradition": "Propontis coast, later identified with Lampsacus's territory (Strabo 13.1.19); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "tereia",
+      "name": "Mount Tereia",
+      "greek": "Τηρείη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            829,
+            829
+          ]
+        }
+      ],
+      "note": "Hill-landmark Strabo places between Lampsacus and Zeleia; precise peak unidentified.",
+      "tradition": "A hill on the Propontis coast between Lampsacus and Zeleia (Strabo 13.1.19); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "percote",
+      "name": "Percote",
+      "greek": "Περκώτη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            835,
+            835
+          ]
+        }
+      ],
+      "note": "Propontis coastal town between Abydos and Lampsacus in Asius's realm.",
+      "tradition": "Propontis coast near modern Umurbey/Bergaz, between Abydos and Lampsacus (Strabo 13.1.19)",
+      "coords": [
+        40.28,
+        26.75
+      ]
+    },
+    {
+      "id": "practius",
+      "name": "Practius (river)",
+      "greek": "Πράκτιος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            835,
+            835
+          ]
+        }
+      ],
+      "note": "River Strabo places between Percote and Abydos; also the name of a nearby town in later sources.",
+      "tradition": "Small stream between Percote and Abydos, Propontis coast (Strabo 13.1.19-21)",
+      "coords": [
+        40.25,
+        26.8
+      ]
+    },
+    {
+      "id": "arisbe",
+      "name": "Arisbe",
+      "greek": "Ἀρίσβη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            836,
+            836
+          ]
+        }
+      ],
+      "note": "Asius's home city on the Propontis coast, colonized in tradition from Mytilene.",
+      "tradition": "Propontis coast near modern Musaköy, between Abydos and Lampsacus (Strabo 13.1.21)",
+      "coords": [
+        40.23,
+        26.65
+      ]
+    },
+    {
+      "id": "selleeis-troad",
+      "name": "Selleeis (river, Troad)",
+      "greek": "Σελλήεις",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            839,
+            839
+          ]
+        }
+      ],
+      "note": "River by Arisbe from which Asius's horses come; a second, unrelated Homeric river Selleeis is named for Rhodes's Ephyra.",
+      "tradition": "Stream by Arisbe in the Troad, unlocated precisely, distinct from the river of the same name near Rhodian Ephyra; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "larisa-troad",
+      "name": "Larisa (Troad)",
+      "greek": "Λάρισα",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            841,
+            841
+          ]
+        }
+      ],
+      "note": "Pelasgian city, homonymous with the Thessalian Larisa; Strabo records several rival candidate sites near the Troad/Aeolis coast.",
+      "tradition": "Aeolis/Troad, exact site disputed since antiquity; candidates include a site near Cyme (Strabo 13.3.2-3, 13.1.70); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "thrace",
+      "name": "Thrace",
+      "greek": "Θρῄκη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            844,
+            844
+          ]
+        }
+      ],
+      "note": "Region north of the Hellespont and Propontis; homeland of Acamas's and Peirous's contingent.",
+      "coords": [
+        41.5,
+        25.5
+      ]
+    },
+    {
+      "id": "cicones",
+      "name": "Land of the Cicones",
+      "greek": "Κίκονες",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            846,
+            846
+          ]
+        }
+      ],
+      "note": "Thracian coastal people allied to Troy here; the same Cicones whose city Ismarus Odysseus later sacks.",
+      "tradition": "Aegean-Thracian coast around modern Maroneia, homeland of the Ciconian allies (Strabo 7 fr. 44)",
+      "coords": [
+        40.9,
+        25.5
+      ]
+    },
+    {
+      "id": "paeonia",
+      "name": "Paeonia",
+      "greek": "Παιονίη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            848,
+            848
+          ]
+        }
+      ],
+      "note": "Region on the Axius river, north of Macedon; Pyraechmes leads its Trojan-allied archers.",
+      "tradition": "Region along the middle Axius valley, north of Macedonia (Strabo 7 fr. 4, 11)",
+      "coords": [
+        41.3,
+        21.9
+      ]
+    },
+    {
+      "id": "amydon",
+      "name": "Amydon",
+      "greek": "Ἀμυδών",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            849,
+            849
+          ]
+        }
+      ],
+      "note": "Paeonian city on the Axius, already legendary/vanished by the time of later Greek geography.",
+      "tradition": "Paeonia, on the lower Axius, said destroyed before historical times (Strabo 12.3.20, fr.); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "axius",
+      "name": "Axius (river)",
+      "greek": "Ἀξιός",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            849,
+            849
+          ]
+        }
+      ],
+      "note": "Major Macedonian river reaching the Thermaic Gulf; the modern Vardar.",
+      "coords": [
+        40.7,
+        22.35
+      ]
+    },
+    {
+      "id": "paphlagonia",
+      "name": "Paphlagonia",
+      "greek": "Παφλαγονία",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            851,
+            851
+          ]
+        }
+      ],
+      "note": "Black Sea coastal region of north-central Anatolia; Pylaemenes leads its Trojan-allied contingent.",
+      "coords": [
+        41.5,
+        33.5
+      ]
+    },
+    {
+      "id": "eneti",
+      "name": "Eneti",
+      "greek": "Ἐνετοί",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            852,
+            852
+          ]
+        }
+      ],
+      "note": "People whose homeland the Romans later linked to the Italian Veneti; Strabo could not fix their Paphlagonian location precisely.",
+      "tradition": "Paphlagonian coast, origin-point of the later Veneti migration legend, exact location disputed since antiquity (Strabo 12.3.8, 12.3.25)"
+    },
+    {
+      "id": "cytorus",
+      "name": "Cytorus",
+      "greek": "Κύτωρος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            853,
+            853
+          ]
+        }
+      ],
+      "note": "Paphlagonian coastal town famed for boxwood; near modern Gideros on the Turkish Black Sea coast.",
+      "tradition": "Black Sea coast near modern Gideros/Kidros, Paphlagonia (Strabo 12.3.10)",
+      "coords": [
+        41.78,
+        32.85
+      ]
+    },
+    {
+      "id": "sesamus",
+      "name": "Sesamus",
+      "greek": "Σήσαμος",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            853,
+            853
+          ]
+        }
+      ],
+      "note": "Paphlagonian coastal town later refounded as Amastris; near modern Amasra, Turkey.",
+      "tradition": "Black Sea coast near modern Amasra, Paphlagonia, later called Amastris (Strabo 12.3.10)",
+      "coords": [
+        41.75,
+        32.38
+      ]
+    },
+    {
+      "id": "parthenius",
+      "name": "Parthenius (river)",
+      "greek": "Παρθένιος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            854,
+            854
+          ]
+        }
+      ],
+      "note": "Paphlagonian coastal river; the modern Bartın Çayı.",
+      "coords": [
+        41.6,
+        32.65
+      ]
+    },
+    {
+      "id": "cromna",
+      "name": "Cromna",
+      "greek": "Κρῶμνα",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            855,
+            855
+          ]
+        }
+      ],
+      "note": "Paphlagonian coastal town Strabo groups with Cytorus and Sesamus without a precise site.",
+      "tradition": "Paphlagonian coast, exact site unknown, near Cytorus and Sesamus (Strabo 12.3.10); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "aegialus-paphlagonia",
+      "name": "Aegialus (Paphlagonia)",
+      "greek": "Αἰγιαλός",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            855,
+            855
+          ]
+        }
+      ],
+      "note": "\"The coastland\" of Paphlagonia; a generic descriptive name shared with the Achaean-side Aegialus (Il. 2.575).",
+      "tradition": "Paphlagonian coast, 'the shoreland,' homonymous with the Achaean Aegialus in this Catalogue; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "erythini",
+      "name": "Erythini",
+      "greek": "Ἐρυθῖνοι",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            855,
+            855
+          ]
+        }
+      ],
+      "note": "\"Red\" coastal cliffs of Paphlagonia named as a landmark; no confirmed modern site.",
+      "tradition": "Paphlagonian coast, 'the red cliffs,' exact site unknown (Strabo 12.3.10); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "halizones",
+      "name": "Halizones",
+      "greek": "Ἁλιζῶνες",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            856,
+            856
+          ]
+        }
+      ],
+      "note": "One of the most disputed Catalogue peoples; Strabo surveys and rejects several rival ancient theories of their location.",
+      "tradition": "Location disputed since antiquity: candidates range from inland Anatolia to the Black Sea coast (Strabo 12.3.20-27 devotes an extended digression to the dispute); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "alybe",
+      "name": "Alybe",
+      "greek": "Ἀλύβη",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            857,
+            857
+          ]
+        }
+      ],
+      "note": "Named only for its silver; ancient scholarship already treated its location as an open, much-debated problem.",
+      "tradition": "\"Birthplace of silver\": among the most famously unlocated Homeric place-names, disputed since antiquity (Strabo 12.3.20-27)"
+    },
+    {
+      "id": "mysia",
+      "name": "Mysia",
+      "greek": "Μυσία",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            858,
+            858
+          ]
+        }
+      ],
+      "note": "Region of northwest Anatolia south of the Troad and Propontis; Chromis and Ennomus lead its contingent.",
+      "coords": [
+        39.3,
+        28.0
+      ]
+    },
+    {
+      "id": "phrygia",
+      "name": "Phrygia",
+      "greek": "Φρυγία",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            862,
+            862
+          ]
+        }
+      ],
+      "note": "Central Anatolian region; Phorcys and Ascanius lead its Trojan-allied contingent.",
+      "coords": [
+        39.0,
+        30.5
+      ]
+    },
+    {
+      "id": "ascania-phrygia",
+      "name": "Ascania (Phrygia)",
+      "greek": "Ἀσκανίη",
+      "certainty": "traditional",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            863,
+            863
+          ]
+        }
+      ],
+      "note": "District named for a lake in northwest Phrygia/Bithynia, generally identified with modern Lake İznik.",
+      "tradition": "Region around Lake Ascania in northwest Phrygia, modern Lake İznik (Strabo 12.4.5, 14.5.29)",
+      "coords": [
+        40.43,
+        29.5
+      ]
+    },
+    {
+      "id": "maeonia",
+      "name": "Maeonia",
+      "greek": "Μηονίη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            864,
+            864
+          ]
+        }
+      ],
+      "note": "Region of west Anatolia later called Lydia; Mesthles and Antiphus lead its contingent.",
+      "coords": [
+        38.5,
+        28.0
+      ]
+    },
+    {
+      "id": "lake-gygaea",
+      "name": "Lake Gygaea",
+      "greek": "Γυγαίη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            865,
+            865
+          ]
+        }
+      ],
+      "note": "Lake in Maeonia/Lydia below Mt Tmolus; identified with the modern Marmara Gölü.",
+      "coords": [
+        38.6,
+        27.85
+      ]
+    },
+    {
+      "id": "tmolus",
+      "name": "Mount Tmolus",
+      "greek": "Τμῶλος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            866,
+            866
+          ]
+        }
+      ],
+      "note": "Mountain of Maeonia/Lydia overlooking Sardis; the modern Bozdağ range.",
+      "coords": [
+        38.42,
+        28.15
+      ]
+    },
+    {
+      "id": "caria",
+      "name": "Caria",
+      "greek": "Καρία",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            867,
+            867
+          ]
+        }
+      ],
+      "note": "Region of southwest Anatolia; Nastes and Amphimachus lead its 'foreign-speaking' contingent.",
+      "coords": [
+        37.2,
+        28.2
+      ]
+    },
+    {
+      "id": "miletus-anatolia",
+      "name": "Miletus (Anatolia)",
+      "greek": "Μίλητος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            868,
+            868
+          ]
+        }
+      ],
+      "note": "Major Ionian/Carian coastal city, homonymous with the Cretan Miletus named earlier in this Catalogue.",
+      "coords": [
+        37.53,
+        27.28
+      ]
+    },
+    {
+      "id": "mount-phthires",
+      "name": "Mount Phthires",
+      "greek": "Φθιρῶν ὄρος",
+      "certainty": "speculative",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            868,
+            868
+          ]
+        }
+      ],
+      "note": "\"Louse mountain,\" a landmark near Carian Miletus; no confirmed identification with a modern peak.",
+      "tradition": "Caria, near Miletus and the Maeander, exact peak unidentified; Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)"
+    },
+    {
+      "id": "maeander",
+      "name": "Maeander (river)",
+      "greek": "Μαίανδρος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            869,
+            869
+          ]
+        }
+      ],
+      "note": "Anatolian river proverbial for its winding course, reaching the sea near Miletus; the modern Büyük Menderes.",
+      "coords": [
+        37.5,
+        27.3
+      ]
+    },
+    {
+      "id": "mycale",
+      "name": "Mount Mycale",
+      "greek": "Μυκάλη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            869,
+            869
+          ]
+        }
+      ],
+      "note": "Coastal mountain of Ionia opposite Samos, site of the 479 BC battle; the modern Dilek Dağı.",
+      "coords": [
+        37.67,
+        27.2
+      ]
+    },
+    {
+      "id": "lycia",
+      "name": "Lycia",
+      "greek": "Λυκίη",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            876,
+            876
+          ]
+        }
+      ],
+      "note": "Region of southwest Anatolia; Sarpedon and Glaucus lead its distant Trojan-allied contingent.",
+      "coords": [
+        36.4,
+        29.5
+      ]
+    },
+    {
+      "id": "xanthus-lycia",
+      "name": "Xanthus (river, Lycia)",
+      "greek": "Ξάνθος",
+      "certainty": "certain",
+      "maps": [
+        "ships"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            877,
+            877
+          ]
+        }
+      ],
+      "note": "Chief river of Lycia, distinct from the Trojan river Scamander/Xanthus named elsewhere in the epic; the modern Eşen Çayı.",
+      "coords": [
+        36.35,
+        29.35
+      ]
     }
   ]
 }
