@@ -115,7 +115,9 @@ decisions, not on file contents.
   verification pass — tests re-run, functional smoke, diff review
   against the brief's blast radius — BEFORE the orchestrator commits.
   Not a full adversarial gate; a competence check. Grok content gates
-  are unchanged.**
+  are unchanged. For UI work, the pass ALSO reviews design fidelity
+  against the approved mock (John: "I don't trust its taste") and
+  captures both-theme screenshots for John before commit.**
 
 ### Context discipline
 
