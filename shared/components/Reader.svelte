@@ -13,6 +13,7 @@
   import { highlightPrefixMatches } from '../lib/text';
   import { getWork, visibleTranslations, bookLabel as workBookLabel, HOUSE_AUTHOR, type TranslationRef } from '../lib/works';
   import { touchRecent } from '../lib/resume';
+  import { chunksForScene, type TickChunkRange } from '../lib/scene-paging';
   import WordPopup from './WordPopup.svelte';
   import FootnotePopup from './FootnotePopup.svelte';
 
@@ -383,39 +384,145 @@
     if (spyArmed) setupScrollSpy();
   }
 
-  // ── Reading Mode posture (Phase 3 flagship) ──────────────────────────────
-  // Two postures: Scholar (the parallel-column reader above) and Reading Mode —
-  // a single generous column of ONE translation, minimal chrome, with optional
-  // marginal scene chips. Toggled by the `r` keystroke (guarded against firing
-  // in form fields) or the header button. Persisted GLOBALLY (like reader-view),
-  // and openable via ?mode=reading. Announced to screen readers (aria-live).
+  // ── Reading Mode posture (Phase 3 flagship; scene-paged since 2026-07-18) ──
+  // Two postures: Scholar (the parallel-column reader above, unchanged) and
+  // Reading Mode — a single generous column of ONE translation, minimal
+  // chrome, PAGED BY SCENE (John's directive, 2026-07-18: a whole book's prose
+  // is too long as one scroll). Toggled by the `r` keystroke (guarded against
+  // firing in form fields) or the header button. Persisted GLOBALLY (like
+  // reader-view), and openable via ?mode=reading. Announced to screen readers
+  // (aria-live).
   const POSTURE_KEY = 'reader-posture';
   let reading = false;
   let postureMsg = '';
   function savePosture() { try { localStorage.setItem(POSTURE_KEY, reading ? 'reading' : 'scholar'); } catch {} }
+  // Whether focus currently sits in a field that should swallow a bare
+  // keystroke shortcut (typing `r`, arrow-paging scenes) rather than let it
+  // fire as a reader command. Shared by onGlobalKey's `r` and arrow-key branches.
+  function focusInField(): boolean {
+    const ae = document.activeElement as HTMLElement | null;
+    const tag = ae?.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || !!ae?.isContentEditable;
+  }
+  // Entering Reading Mode opens on the scene containing whatever line Scholar
+  // had at the top of the viewport (computeCurrentScene, called here BEFORE
+  // `reading` flips so its own `reading` guard still lets it scan); exiting
+  // scrolls Scholar back to that scene's opening line (jumpToScene, called
+  // after `reading` is already false so it takes the Greek-anchor branch).
+  // Both scroll adjustments wait a tick for the posture's DOM swap to land.
   function setReading(on: boolean) {
     if (reading === on) return;
+    if (on && scenes.length) { computeCurrentScene(); readingSceneIndex = currentSceneIndex; }
     reading = on;
     postureMsg = on ? 'Reading mode' : 'Scholar view';
     savePosture();
+    saveSceneParam();
+    tick().then(() => {
+      if (reading) scrollReadingToTop();
+      else if (scenes.length) jumpToScene(readingSceneIndex);
+    });
   }
   function toggleReading() { setReading(!reading); }
-  // `r` toggles posture — but never while focus is in a text field (a reader
-  // typing in the Bekker jump / search box, or a future note input), and never
-  // as part of a shortcut chord.
+  // `r` toggles posture; ←/→ page Reading Mode's current scene. Neither fires
+  // while focus is in a text field (a reader typing in the Bekker jump /
+  // search box, or a future note input), nor as part of a modifier chord.
   function onGlobalKey(e: KeyboardEvent) {
-    if (e.key !== 'r' && e.key !== 'R') return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    const ae = document.activeElement as HTMLElement | null;
-    const tag = ae?.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || ae?.isContentEditable) return;
-    e.preventDefault();
-    toggleReading();
+    if (e.key === 'r' || e.key === 'R') {
+      if (focusInField()) return;
+      e.preventDefault();
+      toggleReading();
+      return;
+    }
+    if (reading && scenes.length && !e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+      if (focusInField()) return;
+      e.preventDefault();
+      if (e.key === 'ArrowLeft') prevScene(); else nextScene();
+    }
   }
   // The single translation Reading Mode shows: the current selection, or — in
   // compare mode — the last single choice (pickValue already resolves this).
   // Never 'compare'.
   $: readingTransId = pickValue;
+
+  // ── Reading Mode scene paging ─────────────────────────────────────────────
+  // The scene Reading Mode currently pages to (0-based into `scenes`),
+  // clamped whenever `scenes` is shorter than a restored/URL index. Position
+  // lives in the URL (?scene=, 1-based for a human-shareable link), never
+  // localStorage — it's book-specific and share-worthy, not a durable
+  // preference (unlike POSTURE_KEY above).
+  let readingSceneIndex = 0;
+  $: clampedSceneIndex = scenes.length ? Math.max(0, Math.min(readingSceneIndex, scenes.length - 1)) : 0;
+
+  // Every tick-anchored chunk of the CURRENTLY SHOWN translation's flow, in
+  // reading order, across every block of every segment (Homer books are one
+  // segment/one block each, but this doesn't assume that). Reuses alignGroups
+  // — the same tick-chunker the phone "Both" view already relies on — passed
+  // THIS translation's own flow (not always block.flow/Murray) so paging a
+  // non-primary translation (Butler/Pope) chunks by ITS OWN ticks.
+  interface ReadingChunk extends TickChunkRange { flowParts: FlowPart[]; otables: Record<string, { n: number; rows: string[][] }[]>; }
+  $: readingChunks = ((): ReadingChunk[] => {
+    const out: ReadingChunk[] = [];
+    for (const { blocks } of enrichedSegments) {
+      for (const block of blocks) {
+        const flow = readingTransId === engSlot?.id ? block.flow : (block.oflows[readingTransId] ?? []);
+        if (!flow.length) continue;
+        for (const g of alignGroups(block, flow)) {
+          if (!g.lines.length) continue;
+          out.push({
+            startLine: g.lines[0].n, endLine: g.lines[g.lines.length - 1].n,
+            flowParts: g.flowParts, otables: block.otables,
+          });
+        }
+      }
+    }
+    return out;
+  })();
+  // ALIGNMENT HONESTY: every tick-chunk that OVERLAPS the current scene's
+  // line range renders WHOLE — never split mid-chunk — via chunksForScene
+  // (shared/lib/scene-paging.ts, pure + unit-tested). A scene boundary that
+  // doesn't land on a tick boundary (measured: the common case) means a
+  // little text right at the edge can appear on both the previous and next
+  // scene's page — an honest tradeoff, not a bug.
+  $: currentSceneChunks = scenes.length && readingChunks.length
+    ? chunksForScene(readingChunks, scenes[clampedSceneIndex]).map((i) => readingChunks[i])
+    : [];
+
+  // Reads `readingSceneIndex` directly (clamping inline) rather than the
+  // reactive `clampedSceneIndex` — a `$:` recompute is batched, so a caller
+  // that just assigned `readingSceneIndex` and calls this synchronously
+  // (gotoScene, setReading) would otherwise write the URL one step stale.
+  function saveSceneParam() {
+    try {
+      const url = new URL(window.location.href);
+      if (reading && scenes.length) {
+        const idx = Math.max(0, Math.min(readingSceneIndex, scenes.length - 1));
+        url.searchParams.set('scene', String(idx + 1));
+      } else {
+        url.searchParams.delete('scene');
+      }
+      history.replaceState(history.state, '', url);
+    } catch {}
+  }
+  // Scroll the new scene's header to the top of the viewport — a "page turn"
+  // reset, so a long previous scene doesn't leave the next one's start
+  // scrolled off-screen. Suppressed like every other programmatic jump so it
+  // doesn't fight the scroll-spy/citation-hash tracking.
+  function scrollReadingToTop() {
+    const head = readerBodyEl?.querySelector('.reading-scene-head');
+    if (!head) return;
+    suppressArmUntil = Date.now() + 900;
+    head.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  }
+  function gotoScene(i: number) {
+    if (!scenes.length) return;
+    readingSceneIndex = Math.max(0, Math.min(i, scenes.length - 1));
+    currentSceneIndex = readingSceneIndex; // keeps the scene-rail highlight in sync
+    saveSceneParam();
+    tick().then(scrollReadingToTop);
+  }
+  function prevScene() { gotoScene(clampedSceneIndex - 1); }
+  function nextScene() { gotoScene(clampedSceneIndex + 1); }
 
   // Lazy full-book load: the token-stripped prop carries only the English-slot
   // translation, so the moment a NON-default translation becomes visible (single,
@@ -428,23 +535,17 @@
   $: if (mounted && !fullLoaded && wantsNonDefaultTrans) ensureFullBook();
 
   // Landmark-style scene apparatus for this book (see data.ts Scene). Absent on
-  // every payload today, so `scenes` is empty and Reading Mode renders plain
-  // single-column prose; a chip appears only where real scene data lands.
+  // every payload today, so `scenes` is empty and Reading Mode degrades to
+  // plain single-column prose; scene paging (below) activates only when real
+  // scene data lands.
   let scenes: Scene[] = activeBook?.scenes ?? [];
   // Whether this book's apparatus (scenes + cartouche fields) is AI-drafted and
-  // still pending John's review. Drives the discreet DRAFT badge on each scene
-  // chip — CLAUDE.md's apparatus-honesty rule. Set from the same `apparatus.draft`
-  // the cartouche reads; refreshed in the desktop fetch path below.
+  // still pending John's review. Drives the discreet DRAFT badge on the
+  // Reading Mode scene header and the scene-rail — CLAUDE.md's
+  // apparatus-honesty rule. Set from the same `apparatus.draft` the cartouche
+  // reads; refreshed in the desktop fetch path below.
   let scenesDraft: boolean =
     (activeBook as RawBookData | null)?.apparatus?.draft === true;
-  // The scenes opening within a segment's Greek line range — rendered as
-  // marginal chips ahead of that segment's prose in Reading Mode.
-  function scenesForSegment(seg: Segment): Scene[] {
-    if (!scenes.length || !seg.greek.length) return [];
-    const lo = seg.greek[0].n;
-    const hi = seg.greek[seg.greek.length - 1].n;
-    return scenes.filter((s) => s.startLine >= lo && s.startLine <= hi);
-  }
   // Apologoi day-honesty cue (John, phone session 2026-07-18): a book whose
   // apparatus marks its book-level `where` "… (telling)" (the pipeline's
   // frame-scene marker — Odysseus narrating at Alcinous's palace — set on the
@@ -666,10 +767,10 @@
   // Greek line still above the detection line gives the vulgate line we're
   // reading; activeSceneIndex maps it to a scene. Hidden lines (the Greek column
   // in English-only view) are skipped so they can't pin the highlight to the last
-  // line. Scholar view only: Reading Mode renders all of a Homer book's scene
-  // chips clustered at the top (single segment, no interleaved line anchors), so
-  // a scroll scan there is meaningless — the highlight follows the last click
-  // instead of snapping to the last scene.
+  // line. Scholar view only: Reading Mode has no Greek-line anchors to scan (its
+  // single English column pages by scene already) — setReading calls this
+  // directly, BEFORE flipping `reading` on, to seed the scene Reading Mode opens
+  // to from wherever Scholar was scrolled.
   function computeCurrentScene() {
     if (!scenes.length || reading) return;
     const boundary = sceneBoundary();
@@ -686,22 +787,20 @@
     if (sceneRaf) return;
     sceneRaf = requestAnimationFrame(() => { sceneRaf = 0; computeCurrentScene(); });
   }
-  // Scroll the reader to a scene's opening line. Prefers the Greek line anchor
-  // (Scholar view); falls back to the marginal scene chip (Reading Mode). The
-  // highlight is set eagerly so the click feels instant; block:'start' lands the
-  // line at the detection boundary (see .greek-line scroll-margin-top) so the
-  // live scan agrees with the eager pick once the scroll settles.
+  // The scene rail is the ONE jump list for both postures (no second list):
+  // in Reading Mode it PAGES to the scene (gotoScene); in Scholar view it
+  // scrolls to the scene's opening Greek line, eagerly setting the highlight
+  // so the click feels instant — block:'start' lands the line at the
+  // detection boundary (see .greek-line scroll-margin-top) so the live scan
+  // agrees with the eager pick once the scroll settles.
   function jumpToScene(i: number) {
     const s = scenes[i];
     if (!s) return;
+    if (reading) { gotoScene(i); closeSceneRail(); return; }
     currentSceneIndex = i;
     suppressArmUntil = Date.now() + 900;
     const greek = document.getElementById(`L${columnForLine(s.startLine)}-${s.startLine}`);
-    const chip = document.getElementById(`scene-${s.startLine}`);
-    const el = (greek && greek.offsetParent !== null) ? greek
-             : (chip && chip.offsetParent !== null) ? chip
-             : greek ?? chip;
-    el?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    greek?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
   }
 
   function sceneItems(): HTMLElement[] {
@@ -984,7 +1083,6 @@
     clearTimeout(resizeTimer);
     computeDocked();
     computePhoneWidth();
-    positionSceneChips(); // re-anchor Reading Mode's scene chips across the 1400px breakpoint
     resizeTimer = setTimeout(() => { if (spyArmed) setupScrollSpy(); }, 200);
   }
 
@@ -1451,8 +1549,13 @@
   // number (not array position), so a declared expected_line_gaps skip (e.g.
   // Il. 9.457→462) never miscounts a group's span — the tick itself always
   // anchors to a line number actually present in `lines`.
-  function alignGroups(block: Block): AlignGroup[] {
-    const flowGroups = groupFlowByTicks(block.flow);
+  // `flow` defaults to the block's PRIMARY English flow (the phone
+  // stacked-both view's only caller below always wants Murray's ticks); the
+  // scene-paging chunker in readingView passes the actually-selected
+  // translation's flow (block.oflows[id]) so a non-primary Reading Mode
+  // translation (Butler/Pope) pages by its OWN ticks, not Murray's.
+  function alignGroups(block: Block, flow: FlowPart[] = block.flow): AlignGroup[] {
+    const flowGroups = groupFlowByTicks(flow);
     const ticks = flowGroups.map(g => g[0]).filter(isTickPart);
     const lineIndex = new Map<number, number>();
     block.lines.forEach((l, i) => { if (!l.cont && !lineIndex.has(l.n)) lineIndex.set(l.n, i); });
@@ -1637,6 +1740,22 @@
     const qMode = params.get('mode');
     if (qMode === 'reading') reading = true;
     else if (qMode === 'scholar') reading = false;
+    // Reading Mode's initial scene: an explicit ?scene=N (1-based, written by
+    // saveSceneParam) wins; otherwise, opening directly in Reading Mode via a
+    // ?loc= deep link lands on the scene CONTAINING that line (activeSceneIndex);
+    // otherwise scene 0. Idempotent and re-run once scenes load in the
+    // fetch-fallback path below, so a client-only mount (no SSR bookData) still
+    // resolves correctly once its fetch completes.
+    const qScene = params.get('scene');
+    const resolveSceneIndex = () => {
+      if (!scenes.length) return;
+      if (qScene) {
+        const n = parseInt(qScene, 10);
+        if (Number.isFinite(n)) { readingSceneIndex = Math.max(0, Math.min(n - 1, scenes.length - 1)); return; }
+      }
+      if (reading && locLine != null) readingSceneIndex = activeSceneIndex(scenes, locLine);
+    };
+    resolveSceneIndex();
     try {
       // Already seeded from the build-time prop in the normal (SSR) path; only
       // fetch when the reader was mounted without it.
@@ -1646,6 +1765,7 @@
         turnFlow = data.turnFlow ?? null;
         scenes = data.scenes ?? [];
         scenesDraft = (data as RawBookData).apparatus?.draft === true;
+        resolveSceneIndex();
       }
     } catch (e) {
       error = String(e);
@@ -1858,66 +1978,6 @@
     if (activeTokEl && activeTokEl.isConnected) activeTokEl.classList.add('active');
   }
   afterUpdate(refreshTokenDecorations);
-
-  // Reading Mode's marginal scene chips (sceneChip snippet) anchor to their
-  // scene's start line. A chapterless book renders as ONE continuous flow
-  // block (splitSegment's `!starts.length` branch), so every chip for the
-  // book shares the same DOM insertion point — there's no per-line anchor to
-  // lay them out against declaratively. Instead, position each one from the
-  // nearest already-rendered Bekker tick (.bk-num, real ticks every 5 lines —
-  // see splitSegment's allTicks) at or before the scene's line: the same
-  // approximate precision the ticks themselves carry. Below the margin
-  // breakpoint chips render inline in normal flow (global.css), so this is a
-  // no-op there. Wave A #1, 2026-07-17 (was: floated chips with a large
-  // negative margin, which collapsed onto one rect instead of stacking).
-  //
-  // Wave A #2, 2026-07-17: the anchor-only pass above ignored chip HEIGHT.
-  // Where the prose compresses many verse lines into little vertical space
-  // (e.g. a short scene immediately after a long one), two anchors can land
-  // closer together than either chip is tall, and the chips overlap. Enforce
-  // monotonic non-overlap in document order: each chip's final top is pushed
-  // down to clear the previous chip's actual rendered bottom + a small gap
-  // (mirrors the --space-2 token in global.css) when the anchor alone would
-  // crowd it. Chips drift below their exact anchor only when crowded — they
-  // stay in scene order, still near their true start line.
-  const CHIP_GAP_PX = 8; // --space-2 (0.5rem @ 16px root)
-  function positionSceneChips() {
-    if (!reading || typeof window === 'undefined' || !readerBodyEl) return;
-    const col = readerBodyEl.querySelector<HTMLElement>('.reading-col');
-    if (!col) return;
-    const chips = Array.from(col.querySelectorAll<HTMLElement>('.scene-chip'));
-    if (!chips.length) return;
-    if (!window.matchMedia('(min-width: 1400px)').matches) {
-      chips.forEach((c) => { c.style.top = ''; });
-      col.style.minHeight = '';
-      return;
-    }
-    // Clear any minHeight this function set on a previous pass so the
-    // "natural" height below is the prose's own height, not last run's grown one.
-    col.style.minHeight = '';
-    const ticks = Array.from(col.querySelectorAll<HTMLElement>('.bk-num'))
-      .map((el) => ({ n: Number(el.textContent), top: el.getBoundingClientRect().top }))
-      .filter((t) => Number.isFinite(t.n));
-    if (!ticks.length) return;
-    const colRect = col.getBoundingClientRect();
-    const colTop = colRect.top;
-    let prevBottom = -Infinity;
-    chips.forEach((chip) => {
-      const line = Number(chip.dataset.line);
-      if (!Number.isFinite(line)) return;
-      let best = ticks[0];
-      for (const t of ticks) { if (t.n <= line) best = t; else break; }
-      const anchorTop = best.top - colTop;
-      const top = Math.max(anchorTop, prevBottom + CHIP_GAP_PX);
-      chip.style.top = `${top}px`;
-      prevBottom = top + chip.getBoundingClientRect().height;
-    });
-    // Chips are position:absolute, so a run of crowded chips can push the
-    // last one's bottom past the prose's own (natural-flow) height. Grow the
-    // column to fit so the last chip never overflows into whatever follows.
-    if (prevBottom > colRect.height) col.style.minHeight = `${prevBottom}px`;
-  }
-  afterUpdate(positionSceneChips);
 
   function onTokenKey(e: KeyboardEvent, cur: HTMLElement) {
     if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
@@ -2415,25 +2475,33 @@
     </div>
   {/snippet}
 
-  <!-- A Landmark scene chip: line-range tick + optional place (small caps) +
-       one-line summary + the people in the scene. Marginal in Reading Mode.
-       Rendered only where real scene data exists (inert otherwise). -->
-  {#snippet sceneChip(s: Scene)}
-    <aside class="scene-chip" id="scene-{s.startLine}" data-line={s.startLine} aria-label="Scene summary">
-      <span class="scene-lines">{s.startLine}{#if s.endLine && s.endLine !== s.startLine}–{s.endLine}{/if}</span>
-      {#if s.place}<span class="scene-place">{s.place}</span>{/if}
-      {#if scenesDraft}<span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>{/if}
-      <p class="scene-summary">{s.summary}</p>
-      {#if s.people && s.people.length}<p class="scene-people">{s.people.join(' · ')}</p>{/if}
-    </aside>
+  <!-- A scene page's header: position indicator + draft badge + day/place
+       labels + the one-line Landmark summary. Replaces the old marginal scene
+       chips now that Reading Mode pages one scene at a time — this header IS
+       the scene's introduction, not a margin annotation. -->
+  {#snippet readingSceneHead(s: Scene, idx: number, total: number)}
+    <header class="reading-scene-head">
+      <p class="reading-scene-pos">Scene {idx + 1} of {total} · lines {s.startLine}{#if s.endLine && s.endLine !== s.startLine}–{s.endLine}{/if}</p>
+      <div class="reading-scene-meta">
+        {#if typeof s.day === 'number'}
+          <span
+            class="reading-scene-day"
+            title={bookTellingDay ? 'The day of the telling at Alcinous’s palace; the events narrated here lie years earlier.' : undefined}
+          >Day {s.day}{bookTellingDay ? ' · telling' : ''}</span>
+        {/if}
+        {#if s.place}<span class="reading-scene-place">{s.place}</span>{/if}
+        {#if scenesDraft}<span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>{/if}
+      </div>
+      <p class="reading-scene-summary">{s.summary}</p>
+    </header>
   {/snippet}
 
   <!-- Reading Mode body: ONE translation in a single generous column, no
-       parallel Greek, no gutters. Reuses the existing prose snippets (transFlow
-       / primaryEng / altEng) so the wording, footnotes and paragraphing match
-       Scholar view exactly; the single-column measure and quiet chrome are CSS
-       (.reading-mode). Scene chips float in the margin where scene data exists;
-       with none, this is simply clean single-column reading. -->
+       parallel Greek, no gutters, PAGED BY SCENE (John's directive,
+       2026-07-18). Reuses the existing prose snippets (transFlow's flowProse /
+       primaryEng / altEng) so the wording, footnotes and paragraphing match
+       Scholar view exactly. A book with no scene apparatus degrades silently
+       to the old whole-book flow (the `:else` branch below). -->
   {#snippet readingView()}
     <div class="reading-col">
       {#if flowRows}
@@ -2442,9 +2510,18 @@
             {#if readingTransId === engSlot?.id}{@render primaryEng(row, ri)}{:else}{@render altEng(row, ri, readingTransId)}{/if}
           </div>
         {/each}
+      {:else if scenes.length}
+        {@const s = scenes[clampedSceneIndex]}
+        {@render readingSceneHead(s, clampedSceneIndex, scenes.length)}
+        {#each currentSceneChunks as chunk, ci (ci)}
+          {@render flowProse(chunk.flowParts, readingTransId, chunk.otables)}
+        {/each}
+        <nav class="reading-scene-nav" aria-label="Scene navigation">
+          <button type="button" class="reading-scene-prev" on:click={prevScene} disabled={clampedSceneIndex === 0}>← Previous scene</button>
+          <button type="button" class="reading-scene-next" on:click={nextScene} disabled={clampedSceneIndex === scenes.length - 1}>Next scene →</button>
+        </nav>
       {:else}
         {#each enrichedSegments as { seg, blocks } (seg.id)}
-          {#each scenesForSegment(seg) as s}{@render sceneChip(s)}{/each}
           {#each blocks as block}
             {#if block.chapter}{@render chapterHead(block)}{/if}
             {@render transFlow(block, readingTransId)}

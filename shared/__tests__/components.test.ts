@@ -2,7 +2,7 @@ import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Reader from '../components/Reader.svelte';
 import Search from '../components/Search.svelte';
-import type { BookData } from '../lib/data';
+import type { BookData, RawBookData } from '../lib/data';
 import type { Work } from '../lib/works';
 
 // These Reader tests need a real Work shape (translations, citation scheme)
@@ -397,5 +397,152 @@ describe('Reader.svelte — verse-line (epic) rendering', () => {
     expect(container.querySelectorAll('.bracketed')).toHaveLength(0);
     expect(container.querySelectorAll('.line-bracket')).toHaveLength(0);
     expect(container.querySelectorAll('.verse-bracket-legend')).toHaveLength(0);
+  });
+});
+
+describe('Reader.svelte — Reading Mode scene paging (John, 2026-07-18)', () => {
+  // A verse book (real 'iliad' registry work, epicVerse) with:
+  //  - a REAL vulgate gap (13-14 missing, like Il. 9.457→462) so chunk
+  //    derivation is exercised against real line numbers, not array index
+  //    arithmetic;
+  //  - 5 English ticks (n=1,5,10,15,20) chunking the prose into 5 labelled
+  //    sentences, so which chunks a scene page shows is directly readable
+  //    from which "ChunkX text." sentences appear;
+  //  - 3 scenes whose edges deliberately DON'T land on tick boundaries
+  //    (scene2 additionally spans the gap), exercising the ALIGNMENT
+  //    HONESTY contract: a scene's page shows every OVERLAPPING chunk WHOLE.
+  const TICK_TEXT =
+    'ChunkA text. ChunkB text. ChunkC text. ChunkD text. ChunkE text.';
+  const sceneBook = (draft = false): RawBookData => ({
+    book: 1,
+    apparatus: draft ? { draft: true } : undefined,
+    scenes: [
+      { summary: 'Scene one summary.', startLine: 1, endLine: 7 },
+      { summary: 'Scene two summary.', startLine: 8, endLine: 16, place: 'Ithaca', day: 3 },
+      { summary: 'Scene three summary.', startLine: 17, endLine: 24 },
+    ],
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, /* 13, 14 gap */ 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+          .map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+        english: {
+          text: TICK_TEXT,
+          notes: [],
+          markers: [],
+          bekker: [
+            { n: 1, offset: 0, real: true },
+            { n: 5, offset: 13, real: true },
+            { n: 10, offset: 26, real: true },
+            { n: 15, offset: 39, real: true },
+            { n: 20, offset: 52, real: true },
+          ],
+        },
+      },
+    ],
+  });
+
+  it('opens Reading Mode on the scene containing the top-visible line, and pages by scene', async () => {
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: sceneBook() } });
+
+    // Scene 1 (lines 1-7) overlaps chunks A (1-4) and B (5-9) WHOLE — B's
+    // text isn't truncated at line 7 even though the scene's own range ends
+    // there (ALIGNMENT HONESTY: never split a tick's prose mid-chunk).
+    await screen.findByText(/Scene 1 of 3/);
+    expect(container.querySelector('.reading-scene-pos')?.textContent).toContain('lines 1–7');
+    expect(container.textContent).toContain('ChunkA text.');
+    expect(container.textContent).toContain('ChunkB text.');
+    expect(container.textContent).not.toContain('ChunkC text.');
+    expect(container.querySelector('.reading-scene-prev')).toHaveProperty('disabled', true);
+
+    // No scene chips anywhere — the header replaces them.
+    expect(container.querySelectorAll('.scene-chip')).toHaveLength(0);
+
+    // Next scene → scene 2 (lines 8-16), which SPANS the vulgate gap
+    // (13-14 missing): its page shows chunks B, C (10-12) and D (15-19)
+    // whole, proving the gap is handled by real line numbers.
+    await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+    await screen.findByText(/Scene 2 of 3/);
+    expect(container.querySelector('.reading-scene-pos')?.textContent).toContain('lines 8–16');
+    expect(container.textContent).toContain('ChunkB text.');
+    expect(container.textContent).toContain('ChunkC text.');
+    expect(container.textContent).toContain('ChunkD text.');
+    expect(container.textContent).not.toContain('ChunkA text.');
+    expect(container.textContent).not.toContain('ChunkE text.');
+    // Day + place meta render; scene 1 (no day/place) showed neither.
+    expect(container.textContent).toContain('Day 3');
+    expect(container.textContent).toContain('Ithaca');
+    // The URL reflects position (1-based) for refresh/share.
+    expect(new URL(window.location.href).searchParams.get('scene')).toBe('2');
+
+    // Previous scene → back to scene 1.
+    await fireEvent.click(screen.getByRole('button', { name: /Previous scene/i }));
+    await screen.findByText(/Scene 1 of 3/);
+
+    // Keyboard: → advances, ← retreats, matching the buttons.
+    await fireEvent.keyDown(window, { key: 'ArrowRight' });
+    await screen.findByText(/Scene 2 of 3/);
+    await fireEvent.keyDown(window, { key: 'ArrowLeft' });
+    await screen.findByText(/Scene 1 of 3/);
+
+    // Next scene is disabled only at the last scene.
+    await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+    await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+    await screen.findByText(/Scene 3 of 3/);
+    expect(container.querySelector('.reading-scene-next')).toHaveProperty('disabled', true);
+  });
+
+  it('ignores arrow-key scene paging while focus is in a text field', async () => {
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: sceneBook() } });
+    await screen.findByText(/Scene 1 of 3/);
+
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+    input.focus();
+    await fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(screen.queryByText(/Scene 2 of 3/)).toBeNull();
+    input.remove();
+  });
+
+  it('shows the draft badge on the scene header only when the apparatus is drafted', async () => {
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: sceneBook(true) } });
+    await screen.findByText(/Scene 1 of 3/);
+    expect(container.querySelector('.reading-scene-head .draft-badge')).not.toBeNull();
+  });
+
+  it('?scene= deep-links to that scene on load (1-based, share/refresh position)', async () => {
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading&scene=3');
+    render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: sceneBook() } });
+    await screen.findByText(/Scene 3 of 3/);
+  });
+
+  it('?loc= while opening in Reading Mode lands on the scene CONTAINING that line', async () => {
+    // Line 9 falls in scene 2's range (8-16), not scene 1 (1-7) or 3 (17-24).
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading&loc=1.9');
+    render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: sceneBook() } });
+    await screen.findByText(/Scene 2 of 3/);
+  });
+
+  it('degrades silently to the whole-book flow when the book carries no scene apparatus', async () => {
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const noScenes: BookData = {
+      book: 1,
+      segments: [
+        {
+          id: 'seg1', column: '1',
+          greek: [1, 2, 3].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+          english: { text: 'English filler.', notes: [], markers: [] },
+        },
+      ],
+    };
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: noScenes } });
+    await screen.findByText(/English filler/i);
+    expect(container.querySelector('.reading-scene-head')).toBeNull();
+    expect(container.querySelector('.reading-scene-nav')).toBeNull();
+    expect(container.querySelectorAll('.scene-chip')).toHaveLength(0);
   });
 });

@@ -90,7 +90,8 @@ const pageHref = (b: number, column: string) =>
 // instant paint) instead of fetched client-side. Run it through the SAME
 // normalization fetchBook uses so `scenes` (drafted from apparatus.scenes) is
 // present on the static page — otherwise the raw JSON.parse leaves scenes
-// undefined and Reading Mode never shows the marginal scene chips.
+// undefined and Reading Mode can't page by scene (it silently degrades to the
+// old whole-book flow instead).
 const rawBookData = JSON.parse(
   readFileSync(`public/data/${workId}/book-${String(n).padStart(2, '0')}.json`, 'utf-8'),
 );

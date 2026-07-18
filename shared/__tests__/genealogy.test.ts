@@ -19,6 +19,15 @@ const fixture: CharacterRecord[] = [
   { id: 'sib1', name: 'Sib One', greek: 'Α', role: 'god', genealogy: { tree: 'pantheon', father: 'elder', mother: 'elderess' } },
   { id: 'sib2', name: 'Sib Two', greek: 'Β', role: 'god', genealogy: { tree: 'pantheon', father: 'elder', mother: 'elderess' } },
   { id: 'child-of-sib1', name: 'Child Of Sib1', greek: 'Γ', role: 'demigod', genealogy: { tree: 'pantheon', father: 'sib1' } },
+
+  // --- spouse pairing, tree "dynasty": one father, two wives (one a known
+  // character, one external/unknown, the second flagged nonHomeric) ---
+  { id: 'patriarch', name: 'Patriarch', greek: 'Πα', role: 'king', genealogy: { tree: 'dynasty' } },
+  { id: 'matriarch', name: 'Matriarch', greek: 'Μη', role: 'queen' }, // known character, no genealogy of her own
+  { id: 'kid-a', name: 'Kid A', greek: 'Κ1', genealogy: { tree: 'dynasty', father: 'patriarch', mother: 'matriarch' } },
+  { id: 'kid-b', name: 'Kid B', greek: 'Κ2', genealogy: { tree: 'dynasty', father: 'patriarch', mother: 'matriarch' } },
+  { id: 'kid-c', name: 'Kid C', greek: 'Κ3', genealogy: { tree: 'dynasty', father: 'patriarch', mother: 'second-wife', nonHomeric: ['mother'] } },
+  { id: 'kid-childless', name: 'Kid Childless', greek: 'Κ4', genealogy: { tree: 'dynasty', father: 'patriarch' } },
 ];
 
 describe('buildGenealogyTree', () => {
@@ -67,5 +76,66 @@ describe('buildGenealogyTree', () => {
 
   it('returns an empty forest for a tree id with no members', () => {
     expect(buildGenealogyTree(fixture, 'nonexistent-tree')).toEqual([]);
+  });
+});
+
+// Mobile "indented descent chart" (see /genealogies/) pairs a parent with a
+// spouse card drawn from its children's mother links, instead of laying out
+// pixel coordinates. These tests cover that pure-data transform: generation
+// nesting is unaffected by the new field, spouses dedup rather than overlap
+// (one card per distinct mother, not one per child), and multiple wives
+// produce distinct, order-preserved "couples".
+describe('buildGenealogyTree spouses', () => {
+  it('dedupes a single shared mother across multiple children into one spouse, not a duplicate per child', () => {
+    const roots = buildGenealogyTree(fixture, 'dynasty');
+    const patriarch = roots[0];
+    expect(patriarch.id).toBe('patriarch');
+    // kid-a and kid-b share "matriarch" -- must appear exactly once.
+    const matriarchEntries = patriarch.spouses.filter((s) => s.id === 'matriarch');
+    expect(matriarchEntries).toHaveLength(1);
+    expect(matriarchEntries[0]).toEqual({
+      key: 'mother',
+      id: 'matriarch',
+      name: 'Matriarch',
+      greek: 'Μη',
+      known: true,
+      nonHomeric: false,
+    });
+  });
+
+  it('keeps multiple distinct wives as separate, order-preserved couples and flags the nonHomeric one', () => {
+    const roots = buildGenealogyTree(fixture, 'dynasty');
+    const patriarch = roots[0];
+    // Discovery order follows children order: matriarch (kid-a) before the
+    // external second-wife (kid-c); kid-childless contributes nothing.
+    expect(patriarch.spouses.map((s) => s.id)).toEqual(['matriarch', 'second-wife']);
+    const secondWife = patriarch.spouses.find((s) => s.id === 'second-wife')!;
+    expect(secondWife).toEqual({
+      key: 'mother',
+      id: 'second-wife',
+      name: 'Second-wife',
+      greek: undefined,
+      known: false,
+      nonHomeric: true,
+    });
+  });
+
+  it('leaves spouses empty for a leaf (no children) and for children with no recorded mother', () => {
+    const roots = buildGenealogyTree(fixture, 'dynasty');
+    const kidA = roots[0].children.find((c) => c.id === 'kid-a')!;
+    const kidChildless = roots[0].children.find((c) => c.id === 'kid-childless')!;
+    expect(kidA.spouses).toEqual([]);
+    expect(kidChildless.spouses).toEqual([]);
+  });
+
+  it('does not regress the existing single-mother "house" chain (no couple to pair)', () => {
+    const roots = buildGenealogyTree(fixture, 'house');
+    // mid1's only child (leaf1) has mother "outsider" (external, unflagged).
+    const mid1 = roots[0].children[0];
+    expect(mid1.spouses).toEqual([
+      { key: 'mother', id: 'outsider', name: 'Outsider', greek: undefined, known: false, nonHomeric: false },
+    ]);
+    // root1's only child (mid1) has no mother link at all -> no spouse.
+    expect(roots[0].spouses).toEqual([]);
   });
 });

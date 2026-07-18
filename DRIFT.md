@@ -641,3 +641,33 @@ here (pipeline rename note at top still covers the package).
   where?: string;` (it only declared `scenes` before; `draft` was already
   being read off it via an untyped cast — this makes that and the new
   `where` read type-correct).
+- `shared/lib/scene-paging.ts` — new, no plato-reader counterpart: the pure
+  `chunksForScene` function (+ `TickChunkRange`/`SceneRange` types)
+  reconciling a scene's apparatus line range against the ~5-line Murray
+  tick chunks Reader.svelte's `alignGroups` derives — the core of Reading
+  Mode's scene pagination (John, 2026-07-18).
+- `shared/components/Reader.svelte` — Reading Mode now PAGES BY SCENE
+  instead of rendering a whole book as one scroll (John's directive,
+  2026-07-18; no plato-reader counterpart — that fork's Reading Mode still
+  shows the whole book). `alignGroups` gained a second `flow` parameter
+  (default `block.flow`, byte-identical for its one pre-existing call site)
+  so the new scene chunker can page a non-primary translation (Butler/Pope)
+  by its own ticks. New state (`readingSceneIndex`, `?scene=` URL sync),
+  new `gotoScene`/`prevScene`/`nextScene`/`scrollReadingToTop`, ←/→
+  keyboard paging in `onGlobalKey`, and `setReading` now seeds/exits the
+  scene position via `computeCurrentScene`/`jumpToScene`. REMOVED (dead
+  after the pagination change, no other consumer): the marginal `sceneChip`
+  snippet, `scenesForSegment`, and `positionSceneChips` (+ its `afterUpdate`
+  and `onResize` calls) — replaced by a `.reading-scene-head` page header.
+  `jumpToScene` is now the shared jump-list handler for both postures
+  (pages in Reading Mode, scrolls in Scholar).
+- `shared/styles/global.css` — removed the `.scene-chip`/`.scene-lines`/
+  `.scene-place`/`.scene-summary`/`.scene-people` rules and their
+  1400px-margin layout (dead with the chips gone); added
+  `.reading-scene-head`/`.reading-scene-pos`/`.reading-scene-meta`/
+  `.reading-scene-day`/`.reading-scene-place`/`.reading-scene-summary`/
+  `.reading-scene-nav` + prev/next button styles for the new scene-paged
+  Reading Mode. `.draft-badge` base rule kept (still used by the scene rail
+  and cartouche).
+- `app/src/components/ReaderShell.astro` — comment-only: the `scenes`
+  normalization note updated for scene-paging (no longer "marginal chips").

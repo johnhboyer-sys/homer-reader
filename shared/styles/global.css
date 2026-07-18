@@ -3587,15 +3587,9 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   line-height: var(--lh-english);
   color: var(--text);
 }
-/* No Bekker gutter numbers and no gutter indent in Reading Mode — "nothing
-   beyond quiet line-range ticks at scene boundaries" (the scene chips).
-   visibility:hidden, not display:none: the ticks stay in normal layout
-   (position:absolute already took them out of flow, so hiding costs no
-   space either way) so Reader.svelte's positionSceneChips can still read
-   their real getBoundingClientRect() to anchor each scene chip — a
-   display:none tick reports an all-zero rect, which is what collapsed every
-   chip onto one point (Wave A #1, 2026-07-17). */
-.reader-body.reading-mode .reading-col .bk-num { visibility: hidden; }
+/* No Bekker gutter numbers and no gutter indent in Reading Mode — a scene
+   page's own header (below) carries the line-range instead. */
+.reader-body.reading-mode .reading-col .bk-num { display: none; }
 .reader-body.reading-mode .reading-col .ross-prose { padding-left: 0; }
 .reading-col .reading-row + .reading-row { margin-top: 0.9rem; }
 /* Trim Scholar-only chrome the single column doesn't use. The translation
@@ -3605,50 +3599,57 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 .reader-body.reading-mode .bekker-info,
 .reader-body.reading-mode .verse-bracket-legend { display: none; }
 
-/* Marginal scene chip: a quiet Landmark summary block introducing the scene.
-   Left accent rule at all widths; pulled into the left margin on wide screens.
-   Contrast: --text on ground (primary), --accent bronze place label ≈5:1 light
-   / ≈7:1 dark, --text-mid people line ≈6.6:1 light / ≈8.6:1 dark — all AA. */
-.scene-chip {
-  margin: 1.7rem 0 0.9rem;
-  padding: 0.1rem 0 0.15rem 0.9rem;
-  border-left: 2px solid var(--accent);
-  font-family: var(--font-ui);
-  scroll-margin-top: calc(var(--header-h, 92px) + 3rem);
+/* Reading Mode scene page header (John's directive, 2026-07-18: paginate by
+   scene, not by whole book): position indicator + day/place/draft meta + the
+   one-line Landmark summary, introducing the scene's prose below it. Replaces
+   the old marginal scene chips. Contrast: --text-mid position/day/place on
+   ground clears AA in both themes (same pairing as .scene-item-lines/day
+   below); --text summary is the reader's primary-text contrast. */
+.reading-scene-head {
+  margin: 0 0 1.6rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  /* scrollReadingToTop's scrollIntoView (posture entry + every scene nav)
+     lands the header just below the sticky header/controls strip, not
+     under them — same idiom as .greek-line's scroll-margin-top above. */
+  scroll-margin-top: calc(var(--header-h, 92px) + 1.5rem);
 }
-.scene-lines {
-  display: block;
-  font-size: 0.7rem;
+.reading-scene-pos {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: var(--accent);
+  color: var(--text-mid);
 }
-.scene-place {
-  display: block;
-  margin-top: 0.15rem;
+.reading-scene-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.35rem;
+}
+.reading-scene-day,
+.reading-scene-place {
+  font-family: var(--font-ui);
   font-size: 0.72rem;
+  font-weight: 700;
   font-variant: small-caps;
   letter-spacing: 0.05em;
-  font-weight: 700;
   color: var(--accent);
 }
-.scene-summary {
-  margin: 0.25rem 0 0;
-  font-size: 0.9rem;
-  line-height: 1.4;
+.reading-scene-summary {
+  margin: 0.6rem 0 0;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  line-height: 1.45;
   color: var(--text);
-}
-.scene-people {
-  margin: 0.25rem 0 0;
-  font-size: 0.78rem;
-  font-style: italic;
-  color: var(--text-mid);
 }
 /* Draft badge: a discreet tiny uppercase outline chip in --draft (the
    slate-blue tone reserved for the apparatus-honesty draft marker; AA on
    both grounds — 6.81/5.95 light, 8.09/7.52 dark). Shown on AI-drafted
-   apparatus that John hasn't yet flipped to reviewed: on each Reading-Mode
-   scene chip and on the cartouche. */
+   apparatus that John hasn't yet flipped to reviewed: on the Reading Mode
+   scene header, the scene rail, and the cartouche. */
 .draft-badge {
   display: inline-block;
   vertical-align: middle;
@@ -3664,31 +3665,40 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   color: var(--draft);
   white-space: nowrap;
 }
-.scene-chip .draft-badge { margin-top: 0.2rem; }
 .book-plate-titles .draft-badge { margin-top: 0.35rem; }
-/* Wide margin layout: chips are pulled into the left margin and stacked at
-   their own scene's start line. A chapterless book (the common case — see
-   Reader.svelte's splitSegment `!starts.length` branch) renders as ONE
-   continuous flow block, so every chip shares the same document-order
-   insertion point; float layout (the previous approach here) collapsed them
-   all onto one rect instead of spreading them down the margin (Wave A #1,
-   2026-07-17). Each chip is positioned absolutely, with `top` computed in
-   JS (Reader.svelte's positionSceneChips) from the nearest Bekker tick at or
-   before the scene's line — the same anchor precision (~5 lines) the ticks
-   themselves already carry. */
-@media (min-width: 1400px) {
-  .reading-col { position: relative; }
-  .scene-chip {
-    position: absolute;
-    top: 0;
-    left: -13rem;
-    width: 11rem;
-    padding: 0 0.9rem 0 0;
-    border-left: none;
-    border-right: 2px solid var(--accent);
-    text-align: right;
-  }
+
+/* Reading Mode's prev/next scene controls, bottom of the page. Space-between
+   side by side at any width tested (390px included) — `flex-wrap: wrap` +
+   `flex: 1 1 auto` on the buttons is the only phone accommodation needed. */
+.reading-scene-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 2.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
 }
+.reading-scene-prev,
+.reading-scene-next {
+  flex: 1 1 auto;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--col-bg);
+  color: var(--text-mid);
+}
+.reading-scene-next { text-align: right; }
+.reading-scene-prev:hover:not(:disabled),
+.reading-scene-next:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.reading-scene-prev:focus-visible,
+.reading-scene-next:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.reading-scene-prev:disabled,
+.reading-scene-next:disabled { opacity: 0.4; cursor: default; }
 
 /* ── DICES speech rails (Settings ▸ Speeches, off by default) ────────────────
    Chart-Room restraint: a hairline rail in the Greek gutter, not text
