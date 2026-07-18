@@ -377,6 +377,13 @@
 
 <style>
   .mp-root { display: flex; flex-direction: column; gap: 0.9rem; }
+  /* .draft-badge (global.css) is display:inline-block, sized to its text —
+     but as a direct flex item of .mp-root's column flex it stretched to the
+     full row width by the default align-items:stretch, painting as an empty
+     bordered bar instead of the compact chip every other surface uses
+     (Wave A #9, 2026-07-17). Opt this one item out of stretch; markup and
+     the shared .draft-badge rule are unchanged. */
+  .mp-root > .draft-badge { align-self: flex-start; }
 
   .mp-source-note { margin: 0; font-size: 0.82rem; color: var(--text-mid); font-style: italic; max-width: 62ch; }
 

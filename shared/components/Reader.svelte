@@ -847,6 +847,7 @@
   function onResize() {
     clearTimeout(resizeTimer);
     computeDocked();
+    positionSceneChips(); // re-anchor Reading Mode's scene chips across the 1400px breakpoint
     resizeTimer = setTimeout(() => { if (spyArmed) setupScrollSpy(); }, 200);
   }
 
@@ -1655,6 +1656,42 @@
     if (activeTokEl && activeTokEl.isConnected) activeTokEl.classList.add('active');
   }
   afterUpdate(refreshTokenDecorations);
+
+  // Reading Mode's marginal scene chips (sceneChip snippet) anchor to their
+  // scene's start line. A chapterless book renders as ONE continuous flow
+  // block (splitSegment's `!starts.length` branch), so every chip for the
+  // book shares the same DOM insertion point — there's no per-line anchor to
+  // lay them out against declaratively. Instead, position each one from the
+  // nearest already-rendered Bekker tick (.bk-num, real ticks every 5 lines —
+  // see splitSegment's allTicks) at or before the scene's line: the same
+  // approximate precision the ticks themselves carry. Below the margin
+  // breakpoint chips render inline in normal flow (global.css), so this is a
+  // no-op there. Wave A #1, 2026-07-17 (was: floated chips with a large
+  // negative margin, which collapsed onto one rect instead of stacking).
+  function positionSceneChips() {
+    if (!reading || typeof window === 'undefined' || !readerBodyEl) return;
+    const col = readerBodyEl.querySelector<HTMLElement>('.reading-col');
+    if (!col) return;
+    const chips = col.querySelectorAll<HTMLElement>('.scene-chip');
+    if (!chips.length) return;
+    if (!window.matchMedia('(min-width: 1400px)').matches) {
+      chips.forEach((c) => { c.style.top = ''; });
+      return;
+    }
+    const ticks = Array.from(col.querySelectorAll<HTMLElement>('.bk-num'))
+      .map((el) => ({ n: Number(el.textContent), top: el.getBoundingClientRect().top }))
+      .filter((t) => Number.isFinite(t.n));
+    if (!ticks.length) return;
+    const colTop = col.getBoundingClientRect().top;
+    chips.forEach((chip) => {
+      const line = Number(chip.dataset.line);
+      if (!Number.isFinite(line)) return;
+      let best = ticks[0];
+      for (const t of ticks) { if (t.n <= line) best = t; else break; }
+      chip.style.top = `${best.top - colTop}px`;
+    });
+  }
+  afterUpdate(positionSceneChips);
 
   function onTokenKey(e: KeyboardEvent, cur: HTMLElement) {
     if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {

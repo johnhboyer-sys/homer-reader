@@ -191,6 +191,29 @@ body {
      snapped instantly — a half-animated, janky switch. The toggle now crossfades
      the WHOLE page uniformly via the View Transitions API (see ThemeToggle.astro);
      browsers without it get a clean instant flip. */
+  /* Every native radio/checkbox/range/progress control site-wide (Search's
+     filter radios and checkboxes, the Reading-mode range sliders, etc.) tints
+     with the wayfinding accent instead of the browser's default blue — an
+     inherited property, so this one declaration covers every unstyled native
+     control in both themes without touching each call site (Wave A #5,
+     2026-07-17). Components that already set their own accent-color (the
+     Settings range sliders) are unaffected — same value, explicit beats
+     inherited either way. */
+  accent-color: var(--accent);
+}
+
+/* Baseline for any <select> that doesn't carry its own picker styling
+   (existing pickers like .rc-trans-select / .filter-field select already
+   override this with a more specific selector) — font, color and background
+   from tokens instead of the OS default, in both themes (Wave A #5). */
+select {
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--col-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
 }
 
 .status-tag {
@@ -3407,8 +3430,14 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   color: var(--text);
 }
 /* No Bekker gutter numbers and no gutter indent in Reading Mode — "nothing
-   beyond quiet line-range ticks at scene boundaries" (the scene chips). */
-.reader-body.reading-mode .reading-col .bk-num { display: none; }
+   beyond quiet line-range ticks at scene boundaries" (the scene chips).
+   visibility:hidden, not display:none: the ticks stay in normal layout
+   (position:absolute already took them out of flow, so hiding costs no
+   space either way) so Reader.svelte's positionSceneChips can still read
+   their real getBoundingClientRect() to anchor each scene chip — a
+   display:none tick reports an all-zero rect, which is what collapsed every
+   chip onto one point (Wave A #1, 2026-07-17). */
+.reader-body.reading-mode .reading-col .bk-num { visibility: hidden; }
 .reader-body.reading-mode .reading-col .ross-prose { padding-left: 0; }
 .reading-col .reading-row + .reading-row { margin-top: 0.9rem; }
 /* Trim Scholar-only chrome the single column doesn't use. The translation
@@ -3479,13 +3508,23 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 }
 .scene-chip .draft-badge { margin-top: 0.2rem; }
 .book-plate-titles .draft-badge { margin-top: 0.35rem; }
+/* Wide margin layout: chips are pulled into the left margin and stacked at
+   their own scene's start line. A chapterless book (the common case — see
+   Reader.svelte's splitSegment `!starts.length` branch) renders as ONE
+   continuous flow block, so every chip shares the same document-order
+   insertion point; float layout (the previous approach here) collapsed them
+   all onto one rect instead of spreading them down the margin (Wave A #1,
+   2026-07-17). Each chip is positioned absolutely, with `top` computed in
+   JS (Reader.svelte's positionSceneChips) from the nearest Bekker tick at or
+   before the scene's line — the same anchor precision (~5 lines) the ticks
+   themselves already carry. */
 @media (min-width: 1400px) {
   .reading-col { position: relative; }
   .scene-chip {
-    float: left;
+    position: absolute;
+    top: 0;
+    left: -13rem;
     width: 11rem;
-    margin-left: -13rem;
-    margin-top: 0.1rem;
     padding: 0 0.9rem 0 0;
     border-left: none;
     border-right: 2px solid var(--accent);

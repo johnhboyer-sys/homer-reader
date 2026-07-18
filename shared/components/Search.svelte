@@ -419,12 +419,12 @@
   ];
 
   const BETA_EXAMPLES: { beta: string; greek: string }[] = [
-    { beta: 'a)reth/', greek: 'ἀρετή' },
-    { beta: 'lo/gos', greek: 'λόγος' },
-    { beta: 'yuxh/', greek: 'ψυχή' },
-    { beta: 'h(donh/', greek: 'ἡδονή' },
-    { beta: 'eu)daimoni/a', greek: 'εὐδαιμονία' },
-    { beta: 'fron*', greek: 'φρόν… (wildcard)' },
+    { beta: 'mh=nis', greek: 'μῆνις' },
+    { beta: 'no/stos', greek: 'νόστος' },
+    { beta: 'cei=nos', greek: 'ξεῖνος' },
+    { beta: 'a)/nac', greek: 'ἄναξ' },
+    { beta: 'polu/tlas', greek: 'πολύτλας' },
+    { beta: 'polutrop*', greek: 'πολύτροπ… (wildcard)' },
   ];
 
   async function openHelp(e?: MouseEvent) {
@@ -947,7 +947,7 @@
         class="query-input greek-input"
         lang="grc"
         type="search"
-        placeholder="τέχνη or texnh, fronhsis*, …"
+        placeholder="μῆνις or mhnis, polutrop*, …"
         bind:value={grkQuery}
         on:keydown={onEnter}
         autocomplete="off"
@@ -984,7 +984,7 @@
         id="eng-input"
         class="query-input"
         type="search"
-        placeholder="virtue, happiness, …"
+        placeholder="wine-dark sea, rosy-fingered dawn, …"
         bind:value={engQuery}
         on:keydown={onEnter}
         autocomplete="off"
@@ -1078,7 +1078,7 @@
 
     <p class="search-hint">
       Type Greek in Greek letters or <button type="button" class="link-btn" on:click={openHelp}>Beta Code</button>
-      (<code>texnh</code> = τέχνη). Use <code>*</code> for a wildcard: <code>fron*</code> matches φρόνησις, φρόνιμος, etc.
+      (<code>mhnis</code> = μῆνις). Use <code>*</code> for a wildcard: <code>polutrop*</code> matches πολύτροπος, πολύτροπον, etc.
     </p>
   </form>
 
