@@ -360,6 +360,17 @@ def _stage_speeches(manifest):
             print(f"    {msg}")
 
 
+def _stage_scansion(manifest):
+    from . import apparatus_scansion
+
+    result = apparatus_scansion.run(manifest)
+    total = result["total_lines"]
+    print(
+        f"scansion: {result['work']}: lines={total} high={result['high']} "
+        f"ambiguous={result['ambiguous']} unresolved={result['unresolved']}"
+    )
+
+
 def _stage_repetitions(manifest):
     # Cross-epic: discovers every work from manifests/*.yaml itself, so the
     # (per-CLI-invocation) `manifest` argument is unused here but kept for a
@@ -386,6 +397,7 @@ _STAGES = {
     "apparatus": _stage_apparatus,
     "epithets": _stage_epithets,
     "speeches": _stage_speeches,
+    "scansion": _stage_scansion,
     "repetitions": _stage_repetitions,
 }
 

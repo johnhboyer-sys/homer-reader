@@ -838,6 +838,7 @@ def _validate_apparatus(
     _validate_apparatus_scenes_coverage(manifest, loaded, problems)
     _validate_apparatus_speeches_emitted(manifest, data_dir, problems)
     _validate_apparatus_epithets_emitted(manifest, data_dir, problems)
+    _validate_apparatus_scansion_emitted(manifest, data_dir, problems)
 
 
 def _validate_apparatus_scenes_coverage(
@@ -951,6 +952,27 @@ def _validate_apparatus_epithets_emitted(
         json.loads(epithets_path.read_text(encoding="utf-8"))
     except Exception as exc:
         problems.append((manifest.work_id, "epithets.json", f"invalid JSON: {exc}"))
+
+
+def _validate_apparatus_scansion_emitted(
+    manifest: WorkManifest,
+    data_dir: Path,
+    problems: list[Problem],
+) -> None:
+    """The 'scansion' pipeline stage (apparatus_scansion.py) is registered for
+    every verse-line work and always emits build/dist/<work>/scansion.json —
+    absence means the stage silently failed or was skipped."""
+    scansion_path = data_dir / manifest.work_id / "scansion.json"
+    if not scansion_path.exists():
+        problems.append(
+            (manifest.work_id, "scansion.json",
+             "the scansion pipeline stage is registered but scansion.json was not emitted")
+        )
+        return
+    try:
+        json.loads(scansion_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        problems.append((manifest.work_id, "scansion.json", f"invalid JSON: {exc}"))
 
 
 def _validate_global_apparatus_emits(
