@@ -99,6 +99,9 @@ non-negotiable.
   other's dist mid-verification. Lanes verifying against dist must
   build+verify without another build lane running, or verify via dev
   server instead.
+- Browser-tooling gotcha (2026-07-18): the Chrome-MCP `resize_window` can
+  silently lock at ~800px wide mid-session — for mobile-viewport captures
+  use the Playwright MCP's `browser_resize` (dedicated tab, as ever).
 - Verification gotcha (2026-07-17, cost a full Opus diagnostic lane):
   John often has the sibling classical-philosophy-reader dev server
   holding port 4321, so Homer's `astro preview` silently bumps to
