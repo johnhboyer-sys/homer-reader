@@ -32,6 +32,95 @@ export interface SceneRange {
   endLine?: number;
 }
 
+// The Reader's inline prose representation. `para: true` is a real TEI <p>
+// boundary; ordinary tick markers have `text: null` and a numeric `n`.
+export interface SceneFlowPart {
+  text: string | null;
+  n: number | null;
+  real: boolean;
+  para?: boolean;
+}
+
+export interface SceneOTable {
+  n: number;
+  rows: string[][];
+}
+
+export interface SceneFlowChunk {
+  flowParts: SceneFlowPart[];
+  otables: Record<string, SceneOTable[]>;
+}
+
+const DASH_CHARS = '-–—';
+
+function needsJoinSpace(previous: string, next: string): boolean {
+  return !!previous
+    && !!next
+    && !/\s$/.test(previous)
+    && !/^\s/.test(next)
+    && !DASH_CHARS.includes(previous.at(-1) ?? '')
+    && !DASH_CHARS.includes(next[0]);
+}
+
+function hasParagraphStart(parts: SceneFlowPart[]): boolean {
+  for (const part of parts) {
+    if (part.para || part.text === '\n') return true;
+    if (part.text !== null) return false;
+  }
+  return false;
+}
+
+function isTextRun(part: SceneFlowPart | undefined): part is SceneFlowPart & { text: string } {
+  return !!part && part.text !== null && part.text !== '\n';
+}
+
+// Combine every whole tick-chunk selected for a scene into one inline prose
+// flow. Chunk borders are alignment implementation details, not paragraph
+// boundaries: only the explicit TEI paragraph part gets to introduce a break.
+// Tables are carried forward from every source block; the same table object is
+// shared by a block's tick chunks, so retain it once to avoid duplicate output.
+export function mergeSceneFlowChunks(chunks: SceneFlowChunk[]): SceneFlowChunk {
+  const flowParts: SceneFlowPart[] = [];
+  const otables: Record<string, SceneOTable[]> = {};
+  const seenTables = new Set<SceneOTable>();
+
+  for (const chunk of chunks) {
+    for (const [transId, tables] of Object.entries(chunk.otables)) {
+      const out = otables[transId] ??= [];
+      for (const table of tables) {
+        if (!seenTables.has(table)) {
+          seenTables.add(table);
+          out.push(table);
+        }
+      }
+    }
+
+    const incoming = chunk.flowParts.map((part) => ({ ...part }));
+    if (flowParts.length && incoming.length && !hasParagraphStart(incoming)) {
+      let previousIndex = flowParts.length - 1;
+      while (previousIndex >= 0 && flowParts[previousIndex].text === null) previousIndex -= 1;
+      const nextIndex = incoming.findIndex(isTextRun);
+      const previous = flowParts[previousIndex];
+      const next = incoming[nextIndex];
+      if (isTextRun(previous) && isTextRun(next)) {
+        const joiner = needsJoinSpace(previous.text, next.text) ? ' ' : '';
+        if (previousIndex === flowParts.length - 1 && nextIndex === 0) {
+          // No tick/paragraph marker lies between these runs, so coalesce them.
+          previous.text += joiner + next.text;
+          incoming.shift();
+        } else if (joiner) {
+          // Keep a tick at its exact text offset, but supply the same visible
+          // separator when it split what is logically one prose run.
+          previous.text += joiner;
+        }
+      }
+    }
+    flowParts.push(...incoming);
+  }
+
+  return { flowParts, otables };
+}
+
 // Indices into `chunks` (same order) of every chunk that overlaps `scene`'s
 // line range. `chunks` is assumed sorted in reading order and to cover the
 // book contiguously (each chunk's endLine is the line immediately before the

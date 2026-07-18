@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chunksForScene, type TickChunkRange } from '../lib/scene-paging';
+import { chunksForScene, mergeSceneFlowChunks, type TickChunkRange } from '../lib/scene-paging';
 
 // A run of ~5-line tick chunks (as Reader.svelte derives from
 // Segment.english.bekker), covering lines 1-49 with NO gap — the common case.
@@ -77,5 +77,83 @@ describe('chunksForScene', () => {
 
   it('returns an empty array against an empty chunk list', () => {
     expect(chunksForScene([], { startLine: 1, endLine: 5 })).toEqual([]);
+  });
+});
+
+describe('mergeSceneFlowChunks', () => {
+  it('joins a mid-paragraph scene seam into one continuous prose part', () => {
+    const merged = mergeSceneFlowChunks([
+      {
+        flowParts: [{ text: 'in Argos, far from her native land,', n: null, real: false }],
+        otables: {},
+      },
+      {
+        flowParts: [{ text: 'as she walks to and fro before the loom', n: null, real: false }],
+        otables: {},
+      },
+    ]);
+
+    expect(merged.flowParts).toEqual([
+      { text: 'in Argos, far from her native land, as she walks to and fro before the loom', n: null, real: false },
+    ]);
+  });
+
+  it('keeps a TEI paragraph marker as a real prose boundary', () => {
+    const merged = mergeSceneFlowChunks([
+      { flowParts: [{ text: 'But go, do not anger me.', n: null, real: false }], otables: {} },
+      {
+        flowParts: [
+          { text: null, n: null, real: false, para: true },
+          { text: 'So he spoke, and the old man was seized with fear.', n: null, real: false },
+        ],
+        otables: {},
+      },
+    ]);
+
+    expect(merged.flowParts).toEqual([
+      { text: 'But go, do not anger me.', n: null, real: false },
+      { text: null, n: null, real: false, para: true },
+      { text: 'So he spoke, and the old man was seized with fear.', n: null, real: false },
+    ]);
+  });
+
+  it('preserves footnote text and tables from every selected chunk', () => {
+    const merged = mergeSceneFlowChunks([
+      {
+        flowParts: [{ text: 'First[^1].', n: null, real: false }],
+        otables: { third: [{ n: 25, rows: [['first table']] }] },
+      },
+      {
+        flowParts: [{ text: 'Second[^2].', n: null, real: false }],
+        otables: { third: [{ n: 30, rows: [['second table']] }] },
+      },
+    ]);
+
+    expect(merged.flowParts[0].text).toBe('First[^1]. Second[^2].');
+    expect(merged.otables).toEqual({
+      third: [
+        { n: 25, rows: [['first table']] },
+        { n: 30, rows: [['second table']] },
+      ],
+    });
+  });
+
+  it('does not add a second space or separate text adjoining a dash', () => {
+    const spaced = mergeSceneFlowChunks([
+      { flowParts: [{ text: 'already ', n: null, real: false }], otables: {} },
+      { flowParts: [{ text: 'spaced', n: null, real: false }], otables: {} },
+    ]);
+    const dashed = mergeSceneFlowChunks([
+      { flowParts: [{ text: 'the eye—', n: null, real: false }], otables: {} },
+      { flowParts: [{ text: 'even the godlike Polyphemus', n: null, real: false }], otables: {} },
+    ]);
+    const leadingDash = mergeSceneFlowChunks([
+      { flowParts: [{ text: 'he answered', n: null, real: false }], otables: {} },
+      { flowParts: [{ text: '—without hesitation', n: null, real: false }], otables: {} },
+    ]);
+
+    expect(spaced.flowParts[0].text).toBe('already spaced');
+    expect(dashed.flowParts[0].text).toBe('the eye—even the godlike Polyphemus');
+    expect(leadingDash.flowParts[0].text).toBe('he answered—without hesitation');
   });
 });

@@ -15,7 +15,7 @@
   import { highlightPrefixMatches } from '../lib/text';
   import { getWork, visibleTranslations, bookLabel as workBookLabel, HOUSE_AUTHOR, type TranslationRef } from '../lib/works';
   import { touchRecent } from '../lib/resume';
-  import { chunksForScene, type TickChunkRange } from '../lib/scene-paging';
+  import { chunksForScene, mergeSceneFlowChunks, type SceneFlowChunk, type SceneFlowPart, type TickChunkRange } from '../lib/scene-paging';
   import WordPopup from './WordPopup.svelte';
   import FootnotePopup from './FootnotePopup.svelte';
 
@@ -462,7 +462,7 @@
   // — the same tick-chunker the phone "Both" view already relies on — passed
   // THIS translation's own flow (not always block.flow/Murray) so paging a
   // non-primary translation (Butler/Pope) chunks by ITS OWN ticks.
-  interface ReadingChunk extends TickChunkRange { flowParts: FlowPart[]; otables: Record<string, { n: number; rows: string[][] }[]>; }
+  interface ReadingChunk extends TickChunkRange, SceneFlowChunk {}
   $: readingChunks = ((): ReadingChunk[] => {
     const out: ReadingChunk[] = [];
     for (const { blocks } of enrichedSegments) {
@@ -489,6 +489,10 @@
   $: currentSceneChunks = scenes.length && readingChunks.length
     ? chunksForScene(readingChunks, scenes[clampedSceneIndex]).map((i) => readingChunks[i])
     : [];
+  // Alignment chunks are whole-scene inclusions, but their borders are not
+  // prose blocks. Merge their inline flow before the Reading Mode render;
+  // explicit `para` parts remain the only paragraph boundaries.
+  $: currentSceneFlow = mergeSceneFlowChunks(currentSceneChunks);
 
   // Reads `readingSceneIndex` directly (clamping inline) rather than the
   // reactive `clampedSceneIndex` — a `$:` recompute is batched, so a caller
@@ -1285,13 +1289,14 @@
   // flowParts). A GreekLine may be a partial slice of a real line (cont = its
   // tail half, after a mid-line chapter split): it suppresses the repeated id.
   type RLine = GreekLine & { cont?: boolean };
-  interface Block { chapter: string | null; bekker: string; lines: RLine[]; flow: FlowPart[]; oflows: Record<string, FlowPart[]>; otables: Record<string, { n: number; rows: string[][] }[]>; sidenotes: number[]; figs: number[]; }
+  type OTables = SceneFlowChunk['otables'];
+  interface Block { chapter: string | null; bekker: string; lines: RLine[]; flow: FlowPart[]; oflows: Record<string, FlowPart[]>; otables: OTables; sidenotes: number[]; figs: number[]; }
   // EnrichedBlock annotates each block with the chapter it belongs to (tracking
   // across segments so continuation blocks know their chapter too).
   interface EnrichedBlock extends Block { currentChapter: string; }
   // A flowing-prose part: either a text run (n null) or a Bekker margin marker
   // (text null) placed at an exact mid-sentence offset — no row break.
-  interface FlowPart { text: string | null; n: number | null; real: boolean; para?: boolean; }
+  type FlowPart = SceneFlowPart;
 
   // The char position where token `w` begins in a line's text (0 at the start,
   // text.length at/after the end), so a cut preserves the verbatim
@@ -1612,7 +1617,8 @@
   // aligned to that same tick span — never a fabricated per-verse split.
   // A tick-shaped FlowPart, as embedded inline in block.flow by flowParts()
   // (text: null, n: the Greek line it anchors, real: milestone vs interpolated).
-  const isTickPart = (p: FlowPart): boolean => p.text === null && p.n !== null && !p.para;
+  type TickFlowPart = FlowPart & { text: null; n: number; para?: false | undefined };
+  const isTickPart = (p: FlowPart): p is TickFlowPart => p.text === null && p.n !== null && !p.para;
   // Split a block's full English flow into one run per tick, each run LED by
   // its own tick marker (so flowProse's existing attachTicks/bk-num rendering
   // works unmodified on a slice exactly as it does on the whole flow). Any
@@ -2335,7 +2341,7 @@
        markup as the full block, byte-identical to what the full flow
        renders. `parts` is `block.flow`/`block.oflows[id]` on desktop; a
        group's tick-bounded slice on the phone-stacked layout. -->
-  {#snippet flowProse(parts: FlowPart[], transId: string, otables: Record<string, { n: number; rows: string[][] }[]>)}
+  {#snippet flowProse(parts: FlowPart[], transId: string, otables: OTables)}
     {#if fnTransIds.has(transId)}
       <div
         class="ross-prose"
@@ -2633,9 +2639,7 @@
       {:else if scenes.length}
         {@const s = scenes[clampedSceneIndex]}
         {@render readingSceneHead(s, clampedSceneIndex, scenes.length)}
-        {#each currentSceneChunks as chunk, ci (ci)}
-          {@render flowProse(chunk.flowParts, readingTransId, chunk.otables)}
-        {/each}
+        {@render flowProse(currentSceneFlow.flowParts, readingTransId, currentSceneFlow.otables)}
         <nav class="reading-scene-nav" aria-label="Scene navigation">
           <button type="button" class="reading-scene-prev" on:click={prevScene} disabled={clampedSceneIndex === 0}>← Previous scene</button>
           <button type="button" class="reading-scene-next" on:click={nextScene} disabled={clampedSceneIndex === scenes.length - 1}>Next scene →</button>
