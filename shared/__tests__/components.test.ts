@@ -299,6 +299,39 @@ describe('Reader.svelte — lexicon presentation breakpoint', () => {
     expect(sidebar).toHaveAttribute('role', 'dialog');
     expect(document.querySelector('.popup-backdrop')).not.toBeNull();
   });
+
+  // Settings and the docked lexicon rail are both right-docked, fixed
+  // full-height panels (.settings-sidebar / .word-sidebar) — open together
+  // they stack, and the lexicon's higher z-index intercepts clicks meant for
+  // Settings (reported: the Settings checkbox is unclickable until the
+  // lexicon is closed). Mutually exclusive: opening either closes the other.
+  it('closes the docked lexicon when Settings opens, and vice versa', async () => {
+    setMatchMedia((q) => q.includes('min-width: 1100px'));
+    window.history.replaceState(null, '', '/EN/book/1');
+    render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+
+    const tok = await screen.findByText('λόγος');
+    await fireEvent.click(tok);
+    expect(document.querySelector('.word-sidebar:not([inert])')).not.toBeNull();
+
+    // Opening Settings (the header toggle dispatches this CustomEvent — see
+    // ReaderShell.astro's settings-toggle wiring) closes the open lexicon: the
+    // component state (`popup`) goes back to null immediately. The lexicon's
+    // outro is a Svelte transition (WordPopup's `transition:fly`) that may
+    // still be animating the node out of the DOM, but Svelte marks an
+    // outroing node `inert` right away — it can no longer receive focus or
+    // intercept clicks, which is exactly what the reported bug (the Settings
+    // checkbox being unclickable) depended on. So the real assertion is "no
+    // non-inert .word-sidebar remains", not "the node is gone".
+    await fireEvent(window, new CustomEvent('toggle-settings'));
+    expect(document.querySelector('.settings-sidebar')).toHaveClass('open');
+    expect(document.querySelector('.word-sidebar:not([inert])')).toBeNull();
+
+    // Re-opening a word lookup while Settings is open closes Settings back.
+    await fireEvent.click(tok);
+    expect(document.querySelector('.word-sidebar:not([inert])')).not.toBeNull();
+    expect(document.querySelector('.settings-sidebar')).not.toHaveClass('open');
+  });
 });
 
 describe('Reader.svelte — verse-line (epic) rendering', () => {

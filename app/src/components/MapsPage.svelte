@@ -43,7 +43,26 @@
     { id: 'greece', label: 'Greece' },
   ] as const;
   type TabId = (typeof TABS)[number]['id'];
-  let activeTab: TabId = 'ships';
+
+  // Restore the active tab from `?map=<id>`, so a shared/reloaded link (e.g.
+  // /maps/?map=wanderings) lands on the right panel instead of always the
+  // Ships default. An invalid/unknown value falls back to the default tab
+  // silently (no error UI — this is a soft deep-link, not a form).
+  function readMapParam(): TabId {
+    const raw = new URLSearchParams(window.location.search).get('map');
+    return TABS.some((t) => t.id === raw) ? (raw as TabId) : 'ships';
+  }
+  let activeTab: TabId = readMapParam();
+
+  // Persist the active tab to `?map=` on every switch — same replaceState
+  // idiom as setStoryMode below — so the URL a reader copies/reloads always
+  // reflects what's on screen.
+  function setActiveTab(id: TabId) {
+    activeTab = id;
+    const url = new URL(window.location.href);
+    url.searchParams.set('map', id);
+    window.history.replaceState(window.history.state, '', url);
+  }
 
   const SHIP_SUBTABS = [
     { id: 'achaean', label: 'Achaeans' },
@@ -153,7 +172,7 @@
     class="mp-tabs"
     role="tablist"
     aria-label="Maps"
-    on:keydown={(e) => onTabKeydown(e, TABS.map((t) => t.id), () => activeTab, (v) => (activeTab = v))}
+    on:keydown={(e) => onTabKeydown(e, TABS.map((t) => t.id), () => activeTab, setActiveTab)}
   >
     {#each TABS as t}
       <button
@@ -165,7 +184,7 @@
         aria-controls="mp-panel-{t.id}"
         tabindex={activeTab === t.id ? 0 : -1}
         class="mp-tab"
-        on:click={() => (activeTab = t.id)}
+        on:click={() => setActiveTab(t.id)}
       >{t.label}</button>
     {/each}
   </div>

@@ -332,6 +332,12 @@
     settingsReturnFocus = document.activeElement as HTMLElement | null;
     settingsOpen = true;
     window.dispatchEvent(new CustomEvent('settings-state', { detail: { open: true } }));
+    // Settings and the word-lookup panel are both right-docked, fixed
+    // full-height panels (.settings-sidebar / .word-sidebar in global.css);
+    // open together they stack, and the lexicon's higher z-index (101 vs 50)
+    // intercepts clicks meant for Settings. Mutually exclusive, like every
+    // other drawer pair in this reader — opening one closes the other.
+    if (popup) closePopup();
     // Wait for the drawer to un-inert, then focus its close button.
     tick().then(() => (settingsEl?.querySelector('.settings-close') as HTMLElement | null)?.focus());
   }
@@ -1686,6 +1692,10 @@
     const token = tokenFromEl(el);
     if (!token.k) return;
     const rect = el.getBoundingClientRect();
+    // Settings and the word-lookup panel are mutually exclusive right-docked
+    // panels (see the matching comment in openSettings) — opening a lookup
+    // while Settings is open closes Settings first.
+    if (settingsOpen) closeSettings();
     // Only the first open reflows the body (adds .word-open); switching words
     // while the sidebar is already open changes nothing about the layout.
     if (!popup) pinAcrossReflow(el);

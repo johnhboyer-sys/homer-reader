@@ -65,4 +65,45 @@ describe('CommandPalette', () => {
     expect(onNavigate).toHaveBeenCalledWith('/odyssey/book/9?loc=9.366');
     trigger.remove();
   });
+
+  it('accepts the work-prefixed citation its own placeholder advertises, and cross-work jumps', async () => {
+    const trigger = document.body.appendChild(document.createElement('button'));
+    const onNavigate = vi.fn();
+    render(CommandPalette, {
+      props: { work: 'odyssey', bookNum: 9, onNavigate, scenes: [] },
+    });
+
+    let input = await openFrom(trigger);
+
+    // The prefixed form the "Go to verse citation" placeholder advertises
+    // ("e.g. Od. 9.366") must resolve here too — same grammar, not "No matches."
+    await fireEvent.input(input, { target: { value: 'Od. 9.366' } });
+    expect(screen.getByText('Odyssey · Book 9, line 366')).toBeInTheDocument();
+    await fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onNavigate).toHaveBeenCalledWith('/odyssey/book/9?loc=9.366');
+
+    // Enter navigates AND closes the palette — reopen for the next query.
+    input = await openFrom(trigger);
+
+    // A prefix naming the OTHER work resolves a cross-work jump, even though
+    // this palette instance is mounted for the Odyssey.
+    await fireEvent.input(input, { target: { value: 'Il. 1.1' } });
+    expect(screen.getByText('Iliad · Book 1, line 1')).toBeInTheDocument();
+    await fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onNavigate).toHaveBeenCalledWith('/iliad/book/1?loc=1.1');
+
+    trigger.remove();
+  });
+
+  it('rejects an invalid book/line in a prefixed citation', async () => {
+    const trigger = document.body.appendChild(document.createElement('button'));
+    render(CommandPalette, {
+      props: { work: 'odyssey', bookNum: 9, onNavigate: vi.fn(), scenes: [] },
+    });
+
+    const input = await openFrom(trigger);
+    await fireEvent.input(input, { target: { value: 'Il. 99.1' } });
+    expect(screen.queryByText(/Iliad · Book 99/)).not.toBeInTheDocument();
+    trigger.remove();
+  });
 });

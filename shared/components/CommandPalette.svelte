@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from 'svelte';
   import { parseLocation, type Scene } from '../lib/data';
-  import { formatLocValue } from '../lib/citation';
+  import { formatLocValue, parseVerseCitation } from '../lib/citation';
   import { getWork, workPath } from '../lib/works';
   import { rankBooks } from '../lib/palette';
 
@@ -66,21 +66,44 @@
     const trimmed = raw.trim();
     const out: Item[] = [];
     const currentWork = work ? getWork(work) : undefined;
-    const citation = work ? parseLocation(work, trimmed) : null;
 
-    // Citation parsing belongs to data.ts/the work's citation scheme. For Homer,
-    // the parsed column is the book number; range-check it before offering a URL.
-    if (work && currentWork && citation) {
-      const targetBook = Number(citation.column);
-      if (Number.isInteger(targetBook) && targetBook >= 1 && targetBook <= currentWork.books) {
+    // Citations resolve two ways. Verse-line works (Homer) accept an optional
+    // work prefix — "Od. 9.366", "Il. 1.1" — that can name a DIFFERENT work
+    // than the one currently open, enabling a cross-work jump straight from
+    // the palette; a bare "9.366" still resolves in the current work's
+    // context (parseVerseCitation, shared/lib/citation.ts). Any other scheme
+    // (inherited siblings: bekker/busse/stephanus) has no work-prefix
+    // grammar, so it falls back to the plain per-work parseLocation.
+    const verseCitation = parseVerseCitation(trimmed, work ?? undefined);
+    if (verseCitation) {
+      const targetWork = getWork(verseCitation.work);
+      if (targetWork) {
         out.push({
           kind: 'Citation',
-          label: citation.line != null
-            ? `${currentWork.title} · Book ${targetBook}, line ${citation.line}`
-            : `${currentWork.title} · Book ${targetBook}`,
+          label: verseCitation.line != null
+            ? `${targetWork.title} · Book ${verseCitation.book}, line ${verseCitation.line}`
+            : `${targetWork.title} · Book ${verseCitation.book}`,
           detail: 'Citation',
-          href: `${base}${workPath(work, targetBook)}?loc=${formatLocValue(work, citation.column, citation.line)}`,
+          href: `${base}${workPath(verseCitation.work, verseCitation.book)}?loc=${formatLocValue(verseCitation.work, String(verseCitation.book), verseCitation.line)}`,
         });
+      }
+    } else if (work && currentWork) {
+      const citation = parseLocation(work, trimmed);
+      // Citation parsing belongs to data.ts/the work's citation scheme. For a
+      // non-verse scheme, the parsed column is the book number; range-check
+      // it before offering a URL.
+      if (citation) {
+        const targetBook = Number(citation.column);
+        if (Number.isInteger(targetBook) && targetBook >= 1 && targetBook <= currentWork.books) {
+          out.push({
+            kind: 'Citation',
+            label: citation.line != null
+              ? `${currentWork.title} · Book ${targetBook}, line ${citation.line}`
+              : `${currentWork.title} · Book ${targetBook}`,
+            detail: 'Citation',
+            href: `${base}${workPath(work, targetBook)}?loc=${formatLocValue(work, citation.column, citation.line)}`,
+          });
+        }
       }
     }
 

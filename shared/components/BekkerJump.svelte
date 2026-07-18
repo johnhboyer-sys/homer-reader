@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { fetchColumns, resolveBekker, type ColumnRef } from '../lib/data';
-  import { schemeFor, formatLocValue } from '../lib/citation';
+  import { schemeFor, formatLocValue, parseVerseCitation } from '../lib/citation';
   import { getWork, workPath } from '../lib/works';
 
   export let work: string = 'EN';
@@ -52,10 +52,46 @@
 
   async function go() {
     error = '';
+
+    if (citeScheme.id === 'verse-line') {
+      // Verse-line (Homer) citations carry an optional work prefix —
+      // "Od. 9.366", "Il. 1.1" — that can name a DIFFERENT work than the one
+      // currently open; a bare "9.366" resolves in this box's own work
+      // context. parseVerseCitation (shared/lib/citation.ts) owns that
+      // grammar; the jump box's own placeholder ("e.g. Od. 9.366")
+      // advertises exactly this form, so it must accept it.
+      const vc = parseVerseCitation(value, work);
+      if (!vc) {
+        error = `Enter a ${citeScheme.label.toLowerCase()}, ${citeScheme.jumpPlaceholder}`;
+        return;
+      }
+      const targetCols = vc.work === work && columns
+        ? columns
+        : await fetchColumns(vc.work).catch(() => null);
+      if (!targetCols) { error = 'Could not load the index — try again'; return; }
+      const book = resolveBekker(targetCols, String(vc.book), vc.line);
+      if (book == null) {
+        const cite = vc.line != null ? `${vc.book}.${vc.line}` : String(vc.book);
+        error = `${cite} is not in the ${getWork(vc.work)?.title ?? 'text'}`;
+        return;
+      }
+      if (onJump) {
+        closeBox();
+        onJump(book, String(vc.book), vc.line);
+        return;
+      }
+      // Same-tab navigation — possibly to a DIFFERENT work than the one this
+      // box was mounted for (a cross-work jump).
+      window.location.href = `${import.meta.env.BASE_URL.replace(/\/$/, '')}${workPath(vc.work, book)}?loc=${formatLocValue(vc.work, String(vc.book), vc.line)}`;
+      return;
+    }
+
     // Scheme-aware: accepts a bare column ("34b") for any scheme, and a
     // column+line citation ("1097a15"/"1097a:15") only for a scheme with
     // user-facing lines — a stephanus work rejects "34b12" rather than
-    // silently truncating it (see shared/lib/citation.ts).
+    // silently truncating it (see shared/lib/citation.ts). No work-prefix
+    // grammar for these schemes (inherited siblings only carry one work per
+    // scheme's citation namespace).
     const ref = citeScheme.parseLocation(value);
     if (!ref) {
       error = `Enter a ${citeScheme.label.toLowerCase()}, ${citeScheme.jumpPlaceholder}`;
