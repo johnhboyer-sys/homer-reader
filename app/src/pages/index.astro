@@ -181,8 +181,8 @@ const supportHref = `${base}/support`;
         <span class="fire fire-6" aria-hidden="true"></span>
         <span class="fire fire-7" aria-hidden="true"></span>
         <span class="epic-kicker">24 books &middot; the war&rsquo;s tenth year</span>
-        <h2 class="epic-title">ΙΛΙΑΣ</h2>
-        <span class="epic-en">The Iliad</span>
+        <h2 class="epic-title">The Iliad</h2>
+        <span class="epic-greek-sub" lang="grc">ΙΛΙΑΣ</span>
         <p class="epic-epigraph">
           <span class="gk">{iliadGreekLine1}</span>
           <span class="gloss">Sing, goddess, the wrath of Peleus&rsquo; son Achilles</span>
@@ -200,8 +200,8 @@ const supportHref = `${base}/support`;
         <span class="star star-5 dusk-hide" aria-hidden="true"></span>
         <span class="star star-6 dusk-hide" aria-hidden="true"></span>
         <span class="epic-kicker">24 books &middot; ten years&rsquo; wandering</span>
-        <h2 class="epic-title">ΟΔΥΣΣΕΙΑ</h2>
-        <span class="epic-en">The Odyssey</span>
+        <h2 class="epic-title">The Odyssey</h2>
+        <span class="epic-greek-sub" lang="grc">ΟΔΥΣΣΕΙΑ</span>
         <p class="epic-epigraph">
           <span class="gk">{odysseyGreekLine1}</span>
           <span class="gloss">Tell me, Muse, of the man of many turns, who wandered far</span>
@@ -646,20 +646,21 @@ const supportHref = `${base}/support`;
       color: var(--hero-ink);
       margin: 0.15rem 0 0;
     }
-    /* One shared size for both titles (John, 2026-07-18): the original
-       per-panel sizes matched the titles' WIDTHS (5 vs 8 glyphs), which made
-       their cap heights wildly unequal. Sized so ΟΔΥΣΣΕΙΑ, the wider word,
-       fits its half-column at every 2-col viewport. */
-    .epic-title { font-size: clamp(2.6rem, 6.5vw, 7rem); }
-    .epic-iliad .epic-title { margin-left: -0.1rem; }
-    .epic-odyssey .epic-title { margin-right: -0.06rem; }
-    .epic-en {
-      font-family: var(--font-ui);
-      font-size: 0.82rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
+    /* Title hierarchy flipped (John, 2026-07-18 evening): "ENGLISH BIG,
+       Greek underneath, smaller" — the English title is the display
+       headline now; the Greek becomes the sub-line. Shared size for both
+       panels; "The Odyssey", the wider title, fits its half-column at every
+       2-col viewport. */
+    .epic-title { font-size: clamp(2.3rem, 5.2vw, 5.6rem); }
+    .epic-iliad .epic-title { margin-left: -0.05rem; }
+    .epic-odyssey .epic-title { margin-right: -0.04rem; }
+    .epic-greek-sub {
+      display: block;
+      font-family: var(--font-greek);
+      font-size: clamp(1.05rem, 2vw, 1.9rem);
+      letter-spacing: 0.14em;
       color: var(--hero-accent-bright);
-      margin-top: 0.35rem;
+      margin-top: 0.4rem;
     }
     .epic-epigraph {
       margin: 0.9rem 0 0;
