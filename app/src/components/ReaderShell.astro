@@ -304,14 +304,18 @@ const intro =
       <p>{intro}</p>
     </div>
     <div class="header-bar">
-      <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar" aria-label="Contents">
-        <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text" aria-hidden="true">Contents</span>
-      </button>
-      {sceneCount > 0 && (
-        <button type="button" class="scenes-toggle" aria-expanded="false" aria-controls="scene-rail" aria-label="Scenes">
-          <span class="scenes-toggle-icon" aria-hidden="true">❦</span><span class="scenes-toggle-text" aria-hidden="true">Scenes</span>
+      <!-- The phone header keeps its compact, established control order. At the
+           desktop breakpoint its matching controls move to .nav-panel below. -->
+      <div class="header-mobile-toggles">
+        <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar" aria-label="Contents">
+          <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text" aria-hidden="true">Contents</span>
         </button>
-      )}
+        {sceneCount > 0 && (
+          <button type="button" class="scenes-toggle" aria-expanded="false" aria-controls="scene-rail" aria-label="Scenes">
+            <span class="scenes-toggle-icon" aria-hidden="true">❦</span><span class="scenes-toggle-text" aria-hidden="true">Scenes</span>
+          </button>
+        )}
+      </div>
       <div class="header-title">
         <a class="home-link home-wordmark" href={`${base}/`} aria-label="The Homer Reader — all works">
           <span class="wordmark-name">The Homer Reader</span>
@@ -356,6 +360,18 @@ const intro =
       </div>
     </div>
     <div class="nav-panel" id="nav-panel">
+      <!-- Desktop-only counterparts to the compact phone controls above. Keep
+           their hooks identical: the header bridge below binds both copies. -->
+      <div class="header-desktop-nav-toggles">
+        <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar" aria-label="Contents">
+          <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text" aria-hidden="true">Contents</span>
+        </button>
+        {sceneCount > 0 && (
+          <button type="button" class="scenes-toggle" aria-expanded="false" aria-controls="scene-rail" aria-label="Scenes">
+            <span class="scenes-toggle-icon" aria-hidden="true">❦</span><span class="scenes-toggle-text" aria-hidden="true">Scenes</span>
+          </button>
+        )}
+      </div>
       {!busse && <BekkerJump work={workId} inputId="bekker-input-nav" client:load />}
       {!bookless && (
         <nav class="book-nav" aria-label="Books">
@@ -593,7 +609,7 @@ const intro =
     // navigation hub (the old Menu dropdown is gone); on desktop the nav panel is
     // always visible (CSS) and the sidebar holds just the outline.
     const header = document.querySelector('.page-header');
-    const tocToggle = header?.querySelector('.toc-toggle');
+    const tocToggles = Array.from(header?.querySelectorAll<HTMLButtonElement>('.toc-toggle') ?? []);
 
     // The Go to button's ⌘K hint is rendered ⌘K (macOS) by default; the command
     // palette binds Ctrl+K on non-Mac platforms, so correct the visible label there.
@@ -625,7 +641,7 @@ const intro =
       const wasOpen = document.body.classList.contains('toc-open');
       document.body.classList.toggle('toc-open', open);
       sidebar?.setAttribute('aria-hidden', String(!open));
-      tocToggle?.setAttribute('aria-expanded', String(open));
+      tocToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', String(open)));
       if (backdrop) backdrop.hidden = !open;
       if (open) {
         sidebar?.removeAttribute('inert');
@@ -637,12 +653,15 @@ const intro =
         document.removeEventListener('keydown', onTocTrap, true);
         // Restore focus to whatever opened it (the toggle) before inerting, so
         // focus never lands on an inert node.
-        if (wasOpen) { (tocReturnFocus ?? tocToggle as HTMLElement | null)?.focus(); tocReturnFocus = null; }
+        if (wasOpen) {
+          (tocReturnFocus ?? tocToggles.find((toggle) => toggle.offsetParent !== null) ?? tocToggles[0])?.focus();
+          tocReturnFocus = null;
+        }
         sidebar?.setAttribute('inert', '');
       }
     };
-    tocToggle?.addEventListener('click', () =>
-      setToc(!document.body.classList.contains('toc-open')));
+    tocToggles.forEach((toggle) => toggle.addEventListener('click', () =>
+      setToc(!document.body.classList.contains('toc-open'))));
     backdrop?.addEventListener('click', () => setToc(false));
     sidebar?.querySelector('.toc-close')?.addEventListener('click', () => setToc(false));
 
@@ -661,13 +680,13 @@ const intro =
 
     // Scene rail toggle — same island bridge as Settings. The button is only
     // present when the book carries scene apparatus (see sceneCount gate above).
-    const scenesToggle = header?.querySelector('.scenes-toggle');
-    scenesToggle?.addEventListener('click', () => {
+    const scenesToggles = Array.from(header?.querySelectorAll<HTMLButtonElement>('.scenes-toggle') ?? []);
+    scenesToggles.forEach((toggle) => toggle.addEventListener('click', () => {
       window.dispatchEvent(new CustomEvent('toggle-scenes'));
-    });
+    }));
     window.addEventListener('scenes-state', (e) => {
       const open = (e as CustomEvent<{ open: boolean }>).detail.open;
-      scenesToggle?.setAttribute('aria-expanded', String(open));
+      scenesToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', String(open)));
     });
 
     document.addEventListener('keydown', (e) => {
@@ -775,6 +794,34 @@ const intro =
   </footer>
 </body>
 </html>
+
+<style>
+  /* Keep the phone's existing header composition untouched; above its 680px
+     breakpoint the matching controls belong to the book-navigation row. */
+  .header-mobile-toggles,
+  .header-desktop-nav-toggles { display: contents; }
+
+  @media (min-width: 681px) {
+    .header-mobile-toggles { display: none; }
+
+    /* The identity lockup and global controls are one desktop header row. */
+    .header-bar { flex-wrap: nowrap; }
+
+    /* Match the compact citation and book-nav rhythm without introducing a
+       separate control treatment. */
+    .header-desktop-nav-toggles .toc-toggle,
+    .header-desktop-nav-toggles .scenes-toggle {
+      min-height: unset;
+      padding: 0.18rem 0.55rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+    }
+  }
+
+  @media (max-width: 680px) {
+    .header-desktop-nav-toggles { display: none; }
+  }
+</style>
 
 <style is:global>
   /* Verse-work contents rows keep their single anchor target while adding the
