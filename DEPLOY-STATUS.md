@@ -443,3 +443,35 @@ default model at --effort high is what actually runs).
 build:public: PASS (4713 pages, 0 broken, 48/48 scenes). Preview
 refreshed. Pending from John: iOS sheet pin confirmation on device;
 snap-window and speeches-toggle judgment calls; render verdicts.
+
+## Day-2 ledger, evening block (2026-07-18, John's live desktop review round)
+
+John reviewed live and directed; every item landed same-session:
+- bfa4d1a hero 50/50 + equal titles; 817af30 nav (12 sections,
+  aria-current, Timeline discoverable) + hero moonlight seam mask
+- 2788544 one-line desktop reader header, Contents/Scenes in nav rail
+- 0f46062 Olympus gazetteer (verified refs; 37 divine scenes pin)
+- 10ffe4f story-mode overhaul (zoom-banded labels, bottom-right dock
+  card, badge-anchored uncertain legs through Nekyia/Ogygia) + Troad/
+  Greece tab explainers
+- aba6898 sentence-snapped scene pages (discovered + fixed boundary-
+  chunk DUPLICATION; lossless partition invariant tested), honest
+  Pope book-level notice (data: exactly 1 anchor/book, all 48),
+  cartouche gap 52->24px
+- 5ba7978 Sol adversarial fixes: speech-snap decoupled from the
+  Speeches toggle (major), compare loading/error states, sheet
+  aria-hidden+inert, CAWM/Natural Earth attribution
+
+Sol whole-site review: 1 major + 3 minor, all fixed same-day;
+verified-clean: footnote seams, XSS/regex, AA contrast, vulgate
+integrity, honesty rules, payloads. Art: Flaxman greenlit; recolor
+PoC + margin-panel/identity mocks delivered (scratchpad, mockup-gated);
+Ogilby researched (verdict: highlights register, IA microfilm baseline).
+
+FINAL GATE: build:public PASS - 4713 pages, 314,575 links, 0 broken,
+48/48 scenes, Olympus in data root. Preview: 192.168.1.90:8090.
+HEAD this block: 5ba7978 + this ledger commit; all pushed.
+
+Awaiting John: Flaxman mock verdicts (A/B/C), Ogilby register decision,
+"FOR GREECE MAP" note (cut off), iPhone sheet-pin confirmation,
+domain/PR/deploy (standing).
