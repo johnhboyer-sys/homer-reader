@@ -62,3 +62,10 @@ LOGGED below and worked around, not waited on.
 Fleet rules bind as in CLAUDE.md (cap 5, explicit model on every spawn,
 implementation ≠ verification, cross-family verify on deploy-gating work,
 explicit-path staging while agents run, push after every commit).
+
+## Morning decisions (John, 2026-07-18)
+
+- **Reading Mode stays prose** ("Murray did prose so keep it prose") —
+  no prose label, no Pope alternative. CLOSED.
+- **Priority order:** text quality + reader navigation first;
+  maps/supplementary surfaces deferred until those are solid.
