@@ -3,6 +3,7 @@
 // click won't re-fetch the same shard twice in a session.
 import { linkifyGlossaryRefs } from './glossary';
 import { scheme, schemeFor } from './citation';
+import type { AudioManifest } from './audio';
 
 export interface Token {
   t: string;   // surface form (Unicode Greek)
@@ -305,6 +306,25 @@ export function fetchCharacters(): Promise<Record<string, CharacterEntry>> {
     Object.fromEntries((raw.characters ?? []).map(c => [c.id, c])));
   p.catch(() => { if (_charactersCache === p) _charactersCache = null; });
   _charactersCache = p;
+  return p;
+}
+
+// David Chamberlain's recitation-audio coverage manifest (apparatus/audio/manifest.json,
+// see shared/lib/audio.ts for the chunk-lookup logic) — one small corpus-wide
+// file, same whole-corpus-not-per-work shape as fetchCharacters above. The
+// Reader fetches this eagerly (unlike fetchSpeeches/fetchScansion, which wait
+// for their toggle): the Settings "Audio" row must know per-book coverage just
+// to decide whether to render itself at all (hidden entirely for e.g.
+// Od. 8-24), before any toggle exists to gate the fetch behind. Optional
+// apparatus — absence (a build with no audio manifest copied in, or a 404)
+// resolves to null, never an error; every caller must treat null the same as
+// "no coverage".
+let _audioManifestCache: Promise<AudioManifest | null> | null = null;
+export function fetchAudioManifest(): Promise<AudioManifest | null> {
+  if (_audioManifestCache) return _audioManifestCache;
+  const p = fetch(`${ROOT()}/audio.json`).then((r) => (r.ok ? r.json() : null)) as Promise<AudioManifest | null>;
+  p.catch(() => { if (_audioManifestCache === p) _audioManifestCache = null; });
+  _audioManifestCache = p;
   return p;
 }
 

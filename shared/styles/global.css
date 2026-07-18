@@ -3587,6 +3587,84 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   border-color: var(--text-light);
 }
 
+/* ── "Hear this passage" audio (Settings ▸ Audio, off by default) ──────────
+   Chart-Room restraint: a play button at each recorded chunk's start line
+   only — same reserved-gutter idiom as the DICES rail above (`.audio-on
+   .greek-line` reserves a fixed left gutter on EVERY line, so toggling
+   audio on/off never shifts the line-num/line-text column). Combined with
+   Speeches on, the two gutters stack rather than overlap. */
+.reader-body.audio-on .greek-line {
+  position: relative;
+  padding-left: 1.05rem;
+}
+.reader-body.audio-on.speeches-on .greek-line {
+  padding-left: 1.7rem;
+}
+.reader-body.audio-on.speeches-on .spk-flag {
+  left: 1.05rem;
+}
+.audio-play {
+  position: absolute;
+  left: 0.02rem;
+  top: 0.2em;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-light);
+  font-size: 0.72rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.audio-play:hover, .audio-play:focus-visible { color: var(--accent); }
+.audio-play:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.audio-play.playing { color: var(--accent); }
+
+/* Docked player: one shared <audio> element, collapsed off-screen until a
+   chunk is pressed. Below the Settings sidebar's z-index so opening Settings
+   mid-playback still reads on top. */
+.audio-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 45;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  padding: 0.5rem 1rem;
+  background: var(--col-bg);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(100%);
+  transition: transform 0.15s ease;
+}
+.audio-dock.open { transform: translateY(0); }
+.audio-dock-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.7rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--text-mid);
+}
+.audio-dock-range { font-weight: 700; color: var(--text); }
+.audio-dock-license, .audio-dock-item { color: var(--accent); text-decoration: none; }
+.audio-dock-license:hover, .audio-dock-item:hover { text-decoration: underline; }
+.audio-dock audio { flex: 1 1 240px; max-width: 420px; height: 2.1rem; }
+.audio-dock-close {
+  border: none;
+  background: none;
+  color: var(--text-light);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.2rem;
+}
+.audio-dock-close:hover, .audio-dock-close:focus-visible { color: var(--accent); }
+.audio-dock-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
 /* Docked lexicon rail (desktop ≥1100px): the non-modal counterpart of the
    anchored .word-sidebar popup. Sits below the sticky header, quiet divider
    instead of a floating drop-shadow; the reader body already reserves its strip

@@ -86,6 +86,14 @@ for (const work of works) {
 const charactersSrc = join(APPARATUS, 'characters.json');
 if (existsSync(charactersSrc)) copyFileSync(charactersSrc, join(dataDir, 'characters.json'));
 
+// David Chamberlain's recitation-audio coverage manifest (feature #19,
+// "Hear this passage"): one whole-corpus file, same plain-copy treatment as
+// characters.json above. Optional apparatus — copied only if present, and its
+// absence never fails preflight (Odyssey 8-24 have no audio at all, which is
+// normal, not a defect).
+const audioSrc = join(APPARATUS, 'audio', 'manifest.json');
+if (existsSync(audioSrc)) copyFileSync(audioSrc, join(dataDir, 'audio.json'));
+
 // Turn-align each alternate public-domain translation onto its work's reference
 // turnFlow, injecting alt[<id>] into the emitted book JSON (build/dist is what
 // the app reads). Runs after every work is built so the reference exists. Each

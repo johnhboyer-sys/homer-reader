@@ -1,12 +1,13 @@
 <script lang="ts">
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
-  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, fetchSpeeches, fetchCharacters, fetchScansion, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene, type Speech, type CharacterEntry, type ScansionEntry } from '../lib/data';
+  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, fetchSpeeches, fetchCharacters, fetchScansion, fetchAudioManifest, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene, type Speech, type CharacterEntry, type ScansionEntry } from '../lib/data';
   import { takeSsrBook } from '../lib/ssr-book';
   import { schemeFor, formatCite } from '../lib/citation';
   import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { classifySpeech, realLinesFromSegments, speechLabel } from '../lib/speeches';
+  import { bookAudio, hasAudio, effectiveChunks, licenseLabel, chunkAriaLabel, itemPageUrl, type AudioManifest, type AudioChunk, type AudioBookEntry } from '../lib/audio';
   import { scansionDisplay, scansionKey } from '../lib/scansion';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
@@ -543,6 +544,67 @@
   // has no scan for — e.g. a vulgate numbering gap). Empty (cheap no-op) while
   // the toggle is off or the fetch hasn't landed yet.
   $: meterEntries = meterOn && meterLoadedFor === bookNum ? bookScansion : ({} as Record<string, ScansionEntry>);
+
+  // ── "Hear this passage" audio (feature #19) ───────────────────────────────
+  // Off by default; a play affordance at each recorded chunk's start line
+  // (see shared/lib/audio.ts), backed by David Chamberlain's public-domain
+  // recitation — hotlinked archive.org MP3s, never vendored (CLAUDE.md's hard
+  // rules). Coverage is honest and partial: Iliad 1-24, Odyssey 1-7 only — the
+  // Settings row itself is hidden on any book the manifest doesn't cover, so
+  // the small corpus-wide manifest (~55KB, same whole-corpus shape as
+  // characters.json) is fetched EAGERLY on mount rather than gated behind the
+  // toggle: the toggle's own visibility depends on it. The audio bytes
+  // themselves are never fetched until a reader actually presses play
+  // (<audio preload="none">, src set only on click).
+  const AUDIO_KEY = 'reader-audio';
+  let audioOn = false;
+  function saveAudio() { try { localStorage.setItem(AUDIO_KEY, String(audioOn)); } catch {} }
+  function toggleAudio() { audioOn = !audioOn; saveAudio(); }
+  let audioManifest: AudioManifest | null = null;
+  let audioManifestLoaded = false;
+  async function ensureAudioManifest(): Promise<void> {
+    if (audioManifestLoaded) return;
+    audioManifestLoaded = true; // guard re-entry; reset below if the fetch fails
+    try {
+      audioManifest = await fetchAudioManifest();
+    } catch {
+      audioManifestLoaded = false; // allow a later retry
+    }
+  }
+  $: if (mounted && !audioManifestLoaded) ensureAudioManifest();
+  $: audioEntry = bookAudio(audioManifest, work, bookNum);
+  $: audioAvailable = hasAudio(audioManifest, work, bookNum);
+  // line n -> the chunk that starts there, for this book, revision-preferred
+  // and gap-honest (see effectiveChunks). Empty while the toggle is off — the
+  // reader never even computes this, let alone the affordances, when unused.
+  $: audioChunkStarts = (() => {
+    const m = new Map<number, AudioChunk>();
+    if (!audioOn || !audioEntry) return m;
+    for (const c of effectiveChunks(audioEntry)) m.set(c.lines[0], c);
+    return m;
+  })();
+  $: audioCreator = audioManifest?.source.creator ?? 'David Chamberlain';
+
+  // The one shared <audio> element (bound below in the docked player markup):
+  // a single playback session at a time, whichever chunk was last pressed.
+  let audioEl: HTMLAudioElement | undefined;
+  interface NowPlaying { book: number; chunk: AudioChunk; licenseurl: string; item: string; }
+  let nowPlaying: NowPlaying | null = null;
+  function playChunk(book: number, chunk: AudioChunk, entry: AudioBookEntry) {
+    nowPlaying = { book, chunk, licenseurl: entry.licenseurl, item: entry.item };
+    tick().then(() => {
+      if (!audioEl) return;
+      audioEl.src = chunk.url;
+      audioEl.play().catch(() => {});
+    });
+  }
+  function closeAudioDock() {
+    if (audioEl) { audioEl.pause(); audioEl.removeAttribute('src'); audioEl.load(); }
+    nowPlaying = null;
+  }
+  // Turning the toggle off silently, mid-playback, would leave the dock
+  // playing with no way to see what it is anymore — close it instead.
+  $: if (!audioOn && nowPlaying) closeAudioDock();
 
   // ── Scene rail (in-book navigation flyout) ───────────────────────────────
   // A thin left drawer listing this book's scenes (line range · day · place +
@@ -1396,6 +1458,8 @@
     if (savedSpeeches !== null) speechesOn = savedSpeeches === 'true';
     const savedMeter = (() => { try { return localStorage.getItem(METER_KEY); } catch { return null; } })();
     if (savedMeter !== null) meterOn = savedMeter === 'true';
+    const savedAudio = (() => { try { return localStorage.getItem(AUDIO_KEY); } catch { return null; } })();
+    if (savedAudio !== null) audioOn = savedAudio === 'true';
     // Restore the reading/scholar posture (global, like reader-view).
     const savedPosture = (() => { try { return localStorage.getItem(POSTURE_KEY); } catch { return null; } })();
     if (savedPosture === 'reading') reading = true;
@@ -2193,6 +2257,7 @@
     class:reading-mode={reading}
     class:word-open={!!popup}
     class:speeches-on={speechesOn}
+    class:audio-on={audioOn}
     style="--fs-greek:{fsGreek}rem;--fs-english:{fsEng}rem;--lh-greek:{lhGreek};--lh-english:{lhEng};--colw-scale:{colScale};--fs-scale:{fsScale}"
     on:copy={handleCopy}>
     <!-- Screen-reader announcement of a posture change (Scholar ⇄ Reading). -->
@@ -2363,6 +2428,21 @@
                     <p class="spk-rail-label">{speechRailStarts.get(item.line.n)}</p>
                   {/if}
                   <div class="greek-line" id={item.line.cont ? `L${seg.column}-${item.line.n}-c` : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && targetId === `L${seg.column}-${item.line.n}`} class:cont={item.line.cont} class:bracketed={!!item.line.bracketed} class:spk-rail={speechesOn && !item.line.cont && speechRailLines.has(item.line.n)} title={item.line.bracketed ? 'athetized/bracketed in the editorial tradition' : undefined}>
+                    {#if audioOn && !item.line.cont && audioChunkStarts.has(item.line.n)}
+                      {@const chunk = audioChunkStarts.get(item.line.n)}
+                      <!-- Play affordance at a recorded chunk's start line only
+                           (chunk-level granularity — never a fake per-line
+                           seek). Keyboard-focusable real <button>, same
+                           gutter-marker idiom as .spk-flag above. -->
+                      <button
+                        type="button"
+                        class="audio-play"
+                        class:playing={nowPlaying?.chunk.file === chunk?.file}
+                        on:click={() => { if (chunk && audioEntry) playChunk(bookNum, chunk, audioEntry); }}
+                        title={chunk ? chunkAriaLabel(chunk, audioCreator) : ''}
+                        aria-label={chunk ? chunkAriaLabel(chunk, audioCreator) : ''}
+                      >{nowPlaying?.chunk.file === chunk?.file ? '♪' : '▶'}</button>
+                    {/if}
                     {#if speechesOn && !item.line.cont && speechDegradedStarts.has(item.line.n)}
                       <!-- Discreet flagged marker: a degraded span (nested,
                            crossBook, or a vulgate-gap line) gets no rail —
@@ -2488,6 +2568,27 @@
   <div class="scenes-backdrop" on:click={closeSceneRail} transition:fade={{ duration: reduceMotion ? 0 : 180 }}></div>
 {/if}
 {/if}
+
+<!-- Docked audio player: one shared <audio> element (feature #19). Sits
+     collapsed off-screen until a chunk is pressed (nowPlaying set); the
+     element itself never fetches anything until then — preload="none" and
+     no src until playChunk sets one. The license link and item link are per
+     BOOK (one archive.org item per book — see apparatus/audio/manifest.json),
+     so they're always correct for whatever chunk is currently playing. -->
+<div class="audio-dock" class:open={!!nowPlaying} aria-hidden={!nowPlaying} inert={!nowPlaying}>
+  {#if nowPlaying}
+    <div class="audio-dock-info">
+      <span class="audio-dock-range">{workMeta?.title ?? work} {workMeta ? workBookLabel(workMeta, nowPlaying.book) : nowPlaying.book}.{nowPlaying.chunk.lines[0]}–{nowPlaying.chunk.lines[1]}</span>
+      <span class="audio-dock-credit">read by {audioCreator}</span>
+      <a class="audio-dock-license" href={nowPlaying.licenseurl} target="_blank" rel="noopener noreferrer">{licenseLabel(nowPlaying.licenseurl)}</a>
+      <a class="audio-dock-item" href={itemPageUrl(nowPlaying.item)} target="_blank" rel="noopener noreferrer">archive.org ↗</a>
+    </div>
+  {/if}
+  <audio bind:this={audioEl} controls preload="none" on:ended={closeAudioDock}></audio>
+  {#if nowPlaying}
+    <button type="button" class="audio-dock-close" on:click={closeAudioDock} aria-label="Close audio player">×</button>
+  {/if}
+</div>
 
 <aside class="settings-sidebar" class:open={settingsOpen} aria-label="Reader settings" aria-hidden={!settingsOpen} inert={!settingsOpen} bind:this={settingsEl} on:keydown={onSettingsKey}>
   <div class="settings-head">
@@ -2650,6 +2751,23 @@
         </span>
         <span class="settings-pill">
           <input type="checkbox" bind:checked={meterOn} on:change={saveMeter} aria-label="Show computed hexameter scansion beside each Greek line, in Scholar view" />
+          <span class="settings-pill-track"></span>
+          <span class="settings-pill-thumb"></span>
+        </span>
+      </label>
+    </div>
+    {/if}
+
+    {#if audioAvailable}
+    <div class="settings-section">
+      <div class="settings-section-label">Audio</div>
+      <label class="settings-check-row">
+        <span class="settings-check-name">
+          Hear this passage
+          <span class="settings-check-hint">Recitation by {audioCreator}, hotlinked from archive.org</span>
+        </span>
+        <span class="settings-pill">
+          <input type="checkbox" bind:checked={audioOn} on:change={saveAudio} aria-label={`Show play buttons for ${audioCreator}'s recitation audio in the Greek gutter`} />
           <span class="settings-pill-track"></span>
           <span class="settings-pill-thumb"></span>
         </span>

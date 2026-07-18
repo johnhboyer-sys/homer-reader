@@ -1054,6 +1054,27 @@ def _validate_global_apparatus_emits(
         except Exception as exc:
             problems.append(("-", "repetitions.json", f"invalid JSON: {exc}"))
 
+    # apparatus/audio/manifest.json (feature #19, "Hear this passage" —
+    # David Chamberlain's recitation audio) copied to build/dist/audio.json,
+    # same plain-copy-if-present treatment as characters.json above. This is
+    # OPTIONAL apparatus: its absence (no manifest committed yet) is not
+    # checked at all, and per-work/per-book coverage gaps (Odyssey 8-24 have
+    # no audio whatsoever) are normal and never asserted here — only "if the
+    # source exists, the copy must too", same posture as speeches.json.
+    audio_src = apparatus_scenes.APPARATUS_DIR / "audio" / "manifest.json"
+    if audio_src.exists():
+        audio_dist = data_dir / "audio.json"
+        if not audio_dist.exists():
+            problems.append(
+                ("-", "audio.json",
+                 "apparatus/audio/manifest.json exists but was not copied into the public data root")
+            )
+        else:
+            try:
+                json.loads(audio_dist.read_text(encoding="utf-8"))
+            except Exception as exc:
+                problems.append(("-", "audio.json", f"invalid JSON: {exc}"))
+
 
 # ── alignment coverage: Murray/Butler milestone-tick density per book ──────
 #
