@@ -567,7 +567,7 @@ const supportHref = `${base}/support`;
       position: relative;
       z-index: 2;
       display: grid;
-      grid-template-columns: 1.25fr 1fr;
+      grid-template-columns: 1fr 1fr;
       min-height: min(84vh, 46rem);
     }
     @media (max-width: 899.98px) {
@@ -633,14 +633,13 @@ const supportHref = `${base}/support`;
       color: var(--hero-ink);
       margin: 0.15rem 0 0;
     }
-    .epic-iliad .epic-title {
-      font-size: clamp(4.4rem, 12.5vw, 10.5rem);
-      margin-left: -0.1rem;
-    }
-    .epic-odyssey .epic-title {
-      font-size: clamp(2.1rem, 5.6vw, 6.1rem);
-      margin-right: -0.06rem;
-    }
+    /* One shared size for both titles (John, 2026-07-18): the original
+       per-panel sizes matched the titles' WIDTHS (5 vs 8 glyphs), which made
+       their cap heights wildly unequal. Sized so ΟΔΥΣΣΕΙΑ, the wider word,
+       fits its half-column at every 2-col viewport. */
+    .epic-title { font-size: clamp(2.6rem, 6.5vw, 7rem); }
+    .epic-iliad .epic-title { margin-left: -0.1rem; }
+    .epic-odyssey .epic-title { margin-right: -0.06rem; }
     .epic-en {
       font-family: var(--font-ui);
       font-size: 0.82rem;
