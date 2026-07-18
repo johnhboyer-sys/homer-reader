@@ -15,15 +15,27 @@
     wanderingsStory,
     splitStoryByCoords,
     captionSummary,
+    resolveLegs,
+    resolveJourneyLegs,
+    journeysPlaceSplit,
+    wanderingsReturnTail,
     type Place,
     type Contingent,
     type CharacterRef,
     type CatalogueSort,
+    type Journey,
   } from '@shared/lib/maps';
   import { workPath } from '@shared/lib/works';
   import { formatLocValue } from '@shared/lib/citation';
   import LandmarkMap from './maps/LandmarkMap.svelte';
   import ContingentPanel from './maps/ContingentPanel.svelte';
+  // Vite/Astro JSON import (tsconfig resolveJsonModule: true) -- the same
+  // "load the raw apparatus file at build time" posture as
+  // places.json/catalogue.json/characters.json in
+  // app/src/pages/maps/index.astro, just as a static import inside this
+  // client:only island rather than an Astro-frontmatter prop, so the
+  // journeys.json plumbing stays entirely within this file.
+  import journeysFile from '../../../apparatus/journeys.json';
 
   export let base: string;
   export let places: Place[];
@@ -33,6 +45,9 @@
   export let placesDraft = false;
   export let catalogueDraft = false;
 
+  const journeys = (journeysFile as { status: string; journeys: Journey[] }).journeys;
+  const journeysDraft = (journeysFile as { status: string }).status === 'draft';
+
   const pById = buildPlacesById(places);
   const charsById = new Map(characters.map((c) => [c.id, c]));
 
@@ -41,6 +56,7 @@
     { id: 'troad', label: 'Troad' },
     { id: 'wanderings', label: 'Wanderings' },
     { id: 'greece', label: 'Greece' },
+    { id: 'journeys', label: 'Journeys' },
   ] as const;
   type TabId = (typeof TABS)[number]['id'];
 
@@ -119,6 +135,58 @@
   const wanderingsStoryStations = wanderingsStory(places);
   const wanderingsStorySplit = splitStoryByCoords(wanderingsStoryStations);
 
+  // The Wanderings route's extension past Thrinacia (John, 2026-07-17: the
+  // drawn route must end at Ithaca) -- see shared/lib/maps
+  // wanderingsReturnTail doc. Applies to BOTH Map and Story mode (the same
+  // `wanderingsTail` prop below), since the badges for Ogygia/Scheria/Ithaca
+  // already exist in Story mode's numbered stations; only the route LINE
+  // reaching them was missing.
+  const wanderingsTailLegs = resolveLegs(wanderingsReturnTail(journeys), pById);
+
+  // ── Journeys tab: the four nostoi (Menelaus, Nestor, Telemachus, plus
+  // Odysseus's own return again in its own color, for cross-reference) --
+  // placement call (John's brief left this to the implementer): a dedicated
+  // tab rather than toggle layers folded into Wanderings, so Wanderings /
+  // Story mode stays Odysseus-focused and uncluttered, while this tab can be
+  // as busy as four overlapping routes actually are. Each route is drawn as
+  // several independent gently-curved LEG polylines (LandmarkMap
+  // drawJourneyLegs), not one continuous path per journey, because several
+  // legs fan out from a shared hub (Menelaus's five departures from Egypt)
+  // rather than forming a simple chain.
+  const JOURNEY_STYLE: Record<string, { colorClass: string; dashArray?: string }> = {
+    'odysseus-return': { colorClass: 'lm-journey-odysseus' },
+    'menelaus-nostos': { colorClass: 'lm-journey-menelaus', dashArray: '11,7' },
+    'nestor-nostos': { colorClass: 'lm-journey-nestor', dashArray: '1,5' },
+    'telemachus-journey': { colorClass: 'lm-journey-telemachus', dashArray: '10,4,2,4' },
+  };
+  const JOURNEY_LABELS: Record<string, string> = {
+    odysseus: 'Odysseus',
+    menelaus: 'Menelaus',
+    nestor: 'Nestor',
+    telemachus: 'Telemachus',
+  };
+
+  const allJourneyRoutes = journeys.map((j) => {
+    const style = JOURNEY_STYLE[j.id] ?? { colorClass: 'lm-journey-odysseus' };
+    return {
+      id: j.id,
+      traveler: j.traveler,
+      colorClass: style.colorClass,
+      dashArray: style.dashArray,
+      arrivalLegIndex: j.id === 'odysseus-return' ? j.legs.length - 1 : undefined,
+      legs: resolveJourneyLegs(j, pById),
+    };
+  });
+
+  let journeysVisible: Record<string, boolean> = Object.fromEntries(journeys.map((j) => [j.id, true]));
+  function toggleJourney(id: string, on: boolean) {
+    journeysVisible = { ...journeysVisible, [id]: on };
+  }
+  $: visibleJourneyRoutes = allJourneyRoutes.filter((r) => journeysVisible[r.id]);
+
+  const journeysSplit = journeysPlaceSplit(journeys, pById);
+  const journeysItems = journeysSplit.located.map((p) => ({ id: p.id, place: p }));
+
   // "Story" / "Map" toggle on the Wanderings panel only. Persists via
   // `?story=1` so a shared/reloaded link keeps the mode (client:only island —
   // this always runs in the browser, never during SSR). Presence of the
@@ -147,7 +215,7 @@
   // pins) — the full honesty accounting for the Catalogue's ~230 named towns.
   const shipsUnlocated = unlocatedFor('ships');
 
-  const isDraft = placesDraft || catalogueDraft;
+  const isDraft = placesDraft || catalogueDraft || journeysDraft;
 </script>
 
 <div class="mp-root">
@@ -309,6 +377,7 @@
           : "Map of Odysseus's wanderings: stations of the Apologoi (Od. 9-12) connected by a dashed route, plus other travel/homecoming places named in the poem"}
         items={wanderingsPlaces.located.map((p) => ({ id: p.id, place: p }))}
         polyline={wanderingsRouteStations}
+        wanderingsTail={wanderingsTailLegs}
         {storyMode}
         storyStations={wanderingsStoryStations}
       />
@@ -317,7 +386,9 @@
         <p class="mp-route-note">
           Numbered stations follow Odysseus's own telling, Troy to Ithaca; the
           heavier route line is his sea voyage proper (Od. 9&ndash;12, Ismarus
-          to Thrinacia).
+          to Thrinacia), continuing on to Ithaca &mdash; broken through the
+          Ogygia gap, where Homer's own geography gives no fixed position,
+          solid again from Scheria home.
         </p>
         <p class="mp-route-note mp-story-attribution">
           Route follows the traditional identifications recorded here;
@@ -361,8 +432,11 @@
       {:else}
         <p class="mp-route-note">
           The dashed line traces Odysseus's own sea voyage as he narrates it
-          (Od. 9&ndash;12, Ismarus to Thrinacia); the other pins here are places
-          named elsewhere in the poem's travel geography, not stops on that route.
+          (Od. 9&ndash;12, Ismarus to Thrinacia), continuing on to Ithaca
+          &mdash; broken through the Ogygia gap (no fixed position in this
+          gazetteer), solid again from Scheria home; the other pins here are
+          places named elsewhere in the poem's travel geography, not stops on
+          that route.
         </p>
       {/if}
 
@@ -375,7 +449,7 @@
         </ul>
       </details>
     </div>
-  {:else}
+  {:else if activeTab === 'greece'}
     <div id="mp-panel-greece" role="tabpanel" aria-labelledby="mp-tab-greece" tabindex="0" class="mp-panel">
       <LandmarkMap
         {base}
@@ -391,11 +465,84 @@
         </ul>
       </details>
     </div>
+  {:else}
+    <div id="mp-panel-journeys" role="tabpanel" aria-labelledby="mp-tab-journeys" tabindex="0" class="mp-panel">
+      <p class="mp-route-note">
+        The four homecomings (nostoi) Homer narrates. Odysseus's own route
+        continues here from Thrinacia to Ithaca (see the Wanderings tab for
+        his Apologoi voyage in full); Menelaus's, Nestor's, and Telemachus's
+        are drawn for the first time, each its own color and dash pattern.
+        Toggle a route off below to compare the others; a faded, finely
+        dotted gap marks a leg whose far end has no fixed position in this
+        gazetteer &mdash; a confident line was never drawn to a guessed spot
+        &mdash; tap or click its small ringed marker for the note.
+      </p>
+
+      <div class="mp-journey-legend" role="group" aria-label="Journeys shown">
+        {#each allJourneyRoutes as r (r.id)}
+          <label class="mp-journey-legend-item">
+            <input
+              type="checkbox"
+              checked={journeysVisible[r.id]}
+              on:change={(e) => toggleJourney(r.id, (e.currentTarget as HTMLInputElement).checked)}
+            />
+            <svg class="mp-journey-swatch" viewBox="0 0 32 6" aria-hidden="true" focusable="false">
+              <line
+                x1="1" y1="3" x2="31" y2="3"
+                class={r.colorClass}
+                stroke-dasharray={r.dashArray ?? ''}
+                stroke-width="3"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span>{JOURNEY_LABELS[r.traveler] ?? r.traveler}</span>
+          </label>
+        {/each}
+      </div>
+
+      <LandmarkMap
+        {base}
+        ariaLabel="Map of the four nostoi: the homecomings of Odysseus, Menelaus, Nestor, and Telemachus, each a distinct colored and patterned route"
+        items={journeysItems}
+        journeyRoutes={visibleJourneyRoutes}
+      />
+
+      <details class="mp-unlocated" open={journeysSplit.unlocated.length > 0}>
+        <summary>Not locatable ({journeysSplit.unlocated.length})</summary>
+        <ul>
+          {#each journeysSplit.unlocated as p}
+            <li><span lang="grc">{p.greek}</span> {p.name} <span class="mp-tier-word">({p.certainty})</span></li>
+          {/each}
+        </ul>
+      </details>
+    </div>
   {/if}
 </div>
 
 <style>
-  .mp-root { display: flex; flex-direction: column; gap: 0.9rem; }
+  .mp-root {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    /* Journey route colors (John, 2026-07-17: "distinct route color derived
+       from the site palette... no arbitrary hex"). Odysseus keeps the
+       site's own primary wayfinding accent unchanged (journeys.json
+       color_role: "primary"); the other three are CSS relative-color hue
+       rotations of that SAME token -- a formula, not a literal color -- by a
+       fixed, evenly-spread amount chosen to land clear of --draft's reserved
+       slate-blue (~206deg hue, wired to the draft badge ONLY per this
+       project's one-red-flag-only rule) and --error's reserved red
+       (~0-4deg). Defined here (not in LandmarkMap.svelte) so both the map's
+       Leaflet paths (a descendant of .mp-root) and this file's own legend
+       swatches read the same custom properties via ordinary CSS
+       inheritance -- one source of truth for the palette-derivation
+       formula. Dash pattern (set in JOURNEY_STYLE above) is the second,
+       color-vision-independent channel distinguishing the four routes. */
+    --journey-odysseus: var(--accent);
+    --journey-menelaus: hsl(from var(--accent) calc(h + 80) s l);
+    --journey-nestor: hsl(from var(--accent) calc(h + 170) s l);
+    --journey-telemachus: hsl(from var(--accent) calc(h - 60) s l);
+  }
   /* .draft-badge (global.css) is display:inline-block, sized to its text —
      but as a direct flex item of .mp-root's column flex it stretched to the
      full row width by the default align-items:stretch, painting as an empty
@@ -508,6 +655,12 @@
   .mp-beyond-edge a:focus-visible { background: var(--greek-hover); }
   .mp-beyond-edge a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
   .mp-beyond-edge-item { color: var(--text-mid); }
+
+  .mp-journey-legend { display: flex; flex-wrap: wrap; gap: 1rem; font-family: var(--font-ui); font-size: 0.84rem; color: var(--text); }
+  .mp-journey-legend-item { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
+  .mp-journey-legend-item input { cursor: pointer; }
+  .mp-journey-swatch { width: 32px; height: 6px; flex: none; }
+  .mp-journey-swatch line { fill: none; }
 
   .mp-unlocated { font-family: var(--font-ui); font-size: 0.82rem; color: var(--text-mid); }
   .mp-unlocated summary { cursor: pointer; font-weight: 600; color: var(--text); }

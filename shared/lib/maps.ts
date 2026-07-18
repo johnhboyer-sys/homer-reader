@@ -276,3 +276,193 @@ export function captionSummary(note: string | undefined, maxLen = 60): string {
   const truncated = lastSpace > 0 ? cut.slice(0, lastSpace) : cut;
   return `${truncated}…`;
 }
+
+// ── Journey routes (apparatus/journeys.json: the four nostoi) ──────────────
+// John's directives (2026-07-17): (1) Odysseus's own route must end at
+// Ithaca, not stop at Thrinacia -- wanderingsReturnTail() below supplies the
+// Thrinacia->Ogygia(broken)->Scheria->Ithaca(solid) tail that extends the
+// Wanderings tab's existing dashed route (still built from wanderingsRoute()
+// above, unchanged). (2) Menelaus/Nestor/Telemachus get their own distinct
+// colored+patterned routes -- placed on a dedicated Journeys tab (MapsPage's
+// placement call) so the Wanderings tab / story mode stays Odysseus-focused.
+// (3) routes are drawn as gentle curves, not rigid straight segments --
+// arcPoints/curvedRoute below. All three share one honesty rule: a leg whose
+// endpoint has no real coordinate (Ogygia; the Ethiopians; the Erembi) never
+// gets a confident line to it -- LandmarkMap gives those a broken/faded
+// "gap" treatment instead (that component's drawBrokenLeg).
+
+export interface JourneyLegRef {
+  work: string;
+  book: number;
+  lines: [number, number];
+}
+
+// A single leg of a journey as recorded in apparatus/journeys.json.
+// `unlocatable` is the apparatus's own honesty flag for "this leg's
+// geography cannot be drawn" -- LandmarkMap treats it as advisory, not
+// authoritative: a leg is ALSO drawn broken whenever either endpoint's place
+// record itself has no coordinates, regardless of this flag. (Data note:
+// the corpus's one inconsistency is the ogygia->scheria leg, flagged
+// unlocatable:false even though Ogygia itself carries no coordinates in
+// places.json -- reported, not silently "fixed" here since journeys.json is
+// a read-only input to this file.)
+export interface JourneyLeg {
+  from: string;
+  to: string;
+  refs: JourneyLegRef[];
+  certainty: Certainty;
+  note: string;
+  unlocatable: boolean;
+}
+
+export interface Journey {
+  id: string;
+  name: string;
+  traveler: string;
+  color_role: string;
+  legs: JourneyLeg[];
+}
+
+export type LatLon = [number, number];
+
+// A journey leg with its endpoint ids resolved against the places
+// gazetteer. Never invents a coordinate: fromPlace/toPlace are null (not a
+// fabricated pin) whenever the id is unknown or genuinely uncoordinated.
+export interface ResolvedLeg {
+  from: string;
+  to: string;
+  fromPlace: Place | null;
+  toPlace: Place | null;
+  certainty: Certainty;
+  note: string;
+  unlocatable: boolean;
+}
+
+export function resolveLegs(legs: JourneyLeg[], placesById: Map<string, Place>): ResolvedLeg[] {
+  return legs.map((leg) => ({
+    from: leg.from,
+    to: leg.to,
+    fromPlace: placesById.get(leg.from) ?? null,
+    toPlace: placesById.get(leg.to) ?? null,
+    certainty: leg.certainty,
+    note: leg.note,
+    unlocatable: leg.unlocatable,
+  }));
+}
+
+export function resolveJourneyLegs(journey: Journey, placesById: Map<string, Place>): ResolvedLeg[] {
+  return resolveLegs(journey.legs, placesById);
+}
+
+// Every place touched by ANY leg (either endpoint) of the given journeys,
+// deduplicated in first-appearance order and split located/unlocated (never
+// force-pinned -- same posture as splitByCoords above). The Journeys tab's
+// pin set + "not locatable" honesty list.
+export function journeysPlaceSplit(
+  journeys: Journey[],
+  placesById: Map<string, Place>,
+): { located: Place[]; unlocated: Place[] } {
+  const seen = new Set<string>();
+  const located: Place[] = [];
+  const unlocated: Place[] = [];
+  for (const j of journeys) {
+    for (const leg of j.legs) {
+      for (const id of [leg.from, leg.to]) {
+        if (seen.has(id)) continue;
+        seen.add(id);
+        const p = placesById.get(id);
+        if (!p) continue; // unknown id -- never invents a placeholder
+        (p.coords ? located : unlocated).push(p);
+      }
+    }
+  }
+  return { located, unlocated };
+}
+
+// The odysseus-return journey's legs from Thrinacia onward: the frame beyond
+// wanderingsRoute()'s own Ismarus-Thrinacia sea-voyage line. John's explicit
+// call (2026-07-17): the Wanderings map's drawn route must reach Ithaca, not
+// stop at Thrinacia. Sourced from journeys.json rather than a second
+// hardcoded station list, so this tail can never drift from
+// WANDERINGS_STORY_ORDER's own Ogygia/Scheria/Ithaca stations above.
+const WANDERINGS_TAIL_FROM = 'thrinacia';
+
+export function wanderingsReturnTail(journeys: Journey[]): JourneyLeg[] {
+  const j = journeys.find((x) => x.id === 'odysseus-return');
+  if (!j) return [];
+  const idx = j.legs.findIndex((l) => l.from === WANDERINGS_TAIL_FROM);
+  return idx === -1 ? [] : j.legs.slice(idx);
+}
+
+// ── Curved route rendering math ─────────────────────────────────────────────
+// (John, 2026-07-17: "the straight lines is too...rigid. Some slight curve
+// would be good at times.") Pure lat/lon-space geometry -- not Leaflet pixel
+// space, so it stays correct across zoom/pan (Leaflet re-projects whatever
+// points it's handed) and is testable without a DOM/Leaflet instance.
+
+// A quadratic-Bezier arc between two [lat, lon] points. `bow` is a SIGNED
+// fraction of the segment's own length: the control point sits
+// `bow * length` away from the segment's midpoint, perpendicular to the
+// from->to line. bow=0 degenerates to the straight segment. Sign picks which
+// side the arc bulges toward; magnitude/sign are a rendering-layer per-leg
+// tuning choice (see LandmarkMap's BOW_HINTS), never sourced from apparatus
+// data (CLAUDE.md: journeys.json/places.json are data, not display hints).
+// Returns exactly `steps + 1` points, including both endpoints exactly.
+export function arcPoints(from: LatLon, to: LatLon, bow: number, steps = 16): LatLon[] {
+  const [lat0, lon0] = from;
+  const [lat1, lon1] = to;
+  if (lat0 === lat1 && lon0 === lon1) return [from, to];
+  const dLat = lat1 - lat0;
+  const dLon = lon1 - lon0;
+  const len = Math.sqrt(dLat * dLat + dLon * dLon);
+  const perpLat = -dLon / len;
+  const perpLon = dLat / len;
+  const controlLat = (lat0 + lat1) / 2 + perpLat * bow * len;
+  const controlLon = (lon0 + lon1) / 2 + perpLon * bow * len;
+  const out: LatLon[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const mt = 1 - t;
+    const lat = mt * mt * lat0 + 2 * mt * t * controlLat + t * t * lat1;
+    const lon = mt * mt * lon0 + 2 * mt * t * controlLon + t * t * lon1;
+    out.push([lat, lon]);
+  }
+  return out;
+}
+
+// Strings a sequence of station coordinates into one continuous, gently-
+// curved polyline: arcPoints() for every consecutive pair, sharing endpoints
+// (no duplicate point at the join) so Leaflet draws one unbroken path.
+// `bowFor(legIndex)` supplies each leg's bow (points[i] -> points[i+1] is
+// legIndex i).
+export function curvedRoute(points: LatLon[], bowFor: (legIndex: number) => number, steps = 16): LatLon[] {
+  if (points.length < 2) return points.slice();
+  const out: LatLon[] = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const seg = arcPoints(points[i]!, points[i + 1]!, bowFor(i), steps);
+    out.push(...(i === 0 ? seg : seg.slice(1)));
+  }
+  return out;
+}
+
+// A short, fading directional stub from a known point toward an unlocatable
+// neighbor -- the honesty treatment for a leg whose OTHER endpoint has no
+// coordinate in the gazetteer (Ogygia; the Ethiopians; the Erembi). Never
+// draws anything AT the unlocatable place; only shows the known endpoint's
+// leg trailing off toward the map's edge. `bearingDeg` (0=north, 90=east,
+// plain lat/lon-space bearing) and `lengthDeg` are rendering-layer choices
+// (LandmarkMap's FADE_HINTS). Returns `steps + 1` points starting AT
+// `point`; pair with per-point opacity easing in the renderer for an
+// outbound ("fading toward the unknown") leg, or reverse the array for an
+// inbound ("arriving from the unknown") leg.
+export function fadeStub(point: LatLon, bearingDeg: number, lengthDeg: number, steps = 5): LatLon[] {
+  const rad = (bearingDeg * Math.PI) / 180;
+  const dLat = Math.cos(rad) * lengthDeg;
+  const dLon = Math.sin(rad) * lengthDeg;
+  const out: LatLon[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    out.push([point[0] + dLat * t, point[1] + dLon * t]);
+  }
+  return out;
+}

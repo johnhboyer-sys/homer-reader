@@ -17,7 +17,16 @@
   import L from 'leaflet';
   import { workPath } from '@shared/lib/works';
   import { formatLocValue } from '@shared/lib/citation';
-  import { captionSummary, type Place, type StoryStation } from '@shared/lib/maps';
+  import {
+    captionSummary,
+    arcPoints,
+    curvedRoute,
+    fadeStub,
+    type Place,
+    type StoryStation,
+    type ResolvedLeg,
+    type LatLon,
+  } from '@shared/lib/maps';
 
   export let base: string;
   export let ariaLabel: string;
@@ -42,6 +51,28 @@
   export let storyMode = false;
   export let storyStations: StoryStation[] = [];
 
+  // Wanderings tab only: the Odysseus-return journey's legs from Thrinacia
+  // onward (Thrinacia -> Ogygia -> Scheria -> Ithaca), pre-resolved by
+  // MapsPage against the places gazetteer. Drawn as an extension of the same
+  // route -- broken/faded through the Ogygia gap (Ogygia has no coordinates
+  // in the gazetteer; never a confident line to fake them), solid again
+  // Scheria->Ithaca (John's explicit call, 2026-07-17: the route must end at
+  // Ithaca). Empty on every tab but Wanderings.
+  export let wanderingsTail: ResolvedLeg[] = [];
+
+  // The Journeys tab only: the four nostoi, each its own color+dash route
+  // (MapsPage assigns colorClass/dashArray -- see that file's JOURNEY_STYLE
+  // -- so this component stays a pure rendering shell). `arrivalLegIndex`
+  // marks the one leg (Odysseus's Scheria->Ithaca) that gets the heavier
+  // "arriving home" glow treatment; undefined for routes with no such leg.
+  export let journeyRoutes: {
+    id: string;
+    colorClass: string;
+    dashArray: string | undefined;
+    arrivalLegIndex: number | undefined;
+    legs: ResolvedLeg[];
+  }[] = [];
+
   const DEFAULT_RADIUS = 7;
   const CAWM_ATTRIBUTION =
     'Tiles &copy; <a href="https://cawm.lib.uiowa.edu/" target="_blank" rel="noopener">' +
@@ -53,6 +84,8 @@
   let map: any = null;
   const layers = new Map<string, any>();
   let routeLayer: any = null;
+  let tailLayers: any[] = [];
+  let journeyLayers: any[] = [];
   let resizeObserver: ResizeObserver | null = null;
 
   // ── Marker clustering (Wave B #7: the Ships map's Argolid clump) ──────────
@@ -414,6 +447,176 @@
     return `lm-pin tier-${certainty}`;
   }
 
+  // ── Route curvature / gap rendering (journeyRoutes + wanderingsTail) ──────
+  // Per-leg curvature ("bow", see maps.ts curvedRoute/arcPoints) and, for
+  // broken legs, fade-stub bearing/length -- rendering-layer tuning tables,
+  // never sourced from apparatus data (CLAUDE.md: journeys.json/places.json
+  // are data only, no display hints belong there). Keyed by "from-to"
+  // place-id pairs; a leg not listed falls back to a default that still
+  // reads as "gentle curve, not a rigid straight line" (John, 2026-07-17)
+  // even for a future journeys.json addition this table hasn't been tuned
+  // for yet. Signs/magnitudes below were chosen by eye against the CAWM
+  // basemap at each map's default framing, favoring a small bow through
+  // tight island clusters (Scylla/Charybdis/Thrinacia; the Aeaea/
+  // Laestrygonia stretch off the Italian coast) and a larger one across open
+  // water or a multi-leg fan-out from a single hub (Menelaus's five Egypt
+  // departures; Cape Malea, shared by two travelers).
+  const DEFAULT_BOW = 0.08;
+  const BOW_HINTS: Record<string, number> = {
+    'ismarus-cape-malea': 0.09,
+    'cape-malea-cythera': -0.1,
+    'cythera-lotus-eaters-land': 0.07,
+    'lotus-eaters-land-cyclopes-land': -0.06,
+    'cyclopes-land-aeolia': 0.08,
+    'aeolia-laestrygonia': -0.05,
+    'laestrygonia-aeaea': 0.05,
+    'aeaea-sirens-island': -0.06,
+    'sirens-island-scylla': 0.05,
+    'scylla-charybdis': -0.04,
+    'charybdis-thrinacia': 0.06,
+    'scheria-ithaca': -0.09,
+    'troy-sounion': 0.07,
+    'sounion-cape-malea': -0.08,
+    'cape-malea-crete-knossos': 0.11,
+    'cape-malea-egypt': -0.09,
+    'egypt-pharos': 0.06,
+    'pharos-sparta': -0.05,
+    'egypt-cyprus': 0.1,
+    'egypt-sidon-phoenicia': 0.17,
+    'egypt-libya': -0.15,
+    'troy-tenedos': -0.07,
+    'tenedos-lesbos': 0.06,
+    'lesbos-geraistos': -0.09,
+    'geraistos-pylos': 0.08,
+    'ithaca-pylos': 0.09,
+    'pylos-pherae-messenia': -0.07,
+    'pherae-messenia-sparta': 0.06,
+    'sparta-ithaca': -0.1,
+  };
+  function bowFor(fromId: string, toId: string, legIndex: number): number {
+    const hint = BOW_HINTS[`${fromId}-${toId}`];
+    if (hint != null) return hint;
+    return legIndex % 2 === 0 ? DEFAULT_BOW : -DEFAULT_BOW;
+  }
+
+  // Every currently-unlocatable leg in the corpus is listed explicitly (no
+  // silent numeric default for these -- an unlisted unlocatable leg falls
+  // back to a generic bearing AND logs a console.warn, so a future
+  // journeys.json addition doesn't go unnoticed).
+  const FADE_HINTS: Record<string, { bearing: number; length: number }> = {
+    'thrinacia-ogygia': { bearing: 235, length: 2.6 }, // "the navel of the sea" -- southwest into open water
+    'ogygia-scheria': { bearing: 235, length: 2.0 }, // mirrored: arriving at Scheria from the same unknown quarter
+    'egypt-ethiopians-land': { bearing: 165, length: 3.2 }, // Homer's Ethiopians, "sundered in two" at the ends of the earth -- south
+    'egypt-erembi': { bearing: 95, length: 3.0 }, // unresolved ancient crux (Strabo); fanned east of the Cyprus/Sidon legs, no identification implied
+    'aeaea-cimmerians-underworld': { bearing: 300, length: 2.8 }, // Circe sends Odysseus "across Ocean" for the nekyia -- northwest, away from the Apologoi's Sicily/Italy cluster
+    'cimmerians-underworld-aeaea': { bearing: 300, length: 2.2 }, // mirrored: the return from the house of Hades
+  };
+
+  function drawableLeg(leg: ResolvedLeg): boolean {
+    return !leg.unlocatable && !!leg.fromPlace?.coords && !!leg.toPlace?.coords;
+  }
+
+  // Draws one leg's honesty "gap" treatment: a short fading stub from
+  // whichever endpoint IS locatable, plus a small gap marker (with the leg's
+  // own note in its popup) at the fading tip. Never draws anything AT the
+  // unlocatable place itself -- see maps.ts fadeStub doc.
+  function drawBrokenLeg(leg: ResolvedLeg, colorClass: string): any[] {
+    const out: any[] = [];
+    const fromCoords = leg.fromPlace?.coords as LatLon | undefined;
+    const toCoords = leg.toPlace?.coords as LatLon | undefined;
+    const outbound = !!fromCoords;
+    const known = outbound ? fromCoords : toCoords;
+    if (!known) return out; // both endpoints unlocatable -- nothing to anchor a stub to (not in the current corpus)
+
+    const key = `${leg.from}-${leg.to}`;
+    const hint = FADE_HINTS[key];
+    if (!hint) {
+      console.warn(`[LandmarkMap] no FADE_HINTS entry for unlocatable leg "${key}" -- using a generic bearing`);
+    }
+    const bearing = hint?.bearing ?? 200;
+    const length = hint?.length ?? 2.2;
+    let pts = fadeStub(known, bearing, length, 4);
+    if (!outbound) pts = pts.slice().reverse(); // arriving FROM the unknown: fade IN toward `known`
+
+    // Several progressively fainter CHUNKS (not one segment per fadeStub
+    // point -- at this zoom a single point-to-point segment is only ~10px
+    // long, too short for a dash pattern to read as anything but a solid
+    // sliver; each chunk here spans multiple points instead, long enough for
+    // its own dash pattern to actually show 2-3 dashes). Leaflet has no
+    // gradient stroke, so the "fade" is this per-chunk opacity step, not a
+    // continuous gradient.
+    const CHUNK = 2; // points per chunk (>= 2, so >=1 segment per chunk)
+    for (let start = 0; start < pts.length - 1; start += CHUNK) {
+      const end = Math.min(start + CHUNK, pts.length - 1);
+      const chunkPts = pts.slice(start, end + 1);
+      const t = outbound ? start / (pts.length - 1) : 1 - end / (pts.length - 1);
+      out.push(
+        L.polyline(chunkPts, {
+          className: `lm-journey-route lm-journey-broken ${colorClass}`,
+          weight: 2.5,
+          dashArray: '4,4',
+          opacity: Math.max(0.2, 0.75 * (1 - t)),
+        }).addTo(map),
+      );
+    }
+
+    const farPoint = outbound ? pts[pts.length - 1]! : pts[0]!;
+    const unknownName = (outbound ? leg.to : leg.from).replace(/-/g, ' ');
+    const gapIcon = L.divIcon({
+      className: 'lm-gap-marker',
+      html: '<span class="lm-gap-dot" aria-hidden="true"></span>',
+      iconSize: [12, 12],
+      iconAnchor: [6, 6],
+    });
+    const gapMarker = L.marker(farPoint, { icon: gapIcon, keyboard: false, alt: `Position not fixed: ${unknownName}` });
+    const popup = document.createElement('div');
+    popup.className = 'lm-popup';
+    const title = document.createElement('div');
+    title.className = 'lm-popup-name';
+    title.textContent = 'Position not fixed';
+    popup.appendChild(title);
+    const noteEl = document.createElement('div');
+    noteEl.className = 'lm-popup-note';
+    noteEl.textContent = leg.note;
+    popup.appendChild(noteEl);
+    gapMarker.bindPopup(popup);
+    gapMarker.addTo(map);
+    out.push(gapMarker);
+    return out;
+  }
+
+  // Draws a full leg list (a journey, or the Wanderings tail): a gently-
+  // curved solid arc per drawable leg, the broken/faded gap treatment
+  // otherwise. `isArrival` marks the one leg (if any) that gets the heavier
+  // "arriving home" glow.
+  function drawJourneyLegs(
+    legs: ResolvedLeg[],
+    colorClass: string,
+    dashArray: string | undefined,
+    weight: number,
+    isArrival?: (leg: ResolvedLeg, i: number) => boolean,
+  ): any[] {
+    const out: any[] = [];
+    legs.forEach((leg, i) => {
+      if (drawableLeg(leg)) {
+        const from = leg.fromPlace!.coords as LatLon;
+        const to = leg.toPlace!.coords as LatLon;
+        const pts = arcPoints(from, to, bowFor(leg.from, leg.to, i), 16);
+        const arrival = isArrival?.(leg, i) ?? false;
+        out.push(
+          L.polyline(pts, {
+            className: `lm-journey-route ${colorClass}${arrival ? ' lm-journey-arrival' : ''}`,
+            weight,
+            dashArray,
+          }).addTo(map),
+        );
+      } else {
+        out.push(...drawBrokenLeg(leg, colorClass));
+      }
+    });
+    return out;
+  }
+
   function render() {
     if (!map) return;
     for (const l of layers.values()) map.removeLayer(l);
@@ -470,13 +673,43 @@
     }
 
     if (polyline.length > 1) {
-      const coords = polyline.filter((p) => p.coords).map((p) => p.coords);
-      routeLayer = L.polyline(coords, {
+      // Gently curved, not a rigid straight polyline (John, 2026-07-17) --
+      // see maps.ts curvedRoute/arcPoints and this file's BOW_HINTS above.
+      const routePlaces = polyline.filter((p) => p.coords);
+      const coords: LatLon[] = routePlaces.map((p) => p.coords as LatLon);
+      const curved = curvedRoute(coords, (i) => bowFor(routePlaces[i]!.id, routePlaces[i + 1]!.id, i), 16);
+      routeLayer = L.polyline(curved, {
         className: storyMode ? 'lm-route lm-route-story' : 'lm-route',
         weight: storyMode ? 4.5 : 2,
         dashArray: storyMode ? undefined : '6,6',
       }).addTo(map);
     }
+
+    // Wanderings-tab-only extension: Thrinacia -> Ogygia (broken) -> Scheria
+    // -> Ithaca, in the SAME color/dash treatment as the route above so it
+    // reads as one continuous line -- see this file's drawJourneyLegs.
+    for (const l of tailLayers) map.removeLayer(l);
+    tailLayers = wanderingsTail.length
+      ? drawJourneyLegs(
+          wanderingsTail,
+          'lm-journey-odysseus',
+          storyMode ? undefined : '6,6',
+          storyMode ? 4.5 : 2,
+          (_leg, i) => i === wanderingsTail.length - 1,
+        )
+      : [];
+
+    // Journeys-tab-only: the four nostoi, each its own color+dash route.
+    for (const l of journeyLayers) map.removeLayer(l);
+    journeyLayers = journeyRoutes.flatMap((route) =>
+      drawJourneyLegs(
+        route.legs,
+        route.colorClass,
+        route.dashArray,
+        2.5,
+        route.arrivalLegIndex != null ? (_leg, i) => i === route.arrivalLegIndex : undefined,
+      ),
+    );
 
     if (bounds.length) {
       map.fitBounds(bounds, { padding: [28, 28], maxZoom: 8 });
@@ -554,7 +787,7 @@
   // imperative, so this is a full layer rebuild rather than a Svelte-reactive
   // DOM diff; the corpus is 274 places / 45 contingents, so a rebuild is
   // inexpensive.
-  $: if (map && (items || polyline || selectedId !== undefined || storyMode || storyStations)) render();
+  $: if (map && (items || polyline || selectedId !== undefined || storyMode || storyStations || wanderingsTail || journeyRoutes)) render();
 
   // Pan to (but don't re-zoom past) a newly selected item and open its popup,
   // mirroring the panel's aria-selected state. If the selection is currently
@@ -692,6 +925,39 @@
   :global(.lm-route-story) {
     stroke: var(--accent);
     filter: drop-shadow(0 0 3px var(--accent));
+  }
+
+  /* Journey routes (John, 2026-07-17): the Wanderings-tail extension and the
+     Journeys tab's four nostoi. Colors are CSS custom properties MapsPage
+     defines on its own .mp-root wrapper (an ancestor of this component's
+     .lm-map, so ordinary CSS inheritance carries them down to these Leaflet
+     SVG paths) -- see that file for the derivation-from-tokens formula. The
+     var()-with-fallback here is defensive only: MapsPage always sets these,
+     but a bare --accent/etc. keeps a broken/faded route legible even if it
+     didn't. */
+  :global(.lm-journey-route) { fill: none; }
+  :global(.lm-journey-odysseus) { stroke: var(--journey-odysseus, var(--accent)); }
+  :global(.lm-journey-menelaus) { stroke: var(--journey-menelaus, var(--accent-light)); }
+  :global(.lm-journey-nestor) { stroke: var(--journey-nestor, var(--rule-strong)); }
+  :global(.lm-journey-telemachus) { stroke: var(--journey-telemachus, var(--text-mid)); }
+  /* The one leg that gets the heavier "arriving home" glow (Odysseus's
+     Scheria->Ithaca, on both the Wanderings tail and the Journeys tab). */
+  :global(.lm-journey-arrival) { filter: drop-shadow(0 0 3px var(--journey-odysseus, var(--accent))); }
+  /* Broken/faded "gap" leg treatment (an unlocatable endpoint -- Ogygia; the
+     Ethiopians; the Erembi): several progressively fainter mini-segments
+     (opacity set inline per-segment in the script, Leaflet has no gradient
+     stroke) in a fine dotted pattern distinct from every traveler's own dash,
+     so a gap reads as "gap", not as that traveler's ordinary route. */
+  :global(.lm-journey-broken) { stroke-linecap: round; }
+
+  :global(.lm-gap-marker) { background: none; border: none; }
+  .lm-gap-dot {
+    display: block;
+    width: 8px; height: 8px;
+    margin: 2px;
+    border-radius: 50%;
+    border: 1.4px dashed var(--text-mid);
+    background: var(--popup-bg);
   }
 
   /* Story mode numbered station badges (replace tier pins for coord-bearing

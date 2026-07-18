@@ -266,6 +266,10 @@ And from his expanded set, the ones this project adopts:
 - **`git add -A` while agents are in flight** (2026-07-17, twice): sweeps
   concurrent agents' uncommitted work into unrelated commits. Orchestrator
   commits must stage explicit paths whenever any agent is running.
+  UPDATE (2026-07-18, orchestrator self-caught): DIRECTORY adds count —
+  `git add shared/__tests__/` swept an in-flight lane's test edits into an
+  unrelated commit. Stage explicit FILES, never directories, while any
+  agent runs.
 
 - **Fork drift** (aristotle→plato: ~20 files diverged in 4 days): this repo is the
   fourth fork. `DRIFT.md` is the mitigation; keep it current.
