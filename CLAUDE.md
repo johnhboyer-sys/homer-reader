@@ -26,6 +26,11 @@ non-negotiable.
 - **Vulgate lineation is sacred.** Never renumber. Numbering gaps and
   bracketed/athetized lines are preserved verbatim; a verifier asserts monotonic
   numbering with recorded, expected gaps per book.
+- **Apparatus sourcing (John, 2026-07-18):** apparatus features may draw on
+  copyrighted scholarship as SOURCES — cited precisely, attributed quotes
+  welcome, never republished wholesale. Site translations remain PD-only
+  (rule above unchanged). Print Landmark series stays excluded entirely.
+  Every sourced claim carries its citation in the data, not just the prose.
 - **Apparatus honesty:** AI-drafted apparatus carries `status: "draft"` until John
   flips it; the UI shows a discreet draft badge. Every place has a certainty tier
   (`certain | traditional | speculative | mythical`); traditional identifications
