@@ -196,6 +196,19 @@ describe('wanderingsStory (real apparatus/places.json)', () => {
     expect(unlocated.map((s) => s.number)).toEqual([10, 15]);
   });
 
+  it('partitions every numbered station into exactly one pin or unplaced gap badge', () => {
+    // LandmarkMap draws the located side as solid Story pins and the
+    // unlocated side as station-owned gap badges. Keep this derived from the
+    // same story data rather than maintaining a second visual-number list.
+    const { located: pinStations, unlocated: gapBadgeStations } = splitStoryByCoords(story);
+    const renderedNumbers = [
+      ...pinStations.map((s) => s.number),
+      ...gapBadgeStations.map((s) => s.number),
+    ];
+    expect(new Set(renderedNumbers).size).toBe(renderedNumbers.length);
+    expect(renderedNumbers.sort((a, b) => a - b)).toEqual(story.map((s) => s.number));
+  });
+
   it('skips an id absent from the places array rather than inventing a placeholder', () => {
     const trimmed = raw.places.filter((p: Place) => p.id !== 'ithaca');
     const trimmedStory = wanderingsStory(trimmed);

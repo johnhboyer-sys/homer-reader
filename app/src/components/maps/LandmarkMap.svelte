@@ -308,6 +308,11 @@
     // cited line (Greek + citation) for the chip's title/aria description.
     durationChip: string | null;
     durationTitle: string | null;
+    durationDetails: string[];
+    // Unlocated story stations borrow the end of their faded stub as an
+    // affordance position, never as a claim about where the place was.
+    unplaced: boolean;
+    citation: string | null;
     // Play control (John, 2026-07-18): true for the station the playthrough
     // has currently reached, when the player is engaged.
     active: boolean;
@@ -322,7 +327,7 @@
   // headroom — ~52px plain, ~68px with a duration chip (John, 2026-07-18)
   // wrapping to its own line; sized for the taller case since every card
   // shares one collision box regardless of whether ITS station has a chip.
-  const CARD_H = 76;
+  const CARD_H = 124;
   const CARD_GAP = 14;
   const BADGE_HALF = 12; // reserved no-card zone around every badge, incl. neighbors'
 
@@ -384,21 +389,22 @@
     // appears ahead of the leg that reaches it. Unengaged (the ordinary
     // static Story view) shows every located station's caption, unchanged.
     const located = storyStations
-      .filter((s) => s.place.coords)
-      .filter((s) => playbackStep == null || s.number <= playbackStep);
+      .map((s) => ({ station: s, point: s.place.coords ?? storyGapPoint(s) }))
+      .filter((entry): entry is { station: StoryStation; point: LatLon } => !!entry.point)
+      .filter(({ station }) => playbackStep == null || station.number <= playbackStep);
     const size = map.getSize();
 
     // Reserve a no-card zone around every badge (not just each card's own)
     // so a neighbor's caption never sits on top of a pin.
-    const reserved: Rect[] = located.map((s) => {
-      const pt = map.latLngToContainerPoint(s.place.coords as [number, number]);
+    const reserved: Rect[] = located.map(({ point }) => {
+      const pt = map.latLngToContainerPoint(point);
       return { x0: pt.x - BADGE_HALF, y0: pt.y - BADGE_HALF, x1: pt.x + BADGE_HALF, y1: pt.y + BADGE_HALF };
     });
 
     const placed: Rect[] = [...reserved];
     const next: CaptionPos[] = [];
-    for (const s of located) {
-      const pt = map.latLngToContainerPoint(s.place.coords as [number, number]);
+    for (const { station: s, point } of located) {
+      const pt = map.latLngToContainerPoint(point);
       // Preferred start angle: straight up, tried first so the common case
       // (an isolated pin) gets a tidy card directly above it; each failed
       // ring grows outward until a collision-free, in-bounds spot is found.
@@ -450,10 +456,14 @@
         leadY: lead.y,
         durationChip: d ? chipLabel(d) : null,
         durationTitle: d ? durationLine(d) : null,
+        durationDetails: stationDuration ? durationExtras(stationDuration).map((x) => `${x.label}: ${x.value}`) : [],
+        unplaced: !s.place.coords,
+        citation: stationCitation(s.place),
         active: playbackStep != null && s.number === playbackStep,
       });
     }
     captions = next;
+    updateStoryBadgeState();
 
     // One direction arrow per hero-route segment (screen-space rotation).
     // Suppressed while the Play control is engaged — the animated leg
@@ -522,6 +532,33 @@
       }
       wrap.appendChild(ml);
     }
+    return wrap;
+  }
+
+  function stationCitation(p: Place): string | null {
+    const m = p.mentions[0];
+    if (!m) return null;
+    const lines = m.lines[0] === m.lines[1] ? `${m.lines[0]}` : `${m.lines[0]}–${m.lines[1]}`;
+    return `${WORK_ABBR[m.work] ?? m.work} ${m.book}.${lines}`;
+  }
+
+  // The fixed-geography sentence is deliberately about Homer's evidence,
+  // rather than about the open-water badge, which is only an affordance.
+  function storyGapPopupNode(s: StoryStation): HTMLElement {
+    const wrap = document.createElement('div');
+    wrap.className = 'lm-popup';
+    const row = (cls: string, text: string) => {
+      const d = document.createElement('div');
+      d.className = cls;
+      d.textContent = text;
+      wrap.appendChild(d);
+    };
+    row('lm-popup-name', `${s.number}. ${s.place.name}`);
+    row('lm-popup-note', 'Homer gives this station no fixed geography; this badge marks the route’s deliberate break, not a location.');
+    const cite = stationCitation(s.place);
+    if (cite) row('lm-popup-mentions', cite);
+    const durStation = durationsByPlaceId.get(s.place.id);
+    if (durStation) for (const x of durationExtras(durStation)) row('lm-popup-duration', `${x.label}: ${x.value}`);
     return wrap;
   }
 
@@ -607,11 +644,61 @@
     return !leg.unlocatable && !!leg.fromPlace?.coords && !!leg.toPlace?.coords;
   }
 
+  // An unlocatable station gets one Story badge at the far end of the
+  // incoming faded stub. That open-water point is a rendering affordance,
+  // not a geographic identification or a coordinate for the station.
+  function storyGapPoint(station: StoryStation): LatLon | null {
+    const index = storyStations.findIndex((s) => s.number === station.number);
+    const previous = index > 0 ? storyStations[index - 1]?.place : undefined;
+    if (!previous?.coords || station.place.coords) return null;
+    const hint = FADE_HINTS[`${previous.id}-${station.place.id}`];
+    const pts = fadeStub(previous.coords, hint?.bearing ?? 200, hint?.length ?? 2.2, 4);
+    return pts[pts.length - 1] ?? null;
+  }
+
+  const storyGapBadges = new Map<number, any>();
+  function updateStoryBadgeState() {
+    for (const s of storyStations) {
+      if (!s.place.coords) continue;
+      const el = layers.get(s.place.id)?.getElement?.();
+      el?.classList.toggle('lm-active', playbackStep != null && s.number === playbackStep);
+    }
+    for (const [number, marker] of storyGapBadges) {
+      const el = marker.getElement?.();
+      el?.classList.toggle('lm-active', playbackStep != null && number === playbackStep);
+    }
+  }
+
+  function drawStoryGapBadges(): void {
+    storyGapBadges.clear();
+    if (!storyMode) return;
+    for (const s of storyStations) {
+      if (s.place.coords) continue;
+      const point = storyGapPoint(s);
+      if (!point) continue;
+      const icon = L.divIcon({
+        className: `lm-gap-badge${playbackStep != null && s.number === playbackStep ? ' lm-active' : ''}`,
+        html: `<span class="lm-gap-badge-num" aria-hidden="true"><span>${s.number}</span></span>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+      });
+      const marker = L.marker(point, {
+        icon,
+        keyboard: false,
+        alt: `${s.number}. ${s.place.name}; position not fixed`,
+      });
+      marker.bindPopup(storyGapPopupNode(s));
+      marker.addTo(map);
+      storyGapBadges.set(s.number, marker);
+      layers.set(`story-gap-${s.place.id}`, marker);
+    }
+  }
+
   // Draws one leg's honesty "gap" treatment: a short fading stub from
   // whichever endpoint IS locatable, plus a small gap marker (with the leg's
   // own note in its popup) at the fading tip. Never draws anything AT the
   // unlocatable place itself -- see maps.ts fadeStub doc.
-  function drawBrokenLeg(leg: ResolvedLeg, colorClass: string): any[] {
+  function drawBrokenLeg(leg: ResolvedLeg, colorClass: string, showGapMarker = true): any[] {
     const out: any[] = [];
     const fromCoords = leg.fromPlace?.coords as LatLon | undefined;
     const toCoords = leg.toPlace?.coords as LatLon | undefined;
@@ -653,6 +740,7 @@
 
     const farPoint = outbound ? pts[pts.length - 1]! : pts[0]!;
     const unknownName = (outbound ? leg.to : leg.from).replace(/-/g, ' ');
+    if (!showGapMarker) return out;
     const gapIcon = L.divIcon({
       className: 'lm-gap-marker',
       html: '<span class="lm-gap-dot" aria-hidden="true"></span>',
@@ -736,6 +824,7 @@
     dashArray: string | undefined,
     weight: number,
     isArrival?: (leg: ResolvedLeg, i: number) => boolean,
+    showGapMarkers = true,
   ): any[] {
     const out: any[] = [];
     legs.forEach((leg, i) => {
@@ -770,7 +859,7 @@
           out.push(marker);
         }
       } else {
-        out.push(...drawBrokenLeg(leg, colorClass));
+        out.push(...drawBrokenLeg(leg, colorClass, showGapMarkers));
       }
     });
     return out;
@@ -832,7 +921,7 @@
         L.polyline(pts, { className: 'lm-journey-route lm-journey-odysseus lm-route-story', weight: 4.5 }).addTo(map),
       ];
     }
-    return drawBrokenLeg(resolved, 'lm-journey-odysseus');
+    return drawBrokenLeg(resolved, 'lm-journey-odysseus', false);
   }
 
   // Camera follow for one step. Unlocatable stations (Cimmerians'
@@ -968,6 +1057,11 @@
       layers.set(item.id, layer);
     }
 
+    // Render one station-owned badge per coordless Story station, separate
+    // from broken-leg drawing so an incoming/outgoing pair cannot duplicate
+    // a number (and a station can never silently disappear from the count).
+    drawStoryGapBadges();
+
     if (polyline.length > 1) {
       // Gently curved, not a rigid straight polyline (John, 2026-07-17) --
       // see maps.ts curvedRoute/arcPoints and this file's BOW_HINTS above.
@@ -992,8 +1086,28 @@
           storyMode ? undefined : '6,6',
           storyMode ? 4.5 : 2,
           (_leg, i) => i === wanderingsTail.length - 1,
+          !storyMode,
         )
       : [];
+
+    // The ordinary Story polyline intentionally omits coordless stations,
+    // so give those legs their honest faded stubs too. Ogygia's matching
+    // return-tail legs were already drawn immediately above; excluding those
+    // keys avoids doubling their stubs while keeping this data-derived for
+    // any other unlocated Story station (the Nekyia today).
+    if (storyMode) {
+      const tailBrokenKeys = new Set(
+        wanderingsTail
+          .filter((leg) => !drawableLeg(leg))
+          .map((leg) => `${leg.from}-${leg.to}`),
+      );
+      for (const leg of playbackLegs) {
+        const resolved = toResolvedLeg(leg);
+        if (!drawableLeg(resolved) && !tailBrokenKeys.has(`${resolved.from}-${resolved.to}`)) {
+          tailLayers.push(...drawBrokenLeg(resolved, 'lm-journey-odysseus', false));
+        }
+      }
+    }
 
     // Journeys-tab-only: the four nostoi, each its own color+dash route.
     for (const l of journeyLayers) map.removeLayer(l);
@@ -1198,7 +1312,15 @@
           <span class="lm-caption-num" aria-hidden="true">{c.number}</span>
           <span class="lm-caption-body">
             <span class="lm-caption-name">{c.place.name}</span>
-            <span class="lm-caption-note">{captionSummary(c.place.note)}</span>
+            {#if c.unplaced}
+              <span class="lm-caption-note lm-caption-note-unplaced">Homer gives no fixed geography; route break, not location.</span>
+              {#if c.citation}<span class="lm-caption-citation">{c.citation}</span>{/if}
+              {#each c.durationDetails as detail}
+                <span class="lm-caption-duration">{detail}</span>
+              {/each}
+            {:else}
+              <span class="lm-caption-note">{captionSummary(c.place.note)}</span>
+            {/if}
             {#if c.durationChip}
               <span class="lm-caption-chip" title={c.durationTitle ?? undefined}>{c.durationChip}</span>
             {/if}
@@ -1307,6 +1429,35 @@
     background: var(--popup-bg);
   }
 
+  /* Story's unplaced stations retain their number, but the dashed diamond
+     uses the map's mythical-tier language to distinguish an affordance point
+     from a solid, geographically identified station pin. */
+  :global(.lm-gap-badge) { background: none; border: none; }
+  :global(.lm-gap-badge-num) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin: 3px;
+    box-sizing: border-box;
+    transform: rotate(45deg);
+    border: 1.5px dashed var(--text-mid);
+    background: var(--popup-bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  :global(.lm-gap-badge-num > span) { transform: rotate(-45deg); }
+  :global(.lm-gap-badge.lm-active .lm-gap-badge-num) {
+    border-color: var(--accent);
+    border-width: 2.2px;
+    background: var(--greek-hover);
+    color: var(--accent);
+  }
+
   /* Verified traveler-timing note marker (John, 2026-07-18: Menelaus's
      eighth year, Nestor's sailing rhythm, Telemachus's calendar line) — a
      small SOLID dot (unlike the dashed lm-gap-dot honesty marker above) so
@@ -1342,6 +1493,7 @@
     box-sizing: border-box;
   }
   :global(.lm-badge.lm-selected .lm-badge-num) { border-color: var(--rule-strong); border-width: 2.4px; }
+  :global(.lm-badge.lm-active .lm-badge-num) { border-color: var(--rule-strong); border-width: 2.4px; box-shadow: 0 0 0 2px var(--greek-hover); }
   :global(.lm-pin.lm-quiet) { opacity: 0.45; }
   :global(.lm-mythical-icon.lm-quiet .lm-diamond) { opacity: 0.45; }
 
@@ -1452,6 +1604,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .lm-caption-note-unplaced { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.25; }
+  .lm-caption-citation { display: block; margin-top: 0.08rem; font-size: 0.62rem; color: var(--text-mid); }
+  .lm-caption-duration { display: block; margin-top: 0.08rem; font-size: 0.62rem; color: var(--text-mid); line-height: 1.25; }
   .lm-caption-tier-mark {
     flex: none;
     width: 8px;
