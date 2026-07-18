@@ -86,6 +86,25 @@ for (const work of works) {
 const charactersSrc = join(APPARATUS, 'characters.json');
 if (existsSync(charactersSrc)) copyFileSync(charactersSrc, join(dataDir, 'characters.json'));
 
+// Landmark-style scene-map apparatus: apparatus/places.json (the gazetteer)
+// and apparatus/journeys.json (the nostoi legs), copied into the public data
+// root so the reader can fetch them at runtime — same plain-copy,
+// present-only treatment as characters.json above (see
+// shared/lib/data.ts's fetchPlaces/fetchJourneys, consumed by
+// shared/lib/scene-place.ts to resolve Reading Mode's per-scene figure
+// plate). The vendored Mediterranean coastline SVG source
+// (sources/naturalearth/mediterranean-coastline.json, ~35KB, used by the
+// same plate's map) is copied alongside for the identical reason: it must
+// reach the client via a runtime fetch through the data root, never a
+// static import that would ship it in the page bundle for Scholar-only
+// readers (see shared/lib/data.ts's fetchCoastline).
+const placesSrc = join(APPARATUS, 'places.json');
+if (existsSync(placesSrc)) copyFileSync(placesSrc, join(dataDir, 'places.json'));
+const journeysSrc = join(APPARATUS, 'journeys.json');
+if (existsSync(journeysSrc)) copyFileSync(journeysSrc, join(dataDir, 'journeys.json'));
+const coastlineSrc = join(ROOT, 'sources', 'naturalearth', 'mediterranean-coastline.json');
+if (existsSync(coastlineSrc)) copyFileSync(coastlineSrc, join(dataDir, 'coastline.json'));
+
 // David Chamberlain's recitation-audio coverage manifest (feature #19,
 // "Hear this passage"): one whole-corpus file, same plain-copy treatment as
 // characters.json above. Optional apparatus — copied only if present, and its

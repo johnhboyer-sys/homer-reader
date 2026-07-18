@@ -3600,19 +3600,59 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 .reader-body.reading-mode .verse-bracket-legend { display: none; }
 
 /* Reading Mode scene page header (John's directive, 2026-07-18: paginate by
-   scene, not by whole book): position indicator + day/place/draft meta + the
-   one-line Landmark summary, introducing the scene's prose below it. Replaces
-   the old marginal scene chips. Contrast: --text-mid position/day/place on
-   ground clears AA in both themes (same pairing as .scene-item-lines/day
-   below); --text summary is the reader's primary-text contrast. */
+   scene, not by whole book) — upgraded to the approved Variant B figure plate
+   (2026-07-18): a bordered cartouche composing the scene's map beside its
+   title treatment (position/day/place/draft meta + the one-line Landmark
+   summary). Contrast: --text-mid position/day/place on ground clears AA in
+   both themes (same pairing as .scene-item-lines/day below); --text summary
+   is the reader's primary-text contrast. */
 .reading-scene-head {
   margin: 0 0 1.6rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border);
   /* scrollReadingToTop's scrollIntoView (posture entry + every scene nav)
      lands the header just below the sticky header/controls strip, not
      under them — same idiom as .greek-line's scroll-margin-top above. */
   scroll-margin-top: calc(var(--header-h, 92px) + 1.5rem);
+}
+/* The plate itself: the SAME double-hairline cartouche idiom as .book-plate
+   above (outer --rule-strong border + an inset ::before --border hairline),
+   reused rather than duplicated so the two plates read as one visual family.
+   Desktop: map column + content column, side by side. No map (a scene whose
+   resolved place has no coords, or a book with no mappable place at all —
+   shared/lib/scene-place.ts): single column, content only, no map slot ever
+   rendered empty (apparatus honesty). */
+.reading-plate {
+  display: grid;
+  grid-template-columns: minmax(150px, 220px) 1fr;
+  gap: 0 1.4rem;
+  border: 1px solid var(--rule-strong);
+  padding: 0.9rem 1.1rem;
+  position: relative;
+  /* Same Chromium hairline-bug mitigation as .book-plate (see its comment):
+     promotes the box to its own compositing layer so the bottom border rule
+     doesn't vanish at a fractional device pixel on phone widths. */
+  transform: translateZ(0);
+}
+.reading-plate::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--border);
+  pointer-events: none;
+}
+.reading-plate.reading-plate-nomap { grid-template-columns: 1fr; }
+.reading-plate-map {
+  /* Reserved at the scenemap library's own default aspect ratio
+     (DEFAULT_SCENE_MAP_OPTIONS: 320x220) BEFORE the SVG lands, so filling it
+     in place never reflows the page — see the readingSceneHead snippet's
+     comment for the one accepted edge case (a session's very first scene
+     view, if THAT scene turns out mapless). */
+  aspect-ratio: 320 / 220;
+  align-self: center;
+}
+.reading-plate-map svg { display: block; width: 100%; height: 100%; }
+.reading-plate-content {
+  min-width: 0;
+  padding: 0.15rem 0;
 }
 .reading-scene-pos {
   margin: 0;
@@ -3644,6 +3684,14 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   font-size: 0.95rem;
   line-height: 1.45;
   color: var(--text);
+}
+/* Mobile: the plate flows to a single column, map full-width above the
+   metadata (John's directive: NOT the C-sheet, just the plate reading well
+   at small widths — see PROMPT for this lane). 560px matches this reader's
+   other single-column collapse points. */
+@media (max-width: 560px) {
+  .reading-plate { grid-template-columns: 1fr; gap: 0.75rem 0; }
+  .reading-plate-map { align-self: stretch; }
 }
 /* Draft badge: a discreet tiny uppercase outline chip in --draft (the
    slate-blue tone reserved for the apparatus-honesty draft marker; AA on

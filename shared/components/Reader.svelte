@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
-  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, fetchSpeeches, fetchCharacters, fetchScansion, fetchAudioManifest, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene, type Speech, type CharacterEntry, type ScansionEntry } from '../lib/data';
+  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, fetchSpeeches, fetchCharacters, fetchScansion, fetchAudioManifest, fetchPlaces, fetchJourneys, fetchCoastline, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene, type Speech, type CharacterEntry, type ScansionEntry } from '../lib/data';
+  import { joinScenesToPlaces, type PlacesFile, type JourneysFile } from '../lib/scene-place';
+  import { renderSceneMap, type Coastline } from '../lib/scenemap';
   import { takeSsrBook } from '../lib/ssr-book';
   import { schemeFor, formatCite } from '../lib/citation';
   import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
@@ -563,6 +565,57 @@
   // scope here.
   const bookTellingDay: boolean =
     (activeBook as RawBookData | null)?.apparatus?.where?.includes('(telling)') === true;
+
+  // ── Reading Mode figure plate (per-scene map, Variant B) ───────────────────
+  // The gazetteer (places.json) + nostoi legs (journeys.json) needed to join a
+  // scene to a real, mappable place (shared/lib/scene-place.ts) plus the
+  // vendored coastline (shared/lib/scenemap.ts) the map itself is drawn
+  // against — all three payload-disciplined like fetchSpeeches/fetchCharacters
+  // above: nothing fetches until Reading Mode is actually entered (either by
+  // toggle, or restored from POSTURE_KEY at mount), so Scholar-only readers
+  // never pay for the ~200KB combined. Guarded by `plateDataLoaded` the same
+  // way `speechesLoaded` guards ensureSpeeches, including the reset-on-failure
+  // retry.
+  let plateDataLoaded = false;
+  let platePlaces: PlacesFile = { places: [] };
+  let plateJourneys: JourneysFile = { journeys: [] };
+  let plateCoastline: Coastline | null = null;
+  async function ensurePlateData(): Promise<void> {
+    if (plateDataLoaded) return;
+    plateDataLoaded = true;
+    try {
+      const [pl, jo, co] = await Promise.all([fetchPlaces(), fetchJourneys(), fetchCoastline()]);
+      platePlaces = pl;
+      plateJourneys = jo;
+      plateCoastline = co;
+    } catch {
+      plateDataLoaded = false;
+    }
+  }
+  $: if (mounted && reading && scenes.length && !plateDataLoaded) ensurePlateData();
+
+  // Every scene's resolved place/route (or null — no mappable place anywhere
+  // in this book), recomputed whenever the book's scenes or the fetched
+  // gazetteer/journeys change. Cheap pure joins (shared/lib/scene-place.ts),
+  // so resolving the whole book at once (rather than just the current scene)
+  // keeps Previous/Next scene paging in sync with zero recompute lag.
+  $: scenePlaceResolutions = plateDataLoaded && scenes.length
+    ? joinScenesToPlaces(work, bookNum, scenes, platePlaces, plateJourneys)
+    : [];
+  // The current scene page's resolved place/route and its rendered map SVG —
+  // undefined/null before plateDataLoaded resolves, or when the current
+  // scene's anchor place has no coords (mythical tier, or the book names
+  // nothing mappable at all): the plate then renders title/metadata only,
+  // never a fabricated or empty map box (CLAUDE.md apparatus honesty).
+  $: currentPlateResolution = scenePlaceResolutions[clampedSceneIndex] ?? null;
+  $: currentPlateMap = plateCoastline && currentPlateResolution?.place.coords
+    ? renderSceneMap(
+        [currentPlateResolution.place],
+        plateCoastline,
+        { idPrefix: `scene-map-${work}-${bookNum}-${clampedSceneIndex}` },
+        currentPlateResolution.route,
+      )
+    : null;
 
   // ── DICES speech rails (Phase 4 flagship) ─────────────────────────────────
   // Off by default; a thin speaker rail in the Greek gutter for high-
@@ -2475,24 +2528,47 @@
     </div>
   {/snippet}
 
-  <!-- A scene page's header: position indicator + draft badge + day/place
-       labels + the one-line Landmark summary. Replaces the old marginal scene
-       chips now that Reading Mode pages one scene at a time — this header IS
-       the scene's introduction, not a margin annotation. -->
+  <!-- A scene page's figure plate (Variant B, approved mock:
+       design-board/context-panel-mocks/variantB-*): a bordered cartouche
+       composing the scene's map (shared/lib/scenemap.ts, joined via
+       shared/lib/scene-place.ts — currentPlateMap, computed above) beside its
+       title treatment — position indicator + draft badge + day/place labels +
+       the one-line Landmark summary (the same fields the old plain header
+       carried; no scene title/plate-number is invented, since the pipeline
+       emits none). Replaces the old marginal scene chips now that Reading
+       Mode pages one scene at a time — this header IS the scene's
+       introduction, not a margin annotation.
+       Map-slot presence: reserved (`!plateDataLoaded`) before the gazetteer
+       fetch resolves, so the box's aspect-ratio is already in the layout
+       and filling it in place causes no reflow on the (overwhelmingly
+       common) case that this scene turns out to have one; collapsed only
+       once resolution confirms no mappable place (never an empty box in the
+       settled state) — see the ensurePlateData block above for the tradeoff
+       this accepts on a session's very first scene view. -->
   {#snippet readingSceneHead(s: Scene, idx: number, total: number)}
     <header class="reading-scene-head">
-      <p class="reading-scene-pos">Scene {idx + 1} of {total} · lines {s.startLine}{#if s.endLine && s.endLine !== s.startLine}–{s.endLine}{/if}</p>
-      <div class="reading-scene-meta">
-        {#if typeof s.day === 'number'}
-          <span
-            class="reading-scene-day"
-            title={bookTellingDay ? 'The day of the telling at Alcinous’s palace; the events narrated here lie years earlier.' : undefined}
-          >Day {s.day}{bookTellingDay ? ' · telling' : ''}</span>
+      <div class="reading-plate" class:reading-plate-nomap={plateDataLoaded && !currentPlateMap}>
+        {#if !plateDataLoaded || currentPlateMap}
+          <div class="reading-plate-map">
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+            {#if currentPlateMap}{@html currentPlateMap.svg}{/if}
+          </div>
         {/if}
-        {#if s.place}<span class="reading-scene-place">{s.place}</span>{/if}
-        {#if scenesDraft}<span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>{/if}
+        <div class="reading-plate-content">
+          <p class="reading-scene-pos">Scene {idx + 1} of {total} · lines {s.startLine}{#if s.endLine && s.endLine !== s.startLine}–{s.endLine}{/if}</p>
+          <div class="reading-scene-meta">
+            {#if typeof s.day === 'number'}
+              <span
+                class="reading-scene-day"
+                title={bookTellingDay ? 'The day of the telling at Alcinous’s palace; the events narrated here lie years earlier.' : undefined}
+              >Day {s.day}{bookTellingDay ? ' · telling' : ''}</span>
+            {/if}
+            {#if s.place}<span class="reading-scene-place">{s.place}</span>{/if}
+            {#if scenesDraft}<span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>{/if}
+          </div>
+          <p class="reading-scene-summary">{s.summary}</p>
+        </div>
       </div>
-      <p class="reading-scene-summary">{s.summary}</p>
     </header>
   {/snippet}
 

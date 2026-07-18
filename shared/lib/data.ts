@@ -4,6 +4,8 @@
 import { linkifyGlossaryRefs } from './glossary';
 import { scheme, schemeFor } from './citation';
 import type { AudioManifest } from './audio';
+import { parseCoastline, type Coastline } from './scenemap';
+import type { PlacesFile, JourneysFile } from './scene-place';
 
 export interface Token {
   t: string;   // surface form (Unicode Greek)
@@ -325,6 +327,51 @@ export function fetchAudioManifest(): Promise<AudioManifest | null> {
   const p = fetch(`${ROOT()}/audio.json`).then((r) => (r.ok ? r.json() : null)) as Promise<AudioManifest | null>;
   p.catch(() => { if (_audioManifestCache === p) _audioManifestCache = null; });
   _audioManifestCache = p;
+  return p;
+}
+
+// apparatus/places.json (the gazetteer) and apparatus/journeys.json (the
+// nostoi legs) — corpus-wide, not per-work, same posture as characters.json
+// above. Feed shared/lib/scene-place.ts's joinScenesToPlaces() to resolve a
+// Reading Mode scene page to its figure-plate place/route. Both are payload
+// Scholar view never pays for: nothing calls these two functions (or
+// fetchCoastline below) until Reading Mode is actually entered for the first
+// time in a session — see Reader.svelte's plate-data effect. Absence (a
+// build that hasn't copied the gazetteer in yet) resolves to an empty file
+// rather than an error, so a scene page just renders without its plate's map.
+let _placesCache: Promise<PlacesFile> | null = null;
+export function fetchPlaces(): Promise<PlacesFile> {
+  if (_placesCache) return _placesCache;
+  const p = fetch(`${ROOT()}/places.json`).then((r) => (r.ok ? r.json() : { places: [] })) as Promise<PlacesFile>;
+  p.catch(() => { if (_placesCache === p) _placesCache = null; });
+  _placesCache = p;
+  return p;
+}
+
+let _journeysCache: Promise<JourneysFile> | null = null;
+export function fetchJourneys(): Promise<JourneysFile> {
+  if (_journeysCache) return _journeysCache;
+  const p = fetch(`${ROOT()}/journeys.json`).then((r) => (r.ok ? r.json() : { journeys: [] })) as Promise<JourneysFile>;
+  p.catch(() => { if (_journeysCache === p) _journeysCache = null; });
+  _journeysCache = p;
+  return p;
+}
+
+// The vendored Mediterranean coastline (sources/naturalearth/, ~35KB —
+// see shared/lib/scenemap.ts's module docstring). Corpus-wide, static, and
+// used ONLY by the Reading Mode figure plate's map — never imported
+// statically by any component, so it never lands in the initial page bundle
+// for a Scholar-only reader; this fetch is the sole way a client ever sees
+// it, and (like fetchPlaces/fetchJourneys) nothing calls it before Reading
+// Mode first opens. Absence resolves to null; the plate degrades to no map,
+// same as an unlocatable scene.
+let _coastlineCache: Promise<Coastline | null> | null = null;
+export function fetchCoastline(): Promise<Coastline | null> {
+  if (_coastlineCache) return _coastlineCache;
+  const p = fetch(`${ROOT()}/coastline.json`).then((r) => (r.ok ? r.json() : null))
+    .then((raw) => (raw ? parseCoastline(raw) : null));
+  p.catch(() => { if (_coastlineCache === p) _coastlineCache = null; });
+  _coastlineCache = p;
   return p;
 }
 
