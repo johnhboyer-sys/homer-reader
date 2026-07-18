@@ -7035,6 +7035,128 @@
         36.35,
         29.35
       ]
+    },
+    {
+      "id": "sounion",
+      "name": "Sounion",
+      "greek": "Σούνιον",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/580108",
+      "coords": [
+        37.65,
+        24.025
+      ],
+      "maps": [
+        "journeys"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 3,
+          "lines": [
+            278,
+            278
+          ]
+        }
+      ],
+      "note": "The 'sacred cape of the Athenians' (Od. 3.278) at the southern tip of Attica, where Menelaus's helmsman Phrontis died at the tiller and was buried, delaying the fleet. The Poseidon temple whose ruins stand there today is later (5th c. BC) than the epic setting, but the headland is the same real cape (Pleiades 580108)."
+    },
+    {
+      "id": "lesbos",
+      "name": "Lesbos",
+      "greek": "Λέσβος",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/550696",
+      "coords": [
+        39.2075,
+        26.2
+      ],
+      "maps": [
+        "journeys"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 3,
+          "lines": [
+            169,
+            169
+          ]
+        }
+      ],
+      "note": "Large island off the Aeolian coast of Asia Minor where Nestor's and Menelaus's homebound squadrons debated the safer sea-route to Euboea (Od. 3.169-175) before striking out across open water for Geraistos. Coordinate is a representative point on the island, not a single settlement."
+    },
+    {
+      "id": "geraistos",
+      "name": "Geraistos",
+      "greek": "Γεραιστός",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/570258",
+      "coords": [
+        37.977,
+        24.539
+      ],
+      "maps": [
+        "journeys"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 3,
+          "lines": [
+            177,
+            178
+          ]
+        }
+      ],
+      "note": "Harbor/cape at the southern tip of Euboea (modern Porto Kastri) where Nestor's and Menelaus's ships made landfall after the open-sea crossing from near Chios/Lesbos, sacrificing to Poseidon for the safe passage (Od. 3.177-179)."
+    },
+    {
+      "id": "pherae-messenia",
+      "name": "Pherae",
+      "greek": "Φηραί",
+      "certainty": "traditional",
+      "pleiades": "https://pleiades.stoa.org/places/570596",
+      "tradition": "Identified since antiquity with the settlement near modern Kalamata, Messenia (Pausanias 4.30.2, who explicitly glosses Od. 3.488's 'house of Diocles' as 'the city of Pherae in Messene'); distinct from the better-known Thessalian Pherae (home of Admetus).",
+      "coords": [
+        37.046,
+        22.113
+      ],
+      "maps": [
+        "journeys"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 3,
+          "lines": [
+            488,
+            488
+          ]
+        }
+      ],
+      "note": "Home of Diocles son of Ortilochus, where Telemachus and Peisistratus break their overland journey from Pylos to Sparta, spending the night before pressing on the next day (Od. 3.488-497)."
+    },
+    {
+      "id": "erembi",
+      "name": "Erembi",
+      "greek": "Ἐρεμβοί",
+      "certainty": "speculative",
+      "tradition": "Unresolved since antiquity: Strabo (1.2.34), reporting Poseidonius, favors identifying the Erembi with the Arabians (on a conjectured textual/etymological link), while noting a rival ancient view that Homer means the Troglodytae; no consensus location exists, ancient or modern.",
+      "maps": [
+        "journeys"
+      ],
+      "mentions": [
+        {
+          "work": "odyssey",
+          "book": 4,
+          "lines": [
+            84,
+            84
+          ]
+        }
+      ],
+      "note": "People named in Menelaus's summary list of the lands he wandered through before reaching home (Od. 4.83-85), alongside Cyprus, Phoenicia, Egypt, the Ethiopians, the Sidonians, and Libya. No fixed site: not pinned on the map (CLAUDE.md apparatus honesty)."
     }
   ]
 }
