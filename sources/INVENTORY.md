@@ -38,6 +38,16 @@ are eng3/eng4 (verified via __cts__.xml). Attribute Perseus on the About page.
   (1725–26; Odyssey co-authored with Broome/Fenton — translation note must
   disclose, per PROMPT.md).
 
+## naturalearth/ — Natural Earth 1:50m land polygons (public domain)
+
+- mediterranean-coastline.json — Mediterranean-basin coastline, clipped +
+  simplified from `ne_50m_land` for the context-panel scene-maps
+  (`shared/lib/scenemap.ts`). Fetched 2026-07-18 from
+  `nvkelso/natural-earth-vector` (Natural Earth's own GitHub mirror). Public
+  domain per Natural Earth's terms of use — not a US-copyright judgment call.
+  See `sources/naturalearth/README.md` for full provenance + the derivation
+  pipeline (`scripts/prep-naturalearth-coastline.py`).
+
 ## Still to vendor (later phases)
 
 - Autenrieth, A Homeric Dictionary (Eng. tr. 1880s, PD) — no clean structured
