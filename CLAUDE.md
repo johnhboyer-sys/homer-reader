@@ -94,6 +94,11 @@ non-negotiable.
   navigate immediately before every screenshot/assert with no intervening
   calls, and visually confirm each screenshot shows ITS page before
   trusting it.
+- Build-output gotcha (2026-07-18): app/dist is also a shared mutable —
+  two lanes running `astro build` in the same checkout clobber each
+  other's dist mid-verification. Lanes verifying against dist must
+  build+verify without another build lane running, or verify via dev
+  server instead.
 - Verification gotcha (2026-07-17, cost a full Opus diagnostic lane):
   John often has the sibling classical-philosophy-reader dev server
   holding port 4321, so Homer's `astro preview` silently bumps to

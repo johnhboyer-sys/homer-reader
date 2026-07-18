@@ -171,3 +171,145 @@ export function totalDays(strip: DayStrip): number {
   }
   return max;
 }
+
+// ── Voyage strip (Troy -> Ithaca, the ten wandering years) ─────────────────
+// A second, year-scale strip layered onto apparatus/voyage-chronology.json's
+// ordered stations (see that file's header for sourcing). Unlike the day
+// strip, this one has no calendar to derive from -- the poem states some
+// intervals in round numbers (ἐννῆμαρ, μῆνα, ἐνιαυτός, ἑπτάετες...) and is
+// silent on the rest. buildVoyageStrip turns that curated station list into
+// a flat, ordered sequence of 'stated' (sized to a real duration) and
+// 'unstated' (the poem gives no number; rendered as a narrow hatched gap by
+// the caller, not sized to any invented length) entries -- structurally the
+// same 'known span' / 'honest gap' split as the day strip's day/span split,
+// just at year scale instead of day scale.
+
+export type VoyageUnit = 'day' | 'days' | 'night' | 'month' | 'months' | 'year' | 'years';
+
+export interface VoyageDuration {
+  value: number;
+  unit: VoyageUnit;
+  // The Greek anchor word/phrase for a stated duration (e.g. "ἐννῆμαρ"), or
+  // null when the duration is inferred from narrative framing rather than a
+  // counted numeral in the text (e.g. the Scheria -> Ithaca "one night").
+  greek: string | null;
+  cite: string;
+  // True when the duration is read off narrative framing (sunset-to-dawn)
+  // rather than an explicit counting word.
+  approximate?: boolean;
+  label?: string;
+}
+
+export interface VoyageRef {
+  work: string;
+  book: number;
+  lines: [number, number];
+}
+
+export interface VoyageStationInput {
+  id: string;
+  placeId: string | null;
+  label: string;
+  kind: 'start' | 'stop' | 'digression' | 'end';
+  unlocatable?: boolean;
+  refs: VoyageRef[];
+  // The duration associated with reaching/leaving this station (travel time
+  // or a hospitality/captivity stay -- whichever the poem actually states).
+  duration: VoyageDuration | null;
+  // A second stated duration for the rare station that carries both (Ogygia:
+  // nine days adrift arriving, then seven years kept).
+  stayDuration?: VoyageDuration | null;
+  note?: string;
+}
+
+export interface VoyageStripEntry {
+  kind: 'stated' | 'unstated';
+  stationId: string;
+  label: string;
+  // Day-equivalent length for width sizing (0 for 'unstated' -- the caller
+  // draws a fixed narrow hatched gap, never a fabricated width).
+  days: number;
+  duration: VoyageDuration | null;
+  refs: VoyageRef[];
+  note?: string;
+  unlocatable: boolean;
+}
+
+export interface VoyageStrip {
+  entries: VoyageStripEntry[];
+  totalStatedDays: number;
+}
+
+const VOYAGE_DAYS_PER_UNIT: Record<VoyageUnit, number> = {
+  day: 1,
+  days: 1,
+  night: 1,
+  month: 30,
+  months: 30,
+  year: 365,
+  years: 365,
+};
+
+// A stated voyage duration's length in days, for proportional width sizing.
+// Months and years are approximated (30 / 365) -- display-scale conversion,
+// not a calendrical claim.
+export function voyageDurationDays(d: VoyageDuration): number {
+  return d.value * VOYAGE_DAYS_PER_UNIT[d.unit];
+}
+
+// Walk the curated station list in order and emit one entry per stated
+// duration, or one 'unstated' placeholder per station with none. The 'start'
+// station (Troy) has no incoming interval and contributes no entry. A
+// station carrying both `duration` and `stayDuration` (Ogygia) contributes
+// two consecutive 'stated' entries, in that order.
+export function buildVoyageStrip(stations: VoyageStationInput[]): VoyageStrip {
+  const entries: VoyageStripEntry[] = [];
+  let totalStatedDays = 0;
+
+  for (const s of stations) {
+    if (s.kind === 'start') continue;
+
+    if (s.duration) {
+      const days = voyageDurationDays(s.duration);
+      totalStatedDays += days;
+      entries.push({
+        kind: 'stated',
+        stationId: s.id,
+        label: s.label,
+        days,
+        duration: s.duration,
+        refs: s.refs,
+        note: s.note,
+        unlocatable: !!s.unlocatable,
+      });
+    } else {
+      entries.push({
+        kind: 'unstated',
+        stationId: s.id,
+        label: s.label,
+        days: 0,
+        duration: null,
+        refs: s.refs,
+        note: s.note,
+        unlocatable: !!s.unlocatable,
+      });
+    }
+
+    if (s.stayDuration) {
+      const days = voyageDurationDays(s.stayDuration);
+      totalStatedDays += days;
+      entries.push({
+        kind: 'stated',
+        stationId: s.id,
+        label: s.stayDuration.label ?? s.label,
+        days,
+        duration: s.stayDuration,
+        refs: s.refs,
+        note: s.note,
+        unlocatable: !!s.unlocatable,
+      });
+    }
+  }
+
+  return { entries, totalStatedDays };
+}

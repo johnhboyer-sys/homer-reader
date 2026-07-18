@@ -20,7 +20,16 @@ import ThemeInit from '../../components/ThemeInit.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import Pwa from '../../components/Pwa.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
-import { buildDayStrip, parseDayRange, totalDays, type BookInput, type DayStripEntry } from '@shared/lib/timeline';
+import {
+  buildDayStrip,
+  buildVoyageStrip,
+  parseDayRange,
+  totalDays,
+  type BookInput,
+  type DayStripEntry,
+  type VoyageStationInput,
+  type VoyageStripEntry,
+} from '@shared/lib/timeline';
 import '@shared/styles/global.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -59,6 +68,45 @@ const iliadStrip = buildDayStrip(loadBooks('iliad'));
 const odysseyStrip = buildDayStrip(loadBooks('odyssey'));
 const iliadTotalDays = totalDays(iliadStrip);
 const odysseyTotalDays = totalDays(odysseyStrip);
+
+// ── Voyage strip (Troy -> Ithaca, the ten wandering years) ─────────────────
+interface VoyageChronologyFile {
+  status: 'draft' | 'reviewed';
+  totalAssertions: {
+    warStart: { cite: string; greek: string; gloss: string };
+    twentiethYear: { cite: string; greek: string; gloss: string }[];
+  };
+  stations: VoyageStationInput[];
+}
+const voyageFile = JSON.parse(readFileSync('../apparatus/voyage-chronology.json', 'utf-8')) as VoyageChronologyFile;
+const voyageStrip = buildVoyageStrip(voyageFile.stations);
+const voyageTotalYears = (voyageStrip.totalStatedDays / 365).toFixed(1);
+// Year-scale grid sizing: a stated span's fr-weight is the SQUARE ROOT of
+// its day-equivalent, not the raw day count. Raw linear weighting was tried
+// first and rejected: with a 1-day span and a 2555-day span (Calypso) on the
+// same track, linear fr sizing produces a ~50,000px-wide strip where every
+// short span collapses to its floor width and only Calypso is visible at
+// all -- honest in principle, unusable in practice, and no more legible
+// about "dominance" than a square-root scale is. Sqrt compression keeps
+// Calypso's stay and Circe's year the two unmistakably widest columns (still
+// ~5-10x their nearest rivals) while keeping the whole strip scrollable in a
+// normal viewport. An unstated gap gets a small fixed track, never a
+// fabricated width.
+function voyageGridColumns(entries: VoyageStripEntry[]): string {
+  return entries.map((e) => (e.kind === 'stated' ? `minmax(1.15rem, ${Math.max(Math.sqrt(e.days), 1).toFixed(2)}fr)` : 'minmax(1.1rem, .12fr)')).join(' ');
+}
+function formatVoyageDuration(e: VoyageStripEntry): string {
+  if (!e.duration) return '';
+  const unit = e.duration.value === 1 ? e.duration.unit.replace(/s$/, '') : e.duration.unit;
+  return `${e.duration.value} ${unit}`;
+}
+// Short abbreviation for the strip cell itself (full duration + label live in
+// the legend below) -- mirrors the day strip's terse cell-num/"Nd" pattern.
+const VOYAGE_UNIT_ABBR: Record<string, string> = { day: 'd', days: 'd', night: 'n', month: 'mo', months: 'mo', year: 'yr', years: 'yr' };
+function voyageShortLabel(e: VoyageStripEntry): string {
+  if (!e.duration) return '';
+  return `${e.duration.value}${VOYAGE_UNIT_ABBR[e.duration.unit]}`;
+}
 
 // Book-boundary markers: which book number(s) "start" at a given column. A
 // book that contributes no new day/span entry (its content shares an already-
@@ -248,6 +296,33 @@ function spanKey(e: DayStripEntry & { kind: 'span' }): string {
     .zielinski-note { max-width: 46rem; margin-top: .8rem; font-size: .8rem; color: var(--text-light); line-height: 1.55; }
     .zielinski-note a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
 
+    .day34-crosslink { margin-top: .6rem; font-size: .78rem; color: var(--text-light); }
+    .day34-crosslink a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+
+    .voyage-section { margin-top: 2.6rem; }
+    .voyage-section h2 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 400; padding-top: .7rem; border-top: 2px solid var(--rule-strong); }
+    .voyage-intro { max-width: 46rem; color: var(--text-mid); font-size: .92rem; line-height: 1.6; margin-top: .5rem; }
+    .voyage-strip-scroll { overflow-x: auto; overflow-y: hidden; margin-top: 1.2rem; padding-bottom: .3rem; border-bottom: 1px solid var(--border); }
+    .voyage-strip { display: grid; grid-auto-flow: column; align-items: end; column-gap: 2px; min-width: max-content; }
+    .voyage-cell, .voyage-gap { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-height: 4.2rem; padding: .3rem .15rem; text-decoration: none; color: var(--text); border-radius: 3px 3px 0 0; }
+    .voyage-cell { background: color-mix(in srgb, var(--accent) 14%, transparent); border: 1px solid var(--border); min-width: 1.15rem; }
+    .voyage-cell:hover, .voyage-cell:focus-visible { background: color-mix(in srgb, var(--accent) 26%, transparent); }
+    .voyage-cell .voyage-num { font-family: var(--font-ui); font-weight: 600; font-size: .68rem; white-space: nowrap; }
+    .voyage-gap { border: 1px dashed var(--text-light); background-image: repeating-linear-gradient(135deg, var(--border) 0 2px, transparent 2px 7px); color: var(--text-mid); min-width: 1rem; }
+    .voyage-gap:hover, .voyage-gap:focus-visible { border-color: var(--accent); color: var(--text); }
+    .voyage-gap .voyage-num { font-size: .55rem; font-family: var(--font-ui); }
+    .voyage-legend { margin-top: 1.1rem; padding: 0; list-style: none; max-width: 60rem; }
+    .voyage-legend li { padding: .55rem 0; border-bottom: 1px solid var(--border); font-size: .84rem; line-height: 1.5; }
+    .voyage-legend-head { display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
+    .voyage-legend .voyage-dur { font-family: var(--font-ui); font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); }
+    .voyage-legend .voyage-dur[data-unstated="true"] { color: var(--text-light); }
+    .voyage-legend .voyage-label { font-weight: 600; }
+    .voyage-legend .voyage-greek { font-family: var(--font-greek); color: var(--text-mid); }
+    .voyage-legend .voyage-note { color: var(--text-mid); margin: .15rem 0 0; }
+    .voyage-legend .voyage-cite a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    .voyage-honesty { max-width: 46rem; margin-top: 1.1rem; padding: .85rem 1rem; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); font-size: .84rem; line-height: 1.6; color: var(--text-mid); }
+    .voyage-honesty strong { color: var(--text); }
+
     .sources-section { margin-top: 3rem; }
     .sources-section h2 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 400; padding-top: .7rem; border-top: 2px solid var(--rule-strong); }
     .quoted-sources { list-style: none; margin: 1rem 0 1.8rem; padding: 0; max-width: 52rem; }
@@ -362,6 +437,9 @@ function spanKey(e: DayStripEntry & { kind: 'span' }): string {
               <div class="day34-inset-notes">
                 {ODYSSEY_INSET.filter((s) => s.note).map((s) => <p><strong>{s.label}:</strong> {s.note}</p>)}
               </div>
+              <p class="day34-crosslink">
+                This decade, as told in one evening — see <a href="#voyage">the voyage strip</a> below.
+              </p>
             </div>
           )}
 
@@ -391,6 +469,85 @@ function spanKey(e: DayStripEntry & { kind: 'span' }): string {
         </section>
       );
     })}
+
+    <section class="voyage-section" id="voyage" aria-labelledby="voyage-heading">
+      <h2 id="voyage-heading">The voyage — Troy to Ithaca (approximate) {isDraft && <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>}</h2>
+      <p class="voyage-intro">
+        Where the day strips above dramatize the poem’s narrative present, this strip approximates the
+        decade the Odyssey compresses into that present: the ten years’ wandering from the fall of Troy to
+        the beach at Ithaca. Stretches the poem numbers — nine days here, a month there, Circe’s year,
+        Calypso’s seven — draw wide, sized to their stated length; stretches it never numbers draw as
+        narrow hatched gaps. Each station is labeled and deep-linked to its first line in the reader.
+      </p>
+      <div class="voyage-strip-scroll">
+        <div class="voyage-strip" style={`grid-template-columns: ${voyageGridColumns(voyageStrip.entries)};`}>
+          {voyageStrip.entries.map((entry, i) => {
+            // stationId isn't unique across entries (Ogygia yields two: the
+            // nine-day arrival and the seven-year stay), so the anchor uses
+            // the array index to avoid a duplicate id with the legend below.
+            const ref = entry.refs[0];
+            const href = ref ? locHref(ref.work as Work, ref.book, ref.lines[0]) : undefined;
+            const anchor = `#voyage-${entry.stationId}-${i}`;
+            return entry.kind === 'stated' ? (
+              <a
+                class="voyage-cell"
+                href={href ?? anchor}
+                aria-label={`${entry.label}: ${formatVoyageDuration(entry)}${entry.duration?.greek ? `, ${entry.duration.greek}` : ''} — see the voyage legend below`}
+              >
+                <span class="voyage-num">{voyageShortLabel(entry)}</span>
+              </a>
+            ) : (
+              <a
+                class="voyage-gap"
+                href={href ?? anchor}
+                aria-label={`${entry.label}: no duration stated by the poem — see the voyage legend below`}
+              >
+                <span class="voyage-num">—</span>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+
+      <ol class="voyage-legend">
+        {voyageStrip.entries.map((entry, i) => {
+          const ref = entry.refs[0];
+          const href = ref ? locHref(ref.work as Work, ref.book, ref.lines[0]) : undefined;
+          return (
+            <li id={`voyage-${entry.stationId}-${i}`}>
+              <div class="voyage-legend-head">
+                <span class="voyage-dur" data-unstated={entry.kind === 'unstated' ? 'true' : undefined}>
+                  {entry.kind === 'stated' ? formatVoyageDuration(entry) : 'unstated'}
+                </span>
+                <span class="voyage-label">{entry.label}</span>
+              </div>
+              {entry.duration?.greek && (
+                <p class="voyage-greek" lang="grc">{entry.duration.greek} — {formatVoyageDuration(entry)}, {entry.duration.cite}</p>
+              )}
+              {entry.duration?.approximate && (
+                <p class="voyage-note">No counting-word in the Greek here — this span is read off the poem’s narrative framing, not a stated numeral.</p>
+              )}
+              <p class="voyage-note">{entry.note}</p>
+              {href && <p class="voyage-cite"><a href={href}>jump to the passage ({ref!.work === 'odyssey' ? 'Od.' : 'Il.'} {ref!.book}.{ref!.lines[0]})</a></p>}
+            </li>
+          );
+        })}
+      </ol>
+
+      <p class="voyage-honesty">
+        <strong>An honesty note.</strong> These stated spans — the nine-day storms, Aeolus’s month,
+        Thrinacia’s month, the raft’s four days building and seventeen sailing and two nights adrift, one
+        night’s crossing to Ithaca, Circe’s year, and Calypso’s seven — already sum to about {voyageTotalYears} years,
+        not the full ten the poem implies for the wandering. The poem itself never itemizes a ten-year
+        total for the return: it simply asserts, four times, that Odysseus comes home in the twentieth
+        year overall — counting, by tradition, the ten years of the war at Troy plus this decade of
+        wandering ({voyageFile.totalAssertions.twentiethYear.map((t, i) => (
+          <>{i > 0 && '; '}<span lang="grc">{t.greek}</span> — {t.cite}</>
+        ))}) — while leaving the remaining months of this table entirely unstated, drawn here as the
+        hatched gaps above. The strip’s year-scale layout is a display convention built to make that
+        arithmetic visible, not a claim to have solved it.
+      </p>
+    </section>
 
     <section class="sources-section" aria-labelledby="sources-heading">
       <h2 id="sources-heading">Sources</h2>

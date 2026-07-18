@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { buildDayStrip, parseDayRange, totalDays, type BookInput } from '../lib/timeline';
+import {
+  buildDayStrip,
+  buildVoyageStrip,
+  parseDayRange,
+  totalDays,
+  voyageDurationDays,
+  type BookInput,
+  type VoyageStationInput,
+} from '../lib/timeline';
 
 describe('parseDayRange', () => {
   it('parses a range, a single day, and absent/malformed input', () => {
@@ -143,5 +151,154 @@ describe('buildDayStrip', () => {
       { kind: 'day', dayNumber: 5, book: 1, line: 1 },
       { kind: 'day', dayNumber: 3, book: 1, line: 6 },
     ]);
+  });
+});
+
+describe('voyageDurationDays', () => {
+  it('converts each unit to a day-equivalent (month=30, year=365, day/night=1)', () => {
+    expect(voyageDurationDays({ value: 9, unit: 'days', greek: 'ἐννῆμαρ', cite: 'Od. 9.82' })).toBe(9);
+    expect(voyageDurationDays({ value: 1, unit: 'month', greek: 'μῆνα', cite: 'Od. 10.14' })).toBe(30);
+    expect(voyageDurationDays({ value: 1, unit: 'year', greek: 'ἐνιαυτός', cite: 'Od. 10.467' })).toBe(365);
+    expect(voyageDurationDays({ value: 7, unit: 'years', greek: 'ἑπτάετες', cite: 'Od. 7.259' })).toBe(2555);
+    expect(voyageDurationDays({ value: 1, unit: 'night', greek: null, cite: 'Od. 13.78-95', approximate: true })).toBe(1);
+  });
+});
+
+describe('buildVoyageStrip', () => {
+  it('skips the start station (no incoming interval before the journey begins)', () => {
+    const stations: VoyageStationInput[] = [
+      { id: 'troy', placeId: 'troy', label: 'Troy', kind: 'start', refs: [], duration: null },
+    ];
+    const strip = buildVoyageStrip(stations);
+    expect(strip.entries).toEqual([]);
+    expect(strip.totalStatedDays).toBe(0);
+  });
+
+  it('emits an unstated placeholder (days: 0, duration: null) for a station with no stated duration', () => {
+    const stations: VoyageStationInput[] = [
+      { id: 'troy', placeId: 'troy', label: 'Troy', kind: 'start', refs: [], duration: null },
+      {
+        id: 'cyclopes-land',
+        placeId: 'cyclopes-land',
+        label: 'Land of the Cyclopes',
+        kind: 'stop',
+        refs: [{ work: 'odyssey', book: 9, lines: [105, 106] }],
+        duration: null,
+      },
+    ];
+    const strip = buildVoyageStrip(stations);
+    expect(strip.entries).toEqual([
+      {
+        kind: 'unstated',
+        stationId: 'cyclopes-land',
+        label: 'Land of the Cyclopes',
+        days: 0,
+        duration: null,
+        refs: [{ work: 'odyssey', book: 9, lines: [105, 106] }],
+        note: undefined,
+        unlocatable: false,
+      },
+    ]);
+    expect(strip.totalStatedDays).toBe(0);
+  });
+
+  it('sizes a stated-duration station to its day-equivalent and accumulates the running total', () => {
+    const stations: VoyageStationInput[] = [
+      {
+        id: 'lotus-eaters-land',
+        placeId: 'lotus-eaters-land',
+        label: 'Land of the Lotus-eaters',
+        kind: 'stop',
+        refs: [{ work: 'odyssey', book: 9, lines: [82, 84] }],
+        duration: { value: 9, unit: 'days', greek: 'ἐννῆμαρ', cite: 'Od. 9.82' },
+      },
+      {
+        id: 'aeolia-1',
+        placeId: 'aeolia',
+        label: 'Aeolia',
+        kind: 'stop',
+        refs: [{ work: 'odyssey', book: 10, lines: [1, 14] }],
+        duration: { value: 1, unit: 'month', greek: 'μῆνα', cite: 'Od. 10.14' },
+      },
+    ];
+    const strip = buildVoyageStrip(stations);
+    expect(strip.entries.map((e) => [e.kind, e.stationId, e.days])).toEqual([
+      ['stated', 'lotus-eaters-land', 9],
+      ['stated', 'aeolia-1', 30],
+    ]);
+    expect(strip.totalStatedDays).toBe(39);
+  });
+
+  it('emits two consecutive stated entries for a station with both duration and stayDuration (Ogygia)', () => {
+    const stations: VoyageStationInput[] = [
+      {
+        id: 'ogygia',
+        placeId: 'ogygia',
+        label: 'Ogygia',
+        kind: 'stop',
+        unlocatable: true,
+        refs: [{ work: 'odyssey', book: 12, lines: [447, 448] }],
+        duration: { value: 9, unit: 'days', greek: 'ἐννῆμαρ', cite: 'Od. 12.447', label: 'adrift, arriving' },
+        stayDuration: { value: 7, unit: 'years', greek: 'ἑπτάετες', cite: 'Od. 7.259', label: 'kept by Calypso' },
+      },
+    ];
+    const strip = buildVoyageStrip(stations);
+    expect(strip.entries).toEqual([
+      {
+        kind: 'stated',
+        stationId: 'ogygia',
+        label: 'Ogygia',
+        days: 9,
+        duration: stations[0].duration,
+        refs: stations[0].refs,
+        note: undefined,
+        unlocatable: true,
+      },
+      {
+        kind: 'stated',
+        stationId: 'ogygia',
+        label: 'kept by Calypso',
+        days: 2555,
+        duration: stations[0].stayDuration,
+        refs: stations[0].refs,
+        note: undefined,
+        unlocatable: true,
+      },
+    ]);
+    expect(strip.totalStatedDays).toBe(2564);
+  });
+
+  it('preserves station order end-to-end and is deterministic across repeated calls', () => {
+    const stations: VoyageStationInput[] = [
+      { id: 'troy', placeId: 'troy', label: 'Troy', kind: 'start', refs: [], duration: null },
+      {
+        id: 'ismarus',
+        placeId: 'ismarus',
+        label: 'Ismarus',
+        kind: 'stop',
+        refs: [{ work: 'odyssey', book: 9, lines: [39, 45] }],
+        duration: null,
+      },
+      {
+        id: 'lotus-eaters-land',
+        placeId: 'lotus-eaters-land',
+        label: 'Land of the Lotus-eaters',
+        kind: 'stop',
+        refs: [{ work: 'odyssey', book: 9, lines: [82, 84] }],
+        duration: { value: 9, unit: 'days', greek: 'ἐννῆμαρ', cite: 'Od. 9.82' },
+      },
+      {
+        id: 'ithaca',
+        placeId: 'ithaca',
+        label: 'Ithaca',
+        kind: 'end',
+        refs: [{ work: 'odyssey', book: 13, lines: [78, 95] }],
+        duration: { value: 1, unit: 'night', greek: null, cite: 'Od. 13.78-95', approximate: true },
+      },
+    ];
+    const first = buildVoyageStrip(stations);
+    const second = buildVoyageStrip(stations);
+    expect(first).toEqual(second);
+    expect(first.entries.map((e) => e.stationId)).toEqual(['ismarus', 'lotus-eaters-land', 'ithaca']);
   });
 });
