@@ -17,6 +17,7 @@ import { assignSpeakerSlots, collectDisplayOrder } from '@shared/lib/speaker-col
 import { SUPPORT_URL } from '../lib/support';
 import { sanitizeHtml } from '../lib/html';
 import { jsonLdSafe } from '../lib/jsonld';
+import { bookArguments } from '../lib/book-apparatus';
 import '@shared/styles/global.css';
 
 interface Props { workId: string; }
@@ -25,6 +26,11 @@ const { workId } = Astro.props as Props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const work = getWork(workId)!;
 const bookless = isBookless(work);
+const verseLine = work.citation?.scheme === 'verse-line';
+// Project the same emitted book data used by the reader's contents rail. The
+// helper is memoized per work, so this remains a small build-time read.
+const bookApparatus = verseLine ? bookArguments(workId, work.books) : [];
+const hasDraftArgument = bookApparatus.some(({ argument, draft }) => Boolean(argument) && draft === true);
 // Stephanus works (Plato) have no chapters.json — stage7 emits sections.json
 // (a per-page outline) instead (see manifests/Euthyphro.yaml). Mirrors
 // ReaderShell.astro's `stephanus`/`pagesOf` handling.
@@ -115,6 +121,10 @@ const totalChapters = stephanus
 // "N chapters · <Bekker start>–<Bekker end>" (or "N pages · <Stephanus span>"
 // for a stephanus work) for a book's row on the landing.
 const bookSpan = (b: BookOutline) => {
+  if (verseLine) {
+    const lines = bookApparatus[b.book - 1]?.lines;
+    return lines === undefined ? '' : `${lines} line${lines === 1 ? '' : 's'}`;
+  }
   if (stephanus) {
     const n = b.pages.length;
     const first = b.pages[0]?.column ?? '';
@@ -257,9 +267,12 @@ const breadcrumbLd = Astro.site
     .comm-card:hover .comm-cta { transform: translateX(2px); }
     .book-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: 0.5rem; }
     .book-list a { display: flex; justify-content: space-between; gap: 0.6rem; align-items: baseline; text-decoration: none; color: var(--text); padding: 0.55rem 0.7rem; border: 1px solid var(--border); border-radius: 6px; }
+    .book-list a.has-argument { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.14rem 0.6rem; }
     .book-list a:hover { border-color: var(--accent); }
     .bl-label { font-family: var(--font-ui); font-weight: 600; font-size: 0.92rem; }
     .bl-meta { font-size: 0.78rem; color: var(--text-mid); font-variant-numeric: tabular-nums; text-align: right; }
+    .bl-argument { grid-column: 1 / -1; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; color: var(--text-mid); font-size: 0.76rem; font-weight: 400; line-height: 1.3; }
+    @media (max-width: 680px) { .bl-argument { -webkit-line-clamp: 1; } }
     .credits { font-size: 0.9rem; line-height: 1.7; color: var(--text-mid); }
     .credits a { color: var(--accent); }
     .read-list li { margin: 0 0 0.7rem; font-size: 0.9rem; line-height: 1.55; color: var(--text-mid); }
@@ -376,13 +389,19 @@ const breadcrumbLd = Astro.site
 
     {!bookless && (
       <>
-        <h2 class="lp-h">Books</h2>
+        <h2 class="lp-h">Books {hasDraftArgument && <span class="draft-badge" title="Book summaries are AI-drafted apparatus, pending review">Draft</span>}</h2>
         <ul class="book-list">
           {outline.map((b) => (
             <li>
-              <a href={`${base}${workPath(workId, b.book)}`}>
+              <a
+                href={`${base}${workPath(workId, b.book)}`}
+                class={verseLine && bookApparatus[b.book - 1]?.argument ? 'has-argument' : undefined}
+              >
                 <span class="bl-label">Book {b.label}</span>
                 <span class="bl-meta">{bookSpan(b)}</span>
+                {verseLine && bookApparatus[b.book - 1]?.argument && (
+                  <span class="bl-argument">{bookApparatus[b.book - 1].argument}</span>
+                )}
               </a>
             </li>
           ))}

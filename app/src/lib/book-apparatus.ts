@@ -8,6 +8,8 @@ import { readFileSync } from 'node:fs';
 export interface BookArgument {
   argument?: string;
   draft?: boolean;
+  /** Number of emitted Greek verse lines, when the book has verse data. */
+  lines?: number;
 }
 
 const cache = new Map<string, BookArgument[]>();
@@ -21,11 +23,24 @@ export function bookArguments(workId: string, books: number): BookArgument[] {
     try {
       const raw = JSON.parse(
         readFileSync(`public/data/${workId}/book-${String(book).padStart(2, '0')}.json`, 'utf-8'),
-      ) as { apparatus?: { argument?: unknown; draft?: unknown } };
+      ) as {
+        apparatus?: { argument?: unknown; draft?: unknown };
+        segments?: Array<{ greek?: Array<{ n?: unknown; text?: unknown }> }>;
+      };
       const apparatus = raw.apparatus;
+      // A verse book's emitted text is split into segments, each carrying its
+      // Greek line array. Count only actual numbered, non-empty text lines;
+      // this excludes any structural/empty entries in a partial data file.
+      const lines = raw.segments?.reduce(
+        (total, segment) => total + (segment.greek?.filter(
+          (line) => typeof line.n === 'number' && typeof line.text === 'string' && line.text.trim().length > 0,
+        ).length ?? 0),
+        0,
+      );
       argumentsByBook.push({
         argument: typeof apparatus?.argument === 'string' ? apparatus.argument : undefined,
         draft: apparatus?.draft === true,
+        lines,
       });
     } catch {
       // A partial build may not have emitted every book yet. Its link remains
