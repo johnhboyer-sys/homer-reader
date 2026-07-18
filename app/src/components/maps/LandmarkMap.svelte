@@ -55,6 +55,117 @@
   let routeLayer: any = null;
   let resizeObserver: ResizeObserver | null = null;
 
+  // ── Marker clustering (Wave B #7: the Ships map's Argolid clump) ──────────
+  // Non-story mode only — story mode already has its own dedicated collision
+  // system (captions, below). Computed ONCE per render() at the "default
+  // framing" zoom fitBounds lands on, not continuously on every zoom tick
+  // (simplicity: the illegible-at-default-view problem this fixes doesn't
+  // require live re-clustering while the user free-zooms — scroll/zoom
+  // controls keep working normally on whatever's already unclustered, and a
+  // cluster badge, once clicked, expands and stays expanded for that
+  // render()). A click expands the badge into its real, individually
+  // certainty-styled markers (never invents a merged place) and zooms in one
+  // step so they visually separate. `expandGroup` is also called from the
+  // selectedId pan-to effect below, so selecting a clustered place from
+  // ContingentPanel (the keyboard-operable equivalent for the Ships map)
+  // reveals it rather than silently failing to pan/pop.
+  interface ClusterGroup { ids: string[]; badge: any; centroid: [number, number] }
+  let clusterGroups: ClusterGroup[] = [];
+  // A fixed CENTER-to-center threshold, not a radius-sum ("edges touch")
+  // threshold: the Ships tab's area-scaled circles run up to 26px radius
+  // (see shipCircleRadius), and their edges are MEANT to brush neighbors —
+  // that's the point of the area encoding, and it's still legible. A
+  // radius-sum threshold chains through those large circles and swallows
+  // half the map into one uninformative badge (confirmed against the
+  // Argolid: it absorbed 24 of 29 Achaean places into a single "24" the
+  // first time this was tried). A small fixed distance instead singles out
+  // only genuinely near-coincident points — Argos/Tiryns/Mycenae's centers
+  // sit within a few px of each other at default framing — without chaining
+  // across the ordinary, expected overlap of differently-sized circles.
+  const CLUSTER_CENTER_PX = 15;
+
+  function unionFind(n: number) {
+    const parent = Array.from({ length: n }, (_, i) => i);
+    function find(i: number): number {
+      while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i]; }
+      return i;
+    }
+    return { find, union: (a: number, b: number) => { const ra = find(a), rb = find(b); if (ra !== rb) parent[ra] = rb; } };
+  }
+
+  function centroidOf(coordsList: [number, number][]): [number, number] {
+    const lat = coordsList.reduce((s, c) => s + c[0], 0) / coordsList.length;
+    const lon = coordsList.reduce((s, c) => s + c[1], 0) / coordsList.length;
+    return [lat, lon];
+  }
+
+  function expandGroup(g: ClusterGroup) {
+    for (const id of g.ids) {
+      const layer = layers.get(id);
+      if (layer && !map.hasLayer(layer)) layer.addTo(map);
+    }
+    if (g.badge && map.hasLayer(g.badge)) map.removeLayer(g.badge);
+    clusterGroups = clusterGroups.filter((x) => x !== g);
+  }
+
+  function computeClusters() {
+    if (!map) return;
+    for (const g of clusterGroups) { if (map.hasLayer(g.badge)) map.removeLayer(g.badge); }
+    clusterGroups = [];
+    if (storyMode) return;
+
+    const entries: { id: string; pt: any; coords: [number, number] }[] = [];
+    for (const item of items) {
+      const p = item.place;
+      const layer = p.coords ? layers.get(item.id) : null;
+      if (!layer) continue;
+      entries.push({ id: item.id, pt: map.latLngToContainerPoint(p.coords as [number, number]), coords: p.coords as [number, number] });
+    }
+    const n = entries.length;
+    if (n < 2) return;
+    const { find, union } = unionFind(n);
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const dx = entries[i].pt.x - entries[j].pt.x;
+        const dy = entries[i].pt.y - entries[j].pt.y;
+        if (Math.sqrt(dx * dx + dy * dy) < CLUSTER_CENTER_PX) union(i, j);
+      }
+    }
+    const groups = new Map<number, number[]>();
+    for (let i = 0; i < n; i++) {
+      const root = find(i);
+      if (!groups.has(root)) groups.set(root, []);
+      groups.get(root)!.push(i);
+    }
+    for (const idxs of groups.values()) {
+      if (idxs.length < 2) continue;
+      const ids = idxs.map((i) => entries[i].id);
+      const centroid = centroidOf(idxs.map((i) => entries[i].coords));
+      for (const id of ids) {
+        const layer = layers.get(id);
+        if (layer && map.hasLayer(layer)) map.removeLayer(layer);
+      }
+      const group: ClusterGroup = { ids, badge: null, centroid };
+      const badge = L.marker(centroid, {
+        icon: L.divIcon({
+          className: 'lm-cluster',
+          html: `<span class="lm-cluster-num">${ids.length}</span>`,
+          iconSize: [26, 26],
+          iconAnchor: [13, 13],
+        }),
+        keyboard: false,
+        alt: `${ids.length} places near here — click to expand`,
+      });
+      badge.on('click', () => {
+        expandGroup(group);
+        map.setZoomAround(L.latLng(centroid), Math.min(map.getZoom() + 2, 12));
+      });
+      badge.addTo(map);
+      group.badge = badge;
+      clusterGroups.push(group);
+    }
+  }
+
   const WORK_ABBR: Record<string, string> = { iliad: 'Il.', odyssey: 'Od.' };
 
   function mentionHref(work: string, book: number, line: number): string {
@@ -340,9 +451,35 @@
 
     if (bounds.length) {
       map.fitBounds(bounds, { padding: [28, 28], maxZoom: 8 });
+      // Clamp pan/zoom-out to this map's own data extent (Wave B #6): CAWM's
+      // tile mosaic thins out well beyond the Mediterranean/Aegean core, and
+      // without a clamp, panning or zooming out from a tight cluster (e.g.
+      // the Troad) reaches genuinely blank tiles — the container's own
+      // background shows through as a grey void. `pad(0.5)` (at least
+      // MIN_BOX_DEG in each direction, for a single-point or very tight
+      // map) gives comfortable browsing room around the data while keeping
+      // the view inside well-covered territory. Recomputed every render()
+      // (tab switch), so each of the four maps gets its own box sized to its
+      // own places, not one shared global one.
+      const MIN_BOX_DEG = 0.75;
+      const b = L.latLngBounds(bounds);
+      const ne = b.getNorthEast();
+      const sw = b.getSouthWest();
+      const latPad = Math.max(MIN_BOX_DEG, (ne.lat - sw.lat) * 0.5);
+      const lngPad = Math.max(MIN_BOX_DEG, (ne.lng - sw.lng) * 0.5);
+      const padded = L.latLngBounds(
+        [sw.lat - latPad, sw.lng - lngPad],
+        [ne.lat + latPad, ne.lng + lngPad],
+      );
+      map.setMaxBounds(padded);
+      map.setMinZoom(Math.max(2, map.getBoundsZoom(padded, false)));
+    } else {
+      map.setMaxBounds(null);
+      map.setMinZoom(0);
     }
 
     updateOverlays();
+    computeClusters();
   }
 
   onMount(() => {
@@ -371,6 +508,7 @@
     resizeObserver = new ResizeObserver(() => {
       map?.invalidateSize();
       updateOverlays();
+      computeClusters();
     });
     resizeObserver.observe(el);
   });
@@ -390,9 +528,17 @@
   $: if (map && (items || polyline || selectedId !== undefined || storyMode || storyStations)) render();
 
   // Pan to (but don't re-zoom past) a newly selected item and open its popup,
-  // mirroring the panel's aria-selected state.
+  // mirroring the panel's aria-selected state. If the selection is currently
+  // hidden inside a cluster badge (Wave B #7), expand that badge first —
+  // ContingentPanel is the keyboard-operable equivalent of the map, so a
+  // place selected there must always become reachable, not silently fail to
+  // pan/pop because it's bundled under a "3" badge.
   $: if (map && selectedId) {
     const layer = layers.get(selectedId);
+    if (layer && !map.hasLayer(layer)) {
+      const g = clusterGroups.find((cg) => cg.ids.includes(selectedId as string));
+      if (g) expandGroup(g);
+    }
     if (layer?.getLatLng) {
       map.panTo(layer.getLatLng());
       layer.openPopup?.();
@@ -459,8 +605,28 @@
     min-height: 320px;
     border: 1px solid var(--border);
     border-radius: 6px;
-    /* Plain "ground" shown through if CAWM tiles can't be reached. */
-    background: var(--page-bg);
+    /* Fallback "ground" shown through any gap in the CAWM tile mosaic (a
+       failed/slow tile fetch, or a residual gap the bounds clamp above
+       doesn't fully reach) — tinted to sit inside the duotone treatment
+       below rather than reading as a raw UI-grey void (Wave B #6). */
+    background: #cdd2c6;
+  }
+  :global(:root[data-theme="dark"] .lm-map) { background: #171224; }
+
+  /* CAWM's tile basemap ships in stock atlas green/blue — a per-theme CSS
+     filter on Leaflet's tile pane (not the pins/popups/chrome, which live in
+     separate panes) mutes it into the site's own parchment (light) / plum
+     (dark) family (Wave B #6). Sepia+hue-rotate for light keeps the terrain
+     legible under a warm, desaturated cast; the dark treatment is the
+     standard invert+hue-rotate "negative" trick (recovers original hue
+     relationships at inverted lightness) then desaturated/dimmed and
+     re-tinted toward the Wine-dark plum so coastlines/labels stay readable
+     against the dark UI instead of glaring at full basemap brightness. */
+  :global(.lm-map .leaflet-tile-pane) {
+    filter: sepia(0.3) saturate(0.55) hue-rotate(-8deg) brightness(1.04) contrast(0.96);
+  }
+  :global(:root[data-theme="dark"] .lm-map .leaflet-tile-pane) {
+    filter: invert(1) hue-rotate(185deg) saturate(0.5) brightness(0.6) contrast(1.1);
   }
 
   /* Certainty-tier marker styling (mirrors the homepage mini-tier-legend:
@@ -518,6 +684,33 @@
   :global(.lm-badge.lm-selected .lm-badge-num) { border-color: var(--rule-strong); border-width: 2.4px; }
   :global(.lm-pin.lm-quiet) { opacity: 0.45; }
   :global(.lm-mythical-icon.lm-quiet .lm-diamond) { opacity: 0.45; }
+
+  /* Cluster badges (Wave B #7): a neutral count marker standing in for
+     several places whose real pins overlap at the current zoom (the
+     Argolid clump on the Ships map, chiefly) — deliberately NOT tier-styled
+     (--accent fill like a certain-tier pin, or a ring like traditional)
+     since a badge represents a MIX of places whose certainty may differ;
+     asserting one tier for the group would misrepresent the others. Click
+     expands it into its real, individually tier-styled markers. */
+  :global(.lm-cluster) { background: none; border: none; cursor: pointer; }
+  :global(.lm-cluster-num) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--popup-bg);
+    color: var(--text);
+    border: 1.8px solid var(--accent);
+    box-shadow: var(--popup-shadow);
+    font-family: var(--font-ui);
+    font-weight: 700;
+    font-size: 0.74rem;
+    line-height: 1;
+    box-sizing: border-box;
+  }
+  :global(.lm-cluster:hover .lm-cluster-num) { border-color: var(--rule-strong); border-width: 2.2px; }
 
   /* Story-mode overlay: caption cards + route direction arrows. Plain
      positioned DOM, not Leaflet layers (see script comment) — sits above
