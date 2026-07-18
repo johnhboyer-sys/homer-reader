@@ -115,6 +115,14 @@ const sceneCount = bookData.scenes?.length ?? 0;
 // the meantime (CLAUDE.md "Apparatus honesty").
 interface BookApparatus { argument?: string; where?: string; who?: string[]; day?: string; draft?: boolean; }
 const apparatus: BookApparatus | undefined = bookData.apparatus;
+// Apologoi day-honesty cue (John, phone session 2026-07-18): "where" carries
+// the pipeline's "(telling)" marker on a frame scene (Odysseus narrating at
+// Alcinous's palace) when this book is told in flashback — every scene's day
+// number is the day of the TELLING, not of the events narrated. Reuses the
+// same data signal as Reader.svelte's scene-rail cue (see its comment there
+// for the known Od. 10/12 gap: those books share the flashback frame but
+// carry no "(telling)"-marked scene of their own, so this can't reach them).
+const dayIsTelling = apparatus?.where?.includes('(telling)') ?? false;
 
 // Whole-work speaker-display roster (memoized), so speaker-name colours are
 // stable across books and match the landing cast list (see speaker-roster.ts).
@@ -426,6 +434,28 @@ const intro =
       </a>
     </div>
     <div class="toc-work-head"><span class="toc-work">{work.title}</span></div>
+    {!bookless && work.books > 1 && (
+      <!-- Mobile-only book quick-jump (John, phone session 2026-07-18): the
+           header's inline book row (.nav-panel .book-nav) is CSS-hidden below
+           680px, and for a chapterless verse work like Homer the per-book
+           <details> below has an empty chapter list (0 ch.) to expand into —
+           so on a phone there was NO way to switch books at all. This mirrors
+           the desktop nav-panel's book row, styled for the sidebar's single
+           column; hidden on desktop (see global.css) where that row already
+           does the job. -->
+      <nav class="toc-book-nav book-nav" aria-label="Books">
+        <span class="book-nav-label">Books</span>
+        {Array.from({ length: work.books }, (_, i) => (
+          <a
+            href={`${base}${workPath(workId, i + 1)}`}
+            class={i + 1 === n ? 'current' : ''}
+            aria-current={i + 1 === n ? 'page' : undefined}
+          >
+            {bookLabel(work, i + 1)}
+          </a>
+        ))}
+      </nav>
+    )}
     <nav class="toc-outline">
       {stephanus ? (
         bookless ? (
@@ -681,7 +711,9 @@ const intro =
           {apparatus.day && (
             <>
               <span class="sep">·</span>
-              <span>{apparatus.day}</span>
+              <span title={dayIsTelling ? 'The day of the telling; the events narrated here lie years earlier.' : undefined}>
+                Day {apparatus.day}{dayIsTelling && ' · telling'}
+              </span>
             </>
           )}
         </div>

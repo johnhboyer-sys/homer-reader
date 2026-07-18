@@ -591,3 +591,41 @@ here (pipeline rename note at top still covers the package).
   `fetchScansion(work, book)` (lazy per-book cache of
   `scansion-<NN>.json`); further Homer-specific payload surface on top of
   the earlier data.ts entries.
+
+## Mobile reader-chrome fixes (John's phone session, 2026-07-18)
+
+- `shared/styles/global.css` — `@media (max-width: 680px)`: the
+  `.reader-controls { display: none; }` rule that hid the ENTIRE sticky
+  controls strip (including `.posture-btn`, the only Scholar⇄Reading Mode
+  toggle) is replaced with slimmed padding + an enlarged `.posture-btn`
+  (min-height 40px); the strip itself stays visible so Reading Mode has a
+  touch affordance on phones (previously only the `r` keystroke worked).
+  New `.toc-book-nav` rule block (mobile-only, hidden ≥681px): a real
+  wrapping book-quick-jump row inside the Contents/TOC sidebar, reusing
+  `.book-nav-label`'s look. No plato-reader counterpart (Homer-specific fix,
+  though the underlying defect — chapterless works have no book switcher on
+  mobile — could recur there).
+- `app/src/components/ReaderShell.astro` — TOC sidebar gained a
+  `.toc-book-nav` row (Books 1–N, same links/labels as the header's
+  `.nav-panel .book-nav`) right after `.toc-work-head`: on mobile the header
+  nav-panel is CSS-hidden and Homer's books carry no chapters
+  (`chapters.json` is `{}` for both epics), so the per-book `<details>` in
+  the sidebar outline had an empty chapter list to expand into — there was
+  NO way to switch books by touch. Also: cartouche's day meta gained a
+  `dayIsTelling` cue (`apparatus.where` containing the pipeline's
+  `"(telling)"` frame-scene marker) — renders "Day N · telling" with a
+  tooltip instead of a bare, chronologically-misleading number for a book
+  narrated in flashback (Od. 9/11's Apologoi frame at Alcinous's palace).
+  Known gap: Od. 10/12 share the same flashback day but carry no
+  `"(telling)"`-marked scene of their own, so this display-only cue can't
+  reach them — needs a data-side fix (apparatus/staging + re-merge), not
+  done here.
+- `shared/components/Reader.svelte` — same `"(telling)"`-marker day cue
+  applied to the scene rail's `.scene-item-day` (book-wide `bookTellingDay`,
+  read once from `apparatus.where` — the marker sits on the book-level
+  aggregate, never on an individual scene's `location`/`place` — not
+  hardcoded to any book number). Same Od. 10/12 known gap as above.
+- `shared/lib/data.ts` — `RawBookData.apparatus` gained `draft?: boolean;
+  where?: string;` (it only declared `scenes` before; `draft` was already
+  being read off it via an untyped cast — this makes that and the new
+  `where` read type-correct).

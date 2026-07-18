@@ -2312,10 +2312,20 @@ select {
      add no specificity, so source order would otherwise re-hide them. */
   .settings-body .settings-trans { display: block; }
   .settings-body .settings-mobile-only { display: block; }
-  /* With the view toggle + print moved into the Settings sidebar, the sticky
-     sub-toolbar has nothing left to show on a phone — drop it so reading starts
-     right under the header. (The Bekker citation strip is already hidden above.) */
-  .reader-controls { display: none; }
+  /* The view toggle + print moved into the Settings sidebar and the citation
+     line is dropped above, but the strip itself stays visible (not
+     display:none) — it's the ONLY carrier of the posture toggle
+     (Scholar ⇄ Reading Mode), and hiding the whole strip made Reading Mode
+     unreachable by touch on mobile (John, phone session 2026-07-18 — no way
+     to exit Reading Mode). Padding is trimmed and the toggle enlarged for a
+     comfortable thumb target below. */
+  .reader-controls { padding: 0.4rem 0; }
+  .rc-controls { gap: 0.6rem; }
+  .posture-btn {
+    font-size: 0.82rem;
+    padding: 0.4rem 0.85rem;
+    min-height: 40px;
+  }
   /* The "Translation" label pushes the picker off the edge on a phone — the
      dropdown's own options make its purpose clear, so drop the label. */
   .trans-label { display: none; }
@@ -2458,6 +2468,36 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 .toc-work-head {
   flex: 0 0 auto;
   padding: 0.85rem 1rem 0.5rem;
+}
+
+/* Book quick-jump row in the Contents (TOC) drawer (John, phone session
+   2026-07-18): mobile's only reachable book switcher (see ReaderShell.astro's
+   comment above this markup for why the per-book <details> below doesn't
+   substitute for a chapterless work). Real wrapping row, not the header nav-
+   panel's `display: contents` trick — the sidebar is a single column, not a
+   flowing header stream. Desktop hides it (below) since the header's inline
+   book row already does the job there. */
+.toc-book-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.4rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.toc-book-nav a {
+  color: var(--text-mid);
+  text-decoration: none;
+  padding: 0.3rem 0.55rem;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 3px;
+}
+.toc-book-nav a:hover { background: var(--border); }
+.toc-book-nav a.current { background: var(--accent); color: var(--on-accent); }
+@media (min-width: 681px) {
+  .toc-book-nav { display: none; }
 }
 
 /* Sidebar action bands (Go to Bekker / Search above the outline; Texts &

@@ -465,10 +465,18 @@ const _footnotesCache = new Map<string, Promise<Record<string, string>>>();
 
 // Raw book JSON as it sits on disk: the reading data plus an `apparatus` block
 // whose `scenes` use the pipeline's {lines:[lo,hi], summary, location} shape.
+// `draft`/`where` are read directly off this (not normalized into `Scene`):
+// `draft` drives the scene-chip/rail DRAFT badge, `where` the book-level day-
+// honesty cue (a book narrated in flashback carries "(telling)" on the FRAME
+// scene only in its `where` list, e.g. Od. 9/11's Apologoi — see
+// apparatus/scenes/odyssey.json — never on the individual `scenes[].location`
+// entries, which is why that cue is read from here, not from `Scene.place`).
 export interface RawBookData extends BookData {
   apparatus?: {
     scenes?: { lines: [number, number]; summary: string; location?: string;
                dayNumber?: number | null }[];
+    draft?: boolean;
+    where?: string;
   };
 }
 

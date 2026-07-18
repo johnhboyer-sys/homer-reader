@@ -445,6 +445,23 @@
     const hi = seg.greek[seg.greek.length - 1].n;
     return scenes.filter((s) => s.startLine >= lo && s.startLine <= hi);
   }
+  // Apologoi day-honesty cue (John, phone session 2026-07-18): a book whose
+  // apparatus marks its book-level `where` "… (telling)" (the pipeline's
+  // frame-scene marker — Odysseus narrating at Alcinous's palace — set on the
+  // book aggregate, never on an individual scene's `location`/`place`; see
+  // RawBookData in data.ts) is narrated in flashback: every scene in it shares
+  // the FRAME's day number (all of Od. 9's "Day 34" is the evening of the
+  // telling, not when the Cicones/Lotus-eaters/Cyclops events themselves
+  // fell). Read once from the initial book payload (like scenesDraft above) —
+  // no book-number hardcoding — so the day display can read "Day 34 ·
+  // telling" instead of a bare, chronologically-misleading "Day 34". Known
+  // gap: Od. 10 and 12 are equally part of the same told-in-flashback frame
+  // but carry no "(telling)" marker of their own (the frame only opens in
+  // Book 9 and closes in Book 11), so this display-only cue can't reach
+  // them — that needs a data-side fix (apparatus/staging + re-merge), out of
+  // scope here.
+  const bookTellingDay: boolean =
+    (activeBook as RawBookData | null)?.apparatus?.where?.includes('(telling)') === true;
 
   // ── DICES speech rails (Phase 4 flagship) ─────────────────────────────────
   // Off by default; a thin speaker rail in the Greek gutter for high-
@@ -2588,7 +2605,12 @@
         >
           <span class="scene-item-meta">
             <span class="scene-item-lines">{s.startLine}{#if s.endLine && s.endLine !== s.startLine}–{s.endLine}{/if}</span>
-            {#if typeof s.day === 'number'}<span class="scene-item-day">Day {s.day}</span>{/if}
+            {#if typeof s.day === 'number'}
+              <span
+                class="scene-item-day"
+                title={bookTellingDay ? 'The day of the telling at Alcinous’s palace; the events narrated here lie years earlier.' : undefined}
+              >Day {s.day}{bookTellingDay ? ' · telling' : ''}</span>
+            {/if}
             {#if s.place}<span class="scene-item-place">{s.place}</span>{/if}
           </span>
           <span class="scene-item-summary">{s.summary}</span>
