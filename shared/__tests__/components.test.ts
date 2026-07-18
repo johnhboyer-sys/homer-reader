@@ -406,11 +406,19 @@ describe('Reader.svelte — Reading Mode scene paging (John, 2026-07-18)', () =>
   //    derivation is exercised against real line numbers, not array index
   //    arithmetic;
   //  - 5 English ticks (n=1,5,10,15,20) chunking the prose into 5 labelled
-  //    sentences, so which chunks a scene page shows is directly readable
-  //    from which "ChunkX text." sentences appear;
+  //    SENTENCES ("ChunkX text." each ends in a period), so which sentences a
+  //    scene page shows is directly readable from which "ChunkX text." runs
+  //    appear;
   //  - 3 scenes whose edges deliberately DON'T land on tick boundaries
-  //    (scene2 additionally spans the gap), exercising the ALIGNMENT
-  //    HONESTY contract: a scene's page shows every OVERLAPPING chunk WHOLE.
+  //    (scene2 additionally spans the gap), exercising sentence-snapped
+  //    paging (John, 2026-07-19; shared/lib/scene-paging.ts's
+  //    sentenceSnapScenePages): each tick chunk here happens to be exactly
+  //    one whole sentence, so the sentence-snapped pages land on the SAME
+  //    boundaries a naive chunk-overlap split would show for the scene where
+  //    a chunk is unambiguously owned (scene 1) — but scene 2 no longer
+  //    duplicates chunk B (already fully claimed by scene 1's completed
+  //    sentence) or hand chunk D's completed sentence off to scene 3: every
+  //    chunk appears on exactly one page.
   const TICK_TEXT =
     'ChunkA text. ChunkB text. ChunkC text. ChunkD text. ChunkE text.';
   const sceneBook = (draft = false): RawBookData => ({
@@ -447,9 +455,10 @@ describe('Reader.svelte — Reading Mode scene paging (John, 2026-07-18)', () =>
     window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
     const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: sceneBook() } });
 
-    // Scene 1 (lines 1-7) overlaps chunks A (1-4) and B (5-9) WHOLE — B's
-    // text isn't truncated at line 7 even though the scene's own range ends
-    // there (ALIGNMENT HONESTY: never split a tick's prose mid-chunk).
+    // Scene 1 (lines 1-7) claims chunks A (1-4) and B (5-9) — B's sentence
+    // isn't truncated at line 7 even though the scene's own range ends
+    // there (sentence-snapping extends/holds a page to a full sentence, and
+    // "ChunkB text." happens to complete exactly at B's own tick boundary).
     await screen.findByText(/Scene 1 of 3/);
     expect(container.querySelector('.reading-scene-pos')?.textContent).toContain('lines 1–7');
     expect(container.textContent).toContain('ChunkA text.');
@@ -461,15 +470,18 @@ describe('Reader.svelte — Reading Mode scene paging (John, 2026-07-18)', () =>
     expect(container.querySelectorAll('.scene-chip')).toHaveLength(0);
 
     // Next scene → scene 2 (lines 8-16), which SPANS the vulgate gap
-    // (13-14 missing): its page shows chunks B, C (10-12) and D (15-19)
-    // whole, proving the gap is handled by real line numbers.
+    // (13-14 missing): its page shows chunks C (10-12) and D (15-19) —
+    // chunk B stays on scene 1's page (its sentence completed there; no
+    // duplication) and chunk D's sentence, though it runs past line 16 into
+    // scene 3's own range, stays whole on scene 2's page (never handed to
+    // scene 3 mid-sentence either).
     await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
     await screen.findByText(/Scene 2 of 3/);
     expect(container.querySelector('.reading-scene-pos')?.textContent).toContain('lines 8–16');
-    expect(container.textContent).toContain('ChunkB text.');
     expect(container.textContent).toContain('ChunkC text.');
     expect(container.textContent).toContain('ChunkD text.');
     expect(container.textContent).not.toContain('ChunkA text.');
+    expect(container.textContent).not.toContain('ChunkB text.');
     expect(container.textContent).not.toContain('ChunkE text.');
     // Day + place meta render; scene 1 (no day/place) showed neither.
     expect(container.textContent).toContain('Day 3');

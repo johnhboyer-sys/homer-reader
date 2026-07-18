@@ -16,7 +16,7 @@
   import { highlightPrefixMatches } from '../lib/text';
   import { getWork, visibleTranslations, bookLabel as workBookLabel, HOUSE_AUTHOR, type TranslationRef } from '../lib/works';
   import { touchRecent } from '../lib/resume';
-  import { chunksForScene, mergeSceneFlowChunks, type SceneFlowChunk, type SceneFlowPart, type TickChunkRange } from '../lib/scene-paging';
+  import { mergeSceneFlowChunks, sentenceSnapScenePages, type SceneFlowChunk, type SceneFlowPart, type TickChunkRange } from '../lib/scene-paging';
   import WordPopup from './WordPopup.svelte';
   import FootnotePopup from './FootnotePopup.svelte';
 
@@ -481,19 +481,40 @@
     }
     return out;
   })();
-  // ALIGNMENT HONESTY: every tick-chunk that OVERLAPS the current scene's
-  // line range renders WHOLE — never split mid-chunk — via chunksForScene
-  // (shared/lib/scene-paging.ts, pure + unit-tested). A scene boundary that
-  // doesn't land on a tick boundary (measured: the common case) means a
-  // little text right at the edge can appear on both the previous and next
-  // scene's page — an honest tradeoff, not a bug.
-  $: currentSceneChunks = scenes.length && readingChunks.length
-    ? chunksForScene(readingChunks, scenes[clampedSceneIndex]).map((i) => readingChunks[i])
+  // Whether the currently shown translation carries any REAL internal
+  // paging signal beyond the whole book (John, 2026-07-19: "CAN WE HAVE ALL
+  // THREE DIVIDED INTO SCENE CHUNKS?" — investigated: Murray/Butler carry
+  // dozens of ~5-line milestone ticks per book; Pope's overlay carries
+  // exactly ONE bekker anchor per book, at n=1/offset=0 — a book-level-only
+  // alignment, confirmed across every Iliad/Odyssey book). Fewer than two
+  // chunks means chunksForScene resolves to the same single whole-book chunk
+  // for every scene, so there is no real per-scene boundary to page — see
+  // readingWholeBookFlow below for the honest fallback.
+  $: readingHasSceneAnchors = readingChunks.length > 1;
+  // Sentence-snapped Reading Mode pages, one per scene, computed once for
+  // the whole book (shared/lib/scene-paging.ts's sentenceSnapScenePages,
+  // pure + unit-tested) — John, 2026-07-19: "SCENES SHOULD NOT BREAK UP
+  // SENTENCES... EACH SCENE NEEDS TO BEGIN WITH A COMPLETE SENTENCE." A
+  // single forward pass repartitions the whole book's prose so every page
+  // starts and ends at an English sentence boundary and the book's text is
+  // covered exactly once (no loss, no duplication) — replacing the previous
+  // chunksForScene(scene)+mergeSceneFlowChunks(scene) per-scene merge, which
+  // rendered whole tick-chunks that could straddle (and thus duplicate) a
+  // scene boundary and still cut a page open/closed mid-sentence.
+  $: sentenceSnappedPages = scenes.length && readingHasSceneAnchors
+    ? sentenceSnapScenePages(readingChunks, scenes)
     : [];
-  // Alignment chunks are whole-scene inclusions, but their borders are not
-  // prose blocks. Merge their inline flow before the Reading Mode render;
-  // explicit `para` parts remain the only paragraph boundaries.
-  $: currentSceneFlow = mergeSceneFlowChunks(currentSceneChunks);
+  $: currentSceneFlow = sentenceSnappedPages[clampedSceneIndex] ?? { flowParts: [], otables: {} };
+  // Honest degradation for a book-level-only translation (Pope — see
+  // readingHasSceneAnchors above): rather than fabricate a per-scene split
+  // with no real alignment signal (CLAUDE.md: never invent alignment),
+  // Reading Mode shows the whole book once, with a notice; readingView below
+  // hides the scene nav in this branch. This is the SAME whole-book merge
+  // chunksForScene's own fallback used to produce once per scene (by
+  // accident, since its one chunk overlaps every scene) — made intentional.
+  $: readingWholeBookFlow = scenes.length && !readingHasSceneAnchors && readingChunks.length
+    ? mergeSceneFlowChunks(readingChunks)
+    : { flowParts: [], otables: {} };
 
   // Reads `readingSceneIndex` directly (clamping inline) rather than the
   // reactive `clampedSceneIndex` — a `$:` recompute is batched, so a caller
@@ -2701,7 +2722,7 @@
             {#if readingTransId === engSlot?.id}{@render primaryEng(row, ri)}{:else}{@render altEng(row, ri, readingTransId)}{/if}
           </div>
         {/each}
-      {:else if scenes.length}
+      {:else if scenes.length && readingHasSceneAnchors}
         {@const s = scenes[clampedSceneIndex]}
         {@render readingSceneHead(s, clampedSceneIndex, scenes.length)}
         {@render flowProse(currentSceneFlow.flowParts, readingTransId, currentSceneFlow.otables)}
@@ -2709,6 +2730,14 @@
           <button type="button" class="reading-scene-prev" on:click={prevScene} disabled={clampedSceneIndex === 0}>← Previous scene</button>
           <button type="button" class="reading-scene-next" on:click={nextScene} disabled={clampedSceneIndex === scenes.length - 1}>Next scene →</button>
         </nav>
+      {:else if scenes.length}
+        <!-- Book-level-only translation (John, 2026-07-19 — see
+             readingHasSceneAnchors above): no real per-scene alignment
+             signal exists, so scene paging is honestly unavailable rather
+             than fabricated — the whole book renders once, with no scene
+             nav, and a discreet notice explains why. -->
+        <p class="reading-anchor-notice">{(translations.find(t => t.id === readingTransId)?.name) ?? readingTransId}'s translation is aligned at book level only; scene paging unavailable.</p>
+        {@render flowProse(readingWholeBookFlow.flowParts, readingTransId, readingWholeBookFlow.otables)}
       {:else}
         {#each enrichedSegments as { seg, blocks } (seg.id)}
           {#each blocks as block}
@@ -3355,6 +3384,21 @@
      global.css (avoids widening the shared-core drift surface tracked in
      DRIFT.md for a Homer-only feature — see the module docstring above). -->
 <style>
+  /* Reading Mode's honest-degradation notice for a book-level-only
+     translation (John, 2026-07-19 — see readingHasSceneAnchors in the
+     script above: Pope carries one bekker anchor per book, no real
+     per-scene signal). Same discreet one-line-legend tone as global.css's
+     .verse-bracket-legend/.bekker-info-pop (this file only owns a handful of
+     small component-scoped rules; the rest of the reader's chrome styling
+     lives centrally in global.css). */
+  .reading-anchor-notice {
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--text-light);
+    margin: 0 0 1rem;
+  }
+
   /* Right-aligned tag on the Greek line's flex row (.greek-line: line-num
      fixed-width, .line-text flex:1, this sits last) — no layout reservation
      when meterOn is false, since the element isn't rendered at all then

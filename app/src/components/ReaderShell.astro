@@ -846,4 +846,27 @@ const intro =
        compact sheet at 375px while retaining the summary in the link text. */
     .toc-book-argument { -webkit-line-clamp: 1; }
   }
+
+  /* Cartouche gap (John, 2026-07-19): on desktop, dead space stacked between
+     the book plate's own bottom margin (global.css .book-plate:
+     margin-bottom 1.75rem / 28px) and .reader-body's top padding (global.css
+     .reader-body: padding-top 1.5rem / 24px) — the two don't margin-collapse
+     (.reader-controls, the visible edge, is a PADDED descendant of
+     .reader-body, not book-plate's sibling), so they simply add up to ~52px
+     of dead space above the translation-picker strip. Neither rule lives in
+     a file this brief is scoped to touch (both are in shared/styles/
+     global.css) — this override, scoped to the SAME >680px breakpoint the
+     rest of this file's desktop overrides use, drops the book-plate's own
+     trailing margin to 0, leaving reader-body's 24px as the sole (and now
+     single, legible) gap — roughly half the original ~52px. Mobile is
+     untouched (this block never applies below 681px). Doubled class
+     (`.book-plate.book-plate`, specificity 0-2-0) rather than plain
+     `.book-plate` (0-1-0): global.css's own `.book-plate { margin: 1.25rem 0
+     1.75rem }` shorthand rule is emitted AFTER this component's styles in
+     the page's CSS (verified empirically), so an equal-specificity override
+     here would lose the cascade tie-break to source order and silently not
+     apply. */
+  @media (min-width: 681px) {
+    .book-plate.book-plate { margin-bottom: 0; }
+  }
 </style>
