@@ -92,10 +92,13 @@ const startHref = `${base}/start/`;
 const aboutHref = `${base}/about`;
 const iliadLandingHref = `${base}${workLanding('iliad')}`;
 const odysseyLandingHref = `${base}${workLanding('odyssey')}`;
-const lemmaHref = `${base}/lemma/`;
 const searchHref = `${base}/search`;
 const genealogiesHref = `${base}/genealogies/`;
 const mapsHref = `${base}/maps/`;
+const timelineHref = `${base}/timeline/`;
+const charactersHref = `${base}/characters/`;
+const placesHref = `${base}/places/`;
+const vocabularyHref = `${base}/vocabulary/`;
 const formulasHref = `${base}/formulas/`;
 const repetitionsHref = `${base}/repetitions/`;
 const attributionHref = `${base}/attribution`;
@@ -145,12 +148,16 @@ const supportHref = `${base}/support`;
       <nav class="primary-nav" aria-label="Primary">
         <a href={iliadLandingHref}>Iliad</a>
         <a href={odysseyLandingHref}>Odyssey</a>
-        <a href={genealogiesHref}>Genealogies</a>
         <a href={mapsHref}>Maps</a>
+        <a href={timelineHref}>Timeline</a>
+        <a href={charactersHref}>Characters</a>
+        <a href={placesHref}>Places</a>
+        <a href={genealogiesHref}>Genealogies</a>
+        <a href={vocabularyHref}>Vocabulary</a>
         <a href={formulasHref}>Formulas</a>
         <a href={repetitionsHref}>Repetitions</a>
         <a href={searchHref}>Search</a>
-        <a href={lemmaHref}>Lexicon</a>
+        <a href={aboutHref}>About</a>
         <ThemeToggle />
       </nav>
     </div>
@@ -433,7 +440,13 @@ const supportHref = `${base}/support`;
       /* moonlight-on-water glint — sea/Odyssey side only, drifting very slowly */
       content: "";
       position: absolute;
-      inset: -8% -12% -8% 40%;
+      /* Left edge sits AT the 50% panel divider, and the mask fades the
+         overlay's left flank so its boundary can never render as a hard
+         vertical seam over the Iliad panel (John, 2026-07-18 — visible after
+         the 50/50 rebalance moved the divider left of the old 40% clip). */
+      inset: -8% -12% -8% 50%;
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 18%);
+      mask-image: linear-gradient(to right, transparent 0, #000 18%);
       background: linear-gradient(
         158deg,
         transparent 40%,
