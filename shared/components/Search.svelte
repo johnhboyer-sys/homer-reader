@@ -1,10 +1,12 @@
 <script lang="ts">
   import { tick, onMount } from 'svelte';
   import { search, type SearchMode, type LangOp, type MatchMode, type SearchResult } from '../lib/search';
-  import { fetchBook, fetchChapters, fetchSections, type Segment, type ChapterRef, type SectionRef } from '../lib/data';
+  import { fetchBook, fetchChapters, fetchSections, fetchColumns, fetchSpeeches, fetchCharacters, type Segment, type ChapterRef, type SectionRef, type ColumnRef, type Speech, type CharacterEntry } from '../lib/data';
   import { highlightPrefixMatches } from '../lib/text';
   import { WORKS, getWork, workPath, WORK_ORDER, WORK_GROUPS } from '../lib/works';
   import { formatCite, formatLocValue, schemeFor } from '../lib/citation';
+  import { speakerDisplayName } from '../lib/speeches';
+  import { buildSpanIndex, lineInAnySpeech, lineMatchesSpeaker, type SpanIndex } from '../lib/search-filters';
 
   // One match occurrence, located precisely enough to label and jump to.
   interface Instance {
@@ -65,6 +67,211 @@
   // can edit the inputs without re-submitting, then page/retry/export).
   interface SearchCtx { grkQuery: string; engQuery: string; engTerms: string[]; grkAccentTerms: string[]; }
   let searchCtx: SearchCtx = { grkQuery: '', engQuery: '', engTerms: [], grkAccentTerms: [] };
+
+  // ── Result filters: work / book / speaker / speeches-only ─────────────────
+  // These filter the ALREADY-RETRIEVED result set (rawResults, from the last
+  // search() call) rather than re-querying the index — so flipping a filter
+  // is instant and never re-fetches the search indexes. Work/book are cheap
+  // metadata filters. Speaker/"speeches only" need a line number per hit,
+  // which only exists once a book is fetched (see buildGroups), so those two
+  // switch the pipeline into "eager" mode (see applyResultsPipeline).
+  type WorkFilter = 'all' | 'iliad' | 'odyssey';
+  let workFilter: WorkFilter = 'all';
+  let bookFilterRaw = '';                 // '' = any book; else '1'..'24'
+  // A plain function, NOT a `$:` derived value: applyResultsPipeline/updateUrl
+  // are imperative functions invoked right after bookFilterRaw changes (from
+  // the same on:change handler), and Svelte's `$:` reactive statements only
+  // recompute on the next microtask flush — reading a derived reactive value
+  // synchronously in that window would see the STALE (pre-change) filter.
+  // Reading bookFilterRaw itself is always current (bind:value applies
+  // synchronously), so every consumer parses it fresh at call time instead.
+  function parsedBookFilter(): number | null {
+    return bookFilterRaw ? Number(bookFilterRaw) : null;
+  }
+  $: bookFilterCount = workFilter !== 'all' ? (getWork(workFilter)?.books ?? 24) : 24;
+  let speakerFilter = '';                 // '' = any speaker; else a character id
+  let speakerFilterOpen = false;          // has the speaker filter been activated?
+  let speechesOnly = false;
+
+  // The DICES speech-span data (both works) + cast list, loaded lazily on
+  // first use of a speech-dependent filter — never on a plain search
+  // (payload discipline: speeches.json/characters.json only cost bytes once
+  // the user actually reaches for a speaker or "speeches only").
+  let speechesByWork: Record<string, Speech[]> = {};
+  let charactersById = new Map<string, CharacterEntry>();
+  let spanIndexByWork: Record<string, SpanIndex> = {};
+  let speechDataLoaded = false;
+  let speechDataLoading = false;
+  let speechDataError = '';
+  let speechDataPromise: Promise<boolean> | null = null;
+
+  function ensureSpeechData(): Promise<boolean> {
+    if (speechDataLoaded) return Promise.resolve(true);
+    if (speechDataPromise) return speechDataPromise;
+    speechDataLoading = true;
+    speechDataError = '';
+    speechDataPromise = (async () => {
+      try {
+        const [chars, il, od] = await Promise.all([
+          fetchCharacters(),
+          fetchSpeeches('iliad'),
+          fetchSpeeches('odyssey'),
+        ]);
+        charactersById = new Map(Object.entries(chars));
+        speechesByWork = { iliad: il, odyssey: od };
+        spanIndexByWork = { iliad: buildSpanIndex(il), odyssey: buildSpanIndex(od) };
+        speechDataLoaded = true;
+        return true;
+      } catch (err) {
+        console.warn('search: speech data failed to load —', err);
+        speechDataError = 'Speaker and "speeches only" filters are unavailable right now — the speech data failed to load.';
+        return false;
+      } finally {
+        speechDataLoading = false;
+        speechDataPromise = null;
+      }
+    })();
+    return speechDataPromise;
+  }
+
+  async function activateSpeakerFilter() {
+    speakerFilterOpen = true;
+    await ensureSpeechData();
+  }
+
+  // Speakers offered in the select: every id appearing in speech.speaker[]
+  // for the work(s) currently in scope (workFilter), display-named via
+  // apparatus/characters.json (falling back to a humanized raw id — see
+  // shared/lib/speeches.ts's speakerDisplayName). Empty until the speech data
+  // has loaded.
+  $: speakerOptions = speechDataLoaded
+    ? (() => {
+        const works = workFilter === 'all' ? ['iliad', 'odyssey'] : [workFilter];
+        const ids = new Set<string>();
+        for (const w of works) for (const s of speechesByWork[w] ?? []) for (const id of s.speaker) ids.add(id);
+        return [...ids]
+          .map((id) => ({ id, label: speakerDisplayName(id, charactersById) }))
+          .sort((a, b) => a.label.localeCompare(b.label));
+      })()
+    : [];
+
+  // A hit (work, book, line) passes the speech-dependent filters iff: when a
+  // speaker is chosen, the line falls in a span whose speaker includes it
+  // (this already implies span membership, so "speeches only" adds nothing
+  // further); else, when "speeches only" alone is on, the line falls in ANY
+  // span. A line inside no span never matches either filter.
+  function passesSpeechFilters(work: string, book: number, line: number): boolean {
+    const idx = spanIndexByWork[work];
+    if (speakerFilter) return !!idx && lineMatchesSpeaker(idx, book, line, speakerFilter);
+    if (speechesOnly) return !!idx && lineInAnySpeech(idx, book, line);
+    return true;
+  }
+
+  function filterResultsByWorkBook(list: SearchResult[]): SearchResult[] {
+    const bf = parsedBookFilter();
+    return list.filter(
+      (r) => (workFilter === 'all' || r.work === workFilter) && (bf == null || r.meta.book === bf),
+    );
+  }
+
+  // Full result set from the last search() call (unfiltered) and the
+  // work/book-filtered slice currently in effect (what buildGroups/CSV
+  // export operate on) plus the active line-level filter, if any.
+  let rawResults: SearchResult[] = [];
+  let currentResults: SearchResult[] = [];
+  let currentLineFilter: ((work: string, book: number, line: number) => boolean) | undefined;
+
+  // Rebuild `groups`/`totalInstances` from `rawResults` under the current
+  // filters. Work/book narrow the result set for free (no fetch). A
+  // speaker/"speeches only" filter needs every touched book's line numbers
+  // resolved, so it switches to the SAME eager, whole-result-set build the
+  // CSV export already does — trading the lazy per-page fetch for an
+  // immediate, complete (and now instantly re-filterable) render. Bypasses
+  // the pager (pages = []) in that mode; the corpus is small enough (2
+  // works, 24 books each) that showing the whole filtered set at once is
+  // simpler than adding a second, fetch-free pagination scheme.
+  async function applyResultsPipeline() {
+    currentResults = filterResultsByWorkBook(rawResults);
+    const needsSpeechFilter = !!speakerFilter || speechesOnly;
+    currentLineFilter = needsSpeechFilter ? passesSpeechFilters : undefined;
+
+    if (needsSpeechFilter) {
+      await ensureSpeechData();
+      pageLoading = true;
+      pageError = '';
+      try {
+        const { groups: g, failed } = await buildGroups(currentResults, searchCtx, currentLineFilter);
+        groups = g;
+        pages = [];
+        pageIdx = 0;
+        totalInstances = g.reduce((n, grp) => n + grp.instances.length, 0);
+        expanded = new Set(groups.filter((x) => x.instances.length === 1).map((x) => x.key));
+        if (failed.length) {
+          pageError = `${failed.length} passage source${failed.length === 1 ? '' : 's'} didn’t load — some hits may be missing.`;
+        }
+      } catch (err) {
+        pageError = String(err);
+        groups = [];
+        totalInstances = 0;
+      } finally {
+        pageLoading = false;
+      }
+    } else {
+      totalInstances = currentResults.reduce((n, r) => n + instCount(r), 0);
+      pages = paginate(currentResults);
+      if (pages.length) await renderPage(0);
+      else { groups = []; pageIdx = 0; }
+    }
+  }
+
+  // Suggests which active filter to loosen when a (post-filter) search comes
+  // back empty — interface voice, states the fact rather than apologizing.
+  $: zeroResultHint = (() => {
+    const hints: string[] = [];
+    if (workFilter !== 'all') hints.push('widen Work to All');
+    if (bookFilterRaw) hints.push('clear Book');
+    if (speakerFilter) hints.push('choose a different speaker or Any speaker');
+    if (speechesOnly) hints.push('turn off Speeches only');
+    return hints.length ? `Loosen a filter: ${hints.join('; ')}.` : '';
+  })();
+
+  function onWorkFilterChange() {
+    if (workFilter === 'all') bookFilterRaw = '';
+    onFilterChange();
+  }
+
+  async function onFilterChange() {
+    if (!searched) return;
+    await applyResultsPipeline();
+    updateUrl();
+  }
+
+  async function onSpeechesOnlyChange() {
+    if (speechesOnly) await ensureSpeechData();
+    await onFilterChange();
+  }
+
+  async function onSpeakerFilterChange() {
+    await ensureSpeechData();
+    await onFilterChange();
+  }
+
+  // Reflects the submitted query + active filters in the URL (replaceState —
+  // filter tweaks don't spam browser history, but the current view is always
+  // reproducible from the URL: reload or share the link and it round-trips).
+  function updateUrl() {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (searchCtx.grkQuery) params.set('g', searchCtx.grkQuery); else params.delete('g');
+    if (searchCtx.engQuery) params.set('e', searchCtx.engQuery); else params.delete('e');
+    params.delete('q');
+    if (workFilter !== 'all') params.set('w', workFilter); else params.delete('w');
+    if (bookFilterRaw) params.set('b', bookFilterRaw); else params.delete('b');
+    if (speakerFilter) params.set('spk', speakerFilter); else params.delete('spk');
+    if (speechesOnly) params.set('so', '1'); else params.delete('so');
+    const qs = params.toString();
+    window.history.replaceState(null, '', `${window.location.pathname}${qs ? `?${qs}` : ''}`);
+  }
 
   // ── Accent-sensitive Greek matching ────────────────────────────────────────
   // The indexes are accent-folded (λόγος and λογός share a key), which is the
@@ -320,18 +527,42 @@
     return out;
   }
 
-  // Load a work's grouping outline: Stephanus works from sections.json, everyone
-  // else from chapters.json. Both resolve to the ChapterRef shape.
+  // Verse-line works (Homer) ALSO ship an empty chapters.json — like Stephanus,
+  // they have no sub-book "chapter" division; a whole Homer book is a single
+  // segment (see fetchBook — `segments.length === 1`, `column` = the book
+  // number as a string). The per-book outline instead lives in columns.json
+  // (generic Bekker-column infrastructure, reused here since a verse-line
+  // book's "column" is just the book itself): one synthetic chapter per book,
+  // spanning its whole line range. Same rationale/fix shape as
+  // sectionsToChapters above — without this, verse-line search hits are
+  // "unloadable" exactly like the Stephanus bug it documents.
+  function columnsToChapters(cols: Record<string, ColumnRef[]>): Record<string, ChapterRef[]> {
+    const out: Record<string, ChapterRef[]> = {};
+    for (const [book, refs] of Object.entries(cols)) {
+      const r = refs[0];
+      if (!r) continue;
+      out[book] = [{ chapter: 'Whole book', column: book, line: '1', bekker: `${r.lo}–${r.hi}` }];
+    }
+    return out;
+  }
+
+  // Load a work's grouping outline: Stephanus works from sections.json,
+  // verse-line (Homer) works from columns.json, everyone else from
+  // chapters.json. All three resolve to the ChapterRef shape.
   function fetchOutline(work: string): Promise<Record<string, ChapterRef[]>> {
-    return schemeFor(work).id === 'stephanus'
-      ? fetchSections(work).then(sectionsToChapters)
-      : fetchChapters(work);
+    const id = schemeFor(work).id;
+    if (id === 'stephanus') return fetchSections(work).then(sectionsToChapters);
+    if (id === 'verse-line') return fetchColumns(work).then(columnsToChapters);
+    return fetchChapters(work);
   }
 
   // Heading word for a result group, keyed to the work's citation scheme —
-  // "Stephanus 2" for Plato, "Chapter 5" for a Bekker/Busse work.
+  // "Stephanus 2" for Plato, "Chapter 5" for a Bekker/Busse work. Verse-line
+  // (Homer) has exactly one group per book (see columnsToChapters), already
+  // headed by the book-section's own "Book N" heading, so no extra unit word.
   function groupUnitLabel(work: string): string {
-    return schemeFor(work).id === 'stephanus' ? 'Stephanus' : 'Chapter';
+    const id = schemeFor(work).id;
+    return id === 'stephanus' ? 'Stephanus' : id === 'verse-line' ? '' : 'Chapter';
   }
 
   // Bekker line number of the token at index `pos` within a segment.
@@ -368,7 +599,11 @@
   // chapter fetch is evicted (see data.ts) and its work:book key collected in
   // `failed` — NOT swallowed as a successful empty result — so the caller can
   // show an incomplete-results notice and offer a retry.
-  async function buildGroups(results: SearchResult[], ctx: SearchCtx): Promise<{ groups: ChapterGroup[]; failed: string[] }> {
+  async function buildGroups(
+    results: SearchResult[],
+    ctx: SearchCtx,
+    lineFilter?: (work: string, book: number, line: number) => boolean,
+  ): Promise<{ groups: ChapterGroup[]; failed: string[] }> {
     const wbPairs = [...new Set(results.map(r => `${r.work}:${r.meta.book}`))];
     const workSet = [...new Set(results.map(r => r.work))];
     const failed: string[] = [];
@@ -431,6 +666,7 @@
           if (ctx.grkAccentTerms.length
             && !accentTokenMatch(toks[pos] ?? '', ctx.grkAccentTerms)) continue;
           const line = lineOfPosition(seg, pos);
+          if (lineFilter && !lineFilter(r.work, r.meta.book, line)) continue;
           const ch = lookup(seg.column, line);
           add(r.work, r.meta.book, ch, { lang: 'grk', column: seg.column, line, ref: formatCite(r.work, seg.column, line), html: greekKwic(seg, [pos]), jumpUrl: jumpFor(r.work, r.meta.book, seg.column, line) });
         }
@@ -440,6 +676,7 @@
         // which equals meta.english_head — see search.ts englishOccurrences).
         for (const off of r.engPositions) {
           const line = englishLineAt(seg, off);
+          if (lineFilter && !lineFilter(r.work, r.meta.book, line)) continue;
           const ch = lookup(seg.column, line);
           add(r.work, r.meta.book, ch, { lang: 'eng', column: seg.column, line, ref: seg.column, html: englishKwicAt(seg, off, ctx.engTerms), jumpUrl: jumpFor(r.work, r.meta.book, seg.column, line) });
         }
@@ -514,8 +751,19 @@
     const params = new URLSearchParams(window.location.search);
     const g = params.get('g');
     const en = params.get('e') ?? params.get('q');
+    const w = params.get('w');
+    const b = params.get('b');
+    const spk = params.get('spk');
+    const so = params.get('so');
     if (g) grkQuery = g;
     if (en) engQuery = en;
+    if (w === 'iliad' || w === 'odyssey') workFilter = w;
+    if (b) {
+      const n = Number(b);
+      if (Number.isInteger(n) && n >= 1 && n <= 24) bookFilterRaw = b;
+    }
+    if (spk) { speakerFilter = spk; speakerFilterOpen = true; }
+    if (so === '1') speechesOnly = true;
     if (g || en) doSearch();
   });
 
@@ -538,12 +786,10 @@
           ? grkQuery.trim().split(/\s+/).filter(Boolean).map(accentNorm)
           : [],
       };
-      const results = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode);
-      totalInstances = results.reduce((n, r) => n + instCount(r), 0);
-      pages = paginate(results);
+      rawResults = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode);
       searched = true;
-      if (pages.length) await renderPage(0);
-      else { groups = []; pageIdx = 0; }
+      await applyResultsPipeline();
+      updateUrl();
     } catch (err) {
       error = err instanceof Error ? err.message : String(err);
     } finally {
@@ -634,11 +880,12 @@
     csvBusy = true;
     csvNote = '';
     try {
-      // Export every result, not just the current page — so build groups over
-      // the whole set (loads any not-yet-fetched books on demand, bounded +
-      // retried). If some book truly can't load, the CSV omits those rows and
-      // we say so rather than silently shipping a short file.
-      const { groups: allGroups, failed } = await buildGroups(pages.flat(), searchCtx);
+      // Export every result under the CURRENT filters (work/book/speaker/
+      // speeches-only), not just the current page — build groups over the
+      // whole filtered set (loads any not-yet-fetched books on demand,
+      // bounded + retried). If some book truly can't load, the CSV omits
+      // those rows and we say so rather than silently shipping a short file.
+      const { groups: allGroups, failed } = await buildGroups(currentResults, searchCtx, currentLineFilter);
       const origin = typeof location !== 'undefined' ? location.origin : '';
       // URL comes BEFORE the free-text Snippet (and Snippet is the LAST column)
       // on purpose. The snippet holds prose full of commas; we RFC-quote it, but
@@ -894,10 +1141,49 @@
   {#if error}
     <p class="search-error">{error}</p>
   {:else if searched}
+    <div class="filters-row" role="group" aria-label="Filter results">
+      <label class="filter-field">
+        <span class="filter-label">Work</span>
+        <select bind:value={workFilter} on:change={onWorkFilterChange}>
+          <option value="all">All</option>
+          <option value="iliad">Iliad</option>
+          <option value="odyssey">Odyssey</option>
+        </select>
+      </label>
+      <label class="filter-field">
+        <span class="filter-label">Book</span>
+        <select bind:value={bookFilterRaw} on:change={onFilterChange} disabled={workFilter === 'all'}>
+          <option value="">Any</option>
+          {#each Array.from({ length: bookFilterCount }, (_, i) => i + 1) as n}
+            <option value={String(n)}>{n}</option>
+          {/each}
+        </select>
+      </label>
+      {#if !speakerFilterOpen}
+        <button type="button" class="filter-activate" on:click={activateSpeakerFilter}>+ Filter by speaker</button>
+      {:else}
+        <label class="filter-field">
+          <span class="filter-label">Speaker</span>
+          <select bind:value={speakerFilter} on:change={onSpeakerFilterChange} disabled={speechDataLoading}>
+            <option value="">Any speaker</option>
+            {#each speakerOptions as opt}
+              <option value={opt.id}>{opt.label}</option>
+            {/each}
+          </select>
+        </label>
+      {/if}
+      <label class="filter-check">
+        <input type="checkbox" bind:checked={speechesOnly} on:change={onSpeechesOnlyChange} />
+        Speeches only
+      </label>
+      {#if speechDataLoading}<span class="filter-note">Loading speech data…</span>{/if}
+      {#if speechDataError}<span class="filter-note warn">{speechDataError}</span>{/if}
+    </div>
+
     <div class="result-bar">
       <p class="result-count">
         {totalInstances === 0
-          ? 'No passages found.'
+          ? `No passages found.${zeroResultHint ? ` ${zeroResultHint}` : ''}`
           : `${totalInstances} instance${totalInstances === 1 ? '' : 's'}` +
             (searchCtx.grkAccentTerms.length ? ' before accent filtering' : '') +
             (pages.length > 1 ? ` · page ${pageIdx + 1} of ${pages.length}` : '')}
@@ -1411,6 +1697,77 @@
   }
 
   .search-error { color: var(--error); font-family: var(--font-ui); font-size: 0.9rem; }
+
+  /* --- Result filters: work / book / speaker / speeches-only ------------ */
+  .filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.6rem 0.85rem;
+    margin-bottom: 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--input-bg);
+  }
+  .filter-field {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .filter-label {
+    font-family: var(--font-ui);
+    font-variant: small-caps;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--text-mid);
+  }
+  .filter-field select {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    color: var(--text);
+    background: var(--col-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+  }
+  .filter-field select:focus {
+    outline: 2px solid var(--accent-light);
+    outline-offset: 1px;
+  }
+  .filter-field select:disabled { opacity: 0.5; cursor: not-allowed; }
+  .filter-activate {
+    font-family: var(--font-ui);
+    font-variant: small-caps;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+  }
+  .filter-activate:hover { border-color: var(--accent-light); background: var(--col-bg); }
+  .filter-check {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-ui);
+    font-variant: small-caps;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--text-mid);
+    cursor: pointer;
+  }
+  .filter-note {
+    font-family: var(--font-ui);
+    font-size: 0.76rem;
+    color: var(--text-light);
+  }
+  .filter-note.warn { color: var(--error); }
 
   .result-bar {
     display: flex;

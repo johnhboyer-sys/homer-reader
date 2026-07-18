@@ -514,3 +514,36 @@ note below for the justification.
 
 - shared/lib/repetitions.ts (+test) — top-N selection/filter helpers (new).
 - shared/lib/data.ts — fetchRepetitions lazy helper (fetchCharacters shape).
+
+## Search result filters: work/book/speaker/speeches-only (Sonnet, 2026-07-17)
+
+- `shared/lib/search-filters.ts` — new (Homer-only, no plato-reader
+  counterpart): pure line→speech-span membership helpers (`buildSpanIndex`,
+  `speechesAtLine`, `lineInAnySpeech`, `lineMatchesSpeaker`) consumed by
+  Search.svelte's speaker/"speeches only" result filters. crossBook spans
+  (the two Apologoi frames) match only within their own recorded `book`,
+  unbounded past `lines[0]` — never claiming a match in a book they merely
+  pass through, since the schema carries no `endBook` (see the file's
+  docstring; same "never invent" posture as `shared/lib/speeches.ts`'s
+  classifySpeech crossBook degrade).
+- `shared/__tests__/search-filters.test.ts` — new: span-membership coverage
+  incl. both crossBook frames' honest under-match.
+- `shared/components/Search.svelte` — added the "Filter results" row (work /
+  book / speaker / speeches-only) above the result list: work+book filter
+  the already-fetched result set for free; a speaker or speeches-only filter
+  switches to an eager whole-result-set `buildGroups` pass (bypassing the
+  per-page pager) so every hit's line number can be checked against a
+  `SpanIndex`, built from `fetchSpeeches`/`fetchCharacters` lazily fetched
+  only when one of those two filters first activates. URL round-trips `w`/
+  `b`/`spk`/`so` via `history.replaceState`. Also fixes a pre-existing,
+  previously-undiscovered bug this work exposed: verse-line works (Homer)
+  ship an empty `chapters.json` (no plato-reader-style sub-book chapters —
+  a Homer book is a single segment; see `fetchBook`), so `buildGroups` could
+  never resolve ANY search hit into a chapter group and the results list
+  silently rendered nothing (same defect class as the documented Stephanus
+  `sectionsToChapters` fix above, just never hit until this task's
+  end-to-end verification). New `columnsToChapters` adapts `columns.json`
+  (already-existing generic Bekker-column infrastructure, reused since a
+  verse-line book's "column" is the whole book) into one synthetic
+  whole-book chapter per book; `fetchOutline`/`groupUnitLabel` gained a
+  `verse-line` branch alongside the existing `stephanus` one.
