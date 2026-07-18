@@ -5,6 +5,7 @@
   // badge/source note. Mounted client:only="svelte" by app/src/pages/maps/
   // index.astro — Leaflet needs `window`, so this island never runs during
   // SSR (see LandmarkMap.svelte).
+  import { onMount, onDestroy } from 'svelte';
   import {
     placesForMap,
     splitByCoords,
@@ -19,11 +20,15 @@
     resolveJourneyLegs,
     journeysPlaceSplit,
     wanderingsReturnTail,
+    voyageDurationByPlaceId,
+    JOURNEY_LEG_NOTES,
+    WANDERINGS_STEP_MS,
     type Place,
     type Contingent,
     type CharacterRef,
     type CatalogueSort,
     type Journey,
+    type VoyageStation,
   } from '@shared/lib/maps';
   import { workPath } from '@shared/lib/works';
   import { formatLocValue } from '@shared/lib/citation';
@@ -36,6 +41,10 @@
   // client:only island rather than an Astro-frontmatter prop, so the
   // journeys.json plumbing stays entirely within this file.
   import journeysFile from '../../../apparatus/journeys.json';
+  // Same posture, for apparatus/voyage-chronology.json (John's directive,
+  // 2026-07-18: journey timelines on the maps) -- read-only input, never
+  // edited from this component.
+  import voyageChronologyFile from '../../../apparatus/voyage-chronology.json';
 
   export let base: string;
   export let places: Place[];
@@ -47,6 +56,22 @@
 
   const journeys = (journeysFile as { status: string; journeys: Journey[] }).journeys;
   const journeysDraft = (journeysFile as { status: string }).status === 'draft';
+
+  // Poem-stated station durations (John's directive, 2026-07-18), looked up
+  // by place id -- see shared/lib/maps voyageDurationByPlaceId. Handed down
+  // to LandmarkMap for the Wanderings + Journeys tabs only (the two tabs
+  // John named); the other tabs get the default empty Map (no chips/lines).
+  const voyageChronology = voyageChronologyFile as { status: string; stations: VoyageStation[] };
+  const voyageDraft = voyageChronology.status === 'draft';
+  const durationsByPlaceId = voyageDurationByPlaceId(voyageChronology.stations);
+
+  // Verified traveler-timing notes (Menelaus's eighth year, Nestor's
+  // sailing rhythm, Telemachus's calendar line) as a plain, always-visible,
+  // keyboard/screen-reader-accessible list -- the text-parity companion to
+  // LandmarkMap's mouse-only note markers on the Journeys tab (that
+  // component's `keyboard: false` posture for ordinary pins/markers, same
+  // as every other place pin in this file's tabs).
+  const journeyTimingNotes = Object.values(JOURNEY_LEG_NOTES);
 
   const pById = buildPlacesById(places);
   const charsById = new Map(characters.map((c) => [c.id, c]));
@@ -206,6 +231,110 @@
     window.history.replaceState(window.history.state, '', url);
   }
 
+  // ── Story-mode Play control (John's directive, 2026-07-18) ────────────────
+  // State lives here (not in LandmarkMap) so the buttons can sit beside the
+  // Map/Story toggle per John's brief, and so "exiting Story mode or
+  // switching tabs tears the player down cleanly" is one reactive statement
+  // away from the tab-switching state already on this page. LandmarkMap only
+  // ever sees the resulting station NUMBER (`playbackStepProp` below);
+  // it owns none of the play/pause/timer logic itself.
+  const totalStations = wanderingsStoryStations.length; // 17
+  let currentStep = 1;
+  let playing = false;
+  // Becomes true the first time Play/Next/Prev is pressed this Story-mode
+  // session; while false, LandmarkMap gets `playbackStep=null` and renders
+  // its ordinary, fully-drawn static route (unchanged default behavior for
+  // anyone who never touches the player).
+  let playbackEngaged = false;
+  let playTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function clearPlayTimer() {
+    if (playTimer != null) { clearTimeout(playTimer); playTimer = null; }
+  }
+
+  function scheduleAutoAdvance() {
+    clearPlayTimer();
+    playTimer = setTimeout(() => {
+      if (currentStep >= totalStations) { playing = false; return; }
+      currentStep += 1;
+      if (playing) scheduleAutoAdvance();
+    }, WANDERINGS_STEP_MS);
+  }
+
+  // User-initiated only (John's brief: "never autoplays") -- this function
+  // only ever runs from a click/Enter/Space on the Play button.
+  function play() {
+    playbackEngaged = true;
+    if (currentStep >= totalStations) currentStep = 1; // restart from Troy once the end is reached
+    playing = true;
+    scheduleAutoAdvance();
+  }
+
+  function pause() {
+    playing = false;
+    clearPlayTimer();
+  }
+
+  function togglePlay() {
+    if (playing) pause();
+    else play();
+  }
+
+  // Manual stepping always pauses autoplay first (media-player convention —
+  // avoids a race between a timer-driven advance and a user click landing on
+  // the same tick).
+  function nextStep() {
+    pause();
+    playbackEngaged = true;
+    if (currentStep < totalStations) currentStep += 1;
+  }
+
+  function prevStep() {
+    pause();
+    playbackEngaged = true;
+    if (currentStep > 1) currentStep -= 1;
+  }
+
+  // Keyboard (John's brief): the buttons are real <button>s (Enter/Space
+  // work natively); ArrowLeft/ArrowRight step when focus is anywhere in the
+  // control group; Escape pauses.
+  function onPlayerKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') { pause(); return; }
+    if (e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
+  }
+
+  // Escape/blur pauses (John's brief) -- window-level so it fires even when
+  // focus is on a caption card or the map itself, not just the control
+  // group.
+  function onWindowBlur() { pause(); }
+  function onWindowKeydown(e: KeyboardEvent) { if (e.key === 'Escape') pause(); }
+
+  onMount(() => {
+    window.addEventListener('blur', onWindowBlur);
+    window.addEventListener('keydown', onWindowKeydown);
+  });
+  onDestroy(() => {
+    clearPlayTimer();
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('blur', onWindowBlur);
+      window.removeEventListener('keydown', onWindowKeydown);
+    }
+  });
+
+  // Teardown (John's brief: "exiting Story mode or switching tabs tears the
+  // player down cleanly") -- leaving Story mode or switching away from the
+  // Wanderings tab resets the player to its untouched starting state.
+  $: if (!storyMode || activeTab !== 'wanderings') {
+    if (playing || playbackEngaged) {
+      pause();
+      playbackEngaged = false;
+      currentStep = 1;
+    }
+  }
+
+  $: playbackStepProp = storyMode && playbackEngaged ? currentStep : null;
+
   function mentionHref(work: string, book: number, line: number): string {
     return `${base}${workPath(work, book)}?loc=${formatLocValue(work, String(book), line)}`;
   }
@@ -215,7 +344,7 @@
   // pins) — the full honesty accounting for the Catalogue's ~230 named towns.
   const shipsUnlocated = unlocatedFor('ships');
 
-  const isDraft = placesDraft || catalogueDraft || journeysDraft;
+  const isDraft = placesDraft || catalogueDraft || journeysDraft || voyageDraft;
 </script>
 
 <div class="mp-root">
@@ -355,19 +484,37 @@
     </div>
   {:else if activeTab === 'wanderings'}
     <div id="mp-panel-wanderings" role="tabpanel" aria-labelledby="mp-tab-wanderings" tabindex="0" class="mp-panel">
-      <div class="mp-story-toggle" role="group" aria-label="Wanderings view">
-        <button
-          type="button"
-          class="mp-story-btn"
-          aria-pressed={!storyMode}
-          on:click={() => setStoryMode(false)}
-        >Map</button>
-        <button
-          type="button"
-          class="mp-story-btn"
-          aria-pressed={storyMode}
-          on:click={() => setStoryMode(true)}
-        >Story</button>
+      <div class="mp-story-row">
+        <div class="mp-story-toggle" role="group" aria-label="Wanderings view">
+          <button
+            type="button"
+            class="mp-story-btn"
+            aria-pressed={!storyMode}
+            on:click={() => setStoryMode(false)}
+          >Map</button>
+          <button
+            type="button"
+            class="mp-story-btn"
+            aria-pressed={storyMode}
+            on:click={() => setStoryMode(true)}
+          >Story</button>
+        </div>
+
+        {#if storyMode}
+          <!-- Play control (John's directive, 2026-07-18): full step
+               controls beside the Map/Story toggle. Buttons carry their own
+               Enter/Space activation for free; ArrowLeft/ArrowRight step
+               while focus is anywhere in this group (onPlayerKeydown);
+               Escape/window-blur pause (module-level listeners above). -->
+          <div class="mp-player" role="group" aria-label="Wanderings playthrough controls" on:keydown={onPlayerKeydown}>
+            <button type="button" class="mp-player-btn" on:click={togglePlay} aria-label={playing ? 'Pause the playthrough' : 'Play the playthrough'}>
+              {playing ? '⏸ Pause' : '▶ Play'}
+            </button>
+            <button type="button" class="mp-player-btn" on:click={prevStep} disabled={currentStep <= 1} aria-label="Previous station">◀ Prev</button>
+            <button type="button" class="mp-player-btn" on:click={nextStep} disabled={currentStep >= totalStations} aria-label="Next station">Next ▶</button>
+            <span class="mp-player-indicator" aria-live="polite">{currentStep} of {totalStations}</span>
+          </div>
+        {/if}
       </div>
 
       <LandmarkMap
@@ -380,6 +527,8 @@
         wanderingsTail={wanderingsTailLegs}
         {storyMode}
         storyStations={wanderingsStoryStations}
+        {durationsByPlaceId}
+        playbackStep={playbackStepProp}
       />
 
       {#if storyMode}
@@ -388,7 +537,10 @@
           heavier route line is his sea voyage proper (Od. 9&ndash;12, Ismarus
           to Thrinacia), continuing on to Ithaca &mdash; broken through the
           Ogygia gap, where Homer's own geography gives no fixed position,
-          solid again from Scheria home.
+          solid again from Scheria home. A station's badge chip gives its
+          poem-stated duration where one exists (e.g. &ldquo;7 years&rdquo; at
+          Ogygia, Od. 7.259) &mdash; no chip where the poem is silent. Play
+          unfolds the route leg by leg; Prev/Next step it manually.
         </p>
         <p class="mp-route-note mp-story-attribution">
           Route follows the traditional identifications recorded here;
@@ -505,7 +657,27 @@
         ariaLabel="Map of the four nostoi: the homecomings of Odysseus, Menelaus, Nestor, and Telemachus, each a distinct colored and patterned route"
         items={journeysItems}
         journeyRoutes={visibleJourneyRoutes}
+        {durationsByPlaceId}
       />
+
+      <!-- Text-parity companion to LandmarkMap's mouse-only note markers
+           (John's directive, 2026-07-18: Menelaus's eighth year, Nestor's
+           sailing rhythm, Telemachus's calendar line) -- always visible,
+           keyboard/screen-reader accessible regardless of the map's own
+           mouse-first pin posture (CLAUDE.md). -->
+      <div class="mp-journey-timing">
+        <h2>Verified durations</h2>
+        <ul>
+          {#each journeyTimingNotes as n (n.travelerId)}
+            <li>
+              <strong>{JOURNEY_LABELS[n.travelerId] ?? n.travelerId}:</strong>
+              {n.gloss}
+              {#if n.greek}<span lang="grc" class="mp-timing-greek">{n.greek}</span>{/if}
+              {#if n.cite}<span class="mp-timing-cite">({n.cite})</span>{/if}
+            </li>
+          {/each}
+        </ul>
+      </div>
 
       <details class="mp-unlocated" open={journeysSplit.unlocated.length > 0}>
         <summary>Not locatable ({journeysSplit.unlocated.length})</summary>
@@ -583,6 +755,8 @@
 
   .mp-route-note { margin: 0; font-size: 0.8rem; color: var(--text-mid); max-width: 68ch; }
 
+  .mp-story-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem; }
+
   .mp-story-toggle { display: inline-flex; gap: 0.3rem; border: 1px solid var(--border); border-radius: 999px; padding: 0.2rem; width: fit-content; }
   .mp-story-btn {
     padding: 0.3rem 0.85rem;
@@ -598,6 +772,25 @@
   .mp-story-btn[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
   .mp-story-btn:hover:not([aria-pressed="true"]) { color: var(--accent); }
   .mp-story-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Play control (John's directive, 2026-07-18): full step controls beside
+     the Map/Story toggle. */
+  .mp-player { display: inline-flex; align-items: center; gap: 0.4rem; font-family: var(--font-ui); }
+  .mp-player-btn {
+    padding: 0.3rem 0.7rem;
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: none;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .mp-player-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .mp-player-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .mp-player-btn:disabled { opacity: 0.4; cursor: default; }
+  .mp-player-indicator { font-size: 0.78rem; color: var(--text-mid); font-variant-numeric: tabular-nums; }
 
   /* Mobile fallback for story-mode captions (LandmarkMap hides its
      always-visible caption cards below 480px — see that component's own
@@ -661,6 +854,15 @@
   .mp-journey-legend-item input { cursor: pointer; }
   .mp-journey-swatch { width: 32px; height: 6px; flex: none; }
   .mp-journey-swatch line { fill: none; }
+
+  /* Verified traveler-timing notes (John, 2026-07-18) — text-parity
+     companion to the map's own note markers; see the Journeys tab markup. */
+  .mp-journey-timing { font-family: var(--font-ui); font-size: 0.82rem; color: var(--text-mid); }
+  .mp-journey-timing h2 { margin: 0 0 0.3rem; font-size: 0.86rem; font-family: var(--font-display); font-weight: 600; color: var(--text); }
+  .mp-journey-timing ul { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.3rem; }
+  .mp-journey-timing strong { color: var(--text); }
+  .mp-timing-greek { font-family: var(--font-greek); margin: 0 0.3rem; }
+  .mp-timing-cite { color: var(--text-light); }
 
   .mp-unlocated { font-family: var(--font-ui); font-size: 0.82rem; color: var(--text-mid); }
   .mp-unlocated summary { cursor: pointer; font-weight: 600; color: var(--text); }

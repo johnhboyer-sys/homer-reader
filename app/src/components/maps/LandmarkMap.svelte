@@ -22,10 +22,19 @@
     arcPoints,
     curvedRoute,
     fadeStub,
+    primaryDuration,
+    chipLabel,
+    durationLine,
+    durationExtras,
+    journeyLegNote,
+    wanderingsPlaybackLegs,
+    WANDERINGS_STEP_MS,
     type Place,
     type StoryStation,
     type ResolvedLeg,
     type LatLon,
+    type VoyageStation,
+    type TravelerNote,
   } from '@shared/lib/maps';
 
   export let base: string;
@@ -73,6 +82,23 @@
     legs: ResolvedLeg[];
   }[] = [];
 
+  // John's directive (2026-07-18): apparatus/voyage-chronology.json's
+  // per-station poem-stated durations, pre-resolved by place id (see
+  // shared/lib/maps voyageDurationByPlaceId) -- Wanderings + Journeys tabs
+  // only, an empty Map elsewhere. This component only reads it, to add a
+  // duration line/chip wherever a station has one; never invents one where
+  // it's absent.
+  export let durationsByPlaceId: Map<string, VoyageStation> = new Map();
+
+  // Story-mode Play control (Wanderings tab only; John's directive,
+  // 2026-07-18): the 1-based telling-order station number the playthrough
+  // has reached, or null when the player has never been engaged this
+  // Story-mode session -- in which case the map shows the ordinary,
+  // fully-drawn static Story route (unchanged default behavior). MapsPage
+  // owns the timer/play-pause/step state; this component only reacts to the
+  // number, in the dedicated playback block below render().
+  export let playbackStep: number | null = null;
+
   const DEFAULT_RADIUS = 7;
   const CAWM_ATTRIBUTION =
     'Tiles &copy; <a href="https://cawm.lib.uiowa.edu/" target="_blank" rel="noopener">' +
@@ -87,6 +113,26 @@
   let tailLayers: any[] = [];
   let journeyLayers: any[] = [];
   let resizeObserver: ResizeObserver | null = null;
+
+  // ── Story-mode Play control (John's directive, 2026-07-18) ────────────────
+  // Kept entirely separate from render()'s own bookkeeping (`layers`,
+  // `routeLayer`, `tailLayers`) so a single playback step never triggers a
+  // full render() rebuild -- see the dedicated reactive block below `render`.
+  // `playbackLastStep` null means "not engaged this Story-mode session" (the
+  // ordinary, fully-drawn static route is showing). The one place the two
+  // systems touch: the moment the player first engages, the static
+  // routeLayer/tailLayers are hidden; the moment it disengages, a plain
+  // render() call restores them (idempotent -- the same props render the
+  // same thing).
+  let playbackLegLayers: any[] = [];
+  let playbackAnimTimers: number[] = [];
+  let playbackAnimRaf: number | null = null;
+  let playbackLastStep: number | null = null;
+  let reducedMotionMql: MediaQueryList | null = null;
+  let prefersReducedMotion = false;
+  function onReducedMotionChange() { prefersReducedMotion = reducedMotionMql?.matches ?? false; }
+
+  $: playbackLegs = wanderingsPlaybackLegs(storyStations);
 
   // ── Marker clustering (Wave B #7: the Ships map's Argolid clump) ──────────
   // Non-story mode only — story mode already has its own dedicated collision
@@ -256,6 +302,15 @@
     pinY: number;
     leadX: number;
     leadY: number;
+    // Compact duration chip (John, 2026-07-18): the station's poem-stated
+    // duration, glance-only text ("9 days"); null when the poem states none
+    // (never invented — no chip, not a guess). `durationTitle` is the fuller
+    // cited line (Greek + citation) for the chip's title/aria description.
+    durationChip: string | null;
+    durationTitle: string | null;
+    // Play control (John, 2026-07-18): true for the station the playthrough
+    // has currently reached, when the player is engaged.
+    active: boolean;
   }
   interface ArrowPos { left: number; top: number; angle: number }
 
@@ -263,7 +318,11 @@
   let arrows: ArrowPos[] = [];
 
   const CARD_W = 168;
-  const CARD_H = 60; // safety margin above the CSS card's real rendered height (~52px), as collision-math headroom
+  // Safety margin above the CSS card's real rendered height, as collision-math
+  // headroom — ~52px plain, ~68px with a duration chip (John, 2026-07-18)
+  // wrapping to its own line; sized for the taller case since every card
+  // shares one collision box regardless of whether ITS station has a chip.
+  const CARD_H = 76;
   const CARD_GAP = 14;
   const BADGE_HALF = 12; // reserved no-card zone around every badge, incl. neighbors'
 
@@ -319,7 +378,14 @@
       if (captions.length || arrows.length) { captions = []; arrows = []; }
       return;
     }
-    const located = storyStations.filter((s) => s.place.coords);
+    // Play control (John, 2026-07-18): once the player is engaged
+    // (playbackStep non-null), only stations the playthrough has actually
+    // reached get a caption card — the route "unfolds", so a caption never
+    // appears ahead of the leg that reaches it. Unengaged (the ordinary
+    // static Story view) shows every located station's caption, unchanged.
+    const located = storyStations
+      .filter((s) => s.place.coords)
+      .filter((s) => playbackStep == null || s.number <= playbackStep);
     const size = map.getSize();
 
     // Reserve a no-card zone around every badge (not just each card's own)
@@ -369,6 +435,8 @@
       }
       placed.push(chosen);
       const lead = nearestPointOnRect(pt.x, pt.y, chosen);
+      const stationDuration = s.place.id ? durationsByPlaceId.get(s.place.id) : undefined;
+      const d = stationDuration ? primaryDuration(stationDuration) : null;
       next.push({
         id: s.place.id,
         number: s.number,
@@ -380,12 +448,21 @@
         pinY: pt.y,
         leadX: lead.x,
         leadY: lead.y,
+        durationChip: d ? chipLabel(d) : null,
+        durationTitle: d ? durationLine(d) : null,
+        active: playbackStep != null && s.number === playbackStep,
       });
     }
     captions = next;
 
     // One direction arrow per hero-route segment (screen-space rotation).
-    const pts = polyline.filter((p) => p.coords).map((p) => map.latLngToContainerPoint(p.coords as [number, number]));
+    // Suppressed while the Play control is engaged — the animated leg
+    // stroke itself carries direction, and drawing arrows for legs the
+    // playthrough hasn't reached yet would show the route ahead of where
+    // it has "unfolded" to.
+    const pts = playbackStep != null
+      ? []
+      : polyline.filter((p) => p.coords).map((p) => map.latLngToContainerPoint(p.coords as [number, number]));
     const nextArrows: ArrowPos[] = [];
     for (let i = 0; i < pts.length - 1; i++) {
       const a = pts[i];
@@ -422,6 +499,11 @@
     row('lm-popup-name', p.name);
     if (p.greek) row('lm-popup-greek', p.greek, 'grc');
     if (item.extra) for (const x of item.extra) row('lm-popup-extra', `${x.label}: ${x.value}`);
+    // Poem-stated duration(s) for this station (John, 2026-07-18) — never
+    // invented: only present when apparatus/voyage-chronology.json actually
+    // records one for this place.
+    const durStation = durationsByPlaceId.get(p.id);
+    if (durStation) for (const x of durationExtras(durStation)) row('lm-popup-duration', `${x.label}: ${x.value}`);
     row('lm-popup-tier', `Certainty: ${p.certainty}`);
     if (p.tradition) row('lm-popup-tradition', p.tradition);
     if (p.note) row('lm-popup-note', p.note);
@@ -510,6 +592,15 @@
     'egypt-erembi': { bearing: 95, length: 3.0 }, // unresolved ancient crux (Strabo); fanned east of the Cyprus/Sidon legs, no identification implied
     'aeaea-cimmerians-underworld': { bearing: 300, length: 2.8 }, // Circe sends Odysseus "across Ocean" for the nekyia -- northwest, away from the Apologoi's Sicily/Italy cluster
     'cimmerians-underworld-aeaea': { bearing: 300, length: 2.2 }, // mirrored: the return from the house of Hades
+    // Story-mode playback only (John, 2026-07-18): wanderingsPlaybackLegs
+    // draws the 17-station telling order leg by leg, and Story order does
+    // not repeat Aeaea as its own numbered stop between the Nekyia and the
+    // Sirens (see maps.ts wanderingsPlaybackLegs doc) -- so the one step
+    // between those two stations is this single honest gap-to-known
+    // transition, standing in for Circe's actual two-hop directions
+    // (Cimmerians -> Aeaea -> Sirens, Od. 12.1-40). Bearing continues the
+    // voyage's own southeastward drift back toward the Sicily/Italy cluster.
+    'cimmerians-underworld-sirens-island': { bearing: 120, length: 2.4 },
   };
 
   function drawableLeg(leg: ResolvedLeg): boolean {
@@ -579,16 +670,66 @@
     noteEl.className = 'lm-popup-note';
     noteEl.textContent = leg.note;
     popup.appendChild(noteEl);
+    // Poem-stated duration(s) for the unlocatable place itself (John,
+    // 2026-07-18) — e.g. Ogygia: "kept by Calypso: 7 years — ἑπτάετες, Od.
+    // 7.259" belongs on THIS gap marker (the only map presence Ogygia has —
+    // it carries no coordinate of its own, see maps.ts). Never invented:
+    // only present when voyage-chronology.json actually records one.
+    const unknownId = outbound ? leg.to : leg.from;
+    const durStation = durationsByPlaceId.get(unknownId);
+    if (durStation) {
+      for (const x of durationExtras(durStation)) {
+        const d = document.createElement('div');
+        d.className = 'lm-popup-duration';
+        d.textContent = `${x.label}: ${x.value}`;
+        popup.appendChild(d);
+      }
+    }
     gapMarker.bindPopup(popup);
     gapMarker.addTo(map);
     out.push(gapMarker);
     return out;
   }
 
+  // A verified, hand-citation duration/timing note for one leg (Menelaus's
+  // "eighth year", Nestor's sailing rhythm, Telemachus's calendar line —
+  // see maps.ts JOURNEY_LEG_NOTES) rendered into a small dedicated marker's
+  // popup, DOM-built the same no-innerHTML way as every other popup here.
+  function noteMarkerPopupNode(note: TravelerNote): HTMLElement {
+    const wrap = document.createElement('div');
+    wrap.className = 'lm-popup';
+    const title = document.createElement('div');
+    title.className = 'lm-popup-name';
+    title.textContent = note.travelerId[0]!.toUpperCase() + note.travelerId.slice(1);
+    wrap.appendChild(title);
+    const gloss = document.createElement('div');
+    gloss.className = 'lm-popup-note';
+    gloss.textContent = note.gloss;
+    wrap.appendChild(gloss);
+    if (note.greek) {
+      const g = document.createElement('div');
+      g.className = 'lm-popup-greek';
+      g.lang = 'grc';
+      g.textContent = note.greek;
+      wrap.appendChild(g);
+    }
+    if (note.cite) {
+      const c = document.createElement('div');
+      c.className = 'lm-popup-tier';
+      c.textContent = note.cite;
+      wrap.appendChild(c);
+    }
+    return wrap;
+  }
+
   // Draws a full leg list (a journey, or the Wanderings tail): a gently-
   // curved solid arc per drawable leg, the broken/faded gap treatment
   // otherwise. `isArrival` marks the one leg (if any) that gets the heavier
-  // "arriving home" glow.
+  // "arriving home" glow. A drawable leg with a verified JOURNEY_LEG_NOTES
+  // entry (John, 2026-07-18: Menelaus's eighth year, Nestor's sailing
+  // rhythm, Telemachus's calendar line) also gets a small note marker at
+  // its midpoint, so the citation is discoverable without hunting for the
+  // exact pixel of a thin curved line.
   function drawJourneyLegs(
     legs: ResolvedLeg[],
     colorClass: string,
@@ -610,11 +751,166 @@
             dashArray,
           }).addTo(map),
         );
+        const note = journeyLegNote(leg.from, leg.to);
+        if (note) {
+          const mid = pts[Math.floor(pts.length / 2)]!;
+          const icon = L.divIcon({
+            className: 'lm-note-marker',
+            html: '<span class="lm-note-dot" aria-hidden="true"></span>',
+            iconSize: [12, 12],
+            iconAnchor: [6, 6],
+          });
+          const marker = L.marker(mid, {
+            icon,
+            keyboard: false,
+            alt: `Verified duration note: ${note.travelerId}`,
+          });
+          marker.bindPopup(noteMarkerPopupNode(note));
+          marker.addTo(map);
+          out.push(marker);
+        }
       } else {
         out.push(...drawBrokenLeg(leg, colorClass));
       }
     });
     return out;
+  }
+
+  // ── Story-mode Play control: leg-by-leg playback ───────────────────────────
+  // John's directive (2026-07-18). Deliberately NOT folded into render()'s
+  // clear-and-redraw cycle: render() is retriggered by many unrelated prop
+  // changes (see its own `$:` line below) and a step's animation must run
+  // exactly once, only when playbackStep itself advances. These functions
+  // manage their OWN small set of layers/timers (playbackLegLayers,
+  // playbackAnimTimers) entirely separately from render()'s `layers` /
+  // `routeLayer` / `tailLayers` bookkeeping.
+
+  // A PlaybackLeg (maps.ts) reshaped into the same ResolvedLeg shape
+  // drawableLeg()/drawBrokenLeg() already know how to draw, so playback
+  // reuses the exact honesty logic (a leg is drawn broken whenever either
+  // endpoint lacks coordinates) rather than a second copy of it.
+  function toResolvedLeg(leg: { from: Place; to: Place }): ResolvedLeg {
+    return {
+      from: leg.from.id,
+      to: leg.to.id,
+      fromPlace: leg.from,
+      toPlace: leg.to,
+      certainty: leg.to.certainty,
+      note: leg.to.note ?? `${leg.from.name} to ${leg.to.name}.`,
+      unlocatable: !leg.from.coords || !leg.to.coords,
+    };
+  }
+
+  function clearPlaybackAnimTimers() {
+    for (const t of playbackAnimTimers) clearTimeout(t);
+    playbackAnimTimers = [];
+    if (playbackAnimRaf != null) { cancelAnimationFrame(playbackAnimRaf); playbackAnimRaf = null; }
+  }
+
+  function clearPlaybackLayers() {
+    for (const l of playbackLegLayers) map?.removeLayer(l);
+    playbackLegLayers = [];
+  }
+
+  // Removes the ordinary static route/tail from the map (kept, not nulled —
+  // render() always removes-then-recreates them itself, so the next
+  // render() call restores everything with no special-casing here).
+  function hideStaticRoute() {
+    if (routeLayer && map.hasLayer(routeLayer)) map.removeLayer(routeLayer);
+    for (const l of tailLayers) if (map.hasLayer(l)) map.removeLayer(l);
+  }
+
+  // One completed leg's final (non-animating) appearance — a solid curved
+  // arc for a drawable leg, the honest broken/faded gap treatment otherwise
+  // ("Broken/unlocatable legs animate as their honest faded-stub treatment —
+  // never a confident stroke to a guessed point", John's brief).
+  function drawCompletedLeg(leg: { from: Place; to: Place }, legIndex: number): any[] {
+    const resolved = toResolvedLeg(leg);
+    if (drawableLeg(resolved)) {
+      const pts = arcPoints(leg.from.coords as LatLon, leg.to.coords as LatLon, bowFor(leg.from.id, leg.to.id, legIndex), 16);
+      return [
+        L.polyline(pts, { className: 'lm-journey-route lm-journey-odysseus lm-route-story', weight: 4.5 }).addTo(map),
+      ];
+    }
+    return drawBrokenLeg(resolved, 'lm-journey-odysseus');
+  }
+
+  // Camera follow for one step. Unlocatable stations (Cimmerians'
+  // underworld, Ogygia) hold the camera where it is rather than flying to a
+  // guessed point — same honesty posture as never drawing a confident line
+  // to one. `animate=false` (a jump/rebuild, or prefers-reduced-motion) is
+  // an instant cut; `animate=true` is a Leaflet flyTo glide.
+  function flyToStation(station: StoryStation | undefined, animate: boolean) {
+    if (!map || !station?.place.coords) return;
+    const zoom = Math.max(map.getZoom(), 7);
+    if (animate && !prefersReducedMotion) {
+      map.flyTo(station.place.coords, zoom, { duration: (WANDERINGS_STEP_MS / 1000) * 0.8 });
+    } else {
+      map.setView(station.place.coords, zoom);
+    }
+  }
+
+  // The classic SVG "draw a line" technique: a dash covering the path's
+  // whole length, offset to fully hide it, then transitioned to zero. Only
+  // ever called for a drawable (non-broken) leg, never under
+  // prefers-reduced-motion (see the caller) — so this is the one place an
+  // actual line-drawing animation happens, matching John's brief exactly.
+  function animateLegStroke(layer: any, durationMs: number, onDone: () => void) {
+    const path: SVGPathElement | undefined = layer?.getElement?.();
+    if (!path || typeof path.getTotalLength !== 'function') { onDone(); return; }
+    const len = path.getTotalLength();
+    path.style.transition = 'none';
+    path.style.strokeDasharray = `${len}`;
+    path.style.strokeDashoffset = `${len}`;
+    void path.getBoundingClientRect(); // force reflow so the transition below actually animates
+    path.style.transition = `stroke-dashoffset ${durationMs}ms linear`;
+    playbackAnimRaf = requestAnimationFrame(() => { path.style.strokeDashoffset = '0'; });
+    const t = window.setTimeout(() => {
+      path.style.transition = '';
+      path.style.strokeDasharray = '';
+      path.style.strokeDashoffset = '';
+      onDone();
+    }, durationMs + 30);
+    playbackAnimTimers.push(t);
+  }
+
+  // Jump/rebuild: used on first engagement, on any step-back (Prev), and as
+  // the safe fallback for any non-adjacent step change. Redraws every leg
+  // up to (not including) `step` instantly (no animation — this is a jump,
+  // not a step), then cuts the camera to `step`'s station.
+  function rebuildPlaybackTo(step: number) {
+    clearPlaybackAnimTimers();
+    clearPlaybackLayers();
+    const newLayers: any[] = [];
+    for (let i = 0; i < step - 1; i++) {
+      const leg = playbackLegs[i];
+      if (leg) newLayers.push(...drawCompletedLeg(leg, i));
+    }
+    playbackLegLayers = newLayers;
+    playbackLastStep = step;
+    flyToStation(storyStations.find((s) => s.number === step), false);
+    updateOverlays();
+  }
+
+  // Advance exactly one step forward (autoplay tick or a Next click): the
+  // only path that actually animates — camera glide + stroke-draw for a
+  // drawable leg, or (broken leg / prefers-reduced-motion) an instant
+  // completed-leg draw, same treatment as rebuildPlaybackTo's per-leg draw.
+  function stepForwardAnimated(toStep: number) {
+    flyToStation(storyStations.find((s) => s.number === toStep), true);
+    const leg = playbackLegs[toStep - 2];
+    if (!leg) { playbackLastStep = toStep; updateOverlays(); return; }
+    const resolved = toResolvedLeg(leg);
+    if (drawableLeg(resolved) && !prefersReducedMotion) {
+      const pts = arcPoints(leg.from.coords as LatLon, leg.to.coords as LatLon, bowFor(leg.from.id, leg.to.id, toStep - 2), 16);
+      const layer = L.polyline(pts, { className: 'lm-journey-route lm-journey-odysseus lm-route-story', weight: 4.5 }).addTo(map);
+      playbackLegLayers = [...playbackLegLayers, layer];
+      animateLegStroke(layer, Math.round(WANDERINGS_STEP_MS * 0.75), () => { playbackLastStep = toStep; });
+    } else {
+      playbackLegLayers = [...playbackLegLayers, ...drawCompletedLeg(leg, toStep - 2)];
+      playbackLastStep = toStep;
+    }
+    updateOverlays();
   }
 
   function render() {
@@ -773,11 +1069,23 @@
       computeClusters();
     });
     resizeObserver.observe(el);
+
+    // prefers-reduced-motion (John's brief): no line-drawing or
+    // camera-glide animation — instant step transitions, same controls.
+    // Read live (not just once) so a Playwright emulateMedia() toggle
+    // mid-session — or a user's OS-level toggle — takes effect immediately.
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      reducedMotionMql = window.matchMedia('(prefers-reduced-motion: reduce)');
+      onReducedMotionChange();
+      reducedMotionMql.addEventListener('change', onReducedMotionChange);
+    }
   });
 
   onDestroy(() => {
     resizeObserver?.disconnect();
     map?.off('move zoom', updateOverlays);
+    reducedMotionMql?.removeEventListener('change', onReducedMotionChange);
+    clearPlaybackAnimTimers();
     map?.remove();
     map = null;
   });
@@ -805,6 +1113,41 @@
       map.panTo(layer.getLatLng());
       layer.openPopup?.();
     }
+  }
+
+  // ── Story-mode Play control: engage / step / disengage ────────────────────
+  // Deliberately its OWN reactive block, not folded into the render() one
+  // above — see the "Story-mode Play control" comment further up. Only
+  // depends on `playbackStep` (MapsPage's single source of truth for the
+  // player's position) plus `map`/`storyMode` guards.
+  $: if (map && storyMode && playbackStep != null) {
+    const target = playbackStep;
+    if (playbackLastStep == null) {
+      // First engagement this Story-mode session: hide the ordinary static
+      // route once, then jump-render up to `target` (normally 1 — Play/Next/
+      // Prev all engage at the current step, no legs played yet).
+      hideStaticRoute();
+      rebuildPlaybackTo(target);
+    } else if (target === playbackLastStep + 1) {
+      stepForwardAnimated(target);
+    } else if (target !== playbackLastStep) {
+      // Any non-adjacent change (Prev, or a jump) — always correct, just
+      // without a per-leg animation, matching this component's own
+      // "jump vs. step" distinction above.
+      rebuildPlaybackTo(target);
+    }
+  }
+
+  // Disengage: storyMode turned off, or MapsPage stopped passing a step
+  // (both count as "exiting Story mode or switching tabs", John's brief) —
+  // tear down every playback-only layer/timer and let a plain render() call
+  // restore the ordinary static route, unchanged from before the player was
+  // ever touched.
+  $: if (map && playbackLastStep != null && (!storyMode || playbackStep == null)) {
+    clearPlaybackAnimTimers();
+    clearPlaybackLayers();
+    playbackLastStep = null;
+    render();
   }
 </script>
 
@@ -846,15 +1189,19 @@
         <a
           class="lm-caption tier-{c.place.certainty}"
           class:selected={c.id === selectedId}
+          class:active={c.active}
           style="left:{c.left}px; top:{c.top}px;"
           href={c.href ?? undefined}
           tabindex={c.href ? undefined : 0}
-          aria-label={`${c.number}. ${c.place.name}, certainty: ${c.place.certainty}. ${captionSummary(c.place.note, 120)}`}
+          aria-label={`${c.number}. ${c.place.name}, certainty: ${c.place.certainty}. ${captionSummary(c.place.note, 120)}${c.durationTitle ? '. Duration: ' + c.durationTitle : ''}`}
         >
           <span class="lm-caption-num" aria-hidden="true">{c.number}</span>
           <span class="lm-caption-body">
             <span class="lm-caption-name">{c.place.name}</span>
             <span class="lm-caption-note">{captionSummary(c.place.note)}</span>
+            {#if c.durationChip}
+              <span class="lm-caption-chip" title={c.durationTitle ?? undefined}>{c.durationChip}</span>
+            {/if}
           </span>
           <span class="lm-caption-tier-mark" aria-hidden="true"></span>
         </a>
@@ -960,6 +1307,20 @@
     background: var(--popup-bg);
   }
 
+  /* Verified traveler-timing note marker (John, 2026-07-18: Menelaus's
+     eighth year, Nestor's sailing rhythm, Telemachus's calendar line) — a
+     small SOLID dot (unlike the dashed lm-gap-dot honesty marker above) so
+     it reads as "here's a citation", not as a gap in the record. */
+  :global(.lm-note-marker) { background: none; border: none; cursor: pointer; }
+  .lm-note-dot {
+    display: block;
+    width: 8px; height: 8px;
+    margin: 2px;
+    border-radius: 50%;
+    border: 1.4px solid var(--accent);
+    background: var(--accent);
+  }
+
   /* Story mode numbered station badges (replace tier pins for coord-bearing
      telling-order stations) and the "quiet dots" the other wanderings pins
      become while story mode is on. */
@@ -1052,6 +1413,11 @@
   .lm-caption:hover { border-color: var(--accent); }
   .lm-caption:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .lm-caption.selected { border-color: var(--rule-strong); border-width: 1.6px; }
+  /* Play control (John, 2026-07-18): the station the playthrough has
+     currently reached — a stronger fill than .selected's border-only
+     treatment, since during playback there's no separate click-to-select
+     interaction competing for the same visual language. */
+  .lm-caption.active { border-color: var(--accent); border-width: 1.6px; background: var(--greek-hover); }
 
   .lm-caption-num {
     flex: none;
@@ -1093,6 +1459,21 @@
     margin-top: 0.2rem;
     border-radius: 50%;
     background: var(--accent);
+  }
+  /* Compact duration chip (John, 2026-07-18): glance-only text ("9 days");
+     the full cited line (Greek + citation) is the chip's title attribute,
+     not shown here — the caption card is already tight on space. */
+  .lm-caption-chip {
+    display: inline-block;
+    margin-top: 0.15rem;
+    padding: 0.04rem 0.3rem;
+    border-radius: 999px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 0.6rem;
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: nowrap;
   }
   .lm-caption.tier-certain .lm-caption-tier-mark { background: var(--accent); }
   .lm-caption.tier-traditional .lm-caption-tier-mark { background: transparent; border: 1.4px solid var(--accent); }
@@ -1142,6 +1523,11 @@
   }
   :global(.lm-popup-tradition),
   :global(.lm-popup-note) { font-size: 0.8rem; margin-top: 0.3rem; color: var(--text-mid); }
+  /* Poem-stated duration line(s) (John, 2026-07-18) — "Duration: 9 days —
+     ἐννῆμαρ, Od. 9.82" and the like. Distinguished from the plain
+     lm-popup-extra rows (ship counts etc.) by weight + accent color, since a
+     verified citation carries more evidential weight than a display fact. */
+  :global(.lm-popup-duration) { font-size: 0.8rem; margin-top: 0.3rem; font-weight: 600; color: var(--accent); }
   :global(.lm-popup-mentions) { margin-top: 0.4rem; font-size: 0.78rem; }
   :global(.lm-popup-mentions a) { color: var(--accent); margin-right: 0.4rem; }
 </style>

@@ -21,11 +21,22 @@ import {
   arcPoints,
   curvedRoute,
   fadeStub,
+  primaryDuration,
+  allDurations,
+  durationLine,
+  chipLabel,
+  durationExtras,
+  voyageDurationByPlaceId,
+  journeyLegNote,
+  JOURNEY_LEG_NOTES,
+  wanderingsPlaybackLegs,
   type Place,
   type Contingent,
   type CharacterRef,
   type Journey,
   type JourneyLeg,
+  type VoyageStation,
+  type StationDuration,
 } from '../lib/maps';
 
 // A small fixture mirroring the shapes actually found in apparatus/places.json
@@ -418,5 +429,148 @@ describe('wanderingsReturnTail (real apparatus/journeys.json)', () => {
 
   it('returns [] for a journeys list with no odysseus-return journey', () => {
     expect(wanderingsReturnTail([])).toEqual([]);
+  });
+});
+
+describe('voyage durations (apparatus/voyage-chronology.json)', () => {
+  const raw = JSON.parse(readFileSync('../apparatus/voyage-chronology.json', 'utf-8'));
+  const stations: VoyageStation[] = raw.stations;
+  const byPlaceId = voyageDurationByPlaceId(stations);
+
+  it('primaryDuration prefers stayDuration over duration (Ogygia: seven years, not nine days)', () => {
+    const ogygia = stations.find((s) => s.id === 'ogygia')!;
+    const d = primaryDuration(ogygia);
+    expect(d).toEqual({ value: 7, unit: 'years', greek: 'ἑπτάετες', cite: 'Od. 7.259', label: 'kept by Calypso' });
+  });
+
+  it('primaryDuration falls back to duration when there is no stayDuration (Lotus-eaters: nine days)', () => {
+    const lotus = stations.find((s) => s.id === 'lotus-eaters-land')!;
+    expect(primaryDuration(lotus)).toEqual({ value: 9, unit: 'days', greek: 'ἐννῆμαρ', cite: 'Od. 9.82' });
+  });
+
+  it('primaryDuration is null where the poem states nothing (never invented)', () => {
+    const cyclopes = stations.find((s) => s.id === 'cyclopes-land')!;
+    expect(primaryDuration(cyclopes)).toBeNull();
+  });
+
+  it('allDurations lists the stay figure before the arrival figure', () => {
+    const ogygia = stations.find((s) => s.id === 'ogygia')!;
+    const all = allDurations(ogygia);
+    expect(all).toHaveLength(2);
+    expect(all[0]!.label).toBe('kept by Calypso');
+    expect(all[1]!.label).toBe('adrift, arriving');
+  });
+
+  it('allDurations is empty (never invented) for a station with no stated duration', () => {
+    expect(allDurations(stations.find((s) => s.id === 'scylla')!)).toEqual([]);
+  });
+
+  it('durationLine composes value/unit/greek/cite', () => {
+    const d: StationDuration = { value: 9, unit: 'days', greek: 'ἐννῆμαρ', cite: 'Od. 9.82' };
+    expect(durationLine(d)).toBe('9 days — ἐννῆμαρ, Od. 9.82');
+  });
+
+  it('durationLine omits the Greek clause and marks approximate when greek is null (Ithaca)', () => {
+    const ithaca = stations.find((s) => s.id === 'ithaca')!;
+    const d = primaryDuration(ithaca)!;
+    expect(d.greek).toBeNull();
+    expect(d.approximate).toBe(true);
+    expect(durationLine(d)).toBe('~1 night — Od. 13.78-95');
+  });
+
+  it('chipLabel has no citation, just the amount', () => {
+    expect(chipLabel({ value: 1, unit: 'month', greek: 'μῆνα', cite: 'Od. 10.14' })).toBe('1 month');
+    expect(chipLabel({ value: 1, unit: 'night', greek: null, cite: 'x', approximate: true })).toBe('~1 night');
+  });
+
+  it('durationExtras capitalizes the label and formats each row, stay first', () => {
+    const ogygia = stations.find((s) => s.id === 'ogygia')!;
+    const extras = durationExtras(ogygia);
+    expect(extras).toEqual([
+      { label: 'Kept by Calypso', value: '7 years — ἑπτάετες, Od. 7.259' },
+      { label: 'Adrift, arriving', value: '9 days — ἐννῆμαρ, Od. 12.447' },
+    ]);
+  });
+
+  it('durationExtras falls back to the generic "Duration" label when the JSON supplies none', () => {
+    const aeolia1 = stations.find((s) => s.id === 'aeolia-1')!;
+    expect(durationExtras(aeolia1)).toEqual([{ label: 'Duration', value: '1 month — μῆνα, Od. 10.14' }]);
+  });
+
+  it('voyageDurationByPlaceId keeps the FIRST landfall\'s duration for a place visited twice (Aeolia, Aeaea)', () => {
+    expect(byPlaceId.get('aeolia')?.id).toBe('aeolia-1');
+    expect(primaryDuration(byPlaceId.get('aeolia')!)).toEqual({ value: 1, unit: 'month', greek: 'μῆνα', cite: 'Od. 10.14' });
+    expect(byPlaceId.get('aeaea')?.id).toBe('aeaea-1');
+    expect(primaryDuration(byPlaceId.get('aeaea')!)).toEqual({ value: 1, unit: 'year', greek: 'ἐνιαυτός', cite: 'Od. 10.467-470' });
+  });
+
+  it('voyageDurationByPlaceId skips digression stations with no placeId (never a phantom map key)', () => {
+    expect(byPlaceId.has('raft-building')).toBe(false); // id, not placeId -- confirms the lookup key space
+    for (const s of stations) {
+      if (s.placeId == null) expect([...byPlaceId.values()]).not.toContain(s);
+    }
+  });
+});
+
+describe('JOURNEY_LEG_NOTES / journeyLegNote', () => {
+  it('Menelaus\'s eighth-year note is keyed to his arrival leg (egypt -> sparta) and cites Od. 4.82', () => {
+    const note = journeyLegNote('egypt', 'sparta');
+    expect(note?.travelerId).toBe('menelaus');
+    expect(note?.cite).toBe('Od. 4.82');
+    expect(note?.greek).toContain('ὀγδοάτῳ');
+  });
+
+  it('Nestor\'s note is keyed to his arrival leg (geraistos -> pylos), hedged, cites Od. 3.180/182-183', () => {
+    const note = journeyLegNote('geraistos', 'pylos');
+    expect(note?.travelerId).toBe('nestor');
+    expect(note?.cite).toBe('Od. 3.180, 182–183');
+  });
+
+  it('Telemachus\'s note carries the narrative-calendar line, no Greek/citation invented', () => {
+    const note = journeyLegNote('ithaca', 'pylos');
+    expect(note?.travelerId).toBe('telemachus');
+    expect(note?.greek).toBe('');
+    expect(note?.gloss).toContain('Days 2–6');
+  });
+
+  it('returns undefined for a leg with no verified note (never invented)', () => {
+    expect(journeyLegNote('troy', 'ismarus')).toBeUndefined();
+  });
+
+  it('every table entry resolves to a real leg in apparatus/journeys.json', () => {
+    const raw = JSON.parse(readFileSync('../apparatus/journeys.json', 'utf-8'));
+    const journeys: Journey[] = raw.journeys;
+    const allLegPairs = new Set(journeys.flatMap((j) => j.legs.map((l) => `${l.from}-${l.to}`)));
+    for (const key of Object.keys(JOURNEY_LEG_NOTES)) {
+      expect(allLegPairs.has(key)).toBe(true);
+    }
+  });
+});
+
+describe('wanderingsPlaybackLegs (real apparatus/places.json)', () => {
+  const raw = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8'));
+  const story = wanderingsStory(raw.places);
+
+  it('produces 16 legs for the 17-station telling order, each carrying real Place records', () => {
+    const legs = wanderingsPlaybackLegs(story);
+    expect(legs).toHaveLength(16);
+    expect(legs[0]).toEqual({ from: story[0]!.place, to: story[1]!.place, toNumber: 2 });
+    expect(legs[legs.length - 1]!.to.id).toBe('ithaca');
+    expect(legs[legs.length - 1]!.toNumber).toBe(17);
+  });
+
+  it('flags a leg as coordless whenever either endpoint has no coords (cimmerians-underworld, ogygia)', () => {
+    const legs = wanderingsPlaybackLegs(story);
+    const intoCimmerians = legs.find((l) => l.to.id === 'cimmerians-underworld')!;
+    expect(intoCimmerians.to.coords).toBeUndefined();
+    const outOfCimmerians = legs.find((l) => l.from.id === 'cimmerians-underworld')!;
+    expect(outOfCimmerians.from.coords).toBeUndefined();
+    const intoOgygia = legs.find((l) => l.to.id === 'ogygia')!;
+    expect(intoOgygia.to.coords).toBeUndefined();
+  });
+
+  it('returns [] for fewer than 2 stations', () => {
+    expect(wanderingsPlaybackLegs([])).toEqual([]);
+    expect(wanderingsPlaybackLegs([story[0]!])).toEqual([]);
   });
 });

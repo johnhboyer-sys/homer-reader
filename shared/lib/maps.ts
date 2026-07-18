@@ -466,3 +466,196 @@ export function fadeStub(point: LatLon, bearingDeg: number, lengthDeg: number, s
   }
   return out;
 }
+
+// ── Voyage durations (apparatus/voyage-chronology.json) ────────────────────
+// John's directive (2026-07-18): surface Odysseus's poem-stated station
+// durations on the Wanderings + Journeys tabs. This section is pure data
+// shaping only -- LandmarkMap decides where/how a duration line or chip
+// renders; this file decides what it SAYS, so the wording is testable
+// without a DOM.
+
+export interface StationDuration {
+  value: number;
+  unit: string;
+  greek: string | null;
+  cite: string;
+  label?: string;
+  approximate?: boolean;
+}
+
+export interface VoyageStation {
+  id: string;
+  placeId: string | null;
+  label: string;
+  kind: string;
+  unlocatable: boolean;
+  refs: Mention[];
+  duration: StationDuration | null;
+  stayDuration?: StationDuration;
+  note: string;
+}
+
+// A station's headline duration for a compact chip: the "how long here"
+// figure. When the poem gives BOTH an arrival/travel duration and a
+// separate stay duration (Ogygia: nine days adrift arriving vs. seven years
+// kept by Calypso, Od. 7.259), the stay wins -- that is what a reader means
+// by "how long was Odysseus at X". Falls back to the arrival/travel
+// duration otherwise (the Lotus-eaters' nine-day storm, Aeolia's month,
+// etc). Null when the poem states no duration at all for this station --
+// per CLAUDE.md apparatus honesty, never invented, never a chip.
+export function primaryDuration(station: VoyageStation): StationDuration | null {
+  return station.stayDuration ?? station.duration ?? null;
+}
+
+// Every poem-stated duration for a station, stay-duration first (see
+// primaryDuration), for a popup's fuller temporal block. Empty (never
+// invented) when the poem states nothing for this station.
+export function allDurations(station: VoyageStation): StationDuration[] {
+  const out: StationDuration[] = [];
+  if (station.stayDuration) out.push(station.stayDuration);
+  if (station.duration) out.push(station.duration);
+  return out;
+}
+
+// One duration formatted for a popup line: "9 days -- ἐννῆμαρ, Od. 9.82"
+// (Greek present) or "~1 night -- Od. 13.78-95" (Ithaca's narrative-frame
+// night carries no counting-word in the Greek -- see voyage-chronology.json
+// -- so `greek` is null and `approximate` marks the tilde). No label prefix
+// here; durationExtras below supplies the label as a separate popup row.
+export function durationLine(d: StationDuration): string {
+  const approx = d.approximate ? '~' : '';
+  const amount = `${approx}${d.value} ${d.unit}`;
+  return d.greek ? `${amount} — ${d.greek}, ${d.cite}` : `${amount} — ${d.cite}`;
+}
+
+// A short chip label with no citation -- Story mode's glance-only duration
+// chip ("9 days", "7 years"); the full durationLine() (with Greek + cite)
+// belongs in the chip's title/aria-label instead, not the visible chip text.
+export function chipLabel(d: StationDuration): string {
+  return `${d.approximate ? '~' : ''}${d.value} ${d.unit}`;
+}
+
+function capitalizeFirst(s: string): string {
+  return s ? s[0]!.toUpperCase() + s.slice(1) : s;
+}
+
+// Popup `extra` rows (see LandmarkMap's `items[].extra`) for a station's
+// duration(s) -- stay first, then arrival/travel, each its own labelled
+// row so Ogygia's two figures ("kept by Calypso": 7 years; "adrift,
+// arriving": 9 days) read as distinct, not duplicate numbers. Falls back to
+// the generic label "Duration" when the JSON supplies none.
+export function durationExtras(station: VoyageStation): { label: string; value: string }[] {
+  return allDurations(station).map((d) => ({
+    label: capitalizeFirst(d.label ?? 'Duration'),
+    value: durationLine(d),
+  }));
+}
+
+// Duration lookup by placeId: FIRST occurrence wins in station array order.
+// voyage-chronology.json records some places twice (aeolia-1/aeolia-2,
+// aeaea-1/aeaea-2 -- Odysseus's outbound landfall and, for Aeolia, his
+// turned-away return; for Aeaea, his stay and his post-Nekyia return) --
+// the corpus's own convention is that the FIRST landfall carries the
+// station's duration and the second carries null (see that file's own
+// station notes). First-occurrence-wins reproduces that convention exactly
+// without re-deriving it here. Digression stations (placeId: null -- the
+// near-Ithaca bag-opening; the raft's building/voyage/storm) are skipped:
+// they have no map pin to attach a popup line to.
+export function voyageDurationByPlaceId(stations: VoyageStation[]): Map<string, VoyageStation> {
+  const map = new Map<string, VoyageStation>();
+  for (const s of stations) {
+    if (!s.placeId || map.has(s.placeId)) continue;
+    map.set(s.placeId, s);
+  }
+  return map;
+}
+
+// ── Verified traveler-level durations beyond voyage-chronology.json ────────
+// voyage-chronology.json covers Odysseus's own voyage only. John's directive
+// (2026-07-18) also asks for Menelaus's and Nestor's stated timing, VERIFIED
+// against the emitted Greek before rendering anything. Checked line-by-line
+// against build/dist/odyssey/book-03.json and book-04.json (2026-07-18):
+//   - Menelaus: Od. 4.82, ὀγδοάτῳ ἔτει ("in the eighth year") -- his own
+//     words to Telemachus and Peisistratus, closing the account of the
+//     wandering that brought him home ("ἠγαγόμην ἐν νηυσὶ καὶ ὀγδοάτῳ
+//     ἔτει ἦλθον"). A TOTAL-nostos figure, the same kind as
+//     voyage-chronology.json's own totalAssertions.twentiethYear for
+//     Odysseus -- not a per-station arrival/stay duration, so it is kept
+//     separate from the StationDuration shape above.
+//   - Nestor: Od. 3.180-183 does NOT state a numbered duration for Nestor
+//     himself. τέτρατον ἦμαρ ("it was the fourth day", 3.180) marks the day
+//     DIOMEDES's ships moored at Argos; Nestor's own lines (3.182-183) say
+//     only that the SAME wind, unbroken since first sent, carried him on to
+//     Pylos. Rendering "4 days" as Nestor's own travel time would overclaim
+//     what the Greek actually says -- so this is a qualitative, hedged
+//     citation, never forced into a value/unit duration.
+//   - Telemachus: no citation -- his journey aligns to the narrative-present
+//     calendar rather than a poem-stated span (John's brief: a small
+//     "Days 2-6 of the poem" line is enough).
+// Keyed by the journeys.json leg ("from-to") the note is most relevant to:
+// Menelaus's at his arrival leg (egypt -> sparta, where he tells the story),
+// Nestor's at his own arrival leg (geraistos -> pylos), Telemachus's at his
+// journey's first leg (ithaca -> pylos).
+export interface TravelerNote {
+  travelerId: string; // matches journeys.json's `traveler`
+  greek: string;
+  cite: string;
+  gloss: string;
+}
+
+export const JOURNEY_LEG_NOTES: Record<string, TravelerNote> = {
+  'egypt-sparta': {
+    travelerId: 'menelaus',
+    greek: 'ὀγδοάτῳ ἔτει ἦλθον',
+    cite: 'Od. 4.82',
+    gloss: 'Menelaus, to Telemachus and Peisistratus: only in the eighth year did he come home.',
+  },
+  'geraistos-pylos': {
+    travelerId: 'nestor',
+    greek: 'τέτρατον ἦμαρ … οὐδέ ποτʼ ἔσβη οὖρος',
+    cite: 'Od. 3.180, 182–183',
+    gloss: "The wind that brought Diomedes's ships to Argos “on the fourth day” never once slackened for Nestor's own passage on to Pylos.",
+  },
+  'ithaca-pylos': {
+    travelerId: 'telemachus',
+    greek: '',
+    cite: '',
+    gloss: "Telemachus's own journey aligns to the narrative-present calendar: Days 2–6 of the poem.",
+  },
+};
+
+export function journeyLegNote(from: string, to: string): TravelerNote | undefined {
+  return JOURNEY_LEG_NOTES[`${from}-${to}`];
+}
+
+// ── Story-mode playthrough: the leg-by-leg step sequence ───────────────────
+// John's directive (2026-07-18): a Play control that unfolds the Wanderings
+// Story-mode route leg by leg, in telling order. One PlaybackLeg per
+// consecutive pair of storyStations (16 legs for the 17-station order) --
+// carries the two Place records directly (storyStations already resolved
+// them), so LandmarkMap can decide drawable-vs-broken the same way
+// drawableLeg()/drawBrokenLeg() already do for journeyRoutes, without a
+// second lookup pass.
+export interface PlaybackLeg {
+  from: Place;
+  to: Place;
+  toNumber: number; // the arriving station's 1-based telling-order number
+}
+
+export function wanderingsPlaybackLegs(storyStations: StoryStation[]): PlaybackLeg[] {
+  const out: PlaybackLeg[] = [];
+  for (let i = 0; i < storyStations.length - 1; i++) {
+    out.push({
+      from: storyStations[i]!.place,
+      to: storyStations[i + 1]!.place,
+      toNumber: storyStations[i + 1]!.number,
+    });
+  }
+  return out;
+}
+
+// Shared pacing constant for the Play control: MapsPage's autoplay timer and
+// LandmarkMap's per-leg camera-glide/stroke-draw animation both read this,
+// so the two stay in sync without duplicating the number. "~1-2s per leg"
+// per John's brief.
+export const WANDERINGS_STEP_MS = 1600;
