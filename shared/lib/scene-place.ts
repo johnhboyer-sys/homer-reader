@@ -147,11 +147,6 @@ function toScenePlace(raw: RawPlace): ScenePlace {
 //     sea", "aboard ship", "near Ithaca, then Aeolia", "the road to Sparta",
 //     "the open sea, near Scheria" — each spans wandering that a journey leg
 //     already anchors more precisely, or is genuinely in-transit.
-//   - Divine-tier "Olympus" and every "Olympus / X" split-scene string: no
-//     "olympus" id exists in apparatus/places.json (confirmed by full-text
-//     search) — CLAUDE.md's apparatus-honesty rule forbids a divine scene
-//     inheriting a mortal toponym, so these resolve null rather than to
-//     Ida/the battlefield/whatever mortal place the scene also touches.
 //   - Nekyia strings ("the edge of Ocean", "the underworld", "the house of
 //     Hades"): mythic-tier, no confident single pin — left out per the brief
 //     ("when in doubt, leave it out"). journeys.json's aeaea<->
@@ -162,8 +157,8 @@ function toScenePlace(raw: RawPlace): ScenePlace {
 //     journeys.json scylla->charybdis leg (Od. 12.101-104) already anchors
 //     correctly; no need to duplicate it here.
 //   - "Hephaestus's forge", "the depths of the sea", "the sea near
-//     Samothrace and Imbros", "narrator's frame", "Olympus; Ithaca",
-//     "proem": no confident single-place referent.
+//     Samothrace and Imbros", "narrator's frame", "proem": no confident
+//     single-place referent.
 const SETTING_DICTIONARY: Record<string, string> = {
   // ── Iliad: Troad battlefield / camp (coarse but honest — the gazetteer
   // carries one Troad pin, `troy`; camp, plain, ships, and walls all render
@@ -212,6 +207,23 @@ const SETTING_DICTIONARY: Record<string, string> = {
   'iliad|Mount Ida': 'ida', // Zeus repeatedly withdraws to watch/act from Ida (8.47, 14.292-353 seduction, 15.1-33).
   'iliad|the river Xanthus': 'scamander', // Il. 21: the river fight; Xanthus = Scamander, same id.
   'iliad|Lemnos': 'lemnos', // Il. 14.230-291: Hera physically flies to Lemnos to persuade Sleep.
+
+  // ── Iliad / Odyssey: Olympus (gazetteer entry added 2026-07-18; John-
+  // approved). Pure "Olympus" and every "Olympus / X" or "X / Olympus" split
+  // pin to olympus — the divine frame dominates when a scene moves between
+  // Olympus and a mortal place (battlefield, camp, Scheria, etc.). Without
+  // these entries the old regex guard forced null so a journey leg could not
+  // silently inherit a mortal toponym for a divine council.
+  'iliad|Olympus': 'olympus',
+  'iliad|Olympus / the Trojan plain': 'olympus',
+  'iliad|Olympus / Achaean camp': 'olympus',
+  'iliad|Olympus / battlefield': 'olympus',
+  'iliad|Troy / Olympus': 'olympus',
+  'iliad|Olympus / before Troy': 'olympus',
+  'iliad|Olympus / the sea': 'olympus',
+  'odyssey|Olympus': 'olympus',
+  'odyssey|Olympus; Ithaca': 'olympus',
+  'odyssey|Olympus / Scheria': 'olympus',
 
   // ── Odyssey: Ithaca (palace hall, farm, town — all confirmed Ithaca-only
   // by a full-corpus grep; "the hall" never denotes Sparta's or Scheria's
@@ -417,32 +429,23 @@ export function buildSceneTimeline(
   return entries.sort((a, b) => a.line - b.line);
 }
 
-// No "olympus" id exists anywhere in apparatus/places.json (checked by full-
-// text search) — the gazetteer has no pin for it. CLAUDE.md's apparatus-
-// honesty rule ("divine scenes must never inherit a mortal toponym") means a
-// scene whose own location prose names Olympus must resolve null rather than
-// silently falling through to whatever mortal place a journey leg happens to
-// be passing through at that line (the residual bug this guard closes: Od.
-// 13.121-164 "Olympus / Scheria", a Poseidon-Zeus council, was landing on
-// "Ithaca" purely because the scheria->ithaca leg's entry line preceded it —
-// same anticipatory-hijack failure mode as the old mention timeline, just
-// arrived at via a different mechanism). This check runs BEFORE the journey
-// fallback (dictionary is still checked first — if a future entry ever maps
-// an Olympus-containing string to a real id, this guard would need revising,
-// but none exists today, by design).
-const OLYMPUS_LOCATION_RE = /olympus/i;
-
 // Resolves each scene in `scenes` (already in document order) to its current
 // place. Precedence per scene:
 //   1. SETTING_DICTIONARY, keyed on the scene's own authored `place` prose —
 //      authored ground truth, checked first because it beats any inference.
-//   2. Olympus guard (above) — forces null rather than journey fallback.
-//   3. The journey-leg timeline built above: the LAST leg-arrival at or
+//   2. The journey-leg timeline built above: the LAST leg-arrival at or
 //      before the scene's startLine (a wandering stop's own leg, not a
 //      mention).
-//   4. null — no fabricated "establishing" anchor any more.
+//   3. null — no fabricated "establishing" anchor any more.
 // Pure and deterministic: identical inputs always produce identical output,
 // no mutation of `scenes`.
+//
+// Olympus: every distinct Olympus location string is in SETTING_DICTIONARY
+// (work-wide, both works) → places.json id "olympus". The former
+// OLYMPUS_LOCATION_RE null-guard is gone — it existed only because no
+// gazetteer entry existed; dictionary coverage now closes the same hijack
+// (Od. 13 "Olympus / Scheria" must not fall through to the scheria->ithaca
+// leg) by resolving to olympus instead of null.
 export function resolveScenePlaces(
   work: string,
   book: number,
@@ -458,9 +461,6 @@ export function resolveScenePlaces(
     }
     if (dictionaryHit === null) {
       return null; // explicit dictionary verdict: open water, no honest pin — journey fallback would hijack.
-    }
-    if (scene.place && OLYMPUS_LOCATION_RE.test(scene.place)) {
-      return null;
     }
 
     let best: SceneTimelineEntry | null = null;

@@ -5979,6 +5979,55 @@
       ]
     },
     {
+      "id": "olympus",
+      "name": "Olympus",
+      "greek": "Ὄλυμπος",
+      "certainty": "certain",
+      "pleiades": "https://pleiades.stoa.org/places/491677",
+      "coords": [
+        40.085,
+        22.358
+      ],
+      "maps": [
+        "greece"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 1,
+          "lines": [
+            494,
+            495
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 8,
+          "lines": [
+            3,
+            3
+          ]
+        },
+        {
+          "work": "odyssey",
+          "book": 6,
+          "lines": [
+            42,
+            42
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 1,
+          "lines": [
+            532,
+            532
+          ]
+        }
+      ],
+      "note": "Seat of the gods in both the Iliad and the Odyssey; the historical mountain stands on the Thessaly–Macedonia border (modern Ólympos). Homer also idealizes the peak as a divine dwelling free of wind, rain, and snow (Od. 6.42–46)."
+    },
+    {
       "id": "pelion",
       "name": "Mount Pelion",
       "greek": "Πήλιον",

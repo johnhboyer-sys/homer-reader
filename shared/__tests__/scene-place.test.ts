@@ -134,22 +134,49 @@ describe('resolveScenePlaces / joinScenesToPlaces — audit-confirmed defects, f
     }
   });
 
-  it('every scene whose location prose names Olympus resolves null — never a mortal toponym', () => {
-    // No "olympus" id exists anywhere in apparatus/places.json (gazetteer
-    // has no pin for it), so per CLAUDE.md apparatus honesty a divine scene
-    // must resolve null rather than silently inherit whatever mortal place a
-    // journey leg happens to be passing through at that line. This also
-    // covers the "Olympus / X" split-scene strings (mixed divine + mortal).
+  it('every scene whose location prose names Olympus resolves to olympus — never a mortal toponym', () => {
+    // Gazetteer entry "olympus" (Mount Olympus, Thessaly/Macedonia) was
+    // added so divine-council scenes get an honest map pin. Split strings
+    // ("Olympus / X", "Troy / Olympus", "Olympus; Ithaca") pin to olympus
+    // too: the divine frame dominates (John, 2026-07-18). Dictionary
+    // coverage replaces the old null-guard that existed only because no
+    // entry existed — journey-leg hijack (e.g. Od. 13 "Olympus / Scheria"
+    // → Ithaca) must still not occur.
+    let olympusSceneCount = 0;
     for (const [work, raw] of [['iliad', iliad] as const, ['odyssey', odyssey] as const]) {
       for (const book of raw.books) {
         const scenes = scenesForBook(raw, book.book);
         const resolved = joinScenesToPlaces(work, book.book, scenes, placesFile, journeysFile);
         scenes.forEach((s, i) => {
           if (s.place && /olympus/i.test(s.place)) {
-            expect(resolved[i]).toBeNull();
+            olympusSceneCount += 1;
+            expect(resolved[i]).not.toBeNull();
+            expect(resolved[i]!.place.id).toBe('olympus');
+            expect(resolved[i]!.place.id).not.toBe('ithaca');
+            expect(resolved[i]!.place.id).not.toBe('troy');
+            expect(resolved[i]!.place.id).not.toBe('scheria');
           }
         });
       }
+    }
+    expect(olympusSceneCount).toBeGreaterThan(0);
+  });
+
+  it('a scene whose location does not mention Olympus never resolves to olympus spuriously', () => {
+    // Spot-check well-known mortal settings that must stay on their own pins.
+    const il1 = scenesForBook(iliad, 1);
+    const il1r = joinScenesToPlaces('iliad', 1, il1, placesFile, journeysFile);
+    const assemblyIdx = il1.findIndex((s) => s.place === 'Achaean assembly');
+    expect(assemblyIdx).toBeGreaterThanOrEqual(0);
+    expect(il1r[assemblyIdx]!.place.id).toBe('troy');
+    expect(il1r[assemblyIdx]!.place.id).not.toBe('olympus');
+
+    const od14 = scenesForBook(odyssey, 14);
+    const od14r = joinScenesToPlaces('odyssey', 14, od14, placesFile, journeysFile);
+    for (const r of od14r) {
+      expect(r).not.toBeNull();
+      expect(r!.place.id).toBe('ithaca');
+      expect(r!.place.id).not.toBe('olympus');
     }
   });
 
