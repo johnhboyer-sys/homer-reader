@@ -55,6 +55,17 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
   rebuilding. Preflight did not catch scene-less emits — hardening
   queued for Phase 6.
 
+- **Gate 5 PASSED** (2026-07-17, checked in main loop): SSR text
+  visible with JS disabled (611 Greek lines in static book-1 HTML;
+  funnel/SEO pages full-content, per-lane JS-off Playwright);
+  /start + About + 5 SEO landers live in dist; sitemap valid XML,
+  4,703 urls incl. the new routes; robots gated on real domain (no
+  placeholder origins). Search filters shipped (work/book/speaker/
+  speeches-only) — including a pre-existing silent search-grouping
+  bug fixed (empty chapters.json for verse-line works). Remaining
+  Phase-5-adjacent: formula glosses (Opus drafting; Grok translation
+  gate + UI wiring to follow).
+
 ## Corpus facts
 
 - Line totals (verbatim from Perseus grc2, independently re-derived): Iliad
