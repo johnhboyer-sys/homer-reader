@@ -24,6 +24,16 @@ LOGGED below and worked around, not waited on.
 5. Apparatus draft→reviewed flips (all remain draft; badges shown).
 6. PR review + merge of claude/build → main.
 7. Deploy + GH Pages + Mollick reply timing (PROMO.md sequence).
+8. Chamberlain audio granularity (decided-for-now overnight, revisit):
+   his corpus has NO per-line timing — audio exists per ~80–130-line
+   chunk. Shipping "hear this passage" at honest chunk granularity,
+   hotlinked from archive.org (his own embed pattern; CC BY 3.0 for 10
+   early Iliad books, CC BY 4.0 for the rest — attribution says both).
+   True per-line audio would need a forced-alignment build (real,
+   unscoped work) — John to decide if that's wanted as a follow-up.
+   Also open: optionally vendoring a marquee book (Il. 1, ~40MB) into
+   the site for resilience vs. keeping the repo audio-free (current
+   choice: audio-free, hotlink everything).
 
 ## Overnight sequence (orchestrator works down this list as lanes free)
 
