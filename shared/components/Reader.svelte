@@ -9,6 +9,7 @@
   import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { classifySpeech, realLinesFromSegments, speechLabel } from '../lib/speeches';
+  import { snapTicksToSpeechStarts } from '../lib/speech-snap';
   import { bookAudio, hasAudio, effectiveChunks, licenseLabel, chunkAriaLabel, itemPageUrl, type AudioManifest, type AudioChunk, type AudioBookEntry } from '../lib/audio';
   import { scansionDisplay, scansionKey } from '../lib/scansion';
   import { greekFold } from '../lib/search';
@@ -469,7 +470,7 @@
       for (const block of blocks) {
         const flow = readingTransId === engSlot?.id ? block.flow : (block.oflows[readingTransId] ?? []);
         if (!flow.length) continue;
-        for (const g of alignGroups(block, flow)) {
+        for (const g of alignGroups(block, flow, bookSpeechStarts)) {
           if (!g.lines.length) continue;
           out.push({
             startLine: g.lines[0].n, endLine: g.lines[g.lines.length - 1].n,
@@ -607,19 +608,65 @@
   function saveChartRoom() { try { localStorage.setItem(CHART_ROOM_KEY, String(chartRoomOpen)); } catch {} }
   function toggleChartRoom() {
     chartRoomOpen = !chartRoomOpen;
-    if (!chartRoomOpen && !sceneRailOpen) {
+    if (!chartRoomOpen && !sceneRailOpen && !sheetNeedsSceneTracking) {
       window.removeEventListener('scroll', onSceneScroll);
       sceneTrackingArmed = false;
     }
     saveChartRoom();
   }
   function toggleSceneSheet() { sceneSheetOpen = !sceneSheetOpen; }
+  // FIX 2 (John's iPhone Safari report, 2026-07-18): Astro wraps every
+  // hydrated island in `<astro-island>`, styled `display: contents` by
+  // Astro's own runtime CSS (astro-island-styles.js) so the island is
+  // transparent to layout. WebKit has a long-documented bug where a
+  // `position: fixed` DESCENDANT of a `display: contents` ancestor can fail
+  // to resolve the viewport as its containing block (Chromium is
+  // unaffected — matches the reported Chromium-pinned / WebKit-floating
+  // divergence exactly). `.scene-context-sheet` is the only fixed-position
+  // element in this island, and the astro-island wrapper is its ONLY
+  // display:contents ancestor (audited: neither <body> nor <html> — see
+  // shared/styles/global.css's `html`/`body` rules — nor any ancestor
+  // WITHIN this component, since the sheet is a top-level sibling of
+  // `.reader-body`, not nested inside `.book-plate`/`.reading-plate`, carry
+  // transform/filter/backdrop-filter/will-change/contain/perspective/
+  // container-type). Astro's runtime CSS isn't ours to edit (vendored,
+  // site-wide blast radius), so instead: teleport the sheet's DOM node to a
+  // direct child of <body> on mount — no longer a descendant of ANY
+  // display:contents element, on either engine. SSR-safe: this action only
+  // runs client-side, so a no-JS load keeps the pre-existing in-place
+  // render (same posture as every other JS-only enhancement here).
+  function teleportToBody(node: HTMLElement) {
+    if (typeof document === 'undefined') return {};
+    document.body.appendChild(node);
+    return {
+      destroy() {
+        node.parentNode?.removeChild(node);
+      },
+    };
+  }
   function computeScenePanelViewport() {
     scenePanelMobile = typeof window !== 'undefined'
       && window.matchMedia('(max-width: 680px)').matches;
   }
   $: if (mounted && scenes.length && !plateDataLoaded
     && (reading || sceneSheetOpen || (chartRoomOpen && !scenePanelMobile))) ensurePlateData();
+
+  // FIX 3 (John's phone report, 2026-07-18): the mobile sheet's COLLAPSED bar
+  // already shows the current scene's title (scenePanelScene, below), so
+  // tracking must arm on the sheet's mere presence — a scenes-bearing book,
+  // mobile viewport, Scholar view (Reading Mode pages scenes itself via
+  // clampedSceneIndex; scenePanelIndex already branches on `reading`, below)
+  // — not on sceneSheetOpen (that only gates the lazy map-payload fetch
+  // above, unchanged). Unlike the scene rail / Chart Room, this consumer has
+  // no click to hook an explicit arm/disarm to, so both directions are
+  // reactive: mirrors their idempotent-guarded armSceneTracking, and tears
+  // down only once NO consumer (rail, Chart Room, or this) still needs it.
+  $: sheetNeedsSceneTracking = !!(scenes.length && scenePanelMobile && !reading);
+  $: if (mounted && sheetNeedsSceneTracking) armSceneTracking();
+  $: if (mounted && sceneTrackingArmed && !sceneRailOpen && !chartRoomOpen && !sheetNeedsSceneTracking) {
+    window.removeEventListener('scroll', onSceneScroll);
+    sceneTrackingArmed = false;
+  }
 
   // Every scene's resolved place/route (or null — no mappable place anywhere
   // in this book), recomputed whenever the book's scenes or the fetched
@@ -688,6 +735,14 @@
   // so every reactive block below is a no-op cost when the feature is unused.
   $: bookSpeeches = speechesOn ? allSpeeches.filter((s) => s.book === bookNum) : [];
   $: bookRealLines = speechesOn ? realLinesFromSegments(segments) : new Set<number>();
+  // Every speech's OPENING line in this book, any nesting level (FIX 1,
+  // John's phone report 2026-07-18 — see shared/lib/speech-snap.ts): fed to
+  // alignGroups below so the mobile "Both" view snaps a tick 1-2 lines ahead
+  // of a speech's own start forward to that start, instead of splitting the
+  // speech's opening Greek line into the wrong alignment group. Empty (and
+  // so a total no-op for alignGroups) whenever bookSpeeches is empty — same
+  // "off = zero cost, zero behavior change" posture as the toggle above.
+  $: bookSpeechStarts = bookSpeeches.map((s) => s.lines[0]);
   $: speechRenders = bookSpeeches.map((s) => ({ speech: s, cls: classifySpeech(s, bookSpeeches, bookRealLines) }));
   // line n -> true for every line covered by a high-confidence span (draws
   // the hairline rail via a CSS class, no per-line listener).
@@ -943,7 +998,7 @@
     if (!sceneRailOpen) return;
     sceneRailOpen = false;
     window.dispatchEvent(new CustomEvent('scenes-state', { detail: { open: false } }));
-    if (!chartRoomOpen) {
+    if (!chartRoomOpen && !sheetNeedsSceneTracking) {
       window.removeEventListener('scroll', onSceneScroll);
       sceneTrackingArmed = false;
     }
@@ -1654,16 +1709,26 @@
   // scene-paging chunker in readingView passes the actually-selected
   // translation's flow (block.oflows[id]) so a non-primary Reading Mode
   // translation (Butler/Pope) pages by its OWN ticks, not Murray's.
-  function alignGroups(block: Block, flow: FlowPart[] = block.flow): AlignGroup[] {
+  // `speechStarts` (FIX 1, John's phone report 2026-07-18): every speech's
+  // opening line in this book (bookSpeechStarts above) — snapped via
+  // shared/lib/speech-snap.ts's snapTicksToSpeechStarts BEFORE the tick lines
+  // are resolved to Greek-line indices, so a tick 1-2 lines ahead of a
+  // speech's own start moves that speech's opening Greek line into the SAME
+  // group as its opening English instead of the group before it. Both
+  // callers below pass `bookSpeechStarts` EXPLICITLY (not as a default) so
+  // Svelte's reactivity tracks it — a default reading the outer variable
+  // wouldn't appear in either call site's own dependency scan.
+  function alignGroups(block: Block, flow: FlowPart[] = block.flow, speechStarts: number[] = []): AlignGroup[] {
     const flowGroups = groupFlowByTicks(flow);
     const ticks = flowGroups.map(g => g[0]).filter(isTickPart);
+    const tickLines = snapTicksToSpeechStarts(ticks.map((t) => t.n), speechStarts);
     const lineIndex = new Map<number, number>();
     block.lines.forEach((l, i) => { if (!l.cont && !lineIndex.has(l.n)) lineIndex.set(l.n, i); });
     return flowGroups.map((parts, i) => {
-      const tick = ticks[i];
-      const startIdx = tick ? (lineIndex.get(tick.n) ?? 0) : 0;
-      const nextTick = ticks[i + 1];
-      const endIdx = nextTick ? (lineIndex.get(nextTick.n) ?? block.lines.length) : block.lines.length;
+      const n = tickLines[i];
+      const startIdx = n !== undefined ? (lineIndex.get(n) ?? 0) : 0;
+      const nextN = tickLines[i + 1];
+      const endIdx = nextN !== undefined ? (lineIndex.get(nextN) ?? block.lines.length) : block.lines.length;
       return { lines: block.lines.slice(startIdx, endIdx), flowParts: parts };
     });
   }
@@ -2854,7 +2919,7 @@
                  phone stacking; busse/sidenotes/figs don't apply to epicVerse
                  works. -->
             <div class="seg-row stacked-both" data-chapter={block.currentChapter}>
-              {#each alignGroups(block) as group, gi (gi)}
+              {#each alignGroups(block, block.flow, bookSpeechStarts) as group, gi (gi)}
                 <div class="align-group">
                   <div class="greek-col" lang="grc">
                     {@render greekLinesRender(seg, group.lines)}
@@ -2934,7 +2999,7 @@
 <!-- Mobile Chart Room: its compact header is always present below the reader's
      established phone breakpoint; map payloads remain lazy until this expands. -->
 {#if scenes.length}
-  <aside class="scene-context-sheet" class:open={sceneSheetOpen} aria-label="Scene context">
+  <aside class="scene-context-sheet" class:open={sceneSheetOpen} aria-label="Scene context" use:teleportToBody>
     <button
       type="button"
       class="scene-context-sheet-toggle"
