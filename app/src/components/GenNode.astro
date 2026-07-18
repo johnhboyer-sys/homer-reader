@@ -3,6 +3,9 @@
 // itself for every child. Pure presentation over shared/lib/genealogy's
 // GenealogyNode; no data fetching here (the page reads apparatus/characters.json
 // once at build time and passes the already-built forest down).
+//
+// Used as the semantic list representation of each tree (assistive tech on
+// desktop; primary presentation on narrow viewports where the chart is hidden).
 import type { GenealogyNode } from '@shared/lib/genealogy';
 
 interface Props {

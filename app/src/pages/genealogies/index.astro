@@ -11,15 +11,20 @@
 // index.astro's/Landing.astro's build-time readFileSync of public/data/*;
 // apparatus/ isn't copied into public/data, so this reads the source
 // directly — no pipeline stage produces or duplicates it), then
-// shared/lib/genealogy's buildGenealogyTree (pure, tested) turns the flat
-// list into each tree's forest. GenNode.astro renders the forest recursively.
+// shared/lib/genealogy's buildGenealogyTree + layoutGenealogyTree (pure,
+// tested) turn the flat list into each tree's forest and a 2-D chart layout.
+// GenNode.astro renders the forest recursively as the accessible / mobile list.
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
 import ThemeToggle from '../../components/ThemeToggle.astro';
 import Pwa from '../../components/Pwa.astro';
 import GenNode from '../../components/GenNode.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
-import { buildGenealogyTree, type CharacterRecord } from '@shared/lib/genealogy';
+import {
+  buildGenealogyTree,
+  layoutGenealogyTree,
+  type CharacterRecord,
+} from '@shared/lib/genealogy';
 import '@shared/styles/global.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -38,7 +43,11 @@ const TREES = [
   { id: 'olympians', label: 'The Olympians' },
 ] as const;
 
-const trees = TREES.map((t) => ({ ...t, roots: buildGenealogyTree(raw.characters, t.id) }));
+const trees = TREES.map((t) => {
+  const roots = buildGenealogyTree(raw.characters, t.id);
+  const layout = layoutGenealogyTree(roots);
+  return { ...t, roots, layout };
+});
 
 const pageTitle = 'Genealogies — The Homer Reader';
 const metaDescription =
@@ -54,6 +63,17 @@ const jsonLd = {
   ...(canonical ? { url: canonical } : {}),
   isPartOf: { '@type': 'WebSite', name: 'The Homer Reader' },
 };
+
+/** Orthogonal family-tree path: stem down from parent, across the sibling bar, drop to child. */
+function connectorPath(c: {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  barY: number;
+}): string {
+  return `M ${c.x1} ${c.y1} V ${c.barY} H ${c.x2} V ${c.y2}`;
+}
 ---
 <html lang="en">
 <head>
@@ -153,23 +173,89 @@ const jsonLd = {
       color: var(--text);
     }
 
-    /* Chart-Room discipline: wide trees (Troy: 22 members, several
-       generations deep) scroll inside their own container, never the page. */
+    /* Chart-Room discipline: wide trees (Troy: 22 members) scroll inside
+       their own container, never the page. */
     .gen-scroll {
       overflow-x: auto;
       padding-bottom: 0.5rem;
+      max-width: 100%;
     }
     .gen-scroll:focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
 
+    /* Positioned tree chart: SVG edges under absolutely-placed labels. */
+    .gen-chart {
+      position: relative;
+      margin: 0;
+      /* Avoid inheriting list min-width quirks inside the scrollport. */
+      min-width: 0;
+    }
+    .gen-edges {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+    .gen-edge {
+      fill: none;
+      stroke: var(--text-mid);
+      stroke-width: 1.5;
+      stroke-linecap: square;
+      stroke-linejoin: miter;
+    }
+    .gen-edge.dashed {
+      stroke: var(--accent);
+      stroke-dasharray: 5 3.5;
+    }
+
+    /* Label card at each laid-out person node. */
+    .gen-placed {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.12rem;
+      padding: 0.32rem 0.4rem;
+      border: 1px solid var(--border);
+      background: var(--col-bg);
+      box-sizing: border-box;
+      text-align: center;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .gen-placed .gen-name {
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: 0.72rem;
+      line-height: 1.2;
+      color: var(--text);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .gen-placed .gen-greek {
+      font-family: var(--font-greek);
+      font-size: 0.74rem;
+      line-height: 1.2;
+      color: var(--text-mid);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Accessible / mobile list: full parentage chips + roles. */
     ul.gen-roots, ul.gen-children { list-style: none; margin: 0; padding: 0; }
     ul.gen-roots {
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      min-width: max-content;
     }
     ul.gen-children {
       margin: 0.65rem 0 0 1.4rem;
@@ -180,7 +266,7 @@ const jsonLd = {
       gap: 0.65rem;
     }
 
-    .gen-card {
+    .gen-list .gen-card {
       display: inline-flex;
       flex-direction: column;
       gap: 0.18rem;
@@ -189,8 +275,8 @@ const jsonLd = {
       background: var(--col-bg);
       min-width: 9rem;
     }
-    .gen-name { font-family: var(--font-ui); font-weight: 600; font-size: 0.82rem; color: var(--text); }
-    .gen-greek { font-family: var(--font-greek); font-size: 0.86rem; color: var(--text-mid); }
+    .gen-list .gen-name { font-family: var(--font-ui); font-weight: 600; font-size: 0.82rem; color: var(--text); }
+    .gen-list .gen-greek { font-family: var(--font-greek); font-size: 0.86rem; color: var(--text-mid); }
     .gen-role {
       font-family: var(--font-english);
       font-style: italic;
@@ -232,9 +318,38 @@ const jsonLd = {
     }
     .parent-chip.external.non-homeric { border-style: dashed; }
 
+    /*
+      Desktop / tablet: chart is the visual tree; list is the accessible
+      fallback (sr-only). Narrow phones: chart can force awkward horizontal
+      pan, so we flip — list is the primary presentation, chart is hidden.
+      Explicit, styled choice so 375px never causes page-level scroll.
+    */
+    .gen-list-fallback {
+      /* match .sr-only on wide viewports */
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     @media (max-width: 480px) {
       h1 { font-size: 1.55rem; }
-      .gen-card { min-width: 8rem; }
+      .gen-scroll { display: none; }
+      .gen-list-fallback {
+        position: static;
+        width: auto;
+        height: auto;
+        margin: 0;
+        overflow: visible;
+        clip: auto;
+        white-space: normal;
+      }
+      .gen-list .gen-card { min-width: 8rem; }
     }
   </style>
   <Pwa />
@@ -263,7 +378,7 @@ const jsonLd = {
       The four family lines that structure the poems: the House of Atreus (Agamemnon and
       Menelaus), the House of Aeacus (Achilles), the House of Troy (Priam and the Dardanid
       kings), and the Olympian gods. Every member below comes from this edition&rsquo;s
-      character apparatus; names in dashed boxes are identifications the Homeric poems
+      character apparatus; dashed connectors are identifications the Homeric poems
       themselves don&rsquo;t make &mdash; links added by later tradition.
     </p>
 
@@ -272,21 +387,65 @@ const jsonLd = {
     </nav>
 
     <div class="gen-legend">
-      <span class="legend-item"><span class="legend-swatch" aria-hidden="true"></span>attested in Homer</span>
-      <span class="legend-item"><span class="legend-swatch dashed" aria-hidden="true"></span>later tradition, not Homer</span>
-      <span class="legend-item"><span class="legend-swatch muted" aria-hidden="true"></span>named, not a character in this edition</span>
+      <span class="legend-item"><span class="legend-swatch" aria-hidden="true"></span>connector: attested in Homer</span>
+      <span class="legend-item"><span class="legend-swatch dashed" aria-hidden="true"></span>connector: later tradition, not Homer</span>
+      <span class="legend-item"><span class="legend-swatch muted" aria-hidden="true"></span>chip: named, not a character in this edition</span>
     </div>
 
-    {trees.map((t) => (
-      <section class="gen-tree" id={t.id} aria-labelledby={`${t.id}-h`}>
-        <h2 id={`${t.id}-h`}>{t.label}</h2>
-        <div class="gen-scroll" tabindex="0" role="group" aria-label={`${t.label} family tree, scrollable`}>
-          <ul class="gen-roots">
+    {trees.map((t) => {
+      const { layout } = t;
+      const halfW = layout.nodeWidth / 2;
+      return (
+        <section class="gen-tree" id={t.id} aria-labelledby={`${t.id}-h`}>
+          <h2 id={`${t.id}-h`}>{t.label}</h2>
+          <div
+            class="gen-scroll"
+            tabindex="0"
+            role="group"
+            aria-label={`${t.label} family tree chart, scrollable`}
+          >
+            <figure
+              class="gen-chart"
+              data-tree={t.id}
+              style={`width:${layout.width}px;height:${layout.height}px`}
+              aria-hidden="true"
+            >
+              <svg
+                class="gen-edges"
+                width={layout.width}
+                height={layout.height}
+                viewBox={`0 0 ${layout.width} ${layout.height}`}
+                focusable="false"
+              >
+                {layout.connectors.map((c) => (
+                  <path
+                    class:list={['gen-edge', { dashed: c.style === 'dashed' }]}
+                    d={connectorPath(c)}
+                    data-from={c.fromId}
+                    data-to={c.toId}
+                  />
+                ))}
+              </svg>
+              {layout.nodes.map((n) => (
+                <div
+                  class="gen-placed"
+                  data-person={n.id}
+                  style={`left:${n.x - halfW}px;top:${n.y}px;width:${layout.nodeWidth}px;height:${layout.nodeHeight}px`}
+                  title={n.role ?? undefined}
+                >
+                  <span class="gen-name">{n.name}</span>
+                  {n.greek && <span class="gen-greek" lang="grc">{n.greek}</span>}
+                </div>
+              ))}
+            </figure>
+          </div>
+          {/* Semantic tree for AT (and primary UI under 480px). */}
+          <ul class="gen-roots gen-list gen-list-fallback" aria-label={`${t.label} family tree`}>
             {t.roots.map((root) => <GenNode node={root} />)}
           </ul>
-        </div>
-      </section>
-    ))}
+        </section>
+      );
+    })}
   </main>
 </body>
 </html>
