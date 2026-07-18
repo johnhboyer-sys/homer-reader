@@ -79,6 +79,13 @@ non-negotiable.
   counts). Never "fix" what such a build shows — re-verify after the
   pipeline lane lands. Orchestrator: avoid scheduling app verification
   concurrent with pipeline re-emits.
+- Browser-verification gotcha (2026-07-17, caught by the /places/ verify
+  lane): the Playwright MCP browser session is SHARED across concurrent
+  agents — a tab can be hijacked to another agent's URL between tool
+  calls. Any browser-verifying agent must open its own dedicated tab,
+  navigate immediately before every screenshot/assert with no intervening
+  calls, and visually confirm each screenshot shows ITS page before
+  trusting it.
 - Verification gotcha (2026-07-17, cost a full Opus diagnostic lane):
   John often has the sibling classical-philosophy-reader dev server
   holding port 4321, so Homer's `astro preview` silently bumps to
