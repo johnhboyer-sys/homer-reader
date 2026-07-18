@@ -1,0 +1,168 @@
+---
+import { readFileSync } from 'node:fs';
+import ThemeInit from '../../components/ThemeInit.astro';
+import ThemeToggle from '../../components/ThemeToggle.astro';
+import Pwa from '../../components/Pwa.astro';
+import { jsonLdSafe } from '../../lib/jsonld';
+import '@shared/styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+type Work = 'iliad' | 'odyssey';
+type Certainty = 'certain' | 'traditional' | 'speculative' | 'mythical';
+
+interface Mention {
+  work: Work;
+  book: number;
+  lines: number[];
+}
+
+interface Place {
+  id: string;
+  name: string;
+  greek: string;
+  certainty: Certainty;
+  tradition?: string;
+  coords?: [number, number];
+  pleiades?: string;
+  maps: string[];
+  note: string;
+  mentions: Mention[];
+}
+
+type PlacesFile = { status?: 'draft' | 'reviewed'; places: Place[] } | Place[];
+
+const placesFile = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')) as PlacesFile;
+const places = (Array.isArray(placesFile) ? placesFile : placesFile.places)
+  .slice()
+  .sort((a, b) => a.name.localeCompare(b.name, 'en'));
+const isDraft = !Array.isArray(placesFile) && placesFile.status === 'draft';
+
+// 274 places sorted alphabetically is a wall without a scan affordance — group
+// by initial letter (same jump-nav idiom as /genealogies/'s .gen-jump) so the
+// list is scannable and deep-linkable without JS.
+type PlaceRow = { kind: 'letter'; letter: string } | { kind: 'place'; place: Place };
+const placeRows: PlaceRow[] = [];
+let lastLetter = '';
+for (const place of places) {
+  const letter = place.name.charAt(0).toUpperCase();
+  if (letter !== lastLetter) {
+    placeRows.push({ kind: 'letter', letter });
+    lastLetter = letter;
+  }
+  placeRows.push({ kind: 'place', place });
+}
+const letters = placeRows
+  .filter((row): row is { kind: 'letter'; letter: string } => row.kind === 'letter')
+  .map((row) => row.letter);
+const pageTitle = 'Places — The Homer Reader';
+const metaDescription = 'A gazetteer of places in the Iliad and Odyssey, with Greek names, notes, and anchoring passages.';
+const canonical = Astro.site ? new URL(`${base}/places/`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: pageTitle, description: metaDescription, ...(canonical ? { url: canonical } : {}) };
+const workLabel = (work: Work) => work === 'iliad' ? 'Il.' : 'Od.';
+const citationText = (mention: Mention) => {
+  const firstLine = mention.lines[0];
+  const lastLine = mention.lines[mention.lines.length - 1];
+  return `${workLabel(mention.work)} ${mention.book}.${firstLine}${lastLine !== firstLine ? `–${lastLine}` : ''}`;
+};
+const citationHref = (mention: Mention) => `${base}/${mention.work}/book/${mention.book}?loc=${mention.book}.${mention.lines[0]}`;
+const citationLabel = (mention: Mention) => `${mention.work === 'iliad' ? 'Iliad' : 'Odyssey'} ${mention.book}.${mention.lines[0]}${mention.lines[mention.lines.length - 1] !== mention.lines[0] ? ` to ${mention.lines[mention.lines.length - 1]}` : ''}`;
+const certaintyTiers: Certainty[] = ['certain', 'traditional', 'speculative', 'mythical'];
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  <meta property="og:site_name" content="The Homer Reader" />
+  {canonical && <meta property="og:url" content={canonical} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(jsonLd)} />
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <style is:global>
+    body { overflow-x: hidden; max-width: 100%; }
+    .places-body { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 4.5rem; color: var(--text); }
+    h1 { font-family: var(--font-display); font-size: 1.95rem; font-weight: 400; line-height: 1.15; margin-bottom: .55rem; }
+    .places-intro { max-width: 45rem; color: var(--text-mid); font-size: .98rem; line-height: 1.62; }
+    .places-jump { display: flex; flex-wrap: wrap; gap: .45rem 1.1rem; margin-top: 1.4rem; max-width: 65rem; font-family: var(--font-ui); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; }
+    .places-jump a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; padding-bottom: 1px; }
+    .places-jump a:hover { border-bottom-color: var(--accent); }
+    .places-jump a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .places-legend { display: flex; align-items: baseline; flex-wrap: wrap; gap: .4rem 1rem; max-width: 65rem; margin-top: 1.8rem; padding: .55rem 0; border-top: 2px solid var(--rule-strong); border-bottom: 1px solid var(--border); }
+    .places-legend h2 { font-family: var(--font-display); font-size: 1.2rem; font-weight: 400; }
+    .places-legend ul { display: flex; flex-wrap: wrap; gap: .35rem .9rem; margin: 0; padding: 0; list-style: none; }
+    .certainty-label { font-family: var(--font-ui); font-size: .67rem; font-variant-caps: small-caps; letter-spacing: .08em; white-space: nowrap; }
+    .certainty-label[data-certainty="certain"] { color: var(--accent); }
+    .certainty-label[data-certainty="traditional"] { color: var(--text); }
+    .certainty-label[data-certainty="speculative"] { color: var(--text-mid); }
+    .certainty-label[data-certainty="mythical"] { color: var(--text-light); }
+    .places-list { max-width: 65rem; margin: 0; padding: 0; list-style: none; }
+    .place-letter { scroll-margin-top: 1rem; }
+    .place-letter h2 { font-family: var(--font-ui); font-size: .78rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--text-mid); margin: 2rem 0 .2rem; padding-top: .6rem; border-top: 2px solid var(--rule-strong); }
+    .place-letter:first-child h2 { margin-top: 0; padding-top: 0; border-top: none; }
+    .place-entry { padding: 1.2rem 0; border-bottom: 1px solid var(--border); }
+    .place-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: .2rem .55rem; }
+    .place-heading h3 { font-family: var(--font-display); font-size: 1.28rem; font-weight: 400; line-height: 1.2; }
+    .place-greek { font-family: var(--font-greek); color: var(--text-mid); font-size: .95rem; }
+    .place-heading .certainty-label { margin-left: auto; }
+    .place-note { max-width: 62rem; margin: .38rem 0 0; color: var(--text-mid); font-size: .92rem; line-height: 1.55; }
+    .place-tradition { margin: .42rem 0 0; color: var(--text-mid); font-family: var(--font-ui); font-size: .74rem; line-height: 1.45; }
+    .place-links { display: flex; flex-wrap: wrap; gap: .3rem .7rem; margin-top: .48rem; font-family: var(--font-ui); font-size: .72rem; line-height: 1.45; }
+    .place-links a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; white-space: nowrap; }
+    .place-links a:hover { border-bottom-color: var(--accent); }
+    .place-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    @media (max-width: 480px) {
+      h1 { font-size: 1.6rem; }
+      .place-heading .certainty-label { margin-left: 0; flex-basis: 100%; }
+    }
+  </style>
+  <Pwa />
+</head>
+<body>
+  <header class="simple-header">
+    <div class="header-title"><a class="home-link" href={`${base}/`}>Homer</a><span class="title-sep">›</span><span class="header-static">Places</span></div>
+    <nav class="header-actions" aria-label="Navigation"><a href={`${base}/`} class="search-link">All works</a><a href={`${base}/search`} class="search-link">Search</a><ThemeToggle /></nav>
+  </header>
+  <main class="places-body">
+    <h1>Places {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
+    <p class="places-intro">A gazetteer for the Iliad and Odyssey. Each entry cites its anchoring passage(s); these curated citations are not an exhaustive concordance.</p>
+    <nav class="places-jump" aria-label="Jump to a letter">
+      {letters.map((letter) => <a href={`#letter-${letter}`}>{letter}</a>)}
+    </nav>
+    <aside class="places-legend" aria-labelledby="certainty-legend">
+      <h2 id="certainty-legend">Certainty</h2>
+      <ul>
+        {certaintyTiers.map((tier) => <li><span class="certainty-label" data-certainty={tier}>{tier}</span></li>)}
+      </ul>
+    </aside>
+    <ol class="places-list">
+      {placeRows.map((row) => row.kind === 'letter' ? (
+        <li class="place-letter"><h2 id={`letter-${row.letter}`}>{row.letter}</h2></li>
+      ) : (
+        <li class="place-entry">
+          <div class="place-heading">
+            <h3>{row.place.name}</h3>
+            <span class="place-greek" lang="grc">{row.place.greek}</span>
+            <span class="certainty-label" data-certainty={row.place.certainty}>{row.place.certainty}</span>
+          </div>
+          <p class="place-note">{row.place.note}</p>
+          {row.place.tradition && <p class="place-tradition"><strong>Tradition:</strong> {row.place.tradition}</p>}
+          <div class="place-links">
+            {row.place.pleiades && <a href={row.place.pleiades} target="_blank" rel="noopener">Pleiades</a>}
+            {row.place.mentions.map((mention) => <a href={citationHref(mention)} aria-label={citationLabel(mention)}>{citationText(mention)}</a>)}
+          </div>
+        </li>
+      ))}
+    </ol>
+  </main>
+</body>
+</html>
