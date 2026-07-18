@@ -427,3 +427,19 @@ build:public gate: PASS again (4713 pages, 0 broken, 48/48 scenes).
 Preview refreshed. Open judgment calls for John: snap window 2 vs 1
 (4/10 sampled 2-line snaps are partial fixes, none wrong-direction);
 speeches-toggle dependency of the snap (pipeline precompute queued).
+
+## Day-2 ledger, afternoon feature batch (2026-07-18, ~14:00-15:00)
+
+Four John-directed features, Codex-implemented, orchestrator-reviewed:
+- 2dab236 Catalogue of Ships section explorer (wide Troy-free framing,
+  direct per-section city-pin swapping, unlocatable towns disclosed)
+- 6e8bf65 contents rail book arguments (single Draft badge)
+- 3191d11 scenemap land/sea tokens + 0.006-tolerance coastline (38.4KB;
+  global.css drift logged); verified both themes post-build
+- 2ff47a7 landing cards: line counts + arguments replace "0 chapters"
+Plus 95a37f4 CLAUDE.md: Codex model-flag rejection gotcha (account
+default model at --effort high is what actually runs).
+
+build:public: PASS (4713 pages, 0 broken, 48/48 scenes). Preview
+refreshed. Pending from John: iOS sheet pin confirmation on device;
+snap-window and speeches-toggle judgment calls; render verdicts.
