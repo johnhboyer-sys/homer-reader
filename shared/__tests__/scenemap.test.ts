@@ -205,7 +205,13 @@ describe('renderSceneMap', () => {
     const hexColors = result.svg.match(/#[0-9a-fA-F]{3,8}/g);
     expect(hexColors).toBeNull();
     expect(result.svg).toContain('var(--accent)');
-    expect(result.svg).toContain('var(--border)');
+    expect(result.svg).toContain('var(--scene-map-sea)');
+    expect(result.svg).toContain('var(--scene-map-land)');
+    expect(result.svg).toContain('var(--scene-map-coast)');
+    expect(result.svg).toContain('<rect class="scene-map-sea"');
+    expect(result.svg).toContain('fill="var(--scene-map-sea)"');
+    expect(result.svg).toContain('<path class="scene-map-land"');
+    expect(result.svg).toContain('fill="var(--scene-map-land)"');
   });
 
   it('escapes a place name containing XML-sensitive characters', () => {

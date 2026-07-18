@@ -25,7 +25,7 @@ math, urllib — no new deps), which:
    hand-rolled Sutherland-Hodgman polygon clipping — landmasses that extend
    past the box (Europe, Africa, Asia Minor) are cut cleanly at the box edge.
 3. Simplifies each clipped ring with hand-rolled Douglas-Peucker (tolerance
-   0.01°) — aggressive enough for a small (~300-400px) stylized panel map, not
+   0.006° as of 2026-07-18, was 0.01° — see the script's --tolerance flag) — detailed enough for a small (~300-400px) stylized panel map, not
    a navigational chart.
 4. Drops rings too small to read at that size (post-simplify bbox diagonal
    < 0.05°).

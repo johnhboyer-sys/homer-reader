@@ -82,6 +82,10 @@
                                 active, etc.) */
   --accent-light: #8C3A57;  /* Wine-dark --gold-deco role: decorative/hover-emphasis tint */
   --border:       #CFC7CC;  /* Wine-dark --rule: soft decorative hairline */
+  --scene-map-sea:        #DCE7EB; /* restrained Aegean water, distinct from land */
+  --scene-map-land:       #F1EEE6; /* lifted parchment ground */
+  --scene-map-coast:      #716A73; /* quiet coast boundary over either fill */
+  --scene-map-label-halo: #F8F7F3; /* preserves labels across coastlines */
   --popup-bg:     #DBD8DC;  /* same raised surface as --col-bg */
   --popup-shadow: 0 4px 24px rgba(0,0,0,.18);
   --greek-hover:        color-mix(in srgb, var(--accent) 10%, transparent);
@@ -138,6 +142,15 @@
   --panel-w: 22rem;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --scene-map-sea:        #132B3B; /* deep Aegean water */
+    --scene-map-land:       #2A2530; /* lifted dark ground */
+    --scene-map-coast:      #8296A0; /* restrained coast boundary */
+    --scene-map-label-halo: #17131C; /* preserves labels across coastlines */
+  }
+}
+
 /* ── Night mode ───────────────────────────────────────────────────────
    Deep indigo-black night (Wine-dark), not Aegean's wine-dark-indigo nor the
    prior teal-black. Activated by data-theme="dark" on <html>, set by
@@ -151,6 +164,10 @@
   --accent:       #D98BA3;  /* Wine-dark --route-red dark */
   --accent-light: #E8A6BA;  /* Wine-dark --gold-deco dark */
   --border:       #3A2C38;  /* Wine-dark --rule dark */
+  --scene-map-sea:        #132B3B; /* deep Aegean water */
+  --scene-map-land:       #2A2530; /* lifted dark ground */
+  --scene-map-coast:      #8296A0; /* restrained coast boundary */
+  --scene-map-label-halo: #17131C; /* preserves labels across coastlines */
   --popup-bg:     #211828;
   --popup-shadow: 0 6px 28px rgba(0,0,0,.55);
   --greek-hover:        color-mix(in srgb, var(--accent) 14%, transparent);
@@ -170,6 +187,13 @@
   --mark-bg:      rgba(255, 196, 110, 0.30);
   --error:        #f08a82;
   color-scheme:   dark;
+}
+
+:root[data-theme="light"] {
+  --scene-map-sea:        #DCE7EB; /* restrained Aegean water */
+  --scene-map-land:       #F1EEE6; /* lifted parchment ground */
+  --scene-map-coast:      #716A73; /* quiet coast boundary */
+  --scene-map-label-halo: #F8F7F3; /* preserves labels across coastlines */
 }
 
 /* Dark-mode select chevron (lighter stroke to match the dark accent). */

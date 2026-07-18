@@ -48,7 +48,7 @@ SOURCE_URL = (
 MIN_LON, MAX_LON = -8.0, 38.0
 MIN_LAT, MAX_LAT = 30.0, 46.0
 
-SIMPLIFY_TOLERANCE_DEG = 0.01  # Douglas-Peucker tolerance, in degrees.
+SIMPLIFY_TOLERANCE_DEG = 0.006  # Douglas-Peucker tolerance, in degrees.
 MIN_RING_POINTS = 3
 MIN_RING_DIAGONAL_DEG = 0.05  # drop islands/specks smaller than this on a side
 
@@ -167,6 +167,12 @@ def iter_rings(geometry: dict):
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", help="Path to a cached ne_50m_land.geojson (skips the fetch)")
+    parser.add_argument(
+        "--simplify-tolerance",
+        type=float,
+        default=SIMPLIFY_TOLERANCE_DEG,
+        help=f"Douglas-Peucker tolerance in degrees (default: {SIMPLIFY_TOLERANCE_DEG})",
+    )
     args = parser.parse_args()
 
     data = fetch_geojson(args.input)
@@ -181,7 +187,7 @@ def main() -> None:
             clipped = clip_ring_to_bbox(pts)
             if len(clipped) < MIN_RING_POINTS:
                 continue
-            simplified = douglas_peucker(clipped, SIMPLIFY_TOLERANCE_DEG)
+            simplified = douglas_peucker(clipped, args.simplify_tolerance)
             if len(simplified) < MIN_RING_POINTS:
                 continue
             if ring_diagonal(simplified) < MIN_RING_DIAGONAL_DEG:

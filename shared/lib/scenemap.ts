@@ -18,8 +18,9 @@
 // Colors are ALWAYS emitted as `var(--...)` custom-property references, never
 // hex, so the SVG recolors for free across the site's light/dark/Aegean theme
 // layer. Tokens referenced here (see shared/styles/global.css for their
-// definitions): --page-bg, --border, --text-mid, --text, --accent,
-// --accent-light, --font-ui.
+// definitions): --scene-map-sea, --scene-map-land, --scene-map-coast,
+// --scene-map-label-halo, --text-mid, --text, --accent, --accent-light,
+// --font-ui.
 //
 // Projection: equirectangular (Plate Carrée), recentered per scene at the
 // fitted viewport's own midpoint, with longitude scaled by cos(centerLat) so
@@ -458,7 +459,7 @@ export function renderSceneMap(
     .map((p) => {
       const [x, y] = project(p.coords!, viewport);
       const label = placeLabel(p, x, y, viewport, opts.fontSizePx);
-      return `<text x="${round1(label.x)}" y="${round1(label.y)}" text-anchor="${label.anchor}" font-size="${opts.fontSizePx}" font-family="var(--font-ui)" fill="var(--text)">${escapeXml(label.text)}</text>`;
+      return `<text x="${round1(label.x)}" y="${round1(label.y)}" text-anchor="${label.anchor}" font-size="${opts.fontSizePx}" font-family="var(--font-ui)" fill="var(--text)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="2.5" stroke-linejoin="round">${escapeXml(label.text)}</text>`;
     })
     .join('');
 
@@ -480,8 +481,8 @@ export function renderSceneMap(
     `<svg viewBox="0 0 ${opts.width} ${opts.height}" width="100%" height="100%" role="img" aria-label="${ariaLabel}" xmlns="http://www.w3.org/2000/svg">` +
     `<defs><clipPath id="${clipId}"><rect x="0" y="0" width="${opts.width}" height="${opts.height}" rx="6"/></clipPath></defs>` +
     `<g clip-path="url(#${clipId})">` +
-    `<rect x="0" y="0" width="${opts.width}" height="${opts.height}" fill="var(--page-bg)"/>` +
-    `<path d="${coastD}" fill="var(--border)" fill-opacity="0.9" fill-rule="evenodd" stroke="var(--text-mid)" stroke-width="0.75" stroke-opacity="0.35"/>` +
+    `<rect class="scene-map-sea" x="0" y="0" width="${opts.width}" height="${opts.height}" fill="var(--scene-map-sea)"/>` +
+    `<path class="scene-map-land" d="${coastD}" fill="var(--scene-map-land)" fill-rule="evenodd" stroke="var(--scene-map-coast)" stroke-width="0.8" stroke-opacity="0.8"/>` +
     routeMarkup +
     pinsMarkup +
     labelsMarkup +

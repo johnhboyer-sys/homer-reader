@@ -687,3 +687,6 @@ here (pipeline rename note at top still covers the package).
   and cartouche).
 - `app/src/components/ReaderShell.astro` — comment-only: the `scenes`
   normalization note updated for scene-paging (no longer "marginal chips").
+- `shared/styles/global.css` — scene-map land/sea tokens (2026-07-18):
+  `--scene-map-sea/-land/-coast/-label-halo` declared in all four theme
+  blocks; Homer-only (Chart Room panels), no plato counterpart.
