@@ -84,3 +84,10 @@ explicit-path staging while agents run, push after every commit).
   ancient Gozo/Gaudos tradition (Euhemerus, Callimachus; rebutted by
   ps.-Aristotle). Current tier 'mythical' is defensible; John to rule
   whether the rival tradition earns a note or a tier change.
+- DECIDED (John, 2026-07-18): **Context panel** — Reading Mode gets
+  Variant B (figure plate between scenes); Scholar view gets Variant A
+  (Chart Room right rail) as an opt-in toggle; mobile uses Variant C
+  (bottom sheet) in both modes. Still render-gated: John judges real
+  desktop+mobile screenshots before the feature is considered done.
+  Scene-map snippets: build-time SVG from PD Natural Earth coastlines
+  in the site palette — no runtime Leaflet/tiles in the reader.
