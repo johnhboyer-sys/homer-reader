@@ -379,7 +379,7 @@
       "greek": "Σχερίη",
       "certainty": "traditional",
       "pleiades": "https://pleiades.stoa.org/places/530835",
-      "tradition": "Corcyra (modern Corfu), ancient tradition since Thucydides 1.25",
+      "tradition": "Corcyra (modern Corfu); ancient tradition already reflected in Thucydides 1.25.4 (Corcyraeans' appeal to prior Phaeacian occupation)",
       "coords": [
         39.62,
         19.92
@@ -398,7 +398,13 @@
           ]
         }
       ],
-      "note": "Island home of the seafaring Phaeacians, who ferry Odysseus to Ithaca. Ancient tradition, beginning with Thucydides (1.25), identifies it with Corcyra (Corfu)."
+      "note": "Island home of the seafaring Phaeacians, who ferry Odysseus to Ithaca. An ancient tradition identifies Scheria with Corcyra (Corfu); already in Thucydides 1.25.4 the Corcyraeans themselves boast that the Phaeacians once occupied their island—not an identification asserted in Thucydides' own voice.",
+      "sources": [
+        {
+          "cite": "Thucydides. History of the Peloponnesian War 1.25.4. Translated by Thomas Hobbes. London: Bohn, 1843.",
+          "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0247:book=1:chapter=25"
+        }
+      ]
     },
     {
       "id": "egypt",
@@ -2074,7 +2080,13 @@
           ]
         }
       ],
-      "note": "Nestor's 'sandy Pylos' in Messenia, identified by most archaeologists with the excavated Bronze Age palace at Ano Englianos (Blegen, from 1939)."
+      "note": "Nestor's 'sandy Pylos' in Messenia, identified by most archaeologists with the excavated Bronze Age palace at Ano Englianos (Blegen, from 1939). Already in antiquity three homonymous towns (Messenian, Triphylian, and Elean) claimed Nestor's Pylos; Strabo (8.3.7) reports the proverb of a Pylos before Pylos and argues for the Triphylian candidate.",
+      "sources": [
+        {
+          "cite": "Strabo. Geography. Translated by Horace Leonard Jones. Loeb Classical Library. Cambridge, MA: Harvard University Press, 1927. 8.3.7.",
+          "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book=8:chapter=3:section=7"
+        }
+      ]
     },
     {
       "id": "sparta",
