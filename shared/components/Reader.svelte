@@ -776,6 +776,18 @@
       && window.matchMedia('(min-width: 1100px)').matches;
   }
 
+  // Both view's phone-width alignment-group stacking (see alignGroups above):
+  // client-only, mount+resize-computed like dockedLexicon above — the DOM
+  // structure genuinely differs (interleaved groups vs. parallel columns, not
+  // just a CSS reflow of the same nodes), so this can't be a CSS breakpoint;
+  // it has to gate which branch of the template renders. Same <=680px family
+  // used everywhere else in the reader for the phone breakpoint.
+  let phoneWidth = false;
+  function computePhoneWidth() {
+    phoneWidth = typeof window !== 'undefined'
+      && window.matchMedia('(max-width: 680px)').matches;
+  }
+
   // Print / Save-as-PDF: hand the currently-rendered view to the browser's
   // native print engine. The @media print stylesheet (global.css) strips the
   // app chrome, sets page breaks, and reveals a print-only title. We print the
@@ -971,6 +983,7 @@
   function onResize() {
     clearTimeout(resizeTimer);
     computeDocked();
+    computePhoneWidth();
     positionSceneChips(); // re-anchor Reading Mode's scene chips across the 1400px breakpoint
     resizeTimer = setTimeout(() => { if (spyArmed) setupScrollSpy(); }, 200);
   }
@@ -1396,6 +1409,62 @@
     return blocks;
   }
 
+  // ── Both view on a phone: stack per ALIGNMENT GROUP, not per verse ─────────
+  // John's ruling (2026-07-18): the parallel Greek/English columns are
+  // unusable at phone width (Greek wraps to 1–2 words/line); the fix is to
+  // interleave Greek and English on narrow screens instead of squeezing two
+  // columns. HONESTY CONSTRAINT: Murray's English is aligned to the Greek per
+  // ~5-line milestone tick (`seg.english.bekker`), NOT per verse — there is no
+  // real per-line English pairing to display. So the stacking unit here is the
+  // ALIGNMENT GROUP: a run of Greek verse lines followed by the English chunk
+  // aligned to that same tick span — never a fabricated per-verse split.
+  // A tick-shaped FlowPart, as embedded inline in block.flow by flowParts()
+  // (text: null, n: the Greek line it anchors, real: milestone vs interpolated).
+  const isTickPart = (p: FlowPart): boolean => p.text === null && p.n !== null && !p.para;
+  // Split a block's full English flow into one run per tick, each run LED by
+  // its own tick marker (so flowProse's existing attachTicks/bk-num rendering
+  // works unmodified on a slice exactly as it does on the whole flow). Any
+  // text preceding the very first tick (not seen in practice — every book's
+  // first tick is at n=1/offset=0 — but not guaranteed by the type) is folded
+  // into the first tick's run rather than silently dropped.
+  function groupFlowByTicks(flow: FlowPart[]): FlowPart[][] {
+    const groups: FlowPart[][] = [];
+    let cur: FlowPart[] = [];
+    for (const part of flow) {
+      if (isTickPart(part)) {
+        if (cur.length) groups.push(cur);
+        cur = [part];
+      } else {
+        cur.push(part);
+      }
+    }
+    if (cur.length) groups.push(cur);
+    if (groups.length > 1 && !isTickPart(groups[0][0])) {
+      groups[1].unshift(...groups.shift()!);
+    }
+    return groups;
+  }
+  interface AlignGroup { lines: RLine[]; flowParts: FlowPart[] }
+  // Pair each tick-anchored English run with the Greek lines it aligns to —
+  // from this tick's line up to (excluding) the next tick's line, or the end
+  // of the block for the last group. Greek lines are matched by vulgate
+  // number (not array position), so a declared expected_line_gaps skip (e.g.
+  // Il. 9.457→462) never miscounts a group's span — the tick itself always
+  // anchors to a line number actually present in `lines`.
+  function alignGroups(block: Block): AlignGroup[] {
+    const flowGroups = groupFlowByTicks(block.flow);
+    const ticks = flowGroups.map(g => g[0]).filter(isTickPart);
+    const lineIndex = new Map<number, number>();
+    block.lines.forEach((l, i) => { if (!l.cont && !lineIndex.has(l.n)) lineIndex.set(l.n, i); });
+    return flowGroups.map((parts, i) => {
+      const tick = ticks[i];
+      const startIdx = tick ? (lineIndex.get(tick.n) ?? 0) : 0;
+      const nextTick = ticks[i + 1];
+      const endIdx = nextTick ? (lineIndex.get(nextTick.n) ?? block.lines.length) : block.lines.length;
+      return { lines: block.lines.slice(startIdx, endIdx), flowParts: parts };
+    });
+  }
+
   // Active popup state
   let popup: { token: Token; anchor: { x: number; y: number } } | null = null;
   // Active footnote popup (footnote-bearing translations' `[^label]`
@@ -1488,6 +1557,7 @@
     if (savedPosture === 'reading') reading = true;
     // Pick the lookup presentation for this viewport (recomputed on resize below).
     computeDocked();
+    computePhoneWidth();
 
     // Settings sidebar events (dispatched by ReaderShell.astro and Escape handler).
     _onToggleSettings = () => { settingsOpen ? closeSettings() : openSettings(); };
@@ -2028,6 +2098,140 @@
     </div>
   {/snippet}
 
+  <!-- Greek lines for a run of RLine — factored out of the desktop .greek-col
+       loop so the Both-view phone stacking (alignGroups, above) can render
+       the SAME per-line markup (tokens, speech rail, audio, meter, brackets)
+       for a group's sliced lines, byte-identical to what the full block
+       renders. `lines` is `block.lines` on desktop; a group's slice on the
+       phone-stacked layout. -->
+  {#snippet greekLinesRender(seg: Segment, lines: RLine[])}
+    {#each greekItems(lines) as item}
+      {#if item.table}
+        <!-- Greek inline table (the TLG ⎪ column square, e.g. De Int 22a). -->
+        <table class="greek-table"><tbody>
+          {#each item.rows as row}
+            <tr id={`L${seg.column}-${row.n}`} class:target={targetId === `L${seg.column}-${row.n}`}>
+              <td class="line-num">{showLineNum(row.n)}</td>
+              {#each (row.cells ?? []) as cell}
+                <td class="line-text" lang="grc">{@render greekToks(cellParts(cell))}</td>
+              {/each}
+            </tr>
+          {/each}
+        </tbody></table>
+      {:else}
+        {#if speechesOn && !item.line.cont && speechRailStarts.has(item.line.n)}
+          <!-- Speaker→addressee margin label: real text (not
+               aria-hidden), CSS small-caps. Sits at the span's
+               opening line only — never repeated down the rail. -->
+          <p class="spk-rail-label">{speechRailStarts.get(item.line.n)}</p>
+        {/if}
+        <div class="greek-line" id={item.line.cont ? `L${seg.column}-${item.line.n}-c` : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && targetId === `L${seg.column}-${item.line.n}`} class:cont={item.line.cont} class:bracketed={!!item.line.bracketed} class:spk-rail={speechesOn && !item.line.cont && speechRailLines.has(item.line.n)} title={item.line.bracketed ? 'athetized/bracketed in the editorial tradition' : undefined}>
+          {#if audioOn && !item.line.cont && audioChunkStarts.has(item.line.n)}
+            {@const chunk = audioChunkStarts.get(item.line.n)}
+            <!-- Play affordance at a recorded chunk's start line only
+                 (chunk-level granularity — never a fake per-line
+                 seek). Keyboard-focusable real <button>, same
+                 gutter-marker idiom as .spk-flag above. -->
+            <button
+              type="button"
+              class="audio-play"
+              class:playing={nowPlaying?.chunk.file === chunk?.file}
+              on:click={() => { if (chunk && audioEntry) playChunk(bookNum, chunk, audioEntry); }}
+              title={chunk ? chunkAriaLabel(chunk, audioCreator) : ''}
+              aria-label={chunk ? chunkAriaLabel(chunk, audioCreator) : ''}
+            >{nowPlaying?.chunk.file === chunk?.file ? '♪' : '▶'}</button>
+          {/if}
+          {#if speechesOn && !item.line.cont && speechDegradedStarts.has(item.line.n)}
+            <!-- Discreet flagged marker: a degraded span (nested,
+                 crossBook, or a vulgate-gap line) gets no rail —
+                 just this, at its opening line. -->
+            <button type="button" class="spk-flag" title={speechDegradedStarts.get(item.line.n)} aria-label={`Speech flagged: ${speechDegradedStarts.get(item.line.n)}`}>†</button>
+          {/if}
+          <span class="line-num">{item.line.cont ? '' : showLineNum(item.line.n)}</span>
+          <span class="line-text" lang="grc">{#if item.line.bracketed}<span class="line-bracket" aria-hidden="true">[</span>{/if}{@render greekToks(lineRenderParts(item.line.text, item.line.tokens, speakerEvents(seg, item.line)))}{#if item.line.bracketed}<span class="line-bracket" aria-hidden="true">]</span>{/if}</span>
+          {#if meterOn && !item.line.cont}
+            {@const sc = meterEntries[scansionKey(bookNum, item.line.n)]}
+            {#if sc}
+              <!-- Supplementary annotation, not primary content: aria-hidden
+                   so per-line scansion doesn't interrupt a screen reader's
+                   pass through ~700 lines a book — the feature is described
+                   once, on the Settings toggle itself (aria-label below).
+                   Greek token focus order is untouched (no tabindex here). -->
+              {@const sd = scansionDisplay(sc)}
+              <span
+                class="meter-tag"
+                class:meter-ambiguous={sd.tier === 'ambiguous'}
+                class:meter-unresolved={sd.tier === 'unresolved'}
+                title={sd.title}
+                aria-hidden="true"
+              >{sd.text}</span>
+            {/if}
+          {/if}
+        </div>
+      {/if}
+    {/each}
+  {/snippet}
+
+  <!-- English flow prose for a run of FlowPart — factored out of transFlow so
+       the Both-view phone stacking (alignGroups, above) can render a single
+       alignment group's sliced parts through the SAME footnote/table/tick
+       markup as the full block, byte-identical to what the full flow
+       renders. `parts` is `block.flow`/`block.oflows[id]` on desktop; a
+       group's tick-bounded slice on the phone-stacked layout. -->
+  {#snippet flowProse(parts: FlowPart[], transId: string, otables: Record<string, { n: number; rows: string[][] }[]>)}
+    {#if fnTransIds.has(transId)}
+      <div
+        class="ross-prose"
+        on:mouseover={onFootnoteOver}
+        on:mouseout={onFootnoteOut}
+        on:focus={onFootnoteFocus}
+        on:blur={onFootnoteBlur}
+        on:focusin={onFootnoteFocus}
+        on:focusout={onFootnoteBlur}
+        on:click={onFootnoteClick}
+        on:keydown={onFootnoteClick}
+        role="presentation"
+      >
+        {#each attachTicks(parts, new Set((otables[transId] ?? []).map(t => t.n))) as part}
+          {#if part.text === '\n'}
+            <br class="para-br" />
+          {:else if part.text !== null}
+            <span class="bk-seg"
+              >{#if part.tick}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.n}</span
+                >{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(part.text, transId)}</span>
+          {:else if part.para}
+            <br class="para-br" />
+          {:else}
+            <span class="bk-num" class:approx={!part.real}>{part.n}</span>
+            {#each (otables[transId] ?? []).filter(t => t.n === part.n) as tbl}
+              <table class="eng-table"><tbody>
+                {#each tbl.rows as trow}
+                  <tr>{#each trow as cell}<td>{cell}</td>{/each}</tr>
+                {/each}
+              </tbody></table>
+            {/each}
+          {/if}
+        {/each}
+      </div>
+    {:else}
+      <div class="ross-prose">
+        {#each attachTicks(parts) as part}
+          {#if part.text === '\n'}
+            <br class="para-br" />
+          {:else if part.text !== null}
+            <span class="bk-seg"
+              >{#if part.tick}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.n}</span
+                >{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html highlightEng(part.text)}</span>
+          {:else if part.para}
+            <br class="para-br" />
+          {:else}
+            <span class="bk-num" class:approx={!part.real}>{part.n}</span>
+          {/if}
+        {/each}
+      </div>
+    {/if}
+  {/snippet}
+
   <!-- One English column for a translation: the primary's flow (block.flow) or
        an overlay's (block.oflows[id]), as flowing prose with margin-floated
        Bekker numbers. The footnote/table-bearing translation ('third' slot)
@@ -2050,57 +2254,7 @@
            never see it, keeping the render-only/no-offset-shift guarantee
            structural. -->
       {#if chTitle}<div class="ross-chapter-title">{chTitle}</div>{/if}
-      {#if fnTransIds.has(transId)}
-        <div
-          class="ross-prose"
-          on:mouseover={onFootnoteOver}
-          on:mouseout={onFootnoteOut}
-          on:focus={onFootnoteFocus}
-          on:blur={onFootnoteBlur}
-          on:focusin={onFootnoteFocus}
-          on:focusout={onFootnoteBlur}
-          on:click={onFootnoteClick}
-          on:keydown={onFootnoteClick}
-          role="presentation"
-        >
-          {#each attachTicks(flow, new Set((block.otables[transId] ?? []).map(t => t.n))) as part}
-            {#if part.text === '\n'}
-              <br class="para-br" />
-            {:else if part.text !== null}
-              <span class="bk-seg"
-                >{#if part.tick}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.n}</span
-                  >{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(part.text, transId)}</span>
-            {:else if part.para}
-              <br class="para-br" />
-            {:else}
-              <span class="bk-num" class:approx={!part.real}>{part.n}</span>
-              {#each (block.otables[transId] ?? []).filter(t => t.n === part.n) as tbl}
-                <table class="eng-table"><tbody>
-                  {#each tbl.rows as trow}
-                    <tr>{#each trow as cell}<td>{cell}</td>{/each}</tr>
-                  {/each}
-                </tbody></table>
-              {/each}
-            {/if}
-          {/each}
-        </div>
-      {:else}
-        <div class="ross-prose">
-          {#each attachTicks(flow) as part}
-            {#if part.text === '\n'}
-              <br class="para-br" />
-            {:else if part.text !== null}
-              <span class="bk-seg"
-                >{#if part.tick}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.n}</span
-                  >{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html highlightEng(part.text)}</span>
-            {:else if part.para}
-              <br class="para-br" />
-            {:else}
-              <span class="bk-num" class:approx={!part.real}>{part.n}</span>
-            {/if}
-          {/each}
-        </div>
-      {/if}
+      {@render flowProse(flow, transId, block.otables)}
     {/if}
   {/snippet}
 
@@ -2454,75 +2608,37 @@
           {#if block.chapter && !(bi === 0 && leadChapter)}
             {@render chapterHead(block)}
           {/if}
+          {#if phoneWidth && view === 'both' && trans !== 'compare' && epicVerse}
+            <!-- Both view, phone width (John's ruling, 2026-07-18): interleaved
+                 ALIGNMENT GROUPS instead of squeezed parallel columns — Greek
+                 wrapped to 1–2 words/line otherwise. Each group is a run of
+                 Greek verse lines followed by the English chunk aligned to
+                 that same ~5-line milestone tick (see alignGroups above) —
+                 never a fabricated per-verse pairing (Murray aligns per tick,
+                 not per verse). Reuses greekLinesRender/flowProse, the exact
+                 snippets the desktop columns below use, so tokens, brackets,
+                 speech rail, audio, meter and footnotes behave identically.
+                 Compare mode keeps its existing (pre-existing, out of scope)
+                 phone stacking; busse/sidenotes/figs don't apply to epicVerse
+                 works. -->
+            <div class="seg-row stacked-both" data-chapter={block.currentChapter}>
+              {#each alignGroups(block) as group, gi (gi)}
+                <div class="align-group">
+                  <div class="greek-col" lang="grc">
+                    {@render greekLinesRender(seg, group.lines)}
+                  </div>
+                  <div class="english-col" data-trans={trans}>
+                    {@render flowProse(group.flowParts, trans, block.otables)}
+                  </div>
+                </div>
+              {/each}
+            </div>
+          {:else}
           <div class="seg-row" data-chapter={block.currentChapter}>
             <!-- Greek column -->
             <div class="greek-col" lang="grc">
               {#if spacerTitle}<div class="ross-chapter-title ross-chapter-title-spacer" aria-hidden="true">{spacerTitle}</div>{/if}
-              {#each greekItems(block.lines) as item}
-                {#if item.table}
-                  <!-- Greek inline table (the TLG ⎪ column square, e.g. De Int 22a). -->
-                  <table class="greek-table"><tbody>
-                    {#each item.rows as row}
-                      <tr id={`L${seg.column}-${row.n}`} class:target={targetId === `L${seg.column}-${row.n}`}>
-                        <td class="line-num">{showLineNum(row.n)}</td>
-                        {#each (row.cells ?? []) as cell}
-                          <td class="line-text" lang="grc">{@render greekToks(cellParts(cell))}</td>
-                        {/each}
-                      </tr>
-                    {/each}
-                  </tbody></table>
-                {:else}
-                  {#if speechesOn && !item.line.cont && speechRailStarts.has(item.line.n)}
-                    <!-- Speaker→addressee margin label: real text (not
-                         aria-hidden), CSS small-caps. Sits at the span's
-                         opening line only — never repeated down the rail. -->
-                    <p class="spk-rail-label">{speechRailStarts.get(item.line.n)}</p>
-                  {/if}
-                  <div class="greek-line" id={item.line.cont ? `L${seg.column}-${item.line.n}-c` : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && targetId === `L${seg.column}-${item.line.n}`} class:cont={item.line.cont} class:bracketed={!!item.line.bracketed} class:spk-rail={speechesOn && !item.line.cont && speechRailLines.has(item.line.n)} title={item.line.bracketed ? 'athetized/bracketed in the editorial tradition' : undefined}>
-                    {#if audioOn && !item.line.cont && audioChunkStarts.has(item.line.n)}
-                      {@const chunk = audioChunkStarts.get(item.line.n)}
-                      <!-- Play affordance at a recorded chunk's start line only
-                           (chunk-level granularity — never a fake per-line
-                           seek). Keyboard-focusable real <button>, same
-                           gutter-marker idiom as .spk-flag above. -->
-                      <button
-                        type="button"
-                        class="audio-play"
-                        class:playing={nowPlaying?.chunk.file === chunk?.file}
-                        on:click={() => { if (chunk && audioEntry) playChunk(bookNum, chunk, audioEntry); }}
-                        title={chunk ? chunkAriaLabel(chunk, audioCreator) : ''}
-                        aria-label={chunk ? chunkAriaLabel(chunk, audioCreator) : ''}
-                      >{nowPlaying?.chunk.file === chunk?.file ? '♪' : '▶'}</button>
-                    {/if}
-                    {#if speechesOn && !item.line.cont && speechDegradedStarts.has(item.line.n)}
-                      <!-- Discreet flagged marker: a degraded span (nested,
-                           crossBook, or a vulgate-gap line) gets no rail —
-                           just this, at its opening line. -->
-                      <button type="button" class="spk-flag" title={speechDegradedStarts.get(item.line.n)} aria-label={`Speech flagged: ${speechDegradedStarts.get(item.line.n)}`}>†</button>
-                    {/if}
-                    <span class="line-num">{item.line.cont ? '' : showLineNum(item.line.n)}</span>
-                    <span class="line-text" lang="grc">{#if item.line.bracketed}<span class="line-bracket" aria-hidden="true">[</span>{/if}{@render greekToks(lineRenderParts(item.line.text, item.line.tokens, speakerEvents(seg, item.line)))}{#if item.line.bracketed}<span class="line-bracket" aria-hidden="true">]</span>{/if}</span>
-                    {#if meterOn && !item.line.cont}
-                      {@const sc = meterEntries[scansionKey(bookNum, item.line.n)]}
-                      {#if sc}
-                        <!-- Supplementary annotation, not primary content: aria-hidden
-                             so per-line scansion doesn't interrupt a screen reader's
-                             pass through ~700 lines a book — the feature is described
-                             once, on the Settings toggle itself (aria-label below).
-                             Greek token focus order is untouched (no tabindex here). -->
-                        {@const sd = scansionDisplay(sc)}
-                        <span
-                          class="meter-tag"
-                          class:meter-ambiguous={sd.tier === 'ambiguous'}
-                          class:meter-unresolved={sd.tier === 'unresolved'}
-                          title={sd.title}
-                          aria-hidden="true"
-                        >{sd.text}</span>
-                      {/if}
-                    {/if}
-                  </div>
-                {/if}
-              {/each}
+              {@render greekLinesRender(seg, block.lines)}
             </div>
 
             <!-- English column: the selected translation (single view), or the
@@ -2574,6 +2690,7 @@
               </aside>
             {/if}
           </div>
+          {/if}
         {/each}
       </div>
     {/each}
@@ -2803,7 +2920,7 @@
       <label class="settings-check-row">
         <span class="settings-check-name">
           Show hexameter scansion
-          <span class="settings-check-hint">Computed dactyl/spondee pattern beside each Greek line; on small screens, shown in Greek view</span>
+          <span class="settings-check-hint">Computed dactyl/spondee pattern beside each Greek line; on small screens, shown in Greek view and in Both view's stacked layout, hidden when comparing two translations</span>
         </span>
         <span class="settings-pill">
           <input type="checkbox" bind:checked={meterOn} on:change={saveMeter} aria-label="Show computed hexameter scansion beside each Greek line, in Scholar view" />
@@ -2938,19 +3055,49 @@
     opacity: 0.88;
   }
 
-  /* Both view at phone width (John's phone screenshot, 2026-07-18): the
-     parallel Greek/English columns already compress hard here (see
-     global.css's `@media (max-width: 680px) { .reader-body.view-both
-     .greek-col { font-size: 0.9rem } … }` — same <=680px family used
-     throughout the reader for this exact squeeze), wrapping Greek to 1–2
-     words a row. The meter-tag glyph strings (—◡◡ —◡◡ —— …) then have no
-     room and overflow into the English column. Greek-only view keeps a full
-     single column at this width, so the tag still fits there — only Both
-     view hides it. The element is already conditionally rendered (`{#if
-     meterOn}`), so `display: none` here adds no layout reservation of its
-     own; it just removes the tag's own inline space, no reflow beyond that. */
+  /* Squeezed Both view at phone width (John's phone screenshot, 2026-07-18):
+     the parallel Greek/English columns compress hard here (see global.css's
+     `@media (max-width: 680px) { .reader-body.view-both .greek-col {
+     font-size: 0.9rem } … }` — same <=680px family used throughout the
+     reader for this exact squeeze), wrapping Greek to 1–2 words a row, with
+     no room for the meter-tag glyph strings (—◡◡ —◡◡ —— …). Still hidden
+     there. The stacked-Both alignment-group layout (John's follow-up ruling,
+     same day) gives Greek back its full single-column width, same as
+     Greek-only — re-enabled there, one rule down, now that the wrap fix
+     below makes it safe at any width. The element is already conditionally
+     rendered (`{#if meterOn}`), so `display: none` adds no layout
+     reservation of its own. */
   @media (max-width: 680px) {
     .reader-body.view-both .meter-tag { display: none; }
+    /* Stacked-Both's Greek is full-width (not the squeezed two-column
+       layout above) — re-enable the tag there, matching Greek-only. */
+    .reader-body.view-both .stacked-both .meter-tag { display: inline; }
+  }
+
+  /* Greek-only meter overflow at phone width (flagged 2026-07-18, ~38px
+     horizontal page overflow at 390px): `.greek-line` is a flex row with no
+     wrap, `.line-text` flex:1, and `.meter-tag` flex-shrink:0 — a full
+     hexameter's scan string (up to 6 feet, e.g. "—◡◡ —◡◡ —◡◡ —◡◡ —◡◡ ——")
+     doesn't fit beside the Greek line at this width and the un-shrinkable
+     tag forces the whole row past the viewport. Fix: let the row wrap and
+     force the tag onto its own line below the Greek text (flex-basis:100% in
+     a flex-wrap container is a reliable break, not just "if it happens to
+     not fit") — legible, not truncated, never causes horizontal scroll.
+     Applies at any width in this family: Greek-only (always shows the tag)
+     and stacked-Both (re-enabled just above) both use this same .greek-line
+     markup and both need the same guarantee. margin-left aligns the tag
+     under the Greek text, not the line-number gutter: default `.line-num`
+     min-width (1.8rem) + `.greek-line` gap (0.35rem) — the values both
+     Greek-only and stacked-Both use at this width (see global.css's
+     `.stacked-both .line-num`/`.greek-line` rules, which restore these same
+     defaults after the two-column Both view's tighter squeeze). */
+  @media (max-width: 680px) {
+    .greek-line { flex-wrap: wrap; }
+    .meter-tag {
+      flex: 1 1 100%;
+      margin-left: calc(1.8rem + 0.35rem);
+      margin-top: 0.15rem;
+    }
   }
 
   /* Discreet legend, shown only while the overlay is on (Scholar view) —

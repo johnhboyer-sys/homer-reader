@@ -2200,19 +2200,42 @@ select {
   }
 
   /* One-line bar: title (left) + icon buttons (right). The Menu dropdown is gone
-     on mobile — the Contents sidebar is the single navigation hub. */
+     on mobile — the Contents sidebar is the single navigation hub. `nowrap` +
+     a trimmed column-gap (John, 2026-07-18: one row, not two) — the base
+     `.header-bar` sets `flex-wrap: wrap`, which at this width would otherwise
+     wrap `.bar-actions` to its own line the instant the row's UNSHRUNK
+     content total exceeds the container (flex-wrap's line-break test runs on
+     hypothetical/basis sizes, before any shrinking) — so wrapping has to be
+     disabled outright, and every item's shrink/no-shrink budget below is what
+     actually keeps everything on one row at 375px. */
   .header-bar {
     display: flex;
     width: 100%;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
+    flex-wrap: nowrap;
+    gap: 0.5rem 0.3rem;
   }
   /* Contents + Search go icon-only so the title + ☰ + 🔍 + ☾ always fit. */
   .toc-toggle-text { display: none; }
   .scenes-toggle-text { display: none; }
+  /* Trimmed horizontal padding (was the desktop 0.4rem 0.7rem, which wins
+     back over a same-specificity override here — see the `.page-header`
+     specificity note above): icon-only at this width, so the label padding
+     is wasted width the switcher needs more — "Odyssey" is the long option
+     and every spare pixel here is one fewer the title has to ellipsize.
+     flex-shrink:0 keeps both a fixed >=40px tap target (min-height rule
+     below) even though width shrinks. */
+  .toc-toggle, .scenes-toggle { flex-shrink: 0; }
+  .page-header .toc-toggle, .page-header .scenes-toggle { padding: 0.4rem 0.55rem; }
   .header-search .hs-text { display: none; }
   .header-search { padding: 0.4rem 0.5rem; }
+  /* The ⌘K hint is real estate the one-row header can't spare on a phone (no
+     physical keyboard either) — the `(pointer: coarse)` rule above already
+     drops it on touch devices; this unconditional copy also drops it for any
+     mouse-carrying browser narrowed to this width, so the row-fit math never
+     depends on input type. */
+  .header-search .hs-kbd { display: none; }
   .header-support .hsup-text { display: none; }
   .header-support { padding: 0.4rem 0.5rem; }
   /* Drop the "Aristotle ›" prefix (the sidebar has an "All works" link) and let
@@ -2232,20 +2255,40 @@ select {
     text-overflow: ellipsis;
   }
 
-  /* Two balanced rows (John, 2026-07-12): the work <select> fills row 1 full
-     width; the actions wrap to row 2 as two groups — Contents · Support · Search
-     (⌘K) · Lexicon on the left, Settings · Night-mode pushed to the right edge.
-     The ⌘K badge on Search gives the left group enough weight that the row reads
-     as balanced rather than a sparse left cluster. (Matches the Aristotle reader;
-     one-row was tried but felt cramped/unbalanced on a phone.) */
-  .header-title { flex: 1 1 100%; margin-right: 0; }
-  .toc-toggle { order: 2; }
-  .scenes-toggle { order: 2; }
-  .bar-actions { order: 3; flex: 1 1 auto; }
-  .bar-actions .header-search   { order: 1; }
-  .bar-actions .header-support  { order: 1; }
-  .bar-actions .settings-toggle { order: 2; margin-left: auto; }
-  .bar-actions .theme-toggle    { order: 3; }
+  /* Single row (John, 2026-07-18 addendum, superseding the two-row split of
+     2026-07-12 — his phone screenshot showed the switcher stacked above a
+     separate icon-strip row and he wants one row). Same visual grouping as
+     the one-row template already proven below for the short-landscape
+     breakpoint (`@media (orientation: landscape) and (max-height: 500px)`):
+     leading ☰ Contents / ❦ Scenes, a flexible ellipsizing title, then the
+     bar-actions icon cluster (Go to · Lexicon · Settings · Theme · Support —
+     Help is desktop-only, `.help-trigger{display:none}` at this width)
+     pinned right. `.header-title` falls back to the `flex: 1 1 auto` set
+     earlier in this media query (no `flex-basis: 100%` here to force a line
+     break) and shrinks/ellipsizes via `.work-switcher`'s own rules above;
+     every icon button gets `flex-shrink: 0` so the shrink budget lands
+     entirely on the switcher, never on a tap target. */
+  .toc-toggle { order: 0; }
+  .scenes-toggle { order: 0; }
+  .bar-actions { order: 0; flex: 0 0 auto; gap: 0.2rem; }
+  .bar-actions .header-search,
+  .bar-actions .header-support,
+  .bar-actions .settings-toggle,
+  .bar-actions .theme-toggle { order: 0; margin-left: 0; flex-shrink: 0; }
+  /* Comfortable touch height on every header control (John: ">=40px
+     targets"). `.settings-toggle`/`.theme-toggle` carry no min-height at all
+     on desktop (23–32px, sized to icon+padding); `.toc-toggle`/`.scenes-toggle`/
+     `.header-search`/`.header-support` carry an unscoped 36px min-height
+     defined LATER in this file (own-class rules, e.g. `.toc-toggle` at
+     ~L2423) — same specificity, later source order, so it would win back
+     over a plain `.toc-toggle` override here. `.page-header`-prefixed
+     selectors out-specificity those regardless of source order (same trick
+     the landscape block above uses, for the same reason). Height-only (no
+     width floor): these are already icon-only pills at this width, and
+     forcing a width floor would just reopen the fit budget solved above. */
+  .page-header .toc-toggle, .page-header .scenes-toggle,
+  .page-header .header-search, .page-header .header-support,
+  .page-header .settings-toggle, .page-header .theme-toggle { min-height: 40px; }
 
   .nav-panel {
     display: none;
@@ -2346,10 +2389,13 @@ select {
   /* Monolingual (the phone default): comfortable single column. Bilingual stays
      a real two-column layout — see below — rather than the old stack. */
 
-  /* Workable two-column bilingual on a phone. Keep Greek + English side by side
-     (no stacking), but tighten gutters and shrink type a notch so two narrow
-     measures stay legible at ~390px. Scoped to .view-both so the monolingual
-     views keep the larger, comfortable type. */
+  /* Squeezed two-column bilingual (superseded 2026-07-18 by the
+     alignment-group stacking below for epicVerse works — John's ruling: the
+     squeeze wrapped Greek to 1–2 words/line, unusable). Kept because it's
+     still what a mount briefly shows before `phoneWidth` is computed
+     (client-only, see Reader.svelte's computePhoneWidth), and it's still the
+     live rule for a non-epicVerse work or trans-compare (compare has its own
+     full-width-stack override below, which wins over this one). */
   /* --seg-gap kept in sync here too (inert for ticks at this width — the
      mobile tick rule below floats left instead of centering in the gap —
      but keeps the invariant that --seg-gap always matches the actual gap). */
@@ -2360,6 +2406,34 @@ select {
   .reader-body.view-both .english-col { font-size: 0.9rem; line-height: 1.6; }
   .reader-body.view-both .greek-line { gap: 0.2rem; }
   .reader-body.view-both .line-num { min-width: 0.9rem; font-size: 0.6rem; }
+
+  /* Both view, phone width, epicVerse: ALIGNMENT-GROUP STACKING (John's
+     ruling, 2026-07-18 — see Reader.svelte's alignGroups/phoneWidth). Each
+     .align-group is a run of full-width Greek verse lines followed by its
+     aligned English chunk; groups stack vertically down the single column.
+     Higher specificity than the squeeze rules just above (adds
+     `.stacked-both`) so Greek/English get the full comfortable single-column
+     type here, not the narrowed two-up sizing — real width is available now
+     that the columns aren't parallel. */
+  .reader-body.view-both .stacked-both {
+    display: block;
+  }
+  .align-group + .align-group {
+    margin-top: 1.1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .reader-body.view-both .stacked-both .greek-col {
+    font-size: var(--fs-greek);
+    line-height: var(--lh-greek);
+    margin-bottom: 0.5rem;
+  }
+  .reader-body.view-both .stacked-both .greek-line { gap: 0.35rem; }
+  .reader-body.view-both .stacked-both .line-num { min-width: 1.8rem; font-size: var(--fs-linenum); }
+  .reader-body.view-both .stacked-both .english-col {
+    font-size: var(--fs-english);
+    line-height: var(--lh-english);
+  }
 
   /* Compare both can't fit 2–3 columns on a phone: stack Greek, Rackham and Ross
      full-width with their labels, at the comfortable single-column type (these
@@ -3201,6 +3275,17 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   border: 1px solid var(--rule-strong);
   padding: 0.85rem 1.4rem 0.95rem;
   position: relative;
+  /* Chromium hairline bug (John, phone screenshot 2026-07-18): at a phone
+     viewport this box's content-driven height lands on a fractional device
+     pixel, and the bottom border-bottom rule (both this element's own and the
+     ::before inner frame's) fails to rasterize — top/side rules and even the
+     bottom corner stubs paint fine, only the connecting bottom line vanishes.
+     Confirmed by testing: promoting the box to its own compositing layer
+     snaps the border to a whole device pixel and the line reappears.
+     translateZ(0) is a positional no-op (verified byte-identical desktop
+     screenshot), so this is applied unconditionally rather than gated to a
+     breakpoint. */
+  transform: translateZ(0);
 }
 .book-plate::before {
   content: "";
