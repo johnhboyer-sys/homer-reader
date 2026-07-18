@@ -24,27 +24,111 @@ interface Props {
 }
 const { work, label, entries, glosses, characterName, characterGreek, base } = Astro.props;
 const readerHref = (ref: FormulaRef) => `${base}/${work}/book/${ref.book}/?loc=${ref.book}.${ref.line}`;
+
+// Connective-formula classification (display-level only — epithets.json itself
+// is untouched). A formula is CONNECTIVE if every token besides the entity's
+// own name-token(s) is a Greek function word (particles, articles, common
+// prepositions/conjunctions); it's SUBSTANTIVE if at least one token is a real
+// epithet, verb, participle, patronymic, or common noun. See CLAUDE.md's
+// Homeric-accuracy rule — this only reorganizes the ledger, never the data.
+const FUNCTION_WORDS = [
+  'δέ', 'δ', 'δή', 'καί', 'τε', 'θ', 'αὐτάρ', 'ἀτάρ', 'μέν', 'γάρ', 'ἄρ', 'ἄρα', 'ῥα', 'ῥ',
+  'ἀλλά', 'ἀλλ', 'οὐδέ', 'οὐδ', 'ἠδέ', 'ἠδ', 'ἰδέ', 'ὥς', 'ὡς', 'ὅς', 'ὅ', 'τόν', 'τήν', 'τώ',
+  'τοί', 'οἱ', 'μιν', 'σφιν', 'ἐπί', 'ἐπ', 'ἐφ', 'ἐν', 'ἐνί', 'εἰν', 'ἐκ', 'ἐξ', 'ἀπό', 'ἀπ',
+  'ὑπό', 'ὑπ', 'ποτί', 'προτί', 'πρός', 'μετά', 'μετ', 'παρά', 'παρ', 'περί', 'ἀμφί', 'ἀμφ',
+  'ἀνά', 'ἄν', 'κατά', 'κατ', 'σύν', 'ξύν', 'εἰς', 'ἐς', 'τι', 'τις', 'γε', 'κε', 'κεν', 'νυ',
+  'νῦν', 'περ', 'ἤ', 'ἠέ', 'οὔτε', 'μήτε', 'ἔπειτα', 'ὅτε', 'ὅταν', 'ἐπεί', 'ἵνα', 'ὄφρα',
+  'τότε', 'αὖ', 'αὖτε', 'αὖτις', 'ἔνθα', 'ἔνθ',
+];
+const APOSTROPHES = /[ʼ'᾽’`]/g;
+const normalizeGreekToken = (token: string) =>
+  token
+    .replace(APOSTROPHES, '')
+    .normalize('NFD')
+    .replace(/\p{Mn}/gu, '')
+    .normalize('NFC')
+    .toLowerCase()
+    .replace(/ς/g, 'σ');
+const FUNCTION_WORD_SET = new Set(FUNCTION_WORDS.map(normalizeGreekToken));
+// Name stem: the entity's own name (first word of its `greek` field, so a
+// two-word Landmark form like "Αἴας Τελαμώνιος" stems only on "Αἴας" — the
+// patronymic half stays a real word for classification purposes) truncated to
+// a short prefix. Floor 3 / cap 4: long enough to keep coincidental
+// collisions rare, short enough to bridge stem-vowel ablaut across cases
+// (e.g. Ἕκτωρ/Ἕκτορος) and the epic single/double-consonant metrical variants
+// (Ἀχιλλεύς/Ἀχιλεύς).
+const nameStem = (greek: string | undefined): string | null => {
+  if (!greek) return null;
+  const normalized = normalizeGreekToken(greek.split(/\s+/)[0]);
+  if (!normalized) return null;
+  const stemLen = Math.max(3, Math.min(4, normalized.length - 2));
+  return normalized.slice(0, stemLen);
+};
+const classifyFormula = (text: string, greek: string | undefined): 'substantive' | 'connective' => {
+  const stem = nameStem(greek);
+  const tokens = text.split(/\s+/).filter(Boolean);
+  for (const token of tokens) {
+    const normalized = normalizeGreekToken(token);
+    if (!normalized) continue;
+    if (FUNCTION_WORD_SET.has(normalized)) continue;
+    if (stem && normalized.startsWith(stem)) continue;
+    return 'substantive';
+  }
+  return 'connective';
+};
+const splitFormulas = (entity: string, formulas: Formula[]) => {
+  const greek = characterGreek(entity);
+  const substantive: Formula[] = [];
+  const connective: Formula[] = [];
+  for (const formula of formulas) {
+    (classifyFormula(formula.text, greek) === 'connective' ? connective : substantive).push(formula);
+  }
+  return { substantive, connective };
+};
 ---
 <section class="work-ledger" aria-labelledby={`${work}-heading`}>
   <div class="work-heading"><h2 id={`${work}-heading`}>{label}</h2><span>{entries.length} named figures</span></div>
-  {entries.map((entry) => (
-    <div class="entity-block" role="group" aria-labelledby={`${work}-${entry.entity}`}>
-      <div class="entity-heading"><h3 id={`${work}-${entry.entity}`}>{characterName(entry.entity)}</h3>{characterGreek(entry.entity) && <span class="entity-greek" lang="grc">{characterGreek(entry.entity)}</span>}</div>
-      <div class="formula-scroll" tabindex="0" role="group" aria-label={`${characterName(entry.entity)} formulas, scrollable on narrow screens`}>
-        <ol class="formula-list">
-          {entry.formulas.map((formula) => (
-            <li>
-              <span lang="grc">{formula.text}</span><span>{formula.count}×</span><span>{glosses[formula.text] ?? ''}</span>
-              <span>
-                {formula.refs.slice(0, 4).map((ref) => <a href={readerHref(ref)}>{ref.book}.{ref.line}</a>)}
-                {formula.refs.length > 4 && <span>+{formula.refs.length - 4} more</span>}
-              </span>
-            </li>
-          ))}
-        </ol>
+  {entries.map((entry) => {
+    const { substantive, connective } = splitFormulas(entry.entity, entry.formulas);
+    return (
+      <div class="entity-block" role="group" aria-labelledby={`${work}-${entry.entity}`}>
+        <div class="entity-heading"><h3 id={`${work}-${entry.entity}`}>{characterName(entry.entity)}</h3>{characterGreek(entry.entity) && <span class="entity-greek" lang="grc">{characterGreek(entry.entity)}</span>}</div>
+        {substantive.length > 0 && (
+          <div class="formula-scroll" tabindex="0" role="group" aria-label={`${characterName(entry.entity)} formulas, scrollable on narrow screens`}>
+            <ol class="formula-list">
+              {substantive.map((formula) => (
+                <li>
+                  <span lang="grc">{formula.text}</span><span>{formula.count}×</span><span>{glosses[formula.text] ?? ''}</span>
+                  <span>
+                    {formula.refs.slice(0, 4).map((ref) => <a href={readerHref(ref)}>{ref.book}.{ref.line}</a>)}
+                    {formula.refs.length > 4 && <span>+{formula.refs.length - 4} more</span>}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+        {connective.length > 0 && (
+          <details class="connective-details">
+            <summary>{connective.length} verse-position formulas (connective)</summary>
+            <div class="formula-scroll" tabindex="0" role="group" aria-label={`${characterName(entry.entity)} connective formulas, scrollable on narrow screens`}>
+              <ol class="formula-list">
+                {connective.map((formula) => (
+                  <li>
+                    <span lang="grc">{formula.text}</span><span>{formula.count}×</span><span>{glosses[formula.text] ?? ''}</span>
+                    <span>
+                      {formula.refs.slice(0, 4).map((ref) => <a href={readerHref(ref)}>{ref.book}.{ref.line}</a>)}
+                      {formula.refs.length > 4 && <span>+{formula.refs.length - 4} more</span>}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </details>
+        )}
       </div>
-    </div>
-  ))}
+    );
+  })}
 </section>
 <style is:global>
   .work-ledger { min-width: 0; }
@@ -56,6 +140,11 @@ const readerHref = (ref: FormulaRef) => `${base}/${work}/book/${ref.book}/?loc=$
   .entity-heading h3 { font-family: var(--font-ui); font-size: .86rem; font-weight: 600; }
   .entity-greek { font-family: var(--font-greek); color: var(--text-mid); font-size: .9rem; }
   .formula-scroll { overflow-x: auto; padding-bottom: .35rem; }
+  .connective-details { margin-top: .35rem; }
+  .connective-details > summary { cursor: pointer; font-family: var(--font-ui); font-size: .68rem; font-variant-caps: small-caps; letter-spacing: .06em; color: var(--text-mid); padding: .4rem 0; }
+  .connective-details > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .connective-details[open] > summary { padding-bottom: .2rem; }
+  .connective-details .formula-scroll { margin-top: .2rem; }
   .formula-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .formula-list { list-style: none; margin: 0; min-width: 29rem; }
   .formula-list > li { display: grid; grid-template-columns: minmax(14rem, 1fr) auto; column-gap: .75rem; padding: .45rem 0; border-bottom: 1px solid var(--border); }
