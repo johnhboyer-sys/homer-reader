@@ -3,7 +3,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-const BASE = '/plato-reader';
+const BASE = '';
 const MAX_ID_CACHE = 6000;
 const MAX_REPORTS = 200;
 
@@ -160,10 +160,21 @@ async function main() {
       // `loc={column}:{line}` — a Greek-line-level citation target (bekker/busse,
       // or the internal line-precise form of a stephanus deep link).
       const match = value.match(/^([^:]+):(\d+)$/);
+      // `loc={book}.{line}` — the Homeric verse-line citation grammar (see
+      // shared/lib/citation.ts's `formatLocValue`: verse-line works stay
+      // dotted, e.g. "1.7", unlike Bekker/Busse's colon form "1097a:15").
+      // Must be checked before the bare-column branch below, or a Homeric
+      // "1.7" is misread as a bare column "1.7" with no line at all.
+      const verseMatch = !match && value.match(/^(\d+)\.(\d+)$/);
       if (match) {
         const ids = await idsFor(target);
         if (!ids?.has(`L${match[1]}-${match[2]}`) && !ids?.has(`L${match[1]}-${match[2]}-c`)) {
           report(source, raw, `citation target L${match[1]}-${match[2]} not found`);
+        }
+      } else if (verseMatch) {
+        const ids = await idsFor(target);
+        if (!ids?.has(`L${verseMatch[1]}-${verseMatch[2]}`) && !ids?.has(`L${verseMatch[1]}-${verseMatch[2]}-c`)) {
+          report(source, raw, `citation target L${verseMatch[1]}-${verseMatch[2]} not found`);
         }
       } else if (value && !value.includes(':')) {
         // `loc={column}` — a bare column with no line, e.g. a stephanus work's

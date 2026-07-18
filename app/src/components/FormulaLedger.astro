@@ -98,7 +98,7 @@ const splitFormulas = (entity: string, formulas: Formula[]) => {
             <ol class="formula-list">
               {substantive.map((formula) => (
                 <li>
-                  <span lang="grc">{formula.text}</span><span>{formula.count}×</span><span>{glosses[formula.text] ?? ''}</span>
+                  <span lang="grc">{formula.text}</span><span>{formula.count}×</span>{glosses[formula.text] && <span>{glosses[formula.text]}</span>}
                   <span>
                     {formula.refs.slice(0, 4).map((ref) => <a href={readerHref(ref)}>{ref.book}.{ref.line}</a>)}
                     {formula.refs.length > 4 && <span>+{formula.refs.length - 4} more</span>}
@@ -115,7 +115,7 @@ const splitFormulas = (entity: string, formulas: Formula[]) => {
               <ol class="formula-list">
                 {connective.map((formula) => (
                   <li>
-                    <span lang="grc">{formula.text}</span><span>{formula.count}×</span><span>{glosses[formula.text] ?? ''}</span>
+                    <span lang="grc">{formula.text}</span><span>{formula.count}×</span>{glosses[formula.text] && <span>{glosses[formula.text]}</span>}
                     <span>
                       {formula.refs.slice(0, 4).map((ref) => <a href={readerHref(ref)}>{ref.book}.{ref.line}</a>)}
                       {formula.refs.length > 4 && <span>+{formula.refs.length - 4} more</span>}

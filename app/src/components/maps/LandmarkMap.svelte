@@ -100,12 +100,21 @@
   }
 
   function expandGroup(g: ClusterGroup) {
+    // The badge is about to be removed from the map (and its DOM element
+    // destroyed) — if it currently holds keyboard focus (a Tab+Enter/Space
+    // expansion, see below), that focus would otherwise silently fall back
+    // to <body>. Move it to the map region instead so a keyboard user never
+    // loses their place. `el` carries tabindex="-1" for exactly this: a
+    // legitimate programmatic focus target that isn't in the normal Tab
+    // order.
+    const hadFocus = typeof document !== 'undefined' && document.activeElement === g.badge?.getElement?.();
     for (const id of g.ids) {
       const layer = layers.get(id);
       if (layer && !map.hasLayer(layer)) layer.addTo(map);
     }
     if (g.badge && map.hasLayer(g.badge)) map.removeLayer(g.badge);
     clusterGroups = clusterGroups.filter((x) => x !== g);
+    if (hadFocus) el?.focus();
   }
 
   function computeClusters() {
@@ -146,21 +155,41 @@
         if (layer && map.hasLayer(layer)) map.removeLayer(layer);
       }
       const group: ClusterGroup = { ids, badge: null, centroid };
+      // Unlike the other markers in this file (all `keyboard: false` — see
+      // the onMount comment: those are mouse-first by design, with
+      // ContingentPanel as the keyboard-operable equivalent), a cluster
+      // badge is itself an interactive control that ACTIVELY HIDES the
+      // markers it collapses, so it has no equivalent standing control
+      // elsewhere. It gets real keyboard access: `keyboard: true` makes
+      // Leaflet mark the icon focusable (tabindex + role="button"), and
+      // the keydown listener below supplies the Enter/Space activation
+      // Leaflet's marker keyboard option doesn't wire up on its own.
+      const anchorName = items.find((it) => it.id === ids[0])?.place.name ?? 'this area';
+      const expandLabel = `Expand ${ids.length} places near ${anchorName}`;
       const badge = L.marker(centroid, {
         icon: L.divIcon({
           className: 'lm-cluster',
-          html: `<span class="lm-cluster-num">${ids.length}</span>`,
+          html: `<span class="lm-cluster-num" aria-hidden="true">${ids.length}</span>`,
           iconSize: [26, 26],
           iconAnchor: [13, 13],
         }),
-        keyboard: false,
-        alt: `${ids.length} places near here — click to expand`,
+        keyboard: true,
       });
       badge.on('click', () => {
         expandGroup(group);
         map.setZoomAround(L.latLng(centroid), Math.min(map.getZoom() + 2, 12));
       });
       badge.addTo(map);
+      const badgeEl = badge.getElement?.();
+      if (badgeEl) {
+        badgeEl.setAttribute('aria-label', expandLabel);
+        badgeEl.addEventListener('keydown', (e: KeyboardEvent) => {
+          if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+            e.preventDefault();
+            badge.fire('click');
+          }
+        });
+      }
       group.badge = badge;
       clusterGroups.push(group);
     }
@@ -554,8 +583,12 @@
        labelled region is the correct landmark for a widget that legitimately
        contains focusable children — the map itself stays mouse-first
        (see `keyboard: false` above); the accessible equivalent for
-       keyboard users is the panel/list beside or below it. -->
-  <div bind:this={el} class="lm-map" role="region" aria-label={ariaLabel}></div>
+       keyboard users is the panel/list beside or below it. Cluster badges
+       are the one exception (they're real keyboard-focusable controls —
+       see computeClusters), so this region also carries tabindex="-1": a
+       legitimate focus target (not in the Tab order) that expandGroup
+       moves focus to when a badge it just removed held it. -->
+  <div bind:this={el} class="lm-map" role="region" aria-label={ariaLabel} tabindex="-1"></div>
   {#if storyMode}
     <!-- Story mode overlay: always-visible caption cards + route direction
          arrows. Plain positioned DOM (not Leaflet layers) so cards are real,
@@ -711,6 +744,8 @@
     box-sizing: border-box;
   }
   :global(.lm-cluster:hover .lm-cluster-num) { border-color: var(--rule-strong); border-width: 2.2px; }
+  :global(.lm-cluster:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  :global(.lm-cluster:focus-visible .lm-cluster-num) { border-color: var(--rule-strong); border-width: 2.2px; }
 
   /* Story-mode overlay: caption cards + route direction arrows. Plain
      positioned DOM, not Leaflet layers (see script comment) — sits above

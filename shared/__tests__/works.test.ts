@@ -12,7 +12,7 @@ const multiBookFixture: Work = {
   books: 10,
   bookLabels: ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'],
   greekEdition: 'Test edition',
-  greekSource: { short: 'Test', full: 'Test edition, full citation.' },
+  greekSource: { short: 'Test', full: 'Test edition, full citation.', licence: 'Test licence' },
   translations: [{ id: 'test', name: 'Test Translator (Test, 1900)', short: 'Test', slot: 'english' }],
   blurb: 'A fixture multi-book work for exercising bookLabel/workPath generic logic.',
 };

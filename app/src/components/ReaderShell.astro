@@ -284,12 +284,12 @@ const intro =
       <p>{intro}</p>
     </div>
     <div class="header-bar">
-      <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar">
-        <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text">Contents</span>
+      <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar" aria-label="Contents">
+        <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text" aria-hidden="true">Contents</span>
       </button>
       {sceneCount > 0 && (
-        <button type="button" class="scenes-toggle" aria-expanded="false" aria-controls="scene-rail">
-          <span class="scenes-toggle-icon" aria-hidden="true">❦</span><span class="scenes-toggle-text">Scenes</span>
+        <button type="button" class="scenes-toggle" aria-expanded="false" aria-controls="scene-rail" aria-label="Scenes">
+          <span class="scenes-toggle-icon" aria-hidden="true">❦</span><span class="scenes-toggle-text" aria-hidden="true">Scenes</span>
         </button>
       )}
       <div class="header-title">
@@ -702,7 +702,7 @@ const intro =
   <ParsePopupTour client:load />
 
   <footer class="site-footer">
-    <span>Greek text: {work.greekSource.short} (Perseus, CC BY-SA)</span>
+    <span>Greek text: {work.greekSource.short} ({work.greekSource.licence})</span>
     <span class="footer-sep" aria-hidden="true">·</span>
     <span>Translations: public domain (Murray, Butler, Pope)</span>
     <span class="footer-sep" aria-hidden="true">·</span>

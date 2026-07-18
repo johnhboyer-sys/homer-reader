@@ -59,10 +59,14 @@ export interface Work {
   bookLabels: string[];   // per-book display labels (Arabic for a bookless work)
   missingBooks?: MissingBooks;  // annotate a gap in the book sequence
   greekEdition: string;
-  // The print edition the TLG text was digitised from, in two lengths: `short`
-  // for the reader's bilingual strip, `full` for the Greek-only strip and the
-  // Texts & Licences page (both driven off this one field so they can't drift).
-  greekSource: { short: string; full: string };
+  // The print edition the TLG text was digitised from, in three lengths:
+  // `short` for the reader's bilingual strip, `full` for the Greek-only strip
+  // and the Texts & Licences page, and `licence` for the compact footer
+  // credit line (all driven off this one field so they can't drift — see the
+  // 2026-07-18 fix: the footer previously hardcoded "(Perseus, CC BY-SA)" for
+  // every work, which was both the wrong source AND a false licence claim for
+  // the Iliad's licensed-TLG Allen text).
+  greekSource: { short: string; full: string; licence: string };
   translations: TranslationRef[];
   // Which translation the reader shows by default (a translations[].id). When
   // omitted the reader falls back to the primary 'english'-slot translation.
@@ -128,12 +132,14 @@ const PERSEUS_GREEK_SOURCE = {
   short: 'Perseus',
   full: 'Digital Greek text from the Perseus Digital Library (PerseusDL, '
     + 'canonical-greekLit), licensed CC BY-SA 4.0.',
+  licence: 'CC BY-SA',
 };
 const TLG_ALLEN_GREEK_SOURCE = {
   short: 'Allen 1931',
   full: 'Greek text of T. W. Allen’s editio maior (Oxford, 1931), from a '
     + 'licensed TLG export; Il. 8.548, 550–552, omitted by Allen, are '
     + 'supplied from the vulgate (Perseus) and rendered as athetized.',
+  licence: 'licensed TLG export',
 };
 
 export const WORKS: Work[] = [
