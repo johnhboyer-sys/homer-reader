@@ -1773,28 +1773,52 @@
   // breakpoint chips render inline in normal flow (global.css), so this is a
   // no-op there. Wave A #1, 2026-07-17 (was: floated chips with a large
   // negative margin, which collapsed onto one rect instead of stacking).
+  //
+  // Wave A #2, 2026-07-17: the anchor-only pass above ignored chip HEIGHT.
+  // Where the prose compresses many verse lines into little vertical space
+  // (e.g. a short scene immediately after a long one), two anchors can land
+  // closer together than either chip is tall, and the chips overlap. Enforce
+  // monotonic non-overlap in document order: each chip's final top is pushed
+  // down to clear the previous chip's actual rendered bottom + a small gap
+  // (mirrors the --space-2 token in global.css) when the anchor alone would
+  // crowd it. Chips drift below their exact anchor only when crowded — they
+  // stay in scene order, still near their true start line.
+  const CHIP_GAP_PX = 8; // --space-2 (0.5rem @ 16px root)
   function positionSceneChips() {
     if (!reading || typeof window === 'undefined' || !readerBodyEl) return;
     const col = readerBodyEl.querySelector<HTMLElement>('.reading-col');
     if (!col) return;
-    const chips = col.querySelectorAll<HTMLElement>('.scene-chip');
+    const chips = Array.from(col.querySelectorAll<HTMLElement>('.scene-chip'));
     if (!chips.length) return;
     if (!window.matchMedia('(min-width: 1400px)').matches) {
       chips.forEach((c) => { c.style.top = ''; });
+      col.style.minHeight = '';
       return;
     }
+    // Clear any minHeight this function set on a previous pass so the
+    // "natural" height below is the prose's own height, not last run's grown one.
+    col.style.minHeight = '';
     const ticks = Array.from(col.querySelectorAll<HTMLElement>('.bk-num'))
       .map((el) => ({ n: Number(el.textContent), top: el.getBoundingClientRect().top }))
       .filter((t) => Number.isFinite(t.n));
     if (!ticks.length) return;
-    const colTop = col.getBoundingClientRect().top;
+    const colRect = col.getBoundingClientRect();
+    const colTop = colRect.top;
+    let prevBottom = -Infinity;
     chips.forEach((chip) => {
       const line = Number(chip.dataset.line);
       if (!Number.isFinite(line)) return;
       let best = ticks[0];
       for (const t of ticks) { if (t.n <= line) best = t; else break; }
-      chip.style.top = `${best.top - colTop}px`;
+      const anchorTop = best.top - colTop;
+      const top = Math.max(anchorTop, prevBottom + CHIP_GAP_PX);
+      chip.style.top = `${top}px`;
+      prevBottom = top + chip.getBoundingClientRect().height;
     });
+    // Chips are position:absolute, so a run of crowded chips can push the
+    // last one's bottom past the prose's own (natural-flow) height. Grow the
+    // column to fit so the last chip never overflows into whatever follows.
+    if (prevBottom > colRect.height) col.style.minHeight = `${prevBottom}px`;
   }
   afterUpdate(positionSceneChips);
 
