@@ -1,0 +1,70 @@
+---
+// One work's formula ledger (see /formulas/iliad/ and /formulas/odyssey/) —
+// extracted so both per-work pages share one template. Each formula row
+// renders the Greek, its occurrence count, an English gloss line (from
+// apparatus/formula-glosses.json, status: draft — see the draft badge on the
+// pages that use this component), and up to 4 verse citations. The gloss
+// span is always emitted (positionally, as the row's 3rd child — no class
+// needed) because every formula text in the current corpus has a gloss;
+// CSS below targets it by position, so a future formula with no gloss would
+// render an empty (but harmless) line rather than shifting the citation
+// styling onto the wrong child.
+interface FormulaRef { book: number; line: number; }
+interface Formula { text: string; lemmaKeys: string[]; count: number; refs: FormulaRef[]; }
+interface EntityFormulas { entity: string; formulas: Formula[]; }
+
+interface Props {
+  work: 'iliad' | 'odyssey';
+  label: string;
+  entries: EntityFormulas[];
+  glosses: Record<string, string>;
+  characterName: (id: string) => string;
+  characterGreek: (id: string) => string | undefined;
+  base: string;
+}
+const { work, label, entries, glosses, characterName, characterGreek, base } = Astro.props;
+const readerHref = (ref: FormulaRef) => `${base}/${work}/book/${ref.book}/?loc=${ref.book}.${ref.line}`;
+---
+<section class="work-ledger" aria-labelledby={`${work}-heading`}>
+  <div class="work-heading"><h2 id={`${work}-heading`}>{label}</h2><span>{entries.length} named figures</span></div>
+  {entries.map((entry) => (
+    <div class="entity-block" role="group" aria-labelledby={`${work}-${entry.entity}`}>
+      <div class="entity-heading"><h3 id={`${work}-${entry.entity}`}>{characterName(entry.entity)}</h3>{characterGreek(entry.entity) && <span class="entity-greek" lang="grc">{characterGreek(entry.entity)}</span>}</div>
+      <div class="formula-scroll" tabindex="0" role="group" aria-label={`${characterName(entry.entity)} formulas, scrollable on narrow screens`}>
+        <ol class="formula-list">
+          {entry.formulas.map((formula) => (
+            <li>
+              <span lang="grc">{formula.text}</span><span>{formula.count}×</span><span>{glosses[formula.text] ?? ''}</span>
+              <span>
+                {formula.refs.slice(0, 4).map((ref) => <a href={readerHref(ref)}>{ref.book}.{ref.line}</a>)}
+                {formula.refs.length > 4 && <span>+{formula.refs.length - 4} more</span>}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  ))}
+</section>
+<style is:global>
+  .work-ledger { min-width: 0; }
+  .work-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .55rem 0; border-top: 2px solid var(--rule-strong); border-bottom: 1px solid var(--border); }
+  .work-heading h2 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 400; }
+  .work-heading span { font-family: var(--font-ui); font-size: .67rem; font-variant-caps: small-caps; letter-spacing: .08em; color: var(--text-mid); white-space: nowrap; }
+  .entity-block { padding-top: 1.25rem; }
+  .entity-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: .35rem .55rem; padding-bottom: .35rem; border-bottom: 1px solid var(--border); }
+  .entity-heading h3 { font-family: var(--font-ui); font-size: .86rem; font-weight: 600; }
+  .entity-greek { font-family: var(--font-greek); color: var(--text-mid); font-size: .9rem; }
+  .formula-scroll { overflow-x: auto; padding-bottom: .35rem; }
+  .formula-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .formula-list { list-style: none; margin: 0; min-width: 29rem; }
+  .formula-list > li { display: grid; grid-template-columns: minmax(14rem, 1fr) auto; column-gap: .75rem; padding: .45rem 0; border-bottom: 1px solid var(--border); }
+  .formula-list > li > span:first-child { font-family: var(--font-greek); font-size: 1rem; line-height: 1.45; overflow-wrap: anywhere; }
+  .formula-list > li > span:nth-child(2) { font-family: var(--font-ui); font-size: .68rem; color: var(--text-mid); white-space: nowrap; align-self: baseline; }
+  .formula-list > li > span:nth-child(3) { grid-column: 1 / -1; font-family: var(--font-english); font-size: .82rem; color: var(--text-mid); line-height: 1.4; margin-top: .1rem; }
+  .formula-list > li > span:nth-child(4) { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .15rem .5rem; margin-top: .18rem; font-family: var(--font-ui); font-size: .67rem; line-height: 1.45; }
+  .formula-list > li > span:nth-child(4) a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; white-space: nowrap; }
+  .formula-list > li > span:nth-child(4) a:hover { border-bottom-color: var(--accent); }
+  .formula-list > li > span:nth-child(4) a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .formula-list > li > span:nth-child(4) > span { color: var(--text-mid); white-space: nowrap; }
+</style>

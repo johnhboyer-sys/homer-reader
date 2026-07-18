@@ -1,4 +1,10 @@
 ---
+// Lightweight index for /formulas/ — links to the per-work ledgers at
+// /formulas/iliad/ and /formulas/odyssey/. Split out (2026-07-17) because
+// server-rendering English glosses under every formula occurrence (required
+// for the no-JS SSR gate) pushed the combined single-page ledger well past
+// its ~400KB budget; see FormulaLedger.astro and the two per-work pages for
+// the actual content.
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
 import ThemeToggle from '../../components/ThemeToggle.astro';
@@ -11,20 +17,18 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 interface FormulaRef { book: number; line: number; }
 interface Formula { text: string; lemmaKeys: string[]; count: number; refs: FormulaRef[]; }
 interface EntityFormulas { entity: string; formulas: Formula[]; }
-interface Character { id: string; name: string; greek?: string; }
 
-const charactersFile: { characters: Character[] } = JSON.parse(readFileSync('../apparatus/characters.json', 'utf-8'));
-const characters = new Map(charactersFile.characters.map(character => [character.id, character]));
 const iliad = JSON.parse(readFileSync('../build/dist/iliad/epithets.json', 'utf-8')) as EntityFormulas[];
 const odyssey = JSON.parse(readFileSync('../build/dist/odyssey/epithets.json', 'utf-8')) as EntityFormulas[];
+const iliadFormulaCount = iliad.reduce((n, e) => n + e.formulas.length, 0);
+const odysseyFormulaCount = odyssey.reduce((n, e) => n + e.formulas.length, 0);
+const glossesFile: { status: 'draft' | 'reviewed' } = JSON.parse(readFileSync('../apparatus/formula-glosses.json', 'utf-8'));
+const isDraft = glossesFile.status === 'draft';
 const pageTitle = 'Formulas — The Homer Reader';
 const metaDescription = 'A computed index of the repeated epithets and formulas attached to named figures in the Iliad and Odyssey.';
 const canonical = Astro.site ? new URL(`${base}/formulas/`, Astro.site).href : undefined;
 const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
 const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: pageTitle, description: metaDescription, ...(canonical ? { url: canonical } : {}) };
-const readerHref = (work: 'iliad' | 'odyssey', ref: FormulaRef) => `${base}/${work}/book/${ref.book}/?loc=${ref.book}.${ref.line}`;
-const characterName = (id: string) => characters.get(id)?.name ?? id;
-const characterGreek = (id: string) => characters.get(id)?.greek;
 ---
 <html lang="en">
 <head>
@@ -49,28 +53,14 @@ const characterGreek = (id: string) => characters.get(id)?.greek;
     .formula-body { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 4.5rem; color: var(--text); }
     h1 { font-family: var(--font-display); font-size: 1.95rem; font-weight: 400; line-height: 1.15; margin-bottom: .55rem; }
     .formula-intro { max-width: 45rem; color: var(--text-mid); font-size: .98rem; line-height: 1.62; }
-    .formula-ledger { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.75rem; margin-top: 2rem; }
-    .work-ledger { min-width: 0; }
-    .work-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .55rem 0; border-top: 2px solid var(--rule-strong); border-bottom: 1px solid var(--border); }
-    .work-heading h2 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 400; }
-    .work-heading span { font-family: var(--font-ui); font-size: .67rem; font-variant-caps: small-caps; letter-spacing: .08em; color: var(--text-mid); white-space: nowrap; }
-    .entity-block { padding-top: 1.25rem; }
-    .entity-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: .35rem .55rem; padding-bottom: .35rem; border-bottom: 1px solid var(--border); }
-    .entity-heading h3 { font-family: var(--font-ui); font-size: .86rem; font-weight: 600; }
-    .entity-greek { font-family: var(--font-greek); color: var(--text-mid); font-size: .9rem; }
-    .formula-scroll { overflow-x: auto; padding-bottom: .35rem; }
-    .formula-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .formula-list { list-style: none; margin: 0; min-width: 29rem; }
-    .formula-list > li { display: grid; grid-template-columns: minmax(14rem, 1fr) auto; column-gap: .75rem; padding: .45rem 0; border-bottom: 1px solid var(--border); }
-    .formula-list > li > span:first-child { font-family: var(--font-greek); font-size: 1rem; line-height: 1.45; overflow-wrap: anywhere; }
-    .formula-list > li > span:nth-child(2) { font-family: var(--font-ui); font-size: .68rem; color: var(--text-mid); white-space: nowrap; align-self: baseline; }
-    .formula-list > li > span:nth-child(3) { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .15rem .5rem; margin-top: .18rem; font-family: var(--font-ui); font-size: .67rem; line-height: 1.45; }
-    .formula-list > li > span:nth-child(3) a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; white-space: nowrap; }
-    .formula-list > li > span:nth-child(3) a:hover { border-bottom-color: var(--accent); }
-    .formula-list > li > span:nth-child(3) a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .formula-list > li > span:nth-child(3) > span { color: var(--text-mid); white-space: nowrap; }
+    .formula-index { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.75rem; margin-top: 2rem; max-width: 45rem; }
+    .formula-index-card { display: block; padding: 1.4rem 1.5rem; border: 1px solid var(--border); border-top: 2px solid var(--rule-strong); text-decoration: none; color: inherit; }
+    .formula-index-card:hover { border-color: var(--accent); }
+    .formula-index-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .formula-index-card h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; margin-bottom: .35rem; }
+    .formula-index-card p { font-family: var(--font-ui); font-size: .78rem; color: var(--text-mid); }
     .computed-note { margin-top: 3rem; padding-top: .9rem; border-top: 1px solid var(--border); color: var(--text-mid); font-family: var(--font-ui); font-size: .73rem; }
-    @media (max-width: 760px) { .formula-ledger { grid-template-columns: 1fr; gap: 2.25rem; } }
+    @media (max-width: 560px) { .formula-index { grid-template-columns: 1fr; } }
     @media (max-width: 480px) { h1 { font-size: 1.6rem; } }
   </style>
   <Pwa />
@@ -81,34 +71,19 @@ const characterGreek = (id: string) => characters.get(id)?.greek;
     <nav class="header-actions" aria-label="Navigation"><a href={`${base}/`} class="search-link">All works</a><a href={`${base}/search`} class="search-link">Search</a><ThemeToggle /></nav>
   </header>
   <main class="formula-body">
-    <h1>Epithets &amp; formulas</h1>
-    <p class="formula-intro">Repeated phrases attached to named figures, set as two parallel ledgers for the two poems. Each citation opens the corresponding verse in the reader.</p>
-    <div class="formula-ledger">
-      {([{ work: 'iliad', label: 'Iliad', entries: iliad }, { work: 'odyssey', label: 'Odyssey', entries: odyssey }] as const).map(({ work, label, entries }) => (
-        <section class="work-ledger" aria-labelledby={`${work}-heading`}>
-          <div class="work-heading"><h2 id={`${work}-heading`}>{label}</h2><span>{entries.length} named figures</span></div>
-          {entries.map((entry) => (
-            <div class="entity-block" role="group" aria-labelledby={`${work}-${entry.entity}`}>
-              <div class="entity-heading"><h3 id={`${work}-${entry.entity}`}>{characterName(entry.entity)}</h3>{characterGreek(entry.entity) && <span class="entity-greek" lang="grc">{characterGreek(entry.entity)}</span>}</div>
-              <div class="formula-scroll" tabindex="0" role="group" aria-label={`${characterName(entry.entity)} formulas, scrollable on narrow screens`}>
-                <ol class="formula-list">
-                  {entry.formulas.map((formula) => (
-                    <li>
-                      <span lang="grc">{formula.text}</span><span>{formula.count}×</span>
-                      <span>
-                        {formula.refs.slice(0, 4).map((ref) => <a href={readerHref(work, ref)}>{ref.book}.{ref.line}</a>)}
-                        {formula.refs.length > 4 && <span>+{formula.refs.length - 4} more</span>}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            </div>
-          ))}
-        </section>
-      ))}
+    <h1>Epithets &amp; formulas {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
+    <p class="formula-intro">Repeated phrases attached to named figures, set as two parallel ledgers for the two poems. Each Greek formula carries an English gloss and citations that open the corresponding verse in the reader.</p>
+    <div class="formula-index">
+      <a class="formula-index-card" href={`${base}/formulas/iliad/`}>
+        <h2>Iliad</h2>
+        <p>{iliad.length} named figures &middot; {iliadFormulaCount} formulas</p>
+      </a>
+      <a class="formula-index-card" href={`${base}/formulas/odyssey/`}>
+        <h2>Odyssey</h2>
+        <p>{odyssey.length} named figures &middot; {odysseyFormulaCount} formulas</p>
+      </a>
     </div>
-    <footer class="computed-note">Computed automatically from the corpus by n-gram analysis; counts are exact.</footer>
+    <footer class="computed-note">Formula counts are computed automatically from the corpus by n-gram analysis; counts are exact.{isDraft && ' English glosses are draft translations, pending review.'}</footer>
   </main>
 </body>
 </html>
