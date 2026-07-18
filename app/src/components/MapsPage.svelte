@@ -557,6 +557,14 @@
     </div>
   {:else if activeTab === 'troad'}
     <div id="mp-panel-troad" role="tabpanel" aria-labelledby="mp-tab-troad" tabindex="0" class="mp-panel">
+      <!-- "Users won't know what 'Troad' means" (John, 2026-07-18) — every
+           tab whose name is a term of art opens with one plain sentence. -->
+      <p class="mp-route-note">
+        The Troad is the country around Troy — the walled city itself, the
+        river plain of the Scamander where the fighting happens, the beach
+        with the Achaean camp and ships, and Mount Ida rising to the
+        southeast.
+      </p>
       <LandmarkMap
         {base}
         ariaLabel="Map of the Troad: places near Troy"
@@ -624,9 +632,10 @@
         <p class="mp-route-note">
           Numbered stations follow Odysseus's own telling, Troy to Ithaca; the
           heavier route line is his sea voyage proper (Od. 9&ndash;12, Ismarus
-          to Thrinacia), continuing on to Ithaca &mdash; broken through the
-          Ogygia gap, where Homer's own geography gives no fixed position,
-          solid again from Scheria home. A station's badge chip gives its
+          to Thrinacia), continuing on to Ithaca. The dashed, faded links to
+          the Nekyia and Ogygia diamonds preserve route continuity without
+          claiming a fixed geography for either station; solid route resumes
+          at their located neighbors. A station's badge chip gives its
           poem-stated duration where one exists (e.g. &ldquo;7 years&rdquo; at
           Ogygia, Od. 7.259) &mdash; no chip where the poem is silent. Play
           unfolds the route leg by leg; Prev/Next step it manually.
@@ -692,6 +701,11 @@
     </div>
   {:else if activeTab === 'greece'}
     <div id="mp-panel-greece" role="tabpanel" aria-labelledby="mp-tab-greece" tabindex="0" class="mp-panel">
+      <p class="mp-route-note">
+        The heroes' homeland: the kingdoms, palaces, and islands of the Greek
+        mainland and the Aegean — where the fleet sailed from, and where the
+        survivors come home to.
+      </p>
       <LandmarkMap
         {base}
         ariaLabel="Map of Greece: homes and homecomings named in the poems"

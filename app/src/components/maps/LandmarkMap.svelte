@@ -328,7 +328,18 @@
   interface ArrowPos { left: number; top: number; angle: number }
 
   let captions: CaptionPos[] = [];
+  // Playback deliberately has just one prose destination treatment: this
+  // docked card. Keeping it separate from `captions` prevents a completed
+  // station's card from lingering translucently behind the next leg.
+  let storyDockCaption: CaptionPos | null = null;
   let arrows: ArrowPos[] = [];
+
+  // At the Wanderings map's fitted view, zoom 5--6 covers too much of the
+  // Mediterranean for prose cards to remain useful. Zoom 7 is the first
+  // level where the stations begin to separate; 8--9 are comfortably roomy.
+  // The zoomend listener below is intentional: label hierarchy changes only
+  // after Leaflet has settled on a zoom, rather than thrashing during a pinch.
+  const FULL_STORY_LABEL_ZOOM = 7;
 
   const CARD_W = 168;
   // Safety margin above the CSS card's real rendered height, as collision-math
@@ -388,18 +399,21 @@
 
   function updateOverlays() {
     if (!map || !storyMode) {
-      if (captions.length || arrows.length) { captions = []; arrows = []; }
+      if (captions.length || storyDockCaption || arrows.length) {
+        captions = [];
+        storyDockCaption = null;
+        arrows = [];
+      }
       return;
     }
-    // Play control (John, 2026-07-18): once the player is engaged
-    // (playbackStep non-null), only stations the playthrough has actually
-    // reached get a caption card — the route "unfolds", so a caption never
-    // appears ahead of the leg that reaches it. Unengaged (the ordinary
-    // static Story view) shows every located station's caption, unchanged.
+    // Playback gets one current-destination dock card, never a trail of
+    // partially de-emphasized in-map cards. In the unplayed static story,
+    // caption cards appear only once the map has enough geographic room.
+    const showStaticCards = playbackStep == null && map.getZoom() >= FULL_STORY_LABEL_ZOOM;
     const located = storyStations
       .map((s) => ({ station: s, point: s.place.coords ?? storyGapPoint(s) }))
       .filter((entry): entry is { station: StoryStation; point: LatLon } => !!entry.point)
-      .filter(({ station }) => playbackStep == null || station.number <= playbackStep);
+      .filter(() => showStaticCards);
     const size = map.getSize();
 
     // Reserve a no-card zone around every badge (not just each card's own)
@@ -471,6 +485,34 @@
       });
     }
     captions = next;
+    const activeStation = playbackStep == null
+      ? null
+      : storyStations.find((s) => s.number === playbackStep) ?? null;
+    if (activeStation) {
+      const point = activeStation.place.coords ?? storyGapPoint(activeStation);
+      const stationDuration = durationsByPlaceId.get(activeStation.place.id);
+      const d = stationDuration ? primaryDuration(stationDuration) : null;
+      storyDockCaption = {
+        id: activeStation.place.id,
+        number: activeStation.number,
+        place: activeStation.place,
+        href: firstMentionHref(activeStation.place),
+        left: 0,
+        top: 0,
+        pinX: point?.[0] ?? 0,
+        pinY: point?.[1] ?? 0,
+        leadX: 0,
+        leadY: 0,
+        durationChip: d ? chipLabel(d) : null,
+        durationTitle: d ? durationLine(d) : null,
+        durationDetails: stationDuration ? durationExtras(stationDuration).map((x) => `${x.label}: ${x.value}`) : [],
+        unplaced: !activeStation.place.coords,
+        citation: stationCitation(activeStation.place),
+        active: true,
+      };
+    } else {
+      storyDockCaption = null;
+    }
     updateStoryBadgeState();
 
     // One direction arrow per hero-route segment (screen-space rotation).
@@ -478,13 +520,13 @@
     // stroke itself carries direction, and drawing arrows for legs the
     // playthrough hasn't reached yet would show the route ahead of where
     // it has "unfolded" to.
-    const pts = playbackStep != null
-      ? []
-      : polyline.filter((p) => p.coords).map((p) => map.latLngToContainerPoint(p.coords as [number, number]));
     const nextArrows: ArrowPos[] = [];
-    for (let i = 0; i < pts.length - 1; i++) {
-      const a = pts[i];
-      const b = pts[i + 1];
+    const arrowLegs = playbackStep != null
+      ? []
+      : playbackLegs.filter((leg) => !!leg.from.coords && !!leg.to.coords);
+    for (const leg of arrowLegs) {
+      const a = map.latLngToContainerPoint(leg.from.coords as LatLon);
+      const b = map.latLngToContainerPoint(leg.to.coords as LatLon);
       nextArrows.push({
         left: (a.x + b.x) / 2,
         top: (a.y + b.y) / 2,
@@ -664,16 +706,41 @@
     return pts[pts.length - 1] ?? null;
   }
 
+  function storyStationForPlace(place: Place | null): StoryStation | undefined {
+    return place ? storyStations.find((s) => s.place.id === place.id) : undefined;
+  }
+
+  function storyGapPointForPlace(place: Place | null): LatLon | null {
+    const station = storyStationForPlace(place);
+    return station ? storyGapPoint(station) : null;
+  }
+
+  // A non-current Story station is intentionally only a compact number dot.
+  // At zoom 5--6 that applies to every static station too; at zoom 7+ the
+  // ordinary Story view can promote cards, while active playback keeps every
+  // other station quiet regardless of zoom.
+  function isMinorStoryLabel(number: number): boolean {
+    return playbackStep != null
+      ? number !== playbackStep
+      : (map?.getZoom?.() ?? FULL_STORY_LABEL_ZOOM) < FULL_STORY_LABEL_ZOOM;
+  }
+
   const storyGapBadges = new Map<number, any>();
   function updateStoryBadgeState() {
     for (const s of storyStations) {
       if (!s.place.coords) continue;
       const el = layers.get(s.place.id)?.getElement?.();
-      el?.classList.toggle('lm-active', playbackStep != null && s.number === playbackStep);
+      const active = playbackStep != null && s.number === playbackStep;
+      el?.classList.toggle('lm-active', active);
+      el?.classList.toggle('lm-current-station', active);
+      el?.classList.toggle('lm-minor-label', isMinorStoryLabel(s.number));
     }
     for (const [number, marker] of storyGapBadges) {
       const el = marker.getElement?.();
-      el?.classList.toggle('lm-active', playbackStep != null && number === playbackStep);
+      const active = playbackStep != null && number === playbackStep;
+      el?.classList.toggle('lm-active', active);
+      el?.classList.toggle('lm-current-station', active);
+      el?.classList.toggle('lm-minor-label', isMinorStoryLabel(number));
     }
   }
 
@@ -684,8 +751,9 @@
       if (s.place.coords) continue;
       const point = storyGapPoint(s);
       if (!point) continue;
+      const active = playbackStep != null && s.number === playbackStep;
       const icon = L.divIcon({
-        className: `lm-gap-badge${playbackStep != null && s.number === playbackStep ? ' lm-active' : ''}`,
+        className: `lm-gap-badge${active ? ' lm-active lm-current-station' : ''}${isMinorStoryLabel(s.number) ? ' lm-minor-label' : ''}`,
         html: `<span class="lm-gap-badge-num" aria-hidden="true"><span>${s.number}</span></span>`,
         iconSize: [24, 24],
         iconAnchor: [12, 12],
@@ -784,6 +852,47 @@
     gapMarker.bindPopup(popup);
     gapMarker.addTo(map);
     out.push(gapMarker);
+    return out;
+  }
+
+  // Story mode can make continuity visible without pretending that an
+  // unlocatable station has coordinates. Its numbered diamond has a
+  // deliberately rendered *affordance point* at the end of the existing
+  // fade stub; this full-length dashed/faded leg runs from that point to the
+  // known neighbor. It is never a confident route line. This specifically
+  // covers Aeaea -> Nekyia -> Sirens (#9 -> #10 -> #11) and Thrinacia ->
+  // Ogygia -> Scheria (#14 -> #15 -> #16).
+  function drawUncertainStoryLeg(leg: ResolvedLeg, legIndex: number, weight = 4.5): any[] {
+    const from = leg.fromPlace?.coords as LatLon | undefined
+      ?? storyGapPointForPlace(leg.fromPlace);
+    const to = leg.toPlace?.coords as LatLon | undefined
+      ?? storyGapPointForPlace(leg.toPlace);
+    if (!from || !to) return drawBrokenLeg(leg, 'lm-journey-odysseus', false);
+    const pts = arcPoints(from, to, bowFor(leg.from, leg.to, legIndex), 16);
+    return [
+      L.polyline(pts, {
+        className: 'lm-journey-route lm-journey-odysseus lm-uncertain-leg',
+        weight,
+        dashArray: '7,7',
+        opacity: 0.52,
+      }).addTo(map),
+    ];
+  }
+
+  function drawStaticStoryLegs(): any[] {
+    const out: any[] = [];
+    playbackLegs.forEach((playbackLeg, i) => {
+      const leg = toResolvedLeg(playbackLeg);
+      if (drawableLeg(leg)) {
+        const pts = arcPoints(playbackLeg.from.coords as LatLon, playbackLeg.to.coords as LatLon, bowFor(leg.from, leg.to, i), 16);
+        out.push(L.polyline(pts, {
+          className: 'lm-journey-route lm-journey-odysseus lm-route-story',
+          weight: 4.5,
+        }).addTo(map));
+      } else {
+        out.push(...drawUncertainStoryLeg(leg, i));
+      }
+    });
     return out;
   }
 
@@ -929,21 +1038,22 @@
         L.polyline(pts, { className: 'lm-journey-route lm-journey-odysseus lm-route-story', weight: 4.5 }).addTo(map),
       ];
     }
-    return drawBrokenLeg(resolved, 'lm-journey-odysseus', false);
+    return drawUncertainStoryLeg(resolved, legIndex);
   }
 
-  // Camera follow for one step. Unlocatable stations (Cimmerians'
-  // underworld, Ogygia) hold the camera where it is rather than flying to a
-  // guessed point — same honesty posture as never drawing a confident line
-  // to one. `animate=false` (a jump/rebuild, or prefers-reduced-motion) is
-  // an instant cut; `animate=true` is a Leaflet flyTo glide.
+  // Camera follow for one step. An unlocatable station follows its clearly
+  // marked badge affordance point, not a claimed geographic coordinate, so
+  // the camera can accompany the same honest uncertain leg it is drawing.
+  // `animate=false` (a jump/rebuild, or prefers-reduced-motion) is an
+  // instant cut; `animate=true` is a Leaflet flyTo glide.
   function flyToStation(station: StoryStation | undefined, animate: boolean) {
-    if (!map || !station?.place.coords) return;
+    const point = station?.place.coords ?? (station ? storyGapPoint(station) : null);
+    if (!map || !point) return;
     const zoom = Math.max(map.getZoom(), 7);
     if (animate && !prefersReducedMotion) {
-      map.flyTo(station.place.coords, zoom, { duration: (WANDERINGS_STEP_MS / 1000) * 0.8 });
+      map.flyTo(point, zoom, { duration: (WANDERINGS_STEP_MS / 1000) * 0.8 });
     } else {
-      map.setView(station.place.coords, zoom);
+      map.setView(point, zoom);
     }
   }
 
@@ -990,17 +1100,28 @@
   }
 
   // Advance exactly one step forward (autoplay tick or a Next click): the
-  // only path that actually animates — camera glide + stroke-draw for a
-  // drawable leg, or (broken leg / prefers-reduced-motion) an instant
-  // completed-leg draw, same treatment as rebuildPlaybackTo's per-leg draw.
+  // only path that actually animates — camera glide + stroke-draw for every
+  // leg, including badge-anchored uncertain legs. Reduced-motion is the one
+  // explicit instant-render exception.
   function stepForwardAnimated(toStep: number) {
     flyToStation(storyStations.find((s) => s.number === toStep), true);
     const leg = playbackLegs[toStep - 2];
     if (!leg) { playbackLastStep = toStep; updateOverlays(); return; }
     const resolved = toResolvedLeg(leg);
-    if (drawableLeg(resolved) && !prefersReducedMotion) {
-      const pts = arcPoints(leg.from.coords as LatLon, leg.to.coords as LatLon, bowFor(leg.from.id, leg.to.id, toStep - 2), 16);
-      const layer = L.polyline(pts, { className: 'lm-journey-route lm-journey-odysseus lm-route-story', weight: 4.5 }).addTo(map);
+    if (!prefersReducedMotion) {
+      let layer: any;
+      if (drawableLeg(resolved)) {
+        const pts = arcPoints(leg.from.coords as LatLon, leg.to.coords as LatLon, bowFor(leg.from.id, leg.to.id, toStep - 2), 16);
+        layer = L.polyline(pts, { className: 'lm-journey-route lm-journey-odysseus lm-route-story', weight: 4.5 }).addTo(map);
+      } else {
+        layer = drawUncertainStoryLeg(resolved, toStep - 2)[0];
+      }
+      if (!layer) {
+        playbackLegLayers = [...playbackLegLayers, ...drawCompletedLeg(leg, toStep - 2)];
+        playbackLastStep = toStep;
+        updateOverlays();
+        return;
+      }
       playbackLegLayers = [...playbackLegLayers, layer];
       animateLegStroke(layer, Math.round(WANDERINGS_STEP_MS * 0.75), () => { playbackLastStep = toStep; });
     } else {
@@ -1032,7 +1153,7 @@
         // coord-bearing station (still keeps its popup — click/tap still
         // gets the full note, same as the tier pin it replaces).
         const icon = L.divIcon({
-          className: `lm-badge${item.id === selectedId ? ' lm-selected' : ''}${dimmed ? ' lm-dimmed' : ''}`,
+          className: `lm-badge${item.id === selectedId ? ' lm-selected' : ''}${dimmed ? ' lm-dimmed' : ''}${isMinorStoryLabel(storyNumber) ? ' lm-minor-label' : ''}${playbackStep != null && storyNumber === playbackStep ? ' lm-active lm-current-station' : ''}`,
           html: `<span class="lm-badge-num" aria-hidden="true">${storyNumber}</span>`,
           iconSize: [22, 22],
           iconAnchor: [11, 11],
@@ -1098,7 +1219,7 @@
     // a number (and a station can never silently disappear from the count).
     drawStoryGapBadges();
 
-    if (polyline.length > 1) {
+    if (!storyMode && polyline.length > 1) {
       // Gently curved, not a rigid straight polyline (John, 2026-07-17) --
       // see maps.ts curvedRoute/arcPoints and this file's BOW_HINTS above.
       const routePlaces = polyline.filter((p) => p.coords);
@@ -1111,39 +1232,24 @@
       }).addTo(map);
     }
 
-    // Wanderings-tab-only extension: Thrinacia -> Ogygia (broken) -> Scheria
-    // -> Ithaca, in the SAME color/dash treatment as the route above so it
-    // reads as one continuous line -- see this file's drawJourneyLegs.
+    // In static Story mode, draw the exact telling-order legs rather than a
+    // coordinate-filtered polyline: filtering would falsely join Aeaea to
+    // Sirens across Nekyia and would skip Ogygia's outbound continuity. The
+    // two unlocatable stations therefore get badge-anchored uncertain lines
+    // on both sides. Map mode keeps its ordinary route + broken tail stubs.
     for (const l of tailLayers) map.removeLayer(l);
-    tailLayers = wanderingsTail.length
-      ? drawJourneyLegs(
+    tailLayers = storyMode
+      ? drawStaticStoryLegs()
+      : wanderingsTail.length
+        ? drawJourneyLegs(
           wanderingsTail,
           'lm-journey-odysseus',
-          storyMode ? undefined : '6,6',
-          storyMode ? 4.5 : 2,
+          '6,6',
+          2,
           (_leg, i) => i === wanderingsTail.length - 1,
-          !storyMode,
+          true,
         )
-      : [];
-
-    // The ordinary Story polyline intentionally omits coordless stations,
-    // so give those legs their honest faded stubs too. Ogygia's matching
-    // return-tail legs were already drawn immediately above; excluding those
-    // keys avoids doubling their stubs while keeping this data-derived for
-    // any other unlocated Story station (the Nekyia today).
-    if (storyMode) {
-      const tailBrokenKeys = new Set(
-        wanderingsTail
-          .filter((leg) => !drawableLeg(leg))
-          .map((leg) => `${leg.from}-${leg.to}`),
-      );
-      for (const leg of playbackLegs) {
-        const resolved = toResolvedLeg(leg);
-        if (!drawableLeg(resolved) && !tailBrokenKeys.has(`${resolved.from}-${resolved.to}`)) {
-          tailLayers.push(...drawBrokenLeg(resolved, 'lm-journey-odysseus', false));
-        }
-      }
-    }
+        : [];
 
     // Journeys-tab-only: the four nostoi, each its own color+dash route.
     for (const l of journeyLayers) map.removeLayer(l);
@@ -1223,6 +1329,10 @@
     // layers) in pixel sync through pans/zooms, including the animated
     // fitBounds pan below ('move' fires every frame of that animation).
     map.on('move zoom', updateOverlays);
+    // Full Story cards are a zoom-level affordance, not permanent map
+    // furniture. `zoomend` makes the 5--6 badge-only / 7+ card boundary
+    // deterministic after wheel, control, double-click, and pinch zooms.
+    map.on('zoomend', updateOverlays);
     // Read this before the first render too, so all camera fitting obeys a
     // live reduced-motion preference from the outset.
     if (typeof window !== 'undefined' && window.matchMedia) {
@@ -1248,6 +1358,7 @@
   onDestroy(() => {
     resizeObserver?.disconnect();
     map?.off('move zoom', updateOverlays);
+    map?.off('zoomend', updateOverlays);
     reducedMotionMql?.removeEventListener('change', onReducedMotionChange);
     clearPlaybackAnimTimers();
     map?.remove();
@@ -1378,6 +1489,27 @@
           <span class="lm-caption-tier-mark" aria-hidden="true"></span>
         </a>
       {/each}
+      {#if storyDockCaption}
+        <a
+          class="lm-story-dock-card tier-{storyDockCaption.place.certainty}"
+          href={storyDockCaption.href ?? undefined}
+          tabindex={storyDockCaption.href ? undefined : 0}
+          aria-label={`${storyDockCaption.number}. ${storyDockCaption.place.name}, current destination, certainty: ${storyDockCaption.place.certainty}. ${storyDockCaption.place.note ?? ''}${storyDockCaption.durationTitle ? '. Duration: ' + storyDockCaption.durationTitle : ''}`}
+        >
+          <span class="lm-story-dock-kicker">Current destination</span>
+          <span class="lm-story-dock-heading">
+            <span class="lm-story-dock-num" aria-hidden="true">{storyDockCaption.number}</span>
+            <span>{storyDockCaption.place.name}</span>
+          </span>
+          <span class="lm-story-dock-note">{storyDockCaption.place.note}</span>
+          {#if storyDockCaption.unplaced}
+            <span class="lm-story-dock-honesty">Homer gives no fixed geography; the diamond is a route-break affordance, not a location.</span>
+          {/if}
+          {#if storyDockCaption.durationChip}
+            <span class="lm-caption-chip" title={storyDockCaption.durationTitle ?? undefined}>{storyDockCaption.durationChip}</span>
+          {/if}
+        </a>
+      {/if}
     </div>
   {/if}
 </div>
@@ -1470,7 +1602,16 @@
      (opacity set inline per-segment in the script, Leaflet has no gradient
      stroke) in a fine dotted pattern distinct from every traveler's own dash,
      so a gap reads as "gap", not as that traveler's ordinary route. */
-  :global(.lm-journey-broken) { stroke-linecap: round; }
+  :global(.lm-journey-broken), :global(.lm-uncertain-leg) { stroke-linecap: round; }
+  /* A badge-anchored continuity line is visually distinct from the solid
+     route throughout its whole length: 7px dashes, reduced 0.52 opacity,
+     and no hero glow. Its odysseus token color keeps route membership clear
+     without upgrading the unknown station into a confident location. */
+  :global(.lm-uncertain-leg) {
+    stroke: var(--journey-odysseus, var(--accent));
+    stroke-dasharray: 7 7;
+    stroke-opacity: 0.52;
+  }
 
   :global(.lm-gap-marker) { background: none; border: none; }
   .lm-gap-dot {
@@ -1547,6 +1688,38 @@
   }
   :global(.lm-badge.lm-selected .lm-badge-num) { border-color: var(--rule-strong); border-width: 2.4px; }
   :global(.lm-badge.lm-active .lm-badge-num) { border-color: var(--rule-strong); border-width: 2.4px; box-shadow: 0 0 0 2px var(--greek-hover); }
+  /* Low zoom and non-current playback stations retain only this compact,
+     numbered affordance. The active destination stays full-size and fully
+     opaque from the beginning of its step. */
+  :global(.lm-badge.lm-minor-label .lm-badge-num) {
+    width: 16px;
+    height: 16px;
+    margin: 3px;
+    font-size: 0.6rem;
+    opacity: 0.72;
+  }
+  :global(.lm-badge.lm-current-station .lm-badge-num) {
+    width: 26px;
+    height: 26px;
+    margin: -2px;
+    font-size: 0.78rem;
+    opacity: 1;
+    box-shadow: 0 0 0 3px var(--greek-hover);
+  }
+  :global(.lm-gap-badge.lm-minor-label .lm-gap-badge-num) {
+    width: 14px;
+    height: 14px;
+    margin: 5px;
+    font-size: 0.56rem;
+    opacity: 0.72;
+  }
+  :global(.lm-gap-badge.lm-current-station .lm-gap-badge-num) {
+    width: 22px;
+    height: 22px;
+    margin: 1px;
+    font-size: 0.72rem;
+    opacity: 1;
+  }
   :global(.lm-pin.lm-quiet) { opacity: 0.45; }
   :global(.lm-mythical-icon.lm-quiet .lm-diamond) { opacity: 0.45; }
 
@@ -1688,11 +1861,40 @@
   .lm-caption.tier-speculative .lm-caption-tier-mark { background: transparent; border: 1.4px dashed var(--text-mid); }
   .lm-caption.tier-mythical .lm-caption-tier-mark { border: 1.4px solid var(--text-mid); border-radius: 0; transform: rotate(45deg); width: 7px; height: 7px; }
 
+  /* Playback's single larger prose treatment. It sits above Leaflet's
+     attribution control (which occupies the lower-right edge) rather than
+     obscuring its legal/source text. */
+  .lm-story-dock-card {
+    position: absolute;
+    right: 0.75rem;
+    bottom: 2.15rem;
+    display: block;
+    width: min(294px, calc(100% - 1.5rem));
+    padding: 0.65rem 0.75rem 0.7rem;
+    pointer-events: auto;
+    box-sizing: border-box;
+    background: var(--popup-bg);
+    color: var(--text);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    box-shadow: var(--popup-shadow);
+    font-family: var(--font-ui);
+    text-decoration: none;
+  }
+  .lm-story-dock-card:hover { border-color: var(--rule-strong); }
+  .lm-story-dock-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .lm-story-dock-kicker { display: block; margin-bottom: 0.2rem; color: var(--text-mid); font-size: 0.64rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+  .lm-story-dock-heading { display: flex; align-items: center; gap: 0.45rem; font-size: 0.94rem; font-weight: 700; line-height: 1.2; }
+  .lm-story-dock-num { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-size: 0.7rem; }
+  .lm-story-dock-note { display: block; margin-top: 0.38rem; color: var(--text-mid); font-size: 0.75rem; line-height: 1.38; }
+  .lm-story-dock-honesty { display: block; margin-top: 0.38rem; color: var(--text-mid); font-size: 0.7rem; font-style: italic; line-height: 1.32; }
+
   /* Mobile: captions collide too readily to stagger sanely on a 390px
      screen — collapse to numbered badges only; MapsPage renders a tappable
      station list below the map instead. */
   @media (max-width: 480px) {
     .lm-caption { display: none; }
+    .lm-story-dock-card { right: 0.5rem; bottom: 2.15rem; width: min(294px, calc(100% - 1rem)); }
   }
 
   /* Popup content + Leaflet chrome recolored to the wine-dark tokens. */
