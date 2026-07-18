@@ -601,7 +601,14 @@
   let sceneSheetOpen = false;
   let scenePanelMobile = false;
   function saveChartRoom() { try { localStorage.setItem(CHART_ROOM_KEY, String(chartRoomOpen)); } catch {} }
-  function toggleChartRoom() { chartRoomOpen = !chartRoomOpen; saveChartRoom(); }
+  function toggleChartRoom() {
+    chartRoomOpen = !chartRoomOpen;
+    if (!chartRoomOpen && !sceneRailOpen) {
+      window.removeEventListener('scroll', onSceneScroll);
+      sceneTrackingArmed = false;
+    }
+    saveChartRoom();
+  }
   function toggleSceneSheet() { sceneSheetOpen = !sceneSheetOpen; }
   function computeScenePanelViewport() {
     scenePanelMobile = typeof window !== 'undefined'
@@ -819,6 +826,7 @@
   let sceneRailEl: HTMLElement | undefined;
   let sceneRailReturnFocus: HTMLElement | null = null;
   let sceneRaf = 0;
+  let sceneTrackingArmed = false;
   let _onToggleScenes: () => void;
   let _onCloseScenes: () => void;
 
@@ -862,6 +870,12 @@
   function onSceneScroll() {
     if (sceneRaf) return;
     sceneRaf = requestAnimationFrame(() => { sceneRaf = 0; computeCurrentScene(); });
+  }
+  function armSceneTracking() {
+    if (sceneTrackingArmed) return;
+    sceneTrackingArmed = true;
+    computeCurrentScene();
+    window.addEventListener('scroll', onSceneScroll, { passive: true });
   }
   // The scene rail is the ONE jump list for both postures (no second list):
   // in Reading Mode it PAGES to the scene (gotoScene); in Scholar view it
@@ -914,8 +928,7 @@
     sceneRailReturnFocus = document.activeElement as HTMLElement | null;
     sceneRailOpen = true;
     window.dispatchEvent(new CustomEvent('scenes-state', { detail: { open: true } }));
-    computeCurrentScene();
-    window.addEventListener('scroll', onSceneScroll, { passive: true });
+    armSceneTracking();
     tick().then(() => {
       const items = sceneItems();
       (items[currentSceneIndex] ?? items[0]
@@ -926,7 +939,10 @@
     if (!sceneRailOpen) return;
     sceneRailOpen = false;
     window.dispatchEvent(new CustomEvent('scenes-state', { detail: { open: false } }));
-    window.removeEventListener('scroll', onSceneScroll);
+    if (!chartRoomOpen) {
+      window.removeEventListener('scroll', onSceneScroll);
+      sceneTrackingArmed = false;
+    }
     (sceneRailReturnFocus ?? document.querySelector<HTMLElement>('.scenes-toggle'))?.focus();
     sceneRailReturnFocus = null;
   }
@@ -936,6 +952,7 @@
     const _i = currentSceneIndex;
     tick().then(() => { if (sceneRailOpen) sceneItems()[_i]?.scrollIntoView({ block: 'nearest' }); });
   }
+  $: if (mounted && chartRoomOpen && !reading) armSceneTracking();
 
   // ── Lookup presentation: docked rail (≥1100px) vs anchored popup (<1100px) ──
   // DESIGN.md 2026-07-17: a docked, non-modal lexicon rail on desktop; the
@@ -2696,7 +2713,7 @@
               type="button"
               class="chart-room-toggle"
               aria-expanded={chartRoomOpen}
-              aria-controls="scene-context-rail"
+              aria-controls={chartRoomOpen ? 'scene-context-rail' : undefined}
               on:click={toggleChartRoom}
             >Chart Room</button>
           {/if}
