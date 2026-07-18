@@ -12,7 +12,7 @@ export default defineConfig({
   // the canonical origin — set only so @astrojs/sitemap can emit absolute
   // URLs (site + base + path). App UI still uses base-relative URLs, not
   // Astro.site, so this changes no existing links.
-  site: 'https://example.invalid', // TODO real domain (John)
+  site: 'https://johnhboyer-sys.github.io', // user-site launch URL (John, 2026-07-18: rename repo, serve at domain root; custom domain may layer on later)
   base: '/',
   integrations: [
     svelte(),
