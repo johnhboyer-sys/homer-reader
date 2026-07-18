@@ -9,6 +9,9 @@ import {
   placesById,
   contingentLocValue,
   wanderingsRoute,
+  wanderingsStory,
+  splitStoryByCoords,
+  captionSummary,
   humanizeId,
   leaderDisplayName,
   type Place,
@@ -142,6 +145,68 @@ describe('wanderingsRoute (real apparatus/places.json)', () => {
       'ismarus', 'cape-malea', 'cythera', 'lotus-eaters-land', 'cyclopes-land',
       'aeolia', 'laestrygonia', 'aeaea', 'sirens-island', 'scylla', 'charybdis', 'thrinacia',
     ]);
+  });
+});
+
+describe('wanderingsStory (real apparatus/places.json)', () => {
+  const raw = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8'));
+  const story = wanderingsStory(raw.places);
+
+  it('produces the 17-station Troy-to-Ithaca telling order, numbered from 1', () => {
+    expect(story.map((s) => s.place.id)).toEqual([
+      'troy', 'ismarus', 'cape-malea', 'cythera', 'lotus-eaters-land',
+      'cyclopes-land', 'aeolia', 'laestrygonia', 'aeaea',
+      'cimmerians-underworld', 'sirens-island', 'scylla', 'charybdis',
+      'thrinacia', 'ogygia', 'scheria', 'ithaca',
+    ]);
+    expect(story.map((s) => s.number)).toEqual(
+      Array.from({ length: 17 }, (_, i) => i + 1),
+    );
+  });
+
+  it('numbers Ismarus 2nd and Ogygia 15th (Troy opens the voyage, Ogygia sits after the Thrinacia wreck)', () => {
+    expect(story.find((s) => s.place.id === 'ismarus')?.number).toBe(2);
+    expect(story.find((s) => s.place.id === 'ogygia')?.number).toBe(15);
+  });
+
+  it('splits into 15 located (map-badge) and 2 unlocated ("beyond the map\'s edge") stations', () => {
+    const { located, unlocated } = splitStoryByCoords(story);
+    expect(located).toHaveLength(15);
+    expect(unlocated.map((s) => s.place.id)).toEqual(['cimmerians-underworld', 'ogygia']);
+    expect(unlocated.map((s) => s.number)).toEqual([10, 15]);
+  });
+
+  it('skips an id absent from the places array rather than inventing a placeholder', () => {
+    const trimmed = raw.places.filter((p: Place) => p.id !== 'ithaca');
+    const trimmedStory = wanderingsStory(trimmed);
+    expect(trimmedStory.map((s) => s.place.id)).not.toContain('ithaca');
+    expect(trimmedStory).toHaveLength(16);
+  });
+});
+
+describe('captionSummary', () => {
+  it('returns short notes unchanged', () => {
+    expect(captionSummary('A short note.')).toBe('A short note.');
+  });
+
+  it('returns an empty string for an undefined note (never invents text)', () => {
+    expect(captionSummary(undefined)).toBe('');
+  });
+
+  it('truncates at a word boundary near maxLen with a trailing ellipsis, never mid-word', () => {
+    const note = 'City of the Cicones sacked by Odysseus\'s men on leaving Troy.';
+    const summary = captionSummary(note, 40);
+    expect(summary.length).toBeLessThanOrEqual(41); // 40 + ellipsis char
+    expect(summary.endsWith('…')).toBe(true);
+    expect(note.startsWith(summary.slice(0, -1))).toBe(true);
+    // No trailing partial word before the ellipsis.
+    expect(summary.slice(0, -1).endsWith(' ')).toBe(false);
+  });
+
+  it('falls back to a hard cut only when there is no space to break on', () => {
+    const noSpaces = 'x'.repeat(100);
+    const summary = captionSummary(noSpaces, 60);
+    expect(summary).toBe(`${'x'.repeat(60)}…`);
   });
 });
 

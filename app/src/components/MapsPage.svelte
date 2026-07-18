@@ -12,11 +12,16 @@
     principalPlace,
     placesById as buildPlacesById,
     wanderingsRoute,
+    wanderingsStory,
+    splitStoryByCoords,
+    captionSummary,
     type Place,
     type Contingent,
     type CharacterRef,
     type CatalogueSort,
   } from '@shared/lib/maps';
+  import { workPath } from '@shared/lib/works';
+  import { formatLocValue } from '@shared/lib/citation';
   import LandmarkMap from './maps/LandmarkMap.svelte';
   import ContingentPanel from './maps/ContingentPanel.svelte';
 
@@ -87,6 +92,36 @@
   const wanderingsPlaces = splitByCoords(placesForMap(places, 'wanderings'));
   const greecePlaces = splitByCoords(placesForMap(places, 'greece'));
   const wanderingsRouteStations = wanderingsRoute(places);
+
+  // Story mode: the ~17-station Troy-to-Ithaca telling order (see
+  // shared/lib/maps wanderingsStory doc comment). `located` gets numbered
+  // map badges + caption cards (LandmarkMap); `unlocated` is the "beyond the
+  // map's edge" honesty strip below the map.
+  const wanderingsStoryStations = wanderingsStory(places);
+  const wanderingsStorySplit = splitStoryByCoords(wanderingsStoryStations);
+
+  // "Story" / "Map" toggle on the Wanderings panel only. Persists via
+  // `?story=1` so a shared/reloaded link keeps the mode (client:only island —
+  // this always runs in the browser, never during SSR). Presence of the
+  // param also opens the Wanderings tab directly, since that's the only
+  // place the toggle has any effect.
+  function readStoryParam(): boolean {
+    return new URLSearchParams(window.location.search).get('story') === '1';
+  }
+  let storyMode = readStoryParam();
+  if (storyMode) activeTab = 'wanderings';
+
+  function setStoryMode(v: boolean) {
+    storyMode = v;
+    const url = new URL(window.location.href);
+    if (v) url.searchParams.set('story', '1');
+    else url.searchParams.delete('story');
+    window.history.replaceState(window.history.state, '', url);
+  }
+
+  function mentionHref(work: string, book: number, line: number): string {
+    return `${base}${workPath(work, book)}?loc=${formatLocValue(work, String(book), line)}`;
+  }
 
   // Ships-map "not locatable" is every place referenced by ANY contingent's
   // toponym list that itself has no coords (not just the 29+16 principal
@@ -233,17 +268,85 @@
     </div>
   {:else if activeTab === 'wanderings'}
     <div id="mp-panel-wanderings" role="tabpanel" aria-labelledby="mp-tab-wanderings" tabindex="0" class="mp-panel">
+      <div class="mp-story-toggle" role="group" aria-label="Wanderings view">
+        <button
+          type="button"
+          class="mp-story-btn"
+          aria-pressed={!storyMode}
+          on:click={() => setStoryMode(false)}
+        >Map</button>
+        <button
+          type="button"
+          class="mp-story-btn"
+          aria-pressed={storyMode}
+          on:click={() => setStoryMode(true)}
+        >Story</button>
+      </div>
+
       <LandmarkMap
         {base}
-        ariaLabel="Map of Odysseus's wanderings: stations of the Apologoi (Od. 9-12) connected by a dashed route, plus other travel/homecoming places named in the poem"
+        ariaLabel={storyMode
+          ? "Map of Odysseus's wanderings in Story mode: the 17 numbered stations of his voyage, Troy to Ithaca, in telling order, with the sea-voyage route (Ismarus to Thrinacia) drawn as the hero route"
+          : "Map of Odysseus's wanderings: stations of the Apologoi (Od. 9-12) connected by a dashed route, plus other travel/homecoming places named in the poem"}
         items={wanderingsPlaces.located.map((p) => ({ id: p.id, place: p }))}
         polyline={wanderingsRouteStations}
+        {storyMode}
+        storyStations={wanderingsStoryStations}
       />
-      <p class="mp-route-note">
-        The dashed line traces Odysseus's own sea voyage as he narrates it
-        (Od. 9&ndash;12, Ismarus to Thrinacia); the other pins here are places
-        named elsewhere in the poem's travel geography, not stops on that route.
-      </p>
+
+      {#if storyMode}
+        <p class="mp-route-note">
+          Numbered stations follow Odysseus's own telling, Troy to Ithaca; the
+          heavier route line is his sea voyage proper (Od. 9&ndash;12, Ismarus
+          to Thrinacia).
+        </p>
+        <p class="mp-route-note mp-story-attribution">
+          Route follows the traditional identifications recorded here;
+          certainty marked per station.
+        </p>
+
+        <ol class="mp-story-mobile-list" aria-label="Wanderings stations">
+          {#each wanderingsStorySplit.located as s}
+            <li>
+              <a href={s.place.mentions[0] ? mentionHref(s.place.mentions[0].work, s.place.mentions[0].book, s.place.mentions[0].lines[0]) : `#`}>
+                <span class="mp-story-num" aria-hidden="true">{s.number}</span>
+                <span class="mp-story-item-body">
+                  <span class="mp-story-item-name"><span lang="grc">{s.place.greek}</span> {s.place.name}</span>
+                  <span class="mp-story-item-note">{captionSummary(s.place.note)}</span>
+                </span>
+                <span class="mp-tier-word">({s.place.certainty})</span>
+              </a>
+            </li>
+          {/each}
+        </ol>
+
+        <div class="mp-beyond-edge">
+          <h2>Beyond the map's edge</h2>
+          <p class="mp-beyond-edge-note">
+            Stations Odysseus's own telling places in the voyage, but no
+            tradition puts on a real map.
+          </p>
+          <ol>
+            {#each wanderingsStorySplit.unlocated as s}
+              <li>
+                <a href={s.place.mentions[0] ? mentionHref(s.place.mentions[0].work, s.place.mentions[0].book, s.place.mentions[0].lines[0]) : `#`}>
+                  <span class="mp-story-num" aria-hidden="true">{s.number}</span>
+                  <span class="mp-beyond-edge-item">
+                    <span lang="grc">{s.place.greek}</span> {s.place.name} &mdash; {captionSummary(s.place.note, 90)}
+                  </span>
+                </a>
+              </li>
+            {/each}
+          </ol>
+        </div>
+      {:else}
+        <p class="mp-route-note">
+          The dashed line traces Odysseus's own sea voyage as he narrates it
+          (Od. 9&ndash;12, Ismarus to Thrinacia); the other pins here are places
+          named elsewhere in the poem's travel geography, not stops on that route.
+        </p>
+      {/if}
+
       <details class="mp-unlocated" open={wanderingsPlaces.unlocated.length > 0}>
         <summary>Not locatable ({wanderingsPlaces.unlocated.length})</summary>
         <ul>
@@ -306,6 +409,79 @@
   @media (max-width: 860px) { .mp-explorer { grid-template-columns: 1fr; } }
 
   .mp-route-note { margin: 0; font-size: 0.8rem; color: var(--text-mid); max-width: 68ch; }
+
+  .mp-story-toggle { display: inline-flex; gap: 0.3rem; border: 1px solid var(--border); border-radius: 999px; padding: 0.2rem; width: fit-content; }
+  .mp-story-btn {
+    padding: 0.3rem 0.85rem;
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: none;
+    color: var(--text-mid);
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .mp-story-btn[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+  .mp-story-btn:hover:not([aria-pressed="true"]) { color: var(--accent); }
+  .mp-story-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Mobile fallback for story-mode captions (LandmarkMap hides its
+     always-visible caption cards below 480px — see that component's own
+     media query) — a fully keyboard/tap-operable list of the same 15
+     coord-bearing stations, in telling order. */
+  .mp-story-mobile-list { display: none; list-style: none; margin: 0; padding: 0; font-family: var(--font-ui); }
+  @media (max-width: 480px) {
+    .mp-story-mobile-list { display: flex; flex-direction: column; gap: 0.4rem; }
+  }
+  .mp-story-mobile-list li { border: 1px solid var(--border); border-radius: 6px; }
+  .mp-story-mobile-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.6rem;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .mp-story-mobile-list a:hover,
+  .mp-story-mobile-list a:focus-visible { background: var(--greek-hover); }
+  .mp-story-mobile-list a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .mp-story-item-body { flex: 1; min-width: 0; }
+  .mp-story-item-name { display: block; font-weight: 700; font-size: 0.85rem; }
+  .mp-story-item-note { display: block; font-size: 0.76rem; color: var(--text-mid); }
+
+  .mp-story-num {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 0.68rem;
+    font-weight: 700;
+  }
+
+  .mp-beyond-edge { border-top: 1px dashed var(--border); padding-top: 0.7rem; font-family: var(--font-ui); }
+  .mp-beyond-edge h2 { margin: 0 0 0.2rem; font-size: 0.86rem; font-family: var(--font-display); font-weight: 600; color: var(--text); }
+  .mp-beyond-edge-note { margin: 0 0 0.5rem; font-size: 0.78rem; color: var(--text-mid); font-style: italic; max-width: 60ch; }
+  .mp-beyond-edge ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.35rem; }
+  .mp-beyond-edge li { border: 1px solid var(--border); border-radius: 6px; }
+  .mp-beyond-edge a {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 0.82rem;
+  }
+  .mp-beyond-edge a:hover,
+  .mp-beyond-edge a:focus-visible { background: var(--greek-hover); }
+  .mp-beyond-edge a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .mp-beyond-edge-item { color: var(--text-mid); }
 
   .mp-unlocated { font-family: var(--font-ui); font-size: 0.82rem; color: var(--text-mid); }
   .mp-unlocated summary { cursor: pointer; font-weight: 600; color: var(--text); }

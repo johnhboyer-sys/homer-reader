@@ -198,3 +198,81 @@ export function wanderingsRoute(places: Place[]): Place[] {
       return ma.book !== mb.book ? ma.book - mb.book : ma.lines[0] - mb.lines[0];
     });
 }
+
+// ── Wanderings STORY order (Story mode: numbered stations, Troy-to-Ithaca) ──
+
+// The full narrative frame of "the Wanderings of Odysseus" as staged by a
+// route poster (our reference: World History Encyclopedia's Odysseus map),
+// in OUR restrained/honest style — broader than wanderingsRoute() above.
+// wanderingsRoute() draws the dashed SEA-VOYAGE line proper (Ismarus through
+// Thrinacia, the Apologoi's own itinerary, book/line-sortable because that
+// span narrates linearly). Story mode's numbered stations bracket that route
+// with its narrative frame — Troy where the voyage begins and Ithaca where
+// it ends — plus two waypoints the voyage line itself correctly omits
+// because Homer gives them no real-world geography:
+//   - cimmerians-underworld: the Nekyia (Od. 11.14) — squarely inside the
+//     voyage's own telling, mythical tier, no coords.
+//   - ogygia: Calypso's island. Its recorded citation (mentions[0], used
+//     elsewhere for the place's primary reference) is Od. 7.244 — Odysseus
+//     alludes to it in Scheria, before the Apologoi even begin. But its
+//     position IN THE VOYAGE is the end of his own tale (12.447-450): the
+//     wreck off Thrinacia washes him there before the Phaeacians ever find
+//     him. Story order follows the VOYAGE's chronology, so Ogygia sits after
+//     Thrinacia, not at its book-7 citation.
+// planctae (the Wandering Rocks, Od. 12.61) is deliberately excluded: Circe
+// warns Odysseus of it and he chooses the Scylla/Charybdis strait instead —
+// described, never visited, so it is not a station of this voyage.
+//
+// Because Troy/Ogygia/Ithaca don't have (book, line) positions that match
+// their place in the voyage's own chronology, this order is curated by hand
+// (like WANDERINGS_ROUTE_EXCLUDE above), not mechanically sorted. 17
+// stations; 15 carry coords (numbered map badges), 2 do not (the "beyond the
+// map's edge" strip): cimmerians-underworld at #10, ogygia at #15.
+const WANDERINGS_STORY_ORDER = [
+  'troy', 'ismarus', 'cape-malea', 'cythera', 'lotus-eaters-land',
+  'cyclopes-land', 'aeolia', 'laestrygonia', 'aeaea',
+  'cimmerians-underworld', 'sirens-island', 'scylla', 'charybdis',
+  'thrinacia', 'ogygia', 'scheria', 'ithaca',
+] as const;
+
+export interface StoryStation {
+  place: Place;
+  number: number; // 1-based telling-order position
+}
+
+// Resolves WANDERINGS_STORY_ORDER against the actual places array. Skips
+// (never invents) any id absent from `places` — the corpus carries all 17 in
+// practice; this is a defensive no-op, not a substitute for real data.
+export function wanderingsStory(places: Place[]): StoryStation[] {
+  const byId = placesById(places);
+  const out: StoryStation[] = [];
+  WANDERINGS_STORY_ORDER.forEach((id, i) => {
+    const p = byId.get(id);
+    if (p) out.push({ place: p, number: i + 1 });
+  });
+  return out;
+}
+
+// Splits a story-order sequence into map-pinnable (has coords) and "beyond
+// the map's edge" (no coords) groups, telling order preserved in both.
+export function splitStoryByCoords(
+  stations: StoryStation[],
+): { located: StoryStation[]; unlocated: StoryStation[] } {
+  const located: StoryStation[] = [];
+  const unlocated: StoryStation[] = [];
+  for (const s of stations) (s.place.coords ? located : unlocated).push(s);
+  return { located, unlocated };
+}
+
+// A caption card's compact one-line summary of a place's note: truncated to
+// ~maxLen chars at a word boundary (never mid-word) with a trailing
+// ellipsis. The full note remains available in the existing Leaflet popup,
+// unchanged by story mode.
+export function captionSummary(note: string | undefined, maxLen = 60): string {
+  if (!note) return '';
+  if (note.length <= maxLen) return note;
+  const cut = note.slice(0, maxLen);
+  const lastSpace = cut.lastIndexOf(' ');
+  const truncated = lastSpace > 0 ? cut.slice(0, lastSpace) : cut;
+  return `${truncated}…`;
+}
