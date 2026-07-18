@@ -191,20 +191,40 @@
   // default (English-slot) view renders from the stripped prop, but switching to
   // a non-default translation or compare must first pull the full book in.
   let fullLoaded = !bookData?.tokensStripped;
+  let fullBookLoading = false;
+  let fullBookError = '';
+  let fullBookRequest: Promise<void> | null = null;
+  // Keep a URL-selected overlay pending until it can render, rather than
+  // replacing the SSR-safe single translation with empty compare columns.
+  let deferredQueryTrans = '';
   let mounted = false;
   async function ensureFullBook(): Promise<void> {
     if (fullLoaded) return;
-    fullLoaded = true; // guard re-entry; reset below if the fetch fails
-    try {
-      const data = await fetchBook(work, bookNum);
+    if (fullBookRequest) return fullBookRequest;
+    fullBookLoading = true;
+    fullBookError = '';
+    const request = fetchBook(work, bookNum).then((data) => {
       segments = data.segments;
       turnFlow = data.turnFlow ?? null;
       scenes = data.scenes ?? scenes;
       scenesDraft = (data as RawBookData).apparatus?.draft === true || scenesDraft;
-    } catch {
-      fullLoaded = false; // allow a later retry
-    }
+      fullLoaded = true;
+      if (deferredQueryTrans) {
+        const next = deferredQueryTrans;
+        deferredQueryTrans = '';
+        trans = next;
+        if (next !== 'compare') lastSingle = next;
+      }
+    }).catch(() => {
+      fullBookError = 'Unable to load this translation.';
+    }).finally(() => {
+      fullBookLoading = false;
+      fullBookRequest = null;
+    });
+    fullBookRequest = request;
+    return request;
   }
+  function retryFullBook() { void ensureFullBook(); }
   let error = '';
   // OS "reduce motion" preference — gates the JS fade transitions below, which
   // the CSS @media (prefers-reduced-motion) query can't reach. Set in onMount.
@@ -271,6 +291,10 @@
   // returns to it (and so the picker has something to display in compare).
   let lastSingle: string = trans;
   function setTrans(t: string) {
+    // A reader action supersedes an in-flight URL selection; otherwise a late
+    // response could unexpectedly switch the column back to that URL value.
+    deferredQueryTrans = '';
+    fullBookError = '';
     trans = t;
     if (t !== 'compare') lastSingle = t;
     try { localStorage.setItem(TRANS_KEY, t); } catch {}
@@ -465,6 +489,7 @@
   // non-primary translation (Butler/Pope) chunks by ITS OWN ticks.
   interface ReadingChunk extends TickChunkRange, SceneFlowChunk {}
   $: readingChunks = ((): ReadingChunk[] => {
+    if (!reading || flowRows) return [];
     const out: ReadingChunk[] = [];
     for (const { blocks } of enrichedSegments) {
       for (const block of blocks) {
@@ -559,8 +584,9 @@
   // for the default English view — which renders entirely from the stripped prop.
   $: wantsNonDefaultTrans =
     shownTransIds.some((id) => !!id && id !== engSlot?.id) ||
-    (reading && readingTransId !== engSlot?.id);
-  $: if (mounted && !fullLoaded && wantsNonDefaultTrans) ensureFullBook();
+    (reading && readingTransId !== engSlot?.id) ||
+    (deferredQueryTrans !== '' && deferredQueryTrans !== engSlot?.id);
+  $: if (mounted && !fullLoaded && wantsNonDefaultTrans && !fullBookLoading && !fullBookError) ensureFullBook();
 
   // Landmark-style scene apparatus for this book (see data.ts Scene). Absent on
   // every payload today, so `scenes` is empty and Reading Mode degrades to
@@ -734,36 +760,61 @@
   let allSpeeches: Speech[] = [];
   let charactersById: Map<string, CharacterEntry> = new Map();
   let speechesLoaded = false;
-  async function ensureSpeeches(): Promise<void> {
+  let speechStartsRequest: Promise<void> | null = null;
+  let charactersLoaded = false;
+  // Alignment needs only speech starts. The rails additionally fetch character
+  // names, but both consumers share this one work-level speeches request.
+  async function ensureSpeechStarts(): Promise<void> {
     if (speechesLoaded) return;
-    speechesLoaded = true; // guard re-entry; reset below if the fetch fails
-    try {
-      const [sp, chars] = await Promise.all([fetchSpeeches(work), fetchCharacters()]);
+    if (speechStartsRequest) return speechStartsRequest;
+    const request = fetchSpeeches(work).then((sp) => {
       allSpeeches = sp;
+      speechesLoaded = true;
+    }).catch(() => {
+      // The data-layer promise cache clears failed requests, so a later mode
+      // change can retry without leaving an unhandled rejection behind.
+    }).finally(() => {
+      speechStartsRequest = null;
+    });
+    speechStartsRequest = request;
+    return request;
+  }
+  async function ensureSpeeches(): Promise<void> {
+    if (charactersLoaded) return;
+    try {
+      const [, chars] = await Promise.all([ensureSpeechStarts(), fetchCharacters()]);
       charactersById = new Map(Object.entries(chars));
+      charactersLoaded = true;
     } catch {
-      speechesLoaded = false; // allow a later retry
+      // Keep usable alignment starts if only the optional display labels fail.
     }
   }
   function toggleSpeeches() { speechesOn = !speechesOn; saveSpeeches(); }
   // Fetch on first toggle-on, and again whenever a book switch (bookNum
   // prop change) happens while already on and the data hasn't loaded yet.
-  $: if (mounted && speechesOn && !speechesLoaded) ensureSpeeches();
+  $: if (mounted && speechesOn && (!speechesLoaded || !charactersLoaded)) ensureSpeeches();
+  // Only the phone-stacked Both path and prose Reading Mode call alignGroups.
+  // Do not fetch on desktop/single-column Scholar renders that never need a
+  // snapped boundary; when either grouping path becomes active, starts arrive
+  // through the same cached fetch as the optional rail data.
+  $: speechAlignmentNeeded = mounted && (
+    (reading && !flowRows) ||
+    (phoneWidth && view === 'both' && trans !== 'compare' && epicVerse)
+  );
+  $: if (speechAlignmentNeeded && !speechesLoaded) ensureSpeechStarts();
 
   // This book's speeches (any level — classifySpeech needs the whole set to
   // find a level-1's containing level-0 parent) and its real vulgate line
-  // set (for the numbering-gap check). Both empty while the toggle is off,
-  // so every reactive block below is a no-op cost when the feature is unused.
+  // set (for the numbering-gap check). These remain gated by the visible toggle.
   $: bookSpeeches = speechesOn ? allSpeeches.filter((s) => s.book === bookNum) : [];
   $: bookRealLines = speechesOn ? realLinesFromSegments(segments) : new Set<number>();
   // Every speech's OPENING line in this book, any nesting level (FIX 1,
   // John's phone report 2026-07-18 — see shared/lib/speech-snap.ts): fed to
   // alignGroups below so the mobile "Both" view snaps a tick 1-2 lines ahead
   // of a speech's own start forward to that start, instead of splitting the
-  // speech's opening Greek line into the wrong alignment group. Empty (and
-  // so a total no-op for alignGroups) whenever bookSpeeches is empty — same
-  // "off = zero cost, zero behavior change" posture as the toggle above.
-  $: bookSpeechStarts = bookSpeeches.map((s) => s.lines[0]);
+  // speech's opening Greek line into the wrong alignment group. This compact
+  // alignment input deliberately remains available when the rail is hidden.
+  $: bookSpeechStarts = allSpeeches.filter((s) => s.book === bookNum).map((s) => s.lines[0]);
   $: speechRenders = bookSpeeches.map((s) => ({ speech: s, cls: classifySpeech(s, bookSpeeches, bookRealLines) }));
   // line n -> true for every line covered by a high-confidence span (draws
   // the hairline rail via a CSS class, no per-line listener).
@@ -1913,7 +1964,19 @@
     const qView = params.get('view');
     if (qView === 'greek' || qView === 'both' || qView === 'english') view = qView;
     const qTrans = params.get('trans');
-    if (qTrans && validTrans.has(qTrans)) { trans = qTrans; if (view === 'greek') view = 'both'; }
+    if (qTrans && validTrans.has(qTrans)) {
+      if (!fullLoaded && qTrans !== engSlot?.id) {
+        // The stripped SSR prop has only the primary translation. Leave that
+        // current single-column render in place until the URL-selected payload
+        // resolves, instead of briefly rendering absent overlay flows.
+        deferredQueryTrans = qTrans;
+        if (trans === 'compare' || trans !== engSlot?.id) trans = engSlot?.id ?? translations[0]?.id ?? trans;
+      } else {
+        trans = qTrans;
+        if (qTrans !== 'compare') lastSingle = qTrans;
+      }
+      if (view === 'greek') view = 'both';
+    }
     // All translation/compare restoration is settled: arm the lazy full-book
     // reactive so a restored NON-default translation pulls the full book in (the
     // default English view keeps rendering from the token-stripped prop).
@@ -2481,6 +2544,14 @@
     {/if}
   {/snippet}
 
+  {#snippet fullBookLoadState()}
+    {#if !fullLoaded && fullBookLoading}
+      <p class="translation-load-state" aria-live="polite">Loading {deferredQueryTrans ? (transById(deferredQueryTrans)?.short ?? 'translation') : 'translation'}…</p>
+    {:else if !fullLoaded && fullBookError}
+      <p class="translation-load-state translation-load-error" role="alert">{fullBookError} <button type="button" on:click={retryFullBook}>Retry</button></p>
+    {/if}
+  {/snippet}
+
   <!-- One English column for a translation: the primary's flow (block.flow) or
        an overlay's (block.oflows[id]), as flowing prose with margin-floated
        Bekker numbers. The footnote/table-bearing translation ('third' slot)
@@ -2504,6 +2575,8 @@
            structural. -->
       {#if chTitle}<div class="ross-chapter-title">{chTitle}</div>{/if}
       {@render flowProse(flow, transId, block.otables)}
+    {:else if !fullLoaded && (fullBookLoading || fullBookError)}
+      {@render fullBookLoadState()}
     {/if}
   {/snippet}
 
@@ -2716,6 +2789,7 @@
        to the old whole-book flow (the `:else` branch below). -->
   {#snippet readingView()}
     <div class="reading-col">
+      {@render fullBookLoadState()}
       {#if flowRows}
         {#each flowRows as row, ri}
           <div class="reading-row">
@@ -2955,6 +3029,7 @@
                   </div>
                   <div class="english-col" data-trans={trans}>
                     {@render flowProse(group.flowParts, trans, block.otables)}
+                    {#if gi === 0 && deferredQueryTrans}{@render fullBookLoadState()}{/if}
                   </div>
                 </div>
               {/each}
@@ -2988,6 +3063,7 @@
               {:else}
               {@render transFlow(block, trans === 'compare' ? compareLeft : trans)}
               {/if}
+              {#if bi === 0 && deferredQueryTrans}{@render fullBookLoadState()}{/if}
               <!-- Inline diagrams ([[figN]] markers), e.g. the Tree of Porphyry. -->
               {#if busse && view !== 'greek' && block.figs.length}
                 {#each block.figs as fig}
@@ -3045,7 +3121,7 @@
       </span>
       <span class="scene-context-sheet-chevron" aria-hidden="true">⌃</span>
     </button>
-    <div class="scene-context-sheet-details" id="scene-context-sheet-details">
+    <div class="scene-context-sheet-details" id="scene-context-sheet-details" aria-hidden={!sceneSheetOpen} inert={!sceneSheetOpen}>
       <div class="scene-context-sheet-label">Chart Room</div>
       {#if !plateDataLoaded || currentPlateMap}
         <div class="scene-context-map" class:pending={!currentPlateMap}>
@@ -3398,6 +3474,26 @@
     color: var(--text-light);
     margin: 0 0 1rem;
   }
+
+  .translation-load-state {
+    margin: 0.7rem 0 0;
+    color: var(--text-light);
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    font-style: italic;
+  }
+  .translation-load-error { color: var(--text-mid); }
+  .translation-load-state button {
+    margin-left: 0.35rem;
+    border: 1px solid var(--border);
+    border-radius: 0.2rem;
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    font: inherit;
+    padding: 0.08rem 0.35rem;
+  }
+  .translation-load-state button:hover { border-color: var(--accent); }
 
   /* Right-aligned tag on the Greek line's flex row (.greek-line: line-num
      fixed-width, .line-text flex:1, this sits last) — no layout reservation
