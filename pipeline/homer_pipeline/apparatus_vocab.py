@@ -74,6 +74,36 @@ Determinism: no hash-seed-dependent iteration ever decides output order —
 sets are used only for O(1) membership tests (stoplist, proper-name
 tracking), never iterated to produce emitted content; every ranked list is
 built with an explicit (-count, lemma) sort.
+
+Homograph resolution (HOMOGRAPH_LEMMA)
+--------------------------------------
+First-entry-wins occasionally picks the wrong dominant sense for THIS corpus
+when a surface form is a homograph and Morpheus happens to rank the rarer
+lemma first. The verified case is the ship/temple pair: νηός/νηῶν/νεῶν are
+gen sg/pl of ναῦς "ship" (Homeric) but Morpheus lists ναός "temple"
+(nom sg / gen pl, epic Ionic) first, so the Cyclops book's ships were
+surfacing as "temple". A whole-corpus lemma-frequency tiebreak was tested
+and REJECTED: it fixes ναῦς but overcorrects catastrophically elsewhere
+(measured 2026-07-17 it would flip πόλεις "cities" → πολύς "many", νίκη
+"victory" → νικάω, κόμη "hair" → κομάω, and ~1800 keys total), because for a
+genuine homograph the rarer lemma is often the correct one. Instead a small
+CURATED table keyed by Beta Code SURFACE form re-ranks only hand-verified
+cases; each target lemma must already be one of Morpheus's own analyses for
+that form (the override re-ranks candidates, it never invents a lemma). The
+purely-temple forms νηόν (acc sg, e.g. Il. 1.39 Apollo's shrine at Chryse),
+νηῷ (dat sg), νηούς (acc pl) carry NO ναῦς analysis and are deliberately left
+as ναός, correctly.
+
+Curated glosses (GLOSS_OVERRIDE)
+--------------------------------
+Morpheus leaves a small tail of high-frequency Homeric lemmata with an empty
+gloss (35/1200 emitted entries as of 2026-07-17: κεφαλή, πεδίον, θνήσκω, …)
+and picks the wrong dominant sense for ἅλς (its first gloss is the rare masc
+"salt"; in Homer the fem "sea, brine" overwhelmingly dominates). A hand-
+curated, per-headword-cited override table (below) fills every empty-gloss
+lemma that reaches a vocab list and corrects ἅλς. Override precedence: an
+entry in GLOSS_OVERRIDE wins over Morpheus's gloss for the same lemma; a
+lemma absent from both stays honestly ungloussed (the honesty rule).
 """
 
 from __future__ import annotations
@@ -87,6 +117,67 @@ from .config import BUILD_DIR, Manifest
 STOPLIST_SIZE = 100
 MAX_ENTRIES_PER_BOOK = 25
 MAX_GLOSS_LEN = 80
+
+# ── Curated homograph resolution (see module docstring "Homograph
+#    resolution"). Beta Code SURFACE key -> corpus-correct lemma. Applied only
+#    when the target lemma is among that token's own Morpheus analyses. ──────
+HOMOGRAPH_LEMMA: dict[str, str] = {
+    # νηός/νηὸς gen sg, νηῶν & νεῶν gen pl of ναῦς "ship" (Homeric). Morpheus
+    # ranks ναός "temple" first for these; corpus-wide ναῦς (680) dwarfs ναός
+    # (233) and every occurrence in these three forms is a ship (Cunliffe s.v.
+    # ναῦς; genitives νηός/νηῶν/νεῶν). νηόν/νηῷ/νηούς are NOT listed here — they
+    # have no ναῦς analysis and are genuinely ναός "temple".
+    "nho/s": "nau=s",  # νηός / νηὸς — gen sg "of a ship"
+    "nhw=n": "nau=s",  # νηῶν — gen pl "of ships"
+    "new=n": "nau=s",  # νεῶν — gen pl "of ships"
+}
+
+# ── Hand-curated gloss overrides (see module docstring "Curated glosses").
+#    Fills Morpheus's empty-gloss tail and corrects ἅλς. Each gloss is short
+#    (<= MAX_GLOSS_LEN), Homeric-sense-first, and cited by lexicon headword
+#    (Cunliffe / LSJ / Autenrieth). Override wins over Morpheus for the lemma.
+#    Beta Code lemma key -> gloss. ─────────────────────────────────────────
+GLOSS_OVERRIDE: dict[str, str] = {
+    # ἅλς (fem.) — Cunliffe s.v. ἅλς "the sea"; LSJ ἅλς (B) fem. "sea, brine".
+    # Morpheus's first gloss is the rare masc ἅλς "salt" (LSJ ἅλς (A)); a few
+    # true "salt" instances exist (Il. 9.214, Od. 11.123) but the sea sense
+    # dominates the corpus, so the frequency-ranked vocab lemma reads "sea".
+    "a(/ls": "sea, brine",
+    # ἀρήν (gen ἀρνός, no nom) — Cunliffe s.v. ἀρήν; LSJ ἀρήν "lamb, sheep".
+    "a)rno/s": "lamb, sheep",
+    # αἴ — Cunliffe s.v. αἴ "if"; in wishes αἲ γάρ "would that" (= epic εἰ).
+    "ai)/": "if; would that",
+    # ἤτοι — Cunliffe s.v. ἤτοι "now surely, truly" (affirmative particle).
+    "h)/toi": "truly, now surely",
+    # κεφαλή — Cunliffe/LSJ κεφαλή "head".
+    "kefalh/": "head",
+    # κορυθαίολος — Cunliffe s.v. κορυθαίολος "with gleaming helm" (epithet of
+    # Hector); LSJ "with glancing helm".
+    "koruqai/olos": "of the glancing helm",
+    # μέλας (fem. μέλαινα) — LSJ μέλας "black, dark" (Morpheus lemmatises the
+    # fem. form separately and leaves it glossless).
+    "me/laina": "black, dark",
+    # μέμαα (perf. of μάω) — Cunliffe s.v. μέμονα; LSJ μάω "be eager, strive".
+    "me/maa": "be eager, press on",
+    # πεδίον — Cunliffe/LSJ πεδίον "plain".
+    "pe/dion": "plain",
+    # πιστός (neut. πιστόν, pl. πιστά "pledges") — Cunliffe s.v. πιστός
+    # "faithful, trusty".
+    "pisto/n": "trusty, faithful",
+    # πού (enclitic) — Cunliffe s.v. πού "somewhere; I suppose, perhaps".
+    "pou/": "somewhere; perhaps",
+    # θνήσκω — LSJ θνῄσκω "die".
+    "qnh/skw": "die",
+    # δήν — Cunliffe/LSJ δήν "long, for a long time" (adverb).
+    "dh/n": "long, for a long while",
+    # καταθνήσκω — LSJ καταθνῄσκω "die (off)".
+    "kataqnh/skw": "die",
+    # οἶνος (acc. οἶνον) — LSJ οἶνος "wine" (Morpheus lemmatises the acc.
+    # form separately and leaves it glossless).
+    "oi)=non": "wine",
+    # πυκινός — Cunliffe s.v. πυκινός "close, thick"; of mind "shrewd, wise".
+    "pukino/s": "close, thick; shrewd",
+}
 
 
 def _load_analyses(dist_dir: Path) -> dict[str, list[dict]]:
@@ -112,10 +203,16 @@ def _load_book_lines(dist_dir: Path) -> list[tuple[int, int, list[dict]]]:
 
 def resolve_lemma(tok: dict, analyses: dict[str, list[dict]]) -> str | None:
     """A token's lemma via analyses[k][0]["lemma"] (see module docstring for
-    why index 0, and why an unresolved key is skipped rather than faked)."""
+    why index 0, and why an unresolved key is skipped rather than faked),
+    except for the hand-verified HOMOGRAPH_LEMMA surface forms, where the
+    curated lemma wins -- but only when it is one of Morpheus's own analyses
+    for this form (the override re-ranks candidates, never invents one)."""
     entries = analyses.get(tok["k"])
     if not entries:
         return None
+    override = HOMOGRAPH_LEMMA.get(tok["k"])
+    if override is not None and any(e.get("lemma") == override for e in entries):
+        return override
     return entries[0].get("lemma")
 
 
@@ -201,7 +298,9 @@ def book_vocab_entries(
     entries: list[dict] = []
     for lemma, count in candidates[:limit]:
         entry: dict = {"lemma": lemma, "count": count}
-        gloss = gloss_map.get(lemma)
+        # Curated override wins over Morpheus's gloss; a lemma in neither
+        # stays honestly ungloussed (see module docstring "Curated glosses").
+        gloss = GLOSS_OVERRIDE.get(lemma) or gloss_map.get(lemma)
         if gloss:
             entry["gloss"] = _capped_gloss(gloss)
         entries.append(entry)

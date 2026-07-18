@@ -39,6 +39,32 @@ def test_is_proper_name_false_for_ordinary_lemma():
     assert v.is_proper_name("mh=nis") is False
 
 
+# ── HOMOGRAPH_LEMMA: curated surface-form override (ship/temple) ─────────────
+
+
+def test_resolve_lemma_applies_homograph_override():
+    # νηός is gen sg of ναῦς "ship"; Morpheus ranks ναός "temple" first. The
+    # curated override re-ranks to ναῦς, which IS among the token's analyses.
+    analyses = {"nho/s": [{"lemma": "nao/s"}, {"lemma": "nau=s"}]}
+    assert v.resolve_lemma({"t": "νηὸς", "k": "nho/s"}, analyses) == "nau=s"
+
+
+def test_resolve_lemma_homograph_override_ignored_when_target_absent():
+    # SAFETY: the override only re-ranks Morpheus's OWN candidates. If a corpus
+    # change means the target lemma is no longer analysed for this form, we fall
+    # back to first-entry-wins rather than fabricate the override lemma.
+    analyses = {"nho/s": [{"lemma": "nao/s"}]}  # no nau=s candidate
+    assert v.resolve_lemma({"t": "νηὸς", "k": "nho/s"}, analyses) == "nao/s"
+
+
+def test_homograph_targets_are_purely_reranking_not_fabrication():
+    # Every HOMOGRAPH_LEMMA maps a ship surface form to ναῦς (never a lemma
+    # invented out of nothing); pins the table's intent so a future edit that
+    # smuggled in a non-ship target would fail loudly.
+    assert set(v.HOMOGRAPH_LEMMA.values()) == {"nau=s"}
+    assert set(v.HOMOGRAPH_LEMMA) == {"nho/s", "nhw=n", "new=n"}
+
+
 # ── top_stoplist: mechanical, no hand list ──────────────────────────────────
 
 
@@ -97,6 +123,38 @@ def test_book_vocab_entries_honesty_omits_gloss_key_when_none_found():
     by_lemma = {e["lemma"]: e for e in entries}
     assert by_lemma["glossed"]["gloss"] == "a real gloss"
     assert "gloss" not in by_lemma["glossless"]
+
+
+# ── GLOSS_OVERRIDE: curated glosses win over Morpheus, fill the empty tail ──
+
+
+def test_book_vocab_entries_gloss_override_wins_over_morpheus():
+    # ἅλς: Morpheus's gloss is the rare masc "salt"; the curated override
+    # supplies the dominant Homeric fem sense and MUST win.
+    counts = Counter({"a(/ls": 10})
+    entries, _ = v.book_vocab_entries(counts, stoplist=set(), gloss_map={"a(/ls": "salt"})
+    assert entries[0]["gloss"] == "sea, brine"
+
+
+def test_book_vocab_entries_gloss_override_fills_morpheus_empty_tail():
+    # A lemma Morpheus never glossed (absent from gloss_map) still gets a gloss
+    # when it is in the curated table.
+    counts = Counter({"kefalh/": 7})
+    entries, _ = v.book_vocab_entries(counts, stoplist=set(), gloss_map={})
+    assert entries[0]["gloss"] == "head"
+
+
+def test_gloss_override_pins_hals_as_sea_not_salt():
+    # Regression pin for the reported defect: ἅλς must read as sea/brine.
+    assert "salt" not in v.GLOSS_OVERRIDE["a(/ls"]
+    assert v.GLOSS_OVERRIDE["a(/ls"] == "sea, brine"
+
+
+def test_gloss_overrides_are_short_and_nonempty():
+    # Every curated gloss stays within the length budget and is real text.
+    for lemma, gloss in v.GLOSS_OVERRIDE.items():
+        assert gloss.strip(), lemma
+        assert len(gloss) <= v.MAX_GLOSS_LEN, lemma
 
 
 # ── lemma_gloss_map: honest, deterministic, first-non-empty-wins ───────────
@@ -294,3 +352,42 @@ def test_real_odyssey_book9_surfaces_the_cyclops_flocks_noun():
     # The Cyclops himself is a proper name and must be excluded, not just
     # absent by chance.
     assert "*ku/klwy" not in book9
+    # HOMOGRAPH FIX: the ship-genitives νηός/νηῶν in Od. 9 must NOT surface as
+    # ναός "temple" -- they fold into ναῦς "ship" (stoplisted, so excluded).
+    assert "nao/s" not in book9
+
+
+@pytest.mark.skipif(
+    not (REAL_DIST_DIR / "iliad").is_dir(),
+    reason="requires a local build/dist/iliad (homer_pipeline stage7, then vocab)",
+)
+def test_real_iliad_book1_hals_reads_as_sea_not_salt():
+    # GLOSS FIX: ἅλς is a top-frequency noun in Il. 1 (the seashore where
+    # Chryses prays, Achilles sits weeping). Morpheus's first gloss is the rare
+    # masc "salt"; the curated override makes it read as the dominant fem sea
+    # sense. Pinned against the live corpus.
+    result = v.run(Manifest.for_work("Iliad"), work_ids=["iliad", "odyssey"])
+    doc = json.loads(result["path"].read_text(encoding="utf-8"))
+    book1 = {e["lemma"]: e for e in doc["books"]["1"]}
+    assert "a(/ls" in book1
+    assert book1["a(/ls"]["gloss"] == "sea, brine"
+
+
+@pytest.mark.skipif(
+    not (REAL_DIST_DIR / "iliad").is_dir() or not (REAL_DIST_DIR / "odyssey").is_dir(),
+    reason="requires a local build/dist for both works (stage7, then vocab)",
+)
+def test_real_full_gloss_coverage_both_works():
+    # After the curated override table, every emitted vocab entry carries a
+    # gloss (the 35-entry empty tail is closed). Guards against a future lemma
+    # climbing into a list ungloussed.
+    for work_id in ("Iliad", "Odyssey"):
+        result = v.run(Manifest.for_work(work_id), work_ids=["iliad", "odyssey"])
+        doc = json.loads(result["path"].read_text(encoding="utf-8"))
+        missing = [
+            (bk, e["lemma"])
+            for bk, ents in doc["books"].items()
+            for e in ents
+            if "gloss" not in e
+        ]
+        assert missing == [], f"{work_id}: ungloussed entries {missing}"
