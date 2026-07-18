@@ -239,3 +239,48 @@ the step. "Digital Landmark Homer" remains internal-docs-only vocabulary.
    survives in Perseus's TEI) — popup shows the number verbatim. Decide:
    drop the markers at launch, or fast-follow real Loeb notes from another
    PD source.
+
+## Overnight build ledger (2026-07-17 night — John authorized autonomous build)
+
+Standing order + held-decision queue: docs/OVERNIGHT.md. Landed tonight,
+each commit pushed on landing (newest last):
+
+- 201b19f Wanderings **Story mode** — 17 stations in Odysseus's telling
+  order, route-as-hero, "Beyond the map's edge" strip (Cimmerians,
+  Ogygia), Planctae excluded (never visited). Toggle persists (?story=1).
+- 4ebd8fe **Genealogies drawn as real trees** (punch #3) — labels at
+  node coordinates, 50 labels/43 connectors; list is now the AT/mobile
+  fallback. (Grok implementation, independently verified.)
+- 6060c87 **Hexameter scansion stage** — whole-corpus computed scansion
+  with honest residue (79% high-confidence; ambiguous/unresolved marked,
+  never faked). Found a real corpus quirk: Perseus Odyssey elision is
+  U+02BC (phantom-consonant bug fixed; unresolved 23%→3%).
+- 51c333b **/places/ gazetteer** — 274 places, certainty tiers, tradition
+  lines, Pleiades links, 336 anchor citations deep-linking the reader
+  (spot-verified: Abydos lands on the line naming Abydos). (Codex
+  implementation + Sonnet taste pass.)
+- af03e2f **ἐπ' αἶαν fixed** — epithet entity matching is lemma-aware;
+  the 'earth' formulas are out of both Ajaxes (Iliad 877→873, Odyssey
+  405→404, same-class corrections only).
+- 2917a86 **Per-book vocabulary stage** — top-25 words per book,
+  mechanical stoplist (corpus top-100) + proper-name exclusion, Morpheus
+  one-line glosses (96.5%/97.7% coverage). Il. 1 surfaces γέρας.
+- b4fc237 **/characters/ network** — kinship + speech edges from our
+  data, seeded deterministic layout, SSR SVG; 96/100 linked figures
+  shown, isolates + all exclusion counts stated on the page.
+- 12d6d17 **Design Wave A** — Reading-Mode scene chips fixed (two-layer
+  root cause), Wine-dark Homer OG cards replace the Plato ones,
+  accent-color token on native controls, compact maps draft badge,
+  Homeric search placeholders.
+
+Also: Chamberlain audio recon complete — CC BY confirmed (3.0/4.0 split
+per item), NO per-line timing exists anywhere in his corpus → shipping
+"hear this passage" at his real chunk granularity, hotlinked from
+archive.org (his own pattern); decision detail in docs/OVERNIGHT.md §8.
+
+Superseded queue items above: #1 (Allen re-base LANDED, John's call
+2026-07-17) and #5 (real Loeb notes SHIPPED, high-confidence band).
+
+In flight at ledger-write time: vocabulary UI pages, audio manifest,
+meter overlay in the reader; then Wave B design cohesion, audio player,
+Phase 6 QA + Sol adversarial review + FINAL GATE.
