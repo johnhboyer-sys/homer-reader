@@ -160,10 +160,11 @@ a comment at the top of `shared/styles/global.css` (just above `:root`).
   (not Burnet), Cunliffe added as a credited lexicon alongside LSJ, github
   links repointed `plato-reader`→`homer-reader`. Google Fonts link removed.
 - `app/src/pages/{404,support,search,lemma/index}.astro`,
-  `app/src/components/{LemmaPage,WorkSwitcher}.astro` — title/meta/JSON-LD/
-  home-link Plato→Homer strings; 404's Meno-geometry joke replaced with an
+  `app/src/components/LemmaPage.astro` — title/meta/JSON-LD/home-link
+  Plato→Homer strings; 404's Meno-geometry joke replaced with an
   Odyssey/nostos-themed one (same structure, different classical reference,
   no fabricated quotations); Google Fonts links removed from all.
+  (WorkSwitcher.astro is absent on both repos — not a drift file.)
 - `shared/components/WordPopup.svelte` — "Appears N× across Plato" →
   "…across Homer" (matches `HOUSE_AUTHOR`).
 - `shared/components/Search.svelte` — CSV export filename `plato-search-*` →
@@ -207,12 +208,14 @@ a comment at the top of `shared/styles/global.css` (just above `:root`).
 - `shared/__tests__/components.test.ts` — new describe blocks: Reading Mode
   posture (`r` key, input guard, button, `?mode=reading`) and the
   docked/modal lexicon breakpoint (mocked matchMedia).
-- `app/public/{manifest.webmanifest,offline.html,robots.txt,sw.js}` — PWA
+- `app/public/{manifest.webmanifest,offline.html,sw.js}` — PWA
   name/short_name/description, offline-page title + hardcoded colours (now
   the Aegean ground/ink hex), sitemap URL, and the service worker's cache-key
   prefix (`plato-reader-`→`homer-reader-`, a fresh cache namespace post-deploy,
   harmless) — all Plato→Homer. Not `shared/`/`app/src`, but clearly
   in-scope for a rebrand pass (PWA install name, offline page) and low-risk.
+  (`app/public/robots.txt` is plato-only source; Homer has no counterpart under
+  `app/public/` — do not treat as a diverged twin.)
 - Grep sweep (case-insensitive "plato") on rendered `dist/` output found only
   two justified remainders: LSJ dictionary entries and lemma pages that
   legitimately cite the classical author "Plato" (LSJ usage citations, e.g.
@@ -442,12 +445,16 @@ note below for the justification.
 
 ## Go-to command palette (Codex lane, Sonnet-verified, 2026-07-17)
 
-- shared/components/CommandPalette.svelte — ancestor search-palette extended
+- `shared/components/CommandPalette.svelte` — ancestor search-palette extended
   into the Treatment-3 "Go to…": books/scenes/citation sources, Wine-dark
   tokens, dialog a11y kept from ancestor.
-- shared/lib/palette.ts — ranked 48-book index (new vs plato-reader).
-- shared/lib/citation.ts — formatLocValue verse-line branch (additive).
-- shared/lib/works.ts — GREEK_BOOK_LETTERS hoisted here from ReaderShell.
+- `shared/lib/palette.ts` — ranked 48-book index (new vs plato-reader).
+- `shared/lib/citation.ts` — formatLocValue verse-line branch (additive).
+- `shared/lib/works.ts` — GREEK_BOOK_LETTERS hoisted here from ReaderShell.
+- `shared/__tests__/command-palette.test.ts` — new: Go-to palette coverage
+  (Homer-only, no plato-reader counterpart).
+- `shared/__tests__/citation.test.ts` — one additive assertion:
+  `formatLocValue('iliad', '5', 239)` → `'5.239'` (verse-line loc grammar).
 
 ## `?loc=` initial-scroll fix (2026-07-17)
 
@@ -512,8 +519,11 @@ note below for the justification.
 
 ## Formula/repetition indexes (Codex lane, Sonnet-verified, 2026-07-17)
 
-- shared/lib/repetitions.ts (+test) — top-N selection/filter helpers (new).
-- shared/lib/data.ts — fetchRepetitions lazy helper (fetchCharacters shape).
+- `shared/lib/repetitions.ts` — new: top-N selection/filter helpers
+  (Homer-only, no plato-reader counterpart).
+- `shared/__tests__/repetitions.test.ts` — new: coverage for the above
+  (Homer-only, no plato-reader counterpart).
+- `shared/lib/data.ts` — `fetchRepetitions` lazy helper (`fetchCharacters` shape).
 
 ## Search result filters: work/book/speaker/speeches-only (Sonnet, 2026-07-17)
 
@@ -547,3 +557,37 @@ note below for the justification.
   verse-line book's "column" is the whole book) into one synthetic
   whole-book chapter per book; `fetchOutline`/`groupUnitLabel` gained a
   `verse-line` branch alongside the existing `stephanus` one.
+
+## Character network (Feature #20, 2026-07-17)
+
+New Homer-only apparatus feature — kinship + speech co-occurrence graph for
+`/characters/`, built pure (no d3) at build time. No plato-reader counterpart.
+
+- `shared/lib/network.ts` — new: pure edge aggregation + deterministic
+  force-directed layout (`buildKinshipEdges`, `aggregateSpeechEdges`,
+  `layoutNetwork`, participation/degree helpers). Build-time only (consumed by
+  `app/src/pages/characters/index.astro`); never fetched at runtime. Both
+  ends of every edge must be joined character ids (apparatus honesty).
+- `shared/__tests__/network.test.ts` — new: fixture coverage for kinship
+  edges (joined / nonHomeric / external-parent exclusion), speech aggregation
+  (single speaker+addressee only; self-address excluded), and layout.
+- `app/src/pages/characters/index.astro` — new page (`/characters/`); not
+  shared-core, but the consumer of `shared/lib/network.ts` (same posture as
+  genealogies/maps apparatus pages).
+
+## Hexameter scansion overlay (Feature #19, 2026-07-17)
+
+Homer-only meter apparatus (Plato's corpus is prose). Pure shared helpers +
+lazy per-book JSON; no plato-reader counterpart. Concurrent pipeline work
+(`pipeline/homer_pipeline/apparatus_scansion.py`) is not listed file-by-file
+here (pipeline rename note at top still covers the package).
+
+- `shared/lib/scansion.ts` — new: pure glyph + confidence-honesty helpers
+  (`scansionTier` normal/ambiguous/unresolved, `renderFeet`, `formatNotes`,
+  `scansionDisplay`, `scansionKey`) consumed by the reader meter overlay.
+- `shared/__tests__/scansion.test.ts` — new: tier/glyph/notes coverage
+  (Homer-only).
+- `shared/lib/data.ts` — `ScansionEntry`/`ScansionFile` types +
+  `fetchScansion(work, book)` (lazy per-book cache of
+  `scansion-<NN>.json`); further Homer-specific payload surface on top of
+  the earlier data.ts entries.
