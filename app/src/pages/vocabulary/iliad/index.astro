@@ -5,6 +5,7 @@ import SiteHeader from '../../../components/SiteHeader.astro';
 import Pwa from '../../../components/Pwa.astro';
 import { jsonLdSafe } from '../../../lib/jsonld';
 import { betaToGreek } from '@shared/lib/betacode';
+import { buildLemmaKeyMap, resolveLemmaSlug } from '../../../lib/vocabLemmaLink';
 import '@shared/styles/global.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -16,6 +17,12 @@ interface LemmaIndexEntry { slug: string; key: string; }
 const vocabulary = JSON.parse(readFileSync('../build/dist/iliad/vocab.json', 'utf-8')) as VocabFile;
 const lemmaIndex = JSON.parse(readFileSync('public/data/lemmata/_index.json', 'utf-8')) as LemmaIndexEntry[];
 const lemmaSlugs = new Map(lemmaIndex.map(({ key, slug }) => [key, slug]));
+// Join through the same bucket key build-lemmata.mjs uses (see
+// vocabLemmaLink.ts) -- a raw vocab lemma often differs from the index key
+// by LSJ-headword normalization (quantity marks, homograph digits).
+const lemmaKeyMap = buildLemmaKeyMap(
+  JSON.parse(readFileSync('public/data/iliad/analyses.json', 'utf-8')),
+);
 const books = Array.from({ length: 24 }, (_, index) => index + 1);
 const isDraft = vocabulary.status === 'draft';
 const pageTitle = 'Iliad vocabulary — The Homer Reader';
@@ -81,7 +88,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
         <h2>Book {book}</h2>
         <ol class="vocab-list">
           {(vocabulary.books[String(book)] ?? []).slice(0, 25).map((entry) => {
-            const slug = lemmaSlugs.get(entry.lemma);
+            const slug = resolveLemmaSlug(entry.lemma, lemmaKeyMap, lemmaSlugs);
             return <li class="vocab-entry">
               {slug ? <a class="vocab-lemma" lang="grc" href={`${base}/lemma/${slug}`}>{betaToGreek(entry.lemma)}</a> : <span class="vocab-lemma" lang="grc">{betaToGreek(entry.lemma)}</span>}
               {entry.gloss && <span class="vocab-gloss">{entry.gloss}</span>}
