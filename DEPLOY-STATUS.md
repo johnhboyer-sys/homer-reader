@@ -284,3 +284,48 @@ Superseded queue items above: #1 (Allen re-base LANDED, John's call
 In flight at ledger-write time: vocabulary UI pages, audio manifest,
 meter overlay in the reader; then Wave B design cohesion, audio player,
 Phase 6 QA + Sol adversarial review + FINAL GATE.
+
+## FINAL GATE — Od. 9.366 (Οὖτις) — PASS (2026-07-18 ~00:20, orchestrator-run, main loop)
+
+Run against the production dist build (fresh, post-QA-fixes HEAD).
+1. Jump box: palette resolves 9.366 → lands on ?loc=9.366. PASS
+2. Deep link: line 366 scrolled + highlighted (Οὖτις ἐμοί γ' ὄνομα). PASS
+3. Parse: Οὖτις → 'no one', masc nom sg; LSJ·Cunliffe·Logeion tabs. PASS
+4. Translations: Murray (default) · Butler · Pope ('alignment
+   approximate' wording as approved). PASS
+5. Wanderings pin: Land of the Cyclopes, certainty traditional, deep
+   link → Od. 9.106; Story mode station 6. PASS
+6. Nested speech: Odysseus → Polyphemus rail wraps 364–366 inside the
+   Apologoi; Polyphemus's replies railed around it. PASS
+7. Scene summary: SCENES drawer draft-badged; active scene 345–374
+   ('…gives his name as Noman'), scroll-tracked. PASS
+Screenshots: session design board, final-gate/.
+
+Gate-walk defects found (fix lane dispatched same hour): palette
+rejects the work-prefixed form ('Od. 9.366') its placeholder
+advertises; /maps/?map= param not applied on cold load; docked
+lexicon intercepts clicks into the settings sidebar when both open.
+
+## Adversarial review + QA sweep (Sol + metrics, 2026-07-18) — all
+findings fixed or held
+
+Fixed same night: check-links loc grammar (5,271 false failures —
+links were fine, gate now 0 broken); Iliad credit misstatement
+('Perseus, CC BY-SA' → 'Allen 1931 (licensed TLG export)'); 6
+formula displays missing glosses (Opus, cited); vocab lemma links
+(476/471→592/594 of 600, 0 dead); mobile reader toggle names (axe
+critical → 0); cluster-badge keyboard access; FormulaLedger empty
+gloss node; BASE fork drift.
+Sol found NOTHING in: places citations (336/336 resolve), vulgate
+exception handling, audio license labels, JSON-LD safety, XSS/regex
+injection surface, forbidden-translation scan.
+Metrics: Lighthouse home 97/100 mobile/desktop; new pages 97–100;
+CLS = 0 everywhere (payload-strip promise holds); axe 0 violations
+desktop+mobile after fixes; console clean.
+HELD for John (docs/OVERNIGHT.md queue): reader book pages are
+0.7–1.8MB SSR HTML (Lighthouse mobile 53–56 measured UNGZIPPED
+locally; GH Pages gzip → ~150–250KB wire; cutting the duplicate
+Reading-Mode English flow would save ~25% but trades against
+SSR-complete deep links) — decision, not defect. Maps mobile 79.
+WCAG 2.2 target-size on places/characters (2.2 is beyond the AA
+commitment; noted).
