@@ -67,6 +67,12 @@ non-negotiable.
   refreshed" — clear that state dir and start a `--fresh` thread. `codex login
   status` saying "Logged in" is not sufficient evidence the plugin runtime works.
 
+- Pipeline gotcha (2026-07-17, caught by Gate 4): any stage7 re-emit
+  (incl. `all` and full re-runs) must be FOLLOWED by `apparatus
+  --work <W>` for both works — stage7 rewrites book JSONs without the
+  apparatus merge and silently wipes scenes. Until preflight asserts
+  apparatus presence (Phase 6 hardening), every pipeline re-run brief
+  must end with the apparatus re-merge + a 48/48 scenes check.
 - Concurrency gotcha (2026-07-17, bit two agents the same day): an app
   build/verification that runs while a pipeline lane is regenerating
   build/dist sees TRANSIENT states (books without scenes, off page

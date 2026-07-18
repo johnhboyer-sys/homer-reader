@@ -45,6 +45,16 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
   page + works.ts still credit Monro-Allen/Perseus for the Iliad
   (queued behind the hydration-diagnosis lane).
 
+- **Gate 4 PASSED** (2026-07-17, checked in main loop): 48/48 books
+  carry scenes; maps render certainty tiers + legend; epithet and
+  repetition stages green (29 tests); 2 crossBook speech spans, both
+  flagged, rendered degraded. The gate CAUGHT a real regression: a
+  stage-1..7 re-run (lemma fix lane) re-emitted all books WITHOUT
+  re-running the apparatus merge, silently wiping scenes corpus-wide;
+  restored by re-running the apparatus stage for both works and
+  rebuilding. Preflight did not catch scene-less emits — hardening
+  queued for Phase 6.
+
 ## Corpus facts
 
 - Line totals (verbatim from Perseus grc2, independently re-derived): Iliad
