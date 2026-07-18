@@ -329,3 +329,43 @@ Reading-Mode English flow would save ~25% but trades against
 SSR-complete deep links) — decision, not defect. Maps mobile 79.
 WCAG 2.2 target-size on places/characters (2.2 is beyond the AA
 commitment; noted).
+
+## Day-2 ledger (2026-07-18, John-directed session — through compact point)
+
+Morning text/nav round (all landed): Murray space-loss fixed at source
++ corpus re-emit; footnotes now 158 real markers, 0 empty; TOC books
+are links; scene-paged Reading Mode (?scene=N, ?loc lands in-scene);
+stacked Both view on phones; meter wraps (works all widths); one-row
+mobile header; cartouche border fix; mobile genealogies = indented
+descent charts (Astro scoping bug fixed); formula noise purged (71
+demoted, 'If Achilles' class); Apologoi 'Day 34 · telling' cue + Od.
+10/12 frame markers.
+
+Sourced-scholarship apparatus (new standing policy in CLAUDE.md;
+Chicago/hyperlink citations): chronology research both epics
+(docs/research/); Iliad calendar recalibrated to traditional ~51 days
+(Book 24 was miscounting via the nested nine-day quarrel);
+/timeline/ page — day strips w/ hatched compressed spans, Day-34
+telling inset, voyage strip Troy→Ithaca (all durations verified on
+their Greek lines; stated spans sum ~8.3yr vs the asserted twentieth
+year; two ref corrections incl. journeys' six-days ἑξῆμαρ fix);
+apparatus/bibliography.json (21 entries).
+
+Journeys: apparatus/journeys.json (4 nostoi, 37 legs, Grok-gated
+PASS-WITH-FIXES — the Pharos→Sparta citation defect confirmed and
+fixed by splitting per 4.581-586); 5 new places; Journeys map tab
+(curved arcs, CVD-safe color+dash, honest gap stubs, Ithaca arrival;
+Odysseus tail added to Wanderings). Wanderings audit: 32 stations
+verified; Ogygia rival tradition → John's queue.
+
+Context panel (John's picks: B plates / A rail-toggle / C sheet):
+scenemap SVG foundation (Natural Earth PD, 34.7KB, 27 tests);
+Variant B figure plates LIVE in Reading Mode (honest place resolver —
+no invented plate titles; Scholar loads zero bytes of it). A-rail +
+C-sheet queued. Art survey done (Flaxman = our Doré; licensing
+verdicts in docs/research/art-illustrations.md) — mockup-gated.
+
+Also: Οὖτις 404. IN FLIGHT at compact: map timelines + animated
+step-by-step playthrough lane. QUEUED: A-rail, C-sheet, full rebuild +
+fresh preview + screenshot sweep. John's open queue: Ogygia tier,
+domain, PR/main, deploy, Wilson jokes stay off-site.
