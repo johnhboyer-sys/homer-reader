@@ -1,0 +1,240 @@
+---
+// The /characters/ network hero: a static SSR SVG (full graph visible with
+// JavaScript disabled — every node, edge, and label below is emitted by
+// Astro at build time from shared/lib/network.ts's layout, not drawn by
+// script) plus a small vanilla progressive-enhancement script that adds
+// hover/focus highlighting and a details flyout. See app/src/pages/
+// characters/index.astro for the data prep (edge aggregation + layout).
+//
+// The SVG is `aria-hidden` — it's a decorative visual restatement of the
+// same facts the semantic roster below states as real HTML; the roster (not
+// this diagram) is the accessible/keyboard path. Focusing a roster row's
+// name link still reaches back INTO this component (via the shared
+// `data-char-id` contract below) to highlight the matching node, so
+// keyboard users get the same "which edges touch this person" answer the
+// mouse-hover path gives — through an element that was already focusable
+// for its own sake, not a new focusable node stuffed into an aria-hidden
+// tree (an anti-pattern).
+interface NodeDatum {
+  id: string;
+  name: string;
+  greek?: string;
+  role: string;
+  x: number;
+  y: number;
+  r: number;
+  showLabel: boolean;
+}
+interface KinshipEdgeDatum {
+  x1: number; y1: number; x2: number; y2: number;
+  nonHomeric: boolean;
+  source: string; target: string;
+}
+interface SpeechEdgeDatum {
+  x1: number; y1: number; x2: number; y2: number;
+  width: number; count: number;
+  a: string; b: string;
+}
+
+interface Props {
+  width: number;
+  height: number;
+  nodes: NodeDatum[];
+  kinshipEdges: KinshipEdgeDatum[];
+  speechEdges: SpeechEdgeDatum[];
+}
+const { width, height, nodes, kinshipEdges, speechEdges } = Astro.props;
+---
+<figure class="cn-figure">
+  <svg
+    class="cn-svg"
+    viewBox={`0 0 ${width} ${height}`}
+    preserveAspectRatio="xMidYMid meet"
+    role="img"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <g class="cn-edges">
+      {speechEdges.map((e) => (
+        <line
+          class="cn-edge cn-edge-speech"
+          data-a={e.a}
+          data-b={e.b}
+          x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
+          style={`stroke-width:${e.width}`}
+        />
+      ))}
+      {kinshipEdges.map((e) => (
+        <line
+          class:list={['cn-edge', 'cn-edge-kin', { 'cn-edge-kin-nonhomeric': e.nonHomeric }]}
+          data-a={e.source}
+          data-b={e.target}
+          x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
+        />
+      ))}
+    </g>
+    <g class="cn-nodes">
+      {nodes.map((n) => (
+        <g
+          class="cn-node"
+          data-id={n.id}
+          data-name={n.name}
+          data-greek={n.greek ?? ''}
+          data-role={n.role}
+        >
+          <circle cx={n.x} cy={n.y} r={n.r} />
+          <title>{n.greek ? `${n.name} — ${n.greek}` : n.name}</title>
+          {n.showLabel && (
+            <text class="cn-label" x={n.x} y={n.y + n.r + 10}>{n.name}</text>
+          )}
+        </g>
+      ))}
+    </g>
+  </svg>
+  <div class="cn-flyout" id="cn-flyout" role="status" hidden></div>
+</figure>
+<style>
+  .cn-figure { margin: 0; position: relative; }
+  .cn-svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .cn-edge { pointer-events: none; }
+  .cn-edge-speech { stroke: var(--text-mid); opacity: 0.4; }
+  .cn-edge-kin { stroke: var(--rule-strong); stroke-width: 1.4; opacity: 0.85; }
+  .cn-edge-kin-nonhomeric { stroke: var(--accent); stroke-dasharray: 5 3.5; }
+  .cn-node circle { fill: var(--accent); opacity: 0.82; cursor: pointer; pointer-events: all; transition: opacity .12s ease; }
+  .cn-node:hover circle, .cn-node.is-active circle { opacity: 1; }
+  .cn-label {
+    font-family: var(--font-ui);
+    font-size: 8.5px;
+    fill: var(--text-mid);
+    text-anchor: middle;
+    pointer-events: none;
+    paint-order: stroke;
+    stroke: var(--page-bg);
+    stroke-width: 2.5px;
+  }
+  .cn-node.is-active .cn-label { fill: var(--text); font-weight: 600; }
+  .cn-svg.is-highlighting .cn-node:not(.is-active) circle { opacity: 0.28; }
+  .cn-svg.is-highlighting .cn-edge:not(.is-active) { opacity: 0.08; }
+  .cn-svg.is-highlighting .cn-edge.is-active { opacity: 0.95; }
+
+  .cn-flyout {
+    position: absolute;
+    z-index: 5;
+    max-width: 15rem;
+    padding: 0.5rem 0.65rem;
+    background: var(--popup-bg);
+    box-shadow: var(--popup-shadow);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    line-height: 1.4;
+    color: var(--text);
+    pointer-events: none;
+  }
+  .cn-flyout .cn-flyout-name { font-weight: 600; }
+  .cn-flyout .cn-flyout-greek { font-family: var(--font-greek); color: var(--text-mid); margin-left: 0.35em; }
+  .cn-flyout .cn-flyout-role { display: block; margin-top: 0.2rem; color: var(--text-mid); }
+
+  @media (max-width: 620px) {
+    .cn-label { display: none; }
+  }
+</style>
+<script>
+  // Progressive enhancement only (see component docstring): the graph is
+  // already fully rendered above by SSR. This adds (a) hover/focus
+  // highlighting of a node's incident edges + a details flyout, and (b) a
+  // reciprocal link FROM the semantic roster (app/src/pages/characters/
+  // index.astro) — focusing a roster row's name highlights its node here,
+  // via the shared `data-char-id` / `#roster-<id>` contract, without adding
+  // any new focusable element inside this component's aria-hidden SVG.
+  const svg = document.querySelector<SVGSVGElement>('.cn-svg');
+  const flyout = document.getElementById('cn-flyout');
+  if (svg && flyout) {
+    const nodeEls = Array.from(svg.querySelectorAll<SVGGElement>('.cn-node'));
+    const edgeEls = Array.from(svg.querySelectorAll<SVGLineElement>('.cn-edge'));
+    const nodeById = new Map(nodeEls.map((el) => [el.dataset.id!, el]));
+
+    // id -> edges + neighbor node ids touching it, built once from the
+    // data-a/data-b attributes every edge already carries.
+    const neighborsOf = new Map<string, { edges: SVGLineElement[]; nodes: Set<string> }>();
+    for (const edge of edgeEls) {
+      const a = edge.dataset.a!;
+      const b = edge.dataset.b!;
+      for (const [from, to] of [[a, b], [b, a]] as const) {
+        if (!neighborsOf.has(from)) neighborsOf.set(from, { edges: [], nodes: new Set() });
+        const entry = neighborsOf.get(from)!;
+        entry.edges.push(edge);
+        entry.nodes.add(to);
+      }
+    }
+
+    let active: string | null = null;
+    function clear() {
+      active = null;
+      svg?.classList.remove('is-highlighting');
+      for (const el of nodeEls) el.classList.remove('is-active');
+      for (const el of edgeEls) el.classList.remove('is-active');
+      if (flyout) { flyout.hidden = true; }
+    }
+    function highlight(id: string) {
+      if (!nodeById.has(id)) return;
+      active = id;
+      svg?.classList.add('is-highlighting');
+      for (const el of nodeEls) el.classList.toggle('is-active', el.dataset.id === id);
+      const entry = neighborsOf.get(id);
+      const connected = entry?.nodes ?? new Set<string>();
+      for (const el of nodeEls) {
+        if (connected.has(el.dataset.id!)) el.classList.add('is-active');
+      }
+      for (const el of edgeEls) {
+        el.classList.toggle('is-active', el.dataset.a === id || el.dataset.b === id);
+      }
+    }
+    function showFlyout(el: SVGGElement, clientX: number, clientY: number) {
+      if (!flyout) return;
+      const name = el.dataset.name ?? '';
+      const greek = el.dataset.greek ?? '';
+      const role = el.dataset.role ?? '';
+      flyout.innerHTML =
+        `<span class="cn-flyout-name">${name}</span>` +
+        (greek ? `<span class="cn-flyout-greek" lang="grc">${greek}</span>` : '') +
+        (role ? `<span class="cn-flyout-role">${role}</span>` : '');
+      const host = svg!.closest('.cn-figure') as HTMLElement;
+      const hostRect = host.getBoundingClientRect();
+      flyout.style.left = `${Math.max(4, clientX - hostRect.left + 12)}px`;
+      flyout.style.top = `${Math.max(4, clientY - hostRect.top + 12)}px`;
+      flyout.hidden = false;
+    }
+
+    for (const el of nodeEls) {
+      el.addEventListener('mouseenter', (ev) => {
+        highlight(el.dataset.id!);
+        showFlyout(el, (ev as MouseEvent).clientX, (ev as MouseEvent).clientY);
+      });
+      el.addEventListener('mousemove', (ev) => {
+        showFlyout(el, (ev as MouseEvent).clientX, (ev as MouseEvent).clientY);
+      });
+      el.addEventListener('mouseleave', clear);
+      el.addEventListener('click', () => {
+        const target = document.getElementById(`roster-${el.dataset.id}`);
+        target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+
+    // Reciprocal: focusing/hovering a roster row's name link highlights its
+    // node (no flyout — the roster row itself already shows the details).
+    document.addEventListener('focusin', (ev) => {
+      const link = (ev.target as HTMLElement)?.closest?.('[data-char-id]');
+      if (link) highlight((link as HTMLElement).dataset.charId!);
+    });
+    document.addEventListener('focusout', (ev) => {
+      const link = (ev.target as HTMLElement)?.closest?.('[data-char-id]');
+      if (link) clear();
+    });
+    document.querySelectorAll<HTMLElement>('[data-char-id]').forEach((el) => {
+      el.addEventListener('mouseenter', () => highlight(el.dataset.charId!));
+      el.addEventListener('mouseleave', clear);
+    });
+  }
+</script>
