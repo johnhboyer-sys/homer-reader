@@ -18,6 +18,7 @@ import ThemeToggle from './ThemeToggle.astro';
 import { getWork, bookLabel, isBookless, workPath, workLanding, HOUSE_AUTHOR, GREEK_BOOK_LETTERS } from '@shared/lib/works';
 import { normalizeBookData, stripBookForClient } from '@shared/lib/data';
 import { setSsrBook } from '@shared/lib/ssr-book';
+import { bookArguments, type BookArgument } from '../lib/book-apparatus';
 import { speakerRoster } from '../lib/speaker-roster';
 import { SUPPORT_URL } from '../lib/support';
 import { jsonLdSafe } from '../lib/jsonld';
@@ -109,13 +110,18 @@ const clientBookData = stripBookForClient(bookData);
 // without it get no empty flyout.
 const sceneCount = bookData.scenes?.length ?? 0;
 
-// Cartouche apparatus slots (argument line + where/who/day strip): optional,
-// Phase-4 fields on a book's data. Absent today (no pipeline stage emits
-// them yet), so the cartouche renders title-only until a future apparatus
-// pass populates `bookData.apparatus` — no lorem/placeholder text ships in
-// the meantime (CLAUDE.md "Apparatus honesty").
+// Cartouche apparatus slots (argument line + where/who/day strip): optional
+// Phase-4 fields on a book's data. The cartouche renders only populated fields;
+// no lorem or placeholder text ships when a partial build lacks apparatus
+// (CLAUDE.md "Apparatus honesty").
 interface BookApparatus { argument?: string; where?: string; who?: string[]; day?: string; draft?: boolean; }
 const apparatus: BookApparatus | undefined = bookData.apparatus;
+// The verse-work contents rail needs every book's compact argument, not just
+// this page's cartouche apparatus. Read the same emitted book JSON files as
+// the current-book SSR loader above; the helper caches that projection per work
+// while Astro renders the 24 static book pages.
+const tocArguments: BookArgument[] = verseLine ? bookArguments(workId, work.books) : [];
+const tocHasDraftArgument = tocArguments.some(({ argument, draft }) => Boolean(argument) && draft === true);
 // Apologoi day-honesty cue (John, phone session 2026-07-18): "where" carries
 // the pipeline's "(telling)" marker on a frame scene (Odysseus narrating at
 // Alcinous's palace) when this book is told in flashback — every scene's day
@@ -142,7 +148,12 @@ try {
 // The full-work outline for the sidebar: every book, its chapters in order.
 const outline = Array.from({ length: work.books }, (_, i) => {
   const b = i + 1;
-  return { book: b, label: bookLabel(work, b), chapters: allChapters[String(b)] ?? [] };
+  return {
+    book: b,
+    label: bookLabel(work, b),
+    chapters: allChapters[String(b)] ?? [],
+    argument: tocArguments[b - 1]?.argument,
+  };
 });
 const chapterHref = (b: number, chapter: string) =>
   b === n ? `#ch-${b}-${chapter}` : `${base}${workPath(workId, b)}#ch-${b}-${chapter}`;
@@ -436,6 +447,11 @@ const intro =
     </div>
     <div class="toc-work-head"><span class="toc-work">{work.title}</span></div>
     <nav class="toc-outline">
+      {tocHasDraftArgument && (
+        <div class="toc-draft-note">
+          <span class="draft-badge" title="Book summaries are AI-drafted apparatus, pending review">Draft</span>
+        </div>
+      )}
       {stephanus ? (
         bookless ? (
           <ul class="toc-flat">
@@ -507,10 +523,11 @@ const intro =
           <>
             <a
               href={`${base}${workPath(workId, b.book)}`}
-              class={`toc-book-link${b.book === n ? ' current' : ''}`}
+              class={`toc-book-link${b.argument ? ' has-argument' : ''}${b.book === n ? ' current' : ''}`}
               aria-current={b.book === n ? 'page' : undefined}
             >
-              Book {b.label}
+              <span class="toc-book-title">Book {b.label}</span>
+              {b.argument && <span class="toc-book-argument">{b.argument}</span>}
             </a>
             {work.missingBooks && work.missingBooks.after === b.book && (
               <div class="toc-missing">
@@ -758,3 +775,28 @@ const intro =
   </footer>
 </body>
 </html>
+
+<style is:global>
+  /* Verse-work contents rows keep their single anchor target while adding the
+     optional book argument as a compact secondary line. */
+  .toc-book-link.has-argument { display: flex; flex-direction: column; gap: 0.14rem; }
+  .toc-book-argument {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    color: var(--text-mid);
+    font-size: 0.76rem;
+    font-weight: 400;
+    line-height: 1.3;
+  }
+  .toc-draft-note {
+    padding: 0.35rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  @media (max-width: 680px) {
+    /* The contents drawer is the phone navigation hub; one line preserves a
+       compact sheet at 375px while retaining the summary in the link text. */
+    .toc-book-argument { -webkit-line-clamp: 1; }
+  }
+</style>
