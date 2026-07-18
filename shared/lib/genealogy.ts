@@ -41,6 +41,16 @@ export interface GenealogyNode {
   role?: string;
   parents: ParentRef[];
   children: GenealogyNode[];
+  /**
+   * The people this node had children WITH: the (deduplicated, in order of
+   * first appearance among `children`) mother links off this node's own
+   * children. Every tree in the current data is patrilineal (see
+   * buildGenealogyTree's doc comment), so a "spouse" is always read off a
+   * child's `mother` ParentRef, never invented -- an external/unknown spouse
+   * carries `known: false` exactly like any other unresolved parent id.
+   * Empty when this node has no children, or none of them record a mother.
+   */
+  spouses: ParentRef[];
 }
 
 /** A person placed in 2-D for the chart (center-x, top-y of the node card). */
@@ -154,7 +164,16 @@ export function buildGenealogyTree(characters: CharacterRecord[], tree: string):
     const children = members
       .filter((m) => m.genealogy!.father === c.id && !seen.has(m.id))
       .map((m) => buildNode(m, nextSeen));
-    return { id: c.id, name: c.name, greek: c.greek, role: c.role, parents, children };
+    const spouses: ParentRef[] = [];
+    const seenSpouseIds = new Set<string>();
+    for (const child of children) {
+      const motherRef = child.parents.find((p) => p.key === 'mother');
+      if (motherRef && !seenSpouseIds.has(motherRef.id)) {
+        seenSpouseIds.add(motherRef.id);
+        spouses.push(motherRef);
+      }
+    }
+    return { id: c.id, name: c.name, greek: c.greek, role: c.role, parents, children, spouses };
   }
 
   const roots = members.filter((m) => {

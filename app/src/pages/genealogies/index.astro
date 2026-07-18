@@ -158,6 +158,11 @@ function connectorPath(c: {
     .legend-swatch { display: inline-block; width: 18px; border-top: 1.5px solid var(--text-mid); }
     .legend-swatch.dashed { border-top-style: dashed; border-top-color: var(--accent); }
     .legend-swatch.muted { border-top-style: dotted; opacity: 0.7; }
+    /* Decorative "+" glyph, not a line -- no border-top swatch. */
+    .legend-swatch.tie { width: auto; border-top: none; font-weight: 700; color: var(--text-mid); }
+    /* Describes the mobile chart's spouse-pairing convention only; that
+       chart doesn't exist above the ~700px breakpoint (see .mtree below). */
+    .legend-mobile-only { display: none; }
 
     .gen-tree {
       margin: 2.75rem 0;
@@ -318,11 +323,44 @@ function connectorPath(c: {
     }
     .parent-chip.external.non-homeric { border-style: dashed; }
 
+    /* Mobile "indented descent chart" (< ~700px, see media query below):
+       vertical-only tree, full container width, nested <ul>s draw the
+       branch structure with real connector rules instead of pixel math --
+       the sibling-spread the desktop tidy-tree needs (Priam alone has 8
+       children) is exactly what makes horizontal panning unworkable on a
+       phone. aria-hidden (see index markup); .gen-list-fallback below is
+       AT's source at every viewport, so these cards are intentionally not
+       focusable -- see GenNode.astro's header comment.
+       Only the wrapper below is rendered by THIS file -- Astro's scoped
+       CSS only tags elements the declaring file itself renders, so the
+       per-node/per-connector rules (.mtree-item, .mtree-card, etc.) live in
+       GenNode.astro, which is what actually renders that markup (recursive
+       <Astro.self> calls all share GenNode's one scope, so this works at
+       every depth). Putting them here would silently no-op, exactly like
+       the pre-existing .gen-list/.gen-card rules below already do against
+       GenNode's list-variant markup (latent, harmless only because that
+       list has always been sr-only -- flagged, not fixed here: out of this
+       task's blast radius). */
+    .mtree { display: none; }
+    ul.mtree-roots {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+
     /*
-      Desktop / tablet: chart is the visual tree; list is the accessible
-      fallback (sr-only). Narrow phones: chart can force awkward horizontal
-      pan, so we flip — list is the primary presentation, chart is hidden.
-      Explicit, styled choice so 375px never causes page-level scroll.
+      Desktop / tablet: SVG chart is the visual tree; list is the accessible
+      fallback (sr-only). Below ~700px the tidy-tree's sibling spread forces
+      awkward horizontal panning (measured: Troy's chart is 1664px wide,
+      Olympians' 1868px, against a 375px phone viewport) -- worse, Priam's
+      row of 8 children and Zeus's row of 9 can't even fit their own single
+      generation on a small screen, so no viewport-width choice fixes it;
+      only a genuinely different (vertical) layout does. The mobile chart
+      above replaces it there instead. List stays sr-only at every width;
+      explicit, styled choice so 375px never causes page-level scroll.
     */
     .gen-list-fallback {
       /* match .sr-only on wide viewports */
@@ -339,17 +377,12 @@ function connectorPath(c: {
 
     @media (max-width: 480px) {
       h1 { font-size: 1.55rem; }
+    }
+
+    @media (max-width: 700px) {
       .gen-scroll { display: none; }
-      .gen-list-fallback {
-        position: static;
-        width: auto;
-        height: auto;
-        margin: 0;
-        overflow: visible;
-        clip: auto;
-        white-space: normal;
-      }
-      .gen-list .gen-card { min-width: 8rem; }
+      .mtree { display: block; max-width: 100%; }
+      .legend-mobile-only { display: flex; }
     }
   </style>
   <Pwa />
@@ -378,6 +411,7 @@ function connectorPath(c: {
       <span class="legend-item"><span class="legend-swatch" aria-hidden="true"></span>connector: attested in Homer</span>
       <span class="legend-item"><span class="legend-swatch dashed" aria-hidden="true"></span>connector: later tradition, not Homer</span>
       <span class="legend-item"><span class="legend-swatch muted" aria-hidden="true"></span>chip: named, not a character in this edition</span>
+      <span class="legend-item legend-mobile-only"><span class="legend-swatch tie" aria-hidden="true">+</span>linked card: spouse/partner (dotted = not a character in this edition)</span>
     </div>
 
     {trees.map((t) => {
@@ -427,7 +461,19 @@ function connectorPath(c: {
               ))}
             </figure>
           </div>
-          {/* Semantic tree for AT (and primary UI under 480px). */}
+          {/* Mobile "indented descent chart": replaces the SVG chart below
+              ~700px (see .mtree CSS below), where the tidy-tree's sibling
+              spread — Troy's Priam alone has 8 children — would force
+              unreadable horizontal panning on a phone. Vertical scroll only,
+              full container width. aria-hidden for the same reason the
+              desktop <figure> is: the semantic list below is AT's one
+              source of truth at every viewport. */}
+          <div class="mtree" aria-hidden="true">
+            <ul class="mtree-roots">
+              {t.roots.map((root) => <GenNode node={root} variant="chart" />)}
+            </ul>
+          </div>
+          {/* Semantic tree for AT, at every viewport. */}
           <ul class="gen-roots gen-list gen-list-fallback" aria-label={`${t.label} family tree`}>
             {t.roots.map((root) => <GenNode node={root} />)}
           </ul>

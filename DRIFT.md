@@ -344,6 +344,22 @@ here because the new files live in `shared/`.
   `public/data/*` readFileSync convention used elsewhere on this page family.
 - `app/src/pages/index.astro` — primary nav gained a "Genealogies" link
   (between Odyssey and Search).
+- 2026-07-18, mobile tree (John: desktop chart hidden <480px read as "just a
+  list"): `shared/lib/genealogy.ts`'s `GenealogyNode` gained `spouses:
+  ParentRef[]` (deduped mothers of a node's children — patrilineal invariant
+  means "spouse" is always read off a child's mother link, never invented).
+  `GenNode.astro` gained a `variant?: 'list' | 'chart'` prop rendering a
+  mobile "indented descent chart" (nested `<ul>`s + drawn connector rules,
+  spouse cards paired inline) with its own `<style>` block — Astro scopes
+  `<style>` to the file that renders the markup, not the caller, so the
+  chart's CSS had to live in GenNode.astro itself (discovered the same gap
+  already made the pre-existing `.gen-list`/`.gen-card` rules in
+  index.astro no-op against GenNode's list markup — latent, harmless only
+  because that list has always been sr-only; not fixed, out of this task's
+  blast radius). `index.astro`'s breakpoint for hiding the desktop SVG chart
+  moved 480px → 700px (measured: Troy's chart is 1664px wide, Olympians'
+  1868px, against a 375px phone — no viewport choice fits Priam's row of 8
+  or Zeus's row of 9 children, so only a real vertical layout works).
 
 - `shared/lib/data.ts` — `Scene` gained optional `day?: number | null`;
   `normalizeBookData` now carries `apparatus.scenes[].dayNumber → day` (the scene

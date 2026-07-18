@@ -4,42 +4,169 @@
 // GenealogyNode; no data fetching here (the page reads apparatus/characters.json
 // once at build time and passes the already-built forest down).
 //
-// Used as the semantic list representation of each tree (assistive tech on
-// desktop; primary presentation on narrow viewports where the chart is hidden).
+// Two variants, both driven by the same forest data:
+//  - "list" (default): the semantic list — assistive tech's only source at
+//    every viewport (see index.astro: it is aria-hidden nowhere and is
+//    visually clipped sr-only whenever either chart is showing).
+//  - "chart": the mobile "indented descent chart" (nested lists + drawn
+//    connector rules, à la a classic narrow-format genealogy) that replaces
+//    the desktop SVG chart below ~700px, where the desktop chart's sibling
+//    spread would force unreadable amounts of horizontal panning (Troy's
+//    widest generation is 8 siblings). Rendered aria-hidden, exactly like
+//    the desktop chart's <figure>, so the semantic list stays the single
+//    source of truth for AT — which is also why its cards are NOT made
+//    focusable: tabindex on a descendant of an aria-hidden subtree is an
+//    axe "aria-hidden-focus" violation (serious). Desktop's own .gen-placed
+//    cards aren't focusable either, so this isn't a regression.
 import type { GenealogyNode } from '@shared/lib/genealogy';
 
 interface Props {
   node: GenealogyNode;
+  variant?: 'list' | 'chart';
 }
-const { node } = Astro.props;
+const { node, variant = 'list' } = Astro.props;
+const isChart = variant === 'chart';
 const NON_HOMERIC_NOTE = 'link from later tradition, not Homer';
+// Connector-into-this-node style, mirrors index.astro's desktop walkEdges()
+// rule: dashed iff THIS node's own father link is flagged nonHomeric. Only
+// meaningful for chart mode, where it styles the tick drawn on this <li> by
+// its parent's <ul class="mtree-children"> (root-level <li>s render inside
+// <ul class="mtree-roots"> instead, which draws no tick, so the class is
+// harmless there).
+const father = node.parents.find((p) => p.key === 'father');
+const incomingDashed = father?.nonHomeric === true;
 ---
-<li class="gen-node">
-  <div class="gen-card">
-    <span class="gen-name">{node.name}</span>
-    {node.greek && <span class="gen-greek" lang="grc">{node.greek}</span>}
-    {node.role && <span class="gen-role">{node.role}</span>}
-    {node.parents.length > 0 && (
-      <p class="gen-parentage">
-        {node.parents.map((p) => (
-          <span
-            class:list={['parent-chip', { 'non-homeric': p.nonHomeric, external: !p.known }]}
-            title={p.nonHomeric ? `Link from later tradition, not Homer: ${p.name}` : undefined}
-          >
-            <span class="parent-key" aria-hidden="true">{p.key === 'father' ? 'f.' : 'm.'}</span>
-            <span class="sr-only">{p.key === 'father' ? 'father: ' : 'mother: '}</span>
-            {p.name}
-            {p.nonHomeric && <span class="sr-only"> ({NON_HOMERIC_NOTE})</span>}
-          </span>
-        ))}
-      </p>
-    )}
-  </div>
-  {node.children.length > 0 && (
-    <ul class="gen-children">
-      {node.children.map((child) => (
-        <Astro.self node={child} />
+{isChart ? (
+  <li class:list={['gen-node', 'mtree-item', { dashed: incomingDashed }]}>
+    <div class="mtree-row">
+      <div class="mtree-card">
+        <span class="gen-name">{node.name}</span>
+        {node.greek && <span class="gen-greek" lang="grc">{node.greek}</span>}
+        {node.role && <span class="gen-role">{node.role}</span>}
+      </div>
+      {node.spouses.map((sp) => (
+        <span class="mtree-spouse-pair">
+          <span class="mtree-tie">+</span>
+          <div class:list={['mtree-card', 'mtree-spouse', { 'non-homeric': sp.nonHomeric, external: !sp.known }]}>
+            <span class="gen-name">{sp.name}</span>
+            {sp.greek && <span class="gen-greek" lang="grc">{sp.greek}</span>}
+          </div>
+        </span>
       ))}
-    </ul>
-  )}
-</li>
+    </div>
+    {node.children.length > 0 && (
+      <ul class="mtree-children">
+        {node.children.map((child) => (
+          <Astro.self node={child} variant="chart" />
+        ))}
+      </ul>
+    )}
+  </li>
+) : (
+  <li class="gen-node">
+    <div class="gen-card">
+      <span class="gen-name">{node.name}</span>
+      {node.greek && <span class="gen-greek" lang="grc">{node.greek}</span>}
+      {node.role && <span class="gen-role">{node.role}</span>}
+      {node.parents.length > 0 && (
+        <p class="gen-parentage">
+          {node.parents.map((p) => (
+            <span
+              class:list={['parent-chip', { 'non-homeric': p.nonHomeric, external: !p.known }]}
+              title={p.nonHomeric ? `Link from later tradition, not Homer: ${p.name}` : undefined}
+            >
+              <span class="parent-key" aria-hidden="true">{p.key === 'father' ? 'f.' : 'm.'}</span>
+              <span class="sr-only">{p.key === 'father' ? 'father: ' : 'mother: '}</span>
+              {p.name}
+              {p.nonHomeric && <span class="sr-only"> ({NON_HOMERIC_NOTE})</span>}
+            </span>
+          ))}
+        </p>
+      )}
+    </div>
+    {node.children.length > 0 && (
+      <ul class="gen-children">
+        {node.children.map((child) => (
+          <Astro.self node={child} />
+        ))}
+      </ul>
+    )}
+  </li>
+)}
+
+<style>
+  /*
+    Chart-variant styling for the mobile "indented descent chart" (see
+    /genealogies/'s .mtree wrapper, which sets display: none/block per
+    breakpoint -- that wrapper's own rules stay in index.astro since it
+    renders that element directly; everything here is markup THIS component
+    renders, which is why it has to live here: Astro's scoped CSS only tags
+    elements the declaring file renders, and recursive <Astro.self> calls
+    all share this one file's scope, so a single copy covers every depth.
+  */
+  ul.mtree-children {
+    list-style: none;
+    margin: 0.6rem 0 0 0;
+    padding: 0;
+    border-left: 1.5px solid var(--border);
+  }
+  ul.mtree-children > li.mtree-item {
+    position: relative;
+    margin: 0.6rem 0 0 1.15rem;
+  }
+  ul.mtree-children > li.mtree-item::before {
+    content: '';
+    position: absolute;
+    left: -1.15rem;
+    top: 1.05rem;
+    width: 1.15rem;
+    border-top: 1.5px solid var(--text-mid);
+  }
+  ul.mtree-children > li.mtree-item.dashed::before {
+    border-top-color: var(--accent);
+    border-top-style: dashed;
+  }
+  .mtree-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+  .mtree-card {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid var(--border);
+    background: var(--col-bg);
+    box-sizing: border-box;
+    min-width: 7.5rem;
+    min-height: 2.4rem;
+    justify-content: center;
+  }
+  .mtree-card .gen-name { font-family: var(--font-ui); font-weight: 600; font-size: 0.82rem; color: var(--text); }
+  .mtree-card .gen-greek { font-family: var(--font-greek); font-size: 0.86rem; color: var(--text-mid); }
+  /* index.astro's global .gen-role rule can't reach markup this component
+     renders (same scoping gap noted above), so the chart card styles its
+     own role text directly. */
+  .mtree-card .gen-role {
+    font-family: var(--font-english);
+    font-style: italic;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    color: var(--text-mid);
+    margin-top: 0.1rem;
+  }
+  /* Wraps [tie, spouse card] as one atomic flex item so a row wrap never
+     strands the "+" away from the card it's pairing. */
+  .mtree-spouse-pair { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .mtree-tie { font-family: var(--font-ui); font-size: 0.85rem; font-weight: 700; color: var(--text-mid); }
+  .mtree-spouse { opacity: 0.94; }
+  /* Same honesty convention as the desktop/list parent-chip: dashed =
+     later tradition, dotted = named but not a character in this edition. */
+  .mtree-spouse.non-homeric { border-style: dashed; border-color: var(--accent); }
+  .mtree-spouse.non-homeric .gen-name { color: var(--accent); }
+  .mtree-spouse.external { border-style: dotted; color: var(--text-light); font-style: italic; }
+  .mtree-spouse.external.non-homeric { border-style: dashed; }
+</style>
