@@ -114,6 +114,17 @@ def token_capitalized_variant_map(
     return {k: _capitalized_variants(k) for k in cap_keys}
 
 
+def token_lowercase_variant_map(
+    lines: list[tuple[int, int, list[dict]]],
+) -> dict[str, list[str]]:
+    """Token Beta Code key -> lowercase lookup variants, for every token
+    whose surface text is lowercase in the source."""
+    lower_keys = {
+        tok["k"] for _, _, tokens in lines for tok in tokens if not tok["t"][:1].isupper()
+    }
+    return {k: lookup_variants(k) for k in lower_keys}
+
+
 def entity_capitalized_variant_map(characters: list[dict]) -> dict[str, list[str]]:
     """Entity id -> ranked capitalized lookup variants for its nominative
     headword (entity_head_word)."""
@@ -168,25 +179,45 @@ def scan_capitalized_variants(manifest: Manifest, needed: set[str]) -> dict[str,
 
 
 def _line_lemmas(
-    tokens: list[dict], analyses: dict[str, list[dict]], cap_overrides: dict[str, str]
-) -> tuple[list[str], list[str]]:
+    tokens: list[dict], analyses: dict[str, list[dict]], cap_overrides: dict[str, str],
+    lower_overrides: dict[str, str],
+) -> tuple[list[str], list[str], list[str | None]]:
     """Per-token (lemma, surface) sequences for one line. Capitalized tokens
-    prefer cap_overrides (proper-noun-first resolution); everything else
-    uses the work's regular analyses.json. A token with no resolvable
+    prefer cap_overrides (proper-noun-first resolution); lowercase tokens
+    prefer their own lowercase Diogenes analysis. A token with no resolvable
     analysis anywhere falls back to its own raw Beta Code key so it still
     occupies a slot in the sequence -- harmless, since an unresolved key is
     effectively unique and cannot spuriously match a real lemma."""
     lemmas: list[str] = []
     surfaces: list[str] = []
+    known_lemmas: list[str | None] = []
     for tok in tokens:
         k = tok["k"]
         surfaces.append(tok["t"])
-        if tok["t"][:1].isupper() and k in cap_overrides:
-            lemmas.append(cap_overrides[k])
-            continue
-        entries = analyses.get(k)
-        lemmas.append(entries[0]["lemma"] if entries else k)
-    return lemmas, surfaces
+        lemma = tok.get("lemma")
+        if lemma is None and tok["t"][:1].isupper() and k in cap_overrides:
+            lemma = cap_overrides[k]
+        elif lemma is None and k in lower_overrides:
+            lemma = lower_overrides[k]
+        elif lemma is None:
+            entries = analyses.get(k)
+            lemma = entries[0]["lemma"] if entries else None
+        known_lemmas.append(lemma)
+        lemmas.append(lemma if lemma is not None else k)
+    return lemmas, surfaces, known_lemmas
+
+
+def entity_occurrence_indices(
+    tokens: list[dict], name_lemmas: set[str], name_forms: set[str]
+) -> list[int]:
+    """Indexes of an entity's name tokens. Known token morphology takes
+    precedence over the surface-form fallback, so a homonymous surface cannot
+    become a name merely because it shares a prefix with one."""
+    return [
+        i for i, tok in enumerate(tokens)
+        if (tok.get("lemma") in name_lemmas if tok.get("lemma") is not None
+            else tok["k"] in name_forms)
+    ]
 
 
 def _formula_windows(
@@ -281,35 +312,58 @@ def run(manifest: Manifest) -> dict:
     analyses = json.loads(analyses_out_path.read_text(encoding="utf-8"))
     characters = load_characters()
 
-    # One combined Diogenes scan for every capitalized token variant AND
-    # every entity headword variant this work could need -- see
+    # One combined Diogenes scan for every token variant and every entity
+    # headword variant this work could need -- see
     # scan_capitalized_variants' docstring. Scanning per-entity here would
     # mean re-reading the 120MB source file up to 101 times.
     token_variants = token_capitalized_variant_map(lines_raw)
+    lower_variants = token_lowercase_variant_map(lines_raw)
     entity_variants = entity_capitalized_variant_map(characters)
     needed = {v for vs in token_variants.values() for v in vs}
+    needed |= {v for vs in lower_variants.values() for v in vs}
     needed |= {v for vs in entity_variants.values() for v in vs}
     found = scan_capitalized_variants(manifest, needed)
 
     cap_overrides = resolve_lemma_map(token_variants, found)
+    lower_overrides = resolve_lemma_map(lower_variants, found)
     entity_lemma = resolve_lemma_map(entity_variants, found)
     unresolved_entities = [c["id"] for c in characters if c["id"] not in entity_lemma]
 
-    lines: list[tuple[int, int, list[str], list[str], set[str]]] = []
+    lines: list[tuple[int, int, list[dict], list[str], list[str], set[str]]] = []
     for book_n, line_n, tokens in lines_raw:
-        lemmas, surfaces = _line_lemmas(tokens, analyses, cap_overrides)
-        lines.append((book_n, line_n, lemmas, surfaces, set(lemmas)))
+        lemmas, surfaces, known_lemmas = _line_lemmas(
+            tokens, analyses, cap_overrides, lower_overrides
+        )
+        lines.append((
+            book_n,
+            line_n,
+            [{**tok, **({"lemma": lemma} if lemma is not None else {})}
+             for tok, lemma in zip(tokens, known_lemmas)],
+            lemmas,
+            surfaces,
+            set(lemmas),
+        ))
 
     entities_out = []
     for char in characters:
         target = entity_lemma.get(char["id"])
         if target is None:
             continue
+        name_forms = {v.lstrip("*") for v in entity_variants[char["id"]]}
         occurrences = []
-        for book_n, line_n, lemmas, surfaces, lemma_set in lines:
-            if target not in lemma_set:
+        for book_n, line_n, tokens, lemmas, surfaces, lemma_set in lines:
+            if target not in lemma_set and not any(
+                tok.get("lemma") is None and tok["k"] in name_forms for tok in tokens
+            ):
                 continue
-            occurrences.extend(_formula_windows(lemmas, surfaces, book_n, line_n, target))
+            indexes = entity_occurrence_indices(tokens, {target}, name_forms)
+            line_lemmas = list(lemmas)
+            for i in indexes:
+                if line_lemmas[i] != target:
+                    line_lemmas[i] = target
+            occurrences.extend(
+                _formula_windows(line_lemmas, surfaces, book_n, line_n, target)
+            )
         formulas = formulas_from_occurrences(occurrences)
         if formulas:
             entities_out.append({"entity": char["id"], "formulas": formulas})

@@ -46,6 +46,17 @@ def test_resolve_lemma_map_omits_entries_with_no_match():
     assert ae.resolve_lemma_map(variant_map, {}) == {}
 
 
+def test_entity_occurrence_indices_rejects_known_non_name_lemma_despite_surface_prefix():
+    tokens = [
+        {"t": "αἶαν", "k": "ai)=an", "lemma": "ai)=a"},
+        {"t": "Αἶαν", "k": "ai)=an", "lemma": "*ai)/as"},
+    ]
+
+    assert ae.entity_occurrence_indices(
+        tokens, {"*ai)/as"}, {"ai)=an"}
+    ) == [1]
+
+
 # ── _formula_windows: window generation around a target lemma ──────────────
 
 
