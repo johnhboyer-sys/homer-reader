@@ -521,6 +521,13 @@ const supportHref = `${base}/support`;
     .hero-horizon path.h1 { stroke: var(--hero-rule-strong); opacity: 0.55; }
     .hero-horizon path.h2 { stroke: var(--hero-rule); opacity: 0.4; }
     .hero-horizon path.h3 { stroke: var(--hero-accent); opacity: 0.32; }
+    @media (max-width: 899.98px) {
+      /* The horizon curves are composed for the side-by-side dusk panorama;
+         preserveAspectRatio="none" stretches them over the tall stacked-panel
+         hero into steep streaks that read as rendering artifacts (John,
+         2026-07-18) — hide them where the panels stack. */
+      .hero-horizon { display: none; }
+    }
     @media (prefers-reduced-motion: no-preference) {
       .hero-horizon path {
         stroke-dasharray: 2000;
