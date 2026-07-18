@@ -80,3 +80,7 @@ explicit-path staging while agents run, push after every commit).
   numbering** (citable: Leaf/Whitman/tradition), recalibrated from our
   compressed 38; the timeline feature will visually compress the
   summarized spans instead. Odyssey stays Day 1–41 (Monro-corroborated).
+- Queue add (2026-07-18): **Ogygia identification** — audit found the
+  ancient Gozo/Gaudos tradition (Euhemerus, Callimachus; rebutted by
+  ps.-Aristotle). Current tier 'mythical' is defensible; John to rule
+  whether the rival tradition earns a note or a tier change.
