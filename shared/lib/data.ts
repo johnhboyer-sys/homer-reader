@@ -234,6 +234,39 @@ export interface SpeechesFile {
   speeches: Speech[];
 }
 
+// A repeated Greek line or phrase across the two Homeric epics. Unlike the
+// per-work speech data above, this is one corpus-wide index at /data rather
+// than beneath either work directory. It is deliberately fetched only by the
+// repetitions index after its search field receives its first input.
+export interface RepetitionRef {
+  work: 'iliad' | 'odyssey';
+  book: number;
+  line: number;
+}
+
+export interface Repetition {
+  key: string;
+  text: string;
+  count: number;
+  refs: RepetitionRef[];
+  // Present only in the compact server-rendered preview used by /repetitions/;
+  // the emitted corpus file derives this from refs instead.
+  crossEpic?: boolean;
+}
+
+let _repetitionsCache: Promise<Repetition[]> | null = null;
+
+export function fetchRepetitions(): Promise<Repetition[]> {
+  if (_repetitionsCache) return _repetitionsCache;
+  const p = fetch(`${ROOT()}/repetitions.json`).then(r => {
+    if (!r.ok) throw new Error(`repetitions: ${r.status}`);
+    return r.json();
+  }).then((raw: Repetition[]) => raw ?? []);
+  p.catch(() => { if (_repetitionsCache === p) _repetitionsCache = null; });
+  _repetitionsCache = p;
+  return p;
+}
+
 const _speechesCache = new Map<string, Promise<Speech[]>>();
 
 // A work's whole speech-span list (both epics run ~700 rows), fetched once

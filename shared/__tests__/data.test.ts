@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { activeSceneIndex, cunliffeShard, fetchBook, fetchCunliffeShard, fetchFootnotes, fetchLsjShard, invalidateBookCache, lookupWord, lsjShard, normalizeBookData, parseBekker, parseLocation, resolveBekker, stripBookForClient, type Scene } from '../lib/data';
+import { activeSceneIndex, cunliffeShard, fetchBook, fetchCunliffeShard, fetchFootnotes, fetchLsjShard, fetchRepetitions, invalidateBookCache, lookupWord, lsjShard, normalizeBookData, parseBekker, parseLocation, resolveBekker, stripBookForClient, type Scene } from '../lib/data';
 
 function mockFetch(map: Record<string, unknown>) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
@@ -96,6 +96,14 @@ describe('activeSceneIndex (scene-rail current-scene mapping)', () => {
 });
 
 describe('fetch and lookup helpers', () => {
+  it('fetchRepetitions loads the corpus-wide index once and retries failures', async () => {
+    mockFetch({
+      'repetitions.json': [{ key: 'x', text: 'ἄνδρα', count: 2, refs: [] }],
+    });
+    await expect(fetchRepetitions()).resolves.toEqual([
+      { key: 'x', text: 'ἄνδρα', count: 2, refs: [] },
+    ]);
+  });
   it('fetchBook normalizes emitted apparatus.scenes into top-level Scene[]', async () => {
     mockFetch({
       'ScenesWork/book-01.json': {

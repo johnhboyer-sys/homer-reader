@@ -509,3 +509,8 @@ note below for the justification.
   level>=2, the odyssey-931/Od.10.456 vulgate-gap fixture, an unresolved
   speaker), humanize/label formatting, and real-apparatus regression checks
   against the committed `apparatus/speeches/*.json` / `characters.json`.
+
+## Formula/repetition indexes (Codex lane, Sonnet-verified, 2026-07-17)
+
+- shared/lib/repetitions.ts (+test) — top-N selection/filter helpers (new).
+- shared/lib/data.ts — fetchRepetitions lazy helper (fetchCharacters shape).
