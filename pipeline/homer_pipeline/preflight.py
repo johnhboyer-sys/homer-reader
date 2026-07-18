@@ -33,6 +33,7 @@ def validate(data_dir: Path, manifests_dir: Path) -> list[Problem]:
     for manifest in manifests:
         _validate_manifest_schema(manifest, problems)
         _validate_work_data(data_dir, manifest, problems)
+    _validate_global_apparatus_emits(data_dir, manifests, problems)
     return problems
 
 
@@ -361,7 +362,7 @@ def _validate_work_data(data_dir: Path, manifest: WorkManifest, problems: list[P
     _validate_analyses(manifest, data_dir, loaded.get("analyses.json"), token_keys, problems)
     _validate_public_gating(manifest, loaded, problems)
     if verse:
-        _validate_apparatus(manifest, loaded, problems)
+        _validate_apparatus(manifest, data_dir, loaded, problems)
 
 
 def _validate_emitted_manifest(manifest: WorkManifest, emitted: Any, problems: list[Problem]) -> None:
@@ -796,6 +797,7 @@ def _validate_public_gating(
 
 def _validate_apparatus(
     manifest: WorkManifest,
+    data_dir: Path,
     loaded: dict[str, Any],
     problems: list[Problem],
 ) -> None:
@@ -805,7 +807,14 @@ def _validate_apparatus(
     apparatus coverage is allowed to be partial across a work — but a book
     that DOES carry one must be fully clean: real line bounds, no coverage
     holes/overlaps, gap-boundary respected, summaries <=20 words, draft flag
-    present."""
+    present.
+
+    Beyond that per-book quality check, three more emits are asserted here:
+    the emitted apparatus.scenes must actually MATCH the canonical
+    apparatus/scenes/<work>.json wherever the canonical file covers a book
+    (the Gate-4 hardening — see _validate_apparatus_scenes_coverage), and the
+    speeches.json / epithets.json emits scripts/build-public.mjs and the
+    pipeline's own stages are expected to produce must be present."""
     from . import apparatus_scenes
 
     bounds = apparatus_scenes.book_bounds(manifest.data)
@@ -825,6 +834,235 @@ def _validate_apparatus(
             n, doc["apparatus"], book_end, gaps.get(n, [])
         ):
             problems.append((manifest.work_id, file_name, message))
+
+    _validate_apparatus_scenes_coverage(manifest, loaded, problems)
+    _validate_apparatus_speeches_emitted(manifest, data_dir, problems)
+    _validate_apparatus_epithets_emitted(manifest, data_dir, problems)
+
+
+def _validate_apparatus_scenes_coverage(
+    manifest: WorkManifest,
+    loaded: dict[str, Any],
+    problems: list[Problem],
+) -> None:
+    """Gate-4 hardening (the priority fix this function exists for): once
+    apparatus/scenes/<work>.json — the canonical, merged apparatus source,
+    see apparatus_scenes.py's module docstring — covers a book, the emitted
+    build/dist/<work>/book-NN.json for that book MUST carry a matching,
+    non-empty apparatus.scenes. Before this check, apparatus was validated
+    only if present (see _validate_apparatus above): a full rebuild that
+    quietly skipped the apparatus merge/emit stage (e.g. because
+    apparatus/staging/ had already been cleaned up after an earlier merge —
+    apparatus_scenes.run() returns early with no staging files to merge and
+    never touches the book JSON at all, see its module docstring) produced
+    book files with NO apparatus key, and preflight said nothing. That silent
+    corpus-wide wipe is the Gate-4 incident; failing loudly here is the
+    point, so this check runs unconditionally whenever the canonical file
+    exists — it does not care whether "apparatus" is present in doc at all."""
+    from . import apparatus_scenes
+
+    canonical_path = apparatus_scenes.SCENES_DIR / f"{manifest.work_id}.json"
+    if not canonical_path.exists():
+        return
+    try:
+        canonical = json.loads(canonical_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        problems.append((manifest.work_id, canonical_path.name, f"invalid JSON: {exc}"))
+        return
+    if not isinstance(canonical, dict):
+        problems.append((manifest.work_id, canonical_path.name, "root must be an object"))
+        return
+
+    canonical_name = canonical_path.name
+    for book in canonical.get("books", []) or []:
+        if not isinstance(book, dict) or not isinstance(book.get("book"), int):
+            continue
+        book_n = book["book"]
+        file_name = f"book-{book_n:02d}.json"
+        expected_scenes = apparatus_scenes.emit_book_apparatus(book).get("scenes")
+        doc = loaded.get(file_name)
+        if not isinstance(doc, dict):
+            problems.append(
+                (manifest.work_id, file_name,
+                 f"apparatus/scenes/{canonical_name} covers book {book_n} but the "
+                 f"emitted book file is missing")
+            )
+            continue
+        apparatus = doc.get("apparatus")
+        emitted_scenes = apparatus.get("scenes") if isinstance(apparatus, dict) else None
+        if not isinstance(emitted_scenes, list) or not emitted_scenes:
+            problems.append(
+                (manifest.work_id, file_name,
+                 f"apparatus/scenes/{canonical_name} covers book {book_n} but the "
+                 f"emitted apparatus.scenes is missing or empty (stale/failed apparatus emit)")
+            )
+            continue
+        if emitted_scenes != expected_scenes:
+            problems.append(
+                (manifest.work_id, file_name,
+                 f"emitted apparatus.scenes for book {book_n} does not match "
+                 f"apparatus/scenes/{canonical_name} (stale or partial build)")
+            )
+
+
+def _validate_apparatus_speeches_emitted(
+    manifest: WorkManifest,
+    data_dir: Path,
+    problems: list[Problem],
+) -> None:
+    """scripts/build-public.mjs copies apparatus/speeches/<work>.json verbatim
+    to build/dist/<work>/speeches.json ('Copying DICES speech-span apparatus
+    into the public data root'). If the source exists, the copy must too."""
+    from . import apparatus_scenes
+
+    speeches_src = apparatus_scenes.APPARATUS_DIR / "speeches" / f"{manifest.work_id}.json"
+    if not speeches_src.exists():
+        return
+    speeches_dist = data_dir / manifest.work_id / "speeches.json"
+    if not speeches_dist.exists():
+        problems.append(
+            (manifest.work_id, "speeches.json",
+             f"apparatus/speeches/{manifest.work_id}.json exists but was not copied "
+             f"into the public data root")
+        )
+        return
+    try:
+        json.loads(speeches_dist.read_text(encoding="utf-8"))
+    except Exception as exc:
+        problems.append((manifest.work_id, "speeches.json", f"invalid JSON: {exc}"))
+
+
+def _validate_apparatus_epithets_emitted(
+    manifest: WorkManifest,
+    data_dir: Path,
+    problems: list[Problem],
+) -> None:
+    """The 'epithets' pipeline stage (apparatus_epithets.py) is registered for
+    every verse-line work and always emits build/dist/<work>/epithets.json —
+    absence means the stage silently failed or was skipped."""
+    epithets_path = data_dir / manifest.work_id / "epithets.json"
+    if not epithets_path.exists():
+        problems.append(
+            (manifest.work_id, "epithets.json",
+             "the epithets pipeline stage is registered but epithets.json was not emitted")
+        )
+        return
+    try:
+        json.loads(epithets_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        problems.append((manifest.work_id, "epithets.json", f"invalid JSON: {exc}"))
+
+
+def _validate_global_apparatus_emits(
+    data_dir: Path,
+    manifests: list[WorkManifest],
+    problems: list[Problem],
+) -> None:
+    """Cross-work apparatus emits scripts/build-public.mjs produces once for
+    the whole corpus rather than per work: apparatus/characters.json (the
+    cast list) copied to build/dist/characters.json, and repetitions.json
+    (the 'repetitions' pipeline stage, cross-epic by construction) at
+    build/dist/repetitions.json. Checked only when at least one verse-line
+    (Homer) work is present, since both are Homer-specific apparatus and this
+    preflight also serves the Bekker/section-scheme siblings' corpora."""
+    if not any(scheme_mod.for_manifest(m.data).name == "verse-line" for m in manifests):
+        return
+
+    from . import apparatus_scenes
+
+    characters_src = apparatus_scenes.APPARATUS_DIR / "characters.json"
+    if characters_src.exists():
+        characters_dist = data_dir / "characters.json"
+        if not characters_dist.exists():
+            problems.append(
+                ("-", "characters.json",
+                 "apparatus/characters.json exists but was not copied into the public data root")
+            )
+        else:
+            try:
+                json.loads(characters_dist.read_text(encoding="utf-8"))
+            except Exception as exc:
+                problems.append(("-", "characters.json", f"invalid JSON: {exc}"))
+
+    repetitions_dist = data_dir / "repetitions.json"
+    if not repetitions_dist.exists():
+        problems.append(
+            ("-", "repetitions.json",
+             "the repetitions pipeline stage is registered but repetitions.json was not emitted")
+        )
+    else:
+        try:
+            json.loads(repetitions_dist.read_text(encoding="utf-8"))
+        except Exception as exc:
+            problems.append(("-", "repetitions.json", f"invalid JSON: {exc}"))
+
+
+# ── alignment coverage: Murray/Butler milestone-tick density per book ──────
+#
+# Murray (primary `english` slot) and Butler (`ross` overlay slot) are both
+# anchored to the Greek spine by REAL milestone ticks from their Perseus TEI
+# (see stage1_perseus_milestone_english.py's module docstring) — each ticks
+# list entry is `{n, offset, real: true}`. A book's tick COUNT is a cheap,
+# meaningful proxy for alignment density (roughly one tick per ~5 Murray
+# lines, ~5-13 Butler lines): a future ingest regression that thins out
+# ticks (a milestone-parsing bug, a re-export that drops anchors, ...) would
+# still pass every other structural check here while silently degrading the
+# reader's in-line English positioning. Pinning today's healthy counts as a
+# floor (see test_alignment_coverage.py) turns that into a loud test failure.
+
+
+def murray_butler_tick_counts(data_dir: Path, work_id: str) -> dict[int, dict[str, int]]:
+    """book number -> {"murray": tick_count, "butler": tick_count}, read off
+    the emitted build/dist/<work_id>/book-NN.json files. Verse-line books
+    have exactly one segment; `english.bekker` carries Murray's ticks and
+    `ross[*].bekker` carries Butler's (Butler is a single un-chaptered piece
+    per book, but summed generally in case that ever changes)."""
+    counts: dict[int, dict[str, int]] = {}
+    work_dir = data_dir / work_id
+    if not work_dir.is_dir():
+        return counts
+    for path in sorted(work_dir.glob("book-*.json")):
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(doc, dict):
+            continue
+        book = doc.get("book")
+        if not isinstance(book, int):
+            continue
+        murray = 0
+        butler = 0
+        for segment in doc.get("segments", []) or []:
+            if not isinstance(segment, dict):
+                continue
+            english = segment.get("english")
+            if isinstance(english, dict):
+                murray += len(english.get("bekker") or [])
+            for piece in segment.get("ross") or []:
+                if isinstance(piece, dict):
+                    butler += len(piece.get("bekker") or [])
+        counts[book] = {"murray": murray, "butler": butler}
+    return counts
+
+
+def tick_coverage_violations(
+    counts: dict[int, dict[str, int]],
+    floor: dict[int, dict[str, int]],
+) -> list[str]:
+    """Every (book, translator) pair in `floor` whose actual count in
+    `counts` is below its pinned minimum. Empty means every book meets or
+    exceeds its recorded coverage."""
+    violations: list[str] = []
+    for book in sorted(floor):
+        actual = counts.get(book, {})
+        for translator, minimum in sorted(floor[book].items()):
+            got = actual.get(translator, 0)
+            if got < minimum:
+                violations.append(
+                    f"book {book} {translator} ticks {got} below recorded floor {minimum}"
+                )
+    return violations
 
 
 def _omitted_translation_slots(private: dict[str, Any], public: dict[str, Any]) -> set[str]:

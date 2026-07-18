@@ -105,3 +105,46 @@ def test_verse_line_validation_undeclared_gap_fails():
 def test_unknown_scheme_raises():
     with pytest.raises(KeyError):
         scheme_mod.get("nonesuch")
+
+
+# ── verse-line citation parse <-> format round-trip (mirrors shared/__tests__/
+# verse-line.test.ts's "verse citation round-trips" describe block on the TS
+# side) ──────────────────────────────────────────────────────────────────────
+
+
+def test_parse_verse_ref_reads_book_dot_line():
+    assert scheme_mod.parse_verse_ref("9.366") == (9, 366)
+    assert scheme_mod.parse_verse_ref("1.1") == (1, 1)
+    assert scheme_mod.parse_verse_ref(" 24.804 ") == (24, 804)
+
+
+def test_parse_verse_ref_rejects_malformed_input():
+    assert scheme_mod.parse_verse_ref("9a") is None
+    assert scheme_mod.parse_verse_ref("9") is None       # bare book: not a full ref
+    assert scheme_mod.parse_verse_ref("9:366") is None   # ?loc= colon form: reader-only
+    assert scheme_mod.parse_verse_ref("1.1-7") is None   # no range grammar
+    assert scheme_mod.parse_verse_ref("") is None
+
+
+def test_format_verse_ref_joins_book_and_line_with_a_dot():
+    assert scheme_mod.format_verse_ref(9, 366) == "9.366"
+    assert scheme_mod.format_verse_ref(1, 1) == "1.1"
+
+
+def test_verse_ref_round_trip_parse_format_exhaustive_over_real_range():
+    # Property: for every (book, line) an Iliad/Odyssey citation could name,
+    # format -> parse recovers exactly the pair that produced it.
+    for book in range(1, 25):          # both epics: 24 books
+        for line in range(1, 200):     # comfortably covers any book's opening span
+            formatted = scheme_mod.format_verse_ref(book, line)
+            assert scheme_mod.parse_verse_ref(formatted) == (book, line)
+
+
+def test_verse_ref_round_trip_format_parse_on_real_refs():
+    # Property in the other direction: for every well-formed citation string,
+    # parse -> format recovers the identical string (no silent normalization
+    # drift, e.g. no leading-zero padding or whitespace).
+    for raw in ["1.1", "9.366", "24.804", "2.494"]:
+        parsed = scheme_mod.parse_verse_ref(raw)
+        assert parsed is not None
+        assert scheme_mod.format_verse_ref(*parsed) == raw

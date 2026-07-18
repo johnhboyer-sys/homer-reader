@@ -95,6 +95,25 @@ _BOOK_RE = re.compile(r"^(\d+)$")
 _VERSE_REF_RE = re.compile(r"^(\d+)\.(\d+)$")
 
 
+def parse_verse_ref(raw: str) -> tuple[int, int] | None:
+    """Parse a verse citation string ('9.366') into (book, line), or None if
+    it doesn't match the grammar. The Python-side mirror of shared/lib/
+    citation.ts's `parseLocation`/`parseVerseCitation` dot form — the reader
+    also accepts a bare book or a ':' loc= separator, but the pipeline never
+    needs those, so this covers only the citation grammar the vulgate
+    lineation is cited in ("Il. 1.1", "Od. 9.366")."""
+    m = _VERSE_REF_RE.match(raw.strip())
+    if not m:
+        return None
+    return (int(m.group(1)), int(m.group(2)))
+
+
+def format_verse_ref(book: int, line: int) -> str:
+    """Inverse of `parse_verse_ref`: (book, line) -> '9.366'. Mirrors
+    shared/lib/citation.ts's `formatCitation` for the verse-line scheme."""
+    return f"{book}.{line}"
+
+
 SCHEMES: dict[str, Scheme] = {
     "bekker": Scheme(
         name="bekker",
