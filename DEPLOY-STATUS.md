@@ -369,3 +369,39 @@ Also: Οὖτις 404. IN FLIGHT at compact: map timelines + animated
 step-by-step playthrough lane. QUEUED: A-rail, C-sheet, full rebuild +
 fresh preview + screenshot sweep. John's open queue: Ogygia tier,
 domain, PR/main, deploy, Wilson jokes stay off-site.
+
+## Day-2 ledger, afternoon (2026-07-18, post-compact through preview restart)
+
+Usage rebalance in force (John): implementation to Codex/Grok, Claude for
+verification + philology. Commits this block, all pushed:
+
+- a467021 places: Pylos (Strabo 8.3.7 three-Pylos dispute) + Scheria
+  (Thuc. 1.25.4 reworded to the Corcyraeans' own boast) — first per-place
+  `sources` citation arrays. Grok-implemented, orchestrator-verified.
+- 41f3966 maps: duration chips (Greek-cited, chip table verified against
+  raw lines) + Story-mode animated playthrough (play/pause/step, reduced-
+  motion honest, unlocatable legs stay stubs). Sonnet lane; Grok gate
+  caught a rough-for-smooth breathing on ὀγδοάτῳ pre-commit.
+- f3a579c reader: Chart Room rail (Scholar desktop, toggled, persisted) +
+  mobile scene-context bottom sheet (both views; B-plate map yields on
+  mobile). Codex-implemented; Sonnet verify: 484/484, a11y, lazy-load
+  honesty (gazetteer fetched only on first panel open).
+- e749ab5 reader: scene-tracking arms from Chart Room; conditional
+  aria-controls (verification nits).
+- 99e685a scene-place: THE BIG ONE. Grok audit proved the mention-based
+  resolver wrong for 385/592 resolutions (speech hijack: Phthia for the
+  Il. 1 assembly, Thymbra for all of Il. 10, Lotus-eaters for all of
+  Od. 23). Rewritten around the scenes' authored location prose (94-entry
+  curated dictionary, book-scoped + line-spanned rules with explicit-null
+  verdicts), journey-leg fallback, Olympus guard, no establishing
+  fallback. Independent Grok re-audit: 733/790 resolved, 0 confidently
+  wrong, 57 honest nulls; its one finding (post-Thrinacia wreck pinned to
+  Sirens) fixed + regression-tested. 492/492.
+
+build:public gate: PASS (4713 pages, 221,467 links, 0 broken;
+48/48 books carry apparatus.scenes). Preview restarted: 192.168.1.90:8090.
+
+Queued, non-blocking: Olympus gazetteer entry (37 divine scenes now
+honest-null, would gain a pin); panel full-mock fidelity build-out
+(place-name headline, citation line, cast chips) — John's call; art
+vendoring pending John's B-plates render verdict.
