@@ -371,6 +371,18 @@ def _stage_scansion(manifest):
     )
 
 
+def _stage_vocab(manifest):
+    from . import apparatus_vocab
+
+    result = apparatus_vocab.run(manifest)
+    print(
+        f"vocab: {result['work']}: books={result['books_covered']} "
+        f"entries={result['total_entries']} gloss_coverage="
+        f"{result['gloss_coverage']:.1%} stoplist_size={result['stoplist_size']} "
+        f"proper_names_excluded={result['proper_names_excluded_distinct']}"
+    )
+
+
 def _stage_repetitions(manifest):
     # Cross-epic: discovers every work from manifests/*.yaml itself, so the
     # (per-CLI-invocation) `manifest` argument is unused here but kept for a
@@ -398,6 +410,7 @@ _STAGES = {
     "epithets": _stage_epithets,
     "speeches": _stage_speeches,
     "scansion": _stage_scansion,
+    "vocab": _stage_vocab,
     "repetitions": _stage_repetitions,
 }
 

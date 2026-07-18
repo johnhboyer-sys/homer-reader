@@ -839,6 +839,7 @@ def _validate_apparatus(
     _validate_apparatus_speeches_emitted(manifest, data_dir, problems)
     _validate_apparatus_epithets_emitted(manifest, data_dir, problems)
     _validate_apparatus_scansion_emitted(manifest, data_dir, problems)
+    _validate_apparatus_vocab_emitted(manifest, data_dir, problems)
 
 
 def _validate_apparatus_scenes_coverage(
@@ -973,6 +974,27 @@ def _validate_apparatus_scansion_emitted(
         json.loads(scansion_path.read_text(encoding="utf-8"))
     except Exception as exc:
         problems.append((manifest.work_id, "scansion.json", f"invalid JSON: {exc}"))
+
+
+def _validate_apparatus_vocab_emitted(
+    manifest: WorkManifest,
+    data_dir: Path,
+    problems: list[Problem],
+) -> None:
+    """The 'vocab' pipeline stage (apparatus_vocab.py) is registered for
+    every verse-line work and always emits build/dist/<work>/vocab.json —
+    absence means the stage silently failed or was skipped."""
+    vocab_path = data_dir / manifest.work_id / "vocab.json"
+    if not vocab_path.exists():
+        problems.append(
+            (manifest.work_id, "vocab.json",
+             "the vocab pipeline stage is registered but vocab.json was not emitted")
+        )
+        return
+    try:
+        json.loads(vocab_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        problems.append((manifest.work_id, "vocab.json", f"invalid JSON: {exc}"))
 
 
 def _validate_global_apparatus_emits(

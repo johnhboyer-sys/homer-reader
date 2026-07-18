@@ -82,14 +82,16 @@ def _apparatus_manifest() -> "WorkManifest":
 
 
 def _stub_epithets(data_dir, work_id: str = "testwork") -> None:
-    # _validate_apparatus_epithets_emitted and _validate_apparatus_scansion_emitted
-    # each require build/dist/<work>/{epithets,scansion}.json to exist for every
-    # verse work; tests that aren't exercising THOSE checks stub both out so they
-    # stay focused on what they actually test.
+    # _validate_apparatus_epithets_emitted, _validate_apparatus_scansion_emitted,
+    # and _validate_apparatus_vocab_emitted each require
+    # build/dist/<work>/{epithets,scansion,vocab}.json to exist for every verse
+    # work; tests that aren't exercising THOSE checks stub all three out so
+    # they stay focused on what they actually test.
     work_dir = data_dir / work_id
     work_dir.mkdir(parents=True, exist_ok=True)
     (work_dir / "epithets.json").write_text("{}", encoding="utf-8")
     (work_dir / "scansion.json").write_text("{}", encoding="utf-8")
+    (work_dir / "vocab.json").write_text("{}", encoding="utf-8")
 
 
 def test_validate_apparatus_skips_books_with_no_apparatus_yet(tmp_path):
@@ -315,6 +317,29 @@ def test_apparatus_scansion_emitted_passes_when_present(tmp_path):
     (work_dir / "scansion.json").write_text('{"work": "testwork", "lines": {}}', encoding="utf-8")
     problems: list = []
     _validate_apparatus_scansion_emitted(_apparatus_manifest(), data_dir, problems)
+    assert problems == []
+
+
+def test_apparatus_vocab_emitted_fails_when_missing(tmp_path):
+    from homer_pipeline.preflight import _validate_apparatus_vocab_emitted
+
+    data_dir = tmp_path / "data"
+    (data_dir / "testwork").mkdir(parents=True)
+    problems: list = []
+    _validate_apparatus_vocab_emitted(_apparatus_manifest(), data_dir, problems)
+    messages = [p[2] for p in problems]
+    assert any("vocab.json was not emitted" in m for m in messages)
+
+
+def test_apparatus_vocab_emitted_passes_when_present(tmp_path):
+    from homer_pipeline.preflight import _validate_apparatus_vocab_emitted
+
+    data_dir = tmp_path / "data"
+    work_dir = data_dir / "testwork"
+    work_dir.mkdir(parents=True)
+    (work_dir / "vocab.json").write_text('{"status": "draft", "books": {}}', encoding="utf-8")
+    problems: list = []
+    _validate_apparatus_vocab_emitted(_apparatus_manifest(), data_dir, problems)
     assert problems == []
 
 
