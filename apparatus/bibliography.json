@@ -1,0 +1,162 @@
+{
+  "status": "draft",
+  "entries": [
+    {
+      "id": "leaf-iliad",
+      "type": "book",
+      "chicago": "Leaf, Walter. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902.",
+      "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.04.0056",
+      "pd": true,
+      "notes": "Full text on Perseus. Running notes gloss each day transition (1.493, 24.31, 24.107) — the closest thing to a consolidated day-table found in the public domain."
+    },
+    {
+      "id": "whitman-1958",
+      "type": "book",
+      "chicago": "Whitman, Cedric H. Homer and the Heroic Tradition. Cambridge, MA: Harvard University Press, 1958.",
+      "pd": false,
+      "notes": "Argues a 21-day ring (1 + 9 + 12) opening the Iliad mirrored by a 21-day close (12 + 9 + burial) — the structural basis for the traditional ~51-day count."
+    },
+    {
+      "id": "olson-bmcr-taplin",
+      "type": "web",
+      "chicago": "Olson, S. Douglas. Review of Homeric Soundings: The Shaping of the Iliad, by Oliver Taplin. Bryn Mawr Classical Review 1993.01.21. https://bmcr.brynmawr.edu/1993/1993.01.21/.",
+      "url": "https://bmcr.brynmawr.edu/1993/1993.01.21/",
+      "pd": false,
+      "notes": "Cited for Taplin's three-performance-section framing (1.1–9.13; 11.1–18.353; 18.354–24.804), each a day/night of performance — Taplin's own book (Homeric Soundings, Oxford 1992) is not PD, so this open review is the citable path to his thesis. Not quoted verbatim on this page."
+    },
+    {
+      "id": "de-jong-iliad",
+      "type": "book",
+      "chicago": "de Jong, Irene J. F. Narrators and Focalizers: The Presentation of the Story in the Iliad. 2nd ed. London: Bristol Classical Press, 2004.",
+      "pd": false,
+      "notes": "First published 1987. Organizes the Iliad around \"four days of battle,\" distinguishing scenic from panoramic narration — support for reading the traditional frame-spans as schematic rather than dramatized."
+    },
+    {
+      "id": "de-jong-odyssey",
+      "type": "book",
+      "chicago": "de Jong, Irene J. F. A Narratological Commentary on the Odyssey. Cambridge: Cambridge University Press, 2001.",
+      "pd": false,
+      "notes": "Via Scodel's BMCR review (2002.06.12): flags Athena's Ithaca–Sparta trip, spanning the end of Book 13 into the start of Book 15, as a chronological oddity — a soft spot in every day-count of the Odyssey, including this timeline's."
+    },
+    {
+      "id": "monro-odyssey",
+      "type": "book",
+      "chicago": "Monro, David B. Homer's Odyssey, Books XIII–XXIV. Oxford: Clarendon Press, 1901.",
+      "url": "https://archive.org/details/homersodysseybo00monrgoog",
+      "pd": true,
+      "notes": "Labels narrative days in his running notes. Independently corroborates this timeline's Day 34/35 boundary at Book 13 (see the two quoted notes above)."
+    },
+    {
+      "id": "merry-riddell-odyssey",
+      "type": "book",
+      "chicago": "Merry, W. Walter, and James Riddell. Homer's Odyssey. Vol. 1, Books I–XII. Oxford: Clarendon Press, 1886.",
+      "url": "https://archive.org/details/odyssey00riddgoog",
+      "pd": true,
+      "notes": "Companion PD commentary to Monro's for Books XIII–XXIV, covering the Telemachy and Apologoi (Books 1–12)."
+    },
+    {
+      "id": "murray-1924",
+      "type": "book",
+      "chicago": "Murray, Gilbert. The Rise of the Greek Epic. 3rd ed. Oxford: Clarendon Press, 1924.",
+      "pd": true,
+      "notes": "PD (pre-1931, US rules); a verified open full-text link has not yet been located — draft. Source of the epigraph quote used by Baikouzis and Magnasco 2008."
+    },
+    {
+      "id": "baikouzis-magnasco-2008",
+      "type": "article",
+      "chicago": "Baikouzis, Constantino, and Marcelo O. Magnasco. \"Is an Eclipse Described in the Odyssey?\" Proceedings of the National Academy of Sciences 105, no. 26 (2008): 8823–28.",
+      "url": "https://doi.org/10.1073/pnas.0803317105",
+      "pd": false,
+      "notes": "Open access (PMC2440358), though not public domain (2008, in copyright). Builds a day-numbered Odyssey chronology (backward count from the slaying), with both sequential and parallel (Zieliński's Law) numbering to handle simultaneity — the honest-display model this timeline's Days 1–6 annotation follows."
+    },
+    {
+      "id": "delebecque-1980",
+      "type": "book",
+      "chicago": "Delebecque, Édouard. Construction de l'Odyssée. Paris: Belles Lettres, 1980.",
+      "pd": false,
+      "notes": "In copyright; content here is via Lenaerts's review (L'Antiquité Classique 52 [1983]: 297–300), not independently checked against the primary text. Reportedly places the Apologoi telling on Day 33 evening (a one-day offset from this timeline's Day 34) and argues the poem's original ending is 23.296 — the source of this page's honesty note on day-count variance. Unverified secondary report; flagged, not adopted."
+    },
+    {
+      "id": "heubeck-et-al-1988",
+      "type": "book",
+      "chicago": "Heubeck, Alfred, Stephanie West, J. B. Hainsworth, Arie Hoekstra, Joseph Russo, and Manuel Fernández-Galiano. A Commentary on Homer's Odyssey. 3 vols. Oxford: Clarendon Press, 1988–1992.",
+      "pd": false,
+      "notes": "The standard scholarly day-scheme reference for the Odyssey; in copyright and not extractable via the open web at this pass — a library/manual pull remains a gap."
+    },
+    {
+      "id": "stanford-1959",
+      "type": "book",
+      "chicago": "Stanford, W. B. The Odyssey of Homer. 2nd ed. 2 vols. London: Macmillan, 1958–1959.",
+      "pd": false,
+      "notes": "In copyright; same open-web extraction gap as Heubeck et al."
+    },
+    {
+      "id": "zielinski-1901",
+      "type": "article",
+      "chicago": "Zieliński, Tadeusz. \"Die Behandlung gleichzeitiger Ereignisse im antiken Epos.\" Philologus, Supplementband 8 (1901): 405–49.",
+      "pd": true,
+      "notes": "Founding statement of Zieliński's Law — that ancient epic narrates simultaneous events sequentially, never in parallel. The basis for reading the Telemachy (Days 2–6) and the Ogygia/second-divine-council strand as chronologically overlapping rather than strictly consecutive. Exact wording not yet verified against the German; cited for the thesis, not quoted."
+    },
+    {
+      "id": "strabo-geography",
+      "type": "book",
+      "chicago": "Strabo. Geography. Translated by Horace Leonard Jones. 8 vols. Loeb Classical Library. London: William Heinemann; New York: G. P. Putnam's Sons, 1917–1932.",
+      "url": "https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Strabo/home.html",
+      "pd": true,
+      "notes": "The single most-cited ancient source for the Wanderings map's station identifications (Ismarus 7 fr. 44a; Lotus-eaters via Eratosthenes/Polybius, cited at Pliny NH 5.41; Sirens 1.2.12–13, 5.4.8; Dulichium 10.2.19; Scheria/Corcyra via 1.25 background; Pylos's ancient three-way dispute at 8.3.7; Erembi/Arabs at 1.2.34). Also the source of Eratosthenes's programmatic skepticism at 1.2.15: 'You will find the scene of the wanderings of Odysseus when you find the cobbler who sewed up the bag of the winds' (Strabo quoting Eratosthenes via Polybius's rebuttal) — the founding statement of the ancient debate this audit surveys. LacusCurtius hosts the complete PD Loeb text."
+    },
+    {
+      "id": "thucydides-history",
+      "type": "book",
+      "chicago": "Thucydides. History of the Peloponnesian War. Translated by Richard Crawley. London: J. M. Dent, 1910.",
+      "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0247",
+      "pd": true,
+      "notes": "Source for the classical (5th-c. BC) identifications this gazetteer records as 'traditional': Cyclopes/Laestrygonians as Sicily's earliest inhabitants and Sicily's older name Trinacria (6.2.1–2); the Aeolian/Lipari islands as Aeolus's home (3.88); Scylla and Charybdis at the Strait of Messina (4.24.5); and, more obliquely, Corcyra's Phaeacian associations underlying the Scheria identification (1.25, describing the Phaeacians as Corcyra's 'old inhabitants' — not a literal 'Scheria=Corcyra' equation, but the earliest surviving link)."
+    },
+    {
+      "id": "pliny-nh",
+      "type": "book",
+      "chicago": "Pliny the Elder. Natural History. Translated by John Bostock and H. T. Riley. 6 vols. London: Henry G. Bohn, 1855–1857.",
+      "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.02.0137",
+      "pd": true,
+      "notes": "NH 5.41 records Meninx (modern Djerba/Gerba, Tunisia) as the Lotus-eaters' island per both Eratosthenes and Polybius — the source behind this gazetteer's 'lotus-eaters-land' tradition note."
+    },
+    {
+      "id": "pausanias-description",
+      "type": "book",
+      "chicago": "Pausanias. Description of Greece. Translated by W. H. S. Jones. 4 vols. Loeb Classical Library. London: William Heinemann; New York: G. P. Putnam's Sons, 1918–1935.",
+      "url": "https://www.theoi.com/Text/Pausanias4B.html",
+      "pd": true,
+      "notes": "4.30.2 explicitly glosses Od. 3.488's 'house of Diocles [son of Ortilochus]' as 'the city of Pherae in Messene' — the ancient testimony behind the new places.json entry 'pherae-messenia' (Telemachus's overnight stop, Od. 3.488-497)."
+    },
+    {
+      "id": "horace-odes",
+      "type": "book",
+      "chicago": "Horace. The Odes and Carmen Saeculare of Horace. Translated by John Conington. London: George Bell and Sons, 1882.",
+      "url": "https://www.gutenberg.org/ebooks/6604",
+      "pd": true,
+      "notes": "Odes 3.17, addressed to Aelius Lamia, invokes Laestrygonian ancestry at Formiae — the Roman literary tradition already cited in places.json's existing 'laestrygonia' entry; added here as a bibliography record for that citation."
+    },
+    {
+      "id": "theophrastus-hp",
+      "type": "book",
+      "chicago": "Theophrastus. Enquiry into Plants. Translated by Arthur Hort. 2 vols. Loeb Classical Library. London: William Heinemann; New York: G. P. Putnam's Sons, 1916.",
+      "pd": true,
+      "notes": "HP 5.8.3 is the source already cited in places.json's existing 'aeaea' entry for the Circaeum promontory (Monte Circeo) tradition; a full open-text section link was not independently re-verified in this pass (flagged, not a blocking concern — the citation itself is long-standing and uncontested in the secondary literature)."
+    },
+    {
+      "id": "barrington-atlas-2000",
+      "type": "book",
+      "chicago": "Talbert, Richard J. A., ed. Barrington Atlas of the Greek and Roman World. Princeton: Princeton University Press, 2000.",
+      "pd": false,
+      "notes": "In copyright; the standard modern print reference for ancient-place location and confidence, cited by id/map-page in several existing places.json 'tradition' fields (e.g., Ismarus, 'Barrington Atlas lists as unlocated'). Not independently re-verified page-by-page in this audit pass (no open digital edition) — cited on the strength of the existing apparatus entries' own citations, which this audit did not find reason to doubt."
+    },
+    {
+      "id": "bittlestone-et-al-2005",
+      "type": "book",
+      "chicago": "Bittlestone, Robert, with James Diggle and John Underhill. Odysseus Unbound: The Search for Homer's Ithaca. Cambridge: Cambridge University Press, 2005.",
+      "pd": false,
+      "notes": "In copyright. Source of the minority 'Paliki thesis' already cited in places.json's existing 'ithaca' entry (arguing Homer's Ithaca is the Paliki peninsula of Kefalonia, once a separate island); added here as a bibliography record for that citation. This audit did not find reason to elevate it above the mainstream Ithaki identification."
+    }
+  ]
+}

@@ -1,0 +1,424 @@
+---
+// Day-by-day timeline of the Iliad and Odyssey — the first apparatus feature
+// under the new sourcing policy (copyrighted scholarship citable + attributed
+// short quotes OK, John 2026-07-18; see docs/research/chronology-{iliad,
+// odyssey}.md and apparatus/bibliography.json). SSR-only, no client JS.
+//
+// Data flow: readFileSync the raw apparatus files directly (same posture as
+// places/index.astro and maps/index.astro) — the day-strip STRUCTURE (which
+// days are dramatized, which are compressed spans, book boundaries) is
+// derived at build time from the emitted scenes' apparatus.scenes[].dayNumber
+// via the shared pure helper (@shared/lib/timeline), so a pipeline re-emit
+// that shifts the calendar reflows this page automatically. The CONTENT
+// layered onto that structure — the four Iliad framing spans' poem-quotes,
+// the Odyssey Day-34 "decade" inset, Zieliński's Law annotation, and the
+// Sources section — is curated here, sourced 1:1 from docs/research/
+// chronology-{iliad,odyssey}.md; no Greek is quoted here beyond what that
+// research lane verified verbatim (Homeric accuracy is non-negotiable).
+import { readFileSync } from 'node:fs';
+import ThemeInit from '../../components/ThemeInit.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import Pwa from '../../components/Pwa.astro';
+import { jsonLdSafe } from '../../lib/jsonld';
+import { buildDayStrip, parseDayRange, totalDays, type BookInput, type DayStripEntry } from '@shared/lib/timeline';
+import '@shared/styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// ── Bibliography ────────────────────────────────────────────────────────────
+type BiblioType = 'book' | 'article' | 'web';
+interface BiblioEntry {
+  id: string;
+  type: BiblioType;
+  chicago: string;
+  url?: string;
+  pd: boolean;
+  notes?: string;
+}
+const biblioFile = JSON.parse(readFileSync('../apparatus/bibliography.json', 'utf-8')) as {
+  status: 'draft' | 'reviewed';
+  entries: BiblioEntry[];
+};
+const bib = new Map(biblioFile.entries.map((e) => [e.id, e]));
+const isDraft = biblioFile.status === 'draft';
+
+// ── Scenes -> day strip ─────────────────────────────────────────────────────
+type Work = 'iliad' | 'odyssey';
+function loadBooks(work: Work): BookInput[] {
+  const books: BookInput[] = [];
+  for (let i = 1; i <= 24; i++) {
+    const n = String(i).padStart(2, '0');
+    const raw = JSON.parse(readFileSync(`../build/dist/${work}/book-${n}.json`, 'utf-8'));
+    const app = raw.apparatus ?? {};
+    const scenes = (app.scenes ?? []) as { lines: number[]; dayNumber: number | null; summary?: string }[];
+    books.push({ book: i, dayRange: parseDayRange(app.day ?? null), scenes });
+  }
+  return books;
+}
+const iliadStrip = buildDayStrip(loadBooks('iliad'));
+const odysseyStrip = buildDayStrip(loadBooks('odyssey'));
+const iliadTotalDays = totalDays(iliadStrip);
+const odysseyTotalDays = totalDays(odysseyStrip);
+
+// Book-boundary markers: which book number(s) "start" at a given column. A
+// book that contributes no new day/span entry (its content shares an already-
+// established day, e.g. Il. 11-18 all fall on Day 25) attaches to the LAST
+// column its nearest non-empty predecessor owns, so a run of such books
+// collapses into one marker ("11-18") rather than vanishing silently.
+function bookMarkers(strip: ReturnType<typeof buildDayStrip>): Map<number, number[]> {
+  const markers = new Map<number, number[]>();
+  let lastOwned = -1;
+  for (const br of strip.bookRanges) {
+    const nonEmpty = br.endIndex > br.startIndex;
+    const idx = nonEmpty ? br.startIndex : lastOwned;
+    if (idx >= 0) {
+      if (!markers.has(idx)) markers.set(idx, []);
+      markers.get(idx)!.push(br.book);
+    }
+    if (nonEmpty) lastOwned = br.endIndex - 1;
+  }
+  return markers;
+}
+function formatBookGroup(nums: number[]): string {
+  return nums.length === 1 ? String(nums[0]) : `${nums[0]}–${nums[nums.length - 1]}`;
+}
+
+// ── Deep links ───────────────────────────────────────────────────────────────
+const locHref = (work: Work, book: number, line: number) => `${base}/${work}/book/${book}?loc=${book}.${line}`;
+
+// ── Curated span notes (poem-quoted, sourced from the research docs) ────────
+// Keyed by `${fromDay}-${toDay ?? 'end'}`. Only Greek verified VERBATIM in
+// docs/research/chronology-*.md is quoted; everything else is an honest
+// editorial gloss, not a translator quote.
+interface SpanNote { label: string; greek?: string; gloss: string; cite: string }
+const ILIAD_SPAN_NOTES: Record<string, SpanNote> = {
+  '1-10': {
+    label: 'Nine days of plague',
+    greek: 'ἐννῆμαρ … τῇ δεκάτῃ',
+    gloss: 'Apollo’s arrows range through the camp for nine days; on the tenth, Achilles calls the host to assembly.',
+    cite: 'Il. 1.53–54',
+  },
+  '10-21': {
+    label: 'Twelve-day divine absence',
+    greek: 'ἀλλ᾽ ὅτε δή ῥ᾽ ἐκ τοῖο δυωδεκάτη γένετ᾽ ἠώς',
+    gloss: 'The gods return from feasting among the Aethiopians on the twelfth dawn, and Thetis makes her plea to Zeus.',
+    cite: 'Il. 1.493–494',
+  },
+  '28-40': {
+    label: 'Twelve-day maltreatment of Hector',
+    greek: 'ἀλλ᾽ ὅτε δή ῥ᾽ ἐκ τοῖο δυωδεκάτη γένετ᾽ ἠώς',
+    gloss: 'The same twelfth-dawn formula recurs: Achilles drags Hector’s body around Patroclus’s tomb each night for twelve days, until Apollo protests. A further nine-day quarrel among the gods runs inside this span.',
+    cite: 'Il. 24.31 (= 1.493); cf. 24.107',
+  },
+  '41-end': {
+    label: 'The truce: nine days, then the burial',
+    greek: 'τῇ δὲ δυωδεκάτῃ πολεμίξομεν εἴ περ ἀνάγκη',
+    gloss: 'Priam’s terms: nine days of mourning, burial and feast on the tenth, a mound on the eleventh, battle again on the twelfth if it must be. The poem narrates the nine days of wood-gathering and the cremation on the tenth, but ends before reaching its own stated twelfth-day deadline — the compression is the poet’s own.',
+    cite: 'Il. 24.667 (deadline, quoted); cf. 24.664–667, 781, 784–787',
+  },
+};
+const ODYSSEY_SPAN_NOTES: Record<string, SpanNote> = {
+  '7-11': {
+    label: 'Building the raft',
+    gloss: 'Calypso gives Odysseus an axe and shows him timber; he builds his raft over four days.',
+    cite: 'Od. 5.228–262',
+  },
+  '11-29': {
+    label: 'Seventeen days at sea',
+    gloss: 'Odysseus sails alone, steering by the stars, until Poseidon spots him on the eighteenth day and raises the storm.',
+    cite: 'Od. 5.263–281 (cf. 5.278–279)',
+  },
+  '29-32': {
+    label: 'Two nights adrift',
+    gloss: 'The raft destroyed, Odysseus is tossed at sea for two nights and days; on the third day he sights land and swims ashore.',
+    cite: 'Od. 5.313–388',
+  },
+};
+
+// ── Odyssey Day 34 "decade" inset (the Apologoi, told as analepsis) ─────────
+// Anchors are the actual scenes.json lines for each episode (data-derived),
+// except the two duration statements, whose citations are the research
+// lane's verified 10.469-474 / 7.253-260.
+interface InsetStep { label: string; greek?: string; cite: string; work: Work; book: number; line: number; note?: string }
+const ODYSSEY_INSET: InsetStep[] = [
+  { label: 'The Cyclops’ cave', cite: 'Od. 9.105ff.', work: 'odyssey', book: 9, line: 105 },
+  { label: 'Circe: a year’s stay', greek: 'ἐνιαυτός', cite: 'Od. 10.469–474', work: 'odyssey', book: 10, line: 469 },
+  { label: 'The house of Hades', cite: 'Od. 11.1ff.', work: 'odyssey', book: 11, line: 1 },
+  { label: 'Thrinacia: the cattle of the Sun', cite: 'Od. 12.260ff.', work: 'odyssey', book: 12, line: 260 },
+  {
+    label: 'Calypso: seven years',
+    cite: 'Od. 7.253–260',
+    work: 'odyssey', book: 7, line: 253,
+    note: 'Recounted by Odysseus to Arete on Day 33, the evening before the Apologoi — not part of the Day-34 telling itself, but the same chronological decade.',
+  },
+  {
+    label: 'Ashore on Scheria',
+    cite: 'Od. 5.313–493',
+    work: 'odyssey', book: 5, line: 436,
+    note: 'Dramatized directly in Book 5 (Days 29–33), not part of the Day-34 retelling — the frame the Apologoi eventually catches up to.',
+  },
+];
+
+const pageTitle = 'Timeline — The Homer Reader';
+const metaDescription = 'A day-by-day timeline of the Iliad and Odyssey, with the poems’ own compressed spans and scholarly sourcing.';
+const canonical = Astro.site ? new URL(`${base}/timeline/`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: pageTitle, description: metaDescription, ...(canonical ? { url: canonical } : {}) };
+
+function gridColumns(entries: DayStripEntry[]): string {
+  return entries.map((e) => (e.kind === 'span' ? 'minmax(1.35rem, 0.5fr)' : 'minmax(2.5rem, 1fr)')).join(' ');
+}
+function spanKey(e: DayStripEntry & { kind: 'span' }): string {
+  return `${e.fromDay ?? 'start'}-${e.toDay ?? 'end'}`;
+}
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  <meta property="og:site_name" content="The Homer Reader" />
+  {canonical && <meta property="og:url" content={canonical} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(jsonLd)} />
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <style is:global>
+    body { overflow-x: hidden; max-width: 100%; }
+    .timeline-body { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 4.5rem; color: var(--text); }
+    .timeline-body h1 { font-family: var(--font-display); font-size: 1.95rem; font-weight: 400; line-height: 1.15; margin-bottom: .55rem; }
+    .timeline-intro { max-width: 46rem; color: var(--text-mid); font-size: .98rem; line-height: 1.62; }
+    .timeline-honesty { max-width: 46rem; color: var(--text-light); font-size: .82rem; line-height: 1.55; margin-top: .5rem; font-style: italic; }
+
+    .work-section { margin-top: 2.6rem; }
+    .work-section h2 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 400; padding-top: .7rem; border-top: 2px solid var(--rule-strong); display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
+    .work-days-total { font-family: var(--font-ui); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; color: var(--text-mid); }
+
+    .day-strip-scroll { overflow-x: auto; overflow-y: hidden; margin-top: 1.1rem; padding-bottom: .3rem; border-bottom: 1px solid var(--border); }
+    .day-strip { display: grid; grid-auto-rows: auto auto; align-items: end; column-gap: 2px; min-width: max-content; }
+    .book-marker { grid-row: 1; font-family: var(--font-ui); font-size: .62rem; letter-spacing: .04em; color: var(--text-light); white-space: nowrap; padding-bottom: .25rem; border-left: 1px solid var(--border); padding-left: .25rem; }
+    .day-cell, .span-cell { grid-row: 2; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-height: 3.4rem; padding: .3rem .15rem; text-decoration: none; color: var(--text); border-radius: 3px 3px 0 0; }
+    .day-cell { background: color-mix(in srgb, var(--accent) 12%, transparent); border: 1px solid var(--border); }
+    .day-cell:hover, .day-cell:focus-visible { background: color-mix(in srgb, var(--accent) 24%, transparent); }
+    .day-cell .cell-num { font-family: var(--font-ui); font-weight: 600; font-size: .82rem; }
+    .day-cell .cell-label { font-size: .55rem; color: var(--text-mid); letter-spacing: .03em; }
+    .day-cell[data-highlight="true"] { background: color-mix(in srgb, var(--accent) 34%, transparent); border-color: var(--accent); }
+    .day-cell[data-highlight="true"] .cell-label { color: var(--text); }
+
+    .span-cell {
+      border: 1px dashed var(--text-light);
+      background-image: repeating-linear-gradient(135deg, var(--border) 0 2px, transparent 2px 7px);
+      color: var(--text-mid);
+      font-family: var(--font-ui);
+    }
+    .span-cell .cell-num { font-size: .68rem; font-weight: 600; }
+    .span-cell .cell-label { font-size: .5rem; }
+    .span-cell:hover, .span-cell:focus-visible { border-color: var(--accent); color: var(--text); }
+
+    .span-legend { margin-top: .9rem; padding: 0; list-style: none; max-width: 60rem; }
+    .span-legend li { padding: .55rem 0; border-bottom: 1px solid var(--border); font-size: .84rem; line-height: 1.5; }
+    .span-legend .span-legend-head { display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; }
+    .span-legend .span-days { font-family: var(--font-ui); font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; color: var(--accent); }
+    .span-legend .span-label { font-weight: 600; }
+    .span-legend .span-greek { font-family: var(--font-greek); color: var(--text-mid); }
+    .span-legend .span-gloss { color: var(--text-mid); margin: .15rem 0 0; }
+    .span-legend .span-cite a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+
+    .day34-block { margin-top: 1.6rem; padding: 1rem 1.1rem; border: 1px solid var(--border); border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+    .day34-block h3 { font-family: var(--font-display); font-weight: 400; font-size: 1.15rem; }
+    .day34-quote { font-size: .88rem; color: var(--text-mid); margin: .4rem 0; line-height: 1.55; }
+    .day34-quote cite { font-style: normal; color: var(--text-light); font-size: .78rem; }
+    .day34-quote cite a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    .day34-inset-label { font-family: var(--font-ui); font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-light); margin-top: .8rem; }
+    .day34-inset { display: flex; flex-wrap: wrap; gap: .4rem .3rem; margin-top: .45rem; padding: 0; list-style: none; }
+    .day34-inset li { display: flex; align-items: center; gap: .3rem; }
+    .day34-inset a.inset-step { font-family: var(--font-ui); font-size: .74rem; padding: .3rem .55rem; border: 1px solid var(--border); border-radius: 999px; text-decoration: none; color: var(--text); background: var(--page-bg); }
+    .day34-inset a.inset-step:hover, .day34-inset a.inset-step:focus-visible { border-color: var(--accent); color: var(--accent); }
+    .day34-inset .inset-arrow { color: var(--text-light); font-size: .8rem; }
+    .day34-inset-notes { margin-top: .5rem; font-size: .76rem; color: var(--text-light); line-height: 1.5; }
+    .day34-inset-notes p { margin: .25rem 0; }
+
+    .zielinski-note { max-width: 46rem; margin-top: .8rem; font-size: .8rem; color: var(--text-light); line-height: 1.55; }
+    .zielinski-note a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+
+    .sources-section { margin-top: 3rem; }
+    .sources-section h2 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 400; padding-top: .7rem; border-top: 2px solid var(--rule-strong); }
+    .quoted-sources { list-style: none; margin: 1rem 0 1.8rem; padding: 0; max-width: 52rem; }
+    .quoted-sources li { padding: .7rem 0; border-bottom: 1px solid var(--border); }
+    .quoted-sources blockquote { margin: 0 0 .3rem; font-size: .98rem; line-height: 1.55; color: var(--text); }
+    .quoted-sources cite { font-style: normal; font-size: .78rem; color: var(--text-mid); }
+    .quoted-sources cite a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    .biblio-list { list-style: none; margin: 0; padding: 0; max-width: 60rem; }
+    .biblio-list li { padding: .65rem 0; border-bottom: 1px solid var(--border); font-size: .86rem; line-height: 1.55; scroll-margin-top: 1rem; }
+    .biblio-list a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    .pd-tag { margin-left: .4em; font-family: var(--font-ui); font-size: .6rem; letter-spacing: .07em; color: var(--text-light); border: 1px solid var(--border); border-radius: 3px; padding: 0 .3em; vertical-align: middle; }
+    .biblio-note { margin: .3rem 0 0; color: var(--text-mid); font-size: .78rem; }
+
+    @media (max-width: 480px) {
+      .timeline-body h1 { font-size: 1.6rem; }
+    }
+  </style>
+  <Pwa />
+</head>
+<body>
+  <SiteHeader section="Timeline" />
+  <main class="timeline-body">
+    <h1>Timeline {isDraft && <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>}</h1>
+    <p class="timeline-intro">
+      A day-by-day chronology of the Iliad and Odyssey, derived from each book’s scene apparatus.
+      Summarized spans — stretches the poem itself compresses into a handful of lines — draw
+      narrower and hatched, with their day-count labeled; dramatized days draw full width.
+    </p>
+    <p class="timeline-honesty">
+      Day-counts vary in the scholarship — this timeline follows the traditional reading of {iliadTotalDays} Iliad
+      days (also cited as 50, 52, or 54 by inclusive/exclusive counting of the summarized spans) and a
+      Day 1–{odysseyTotalDays} Odyssey calendar, one day ahead of Delebecque’s reported Day-33 telling; treat
+      totals as citable convention, not settled consensus.
+    </p>
+
+    {(['iliad', 'odyssey'] as Work[]).map((work) => {
+      const strip = work === 'iliad' ? iliadStrip : odysseyStrip;
+      const notes = work === 'iliad' ? ILIAD_SPAN_NOTES : ODYSSEY_SPAN_NOTES;
+      const total = work === 'iliad' ? iliadTotalDays : odysseyTotalDays;
+      const markers = bookMarkers(strip);
+      const spanEntries = strip.entries.filter((e): e is DayStripEntry & { kind: 'span' } => e.kind === 'span');
+      return (
+        <section class="work-section" id={work}>
+          <h2>{work === 'iliad' ? 'Iliad' : 'Odyssey'} <span class="work-days-total">{total} days</span></h2>
+          <div class="day-strip-scroll">
+            <div class="day-strip" style={`grid-template-columns: ${gridColumns(strip.entries)};`}>
+              {strip.entries.map((entry, i) => {
+                const marker = markers.get(i);
+                return (
+                  <>
+                    {marker && <div class="book-marker" style={`grid-column: ${i + 1};`}>Bk {formatBookGroup(marker)}</div>}
+                    {entry.kind === 'day' ? (
+                      <a
+                        class="day-cell"
+                        style={`grid-column: ${i + 1};`}
+                        href={locHref(work, entry.book, entry.line)}
+                        data-highlight={work === 'odyssey' && entry.dayNumber === 34 ? 'true' : undefined}
+                        aria-label={`Day ${entry.dayNumber} — ${work === 'iliad' ? 'Iliad' : 'Odyssey'} ${entry.book}.${entry.line}${work === 'odyssey' && entry.dayNumber === 34 ? ', the telling of the Apologoi' : ''}`}
+                      >
+                        <span class="cell-num">{entry.dayNumber}</span>
+                        <span class="cell-label">day</span>
+                      </a>
+                    ) : (
+                      <a
+                        class="span-cell"
+                        style={`grid-column: ${i + 1};`}
+                        href={`#span-${work}-${spanKey(entry)}`}
+                        aria-label={`Compressed span: ${entry.spanDays} day${entry.spanDays === 1 ? '' : 's'}${notes[spanKey(entry)] ? `, ${notes[spanKey(entry)].label}` : ''} — see Compressed spans below`}
+                      >
+                        <span class="cell-num">{entry.spanDays}d</span>
+                        <span class="cell-label">compressed</span>
+                      </a>
+                    )}
+                  </>
+                );
+              })}
+            </div>
+          </div>
+
+          {work === 'odyssey' && (
+            <p class="zielinski-note">
+              Days 1–6 (the Telemachy, Books 1–4) and Book 5’s second divine council may narrate
+              overlapping, not strictly sequential, time — ancient epic tends to tell simultaneous events one
+              after another rather than in parallel (<a href={`#${'zielinski-1901'}`}>Zieliński’s Law</a>).
+            </p>
+          )}
+
+          {work === 'odyssey' && (
+            <div class="day34-block" id="day-34-telling">
+              <h3>Day 34 — the telling</h3>
+              <p class="day34-quote">
+                “Morning of the 34th day of the action of the poem”… “the dawn of the 35th day.”
+                {' '}<cite>— Monro, on Od. 13.18 and 13.93 (<a href="#monro-odyssey">Sources</a>)</cite>
+              </p>
+              <p class="day34-quote">
+                “The date is given with a precision most unusual in epic poetry.”
+                {' '}<cite>— Gilbert Murray, 1924 (<a href="#murray-1924">Sources</a>)</cite>
+              </p>
+              <p class="day34-inset-label">Told on Day 34 — the decade recounted at the Phaeacian feast</p>
+              <ol class="day34-inset">
+                {ODYSSEY_INSET.map((step, i) => (
+                  <>
+                    <li>
+                      <a class="inset-step" href={locHref(step.work, step.book, step.line)}>
+                        {step.label}{step.greek && <> — <span lang="grc">{step.greek}</span></>} ({step.cite})
+                      </a>
+                    </li>
+                    {i < ODYSSEY_INSET.length - 1 && <span class="inset-arrow" aria-hidden="true">→</span>}
+                  </>
+                ))}
+              </ol>
+              <div class="day34-inset-notes">
+                {ODYSSEY_INSET.filter((s) => s.note).map((s) => <p><strong>{s.label}:</strong> {s.note}</p>)}
+              </div>
+            </div>
+          )}
+
+          {spanEntries.length > 0 && (
+            <ol class="span-legend">
+              {spanEntries.map((entry) => {
+                const key = spanKey(entry);
+                const note = notes[key];
+                return (
+                  <li id={`span-${work}-${key}`}>
+                    <div class="span-legend-head">
+                      <span class="span-days">{entry.spanDays} day{entry.spanDays === 1 ? '' : 's'} compressed</span>
+                      <span class="span-label">{note?.label ?? 'Summarized narration'}</span>
+                    </div>
+                    {note?.greek && <p class="span-greek" lang="grc">{note.greek}</p>}
+                    <p class="span-gloss">{note?.gloss ?? entry.summary ?? 'The poem passes over this interval in a line or two.'}</p>
+                    <p class="span-cite">
+                      {note?.cite ?? `${work === 'iliad' ? 'Il.' : 'Od.'} ${entry.book}.${entry.line}`}
+                      {' — '}
+                      <a href={locHref(work, entry.book, entry.line)}>jump to the passage</a>
+                    </p>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </section>
+      );
+    })}
+
+    <section class="sources-section" aria-labelledby="sources-heading">
+      <h2 id="sources-heading">Sources</h2>
+      <ul class="quoted-sources">
+        <li>
+          <blockquote>“Morning of the 34th day of the action of the poem… the dawn of the 35th day.”</blockquote>
+          <cite>David B. Monro, note to Od. 13.18 and 13.93, in <a href="#monro-odyssey">Homer's Odyssey, Books XIII–XXIV</a> (1901).</cite>
+        </li>
+        <li>
+          <blockquote>“The date is given with a precision most unusual in epic poetry.”</blockquote>
+          <cite>Gilbert Murray, <a href="#murray-1924">The Rise of the Greek Epic</a>, 3rd ed. (1924).</cite>
+        </li>
+      </ul>
+      <ol class="biblio-list">
+        {biblioFile.entries.map((entry) => (
+          <li id={entry.id}>
+            {entry.type === 'web' && entry.url ? (
+              <a href={entry.url} target="_blank" rel="noopener">{entry.chicago}</a>
+            ) : (
+              <span>{entry.chicago}</span>
+            )}
+            {entry.type !== 'web' && entry.url && <> {' '}<a href={entry.url} target="_blank" rel="noopener">Full text ↗</a></>}
+            {entry.pd && <span class="pd-tag">PD</span>}
+            {entry.notes && <p class="biblio-note">{entry.notes}</p>}
+          </li>
+        ))}
+      </ol>
+    </section>
+  </main>
+</body>
+</html>
