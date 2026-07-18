@@ -145,6 +145,15 @@ occurred; deploying, the GitHub remote, and the first push are John-gated.
   ship confidence:high only (~187 notes) + internal-line-ref distance
   post-filter + drop pure app-crit strings; medium/low/null retained
   in sources for human review. Integration lane dispatched.
+- **Formula glosses (Grok translation gate, two cycles): PASS**
+  (2026-07-17). Opus drafted 1,152 glosses (compositional engine,
+  consistency by construction); gate v1 PASS-WITH-FIXES (postpositive
+  particle order ~50, mechanical doubles, long-tail case/apposition
+  errors, 2 consistency divergences); Sonnet fixed 104 values (engine-
+  level where systematic); gate v2: 30/30 fixed confirmed, 0 new
+  errors, cores byte-identical, Ἆρες Ἆρες epanalepsis preserved; 5
+  optional residuals polished by orchestrator. English glosses live
+  under the Greek on /formulas/{iliad,odyssey}/ (draft-badged).
 - **Iliad scenes apparatus re-gate: PASS** (2026-07-17). Sonnet fix pass
   corrected all blockers plus wider unsampled cascade members in Bks
   16/17 (Greek-cited); Grok exhaustive re-verify of Bks 6/16/17 (51
