@@ -180,6 +180,12 @@ the step. "Digital Landmark Homer" remains internal-docs-only vocabulary.
 
 ## John's review queue (accumulating; final list at handoff)
 
+0a. NEW: Apologoi nested-speech rendering — level-1 speeches recorded
+   under a different book than their crossBook frame (most of Od. 10,
+   all of Od. 12, pre-336 Nekyia) currently render as flagged markers,
+   not rails (~40% of Odyssey level-1s). Extending containment across
+   the two known frames would rail them; needs your call on whether
+   that inference is philologically acceptable.
 0. NEW: Il. 8.538-541 — TLG carries a bare Beta Code %11 bullet inside
    the line text (not the usual sigla markup) at a known Aristarchan
    athetesis locus. Currently preserved as data, NOT bracketed (obelos-
