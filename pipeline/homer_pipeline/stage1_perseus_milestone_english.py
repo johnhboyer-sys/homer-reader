@@ -64,6 +64,13 @@ from .config import BUILD_DIR, SOURCES_DIR, Manifest
 from .stage1_common import StandoffChunkMixin, collapse_ws, local_name, write_json
 
 
+# Hyphen + en dash + em dash: characters that bind tightly to a neighboring
+# word with no surrounding space in Murray's Loeb typesetting (see
+# _BookWalker.add_milestone_tail). A plain ASCII "-" is included defensively
+# (it appears once, doing em-dash duty, in the Iliad Murray TEI).
+_DASH_CHARS = "-–—"
+
+
 def _is_book_div(div) -> bool:
     subtype = (div.get("subtype") or "").lower()
     n = div.get("n")
@@ -91,7 +98,8 @@ class _BookWalker(StandoffChunkMixin):
     whole walk collapses that to exactly one chunk, matching verse-line's
     one-segment-per-book spine)."""
 
-    def __init__(self, book: int, valid_lines: set[int], extract_footnotes: bool):
+    def __init__(self, book: int, valid_lines: set[int], extract_footnotes: bool,
+                 kept_seqs: set[int] | None = None):
         self.book = book
         self.column = str(book)
         self.chunks: list[dict] = []
@@ -99,6 +107,16 @@ class _BookWalker(StandoffChunkMixin):
         self.valid_lines = valid_lines
         self.valid_sorted = sorted(valid_lines)
         self.extract_footnotes = extract_footnotes
+        # This book's set of seqInBook values (document-order Loeb-note
+        # index) that survived filter_loeb_notes and have real recovered
+        # text waiting to be joined in by apply_loeb_note_overrides. None
+        # means "no filtering info available" (no loeb-notes file for this
+        # work) -- every marker is kept, the pre-fix bare-number behavior.
+        # A marker whose seq is NOT in this set is stripped entirely
+        # (add_footnote): no [^label] in the prose, no footnotes entry --
+        # honest absence instead of a dead marker whose popup would show
+        # only the bare Loeb citation number.
+        self.kept_seqs = kept_seqs
         self.last_n = 0
         self.ticks: list[dict] = []
         self.footnotes: dict[str, str] = {}
@@ -168,22 +186,34 @@ class _BookWalker(StandoffChunkMixin):
 
     def add_milestone_tail(self, tail: str | None) -> None:
         """Text immediately following a removed <milestone/>. The source
-        sometimes drops a milestone mid-sentence with no whitespace on
-        either side (e.g. "in no wise<milestone .../>will they" -> glued
-        "wisewill" once the tag is stripped and the two text nodes are
-        concatenated). Insert exactly one space in that case only: when the
-        text accumulated so far ends in a word character and the tail
-        begins with one. Genuine hyphenation at a milestone would need the
-        *preceding* text to end in "-" (not a word character), which this
-        check leaves untouched — verified against the Iliad/Odyssey
-        Murray/Butler TEIs: the only "-<milestone" adjacency in either
-        corpus is an em-dash used as punctuation, not a hyphenated
-        compound, so no such case exists to break here."""
+        routinely drops a milestone with NO whitespace on either side, and
+        this is not limited to word-word joins: a milestone dropped right
+        after a comma, period, semicolon, colon, question mark, exclamation
+        point, or closing quote glues just as badly (e.g. "what last?
+        <milestone .../>for woes" -> "last?for", "answered him:<milestone
+        .../>"Stay..." -> 'him:"Stay'). Verified corpus-wide (both Murray
+        Iliad/Odyssey TEIs) by categorizing every char-before/char-after a
+        removed <milestone/>: alnum-alnum ("wisewill") is only ~40% of the
+        glued cases: comma-alnum, period-alnum, semicolon-alnum,
+        colon-quote, question-mark-alnum, and closing-quote-alnum are all
+        real and all need the same fix.
+        The one genuine no-space case is a dash used as punctuation
+        (em/en dash or a bare hyphen doing the same job, e.g. "the
+        eye—<milestone/>even the godlike Polyphemus") — Murray's Loeb
+        typesetting binds a dash tightly to both neighbors, no surrounding
+        space, and that convention must survive untouched. So: insert
+        exactly one space unless either side already carries whitespace
+        (add_text's own collapsing handles not doubling it) or either
+        adjacent character is a dash."""
         if not tail:
             return
         chunk = self._chunk()
         text = chunk["text"]
-        if text and text[-1].isalnum() and tail[0].isalnum():
+        if (
+            text and tail
+            and not text[-1].isspace() and text[-1] not in _DASH_CHARS
+            and not tail[0].isspace() and tail[0] not in _DASH_CHARS
+        ):
             chunk["text"] = text + " "
         self.add_text(tail)
 
@@ -199,6 +229,21 @@ class _BookWalker(StandoffChunkMixin):
             )
             return
         self._note_ctr += 1
+        if self.kept_seqs is not None and self._note_ctr not in self.kept_seqs:
+            # No high-confidence recovered note text survived for this
+            # marker (filter_loeb_notes excluded it, or it was never
+            # matched at all). Strip it entirely rather than emit a live
+            # [^label] marker whose popup would show only the bare Loeb
+            # citation number — honest absence, no dead markers.
+            self.anomalies.append(
+                {
+                    "kind": "note_marker_stripped_no_recovery",
+                    "book": self.book,
+                    "seq": self._note_ctr,
+                    "raw": raw,
+                }
+            )
+            return
         # seqInBook (self._note_ctr) is inserted BEFORE raw so the label's
         # trailing segment (everything after the last '.') stays exactly
         # `raw` — see the module docstring's "Label uniqueness" note.
@@ -255,8 +300,16 @@ def parse_translation(
     valid_lines_by_book: dict[int, set[int]],
     book_ns: list[int],
     extract_footnotes: bool = False,
+    kept_seqs_by_book: dict[int, set[int]] | None = None,
 ) -> dict:
     """Parse one milestoned Perseus English TEI into per-book chunks.
+
+    ``kept_seqs_by_book`` (optional), when given, restricts which Loeb note
+    markers are actually emitted into the prose: a marker whose (book,
+    seqInBook) isn't in ``kept_seqs_by_book.get(book, set())`` is stripped
+    (see ``_BookWalker.add_footnote``) rather than left as a dead
+    bare-citation-number marker. ``None`` (the default) keeps every marker,
+    unfiltered — used when there's no loeb-notes audit file for this work.
 
     Returns ``{chunks: {book: chunk}, footnotes: {label: text}, anomalies:
     [...], ticks_by_book: {book: [tick,...]}, label_by_book_seq: {(book,
@@ -282,7 +335,10 @@ def parse_translation(
         if div is None:
             anomalies.append({"kind": "missing_book_div", "book": book})
             continue
-        w = _BookWalker(book, valid_lines_by_book.get(book, set()), extract_footnotes)
+        kept_seqs = (
+            kept_seqs_by_book.get(book, set()) if kept_seqs_by_book is not None else None
+        )
+        w = _BookWalker(book, valid_lines_by_book.get(book, set()), extract_footnotes, kept_seqs)
         _walk(w, div, is_root=True)
         chunk = w._chunk()
         chunk["text"] = chunk["text"].strip()
@@ -565,16 +621,36 @@ def run(manifest: Manifest, spine: dict) -> dict:
 
     if primary:
         xml_path = SOURCES_DIR / primary["source"]
-        parsed = parse_translation(xml_path, valid_sets_by_book, book_ns, extract_footnotes=True)
+
+        # Loeb notes (sources/loeb-notes/) must be loaded and filtered BEFORE
+        # the walk, not just spliced in after — see module docstring's
+        # "Loeb <note> footnotes" section and apply_loeb_note_overrides. A
+        # marker whose (book, seqInBook) isn't in the kept set is stripped
+        # entirely by the walker (add_footnote): no live [^label] marker, no
+        # footnotes entry, honest absence instead of a dead bare-number
+        # popup. Only Murray (primary) ever carries Loeb notes; absent for
+        # works with no loeb-notes file (kept_by_book stays None, meaning
+        # "no filtering info" -> every marker kept, pre-fix behavior).
+        loeb_notes = load_loeb_notes(manifest.work_id)
+        kept_by_book: dict[int, set[int]] | None = None
+        if loeb_notes is not None:
+            kept, _ = filter_loeb_notes(loeb_notes)
+            kept_by_book = {}
+            for n in kept:
+                kept_by_book.setdefault(n["book"], set()).add(
+                    int(n["markerId"].rsplit(".", 1)[-1])
+                )
+
+        parsed = parse_translation(
+            xml_path, valid_sets_by_book, book_ns, extract_footnotes=True,
+            kept_seqs_by_book=kept_by_book,
+        )
         english = _build_english_chunks(manifest.work_id, xml_path.name, primary["id"], parsed, book_ns)
         write_json(out_dir / "english_chunks.json", english)
         write_json(out_dir / "alignment.json", _build_alignment(manifest.work_id, spine, english))
 
-        # Splice in audited real note text (sources/loeb-notes/) where
-        # available, before writing murray_footnotes.json — see module
-        # docstring and apply_loeb_note_overrides. Only Murray (primary) ever
-        # carries Loeb notes; absent for works with no loeb-notes file.
-        loeb_notes = load_loeb_notes(manifest.work_id)
+        # Splice in audited real note text at the (fewer, pre-filtered)
+        # markers that survived the walk.
         loeb_report = (
             apply_loeb_note_overrides(parsed["footnotes"], parsed["label_by_book_seq"], loeb_notes)
             if loeb_notes is not None
@@ -583,6 +659,7 @@ def run(manifest: Manifest, spine: dict) -> dict:
 
         write_json(out_dir / "murray_footnotes.json", parsed["footnotes"])
         holes = check_coverage(valid_lines_by_book, parsed["ticks_by_book"], book_ns)
+        stripped = [a for a in parsed["anomalies"] if a["kind"] == "note_marker_stripped_no_recovery"]
         report["translations"][primary["id"]] = {
             "chunks": len(english["chunks"]),
             "footnotes": len(parsed["footnotes"]),
@@ -599,6 +676,7 @@ def run(manifest: Manifest, spine: dict) -> dict:
                 {
                     "loeb_notes_applied": len(loeb_report["applied"]),
                     "loeb_notes_excluded": len(loeb_report["excluded"]),
+                    "loeb_markers_stripped": len(stripped),
                 }
                 if loeb_report is not None
                 else {}

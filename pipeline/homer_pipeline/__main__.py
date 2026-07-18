@@ -51,7 +51,8 @@ def _stage1(manifest):
             for tid, s in result["summary"].items():
                 loeb = (
                     f" loeb_notes_applied={s['loeb_notes_applied']} "
-                    f"loeb_notes_excluded={s['loeb_notes_excluded']}"
+                    f"loeb_notes_excluded={s['loeb_notes_excluded']} "
+                    f"loeb_markers_stripped={s['loeb_markers_stripped']}"
                     if "loeb_notes_applied" in s
                     else ""
                 )

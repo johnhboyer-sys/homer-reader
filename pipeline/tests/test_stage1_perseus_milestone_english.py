@@ -234,6 +234,25 @@ def test_footnote_marker_offset_lands_on_marker_not_preceding_space():
     assert text[marker_pos - 2] != " "
 
 
+def test_milestone_strip_inserts_space_after_punctuation_not_just_alnum():
+    """M6: the M1 fix only covered word-word glue ("wisewill"). The source
+    also drops the milestone's surrounding whitespace after ending
+    punctuation (comma, period, semicolon, colon, ?, !, closing quote) --
+    e.g. real corpus case Od. 9: "what last?<milestone/>for woes" ->
+    glued "last?for". Book 5 of the fixture chains three cases: (1) '?'
+    directly abutting the next word (must gain a space), (2) an existing
+    single space around a milestone (must NOT become a double space), and
+    (3) an em dash abutting the next word (must NOT gain a space -- Loeb's
+    dash-as-punctuation convention binds tight on both sides)."""
+    parsed = s1.parse_translation(DEFECTS_FIXTURE, DEFECTS_VALID_LINES | {5: {1, 2, 3, 4}}, [5])
+    text = parsed["chunks"][5]["text"]
+    assert "last?for" not in text
+    assert "what last? for woes" in text.lower()
+    assert "eye— even" not in text and "eye —even" not in text
+    assert "eye—even so" in text
+    assert "  " not in text
+
+
 def test_book_final_milestone_lag_is_not_fabricated():
     """M2 shape: when the source's last real milestone in a book doesn't sit
     on the book's last valid line (sparser tagging near a book's end), the
@@ -365,3 +384,74 @@ def test_apply_loeb_note_overrides_is_deterministic():
 
 def test_load_loeb_notes_returns_none_for_a_work_with_no_file():
     assert s1.load_loeb_notes("not-a-real-work") is None
+
+
+# --- Dead-marker stripping (markers with no recovered note must not ship) ---
+
+
+def test_marker_without_kept_seq_is_stripped_from_prose_and_footnotes():
+    """A marker whose (book, seqInBook) is NOT in kept_seqs_by_book must not
+    appear in the prose at all (no [^label]), must not be in the footnotes
+    map, and must not be in label_by_book_seq -- honest absence, not a live
+    marker whose popup would show only the bare Loeb citation number. Book 4
+    of tiny.xml has two same-citation-number Loeb notes (seq 1 and seq 2);
+    keeping only seq 2 exercises both the strip and the keep in one book."""
+    parsed = s1.parse_translation(
+        FIXTURE, VALID_LINES, [4], extract_footnotes=True,
+        kept_seqs_by_book={4: {2}},
+    )
+    text = parsed["chunks"][4]["text"]
+    assert "[^4.1.1]" not in text
+    assert "[^4.2.1]" in text
+    assert parsed["footnotes"] == {"4.2.1": "1"}
+    assert parsed["label_by_book_seq"] == {(4, 2): "4.2.1"}
+    stripped = [a for a in parsed["anomalies"] if a["kind"] == "note_marker_stripped_no_recovery"]
+    assert stripped == [{"kind": "note_marker_stripped_no_recovery", "book": 4, "seq": 1, "raw": "1"}]
+    # The stripped note's tail text is still real prose, not dropped.
+    assert "First page's opening line. More text follows." in text
+
+
+def test_kept_seqs_by_book_none_keeps_every_marker_pre_fix_behavior():
+    """No filtering info (kept_seqs_by_book=None, e.g. a work with no
+    loeb-notes audit file) must reproduce the original unfiltered
+    behavior -- every marker survives with the bare-number placeholder."""
+    parsed = s1.parse_translation(FIXTURE, VALID_LINES, [4], extract_footnotes=True)
+    text = parsed["chunks"][4]["text"]
+    assert "[^4.1.1]" in text and "[^4.2.1]" in text
+    assert parsed["footnotes"] == {"4.1.1": "1", "4.2.1": "1"}
+
+
+def test_kept_seqs_empty_set_strips_every_marker_in_that_book():
+    parsed = s1.parse_translation(
+        FIXTURE, VALID_LINES, [4], extract_footnotes=True,
+        kept_seqs_by_book={4: set()},
+    )
+    text = parsed["chunks"][4]["text"]
+    assert "[^" not in text
+    assert parsed["footnotes"] == {}
+    assert parsed["label_by_book_seq"] == {}
+
+
+def test_stripped_marker_pipeline_end_to_end_with_real_filter_and_join():
+    """Ties filter_loeb_notes -> kept_by_book -> parse_translation
+    stripping -> apply_loeb_note_overrides together, mirroring run()'s
+    actual sequencing: the medium-confidence note (seq 1) never reaches
+    the prose at all, and the high-confidence note (seq 2) both survives
+    and gets its real text joined in, with no 'missing' report entry."""
+    notes = [
+        _note("fixture.4.1", 4, 1, "Filtered out (medium).", confidence="medium"),
+        _note("fixture.4.2", 4, 2, "Real recovered note for the second marker.", confidence="high"),
+    ]
+    kept, _excluded = s1.filter_loeb_notes(notes)
+    kept_by_book: dict[int, set[int]] = {}
+    for n in kept:
+        kept_by_book.setdefault(n["book"], set()).add(int(n["markerId"].rsplit(".", 1)[-1]))
+    parsed = s1.parse_translation(
+        FIXTURE, VALID_LINES, [4], extract_footnotes=True, kept_seqs_by_book=kept_by_book,
+    )
+    text = parsed["chunks"][4]["text"]
+    assert "[^4.1.1]" not in text
+    assert "[^4.2.1]" in text
+    report = s1.apply_loeb_note_overrides(parsed["footnotes"], parsed["label_by_book_seq"], notes)
+    assert report["missing"] == []
+    assert parsed["footnotes"] == {"4.2.1": "Real recovered note for the second marker."}
