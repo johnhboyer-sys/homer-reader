@@ -405,3 +405,25 @@ Queued, non-blocking: Olympus gazetteer entry (37 divine scenes now
 honest-null, would gain a pin); panel full-mock fidelity build-out
 (place-name headline, citation line, cast chips) — John's call; art
 vendoring pending John's B-plates render verdict.
+
+## Day-2 ledger, phone-review fix round (2026-07-18, ~13:00-14:00)
+
+John's live phone review found six defects; all fixed, committed,
+pushed, rebuilt, and re-verified the same hour:
+
+- f834559 hero: horizon SVG hidden on the stacked mobile layout
+  (preserveAspectRatio stretch artifact).
+- fc315c1 reader: scene prose merged across alignment-chunk seams
+  ("native land" mid-sentence fracture; Codex, failing-first repro).
+- 9236e17 maps: numbered gap badges for unlocatable stations (silent
+  9→11 jump; Nekyia #10 + Ogygia #15 now dashed-diamond badges with
+  honesty popups; partition test 1-17).
+- 41ba38c reader: speech-snap alignment (Il. 1.25/26 seed; 570 seams
+  auto-fixed corpus-wide, audit in scratchpad), iOS sheet teleport to
+  body (display:contents WebKit hazard; device confirmation pending),
+  sheet scene-tracking arming.
+
+build:public gate: PASS again (4713 pages, 0 broken, 48/48 scenes).
+Preview refreshed. Open judgment calls for John: snap window 2 vs 1
+(4/10 sampled 2-line snaps are partial fixes, none wrong-direction);
+speeches-toggle dependency of the snap (pipeline precompute queued).
