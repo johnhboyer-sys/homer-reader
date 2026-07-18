@@ -1,11 +1,12 @@
 <script lang="ts">
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
-  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene } from '../lib/data';
+  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, fetchSpeeches, fetchCharacters, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene, type Speech, type CharacterEntry } from '../lib/data';
   import { takeSsrBook } from '../lib/ssr-book';
   import { schemeFor, formatCite } from '../lib/citation';
   import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
+  import { classifySpeech, realLinesFromSegments, speechLabel } from '../lib/speeches';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
   import { getWork, visibleTranslations, bookLabel as workBookLabel, HOUSE_AUTHOR, type TranslationRef } from '../lib/works';
@@ -436,6 +437,73 @@
     const hi = seg.greek[seg.greek.length - 1].n;
     return scenes.filter((s) => s.startLine >= lo && s.startLine <= hi);
   }
+
+  // ── DICES speech rails (Phase 4 flagship) ─────────────────────────────────
+  // Off by default; a thin speaker rail in the Greek gutter for high-
+  // confidence spans (see shared/lib/speeches.ts's classifySpeech) plus a
+  // discreet flagged marker for everything degraded (nested/crossBook/gap
+  // spans). Data is a computed import (status:"imported", not draft — see
+  // docs/APPARATUS-SCHEMAS.md), so it gets a small "DICES" source chip in
+  // Settings, not the apparatus-honesty draft badge. Lazy-fetched only once
+  // the toggle is switched on (payload discipline: ~700 spans across both
+  // epics is not worth shipping to every reader who never opens it).
+  const SPEECH_KEY = 'reader-speeches';
+  let speechesOn = false;
+  function saveSpeeches() { try { localStorage.setItem(SPEECH_KEY, String(speechesOn)); } catch {} }
+  let allSpeeches: Speech[] = [];
+  let charactersById: Map<string, CharacterEntry> = new Map();
+  let speechesLoaded = false;
+  async function ensureSpeeches(): Promise<void> {
+    if (speechesLoaded) return;
+    speechesLoaded = true; // guard re-entry; reset below if the fetch fails
+    try {
+      const [sp, chars] = await Promise.all([fetchSpeeches(work), fetchCharacters()]);
+      allSpeeches = sp;
+      charactersById = new Map(Object.entries(chars));
+    } catch {
+      speechesLoaded = false; // allow a later retry
+    }
+  }
+  function toggleSpeeches() { speechesOn = !speechesOn; saveSpeeches(); }
+  // Fetch on first toggle-on, and again whenever a book switch (bookNum
+  // prop change) happens while already on and the data hasn't loaded yet.
+  $: if (mounted && speechesOn && !speechesLoaded) ensureSpeeches();
+
+  // This book's speeches (any level — classifySpeech needs the whole set to
+  // find a level-1's containing level-0 parent) and its real vulgate line
+  // set (for the numbering-gap check). Both empty while the toggle is off,
+  // so every reactive block below is a no-op cost when the feature is unused.
+  $: bookSpeeches = speechesOn ? allSpeeches.filter((s) => s.book === bookNum) : [];
+  $: bookRealLines = speechesOn ? realLinesFromSegments(segments) : new Set<number>();
+  $: speechRenders = bookSpeeches.map((s) => ({ speech: s, cls: classifySpeech(s, bookSpeeches, bookRealLines) }));
+  // line n -> true for every line covered by a high-confidence span (draws
+  // the hairline rail via a CSS class, no per-line listener).
+  $: speechRailLines = (() => {
+    const m = new Set<number>();
+    for (const { speech, cls } of speechRenders) {
+      if (cls.mode !== 'rail') continue;
+      for (let n = speech.lines[0]; n <= speech.lines[1]; n++) m.add(n);
+    }
+    return m;
+  })();
+  // line n -> the small-caps "SPEAKER → ADDRESSEE" label shown at a rail's
+  // opening line only.
+  $: speechRailStarts = (() => {
+    const m = new Map<number, string>();
+    for (const { speech, cls } of speechRenders) {
+      if (cls.mode === 'rail') m.set(speech.lines[0], speechLabel(speech, charactersById));
+    }
+    return m;
+  })();
+  // line n -> the degrade reason, shown as a discreet flagged marker at a
+  // degraded span's opening line only.
+  $: speechDegradedStarts = (() => {
+    const m = new Map<number, string>();
+    for (const { speech, cls } of speechRenders) {
+      if (cls.mode === 'degraded') m.set(speech.lines[0], cls.reason ?? 'flagged');
+    }
+    return m;
+  })();
 
   // ── Scene rail (in-book navigation flyout) ───────────────────────────────
   // A thin left drawer listing this book's scenes (line range · day · place +
@@ -1284,6 +1352,8 @@
     if (savedCite !== null) citeCopy = savedCite === 'true';
     const savedSpk = (() => { try { return localStorage.getItem(SPK_KEY); } catch { return null; } })();
     if (savedSpk !== null) spkColor = savedSpk === 'true';
+    const savedSpeeches = (() => { try { return localStorage.getItem(SPEECH_KEY); } catch { return null; } })();
+    if (savedSpeeches !== null) speechesOn = savedSpeeches === 'true';
     // Restore the reading/scholar posture (global, like reader-view).
     const savedPosture = (() => { try { return localStorage.getItem(POSTURE_KEY); } catch { return null; } })();
     if (savedPosture === 'reading') reading = true;
@@ -2044,6 +2114,7 @@
     class:verse-line={epicVerse}
     class:reading-mode={reading}
     class:word-open={!!popup}
+    class:speeches-on={speechesOn}
     style="--fs-greek:{fsGreek}rem;--fs-english:{fsEng}rem;--lh-greek:{lhGreek};--lh-english:{lhEng};--colw-scale:{colScale};--fs-scale:{fsScale}"
     on:copy={handleCopy}>
     <!-- Screen-reader announcement of a posture change (Scholar ⇄ Reading). -->
@@ -2193,7 +2264,19 @@
                     {/each}
                   </tbody></table>
                 {:else}
-                  <div class="greek-line" id={item.line.cont ? `L${seg.column}-${item.line.n}-c` : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && targetId === `L${seg.column}-${item.line.n}`} class:cont={item.line.cont} class:bracketed={!!item.line.bracketed} title={item.line.bracketed ? 'athetized/bracketed in the editorial tradition' : undefined}>
+                  {#if speechesOn && !item.line.cont && speechRailStarts.has(item.line.n)}
+                    <!-- Speaker→addressee margin label: real text (not
+                         aria-hidden), CSS small-caps. Sits at the span's
+                         opening line only — never repeated down the rail. -->
+                    <p class="spk-rail-label">{speechRailStarts.get(item.line.n)}</p>
+                  {/if}
+                  <div class="greek-line" id={item.line.cont ? `L${seg.column}-${item.line.n}-c` : `L${seg.column}-${item.line.n}`} class:target={!item.line.cont && targetId === `L${seg.column}-${item.line.n}`} class:cont={item.line.cont} class:bracketed={!!item.line.bracketed} class:spk-rail={speechesOn && !item.line.cont && speechRailLines.has(item.line.n)} title={item.line.bracketed ? 'athetized/bracketed in the editorial tradition' : undefined}>
+                    {#if speechesOn && !item.line.cont && speechDegradedStarts.has(item.line.n)}
+                      <!-- Discreet flagged marker: a degraded span (nested,
+                           crossBook, or a vulgate-gap line) gets no rail —
+                           just this, at its opening line. -->
+                      <button type="button" class="spk-flag" title={speechDegradedStarts.get(item.line.n)} aria-label={`Speech flagged: ${speechDegradedStarts.get(item.line.n)}`}>†</button>
+                    {/if}
                     <span class="line-num">{item.line.cont ? '' : showLineNum(item.line.n)}</span>
                     <span class="line-text" lang="grc">{#if item.line.bracketed}<span class="line-bracket" aria-hidden="true">[</span>{/if}{@render greekToks(lineRenderParts(item.line.text, item.line.tokens, speakerEvents(seg, item.line)))}{#if item.line.bracketed}<span class="line-bracket" aria-hidden="true">]</span>{/if}</span>
                   </div>
@@ -2421,6 +2504,25 @@
         </span>
         <span class="settings-pill">
           <input type="checkbox" bind:checked={spkColor} on:change={saveSpkColor} aria-label="Color speaker names by speaker" />
+          <span class="settings-pill-track"></span>
+          <span class="settings-pill-thumb"></span>
+        </span>
+      </label>
+    </div>
+    {/if}
+
+    {#if epicVerse}
+    <div class="settings-section">
+      <div class="settings-section-label">Speeches</div>
+      <label class="settings-check-row">
+        <span class="settings-check-name">
+          Show speaker rails
+          <span class="settings-check-hint">
+            Margin rail for who's speaking <span class="draft-badge dices-badge" title="Computed from DICES (Du Bois et al.), CC-BY 4.0">DICES</span>
+          </span>
+        </span>
+        <span class="settings-pill">
+          <input type="checkbox" bind:checked={speechesOn} on:change={saveSpeeches} aria-label="Show DICES speech rails in the Greek gutter" />
           <span class="settings-pill-track"></span>
           <span class="settings-pill-thumb"></span>
         </span>

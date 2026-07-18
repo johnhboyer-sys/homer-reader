@@ -204,6 +204,77 @@ export function activeSceneIndex(scenes: Scene[], line: number): number {
   return idx;
 }
 
+// A DICES speech span (docs/APPARATUS-SCHEMAS.md's speeches.json, computed
+// stage 4e, `status: "imported"` — not authored, so no draft badge applies).
+// `lines` are vulgate line numbers: for an ordinary speech both belong to
+// `book`; for a `crossBook` speech `lines[1]` belongs to a LATER book (the
+// speech's closing book), so it must never be treated as a same-book bound —
+// see shared/lib/speeches.ts's classifySpeech and
+// pipeline/homer_pipeline/apparatus_speeches.py's module docstring (the two
+// Apologoi frame speeches, Od. 9.2-11.332 and Od. 11.378-12.453). `speaker`/
+// `addressee` are apparatus/characters.json ids where the DICES name joined,
+// else the lowercased raw DICES name (never dropped) — see
+// shared/lib/speeches.ts's humanizeSpeaker for the display fallback.
+export interface Speech {
+  id: string;
+  book: number;
+  lines: [number, number];
+  speaker: string[];
+  addressee: string[];
+  level: number;
+  cluster: number;
+  part: number;
+  type: string;
+  crossBook?: boolean;
+}
+
+export interface SpeechesFile {
+  work: string;
+  status: string;
+  speeches: Speech[];
+}
+
+const _speechesCache = new Map<string, Promise<Speech[]>>();
+
+// A work's whole speech-span list (both epics run ~700 rows), fetched once
+// and cached — the Speeches reader toggle is off by default, so this is
+// lazy: nothing fetches until a reader actually turns it on (payload
+// discipline, same posture as fetchFootnotes/fetchSidenotes).
+export function fetchSpeeches(work: string): Promise<Speech[]> {
+  const cached = _speechesCache.get(work);
+  if (cached) return cached;
+  const p = fetch(`${workBase(work)}/speeches.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} speeches: ${r.status}`);
+    return r.json();
+  }).then((raw: SpeechesFile) => raw.speeches ?? []);
+  p.catch(() => { if (_speechesCache.get(work) === p) _speechesCache.delete(work); });
+  _speechesCache.set(work, p);
+  return p;
+}
+
+// Minimal shape of an apparatus/characters.json entry needed to label a
+// speech rail (see shared/components/maps.ts's CharacterRef — same idea,
+// duplicated locally so shared/lib/speeches.ts doesn't have to import the
+// Leaflet-adjacent maps module for a two-field type).
+export interface CharacterEntry { id: string; name: string; greek?: string; }
+
+let _charactersCache: Promise<Record<string, CharacterEntry>> | null = null;
+
+// The whole-corpus cast list (apparatus/characters.json, ~100 entries,
+// shared across both epics — not per-work), keyed by id. Fetched once and
+// cached; only the Speeches toggle triggers this fetch today.
+export function fetchCharacters(): Promise<Record<string, CharacterEntry>> {
+  if (_charactersCache) return _charactersCache;
+  const p = fetch(`${ROOT()}/characters.json`).then(r => {
+    if (!r.ok) throw new Error(`characters: ${r.status}`);
+    return r.json();
+  }).then((raw: { characters: CharacterEntry[] }) =>
+    Object.fromEntries((raw.characters ?? []).map(c => [c.id, c])));
+  p.catch(() => { if (_charactersCache === p) _charactersCache = null; });
+  _charactersCache = p;
+  return p;
+}
+
 export interface BookData {
   book: number;
   segments: Segment[];

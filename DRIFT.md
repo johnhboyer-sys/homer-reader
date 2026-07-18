@@ -458,3 +458,54 @@ note below for the justification.
   hydration can be delayed/interrupted by layout churn. The `?loc` path had the
   same risk but was never updated to match; brought in line. No plato-reader
   counterpart (this repo's `?loc` scheme is Homer-only verse-line).
+
+## DICES speech spans (Phase 4 flagship, 2026-07-17)
+
+- `shared/lib/data.ts` — new `Speech`/`SpeechesFile`/`CharacterEntry` types,
+  `fetchSpeeches(work)` (per-work, `/data/<work>/speeches.json`, cached) and
+  `fetchCharacters()` (whole-corpus, `/data/characters.json`, cached). Both
+  lazy — nothing fetches until the reader's Speeches toggle is switched on.
+  No plato-reader counterpart (Plato's corpus has no DICES apparatus).
+- `shared/lib/speeches.ts` — new, Homer-only: `classifySpeech` (the
+  CONFIDENCE DEGRADE RULE predicate — level 0 or a level-1 fully inside a
+  same-book level-0 span renders a rail; crossBook / level>=2 / a vulgate-gap
+  line / an unresolved speaker always degrades to a flagged marker),
+  `realLinesFromSegments`, `humanizeSpeaker`/`speakerDisplayName` (never
+  invents an identification — same posture as `shared/lib/maps.ts`'s
+  `humanizeId`/`leaderDisplayName`), `speechLabel`. See its module doc
+  comment for the "same book" limitation this predicate accepts (level-1
+  speeches recorded in a book OTHER than their narrative frame's book — e.g.
+  most of Od. 10 and all of Od. 12's speeches — correctly degrade, since the
+  data gives no cross-book containment signal).
+- `shared/components/Reader.svelte` — new Speeches state block (`speechesOn`
+  toggle, persisted like the other reader prefs; `ensureSpeeches` lazy fetch;
+  `bookSpeeches`/`bookRealLines`/`speechRenders`/`speechRailLines`/
+  `speechRailStarts`/`speechDegradedStarts` reactive maps, all empty — zero
+  cost — while the toggle is off). New `speeches-on` class on `.reader-body`.
+  New Settings ▸ Speeches row (gated on `epicVerse`, mirrors the existing
+  Speakers/Copying `.settings-check-row` pattern) with a `.dices-badge`
+  source chip (NOT the draft badge — this data is `status:"imported"`, a
+  computed corpus import, not AI-drafted apparatus). Template: a
+  `.spk-rail-label` `<p>` before a rail's opening `.greek-line`, a
+  `class:spk-rail` binding per line (CSS-only rail, no per-line listener),
+  and a `.spk-flag` button (keyboard-reachable, `title`+`aria-label` carry
+  the degrade reason) inside a degraded span's opening line. No
+  plato-reader counterpart.
+- `shared/styles/global.css` — new section: `.reader-body.speeches-on
+  .greek-line` reserves a fixed transparent-border gutter (so toggling never
+  shifts the line-num column); `.spk-rail` paints it `var(--accent)`
+  (wine-dark, no new token); `.spk-rail-label` (small-caps, real text, not
+  aria-hidden); `.spk-flag` (absolutely positioned, decorative-icon
+  contrast); `.dices-badge` (neutral `--text-light` tone, not `--draft`).
+- `scripts/build-public.mjs` — new copy step after the corpus build: plain
+  `apparatus/speeches/<work>.json` → `build/dist/<work>/speeches.json` and
+  `apparatus/characters.json` → `build/dist/characters.json` (no transform —
+  all classification/label logic is client-side in `shared/lib/speeches.ts`).
+  `apparatus_speeches.py` writes only the source-of-truth `apparatus/`
+  files, so nothing copied them into the public data root before this.
+- `shared/__tests__/speeches.test.ts` — new: classification predicate
+  coverage (both Apologoi crossBook frames, a clean level-1 inside a
+  crossBook parent, the "different book than its frame" honest limitation,
+  level>=2, the odyssey-931/Od.10.456 vulgate-gap fixture, an unresolved
+  speaker), humanize/label formatting, and real-apparatus regression checks
+  against the committed `apparatus/speeches/*.json` / `characters.json`.

@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, readdirSync, rmSync } from 'node:fs';
+import { copyFileSync, existsSync, lstatSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -69,6 +69,22 @@ if (dataProblem) {
   console.error(dataProblem);
   process.exit(1);
 }
+
+// DICES speech-span apparatus (docs/APPARATUS-SCHEMAS.md's speeches.json,
+// computed by pipeline/homer_pipeline/apparatus_speeches.py into
+// apparatus/speeches/<work>.json — a source-of-truth file, not a stage7 emit
+// target) + the whole-corpus cast list it labels speakers/addressees against.
+// Plain copies: shared/lib/speeches.ts does all classification/label logic
+// client-side, so no transform is needed here. Lazily fetched by the reader
+// only once a reader turns the Speeches toggle on (off by default).
+console.log('\nCopying DICES speech-span apparatus into the public data root');
+const APPARATUS = join(ROOT, 'apparatus');
+for (const work of works) {
+  const src = join(APPARATUS, 'speeches', `${work}.json`);
+  if (existsSync(src)) copyFileSync(src, join(dataDir, work, 'speeches.json'));
+}
+const charactersSrc = join(APPARATUS, 'characters.json');
+if (existsSync(charactersSrc)) copyFileSync(charactersSrc, join(dataDir, 'characters.json'));
 
 // Turn-align each alternate public-domain translation onto its work's reference
 // turnFlow, injecting alt[<id>] into the emitted book JSON (build/dist is what

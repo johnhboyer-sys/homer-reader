@@ -3493,6 +3493,61 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   }
 }
 
+/* ── DICES speech rails (Settings ▸ Speeches, off by default) ────────────────
+   Chart-Room restraint: a hairline rail in the Greek gutter, not text
+   colouring. `.speeches-on .greek-line` reserves a fixed border+padding gutter
+   on EVERY line (transparent when inactive) so toggling a rail on/off never
+   shifts the line-num/line-text column — only .spk-rail lines paint the
+   border. Wine-dark --accent only, matching .scene-chip's left-rule idiom. */
+.reader-body.speeches-on .greek-line {
+  position: relative;
+  border-left: 2px solid transparent;
+  padding-left: 0.6rem;
+}
+.reader-body.speeches-on .greek-line.spk-rail {
+  border-left-color: var(--accent);
+}
+/* Speaker→addressee label at a rail's opening line only — real text (NOT
+   aria-hidden), small-caps via font-variant like every other siglum/label in
+   this reader (.speaker, .scene-place). */
+.spk-rail-label {
+  margin: 0.9rem 0 0.15rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  font-variant: small-caps;
+  color: var(--accent);
+}
+/* Discreet flagged marker for a DEGRADED span (nested/crossBook/vulgate-gap):
+   no rail, just this dagger at the span's opening line, absolutely positioned
+   so it never disturbs the line-num/line-text flex layout. A real <button>
+   (keyboard-reachable, tooltip via title + aria-label) — decoration would be
+   wrong here since the reason text IS the content. */
+.spk-flag {
+  position: absolute;
+  left: 0.02rem;
+  top: 0.2em;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-light);
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: help;
+}
+.spk-flag:hover, .spk-flag:focus-visible { color: var(--accent); }
+.spk-flag:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+/* Settings ▸ Speeches row: a small "DICES" source chip beside the hint text —
+   reuses .draft-badge's shape but a NEUTRAL tone (not --draft): this data is
+   status:"imported" (a computed corpus import), not AI-drafted apparatus
+   pending review, so it must not read as the same draft-honesty flag. */
+.dices-badge {
+  margin-left: 0.35em;
+  color: var(--text-light);
+  border-color: var(--text-light);
+}
+
 /* Docked lexicon rail (desktop ≥1100px): the non-modal counterpart of the
    anchored .word-sidebar popup. Sits below the sticky header, quiet divider
    instead of a floating drop-shadow; the reader body already reserves its strip
