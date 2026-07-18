@@ -99,6 +99,11 @@ non-negotiable.
   other's dist mid-verification. Lanes verifying against dist must
   build+verify without another build lane running, or verify via dev
   server instead.
+- Codex model-flag gotcha (2026-07-18): `--model gpt-5.6-terra-high` is
+  REJECTED on this ChatGPT-account setup ("model is not supported…"); runs
+  fall back to the account's default Codex model at `--effort high`. Label
+  lanes accordingly; the routing table's Terra/Sol names describe intent,
+  not a selectable flag here.
 - Browser-tooling gotcha (2026-07-18): the Chrome-MCP `resize_window` can
   silently lock at ~800px wide mid-session — for mobile-viewport captures
   use the Playwright MCP's `browser_resize` (dedicated tab, as ever).
