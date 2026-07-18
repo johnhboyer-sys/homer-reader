@@ -31,6 +31,9 @@ non-negotiable.
   welcome, never republished wholesale. Site translations remain PD-only
   (rule above unchanged). Print Landmark series stays excluded entirely.
   Every sourced claim carries its citation in the data, not just the prose.
+  Citation format (John, 2026-07-18): **Chicago** for books and articles;
+  everything else (web resources, databases, blogs) hyperlinks to the
+  source within the citation.
 - **Apparatus honesty:** AI-drafted apparatus carries `status: "draft"` until John
   flips it; the UI shows a discreet draft badge. Every place has a certainty tier
   (`certain | traditional | speculative | mythical`); traditional identifications
