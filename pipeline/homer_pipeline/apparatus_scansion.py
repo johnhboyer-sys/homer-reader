@@ -3,8 +3,10 @@ corpus's own Greek text, with honest confidence flags. Clean-room
 implementation -- no vendored scansion library; general Greek-prosody rules
 only (see module functions below for the specific rules applied).
 
-Emits build/dist/<work>/scansion.json:
-    {"work": <id>, "lines": {"<book>.<line>": {
+Emits build/dist/<work>/scansion-<NN>.json, one per book (a whole-work single
+file ran ~1.5MB for the Iliad -- too heavy for a reader toggle's lazy fetch,
+so the emit is split the same way book-<NN>.json already is):
+    {"work": <id>, "book": <int>, "lines": {"<book>.<line>": {
         "feet": <6-char string, chars 1-5 in {D,S}, char 6 in {S,X}>,
         "confidence": "high" | "ambiguous",
         "notes": [<flag>, ...]
@@ -477,14 +479,20 @@ def run(manifest: Manifest) -> dict:
     dist_dir = BUILD_DIR / "dist" / work_id
     lines_raw = _load_book_lines(dist_dir)
 
-    lines_out: dict[str, dict] = {}
+    # Clear any stale scansion-*.json from a previous run whose book set has
+    # since shrunk (e.g. a manifest edit), so a re-run never leaves an orphan
+    # file behind for a book that no longer exists.
+    for stale in dist_dir.glob("scansion-*.json"):
+        stale.unlink()
+
+    lines_by_book: dict[int, dict[str, dict]] = {}
     high = ambiguous = unresolved = 0
     feet_counter: dict[str, int] = {}
     flag_counter: dict[str, int] = {}
     for book_n, line_n, words in lines_raw:
         result = scan_line(words)
         key = f"{book_n}.{line_n}"
-        lines_out[key] = result
+        lines_by_book.setdefault(book_n, {})[key] = result
         if result["confidence"] == "high":
             high += 1
         else:
@@ -495,15 +503,23 @@ def run(manifest: Manifest) -> dict:
         for flag in result["notes"]:
             flag_counter[flag] = flag_counter.get(flag, 0) + 1
 
-    out_path = dist_dir / "scansion.json"
-    out_path.write_text(
-        json.dumps({"work": work_id, "lines": lines_out}, ensure_ascii=False, indent=1) + "\n",
-        encoding="utf-8",
-    )
+    out_paths: list[Path] = []
+    for book_n in sorted(lines_by_book):
+        out_path = dist_dir / f"scansion-{book_n:02d}.json"
+        out_path.write_text(
+            json.dumps(
+                {"work": work_id, "book": book_n, "lines": lines_by_book[book_n]},
+                ensure_ascii=False, indent=1,
+            ) + "\n",
+            encoding="utf-8",
+        )
+        out_paths.append(out_path)
+
     total = len(lines_raw)
     return {
         "work": work_id,
-        "path": out_path,
+        "paths": out_paths,
+        "books": sorted(lines_by_book),
         "total_lines": total,
         "high": high,
         "ambiguous": ambiguous,

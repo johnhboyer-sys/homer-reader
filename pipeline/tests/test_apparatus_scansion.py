@@ -250,24 +250,58 @@ def _setup_fixture_corpus(tmp_path: Path, monkeypatch) -> tuple[Manifest, Path]:
     return manifest, dist_dir
 
 
-def test_run_emits_scansion_json_keyed_by_book_dot_line(tmp_path, monkeypatch):
+def test_run_emits_one_scansion_json_per_book_keyed_by_book_dot_line(tmp_path, monkeypatch):
     manifest, dist_dir = _setup_fixture_corpus(tmp_path, monkeypatch)
     result = sc.run(manifest)
 
     assert result["total_lines"] == 2
-    doc = json.loads((dist_dir / "scansion.json").read_text(encoding="utf-8"))
+    assert result["books"] == [1]
+    assert not (dist_dir / "scansion.json").exists()  # split per book, no whole-work file
+    doc = json.loads((dist_dir / "scansion-01.json").read_text(encoding="utf-8"))
     assert doc["work"] == "fixture"
+    assert doc["book"] == 1
     assert set(doc["lines"]) == {"1.1", "1.2"}
     assert doc["lines"]["1.1"]["feet"] == "DDSDDX"
     assert doc["lines"]["1.1"]["confidence"] == "high"
 
 
+def test_run_emits_a_separate_file_per_book(tmp_path, monkeypatch):
+    manifest, dist_dir = _setup_fixture_corpus(tmp_path, monkeypatch)
+    _write_book(dist_dir, 2, [
+        {
+            "n": 1,
+            "tokens": [_tok(w) for w in
+                       ["Τρωσί", "τε", "καὶ", "Δαναοῖσι", "διὰ", "κρατερὰς", "ὑσμίνας"]],
+        },
+    ])
+    result = sc.run(manifest)
+
+    assert result["books"] == [1, 2]
+    doc1 = json.loads((dist_dir / "scansion-01.json").read_text(encoding="utf-8"))
+    doc2 = json.loads((dist_dir / "scansion-02.json").read_text(encoding="utf-8"))
+    assert set(doc1["lines"]) == {"1.1", "1.2"}
+    assert set(doc2["lines"]) == {"2.1"}
+
+
+def test_run_clears_stale_scansion_files_for_books_no_longer_present(tmp_path, monkeypatch):
+    manifest, dist_dir = _setup_fixture_corpus(tmp_path, monkeypatch)
+    _write_book(dist_dir, 2, [
+        {"n": 1, "tokens": [_tok(w) for w in ["Τρωσί", "τε", "καὶ", "Δαναοῖσι"]]},
+    ])
+    sc.run(manifest)
+    assert (dist_dir / "scansion-02.json").exists()
+
+    (dist_dir / "book-02.json").unlink()
+    sc.run(manifest)
+    assert not (dist_dir / "scansion-02.json").exists()
+
+
 def test_run_is_deterministic_across_repeated_runs(tmp_path, monkeypatch):
     manifest, dist_dir = _setup_fixture_corpus(tmp_path, monkeypatch)
     sc.run(manifest)
-    first = (dist_dir / "scansion.json").read_bytes()
+    first = (dist_dir / "scansion-01.json").read_bytes()
     sc.run(manifest)
-    second = (dist_dir / "scansion.json").read_bytes()
+    second = (dist_dir / "scansion-01.json").read_bytes()
     assert first == second
 
 

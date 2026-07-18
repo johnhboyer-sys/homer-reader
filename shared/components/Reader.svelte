@@ -1,12 +1,13 @@
 <script lang="ts">
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
-  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, fetchSpeeches, fetchCharacters, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene, type Speech, type CharacterEntry } from '../lib/data';
+  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, fetchSpeeches, fetchCharacters, fetchScansion, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene, type Speech, type CharacterEntry, type ScansionEntry } from '../lib/data';
   import { takeSsrBook } from '../lib/ssr-book';
   import { schemeFor, formatCite } from '../lib/citation';
   import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { classifySpeech, realLinesFromSegments, speechLabel } from '../lib/speeches';
+  import { scansionDisplay, scansionKey } from '../lib/scansion';
   import { greekFold } from '../lib/search';
   import { highlightPrefixMatches } from '../lib/text';
   import { getWork, visibleTranslations, bookLabel as workBookLabel, HOUSE_AUTHOR, type TranslationRef } from '../lib/works';
@@ -504,6 +505,44 @@
     }
     return m;
   })();
+
+  // ── Meter overlay (feature #19) ────────────────────────────────────────────
+  // Off by default; a per-line hexameter scansion tag right-aligned in the
+  // Greek gutter (see shared/lib/scansion.ts's scansionDisplay for the
+  // honesty rules: high-confidence renders plainly, ambiguous is visibly
+  // qualified, unresolved shows a quiet placeholder, NEVER a fake pattern).
+  // Data is a computed emit (apparatus_scansion.py's clean-room prosody
+  // solver, not a vendored library or AI apparatus draft), so no draft badge
+  // applies — same posture as the DICES speech data above. Lazy-fetched
+  // per BOOK, not whole-work (a whole-work file ran ~1.5MB for the Iliad —
+  // too heavy for a reader toggle's lazy fetch, so the pipeline emit is
+  // split the same way book-<NN>.json already is); re-fetched on every book
+  // switch while the toggle stays on.
+  const METER_KEY = 'reader-meter';
+  let meterOn = false;
+  function saveMeter() { try { localStorage.setItem(METER_KEY, String(meterOn)); } catch {} }
+  let bookScansion: Record<string, ScansionEntry> = {};
+  // The book number `bookScansion` currently holds (or is being fetched
+  // for) — null once a fetch fails, so a later toggle/book-switch retries.
+  let meterLoadedFor: number | null = null;
+  async function ensureMeter(book: number): Promise<void> {
+    if (meterLoadedFor === book) return;
+    meterLoadedFor = book; // guard re-entry; reset below if the fetch fails
+    try {
+      bookScansion = await fetchScansion(work, book);
+    } catch {
+      if (meterLoadedFor === book) meterLoadedFor = null; // allow a later retry
+    }
+  }
+  function toggleMeter() { meterOn = !meterOn; saveMeter(); }
+  // Fetch on first toggle-on, and again whenever a book switch happens while
+  // already on and this book's scansion hasn't loaded yet. epicVerse-gated:
+  // the toggle only exists for Homer (verse-line) works.
+  $: if (mounted && meterOn && epicVerse && meterLoadedFor !== bookNum) ensureMeter(bookNum);
+  // line n -> this book's scansion entry, or undefined (a line the pipeline
+  // has no scan for — e.g. a vulgate numbering gap). Empty (cheap no-op) while
+  // the toggle is off or the fetch hasn't landed yet.
+  $: meterEntries = meterOn && meterLoadedFor === bookNum ? bookScansion : ({} as Record<string, ScansionEntry>);
 
   // ── Scene rail (in-book navigation flyout) ───────────────────────────────
   // A thin left drawer listing this book's scenes (line range · day · place +
@@ -1355,6 +1394,8 @@
     if (savedSpk !== null) spkColor = savedSpk === 'true';
     const savedSpeeches = (() => { try { return localStorage.getItem(SPEECH_KEY); } catch { return null; } })();
     if (savedSpeeches !== null) speechesOn = savedSpeeches === 'true';
+    const savedMeter = (() => { try { return localStorage.getItem(METER_KEY); } catch { return null; } })();
+    if (savedMeter !== null) meterOn = savedMeter === 'true';
     // Restore the reading/scholar posture (global, like reader-view).
     const savedPosture = (() => { try { return localStorage.getItem(POSTURE_KEY); } catch { return null; } })();
     if (savedPosture === 'reading') reading = true;
@@ -2244,6 +2285,20 @@
         <span class="bracket-sample" aria-hidden="true">[ ]</span> marks lines athetized/bracketed in the editorial tradition.
       </div>
     {/if}
+    {#if meterOn && epicVerse && !reading}
+      <!-- Discreet legend, same "explain the convention where it's used"
+           posture as the bracket legend above. Guarded off in Reading Mode:
+           that posture shows a single translation with no Greek gutter to
+           annotate, so the meter tag never appears there — a legend with
+           nothing to explain would just be clutter. -->
+      <div class="meter-legend">
+        <span class="meter-sample" aria-hidden="true">—◡◡</span> dactyl ·
+        <span class="meter-sample" aria-hidden="true">——</span> spondee ·
+        <span class="meter-sample" aria-hidden="true">—×</span> anceps —
+        <span class="meter-amb-sample" aria-hidden="true">≈</span> ambiguous scan ·
+        <span class="meter-unres-sample" aria-hidden="true">—</span> no confident scan
+      </div>
+    {/if}
     {#if reading}
       <!-- Reading Mode: single column, one translation, minimal chrome. -->
       {@render readingView()}
@@ -2316,6 +2371,24 @@
                     {/if}
                     <span class="line-num">{item.line.cont ? '' : showLineNum(item.line.n)}</span>
                     <span class="line-text" lang="grc">{#if item.line.bracketed}<span class="line-bracket" aria-hidden="true">[</span>{/if}{@render greekToks(lineRenderParts(item.line.text, item.line.tokens, speakerEvents(seg, item.line)))}{#if item.line.bracketed}<span class="line-bracket" aria-hidden="true">]</span>{/if}</span>
+                    {#if meterOn && !item.line.cont}
+                      {@const sc = meterEntries[scansionKey(bookNum, item.line.n)]}
+                      {#if sc}
+                        <!-- Supplementary annotation, not primary content: aria-hidden
+                             so per-line scansion doesn't interrupt a screen reader's
+                             pass through ~700 lines a book — the feature is described
+                             once, on the Settings toggle itself (aria-label below).
+                             Greek token focus order is untouched (no tabindex here). -->
+                        {@const sd = scansionDisplay(sc)}
+                        <span
+                          class="meter-tag"
+                          class:meter-ambiguous={sd.tier === 'ambiguous'}
+                          class:meter-unresolved={sd.tier === 'unresolved'}
+                          title={sd.title}
+                          aria-hidden="true"
+                        >{sd.text}</span>
+                      {/if}
+                    {/if}
                   </div>
                 {/if}
               {/each}
@@ -2567,6 +2640,23 @@
     </div>
     {/if}
 
+    {#if epicVerse}
+    <div class="settings-section">
+      <div class="settings-section-label">Meter</div>
+      <label class="settings-check-row">
+        <span class="settings-check-name">
+          Show hexameter scansion
+          <span class="settings-check-hint">Computed dactyl/spondee pattern beside each Greek line</span>
+        </span>
+        <span class="settings-pill">
+          <input type="checkbox" bind:checked={meterOn} on:change={saveMeter} aria-label="Show computed hexameter scansion beside each Greek line, in Scholar view" />
+          <span class="settings-pill-track"></span>
+          <span class="settings-pill-thumb"></span>
+        </span>
+      </label>
+    </div>
+    {/if}
+
     <div class="settings-section">
       <div class="settings-section-label">Copying</div>
       <label class="settings-check-row">
@@ -2636,3 +2726,58 @@
     Copy
   </button>
 {/if}
+
+<!-- Meter overlay (feature #19): scoped, component-local styles rather than
+     global.css (avoids widening the shared-core drift surface tracked in
+     DRIFT.md for a Homer-only feature — see the module docstring above). -->
+<style>
+  /* Right-aligned tag on the Greek line's flex row (.greek-line: line-num
+     fixed-width, .line-text flex:1, this sits last) — no layout reservation
+     when meterOn is false, since the element isn't rendered at all then
+     (see Reader.svelte's {#if meterOn} guard), so toggling off leaves no
+     residual gutter/CLS. */
+  .meter-tag {
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+    font-family: var(--font-ui);
+    font-size: 0.78em;
+    color: var(--text-light);
+    letter-spacing: 0.02em;
+    cursor: help;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  /* Ambiguous (a real, minimal-relaxation scan — just philologically
+     disputed): visibly qualified via the "≈" prefix already in the text
+     (shared/lib/scansion.ts's scansionDisplay) plus italic + a light dim.
+     0.88 opacity keeps text-light's contrast at ~4.9:1 (light) / ~6.6:1
+     (dark) — still AA (>=4.5:1), never washed out to illegible. */
+  .meter-tag.meter-ambiguous {
+    font-style: italic;
+    opacity: 0.88;
+  }
+  /* Unresolved: the honest "—" placeholder only (never a fabricated
+     pattern — see scansionDisplay). Same AA-safe opacity as the ambiguous
+     tier; the placeholder's sparseness (a single dash) plus its title "no
+     confident scan" carry the signal, not a contrast trick. */
+  .meter-tag.meter-unresolved {
+    opacity: 0.88;
+  }
+
+  /* Discreet legend, shown only while the overlay is on (Scholar view) —
+     same "explain the convention where it's used" posture as
+     .verse-bracket-legend in global.css. */
+  .meter-legend {
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    color: var(--text-light);
+    margin: 0 0 0.75rem;
+  }
+  .meter-legend .meter-sample {
+    font-family: var(--font-greek);
+  }
+  .meter-legend .meter-amb-sample {
+    font-style: italic;
+  }
+</style>
+

@@ -308,6 +308,52 @@ export function fetchCharacters(): Promise<Record<string, CharacterEntry>> {
   return p;
 }
 
+// One line's computed hexameter scansion (pipeline_homer's apparatus_scansion.py,
+// a clean-room prosody solver over the corpus's own Greek — not a vendored
+// scansion library). `feet` is a 6-char string, chars 1-5 in {D,S} (dactyl/
+// spondee), char 6 in {S,X} (verse-final anceps; X = a naturally short
+// syllable admitted at the verse end, "brevis in longo"). `confidence` is
+// "high" (one unambiguous scan) or "ambiguous" (more than one relaxation-
+// derivation ties for fewest assumptions — a REAL pattern, just disputed) —
+// see shared/lib/scansion.ts's isUnresolved for the third, honest UI tier
+// (an "ambiguous" line whose notes carry "unresolved": no parse was found at
+// any relaxation level, so `feet` is a best-effort placeholder, never a claim
+// of a real scan). `notes` are philological flags (synizesis, correption,
+// digamma-assumed, muta-cum-liquida, hiatus, brevis-in-longo, unresolved).
+export interface ScansionEntry {
+  feet: string;
+  confidence: 'high' | 'ambiguous';
+  notes: string[];
+}
+
+// build/dist/<work>/scansion-<NN>.json, one per book (split from a single
+// whole-work file — ~1.5MB for the Iliad — so the reader's Meter toggle can
+// lazy-fetch one book at a time; see apparatus_scansion.py's module
+// docstring). `lines` is keyed "<book>.<line>".
+export interface ScansionFile {
+  work: string;
+  book: number;
+  lines: Record<string, ScansionEntry>;
+}
+
+const _scansionCache = new Map<string, Promise<Record<string, ScansionEntry>>>();
+
+// A book's scansion lines, keyed "<book>.<line>". Off by default (the reader's
+// Meter toggle), so lazy: nothing fetches until a reader turns it on for a
+// book actually being viewed — same posture as fetchSpeeches/fetchFootnotes.
+export function fetchScansion(work: string, book: number): Promise<Record<string, ScansionEntry>> {
+  const key = `${work}:${book}`;
+  const cached = _scansionCache.get(key);
+  if (cached) return cached;
+  const p = fetch(`${workBase(work)}/scansion-${String(book).padStart(2, '0')}.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} scansion ${book}: ${r.status}`);
+    return r.json();
+  }).then((raw: ScansionFile) => raw.lines ?? {});
+  p.catch(() => { if (_scansionCache.get(key) === p) _scansionCache.delete(key); });
+  _scansionCache.set(key, p);
+  return p;
+}
+
 export interface BookData {
   book: number;
   segments: Segment[];

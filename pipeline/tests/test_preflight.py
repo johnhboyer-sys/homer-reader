@@ -82,15 +82,17 @@ def _apparatus_manifest() -> "WorkManifest":
 
 
 def _stub_epithets(data_dir, work_id: str = "testwork") -> None:
-    # _validate_apparatus_epithets_emitted, _validate_apparatus_scansion_emitted,
-    # and _validate_apparatus_vocab_emitted each require
-    # build/dist/<work>/{epithets,scansion,vocab}.json to exist for every verse
-    # work; tests that aren't exercising THOSE checks stub all three out so
+    # _validate_apparatus_epithets_emitted and _validate_apparatus_vocab_emitted
+    # each require build/dist/<work>/{epithets,vocab}.json to exist for every
+    # verse work; tests that aren't exercising THOSE checks stub both out so
     # they stay focused on what they actually test.
+    # _validate_apparatus_scansion_emitted is per-book (scansion-<NN>.json)
+    # and only fires for a book whose book-<NN>.json is physically on disk in
+    # data_dir -- none of these tests write one there (they pass a `loaded`
+    # dict in memory instead), so it stays inert without a stub.
     work_dir = data_dir / work_id
     work_dir.mkdir(parents=True, exist_ok=True)
     (work_dir / "epithets.json").write_text("{}", encoding="utf-8")
-    (work_dir / "scansion.json").write_text("{}", encoding="utf-8")
     (work_dir / "vocab.json").write_text("{}", encoding="utf-8")
 
 
@@ -301,11 +303,25 @@ def test_apparatus_scansion_emitted_fails_when_missing(tmp_path):
     from homer_pipeline.preflight import _validate_apparatus_scansion_emitted
 
     data_dir = tmp_path / "data"
-    (data_dir / "testwork").mkdir(parents=True)
+    work_dir = data_dir / "testwork"
+    work_dir.mkdir(parents=True)
+    # book-01.json IS present (the stage's input exists), but no
+    # scansion-01.json was emitted for it -- that's the failure this checks.
+    (work_dir / "book-01.json").write_text('{"book": 1}', encoding="utf-8")
     problems: list = []
     _validate_apparatus_scansion_emitted(_apparatus_manifest(), data_dir, problems)
     messages = [p[2] for p in problems]
-    assert any("scansion.json was not emitted" in m for m in messages)
+    assert any("scansion-01.json was not emitted" in m for m in messages)
+
+
+def test_apparatus_scansion_emitted_skips_books_with_no_book_file_yet(tmp_path):
+    from homer_pipeline.preflight import _validate_apparatus_scansion_emitted
+
+    data_dir = tmp_path / "data"
+    (data_dir / "testwork").mkdir(parents=True)
+    problems: list = []
+    _validate_apparatus_scansion_emitted(_apparatus_manifest(), data_dir, problems)
+    assert problems == []
 
 
 def test_apparatus_scansion_emitted_passes_when_present(tmp_path):
@@ -314,7 +330,10 @@ def test_apparatus_scansion_emitted_passes_when_present(tmp_path):
     data_dir = tmp_path / "data"
     work_dir = data_dir / "testwork"
     work_dir.mkdir(parents=True)
-    (work_dir / "scansion.json").write_text('{"work": "testwork", "lines": {}}', encoding="utf-8")
+    (work_dir / "book-01.json").write_text('{"book": 1}', encoding="utf-8")
+    (work_dir / "scansion-01.json").write_text(
+        '{"work": "testwork", "book": 1, "lines": {}}', encoding="utf-8"
+    )
     problems: list = []
     _validate_apparatus_scansion_emitted(_apparatus_manifest(), data_dir, problems)
     assert problems == []

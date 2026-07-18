@@ -961,19 +961,33 @@ def _validate_apparatus_scansion_emitted(
     problems: list[Problem],
 ) -> None:
     """The 'scansion' pipeline stage (apparatus_scansion.py) is registered for
-    every verse-line work and always emits build/dist/<work>/scansion.json —
-    absence means the stage silently failed or was skipped."""
-    scansion_path = data_dir / manifest.work_id / "scansion.json"
-    if not scansion_path.exists():
-        problems.append(
-            (manifest.work_id, "scansion.json",
-             "the scansion pipeline stage is registered but scansion.json was not emitted")
-        )
-        return
-    try:
-        json.loads(scansion_path.read_text(encoding="utf-8"))
-    except Exception as exc:
-        problems.append((manifest.work_id, "scansion.json", f"invalid JSON: {exc}"))
+    every verse-line work and always emits one
+    build/dist/<work>/scansion-<NN>.json per book in the manifest (split from
+    a single whole-work file — ~1.5MB for the Iliad — so the reader's Meter
+    toggle can lazy-fetch one book at a time). A book with no book-<NN>.json
+    emitted yet is not this check's concern (the book-emission gate elsewhere
+    already flags that); a book whose book-<NN>.json DOES exist but has no
+    matching scansion-<NN>.json means the stage silently failed or was
+    skipped for that book."""
+    work_dir = data_dir / manifest.work_id
+    for book in manifest.data.get("books", []):
+        n = book.get("n") if isinstance(book, dict) else None
+        if not isinstance(n, int):
+            continue
+        if not (work_dir / f"book-{n:02d}.json").exists():
+            continue
+        scansion_path = work_dir / f"scansion-{n:02d}.json"
+        if not scansion_path.exists():
+            problems.append(
+                (manifest.work_id, f"scansion-{n:02d}.json",
+                 "the scansion pipeline stage is registered but "
+                 f"scansion-{n:02d}.json was not emitted")
+            )
+            continue
+        try:
+            json.loads(scansion_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            problems.append((manifest.work_id, f"scansion-{n:02d}.json", f"invalid JSON: {exc}"))
 
 
 def _validate_apparatus_vocab_emitted(
