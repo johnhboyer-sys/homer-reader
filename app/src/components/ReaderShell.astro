@@ -11,6 +11,7 @@ import BekkerJump from '@shared/components/BekkerJump.svelte';
 import CommandPalette from '@shared/components/CommandPalette.svelte';
 import Pwa from './Pwa.astro';
 import HelpButton from './HelpButton.svelte';
+import ParsePopupTour from './ParsePopupTour.svelte';
 import WorkSwitcher from './WorkSwitcher.svelte';
 import ThemeInit from './ThemeInit.astro';
 import ThemeToggle from './ThemeToggle.astro';
@@ -692,6 +693,7 @@ const intro =
        event-delegation in Reader.svelte, which removed the ~1.2s scripting task. -->
   <Reader work={workId} bookNum={n} bookData={clientBookData} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:idle />
   <CommandPalette work={workId} bookNum={n} scenes={clientBookData.scenes ?? []} client:idle />
+  <ParsePopupTour client:load />
 
   <footer class="site-footer">
     <span>Greek text: {work.greekSource.short} (Perseus, CC BY-SA)</span>
@@ -699,6 +701,8 @@ const intro =
     <span>Translations: public domain (Murray, Butler, Pope)</span>
     <span class="footer-sep" aria-hidden="true">·</span>
     <a href={`${base}/attribution`}>Texts &amp; Licences</a>
+    <span class="footer-sep" aria-hidden="true">·</span>
+    <a href={`${base}/about`}>About</a>
   </footer>
 </body>
 </html>

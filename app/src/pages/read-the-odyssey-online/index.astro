@@ -1,0 +1,82 @@
+---
+// SEO landing page for "read the odyssey online free" (PROMPT.md Phase 5).
+// Real content, not a doorway page: explains what the reader actually offers
+// and links straight into it. See app/src/components/SeoLanding.astro for the
+// shared shell all five Phase-5 landers use.
+import SeoLanding from '../../components/SeoLanding.astro';
+import { workPath, workLanding } from '@shared/lib/works';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const book1Href = `${base}${workPath('odyssey', 1)}`;
+const book9Href = `${base}${workPath('odyssey', 9)}?mode=reading`;
+const landingHref = `${base}${workLanding('odyssey')}`;
+const startHref = `${base}/start/`;
+
+const faqs = [
+  {
+    q: 'Is the Odyssey really free to read here?',
+    a: 'Yes — every book, and every translation on the site, is free to read with no account, no subscription, and no ads. See Texts & Licences for exactly which editions are used and their licences.',
+  },
+  {
+    q: 'Which translation of the Odyssey does the site use?',
+    a: 'A. T. Murray’s 1919 Loeb Classical Library prose translation, by default. Samuel Butler’s (1900) and Alexander Pope’s (1725–26) are both available from the translation picker.',
+  },
+  {
+    q: 'Can I read the Odyssey in Greek and English at the same time?',
+    a: 'Yes — the parallel view shows the Greek and English side by side, line for line. You can also switch to a Greek-only or English-only single column.',
+  },
+  {
+    q: 'Do I need to create an account?',
+    a: 'No. There is no login, no paywall, and nothing to sign up for.',
+  },
+];
+---
+<SeoLanding
+  path="/read-the-odyssey-online/"
+  pageTitle="Read the Odyssey Online, Free — The Homer Reader"
+  metaDescription="Read Homer's Odyssey online for free: the full Greek text with A. T. Murray's public-domain translation (plus Samuel Butler and Alexander Pope), no ads, no signup."
+  eyebrow="Free online edition"
+  h1="Read the Odyssey Online, Free"
+  faqs={faqs}
+>
+  <p>
+    The Homer Reader carries the complete <em>Odyssey</em> — all twenty-four
+    books — free to read, with no ads, no paywall, and no account required.
+    The Greek text runs alongside a public-domain English translation, so you
+    can read in English, in Greek, or both at once.
+  </p>
+
+  <h2>What the edition offers</h2>
+  <ul>
+    <li>
+      <strong>A. T. Murray&rsquo;s Loeb translation (1919)</strong> as the
+      default English text, with Samuel Butler&rsquo;s 1900 prose and
+      Alexander Pope&rsquo;s eighteenth-century verse available as alternates.
+    </li>
+    <li>
+      The full Greek text, cited by the traditional book-and-line numbering
+      (e.g. <em>Od. 9.105</em>) so it lines up with any print edition or
+      commentary.
+    </li>
+    <li>
+      Click-to-parse on every Greek word: dictionary form, grammatical parse,
+      and full LSJ and Cunliffe dictionary entries, without leaving the page.
+    </li>
+    <li>
+      A marginal running summary of each scene, a day-by-day map of
+      Odysseus&rsquo;s route home, and a family tree of the house of Ithaca.
+    </li>
+  </ul>
+
+  <p>
+    New to the poem? <a href={book9Href}>Start at Book 9</a>, where Odysseus
+    tells the Phaeacians how he escaped the Cyclops, in Reading Mode —
+    or begin at the beginning with <a href={book1Href}>Book 1</a>.
+    Not sure which way in suits you? Try <a href={startHref}>Start Here</a>.
+  </p>
+
+  <div class="seo-cta-row">
+    <a class="seo-cta" href={book1Href}>Read the Odyssey, Book 1 &rarr;</a>
+    <a class="seo-cta secondary" href={landingHref}>Odyssey overview</a>
+  </div>
+</SeoLanding>

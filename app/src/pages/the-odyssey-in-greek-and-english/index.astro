@@ -1,0 +1,80 @@
+---
+// SEO landing page for "the odyssey in greek and english" (PROMPT.md Phase
+// 5). Distinct emphasis from /read-the-odyssey-online/: this page is for
+// searchers who already want the PARALLEL-TEXT / study apparatus, not just a
+// free read. See SeoLanding.astro for the shared shell.
+import SeoLanding from '../../components/SeoLanding.astro';
+import { workPath, workLanding } from '@shared/lib/works';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const book1Href = `${base}${workPath('odyssey', 1)}`;
+const landingHref = `${base}${workLanding('odyssey')}`;
+const lexiconHref = `${base}/lemma/`;
+const iliadTwinHref = `${base}/the-iliad-in-greek-and-english/`;
+
+const faqs = [
+  {
+    q: 'What Greek text of the Odyssey is used?',
+    a: 'The Greek text of the Loeb edition (1919), as digitized by the Perseus Digital Library — see Texts & Licences for the full citation and licence.',
+  },
+  {
+    q: 'How are the Greek and English lined up?',
+    a: 'A. T. Murray’s translation carries milestone markers from Perseus’s own encoding, used to align the English to the Greek at fixed points within each book; the traditional vulgate book-and-line numbering (e.g. Od. 9.105) is never renumbered, including its gaps and bracketed lines.',
+  },
+  {
+    q: 'Can I look up any Greek word?',
+    a: 'Yes — click any word in the Greek column for its lemma, grammatical parse, and full LSJ and Cunliffe dictionary entries, or browse the standalone Greek lexicon.',
+  },
+];
+---
+<SeoLanding
+  path="/the-odyssey-in-greek-and-english/"
+  pageTitle="The Odyssey in Greek and English, Line by Line — The Homer Reader"
+  metaDescription="A parallel Greek/English Odyssey with click-to-parse morphology, LSJ and Cunliffe dictionary entries, and the traditional vulgate line numbers — free to read."
+  eyebrow="Parallel text"
+  h1="The Odyssey in Greek and English"
+  faqs={faqs}
+>
+  <p>
+    The Homer Reader sets Homer&rsquo;s Greek beside an English translation,
+    line by line, book by book — built for readers working through the
+    <em>Odyssey</em> in the original, not just skimming a summary in English.
+  </p>
+
+  <h2>Built for reading the Greek</h2>
+  <ul>
+    <li>
+      Every Greek word is clickable: a popup shows its dictionary form,
+      grammatical parse (person, number, tense, mood, case), and full entries
+      from the <abbr title="Liddell–Scott–Jones">LSJ</abbr> and Cunliffe&rsquo;s
+      <em>Lexicon of the Homeric Dialect</em>.
+    </li>
+    <li>
+      Citation uses the traditional vulgate book-and-line numbers (e.g.
+      <em>Od. 9.105</em>) — numbering gaps and lines the manuscript tradition
+      marks as suspect (athetized) are preserved exactly as transmitted,
+      never smoothed over.
+    </li>
+    <li>
+      Choose the English column&rsquo;s translation — A. T. Murray&rsquo;s
+      Loeb prose, Samuel Butler&rsquo;s prose, or Alexander Pope&rsquo;s
+      verse — or compare two side by side.
+    </li>
+    <li>
+      A full-text search across the Greek and every translation, and a
+      standalone <a href={lexiconHref}>Greek lexicon</a> for word-frequency
+      and concordance work.
+    </li>
+  </ul>
+
+  <p>
+    Looking for the <em>Iliad</em> instead?
+    <a href={iliadTwinHref}>The Iliad in Greek and English</a> works the same
+    way.
+  </p>
+
+  <div class="seo-cta-row">
+    <a class="seo-cta" href={book1Href}>Open the Odyssey, Book 1 &rarr;</a>
+    <a class="seo-cta secondary" href={landingHref}>Odyssey overview</a>
+  </div>
+</SeoLanding>

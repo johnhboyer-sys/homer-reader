@@ -1,0 +1,215 @@
+---
+// The About page (PROMPT.md Phase 5, line ~165): who built this, what it's
+// built from, and how the apparatus should and shouldn't be trusted yet.
+// Deliberately does NOT re-list every licence in detail — /attribution/
+// (Texts & Licences) already carries the full, precise licence text per
+// source, and duplicating it here would only let the two drift apart.
+//
+// Trademark note (see DEPLOY-STATUS.md "Trademark decision", 2026-07-17):
+// "Landmark" was removed from all user-facing chrome after a fair-use risk
+// assessment; the word survives ONLY here, once, in attributed prose
+// ("in the tradition of Robert Strassler's Landmark editions") — nominative
+// reference to a real, named series, not a claim to be part of it. Do not
+// add the word "Landmark" to any other page.
+//
+// Hard rule (CLAUDE.md): no movie branding anywhere — no stills, no title
+// treatment, no director's name. The "good year to read Homer" line below
+// stays deliberately unspecific about why.
+import { readFileSync } from 'node:fs';
+import ThemeInit from '../../components/ThemeInit.astro';
+import ThemeToggle from '../../components/ThemeToggle.astro';
+import Pwa from '../../components/Pwa.astro';
+import { jsonLdSafe } from '../../lib/jsonld';
+import '@shared/styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Whether the character apparatus (genealogies, place identifications, etc.)
+// is still draft — read the same way genealogies/index.astro does, so the
+// disclosure below can point at the real current status rather than an
+// assumed one.
+interface CharactersFile { status: 'draft' | 'reviewed'; }
+let apparatusDraft = true;
+try {
+  const raw: CharactersFile = JSON.parse(readFileSync('../apparatus/characters.json', 'utf-8'));
+  apparatusDraft = raw.status === 'draft';
+} catch { /* apparatus not built yet in this environment; assume draft */ }
+
+const pageTitle = 'About — The Homer Reader';
+const metaDescription =
+  'What the Homer Reader is, who and what it draws on — Murray, Butler, Pope, ' +
+  'Perseus, LSJ, Cunliffe — and how to read its AI-drafted apparatus honestly.';
+const canonical = Astro.site ? new URL(`${base}/about/`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: pageTitle,
+  description: metaDescription,
+  ...(canonical ? { url: canonical } : {}),
+  isPartOf: { '@type': 'WebSite', name: 'The Homer Reader' },
+};
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  <meta property="og:site_name" content="The Homer Reader" />
+  {canonical && <meta property="og:url" content={canonical} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={metaDescription} />
+  {ogImage && <meta name="twitter:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(jsonLd)} />
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <style>
+    body { overflow-x: hidden; max-width: 100%; }
+    .about-body {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4rem;
+      font-family: var(--font-english);
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--text);
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 1.9rem;
+      margin: 0 0 1.2rem;
+    }
+    h2 {
+      font-family: var(--font-ui);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 2rem 0 0.4rem;
+      letter-spacing: .02em;
+    }
+    h2:first-of-type { margin-top: 0.5rem; }
+    p { margin: 0 0 0.9rem; }
+    a { color: var(--accent); }
+    .about-lede { font-size: 1.02rem; color: var(--text); }
+    .draft-example {
+      margin: 0 0 1.1rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      background: var(--col-bg);
+      font-size: 0.88rem;
+      color: var(--text-mid);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .about-seealso {
+      margin-top: 2.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--text-mid);
+    }
+  </style>
+  <Pwa />
+</head>
+<body>
+  <header class="simple-header">
+    <div class="header-title">
+      <a class="home-link" href={`${base}/`}>Homer</a>
+      <span class="title-sep">&rsaquo;</span>
+      <span class="header-static">About</span>
+    </div>
+    <nav class="header-actions" aria-label="Navigation">
+      <a href={`${base}/`} class="search-link">All works</a>
+      <a href={`${base}/search`} class="search-link">Search</a>
+      <ThemeToggle />
+    </nav>
+  </header>
+
+  <main class="about-body">
+    <h1>About the Homer Reader</h1>
+    <p class="about-lede">
+      The Homer Reader is a free parallel Greek&ndash;English edition of the
+      <em>Iliad</em> and the <em>Odyssey</em>: the full Greek text of both
+      poems beside a public-domain English translation, with click-to-parse
+      morphology, a Greek lexicon, exact vulgate line citation, and a growing
+      apparatus of maps, marginal scene summaries, timelines, and
+      genealogies. There is no ad, no paywall, and no account.
+    </p>
+
+    <h2>Its sources</h2>
+    <p>
+      The Greek text comes from T.&nbsp;W. Allen&rsquo;s 1931 edition of the
+      <em>Iliad</em> and the Loeb <em>Odyssey</em> (1919), both via a licensed
+      export and the Perseus Digital Library. The English is A.&nbsp;T.
+      Murray&rsquo;s Loeb translation by default, with Samuel Butler&rsquo;s
+      and Alexander Pope&rsquo;s as alternates &mdash; all long in the public
+      domain under US copyright rules. Word lookups draw on the LSJ lexicon
+      and Cunliffe&rsquo;s <em>Lexicon of the Homeric Dialect</em>, with
+      Autenrieth&rsquo;s school dictionary as a second, simpler pane. Every
+      source, its edition, and its exact licence terms are on the
+      <a href={`${base}/attribution`}>Texts &amp; Licences</a> page &mdash;
+      this page only introduces them.
+    </p>
+
+    <h2>How to read the apparatus</h2>
+    <p>
+      The maps, scene summaries, timelines, and genealogies are drafted with
+      AI assistance and then reviewed by hand, book by book. Until a book has
+      been reviewed, it carries a
+      <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>
+      badge, wherever it appears in the reader &mdash; the badge means exactly
+      what it says: read the underlying text and translations with full
+      confidence, but treat that particular summary, identification, or
+      family-tree link as provisional until the badge is gone.
+      {apparatusDraft
+        ? ' As of this build, the character apparatus is still in draft.'
+        : ' As of this build, the character apparatus has been reviewed.'}
+      Every place identification also carries its own certainty tier
+      &mdash; certain, traditional, speculative, or mythical &mdash; and any
+      identification that comes from later tradition rather than the poems
+      themselves says so and names that tradition; nothing is asserted the
+      poems don&rsquo;t actually say.
+    </p>
+
+    <h2>Why the apparatus, and why now</h2>
+    <p>
+      Pairing the Greek and English is not new; pairing either with a real
+      apparatus &mdash; maps keyed to the text, marginal summaries, a
+      day-calendar, genealogies &mdash; is. This edition&rsquo;s apparatus is
+      built in the tradition of Robert Strassler&rsquo;s Landmark editions of the Greek historians, a series that has covered Herodotus, Thucydides, Xenophon,
+      Arrian, Caesar, and Polybius but never Homer; it tries to do for the two
+      epics what that series does for history &mdash; put the apparatus a
+      careful reader actually wants right next to the text, instead of in a
+      separate commentary volume. This is an independent project, not an
+      entry in that series.
+    </p>
+
+    <h2>Who's behind it</h2>
+    <p>
+      The Homer Reader is a project of the Lyceum, an ongoing effort to put
+      classical texts online free, in full, and honestly annotated. It
+      happens to be a particularly good year to sit down and read Homer,
+      whatever brought you here &mdash; the poems don&rsquo;t need an
+      occasion, but they don&rsquo;t mind one either.
+    </p>
+
+    <div class="about-seealso">
+      If you enjoy the Catalogue of Ships map, Ethan Mollick built a lovely
+      independent visualization of the same roster &mdash; worth a look:
+      <a href="https://catalogue-of-ships.netlify.app" target="_blank" rel="noopener">
+        catalogue-of-ships.netlify.app</a>.
+    </div>
+  </main>
+</body>
+</html>

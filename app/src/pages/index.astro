@@ -85,7 +85,10 @@ const dayLabel = dayStart && dayTotal ? `Day ${dayStart} of ${dayTotal}` : '';
 const iliadBook1Href = `${base}${workPath('iliad', 1)}`;
 const odysseyBook1Href = `${base}${workPath('odyssey', 1)}`;
 const odyssey9ReadingHref = `${base}${workPath('odyssey', 9)}?mode=reading`;
-const iliadScholarHref = `${base}${workPath('iliad', 1)}?mode=scholar`;
+// `tour=parse` arms the one-time 5-step parse-popup walkthrough
+const iliadScholarHref = `${base}${workPath('iliad', 1)}?mode=scholar&tour=parse`;
+const startHref = `${base}/start/`;
+const aboutHref = `${base}/about`;
 const iliadLandingHref = `${base}${workLanding('iliad')}`;
 const odysseyLandingHref = `${base}${workLanding('odyssey')}`;
 const lemmaHref = `${base}/lemma/`;
@@ -277,6 +280,10 @@ const supportHref = `${base}/support`;
       <a href={attributionHref}>Texts &amp; Licences</a>
     </footer>
     <nav class="home-foot">
+      <a href={startHref}>Start Here</a>
+      <span aria-hidden="true">&middot;</span>
+      <a href={aboutHref}>About</a>
+      <span aria-hidden="true">&middot;</span>
       <a href={supportHref}>Support</a>
       <span aria-hidden="true">&middot;</span>
       <button id="feedback-btn">Request a Feature / Report an Error</button>

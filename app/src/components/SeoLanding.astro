@@ -1,0 +1,201 @@
+---
+// Shared shell for the Phase-5 SEO landing pages (/read-the-odyssey-online/,
+// /read-the-iliad-online/, /the-odyssey-in-greek-and-english/,
+// /the-iliad-in-greek-and-english/, /catalogue-of-ships-map/). These five
+// pages are near-identical in structure (simple-header + prose + FAQ), so —
+// unlike the apparatus/reference pages (genealogies, maps, attribution,
+// support), which each duplicate their own <head> boilerplate — they share
+// one component to avoid five copies of the same ~90 lines. Each page still
+// owns 100% of its own words: this component only supplies chrome, canonical/
+// OG/FAQPage meta, and layout; content is the default slot.
+import ThemeInit from './ThemeInit.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import Pwa from './Pwa.astro';
+import { jsonLdSafe } from '../lib/jsonld';
+import '@shared/styles/global.css';
+
+interface Faq { q: string; a: string; }
+interface Props {
+  path: string;           // e.g. '/read-the-odyssey-online/' (leading+trailing slash)
+  pageTitle: string;
+  metaDescription: string;
+  eyebrow: string;
+  h1: string;
+  faqs: Faq[];
+}
+const { path, pageTitle, metaDescription, eyebrow, h1, faqs } = Astro.props as Props;
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const canonical = Astro.site ? new URL(`${base}${path}`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+
+const webPageLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: pageTitle,
+  description: metaDescription,
+  ...(canonical ? { url: canonical } : {}),
+  isPartOf: { '@type': 'WebSite', name: 'The Homer Reader' },
+};
+const faqLd = faqs.length > 0 ? {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+} : null;
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  <meta property="og:site_name" content="The Homer Reader" />
+  {canonical && <meta property="og:url" content={canonical} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={metaDescription} />
+  {ogImage && <meta name="twitter:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(webPageLd)} />
+  {faqLd && <script type="application/ld+json" set:html={jsonLdSafe(faqLd)} />}
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <style>
+    body { overflow-x: hidden; max-width: 100%; }
+    .seo-body {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 2.25rem 1rem 4.5rem;
+      font-family: var(--font-english);
+      color: var(--text);
+    }
+    .seo-eyebrow {
+      font-family: var(--font-ui);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 0.6rem;
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 1.9rem;
+      line-height: 1.18;
+      margin: 0 0 1.1rem;
+    }
+    .seo-body :global(p) {
+      font-size: 0.98rem;
+      line-height: 1.72;
+      color: var(--text-mid);
+      margin: 0 0 1.05rem;
+    }
+    .seo-body :global(h2) {
+      font-family: var(--font-ui);
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 2rem 0 0.7rem;
+    }
+    .seo-body :global(ul) {
+      margin: 0 0 1.1rem;
+      padding-left: 1.3rem;
+      color: var(--text-mid);
+    }
+    .seo-body :global(li) { margin: 0 0 0.4rem; line-height: 1.6; }
+    .seo-body :global(a) { color: var(--accent); }
+    .seo-body :global(strong) { color: var(--text); }
+    .seo-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin: 1.5rem 0 2rem;
+    }
+    .seo-cta {
+      display: inline-block;
+      text-decoration: none;
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.55rem 1rem;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      color: var(--on-accent);
+      background: var(--accent);
+    }
+    .seo-cta:hover { filter: brightness(1.08); }
+    .seo-cta.secondary {
+      background: transparent;
+      color: var(--accent);
+    }
+    .seo-cta.secondary:hover { background: var(--col-bg); }
+    .seo-faq { margin-top: 2.25rem; border-top: 1px solid var(--border); padding-top: 1.5rem; }
+    .seo-faq h2 {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 1.3rem;
+      margin: 0 0 1rem;
+      color: var(--text);
+    }
+    .seo-faq-item { margin-bottom: 1.1rem; }
+    .seo-faq-item .q {
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 0.3rem;
+    }
+    .seo-faq-item .a {
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: var(--text-mid);
+      margin: 0;
+    }
+    @media (max-width: 480px) { h1 { font-size: 1.5rem; } }
+  </style>
+  <Pwa />
+</head>
+<body>
+  <header class="simple-header">
+    <div class="header-title">
+      <a class="home-link" href={`${base}/`}>Homer</a>
+      <span class="title-sep">&rsaquo;</span>
+      <span class="header-static">{h1}</span>
+    </div>
+    <nav class="header-actions" aria-label="Navigation">
+      <a href={`${base}/`} class="search-link">All works</a>
+      <a href={`${base}/start/`} class="search-link">Start Here</a>
+      <a href={`${base}/about`} class="search-link">About</a>
+      <ThemeToggle />
+    </nav>
+  </header>
+
+  <main class="seo-body">
+    <p class="seo-eyebrow">{eyebrow}</p>
+    <h1>{h1}</h1>
+    <slot />
+    {faqs.length > 0 && (
+      <section class="seo-faq" aria-labelledby="seo-faq-h">
+        <h2 id="seo-faq-h">Questions</h2>
+        {faqs.map((f) => (
+          <div class="seo-faq-item">
+            <p class="q">{f.q}</p>
+            <p class="a">{f.a}</p>
+          </div>
+        ))}
+      </section>
+    )}
+  </main>
+</body>
+</html>
