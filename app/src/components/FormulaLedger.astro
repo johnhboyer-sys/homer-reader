@@ -39,6 +39,20 @@ const FUNCTION_WORDS = [
   'ἀνά', 'ἄν', 'κατά', 'κατ', 'σύν', 'ξύν', 'εἰς', 'ἐς', 'τι', 'τις', 'γε', 'κε', 'κεν', 'νυ',
   'νῦν', 'περ', 'ἤ', 'ἠέ', 'οὔτε', 'μήτε', 'ἔπειτα', 'ὅτε', 'ὅταν', 'ἐπεί', 'ἵνα', 'ὄφρα',
   'τότε', 'αὖ', 'αὖτε', 'αὖτις', 'ἔνθα', 'ἔνθ',
+  // Conditional/causal particles + negations. Without these, "εἰ μὴ Ἀχιλλεύς",
+  // "εἴ κεν Ἀχιλλεύς", "οὕνεκ' Ἀχιλλεύς" ranked as substantive formulas —
+  // John's "If Achilles" noise (2026-07-18).
+  'εἰ', 'εἴ', 'αἰ', 'αἴ', 'ἤν', 'εἴθε', 'αἴθε', 'μή', 'μηδέ', 'μηδ', 'οὐ', 'οὐκ', 'οὐχ',
+  'οὐχί', 'οὕνεκα', 'οὕνεκ',
+  // Personal/possessive pronouns + vocative particle (address-only formulas like
+  // "ὦ Ἀχιλεῦ", "σοὶ Μενέλαε", "μευ Τρῶες" carry no descriptive content).
+  'ὦ', 'σύ', 'σε', 'σέ', 'σοί', 'σοι', 'σευ', 'σ', 'μευ', 'με', 'μοι', 'μ', 'ἐγώ', 'ἐγών', 'αὐτ',
+  // Articles / relative-demonstrative forms and the correlative τόφρα (matches ὄφρα).
+  'τά', 'τούς', 'τοῦ', 'τῶν', 'τοῖσι', 'τοῖσιν', 'τῇ', 'τῆς', 'τάς', 'τοῖς', 'τό', 'τόφρα',
+  'τόφρ', 'ὄφρ',
+  // Elided forms of function words already listed (τ'=τε, κ'=κε, γ'=γε, αὖτ'=αὖτε,
+  // ἔπειτ'/ἔπειθ'=ἔπειτα, τότ'=τότε, ὑφ'=ὑπό, ἀμ=ἀνά) plus adverbial ἅμα.
+  'τ', 'κ', 'γ', 'αὖτ', 'ἔπειτ', 'ἔπειθ', 'τότ', 'ὑφ', 'ἀμ', 'ἅμα',
 ];
 const APOSTROPHES = /[ʼ'᾽’`]/g;
 const normalizeGreekToken = (token: string) =>
