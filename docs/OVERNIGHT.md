@@ -69,3 +69,10 @@ explicit-path staging while agents run, push after every commit).
   no prose label, no Pope alternative. CLOSED.
 - **Priority order:** text quality + reader navigation first;
   maps/supplementary surfaces deferred until those are solid.
+- Queue add (2026-07-18 morning): **Iliad day-calendar convention** —
+  ours ends Day 38 (summarized end-spans compressed: the nine days of
+  wood-gathering, twelve-day truce); traditional chronologies expand
+  them to ~51-52 days. John to choose; one-pass recalibration if the
+  classic scheme is preferred.
+- Queue add: zero-flash stacked-Both on returning phone users needs the
+  data-rview pre-hydration bridge (one visible reflow today; cosmetic).
