@@ -1,0 +1,2133 @@
+{
+  "status": "draft",
+  "source": {
+    "creator": "David Chamberlain",
+    "statement_url": "https://hypotactic.com/my-reading-of-homer-work-in-progress/",
+    "license_note": "CC BY 3.0 or 4.0 per item; see licenseurl per book"
+  },
+  "works": {
+    "iliad": {
+      "1": {
+        "item": "Iliad1458611",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "Iliad1_1-100.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad1458611/Iliad1_1-100.mp3",
+            "lines": [
+              1,
+              100
+            ]
+          },
+          {
+            "file": "Iliad1_101-222.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad1458611/Iliad1_101-222.mp3",
+            "lines": [
+              101,
+              222
+            ]
+          },
+          {
+            "file": "Iliad1_223-330.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad1458611/Iliad1_223-330.mp3",
+            "lines": [
+              223,
+              330
+            ]
+          },
+          {
+            "file": "Iliad1_331-457.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad1458611/Iliad1_331-457.mp3",
+            "lines": [
+              331,
+              457
+            ]
+          },
+          {
+            "file": "Iliad1_458-611.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad1458611/Iliad1_458-611.mp3",
+            "lines": [
+              458,
+              611
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "2": {
+        "item": "Iliad2210335",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-98.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad2210335/1-98.mp3",
+            "lines": [
+              1,
+              98
+            ]
+          },
+          {
+            "file": "99-210.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad2210335/99-210.mp3",
+            "lines": [
+              99,
+              210
+            ]
+          },
+          {
+            "file": "211-335.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad2210335/211-335.mp3",
+            "lines": [
+              211,
+              335
+            ]
+          },
+          {
+            "file": "336-444.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad2210335/336-444.mp3",
+            "lines": [
+              336,
+              444
+            ]
+          },
+          {
+            "file": "445-492.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad2210335/445-492.mp3",
+            "lines": [
+              445,
+              492
+            ]
+          },
+          {
+            "file": "493-614.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad2210335/493-614.mp3",
+            "lines": [
+              493,
+              614
+            ]
+          },
+          {
+            "file": "615-715.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad2210335/615-715.mp3",
+            "lines": [
+              615,
+              715
+            ]
+          },
+          {
+            "file": "716-759.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad2210335/716-759.mp3",
+            "lines": [
+              716,
+              759
+            ]
+          },
+          {
+            "file": "760-877.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad2210335/760-877.mp3",
+            "lines": [
+              760,
+              877
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "3": {
+        "item": "191296",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-95.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/191296/1-95.mp3",
+            "lines": [
+              1,
+              95
+            ]
+          },
+          {
+            "file": "96-190.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/191296/96-190.mp3",
+            "lines": [
+              96,
+              190
+            ]
+          },
+          {
+            "file": "191-296.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/191296/191-296.mp3",
+            "lines": [
+              191,
+              296
+            ]
+          },
+          {
+            "file": "297-382.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/191296/297-382.mp3",
+            "lines": [
+              297,
+              382
+            ]
+          },
+          {
+            "file": "382-461.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/191296/382-461.mp3",
+            "lines": [
+              382,
+              461
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "4": {
+        "item": "iliad4",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-103.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad4/1-103.mp3",
+            "lines": [
+              1,
+              103
+            ]
+          },
+          {
+            "file": "104-197.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad4/104-197.mp3",
+            "lines": [
+              104,
+              197
+            ]
+          },
+          {
+            "file": "198-309.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad4/198-309.mp3",
+            "lines": [
+              198,
+              309
+            ]
+          },
+          {
+            "file": "310-400.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad4/310-400.mp3",
+            "lines": [
+              310,
+              400
+            ]
+          },
+          {
+            "file": "401-493.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad4/401-493.mp3",
+            "lines": [
+              401,
+              493
+            ]
+          },
+          {
+            "file": "494-544.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad4/494-544.mp3",
+            "lines": [
+              494,
+              544
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "5": {
+        "item": "iliad5",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-100.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad5/1-100.mp3",
+            "lines": [
+              1,
+              100
+            ]
+          },
+          {
+            "file": "101-216.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad5/101-216.mp3",
+            "lines": [
+              101,
+              216
+            ]
+          },
+          {
+            "file": "217-310.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad5/217-310.mp3",
+            "lines": [
+              217,
+              310
+            ]
+          },
+          {
+            "file": "311-415.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad5/311-415.mp3",
+            "lines": [
+              311,
+              415
+            ]
+          },
+          {
+            "file": "416-513.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad5/416-513.mp3",
+            "lines": [
+              416,
+              513
+            ]
+          },
+          {
+            "file": "514-626.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad5/514-626.mp3",
+            "lines": [
+              514,
+              626
+            ]
+          },
+          {
+            "file": "627-718.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad5/627-718.mp3",
+            "lines": [
+              627,
+              718
+            ]
+          },
+          {
+            "file": "719-813.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad5/719-813.mp3",
+            "lines": [
+              719,
+              813
+            ]
+          },
+          {
+            "file": "814-909.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad5/814-909.mp3",
+            "lines": [
+              814,
+              909
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "6": {
+        "item": "daybird66_gmail_136R",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "Iliad6_1-36.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_1-36.mp3",
+            "lines": [
+              1,
+              36
+            ]
+          },
+          {
+            "file": "Iliad6_R1-36.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_R1-36.mp3",
+            "lines": [
+              1,
+              36
+            ]
+          },
+          {
+            "file": "Iliad6_37-65.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_37-65.mp3",
+            "lines": [
+              37,
+              65
+            ]
+          },
+          {
+            "file": "Iliad6_R37-118.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_R37-118.mp3",
+            "lines": [
+              37,
+              118
+            ]
+          },
+          {
+            "file": "Iliad6_66-118.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_66-118.mp3",
+            "lines": [
+              66,
+              118
+            ]
+          },
+          {
+            "file": "Iliad6_119-236.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_119-236.mp3",
+            "lines": [
+              119,
+              236
+            ]
+          },
+          {
+            "file": "Iliad6_R119-236.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_R119-236.mp3",
+            "lines": [
+              119,
+              236
+            ]
+          },
+          {
+            "file": "Iliad6_237-311.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_237-311.mp3",
+            "lines": [
+              237,
+              311
+            ]
+          },
+          {
+            "file": "Iliad6_R237-311.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_R237-311.mp3",
+            "lines": [
+              237,
+              311
+            ]
+          },
+          {
+            "file": "Iliad6_312-389.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_312-389.mp3",
+            "lines": [
+              312,
+              389
+            ]
+          },
+          {
+            "file": "Iliad6_R312-389.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_R312-389.mp3",
+            "lines": [
+              312,
+              389
+            ]
+          },
+          {
+            "file": "Iliad6_390-493.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_390-493.mp3",
+            "lines": [
+              390,
+              493
+            ]
+          },
+          {
+            "file": "Iliad6_R390-493.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_R390-493.mp3",
+            "lines": [
+              390,
+              493
+            ]
+          },
+          {
+            "file": "Iliad6_494-529.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_494-529.mp3",
+            "lines": [
+              494,
+              529
+            ]
+          },
+          {
+            "file": "Iliad6_R494-529.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_136R/Iliad6_R494-529.mp3",
+            "lines": [
+              494,
+              529
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "7": {
+        "item": "Iliad7103205",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "Iliad7_1-102.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad7103205/Iliad7_1-102.mp3",
+            "lines": [
+              1,
+              102
+            ]
+          },
+          {
+            "file": "Iliad7_103-205.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad7103205/Iliad7_103-205.mp3",
+            "lines": [
+              103,
+              205
+            ]
+          },
+          {
+            "file": "Iliad7_206-302.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad7103205/Iliad7_206-302.mp3",
+            "lines": [
+              206,
+              302
+            ]
+          },
+          {
+            "file": "Iliad7_303-402.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad7103205/Iliad7_303-402.mp3",
+            "lines": [
+              303,
+              402
+            ]
+          },
+          {
+            "file": "Iliad7_403-482.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/Iliad7103205/Iliad7_403-482.mp3",
+            "lines": [
+              403,
+              482
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "8": {
+        "item": "399561",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-97.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/399561/1-97.mp3",
+            "lines": [
+              1,
+              97
+            ]
+          },
+          {
+            "file": "98-197.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/399561/98-197.mp3",
+            "lines": [
+              98,
+              197
+            ]
+          },
+          {
+            "file": "198-299.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/399561/198-299.mp3",
+            "lines": [
+              198,
+              299
+            ]
+          },
+          {
+            "file": "300-398.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/399561/300-398.mp3",
+            "lines": [
+              300,
+              398
+            ]
+          },
+          {
+            "file": "399-561.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/399561/399-561.mp3",
+            "lines": [
+              399,
+              561
+            ]
+          }
+        ],
+        "gaps": [
+          [
+            562,
+            565
+          ]
+        ]
+      },
+      "9": {
+        "item": "430601",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-113.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/430601/1-113.mp3",
+            "lines": [
+              1,
+              113
+            ]
+          },
+          {
+            "file": "114-205.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/430601/114-205.mp3",
+            "lines": [
+              114,
+              205
+            ]
+          },
+          {
+            "file": "206-306.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/430601/206-306.mp3",
+            "lines": [
+              206,
+              306
+            ]
+          },
+          {
+            "file": "307-429.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/430601/307-429.mp3",
+            "lines": [
+              307,
+              429
+            ]
+          },
+          {
+            "file": "430-601.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/430601/430-601.mp3",
+            "lines": [
+              430,
+              601
+            ]
+          },
+          {
+            "file": "602-709.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/430601/602-709.mp3",
+            "lines": [
+              602,
+              709
+            ]
+          }
+        ],
+        "gaps": [
+          [
+            710,
+            713
+          ]
+        ]
+      },
+      "10": {
+        "item": "102203",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-101.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/102203/1-101.mp3",
+            "lines": [
+              1,
+              101
+            ]
+          },
+          {
+            "file": "102-203.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/102203/102-203.mp3",
+            "lines": [
+              102,
+              203
+            ]
+          },
+          {
+            "file": "204-302.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/102203/204-302.mp3",
+            "lines": [
+              204,
+              302
+            ]
+          },
+          {
+            "file": "303-399.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/102203/303-399.mp3",
+            "lines": [
+              303,
+              399
+            ]
+          },
+          {
+            "file": "400-481.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/102203/400-481.mp3",
+            "lines": [
+              400,
+              481
+            ]
+          },
+          {
+            "file": "482-579.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/102203/482-579.mp3",
+            "lines": [
+              482,
+              579
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "11": {
+        "item": "iliad11",
+        "licenseurl": "http://creativecommons.org/licenses/by/3.0/",
+        "chunks": [
+          {
+            "file": "1-130.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad11/1-130.mp3",
+            "lines": [
+              1,
+              130
+            ]
+          },
+          {
+            "file": "131-209.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad11/131-209.mp3",
+            "lines": [
+              131,
+              209
+            ]
+          },
+          {
+            "file": "210-312.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad11/210-312.mp3",
+            "lines": [
+              210,
+              312
+            ]
+          },
+          {
+            "file": "313-403.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad11/313-403.mp3",
+            "lines": [
+              313,
+              403
+            ]
+          },
+          {
+            "file": "404-509.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad11/404-509.mp3",
+            "lines": [
+              404,
+              509
+            ]
+          },
+          {
+            "file": "510-604.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad11/510-604.mp3",
+            "lines": [
+              510,
+              604
+            ]
+          },
+          {
+            "file": "605-704.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad11/605-704.mp3",
+            "lines": [
+              605,
+              704
+            ]
+          },
+          {
+            "file": "705-802.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad11/705-802.mp3",
+            "lines": [
+              705,
+              802
+            ]
+          },
+          {
+            "file": "803-847.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad11/803-847.mp3",
+            "lines": [
+              803,
+              847
+            ]
+          }
+        ],
+        "gaps": [
+          [
+            848,
+            848
+          ]
+        ]
+      },
+      "12": {
+        "item": "101210",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-100.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/101210/1-100.mp3",
+            "lines": [
+              1,
+              100
+            ]
+          },
+          {
+            "file": "101-210.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/101210/101-210.mp3",
+            "lines": [
+              101,
+              210
+            ]
+          },
+          {
+            "file": "211-309.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/101210/211-309.mp3",
+            "lines": [
+              211,
+              309
+            ]
+          },
+          {
+            "file": "310-408.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/101210/310-408.mp3",
+            "lines": [
+              310,
+              408
+            ]
+          },
+          {
+            "file": "409-471.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/101210/409-471.mp3",
+            "lines": [
+              409,
+              471
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "13": {
+        "item": "383486",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-94.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/383486/1-94.mp3",
+            "lines": [
+              1,
+              94
+            ]
+          },
+          {
+            "file": "95-194.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/383486/95-194.mp3",
+            "lines": [
+              95,
+              194
+            ]
+          },
+          {
+            "file": "195-294.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/383486/195-294.mp3",
+            "lines": [
+              195,
+              294
+            ]
+          },
+          {
+            "file": "295-382.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/383486/295-382.mp3",
+            "lines": [
+              295,
+              382
+            ]
+          },
+          {
+            "file": "383-486.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/383486/383-486.mp3",
+            "lines": [
+              383,
+              486
+            ]
+          },
+          {
+            "file": "487-580.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/383486/487-580.mp3",
+            "lines": [
+              487,
+              580
+            ]
+          },
+          {
+            "file": "581-662.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/383486/581-662.mp3",
+            "lines": [
+              581,
+              662
+            ]
+          },
+          {
+            "file": "663-753.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/383486/663-753.mp3",
+            "lines": [
+              663,
+              753
+            ]
+          },
+          {
+            "file": "754-837.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/383486/754-837.mp3",
+            "lines": [
+              754,
+              837
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "14": {
+        "item": "daybird66_gmail_1102",
+        "licenseurl": "http://creativecommons.org/licenses/by/3.0/",
+        "chunks": [
+          {
+            "file": "1-102.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_1102/1-102.mp3",
+            "lines": [
+              1,
+              102
+            ]
+          },
+          {
+            "file": "103-196.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_1102/103-196.mp3",
+            "lines": [
+              103,
+              196
+            ]
+          },
+          {
+            "file": "197-298.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_1102/197-298.mp3",
+            "lines": [
+              197,
+              298
+            ]
+          },
+          {
+            "file": "299-376.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_1102/299-376.mp3",
+            "lines": [
+              299,
+              376
+            ]
+          },
+          {
+            "file": "377-457.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_1102/377-457.mp3",
+            "lines": [
+              377,
+              457
+            ]
+          },
+          {
+            "file": "458-521.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/daybird66_gmail_1102/458-521.mp3",
+            "lines": [
+              458,
+              521
+            ]
+          }
+        ],
+        "gaps": [
+          [
+            522,
+            522
+          ]
+        ]
+      },
+      "15": {
+        "item": "592695",
+        "licenseurl": "http://creativecommons.org/licenses/by/3.0/",
+        "chunks": [
+          {
+            "file": "1-99.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/592695/1-99.mp3",
+            "lines": [
+              1,
+              99
+            ]
+          },
+          {
+            "file": "100-199.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/592695/100-199.mp3",
+            "lines": [
+              100,
+              199
+            ]
+          },
+          {
+            "file": "200-299.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/592695/200-299.mp3",
+            "lines": [
+              200,
+              299
+            ]
+          },
+          {
+            "file": "300-398.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/592695/300-398.mp3",
+            "lines": [
+              300,
+              398
+            ]
+          },
+          {
+            "file": "399-500.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/592695/399-500.mp3",
+            "lines": [
+              399,
+              500
+            ]
+          },
+          {
+            "file": "501-591.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/592695/501-591.mp3",
+            "lines": [
+              501,
+              591
+            ]
+          },
+          {
+            "file": "592-695.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/592695/592-695.mp3",
+            "lines": [
+              592,
+              695
+            ]
+          },
+          {
+            "file": "696-746.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/592695/696-746.mp3",
+            "lines": [
+              696,
+              746
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "16": {
+        "item": "297410",
+        "licenseurl": "http://creativecommons.org/licenses/by/3.0/",
+        "chunks": [
+          {
+            "file": "1-100.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/297410/1-100.mp3",
+            "lines": [
+              1,
+              100
+            ]
+          },
+          {
+            "file": "101-197.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/297410/101-197.mp3",
+            "lines": [
+              101,
+              197
+            ]
+          },
+          {
+            "file": "198-296.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/297410/198-296.mp3",
+            "lines": [
+              198,
+              296
+            ]
+          },
+          {
+            "file": "297-410.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/297410/297-410.mp3",
+            "lines": [
+              297,
+              410
+            ]
+          },
+          {
+            "file": "411-501.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/297410/411-501.mp3",
+            "lines": [
+              411,
+              501
+            ]
+          },
+          {
+            "file": "502-592.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/297410/502-592.mp3",
+            "lines": [
+              502,
+              592
+            ]
+          },
+          {
+            "file": "593-697.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/297410/593-697.mp3",
+            "lines": [
+              593,
+              697
+            ]
+          },
+          {
+            "file": "698-754.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/297410/698-754.mp3",
+            "lines": [
+              698,
+              754
+            ]
+          },
+          {
+            "file": "755-867.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/297410/755-867.mp3",
+            "lines": [
+              755,
+              867
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "17": {
+        "item": "201311_201705",
+        "licenseurl": "http://creativecommons.org/licenses/by/3.0/",
+        "chunks": [
+          {
+            "file": "1-105.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/201311_201705/1-105.mp3",
+            "lines": [
+              1,
+              105
+            ]
+          },
+          {
+            "file": "106-200.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/201311_201705/106-200.mp3",
+            "lines": [
+              106,
+              200
+            ]
+          },
+          {
+            "file": "201-311.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/201311_201705/201-311.mp3",
+            "lines": [
+              201,
+              311
+            ]
+          },
+          {
+            "file": "312-414.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/201311_201705/312-414.mp3",
+            "lines": [
+              312,
+              414
+            ]
+          },
+          {
+            "file": "415-506.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/201311_201705/415-506.mp3",
+            "lines": [
+              415,
+              506
+            ]
+          },
+          {
+            "file": "507-590.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/201311_201705/507-590.mp3",
+            "lines": [
+              507,
+              590
+            ]
+          },
+          {
+            "file": "591-693.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/201311_201705/591-693.mp3",
+            "lines": [
+              591,
+              693
+            ]
+          },
+          {
+            "file": "694-761.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/201311_201705/694-761.mp3",
+            "lines": [
+              694,
+              761
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "18": {
+        "item": "478616",
+        "licenseurl": "http://creativecommons.org/licenses/by/3.0/",
+        "chunks": [
+          {
+            "file": "1-96.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/478616/1-96.mp3",
+            "lines": [
+              1,
+              96
+            ]
+          },
+          {
+            "file": "97-195.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/478616/97-195.mp3",
+            "lines": [
+              97,
+              195
+            ]
+          },
+          {
+            "file": "196-283.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/478616/196-283.mp3",
+            "lines": [
+              196,
+              283
+            ]
+          },
+          {
+            "file": "284-387.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/478616/284-387.mp3",
+            "lines": [
+              284,
+              387
+            ]
+          },
+          {
+            "file": "388-477.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/478616/388-477.mp3",
+            "lines": [
+              388,
+              477
+            ]
+          },
+          {
+            "file": "478-616.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/478616/478-616.mp3",
+            "lines": [
+              478,
+              616
+            ]
+          }
+        ],
+        "gaps": [
+          [
+            617,
+            617
+          ]
+        ]
+      },
+      "19": {
+        "item": "100197",
+        "licenseurl": "http://creativecommons.org/licenses/by/3.0/",
+        "chunks": [
+          {
+            "file": "1-99.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/100197/1-99.mp3",
+            "lines": [
+              1,
+              99
+            ]
+          },
+          {
+            "file": "100-197.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/100197/100-197.mp3",
+            "lines": [
+              100,
+              197
+            ]
+          },
+          {
+            "file": "198-285.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/100197/198-285.mp3",
+            "lines": [
+              198,
+              285
+            ]
+          },
+          {
+            "file": "286-349.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/100197/286-349.mp3",
+            "lines": [
+              286,
+              349
+            ]
+          },
+          {
+            "file": "350-424.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/100197/350-424.mp3",
+            "lines": [
+              350,
+              424
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "20": {
+        "item": "393503",
+        "licenseurl": "http://creativecommons.org/licenses/by/3.0/",
+        "chunks": [
+          {
+            "file": "1-102.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/393503/1-102.mp3",
+            "lines": [
+              1,
+              102
+            ]
+          },
+          {
+            "file": "103-198.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/393503/103-198.mp3",
+            "lines": [
+              103,
+              198
+            ]
+          },
+          {
+            "file": "199-292.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/393503/199-292.mp3",
+            "lines": [
+              199,
+              292
+            ]
+          },
+          {
+            "file": "293-392.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/393503/293-392.mp3",
+            "lines": [
+              293,
+              392
+            ]
+          },
+          {
+            "file": "393-503.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/393503/393-503.mp3",
+            "lines": [
+              393,
+              503
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "21": {
+        "item": "502611",
+        "licenseurl": "http://creativecommons.org/licenses/by/3.0/",
+        "chunks": [
+          {
+            "file": "1-98.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/502611/1-98.mp3",
+            "lines": [
+              1,
+              98
+            ]
+          },
+          {
+            "file": "99-199.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/502611/99-199.mp3",
+            "lines": [
+              99,
+              199
+            ]
+          },
+          {
+            "file": "200-297.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/502611/200-297.mp3",
+            "lines": [
+              200,
+              297
+            ]
+          },
+          {
+            "file": "298-399.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/502611/298-399.mp3",
+            "lines": [
+              298,
+              399
+            ]
+          },
+          {
+            "file": "400-501.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/502611/400-501.mp3",
+            "lines": [
+              400,
+              501
+            ]
+          },
+          {
+            "file": "502-611.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/502611/502-611.mp3",
+            "lines": [
+              502,
+              611
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "22": {
+        "item": "395515",
+        "licenseurl": "http://creativecommons.org/licenses/by/3.0/",
+        "chunks": [
+          {
+            "file": "1-98.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/395515/1-98.mp3",
+            "lines": [
+              1,
+              98
+            ]
+          },
+          {
+            "file": "99-185.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/395515/99-185.mp3",
+            "lines": [
+              99,
+              185
+            ]
+          },
+          {
+            "file": "186-296.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/395515/186-296.mp3",
+            "lines": [
+              186,
+              296
+            ]
+          },
+          {
+            "file": "297-394.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/395515/297-394.mp3",
+            "lines": [
+              297,
+              394
+            ]
+          },
+          {
+            "file": "395-515.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/395515/395-515.mp3",
+            "lines": [
+              395,
+              515
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "23": {
+        "item": "99204",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-98.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/99204/1-98.mp3",
+            "lines": [
+              1,
+              98
+            ]
+          },
+          {
+            "file": "99-204.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/99204/99-204.mp3",
+            "lines": [
+              99,
+              204
+            ]
+          },
+          {
+            "file": "205-305.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/99204/205-305.mp3",
+            "lines": [
+              205,
+              305
+            ]
+          },
+          {
+            "file": "306-402.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/99204/306-402.mp3",
+            "lines": [
+              306,
+              402
+            ]
+          },
+          {
+            "file": "403-498.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/99204/403-498.mp3",
+            "lines": [
+              403,
+              498
+            ]
+          },
+          {
+            "file": "499-595.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/99204/499-595.mp3",
+            "lines": [
+              499,
+              595
+            ]
+          },
+          {
+            "file": "596-707.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/99204/596-707.mp3",
+            "lines": [
+              596,
+              707
+            ]
+          },
+          {
+            "file": "708-801.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/99204/708-801.mp3",
+            "lines": [
+              708,
+              801
+            ]
+          },
+          {
+            "file": "802-897.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/99204/802-897.mp3",
+            "lines": [
+              802,
+              897
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "24": {
+        "item": "iliad24",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-103.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad24/1-103.mp3",
+            "lines": [
+              1,
+              103
+            ]
+          },
+          {
+            "file": "104-199.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad24/104-199.mp3",
+            "lines": [
+              104,
+              199
+            ]
+          },
+          {
+            "file": "200-298.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad24/200-298.mp3",
+            "lines": [
+              200,
+              298
+            ]
+          },
+          {
+            "file": "299-404.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad24/299-404.mp3",
+            "lines": [
+              299,
+              404
+            ]
+          },
+          {
+            "file": "405-506.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad24/405-506.mp3",
+            "lines": [
+              405,
+              506
+            ]
+          },
+          {
+            "file": "507-598.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad24/507-598.mp3",
+            "lines": [
+              507,
+              598
+            ]
+          },
+          {
+            "file": "599-703.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad24/599-703.mp3",
+            "lines": [
+              599,
+              703
+            ]
+          },
+          {
+            "file": "704-804.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/iliad24/704-804.mp3",
+            "lines": [
+              704,
+              804
+            ]
+          }
+        ],
+        "gaps": []
+      }
+    },
+    "odyssey": {
+      "1": {
+        "item": "odyssey1",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-79.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey1/1-79.mp3",
+            "lines": [
+              1,
+              79
+            ]
+          },
+          {
+            "file": "80-177.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey1/80-177.mp3",
+            "lines": [
+              80,
+              177
+            ]
+          },
+          {
+            "file": "178-251.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey1/178-251.mp3",
+            "lines": [
+              178,
+              251
+            ]
+          },
+          {
+            "file": "252-336.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey1/252-336.mp3",
+            "lines": [
+              252,
+              336
+            ]
+          },
+          {
+            "file": "337-444.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey1/337-444.mp3",
+            "lines": [
+              337,
+              444
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "2": {
+        "item": "odyssey2",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-83.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey2/1-83.mp3",
+            "lines": [
+              1,
+              83
+            ]
+          },
+          {
+            "file": "84-176.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey2/84-176.mp3",
+            "lines": [
+              84,
+              176
+            ]
+          },
+          {
+            "file": "177-241.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey2/177-241.mp3",
+            "lines": [
+              177,
+              241
+            ]
+          },
+          {
+            "file": "242-302.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey2/242-302.mp3",
+            "lines": [
+              242,
+              302
+            ]
+          },
+          {
+            "file": "303-376.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey2/303-376.mp3",
+            "lines": [
+              303,
+              376
+            ]
+          },
+          {
+            "file": "377-433.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey2/377-433.mp3",
+            "lines": [
+              377,
+              433
+            ]
+          }
+        ],
+        "gaps": [
+          [
+            434,
+            434
+          ]
+        ]
+      },
+      "3": {
+        "item": "odyssey3",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-101.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey3/1-101.mp3",
+            "lines": [
+              1,
+              101
+            ]
+          },
+          {
+            "file": "102-200.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey3/102-200.mp3",
+            "lines": [
+              102,
+              200
+            ]
+          },
+          {
+            "file": "201-328.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey3/201-328.mp3",
+            "lines": [
+              201,
+              328
+            ]
+          },
+          {
+            "file": "329-416.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey3/329-416.mp3",
+            "lines": [
+              329,
+              416
+            ]
+          },
+          {
+            "file": "417-497.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey3/417-497.mp3",
+            "lines": [
+              417,
+              497
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "4": {
+        "item": "odyssey4",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-112.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey4/1-112.mp3",
+            "lines": [
+              1,
+              112
+            ]
+          },
+          {
+            "file": "113-202.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey4/113-202.mp3",
+            "lines": [
+              113,
+              202
+            ]
+          },
+          {
+            "file": "203-311.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey4/203-311.mp3",
+            "lines": [
+              203,
+              311
+            ]
+          },
+          {
+            "file": "312-393.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey4/312-393.mp3",
+            "lines": [
+              312,
+              393
+            ]
+          },
+          {
+            "file": "394-490.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey4/394-490.mp3",
+            "lines": [
+              394,
+              490
+            ]
+          },
+          {
+            "file": "491-608.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey4/491-608.mp3",
+            "lines": [
+              491,
+              608
+            ]
+          },
+          {
+            "file": "609-702.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey4/609-702.mp3",
+            "lines": [
+              609,
+              702
+            ]
+          },
+          {
+            "file": "703-777.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey4/703-777.mp3",
+            "lines": [
+              703,
+              777
+            ]
+          },
+          {
+            "file": "778-847.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey4/778-847.mp3",
+            "lines": [
+              778,
+              847
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "5": {
+        "item": "odyssey5",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-91.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey5/1-91.mp3",
+            "lines": [
+              1,
+              91
+            ]
+          },
+          {
+            "file": "92-191.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey5/92-191.mp3",
+            "lines": [
+              92,
+              191
+            ]
+          },
+          {
+            "file": "192-290.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey5/192-290.mp3",
+            "lines": [
+              192,
+              290
+            ]
+          },
+          {
+            "file": "291-379.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey5/291-379.mp3",
+            "lines": [
+              291,
+              379
+            ]
+          },
+          {
+            "file": "380-493.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey5/380-493.mp3",
+            "lines": [
+              380,
+              493
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "6": {
+        "item": "odyssey6",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-70.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey6/1-70.mp3",
+            "lines": [
+              1,
+              70
+            ]
+          },
+          {
+            "file": "71-185.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey6/71-185.mp3",
+            "lines": [
+              71,
+              185
+            ]
+          },
+          {
+            "file": "186-246.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey6/186-246.mp3",
+            "lines": [
+              186,
+              246
+            ]
+          },
+          {
+            "file": "247-331.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey6/247-331.mp3",
+            "lines": [
+              247,
+              331
+            ]
+          }
+        ],
+        "gaps": []
+      },
+      "7": {
+        "item": "odyssey7",
+        "licenseurl": "http://creativecommons.org/licenses/by/4.0/",
+        "chunks": [
+          {
+            "file": "1-77.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey7/1-77.mp3",
+            "lines": [
+              1,
+              77
+            ]
+          },
+          {
+            "file": "78-152.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey7/78-152.mp3",
+            "lines": [
+              78,
+              152
+            ]
+          },
+          {
+            "file": "153-225.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey7/153-225.mp3",
+            "lines": [
+              153,
+              225
+            ]
+          },
+          {
+            "file": "226-297.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey7/226-297.mp3",
+            "lines": [
+              226,
+              297
+            ]
+          },
+          {
+            "file": "298-347.mp3",
+            "format": "mp3",
+            "url": "https://archive.org/download/odyssey7/298-347.mp3",
+            "lines": [
+              298,
+              347
+            ]
+          }
+        ],
+        "gaps": []
+      }
+    }
+  }
+}
