@@ -571,8 +571,8 @@
   // scene to a real, mappable place (shared/lib/scene-place.ts) plus the
   // vendored coastline (shared/lib/scenemap.ts) the map itself is drawn
   // against — all three payload-disciplined like fetchSpeeches/fetchCharacters
-  // above: nothing fetches until Reading Mode is actually entered (either by
-  // toggle, or restored from POSTURE_KEY at mount), so Scholar-only readers
+  // above: nothing fetches until Reading Mode is entered or a Chart Room surface
+  // explicitly requests it, so Scholar-only readers who leave the rail closed
   // never pay for the ~200KB combined. Guarded by `plateDataLoaded` the same
   // way `speechesLoaded` guards ensureSpeeches, including the reset-on-failure
   // retry.
@@ -592,7 +592,23 @@
       plateDataLoaded = false;
     }
   }
-  $: if (mounted && reading && scenes.length && !plateDataLoaded) ensurePlateData();
+  // Chart Room context is deliberately lazy too: the desktop rail stays off by
+  // default, and the mobile sheet only needs the gazetteer after it is expanded.
+  // A persisted desktop-rail choice must not wake this payload on a phone, where
+  // that rail is unavailable.
+  const CHART_ROOM_KEY = 'reader-chart-room';
+  let chartRoomOpen = false;
+  let sceneSheetOpen = false;
+  let scenePanelMobile = false;
+  function saveChartRoom() { try { localStorage.setItem(CHART_ROOM_KEY, String(chartRoomOpen)); } catch {} }
+  function toggleChartRoom() { chartRoomOpen = !chartRoomOpen; saveChartRoom(); }
+  function toggleSceneSheet() { sceneSheetOpen = !sceneSheetOpen; }
+  function computeScenePanelViewport() {
+    scenePanelMobile = typeof window !== 'undefined'
+      && window.matchMedia('(max-width: 680px)').matches;
+  }
+  $: if (mounted && scenes.length && !plateDataLoaded
+    && (reading || sceneSheetOpen || (chartRoomOpen && !scenePanelMobile))) ensurePlateData();
 
   // Every scene's resolved place/route (or null — no mappable place anywhere
   // in this book), recomputed whenever the book's scenes or the fetched
@@ -607,15 +623,22 @@
   // scene's anchor place has no coords (mythical tier, or the book names
   // nothing mappable at all): the plate then renders title/metadata only,
   // never a fabricated or empty map box (CLAUDE.md apparatus honesty).
-  $: currentPlateResolution = scenePlaceResolutions[clampedSceneIndex] ?? null;
+  // Scholar view already maintains currentSceneIndex for the scene rail. The
+  // Chart Room reuses it rather than adding a second scroll tracker; Reading
+  // Mode's scene pager continues to own the equivalent clampedSceneIndex.
+  $: scenePanelIndex = reading ? clampedSceneIndex : currentSceneIndex;
+  $: scenePanelScene = scenes[scenePanelIndex] ?? null;
+  $: currentPlateResolution = scenePlaceResolutions[scenePanelIndex] ?? null;
   $: currentPlateMap = plateCoastline && currentPlateResolution?.place.coords
     ? renderSceneMap(
         [currentPlateResolution.place],
         plateCoastline,
-        { idPrefix: `scene-map-${work}-${bookNum}-${clampedSceneIndex}` },
+        { idPrefix: `scene-map-${work}-${bookNum}-${scenePanelIndex}` },
         currentPlateResolution.route,
       )
     : null;
+  $: scenePanelPlaceName = currentPlateResolution?.place.name ?? scenePanelScene?.place ?? 'Place not recorded';
+  $: scenePanelCertainty = currentPlateResolution?.place.certainty ?? null;
 
   // ── DICES speech rails (Phase 4 flagship) ─────────────────────────────────
   // Off by default; a thin speaker rail in the Greek gutter for high-
@@ -1136,6 +1159,7 @@
     clearTimeout(resizeTimer);
     computeDocked();
     computePhoneWidth();
+    computeScenePanelViewport();
     resizeTimer = setTimeout(() => { if (spyArmed) setupScrollSpy(); }, 200);
   }
 
@@ -1708,12 +1732,15 @@
     if (savedMeter !== null) meterOn = savedMeter === 'true';
     const savedAudio = (() => { try { return localStorage.getItem(AUDIO_KEY); } catch { return null; } })();
     if (savedAudio !== null) audioOn = savedAudio === 'true';
+    const savedChartRoom = (() => { try { return localStorage.getItem(CHART_ROOM_KEY); } catch { return null; } })();
+    if (savedChartRoom !== null) chartRoomOpen = savedChartRoom === 'true';
     // Restore the reading/scholar posture (global, like reader-view).
     const savedPosture = (() => { try { return localStorage.getItem(POSTURE_KEY); } catch { return null; } })();
     if (savedPosture === 'reading') reading = true;
     // Pick the lookup presentation for this viewport (recomputed on resize below).
     computeDocked();
     computePhoneWidth();
+    computeScenePanelViewport();
 
     // Settings sidebar events (dispatched by ReaderShell.astro and Escape handler).
     _onToggleSettings = () => { settingsOpen ? closeSettings() : openSettings(); };
@@ -2664,10 +2691,41 @@
         <!-- Desktop only — on mobile these live in the ⚙ Settings sidebar. -->
         <div class="rc-desktop-controls">
           {@render viewToggle()}
+          {#if scenes.length && !reading}
+            <button
+              type="button"
+              class="chart-room-toggle"
+              aria-expanded={chartRoomOpen}
+              aria-controls="scene-context-rail"
+              on:click={toggleChartRoom}
+            >Chart Room</button>
+          {/if}
           {@render printControl()}
         </div>
       </div>
     </div>
+    {#if scenes.length && !reading && chartRoomOpen}
+      <aside class="scene-context-rail" id="scene-context-rail" aria-label="Chart Room scene context">
+        <div class="scene-context-rail-head">
+          <span>Chart Room</span>
+          <button type="button" on:click={toggleChartRoom} aria-label="Close Chart Room">×</button>
+        </div>
+        <p class="scene-context-title">{scenePanelScene?.summary ?? 'Scene context'}</p>
+        {#if typeof scenePanelScene?.day === 'number'}
+          <span class="scene-context-day">Day {scenePanelScene.day}{bookTellingDay ? ' · telling' : ''}</span>
+        {/if}
+        <div class="scene-context-place">
+          <span class="scene-context-place-name">{scenePanelPlaceName}</span>
+          {#if scenePanelCertainty}<span class="scene-context-certainty">{scenePanelCertainty}</span>{/if}
+        </div>
+        {#if !plateDataLoaded || currentPlateMap}
+          <div class="scene-context-map" class:pending={!currentPlateMap}>
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+            {#if currentPlateMap}{@html currentPlateMap.svg}{/if}
+          </div>
+        {/if}
+      </aside>
+    {/if}
     <!-- Print-only masthead (hidden on screen): author eyebrow, work title with
          its Greek title alongside, and the source citation. -->
     <div class="print-head" aria-hidden="true">
@@ -2850,6 +2908,42 @@
     {/if}
     {/if}
   </div>
+{/if}
+
+<!-- Mobile Chart Room: its compact header is always present below the reader's
+     established phone breakpoint; map payloads remain lazy until this expands. -->
+{#if scenes.length}
+  <aside class="scene-context-sheet" class:open={sceneSheetOpen} aria-label="Scene context">
+    <button
+      type="button"
+      class="scene-context-sheet-toggle"
+      aria-expanded={sceneSheetOpen}
+      aria-controls="scene-context-sheet-details"
+      on:click={toggleSceneSheet}
+    >
+      <span class="scene-context-sheet-grab" aria-hidden="true"></span>
+      <span class="scene-context-sheet-copy">
+        <span class="scene-context-sheet-title">{scenePanelScene?.summary ?? 'Scene context'}</span>
+        {#if typeof scenePanelScene?.day === 'number'}
+          <span class="scene-context-sheet-day">Day {scenePanelScene.day}{bookTellingDay ? ' · telling' : ''}</span>
+        {/if}
+      </span>
+      <span class="scene-context-sheet-chevron" aria-hidden="true">⌃</span>
+    </button>
+    <div class="scene-context-sheet-details" id="scene-context-sheet-details">
+      <div class="scene-context-sheet-label">Chart Room</div>
+      {#if !plateDataLoaded || currentPlateMap}
+        <div class="scene-context-map" class:pending={!currentPlateMap}>
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          {#if currentPlateMap}{@html currentPlateMap.svg}{/if}
+        </div>
+      {/if}
+      <div class="scene-context-place">
+        <span class="scene-context-place-name">{scenePanelPlaceName}</span>
+        {#if scenePanelCertainty}<span class="scene-context-certainty">{scenePanelCertainty}</span>{/if}
+      </div>
+    </div>
+  </aside>
 {/if}
 
 <!-- Scene rail: a thin left drawer of this book's scenes (in-book navigation).
@@ -3268,5 +3362,219 @@
   .meter-legend .meter-amb-sample {
     font-style: italic;
   }
-</style>
 
+  /* Chart Room shares the reader's material vocabulary: restrained rules,
+     display-face place names, and the existing accent rather than a new map
+     palette. It floats at the reading edge so the normal Scholar flow keeps
+     its markup and token order intact. */
+  .chart-room-toggle {
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.22rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--col-bg);
+    color: var(--text-mid);
+    white-space: nowrap;
+  }
+  .chart-room-toggle:hover,
+  .chart-room-toggle[aria-expanded='true'] {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .chart-room-toggle:focus-visible,
+  .scene-context-rail button:focus-visible,
+  .scene-context-sheet-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .scene-context-rail {
+    float: right;
+    position: sticky;
+    top: calc(var(--header-h, 92px) + 3.5rem);
+    z-index: 4;
+    width: min(20rem, 32%);
+    margin: 0 0 1.25rem 1.5rem;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--col-bg);
+    box-shadow: 0 1px 2px var(--border);
+  }
+  .scene-context-rail-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .scene-context-rail-head button {
+    border: 0;
+    padding: 0.1rem 0.3rem;
+    background: transparent;
+    color: var(--text-mid);
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 1.1rem;
+    line-height: 1;
+  }
+  .scene-context-title {
+    margin: 0.8rem 0 0;
+    color: var(--text-mid);
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+    font-style: italic;
+    line-height: 1.45;
+  }
+  .scene-context-day {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.16rem 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+    border-radius: 999px;
+    color: var(--accent);
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .scene-context-place {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.8rem;
+  }
+  .scene-context-place-name {
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .scene-context-certainty {
+    padding: 0.05rem 0.35rem;
+    border: 1px solid color-mix(in srgb, var(--text-mid) 45%, transparent);
+    border-radius: 999px;
+    color: var(--text-mid);
+    font-family: var(--font-ui);
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .scene-context-map {
+    aspect-ratio: 320 / 220;
+    margin-top: 0.85rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--page-bg);
+  }
+  .scene-context-map.pending { min-height: 7rem; }
+  .scene-context-map svg { display: block; width: 100%; height: 100%; }
+
+  .scene-context-sheet { display: none; }
+
+  @media (max-width: 680px) {
+    .scene-context-rail { display: none; }
+    /* The mobile sheet is the single map surface; the B-plate keeps its
+       textual heading while yielding its duplicate map slot. */
+    .reader-body.reading-mode .reading-plate-map { display: none; }
+    .reader-body.reading-mode .reading-plate { grid-template-columns: 1fr; }
+
+    .scene-context-sheet {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 40;
+      display: block;
+      border-top: 1px solid var(--accent);
+      border-radius: 14px 14px 0 0;
+      background: var(--col-bg);
+      box-shadow: 0 -4px 18px var(--border);
+    }
+    .scene-context-sheet-toggle {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      width: 100%;
+      padding: 0.35rem 0.9rem 0.65rem;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+    }
+    .scene-context-sheet-grab {
+      grid-column: 1 / -1;
+      width: 2.1rem;
+      height: 0.25rem;
+      margin: 0 auto 0.35rem;
+      border-radius: 999px;
+      background: var(--border);
+    }
+    .scene-context-sheet-copy { min-width: 0; }
+    .scene-context-sheet-title,
+    .scene-context-sheet-day { display: block; }
+    .scene-context-sheet-title {
+      overflow: hidden;
+      color: var(--text);
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.15;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .scene-context-sheet-day {
+      margin-top: 0.18rem;
+      color: var(--text-mid);
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+    }
+    .scene-context-sheet-chevron {
+      align-self: center;
+      color: var(--text-mid);
+      font-family: var(--font-ui);
+      font-size: 1.1rem;
+      line-height: 1;
+      transition: transform 180ms ease;
+    }
+    .scene-context-sheet.open .scene-context-sheet-chevron { transform: rotate(180deg); }
+    .scene-context-sheet-details {
+      max-height: 0;
+      overflow: hidden;
+      padding: 0 1rem;
+      opacity: 0;
+      transform: translateY(0.75rem);
+      transition: max-height 180ms ease, opacity 180ms ease, transform 180ms ease, padding 180ms ease;
+    }
+    .scene-context-sheet.open .scene-context-sheet-details {
+      max-height: 62dvh;
+      padding: 0 1rem calc(1rem + env(safe-area-inset-bottom));
+      opacity: 1;
+      overflow-y: auto;
+      transform: translateY(0);
+    }
+    .scene-context-sheet-label {
+      margin: 0 0 0.7rem;
+      color: var(--text-mid);
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .scene-context-sheet-details .scene-context-map { margin-top: 0; }
+    .scene-context-sheet-details .scene-context-place { margin: 0.75rem 0 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scene-context-sheet-chevron,
+    .scene-context-sheet-details { transition: none; }
+  }
+</style>
