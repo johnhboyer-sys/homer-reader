@@ -76,3 +76,7 @@ explicit-path staging while agents run, push after every commit).
   classic scheme is preferred.
 - Queue add: zero-flash stacked-Both on returning phone users needs the
   data-rview pre-hydration bridge (one visible reflow today; cosmetic).
+- DECIDED (John, 2026-07-18): **Iliad calendar → traditional ~51-day
+  numbering** (citable: Leaf/Whitman/tradition), recalibrated from our
+  compressed 38; the timeline feature will visually compress the
+  summarized spans instead. Odyssey stays Day 1–41 (Monro-corroborated).
