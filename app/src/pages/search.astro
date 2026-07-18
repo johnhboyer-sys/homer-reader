@@ -1,7 +1,7 @@
 ---
 import Search from '@shared/components/Search.svelte';
 import ThemeInit from '../components/ThemeInit.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 import Pwa from '../components/Pwa.astro';
 import { jsonLdSafe } from '../lib/jsonld';
 import '@shared/styles/global.css';
@@ -53,18 +53,7 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title">
-      <a class="home-link" href={`${base}/`}>Home</a>
-      <span class="title-sep">›</span>
-      <span class="header-static">Search</span>
-    </div>
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/`} class="search-link">All works</a>
-      <a href={`${base}/lemma/`} class="search-link">Lexicon</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <SiteHeader section="Search" />
   <Search client:load />
 </body>
 </html>

@@ -1,7 +1,7 @@
 ---
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
-import ThemeToggle from '../../components/ThemeToggle.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
 import Pwa from '../../components/Pwa.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
 import '@shared/styles/global.css';
@@ -128,10 +128,7 @@ const certaintyTiers: Certainty[] = ['certain', 'traditional', 'speculative', 'm
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title"><a class="home-link" href={`${base}/`}>Homer</a><span class="title-sep">›</span><span class="header-static">Places</span></div>
-    <nav class="header-actions" aria-label="Navigation"><a href={`${base}/`} class="search-link">All works</a><a href={`${base}/search`} class="search-link">Search</a><ThemeToggle /></nav>
-  </header>
+  <SiteHeader section="Places" />
   <main class="places-body">
     <h1>Places {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
     <p class="places-intro">A gazetteer for the Iliad and Odyssey. Each entry cites its anchoring passage(s); these curated citations are not an exhaustive concordance.</p>

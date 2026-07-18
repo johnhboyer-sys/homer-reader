@@ -8,7 +8,7 @@
 // public/data/lemmata/<slug>.json; this page just renders it at build time.
 import { readFileSync } from 'node:fs';
 import ThemeInit from './ThemeInit.astro';
-import ThemeToggle from './ThemeToggle.astro';
+import SiteHeader from './SiteHeader.astro';
 import Pwa from './Pwa.astro';
 import { getWork, workPath, workLanding, bookLabel, isBookless } from '@shared/lib/works';
 import { sanitizeHtml } from '../lib/html';
@@ -200,21 +200,7 @@ const breadcrumb = Astro.site ? {
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title">
-      <a class="home-link" href={`${base}/`}>Homer</a>
-      <span class="title-sep">›</span>
-      <a class="home-link" href={`${base}/lemma/`}>Greek Lexicon</a>
-      <span class="title-sep">›</span>
-      <span class="header-static">{data.head}</span>
-    </div>
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/`} class="search-link">All works</a>
-      <a href={`${base}/lemma/`} class="search-link">Lexicon</a>
-      <a href={`${base}/search`} class="search-link">Search</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <SiteHeader section={data.head} />
 
   <main class="lx-body">
     <h1 class="lx-head-gk" lang="grc">{data.head}</h1>

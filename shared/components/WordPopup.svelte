@@ -116,6 +116,6 @@
     <button class="settings-close" on:click={onClose} aria-label="Close">×</button>
   </div>
   <div class="word-sidebar-body">
-    <LexiconPanel {work} {token} />
+    <LexiconPanel {work} {token} {docked} />
   </div>
 </div>

@@ -1,0 +1,43 @@
+---
+// The single shell header/wordmark shared by every non-reader surface — the
+// homepage masthead, SEO landers, apparatus/index pages and utility pages
+// (Design punch-list #4, 2026-07-18). Before this, ~16 pages hand-rolled their
+// own <header class="simple-header"> with three drifted wordmarks ("Homer",
+// "Home", plain-div "The Homer Reader") and inconsistent nav sets. This is the
+// one source of truth: the full "The Homer Reader" wordmark + eyebrow (the same
+// unit the reader toolbar carries, so the reader reads as an extension of the
+// shell, not a different site) and one canonical nav set.
+//
+// `section` renders the "› <Section>" breadcrumb tail after the wordmark; omit
+// it (homepage) for the bare wordmark. Nav is fixed here so it can never drift
+// again; "The Poems" replaces the old "All works" label (#17).
+import ThemeToggle from './ThemeToggle.astro';
+
+interface Props {
+  /** Breadcrumb tail after the wordmark, e.g. "Places". Omit on the homepage. */
+  section?: string;
+}
+const { section } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+<header class="simple-header site-header">
+  <div class="header-title">
+    <a class="home-link home-wordmark" href={`${base}/`} aria-label="The Homer Reader — home">
+      <span class="wordmark-name">The Homer Reader</span>
+      <span class="wordmark-eyebrow">The Iliad &amp; Odyssey · Greek and English</span>
+    </a>
+    {section && (
+      <>
+        <span class="title-sep">›</span>
+        <span class="header-static">{section}</span>
+      </>
+    )}
+  </div>
+  <nav class="header-actions" aria-label="Site">
+    <a href={`${base}/`} class="search-link">The Poems</a>
+    <a href={`${base}/maps/`} class="search-link">Maps</a>
+    <a href={`${base}/search`} class="search-link">Search</a>
+    <a href={`${base}/about`} class="search-link">About</a>
+    <ThemeToggle />
+  </nav>
+</header>

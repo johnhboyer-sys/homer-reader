@@ -15,7 +15,7 @@
 // does no computation of its own beyond picking which fields to serialize.
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
-import ThemeToggle from '../../components/ThemeToggle.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
 import Pwa from '../../components/Pwa.astro';
 import MapsPage from '../../components/MapsPage.svelte';
 import { jsonLdSafe } from '../../lib/jsonld';
@@ -111,19 +111,7 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title">
-      <a class="home-link" href={`${base}/`}>Homer</a>
-      <span class="title-sep">&rsaquo;</span>
-      <span class="header-static">Maps</span>
-    </div>
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/`} class="search-link">All works</a>
-      <a href={`${base}/search`} class="search-link">Search</a>
-      <a href={`${base}/about`} class="search-link">About</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <SiteHeader section="Maps" />
 
   <main class="maps-body">
     <h1>Maps</h1>

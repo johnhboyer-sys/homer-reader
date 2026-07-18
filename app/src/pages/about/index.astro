@@ -17,7 +17,7 @@
 // stays deliberately unspecific about why.
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
-import ThemeToggle from '../../components/ThemeToggle.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
 import Pwa from '../../components/Pwa.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
 import '@shared/styles/global.css';
@@ -123,18 +123,7 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title">
-      <a class="home-link" href={`${base}/`}>Homer</a>
-      <span class="title-sep">&rsaquo;</span>
-      <span class="header-static">About</span>
-    </div>
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/`} class="search-link">All works</a>
-      <a href={`${base}/search`} class="search-link">Search</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <SiteHeader section="About" />
 
   <main class="about-body">
     <h1>About the Homer Reader</h1>

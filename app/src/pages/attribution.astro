@@ -1,6 +1,6 @@
 ---
 import ThemeInit from '../components/ThemeInit.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 import Pwa from '../components/Pwa.astro';
 import '@shared/styles/global.css';
 import { WORKS } from '@shared/lib/works';
@@ -125,19 +125,7 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title">
-      <a class="home-link" href={`${base}/`}>Homer</a>
-      <span class="title-sep">›</span>
-      <span class="header-static">Texts &amp; Licences</span>
-    </div>
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/`} class="search-link">All works</a>
-      <a href={`${base}/search`} class="search-link">Search</a>
-      <a href={`${base}/about`} class="search-link">About</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <SiteHeader section="Texts & Licences" />
 
   <main class="attr-body">
     <h1 class="sr-only">Texts and licences for the Homer Reader</h1>

@@ -1,7 +1,7 @@
 ---
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../../components/ThemeInit.astro';
-import ThemeToggle from '../../../components/ThemeToggle.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
 import Pwa from '../../../components/Pwa.astro';
 import { jsonLdSafe } from '../../../lib/jsonld';
 import { betaToGreek } from '@shared/lib/betacode';
@@ -69,10 +69,7 @@ const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', na
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title"><a class="home-link" href={`${base}/`}>Homer</a><span class="title-sep">›</span><a href={`${base}/vocabulary/`} class="header-static">Vocabulary</a><span class="title-sep">›</span><span class="header-static">Iliad</span></div>
-    <nav class="header-actions" aria-label="Navigation"><a href={`${base}/`} class="search-link">All works</a><a href={`${base}/search`} class="search-link">Search</a><ThemeToggle /></nav>
-  </header>
+  <SiteHeader section="Iliad Vocabulary" />
   <main class="vocab-body">
     <h1>Iliad vocabulary {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
     <p class="vocab-intro">Words to know before each book of the Iliad, computed from lemma frequency. Common words and proper names are excluded; glosses from the Morpheus lexicon are draft apparatus. See also <a href={`${base}/vocabulary/odyssey/`}>Odyssey vocabulary</a>.</p>

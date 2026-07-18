@@ -11,6 +11,7 @@ import { getWork, workPath, workLanding } from '@shared/lib/works';
 import ThemeInit from '../components/ThemeInit.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import Pwa from '../components/Pwa.astro';
+import DoorCards from '../components/DoorCards.astro';
 import CommandPalette from '@shared/components/CommandPalette.svelte';
 import { jsonLdSafe } from '../lib/jsonld';
 import '@shared/styles/global.css';
@@ -139,7 +140,7 @@ const supportHref = `${base}/support`;
     <div class="wrap masthead-inner">
       <div class="wordmark">
         The Homer Reader
-        <small>Iliad &amp; Odyssey &middot; Parallel Text</small>
+        <small>The Iliad &amp; Odyssey &middot; Greek and English</small>
       </div>
       <nav class="primary-nav" aria-label="Primary">
         <a href={iliadLandingHref}>Iliad</a>
@@ -206,26 +207,7 @@ const supportHref = `${base}/support`;
 
   <main class="wrap">
 
-    <section class="doors-section" aria-label="Ways to begin">
-      <p class="section-eyebrow">Three ways in</p>
-      <div class="doors-grid">
-        <a class="door-card" href={odyssey9ReadingHref}>
-          <span class="door-label">New to Homer</span>
-          <p>Start in the middle of the action &mdash; Odysseus among the Cyclopes, Book 9, in Reading Mode.</p>
-          <span class="door-go">Begin at Od. 9 &rarr;</span>
-        </a>
-        <a class="door-card" href={iliadScholarHref}>
-          <span class="door-label">Reading the Greek</span>
-          <p>Parallel text with parse popups on every word, LSJ and Cunliffe one click away.</p>
-          <span class="door-go">Open scholar view &rarr;</span>
-        </a>
-        <a class="door-card" href={mapsHref}>
-          <span class="door-label">The Maps</span>
-          <p>Every place named in the poems, plotted, with its identification&rsquo;s certainty marked.</p>
-          <span class="door-go">Browse the maps &rarr;</span>
-        </a>
-      </div>
-    </section>
+    <DoorCards hrefs={[odyssey9ReadingHref, iliadScholarHref, mapsHref]} eyebrow="Three ways in" />
 
     <section class="apparatus-section" aria-label="What this edition adds">
       <p class="section-eyebrow">What the edition adds</p>
@@ -709,52 +691,7 @@ const supportHref = `${base}/support`;
       color: var(--text-mid);
       margin: 0 0 1rem;
     }
-    .doors-section { padding: 3rem 0 3.25rem; }
-    .doors-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
-    }
-    @media (max-width: 760px) {
-      .doors-grid { grid-template-columns: 1fr; }
-    }
-    .door-card {
-      display: block;
-      text-decoration: none;
-      color: var(--text);
-      background: var(--col-bg);
-      border: 1px solid var(--border);
-      padding: 1.35rem 1.4rem 1.5rem;
-      transition: border-color 0.15s ease;
-    }
-    .door-card:hover { border-color: var(--accent); }
-    .door-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .door-card .door-label {
-      font-family: var(--font-ui);
-      font-size: 0.68rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--accent);
-      display: block;
-      margin-bottom: 0.65rem;
-    }
-    .door-card p {
-      margin: 0;
-      font-family: var(--font-english);
-      font-size: 0.92rem;
-      line-height: 1.5;
-      color: var(--text-mid);
-    }
-    .door-card .door-go {
-      display: block;
-      margin-top: 0.9rem;
-      font-family: var(--font-ui);
-      font-size: 0.64rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-mid);
-    }
-    .door-card:hover .door-go { color: var(--accent); }
+    /* Door-card styles moved into the shared DoorCards.astro component (#10). */
 
     /* ================= APPARATUS BAND ================= */
     .apparatus-section {

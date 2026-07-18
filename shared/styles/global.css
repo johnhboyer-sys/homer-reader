@@ -120,6 +120,22 @@
   --fs-english:   1.08rem;  /* nudged up to balance the two typefaces' x-heights */
   --fs-ref:       0.78rem;
   --fs-linenum:   0.72rem;
+
+  /* ── Spacing scale (Design punch-list #8, 2026-07-18) ──────────────────
+     A single modular step-scale so gaps/padding across the shell draw from
+     shared rungs instead of ad-hoc rem values. Adopted where touched; not a
+     forced global sweep. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  /* One canonical off-canvas side-panel width, replacing the four drifted
+     values (368/352/320/319px ≈ 23/22/20rem) the TOC, scene rail, settings and
+     word/lexicon rails had each grown independently (#8). */
+  --panel-w: 22rem;
 }
 
 /* ── Night mode ───────────────────────────────────────────────────────
@@ -363,11 +379,19 @@ select {
   padding: 0 0.28rem;
   margin-left: 0.15rem;
 }
+/* #16 (2026-07-18): the ⌘K / Ctrl-K hint is meaningless on touch/coarse-pointer
+   devices (no physical keyboard shortcut) — hide the chip there. The Go-to
+   button itself stays; only the keyboard affordance is dropped. */
+@media (pointer: coarse) {
+  .header-search .hs-kbd { display: none; }
+}
 
-/* "Support the site" pill — the one filled call-to-action in the otherwise
-   neutral top-bar cluster. Shares .header-search geometry (size/min-height so
-   the row stays even) but inverts to an accent fill. Text hides on mobile (see
-   the responsive block), leaving just the heart. */
+/* "Support the site" — demoted from a loud filled accent CTA to a quiet ghost
+   button matching the other top-bar controls, so it no longer out-weighs the
+   reading tools (#14, 2026-07-18). The heart keeps the accent colour so the ask
+   stays noticeable; the pill itself is neutral. Shares .header-search geometry
+   (size/min-height so the row stays even). Text hides on mobile (see the
+   responsive block), leaving just the heart. */
 .header-support {
   display: inline-flex;
   align-items: center;
@@ -379,13 +403,24 @@ select {
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   min-height: 36px;
-  border: 1px solid var(--accent);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--col-bg);
+  color: var(--text-mid);
 }
-.header-support:hover { filter: brightness(1.08); }
-.header-support .hsup-heart { font-size: 0.85em; line-height: 1; }
+.header-support:hover { border-color: var(--accent); color: var(--accent); }
+.header-support .hsup-heart { color: var(--accent); font-size: 0.9em; line-height: 1; }
+
+/* Hairline separating the reading-tools group (Go to · Lexicon) from the
+   app/meta cluster (Settings · Help · Theme) in the reader top bar (#14). */
+.bar-divider {
+  width: 1px;
+  align-self: stretch;
+  min-height: 1.4rem;
+  margin: 0 0.15rem;
+  background: var(--border);
+  flex: 0 0 auto;
+}
 
 /* Theme (night-mode) toggle — sits next to the wordmark on desktop, and is
    grouped with the menu button on mobile (see .bar-actions). */
@@ -1625,7 +1660,7 @@ select {
 .word-sidebar {
   position: fixed;
   top: 0; right: 0; bottom: 0;
-  width: min(22rem, 86vw);
+  width: min(var(--panel-w), 86vw);
   background: var(--popup-bg);
   border-left: 1px solid var(--border);
   z-index: 101;
@@ -1671,7 +1706,7 @@ select {
    (The panel only opens from a Greek token, so English-only views never raise it.) */
 @media (min-width: 681px) and (max-width: 1800px) {
   .reader-body.word-open {
-    margin-right: calc(min(22rem, 86vw) + 1rem);
+    margin-right: calc(min(var(--panel-w), 86vw) + 1rem);
     transition: margin-right 0.22s ease;
   }
 }
@@ -2040,6 +2075,13 @@ select {
   .simple-header { padding: 0.5rem 0.7rem; gap: 0.5rem; }
   .simple-header .header-actions { gap: 0.35rem; }
   .simple-header .header-actions .search-link { padding: 0.15rem 0.3rem !important; font-size: 0.82rem; }
+  /* Unified shell header (#4): keep the wordmark visible on phones — it is the
+     site's identity, not an optional prefix — and drop the eyebrow + breadcrumb
+     tail instead. The page's own <h1> carries the section name. */
+  .site-header .header-title .home-link { display: inline-flex; }
+  .site-header .header-title .home-link .wordmark-eyebrow { display: none; }
+  .site-header .header-title .title-sep,
+  .site-header .header-title .header-static { display: none; }
 }
 
 /* Donation card — shared by the home page and the work landing pages so they
@@ -2370,7 +2412,7 @@ body.toc-open .toc-backdrop { opacity: 1; }
 .toc-sidebar {
   position: fixed;
   top: 0; left: 0; bottom: 0;
-  width: min(23rem, 86vw);
+  width: min(var(--panel-w), 86vw);
   background: var(--col-bg);
   border-right: 1px solid var(--border);
   z-index: 50;
@@ -2724,7 +2766,7 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 .scene-rail {
   position: fixed;
   top: 0; left: 0; bottom: 0;
-  width: min(20rem, 86vw);
+  width: min(var(--panel-w), 86vw);
   background: var(--col-bg);
   border-right: 1px solid var(--border);
   z-index: 50;
@@ -2813,7 +2855,7 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 .settings-sidebar {
   position: fixed;
   top: 0; right: 0; bottom: 0;
-  width: min(22rem, 86vw);
+  width: min(var(--panel-w), 86vw);
   background: var(--col-bg);
   border-left: 1px solid var(--border);
   z-index: 50;

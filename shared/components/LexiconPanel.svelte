@@ -12,6 +12,12 @@
   // (DESIGN.md 2026-07-17: "one source of truth for the entry-fetch logic").
   export let work: string = 'EN';
   export let token: { t: string; k: string };
+  // Whether this body is rendered inside the DESKTOP docked lexicon rail (true)
+  // vs the anchored mobile popup (false). The docked rail has room to surface the
+  // LSJ · Cunliffe · Logeion tab row upfront, so the gloss is anchored to the
+  // dictionary structure instead of floating in an empty rail (punch-list #12,
+  // 2026-07-18). The compact mobile popup stays collapsed for scannability.
+  export let docked: boolean = false;
 
   let panelEl: HTMLDivElement;
   let analyses: Analysis[] = [];
@@ -24,9 +30,11 @@
   let activeTab: 'lsj' | 'cunliffe' = 'lsj';
   // The definition shows the short gloss first; the full dictionary entry
   // (LSJ/Cunliffe HTML) is revealed IN PLACE behind an EXPAND control, and is
-  // collapsible (DESIGN.md 2026-07-17). Closed on open so the panel stays
-  // scannable; nothing here opens a new tab except the Logeion link.
-  let expanded = false;
+  // collapsible (DESIGN.md 2026-07-17). In the docked desktop rail it opens
+  // expanded so the LSJ · Cunliffe · Logeion tabs are surfaced upfront (#12);
+  // the mobile popup opens closed so it stays scannable. Nothing here opens a
+  // new tab except the Logeion link.
+  let expanded = docked;
 
   lookupWord(work, token.k)
     .then(r => { analyses = r.analyses; lsj = r.lsj; cunliffe = r.cunliffe; })

@@ -3,7 +3,7 @@
 // and FormulaLedger.astro for the shared row template.
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../../components/ThemeInit.astro';
-import ThemeToggle from '../../../components/ThemeToggle.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
 import Pwa from '../../../components/Pwa.astro';
 import FormulaLedger from '../../../components/FormulaLedger.astro';
 import { jsonLdSafe } from '../../../lib/jsonld';
@@ -59,10 +59,7 @@ const characterGreek = (id: string) => characters.get(id)?.greek;
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title"><a class="home-link" href={`${base}/`}>Homer</a><span class="title-sep">›</span><a href={`${base}/formulas/`} class="header-static">Formulas</a><span class="title-sep">›</span><span class="header-static">Odyssey</span></div>
-    <nav class="header-actions" aria-label="Navigation"><a href={`${base}/`} class="search-link">All works</a><a href={`${base}/search`} class="search-link">Search</a><ThemeToggle /></nav>
-  </header>
+  <SiteHeader section="Odyssey Formulas" />
   <main class="formula-body">
     <h1>Odyssey epithets &amp; formulas {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
     <p class="formula-intro">Repeated phrases attached to named figures in the Odyssey. Each Greek formula carries an English gloss and citations that open the corresponding verse in the reader. See also <a href={`${base}/formulas/iliad/`}>Iliad formulas</a>.</p>

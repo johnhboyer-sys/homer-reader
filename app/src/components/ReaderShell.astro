@@ -300,11 +300,12 @@ const intro =
         <span class="title-sep">›</span>
         <WorkSwitcher work={workId} client:load />
       </div>
+      <!-- #14 (2026-07-18): the bar reads as two groups, not a flat row of equal
+           buttons — reading tools (Go to · Lexicon), then a hairline, then the
+           app/meta cluster (Settings · Help · Theme). Support is demoted from a
+           loud filled CTA to a quiet ghost and pinned last, so it no longer
+           out-weighs the reading tools. -->
       <div class="bar-actions">
-        <a class="header-support" href={SUPPORT_URL} target="_blank" rel="noopener" title="Support the site" aria-label="Support the site">
-          <span class="hsup-heart" aria-hidden="true">♥</span>
-          <span class="hsup-text">Support</span>
-        </a>
         <button type="button" class="header-search command-palette-trigger" aria-label="Go to book, scene, or citation">
           <svg class="hs-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.8" cy="6.8" r="4.6"/><line x1="10.4" y1="10.4" x2="14" y2="14"/></svg>
           <span class="hs-text">Go to</span>
@@ -314,6 +315,7 @@ const intro =
           <svg class="hs-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M8 3.6C6.6 2.6 4.2 2.6 2.6 3.1v9C4.2 11.6 6.6 11.6 8 12.6M8 3.6C9.4 2.6 11.8 2.6 13.4 3.1v9C11.8 11.6 9.4 11.6 8 12.6M8 3.6v9"/></svg>
           <span class="hs-text">Lexicon</span>
         </a>
+        <span class="bar-divider" aria-hidden="true"></span>
         <button type="button" class="settings-toggle" aria-label="Reader settings" aria-expanded="false">
           <svg class="settings-icon" width="18" height="14" viewBox="0 0 18 14" aria-hidden="true" fill="currentColor" stroke="none">
             <rect x="1" y="0" width="16" height="1.5" rx="0.75"/>
@@ -327,6 +329,10 @@ const intro =
         </button>
         <HelpButton client:load />
         <ThemeToggle />
+        <a class="header-support" href={SUPPORT_URL} target="_blank" rel="noopener" title="Support the site" aria-label="Support the site">
+          <span class="hsup-heart" aria-hidden="true">♥</span>
+          <span class="hsup-text">Support</span>
+        </a>
       </div>
     </div>
     <div class="nav-panel" id="nav-panel">
@@ -405,7 +411,7 @@ const intro =
   <div class="toc-backdrop" id="toc-backdrop" hidden></div>
   <aside class="toc-sidebar" id="toc-sidebar" aria-label={`${work.title} — table of contents`} aria-hidden="true">
     <div class="toc-head">
-      <a class="toc-home" href={`${base}/`}>‹ All works</a>
+      <a class="toc-home" href={`${base}/`}>‹ The Poems</a>
       <button type="button" class="toc-close" aria-label="Close contents">×</button>
     </div>
     <div class="toc-actions toc-actions-top">

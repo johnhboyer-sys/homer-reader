@@ -8,9 +8,9 @@
 // funnel + SEO pages)". Same simple-header + <main> pattern as
 // genealogies/maps/attribution/support (this is a reference/wayfinding page,
 // not a ReaderShell page).
-import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
-import ThemeToggle from '../../components/ThemeToggle.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import DoorCards from '../../components/DoorCards.astro';
 import Pwa from '../../components/Pwa.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
 import { workPath } from '@shared/lib/works';
@@ -18,40 +18,16 @@ import '@shared/styles/global.css';
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-// Door 1 destination copy reads straight off Od. 9's own scene apparatus
-// (same posture as index.astro's hero band), so it can't drift from the
-// corpus.
-interface StartBook {
-  apparatus?: { scenes?: { lines: [number, number]; summary: string; location?: string }[] };
-}
-const odyssey9: StartBook = JSON.parse(readFileSync('public/data/odyssey/book-09.json', 'utf-8'));
-const scene1 = odyssey9.apparatus?.scenes?.[0];
-
-// `tour=parse` arms the one-time 5-step parse-popup walkthrough
-// (ParsePopupTour.svelte, mounted in ReaderShell) — gated to arrivals via
-// this door, never shown on a plain visit to the reader.
-const doors = [
-  {
-    label: 'New to Homer',
-    href: `${base}${workPath('odyssey', 9)}?mode=reading`,
-    body: scene1
-      ? `Start in the middle of the action — Odysseus among the Cyclopes, ${scene1.location ?? 'Book 9'} — in Reading Mode: one translation, a clean page, marginal scene summaries.`
-      : 'Start in the middle of the action — Odysseus among the Cyclopes, Book 9 — in Reading Mode: one translation, a clean page, marginal scene summaries.',
-    cta: 'Begin at Od. 9 →',
-  },
-  {
-    label: 'Reading along in Greek',
-    href: `${base}${workPath('iliad', 1)}?mode=scholar&tour=parse`,
-    body: 'The parallel Greek/English scholar view, from Iliad Book 1 — with a short, dismissible tour of the parse popup and citation tools on your first visit.',
-    cta: 'Open scholar view →',
-  },
-  {
-    label: 'Just the maps',
-    href: `${base}/maps/`,
-    body: 'Every place named in the poems, plotted, with each identification’s certainty honestly marked — no reading required to start.',
-    cta: 'Browse the maps →',
-  },
-] as const;
+// The three doors are the shared DoorCards component (labels + copy canonical
+// there, unified with the homepage — punch-list #10). Only the destinations
+// differ per surface: this funnel's Greek door arms `tour=parse`, the one-time
+// 5-step parse-popup walkthrough (ParsePopupTour.svelte, mounted in
+// ReaderShell) — gated to arrivals via this door, never shown on a plain visit.
+const doorHrefs: [string, string, string] = [
+  `${base}${workPath('odyssey', 9)}?mode=reading`,
+  `${base}${workPath('iliad', 1)}?mode=scholar&tour=parse`,
+  `${base}/maps/`,
+];
 
 const pageTitle = 'Start Here — The Homer Reader';
 const metaDescription =
@@ -92,10 +68,17 @@ const jsonLd = {
   <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
   <style>
     body { overflow-x: hidden; max-width: 100%; }
+    /* Center the short funnel content in the viewport instead of top-loading it
+       and trailing a half-screen of empty page (#13). The block fills the space
+       below the sticky shell header; whitespace is distributed above and below. */
     .start-body {
       max-width: 880px;
       margin: 0 auto;
-      padding: 2.5rem 1rem 4.5rem;
+      padding: var(--space-6) 1rem;
+      min-height: calc(100dvh - 3.6rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       font-family: var(--font-english);
       color: var(--text);
     }
@@ -110,71 +93,15 @@ const jsonLd = {
       font-size: 0.98rem;
       line-height: 1.65;
       color: var(--text-mid);
-      margin-bottom: 2rem;
+      margin-bottom: var(--space-2);
     }
-    .doors-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
-    }
-    @media (max-width: 760px) {
-      .doors-grid { grid-template-columns: 1fr; }
-    }
-    .door-card {
-      display: block;
-      text-decoration: none;
-      color: var(--text);
-      background: var(--col-bg);
-      border: 1px solid var(--border);
-      padding: 1.35rem 1.4rem 1.5rem;
-      transition: border-color 0.15s ease;
-    }
-    .door-card:hover { border-color: var(--accent); }
-    .door-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .door-card .door-label {
-      font-family: var(--font-ui);
-      font-size: 0.68rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--accent);
-      display: block;
-      margin-bottom: 0.65rem;
-    }
-    .door-card p {
-      margin: 0;
-      font-family: var(--font-english);
-      font-size: 0.92rem;
-      line-height: 1.5;
-      color: var(--text-mid);
-    }
-    .door-card .door-go {
-      display: block;
-      margin-top: 0.9rem;
-      font-family: var(--font-ui);
-      font-size: 0.64rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text-mid);
-    }
-    .door-card:hover .door-go { color: var(--accent); }
+    /* Door-card styles live in the shared DoorCards.astro component (#10). */
     @media (max-width: 480px) { h1 { font-size: 1.6rem; } }
   </style>
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title">
-      <a class="home-link" href={`${base}/`}>Homer</a>
-      <span class="title-sep">&rsaquo;</span>
-      <span class="header-static">Start Here</span>
-    </div>
-    <nav class="header-actions" aria-label="Navigation">
-      <a href={`${base}/`} class="search-link">All works</a>
-      <a href={`${base}/search`} class="search-link">Search</a>
-      <a href={`${base}/about`} class="search-link">About</a>
-      <ThemeToggle />
-    </nav>
-  </header>
+  <SiteHeader section="Start Here" />
 
   <main class="start-body">
     <h1>Start Here</h1>
@@ -184,15 +111,7 @@ const jsonLd = {
       free, with no account required.
     </p>
 
-    <div class="doors-grid">
-      {doors.map((d) => (
-        <a class="door-card" href={d.href}>
-          <span class="door-label">{d.label}</span>
-          <p>{d.body}</p>
-          <span class="door-go">{d.cta}</span>
-        </a>
-      ))}
-    </div>
+    <DoorCards hrefs={doorHrefs} />
   </main>
 </body>
 </html>

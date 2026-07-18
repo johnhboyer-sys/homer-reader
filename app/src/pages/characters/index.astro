@@ -18,7 +18,7 @@
 // caption below, never silently dropped.
 import { readFileSync } from 'node:fs';
 import ThemeInit from '../../components/ThemeInit.astro';
-import ThemeToggle from '../../components/ThemeToggle.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
 import Pwa from '../../components/Pwa.astro';
 import CharacterNetwork from '../../components/CharacterNetwork.astro';
 import { jsonLdSafe } from '../../lib/jsonld';
@@ -246,10 +246,7 @@ const jsonLd = {
   <Pwa />
 </head>
 <body>
-  <header class="simple-header">
-    <div class="header-title"><a class="home-link" href={`${base}/`}>Homer</a><span class="title-sep">›</span><span class="header-static">Characters</span></div>
-    <nav class="header-actions" aria-label="Navigation"><a href={`${base}/`} class="search-link">All works</a><a href={`${base}/search`} class="search-link">Search</a><ThemeToggle /></nav>
-  </header>
+  <SiteHeader section="Characters" />
   <main class="chars-body">
     <h1>Characters {isDraft && <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>}</h1>
     <p class="chars-intro">
