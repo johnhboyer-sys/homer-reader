@@ -600,18 +600,30 @@ here (pipeline rename note at top still covers the package).
   toggle) is replaced with slimmed padding + an enlarged `.posture-btn`
   (min-height 40px); the strip itself stays visible so Reading Mode has a
   touch affordance on phones (previously only the `r` keystroke worked).
-  New `.toc-book-nav` rule block (mobile-only, hidden ≥681px): a real
-  wrapping book-quick-jump row inside the Contents/TOC sidebar, reusing
-  `.book-nav-label`'s look. No plato-reader counterpart (Homer-specific fix,
-  though the underlying defect — chapterless works have no book switcher on
-  mobile — could recur there).
-- `app/src/components/ReaderShell.astro` — TOC sidebar gained a
-  `.toc-book-nav` row (Books 1–N, same links/labels as the header's
-  `.nav-panel .book-nav`) right after `.toc-work-head`: on mobile the header
-  nav-panel is CSS-hidden and Homer's books carry no chapters
-  (`chapters.json` is `{}` for both epics), so the per-book `<details>` in
-  the sidebar outline had an empty chapter list to expand into — there was
-  NO way to switch books by touch. Also: cartouche's day meta gained a
+  **Superseded same day:** the mobile-only `.toc-book-nav` row added here
+  (below) was removed once the Contents drawer's own outline got a proper
+  chapterless (verse-line) rendering that works at every width — see the
+  ReaderShell.astro entry below and the new `.toc-book-link` rule (next to
+  `.toc-book`) for the replacement. No plato-reader counterpart either way
+  (Homer-specific; plato-reader's dialogues are chaptered, so its disclosure
+  TOC is unaffected — though the underlying "chapterless works get a
+  nonsense '0 ch.' disclosure row" defect could recur there for a future
+  chapterless work).
+- `app/src/components/ReaderShell.astro` — the TOC sidebar's per-book
+  outline (`outline.map`, previously always `<details class="toc-book">`
+  with an "N ch." disclosure) gained a `verseLine`-gated branch: for
+  chapterless verse-line works (Iliad, Odyssey — `chapters.json` is `{}` for
+  both epics, so the disclosure always showed a nonsense "0 ch." row whose
+  triangle expanded onto nothing and didn't itself navigate) the outline
+  instead renders one plain `.toc-book-link` per book, no disclosure, in the
+  SAME `.toc-outline` list used at every width (desktop and mobile share one
+  Contents drawer). This replaces the earlier same-day `.toc-book-nav`
+  hotfix (mobile-only row, now deleted from both this file and
+  global.css) — one book list in the drawer, not two, and it now works on
+  desktop too where the hotfix never reached. Chaptered works (Plato
+  dialogues, via the shared core) keep the original disclosure path
+  untouched, gated on the same `verseLine` const already used for the
+  book-plate below. Also: cartouche's day meta gained a
   `dayIsTelling` cue (`apparatus.where` containing the pipeline's
   `"(telling)"` frame-scene marker) — renders "Day N · telling" with a
   tooltip instead of a bare, chronologically-misleading number for a book

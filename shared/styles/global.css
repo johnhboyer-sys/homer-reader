@@ -2470,36 +2470,6 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   padding: 0.85rem 1rem 0.5rem;
 }
 
-/* Book quick-jump row in the Contents (TOC) drawer (John, phone session
-   2026-07-18): mobile's only reachable book switcher (see ReaderShell.astro's
-   comment above this markup for why the per-book <details> below doesn't
-   substitute for a chapterless work). Real wrapping row, not the header nav-
-   panel's `display: contents` trick — the sidebar is a single column, not a
-   flowing header stream. Desktop hides it (below) since the header's inline
-   book row already does the job there. */
-.toc-book-nav {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.3rem 0.4rem;
-  padding: 0.7rem 1rem;
-  border-bottom: 1px solid var(--border);
-}
-.toc-book-nav a {
-  color: var(--text-mid);
-  text-decoration: none;
-  padding: 0.3rem 0.55rem;
-  min-height: 34px;
-  display: inline-flex;
-  align-items: center;
-  border-radius: 3px;
-}
-.toc-book-nav a:hover { background: var(--border); }
-.toc-book-nav a.current { background: var(--accent); color: var(--on-accent); }
-@media (min-width: 681px) {
-  .toc-book-nav { display: none; }
-}
-
 /* Sidebar action bands (Go to Bekker / Search above the outline; Texts &
    Licences / Help below it). One action per row, stacked. Mobile-only — desktop
    already has these inline in the header nav panel. */
@@ -2613,6 +2583,27 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 .toc-book[open] > summary::before { transform: rotate(90deg); }
 .toc-book-label { flex: 1 1 auto; }
 .toc-book-count { font-size: 0.72rem; color: var(--text-light); font-weight: 400; }
+
+/* Verse-line works (chapterless — no chapters.json per book, see
+   ReaderShell.astro's verseLine branch): a plain link row per book instead
+   of the .toc-book disclosure above. Same weight/spacing as .toc-book >
+   summary (this replaces it 1:1 for these works) but a real link, not a
+   <summary> that expands onto nothing. */
+.toc-book-link {
+  display: block;
+  padding: 0.55rem 1rem;
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+}
+.toc-book-link:hover { background: var(--border); }
+.toc-book-link.current {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+}
 
 .toc-outline ul { list-style: none; margin: 0; padding: 0 0 0.4rem; }
 /* Bookless works (Categories, Poetics) list chapters flat, with no per-book

@@ -434,28 +434,6 @@ const intro =
       </a>
     </div>
     <div class="toc-work-head"><span class="toc-work">{work.title}</span></div>
-    {!bookless && work.books > 1 && (
-      <!-- Mobile-only book quick-jump (John, phone session 2026-07-18): the
-           header's inline book row (.nav-panel .book-nav) is CSS-hidden below
-           680px, and for a chapterless verse work like Homer the per-book
-           <details> below has an empty chapter list (0 ch.) to expand into —
-           so on a phone there was NO way to switch books at all. This mirrors
-           the desktop nav-panel's book row, styled for the sidebar's single
-           column; hidden on desktop (see global.css) where that row already
-           does the job. -->
-      <nav class="toc-book-nav book-nav" aria-label="Books">
-        <span class="book-nav-label">Books</span>
-        {Array.from({ length: work.books }, (_, i) => (
-          <a
-            href={`${base}${workPath(workId, i + 1)}`}
-            class={i + 1 === n ? 'current' : ''}
-            aria-current={i + 1 === n ? 'page' : undefined}
-          >
-            {bookLabel(work, i + 1)}
-          </a>
-        ))}
-      </nav>
-    )}
     <nav class="toc-outline">
       {stephanus ? (
         bookless ? (
@@ -509,6 +487,41 @@ const intro =
             </li>
           ))}
         </ul>
+      ) : verseLine ? (
+        // Verse-line works (Iliad, Odyssey) ship no chapters.json entries per
+        // book by design — a book of hexameter verse has no chapter level
+        // (CLAUDE.md "Vulgate lineation is sacred"). The disclosure
+        // <details>/"N ch." treatment below is inherited Plato-dialogue
+        // chrome: for a chapterless work it rendered a nonsense "0 ch." row
+        // with a triangle that expanded onto an empty list and didn't itself
+        // navigate (John's screenshot, 2026-07-18). Verse books instead get a
+        // plain link row per book — gated on the same `verseLine` signal
+        // already used for the book-plate above, not a hardcoded work id, so
+        // any future chapterless verse work in a sibling fork gets this
+        // automatically, while chaptered works (Plato dialogues) keep the
+        // disclosure path untouched below. This also supersedes the
+        // mobile-only `.toc-book-nav` hotfix (removed above, c24bb4e): one
+        // book list in the drawer, not two, and it now works at every width.
+        outline.map((b) => (
+          <>
+            <a
+              href={`${base}${workPath(workId, b.book)}`}
+              class={`toc-book-link${b.book === n ? ' current' : ''}`}
+              aria-current={b.book === n ? 'page' : undefined}
+            >
+              Book {b.label}
+            </a>
+            {work.missingBooks && work.missingBooks.after === b.book && (
+              <div class="toc-missing">
+                <span class="toc-missing-label">Books {work.missingBooks.label}</span>
+                <span class="toc-missing-note">{work.missingBooks.note}</span>
+                <a href={`${base}${workPath(work.missingBooks.linkWork, work.missingBooks.linkBook)}`}>
+                  {work.missingBooks.linkLabel} →
+                </a>
+              </div>
+            )}
+          </>
+        ))
       ) : (
         outline.map((b) => (
           <>

@@ -2803,7 +2803,7 @@
       <label class="settings-check-row">
         <span class="settings-check-name">
           Show hexameter scansion
-          <span class="settings-check-hint">Computed dactyl/spondee pattern beside each Greek line</span>
+          <span class="settings-check-hint">Computed dactyl/spondee pattern beside each Greek line; on small screens, shown in Greek view</span>
         </span>
         <span class="settings-pill">
           <input type="checkbox" bind:checked={meterOn} on:change={saveMeter} aria-label="Show computed hexameter scansion beside each Greek line, in Scholar view" />
@@ -2936,6 +2936,21 @@
      confident scan" carry the signal, not a contrast trick. */
   .meter-tag.meter-unresolved {
     opacity: 0.88;
+  }
+
+  /* Both view at phone width (John's phone screenshot, 2026-07-18): the
+     parallel Greek/English columns already compress hard here (see
+     global.css's `@media (max-width: 680px) { .reader-body.view-both
+     .greek-col { font-size: 0.9rem } … }` — same <=680px family used
+     throughout the reader for this exact squeeze), wrapping Greek to 1–2
+     words a row. The meter-tag glyph strings (—◡◡ —◡◡ —— …) then have no
+     room and overflow into the English column. Greek-only view keeps a full
+     single column at this width, so the tag still fits there — only Both
+     view hides it. The element is already conditionally rendered (`{#if
+     meterOn}`), so `display: none` here adds no layout reservation of its
+     own; it just removes the tag's own inline space, no reflow beyond that. */
+  @media (max-width: 680px) {
+    .reader-body.view-both .meter-tag { display: none; }
   }
 
   /* Discreet legend, shown only while the overlay is on (Scholar view) —
