@@ -9,8 +9,10 @@
   import {
     placesForMap,
     splitByCoords,
+    sortContingents,
     shipCircleRadius,
     principalPlace,
+    contingentPlaces,
     placesById as buildPlacesById,
     wanderingsRoute,
     wanderingsStory,
@@ -116,6 +118,36 @@
   let selectedAchaean: string | null = null;
   let selectedTrojan: string | null = null;
 
+  // The existing panel buttons and their matching map circles share one
+  // selection state. Activating the selected contingent again restores the
+  // complete Catalogue view.
+  function toggleAchaean(id: string) { selectedAchaean = selectedAchaean === id ? null : id; }
+  function toggleTrojan(id: string) { selectedTrojan = selectedTrojan === id ? null : id; }
+
+  // ContingentPanel owns roving focus for its list. Listen to its bubbling
+  // navigation keys here so moving focus is also a direct section change:
+  // A -> B replaces the highlighted towns in one state update, never
+  // toggling through the full-catalogue view.
+  function selectFromContingentList(
+    e: KeyboardEvent,
+    contingents: Contingent[],
+    select: (id: string) => void,
+  ) {
+    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+    const target = e.target;
+    if (!(target instanceof Element)) return;
+    const current = target.closest('button[role="option"]') as HTMLButtonElement | null;
+    if (!current) return;
+    const options = Array.from(current.parentElement?.querySelectorAll<HTMLButtonElement>('button[role="option"]') ?? []);
+    const index = options.indexOf(current);
+    if (index < 0) return;
+    const nextIndex = e.key === 'Home' ? 0
+      : e.key === 'End' ? options.length - 1
+      : Math.min(Math.max(index + (e.key === 'ArrowDown' ? 1 : -1), 0), options.length - 1);
+    const next = sortContingents(contingents, sort)[nextIndex];
+    if (next) select(next.id);
+  }
+
   function onTabKeydown(e: KeyboardEvent, order: readonly string[], get: () => string, set: (v: any) => void) {
     if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
     e.preventDefault();
@@ -142,6 +174,16 @@
   }
   $: achaeanItems = contingentItems(achaean, true);
   $: trojanItems = contingentItems(trojan, false);
+  $: selectedAchaeanContingent = achaean.find((c) => c.id === selectedAchaean) ?? null;
+  $: selectedTrojanContingent = trojan.find((c) => c.id === selectedTrojan) ?? null;
+  $: selectedAchaeanPlaces = selectedAchaeanContingent
+    ? contingentPlaces(selectedAchaeanContingent, pById)
+    : { located: [], unlocated: [], unresolved: [] };
+  $: selectedTrojanPlaces = selectedTrojanContingent
+    ? contingentPlaces(selectedTrojanContingent, pById)
+    : { located: [], unlocated: [], unresolved: [] };
+  $: selectedAchaeanUnlocatable = [...selectedAchaeanPlaces.unlocated.map((p) => p.name), ...selectedAchaeanPlaces.unresolved];
+  $: selectedTrojanUnlocatable = [...selectedTrojanPlaces.unlocated.map((p) => p.name), ...selectedTrojanPlaces.unresolved];
 
   // Places without a fixed coordinate (any of the 274) — never force-pinned;
   // listed per map instead (CLAUDE.md apparatus honesty).
@@ -308,7 +350,14 @@
   // focus is on a caption card or the map itself, not just the control
   // group.
   function onWindowBlur() { pause(); }
-  function onWindowKeydown(e: KeyboardEvent) { if (e.key === 'Escape') pause(); }
+  function onWindowKeydown(e: KeyboardEvent) {
+    if (e.key !== 'Escape') return;
+    pause();
+    if (activeTab === 'ships') {
+      selectedAchaean = null;
+      selectedTrojan = null;
+    }
+  }
 
   onMount(() => {
     window.addEventListener('blur', onWindowBlur);
@@ -410,14 +459,34 @@
       </div>
 
       {#if shipSubtab === 'achaean'}
-        <div id="mp-subpanel-achaean" role="tabpanel" aria-labelledby="mp-subtab-achaean" tabindex="0" class="mp-explorer">
-          <LandmarkMap
-            {base}
-            ariaLabel="Map of the Achaean Catalogue of Ships: one circle per contingent, sized by ship count"
-            items={achaeanItems}
-            selectedId={selectedAchaean}
-            onSelect={(id) => (selectedAchaean = id)}
-          />
+        <div
+          id="mp-subpanel-achaean"
+          role="tabpanel"
+          aria-labelledby="mp-subtab-achaean"
+          tabindex="0"
+          class="mp-explorer"
+          on:keydown={(e) => selectFromContingentList(e, achaean, (id) => (selectedAchaean = id))}
+        >
+          <div class="mp-map-column">
+            <LandmarkMap
+              {base}
+              ariaLabel="Map of the Achaean Catalogue of Ships: one circle per contingent, sized by ship count"
+              items={achaeanItems}
+              selectedId={selectedAchaean}
+              selectedCities={selectedAchaeanPlaces.located}
+              excludeTroyFromBounds={true}
+              onSelect={toggleAchaean}
+            />
+            {#if selectedAchaeanContingent}
+              <p class="mp-selection-note">
+                {selectedAchaeanContingent.name}: showing {selectedAchaeanPlaces.located.length} locatable named {selectedAchaeanPlaces.located.length === 1 ? 'place' : 'places'}.
+                {#if selectedAchaeanUnlocatable.length}
+                  Also names {selectedAchaeanUnlocatable.length} {selectedAchaeanUnlocatable.length === 1 ? 'place' : 'places'} with no fixed site: {selectedAchaeanUnlocatable.join(', ')}.
+                {/if}
+                <button type="button" class="mp-clear-selection" on:click={() => (selectedAchaean = null)}>Show full Catalogue</button>
+              </p>
+            {/if}
+          </div>
           <ContingentPanel
             {base}
             contingents={achaean}
@@ -428,19 +497,39 @@
             showShips={true}
             readerWork="iliad"
             readerBook={2}
-            onSelect={(id) => (selectedAchaean = id)}
+            onSelect={toggleAchaean}
             onSortChange={(m) => (sort = m)}
           />
         </div>
       {:else}
-        <div id="mp-subpanel-trojan" role="tabpanel" aria-labelledby="mp-subtab-trojan" tabindex="0" class="mp-explorer">
-          <LandmarkMap
-            {base}
-            ariaLabel="Map of the Trojan Catalogue: regions of Troy's allies (Homer gives no ship count for them)"
-            items={trojanItems}
-            selectedId={selectedTrojan}
-            onSelect={(id) => (selectedTrojan = id)}
-          />
+        <div
+          id="mp-subpanel-trojan"
+          role="tabpanel"
+          aria-labelledby="mp-subtab-trojan"
+          tabindex="0"
+          class="mp-explorer"
+          on:keydown={(e) => selectFromContingentList(e, trojan, (id) => (selectedTrojan = id))}
+        >
+          <div class="mp-map-column">
+            <LandmarkMap
+              {base}
+              ariaLabel="Map of the Trojan Catalogue: regions of Troy's allies (Homer gives no ship count for them)"
+              items={trojanItems}
+              selectedId={selectedTrojan}
+              selectedCities={selectedTrojanPlaces.located}
+              excludeTroyFromBounds={true}
+              onSelect={toggleTrojan}
+            />
+            {#if selectedTrojanContingent}
+              <p class="mp-selection-note">
+                {selectedTrojanContingent.name}: showing {selectedTrojanPlaces.located.length} locatable named {selectedTrojanPlaces.located.length === 1 ? 'place' : 'places'}.
+                {#if selectedTrojanUnlocatable.length}
+                  Also names {selectedTrojanUnlocatable.length} {selectedTrojanUnlocatable.length === 1 ? 'place' : 'places'} with no fixed site: {selectedTrojanUnlocatable.join(', ')}.
+                {/if}
+                <button type="button" class="mp-clear-selection" on:click={() => (selectedTrojan = null)}>Show full Catalogue</button>
+              </p>
+            {/if}
+          </div>
           <ContingentPanel
             {base}
             contingents={trojan}
@@ -451,7 +540,7 @@
             showShips={false}
             readerWork="iliad"
             readerBook={2}
-            onSelect={(id) => (selectedTrojan = id)}
+            onSelect={toggleTrojan}
             onSortChange={(m) => (sort = m)}
           />
         </div>
@@ -752,6 +841,11 @@
   .mp-panel { display: flex; flex-direction: column; gap: 0.8rem; }
   .mp-explorer { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr); gap: 1rem; align-items: start; }
   @media (max-width: 860px) { .mp-explorer { grid-template-columns: 1fr; } }
+  .mp-map-column { display: flex; flex-direction: column; gap: 0.45rem; min-width: 0; }
+  .mp-selection-note { margin: 0; font-family: var(--font-ui); font-size: 0.8rem; color: var(--text-mid); }
+  .mp-clear-selection { margin-left: 0.35rem; padding: 0; color: var(--accent); background: none; border: 0; font: inherit; font-weight: 600; cursor: pointer; }
+  .mp-clear-selection:hover { text-decoration: underline; }
+  .mp-clear-selection:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
   .mp-route-note { margin: 0; font-size: 0.8rem; color: var(--text-mid); max-width: 68ch; }
 

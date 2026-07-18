@@ -123,6 +123,47 @@ export function principalPlace(
   return null;
 }
 
+// The bounds used by the Catalogue maps. Troy may still be drawn as the
+// Trojan contingent's real anchor, but it is not a framing point for either
+// side's overview. The extent remains entirely data-derived.
+export interface PlaceBounds {
+  southWest: LatLon;
+  northEast: LatLon;
+}
+
+export function placeBounds(places: Iterable<Place>): PlaceBounds | null {
+  const coords = [...places].flatMap((p) => p.coords ? [p.coords] : []);
+  if (!coords.length) return null;
+  const lats = coords.map(([lat]) => lat);
+  const lons = coords.map(([, lon]) => lon);
+  return {
+    southWest: [Math.min(...lats), Math.min(...lons)],
+    northEast: [Math.max(...lats), Math.max(...lons)],
+  };
+}
+
+export function boundsExcludingTroy(places: Iterable<Place>): PlaceBounds | null {
+  return placeBounds([...places].filter((p) => p.id !== 'troy' && p.id !== 'ilios'));
+}
+
+// Resolve each named place in a Catalogue contingent in catalogue-text order.
+// Coordless places are returned for honest UI disclosure, never pinning.
+export function contingentPlaces(
+  contingent: Contingent,
+  placesById: Map<string, Place>,
+): { located: Place[]; unlocated: Place[]; unresolved: string[] } {
+  const referenced = contingent.places.map((id) => ({ id, place: placesById.get(id) }));
+  const resolved = referenced
+    .map(({ place }) => place)
+    .filter((p): p is Place => p != null);
+  return {
+    ...splitByCoords(resolved),
+    // An absent gazetteer entry is no warrant to manufacture a place name or
+    // coordinate. Retain its catalogue id so the selection UI can disclose it.
+    unresolved: referenced.filter(({ place }) => place == null).map(({ id }) => id),
+  };
+}
+
 export function placesById(places: Place[]): Map<string, Place> {
   return new Map(places.map((p) => [p.id, p]));
 }

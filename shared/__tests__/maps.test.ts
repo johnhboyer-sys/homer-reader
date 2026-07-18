@@ -6,6 +6,8 @@ import {
   sortContingents,
   shipCircleRadius,
   principalPlace,
+  boundsExcludingTroy,
+  contingentPlaces,
   placesById,
   contingentLocValue,
   wanderingsRoute,
@@ -133,6 +135,35 @@ describe('principalPlace', () => {
     const byId = placesById([p1]);
     const c: Contingent = { id: 'x', name: 'X', lines: [1, 2], leaders: [], ships: 10, places: ['p1'] };
     expect(principalPlace(c, byId)).toBeNull();
+  });
+});
+
+describe('Catalogue map bounds and selected towns (real apparatus)', () => {
+  const catalogue = JSON.parse(readFileSync('../apparatus/catalogue.json', 'utf-8'));
+  const gazetteer = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as Place[];
+  const gazetteerById = placesById(gazetteer);
+
+  it('Achaean default bounds exclude Troy coordinates', () => {
+    const anchors = catalogue.achaean
+      .map((c: Contingent) => principalPlace(c, gazetteerById))
+      .filter((p: Place | null): p is Place => p != null);
+    const bounds = boundsExcludingTroy(anchors);
+    const troy = gazetteerById.get('troy')!;
+    expect(bounds).not.toBeNull();
+    expect(troy.coords).toBeDefined();
+    const [lat, lon] = troy.coords!;
+    expect(lat >= bounds!.southWest[0] && lat <= bounds!.northEast[0]
+      && lon >= bounds!.southWest[1] && lon <= bounds!.northEast[1]).toBe(false);
+  });
+
+  it('Boeotians resolve their locatable towns and report unlocatable ones', () => {
+    const boeotians = catalogue.achaean.find((c: Contingent) => c.id === 'boeotians')!;
+    const resolved = contingentPlaces(boeotians, gazetteerById);
+    expect(resolved.located.map((p) => p.id)).toContain('hyria');
+    expect(resolved.located.map((p) => p.id)).toContain('anthedon');
+    expect(resolved.unlocated).toHaveLength(12);
+    expect(resolved.unlocated.map((p) => p.id)).toContain('schoenus');
+    expect(resolved.unresolved).toEqual([]);
   });
 });
 

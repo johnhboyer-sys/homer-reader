@@ -28,6 +28,8 @@
     durationExtras,
     journeyLegNote,
     wanderingsPlaybackLegs,
+    boundsExcludingTroy,
+    placeBounds,
     WANDERINGS_STEP_MS,
     type Place,
     type StoryStation,
@@ -49,6 +51,11 @@
   export let polyline: Place[] = [];
   export let selectedId: string | null = null;
   export let onSelect: ((id: string) => void) | null = null;
+  // Ships/Catalogue only: located towns named by the selected contingent.
+  // They stay distinct from the larger contingent anchor circles.
+  export let selectedCities: Place[] = [];
+  // The Ships maps opt in; other maps retain their established framing.
+  export let excludeTroyFromBounds = false;
 
   // Story mode (the Wanderings map only): promotes `polyline` to a heavier
   // hero route with direction arrows, swaps the coord-bearing story
@@ -112,6 +119,7 @@
   let routeLayer: any = null;
   let tailLayers: any[] = [];
   let journeyLayers: any[] = [];
+  let selectedCityLayers: any[] = [];
   let resizeObserver: ResizeObserver | null = null;
 
   // ── Story-mode Play control (John's directive, 2026-07-18) ────────────────
@@ -200,7 +208,7 @@
     if (!map) return;
     for (const g of clusterGroups) { if (map.hasLayer(g.badge)) map.removeLayer(g.badge); }
     clusterGroups = [];
-    if (storyMode) return;
+    if (storyMode || selectedId != null) return;
 
     const entries: { id: string; pt: any; coords: [number, number] }[] = [];
     for (const item of items) {
@@ -1006,17 +1014,17 @@
     if (!map) return;
     for (const l of layers.values()) map.removeLayer(l);
     layers.clear();
+    for (const l of selectedCityLayers) map.removeLayer(l);
+    selectedCityLayers = [];
     if (routeLayer) { map.removeLayer(routeLayer); routeLayer = null; }
 
-    const bounds: [number, number][] = [];
     const storyNumberById = new Map(storyStations.map((s) => [s.place.id, s.number]));
 
     for (const item of items) {
       const p = item.place;
       if (!p.coords) continue;
-      bounds.push(p.coords);
-
       const storyNumber = storyMode ? storyNumberById.get(item.id) : undefined;
+      const dimmed = selectedId != null && selectedCities.length > 0 && item.id !== selectedId;
 
       let layer: any;
       if (storyNumber != null) {
@@ -1024,7 +1032,7 @@
         // coord-bearing station (still keeps its popup — click/tap still
         // gets the full note, same as the tier pin it replaces).
         const icon = L.divIcon({
-          className: `lm-badge${item.id === selectedId ? ' lm-selected' : ''}`,
+          className: `lm-badge${item.id === selectedId ? ' lm-selected' : ''}${dimmed ? ' lm-dimmed' : ''}`,
           html: `<span class="lm-badge-num" aria-hidden="true">${storyNumber}</span>`,
           iconSize: [22, 22],
           iconAnchor: [11, 11],
@@ -1032,7 +1040,7 @@
         layer = L.marker(p.coords, { icon, keyboard: false, alt: `${storyNumber}. ${p.name}` });
       } else if (p.certainty === 'mythical') {
         const icon = L.divIcon({
-          className: `lm-mythical-icon${item.id === selectedId ? ' lm-selected' : ''}${storyMode ? ' lm-quiet' : ''}`,
+          className: `lm-mythical-icon${item.id === selectedId ? ' lm-selected' : ''}${storyMode ? ' lm-quiet' : ''}${dimmed ? ' lm-dimmed' : ''}`,
           html: '<span class="lm-diamond" aria-hidden="true"></span>',
           iconSize: [16, 16],
           iconAnchor: [8, 8],
@@ -1047,7 +1055,7 @@
           radius: quiet ? Math.max(4, (item.radius ?? DEFAULT_RADIUS) - 2) : item.radius ?? DEFAULT_RADIUS,
           weight: 2,
           dashArray,
-          className: tierClass(p.certainty) + (item.id === selectedId ? ' lm-selected' : '') + (quiet ? ' lm-quiet' : ''),
+          className: tierClass(p.certainty) + (item.id === selectedId ? ' lm-selected' : '') + (quiet ? ' lm-quiet' : '') + (dimmed ? ' lm-dimmed' : ''),
           keyboard: false,
         });
       }
@@ -1055,6 +1063,34 @@
       layer.on('click', () => onSelect?.(item.id));
       layer.addTo(map);
       layers.set(item.id, layer);
+    }
+
+    // A selected Catalogue contingent expands from its regional anchor into
+    // individual, certainty-styled towns. These smaller pins only open their
+    // own place popups; selection remains a contingent-level action.
+    for (const p of selectedCities) {
+      if (!p.coords) continue;
+      let cityLayer: any;
+      if (p.certainty === 'mythical') {
+        const icon = L.divIcon({
+          className: 'lm-mythical-icon lm-city-icon',
+          html: '<span class="lm-diamond" aria-hidden="true"></span>',
+          iconSize: [12, 12],
+          iconAnchor: [6, 6],
+        });
+        cityLayer = L.marker(p.coords, { icon, keyboard: false, alt: p.name });
+      } else {
+        cityLayer = L.circleMarker(p.coords, {
+          radius: 4,
+          weight: 1.5,
+          dashArray: p.certainty === 'speculative' ? '3,2' : undefined,
+          className: `${tierClass(p.certainty)} lm-city-pin`,
+          keyboard: false,
+        });
+      }
+      cityLayer.bindPopup(popupNode({ id: `city:${p.id}`, place: p }));
+      cityLayer.addTo(map);
+      selectedCityLayers.push(cityLayer);
     }
 
     // Render one station-owned badge per coordless Story station, separate
@@ -1121,8 +1157,24 @@
       ),
     );
 
-    if (bounds.length) {
-      map.fitBounds(bounds, { padding: [28, 28], maxZoom: 8 });
+    const framingPlaces = selectedId != null && selectedCities.length ? selectedCities : items.map((item) => item.place);
+    const framingBounds = excludeTroyFromBounds
+      ? boundsExcludingTroy(framingPlaces)
+      : placeBounds(framingPlaces);
+    if (framingBounds) {
+      const bounds = [framingBounds.southWest, framingBounds.northEast];
+      // A Catalogue section change reaches this single fit directly from the
+      // prior section's view. Interrupt a still-running camera move before
+      // beginning the next one so it is one continuous transition to the new
+      // town set, never an overview detour. Reduced-motion users get the same
+      // destination as an immediate cut.
+      map.stop();
+      map.fitBounds(bounds, {
+        padding: [56, 56],
+        maxZoom: 8,
+        animate: !prefersReducedMotion,
+        duration: 0.45,
+      });
       // Clamp pan/zoom-out to this map's own data extent (Wave B #6): CAWM's
       // tile mosaic thins out well beyond the Mediterranean/Aegean core, and
       // without a clamp, panning or zooming out from a tight cluster (e.g.
@@ -1171,6 +1223,13 @@
     // layers) in pixel sync through pans/zooms, including the animated
     // fitBounds pan below ('move' fires every frame of that animation).
     map.on('move zoom', updateOverlays);
+    // Read this before the first render too, so all camera fitting obeys a
+    // live reduced-motion preference from the outset.
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      reducedMotionMql = window.matchMedia('(prefers-reduced-motion: reduce)');
+      onReducedMotionChange();
+      reducedMotionMql.addEventListener('change', onReducedMotionChange);
+    }
     render();
     // Leaflet does not detect container resizes on its own (a responsive
     // CSS grid can change `.lm-map`'s width after mount, e.g. the tab panel
@@ -1184,15 +1243,6 @@
     });
     resizeObserver.observe(el);
 
-    // prefers-reduced-motion (John's brief): no line-drawing or
-    // camera-glide animation — instant step transitions, same controls.
-    // Read live (not just once) so a Playwright emulateMedia() toggle
-    // mid-session — or a user's OS-level toggle — takes effect immediately.
-    if (typeof window !== 'undefined' && window.matchMedia) {
-      reducedMotionMql = window.matchMedia('(prefers-reduced-motion: reduce)');
-      onReducedMotionChange();
-      reducedMotionMql.addEventListener('change', onReducedMotionChange);
-    }
   });
 
   onDestroy(() => {
@@ -1209,7 +1259,7 @@
   // imperative, so this is a full layer rebuild rather than a Svelte-reactive
   // DOM diff; the corpus is 274 places / 45 contingents, so a rebuild is
   // inexpensive.
-  $: if (map && (items || polyline || selectedId !== undefined || storyMode || storyStations || wanderingsTail || journeyRoutes)) render();
+  $: if (map && (items || polyline || selectedId !== undefined || selectedCities || excludeTroyFromBounds || storyMode || storyStations || wanderingsTail || journeyRoutes)) render();
 
   // Pan to (but don't re-zoom past) a newly selected item and open its popup,
   // mirroring the panel's aria-selected state. If the selection is currently
@@ -1217,7 +1267,7 @@
   // ContingentPanel is the keyboard-operable equivalent of the map, so a
   // place selected there must always become reachable, not silently fail to
   // pan/pop because it's bundled under a "3" badge.
-  $: if (map && selectedId) {
+  $: if (map && selectedId && !selectedCities.length) {
     const layer = layers.get(selectedId);
     if (layer && !map.hasLayer(layer)) {
       const g = clusterGroups.find((cg) => cg.ids.includes(selectedId as string));
@@ -1374,6 +1424,8 @@
   :global(.lm-pin.tier-traditional) { stroke: var(--accent); fill: var(--accent); fill-opacity: 0.14; }
   :global(.lm-pin.tier-speculative) { stroke: var(--text-mid); fill: none; fill-opacity: 0; }
   :global(.lm-pin.lm-selected) { stroke: var(--rule-strong); stroke-width: 3.5; }
+  :global(.lm-pin.lm-dimmed), :global(.lm-mythical-icon.lm-dimmed), :global(.lm-badge.lm-dimmed) { opacity: 0.3; }
+  :global(.lm-pin.lm-city-pin) { stroke-width: 1.5; }
 
   :global(.lm-mythical-icon) { background: none; border: none; }
   :global(.lm-diamond) {
@@ -1385,6 +1437,7 @@
     transform: rotate(45deg);
   }
   :global(.lm-mythical-icon.lm-selected .lm-diamond) { border-color: var(--rule-strong); border-width: 2.4px; }
+  :global(.lm-city-icon .lm-diamond) { width: 7px; height: 7px; margin: 2.5px; }
 
   :global(.lm-route) { stroke: var(--accent-light); fill: none; }
   /* Story mode: the route is promoted to hero — heavier weight (set via
