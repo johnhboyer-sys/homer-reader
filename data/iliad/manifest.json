@@ -1,0 +1,176 @@
+{
+ "work": {
+  "id": "iliad",
+  "title": "Iliad",
+  "author": "Homer",
+  "tlg_author": "0012",
+  "tlg_work": "001",
+  "greek_edition": "Allen, T.W., Homeri Ilias (Oxford: Clarendon Press, 1931), with Il. 8.548, 550-552 supplied from the Perseus Monro–Allen OCT text (bracketed)",
+  "greek_source_kind": "tlg",
+  "greek_source": "perseus/tlg0012.tlg001.perseus-grc2.xml"
+ },
+ "books": [
+  {
+   "book": 1,
+   "segments": 1,
+   "first_column": "1",
+   "last_column": "1"
+  },
+  {
+   "book": 2,
+   "segments": 1,
+   "first_column": "2",
+   "last_column": "2"
+  },
+  {
+   "book": 3,
+   "segments": 1,
+   "first_column": "3",
+   "last_column": "3"
+  },
+  {
+   "book": 4,
+   "segments": 1,
+   "first_column": "4",
+   "last_column": "4"
+  },
+  {
+   "book": 5,
+   "segments": 1,
+   "first_column": "5",
+   "last_column": "5"
+  },
+  {
+   "book": 6,
+   "segments": 1,
+   "first_column": "6",
+   "last_column": "6"
+  },
+  {
+   "book": 7,
+   "segments": 1,
+   "first_column": "7",
+   "last_column": "7"
+  },
+  {
+   "book": 8,
+   "segments": 1,
+   "first_column": "8",
+   "last_column": "8"
+  },
+  {
+   "book": 9,
+   "segments": 1,
+   "first_column": "9",
+   "last_column": "9"
+  },
+  {
+   "book": 10,
+   "segments": 1,
+   "first_column": "10",
+   "last_column": "10"
+  },
+  {
+   "book": 11,
+   "segments": 1,
+   "first_column": "11",
+   "last_column": "11"
+  },
+  {
+   "book": 12,
+   "segments": 1,
+   "first_column": "12",
+   "last_column": "12"
+  },
+  {
+   "book": 13,
+   "segments": 1,
+   "first_column": "13",
+   "last_column": "13"
+  },
+  {
+   "book": 14,
+   "segments": 1,
+   "first_column": "14",
+   "last_column": "14"
+  },
+  {
+   "book": 15,
+   "segments": 1,
+   "first_column": "15",
+   "last_column": "15"
+  },
+  {
+   "book": 16,
+   "segments": 1,
+   "first_column": "16",
+   "last_column": "16"
+  },
+  {
+   "book": 17,
+   "segments": 1,
+   "first_column": "17",
+   "last_column": "17"
+  },
+  {
+   "book": 18,
+   "segments": 1,
+   "first_column": "18",
+   "last_column": "18"
+  },
+  {
+   "book": 19,
+   "segments": 1,
+   "first_column": "19",
+   "last_column": "19"
+  },
+  {
+   "book": 20,
+   "segments": 1,
+   "first_column": "20",
+   "last_column": "20"
+  },
+  {
+   "book": 21,
+   "segments": 1,
+   "first_column": "21",
+   "last_column": "21"
+  },
+  {
+   "book": 22,
+   "segments": 1,
+   "first_column": "22",
+   "last_column": "22"
+  },
+  {
+   "book": 23,
+   "segments": 1,
+   "first_column": "23",
+   "last_column": "23"
+  },
+  {
+   "book": 24,
+   "segments": 1,
+   "first_column": "24",
+   "last_column": "24"
+  }
+ ],
+ "analyses": {
+  "token_keys": 20411,
+  "parses_dropped": 729
+ },
+ "lsj": {
+  "lemmata_needed": 8168,
+  "lsj_entries_kept": 6975,
+  "shards": 24,
+  "lemmata_without_entry": 1308
+ },
+ "cunliffe": {
+  "lemmata_needed": 8168,
+  "cunliffe_entries_kept": 6108,
+  "cunliffe_rows_kept_lex": 5279,
+  "cunliffe_rows_kept_hompers": 1225,
+  "shards": 24,
+  "lemmata_without_entry": 1811
+ }
+}

@@ -1,0 +1,3329 @@
+{
+ "work": "odyssey",
+ "book": 22,
+ "lines": {
+  "22.1": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.2": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.3": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.4": {
+   "feet": "SDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.5": {
+   "feet": "SDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.6": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.7": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.8": {
+   "feet": "DDSDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.9": {
+   "feet": "DDDSDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.10": {
+   "feet": "DSSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.11": {
+   "feet": "DSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.12": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.13": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.14": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.15": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.16": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.17": {
+   "feet": "SDDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.18": {
+   "feet": "DDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.19": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "hiatus",
+    "muta-cum-liquida"
+   ]
+  },
+  "22.20": {
+   "feet": "DSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.21": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.22": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.23": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": [
+    "muta-cum-liquida"
+   ]
+  },
+  "22.24": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.25": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.26": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.27": {
+   "feet": "DSSDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.28": {
+   "feet": "SDSSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.29": {
+   "feet": "SSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.30": {
+   "feet": "SDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.31": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.32": {
+   "feet": "DSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.33": {
+   "feet": "SSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.34": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.35": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.36": {
+   "feet": "DSDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.37": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.38": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.39": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.40": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.41": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.42": {
+   "feet": "DDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.43": {
+   "feet": "SDDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.44": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.45": {
+   "feet": "SDDDSS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.46": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.47": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.48": {
+   "feet": "DSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.49": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus",
+    "synizesis"
+   ]
+  },
+  "22.50": {
+   "feet": "DSSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.51": {
+   "feet": "SDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus",
+    "muta-cum-liquida"
+   ]
+  },
+  "22.52": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.53": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.54": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.55": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.56": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.57": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.58": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.59": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.60": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.61": {
+   "feet": "DSSDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.62": {
+   "feet": "DSDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.63": {
+   "feet": "DDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.64": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.65": {
+   "feet": "SDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.66": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.67": {
+   "feet": "DSDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.68": {
+   "feet": "DSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.69": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.70": {
+   "feet": "DSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.71": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.72": {
+   "feet": "DSSDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.73": {
+   "feet": "DSSSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.74": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus",
+    "muta-cum-liquida"
+   ]
+  },
+  "22.75": {
+   "feet": "SDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.76": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.77": {
+   "feet": "SDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus"
+   ]
+  },
+  "22.78": {
+   "feet": "DDSDSX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.79": {
+   "feet": "DSSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.80": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.81": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.82": {
+   "feet": "DSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.83": {
+   "feet": "DDDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.84": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": [
+    "muta-cum-liquida"
+   ]
+  },
+  "22.85": {
+   "feet": "DSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.86": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.87": {
+   "feet": "DSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.88": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.89": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.90": {
+   "feet": "DSSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.91": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.92": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.93": {
+   "feet": "SSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.94": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.95": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.96": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.97": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus"
+   ]
+  },
+  "22.98": {
+   "feet": "DSSSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.99": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.100": {
+   "feet": "DDDDSS",
+   "confidence": "ambiguous",
+   "notes": [
+    "unresolved"
+   ]
+  },
+  "22.101": {
+   "feet": "DSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.102": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.103": {
+   "feet": "SDDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.104": {
+   "feet": "SDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.105": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.106": {
+   "feet": "DSDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.107": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.108": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.109": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus"
+   ]
+  },
+  "22.110": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.111": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.112": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.113": {
+   "feet": "SSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.114": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.115": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.116": {
+   "feet": "DDDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.117": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.118": {
+   "feet": "DDSSDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.119": {
+   "feet": "DDDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.120": {
+   "feet": "SSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.121": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.122": {
+   "feet": "SSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.123": {
+   "feet": "DSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.124": {
+   "feet": "SSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.125": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.126": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.127": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.128": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.129": {
+   "feet": "DSDSDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.130": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.131": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": [
+    "synizesis"
+   ]
+  },
+  "22.132": {
+   "feet": "DSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.133": {
+   "feet": "SSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus"
+   ]
+  },
+  "22.134": {
+   "feet": "DDSDSX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.135": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.136": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.137": {
+   "feet": "SDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.138": {
+   "feet": "SDDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.139": {
+   "feet": "DSDSSS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.140": {
+   "feet": "DSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.141": {
+   "feet": "DSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.142": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.143": {
+   "feet": "DDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.144": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.145": {
+   "feet": "SDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.146": {
+   "feet": "DDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.147": {
+   "feet": "DSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.148": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.149": {
+   "feet": "DSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus"
+   ]
+  },
+  "22.150": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "unresolved"
+   ]
+  },
+  "22.151": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.152": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.153": {
+   "feet": "SDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.154": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.155": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.156": {
+   "feet": "DSSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.157": {
+   "feet": "DSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus"
+   ]
+  },
+  "22.158": {
+   "feet": "DDDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.159": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.160": {
+   "feet": "SSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "muta-cum-liquida"
+   ]
+  },
+  "22.161": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.162": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.163": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.164": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.165": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.166": {
+   "feet": "DDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.167": {
+   "feet": "DSSSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.168": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.169": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.170": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.171": {
+   "feet": "DSDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.172": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.173": {
+   "feet": "DSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.174": {
+   "feet": "DDDSDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.175": {
+   "feet": "SSSSSX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.176": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.177": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.178": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.179": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.180": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.181": {
+   "feet": "SDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.182": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.183": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.184": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.185": {
+   "feet": "SSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus",
+    "synizesis"
+   ]
+  },
+  "22.186": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.187": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.188": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.189": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.190": {
+   "feet": "DSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.191": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.192": {
+   "feet": "SSSSSX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.193": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.194": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.195": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.196": {
+   "feet": "DDDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.197": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.198": {
+   "feet": "DDSDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.199": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.200": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.201": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.202": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.203": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.204": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.205": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.206": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.207": {
+   "feet": "DSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.208": {
+   "feet": "DDSDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.209": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.210": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.211": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.212": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.213": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.214": {
+   "feet": "SDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.215": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.216": {
+   "feet": "DSSDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus",
+    "synizesis"
+   ]
+  },
+  "22.217": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.218": {
+   "feet": "SDSSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.219": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.220": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.221": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.222": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.223": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.224": {
+   "feet": "DSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.225": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.226": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.227": {
+   "feet": "DDSDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.228": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.229": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.230": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.231": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.232": {
+   "feet": "SSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.233": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus"
+   ]
+  },
+  "22.234": {
+   "feet": "SSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.235": {
+   "feet": "SDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.236": {
+   "feet": "DSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.237": {
+   "feet": "DDDSSX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.238": {
+   "feet": "DSSSSX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "synizesis"
+   ]
+  },
+  "22.239": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.240": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.241": {
+   "feet": "SSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.242": {
+   "feet": "DDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.243": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.244": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.245": {
+   "feet": "DSDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.246": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.247": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": [
+    "synizesis"
+   ]
+  },
+  "22.248": {
+   "feet": "DSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.249": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.250": {
+   "feet": "SSDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.251": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.252": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.253": {
+   "feet": "DSSSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.254": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.255": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.256": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.257": {
+   "feet": "SSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.258": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.259": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.260": {
+   "feet": "DSDSSS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.261": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.262": {
+   "feet": "DSDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.263": {
+   "feet": "SDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.264": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.265": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.266": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.267": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "unresolved"
+   ]
+  },
+  "22.268": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.269": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.270": {
+   "feet": "SDSDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.271": {
+   "feet": "DSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus"
+   ]
+  },
+  "22.272": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.273": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.274": {
+   "feet": "SSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.275": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.276": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.277": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.278": {
+   "feet": "DSSSSS",
+   "confidence": "ambiguous",
+   "notes": [
+    "unresolved"
+   ]
+  },
+  "22.279": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.280": {
+   "feet": "DSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.281": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.282": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.283": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.284": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.285": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.286": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": [
+    "muta-cum-liquida"
+   ]
+  },
+  "22.287": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.288": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.289": {
+   "feet": "DSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.290": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.291": {
+   "feet": "DDDDSS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.292": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.293": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.294": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.295": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.296": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.297": {
+   "feet": "DSSDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.298": {
+   "feet": "DDSDSX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.299": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.300": {
+   "feet": "SDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.301": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.302": {
+   "feet": "SDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.303": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.304": {
+   "feet": "SDDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.305": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.306": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.307": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.308": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.309": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.310": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.311": {
+   "feet": "DDDDSS",
+   "confidence": "ambiguous",
+   "notes": [
+    "unresolved"
+   ]
+  },
+  "22.312": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.313": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.314": {
+   "feet": "SDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.315": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.316": {
+   "feet": "DSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.317": {
+   "feet": "DDDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.318": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.319": {
+   "feet": "DSDDSS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus",
+    "synizesis"
+   ]
+  },
+  "22.320": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.321": {
+   "feet": "SDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.322": {
+   "feet": "DSSDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.323": {
+   "feet": "DSDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.324": {
+   "feet": "DDSSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.325": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.326": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.327": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "unresolved"
+   ]
+  },
+  "22.328": {
+   "feet": "DSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.329": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.330": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.331": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.332": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.333": {
+   "feet": "DDDDSX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.334": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus"
+   ]
+  },
+  "22.335": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.336": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.337": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": [
+    "muta-cum-liquida"
+   ]
+  },
+  "22.338": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.339": {
+   "feet": "SSSDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus",
+    "synizesis"
+   ]
+  },
+  "22.340": {
+   "feet": "DSDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.341": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.342": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": [
+    "muta-cum-liquida"
+   ]
+  },
+  "22.343": {
+   "feet": "DDDDSS",
+   "confidence": "ambiguous",
+   "notes": [
+    "unresolved"
+   ]
+  },
+  "22.344": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.345": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.346": {
+   "feet": "SDDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.347": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.348": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.349": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.350": {
+   "feet": "SDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.351": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.352": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.353": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.354": {
+   "feet": "DSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus"
+   ]
+  },
+  "22.355": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.356": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.357": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.358": {
+   "feet": "DDSDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.359": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.360": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.361": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.362": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.363": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.364": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.365": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": [
+    "muta-cum-liquida"
+   ]
+  },
+  "22.366": {
+   "feet": "DDDDSS",
+   "confidence": "ambiguous",
+   "notes": [
+    "unresolved"
+   ]
+  },
+  "22.367": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.368": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.369": {
+   "feet": "SSDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.370": {
+   "feet": "DDDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.371": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.372": {
+   "feet": "DSDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.373": {
+   "feet": "SDDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.374": {
+   "feet": "DSSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.375": {
+   "feet": "SSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.376": {
+   "feet": "DSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.377": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.378": {
+   "feet": "DSSDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.379": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.380": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.381": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.382": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.383": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.384": {
+   "feet": "SSSDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "synizesis"
+   ]
+  },
+  "22.385": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.386": {
+   "feet": "DDDSDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.387": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.388": {
+   "feet": "SDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.389": {
+   "feet": "DSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.390": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.391": {
+   "feet": "DDDDSS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.392": {
+   "feet": "DDDDSS",
+   "confidence": "ambiguous",
+   "notes": [
+    "unresolved"
+   ]
+  },
+  "22.393": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.394": {
+   "feet": "SDDDSS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.395": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.396": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.397": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.398": {
+   "feet": "DSSDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.399": {
+   "feet": "SDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.400": {
+   "feet": "DSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.401": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.402": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.403": {
+   "feet": "DSDDSX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.404": {
+   "feet": "DSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus"
+   ]
+  },
+  "22.405": {
+   "feet": "DDSSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.406": {
+   "feet": "DDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.407": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.408": {
+   "feet": "SDDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.409": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.410": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": [
+    "muta-cum-liquida"
+   ]
+  },
+  "22.411": {
+   "feet": "SSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.412": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.413": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.414": {
+   "feet": "DSDDSS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.415": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.416": {
+   "feet": "DDDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.417": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.418": {
+   "feet": "DSDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.419": {
+   "feet": "SDDDSS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.420": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.421": {
+   "feet": "SDDDDX",
+   "confidence": "ambiguous",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.422": {
+   "feet": "SSDDSS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.423": {
+   "feet": "DSSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.424": {
+   "feet": "SDDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.425": {
+   "feet": "DSSSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.426": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.427": {
+   "feet": "SSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.428": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.429": {
+   "feet": "SDSDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus"
+   ]
+  },
+  "22.430": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.431": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.432": {
+   "feet": "DSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.433": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.434": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.435": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.436": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "unresolved"
+   ]
+  },
+  "22.437": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.438": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "muta-cum-liquida"
+   ]
+  },
+  "22.439": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.440": {
+   "feet": "DSDDSX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.441": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.442": {
+   "feet": "SDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.443": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "synizesis"
+   ]
+  },
+  "22.444": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus",
+    "muta-cum-liquida"
+   ]
+  },
+  "22.445": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.446": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.447": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.448": {
+   "feet": "DDDDSS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.449": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.450": {
+   "feet": "SDSSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.451": {
+   "feet": "DSSDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.452": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "muta-cum-liquida"
+   ]
+  },
+  "22.453": {
+   "feet": "DSDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.454": {
+   "feet": "SDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.455": {
+   "feet": "SDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.456": {
+   "feet": "SDSDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "synizesis"
+   ]
+  },
+  "22.457": {
+   "feet": "DSDDSX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.458": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.459": {
+   "feet": "SDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.460": {
+   "feet": "DSDSDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.461": {
+   "feet": "DDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.462": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.463": {
+   "feet": "SDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.464": {
+   "feet": "DDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.465": {
+   "feet": "DSDDSX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.466": {
+   "feet": "DSDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.467": {
+   "feet": "DDSDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.468": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.469": {
+   "feet": "DSDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.470": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.471": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.472": {
+   "feet": "SDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.473": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.474": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.475": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.476": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.477": {
+   "feet": "SDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.478": {
+   "feet": "DDDSDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.479": {
+   "feet": "DDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo",
+    "hiatus"
+   ]
+  },
+  "22.480": {
+   "feet": "DDDDSS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.481": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.482": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.483": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.484": {
+   "feet": "SSSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.485": {
+   "feet": "SDDDSS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.486": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.487": {
+   "feet": "DSDDDS",
+   "confidence": "high",
+   "notes": [
+    "hiatus"
+   ]
+  },
+  "22.488": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.489": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.490": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.491": {
+   "feet": "SSDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.492": {
+   "feet": "DDDDSS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.493": {
+   "feet": "SDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.494": {
+   "feet": "DSDSDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.495": {
+   "feet": "SDDDDX",
+   "confidence": "high",
+   "notes": [
+    "brevis-in-longo"
+   ]
+  },
+  "22.496": {
+   "feet": "DDDDDS",
+   "confidence": "ambiguous",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.497": {
+   "feet": "DDDDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.498": {
+   "feet": "DDDSDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus"
+   ]
+  },
+  "22.499": {
+   "feet": "SDDDDS",
+   "confidence": "high",
+   "notes": [
+    "correption",
+    "hiatus",
+    "synizesis"
+   ]
+  },
+  "22.500": {
+   "feet": "SDSDDS",
+   "confidence": "high",
+   "notes": []
+  },
+  "22.501": {
+   "feet": "SDSDDS",
+   "confidence": "high",
+   "notes": []
+  }
+ }
+}

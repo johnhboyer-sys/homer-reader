@@ -1,0 +1,597 @@
+[
+ {
+  "key": "e)uerge/a",
+  "surface": "ἐυεργέα",
+  "first_ref": "8567",
+  "count": 6,
+  "analyses": []
+ },
+ {
+  "key": "qe/san",
+  "surface": "θέσαν",
+  "first_ref": "11274",
+  "count": 6,
+  "analyses": []
+ },
+ {
+  "key": "ka/tqesan",
+  "surface": "κάτθεσαν",
+  "first_ref": "2415",
+  "count": 5,
+  "analyses": []
+ },
+ {
+  "key": "zeu/gnunt'",
+  "surface": "ζεύγνυντʼ",
+  "first_ref": "3492",
+  "count": 3,
+  "analyses": []
+ },
+ {
+  "key": "e)/qesan",
+  "surface": "ἔθεσαν",
+  "first_ref": "6248",
+  "count": 3,
+  "analyses": []
+ },
+ {
+  "key": "e)uh=res",
+  "surface": "ἐυῆρες",
+  "first_ref": "11121",
+  "count": 3,
+  "analyses": []
+ },
+ {
+  "key": "e)udei/elon",
+  "surface": "ἐυδείελον",
+  "first_ref": "2167",
+  "count": 2,
+  "analyses": []
+ },
+ {
+  "key": "e)u/ormos",
+  "surface": "ἐύορμος",
+  "first_ref": "4358",
+  "count": 2,
+  "analyses": []
+ },
+ {
+  "key": "e)u/kuklon",
+  "surface": "ἐύκυκλον",
+  "first_ref": "658",
+  "count": 2,
+  "analyses": []
+ },
+ {
+  "key": "e)uw/pida",
+  "surface": "ἐυώπιδα",
+  "first_ref": "6113",
+  "count": 2,
+  "analyses": []
+ },
+ {
+  "key": "kw/ph|s",
+  "surface": "κώπῃς",
+  "first_ref": "9489",
+  "count": 2,
+  "analyses": []
+ },
+ {
+  "key": "h(raklh=a",
+  "surface": "Ἡρακλῆα",
+  "first_ref": "11267",
+  "count": 2,
+  "analyses": []
+ },
+ {
+  "key": "gi/gnont'",
+  "surface": "γίγνοντʼ",
+  "first_ref": "17310",
+  "count": 2,
+  "analyses": []
+ },
+ {
+  "key": "naietow/shs",
+  "surface": "ναιετοώσης",
+  "first_ref": "1404",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)uw=des",
+  "surface": "ἐυῶδες",
+  "first_ref": "2339",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "a)ge/resqai",
+  "surface": "ἀγέρεσθαι",
+  "first_ref": "2385",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "r)'",
+  "surface": "ῤʼ",
+  "first_ref": "2394",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)/qemen",
+  "surface": "ἔθεμεν",
+  "first_ref": "3179",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "qe/lgesk'",
+  "surface": "θέλγεσκʼ",
+  "first_ref": "3264",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "kuanoprw|rei/ous",
+  "surface": "κυανοπρῳρείους",
+  "first_ref": "3299",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)upoi/hton",
+  "surface": "ἐυποίητόν",
+  "first_ref": "3434",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "pa/rqesan",
+  "surface": "πάρθεσαν",
+  "first_ref": "466",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "u(poqh/seai",
+  "surface": "ὑποθήσεαι",
+  "first_ref": "4163",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "o(rmhqe/nte",
+  "surface": "ὁρμηθέντε",
+  "first_ref": "4282",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "r(ada/manqus",
+  "surface": "Ῥαδάμανθυς",
+  "first_ref": "4564",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)uh/nora",
+  "surface": "ἐυήνορα",
+  "first_ref": "4622",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)uerge/wn",
+  "surface": "ἐυεργέων",
+  "first_ref": "4695",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "dermati/noisin",
+  "surface": "δερματίνοισιν",
+  "first_ref": "4782",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "h)/nuto",
+  "surface": "ἤνυτο",
+  "first_ref": "5243",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)piplw/wn",
+  "surface": "ἐπιπλώων",
+  "first_ref": "5284",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)u/peplon",
+  "surface": "ἐύπεπλον",
+  "first_ref": "649",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "w(/pleon",
+  "surface": "ὥπλεον",
+  "first_ref": "673",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "ei(=son",
+  "surface": "εἷσον",
+  "first_ref": "7163",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)/rdwmen",
+  "surface": "ἔρδωμεν",
+  "first_ref": "7202",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "r(ada/manqun",
+  "surface": "Ῥαδάμανθυν",
+  "first_ref": "7323",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "h(raklh=i",
+  "surface": "Ἡρακλῆι",
+  "first_ref": "8224",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "oixalih=i",
+  "surface": "Οιχαλιῆι",
+  "first_ref": "8224",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "w)rxei/sqhn",
+  "surface": "ὠρχείσθην",
+  "first_ref": "8378",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)uerge/os",
+  "surface": "ἐυεργέος",
+  "first_ref": "9202",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "mnhsame/nois",
+  "surface": "μνησαμένοις",
+  "first_ref": "10199",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "u(podei/sasa",
+  "surface": "ὑποδείσασα",
+  "first_ref": "10296",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)ru/kane",
+  "surface": "ἐρύκανε",
+  "first_ref": "10429",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)uh/re'",
+  "surface": "ἐυήρεʼ",
+  "first_ref": "11125",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)uanqe/i",
+  "surface": "ἐυανθέι",
+  "first_ref": "11320",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)uergo/s",
+  "surface": "ἐυεργὸς",
+  "first_ref": "11434",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "marnai/meqa",
+  "surface": "μαρναίμεθα",
+  "first_ref": "11513",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "te/talto",
+  "surface": "τέταλτο",
+  "first_ref": "11524",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e(stew=t'",
+  "surface": "ἑστεῶτʼ",
+  "first_ref": "11583",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "a(dhko/tas",
+  "surface": "ἁδηκότας",
+  "first_ref": "12281",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "memu/kei",
+  "surface": "μεμύκει",
+  "first_ref": "12395",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "o)u/",
+  "surface": "ὀύ",
+  "first_ref": "13219",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "nu/mfh|s",
+  "surface": "νύμφῃς",
+  "first_ref": "13355",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "qei/men",
+  "surface": "θείμεν",
+  "first_ref": "13364",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "ka/ryen",
+  "surface": "κάρψεν",
+  "first_ref": "13430",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "mi/mnhsk'",
+  "surface": "μίμνησκʼ",
+  "first_ref": "14169",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e(e/ssat'",
+  "surface": "ἑέσσατʼ",
+  "first_ref": "14529",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "probiba/nta",
+  "surface": "προβιβάντα",
+  "first_ref": "15555",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)/rcasa",
+  "surface": "ἔρξασα",
+  "first_ref": "16177",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "pate/r",
+  "surface": "πατέρ",
+  "first_ref": "16202",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "die/sqai",
+  "surface": "διέσθαι",
+  "first_ref": "17398",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "a)/ghsi",
+  "surface": "ἄγησι",
+  "first_ref": "18137",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "qhsai/at'",
+  "surface": "θησαίατʼ",
+  "first_ref": "18191",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)u+gna/mptois",
+  "surface": "ἐϋγνάμπτοις",
+  "first_ref": "18294",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "diogenh=s",
+  "surface": "διογενῆς",
+  "first_ref": "18312",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "u(bri/ceis",
+  "surface": "ὑβρίξεις",
+  "first_ref": "18381",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "i)kma/lios",
+  "surface": "Ἰκμάλιος",
+  "first_ref": "1957",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)mpa/comai",
+  "surface": "ἐμπάξομαι",
+  "first_ref": "19134",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "pa/ter'",
+  "surface": "πάτερʼ",
+  "first_ref": "19395",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "qh=ai",
+  "surface": "θῆαι",
+  "first_ref": "19403",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)misge/skonto",
+  "surface": "ἐμισγέσκοντο",
+  "first_ref": "207",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "kou/rh|s",
+  "surface": "κούρῃς",
+  "first_ref": "2074",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "polumh/tis",
+  "surface": "πολυμήτις",
+  "first_ref": "20168",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "tisai/ato",
+  "surface": "τισαίατο",
+  "first_ref": "20169",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "mete/repon",
+  "surface": "μετέρεπον",
+  "first_ref": "20174",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "ou(=q'",
+  "surface": "οὗθʼ",
+  "first_ref": "21155",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "metami/comen",
+  "surface": "μεταμίξομεν",
+  "first_ref": "22221",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "katakosmh/shsqe",
+  "surface": "κατακοσμήσησθε",
+  "first_ref": "22440",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "subw/th|s",
+  "surface": "συβώτῃς",
+  "first_ref": "22454",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "a)gapaco/menai",
+  "surface": "ἀγαπαξόμεναι",
+  "first_ref": "22499",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "koimhqe/nte",
+  "surface": "κοιμηθέντε",
+  "first_ref": "23255",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)/rcanq'",
+  "surface": "ἔρξανθʼ",
+  "first_ref": "23277",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "gh/ra'",
+  "surface": "γήρα’",
+  "first_ref": "23283",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)ne/ponte",
+  "surface": "ἐνέποντε",
+  "first_ref": "23301",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "e)te/rpet'",
+  "surface": "ἐτέρπετʼ",
+  "first_ref": "23308",
+  "count": 1,
+  "analyses": []
+ },
+ {
+  "key": "ka/tqemen",
+  "surface": "κάτθεμεν",
+  "first_ref": "2444",
+  "count": 1,
+  "analyses": []
+ }
+]

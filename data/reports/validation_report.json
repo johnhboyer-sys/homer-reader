@@ -1,0 +1,94 @@
+{
+ "checks": {
+  "columns": {
+   "expected": 24,
+   "found": 24,
+   "missing": [],
+   "extra": [],
+   "monotonic": true,
+   "ok": true
+  },
+  "line_gaps": {
+   "gaps": [
+    {
+     "column": "10",
+     "book": 10,
+     "after_line": 455,
+     "next_line": 457,
+     "expected": true
+    },
+    {
+     "column": "16",
+     "book": 16,
+     "after_line": 100,
+     "next_line": 102,
+     "expected": true
+    },
+    {
+     "column": "23",
+     "book": 23,
+     "after_line": 48,
+     "next_line": 50,
+     "expected": true
+    }
+   ],
+   "unexpected": [],
+   "ok": true
+  },
+  "alignment": {
+   "pairs": 24,
+   "unmatched_segments": [],
+   "allowed_unmatched": [],
+   "unexpected_unmatched": [],
+   "english_only": [],
+   "unexpected_english_only": [],
+   "ok": true
+  },
+  "length_ratio": {
+   "mean": 1.331,
+   "sd": 0.012,
+   "outliers": [
+    {
+     "id": "14:14",
+     "ratio": 1.356,
+     "greek_chars": 23201,
+     "english_chars": 31453
+    },
+    {
+     "id": "10:10",
+     "ratio": 1.308,
+     "greek_chars": 24987,
+     "english_chars": 32688
+    },
+    {
+     "id": "12:12",
+     "ratio": 1.309,
+     "greek_chars": 19534,
+     "english_chars": 25565
+    },
+    {
+     "id": "3:3",
+     "ratio": 1.352,
+     "greek_chars": 21699,
+     "english_chars": 29338
+    },
+    {
+     "id": "24:24",
+     "ratio": 1.35,
+     "greek_chars": 23796,
+     "english_chars": 32123
+    }
+   ],
+   "ok": true
+  },
+  "proper_names": {
+   "names": [],
+   "ok": true
+  },
+  "sigla": {
+   "characters": [],
+   "ok": true
+  }
+ },
+ "ok": true
+}

@@ -1,0 +1,2065 @@
+{
+ "work": "iliad",
+ "translations": {
+  "murray": {
+   "chunks": 24,
+   "footnotes": 70,
+   "anomalies": [
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 1,
+     "seq": 3,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 1,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 1,
+     "seq": 5,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 1,
+     "seq": 6,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 1,
+     "seq": 7,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 2,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 2,
+     "seq": 3,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 2,
+     "seq": 5,
+     "raw": "1"
+    },
+    {
+     "kind": "milestone_duplicate",
+     "book": 2,
+     "n_raw": 720,
+     "last_accepted": 720
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 2,
+     "seq": 10,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 3,
+     "seq": 2,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 3,
+     "seq": 3,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 3,
+     "seq": 4,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 3,
+     "seq": 5,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 3,
+     "seq": 6,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 3,
+     "seq": 10,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 4,
+     "seq": 1,
+     "raw": "153.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 4,
+     "seq": 2,
+     "raw": "161.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 4,
+     "seq": 4,
+     "raw": "163.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 4,
+     "seq": 7,
+     "raw": "177.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 4,
+     "seq": 8,
+     "raw": "181.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 5,
+     "seq": 3,
+     "raw": "207.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 5,
+     "seq": 6,
+     "raw": "229.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 5,
+     "seq": 8,
+     "raw": "249.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 5,
+     "seq": 9,
+     "raw": "261.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 6,
+     "seq": 3,
+     "raw": "275.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 6,
+     "seq": 4,
+     "raw": "291.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 7,
+     "seq": 3,
+     "raw": "327.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 8,
+     "seq": 2,
+     "raw": "379.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 9,
+     "seq": 2,
+     "raw": "397.1"
+    },
+    {
+     "kind": "milestone_gap_snap",
+     "book": 9,
+     "n_raw": 460,
+     "snapped_to": 462
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 9,
+     "seq": 8,
+     "raw": "421.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 9,
+     "seq": 10,
+     "raw": "423.2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 11,
+     "seq": 3,
+     "raw": "485.2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 11,
+     "seq": 5,
+     "raw": "299.2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 11,
+     "seq": 6,
+     "raw": "509.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 11,
+     "seq": 8,
+     "raw": "519.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 11,
+     "seq": 9,
+     "raw": "521.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 11,
+     "seq": 10,
+     "raw": "527.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 12,
+     "seq": 1,
+     "raw": "557.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 12,
+     "seq": 3,
+     "raw": "565.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 13,
+     "seq": 1,
+     "raw": "11.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 13,
+     "seq": 3,
+     "raw": "13.2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 13,
+     "seq": 7,
+     "raw": "37.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 13,
+     "seq": 8,
+     "raw": "43.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 13,
+     "seq": 9,
+     "raw": "47.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 13,
+     "seq": 11,
+     "raw": "51.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 13,
+     "seq": 12,
+     "raw": "53.1"
+    },
+    {
+     "kind": "milestone_out_of_order",
+     "book": 13,
+     "n_raw": 825,
+     "last_accepted": 830
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 14,
+     "seq": 1,
+     "raw": "69.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 15,
+     "seq": 5,
+     "raw": "161.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 16,
+     "seq": 2,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 16,
+     "seq": 3,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 16,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 17,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 17,
+     "seq": 2,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 17,
+     "seq": 3,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 17,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 17,
+     "seq": 5,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 17,
+     "seq": 7,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 18,
+     "seq": 1,
+     "raw": "289.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 18,
+     "seq": 2,
+     "raw": "301.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 18,
+     "seq": 3,
+     "raw": "311.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 18,
+     "seq": 4,
+     "raw": "315.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 18,
+     "seq": 8,
+     "raw": "327.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 19,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 19,
+     "seq": 3,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 19,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 19,
+     "seq": 8,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 19,
+     "seq": 9,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 19,
+     "seq": 10,
+     "raw": "1"
+    },
+    {
+     "kind": "milestone_duplicate",
+     "book": 20,
+     "n_raw": 1,
+     "last_accepted": 1
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 21,
+     "seq": 2,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 21,
+     "seq": 3,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 21,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 21,
+     "seq": 5,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 23,
+     "seq": 2,
+     "raw": "551.1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 23,
+     "seq": 3,
+     "raw": "551.2"
+    }
+   ],
+   "coverage_holes": [],
+   "loeb_notes": {
+    "applied": [
+     {
+      "markerId": "iliad.1.1",
+      "label": "1.1.1"
+     },
+     {
+      "markerId": "iliad.1.2",
+      "label": "1.2.2"
+     },
+     {
+      "markerId": "iliad.1.8",
+      "label": "1.8.1"
+     },
+     {
+      "markerId": "iliad.1.9",
+      "label": "1.9.1"
+     },
+     {
+      "markerId": "iliad.1.10",
+      "label": "1.10.1"
+     },
+     {
+      "markerId": "iliad.2.2",
+      "label": "2.2.1"
+     },
+     {
+      "markerId": "iliad.2.4",
+      "label": "2.4.2"
+     },
+     {
+      "markerId": "iliad.2.6",
+      "label": "2.6.1"
+     },
+     {
+      "markerId": "iliad.2.7",
+      "label": "2.7.1"
+     },
+     {
+      "markerId": "iliad.2.8",
+      "label": "2.8.1"
+     },
+     {
+      "markerId": "iliad.2.9",
+      "label": "2.9.1"
+     },
+     {
+      "markerId": "iliad.3.1",
+      "label": "3.1.1"
+     },
+     {
+      "markerId": "iliad.3.7",
+      "label": "3.7.2"
+     },
+     {
+      "markerId": "iliad.3.8",
+      "label": "3.8.1"
+     },
+     {
+      "markerId": "iliad.3.9",
+      "label": "3.9.1"
+     },
+     {
+      "markerId": "iliad.4.3",
+      "label": "4.3.161.2"
+     },
+     {
+      "markerId": "iliad.4.5",
+      "label": "4.5.1"
+     },
+     {
+      "markerId": "iliad.4.6",
+      "label": "4.6.171.1"
+     },
+     {
+      "markerId": "iliad.5.1",
+      "label": "5.1.199.1"
+     },
+     {
+      "markerId": "iliad.5.2",
+      "label": "5.2.203.1"
+     },
+     {
+      "markerId": "iliad.5.4",
+      "label": "5.4.209.1"
+     },
+     {
+      "markerId": "iliad.5.5",
+      "label": "5.5.215.1"
+     },
+     {
+      "markerId": "iliad.5.7",
+      "label": "5.7.239.1"
+     },
+     {
+      "markerId": "iliad.6.1",
+      "label": "6.1.271.1"
+     },
+     {
+      "markerId": "iliad.6.2",
+      "label": "6.2.273.1"
+     },
+     {
+      "markerId": "iliad.7.1",
+      "label": "7.1.309.1"
+     },
+     {
+      "markerId": "iliad.7.2",
+      "label": "7.2.325.1"
+     },
+     {
+      "markerId": "iliad.8.1",
+      "label": "8.1.345.1"
+     },
+     {
+      "markerId": "iliad.9.1",
+      "label": "9.1.395.1"
+     },
+     {
+      "markerId": "iliad.9.3",
+      "label": "9.3.399.1"
+     },
+     {
+      "markerId": "iliad.9.4",
+      "label": "9.4.407.1"
+     },
+     {
+      "markerId": "iliad.9.5",
+      "label": "9.5.409.1"
+     },
+     {
+      "markerId": "iliad.9.6",
+      "label": "9.6.419.1"
+     },
+     {
+      "markerId": "iliad.9.7",
+      "label": "9.7.419.2"
+     },
+     {
+      "markerId": "iliad.9.9",
+      "label": "9.9.423.1"
+     },
+     {
+      "markerId": "iliad.9.11",
+      "label": "9.11.423.3"
+     },
+     {
+      "markerId": "iliad.11.1",
+      "label": "11.1.483.2"
+     },
+     {
+      "markerId": "iliad.11.2",
+      "label": "11.2.485.1"
+     },
+     {
+      "markerId": "iliad.11.4",
+      "label": "11.4.499.1"
+     },
+     {
+      "markerId": "iliad.11.7",
+      "label": "11.7.515.1"
+     },
+     {
+      "markerId": "iliad.12.2",
+      "label": "12.2.563.1"
+     },
+     {
+      "markerId": "iliad.12.4",
+      "label": "12.4.565.2"
+     },
+     {
+      "markerId": "iliad.12.5",
+      "label": "12.5.569.1"
+     },
+     {
+      "markerId": "iliad.13.2",
+      "label": "13.2.13.1"
+     },
+     {
+      "markerId": "iliad.13.4",
+      "label": "13.4.29.1"
+     },
+     {
+      "markerId": "iliad.13.5",
+      "label": "13.5.33.1"
+     },
+     {
+      "markerId": "iliad.13.6",
+      "label": "13.6.1"
+     },
+     {
+      "markerId": "iliad.13.10",
+      "label": "13.10.49.1"
+     },
+     {
+      "markerId": "iliad.13.13",
+      "label": "13.13.53.2"
+     },
+     {
+      "markerId": "iliad.13.14",
+      "label": "13.14.55.1"
+     },
+     {
+      "markerId": "iliad.13.15",
+      "label": "13.15.59.1"
+     },
+     {
+      "markerId": "iliad.14.2",
+      "label": "14.2.81.1"
+     },
+     {
+      "markerId": "iliad.14.3",
+      "label": "14.3.85.1"
+     },
+     {
+      "markerId": "iliad.15.1",
+      "label": "15.1.121.1"
+     },
+     {
+      "markerId": "iliad.15.2",
+      "label": "15.2.133.1"
+     },
+     {
+      "markerId": "iliad.15.3",
+      "label": "15.3.1"
+     },
+     {
+      "markerId": "iliad.15.4",
+      "label": "15.4.159.1"
+     },
+     {
+      "markerId": "iliad.16.1",
+      "label": "16.1.1"
+     },
+     {
+      "markerId": "iliad.17.6",
+      "label": "17.6.1"
+     },
+     {
+      "markerId": "iliad.18.5",
+      "label": "18.5.319.1"
+     },
+     {
+      "markerId": "iliad.18.6",
+      "label": "18.6.319.2"
+     },
+     {
+      "markerId": "iliad.18.7",
+      "label": "18.7.325.1"
+     },
+     {
+      "markerId": "iliad.18.9",
+      "label": "18.9.329.1"
+     },
+     {
+      "markerId": "iliad.18.10",
+      "label": "18.10.331.1"
+     },
+     {
+      "markerId": "iliad.19.2",
+      "label": "19.2.1"
+     },
+     {
+      "markerId": "iliad.19.5",
+      "label": "19.5.2"
+     },
+     {
+      "markerId": "iliad.19.6",
+      "label": "19.6.1"
+     },
+     {
+      "markerId": "iliad.19.7",
+      "label": "19.7.2"
+     },
+     {
+      "markerId": "iliad.21.1",
+      "label": "21.1.1"
+     },
+     {
+      "markerId": "iliad.23.1",
+      "label": "23.1.527.1"
+     }
+    ],
+    "excluded": [
+     {
+      "work": "iliad",
+      "book": 1,
+      "approxLine": 35,
+      "marker": "1",
+      "markerId": "iliad.1.3",
+      "teiLabel": "1.1",
+      "noteText": "Lines 2 29-31 were rejected by Aristarchus ὁ ἀκέων ἀχέων Zenodotus. + Lit. “ Mouse-god,”” a title given to Apollo as the god",
+      "sourcePage": 4,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "distant_line_ref:2"
+     },
+     {
+      "work": "iliad",
+      "book": 1,
+      "approxLine": 125,
+      "marker": "1",
+      "markerId": "iliad.1.4",
+      "teiLabel": "1.1",
+      "noteText": "Lines 133 f were rejected by Aristarchus * Line 139 was rejected by Aristarchus",
+      "sourcePage": 12,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 1,
+      "approxLine": 210,
+      "marker": "1",
+      "markerId": "iliad.1.5",
+      "teiLabel": "1.1",
+      "noteText": "In the place of lines 219 f Zenodotus gave",
+      "sourcePage": 18,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 1,
+      "approxLine": 270,
+      "marker": "1",
+      "markerId": "iliad.1.6",
+      "teiLabel": "1.1",
+      "noteText": "july: ἡμῖν Aristarchus. * Line 265 (= Hesiod, Scut. 182) 1s omitted in most mss.",
+      "sourcePage": 22,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 1,
+      "approxLine": 290,
+      "marker": "1",
+      "markerId": "iliad.1.7",
+      "teiLabel": "1.1",
+      "noteText": "Line 296 was rejected by Aristarchus",
+      "sourcePage": 24,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 2,
+      "approxLine": 40,
+      "marker": "1",
+      "markerId": "iliad.2.1",
+      "teiLabel": "2.1",
+      "noteText": "θεῖος οὗλος. 5. Line 27 (-- χχιν. 174) was rejected by Anistarchus",
+      "sourcePage": 52,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 2,
+      "approxLine": 355,
+      "marker": "1",
+      "markerId": "iliad.2.3",
+      "teiLabel": "2.1",
+      "noteText": "[anes 252-256 were rejected by Aristarchus.",
+      "sourcePage": 68,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 2,
+      "approxLine": 405,
+      "marker": "1",
+      "markerId": "iliad.2.5",
+      "teiLabel": "2.1",
+      "noteText": "Lines 220-223 were rejected by Zenodotus.",
+      "sourcePage": 66,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 2,
+      "approxLine": 870,
+      "marker": "1",
+      "markerId": "iliad.2.10",
+      "teiLabel": "2.1",
+      "noteText": "Lines 18-20 were rejected by Zenodotus. * Lines 19 f were rejected by Aristarchus",
+      "sourcePage": 116,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "distant_line_ref:18"
+     },
+     {
+      "work": "iliad",
+      "book": 3,
+      "approxLine": 40,
+      "marker": "2",
+      "markerId": "iliad.3.2",
+      "teiLabel": "3.2",
+      "noteText": "Line 144 was rejected by Aristarchus",
+      "sourcePage": 126,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 3,
+      "approxLine": 45,
+      "marker": "1",
+      "markerId": "iliad.3.3",
+      "teiLabel": "3.1",
+      "noteText": "Line 78 1s omitted in some mss. * After line 86 many mss add",
+      "sourcePage": 123,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 3,
+      "approxLine": 55,
+      "marker": "2",
+      "markerId": "iliad.3.4",
+      "teiLabel": "3.2",
+      "noteText": "After 338 Zenodotus added a line",
+      "sourcePage": 140,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 3,
+      "approxLine": 100,
+      "marker": "1",
+      "markerId": "iliad.3.5",
+      "teiLabel": "3.1",
+      "noteText": "ἀρχῆς ἄτης Zenodotus (cf. v1 356 and xxiv 928), * Lines 108-110 were rejected by Aristarchus.",
+      "sourcePage": 124,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 3,
+      "approxLine": 150,
+      "marker": "1",
+      "markerId": "iliad.3.6",
+      "teiLabel": "3.1",
+      "noteText": "The adjective “ hly-hke”’ apphed to the voice seems but a strikin ne instance of the transference of an epithet from one field of sense-perception to another, which often meets us, cf. Hesiod, Theog. 41 , and Apoll. Rhod. 1v.",
+      "sourcePage": 128,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 3,
+      "approxLine": 415,
+      "marker": "1",
+      "markerId": "iliad.3.10",
+      "teiLabel": "3.1",
+      "noteText": "ἀπόεικε κελεύθου Aristarchus ἀπόειπε κελεύθους MSS",
+      "sourcePage": 146,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 4,
+      "approxLine": 5,
+      "marker": "153.1",
+      "markerId": "iliad.4.1",
+      "teiLabel": "4.153.1",
+      "noteText": "Lines δδ f. were rejected by Aristarchus.",
+      "sourcePage": 156,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 4,
+      "approxLine": 100,
+      "marker": "161.1",
+      "markerId": "iliad.4.2",
+      "teiLabel": "4.161.1",
+      "noteText": "εἴ που ἐφεύροι εὗρε δὲ τόνδε Zenodotus, who omitted 89",
+      "sourcePage": 158,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "iliad",
+      "book": 4,
+      "approxLine": 135,
+      "marker": "163.1",
+      "markerId": "iliad.4.4",
+      "teiLabel": "4.163.1",
+      "noteText": "ἔρυμα ἔλυμα Zenodotus, Aristophanes.",
+      "sourcePage": 162,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "iliad",
+      "book": 4,
+      "approxLine": 315,
+      "marker": "177.1",
+      "markerId": "iliad.4.7",
+      "teiLabel": "4.177.1",
+      "noteText": "*Arpéos υἱόν ἀρχὸν ᾿Αχαιῶν (of. 195 and 205)",
+      "sourcePage": 162,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 4,
+      "approxLine": 370,
+      "marker": "181.1",
+      "markerId": "iliad.4.8",
+      "teiLabel": "4.181.1",
+      "noteText": "count it not shame that Agamemnon, shepherd of the host, should urge on to battle the well-greaved Achaeans, for upon him will great glory attend, if the Achaeans shall slay the Trojans and take sacred hos, and upon him hkewise will fall great sorrow, 1f the Achaeans be slam Nay, come, let us twain also bethink us of furious valour ”’ He spake, and leapt in his armour from his chariot",
+      "sourcePage": 183,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 5,
+      "approxLine": 150,
+      "marker": "207.1",
+      "markerId": "iliad.5.3",
+      "teiLabel": "5.207.1",
+      "noteText": "Possibly, ‘‘ and the wrath of a god be heavy upon us.”’",
+      "sourcePage": 210,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 5,
+      "approxLine": 450,
+      "marker": "229.1",
+      "markerId": "iliad.5.6",
+      "teiLabel": "5.229.1",
+      "noteText": "The λαισήεον appears to have been (at least originally) nothing more than an undressed hide, the hair of which fluttered about its edges as a fringe—a human counterpart of the fringed, or tasselled, aegis of Zeus.",
+      "sourcePage": 228,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 5,
+      "approxLine": 740,
+      "marker": "249.1",
+      "markerId": "iliad.5.8",
+      "teiLabel": "5.249.1",
+      "noteText": "Lines 734. ἢ were rejected by Zenodotus",
+      "sourcePage": 248,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 5,
+      "approxLine": 895,
+      "marker": "261.1",
+      "markerId": "iliad.5.9",
+      "teiLabel": "5.261.1",
+      "noteText": "evéprepos ἐνέρτατος Zenodotus. * πάσσων πάσσεν Aristarchus, who omitted the following Ine",
+      "sourcePage": 260,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 6,
+      "approxLine": 165,
+      "marker": "275.1",
+      "markerId": "iliad.6.3",
+      "teiLabel": "6.275.1",
+      "noteText": "κεν φίλον ἦτορ Zenodotus κε φρέν᾽ ἁτέρπου Mss.",
+      "sourcePage": 282,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 6,
+      "approxLine": 400,
+      "marker": "291.1",
+      "markerId": "iliad.6.4",
+      "teiLabel": "6.291.1",
+      "noteText": "Lines 433-439 were rejected by Aristarchus.",
+      "sourcePage": 292,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 7,
+      "approxLine": 335,
+      "marker": "327.1",
+      "markerId": "iliad.7.3",
+      "teiLabel": "7.327.1",
+      "noteText": "Lines 334 f. were rejected by Aristarchus",
+      "sourcePage": 326,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum+lineRef-tiebreak",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "iliad",
+      "book": 8,
+      "approxLine": 555,
+      "marker": "379.1",
+      "markerId": "iliad.8.2",
+      "teiLabel": "8.379.1",
+      "noteText": "Line 540 was apparently not read by Aristarchus * Lines 548 and 550-552, not found in the mss of the liad, are found in [Plato,} Aleib. LZ. 149 Ὁ. 3. Lines 557 f were rejected by Zenodotus, Anstophanes, and Aristarchus.",
+      "sourcePage": 378,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum+lineRef-tiebreak",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "iliad",
+      "book": 9,
+      "approxLine": 195,
+      "marker": "397.1",
+      "markerId": "iliad.9.2",
+      "teiLabel": "9.397.1",
+      "noteText": "δμηθήτω. καμφθήτω Zenodotus and Aristophanes",
+      "sourcePage": 392,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 9,
+      "approxLine": 540,
+      "marker": "421.1",
+      "markerId": "iliad.9.8",
+      "teiLabel": "9.421.1",
+      "noteText": "ὀδυρόμενος καὶ ἀχεύων evi στήθεσσιν ἀχεύων Aristarchus ; ὀδυρόμενος κινυρίζων Zenodotus.",
+      "sourcePage": 426,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 9,
+      "approxLine": 560,
+      "marker": "423.2",
+      "markerId": "iliad.9.10",
+      "teiLabel": "9.423.2",
+      "noteText": "Line 692 was rejected by Zenodotus 3. Line 694 was rejected by Zenodotus, Anstophanes, and Aristarchus.",
+      "sourcePage": 432,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 11,
+      "approxLine": 70,
+      "marker": "485.2",
+      "markerId": "iliad.11.3",
+      "teiLabel": "11.485.2",
+      "noteText": "Line 356 (=v. 310) was rejected by Zenodotus, Aristo- phanes, and Aristarchus",
+      "sourcePage": 506,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 11,
+      "approxLine": 255,
+      "marker": "299.2",
+      "markerId": "iliad.11.5",
+      "teiLabel": "11.299.2",
+      "noteText": "βέλος Zenodotus. τέλος Aristarchus",
+      "sourcePage": 514,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 11,
+      "approxLine": 385,
+      "marker": "509.1",
+      "markerId": "iliad.11.6",
+      "teiLabel": "11.509.1",
+      "noteText": "That κέρᾳ ἀγλαέ refers toa method of dressing the hair, and not to a bow of horn, is now the generally accepted view See Helbig, Hom Hos, p. 241, andcf um. 55, and (of Kuphorbus) xvu 52.",
+      "sourcePage": 508,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 11,
+      "approxLine": 500,
+      "marker": "519.1",
+      "markerId": "iliad.11.8",
+      "teiLabel": "11.519.1",
+      "noteText": "Line 515 was rejected by Zenodotus, Aristophanes, and Aristarchus",
+      "sourcePage": 518,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 11,
+      "approxLine": 535,
+      "marker": "521.1",
+      "markerId": "iliad.11.9",
+      "teiLabel": "11.521.1",
+      "noteText": "After line 542 Anstotle and Plutarch give a line not found in the ass. of the Ziad, Ζεὺς γάρ of νεμέσασχ᾽ ὅτ᾽ ἀμείνονι φωτὶ μάχοιτο",
+      "sourcePage": 520,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 11,
+      "approxLine": 635,
+      "marker": "527.1",
+      "markerId": "iliad.11.10",
+      "teiLabel": "11.527.1",
+      "noteText": "Line 662 15 omitted in the best mss",
+      "sourcePage": 530,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 12,
+      "approxLine": 165,
+      "marker": "557.1",
+      "markerId": "iliad.12.1",
+      "teiLabel": "12.557.1",
+      "noteText": "Lines 175-181 were rejected by Zenodotus, Aristophanes, and Aristarchus.",
+      "sourcePage": 557,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 12,
+      "approxLine": 270,
+      "marker": "565.1",
+      "markerId": "iliad.12.3",
+      "teiLabel": "12.565.1",
+      "noteText": "Possibly, “ because he hath heard the shouts of the foe.”",
+      "sourcePage": 564,
+      "sourceVolume": 1,
+      "archiveId": "in.ernet.dli.2015.12689",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 13,
+      "approxLine": 115,
+      "marker": "11.1",
+      "markerId": "iliad.13.1",
+      "teiLabel": "13.11.1",
+      "noteText": "Line 316 1s omitted in the best 5155",
+      "sourcePage": 26,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 13,
+      "approxLine": 130,
+      "marker": "13.2",
+      "markerId": "iliad.13.3",
+      "teiLabel": "13.13.2",
+      "noteText": "δ᾽ ἀρετὴ δὲ βίη Zenodotus and Aristophanes. 3. θεράπων evs δουρικλυτὸς Zenodotus and Aristophanes",
+      "sourcePage": 20,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 13,
+      "approxLine": 460,
+      "marker": "37.1",
+      "markerId": "iliad.13.7",
+      "teiLabel": "13.37.1",
+      "noteText": "οὐδ' ap’ ᾿Οιλιάδη ἀλλ᾽ οὐκ ᾿Ιλιάδῃ Zenodotus * Line 731, rejected by Atistarchus, 1s omitted in the best mss.",
+      "sourcePage": 56,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 13,
+      "approxLine": 570,
+      "marker": "43.1",
+      "markerId": "iliad.13.8",
+      "teiLabel": "13.43.1",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "iliad",
+      "book": 13,
+      "approxLine": 600,
+      "marker": "47.1",
+      "markerId": "iliad.13.9",
+      "teiLabel": "13.47.1",
+      "noteText": "The word σφενδόνη does not recur in Homer, but the shng is clearly alluded to in line 716 of this book, and m the defence of the Greek wall in Book XII. the showers of stones aie twice compared to snowflakes (xu 156, and 279- 985), a comparison which more naturally implies small stones hurled by slings than large ones cast by hand, although these too are mentioned",
+      "sourcePage": 46,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "distant_line_ref:716"
+     },
+     {
+      "work": "iliad",
+      "book": 13,
+      "approxLine": 655,
+      "marker": "51.1",
+      "markerId": "iliad.13.11",
+      "teiLabel": "13.51.1",
+      "noteText": "Line 637 was rejected by some ancient critics.",
+      "sourcePage": 50,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 13,
+      "approxLine": 665,
+      "marker": "53.1",
+      "markerId": "iliad.13.12",
+      "teiLabel": "13.53.1",
+      "noteText": "The slaying of Harpalon’s father, Pylaemenes, 1s narrated inv 576 6, so we have here a curious, 1f unimportant, slip on the part ‘of the poet Zenodotus avoided this by reading Κυλαιμένεος in line 643. In 659 the statement that",
+      "sourcePage": 50,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 14,
+      "approxLine": 30,
+      "marker": "69.1",
+      "markerId": "iliad.14.1",
+      "teiLabel": "14.69.1",
+      "noteText": "μακρόν πολλόν Lenodotus, Aristophanes, and Aunist- arc hus = ὀψείοντες dy’ diovres Zenodotus",
+      "sourcePage": 68,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 15,
+      "approxLine": 725,
+      "marker": "161.1",
+      "markerId": "iliad.15.5",
+      "teiLabel": "15.161.1",
+      "noteText": "Lines 668-673 were rejected by Aristarchus",
+      "sourcePage": 186,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 16,
+      "approxLine": 260,
+      "marker": "1",
+      "markerId": "iliad.16.2",
+      "teiLabel": "16.1",
+      "noteText": "Line 237 was rejected by Zenodotus, Aristophanes, and Aristarchus * Line 261 was rejected by Aristophanes and Anstarchus",
+      "sourcePage": 182,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum+lineRef-tiebreak",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "iliad",
+      "book": 16,
+      "approxLine": 390,
+      "marker": "1",
+      "markerId": "iliad.16.3",
+      "teiLabel": "16.1",
+      "noteText": "Line 381 15 omitted in most mss",
+      "sourcePage": 192,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "iliad",
+      "book": 16,
+      "approxLine": 465,
+      "marker": "1",
+      "markerId": "iliad.16.4",
+      "teiLabel": "16.1",
+      "noteText": "Lines 432-458 were omitted by Zenodotus",
+      "sourcePage": 196,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 17,
+      "approxLine": 215,
+      "marker": "1",
+      "markerId": "iliad.17.1",
+      "teiLabel": "17.1",
+      "noteText": "μεγαθύμου Ἰ]ηλείωνος μεγαθύμῳ IUydelwr. Aristarchus, Πηληιάδεω ᾿Αχιλῆῇος Zenodotus.",
+      "sourcePage": 246,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 17,
+      "approxLine": 390,
+      "marker": "1",
+      "markerId": "iliad.17.2",
+      "teiLabel": "17.1",
+      "noteText": "Lines 364f were rejected by Zenodotus",
+      "sourcePage": 258,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "distant_line_ref:364"
+     },
+     {
+      "work": "iliad",
+      "book": 17,
+      "approxLine": 460,
+      "marker": "1",
+      "markerId": "iliad.17.3",
+      "teiLabel": "17.1",
+      "noteText": "ἐνέπνευσεν μένος ἡἠῦ μένος πολυθαρσὲς ἐνῆκεν Zenodotus, who also added the line",
+      "sourcePage": 264,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 17,
+      "approxLine": 545,
+      "marker": "1",
+      "markerId": "iliad.17.4",
+      "teiLabel": "17.1",
+      "noteText": "Line 545 was rejected by Zenodotus",
+      "sourcePage": 270,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum+lineRef-tiebreak",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "iliad",
+      "book": 17,
+      "approxLine": 600,
+      "marker": "1",
+      "markerId": "iliad.17.5",
+      "teiLabel": "17.1",
+      "noteText": "Line 582 was given by Zenodotus in the form",
+      "sourcePage": 275,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 17,
+      "approxLine": 705,
+      "marker": "1",
+      "markerId": "iliad.17.7",
+      "teiLabel": "17.1",
+      "noteText": "Lines 10 ἢν were rejected by Aristophanes and Rmanus",
+      "sourcePage": 288,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 18,
+      "approxLine": 1,
+      "marker": "289.1",
+      "markerId": "iliad.18.1",
+      "teiLabel": "18.289.1",
+      "noteText": "ἀποτμήξειε Lenodotus- ἀπαμήσειε Aristaichus * Lines 39-49 were rejected by Zenodotus and Anistarchus",
+      "sourcePage": 290,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 18,
+      "approxLine": 180,
+      "marker": "301.1",
+      "markerId": "iliad.18.2",
+      "teiLabel": "18.301.1",
+      "noteText": "ἰάχων - ἀχέων Zenodotus * Lines 176 ἢ were omitted by Zenodotus",
+      "sourcePage": 300,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 18,
+      "approxLine": 300,
+      "marker": "311.1",
+      "markerId": "iliad.18.3",
+      "teiLabel": "18.311.1",
+      "noteText": "The number nine seems not infrequently to be used as a round number (Odyssey x 19, x1 $311), and we must assume that the ointment was thought to improve with age",
+      "sourcePage": 314,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 18,
+      "approxLine": 350,
+      "marker": "315.1",
+      "markerId": "iliad.18.4",
+      "teiLabel": "18.315.1",
+      "noteText": "Lines 356-367 were rejected by Zenodotus",
+      "sourcePage": 314,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 18,
+      "approxLine": 510,
+      "marker": "327.1",
+      "markerId": "iliad.18.8",
+      "teiLabel": "18.327.1",
+      "noteText": "Line 441 was lacking in some ancient editions",
+      "sourcePage": 320,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 19,
+      "approxLine": 75,
+      "marker": "1",
+      "markerId": "iliad.19.1",
+      "teiLabel": "19.1",
+      "noteText": "Tine 76 was giveu by Zenodotus in the form",
+      "sourcePage": 342,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 19,
+      "approxLine": 145,
+      "marker": "2",
+      "markerId": "iliad.19.3",
+      "teiLabel": "19.2",
+      "noteText": "Line 77 was omitted by Zenodotus.",
+      "sourcePage": 342,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 19,
+      "approxLine": 210,
+      "marker": "1",
+      "markerId": "iliad.19.4",
+      "teiLabel": "19.1",
+      "noteText": "The rendering given above is unobjeciionable in point of sense, but does not harmonize with the parallel passages, xxiv. 369, Od. xv1 72,and xxi 133 In all of these ris refers",
+      "sourcePage": 350,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 19,
+      "approxLine": 325,
+      "marker": "1",
+      "markerId": "iliad.19.8",
+      "teiLabel": "19.1",
+      "noteText": "Line 327 was rejected by Aristophanes and Aristarchus",
+      "sourcePage": 360,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "iliad",
+      "book": 19,
+      "approxLine": 350,
+      "marker": "1",
+      "markerId": "iliad.19.9",
+      "teiLabel": "19.1",
+      "noteText": "ἑρῖο Zenodotus: ἐῆος. * Lines 365-368 were at first rejected by Amstarchus, though he afterwards removed the “‘ obeli” (marks ot con- demnation)",
+      "sourcePage": 362,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 19,
+      "approxLine": 405,
+      "marker": "1",
+      "markerId": "iliad.19.10",
+      "teiLabel": "19.1",
+      "noteText": "Line 407 was rejected by Aristarchus",
+      "sourcePage": 366,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum+lineRef-tiebreak",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "iliad",
+      "book": 21,
+      "approxLine": 130,
+      "marker": "1",
+      "markerId": "iliad.21.2",
+      "teiLabel": "21.1",
+      "noteText": "This 15 meant perhaps to stamp the custom as barbaric, but see Paus vin. 7. 2, with Frazer’s note",
+      "sourcePage": 419,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 21,
+      "approxLine": 330,
+      "marker": "1",
+      "markerId": "iliad.21.3",
+      "teiLabel": "21.1",
+      "noteText": "dyrov 15 an obscure word The rendering given above assumes connexion with da@yu Whether there 15 any relationship between this word and the equally obscure αἴητον (xvii. 410) is uncertain.",
+      "sourcePage": 436,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 21,
+      "approxLine": 395,
+      "marker": "1",
+      "markerId": "iliad.21.4",
+      "teiLabel": "21.1",
+      "noteText": "Line 4341s omitted in the best uss 44.0 44()",
+      "sourcePage": 460,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "iliad",
+      "book": 21,
+      "approxLine": 545,
+      "marker": "1",
+      "markerId": "iliad.21.5",
+      "teiLabel": "21.1",
+      "noteText": "An oak in the neighbourhood of the Scaean gate 1s frequently mentioned as a well-known landmark, see v1 237, 1x 354, x1 170. VOL. II 26",
+      "sourcePage": 80,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "iliad",
+      "book": 23,
+      "approxLine": 755,
+      "marker": "551.1",
+      "markerId": "iliad.23.2",
+      "teiLabel": "23.551.1",
+      "noteText": "Line 757 (=358) was rejected by Aristarchus",
+      "sourcePage": 550,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "iliad",
+      "book": 23,
+      "approxLine": 760,
+      "marker": "551.2",
+      "markerId": "iliad.23.3",
+      "teiLabel": "23.551.2",
+      "noteText": "Here, as in Od. vii 121, I take vicoa to mean, not the δἰ scratch,” but the turning-point (see Agar, Homerica, pp 115 ff.) On the other interpretation the lime may be rendered, “ From the start their running was strained to the utmost.”",
+      "sourcePage": 550,
+      "sourceVolume": 2,
+      "archiveId": "in.ernet.dli.2015.12691",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     }
+    ],
+    "missing": []
+   }
+  },
+  "butler": {
+   "chunks": 24,
+   "anomalies": [
+    {
+     "kind": "milestone_duplicate",
+     "book": 1,
+     "n_raw": 200,
+     "last_accepted": 200
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 6,
+     "n": 529,
+     "offset": 26588
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 7,
+     "n": 482,
+     "offset": 23378
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 8,
+     "n": 565,
+     "offset": 28196
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 9,
+     "n": 713,
+     "offset": 36566
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 10,
+     "n": 579,
+     "offset": 28911
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 11,
+     "n": 848,
+     "offset": 45296
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 12,
+     "n": 471,
+     "offset": 25205
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 13,
+     "n": 837,
+     "offset": 45111
+    },
+    {
+     "kind": "milestone_gap_snap",
+     "book": 14,
+     "n_raw": 269,
+     "snapped_to": 270
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 14,
+     "n": 522,
+     "offset": 27739
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 15,
+     "n": 746,
+     "offset": 39174
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 16,
+     "n": 867,
+     "offset": 47981
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 17,
+     "n": 761,
+     "offset": 38544
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 18,
+     "n": 617,
+     "offset": 31748
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 20,
+     "n": 503,
+     "offset": 26668
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 21,
+     "n": 611,
+     "offset": 32437
+    },
+    {
+     "kind": "milestone_duplicate",
+     "book": 23,
+     "n_raw": 850,
+     "last_accepted": 850
+    }
+   ],
+   "coverage_holes": []
+  }
+ }
+}

@@ -1,0 +1,2794 @@
+{
+ "work": "odyssey",
+ "translations": {
+  "murray": {
+   "chunks": 24,
+   "footnotes": 88,
+   "anomalies": [
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 1,
+     "seq": 2,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 1,
+     "seq": 6,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 1,
+     "seq": 11,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 1,
+     "seq": 13,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 1,
+     "seq": 15,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 1,
+     "seq": 16,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 1,
+     "seq": 17,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 2,
+     "seq": 5,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 2,
+     "seq": 6,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 2,
+     "seq": 10,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 3,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 3,
+     "seq": 3,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 3,
+     "seq": 6,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 4,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 4,
+     "seq": 2,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 4,
+     "seq": 8,
+     "raw": "3"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 4,
+     "seq": 9,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 4,
+     "seq": 11,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 4,
+     "seq": 13,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 4,
+     "seq": 17,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 4,
+     "seq": 18,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 5,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 5,
+     "seq": 2,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 5,
+     "seq": 4,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 5,
+     "seq": 5,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 6,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 6,
+     "seq": 2,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 6,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 6,
+     "seq": 6,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 6,
+     "seq": 8,
+     "raw": "1"
+    },
+    {
+     "kind": "milestone_duplicate",
+     "book": 6,
+     "n_raw": 320,
+     "last_accepted": 320
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 7,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 7,
+     "seq": 2,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 7,
+     "seq": 3,
+     "raw": "3"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 7,
+     "seq": 5,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 7,
+     "seq": 6,
+     "raw": "3"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 7,
+     "seq": 7,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 7,
+     "seq": 8,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 8,
+     "seq": 3,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 8,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 8,
+     "seq": 5,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 8,
+     "seq": 6,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 8,
+     "seq": 7,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 8,
+     "seq": 9,
+     "raw": "3"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 8,
+     "seq": 10,
+     "raw": "4"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 8,
+     "seq": 11,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 8,
+     "seq": 13,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 9,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 9,
+     "seq": 3,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 9,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 9,
+     "seq": 5,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 9,
+     "seq": 6,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 9,
+     "seq": 8,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 9,
+     "seq": 9,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 10,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 10,
+     "seq": 2,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 10,
+     "seq": 5,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 10,
+     "seq": 7,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 10,
+     "seq": 8,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 11,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 11,
+     "seq": 3,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 11,
+     "seq": 5,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 11,
+     "seq": 6,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 11,
+     "seq": 7,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 11,
+     "seq": 11,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 12,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 12,
+     "seq": 6,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 12,
+     "seq": 7,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 14,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 14,
+     "seq": 2,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 14,
+     "seq": 3,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 14,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 15,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 15,
+     "seq": 5,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 15,
+     "seq": 6,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 15,
+     "seq": 7,
+     "raw": "1"
+    },
+    {
+     "kind": "milestone_out_of_range",
+     "book": 16,
+     "n_raw": 580,
+     "valid_range": [
+      1,
+      481
+     ]
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 16,
+     "seq": 2,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 17,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 17,
+     "seq": 5,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 17,
+     "seq": 6,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 18,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 18,
+     "seq": 2,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 18,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 19,
+     "seq": 2,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 19,
+     "seq": 5,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 19,
+     "seq": 7,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 19,
+     "seq": 8,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 20,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 20,
+     "seq": 2,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 20,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 20,
+     "seq": 5,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 21,
+     "seq": 3,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 21,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 21,
+     "seq": 5,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 21,
+     "seq": 6,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 22,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 22,
+     "seq": 2,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 22,
+     "seq": 3,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 22,
+     "seq": 4,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 22,
+     "seq": 5,
+     "raw": "2"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 23,
+     "seq": 1,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 23,
+     "seq": 2,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 24,
+     "seq": 2,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 24,
+     "seq": 3,
+     "raw": "1"
+    },
+    {
+     "kind": "note_marker_stripped_no_recovery",
+     "book": 24,
+     "seq": 6,
+     "raw": "1"
+    }
+   ],
+   "coverage_holes": [],
+   "loeb_notes": {
+    "applied": [
+     {
+      "markerId": "odyssey.1.1",
+      "label": "1.1.1"
+     },
+     {
+      "markerId": "odyssey.1.3",
+      "label": "1.3.2"
+     },
+     {
+      "markerId": "odyssey.1.4",
+      "label": "1.4.1"
+     },
+     {
+      "markerId": "odyssey.1.5",
+      "label": "1.5.2"
+     },
+     {
+      "markerId": "odyssey.1.7",
+      "label": "1.7.2"
+     },
+     {
+      "markerId": "odyssey.1.8",
+      "label": "1.8.1"
+     },
+     {
+      "markerId": "odyssey.1.9",
+      "label": "1.9.2"
+     },
+     {
+      "markerId": "odyssey.1.10",
+      "label": "1.10.1"
+     },
+     {
+      "markerId": "odyssey.1.12",
+      "label": "1.12.1"
+     },
+     {
+      "markerId": "odyssey.1.14",
+      "label": "1.14.1"
+     },
+     {
+      "markerId": "odyssey.2.1",
+      "label": "2.1.1"
+     },
+     {
+      "markerId": "odyssey.2.2",
+      "label": "2.2.1"
+     },
+     {
+      "markerId": "odyssey.2.3",
+      "label": "2.3.2"
+     },
+     {
+      "markerId": "odyssey.2.4",
+      "label": "2.4.1"
+     },
+     {
+      "markerId": "odyssey.2.7",
+      "label": "2.7.1"
+     },
+     {
+      "markerId": "odyssey.2.8",
+      "label": "2.8.2"
+     },
+     {
+      "markerId": "odyssey.2.9",
+      "label": "2.9.1"
+     },
+     {
+      "markerId": "odyssey.3.2",
+      "label": "3.2.2"
+     },
+     {
+      "markerId": "odyssey.3.4",
+      "label": "3.4.1"
+     },
+     {
+      "markerId": "odyssey.3.5",
+      "label": "3.5.1"
+     },
+     {
+      "markerId": "odyssey.3.7",
+      "label": "3.7.1"
+     },
+     {
+      "markerId": "odyssey.3.8",
+      "label": "3.8.1"
+     },
+     {
+      "markerId": "odyssey.3.9",
+      "label": "3.9.1"
+     },
+     {
+      "markerId": "odyssey.3.10",
+      "label": "3.10.1"
+     },
+     {
+      "markerId": "odyssey.3.11",
+      "label": "3.11.2"
+     },
+     {
+      "markerId": "odyssey.4.3",
+      "label": "4.3.1"
+     },
+     {
+      "markerId": "odyssey.4.4",
+      "label": "4.4.1"
+     },
+     {
+      "markerId": "odyssey.4.5",
+      "label": "4.5.1"
+     },
+     {
+      "markerId": "odyssey.4.6",
+      "label": "4.6.1"
+     },
+     {
+      "markerId": "odyssey.4.7",
+      "label": "4.7.2"
+     },
+     {
+      "markerId": "odyssey.4.10",
+      "label": "4.10.1"
+     },
+     {
+      "markerId": "odyssey.4.12",
+      "label": "4.12.2"
+     },
+     {
+      "markerId": "odyssey.4.14",
+      "label": "4.14.1"
+     },
+     {
+      "markerId": "odyssey.4.15",
+      "label": "4.15.1"
+     },
+     {
+      "markerId": "odyssey.4.16",
+      "label": "4.16.1"
+     },
+     {
+      "markerId": "odyssey.5.3",
+      "label": "5.3.1"
+     },
+     {
+      "markerId": "odyssey.5.6",
+      "label": "5.6.1"
+     },
+     {
+      "markerId": "odyssey.5.7",
+      "label": "5.7.1"
+     },
+     {
+      "markerId": "odyssey.6.3",
+      "label": "6.3.1"
+     },
+     {
+      "markerId": "odyssey.6.5",
+      "label": "6.5.1"
+     },
+     {
+      "markerId": "odyssey.6.7",
+      "label": "6.7.1"
+     },
+     {
+      "markerId": "odyssey.7.4",
+      "label": "7.4.1"
+     },
+     {
+      "markerId": "odyssey.8.1",
+      "label": "8.1.1"
+     },
+     {
+      "markerId": "odyssey.8.2",
+      "label": "8.2.1"
+     },
+     {
+      "markerId": "odyssey.8.8",
+      "label": "8.8.2"
+     },
+     {
+      "markerId": "odyssey.8.12",
+      "label": "8.12.2"
+     },
+     {
+      "markerId": "odyssey.8.14",
+      "label": "8.14.1"
+     },
+     {
+      "markerId": "odyssey.9.2",
+      "label": "9.2.1"
+     },
+     {
+      "markerId": "odyssey.9.7",
+      "label": "9.7.1"
+     },
+     {
+      "markerId": "odyssey.10.3",
+      "label": "10.3.1"
+     },
+     {
+      "markerId": "odyssey.10.4",
+      "label": "10.4.1"
+     },
+     {
+      "markerId": "odyssey.10.6",
+      "label": "10.6.1"
+     },
+     {
+      "markerId": "odyssey.11.2",
+      "label": "11.2.1"
+     },
+     {
+      "markerId": "odyssey.11.4",
+      "label": "11.4.1"
+     },
+     {
+      "markerId": "odyssey.11.8",
+      "label": "11.8.2"
+     },
+     {
+      "markerId": "odyssey.11.9",
+      "label": "11.9.1"
+     },
+     {
+      "markerId": "odyssey.11.10",
+      "label": "11.10.1"
+     },
+     {
+      "markerId": "odyssey.12.1",
+      "label": "12.1.1"
+     },
+     {
+      "markerId": "odyssey.12.2",
+      "label": "12.2.1"
+     },
+     {
+      "markerId": "odyssey.12.3",
+      "label": "12.3.1"
+     },
+     {
+      "markerId": "odyssey.12.5",
+      "label": "12.5.2"
+     },
+     {
+      "markerId": "odyssey.14.5",
+      "label": "14.5.1"
+     },
+     {
+      "markerId": "odyssey.14.6",
+      "label": "14.6.1"
+     },
+     {
+      "markerId": "odyssey.15.2",
+      "label": "15.2.1"
+     },
+     {
+      "markerId": "odyssey.15.3",
+      "label": "15.3.1"
+     },
+     {
+      "markerId": "odyssey.15.4",
+      "label": "15.4.2"
+     },
+     {
+      "markerId": "odyssey.16.1",
+      "label": "16.1.1"
+     },
+     {
+      "markerId": "odyssey.17.1",
+      "label": "17.1.1"
+     },
+     {
+      "markerId": "odyssey.17.2",
+      "label": "17.2.1"
+     },
+     {
+      "markerId": "odyssey.17.3",
+      "label": "17.3.2"
+     },
+     {
+      "markerId": "odyssey.18.3",
+      "label": "18.3.1"
+     },
+     {
+      "markerId": "odyssey.18.5",
+      "label": "18.5.2"
+     },
+     {
+      "markerId": "odyssey.18.6",
+      "label": "18.6.1"
+     },
+     {
+      "markerId": "odyssey.19.1",
+      "label": "19.1.1"
+     },
+     {
+      "markerId": "odyssey.19.3",
+      "label": "19.3.1"
+     },
+     {
+      "markerId": "odyssey.19.4",
+      "label": "19.4.2"
+     },
+     {
+      "markerId": "odyssey.19.6",
+      "label": "19.6.1"
+     },
+     {
+      "markerId": "odyssey.19.9",
+      "label": "19.9.1"
+     },
+     {
+      "markerId": "odyssey.19.10",
+      "label": "19.10.1"
+     },
+     {
+      "markerId": "odyssey.19.11",
+      "label": "19.11.1"
+     },
+     {
+      "markerId": "odyssey.19.12",
+      "label": "19.12.1"
+     },
+     {
+      "markerId": "odyssey.20.3",
+      "label": "20.3.1"
+     },
+     {
+      "markerId": "odyssey.21.1",
+      "label": "21.1.1"
+     },
+     {
+      "markerId": "odyssey.21.2",
+      "label": "21.2.2"
+     },
+     {
+      "markerId": "odyssey.22.6",
+      "label": "22.6.1"
+     },
+     {
+      "markerId": "odyssey.24.1",
+      "label": "24.1.1"
+     },
+     {
+      "markerId": "odyssey.24.4",
+      "label": "24.4.2"
+     },
+     {
+      "markerId": "odyssey.24.5",
+      "label": "24.5.1"
+     }
+    ],
+    "excluded": [
+     {
+      "work": "odyssey",
+      "book": 1,
+      "approxLine": 40,
+      "marker": "1",
+      "markerId": "odyssey.1.2",
+      "teiLabel": "1.1",
+      "noteText": "Others, ‘‘ grey-eyed”’; but if colour is meant it is almost certainly blue. The meaning given above is strongly sup- ported by J/. xx. 172 and 74. 1. 200.",
+      "sourcePage": null,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 1,
+      "approxLine": 95,
+      "marker": "1",
+      "markerId": "odyssey.1.6",
+      "teiLabel": "1.1",
+      "noteText": "ἀμβρόσιος, like ἄμβροτος, ἄφθιτος, and even ἀθάνατος (iv. 79), may be used of inanimate things. Some assume that the word has properly no connection with βροτός, and means merely ‘‘ fragrant’ (see xviil. 193).",
+      "sourcePage": 10,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 1,
+      "approxLine": 175,
+      "marker": "1",
+      "markerId": "odyssey.1.11",
+      "teiLabel": "1.1",
+      "noteText": "Or ἐπίστροφος may mean, as the scholiast took it,. ἐπιστροφὴν καὶ ἐπιμέλειαν ποιούμενος τῶν ἀνθρώπων, ‘‘ one that shewed care and attention to men.” Yet see xvii. 486.",
+      "sourcePage": 17,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 1,
+      "approxLine": 275,
+      "marker": "1",
+      "markerId": "odyssey.1.13",
+      "teiLabel": "1.1",
+      "noteText": "Line 278, rejected by Rhianus, is bracketed by any, ; editors ; of 1. 107.",
+      "sourcePage": 22,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum+lineRef-tiebreak",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "odyssey",
+      "book": 1,
+      "approxLine": 340,
+      "marker": "1",
+      "markerId": "odyssey.1.15",
+      "teiLabel": "1.1",
+      "noteText": "Line 344 was rejected by Aristarchus ; cf. iv. 726, 816, xv. 80.",
+      "sourcePage": 28,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 1,
+      "approxLine": 345,
+      "marker": "2",
+      "markerId": "odyssey.1.16",
+      "teiLabel": "1.2",
+      "noteText": "Lines 356-9, rejected by Aristarchus, are bracketed by many editors.",
+      "sourcePage": 28,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 1,
+      "approxLine": 440,
+      "marker": "1",
+      "markerId": "odyssey.1.17",
+      "teiLabel": "1.1",
+      "noteText": "ἢ καί μοι νεμεσήσεαι : εἴ πέρ μοι καὶ ἀγάσσεαι, ‘ even though thou be angry.”",
+      "sourcePage": 30,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 2,
+      "approxLine": 100,
+      "marker": "2",
+      "markerId": "odyssey.2.5",
+      "teiLabel": "2.2",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "odyssey",
+      "book": 2,
+      "approxLine": 145,
+      "marker": "1",
+      "markerId": "odyssey.2.6",
+      "teiLabel": "2.1",
+      "noteText": "Line 191 is omitted in most MSS. Some of those which retain it have οἷος ἀπ᾿ ἄλλων instead of εἵνεκα τῶνδε. 50 | :",
+      "sourcePage": 51,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "distant_line_ref:191"
+     },
+     {
+      "work": "odyssey",
+      "book": 2,
+      "approxLine": 405,
+      "marker": "1",
+      "markerId": "odyssey.2.10",
+      "teiLabel": "2.1",
+      "noteText": "It is hard to determine with exactness to what extent the original meaning ‘‘ strong” survives in the uses of ἱερός.",
+      "sourcePage": 66,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 3,
+      "approxLine": 60,
+      "marker": "1",
+      "markerId": "odyssey.3.1",
+      "teiLabel": "3.1",
+      "noteText": "Or, ‘‘from:some other wanderer,”",
+      "sourcePage": 75,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 3,
+      "approxLine": 95,
+      "marker": "1",
+      "markerId": "odyssey.3.3",
+      "teiLabel": "3.1",
+      "noteText": "Line 78 (=i. 95) is omitted in the best MSS.",
+      "sourcePage": 74,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 3,
+      "approxLine": 280,
+      "marker": "1",
+      "markerId": "odyssey.3.6",
+      "teiLabel": "3.1",
+      "noteText": "»Αθηνάων : ᾿Αθηναίης Aristarchus, Φωκήων Zenodotus, go",
+      "sourcePage": 92,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 4,
+      "approxLine": 10,
+      "marker": "1",
+      "markerId": "odyssey.4.1",
+      "teiLabel": "4.1",
+      "noteText": "Lines 57 and 58 are omitted in many MSS.",
+      "sourcePage": null,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 4,
+      "approxLine": 70,
+      "marker": "1",
+      "markerId": "odyssey.4.2",
+      "teiLabel": "4.1",
+      "noteText": "Probably here the metal is meant, an alloy of gold and silver. In xv. 460 and xviii. 296 the word, in the plural, ᾿ς means ‘‘ amber beads.”’ A a",
+      "sourcePage": 113,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 4,
+      "approxLine": 195,
+      "marker": "3",
+      "markerId": "odyssey.4.8",
+      "teiLabel": "4.3",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "odyssey",
+      "book": 4,
+      "approxLine": 245,
+      "marker": "1",
+      "markerId": "odyssey.4.9",
+      "teiLabel": "4.1",
+      "noteText": "The rare word ἀβάκησαν seems literally to mean ‘ could say naught” : (ἡ νηπιάζω.",
+      "sourcePage": 125,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 4,
+      "approxLine": 350,
+      "marker": "1",
+      "markerId": "odyssey.4.11",
+      "teiLabel": "4.1",
+      "noteText": "Line 353, rejected by Zenodotus, is bracketed by many editors. 2 μ᾽ ἐσάωσε: μ᾽ ἐλέησε.",
+      "sourcePage": 132,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum+lineRef-tiebreak",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "odyssey",
+      "book": 4,
+      "approxLine": 370,
+      "marker": "1",
+      "markerId": "odyssey.4.13",
+      "teiLabel": "4.1",
+      "noteText": "Or possibly ‘‘ the river Aegyptus” (cf. line 477). Homer has no other name for the Nile.",
+      "sourcePage": 132,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "distant_line_ref:477"
+     },
+     {
+      "work": "odyssey",
+      "book": 4,
+      "approxLine": 790,
+      "marker": "1",
+      "markerId": "odyssey.4.17",
+      "teiLabel": "4.1",
+      "noteText": "Line 783 (=viil. 54) is omitted in many MSS.",
+      "sourcePage": 164,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 4,
+      "approxLine": 840,
+      "marker": "1",
+      "markerId": "odyssey.4.18",
+      "teiLabel": "4.1",
+      "noteText": "Line 816 was rejected by Aristarchus ; cf. 726 and i. 344. |",
+      "sourcePage": 166,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 5,
+      "approxLine": 120,
+      "marker": "1",
+      "markerId": "odyssey.5.1",
+      "teiLabel": "5.1",
+      "noteText": "Lines 110 f. (=133 f.) cannot be genuine in this place. Aristarchus rejected the whole passage 105 (107 ?)-1l]l.",
+      "sourcePage": 178,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 5,
+      "approxLine": 130,
+      "marker": "2",
+      "markerId": "odyssey.5.2",
+      "teiLabel": "5.2",
+      "noteText": "Line 91 is omitted in the best MSS.",
+      "sourcePage": 176,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 5,
+      "approxLine": 260,
+      "marker": "2",
+      "markerId": "odyssey.5.4",
+      "teiLabel": "5.2",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "odyssey",
+      "book": 5,
+      "approxLine": 280,
+      "marker": "1",
+      "markerId": "odyssey.5.5",
+      "teiLabel": "5.1",
+      "noteText": "Line 1δ7 (=83), omitted in many MSS., seems to have been unknown to Aristarchus.",
+      "sourcePage": null,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 6,
+      "approxLine": 65,
+      "marker": "1",
+      "markerId": "odyssey.6.1",
+      "teiLabel": "6.1",
+      "noteText": "ᾧκ᾽ Aristarchus: ὧδ᾽ MSS.",
+      "sourcePage": 226,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 6,
+      "approxLine": 70,
+      "marker": "2",
+      "markerId": "odyssey.6.2",
+      "teiLabel": "6.2",
+      "noteText": "Presumably with a body above the running-gear, not a mere δίφρος. Others assume that ὑπερτερίη denotes an ‘‘awning.” 9511 § HOMER",
+      "sourcePage": 9,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 6,
+      "approxLine": 155,
+      "marker": "1",
+      "markerId": "odyssey.6.4",
+      "teiLabel": "6.1",
+      "noteText": "This metaphorical use of θάλος and, ¢.g., ἔρνος is very common : see 71. xxii, 87; xvill. 56, and cf. Psalms exliv. 12.",
+      "sourcePage": 216,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 6,
+      "approxLine": 200,
+      "marker": "1",
+      "markerId": "odyssey.6.6",
+      "teiLabel": "6.1",
+      "noteText": "The word πλίσσοντο is doubtless connected with πλέκω",
+      "sourcePage": 229,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 6,
+      "approxLine": 315,
+      "marker": "1",
+      "markerId": "odyssey.6.8",
+      "teiLabel": "6.1",
+      "noteText": "Lines 313-5 are omitted in many MSS.; cf. vii. 75-7.",
+      "sourcePage": 228,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum+lineRef-tiebreak",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "odyssey",
+      "book": 7,
+      "approxLine": 70,
+      "marker": "1",
+      "markerId": "odyssey.7.1",
+      "teiLabel": "7.1",
+      "noteText": "Said with reference to their restless activity. Σ The reference is probably to the use of a wash to give a",
+      "sourcePage": 240,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 7,
+      "approxLine": 85,
+      "marker": "2",
+      "markerId": "odyssey.7.2",
+      "teiLabel": "7.2",
+      "noteText": "Lines 251-8 were rejected by Aristarchus.",
+      "sourcePage": 1,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 7,
+      "approxLine": 90,
+      "marker": "3",
+      "markerId": "odyssey.7.3",
+      "teiLabel": "7.3",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "odyssey",
+      "book": 7,
+      "approxLine": 105,
+      "marker": "2",
+      "markerId": "odyssey.7.5",
+      "teiLabel": "7.2",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "odyssey",
+      "book": 7,
+      "approxLine": 110,
+      "marker": "3",
+      "markerId": "odyssey.7.6",
+      "teiLabel": "7.3",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "odyssey",
+      "book": 7,
+      "approxLine": 170,
+      "marker": "1",
+      "markerId": "odyssey.7.7",
+      "teiLabel": "7.1",
+      "noteText": "The word is commonly rendered ‘‘ valiant.”",
+      "sourcePage": 245,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 7,
+      "approxLine": 285,
+      "marker": "1",
+      "markerId": "odyssey.7.8",
+      "teiLabel": "7.1",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "odyssey",
+      "book": 8,
+      "approxLine": 120,
+      "marker": "2",
+      "markerId": "odyssey.8.3",
+      "teiLabel": "8.2",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "odyssey",
+      "book": 8,
+      "approxLine": 170,
+      "marker": "1",
+      "markerId": "odyssey.8.4",
+      "teiLabel": "8.1",
+      "noteText": "Line 142 was unknown to Alexandrian critics",
+      "sourcePage": 268,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 8,
+      "approxLine": 275,
+      "marker": "1",
+      "markerId": "odyssey.8.5",
+      "teiLabel": "8.1",
+      "noteText": "The whole passage 266-369 (or 267-366) was on moral grounds rejected by some ancient critics.",
+      "sourcePage": 276,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 8,
+      "approxLine": 300,
+      "marker": "1",
+      "markerId": "odyssey.8.6",
+      "teiLabel": "8.1",
+      "noteText": "Line 303 is omitted in most MSS.; cf. ii. 298.",
+      "sourcePage": 278,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum+lineRef-tiebreak",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "odyssey",
+      "book": 8,
+      "approxLine": 305,
+      "marker": "1",
+      "markerId": "odyssey.8.7",
+      "teiLabel": "8.1",
+      "noteText": "Others render ‘‘ lame in both limbs.”’",
+      "sourcePage": 279,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 8,
+      "approxLine": 320,
+      "marker": "3",
+      "markerId": "odyssey.8.9",
+      "teiLabel": "8.3",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "odyssey",
+      "book": 8,
+      "approxLine": 320,
+      "marker": "4",
+      "markerId": "odyssey.8.10",
+      "teiLabel": "8.4",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "odyssey",
+      "book": 8,
+      "approxLine": 365,
+      "marker": "1",
+      "markerId": "odyssey.8.11",
+      "teiLabel": "8.1",
+      "noteText": "Or the subject of μένοιεν may be the bonds.; - |",
+      "sourcePage": 278,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 8,
+      "approxLine": 440,
+      "marker": "1",
+      "markerId": "odyssey.8.13",
+      "teiLabel": "8.1",
+      "noteText": "διαπλῆξαι Aristarchus: διατμῆξαι MSS, Ἃ",
+      "sourcePage": 294,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 9,
+      "approxLine": 20,
+      "marker": "1",
+      "markerId": "odyssey.9.1",
+      "teiLabel": "9.1",
+      "noteText": "Line 90 (= x. 102) is placed before 89 in most MSS. It seems inconsistent with 94.",
+      "sourcePage": 308,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 9,
+      "approxLine": 25,
+      "marker": "2",
+      "markerId": "odyssey.9.3",
+      "teiLabel": "9.2",
+      "noteText": "That is, with bows painted red.",
+      "sourcePage": 311,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 9,
+      "approxLine": 115,
+      "marker": "1",
+      "markerId": "odyssey.9.4",
+      "teiLabel": "9.1",
+      "noteText": "The word is a doubtful one. Others render, ‘‘deep- soiled,” and still others, ‘‘ overgrown with brush,” 7.e. : «ἐ waste.”",
+      "sourcePage": 311,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 9,
+      "approxLine": 125,
+      "marker": "2",
+      "markerId": "odyssey.9.5",
+      "teiLabel": "9.2",
+      "noteText": "ἔκτοθεν : ἔντοθεν most editors; cf. 338.",
+      "sourcePage": null,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 9,
+      "approxLine": 215,
+      "marker": "1",
+      "markerId": "odyssey.9.6",
+      "teiLabel": "9.1",
+      "noteText": "The spurious verse 483 has been omitted in the transla- tion as ruinous to the sense. It has made its way into the text from 540, where it is in place.",
+      "sourcePage": 337,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 9,
+      "approxLine": 345,
+      "marker": "1",
+      "markerId": "odyssey.9.8",
+      "teiLabel": "9.1",
+      "noteText": "Line 531 is omitted in most MSS.",
+      "sourcePage": 240,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 9,
+      "approxLine": 480,
+      "marker": "1",
+      "markerId": "odyssey.9.9",
+      "teiLabel": "9.1",
+      "noteText": "Line 488 (=540), τυτθόν, ἐδεύησεν δ᾽ οἰήιον ἄκρον ἱκέσθαι, was rejected by Aristarchus.",
+      "sourcePage": 336,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 10,
+      "approxLine": 10,
+      "marker": "1",
+      "markerId": "odyssey.10.1",
+      "teiLabel": "10.1",
+      "noteText": "The word ἰφθίμῃ might in this context naturally be taken to mean “‘ stalwart,” or even ‘“‘ huge” (cf. 113), but as poae",
+      "sourcePage": 110,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 10,
+      "approxLine": 15,
+      "marker": "2",
+      "markerId": "odyssey.10.2",
+      "teiLabel": "10.2",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "odyssey",
+      "book": 10,
+      "approxLine": 105,
+      "marker": "1",
+      "markerId": "odyssey.10.5",
+      "teiLabel": "10.1",
+      "noteText": "φέροντο Zenodotus, Aristarchus : πένοντο.",
+      "sourcePage": 110,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 10,
+      "approxLine": 210,
+      "marker": "1",
+      "markerId": "odyssey.10.7",
+      "teiLabel": "10.1",
+      "noteText": "Line 189 was rejected in antiquity.",
+      "sourcePage": 358,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "odyssey",
+      "book": 10,
+      "approxLine": 505,
+      "marker": "1",
+      "markerId": "odyssey.10.8",
+      "teiLabel": "10.1",
+      "noteText": "Line 470 is omitted in many MSS.",
+      "sourcePage": 378,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 11,
+      "approxLine": 10,
+      "marker": "1",
+      "markerId": "odyssey.11.1",
+      "teiLabel": "11.1",
+      "noteText": "Lines 38-43 were rejected by Zenodotus, Aristophanes, Aristarchus.",
+      "sourcePage": 388,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 11,
+      "approxLine": 135,
+      "marker": "1",
+      "markerId": "odyssey.11.3",
+      "teiLabel": "11.1",
+      "noteText": "Lines 157-9 were rejected by Aristarchus",
+      "sourcePage": 396,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 11,
+      "approxLine": 420,
+      "marker": "1",
+      "markerId": "odyssey.11.5",
+      "teiLabel": "11.1",
+      "noteText": "Line 407 is omitted in most MSS.",
+      "sourcePage": 414,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "odyssey",
+      "book": 11,
+      "approxLine": 475,
+      "marker": "1",
+      "markerId": "odyssey.11.6",
+      "teiLabel": "11.1",
+      "noteText": "Lines 454-6 were lacking in most ancient editions.",
+      "sourcePage": 418,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "odyssey",
+      "book": 11,
+      "approxLine": 475,
+      "marker": "1",
+      "markerId": "odyssey.11.7",
+      "teiLabel": "11.1",
+      "noteText": "Or, possibly, ‘‘ to consult with Teiresias.”’",
+      "sourcePage": 421,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 11,
+      "approxLine": 610,
+      "marker": "1",
+      "markerId": "odyssey.11.11",
+      "teiLabel": "11.1",
+      "noteText": "κρατέρ᾽ : χαλέπ᾽ ; cf. 582. * Lines 602-4 were rejected by some ancient critics as having been inserted in the text by Onomacritus.",
+      "sourcePage": 428,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 12,
+      "approxLine": 245,
+      "marker": "1",
+      "markerId": "odyssey.12.4",
+      "teiLabel": "12.1",
+      "noteText": "Or, possibly, ‘‘to find my men.’",
+      "sourcePage": 451,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 12,
+      "approxLine": 325,
+      "marker": "1",
+      "markerId": "odyssey.12.6",
+      "teiLabel": "12.1",
+      "noteText": "Some prefer to render ‘‘ though pining for livelihood” ; but the meaning seems fixed by xxiv. 534 f.",
+      "sourcePage": 455,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 12,
+      "approxLine": 355,
+      "marker": "1",
+      "markerId": "odyssey.12.7",
+      "teiLabel": "12.1",
+      "noteText": "Lines 374-90 were rejected by Aristarchus.",
+      "sourcePage": 460,
+      "sourceVolume": 1,
+      "archiveId": "odyssey01home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 14,
+      "approxLine": 10,
+      "marker": "1",
+      "markerId": "odyssey.14.1",
+      "teiLabel": "14.1",
+      "noteText": "The whole passage 158-64 (158-62 = xix. 303-7) is treated — in widely different ways by different critics. Aristarchus — appears to have rejected 159 and 162-4, and in an important MS. (U,; Allen, M Ludwich) lines 160-4 are marked with the | asterisk. Lines 161-2 are out of harmony with the context here and seem clearly to_have been brought in from the parallel passage in Book XIX ; see Monro.",
+      "sourcePage": 40,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 14,
+      "approxLine": 105,
+      "marker": "1",
+      "markerId": "odyssey.14.2",
+      "teiLabel": "14.1",
+      "noteText": "In rendering AvedBayros by ‘‘ day,” instead of by ‘‘ year,” and in the interpretation of the whole eee I have ~ followed Monro. 47°",
+      "sourcePage": 28,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 14,
+      "approxLine": 160,
+      "marker": "1",
+      "markerId": "odyssey.14.3",
+      "teiLabel": "14.1",
+      "noteText": "Line 154 is omitted in most MSS.",
+      "sourcePage": 44,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "odyssey",
+      "book": 14,
+      "approxLine": 220,
+      "marker": "1",
+      "markerId": "odyssey.14.4",
+      "teiLabel": "14.1",
+      "noteText": "Lines 369-70 (= 1. 289-40; cf. xxiv. 32-3) are omitted i in many MSS.",
+      "sourcePage": 60,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 15,
+      "approxLine": 45,
+      "marker": "1",
+      "markerId": "odyssey.15.1",
+      "teiLabel": "15.1",
+      "noteText": "Line 45 (cf. Iliad x. 158) was rejected by Aristarchus.",
+      "sourcePage": 76,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum+lineRef-tiebreak",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "odyssey",
+      "book": 15,
+      "approxLine": 265,
+      "marker": "1",
+      "markerId": "odyssey.15.5",
+      "teiLabel": "15.1",
+      "noteText": "Line 251 was rejected by Aristarchus. 4 Q2",
+      "sourcePage": 93,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "odyssey",
+      "book": 15,
+      "approxLine": 295,
+      "marker": "1",
+      "markerId": "odyssey.15.6",
+      "teiLabel": "15.1",
+      "noteText": "Line 295 is twice cited by Strabo, but is not found in any MS. of the Odyssey.",
+      "sourcePage": 96,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 15,
+      "approxLine": 450,
+      "marker": "1",
+      "markerId": "odyssey.15.7",
+      "teiLabel": "15.1",
+      "noteText": "Or, on another interpretation of éjos, simply ‘‘ my.”",
+      "sourcePage": 107,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 16,
+      "approxLine": 285,
+      "marker": "1",
+      "markerId": "odyssey.16.2",
+      "teiLabel": "16.1",
+      "noteText": "Lines 281-98 (288-94 virtually = xix. 7-18) were rejected by. Zenodotus and Aristarchus.",
+      "sourcePage": 136,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 17,
+      "approxLine": 230,
+      "marker": "1",
+      "markerId": "odyssey.17.4",
+      "teiLabel": "17.1",
+      "noteText": "Line 181 was rejected by Aristophanes and Aristarchus.",
+      "sourcePage": 165,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 17,
+      "approxLine": 235,
+      "marker": "2",
+      "markerId": "odyssey.17.5",
+      "teiLabel": "17.2",
+      "noteText": "Lines 450-2 were rejected by Aristarchus",
+      "sourcePage": 184,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 17,
+      "approxLine": 410,
+      "marker": "1",
+      "markerId": "odyssey.17.6",
+      "teiLabel": "17.1",
+      "noteText": "Stya: “Arta. 2 Line 402 is omitted in some MSS.",
+      "sourcePage": 180,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 18,
+      "approxLine": 5,
+      "marker": "1",
+      "markerId": "odyssey.18.1",
+      "teiLabel": "18.1",
+      "noteText": "The thought is: we are both vagrants; whether either of us ever attains to a happier station in life, rests with the gods, who arbitrarily allot #ABos; cf. vi. 188 f. hy",
+      "sourcePage": 200,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 18,
+      "approxLine": 15,
+      "marker": "1",
+      "markerId": "odyssey.18.2",
+      "teiLabel": "18.1",
+      "noteText": "Line 59 is omitted in some MSS.",
+      "sourcePage": 200,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 18,
+      "approxLine": 295,
+      "marker": "1",
+      "markerId": "odyssey.18.4",
+      "teiLabel": "18.1",
+      "noteText": "The word popdevra is of wholly unknown significance. Various etymologies are given by Leaf on Jl. xiv. 183; see also Agar, Homerica, pp. 320 f.. The rendering given above assumes a connection with udpov, mulberry.",
+      "sourcePage": 218,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 19,
+      "approxLine": 35,
+      "marker": "2",
+      "markerId": "odyssey.19.2",
+      "teiLabel": "19.2",
+      "noteText": "Line 153 (= xxiv. 143; cf. x. 470) is omitted in many MSS.",
+      "sourcePage": 238,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 19,
+      "approxLine": 200,
+      "marker": "1",
+      "markerId": "odyssey.19.5",
+      "teiLabel": "19.1",
+      "noteText": "Lines 180-3 (cf. 1. 245-6 and xvi. 122-3) were rejected by Aristarchus.",
+      "sourcePage": 238,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 19,
+      "approxLine": 370,
+      "marker": "1",
+      "markerId": "odyssey.19.7",
+      "teiLabel": "19.1",
+      "noteText": "Lines 275-7 are omitted in some MSS.",
+      "sourcePage": 249,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 19,
+      "approxLine": 405,
+      "marker": "1",
+      "markerId": "odyssey.19.8",
+      "teiLabel": "19.1",
+      "noteText": "So the scholiast, who renders by év Seopois. Others con- nect weion with mefGoua:, and render ‘‘ in obedience.”",
+      "sourcePage": 275,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 20,
+      "approxLine": 20,
+      "marker": "1",
+      "markerId": "odyssey.20.1",
+      "teiLabel": "20.1",
+      "noteText": "Others render ‘‘ to be their servants.”",
+      "sourcePage": 279,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 20,
+      "approxLine": 75,
+      "marker": "1",
+      "markerId": "odyssey.20.2",
+      "teiLabel": "20.1",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "odyssey",
+      "book": 20,
+      "approxLine": 345,
+      "marker": "1",
+      "markerId": "odyssey.20.4",
+      "teiLabel": "20.1",
+      "noteText": null,
+      "sourcePage": null,
+      "sourceVolume": null,
+      "archiveId": null,
+      "confidence": null,
+      "matchMethod": null,
+      "status": "unmatched",
+      "exclusionReason": "confidence:None"
+     },
+     {
+      "work": "odyssey",
+      "book": 20,
+      "approxLine": 380,
+      "marker": "1",
+      "markerId": "odyssey.20.5",
+      "teiLabel": "20.1",
+      "noteText": "GAgow (2.€. &Agorey) iS a conjecture of Bekker’s ; the plural verb is demanded by the sense. Others change rots _ €eivovs. in line 382 to rbv <eivoyv. It seems impossible to assume ‘‘the sale” as subject to aagou.",
+      "sourcePage": 393,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 21,
+      "approxLine": 70,
+      "marker": "1",
+      "markerId": "odyssey.21.3",
+      "teiLabel": "21.1",
+      "noteText": "Line 66 (=xviii. 211) is omitted in some M&S.",
+      "sourcePage": 308,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 21,
+      "approxLine": 90,
+      "marker": "1",
+      "markerId": "odyssey.21.4",
+      "teiLabel": "21.1",
+      "noteText": "Line 109 (ef. xiv. 97-8) is omitted in many MSS.",
+      "sourcePage": 310,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "exact-range+markerNum+ambiguous",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 21,
+      "approxLine": 255,
+      "marker": "1",
+      "markerId": "odyssey.21.5",
+      "teiLabel": "21.1",
+      "noteText": "Line 276 (=xvii. 469; xviii. 352), lacking in the MSS., is | found in the oldest editions. :",
+      "sourcePage": 324,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 21,
+      "approxLine": 330,
+      "marker": "1",
+      "markerId": "odyssey.21.6",
+      "teiLabel": "21.1",
+      "noteText": "Line 308 is omitted in some MSS.",
+      "sourcePage": 326,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "odyssey",
+      "book": 22,
+      "approxLine": 5,
+      "marker": "1",
+      "markerId": "odyssey.22.1",
+      "teiLabel": "22.1",
+      "noteText": "Or, ‘‘so guessed’ ; see the note on xix. 203.",
+      "sourcePage": 339,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 22,
+      "approxLine": 30,
+      "marker": "1",
+      "markerId": "odyssey.22.2",
+      "teiLabel": "22.1",
+      "noteText": "Lines 31-3 were rejected by Aristarchus.",
+      "sourcePage": 338,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum+lineRef-tiebreak",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "odyssey",
+      "book": 22,
+      "approxLine": 40,
+      "marker": "2",
+      "markerId": "odyssey.22.3",
+      "teiLabel": "22.2",
+      "noteText": "Line 37 follows 38 in many MSS.",
+      "sourcePage": 338,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "high",
+      "matchMethod": "exact-range+markerNum+lineRef-tiebreak",
+      "status": "matched",
+      "exclusionReason": "apparatus_criticus_only"
+     },
+     {
+      "work": "odyssey",
+      "book": 22,
+      "approxLine": 125,
+      "marker": "1",
+      "markerId": "odyssey.22.4",
+      "teiLabel": "22.1",
+      "noteText": "The dpc00ipn appears to have been a door, in the inner- most part of the hall, higher in level than the floor of the great hall itself (hence the name ‘‘raised-door”’), and approached by a flight of steps (the payes of line 143). This door may well have been invisible from where Odysseus stood, and it opened upon a ‘‘ way” leading into a passage nO. This last need not be further defined. The palace: embraced many smaller buildings besides the main hall, and there may have been many such passages between them. The obscure phrase axpétatov S¢ rap ovddy I understand thus : assuming that the ground rose slightly from the front of the palace to the rear, I assume further that the floor of the hall itself was levelled, so that the ov5és (by which I under- stand the whole foundation upon which the walls rested), —",
+      "sourcePage": 130,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 22,
+      "approxLine": 140,
+      "marker": "2",
+      "markerId": "odyssey.22.5",
+      "teiLabel": "22.2",
+      "noteText": "Or the preposition may be local, ‘‘ seized the limbs of | all beneath them.” The same ambiguity occurs in other passages.",
+      "sourcePage": 339,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 23,
+      "approxLine": 1,
+      "marker": "1",
+      "markerId": "odyssey.23.1",
+      "teiLabel": "23.1",
+      "noteText": "Lines 127-8 are omitted in many MSS. ; |",
+      "sourcePage": 352,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 23,
+      "approxLine": 45,
+      "marker": "1",
+      "markerId": "odyssey.23.2",
+      "teiLabel": "23.1",
+      "noteText": "Lines 218-24 were rejected by Aristarchus, and can hardly be defended in this context. 390. 4\" “eae :",
+      "sourcePage": 391,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 24,
+      "approxLine": 205,
+      "marker": "1",
+      "markerId": "odyssey.24.2",
+      "teiLabel": "24.1",
+      "noteText": "Line 113 is ommitted in many MSS.",
+      "sourcePage": 7,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "low",
+      "matchMethod": "same-book-markerNum-only",
+      "status": "matched",
+      "exclusionReason": "confidence:low"
+     },
+     {
+      "work": "odyssey",
+      "book": 24,
+      "approxLine": 290,
+      "marker": "1",
+      "markerId": "odyssey.24.3",
+      "teiLabel": "24.1",
+      "noteText": "The proper names in this passage are all fictitious, and — all significant : Alybas 3 is perhaps meant to suggest adAdouat, . ‘‘wander,” or dAvw, ‘‘rave,” and has reference to “— wanderings of Odysseus ; Apheidas means ‘“unsparing” Polypemon, if connected, as seems probable, with TEOHOL, means ‘‘rich in possessions”; and Kperitus, suggesting épis, e 424 =",
+      "sourcePage": 1,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     },
+     {
+      "work": "odyssey",
+      "book": 24,
+      "approxLine": 540,
+      "marker": "1",
+      "markerId": "odyssey.24.6",
+      "teiLabel": "24.1",
+      "noteText": "| saying : : _ Refrain, men of Ithaca, from grievous war, that ) ~with all speed you may part, and that without | bloodshed.” : _ So spoke Athene, and pale fear seized them. Then | in their terror the arms flew from their hands and",
+      "sourcePage": 441,
+      "sourceVolume": 2,
+      "archiveId": "odysseywithengli02home",
+      "confidence": "medium",
+      "matchMethod": "widened-range+markerNum",
+      "status": "matched",
+      "exclusionReason": "confidence:medium"
+     }
+    ],
+    "missing": []
+   }
+  },
+  "butler": {
+   "chunks": 24,
+   "anomalies": [
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 6,
+     "n": 331,
+     "offset": 17903
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 7,
+     "n": 347,
+     "offset": 17690
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 8,
+     "n": 586,
+     "offset": 30120
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 9,
+     "n": 566,
+     "offset": 29651
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 10,
+     "n": 574,
+     "offset": 29116
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 11,
+     "n": 640,
+     "offset": 31508
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 12,
+     "n": 453,
+     "offset": 23588
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 13,
+     "n": 440,
+     "offset": 22231
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 14,
+     "n": 533,
+     "offset": 27705
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 15,
+     "n": 557,
+     "offset": 28028
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 16,
+     "n": 481,
+     "offset": 23571
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 17,
+     "n": 606,
+     "offset": 30535
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 18,
+     "n": 428,
+     "offset": 21881
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 19,
+     "n": 604,
+     "offset": 31378
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 20,
+     "n": 394,
+     "offset": 20193
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 21,
+     "n": 434,
+     "offset": 22174
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 22,
+     "n": 501,
+     "offset": 24071
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 23,
+     "n": 372,
+     "offset": 19338
+    },
+    {
+     "kind": "terminal_empty_dropped",
+     "book": 24,
+     "n": 548,
+     "offset": 27653
+    }
+   ],
+   "coverage_holes": []
+  }
+ }
+}
