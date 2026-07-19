@@ -12,8 +12,8 @@ export default defineConfig({
   // the canonical origin — set only so @astrojs/sitemap can emit absolute
   // URLs (site + base + path). App UI still uses base-relative URLs, not
   // Astro.site, so this changes no existing links.
-  site: 'https://johnhboyer-sys.github.io', // user-site launch URL (John, 2026-07-18: rename repo, serve at domain root; custom domain may layer on later)
-  base: '/',
+  site: 'https://johnhboyer-sys.github.io', // project-pages launch (John, 2026-07-18 late: Homer is a SUBPAGE, /homer-reader/, not the user-site root)
+  base: '/homer-reader/',
   integrations: [
     svelte(),
     sitemap(),
