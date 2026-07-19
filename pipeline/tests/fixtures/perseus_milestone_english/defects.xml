@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt><title>Defect regression fixture EN</title></titleStmt>
+      <publicationStmt><publisher>test</publisher></publicationStmt>
+      <sourceDesc><p>synthetic</p></sourceDesc>
+    </fileDesc>
+  </teiHeader>
+  <text xml:lang="eng">
+    <body>
+      <div type="translation" n="urn:cts:greekLit:fixture-defects-eng" xml:lang="eng">
+        <div type="textpart" subtype="book" n="1">
+          <div type="textpart" subtype="card" n="1"><p><milestone n="1" unit="line"/>Word one line.<milestone n="3" unit="line"/> Word three line text.<milestone n="5" unit="line"/></p></div>
+        </div>
+        <div type="textpart" subtype="book" n="2">
+          <div type="textpart" subtype="card" n="1"><p><milestone n="1" unit="line"/>He was in his wise<milestone n="2" unit="line"/>will they hearken. Then he did<milestone n="3" unit="line"/>Hector move on.<milestone n="4" unit="line"/> The end line four.</p></div>
+        </div>
+        <div type="textpart" subtype="book" n="3">
+          <div type="textpart" subtype="card" n="1"><p><milestone n="1" unit="line"/>The voice of the people, <note resp="Loeb">1</note> and the many revilings of men.</p></div>
+        </div>
+        <div type="textpart" subtype="book" n="4">
+          <div type="textpart" subtype="card" n="1"><p><milestone n="1" unit="line"/>Line one content.<milestone n="3" unit="line"/> Line three content that also covers line four content, since line four has no milestone of its own.</p></div>
+        </div>
+        <div type="textpart" subtype="book" n="5">
+          <div type="textpart" subtype="card" n="1"><p><milestone n="1" unit="line"/>What last?<milestone n="2" unit="line"/>for woes many, said he.<milestone n="3" unit="line"/> The eye&#8212;<milestone n="4" unit="line"/>even so.</p></div>
+        </div>
+      </div>
+    </body>
+  </text>
+</TEI>

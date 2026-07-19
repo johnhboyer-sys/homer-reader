@@ -1,0 +1,872 @@
+---
+// The reader page body, shared by the two routes:
+//   /<work>/book/<n>  (multi-book works)   — src/pages/[work]/book/[n].astro
+//   /<work>           (single-book works)   — src/pages/[work]/index.astro
+// `bookless` works (Categories, Poetics) are a single treatise of chapters with
+// no book level, so all book-level chrome (the "· Book N" title, the book nav
+// row, the per-book TOC grouping) is dropped.
+import { readFileSync } from 'node:fs';
+import Reader from '@shared/components/Reader.svelte';
+import BekkerJump from '@shared/components/BekkerJump.svelte';
+import CommandPalette from '@shared/components/CommandPalette.svelte';
+import Pwa from './Pwa.astro';
+import HelpButton from './HelpButton.svelte';
+import ParsePopupTour from './ParsePopupTour.svelte';
+import WorkSwitcher from './WorkSwitcher.svelte';
+import ThemeInit from './ThemeInit.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { getWork, bookLabel, isBookless, workPath, workLanding, HOUSE_AUTHOR, GREEK_BOOK_LETTERS } from '@shared/lib/works';
+import { normalizeBookData, stripBookForClient } from '@shared/lib/data';
+import { setSsrBook } from '@shared/lib/ssr-book';
+import { bookArguments, type BookArgument } from '../lib/book-apparatus';
+import { speakerRoster } from '../lib/speaker-roster';
+import { SUPPORT_URL } from '../lib/support';
+import { jsonLdSafe } from '../lib/jsonld';
+
+interface Props { workId: string; n: number; }
+const { workId, n } = Astro.props as Props;
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const work = getWork(workId)!;
+const bookless = isBookless(work);
+// Non-Bekker works (e.g. the Isagoge) have no Bekker lines, so the "Go to
+// Bekker line" jump doesn't apply.
+const busse = work.citation?.scheme === 'busse';
+// Stephanus works (Plato) are cited by page+letter; their outline nav lists
+// Stephanus pages (from sections.json) instead of chapters (chapters.json is
+// empty for them).
+const stephanus = work.citation?.scheme === 'stephanus';
+const verseLine = work.citation?.scheme === 'verse-line';
+const label = bookLabel(work, n);
+
+// Cartouche book-plate title: the traditional Greek-letter book citation
+// (Ἰλιάδος Α, Ὀδυσσείας α — Iliad books Α–Ω capital, Odyssey books α–ω
+// lowercase, the inherited Alexandrian convention; both epics run exactly
+// 24 books, so no digamma/stigma numeral extension is needed). Genitive
+// title stems are the standard dictionary genitives of Ἰλιάς/Ὀδύσσεια.
+const GREEK_TITLE_GENITIVE: Record<string, string> = { iliad: 'ΙΛΙΑΔΟΣ', odyssey: 'ΟΔΥΣΣΕΙΑΣ' };
+const bookGreekLetter = (): string => {
+  const letter = GREEK_BOOK_LETTERS[n - 1] ?? String(n);
+  return workId === 'odyssey' ? letter.toLowerCase() : letter;
+};
+const cartoucheGreek = GREEK_TITLE_GENITIVE[workId]
+  ? `${GREEK_TITLE_GENITIVE[workId]} ${bookGreekLetter()}`
+  : undefined;
+
+interface ChapterRef { chapter: string; column: string; line: string; bekker: string; }
+const allChapters: Record<string, ChapterRef[]> = JSON.parse(
+  readFileSync(`public/data/${workId}/chapters.json`, 'utf-8'),
+);
+const chapters = allChapters[String(n)] ?? [];
+
+// Stephanus section outline (sections.json): { book -> ordered [{column, page,
+// letter, id}] }. Read only for a stephanus work; the file may be absent on a
+// partial build, so degrade to an empty outline. Grouped into pages below.
+interface SectionRef { column: string; page: number; letter: string; id: string; }
+let allSections: Record<string, SectionRef[]> = {};
+if (stephanus) {
+  try {
+    allSections = JSON.parse(readFileSync(`public/data/${workId}/sections.json`, 'utf-8'));
+  } catch { /* no sections yet */ }
+}
+// The Stephanus pages of a book: the first section column on each page, in
+// reading order — the anchor (`col-{column}`) the page's nav entry links to.
+const pagesOf = (b: number): { page: number; column: string }[] => {
+  const secs = allSections[String(b)] ?? [];
+  const out: { page: number; column: string }[] = [];
+  let last: number | null = null;
+  for (const s of secs) {
+    if (s.page !== last) { out.push({ page: s.page, column: s.column }); last = s.page; }
+  }
+  return out;
+};
+const pages = pagesOf(n);
+// A page links to its first section's segment anchor (the Reader emits
+// `id="col-{column}"`), same-book as a hash or cross-book as a full path.
+const pageHref = (b: number, column: string) =>
+  b === n ? `#col-${column}` : `${base}${workPath(workId, b)}#col-${column}`;
+
+// The book's reading data, read at build time and handed to the Reader island so
+// the Greek + English text is server-rendered into the static HTML (crawlable +
+// instant paint) instead of fetched client-side. Run it through the SAME
+// normalization fetchBook uses so `scenes` (drafted from apparatus.scenes) is
+// present on the static page — otherwise the raw JSON.parse leaves scenes
+// undefined and Reading Mode can't page by scene (it silently degrades to the
+// old whole-book flow instead).
+const rawBookData = JSON.parse(
+  readFileSync(`public/data/${workId}/book-${String(n).padStart(2, '0')}.json`, 'utf-8'),
+);
+const bookData = normalizeBookData(rawBookData);
+// The island's server render reads the FULL book (with Greek tokens) from the
+// SSR channel so the static markup carries every token span; its SERIALIZED
+// props instead get a token-stripped copy — ~half the payload, since the token
+// arrays and the non-default translations duplicate/aren't-in the default SSR
+// view. The client rebuilds tokens from the DOM and fetches the other
+// translations on demand (see Reader.svelte, stripBookForClient, ssr-book.ts).
+setSsrBook(bookData);
+const clientBookData = stripBookForClient(bookData);
+// The in-book scene rail toggle only ships when this book carries scene
+// apparatus (drafted apparatus.scenes → normalized bookData.scenes); books
+// without it get no empty flyout.
+const sceneCount = bookData.scenes?.length ?? 0;
+
+// Cartouche apparatus slots (argument line + where/who/day strip): optional
+// Phase-4 fields on a book's data. The cartouche renders only populated fields;
+// no lorem or placeholder text ships when a partial build lacks apparatus
+// (CLAUDE.md "Apparatus honesty").
+interface BookApparatus { argument?: string; where?: string; who?: string[]; day?: string; draft?: boolean; }
+const apparatus: BookApparatus | undefined = bookData.apparatus;
+// The verse-work contents rail needs every book's compact argument, not just
+// this page's cartouche apparatus. Read the same emitted book JSON files as
+// the current-book SSR loader above; the helper caches that projection per work
+// while Astro renders the 24 static book pages.
+const tocArguments: BookArgument[] = verseLine ? bookArguments(workId, work.books) : [];
+const tocHasDraftArgument = tocArguments.some(({ argument, draft }) => Boolean(argument) && draft === true);
+// Apologoi day-honesty cue (John, phone session 2026-07-18): "where" carries
+// the pipeline's "(telling)" marker on a frame scene (Odysseus narrating at
+// Alcinous's palace) when this book is told in flashback — every scene's day
+// number is the day of the TELLING, not of the events narrated. Reuses the
+// same data signal as Reader.svelte's scene-rail cue (see its comment there
+// for the known Od. 10/12 gap: those books share the flashback frame but
+// carry no "(telling)"-marked scene of their own, so this can't reach them).
+const dayIsTelling = apparatus?.where?.includes('(telling)') ?? false;
+
+// Whole-work speaker-display roster (memoized), so speaker-name colours are
+// stable across books and match the landing cast list (see speaker-roster.ts).
+const roster = speakerRoster(workId, work.books);
+
+// Optional one-line chapter titles/descriptions for the outline sidebar, keyed
+// {book: {chapter: "…"}}. The file is written by hand/curation per work and may
+// not exist yet — the outline degrades to chapter number + Bekker range.
+let chapterTitles: Record<string, Record<string, string>> = {};
+try {
+  chapterTitles = JSON.parse(
+    readFileSync(`public/data/${workId}/chapter-titles.json`, 'utf-8'),
+  );
+} catch { /* no titles yet */ }
+
+// The full-work outline for the sidebar: every book, its chapters in order.
+const outline = Array.from({ length: work.books }, (_, i) => {
+  const b = i + 1;
+  return {
+    book: b,
+    label: bookLabel(work, b),
+    chapters: allChapters[String(b)] ?? [],
+    argument: tocArguments[b - 1]?.argument,
+  };
+});
+const chapterHref = (b: number, chapter: string) =>
+  b === n ? `#ch-${b}-${chapter}` : `${base}${workPath(workId, b)}#ch-${b}-${chapter}`;
+// The visible tab title + og:title. Front-loads the work name (what people
+// search) and appends the parallel-text long-tail phrasing ("greek english
+// translation") that these deep book pages can realistically rank for, since
+// they can't win the bare head term against Wikipedia/SEP on a github.io path.
+const pageTitle = bookless
+  ? `${work.title} — Greek Text & English Translation`
+  : `${work.title}, Book ${label} — Greek Text & English Translation`;
+
+// ── SEO: server-rendered signals ───────────────────────────────────────────
+// The reading text is now server-rendered (bookData is read at build above and
+// handed to the Reader island, so the Greek/English lines are in the static
+// HTML, not a "Loading…" placeholder). These tags supply the rest of what
+// crawlers want: a canonical URL, a real description, a Schema.org Book record,
+// a semantic <h1>, and a topical intro paragraph.
+const bookSuffix = bookless ? '' : `, Book ${label}`;
+const primaryTrans =
+  work.translations.find((t) => t.slot === 'english') ?? work.translations[0];
+// Translator entries read "Name (Publisher, Year)"; keep just the person name.
+const translatorName = primaryTrans?.name.split(' (')[0] ?? '';
+const canonical = Astro.site
+  ? new URL(`${base}${workPath(workId, n)}/`, Astro.site).href
+  : undefined;
+// Social share card: a branded render of a bilingual page (public/og-default.png).
+// Crawlers require an absolute URL, so it's built off Astro.site + base.
+const ogImage = Astro.site
+  ? new URL(`${base}/og-default.png`, Astro.site).href
+  : undefined;
+const metaDescription =
+  `Read ${work.author}'s ${work.title}${bookSuffix} — the original Greek` +
+  ` (${work.greekSource.short}) side by side with` +
+  (translatorName ? ` ${translatorName}'s` : ' an') +
+  ` English translation, with click-to-parse morphology, dictionary entries,` +
+  ` and Stephanus citation.`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Book',
+  name: `${work.title}${bookSuffix}`,
+  ...(work.greekTitle ? { alternateName: work.greekTitle } : {}),
+  author: { '@type': 'Person', name: work.author },
+  ...(translatorName
+    ? { translator: { '@type': 'Person', name: translatorName } }
+    : {}),
+  inLanguage: ['grc', 'en'],
+  ...(canonical ? { url: canonical } : {}),
+  isPartOf: { '@type': 'CreativeWorkSeries', name: `The Works of ${HOUSE_AUTHOR}` },
+  description: metaDescription,
+};
+// Breadcrumb trail (Home › Work › Book N) — gives Google the page's place in the
+// hierarchy and can render as a breadcrumb rich result in the SERP. Absolute
+// URLs required, so emitted only when Astro.site is set.
+const breadcrumbLd = Astro.site
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: HOUSE_AUTHOR,
+          item: new URL(`${base}/`, Astro.site).href },
+        { '@type': 'ListItem', position: 2, name: work.title,
+          item: new URL(`${base}${workLanding(workId)}/`, Astro.site).href },
+        ...(bookless
+          ? []
+          : [{ '@type': 'ListItem', position: 3, name: `Book ${label}`,
+              item: new URL(`${base}${workPath(workId, n)}/`, Astro.site).href }]),
+      ],
+    }
+  : null;
+const h1Text =
+  `${work.author}, ${work.title}${bookSuffix} — Greek text with English translation`;
+// A short topical paragraph (the curated one-line blurb, framed with the Greek
+// source and translator) so the page carries real descriptive prose for search
+// snippets and screen readers, distinct from the dense parallel-text body.
+const intro =
+  `${work.title}${bookSuffix} by ${work.author}, in the original Greek` +
+  ` (${work.greekSource.short})` +
+  (translatorName ? `, with the English translation of ${translatorName}` : '') +
+  `. ${work.blurb}`;
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- TODO: register this property in Google Search Console and add its
+       verification token here (a sibling reader's token was intentionally
+       removed from this file — it belongs to a different GSC property). -->
+  <ThemeInit />
+  <!-- Pre-hydration view bridge. The Reader island is server-rendered as the
+       bilingual `view-both` layout, but on load the client picks a single
+       language on a narrow screen (or from a saved/`?view=` choice). Doing that
+       after first paint reflows the English column from a parallel column to
+       full width — a ~0.16 CLS on the giant .ross-prose block. This inline
+       script (runs before paint, like ThemeInit) computes the SAME choice the
+       island's onMount will make and stamps it on <html data-rview>, which CSS
+       uses to paint the final single-column layout immediately. Reader clears
+       the attribute in onMount once Svelte owns the reader-body class. -->
+  <script is:inline>
+    (function () {
+      try {
+        var p = new URLSearchParams(location.search);
+        var qv = p.get('view'), v;
+        if (qv === 'greek' || qv === 'english' || qv === 'both') v = qv;
+        else if (p.get('loc') || (p.get('hlg') || '').trim()) v = 'both';
+        else {
+          var s = localStorage.getItem('reader-view');
+          if (s === 'greek' || s === 'english' || s === 'both') v = s;
+          else if (window.matchMedia('(max-width: 680px)').matches) v = 'english';
+          else v = 'both';
+        }
+        if (v !== 'both') document.documentElement.setAttribute('data-rview', v);
+      } catch (e) { /* no bridge: falls back to the (pre-fix) reflow */ }
+    })();
+  </script>
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  {canonical && <meta property="og:url" content={canonical} />}
+  <meta property="og:site_name" content="The Homer Reader" />
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={metaDescription} />
+  {ogImage && <meta name="twitter:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(jsonLd)} />
+  {breadcrumbLd && <script type="application/ld+json" set:html={jsonLdSafe(breadcrumbLd)} />}
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <Pwa />
+</head>
+<body>
+  <header class="page-header">
+    <!-- Semantic page heading + topical intro for search engines and screen
+         readers. Visually hidden because the visible title is the work-switcher
+         control; this gives the document a real, descriptive <h1> and a prose
+         summary without altering the design. Nested inside the one banner
+         landmark (not a second top-level <header>) so it stays contained by a
+         landmark (axe: region) without duplicating the banner role (axe:
+         landmark-no-duplicate-banner / landmark-unique). -->
+    <div class="sr-only">
+      <h1>{h1Text}</h1>
+      <p>{intro}</p>
+    </div>
+    <div class="header-bar">
+      <!-- The phone header keeps its compact, established control order. At the
+           desktop breakpoint its matching controls move to .nav-panel below. -->
+      <div class="header-mobile-toggles">
+        <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar" aria-label="Contents">
+          <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text" aria-hidden="true">Contents</span>
+        </button>
+        {sceneCount > 0 && (
+          <button type="button" class="scenes-toggle" aria-expanded="false" aria-controls="scene-rail" aria-label="Scenes">
+            <span class="scenes-toggle-icon" aria-hidden="true">❦</span><span class="scenes-toggle-text" aria-hidden="true">Scenes</span>
+          </button>
+        )}
+      </div>
+      <div class="header-title">
+        <a class="home-link home-wordmark" href={`${base}/`} aria-label="The Homer Reader — all works">
+          <span class="wordmark-name">The Homer Reader</span>
+          <span class="wordmark-eyebrow">The Iliad &amp; Odyssey · Greek and English</span>
+        </a>
+        <span class="title-sep">›</span>
+        <WorkSwitcher work={workId} client:load />
+      </div>
+      <!-- #14 (2026-07-18): the bar reads as two groups, not a flat row of equal
+           buttons — reading tools (Go to · Lexicon), then a hairline, then the
+           app/meta cluster (Settings · Help · Theme). Support is demoted from a
+           loud filled CTA to a quiet ghost and pinned last, so it no longer
+           out-weighs the reading tools. -->
+      <div class="bar-actions">
+        <button type="button" class="header-search command-palette-trigger" aria-label="Go to book, scene, or citation">
+          <svg class="hs-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.8" cy="6.8" r="4.6"/><line x1="10.4" y1="10.4" x2="14" y2="14"/></svg>
+          <span class="hs-text">Go to</span>
+          <kbd class="hs-kbd" aria-hidden="true">⌘K</kbd>
+        </button>
+        <a class="header-search header-lexicon" href={`${base}/lemma/`} aria-label="Greek Lexicon">
+          <svg class="hs-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M8 3.6C6.6 2.6 4.2 2.6 2.6 3.1v9C4.2 11.6 6.6 11.6 8 12.6M8 3.6C9.4 2.6 11.8 2.6 13.4 3.1v9C11.8 11.6 9.4 11.6 8 12.6M8 3.6v9"/></svg>
+          <span class="hs-text">Lexicon</span>
+        </a>
+        <span class="bar-divider" aria-hidden="true"></span>
+        <button type="button" class="settings-toggle" aria-label="Reader settings" aria-expanded="false">
+          <svg class="settings-icon" width="18" height="14" viewBox="0 0 18 14" aria-hidden="true" fill="currentColor" stroke="none">
+            <rect x="1" y="0" width="16" height="1.5" rx="0.75"/>
+            <circle cx="5.5" cy="0.75" r="2.5"/>
+            <rect x="1" y="6.25" width="16" height="1.5" rx="0.75"/>
+            <circle cx="12.5" cy="7" r="2.5"/>
+            <rect x="1" y="12.5" width="16" height="1.5" rx="0.75"/>
+            <circle cx="7.5" cy="13.25" r="2.5"/>
+          </svg>
+          <span class="settings-text">Settings</span>
+        </button>
+        <HelpButton client:load />
+        <ThemeToggle />
+        <a class="header-support" href={SUPPORT_URL} target="_blank" rel="noopener" title="Support the site" aria-label="Support the site">
+          <span class="hsup-heart" aria-hidden="true">♥</span>
+          <span class="hsup-text">Support</span>
+        </a>
+      </div>
+    </div>
+    <div class="nav-panel" id="nav-panel">
+      <!-- Desktop-only counterparts to the compact phone controls above. Keep
+           their hooks identical: the header bridge below binds both copies. -->
+      <div class="header-desktop-nav-toggles">
+        <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar" aria-label="Contents">
+          <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text" aria-hidden="true">Contents</span>
+        </button>
+        {sceneCount > 0 && (
+          <button type="button" class="scenes-toggle" aria-expanded="false" aria-controls="scene-rail" aria-label="Scenes">
+            <span class="scenes-toggle-icon" aria-hidden="true">❦</span><span class="scenes-toggle-text" aria-hidden="true">Scenes</span>
+          </button>
+        )}
+      </div>
+      {!busse && <BekkerJump work={workId} inputId="bekker-input-nav" client:load />}
+      {!bookless && (
+        <nav class="book-nav" aria-label="Books">
+          <span class="book-nav-label">Books</span>
+          {Array.from({ length: work.books }, (_, i) => (
+            <>
+              <a
+                href={`${base}${workPath(workId, i + 1)}`}
+                class={i + 1 === n ? 'current' : ''}
+                aria-current={i + 1 === n ? 'page' : undefined}
+              >
+                {bookLabel(work, i + 1)}
+              </a>
+              {work.missingBooks && work.missingBooks.after === i + 1 && (
+                <a
+                  class="book-nav-missing"
+                  href={`${base}${workPath(work.missingBooks.linkWork, work.missingBooks.linkBook)}`}
+                  title={`${work.missingBooks.label}: ${work.missingBooks.note} → ${work.missingBooks.linkLabel}`}
+                >
+                  {work.missingBooks.label}&nbsp;→
+                </a>
+              )}
+            </>
+          ))}
+        </nav>
+      )}
+      {stephanus && pages.length > 0 && (
+        <nav class="chapter-nav pages-nav" aria-label={bookless ? 'Stephanus pages' : `Book ${label} pages`}>
+          <details class="pages-details" id="pages-details">
+            {/* Label is just "Pages" even in a multi-book work: the chip sits
+                inline right after the Books row (John's sketch, 2026-07-12),
+                so the highlighted current numeral already gives the book
+                context, and Laws' 12 numerals leave no room for a
+                "Book I · " prefix on one ~900px line. The nav's aria-label
+                above keeps the full context for AT users. */}
+            <summary class="pages-summary">
+              <span class="chapter-nav-label">Pages</span>
+              <span class="pages-range">{pages[0].page}–{pages[pages.length - 1].page}</span>
+              <span class="pages-caret" aria-hidden="true">▸</span>
+            </summary>
+            <span class="chapter-list">
+              {pages.map((p) => (
+                <a href={pageHref(n, p.column)} title={`Stephanus page ${p.page}`}>{p.page}</a>
+              ))}
+            </span>
+          </details>
+        </nav>
+      )}
+      {!stephanus && chapters.length > 0 && (
+        <nav class="chapter-nav" aria-label={bookless ? 'Chapters' : `Book ${label} chapters`}>
+          <span class="chapter-nav-label">{bookless ? 'Chapters' : `Book ${label} · Chapters`}</span>
+          <span class="chapter-list">
+            {chapters.map((c) => (
+              <a href={`#ch-${n}-${c.chapter}`} title={
+                (chapterTitles[String(n)]?.[c.chapter] ?? `Chapter ${c.chapter}`)
+                + (work.citation?.scheme === 'busse' ? '' : ` · ${c.bekker}`)
+              }>{c.chapter}</a>
+            ))}
+          </span>
+        </nav>
+      )}
+    </div>
+  </header>
+
+  <div class="contour-band" aria-hidden="true">
+    <svg viewBox="0 0 1200 46" preserveAspectRatio="none">
+      <path class="n1" d="M0 30 C 100 10, 180 42, 280 26 S 460 6, 560 24 S 740 40, 860 22 S 1040 8, 1200 26" />
+      <path class="n2" d="M0 38 C 120 22, 220 44, 340 32 S 520 16, 640 34 S 820 44, 940 30 S 1120 18, 1200 34" />
+      <path class="n3" d="M0 12 C 140 26, 260 4, 400 16 S 600 30, 760 12 S 980 2, 1200 14" />
+    </svg>
+  </div>
+
+  <div class="toc-backdrop" id="toc-backdrop" hidden></div>
+  <aside class="toc-sidebar" id="toc-sidebar" aria-label={`${work.title} — table of contents`} aria-hidden="true">
+    <div class="toc-head">
+      <a class="toc-home" href={`${base}/`}>‹ The Poems</a>
+      <button type="button" class="toc-close" aria-label="Close contents">×</button>
+    </div>
+    <div class="toc-actions toc-actions-top">
+      {!busse && <BekkerJump work={workId} inputId="bekker-input-toc" client:load />}
+      <a class="toc-action" href={`${base}/search`}>
+        <span class="toc-action-name">Search</span>
+        <span class="toc-action-hint">Greek &amp; English</span>
+      </a>
+      <a class="toc-action" href={`${base}/lemma/`}>
+        <span class="toc-action-name">Greek Lexicon</span>
+        <span class="toc-action-hint">Word frequency &amp; concordance</span>
+      </a>
+    </div>
+    <div class="toc-work-head"><span class="toc-work">{work.title}</span></div>
+    <nav class="toc-outline">
+      {tocHasDraftArgument && (
+        <div class="toc-draft-note">
+          <span class="draft-badge" title="Book summaries are AI-drafted apparatus, pending review">Draft</span>
+        </div>
+      )}
+      {stephanus ? (
+        bookless ? (
+          <ul class="toc-flat">
+            {pagesOf(1).map((p) => (
+              <li>
+                <a href={pageHref(1, p.column)} data-ch={`col-${p.column}`}>
+                  <span class="toc-ch-n">{p.page}</span>
+                  <span class="toc-ch-body">
+                    <span class="toc-ch-bekker">{p.column}</span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          outline.map((b) => (
+            <details class="toc-book" open={b.book === n}>
+              <summary>
+                <span class="toc-book-label">Book {b.label}</span>
+                <span class="toc-book-count">{pagesOf(b.book).length} pp.</span>
+              </summary>
+              <ul>
+                {pagesOf(b.book).map((p) => (
+                  <li>
+                    <a href={pageHref(b.book, p.column)} data-ch={`col-${p.column}`}>
+                      <span class="toc-ch-n">{p.page}</span>
+                      <span class="toc-ch-body">
+                        <span class="toc-ch-bekker">{p.column}</span>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ))
+        )
+      ) : bookless ? (
+        <ul class="toc-flat">
+          {outline[0].chapters.map((c) => (
+            <li>
+              <a href={chapterHref(1, c.chapter)} data-ch={`ch-1-${c.chapter}`}>
+                <span class="toc-ch-n">{c.chapter}</span>
+                <span class="toc-ch-body">
+                  {chapterTitles['1']?.[c.chapter] && (
+                    <span class="toc-ch-title">{chapterTitles['1'][c.chapter]}</span>
+                  )}
+                  <span class="toc-ch-bekker">{c.bekker}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : verseLine ? (
+        // Verse-line works (Iliad, Odyssey) ship no chapters.json entries per
+        // book by design — a book of hexameter verse has no chapter level
+        // (CLAUDE.md "Vulgate lineation is sacred"). The disclosure
+        // <details>/"N ch." treatment below is inherited Plato-dialogue
+        // chrome: for a chapterless work it rendered a nonsense "0 ch." row
+        // with a triangle that expanded onto an empty list and didn't itself
+        // navigate (John's screenshot, 2026-07-18). Verse books instead get a
+        // plain link row per book — gated on the same `verseLine` signal
+        // already used for the book-plate above, not a hardcoded work id, so
+        // any future chapterless verse work in a sibling fork gets this
+        // automatically, while chaptered works (Plato dialogues) keep the
+        // disclosure path untouched below. This also supersedes the
+        // mobile-only `.toc-book-nav` hotfix (removed above, c24bb4e): one
+        // book list in the drawer, not two, and it now works at every width.
+        outline.map((b) => (
+          <>
+            <a
+              href={`${base}${workPath(workId, b.book)}`}
+              class={`toc-book-link${b.argument ? ' has-argument' : ''}${b.book === n ? ' current' : ''}`}
+              aria-current={b.book === n ? 'page' : undefined}
+            >
+              <span class="toc-book-title">Book {b.label}</span>
+              {b.argument && <span class="toc-book-argument">{b.argument}</span>}
+            </a>
+            {work.missingBooks && work.missingBooks.after === b.book && (
+              <div class="toc-missing">
+                <span class="toc-missing-label">Books {work.missingBooks.label}</span>
+                <span class="toc-missing-note">{work.missingBooks.note}</span>
+                <a href={`${base}${workPath(work.missingBooks.linkWork, work.missingBooks.linkBook)}`}>
+                  {work.missingBooks.linkLabel} →
+                </a>
+              </div>
+            )}
+          </>
+        ))
+      ) : (
+        outline.map((b) => (
+          <>
+            <details class="toc-book" open={b.book === n}>
+              <summary>
+                <span class="toc-book-label">Book {b.label}</span>
+                <span class="toc-book-count">{b.chapters.length} ch.</span>
+              </summary>
+              <ul>
+                {b.chapters.map((c) => (
+                  <li>
+                    <a href={chapterHref(b.book, c.chapter)} data-ch={`ch-${b.book}-${c.chapter}`}>
+                      <span class="toc-ch-n">{c.chapter}</span>
+                      <span class="toc-ch-body">
+                        {chapterTitles[String(b.book)]?.[c.chapter] && (
+                          <span class="toc-ch-title">{chapterTitles[String(b.book)][c.chapter]}</span>
+                        )}
+                        <span class="toc-ch-bekker">{c.bekker}</span>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+            {work.missingBooks && work.missingBooks.after === b.book && (
+              <div class="toc-missing">
+                <span class="toc-missing-label">Books {work.missingBooks.label}</span>
+                <span class="toc-missing-note">{work.missingBooks.note}</span>
+                <a href={`${base}${workPath(work.missingBooks.linkWork, work.missingBooks.linkBook)}`}>
+                  {work.missingBooks.linkLabel} →
+                </a>
+              </div>
+            )}
+          </>
+        ))
+      )}
+    </nav>
+    <div class="toc-actions toc-actions-bottom">
+      <a class="toc-action" href={`${base}/attribution`}>
+        <span class="toc-action-name">Texts &amp; Licences</span>
+      </a>
+      <button type="button" class="toc-action toc-help">
+        <span class="toc-action-name">Help</span>
+        <span class="toc-action-hint">How to use this reader</span>
+      </button>
+    </div>
+  </aside>
+
+  <script>
+    // Contents sidebar (full-work outline) drawer. On mobile this is the single
+    // navigation hub (the old Menu dropdown is gone); on desktop the nav panel is
+    // always visible (CSS) and the sidebar holds just the outline.
+    const header = document.querySelector('.page-header');
+    const tocToggles = Array.from(header?.querySelectorAll<HTMLButtonElement>('.toc-toggle') ?? []);
+
+    // The Go to button's ⌘K hint is rendered ⌘K (macOS) by default; the command
+    // palette binds Ctrl+K on non-Mac platforms, so correct the visible label there.
+    const isMac = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
+    if (!isMac) header?.querySelector('.hs-kbd')?.replaceChildren('Ctrl K');
+    header?.querySelector('.command-palette-trigger')?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('open-command-palette'));
+    });
+    const sidebar = document.getElementById('toc-sidebar');
+    const backdrop = document.getElementById('toc-backdrop');
+    // The closed drawer is off-screen but its links/buttons stay in the DOM, so
+    // `inert` (not just aria-hidden) is what keeps them out of the tab order and
+    // the accessibility tree. Applied here at load; toggled with the drawer.
+    sidebar?.setAttribute('inert', '');
+    let tocReturnFocus: HTMLElement | null = null;
+    const focusablesIn = (el: Element) =>
+      Array.from(el.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )).filter((n) => n.offsetParent !== null || n === document.activeElement);
+    const onTocTrap = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !sidebar) return;
+      const f = focusablesIn(sidebar);
+      if (!f.length) { e.preventDefault(); sidebar.focus(); return; }
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    const setToc = (open: boolean) => {
+      const wasOpen = document.body.classList.contains('toc-open');
+      document.body.classList.toggle('toc-open', open);
+      sidebar?.setAttribute('aria-hidden', String(!open));
+      tocToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', String(open)));
+      if (backdrop) backdrop.hidden = !open;
+      if (open) {
+        sidebar?.removeAttribute('inert');
+        if (!wasOpen) tocReturnFocus = document.activeElement as HTMLElement | null;
+        // Move focus into the drawer (its close button) and trap Tab inside.
+        (sidebar?.querySelector('.toc-close') as HTMLElement | null)?.focus();
+        document.addEventListener('keydown', onTocTrap, true);
+      } else {
+        document.removeEventListener('keydown', onTocTrap, true);
+        // Restore focus to whatever opened it (the toggle) before inerting, so
+        // focus never lands on an inert node.
+        if (wasOpen) {
+          (tocReturnFocus ?? tocToggles.find((toggle) => toggle.offsetParent !== null) ?? tocToggles[0])?.focus();
+          tocReturnFocus = null;
+        }
+        sidebar?.setAttribute('inert', '');
+      }
+    };
+    tocToggles.forEach((toggle) => toggle.addEventListener('click', () =>
+      setToc(!document.body.classList.contains('toc-open'))));
+    backdrop?.addEventListener('click', () => setToc(false));
+    sidebar?.querySelector('.toc-close')?.addEventListener('click', () => setToc(false));
+
+    // Settings sidebar toggle. Communicates with Reader.svelte (a Svelte island)
+    // via CustomEvents on window; the island owns the open/closed state and the
+    // panel markup so translation state can live in one place.
+    const settingsToggle = header?.querySelector('.settings-toggle');
+    settingsToggle?.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('toggle-settings'));
+    });
+    // Keep aria-expanded in sync when Reader.svelte reports a state change.
+    window.addEventListener('settings-state', (e) => {
+      const open = (e as CustomEvent<{ open: boolean }>).detail.open;
+      settingsToggle?.setAttribute('aria-expanded', String(open));
+    });
+
+    // Scene rail toggle — same island bridge as Settings. The button is only
+    // present when the book carries scene apparatus (see sceneCount gate above).
+    const scenesToggles = Array.from(header?.querySelectorAll<HTMLButtonElement>('.scenes-toggle') ?? []);
+    scenesToggles.forEach((toggle) => toggle.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('toggle-scenes'));
+    }));
+    window.addEventListener('scenes-state', (e) => {
+      const open = (e as CustomEvent<{ open: boolean }>).detail.open;
+      scenesToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', String(open)));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      if (document.body.classList.contains('toc-open')) { setToc(false); return; }
+      window.dispatchEvent(new CustomEvent('close-scenes'));
+      window.dispatchEvent(new CustomEvent('close-settings'));
+    });
+    // Clicking a chapter that's on this page (a #hash link) just scrolls — close
+    // the drawer so the reader is visible. Cross-book links navigate away anyway.
+    sidebar?.querySelectorAll<HTMLAnchorElement>('.toc-outline a').forEach((a) => {
+      if (a.getAttribute('href')?.startsWith('#')) a.addEventListener('click', () => setToc(false));
+    });
+    // The sidebar "Help" entry opens the shared Help modal (HelpButton listens for
+    // this event) and closes the drawer so the modal isn't hidden behind it.
+    sidebar?.querySelector('.toc-help')?.addEventListener('click', () => {
+      setToc(false);
+      window.dispatchEvent(new CustomEvent('open-help'));
+    });
+
+    // Publish the header's height as --header-h so the reader's sticky controls
+    // strip can pin directly beneath it. The header is two rows on desktop and
+    // its height shifts with viewport width and work switches, so re-measure.
+    const setHeaderH = () => {
+      if (header) document.documentElement.style.setProperty(
+        '--header-h', `${Math.round(header.getBoundingClientRect().height)}px`);
+    };
+    setHeaderH();
+    if (header && 'ResizeObserver' in window) new ResizeObserver(setHeaderH).observe(header);
+    window.addEventListener('resize', setHeaderH);
+    window.addEventListener('load', setHeaderH);
+    // Web fonts swap in after first paint and reflow the header height.
+    if (document.fonts?.ready) document.fonts.ready.then(setHeaderH);
+
+    // Pages nav (collapsible <details>): restore the open/closed state from a
+    // previous visit, and persist future toggles. Collapsed by default (no
+    // `open` attribute server-side, so SSG output is deterministic); the
+    // --header-h ResizeObserver above already watches .page-header, so a
+    // toggle's height change re-publishes --header-h with no extra wiring.
+    const pagesDetails = document.getElementById('pages-details') as HTMLDetailsElement | null;
+    if (pagesDetails) {
+      try {
+        if (localStorage.getItem('nav-pages-open') === '1') pagesDetails.open = true;
+      } catch {}
+      pagesDetails.addEventListener('toggle', () => {
+        try {
+          localStorage.setItem('nav-pages-open', pagesDetails.open ? '1' : '0');
+        } catch {}
+      });
+    }
+  </script>
+
+  {verseLine && !bookless && (
+    <section class="book-plate" aria-label={`${work.title}, Book ${label} — book plate`}>
+      <div class="book-plate-titles">
+        {cartoucheGreek && <div class="book-plate-greek" lang="grc">{cartoucheGreek}</div>}
+        <div class="book-plate-en">{work.title} · Book {label}</div>
+        {apparatus?.draft && (apparatus.argument || apparatus.where || apparatus.who?.length || apparatus.day) && (
+          <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>
+        )}
+      </div>
+      {apparatus?.argument && <p class="book-plate-argument">{apparatus.argument}</p>}
+      {apparatus && (apparatus.where || apparatus.who?.length || apparatus.day) && (
+        <div class="book-plate-meta">
+          {apparatus.where && <span>{apparatus.where}</span>}
+          {apparatus.who?.map((w) => (
+            <>
+              <span class="sep">·</span>
+              <span>{w}</span>
+            </>
+          ))}
+          {apparatus.day && (
+            <>
+              <span class="sep">·</span>
+              <span title={dayIsTelling ? 'The day of the telling; the events narrated here lie years earlier.' : undefined}>
+                Day {apparatus.day}{dayIsTelling && ' · telling'}
+              </span>
+            </>
+          )}
+        </div>
+      )}
+    </section>
+  )}
+  <!-- The reading surface is fully server-rendered above (text is in the static
+       HTML), so the island only needs to hydrate the INTERACTIVITY (token
+       lookup, posture / translation toggles, jump-to-line). Deferred to idle so
+       the hydration work no longer competes with first paint / LCP of the
+       already-visible text; the data-rview CSS bridge holds the layout stable
+       until the island takes over (no CLS), and the mount-time deep-link scroll
+       still runs (idle fires after initial layout, so there's LESS churn to
+       cancel the scroll, not more). The big hydration-cost win is the token
+       event-delegation in Reader.svelte, which removed the ~1.2s scripting task. -->
+  <Reader work={workId} bookNum={n} bookData={clientBookData} chapterTitles={chapterTitles[String(n)] ?? {}} speakerRoster={roster} client:idle />
+  <CommandPalette work={workId} bookNum={n} scenes={clientBookData.scenes ?? []} client:idle />
+  <ParsePopupTour client:load />
+
+  <footer class="site-footer">
+    <span>Greek text: {work.greekSource.short} ({work.greekSource.licence})</span>
+    <span class="footer-sep" aria-hidden="true">·</span>
+    <span>Translations: public domain (Murray, Butler, Pope)</span>
+    <span class="footer-sep" aria-hidden="true">·</span>
+    <a href={`${base}/attribution`}>Texts &amp; Licences</a>
+    <span class="footer-sep" aria-hidden="true">·</span>
+    <a href={`${base}/about`}>About</a>
+  </footer>
+</body>
+</html>
+
+<style>
+  /* Keep the phone's existing header composition untouched; above its 680px
+     breakpoint the matching controls belong to the book-navigation row. */
+  .header-mobile-toggles,
+  .header-desktop-nav-toggles { display: contents; }
+
+  @media (min-width: 681px) {
+    .header-mobile-toggles { display: none; }
+
+    /* The identity lockup and global controls are one desktop header row. */
+    .header-bar { flex-wrap: nowrap; }
+
+    /* Match the compact citation and book-nav rhythm without introducing a
+       separate control treatment. */
+    .header-desktop-nav-toggles .toc-toggle,
+    .header-desktop-nav-toggles .scenes-toggle {
+      min-height: unset;
+      padding: 0.18rem 0.55rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+    }
+  }
+
+  @media (max-width: 680px) {
+    .header-desktop-nav-toggles { display: none; }
+  }
+</style>
+
+<style is:global>
+  /* Verse-work contents rows keep their single anchor target while adding the
+     optional book argument as a compact secondary line. */
+  .toc-book-link.has-argument { display: flex; flex-direction: column; gap: 0.14rem; }
+  .toc-book-argument {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    color: var(--text-mid);
+    font-size: 0.76rem;
+    font-weight: 400;
+    line-height: 1.3;
+  }
+  .toc-draft-note {
+    padding: 0.35rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  @media (max-width: 680px) {
+    /* The contents drawer is the phone navigation hub; one line preserves a
+       compact sheet at 375px while retaining the summary in the link text. */
+    .toc-book-argument { -webkit-line-clamp: 1; }
+  }
+
+  /* Cartouche gap (John, 2026-07-19): on desktop, dead space stacked between
+     the book plate's own bottom margin (global.css .book-plate:
+     margin-bottom 1.75rem / 28px) and .reader-body's top padding (global.css
+     .reader-body: padding-top 1.5rem / 24px) — the two don't margin-collapse
+     (.reader-controls, the visible edge, is a PADDED descendant of
+     .reader-body, not book-plate's sibling), so they simply add up to ~52px
+     of dead space above the translation-picker strip. Neither rule lives in
+     a file this brief is scoped to touch (both are in shared/styles/
+     global.css) — this override, scoped to the SAME >680px breakpoint the
+     rest of this file's desktop overrides use, drops the book-plate's own
+     trailing margin to 0, leaving reader-body's 24px as the sole (and now
+     single, legible) gap — roughly half the original ~52px. Mobile is
+     untouched (this block never applies below 681px). Doubled class
+     (`.book-plate.book-plate`, specificity 0-2-0) rather than plain
+     `.book-plate` (0-1-0): global.css's own `.book-plate { margin: 1.25rem 0
+     1.75rem }` shorthand rule is emitted AFTER this component's styles in
+     the page's CSS (verified empirically), so an equal-specificity override
+     here would lose the cascade tie-break to source order and silently not
+     apply. */
+  @media (min-width: 681px) {
+    .book-plate.book-plate { margin-bottom: 0; }
+  }
+</style>

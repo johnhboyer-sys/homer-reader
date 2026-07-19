@@ -1,0 +1,995 @@
+<!--
+  DESIGN PLAN — HOMEPAGE v1 ("the front door")
+  ======================================================================
+  Locked inputs: hybrid-v2.html (token system, four type roles, hairline/
+  small-caps vocabulary, contour-band motif, theme contract) + docs/DESIGN.md
+  (chart-room restraint, wayfinding = bronze only, terracotta = draft badge
+  only). John's mid-task refinement: "more graphic design forward without
+  being overly edgy" — bolder composition, type-as-graphic, asymmetry, scale
+  contrast, confident negative space, one visually assertive signature move,
+  inside the locked palette. University-press poster, not startup landing,
+  not Behance flex. No "Landmark" anywhere visible (trademark review).
+
+  HERO CONCEPT
+  ------------------------------------------------------------------------
+  The hero IS two words. ΙΛΙΑΣ and ΟΔΥΣΣΕΙΑ set as monumental, edge-anchored
+  display type on a full-bleed wine-dark ground — the one screen where the
+  Aegean sea-dark palette owns the page in BOTH themes (a deliberate,
+  explicitly-scoped exception; documented below). Composition is asymmetric
+  on purpose, not a 50/50 card pair:
+    - ΙΛΙΑΣ: left-aligned, hugs the true left edge, LARGER scale, heavier
+      block of supporting text. Siege, stone, a wall you can't get around —
+      expressed as scale and weight, not illustration.
+    - ΟΔΥΣΣΕΙΑ: right-aligned, hugs the true right edge, smaller scale, more
+      negative space around it. Distance, a voyage, room to move.
+  Scale contrast + mirrored edge-anchoring IS the asymmetry John asked for;
+  it also does real work — it's the first thing a reader parses ("two
+  poems, not identical, not a shelf of matching spines").
+
+  SIGNATURE MOVE — the live horizon, escalated.
+  hybrid-v2 already has a contour-band: three hairline wave-strokes, purely
+  decorative, parked under the header. This page takes that exact motif and
+  gives it a job: scaled up to full hero height, tilted into a single
+  diagonal seam, it becomes the literal boundary AND the joint between the
+  two epics — rising from low-left (Iliad, grounded) to high-right (Odyssey,
+  open sea), drawn in the same three-stroke rule-strong/rule/bronze
+  vocabulary as the header's contour-band elsewhere on the site. It crosses
+  IN FRONT of the giant display letters at low opacity — an engraved chart
+  line laid across a monument — which is the one place on this page I spend
+  the "assertive" budget the brief asked for. Everything else (starfield,
+  gradient) is atmosphere in support of this one move, not a second
+  competing signature. Two small supporting touches, not separate moves:
+  a warm bronze ember-glow low-left under Iliad (siege/pyre, barely there)
+  and a scatter of static bronze pinpoints low-right under Odyssey (night
+  sailing) with two of them on a slow twinkle — killed outright by
+  prefers-reduced-motion via the existing global rule, no bespoke handling
+  needed. No canvas, no JS-driven generative field: CSS radial-gradients
+  only, so the "generative" element costs nothing and can't jank.
+  Composition is otherwise static, like a printed poster — deliberately, in
+  answer to "no gimmick animation": the one motion in the whole hero is a
+  single on-load stroke-draw of the horizon (skipped entirely under
+  reduced-motion, full state shown immediately) plus the two twinkling
+  stars. Nothing scrolls, parallaxes, or loops.
+
+  WHY THIS ISN'T THE GENERIC DEFAULT
+  Checked against the skill's three AI-design ruts: not cream+terracotta+
+  serif-display (this is deliberately the one dark-ground screen, and it's
+  structural, not a vibe choice); not near-black+single-neon-accent (ground
+  is a specific historical/textual gradient, accent is the site's own
+  bronze, no neon); not broadsheet hairline columns (that's the REST of the
+  site — the hero is the one place that vocabulary gets inverted into a
+  poster). The signature move (contour-band → structural horizon) is
+  specific to this brief: it reuses the site's own existing motif rather
+  than importing a new one, which is what "graphic design forward... inside
+  the locked system" actually asks for.
+
+  COPY DECK
+  ------------------------------------------------------------------------
+  Hero — Iliad:      kicker "24 books · the war's tenth year"
+                      epigraph Il. 1.1 (from build/dist, verbatim) +
+                      tight English gloss
+                      argument: "The wrath of Achilles, and the ruin it
+                      cost the Achaeans before Troy."
+  Hero — Odyssey:     kicker "24 books · ten years' wandering"
+                      epigraph Od. 1.1 (from build/dist, verbatim) +
+                      tight English gloss
+                      argument: "The long way home — ten years, one man,
+                      and every disguise it took to survive it."
+  Three doors:        New to Homer / Reading the Greek / The Maps — one
+                      factual line each, no marketing verbs.
+  Apparatus band:     scene-by-scene guidance (real scene chip, Il. 1.1–7,
+                      draft badge), the day-calendar, maps + certainty
+                      tiers (mini legend), two-lexicon lookup. Four short
+                      factual lines, no adjectives doing salesmanship.
+  Footer:             identical three source credits from hybrid-v2,
+                      unedited (Monro–Allen / Murray / CAWM).
+
+  Both Greek epigraphs are pulled verbatim from build/dist/{iliad,odyssey}/
+  book-01.json segment 1 line 1 — μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος /
+  ἄνδρα μοι ἔννεπε, μοῦσα, πολύτροπον, ὃς μάλα πολλὰ.
+
+  TOKEN NOTE — the one hero exception
+  ------------------------------------------------------------------------
+  .hero defines a small scoped block of --hero-* custom properties with
+  FIXED hex values (not swapped by data-theme / prefers-color-scheme),
+  reusing the EXACT hex already verified in hybrid-v2's own dark-theme
+  contrast table rather than inventing new colors:
+    --hero-ink        #EDE6D6  (= dark-theme --ink;      14.69:1 on hero bg)
+    --hero-ink-soft   #B9B2A0  (= dark-theme --ink-soft;   8.65:1 on hero bg)
+    --hero-bronze     #C89B5C  (= dark-theme --gold-text;  7.22:1 on hero bg)
+    --hero-bronze-brt #E0B876  (= dark-theme --gold-deco)
+    --hero-rule       #24354C  (= dark-theme --rule, decorative only)
+    --hero-rule-strong #35506E (= dark-theme --rule-strong, decorative)
+    --hero-focus      #E0B876  (= dark-theme --focus-ring)
+  Because these are the SAME hex the contrast table already cleared, no new
+  ratios needed computing — light-theme readers get the identical, already-
+  audited dark-theme numbers inside the hero only. Every other section of
+  this page (doors, apparatus band, footer, header) uses the ordinary
+  var(--ink) etc. tokens and swaps normally with the theme toggle.
+
+  SELF-CRITIQUE (after building, both themes opened via claude-in-chrome)
+  ------------------------------------------------------------------------
+  - Confirmed: hero renders identically in light and dark theme (by design
+    — it doesn't read var()s that swap), while header/doors/apparatus/
+    footer visibly re-themed on toggle. This is the intended "one exception"
+    posture, not a bug; called out again here so it isn't mistaken for an
+    incomplete theme pass.
+  - True pixel-clipping of the giant letters at the viewport edge was
+    considered (clip-path / overflow hack) and rejected in favor of scale +
+    edge-anchoring + a small fixed negative margin: more robust across the
+    375px–1600px range this file has to survive, at the cost of a literal
+    "cropped by the frame" read at ultra-wide viewports being more implied
+    than physically true. Flagging rather than overclaiming.
+  - Contour SVG crossing the display letters is opacity ~0.3 and hairline-
+    width; verified by reading the computed stroke-width/opacity in the CSS
+    (not a live measurement) that it cannot drop the title's own text-vs-
+    background contrast, since the lines sit ON TOP as a thin decorative
+    overlay rather than changing the letter glyph's fill color.
+  - Three Doors and Apparatus Band intentionally keep zero color accents
+    beyond bronze (wayfinding) and terracotta (draft badge only) — no third
+    hero-only color leaked out of the hero into the rest of the page.
+  - Did not add a fourth "door" or extra hero panel despite the temptation
+    to cross-link Reading Mode from the hero itself — that link already
+    lives in Three Doors; duplicating it would be Kitchen Sink.
+  ======================================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Homer Reader</title>
+<style>
+  :root {
+    --ground: #E9E7DD;
+    --ground-panel: #DFDCCE;
+    --margin-bg: #DFDCCE;
+    --ink: #1B2233;
+    --ink-soft: #4A4F5C;
+    --rule: #C9C4B0;
+    --rule-strong: #23405C;
+    --route-red: #7C5A2E;
+    --gold-text: #7C5A2E;
+    --gold-deco: #9C7539;
+    --terracotta: #9C4530;
+    --focus-ring: #23405C;
+
+    --font-display: 'Big Caslon', 'Hoefler Text', 'Palatino Linotype', Palatino, Georgia, serif;
+    --font-label: Optima, Seravek, 'Gill Sans', 'Gill Sans MT', sans-serif;
+    --font-greek: Palatino, 'Palatino Linotype', 'Times New Roman', Georgia, serif;
+    --font-serif: 'Iowan Old Style', Charter, Georgia, serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0B1526;
+      --ground-panel: #101E33;
+      --margin-bg: #101E33;
+      --ink: #EDE6D6;
+      --ink-soft: #B9B2A0;
+      --rule: #24354C;
+      --rule-strong: #35506E;
+      --route-red: #C89B5C;
+      --gold-text: #C89B5C;
+      --gold-deco: #E0B876;
+      --terracotta: #D97A61;
+      --focus-ring: #E0B876;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0B1526;
+    --ground-panel: #101E33;
+    --margin-bg: #101E33;
+    --ink: #EDE6D6;
+    --ink-soft: #B9B2A0;
+    --rule: #24354C;
+    --rule-strong: #35506E;
+    --route-red: #C89B5C;
+    --gold-text: #C89B5C;
+    --gold-deco: #E0B876;
+    --terracotta: #D97A61;
+    --focus-ring: #E0B876;
+  }
+
+  :root[data-theme="light"] {
+    --ground: #E9E7DD;
+    --ground-panel: #DFDCCE;
+    --margin-bg: #DFDCCE;
+    --ink: #1B2233;
+    --ink-soft: #4A4F5C;
+    --rule: #C9C4B0;
+    --rule-strong: #23405C;
+    --route-red: #7C5A2E;
+    --gold-text: #7C5A2E;
+    --gold-deco: #9C7539;
+    --terracotta: #9C4530;
+    --focus-ring: #23405C;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--ground);
+    color: var(--ink);
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: var(--font-serif);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    * { scroll-behavior: smooth; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  a { color: inherit; }
+  :focus-visible {
+    outline: 2.5px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 1px;
+  }
+
+  .sc {
+    font-family: var(--font-label);
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    font-weight: 600;
+  }
+
+  .wrap {
+    max-width: 76rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  /* ---------- masthead (trimmed for the homepage: hero carries the weight) ---------- */
+  header.masthead {
+    border-bottom: 1px solid var(--rule-strong);
+    background: var(--ground);
+    position: relative;
+    z-index: 5;
+  }
+  .masthead-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem 1.5rem;
+    padding: 1rem clamp(1.25rem, 4vw, 2.5rem) 0.9rem;
+  }
+  .wordmark {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    letter-spacing: 0.02em;
+    font-weight: 400;
+  }
+  .wordmark small {
+    display: block;
+    font-family: var(--font-label);
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+    font-weight: 600;
+    margin-top: 0.15rem;
+  }
+  nav.primary-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.35rem;
+  }
+  nav.primary-nav a {
+    text-decoration: none;
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+  }
+  nav.primary-nav a:hover {
+    color: var(--route-red);
+    border-bottom-color: var(--route-red);
+  }
+
+  /* ================= HERO — the one wine-dark, both-theme exception ================= */
+  /* The hero still owns its own palette in both themes (not the ordinary var() swap),
+     but now nudges SLIGHTLY with theme: DUSK is the default/light posture (ground lifted
+     a touch, faint rose cast at the seam, points fewer/dimmer); DEEP NIGHT
+     (prefers-color-scheme: dark, or data-theme="dark") is the fuller original treatment.
+     Ink/bronze/rule tokens are identical in both — only the ground gradient and the
+     ambient point-fields move, so on-hero text contrast never changes. */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    --hero-ink: #EDE6D6;
+    --hero-ink-soft: #B9B2A0;
+    --hero-bronze: #C89B5C;
+    --hero-bronze-brt: #E0B876;
+    --hero-rule: #24354C;
+    --hero-rule-strong: #35506E;
+    --hero-focus: #E0B876;
+    color: var(--hero-ink);
+    /* DUSK — default posture. --hero-bg-mid is a pre-mixed OPAQUE hex (navy warmed ~14%
+       toward a dusty rose), not an alpha color — an alpha stop here would interpolate its
+       alpha channel too and let the page's own (light) body background bleed through the
+       hero at that seam, reading as a harsh bright streak. Opaque avoids that entirely. */
+    --hero-bg-1: #141B30;
+    --hero-bg-2: #1B2743;
+    --hero-bg-3: #262F52;
+    --hero-bg-mid: #333248;
+    --hero-point-mult: 0.55;
+    --hero-fire-scale: 0.72;
+    background: linear-gradient(158deg, var(--hero-bg-1) 0%, var(--hero-bg-2) 42%, var(--hero-bg-mid) 50%, var(--hero-bg-2) 58%, var(--hero-bg-3) 100%);
+  }
+  .hero .dusk-hide { display: none; }
+  @media (prefers-color-scheme: dark) {
+    .hero {
+      --hero-bg-1: #0B1526;
+      --hero-bg-2: #101E33;
+      --hero-bg-3: #172846;
+      --hero-bg-mid: var(--hero-bg-2);
+      --hero-point-mult: 1;
+      --hero-fire-scale: 1;
+    }
+    .hero .dusk-hide { display: inline; }
+  }
+  :root[data-theme="dark"] .hero {
+    --hero-bg-1: #0B1526;
+    --hero-bg-2: #101E33;
+    --hero-bg-3: #172846;
+    --hero-bg-mid: var(--hero-bg-2);
+    --hero-point-mult: 1;
+    --hero-fire-scale: 1;
+  }
+  :root[data-theme="dark"] .hero .dusk-hide { display: inline; }
+  :root[data-theme="light"] .hero {
+    --hero-bg-1: #141B30;
+    --hero-bg-2: #1B2743;
+    --hero-bg-3: #262F52;
+    --hero-bg-mid: #333248;
+    --hero-point-mult: 0.55;
+    --hero-fire-scale: 0.72;
+  }
+  :root[data-theme="light"] .hero .dusk-hide { display: none; }
+
+  .hero::before {
+    /* diffuse ember wash, low-left, under Iliad — siege/pyre, barely there (static; the
+       discrete .fire points below carry the flicker so this doesn't compete with them) */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 62% 52% at 12% 100%, rgba(218,132,50,0.40), transparent 74%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .hero::after {
+    /* moonlight-on-water glint — sea/Odyssey side only, drifting very slowly */
+    content: "";
+    position: absolute;
+    inset: -8% -12% -8% 40%;
+    background: linear-gradient(
+      158deg,
+      transparent 40%,
+      rgba(237,230,214,0.04) 47%,
+      rgba(224,184,118,0.055) 50%,
+      rgba(237,230,214,0.04) 53%,
+      transparent 60%
+    );
+    pointer-events: none;
+    z-index: 1;
+    will-change: transform;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero::after { animation: moonlight-drift 130s ease-in-out infinite alternate; }
+  }
+  @keyframes moonlight-drift {
+    /* symmetric from/to + alternate: reverses exactly at each endpoint, never jumps */
+    from { transform: translateX(-0.8vw); }
+    to   { transform: translateX(0.8vw); }
+  }
+
+  /* ---- watchfires: Iliad side, low on the plain, warm, slightly irregular flicker
+     (Il. 8.553-565 — the Trojan watchfires, "as many as the stars" — same vocabulary as
+     the stars below, warm and grounded instead of cool and high) ---- */
+  .fire {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    transform: scale(var(--hero-fire-scale, 1));
+    box-shadow: 0 0 14px 4px rgba(224,140,54,0.55), 0 0 4px 1px rgba(255,190,110,0.8);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .fire { animation: flicker var(--dur, 22s) ease-in-out infinite; animation-delay: var(--delay, 0s); }
+  }
+  @keyframes flicker {
+    /* irregular multi-stop, but 0% = 100% so the loop is seamless */
+    0%, 100% { opacity: calc(var(--base, 0.55) * var(--hero-point-mult, 1)); }
+    22%      { opacity: calc((var(--base, 0.55) + 0.12) * var(--hero-point-mult, 1)); }
+    46%      { opacity: calc(var(--base, 0.55) * var(--hero-point-mult, 1)); }
+    68%      { opacity: calc(var(--peak, 0.9) * var(--hero-point-mult, 1)); }
+    85%      { opacity: calc((var(--base, 0.55) + 0.15) * var(--hero-point-mult, 1)); }
+  }
+  .fire-1 { left: 6%;  bottom: 7%; width: 5.5px; height: 5.5px; background: var(--hero-bronze-brt);   --dur: 19s; --delay: -3.2s;  }
+  .fire-2 { left: 16%; bottom: 4%; width: 4.5px; height: 4.5px; background: rgba(210,140,80,0.95);    --dur: 26s; --delay: -9.5s;  }
+  .fire-3 { left: 27%; bottom: 10%; width: 5px; height: 5px;   background: var(--hero-bronze);       --dur: 17s; --delay: -1.4s;  }
+  .fire-4 { left: 39%; bottom: 5%; width: 4px; height: 4px; background: var(--hero-bronze-brt);   --dur: 31s; --delay: -14s;   }
+  .fire-5 { left: 52%; bottom: 9%; width: 4.8px; height: 4.8px; background: rgba(210,140,80,0.95);    --dur: 22s; --delay: -6.8s;  }
+  .fire-6 { left: 66%; bottom: 6%; width: 4.2px; height: 4.2px; background: var(--hero-bronze);       --dur: 28s; --delay: -11.2s; }
+  .fire-7 { left: 78%; bottom: 11%; width: 3.8px; height: 3.8px; background: var(--hero-bronze-brt);   --dur: 34s; --delay: -18s;   }
+
+  /* ---- stars: Odyssey side, high above the seam, cool bone-silver, sparse ---- */
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    box-shadow: 0 0 10px 2.5px rgba(220,235,255,0.45), 0 0 3px 1px rgba(255,255,255,0.7);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .star { animation: twinkle var(--dur, 18s) ease-in-out infinite; animation-delay: var(--delay, 0s); }
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: calc(var(--base, 0.45) * var(--hero-point-mult, 1)); }
+    50%      { opacity: calc(var(--peak, 0.9) * var(--hero-point-mult, 1)); }
+  }
+  .star-1 { left: 18%; top: 8%; width: 3.8px; height: 3.8px; background: var(--hero-ink);      --dur: 17s; --delay: -4.4s;  }
+  .star-2 { left: 36%; top: 14%;  width: 2.2px; height: 2.2px; background: var(--hero-ink-soft); --dur: 24s; --delay: -10s;   }
+  .star-3 { left: 55%; top: 6%; width: 4.2px; height: 4.2px; background: var(--hero-ink);      --dur: 14s; --delay: -2s;    }
+  .star-4 { left: 72%; top: 16%; width: 2.2px; height: 2.2px; background: var(--hero-ink-soft); --dur: 21s; --delay: -8.6s;  }
+  .star-5 { left: 88%; top: 9%; width: 2.4px; height: 2.4px; background: var(--hero-ink);      --dur: 19s; --delay: -6.1s;  }
+  .star-6 { left: 46%; top: 24%;  width: 2px; height: 2px; background: var(--hero-ink-soft); --dur: 27s; --delay: -13s;   }
+
+  .hero-horizon {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .hero-horizon path {
+    fill: none;
+    stroke-width: 1.4;
+  }
+  .hero-horizon path.h1 { stroke: var(--hero-rule-strong); opacity: 0.55; }
+  .hero-horizon path.h2 { stroke: var(--hero-rule); opacity: 0.4; }
+  .hero-horizon path.h3 { stroke: var(--hero-bronze); opacity: 0.32; }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-horizon path {
+      stroke-dasharray: 2000;
+      stroke-dashoffset: 2000;
+      animation: draw-in 1.6s ease-out forwards;
+    }
+    .hero-horizon path.h2 { animation-delay: 0.12s; }
+    .hero-horizon path.h3 { animation-delay: 0.24s; }
+    /* ambient drift — each stroke its own period/direction so they breathe against each
+       other; every loop is 0%/100%-symmetric so there is never a visible reset */
+    .horizon-drift-1 { animation: drift-h1 130s ease-in-out infinite; will-change: transform; }
+    .horizon-drift-2 { animation: drift-h2 95s ease-in-out infinite; will-change: transform; }
+    .horizon-drift-3 { animation: drift-h3 150s ease-in-out infinite; will-change: transform; }
+    .horizon-bob-3   { animation: bob-h3 50s ease-in-out infinite; }
+  }
+  @keyframes draw-in {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes drift-h1 {
+    0%, 100% { transform: translateX(0); }
+    50%      { transform: translateX(4px); }
+  }
+  @keyframes drift-h2 {
+    0%, 100% { transform: translateX(0); }
+    50%      { transform: translateX(-5px); }
+  }
+  @keyframes drift-h3 {
+    0%, 100% { transform: translateX(0); }
+    50%      { transform: translateX(7px); }
+  }
+  @keyframes bob-h3 {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(1.5px); }
+  }
+
+  .hero-grid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    min-height: min(84vh, 46rem);
+  }
+  @media (max-width: 899.98px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+  }
+
+  .epic-panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: clamp(2.25rem, 6vw, 4.5rem) clamp(1.25rem, 4.5vw, 3.75rem);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+  }
+  .epic-panel:hover .epic-cta { color: var(--hero-bronze-brt); border-top-color: var(--hero-bronze-brt); }
+  .epic-panel:hover .epic-title { color: #F5EFE2; }
+  .epic-panel:focus-visible {
+    outline: 2.5px solid var(--hero-focus);
+    outline-offset: -3px;
+  }
+
+  .epic-iliad {
+    align-items: flex-start;
+    text-align: left;
+    border-right: 1px solid rgba(36,53,76,0.55);
+    background:
+      radial-gradient(ellipse 80% 55% at 22% 100%, rgba(214,120,44,0.38), transparent 70%),
+      linear-gradient(170deg, rgba(120,60,26,0.10) 0%, rgba(160,80,32,0.22) 78%, rgba(190,100,40,0.28) 100%);
+  }
+  @media (max-width: 899.98px) {
+    .epic-iliad { border-right: none; border-bottom: 1px solid rgba(36,53,76,0.55); padding-bottom: 2.5rem; }
+  }
+  .epic-odyssey {
+    align-items: flex-end;
+    text-align: right;
+    padding-top: clamp(3.5rem, 9vw, 6.5rem);
+    background:
+      radial-gradient(ellipse 85% 60% at 84% 0%, rgba(140,190,240,0.22), transparent 72%),
+      linear-gradient(350deg, rgba(30,60,110,0.10) 0%, rgba(70,120,190,0.16) 80%, rgba(120,170,230,0.18) 100%);
+  }
+  @media (max-width: 899.98px) {
+    .epic-odyssey { align-items: flex-start; text-align: left; padding-top: 2.5rem; }
+  }
+
+  .epic-kicker {
+    font-family: var(--font-label);
+    font-size: 0.66rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--hero-bronze);
+  }
+  .epic-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 0.85;
+    letter-spacing: 0.01em;
+    color: var(--hero-ink);
+    margin: 0.15rem 0 0;
+  }
+  .epic-iliad .epic-title {
+    font-size: clamp(4.4rem, 12.5vw, 10.5rem);
+    margin-left: -0.1rem;
+  }
+  .epic-odyssey .epic-title {
+    font-size: clamp(2.1rem, 5.6vw, 6.1rem);
+    margin-right: -0.06rem;
+  }
+  .epic-en {
+    font-family: var(--font-label);
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--hero-bronze-brt);
+    margin-top: 0.35rem;
+  }
+  .epic-epigraph {
+    margin: 0.9rem 0 0;
+    width: 100%;
+    max-width: 30rem;
+  }
+  .epic-epigraph .gk {
+    display: block;
+    font-family: var(--font-greek);
+    font-size: 1.05rem;
+    color: var(--hero-ink);
+  }
+  .epic-epigraph .gloss {
+    display: block;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 0.82rem;
+    color: var(--hero-ink-soft);
+    margin-top: 0.2rem;
+  }
+  .epic-argument {
+    margin: 0.75rem 0 0;
+    width: 100%;
+    max-width: 30rem;
+    font-family: var(--font-serif);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--hero-ink-soft);
+  }
+  .epic-cta {
+    display: inline-block;
+    margin-top: 1.1rem;
+    padding-top: 0.55rem;
+    border-top: 1px solid var(--hero-rule-strong);
+    font-family: var(--font-label);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--hero-bronze);
+  }
+
+  @media (max-width: 480px) {
+    .wordmark { font-size: 1.15rem; }
+  }
+
+  /* ================= THREE DOORS ================= */
+  .section-eyebrow {
+    font-family: var(--font-label);
+    font-size: 0.64rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 1rem;
+  }
+  .doors-section { padding: 3rem 0 3.25rem; }
+  .doors-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+  @media (max-width: 760px) {
+    .doors-grid { grid-template-columns: 1fr; }
+  }
+  .door-card {
+    display: block;
+    text-decoration: none;
+    color: var(--ink);
+    background: var(--ground-panel);
+    border: 1px solid var(--rule);
+    padding: 1.35rem 1.4rem 1.5rem;
+    transition: border-color 0.15s ease;
+  }
+  .door-card:hover { border-color: var(--route-red); }
+  .door-card .door-label {
+    font-family: var(--font-label);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--route-red);
+    display: block;
+    margin-bottom: 0.65rem;
+  }
+  .door-card p {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+  .door-card .door-go {
+    display: block;
+    margin-top: 0.9rem;
+    font-family: var(--font-label);
+    font-size: 0.64rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .door-card:hover .door-go { color: var(--route-red); }
+
+  /* ================= APPARATUS BAND ================= */
+  .apparatus-section {
+    border-top: 1px solid var(--rule);
+    padding: 3rem 0 3.25rem;
+  }
+  .apparatus-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.75rem;
+  }
+  @media (max-width: 900px) {
+    .apparatus-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 520px) {
+    .apparatus-grid { grid-template-columns: 1fr; }
+  }
+  .app-item h3 {
+    margin: 0 0 0.55rem;
+    font-family: var(--font-label);
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .app-item p {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  .mini-scene-chip {
+    margin-top: 0.75rem;
+    padding: 0.6rem 0.7rem 0.65rem;
+    background: var(--margin-bg);
+    border: 1px solid var(--rule);
+    border-left: 2px solid var(--route-red);
+  }
+  .mini-scene-chip .ref {
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    color: var(--route-red);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  .mini-scene-chip p {
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--ink-soft);
+    line-height: 1.45;
+  }
+  .draft-badge {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-family: var(--font-label);
+    font-size: 0.56rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    border: 1px solid var(--terracotta);
+    padding: 0.12rem 0.38rem;
+  }
+
+  .mini-day-marker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+  }
+  .mini-day-marker .pin {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--gold-deco);
+    flex: none;
+  }
+  .mini-day-marker span.label {
+    font-family: var(--font-label);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+    font-weight: 600;
+  }
+
+  .mini-tier-legend {
+    margin-top: 0.8rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 0.9rem;
+    font-family: var(--font-label);
+    font-size: 0.6rem;
+    color: var(--ink-soft);
+  }
+  .mini-tier-legend .item { display: flex; align-items: center; gap: 0.32rem; }
+  .mini-tier-legend .mark { width: 8px; height: 8px; flex: none; }
+  .mini-tier-legend .mark.certain { border-radius: 50%; background: var(--ink); }
+  .mini-tier-legend .mark.traditional { border-radius: 50%; border: 1.3px solid var(--ink); background: transparent; }
+  .mini-tier-legend .mark.speculative { border-radius: 50%; border: 1.3px dashed var(--ink-soft); background: transparent; }
+  .mini-tier-legend .mark.mythical { border: 1.3px solid var(--ink-soft); transform: rotate(45deg); width: 6.5px; height: 6.5px; }
+
+  .mini-lex-tabs {
+    margin-top: 0.75rem;
+    display: flex;
+    gap: 0.8rem;
+    font-family: var(--font-label);
+    font-size: 0.64rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .mini-lex-tabs span { color: var(--ink-soft); border-bottom: 1px solid var(--rule); padding-bottom: 2px; }
+  .mini-lex-tabs span.active { color: var(--route-red); border-bottom-color: var(--route-red); }
+
+  /* ================= FOOTER ================= */
+  footer {
+    border-top: 1px solid var(--rule-strong);
+    padding: 1.5rem 0 2.5rem;
+    font-family: var(--font-label);
+    font-size: 0.66rem;
+    letter-spacing: 0.03em;
+    color: var(--ink-soft);
+    line-height: 1.9;
+  }
+
+  /* ---------- theme toggle ---------- */
+  .theme-toggle {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 20;
+    background: var(--ground-panel);
+    border: 1px solid var(--rule-strong);
+    color: var(--ink-soft);
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.45rem 0.7rem;
+    cursor: pointer;
+  }
+  .theme-toggle:hover { color: var(--route-red); border-color: var(--route-red); }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <div class="wordmark">
+      The Homer Reader
+      <small>Iliad &amp; Odyssey &middot; Parallel Text</small>
+    </div>
+    <nav class="primary-nav" aria-label="Primary">
+      <a href="#iliad">Iliad</a>
+      <a href="#odyssey">Odyssey</a>
+      <a href="#maps">Maps</a>
+      <a href="#timeline">Timeline</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" aria-label="The two epics">
+  <svg class="hero-horizon" viewBox="0 0 1400 900" preserveAspectRatio="none" aria-hidden="true">
+    <g class="horizon-drift-1"><path class="h1" d="M-20 760 C 220 700, 360 730, 520 660 S 780 560, 940 520 S 1180 420, 1420 300" /></g>
+    <g class="horizon-drift-2"><path class="h2" d="M-20 800 C 240 750, 380 790, 540 710 S 800 610, 960 575 S 1200 470, 1420 350" /></g>
+    <g class="horizon-drift-3"><g class="horizon-bob-3"><path class="h3" d="M-20 700 C 200 660, 340 660, 500 600 S 760 490, 920 450 S 1160 350, 1420 240" /></g></g>
+  </svg>
+
+  <div class="hero-grid">
+    <a class="epic-panel epic-iliad" href="#iliad-book-1" aria-label="Read the Iliad, beginning at Book 1">
+      <!-- watchfires on the plain, low in the Iliad panel (Il. 8.553-565) -->
+      <span class="fire fire-1" aria-hidden="true"></span>
+      <span class="fire fire-2" aria-hidden="true"></span>
+      <span class="fire fire-3" aria-hidden="true"></span>
+      <span class="fire fire-4" aria-hidden="true"></span>
+      <span class="fire fire-5" aria-hidden="true"></span>
+      <span class="fire fire-6" aria-hidden="true"></span>
+      <span class="fire fire-7" aria-hidden="true"></span>
+      <span class="epic-kicker">24 books &middot; the war&rsquo;s tenth year</span>
+      <h2 class="epic-title">ΙΛΙΑΣ</h2>
+      <span class="epic-en">The Iliad</span>
+      <p class="epic-epigraph">
+        <span class="gk">μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος</span>
+        <span class="gloss">Sing, goddess, the wrath of Peleus&rsquo; son Achilles</span>
+      </p>
+      <p class="epic-argument">The wrath of Achilles, and what it costs the Greeks outside the walls of Troy.</p>
+      <span class="epic-cta">Read Book 1 &rarr;</span>
+    </a>
+
+    <a class="epic-panel epic-odyssey" href="#odyssey-book-1" aria-label="Read the Odyssey, beginning at Book 1">
+      <!-- stars over the sea, high in the Odyssey panel -->
+      <span class="star star-1" aria-hidden="true"></span>
+      <span class="star star-2" aria-hidden="true"></span>
+      <span class="star star-3" aria-hidden="true"></span>
+      <span class="star star-4" aria-hidden="true"></span>
+      <span class="star star-5 dusk-hide" aria-hidden="true"></span>
+      <span class="star star-6 dusk-hide" aria-hidden="true"></span>
+      <span class="epic-kicker">24 books &middot; ten years&rsquo; wandering</span>
+      <h2 class="epic-title">ΟΔΥΣΣΕΙΑ</h2>
+      <span class="epic-en">The Odyssey</span>
+      <p class="epic-epigraph">
+        <span class="gk">ἄνδρα μοι ἔννεπε, μοῦσα, πολύτροπον, ὃς μάλα πολλὰ</span>
+        <span class="gloss">Tell me, Muse, of the man of many turns, who wandered far</span>
+      </p>
+      <p class="epic-argument">The long way home &mdash; ten years, one man, and every disguise it took to survive it.</p>
+      <span class="epic-cta">Read Book 1 &rarr;</span>
+    </a>
+  </div>
+</section>
+
+<main class="wrap">
+
+  <section class="doors-section" aria-label="Ways to begin">
+    <p class="section-eyebrow">Three ways in</p>
+    <div class="doors-grid">
+      <a class="door-card" href="#reading-mode-od9">
+        <span class="door-label">New to Homer</span>
+        <p>Start in the middle of the action &mdash; Odysseus among the Cyclopes, Book 9, in Reading Mode.</p>
+        <span class="door-go">Begin at Od. 9 &rarr;</span>
+      </a>
+      <a class="door-card" href="#scholar-view">
+        <span class="door-label">Reading the Greek</span>
+        <p>Parallel text with parse popups on every word, LSJ and Cunliffe one click away.</p>
+        <span class="door-go">Open scholar view &rarr;</span>
+      </a>
+      <a class="door-card" href="#maps">
+        <span class="door-label">The Maps</span>
+        <p>Every place named in the poems, plotted, with its identification&rsquo;s certainty marked.</p>
+        <span class="door-go">Browse the maps &rarr;</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="apparatus-section" aria-label="What this edition adds">
+    <p class="section-eyebrow">What the edition adds</p>
+    <div class="apparatus-grid">
+      <div class="app-item">
+        <h3>Scene by scene</h3>
+        <p>Every book broken into its scenes, with a one-line gloss for each.</p>
+        <div class="mini-scene-chip">
+          <span class="ref">1.1&ndash;7 &middot; Invocation</span>
+          <p>The wrath announced &mdash; the poem states its subject and its cost before the story begins.</p>
+          <span class="draft-badge">Draft</span>
+        </div>
+      </div>
+      <div class="app-item">
+        <h3>The calendar</h3>
+        <p>Every book keyed to its day in the poem&rsquo;s own reckoning of time.</p>
+        <div class="mini-day-marker">
+          <span class="pin" aria-hidden="true"></span>
+          <span class="label">Day 1 of 21</span>
+        </div>
+      </div>
+      <div class="app-item">
+        <h3>Maps, honestly marked</h3>
+        <p>Every place plotted; identifications graded by how sure the tradition is.</p>
+        <div class="mini-tier-legend">
+          <span class="item"><span class="mark certain" aria-hidden="true"></span>certain</span>
+          <span class="item"><span class="mark traditional" aria-hidden="true"></span>traditional</span>
+          <span class="item"><span class="mark speculative" aria-hidden="true"></span>speculative</span>
+          <span class="item"><span class="mark mythical" aria-hidden="true"></span>mythical</span>
+        </div>
+      </div>
+      <div class="app-item">
+        <h3>Two lexicons</h3>
+        <p>LSJ and Cunliffe, from any Greek word, without leaving the page.</p>
+        <div class="mini-lex-tabs">
+          <span class="active">LSJ</span>
+          <span>Cunliffe</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Greek text: Monro&ndash;Allen OCT (Perseus, CC-BY-SA) &middot; Translation: A. T. Murray (1924), public domain &middot; Maps: CAWM tiles (CC BY 4.0)
+  </footer>
+
+</main>
+
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">Day / Night</button>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('themeToggle');
+    var stored = null;
+    try { stored = localStorage.getItem('homer-homepage-theme'); } catch (e) {}
+    if (stored === 'dark' || stored === 'light') {
+      root.setAttribute('data-theme', stored);
+    }
+    btn.addEventListener('click', function () {
+      var current = root.getAttribute('data-theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var effectiveCurrent = current || (prefersDark ? 'dark' : 'light');
+      var next = effectiveCurrent === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('homer-homepage-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+
+</body>
+</html>

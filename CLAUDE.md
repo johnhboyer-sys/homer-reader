@@ -26,6 +26,14 @@ non-negotiable.
 - **Vulgate lineation is sacred.** Never renumber. Numbering gaps and
   bracketed/athetized lines are preserved verbatim; a verifier asserts monotonic
   numbering with recorded, expected gaps per book.
+- **Apparatus sourcing (John, 2026-07-18):** apparatus features may draw on
+  copyrighted scholarship as SOURCES — cited precisely, attributed quotes
+  welcome, never republished wholesale. Site translations remain PD-only
+  (rule above unchanged). Print Landmark series stays excluded entirely.
+  Every sourced claim carries its citation in the data, not just the prose.
+  Citation format (John, 2026-07-18): **Chicago** for books and articles;
+  everything else (web resources, databases, blogs) hyperlinks to the
+  source within the citation.
 - **Apparatus honesty:** AI-drafted apparatus carries `status: "draft"` until John
   flips it; the UI shows a discreet draft badge. Every place has a certainty tier
   (`certain | traditional | speculative | mythical`); traditional identifications
@@ -37,9 +45,13 @@ non-negotiable.
   2026-07-17).** Reuse aristotle-reader's incremental gh-pages deploy recipe.
   Creating the GitHub remote and the first push are also John-gated. Stay in free
   tier; surface anything that would incur cost **before** doing it.
-- Before committing on the main working branch: summarize the work and wait for
-  John's go-ahead. EXCEPTION — worktrees auto-clean: in a worktree, commit early
-  and often; push to a `claude/` branch promptly; review gate applies at PR time.
+- Git flow (John, 2026-07-17): private repo
+  `github.com/johnhboyer-sys/homer-reader`; commit as we go, **push promptly
+  after every commit** (backup). PR bundling at the orchestrator's judgment
+  (John): PR #1 = claude/build → main umbrella (phases 0–3 + scenes);
+  subsequent coherent units get branches off claude/build with stacked PRs
+  into claude/build. Review gate applies at PR time; merging `main` is
+  John's. Never enable GH Pages / deploy without explicit go-ahead.
 - Verify functionally, not with screenshots.
 - All data fetches go through the `data.ts` data-root override — never bypass it.
 - Accessibility: WCAG AA contrast in BOTH themes; keyboard access on Greek tokens
@@ -63,6 +75,46 @@ non-negotiable.
   refreshed" — clear that state dir and start a `--fresh` thread. `codex login
   status` saying "Logged in" is not sufficient evidence the plugin runtime works.
 
+- Pipeline gotcha (2026-07-17, caught by Gate 4): any stage7 re-emit
+  (incl. `all` and full re-runs) must be FOLLOWED by `apparatus
+  --work <W>` for both works — stage7 rewrites book JSONs without the
+  apparatus merge and silently wipes scenes. Until preflight asserts
+  apparatus presence (Phase 6 hardening), every pipeline re-run brief
+  must end with the apparatus re-merge + a 48/48 scenes check.
+- Concurrency gotcha (2026-07-17, bit two agents the same day): an app
+  build/verification that runs while a pipeline lane is regenerating
+  build/dist sees TRANSIENT states (books without scenes, off page
+  counts). Never "fix" what such a build shows — re-verify after the
+  pipeline lane lands. Orchestrator: avoid scheduling app verification
+  concurrent with pipeline re-emits.
+- Browser-verification gotcha (2026-07-17, caught by the /places/ verify
+  lane): the Playwright MCP browser session is SHARED across concurrent
+  agents — a tab can be hijacked to another agent's URL between tool
+  calls. Any browser-verifying agent must open its own dedicated tab,
+  navigate immediately before every screenshot/assert with no intervening
+  calls, and visually confirm each screenshot shows ITS page before
+  trusting it.
+- Build-output gotcha (2026-07-18): app/dist is also a shared mutable —
+  two lanes running `astro build` in the same checkout clobber each
+  other's dist mid-verification. Lanes verifying against dist must
+  build+verify without another build lane running, or verify via dev
+  server instead.
+- Codex model-flag gotcha (2026-07-18): `--model gpt-5.6-terra-high` is
+  REJECTED on this ChatGPT-account setup ("model is not supported…"); runs
+  fall back to the account's default Codex model at `--effort high`. Label
+  lanes accordingly; the routing table's Terra/Sol names describe intent,
+  not a selectable flag here.
+- Browser-tooling gotcha (2026-07-18): the Chrome-MCP `resize_window` can
+  silently lock at ~800px wide mid-session — for mobile-viewport captures
+  use the Playwright MCP's `browser_resize` (dedicated tab, as ever).
+- Verification gotcha (2026-07-17, cost a full Opus diagnostic lane):
+  John often has the sibling classical-philosophy-reader dev server
+  holding port 4321, so Homer's `astro preview` silently bumps to
+  another port — a browser pointed at the conventional :4321 tests the
+  WRONG SITE (symptom: SSR fine via curl, "empty" DOM in the browser).
+  Any browser-based verification must read the actual bound port from
+  the server log first, and hard-reload past service workers.
+
 ## Orchestration
 
 You (Fable) are the **orchestrator**. Your job is planning, decomposition,
@@ -74,11 +126,38 @@ decisions, not on file contents.
 
 - **Concurrency cap: 5 agents maximum, simultaneously.** Queue the rest. Absolute,
   regardless of tooling defaults.
-- **Subagent models: Opus, Sonnet, Codex only.**
+- **Subagent models: Opus, Sonnet, Codex, Grok.** (Grok off probation — John,
+  2026-07-17 — full implementer status; ~85% of trial balance available as of
+  2026-07-17, use liberally.)
 - **Fable never spawns fable subagents unless John explicitly says to.**
-- **Grok-4.5 is unavailable until the weekly balance reset (~2026-07-24;
-  exhausted 2026-07-17; John: no top-up).** Route content-verification gates to
-  independent Codex runs meanwhile; note the substitution in DEPLOY-STATUS.
+- **Grok-4.5 is available again (John, 2026-07-17: upgraded, free trial).**
+  Content-verification gates route to Grok per the routing table below.
+- **Usage rebalance (John, 2026-07-17 ~17:00): conserve Claude; lean on
+  Codex + Grok.** Claude 7d at 57%, Codex has two resets banked, Grok at
+  24% used. Well-specified implementation defaults to GPT-5.6-Terra-High
+  (Codex) or Grok; Sonnet/Opus reserved for reader-core subtleties,
+  philological judgment, and integration-heavy work. Judgment allowed.
+  **Escalation rule (John, same day, refined): minor stumbles stay in
+  the Codex/Grok lane — nudge, clarify the brief, retry once. Escalate
+  to Claude (Sonnet; Opus on difficulty) only on a BAD fuckup: badly
+  wrong output, a failed verification gate traceable to the agent's
+  sloppiness, or a second failure on the same brief. Claude is the
+  trust anchor; economy never outranks correctness.**
+  **Cross-model brief discipline (John, same day): Codex/Grok briefs
+  must be tighter than Claude briefs — zero implicit context. Spell
+  out: exact file paths, exact commands (venv, nvm), the output schema,
+  what NOT to touch, every known gotcha from this file, and the
+  machine-checkable pass/fail criteria. Assume the model has never seen
+  this repo and will not infer conventions. If a brief leans on "follow
+  existing conventions," name the file that exemplifies them.**
+  **Codex output verification (John, same day: "it can be sloppy"):
+  every Codex implementation lane gets a quick Claude (Sonnet)
+  verification pass — tests re-run, functional smoke, diff review
+  against the brief's blast radius — BEFORE the orchestrator commits.
+  Not a full adversarial gate; a competence check. Grok content gates
+  are unchanged. For UI work, the pass ALSO reviews design fidelity
+  against the approved mock (John: "I don't trust its taste") and
+  captures both-theme screenshots for John before commit.**
 
 ### Context discipline
 
@@ -109,7 +188,7 @@ decisions, not on file contents.
 | **Sonnet** | Workhorse (default subagent) | Well-specified implementation, tests, mechanical multi-file edits, exploration/search sweeps, doc updates, data-build babysitting, per-book apparatus batches (~5 books/agent) |
 | **GPT-5.6-Sol-High** (Codex CLI, `--effort high`) | Adversarial reviewer | Red-team review of finished work before John's review gates and before any deploy; cross-model second opinion on designs. Precedent: the plato-reader 14th-deploy whole-site adversarial review (15 confirmed findings). |
 | **GPT-5.6-Terra-High** (Codex CLI, `--effort high`) | Cross-model implementer | Independent implementation of isolated, well-specified tasks; independent bug reproduction; second implementation when comparing approaches |
-| **Grok-4.5** (Grok CLI, `grok-cc:grok-rescue`) | Content verifier + mechanical implementer — **UNAVAILABLE until the weekly reset (~2026-07-24)** | Content/extraction verification gates (its specialty — twice found defect classes Sol/Opus/Claude all missed, with raw-line evidence), additional adversarial passes, mechanical coding tasks. Forwarder quirk (BOTH grok-rescue and codex-rescue): the runner may background the CLI task and end its turn with no result — nudge via SendMessage ("wait for the run and return the findings"). Gotcha: read-only task mode gets Cancelled by the runtime — use write-capable with a no-tracked-file-edits constraint. |
+| **Grok-4.5** (Grok CLI, `grok-cc:grok-rescue`) | Full implementer + content verifier (off probation, John 2026-07-17; free trial) | Content/extraction verification gates (its specialty — twice found defect classes Sol/Opus/Claude all missed, with raw-line evidence), additional adversarial passes, mechanical coding tasks. Forwarder quirk (BOTH grok-rescue and codex-rescue): the runner may background the CLI task and end its turn with no result — nudge via SendMessage ("wait for the run and return the findings"). Gotcha: read-only task mode gets Cancelled by the runtime — use write-capable with a no-tracked-file-edits constraint. |
 
 Routing principles: default subagent is Sonnet; escalate to Opus on genuine
 difficulty, not on volume. **The Agent tool inherits the orchestrator's model
@@ -118,6 +197,9 @@ are a Sonnet subagent" does nothing. Every spawn must pass `model:` explicitly,
 matching the label** (caught by John 2026-07-16). CLI forwarders run a Claude
 wrapper around the external CLI — label them "<wrapper>→<worker>: …" (e.g.
 "Sonnet→GPT-5.6-Sol-High: review X") so the status line tells the whole story.
+**Every agent label/description starts with its model** (John, 2026-07-17):
+"Sonnet: fix alignment defects", "Opus: verse-line scheme" — no unlabeled
+spawns.
 **Resuming a completed agent (SendMessage) does NOT re-apply its model override —
 the resumed turn runs on the session model (Fable). For tier-sensitive
 follow-ups, launch a FRESH agent with `model:` set and hand it the needed
@@ -193,6 +275,14 @@ And from his expanded set, the ones this project adopts:
    rather than continuing.
 
 ## Failure-mode registry (append dated lessons — a lesson not written down will be repeated)
+
+- **`git add -A` while agents are in flight** (2026-07-17, twice): sweeps
+  concurrent agents' uncommitted work into unrelated commits. Orchestrator
+  commits must stage explicit paths whenever any agent is running.
+  UPDATE (2026-07-18, orchestrator self-caught): DIRECTORY adds count —
+  `git add shared/__tests__/` swept an in-flight lane's test edits into an
+  unrelated commit. Stage explicit FILES, never directories, while any
+  agent runs.
 
 - **Fork drift** (aristotle→plato: ~20 files diverged in 4 days): this repo is the
   fourth fork. `DRIFT.md` is the mitigation; keep it current.

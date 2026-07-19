@@ -1,0 +1,947 @@
+{
+  "status": "draft",
+  "achaean": [
+    {
+      "id": "boeotians",
+      "name": "Boeotians",
+      "lines": [
+        494,
+        510
+      ],
+      "leaders": [
+        "peneleos",
+        "leitus",
+        "arcesilaus",
+        "prothoenor",
+        "clonius"
+      ],
+      "ships": 50,
+      "places": [
+        "hyria",
+        "aulis",
+        "schoenus",
+        "scolus",
+        "eteonus",
+        "thespiae",
+        "graea",
+        "mycalessus",
+        "harma",
+        "eilesium",
+        "erythrae-boeotia",
+        "eleon",
+        "hyle",
+        "peteon",
+        "ocalea",
+        "medeon-boeotia",
+        "copae",
+        "eutresis",
+        "thisbe",
+        "coroneia",
+        "haliartus",
+        "plataea",
+        "glisas",
+        "hypothebae",
+        "onchestus",
+        "arne",
+        "midea-boeotia",
+        "nisa",
+        "anthedon"
+      ],
+      "note": "Five leaders, the longest place-list in the Catalogue (29 named towns)."
+    },
+    {
+      "id": "minyan-orchomenus",
+      "name": "Minyan Orchomenus (Aspledon)",
+      "lines": [
+        511,
+        516
+      ],
+      "leaders": [
+        "ascalaphus",
+        "ialmenus"
+      ],
+      "ships": 30,
+      "places": [
+        "aspledon",
+        "orchomenus-boeotian"
+      ],
+      "note": "Sons of Ares by Astyoche; the 'Minyan' Orchomenus, distinct from Arcadian Orchomenus below."
+    },
+    {
+      "id": "phocians",
+      "name": "Phocians",
+      "lines": [
+        517,
+        526
+      ],
+      "leaders": [
+        "schedius",
+        "epistrophus"
+      ],
+      "ships": 40,
+      "places": [
+        "cyparissus-phocis",
+        "delphi-pytho",
+        "crisa",
+        "daulis",
+        "panopeus",
+        "anemoreia",
+        "hyampolis",
+        "cephisus-phocis",
+        "lilaea"
+      ],
+      "note": "Sons of Iphitus; includes Pytho (Delphi) among their towns."
+    },
+    {
+      "id": "locrians",
+      "name": "Locrians",
+      "lines": [
+        527,
+        535
+      ],
+      "leaders": [
+        "ajax-oileus"
+      ],
+      "ships": 40,
+      "places": [
+        "locris",
+        "cynus",
+        "opoeis",
+        "calliarus",
+        "bessa",
+        "scarphe",
+        "augeiae-locris",
+        "tarphe",
+        "thronium",
+        "boagrius"
+      ],
+      "note": "Led by the lesser Ajax; noted for fighting unarmored, with bow and sling."
+    },
+    {
+      "id": "abantes",
+      "name": "Abantes (Euboea)",
+      "lines": [
+        536,
+        545
+      ],
+      "leaders": [
+        "elephenor"
+      ],
+      "ships": 40,
+      "places": [
+        "euboea",
+        "chalcis-euboea",
+        "eretria",
+        "histiaea",
+        "cerinthus",
+        "dium-euboea",
+        "carystus",
+        "styra"
+      ],
+      "note": "Long-haired spearmen of Euboea under Elephenor, grandson of Ares."
+    },
+    {
+      "id": "athenians",
+      "name": "Athenians",
+      "lines": [
+        546,
+        556
+      ],
+      "leaders": [
+        "menestheus"
+      ],
+      "ships": 50,
+      "places": [
+        "athens"
+      ],
+      "note": "Erechtheus's people; Menestheus is called unrivaled at marshaling chariots and shieldmen."
+    },
+    {
+      "id": "salaminians",
+      "name": "Salaminians",
+      "lines": [
+        557,
+        558
+      ],
+      "leaders": [
+        "ajax-telamonian"
+      ],
+      "ships": 12,
+      "places": [
+        "salamis"
+      ],
+      "note": "Telamonian Ajax stations his twelve ships beside the Athenian ranks."
+    },
+    {
+      "id": "argives",
+      "name": "Argos/Tiryns (Argolid)",
+      "lines": [
+        559,
+        568
+      ],
+      "leaders": [
+        "diomedes",
+        "sthenelus",
+        "euryalus"
+      ],
+      "ships": 80,
+      "places": [
+        "argos",
+        "tiryns",
+        "hermione",
+        "asine",
+        "troezen",
+        "eionae",
+        "epidaurus",
+        "aegina",
+        "mases"
+      ],
+      "note": "Diomedes' contingent; Euryalus joins as a third commander under Diomedes' overall lead."
+    },
+    {
+      "id": "mycenaeans",
+      "name": "Mycenae and the Argolid/Corinthia",
+      "lines": [
+        569,
+        580
+      ],
+      "leaders": [
+        "agamemnon"
+      ],
+      "ships": 100,
+      "places": [
+        "mycenae",
+        "corinth",
+        "cleonae",
+        "orneiae",
+        "araethyrea",
+        "sicyon",
+        "hyperesia",
+        "gonoessa",
+        "pellene",
+        "aegium",
+        "aegialus-achaea",
+        "helice"
+      ],
+      "note": "Agamemnon's own kingdom and by far the largest contingent; he leads the most and best troops."
+    },
+    {
+      "id": "lacedaemonians",
+      "name": "Lacedaemon (Sparta)",
+      "lines": [
+        581,
+        590
+      ],
+      "leaders": [
+        "menelaus"
+      ],
+      "ships": 60,
+      "places": [
+        "sparta",
+        "pharis",
+        "messe",
+        "bryseiae",
+        "augeiae-laconia",
+        "amyclae",
+        "helos-laconia",
+        "laas",
+        "oetylus"
+      ],
+      "note": "Menelaus, eager to avenge Helen's abduction, arms apart from the rest."
+    },
+    {
+      "id": "pylians",
+      "name": "Pylos",
+      "lines": [
+        591,
+        602
+      ],
+      "leaders": [
+        "nestor"
+      ],
+      "ships": 90,
+      "places": [
+        "pylos",
+        "arene",
+        "thryum",
+        "aipy",
+        "cyparisseis",
+        "amphigeneia",
+        "pteleos-messenia",
+        "helos-messenia",
+        "dorium",
+        "oechalia"
+      ],
+      "note": "Nestor's contingent; Dorium is the site of the Muses' blinding of Thamyris."
+    },
+    {
+      "id": "arcadians",
+      "name": "Arcadia",
+      "lines": [
+        603,
+        614
+      ],
+      "leaders": [
+        "agapenor"
+      ],
+      "ships": 60,
+      "places": [
+        "cyllene",
+        "aepytus-tomb",
+        "pheneus",
+        "orchomenus-arcadian",
+        "rhipe",
+        "stratie",
+        "enispe",
+        "tegea",
+        "mantinea",
+        "stymphalus",
+        "parrhasia"
+      ],
+      "note": "Landlocked Arcadians; Agamemnon supplies their ships since they have no ships of their own."
+    },
+    {
+      "id": "epeians",
+      "name": "Buprasium/Elis (Epeians)",
+      "lines": [
+        615,
+        624
+      ],
+      "leaders": [
+        "amphimachus",
+        "thalpius",
+        "diores",
+        "polyxenus"
+      ],
+      "ships": 40,
+      "places": [
+        "buprasium",
+        "elis",
+        "hyrmine",
+        "myrsinus",
+        "olenian-rock",
+        "alesium"
+      ],
+      "note": "Four leaders, each commanding ten ships (40 total)."
+    },
+    {
+      "id": "dulichians",
+      "name": "Dulichium/Echinades",
+      "lines": [
+        625,
+        630
+      ],
+      "leaders": [
+        "meges"
+      ],
+      "ships": 40,
+      "places": [
+        "dulichium",
+        "echinades"
+      ],
+      "note": "Meges, son of exiled Phyleus, leads the islands across the sea from Elis."
+    },
+    {
+      "id": "cephallenians",
+      "name": "Cephallenia/Ithaca",
+      "lines": [
+        631,
+        637
+      ],
+      "leaders": [
+        "odysseus"
+      ],
+      "ships": 12,
+      "places": [
+        "ithaca",
+        "neritum",
+        "crocyleia",
+        "aegilips",
+        "zacynthus",
+        "same"
+      ],
+      "note": "Odysseus's contingent, smallest of the major kingdoms' fleets."
+    },
+    {
+      "id": "aetolians",
+      "name": "Aetolians",
+      "lines": [
+        638,
+        644
+      ],
+      "leaders": [
+        "thoas"
+      ],
+      "ships": 40,
+      "places": [
+        "pleuron",
+        "olenus-aetolia",
+        "pylene",
+        "chalcis-aetolia",
+        "calydon"
+      ],
+      "note": "Thoas leads in place of the extinct line of Oeneus and Meleager."
+    },
+    {
+      "id": "cretans",
+      "name": "Crete",
+      "lines": [
+        645,
+        652
+      ],
+      "leaders": [
+        "idomeneus",
+        "meriones"
+      ],
+      "ships": 80,
+      "places": [
+        "crete-knossos",
+        "gortyn",
+        "lyctus",
+        "miletus-crete",
+        "lycastus",
+        "phaestus",
+        "rhytium",
+        "crete"
+      ],
+      "note": "\"Hundred-citied\" Crete under Idomeneus and Meriones, 'a match for man-slaying Enyalius.'"
+    },
+    {
+      "id": "rhodians",
+      "name": "Rhodes",
+      "lines": [
+        653,
+        670
+      ],
+      "leaders": [
+        "tlepolemus"
+      ],
+      "ships": 9,
+      "places": [
+        "rhodes",
+        "lindus",
+        "ialysus",
+        "camirus",
+        "ephyra-elis",
+        "selleeis-ephyra"
+      ],
+      "note": "Tlepolemus, Heracles' son, fled to Rhodes after killing his great-uncle Licymnius."
+    },
+    {
+      "id": "symaeans",
+      "name": "Syme",
+      "lines": [
+        671,
+        675
+      ],
+      "leaders": [
+        "nireus"
+      ],
+      "ships": 3,
+      "places": [
+        "syme"
+      ],
+      "note": "Nireus, handsomest Achaean after Achilles, brings the fewest ships and men."
+    },
+    {
+      "id": "sporades",
+      "name": "Nisyros/Carpathos/Cos/Calydnae",
+      "lines": [
+        676,
+        680
+      ],
+      "leaders": [
+        "pheidippus",
+        "antiphus"
+      ],
+      "ships": 30,
+      "places": [
+        "nisyros",
+        "carpathus",
+        "casus",
+        "cos",
+        "calydnae"
+      ],
+      "note": "Sons of Thessalus son of Heracles, leading the southeastern Dodecanese islands."
+    },
+    {
+      "id": "myrmidons",
+      "name": "Pelasgian Argos/Phthia/Hellas (Myrmidons)",
+      "lines": [
+        681,
+        694
+      ],
+      "leaders": [
+        "achilles"
+      ],
+      "ships": 50,
+      "places": [
+        "argos-pelasgicum",
+        "alus",
+        "alope",
+        "trachis",
+        "phthia",
+        "hellas-thessaly",
+        "lyrnessus"
+      ],
+      "note": "Achilles' people, idle at the ships while he nurses his anger over Briseis, taken from Lyrnessus."
+    },
+    {
+      "id": "phylaceans",
+      "name": "Phylace",
+      "lines": [
+        695,
+        710
+      ],
+      "leaders": [
+        "protesilaus",
+        "podarces"
+      ],
+      "ships": 40,
+      "places": [
+        "phylace",
+        "pyrasus",
+        "iton",
+        "antron",
+        "pteleos-thessalian"
+      ],
+      "note": "Protesilaus, first Achaean ashore and first killed, is now led by his younger brother Podarces."
+    },
+    {
+      "id": "pheraeans",
+      "name": "Pherae (Boebeis)",
+      "lines": [
+        711,
+        715
+      ],
+      "leaders": [
+        "eumelus"
+      ],
+      "ships": 11,
+      "places": [
+        "pherae-thessaly",
+        "lake-boebeis",
+        "boebe",
+        "glaphyrae",
+        "iolcus"
+      ],
+      "note": "Eumelus, son of Admetus and Alcestis, drives the finest horses in the army (Il. 2.763-767)."
+    },
+    {
+      "id": "methoneans",
+      "name": "Methone/Philoctetes",
+      "lines": [
+        716,
+        728
+      ],
+      "leaders": [
+        "philoctetes",
+        "medon"
+      ],
+      "ships": 7,
+      "places": [
+        "methone-thessalian",
+        "thaumacia",
+        "meliboea",
+        "olizon",
+        "lemnos"
+      ],
+      "note": "Philoctetes, stranded snake-bitten on Lemnos, is led in the field by Medon, Oileus's bastard son."
+    },
+    {
+      "id": "tricceans",
+      "name": "Tricca/Oechalia",
+      "lines": [
+        729,
+        733
+      ],
+      "leaders": [
+        "podalirius",
+        "machaon"
+      ],
+      "ships": 30,
+      "places": [
+        "tricca",
+        "ithome-thessalian",
+        "oechalia"
+      ],
+      "note": "Asclepius's physician sons lead this Thessalian contingent."
+    },
+    {
+      "id": "ormenians",
+      "name": "Ormenium",
+      "lines": [
+        734,
+        737
+      ],
+      "leaders": [
+        "eurypylus"
+      ],
+      "ships": 40,
+      "places": [
+        "ormenium",
+        "hypereia-spring",
+        "asterium",
+        "titanus"
+      ],
+      "note": "Eurypylus, son of Euaemon, leads this central Thessalian contingent."
+    },
+    {
+      "id": "lapiths",
+      "name": "Argissa (Lapiths/Perrhaebians)",
+      "lines": [
+        738,
+        747
+      ],
+      "leaders": [
+        "polypoites",
+        "leonteus"
+      ],
+      "ships": 40,
+      "places": [
+        "argissa",
+        "gyrton",
+        "orthe",
+        "elone",
+        "oloosson",
+        "pelion",
+        "aethices"
+      ],
+      "note": "Polypoites, son of Peirithous and Zeus's grandson, leads with Leonteus; recalls the Lapiths' war on the Centaurs."
+    },
+    {
+      "id": "perrhaebians",
+      "name": "Gouneus (Enienes/Perrhaebians)",
+      "lines": [
+        748,
+        755
+      ],
+      "leaders": [
+        "gouneus"
+      ],
+      "ships": 22,
+      "places": [
+        "cyphus",
+        "dodona",
+        "titaressus",
+        "peneius-river",
+        "styx"
+      ],
+      "note": "Gouneus leads peoples of wintry Dodona; the Titaressus is said never to mix with the Peneius, an offshoot of the Styx."
+    },
+    {
+      "id": "magnesians",
+      "name": "Magnetes",
+      "lines": [
+        756,
+        759
+      ],
+      "leaders": [
+        "prothous"
+      ],
+      "ships": 40,
+      "places": [
+        "magnesia",
+        "peneius-river",
+        "pelion"
+      ],
+      "note": "Prothous, son of Tenthredon, leads the contingent around the Peneius and wooded Pelion."
+    }
+  ],
+  "trojan": [
+    {
+      "id": "trojans",
+      "name": "Trojans",
+      "lines": [
+        816,
+        818
+      ],
+      "leaders": [
+        "hector"
+      ],
+      "ships": null,
+      "places": [
+        "troy"
+      ],
+      "note": "Hector, Priam's son, leads by far the most and best of the massed Trojan-allied host."
+    },
+    {
+      "id": "dardanians",
+      "name": "Dardanians",
+      "lines": [
+        819,
+        823
+      ],
+      "leaders": [
+        "aeneas",
+        "archelochus",
+        "acamas"
+      ],
+      "ships": null,
+      "places": [
+        "ida"
+      ],
+      "note": "Aeneas, son of Anchises and Aphrodite, joined by Antenor's two sons."
+    },
+    {
+      "id": "zeleians",
+      "name": "Zeleia",
+      "lines": [
+        824,
+        827
+      ],
+      "leaders": [
+        "pandarus"
+      ],
+      "ships": null,
+      "places": [
+        "zeleia",
+        "aesepus"
+      ],
+      "note": "Wealthy Aesepus-valley archers under Ida; Apollo himself gave Pandarus his bow."
+    },
+    {
+      "id": "adrasteians",
+      "name": "Adrasteia/Apaesus/Pityeia/Tereia",
+      "lines": [
+        828,
+        834
+      ],
+      "leaders": [
+        "adrestus",
+        "amphius"
+      ],
+      "ships": null,
+      "places": [
+        "adrasteia",
+        "apaesus",
+        "pityeia",
+        "tereia"
+      ],
+      "note": "Sons of the seer Merops, who foresaw their deaths and forbade them to go; they did not obey."
+    },
+    {
+      "id": "percoteans",
+      "name": "Percote/Practius/Sestos/Abydos/Arisbe",
+      "lines": [
+        835,
+        839
+      ],
+      "leaders": [
+        "asius"
+      ],
+      "ships": null,
+      "places": [
+        "percote",
+        "practius",
+        "sestos",
+        "abydos",
+        "arisbe"
+      ],
+      "note": "Asius son of Hyrtacus, drawn to Troy by his own great fire-colored horses from Arisbe."
+    },
+    {
+      "id": "pelasgians",
+      "name": "Pelasgians of Larisa",
+      "lines": [
+        840,
+        843
+      ],
+      "leaders": [
+        "hippothous",
+        "pylaeus"
+      ],
+      "ships": null,
+      "places": [
+        "larisa-troad"
+      ],
+      "note": "Spear-fighting Pelasgians of fertile Larisa, led by two sons of Lethus."
+    },
+    {
+      "id": "thracians",
+      "name": "Thracians",
+      "lines": [
+        844,
+        845
+      ],
+      "leaders": [
+        "acamas",
+        "peiroos"
+      ],
+      "ships": null,
+      "places": [
+        "thrace",
+        "hellespont"
+      ],
+      "note": "Thracians bounded by the strong-flowing Hellespont."
+    },
+    {
+      "id": "cicones",
+      "name": "Cicones",
+      "lines": [
+        846,
+        847
+      ],
+      "leaders": [
+        "euphemus"
+      ],
+      "ships": null,
+      "places": [
+        "cicones"
+      ],
+      "note": "Led by Euphemus, son of Troezenus; the same people whose city Ismarus Odysseus later sacks."
+    },
+    {
+      "id": "paeonians",
+      "name": "Paeonians",
+      "lines": [
+        848,
+        850
+      ],
+      "leaders": [
+        "pyraechmes"
+      ],
+      "ships": null,
+      "places": [
+        "paeonia",
+        "amydon",
+        "axius"
+      ],
+      "note": "Curved-bow archers from Amydon, far off on the fair-flowing Axius."
+    },
+    {
+      "id": "paphlagonians",
+      "name": "Paphlagonians",
+      "lines": [
+        851,
+        855
+      ],
+      "leaders": [
+        "pylaemenes"
+      ],
+      "ships": null,
+      "places": [
+        "paphlagonia",
+        "eneti",
+        "cytorus",
+        "sesamus",
+        "parthenius",
+        "cromna",
+        "aegialus-paphlagonia",
+        "erythini"
+      ],
+      "note": "From the land of the Eneti, said to be the source of the wild-mule breed."
+    },
+    {
+      "id": "halizones",
+      "name": "Halizones",
+      "lines": [
+        856,
+        857
+      ],
+      "leaders": [
+        "odius",
+        "epistrophus"
+      ],
+      "ships": null,
+      "places": [
+        "halizones",
+        "alybe"
+      ],
+      "note": "\"From Alybe far off, where is the birthplace of silver\" -- one of the Catalogue's most disputed lines."
+    },
+    {
+      "id": "mysians",
+      "name": "Mysians",
+      "lines": [
+        858,
+        861
+      ],
+      "leaders": [
+        "chromis",
+        "ennomus"
+      ],
+      "ships": null,
+      "places": [
+        "mysia"
+      ],
+      "note": "Ennomus the augur could not read his own death; Achilles kills him in the river."
+    },
+    {
+      "id": "phrygians",
+      "name": "Phrygians",
+      "lines": [
+        862,
+        863
+      ],
+      "leaders": [
+        "phorcys",
+        "ascanius"
+      ],
+      "ships": null,
+      "places": [
+        "phrygia",
+        "ascania-phrygia"
+      ],
+      "note": "Come from distant Ascania, eager for battle."
+    },
+    {
+      "id": "maeonians",
+      "name": "Maeonians",
+      "lines": [
+        864,
+        866
+      ],
+      "leaders": [
+        "mesthles",
+        "antiphus"
+      ],
+      "ships": null,
+      "places": [
+        "maeonia",
+        "lake-gygaea",
+        "tmolus"
+      ],
+      "note": "Sons of Talaemenes and the nymph of Lake Gygaea, from below Mt Tmolus."
+    },
+    {
+      "id": "carians",
+      "name": "Carians",
+      "lines": [
+        867,
+        875
+      ],
+      "leaders": [
+        "nastes",
+        "amphimachus"
+      ],
+      "ships": null,
+      "places": [
+        "caria",
+        "miletus-anatolia",
+        "mount-phthires",
+        "maeander",
+        "mycale"
+      ],
+      "note": "\"Of foreign speech\"; Amphimachus wore gold into battle like a girl and died for it, Homer notes."
+    },
+    {
+      "id": "lycians",
+      "name": "Lycians",
+      "lines": [
+        876,
+        877
+      ],
+      "leaders": [
+        "sarpedon",
+        "glaucus"
+      ],
+      "ships": null,
+      "places": [
+        "lycia",
+        "xanthus-lycia"
+      ],
+      "note": "Sarpedon and Glaucus, from Lycia far off by the eddying Xanthus, close the Catalogue."
+    }
+  ]
+}

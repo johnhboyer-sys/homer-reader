@@ -1,0 +1,1331 @@
+<!--
+  DESIGN PLAN — "PALETTES V1" (structure locked, palette rejected → 4 alternatives)
+  ======================================================================
+  BASE: hybrid-v2's structure, layout, and hairline/small-caps vocabulary are
+  UNCHANGED — same cartouche, same 50/50 Greek|English gutter split, same
+  margin-apparatus rail (day-marker, scene-chip + draft badge, docked lexicon
+  panel Option B, reading-mode tag), same map panel + tier legend, same
+  footer. Every CSS SELECTOR and CLASS NAME below is hybrid-v2's own.
+
+  WHAT CHANGED: John rejected hybrid-v2's bronze/brown-leaning palette
+  ("too many AI-built sites for scholarly work use this palette"). This file
+  keeps hybrid-v2's variable NAMES (--ground, --ink, --route-red, --gold-text,
+  --gold-deco, --terracotta, --rule-strong, --focus-ring, etc.) but makes
+  their VALUES swappable at runtime across FOUR complete palette systems via
+  a `data-palette` attribute on <html>, composing with the existing
+  `data-theme` (day/night) attribute: 4 palettes × 2 themes = 8 fully
+  designed states. Variable names are kept for continuity with hybrid-v2's
+  own selectors (--terracotta still drives .draft-badge only; --route-red /
+  --gold-text stay collapsed into one "lead accent" role per hybrid-v2's own
+  documented wayfinding decision) — the NAME survives, the accent hue behind
+  it does not have to be literal terracotta or bronze in every palette.
+
+  THE FOUR PALETTES
+  ------------------------------------------------------------------
+  1. WINE (οἴνοπα) — lead accent is a deep wine-garnet in the #6e1f3a
+     family (Homer's own "wine-dark" color word supplies the identity).
+     Grounds are a COOL, grey-biased bone (#E7E7E9 light) — deliberately
+     not warm cream, to read as stone/marble rather than parchment. Dark
+     theme is a deep indigo-violet-black (#181120), not a warm black.
+     Draft-badge is a cool slate-blue (#375065 / #8FB0C9) rather than an
+     amber/gold — tested an amber alternative (#6E5410) first and rejected
+     it on sight-read: at this saturation it drifted back toward the exact
+     bronze/mustard family John vetoed, even though it passed contrast.
+     Slate-blue reads unambiguously as a different hue family from wine and
+     needs no contrast compromise (6.30:1 light / 8.09:1 dark, see table).
+
+  2. THALASSA — lead accent is a deep sea-lapis blue (#1B4E7A light /
+     #7FB2DC dark); the sea owns the palette outright. Grounds are cool
+     marble-grey (#E4E6E8), NOT stone-warm. Dark theme is true sea-dark
+     navy-black (#0A141F) with bone-pale linework. No warm browns anywhere
+     in the system — draft-badge uses a true crimson-rose (#9C3B47 /
+     #E08A94), a warm hue but explicitly NOT brown/terracotta, chosen to
+     read as a clean complementary flag against the blue rather than a
+     muddy earth tone.
+
+  3. LAUREL — lead accent is a desaturated olive/laurel green
+     (#4C5E39 light / #93AC77 dark) — dried-laurel-leaf plus weathered
+     bronze-patina green, not bronze itself. Grounds are pale stone
+     (#E8E6DE), dark theme deep cypress-black (#0F1712) with sage
+     linework. Rarely used on classics sites; the goal is inevitability,
+     not novelty — a plausible "this is what a botanist-classicist would
+     have specified in 1920" color. Draft-badge is a muted plum
+     (#7A3B54 / #D79EBA), laurel's near-complement on the wheel, so the
+     flag reads distinctly against the green without introducing a second
+     earth tone.
+
+  4. INK & LAPIS — near-monochrome: warm-black ink (#201C16), paper
+     grounds (#F2F0EB), hairlines doing the structural work, and exactly
+     ONE saturated accent — a lapis blue (#1E4C8C / #6EA3DE) — spent
+     sparingly on links, current-position markers, and (deliberately) the
+     draft badge itself. This is the one palette where the draft badge
+     REUSES the lead accent rather than introducing a second hue: with
+     only one saturated color in the whole system, adding a second color
+     just for "draft" would break the near-monochrome premise harder than
+     reusing lapis does. Dark theme is a rich warm near-black (#14120F).
+
+  CONTRAST TABLE (computed, WCAG relative-luminance formula; text pairs
+  target ≥4.5:1, decorative/UI-component-only pairs target ≥3:1 — the
+  hairline `--rule` role is EXCLUDED from the 3:1 floor on purpose: it is
+  hybrid-v2's own decorative separator, always paired with a stronger
+  border/label for meaning, at ~1.3–1.5:1 in every palette here, matching
+  hybrid-v2's own 1.41/1.47:1 precedent for the identical role):
+
+    WINE     light  ink/ground 13.77 · ink-soft/ground 6.49 ·
+                    accent/ground 8.86 · accent/panel 7.74 ·
+                    accent-bright/panel 5.20 (dec., ≥3 req.) ·
+                    rule-strong/ground 9.14 · draft/ground 6.30 ·
+                    draft/panel 5.51
+             dark   ink/ground 14.99 · ink-soft/ground 8.20 ·
+                    accent/ground 7.17 · accent/panel 6.67 ·
+                    accent-bright/panel 8.64 · rule-strong/ground 6.02 ·
+                    draft/ground 8.09 · draft/panel 7.52
+
+    THALASSA light  ink/ground 13.33 · ink-soft/ground 5.83 ·
+                    accent/ground 6.94 · accent/panel 6.19 ·
+                    accent-bright/panel 3.83 (dec.) ·
+                    rule-strong/ground 7.37 · draft/ground 5.36 ·
+                    draft/panel 4.78
+             dark   ink/ground 15.59 · ink-soft/ground 9.15 ·
+                    accent/ground 8.21 · accent/panel 7.46 ·
+                    accent-bright/panel 9.42 · rule-strong/ground 5.99 ·
+                    draft/ground 7.27 · draft/panel 6.60
+
+    LAUREL   light  ink/ground 12.44 · ink-soft/ground 6.11 ·
+                    accent/ground 5.66 · accent/panel 4.91 ·
+                    accent-bright/panel 3.31 (dec.) ·
+                    rule-strong/ground 7.54 · draft/ground 6.51 ·
+                    draft/panel 5.65
+                    [accent tuned from an initial #546540 (4.40:1 vs panel,
+                    sub-AA) to #4C5E39 — darkened, same hue, to clear 4.5]
+             dark   ink/ground 14.44 · ink-soft/ground 8.35 ·
+                    accent/ground 7.30 · accent/panel 6.64 ·
+                    accent-bright/panel 8.68 · rule-strong/ground 5.60 ·
+                    draft/ground 8.24 · draft/panel 7.49
+
+    INK&LAPIS light ink/ground 14.88 · ink-soft/ground 6.40 ·
+                    accent/ground 7.47 · accent/panel 6.63 ·
+                    accent-bright/panel 3.85 (dec.) ·
+                    rule-strong/ground 10.69 · draft/ground 7.47 ·
+                    draft/panel 6.63 (draft = accent, reused by design)
+             dark   ink/ground 15.43 · ink-soft/ground 8.01 ·
+                    accent/ground 7.08 · accent/panel 6.63 ·
+                    accent-bright/panel 8.80 · rule-strong/ground 5.60 ·
+                    draft/ground 7.08 · draft/panel 6.63
+
+  All 8 states clear 4.5:1 on every text-bearing pair (ink, ink-soft,
+  accent, rule-strong-as-label-text, draft-badge) and ≥3.3:1 on every
+  decorative/UI-component-only pair (accent-bright dots/borders). No
+  Laurel-style compromise was left unresolved — the one sub-AA reading
+  (Laurel light accent/panel at 4.40) was fixed by retuning the hex, not
+  footnoted away.
+
+  IMPLEMENTATION NOTES
+  ------------------------------------------------------------------
+  - Palette switcher: fixed, top-center, quiet small-caps text buttons,
+    `aria-pressed` per button, labeled "Palette — review tool" so it reads
+    as a review instrument, not a shipped feature. Keyboard-operable
+    (native <button>s, visible :focus-visible ring). Choice persists via
+    localStorage; default on first load is "wine".
+  - The old jumpbox-button dark-mode override hardcoded a fixed near-black
+    text color (#0B1526) against --gold-deco, which only worked because
+    hybrid-v2 had one known dark background hue. With four palettes that
+    assumption breaks (Laurel's dark accent-bright is a light sage green,
+    Wine's is a light rose — a single hardcoded dark text color would not
+    reliably contrast against both). Simplified instead: the button always
+    uses --ink on --ground, which is already verified >12:1 in every
+    palette/theme combination — one fewer hardcoded color, no per-palette
+    tuning needed, same visual result.
+  - The map panel's faint route-line texture was a hardcoded bronze SVG
+    (`stroke="%239C7539"`) baked into a `background-image` data URI —
+    literally unrecolorable per palette without duplicating the SVG four
+    times. Converted to a `mask-image` (silhouette-only SVG, currentColor-
+    free) painted with `background: var(--gold-deco)` at low element
+    opacity — now recolors automatically with the palette, same faint
+    effect, zero duplication.
+  ======================================================================
+-->
+<!DOCTYPE html>
+<html lang="en" data-palette="wine">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Homer Reader — Palettes v1 (Palette Switcher)</title>
+<style>
+  :root {
+    --font-display: 'Big Caslon', 'Hoefler Text', 'Palatino Linotype', Palatino, Georgia, serif;
+    --font-label: Optima, Seravek, 'Gill Sans', 'Gill Sans MT', sans-serif;
+    --font-greek: Palatino, 'Palatino Linotype', 'Times New Roman', Georgia, serif;
+    --font-serif: 'Iowan Old Style', Charter, Georgia, serif;
+  }
+
+  /* ===== PALETTE: wine ===== */
+  :root[data-palette="wine"] {
+      --ground: #E7E7E9;
+      --ground-panel: #DBD8DC;
+      --margin-bg: #DBD8DC;
+      --ink: #241827;
+      --ink-soft: #5B4C58;
+      --rule: #CFC7CC;
+      --rule-strong: #5C2A40;
+      --route-red: #6E1F3A;
+      --gold-text: #6E1F3A;
+      --gold-deco: #8C3A57;
+      --terracotta: #375065;
+      --focus-ring: #5C2A40;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-palette="wine"] {
+        --ground: #181120;
+        --ground-panel: #211828;
+        --margin-bg: #211828;
+        --ink: #EDE6E8;
+        --ink-soft: #B7A9B4;
+        --rule: #3A2C38;
+        --rule-strong: #C77E97;
+        --route-red: #D98BA3;
+        --gold-text: #D98BA3;
+        --gold-deco: #E8A6BA;
+        --terracotta: #8FB0C9;
+        --focus-ring: #E8A6BA;
+    }
+  }
+  :root[data-palette="wine"][data-theme="dark"] {
+      --ground: #181120;
+      --ground-panel: #211828;
+      --margin-bg: #211828;
+      --ink: #EDE6E8;
+      --ink-soft: #B7A9B4;
+      --rule: #3A2C38;
+      --rule-strong: #C77E97;
+      --route-red: #D98BA3;
+      --gold-text: #D98BA3;
+      --gold-deco: #E8A6BA;
+      --terracotta: #8FB0C9;
+      --focus-ring: #E8A6BA;
+  }
+  :root[data-palette="wine"][data-theme="light"] {
+      --ground: #E7E7E9;
+      --ground-panel: #DBD8DC;
+      --margin-bg: #DBD8DC;
+      --ink: #241827;
+      --ink-soft: #5B4C58;
+      --rule: #CFC7CC;
+      --rule-strong: #5C2A40;
+      --route-red: #6E1F3A;
+      --gold-text: #6E1F3A;
+      --gold-deco: #8C3A57;
+      --terracotta: #375065;
+      --focus-ring: #5C2A40;
+  }
+
+  /* ===== PALETTE: thalassa ===== */
+  :root[data-palette="thalassa"] {
+      --ground: #E4E6E8;
+      --ground-panel: #D6DAE0;
+      --margin-bg: #D6DAE0;
+      --ink: #141F2A;
+      --ink-soft: #4A5866;
+      --rule: #C4CAD1;
+      --rule-strong: #2C4A66;
+      --route-red: #1B4E7A;
+      --gold-text: #1B4E7A;
+      --gold-deco: #2C6FA3;
+      --terracotta: #9C3B47;
+      --focus-ring: #2C4A66;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-palette="thalassa"] {
+        --ground: #0A141F;
+        --ground-panel: #101E2E;
+        --margin-bg: #101E2E;
+        --ink: #E7ECF0;
+        --ink-soft: #AAB8C4;
+        --rule: #233346;
+        --rule-strong: #6E97B8;
+        --route-red: #7FB2DC;
+        --gold-text: #7FB2DC;
+        --gold-deco: #9CC7E8;
+        --terracotta: #E08A94;
+        --focus-ring: #9CC7E8;
+    }
+  }
+  :root[data-palette="thalassa"][data-theme="dark"] {
+      --ground: #0A141F;
+      --ground-panel: #101E2E;
+      --margin-bg: #101E2E;
+      --ink: #E7ECF0;
+      --ink-soft: #AAB8C4;
+      --rule: #233346;
+      --rule-strong: #6E97B8;
+      --route-red: #7FB2DC;
+      --gold-text: #7FB2DC;
+      --gold-deco: #9CC7E8;
+      --terracotta: #E08A94;
+      --focus-ring: #9CC7E8;
+  }
+  :root[data-palette="thalassa"][data-theme="light"] {
+      --ground: #E4E6E8;
+      --ground-panel: #D6DAE0;
+      --margin-bg: #D6DAE0;
+      --ink: #141F2A;
+      --ink-soft: #4A5866;
+      --rule: #C4CAD1;
+      --rule-strong: #2C4A66;
+      --route-red: #1B4E7A;
+      --gold-text: #1B4E7A;
+      --gold-deco: #2C6FA3;
+      --terracotta: #9C3B47;
+      --focus-ring: #2C4A66;
+  }
+
+  /* ===== PALETTE: laurel ===== */
+  :root[data-palette="laurel"] {
+      --ground: #E8E6DE;
+      --ground-panel: #DBD7C9;
+      --margin-bg: #DBD7C9;
+      --ink: #1D2620;
+      --ink-soft: #4E5648;
+      --rule: #C9C4B4;
+      --rule-strong: #3C4A38;
+      --route-red: #4C5E39;
+      --gold-text: #4C5E39;
+      --gold-deco: #66794E;
+      --terracotta: #7A3B54;
+      --focus-ring: #3C4A38;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-palette="laurel"] {
+        --ground: #0F1712;
+        --ground-panel: #16211A;
+        --margin-bg: #16211A;
+        --ink: #E4E6DA;
+        --ink-soft: #A9B39C;
+        --rule: #293A2C;
+        --rule-strong: #7E9668;
+        --route-red: #93AC77;
+        --gold-text: #93AC77;
+        --gold-deco: #AAC48E;
+        --terracotta: #D79EBA;
+        --focus-ring: #AAC48E;
+    }
+  }
+  :root[data-palette="laurel"][data-theme="dark"] {
+      --ground: #0F1712;
+      --ground-panel: #16211A;
+      --margin-bg: #16211A;
+      --ink: #E4E6DA;
+      --ink-soft: #A9B39C;
+      --rule: #293A2C;
+      --rule-strong: #7E9668;
+      --route-red: #93AC77;
+      --gold-text: #93AC77;
+      --gold-deco: #AAC48E;
+      --terracotta: #D79EBA;
+      --focus-ring: #AAC48E;
+  }
+  :root[data-palette="laurel"][data-theme="light"] {
+      --ground: #E8E6DE;
+      --ground-panel: #DBD7C9;
+      --margin-bg: #DBD7C9;
+      --ink: #1D2620;
+      --ink-soft: #4E5648;
+      --rule: #C9C4B4;
+      --rule-strong: #3C4A38;
+      --route-red: #4C5E39;
+      --gold-text: #4C5E39;
+      --gold-deco: #66794E;
+      --terracotta: #7A3B54;
+      --focus-ring: #3C4A38;
+  }
+
+  /* ===== PALETTE: inklapis ===== */
+  :root[data-palette="inklapis"] {
+      --ground: #F2F0EB;
+      --ground-panel: #E6E3DA;
+      --margin-bg: #E6E3DA;
+      --ink: #201C16;
+      --ink-soft: #5B564C;
+      --rule: #D8D3C7;
+      --rule-strong: #3A352C;
+      --route-red: #1E4C8C;
+      --gold-text: #1E4C8C;
+      --gold-deco: #3F72B0;
+      --terracotta: #1E4C8C;
+      --focus-ring: #1E4C8C;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root[data-palette="inklapis"] {
+        --ground: #14120F;
+        --ground-panel: #1C1915;
+        --margin-bg: #1C1915;
+        --ink: #EDE9E0;
+        --ink-soft: #B0A99C;
+        --rule: #332F27;
+        --rule-strong: #948C79;
+        --route-red: #6EA3DE;
+        --gold-text: #6EA3DE;
+        --gold-deco: #8FBCEA;
+        --terracotta: #6EA3DE;
+        --focus-ring: #8FBCEA;
+    }
+  }
+  :root[data-palette="inklapis"][data-theme="dark"] {
+      --ground: #14120F;
+      --ground-panel: #1C1915;
+      --margin-bg: #1C1915;
+      --ink: #EDE9E0;
+      --ink-soft: #B0A99C;
+      --rule: #332F27;
+      --rule-strong: #948C79;
+      --route-red: #6EA3DE;
+      --gold-text: #6EA3DE;
+      --gold-deco: #8FBCEA;
+      --terracotta: #6EA3DE;
+      --focus-ring: #8FBCEA;
+  }
+  :root[data-palette="inklapis"][data-theme="light"] {
+      --ground: #F2F0EB;
+      --ground-panel: #E6E3DA;
+      --margin-bg: #E6E3DA;
+      --ink: #201C16;
+      --ink-soft: #5B564C;
+      --rule: #D8D3C7;
+      --rule-strong: #3A352C;
+      --route-red: #1E4C8C;
+      --gold-text: #1E4C8C;
+      --gold-deco: #3F72B0;
+      --terracotta: #1E4C8C;
+      --focus-ring: #1E4C8C;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--ground);
+    color: var(--ink);
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: var(--font-serif);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    * { scroll-behavior: smooth; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  a { color: inherit; }
+  :focus-visible {
+    outline: 2.5px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 1px;
+  }
+
+  .sc {
+    font-family: var(--font-label);
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    font-weight: 600;
+  }
+
+  .wrap {
+    max-width: 76rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  /* ---------- palette switcher (review tool — kept visually quiet) ---------- */
+  .palette-switcher {
+    position: fixed;
+    top: 0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+    background: var(--ground-panel);
+    border: 1px solid var(--rule-strong);
+    padding: 0.3rem 0.35rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  }
+  .palette-switcher .ps-label {
+    font-family: var(--font-label);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    padding: 0 0.55rem 0 0.35rem;
+    border-right: 1px solid var(--rule);
+    margin-right: 0.25rem;
+    white-space: nowrap;
+  }
+  .palette-switcher button {
+    font-family: var(--font-label);
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid transparent;
+    padding: 0.28rem 0.5rem;
+    cursor: pointer;
+  }
+  .palette-switcher button:hover { color: var(--ink); }
+  .palette-switcher button[aria-pressed="true"] {
+    color: var(--ground);
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  @media (max-width: 700px) {
+    .palette-switcher { flex-wrap: wrap; justify-content: center; max-width: calc(100% - 1.5rem); }
+    .palette-switcher .ps-label { flex-basis: 100%; border-right: none; padding: 0 0 0.2rem 0.35rem; }
+  }
+
+  /* ---------- masthead ---------- */
+  header.masthead {
+    border-bottom: 1px solid var(--rule-strong);
+    background: var(--ground);
+    margin-top: 2.6rem;
+  }
+  .masthead-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    padding: 1.1rem 0 1rem;
+  }
+  .wordmark {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    letter-spacing: 0.02em;
+    font-weight: 400;
+  }
+  .wordmark small {
+    display: block;
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+    font-weight: 600;
+    margin-top: 0.15rem;
+  }
+  nav.primary-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.35rem;
+  }
+  nav.primary-nav a {
+    text-decoration: none;
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+  }
+  nav.primary-nav a:hover {
+    color: var(--route-red);
+    border-bottom-color: var(--route-red);
+  }
+  .jumpbox {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--rule-strong);
+    padding: 0.3rem 0.15rem 0.3rem 0.65rem;
+    gap: 0.4rem;
+    background: var(--ground-panel);
+  }
+  .jumpbox label {
+    font-size: 0.62rem;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .jumpbox input {
+    font-family: var(--font-greek);
+    font-size: 0.8rem;
+    border: none;
+    background: transparent;
+    color: var(--ink);
+    width: 6.4rem;
+  }
+  .jumpbox input:focus-visible { outline-offset: 0; }
+  .jumpbox button {
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--ground);
+    border: none;
+    padding: 0.32rem 0.6rem;
+    cursor: pointer;
+  }
+
+  /* ---------- contour band ---------- */
+  .contour-band {
+    border-bottom: 1px solid var(--rule);
+    background: var(--ground);
+    line-height: 0;
+  }
+  .contour-band svg { display: block; width: 100%; height: 46px; }
+  .contour-band path {
+    fill: none;
+    stroke: var(--rule-strong);
+    stroke-width: 1;
+  }
+  .contour-band path.n2 { stroke: var(--rule); }
+  .contour-band path.n3 { stroke: var(--gold-deco); opacity: 0.55; }
+
+  /* ---------- book plate / cartouche ---------- */
+  .plate {
+    margin: 1.25rem 0 1.75rem;
+    border: 1px solid var(--rule-strong);
+    padding: 0.85rem 1.4rem 0.95rem;
+    position: relative;
+  }
+  .plate::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1px solid var(--rule);
+    pointer-events: none;
+  }
+  .plate-titles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem 0.9rem;
+  }
+  .plate-greek {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1.1;
+    letter-spacing: 0.05em;
+  }
+  .plate-en {
+    font-family: var(--font-label);
+    font-size: 0.68rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+  }
+  .plate-argument {
+    margin: 0.45rem 0 0.6rem;
+    max-width: 64ch;
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
+  .plate-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0;
+    align-items: center;
+    border-top: 1px solid var(--rule);
+    padding-top: 0.5rem;
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+  }
+  .plate-meta span.sep { margin: 0 0.5rem; color: var(--rule-strong); }
+
+  /* ---------- reading grid: text + apparatus rail ---------- */
+  .reading-section { margin-bottom: 2.5rem; }
+  .reading-grid {
+    display: grid;
+    grid-template-columns: 1fr 11rem;
+    column-gap: 1.75rem;
+    align-items: start;
+  }
+  @media (max-width: 1099.98px) {
+    .reading-grid { grid-template-columns: 1fr; }
+    .margin-col {
+      border-left: none;
+      border-top: 1px solid var(--rule);
+      margin-top: 1.75rem;
+      padding-top: 1.4rem;
+      padding-left: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem 2.25rem;
+    }
+    .margin-col > * { flex: 1 1 220px; }
+    .margin-head { padding-left: 0; }
+  }
+
+  .text-block {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    column-gap: 2.25rem;
+    border-right: 1px solid var(--rule);
+    padding-right: 1.75rem;
+  }
+  @media (max-width: 1099.98px) {
+    .text-block { border-right: none; padding-right: 0; }
+  }
+  @media (max-width: 620px) {
+    .text-block { grid-template-columns: 1fr; }
+    .text-block .greek-col {
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 1.4rem;
+      margin-bottom: 1.4rem;
+    }
+  }
+
+  .en-col h3.block-label,
+  .greek-col h3.block-label {
+    margin: 0 0 0.85rem;
+    font-family: var(--font-label);
+    font-size: 0.64rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.4rem;
+  }
+
+  /* Greek gutter list */
+  .greek-col ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .greek-col li {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    column-gap: 0.55rem;
+    font-family: var(--font-greek);
+    font-size: 1.12rem;
+    line-height: 1.85;
+  }
+  .greek-col li + li { padding-top: 0.02rem; }
+  .greek-col .ln {
+    font-family: var(--font-label);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.66rem;
+    color: var(--rule-strong);
+    text-align: right;
+    padding-top: 0.42rem;
+  }
+  .greek-col li[data-marked="1"] .ln { color: var(--gold-text); font-weight: 600; }
+  .greek-col .vs { text-indent: -0.9rem; padding-left: 0.9rem; }
+
+  .greek-col .lemma-target {
+    position: relative;
+    border-bottom: 1px dotted var(--gold-deco);
+    cursor: help;
+  }
+
+  /* English gutter list — mirrors greek-col's markup/tabular-num style;
+     ticks fall at the Perseus/Murray [1][5][10][15] milestone boundaries. */
+  .en-col ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .en-col li {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    column-gap: 0.55rem;
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--ink);
+  }
+  .en-col li + li { margin-top: 0.85rem; }
+  .en-col .ln {
+    font-family: var(--font-label);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.66rem;
+    color: var(--rule-strong);
+    text-align: right;
+    padding-top: 0.32rem;
+  }
+  .en-col li[data-marked="1"] .ln { color: var(--gold-text); font-weight: 600; }
+  .en-col .attribution {
+    display: block;
+    margin-top: 1rem;
+    font-family: var(--font-label);
+    font-size: 0.68rem;
+    letter-spacing: 0.02em;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- lexicon popup — Option A (anchored, at the clicked word) ---------- */
+  .lex-pop-wrap { margin-top: 1.1rem; }
+  .lex-pop {
+    display: inline-block;
+    background: var(--ground-panel);
+    border: 1px solid var(--rule-strong);
+    padding: 0.85rem 1rem 0.75rem;
+    max-width: 20rem;
+    position: relative;
+  }
+  .lex-pop::before {
+    content: "";
+    position: absolute;
+    top: -7px;
+    left: 1.4rem;
+    width: 12px; height: 12px;
+    background: var(--ground-panel);
+    border-left: 1px solid var(--rule-strong);
+    border-top: 1px solid var(--rule-strong);
+    transform: rotate(45deg);
+  }
+  .lex-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+  }
+  .lex-greek { font-family: var(--font-greek); font-size: 1.15rem; }
+  .lex-pos { font-family: var(--font-label); font-size: 0.66rem; color: var(--ink-soft); }
+  .lex-def { font-size: 0.85rem; color: var(--ink); margin: 0 0 0.65rem; }
+  .lex-tabs {
+    display: flex;
+    gap: 0.9rem;
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-top: 1px solid var(--rule);
+    padding-top: 0.55rem;
+  }
+  .lex-tabs a { text-decoration: none; color: var(--ink-soft); }
+  .lex-tabs a[aria-current="true"] { color: var(--route-red); border-bottom: 1px solid var(--route-red); padding-bottom: 2px; }
+
+  /* ---------- margin/apparatus rail ---------- */
+  .margin-col {
+    padding-left: 0.1rem;
+    border-left: 1px solid var(--rule);
+  }
+  .margin-head {
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--rule-strong);
+    margin: 0 0 0.9rem;
+    padding-left: 0.9rem;
+  }
+  .day-marker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 0 1.1rem 0.9rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--gold-deco);
+  }
+  .day-marker .pin {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--gold-deco);
+    flex: none;
+  }
+  .day-marker span.label {
+    font-family: var(--font-label);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+    font-weight: 600;
+  }
+
+  .scene-chip {
+    margin: 0 0.9rem 1.5rem 0.9rem;
+    padding: 0.7rem 0.8rem 0.75rem;
+    background: var(--margin-bg);
+    border: 1px solid var(--rule);
+    border-left: 2px solid var(--route-red);
+  }
+  .scene-chip .ref {
+    font-family: var(--font-label);
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    color: var(--route-red);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .scene-chip p {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 0.84rem;
+    font-style: italic;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .draft-badge {
+    display: inline-block;
+    margin-top: 0.55rem;
+    font-family: var(--font-label);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    border: 1px solid var(--terracotta);
+    padding: 0.15rem 0.4rem;
+  }
+
+  /* ---------- docked lexicon — Option B (rail panel) ---------- */
+  .lex-dock-wrap { margin: 0 0.9rem 1.5rem; }
+  .lex-dock {
+    background: var(--ground-panel);
+    border: 1px solid var(--rule);
+    padding: 0.75rem 0.8rem 0.8rem;
+  }
+  .lex-dock .lex-head { display: block; margin-bottom: 0.25rem; }
+  .lex-dock .lex-greek { font-size: 1.02rem; display: block; }
+  .lex-dock .lex-pos { display: block; margin-top: 0.1rem; }
+  .lex-dock .lex-def {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    margin: 0.4rem 0 0.65rem;
+  }
+  .lex-dock .lex-tabs {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+  .lex-dock .lex-tabs a { padding: 0.05rem 0; }
+  .lex-dock .lex-note {
+    margin: 0.7rem 0 0;
+    padding-top: 0.6rem;
+    border-top: 1px dotted var(--rule);
+    font-family: var(--font-label);
+    font-size: 0.6rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+
+  .reading-mode-tag {
+    margin: 0 0.9rem;
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+  }
+  .reading-mode-tag kbd {
+    font-family: var(--font-label);
+    border: 1px solid var(--rule-strong);
+    padding: 0.05rem 0.35rem;
+    font-size: 0.6rem;
+  }
+
+  /* ---------- map panel showpiece ---------- */
+  .map-section { margin-bottom: 2.75rem; }
+  .map-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.9rem;
+  }
+  .map-heading h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 400;
+  }
+  .map-panel {
+    position: relative;
+    border: 1px solid var(--rule-strong);
+    background:
+      repeating-linear-gradient(0deg, transparent 0 39px, var(--rule) 39px 40px),
+      repeating-linear-gradient(90deg, transparent 0 39px, var(--rule) 39px 40px),
+      var(--ground-panel);
+    min-height: 20rem;
+    padding: 1.5rem;
+    overflow: hidden;
+  }
+  /* Route-line texture, recolored per palette via mask (was a hardcoded
+     bronze SVG data-URI in hybrid-v2 — unrecolorable per palette). The
+     mask SVG carries silhouette-only black strokes; the visible color
+     comes from --gold-deco painted underneath at low element opacity. */
+  .map-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--gold-deco);
+    opacity: 0.16;
+    -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200"><path d="M -10 140 C 60 120, 100 160, 160 130 S 260 100, 340 130 S 420 150 460 120" fill="none" stroke="black" stroke-width="1.6"/><path d="M -10 170 C 80 150, 140 190, 210 160 S 300 130 400 165" fill="none" stroke="black" stroke-width="1.4"/></svg>');
+    mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200"><path d="M -10 140 C 60 120, 100 160, 160 130 S 260 100, 340 130 S 420 150 460 120" fill="none" stroke="black" stroke-width="1.6"/><path d="M -10 170 C 80 150, 140 190, 210 160 S 300 130 400 165" fill="none" stroke="black" stroke-width="1.4"/></svg>');
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: cover;
+    mask-size: cover;
+    pointer-events: none;
+  }
+  .compass-rose {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 88px;
+    height: 88px;
+    opacity: 0.9;
+  }
+  .compass-rose line { stroke: var(--ink-soft); stroke-width: 1; }
+  .compass-rose line.major { stroke: var(--ink); stroke-width: 1.3; }
+  .compass-rose text {
+    font-family: var(--font-label);
+    font-size: 7px;
+    fill: var(--ink-soft);
+    letter-spacing: 0.05em;
+  }
+  .compass-rose circle { fill: none; stroke: var(--rule-strong); stroke-width: 1; }
+
+  .place-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: var(--ground);
+    border: 1px solid var(--rule-strong);
+    padding: 0.4rem 0.7rem;
+    font-family: var(--font-label);
+    font-size: 0.72rem;
+  }
+  .place-chip .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1.5px solid var(--route-red);
+    flex: none;
+  }
+  .place-chip .name { color: var(--ink); font-weight: 600; }
+  .place-chip .tier {
+    color: var(--ink-soft);
+    font-style: italic;
+    font-family: var(--font-serif);
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.76rem;
+  }
+
+  .tier-legend {
+    margin-top: 1.1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.4rem;
+    font-family: var(--font-label);
+    font-size: 0.64rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    position: relative;
+  }
+  .tier-legend .item { display: flex; align-items: center; gap: 0.4rem; }
+  .tier-legend .mark { width: 10px; height: 10px; flex: none; }
+  .tier-legend .mark.certain { border-radius: 50%; background: var(--ink); }
+  .tier-legend .mark.traditional { border-radius: 50%; border: 1.5px solid var(--ink); background: transparent; }
+  .tier-legend .mark.speculative {
+    border-radius: 50%;
+    border: 1.5px dashed var(--ink-soft);
+    background: transparent;
+  }
+  .tier-legend .mark.mythical {
+    background: transparent;
+    border: 1.5px solid var(--ink-soft);
+    transform: rotate(45deg);
+    width: 8px; height: 8px;
+  }
+
+  /* ---------- footer ---------- */
+  footer {
+    border-top: 1px solid var(--rule-strong);
+    padding: 1.5rem 0 2.5rem;
+    font-family: var(--font-label);
+    font-size: 0.66rem;
+    letter-spacing: 0.03em;
+    color: var(--ink-soft);
+    line-height: 1.9;
+  }
+
+  /* ---------- theme toggle ---------- */
+  .theme-toggle {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 20;
+    background: var(--ground-panel);
+    border: 1px solid var(--rule-strong);
+    color: var(--ink-soft);
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.45rem 0.7rem;
+    cursor: pointer;
+  }
+  .theme-toggle:hover { color: var(--route-red); border-color: var(--route-red); }
+
+  @media (max-width: 480px) {
+    .plate-greek { font-size: 1.3rem; }
+    .wordmark { font-size: 1.25rem; }
+    header.masthead { margin-top: 3.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="palette-switcher" role="group" aria-label="Palette review switcher">
+  <span class="ps-label" id="ps-label">Palette &middot; review tool</span>
+  <button type="button" data-palette-btn="wine" aria-pressed="true" aria-describedby="ps-label">Wine</button>
+  <button type="button" data-palette-btn="thalassa" aria-pressed="false" aria-describedby="ps-label">Thalassa</button>
+  <button type="button" data-palette-btn="laurel" aria-pressed="false" aria-describedby="ps-label">Laurel</button>
+  <button type="button" data-palette-btn="inklapis" aria-pressed="false" aria-describedby="ps-label">Ink &amp; Lapis</button>
+</div>
+
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <div class="wordmark">
+      The Homer Reader
+      <small>Digital Landmark Edition</small>
+    </div>
+    <nav class="primary-nav" aria-label="Primary">
+      <a href="#">Iliad</a>
+      <a href="#">Odyssey</a>
+      <a href="#">Maps</a>
+      <a href="#">Timeline</a>
+      <a href="#">Start Here</a>
+    </nav>
+    <form class="jumpbox" role="search" aria-label="Jump to line">
+      <label for="jump">Jump</label>
+      <input id="jump" type="text" value="Od. 9.366" spellcheck="false">
+      <button type="submit">Go</button>
+    </form>
+  </div>
+</header>
+
+<div class="contour-band" aria-hidden="true">
+  <svg viewBox="0 0 1200 46" preserveAspectRatio="none">
+    <path class="n1" d="M0 30 C 100 10, 180 42, 280 26 S 460 6, 560 24 S 740 40, 860 22 S 1040 8, 1200 26" />
+    <path class="n2" d="M0 38 C 120 22, 220 44, 340 32 S 520 16, 640 34 S 820 44, 940 30 S 1120 18, 1200 34" />
+    <path class="n3" d="M0 12 C 140 26, 260 4, 400 16 S 600 30, 760 12 S 980 2, 1200 14" />
+  </svg>
+</div>
+
+<main class="wrap">
+
+  <section class="plate">
+    <div class="plate-titles">
+      <div class="plate-greek">ΙΛΙΑΔΟΣ Α</div>
+      <div class="plate-en">Iliad · Book 1</div>
+    </div>
+    <p class="plate-argument">The quarrel: Chryses refused, Apollo&rsquo;s plague, Achilles withdraws from the war.</p>
+    <div class="plate-meta">
+      <span>Troy, the Achaean camp</span>
+      <span class="sep">·</span>
+      <span>Achilles</span>
+      <span class="sep">·</span>
+      <span>Agamemnon</span>
+      <span class="sep">·</span>
+      <span>Chryses</span>
+      <span class="sep">·</span>
+      <span>Apollo</span>
+      <span class="sep">·</span>
+      <span>Days 1&ndash;21</span>
+    </div>
+  </section>
+
+  <section class="reading-section">
+    <div class="reading-grid">
+      <div class="text-block">
+        <div class="greek-col">
+          <h3 class="block-label">Greek &middot; Monro&ndash;Allen</h3>
+          <ol>
+            <li data-marked="1"><span class="ln">1</span><span class="vs"><span class="lemma-target" tabindex="0" aria-describedby="lex-menis">μῆνιν</span> ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος</span></li>
+            <li><span class="ln"></span><span class="vs">οὐλομένην, ἣ μυρίʼ Ἀχαιοῖς ἄλγεʼ ἔθηκε,</span></li>
+            <li><span class="ln"></span><span class="vs">πολλὰς δʼ ἰφθίμους ψυχὰς Ἄϊδι προΐαψεν</span></li>
+            <li><span class="ln"></span><span class="vs">ἡρώων, αὐτοὺς δὲ ἑλώρια τεῦχε κύνεσσιν</span></li>
+            <li data-marked="1"><span class="ln">5</span><span class="vs">οἰωνοῖσί τε πᾶσι, Διὸς δʼ ἐτελείετο βουλή,</span></li>
+            <li><span class="ln"></span><span class="vs">ἐξ οὗ δὴ τὰ πρῶτα διαστήτην ἐρίσαντε</span></li>
+            <li><span class="ln"></span><span class="vs">Ἀτρεΐδης τε ἄναξ ἀνδρῶν καὶ δῖος Ἀχιλλεύς.</span></li>
+            <li><span class="ln"></span><span class="vs">τίς τʼ ἄρ σφωε θεῶν ἔριδι ξυνέηκε μάχεσθαι;</span></li>
+            <li><span class="ln"></span><span class="vs">Λητοῦς καὶ Διὸς υἱός· ὃ γὰρ βασιλῆϊ χολωθεὶς</span></li>
+            <li data-marked="1"><span class="ln">10</span><span class="vs">νοῦσον ἀνὰ στρατὸν ὄρσε κακήν, ὀλέκοντο δὲ λαοί,</span></li>
+            <li><span class="ln"></span><span class="vs">οὕνεκα τὸν Χρύσην ἠτίμασεν ἀρητῆρα</span></li>
+            <li><span class="ln"></span><span class="vs">Ἀτρεΐδης· ὃ γὰρ ἦλθε θοὰς ἐπὶ νῆας Ἀχαιῶν</span></li>
+            <li><span class="ln"></span><span class="vs">λυσόμενός τε θύγατρα φέρων τʼ ἀπερείσιʼ ἄποινα,</span></li>
+            <li><span class="ln"></span><span class="vs">στέμματʼ ἔχων ἐν χερσὶν ἑκηβόλου Ἀπόλλωνος</span></li>
+            <li data-marked="1"><span class="ln">15</span><span class="vs">χρυσέῳ ἀνὰ σκήπτρῳ, καὶ λίσσετο πάντας Ἀχαιούς,</span></li>
+            <li><span class="ln"></span><span class="vs">Ἀτρεΐδα δὲ μάλιστα δύω, κοσμήτορε λαῶν&middot;</span></li>
+          </ol>
+
+          <div class="lex-pop-wrap">
+            <div class="lex-pop" id="lex-menis" role="dialog" aria-label="Lexicon: μῆνις">
+              <div class="lex-head">
+                <span class="lex-greek">μῆνις, ἡ</span>
+                <span class="lex-pos">noun, fem.</span>
+              </div>
+              <p class="lex-def">wrath, cosmic anger (of gods, of Achilles)</p>
+              <div class="lex-tabs">
+                <a href="#" aria-current="true">LSJ</a>
+                <a href="#">Cunliffe</a>
+                <a href="#">Logeion ↗</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="en-col">
+          <h3 class="block-label">English &middot; Murray, 1924</h3>
+          <ol>
+            <li data-marked="1">
+              <span class="ln">1</span>
+              <span class="pr">The wrath sing, goddess, of Peleus&rsquo; son, Achilles, that destructive wrath which brought countless woes upon the Achaeans, and sent forth to Hades many valiant souls of heroes, and made them themselves spoil for dogs and every bird; thus the plan of Zeus came to fulfillment,</span>
+            </li>
+            <li data-marked="1">
+              <span class="ln">5</span>
+              <span class="pr">from the time when first they parted in strife Atreus&rsquo; son, king of men, and brilliant Achilles. Who then of the gods was it that brought these two together to contend? The son of Leto and Zeus; for he in anger against the king roused throughout the host an evil pestilence, and the people began to perish,</span>
+            </li>
+            <li data-marked="1">
+              <span class="ln">10</span>
+              <span class="pr">because upon the priest Chryses the son of Atreus had wrought dishonour. For he had come to the swift ships of the Achaeans to free his daughter, bearing ransom past counting; and in his hands he held the wreaths of Apollo who strikes from afar, on a staff of gold; and he implored all the Achaeans,</span>
+            </li>
+            <li data-marked="1">
+              <span class="ln">15</span>
+              <span class="pr">but most of all the two sons of Atreus, the marshallers of the people.</span>
+            </li>
+          </ol>
+          <span class="attribution">A. T. Murray, 1924 (Perseus Digital Library) &middot; public domain</span>
+        </div>
+      </div>
+
+      <aside class="margin-col" aria-label="Marginal apparatus">
+        <p class="margin-head">Apparatus</p>
+        <div class="day-marker">
+          <span class="pin" aria-hidden="true"></span>
+          <span class="label">Day 1</span>
+        </div>
+        <div class="scene-chip">
+          <span class="ref">1.1&ndash;7 &middot; Invocation</span>
+          <p>The wrath announced &mdash; the poem states its subject and its cost before the story begins.</p>
+          <span class="draft-badge">Draft</span>
+        </div>
+
+        <div class="lex-dock-wrap">
+          <div class="lex-dock" role="dialog" aria-label="Lexicon panel: μῆνις">
+            <div class="lex-head">
+              <span class="lex-greek">μῆνις, ἡ</span>
+              <span class="lex-pos">noun, fem.</span>
+            </div>
+            <p class="lex-def">wrath, cosmic anger (of gods, of Achilles)</p>
+            <div class="lex-tabs">
+              <a href="#" aria-current="true">LSJ</a>
+              <a href="#">Cunliffe</a>
+              <a href="#">Logeion ↗</a>
+            </div>
+            <p class="lex-note">Clicked words populate this panel; popup only on mobile.</p>
+          </div>
+        </div>
+
+        <p class="reading-mode-tag">Reading Mode &middot; press <kbd>r</kbd></p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="map-section">
+    <div class="map-heading">
+      <h2>Chart &middot; The Wanderings, Book 9</h2>
+      <span class="sc" style="color:var(--ink-soft); font-size:0.64rem;">Graticule shown schematically</span>
+    </div>
+    <div class="map-panel">
+      <svg class="compass-rose" viewBox="0 0 88 88" aria-hidden="true">
+        <circle cx="44" cy="44" r="38"></circle>
+        <circle cx="44" cy="44" r="24"></circle>
+        <line class="major" x1="44" y1="4" x2="44" y2="84"></line>
+        <line class="major" x1="4" y1="44" x2="84" y2="44"></line>
+        <line x1="14" y1="14" x2="74" y2="74"></line>
+        <line x1="74" y1="14" x2="14" y2="74"></line>
+        <text x="40" y="14">N</text>
+        <text x="40" y="80">S</text>
+        <text x="6" y="47">W</text>
+        <text x="76" y="47">E</text>
+      </svg>
+      <div class="place-chip">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="name">Ismarus</span>
+        <span class="tier">&middot; traditional</span>
+      </div>
+      <div class="tier-legend">
+        <span class="item"><span class="mark certain" aria-hidden="true"></span>certain</span>
+        <span class="item"><span class="mark traditional" aria-hidden="true"></span>traditional</span>
+        <span class="item"><span class="mark speculative" aria-hidden="true"></span>speculative</span>
+        <span class="item"><span class="mark mythical" aria-hidden="true"></span>mythical</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Greek text: Monro&ndash;Allen OCT (Perseus, CC-BY-SA) &middot; Translation: A. T. Murray (1924), public domain &middot; Maps: CAWM tiles (CC BY 4.0)
+  </footer>
+
+</main>
+
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">Day / Night</button>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var themeBtn = document.getElementById('themeToggle');
+    var paletteBtns = Array.prototype.slice.call(document.querySelectorAll('[data-palette-btn]'));
+    var THEME_KEY = 'homer-palettesv1-theme';
+    var PALETTE_KEY = 'homer-palettesv1-palette';
+    var DEFAULT_PALETTE = 'wine';
+
+    // ---- theme (day/night) ----
+    var storedTheme = null;
+    try { storedTheme = localStorage.getItem(THEME_KEY); } catch (e) {}
+    if (storedTheme === 'dark' || storedTheme === 'light') {
+      root.setAttribute('data-theme', storedTheme);
+    }
+    themeBtn.addEventListener('click', function () {
+      var current = root.getAttribute('data-theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var effectiveCurrent = current || (prefersDark ? 'dark' : 'light');
+      var next = effectiveCurrent === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+    });
+
+    // ---- palette (review-tool switcher) ----
+    function applyPalette(name) {
+      root.setAttribute('data-palette', name);
+      paletteBtns.forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-palette-btn') === name ? 'true' : 'false');
+      });
+    }
+    var storedPalette = null;
+    try { storedPalette = localStorage.getItem(PALETTE_KEY); } catch (e) {}
+    applyPalette(storedPalette || DEFAULT_PALETTE);
+
+    paletteBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var name = btn.getAttribute('data-palette-btn');
+        applyPalette(name);
+        try { localStorage.setItem(PALETTE_KEY, name); } catch (e) {}
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

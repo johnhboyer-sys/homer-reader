@@ -1,0 +1,177 @@
+---
+// One work's formula ledger (see /formulas/iliad/ and /formulas/odyssey/) —
+// extracted so both per-work pages share one template. Each formula row
+// renders the Greek, its occurrence count, an English gloss line (from
+// apparatus/formula-glosses.json, status: draft — see the draft badge on the
+// pages that use this component), and up to 4 verse citations. The gloss
+// span is always emitted (positionally, as the row's 3rd child — no class
+// needed) because every formula text in the current corpus has a gloss;
+// CSS below targets it by position, so a future formula with no gloss would
+// render an empty (but harmless) line rather than shifting the citation
+// styling onto the wrong child.
+interface FormulaRef { book: number; line: number; }
+interface Formula { text: string; lemmaKeys: string[]; count: number; refs: FormulaRef[]; }
+interface EntityFormulas { entity: string; formulas: Formula[]; }
+
+interface Props {
+  work: 'iliad' | 'odyssey';
+  label: string;
+  entries: EntityFormulas[];
+  glosses: Record<string, string>;
+  characterName: (id: string) => string;
+  characterGreek: (id: string) => string | undefined;
+  base: string;
+}
+const { work, label, entries, glosses, characterName, characterGreek, base } = Astro.props;
+const readerHref = (ref: FormulaRef) => `${base}/${work}/book/${ref.book}/?loc=${ref.book}.${ref.line}`;
+
+// Connective-formula classification (display-level only — epithets.json itself
+// is untouched). A formula is CONNECTIVE if every token besides the entity's
+// own name-token(s) is a Greek function word (particles, articles, common
+// prepositions/conjunctions); it's SUBSTANTIVE if at least one token is a real
+// epithet, verb, participle, patronymic, or common noun. See CLAUDE.md's
+// Homeric-accuracy rule — this only reorganizes the ledger, never the data.
+const FUNCTION_WORDS = [
+  'δέ', 'δ', 'δή', 'καί', 'τε', 'θ', 'αὐτάρ', 'ἀτάρ', 'μέν', 'γάρ', 'ἄρ', 'ἄρα', 'ῥα', 'ῥ',
+  'ἀλλά', 'ἀλλ', 'οὐδέ', 'οὐδ', 'ἠδέ', 'ἠδ', 'ἰδέ', 'ὥς', 'ὡς', 'ὅς', 'ὅ', 'τόν', 'τήν', 'τώ',
+  'τοί', 'οἱ', 'μιν', 'σφιν', 'ἐπί', 'ἐπ', 'ἐφ', 'ἐν', 'ἐνί', 'εἰν', 'ἐκ', 'ἐξ', 'ἀπό', 'ἀπ',
+  'ὑπό', 'ὑπ', 'ποτί', 'προτί', 'πρός', 'μετά', 'μετ', 'παρά', 'παρ', 'περί', 'ἀμφί', 'ἀμφ',
+  'ἀνά', 'ἄν', 'κατά', 'κατ', 'σύν', 'ξύν', 'εἰς', 'ἐς', 'τι', 'τις', 'γε', 'κε', 'κεν', 'νυ',
+  'νῦν', 'περ', 'ἤ', 'ἠέ', 'οὔτε', 'μήτε', 'ἔπειτα', 'ὅτε', 'ὅταν', 'ἐπεί', 'ἵνα', 'ὄφρα',
+  'τότε', 'αὖ', 'αὖτε', 'αὖτις', 'ἔνθα', 'ἔνθ',
+  // Conditional/causal particles + negations. Without these, "εἰ μὴ Ἀχιλλεύς",
+  // "εἴ κεν Ἀχιλλεύς", "οὕνεκ' Ἀχιλλεύς" ranked as substantive formulas —
+  // John's "If Achilles" noise (2026-07-18).
+  'εἰ', 'εἴ', 'αἰ', 'αἴ', 'ἤν', 'εἴθε', 'αἴθε', 'μή', 'μηδέ', 'μηδ', 'οὐ', 'οὐκ', 'οὐχ',
+  'οὐχί', 'οὕνεκα', 'οὕνεκ',
+  // Personal/possessive pronouns + vocative particle (address-only formulas like
+  // "ὦ Ἀχιλεῦ", "σοὶ Μενέλαε", "μευ Τρῶες" carry no descriptive content).
+  'ὦ', 'σύ', 'σε', 'σέ', 'σοί', 'σοι', 'σευ', 'σ', 'μευ', 'με', 'μοι', 'μ', 'ἐγώ', 'ἐγών', 'αὐτ',
+  // Articles / relative-demonstrative forms and the correlative τόφρα (matches ὄφρα).
+  'τά', 'τούς', 'τοῦ', 'τῶν', 'τοῖσι', 'τοῖσιν', 'τῇ', 'τῆς', 'τάς', 'τοῖς', 'τό', 'τόφρα',
+  'τόφρ', 'ὄφρ',
+  // Elided forms of function words already listed (τ'=τε, κ'=κε, γ'=γε, αὖτ'=αὖτε,
+  // ἔπειτ'/ἔπειθ'=ἔπειτα, τότ'=τότε, ὑφ'=ὑπό, ἀμ=ἀνά) plus adverbial ἅμα.
+  'τ', 'κ', 'γ', 'αὖτ', 'ἔπειτ', 'ἔπειθ', 'τότ', 'ὑφ', 'ἀμ', 'ἅμα',
+];
+const APOSTROPHES = /[ʼ'᾽’`]/g;
+const normalizeGreekToken = (token: string) =>
+  token
+    .replace(APOSTROPHES, '')
+    .normalize('NFD')
+    .replace(/\p{Mn}/gu, '')
+    .normalize('NFC')
+    .toLowerCase()
+    .replace(/ς/g, 'σ');
+const FUNCTION_WORD_SET = new Set(FUNCTION_WORDS.map(normalizeGreekToken));
+// Name stem: the entity's own name (first word of its `greek` field, so a
+// two-word Landmark form like "Αἴας Τελαμώνιος" stems only on "Αἴας" — the
+// patronymic half stays a real word for classification purposes) truncated to
+// a short prefix. Floor 3 / cap 4: long enough to keep coincidental
+// collisions rare, short enough to bridge stem-vowel ablaut across cases
+// (e.g. Ἕκτωρ/Ἕκτορος) and the epic single/double-consonant metrical variants
+// (Ἀχιλλεύς/Ἀχιλεύς).
+const nameStem = (greek: string | undefined): string | null => {
+  if (!greek) return null;
+  const normalized = normalizeGreekToken(greek.split(/\s+/)[0]);
+  if (!normalized) return null;
+  const stemLen = Math.max(3, Math.min(4, normalized.length - 2));
+  return normalized.slice(0, stemLen);
+};
+const classifyFormula = (text: string, greek: string | undefined): 'substantive' | 'connective' => {
+  const stem = nameStem(greek);
+  const tokens = text.split(/\s+/).filter(Boolean);
+  for (const token of tokens) {
+    const normalized = normalizeGreekToken(token);
+    if (!normalized) continue;
+    if (FUNCTION_WORD_SET.has(normalized)) continue;
+    if (stem && normalized.startsWith(stem)) continue;
+    return 'substantive';
+  }
+  return 'connective';
+};
+const splitFormulas = (entity: string, formulas: Formula[]) => {
+  const greek = characterGreek(entity);
+  const substantive: Formula[] = [];
+  const connective: Formula[] = [];
+  for (const formula of formulas) {
+    (classifyFormula(formula.text, greek) === 'connective' ? connective : substantive).push(formula);
+  }
+  return { substantive, connective };
+};
+---
+<section class="work-ledger" aria-labelledby={`${work}-heading`}>
+  <div class="work-heading"><h2 id={`${work}-heading`}>{label}</h2><span>{entries.length} named figures</span></div>
+  {entries.map((entry) => {
+    const { substantive, connective } = splitFormulas(entry.entity, entry.formulas);
+    return (
+      <div class="entity-block" role="group" aria-labelledby={`${work}-${entry.entity}`}>
+        <div class="entity-heading"><h3 id={`${work}-${entry.entity}`}>{characterName(entry.entity)}</h3>{characterGreek(entry.entity) && <span class="entity-greek" lang="grc">{characterGreek(entry.entity)}</span>}</div>
+        {substantive.length > 0 && (
+          <div class="formula-scroll" tabindex="0" role="group" aria-label={`${characterName(entry.entity)} formulas, scrollable on narrow screens`}>
+            <ol class="formula-list">
+              {substantive.map((formula) => (
+                <li>
+                  <span lang="grc">{formula.text}</span><span>{formula.count}×</span>{glosses[formula.text] && <span>{glosses[formula.text]}</span>}
+                  <span>
+                    {formula.refs.slice(0, 4).map((ref) => <a href={readerHref(ref)}>{ref.book}.{ref.line}</a>)}
+                    {formula.refs.length > 4 && <span>+{formula.refs.length - 4} more</span>}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+        {connective.length > 0 && (
+          <details class="connective-details">
+            <summary>{connective.length} verse-position formulas (connective)</summary>
+            <div class="formula-scroll" tabindex="0" role="group" aria-label={`${characterName(entry.entity)} connective formulas, scrollable on narrow screens`}>
+              <ol class="formula-list">
+                {connective.map((formula) => (
+                  <li>
+                    <span lang="grc">{formula.text}</span><span>{formula.count}×</span>{glosses[formula.text] && <span>{glosses[formula.text]}</span>}
+                    <span>
+                      {formula.refs.slice(0, 4).map((ref) => <a href={readerHref(ref)}>{ref.book}.{ref.line}</a>)}
+                      {formula.refs.length > 4 && <span>+{formula.refs.length - 4} more</span>}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </details>
+        )}
+      </div>
+    );
+  })}
+</section>
+<style is:global>
+  .work-ledger { min-width: 0; }
+  .work-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .55rem 0; border-top: 2px solid var(--rule-strong); border-bottom: 1px solid var(--border); }
+  .work-heading h2 { font-family: var(--font-display); font-size: 1.45rem; font-weight: 400; }
+  .work-heading span { font-family: var(--font-ui); font-size: .67rem; font-variant-caps: small-caps; letter-spacing: .08em; color: var(--text-mid); white-space: nowrap; }
+  .entity-block { padding-top: 1.25rem; }
+  .entity-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: .35rem .55rem; padding-bottom: .35rem; border-bottom: 1px solid var(--border); }
+  .entity-heading h3 { font-family: var(--font-ui); font-size: .86rem; font-weight: 600; }
+  .entity-greek { font-family: var(--font-greek); color: var(--text-mid); font-size: .9rem; }
+  .formula-scroll { overflow-x: auto; padding-bottom: .35rem; }
+  .connective-details { margin-top: .35rem; }
+  .connective-details > summary { cursor: pointer; font-family: var(--font-ui); font-size: .68rem; font-variant-caps: small-caps; letter-spacing: .06em; color: var(--text-mid); padding: .4rem 0; }
+  .connective-details > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .connective-details[open] > summary { padding-bottom: .2rem; }
+  .connective-details .formula-scroll { margin-top: .2rem; }
+  .formula-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .formula-list { list-style: none; margin: 0; min-width: 29rem; }
+  /* #15 (2026-07-18): count sits ADJACENT to the Greek, not right-floated. The
+     Greek track sizes to its content (wrapping when long), the count follows in
+     an auto track, and a trailing 1fr track absorbs the rest of the row — so a
+     short formula no longer leaves a mid-row void between text and count. */
+  .formula-list > li { display: grid; grid-template-columns: minmax(0, max-content) auto 1fr; column-gap: .55rem; padding: .45rem 0; border-bottom: 1px solid var(--border); }
+  .formula-list > li > span:first-child { font-family: var(--font-greek); font-size: 1rem; line-height: 1.45; overflow-wrap: anywhere; }
+  .formula-list > li > span:nth-child(2) { font-family: var(--font-ui); font-size: .68rem; color: var(--text-mid); white-space: nowrap; align-self: baseline; }
+  .formula-list > li > span:nth-child(3) { grid-column: 1 / -1; font-family: var(--font-english); font-size: .82rem; color: var(--text-mid); line-height: 1.4; margin-top: .1rem; }
+  .formula-list > li > span:nth-child(4) { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .15rem .5rem; margin-top: .18rem; font-family: var(--font-ui); font-size: .67rem; line-height: 1.45; }
+  .formula-list > li > span:nth-child(4) a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; white-space: nowrap; }
+  .formula-list > li > span:nth-child(4) a:hover { border-bottom-color: var(--accent); }
+  .formula-list > li > span:nth-child(4) a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .formula-list > li > span:nth-child(4) > span { color: var(--text-mid); white-space: nowrap; }
+</style>

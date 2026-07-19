@@ -1,0 +1,860 @@
+// Data-fetch helpers. All paths relative to /data (public symlink to
+// build/dist/ne). Shards are cached in module-level Maps so a single
+// click won't re-fetch the same shard twice in a session.
+import { linkifyGlossaryRefs } from './glossary';
+import { scheme, schemeFor } from './citation';
+import type { AudioManifest } from './audio';
+import { parseCoastline, type Coastline } from './scenemap';
+import type { PlacesFile, JourneysFile } from './scene-place';
+
+export interface Token {
+  t: string;   // surface form (Unicode Greek)
+  o: number;   // char offset in the line
+  k: string;   // Beta Code key
+}
+
+export interface GreekLine {
+  n: number;
+  text: string;
+  joined?: boolean;
+  tokens: Token[];
+  // Athetized/bracketed in the editorial tradition (a line the vulgate keeps
+  // numbered but a scholarly edition marks spurious with square brackets —
+  // e.g. disputed Iliad/Odyssey lines). The reader wraps the line in editorial
+  // brackets with a muted style + tooltip when set. No pipeline data sets this
+  // yet (that's a future apparatus pass); absent/false ⇒ an ordinary line, so
+  // the feature is inert until then.
+  bracketed?: boolean;
+  // Table row: present when the Greek line is part of an inline table (the TLG
+  // ⎪ column divider, e.g. the De Int 22a modal square). Each cell carries its
+  // own text + clickable tokens (offsets rebased to the cell).
+  cells?: { text: string; tokens: Token[] }[];
+}
+
+export interface EnglishChunk {
+  text: string;
+  notes: { offset: number; text: string }[];
+  markers: { kind: string; n: string; offset: number }[];
+  // Bekker line ticks for the English gutter; `real` = a true TEI milestone
+  // (column start / ~line 20), otherwise a proportional estimate.
+  bekker?: { n: number; offset: number; real: boolean }[];
+  // Speaker turns starting in this chunk (Stephanus dialogues): the label
+  // lead-in is stripped from `text` and rendered separately (like the Greek
+  // sigla). `offset` is where the turn's text begins; `speaker` is the canonical
+  // name (null = the unattributed dash turn); `display` is the printed lead-in
+  // (null when the said carried none). Absent for non-dialogue chunks.
+  turns?: EnglishTurn[];
+}
+
+export interface EnglishTurn {
+  offset: number;
+  speaker: string | null;
+  display: string | null;
+}
+
+// One entry of a dialogue book's global turn flow (see TurnFlow): `g` is the
+// Greek start ref (Stephanus column token, line n, char offset) — null for an
+// English-only residual; `e` is the turn's English slice text — null for a
+// Greek-only residual; `s`/`d` are the canonical speaker and the printed
+// English lead-in; `p` marks a paired (level-locked) turn.
+export interface FlowTurn {
+  s: string | null;
+  d: string | null;
+  g: { c: string; n: number; o: number } | null;
+  e: string | null;
+  p: boolean;
+  // ── Optional flow extensions. The pipeline emits an explicit JSON `null`
+  // when a field is absent (not an omitted key), so each is `T[] | null` as
+  // well as optional; old dialogue JSON (keys absent) still typechecks.
+  //
+  // `ep`: paragraph-break offsets within this turn's stripped English slice
+  // (exclusive of 0 and the slice end) — the reader renders each as a break.
+  // Emitted for para-flow rows AND for dialogue turns with internal paragraphs
+  // (Timaeus/Phaedo long speeches).
+  ep?: number[] | null;
+  // `et`: embedded english.turns for a para-flow row — intra-row speech blocks
+  // with lead-ins (dialogue nested inside a narrated paragraph row). `o` is the
+  // char offset in the row's English slice where the embedded speech begins.
+  et?: { o: number; s: string | null; d: string | null }[] | null;
+  // `sub`: stacked one-sided English speeches folded under this row (pipeline
+  // B4's column-grouped residual rows — dialogue flows like Lysis/Parmenides,
+  // and the para-flow contract). Usually the row's `e` is null and the stack
+  // is its whole English cell; when the row also carries English (a narration
+  // lead, e.g. Lysis 203a) the stack follows it. Each speech has its own
+  // lead-in, English text, and optional paragraph breaks.
+  sub?: { s: string | null; d: string | null; e: string; ep?: number[] | null }[] | null;
+  // `alt`: this turn's text in ALTERNATE translations, keyed by translation id
+  // (see shared/lib/works.ts TranslationRef.id). Populated by the post-stage7
+  // turn aligner (pipeline/homer_pipeline/align_turns.py), which pairs each
+  // alternate translation's speaker turns to this reference turnFlow so the
+  // alternate inherits Stephanus anchoring. The reader's turn-by-turn compare
+  // renders `alt[id].e` in the second column on this same row; `e` is null for
+  // a reference turn the alternate has no match for (rendered as an em-dash).
+  alt?: Record<string, { e: string | null; ep?: number[] | null }> | null;
+}
+
+// A dialogue book's turn flow: the globally-paired, ordered turn list the
+// reader renders as Greek-beside-English rows (each speaker's statement level
+// with its translation; Stephanus sections become gutter ticks). Present only
+// for books with Greek turn events; narrated books keep section-row rendering.
+// `leadE` is English prose preceding the first English turn.
+//
+// `kind: 'para'` marks a paragraph-anchored flow for a NARRATED work: rows are
+// paragraphs (s/d null, p false), the English cut at paragraph boundaries and
+// the Greek ref snapped to the nearest Stephanus section boundary. Absent (or
+// omitted) for ordinary speaker-turn dialogue flows.
+export interface TurnFlow {
+  kind?: 'para';
+  leadE: string | null;
+  turns: FlowTurn[];
+}
+
+export interface ChapterStart {
+  chapter: string;
+  beforeLine: number;  // insert the heading before the Greek line with this n
+  wordIndex: number;   // word index within that line where the chapter begins
+                       // (>0 means the chapter starts mid-line → split the line)
+  engOffset: number;   // char offset in the English chunk where the chapter begins
+  bekker: string;      // Bekker span, e.g. "1097a–1098b" (single column if equal)
+}
+
+// A slice of the Ross translation paired to a chapter block in this column.
+// `cont` = the tail of a chapter that began in an earlier column. Ross is
+// chapter-anchored (no per-line Bekker gutter), distributed across columns.
+export interface RossPiece {
+  chapter: string;
+  text: string;
+  cont: boolean;
+  // Interpolated Bekker-line ticks down this slice (all estimates — Ross has no
+  // milestones of its own). Same shape as EnglishChunk.bekker.
+  bekker?: { n: number; offset: number; real: boolean }[];
+  // Structured diagram tables (e.g. Ackrill's squares of opposition), each
+  // anchored to the Bekker line `n` of the segment it belongs to; rendered as a
+  // grid after that segment's row.
+  tables?: { n: number; rows: string[][] }[];
+}
+
+// A speaker-turn event in a Stephanus dialogue (Plato): the interlocutor whose
+// speech begins at `offset` (char position in line `line`'s rejoined text). The
+// `label` siglum ("ΕΥΘ.") or dialectic dash ("—") is EXCLUDED from the line text
+// and rendered as a separate inline lead-in, so token char-offsets never shift.
+// See shared/lib/speakers.ts for the render model. Absent for non-dialogue works.
+export interface SpeakerTurn {
+  line: number;
+  offset: number;
+  label: string;
+}
+
+export interface Segment {
+  id: string;
+  column: string;
+  greek: GreekLine[];
+  english: EnglishChunk | null;
+  chapterStarts?: ChapterStart[];
+  // Speaker-turn events for a Stephanus dialogue segment (see SpeakerTurn).
+  speakers?: SpeakerTurn[];
+  ross?: RossPiece[];
+  // Optional third translation (same overlay shape as ross), e.g. Categories'
+  // Ackrill beside Edghill + Taylor. Absent in works with fewer translations.
+  third?: RossPiece[];
+  // Any further overlay translations (the 4th onward), keyed by translation id.
+  // Same overlay shape as ross/third. Lets a work carry an unbounded number of
+  // chapter-anchored secondary translations beyond the fixed ross/third slots.
+  overlays?: Record<string, RossPiece[]>;
+}
+
+export interface ChapterRef {
+  chapter: string;
+  column: string;
+  line: string;
+  bekker: string;
+}
+
+// A narrative scene of a Homer book (Landmark-style apparatus): a one-line
+// summary anchored to a Greek vulgate line range, optionally naming where the
+// scene is set and who is in it. Reading Mode renders each as a marginal
+// summary chip with a quiet line-range tick and subtle place/person markers.
+// Populated by fetchBook's normalization of the emitted `apparatus.scenes`
+// (drafted Phase 4a data, status:draft until John's review); absent on any
+// book without staged apparatus, in which case Reading Mode degrades to
+// plain single-column prose. Same inert-until-present posture as
+// GreekLine.bracketed and the cartouche apparatus slots.
+export interface Scene {
+  summary: string;
+  startLine: number;    // opening Greek vulgate line (n) this scene covers
+  endLine?: number;     // closing line n (inclusive); omitted ⇒ open-ended
+  place?: string;       // where the scene is set (small-caps marker)
+  people?: string[];    // named persons in the scene (subtle markers)
+  // Narrative day the scene falls on (the epic's internal chronology), carried
+  // through from the pipeline's `dayNumber`. `null`/absent ⇒ no day marker (e.g.
+  // the proem). The scene rail shows it as a "Day N" meta marker.
+  day?: number | null;
+}
+
+// The scene index whose line range contains (or last opens at or before) a given
+// Greek vulgate line — used to keep the scene rail's current-scene highlight in
+// sync with the reading position. Order-independent (does not assume the scenes
+// array is sorted): returns the index of the latest-opening scene whose startLine
+// is ≤ the line, 0 when the line precedes every scene, and -1 for no scenes.
+export function activeSceneIndex(scenes: Scene[], line: number): number {
+  let idx = -1;
+  let best = -Infinity;
+  for (let i = 0; i < scenes.length; i++) {
+    const s = scenes[i].startLine;
+    if (s <= line && s > best) { best = s; idx = i; }
+  }
+  if (idx === -1 && scenes.length) return 0;
+  return idx;
+}
+
+// A DICES speech span (docs/APPARATUS-SCHEMAS.md's speeches.json, computed
+// stage 4e, `status: "imported"` — not authored, so no draft badge applies).
+// `lines` are vulgate line numbers: for an ordinary speech both belong to
+// `book`; for a `crossBook` speech `lines[1]` belongs to a LATER book (the
+// speech's closing book), so it must never be treated as a same-book bound —
+// see shared/lib/speeches.ts's classifySpeech and
+// pipeline/homer_pipeline/apparatus_speeches.py's module docstring (the two
+// Apologoi frame speeches, Od. 9.2-11.332 and Od. 11.378-12.453). `speaker`/
+// `addressee` are apparatus/characters.json ids where the DICES name joined,
+// else the lowercased raw DICES name (never dropped) — see
+// shared/lib/speeches.ts's humanizeSpeaker for the display fallback.
+export interface Speech {
+  id: string;
+  book: number;
+  lines: [number, number];
+  speaker: string[];
+  addressee: string[];
+  level: number;
+  cluster: number;
+  part: number;
+  type: string;
+  crossBook?: boolean;
+}
+
+export interface SpeechesFile {
+  work: string;
+  status: string;
+  speeches: Speech[];
+}
+
+// A repeated Greek line or phrase across the two Homeric epics. Unlike the
+// per-work speech data above, this is one corpus-wide index at /data rather
+// than beneath either work directory. It is deliberately fetched only by the
+// repetitions index after its search field receives its first input.
+export interface RepetitionRef {
+  work: 'iliad' | 'odyssey';
+  book: number;
+  line: number;
+}
+
+export interface Repetition {
+  key: string;
+  text: string;
+  count: number;
+  refs: RepetitionRef[];
+  // Present only in the compact server-rendered preview used by /repetitions/;
+  // the emitted corpus file derives this from refs instead.
+  crossEpic?: boolean;
+}
+
+let _repetitionsCache: Promise<Repetition[]> | null = null;
+
+export function fetchRepetitions(): Promise<Repetition[]> {
+  if (_repetitionsCache) return _repetitionsCache;
+  const p = fetch(`${ROOT()}/repetitions.json`).then(r => {
+    if (!r.ok) throw new Error(`repetitions: ${r.status}`);
+    return r.json();
+  }).then((raw: Repetition[]) => raw ?? []);
+  p.catch(() => { if (_repetitionsCache === p) _repetitionsCache = null; });
+  _repetitionsCache = p;
+  return p;
+}
+
+const _speechesCache = new Map<string, Promise<Speech[]>>();
+
+// A work's whole speech-span list (both epics run ~700 rows), fetched once
+// and cached — the Speeches reader toggle is off by default, so this is
+// lazy: nothing fetches until a reader actually turns it on (payload
+// discipline, same posture as fetchFootnotes/fetchSidenotes).
+export function fetchSpeeches(work: string): Promise<Speech[]> {
+  const cached = _speechesCache.get(work);
+  if (cached) return cached;
+  const p = fetch(`${workBase(work)}/speeches.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} speeches: ${r.status}`);
+    return r.json();
+  }).then((raw: SpeechesFile) => raw.speeches ?? []);
+  p.catch(() => { if (_speechesCache.get(work) === p) _speechesCache.delete(work); });
+  _speechesCache.set(work, p);
+  return p;
+}
+
+// Minimal shape of an apparatus/characters.json entry needed to label a
+// speech rail (see shared/components/maps.ts's CharacterRef — same idea,
+// duplicated locally so shared/lib/speeches.ts doesn't have to import the
+// Leaflet-adjacent maps module for a two-field type).
+export interface CharacterEntry { id: string; name: string; greek?: string; }
+
+let _charactersCache: Promise<Record<string, CharacterEntry>> | null = null;
+
+// The whole-corpus cast list (apparatus/characters.json, ~100 entries,
+// shared across both epics — not per-work), keyed by id. Fetched once and
+// cached; only the Speeches toggle triggers this fetch today.
+export function fetchCharacters(): Promise<Record<string, CharacterEntry>> {
+  if (_charactersCache) return _charactersCache;
+  const p = fetch(`${ROOT()}/characters.json`).then(r => {
+    if (!r.ok) throw new Error(`characters: ${r.status}`);
+    return r.json();
+  }).then((raw: { characters: CharacterEntry[] }) =>
+    Object.fromEntries((raw.characters ?? []).map(c => [c.id, c])));
+  p.catch(() => { if (_charactersCache === p) _charactersCache = null; });
+  _charactersCache = p;
+  return p;
+}
+
+// David Chamberlain's recitation-audio coverage manifest (apparatus/audio/manifest.json,
+// see shared/lib/audio.ts for the chunk-lookup logic) — one small corpus-wide
+// file, same whole-corpus-not-per-work shape as fetchCharacters above. The
+// Reader fetches this eagerly (unlike fetchSpeeches/fetchScansion, which wait
+// for their toggle): the Settings "Audio" row must know per-book coverage just
+// to decide whether to render itself at all (hidden entirely for e.g.
+// Od. 8-24), before any toggle exists to gate the fetch behind. Optional
+// apparatus — absence (a build with no audio manifest copied in, or a 404)
+// resolves to null, never an error; every caller must treat null the same as
+// "no coverage".
+let _audioManifestCache: Promise<AudioManifest | null> | null = null;
+export function fetchAudioManifest(): Promise<AudioManifest | null> {
+  if (_audioManifestCache) return _audioManifestCache;
+  const p = fetch(`${ROOT()}/audio.json`).then((r) => (r.ok ? r.json() : null)) as Promise<AudioManifest | null>;
+  p.catch(() => { if (_audioManifestCache === p) _audioManifestCache = null; });
+  _audioManifestCache = p;
+  return p;
+}
+
+// apparatus/places.json (the gazetteer) and apparatus/journeys.json (the
+// nostoi legs) — corpus-wide, not per-work, same posture as characters.json
+// above. Feed shared/lib/scene-place.ts's joinScenesToPlaces() to resolve a
+// Reading Mode scene page to its figure-plate place/route. Both are payload
+// Scholar view never pays for: nothing calls these two functions (or
+// fetchCoastline below) until Reading Mode is actually entered for the first
+// time in a session — see Reader.svelte's plate-data effect. Absence (a
+// build that hasn't copied the gazetteer in yet) resolves to an empty file
+// rather than an error, so a scene page just renders without its plate's map.
+let _placesCache: Promise<PlacesFile> | null = null;
+export function fetchPlaces(): Promise<PlacesFile> {
+  if (_placesCache) return _placesCache;
+  const p = fetch(`${ROOT()}/places.json`).then((r) => (r.ok ? r.json() : { places: [] })) as Promise<PlacesFile>;
+  p.catch(() => { if (_placesCache === p) _placesCache = null; });
+  _placesCache = p;
+  return p;
+}
+
+let _journeysCache: Promise<JourneysFile> | null = null;
+export function fetchJourneys(): Promise<JourneysFile> {
+  if (_journeysCache) return _journeysCache;
+  const p = fetch(`${ROOT()}/journeys.json`).then((r) => (r.ok ? r.json() : { journeys: [] })) as Promise<JourneysFile>;
+  p.catch(() => { if (_journeysCache === p) _journeysCache = null; });
+  _journeysCache = p;
+  return p;
+}
+
+// The vendored Mediterranean coastline (sources/naturalearth/, ~35KB —
+// see shared/lib/scenemap.ts's module docstring). Corpus-wide, static, and
+// used ONLY by the Reading Mode figure plate's map — never imported
+// statically by any component, so it never lands in the initial page bundle
+// for a Scholar-only reader; this fetch is the sole way a client ever sees
+// it, and (like fetchPlaces/fetchJourneys) nothing calls it before Reading
+// Mode first opens. Absence resolves to null; the plate degrades to no map,
+// same as an unlocatable scene.
+let _coastlineCache: Promise<Coastline | null> | null = null;
+export function fetchCoastline(): Promise<Coastline | null> {
+  if (_coastlineCache) return _coastlineCache;
+  const p = fetch(`${ROOT()}/coastline.json`).then((r) => (r.ok ? r.json() : null))
+    .then((raw) => (raw ? parseCoastline(raw) : null));
+  p.catch(() => { if (_coastlineCache === p) _coastlineCache = null; });
+  _coastlineCache = p;
+  return p;
+}
+
+// One line's computed hexameter scansion (pipeline_homer's apparatus_scansion.py,
+// a clean-room prosody solver over the corpus's own Greek — not a vendored
+// scansion library). `feet` is a 6-char string, chars 1-5 in {D,S} (dactyl/
+// spondee), char 6 in {S,X} (verse-final anceps; X = a naturally short
+// syllable admitted at the verse end, "brevis in longo"). `confidence` is
+// "high" (one unambiguous scan) or "ambiguous" (more than one relaxation-
+// derivation ties for fewest assumptions — a REAL pattern, just disputed) —
+// see shared/lib/scansion.ts's isUnresolved for the third, honest UI tier
+// (an "ambiguous" line whose notes carry "unresolved": no parse was found at
+// any relaxation level, so `feet` is a best-effort placeholder, never a claim
+// of a real scan). `notes` are philological flags (synizesis, correption,
+// digamma-assumed, muta-cum-liquida, hiatus, brevis-in-longo, unresolved).
+export interface ScansionEntry {
+  feet: string;
+  confidence: 'high' | 'ambiguous';
+  notes: string[];
+}
+
+// build/dist/<work>/scansion-<NN>.json, one per book (split from a single
+// whole-work file — ~1.5MB for the Iliad — so the reader's Meter toggle can
+// lazy-fetch one book at a time; see apparatus_scansion.py's module
+// docstring). `lines` is keyed "<book>.<line>".
+export interface ScansionFile {
+  work: string;
+  book: number;
+  lines: Record<string, ScansionEntry>;
+}
+
+const _scansionCache = new Map<string, Promise<Record<string, ScansionEntry>>>();
+
+// A book's scansion lines, keyed "<book>.<line>". Off by default (the reader's
+// Meter toggle), so lazy: nothing fetches until a reader turns it on for a
+// book actually being viewed — same posture as fetchSpeeches/fetchFootnotes.
+export function fetchScansion(work: string, book: number): Promise<Record<string, ScansionEntry>> {
+  const key = `${work}:${book}`;
+  const cached = _scansionCache.get(key);
+  if (cached) return cached;
+  const p = fetch(`${workBase(work)}/scansion-${String(book).padStart(2, '0')}.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} scansion ${book}: ${r.status}`);
+    return r.json();
+  }).then((raw: ScansionFile) => raw.lines ?? {});
+  p.catch(() => { if (_scansionCache.get(key) === p) _scansionCache.delete(key); });
+  _scansionCache.set(key, p);
+  return p;
+}
+
+export interface BookData {
+  book: number;
+  segments: Segment[];
+  // Global turn flow for a dialogue book (see TurnFlow). Absent for narrated
+  // books and non-stephanus works, which render the segment array as before.
+  turnFlow?: TurnFlow;
+  // Landmark-style scene apparatus (see Scene). Optional and absent today.
+  scenes?: Scene[];
+  // Set by stripBookForClient on the token-stripped copy handed to the Reader
+  // island's serialized props: signals the client hydrate to rebuild each Greek
+  // line's `tokens` from the SSR DOM spans, and to fetch the full book (with the
+  // non-default translations) lazily on the first translation switch / compare.
+  // Absent on a full book (fetchBook result, desktop mount) — nothing to rebuild.
+  tokensStripped?: boolean;
+}
+
+// Build the token-stripped copy of a book for the Reader island's serialized
+// props. The Greek token arrays are ~half the book payload and DUPLICATE the SSR
+// DOM (every token is already an inert `<span class="tok" data-k data-o>` in the
+// server-rendered markup), so they are dropped and the client rebuilds them from
+// those spans on hydrate (Reader.svelte's rebuildTokensFromDom). The non-default
+// translations (ross/third/overlays) are not in the default SSR view at all, so
+// they are dropped too and fetched on demand (fetchBook) when the reader switches
+// translation or enters compare. The active English chunk, Greek line text, and
+// scene apparatus are kept — the client needs their structure and they aren't
+// fully recoverable from the DOM. Returns a fresh object; the input (used for the
+// server render) is left intact.
+export function stripBookForClient(d: BookData): BookData {
+  return {
+    ...d,
+    tokensStripped: true,
+    segments: d.segments.map((seg) => {
+      const clean: Segment = { ...seg, greek: seg.greek.map((line) => ({ ...line, tokens: [] })) };
+      delete clean.ross;
+      delete clean.third;
+      delete clean.overlays;
+      return clean;
+    }),
+  };
+}
+
+export interface Analysis {
+  lemma: string;   // Beta Code
+  gloss: string;
+  parse: string;
+  lsj: string[];       // LSJ key(s)
+  cunliffe: string[];  // Cunliffe key(s) — see CunliffeEntry
+}
+
+export interface LsjEntry {
+  key: string;
+  head: string;    // Unicode Greek
+  html: string;
+}
+
+// A Cunliffe (Lexicon of the Homeric Dialect) entry — the second native
+// lexicon pane beside LSJ in the word popup. `src` records which source
+// volume(s) contributed: "lex" (cunliffe-1-lex.jsonl), "hompers" (the
+// cunliffe-2-hompers.jsonl proper-name volume), or "both" when the two
+// volumes' keys collided (see pipeline/homer_pipeline/stage5_cunliffe.py).
+export interface CunliffeEntry {
+  key: string;
+  head: string;    // Unicode Greek
+  html: string;
+  src: 'lex' | 'hompers' | 'both';
+}
+
+// Honour Astro's base path so data fetches work under a project Pages site as
+// well as at the root. BASE_URL may or may not carry a trailing slash, so strip
+// it and join explicitly. Each work's data lives under /data/<work>/.
+// A non-Astro host (the desktop app) can point the whole data layer somewhere
+// else — e.g. a Tauri asset:// URL for an on-disk corpus directory — by setting
+// globalThis.__ARISTOTLE_DATA_ROOT__ before any fetch helper runs. Read lazily
+// so the override wins regardless of module-import order.
+const DEFAULT_ROOT = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/data`;
+const ROOT = () =>
+  (globalThis as { __ARISTOTLE_DATA_ROOT__?: string }).__ARISTOTLE_DATA_ROOT__ ?? DEFAULT_ROOT;
+const workBase = (work: string) => `${ROOT()}/${work}`;
+
+// All caches are keyed by work so two works loaded in one session (e.g. unified
+// search) never collide.
+const _analysesCache = new Map<string, Promise<Record<string, Analysis[]>>>();
+const _lsjCache = new Map<string, Record<string, LsjEntry>>();
+const _cunliffeCache = new Map<string, Record<string, CunliffeEntry>>();
+const _bookCache = new Map<string, Promise<BookData>>();
+const _chaptersCache = new Map<string, Promise<Record<string, ChapterRef[]>>>();
+const _columnsCache = new Map<string, Promise<Record<string, ColumnRef[]>>>();
+const _footnotesCache = new Map<string, Promise<Record<string, string>>>();
+
+// Raw book JSON as it sits on disk: the reading data plus an `apparatus` block
+// whose `scenes` use the pipeline's {lines:[lo,hi], summary, location} shape.
+// `draft`/`where` are read directly off this (not normalized into `Scene`):
+// `draft` drives the scene-chip/rail DRAFT badge, `where` the book-level day-
+// honesty cue (a book narrated in flashback carries "(telling)" on the FRAME
+// scene only in its `where` list, e.g. Od. 9/11's Apologoi — see
+// apparatus/scenes/odyssey.json — never on the individual `scenes[].location`
+// entries, which is why that cue is read from here, not from `Scene.place`).
+export interface RawBookData extends BookData {
+  apparatus?: {
+    scenes?: { lines: [number, number]; summary: string; location?: string;
+               dayNumber?: number | null }[];
+    draft?: boolean;
+    where?: string;
+  };
+}
+
+// Normalize a freshly-parsed book into the shape the reader consumes: the
+// pipeline emits scene apparatus under `apparatus.scenes` (the cartouche reads
+// the sibling fields server-side), but Reader.svelte's scene chips read the
+// top-level `scenes` in the Scene shape. This is the ONE authoritative
+// normalization — both the client fetch path (fetchBook) and the build-time SSR
+// path (ReaderShell.astro's readFileSync + JSON.parse) call it, so a static
+// page and a fetched book agree on `scenes`. Mutates and returns `d`.
+export function normalizeBookData(d: RawBookData): BookData {
+  if (!d.scenes && d.apparatus?.scenes) {
+    d.scenes = d.apparatus.scenes.map(s => ({
+      summary: s.summary,
+      startLine: s.lines[0],
+      endLine: s.lines[1],
+      place: s.location,
+      day: s.dayNumber,
+    }));
+  }
+  return d;
+}
+
+export function fetchBook(work: string, n: number): Promise<BookData> {
+  const key = `${work}:${n}`;
+  const cached = _bookCache.get(key);
+  if (cached) return cached;
+  const p = fetch(`${workBase(work)}/book-${String(n).padStart(2, '0')}.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} book ${n}: ${r.status}`);
+    return r.json();
+  }).then((raw: RawBookData) => {
+    const d = normalizeBookData(raw);
+    // A non-Astro host (the desktop app) can overlay runtime content — e.g.
+    // user-imported translations merged into seg.overlays — via this hook.
+    // The site never sets it; the fetched data passes through untouched.
+    const hook = (globalThis as {
+      __ARISTOTLE_BOOK_HOOK__?: (work: string, n: number, data: BookData) => BookData;
+    }).__ARISTOTLE_BOOK_HOOK__;
+    return hook ? hook(work, n, d) : d;
+  });
+  // Evict a rejected fetch so it can be retried (don't cache the failure).
+  p.catch(() => { if (_bookCache.get(key) === p) _bookCache.delete(key); });
+  _bookCache.set(key, p);
+  return p;
+}
+
+/**
+ * Drop cached book data so the next fetchBook re-fetches and re-runs
+ * __ARISTOTLE_BOOK_HOOK__. The desktop app calls this after a translation
+ * import (imports.ts's overlays are merged into the fetched BookData by the
+ * hook, which only runs at fetch time — a book already loaded before the
+ * import keeps its pre-import segments until its cached promise is dropped).
+ * Pass a book number to evict one book, or omit to evict every book of the
+ * work. Inert on the site build, which never imports it.
+ */
+export function invalidateBookCache(work: string, n?: number): void {
+  if (n !== undefined) {
+    _bookCache.delete(`${work}:${n}`);
+    return;
+  }
+  for (const key of [..._bookCache.keys()]) {
+    if (key.startsWith(`${work}:`)) _bookCache.delete(key);
+  }
+}
+
+export function fetchChapters(work: string): Promise<Record<string, ChapterRef[]>> {
+  const cached = _chaptersCache.get(work);
+  if (cached) return cached;
+  const p = fetch(`${workBase(work)}/chapters.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} chapters: ${r.status}`);
+    return r.json();
+  });
+  // Evict a rejected fetch so it can be retried (don't cache the failure).
+  p.catch(() => { if (_chaptersCache.get(work) === p) _chaptersCache.delete(work); });
+  _chaptersCache.set(work, p);
+  return p;
+}
+
+// One entry of a Stephanus work's section outline: a page+letter column
+// ("17a"), the page number and letter split out, and the stable segment anchor
+// id (`book:column`) the reader emits as `col-{column}`. Emitted per book by the
+// pipeline's stage7 emit_sections (a section scheme replaces chapters.json with
+// sections.json as the outline-nav source — Plato is cited by page+section, not
+// by chapter). Ordered in reading order (2a, 2b, … 17e, 18a).
+export interface SectionRef { column: string; page: number; letter: string; id: string; }
+
+const _sectionsCache = new Map<string, Promise<Record<string, SectionRef[]>>>();
+
+// Per-book Stephanus section outline: { book -> ordered SectionRef[] }. Present
+// only for section-scheme (stephanus) works; the outline nav groups these by
+// page. Cached per work, failure evicted so it can be retried.
+export function fetchSections(work: string): Promise<Record<string, SectionRef[]>> {
+  const cached = _sectionsCache.get(work);
+  if (cached) return cached;
+  const p = fetch(`${workBase(work)}/sections.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} sections: ${r.status}`);
+    return r.json();
+  });
+  p.catch(() => { if (_sectionsCache.get(work) === p) _sectionsCache.delete(work); });
+  _sectionsCache.set(work, p);
+  return p;
+}
+
+// Group a book's ordered sections into Stephanus pages for the outline nav:
+// [{ page, column }] where `column` is the first section column on that page —
+// the anchor (`col-{column}`) the page's outline entry links to. Reading order
+// is preserved (sections are already ordered), so pages come out ascending and
+// each page appears once, keyed to where it first starts.
+export interface SectionPage { page: number; column: string; }
+export function sectionPages(sections: SectionRef[]): SectionPage[] {
+  const pages: SectionPage[] = [];
+  let last: number | null = null;
+  for (const s of sections) {
+    if (s.page !== last) { pages.push({ page: s.page, column: s.column }); last = s.page; }
+  }
+  return pages;
+}
+
+// Translator footnotes for a work: { footnote number -> pre-rendered HTML }.
+// Present only for works whose translation carries notes (NE Ostwald). Loaded
+// lazily the first time a `[^N]` marker is clicked, then cached for the session.
+export function fetchFootnotes(work: string): Promise<Record<string, string>> {
+  const cached = _footnotesCache.get(work);
+  if (cached) return cached;
+  const p = fetch(`${workBase(work)}/footnotes.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} footnotes: ${r.status}`);
+    return r.json();
+  }).then((map: Record<string, string>) =>
+    // The NE (Ostwald) footnotes reference glossary entries ("see Glossary,
+    // <term>"); turn those into links to the standalone glossary page.
+    work === 'EN'
+      ? Object.fromEntries(Object.entries(map).map(([k, v]) => [k, linkifyGlossaryRefs(v)]))
+      : map
+  );
+  // Evict a rejected fetch so it can be retried (don't cache the failure).
+  p.catch(() => { if (_footnotesCache.get(work) === p) _footnotesCache.delete(work); });
+  _footnotesCache.set(work, p);
+  return p;
+}
+
+// Analytical sidenotes for a work: { sidenote number -> text }. Present only for
+// works whose translation carries marginal notes (the Isagoge's Owen). Loaded
+// lazily and cached for the session.
+const _sidenotesCache = new Map<string, Promise<Record<string, string>>>();
+export function fetchSidenotes(work: string): Promise<Record<string, string>> {
+  const cached = _sidenotesCache.get(work);
+  if (cached) return cached;
+  const p = fetch(`${workBase(work)}/sidenotes.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} sidenotes: ${r.status}`);
+    return r.json();
+  });
+  p.catch(() => { if (_sidenotesCache.get(work) === p) _sidenotesCache.delete(work); });
+  _sidenotesCache.set(work, p);
+  return p;
+}
+
+// Diagrams for a work: { figure number -> pre-rendered HTML <figure> }. Present
+// only for works that carry [[figN]] markers (the Isagoge's Tree of Porphyry).
+const _figuresCache = new Map<string, Promise<Record<string, string>>>();
+export function fetchFigures(work: string): Promise<Record<string, string>> {
+  const cached = _figuresCache.get(work);
+  if (cached) return cached;
+  const p = fetch(`${workBase(work)}/figures.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} figures: ${r.status}`);
+    return r.json();
+  });
+  p.catch(() => { if (_figuresCache.get(work) === p) _figuresCache.delete(work); });
+  _figuresCache.set(work, p);
+  return p;
+}
+
+// Bekker column -> owning book(s) with each book's line span in that column.
+export interface ColumnRef { book: number; lo: number; hi: number; }
+
+export function fetchColumns(work: string): Promise<Record<string, ColumnRef[]>> {
+  const cached = _columnsCache.get(work);
+  if (cached) return cached;
+  const p = fetch(`${workBase(work)}/columns.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} columns: ${r.status}`);
+    return r.json();
+  });
+  p.catch(() => { if (_columnsCache.get(work) === p) _columnsCache.delete(work); });
+  _columnsCache.set(work, p);
+  return p;
+}
+
+// Parse a raw Bekker citation (e.g. "1097a15", "1097a 15", "1097a.15") into
+// its column ("1097a") and line (15). Returns null if it isn't a citation.
+// Delegates to the bekker citation scheme so the letter grammar stays in sync
+// with the shared contract (a-e, per pipeline/homer_pipeline/scheme.py's
+// shared column regex) instead of hand-rolling an [ab]-only pattern here;
+// real column membership is still enforced downstream by resolveBekker
+// against columns.json, so the wider letter grammar doesn't admit anything
+// that wasn't already going to be rejected as "not in the text".
+export function parseBekker(raw: string): { column: string; line: number } | null {
+  const parsed = scheme('bekker').parseLocation(raw);
+  return parsed && parsed.line != null ? { column: parsed.column, line: parsed.line } : null;
+}
+
+// Parse a `?loc=` value (or a hand-typed citation) against the citation scheme
+// a work actually uses — bare column ("17a"), column:line ("1097a:15"), or the
+// legacy concatenated Bekker form ("1097a15"). See shared/lib/citation.ts for
+// the grammar and why a lineless scheme (stephanus) rejects a line component
+// instead of silently dropping it.
+export function parseLocation(work: string, raw: string): { column: string; line: number | null } | null {
+  return schemeFor(work).parseLocation(raw);
+}
+
+// Resolve a parsed citation to the book that owns it. For a column shared by
+// two books (a book that starts mid-column) the line picks the right one,
+// snapping to the nearer book if the line falls in the gap between them. A
+// null line (a lineless-scheme citation, or a bekker/busse jump to a bare
+// column) can't disambiguate a shared column, so it just takes the first
+// (lowest-numbered) owning book.
+export function resolveBekker(
+  columns: Record<string, ColumnRef[]>,
+  column: string,
+  line: number | null,
+): number | null {
+  const entries = columns[column];
+  if (!entries || entries.length === 0) return null;
+  if (entries.length === 1 || line == null) return entries[0].book;
+  let best = entries[0];
+  let bestDist = Infinity;
+  for (const e of entries) {
+    const d = line < e.lo ? e.lo - line : line > e.hi ? line - e.hi : 0;
+    if (d < bestDist) { bestDist = d; best = e; }
+  }
+  return best.book;
+}
+
+export function fetchAnalyses(work: string): Promise<Record<string, Analysis[]>> {
+  const cached = _analysesCache.get(work);
+  if (cached) return cached;
+  const p = fetch(`${workBase(work)}/analyses.json`).then(r => {
+    if (!r.ok) throw new Error(`${work} analyses: ${r.status}`);
+    return r.json();
+  });
+  p.catch(() => { if (_analysesCache.get(work) === p) _analysesCache.delete(work); });
+  _analysesCache.set(work, p);
+  return p;
+}
+
+// The lemma-page manifest: LSJ key -> { slug, head, count } for every lemma that
+// has a /lemma/<slug> reference page (produced by scripts/build-lemmata.mjs).
+// The word popup loads it once to decide whether to offer a "see all N
+// occurrences" link, and only for lemmata that actually have a page.
+export interface LemmaRef { slug: string; head: string; count: number; }
+let _lemmataCache: Promise<Record<string, LemmaRef>> | null = null;
+export function fetchLemmata(): Promise<Record<string, LemmaRef>> {
+  if (_lemmataCache) return _lemmataCache;
+  const p = fetch(`${ROOT()}/lemmata.json`).then(r => (r.ok ? r.json() : {}));
+  // A missing/failed manifest just means no lemma links — don't cache the failure.
+  p.catch(() => { if (_lemmataCache === p) _lemmataCache = null; });
+  _lemmataCache = p;
+  return p;
+}
+
+export function lsjShard(key: string): string {
+  for (const ch of key) {
+    if (ch === '*') continue;
+    if (/[a-z]/.test(ch)) return ch;
+  }
+  return '_';
+}
+
+// Same rule as lsjShard, exactly — Cunliffe keys shard by the same letter
+// grammar. Kept as a separate (identical-bodied) function rather than a
+// shared helper because pipeline/homer_pipeline/verify_shared_lsj.py and
+// verify_shared_cunliffe.py cross-reference these two by name in their own
+// (also duplicated) `front_end_shard` — the Python/TS pair must agree on
+// each dictionary's rule independently; see the parity tests in
+// shared/__tests__/data.test.ts and pipeline/tests/test_stage5_cunliffe.py.
+export function cunliffeShard(key: string): string {
+  for (const ch of key) {
+    if (ch === '*') continue;
+    if (/[a-z]/.test(ch)) return ch;
+  }
+  return '_';
+}
+
+// The LSJ dictionary is shared across the whole corpus — one copy at
+// /data/lsj/<letter>.json (the union of every work's lemmas), not a per-work
+// subset — so entries aren't duplicated ~30× across works. Keys are global
+// betacode headwords, identical across works, so the same lookup resolves
+// against the shared shard. Cached by letter (work-independent).
+export async function fetchLsjShard(letter: string): Promise<Record<string, LsjEntry>> {
+  if (_lsjCache.has(letter)) return _lsjCache.get(letter)!;
+  const r = await fetch(`${ROOT()}/lsj/${letter}.json`);
+  if (!r.ok) return {};
+  const shard = await r.json();
+  _lsjCache.set(letter, shard);
+  return shard;
+}
+
+// The Cunliffe dictionary — same shared-corpus-wide-shard scheme as LSJ (see
+// fetchLsjShard), at /data/cunliffe/<letter>.json.
+export async function fetchCunliffeShard(letter: string): Promise<Record<string, CunliffeEntry>> {
+  if (_cunliffeCache.has(letter)) return _cunliffeCache.get(letter)!;
+  const r = await fetch(`${ROOT()}/cunliffe/${letter}.json`);
+  if (!r.ok) return {};
+  const shard = await r.json();
+  _cunliffeCache.set(letter, shard);
+  return shard;
+}
+
+export async function lookupWord(
+  work: string,
+  key: string
+): Promise<{ analyses: Analysis[]; lsj: LsjEntry[]; cunliffe: CunliffeEntry[] }> {
+  const allAnalyses = await fetchAnalyses(work);
+  const entries = allAnalyses[key] ?? [];
+  const lsjEntries: LsjEntry[] = [];
+  const seenLsj = new Set<string>();
+  const cunliffeEntries: CunliffeEntry[] = [];
+  const seenCunliffe = new Set<string>();
+  for (const a of entries) {
+    for (const lsjKey of a.lsj) {
+      if (seenLsj.has(lsjKey)) continue;
+      seenLsj.add(lsjKey);
+      const letter = lsjShard(lsjKey);
+      const shard = await fetchLsjShard(letter);
+      if (shard[lsjKey]) lsjEntries.push(shard[lsjKey]);
+    }
+    for (const cunliffeKey of a.cunliffe) {
+      if (seenCunliffe.has(cunliffeKey)) continue;
+      seenCunliffe.add(cunliffeKey);
+      const letter = cunliffeShard(cunliffeKey);
+      const shard = await fetchCunliffeShard(letter);
+      if (shard[cunliffeKey]) cunliffeEntries.push(shard[cunliffeKey]);
+    }
+  }
+  return { analyses: entries, lsj: lsjEntries, cunliffe: cunliffeEntries };
+}

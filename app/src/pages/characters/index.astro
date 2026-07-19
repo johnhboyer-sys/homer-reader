@@ -1,0 +1,307 @@
+---
+// /characters/ (Feature #20): a character roster + relationship network for
+// both epics — the site's shareable artifact. Two build-time pieces:
+//   1. shared/lib/network.ts turns apparatus/characters.json's genealogy
+//      links and the DICES-derived apparatus/speeches/<work>.json speaker/
+//      addressee pairs into two honestly-distinguished edge types, then lays
+//      the graph out with a hand-rolled, deterministic force simulation (no
+//      dependencies — CLAUDE.md's no-d3 rule). CharacterNetwork.astro
+//      renders the result as a static SSR SVG (visible with JS disabled).
+//   2. The roster below (a real HTML list, same letter-jump idiom as
+//      /places/) is the accessible, always-complete listing: every
+//      character in the file, whether or not they made the network.
+//
+// Apparatus honesty (CLAUDE.md): characters.json's `status` gates the draft
+// badge; a genealogy link flagged `nonHomeric` renders dashed with its own
+// legend entry, never silently equal to an attested link; every excluded
+// speech (collective/unjoined party, or self-address) is counted in the
+// caption below, never silently dropped.
+import { readFileSync } from 'node:fs';
+import ThemeInit from '../../components/ThemeInit.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import Pwa from '../../components/Pwa.astro';
+import CharacterNetwork from '../../components/CharacterNetwork.astro';
+import { jsonLdSafe } from '../../lib/jsonld';
+import {
+  buildKinshipEdges,
+  aggregateSpeechEdges,
+  computeSpeechParticipation,
+  computeKinshipDegree,
+  layoutNetwork,
+  type NetworkCharacter,
+  type SpeechJoin,
+} from '@shared/lib/network';
+import '@shared/styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+interface CharacterGenealogy {
+  tree: string;
+  father?: string;
+  mother?: string;
+  nonHomeric?: ('father' | 'mother')[];
+}
+interface Character {
+  id: string;
+  name: string;
+  greek: string;
+  epithets: string[];
+  role: string;
+  genealogy?: CharacterGenealogy;
+  note: string;
+  dicesId: string | null;
+}
+interface CharactersFile { status: 'draft' | 'reviewed'; characters: Character[]; }
+interface SpeechRecord { book: number; speaker: string[]; addressee: string[]; }
+interface SpeechesFile { work: string; status: string; speeches: SpeechRecord[]; }
+
+const charactersFile = JSON.parse(readFileSync('../apparatus/characters.json', 'utf-8')) as CharactersFile;
+const characters = charactersFile.characters;
+const isDraft = charactersFile.status === 'draft';
+const characterIds = new Set(characters.map((c) => c.id));
+
+const iliadSpeeches = (JSON.parse(readFileSync('../apparatus/speeches/iliad.json', 'utf-8')) as SpeechesFile).speeches;
+const odysseySpeeches = (JSON.parse(readFileSync('../apparatus/speeches/odyssey.json', 'utf-8')) as SpeechesFile).speeches;
+const allSpeeches: SpeechJoin[] = [...iliadSpeeches, ...odysseySpeeches];
+const totalSpeechCount = allSpeeches.length;
+
+const kinshipEdges = buildKinshipEdges(characters as NetworkCharacter[]);
+const { edges: speechEdgesRaw, excludedUnjoined, excludedSelf } = aggregateSpeechEdges(allSpeeches, characterIds);
+const joinedSpeechCount = totalSpeechCount - excludedUnjoined - excludedSelf;
+const nonHomericKinshipCount = kinshipEdges.filter((e) => e.nonHomeric).length;
+
+const kinshipDegree = computeKinshipDegree(kinshipEdges);
+const speechParticipation = computeSpeechParticipation(speechEdgesRaw);
+const weightOf = (id: string) => (kinshipDegree.get(id) ?? 0) + (speechParticipation.get(id) ?? 0);
+
+// Only characters with at least one kinship or speech link enter the force
+// layout — a floating dot with no edges carries no relational information.
+// Every character, connected or not, still gets a roster row below; the
+// caption states the isolate count so this is never a silent omission.
+const connectedIds = characters
+  .map((c) => c.id)
+  .filter((id) => weightOf(id) > 0)
+  .sort((a, b) => weightOf(b) - weightOf(a) || a.localeCompare(b));
+const isolateCount = characters.length - connectedIds.length;
+
+const WIDTH = 980;
+const HEIGHT = 760;
+const layoutEdges = [
+  ...kinshipEdges.map((e) => ({ source: e.source, target: e.target, weight: 1 })),
+  ...speechEdgesRaw.map((e) => ({ source: e.a, target: e.b, weight: e.count })),
+];
+const positions = layoutNetwork(connectedIds, layoutEdges, { width: WIDTH, height: HEIGHT });
+const positionById = new Map(positions.map((p) => [p.id, p]));
+const charById = new Map(characters.map((c) => [c.id, c]));
+
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+const radiusFor = (w: number) => clamp(4 + Math.sqrt(w) * 1.3, 4, 22);
+// Data-derived, not hand-picked: the smallest weight cutoff that keeps the
+// direct-label count legible. Reported in the caption exactly, not implied.
+const LABEL_MIN_WEIGHT = 10;
+
+const nodes = connectedIds.map((id) => {
+  const c = charById.get(id)!;
+  const p = positionById.get(id)!;
+  const w = weightOf(id);
+  return {
+    id,
+    name: c.name,
+    greek: c.greek,
+    role: c.role,
+    x: p.x,
+    y: p.y,
+    r: radiusFor(w),
+    showLabel: w >= LABEL_MIN_WEIGHT,
+  };
+});
+const labeledCount = nodes.filter((n) => n.showLabel).length;
+
+const kinshipEdgeData = kinshipEdges
+  .filter((e) => positionById.has(e.source) && positionById.has(e.target))
+  .map((e) => {
+    const p1 = positionById.get(e.source)!;
+    const p2 = positionById.get(e.target)!;
+    return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, nonHomeric: e.nonHomeric, source: e.source, target: e.target };
+  });
+
+// Cap the visual weight range so a handful of shouting matches (Eumaeus/
+// Odysseus, 37 speeches; Odysseus/Telemachus, 32) don't dwarf the rest —
+// stated in the caption, never silently applied.
+const MAX_SPEECH_WIDTH_COUNT = 20;
+const speechWidth = (count: number) =>
+  clamp(0.75 + Math.sqrt(Math.min(count, MAX_SPEECH_WIDTH_COUNT)) * 0.85, 0.75, 5);
+const speechEdgeData = speechEdgesRaw.map((e) => {
+  const p1 = positionById.get(e.a)!;
+  const p2 = positionById.get(e.b)!;
+  return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, width: speechWidth(e.count), count: e.count, a: e.a, b: e.b };
+});
+
+// Deep links to /formulas/: only when the character actually has a formula
+// entry for that work (FormulaLedger.astro's anchor id scheme: `${work}-${entity}`).
+const iliadEpithets = JSON.parse(readFileSync('../build/dist/iliad/epithets.json', 'utf-8')) as { entity: string }[];
+const odysseyEpithets = JSON.parse(readFileSync('../build/dist/odyssey/epithets.json', 'utf-8')) as { entity: string }[];
+const iliadFormulaIds = new Set(iliadEpithets.map((e) => e.entity));
+const odysseyFormulaIds = new Set(odysseyEpithets.map((e) => e.entity));
+const formulaLinks = (id: string) => {
+  const links: { href: string; label: string }[] = [];
+  if (iliadFormulaIds.has(id)) links.push({ href: `${base}/formulas/iliad/#iliad-${id}`, label: 'Iliad formulas' });
+  if (odysseyFormulaIds.has(id)) links.push({ href: `${base}/formulas/odyssey/#odyssey-${id}`, label: 'Odyssey formulas' });
+  return links;
+};
+
+// Roster: every character, alphabetical, grouped by initial letter — same
+// jump-nav idiom as /places/index.astro.
+const rosterCharacters = characters.slice().sort((a, b) => a.name.localeCompare(b.name, 'en'));
+type RosterRow = { kind: 'letter'; letter: string } | { kind: 'character'; character: Character };
+const rosterRows: RosterRow[] = [];
+let lastLetter = '';
+for (const c of rosterCharacters) {
+  const letter = c.name.charAt(0).toUpperCase();
+  if (letter !== lastLetter) {
+    rosterRows.push({ kind: 'letter', letter });
+    lastLetter = letter;
+  }
+  rosterRows.push({ kind: 'character', character: c });
+}
+const letters = rosterRows
+  .filter((r): r is { kind: 'letter'; letter: string } => r.kind === 'letter')
+  .map((r) => r.letter);
+
+const pageTitle = 'Characters — The Homer Reader';
+const metaDescription = `A roster of the ${characters.length} named figures in the Iliad and Odyssey, with a computed kinship and dialogue network.`;
+const canonical = Astro.site ? new URL(`${base}/characters/`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: pageTitle,
+  description: metaDescription,
+  ...(canonical ? { url: canonical } : {}),
+};
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  <meta property="og:site_name" content="The Homer Reader" />
+  {canonical && <meta property="og:url" content={canonical} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={metaDescription} />
+  {ogImage && <meta name="twitter:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(jsonLd)} />
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <style is:global>
+    body { overflow-x: hidden; max-width: 100%; }
+    .chars-body { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 4.5rem; color: var(--text); }
+    h1 { font-family: var(--font-display); font-size: 1.95rem; font-weight: 400; line-height: 1.15; margin-bottom: .55rem; }
+    .chars-intro { max-width: 45rem; color: var(--text-mid); font-size: .98rem; line-height: 1.62; }
+
+    .chars-network { margin-top: 2rem; padding: 1rem 1rem 0.6rem; border: 1px solid var(--border); border-top: 2px solid var(--rule-strong); }
+    .chars-caption { max-width: 62rem; margin: 0.7rem 0 0; color: var(--text-mid); font-family: var(--font-ui); font-size: .74rem; line-height: 1.55; }
+
+    .chars-legend { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.4rem; margin-top: .85rem; padding-top: .7rem; border-top: 1px solid var(--border); font-family: var(--font-ui); font-size: .68rem; color: var(--text-mid); }
+    .chars-legend-item { display: flex; align-items: center; gap: .4rem; white-space: nowrap; }
+    .chars-legend-swatch { display: inline-block; width: 20px; height: 0; border-top: 2px solid var(--rule-strong); }
+    .chars-legend-swatch.nonhomeric { border-top-color: var(--accent); border-top-style: dashed; }
+    .chars-legend-swatch.speech { border-top-color: var(--text-mid); border-top-width: 2.5px; opacity: .6; }
+    .chars-legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); opacity: .82; }
+
+    .chars-jump { display: flex; flex-wrap: wrap; gap: .45rem 1.1rem; margin-top: 2rem; max-width: 65rem; font-family: var(--font-ui); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; }
+    .chars-jump a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; padding-bottom: 1px; }
+    .chars-jump a:hover { border-bottom-color: var(--accent); }
+    .chars-jump a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .chars-roster-heading { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; margin-top: .6rem; }
+    .roster-list { max-width: 65rem; margin: 0; padding: 0; list-style: none; }
+    .roster-letter { scroll-margin-top: 1rem; }
+    .roster-letter h2 { font-family: var(--font-ui); font-size: .78rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--text-mid); margin: 2rem 0 .2rem; padding-top: .6rem; border-top: 2px solid var(--rule-strong); }
+    .roster-letter:first-child h2 { margin-top: 0; padding-top: 0; border-top: none; }
+    .roster-item { padding: 1rem 0; border-bottom: 1px solid var(--border); scroll-margin-top: 1rem; }
+    .roster-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: .2rem .55rem; }
+    .roster-name-link { font-family: var(--font-display); font-size: 1.2rem; font-weight: 400; line-height: 1.2; color: inherit; text-decoration: none; border-bottom: 1px solid transparent; }
+    .roster-name-link:hover { border-bottom-color: var(--accent); }
+    .roster-name-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .roster-greek { font-family: var(--font-greek); color: var(--text-mid); font-size: .92rem; }
+    .roster-role { max-width: 60rem; margin: .35rem 0 0; color: var(--text-mid); font-size: .88rem; line-height: 1.5; }
+    .roster-links { display: flex; flex-wrap: wrap; gap: .3rem .7rem; margin-top: .45rem; font-family: var(--font-ui); font-size: .7rem; }
+    .roster-links a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; white-space: nowrap; }
+    .roster-links a:hover { border-bottom-color: var(--accent); }
+    .roster-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .computed-note { margin-top: 3rem; padding-top: .9rem; border-top: 1px solid var(--border); color: var(--text-mid); font-family: var(--font-ui); font-size: .73rem; }
+    @media (max-width: 480px) { h1 { font-size: 1.6rem; } }
+  </style>
+  <Pwa />
+</head>
+<body>
+  <SiteHeader section="Characters" />
+  <main class="chars-body">
+    <h1>Characters {isDraft && <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>}</h1>
+    <p class="chars-intro">
+      Every named figure in this edition's character apparatus, with a computed network of who is kin to whom and
+      who speaks to whom across the Iliad and Odyssey. The roster below lists all {characters.length}; the diagram
+      above it draws only those with at least one link.
+    </p>
+
+    <section class="chars-network" aria-labelledby="network-heading">
+      <h2 id="network-heading" class="sr-only">Character relationship network</h2>
+      <CharacterNetwork width={WIDTH} height={HEIGHT} nodes={nodes} kinshipEdges={kinshipEdgeData} speechEdges={speechEdgeData} />
+      <p class="chars-caption">
+        All {connectedIds.length} of {characters.length} characters with at least one kinship or dialogue link are
+        shown ({isolateCount} with neither link in the joined data appear in the roster only). {labeledCount} of the
+        most-connected are labeled directly; hover a node, or Tab to a roster name below, to see the rest. Node size scales with
+        kinship + dialogue links. {kinshipEdges.length} kinship lines come from this edition's genealogy data ({nonHomericKinshipCount} dashed,
+        attested outside Homer). {speechEdgesRaw.length} dialogue lines aggregate {joinedSpeechCount} of {totalSpeechCount} DICES-derived
+        speeches with a single joined speaker and addressee (line weight capped at {MAX_SPEECH_WIDTH_COUNT} speeches
+        so the busiest pairs don't dwarf the rest); {excludedUnjoined} speeches with a collective or unmatched
+        speaker/addressee and {excludedSelf} self-addressed speeches carry no two-person edge and are excluded.
+      </p>
+      <div class="chars-legend">
+        <span class="chars-legend-item"><span class="chars-legend-swatch" aria-hidden="true"></span>kinship, attested in Homer</span>
+        <span class="chars-legend-item"><span class="chars-legend-swatch nonhomeric" aria-hidden="true"></span>kinship, later tradition (not Homer)</span>
+        <span class="chars-legend-item"><span class="chars-legend-swatch speech" aria-hidden="true"></span>dialogue (weight = speech count)</span>
+        <span class="chars-legend-item"><span class="chars-legend-dot" aria-hidden="true"></span>node size = kinship + dialogue links</span>
+      </div>
+    </section>
+
+    <h2 class="chars-roster-heading" id="roster">Roster</h2>
+    <nav class="chars-jump" aria-label="Jump to a letter">
+      {letters.map((letter) => <a href={`#letter-${letter}`}>{letter}</a>)}
+    </nav>
+    <ol class="roster-list">
+      {rosterRows.map((row) => row.kind === 'letter' ? (
+        <li class="roster-letter"><h3 id={`letter-${row.letter}`}>{row.letter}</h3></li>
+      ) : (
+        <li class="roster-item" id={`roster-${row.character.id}`}>
+          <div class="roster-heading">
+            <a class="roster-name-link" href={`#roster-${row.character.id}`} data-char-id={row.character.id}>{row.character.name}</a>
+            <span class="roster-greek" lang="grc">{row.character.greek}</span>
+          </div>
+          <p class="roster-role">{row.character.role}</p>
+          {formulaLinks(row.character.id).length > 0 && (
+            <div class="roster-links">
+              {formulaLinks(row.character.id).map((l) => <a href={l.href}>{l.label}</a>)}
+            </div>
+          )}
+        </li>
+      ))}
+    </ol>
+    <footer class="computed-note">
+      Kinship links are computed from this edition's genealogy data; dialogue links are computed from DICES-derived
+      speech spans (CC BY 4.0), joined to this apparatus by name.{isDraft && ' Character apparatus is a draft, pending review.'}
+    </footer>
+  </main>
+</body>
+</html>

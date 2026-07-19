@@ -1,0 +1,354 @@
+---
+import ThemeInit from '../components/ThemeInit.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import Pwa from '../components/Pwa.astro';
+import '@shared/styles/global.css';
+import { WORKS } from '@shared/lib/works';
+import { jsonLdSafe } from '../lib/jsonld';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+// True only in the local/full build (PUBLIC_SHOW_PRIVATE=1), where copyright-
+// encumbered overlays are carried; every production/public build drops them
+// entirely, so the "local only" legend below is suppressed there.
+const hasPrivate = WORKS.some((w) => w.translations.some((t) => t.private));
+const pageTitle = 'Texts & Licences — Homer Reader';
+const metaDescription =
+  'Source and licence information for the Homer Reader: Greek texts, English translations, LSJ and Cunliffe lexicon data, vulgate line numbering, and open-source code.';
+const canonical = Astro.site ? new URL(`${base}/attribution/`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: pageTitle,
+  description: metaDescription,
+  ...(canonical ? { url: canonical } : {}),
+  isPartOf: { '@type': 'WebSite', name: 'The Homer Reader' },
+};
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  <meta property="og:site_name" content="The Homer Reader" />
+  {canonical && <meta property="og:url" content={canonical} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={metaDescription} />
+  {ogImage && <meta name="twitter:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(jsonLd)} />
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <style>
+    .attr-body {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4rem;
+      font-family: var(--font-english);
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--text);
+    }
+    h2 {
+      font-family: var(--font-ui);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 2rem 0 0.4rem;
+      letter-spacing: .02em;
+    }
+    h2:first-of-type { margin-top: 1rem; }
+    p { margin: 0 0 0.6rem; }
+    ul { margin: 0 0 0.6rem; padding-left: 1.3rem; }
+    li { margin: 0 0 0.35rem; }
+    a { color: var(--accent); }
+    .licence-badge {
+      display: inline-block;
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      background: var(--border);
+      border-radius: 3px;
+      padding: 0.1em 0.5em;
+      margin-left: 0.4em;
+      vertical-align: middle;
+      color: var(--text-mid);
+    }
+    .licence-badge.cc { background: #e8f4e8; color: #2a6a2a; }
+    .licence-badge.pd { background: #e8eef4; color: #2a4a6a; }
+    .licence-badge.mit { background: #f4f0e8; color: #6a4a2a; }
+    .licence-badge.local {
+      font-size: 0.65rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      background: #f4e8e8; color: #8a3a3a;
+    }
+    :global(html[data-theme="dark"]) .licence-badge.cc { background: #1f3320; color: #9ed3a0; }
+    :global(html[data-theme="dark"]) .licence-badge.pd { background: #1c2a3a; color: #9cc2e6; }
+    :global(html[data-theme="dark"]) .licence-badge.mit { background: #33291c; color: #e0b483; }
+    :global(html[data-theme="dark"]) .licence-badge.local { background: #3a1c1c; color: #e69c9c; }
+    .trans-list { list-style: none; padding-left: 0; margin: 0.75rem 0 1rem; }
+    .trans-list > li { margin: 0 0 0.9rem; }
+    .trans-list > li > strong {
+      font-family: var(--font-ui);
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+    .trans-list ul {
+      list-style: none;
+      padding-left: 0.9rem;
+      margin: 0.15rem 0 0;
+      border-left: 1px solid var(--border);
+    }
+    .trans-list ul li {
+      margin: 0.1rem 0;
+      color: var(--text-mid);
+      font-size: 0.9rem;
+    }
+    blockquote {
+      border-left: 3px solid var(--border);
+      margin: 0.75rem 0 0.75rem 1rem;
+      padding: 0.25rem 0 0.25rem 1rem;
+      color: var(--text-mid);
+      font-size: 0.9rem;
+    }
+    .greek { font-family: var(--font-greek); }
+  </style>
+  <Pwa />
+</head>
+<body>
+  <SiteHeader section="Texts & Licences" />
+
+  <main class="attr-body">
+    <h1 class="sr-only">Texts and licences for the Homer Reader</h1>
+    <h2>Texts &amp; Licences</h2>
+    <p>
+      This reader presents Greek texts, English translations, and reference
+      works. Their sources — and, where a source requires it, its licence
+      terms — are credited below.
+    </p>
+
+    <h2>
+      Greek Lexicon (LSJ &amp; Cunliffe)
+      <span class="licence-badge cc">CC BY-SA 3.0</span>
+    </h2>
+    <p>
+      The word popups and lemma entries draw first on the
+      <em>Greek–English Lexicon</em> of Henry George Liddell and Robert Scott,
+      revised by Sir Henry Stuart Jones with the assistance of Roderick McKenzie
+      (Oxford: Clarendon Press, 9th ed. 1940; supplement 1996), and second on
+      Richard John Cunliffe's <em>A Lexicon of the Homeric Dialect</em>
+      (1924), a dictionary compiled specifically from Homeric usage.
+    </p>
+    <p>
+      The machine-readable LSJ edition used here is the XML transcription prepared
+      by the <a href="https://www.perseus.tufts.edu/">Perseus Digital Library</a>
+      at Tufts University and is made available under a
+      <a href="https://creativecommons.org/licenses/by-sa/3.0/us/">
+        Creative Commons Attribution-ShareAlike 3.0 United States</a> licence.
+      Cunliffe's lexicon (1924) is in the public domain in the US.
+    </p>
+    <blockquote>
+      Liddell, Henry George, and Robert Scott.
+      <em>A Greek-English Lexicon.</em>
+      Revised and augmented by Henry Stuart Jones.
+      Oxford: Clarendon Press, 1940.
+      Machine-readable version: Perseus Digital Library,
+      Trustees of Tufts University.
+      <a href="https://creativecommons.org/licenses/by-sa/3.0/us/">CC BY-SA 3.0 US</a>.
+    </blockquote>
+    <blockquote>
+      Cunliffe, Richard John.
+      <em>A Lexicon of the Homeric Dialect.</em>
+      London: Blackie &amp; Son, 1924. Public domain (US).
+    </blockquote>
+    <p>
+      The CC BY-SA licence requires that any derivative work be distributed
+      under the same terms. This application's LSJ data is a subset and
+      derivative of that work; users who redistribute it must carry this
+      attribution notice and the same CC BY-SA licence.
+    </p>
+
+    <h2>
+      English Translations
+      <span class="licence-badge pd">Public domain</span>
+    </h2>
+    <p>
+      Every book carries a public-domain English translation, judged eligible
+      under US copyright rules: A. T. Murray's Loeb Classical Library prose
+      translation (1919/1924–25) as the primary text, with Samuel Butler's
+      prose translation (1898/1900) and Alexander Pope's verse translation
+      (1715–26) available as alternate voices, which the reader can show
+      side by side in a compare view. The list below is generated directly
+      from the corpus registry, so it always matches what the reader carries.
+    </p>
+    <ul class="trans-list">
+      {WORKS.filter((w) => w.translations.length > 0).map((w) => (
+        <li>
+          <strong>{w.title}</strong>
+          <ul>
+            {w.translations.map((t) => (
+              <li>
+                {t.name}
+                {t.private && <span class="licence-badge local">local only</span>}
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ul>
+    <p>
+      Murray's translation is reproduced from the
+      <a href="https://github.com/PerseusDL/canonical-greekLit">Perseus canonical-greekLit</a>
+      corpus, which carries it as TEI XML with milestone-anchored footnotes.
+      Perseus's TEI encoding — the markup, milestones, and file structure — is
+      licensed
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/">
+        Creative Commons Attribution-ShareAlike 4.0 International</a>,
+      per the repository's licence file; this site uses that encoding and
+      carries this attribution accordingly.
+    </p>
+    <p>
+      Butler's and Pope's translations are long out of copyright and are
+      drawn from public-domain digitisations. They do not carry the same
+      milestone structure as Murray's Perseus text; each is aligned to the
+      Greek independently (Pope's alignment is book-anchored only, with no
+      intra-book proportional gutter — see the site's build notes).
+    </p>
+    <p>
+      The files used here are pinned to a specific commit rather than tracking
+      the corpus as it moves, so a rebuild is always reproducible; the exact
+      revision, per-file checksums, and source paths are recorded in
+      <a href="https://github.com/johnhboyer-sys/homer-reader/blob/main/sources/INVENTORY.md">
+        sources/INVENTORY.md</a>.
+      {hasPrivate && (
+        <span> Entries marked <span class="licence-badge local">local only</span> are
+        copyright-encumbered and are excluded from the public edition of this site.</span>
+      )}
+      If you hold rights to any text shown here and wish it removed, please get in
+      touch.
+    </p>
+
+    <h2>Vulgate Line Numbering</h2>
+    <p>
+      The Iliad and the Odyssey are cited by <strong>book and vulgate line
+      number</strong> (e.g.&nbsp;<em>Il. 1.1</em>), the traditional lineation
+      inherited from the ancient scholarly editions and preserved unbroken
+      since. Numbering gaps and bracketed/athetized lines (verses the
+      manuscript tradition marks as suspect) are preserved verbatim, never
+      renumbered — a line's number is a citation, not a sequence count.
+    </p>
+    <p>
+      Murray's translation carries its own milestone markers from Perseus's
+      TEI encoding, used to align the English to the Greek at fixed points
+      within each book (see the parallel-column gutter). Butler's and Pope's
+      translations are aligned independently, as noted above.
+    </p>
+
+    <h2>Greek Text</h2>
+    <p>
+      The Greek text of the <em>Iliad</em> is T. W. Allen's editio maior
+      (Oxford, 1931); lines athetized by Allen carry the obelos and render
+      bracketed, and the four lines Allen omits at 8.548–552 are supplied
+      from the vulgate, marked as athetized. The Greek text of the
+      <em>Odyssey</em> follows the text printed in A. T. Murray's Loeb
+      edition (1919), as digitized by the Perseus Digital Library.
+    </p>
+    <ul>
+      {WORKS.map((w) => (
+        <li><strong>{w.title}</strong> — {w.greekSource.full}</li>
+      ))}
+    </ul>
+    <p>
+      Roughly half of Murray's footnote markers show his original note
+      text rather than a bare citation number, recovered from
+      first-printing Loeb scans (Odyssey 1919, Iliad 1924–25; archive.org,
+      verified US public domain) and matched to Perseus's TEI markers by
+      page running-heads and citation number, shipped only where the
+      match is high-confidence. Markers without a confidently-matched
+      note keep the bare citation number. Speech-span data derive from
+      the DICES database (CC BY 4.0).
+    </p>
+    <p>
+      The Allen text was extracted at build time using the
+      <a href="https://d.iogen.es/">Diogenes</a> tool against a licensed copy
+      of the <a href="https://stephanus.tlg.uci.edu/">Thesaurus Linguae
+      Graecae</a> (TLG) corpus. The TLG's digital corpus is a licensed,
+      subscription resource — it is used here only as a build-time export
+      tool and is <strong>not itself redistributed</strong>.
+    </p>
+
+    <h2>
+      Recitation Audio
+      <span class="licence-badge cc">CC BY</span>
+    </h2>
+    <p>
+      "Hear this passage" plays David Chamberlain's recitation of the Greek
+      text, streamed directly from his archive.org uploads — this site never
+      copies or rehosts the audio files. Coverage is honest and partial: all
+      24 books of the <em>Iliad</em> (with a handful of small recorded gaps
+      within a few books) and the first seven books of the <em>Odyssey</em>;
+      the play control simply does not appear where no recording exists.
+      Each chunk plays only the line range its button states — there is no
+      per-line seeking within a recording.
+    </p>
+    <blockquote>
+      Chamberlain, David.
+      <a href="https://hypotactic.com/my-reading-of-homer-work-in-progress/">
+        My Reading of Homer (work in progress)</a>.
+      Recordings licensed CC BY 3.0 or 4.0 per item (see each recording's
+      archive.org page for its exact version).
+    </blockquote>
+
+    <h2>
+      Maps
+      <span class="licence-badge cc">CC BY</span>
+    </h2>
+    <p>
+      Map tiles: <a href="https://cawm.lib.uiowa.edu/">Consortium of Ancient
+      World Mappers (CAWM)</a>, licensed
+      <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.
+    </p>
+    <p>
+      The scene-panel coastline is derived from
+      <a href="https://www.naturalearthdata.com/">Natural Earth</a>
+      (public domain).
+    </p>
+
+    <h2>
+      Morphological Data
+      <span class="licence-badge pd">Open</span>
+    </h2>
+    <p>
+      Morphological analyses (lemma, gloss, grammatical parse) are produced
+      by the Morpheus morphological analyser as distributed with
+      <a href="https://d.iogen.es/">Diogenes</a>, using Autenrieth's Homeric
+      dictionary as an additional glossing source where noted.
+      See the Diogenes and Perseus project pages for applicable terms.
+    </p>
+
+    <h2>
+      Application Code
+      <span class="licence-badge mit">MIT</span>
+    </h2>
+    <p>
+      The pipeline and web application source code (Python and TypeScript/Svelte)
+      are released under the
+      <a href="https://opensource.org/licenses/MIT">MIT Licence</a>.
+      Data files derived from CC BY-SA sources are excluded from this grant
+      and remain subject to CC BY-SA.
+    </p>
+    <p>
+      Site by <a href="https://x.com/johnhboyer" target="_blank" rel="noopener">John H. Boyer</a>.
+    </p>
+  </main>
+</body>
+</html>

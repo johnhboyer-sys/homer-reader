@@ -1,0 +1,117 @@
+---
+// The "three ways in" door cards — one component, one label set, shared by the
+// homepage and the /start funnel page (Design punch-list #10, 2026-07-18).
+// Before this the two surfaces hand-rolled the same grid with drifted labels
+// ("Reading the Greek" vs "Reading along in Greek", "The Maps" vs "Just the
+// maps") and differing copy. Labels + copy + CTA are canonical here; only the
+// destination hrefs vary per surface (the /start funnel adds a first-visit parse
+// tour), so they're the one prop.
+interface Props {
+  /** [new-to-Homer, reading-the-Greek, the-maps] destination hrefs, in order. */
+  hrefs: [string, string, string];
+  /** Optional small-caps section header above the grid (homepage: "Three ways in"). */
+  eyebrow?: string;
+}
+const { hrefs, eyebrow } = Astro.props;
+const doors = [
+  {
+    label: 'New to Homer',
+    body: 'Start in the middle of the action — Odysseus among the Cyclopes, Book 9, in Reading Mode.',
+    cta: 'Begin at Od. 9 →',
+  },
+  {
+    label: 'Reading the Greek',
+    body: 'Parallel text with parse popups on every word, LSJ and Cunliffe one click away.',
+    cta: 'Open scholar view →',
+  },
+  {
+    label: 'The Maps',
+    body: 'Every place named in the poems, plotted, with its identification’s certainty marked.',
+    cta: 'Browse the maps →',
+  },
+] as const;
+---
+<section class="doors-section" aria-label="Ways to begin">
+  {eyebrow && <p class="section-eyebrow">{eyebrow}</p>}
+  <div class="doors-grid">
+    {doors.map((d, i) => (
+      <a class="door-card" href={hrefs[i]}>
+        <span class="door-label">{d.label}</span>
+        <p>{d.body}</p>
+        <span class="door-go">{d.cta}</span>
+      </a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .section-eyebrow {
+    font-family: var(--font-ui);
+    font-size: 0.64rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-mid);
+    margin: 0 0 var(--space-4);
+  }
+  .doors-section { padding: var(--space-7) 0; }
+  .doors-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-5);
+  }
+  @media (max-width: 760px) {
+    .doors-grid { grid-template-columns: 1fr; }
+  }
+  /* Flex column + stretched grid rows so every card matches the tallest in its
+     row (even heights) and the CTA pins to the bottom edge, aligned across all
+     three regardless of body length (#13). */
+  .door-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: var(--text);
+    background: var(--col-bg);
+    border: 1px solid var(--border);
+    padding: 1.35rem 1.4rem 1.5rem;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  /* Restrained hover: a slight lift + faint shadow so the cards read as live
+     doors, not inert panels, beside the hero (#18). */
+  .door-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--text) 12%, transparent);
+  }
+  .door-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    .door-card { transition: border-color 0.15s ease; }
+    .door-card:hover { transform: none; box-shadow: none; }
+  }
+  .door-card .door-label {
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: var(--space-3);
+  }
+  .door-card p {
+    margin: 0;
+    font-family: var(--font-english);
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--text-mid);
+  }
+  .door-card .door-go {
+    display: block;
+    margin-top: auto;
+    padding-top: 0.9rem;
+    font-family: var(--font-ui);
+    font-size: 0.64rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-mid);
+  }
+  .door-card:hover .door-go { color: var(--accent); }
+</style>

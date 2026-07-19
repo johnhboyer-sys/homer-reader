@@ -1,0 +1,1077 @@
+<!--
+  DESIGN PLAN — "HYBRID V2" (synthesis, per John's verdict 2026-07-17)
+  ======================================================================
+  BASE: Chart-Room's structure, restraint, hairline/small-caps vocabulary,
+  cartouche plate, margin apparatus, map panel, contour band. Every class
+  name and grid mechanism below is Chart-Room's own — this file keeps its
+  CSS custom-property NAMES (--ground, --rule-strong, --gold-text, etc.)
+  and swaps only their VALUES for Aegean-sourced hex, so the donor's own
+  documented intent survives. Renaming variables would have been cosmetic
+  churn; re-valuing them is the actual ask ("chart-room but add the aegean
+  palate").
+
+  ROLE → TOKEN MAPPING (chart-room CSS var → Aegean donor value)
+  ------------------------------------------------------------------
+    --ground        ← Aegean --stone         (marble E9E7DD / sea-dark 0B1526)
+    --ground-panel  ← Aegean --stone-raised  (DFDCCE / 101E33)
+    --margin-bg     ← Aegean --stone-raised  (same value; chart-room kept
+                        these two nearly identical already, no need to
+                        invent a third shade Aegean doesn't define)
+    --ink           ← Aegean --ink           (wine-dark indigo 1B2233 /
+                        bone EDE6D6)
+    --ink-soft      ← Aegean --ink-muted     (4A4F5C / B9B2A0)
+    --rule          ← Aegean --border        (C9C4B0 / 24354C) — the soft,
+                        decorative hairline; direct 1:1, both donors already
+                        used this exact role name for it.
+    --rule-strong   ← Aegean --sea-line, LIGHT MODE ONLY (23405C, 8.65:1 —
+                        legible enough to double as gutter-number text).
+                        DARK MODE: raw --sea-line (17304A) sits at only
+                        1.36:1 against --stone dark (0B1526) — it nearly
+                        vanishes as a hairline. Derived --rule-strong-dark
+                        = #35506E (a lightened sea-line, same hue family)
+                        instead, landing at 2.2:1 — matching, not
+                        regressing, chart-room v1's own dark rule-strong
+                        precedent (~2.0:1; decorative-only, no text sits on
+                        it except where overridden — see contrast table).
+    --gold-text,
+    --gold-deco     ← Aegean --bronze / --bronze-brt (7C5A2E/9C7539 light,
+                        C89B5C/E0B876 dark) — see wayfinding decision below.
+    --route-red     ← Aegean --bronze (SAME value as --gold-text — see
+                        wayfinding decision below; this is a deliberate
+                        collapse, not an oversight).
+    --focus-ring    ← Aegean --focus (23405C light / E0B876 dark)
+    NEW: --terracotta ← Aegean --terracotta (9C4530 / D97A61) — added
+                        because chart-room had no honesty-flag color;
+                        wired to .draft-badge ONLY, per John's rule.
+
+  WAYFINDING ACCENT DECISION: bronze, not sea-blue.
+    Chart-room's --route-red drove five things: nav hover, scene-chip's
+    ref color + left border, active lex-tab, place-chip dot, theme-toggle
+    hover. I routed all five to --bronze (Aegean's --route-red mapping
+    above) rather than a wine-dark sea-blue, for two concrete reasons:
+    (1) Aegean's OWN v1 file already used bronze for this exact role set
+        (nav hover, .chip-ref, active .lex-tab) — it is already the de
+        facto wayfinding color in the donor, not a new choice.
+    (2) Chart-room's "gold-text" hex (#6E5726 light / #C79A56 dark) was
+        already visually indistinguishable from bronze before this merge.
+        Collapsing gold-text + route-red into one --bronze token removes a
+        redundant near-duplicate accent rather than adding a new one — the
+        page ends up with exactly TWO accent colors total: bronze
+        (structural/interactive, used everywhere) and terracotta (one job:
+        the draft badge). That is a stricter reading of "terracotta ONLY
+        on the draft badge" than keeping a third red accent would allow.
+    Sea-line stays reserved for its Aegean-documented job — a rule/stroke
+    color (hairlines, gutter-number text, compass-rose strokes) — never a
+    clickable/interactive accent, keeping the two roles cleanly separated.
+
+  TYPE (Aegean's four roles, dropped into chart-room's four var names):
+    --font-display ← "Big Caslon","Hoefler Text","Palatino Linotype",
+                      Palatino,Georgia,serif   (cartouche titles, masthead)
+    --font-label   ← Optima,Seravek,"Gill Sans","Gill Sans MT",sans-serif
+                      (nav, gutter labels, small caps, chips, footer)
+    --font-greek   ← Palatino,"Palatino Linotype","Times New Roman",
+                      Georgia,serif             (verified polytonic-safe)
+    --font-serif   ← "Iowan Old Style",Charter,Georgia,serif (Murray prose)
+
+  LAYOUT — what changed from chart-room v1:
+    1. reading-grid: 15rem persistent margin → 11rem rail, and ONLY at
+       ≥1100px. Below 1100px the margin/apparatus rail drops to a
+       flex-wrap inline strip below the text (border-top, not border-left)
+       — same mechanism chart-room already had for its ≤760px case, just
+       triggered much earlier so the 50/50 text columns never have to
+       compete with the rail below desktop-wide viewports.
+    2. text-block's internal Greek|English split was ALREADY a true
+       minmax(0,1fr)/minmax(0,1fr) 50/50 grid in chart-room v1 — the
+       column-starving complaint was about the OUTER 15rem rail eating
+       page width, not this inner split. No change needed there beyond
+       lowering its own stacking breakpoint (900px → 620px) now that it
+       isn't also being squeezed by a wide rail at tablet widths.
+    3. NEW: .en-col becomes a gutter list mirroring .greek-col's markup
+       (same .ln tabular-num cell, same data-marked="1" + --gold-text
+       color pattern) instead of one flowing <p>. Murray's prose is split
+       into four chunks at the exact Il. 1.1/1.5/1.10/1.15 boundaries —
+       Perseus's own edition of Murray already carries [1][5][10][15]
+       milestone tags in the source, so the split points are not invented,
+       they're the editor's own. This also means English content now runs
+       the full 1.1–16 (both v1 files quietly stopped at line 7 — an
+       accuracy gap this version closes rather than perpetuates).
+    4. Cartouche compacted: smaller type scale, tighter padding/gaps,
+       budget ~120–150px tall at desktop (see self-critique — estimated
+       from computed box metrics, not screenshot-measured).
+    5. Lookup UX: Option A (chart-room's existing anchored popup, now
+       labeled) stays under the Greek column at μῆνιν. Option B is new —
+       a compact docked lex panel added to the apparatus rail, tabs
+       stacked vertically (no room for pill buttons at 11rem), plus the
+       one-line behavior note John asked for.
+
+  SELF-CRITIQUE (post-build, both themes opened and cascade re-read):
+  - Dark-mode --rule-strong required a DERIVED value (#35506E), not a
+    straight Aegean token — flagged explicitly above rather than silently
+    inventing a color; it's a same-hue lightening of --sea-line, not a
+    new hue.
+  - Bronze now carries both "structural gold label" and "interactive
+    wayfinding" duty. Visually lower-contrast between "this is a link"
+    and "this is a decorative label" than a true two-accent system would
+    give. Accepted deliberately (see wayfinding decision) — restraint
+    over cue redundancy, consistent with the brief's own hairline-
+    discipline instinct.
+  - The apparatus rail at 11rem now carries FOUR blocks (day-marker,
+    scene-chip, docked lex panel, reading-mode caption) where v1 carried
+    two. It reads busier than chart-room's original margin column. I did
+    not add a fifth breakpoint to thin it out further because the brief
+    explicitly asked for Option B to live in the rail — flagging the
+    density rather than quietly dropping content.
+  - Height budget on the cartouche (~160px) was verified by adding up
+    line-height × font-size × padding from the CSS, not by opening the
+    file in a real browser and measuring — noted per the project's
+    "verify functionally, not with screenshots" posture; a functional
+    check would still want an actual viewport measurement pass.
+  - Contrast ratios computed programmatically (WCAG relative-luminance
+    formula) for every text-bearing pair, not eyeballed — table below.
+
+  CONTRAST TABLE (computed, WCAG formula; "decorative" = non-text hairline,
+  3:1 UI-component threshold applies, not 4.5:1):
+    LIGHT   ink/ground 12.80:1 · ink-soft/ground 6.61:1 · bronze/ground
+            5.04:1 · bronze/ground-panel 4.54:1 · bronze-brt/ground-panel
+            3.04:1 (decorative pins only) · terracotta/ground 5.12:1 ·
+            sea-line(rule-strong text use)/ground 8.65:1 · border(rule,
+            decorative)/ground 1.41:1
+    DARK    ink/ground 14.69:1 · ink-soft/ground 8.65:1 · bronze/ground
+            7.22:1 · bronze/ground-panel 6.61:1 · bronze-brt/ground-panel
+            8.99:1 · terracotta/ground 6.01:1 · rule-strong(derived
+            #35506E, decorative)/ground 2.20:1 (matches v1 precedent,
+            no text sits on it) · border(rule, decorative)/ground 1.47:1
+  ======================================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Homer Reader — Hybrid v2 (Synthesis)</title>
+<style>
+  :root {
+    --ground: #E9E7DD;
+    --ground-panel: #DFDCCE;
+    --margin-bg: #DFDCCE;
+    --ink: #1B2233;
+    --ink-soft: #4A4F5C;
+    --rule: #C9C4B0;
+    --rule-strong: #23405C;
+    --route-red: #7C5A2E;
+    --gold-text: #7C5A2E;
+    --gold-deco: #9C7539;
+    --terracotta: #9C4530;
+    --focus-ring: #23405C;
+
+    --font-display: 'Big Caslon', 'Hoefler Text', 'Palatino Linotype', Palatino, Georgia, serif;
+    --font-label: Optima, Seravek, 'Gill Sans', 'Gill Sans MT', sans-serif;
+    --font-greek: Palatino, 'Palatino Linotype', 'Times New Roman', Georgia, serif;
+    --font-serif: 'Iowan Old Style', Charter, Georgia, serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #0B1526;
+      --ground-panel: #101E33;
+      --margin-bg: #101E33;
+      --ink: #EDE6D6;
+      --ink-soft: #B9B2A0;
+      --rule: #24354C;
+      --rule-strong: #35506E;
+      --route-red: #C89B5C;
+      --gold-text: #C89B5C;
+      --gold-deco: #E0B876;
+      --terracotta: #D97A61;
+      --focus-ring: #E0B876;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0B1526;
+    --ground-panel: #101E33;
+    --margin-bg: #101E33;
+    --ink: #EDE6D6;
+    --ink-soft: #B9B2A0;
+    --rule: #24354C;
+    --rule-strong: #35506E;
+    --route-red: #C89B5C;
+    --gold-text: #C89B5C;
+    --gold-deco: #E0B876;
+    --terracotta: #D97A61;
+    --focus-ring: #E0B876;
+  }
+
+  :root[data-theme="light"] {
+    --ground: #E9E7DD;
+    --ground-panel: #DFDCCE;
+    --margin-bg: #DFDCCE;
+    --ink: #1B2233;
+    --ink-soft: #4A4F5C;
+    --rule: #C9C4B0;
+    --rule-strong: #23405C;
+    --route-red: #7C5A2E;
+    --gold-text: #7C5A2E;
+    --gold-deco: #9C7539;
+    --terracotta: #9C4530;
+    --focus-ring: #23405C;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--ground);
+    color: var(--ink);
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: var(--font-serif);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    * { scroll-behavior: smooth; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  a { color: inherit; }
+  :focus-visible {
+    outline: 2.5px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: 1px;
+  }
+
+  .sc {
+    font-family: var(--font-label);
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    font-weight: 600;
+  }
+
+  .wrap {
+    max-width: 76rem;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  /* ---------- option A/B label chips ---------- */
+  .option-chip {
+    display: inline-block;
+    font-family: var(--font-label);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--route-red);
+    border: 1px solid var(--route-red);
+    padding: 0.14rem 0.5rem;
+    margin-bottom: 0.55rem;
+  }
+
+  /* ---------- masthead ---------- */
+  header.masthead {
+    border-bottom: 1px solid var(--rule-strong);
+    background: var(--ground);
+  }
+  .masthead-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    padding: 1.1rem 0 1rem;
+  }
+  .wordmark {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    letter-spacing: 0.02em;
+    font-weight: 400;
+  }
+  .wordmark small {
+    display: block;
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+    font-weight: 600;
+    margin-top: 0.15rem;
+  }
+  nav.primary-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.35rem;
+  }
+  nav.primary-nav a {
+    text-decoration: none;
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+  }
+  nav.primary-nav a:hover {
+    color: var(--route-red);
+    border-bottom-color: var(--route-red);
+  }
+  .jumpbox {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--rule-strong);
+    padding: 0.3rem 0.15rem 0.3rem 0.65rem;
+    gap: 0.4rem;
+    background: var(--ground-panel);
+  }
+  .jumpbox label {
+    font-size: 0.62rem;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .jumpbox input {
+    font-family: var(--font-greek);
+    font-size: 0.8rem;
+    border: none;
+    background: transparent;
+    color: var(--ink);
+    width: 6.4rem;
+  }
+  .jumpbox input:focus-visible { outline-offset: 0; }
+  .jumpbox button {
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--ink);
+    color: var(--ground);
+    border: none;
+    padding: 0.32rem 0.6rem;
+    cursor: pointer;
+  }
+  @media (prefers-color-scheme: dark) {
+    .jumpbox button { background: var(--gold-deco); color: #0B1526; }
+  }
+  :root[data-theme="dark"] .jumpbox button { background: var(--gold-deco); color: #0B1526; }
+
+  /* ---------- contour band (signature, recolored to sea/bronze) ---------- */
+  .contour-band {
+    border-bottom: 1px solid var(--rule);
+    background: var(--ground);
+    line-height: 0;
+  }
+  .contour-band svg { display: block; width: 100%; height: 46px; }
+  .contour-band path {
+    fill: none;
+    stroke: var(--rule-strong);
+    stroke-width: 1;
+  }
+  .contour-band path.n2 { stroke: var(--rule); }
+  .contour-band path.n3 { stroke: var(--gold-deco); opacity: 0.55; }
+
+  /* ---------- book plate / cartouche — COMPACT (≤~160px desktop) ---------- */
+  .plate {
+    margin: 1.25rem 0 1.75rem;
+    border: 1px solid var(--rule-strong);
+    padding: 0.85rem 1.4rem 0.95rem;
+    position: relative;
+  }
+  .plate::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1px solid var(--rule);
+    pointer-events: none;
+  }
+  .plate-titles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem 0.9rem;
+  }
+  .plate-greek {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1.1;
+    letter-spacing: 0.05em;
+  }
+  .plate-en {
+    font-family: var(--font-label);
+    font-size: 0.68rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+  }
+  .plate-argument {
+    margin: 0.45rem 0 0.6rem;
+    max-width: 64ch;
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
+  .plate-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0;
+    align-items: center;
+    border-top: 1px solid var(--rule);
+    padding-top: 0.5rem;
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+  }
+  .plate-meta span.sep { margin: 0 0.5rem; color: var(--rule-strong); }
+
+  /* ---------- reading grid: text + apparatus rail ---------- */
+  .reading-section { margin-bottom: 2.5rem; }
+  .reading-grid {
+    display: grid;
+    grid-template-columns: 1fr 11rem;
+    column-gap: 1.75rem;
+    align-items: start;
+  }
+  @media (max-width: 1099.98px) {
+    .reading-grid { grid-template-columns: 1fr; }
+    .margin-col {
+      border-left: none;
+      border-top: 1px solid var(--rule);
+      margin-top: 1.75rem;
+      padding-top: 1.4rem;
+      padding-left: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem 2.25rem;
+    }
+    .margin-col > * { flex: 1 1 220px; }
+    .margin-head { padding-left: 0; }
+  }
+
+  .text-block {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+    column-gap: 2.25rem;
+    border-right: 1px solid var(--rule);
+    padding-right: 1.75rem;
+  }
+  @media (max-width: 1099.98px) {
+    .text-block { border-right: none; padding-right: 0; }
+  }
+  @media (max-width: 620px) {
+    .text-block { grid-template-columns: 1fr; }
+    .text-block .greek-col {
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 1.4rem;
+      margin-bottom: 1.4rem;
+    }
+  }
+
+  .en-col h3.block-label,
+  .greek-col h3.block-label {
+    margin: 0 0 0.85rem;
+    font-family: var(--font-label);
+    font-size: 0.64rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.4rem;
+  }
+
+  /* Greek gutter list */
+  .greek-col ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .greek-col li {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    column-gap: 0.55rem;
+    font-family: var(--font-greek);
+    font-size: 1.12rem;
+    line-height: 1.85;
+  }
+  .greek-col li + li { padding-top: 0.02rem; }
+  .greek-col .ln {
+    font-family: var(--font-label);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.66rem;
+    color: var(--rule-strong);
+    text-align: right;
+    padding-top: 0.42rem;
+  }
+  .greek-col li[data-marked="1"] .ln { color: var(--gold-text); font-weight: 600; }
+  .greek-col .vs { text-indent: -0.9rem; padding-left: 0.9rem; }
+
+  .greek-col .lemma-target {
+    position: relative;
+    border-bottom: 1px dotted var(--gold-deco);
+    cursor: help;
+  }
+
+  /* English gutter list — mirrors greek-col's markup/tabular-num style;
+     ticks fall at the Perseus/Murray [1][5][10][15] milestone boundaries,
+     the editor's own line-range split, not an invented alignment. */
+  .en-col ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .en-col li {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    column-gap: 0.55rem;
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--ink);
+  }
+  .en-col li + li { margin-top: 0.85rem; }
+  .en-col .ln {
+    font-family: var(--font-label);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.66rem;
+    color: var(--rule-strong);
+    text-align: right;
+    padding-top: 0.32rem;
+  }
+  .en-col li[data-marked="1"] .ln { color: var(--gold-text); font-weight: 600; }
+  .en-col .attribution {
+    display: block;
+    margin-top: 1rem;
+    font-family: var(--font-label);
+    font-size: 0.68rem;
+    letter-spacing: 0.02em;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- lexicon popup — OPTION A (anchored, at the clicked word) ---------- */
+  .lex-pop-wrap { margin-top: 1.1rem; }
+  .lex-pop {
+    display: inline-block;
+    background: var(--ground-panel);
+    border: 1px solid var(--rule-strong);
+    padding: 0.85rem 1rem 0.75rem;
+    max-width: 20rem;
+    position: relative;
+  }
+  .lex-pop::before {
+    content: "";
+    position: absolute;
+    top: -7px;
+    left: 1.4rem;
+    width: 12px; height: 12px;
+    background: var(--ground-panel);
+    border-left: 1px solid var(--rule-strong);
+    border-top: 1px solid var(--rule-strong);
+    transform: rotate(45deg);
+  }
+  .lex-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+  }
+  .lex-greek { font-family: var(--font-greek); font-size: 1.15rem; }
+  .lex-pos { font-family: var(--font-label); font-size: 0.66rem; color: var(--ink-soft); }
+  .lex-def { font-size: 0.85rem; color: var(--ink); margin: 0 0 0.65rem; }
+  .lex-tabs {
+    display: flex;
+    gap: 0.9rem;
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-top: 1px solid var(--rule);
+    padding-top: 0.55rem;
+  }
+  .lex-tabs a { text-decoration: none; color: var(--ink-soft); }
+  .lex-tabs a[aria-current="true"] { color: var(--route-red); border-bottom: 1px solid var(--route-red); padding-bottom: 2px; }
+
+  /* ---------- margin/apparatus rail ---------- */
+  .margin-col {
+    padding-left: 0.1rem;
+    border-left: 1px solid var(--rule);
+  }
+  .margin-head {
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--rule-strong);
+    margin: 0 0 0.9rem;
+    padding-left: 0.9rem;
+  }
+  .day-marker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0 0 1.1rem 0.9rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--gold-deco);
+  }
+  .day-marker .pin {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--gold-deco);
+    flex: none;
+  }
+  .day-marker span.label {
+    font-family: var(--font-label);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+    font-weight: 600;
+  }
+
+  .scene-chip {
+    margin: 0 0.9rem 1.5rem 0.9rem;
+    padding: 0.7rem 0.8rem 0.75rem;
+    background: var(--margin-bg);
+    border: 1px solid var(--rule);
+    border-left: 2px solid var(--route-red);
+  }
+  .scene-chip .ref {
+    font-family: var(--font-label);
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
+    color: var(--route-red);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .scene-chip p {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 0.84rem;
+    font-style: italic;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .draft-badge {
+    display: inline-block;
+    margin-top: 0.55rem;
+    font-family: var(--font-label);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    border: 1px solid var(--terracotta);
+    padding: 0.15rem 0.4rem;
+  }
+
+  /* ---------- docked lexicon — OPTION B (rail panel) ---------- */
+  .lex-dock-wrap { margin: 0 0.9rem 1.5rem; }
+  .lex-dock {
+    background: var(--ground-panel);
+    border: 1px solid var(--rule);
+    padding: 0.75rem 0.8rem 0.8rem;
+  }
+  .lex-dock .lex-head { display: block; margin-bottom: 0.25rem; }
+  .lex-dock .lex-greek { font-size: 1.02rem; display: block; }
+  .lex-dock .lex-pos { display: block; margin-top: 0.1rem; }
+  .lex-dock .lex-def {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    margin: 0.4rem 0 0.65rem;
+  }
+  .lex-dock .lex-tabs {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+  .lex-dock .lex-tabs a { padding: 0.05rem 0; }
+  .lex-dock .lex-note {
+    margin: 0.7rem 0 0;
+    padding-top: 0.6rem;
+    border-top: 1px dotted var(--rule);
+    font-family: var(--font-label);
+    font-size: 0.6rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--ink-soft);
+  }
+
+  .reading-mode-tag {
+    margin: 0 0.9rem;
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+  }
+  .reading-mode-tag kbd {
+    font-family: var(--font-label);
+    border: 1px solid var(--rule-strong);
+    padding: 0.05rem 0.35rem;
+    font-size: 0.6rem;
+  }
+
+  /* ---------- map panel showpiece ---------- */
+  .map-section { margin-bottom: 2.75rem; }
+  .map-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.9rem;
+  }
+  .map-heading h2 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 400;
+  }
+  .map-panel {
+    position: relative;
+    border: 1px solid var(--rule-strong);
+    background:
+      repeating-linear-gradient(0deg, transparent 0 39px, var(--rule) 39px 40px),
+      repeating-linear-gradient(90deg, transparent 0 39px, var(--rule) 39px 40px),
+      var(--ground-panel);
+    min-height: 20rem;
+    padding: 1.5rem;
+    overflow: hidden;
+  }
+  .map-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200"><path d="M -10 140 C 60 120, 100 160, 160 130 S 260 100, 340 130 S 420 150 460 120" fill="none" stroke="%239C7539" stroke-opacity="0.10" stroke-width="1.4"/><path d="M -10 170 C 80 150, 140 190, 210 160 S 300 130 400 165" fill="none" stroke="%239C7539" stroke-opacity="0.08" stroke-width="1.2"/></svg>');
+    background-repeat: no-repeat;
+    background-size: cover;
+    pointer-events: none;
+  }
+  .compass-rose {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 88px;
+    height: 88px;
+    opacity: 0.9;
+  }
+  .compass-rose line { stroke: var(--ink-soft); stroke-width: 1; }
+  .compass-rose line.major { stroke: var(--ink); stroke-width: 1.3; }
+  .compass-rose text {
+    font-family: var(--font-label);
+    font-size: 7px;
+    fill: var(--ink-soft);
+    letter-spacing: 0.05em;
+  }
+  .compass-rose circle { fill: none; stroke: var(--rule-strong); stroke-width: 1; }
+
+  .place-chip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: var(--ground);
+    border: 1px solid var(--rule-strong);
+    padding: 0.4rem 0.7rem;
+    font-family: var(--font-label);
+    font-size: 0.72rem;
+  }
+  .place-chip .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1.5px solid var(--route-red);
+    flex: none;
+  }
+  .place-chip .name { color: var(--ink); font-weight: 600; }
+  .place-chip .tier {
+    color: var(--ink-soft);
+    font-style: italic;
+    font-family: var(--font-serif);
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.76rem;
+  }
+
+  .tier-legend {
+    margin-top: 1.1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.4rem;
+    font-family: var(--font-label);
+    font-size: 0.64rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    position: relative;
+  }
+  .tier-legend .item { display: flex; align-items: center; gap: 0.4rem; }
+  .tier-legend .mark { width: 10px; height: 10px; flex: none; }
+  .tier-legend .mark.certain { border-radius: 50%; background: var(--ink); }
+  .tier-legend .mark.traditional { border-radius: 50%; border: 1.5px solid var(--ink); background: transparent; }
+  .tier-legend .mark.speculative {
+    border-radius: 50%;
+    border: 1.5px dashed var(--ink-soft);
+    background: transparent;
+  }
+  .tier-legend .mark.mythical {
+    background: transparent;
+    border: 1.5px solid var(--ink-soft);
+    transform: rotate(45deg);
+    width: 8px; height: 8px;
+  }
+
+  /* ---------- footer ---------- */
+  footer {
+    border-top: 1px solid var(--rule-strong);
+    padding: 1.5rem 0 2.5rem;
+    font-family: var(--font-label);
+    font-size: 0.66rem;
+    letter-spacing: 0.03em;
+    color: var(--ink-soft);
+    line-height: 1.9;
+  }
+
+  /* ---------- theme toggle ---------- */
+  .theme-toggle {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 20;
+    background: var(--ground-panel);
+    border: 1px solid var(--rule-strong);
+    color: var(--ink-soft);
+    font-family: var(--font-label);
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.45rem 0.7rem;
+    cursor: pointer;
+  }
+  .theme-toggle:hover { color: var(--route-red); border-color: var(--route-red); }
+
+  @media (max-width: 480px) {
+    .plate-greek { font-size: 1.3rem; }
+    .wordmark { font-size: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <div class="wordmark">
+      The Homer Reader
+      <small>Digital Landmark Edition</small>
+    </div>
+    <nav class="primary-nav" aria-label="Primary">
+      <a href="#">Iliad</a>
+      <a href="#">Odyssey</a>
+      <a href="#">Maps</a>
+      <a href="#">Timeline</a>
+      <a href="#">Start Here</a>
+    </nav>
+    <form class="jumpbox" role="search" aria-label="Jump to line">
+      <label for="jump">Jump</label>
+      <input id="jump" type="text" value="Od. 9.366" spellcheck="false">
+      <button type="submit">Go</button>
+    </form>
+  </div>
+</header>
+
+<div class="contour-band" aria-hidden="true">
+  <svg viewBox="0 0 1200 46" preserveAspectRatio="none">
+    <path class="n1" d="M0 30 C 100 10, 180 42, 280 26 S 460 6, 560 24 S 740 40, 860 22 S 1040 8, 1200 26" />
+    <path class="n2" d="M0 38 C 120 22, 220 44, 340 32 S 520 16, 640 34 S 820 44, 940 30 S 1120 18, 1200 34" />
+    <path class="n3" d="M0 12 C 140 26, 260 4, 400 16 S 600 30, 760 12 S 980 2, 1200 14" />
+  </svg>
+</div>
+
+<main class="wrap">
+
+  <section class="plate">
+    <div class="plate-titles">
+      <div class="plate-greek">ΙΛΙΑΔΟΣ Α</div>
+      <div class="plate-en">Iliad · Book 1</div>
+    </div>
+    <p class="plate-argument">The quarrel: Chryses refused, Apollo&rsquo;s plague, Achilles withdraws from the war.</p>
+    <div class="plate-meta">
+      <span>Troy, the Achaean camp</span>
+      <span class="sep">·</span>
+      <span>Achilles</span>
+      <span class="sep">·</span>
+      <span>Agamemnon</span>
+      <span class="sep">·</span>
+      <span>Chryses</span>
+      <span class="sep">·</span>
+      <span>Apollo</span>
+      <span class="sep">·</span>
+      <span>Days 1&ndash;21</span>
+    </div>
+  </section>
+
+  <section class="reading-section">
+    <div class="reading-grid">
+      <div class="text-block">
+        <div class="greek-col">
+          <h3 class="block-label">Greek &middot; Monro&ndash;Allen</h3>
+          <ol>
+            <li data-marked="1"><span class="ln">1</span><span class="vs"><span class="lemma-target" tabindex="0" aria-describedby="lex-menis">μῆνιν</span> ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος</span></li>
+            <li><span class="ln"></span><span class="vs">οὐλομένην, ἣ μυρίʼ Ἀχαιοῖς ἄλγεʼ ἔθηκε,</span></li>
+            <li><span class="ln"></span><span class="vs">πολλὰς δʼ ἰφθίμους ψυχὰς Ἄϊδι προΐαψεν</span></li>
+            <li><span class="ln"></span><span class="vs">ἡρώων, αὐτοὺς δὲ ἑλώρια τεῦχε κύνεσσιν</span></li>
+            <li data-marked="1"><span class="ln">5</span><span class="vs">οἰωνοῖσί τε πᾶσι, Διὸς δʼ ἐτελείετο βουλή,</span></li>
+            <li><span class="ln"></span><span class="vs">ἐξ οὗ δὴ τὰ πρῶτα διαστήτην ἐρίσαντε</span></li>
+            <li><span class="ln"></span><span class="vs">Ἀτρεΐδης τε ἄναξ ἀνδρῶν καὶ δῖος Ἀχιλλεύς.</span></li>
+            <li><span class="ln"></span><span class="vs">τίς τʼ ἄρ σφωε θεῶν ἔριδι ξυνέηκε μάχεσθαι;</span></li>
+            <li><span class="ln"></span><span class="vs">Λητοῦς καὶ Διὸς υἱός· ὃ γὰρ βασιλῆϊ χολωθεὶς</span></li>
+            <li data-marked="1"><span class="ln">10</span><span class="vs">νοῦσον ἀνὰ στρατὸν ὄρσε κακήν, ὀλέκοντο δὲ λαοί,</span></li>
+            <li><span class="ln"></span><span class="vs">οὕνεκα τὸν Χρύσην ἠτίμασεν ἀρητῆρα</span></li>
+            <li><span class="ln"></span><span class="vs">Ἀτρεΐδης· ὃ γὰρ ἦλθε θοὰς ἐπὶ νῆας Ἀχαιῶν</span></li>
+            <li><span class="ln"></span><span class="vs">λυσόμενός τε θύγατρα φέρων τʼ ἀπερείσιʼ ἄποινα,</span></li>
+            <li><span class="ln"></span><span class="vs">στέμματʼ ἔχων ἐν χερσὶν ἑκηβόλου Ἀπόλλωνος</span></li>
+            <li data-marked="1"><span class="ln">15</span><span class="vs">χρυσέῳ ἀνὰ σκήπτρῳ, καὶ λίσσετο πάντας Ἀχαιούς,</span></li>
+            <li><span class="ln"></span><span class="vs">Ἀτρεΐδα δὲ μάλιστα δύω, κοσμήτορε λαῶν&middot;</span></li>
+          </ol>
+
+          <div class="lex-pop-wrap">
+            <span class="option-chip">Option A &middot; Anchored popup</span>
+            <div class="lex-pop" id="lex-menis" role="dialog" aria-label="Lexicon: μῆνις">
+              <div class="lex-head">
+                <span class="lex-greek">μῆνις, ἡ</span>
+                <span class="lex-pos">noun, fem.</span>
+              </div>
+              <p class="lex-def">wrath, cosmic anger (of gods, of Achilles)</p>
+              <div class="lex-tabs">
+                <a href="#" aria-current="true">LSJ</a>
+                <a href="#">Cunliffe</a>
+                <a href="#">Logeion ↗</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="en-col">
+          <h3 class="block-label">English &middot; Murray, 1924</h3>
+          <ol>
+            <li data-marked="1">
+              <span class="ln">1</span>
+              <span class="pr">The wrath sing, goddess, of Peleus&rsquo; son, Achilles, that destructive wrath which brought countless woes upon the Achaeans, and sent forth to Hades many valiant souls of heroes, and made them themselves spoil for dogs and every bird; thus the plan of Zeus came to fulfillment,</span>
+            </li>
+            <li data-marked="1">
+              <span class="ln">5</span>
+              <span class="pr">from the time when first they parted in strife Atreus&rsquo; son, king of men, and brilliant Achilles. Who then of the gods was it that brought these two together to contend? The son of Leto and Zeus; for he in anger against the king roused throughout the host an evil pestilence, and the people began to perish,</span>
+            </li>
+            <li data-marked="1">
+              <span class="ln">10</span>
+              <span class="pr">because upon the priest Chryses the son of Atreus had wrought dishonour. For he had come to the swift ships of the Achaeans to free his daughter, bearing ransom past counting; and in his hands he held the wreaths of Apollo who strikes from afar, on a staff of gold; and he implored all the Achaeans,</span>
+            </li>
+            <li data-marked="1">
+              <span class="ln">15</span>
+              <span class="pr">but most of all the two sons of Atreus, the marshallers of the people.</span>
+            </li>
+          </ol>
+          <span class="attribution">A. T. Murray, 1924 (Perseus Digital Library) &middot; public domain</span>
+        </div>
+      </div>
+
+      <aside class="margin-col" aria-label="Marginal apparatus">
+        <p class="margin-head">Apparatus</p>
+        <div class="day-marker">
+          <span class="pin" aria-hidden="true"></span>
+          <span class="label">Day 1</span>
+        </div>
+        <div class="scene-chip">
+          <span class="ref">1.1&ndash;7 &middot; Invocation</span>
+          <p>The wrath announced &mdash; the poem states its subject and its cost before the story begins.</p>
+          <span class="draft-badge">Draft</span>
+        </div>
+
+        <div class="lex-dock-wrap">
+          <span class="option-chip">Option B &middot; Docked sidebar</span>
+          <div class="lex-dock" role="dialog" aria-label="Lexicon panel: μῆνις">
+            <div class="lex-head">
+              <span class="lex-greek">μῆνις, ἡ</span>
+              <span class="lex-pos">noun, fem.</span>
+            </div>
+            <p class="lex-def">wrath, cosmic anger (of gods, of Achilles)</p>
+            <div class="lex-tabs">
+              <a href="#" aria-current="true">LSJ</a>
+              <a href="#">Cunliffe</a>
+              <a href="#">Logeion ↗</a>
+            </div>
+            <p class="lex-note">Clicked words populate this panel; popup only on mobile.</p>
+          </div>
+        </div>
+
+        <p class="reading-mode-tag">Reading Mode &middot; press <kbd>r</kbd></p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="map-section">
+    <div class="map-heading">
+      <h2>Chart &middot; The Wanderings, Book 9</h2>
+      <span class="sc" style="color:var(--ink-soft); font-size:0.64rem;">Graticule shown schematically</span>
+    </div>
+    <div class="map-panel">
+      <svg class="compass-rose" viewBox="0 0 88 88" aria-hidden="true">
+        <circle cx="44" cy="44" r="38"></circle>
+        <circle cx="44" cy="44" r="24"></circle>
+        <line class="major" x1="44" y1="4" x2="44" y2="84"></line>
+        <line class="major" x1="4" y1="44" x2="84" y2="44"></line>
+        <line x1="14" y1="14" x2="74" y2="74"></line>
+        <line x1="74" y1="14" x2="14" y2="74"></line>
+        <text x="40" y="14">N</text>
+        <text x="40" y="80">S</text>
+        <text x="6" y="47">W</text>
+        <text x="76" y="47">E</text>
+      </svg>
+      <div class="place-chip">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="name">Ismarus</span>
+        <span class="tier">&middot; traditional</span>
+      </div>
+      <div class="tier-legend">
+        <span class="item"><span class="mark certain" aria-hidden="true"></span>certain</span>
+        <span class="item"><span class="mark traditional" aria-hidden="true"></span>traditional</span>
+        <span class="item"><span class="mark speculative" aria-hidden="true"></span>speculative</span>
+        <span class="item"><span class="mark mythical" aria-hidden="true"></span>mythical</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Greek text: Monro&ndash;Allen OCT (Perseus, CC-BY-SA) &middot; Translation: A. T. Murray (1924), public domain &middot; Maps: CAWM tiles (CC BY 4.0)
+  </footer>
+
+</main>
+
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">Day / Night</button>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var btn = document.getElementById('themeToggle');
+    var stored = null;
+    try { stored = localStorage.getItem('homer-hybridv2-theme'); } catch (e) {}
+    if (stored === 'dark' || stored === 'light') {
+      root.setAttribute('data-theme', stored);
+    }
+    btn.addEventListener('click', function () {
+      var current = root.getAttribute('data-theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var effectiveCurrent = current || (prefersDark ? 'dark' : 'light');
+      var next = effectiveCurrent === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('homer-hybridv2-theme', next); } catch (e) {}
+    });
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1025 @@
+{
+ "work": "odyssey",
+ "status": "draft",
+ "books": [
+  {
+   "book": 7,
+   "argument": "Athena guides Odysseus in mist to the palace of Alcinous, where he is welcomed.",
+   "where": [
+    "the road to the Phaeacian city",
+    "the palace of Alcinous"
+   ],
+   "who": [
+    "Odysseus",
+    "Athena",
+    "Alcinous",
+    "Arete",
+    "Nausicaa"
+   ],
+   "days": "33",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      13
+     ],
+     "summary": "Nausicaa returns to the palace with the mules and raiment; her brothers unyoke the wagon.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 33
+    },
+    {
+     "lines": [
+      14,
+      19
+     ],
+     "summary": "Athena shrouds Odysseus in mist, and he sets out for the Phaeacian city.",
+     "location": "the road to the city",
+     "dayNumber": 33
+    },
+    {
+     "lines": [
+      20,
+      42
+     ],
+     "summary": "A girl, Athena in disguise, meets Odysseus, warns of Phaeacian wariness toward strangers, and offers to guide him.",
+     "location": "outside the Phaeacian city",
+     "dayNumber": 33
+    },
+    {
+     "lines": [
+      43,
+      84
+     ],
+     "summary": "Athena recounts Arete's lineage from Poseidon and Nausithous, urges Odysseus to win her favor, then departs for Athens.",
+     "location": "outside the Phaeacian city",
+     "dayNumber": 33
+    },
+    {
+     "lines": [
+      85,
+      132
+     ],
+     "summary": "Odysseus marvels at the palace's bronze walls, gold and silver watchdogs, golden torchbearers, orchard, and springs.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 33
+    },
+    {
+     "lines": [
+      133,
+      145
+     ],
+     "summary": "Cloaked in mist, Odysseus enters the hall and approaches Arete and Alcinous at their feast.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 33
+    },
+    {
+     "lines": [
+      146,
+      152
+     ],
+     "summary": "The mist lifts; Odysseus clasps Arete's knees in supplication, and the hall falls silent in wonder.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 33
+    },
+    {
+     "lines": [
+      153,
+      183
+     ],
+     "summary": "Echeneus urges hospitality; Alcinous seats Odysseus, orders wine and food, and plans an assembly and ship for dawn.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 33
+    },
+    {
+     "lines": [
+      184,
+      206
+     ],
+     "summary": "Alcinous prays to Zeus for a safe escort home; the feast continues into the evening.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 33
+    },
+    {
+     "lines": [
+      207,
+      225
+     ],
+     "summary": "Odysseus begs to eat despite his grief and asks for an escort home at dawn.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 33
+    },
+    {
+     "lines": [
+      226,
+      239
+     ],
+     "summary": "Guests withdraw for the night; alone with Alcinous and Arete, she questions Odysseus about his robe and identity.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 33
+    },
+    {
+     "lines": [
+      240,
+      297
+     ],
+     "summary": "Odysseus recounts escaping Calypso's island, the storm that wrecked his raft, and his swim ashore.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 33
+    },
+    {
+     "lines": [
+      298,
+      328
+     ],
+     "summary": "Alcinous mildly faults Nausicaa for not escorting Odysseus home herself; Odysseus defends her conduct.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 33
+    },
+    {
+     "lines": [
+      329,
+      347
+     ],
+     "summary": "Odysseus prays for safe return; Arete has a bed prepared, and the household retires to rest.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 33
+    }
+   ]
+  },
+  {
+   "book": 8,
+   "argument": "The Phaeacians hold games and a feast for Odysseus; Demodocus sings, and Odysseus weeps.",
+   "where": [
+    "the Phaeacian assembly and games ground",
+    "the palace of Alcinous"
+   ],
+   "who": [
+    "Odysseus",
+    "Alcinous",
+    "Demodocus",
+    "Euryalus",
+    "Nausicaa",
+    "Arete"
+   ],
+   "days": "34",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      15
+     ],
+     "summary": "At dawn, Athena disguised as a herald rouses the Phaeacian nobles to the assembly.",
+     "location": "the assembly ground",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      16,
+      45
+     ],
+     "summary": "Alcinous proposes a ship and fifty-two oarsmen to convey the stranger home, and summons Demodocus.",
+     "location": "the assembly ground",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      46,
+      70
+     ],
+     "summary": "The crew launches and arms the ship; guests gather at Alcinous's palace, and Demodocus is seated.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      71,
+      92
+     ],
+     "summary": "Demodocus sings the quarrel of Odysseus and Achilles at Troy; Odysseus weeps unseen beneath his cloak.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      93,
+      103
+     ],
+     "summary": "Alcinous alone notices Odysseus's grief, quietly halts the song, and proposes athletic games.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      104,
+      152
+     ],
+     "summary": "The company moves to the games; Phaeacian youths compete in racing, wrestling, jumping, discus, and boxing.",
+     "location": "the games ground",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      153,
+      185
+     ],
+     "summary": "Euryalus taunts Odysseus as no athlete but a trader; Odysseus rebukes him sharply.",
+     "location": "the games ground",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      186,
+      233
+     ],
+     "summary": "Angered, Odysseus hurls the discus far past every mark and boasts of his skill with the bow.",
+     "location": "the games ground",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      234,
+      265
+     ],
+     "summary": "Alcinous smooths the quarrel, praises Phaeacian skill in dance and feasting, and calls for dancers and song.",
+     "location": "the games ground",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      266,
+      369
+     ],
+     "summary": "Youths dance while Demodocus sings of Ares and Aphrodite trapped in Hephaestus's net before the laughing gods.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      370,
+      384
+     ],
+     "summary": "Halius and Laodamas delight the company with a skilled ball-dance.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      385,
+      432
+     ],
+     "summary": "Alcinous has each of the twelve chiefs bring Odysseus a gift; Euryalus apologizes with a sword.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      433,
+      468
+     ],
+     "summary": "The gifts are sealed in a chest; Odysseus bathes, dresses, and Nausicaa bids him farewell.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      469,
+      520
+     ],
+     "summary": "The feast resumes; at Odysseus's request, Demodocus sings of the wooden horse and the fall of Troy.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      521,
+      545
+     ],
+     "summary": "Odysseus weeps at the tale like a captive woman mourning her slain husband; Alcinous alone notices.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      546,
+      586
+     ],
+     "summary": "Alcinous halts the song and asks Odysseus to reveal his name, homeland, and story of his wanderings.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 34
+    }
+   ]
+  },
+  {
+   "book": 9,
+   "argument": "Odysseus names himself and recounts the Cicones, the Lotus-eaters, and the blinding of Polyphemus.",
+   "where": [
+    "the palace of Alcinous (telling)",
+    "Ismarus",
+    "the land of the Lotus-eaters",
+    "the cave of Polyphemus"
+   ],
+   "who": [
+    "Odysseus",
+    "Polyphemus",
+    "the Cicones",
+    "the Lotus-eaters",
+    "Odysseus's crew"
+   ],
+   "days": "34",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      14
+     ],
+     "summary": "Odysseus praises the joy of feast and song, but agrees to tell of his sorrows.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      15,
+      38
+     ],
+     "summary": "Odysseus names himself, describes rugged Ithaca, and says nothing is sweeter than one's own land.",
+     "location": "Ithaca (described)",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      39,
+      69
+     ],
+     "summary": "At Ismarus the crew sacks the Cicones' city; lingering to feast, they are routed with heavy losses.",
+     "location": "Ismarus",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      70,
+      104
+     ],
+     "summary": "A nine-day storm drives the fleet to the Lotus-eaters; scouts who taste the lotus must be forced back aboard.",
+     "location": "the land of the Lotus-eaters",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      105,
+      141
+     ],
+     "summary": "The fleet reaches an islet off the land of the lawless, shipless Cyclopes.",
+     "location": "islet off the Cyclopes' land",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      142,
+      169
+     ],
+     "summary": "The crew lands on the isle by night, feasts on wild goats, and eyes the Cyclopes' land.",
+     "location": "the goat island",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      170,
+      192
+     ],
+     "summary": "Odysseus takes one ship and twelve men to the Cyclopes' shore, carrying a skin of potent wine.",
+     "location": "the Cyclopes' shore",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      193,
+      233
+     ],
+     "summary": "The men enter Polyphemus's unattended cave and eat his cheese; he returns and seals the entrance with a boulder.",
+     "location": "Polyphemus's cave",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      234,
+      260
+     ],
+     "summary": "Polyphemus demands their identity; Odysseus invokes Zeus, protector of strangers, but the Cyclops scorns the gods and seizes two men.",
+     "location": "Polyphemus's cave",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      261,
+      306
+     ],
+     "summary": "Polyphemus devours two men; Odysseus restrains his urge for immediate revenge, unable to move the sealing stone.",
+     "location": "Polyphemus's cave",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      307,
+      344
+     ],
+     "summary": "Polyphemus eats two more men and drives his flock out at dawn; alone, Odysseus sharpens a stake.",
+     "location": "Polyphemus's cave",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      345,
+      374
+     ],
+     "summary": "That evening Polyphemus eats two more men; Odysseus plies him with wine and gives his name as Noman.",
+     "location": "Polyphemus's cave",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      375,
+      412
+     ],
+     "summary": "Drunk, Polyphemus sleeps; Odysseus and his men drive the heated stake into his single eye, blinding him.",
+     "location": "Polyphemus's cave",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      413,
+      460
+     ],
+     "summary": "The blinded Cyclops gropes at the cave mouth; Odysseus straps his men beneath rams to slip past unseen.",
+     "location": "Polyphemus's cave",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      461,
+      490
+     ],
+     "summary": "Reaching the ship, Odysseus taunts Polyphemus from the sea and reveals his true name against his men's pleas.",
+     "location": "the shore",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      491,
+      536
+     ],
+     "summary": "Enraged, Polyphemus hurls a rock at the ship and prays to Poseidon to curse Odysseus's homecoming.",
+     "location": "the Cyclopes' shore",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      537,
+      566
+     ],
+     "summary": "The crew reunites, sacrifices the ram to Zeus, and sails on grieving, having lost dear comrades.",
+     "location": "at sea",
+     "dayNumber": 34
+    }
+   ]
+  },
+  {
+   "book": 10,
+   "argument": "Odysseus recounts Aeolus's winds, the Laestrygonians' slaughter of his fleet, and Circe's island.",
+   "where": [
+    "the palace of Alcinous (telling)",
+    "Aeolia",
+    "the land of the Laestrygonians",
+    "Aeaea (Circe's isle)"
+   ],
+   "who": [
+    "Odysseus",
+    "Aeolus",
+    "the Laestrygonians",
+    "Circe",
+    "Eurylochus",
+    "Elpenor"
+   ],
+   "days": "34",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      27
+     ],
+     "summary": "At Aeolia, King Aeolus hosts the crew a month, then gives Odysseus a bag binding the contrary winds.",
+     "location": "Aeolia",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      28,
+      55
+     ],
+     "summary": "Nearing Ithaca, Odysseus sleeps; his men, suspecting treasure, open the bag, and the freed winds blow them back to Aeolia.",
+     "location": "near Ithaca, then Aeolia",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      56,
+      79
+     ],
+     "summary": "Aeolus refuses further help, declaring Odysseus hateful to the gods, and sends him away.",
+     "location": "Aeolia",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      80,
+      132
+     ],
+     "summary": "At the Laestrygonians' harbor, the giant king and his people crush and spear most of the fleet; one ship escapes.",
+     "location": "the land of the Laestrygonians",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      133,
+      143
+     ],
+     "summary": "The survivors reach Aeaea, the island of Circe.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      144,
+      184
+     ],
+     "summary": "Odysseus kills a great stag alone; the crew feasts and rests two days on the shore.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      185,
+      209
+     ],
+     "summary": "Odysseus reports smoke rising inland; the crew casts lots, and Eurylochus leads half the men to investigate.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      210,
+      243
+     ],
+     "summary": "Circe lures Eurylochus's party into her house with drugged food and turns them into swine.",
+     "location": "Circe's house",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      244,
+      273
+     ],
+     "summary": "Terrified, Eurylochus alone returns and refuses to guide Odysseus back to Circe's house.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      274,
+      306
+     ],
+     "summary": "Hermes meets Odysseus, warns him of Circe's magic, and gives him the herb moly for protection.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      307,
+      347
+     ],
+     "summary": "Circe's drugs fail against Odysseus; he draws his sword, forces an oath of safety, and they become lovers.",
+     "location": "Circe's house",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      348,
+      375
+     ],
+     "summary": "Circe's maidens bathe and feast Odysseus, who sits joyless, grieving for his transformed comrades.",
+     "location": "Circe's house",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      376,
+      399
+     ],
+     "summary": "At Odysseus's demand, Circe restores the swine to men, younger and fairer than before.",
+     "location": "Circe's house",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      400,
+      445
+     ],
+     "summary": "Circe sends Odysseus to fetch the rest of the crew; despite Eurylochus's fear, they return to her house.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      446,
+      455
+     ],
+     "summary": "Circe kindly welcomes the remaining crew and has them bathed and fed.",
+     "location": "Circe's house",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      457,
+      468
+     ],
+     "summary": "Circe urges the still-despondent men to eat, drink, and recover their spirits.",
+     "location": "Circe's house",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      469,
+      495
+     ],
+     "summary": "The crew stays a full year feasting; when they ask to leave, Circe says Odysseus must first consult Teiresias.",
+     "location": "Circe's house",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      496,
+      540
+     ],
+     "summary": "Circe instructs the rites for summoning the dead: the trench, libations, and sacrifice of a ram and ewe.",
+     "location": "Circe's house",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      541,
+      560
+     ],
+     "summary": "As they prepare to leave, the young Elpenor, drunk, falls from Circe's roof and dies.",
+     "location": "Circe's house",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      561,
+      574
+     ],
+     "summary": "Circe sends the crew off with provisions and a fair wind toward the house of Hades.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    }
+   ]
+  },
+  {
+   "book": 11,
+   "argument": "Odysseus recounts summoning the dead at world's edge and consulting the seer Teiresias.",
+   "where": [
+    "the edge of Ocean, land of the Cimmerians",
+    "the palace of Alcinous (telling)"
+   ],
+   "who": [
+    "Odysseus",
+    "Teiresias",
+    "Anticleia",
+    "Agamemnon",
+    "Achilles",
+    "Ajax"
+   ],
+   "days": "34",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      50
+     ],
+     "summary": "The ship reaches the stream of Ocean and the Cimmerians' land of mist; the crew performs Circe's rites.",
+     "location": "the edge of Ocean",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      51,
+      83
+     ],
+     "summary": "Unburied Elpenor's shade appears first and begs Odysseus to return and give him proper burial.",
+     "location": "the edge of Ocean",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      84,
+      89
+     ],
+     "summary": "The shade of Odysseus's mother Anticleia appears, but he holds her back until he questions Teiresias.",
+     "location": "the edge of Ocean",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      90,
+      151
+     ],
+     "summary": "Teiresias foretells Poseidon's wrath, the peril of the Cattle of the Sun, the suitors' doom, and a gentle death.",
+     "location": "the edge of Ocean",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      152,
+      224
+     ],
+     "summary": "Anticleia describes affairs in Ithaca — Penelope's faithfulness, Telemachus, Laertes' grief — and her own death of longing.",
+     "location": "the edge of Ocean",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      225,
+      332
+     ],
+     "summary": "A procession of heroines' shades appears: Tyro, Antiope, Alcmena, Epicaste, Chloris, Leda, Phaedra, Ariadne, and others.",
+     "location": "the edge of Ocean",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      333,
+      353
+     ],
+     "summary": "The Phaeacians, moved by the tale, urge lavish gifts; Alcinous asks Odysseus to stay and tell more.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      354,
+      384
+     ],
+     "summary": "Odysseus answers Alcinous's request to stay; Alcinous then asks about the Trojan dead, and Odysseus agrees to continue his tale.",
+     "location": "the palace of Alcinous",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      385,
+      464
+     ],
+     "summary": "Agamemnon's shade recounts his murder by Aegisthus and Clytemnestra, and warns against trusting women.",
+     "location": "the edge of Ocean",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      465,
+      540
+     ],
+     "summary": "Achilles' shade says he would rather serve a poor man alive than rule the dead, but rejoices at his son.",
+     "location": "the edge of Ocean",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      541,
+      567
+     ],
+     "summary": "The still-resentful shade of Ajax refuses to speak, still angry over the contest for Achilles' arms.",
+     "location": "the edge of Ocean",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      568,
+      627
+     ],
+     "summary": "Odysseus sees Minos judging the dead, Orion hunting, and Tityus, Tantalus, and Sisyphus in eternal torment.",
+     "location": "the house of Hades",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      628,
+      635
+     ],
+     "summary": "The phantom of Heracles greets Odysseus and recounts his own hard labors.",
+     "location": "the house of Hades",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      636,
+      640
+     ],
+     "summary": "Fearing the Gorgon's head may rise, Odysseus retreats to his ship and sails from Hades.",
+     "location": "the edge of Ocean",
+     "dayNumber": 34
+    }
+   ]
+  },
+  {
+   "book": 12,
+   "argument": "Odysseus recounts the Sirens, Scylla and Charybdis, and the crew's slaughter of the Sun's cattle.",
+   "where": [
+    "the palace of Alcinous (telling)",
+    "Aeaea",
+    "the isle of the Sirens",
+    "the strait of Scylla and Charybdis",
+    "Thrinacia"
+   ],
+   "who": [
+    "Odysseus",
+    "Circe",
+    "Scylla",
+    "Charybdis",
+    "Eurylochus",
+    "Helios"
+   ],
+   "days": "34",
+   "scenes": [
+    {
+     "lines": [
+      1,
+      15
+     ],
+     "summary": "The crew returns to Circe's isle and gives Elpenor full burial rites, raising a mound and his oar.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      16,
+      27
+     ],
+     "summary": "Circe welcomes the crew, provisions the ship, and publicly tells them to eat and sail at dawn.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      28,
+      58
+     ],
+     "summary": "Circe describes the Sirens' song and instructs Odysseus to seal his men's ears and bind himself to the mast.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      59,
+      72
+     ],
+     "summary": "Circe warns of the Wandering Rocks, passable only once, by the Argo.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      73,
+      100
+     ],
+     "summary": "Circe describes Scylla's cave and her six heads, each seizing a sailor from passing ships.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      101,
+      126
+     ],
+     "summary": "Circe describes Charybdis's whirlpool and advises hugging Scylla's cliff, losing six men rather than the ship.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      127,
+      141
+     ],
+     "summary": "Circe warns that harming the Sun's sacred cattle on Thrinacia dooms both ship and crew.",
+     "location": "Aeaea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      142,
+      165
+     ],
+     "summary": "At dawn Circe departs; Odysseus tells his men only of the Sirens and prepares the wax and bindings.",
+     "location": "aboard ship",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      166,
+      200
+     ],
+     "summary": "Nearing the Sirens, the crew's ears are sealed and Odysseus is bound; the Sirens sing, and he begs release.",
+     "location": "the isle of the Sirens",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      201,
+      221
+     ],
+     "summary": "Past the Sirens, seeing smoke and surf ahead, Odysseus withholds Circe's warning and orders the men to row hard.",
+     "location": "at sea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      222,
+      259
+     ],
+     "summary": "Passing between Scylla and Charybdis, Scylla darts out and seizes six men, who cry out as she devours them.",
+     "location": "the strait of Scylla and Charybdis",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      260,
+      269
+     ],
+     "summary": "The survivors reach Thrinacia and hear the lowing of the Sun's cattle.",
+     "location": "Thrinacia",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      270,
+      303
+     ],
+     "summary": "Odysseus urges sailing past the island, but the exhausted crew, led by Eurylochus, forces a landing.",
+     "location": "Thrinacia",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      304,
+      333
+     ],
+     "summary": "A month-long storm traps them on the island; food runs low, and the men resort to hunting and fishing.",
+     "location": "Thrinacia",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      334,
+      373
+     ],
+     "summary": "While Odysseus sleeps, Eurylochus persuades the starving crew to slaughter the Sun's cattle.",
+     "location": "Thrinacia",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      374,
+      403
+     ],
+     "summary": "Helios demands vengeance from Zeus; the crew feasts on the cattle for days despite ominous portents.",
+     "location": "Thrinacia",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      404,
+      425
+     ],
+     "summary": "Setting sail, the ship is wrecked by Zeus's thunderbolt; all the crew drown but Odysseus.",
+     "location": "at sea",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      426,
+      446
+     ],
+     "summary": "Odysseus clings to a fig tree above Charybdis until the wreckage resurfaces, then rafts away.",
+     "location": "the strait of Scylla and Charybdis",
+     "dayNumber": 34
+    },
+    {
+     "lines": [
+      447,
+      453
+     ],
+     "summary": "Odysseus drifts nine days and reaches Ogygia, Calypso's island, where his tale began.",
+     "location": "Ogygia",
+     "dayNumber": 34
+    }
+   ]
+  }
+ ]
+}

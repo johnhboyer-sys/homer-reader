@@ -1,0 +1,940 @@
+---
+// The homepage: a monumental two-epic front door (docs/mocks-homepage-v1.5.html,
+// John: "better for now"; docs/DESIGN.md "Homepage hero — v1.5 state"). No
+// catalog cards — the corpus is exactly two works (SHELVES = one "The Epics"
+// shelf, per shared/lib/works.ts), so a shelf/card browser was always a
+// redundant middle step between the reader and a two-item list. This page IS
+// the front door: a hero panel per epic, three "ways in", and a factual
+// apparatus band.
+import { readFileSync } from 'node:fs';
+import { getWork, workPath, workLanding } from '@shared/lib/works';
+import ThemeInit from '../components/ThemeInit.astro';
+import ThemeToggle from '../components/ThemeToggle.astro';
+import Pwa from '../components/Pwa.astro';
+import DoorCards from '../components/DoorCards.astro';
+import CommandPalette from '@shared/components/CommandPalette.svelte';
+import { jsonLdSafe } from '../lib/jsonld';
+import '@shared/styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Home-page SEO + social card (absolute URLs need Astro.site, set in config).
+const homeDescription =
+  'Read Homer’s Iliad and Odyssey with the original Greek and a facing' +
+  ' English translation, side by side — with click-to-parse morphology,' +
+  ' dictionary lookup, vulgate line citation, and full-text search across the corpus.';
+const canonical = Astro.site ? new URL(`${base}/`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+
+const iliadWork = getWork('iliad');
+const odysseyWork = getWork('odyssey');
+const worksForLd = [iliadWork, odysseyWork].filter((w): w is NonNullable<typeof w> => Boolean(w));
+
+const structuredData = Astro.site
+  ? [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: 'The Homer Reader',
+        alternateName: 'Homer in Greek & English',
+        url: new URL(`${base}/`, Astro.site).href,
+        description: homeDescription,
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: 'The Iliad and the Odyssey',
+        numberOfItems: worksForLd.length,
+        itemListElement: worksForLd.map((w, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: w.title,
+          url: new URL(`${base}${workLanding(w.id)}/`, Astro.site).href,
+        })),
+      },
+    ]
+  : null;
+
+// ── Hero epigraphs + apparatus band, read straight off each book's own data
+// (not hardcoded copy) so they can never drift from the corpus: the Greek
+// line-1 text and the Book 1 scene/day apparatus. Minimal local shape — this
+// page only ever reads book-01.json for the two epics, so it doesn't need the
+// reader's full BookData/normalizeBookData machinery.
+interface HomeBook {
+  segments: { greek: { n: number; text: string }[] }[];
+  apparatus?: {
+    draft?: boolean;
+    day?: string;
+    scenes?: { lines: [number, number]; summary: string; location?: string }[];
+  };
+}
+const iliadBook1: HomeBook = JSON.parse(readFileSync('public/data/iliad/book-01.json', 'utf-8'));
+const odysseyBook1: HomeBook = JSON.parse(readFileSync('public/data/odyssey/book-01.json', 'utf-8'));
+const iliadGreekLine1 = iliadBook1.segments[0].greek[0].text;
+const odysseyGreekLine1 = odysseyBook1.segments[0].greek[0].text;
+
+const scene1 = iliadBook1.apparatus?.scenes?.[0];
+const sceneRef = scene1 ? `1.${scene1.lines[0]}–${scene1.lines[1]}` : '';
+const sceneLabel = scene1?.location ? scene1.location[0].toUpperCase() + scene1.location.slice(1) : '';
+const sceneSummary = scene1?.summary ?? '';
+const sceneDraft = iliadBook1.apparatus?.draft === true;
+
+const [dayStart, dayTotal] = (iliadBook1.apparatus?.day ?? '').split('-');
+const dayLabel = dayStart && dayTotal ? `Day ${dayStart} of ${dayTotal}` : '';
+
+// ── Routes. Every href below resolves to a real, working page in this build.
+const iliadBook1Href = `${base}${workPath('iliad', 1)}`;
+const odysseyBook1Href = `${base}${workPath('odyssey', 1)}`;
+const odyssey9ReadingHref = `${base}${workPath('odyssey', 9)}?mode=reading`;
+// `tour=parse` arms the one-time 5-step parse-popup walkthrough
+const iliadScholarHref = `${base}${workPath('iliad', 1)}?mode=scholar&tour=parse`;
+const startHref = `${base}/start/`;
+const aboutHref = `${base}/about`;
+const iliadLandingHref = `${base}${workLanding('iliad')}`;
+const odysseyLandingHref = `${base}${workLanding('odyssey')}`;
+const searchHref = `${base}/search`;
+const genealogiesHref = `${base}/genealogies/`;
+const mapsHref = `${base}/maps/`;
+const timelineHref = `${base}/timeline/`;
+const charactersHref = `${base}/characters/`;
+const placesHref = `${base}/places/`;
+const vocabularyHref = `${base}/vocabulary/`;
+const formulasHref = `${base}/formulas/`;
+const repetitionsHref = `${base}/repetitions/`;
+const attributionHref = `${base}/attribution`;
+const supportHref = `${base}/support`;
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- TODO: register this property in Google Search Console and add its
+       verification token here (a sibling reader's token was intentionally
+       removed from this file — it belongs to a different GSC property). -->
+  <ThemeInit />
+  <title>The Homer Reader — The Iliad &amp; Odyssey in Greek &amp; English</title>
+  <meta name="description" content={homeDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="The Homer Reader — The Iliad & Odyssey in Greek & English" />
+  <meta property="og:description" content={homeDescription} />
+  <meta property="og:site_name" content="The Homer Reader" />
+  {canonical && <meta property="og:url" content={canonical} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="The Homer Reader — The Iliad & Odyssey in Greek & English" />
+  <meta name="twitter:description" content={homeDescription} />
+  {ogImage && <meta name="twitter:image" content={ogImage} />}
+  {structuredData && structuredData.map((sd) => (
+    <script type="application/ld+json" set:html={jsonLdSafe(sd)} />
+  ))}
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <Pwa />
+</head>
+<body>
+  <CommandPalette client:load />
+  <h1 class="sr-only">The Homer Reader — The Iliad &amp; Odyssey in Greek &amp; English</h1>
+
+  <header class="masthead">
+    <div class="wrap masthead-inner">
+      <div class="wordmark">
+        The Homer Reader
+        <small>The Iliad &amp; Odyssey &middot; Greek and English</small>
+      </div>
+      <nav class="primary-nav" aria-label="Primary">
+        <a href={iliadLandingHref}>Iliad</a>
+        <a href={odysseyLandingHref}>Odyssey</a>
+        <a href={mapsHref}>Maps</a>
+        <a href={timelineHref}>Timeline</a>
+        <a href={charactersHref}>Characters</a>
+        <a href={placesHref}>Places</a>
+        <a href={genealogiesHref}>Genealogies</a>
+        <a href={vocabularyHref}>Vocabulary</a>
+        <a href={formulasHref}>Formulas</a>
+        <a href={repetitionsHref}>Repetitions</a>
+        <a href={searchHref}>Search</a>
+        <a href={aboutHref}>About</a>
+        <ThemeToggle />
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero" aria-label="The two epics">
+    <svg class="hero-horizon" viewBox="0 0 1400 900" preserveAspectRatio="none" aria-hidden="true">
+      <g class="horizon-drift-1"><path class="h1" d="M-20 760 C 220 700, 360 730, 520 660 S 780 560, 940 520 S 1180 420, 1420 300" /></g>
+      <g class="horizon-drift-2"><path class="h2" d="M-20 800 C 240 750, 380 790, 540 710 S 800 610, 960 575 S 1200 470, 1420 350" /></g>
+      <g class="horizon-drift-3"><g class="horizon-bob-3"><path class="h3" d="M-20 700 C 200 660, 340 660, 500 600 S 760 490, 920 450 S 1160 350, 1420 240" /></g></g>
+    </svg>
+
+    <div class="hero-grid">
+      <a class="epic-panel epic-iliad" href={iliadBook1Href} aria-label="Read the Iliad, beginning at Book 1">
+        <!-- watchfires on the plain, low in the Iliad panel (Il. 8.553-565) -->
+        <span class="fire fire-1" aria-hidden="true"></span>
+        <span class="fire fire-2" aria-hidden="true"></span>
+        <span class="fire fire-3" aria-hidden="true"></span>
+        <span class="fire fire-4" aria-hidden="true"></span>
+        <span class="fire fire-5" aria-hidden="true"></span>
+        <span class="fire fire-6" aria-hidden="true"></span>
+        <span class="fire fire-7" aria-hidden="true"></span>
+        <span class="epic-kicker">24 books &middot; the war&rsquo;s tenth year</span>
+        <h2 class="epic-title">The Iliad</h2>
+        <span class="epic-greek-sub" lang="grc">ΙΛΙΑΣ</span>
+        <p class="epic-epigraph">
+          <span class="gk">{iliadGreekLine1}</span>
+          <span class="gloss">Sing, goddess, the wrath of Peleus&rsquo; son Achilles</span>
+        </p>
+        <p class="epic-argument">The wrath of Achilles, and what it costs the Greeks outside the walls of Troy.</p>
+        <span class="epic-cta">Read Book 1 &rarr;</span>
+      </a>
+
+      <a class="epic-panel epic-odyssey" href={odysseyBook1Href} aria-label="Read the Odyssey, beginning at Book 1">
+        <!-- stars over the sea, high in the Odyssey panel -->
+        <span class="star star-1" aria-hidden="true"></span>
+        <span class="star star-2" aria-hidden="true"></span>
+        <span class="star star-3" aria-hidden="true"></span>
+        <span class="star star-4" aria-hidden="true"></span>
+        <span class="star star-5 dusk-hide" aria-hidden="true"></span>
+        <span class="star star-6 dusk-hide" aria-hidden="true"></span>
+        <span class="epic-kicker">24 books &middot; ten years&rsquo; wandering</span>
+        <h2 class="epic-title">The Odyssey</h2>
+        <span class="epic-greek-sub" lang="grc">ΟΔΥΣΣΕΙΑ</span>
+        <p class="epic-epigraph">
+          <span class="gk">{odysseyGreekLine1}</span>
+          <span class="gloss">Tell me, Muse, of the man of many turns, who wandered far</span>
+        </p>
+        <p class="epic-argument">The long way home &mdash; ten years, one man, and every disguise it took to survive it.</p>
+        <span class="epic-cta">Read Book 1 &rarr;</span>
+      </a>
+    </div>
+  </section>
+
+  <main class="wrap">
+
+    <DoorCards hrefs={[odyssey9ReadingHref, iliadScholarHref, mapsHref]} eyebrow="Three ways in" />
+
+    <section class="apparatus-section" aria-label="What this edition adds">
+      <p class="section-eyebrow">What the edition adds</p>
+      <div class="apparatus-grid">
+        <div class="app-item">
+          <h3>Scene by scene</h3>
+          <p>Every book broken into its scenes, with a one-line gloss for each.</p>
+          {scene1 && (
+            <div class="mini-scene-chip">
+              <span class="ref">{sceneRef}{sceneLabel && ` · ${sceneLabel}`}</span>
+              <p>{sceneSummary}</p>
+              {sceneDraft && <span class="draft-badge">Draft</span>}
+            </div>
+          )}
+        </div>
+        <div class="app-item">
+          <h3>The calendar</h3>
+          <p>Every book keyed to its day in the poem&rsquo;s own reckoning of time.</p>
+          {dayLabel && (
+            <div class="mini-day-marker">
+              <span class="pin" aria-hidden="true"></span>
+              <span class="label">{dayLabel}</span>
+            </div>
+          )}
+        </div>
+        <div class="app-item">
+          <h3>Maps, honestly marked</h3>
+          <p>Every place plotted; identifications graded by how sure the tradition is.</p>
+          <div class="mini-tier-legend">
+            <span class="item"><span class="mark certain" aria-hidden="true"></span>certain</span>
+            <span class="item"><span class="mark traditional" aria-hidden="true"></span>traditional</span>
+            <span class="item"><span class="mark speculative" aria-hidden="true"></span>speculative</span>
+            <span class="item"><span class="mark mythical" aria-hidden="true"></span>mythical</span>
+          </div>
+        </div>
+        <div class="app-item">
+          <h3>Two lexicons</h3>
+          <p>LSJ and Cunliffe, from any Greek word, without leaving the page.</p>
+          <div class="mini-lex-tabs">
+            <span class="active">LSJ</span>
+            <span>Cunliffe</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <span>Greek text: Perseus (CC BY-SA)</span>
+      <span class="footer-sep" aria-hidden="true">&middot;</span>
+      <span>Translations: public domain (Murray, Butler, Pope)</span>
+      <span class="footer-sep" aria-hidden="true">&middot;</span>
+      <a href={attributionHref}>Texts &amp; Licences</a>
+    </footer>
+    <nav class="home-foot">
+      <a href={startHref}>Start Here</a>
+      <span aria-hidden="true">&middot;</span>
+      <a href={aboutHref}>About</a>
+      <span aria-hidden="true">&middot;</span>
+      <a href={supportHref}>Support</a>
+      <span aria-hidden="true">&middot;</span>
+      <button id="feedback-btn">Request a Feature / Report an Error</button>
+    </nav>
+  </main>
+
+  <!-- Feedback modal -->
+  <div id="feedback-modal" role="dialog" aria-modal="true" aria-labelledby="fb-title" tabindex="-1">
+    <div class="fb-box">
+      <h2 id="fb-title">Request a Feature / Report an Error</h2>
+      <div class="fb-type">
+        <label><input type="radio" name="fb-type" value="feature" checked /> Feature request</label>
+        <label><input type="radio" name="fb-type" value="bug" /> Bug / error report</label>
+      </div>
+      <textarea id="fb-message" placeholder="Describe the feature or error…"></textarea>
+      <div class="fb-actions">
+        <button class="fb-cancel" id="fb-cancel">Cancel</button>
+        <button class="fb-submit" id="fb-submit">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* ================= layout shell ================= */
+    .wrap {
+      max-width: 76rem;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    /* The giant edge-anchored hero letters use small negative margins to hug
+       the true edge (see .epic-iliad/.epic-odyssey .epic-title below); this
+       keeps that from ever opening a horizontal scrollbar. */
+    body { overflow-x: hidden; max-width: 100%; }
+
+    /* ================= masthead (trimmed: hero carries the weight) ================= */
+    header.masthead {
+      border-bottom: 1px solid var(--rule-strong);
+      background: var(--page-bg);
+      position: relative;
+      z-index: 5;
+    }
+    .masthead-inner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem 1.5rem;
+      padding: 1rem clamp(1.25rem, 4vw, 2.5rem) 0.9rem;
+    }
+    .wordmark {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      letter-spacing: 0.02em;
+      font-weight: 400;
+      color: var(--text);
+    }
+    .wordmark small {
+      display: block;
+      font-family: var(--font-ui);
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-top: 0.15rem;
+    }
+    nav.primary-nav {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1.35rem;
+    }
+    nav.primary-nav a {
+      text-decoration: none;
+      font-size: 0.72rem;
+      color: var(--text-mid);
+      border-bottom: 1px solid transparent;
+      padding-bottom: 2px;
+    }
+    nav.primary-nav a:hover {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    @media (max-width: 480px) {
+      .wordmark { font-size: 1.15rem; }
+    }
+
+    /* ================= HERO — the one wine-dark, both-theme exception =================
+       The hero owns its own fixed palette in both themes (not the ordinary var()
+       swap): --hero-ink/-ink-soft/-accent/-accent-bright/-rule/-rule-strong/-focus
+       freeze at the WINE-DARK DARK-THEME hex (docs/DESIGN.md's LOCKED table), the
+       same pattern the original hero design used against the Aegean palette, just
+       re-based on the current locked palette so the hero and the re-skinned rest
+       of the page read as one system rather than two different accent hues.
+       Only the ground gradient and the ambient point-fields move with theme
+       (DUSK = light default, DEEP NIGHT = dark) — on-hero text contrast never
+       changes between themes. */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      --hero-ink: #EDE6E8;
+      --hero-ink-soft: #B7A9B4;
+      --hero-accent: #D98BA3;
+      --hero-accent-bright: #E8A6BA;
+      --hero-rule: #3A2C38;
+      --hero-rule-strong: #C77E97;
+      --hero-focus: #E8A6BA;
+      color: var(--hero-ink);
+      /* DUSK — default posture. --hero-bg-mid is a pre-mixed OPAQUE hex (navy warmed
+         toward a dusty violet), not an alpha color — an alpha stop here would
+         interpolate its alpha channel too and let the page's own (light) body
+         background bleed through the hero at that seam, reading as a harsh bright
+         streak. Opaque avoids that entirely. */
+      --hero-bg-1: #141B30;
+      --hero-bg-2: #1B2743;
+      --hero-bg-3: #262F52;
+      --hero-bg-mid: #333248;
+      --hero-point-mult: 0.55;
+      --hero-fire-scale: 0.72;
+      background: linear-gradient(158deg, var(--hero-bg-1) 0%, var(--hero-bg-2) 42%, var(--hero-bg-mid) 50%, var(--hero-bg-2) 58%, var(--hero-bg-3) 100%);
+    }
+    .hero .dusk-hide { display: none; }
+    @media (prefers-color-scheme: dark) {
+      .hero {
+        --hero-bg-1: #0B1526;
+        --hero-bg-2: #101E33;
+        --hero-bg-3: #172846;
+        --hero-bg-mid: var(--hero-bg-2);
+        --hero-point-mult: 1;
+        --hero-fire-scale: 1;
+      }
+      .hero .dusk-hide { display: inline; }
+    }
+    :root[data-theme="dark"] .hero {
+      --hero-bg-1: #0B1526;
+      --hero-bg-2: #101E33;
+      --hero-bg-3: #172846;
+      --hero-bg-mid: var(--hero-bg-2);
+      --hero-point-mult: 1;
+      --hero-fire-scale: 1;
+    }
+    :root[data-theme="dark"] .hero .dusk-hide { display: inline; }
+    :root[data-theme="light"] .hero {
+      --hero-bg-1: #141B30;
+      --hero-bg-2: #1B2743;
+      --hero-bg-3: #262F52;
+      --hero-bg-mid: #333248;
+      --hero-point-mult: 0.55;
+      --hero-fire-scale: 0.72;
+    }
+    :root[data-theme="light"] .hero .dusk-hide { display: none; }
+
+    .hero::before {
+      /* diffuse ember wash, low-left, under Iliad — siege/pyre, barely there (static;
+         the discrete .fire points below carry the flicker so this doesn't compete) */
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 62% 52% at 12% 100%, rgba(218,132,50,0.40), transparent 74%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero::after {
+      /* moonlight-on-water glint — sea/Odyssey side only, drifting very slowly */
+      content: "";
+      position: absolute;
+      /* Left edge sits AT the 50% panel divider, and the mask fades the
+         overlay's left flank so its boundary can never render as a hard
+         vertical seam over the Iliad panel (John, 2026-07-18 — visible after
+         the 50/50 rebalance moved the divider left of the old 40% clip). */
+      inset: -8% -12% -8% 50%;
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 18%);
+      mask-image: linear-gradient(to right, transparent 0, #000 18%);
+      background: linear-gradient(
+        158deg,
+        transparent 40%,
+        rgba(237,230,214,0.04) 47%,
+        rgba(224,184,118,0.055) 50%,
+        rgba(237,230,214,0.04) 53%,
+        transparent 60%
+      );
+      pointer-events: none;
+      z-index: 1;
+      will-change: transform;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .hero::after { animation: moonlight-drift 130s ease-in-out infinite alternate; }
+    }
+    @keyframes moonlight-drift {
+      from { transform: translateX(-0.8vw); }
+      to   { transform: translateX(0.8vw); }
+    }
+
+    /* ---- watchfires: Iliad side, low on the plain, warm, slightly irregular
+       flicker (Il. 8.553-565 — the Trojan watchfires, "as many as the stars" —
+       same vocabulary as the stars below, warm and grounded instead of cool
+       and high) ---- */
+    .fire {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      transform: scale(var(--hero-fire-scale, 1));
+      box-shadow: 0 0 14px 4px rgba(224,140,54,0.55), 0 0 4px 1px rgba(255,190,110,0.8);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .fire { animation: flicker var(--dur, 22s) ease-in-out infinite; animation-delay: var(--delay, 0s); }
+    }
+    @keyframes flicker {
+      0%, 100% { opacity: calc(var(--base, 0.55) * var(--hero-point-mult, 1)); }
+      22%      { opacity: calc((var(--base, 0.55) + 0.12) * var(--hero-point-mult, 1)); }
+      46%      { opacity: calc(var(--base, 0.55) * var(--hero-point-mult, 1)); }
+      68%      { opacity: calc(var(--peak, 0.9) * var(--hero-point-mult, 1)); }
+      85%      { opacity: calc((var(--base, 0.55) + 0.15) * var(--hero-point-mult, 1)); }
+    }
+    .fire-1 { left: 6%;  bottom: 7%; width: 5.5px; height: 5.5px; background: var(--hero-accent-bright); --dur: 19s; --delay: -3.2s;  }
+    .fire-2 { left: 16%; bottom: 4%; width: 4.5px; height: 4.5px; background: rgba(210,140,80,0.95);     --dur: 26s; --delay: -9.5s;  }
+    .fire-3 { left: 27%; bottom: 10%; width: 5px; height: 5px;   background: var(--hero-accent);        --dur: 17s; --delay: -1.4s;  }
+    .fire-4 { left: 39%; bottom: 5%; width: 4px; height: 4px; background: var(--hero-accent-bright);    --dur: 31s; --delay: -14s;   }
+    .fire-5 { left: 52%; bottom: 9%; width: 4.8px; height: 4.8px; background: rgba(210,140,80,0.95);    --dur: 22s; --delay: -6.8s;  }
+    .fire-6 { left: 66%; bottom: 6%; width: 4.2px; height: 4.2px; background: var(--hero-accent);       --dur: 28s; --delay: -11.2s; }
+    .fire-7 { left: 78%; bottom: 11%; width: 3.8px; height: 3.8px; background: var(--hero-accent-bright); --dur: 34s; --delay: -18s; }
+
+    /* ---- stars: Odyssey side, high above the seam, cool bone-silver, sparse ---- */
+    .star {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      box-shadow: 0 0 10px 2.5px rgba(220,235,255,0.45), 0 0 3px 1px rgba(255,255,255,0.7);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .star { animation: twinkle var(--dur, 18s) ease-in-out infinite; animation-delay: var(--delay, 0s); }
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: calc(var(--base, 0.45) * var(--hero-point-mult, 1)); }
+      50%      { opacity: calc(var(--peak, 0.9) * var(--hero-point-mult, 1)); }
+    }
+    .star-1 { left: 18%; top: 8%; width: 3.8px; height: 3.8px; background: var(--hero-ink);      --dur: 17s; --delay: -4.4s;  }
+    .star-2 { left: 36%; top: 14%;  width: 2.2px; height: 2.2px; background: var(--hero-ink-soft); --dur: 24s; --delay: -10s;   }
+    .star-3 { left: 55%; top: 6%; width: 4.2px; height: 4.2px; background: var(--hero-ink);      --dur: 14s; --delay: -2s;    }
+    .star-4 { left: 72%; top: 16%; width: 2.2px; height: 2.2px; background: var(--hero-ink-soft); --dur: 21s; --delay: -8.6s;  }
+    .star-5 { left: 88%; top: 9%; width: 2.4px; height: 2.4px; background: var(--hero-ink);      --dur: 19s; --delay: -6.1s;  }
+    .star-6 { left: 46%; top: 24%;  width: 2px; height: 2px; background: var(--hero-ink-soft); --dur: 27s; --delay: -13s;   }
+
+    .hero-horizon {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .hero-horizon path {
+      fill: none;
+      stroke-width: 1.4;
+    }
+    .hero-horizon path.h1 { stroke: var(--hero-rule-strong); opacity: 0.55; }
+    .hero-horizon path.h2 { stroke: var(--hero-rule); opacity: 0.4; }
+    .hero-horizon path.h3 { stroke: var(--hero-accent); opacity: 0.32; }
+    @media (max-width: 899.98px) {
+      /* The horizon curves are composed for the side-by-side dusk panorama;
+         preserveAspectRatio="none" stretches them over the tall stacked-panel
+         hero into steep streaks that read as rendering artifacts (John,
+         2026-07-18) — hide them where the panels stack. */
+      .hero-horizon { display: none; }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .hero-horizon path {
+        stroke-dasharray: 2000;
+        stroke-dashoffset: 2000;
+        animation: draw-in 1.6s ease-out forwards;
+      }
+      .hero-horizon path.h2 { animation-delay: 0.12s; }
+      .hero-horizon path.h3 { animation-delay: 0.24s; }
+      /* ambient drift — each stroke its own period/direction so they breathe against
+         each other; every loop is 0%/100%-symmetric so there is never a visible reset */
+      .horizon-drift-1 { animation: drift-h1 130s ease-in-out infinite; will-change: transform; }
+      .horizon-drift-2 { animation: drift-h2 95s ease-in-out infinite; will-change: transform; }
+      .horizon-drift-3 { animation: drift-h3 150s ease-in-out infinite; will-change: transform; }
+      .horizon-bob-3   { animation: bob-h3 50s ease-in-out infinite; }
+    }
+    @keyframes draw-in {
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes drift-h1 {
+      0%, 100% { transform: translateX(0); }
+      50%      { transform: translateX(4px); }
+    }
+    @keyframes drift-h2 {
+      0%, 100% { transform: translateX(0); }
+      50%      { transform: translateX(-5px); }
+    }
+    @keyframes drift-h3 {
+      0%, 100% { transform: translateX(0); }
+      50%      { transform: translateX(7px); }
+    }
+    @keyframes bob-h3 {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(1.5px); }
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: min(84vh, 46rem);
+    }
+    @media (max-width: 899.98px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        min-height: 0;
+      }
+    }
+
+    .epic-panel {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.55rem;
+      padding: clamp(2.25rem, 6vw, 4.5rem) clamp(1.25rem, 4.5vw, 3.75rem);
+      text-decoration: none;
+      color: inherit;
+      overflow: hidden;
+    }
+    .epic-panel:hover .epic-cta { color: var(--hero-accent-bright); border-top-color: var(--hero-accent-bright); }
+    .epic-panel:hover .epic-title { color: #F5EFE2; }
+    .epic-panel:focus-visible {
+      outline: 2.5px solid var(--hero-focus);
+      outline-offset: -3px;
+    }
+
+    .epic-iliad {
+      align-items: flex-start;
+      text-align: left;
+      border-right: 1px solid rgba(36,53,76,0.55);
+      background:
+        radial-gradient(ellipse 80% 55% at 22% 100%, rgba(214,120,44,0.38), transparent 70%),
+        linear-gradient(170deg, rgba(120,60,26,0.10) 0%, rgba(160,80,32,0.22) 78%, rgba(190,100,40,0.28) 100%);
+    }
+    @media (max-width: 899.98px) {
+      .epic-iliad { border-right: none; border-bottom: 1px solid rgba(36,53,76,0.55); padding-bottom: 2.5rem; }
+    }
+    .epic-odyssey {
+      align-items: flex-end;
+      text-align: right;
+      padding-top: clamp(3.5rem, 9vw, 6.5rem);
+      background:
+        radial-gradient(ellipse 85% 60% at 84% 0%, rgba(140,190,240,0.22), transparent 72%),
+        linear-gradient(350deg, rgba(30,60,110,0.10) 0%, rgba(70,120,190,0.16) 80%, rgba(120,170,230,0.18) 100%);
+    }
+    @media (max-width: 899.98px) {
+      .epic-odyssey { align-items: flex-start; text-align: left; padding-top: 2.5rem; }
+    }
+
+    .epic-kicker {
+      font-family: var(--font-ui);
+      font-size: 0.66rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--hero-accent);
+    }
+    .epic-title {
+      font-family: var(--font-display);
+      font-weight: 400;
+      line-height: 0.85;
+      letter-spacing: 0.01em;
+      color: var(--hero-ink);
+      margin: 0.15rem 0 0;
+    }
+    /* Title hierarchy flipped (John, 2026-07-18 evening): "ENGLISH BIG,
+       Greek underneath, smaller" — the English title is the display
+       headline now; the Greek becomes the sub-line. Shared size for both
+       panels; "The Odyssey", the wider title, fits its half-column at every
+       2-col viewport. */
+    .epic-title { font-size: clamp(2.3rem, 5.2vw, 5.6rem); }
+    .epic-iliad .epic-title { margin-left: -0.05rem; }
+    .epic-odyssey .epic-title { margin-right: -0.04rem; }
+    .epic-greek-sub {
+      display: block;
+      font-family: var(--font-greek);
+      font-size: clamp(1.05rem, 2vw, 1.9rem);
+      letter-spacing: 0.14em;
+      color: var(--hero-accent-bright);
+      margin-top: 0.4rem;
+    }
+    .epic-epigraph {
+      margin: 0.9rem 0 0;
+      width: 100%;
+      max-width: 30rem;
+    }
+    .epic-epigraph .gk {
+      display: block;
+      font-family: var(--font-greek);
+      font-size: 1.05rem;
+      color: var(--hero-ink);
+    }
+    .epic-epigraph .gloss {
+      display: block;
+      font-family: var(--font-english);
+      font-style: italic;
+      font-size: 0.82rem;
+      color: var(--hero-ink-soft);
+      margin-top: 0.2rem;
+    }
+    .epic-argument {
+      margin: 0.75rem 0 0;
+      width: 100%;
+      max-width: 30rem;
+      font-family: var(--font-english);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--hero-ink-soft);
+    }
+    .epic-cta {
+      display: inline-block;
+      margin-top: 1.1rem;
+      padding-top: 0.55rem;
+      border-top: 1px solid var(--hero-rule-strong);
+      font-family: var(--font-ui);
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--hero-accent);
+    }
+
+    /* ================= THREE DOORS ================= */
+    .section-eyebrow {
+      font-family: var(--font-ui);
+      font-size: 0.64rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      margin: 0 0 1rem;
+    }
+    /* Door-card styles moved into the shared DoorCards.astro component (#10). */
+
+    /* ================= APPARATUS BAND ================= */
+    .apparatus-section {
+      border-top: 1px solid var(--border);
+      padding: 3rem 0 3.25rem;
+    }
+    .apparatus-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.75rem;
+    }
+    @media (max-width: 900px) {
+      .apparatus-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 520px) {
+      .apparatus-grid { grid-template-columns: 1fr; }
+    }
+    .app-item h3 {
+      margin: 0 0 0.55rem;
+      font-family: var(--font-ui);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+    }
+    .app-item p {
+      margin: 0;
+      font-family: var(--font-english);
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: var(--text);
+    }
+
+    .mini-scene-chip {
+      margin-top: 0.75rem;
+      padding: 0.6rem 0.7rem 0.65rem;
+      background: var(--col-bg);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--accent);
+    }
+    .mini-scene-chip .ref {
+      font-family: var(--font-ui);
+      font-size: 0.62rem;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    .mini-scene-chip p {
+      font-size: 0.78rem;
+      font-style: italic;
+      color: var(--text-mid);
+      line-height: 1.45;
+    }
+
+    .mini-day-marker {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+    }
+    .mini-day-marker .pin {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      flex: none;
+    }
+    .mini-day-marker span.label {
+      font-family: var(--font-ui);
+      font-size: 0.66rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .mini-tier-legend {
+      margin-top: 0.8rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem 0.9rem;
+      font-family: var(--font-ui);
+      font-size: 0.6rem;
+      color: var(--text-mid);
+    }
+    .mini-tier-legend .item { display: flex; align-items: center; gap: 0.32rem; }
+    .mini-tier-legend .mark { width: 8px; height: 8px; flex: none; }
+    .mini-tier-legend .mark.certain { border-radius: 50%; background: var(--text); }
+    .mini-tier-legend .mark.traditional { border-radius: 50%; border: 1.3px solid var(--text); background: transparent; }
+    .mini-tier-legend .mark.speculative { border-radius: 50%; border: 1.3px dashed var(--text-mid); background: transparent; }
+    .mini-tier-legend .mark.mythical { border: 1.3px solid var(--text-mid); transform: rotate(45deg); width: 6.5px; height: 6.5px; }
+
+    .mini-lex-tabs {
+      margin-top: 0.75rem;
+      display: flex;
+      gap: 0.8rem;
+      font-family: var(--font-ui);
+      font-size: 0.64rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .mini-lex-tabs span { color: var(--text-mid); border-bottom: 1px solid var(--border); padding-bottom: 2px; }
+    .mini-lex-tabs span.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* ================= FOOTER ================= */
+    .home-foot {
+      margin-top: 0.9rem;
+      text-align: center;
+      font-family: var(--font-ui);
+      font-size: 0.78rem;
+      color: var(--text-mid);
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 0.5rem 0.7rem;
+      padding-bottom: 2.5rem;
+    }
+    .home-foot a { color: var(--text-mid); text-decoration: none; }
+    .home-foot a:hover { color: var(--accent); }
+    .home-foot button {
+      background: none; border: none; padding: 0; cursor: pointer;
+      font: inherit; font-size: 0.78rem; color: var(--text-mid);
+    }
+    .home-foot button:hover { color: var(--accent); }
+
+    /* Feedback modal (unchanged mechanism, kept from the prior homepage — no
+       other page hosts a bug/feature-report entry point). */
+    #feedback-modal {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,.45); align-items: center; justify-content: center;
+    }
+    #feedback-modal.open { display: flex; }
+    .fb-box {
+      background: var(--page-bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 1.75rem 2rem; width: min(440px, 90vw);
+      font-family: var(--font-ui); box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    }
+    .fb-box h2 {
+      margin: 0 0 1.1rem; font-size: 1rem; font-weight: 600; color: var(--text);
+    }
+    .fb-type { display: flex; gap: 1.25rem; margin-bottom: 1rem; }
+    .fb-type label { display: flex; align-items: center; gap: .4rem; cursor: pointer;
+      font-size: .875rem; color: var(--text); }
+    .fb-box textarea {
+      width: 100%; box-sizing: border-box; min-height: 110px; resize: vertical;
+      border: 1px solid var(--border); border-radius: 4px; padding: .6rem .75rem;
+      font-family: var(--font-ui); font-size: .875rem;
+      background: var(--page-bg); color: var(--text);
+    }
+    .fb-box textarea:focus { outline: 2px solid var(--accent); border-color: transparent; }
+    .fb-actions { display: flex; justify-content: flex-end; gap: .6rem; margin-top: .9rem; }
+    .fb-cancel {
+      background: none; border: 1px solid var(--border); border-radius: 4px;
+      padding: .4rem .9rem; cursor: pointer; font: inherit; font-size: .85rem;
+      color: var(--text-mid);
+    }
+    .fb-cancel:hover { border-color: var(--text-mid); }
+    .fb-submit {
+      background: var(--accent); color: var(--on-accent); border: none; border-radius: 4px;
+      padding: .4rem 1rem; cursor: pointer; font: inherit; font-size: .85rem;
+      font-weight: 600;
+    }
+    .fb-submit:hover { opacity: .88; }
+    .fb-submit:disabled { opacity: .45; cursor: default; }
+  </style>
+
+  <script>
+    const modal = document.getElementById('feedback-modal')!;
+    const openBtn = document.getElementById('feedback-btn')!;
+    const cancelBtn = document.getElementById('fb-cancel')!;
+    const submitBtn = document.getElementById('fb-submit')!;
+    const textarea = document.getElementById('fb-message') as HTMLTextAreaElement;
+    let feedbackTrigger: HTMLElement | null = null;
+
+    const open = (e?: Event) => {
+      feedbackTrigger = e?.currentTarget instanceof HTMLElement ? e.currentTarget : null;
+      modal.classList.add('open');
+      textarea.value = '';
+      textarea.focus();
+    };
+    const close = () => {
+      modal.classList.remove('open');
+      feedbackTrigger?.focus();
+      feedbackTrigger = null;
+    };
+
+    openBtn.addEventListener('click', open);
+    cancelBtn.addEventListener('click', close);
+    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+    document.addEventListener('keydown', (e) => {
+      if (!modal.classList.contains('open')) return;
+      if (e.key === 'Escape') {
+        close();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const els = Array.from(modal.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1);
+      if (els.length === 0) {
+        e.preventDefault();
+        modal.focus();
+        return;
+      }
+      const first = els[0];
+      const last = els[els.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    submitBtn.addEventListener('click', () => {
+      const msg = textarea.value.trim();
+      if (!msg) return;
+      const type = (document.querySelector('input[name="fb-type"]:checked') as HTMLInputElement).value;
+      const subject = type === 'feature'
+        ? 'Homer Reader: Feature Request'
+        : 'Homer Reader: Bug Report';
+      window.location.href =
+        `mailto:jhboyer@loyno.edu?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}`;
+      close();
+    });
+  </script>
+</body>
+</html>

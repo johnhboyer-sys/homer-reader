@@ -1,0 +1,485 @@
+---
+// The four Landmark-style family trees (House of Atreus, House of Aeacus,
+// House of Troy/Dardanids, the Olympians), rendered entirely from
+// apparatus/characters.json's `genealogy` field — build-time only, never
+// fetched at runtime (the whole corpus is 100 characters; there's nothing to
+// lazily load). Not a ReaderShell page: this is an apparatus/reference page
+// like /attribution or /search, so it follows their simple-header + <main>
+// pattern instead.
+//
+// Data flow: readFileSync the raw apparatus file (same posture as
+// index.astro's/Landing.astro's build-time readFileSync of public/data/*;
+// apparatus/ isn't copied into public/data, so this reads the source
+// directly — no pipeline stage produces or duplicates it), then
+// shared/lib/genealogy's buildGenealogyTree + layoutGenealogyTree (pure,
+// tested) turn the flat list into each tree's forest and a 2-D chart layout.
+// GenNode.astro renders the forest recursively as the accessible / mobile list.
+import { readFileSync } from 'node:fs';
+import ThemeInit from '../../components/ThemeInit.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import Pwa from '../../components/Pwa.astro';
+import GenNode from '../../components/GenNode.astro';
+import { jsonLdSafe } from '../../lib/jsonld';
+import {
+  buildGenealogyTree,
+  layoutGenealogyTree,
+  type CharacterRecord,
+} from '@shared/lib/genealogy';
+import '@shared/styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+interface CharactersFile {
+  status: 'draft' | 'reviewed';
+  characters: CharacterRecord[];
+}
+const raw: CharactersFile = JSON.parse(readFileSync('../apparatus/characters.json', 'utf-8'));
+const isDraft = raw.status === 'draft';
+
+const TREES = [
+  { id: 'atreus', label: 'House of Atreus' },
+  { id: 'aeacus', label: 'House of Aeacus' },
+  { id: 'troy', label: 'House of Troy (Dardanids)' },
+  { id: 'olympians', label: 'The Olympians' },
+] as const;
+
+const trees = TREES.map((t) => {
+  const roots = buildGenealogyTree(raw.characters, t.id);
+  const layout = layoutGenealogyTree(roots);
+  return { ...t, roots, layout };
+});
+
+const pageTitle = 'Genealogies — The Homer Reader';
+const metaDescription =
+  'The four family trees of the Iliad and Odyssey: the House of Atreus, the House of Aeacus, ' +
+  'the House of Troy, and the Olympian gods — with links from later tradition (not Homer) honestly marked.';
+const canonical = Astro.site ? new URL(`${base}/genealogies/`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: pageTitle,
+  description: metaDescription,
+  ...(canonical ? { url: canonical } : {}),
+  isPartOf: { '@type': 'WebSite', name: 'The Homer Reader' },
+};
+
+/** Orthogonal family-tree path: stem down from parent, across the sibling bar, drop to child. */
+function connectorPath(c: {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  barY: number;
+}): string {
+  return `M ${c.x1} ${c.y1} V ${c.barY} H ${c.x2} V ${c.y2}`;
+}
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  <meta property="og:site_name" content="The Homer Reader" />
+  {canonical && <meta property="og:url" content={canonical} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={metaDescription} />
+  {ogImage && <meta name="twitter:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(jsonLd)} />
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <style>
+    body { overflow-x: hidden; max-width: 100%; }
+
+    .gen-body {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4.5rem;
+      font-family: var(--font-english);
+      color: var(--text);
+    }
+    h1 {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 1.9rem;
+      margin-bottom: 0.6rem;
+    }
+    .gen-intro {
+      max-width: 42rem;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--text-mid);
+      margin-bottom: 1.5rem;
+    }
+
+    .gen-jump {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem 1.15rem;
+      margin-bottom: 1.4rem;
+      font-family: var(--font-ui);
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .gen-jump a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      padding-bottom: 1px;
+    }
+    .gen-jump a:hover { border-bottom-color: var(--accent); }
+    .gen-jump a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .gen-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.35rem;
+      margin-bottom: 2.25rem;
+      padding: 0.6rem 0.85rem;
+      border: 1px solid var(--border);
+      font-family: var(--font-ui);
+      font-size: 0.66rem;
+      color: var(--text-mid);
+    }
+    .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+    .legend-swatch { display: inline-block; width: 18px; border-top: 1.5px solid var(--text-mid); }
+    .legend-swatch.dashed { border-top-style: dashed; border-top-color: var(--accent); }
+    .legend-swatch.muted { border-top-style: dotted; opacity: 0.7; }
+    /* Decorative "+" glyph, not a line -- no border-top swatch. */
+    .legend-swatch.tie { width: auto; border-top: none; font-weight: 700; color: var(--text-mid); }
+    /* Describes the mobile chart's spouse-pairing convention only; that
+       chart doesn't exist above the ~700px breakpoint (see .mtree below). */
+    .legend-mobile-only { display: none; }
+
+    .gen-tree {
+      margin: 2.75rem 0;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--border);
+      scroll-margin-top: 1rem;
+    }
+    .gen-tree h2 {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 1.35rem;
+      margin-bottom: 1.1rem;
+      color: var(--text);
+    }
+
+    /* Chart-Room discipline: wide trees (Troy: 22 members) scroll inside
+       their own container, never the page. */
+    .gen-scroll {
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+      max-width: 100%;
+    }
+    .gen-scroll:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Positioned tree chart: SVG edges under absolutely-placed labels. */
+    .gen-chart {
+      position: relative;
+      margin: 0;
+      /* Avoid inheriting list min-width quirks inside the scrollport. */
+      min-width: 0;
+    }
+    .gen-edges {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+    }
+    .gen-edge {
+      fill: none;
+      stroke: var(--text-mid);
+      stroke-width: 1.5;
+      stroke-linecap: square;
+      stroke-linejoin: miter;
+    }
+    .gen-edge.dashed {
+      stroke: var(--accent);
+      stroke-dasharray: 5 3.5;
+    }
+
+    /* Label card at each laid-out person node. */
+    .gen-placed {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.12rem;
+      padding: 0.32rem 0.4rem;
+      border: 1px solid var(--border);
+      background: var(--col-bg);
+      box-sizing: border-box;
+      text-align: center;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .gen-placed .gen-name {
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: 0.72rem;
+      line-height: 1.2;
+      color: var(--text);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .gen-placed .gen-greek {
+      font-family: var(--font-greek);
+      font-size: 0.74rem;
+      line-height: 1.2;
+      color: var(--text-mid);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Accessible / mobile list: full parentage chips + roles. */
+    ul.gen-roots, ul.gen-children { list-style: none; margin: 0; padding: 0; }
+    ul.gen-roots {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    ul.gen-children {
+      margin: 0.65rem 0 0 1.4rem;
+      padding-left: 1.1rem;
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .gen-list .gen-card {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 0.18rem;
+      padding: 0.42rem 0.7rem;
+      border: 1px solid var(--border);
+      background: var(--col-bg);
+      min-width: 9rem;
+    }
+    .gen-list .gen-name { font-family: var(--font-ui); font-weight: 600; font-size: 0.82rem; color: var(--text); }
+    .gen-list .gen-greek { font-family: var(--font-greek); font-size: 0.86rem; color: var(--text-mid); }
+    .gen-role {
+      font-family: var(--font-english);
+      font-style: italic;
+      font-size: 0.72rem;
+      line-height: 1.4;
+      color: var(--text-mid);
+      max-width: 22rem;
+    }
+
+    .gen-parentage { margin-top: 0.35rem; display: flex; flex-wrap: wrap; gap: 0.32rem; }
+    .parent-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.22rem;
+      font-family: var(--font-ui);
+      font-size: 0.62rem;
+      letter-spacing: 0.02em;
+      padding: 0.06em 0.42em;
+      border: 1px solid var(--text-mid);
+      border-radius: 2px;
+      color: var(--text-mid);
+      white-space: nowrap;
+    }
+    .parent-chip .parent-key { font-variant-caps: small-caps; font-weight: 700; }
+    /* Honesty rendering: nonHomeric links are dashed + carry a title
+       annotation (screen-reader text is inline in the markup too). */
+    .parent-chip.non-homeric {
+      border-style: dashed;
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    /* External-string parents (not a character id in the file): muted,
+       terminal — never invented data beyond the humanized raw id. */
+    .parent-chip.external {
+      border-style: dotted;
+      color: var(--text-light);
+      font-style: italic;
+      opacity: 0.85;
+    }
+    .parent-chip.external.non-homeric { border-style: dashed; }
+
+    /* Mobile "indented descent chart" (< ~700px, see media query below):
+       vertical-only tree, full container width, nested <ul>s draw the
+       branch structure with real connector rules instead of pixel math --
+       the sibling-spread the desktop tidy-tree needs (Priam alone has 8
+       children) is exactly what makes horizontal panning unworkable on a
+       phone. aria-hidden (see index markup); .gen-list-fallback below is
+       AT's source at every viewport, so these cards are intentionally not
+       focusable -- see GenNode.astro's header comment.
+       Only the wrapper below is rendered by THIS file -- Astro's scoped
+       CSS only tags elements the declaring file itself renders, so the
+       per-node/per-connector rules (.mtree-item, .mtree-card, etc.) live in
+       GenNode.astro, which is what actually renders that markup (recursive
+       <Astro.self> calls all share GenNode's one scope, so this works at
+       every depth). Putting them here would silently no-op, exactly like
+       the pre-existing .gen-list/.gen-card rules below already do against
+       GenNode's list-variant markup (latent, harmless only because that
+       list has always been sr-only -- flagged, not fixed here: out of this
+       task's blast radius). */
+    .mtree { display: none; }
+    ul.mtree-roots {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+    }
+
+    /*
+      Desktop / tablet: SVG chart is the visual tree; list is the accessible
+      fallback (sr-only). Below ~700px the tidy-tree's sibling spread forces
+      awkward horizontal panning (measured: Troy's chart is 1664px wide,
+      Olympians' 1868px, against a 375px phone viewport) -- worse, Priam's
+      row of 8 children and Zeus's row of 9 can't even fit their own single
+      generation on a small screen, so no viewport-width choice fixes it;
+      only a genuinely different (vertical) layout does. The mobile chart
+      above replaces it there instead. List stays sr-only at every width;
+      explicit, styled choice so 375px never causes page-level scroll.
+    */
+    .gen-list-fallback {
+      /* match .sr-only on wide viewports */
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.55rem; }
+    }
+
+    @media (max-width: 700px) {
+      .gen-scroll { display: none; }
+      .mtree { display: block; max-width: 100%; }
+      .legend-mobile-only { display: flex; }
+    }
+  </style>
+  <Pwa />
+</head>
+<body>
+  <SiteHeader section="Genealogies" />
+
+  <main class="gen-body">
+    <h1>
+      Genealogies
+      {isDraft && <span class="draft-badge" title="AI-drafted apparatus, pending review">Draft</span>}
+    </h1>
+    <p class="gen-intro">
+      The four family lines that structure the poems: the House of Atreus (Agamemnon and
+      Menelaus), the House of Aeacus (Achilles), the House of Troy (Priam and the Dardanid
+      kings), and the Olympian gods. Every member below comes from this edition&rsquo;s
+      character apparatus; dashed connectors are identifications the Homeric poems
+      themselves don&rsquo;t make &mdash; links added by later tradition.
+    </p>
+
+    <nav class="gen-jump" aria-label="Jump to a tree">
+      {trees.map((t) => <a href={`#${t.id}`}>{t.label}</a>)}
+    </nav>
+
+    <div class="gen-legend">
+      <span class="legend-item"><span class="legend-swatch" aria-hidden="true"></span>connector: attested in Homer</span>
+      <span class="legend-item"><span class="legend-swatch dashed" aria-hidden="true"></span>connector: later tradition, not Homer</span>
+      <span class="legend-item"><span class="legend-swatch muted" aria-hidden="true"></span>chip: named, not a character in this edition</span>
+      <span class="legend-item legend-mobile-only"><span class="legend-swatch tie" aria-hidden="true">+</span>linked card: spouse/partner (dotted = not a character in this edition)</span>
+    </div>
+
+    {trees.map((t) => {
+      const { layout } = t;
+      const halfW = layout.nodeWidth / 2;
+      return (
+        <section class="gen-tree" id={t.id} aria-labelledby={`${t.id}-h`}>
+          <h2 id={`${t.id}-h`}>{t.label}</h2>
+          <div
+            class="gen-scroll"
+            tabindex="0"
+            role="group"
+            aria-label={`${t.label} family tree chart, scrollable`}
+          >
+            <figure
+              class="gen-chart"
+              data-tree={t.id}
+              style={`width:${layout.width}px;height:${layout.height}px`}
+              aria-hidden="true"
+            >
+              <svg
+                class="gen-edges"
+                width={layout.width}
+                height={layout.height}
+                viewBox={`0 0 ${layout.width} ${layout.height}`}
+                focusable="false"
+              >
+                {layout.connectors.map((c) => (
+                  <path
+                    class:list={['gen-edge', { dashed: c.style === 'dashed' }]}
+                    d={connectorPath(c)}
+                    data-from={c.fromId}
+                    data-to={c.toId}
+                  />
+                ))}
+              </svg>
+              {layout.nodes.map((n) => (
+                <div
+                  class="gen-placed"
+                  data-person={n.id}
+                  style={`left:${n.x - halfW}px;top:${n.y}px;width:${layout.nodeWidth}px;height:${layout.nodeHeight}px`}
+                  title={n.role ?? undefined}
+                >
+                  <span class="gen-name">{n.name}</span>
+                  {n.greek && <span class="gen-greek" lang="grc">{n.greek}</span>}
+                </div>
+              ))}
+            </figure>
+          </div>
+          {/* Mobile "indented descent chart": replaces the SVG chart below
+              ~700px (see .mtree CSS below), where the tidy-tree's sibling
+              spread — Troy's Priam alone has 8 children — would force
+              unreadable horizontal panning on a phone. Vertical scroll only,
+              full container width. aria-hidden for the same reason the
+              desktop <figure> is: the semantic list below is AT's one
+              source of truth at every viewport. */}
+          <div class="mtree" aria-hidden="true">
+            <ul class="mtree-roots">
+              {t.roots.map((root) => <GenNode node={root} variant="chart" />)}
+            </ul>
+          </div>
+          {/* Semantic tree for AT, at every viewport. */}
+          <ul class="gen-roots gen-list gen-list-fallback" aria-label={`${t.label} family tree`}>
+            {t.roots.map((root) => <GenNode node={root} />)}
+          </ul>
+        </section>
+      );
+    })}
+  </main>
+</body>
+</html>

@@ -1,0 +1,81 @@
+---
+// SEO landing page for "read the iliad online free" — the Iliad twin of
+// /read-the-odyssey-online/. See that page and SeoLanding.astro for notes.
+import SeoLanding from '../../components/SeoLanding.astro';
+import { workPath, workLanding } from '@shared/lib/works';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const book1Href = `${base}${workPath('iliad', 1)}`;
+const scholarHref = `${base}${workPath('iliad', 1)}?mode=scholar&tour=parse`;
+const landingHref = `${base}${workLanding('iliad')}`;
+const startHref = `${base}/start/`;
+
+const faqs = [
+  {
+    q: 'Is the Iliad really free to read here?',
+    a: 'Yes — every book, and every translation on the site, is free to read with no account, no subscription, and no ads. See Texts & Licences for exactly which editions are used and their licences.',
+  },
+  {
+    q: 'Which translation of the Iliad does the site use?',
+    a: 'A. T. Murray’s 1924–25 Loeb Classical Library prose translation, by default. Samuel Butler’s (1898) and Alexander Pope’s (1715–20) are both available from the translation picker.',
+  },
+  {
+    q: 'Can I read the Iliad in Greek and English at the same time?',
+    a: 'Yes — the parallel view shows the Greek and English side by side, line for line. You can also switch to a Greek-only or English-only single column.',
+  },
+  {
+    q: 'Do I need to create an account?',
+    a: 'No. There is no login, no paywall, and nothing to sign up for.',
+  },
+];
+---
+<SeoLanding
+  path="/read-the-iliad-online/"
+  pageTitle="Read the Iliad Online, Free — The Homer Reader"
+  metaDescription="Read Homer's Iliad online for free: the full Greek text with A. T. Murray's public-domain translation (plus Samuel Butler and Alexander Pope), no ads, no signup."
+  eyebrow="Free online edition"
+  h1="Read the Iliad Online, Free"
+  faqs={faqs}
+>
+  <p>
+    The Homer Reader carries the complete <em>Iliad</em> — all twenty-four
+    books — free to read, with no ads, no paywall, and no account required.
+    The Greek text runs alongside a public-domain English translation, so you
+    can read in English, in Greek, or both at once.
+  </p>
+
+  <h2>What the edition offers</h2>
+  <ul>
+    <li>
+      <strong>A. T. Murray&rsquo;s Loeb translation (1924&ndash;25)</strong>
+      as the default English text, with Samuel Butler&rsquo;s 1898 prose and
+      Alexander Pope&rsquo;s eighteenth-century verse available as alternates.
+    </li>
+    <li>
+      T. W. Allen&rsquo;s 1931 editio maior Greek text, cited by the
+      traditional book-and-line numbering (e.g. <em>Il. 1.1</em>); lines the
+      manuscript tradition marks as suspect render bracketed, never silently
+      dropped or renumbered.
+    </li>
+    <li>
+      Click-to-parse on every Greek word: dictionary form, grammatical parse,
+      and full LSJ and Cunliffe dictionary entries, without leaving the page.
+    </li>
+    <li>
+      A marginal running summary of each scene, a day-calendar of the war,
+      and genealogies of the houses of Atreus, Aeacus, and Troy.
+    </li>
+  </ul>
+
+  <p>
+    Reading along in the Greek? <a href={scholarHref}>Open the scholar view
+    at Book 1</a>, which includes a short one-time tour of the parse-popup and
+    citation tools. Prefer just to read? <a href={startHref}>Start Here</a>
+    has three ways in.
+  </p>
+
+  <div class="seo-cta-row">
+    <a class="seo-cta" href={book1Href}>Read the Iliad, Book 1 &rarr;</a>
+    <a class="seo-cta secondary" href={landingHref}>Iliad overview</a>
+  </div>
+</SeoLanding>

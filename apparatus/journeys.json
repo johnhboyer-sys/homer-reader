@@ -1,0 +1,682 @@
+{
+ "status": "draft",
+ "journeys": [
+  {
+   "id": "odysseus-return",
+   "name": "The wanderings and homecoming of Odysseus",
+   "traveler": "odysseus",
+   "color_role": "primary",
+   "legs": [
+    {
+     "from": "troy",
+     "to": "ismarus",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 9,
+       "lines": [
+        39,
+        40
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "Sacking the Cicones' city on leaving Troy.",
+     "unlocatable": false
+    },
+    {
+     "from": "ismarus",
+     "to": "cape-malea",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 9,
+       "lines": [
+        80,
+        80
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "Storm rounding Cape Malea drives the fleet off its course home.",
+     "unlocatable": false
+    },
+    {
+     "from": "cape-malea",
+     "to": "cythera",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 9,
+       "lines": [
+        81,
+        81
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "Wind and current sweep the ships past Cythera.",
+     "unlocatable": false
+    },
+    {
+     "from": "cythera",
+     "to": "lotus-eaters-land",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 9,
+       "lines": [
+        82,
+        84
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "Nine days adrift before making the Lotus-eaters' shore.",
+     "unlocatable": false
+    },
+    {
+     "from": "lotus-eaters-land",
+     "to": "cyclopes-land",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 9,
+       "lines": [
+        105,
+        106
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "On to the land of the lawless Cyclopes.",
+     "unlocatable": false
+    },
+    {
+     "from": "cyclopes-land",
+     "to": "aeolia",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 10,
+       "lines": [
+        1,
+        1
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "Aeolus's floating island, keeper of the winds.",
+     "unlocatable": false
+    },
+    {
+     "from": "aeolia",
+     "to": "laestrygonia",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 10,
+       "lines": [
+        80,
+        81
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "Six days' sailing (ἑξῆμαρ, Od. 10.80), landfall at Telepylus on the seventh (ἑβδομάτῃ, 10.81).",
+     "unlocatable": false
+    },
+    {
+     "from": "laestrygonia",
+     "to": "aeaea",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 10,
+       "lines": [
+        135,
+        135
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "The sole surviving ship reaches Circe's island.",
+     "unlocatable": false
+    },
+    {
+     "from": "aeaea",
+     "to": "cimmerians-underworld",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 11,
+       "lines": [
+        13,
+        14
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "Circe sends Odysseus across Ocean to the Cimmerians' sunless land for the nekyia. Homer gives no real-world geography for this stop (mythical tier; no coordinates in this gazetteer, so the leg cannot be drawn on a real map).",
+     "unlocatable": true
+    },
+    {
+     "from": "cimmerians-underworld",
+     "to": "aeaea",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 12,
+       "lines": [
+        1,
+        2
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "Return from the house of Hades to Aeaea, per Circe's own instruction (12.1-2). Same honesty caveat as the outbound leg: the Cimmerian land itself carries no coordinates.",
+     "unlocatable": true
+    },
+    {
+     "from": "aeaea",
+     "to": "sirens-island",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 12,
+       "lines": [
+        39,
+        40
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "Circe's sailing directions: the Sirens first.",
+     "unlocatable": false
+    },
+    {
+     "from": "sirens-island",
+     "to": "scylla",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 12,
+       "lines": [
+        73,
+        85
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "Past the Sirens toward the strait; Scylla's rock on one side.",
+     "unlocatable": false
+    },
+    {
+     "from": "scylla",
+     "to": "charybdis",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 12,
+       "lines": [
+        101,
+        104
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "Charybdis on the other side of the same strait; Circe advises hugging Scylla's side to avoid Charybdis wholesale, so the two are effectively one strait-transit.",
+     "unlocatable": false
+    },
+    {
+     "from": "charybdis",
+     "to": "thrinacia",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 12,
+       "lines": [
+        127,
+        127
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "On to the island of the Sun's cattle.",
+     "unlocatable": false
+    },
+    {
+     "from": "thrinacia",
+     "to": "ogygia",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 12,
+       "lines": [
+        425,
+        450
+       ]
+      }
+     ],
+     "certainty": "mythical",
+     "note": "The wrecked, sole-surviving Odysseus drifts nine days after Charybdis re-swallows the wreck near Thrinacia and washes up on Ogygia, Calypso's island (12.447-450). Ogygia carries no coordinates in this gazetteer (Homer's own geography puts it at the 'navel of the sea', far from any coast); the leg is recorded for narrative completeness but cannot be drawn on a real map.",
+     "unlocatable": true
+    },
+    {
+     "from": "ogygia",
+     "to": "scheria",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 5,
+       "lines": [
+        278,
+        281
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "After seven years with Calypso and Hermes's intervention, the raft voyage of seventeen/eighteen days ends in sight of the Phaeacians' land. Origin has no fixed position; the map renders the departure as a faded stub resuming at Scheria.",
+     "unlocatable": true
+    },
+    {
+     "from": "scheria",
+     "to": "ithaca",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 13,
+       "lines": [
+        70,
+        125
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "The Phaeacian ship, sailing overnight, sets the sleeping Odysseus and his gifts ashore at the Cave of the Nymphs in Ithaca -- the nostos's endpoint (John's explicit call: this line must end at Ithaca).",
+     "unlocatable": false
+    }
+   ]
+  },
+  {
+   "id": "menelaus-nostos",
+   "name": "The nostos of Menelaus",
+   "traveler": "menelaus",
+   "color_role": "secondary",
+   "legs": [
+    {
+     "from": "troy",
+     "to": "sounion",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 3,
+       "lines": [
+        278,
+        285
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "Homebound from Troy, the fleet reaches Sounion, where Apollo strikes down the helmsman Phrontis at the tiller; Menelaus puts in to bury him, delaying the voyage.",
+     "unlocatable": false
+    },
+    {
+     "from": "sounion",
+     "to": "cape-malea",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 3,
+       "lines": [
+        286,
+        288
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "Resuming the voyage, the fleet is rounding the height of Malea when Zeus sends the storm that will scatter it.",
+     "unlocatable": false
+    },
+    {
+     "from": "cape-malea",
+     "to": "crete-knossos",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 3,
+       "lines": [
+        291,
+        298
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "Zeus splits the fleet at Malea: part of it (not Menelaus's own ship) is driven onto Crete, wrecking near the cliff by Gortyn on the south coast, at the border of Phaestus -- a specific landfall distinct from Knossos (the only Crete pin in this gazetteer). The men escape the wreck (3.297-298); the ships do not. Recorded for completeness as part of Menelaus's fleet's fate, not his own itinerary.",
+     "unlocatable": false
+    },
+    {
+     "from": "cape-malea",
+     "to": "egypt",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 3,
+       "lines": [
+        299,
+        300
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "The other five dark-prowed ships -- Menelaus's own among them, since he goes on to wander Egypt/Cyprus/Phoenicia (4.81-85) -- are driven on by wind and current to Egypt (3.299-300), bypassing Crete.",
+     "unlocatable": false
+    },
+    {
+     "from": "egypt",
+     "to": "pharos",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 4,
+       "lines": [
+        354,
+        360
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "Becalmed off the Nile mouth, the fleet's course takes it to the island of Pharos, a day's sail offshore.",
+     "unlocatable": false
+    },
+    {
+     "from": "pharos",
+     "to": "egypt",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 4,
+       "lines": [
+        581,
+        584
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "Menelaus returns from Pharos to Egypt's river, offers full hecatombs, and raises a cenotaph for Agamemnon (Od. 4.581–584).",
+     "unlocatable": false
+    },
+    {
+     "from": "egypt",
+     "to": "sparta",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 4,
+       "lines": [
+        585,
+        586
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "The gods grant a fair wind and send him swiftly home (Od. 4.585–586); the voyage itself is not separately narrated.",
+     "unlocatable": false
+    },
+    {
+     "from": "egypt",
+     "to": "cyprus",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 4,
+       "lines": [
+        83,
+        83
+       ]
+      }
+     ],
+     "certainty": "speculative",
+     "note": "Named in Menelaus's summary of his eight years' wandering (4.81-85); the list gives no order or itinerary logic connecting its members, so this leg records only that Cyprus was visited, not when or from where.",
+     "unlocatable": false
+    },
+    {
+     "from": "egypt",
+     "to": "sidon-phoenicia",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 4,
+       "lines": [
+        83,
+        84
+       ]
+      }
+     ],
+     "certainty": "speculative",
+     "note": "Phoenicia/Sidon, from the same summary list (4.83-84); order relative to the other list-members is not given by the poem. (Menelaus's Sidonian guest-gift, a silver krater, is separately mentioned at 4.615-619 and 15.115-119, without narrating a visit there.)",
+     "unlocatable": false
+    },
+    {
+     "from": "egypt",
+     "to": "ethiopians-land",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 4,
+       "lines": [
+        84,
+        84
+       ]
+      }
+     ],
+     "certainty": "mythical",
+     "note": "The Ethiopians, from the summary list (4.84); Homer's Ethiopians are a legendary people 'sundered in two' at the ends of the earth (Od. 1.22-24) -- not a real-world itinerary stop, no coordinates in this gazetteer. The poem lists this people among Menelaus's wanderings without giving any sequence (Od. 4.83–85).",
+     "unlocatable": true
+    },
+    {
+     "from": "egypt",
+     "to": "erembi",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 4,
+       "lines": [
+        84,
+        84
+       ]
+      }
+     ],
+     "certainty": "speculative",
+     "note": "The Erembi, from the same list-line as the Sidonians (4.84); their identity is a genuinely unresolved ancient crux (Strabo 1.2.34: Poseidonius argues for the Arabians, others for the Troglodytae) -- no consensus site exists to pin, ancient or modern. The poem lists this people among Menelaus's wanderings without giving any sequence (Od. 4.83–85).",
+     "unlocatable": true
+    },
+    {
+     "from": "egypt",
+     "to": "libya",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 4,
+       "lines": [
+        85,
+        85
+       ]
+      }
+     ],
+     "certainty": "speculative",
+     "note": "Libya, from the summary list (4.85), described in almost fairy-tale terms (triple-lambing flocks); order relative to the other list-members is not given by the poem.",
+     "unlocatable": false
+    }
+   ]
+  },
+  {
+   "id": "nestor-nostos",
+   "name": "The nostos of Nestor",
+   "traveler": "nestor",
+   "color_role": "secondary",
+   "legs": [
+    {
+     "from": "troy",
+     "to": "tenedos",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 3,
+       "lines": [
+        159,
+        159
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "Nestor's contingent, sailing with Odysseus's, makes the first stop at Tenedos to sacrifice -- before the quarrel among the Achaean leaders splits the returning fleets.",
+     "unlocatable": false
+    },
+    {
+     "from": "tenedos",
+     "to": "lesbos",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 3,
+       "lines": [
+        168,
+        169
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "Nestor's own ships, now sailing with Diomedes's and (soon) Menelaus's, press on and are overtaken by Menelaus at Lesbos, debating the safer route north or south of Chios.",
+     "unlocatable": false
+    },
+    {
+     "from": "lesbos",
+     "to": "geraistos",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 3,
+       "lines": [
+        174,
+        178
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "On a god-sent omen they strike out on the open-sea crossing to Euboea, making harbor at Geraistos by night.",
+     "unlocatable": false
+    },
+    {
+     "from": "geraistos",
+     "to": "pylos",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 3,
+       "lines": [
+        182,
+        183
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "From Geraistos -- where Diomedes's squadron peels off for Argos (3.180-182) -- Nestor's own ships run on before a steady wind straight to Pylos.",
+     "unlocatable": false
+    }
+   ]
+  },
+  {
+   "id": "telemachus-journey",
+   "name": "Telemachus's journey to Pylos and Sparta, and back",
+   "traveler": "telemachus",
+   "color_role": "secondary",
+   "legs": [
+    {
+     "from": "ithaca",
+     "to": "pylos",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 2,
+       "lines": [
+        434,
+        434
+       ]
+      },
+      {
+       "work": "odyssey",
+       "book": 3,
+       "lines": [
+        4,
+        5
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "Telemachus and the Ithacan crew sail all night (2.434) and reach Pylos at dawn, as the Pylians are sacrificing on the shore (3.4-5).",
+     "unlocatable": false
+    },
+    {
+     "from": "pylos",
+     "to": "pherae-messenia",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 3,
+       "lines": [
+        478,
+        490
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "By chariot with Peisistratus, reaching Diocles' house at Pherae by nightfall of the first day.",
+     "unlocatable": false
+    },
+    {
+     "from": "pherae-messenia",
+     "to": "sparta",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 3,
+       "lines": [
+        491,
+        497
+       ]
+      },
+      {
+       "work": "odyssey",
+       "book": 4,
+       "lines": [
+        1,
+        2
+       ]
+      }
+     ],
+     "certainty": "certain",
+     "note": "A second day's driving across the wheat-plain brings them to Sparta and Menelaus's palace.",
+     "unlocatable": false
+    },
+    {
+     "from": "sparta",
+     "to": "ithaca",
+     "refs": [
+      {
+       "work": "odyssey",
+       "book": 15,
+       "lines": [
+        295,
+        300
+       ]
+      }
+     ],
+     "certainty": "traditional",
+     "note": "The return voyage, engineered by Athena's warning to avoid the suitors' ambush (15.27-42). The ambush itself is set at the island Asteris, explicitly named, 'between Ithaca and rugged Same' (4.844-847, echoed 15.29). But the escape route Homer actually narrates (15.295-300) runs past real Elean landmarks -- Crounoi, the stream Chalcis, Pheae, Elis -- then simply 'the swift islands' (θοῇσιν νήσοισιν, 15.299), unnamed in the received text; whether these are Asteris and its neighbors or an unrelated group is a genuine crux, not resolved by the poem's own wording. Flagged here, not resolved.",
+     "unlocatable": false
+    }
+   ]
+  }
+ ]
+}

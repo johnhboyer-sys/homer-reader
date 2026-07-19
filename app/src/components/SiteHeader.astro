@@ -1,0 +1,166 @@
+---
+// The single shell header/wordmark shared by every non-reader surface — the
+// homepage masthead, SEO landers, apparatus/index pages and utility pages
+// (Design punch-list #4, 2026-07-18). Before this, ~16 pages hand-rolled their
+// own <header class="simple-header"> with three drifted wordmarks ("Homer",
+// "Home", plain-div "The Homer Reader") and inconsistent nav sets. This is the
+// one source of truth: the full "The Homer Reader" wordmark + eyebrow (the same
+// unit the reader toolbar carries, so the reader reads as an extension of the
+// shell, not a different site) and one canonical nav set. The page's own h1
+// supplies its label; the header instead makes every primary section visible
+// and marks the section containing the current path.
+import ThemeToggle from './ThemeToggle.astro';
+
+interface Props {
+  /** Kept while callers migrate; page labels now belong to their own h1s. */
+  section?: string;
+}
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const pathname = base && Astro.url.pathname.startsWith(`${base}/`)
+  ? Astro.url.pathname.slice(base.length)
+  : Astro.url.pathname;
+
+const sections = [
+  { label: 'Iliad', href: `${base}/iliad`, prefix: '/iliad' },
+  { label: 'Odyssey', href: `${base}/odyssey`, prefix: '/odyssey' },
+  { label: 'Maps', href: `${base}/maps/`, prefix: '/maps' },
+  { label: 'Timeline', href: `${base}/timeline/`, prefix: '/timeline' },
+  { label: 'Characters', href: `${base}/characters/`, prefix: '/characters' },
+  { label: 'Places', href: `${base}/places/`, prefix: '/places' },
+  { label: 'Genealogies', href: `${base}/genealogies/`, prefix: '/genealogies' },
+  { label: 'Vocabulary', href: `${base}/vocabulary/`, prefix: '/vocabulary' },
+  { label: 'Formulas', href: `${base}/formulas/`, prefix: '/formulas' },
+  { label: 'Repetitions', href: `${base}/repetitions/`, prefix: '/repetitions' },
+  { label: 'Search', href: `${base}/search`, prefix: '/search' },
+  { label: 'About', href: `${base}/about`, prefix: '/about' },
+];
+
+const isCurrent = (prefix: string) => pathname === prefix || pathname.startsWith(`${prefix}/`);
+---
+<header class="simple-header site-header">
+  <div class="header-title">
+    <a class="home-link home-wordmark" href={`${base}/`} aria-label="The Homer Reader — home">
+      <span class="wordmark-name">The Homer Reader</span>
+      <span class="wordmark-eyebrow">The Iliad &amp; Odyssey · Greek and English</span>
+    </a>
+  </div>
+  <nav class="header-actions site-nav" aria-label="Site">
+    <div class="site-nav-links">
+      {sections.map((section) => (
+        <a
+          href={section.href}
+          class:list={['search-link', 'site-nav-link', { 'is-current': isCurrent(section.prefix) }]}
+          aria-current={isCurrent(section.prefix) ? 'page' : undefined}
+        >
+          {section.label}
+        </a>
+      ))}
+    </div>
+    <details class="site-nav-mobile">
+      <summary>Sections</summary>
+      <div class="site-nav-menu">
+        {sections.map((section) => (
+          <a
+            href={section.href}
+            class:list={['site-nav-link', { 'is-current': isCurrent(section.prefix) }]}
+            aria-current={isCurrent(section.prefix) ? 'page' : undefined}
+          >
+            {section.label}
+          </a>
+        ))}
+      </div>
+    </details>
+    <ThemeToggle />
+  </nav>
+</header>
+
+<style>
+  .site-header .site-nav {
+    gap: 0.45rem;
+  }
+
+  .site-header .site-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.12rem;
+  }
+
+  .site-header .site-nav-link {
+    border-bottom: 1px solid transparent;
+    border-radius: 0;
+    font-size: 0.72rem;
+    letter-spacing: 0.01em;
+    line-height: 1.25;
+    padding: 0.2rem 0.25rem !important;
+    white-space: nowrap;
+  }
+
+  .site-header .site-nav-link.is-current {
+    border-bottom-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .site-header .site-nav-mobile {
+    display: none;
+    position: relative;
+  }
+
+  .site-header .site-nav-mobile summary {
+    color: var(--text-mid);
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    list-style: none;
+    padding: 0.2rem 0.25rem;
+    white-space: nowrap;
+  }
+
+  .site-header .site-nav-mobile summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .site-header .site-nav-mobile summary::after {
+    content: ' ▾';
+  }
+
+  .site-header .site-nav-mobile summary:focus-visible,
+  .site-header .site-nav-link:focus-visible {
+    outline: 2px solid var(--accent-light);
+    outline-offset: 2px;
+  }
+
+  .site-header .site-nav-menu {
+    background: var(--col-bg);
+    border: 1px solid var(--border);
+    box-shadow: 0 0.4rem 1rem color-mix(in srgb, var(--text) 16%, transparent);
+    display: grid;
+    gap: 0.1rem;
+    min-width: 11rem;
+    padding: 0.35rem;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.4rem);
+    z-index: 1;
+  }
+
+  .site-header .site-nav-menu .site-nav-link {
+    color: var(--text-mid);
+    padding: 0.35rem 0.45rem !important;
+  }
+
+  .site-header .site-nav-menu .site-nav-link:hover {
+    background: var(--border);
+    color: var(--accent);
+  }
+
+  @media (max-width: 1050px) {
+    .site-header .site-nav-links {
+      display: none;
+    }
+
+    .site-header .site-nav-mobile {
+      display: block;
+    }
+  }
+</style>

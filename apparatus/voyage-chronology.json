@@ -1,0 +1,267 @@
+{
+  "status": "draft",
+  "description": "Ordered stations of Odysseus's return voyage (Troy to Ithaca) with poem-stated durations, verified against build/dist/odyssey/book-NN.json Greek text. Station ids reuse apparatus/places.json ids; the sequence follows apparatus/journeys.json's odysseus-return journey where the legs correspond, plus three narrative digressions (the failed near-Ithaca homecoming; the raft's building, sailing, and storm-driven drift) that are chronologically essential but are not landfalls, so they carry no placeId and are marked unlocatable. Stations without a poem-stated duration carry duration: null — this is not a gap in research, it is what the text does. AI-drafted; status draft until reviewed.",
+  "verification_note": "Every ref below was checked line-by-line against the emitted Greek (2026-07-18). One discrepancy found in a sibling file: apparatus/journeys.json's aeolia->laestrygonia leg note says 'nine days' to Laestrygonia; the text actually gives ἑξῆμαρ (six days, 10.80), arrival ἑβδομάτῃ (the seventh day, 10.81) -- flagged here, not corrected there (out of scope for this file). Also: the brief's alternative citation for the raft's two-nights-adrift span, 5.313, is the line where the wave destroys the raft, not a duration statement; the actual number (δύω νύκτας δύο τ' ἤματα) is at 5.388-389.",
+  "totalAssertions": {
+    "warStart": {
+      "cite": "Od. 9.39-40",
+      "greek": "Ἰλιόθεν με φέρων ἄνεμος Κικόνεσσι πέλασσεν, Ἰσμάρῳ.",
+      "gloss": "Odysseus's own account opens the wandering here: driven from Troy by the wind to Ismarus, the Cicones' city."
+    },
+    "twentiethYear": [
+      {
+        "cite": "Od. 2.174-176",
+        "greek": "ἄγνωστον πάντεσσιν ἐεικοστῷ ἐνιαυτῷ",
+        "gloss": "Halitherses recalls his own prophecy at the Ithacan assembly: Odysseus would return unknown to all in the twentieth year."
+      },
+      {
+        "cite": "Od. 16.205-206",
+        "greek": "ἤλυθον εἰκοστῷ ἔτεϊ ἐς πατρίδα γαῖαν",
+        "gloss": "Odysseus, revealing himself to Telemachus: 'I have come, having suffered evils and wandered much, in the twentieth year to my native land.'"
+      },
+      {
+        "cite": "Od. 19.222-223",
+        "greek": "ἤδη γάρ οἱ ἐεικοστὸν ἔτος ἐστὶν ἐξ οὗ κεῖθεν ἔβη",
+        "gloss": "The disguised Odysseus to Penelope, describing 'Odysseus': it is now the twentieth year since he went from there."
+      },
+      {
+        "cite": "Od. 17.327",
+        "greek": "αὐτίκʼ ἰδόντʼ Ὀδυσῆα ἐεικοστῷ ἐνιαυτῷ",
+        "gloss": "The narrator, of the dog Argos: he knew Odysseus at once, in the twentieth year."
+      }
+    ]
+  },
+  "stations": [
+    {
+      "id": "troy",
+      "placeId": "troy",
+      "label": "Troy",
+      "kind": "start",
+      "unlocatable": false,
+      "refs": [],
+      "duration": null,
+      "note": "Departure point; the ten years of wandering begin here, after the traditional ten years of the war itself."
+    },
+    {
+      "id": "ismarus",
+      "placeId": "ismarus",
+      "label": "Ismarus (the Cicones)",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 9, "lines": [39, 45] }],
+      "duration": null,
+      "note": "The wind bears the fleet from Troy straight to Ismarus; the Cicones' city is sacked at once. No duration is stated for the passage or the sack."
+    },
+    {
+      "id": "cape-malea",
+      "placeId": "cape-malea",
+      "label": "Cape Malea",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 9, "lines": [79, 80] }],
+      "duration": null,
+      "note": "Wave, current, and North Wind drive the fleet off its course rounding Malea -- the last point on the direct road home. No duration stated."
+    },
+    {
+      "id": "cythera",
+      "placeId": "cythera",
+      "label": "Cythera",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 9, "lines": [81, 81] }],
+      "duration": null,
+      "note": "Swept past Cythera before the nine-day storm proper begins. No duration stated for this leg itself."
+    },
+    {
+      "id": "lotus-eaters-land",
+      "placeId": "lotus-eaters-land",
+      "label": "Land of the Lotus-eaters",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 9, "lines": [82, 84] }],
+      "duration": { "value": 9, "unit": "days", "greek": "ἐννῆμαρ", "cite": "Od. 9.82" },
+      "note": "Nine days driven by deadly winds over the fish-filled sea; on the tenth (δεκάτῃ, 9.83) they land among the Lotus-eaters."
+    },
+    {
+      "id": "cyclopes-land",
+      "placeId": "cyclopes-land",
+      "label": "Land of the Cyclopes",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 9, "lines": [105, 106] }],
+      "duration": null,
+      "note": "Polyphemus's cave. No duration is stated for the stay, though the blinding and its aftermath (escape under the rams, the taunting from the ships) clearly cover more than a single day."
+    },
+    {
+      "id": "aeolia-1",
+      "placeId": "aeolia",
+      "label": "Aeolia -- Aeolus's floating island (first landfall)",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 10, "lines": [1, 14] }],
+      "duration": { "value": 1, "unit": "month", "greek": "μῆνα", "cite": "Od. 10.14" },
+      "note": "Aeolus loves and questions Odysseus for a full month (μῆνα δὲ πάντα φίλει με, 10.14) before granting passage and the bag of bound winds."
+    },
+    {
+      "id": "near-ithaca",
+      "placeId": null,
+      "label": "In sight of Ithaca -- the bag opened",
+      "kind": "digression",
+      "unlocatable": true,
+      "refs": [{ "work": "odyssey", "book": 10, "lines": [28, 55] }],
+      "duration": { "value": 9, "unit": "days", "greek": "ἐννῆμαρ", "cite": "Od. 10.28" },
+      "note": "Nine days under sail, Odysseus himself steering; on the tenth their own land comes in sight (10.28-29). His crew, believing the bag holds treasure, opens it while he sleeps (10.47); the freed winds drive the fleet back to Aeolia. Not a landfall -- no placeId -- but chronologically load-bearing, so it is kept as its own station rather than folded silently into Aeolia."
+    },
+    {
+      "id": "aeolia-2",
+      "placeId": "aeolia",
+      "label": "Aeolia (second landfall, turned away)",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 10, "lines": [56, 76] }],
+      "duration": null,
+      "note": "Aeolus refuses further aid, judging Odysseus hateful to the gods, and sends him off at once. No duration stated for this second, brief landfall."
+    },
+    {
+      "id": "laestrygonia",
+      "placeId": "laestrygonia",
+      "label": "Laestrygonia (Telepylus)",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 10, "lines": [80, 132] }],
+      "duration": { "value": 6, "unit": "days", "greek": "ἑξῆμαρ", "cite": "Od. 10.80" },
+      "note": "Six days' sail (ἑξῆμαρ, 10.80), landfall on the seventh (ἑβδομάτῃ, 10.81). The Laestrygonians destroy eleven of the twelve ships; only Odysseus's own escapes."
+    },
+    {
+      "id": "aeaea-1",
+      "placeId": "aeaea",
+      "label": "Aeaea -- Circe's island",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 10, "lines": [135, 470] }],
+      "duration": { "value": 1, "unit": "year", "greek": "ἐνιαυτός", "cite": "Od. 10.467-470" },
+      "note": "A full year (ἐνιαυτός, 10.467, resumed at 10.469 ὅτε δή ῥʼ ἐνιαυτὸς ἔην) of feasting before the crew presses Odysseus to remember his own country."
+    },
+    {
+      "id": "cimmerians-underworld",
+      "placeId": "cimmerians-underworld",
+      "label": "Land of the Cimmerians / the Underworld",
+      "kind": "stop",
+      "unlocatable": true,
+      "refs": [{ "work": "odyssey", "book": 11, "lines": [13, 14] }],
+      "duration": null,
+      "note": "The nekyia. No duration is stated for the crossing of Ocean or the time spent at the trench; this station carries no real-world coordinates (mythical tier, per apparatus/places.json)."
+    },
+    {
+      "id": "aeaea-2",
+      "placeId": "aeaea",
+      "label": "Aeaea (return from the Underworld)",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 12, "lines": [1, 35] }],
+      "duration": null,
+      "note": "Circe gives sailing directions for the Sirens, Scylla and Charybdis, and Thrinacia. No duration stated for this second stay."
+    },
+    {
+      "id": "sirens-island",
+      "placeId": "sirens-island",
+      "label": "Island of the Sirens",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 12, "lines": [39, 54] }],
+      "duration": null,
+      "note": "Passed under sail, Odysseus bound to the mast, the crew's ears sealed with wax. No duration stated."
+    },
+    {
+      "id": "scylla",
+      "placeId": "scylla",
+      "label": "Scylla's rock",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 12, "lines": [73, 100] }],
+      "duration": null,
+      "note": "Six of Odysseus's men are seized in passing. No duration stated -- the strait-transit with Charybdis is effectively continuous."
+    },
+    {
+      "id": "charybdis",
+      "placeId": "charybdis",
+      "label": "Charybdis",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 12, "lines": [101, 104] }],
+      "duration": null,
+      "note": "The far side of the same strait as Scylla. No duration stated."
+    },
+    {
+      "id": "thrinacia",
+      "placeId": "thrinacia",
+      "label": "Thrinacia -- the Cattle of the Sun",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 12, "lines": [127, 425] }],
+      "duration": { "value": 1, "unit": "month", "greek": "μῆνα", "cite": "Od. 12.325-326" },
+      "note": "A month (μῆνα, 12.325) of unrelenting South Wind pins the ship ashore. Starving, the crew kills the Sun's cattle while Odysseus sleeps; Zeus wrecks the ship on departure."
+    },
+    {
+      "id": "ogygia",
+      "placeId": "ogygia",
+      "label": "Ogygia -- Calypso's island",
+      "kind": "stop",
+      "unlocatable": true,
+      "refs": [{ "work": "odyssey", "book": 12, "lines": [447, 448] }],
+      "duration": { "value": 9, "unit": "days", "greek": "ἐννῆμαρ", "cite": "Od. 12.447", "label": "adrift, arriving" },
+      "stayDuration": { "value": 7, "unit": "years", "greek": "ἑπτάετες", "cite": "Od. 7.259", "label": "kept by Calypso" },
+      "note": "Sole survivor of the wreck at Thrinacia, Odysseus drifts nine days (ἐννῆμαρ, 12.447) before washing up on Ogygia. Calypso keeps him seven years (ἑπτάετες, 7.259, Odysseus's own retelling to Arete and Alcinous) before Hermes intervenes. Ogygia carries no coordinates in apparatus/places.json (mythical tier)."
+    },
+    {
+      "id": "raft-building",
+      "placeId": null,
+      "label": "Building the raft",
+      "kind": "digression",
+      "unlocatable": true,
+      "refs": [{ "work": "odyssey", "book": 5, "lines": [228, 263] }],
+      "duration": { "value": 4, "unit": "days", "greek": "τέτρατον ἦμαρ", "cite": "Od. 5.262" },
+      "note": "Calypso supplies axe, adze, and timber; the raft is finished on the fourth day (τέτρατον ἦμαρ ἔην, 5.262), and Calypso sends Odysseus off on the fifth (τῷ δʼ ἄρα πέμπτῳ, 5.263). Still on Ogygia -- no placeId of its own."
+    },
+    {
+      "id": "raft-voyage",
+      "placeId": null,
+      "label": "Seventeen days under sail",
+      "kind": "digression",
+      "unlocatable": true,
+      "refs": [{ "work": "odyssey", "book": 5, "lines": [270, 281] }],
+      "duration": { "value": 17, "unit": "days", "greek": "ἑπτὰ καὶ δέκα", "cite": "Od. 5.278" },
+      "note": "Odysseus sails alone, steering by the stars as Calypso instructed. Seventeen days out (ἑπτὰ δὲ καὶ δέκα μὲν πλέεν ἤματα, 5.278); on the eighteenth (ὀκτωκαιδεκάτῃ, 5.279) the shadowy mountains of Scheria come in sight."
+    },
+    {
+      "id": "raft-storm",
+      "placeId": null,
+      "label": "Poseidon's storm -- two nights adrift",
+      "kind": "digression",
+      "unlocatable": true,
+      "refs": [{ "work": "odyssey", "book": 5, "lines": [313, 392] }],
+      "duration": { "value": 2, "unit": "days", "greek": "δύω νύκτας δύο τʼ ἤματα", "cite": "Od. 5.388-389", "label": "two nights and two days" },
+      "note": "Poseidon's wave shatters the raft (5.313-314, no number given there). Odysseus is tossed for two nights and two days (δύω νύκτας δύο τʼ ἤματα, 5.388) before the third dawn brings calm and he sights land (5.390-392). The brief's alternative citation, 5.313, is the wave-strike itself, not a duration statement -- the number is given at 5.388-389, verified here."
+    },
+    {
+      "id": "scheria",
+      "placeId": "scheria",
+      "label": "Scheria (Phaeacia)",
+      "kind": "stop",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 5, "lines": [441, 493] }],
+      "duration": null,
+      "note": "Odysseus swims ashore and is found by Nausicaa; several days of hospitality, feasting, and games follow (Books 6-13) before the Phaeacians carry him home. No single number of days is stated for this whole stay."
+    },
+    {
+      "id": "ithaca",
+      "placeId": "ithaca",
+      "label": "Ithaca",
+      "kind": "end",
+      "unlocatable": false,
+      "refs": [{ "work": "odyssey", "book": 13, "lines": [78, 95] }],
+      "duration": { "value": 1, "unit": "night", "greek": null, "cite": "Od. 13.78-95", "approximate": true, "label": "one night (narrative frame, not a counted numeral)" },
+      "note": "The Phaeacian ship sails through the night: the crew falls into a magic, deathlike sleep at the oars (13.78-80), and landfall comes as the brightest star -- herald of dawn -- rises (13.93-95). No counting-word for 'one night' appears in the Greek, unlike ἐννῆμαρ or μῆνα elsewhere on this table; the single-night span is the poem's narrative frame (evening departure to dawn arrival), not a stated numeral, and is marked approximate here."
+    }
+  ]
+}

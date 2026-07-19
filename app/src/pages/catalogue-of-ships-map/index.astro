@@ -1,0 +1,71 @@
+---
+// SEO landing page for "catalogue of ships map" (PROMPT.md Phase 5). Points
+// into the real Catalogue of Ships explorer on /maps/ (built in Phase 4b,
+// shared/lib/maps + apparatus/catalogue.json) and the Iliad 2 text itself.
+import SeoLanding from '../../components/SeoLanding.astro';
+import { workPath } from '@shared/lib/works';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const book2Href = `${base}${workPath('iliad', 2)}`;
+const mapsHref = `${base}/maps/`;
+
+const faqs = [
+  {
+    q: 'What is the Catalogue of Ships?',
+    a: 'The long roster near the start of Iliad Book 2 (lines 494–759) that lists every Achaean contingent that sailed to Troy: its leader, its home cities, and how many ships it sent.',
+  },
+  {
+    q: 'How reliable are the place identifications on the map?',
+    a: 'Each place carries a certainty tier — certain, traditional, speculative, or mythical — and any identification made by later tradition rather than the poem itself names that tradition. The map never states an identification with more confidence than the evidence supports.',
+  },
+  {
+    q: 'Can I jump from the map to the text?',
+    a: 'Yes — every contingent’s card links straight to its lines in Iliad Book 2, and the explorer covers three other maps besides the Catalogue: the Troad, Odysseus’s wanderings, and the real Greece of the poems.',
+  },
+];
+---
+<SeoLanding
+  path="/catalogue-of-ships-map/"
+  pageTitle="The Catalogue of Ships, Mapped — The Homer Reader"
+  metaDescription="An interactive map of the Iliad's Catalogue of Ships (Il. 2.494–759): every contingent pinned, with its leaders, ship counts, and a jump straight to the lines."
+  eyebrow="Iliad Book 2, mapped"
+  h1="The Catalogue of Ships, Mapped"
+  faqs={faqs}
+>
+  <p>
+    Iliad Book 2&rsquo;s Catalogue of Ships (lines 494&ndash;759) names every
+    Achaean contingent at Troy — dozens of leaders, cities, and ship counts,
+    read in a block that most editions leave as a wall of proper names. The
+    Homer Reader turns it into an explorable map: every contingent is a pin.
+  </p>
+
+  <h2>What the map shows</h2>
+  <ul>
+    <li>
+      Click a pin for a card listing that contingent&rsquo;s leader(s), ship
+      count, and home places — with a direct jump to its lines in the text.
+    </li>
+    <li>
+      Every place identification is graded by a certainty tier &mdash;
+      <strong>certain</strong>, <strong>traditional</strong>,
+      <strong>speculative</strong>, or <strong>mythical</strong> &mdash; so
+      the map is honest about how much the ancient geography is actually
+      known versus inferred by later tradition.
+    </li>
+    <li>
+      The Catalogue is one of four maps in the reader, alongside the Troad,
+      Odysseus&rsquo;s wanderings, and the real Greece of the poems; place
+      names in the reading text link to the same pins.
+    </li>
+  </ul>
+
+  <p>
+    Read the roster itself in <a href={book2Href}>Iliad Book 2</a>, or open
+    the map directly.
+  </p>
+
+  <div class="seo-cta-row">
+    <a class="seo-cta" href={mapsHref}>Open the Catalogue of Ships map &rarr;</a>
+    <a class="seo-cta secondary" href={book2Href}>Read Iliad Book 2</a>
+  </div>
+</SeoLanding>

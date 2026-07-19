@@ -1,0 +1,702 @@
+// Pure data helpers for the four Landmark-style maps (/maps/ — Ships/Catalogue
+// explorer, Troad, Wanderings, Greece), drawn from apparatus/places.json and
+// apparatus/catalogue.json. Homer-only; no plato-reader counterpart (Plato's
+// corpus has no geographic apparatus) — same posture as shared/lib/genealogy.ts.
+// Pure transforms only: no DOM, no Leaflet. The Leaflet-facing Svelte
+// components (app/src/components/maps/*) call these and are exercised by the
+// Playwright pass instead of vitest, per the project's UI-vs-logic test split.
+
+export type Certainty = 'certain' | 'traditional' | 'speculative' | 'mythical';
+
+export interface Mention {
+  work: string;
+  book: number;
+  lines: [number, number];
+}
+
+export interface Place {
+  id: string;
+  name: string;
+  greek: string;
+  certainty: Certainty;
+  tradition?: string;
+  pleiades?: string;
+  coords?: [number, number]; // [lat, lon]
+  maps: string[];
+  mentions: Mention[];
+  note?: string;
+}
+
+// Minimal shape of an apparatus/characters.json entry, as needed to display a
+// catalogue leader's name/Greek beside the contingent panel.
+export interface CharacterRef {
+  id: string;
+  name: string;
+  greek?: string;
+}
+
+export interface Contingent {
+  id: string;
+  name: string;
+  lines: [number, number];
+  leaders: string[];
+  ships: number | null;
+  places: string[]; // place ids, in catalogue-text order
+  note?: string;
+}
+
+// ── Map membership ──────────────────────────────────────────────────────────
+
+// Every place tagged for a given map (places.json's `maps` array), in the
+// file's own order (catalogue order for "ships", otherwise source order).
+export function placesForMap(places: Place[], tag: string): Place[] {
+  return places.filter((p) => p.maps.includes(tag));
+}
+
+// Split a map's places into pinnable (has coords) and "not locatable" (listed,
+// never force-pinned — CLAUDE.md apparatus honesty). Order preserved in both.
+export function splitByCoords(places: Place[]): { located: Place[]; unlocated: Place[] } {
+  const located: Place[] = [];
+  const unlocated: Place[] = [];
+  for (const p of places) (p.coords ? located : unlocated).push(p);
+  return { located, unlocated };
+}
+
+// ── Catalogue sort toggles ──────────────────────────────────────────────────
+
+export type CatalogueSort = 'catalogue' | 'ships-desc' | 'alpha';
+
+// Sort a contingent list per the panel's sort toggle. 'catalogue' is Homer's
+// own itinerary (the array's given order — the default) and returns a COPY,
+// not the same array, so callers can freely mutate/reorder without touching
+// the source. 'ships-desc' pushes null-ship entries (the Trojan tab, which
+// Homer gives no ship count) to the end, stable otherwise. 'alpha' sorts by
+// display name, locale-aware.
+export function sortContingents(list: Contingent[], mode: CatalogueSort): Contingent[] {
+  const copy = [...list];
+  if (mode === 'catalogue') return copy;
+  if (mode === 'ships-desc') {
+    return copy.sort((a, b) => {
+      if (a.ships == null && b.ships == null) return 0;
+      if (a.ships == null) return 1;
+      if (b.ships == null) return -1;
+      return b.ships - a.ships;
+    });
+  }
+  return copy.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// ── Ship-count circle scaling ───────────────────────────────────────────────
+
+// Leaflet circleMarker radius (px) for a contingent's ship count, scaled so
+// CIRCLE AREA is proportional to ship count: area = pi*r^2, and r here is
+// maxRadius * sqrt(ships/maxShips), so r^2 / maxRadius^2 = ships/maxShips —
+// area scales linearly with ships, not radius. `minRadius` is a visibility
+// floor for tiny contingents (e.g. the 3-ship Symaeans) so they never vanish
+// to a sub-pixel dot; it does NOT distort the area ratio between any two
+// contingents both above the floor.
+export function shipCircleRadius(
+  ships: number,
+  maxShips: number,
+  maxRadius = 26,
+  minRadius = 4,
+): number {
+  if (maxShips <= 0 || ships <= 0) return minRadius;
+  const r = maxRadius * Math.sqrt(ships / maxShips);
+  return Math.max(minRadius, r);
+}
+
+// ── Contingent → place / reader resolution ──────────────────────────────────
+
+// The contingent's principal region for its map pin/circle: the first place
+// in its (catalogue-text-ordered) `places` list that actually has coords.
+// Never invents a position — returns null if none of the contingent's places
+// are locatable (e.g. a contingent whose one named place has no fixed site).
+export function principalPlace(
+  contingent: Contingent,
+  placesById: Map<string, Place>,
+): Place | null {
+  for (const id of contingent.places) {
+    const p = placesById.get(id);
+    if (p?.coords) return p;
+  }
+  return null;
+}
+
+// The bounds used by the Catalogue maps. Troy may still be drawn as the
+// Trojan contingent's real anchor, but it is not a framing point for either
+// side's overview. The extent remains entirely data-derived.
+export interface PlaceBounds {
+  southWest: LatLon;
+  northEast: LatLon;
+}
+
+export function placeBounds(places: Iterable<Place>): PlaceBounds | null {
+  const coords = [...places].flatMap((p) => p.coords ? [p.coords] : []);
+  if (!coords.length) return null;
+  const lats = coords.map(([lat]) => lat);
+  const lons = coords.map(([, lon]) => lon);
+  return {
+    southWest: [Math.min(...lats), Math.min(...lons)],
+    northEast: [Math.max(...lats), Math.max(...lons)],
+  };
+}
+
+export function boundsExcludingTroy(places: Iterable<Place>): PlaceBounds | null {
+  return placeBounds([...places].filter((p) => p.id !== 'troy' && p.id !== 'ilios'));
+}
+
+// Resolve each named place in a Catalogue contingent in catalogue-text order.
+// Coordless places are returned for honest UI disclosure, never pinning.
+export function contingentPlaces(
+  contingent: Contingent,
+  placesById: Map<string, Place>,
+): { located: Place[]; unlocated: Place[]; unresolved: string[] } {
+  const referenced = contingent.places.map((id) => ({ id, place: placesById.get(id) }));
+  const resolved = referenced
+    .map(({ place }) => place)
+    .filter((p): p is Place => p != null);
+  return {
+    ...splitByCoords(resolved),
+    // An absent gazetteer entry is no warrant to manufacture a place name or
+    // coordinate. Retain its catalogue id so the selection UI can disclose it.
+    unresolved: referenced.filter(({ place }) => place == null).map(({ id }) => id),
+  };
+}
+
+export function placesById(places: Place[]): Map<string, Place> {
+  return new Map(places.map((p) => [p.id, p]));
+}
+
+// Title-case an id ("ajax-oileus" -> "Ajax Oileus") for a leader with no
+// characters.json entry of its own — most of the ~90 named Catalogue leaders
+// are minor figures characters.json doesn't carry (only 16 of 73 leader
+// refs resolve there); this is a plain, non-inventive display fallback, the
+// same posture as shared/lib/genealogy.ts's `humanize` for an external
+// parent id. Never a substitute for real biographical data.
+export function humanizeId(id: string): string {
+  return id.split('-').map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w)).join(' ');
+}
+
+// A Catalogue leader's display name: the real name/Greek from
+// apparatus/characters.json when the leader has an entry there, else the
+// humanized id (see humanizeId) with no Greek. Never invents a name.
+export function leaderDisplayName(
+  id: string,
+  charactersById: Map<string, CharacterRef>,
+): { name: string; greek?: string; known: boolean } {
+  const c = charactersById.get(id);
+  return c ? { name: c.name, greek: c.greek, known: true } : { name: humanizeId(id), known: false };
+}
+
+// The reader deep-link `?loc=` VALUE for a contingent's line span — its
+// catalogue entry's FIRST line, verse-line scheme (colon grammar: see
+// shared/lib/citation.ts formatLocValue — "2:494", not the dot copy-citation
+// form "2.494"). Callers compose the full href as
+// `${base}${workPath(workId, book)}?loc=${contingentLocValue(book, contingent)}`.
+export function contingentLocValue(book: number, contingent: Contingent): string {
+  return `${book}:${contingent.lines[0]}`;
+}
+
+// ── Wanderings route (the Apologoi, Od. 9-12) ───────────────────────────────
+
+// The place ids that make up Odysseus's OWN sea-voyage route, in narrative
+// (= voyage-chronological, for this span) order — i.e. the classic Landmark
+// "Wanderings of Odysseus" line: Ismarus through Thrinacia. Restricted to
+// Odyssey books 9-12 (the Apologoi, Odysseus's first-person account, is the
+// literary unit actually called "the Wanderings"); other wanderings-tagged
+// places (Ithaca, Sparta, Menelaus's Egypt/Cyprus/Libya travels, Ogygia,
+// Scheria, etc.) are real map pins but are not stations ON this route, so
+// connecting them would misrepresent the voyage — apparatus honesty over
+// completeness. One explicit, documented exclusion within the 9-12 span:
+// Zacynthus (Od. 9.24) is named in Odysseus's description of Ithaca's
+// neighboring islands, immediately before the voyage narrative begins at
+// Ismarus (9.39) — it is not itself a waypoint.
+const WANDERINGS_ROUTE_MIN_BOOK = 9;
+const WANDERINGS_ROUTE_MAX_BOOK = 12;
+const WANDERINGS_ROUTE_EXCLUDE = new Set<string>(['zacynthus']);
+
+// Ordered, coord-bearing, non-mythical stations of Odysseus's sea voyage for
+// the Wanderings map's dashed polyline. Skips no-coord stations (all of which
+// happen to be the mythical-tier ones — the underworld, the Planctae — since
+// Homer gives them no real-world geography) and any mythical-tier place even
+// if it somehow carried coords, per "do not invent positions". Sorted by
+// (book, line) ascending, which — restricted to this narrow 9-12 span — is
+// exactly voyage order (the Apologoi narrate the voyage linearly).
+export function wanderingsRoute(places: Place[]): Place[] {
+  return placesForMap(places, 'wanderings')
+    .filter((p) => p.coords)
+    .filter((p) => p.certainty !== 'mythical')
+    .filter((p) => {
+      const m = p.mentions[0];
+      return !!m && m.work === 'odyssey'
+        && m.book >= WANDERINGS_ROUTE_MIN_BOOK && m.book <= WANDERINGS_ROUTE_MAX_BOOK;
+    })
+    .filter((p) => !WANDERINGS_ROUTE_EXCLUDE.has(p.id))
+    .sort((a, b) => {
+      const ma = a.mentions[0];
+      const mb = b.mentions[0];
+      return ma.book !== mb.book ? ma.book - mb.book : ma.lines[0] - mb.lines[0];
+    });
+}
+
+// ── Wanderings STORY order (Story mode: numbered stations, Troy-to-Ithaca) ──
+
+// The full narrative frame of "the Wanderings of Odysseus" as staged by a
+// route poster (our reference: World History Encyclopedia's Odysseus map),
+// in OUR restrained/honest style — broader than wanderingsRoute() above.
+// wanderingsRoute() draws the dashed SEA-VOYAGE line proper (Ismarus through
+// Thrinacia, the Apologoi's own itinerary, book/line-sortable because that
+// span narrates linearly). Story mode's numbered stations bracket that route
+// with its narrative frame — Troy where the voyage begins and Ithaca where
+// it ends — plus two waypoints the voyage line itself correctly omits
+// because Homer gives them no real-world geography:
+//   - cimmerians-underworld: the Nekyia (Od. 11.14) — squarely inside the
+//     voyage's own telling, mythical tier, no coords.
+//   - ogygia: Calypso's island. Its recorded citation (mentions[0], used
+//     elsewhere for the place's primary reference) is Od. 7.244 — Odysseus
+//     alludes to it in Scheria, before the Apologoi even begin. But its
+//     position IN THE VOYAGE is the end of his own tale (12.447-450): the
+//     wreck off Thrinacia washes him there before the Phaeacians ever find
+//     him. Story order follows the VOYAGE's chronology, so Ogygia sits after
+//     Thrinacia, not at its book-7 citation.
+// planctae (the Wandering Rocks, Od. 12.61) is deliberately excluded: Circe
+// warns Odysseus of it and he chooses the Scylla/Charybdis strait instead —
+// described, never visited, so it is not a station of this voyage.
+//
+// Because Troy/Ogygia/Ithaca don't have (book, line) positions that match
+// their place in the voyage's own chronology, this order is curated by hand
+// (like WANDERINGS_ROUTE_EXCLUDE above), not mechanically sorted. 17
+// stations; 15 carry coords (numbered map badges), 2 do not (the "beyond the
+// map's edge" strip): cimmerians-underworld at #10, ogygia at #15.
+const WANDERINGS_STORY_ORDER = [
+  'troy', 'ismarus', 'cape-malea', 'cythera', 'lotus-eaters-land',
+  'cyclopes-land', 'aeolia', 'laestrygonia', 'aeaea',
+  'cimmerians-underworld', 'sirens-island', 'scylla', 'charybdis',
+  'thrinacia', 'ogygia', 'scheria', 'ithaca',
+] as const;
+
+export interface StoryStation {
+  place: Place;
+  number: number; // 1-based telling-order position
+}
+
+// Resolves WANDERINGS_STORY_ORDER against the actual places array. Skips
+// (never invents) any id absent from `places` — the corpus carries all 17 in
+// practice; this is a defensive no-op, not a substitute for real data.
+export function wanderingsStory(places: Place[]): StoryStation[] {
+  const byId = placesById(places);
+  const out: StoryStation[] = [];
+  WANDERINGS_STORY_ORDER.forEach((id, i) => {
+    const p = byId.get(id);
+    if (p) out.push({ place: p, number: i + 1 });
+  });
+  return out;
+}
+
+// Splits a story-order sequence into map-pinnable (has coords) and "beyond
+// the map's edge" (no coords) groups, telling order preserved in both.
+export function splitStoryByCoords(
+  stations: StoryStation[],
+): { located: StoryStation[]; unlocated: StoryStation[] } {
+  const located: StoryStation[] = [];
+  const unlocated: StoryStation[] = [];
+  for (const s of stations) (s.place.coords ? located : unlocated).push(s);
+  return { located, unlocated };
+}
+
+// A caption card's compact one-line summary of a place's note: truncated to
+// ~maxLen chars at a word boundary (never mid-word) with a trailing
+// ellipsis. The full note remains available in the existing Leaflet popup,
+// unchanged by story mode.
+export function captionSummary(note: string | undefined, maxLen = 60): string {
+  if (!note) return '';
+  if (note.length <= maxLen) return note;
+  const cut = note.slice(0, maxLen);
+  const lastSpace = cut.lastIndexOf(' ');
+  const truncated = lastSpace > 0 ? cut.slice(0, lastSpace) : cut;
+  return `${truncated}…`;
+}
+
+// ── Journey routes (apparatus/journeys.json: the four nostoi) ──────────────
+// John's directives (2026-07-17): (1) Odysseus's own route must end at
+// Ithaca, not stop at Thrinacia -- wanderingsReturnTail() below supplies the
+// Thrinacia->Ogygia(broken)->Scheria->Ithaca(solid) tail that extends the
+// Wanderings tab's existing dashed route (still built from wanderingsRoute()
+// above, unchanged). (2) Menelaus/Nestor/Telemachus get their own distinct
+// colored+patterned routes -- placed on a dedicated Journeys tab (MapsPage's
+// placement call) so the Wanderings tab / story mode stays Odysseus-focused.
+// (3) routes are drawn as gentle curves, not rigid straight segments --
+// arcPoints/curvedRoute below. All three share one honesty rule: a leg whose
+// endpoint has no real coordinate (Ogygia; the Ethiopians; the Erembi) never
+// gets a confident line to it -- LandmarkMap gives those a broken/faded
+// "gap" treatment instead (that component's drawBrokenLeg).
+
+export interface JourneyLegRef {
+  work: string;
+  book: number;
+  lines: [number, number];
+}
+
+// A single leg of a journey as recorded in apparatus/journeys.json.
+// `unlocatable` is the apparatus's own honesty flag for "this leg's
+// geography cannot be drawn" -- LandmarkMap treats it as advisory, not
+// authoritative: a leg is ALSO drawn broken whenever either endpoint's place
+// record itself has no coordinates, regardless of this flag. (Data note:
+// the corpus's one inconsistency is the ogygia->scheria leg, flagged
+// unlocatable:false even though Ogygia itself carries no coordinates in
+// places.json -- reported, not silently "fixed" here since journeys.json is
+// a read-only input to this file.)
+export interface JourneyLeg {
+  from: string;
+  to: string;
+  refs: JourneyLegRef[];
+  certainty: Certainty;
+  note: string;
+  unlocatable: boolean;
+}
+
+export interface Journey {
+  id: string;
+  name: string;
+  traveler: string;
+  color_role: string;
+  legs: JourneyLeg[];
+}
+
+export type LatLon = [number, number];
+
+// A journey leg with its endpoint ids resolved against the places
+// gazetteer. Never invents a coordinate: fromPlace/toPlace are null (not a
+// fabricated pin) whenever the id is unknown or genuinely uncoordinated.
+export interface ResolvedLeg {
+  from: string;
+  to: string;
+  fromPlace: Place | null;
+  toPlace: Place | null;
+  certainty: Certainty;
+  note: string;
+  unlocatable: boolean;
+}
+
+export function resolveLegs(legs: JourneyLeg[], placesById: Map<string, Place>): ResolvedLeg[] {
+  return legs.map((leg) => ({
+    from: leg.from,
+    to: leg.to,
+    fromPlace: placesById.get(leg.from) ?? null,
+    toPlace: placesById.get(leg.to) ?? null,
+    certainty: leg.certainty,
+    note: leg.note,
+    unlocatable: leg.unlocatable,
+  }));
+}
+
+export function resolveJourneyLegs(journey: Journey, placesById: Map<string, Place>): ResolvedLeg[] {
+  return resolveLegs(journey.legs, placesById);
+}
+
+// Every place touched by ANY leg (either endpoint) of the given journeys,
+// deduplicated in first-appearance order and split located/unlocated (never
+// force-pinned -- same posture as splitByCoords above). The Journeys tab's
+// pin set + "not locatable" honesty list.
+export function journeysPlaceSplit(
+  journeys: Journey[],
+  placesById: Map<string, Place>,
+): { located: Place[]; unlocated: Place[] } {
+  const seen = new Set<string>();
+  const located: Place[] = [];
+  const unlocated: Place[] = [];
+  for (const j of journeys) {
+    for (const leg of j.legs) {
+      for (const id of [leg.from, leg.to]) {
+        if (seen.has(id)) continue;
+        seen.add(id);
+        const p = placesById.get(id);
+        if (!p) continue; // unknown id -- never invents a placeholder
+        (p.coords ? located : unlocated).push(p);
+      }
+    }
+  }
+  return { located, unlocated };
+}
+
+// The odysseus-return journey's legs from Thrinacia onward: the frame beyond
+// wanderingsRoute()'s own Ismarus-Thrinacia sea-voyage line. John's explicit
+// call (2026-07-17): the Wanderings map's drawn route must reach Ithaca, not
+// stop at Thrinacia. Sourced from journeys.json rather than a second
+// hardcoded station list, so this tail can never drift from
+// WANDERINGS_STORY_ORDER's own Ogygia/Scheria/Ithaca stations above.
+const WANDERINGS_TAIL_FROM = 'thrinacia';
+
+export function wanderingsReturnTail(journeys: Journey[]): JourneyLeg[] {
+  const j = journeys.find((x) => x.id === 'odysseus-return');
+  if (!j) return [];
+  const idx = j.legs.findIndex((l) => l.from === WANDERINGS_TAIL_FROM);
+  return idx === -1 ? [] : j.legs.slice(idx);
+}
+
+// ── Curved route rendering math ─────────────────────────────────────────────
+// (John, 2026-07-17: "the straight lines is too...rigid. Some slight curve
+// would be good at times.") Pure lat/lon-space geometry -- not Leaflet pixel
+// space, so it stays correct across zoom/pan (Leaflet re-projects whatever
+// points it's handed) and is testable without a DOM/Leaflet instance.
+
+// A quadratic-Bezier arc between two [lat, lon] points. `bow` is a SIGNED
+// fraction of the segment's own length: the control point sits
+// `bow * length` away from the segment's midpoint, perpendicular to the
+// from->to line. bow=0 degenerates to the straight segment. Sign picks which
+// side the arc bulges toward; magnitude/sign are a rendering-layer per-leg
+// tuning choice (see LandmarkMap's BOW_HINTS), never sourced from apparatus
+// data (CLAUDE.md: journeys.json/places.json are data, not display hints).
+// Returns exactly `steps + 1` points, including both endpoints exactly.
+export function arcPoints(from: LatLon, to: LatLon, bow: number, steps = 16): LatLon[] {
+  const [lat0, lon0] = from;
+  const [lat1, lon1] = to;
+  if (lat0 === lat1 && lon0 === lon1) return [from, to];
+  const dLat = lat1 - lat0;
+  const dLon = lon1 - lon0;
+  const len = Math.sqrt(dLat * dLat + dLon * dLon);
+  const perpLat = -dLon / len;
+  const perpLon = dLat / len;
+  const controlLat = (lat0 + lat1) / 2 + perpLat * bow * len;
+  const controlLon = (lon0 + lon1) / 2 + perpLon * bow * len;
+  const out: LatLon[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const mt = 1 - t;
+    const lat = mt * mt * lat0 + 2 * mt * t * controlLat + t * t * lat1;
+    const lon = mt * mt * lon0 + 2 * mt * t * controlLon + t * t * lon1;
+    out.push([lat, lon]);
+  }
+  return out;
+}
+
+// Strings a sequence of station coordinates into one continuous, gently-
+// curved polyline: arcPoints() for every consecutive pair, sharing endpoints
+// (no duplicate point at the join) so Leaflet draws one unbroken path.
+// `bowFor(legIndex)` supplies each leg's bow (points[i] -> points[i+1] is
+// legIndex i).
+export function curvedRoute(points: LatLon[], bowFor: (legIndex: number) => number, steps = 16): LatLon[] {
+  if (points.length < 2) return points.slice();
+  const out: LatLon[] = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const seg = arcPoints(points[i]!, points[i + 1]!, bowFor(i), steps);
+    out.push(...(i === 0 ? seg : seg.slice(1)));
+  }
+  return out;
+}
+
+// A short, fading directional stub from a known point toward an unlocatable
+// neighbor -- the honesty treatment for a leg whose OTHER endpoint has no
+// coordinate in the gazetteer (Ogygia; the Ethiopians; the Erembi). Never
+// draws anything AT the unlocatable place; only shows the known endpoint's
+// leg trailing off toward the map's edge. `bearingDeg` (0=north, 90=east,
+// plain lat/lon-space bearing) and `lengthDeg` are rendering-layer choices
+// (LandmarkMap's FADE_HINTS). Returns `steps + 1` points starting AT
+// `point`; pair with per-point opacity easing in the renderer for an
+// outbound ("fading toward the unknown") leg, or reverse the array for an
+// inbound ("arriving from the unknown") leg.
+export function fadeStub(point: LatLon, bearingDeg: number, lengthDeg: number, steps = 5): LatLon[] {
+  const rad = (bearingDeg * Math.PI) / 180;
+  const dLat = Math.cos(rad) * lengthDeg;
+  const dLon = Math.sin(rad) * lengthDeg;
+  const out: LatLon[] = [];
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    out.push([point[0] + dLat * t, point[1] + dLon * t]);
+  }
+  return out;
+}
+
+// ── Voyage durations (apparatus/voyage-chronology.json) ────────────────────
+// John's directive (2026-07-18): surface Odysseus's poem-stated station
+// durations on the Wanderings + Journeys tabs. This section is pure data
+// shaping only -- LandmarkMap decides where/how a duration line or chip
+// renders; this file decides what it SAYS, so the wording is testable
+// without a DOM.
+
+export interface StationDuration {
+  value: number;
+  unit: string;
+  greek: string | null;
+  cite: string;
+  label?: string;
+  approximate?: boolean;
+}
+
+export interface VoyageStation {
+  id: string;
+  placeId: string | null;
+  label: string;
+  kind: string;
+  unlocatable: boolean;
+  refs: Mention[];
+  duration: StationDuration | null;
+  stayDuration?: StationDuration;
+  note: string;
+}
+
+// A station's headline duration for a compact chip: the "how long here"
+// figure. When the poem gives BOTH an arrival/travel duration and a
+// separate stay duration (Ogygia: nine days adrift arriving vs. seven years
+// kept by Calypso, Od. 7.259), the stay wins -- that is what a reader means
+// by "how long was Odysseus at X". Falls back to the arrival/travel
+// duration otherwise (the Lotus-eaters' nine-day storm, Aeolia's month,
+// etc). Null when the poem states no duration at all for this station --
+// per CLAUDE.md apparatus honesty, never invented, never a chip.
+export function primaryDuration(station: VoyageStation): StationDuration | null {
+  return station.stayDuration ?? station.duration ?? null;
+}
+
+// Every poem-stated duration for a station, stay-duration first (see
+// primaryDuration), for a popup's fuller temporal block. Empty (never
+// invented) when the poem states nothing for this station.
+export function allDurations(station: VoyageStation): StationDuration[] {
+  const out: StationDuration[] = [];
+  if (station.stayDuration) out.push(station.stayDuration);
+  if (station.duration) out.push(station.duration);
+  return out;
+}
+
+// One duration formatted for a popup line: "9 days -- ἐννῆμαρ, Od. 9.82"
+// (Greek present) or "~1 night -- Od. 13.78-95" (Ithaca's narrative-frame
+// night carries no counting-word in the Greek -- see voyage-chronology.json
+// -- so `greek` is null and `approximate` marks the tilde). No label prefix
+// here; durationExtras below supplies the label as a separate popup row.
+export function durationLine(d: StationDuration): string {
+  const approx = d.approximate ? '~' : '';
+  const amount = `${approx}${d.value} ${d.unit}`;
+  return d.greek ? `${amount} — ${d.greek}, ${d.cite}` : `${amount} — ${d.cite}`;
+}
+
+// A short chip label with no citation -- Story mode's glance-only duration
+// chip ("9 days", "7 years"); the full durationLine() (with Greek + cite)
+// belongs in the chip's title/aria-label instead, not the visible chip text.
+export function chipLabel(d: StationDuration): string {
+  return `${d.approximate ? '~' : ''}${d.value} ${d.unit}`;
+}
+
+function capitalizeFirst(s: string): string {
+  return s ? s[0]!.toUpperCase() + s.slice(1) : s;
+}
+
+// Popup `extra` rows (see LandmarkMap's `items[].extra`) for a station's
+// duration(s) -- stay first, then arrival/travel, each its own labelled
+// row so Ogygia's two figures ("kept by Calypso": 7 years; "adrift,
+// arriving": 9 days) read as distinct, not duplicate numbers. Falls back to
+// the generic label "Duration" when the JSON supplies none.
+export function durationExtras(station: VoyageStation): { label: string; value: string }[] {
+  return allDurations(station).map((d) => ({
+    label: capitalizeFirst(d.label ?? 'Duration'),
+    value: durationLine(d),
+  }));
+}
+
+// Duration lookup by placeId: FIRST occurrence wins in station array order.
+// voyage-chronology.json records some places twice (aeolia-1/aeolia-2,
+// aeaea-1/aeaea-2 -- Odysseus's outbound landfall and, for Aeolia, his
+// turned-away return; for Aeaea, his stay and his post-Nekyia return) --
+// the corpus's own convention is that the FIRST landfall carries the
+// station's duration and the second carries null (see that file's own
+// station notes). First-occurrence-wins reproduces that convention exactly
+// without re-deriving it here. Digression stations (placeId: null -- the
+// near-Ithaca bag-opening; the raft's building/voyage/storm) are skipped:
+// they have no map pin to attach a popup line to.
+export function voyageDurationByPlaceId(stations: VoyageStation[]): Map<string, VoyageStation> {
+  const map = new Map<string, VoyageStation>();
+  for (const s of stations) {
+    if (!s.placeId || map.has(s.placeId)) continue;
+    map.set(s.placeId, s);
+  }
+  return map;
+}
+
+// ── Verified traveler-level durations beyond voyage-chronology.json ────────
+// voyage-chronology.json covers Odysseus's own voyage only. John's directive
+// (2026-07-18) also asks for Menelaus's and Nestor's stated timing, VERIFIED
+// against the emitted Greek before rendering anything. Checked line-by-line
+// against build/dist/odyssey/book-03.json and book-04.json (2026-07-18):
+//   - Menelaus: Od. 4.82, ὀγδοάτῳ ἔτει ("in the eighth year") -- his own
+//     words to Telemachus and Peisistratus, closing the account of the
+//     wandering that brought him home ("ἠγαγόμην ἐν νηυσὶ καὶ ὀγδοάτῳ
+//     ἔτει ἦλθον"). A TOTAL-nostos figure, the same kind as
+//     voyage-chronology.json's own totalAssertions.twentiethYear for
+//     Odysseus -- not a per-station arrival/stay duration, so it is kept
+//     separate from the StationDuration shape above.
+//   - Nestor: Od. 3.180-183 does NOT state a numbered duration for Nestor
+//     himself. τέτρατον ἦμαρ ("it was the fourth day", 3.180) marks the day
+//     DIOMEDES's ships moored at Argos; Nestor's own lines (3.182-183) say
+//     only that the SAME wind, unbroken since first sent, carried him on to
+//     Pylos. Rendering "4 days" as Nestor's own travel time would overclaim
+//     what the Greek actually says -- so this is a qualitative, hedged
+//     citation, never forced into a value/unit duration.
+//   - Telemachus: no citation -- his journey aligns to the narrative-present
+//     calendar rather than a poem-stated span (John's brief: a small
+//     "Days 2-6 of the poem" line is enough).
+// Keyed by the journeys.json leg ("from-to") the note is most relevant to:
+// Menelaus's at his arrival leg (egypt -> sparta, where he tells the story),
+// Nestor's at his own arrival leg (geraistos -> pylos), Telemachus's at his
+// journey's first leg (ithaca -> pylos).
+export interface TravelerNote {
+  travelerId: string; // matches journeys.json's `traveler`
+  greek: string;
+  cite: string;
+  gloss: string;
+}
+
+export const JOURNEY_LEG_NOTES: Record<string, TravelerNote> = {
+  'egypt-sparta': {
+    travelerId: 'menelaus',
+    greek: 'ὀγδοάτῳ ἔτει ἦλθον',
+    cite: 'Od. 4.82',
+    gloss: 'Menelaus, to Telemachus and Peisistratus: only in the eighth year did he come home.',
+  },
+  'geraistos-pylos': {
+    travelerId: 'nestor',
+    greek: 'τέτρατον ἦμαρ … οὐδέ ποτʼ ἔσβη οὖρος',
+    cite: 'Od. 3.180, 182–183',
+    gloss: "The wind that brought Diomedes's ships to Argos “on the fourth day” never once slackened for Nestor's own passage on to Pylos.",
+  },
+  'ithaca-pylos': {
+    travelerId: 'telemachus',
+    greek: '',
+    cite: '',
+    gloss: "Telemachus's own journey aligns to the narrative-present calendar: Days 2–6 of the poem.",
+  },
+};
+
+export function journeyLegNote(from: string, to: string): TravelerNote | undefined {
+  return JOURNEY_LEG_NOTES[`${from}-${to}`];
+}
+
+// ── Story-mode playthrough: the leg-by-leg step sequence ───────────────────
+// John's directive (2026-07-18): a Play control that unfolds the Wanderings
+// Story-mode route leg by leg, in telling order. One PlaybackLeg per
+// consecutive pair of storyStations (16 legs for the 17-station order) --
+// carries the two Place records directly (storyStations already resolved
+// them), so LandmarkMap can decide drawable-vs-broken the same way
+// drawableLeg()/drawBrokenLeg() already do for journeyRoutes, without a
+// second lookup pass.
+export interface PlaybackLeg {
+  from: Place;
+  to: Place;
+  toNumber: number; // the arriving station's 1-based telling-order number
+}
+
+export function wanderingsPlaybackLegs(storyStations: StoryStation[]): PlaybackLeg[] {
+  const out: PlaybackLeg[] = [];
+  for (let i = 0; i < storyStations.length - 1; i++) {
+    out.push({
+      from: storyStations[i]!.place,
+      to: storyStations[i + 1]!.place,
+      toNumber: storyStations[i + 1]!.number,
+    });
+  }
+  return out;
+}
+
+// Shared pacing constant for the Play control: MapsPage's autoplay timer and
+// LandmarkMap's per-leg camera-glide/stroke-draw animation both read this,
+// so the two stay in sync without duplicating the number. "~1-2s per leg"
+// per John's brief.
+export const WANDERINGS_STEP_MS = 1600;

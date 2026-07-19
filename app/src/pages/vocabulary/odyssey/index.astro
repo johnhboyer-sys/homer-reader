@@ -1,0 +1,104 @@
+---
+import { readFileSync } from 'node:fs';
+import ThemeInit from '../../../components/ThemeInit.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import Pwa from '../../../components/Pwa.astro';
+import { jsonLdSafe } from '../../../lib/jsonld';
+import { betaToGreek } from '@shared/lib/betacode';
+import { buildLemmaKeyMap, resolveLemmaSlug } from '../../../lib/vocabLemmaLink';
+import '@shared/styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+interface VocabEntry { lemma: string; count: number; gloss?: string; }
+interface VocabFile { status: 'draft' | 'reviewed'; books: Record<string, VocabEntry[]>; }
+interface LemmaIndexEntry { slug: string; key: string; }
+
+const vocabulary = JSON.parse(readFileSync('../build/dist/odyssey/vocab.json', 'utf-8')) as VocabFile;
+const lemmaIndex = JSON.parse(readFileSync('public/data/lemmata/_index.json', 'utf-8')) as LemmaIndexEntry[];
+const lemmaSlugs = new Map(lemmaIndex.map(({ key, slug }) => [key, slug]));
+// Join through the same bucket key build-lemmata.mjs uses (see
+// vocabLemmaLink.ts) -- a raw vocab lemma often differs from the index key
+// by LSJ-headword normalization (quantity marks, homograph digits).
+const lemmaKeyMap = buildLemmaKeyMap(
+  JSON.parse(readFileSync('public/data/odyssey/analyses.json', 'utf-8')),
+);
+const books = Array.from({ length: 24 }, (_, index) => index + 1);
+const isDraft = vocabulary.status === 'draft';
+const pageTitle = 'Odyssey vocabulary — The Homer Reader';
+const metaDescription = 'Words to know before each book of the Odyssey, computed from lemma frequency.';
+const canonical = Astro.site ? new URL(`${base}/vocabulary/odyssey/`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+const jsonLd = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: pageTitle, description: metaDescription, ...(canonical ? { url: canonical } : {}) };
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  <meta property="og:site_name" content="The Homer Reader" />
+  {canonical && <meta property="og:url" content={canonical} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(jsonLd)} />
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <style is:global>
+    body { overflow-x: hidden; max-width: 100%; }
+    .vocab-body { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem 4.5rem; color: var(--text); }
+    h1 { font-family: var(--font-display); font-size: 1.95rem; font-weight: 400; line-height: 1.15; margin-bottom: .55rem; }
+    .vocab-intro { max-width: 45rem; color: var(--text-mid); font-size: .98rem; line-height: 1.62; }
+    .vocab-intro a { color: var(--accent); }
+    .vocab-jump { display: flex; flex-wrap: wrap; gap: .45rem 1.1rem; margin-top: 1.4rem; max-width: 65rem; font-family: var(--font-ui); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; }
+    .vocab-jump a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; padding-bottom: 1px; }
+    .vocab-jump a:hover { border-bottom-color: var(--accent); }
+    .vocab-jump a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .vocab-book { max-width: 65rem; scroll-margin-top: 1rem; }
+    .vocab-book h2 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; margin: 2rem 0 .5rem; padding-top: .65rem; border-top: 2px solid var(--rule-strong); }
+    .vocab-book:first-of-type h2 { margin-top: 1.8rem; }
+    .vocab-list { margin: 0; padding-left: 2rem; }
+    .vocab-entry { padding: .32rem 0; border-bottom: 1px solid var(--border); }
+    .vocab-lemma { font-family: var(--font-greek); font-size: 1.1rem; color: var(--text); }
+    a.vocab-lemma { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+    a.vocab-lemma:hover { border-bottom-color: var(--accent); }
+    a.vocab-lemma:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .vocab-gloss { margin-left: .55rem; color: var(--text-mid); }
+    .vocab-count { margin-left: .55rem; color: var(--text-mid); font-family: var(--font-ui); font-size: .75rem; white-space: nowrap; }
+    .computed-note { margin-top: 3rem; padding-top: .9rem; border-top: 1px solid var(--border); color: var(--text-mid); font-family: var(--font-ui); font-size: .73rem; }
+    @media (max-width: 480px) { h1 { font-size: 1.6rem; } .vocab-list { padding-left: 1.6rem; } }
+  </style>
+  <Pwa />
+</head>
+<body>
+  <SiteHeader section="Odyssey Vocabulary" />
+  <main class="vocab-body">
+    <h1>Odyssey vocabulary {isDraft && <span class="draft-badge" title="AI-drafted English glosses, pending review">Draft</span>}</h1>
+    <p class="vocab-intro">Words to know before each book of the Odyssey, computed from lemma frequency. Common words and proper names are excluded; glosses from the Morpheus lexicon are draft apparatus. See also <a href={`${base}/vocabulary/iliad/`}>Iliad vocabulary</a>.</p>
+    <nav class="vocab-jump" aria-label="Jump to a book">
+      {books.map((book) => <a href={`#book-${book}`}>{book}</a>)}
+    </nav>
+    {books.map((book) => (
+      <section class="vocab-book" id={`book-${book}`}>
+        <h2>Book {book}</h2>
+        <ol class="vocab-list">
+          {(vocabulary.books[String(book)] ?? []).slice(0, 25).map((entry) => {
+            const slug = resolveLemmaSlug(entry.lemma, lemmaKeyMap, lemmaSlugs);
+            return <li class="vocab-entry">
+              {slug ? <a class="vocab-lemma" lang="grc" href={`${base}/lemma/${slug}`}>{betaToGreek(entry.lemma)}</a> : <span class="vocab-lemma" lang="grc">{betaToGreek(entry.lemma)}</span>}
+              {entry.gloss && <span class="vocab-gloss">{entry.gloss}</span>}
+              <span class="vocab-count">&times;{entry.count}</span>
+            </li>;
+          })}
+        </ol>
+      </section>
+    ))}
+    <footer class="computed-note">Computed automatically from lemma frequency. Common words and proper names are excluded; Morpheus glosses are draft apparatus.{isDraft && ' English glosses are pending review.'}</footer>
+  </main>
+</body>
+</html>

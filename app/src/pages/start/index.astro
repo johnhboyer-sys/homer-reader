@@ -1,0 +1,117 @@
+---
+// The Start Here funnel (PROMPT.md Phase 5, lines 156-168): a dedicated,
+// linkable/shareable landing page for the three doors the homepage hero also
+// offers directly. The homepage's doors point straight at their destinations
+// (no reason to make an in-site visitor click through an extra page); this
+// page exists as the funnel's own stable URL for OUTSIDE links — SEO pages,
+// social, outreach — per CLAUDE.md "the tie-in is structural (Start Here
+// funnel + SEO pages)". Same simple-header + <main> pattern as
+// genealogies/maps/attribution/support (this is a reference/wayfinding page,
+// not a ReaderShell page).
+import ThemeInit from '../../components/ThemeInit.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import DoorCards from '../../components/DoorCards.astro';
+import Pwa from '../../components/Pwa.astro';
+import { jsonLdSafe } from '../../lib/jsonld';
+import { workPath } from '@shared/lib/works';
+import '@shared/styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// The three doors are the shared DoorCards component (labels + copy canonical
+// there, unified with the homepage — punch-list #10). Only the destinations
+// differ per surface: this funnel's Greek door arms `tour=parse`, the one-time
+// 5-step parse-popup walkthrough (ParsePopupTour.svelte, mounted in
+// ReaderShell) — gated to arrivals via this door, never shown on a plain visit.
+const doorHrefs: [string, string, string] = [
+  `${base}${workPath('odyssey', 9)}?mode=reading`,
+  `${base}${workPath('iliad', 1)}?mode=scholar&tour=parse`,
+  `${base}/maps/`,
+];
+
+const pageTitle = 'Start Here — The Homer Reader';
+const metaDescription =
+  'Three ways into the Homer Reader: begin in the middle of the action with the Odyssey, ' +
+  'read along in the Greek with parse popups, or start with the maps — free, no account required.';
+const canonical = Astro.site ? new URL(`${base}/start/`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: pageTitle,
+  description: metaDescription,
+  ...(canonical ? { url: canonical } : {}),
+  isPartOf: { '@type': 'WebSite', name: 'The Homer Reader' },
+};
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{pageTitle}</title>
+  <meta name="description" content={metaDescription} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={metaDescription} />
+  <meta property="og:site_name" content="The Homer Reader" />
+  {canonical && <meta property="og:url" content={canonical} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={pageTitle} />
+  <meta name="twitter:description" content={metaDescription} />
+  {ogImage && <meta name="twitter:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(jsonLd)} />
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <style>
+    body { overflow-x: hidden; max-width: 100%; }
+    /* Center the short funnel content in the viewport instead of top-loading it
+       and trailing a half-screen of empty page (#13). The block fills the space
+       below the sticky shell header; whitespace is distributed above and below. */
+    .start-body {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: var(--space-6) 1rem;
+      min-height: calc(100dvh - 3.6rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      font-family: var(--font-english);
+      color: var(--text);
+    }
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 2rem;
+      margin: 0 0 0.6rem;
+    }
+    .start-intro {
+      max-width: 42rem;
+      font-size: 0.98rem;
+      line-height: 1.65;
+      color: var(--text-mid);
+      margin-bottom: var(--space-2);
+    }
+    /* Door-card styles live in the shared DoorCards.astro component (#10). */
+    @media (max-width: 480px) { h1 { font-size: 1.6rem; } }
+  </style>
+  <Pwa />
+</head>
+<body>
+  <SiteHeader section="Start Here" />
+
+  <main class="start-body">
+    <h1>Start Here</h1>
+    <p class="start-intro">
+      Three ways into the Iliad and the Odyssey, depending on what you want
+      first &mdash; the story, the Greek, or the geography. All three are
+      free, with no account required.
+    </p>
+
+    <DoorCards hrefs={doorHrefs} />
+  </main>
+</body>
+</html>
