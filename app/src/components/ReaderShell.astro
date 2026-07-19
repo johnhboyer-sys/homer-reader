@@ -121,6 +121,17 @@ const apparatus: BookApparatus | undefined = bookData.apparatus;
 // the current-book SSR loader above; the helper caches that projection per work
 // while Astro renders the 24 static book pages.
 const tocArguments: BookArgument[] = verseLine ? bookArguments(workId, work.books) : [];
+// Per-book Flaxman plate for the header band (John, 2026-07-18: committed
+// feature — the plate joins the contour band, shrunk to the band's own
+// dimensions; desktop only, plateless books simply show the band as before).
+// Build-time read of the repo's art apparatus, same posture as the loaders
+// above; the asset itself is a static alpha mask under /art/flaxman/.
+interface ArtPlate { work: string; book: number; file: string; caption?: string; }
+let artPlate: ArtPlate | undefined;
+try {
+  const art = JSON.parse(readFileSync('../apparatus/art.json', 'utf-8')) as { plates?: ArtPlate[] };
+  artPlate = art.plates?.find((p) => p.work === workId && p.book === n);
+} catch { /* no art apparatus in this build — band renders as always */ }
 const tocHasDraftArgument = tocArguments.some(({ argument, draft }) => Boolean(argument) && draft === true);
 // Apologoi day-honesty cue (John, phone session 2026-07-18): "where" carries
 // the pipeline's "(telling)" marker on a frame scene (Odysseus narrating at
@@ -741,6 +752,14 @@ const intro =
 
   {verseLine && !bookless && (
     <section class="book-plate" aria-label={`${work.title}, Book ${label} — book plate`}>
+      {artPlate && (
+        <span
+          class="plate-art"
+          aria-hidden="true"
+          style={`--art:url('${base}/art/flaxman/${artPlate.file}')`}
+          title={artPlate.caption}
+        ></span>
+      )}
       <div class="book-plate-titles">
         {cartoucheGreek && <div class="book-plate-greek" lang="grc">{cartoucheGreek}</div>}
         <div class="book-plate-en">{work.title} · Book {label}</div>

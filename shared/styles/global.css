@@ -83,6 +83,7 @@
   --accent-light: #8C3A57;  /* Wine-dark --gold-deco role: decorative/hover-emphasis tint */
   --border:       #CFC7CC;  /* Wine-dark --rule: soft decorative hairline */
   --scene-map-sea:        #DCE7EB; /* restrained Aegean water, distinct from land */
+  --flaxman-ink:          #241827; /* engraving ink, light ground */
   --scene-map-land:       #F1EEE6; /* lifted parchment ground */
   --scene-map-coast:      #716A73; /* quiet coast boundary over either fill */
   --scene-map-label-halo: #F8F7F3; /* preserves labels across coastlines */
@@ -145,6 +146,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     --scene-map-sea:        #132B3B; /* deep Aegean water */
+    --flaxman-ink:          rgba(237,230,232,0.67); /* ink A (John): bone, subtle, not inverted */
     --scene-map-land:       #2A2530; /* lifted dark ground */
     --scene-map-coast:      #8296A0; /* restrained coast boundary */
     --scene-map-label-halo: #17131C; /* preserves labels across coastlines */
@@ -165,6 +167,7 @@
   --accent-light: #E8A6BA;  /* Wine-dark --gold-deco dark */
   --border:       #3A2C38;  /* Wine-dark --rule dark */
   --scene-map-sea:        #132B3B; /* deep Aegean water */
+  --flaxman-ink:          rgba(237,230,232,0.67); /* ink A (John): bone, subtle, not inverted */
   --scene-map-land:       #2A2530; /* lifted dark ground */
   --scene-map-coast:      #8296A0; /* restrained coast boundary */
   --scene-map-label-halo: #17131C; /* preserves labels across coastlines */
@@ -191,6 +194,7 @@
 
 :root[data-theme="light"] {
   --scene-map-sea:        #DCE7EB; /* restrained Aegean water */
+  --flaxman-ink:          #241827; /* engraving ink, light ground */
   --scene-map-land:       #F1EEE6; /* lifted parchment ground */
   --scene-map-coast:      #716A73; /* quiet coast boundary */
   --scene-map-label-halo: #F8F7F3; /* preserves labels across coastlines */
@@ -3288,6 +3292,24 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 .contour-band path { fill: none; stroke: var(--rule-strong); stroke-width: 1; }
 .contour-band path.n2 { stroke: var(--border); }
 .contour-band path.n3 { stroke: var(--accent-light); opacity: 0.55; }
+/* Per-book Flaxman plate riding the contour band (John, 2026-07-18): sized
+   to the header band's own scale, bottom-anchored on its rule like a figure
+   on a frieze; ink via --flaxman-ink (bone at 0.67 in dark — "subtle, not
+   inverted"). Desktop only; plateless books show the band unchanged. */
+.book-plate { position: relative; }
+.plate-art {
+  position: absolute;
+  right: clamp(1rem, 3vw, 2.5rem);
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(300px, 24vw);
+  height: 78px;
+  background: var(--flaxman-ink);
+  -webkit-mask: var(--art) right center / contain no-repeat;
+  mask: var(--art) right center / contain no-repeat;
+  pointer-events: none;
+}
+@media (max-width: 899.98px) { .plate-art { display: none; } }
 
 /* Cartouche: the compact double-hairline book plate (per docs/DESIGN.md
    "Book plate: compact"). Renders unconditionally (title); the argument

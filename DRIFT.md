@@ -690,3 +690,6 @@ here (pipeline rename note at top still covers the package).
 - `shared/styles/global.css` — scene-map land/sea tokens (2026-07-18):
   `--scene-map-sea/-land/-coast/-label-halo` declared in all four theme
   blocks; Homer-only (Chart Room panels), no plato counterpart.
+- `shared/styles/global.css` — Flaxman art layer (2026-07-18 launch night):
+  `--flaxman-ink` in all four theme blocks + `.plate-art` cartouche plate
+  rules. Homer-only.
