@@ -475,3 +475,25 @@ HEAD this block: 5ba7978 + this ledger commit; all pushed.
 Awaiting John: Flaxman mock verdicts (A/B/C), Ogilby register decision,
 "FOR GREECE MAP" note (cut off), iPhone sheet-pin confirmation,
 domain/PR/deploy (standing).
+
+## LAUNCH — 2026-07-18, evening (Day 2)
+
+**LIVE: https://johnhboyer-sys.github.io/**
+
+John: "Let's launch tonight." Sequence executed per docs/
+LAUNCH-CHECKLIST.md: final build:public gate on the launch tree
+(4,713 pages, 314,575 links, 0 broken, 48/48 scenes, canonicals/
+sitemap on the live origin) -> PR #1 merged (John's order; 159
+commits, claude/build -> main @ 7787ab0) -> repo renamed
+johnhboyer-sys.github.io -> flipped public (John, via phone, after a
+sign-in odyssey worthy of the subject matter) -> gh-pages orphan
+published from the gated dist (+.nojekyll) -> Pages enabled
+(gh-pages/root, HTTPS enforced) -> live at attempt 3 of polling.
+Post-deploy live sweep: home, readers, maps, timeline, sitemap, data
+root, and the Outis 404 all verified on the live URL.
+
+URL decision: github.io user site tonight; custom domain may layer
+later (config/site + CNAME + DNS, no rebuild of substance).
+In flight at launch: Flaxman asset factory (art ships as the first
+post-launch update on John's render verdict - his standing order:
+"Then give me art").
