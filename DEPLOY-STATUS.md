@@ -497,3 +497,11 @@ later (config/site + CNAME + DNS, no rebuild of substance).
 In flight at launch: Flaxman asset factory (art ships as the first
 post-launch update on John's render verdict - his standing order:
 "Then give me art").
+
+## Post-launch repo split (2026-07-18, late)
+
+John's call: source back under its own name. `homer-reader` (private)
+recreated with full history — canonical source, remote `origin`. The
+public `johnhboyer-sys.github.io` repo stripped to a stub README +
+`gh-pages` (the served site) only — remote `deploy`. Site verified
+live throughout.
