@@ -505,3 +505,13 @@ recreated with full history — canonical source, remote `origin`. The
 public `johnhboyer-sys.github.io` repo stripped to a stub README +
 `gh-pages` (the served site) only — remote `deploy`. Site verified
 live throughout.
+
+## ART LIVE — 2026-07-18, night (second deploy)
+
+John: "Then give me art." Shipped: 48/48 Flaxman book plates in the
+reader cartouches (ink-masked, --flaxman-ink, ink A dark), distinct
+hero motifs (Thetis / Sirens) behind the English-first titles, and the
+og-default.png social card (Sirens on hero navy, polytonic epigraph).
+Deployed to homer-reader gh-pages @ source 3d26b81e; verified live
+(plate assets 200, plate markup in served HTML, og 200). Known
+pre-existing headless-only cosmetic (cartouche meta clip) filed.
