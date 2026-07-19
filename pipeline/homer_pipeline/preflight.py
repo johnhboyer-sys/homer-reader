@@ -831,7 +831,8 @@ def _validate_apparatus(
         if book_end is None:
             continue
         for message in apparatus_scenes.validate_emitted_apparatus(
-            n, doc["apparatus"], book_end, gaps.get(n, [])
+            n, doc["apparatus"], book_end, gaps.get(n, []),
+            reviewed=apparatus_scenes.work_reviewed(manifest.work_id),
         ):
             problems.append((manifest.work_id, file_name, message))
 

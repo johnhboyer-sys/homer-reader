@@ -196,7 +196,8 @@ def validate_staging_book(book: dict, book_end: int, gaps: list[tuple[int, int]]
 
 
 def validate_emitted_apparatus(
-    book_n: int, apparatus: Any, book_end: int, gaps: list[tuple[int, int]]
+    book_n: int, apparatus: Any, book_end: int, gaps: list[tuple[int, int]],
+    reviewed: bool = False,
 ) -> list[str]:
     """Validate the apparatus object as emitted onto book-{n}.json (post-merge
     shape: argument, where (string), who, day, draft, scenes)."""
@@ -219,7 +220,13 @@ def validate_emitted_apparatus(
             problems.append(f"book {book_n}: apparatus.who must be a list of strings")
     if "day" in apparatus and not isinstance(apparatus["day"], str):
         problems.append(f"book {book_n}: apparatus.day must be a string")
-    if apparatus.get("draft") is not True:
+    if reviewed:
+        if apparatus.get("draft") is not False:
+            problems.append(
+                f"book {book_n}: apparatus.draft must be present and False "
+                "(work is signed off reviewed)"
+            )
+    elif apparatus.get("draft") is not True:
         problems.append(f"book {book_n}: apparatus.draft flag must be present and true")
     problems += validate_scenes_list(apparatus.get("scenes"), book_n, book_end, gaps)
     return problems
@@ -232,6 +239,16 @@ def discover_staging(work_id: str) -> list[Path]:
     return sorted(STAGING_DIR.glob(f"scenes-{work_id}-*.json"))
 
 
+def work_reviewed(work_id: str) -> bool:
+    """John's draft->reviewed sign-off (the flip is his gate alone,
+    CLAUDE.md): an apparatus/scenes/<work>.REVIEWED marker file, created at
+    his explicit instruction (2026-07-18 launch night), promotes the merged
+    apparatus out of draft. Staging batches themselves stay status "draft"
+    forever - they are authorship records; the sign-off applies to the
+    canonical merge."""
+    return (SCENES_DIR / f"{work_id}.REVIEWED").exists()
+
+
 def merge_staging(manifest: Manifest) -> dict:
     """Merge every apparatus/staging/scenes-<work>-*.json batch for this work
     into one canonical, sorted, schema-validated document. Raises
@@ -242,8 +259,9 @@ def merge_staging(manifest: Manifest) -> dict:
     present must individually be complete and clean."""
     work_id = manifest.work_id
     files = discover_staging(work_id)
+    status = "reviewed" if work_reviewed(work_id) else "draft"
     if not files:
-        return {"work": work_id, "status": "draft", "books": []}
+        return {"work": work_id, "status": status, "books": []}
 
     bounds = book_bounds(manifest.data)
     gaps = gaps_by_book(manifest.data)
@@ -285,10 +303,10 @@ def merge_staging(manifest: Manifest) -> dict:
     merged_books = []
     for n in sorted(books_by_n):
         book = dict(books_by_n[n])
-        book["status"] = "draft"
+        book["status"] = status
         merged_books.append(book)
 
-    return {"work": work_id, "status": "draft", "books": merged_books}
+    return {"work": work_id, "status": status, "books": merged_books}
 
 
 def write_canonical(work_id: str, doc: dict) -> Path:
