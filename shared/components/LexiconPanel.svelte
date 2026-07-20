@@ -35,11 +35,39 @@
   // the mobile popup opens closed so it stays scannable. Nothing here opens a
   // new tab except the Logeion link.
   let expanded = docked;
+  // Monotonic id so an out-of-order response for word A can't overwrite word B
+  // when the user clicks quickly while the sidebar stays open.
+  let lookupSeq = 0;
 
-  lookupWord(work, token.k)
-    .then(r => { analyses = r.analyses; lsj = r.lsj; cunliffe = r.cunliffe; })
-    .catch(e => { error = String(e); })
-    .finally(() => { loading = false; });
+  // Re-fetch whenever the clicked token (or work) changes. A one-shot top-level
+  // lookupWord only ran on mount, so switching Greek words while the docked
+  // rail/popup stayed open updated the header surface form but left parse +
+  // dictionary stuck on the first word (sitewide; reported Safari + Chrome).
+  $: {
+    const w = work;
+    const k = token.k;
+    const seq = ++lookupSeq;
+    loading = true;
+    error = '';
+    analyses = [];
+    lsj = [];
+    cunliffe = [];
+    lookupWord(w, k)
+      .then(r => {
+        if (seq !== lookupSeq) return;
+        analyses = r.analyses;
+        lsj = r.lsj;
+        cunliffe = r.cunliffe;
+      })
+      .catch(e => {
+        if (seq !== lookupSeq) return;
+        error = String(e);
+      })
+      .finally(() => {
+        if (seq !== lookupSeq) return;
+        loading = false;
+      });
+  }
 
   // The lemma-page manifest (loaded once, cached): lets each analysis card offer
   // a "see all N occurrences" link into /lemma/<slug>, but only for lemmata that
