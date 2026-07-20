@@ -170,3 +170,45 @@ describe('WordPopup.svelte — docked vs modal presentation', () => {
     expect(container.querySelector('.popup-backdrop')).not.toBeNull();
   });
 });
+
+describe('WordPopup.svelte — token switch while open', () => {
+  it('re-fetches parse + definition when token changes without closing', async () => {
+    lookupWordMock
+      .mockResolvedValueOnce({
+        analyses: [{ lemma: 'mh=nis', gloss: 'wrath', parse: 'fem acc sg', lsj: ['mh=nis'], cunliffe: [] }],
+        lsj: [{ key: 'mh=nis', head: 'μῆνις', html: '<p>wrath entry</p>' }],
+        cunliffe: [],
+      })
+      .mockResolvedValueOnce({
+        analyses: [{ lemma: 'a)ei/dw', gloss: 'sing', parse: 'pres imperat act 2nd sg', lsj: ['a)ei/dw'], cunliffe: [] }],
+        lsj: [{ key: 'a)ei/dw', head: 'ἀείδω', html: '<p>sing entry</p>' }],
+        cunliffe: [],
+      });
+
+    const { rerender } = renderPopup({
+      docked: true,
+      token: { t: 'μῆνιν', k: 'mh=nin' },
+    });
+
+    expect(await screen.findByText('wrath')).toBeInTheDocument();
+    expect(screen.getByText('fem acc sg')).toBeInTheDocument();
+    expect(lookupWordMock).toHaveBeenCalledWith('iliad', 'mh=nin');
+
+    // Same instance stays mounted (Reader keeps {#if popup}); only the token
+    // prop changes — this is the sitewide second-click path. Svelte 5: use
+    // testing-library rerender rather than the removed component.$set.
+    await rerender({
+      work: 'iliad',
+      token: { t: 'ἄειδε', k: 'a)ei/de' },
+      anchor: { x: 0, y: 0 },
+      onClose: vi.fn(),
+      docked: true,
+    });
+
+    expect(await screen.findByText('sing')).toBeInTheDocument();
+    expect(screen.getByText('pres imperat act 2nd sg')).toBeInTheDocument();
+    expect(screen.queryByText('wrath')).toBeNull();
+    expect(lookupWordMock).toHaveBeenCalledWith('iliad', 'a)ei/de');
+    expect(lookupWordMock).toHaveBeenCalledTimes(2);
+  });
+});
