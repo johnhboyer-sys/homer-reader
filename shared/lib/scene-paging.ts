@@ -172,6 +172,102 @@ export function chunksForScene(chunks: TickChunkRange[], scene: SceneRange): num
   return [best];
 }
 
+// Index of the chunk that should anchor a scene's NATURAL END for sentence-
+// snap (John, 2026-07-20, Il. 1 scene 3 accuracy). Using the last *overlapping*
+// tick as the end-anchor is too greedy: a ~5-line tick straddling the Greek
+// boundary (e.g. Murray 30–34 for a scene ending at 32) pulls the natural end
+// into the next scene, and sentence-extension then swallows that scene's prose.
+// Prefer the last tick fully contained in the scene (endLine <= scene.endLine);
+// if the scene is so short that no tick is fully inside it, fall back to the
+// last overlapping tick (same as before).
+export function endAnchorChunkIndex(chunks: TickChunkRange[], scene: SceneRange): number {
+  const hi = scene.endLine ?? scene.startLine;
+  const selected = chunksForScene(chunks, scene);
+  if (!selected.length) return 0;
+  for (let i = selected.length - 1; i >= 0; i--) {
+    if (chunks[selected[i]].endLine <= hi) return selected[i];
+  }
+  return selected[selected.length - 1];
+}
+
+// Character offset in the flattened book flow that marks where this scene's
+// English "should" end before sentence-snap chooses a nearby sentence boundary.
+//
+// When the last overlapping tick is fully inside the scene, that's simply the
+// end of that tick. When it STRADDLES past scene.endLine (the common Murray
+// ~5-line case), we don't own the whole tick: map scene.endLine to a
+// fractional position inside the tick (midpoint of the last owned line) and
+// prefer the last real sentence end at or before that target. That keeps
+// Il. 1 scene 2 ending at "…return the safer." rather than either mid-speech
+// ("…serves my bed.") or all the way through the next scene's prayer.
+//
+// `chunkTextEnd[i]` = cumulative prose length through chunk i (same as
+// buildBookFlow). `sentenceEnds` = sentenceEndOffsets(book.text).
+export function naturalEndOffset(
+  chunks: TickChunkRange[],
+  scene: SceneRange,
+  chunkTextEnd: number[],
+  sentenceEnds: number[],
+  cursor: number,
+): number {
+  const hi = scene.endLine ?? scene.startLine;
+  const selected = chunksForScene(chunks, scene);
+  if (!selected.length) return cursor;
+
+  const lastOverlapIdx = selected[selected.length - 1];
+  const lastOverlap = chunks[lastOverlapIdx];
+  const lastOverlapEnd = chunkTextEnd[lastOverlapIdx] ?? cursor;
+
+  let fullyIdx = -1;
+  for (let i = selected.length - 1; i >= 0; i--) {
+    if (chunks[selected[i]].endLine <= hi) {
+      fullyIdx = selected[i];
+      break;
+    }
+  }
+  const base = fullyIdx >= 0
+    ? (chunkTextEnd[fullyIdx] ?? 0)
+    : (lastOverlapIdx > 0 ? (chunkTextEnd[lastOverlapIdx - 1] ?? 0) : 0);
+
+  // Last overlapping tick wholly inside the scene — classic natural end.
+  if (lastOverlap.endLine <= hi) return Math.max(cursor, lastOverlapEnd);
+
+  // Straddling tick: target the midpoint of the last Greek line we still own.
+  const tickStart = lastOverlapIdx > 0 ? (chunkTextEnd[lastOverlapIdx - 1] ?? 0) : 0;
+  const tickLen = Math.max(0, lastOverlapEnd - tickStart);
+  const nLines = Math.max(1, lastOverlap.endLine - lastOverlap.startLine + 1);
+  const ownedLines = Math.max(0, Math.min(nLines, hi - lastOverlap.startLine + 1));
+  const frac = Math.max(0, Math.min(1, (ownedLines - 0.5) / nLines));
+  const target = tickStart + frac * tickLen;
+
+  // Last sentence end in (base, target] — stays inside our owned share.
+  let best = -1;
+  for (const e of sentenceEnds) {
+    if (e > base && e <= target) best = e;
+  }
+  if (best > cursor) return best;
+
+  // No sentence end in the owned share: finish the dangling sentence after
+  // `base`. Prefer finishing inside this tick; if the only terminator is in a
+  // later tick, OVERFLOW past the tick (John, 2026-07-20: never end a page
+  // mid-sentence — a little spill into the next scene beats a chopped sentence).
+  let after = -1;
+  for (const e of sentenceEnds) {
+    if (e >= Math.max(cursor, base)) {
+      after = e;
+      break;
+    }
+  }
+  if (after > cursor && after <= lastOverlapEnd) return after;
+  let lastInTick = -1;
+  for (const e of sentenceEnds) {
+    if (e > base && e <= lastOverlapEnd) lastInTick = e;
+  }
+  if (lastInTick > cursor) return lastInTick;
+  if (after > cursor) return after;
+  return Math.max(cursor, lastOverlapEnd);
+}
+
 // ── Sentence-snapped page boundaries (John, 2026-07-19) ─────────────────────
 // "SCENES SHOULD NOT BREAK UP SENTENCES... BECAUSE IT'S ENGLISH ONLY, THERE
 // IS NO REASON TO SPLIT ACCORDING TO GREEK IF ENGLISH DOESN'T FOLLOW IT
@@ -336,13 +432,48 @@ function slicePage(book: BookFlow, chunks: SceneReadingChunk[], from: number, to
   return { flowParts, otables };
 }
 
+// Visible prose length of a scene page (tick/paragraph markers contribute 0).
+export function pageCharLength(page: SceneFlowChunk): number {
+  let n = 0;
+  for (const p of page.flowParts) if (typeof p.text === 'string') n += p.text.length;
+  return n;
+}
+
+// Hollow-page safety net (John, 2026-07-20): if the careful cut still leaves a
+// scene card empty or almost empty (previous card ate its prose), fill that
+// card from a coarser backup — the English ticks that overlap the scene's
+// Greek lines — so the reader never sees a blank or one-line nonsense page.
+// The previous card may still hold some of the same text (mild repeat). That
+// is better than an empty plate. Healthy pages are not touched.
+//
+// Treat as hollow when empty, or short (< HOLLOW_MAX_CHARS) AND much shorter
+// than the backup would be (< HOLLOW_RAW_RATIO of backup length).
+export const HOLLOW_MAX_CHARS = 200;
+export const HOLLOW_RAW_RATIO = 0.4;
+
+export function isHollowScenePage(snappedLen: number, rawLen: number): boolean {
+  if (rawLen <= 0) return false;
+  if (snappedLen <= 0) return true;
+  return snappedLen < HOLLOW_MAX_CHARS && snappedLen < rawLen * HOLLOW_RAW_RATIO;
+}
+
+export interface SentenceSnapOptions {
+  /** Default true. Set false to keep the pure lossless partition (tests). */
+  applyHollowGuardrail?: boolean;
+}
+
 // One sentence-snapped Reading Mode page per scene, covering the currently
 // selected translation's own chunk list end to end with no gap and no
 // overlap (see the file-section comment above for the algorithm). Call once
 // per (chunks, scenes) change and index the result by the current scene,
 // rather than recomputing per scene — a single forward pass is what
-// guarantees the partition.
-export function sentenceSnapScenePages(chunks: SceneReadingChunk[], scenes: SceneRange[]): SceneFlowChunk[] {
+// guarantees the partition. Hollow pages then get the guardrail above
+// (unless applyHollowGuardrail is false).
+export function sentenceSnapScenePages(
+  chunks: SceneReadingChunk[],
+  scenes: SceneRange[],
+  options?: SentenceSnapOptions,
+): SceneFlowChunk[] {
   if (!scenes.length) return [];
   if (!chunks.length) return scenes.map(() => ({ flowParts: [], otables: {} }));
 
@@ -360,13 +491,55 @@ export function sentenceSnapScenePages(chunks: SceneReadingChunk[], scenes: Scen
     if (si === scenes.length - 1) {
       end = book.text.length; // the last scene always runs to the true end — no trailing dangle
     } else {
+      // Owned-share natural end (see naturalEndOffset): for a straddling tick,
+      // land near the last Greek line of this scene, then snap to a nearby
+      // sentence end — without firstSentenceEndAtOrAfter(lastOverlapEnd) which
+      // used to swallow the next scene's entire prose (Il. 1 scene 3).
+      const hi = scenes[si].endLine ?? scenes[si].startLine;
       const selected = chunksForScene(chunks, scenes[si]);
-      const naturalChunkIdx = selected.length ? selected[selected.length - 1] : chunks.length - 1;
-      const naturalBoundary = Math.max(cursor, book.chunkTextEnd[naturalChunkIdx] ?? book.text.length);
+      const naturalBoundary = naturalEndOffset(
+        chunks, scenes[si], book.chunkTextEnd, sentenceEnds, cursor,
+      );
+      // Always land on a real sentence end after the natural boundary (never
+      // mid-sentence). Soft preference when the last tick straddles: if a
+      // sentence end already sits inside that tick after cursor, prefer it so
+      // we don't swallow the next scene; if none does, KEEP the overflow
+      // sentence end past the tick rather than hard-cutting at the tick edge
+      // (Codex review 2026-07-20; John: never end mid-sentence).
       end = firstSentenceEndAtOrAfter(naturalBoundary);
+      if (selected.length) {
+        const lastIdx = selected[selected.length - 1];
+        if (chunks[lastIdx].endLine > hi) {
+          const cap = book.chunkTextEnd[lastIdx] ?? end;
+          if (end > cap) {
+            let lastSe = -1;
+            for (const e of sentenceEnds) {
+              if (e > cursor && e <= cap) lastSe = e;
+            }
+            if (lastSe > cursor) end = lastSe;
+            // else keep `end` (first full sentence past the tick)
+          }
+        }
+      }
+      end = Math.max(cursor, end);
     }
     pages.push(slicePage(book, chunks, cursor, end));
     cursor = end;
   }
+
+  // Hollow-page guardrail (see isHollowScenePage). Replaces only the pages
+  // that sentence-snap hollowed out; leaves the rest of the partition alone.
+  // Off by explicit option for pure-partition tests.
+  if (options?.applyHollowGuardrail !== false) {
+    for (let si = 0; si < pages.length; si++) {
+      const selected = chunksForScene(chunks, scenes[si]);
+      if (!selected.length) continue;
+      const raw = mergeSceneFlowChunks(selected.map((i) => chunks[i]));
+      const snapLen = pageCharLength(pages[si]);
+      const rawLen = pageCharLength(raw);
+      if (isHollowScenePage(snapLen, rawLen)) pages[si] = raw;
+    }
+  }
+
   return pages;
 }

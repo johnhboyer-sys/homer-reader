@@ -2,7 +2,10 @@ import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   chunksForScene,
+  endAnchorChunkIndex,
+  isHollowScenePage,
   mergeSceneFlowChunks,
+  pageCharLength,
   sentenceEndOffsets,
   sentenceSnapScenePages,
   type SceneFlowChunk,
@@ -26,6 +29,19 @@ const chunks: TickChunkRange[] = [
   { startLine: 40, endLine: 44 },
   { startLine: 45, endLine: 49 },
 ];
+
+describe('endAnchorChunkIndex', () => {
+  it('prefers the last fully-contained tick, not the last overlapping straddler', () => {
+    // Scene ends at 32; tick 30–34 straddles into 33–34. Old snap used index 6
+    // (the straddler); accurate end-anchor is the last fully inside (25–29 = 5).
+    expect(endAnchorChunkIndex(chunks, { startLine: 8, endLine: 32 })).toBe(5);
+    expect(chunksForScene(chunks, { startLine: 8, endLine: 32 }).at(-1)).toBe(6);
+  });
+
+  it('falls back to last overlapping when no tick is fully contained', () => {
+    expect(endAnchorChunkIndex(chunks, { startLine: 11, endLine: 13 })).toBe(2);
+  });
+});
 
 describe('chunksForScene', () => {
   it('includes every chunk the scene range overlaps, even at misaligned edges', () => {
@@ -275,7 +291,7 @@ describe('sentenceSnapScenePages', () => {
     expect(page0 + page1).toBe(chunk0Text + chunk1Text);
   });
 
-  it("collapses a scene entirely swallowed by the previous page's completed sentence into an EMPTY page — the honest edge case, not a bug", () => {
+  it('hollow-page guardrail: a scene swallowed empty by the previous page falls back to raw tick-overlap prose', () => {
     const c0 = 'Sing of the wrath of Achilles';
     const c1 = ' terrible and consuming, that brought countless woes.';
     const c2 = ' Many a valiant soul it sent to Hades.';
@@ -291,14 +307,59 @@ describe('sentenceSnapScenePages', () => {
     ];
     const [page0, page1, page2] = sentenceSnapScenePages(chunks, scenes).map(textOf);
 
-    // The sentence-end match consumes the whitespace that follows the
-    // terminator too (same rule as every other test above) — here that
-    // whitespace happens to be c2's own leading space, so it moves to page 0
-    // and page 2 starts at "Many" with none to spare.
+    // Scene 0 still extends to finish its sentence (may include c1 + leading space of c2).
     expect(page0).toBe(c0 + c1 + ' ');
-    expect(page1).toBe('');
+    // Guardrail: scene 1 is no longer left empty — raw tick-overlap restores c1.
+    // (Duplication with page0 is the known guardrail-only tradeoff.)
+    expect(page1).toBe(c1);
     expect(page2).toBe(c2.slice(1));
-    expect(page0 + page1 + page2).toBe(c0 + c1 + c2); // no loss, no duplication
+  });
+
+  it('isHollowScenePage: empty vs short-vs-raw ratio', () => {
+    expect(isHollowScenePage(0, 400)).toBe(true);
+    expect(isHollowScenePage(113, 500)).toBe(true); // Il. 1.3-shaped
+    expect(isHollowScenePage(180, 200)).toBe(false); // snap ≈ raw, legitimately short
+    expect(isHollowScenePage(500, 600)).toBe(false);
+    expect(isHollowScenePage(0, 0)).toBe(false);
+  });
+
+  it('never ends a page mid-sentence when the only terminator is past the straddling tick', () => {
+    // Scene A owns only the first half of a 5-line tick; English has no period
+    // until the NEXT tick. Hard-capping at the tick edge would end on
+    // "pause " — forbidden. Overflow to the real sentence end instead.
+    const chunks: SceneReadingChunk[] = [
+      {
+        startLine: 1, endLine: 5,
+        flowParts: [{ text: 'He walked along the shore without a pause ', n: null, real: false }],
+        otables: {},
+      },
+      {
+        startLine: 6, endLine: 10,
+        flowParts: [{ text: 'until he reached the temple and stopped. ', n: null, real: false }],
+        otables: {},
+      },
+      {
+        startLine: 11, endLine: 15,
+        flowParts: [{ text: 'Then Apollo answered him.', n: null, real: false }],
+        otables: {},
+      },
+    ];
+    const scenes: SceneRange[] = [
+      { startLine: 1, endLine: 3 },
+      { startLine: 4, endLine: 10 },
+      { startLine: 11, endLine: 15 },
+    ];
+    const pages = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false }).map(textOf);
+    const endsClean = (s: string) => !s.trim() || /[.?!]["'”’)]*$/.test(s.trimEnd());
+
+    expect(pages[0]).toMatch(/stopped\.\s*$/);
+    expect(pages[0]).not.toMatch(/pause\s*$/);
+    expect(endsClean(pages[0])).toBe(true);
+    expect(endsClean(pages[1])).toBe(true);
+    // Partition: no loss, no duplication.
+    expect(pages.join('')).toBe(
+      'He walked along the shore without a pause until he reached the temple and stopped. Then Apollo answered him.',
+    );
   });
 
   it('places a zero-width marker (tick / paragraph) on exactly one page — never dropped, never duplicated', () => {
@@ -428,10 +489,10 @@ describe.skipIf(!hasRealBookData)('sentenceSnapScenePages — real Iliad 1 / Ody
   }
 
   it.each([['Iliad 1', ILIAD_1_PATH], ['Odyssey 9', ODYSSEY_9_PATH]])(
-    '%s: every page is a disjoint, lossless slice of the whole book flow (no text lost or duplicated)',
+    '%s: pure snap (no guardrail) is a disjoint, lossless slice of the whole book flow',
     (_label, path) => {
       const { chunks, scenes } = loadRealBook(path);
-      const pages = sentenceSnapScenePages(chunks, scenes);
+      const pages = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false });
       const whole = mergeSceneFlowChunks(chunks).flowParts.map((p) => p.text ?? '').join('');
       const rebuilt = pages.map((p) => p.flowParts.map((x) => x.text ?? '').join('')).join('');
       expect(rebuilt).toBe(whole);
@@ -439,43 +500,78 @@ describe.skipIf(!hasRealBookData)('sentenceSnapScenePages — real Iliad 1 / Ody
   );
 
   it.each([['Iliad 1', ILIAD_1_PATH], ['Odyssey 9', ODYSSEY_9_PATH]])(
-    '%s: every non-empty page after the first starts at a sentence start (capital/digit/opening quote)',
+    '%s: pure snap non-empty pages after the first start at a sentence start',
     (_label, path) => {
       const { chunks, scenes } = loadRealBook(path);
-      const pages = sentenceSnapScenePages(chunks, scenes);
+      const pages = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false });
       let emptyCount = 0;
       pages.forEach((p, i) => {
         if (i === 0) return; // the book's own opening, not a snapped boundary
         const t = p.flowParts.map((x) => x.text ?? '').join('').trimStart();
-        if (!t) { emptyCount += 1; return; } // an intentionally swallowed page — see the dedicated unit test above
+        if (!t) { emptyCount += 1; return; }
         expect(t[0], `scene ${i} of ${path} starts with "${t.slice(0, 40)}"`).toMatch(/[A-Z0-9"'“‘]/);
       });
-      // No silent-cap: real Il. 1 (20 scenes) and Od. 9 (17 scenes) both
-      // come out with ZERO empty pages — the degenerate "swallowed scene"
-      // edge case (see the dedicated unit test above) doesn't occur with
-      // real apparatus data; scenes are narrative units well over one
-      // sentence. Still asserted generally, not hardcoded to 0, so a future
-      // finer-grained apparatus pass that DID produce one wouldn't silently
-      // break this test.
       expect(emptyCount).toBeLessThan(pages.length);
     },
   );
 
-  it("Il. 1: at least one scene's RAW chunk-overlap edge splits a sentence, and the snap moves that boundary to a clean sentence end (John's reported case)", () => {
+  it("Il. 1: at least one scene's RAW chunk-overlap edge splits a sentence, and pure snap moves that boundary to a clean sentence end", () => {
     const { chunks, scenes } = loadRealBook(ILIAD_1_PATH);
-    const pages = sentenceSnapScenePages(chunks, scenes);
+    const pages = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false });
     const endsClean = (s: string) => /[.?!]["'”’)]*$/.test(s.trimEnd());
 
     let sawARawSplit = false;
     for (let i = 0; i < scenes.length - 1; i++) {
       const rawSelected = chunksForScene(chunks, scenes[i]).map((idx) => chunks[idx]);
       const rawText = mergeSceneFlowChunks(rawSelected).flowParts.map((p) => p.text ?? '').join('');
-      if (endsClean(rawText)) continue; // this particular scene's raw edge already lands clean
+      if (endsClean(rawText)) continue;
       sawARawSplit = true;
       const snappedText = pages[i].flowParts.map((p) => p.text ?? '').join('');
-      expect(snappedText).not.toBe(rawText);       // the snap actually moved the boundary
-      expect(endsClean(snappedText)).toBe(true);    // ...to a clean sentence end
+      expect(snappedText).not.toBe(rawText);
+      expect(endsClean(snappedText)).toBe(true);
     }
-    expect(sawARawSplit).toBe(true); // the raw (pre-snap) contract really did cut a sentence somewhere in Il. 1
+    expect(sawARawSplit).toBe(true);
+  });
+
+  it('Il. 1 scenes 2–4 (default path = what the live reader uses): prayer on scene 3', () => {
+    const { chunks, scenes } = loadRealBook(ILIAD_1_PATH);
+    expect(scenes[1]?.endLine).toBe(32);
+    expect(scenes[2]?.startLine).toBe(33);
+    expect(scenes[2]?.endLine).toBe(42);
+
+    // Default options (hollow guardrail ON) — same call shape as Reader.svelte.
+    const pages = sentenceSnapScenePages(chunks, scenes);
+    const s2 = pages[1].flowParts.map((p) => p.text ?? '').join('');
+    const s3 = pages[2].flowParts.map((p) => p.text ?? '').join('');
+    const s4 = pages[3].flowParts.map((p) => p.text ?? '').join('');
+    const endsClean = (s: string) => !s.trim() || /[.?!]["'”’)]*$/.test(s.trimEnd());
+
+    // Scene 2 ends with Agamemnon's dismissal, not the prayer.
+    expect(s2).toMatch(/return the safer\./);
+    expect(s2).not.toMatch(/silver bow/);
+    expect(s2).not.toMatch(/Down from the peaks of Olympus/);
+    expect(endsClean(s2)).toBe(true);
+
+    // Scene 3 owns Chryses' reaction + prayer; not the Agamemnon lead-in, not descent.
+    expect(s3).toMatch(/So he spoke, and the old man was seized with fear/);
+    expect(s3).toMatch(/silver bow/);
+    expect(s3).toMatch(/Phoebus Apollo heard him/);
+    expect(s3).not.toMatch(/as she walks to and fro before the loom/);
+    expect(s3).not.toMatch(/Down from the peaks of Olympus/);
+    expect(endsClean(s3)).toBe(true);
+
+    // Scene 4 starts the descent.
+    expect(s4).toMatch(/Down from the peaks of Olympus|arrows rattled/i);
+    expect(endsClean(s4)).toBe(true);
+  });
+
+  it('Il. 1 default path: every non-empty page ends on a sentence boundary', () => {
+    const { chunks, scenes } = loadRealBook(ILIAD_1_PATH);
+    const pages = sentenceSnapScenePages(chunks, scenes);
+    const endsClean = (s: string) => !s.trim() || /[.?!]["'”’)]*$/.test(s.trimEnd());
+    for (let i = 0; i < pages.length; i++) {
+      const t = pages[i].flowParts.map((p) => p.text ?? '').join('');
+      expect(endsClean(t), `scene ${i + 1} ends mid-sentence: "…${t.slice(-40)}"`).toBe(true);
+    }
   });
 });
