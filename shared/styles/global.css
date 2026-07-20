@@ -768,14 +768,18 @@ select {
 /* Cover band: paints page-bg in the slice directly above the pinned strip so
    reading text can never bleed through if a browser (Safari, notably) leaves a
    sub-pixel/rubber-band gap between the two stacked sticky elements. The header
-   (z-index 10) paints over the top of this band, so it's invisible at rest. */
+   (z-index 10) paints over the top of this band, so it's invisible at rest.
+   Height must stay tiny: 3rem (legacy) was an opaque slab that painted over the
+   book-plate cartouche sitting just above this strip (cast/day strip + bottom
+   hairline looked "blocked"/erased). 4px is enough for the gap; not enough to
+   cover the cartouche. */
 .reader-controls::before {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
   bottom: 100%;
-  height: 3rem;
+  height: 4px;
   background: var(--page-bg);
   pointer-events: none;
 }
