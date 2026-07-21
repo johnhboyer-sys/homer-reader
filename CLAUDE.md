@@ -45,11 +45,13 @@ non-negotiable.
   2026-07-17).** Reuse aristotle-reader's incremental gh-pages deploy recipe.
   Creating the GitHub remote and the first push are also John-gated. Stay in free
   tier; surface anything that would incur cost **before** doing it.
-- Git flow (John, 2026-07-17; two-remote split 2026-07-18 post-launch):
-  SOURCE lives in the private repo `github.com/johnhboyer-sys/homer-reader`
-  (remote `origin` — all commits/pushes go here); the public repo
-  `johnhboyer-sys.github.io` (remote `deploy`) exists ONLY to serve GitHub
-  Pages from its `gh-pages` branch — deploys push there, never source work.
+- Git flow (John, 2026-07-17; two-remote split 2026-07-18; CORRECTED
+  2026-07-21 after a deploy push bounced): `github.com/johnhboyer-sys/
+  homer-reader` (remote `origin`) is now PUBLIC and serves the site itself —
+  Pages from its own `gh-pages` branch at /homer-reader/. Deploys push
+  `gh-pages` to **origin** (worktree `~/Developer/homer-reader-site`). The
+  `johnhboyer-sys.github.io` repo (remote `deploy`) holds ONLY the root
+  redirect to /homer-reader/ — never push site deploys there.
   Commit as we go, **push promptly after every commit** (backup). PR bundling at the orchestrator's judgment
   (John): PR #1 = claude/build → main umbrella (phases 0–3 + scenes);
   subsequent coherent units get branches off claude/build with stacked PRs
