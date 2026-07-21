@@ -78,6 +78,11 @@ non-negotiable.
   refreshed" — clear that state dir and start a `--fresh` thread. `codex login
   status` saying "Logged in" is not sufficient evidence the plugin runtime works.
 
+- Pipeline gotcha (2026-07-21, cost an Iliad re-emit): `build/stage1` is a
+  per-run working dir — running `stage1` then `stage7` alone against a stale
+  working dir (last full run was the other work) crashes stage7 (KeyError on
+  the token map) AFTER it has wiped the work's dist dir. A re-emit is only
+  valid as `all --work <W>` (then apparatus, per the rule below).
 - Pipeline gotcha (2026-07-17, caught by Gate 4): any stage7 re-emit
   (incl. `all` and full re-runs) must be FOLLOWED by `apparatus
   --work <W>` for both works — stage7 rewrites book JSONs without the
