@@ -1,16 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <!-- Chelys lyre in the tempered Wine palette's mid terracotta (#C4766A):
-       bowl soundbox, upswept arms, zygon crossbar, four strings. Stroke on
-       transparent so it reads on light and dark browser chrome; the maskable
-       PWA icons set the same drawing on a full wine field. -->
-  <g fill="none" stroke="#C4766A" stroke-width="7" stroke-linecap="round">
-    <path d="M 40 96 A 24 22 0 0 0 88 96"/>
-    <path d="M 40 96 C 24 86, 20 56, 30 20"/>
-    <path d="M 88 96 C 104 86, 108 56, 98 20"/>
-    <line x1="22" y1="32" x2="106" y2="32"/>
-    <line x1="52" y1="32" x2="52" y2="111"/>
-    <line x1="60" y1="32" x2="60" y2="114"/>
-    <line x1="68" y1="32" x2="68" y2="114"/>
-    <line x1="76" y1="32" x2="76" y2="111"/>
-  </g>
+  <!-- Capital omega, outlined from Big Caslon (the site display face's first
+       choice) so it renders identically on every platform; weight bumped via a
+       same-color stroke and set in deep wine (John, 2026-07-21: "more wine
+       dark"). The epics number their books Alpha through Omega. Maskable PWA
+       icons set the glyph light on a wine field. -->
+  <path transform="translate(6.56 114.50) scale(0.1295 -0.1295)" fill="#7E2B47" stroke="#7E2B47" stroke-width="36" stroke-linejoin="round" d="M579 72Q801 209 801 407Q801 547 714 656Q614 780 443 780Q272 780 172 656Q85 547 85 407Q85 207 308 72H222Q144 72 114 83Q86 95 81 130L80 140H42L57 0H351V72Q191 190 191 411Q191 561 261 655Q332 750 443 750Q553 750 624.0 655.0Q695 560 695 411Q695 192 536 72V0H830L845 140H807L805 130Q799 95 771 83Q743 72 664 72Z"/>
 </svg>
