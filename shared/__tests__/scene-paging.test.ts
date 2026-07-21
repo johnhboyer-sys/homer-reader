@@ -363,6 +363,51 @@ describe('sentenceSnapScenePages', () => {
     );
   });
 
+  // Regression (Codex Issue 1 / John 2026-07-21 audit): a short scene wholly
+  // inside a single wide straddling tick, whose OWN cursor happens to land
+  // exactly on the sentence end the PRECEDING scene chose (the common case —
+  // every scene after the first starts exactly where sentence-snap left
+  // off). Reproduces the real corpus defect (Od. 11 Butler scene 14, empty)
+  // in miniature: the tick has three sentences (Beta, Gamma, Delta); the
+  // preceding scene's correct natural end is Gamma (the nearest terminator
+  // after its own start), but the pre-fix `lastInTick` fallback kept
+  // overwriting through every candidate in range and returned the FARTHEST
+  // one (Delta) instead of the nearest, swallowing the next scene's entire
+  // 4-line share whole.
+  it('a scene landing exactly on the previous cursor picks the NEAREST sentence end in its tick, not the farthest — the next (4-line) scene is not swallowed empty', () => {
+    const chunk0Text = 'Prologue done.';
+    const chunk1Text = ' Beta continues right after. Gamma marks a natural pause here. Delta wraps up far beyond.';
+    const chunks: SceneReadingChunk[] = [
+      { startLine: 1, endLine: 5, flowParts: [{ text: chunk0Text, n: null, real: false }], otables: {} },
+      { startLine: 6, endLine: 60, flowParts: [{ text: chunk1Text, n: null, real: false }], otables: {} },
+    ];
+    const scenes: SceneRange[] = [
+      { startLine: 1, endLine: 5 },   // wholly chunk0 — clean natural end at "Prologue done.".
+      { startLine: 6, endLine: 8 },   // wholly inside chunk1, no fully-contained tick, and its
+                                       // OWN cursor (15) lands exactly on chunk0's sentence end
+                                       // — the "preceding scene" whose correct end is "Beta...".
+      { startLine: 9, endLine: 12 },  // the 4-line scene — wholly inside the SAME tick, last
+                                       // scene in the array (own end bypassed to book end).
+    ];
+    const [page1, page2, page3] = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false }).map(textOf);
+
+    expect(page1).toBe('Prologue done. ');
+    expect(page2).toBe('Beta continues right after. ');
+    expect(page2).not.toContain('Gamma');
+    expect(page2).not.toContain('Delta');
+    // The 4-line scene must not be swallowed empty by the preceding scene's
+    // over-extension (the pre-fix `lastInTick` loop kept overwriting to the
+    // FARTHEST sentence end in the tick — "Delta..." — instead of the
+    // nearest, consuming Gamma AND Delta into scene 2 and leaving scene 3
+    // with nothing), and must not carry a duplicate of the preceding
+    // scene's own trailing sentence ("Beta...").
+    expect(page3.trim()).not.toBe('');
+    expect(page3).not.toContain('Beta continues right after.');
+    expect(page3).toBe('Gamma marks a natural pause here. Delta wraps up far beyond.');
+    // Partition: no loss, no duplication across all three pages.
+    expect(page1 + page2 + page3).toBe(chunk0Text + chunk1Text);
+  });
+
   it('places a zero-width marker (tick / paragraph) on exactly one page — never dropped, never duplicated', () => {
     const chunks: SceneReadingChunk[] = [
       { startLine: 1, endLine: 4, flowParts: [{ text: 'Sing of the wrath.', n: null, real: false }], otables: {} },
@@ -431,6 +476,16 @@ describe('sentenceSnapScenePages', () => {
 const ILIAD_1_PATH = '../build/dist/iliad/book-01.json';
 const ODYSSEY_1_PATH = '../build/dist/odyssey/book-01.json';
 const ODYSSEY_9_PATH = '../build/dist/odyssey/book-09.json';
+// Trigger books (John, 2026-07-21 audit): the exact "scene wholly inside one
+// straddling tick, no fully-contained tick" condition the naturalEndOffset
+// floor fix targets occurs (Butler only, in this corpus) at Il. 12 scene 16,
+// Od. 17 scene 5, Od. 23 scene 9, and Od. 11 scenes 13-14 (1-indexed; the
+// original Codex/Opus brief cited these 0-indexed). Added here so the real-
+// data invariant suite below actually exercises the fixed code paths.
+const ILIAD_12_PATH = '../build/dist/iliad/book-12.json';
+const ODYSSEY_11_PATH = '../build/dist/odyssey/book-11.json';
+const ODYSSEY_17_PATH = '../build/dist/odyssey/book-17.json';
+const ODYSSEY_23_PATH = '../build/dist/odyssey/book-23.json';
 const FIXTURE_PATH = './__tests__/fixtures/scene-paging-books.json';
 
 interface FixtureBook {
@@ -471,6 +526,16 @@ const REAL_COMBOS: BookCombo[] = [
   { label: 'Iliad 1 (Butler)', translation: 'butler', load: () => loadRealBook(ILIAD_1_PATH, 'butler') },
   { label: 'Odyssey 1 (Butler)', translation: 'butler', load: () => loadRealBook(ODYSSEY_1_PATH, 'butler') },
   { label: 'Odyssey 9 (Butler)', translation: 'butler', load: () => loadRealBook(ODYSSEY_9_PATH, 'butler') },
+  // Trigger books (see ILIAD_12_PATH comment above) — real-data combos, both
+  // translations each, skip-if-absent like every other REAL_COMBOS entry.
+  { label: 'Iliad 12 (Murray)', translation: 'murray', load: () => loadRealBook(ILIAD_12_PATH, 'murray') },
+  { label: 'Iliad 12 (Butler)', translation: 'butler', load: () => loadRealBook(ILIAD_12_PATH, 'butler') },
+  { label: 'Odyssey 11 (Murray)', translation: 'murray', load: () => loadRealBook(ODYSSEY_11_PATH, 'murray') },
+  { label: 'Odyssey 11 (Butler)', translation: 'butler', load: () => loadRealBook(ODYSSEY_11_PATH, 'butler') },
+  { label: 'Odyssey 17 (Murray)', translation: 'murray', load: () => loadRealBook(ODYSSEY_17_PATH, 'murray') },
+  { label: 'Odyssey 17 (Butler)', translation: 'butler', load: () => loadRealBook(ODYSSEY_17_PATH, 'butler') },
+  { label: 'Odyssey 23 (Murray)', translation: 'murray', load: () => loadRealBook(ODYSSEY_23_PATH, 'murray') },
+  { label: 'Odyssey 23 (Butler)', translation: 'butler', load: () => loadRealBook(ODYSSEY_23_PATH, 'butler') },
 ];
 const FIXTURE_COMBOS: BookCombo[] = [
   { label: 'Iliad 1 fixture (Murray)', translation: 'murray', load: () => loadFixtureBook('iliad1', 'murray') },
@@ -511,6 +576,31 @@ describe('sentenceSnapScenePages — real Iliad 1 / Odyssey 9 data', () => {
         expect(t[0], `scene ${i} of ${_label} starts with "${t.slice(0, 40)}"`).toMatch(/[A-Z0-9"'“‘]/);
       });
       expect(emptyCount).toBeLessThan(pages.length);
+    },
+  );
+
+  // Strict empty-page invariant (John, 2026-07-21): the naturalEndOffset
+  // floor fix (see scene-paging.ts) exists precisely so a page never comes
+  // out empty because an earlier scene's dangling-sentence search stole a
+  // sentence end that belonged to a LATER scene, or overran past it. Unlike
+  // the "starts at a sentence start" test above (which tolerates some empty
+  // pages as an honest degenerate case per this module's own header comment),
+  // this asserts STRICT ZERO empty non-first pages, guardrail off, across
+  // every real-data combo — including the four trigger books added above.
+  it.each(ALL_COMBOS.map((c) => [c.label, c] as const))(
+    '%s: pure snap (no guardrail) never leaves a non-first page empty',
+    (_label, combo) => {
+      const loaded = combo.load();
+      if (!loaded) return;
+      const { chunks, scenes } = loaded;
+      const pages = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false });
+      const emptyScenes: number[] = [];
+      pages.forEach((p, i) => {
+        if (i === 0) return; // the book's own opening, not a snapped boundary
+        const t = p.flowParts.map((x) => x.text ?? '').join('').trim();
+        if (!t) emptyScenes.push(i + 1);
+      });
+      expect(emptyScenes, `${_label}: empty page(s) at scene(s) ${emptyScenes.join(', ')}`).toEqual([]);
     },
   );
 

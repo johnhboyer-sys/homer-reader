@@ -240,28 +240,44 @@ export function naturalEndOffset(
   const frac = Math.max(0, Math.min(1, (ownedLines - 0.5) / nLines));
   const target = tickStart + frac * tickLen;
 
-  // Last sentence end in (base, target] — stays inside our owned share.
+  // Floor every sentence-end search at this scene's own start offset
+  // (`cursor`), not just at `base` (the straddling tick's start when no tick
+  // is fully contained — see this function's header comment). `base` alone
+  // can precede scene.startLine, letting a sentence end that belongs to the
+  // PREVIOUS scene get selected (Codex review, docs/grok-fixes.md:130-138).
+  const floor = Math.max(base, cursor);
+
+  // Last sentence end in (floor, target] — stays inside our owned share.
   let best = -1;
   for (const e of sentenceEnds) {
-    if (e > base && e <= target) best = e;
+    if (e > floor && e <= target) best = e;
   }
   if (best > cursor) return best;
 
   // No sentence end in the owned share: finish the dangling sentence after
-  // `base`. Prefer finishing inside this tick; if the only terminator is in a
+  // `floor`. Prefer finishing inside this tick; if the only terminator is in a
   // later tick, OVERFLOW past the tick (John, 2026-07-20: never end a page
   // mid-sentence — a little spill into the next scene beats a chopped sentence).
   let after = -1;
   for (const e of sentenceEnds) {
-    if (e >= Math.max(cursor, base)) {
+    if (e >= floor) {
       after = e;
       break;
     }
   }
   if (after > cursor && after <= lastOverlapEnd) return after;
+  // `after` only fails the check above when it lands exactly ON `floor`
+  // (an exact-boundary edge case — see below) or overflows past this tick.
+  // Either way, the NEXT distinct sentence end strictly after `floor` is what
+  // we want here, so take the nearest match (sentenceEnds is ascending —
+  // built by scanning forward — so the first qualifying entry IS the
+  // nearest), not the farthest one still inside the tick: a corpus case
+  // (Od. 11 Butler, whose final tick is open-ended and covers the rest of
+  // the book) showed the old "keep overwriting" loop walking all the way to
+  // the tick's last sentence end, swallowing the next scene's entire text.
   let lastInTick = -1;
   for (const e of sentenceEnds) {
-    if (e > base && e <= lastOverlapEnd) lastInTick = e;
+    if (e > floor && e <= lastOverlapEnd) { lastInTick = e; break; }
   }
   if (lastInTick > cursor) return lastInTick;
   if (after > cursor) return after;
