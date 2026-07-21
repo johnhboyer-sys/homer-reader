@@ -337,7 +337,6 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
   const lowOwnershipPages: LowOwnershipPage[] = [];
   for (let i = 0; i < pureOff.length; i++) {
     if (pageText(pureOff[i]).trim() === '') continue;
-    if (overrideAffectedSceneIndices.has(i)) continue; // see overrideAffectedSceneIndices above
     const selected = chunksForScene(chunks, scenes[i]);
     const from = pageFrom[i];
     const to = pageTo[i];
@@ -358,6 +357,12 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
       lowOwnershipPages.push({ sceneIndex: i + 1, fraction: 0, greekRange });
       continue;
     }
+    // Override-affected pages (John's editorial boundary pins + their
+    // predecessors) intentionally defy the tick alignment, so they are exempt
+    // from the FRACTION accounting below — but the binary zero-overlap gate
+    // above still applies to them in full (Codex verify finding 1: the
+    // exclusion must not widen beyond the fraction/floor metrics).
+    if (overrideAffectedSceneIndices.has(i)) continue;
     // Fraction of [from, to) outside the union [unionStart, unionEnd) of the
     // scene's owned chunks.
     const unionStart = Math.min(...selected.map((idx) => chunkStart(idx)));
