@@ -515,3 +515,28 @@ og-default.png social card (Sirens on hero navy, polytonic epigraph).
 Deployed to homer-reader gh-pages @ source 3d26b81e; verified live
 (plate assets 200, plate markup in served HTML, og 200). Known
 pre-existing headless-only cosmetic (cartouche meta clip) filed.
+
+## POPE SCENE ALIGNMENT LIVE — 2026-07-21 (fourth deploy)
+
+Ledger note: the third deploy (John, 2026-07-21 midday, gh-pages
+aa1d70b0) shipped the merged post-launch PRs #2–#6 — palette temper,
+scene-paging fixes (Murray+Butler corpus-verified), omega favicon,
+John's boundary overrides — and predates this entry; recorded here
+retroactively.
+
+This deploy: Pope pages by scene. 742 curated scene-boundary anchors
+(388 Il. + 354 Od.), AI-drafted per book, Grok-verified anchor-by-anchor
+(19 boundary corrections), 2 boundaries Opus-adjudicated from the Greek;
+stage1_pope resolver with hard-fail validation; preflight validates
+third ticks + pope floors; corpus audit 144 books (documented
+pope-specific ownership floor 0.565, binary gates all zero); Reader
+curated-tick snap-skip + discreet approximate-alignment note; Codex
+adversarial review (4 P1s fixed). PR #7 merged by John (ee3a6b5a).
+
+Gate: pytest 364 · shared vitest 678 · app vitest · build:public
+preflight 0 errors · 4,713 pages, 0/314,575 broken links · browser
+smoke both themes. Deployed gh-pages 94db410c → origin (public
+homer-reader repo serves /homer-reader/; the `deploy` remote
+johnhboyer-sys.github.io serves only the root redirect). Live verified:
+new Reader bundle 200 + served, notice string present, Il. 1 / Od. 9
+200. John spot-checking post-deploy.
