@@ -282,6 +282,10 @@ And from his expanded set, the ones this project adopts:
 
 ## Failure-mode registry (append dated lessons — a lesson not written down will be repeated)
 
+- **Plan-mode Explore/Plan spawns ran on Fable** (2026-07-21, caught by John):
+  the plan-mode workflow's built-in Explore/Plan agent types count as spawns —
+  omitting `model:` inherits Fable there too. No explicit `model:`, no launch.
+
 - **`git add -A` while agents are in flight** (2026-07-17, twice): sweeps
   concurrent agents' uncommitted work into unrelated commits. Orchestrator
   commits must stage explicit paths whenever any agent is running.
