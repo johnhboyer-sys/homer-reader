@@ -454,7 +454,7 @@ def test_preflight_honours_declared_verse_numbering_gap():
 # ── alignment coverage: Murray/Butler tick counts and the floor check ──────
 
 
-def _book_with_ticks(book_n: int, murray_ticks: int, butler_ticks: int) -> dict:
+def _book_with_ticks(book_n: int, murray_ticks: int, butler_ticks: int, pope_ticks: int = 0) -> dict:
     return {
         "book": book_n,
         "segments": [
@@ -465,25 +465,30 @@ def _book_with_ticks(book_n: int, murray_ticks: int, butler_ticks: int) -> dict:
                 "ross": [
                     {"bekker": [{"n": i + 1, "offset": i, "real": True} for i in range(butler_ticks)]}
                 ],
+                "third": [
+                    {"bekker": [{"n": i + 1, "offset": i, "real": True} for i in range(pope_ticks)]}
+                ],
             }
         ],
     }
 
 
-def test_murray_butler_tick_counts_reads_bekker_marker_lists(tmp_path):
-    from homer_pipeline.preflight import murray_butler_tick_counts
+def test_translation_tick_counts_reads_bekker_marker_lists(tmp_path):
+    from homer_pipeline.preflight import translation_tick_counts
 
     work_dir = tmp_path / "testwork"
     work_dir.mkdir()
-    (work_dir / "book-01.json").write_text(json.dumps(_book_with_ticks(1, 5, 3)), encoding="utf-8")
-    counts = murray_butler_tick_counts(tmp_path, "testwork")
-    assert counts == {1: {"murray": 5, "butler": 3}}
+    (work_dir / "book-01.json").write_text(
+        json.dumps(_book_with_ticks(1, 5, 3, pope_ticks=2)), encoding="utf-8"
+    )
+    counts = translation_tick_counts(tmp_path, "testwork")
+    assert counts == {1: {"murray": 5, "butler": 3, "pope": 2}}
 
 
-def test_murray_butler_tick_counts_empty_for_missing_work_dir(tmp_path):
-    from homer_pipeline.preflight import murray_butler_tick_counts
+def test_translation_tick_counts_empty_for_missing_work_dir(tmp_path):
+    from homer_pipeline.preflight import translation_tick_counts
 
-    assert murray_butler_tick_counts(tmp_path, "nonesuch") == {}
+    assert translation_tick_counts(tmp_path, "nonesuch") == {}
 
 
 def test_tick_coverage_violations_reports_regression():

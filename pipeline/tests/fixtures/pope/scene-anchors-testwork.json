@@ -1,0 +1,13 @@
+{
+ "_source": "test fixture — not a real Pope citation, exercises stage1_pope.py's resolver only",
+ "_semantics": "anchor: an exact, unique substring of Pope's stripped verse text for this book, marking where the corresponding vulgate scene begins",
+ "work": "testwork",
+ "anchors": [
+  {
+   "book": 1,
+   "n": 5,
+   "anchor": "Declare, O Muse! in what ill-fated hour",
+   "status": "verified"
+  }
+ ]
+}
