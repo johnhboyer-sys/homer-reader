@@ -15,6 +15,7 @@ import {
   type TickChunkRange,
 } from '../lib/scene-paging';
 import { buildRealChunks, loadRealBook, type RealMarker, type RealTranslation } from './real-book-loader';
+import { auditScenePaging } from '../scripts/scene-paging-audit';
 
 // A run of ~5-line tick chunks (as Reader.svelte derives from
 // Segment.english.bekker), covering lines 1-49 with NO gap — the common case.
@@ -728,5 +729,45 @@ describe('sentenceSnapScenePages — real Iliad 1 / Odyssey 9 data', () => {
       const t = pages[i].flowParts.map((p) => p.text ?? '').join('');
       expect(endsClean(t), `scene ${i + 1} ends mid-sentence: "…${t.slice(-40)}"`).toBe(true);
     }
+  });
+});
+
+// ── Corpus audit gate (John, 2026-07-21) ────────────────────────────────────
+// The full 96-book (24 books x 2 epics x 2 translations) corpus audit
+// (auditScenePaging, shared/scripts/scene-paging-audit.ts) is what turns the
+// manual audit run into an actual vitest gate. Skips (like every other
+// real-data suite above) when build/dist isn't present locally — it's
+// gitignored pipeline output, not a suite dependency (see CLAUDE.md's
+// concurrency gotcha). Computed ONCE at describe-body eval time and reused
+// across every assertion below, rather than re-running the 96-book sweep per
+// `it` — auditScenePaging is not cheap enough to call repeatedly.
+const AUDIT_DIST_ROOT = '../build/dist';
+const hasAuditDistRoot = existsSync(AUDIT_DIST_ROOT);
+
+describe('scene-paging corpus audit gate (real build/dist data)', () => {
+  const result = hasAuditDistRoot ? auditScenePaging(AUDIT_DIST_ROOT) : null;
+
+  it.skipIf(!hasAuditDistRoot)('build/dist audit report is present and covers the full corpus', () => {
+    expect(result?.buildDistPresent).toBe(true);
+    if (result?.buildDistPresent) {
+      expect(result.totals.booksMissing).toBe(0);
+    }
+  });
+
+  it.skipIf(!hasAuditDistRoot)('gate passes: zero empty, zero mid-sentence, zero out-of-owned-range pages', () => {
+    if (!result?.buildDistPresent) return;
+    expect(result.totals.emptyPagesPureSnap).toBe(0);
+    expect(result.totals.midSentenceEndsPureSnap).toBe(0);
+    expect(result.totals.outOfOwnedRangePages).toBe(0);
+  });
+
+  it.skipIf(!hasAuditDistRoot)('gate passes: guardrail-caused duplication stays within the gate max', () => {
+    if (!result?.buildDistPresent) return;
+    expect(result.totals.duplicatedTextPages).toBeLessThanOrEqual(result.gate.maxDuplicatedTextPages);
+  });
+
+  it.skipIf(!hasAuditDistRoot)('overall gate.pass is true', () => {
+    if (!result?.buildDistPresent) return;
+    expect(result.gate.pass).toBe(true);
   });
 });

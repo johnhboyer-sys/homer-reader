@@ -547,13 +547,50 @@ export function sentenceSnapScenePages(
   // that sentence-snap hollowed out; leaves the rest of the partition alone.
   // Off by explicit option for pure-partition tests.
   if (options?.applyHollowGuardrail !== false) {
+    // Each page's own start offset in the flattened book flow — reconstructed
+    // from the PURE-SNAP partition's own text lengths (pages are a lossless,
+    // disjoint slice of book.text, per this function's header comment), so
+    // this doesn't need buildBookFlow's private per-scene `cursor` plumbed
+    // out of the main loop above. Computed once, before any replacement
+    // below, so an earlier hollow fix never shifts a later scene's framing.
+    const pageFrom: number[] = [];
+    {
+      let c = 0;
+      for (const p of pages) { pageFrom.push(c); c += pageCharLength(p); }
+    }
+
     for (let si = 0; si < pages.length; si++) {
       const selected = chunksForScene(chunks, scenes[si]);
       if (!selected.length) continue;
       const raw = mergeSceneFlowChunks(selected.map((i) => chunks[i]));
       const snapLen = pageCharLength(pages[si]);
       const rawLen = pageCharLength(raw);
-      if (isHollowScenePage(snapLen, rawLen)) pages[si] = raw;
+      if (!isHollowScenePage(snapLen, rawLen)) continue;
+
+      // Bounded fallback (replaces the old raw whole-tick paste, which pastes
+      // EVERY chunk overlapping the scene regardless of where this page
+      // already starts — duplicating an entire neighboring page's prose and
+      // re-emitting shared table objects verbatim). Reuse the SAME flattened
+      // book flow + slicePage this whole module is built on: start exactly
+      // where this page already starts (`from` — slicePage never repeats
+      // text before its own `from`, so no duplication with the PRECEDING
+      // page is possible) and extend to the scene's own natural sentence-
+      // snapped end (naturalEndOffset's target, without the main loop's
+      // straddle pull-back — that pull-back only ever shrinks the cut, so
+      // omitting it here can only give back MORE of the scene's owned text,
+      // never less). Any duplication this introduces is bounded to at most
+      // that extension overlapping the FOLLOWING scene's already-fixed page
+      // (the "boundary straddle").
+      const from = pageFrom[si];
+      const naturalBoundary = naturalEndOffset(chunks, scenes[si], book.chunkTextEnd, sentenceEnds, from);
+      const to = firstSentenceEndAtOrAfter(naturalBoundary);
+      const bounded = to > from ? slicePage(book, chunks, from, to) : null;
+      // Last resort (documented degenerate case, John 2026-07-20): the
+      // bounded slice is still empty when this scene's whole owned share was
+      // already consumed by the PRECEDING page's completed dangling sentence
+      // (naturalBoundary collapses to exactly `from`) — fall back to the raw
+      // whole-tick paste so the reader never sees a literally blank card.
+      pages[si] = bounded && pageCharLength(bounded) > 0 ? bounded : raw;
     }
   }
 

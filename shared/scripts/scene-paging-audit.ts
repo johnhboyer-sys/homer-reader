@@ -24,6 +24,7 @@ import {
   chunksForScene,
   mergeSceneFlowChunks,
   pageCharLength,
+  sentenceEndOffsets,
   sentenceSnapScenePages,
   type SceneFlowChunk,
 } from '../lib/scene-paging.ts';
@@ -36,11 +37,19 @@ type Epic = (typeof EPICS)[number];
 const BOOK_COUNT = 24;
 const TRANSLATIONS: RealTranslation[] = ['murray', 'butler'];
 
-// Non-empty page text (guardrail off) must end in a real sentence terminator
-// (with optional trailing quote/paren/bracket) — mirrors John's "never end a
-// page mid-sentence" rule from scene-paging.ts's own header comment.
-const SENTENCE_END_TRAIL_RE = /[.?!]["'”’)\]]*$/;
-// "Shares a common substring of >= 40 chars with the previous page" per the
+// A non-empty page's END OFFSET (in the whole-book flattened text) must be a
+// real sentence boundary — reusing sentenceEndOffsets' own membership is more
+// faithful than re-testing the page's trailing text against a standalone
+// regex: sentenceEndOffsets already knows about Murray's inline footnote
+// markers (`...for itself.[^2.4.2]`, where the sentence truly ends BEFORE the
+// marker) and abbreviation/quote guards, so reusing it here can't drift out of
+// sync with what sentenceSnapScenePages itself considers a valid cut. The
+// book's true final offset (whole.length) is also always a valid terminator —
+// a page that runs to the very end of the book's flow is not a mid-sentence
+// CUT even when the source text itself ends without terminal punctuation
+// (e.g. Butler Od. 3's final tick, a documented pipeline extraction quirk,
+// not a paging defect).
+// "Shares a common substring of >= 40 chars with an adjacent page" per the
 // audit brief — sufficient window size to catch real duplicated prose
 // without false-positiving on short common phrases.
 const DUP_WINDOW = 40;
@@ -74,6 +83,7 @@ export interface AuditGate {
   maxOutOfOwnedRange: 0;
   maxMidSentence: 0;
   maxEmptyPureSnap: 0;
+  maxDuplicatedTextPages: 0;
   pass: boolean;
 }
 
@@ -136,6 +146,27 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
     if (pageText(guardOn[i]) !== pageText(pureOff[i])) hollowGuardrailFirings++;
   }
 
+  // Real sentence-end offsets in the SAME flattened whole-book text pureOff's
+  // pages slice from (identical join rule, so identical string — see the
+  // module's own buildBookFlow comment) — membership in this set (or landing
+  // exactly at the book's true end) is what "ends cleanly" means.
+  const sentenceEnds = sentenceEndOffsets(whole);
+  const sentenceEndSet = new Set(sentenceEnds);
+
+  // Cumulative [from, to) offset each pureOff page occupies in `whole` —
+  // needed both for the mid-sentence offset check below and for
+  // outOfOwnedRangePages further down.
+  const pageFrom: number[] = [];
+  const pageTo: number[] = [];
+  {
+    let cursor = 0;
+    for (const p of pureOff) {
+      pageFrom.push(cursor);
+      cursor += pageCharLength(p);
+      pageTo.push(cursor);
+    }
+  }
+
   // ── emptyPagesPureSnap / midSentenceEndsPureSnap (non-first pages, guardrail OFF) ──
   let emptyPagesPureSnap = 0;
   let midSentenceEndsPureSnap = 0;
@@ -145,7 +176,9 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
       emptyPagesPureSnap++;
       continue;
     }
-    if (!SENTENCE_END_TRAIL_RE.test(t)) midSentenceEndsPureSnap++;
+    const endsAtTrueEnd = pageTo[i] >= whole.length;
+    const endsAtRealSentence = sentenceEndSet.has(pageTo[i]);
+    if (!endsAtTrueEnd && !endsAtRealSentence) midSentenceEndsPureSnap++;
   }
 
   // ── outOfOwnedRangePages (guardrail OFF) ──
@@ -160,17 +193,6 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
     chunkEnd.push(pageCharLength(mergeSceneFlowChunks(chunks.slice(0, i + 1))));
   }
   const chunkStart = (i: number) => (i === 0 ? 0 : chunkEnd[i - 1]);
-
-  const pageFrom: number[] = [];
-  const pageTo: number[] = [];
-  {
-    let cursor = 0;
-    for (const p of pureOff) {
-      pageFrom.push(cursor);
-      cursor += pageCharLength(p);
-      pageTo.push(cursor);
-    }
-  }
 
   let outOfOwnedRangePages = 0;
   for (let i = 0; i < pureOff.length; i++) {
@@ -190,20 +212,37 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
     if (!overlaps) outOfOwnedRangePages++;
   }
 
-  // ── duplicatedTextPages (guardrail ON): page i shares a >=40-char window with page i-1 ──
+  // ── duplicatedTextPages: guardrail-caused duplication only ──
+  // Measurement honesty (John, 2026-07-21): the corpus is full of genuine
+  // Homeric formulaic repetition (near-verbatim repeated lines across
+  // adjacent pages), which a plain "shares a 40-char run with the previous
+  // page" scan can't tell apart from actual guardrail duplication — and the
+  // guardrail-OFF partition is provably disjoint (partitionLossless), so any
+  // such formulaic overlap there is not this module's doing. Count a page
+  // ONLY when (a) the guardrail actually fired on it (its guardrail-ON text
+  // differs from the guardrail-OFF text at the same index — a page the
+  // guardrail left untouched can't be blamed for duplication) AND (b) the
+  // fired page shares a >=40-char run with an ADJACENT page (previous or
+  // next — the bounded fallback in scene-paging.ts can only ever straddle
+  // into a neighbor, never duplicate anything further away).
   let duplicatedTextPages = 0;
-  for (let i = 1; i < guardOn.length; i++) {
+  for (let i = 0; i < guardOn.length; i++) {
     const cur = pageText(guardOn[i]);
-    const prev = pageText(guardOn[i - 1]);
-    if (cur.trim() === '' || prev.trim() === '') continue;
-    if (cur.length < DUP_WINDOW || prev.length < DUP_WINDOW) continue;
-    const prevWindows = windowSet(prev);
+    if (cur === pageText(pureOff[i])) continue; // guardrail did not fire here
+    if (cur.trim() === '' || cur.length < DUP_WINDOW) continue;
+    const curWindows = windowSet(cur);
     let dup = false;
-    for (let w = 0; w + DUP_WINDOW <= cur.length; w++) {
-      if (prevWindows.has(cur.slice(w, w + DUP_WINDOW))) {
-        dup = true;
-        break;
+    for (const j of [i - 1, i + 1]) {
+      if (j < 0 || j >= guardOn.length) continue;
+      const neighbor = pageText(guardOn[j]);
+      if (neighbor.trim() === '' || neighbor.length < DUP_WINDOW) continue;
+      for (let w = 0; w + DUP_WINDOW <= neighbor.length; w++) {
+        if (curWindows.has(neighbor.slice(w, w + DUP_WINDOW))) {
+          dup = true;
+          break;
+        }
       }
+      if (dup) break;
     }
     if (dup) duplicatedTextPages++;
   }
@@ -259,7 +298,11 @@ export function auditScenePaging(distRoot: string): AuditResult {
     maxOutOfOwnedRange: 0,
     maxMidSentence: 0,
     maxEmptyPureSnap: 0,
-    pass: totals.outOfOwnedRangePages <= 0 && totals.midSentenceEndsPureSnap <= 0 && totals.emptyPagesPureSnap <= 0,
+    maxDuplicatedTextPages: 0,
+    pass: totals.outOfOwnedRangePages <= 0
+      && totals.midSentenceEndsPureSnap <= 0
+      && totals.emptyPagesPureSnap <= 0
+      && totals.duplicatedTextPages <= 0,
   };
 
   return { buildDistPresent: true, books, totals, gate };
