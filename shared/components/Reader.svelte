@@ -472,6 +472,14 @@
   // compare mode — the last single choice (pickValue already resolves this).
   // Never 'compare'.
   $: readingTransId = pickValue;
+  // Whether readingTransId's own bekker ticks are CURATED scene-boundary
+  // anchors (works.ts's TranslationRef.curatedTicks — Pope, T3 lane
+  // 2026-07-21) rather than dense milestone ticks. A curated tick is already
+  // exact, so it must NOT be moved by speech-snapping (see the readingChunks
+  // alignGroups call below) — snapping exists to correct MILESTONE-tick
+  // drift near a speech's true opening line, and applying it to an anchor
+  // that's already correct could only knock it off target.
+  $: readingTransCuratedTicks = !!translations.find(t => t.id === readingTransId)?.curatedTicks;
 
   // ── Reading Mode scene paging ─────────────────────────────────────────────
   // The scene Reading Mode currently pages to (0-based into `scenes`),
@@ -496,7 +504,7 @@
       for (const block of blocks) {
         const flow = readingTransId === engSlot?.id ? block.flow : (block.oflows[readingTransId] ?? []);
         if (!flow.length) continue;
-        for (const g of alignGroups(block.lines, flow, bookSpeechStarts)) {
+        for (const g of alignGroups(block.lines, flow, readingTransCuratedTicks ? [] : bookSpeechStarts)) {
           if (!g.lines.length) continue;
           out.push({
             startLine: g.lines[0].n, endLine: g.lines[g.lines.length - 1].n,
@@ -510,12 +518,16 @@
   // Whether the currently shown translation carries any REAL internal
   // paging signal beyond the whole book (John, 2026-07-19: "CAN WE HAVE ALL
   // THREE DIVIDED INTO SCENE CHUNKS?" — investigated: Murray/Butler carry
-  // dozens of ~5-line milestone ticks per book; Pope's overlay carries
+  // dozens of ~5-line milestone ticks per book; Pope's overlay carried
   // exactly ONE bekker anchor per book, at n=1/offset=0 — a book-level-only
   // alignment, confirmed across every Iliad/Odyssey book). Fewer than two
   // chunks means chunksForScene resolves to the same single whole-book chunk
   // for every scene, so there is no real per-scene boundary to page — see
-  // readingWholeBookFlow below for the honest fallback.
+  // readingWholeBookFlow below for the honest fallback. T3 lane (2026-07-21):
+  // Pope now carries a `curatedTicks` translation (works.ts) — once the
+  // pipeline lane re-emits its ~15 curated scene-boundary ticks per book,
+  // Pope will have readingChunks.length > 1 like Murray/Butler and this
+  // branch goes dormant for it automatically; no logic here changes.
   $: readingHasSceneAnchors = readingChunks.length > 1;
   // Sentence-snapped Reading Mode pages, one per scene, computed once for
   // the whole book (shared/lib/scene-paging.ts's sentenceSnapScenePages,
@@ -2737,6 +2749,15 @@
       {:else if scenes.length && readingHasSceneAnchors}
         {@const s = scenes[clampedSceneIndex]}
         {@render readingSceneHead(s, clampedSceneIndex, scenes.length)}
+        {#if readingTransCuratedTicks}
+          <!-- T3 lane (2026-07-21): Pope's pages ARE scene-anchored (curated
+               ticks, exact at the boundary) but the prose BETWEEN those
+               boundaries has no line-level Greek alignment signal — unlike
+               Murray/Butler's dense milestone ticks. Same discreet-notice
+               treatment as the book-level fallback below, honest about the
+               narrower (not absent) uncertainty. -->
+          <p class="reading-anchor-notice">Pope’s pages are anchored at scene boundaries; alignment within a scene is approximate.</p>
+        {/if}
         {@render flowProse(currentSceneFlow.flowParts, readingTransId, currentSceneFlow.otables)}
         <nav class="reading-scene-nav" aria-label="Scene navigation">
           <button type="button" class="reading-scene-prev" on:click={prevScene} disabled={clampedSceneIndex === 0}>← Previous scene</button>

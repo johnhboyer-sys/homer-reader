@@ -36,7 +36,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const EPICS = ['iliad', 'odyssey'] as const;
 type Epic = (typeof EPICS)[number];
 const BOOK_COUNT = 24;
-const TRANSLATIONS: RealTranslation[] = ['murray', 'butler'];
+const TRANSLATIONS: RealTranslation[] = ['murray', 'butler', 'pope'];
+
+// TODO (T3, 2026-07-21): Pope's curated ticks (~15/book, pipeline-emitted —
+// see real-book-loader.ts's module header) are scene-boundary anchors, not
+// milestone ticks, so a Pope page's chunk-ownership geometry differs in kind
+// from Murray/Butler's dense tick chunking — a low-ownership-fraction page
+// there may be an honest artifact of coarse anchoring within a scene rather
+// than a paging defect. Wiring a fraction-metric-only exclusion (mirroring
+// the overrideAffectedSceneIndices pattern in auditOneBook below) needs real
+// Pope tick geometry to design against, which does not exist in build/dist
+// yet (single book-level tick per book, pre-re-emit — see this lane's
+// report). Left as a TODO rather than guessed at; the BINARY gates
+// (outOfOwnedRangePages, midSentence, empty, partitionLossless,
+// duplicatedTextPages) are NOT weakened and apply to Pope in full once the
+// re-emit lands.
 
 // A non-empty page's END OFFSET (in the whole-book flattened text) must be a
 // real sentence boundary — reusing sentenceEndOffsets' own membership is more
