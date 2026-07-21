@@ -17,6 +17,7 @@ FIXTURE = Path(__file__).parent / "fixtures" / "pope" / "tiny.txt"
 REAL_ILIAD = SOURCES_DIR / "pope" / "pope-iliad.txt"
 REAL_ODYSSEY = SOURCES_DIR / "pope" / "pope-odyssey.txt"
 REAL_ILIAD_ANCHORS = SOURCES_DIR / "pope" / "scene-anchors-iliad.json"
+REAL_ODYSSEY_ANCHORS = SOURCES_DIR / "pope" / "scene-anchors-odyssey.json"
 
 
 # --- PG boilerplate stripping ------------------------------------------------
@@ -196,6 +197,23 @@ def test_resolve_scene_anchors_correct_offsets_and_no_entry_needed_for_first_sce
     assert all(r["warning"] is None for r in results)
     # Scene start 1 (the first) has no entry at all and raised nothing —
     # run() gives it the automatic book-opening tick, not this resolver.
+
+
+def test_resolve_scene_anchors_entry_for_first_scene_start_raises():
+    # The first scene start is auto-anchored by run()'s book-opening tick;
+    # a curated entry for it would emit a duplicate tick alongside it.
+    text = (
+        "First scene opens the book with calm words.\n"
+        "It continues for one more line.\n\n"
+        "Second scene begins the trouble now.\n"
+        "More trouble follows swiftly."
+    )
+    entries = [
+        {"book": 1, "n": 1, "anchor": "First scene opens the book with calm words.", "status": "verified"},
+        {"book": 1, "n": 10, "anchor": "Second scene begins the trouble now.", "status": "verified"},
+    ]
+    with pytest.raises(ValueError, match="auto-anchored"):
+        s1.resolve_scene_anchors(text, entries, [1, 10], 1)
 
 
 def test_resolve_scene_anchors_duplicate_phrase_raises():
@@ -514,6 +532,28 @@ def test_resolve_scene_anchors_real_iliad_dataset_end_to_end():
         entries_by_book.setdefault(entry["book"], []).append(entry)
 
     assert scene_starts, "expected apparatus/staging scenes for the Iliad"
+    for book_n, starts in scene_starts.items():
+        text = s1.build_verse_text(parsed[book_n]["verse_paragraphs"])
+        # Must resolve cleanly against the real, current Pope text — any
+        # ValueError here means the dataset has drifted from the source.
+        s1.resolve_scene_anchors(text, entries_by_book.get(book_n, []), starts, book_n)
+
+
+@pytest.mark.skipif(
+    not REAL_ODYSSEY_ANCHORS.exists(),
+    reason="curated Pope scene-anchor dataset not yet drafted (sources/pope/scene-anchors-odyssey.json)",
+)
+def test_resolve_scene_anchors_real_odyssey_dataset_end_to_end():
+    manifest = Manifest.for_work("Odyssey")
+    dataset = s1.load_scene_anchor_dataset("odyssey")
+    scene_starts = s1.load_scene_starts(manifest)
+    parsed = s1.parse_work(REAL_ODYSSEY, 24)
+
+    entries_by_book: dict[int, list[dict]] = {}
+    for entry in dataset["anchors"]:
+        entries_by_book.setdefault(entry["book"], []).append(entry)
+
+    assert scene_starts, "expected apparatus/staging scenes for the Odyssey"
     for book_n, starts in scene_starts.items():
         text = s1.build_verse_text(parsed[book_n]["verse_paragraphs"])
         # Must resolve cleanly against the real, current Pope text — any

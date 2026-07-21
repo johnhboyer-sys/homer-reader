@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from homer_pipeline.preflight import WorkManifest, _validate_manifest_schema
+from homer_pipeline.preflight import WorkManifest, _validate_manifest_schema, _validate_third_bekker
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -515,3 +515,93 @@ def test_tick_coverage_violations_missing_book_counts_as_zero():
     assert tick_coverage_violations({}, {1: {"murray": 1}}) == [
         "book 1 murray ticks 0 below recorded floor 1"
     ]
+
+
+# --- _validate_third_bekker: Pope-overlay tick-list validation --------------
+
+def _third_bekker_problems(segment: dict, line_numbers: set) -> list[str]:
+    manifest = WorkManifest(work_id="iliad", path=MANIFESTS / "Iliad.yaml", data={})
+    problems: list = []
+    _validate_third_bekker(manifest, "01.json", "seg-1", segment, line_numbers, problems)
+    return [message for _work, _file, message in problems]
+
+
+def test_validate_third_bekker_valid_ticks_pass():
+    segment = {
+        "third": [
+            {
+                "text": "0123456789",
+                "bekker": [
+                    {"n": 1, "offset": 0},
+                    {"n": 10, "offset": 5},
+                    {"n": 20, "offset": 8},
+                ],
+            }
+        ]
+    }
+    assert _third_bekker_problems(segment, {1, 10, 20}) == []
+
+
+def test_validate_third_bekker_duplicate_pair_fails():
+    segment = {
+        "third": [
+            {
+                "text": "0123456789",
+                "bekker": [
+                    {"n": 1, "offset": 0},
+                    {"n": 10, "offset": 5},
+                    {"n": 10, "offset": 5},
+                ],
+            }
+        ]
+    }
+    problems = _third_bekker_problems(segment, {1, 10})
+    assert any("not strictly increasing" in p for p in problems)
+
+
+def test_validate_third_bekker_decreasing_n_fails():
+    segment = {
+        "third": [
+            {
+                "text": "0123456789",
+                "bekker": [
+                    {"n": 10, "offset": 0},
+                    {"n": 1, "offset": 5},
+                ],
+            }
+        ]
+    }
+    problems = _third_bekker_problems(segment, {1, 10})
+    assert any("not strictly increasing" in p for p in problems)
+
+
+def test_validate_third_bekker_offset_beyond_text_length_fails():
+    segment = {
+        "third": [
+            {
+                "text": "0123456789",
+                "bekker": [
+                    {"n": 1, "offset": 0},
+                    {"n": 10, "offset": 50},
+                ],
+            }
+        ]
+    }
+    problems = _third_bekker_problems(segment, {1, 10})
+    assert any("outside the piece text" in p for p in problems)
+
+
+def test_validate_third_bekker_n_outside_book_lines_fails():
+    segment = {
+        "third": [
+            {
+                "text": "0123456789",
+                "bekker": [
+                    {"n": 1, "offset": 0},
+                    {"n": 999, "offset": 5},
+                ],
+            }
+        ]
+    }
+    problems = _third_bekker_problems(segment, {1, 10})
+    assert any("is not a Greek line of this book" in p for p in problems)

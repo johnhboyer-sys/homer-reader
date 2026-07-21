@@ -164,7 +164,15 @@ export interface AuditGate {
   // rounded DOWN to a clean value — see the literal assignment below in
   // auditScenePaging for the observed worst page's identity and why a
   // legitimate straddle can land this low without being a defect.
+  // NOTE: this is the Murray/Butler floor specifically — Pope has its own,
+  // lower floor (coarser tick geometry; see MIN_OWNERSHIP_BY_TRANSLATION at
+  // the computation site). Use minOwnershipByTranslation below for the
+  // per-translation map actually applied by belowMinOwnershipPages.
   minOwnershipFraction: number;
+  // Per-translation floor actually applied when computing
+  // belowMinOwnershipPages (murray/butler share minOwnershipFraction; pope's
+  // is lower — see MIN_OWNERSHIP_BY_TRANSLATION at the computation site).
+  minOwnershipByTranslation: Record<RealTranslation, number>;
   // Correctness sums over WELL-FORMED books only (chunkGeometryValid) —
   // an upstream-corrupt book (BookRow.chunkGeometryValid false) is not a
   // scene-paging defect and is excluded here; its raw numbers remain in
@@ -570,12 +578,15 @@ export function auditScenePaging(distRoot: string): AuditResult {
   // 0.567–0.690 — Il. 19 sc.13 (0.690), Il. 21 sc.2 (0.567), Od. 3 sc.3
   // (0.652), Od. 11 sc.13 (0.650), Od. 23 sc.15 (0.677) — all verified
   // structural (both bounding anchors content-correct; moving either shrinks
-  // ownership further). Floor set below the observed worst; catches future
-  // degradation, never excuses a new defect class. Murray/Butler unchanged.
+  // ownership further). Floor pinned to just below the observed worst
+  // (0.5670, Il. 21 sc.2) rather than a loose round number, so a genuine
+  // regression below today's corpus state trips the gate; a floor of 0.55
+  // left ~1.7pp of slack that a real defect could hide inside. Murray/Butler
+  // unchanged.
   const MIN_OWNERSHIP_BY_TRANSLATION: Record<RealTranslation, number> = {
     murray: MIN_OWNERSHIP_FRACTION,
     butler: MIN_OWNERSHIP_FRACTION,
-    pope: 0.55,
+    pope: 0.565,
   };
   const belowMinOwnershipPages = wellFormed.filter(
     (b) => (1 - b.worstOwnershipFraction) < MIN_OWNERSHIP_BY_TRANSLATION[b.translation],
@@ -587,6 +598,7 @@ export function auditScenePaging(distRoot: string): AuditResult {
     maxDuplicatedTextPages: 0,
     maxPartitionLosslessFailures: 0,
     minOwnershipFraction: MIN_OWNERSHIP_FRACTION,
+    minOwnershipByTranslation: MIN_OWNERSHIP_BY_TRANSLATION,
     wellFormedBooks: wellFormed.length,
     excludedCorruptBooks: totals.booksWithCorruptChunks,
     emptyPagesPureSnap: gateEmpty,

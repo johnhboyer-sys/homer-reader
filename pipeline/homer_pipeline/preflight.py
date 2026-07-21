@@ -568,7 +568,8 @@ def _validate_third_bekker(
     english.bekker (_validate_english_bekker above, which validates shape
     only): every tick's `n` must be a real Greek line of this book's single
     verse-line segment, its `offset` must fall within that piece's own text
-    length, and both n and offset must be non-decreasing across the list.
+    length, and the (n, offset) tuples must be strictly increasing across
+    the list (no duplicate pairs).
     Pope's overlay is book-anchored with at most one segment per book
     (unlike English, whose prose legitimately resets across column
     boundaries — see that function's NOTE), so there is no equivalent excuse
@@ -616,14 +617,10 @@ def _validate_third_bekker(
                      f"{seg_id}: third[{pi}].bekker[{ti}] offset={offset} is outside the piece "
                      f"text (length {text_len})")
                 )
-            if prev_n is not None and n < prev_n:
-                problems.append(
-                    (manifest.work_id, file_name, f"{seg_id}: third[{pi}].bekker is not non-decreasing in n at index {ti}")
-                )
-            if prev_offset is not None and offset < prev_offset:
+            if prev_n is not None and (n, offset) <= (prev_n, prev_offset):
                 problems.append(
                     (manifest.work_id, file_name,
-                     f"{seg_id}: third[{pi}].bekker is not non-decreasing in offset at index {ti}")
+                     f"{seg_id}: third[{pi}].bekker (n, offset) is not strictly increasing at index {ti}")
                 )
             prev_n, prev_offset = n, offset
 

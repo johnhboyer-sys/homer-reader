@@ -362,6 +362,9 @@ def resolve_scene_anchors(
     Hard-fails (ValueError naming book, n, and an anchor snippet) rather
     than degrading, on:
       - an entry's n is not one of this book's staged scene starts;
+      - an entry's n equals the book's FIRST scene start — that scene is
+        auto-anchored by run() with its own book-opening tick, so a
+        curated entry for it would emit a duplicate tick;
       - a scene start other than the FIRST (which needs no entry — run()
         gives it an automatic book-opening tick) has anything but exactly
         one entry;
@@ -390,6 +393,13 @@ def resolve_scene_anchors(
                 f"book's staged scene starts {sorted(scene_start_set)}"
             )
         entries_by_n.setdefault(n, []).append(entry)
+
+    if first_start is not None and entries_by_n.get(first_start):
+        raise ValueError(
+            f"book {book_n}: scene start n={first_start} is this book's "
+            f"first scene, which is auto-anchored by run() — remove the "
+            f"curated entry for it (it would emit a duplicate tick)"
+        )
 
     for start in non_first_starts:
         count = len(entries_by_n.get(start, []))
