@@ -265,8 +265,21 @@ export function naturalEndOffset(
       break;
     }
   }
+  // Gate on `after > cursor`, NOT `after > floor` (Codex review F4 decision,
+  // 2026-07-21 — code was already correct; the comment below was fixed to
+  // match). `after` is the nearest sentence boundary AT OR AFTER `floor` (the
+  // owned share's lower bound, >= cursor). Ending here is right in BOTH sub-
+  // cases: when `floor` itself is already a clean boundary (a fully-owned tick
+  // ended exactly there) `after === floor` and we STOP at it rather than
+  // over-extending into a straddling tick's later-scene share; when `floor` is
+  // mid-sentence `after` is the completion just past it. Using `after > floor`
+  // instead would skip the "stop at floor" case and pull the next scene's
+  // sentence back onto this page (verified against the reader's synthetic
+  // Il.-shaped book: scene 1, owning only chunk A fully + 3/5 of the straddling
+  // chunk B, must end at chunk A, not swallow chunk B). Only reached when no
+  // sentence end fell inside the owned share `(floor, target]` above.
   if (after > cursor && after <= lastOverlapEnd) return after;
-  // `after` only fails the check above when it lands exactly ON `floor`
+  // `after` only fails the check above when it lands exactly ON `cursor`
   // (an exact-boundary edge case — see below) or overflows past this tick.
   // Either way, the NEXT distinct sentence end strictly after `floor` is what
   // we want here, so take the nearest match (sentenceEnds is ascending —
@@ -455,6 +468,13 @@ export function pageCharLength(page: SceneFlowChunk): number {
   return n;
 }
 
+// The concatenated visible prose of a scene page (markers contribute ''). Used
+// by the hollow guardrail to detect a bounded backup identical to the page it
+// would replace (short-but-complete — see below).
+function pageText(page: SceneFlowChunk): string {
+  return page.flowParts.map((p) => p.text ?? '').join('');
+}
+
 // Hollow-page safety net (John, 2026-07-20): if the careful cut still leaves a
 // scene card empty or almost empty (previous card ate its prose), fill that
 // card from a coarser backup — the English ticks that overlap the scene's
@@ -464,6 +484,17 @@ export function pageCharLength(page: SceneFlowChunk): number {
 //
 // Treat as hollow when empty, or short (< HOLLOW_MAX_CHARS) AND much shorter
 // than the backup would be (< HOLLOW_RAW_RATIO of backup length).
+//
+// SHORT-BUT-COMPLETE ≠ HOLLOW (John's ruling, Codex review F2, 2026-07-21): a
+// page holding the COMPLETE prose of its scene's owned share is honest even
+// when short — it must NOT be padded with a neighbor's prose. The ratio guard
+// above already spares such a page (its snap length ≈ its raw/backup length,
+// so `snappedLen < rawLen * HOLLOW_RAW_RATIO` is false); and when a genuinely
+// hollow page's bounded backup turns out to equal the page it would replace,
+// the guardrail loop below SKIPS the replacement deliberately (a no-op cut is
+// "already complete", not padding). The audit surfaces every such legitimately
+// short page via its informational `shortPagesBelowHollowThreshold` count, so
+// they are visible, never silently swallowed.
 export const HOLLOW_MAX_CHARS = 200;
 export const HOLLOW_RAW_RATIO = 0.4;
 
@@ -585,11 +616,29 @@ export function sentenceSnapScenePages(
       const naturalBoundary = naturalEndOffset(chunks, scenes[si], book.chunkTextEnd, sentenceEnds, from);
       const to = firstSentenceEndAtOrAfter(naturalBoundary);
       const bounded = to > from ? slicePage(book, chunks, from, to) : null;
+
+      // SHORT-BUT-COMPLETE, handled explicitly (Codex review F2, 2026-07-21):
+      // a page flagged hollow whose bounded backup is byte-for-byte the page it
+      // would replace already holds its scene's complete owned share — the cut
+      // is a no-op. Skip the replacement DELIBERATELY (not as an accidental
+      // "assign identical text") and leave the honest short page in place; it is
+      // never padded with a neighbor's prose. The audit's informational
+      // `shortPagesBelowHollowThreshold` count keeps such pages visible.
+      if (bounded && pageText(bounded) === pageText(pages[si])) continue;
+
       // Last resort (documented degenerate case, John 2026-07-20): the
       // bounded slice is still empty when this scene's whole owned share was
       // already consumed by the PRECEDING page's completed dangling sentence
       // (naturalBoundary collapses to exactly `from`) — fall back to the raw
       // whole-tick paste so the reader never sees a literally blank card.
+      //
+      // BY-DESIGN DUPLICATION BOUND (John approved as the honest floor, Codex
+      // review F2c): when `bounded` DOES fire with `to > from`, its extension
+      // past this scene's natural end can re-show prose already on the FOLLOWING
+      // (fixed, not re-partitioned) page — a duplication bounded to that single
+      // boundary straddle, never text further away (slicePage starts at `from`,
+      // so it can never repeat the PRECEDING page). The audit's
+      // duplicatedTextPages metric is scoped to catch exactly this case.
       pages[si] = bounded && pageCharLength(bounded) > 0 ? bounded : raw;
     }
   }

@@ -9,7 +9,7 @@
   import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { classifySpeech, realLinesFromSegments, speechLabel } from '../lib/speeches';
-  import { snapTicksToSpeechStarts } from '../lib/speech-snap';
+  import { flowParts, alignGroups } from '../lib/tick-chunks';
   import { bookAudio, hasAudio, effectiveChunks, licenseLabel, chunkAriaLabel, itemPageUrl, type AudioManifest, type AudioChunk, type AudioBookEntry } from '../lib/audio';
   import { scansionDisplay, scansionKey } from '../lib/scansion';
   import { greekFold } from '../lib/search';
@@ -495,7 +495,7 @@
       for (const block of blocks) {
         const flow = readingTransId === engSlot?.id ? block.flow : (block.oflows[readingTransId] ?? []);
         if (!flow.length) continue;
-        for (const g of alignGroups(block, flow, bookSpeechStarts)) {
+        for (const g of alignGroups(block.lines, flow, bookSpeechStarts)) {
           if (!g.lines.length) continue;
           out.push({
             startLine: g.lines[0].n, endLine: g.lines[g.lines.length - 1].n,
@@ -1453,35 +1453,8 @@
     return { n: line.n, text, tokens: line.tokens.slice(fromW, toW), cont: fromW > 0 };
   }
 
-  // Flowing prose with Bekker numbers floated into the margin at their EXACT
-  // offsets (no row break, no in-text number, no sentence-boundary snapping).
-  // Used for precisely-placed translations like the gloss-aligned Ross.
-  function flowParts(text: string, ticks: { n: number; real: boolean; off: number }[], paraOffsets: number[] = []): FlowPart[] {
-    const ts = [
-      ...ticks.map(t => ({ ...t, para: false })),
-      ...paraOffsets.map(off => ({ n: 0, real: false, off, para: true })),
-    ].sort((a, b) => a.off - b.off || Number(a.para) - Number(b.para));
-    const parts: FlowPart[] = [];
-    let cur = 0;
-    const addText = (s: string) => {
-      const segs = s.split('\n');
-      for (let i = 0; i < segs.length; i++) {
-        if (i > 0) parts.push({ text: '\n', n: null, real: false });
-        if (segs[i]) parts.push({ text: segs[i], n: null, real: false });
-      }
-    };
-    for (const t of ts) {
-      const off = Math.max(0, Math.min(t.off, text.length));
-      if (off > cur) { addText(text.slice(cur, off)); cur = off; }
-      if (t.para) {
-        parts.push({ text: null, n: null, real: false, para: true });
-      } else {
-        parts.push({ text: null, n: t.n, real: t.real });
-      }
-    }
-    if (cur < text.length) addText(text.slice(cur));
-    return parts;
-  }
+  // flowParts (Bekker-margin flowing prose) is now shared/lib/tick-chunks.ts —
+  // see the import at the top of this component (Codex review F1, 2026-07-21).
 
   // A standalone tick span is absolutely positioned with no `top`, so its
   // static position decides which line it reads against — and a marker box
@@ -1742,68 +1715,12 @@
   // real per-line English pairing to display. So the stacking unit here is the
   // ALIGNMENT GROUP: a run of Greek verse lines followed by the English chunk
   // aligned to that same tick span — never a fabricated per-verse split.
-  // A tick-shaped FlowPart, as embedded inline in block.flow by flowParts()
-  // (text: null, n: the Greek line it anchors, real: milestone vs interpolated).
-  type TickFlowPart = FlowPart & { text: null; n: number; para?: false | undefined };
-  const isTickPart = (p: FlowPart): p is TickFlowPart => p.text === null && p.n !== null && !p.para;
-  // Split a block's full English flow into one run per tick, each run LED by
-  // its own tick marker (so flowProse's existing attachTicks/bk-num rendering
-  // works unmodified on a slice exactly as it does on the whole flow). Any
-  // text preceding the very first tick (not seen in practice — every book's
-  // first tick is at n=1/offset=0 — but not guaranteed by the type) is folded
-  // into the first tick's run rather than silently dropped.
-  function groupFlowByTicks(flow: FlowPart[]): FlowPart[][] {
-    const groups: FlowPart[][] = [];
-    let cur: FlowPart[] = [];
-    for (const part of flow) {
-      if (isTickPart(part)) {
-        if (cur.length) groups.push(cur);
-        cur = [part];
-      } else {
-        cur.push(part);
-      }
-    }
-    if (cur.length) groups.push(cur);
-    if (groups.length > 1 && !isTickPart(groups[0][0])) {
-      groups[1].unshift(...groups.shift()!);
-    }
-    return groups;
-  }
-  interface AlignGroup { lines: RLine[]; flowParts: FlowPart[] }
-  // Pair each tick-anchored English run with the Greek lines it aligns to —
-  // from this tick's line up to (excluding) the next tick's line, or the end
-  // of the block for the last group. Greek lines are matched by vulgate
-  // number (not array position), so a declared expected_line_gaps skip (e.g.
-  // Il. 9.457→462) never miscounts a group's span — the tick itself always
-  // anchors to a line number actually present in `lines`.
-  // `flow` defaults to the block's PRIMARY English flow (the phone
-  // stacked-both view's only caller below always wants Murray's ticks); the
-  // scene-paging chunker in readingView passes the actually-selected
-  // translation's flow (block.oflows[id]) so a non-primary Reading Mode
-  // translation (Butler/Pope) pages by its OWN ticks, not Murray's.
-  // `speechStarts` (FIX 1, John's phone report 2026-07-18): every speech's
-  // opening line in this book (bookSpeechStarts above) — snapped via
-  // shared/lib/speech-snap.ts's snapTicksToSpeechStarts BEFORE the tick lines
-  // are resolved to Greek-line indices, so a tick 1-2 lines ahead of a
-  // speech's own start moves that speech's opening Greek line into the SAME
-  // group as its opening English instead of the group before it. Both
-  // callers below pass `bookSpeechStarts` EXPLICITLY (not as a default) so
-  // Svelte's reactivity tracks it — a default reading the outer variable
-  // wouldn't appear in either call site's own dependency scan.
-  function alignGroups(block: Block, flow: FlowPart[] = block.flow, speechStarts: number[] = []): AlignGroup[] {
-    const flowGroups = groupFlowByTicks(flow);
-    const ticks = flowGroups.map(g => g[0]).filter(isTickPart);
-    const tickLines = snapTicksToSpeechStarts(ticks.map((t) => t.n), speechStarts);
-    const lineIndex = new Map<number, number>();
-    block.lines.forEach((l, i) => { if (!l.cont && !lineIndex.has(l.n)) lineIndex.set(l.n, i); });
-    return flowGroups.map((parts, i) => {
-      const n = tickLines[i];
-      const startIdx = n !== undefined ? (lineIndex.get(n) ?? 0) : 0;
-      const nextN = tickLines[i + 1];
-      const endIdx = nextN !== undefined ? (lineIndex.get(nextN) ?? block.lines.length) : block.lines.length;
-      return { lines: block.lines.slice(startIdx, endIdx), flowParts: parts };
-    });
-  }
+  // groupFlowByTicks / alignGroups (with isTickPart, TickFlowPart, AlignGroup)
+  // are now shared/lib/tick-chunks.ts — imported at the top of this component
+  // (Codex review F1, 2026-07-21) so the scene-paging audit/tests measure the
+  // SAME tick geometry this component renders. Both call sites below pass
+  // `block.lines` and the flow EXPLICITLY (alignGroups no longer defaults its
+  // flow to block.flow) so Svelte's reactivity tracks each call's own deps.
 
   // Active popup state
   let popup: { token: Token; anchor: { x: number; y: number } } | null = null;
@@ -3022,7 +2939,7 @@
                  phone stacking; busse/sidenotes/figs don't apply to epicVerse
                  works. -->
             <div class="seg-row stacked-both" data-chapter={block.currentChapter}>
-              {#each alignGroups(block, block.flow, bookSpeechStarts) as group, gi (gi)}
+              {#each alignGroups(block.lines, block.flow, bookSpeechStarts) as group, gi (gi)}
                 <div class="align-group">
                   <div class="greek-col" lang="grc">
                     {@render greekLinesRender(seg, group.lines)}

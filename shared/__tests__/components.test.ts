@@ -510,6 +510,17 @@ describe('Reader.svelte — Reading Mode scene paging (John, 2026-07-18)', () =>
     await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
     await screen.findByText(/Scene 3 of 3/);
     expect(container.querySelector('.reading-scene-next')).toHaveProperty('disabled', true);
+
+    // Scene 3 (lines 17-24) shows chunk D (15-19, not fully owned by scene 2)
+    // and chunk E (20-24) — pinning every one of the five chunk-sentences to
+    // exactly ONE scene page across the three scenes (Codex review F6,
+    // 2026-07-21): A→scene 1, B+C→scene 2, D+E→scene 3, none duplicated.
+    expect(container.querySelector('.reading-scene-pos')?.textContent).toContain('lines 17–24');
+    expect(container.textContent).toContain('ChunkD text.');
+    expect(container.textContent).toContain('ChunkE text.');
+    expect(container.textContent).not.toContain('ChunkA text.');
+    expect(container.textContent).not.toContain('ChunkB text.');
+    expect(container.textContent).not.toContain('ChunkC text.');
   });
 
   it('ignores arrow-key scene paging while focus is in a text field', async () => {

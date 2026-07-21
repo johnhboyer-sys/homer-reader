@@ -5,6 +5,7 @@ import {
   endAnchorChunkIndex,
   isHollowScenePage,
   mergeSceneFlowChunks,
+  naturalEndOffset,
   pageCharLength,
   sentenceEndOffsets,
   sentenceSnapScenePages,
@@ -325,6 +326,95 @@ describe('sentenceSnapScenePages', () => {
     expect(isHollowScenePage(0, 0)).toBe(false);
   });
 
+  // Codex review F2a, 2026-07-21: a page holding the COMPLETE prose of a short
+  // owned share is short-but-complete, NOT hollow — the guardrail must leave it
+  // exactly as sentence-snap cut it, never padded with a neighbor's prose. Here
+  // scene 2 owns only a tiny share of a wide straddling tick, so its snapped
+  // page ("Bee. ") is far shorter than the whole-tick backup (would flag hollow
+  // by the ratio), yet it already contains its entire owned sentence — the
+  // guardrail's bounded backup equals the page, so replacement is skipped.
+  it('guardrail leaves a short-but-complete page unpadded (bounded backup == page ⇒ skip)', () => {
+    const chunks: SceneReadingChunk[] = [
+      { startLine: 1, endLine: 5, flowParts: [{ text: 'Alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha alpha.', n: null, real: false }], otables: {} },
+      { startLine: 6, endLine: 60, flowParts: [{ text: ' Bee. Charlie charlie charlie charlie charlie charlie charlie charlie charlie charlie charlie charlie charlie charlie charlie charlie.', n: null, real: false }], otables: {} },
+    ];
+    const scenes: SceneRange[] = [
+      { startLine: 1, endLine: 5 },
+      { startLine: 6, endLine: 8 },   // tiny owned share of the wide tick
+      { startLine: 9, endLine: 60 },
+    ];
+    const off = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false }).map(textOf);
+    const on = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: true }).map(textOf);
+    // Scene 2's snapped page is its complete owned sentence, kept verbatim — the
+    // guardrail did NOT pad it with chunk 1's "Charlie…" run.
+    expect(off[1]).toBe('Bee. ');
+    expect(on[1]).toBe('Bee. ');
+    expect(on[1]).not.toContain('Charlie');
+  });
+
+  // Codex review F2c, 2026-07-21: John approved bounded guardrail duplication as
+  // the honest floor for a scene sentence-snap swallowed empty. This pins that
+  // (a) the fill duplicates ONLY the ADJACENT page (its own overlapping tick can
+  // straddle a neighbor, never reach further), and (b) the audit's
+  // duplicatedTextPages window logic catches exactly the filled page.
+  it('guardrail duplication is bounded to an adjacent page, and the audit dup metric catches it', () => {
+    const c0 = 'Aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa aaaa.';
+    const c1 = ' Short one here now. ' + 'w'.repeat(120) + ' finally ends here at last today.';
+    const chunks: SceneReadingChunk[] = [
+      { startLine: 1, endLine: 5, flowParts: [{ text: c0, n: null, real: false }], otables: {} },
+      { startLine: 6, endLine: 60, flowParts: [{ text: c1, n: null, real: false }], otables: {} },
+    ];
+    const scenes: SceneRange[] = [
+      { startLine: 1, endLine: 5 },
+      { startLine: 6, endLine: 9 },    // short owned share
+      { startLine: 10, endLine: 60 },  // its long sentence is completed onto scene 2, leaving scene 3 empty
+    ];
+    const off = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false }).map(textOf);
+    const on = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: true }).map(textOf);
+
+    // Scene 3 is empty under pure snap (its share was completed onto scene 2)…
+    expect(off[2].trim()).toBe('');
+    // …and the guardrail fills it rather than showing a blank card.
+    expect(on[2].trim()).not.toBe('');
+
+    // The fill duplicates the ADJACENT page (scene 2) — a >=40-char shared run —
+    // but shares NOTHING with the non-adjacent page 0: the duplication is bounded.
+    const has40Overlap = (a: string, b: string) => {
+      for (let i = 0; i + 40 <= a.length; i++) if (b.includes(a.slice(i, i + 40))) return true;
+      return false;
+    };
+    expect(has40Overlap(on[2], on[1])).toBe(true);   // duplicates the neighbor
+    expect(has40Overlap(on[2], on[0])).toBe(false);  // never the non-adjacent page
+
+    // The audit's duplicatedTextPages logic (guardrail fired here AND a >=40-char
+    // run is shared with an adjacent page) flags exactly this page.
+    const auditFlags = (i: number) => {
+      if (on[i] === off[i] || on[i].trim() === '' || on[i].length < 40) return false;
+      return [i - 1, i + 1].some((j) => j >= 0 && j < on.length && on[j].length >= 40 && has40Overlap(on[i], on[j]));
+    };
+    expect(auditFlags(2)).toBe(true);
+    expect(auditFlags(0)).toBe(false); // untouched page is never blamed
+  });
+
+  // Codex review F4 decision, 2026-07-21: naturalEndOffset's dangling-sentence
+  // branch correctly gates on `after > cursor` (the code was right; only its
+  // comment was fixed). When `floor` (the owned share's lower bound, here 100 >
+  // cursor 50) is ITSELF a clean sentence end — a fully-owned tick ended exactly
+  // there — the natural end is `floor`, NOT the next sentence end past it: the
+  // scene must STOP at its clean owned boundary, never over-extend into the
+  // straddling tick's later-scene share. Synthetic: chunk 0 fully owned
+  // (chunkTextEnd 100, a terminator AT 100 ⇒ floor 100), chunk 1 straddles with
+  // its next terminator only at 160. A hypothetical `after > floor` would return
+  // 160 (swallowing the neighbor); the correct `after > cursor` returns 100.
+  it('naturalEndOffset: when `floor` (> cursor) is itself a clean sentence end, the scene stops there, not at the next end', () => {
+    const chunks: TickChunkRange[] = [
+      { startLine: 1, endLine: 5 },
+      { startLine: 6, endLine: 10 }, // straddles scene (endLine 10 > scene.endLine 8)
+    ];
+    const scene: SceneRange = { startLine: 3, endLine: 8 };
+    expect(naturalEndOffset(chunks, scene, [100, 200], [100, 160], 50)).toBe(100);
+  });
+
   it('never ends a page mid-sentence when the only terminator is past the straddling tick', () => {
     // Scene A owns only the first half of a 5-line tick; English has no period
     // until the NEXT tick. Hard-capping at the tick edge would end on
@@ -461,11 +551,12 @@ describe('sentenceSnapScenePages', () => {
 
 // ── Real Iliad 1 / Odyssey {1,9} data ───────────────────────────────────────
 // build/dist is pipeline output (gitignored, regenerated — see CLAUDE.md's
-// concurrency gotcha), so these tests read it if present. The loader itself
-// (buildRealChunks/loadRealBook — "text + bekker ticks + paragraph offsets ->
-// tick-chunked SceneReadingChunk[]", NOT a copy of Reader.svelte's private
-// flowParts()/groupFlowByTicks()/alignGroups()) lives in ./real-book-loader,
-// shared with the corpus audit script.
+// concurrency gotcha), so these tests read it if present. The loader
+// (buildRealChunks/loadRealBook) lives in ./real-book-loader, shared with the
+// corpus audit script, and since Codex review F1 (2026-07-21) it builds chunks
+// through the SAME extracted production path Reader.svelte renders —
+// flowParts → alignGroups(seg.greek, flow, bookSpeechStarts) from
+// shared/lib/tick-chunks.ts — so the tested geometry IS the rendered geometry.
 //
 // Because build/dist is gitignored, a committed fixture
 // (./fixtures/scene-paging-books.json — trimmed, book-JSON-shaped, public-
@@ -491,12 +582,20 @@ const FIXTURE_PATH = './__tests__/fixtures/scene-paging-books.json';
 
 interface FixtureBook {
   segments: [{
+    greek: { n: number }[];
     english: { text: string; bekker: { n: number; offset: number; real: boolean }[]; markers: RealMarker[] };
     ross: [{ text: string; bekker: { n: number; offset: number; real: boolean }[] }];
   }];
+  // Speech-opening lines in this book (the fixture's own bookSpeechStarts) —
+  // fed to buildRealChunks so the fixture runs the SAME production
+  // flowParts→alignGroups→snapTicksToSpeechStarts path as real build/dist data
+  // (Codex review F1/F5, 2026-07-21). See the fixture's `_provenance`.
+  speechStarts: number[];
   apparatus: { scenes: { lines: [number, number] }[] };
 }
 
+// The fixture carries a top-level `_provenance` (see F5) alongside the book
+// entries — keep it out of the book-keyed lookup.
 const fixtureRaw: Record<string, FixtureBook> | null = existsSync(FIXTURE_PATH)
   ? JSON.parse(readFileSync(FIXTURE_PATH, 'utf-8'))
   : null;
@@ -508,10 +607,10 @@ function loadFixtureBook(entry: string, translation: RealTranslation): { chunks:
   let chunks: SceneReadingChunk[];
   if (translation === 'murray') {
     const paraOffsets = seg.english.markers.filter((m) => m.kind === 'paragraph').map((m) => m.offset);
-    chunks = buildRealChunks(seg.english.text, seg.english.bekker, paraOffsets);
+    chunks = buildRealChunks(seg.english.text, seg.english.bekker, paraOffsets, seg.greek, raw.speechStarts);
   } else {
     const piece = seg.ross[0];
-    chunks = buildRealChunks(piece.text, piece.bekker, []);
+    chunks = buildRealChunks(piece.text, piece.bekker, [], seg.greek, raw.speechStarts);
   }
   const scenes: SceneRange[] = raw.apparatus.scenes.map((s) => ({ startLine: s.lines[0], endLine: s.lines[1] }));
   return { chunks, scenes };
@@ -695,20 +794,27 @@ describe('sentenceSnapScenePages — real Iliad 1 / Odyssey 9 data', () => {
     expect(scenes[2]?.startLine).toBe(33);
     expect(scenes[2]?.endLine).toBe(42);
 
-    // Default options (hollow guardrail ON) — same call shape as Reader.svelte.
+    // Default options (hollow guardrail ON) — same call shape as Reader.svelte,
+    // INCLUDING the speech-snapped tick geometry (Codex review F1, 2026-07-21):
+    // this loader now runs the SAME flowParts→alignGroups→snapTicksToSpeechStarts
+    // path the component renders (Il. 1 speeches at 17/26/37 snap ticks 15→17,
+    // 25→26, 35→37), so these assertions pin the TRUE live-reader boundary. The
+    // pre-F1 audit geometry (no speech-snap) ended scene 2 one line later, at
+    // "…return the safer." — that contradicted production and is what F1 fixed.
     const pages = sentenceSnapScenePages(chunks, scenes);
     const s2 = pages[1].flowParts.map((p) => p.text ?? '').join('');
     const s3 = pages[2].flowParts.map((p) => p.text ?? '').join('');
     const s4 = pages[3].flowParts.map((p) => p.text ?? '').join('');
     const endsClean = (s: string) => !s.trim() || /[.?!]["'”’)]*$/.test(s.trimEnd());
 
-    // Scene 2 ends with Agamemnon's dismissal, not the prayer.
-    expect(s2).toMatch(/return the safer\./);
+    // Scene 2 ends with Agamemnon's refusal to release the girl ("…serves my
+    // bed.", ~line 31), not the prayer or the descent.
+    expect(s2).toMatch(/serves my bed\.\s*$/);
     expect(s2).not.toMatch(/silver bow/);
     expect(s2).not.toMatch(/Down from the peaks of Olympus/);
     expect(endsClean(s2)).toBe(true);
 
-    // Scene 3 owns Chryses' reaction + prayer; not the Agamemnon lead-in, not descent.
+    // Scene 3 owns Chryses' reaction + prayer to Apollo; not the descent.
     expect(s3).toMatch(/So he spoke, and the old man was seized with fear/);
     expect(s3).toMatch(/silver bow/);
     expect(s3).toMatch(/Phoebus Apollo heard him/);
@@ -754,16 +860,36 @@ describe('scene-paging corpus audit gate (real build/dist data)', () => {
     }
   });
 
-  it.skipIf(!hasAuditDistRoot)('gate passes: zero empty, zero mid-sentence, zero out-of-owned-range pages', () => {
+  it.skipIf(!hasAuditDistRoot)('gate passes over well-formed books: zero empty, zero mid-sentence, zero out-of-owned-range, zero partition-loss', () => {
     if (!result?.buildDistPresent) return;
-    expect(result.totals.emptyPagesPureSnap).toBe(0);
-    expect(result.totals.midSentenceEndsPureSnap).toBe(0);
-    expect(result.totals.outOfOwnedRangePages).toBe(0);
+    // Gate sums are over WELL-FORMED books only (see below) — scene-paging's own
+    // contract, not upstream data corruption.
+    expect(result.gate.emptyPagesPureSnap).toBe(0);
+    expect(result.gate.midSentenceEndsPureSnap).toBe(0);
+    expect(result.gate.outOfOwnedRangePages).toBe(0);
+    expect(result.gate.partitionLosslessFailures).toBe(0);
   });
 
   it.skipIf(!hasAuditDistRoot)('gate passes: guardrail-caused duplication stays within the gate max', () => {
     if (!result?.buildDistPresent) return;
-    expect(result.totals.duplicatedTextPages).toBeLessThanOrEqual(result.gate.maxDuplicatedTextPages);
+    expect(result.gate.duplicatedTextPages).toBeLessThanOrEqual(result.gate.maxDuplicatedTextPages);
+  });
+
+  // The gate excludes books whose tick-chunk INPUT is corrupt from an UPSTREAM
+  // dropped vulgate line (Codex review F1 diagnosis, 2026-07-21). This is
+  // asserted LOUDLY, not hidden: the exclusion is bounded to exactly the known
+  // Odyssey 10 (Murray) case — a real Circe speech opens on line 456, which the
+  // pipeline dropped from that book's Greek (has 455 and 457, 573 lines but max
+  // n 574), so snapTicksToSpeechStarts moves a tick onto the missing line and
+  // alignGroups' `?? 0` fallback restarts the chunk at line 1. Reported to the
+  // pipeline lane ("vulgate lineation is sacred"); NOT a scene-paging defect.
+  // If this set ever GROWS, the assertion fails and forces a fresh diagnosis.
+  it.skipIf(!hasAuditDistRoot)('upstream tick-chunk corruption is bounded to the known Odyssey 10 (Murray) dropped-line case', () => {
+    if (!result?.buildDistPresent) return;
+    expect(result.totals.corruptChunkBooks).toEqual(['odyssey 10 murray']);
+    expect(result.gate.excludedCorruptBooks).toBe(1);
+    // The raw totals still COUNT the corrupt book's empties — nothing hidden.
+    expect(result.totals.emptyPagesPureSnap).toBeGreaterThan(0);
   });
 
   it.skipIf(!hasAuditDistRoot)('overall gate.pass is true', () => {

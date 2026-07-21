@@ -22,6 +22,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   chunksForScene,
+  HOLLOW_MAX_CHARS,
   mergeSceneFlowChunks,
   pageCharLength,
   sentenceEndOffsets,
@@ -67,6 +68,26 @@ export interface BookRow {
   outOfOwnedRangePages: number;
   duplicatedTextPages: number;
   partitionLossless: boolean;
+  // WELL-FORMED INPUT flag (Codex review F1 diagnosis, 2026-07-21): true unless
+  // this book's tick-chunk INPUT is corrupt — a chunk whose startLine jumps
+  // BACKWARD, the unmistakable signature of alignGroups' `lineIndex.get(n) ?? 0`
+  // fallback firing because snapTicksToSpeechStarts moved a tick onto a line the
+  // book's Greek does not contain. Root cause is an UPSTREAM dropped vulgate
+  // line (confirmed: Odyssey 10 is missing line 456, on which a real Circe
+  // speech starts). Such a book cannot fairly test scene-paging's own logic, so
+  // the gate excludes it (its raw defect counts stay in this row + totals — the
+  // corruption is surfaced, never hidden — and is reported to the pipeline lane).
+  chunkStartLinesMonotonic: boolean;
+  // Informational (Codex review F2, 2026-07-21): guardrail-ON pages holding the
+  // COMPLETE prose of a short owned share (0 < len < HOLLOW_MAX_CHARS). These
+  // are legitimate short-but-complete pages, NOT padded and NOT gated — counted
+  // so they are visible in the report rather than silently short.
+  shortPagesBelowHollowThreshold: number;
+  // Informational (Codex review F3, 2026-07-21): worst per-page fraction of a
+  // page's own text that falls OUTSIDE its scene's owned tick range (0 = fully
+  // owned, 1 = wholly overflow). Surfaces gross overflow that the binary
+  // zero-intersection `outOfOwnedRangePages` gate cannot see.
+  worstOwnershipFraction: number;
 }
 
 export interface AuditTotals {
@@ -75,6 +96,15 @@ export interface AuditTotals {
   midSentenceEndsPureSnap: number;
   outOfOwnedRangePages: number;
   duplicatedTextPages: number;
+  // F3: partition-lossless failures are now a first-class total AND gate input.
+  partitionLosslessFailures: number;
+  // F2/F3 informational rollups.
+  shortPagesBelowHollowThreshold: number;
+  worstOwnershipFraction: number;
+  // Upstream tick-chunk corruption (see BookRow.chunkStartLinesMonotonic) —
+  // surfaced loudly: how many books, and which. Excluded from gate correctness.
+  booksWithCorruptChunks: number;
+  corruptChunkBooks: string[];
   booksAudited: number;
   booksMissing: number;
 }
@@ -84,6 +114,18 @@ export interface AuditGate {
   maxMidSentence: 0;
   maxEmptyPureSnap: 0;
   maxDuplicatedTextPages: 0;
+  maxPartitionLosslessFailures: 0;
+  // Correctness sums over WELL-FORMED books only (chunkStartLinesMonotonic) —
+  // an upstream-corrupt book (BookRow.chunkStartLinesMonotonic false) is not a
+  // scene-paging defect and is excluded here; its raw numbers remain in
+  // `totals`. `wellFormedBooks`/`excludedCorruptBooks` make the split explicit.
+  wellFormedBooks: number;
+  excludedCorruptBooks: number;
+  emptyPagesPureSnap: number;
+  midSentenceEndsPureSnap: number;
+  outOfOwnedRangePages: number;
+  duplicatedTextPages: number;
+  partitionLosslessFailures: number;
   pass: boolean;
 }
 
@@ -114,6 +156,9 @@ function emptyRow(epic: Epic, book: number, translation: RealTranslation): BookR
     outOfOwnedRangePages: 0,
     duplicatedTextPages: 0,
     partitionLossless: false,
+    chunkStartLinesMonotonic: true,
+    shortPagesBelowHollowThreshold: 0,
+    worstOwnershipFraction: 0,
   };
 }
 
@@ -167,16 +212,23 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
     }
   }
 
-  // ── emptyPagesPureSnap / midSentenceEndsPureSnap (non-first pages, guardrail OFF) ──
+  // ── emptyPagesPureSnap (non-first pages) / midSentenceEndsPureSnap (ALL pages) ──
+  // Empty check: pages after the first (page 0 is the book's own opening).
+  // Mid-sentence check: EVERY page incl. index 0 (Codex review F3 — the opening
+  // page can end mid-sentence too and must not be exempt). The true-end
+  // exemption applies ONLY to the final page: a NON-final page that happens to
+  // reach whole.length still ends mid-sentence if it doesn't land on a real
+  // sentence boundary (F3 — was previously exempting any page reaching the end).
   let emptyPagesPureSnap = 0;
   let midSentenceEndsPureSnap = 0;
-  for (let i = 1; i < pureOff.length; i++) {
+  const lastIdx = pureOff.length - 1;
+  for (let i = 0; i < pureOff.length; i++) {
     const t = pageText(pureOff[i]).trim();
     if (t === '') {
-      emptyPagesPureSnap++;
+      if (i >= 1) emptyPagesPureSnap++;
       continue;
     }
-    const endsAtTrueEnd = pageTo[i] >= whole.length;
+    const endsAtTrueEnd = i === lastIdx && pageTo[i] >= whole.length;
     const endsAtRealSentence = sentenceEndSet.has(pageTo[i]);
     if (!endsAtTrueEnd && !endsAtRealSentence) midSentenceEndsPureSnap++;
   }
@@ -194,12 +246,19 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
   }
   const chunkStart = (i: number) => (i === 0 ? 0 : chunkEnd[i - 1]);
 
+  // Gate: pages with ZERO intersection with their scene's owned tick union
+  // (unchanged). Informational: the WORST per-page fraction of page text that
+  // falls OUTSIDE that union — a page can touch its owned range by a single
+  // char and pass the binary gate while being mostly overflow, so this measures
+  // how much (Codex review F3).
   let outOfOwnedRangePages = 0;
+  let worstOwnershipFraction = 0;
   for (let i = 0; i < pureOff.length; i++) {
     if (pageText(pureOff[i]).trim() === '') continue;
     const selected = chunksForScene(chunks, scenes[i]);
     const from = pageFrom[i];
     const to = pageTo[i];
+    if (to <= from) continue;
     let overlaps = false;
     for (const idx of selected) {
       const cs = chunkStart(idx);
@@ -209,7 +268,18 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
         break;
       }
     }
-    if (!overlaps) outOfOwnedRangePages++;
+    if (!overlaps) {
+      outOfOwnedRangePages++;
+      worstOwnershipFraction = 1; // no owned text at all on this page
+      continue;
+    }
+    // Fraction of [from, to) outside the union [unionStart, unionEnd) of the
+    // scene's owned chunks.
+    const unionStart = Math.min(...selected.map((idx) => chunkStart(idx)));
+    const unionEnd = Math.max(...selected.map((idx) => chunkEnd[idx]));
+    const inside = Math.max(0, Math.min(to, unionEnd) - Math.max(from, unionStart));
+    const fractionOutside = ((to - from) - inside) / (to - from);
+    if (fractionOutside > worstOwnershipFraction) worstOwnershipFraction = fractionOutside;
   }
 
   // ── duplicatedTextPages: guardrail-caused duplication only ──
@@ -247,6 +317,24 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
     if (dup) duplicatedTextPages++;
   }
 
+  // ── shortPagesBelowHollowThreshold (guardrail ON) ──
+  // Legitimately short-but-complete pages (0 < len < HOLLOW_MAX_CHARS) the
+  // guardrail left in place — surfaced, not gated (Codex review F2).
+  let shortPagesBelowHollowThreshold = 0;
+  for (const p of guardOn) {
+    const len = pageCharLength(p);
+    if (len > 0 && len < HOLLOW_MAX_CHARS) shortPagesBelowHollowThreshold++;
+  }
+
+  // ── chunkStartLinesMonotonic: well-formed tick-chunk INPUT? ──
+  // A backward jump in chunk startLine is the signature of alignGroups'
+  // `lineIndex.get(n) ?? 0` fallback firing on a snap target absent from the
+  // Greek (upstream dropped vulgate line — Od. 10.456). See BookRow doc.
+  let chunkStartLinesMonotonic = true;
+  for (let i = 1; i < chunks.length; i++) {
+    if (chunks[i].startLine < chunks[i - 1].startLine) { chunkStartLinesMonotonic = false; break; }
+  }
+
   return {
     epic,
     book,
@@ -260,6 +348,9 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
     outOfOwnedRangePages,
     duplicatedTextPages,
     partitionLossless,
+    chunkStartLinesMonotonic,
+    shortPagesBelowHollowThreshold,
+    worstOwnershipFraction,
   };
 }
 
@@ -275,12 +366,19 @@ export function auditScenePaging(distRoot: string): AuditResult {
     }
   }
 
+  // totals: RAW sums over every present book — the honest, nothing-hidden view
+  // (a corrupt book's defect counts are included here so the corruption shows).
   const totals: AuditTotals = {
     hollowGuardrailFirings: 0,
     emptyPagesPureSnap: 0,
     midSentenceEndsPureSnap: 0,
     outOfOwnedRangePages: 0,
     duplicatedTextPages: 0,
+    partitionLosslessFailures: 0,
+    shortPagesBelowHollowThreshold: 0,
+    worstOwnershipFraction: 0,
+    booksWithCorruptChunks: 0,
+    corruptChunkBooks: [],
     booksAudited: 0,
     booksMissing: 0,
   };
@@ -292,17 +390,46 @@ export function auditScenePaging(distRoot: string): AuditResult {
     totals.midSentenceEndsPureSnap += row.midSentenceEndsPureSnap;
     totals.outOfOwnedRangePages += row.outOfOwnedRangePages;
     totals.duplicatedTextPages += row.duplicatedTextPages;
+    totals.shortPagesBelowHollowThreshold += row.shortPagesBelowHollowThreshold;
+    if (row.present && !row.partitionLossless) totals.partitionLosslessFailures++;
+    if (row.worstOwnershipFraction > totals.worstOwnershipFraction) totals.worstOwnershipFraction = row.worstOwnershipFraction;
+    if (row.present && !row.chunkStartLinesMonotonic) {
+      totals.booksWithCorruptChunks++;
+      totals.corruptChunkBooks.push(`${row.epic} ${row.book} ${row.translation}`);
+    }
   }
 
+  // gate: correctness sums over WELL-FORMED present books only. A book with
+  // corrupt tick-chunk INPUT (chunkStartLinesMonotonic false — an UPSTREAM
+  // dropped vulgate line, see BookRow doc) cannot fairly test scene-paging and
+  // is excluded; it is surfaced via totals.corruptChunkBooks and reported to
+  // the pipeline lane, never silently zeroed. partitionLossless is folded in
+  // (any failure ⇒ fail) per Codex review F3.
+  const wellFormed = books.filter((b) => b.present && b.chunkStartLinesMonotonic);
+  const sum = (pick: (b: BookRow) => number) => wellFormed.reduce((a, b) => a + pick(b), 0);
+  const gateEmpty = sum((b) => b.emptyPagesPureSnap);
+  const gateMid = sum((b) => b.midSentenceEndsPureSnap);
+  const gateOut = sum((b) => b.outOfOwnedRangePages);
+  const gateDup = sum((b) => b.duplicatedTextPages);
+  const gateLosslessFailures = wellFormed.filter((b) => !b.partitionLossless).length;
   const gate: AuditGate = {
     maxOutOfOwnedRange: 0,
     maxMidSentence: 0,
     maxEmptyPureSnap: 0,
     maxDuplicatedTextPages: 0,
-    pass: totals.outOfOwnedRangePages <= 0
-      && totals.midSentenceEndsPureSnap <= 0
-      && totals.emptyPagesPureSnap <= 0
-      && totals.duplicatedTextPages <= 0,
+    maxPartitionLosslessFailures: 0,
+    wellFormedBooks: wellFormed.length,
+    excludedCorruptBooks: totals.booksWithCorruptChunks,
+    emptyPagesPureSnap: gateEmpty,
+    midSentenceEndsPureSnap: gateMid,
+    outOfOwnedRangePages: gateOut,
+    duplicatedTextPages: gateDup,
+    partitionLosslessFailures: gateLosslessFailures,
+    pass: gateOut <= 0
+      && gateMid <= 0
+      && gateEmpty <= 0
+      && gateDup <= 0
+      && gateLosslessFailures <= 0,
   };
 
   return { buildDistPresent: true, books, totals, gate };

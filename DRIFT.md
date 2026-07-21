@@ -693,3 +693,11 @@ here (pipeline rename note at top still covers the package).
 - `shared/styles/global.css` — Flaxman art layer (2026-07-18 launch night):
   `--flaxman-ink` in all four theme blocks + `.plate-art` cartouche plate
   rules. Homer-only.
+- `shared/components/Reader.svelte` + `shared/lib/tick-chunks.ts` (2026-07-21,
+  Codex review F1) — extracted the tick-chunking core (`flowParts`,
+  `groupFlowByTicks`, `isTickPart`, `alignGroups`, `AlignGroup`, `TickFlowPart`)
+  VERBATIM out of Reader.svelte into the new pure `shared/lib/tick-chunks.ts`,
+  so the Reading-Mode scene-paging audit/tests measure the SAME geometry the
+  component renders. Reader.svelte now imports them (`alignGroups` takes
+  `block.lines` explicitly, no `block.flow` default); no plato-reader
+  counterpart to `tick-chunks.ts`.
