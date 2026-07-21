@@ -1,0 +1,62 @@
+{
+  "_source": "John Boyer, manual scene-boundary review, 2026-07-21",
+  "_semantics": "sceneNumber is 1-based; startAnchor is the verbatim opening text of that scene's Reading Mode page; the previous scene's page ends immediately before it",
+  "overrides": [
+    {
+      "work": "iliad",
+      "book": 8,
+      "translation": "murray",
+      "sceneNumber": 17,
+      "startAnchor": "Then did glorious Hector make a gathering of the Trojans, leading them apart from the ships beside the eddying river in an open space, where the ground shewed clear of dead."
+    },
+    {
+      "work": "odyssey",
+      "book": 11,
+      "translation": "murray",
+      "sceneNumber": 13,
+      "startAnchor": "“And after him I marked the mighty Heracles—his phantom; for he himself among the immortal gods takes his joy in the feast, and has to wife Hebe, of the fair ankles, daughter of great Zeus and of Here, of the golden sandals."
+    },
+    {
+      "work": "odyssey",
+      "book": 11,
+      "translation": "murray",
+      "sceneNumber": 14,
+      "startAnchor": "“So saying, he went his way again into the house of Hades, but I abode there steadfastly, in the hope that some other haply might still come forth of the warrior heroes who died in the days of old."
+    },
+    {
+      "work": "odyssey",
+      "book": 11,
+      "translation": "butler",
+      "sceneNumber": 13,
+      "startAnchor": "\"After him I saw mighty Herakles, but it was his phantom only, for he is feasting ever with the immortal gods, and has lovely Hebe to wife, who is daughter of Zeus and Hera."
+    },
+    {
+      "work": "odyssey",
+      "book": 11,
+      "translation": "butler",
+      "sceneNumber": 14,
+      "startAnchor": "\"On this Herakles went down again into the house of Hades, but I stayed where I was in case some other of the mighty dead should come to me."
+    },
+    {
+      "work": "odyssey",
+      "book": 21,
+      "translation": "butler",
+      "sceneNumber": 3,
+      "startAnchor": "Then she said:"
+    },
+    {
+      "work": "odyssey",
+      "book": 21,
+      "translation": "butler",
+      "sceneNumber": 10,
+      "startAnchor": "\"It shall not be so, Eurymakhos,\" said Antinoos, \"and you know it yourself."
+    },
+    {
+      "work": "odyssey",
+      "book": 21,
+      "translation": "murray",
+      "sceneNumber": 10,
+      "startAnchor": "Then Antinous, son of Eupeithes, answered him: “Eurymachus, this shall not be so, and thou of thyself too knowest it."
+    }
+  ]
+}

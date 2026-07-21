@@ -140,6 +140,9 @@ decisions, not on file contents.
   24% used. Well-specified implementation defaults to GPT-5.6-Terra-High
   (Codex) or Grok; Sonnet/Opus reserved for reader-core subtleties,
   philological judgment, and integration-heavy work. Judgment allowed.
+  **LIFTED (John, 2026-07-21): weekly usage reset — normal routing table
+  applies (Sonnet default; Opus on genuine difficulty; Codex/Grok per
+  their table roles). Codex effort lowered to medium the same day.**
   **Escalation rule (John, same day, refined): minor stumbles stay in
   the Codex/Grok lane — nudge, clarify the brief, retry once. Escalate
   to Claude (Sonnet; Opus on difficulty) only on a BAD fuckup: badly
@@ -189,8 +192,8 @@ decisions, not on file contents.
 | **Fable** (main thread) | Orchestrator | Planning, decomposition, briefs, integration, review of agent returns, commits/pushes, all conversation with John. No fable subagents without John's say-so. |
 | **Opus** | Heavy reasoner | Architecture decisions, subtle pipeline/alignment bugs, Homeric philological judgment calls (vulgate lineation and athetized lines, formula/epithet boundaries, morphology disputes, speech-span nesting), judgment-heavy apparatus drafting, final verification of high-stakes work |
 | **Sonnet** | Workhorse (default subagent) | Well-specified implementation, tests, mechanical multi-file edits, exploration/search sweeps, doc updates, data-build babysitting, per-book apparatus batches (~5 books/agent) |
-| **GPT-5.6-Sol-High** (Codex CLI, `--effort high`) | Adversarial reviewer | Red-team review of finished work before John's review gates and before any deploy; cross-model second opinion on designs. Precedent: the plato-reader 14th-deploy whole-site adversarial review (15 confirmed findings). |
-| **GPT-5.6-Terra-High** (Codex CLI, `--effort high`) | Cross-model implementer | Independent implementation of isolated, well-specified tasks; independent bug reproduction; second implementation when comparing approaches |
+| **GPT-5.6-Sol-High** (Codex CLI, `--effort medium` — John, 2026-07-21, lowered from high) | Adversarial reviewer | Red-team review of finished work before John's review gates and before any deploy; cross-model second opinion on designs. Precedent: the plato-reader 14th-deploy whole-site adversarial review (15 confirmed findings). |
+| **GPT-5.6-Terra-High** (Codex CLI, `--effort medium` — John, 2026-07-21, lowered from high) | Cross-model implementer | Independent implementation of isolated, well-specified tasks; independent bug reproduction; second implementation when comparing approaches |
 | **Grok-4.5** (Grok CLI, `grok-cc:grok-rescue`) | Full implementer + content verifier (off probation, John 2026-07-17; free trial) | Content/extraction verification gates (its specialty — twice found defect classes Sol/Opus/Claude all missed, with raw-line evidence), additional adversarial passes, mechanical coding tasks. Forwarder quirk (BOTH grok-rescue and codex-rescue): the runner may background the CLI task and end its turn with no result — nudge via SendMessage ("wait for the run and return the findings"). Gotcha: read-only task mode gets Cancelled by the runtime — use write-capable with a no-tracked-file-edits constraint. |
 
 Routing principles: default subagent is Sonnet; escalate to Opus on genuine

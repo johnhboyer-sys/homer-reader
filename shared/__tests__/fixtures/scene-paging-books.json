@@ -1,0 +1,1318 @@
+{
+  "_provenance": {
+    "generated": "2026-07-21",
+    "generator": "throwaway node script (Codex review F1/F5, 2026-07-21) — not committed",
+    "note": "Trimmed, book-JSON-shaped excerpts for the scene-paging invariant suite to run against when gitignored build/dist is absent (e.g. CI). Content is public-domain: Murray (Loeb 1924, seg.english) and Butler (1898-1900, seg.ross). Regenerated 2026-07-21 to carry seg.greek (real vulgate line numbers, the gap carrier) and speechStarts (speech-opening lines), so buildRealChunks runs the SAME production flowParts->alignGroups path Reader.svelte renders.",
+    "sources": {
+      "iliad1": {
+        "file": "build/dist/iliad/book-01.json + speeches.json",
+        "greekLines": "1-100",
+        "translations": "Murray 1924 (english), Butler 1898 (ross)"
+      },
+      "odyssey9": {
+        "file": "build/dist/odyssey/book-09.json + speeches.json",
+        "greekLines": "1-141",
+        "translations": "Murray 1919 (english), Butler 1900 (ross)"
+      }
+    }
+  },
+  "iliad1": {
+    "book": 1,
+    "segments": [
+      {
+        "english": {
+          "text": "The wrath sing, goddess, of Peleus' son, Achilles, that destructive wrath which brought countless woes upon the Achaeans, and sent forth to Hades many valiant souls of heroes, and made them themselves spoil for dogs and every bird; thus the plan of Zeus came to fulfillment, from the time when[^1.1.1] first they parted in strife Atreus' son, king of men, and brilliant Achilles. Who then of the gods was it that brought these two together to contend? The son of Leto and Zeus; for he in anger against the king roused throughout the host an evil pestilence, and the people began to perish, because upon the priest Chryses the son of Atreus had wrought dishonour. For he had come to the swift ships of the Achaeans to free his daughter, bearing ransom past counting; and in his hands he held the wreaths of Apollo who strikes from afar,[^1.2.2] on a staff of gold; and he implored all the Achaeans, but most of all the two sons of Atreus, the marshallers of the people: Sons of Atreus, and other well-greaved Achaeans, to you may the gods who have homes upon Olympus grant that you sack the city of Priam, and return safe to your homes; but my dear child release to me, and accept the ransom out of reverence for the son of Zeus, Apollo who strikes from afar. Then all the rest of the Achaeans shouted assent, to reverence the priest and accept the glorious ransom, yet the thing did not please the heart of Agamemnon, son of Atreus, but he sent him away harshly, and laid upon him a stern command: Let me not find you, old man, by the hollow ships, either tarrying now or coming back later, lest your staff and the wreath of the god not protect you. Her I will not set free. Sooner shall old age come upon her in our house, in Argos, far from her native land, as she walks to and fro before the loom and serves my bed. But go, do not anger me, that you may return the safer. So he spoke, and the old man was seized with fear and obeyed his word. He went forth in silence along the shore of the loud-resounding sea, and earnestly then, when he had gone apart, the old man prayed to the lord Apollo, whom fair-haired Leto bore: Hear me, god of the silver bow, who stand over Chryse and holy Cilla, and rule mightily over Tenedos, Sminthian god, if ever I roofed over a temple to your pleasing, or if ever I burned to you fat thigh-pieces of bulls and goats, fulfill this prayer for me: let the Danaans pay for my tears by your arrows So he spoke in prayer, and Phoebus Apollo heard him. Down from the peaks of Olympus he strode, angered at heart, bearing on his shoulders his bow and covered quiver. The arrows rattled on the shoulders of the angry god as he moved, and his coming was like the night. Then he sat down apart from the ships and let fly an arrow: terrible was the twang of the silver bow. The mules he assailed first and the swift dogs, but then on the men themselves he let fly his stinging shafts, and struck; and constantly the pyres of the dead burned thick. For nine days the missiles of the god ranged among the host, but on the tenth Achilles called the people to assembly, for the goddess, white-armed Hera, had put it in his heart, since she pitied the Danaans, when she saw them dying. When they were assembled and gathered together, among them arose and spoke swift-footed Achilles: Son of Atreus, now I think we shall return home, beaten back again, should we even escape death, if war and pestilence alike are to ravage the Achaeans. But come, let us ask some seer or priest, or some reader of dreams—for a dream too is from Zeus—who might say why Phoebus Apollo is so angry, whether he finds fault with a vow or a hecatomb; in hope that he may accept the savour of lambs and unblemished goats, and be willing to ward off the pestilence from us. When he had thus spoken he sat down, and among them arose Calchas son of Thestor, far the best of bird-diviners, who knew the things that were, and that were to be, and that had been before, and who had guided the ships of the Achaeans to Ilios by his own prophetic powers which Phoebus Apollo had bestowed upon him. He with good intent addressed the gathering, and spoke among them: Achilles, dear to Zeus, you bid me declare the wrath of Apollo, the lord who strikes from afar. Therefore I will speak; but take thought and swear that you will readily defend me with word and with might of hand; for I think I shall anger a man who rules mightily over all the Argives, and whom the Achaeans obey. For mightier is a king, when he is angry at a lesser man. Even if he swallows down his wrath for that day, yet afterwards he cherishes resentment in his heart till he brings it to fulfillment. Say then, if you will keep me safe. In answer to him spoke swift-footed Achilles: Take heart, and speak out whatever oracle you know; for by Apollo, dear to Zeus, to whom you, Calchas, pray when you reveal oracles to the Danaans, no one, while I live and have sight on the earth, shall lay heavy hands on you beside the hollow ships, no one of the whole host of the Danaans, not even if you name Agamemnon, who now claims to be far the best of the Achaeans. Then the blameless seer took heart, and spoke: It is not then because of a vow that he finds fault, nor because of a hecatomb, but because of the priest whom Agamemnon dishonoured, and did not release his daughter nor accept the ransom. For this cause the god who strikes from afar has given woes and will still give them. He will not drive off from the Danaans the loathsome pestilence, until we give back to her dear father the bright-eyed maiden, unbought, unransomed, and lead a sacred hecatomb to Chryse. Then we might appease and persuade him. When he had thus spoken he sat down, and among them arose the warrior, son of Atreus, wide-ruling Agamemnon, deeply troubled. With rage his black heart was wholly filled, and his eyes were like blazing fire. ",
+          "bekker": [
+            {
+              "n": 1,
+              "offset": 0,
+              "real": true
+            },
+            {
+              "n": 5,
+              "offset": 274,
+              "real": true
+            },
+            {
+              "n": 10,
+              "offset": 589,
+              "real": true
+            },
+            {
+              "n": 15,
+              "offset": 897,
+              "real": true
+            },
+            {
+              "n": 20,
+              "offset": 1190,
+              "real": true
+            },
+            {
+              "n": 25,
+              "offset": 1497,
+              "real": true
+            },
+            {
+              "n": 30,
+              "offset": 1759,
+              "real": true
+            },
+            {
+              "n": 35,
+              "offset": 2077,
+              "real": true
+            },
+            {
+              "n": 40,
+              "offset": 2355,
+              "real": true
+            },
+            {
+              "n": 45,
+              "offset": 2597,
+              "real": true
+            },
+            {
+              "n": 50,
+              "offset": 2848,
+              "real": true
+            },
+            {
+              "n": 55,
+              "offset": 3152,
+              "real": true
+            },
+            {
+              "n": 60,
+              "offset": 3402,
+              "real": true
+            },
+            {
+              "n": 65,
+              "offset": 3649,
+              "real": true
+            },
+            {
+              "n": 70,
+              "offset": 3961,
+              "real": true
+            },
+            {
+              "n": 75,
+              "offset": 4250,
+              "real": true
+            },
+            {
+              "n": 80,
+              "offset": 4526,
+              "real": true
+            },
+            {
+              "n": 85,
+              "offset": 4795,
+              "real": true
+            },
+            {
+              "n": 90,
+              "offset": 5036,
+              "real": true
+            },
+            {
+              "n": 95,
+              "offset": 5356,
+              "real": true
+            },
+            {
+              "n": 100,
+              "offset": 5669,
+              "real": true
+            }
+          ],
+          "markers": [
+            {
+              "kind": "paragraph",
+              "n": "",
+              "offset": 1874
+            },
+            {
+              "kind": "paragraph",
+              "n": "",
+              "offset": 3770
+            },
+            {
+              "kind": "paragraph",
+              "n": "",
+              "offset": 5119
+            }
+          ]
+        },
+        "ross": [
+          {
+            "text": "Sing, O goddess, the anger [mênis] of Achilles son of Peleus, that brought countless ills upon the Achaeans. Many a brave soul [psukhê] did it send hurrying down to Hades, and many a hero did it yield a prey to dogs and vultures, for so was the will of Zeus fulfilled from the day on which the son of Atreus, king of men, and great Achilles, first fell out with one another. And which of the gods was it that set them on to quarrel? It was the son of Zeus and Leto; for he was angry with the king and sent a pestilence upon the host to plague the people, because the son of Atreus had dishonored Chryses his priest. Now Chryses had come to the ships of the Achaeans to free his daughter, and had brought with him a great ransom: moreover he bore in his hand the scepter of Apollo wreathed with a suppliant's wreath and he besought the Achaeans, but most of all the two sons of Atreus, who were their chiefs. \"Sons of Atreus,\" he cried, \"and all other Achaeans, may the gods who dwell in Olympus grant you to sack the city of Priam, and to reach your homes in safety; but free my daughter, and accept a ransom for her, in reverence to Apollo, son of Zeus.\" On this the rest of the Achaeans with one voice were for respecting the priest and taking the ransom that he offered; but not so Agamemnon, who spoke fiercely to him and sent him roughly away. \"Old man,\" said he, \"let me not find you tarrying about our ships, nor yet coming hereafter. Your scepter of the god and your wreath shall profit you nothing. I will not free her. She shall grow old in my house at Argos far from her own home, busying herself with her loom and visiting my couch; so go, and do not provoke me or it shall be the worse for you.\" The old man feared him and obeyed. Not a word he spoke, but went by the shore of the sounding sea and prayed apart to King Apollo whom lovely Leto had borne. \"Hear me,\" he cried, \"O god of the silver bow, you who protect Chryse and holy Cilla and rule Tenedos with your might, hear me O god of Sminthe. If I have ever decked your temple with garlands, or burned for you thigh-bones in fat of bulls or goats, grant my prayer, and let your arrows avenge these my tears upon the Danaans.\" Thus did he pray, and Apollo heard his prayer. He came down furious from the summits of Olympus, with his bow and his quiver upon his shoulder, and the arrows rattled on his back with the rage that trembled within him. He sat himself down away from the ships with a face as dark as night, and his silver bow rang death as he shot his arrow in the midst of them. First he smote their mules and their hounds, but presently he aimed his shafts at the people themselves, and all day long the pyres of the dead were burning. For nine whole days he shot his arrows among the people, but upon the tenth day Achilles called them in assembly - moved thereto by Hera, who saw the Achaeans in their death-throes and had compassion upon them. Then, when they were got together, he rose and spoke among them. \"Son of Atreus,\" said he, \"I deem that we should now turn roving home if we would escape destruction, for we are being cut down by war and pestilence at once. Let us ask some priest or seer [mantis], or some reader of dreams (for dreams, too, are of Zeus) who can tell us why Phoebus Apollo is so angry, and say whether it is for some vow that we have broken, or hecatomb that we have not offered, and whether he will accept the savor of lambs and goats without blemish, so as to take away the plague from us.\" With these words he sat down, and Kalkhas son of Thestor, wisest of augurs, who knew things past present and to come, rose to speak. He it was who had guided the Achaeans with their fleet to Ilion, through the prophesyings with which Phoebus Apollo had inspired him. With all sincerity and goodwill he addressed them thus: - \"Achilles, loved of heaven, you bid me tell you about the anger [mênis] of King Apollo, I will therefore do so; but consider first and swear that you will stand by me heartily in word and deed, for I know that I shall offend one who rules the Argives with might, to whom all the Achaeans are in subjection. A plain man cannot stand against the anger of a king, who if he swallow his displeasure now, will yet nurse revenge till he has wreaked it. Consider, therefore, whether or no you will protect me.\" And Achilles answered, \"Fear not, but speak as it is borne in upon you from heaven, for by Apollo, Kalkhas, to whom you pray, and whose oracles you reveal to us, not a Danaan at our ships shall lay his hand upon you, while I yet live to look upon the face of the earth - no, not though you name Agamemnon himself, who is by far the foremost of the Achaeans.\" Thereon the seer [mantis] spoke boldly. \"The god,\" he said, \"is angry neither about vow nor hecatomb, but for his priest's sake, whom Agamemnon has dishonored, in that he would not free his daughter nor take a ransom for her; therefore has he sent these evils upon us, and will yet send others. He will not deliver the Danaans from this pestilence till Agamemnon has restored the girl without fee or ransom to her father, and has sent a holy hecatomb to Chryse. Thus we may perhaps appease him.\" With these words he sat down, and Agamemnon rose in anger. ",
+            "bekker": [
+              {
+                "n": 1,
+                "offset": 0,
+                "real": true
+              },
+              {
+                "n": 5,
+                "offset": 215,
+                "real": true
+              },
+              {
+                "n": 10,
+                "offset": 496,
+                "real": true
+              },
+              {
+                "n": 15,
+                "offset": 814,
+                "real": true
+              },
+              {
+                "n": 20,
+                "offset": 1066,
+                "real": true
+              },
+              {
+                "n": 25,
+                "offset": 1295,
+                "real": true
+              },
+              {
+                "n": 30,
+                "offset": 1547,
+                "real": true
+              },
+              {
+                "n": 35,
+                "offset": 1806,
+                "real": true
+              },
+              {
+                "n": 40,
+                "offset": 2060,
+                "real": true
+              },
+              {
+                "n": 45,
+                "offset": 2291,
+                "real": true
+              },
+              {
+                "n": 50,
+                "offset": 2556,
+                "real": true
+              },
+              {
+                "n": 55,
+                "offset": 2829,
+                "real": true
+              },
+              {
+                "n": 60,
+                "offset": 3043,
+                "real": true
+              },
+              {
+                "n": 65,
+                "offset": 3302,
+                "real": true
+              },
+              {
+                "n": 70,
+                "offset": 3577,
+                "real": true
+              },
+              {
+                "n": 75,
+                "offset": 3884,
+                "real": true
+              },
+              {
+                "n": 80,
+                "offset": 4133,
+                "real": true
+              },
+              {
+                "n": 85,
+                "offset": 4353,
+                "real": true
+              },
+              {
+                "n": 90,
+                "offset": 4601,
+                "real": true
+              },
+              {
+                "n": 95,
+                "offset": 4849,
+                "real": true
+              },
+              {
+                "n": 100,
+                "offset": 5140,
+                "real": true
+              }
+            ]
+          }
+        ],
+        "greek": [
+          {
+            "n": 1
+          },
+          {
+            "n": 2
+          },
+          {
+            "n": 3
+          },
+          {
+            "n": 4
+          },
+          {
+            "n": 5
+          },
+          {
+            "n": 6
+          },
+          {
+            "n": 7
+          },
+          {
+            "n": 8
+          },
+          {
+            "n": 9
+          },
+          {
+            "n": 10
+          },
+          {
+            "n": 11
+          },
+          {
+            "n": 12
+          },
+          {
+            "n": 13
+          },
+          {
+            "n": 14
+          },
+          {
+            "n": 15
+          },
+          {
+            "n": 16
+          },
+          {
+            "n": 17
+          },
+          {
+            "n": 18
+          },
+          {
+            "n": 19
+          },
+          {
+            "n": 20
+          },
+          {
+            "n": 21
+          },
+          {
+            "n": 22
+          },
+          {
+            "n": 23
+          },
+          {
+            "n": 24
+          },
+          {
+            "n": 25
+          },
+          {
+            "n": 26
+          },
+          {
+            "n": 27
+          },
+          {
+            "n": 28
+          },
+          {
+            "n": 29
+          },
+          {
+            "n": 30
+          },
+          {
+            "n": 31
+          },
+          {
+            "n": 32
+          },
+          {
+            "n": 33
+          },
+          {
+            "n": 34
+          },
+          {
+            "n": 35
+          },
+          {
+            "n": 36
+          },
+          {
+            "n": 37
+          },
+          {
+            "n": 38
+          },
+          {
+            "n": 39
+          },
+          {
+            "n": 40
+          },
+          {
+            "n": 41
+          },
+          {
+            "n": 42
+          },
+          {
+            "n": 43
+          },
+          {
+            "n": 44
+          },
+          {
+            "n": 45
+          },
+          {
+            "n": 46
+          },
+          {
+            "n": 47
+          },
+          {
+            "n": 48
+          },
+          {
+            "n": 49
+          },
+          {
+            "n": 50
+          },
+          {
+            "n": 51
+          },
+          {
+            "n": 52
+          },
+          {
+            "n": 53
+          },
+          {
+            "n": 54
+          },
+          {
+            "n": 55
+          },
+          {
+            "n": 56
+          },
+          {
+            "n": 57
+          },
+          {
+            "n": 58
+          },
+          {
+            "n": 59
+          },
+          {
+            "n": 60
+          },
+          {
+            "n": 61
+          },
+          {
+            "n": 62
+          },
+          {
+            "n": 63
+          },
+          {
+            "n": 64
+          },
+          {
+            "n": 65
+          },
+          {
+            "n": 66
+          },
+          {
+            "n": 67
+          },
+          {
+            "n": 68
+          },
+          {
+            "n": 69
+          },
+          {
+            "n": 70
+          },
+          {
+            "n": 71
+          },
+          {
+            "n": 72
+          },
+          {
+            "n": 73
+          },
+          {
+            "n": 74
+          },
+          {
+            "n": 75
+          },
+          {
+            "n": 76
+          },
+          {
+            "n": 77
+          },
+          {
+            "n": 78
+          },
+          {
+            "n": 79
+          },
+          {
+            "n": 80
+          },
+          {
+            "n": 81
+          },
+          {
+            "n": 82
+          },
+          {
+            "n": 83
+          },
+          {
+            "n": 84
+          },
+          {
+            "n": 85
+          },
+          {
+            "n": 86
+          },
+          {
+            "n": 87
+          },
+          {
+            "n": 88
+          },
+          {
+            "n": 89
+          },
+          {
+            "n": 90
+          },
+          {
+            "n": 91
+          },
+          {
+            "n": 92
+          },
+          {
+            "n": 93
+          },
+          {
+            "n": 94
+          },
+          {
+            "n": 95
+          },
+          {
+            "n": 96
+          },
+          {
+            "n": 97
+          },
+          {
+            "n": 98
+          },
+          {
+            "n": 99
+          },
+          {
+            "n": 100
+          }
+        ]
+      }
+    ],
+    "apparatus": {
+      "scenes": [
+        {
+          "lines": [
+            1,
+            7
+          ],
+          "summary": "The poet invokes the Muse to sing the wrath of Achilles and its cost.",
+          "location": "proem",
+          "dayNumber": null
+        },
+        {
+          "lines": [
+            8,
+            32
+          ],
+          "summary": "Chryses comes to ransom his daughter Chryseis; Agamemnon spurns and threatens the priest.",
+          "location": "Achaean camp",
+          "dayNumber": null
+        },
+        {
+          "lines": [
+            33,
+            42
+          ],
+          "summary": "Chryses withdraws along the shore and prays to Apollo for vengeance.",
+          "location": "shore near Troy",
+          "dayNumber": null
+        },
+        {
+          "lines": [
+            43,
+            52
+          ],
+          "summary": "Apollo descends in wrath, shoots mules and dogs first, then men; pyres of the dead burn continually.",
+          "location": "Achaean camp",
+          "dayNumber": 1
+        },
+        {
+          "lines": [
+            53,
+            100
+          ],
+          "summary": "For nine days the plague rages; on the tenth, Achilles calls an assembly, and Calchas names Chryseis its cause.",
+          "location": "Achaean assembly",
+          "dayNumber": 10
+        }
+      ]
+    },
+    "speechStarts": [
+      17,
+      26,
+      37,
+      59,
+      74,
+      85,
+      93
+    ]
+  },
+  "odyssey9": {
+    "book": 9,
+    "segments": [
+      {
+        "english": {
+          "text": "Then Odysseus, of many wiles, answered him, and said: “Lord Alcinous, renowned above all men, verily this is a good thing, to listen to a minstrel such as this man is, like unto the gods in voice. For myself I declare that there is no greater fulfillment of delight than when joy possesses a whole people, and banqueters in the halls listen to a minstrel as they sit in order due, and by them tables are laden with bread and meat, and the cup-bearer draws wine from the bowl and bears it round and pours it into the cups. This seems to my mind the fairest thing there is. But thy heart is turned to ask of my grievous woes, that I may weep and groan the more. What, then, shall I tell thee first, what last? for woes full many have the heavenly gods given me. First now will I tell my name, that ye, too, may know it, and that I hereafter, when I have escaped from the pitiless day of doom, may be your host, though I dwell in a home that is afar. I am Odysseus, son of Laertes, who am known among men for all manner of wiles, and my fame reaches unto heaven. But I dwell in clear-seen Ithaca, wherein is a mountain, Neriton, covered with waving forests, conspicuous from afar; and round it lie many isles hard by one another, Dulichium, and Same, and wooded Zacynthus. Ithaca itself lies close in to the mainland[^9.2.1] the furthest toward the gloom, but the others lie apart toward the Dawn and the sun—a rugged isle, but a good nurse of young men; and for myself no other thing can I see sweeter than one's own land. Of a truth Calypso, the beautiful goddess, sought to keep me by her in her hollow caves, yearning that I should be her husband; and in like manner Circe would fain have held me back in her halls, the guileful lady of Aeaea, yearning that I should be her husband; but they could never persuade the heart within my breast. So true is it that naught is sweeter than a man's own land and his parents, even though it be in a rich house that he dwells afar in a foreign land away from his parents. But come, let me tell thee also of my woeful home-coming, which Zeus laid upon me as I came from Troy. “From Ilios the wind bore me and brought me to the Cicones, to Ismarus. There I sacked the city and slew the men; and from the city we took their wives and great store of treasure, and divided them among us, that so far as lay in me no man might go defrauded of an equal share. Then verily I gave command that we should flee with swift foot, but the others in their great folly did not hearken. But there much wine was drunk, and many sheep they slew by the shore, and sleek kine of shambling gait. Meanwhile the Cicones went and called to other Cicones who were their neighbors, at once more numerous and braver than they—men that dwelt inland and were skilled at fighting with their foes from chariots, and, if need were, on foot. So they came in the morning, as thick as leaves or flowers spring up in their season; and then it was that an evil fate from Zeus beset us luckless men, that we might suffer woes full many. They set their battle in array and fought by the swift ships, and each side hurled at the other with bronze-tipped spears. Now as long as it was morn and the sacred day was waxing, so long we held our ground and beat them off, though they were more than we. But when the sun turned to the time for the unyoking of oxen, then the Cicones prevailed and routed the Achaeans, and six of my well-greaved comrades perished from each ship; but the rest of us escaped death and fate. “Thence we sailed on, grieved at heart, glad to have escaped from death, though we had lost our dear comrades; nor did I let my curved ships pass on till we had called thrice on each of those hapless comrades of ours who died on the plain, cut down by the Cicones. But against our ships Zeus, the cloud-gatherer, roused the North Wind with a wondrous tempest, and hid with clouds the land and the sea alike, and night rushed down from heaven. Then the ships were driven headlong, and their sails were torn to shreds by the violence of the wind. So we lowered the sails and stowed them aboard, in fear of death, and rowed the ships hurriedly toward the land. There for two nights and two days continuously we lay, eating our hearts for weariness and sorrow. But when now fair-tressed Dawn brought to its birth the third day, we set up the masts and hoisted the white sails, and took our seats, and the wind and the helmsmen steered the ships. And now all unscathed should I have reached my native land, but the wave and the current and the North Wind beat me back as I was rounding Malea, and drove me from my course past Cythera. “Thence for nine days' space I was borne by direful winds over the teeming deep; but on the tenth we set foot on the land of the Lotus-eaters, who eat a flowery food. There we went on shore and drew water, and straightway my comrades took their meal by the swift ships. But when we had tasted food and drink, I sent forth some of my comrades to go and learn who the men were, who here ate bread upon the earth; two men I chose, sending with them a third as a herald. So they went straightway and mingled with the Lotus-eaters, and the Lotus-eaters did not plan death for my comrades, but gave them of the lotus to taste. And whosoever of them ate of the honey-sweet fruit of the lotus, had no longer any wish to bring back word or to return, but there they were fain to abide among the Lotus-eaters, feeding on the lotus, and forgetful of their homeward way. These men, therefore, I brought back perforce to the ships, weeping, and dragged them beneath the benches and bound them fast in the hollow ships; and I bade the rest of my trusty comrades to embark with speed on the swift ships, lest perchance anyone should eat of the lotus and forget his homeward way. So they went on board straightway and sat down upon the benches, and sitting well in order smote the grey sea with their oars. “Thence we sailed on, grieved at heart, and we came to the land of the Cyclopes, an overweening and lawless folk, who, trusting in the immortal gods, plant nothing with their hands nor plough; but all these things spring up for them without sowing or ploughing, wheat, and barley, and vines, which bear the rich clusters of wine, and the rain of Zeus gives them increase. Neither assemblies for council have they, nor appointed laws, but they dwell on the peaks of lofty mountains in hollow caves, and each one is lawgiver to his children and his wives, and they reck nothing one of another. “Now there is a level isle that stretches aslant outside the harbor, neither close to the shore of the land of the Cyclopes, nor yet far off, a wooded isle. Therein live wild goats innumerable, for the tread of men scares them not away, nor are hunters wont to come thither, men who endure toils in the woodland as they course over the peaks of the mountains. Neither with flocks is it held, nor with ploughed lands, but unsown and untilled all the days it knows naught of men, but feeds the bleating goats. For the Cyclopes have at hand no ships with vermilion cheeks, nor are there ship-wrights in their land who might build them well-benched ships, which should perform all their wants, passing to the cities of other folk, as men often cross the sea in ships to visit one another—craftsmen, who would have made of this isle also a fair settlement. For the isle is nowise poor, but would bear all things in season. In it are meadows by the shores of the grey sea, well-watered meadows and soft, where vines would never fail, and in it level ploughland, whence they might reap from season to season harvests exceeding deep, so rich is the soil beneath; and in it, too, is a harbor giving safe anchorage, where there is no need of moorings, either to throw out anchor-stones or to make fast stern cables, but one may beach one's ship and wait until the sailors' minds bid them put out, and the breezes blow fair. Now at the head of the harbor a spring of bright water flows forth from beneath a cave, and round about it poplars grow. ",
+          "bekker": [
+            {
+              "n": 1,
+              "offset": 0,
+              "real": true
+            },
+            {
+              "n": 5,
+              "offset": 196,
+              "real": true
+            },
+            {
+              "n": 10,
+              "offset": 474,
+              "real": true
+            },
+            {
+              "n": 15,
+              "offset": 707,
+              "real": true
+            },
+            {
+              "n": 20,
+              "offset": 982,
+              "real": true
+            },
+            {
+              "n": 25,
+              "offset": 1269,
+              "real": true
+            },
+            {
+              "n": 30,
+              "offset": 1588,
+              "real": true
+            },
+            {
+              "n": 35,
+              "offset": 1917,
+              "real": true
+            },
+            {
+              "n": 40,
+              "offset": 2175,
+              "real": true
+            },
+            {
+              "n": 45,
+              "offset": 2510,
+              "real": true
+            },
+            {
+              "n": 50,
+              "offset": 2777,
+              "real": true
+            },
+            {
+              "n": 55,
+              "offset": 3100,
+              "real": true
+            },
+            {
+              "n": 60,
+              "offset": 3410,
+              "real": true
+            },
+            {
+              "n": 65,
+              "offset": 3663,
+              "real": true
+            },
+            {
+              "n": 70,
+              "offset": 3957,
+              "real": true
+            },
+            {
+              "n": 75,
+              "offset": 4219,
+              "real": true
+            },
+            {
+              "n": 80,
+              "offset": 4516,
+              "real": true
+            },
+            {
+              "n": 85,
+              "offset": 4811,
+              "real": true
+            },
+            {
+              "n": 90,
+              "offset": 5055,
+              "real": true
+            },
+            {
+              "n": 95,
+              "offset": 5330,
+              "real": true
+            },
+            {
+              "n": 100,
+              "offset": 5650,
+              "real": true
+            },
+            {
+              "n": 105,
+              "offset": 5935,
+              "real": true
+            },
+            {
+              "n": 110,
+              "offset": 6197,
+              "real": true
+            },
+            {
+              "n": 115,
+              "offset": 6458,
+              "real": true
+            },
+            {
+              "n": 120,
+              "offset": 6764,
+              "real": true
+            },
+            {
+              "n": 125,
+              "offset": 7035,
+              "real": true
+            },
+            {
+              "n": 130,
+              "offset": 7312,
+              "real": true
+            },
+            {
+              "n": 135,
+              "offset": 7590,
+              "real": true
+            },
+            {
+              "n": 140,
+              "offset": 7941,
+              "real": true
+            }
+          ],
+          "markers": [
+            {
+              "kind": "paragraph",
+              "n": "",
+              "offset": 2614
+            },
+            {
+              "kind": "paragraph",
+              "n": "",
+              "offset": 4644
+            },
+            {
+              "kind": "paragraph",
+              "n": "",
+              "offset": 6527
+            }
+          ]
+        },
+        "ross": [
+          {
+            "text": "And Odysseus answered, \"King Alkinoos, it is a good thing to hear a bard with such a divine voice as this man has. There is nothing better or more delightful than when merriment [euphrosunê] prevails over a whole dêmos, with the guests sitting orderly to listen, while the table is loaded with bread and meats, and the cup-bearer draws wine and fills his cup for every man. This is indeed as fair a sight as a man can see. Now, however, since you are inclined to ask the story of my sorrows, and rekindle my own sad memories in respect of them, I do not know how to begin, nor yet how to continue and conclude my tale, for the hand of heaven has been laid heavily upon me. \"Firstly, then, I will tell you my name that you too may know it, and that one day, if I outlive this time of sorrow, I may become a guest-friend to you, though I live so far away from all of you. I am Odysseus son of Laertes, renowned among humankind for all manner of subtlety, so that my kleos ascends to heaven. I live in Ithaca, where there is a high mountain called Neritum, covered with forests; and not far from it there is a group of islands very near to one another - Dulichium, Same, and the wooded island of Zacynthus. It lies squat on the horizon, all highest up in the sea towards the sunset, while the others lie away from it towards dawn. It is a rugged island, but it breeds brave men, and my eyes know none that they better love to look upon. The goddess Calypso kept me with her in her cave, and wanted me to marry her, as did also the cunning Aeaean goddess Circe; but they could neither of them persuade me, for there is nothing dearer to a man than his own country and his parents, and however splendid a home he may have in a foreign country, if it be far from father or mother, he does not care about it. Now, however, I will tell you of the many hazardous adventures which by Zeus’ will I met with on my return [nostos] from Troy. \"When I had set sail thence the wind took me first to Ismaros, which is the city of the Kikones. There I sacked the town and put the people to the sword. We took their wives and also much booty, which we divided equitably amongst us, so that none might have reason to complain. I then said that we had better make off at once, but my men very foolishly would not obey me, so they stayed there drinking much wine and killing great numbers of sheep and oxen on the sea shore. Meanwhile the Kikones cried out for help to other Kikones who lived inland. These were more in number, and stronger, and they were more skilled in the art of war, for they could fight, either from chariots or on foot as the occasion served; in the morning, therefore, they came as thick as leaves and bloom in summertime [hôra], and the hand of heaven was against us, so that we were hard pressed. They set the battle in array near the ships, and the hosts aimed their bronze-shod spears at one another. So long as the day waxed and it was still morning, we held our own against them, though they were more in number than we; but as the sun went down, towards the time when men loose their oxen, the Kikones got the better of us, and we lost half a dozen men from every ship we had; so we got away with those that were left. \"Thence we sailed onward with sorrow in our hearts, but glad to have escaped death though we had lost our comrades, nor did we leave till we had thrice invoked each one of the poor men who had perished by the hands of the Kikones. Then Zeus raised the North wind against us till it blew a blast of wind, so that land and sky were hidden in thick clouds, and night sprang forth out of the heavens. We let the ships run before the gale, but the force of the wind tore our sails to tatters, so we took them down for fear of shipwreck, and rowed our hardest towards the land. There we lay two days and two nights suffering much alike from toil and distress of mind, but on the morning of the third day we again raised our masts, set sail, and took our places, letting the wind and steersmen direct our ship. I should have got home at that time unharmed had not the North wind and the currents been against me as I was doubling Cape Malea, and set me off my course hard by the island of Cythera. \"I was driven thence by foul winds for a space of nine days upon the sea, but on the tenth day we reached the land of the Lotus-eaters, who live on a food that comes from a kind of flower. Here we landed to take in fresh water, and our crews got their mid-day meal on the shore near the ships. When they had eaten and drunk I chose [krinô] two of my company to go see what manner of men the people of the place might be, and they had a third man under them. They started at once, and went about among the Lotus-eaters, who did them no harm, but gave them to eat of the lotus, which was so delicious that those who ate of it left off caring about home, and did not even want to go back and say what had happened to them, but were for staying and munching lotus with the Lotus-eaters without thinking further of their nostos; nevertheless, though they wept bitterly I forced them back to the ships and made them fast under the benches. Then I told the rest to go on board at once, lest any of them should taste of the lotus and leave off wanting to achieve a homecoming [nostos], so they took their places and smote the gray sea with their oars. \"We sailed hence, always in much distress, till we came to the land of the lawless and inhuman Cyclopes. Now the Cyclopes neither plant nor plough, but trust in providence, and live on such wheat, barley, and grapes as grow wild without any kind of tillage, and their wild grapes yield them wine as the sun and the rain may grow them. They have no laws nor assemblies of the people, but live in caves on the tops of high mountains; each is lord and master in his family, and they take no account of their neighbors. \"Now off their harbor there lies a wooded and fertile island not quite close to the land of the Cyclopes, but still not far. It is overrun with wild goats, that breed there in great numbers and are never disturbed by foot of man; for sportsmen - who as a rule will suffer so much hardship in forest or among mountain precipices - do not go there, nor yet again is it ever ploughed or fed down, but it lies a wilderness untilled and unsown from year to year, and has no living thing upon it but only goats. For the Cyclopes have no ships, nor yet shipwrights who could make ships for them; they cannot therefore go from city to city, or sail over the sea to one another's country as people who have ships can do; if they had had these they would have colonized the island, for it is a very good one, and would yield everything in due season. There are meadows that in some places come right down to the sea shore, well watered and full of luscious grass; grapes would do there excellently; there is level land for ploughing, and it would always yield heavily at harvest time [hôra], for the soil is deep. There is a good harbor where no cables are wanted, nor yet anchors, nor need a ship be moored, but all one has to do is to beach one's vessel and stay there till the wind becomes fair for putting out to sea again. At the head of the harbor there is a spring of clear water coming out of a cave, and there are poplars growing all round it.",
+            "bekker": [
+              {
+                "n": 1,
+                "offset": 0,
+                "real": true
+              },
+              {
+                "n": 16,
+                "offset": 672,
+                "real": true
+              },
+              {
+                "n": 39,
+                "offset": 1928,
+                "real": true
+              },
+              {
+                "n": 62,
+                "offset": 3227,
+                "real": true
+              },
+              {
+                "n": 82,
+                "offset": 4218,
+                "real": true
+              },
+              {
+                "n": 105,
+                "offset": 5362,
+                "real": true
+              },
+              {
+                "n": 116,
+                "offset": 5878,
+                "real": true
+              }
+            ]
+          }
+        ],
+        "greek": [
+          {
+            "n": 1
+          },
+          {
+            "n": 2
+          },
+          {
+            "n": 3
+          },
+          {
+            "n": 4
+          },
+          {
+            "n": 5
+          },
+          {
+            "n": 6
+          },
+          {
+            "n": 7
+          },
+          {
+            "n": 8
+          },
+          {
+            "n": 9
+          },
+          {
+            "n": 10
+          },
+          {
+            "n": 11
+          },
+          {
+            "n": 12
+          },
+          {
+            "n": 13
+          },
+          {
+            "n": 14
+          },
+          {
+            "n": 15
+          },
+          {
+            "n": 16
+          },
+          {
+            "n": 17
+          },
+          {
+            "n": 18
+          },
+          {
+            "n": 19
+          },
+          {
+            "n": 20
+          },
+          {
+            "n": 21
+          },
+          {
+            "n": 22
+          },
+          {
+            "n": 23
+          },
+          {
+            "n": 24
+          },
+          {
+            "n": 25
+          },
+          {
+            "n": 26
+          },
+          {
+            "n": 27
+          },
+          {
+            "n": 28
+          },
+          {
+            "n": 29
+          },
+          {
+            "n": 30
+          },
+          {
+            "n": 31
+          },
+          {
+            "n": 32
+          },
+          {
+            "n": 33
+          },
+          {
+            "n": 34
+          },
+          {
+            "n": 35
+          },
+          {
+            "n": 36
+          },
+          {
+            "n": 37
+          },
+          {
+            "n": 38
+          },
+          {
+            "n": 39
+          },
+          {
+            "n": 40
+          },
+          {
+            "n": 41
+          },
+          {
+            "n": 42
+          },
+          {
+            "n": 43
+          },
+          {
+            "n": 44
+          },
+          {
+            "n": 45
+          },
+          {
+            "n": 46
+          },
+          {
+            "n": 47
+          },
+          {
+            "n": 48
+          },
+          {
+            "n": 49
+          },
+          {
+            "n": 50
+          },
+          {
+            "n": 51
+          },
+          {
+            "n": 52
+          },
+          {
+            "n": 53
+          },
+          {
+            "n": 54
+          },
+          {
+            "n": 55
+          },
+          {
+            "n": 56
+          },
+          {
+            "n": 57
+          },
+          {
+            "n": 58
+          },
+          {
+            "n": 59
+          },
+          {
+            "n": 60
+          },
+          {
+            "n": 61
+          },
+          {
+            "n": 62
+          },
+          {
+            "n": 63
+          },
+          {
+            "n": 64
+          },
+          {
+            "n": 65
+          },
+          {
+            "n": 66
+          },
+          {
+            "n": 67
+          },
+          {
+            "n": 68
+          },
+          {
+            "n": 69
+          },
+          {
+            "n": 70
+          },
+          {
+            "n": 71
+          },
+          {
+            "n": 72
+          },
+          {
+            "n": 73
+          },
+          {
+            "n": 74
+          },
+          {
+            "n": 75
+          },
+          {
+            "n": 76
+          },
+          {
+            "n": 77
+          },
+          {
+            "n": 78
+          },
+          {
+            "n": 79
+          },
+          {
+            "n": 80
+          },
+          {
+            "n": 81
+          },
+          {
+            "n": 82
+          },
+          {
+            "n": 83
+          },
+          {
+            "n": 84
+          },
+          {
+            "n": 85
+          },
+          {
+            "n": 86
+          },
+          {
+            "n": 87
+          },
+          {
+            "n": 88
+          },
+          {
+            "n": 89
+          },
+          {
+            "n": 90
+          },
+          {
+            "n": 91
+          },
+          {
+            "n": 92
+          },
+          {
+            "n": 93
+          },
+          {
+            "n": 94
+          },
+          {
+            "n": 95
+          },
+          {
+            "n": 96
+          },
+          {
+            "n": 97
+          },
+          {
+            "n": 98
+          },
+          {
+            "n": 99
+          },
+          {
+            "n": 100
+          },
+          {
+            "n": 101
+          },
+          {
+            "n": 102
+          },
+          {
+            "n": 103
+          },
+          {
+            "n": 104
+          },
+          {
+            "n": 105
+          },
+          {
+            "n": 106
+          },
+          {
+            "n": 107
+          },
+          {
+            "n": 108
+          },
+          {
+            "n": 109
+          },
+          {
+            "n": 110
+          },
+          {
+            "n": 111
+          },
+          {
+            "n": 112
+          },
+          {
+            "n": 113
+          },
+          {
+            "n": 114
+          },
+          {
+            "n": 115
+          },
+          {
+            "n": 116
+          },
+          {
+            "n": 117
+          },
+          {
+            "n": 118
+          },
+          {
+            "n": 119
+          },
+          {
+            "n": 120
+          },
+          {
+            "n": 121
+          },
+          {
+            "n": 122
+          },
+          {
+            "n": 123
+          },
+          {
+            "n": 124
+          },
+          {
+            "n": 125
+          },
+          {
+            "n": 126
+          },
+          {
+            "n": 127
+          },
+          {
+            "n": 128
+          },
+          {
+            "n": 129
+          },
+          {
+            "n": 130
+          },
+          {
+            "n": 131
+          },
+          {
+            "n": 132
+          },
+          {
+            "n": 133
+          },
+          {
+            "n": 134
+          },
+          {
+            "n": 135
+          },
+          {
+            "n": 136
+          },
+          {
+            "n": 137
+          },
+          {
+            "n": 138
+          },
+          {
+            "n": 139
+          },
+          {
+            "n": 140
+          },
+          {
+            "n": 141
+          }
+        ]
+      }
+    ],
+    "apparatus": {
+      "scenes": [
+        {
+          "lines": [
+            1,
+            14
+          ],
+          "summary": "Odysseus praises the joy of feast and song, but agrees to tell of his sorrows.",
+          "location": "the palace of Alcinous",
+          "dayNumber": 34
+        },
+        {
+          "lines": [
+            15,
+            38
+          ],
+          "summary": "Odysseus names himself, describes rugged Ithaca, and says nothing is sweeter than one's own land.",
+          "location": "Ithaca (described)",
+          "dayNumber": 34
+        },
+        {
+          "lines": [
+            39,
+            69
+          ],
+          "summary": "At Ismarus the crew sacks the Cicones' city; lingering to feast, they are routed with heavy losses.",
+          "location": "Ismarus",
+          "dayNumber": 34
+        },
+        {
+          "lines": [
+            70,
+            104
+          ],
+          "summary": "A nine-day storm drives the fleet to the Lotus-eaters; scouts who taste the lotus must be forced back aboard.",
+          "location": "the land of the Lotus-eaters",
+          "dayNumber": 34
+        },
+        {
+          "lines": [
+            105,
+            141
+          ],
+          "summary": "The fleet reaches an islet off the land of the lawless, shipless Cyclopes.",
+          "location": "islet off the Cyclopes' land",
+          "dayNumber": 34
+        }
+      ]
+    },
+    "speechStarts": [
+      2
+    ]
+  }
+}

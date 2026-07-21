@@ -240,28 +240,57 @@ export function naturalEndOffset(
   const frac = Math.max(0, Math.min(1, (ownedLines - 0.5) / nLines));
   const target = tickStart + frac * tickLen;
 
-  // Last sentence end in (base, target] — stays inside our owned share.
+  // Floor every sentence-end search at this scene's own start offset
+  // (`cursor`), not just at `base` (the straddling tick's start when no tick
+  // is fully contained — see this function's header comment). `base` alone
+  // can precede scene.startLine, letting a sentence end that belongs to the
+  // PREVIOUS scene get selected (Codex review, docs/grok-fixes.md:130-138).
+  const floor = Math.max(base, cursor);
+
+  // Last sentence end in (floor, target] — stays inside our owned share.
   let best = -1;
   for (const e of sentenceEnds) {
-    if (e > base && e <= target) best = e;
+    if (e > floor && e <= target) best = e;
   }
   if (best > cursor) return best;
 
   // No sentence end in the owned share: finish the dangling sentence after
-  // `base`. Prefer finishing inside this tick; if the only terminator is in a
+  // `floor`. Prefer finishing inside this tick; if the only terminator is in a
   // later tick, OVERFLOW past the tick (John, 2026-07-20: never end a page
   // mid-sentence — a little spill into the next scene beats a chopped sentence).
   let after = -1;
   for (const e of sentenceEnds) {
-    if (e >= Math.max(cursor, base)) {
+    if (e >= floor) {
       after = e;
       break;
     }
   }
+  // Gate on `after > cursor`, NOT `after > floor` (Codex review F4 decision,
+  // 2026-07-21 — code was already correct; the comment below was fixed to
+  // match). `after` is the nearest sentence boundary AT OR AFTER `floor` (the
+  // owned share's lower bound, >= cursor). Ending here is right in BOTH sub-
+  // cases: when `floor` itself is already a clean boundary (a fully-owned tick
+  // ended exactly there) `after === floor` and we STOP at it rather than
+  // over-extending into a straddling tick's later-scene share; when `floor` is
+  // mid-sentence `after` is the completion just past it. Using `after > floor`
+  // instead would skip the "stop at floor" case and pull the next scene's
+  // sentence back onto this page (verified against the reader's synthetic
+  // Il.-shaped book: scene 1, owning only chunk A fully + 3/5 of the straddling
+  // chunk B, must end at chunk A, not swallow chunk B). Only reached when no
+  // sentence end fell inside the owned share `(floor, target]` above.
   if (after > cursor && after <= lastOverlapEnd) return after;
+  // `after` only fails the check above when it lands exactly ON `cursor`
+  // (an exact-boundary edge case — see below) or overflows past this tick.
+  // Either way, the NEXT distinct sentence end strictly after `floor` is what
+  // we want here, so take the nearest match (sentenceEnds is ascending —
+  // built by scanning forward — so the first qualifying entry IS the
+  // nearest), not the farthest one still inside the tick: a corpus case
+  // (Od. 11 Butler, whose final tick is open-ended and covers the rest of
+  // the book) showed the old "keep overwriting" loop walking all the way to
+  // the tick's last sentence end, swallowing the next scene's entire text.
   let lastInTick = -1;
   for (const e of sentenceEnds) {
-    if (e > base && e <= lastOverlapEnd) lastInTick = e;
+    if (e > floor && e <= lastOverlapEnd) { lastInTick = e; break; }
   }
   if (lastInTick > cursor) return lastInTick;
   if (after > cursor) return after;
@@ -439,6 +468,13 @@ export function pageCharLength(page: SceneFlowChunk): number {
   return n;
 }
 
+// The concatenated visible prose of a scene page (markers contribute ''). Used
+// by the hollow guardrail to detect a bounded backup identical to the page it
+// would replace (short-but-complete — see below).
+function pageText(page: SceneFlowChunk): string {
+  return page.flowParts.map((p) => p.text ?? '').join('');
+}
+
 // Hollow-page safety net (John, 2026-07-20): if the careful cut still leaves a
 // scene card empty or almost empty (previous card ate its prose), fill that
 // card from a coarser backup — the English ticks that overlap the scene's
@@ -448,6 +484,17 @@ export function pageCharLength(page: SceneFlowChunk): number {
 //
 // Treat as hollow when empty, or short (< HOLLOW_MAX_CHARS) AND much shorter
 // than the backup would be (< HOLLOW_RAW_RATIO of backup length).
+//
+// SHORT-BUT-COMPLETE ≠ HOLLOW (John's ruling, Codex review F2, 2026-07-21): a
+// page holding the COMPLETE prose of its scene's owned share is honest even
+// when short — it must NOT be padded with a neighbor's prose. The ratio guard
+// above already spares such a page (its snap length ≈ its raw/backup length,
+// so `snappedLen < rawLen * HOLLOW_RAW_RATIO` is false); and when a genuinely
+// hollow page's bounded backup turns out to equal the page it would replace,
+// the guardrail loop below SKIPS the replacement deliberately (a no-op cut is
+// "already complete", not padding). The audit surfaces every such legitimately
+// short page via its informational `shortPagesBelowHollowThreshold` count, so
+// they are visible, never silently swallowed.
 export const HOLLOW_MAX_CHARS = 200;
 export const HOLLOW_RAW_RATIO = 0.4;
 
@@ -457,9 +504,130 @@ export function isHollowScenePage(snappedLen: number, rawLen: number): boolean {
   return snappedLen < HOLLOW_MAX_CHARS && snappedLen < rawLen * HOLLOW_RAW_RATIO;
 }
 
+// ── Manual scene-boundary overrides (John, 2026-07-21) ──────────────────────
+// The algorithm above is corpus-gated and generally right, but a handful of
+// real scenes need an EDITORIAL correction the algorithm can't derive on its
+// own (e.g. a scene summary and its prose landing one page apart). John's
+// calls live in shared/lib/scene-boundary-overrides.json, keyed by work/book/
+// translation/sceneNumber with a verbatim `startAnchor` — the exact opening
+// text of that scene's page. This module stays ignorant of the JSON/anchor
+// text itself (surgical, testable in isolation): callers resolve anchors to
+// offsets via resolveBoundaryOverrides, then hand sentenceSnapScenePages the
+// resulting {sceneIndex, startOffset} pairs via opts.boundaryOverrides.
+
+// One resolved override: scene `sceneIndex` (0-based into `scenes`) is PINNED
+// to start at `startOffset` — a character offset in the flattened whole-book
+// flow (buildBookFlow's `text` space, same space sentenceEndOffsets/slicePage
+// use). The previous scene's page therefore ends at exactly this offset too.
+export interface BoundaryOverride {
+  sceneIndex: number;
+  startOffset: number;
+}
+
+// One un-resolved override entry, as read (after work/book/translation
+// filtering — see selectBoundaryOverrideEntries) from
+// scene-boundary-overrides.json.
+export interface SceneBoundaryOverrideEntry {
+  /** 1-based, matching the JSON file and the apparatus's own scene numbering. */
+  sceneNumber: number;
+  /** Verbatim opening text of this scene's Reading Mode page. */
+  startAnchor: string;
+}
+
+// One row of scene-boundary-overrides.json, before work/book/translation
+// filtering.
+export interface SceneBoundaryOverrideRecord extends SceneBoundaryOverrideEntry {
+  work: string;
+  book: number;
+  translation: string;
+}
+
+// The shape of scene-boundary-overrides.json itself.
+export interface SceneBoundaryOverrideFile {
+  _source: string;
+  _semantics: string;
+  overrides: SceneBoundaryOverrideRecord[];
+}
+
+// Every override entry that applies to this (work, book, translation) —
+// shared by Reader.svelte, real-book-loader.ts, and scene-paging-audit.ts so
+// the filtering logic lives in exactly one place.
+export function selectBoundaryOverrideEntries(
+  file: SceneBoundaryOverrideFile,
+  work: string,
+  book: number,
+  translation: string,
+): SceneBoundaryOverrideEntry[] {
+  return file.overrides
+    .filter((o) => o.work === work && o.book === book && o.translation === translation)
+    .map(({ sceneNumber, startAnchor }) => ({ sceneNumber, startAnchor }));
+}
+
+// Resolve each entry's startAnchor to a {sceneIndex, startOffset} pair by
+// locating it, verbatim, in the whole book's flattened flow (the exact same
+// text sentenceSnapScenePages partitions). Resolution rules (John,
+// 2026-07-21):
+//   - A missing anchor is a HARD error (thrown) — never silently ignored, so
+//     a corpus/pipeline drift that moves or rewords the anchor text surfaces
+//     immediately in the audit/tests rather than silently no-op'ing.
+//   - An anchor occurring more than once resolves to the occurrence NEAREST
+//     the scene's own ALGORITHMIC boundary (where sentenceSnapScenePages,
+//     run with no overrides at all, would itself have started that scene) —
+//     disambiguates a short/formulaic anchor without needing a longer quote.
+export function resolveBoundaryOverrides(
+  chunks: SceneReadingChunk[],
+  scenes: SceneRange[],
+  entries: SceneBoundaryOverrideEntry[],
+): BoundaryOverride[] {
+  if (!entries.length) return [];
+  const book = buildBookFlow(chunks);
+  const baseline = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false });
+  const baselineStart: number[] = [];
+  {
+    let cursor = 0;
+    for (const page of baseline) {
+      baselineStart.push(cursor);
+      cursor += pageCharLength(page);
+    }
+  }
+
+  return entries.map((entry) => {
+    const sceneIndex = entry.sceneNumber - 1;
+    if (sceneIndex < 0 || sceneIndex >= scenes.length) {
+      throw new Error(
+        `scene-boundary override: sceneNumber ${entry.sceneNumber} is out of range (book has ${scenes.length} scenes)`,
+      );
+    }
+    const occurrences: number[] = [];
+    for (let idx = book.text.indexOf(entry.startAnchor); idx !== -1; idx = book.text.indexOf(entry.startAnchor, idx + 1)) {
+      occurrences.push(idx);
+    }
+    if (!occurrences.length) {
+      throw new Error(
+        `scene-boundary override: startAnchor not found for scene ${entry.sceneNumber}: ${JSON.stringify(entry.startAnchor)}`,
+      );
+    }
+    const algorithmicBoundary = baselineStart[sceneIndex] ?? 0;
+    let startOffset = occurrences[0];
+    let bestDist = Math.abs(startOffset - algorithmicBoundary);
+    for (const occurrence of occurrences.slice(1)) {
+      const dist = Math.abs(occurrence - algorithmicBoundary);
+      if (dist < bestDist) { startOffset = occurrence; bestDist = dist; }
+    }
+    return { sceneIndex, startOffset };
+  });
+}
+
 export interface SentenceSnapOptions {
   /** Default true. Set false to keep the pure lossless partition (tests). */
   applyHollowGuardrail?: boolean;
+  /**
+   * Manual editorial pins (John, 2026-07-21) — resolved via
+   * resolveBoundaryOverrides, never raw anchor text. An entry pins
+   * `sceneIndex`'s start (= the previous scene's end) to `startOffset`
+   * exactly; the algorithm runs normally on either side.
+   */
+  boundaryOverrides?: BoundaryOverride[];
 }
 
 // One sentence-snapped Reading Mode page per scene, covering the currently
@@ -484,12 +652,27 @@ export function sentenceSnapScenePages(
     return book.text.length;
   };
 
+  // Overrides are keyed by the scene whose START they pin — i.e. the END of
+  // the PRECEDING iteration in the forward pass below (see BoundaryOverride's
+  // header comment). A book's final scene never carries one in practice (its
+  // end is always book.text.length), but the lookup falls through harmlessly
+  // either way.
+  const overridePinBySceneIndex = new Map<number, number>();
+  for (const o of options?.boundaryOverrides ?? []) overridePinBySceneIndex.set(o.sceneIndex, o.startOffset);
+
   const pages: SceneFlowChunk[] = [];
   let cursor = 0;
   for (let si = 0; si < scenes.length; si++) {
     let end: number;
     if (si === scenes.length - 1) {
       end = book.text.length; // the last scene always runs to the true end — no trailing dangle
+    } else if (overridePinBySceneIndex.has(si + 1)) {
+      // Manual pin (John, 2026-07-21): the next scene's start is fixed by an
+      // editorial override — take it exactly, skipping the natural-end/
+      // sentence-snap computation entirely for this boundary. Clamped at
+      // `cursor` only as a defensive floor; a correctly-resolved anchor never
+      // precedes it.
+      end = Math.max(cursor, overridePinBySceneIndex.get(si + 1)!);
     } else {
       // Owned-share natural end (see naturalEndOffset): for a straddling tick,
       // land near the last Greek line of this scene, then snap to a nearby
@@ -531,13 +714,68 @@ export function sentenceSnapScenePages(
   // that sentence-snap hollowed out; leaves the rest of the partition alone.
   // Off by explicit option for pure-partition tests.
   if (options?.applyHollowGuardrail !== false) {
+    // Each page's own start offset in the flattened book flow — reconstructed
+    // from the PURE-SNAP partition's own text lengths (pages are a lossless,
+    // disjoint slice of book.text, per this function's header comment), so
+    // this doesn't need buildBookFlow's private per-scene `cursor` plumbed
+    // out of the main loop above. Computed once, before any replacement
+    // below, so an earlier hollow fix never shifts a later scene's framing.
+    const pageFrom: number[] = [];
+    {
+      let c = 0;
+      for (const p of pages) { pageFrom.push(c); c += pageCharLength(p); }
+    }
+
     for (let si = 0; si < pages.length; si++) {
       const selected = chunksForScene(chunks, scenes[si]);
       if (!selected.length) continue;
       const raw = mergeSceneFlowChunks(selected.map((i) => chunks[i]));
       const snapLen = pageCharLength(pages[si]);
       const rawLen = pageCharLength(raw);
-      if (isHollowScenePage(snapLen, rawLen)) pages[si] = raw;
+      if (!isHollowScenePage(snapLen, rawLen)) continue;
+
+      // Bounded fallback (replaces the old raw whole-tick paste, which pastes
+      // EVERY chunk overlapping the scene regardless of where this page
+      // already starts — duplicating an entire neighboring page's prose and
+      // re-emitting shared table objects verbatim). Reuse the SAME flattened
+      // book flow + slicePage this whole module is built on: start exactly
+      // where this page already starts (`from` — slicePage never repeats
+      // text before its own `from`, so no duplication with the PRECEDING
+      // page is possible) and extend to the scene's own natural sentence-
+      // snapped end (naturalEndOffset's target, without the main loop's
+      // straddle pull-back — that pull-back only ever shrinks the cut, so
+      // omitting it here can only give back MORE of the scene's owned text,
+      // never less). Any duplication this introduces is bounded to at most
+      // that extension overlapping the FOLLOWING scene's already-fixed page
+      // (the "boundary straddle").
+      const from = pageFrom[si];
+      const naturalBoundary = naturalEndOffset(chunks, scenes[si], book.chunkTextEnd, sentenceEnds, from);
+      const to = firstSentenceEndAtOrAfter(naturalBoundary);
+      const bounded = to > from ? slicePage(book, chunks, from, to) : null;
+
+      // SHORT-BUT-COMPLETE, handled explicitly (Codex review F2, 2026-07-21):
+      // a page flagged hollow whose bounded backup is byte-for-byte the page it
+      // would replace already holds its scene's complete owned share — the cut
+      // is a no-op. Skip the replacement DELIBERATELY (not as an accidental
+      // "assign identical text") and leave the honest short page in place; it is
+      // never padded with a neighbor's prose. The audit's informational
+      // `shortPagesBelowHollowThreshold` count keeps such pages visible.
+      if (bounded && pageText(bounded) === pageText(pages[si])) continue;
+
+      // Last resort (documented degenerate case, John 2026-07-20): the
+      // bounded slice is still empty when this scene's whole owned share was
+      // already consumed by the PRECEDING page's completed dangling sentence
+      // (naturalBoundary collapses to exactly `from`) — fall back to the raw
+      // whole-tick paste so the reader never sees a literally blank card.
+      //
+      // BY-DESIGN DUPLICATION BOUND (John approved as the honest floor, Codex
+      // review F2c): when `bounded` DOES fire with `to > from`, its extension
+      // past this scene's natural end can re-show prose already on the FOLLOWING
+      // (fixed, not re-partitioned) page — a duplication bounded to that single
+      // boundary straddle, never text further away (slicePage starts at `from`,
+      // so it can never repeat the PRECEDING page). The audit's
+      // duplicatedTextPages metric is scoped to catch exactly this case.
+      pages[si] = bounded && pageCharLength(bounded) > 0 ? bounded : raw;
     }
   }
 
