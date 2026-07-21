@@ -80,7 +80,11 @@
   --accent:       #6E1F3A;  /* Wine-dark --route-red / garnet: the single wayfinding/
                                 structural accent (nav hover, work-switcher, chapter-nav
                                 active, etc.) */
-  --accent-light: #8C3A57;  /* Wine-dark --gold-deco role: decorative/hover-emphasis tint */
+  --accent-light: #944438;  /* Wine-dark --gold-deco role: decorative/hover-emphasis tint.
+                                Hue shifted from rose (#8C3A57) toward terracotta/garnet
+                                (John, 2026-07-21: "too much pink" — tempered the palette,
+                                same wine identity) — see docs/DESIGN.md and the dark-theme
+                                block below for the matching shift. */
   --border:       #CFC7CC;  /* Wine-dark --rule: soft decorative hairline */
   --scene-map-sea:        #DCE7EB; /* restrained Aegean water, distinct from land */
   --flaxman-ink:          #241827; /* engraving ink, light ground */
@@ -163,8 +167,11 @@
   --text:         #EDE6E8;  /* Wine-dark --ink dark (bone) */
   --text-mid:     #B7A9B4;  /* Wine-dark --ink-soft dark */
   --text-light:   #B7A9B4;  /* same collapse as light mode, see note above */
-  --accent:       #D98BA3;  /* Wine-dark --route-red dark */
-  --accent-light: #E8A6BA;  /* Wine-dark --gold-deco dark */
+  --accent:       #D59186;  /* Wine-dark --route-red dark: shifted off rose toward garnet/
+                                terracotta (John, 2026-07-21: "too much pink" — tempered,
+                                not re-paletted; contrast re-verified, see scratchpad
+                                contrast-check run). Was #D98BA3. */
+  --accent-light: #E4B3AA;  /* Wine-dark --gold-deco dark. Was #E8A6BA. */
   --border:       #3A2C38;  /* Wine-dark --rule dark */
   --scene-map-sea:        #132B3B; /* deep Aegean water */
   --flaxman-ink:          rgba(237,230,232,0.67); /* ink A (John): bone, subtle, not inverted */
@@ -180,7 +187,7 @@
   /* Wine-dark's --rule-strong dark: a lightened, same-hue rule (contrast-
      verified in docs/DESIGN.md's four-palette explorer) for gutter numbers,
      masthead rule, cartouche double-hairline. */
-  --rule-strong:  #C77E97;
+  --rule-strong:  #C17067;  /* was #C77E97 — tempered off rose alongside --accent above */
   --draft:        #8FB0C9;  /* slate-blue, see the light-theme --draft comment above */
 
   --on-accent:    #0d1415;   /* dark text reads on the lighter dark-mode accent */
