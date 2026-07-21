@@ -112,6 +112,29 @@ export interface AlignGroup<L> { lines: L[]; flowParts: FlowPart[] }
 // callers pass `bookSpeechStarts` EXPLICITLY (not as a default) so Svelte's
 // reactivity tracks it — a default reading the outer variable wouldn't appear
 // in either call site's own dependency scan.
+// Resolve a target Greek line number to its index in `lines`, tolerating a
+// declared vulgate gap (manifests/*.yaml expected_line_gaps — a genuinely
+// omitted line, e.g. Od. 10.456, NOT a bug: "vulgate lineation is sacred", so
+// the omission is preserved rather than papered over) by walking FORWARD to
+// the nearest line number that actually exists. Returns undefined only when
+// no line in the book has n >= target (target past the end of the book).
+// `sortedLineNs` is the ascending, deduped list mirroring `lineIndex`'s keys,
+// so the walk is a binary search rather than a linear scan.
+function resolveForwardIndex(
+  target: number,
+  lineIndex: Map<number, number>,
+  sortedLineNs: number[],
+): number | undefined {
+  const exact = lineIndex.get(target);
+  if (exact !== undefined) return exact;
+  let lo = 0, hi = sortedLineNs.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (sortedLineNs[mid] < target) lo = mid + 1; else hi = mid;
+  }
+  return lo < sortedLineNs.length ? lineIndex.get(sortedLineNs[lo]) : undefined;
+}
+
 export function alignGroups<L extends { n: number; cont?: boolean }>(
   lines: L[],
   flow: FlowPart[],
@@ -119,14 +142,34 @@ export function alignGroups<L extends { n: number; cont?: boolean }>(
 ): AlignGroup<L>[] {
   const flowGroups = groupFlowByTicks(flow);
   const ticks = flowGroups.map(g => g[0]).filter(isTickPart);
-  const tickLines = snapTicksToSpeechStarts(ticks.map((t) => t.n), speechStarts);
+  const tickNs = ticks.map((t) => t.n);
+  const tickLines = snapTicksToSpeechStarts(tickNs, speechStarts);
   const lineIndex = new Map<number, number>();
   lines.forEach((l, i) => { if (!l.cont && !lineIndex.has(l.n)) lineIndex.set(l.n, i); });
-  return flowGroups.map((parts, i) => {
+  const sortedLineNs = [...lineIndex.keys()].sort((a, b) => a - b);
+  // Codex review (2026-07-21): a speech-snapped tick target (or even a tick's
+  // own un-snapped anchor) can name a Greek line that doesn't exist in
+  // `lines` — a declared vulgate gap. speeches.json honestly anchors a
+  // speech's opening on the omitted line's own number (Od. 10.456: Circe's
+  // speech), so snapTicksToSpeechStarts (speech-snap.ts, unmodified — it
+  // knows only line NUMBERS, not which ones the book's Greek actually
+  // carries) legitimately hands back 456. The bare `lineIndex.get(n) ?? 0`
+  // this replaces defaulted straight to index 0, restarting the chunk at the
+  // top of the book and collapsing every scene after it (live-site bug, now
+  // fixed here since Reader.svelte imports this module). Resolve forward to
+  // the nearest line that actually exists (456 → 457) instead; if the
+  // SNAPPED target has no such line at all (past the end of the book), fall
+  // back to the tick's own pre-snap anchor rather than snapping — i.e. skip
+  // the snap for that tick.
+  const resolveTick = (i: number): number | undefined => {
     const n = tickLines[i];
-    const startIdx = n !== undefined ? (lineIndex.get(n) ?? 0) : 0;
-    const nextN = tickLines[i + 1];
-    const endIdx = nextN !== undefined ? (lineIndex.get(nextN) ?? lines.length) : lines.length;
+    if (n === undefined) return undefined;
+    return resolveForwardIndex(n, lineIndex, sortedLineNs)
+      ?? resolveForwardIndex(tickNs[i], lineIndex, sortedLineNs);
+  };
+  return flowGroups.map((parts, i) => {
+    const startIdx = resolveTick(i) ?? 0;
+    const endIdx = resolveTick(i + 1) ?? lines.length;
     return { lines: lines.slice(startIdx, endIdx), flowParts: parts };
   });
 }

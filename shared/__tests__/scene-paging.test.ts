@@ -15,6 +15,7 @@ import {
   type SceneRange,
   type TickChunkRange,
 } from '../lib/scene-paging';
+import { alignGroups } from '../lib/tick-chunks';
 import { buildRealChunks, loadRealBook, type RealMarker, type RealTranslation } from './real-book-loader';
 import { auditScenePaging } from '../scripts/scene-paging-audit';
 
@@ -107,6 +108,80 @@ describe('chunksForScene', () => {
 
   it('returns an empty array against an empty chunk list', () => {
     expect(chunksForScene([], { startLine: 1, endLine: 5 })).toEqual([]);
+  });
+});
+
+// ── alignGroups speech-snap line resolution hardening (Codex re-review, ────
+// 2026-07-21). tick-chunks.ts's alignGroups resolves a (possibly speech-
+// snapped) tick's target Greek line NUMBER to an array INDEX via `lineIndex`.
+// The line it replaces defaulted a missing line straight to `?? 0`/`??
+// lines.length` — for a declared vulgate gap (manifests/*.yaml
+// expected_line_gaps; real case: Od. 10.456, where Circe's speech honestly
+// opens on the dropped line) that restarted the chunk at the TOP of the book,
+// collapsing every scene after it (the live Odyssey 10 Reader bug this fixes).
+// alignGroups now resolves forward to the nearest EXTANT line, falling back
+// to the tick's own pre-snap anchor when even that fails (target past the
+// end of the book).
+describe('alignGroups — speech-snap line resolution hardening (Codex re-review, 2026-07-21)', () => {
+  const tick = (n: number): SceneFlowPart => ({ text: null, n, real: true });
+  const text = (s: string): SceneFlowPart => ({ text: s, n: null, real: false });
+
+  it('Od. 10 shape: a speech start snapped onto the declared vulgate-gap line (456) resolves forward to 457, never restarting at index 0', () => {
+    // Lines 450-460 with 456 missing — mirrors Od. 10 (has 455 and 457, not
+    // 456). A tick anchored at 455 is within the snap window of speech start
+    // 456 (Circe's speech), so it snaps there even though 456 doesn't exist.
+    const lines = [450, 451, 452, 453, 454, 455, 457, 458, 459, 460].map((n) => ({ n }));
+    const flow: SceneFlowPart[] = [
+      tick(450), text('A'),
+      tick(455), text('B'),
+      tick(460), text('C'),
+    ];
+    const groups = alignGroups(lines, flow, [456]);
+    const nonEmpty = groups.filter((g) => g.lines.length > 0);
+    const startLines = nonEmpty.map((g) => g.lines[0].n);
+    // No index-0 restart: the snapped group starts at 457 (nearest extant
+    // line >= 456), so every group's own start line strictly increases.
+    expect(startLines).toEqual([450, 457, 460]);
+    for (let i = 1; i < startLines.length; i++) {
+      expect(startLines[i]).toBeGreaterThan(startLines[i - 1]);
+    }
+  });
+
+  it("Codex's synthetic case: ticks [1,5,10] with Greek line 6 absent and a speech start at 6 produce no equal-start or overlapping chunks", () => {
+    const lines = [1, 2, 3, 4, 5, 7, 8, 9, 10].map((n) => ({ n }));
+    const flow: SceneFlowPart[] = [
+      tick(1), text('A'),
+      tick(5), text('B'),
+      tick(10), text('C'),
+    ];
+    const groups = alignGroups(lines, flow, [6]);
+    const nonEmpty = groups.filter((g) => g.lines.length > 0);
+    expect(nonEmpty.map((g) => g.lines[0].n)).toEqual([1, 7, 10]);
+    for (let i = 1; i < nonEmpty.length; i++) {
+      const prevEnd = nonEmpty[i - 1].lines.at(-1)!.n;
+      const curStart = nonEmpty[i].lines[0].n;
+      // Strictly past the previous chunk's own last line — neither an equal
+      // start (a restart-to-the-same-index duplicate) nor an overlap.
+      expect(curStart).toBeGreaterThan(prevEnd);
+    }
+  });
+
+  it('a snap target past the end of the book skips the snap for that tick, falling back to its own pre-snap anchor rather than index 0', () => {
+    // Tick at line 9 is within the snap window of speech start 11 (9 < 11 <=
+    // 11), but this book's Greek ends at line 10 — no line exists at or past
+    // 11, so the snap is skipped in favor of the tick's own anchor (9).
+    const lines = Array.from({ length: 10 }, (_, i) => ({ n: i + 1 }));
+    const flow: SceneFlowPart[] = [
+      tick(1), text('A'),
+      tick(9), text('B'),
+    ];
+    const groups = alignGroups(lines, flow, [11]);
+    expect(groups).toHaveLength(2);
+    // Contiguous at line 9 (the pre-snap anchor), not restarted at index 0
+    // and not the whole book swallowed into one group via `?? lines.length`.
+    expect(groups[0].lines.at(-1)!.n).toBe(8);
+    expect(groups[1].lines[0].n).toBe(9);
+    expect(groups.reduce((a, g) => a + g.lines.length, 0)).toBe(lines.length);
   });
 });
 
@@ -578,6 +653,11 @@ const ILIAD_12_PATH = '../build/dist/iliad/book-12.json';
 const ODYSSEY_11_PATH = '../build/dist/odyssey/book-11.json';
 const ODYSSEY_17_PATH = '../build/dist/odyssey/book-17.json';
 const ODYSSEY_23_PATH = '../build/dist/odyssey/book-23.json';
+// Odyssey 10 (Murray) — the book whose Circe speech honestly opens on the
+// declared vulgate-gap line 456 (see tick-chunks.ts's alignGroups). Added to
+// the real-data combo matrix so its 12 recovered scenes are directly
+// exercised by every invariant below, post the speech-snap hardening fix.
+const ODYSSEY_10_PATH = '../build/dist/odyssey/book-10.json';
 const FIXTURE_PATH = './__tests__/fixtures/scene-paging-books.json';
 
 interface FixtureBook {
@@ -636,6 +716,9 @@ const REAL_COMBOS: BookCombo[] = [
   { label: 'Odyssey 17 (Butler)', translation: 'butler', load: () => loadRealBook(ODYSSEY_17_PATH, 'butler') },
   { label: 'Odyssey 23 (Murray)', translation: 'murray', load: () => loadRealBook(ODYSSEY_23_PATH, 'murray') },
   { label: 'Odyssey 23 (Butler)', translation: 'butler', load: () => loadRealBook(ODYSSEY_23_PATH, 'butler') },
+  // Odyssey 10 (Murray) — post-fix, its 12 scenes must pass every invariant
+  // below exactly like any other book (see ODYSSEY_10_PATH comment above).
+  { label: 'Odyssey 10 (Murray)', translation: 'murray', load: () => loadRealBook(ODYSSEY_10_PATH, 'murray') },
 ];
 const FIXTURE_COMBOS: BookCombo[] = [
   { label: 'Iliad 1 fixture (Murray)', translation: 'murray', load: () => loadFixtureBook('iliad1', 'murray') },
@@ -875,21 +958,29 @@ describe('scene-paging corpus audit gate (real build/dist data)', () => {
     expect(result.gate.duplicatedTextPages).toBeLessThanOrEqual(result.gate.maxDuplicatedTextPages);
   });
 
-  // The gate excludes books whose tick-chunk INPUT is corrupt from an UPSTREAM
-  // dropped vulgate line (Codex review F1 diagnosis, 2026-07-21). This is
-  // asserted LOUDLY, not hidden: the exclusion is bounded to exactly the known
-  // Odyssey 10 (Murray) case — a real Circe speech opens on line 456, which the
-  // pipeline dropped from that book's Greek (has 455 and 457, 573 lines but max
-  // n 574), so snapTicksToSpeechStarts moves a tick onto the missing line and
-  // alignGroups' `?? 0` fallback restarts the chunk at line 1. Reported to the
-  // pipeline lane ("vulgate lineation is sacred"); NOT a scene-paging defect.
-  // If this set ever GROWS, the assertion fails and forces a fresh diagnosis.
-  it.skipIf(!hasAuditDistRoot)('upstream tick-chunk corruption is bounded to the known Odyssey 10 (Murray) dropped-line case', () => {
+  // The known Odyssey 10 (Murray) upstream tick-chunk corruption (Codex review
+  // F1 diagnosis, 2026-07-21: a real Circe speech opens on the declared
+  // vulgate-gap line 456, which snapTicksToSpeechStarts legitimately hands
+  // back, and alignGroups' pre-fix `?? 0` fallback restarted the chunk at
+  // line 1) is now FIXED at the source (tick-chunks.ts's alignGroups resolves
+  // forward to the nearest extant line — see the "alignGroups — speech-snap
+  // line resolution hardening" describe block above). This is asserted as an
+  // EMPTY set, not removed, so the mechanism itself stays a live tripwire: if
+  // any book's tick-chunk geometry ever corrupts again (backward/duplicate
+  // startLine, an overlap, or an inverted chunk — see
+  // scene-paging-audit.ts's chunkGeometryValid), this assertion is what fails
+  // and forces a fresh diagnosis.
+  it.skipIf(!hasAuditDistRoot)('no book has corrupt tick-chunk geometry (Odyssey 10 Murray fixed by the speech-snap hardening)', () => {
     if (!result?.buildDistPresent) return;
-    expect(result.totals.corruptChunkBooks).toEqual(['odyssey 10 murray']);
-    expect(result.gate.excludedCorruptBooks).toBe(1);
-    // The raw totals still COUNT the corrupt book's empties — nothing hidden.
-    expect(result.totals.emptyPagesPureSnap).toBeGreaterThan(0);
+    expect(result.totals.corruptChunkBooks).toEqual([]);
+    expect(result.gate.excludedCorruptBooks).toBe(0);
+    expect(result.totals.booksAudited).toBe(96);
+  });
+
+  it.skipIf(!hasAuditDistRoot)('ownership floor: no well-formed book page falls below the minOwnershipFraction regression floor', () => {
+    if (!result?.buildDistPresent) return;
+    expect(result.gate.belowMinOwnershipPages).toBe(0);
+    expect(result.gate.minOwnershipFraction).toBeGreaterThan(0);
   });
 
   it.skipIf(!hasAuditDistRoot)('overall gate.pass is true', () => {

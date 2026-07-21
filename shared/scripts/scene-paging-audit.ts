@@ -55,6 +55,17 @@ const TRANSLATIONS: RealTranslation[] = ['murray', 'butler'];
 // without false-positiving on short common phrases.
 const DUP_WINDOW = 40;
 
+// A page whose share of its own scene's owned Greek range falls below 0.5 —
+// less than half the page's text is text that scene actually owns. Surfaced
+// per book (not just the book-level worst) so every candidate becomes a
+// concrete manual-review item for John: which scene, how bad, and the Greek
+// line range in play (Codex new-finding 1, 2026-07-21).
+export interface LowOwnershipPage {
+  sceneIndex: number; // 1-indexed, matching this module's other scene-number reporting
+  fraction: number; // fraction of the page's text actually inside its scene's owned tick union
+  greekRange: [number, number];
+}
+
 export interface BookRow {
   epic: Epic;
   book: number;
@@ -68,16 +79,12 @@ export interface BookRow {
   outOfOwnedRangePages: number;
   duplicatedTextPages: number;
   partitionLossless: boolean;
-  // WELL-FORMED INPUT flag (Codex review F1 diagnosis, 2026-07-21): true unless
-  // this book's tick-chunk INPUT is corrupt — a chunk whose startLine jumps
-  // BACKWARD, the unmistakable signature of alignGroups' `lineIndex.get(n) ?? 0`
-  // fallback firing because snapTicksToSpeechStarts moved a tick onto a line the
-  // book's Greek does not contain. Root cause is an UPSTREAM dropped vulgate
-  // line (confirmed: Odyssey 10 is missing line 456, on which a real Circe
-  // speech starts). Such a book cannot fairly test scene-paging's own logic, so
-  // the gate excludes it (its raw defect counts stay in this row + totals — the
+  // WELL-FORMED tick-chunk INPUT flag (Codex review F1 diagnosis, 2026-07-21;
+  // broadened Codex re-review 2026-07-21 — see chunkGeometryValid below). A
+  // book failing this cannot fairly test scene-paging's own logic, so the
+  // gate excludes it (its raw defect counts stay in this row + totals — the
   // corruption is surfaced, never hidden — and is reported to the pipeline lane).
-  chunkStartLinesMonotonic: boolean;
+  chunkGeometryValid: boolean;
   // Informational (Codex review F2, 2026-07-21): guardrail-ON pages holding the
   // COMPLETE prose of a short owned share (0 < len < HOLLOW_MAX_CHARS). These
   // are legitimate short-but-complete pages, NOT padded and NOT gated — counted
@@ -88,6 +95,10 @@ export interface BookRow {
   // owned, 1 = wholly overflow). Surfaces gross overflow that the binary
   // zero-intersection `outOfOwnedRangePages` gate cannot see.
   worstOwnershipFraction: number;
+  // Manual-review candidates (Codex new-finding 1, 2026-07-21): every page
+  // whose OWNED share (1 - the fractionOutside above) is below 0.5. See
+  // LowOwnershipPage; also rolled into AuditTotals.lowOwnershipPages as a count.
+  lowOwnershipPages: LowOwnershipPage[];
 }
 
 export interface AuditTotals {
@@ -101,7 +112,10 @@ export interface AuditTotals {
   // F2/F3 informational rollups.
   shortPagesBelowHollowThreshold: number;
   worstOwnershipFraction: number;
-  // Upstream tick-chunk corruption (see BookRow.chunkStartLinesMonotonic) —
+  // Codex new-finding 1 (2026-07-21): total count of LowOwnershipPage entries
+  // across every book — see BookRow.lowOwnershipPages for the per-book list.
+  lowOwnershipPages: number;
+  // Upstream tick-chunk corruption (see BookRow.chunkGeometryValid) —
   // surfaced loudly: how many books, and which. Excluded from gate correctness.
   booksWithCorruptChunks: number;
   corruptChunkBooks: string[];
@@ -115,8 +129,15 @@ export interface AuditGate {
   maxEmptyPureSnap: 0;
   maxDuplicatedTextPages: 0;
   maxPartitionLosslessFailures: 0;
-  // Correctness sums over WELL-FORMED books only (chunkStartLinesMonotonic) —
-  // an upstream-corrupt book (BookRow.chunkStartLinesMonotonic false) is not a
+  // Regression floor (Codex new-finding 1, 2026-07-21): the minimum per-page
+  // OWNED fraction (1 - fractionOutside) any well-formed book's page may drop
+  // to before the gate fails. Set from the post-Od.10-fix corpus baseline,
+  // rounded DOWN to a clean value — see the literal assignment below in
+  // auditScenePaging for the observed worst page's identity and why a
+  // legitimate straddle can land this low without being a defect.
+  minOwnershipFraction: number;
+  // Correctness sums over WELL-FORMED books only (chunkGeometryValid) —
+  // an upstream-corrupt book (BookRow.chunkGeometryValid false) is not a
   // scene-paging defect and is excluded here; its raw numbers remain in
   // `totals`. `wellFormedBooks`/`excludedCorruptBooks` make the split explicit.
   wellFormedBooks: number;
@@ -126,6 +147,11 @@ export interface AuditGate {
   outOfOwnedRangePages: number;
   duplicatedTextPages: number;
   partitionLosslessFailures: number;
+  // Count of well-formed books whose WORST page falls below
+  // minOwnershipFraction — a real gate input (unlike lowOwnershipPages/
+  // shortPagesBelowHollowThreshold above, which stay informational). A lower
+  // bound on the true violating-PAGE count (see the computation site).
+  belowMinOwnershipPages: number;
   pass: boolean;
 }
 
@@ -156,9 +182,10 @@ function emptyRow(epic: Epic, book: number, translation: RealTranslation): BookR
     outOfOwnedRangePages: 0,
     duplicatedTextPages: 0,
     partitionLossless: false,
-    chunkStartLinesMonotonic: true,
+    chunkGeometryValid: true,
     shortPagesBelowHollowThreshold: 0,
     worstOwnershipFraction: 0,
+    lowOwnershipPages: [],
   };
 }
 
@@ -253,12 +280,14 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
   // how much (Codex review F3).
   let outOfOwnedRangePages = 0;
   let worstOwnershipFraction = 0;
+  const lowOwnershipPages: LowOwnershipPage[] = [];
   for (let i = 0; i < pureOff.length; i++) {
     if (pageText(pureOff[i]).trim() === '') continue;
     const selected = chunksForScene(chunks, scenes[i]);
     const from = pageFrom[i];
     const to = pageTo[i];
     if (to <= from) continue;
+    const greekRange: [number, number] = [scenes[i].startLine, scenes[i].endLine ?? scenes[i].startLine];
     let overlaps = false;
     for (const idx of selected) {
       const cs = chunkStart(idx);
@@ -271,6 +300,7 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
     if (!overlaps) {
       outOfOwnedRangePages++;
       worstOwnershipFraction = 1; // no owned text at all on this page
+      lowOwnershipPages.push({ sceneIndex: i + 1, fraction: 0, greekRange });
       continue;
     }
     // Fraction of [from, to) outside the union [unionStart, unionEnd) of the
@@ -280,6 +310,12 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
     const inside = Math.max(0, Math.min(to, unionEnd) - Math.max(from, unionStart));
     const fractionOutside = ((to - from) - inside) / (to - from);
     if (fractionOutside > worstOwnershipFraction) worstOwnershipFraction = fractionOutside;
+    // Codex new-finding 1: surface every page under half-owned as a manual-
+    // review candidate — not just the book's single worst.
+    const ownershipFraction = 1 - fractionOutside;
+    if (ownershipFraction < 0.5) {
+      lowOwnershipPages.push({ sceneIndex: i + 1, fraction: ownershipFraction, greekRange });
+    }
   }
 
   // ── duplicatedTextPages: guardrail-caused duplication only ──
@@ -326,13 +362,22 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
     if (len > 0 && len < HOLLOW_MAX_CHARS) shortPagesBelowHollowThreshold++;
   }
 
-  // ── chunkStartLinesMonotonic: well-formed tick-chunk INPUT? ──
-  // A backward jump in chunk startLine is the signature of alignGroups'
-  // `lineIndex.get(n) ?? 0` fallback firing on a snap target absent from the
-  // Greek (upstream dropped vulgate line — Od. 10.456). See BookRow doc.
-  let chunkStartLinesMonotonic = true;
-  for (let i = 1; i < chunks.length; i++) {
-    if (chunks[i].startLine < chunks[i - 1].startLine) { chunkStartLinesMonotonic = false; break; }
+  // ── chunkGeometryValid: well-formed tick-chunk INPUT? ──
+  // A backward OR EQUAL jump in chunk startLine, an overlap between adjacent
+  // chunks' [startLine, endLine] spans, or an inverted chunk (endLine <
+  // startLine) is the signature of alignGroups' `lineIndex.get(n) ?? 0`
+  // fallback firing on a snap target absent from the Greek (upstream dropped
+  // vulgate line — Od. 10.456, pre-fix). Broadened beyond strictly-backward
+  // startLine (Codex re-review, 2026-07-21): a repeated startLine (two chunks
+  // both restarting at the same collapsed index) or an overlap is the same
+  // corruption signature and was previously invisible to this check. After the
+  // tick-chunks.ts speech-snap hardening (nearest-extant-line resolution),
+  // Odyssey 10 (Murray) no longer trips this — see scene-paging.test.ts.
+  let chunkGeometryValid = true;
+  for (let i = 0; i < chunks.length; i++) {
+    if (chunks[i].endLine < chunks[i].startLine) { chunkGeometryValid = false; break; }
+    if (i > 0 && chunks[i].startLine <= chunks[i - 1].startLine) { chunkGeometryValid = false; break; }
+    if (i > 0 && chunks[i].startLine <= chunks[i - 1].endLine) { chunkGeometryValid = false; break; }
   }
 
   return {
@@ -348,9 +393,10 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
     outOfOwnedRangePages,
     duplicatedTextPages,
     partitionLossless,
-    chunkStartLinesMonotonic,
+    chunkGeometryValid,
     shortPagesBelowHollowThreshold,
     worstOwnershipFraction,
+    lowOwnershipPages,
   };
 }
 
@@ -377,6 +423,7 @@ export function auditScenePaging(distRoot: string): AuditResult {
     partitionLosslessFailures: 0,
     shortPagesBelowHollowThreshold: 0,
     worstOwnershipFraction: 0,
+    lowOwnershipPages: 0,
     booksWithCorruptChunks: 0,
     corruptChunkBooks: [],
     booksAudited: 0,
@@ -391,33 +438,58 @@ export function auditScenePaging(distRoot: string): AuditResult {
     totals.outOfOwnedRangePages += row.outOfOwnedRangePages;
     totals.duplicatedTextPages += row.duplicatedTextPages;
     totals.shortPagesBelowHollowThreshold += row.shortPagesBelowHollowThreshold;
+    totals.lowOwnershipPages += row.lowOwnershipPages.length;
     if (row.present && !row.partitionLossless) totals.partitionLosslessFailures++;
     if (row.worstOwnershipFraction > totals.worstOwnershipFraction) totals.worstOwnershipFraction = row.worstOwnershipFraction;
-    if (row.present && !row.chunkStartLinesMonotonic) {
+    if (row.present && !row.chunkGeometryValid) {
       totals.booksWithCorruptChunks++;
       totals.corruptChunkBooks.push(`${row.epic} ${row.book} ${row.translation}`);
     }
   }
 
   // gate: correctness sums over WELL-FORMED present books only. A book with
-  // corrupt tick-chunk INPUT (chunkStartLinesMonotonic false — an UPSTREAM
-  // dropped vulgate line, see BookRow doc) cannot fairly test scene-paging and
-  // is excluded; it is surfaced via totals.corruptChunkBooks and reported to
+  // corrupt tick-chunk INPUT (chunkGeometryValid false — an UPSTREAM dropped
+  // vulgate line, see BookRow doc) cannot fairly test scene-paging and is
+  // excluded; it is surfaced via totals.corruptChunkBooks and reported to
   // the pipeline lane, never silently zeroed. partitionLossless is folded in
   // (any failure ⇒ fail) per Codex review F3.
-  const wellFormed = books.filter((b) => b.present && b.chunkStartLinesMonotonic);
+  const wellFormed = books.filter((b) => b.present && b.chunkGeometryValid);
   const sum = (pick: (b: BookRow) => number) => wellFormed.reduce((a, b) => a + pick(b), 0);
   const gateEmpty = sum((b) => b.emptyPagesPureSnap);
   const gateMid = sum((b) => b.midSentenceEndsPureSnap);
   const gateOut = sum((b) => b.outOfOwnedRangePages);
   const gateDup = sum((b) => b.duplicatedTextPages);
   const gateLosslessFailures = wellFormed.filter((b) => !b.partitionLossless).length;
+  // Regression floor (Codex new-finding 1, 2026-07-21): the worst per-page
+  // OWNED fraction (1 - worstOwnershipFraction) observed across the WHOLE
+  // well-formed corpus, post the tick-chunks.ts speech-snap fix (Od. 10
+  // Murray no longer corrupt — see scene-paging.test.ts), was 0.7160 on
+  // Odyssey 21 (Butler) scene 2 (Greek 42-67) — a scene whose owned Greek
+  // range sits mostly inside one coarse tick that straddles ~28% of its page
+  // into the neighboring scene; John-approved design (bounded straddle
+  // duplication on coarse ticks is deliberate, not a defect). Gated at 0.7,
+  // rounded down from that observed worst, so this is a REGRESSION floor
+  // catching future degradation, not a design constraint on today's corpus.
+  //
+  // Computed from the per-book worstOwnershipFraction (not from
+  // lowOwnershipPages, which is a fixed <0.5 informational cutoff decoupled
+  // from this floor — see BookRow.lowOwnershipPages) so the floor works
+  // correctly regardless of where 0.7 sits relative to 0.5. A book's WORST
+  // page failing the floor is what's counted; if several pages in the same
+  // book are all under the floor, this is a lower bound on the true page
+  // count (the per-page detail lives in a fresh corpus run's lowOwnershipPages
+  // once the floor is ever lowered near 0.5).
+  const MIN_OWNERSHIP_FRACTION = 0.7;
+  const belowMinOwnershipPages = wellFormed.filter(
+    (b) => (1 - b.worstOwnershipFraction) < MIN_OWNERSHIP_FRACTION,
+  ).length;
   const gate: AuditGate = {
     maxOutOfOwnedRange: 0,
     maxMidSentence: 0,
     maxEmptyPureSnap: 0,
     maxDuplicatedTextPages: 0,
     maxPartitionLosslessFailures: 0,
+    minOwnershipFraction: MIN_OWNERSHIP_FRACTION,
     wellFormedBooks: wellFormed.length,
     excludedCorruptBooks: totals.booksWithCorruptChunks,
     emptyPagesPureSnap: gateEmpty,
@@ -425,11 +497,13 @@ export function auditScenePaging(distRoot: string): AuditResult {
     outOfOwnedRangePages: gateOut,
     duplicatedTextPages: gateDup,
     partitionLosslessFailures: gateLosslessFailures,
+    belowMinOwnershipPages,
     pass: gateOut <= 0
       && gateMid <= 0
       && gateEmpty <= 0
       && gateDup <= 0
-      && gateLosslessFailures <= 0,
+      && gateLosslessFailures <= 0
+      && belowMinOwnershipPages <= 0,
   };
 
   return { buildDistPresent: true, books, totals, gate };

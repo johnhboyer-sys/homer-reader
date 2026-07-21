@@ -470,6 +470,11 @@ describe('Reader.svelte — Reading Mode scene paging (John, 2026-07-18)', () =>
     expect(container.textContent).toContain('ChunkA text.');
     expect(container.textContent).not.toContain('ChunkB text.');
     expect(container.textContent).not.toContain('ChunkC text.');
+    // Full presence/absence matrix (Codex new-finding 3, 2026-07-21): scene 1
+    // owns ONLY chunk A — D and E (which land on scene 3, far downstream)
+    // must be just as absent here as the already-checked B and C.
+    expect(container.textContent).not.toContain('ChunkD text.');
+    expect(container.textContent).not.toContain('ChunkE text.');
     expect(container.querySelector('.reading-scene-prev')).toHaveProperty('disabled', true);
 
     // No scene chips anywhere — the header replaces them.
