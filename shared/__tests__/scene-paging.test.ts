@@ -14,6 +14,7 @@ import {
   type SceneRange,
   type TickChunkRange,
 } from '../lib/scene-paging';
+import { buildRealChunks, loadRealBook, type RealMarker, type RealTranslation } from './real-book-loader';
 
 // A run of ~5-line tick chunks (as Reader.svelte derives from
 // Segment.english.bekker), covering lines 1-49 with NO gap — the common case.
@@ -412,86 +413,82 @@ describe('sentenceSnapScenePages', () => {
   });
 });
 
-// ── Real Iliad 1 / Odyssey 9 data ───────────────────────────────────────────
+// ── Real Iliad 1 / Odyssey {1,9} data ───────────────────────────────────────
 // build/dist is pipeline output (gitignored, regenerated — see CLAUDE.md's
-// concurrency gotcha), so these tests read it if present and skip cleanly if
-// not, rather than making the suite depend on a build artifact being in a
-// particular state. buildRealChunks below is a small, TEST-ONLY
-// reconstruction of "text + bekker ticks + paragraph offsets -> tick-chunked
-// SceneFlowChunk[]" — sufficient to exercise sentenceSnapScenePages against
-// real Murray prose (real footnote markers, real paragraph breaks, real
-// punctuation) — NOT a copy of Reader.svelte's own private
-// flowParts()/groupFlowByTicks()/alignGroups() (those also resolve real
-// per-line Greek offsets and speech-snap adjustments, out of scope for a
-// pure-module text test).
-interface RealBekkerTick { n: number; offset: number; real: boolean }
-interface RealMarker { kind: string; offset: number }
+// concurrency gotcha), so these tests read it if present. The loader itself
+// (buildRealChunks/loadRealBook — "text + bekker ticks + paragraph offsets ->
+// tick-chunked SceneReadingChunk[]", NOT a copy of Reader.svelte's private
+// flowParts()/groupFlowByTicks()/alignGroups()) lives in ./real-book-loader,
+// shared with the corpus audit script.
+//
+// Because build/dist is gitignored, a committed fixture
+// (./fixtures/scene-paging-books.json — trimmed, book-JSON-shaped, public-
+// domain Murray/Butler excerpts) gives the invariant tests below something to
+// run against even when the pipeline hasn't been built locally (e.g. CI).
+// loadFixtureBook adapts a fixture entry into the same {chunks, scenes} shape
+// loadRealBook returns, by calling buildRealChunks directly on the fixture's
+// already-JSON-shaped english/ross/scenes fields.
+const ILIAD_1_PATH = '../build/dist/iliad/book-01.json';
+const ODYSSEY_1_PATH = '../build/dist/odyssey/book-01.json';
+const ODYSSEY_9_PATH = '../build/dist/odyssey/book-09.json';
+const FIXTURE_PATH = './__tests__/fixtures/scene-paging-books.json';
 
-function buildRealChunks(text: string, bekker: RealBekkerTick[], paraOffsets: number[]): SceneReadingChunk[] {
-  const markers = [
-    ...bekker.map((t) => ({ off: t.offset, isPara: false, n: t.n, real: t.real })),
-    ...paraOffsets.map((off) => ({ off, isPara: true, n: 0, real: false })),
-  ].sort((a, b) => a.off - b.off || Number(a.isPara) - Number(b.isPara));
-
-  const flatParts: { text: string | null; n: number | null; real: boolean; para?: boolean; tickN?: number }[] = [];
-  let cur = 0;
-  for (const m of markers) {
-    const off = Math.max(0, Math.min(m.off, text.length));
-    if (off > cur) { flatParts.push({ text: text.slice(cur, off), n: null, real: false }); cur = off; }
-    if (m.isPara) flatParts.push({ text: null, n: null, real: false, para: true });
-    else flatParts.push({ text: null, n: m.n, real: m.real, tickN: m.n });
-  }
-  if (cur < text.length) flatParts.push({ text: text.slice(cur), n: null, real: false });
-
-  const tickNs = bekker.map((t) => t.n).sort((a, b) => a - b);
-  const chunks: SceneReadingChunk[] = [];
-  let curChunk: SceneReadingChunk | null = null;
-  for (const p of flatParts) {
-    if (p.tickN !== undefined) {
-      if (curChunk) chunks.push(curChunk);
-      const idx = tickNs.indexOf(p.tickN);
-      const nextN = tickNs[idx + 1];
-      curChunk = {
-        startLine: p.tickN,
-        endLine: nextN !== undefined ? nextN - 1 : p.tickN + 100000,
-        flowParts: [{ text: null, n: p.n, real: p.real }],
-        otables: {},
-      };
-    } else if (curChunk) {
-      curChunk.flowParts.push({ text: p.text, n: p.n, real: p.real, para: p.para });
-    }
-  }
-  if (curChunk) chunks.push(curChunk);
-  return chunks;
+interface FixtureBook {
+  segments: [{
+    english: { text: string; bekker: { n: number; offset: number; real: boolean }[]; markers: RealMarker[] };
+    ross: [{ text: string; bekker: { n: number; offset: number; real: boolean }[] }];
+  }];
+  apparatus: { scenes: { lines: [number, number] }[] };
 }
 
-const ILIAD_1_PATH = '../build/dist/iliad/book-01.json';
-const ODYSSEY_9_PATH = '../build/dist/odyssey/book-09.json';
-const hasRealBookData = existsSync(ILIAD_1_PATH) && existsSync(ODYSSEY_9_PATH);
+const fixtureRaw: Record<string, FixtureBook> | null = existsSync(FIXTURE_PATH)
+  ? JSON.parse(readFileSync(FIXTURE_PATH, 'utf-8'))
+  : null;
 
-function loadRealBook(path: string): { chunks: SceneReadingChunk[]; scenes: SceneRange[] } {
-  const raw = JSON.parse(readFileSync(path, 'utf-8'));
+function loadFixtureBook(entry: string, translation: RealTranslation): { chunks: SceneReadingChunk[]; scenes: SceneRange[] } | null {
+  const raw = fixtureRaw?.[entry];
+  if (!raw) return null;
   const seg = raw.segments[0];
-  const paraOffsets = (seg.english.markers as RealMarker[])
-    .filter((m) => m.kind === 'paragraph')
-    .map((m) => m.offset);
-  const chunks = buildRealChunks(seg.english.text, seg.english.bekker, paraOffsets);
-  const scenes: SceneRange[] = raw.apparatus.scenes.map((s: { lines: [number, number] }) => ({
-    startLine: s.lines[0], endLine: s.lines[1],
-  }));
+  let chunks: SceneReadingChunk[];
+  if (translation === 'murray') {
+    const paraOffsets = seg.english.markers.filter((m) => m.kind === 'paragraph').map((m) => m.offset);
+    chunks = buildRealChunks(seg.english.text, seg.english.bekker, paraOffsets);
+  } else {
+    const piece = seg.ross[0];
+    chunks = buildRealChunks(piece.text, piece.bekker, []);
+  }
+  const scenes: SceneRange[] = raw.apparatus.scenes.map((s) => ({ startLine: s.lines[0], endLine: s.lines[1] }));
   return { chunks, scenes };
 }
 
-describe.skipIf(!hasRealBookData)('sentenceSnapScenePages — real Iliad 1 / Odyssey 9 data', () => {
-  if (!hasRealBookData) {
-    // eslint-disable-next-line no-console
-    console.warn('scene-paging.test.ts: build/dist/{iliad,odyssey}/book-0{1,9}.json not found — skipping real-data invariant tests (pipeline output is gitignored/regenerated, not a suite dependency).');
-  }
+// Every (label, translation, loader) combo the invariant tests below run
+// against: real build/dist books (skipped individually if that file is
+// absent) plus the two always-available fixture entries.
+type BookCombo = { label: string; translation: RealTranslation; load: () => { chunks: SceneReadingChunk[]; scenes: SceneRange[] } | null };
+const REAL_COMBOS: BookCombo[] = [
+  { label: 'Iliad 1 (Murray)', translation: 'murray', load: () => loadRealBook(ILIAD_1_PATH, 'murray') },
+  { label: 'Odyssey 9 (Murray)', translation: 'murray', load: () => loadRealBook(ODYSSEY_9_PATH, 'murray') },
+  { label: 'Iliad 1 (Butler)', translation: 'butler', load: () => loadRealBook(ILIAD_1_PATH, 'butler') },
+  { label: 'Odyssey 1 (Butler)', translation: 'butler', load: () => loadRealBook(ODYSSEY_1_PATH, 'butler') },
+  { label: 'Odyssey 9 (Butler)', translation: 'butler', load: () => loadRealBook(ODYSSEY_9_PATH, 'butler') },
+];
+const FIXTURE_COMBOS: BookCombo[] = [
+  { label: 'Iliad 1 fixture (Murray)', translation: 'murray', load: () => loadFixtureBook('iliad1', 'murray') },
+  { label: 'Odyssey 9 fixture (Murray)', translation: 'murray', load: () => loadFixtureBook('odyssey9', 'murray') },
+  { label: 'Iliad 1 fixture (Butler)', translation: 'butler', load: () => loadFixtureBook('iliad1', 'butler') },
+  { label: 'Odyssey 9 fixture (Butler)', translation: 'butler', load: () => loadFixtureBook('odyssey9', 'butler') },
+];
+const ALL_COMBOS = [...REAL_COMBOS, ...FIXTURE_COMBOS];
 
-  it.each([['Iliad 1', ILIAD_1_PATH], ['Odyssey 9', ODYSSEY_9_PATH]])(
+const hasRealBookData = existsSync(ILIAD_1_PATH) && existsSync(ODYSSEY_9_PATH);
+
+describe('sentenceSnapScenePages — real Iliad 1 / Odyssey 9 data', () => {
+  it.each(ALL_COMBOS.map((c) => [c.label, c] as const))(
     '%s: pure snap (no guardrail) is a disjoint, lossless slice of the whole book flow',
-    (_label, path) => {
-      const { chunks, scenes } = loadRealBook(path);
+    (_label, combo) => {
+      const loaded = combo.load();
+      if (!loaded) return; // real book source absent locally — not a suite dependency
+      const { chunks, scenes } = loaded;
       const pages = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false });
       const whole = mergeSceneFlowChunks(chunks).flowParts.map((p) => p.text ?? '').join('');
       const rebuilt = pages.map((p) => p.flowParts.map((x) => x.text ?? '').join('')).join('');
@@ -499,24 +496,92 @@ describe.skipIf(!hasRealBookData)('sentenceSnapScenePages — real Iliad 1 / Ody
     },
   );
 
-  it.each([['Iliad 1', ILIAD_1_PATH], ['Odyssey 9', ODYSSEY_9_PATH]])(
+  it.each(ALL_COMBOS.map((c) => [c.label, c] as const))(
     '%s: pure snap non-empty pages after the first start at a sentence start',
-    (_label, path) => {
-      const { chunks, scenes } = loadRealBook(path);
+    (_label, combo) => {
+      const loaded = combo.load();
+      if (!loaded) return;
+      const { chunks, scenes } = loaded;
       const pages = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false });
       let emptyCount = 0;
       pages.forEach((p, i) => {
         if (i === 0) return; // the book's own opening, not a snapped boundary
         const t = p.flowParts.map((x) => x.text ?? '').join('').trimStart();
         if (!t) { emptyCount += 1; return; }
-        expect(t[0], `scene ${i} of ${path} starts with "${t.slice(0, 40)}"`).toMatch(/[A-Z0-9"'“‘]/);
+        expect(t[0], `scene ${i} of ${_label} starts with "${t.slice(0, 40)}"`).toMatch(/[A-Z0-9"'“‘]/);
       });
       expect(emptyCount).toBeLessThan(pages.length);
     },
   );
 
+  it.each(ALL_COMBOS.map((c) => [c.label, c] as const))(
+    '%s: pure snap (no guardrail) never ends a non-empty page mid-sentence',
+    (_label, combo) => {
+      const loaded = combo.load();
+      if (!loaded) return;
+      const { chunks, scenes } = loaded;
+      const pages = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false });
+      const endsClean = (s: string) => !s.trim() || /[.?!]["'”’)]*$/.test(s.trimEnd());
+      for (let i = 0; i < pages.length; i++) {
+        const t = pages[i].flowParts.map((p) => p.text ?? '').join('');
+        expect(endsClean(t), `${_label} scene ${i + 1} ends mid-sentence: "…${t.slice(-40)}"`).toBe(true);
+      }
+    },
+  );
+
+  it.each(ALL_COMBOS.map((c) => [c.label, c] as const))(
+    '%s: every page\'s text overlaps its scene\'s owned tick range',
+    (_label, combo) => {
+      const loaded = combo.load();
+      if (!loaded) return;
+      const { chunks, scenes } = loaded;
+      const pages = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false });
+
+      // Cumulative [start, end) interval each chunk contributes to the
+      // concatenated whole-book flow, computed from each chunk's OWN
+      // flowParts text length (the brief's "cumulative flowParts text
+      // lengths" — a coarser, join-space-agnostic approximation of the
+      // module's internal buildBookFlow, sufficient for an overlap check).
+      const chunkStart: number[] = [];
+      const chunkEnd: number[] = [];
+      let cCursor = 0;
+      for (const c of chunks) {
+        chunkStart.push(cCursor);
+        cCursor += pageCharLength({ flowParts: c.flowParts, otables: {} });
+        chunkEnd.push(cCursor);
+      }
+
+      // Same cumulative-interval bookkeeping for the output pages, in the
+      // same (pure-snap, guardrail-off) coordinate space.
+      const pageStart: number[] = [];
+      const pageEnd: number[] = [];
+      let pCursor = 0;
+      for (const p of pages) {
+        pageStart.push(pCursor);
+        pCursor += pageCharLength(p);
+        pageEnd.push(pCursor);
+      }
+
+      const violations: string[] = [];
+      for (let i = 0; i < pages.length; i++) {
+        if (pageCharLength(pages[i]) <= 0) continue; // empty pages have no interval to check
+        const selected = chunksForScene(chunks, scenes[i]);
+        if (!selected.length) continue;
+        const unionStart = Math.min(...selected.map((idx) => chunkStart[idx]));
+        const unionEnd = Math.max(...selected.map((idx) => chunkEnd[idx]));
+        const overlaps = pageStart[i] < unionEnd && pageEnd[i] > unionStart;
+        if (!overlaps) {
+          violations.push(`scene ${i + 1}: page [${pageStart[i]}, ${pageEnd[i]}) vs owned tick union [${unionStart}, ${unionEnd})`);
+        }
+      }
+      expect(violations, `${_label}: ${violations.join('; ')}`).toEqual([]);
+    },
+  );
+
   it("Il. 1: at least one scene's RAW chunk-overlap edge splits a sentence, and pure snap moves that boundary to a clean sentence end", () => {
-    const { chunks, scenes } = loadRealBook(ILIAD_1_PATH);
+    const loaded = loadRealBook(ILIAD_1_PATH, 'murray');
+    if (!loaded) return;
+    const { chunks, scenes } = loaded;
     const pages = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false });
     const endsClean = (s: string) => /[.?!]["'”’)]*$/.test(s.trimEnd());
 
@@ -533,8 +598,8 @@ describe.skipIf(!hasRealBookData)('sentenceSnapScenePages — real Iliad 1 / Ody
     expect(sawARawSplit).toBe(true);
   });
 
-  it('Il. 1 scenes 2–4 (default path = what the live reader uses): prayer on scene 3', () => {
-    const { chunks, scenes } = loadRealBook(ILIAD_1_PATH);
+  it.skipIf(!hasRealBookData)('Il. 1 scenes 2–4 (default path = what the live reader uses): prayer on scene 3', () => {
+    const { chunks, scenes } = loadRealBook(ILIAD_1_PATH, 'murray')!;
     expect(scenes[1]?.endLine).toBe(32);
     expect(scenes[2]?.startLine).toBe(33);
     expect(scenes[2]?.endLine).toBe(42);
@@ -565,8 +630,8 @@ describe.skipIf(!hasRealBookData)('sentenceSnapScenePages — real Iliad 1 / Ody
     expect(endsClean(s4)).toBe(true);
   });
 
-  it('Il. 1 default path: every non-empty page ends on a sentence boundary', () => {
-    const { chunks, scenes } = loadRealBook(ILIAD_1_PATH);
+  it.skipIf(!hasRealBookData)('Il. 1 default path: every non-empty page ends on a sentence boundary', () => {
+    const { chunks, scenes } = loadRealBook(ILIAD_1_PATH, 'murray')!;
     const pages = sentenceSnapScenePages(chunks, scenes);
     const endsClean = (s: string) => !s.trim() || /[.?!]["'”’)]*$/.test(s.trimEnd());
     for (let i = 0; i < pages.length; i++) {
