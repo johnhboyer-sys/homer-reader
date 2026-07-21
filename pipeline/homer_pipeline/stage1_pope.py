@@ -1,21 +1,46 @@
 """Stage 1g: Alexander Pope's verse Iliad/Odyssey (Project Gutenberg #6130,
 #3160) — the 'third' overlay slot (shared/lib/works.ts).
 
-Pope is BOOK-anchored only. His couplets run 15-30% longer than the Greek
-per book (measured across all 48 books below) and the ratio is highly
-uneven WITHIN a book — a 5-scene spot check (see pipeline docs / the stage1
-run report) found one canonical, slow-paced dialogue scene (the Iliad 6
-Hector/Andromache farewell) whose proportional position drifted ~15% of the
-book (~80 Greek lines) from where Pope actually renders it, alongside two
-scenes that matched within a few percent. Per the binding degrade rule
-(PROMPT.md), a coarse PROPORTIONAL intra-book gutter is not shipped: showing
-readers a tick that can silently misplace them by 15% of a book is worse
-than showing no tick at all. Each book carries exactly one anchor — a
-`real: true` tick at its own first Greek line (book-level correspondence is
-exact by construction, no interpolation) — and otherwise flows as a
-continuous, unaligned reading text. This is a data decision, not a
-placeholder: revisit only if a future pass builds real cross-lingual
-anchors (e.g. a gloss aligner, as EN's Ross has).
+Pope has no line numbering of his own, so alignment to the Greek vulgate can
+never be exact by parsing his text alone. Two anchoring strategies:
+
+  - BOOK-anchored (the original, permanent fallback): each book gets exactly
+    one `real: true` tick at its own first Greek line — a book-level
+    correspondence that is exact by construction, no interpolation. His
+    couplets run 15-30% longer than the Greek per book (measured across all
+    48 books) and the ratio is highly uneven WITHIN a book — a 5-scene spot
+    check (see pipeline docs / the stage1 run report) found one canonical,
+    slow-paced dialogue scene (the Iliad 6 Hector/Andromache farewell) whose
+    proportional position drifted ~15% of the book (~80 Greek lines) from
+    where Pope actually renders it, alongside two scenes that matched within
+    a few percent. Per the binding degrade rule (PROMPT.md), a coarse
+    PROPORTIONAL intra-book gutter is NEVER shipped: showing readers a tick
+    that can silently misplace them by 15% of a book is worse than showing
+    no tick at all. This remains the fallback for any book the curated
+    dataset below doesn't (yet) cover — see load_scene_starts.
+
+  - SCENE-anchored (supersedes the book-only degrade wherever both a staged
+    scene list and a curated anchor exist): resolve_scene_anchors resolves
+    each non-first scene-start line to a `real: true` tick by finding the
+    EXACT, UNIQUE substring in Pope's own built verse text that a human
+    editor identified as where that scene begins in his rendering — see
+    sources/pope/scene-anchors-{iliad,odyssey}.json (schema documented on
+    load_scene_anchor_dataset). This is still not interpolation: every tick
+    is either a real substring match or absent (status: "unanchored",
+    skipped) — there is no nearest-match fallback and no proportional guess.
+    A resolution that doesn't actually match Pope's text cleanly (ambiguous
+    or absent anchor text, offsets out of order, an anchor that doesn't
+    begin at a verse-line start, a scene start missing its one required
+    entry) is a hard ValueError at stage1 — a scene dataset that disagrees
+    with Pope's actual text is a data bug to fix, not something to degrade
+    around. A book simply not yet present in the staged scenes
+    (apparatus/staging — see load_scene_starts) is not an error: it keeps
+    its book-level fallback tick and is reported, not failed.
+
+  The curated dataset FILE itself is required once a work declares a `third`
+  (Pope) translation: a missing sources/pope/scene-anchors-<work>.json is a
+  hard error at stage1 (see load_scene_anchor_dataset). Nothing under
+  sources/ is created or modified by this module.
 
 Source structure (verified against the vendored plaintext, both works):
   - Standard PG header/footer, delimited by exact
@@ -56,8 +81,8 @@ Source structure (verified against the vendored plaintext, both works):
     carries none) are always paragraph-initial (verified: 0 counter-examples
     across all 71) and are dropped whole.
   - Pope's plaintext carries no line numbering of his own (verified: no
-    numeric gutter, only the footnote markers above), so there is nothing
-    to "keep" — see the anchoring decision above for what's used instead.
+    numeric gutter, only the footnote markers above), so book-level anchors
+    plus the curated scene dataset are the only source of alignment.
 
 Emits build/stage1/third_chunks.json in the same overlay shape stage7_emit
 already reads for any 'third'-slot translation: {segment_id: [{chapter,
@@ -68,6 +93,7 @@ stage1_perseus_milestone_english's Butler overlay already does).
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -81,6 +107,11 @@ _BOOK_HEAD_RE = re.compile(r"^BOOK ([IVXLC]+)\.\s*$")
 _ARGUMENT_RE = re.compile(r"^ARGUMENT\.?(\[\d+\])?\s*$")
 _FOOTNOTE_MARKER_RE = re.compile(r"\[\d{1,3}\]")
 _ROMAN = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
+
+_SENTENCE_ENDERS = (".", "?", "!")
+_CLOSING_QUOTES = "'\"’”)"
+
+_ANCHOR_STATUSES = ("verified", "draft", "unanchored")
 
 
 def _roman_to_int(s: str) -> int:
@@ -241,13 +272,210 @@ def parse_work(source_path: Path, n_books: int) -> dict[int, dict]:
     return {n: parse_book(text, n) for n, text in blocks}
 
 
+# ── curated scene-anchor dataset (sources/pope/scene-anchors-<work>.json) ──
+
+
+def _dataset_path(work_id: str) -> Path:
+    return SOURCES_DIR / "pope" / f"scene-anchors-{work_id}.json"
+
+
+def dataset_available(work_id: str) -> bool:
+    """True once sources/pope/scene-anchors-<work_id>.json has landed. Lets a
+    caller check before calling load_scene_anchor_dataset, which raises when
+    the file is absent."""
+    return _dataset_path(work_id).exists()
+
+
+def load_scene_anchor_dataset(work_id: str) -> dict:
+    """Load and schema-check sources/pope/scene-anchors-<work_id>.json:
+    `{_source, _semantics, work, anchors: [{book, n, anchor, status, note?}]}`
+    — `status` is one of verified|draft|unanchored; `anchor` is a non-empty
+    substring of that book's Pope verse text for verified/draft entries, and
+    must be null for unanchored ones. A missing file is a hard error: once a
+    work declares a `third` (Pope) translation, this dataset is load-bearing
+    for every scene tick, not an optional enhancement (see module
+    docstring)."""
+    path = _dataset_path(work_id)
+    if not path.exists():
+        raise ValueError(
+            f"pope scene-anchor dataset missing: {path} — stage1 requires a "
+            f"curated scene-anchors-{work_id}.json once english.third (pope) "
+            f"is configured; see stage1_pope module docstring"
+        )
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    if raw.get("work") != work_id:
+        raise ValueError(f"{path.name}: work {raw.get('work')!r} does not match {work_id!r}")
+    anchors = raw.get("anchors")
+    if not isinstance(anchors, list):
+        raise ValueError(f"{path.name}: anchors must be a list")
+    for i, entry in enumerate(anchors):
+        if not isinstance(entry, dict):
+            raise ValueError(f"{path.name}: anchors[{i}] must be an object")
+        if not isinstance(entry.get("book"), int) or not isinstance(entry.get("n"), int):
+            raise ValueError(f"{path.name}: anchors[{i}].book and .n must be integers")
+        status = entry.get("status")
+        if status not in _ANCHOR_STATUSES:
+            raise ValueError(
+                f"{path.name}: anchors[{i}].status must be one of "
+                f"{_ANCHOR_STATUSES}, got {status!r}"
+            )
+        if status == "unanchored":
+            if entry.get("anchor") is not None:
+                raise ValueError(
+                    f"{path.name}: anchors[{i}] status 'unanchored' must have anchor: null"
+                )
+        elif not isinstance(entry.get("anchor"), str) or not entry["anchor"]:
+            raise ValueError(f"{path.name}: anchors[{i}].anchor must be a non-empty string")
+    return raw
+
+
+def load_scene_starts(manifest: Manifest) -> dict[int, list[int]]:
+    """book number -> this book's staged scene-start Greek line numbers (the
+    first line of each apparatus scene), read via
+    apparatus_scenes.merge_staging (pure, schema-validated — see that
+    module's docstring). A book with no staged scenes yet is simply absent
+    from the returned dict; run() treats that as "keep the book-level
+    fallback tick", not an error — apparatus drafting and Pope anchor-dataset
+    drafting run on independent schedules."""
+    from . import apparatus_scenes
+
+    doc = apparatus_scenes.merge_staging(manifest)
+    return {
+        book["book"]: [scene["lines"][0] for scene in book.get("scenes", [])]
+        for book in doc.get("books", [])
+        if isinstance(book.get("book"), int)
+    }
+
+
+def resolve_scene_anchors(
+    text: str, entries: list[dict], scene_starts: list[int], book_n: int
+) -> list[dict]:
+    """Resolve one book's curated Pope scene-anchor entries (already filtered
+    to this book) against its built verse text and its staged scene-start
+    Greek line numbers. Pure: no I/O, no side effects.
+
+    Returns one result dict per input entry, sorted by `n`:
+    `{"n", "offset", "status", "warning"}` — `offset` is None for a
+    `status: "unanchored"` entry (no tick emitted for it; the caller counts
+    it); `warning` carries a non-fatal sentence-boundary note or is None.
+
+    Hard-fails (ValueError naming book, n, and an anchor snippet) rather
+    than degrading, on:
+      - an entry's n is not one of this book's staged scene starts;
+      - an entry's n equals the book's FIRST scene start — that scene is
+        auto-anchored by run() with its own book-opening tick, so a
+        curated entry for it would emit a duplicate tick;
+      - a scene start other than the FIRST (which needs no entry — run()
+        gives it an automatic book-opening tick) has anything but exactly
+        one entry;
+      - a verified/draft entry's anchor text occurs zero or 2+ times in the
+        book's text (no nearest-match fallback);
+      - a resolved anchor does not begin at a verse-line start (offset 0, or
+        immediately preceded by "\\n");
+      - resolved offsets are not strictly increasing in n order.
+
+    Non-fatal: when the non-whitespace text immediately before a resolved
+    anchor doesn't end in . ? ! (optionally followed by a closing quote), a
+    warning is attached to that entry's result instead of raising — Pope's
+    couplets don't always break exactly on scene boundaries, and that's
+    worth a human's attention, not a build failure.
+    """
+    scene_start_set = set(scene_starts)
+    first_start = scene_starts[0] if scene_starts else None
+    non_first_starts = [s for s in scene_starts if s != first_start]
+
+    entries_by_n: dict[int, list[dict]] = {}
+    for entry in entries:
+        n = entry.get("n")
+        if n not in scene_start_set:
+            raise ValueError(
+                f"book {book_n}: anchor entry n={n} is not one of this "
+                f"book's staged scene starts {sorted(scene_start_set)}"
+            )
+        entries_by_n.setdefault(n, []).append(entry)
+
+    if first_start is not None and entries_by_n.get(first_start):
+        raise ValueError(
+            f"book {book_n}: scene start n={first_start} is this book's "
+            f"first scene, which is auto-anchored by run() — remove the "
+            f"curated entry for it (it would emit a duplicate tick)"
+        )
+
+    for start in non_first_starts:
+        count = len(entries_by_n.get(start, []))
+        if count != 1:
+            raise ValueError(
+                f"book {book_n}: scene start n={start} has {count} anchor "
+                f"entries (expected exactly 1)"
+            )
+
+    results: list[dict] = []
+    for entry in sorted(entries, key=lambda e: e["n"]):
+        n = entry["n"]
+        status = entry.get("status", "verified")
+        anchor = entry.get("anchor")
+        if status == "unanchored":
+            results.append({"n": n, "offset": None, "status": status, "warning": None})
+            continue
+        if not anchor:
+            raise ValueError(
+                f"book {book_n}: anchor entry n={n} has status {status!r} "
+                f"but no anchor text"
+            )
+        snippet = anchor if len(anchor) <= 60 else anchor[:57] + "..."
+        occurrences = text.count(anchor)
+        if occurrences != 1:
+            raise ValueError(
+                f"book {book_n}: anchor n={n} {snippet!r} occurs "
+                f"{occurrences} times in the book's text (expected exactly 1)"
+            )
+        offset = text.index(anchor)
+        if offset != 0 and text[offset - 1] != "\n":
+            raise ValueError(
+                f"book {book_n}: anchor n={n} {snippet!r} does not begin at "
+                f"a verse-line start"
+            )
+        warning = None
+        preceding = text[:offset].rstrip()
+        if preceding:
+            trimmed = preceding.rstrip(_CLOSING_QUOTES)
+            if not trimmed.endswith(_SENTENCE_ENDERS):
+                warning = (
+                    f"book {book_n}: anchor n={n} {snippet!r} follows text "
+                    f"not ending in . ? ! — ...{trimmed[-30:]!r}"
+                )
+        results.append({"n": n, "offset": offset, "status": status, "warning": warning})
+
+    prev_offset = None
+    for r in results:
+        if r["offset"] is None:
+            continue
+        if prev_offset is not None and r["offset"] <= prev_offset:
+            raise ValueError(
+                f"book {book_n}: resolved anchor offsets are not strictly "
+                f"increasing at n={r['n']}"
+            )
+        prev_offset = r["offset"]
+
+    return results
+
+
 def run(manifest: Manifest, spine: dict) -> dict:
     cfg = (manifest.data.get("english") or {}).get("third")
     out_dir = BUILD_DIR / "stage1"
     out_dir.mkdir(parents=True, exist_ok=True)
     if not cfg:
         write_json(out_dir / "third_chunks.json", {})
-        return {"chunks": 0, "books": 0, "no_argument_marker": []}
+        return {
+            "chunks": 0,
+            "books": 0,
+            "no_argument_marker": [],
+            "anchors_resolved": 0,
+            "unanchored": [],
+            "draft_count": 0,
+            "sentence_warnings": [],
+            "books_without_staged_scenes": [],
+        }
 
     book_ns = [b["n"] for b in manifest.books]
     src_path = SOURCES_DIR / cfg["source"]
@@ -256,10 +484,25 @@ def run(manifest: Manifest, spine: dict) -> dict:
     first_line_by_book = {seg["book"]: seg["lines"][0]["n"] for seg in spine["segments"]}
     seg_id_by_book = {seg["book"]: seg["id"] for seg in spine["segments"]}
 
+    # The curated anchor dataset is load-bearing, not optional (see module
+    # docstring): a missing file raises here, before any chunk is written.
+    dataset = load_scene_anchor_dataset(manifest.work_id)
+    entries_by_book: dict[int, list[dict]] = {}
+    for entry in dataset["anchors"]:
+        entries_by_book.setdefault(entry["book"], []).append(entry)
+
+    scene_starts = load_scene_starts(manifest)
+
     chunks: dict[str, list[dict]] = {}
     no_argument_marker: list[int] = []
     footnote_markers_stripped = 0
     illustrations_dropped = 0
+    anchors_resolved = 0
+    unanchored: list[tuple[int, int]] = []
+    draft_count = 0
+    sentence_warnings: list[str] = []
+    books_without_staged_scenes: list[int] = []
+
     for n in book_ns:
         book = parsed.get(n)
         if book is None:
@@ -275,15 +518,35 @@ def run(manifest: Manifest, spine: dict) -> dict:
         if seg_id is None:
             continue
         first_line = first_line_by_book.get(n, 1)
+        # The book-opening tick: real by construction (the book's own first
+        # Greek line), independent of whether scene data covers this book.
+        ticks = [{"n": first_line, "offset": 0, "real": True}]
+
+        starts = scene_starts.get(n)
+        if starts is None:
+            # Not yet staged in apparatus/staging — keep the book-level
+            # fallback tick (see module docstring); reported, not fatal.
+            books_without_staged_scenes.append(n)
+        else:
+            resolved = resolve_scene_anchors(text, entries_by_book.get(n, []), starts, n)
+            for r in resolved:
+                if r["offset"] is None:
+                    unanchored.append((n, r["n"]))
+                    continue
+                if r["status"] == "draft":
+                    draft_count += 1
+                if r["warning"]:
+                    sentence_warnings.append(r["warning"])
+                ticks.append({"n": r["n"], "offset": r["offset"], "real": True})
+                anchors_resolved += 1
+            ticks.sort(key=lambda t: t["offset"])
+
         chunks[seg_id] = [
             {
                 "chapter": str(n),
                 "text": text,
                 "cont": False,
-                # Book-level anchor only (see module docstring for the
-                # degrade decision): the book's own first Greek line is an
-                # exact, certain correspondence; no interior ticks.
-                "bekker": [{"n": first_line, "offset": 0, "real": True}],
+                "bekker": ticks,
             }
         ]
 
@@ -294,4 +557,9 @@ def run(manifest: Manifest, spine: dict) -> dict:
         "no_argument_marker": no_argument_marker,
         "footnote_markers_stripped": footnote_markers_stripped,
         "illustrations_dropped": illustrations_dropped,
+        "anchors_resolved": anchors_resolved,
+        "unanchored": unanchored,
+        "draft_count": draft_count,
+        "sentence_warnings": sentence_warnings,
+        "books_without_staged_scenes": books_without_staged_scenes,
     }

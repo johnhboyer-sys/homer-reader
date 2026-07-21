@@ -1,0 +1,2723 @@
+{
+  "_source": "AI-drafted per book (2026-07-21 fan-out), adversarially verified by a second model; 19 boundary corrections after verification; 2 boundaries senior-adjudicated. John's editorial layer remains scene-boundary-overrides.json.",
+  "_semantics": "One entry per scene start (scenes staging truth) except each book's first scene (auto-anchored at offset 0 by stage1_pope). n = the scene's first Greek vulgate line; anchor = verbatim text from the emitted Pope book text, must occur exactly once in its book and begin at a verse-line start. Scene-boundary edits in apparatus staging will fail stage1 loudly until this dataset is updated to match.",
+  "work": "iliad",
+  "anchors": [
+    {
+      "book": 1,
+      "n": 8,
+      "anchor": "For Chryses sought with costly gifts to gain",
+      "status": "verified",
+      "note": "Opens the paragraph where Chryses arrives with ransom, matching Murray's scene start."
+    },
+    {
+      "book": 1,
+      "n": 33,
+      "anchor": "The trembling priest along the shore return’d,",
+      "status": "verified",
+      "note": "Chryses' silent withdrawal along the shore directly follows Agamemnon's rebuff."
+    },
+    {
+      "book": 1,
+      "n": 43,
+      "anchor": "Thus Chryses pray’d:—the favouring power attends,",
+      "status": "verified",
+      "note": "Marks Apollo's descent from Olympus in answer to the prayer just given."
+    },
+    {
+      "book": 1,
+      "n": 53,
+      "anchor": "For nine long nights, through all the dusky air,",
+      "status": "verified",
+      "note": "Begins the nine-day plague count that leads to the assembly."
+    },
+    {
+      "book": 1,
+      "n": 101,
+      "anchor": "The prophet spoke: when with a gloomy frown",
+      "status": "verified",
+      "note": "Agamemnon's angry rise from his throne directly follows Calchas naming him the cause."
+    },
+    {
+      "book": 1,
+      "n": 121,
+      "anchor": "“Insatiate king (Achilles thus replies),",
+      "status": "verified",
+      "note": "Achilles' reply opens the flyting exchange."
+    },
+    {
+      "book": 1,
+      "n": 188,
+      "anchor": "Achilles heard, with grief and rage oppress’d,",
+      "status": "verified",
+      "note": "Marks Achilles' inward struggle that leads to Athena's intervention."
+    },
+    {
+      "book": 1,
+      "n": 223,
+      "anchor": "Nor yet the rage his boiling breast forsook,",
+      "status": "verified",
+      "note": "Follows Athena's return to Olympus; Achilles resumes his tirade with the dog/deer formula matching this scene."
+    },
+    {
+      "book": 1,
+      "n": 245,
+      "anchor": "To calm their passion with the words of age,",
+      "status": "verified",
+      "note": "Nestor's rising to speak, following the sceptre being hurled down."
+    },
+    {
+      "book": 1,
+      "n": 285,
+      "anchor": "This said, he ceased. The king of men replies:",
+      "status": "verified",
+      "note": "Agamemnon's reply to Nestor, matching Murray's scene-opening reply."
+    },
+    {
+      "book": 1,
+      "n": 318,
+      "anchor": "The army thus in sacred rites engaged,",
+      "status": "verified",
+      "note": "Introduces the heralds sent by Agamemnon while the army performs the purification rite."
+    },
+    {
+      "book": 1,
+      "n": 349,
+      "anchor": "Not so his loss the fierce Achilles bore;",
+      "status": "verified",
+      "note": "Marks Achilles' retreat to the shore after Briseis is led away."
+    },
+    {
+      "book": 1,
+      "n": 358,
+      "anchor": "Far from the deep recesses of the main,",
+      "status": "verified",
+      "note": "Thetis hearing her son and rising from the sea, following his prayer."
+    },
+    {
+      "book": 1,
+      "n": 428,
+      "anchor": "In Chrysa’s port now sage Ulysses rode;",
+      "status": "verified",
+      "note": "Marks Odysseus's ship arriving at Chryse."
+    },
+    {
+      "book": 1,
+      "n": 448,
+      "anchor": "At this, the sire embraced the maid again,",
+      "status": "verified",
+      "note": "Chryses embracing his restored daughter opens the sacrifice/feast sequence."
+    },
+    {
+      "book": 1,
+      "n": 488,
+      "anchor": "But raging still, amidst his navy sat",
+      "status": "verified",
+      "note": "Marks the narrator's turn to Achilles sulking by the ships."
+    },
+    {
+      "book": 1,
+      "n": 493,
+      "anchor": "Twelve days were past, and now the dawning light",
+      "status": "verified",
+      "note": "Explicit twelve-day marker opening the scene, matching Murray's 'twelfth morning'."
+    },
+    {
+      "book": 1,
+      "n": 531,
+      "anchor": "Swift to the seas profound the goddess flies,",
+      "status": "verified",
+      "note": "Marks Thetis's departure and Zeus's return to Olympus, setting up Hera's confrontation."
+    },
+    {
+      "book": 1,
+      "n": 571,
+      "anchor": "The feast disturb’d, with sorrow Vulcan saw",
+      "status": "verified",
+      "note": "Marks Hephaestus's intervention to calm the quarrel between Zeus and Hera."
+    },
+    {
+      "book": 2,
+      "n": 41,
+      "anchor": "Eager he rises, and in fancy hears",
+      "status": "verified",
+      "note": "Marks Agamemnon waking (rising) with the dream's voice still in his ears, matching Murray's 'he awoke from sleep'."
+    },
+    {
+      "book": 2,
+      "n": 53,
+      "anchor": "The king despatch’d his heralds with commands",
+      "status": "verified",
+      "note": "Redrafted after verification: the true opening is the heralds' summons and council of elders (Murray 'Agamemnon bade the clear-voiced heralds summon... the council of the great-souled elders'), not the 'rosy Morn' dawn formula, which closes the prior dressing scene."
+    },
+    {
+      "book": 2,
+      "n": 87,
+      "anchor": "Thus spoke the sage: the kings without delay",
+      "status": "verified",
+      "note": "Marks the council dissolving and the host massing, leading into the bee simile matching Murray."
+    },
+    {
+      "book": 2,
+      "n": 155,
+      "anchor": "E’en then the Greeks had left the hostile plain,",
+      "status": "verified",
+      "note": "Scene opens mid-sentence in Pope (the clause continues 'But Jove's imperial queen...'); anchored at the nearest sentence-initial line, which sets up Hera's intervention matching Murray's 'would have accomplished their return... had not Hera spoken'."
+    },
+    {
+      "book": 2,
+      "n": 211,
+      "anchor": "At length the tumult sinks, the noises cease,",
+      "status": "verified",
+      "note": "Marks the army settling before Thersites alone keeps clamoring."
+    },
+    {
+      "book": 2,
+      "n": 245,
+      "anchor": "Fierce from his seat at this Ulysses springs,",
+      "status": "verified",
+      "note": "Marks Odysseus rising in anger at Thersites, matching Murray's 'chid him with harsh words'."
+    },
+    {
+      "book": 2,
+      "n": 278,
+      "anchor": "’Twas thus the general voice the hero praised,",
+      "status": "verified",
+      "note": "Marks the army's approval of Odysseus before he rises again to speak of the omen."
+    },
+    {
+      "book": 2,
+      "n": 333,
+      "anchor": "He said: the shores with loud applauses sound,",
+      "status": "verified",
+      "note": "Marks the army's roar of approval after Odysseus's speech, leading into Nestor's proposal."
+    },
+    {
+      "book": 2,
+      "n": 369,
+      "anchor": "To him the king: “How much thy years excel",
+      "status": "verified",
+      "note": "Agamemnon's direct reply to Nestor opens the scene."
+    },
+    {
+      "book": 2,
+      "n": 394,
+      "anchor": "The monarch spoke; and straight a murmur rose,",
+      "status": "verified",
+      "note": "Marks the army's roar of assent to Agamemnon's battle speech, leading to the sacrifice and feast."
+    },
+    {
+      "book": 2,
+      "n": 484,
+      "anchor": "Say, virgins, seated round the throne divine,",
+      "status": "verified",
+      "note": "The formal invocation to the Muses opens the proem to the catalogue."
+    },
+    {
+      "book": 2,
+      "n": 494,
+      "anchor": "The hardy warriors whom Bœotia bred,",
+      "status": "verified",
+      "note": "First entry of the actual catalogue list, following the invocation and heading."
+    },
+    {
+      "book": 2,
+      "n": 569,
+      "anchor": "The proud Mycenè arms her martial powers,",
+      "status": "verified",
+      "note": "Marks the transition to the Mycenaean contingent under Agamemnon after the Argive entry."
+    },
+    {
+      "book": 2,
+      "n": 645,
+      "anchor": "Next, eighty barks the Cretan king commands,",
+      "status": "verified",
+      "note": "Marks the transition to the Cretan contingent after the Aetolians."
+    },
+    {
+      "book": 2,
+      "n": 681,
+      "anchor": "Now, Muse, recount Pelasgic Argos’ powers,",
+      "status": "verified",
+      "note": "Marks the invocation-style transition into the Thessalian/Myrmidon entry."
+    },
+    {
+      "book": 2,
+      "n": 760,
+      "anchor": "Say next, O Muse! of all Achaia breeds,",
+      "status": "verified",
+      "note": "Marks the transition from the catalogue proper to the best-of-the-Achaeans passage."
+    },
+    {
+      "book": 2,
+      "n": 786,
+      "anchor": "But various Iris, Jove’s commands to bear,",
+      "status": "verified",
+      "note": "Marks Iris's descent to Troy with her message, following the wildfire march simile."
+    },
+    {
+      "book": 2,
+      "n": 809,
+      "anchor": "The voice divine the mighty chief alarms;",
+      "status": "verified",
+      "note": "Marks Hector heeding Iris's message and rushing the Trojans to arms."
+    },
+    {
+      "book": 2,
+      "n": 816,
+      "anchor": "The godlike Hector, high above the rest,",
+      "status": "verified",
+      "note": "Marks the start of Hector's own contingent, opening the Trojan catalogue, following the Batieia-mound description."
+    },
+    {
+      "book": 3,
+      "n": 15,
+      "anchor": "Now front to front the hostile armies stand,",
+      "status": "verified",
+      "note": "Marks the two armies drawing up before Paris steps forward as champion."
+    },
+    {
+      "book": 3,
+      "n": 38,
+      "anchor": "As godlike Hector sees the prince retreat,",
+      "status": "verified",
+      "note": "Marks Hector's rebuke immediately after Paris shrinks back among the Trojans."
+    },
+    {
+      "book": 3,
+      "n": 76,
+      "anchor": "He said. The challenge Hector heard with joy,",
+      "status": "verified",
+      "note": "Marks Hector's acceptance of Paris's duel proposal, opening the truce sequence."
+    },
+    {
+      "book": 3,
+      "n": 121,
+      "anchor": "Meantime to beauteous Helen, from the skies",
+      "status": "verified",
+      "note": "Marks Iris's descent to Helen, matching Murray's scene start."
+    },
+    {
+      "book": 3,
+      "n": 161,
+      "anchor": "The good old Priam welcomed her, and cried,",
+      "status": "verified",
+      "note": "Marks Priam calling Helen to his side to begin the viewing from the wall."
+    },
+    {
+      "book": 3,
+      "n": 191,
+      "anchor": "This said, once more he view’d the warrior train;",
+      "status": "verified",
+      "note": "Marks Priam turning his gaze to ask about the next warrior, Odysseus."
+    },
+    {
+      "book": 3,
+      "n": 225,
+      "anchor": "The king then ask’d (as yet the camp he view’d)",
+      "status": "verified",
+      "note": "Marks Priam's next question, about Ajax."
+    },
+    {
+      "book": 3,
+      "n": 245,
+      "anchor": "Meantime the heralds, through the crowded town,",
+      "status": "verified",
+      "note": "Marks the shift to the heralds bearing the sacrificial lambs into the city."
+    },
+    {
+      "book": 3,
+      "n": 259,
+      "anchor": "With grief he heard, and bade the chiefs prepare",
+      "status": "verified",
+      "note": "Marks Priam's response to the summons, preparing to ride to the field."
+    },
+    {
+      "book": 3,
+      "n": 302,
+      "anchor": "The rites now finish’d, reverend Priam rose,",
+      "status": "verified",
+      "note": "Marks Priam rising after the oath-rites to declare he cannot watch his son fight."
+    },
+    {
+      "book": 3,
+      "n": 314,
+      "anchor": "Bold Hector and Ulysses now dispose",
+      "status": "verified",
+      "note": "Marks the two heralds' return to Troy and the ground being measured for the duel."
+    },
+    {
+      "book": 3,
+      "n": 324,
+      "anchor": "With eyes averted Hector hastes to turn",
+      "status": "verified",
+      "note": "Redrafted after verification: the true opening is the lot falling to Paris (Hector shakes the urn and 'the lot of Paris leapt forth'), not the army's prayer, which closes the preceding lot-casting scene."
+    },
+    {
+      "book": 3,
+      "n": 346,
+      "anchor": "Now round the lists the admiring armies stand,",
+      "status": "verified",
+      "note": "Marks both armies watching as the champions advance to throw their spears."
+    },
+    {
+      "book": 3,
+      "n": 381,
+      "anchor": "Meantime the brightest of the female kind,",
+      "status": "verified",
+      "note": "Marks the shift to Helen on the wall, whom Aphrodite is about to approach."
+    },
+    {
+      "book": 3,
+      "n": 421,
+      "anchor": "At this, the fairest of her sex obey’d,",
+      "status": "verified",
+      "note": "Marks Helen yielding to Aphrodite's command and following her to the palace."
+    },
+    {
+      "book": 3,
+      "n": 448,
+      "anchor": "While these to love’s delicious rapture yield,",
+      "status": "verified",
+      "note": "Marks the narrative cut back to Menelaus searching the battlefield while Paris and Helen are together."
+    },
+    {
+      "book": 4,
+      "n": 20,
+      "anchor": "Thus while he spoke, the queen of heaven, enraged,",
+      "status": "verified",
+      "note": "Marks Hera and Athena's angry reaction to Zeus's provocative opening speech."
+    },
+    {
+      "book": 4,
+      "n": 73,
+      "anchor": "The sire of men and monarch of the sky",
+      "status": "verified",
+      "note": "Pope narrates Zeus's command to Athena indirectly here rather than as direct speech; this is the scene's opening line, matching Murray's 'Haste thee with all speed...' command."
+    },
+    {
+      "book": 4,
+      "n": 105,
+      "anchor": "He heard, and madly at the motion pleased,",
+      "status": "verified",
+      "note": "Marks Pandarus's eager response to Athena's persuasion, taking up his bow."
+    },
+    {
+      "book": 4,
+      "n": 141,
+      "anchor": "As when some stately trappings are decreed",
+      "status": "verified",
+      "note": "The ivory-staining simile for Menelaus's blood opens this scene, matching Murray's simile at the same point."
+    },
+    {
+      "book": 4,
+      "n": 183,
+      "anchor": "He said: a leader’s and a brother’s fears",
+      "status": "verified",
+      "note": "Marks the narrator's turn to Menelaus's reply after Agamemnon's lament."
+    },
+    {
+      "book": 4,
+      "n": 220,
+      "anchor": "While round the prince the Greeks employ their care,",
+      "status": "verified",
+      "note": "Marks the shift from Menelaus's treatment to the Trojan advance and Agamemnon's response."
+    },
+    {
+      "book": 4,
+      "n": 251,
+      "anchor": "This said, he stalk’d with ample strides along,",
+      "status": "verified",
+      "note": "Marks Agamemnon moving on to the Cretan contingent."
+    },
+    {
+      "book": 4,
+      "n": 272,
+      "anchor": "Charm’d with this heat, the king his course pursues,",
+      "status": "verified",
+      "note": "Marks Agamemnon moving on to the Ajaxes after Idomeneus's reply."
+    },
+    {
+      "book": 4,
+      "n": 292,
+      "anchor": "Then to the next the general bends his course;",
+      "status": "verified",
+      "note": "Marks Agamemnon moving on to Nestor's contingent."
+    },
+    {
+      "book": 4,
+      "n": 326,
+      "anchor": "He said. With joy the monarch march’d before,",
+      "status": "verified",
+      "note": "Marks Agamemnon moving on to find Menestheus and Odysseus."
+    },
+    {
+      "book": 4,
+      "n": 364,
+      "anchor": "He said, and pass’d where great Tydides lay,",
+      "status": "verified",
+      "note": "Marks Agamemnon moving on to Diomedes after Odysseus's exchange."
+    },
+    {
+      "book": 4,
+      "n": 422,
+      "anchor": "He spoke, and ardent, on the trembling ground",
+      "status": "verified",
+      "note": "Marks Diomedes springing from his chariot with clanging arms, matching Murray's 'terribly rang the bronze... as he moved', just before the general engagement and surf simile."
+    },
+    {
+      "book": 4,
+      "n": 457,
+      "anchor": "The bold Antilochus the slaughter led,",
+      "status": "verified",
+      "note": "Marks Antilochus striking the first blow of the battle."
+    },
+    {
+      "book": 4,
+      "n": 501,
+      "anchor": "Seized with affright the boldest foes appear;",
+      "status": "verified",
+      "note": "Redrafted after verification: the true opening is the Trojan panic and Apollo's rally that reopens the fighting, not the Democoon death blow, which completes the prior casualty list."
+    },
+    {
+      "book": 5,
+      "n": 37,
+      "anchor": "Meantime, the Greeks the Trojan race pursue,",
+      "status": "verified",
+      "note": "Marks the general Achaean pursuit beginning right after Athena leads Ares from the field, matching Murray's list of slain beginning with Odius."
+    },
+    {
+      "book": 5,
+      "n": 95,
+      "anchor": "With grief the leader of the Lycian band",
+      "status": "verified",
+      "note": "Marks Pandarus (leader of the Lycian band) noticing Diomedes' rampage and drawing his bow."
+    },
+    {
+      "book": 5,
+      "n": 166,
+      "anchor": "With deep concern divine Æneas view’d",
+      "status": "verified",
+      "note": "Marks Aeneas noticing Diomedes' havoc and seeking out Pandarus."
+    },
+    {
+      "book": 5,
+      "n": 239,
+      "anchor": "Thine be the guidance, then: with spear and shield",
+      "status": "verified",
+      "note": "The Greek scene boundary falls mid-speech (Pandarus's reply to Aeneas); anchored at the nearest sentence-initial line within that same speech, which matches Murray's 'I will abide this man's onset with my sharp spear.'"
+    },
+    {
+      "book": 5,
+      "n": 297,
+      "anchor": "To guard his slaughter’d friend, Æneas flies,",
+      "status": "verified",
+      "note": "Matches Murray's 'Aeneas leapt down with shield and long spear... strode like a lion' exactly."
+    },
+    {
+      "book": 5,
+      "n": 352,
+      "anchor": "Tydides thus. The goddess, seized with dread,",
+      "status": "verified",
+      "note": "Marks Diomedes' taunt ending and Aphrodite's flight beginning."
+    },
+    {
+      "book": 5,
+      "n": 432,
+      "anchor": "Thus they in heaven: while on the plain below",
+      "status": "verified",
+      "note": "Marks the narrative return to the battlefield after Zeus's rebuke of Venus in heaven."
+    },
+    {
+      "book": 5,
+      "n": 471,
+      "anchor": "He said;—new courage swell’d each hero’s heart.",
+      "status": "verified",
+      "note": "Marks the Trojans' renewed courage right before Sarpedon turns to rebuke Hector."
+    },
+    {
+      "book": 5,
+      "n": 519,
+      "anchor": "And now the god, from forth his sacred fane,",
+      "status": "verified",
+      "note": "Marks Apollo producing the healed Aeneas back among his comrades."
+    },
+    {
+      "book": 5,
+      "n": 590,
+      "anchor": "Great Hector saw, and, raging at the view,",
+      "status": "verified",
+      "note": "Marks Hector's furious response after Nestor's son wins the duel over Mydon."
+    },
+    {
+      "book": 5,
+      "n": 628,
+      "anchor": "While thus they strive, Tlepolemus the great,",
+      "status": "verified",
+      "note": "Marks the narrative turn to Tlepolemus and Sarpedon's confrontation."
+    },
+    {
+      "book": 5,
+      "n": 663,
+      "anchor": "Yet not in vain, Tlepolemus, was thrown",
+      "status": "verified",
+      "note": "Marks Tlepolemus's spear-cast that wounds Sarpedon's thigh, matching Murray's description of the wound."
+    },
+    {
+      "book": 5,
+      "n": 699,
+      "anchor": "The generous Greeks recede with tardy pace,",
+      "status": "verified",
+      "note": "Marks the Achaeans' retreat before Ares and Hector."
+    },
+    {
+      "book": 5,
+      "n": 711,
+      "anchor": "The carnage Juno from the skies survey’d,",
+      "status": "verified",
+      "note": "Marks Hera's alarm at the slaughter, leading to her appeal to Zeus."
+    },
+    {
+      "book": 5,
+      "n": 748,
+      "anchor": "The goddess thus the imperial car ascends;",
+      "status": "verified",
+      "note": "Marks Athena mounting the war-chariot beside Hera, matching Murray's 'she stepped upon the flaming car and grasped her spear'."
+    },
+    {
+      "book": 5,
+      "n": 793,
+      "anchor": "Her speech new fury to their hearts convey’d;",
+      "status": "verified",
+      "note": "Marks the transition from Hera's rallying cry (as Stentor) to Athena seeking out Diomedes."
+    },
+    {
+      "book": 5,
+      "n": 835,
+      "anchor": "She said, and to the steeds approaching near,",
+      "status": "verified",
+      "note": "Marks Athena taking the reins from Diomedes' charioteer to drive against Ares."
+    },
+    {
+      "book": 5,
+      "n": 864,
+      "anchor": "Loud as the roar encountering armies yield,",
+      "status": "verified",
+      "note": "Scene opens mid-sentence in Pope (after 'Mars bellows with the pain:'); anchored at this line, which is itself line-initial and matches Murray's 'loud as nine thousand warriors... cry in battle'."
+    },
+    {
+      "book": 6,
+      "n": 73,
+      "anchor": "And now had Greece eternal fame acquired,\nAnd frighted Troy within her walls, retired,",
+      "status": "verified",
+      "note": "This couplet introduces Helenus's intervention, matching Murray's transition into Helenus's counsel to Aeneas and Hector."
+    },
+    {
+      "book": 6,
+      "n": 119,
+      "anchor": "Now paused the battle (godlike Hector gone),\nWhere daring Glaucus and great Tydeus’ son",
+      "status": "verified",
+      "note": "Marks the narrative pivot to the Glaucus-Diomedes meeting, matching Murray's 'Glaucus, son of Hippolochus, and the son of Tydeus came together.'"
+    },
+    {
+      "book": 6,
+      "n": 144,
+      "anchor": "“What, or from whence I am, or who my sire,\n(Replied the chief,) can Tydeus’ son inquire?",
+      "status": "verified",
+      "note": "Opens Glaucus's reply, matching Murray's 'Then spake to him the glorious son of Hippolochus... wherefore inquirest thou of my lineage?'"
+    },
+    {
+      "book": 6,
+      "n": 212,
+      "anchor": "He spoke, and transport fill’d Tydides’ heart;\nIn earth the generous warrior fix’d his dart,",
+      "status": "verified",
+      "note": "Matches Murray's 'Diomedes, good at the warcry, waxed glad. He planted his spear in the bounteous earth' immediately following Glaucus's lineage speech."
+    },
+    {
+      "book": 6,
+      "n": 237,
+      "anchor": "Meantime the guardian of the Trojan state,\nGreat Hector, enter’d at the Scæan gate.",
+      "status": "verified",
+      "note": "Matches Murray's 'when Hector was come to the Scaean gate and the oak-tree' after the armor exchange."
+    },
+    {
+      "book": 6,
+      "n": 269,
+      "anchor": "You, with your matrons, go! a spotless train,\nAnd burn rich odours in Minerva’s fane.",
+      "status": "verified",
+      "note": "Matches Murray's 'Nay, do thou go to the temple of Athene, driver of the spoil, with burnt-offerings' within Hector's continuous speech to Hecuba."
+    },
+    {
+      "book": 6,
+      "n": 312,
+      "anchor": "While these appear before the power with prayers,\nHector to Paris’ lofty dome repairs.",
+      "status": "verified",
+      "note": "Matches Murray's transition 'Thus were these praying to the daughter of great Zeus, but Hector went his way to the palace of Alexander.'"
+    },
+    {
+      "book": 6,
+      "n": 342,
+      "anchor": "He said, nor answer’d Priam’s warlike son;\nWhen Helen thus with lowly grace begun:",
+      "status": "verified",
+      "note": "Matches Murray's 'Hector of the flashing helm answered him not a word, but unto him spake Helen with gentle words' after Paris's reply."
+    },
+    {
+      "book": 6,
+      "n": 369,
+      "anchor": "Ere yet I mingle in the direful fray,\nMy wife, my infant, claim a moment’s stay;",
+      "status": "verified",
+      "note": "Matches Murray's 'For I shall go to my home, that I may behold my housefolk, my dear wife, and my infant son' within Hector's reply to Helen."
+    },
+    {
+      "book": 6,
+      "n": 390,
+      "anchor": "Hector this heard, return’d without delay;\nSwift through the town he trod his former way,",
+      "status": "verified",
+      "note": "Matches Murray's 'Hector hasted from the house back over the same way along the well-built streets' after the attendant tells him where Andromache went."
+    },
+    {
+      "book": 6,
+      "n": 414,
+      "anchor": "The fierce Achilles wrapt our walls in fire,\nLaid Thebe waste, and slew my warlike sire!",
+      "status": "verified",
+      "note": "Matches Murray's 'My father verily goodly Achilles slew, for utterly laid he waste the well-peopled city of the Cilicians, even Thebe of lofty gates,' continuing Andromache's speech."
+    },
+    {
+      "book": 6,
+      "n": 440,
+      "anchor": "The chief replied: “That post shall be my care,\nNot that alone, but all the works of war.",
+      "status": "verified",
+      "note": "Opens Hector's reply, matching Murray's 'Then spake to her great Hector of the flashing helm: Woman, I too take thought of all this.'"
+    },
+    {
+      "book": 6,
+      "n": 466,
+      "anchor": "Thus having spoke, the illustrious chief of Troy\nStretch’d his fond arms to clasp the lovely boy.",
+      "status": "verified",
+      "note": "Matches Murray's 'So saying, glorious Hector stretched out his arms to his boy' immediately after his speech to Andromache concludes."
+    },
+    {
+      "book": 6,
+      "n": 494,
+      "anchor": "No more—but hasten to thy tasks at home,\nThere guide the spindle, and direct the loom:",
+      "status": "verified",
+      "note": "Matches Murray's 'Nay, go thou to the house and busy thyself with thine own tasks, the loom and the distaff' in the closing lines of Hector's dismissal."
+    },
+    {
+      "book": 6,
+      "n": 503,
+      "anchor": "But now, no longer deaf to honour’s call,\nForth issues Paris from the palace wall.",
+      "status": "verified",
+      "note": "Matches Murray's 'Nor did Paris tarry long in his lofty house, but did on his glorious armour... and hastened through the city.'"
+    },
+    {
+      "book": 7,
+      "n": 17,
+      "anchor": "When now Minerva saw her Argives slain,\nFrom vast Olympus to the gleaming plain",
+      "status": "verified",
+      "note": "Matches Murray's 'the goddess, flashing-eyed Athene, was ware of them as they were slaying the Argives... she went darting down from the peaks of Olympus to sacred Ilios.'"
+    },
+    {
+      "book": 7,
+      "n": 44,
+      "anchor": "At this agreed, the heavenly powers withdrew;\nSage Helenus their secret counsels knew;",
+      "status": "verified",
+      "note": "Matches Murray's 'Helenus, the dear son of Priam, understood in spirit this plan that had found pleasure with the gods in council' following the gods' agreement."
+    },
+    {
+      "book": 7,
+      "n": 54,
+      "anchor": "He said: the warrior heard the word with joy;\nThen with his spear restrain’d the youth of Troy,",
+      "status": "verified",
+      "note": "Matches Murray's 'So he spake, and Hector rejoiced greatly when he heard his words; and he went into the midst and kept back the battalions.'"
+    },
+    {
+      "book": 7,
+      "n": 92,
+      "anchor": "This fierce defiance Greece astonish’d heard,\nBlush’d to refuse, and to accept it fear’d.",
+      "status": "verified",
+      "note": "Matches Murray's 'So spake he, and they all became hushed in silence; shame had they to deny him, but they feared to meet him' after Hector's challenge."
+    },
+    {
+      "book": 7,
+      "n": 123,
+      "anchor": "He said, and turn’d his brother’s vengeful mind;\nHe stoop’d to reason, and his rage resign’d,",
+      "status": "verified",
+      "note": "Matches Murray's 'So spake the warrior and turned his brother's mind... and Nestor rose up and spake amid the Argives.'"
+    },
+    {
+      "book": 7,
+      "n": 161,
+      "anchor": "His warm reproofs the listening kings inflame;\nAnd nine, the noblest of the Grecian name,",
+      "status": "verified",
+      "note": "Matches Murray's 'So the old man chid them, and there stood up nine in all' immediately after Nestor's rebuke."
+    },
+    {
+      "book": 7,
+      "n": 184,
+      "anchor": "Old Nestor shook the casque. By heaven inspired,\nLeap’d forth the lot, of every Greek desired.",
+      "status": "verified",
+      "note": "Matches Murray's 'Nestor of Gerenia shook the helmet, and forth therefrom leapt the lot that themselves desired, even the lot of Aias.'"
+    },
+    {
+      "book": 7,
+      "n": 206,
+      "anchor": "Now Ajax braced his dazzling armour on;\nSheathed in bright steel the giant-warrior shone:",
+      "status": "verified",
+      "note": "Matches Murray's 'Aias arrayed him in gleaming bronze' immediately after the Achaeans' prayer."
+    },
+    {
+      "book": 7,
+      "n": 244,
+      "anchor": "He said, and rising, high above the field\nWhirl’d the long lance against the sevenfold shield.",
+      "status": "verified",
+      "note": "Matches Murray's 'He spake, and poised his far-shadowing spear, and hurled it; and he smote Aias' dread shield' ending Hector's boast."
+    },
+    {
+      "book": 7,
+      "n": 274,
+      "anchor": "And now both heroes their broad falchions drew\nIn flaming circles round their heads they flew;",
+      "status": "verified",
+      "note": "Matches Murray's 'And now had they been smiting with their swords in close fight, but that the heralds... came' as the stone-throwing bout ends."
+    },
+    {
+      "book": 7,
+      "n": 313,
+      "anchor": "But Ajax, glorying in his hardy deed,\nThe well-arm’d Greeks to Agamemnon lead.",
+      "status": "verified",
+      "note": "Matches Murray's 'Aias on his part was led of the well-greaved Achaeans unto goodly Agamemnon, filled with joy of his victory.'"
+    },
+    {
+      "book": 7,
+      "n": 345,
+      "anchor": "Meanwhile, convened at Priam’s palace-gate,\nThe Trojan peers in nightly council sate;",
+      "status": "verified",
+      "note": "Matches Murray's 'Of the Trojans likewise was a gathering held in the citadel of Ilios, a gathering fierce and tumultuous, beside Priam's doors.'"
+    },
+    {
+      "book": 7,
+      "n": 380,
+      "anchor": "The monarch spoke: the warriors snatch’d with haste\n(Each at his post in arms) a short repast.",
+      "status": "verified",
+      "note": "Matches Murray's 'they took their supper throughout the host by companies, and at dawn Idaeus went his way to the hollow ships' after Priam's speech."
+    },
+    {
+      "book": 7,
+      "n": 412,
+      "anchor": "He said, and rear’d his sceptre to the sky.",
+      "status": "verified",
+      "note": "Pope compresses Agamemnon's whole truce reply into one unbroken speech, with no internal sentence break at the point matching Murray's 'the speedy consolation of fire.' This is the nearest following sentence-opening line, marking the herald's departure back to Troy that the Greek line-boundary anchors to."
+    },
+    {
+      "book": 7,
+      "n": 433,
+      "anchor": "Now, ere the morn had streak’d with reddening light",
+      "status": "verified",
+      "note": "Redrafted after verification: the true opening is the dawn that leads into the barrow- and wall-building, not the Achaean cremation, which is part of the prior burial scene (both armies' pyres, ending at the preceding entry)."
+    },
+    {
+      "book": 7,
+      "n": 442,
+      "anchor": "So toil’d the Greeks: meanwhile the gods above,\nIn shining circle round their father Jove,",
+      "status": "verified",
+      "note": "Matches Murray's 'Thus were they toiling, the long-haired Achaeans; and the gods... marvelled at the great work.'"
+    },
+    {
+      "book": 7,
+      "n": 465,
+      "anchor": "Thus they in heaven: while, o’er the Grecian train,\nThe rolling sun descending to the main",
+      "status": "verified",
+      "note": "Matches Murray's 'the sun set, and the work of the Achaeans was accomplished; and they slaughtered oxen throughout the huts and took supper.'"
+    },
+    {
+      "book": 8,
+      "n": 28,
+      "anchor": "The all-mighty spoke, nor durst the powers reply:\nA reverend horror silenced all the sky;",
+      "status": "verified",
+      "note": "Matches Murray's 'So spake he, and they all became hushed in silence, marvelling at his words' after Zeus's opening decree."
+    },
+    {
+      "book": 8,
+      "n": 41,
+      "anchor": "The cloud-compelling god her suit approved,\nAnd smiled superior on his best beloved;",
+      "status": "verified",
+      "note": "Matches Murray's 'do I speak with full purpose of heart, but am minded to be kindly to thee. So saying, he let harness beneath his car his bronze-hooved horses' right after Athena's plea."
+    },
+    {
+      "book": 8,
+      "n": 53,
+      "anchor": "Now had the Grecians snatch’d a short repast,\nAnd buckled on their shining arms with haste.",
+      "status": "verified",
+      "note": "Matches Murray's 'the long-haired Achaeans took their meal hastily throughout the huts, and as they rose up therefrom arrayed them in armour.'"
+    },
+    {
+      "book": 8,
+      "n": 66,
+      "anchor": "Long as the morning beams, increasing bright,\nO’er heaven’s clear azure spread the sacred light,",
+      "status": "verified",
+      "note": "Matches Murray's 'Now as long as it was morn and the sacred day was waxing, so long the missiles of either side struck home.'"
+    },
+    {
+      "book": 8,
+      "n": 78,
+      "anchor": "Then Jove from Ida’s top his horrors spreads;\nThe clouds burst dreadful o’er the Grecian heads;",
+      "status": "verified",
+      "note": "Matches Murray's 'Then himself he thundered aloud from Ida, and sent a blazing flash amid the host of the Achaeans.'"
+    },
+    {
+      "book": 8,
+      "n": 130,
+      "anchor": "And now had death and horror cover’d all;\nLike timorous flocks the Trojans in their wall",
+      "status": "verified",
+      "note": "Matches Murray's 'Then had ruin come and deeds beyond remedy been wrought, and they had been penned in Ilios like lambs, had not the father of men and gods been quick to see.'"
+    },
+    {
+      "book": 8,
+      "n": 167,
+      "anchor": "Now fears dissuade him, and now hopes invite.\nTo stop his coursers, and to stand the fight;",
+      "status": "verified",
+      "note": "Matches Murray's 'the son of Tydeus was divided in counsel whether he should not wheel his horses and fight him face to face' following the close of Hector's taunt."
+    },
+    {
+      "book": 8,
+      "n": 198,
+      "anchor": "That heard, deep anguish stung Saturnia’s soul;\nShe shook her throne, that shook the starry pole:",
+      "status": "verified",
+      "note": "Matches Murray's 'queenly Hera had indignation thereat; she shook herself on her throne and made high Olympus to quake' following Hector's address to his horses."
+    },
+    {
+      "book": 8,
+      "n": 212,
+      "anchor": "Now godlike Hector, to whose matchless might\nJove gave the glory of the destined fight,",
+      "status": "verified",
+      "note": "Matches Murray's transition back to the battlefield press after Neptune declines Hera's rash design."
+    },
+    {
+      "book": 8,
+      "n": 253,
+      "anchor": "Tydides first, of all the Grecian force,\nO’er the broad ditch impell’d his foaming horse,",
+      "status": "verified",
+      "note": "Matches Murray's 'Then might no man of the Danaans, for all they were so many, vaunt that he before the son of Tydeus guided his swift horses to drive them forth across the trench.'"
+    },
+    {
+      "book": 8,
+      "n": 335,
+      "anchor": "Troy yet found grace before the Olympian sire,\nHe arm’d their hands, and fill’d their breasts with fire.",
+      "status": "verified",
+      "note": "Matches Murray's 'Then once again the Olympian aroused might in the hearts of the Trojans; and they thrust the Achaeans straight toward the deep ditch.'"
+    },
+    {
+      "book": 8,
+      "n": 350,
+      "anchor": "Their strong distress the wife of Jove survey’d;\nThen pensive thus, to war’s triumphant maid:",
+      "status": "verified",
+      "note": "Matches Murray's 'Now at sight of them the goddess, white-armed Hera, had pity; and forthwith spake winged words to Athene.'"
+    },
+    {
+      "book": 8,
+      "n": 381,
+      "anchor": "She ceased, and Juno rein’d the steeds with care:\n(Heaven’s awful empress, Saturn’s other heir:)",
+      "status": "verified",
+      "note": "Matches Murray's 'So spake she, and the goddess, white-armed Hera, failed not to hearken. She then went to and fro harnessing the horses.'"
+    },
+    {
+      "book": 8,
+      "n": 438,
+      "anchor": "There tied, they rest in high celestial stalls;\nThe chariot propp’d against the crystal walls,",
+      "status": "verified",
+      "note": "Matches Murray's 'the goddesses sate them down upon golden thrones amid the other gods, with sore grief at heart' after Iris turns them back."
+    },
+    {
+      "book": 8,
+      "n": 485,
+      "anchor": "Now deep in ocean sunk the lamp of light,\nAnd drew behind the cloudy veil of night:",
+      "status": "verified",
+      "note": "Matches Murray's 'Then into Oceanus fell the bright light of the sun drawing black night over the face of the earth.'"
+    },
+    {
+      "book": 8,
+      "n": 489,
+      "anchor": "The victors keep the field; and Hector calls\nA martial council near the navy walls;",
+      "status": "verified",
+      "note": "Matches Murray's 'Then did glorious Hector make a gathering of the Trojans, leading them apart from the ships beside the eddying river'; this scene's packet preview duplicates scene 485's text, but content and location confirm the council-calling as the true start."
+    },
+    {
+      "book": 8,
+      "n": 542,
+      "anchor": "The leader spoke. From all his host around\nShouts of applause along the shores resound.",
+      "status": "verified",
+      "note": "Matches Murray's 'So Hector addressed their gathering, and thereat the Trojans shouted aloud' closing Hector's watch-fire speech."
+    },
+    {
+      "book": 9,
+      "n": 32,
+      "anchor": "He said: deep silence held the Grecian band;\nSilent, unmov’d in dire dismay they stand;",
+      "status": "verified",
+      "note": "Matches Murray's 'Long time were they silent in their grief, the sons of the Achaeans, but at length there spake among them Diomedes.'"
+    },
+    {
+      "book": 9,
+      "n": 50,
+      "anchor": "He ceased; the Greeks loud acclamations raise,\nAnd voice to voice resounds Tydides’ praise.",
+      "status": "verified",
+      "note": "Matches Murray's 'So spake he, and all the sons of the Achaeans shouted aloud, applauding the word of Diomedes.'"
+    },
+    {
+      "book": 9,
+      "n": 79,
+      "anchor": "Thus spoke the hoary sage: the rest obey;\nSwift through the gates the guards direct their way.",
+      "status": "verified",
+      "note": "Matches Murray's 'So spake he, and they readily hearkened to him and obeyed. Forth hasted the sentinels in their harness.'"
+    },
+    {
+      "book": 9,
+      "n": 89,
+      "anchor": "The king of men, on public counsels bent,\nConvened the princes in his ample tent,",
+      "status": "verified",
+      "note": "Matches Murray's 'the son of Atreus led the counsellors of the Achaeans all together to his hut, and set before them a feast.'"
+    },
+    {
+      "book": 9,
+      "n": 114,
+      "anchor": "To whom the king. “With justice hast thou shown\nA prince’s faults, and I with reason own.",
+      "status": "verified",
+      "note": "Matches Murray's 'To him then spake in answer the king of men, Agamemnon: Old sir, in no false wise hast thou recounted the tale of my blind folly.'"
+    },
+    {
+      "book": 9,
+      "n": 162,
+      "anchor": "The monarch thus. The reverend Nestor then:\n“Great Agamemnon! glorious king of men!",
+      "status": "verified",
+      "note": "Matches Murray's 'Then made answer the horseman, Nestor of Gerenia: Most glorious son of Atreus, Agamemnon, king of men.'"
+    },
+    {
+      "book": 9,
+      "n": 185,
+      "anchor": "And now, arrived, where on the sandy bay\nThe Myrmidonian tents and vessels lay;",
+      "status": "verified",
+      "note": "Matches Murray's 'And they came to the huts and the ships of the Myrmidons, and found him delighting his soul with a clear-toned lyre.'"
+    },
+    {
+      "book": 9,
+      "n": 225,
+      "anchor": "That done, to Phœnix Ajax gave the sign:\nNot unperceived; Ulysses crown’d with wine",
+      "status": "verified",
+      "note": "Matches Murray's transition to Odysseus's toast and opening speech, 'Hail, O Achilles, of the equal feast have we no stinting.'"
+    },
+    {
+      "book": 9,
+      "n": 307,
+      "anchor": "Then thus the goddess-born: “Ulysses, hear\nA faithful speech, that knows nor art nor fear;",
+      "status": "verified",
+      "note": "Matches Murray's 'Then in answer to him spake swift-footed Achilles: Zeus-born son of Laertes, Odysseus of many wiles, needs must I verily speak my word outright.'"
+    },
+    {
+      "book": 9,
+      "n": 430,
+      "anchor": "The son of Peleus ceased: the chiefs around\nIn silence wrapt, in consternation drown’d,",
+      "status": "verified",
+      "note": "Matches Murray's 'So spake he, and they all became hushed in silence, marveling at his words... at length there spake among them the old horseman Phoenix.'"
+    },
+    {
+      "book": 9,
+      "n": 462,
+      "anchor": "Then meditate my flight: my friends in vain\nWith prayers entreat me, and with force detain.",
+      "status": "verified",
+      "note": "Pope compresses out Murray's intervening clause about Phoenix fearing to be called a father-slayer, moving straight from the murder-thought to the flight; this couplet is the nearest surviving content match for 'My fellows verily and my kinsfolk beset me about with many prayers,' though it is mid-sentence (semicolon before it, not a full stop) rather than a fresh sentence-opening line."
+    },
+    {
+      "book": 9,
+      "n": 523,
+      "anchor": "Let me (my son) an ancient fact unfold,\nA great example drawn from times of old;",
+      "status": "verified",
+      "note": "Matches Murray's 'Even in this manner have we heard the fame of men of old that were warriors, whenso furious wrath came' introducing the Meleager exemplum."
+    },
+    {
+      "book": 9,
+      "n": 600,
+      "anchor": "Learn hence, betimes to curb pernicious ire,\nNor stay till yonder fleets ascend in fire;",
+      "status": "verified",
+      "note": "Matches Murray's 'let me not see thee thus minded in heart... it were a harder task to save the ships already burning' in the moral drawn from the Meleager story."
+    },
+    {
+      "book": 9,
+      "n": 620,
+      "anchor": "He ceased; then order’d for the sage’s bed\nA warmer couch with numerous carpets spread.",
+      "status": "verified",
+      "note": "Matches Murray's 'He spake and to Patroclus nodded his brow in silence that he should spread for Phoenix a thick couch' immediately after Achilles's reply to Phoenix."
+    },
+    {
+      "book": 9,
+      "n": 656,
+      "anchor": "This said, each prince a double goblet crown’d,\nAnd cast a large libation on the ground;",
+      "status": "verified",
+      "note": "Matches Murray's 'So spake he, but they took each man a two handled cup, and when they had made libation went their way' ending Achilles's reply to Ajax."
+    },
+    {
+      "book": 9,
+      "n": 669,
+      "anchor": "And now the elected chiefs whom Greece had sent,\nPass’d through the hosts, and reach’d the royal tent.",
+      "status": "verified",
+      "note": "Matches Murray's 'But when the others were now come to the huts of the son of Atreus, the sons of the Achaeans stood up on this side and that.'"
+    },
+    {
+      "book": 10,
+      "n": 25,
+      "anchor": "Meanwhile his brother, press’d with equal woes,\nAlike denied the gifts of soft repose,",
+      "status": "verified",
+      "note": "Matches Murray's 'And even in like manner was Menelaus holden of trembling fear—for on his eyelids too sleep settled not down.'"
+    },
+    {
+      "book": 10,
+      "n": 54,
+      "anchor": "“Now speed thy hasty course along the fleet,\nThere call great Ajax, and the prince of Crete;",
+      "status": "verified",
+      "note": "Matches Murray's 'But go now, run swiftly along the lines of ships and call hither Aias and Idomeneus' within Agamemnon's speech to Menelaus."
+    },
+    {
+      "book": 10,
+      "n": 72,
+      "anchor": "This said, each parted to his several cares:\nThe king to Nestor’s sable ship repairs;",
+      "status": "verified",
+      "note": "Matches Murray's 'So spake he, and sent forth his brother when he had duly given him commandment. But he went his way after Nestor.'"
+    },
+    {
+      "book": 10,
+      "n": 131,
+      "anchor": "With that, the venerable warrior rose;\nThe shining greaves his manly legs enclose;",
+      "status": "verified",
+      "note": "Matches Murray's 'So saying he did on his tunic about his breast, and beneath his shining feet bound his fair sandals' as Nestor rises to rouse the other chiefs."
+    },
+    {
+      "book": 10,
+      "n": 180,
+      "anchor": "And now the chiefs approach the nightly guard;\nA wakeful squadron, each in arms prepared:",
+      "status": "verified",
+      "note": "Matches Murray's 'Now when they had joined the company of the sentinels as they were gathered together, they found not the leaders of the sentinels asleep.'"
+    },
+    {
+      "book": 10,
+      "n": 218,
+      "anchor": "Fear held them mute: alone, untaught to fear,\nTydides spoke—“The man you seek is here.",
+      "status": "verified",
+      "note": "Matches Murray's 'So said he, and they all became hushed in silence. Then spake among them Diomedes, good at the war-cry.'"
+    },
+    {
+      "book": 10,
+      "n": 254,
+      "anchor": "Thus having spoke, with generous ardour press’d,\nIn arms terrific their huge limbs they dress’d.",
+      "status": "verified",
+      "note": "Matches Murray's 'So saying the twain clothed them in their dread armour' after Odysseus urges haste before dawn."
+    },
+    {
+      "book": 10,
+      "n": 299,
+      "anchor": "Nor less bold Hector, and the sons of Troy,\nOn high designs the wakeful hours employ;",
+      "status": "verified",
+      "note": "Matches Murray's 'Nay, nor did Hector suffer the lordly Trojans to sleep, but he called together all the noblest' right after the two heroes' prayers are granted."
+    },
+    {
+      "book": 10,
+      "n": 338,
+      "anchor": "Then (never to return) he sought the shore,\nAnd trod the path his feet must tread no more.",
+      "status": "verified",
+      "note": "Matches Murray's 'he went his way toward the ships from the host; howbeit he was not to return again from the ships, and bear tidings to Hector.'"
+    },
+    {
+      "book": 10,
+      "n": 369,
+      "anchor": "Now almost on the fleet the dastard falls,\nAnd mingles with the guards that watch the walls;",
+      "status": "verified",
+      "note": "Matches Murray's 'But when he was now about to come among the sentinels, as he fled towards the ships, then verily Athene put strength into Tydeus' son.'"
+    },
+    {
+      "book": 10,
+      "n": 446,
+      "anchor": "To this Tydides, with a gloomy frown:\n“Think not to live, though all the truth be shown:",
+      "status": "verified",
+      "note": "Matches Murray's 'Then with an angry glance from beneath his brows, spake to him mighty Diomedes: Nay, I bid thee, Dolon, put no thought of escape in thy heart.'"
+    },
+    {
+      "book": 10,
+      "n": 469,
+      "anchor": "Through the still night they cross the devious fields,\nSlippery with blood, o’er arms and heaps of shields,",
+      "status": "verified",
+      "note": "Matches Murray's 'the twain went forward through the arms and the black blood, and swiftly came in their course to the company of the Thracians' after Ulysses dedicates Dolon's spoils."
+    },
+    {
+      "book": 10,
+      "n": 503,
+      "anchor": "These, with his bow unbent, he lash’d along;\n(The scourge forgot, on Rhesus’ chariot hung;)",
+      "status": "verified",
+      "note": "Matches Murray's 'smiting them with his bow, for he had not thought to take in his hands the bright whip from the richly dight car.' Pope's couplets run on without a full stop at this exact content point (the preceding line ends in a semicolon), so the anchor is mid-sentence rather than sentence-initial; the surrounding lines describing Odysseus freeing the horses belong to the preceding scene's content."
+    },
+    {
+      "book": 10,
+      "n": 515,
+      "anchor": "Not unobserved they pass’d: the god of light\nHad watch’d his Troy, and mark’d Minerva’s flight,",
+      "status": "verified",
+      "note": "Matches Murray's 'But no blind watch did Apollo of the silver bow keep when he saw Athene attending the son of Tydeus.'"
+    },
+    {
+      "book": 10,
+      "n": 526,
+      "anchor": "Meanwhile the chiefs, arriving at the shade\nWhere late the spoils of Hector’s spy were laid,",
+      "status": "verified",
+      "note": "Matches Murray's 'when these were now come to the place where they had slain the spy of Hector, then Odysseus, dear to Zeus, stayed the swift horses.'"
+    },
+    {
+      "book": 11,
+      "n": 15,
+      "anchor": "The king of men his hardy host inspires",
+      "status": "verified",
+      "note": "Matches Murray line-15 opening (\"shouted aloud...did on the gleaming bronze\") with Pope's arming couplet immediately following the dawn/Strife proem."
+    },
+    {
+      "book": 11,
+      "n": 47,
+      "anchor": "That instant Juno, and the martial maid,",
+      "status": "verified",
+      "note": "Pope's thunder couplet directly renders Murray's \"Athene and Hera thundered, doing honour to the king of Mycenae\" at line 47."
+    },
+    {
+      "book": 11,
+      "n": 84,
+      "anchor": "Meanwhile apart, superior, and alone,",
+      "status": "verified",
+      "note": "Matches Murray's \"the father recked not; but aloof...he sat apart exulting in his glory, looking upon the city\" at line 84."
+    },
+    {
+      "book": 11,
+      "n": 122,
+      "anchor": "Amidst the tumult of the routed train,",
+      "status": "verified",
+      "note": "Matches Murray's introduction of Peisander and Hippolochus, sons of Antimachus, at line 122."
+    },
+    {
+      "book": 11,
+      "n": 148,
+      "anchor": "His brother leap’d to earth; but, as he lay,",
+      "status": "verified",
+      "note": "Matches Murray's line-148 continuation \"Hippolochus leapt down, and him he slew...striking off his head\" -- the scene boundary falls mid-episode, splitting the two brothers' deaths."
+    },
+    {
+      "book": 11,
+      "n": 181,
+      "anchor": "Now storms the victor at the Trojan wall;",
+      "status": "verified",
+      "note": "Matches Murray's \"about to come beneath the city and the steep wall...the father of men and gods came down from heaven\" at line 181."
+    },
+    {
+      "book": 11,
+      "n": 211,
+      "anchor": "She said, and vanish’d. Hector, with a bound,",
+      "status": "verified",
+      "note": "Matches Murray's \"swift-footed Iris departed; and Hector leapt in his armour from his chariot\" at line 211."
+    },
+    {
+      "book": 11,
+      "n": 249,
+      "anchor": "Coon, Antenor’s eldest hope, was nigh:",
+      "status": "verified",
+      "note": "Matches Murray's introduction of Coon, \"pre-eminent among warriors, eldest son of Antenor,\" grieving for his brother's fall, at line 249."
+    },
+    {
+      "book": 11,
+      "n": 284,
+      "anchor": "No sooner Hector saw the king retired,",
+      "status": "verified",
+      "note": "Matches Murray's \"when Hector saw Agamemnon departing, to Trojans and Lycians he called with a loud shout\" at line 284."
+    },
+    {
+      "book": 11,
+      "n": 331,
+      "anchor": "The sons of Merops shone amidst the war;",
+      "status": "verified",
+      "note": "Scene opens mid-sentence in Pope (Murray's line-331 clause \"skilled in prophesying...\" falls inside one continuous Pope sentence); anchored at the nearest sentence-initial line introducing the same Merops episode."
+    },
+    {
+      "book": 11,
+      "n": 369,
+      "anchor": "Him, while he triumph’d, Paris eyed from far,",
+      "status": "verified",
+      "note": "Pope compresses Murray's line-369 material (Diomedes vowing to pursue others, stripping Agastrophus) into the run-up to Paris's ambush; anchored at the clearest new-sentence start of that ambush, which is not preceded by sentence-ending punctuation (Diomedes's preceding taunt ends in a comma before the closing quotation mark)."
+    },
+    {
+      "book": 11,
+      "n": 401,
+      "anchor": "Now on the field Ulysses stands alone,",
+      "status": "verified",
+      "note": "Matches Murray's line-401 \"Now Odysseus...was left alone, nor did anyone of the Argives abide by him\" almost verbatim."
+    },
+    {
+      "book": 11,
+      "n": 461,
+      "anchor": "Now troops on troops the fainting chief invade,",
+      "status": "verified",
+      "note": "Matches Murray's line-461 \"called one to another through the throng and made at him all together...he gave ground, and shouted to his comrades.\""
+    },
+    {
+      "book": 11,
+      "n": 489,
+      "anchor": "But soon as Ajax leaves his tower-like shield,",
+      "status": "verified",
+      "note": "Redrafted after verification failed the prior anchor, which caught the later Doryclus killing instead of the scene's true opening beat. Matches Murray's line-489 opening \"Then Aias drew near, bearing his shield that was like a city wall...and the Trojans scattered in flight...And warlike Menelaus led Odysseus forth from the throng,\" which Pope renders as Ajax's tower-shield scattering the Trojans and Atrides (Menelaus) leading Odysseus to his car."
+    },
+    {
+      "book": 11,
+      "n": 521,
+      "anchor": "But now Cebriones, from Hector’s car,",
+      "status": "verified",
+      "note": "Matches Murray's line-521 \"Cebriones beheld the Trojans being driven in rout...he spake to him\" almost exactly."
+    },
+    {
+      "book": 11,
+      "n": 549,
+      "anchor": "O’er his broad back his moony shield he threw,",
+      "status": "verified",
+      "note": "Murray's line-549 opening (\"he stood in a daze, and on his back he cast his sevenfold shield\") straddles Pope's single line 714 (shared with the preceding Zeus-inspired-fear scene); anchored at the next clean sentence-start describing the shield-slinging retreat itself."
+    },
+    {
+      "book": 11,
+      "n": 599,
+      "anchor": "Thus raged both armies like conflicting fires,",
+      "status": "verified",
+      "note": "Matches Murray's line-599 \"So fought they like unto blazing fire; but the mares of Neleus...bare Nestor forth from the battle\" closely."
+    },
+    {
+      "book": 11,
+      "n": 655,
+      "anchor": "“Can then the sons of Greece (the sage rejoin’d)",
+      "status": "verified",
+      "note": "Matches Murray's line-655 rhetorical question \"Wherefore now doth Achilles thus have pity...?\" -- both open Nestor's reply as a question."
+    },
+    {
+      "book": 11,
+      "n": 804,
+      "anchor": "This touch’d his generous heart, and from the tent",
+      "status": "verified",
+      "note": "Matches Murray's line-804 \"So spake he, and roused the heart in the breast of Patroclus, and he set out to run along the line of the ships.\""
+    },
+    {
+      "book": 12,
+      "n": 36,
+      "anchor": "But this the gods in later times perform;",
+      "status": "verified",
+      "note": "Matches Murray line-36 \"war and the din of war blazed about the well-builded wall\" -- Pope's couplet returns from the flood-prophecy digression to the present siege."
+    },
+    {
+      "book": 12,
+      "n": 60,
+      "anchor": "This saw Polydamas; who, wisely brave,",
+      "status": "verified",
+      "note": "Matches Murray's \"Polydamas drew nigh to Hector, and spake\" introducing his counsel at line 60."
+    },
+    {
+      "book": 12,
+      "n": 88,
+      "anchor": "The forces part in five distinguish’d bands,",
+      "status": "verified",
+      "note": "Matches Murray's \"marshalled in five companies they followed after the leaders\" at line 88."
+    },
+    {
+      "book": 12,
+      "n": 108,
+      "anchor": "While every Trojan thus, and every aid,",
+      "status": "verified",
+      "note": "Matches Murray's \"the rest of the Trojans and their far-famed allies obeyed the counsel of blameless Polydamas, but Asius...was not minded\" at line 108."
+    },
+    {
+      "book": 12,
+      "n": 135,
+      "anchor": "So graceful these, and so the shock they stand",
+      "status": "verified",
+      "note": "Matches Murray's \"these twain, trusting in the might of their arms, abode the oncoming of great Asius, and fled not\" at line 135; anchored at the simile's resolution, the nearest sentence-initial line, since the oak simile itself spans the preceding lines."
+    },
+    {
+      "book": 12,
+      "n": 172,
+      "anchor": "These empty accents mingled with the wind,",
+      "status": "verified",
+      "note": "Matches Murray's \"So spake he, but with these words he moved not the mind of Zeus\" at line 172."
+    },
+    {
+      "book": 12,
+      "n": 195,
+      "anchor": "Meantime, the bravest of the Trojan crew,",
+      "status": "verified",
+      "note": "Matches Murray's \"meanwhile the youths that followed with Polydamas and Hector...tarried in doubt, as they stood by the trench\" at line 195."
+    },
+    {
+      "book": 12,
+      "n": 210,
+      "anchor": "Then first Polydamas the silence broke,",
+      "status": "verified",
+      "note": "Matches Murray's \"Polydamas drew near, and spake to bold Hector\" at line 210."
+    },
+    {
+      "book": 12,
+      "n": 230,
+      "anchor": "To him then Hector with disdain return’d:",
+      "status": "verified",
+      "note": "Matches Murray's \"with an angry glance from beneath his brows spake to him Hector\" at line 230."
+    },
+    {
+      "book": 12,
+      "n": 251,
+      "anchor": "Furious he spoke, and, rushing to the wall,",
+      "status": "verified",
+      "note": "Matches Murray's \"So spake he and led the way; and they followed after with a wondrous din; and thereat Zeus...roused...a blast of wind\" at line 251."
+    },
+    {
+      "book": 12,
+      "n": 290,
+      "anchor": "Thus godlike Hector and his troops contend",
+      "status": "verified",
+      "note": "Matches Murray's \"not even then would the Trojans and glorious Hector have broken the gates of the wall...had not Zeus the counsellor roused his own son, Sarpedon\" at line 290."
+    },
+    {
+      "book": 12,
+      "n": 331,
+      "anchor": "Menestheus from on high the storm beheld",
+      "status": "verified",
+      "note": "Matches Murray's \"Menestheus, son of Peteos, shuddered, for it was to his part of the wall that they came\" at line 331."
+    },
+    {
+      "book": 12,
+      "n": 365,
+      "anchor": "Straight to the fort great Ajax turn’d his care,",
+      "status": "verified",
+      "note": "Matches Murray's \"he spake winged words to the son of Oileus...I will go thither, and confront the war\" at line 365, where Ajax departs to face Sarpedon's assault."
+    },
+    {
+      "book": 12,
+      "n": 400,
+      "anchor": "At once bold Teucer draws the twanging bow,",
+      "status": "verified",
+      "note": "Matches Murray's \"against him came Aias and Teucer at the one moment\" at line 400."
+    },
+    {
+      "book": 12,
+      "n": 421,
+      "anchor": "As on the confines of adjoining grounds,",
+      "status": "verified",
+      "note": "Matches Murray's land-dispute simile, \"two men with measuring-rods in hand strive about the landmark-stones in a common field,\" at line 421; Pope renders it as quarrelling swains rather than surveyors."
+    },
+    {
+      "book": 12,
+      "n": 437,
+      "anchor": "Fierce as a whirlwind up the walls he flies,",
+      "status": "verified",
+      "note": "Murray's line-437 clause (\"so evenly was strained their war...until Zeus vouchsafed the glory of victory to Hector\") falls inside Pope's single weighing-scale sentence (549-556, shared with n=421's simile); anchored at the next clean sentence-start, where Hector's shout and the boulder-throw that the scene's summary describes actually begin."
+    },
+    {
+      "book": 13,
+      "n": 11,
+      "anchor": "Meantime the monarch of the watery main",
+      "status": "verified",
+      "note": "Matches Murray line-11 \"the lord, the Shaker of Earth, kept no blind watch, for he sat marvelling at the war\" -- Pope's couplet turns from Zeus's averted gaze to Poseidon's."
+    },
+    {
+      "book": 13,
+      "n": 41,
+      "anchor": "But Neptune, rising from the seas profound,",
+      "status": "verified",
+      "note": "Matches Murray's \"Poseidon, the Enfolder and Shaker of Earth, set him to urge on the Argives...in the likeness of Calchas\" at line 41."
+    },
+    {
+      "book": 13,
+      "n": 91,
+      "anchor": "Teucer and Leitus first his words excite;",
+      "status": "verified",
+      "note": "Matches Murray's \"To Teucer first he came and to Leitus, to bid them on...Meriones and Antilochus\" at line 91."
+    },
+    {
+      "book": 13,
+      "n": 136,
+      "anchor": "Thus breathing death, in terrible array,",
+      "status": "verified",
+      "note": "Matches Murray's \"the Trojans drave forward in close throng and Hector led them, pressing ever forward, like a boulder from a cliff\" at line 136."
+    },
+    {
+      "book": 13,
+      "n": 171,
+      "anchor": "Meanwhile with rising rage the battle glows,",
+      "status": "verified",
+      "note": "Matches Murray's \"Teucer, son of Telamon, was first to slay his man, even the spearman Imbrius\" at line 171."
+    },
+    {
+      "book": 13,
+      "n": 240,
+      "anchor": "This said, he rushes where the combat burns;",
+      "status": "verified",
+      "note": "Matches Murray's \"Idomeneus, as soon as he was come to his well-built hut, did on his fair armour\" at line 240, rendered by Pope as Idomeneus arming and returning to the field after Poseidon's exhortation."
+    },
+    {
+      "book": 13,
+      "n": 330,
+      "anchor": "Soon as the foe the shining chiefs beheld",
+      "status": "verified",
+      "note": "Redrafted after verification failed the prior anchor, which caught the later Zeus-Poseidon digression instead of the scene's true opening beat. Matches Murray's line-330 opening \"Now when the Trojans had sight of Idomeneus, in might as it were a flame...they called one to another through the throng, and all made at him,\" the moment the two hosts see the shining chiefs and close for battle; sentence-initial, directly after a period."
+    },
+    {
+      "book": 13,
+      "n": 361,
+      "anchor": "Dreadful in arms, and grown in combats grey,",
+      "status": "verified",
+      "note": "Matches Murray's \"Idomeneus, albeit his hair was flecked with grey, called to the Danaans, and leaping amid the Trojans turned them to flight\" at line 361."
+    },
+    {
+      "book": 13,
+      "n": 424,
+      "anchor": "Heart-piercing anguish, at the haughty boast,",
+      "status": "verified",
+      "note": "Matches Murray's account of Hypsenor being borne off by Mecisteus and Alastor at line 424; Pope places the same two bearers (\"sad Mecistheus and Alastor\") a few lines later in the same continuous sentence."
+    },
+    {
+      "book": 13,
+      "n": 455,
+      "anchor": "The Trojan heard; uncertain or to meet,",
+      "status": "verified",
+      "note": "Matches Murray's \"Deiphobus was divided in counsel, whether he should give ground and take to him as comrade some one of the great-souled Trojans, or should make trial by himself alone\" at line 455."
+    },
+    {
+      "book": 13,
+      "n": 521,
+      "anchor": "Nor knew the furious father of his fall;",
+      "status": "verified",
+      "note": "Matches Murray's \"loud-voiced dread Ares wist not at all that his son had fallen in the mighty conflict\" at line 521."
+    },
+    {
+      "book": 13,
+      "n": 540,
+      "anchor": "Meanwhile fresh slaughter bathes the sanguine ground,",
+      "status": "verified",
+      "note": "Matches Murray's \"the rest fought on, and a cry unquenchable arose\" at line 540."
+    },
+    {
+      "book": 13,
+      "n": 576,
+      "anchor": "Next brave Deipyrus in dust was laid:",
+      "status": "verified",
+      "note": "Matches Murray's \"in close fight Helenus smote Deipyrus on the temple with a great Thracian sword\" at line 576."
+    },
+    {
+      "book": 13,
+      "n": 621,
+      "anchor": "“Thus, Trojans, thus, at length be taught to fear;",
+      "status": "verified",
+      "note": "Matches Murray's \"In such wise of a surety shall ye leave the ships of the Danaans...ye overweening Trojans\" at line 621, the opening of Menelaus's speech; the preceding Pope line ends with the speech-introducing colon \"loud-exulting, said:\" rather than a period."
+    },
+    {
+      "book": 13,
+      "n": 674,
+      "anchor": "Nor knew great Hector how his legions yield,",
+      "status": "verified",
+      "note": "Matches Murray's \"Hector, dear to Zeus, had not heard, nor wist at all that on the left of the ships his hosts were being slain\" at line 674."
+    },
+    {
+      "book": 13,
+      "n": 723,
+      "anchor": "Now had the Greeks eternal fame acquired,",
+      "status": "verified",
+      "note": "Matches Murray's \"the Trojans bethought them no more of fight...had not Polydamas drawn nigh to bold Hector\" at line 723."
+    },
+    {
+      "book": 13,
+      "n": 754,
+      "anchor": "This said, the towering chief prepares to go,",
+      "status": "verified",
+      "note": "Matches Murray's \"So spake he, and set forth, in semblance like a snowy mountain, and with loud shouting sped he through the Trojans\" at line 754."
+    },
+    {
+      "book": 13,
+      "n": 795,
+      "anchor": "As when from gloomy clouds a whirlwind springs,",
+      "status": "verified",
+      "note": "Matches Murray's wave simile \"they came on like the blast of direful winds...surging waves of the loud-resounding sea...even so the Trojans, in close array...followed\" at line 795."
+    },
+    {
+      "book": 14,
+      "n": 25,
+      "anchor": "Him, in his march, the wounded princes meet,",
+      "status": "verified",
+      "note": "Matches Murray's \"Nestor was met by the kings, fostered of Zeus, as they went up from the ships\" at line 25."
+    },
+    {
+      "book": 14,
+      "n": 65,
+      "anchor": "To him the monarch: “That our army bends,",
+      "status": "verified",
+      "note": "Matches Murray's line-65 clause about the wall and trench having availed the Danaans nothing -- Pope renders it as Agamemnon's own reply picking up that rationale."
+    },
+    {
+      "book": 14,
+      "n": 110,
+      "anchor": "“Such counsel if you seek, behold the man",
+      "status": "verified",
+      "note": "Matches Murray's \"Near by is that man; not long shall we seek him...for that in years I am the youngest among you\" at line 110; the preceding Pope line (\"Tydides cut him short, and thus began:\") ends in a speech-introducing colon rather than a period."
+    },
+    {
+      "book": 14,
+      "n": 153,
+      "anchor": "Meantime Saturnia from Olympus’ brow,",
+      "status": "verified",
+      "note": "Matches Murray's \"Hera of the golden throne, standing on a peak of Olympus, therefrom had sight of him\" at line 153."
+    },
+    {
+      "book": 14,
+      "n": 200,
+      "anchor": "“For lo! I haste to those remote abodes,",
+      "status": "verified",
+      "note": "Matches Murray's \"I am faring to visit the limits of the all-nurturing earth, and Oceanus...and mother Tethys\" at line 200, Hera's deceptive pretext."
+    },
+    {
+      "book": 14,
+      "n": 230,
+      "anchor": "Then taking wing from Athos’ lofty steep,",
+      "status": "verified",
+      "note": "Matches Murray's \"so came to Lemnos, the city of godlike Thoas. There she met Sleep, the brother of Death\" at line 230."
+    },
+    {
+      "book": 14,
+      "n": 292,
+      "anchor": "To Ida’s top successful Juno flies;",
+      "status": "verified",
+      "note": "Matches Murray's \"Hera swiftly drew nigh to topmost Gargarus, the peak of lofty Ida, and Zeus, the cloud-gatherer, beheld her\" at line 292; the preceding Pope line ends its parenthetical aside as \"...race of earth.)\" -- a closing parenthesis after the period, which the sentence-end check reads as unpunctuated."
+    },
+    {
+      "book": 14,
+      "n": 354,
+      "anchor": "Now to the navy borne on silent wings,",
+      "status": "verified",
+      "note": "Matches Murray's \"sweet Sleep set out to run to the ships of the Argives to bear word to the Enfolder and Shaker of Earth\" at line 354."
+    },
+    {
+      "book": 14,
+      "n": 402,
+      "anchor": "The first bold javelin, urged by Hector’s force,",
+      "status": "verified",
+      "note": "Matches Murray's \"At Aias did glorious Hector first cast his spear, as he was turned full toward him\" at line 402."
+    },
+    {
+      "book": 14,
+      "n": 440,
+      "anchor": "Soon as the Greeks the chief’s retreat beheld,",
+      "status": "verified",
+      "note": "Matches Murray's \"when the Argives saw Hector withdrawing, they leapt yet the more upon the Trojans\" at line 440."
+    },
+    {
+      "book": 14,
+      "n": 478,
+      "anchor": "He spake, and smiled severe, for well he knew",
+      "status": "verified",
+      "note": "Matches Murray's \"So spake he, knowing the truth full well, and sorrow seized the hearts of the Trojans\" at line 478 -- Pope keeps the same \"knew/spake\" pairing, applied to the previous speaker's taunt just before Acamas strikes."
+    },
+    {
+      "book": 14,
+      "n": 508,
+      "anchor": "Daughters of Jove! that on Olympus shine,",
+      "status": "verified",
+      "note": "Matches Murray's \"Tell me now, ye Muses, that have dwellings on Olympus, who was first of the Achaeans to bear away the bloody spoils\" at line 508."
+    },
+    {
+      "book": 15,
+      "n": 34,
+      "anchor": "The Thunderer spoke: imperial Juno mourn’d,",
+      "status": "verified",
+      "note": "Matches Murray's \"So spake he, and the ox-eyed, queenly Hera shuddered\" at line 34, Hera's reaction that opens her defense."
+    },
+    {
+      "book": 15,
+      "n": 78,
+      "anchor": "The trembling queen (the almighty order given)",
+      "status": "verified",
+      "note": "Matches Murray's \"the goddess, white-armed Hera, failed not to hearken, but went her way from the mountains of Ida unto high Olympus\" at line 78."
+    },
+    {
+      "book": 15,
+      "n": 114,
+      "anchor": "And now had Jove, by bold rebellion driven,",
+      "status": "verified",
+      "note": "Matches Murray's narrative pivot to Athena at line 114 (\"So spake she, but Ares smote his sturdy thighs\" leads into Athena's intervention) -- Pope frames it as Jove's wrath nearly falling on the gods before Pallas intercedes."
+    },
+    {
+      "book": 15,
+      "n": 144,
+      "anchor": "Then Juno call’d (Jove’s orders to obey)",
+      "status": "verified",
+      "note": "Matches Murray's \"Hera called Apollo forth from out the hall, and Iris, that is the messenger of the immortal gods\" at line 144."
+    },
+    {
+      "book": 15,
+      "n": 184,
+      "anchor": "He bids thee from forbidden wars repair",
+      "status": "verified",
+      "note": "Matches Murray's line-184 clause \"he biddeth thee avoid thee out of his hands; for he avoweth him to be better far than thou in might, and the elder born\" -- mid-speech in Pope, whose preceding line ends with the colon \"messenger of Jove:\" rather than a period."
+    },
+    {
+      "book": 15,
+      "n": 220,
+      "anchor": "The lord of thunders, from his lofty height",
+      "status": "verified",
+      "note": "Matches Murray's \"Then unto Apollo spake Zeus, the cloud-gatherer: Go now, dear Phoebus, unto Hector\" at line 220."
+    },
+    {
+      "book": 15,
+      "n": 263,
+      "anchor": "Thus to bold Hector spoke the son of Jove,",
+      "status": "verified",
+      "note": "Matches Murray's \"So saying, he breathed great might into the shepherd of the host\" at line 263."
+    },
+    {
+      "book": 15,
+      "n": 322,
+      "anchor": "As long as Phœbus bore unmoved the shield,",
+      "status": "verified",
+      "note": "Matches Murray's \"when he looked full in the faces of the Danaans of swift horses, and shook the aegis...then made he their hearts to faint\" at line 322; anchored at the sentence-initial line immediately preceding that clause, since the literal \"shakes it\" moment falls mid-sentence in Pope's couplet."
+    },
+    {
+      "book": 15,
+      "n": 367,
+      "anchor": "The Grecians gaze around with wild despair,",
+      "status": "verified",
+      "note": "Matches Murray's \"the Danaans halted, and were stayed, calling one upon the other, and lifting up their hands to all the gods they made fervent prayer\" at line 367."
+    },
+    {
+      "book": 15,
+      "n": 415,
+      "anchor": "At one proud bark, high-towering o’er the fleet,",
+      "status": "verified",
+      "note": "Matches Murray's \"Hector made straight for glorious Aias. They twain were labouring in the toil of war about the same ship\" at line 415."
+    },
+    {
+      "book": 15,
+      "n": 460,
+      "anchor": "But Hector was not doom’d to perish then:",
+      "status": "verified",
+      "note": "Matches Murray's \"he was not unmarked of the wise mind of Zeus, who guarded Hector, and took the glory from Teucer\" at line 460."
+    },
+    {
+      "book": 15,
+      "n": 515,
+      "anchor": "Then mutual slaughters spread on either side;",
+      "status": "verified",
+      "note": "Matches Murray's \"Then Hector slew Schedius, son of Perimedes...and Aias slew Laodamas\" at line 515."
+    },
+    {
+      "book": 15,
+      "n": 566,
+      "anchor": "His generous sense he not in vain imparts;",
+      "status": "verified",
+      "note": "Matches Murray's \"they even of themselves were eager to ward off the foe...and fenced in the ships with a hedge of bronze\" at line 566."
+    },
+    {
+      "book": 15,
+      "n": 620,
+      "anchor": "The Grecian phalanx, moveless as a tower,",
+      "status": "verified",
+      "note": "Matches Murray's rock-in-the-surf simile, \"even so the Danaans withstood the Trojans steadfastly, and fled not,\" at line 620."
+    },
+    {
+      "book": 15,
+      "n": 663,
+      "anchor": "“Oh friends! be men: your generous breasts inflame",
+      "status": "verified",
+      "note": "Matches Murray's \"My friends, play the man, and take in your hearts shame of other men\" at line 663, the opening of Nestor's appeal."
+    },
+    {
+      "book": 15,
+      "n": 708,
+      "anchor": "’Twas thou, bold Hector! whose resistless hand",
+      "status": "verified",
+      "note": "Matches Murray's \"a fair ship, swift upon the brine, that had borne Protesilaus to Troy, but brought him not back again\" at line 708."
+    },
+    {
+      "book": 16,
+      "n": 55,
+      "anchor": "“Patroclus! thy Achilles knows no fears;",
+      "status": "verified",
+      "note": "Opens Achilles' reply speech immediately after Patroclus's plea, matching Murray's 'Dread grief is this to me...The girl...hath lord Agamemnon taken back from my arms' a few lines later in the same speech."
+    },
+    {
+      "book": 16,
+      "n": 101,
+      "anchor": "Ajax no more the sounding storm sustain’d,",
+      "status": "verified",
+      "note": "Sentence-initial line beginning the description of Ajax overborne by missiles, matching Murray's 'Aias no longer abode, for he was sore beset with darts.'"
+    },
+    {
+      "book": 16,
+      "n": 125,
+      "anchor": "Divine Achilles view’d the rising flames,",
+      "status": "verified",
+      "note": "Sentence-initial couplet where Achilles sees the fire and cries out to Patroclus, matching Murray's 'smote both his thighs and spake to Patroclus.'"
+    },
+    {
+      "book": 16,
+      "n": 168,
+      "anchor": "Achilles speeds from tent to tent, and warms",
+      "status": "verified",
+      "note": "Sentence-initial line beginning the muster/wolf-simile passage that leads into the five-leader catalogue and rebuke, matching Murray's 'stood warlike Achilles, urging on both horses and men.'"
+    },
+    {
+      "book": 16,
+      "n": 221,
+      "anchor": "But mindful of the gods, Achilles went",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Achilles went into his hut, and opened the lid of a chest.'"
+    },
+    {
+      "book": 16,
+      "n": 257,
+      "anchor": "Meanwhile the troops beneath Patroclus’ care,",
+      "status": "verified",
+      "note": "Sentence-initial line opening the wasp-simile charge, matching Murray's 'they that were arrayed together with great-hearted Patroclus marched forth...like wasps of the wayside.'"
+    },
+    {
+      "book": 16,
+      "n": 306,
+      "anchor": "But Troy repulsed, and scatter’d o’er the plains,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'they sought to withstand them, and gave ground from the ships perforce,' immediately followed by the individual killings (Areilycus etc.)."
+    },
+    {
+      "book": 16,
+      "n": 369,
+      "anchor": "Even Hector fled; through heads of disarray",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Hector verily did his swift-footed horses bear forth with his battle-gear,' the moment his chariot carries him off and the trapped Trojans are left in the trench."
+    },
+    {
+      "book": 16,
+      "n": 419,
+      "anchor": "Then low in dust Epaltes, Echius, lie;",
+      "status": "verified",
+      "note": "Sentence-initial line opening the catalogue of victims that matches Murray's 'Thereafter Erymas and Amphoterus, and Epaltes...all these one after another he brought down,' immediately preceding Sarpedon's rally."
+    },
+    {
+      "book": 16,
+      "n": 462,
+      "anchor": "Now met in arms, the combatants appear;",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Now when they were come near, as they advanced one against the other, then verily did Patroclus smite glorious Thrasymelus.'"
+    },
+    {
+      "book": 16,
+      "n": 508,
+      "anchor": "Then drew the weapon from his panting heart,",
+      "status": "verified",
+      "note": "Matches Murray's boundary clause 'at the one moment he drew forth the spear-point and the soul of Sarpedon'; the line continues Hector's action across a semicolon rather than a fresh sentence, so it is not sentence-initial, but it is the only couplet in the book with this exact wording and it is the precise event the scene's Greek line begins on."
+    },
+    {
+      "book": 16,
+      "n": 556,
+      "anchor": "But o’er the dead the fierce Patroclus stands,",
+      "status": "verified",
+      "note": "Sentence-initial line opening Patroclus's rallying speech to the Aiantes, matching Murray's 'To the twain Aiantes spake he first...Ye twain Aiantes, now be it your will to ward off the foe.'"
+    },
+    {
+      "book": 16,
+      "n": 601,
+      "anchor": "The Achaians sorrow for their heroes slain;",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'for that a good man was fallen; but mightily did the Trojans rejoice,' immediately preceding Meriones's slaying of Laogonus."
+    },
+    {
+      "book": 16,
+      "n": 645,
+      "anchor": "Jove view’d the combat with a stern survey,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'ever looked down upon them, and debated in heart, pondering much about the slaying of Patroclus'; distinct from the earlier, differently-punctuated 'Jove view'd the combat: whose event foreseen,' at n=419's scene."
+    },
+    {
+      "book": 16,
+      "n": 684,
+      "anchor": "Meanwhile Patroclus pours along the plains,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Patroclus with a call to his horses and to Automedon, pressed after the Trojans and Lycians, and was greatly blinded in heart, fool that he was!'"
+    },
+    {
+      "book": 16,
+      "n": 732,
+      "anchor": "Patroclus lights, impatient for the fight;",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Patroclus over against him leapt from his chariot to the ground with a spear in his left hand,' the moment before the fatal stone-cast at Cebriones."
+    },
+    {
+      "book": 16,
+      "n": 783,
+      "anchor": "Then from amidst the tumult and alarms,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Forth from out the range of darts they drew the warrior Cebriones...and stripped the armour from his shoulders,' the couplet immediately preceding Patroclus's thrice-nine slaying and fatal overreach."
+    },
+    {
+      "book": 16,
+      "n": 823,
+      "anchor": "Stern Hector, as the bleeding chief he views,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'came nigh him through the ranks, and smote him with a thrust of his spear in the nethermost belly,' Hector's fatal spear-thrust."
+    },
+    {
+      "book": 17,
+      "n": 50,
+      "anchor": "The shining circlets of his golden hair,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'In blood was his hair drenched, that was like the hair of the Graces,' the clause immediately following the boundary clause about Euphorbus's fall."
+    },
+    {
+      "book": 17,
+      "n": 85,
+      "anchor": "Sheath’d in bright arms, through cleaving ranks he flies,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Then strode he forth amid the foremost fighters, harnessed in flaming bronze, crying a shrill cry,' Hector's approach that alarms Menelaus."
+    },
+    {
+      "book": 17,
+      "n": 125,
+      "anchor": "Already had stern Hector seized his head,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'sought to hale him away that he might cut the head from off his shoulders,' the moment Aias's arrival interrupts Hector."
+    },
+    {
+      "book": 17,
+      "n": 165,
+      "anchor": "The Trojan chief with fix’d resentment eyed",
+      "status": "verified",
+      "note": "Sentence-initial line opening Hector's reply speech, matching Murray's 'Then with an angry glance from beneath his brows, spake to him Hector of the flashing helm.'"
+    },
+    {
+      "book": 17,
+      "n": 237,
+      "anchor": "Great Ajax mark’d the growing storm from far,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Then spake Aias unto Menelaus, good at the war-cry,' introducing Aias's fearful speech."
+    },
+    {
+      "book": 17,
+      "n": 286,
+      "anchor": "The son of Lethus, brave Pelasgus’ heir,",
+      "status": "verified",
+      "note": "Sentence-initial line introducing Hippothous, matching Murray's 'Now Hippothous, the glorious son of Pelasgian Lethus, was dragging the corpse by the foot.'"
+    },
+    {
+      "book": 17,
+      "n": 343,
+      "anchor": "He spoke, and foremost to the combat flew:",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'So spake he, and leapt forth far to the front of the foremost fighters, and there stood,' Aeneas launching the renewed Trojan charge that leads to the tug-of-war over the body."
+    },
+    {
+      "book": 17,
+      "n": 402,
+      "anchor": "Achilles in his ships at distance lay,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Nor as yet did goodly Achilles know aught of Patroclus' death.'"
+    },
+    {
+      "book": 17,
+      "n": 460,
+      "anchor": "So flies a vulture through the clamorous train",
+      "status": "verified",
+      "note": "Matches Murray's opening image 'with his car as a vulture on a flock of geese' almost verbatim; not sentence-initial (Pope runs the simile on from the prior colon), which is why the check5 warning is expected here."
+    },
+    {
+      "book": 17,
+      "n": 508,
+      "anchor": "Then through the field he sends his voice aloud,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'So spake he, and called to the two Aiantes and to Menelaus,' Automedon's call for help."
+    },
+    {
+      "book": 17,
+      "n": 553,
+      "anchor": "And now Minerva from the realms of air",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'even so Athene, enwrapping herself in a lurid cloud, entered the throng of the Danaans.'"
+    },
+    {
+      "book": 17,
+      "n": 593,
+      "anchor": "This heard, o’er Hector spreads a cloud of woe,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'So spake he, and a black cloud of grief enwrapped Hector,' Hector's reaction to the report of Podes's death that opens this scene."
+    },
+    {
+      "book": 17,
+      "n": 649,
+      "anchor": "With tears the hero spoke, and at his prayer",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'So spake he, and the Father had pity on him as he wept, and forthwith scattered the darkness.'"
+    },
+    {
+      "book": 17,
+      "n": 692,
+      "anchor": "Fly to the fleet, this instant fly, and tell",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'But do thou with speed run to the ships of the Achaeans and bear word unto Achilles.'"
+    },
+    {
+      "book": 17,
+      "n": 732,
+      "anchor": "While thus aloft the hero’s corse they bear,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Thus the twain were hasting to bear the corpse forth from out the battle to the hollow ships.'"
+    },
+    {
+      "book": 18,
+      "n": 35,
+      "anchor": "Far in the deep abysses of the main,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'his queenly mother heard him as she sat in the depths of the sea beside the old man her father.'"
+    },
+    {
+      "book": 18,
+      "n": 65,
+      "anchor": "She said, and left the caverns of the main,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'she left the cave, and the nymphs went with her weeping, and around them the waves of the sea were cloven asunder.'"
+    },
+    {
+      "book": 18,
+      "n": 97,
+      "anchor": "A flood of tears, at this, the goddess shed:",
+      "status": "verified",
+      "note": "Sentence-initial line introducing Thetis's reply, matching Murray's 'Doomed then to a speedy death, my child, shalt thou be, that thou spakest thus.'"
+    },
+    {
+      "book": 18,
+      "n": 127,
+      "anchor": "“My son (coerulean Thetis made reply,",
+      "status": "verified",
+      "note": "Sentence-initial line opening Thetis's reply, matching Murray's 'Then answered him the goddess, silver-footed Thetis: Aye, verily, as thou sayest, my child.'"
+    },
+    {
+      "book": 18,
+      "n": 149,
+      "anchor": "And now the Greeks from furious Hector’s force,",
+      "status": "verified",
+      "note": "Sentence-initial line matching the second clause of Murray's opening, 'the Achaeans fled with wondrous shouting from before man-slaying Hector, and came to the ships and the Hellespont,' the pivot into the corpse-fight this scene covers."
+    },
+    {
+      "book": 18,
+      "n": 200,
+      "anchor": "She spoke, and pass’d in air. The hero rose:",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'swift-footed Iris departed; but Achilles, dear to Zeus, roused him.'"
+    },
+    {
+      "book": 18,
+      "n": 230,
+      "anchor": "Twelve in the tumult wedged, untimely rush’d",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'there in that hour perished twelve men of their best amid their own chariots and their own spears.'"
+    },
+    {
+      "book": 18,
+      "n": 243,
+      "anchor": "Meantime, unwearied with his heavenly way,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'the sun set and the goodly Achaeans stayed them from the fierce strife and the evil war.'"
+    },
+    {
+      "book": 18,
+      "n": 284,
+      "anchor": "“Return! (said Hector, fired with stern disdain)",
+      "status": "verified",
+      "note": "Sentence-initial line opening Hector's reply, matching Murray's 'Then with an angry glance from beneath his brows spake to him Hector of the flashing helm.'"
+    },
+    {
+      "book": 18,
+      "n": 315,
+      "anchor": "While the long night extends her sable reign,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'the whole night through made moan in lamentation for Patroclus.'"
+    },
+    {
+      "book": 18,
+      "n": 356,
+      "anchor": "Meanwhile to Juno, in the realms above,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Zeus spake unto Hera, his sister and his wife.'"
+    },
+    {
+      "book": 18,
+      "n": 368,
+      "anchor": "So they. Meanwhile the silver-footed dame",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'silver-footed Thetis came unto the house of Hephaestus.'"
+    },
+    {
+      "book": 18,
+      "n": 411,
+      "anchor": "Then from his anvil the lame artist rose;",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'He spake, and from the anvil rose, a huge, panting bulk, halting the while.'"
+    },
+    {
+      "book": 18,
+      "n": 462,
+      "anchor": "To her the artist-god: “Thy griefs resign,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Then the famous god of the two strong arms answered her: Be of good cheer.'"
+    },
+    {
+      "book": 18,
+      "n": 490,
+      "anchor": "Two cities radiant on the shield appear,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Therein fashioned he also two cities of mortal men exceeding fair.'"
+    },
+    {
+      "book": 18,
+      "n": 541,
+      "anchor": "A field deep furrow’d next the god design’d,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Therein he set also soft fallow-land, rich tilth and wide, that was three times ploughed.'"
+    },
+    {
+      "book": 18,
+      "n": 590,
+      "anchor": "A figured dance succeeds; such once was seen",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'the famed god of the two strong arms cunningly wrought a dancing-floor like unto that which in wide Cnosus Daedalus fashioned.'"
+    },
+    {
+      "book": 19,
+      "n": 40,
+      "anchor": "Achilles to the strand obedient went:",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'goodly Achilles strode along the shore of the sea, crying a terrible cry, and aroused the Achaean warriors.'"
+    },
+    {
+      "book": 19,
+      "n": 54,
+      "anchor": "Achilles (rising in the midst) begun:",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Achilles, swift of foot, arose among them and said.'"
+    },
+    {
+      "book": 19,
+      "n": 77,
+      "anchor": "He said: his finish’d wrath with loud acclaim",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's '[Achilles] renounced his wrath,' the moment before Agamemnon rises to reply."
+    },
+    {
+      "book": 19,
+      "n": 154,
+      "anchor": "While yet we talk, or but an instant shun",
+      "status": "verified",
+      "note": "Sentence-initial line (Achilles's continuing reply) matching Murray's 'neither to make delay, for yet is a great work undone,' the clause spanning into Odysseus's counter-speech that follows immediately after."
+    },
+    {
+      "book": 19,
+      "n": 184,
+      "anchor": "To him the monarch: “Just is thy decree,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'To him then spake again the king of men, Agamemnon: Glad am I, son of Laertes.'"
+    },
+    {
+      "book": 19,
+      "n": 215,
+      "anchor": "“O first of Greeks, (Ulysses thus rejoin’d,)",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Then Odysseus of many wiles answered him, and said: O Achilles, son of Peleus.'"
+    },
+    {
+      "book": 19,
+      "n": 238,
+      "anchor": "And now the delegates Ulysses sent,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's '[Odysseus] took to him the sons of glorious Nestor...and they went their way to the hut of Agamemnon.'"
+    },
+    {
+      "book": 19,
+      "n": 276,
+      "anchor": "The speedy council at his word adjourn’d:",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'So spake he, and hastily brake up the gathering.'"
+    },
+    {
+      "book": 19,
+      "n": 303,
+      "anchor": "Her sister captives echoed groan for groan,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'thereto the women added their laments; Patroclus indeed they mourned, but therewithal each one her own sorrows.'"
+    },
+    {
+      "book": 19,
+      "n": 340,
+      "anchor": "Sighing he said: his grief the heroes join’d,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'as they mourned the son of Cronos had sight of them, and was touched with pity.'"
+    },
+    {
+      "book": 19,
+      "n": 357,
+      "anchor": "Now issued from the ships the warrior-train,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'the Achaeans poured forth from the swift ships.'"
+    },
+    {
+      "book": 19,
+      "n": 392,
+      "anchor": "Automedon and Alcimus prepare",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Automedon and Alcinous set them busily to yoke the horses.'"
+    },
+    {
+      "book": 19,
+      "n": 404,
+      "anchor": "“Xanthus and Balius! of Podarges’ strain,",
+      "status": "verified",
+      "note": "Matches Murray's 'Xanthus and Balius, ye far-famed children of Podarge' almost verbatim, the opening of Achilles's charge to the horses; preceded by a colon introducing the speech rather than a period, hence the expected check5 warning."
+    },
+    {
+      "book": 20,
+      "n": 32,
+      "anchor": "On adverse parts the warring gods engage:",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'the gods went their way into the battle, being divided in counsel.'"
+    },
+    {
+      "book": 20,
+      "n": 76,
+      "anchor": "While thus the gods in various league engage,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Thus gods went forth to meet with gods.'"
+    },
+    {
+      "book": 20,
+      "n": 156,
+      "anchor": "Meanwhile the rushing armies hide the ground;",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'the whole plain was filled with men and horses, and aflame with bronze,' the couplet leading into Achilles and Aeneas advancing into the space between the hosts."
+    },
+    {
+      "book": 20,
+      "n": 207,
+      "anchor": "To this Anchises’ son: “Such words employ",
+      "status": "verified",
+      "note": "Sentence-initial line opening Aeneas's reply, matching Murray's 'Men say that thou art son of peerless Peleus...but for me, I declare that I am son of great-hearted Anchises.'"
+    },
+    {
+      "book": 20,
+      "n": 255,
+      "anchor": "Cease then—Our business in the field of fight",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'let us forthwith make trial each of the other with bronze-tipped spears,' Aeneas's challenge to stop trading words and fight."
+    },
+    {
+      "book": 20,
+      "n": 306,
+      "anchor": "On great Æneas shall devolve the reign,",
+      "status": "verified",
+      "note": "Redrafted after verification failed the prior anchor, which started only at Hera's reply, skipping the close of Poseidon's prophecy. Matches Murray's line-306 opening \"and now verily shall the mighty Aeneas be king among the Trojans, and his sons' sons that shall be born in days to come,\" the closing couplet of Poseidon's speech to the gods, immediately followed by Hera's reply -- the earlier candidate \"Lo! on the brink of fate Aeneas stands\" opens Poseidon's speech but that portion falls within the preceding scene's (n=255) line range, before Murray's line 306."
+    },
+    {
+      "book": 20,
+      "n": 341,
+      "anchor": "With that, he left him wondering as he lay,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'So saying he left him there, when he had told him all.'"
+    },
+    {
+      "book": 20,
+      "n": 365,
+      "anchor": "He said: nor less elate with martial joy,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'called with a shout, and declared that he would go forth to face Achilles.'"
+    },
+    {
+      "book": 20,
+      "n": 381,
+      "anchor": "Then fierce Achilles, shouting to the skies,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'Achilles leapt among the Trojans, his heart clothed about in might, crying a terrible cry.'"
+    },
+    {
+      "book": 20,
+      "n": 421,
+      "anchor": "When Hector view’d, all ghastly in his gore,",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's description of Hector witnessing Polydorus's death, the moment that drives him to charge Achilles."
+    },
+    {
+      "book": 20,
+      "n": 456,
+      "anchor": "With that, he gluts his rage on numbers slain:",
+      "status": "verified",
+      "note": "Sentence-initial line matching Murray's 'he smote Dryops full upon the neck with a thrust of his spear, and he fell down before his feet.'"
+    },
+    {
+      "book": 21,
+      "n": 21,
+      "anchor": "Repeated wounds the reddening river dyed,",
+      "status": "verified",
+      "note": "Redrafted after verification: murrayOpening's first clause ('he smote and smote... the water grew red with blood') is the river running red with blood, not the later twelve-youths capture; 'Arm'd with his sword, high brandish'd o'er the waves' still belongs to scene 1's tail (the sword-draw before Achilles begins striking), so this couplet is the truer opening beat."
+    },
+    {
+      "book": 21,
+      "n": 34,
+      "anchor": "Then, as once more he plunged amid the flood,",
+      "status": "verified",
+      "note": "Opens the Lycaon episode immediately after the youths are sent to the ships; preceding line ends in a semicolon rather than a period (warning expected), a normal Pope enjambment into a new episode."
+    },
+    {
+      "book": 21,
+      "n": 64,
+      "anchor": "Thus while he spoke, the Trojan pale with fears",
+      "status": "verified",
+      "note": "Marks the pivot from Achilles's internal speech to Lycaon's approach and kneeling, matching Murray's 'the other drew nigh him... eager to touch his knees'."
+    },
+    {
+      "book": 21,
+      "n": 114,
+      "anchor": "The day shall come (which nothing can avert)",
+      "status": "verified",
+      "note": "Matches Murray's 'There shall come a dawn or eve or mid-day...' at the close of Achilles's speech, immediately followed by the killing blow, which is where Greek line 114 actually falls."
+    },
+    {
+      "book": 21,
+      "n": 136,
+      "anchor": "Meanwhile the hero springs in arms, to dare",
+      "status": "verified",
+      "note": "Directly matches Murray's 'the son of Peleus... leapt, eager to slay him, upon Asteropaeus'; the river's anger in the two preceding lines is the bridge from the Lycaon taunt."
+    },
+    {
+      "book": 21,
+      "n": 201,
+      "anchor": "He said: then from the bank his javelin tore,",
+      "status": "verified",
+      "note": "Matches Murray's 'He spake, and drew forth from the bank his spear of bronze, and left Asteropaeus where he was'; the Paeonian slaughter and river's protest follow directly."
+    },
+    {
+      "book": 21,
+      "n": 225,
+      "anchor": "He said; and drove with fury on the foe.",
+      "status": "verified",
+      "note": "Matches Murray's 'So saying he leapt upon the Trojans like a god', the pivot from Achilles's reply-speech (begun in the prior scene) back into action, immediately followed by the river's complaint to Apollo."
+    },
+    {
+      "book": 21,
+      "n": 272,
+      "anchor": "Tired by the tides, his knees relax with toil;",
+      "status": "verified",
+      "note": "Matches Murray's 'the River was ever tiring his knees with its violent flow', directly preceding Achilles's prayer to Zeus."
+    },
+    {
+      "book": 21,
+      "n": 305,
+      "anchor": "With equal rage, indignant Xanthus roars,",
+      "status": "verified",
+      "note": "Matches Murray's 'Nor yet would Scamander abate his fury... raising himself on high he made the surge of his flood into a crest', immediately before he calls to Simois."
+    },
+    {
+      "book": 21,
+      "n": 351,
+      "anchor": "Swift on the sedgy reeds the ruin preys;",
+      "status": "verified",
+      "note": "Murray's literal opening ('Burned were the elms and the willows and the tamarisks...') matches Pope's catalogue of burning vegetation a few lines on (elm, tamarisk, willow, eels); Hera's command and Hephaestus's obedience, rendered a few couplets earlier, belong to the compressed tail of the preceding scene, so this is the nearest sentence-opening line to where the catalogue itself begins."
+    },
+    {
+      "book": 21,
+      "n": 385,
+      "anchor": "While these by Juno’s will the strife resign,",
+      "status": "verified",
+      "note": "Matches Murray's 'but upon the other gods fell strife heavy and grievous... Zeus heard it... and laughed aloud in joy'; the river's plea for mercy and Hera's quenching order belong to the tail of the preceding scene, not this one."
+    },
+    {
+      "book": 21,
+      "n": 415,
+      "anchor": "The goddess spoke, and turn’d her eyes away,",
+      "status": "verified",
+      "note": "Matches Murray's 'she turned from Ares her bright eyes. Him then... Aphrodite, took by the hand'; the Ares-Athena blow itself is rendered in the prior scene's compressed couplets."
+    },
+    {
+      "book": 21,
+      "n": 461,
+      "anchor": "Apollo thus: “To combat for mankind",
+      "status": "verified",
+      "note": "Matches Murray's 'Then spake unto him lord Apollo... as nowise sound of mind wouldest thou count me, if I should war with thee for the sake of mortals'; Poseidon's taunting challenge is the compressed tail of the prior scene."
+    },
+    {
+      "book": 21,
+      "n": 514,
+      "anchor": "Thus they above: while, swiftly gliding down,",
+      "status": "verified",
+      "note": "Matches Murray's 'On this wise spake they one to the other; but Phoebus Apollo entered into sacred Ilios, for he was troubled for the wall'."
+    },
+    {
+      "book": 21,
+      "n": 521,
+      "anchor": "Through blood, through death, Achilles still proceeds,",
+      "status": "verified",
+      "note": "Matches Murray's 'But Achilles was still slaying alike the Trojans themselves and their single-hooved horses', directly preceding Priam's order to the gatekeepers."
+    },
+    {
+      "book": 21,
+      "n": 544,
+      "anchor": "Thither, all parch’d with thirst, a heartless train,",
+      "status": "verified",
+      "note": "Matches Murray's 'they, the while, were fleeing straight for the city and the high wall, parched with thirst... had not Phoebus Apollo aroused goodly Agenor'."
+    },
+    {
+      "book": 22,
+      "n": 25,
+      "anchor": "Then to the city, terrible and strong,",
+      "status": "verified",
+      "note": "Matches Murray's 'Him the old man Priam was first to behold... like to the star that cometh forth at harvest-time', directly preceding the Dog-star simile and Priam's plea."
+    },
+    {
+      "book": 22,
+      "n": 77,
+      "anchor": "He said, and acting what no words could say,",
+      "status": "verified",
+      "note": "Matches Murray's 'and with his hands he plucked and tore the hoary hairs from his head; but he could not persuade the heart of Hector. And over against him the mother... showed her breast', the pivot from Priam's grief to Hecuba's plea."
+    },
+    {
+      "book": 22,
+      "n": 93,
+      "anchor": "So they, while down their cheeks the torrents roll;",
+      "status": "verified",
+      "note": "Matches Murray's 'So the twain with weeping spake unto their dear son... howbeit they could not persuade the heart of Hector', opening Hector's solitary debate at the gates."
+    },
+    {
+      "book": 22,
+      "n": 131,
+      "anchor": "Thus pondering, like a god the Greek drew nigh;",
+      "status": "verified",
+      "note": "Matches Murray's 'nigh to him came Achilles... brandishing... his terrible spear', immediately followed by the terror that sends Hector into flight."
+    },
+    {
+      "book": 22,
+      "n": 167,
+      "anchor": "Thus three times round the Trojan wall they fly.",
+      "status": "verified",
+      "note": "Matches Murray's 'these twain circled thrice with swift feet about the city of Priam; and all the gods gazed upon them', directly before Zeus's speech; the preceding line ends in a colon rather than a period (a simile payoff), hence the expected warning."
+    },
+    {
+      "book": 22,
+      "n": 226,
+      "anchor": "Her voice divine the chief with joyful mind",
+      "status": "verified",
+      "note": "Matches Murray's 'stood leaning upon his bronze-barbed spear of ash' (Achilles obeying and resting); Athena's actual instruction to rest is rendered in the prior scene's closing couplets."
+    },
+    {
+      "book": 22,
+      "n": 248,
+      "anchor": "Fraudful she said; then swiftly march’d before:",
+      "status": "verified",
+      "note": "Matches Murray's 'By such words and by guile Athene led him on. And when they were come near... first unto Achilles spake great Hector', the pivot from Athena's deceptive speech to the two closing."
+    },
+    {
+      "book": 22,
+      "n": 273,
+      "anchor": "He spoke, and launch’d his javelin at the foe;",
+      "status": "verified",
+      "note": "Matches Murray's 'He spake, and poised his far-shadowing spear, and hurled it; howbeit glorious Hector... avoided it', directly after Hector's opening challenge speech."
+    },
+    {
+      "book": 22,
+      "n": 306,
+      "anchor": "Fierce, at the word, his weighty sword he drew,",
+      "status": "verified",
+      "note": "Matches Murray's 'So saying, he drew his sharp sword... gathering himself together swooped like an eagle', directly before Achilles finds the fatal gap in Hector's armor."
+    },
+    {
+      "book": 22,
+      "n": 331,
+      "anchor": "Prone on the field the bleeding warrior lies,",
+      "status": "verified",
+      "note": "Matches Murray's 'and goodly Achilles exulted over him', the taunt that opens this scene; Hector's dying plea for burial and Achilles's refusal follow within the same span, per the summary's fuller description."
+    },
+    {
+      "book": 22,
+      "n": 367,
+      "anchor": "Achilles, musing as he roll’d his eyes",
+      "status": "verified",
+      "note": "Matches Murray's 'He spake, and from the corpse drew forth his spear of bronze... set him to strip the... armour. And the other sons of the Achaeans ran up round about'; the nearest clean sentence-opening line just before Achilles's closing quip and the stripping of the corpse."
+    },
+    {
+      "book": 22,
+      "n": 405,
+      "anchor": "Now lost is all that formidable air;",
+      "status": "verified",
+      "note": "Matches Murray's 'So was his head all befouled with dust; but his mother tore her hair... and uttered a cry exceeding loud at sight of her son', directly preceding the parents' grief on the walls."
+    },
+    {
+      "book": 22,
+      "n": 448,
+      "anchor": "But not as yet the fatal news had spread",
+      "status": "verified",
+      "note": "Matches Murray's 'neither wist she anywise that... Athene had laid him low by the hand of Achilles. But the shrieks she heard...', opening the Andromache scene with her ignorance of Hector's death."
+    },
+    {
+      "book": 23,
+      "n": 18,
+      "anchor": "For such a warrior Thetis aids their woe,",
+      "status": "verified",
+      "note": "Pope compresses the thrice-circling and the weeping-onto-the-sands into one quatrain (17-20) shared with scene 1; this is the next distinct line, matching Murray's 'so mighty a deviser of rout was he for whom they mourned', leading into Achilles's speech and vow."
+    },
+    {
+      "book": 23,
+      "n": 35,
+      "anchor": "And now a band of Argive monarchs brings",
+      "status": "verified",
+      "note": "Matches Murray's 'the prince... was led unto goodly Agamemnon by the chiefs of the Achaeans', opening the scene at Agamemnon's tent."
+    },
+    {
+      "book": 23,
+      "n": 59,
+      "anchor": "He spoke: they hear him, and the word obey;",
+      "status": "verified",
+      "note": "Matches Murray's 'speedily making ready each man his meal they supped... they went each man to his hut to take his rest', immediately following Achilles's speech to Agamemnon."
+    },
+    {
+      "book": 23,
+      "n": 108,
+      "anchor": "But Agamemnon, as the rites demand,",
+      "status": "verified",
+      "note": "Matches Murray's 'the lord Agamemnon sent forth mules and men from all sides', directly after the ghost's parting words and the dawn."
+    },
+    {
+      "book": 23,
+      "n": 128,
+      "anchor": "The hero bids his martial troops appear",
+      "status": "verified",
+      "note": "Matches Murray's 'Achilles straightway bade the war-loving Myrmidons gird them about with bronze, and yoke each man his horses'; the wood being cast down at the barrow site (Pope 164-167) is the compressed tail of the wood-fetching mission (n=108) rather than this scene's own opening."
+    },
+    {
+      "book": 23,
+      "n": 154,
+      "anchor": "Thus o’er Patroclus while the hero pray’d,",
+      "status": "verified",
+      "note": "Matches Murray's 'He spake and set the lock in the hands of his dear comrade'; the cutting of the lock and the bulk of the Spercheius prayer belong to the prior scene's compressed span, so this is the nearest sentence-opening line to where Murray's text actually resumes."
+    },
+    {
+      "book": 23,
+      "n": 176,
+      "anchor": "Sad sacrifice! twelve Trojan captives fell.",
+      "status": "verified",
+      "note": "Redrafted after verification: murrayOpening's first clause ('twelve valiant sons of the great-souled Trojans slew he with the bronze... and set the iron might of fire to range at large') is the killing of the twelve captives and the pyre catching fire, not the earlier host-dismissal; this line is the literal slaughter, immediately followed by the fire imagery ('the rage of fire victorious preys'), which precedes Achilles's address to Patroclus's ghost also contained in this scene's span."
+    },
+    {
+      "book": 23,
+      "n": 189,
+      "anchor": "So spake he, threatening: but the gods made vain",
+      "status": "verified",
+      "note": "Matches Murray's opening about Aphrodite and Apollo protecting Hector's body; the sacrifice of animals and captives described in this scene's summary is rendered earlier, within the prior scene's compressed span."
+    },
+    {
+      "book": 23,
+      "n": 208,
+      "anchor": "“Not so (the dame replied), I haste to go",
+      "status": "verified",
+      "note": "Matches Murray's 'But Achilles prayeth the North Wind and the noisy West Wind to come... that so ye may rouse the pyre to burn', Iris's reply to the winds' invitation to feast."
+    },
+    {
+      "book": 23,
+      "n": 226,
+      "anchor": "So stay’d Achilles, circling round the shore,",
+      "status": "verified",
+      "note": "Matches Murray's 'going heavily about the pyre with ceaseless groaning... even then grew the burning faint'; the preceding line ends a simile with a colon rather than a period, hence the expected warning."
+    },
+    {
+      "book": 23,
+      "n": 258,
+      "anchor": "That done, they bid the sepulchre aspire,",
+      "status": "verified",
+      "note": "Matches Murray's 'they traced the compass of the barrow... and forthwith they piled the up-piled earth', directly followed by Achilles seating the host and producing prizes."
+    },
+    {
+      "book": 23,
+      "n": 363,
+      "anchor": "At once the coursers from the barrier bound;",
+      "status": "verified",
+      "note": "Matches Murray's 'they all at one moment lifted the lash... and sped swiftly over the plain'; Achilles posting Phoenix as judge (Murray's literal first clause) is rendered a couplet earlier."
+    },
+    {
+      "book": 23,
+      "n": 448,
+      "anchor": "Meantime the Grecians in a ring beheld",
+      "status": "verified",
+      "note": "Matches Murray's 'the Argives sitting in the place of gathering were gazing at the horses... the first to mark them was Idomeneus'; Antilochus's reckless overtaking of Menelaus, named in this scene's summary, is rendered in the prior scene's span."
+    },
+    {
+      "book": 23,
+      "n": 566,
+      "anchor": "He said: Automedon at his command",
+      "status": "verified",
+      "note": "Matches Murray's 'placed it in Eumelus' hands and he received it gladly. Then among them uprose also Menelaus... wroth at Antilochus'; Nestor's prize and reminiscence, named in this scene's summary, are rendered later in the same span."
+    },
+    {
+      "book": 23,
+      "n": 653,
+      "anchor": "The prizes next are order’d to the field,",
+      "status": "verified",
+      "note": "Matches Murray's 'Then set he forth prizes for grievous boxing. A sturdy mule he brought and tethered', directly after Nestor's closing thanks."
+    },
+    {
+      "book": 23,
+      "n": 700,
+      "anchor": "The third bold game Achilles next demands,",
+      "status": "verified",
+      "note": "Matches Murray's 'the son of Peleus forthwith ordained... other prizes for a third contest, even for toilsome wrestling', opening the wrestling episode."
+    },
+    {
+      "book": 23,
+      "n": 740,
+      "anchor": "And now succeed the gifts ordain’d to grace",
+      "status": "verified",
+      "note": "Matches Murray's 'the son of Peleus straightway set forth other prizes for fleetness of foot: a mixingbowl of silver', opening the footrace episode."
+    },
+    {
+      "book": 23,
+      "n": 798,
+      "anchor": "The effect succeeds the speech. Pelides cries,",
+      "status": "verified",
+      "note": "Matches Murray's 'not in vain shall thy word of praise be spoken; nay, I will add to thy prize a half-talent of gold... the son of Peleus brought... a shield and helmet', the clean sentence-opening line just before Achilles's reply and the armor-duel prizes."
+    },
+    {
+      "book": 23,
+      "n": 826,
+      "anchor": "Then hurl’d the hero, thundering on the ground,",
+      "status": "verified",
+      "note": "Matches Murray's 'the son of Peleus set forth a mass of rough-cast iron, which of old the mighty strength of Eëtion was wont to hurl', the clean sentence start just after the sword prize is settled on Diomedes."
+    },
+    {
+      "book": 24,
+      "n": 31,
+      "anchor": "But when the tenth celestial morning broke,",
+      "status": "verified",
+      "note": "Matches Murray's 'when at length the twelfth morn thereafter was come, then among the immortals spake Phoebus Apollo'; Pope gives 'tenth' rather than 'twelfth' but the moment and speech are unmistakable."
+    },
+    {
+      "book": 24,
+      "n": 55,
+      "anchor": "“If equal honours by the partial skies",
+      "status": "verified",
+      "note": "Matches Murray's 'Then stirred to anger spake to him white-armed Hera: Even this might be as thou sayest... if indeed ye gods will vouchsafe like honour to Achilles and to Hector'."
+    },
+    {
+      "book": 24,
+      "n": 77,
+      "anchor": "He added not: and Iris from the skies,",
+      "status": "verified",
+      "note": "Matches Murray's 'So spake he, and storm-footed Iris hasted to bear his message', directly after Zeus's instruction to fetch Thetis."
+    },
+    {
+      "book": 24,
+      "n": 121,
+      "anchor": "His word the silver-footed queen attends,",
+      "status": "verified",
+      "note": "Matches Murray's 'the goddess, silver-footed Thetis, failed not to hearken, but went darting down from the peaks of Olympus, and came to the hut of her son'."
+    },
+    {
+      "book": 24,
+      "n": 141,
+      "anchor": "While thus they communed, from the Olympian bowers",
+      "status": "verified",
+      "note": "Matches Murray's 'mother and son spake many winged words one to the other, but the son of Cronos sent forth Iris to sacred Ilios'."
+    },
+    {
+      "book": 24,
+      "n": 188,
+      "anchor": "She spoke, and vanish’d. Priam bids prepare",
+      "status": "verified",
+      "note": "Matches Murray's 'When she had thus spoken swift-footed Iris departed; but the king bade his sons make ready the running mule waggon'."
+    },
+    {
+      "book": 24,
+      "n": 228,
+      "anchor": "I go, ye gods! obedient to your call:",
+      "status": "verified",
+      "note": "Matches Murray's declaration that he will go even at the cost of his life, immediately preceding 'He spake, and opened the goodly lids of chests... twelve beauteous robes'; Pope renders the whole outburst and the gift-gathering as one continuous sentence, so this is the nearest clean sentence start to where Murray's text resumes."
+    },
+    {
+      "book": 24,
+      "n": 266,
+      "anchor": "The sons their father’s wretched age revere,",
+      "status": "verified",
+      "note": "Matches Murray's 'they, seized with fear of the rebuke of their father, brought forth the light-running waggon drawn of mules', directly after Priam's rebuke of his sons."
+    },
+    {
+      "book": 24,
+      "n": 322,
+      "anchor": "A dawn of joy in every face appears:",
+      "status": "verified",
+      "note": "Matches Murray's account of the household's relief and the wagon setting out with Idaeus driving the mules and Priam his own horses; Pope renders the whole departure as one long sentence, so this is the nearest sentence-opening line to where Murray's text resumes."
+    },
+    {
+      "book": 24,
+      "n": 353,
+      "anchor": "Now twilight veil’d the glaring face of day,",
+      "status": "verified",
+      "note": "Matches Murray's 'they halted the mules and the horses in the river to drink; for darkness was by now come down... Then the herald looked and was ware of Hermes hard at hand'; this scene's span runs on to include Hermes's full reassurance and offer to guide, per the summary."
+    },
+    {
+      "book": 24,
+      "n": 440,
+      "anchor": "He said, then took the chariot at a bound,",
+      "status": "verified",
+      "note": "Matches Murray's 'leaping upon the chariot behind the horses quickly grasped in his hands the lash and reins... upon all of these the messenger Argeiphontes shed sleep'."
+    },
+    {
+      "book": 24,
+      "n": 468,
+      "anchor": "Thus having said, he vanish’d from his eyes,",
+      "status": "verified",
+      "note": "Matches Murray's 'So spake Hermes, and departed unto high Olympus; and Priam leapt from his chariot to the ground', directly after Hermes's final instruction to entreat Achilles by his father."
+    },
+    {
+      "book": 24,
+      "n": 513,
+      "anchor": "Satiate at length with unavailing woes,",
+      "status": "verified",
+      "note": "Matches Murray's 'when goodly Achilles had had his fill of lamenting... forthwith then he sprang from his seat, and raised the old man by his hand'."
+    },
+    {
+      "book": 24,
+      "n": 552,
+      "anchor": "To whom the king: “O favour’d of the skies!",
+      "status": "verified",
+      "note": "Matches Murray's 'And the old man, godlike Priam, answered him: Seat me not anywise upon a chair... nay, give him back with speed'; the 'two urns' speech that closes with 'thou mayst live to suffer more' belongs to the prior scene's span."
+    },
+    {
+      "book": 24,
+      "n": 596,
+      "anchor": "He said, and, entering, took his seat of state;",
+      "status": "verified",
+      "note": "Matches Murray's 'So spake goodly Achilles, and went back within the hut and on the richly-wrought chair... sate him down... and he spake unto Priam, saying: Thy son, old sire, is given back'."
+    },
+    {
+      "book": 24,
+      "n": 677,
+      "anchor": "Then gave his hand at parting, to prevent",
+      "status": "verified",
+      "note": "Matches Murray's 'Achilles slept... by his side lay fair-cheeked Briseis. Now all the other gods and men... slumbered... but not upon the helper Hermes might sleep lay hold'."
+    },
+    {
+      "book": 24,
+      "n": 695,
+      "anchor": "Now shed Aurora round her saffron ray,",
+      "status": "verified",
+      "note": "Matches Murray's 'Dawn, the saffron-robed, was spreading over the face of all the earth. So they with moaning and wailing drave the horses to the city... Cassandra... marked her dear father'."
+    },
+    {
+      "book": 24,
+      "n": 718,
+      "anchor": "But godlike Priam from the chariot rose:",
+      "status": "verified",
+      "note": "Matches Murray's 'the old man spoken amid the folk from out the car: Make me way for the mules to pass through... So spake he, and they stood apart'; the preceding line ends in a semicolon rather than a period, hence the expected warning."
+    },
+    {
+      "book": 24,
+      "n": 777,
+      "anchor": "But Priam check’d the torrent as it rose:",
+      "status": "verified",
+      "note": "Matches Murray's 'the old man Priam spake among the folk, saying: Bring wood now, ye men of Troy'; the preceding line ends in a semicolon rather than a period, hence the expected warning."
+    }
+  ]
+}

@@ -78,6 +78,11 @@ non-negotiable.
   refreshed" — clear that state dir and start a `--fresh` thread. `codex login
   status` saying "Logged in" is not sufficient evidence the plugin runtime works.
 
+- Pipeline gotcha (2026-07-21, cost an Iliad re-emit): `build/stage1` is a
+  per-run working dir — running `stage1` then `stage7` alone against a stale
+  working dir (last full run was the other work) crashes stage7 (KeyError on
+  the token map) AFTER it has wiped the work's dist dir. A re-emit is only
+  valid as `all --work <W>` (then apparatus, per the rule below).
 - Pipeline gotcha (2026-07-17, caught by Gate 4): any stage7 re-emit
   (incl. `all` and full re-runs) must be FOLLOWED by `apparatus
   --work <W>` for both works — stage7 rewrites book JSONs without the
@@ -281,6 +286,10 @@ And from his expanded set, the ones this project adopts:
    rather than continuing.
 
 ## Failure-mode registry (append dated lessons — a lesson not written down will be repeated)
+
+- **Plan-mode Explore/Plan spawns ran on Fable** (2026-07-21, caught by John):
+  the plan-mode workflow's built-in Explore/Plan agent types count as spawns —
+  omitting `model:` inherits Fable there too. No explicit `model:`, no launch.
 
 - **`git add -A` while agents are in flight** (2026-07-17, twice): sweeps
   concurrent agents' uncommitted work into unrelated commits. Orchestrator

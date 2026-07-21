@@ -668,6 +668,9 @@ interface FixtureBook {
     greek: { n: number }[];
     english: { text: string; bekker: { n: number; offset: number; real: boolean }[]; markers: RealMarker[] };
     ross: [{ text: string; bekker: { n: number; offset: number; real: boolean }[] }];
+    // Pope (curated scene-boundary ticks) — present on iliad1/odyssey9 only;
+    // optional so any future fixture entry without it still type-checks.
+    third?: [{ text: string; bekker: { n: number; offset: number; real: boolean }[] }];
   }];
   // Speech-opening lines in this book (the fixture's own bookSpeechStarts) —
   // fed to buildRealChunks so the fixture runs the SAME production
@@ -691,9 +694,15 @@ function loadFixtureBook(entry: string, translation: RealTranslation): { chunks:
   if (translation === 'murray') {
     const paraOffsets = seg.english.markers.filter((m) => m.kind === 'paragraph').map((m) => m.offset);
     chunks = buildRealChunks(seg.english.text, seg.english.bekker, paraOffsets, seg.greek, raw.speechStarts);
-  } else {
+  } else if (translation === 'butler') {
     const piece = seg.ross[0];
     chunks = buildRealChunks(piece.text, piece.bekker, [], seg.greek, raw.speechStarts);
+  } else {
+    // pope: curated ticks are exact anchors — [] speechStarts, same as
+    // loadRealBook's pope branch (see real-book-loader.ts).
+    const piece = seg.third?.[0];
+    if (!piece) return null;
+    chunks = buildRealChunks(piece.text, piece.bekker, [], seg.greek, []);
   }
   const scenes: SceneRange[] = raw.apparatus.scenes.map((s) => ({ startLine: s.lines[0], endLine: s.lines[1] }));
   return { chunks, scenes };
@@ -722,12 +731,22 @@ const REAL_COMBOS: BookCombo[] = [
   // Odyssey 10 (Murray) — post-fix, its 12 scenes must pass every invariant
   // below exactly like any other book (see ODYSSEY_10_PATH comment above).
   { label: 'Odyssey 10 (Murray)', translation: 'murray', load: () => loadRealBook(ODYSSEY_10_PATH, 'murray') },
+  // Pope (curated scene-boundary ticks — T3, 2026-07-21): same trigger books
+  // as the Butler/Murray combos above, skip-if-absent like every other
+  // REAL_COMBOS entry (build/dist's Pope carries one book-level tick until
+  // the pipeline lane re-emits — see this lane's report).
+  { label: 'Iliad 1 (Pope)', translation: 'pope', load: () => loadRealBook(ILIAD_1_PATH, 'pope') },
+  { label: 'Iliad 12 (Pope)', translation: 'pope', load: () => loadRealBook(ILIAD_12_PATH, 'pope') },
+  { label: 'Odyssey 9 (Pope)', translation: 'pope', load: () => loadRealBook(ODYSSEY_9_PATH, 'pope') },
+  { label: 'Odyssey 11 (Pope)', translation: 'pope', load: () => loadRealBook(ODYSSEY_11_PATH, 'pope') },
 ];
 const FIXTURE_COMBOS: BookCombo[] = [
   { label: 'Iliad 1 fixture (Murray)', translation: 'murray', load: () => loadFixtureBook('iliad1', 'murray') },
   { label: 'Odyssey 9 fixture (Murray)', translation: 'murray', load: () => loadFixtureBook('odyssey9', 'murray') },
   { label: 'Iliad 1 fixture (Butler)', translation: 'butler', load: () => loadFixtureBook('iliad1', 'butler') },
   { label: 'Odyssey 9 fixture (Butler)', translation: 'butler', load: () => loadFixtureBook('odyssey9', 'butler') },
+  { label: 'Iliad 1 fixture (Pope)', translation: 'pope', load: () => loadFixtureBook('iliad1', 'pope') },
+  { label: 'Odyssey 9 fixture (Pope)', translation: 'pope', load: () => loadFixtureBook('odyssey9', 'pope') },
 ];
 const ALL_COMBOS = [...REAL_COMBOS, ...FIXTURE_COMBOS];
 
@@ -925,13 +944,13 @@ describe('sentenceSnapScenePages — real Iliad 1 / Odyssey 9 data', () => {
 });
 
 // ── Corpus audit gate (John, 2026-07-21) ────────────────────────────────────
-// The full 96-book (24 books x 2 epics x 2 translations) corpus audit
+// The full 144-book (24 books x 2 epics x 3 translations) corpus audit
 // (auditScenePaging, shared/scripts/scene-paging-audit.ts) is what turns the
 // manual audit run into an actual vitest gate. Skips (like every other
 // real-data suite above) when build/dist isn't present locally — it's
 // gitignored pipeline output, not a suite dependency (see CLAUDE.md's
 // concurrency gotcha). Computed ONCE at describe-body eval time and reused
-// across every assertion below, rather than re-running the 96-book sweep per
+// across every assertion below, rather than re-running the 144-book sweep per
 // `it` — auditScenePaging is not cheap enough to call repeatedly.
 const AUDIT_DIST_ROOT = '../build/dist';
 const hasAuditDistRoot = existsSync(AUDIT_DIST_ROOT);
@@ -977,7 +996,7 @@ describe('scene-paging corpus audit gate (real build/dist data)', () => {
     if (!result?.buildDistPresent) return;
     expect(result.totals.corruptChunkBooks).toEqual([]);
     expect(result.gate.excludedCorruptBooks).toBe(0);
-    expect(result.totals.booksAudited).toBe(96);
+    expect(result.totals.booksAudited).toBe(144);
   });
 
   it.skipIf(!hasAuditDistRoot)('ownership floor: no well-formed book page falls below the minOwnershipFraction regression floor', () => {

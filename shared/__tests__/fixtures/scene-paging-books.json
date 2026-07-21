@@ -1,18 +1,20 @@
 {
   "_provenance": {
-    "generated": "2026-07-21",
-    "generator": "throwaway node script (Codex review F1/F5, 2026-07-21) — not committed",
-    "note": "Trimmed, book-JSON-shaped excerpts for the scene-paging invariant suite to run against when gitignored build/dist is absent (e.g. CI). Content is public-domain: Murray (Loeb 1924, seg.english) and Butler (1898-1900, seg.ross). Regenerated 2026-07-21 to carry seg.greek (real vulgate line numbers, the gap carrier) and speechStarts (speech-opening lines), so buildRealChunks runs the SAME production flowParts->alignGroups path Reader.svelte renders.",
+    "generated": "2026-07-21 (T3 lane: added seg.third/Pope)",
+    "generator": "throwaway node/python scripts (Codex review F1/F5, 2026-07-21; T3 lane Pope addition, 2026-07-21) — not committed",
+    "note": "Trimmed, book-JSON-shaped excerpts for the scene-paging invariant suite to run against when gitignored build/dist is absent (e.g. CI). Content is public-domain: Murray (Loeb 1924, seg.english) and Butler (1898-1900, seg.ross). Regenerated 2026-07-21 to carry seg.greek (real vulgate line numbers, the gap carrier) and speechStarts (speech-opening lines), so buildRealChunks runs the SAME production flowParts->alignGroups path Reader.svelte renders. 2026-07-21 T3 lane: added seg.third (Alexander Pope, 1715-20/1725-26, public domain) to iliad1/odyssey9 — 5 curated scene-boundary ticks per book (one per this fixture's own scenes array), matching the real pipeline's curated-tick shape for the pope translation slot.",
     "sources": {
       "iliad1": {
         "file": "build/dist/iliad/book-01.json + speeches.json",
         "greekLines": "1-100",
-        "translations": "Murray 1924 (english), Butler 1898 (ross)"
+        "translations": "Murray 1924 (english), Butler 1898 (ross)",
+        "pope": "sources/pope/pope-iliad.txt lines 2073-2214 (Book I proem through Chalcas naming Chryseis) — trimmed to the 5 fixture scenes"
       },
       "odyssey9": {
         "file": "build/dist/odyssey/book-09.json + speeches.json",
         "greekLines": "1-141",
-        "translations": "Murray 1919 (english), Butler 1900 (ross)"
+        "translations": "Murray 1919 (english), Butler 1900 (ross)",
+        "pope": "sources/pope/pope-odyssey.txt lines 6452-6614 (Book IX opening through the Cyclopes' island) — trimmed to the 5 fixture scenes"
       }
     }
   },
@@ -559,6 +561,38 @@
           },
           {
             "n": 100
+          }
+        ],
+        "third": [
+          {
+            "text": "Achilles’ wrath, to Greece the direful spring Of woes unnumber’d, heavenly goddess, sing! That wrath which hurl’d to Pluto’s gloomy reign The souls of mighty chiefs untimely slain; Whose limbs unburied on the naked shore, Devouring dogs and hungry vultures tore. Since great Achilles and Atrides strove, Such was the sovereign doom, and such the will of Jove! Declare, O Muse! in what ill-fated hour Sprung the fierce strife, from what offended power Latona’s son a dire contagion spread, And heap’d the camp with mountains of the dead; The king of men his reverent priest defied, And for the king’s offence the people died. For Chryses sought with costly gifts to gain His captive daughter from the victor’s chain. Suppliant the venerable father stands; Apollo’s awful ensigns grace his hands: By these he begs; and lowly bending down, Extends the sceptre and the laurel crown. He sued to all, but chief implored for grace The brother-kings, of Atreus’ royal race “Ye kings and warriors! may your vows be crown’d, And Troy’s proud walls lie level with the ground. May Jove restore you when your toils are o’er Safe to the pleasures of your native shore. But, oh! relieve a wretched parent’s pain, And give Chryseïs to these arms again; If mercy fail, yet let my presents move, And dread avenging Phœbus, son of Jove.” The Greeks in shouts their joint assent declare, The priest to reverence, and release the fair. Not so Atrides; he, with kingly pride, Repulsed the sacred sire, and thus replied: “Hence on thy life, and fly these hostile plains, Nor ask, presumptuous, what the king detains: Hence, with thy laurel crown, and golden rod, Nor trust too far those ensigns of thy god. Mine is thy daughter, priest, and shall remain; And prayers, and tears, and bribes, shall plead in vain; Till time shall rifle every youthful grace, And age dismiss her from my cold embrace, In daily labours of the loom employ’d, Or doom’d to deck the bed she once enjoy’d. Hence then; to Argos shall the maid retire, Far from her native soil and weeping sire.” The trembling priest along the shore return’d, And in the anguish of a father mourn’d. Disconsolate, not daring to complain, Silent he wander’d by the sounding main; Till, safe at distance, to his god he prays, The god who darts around the world his rays. “O Smintheus! sprung from fair Latona’s line, Thou guardian power of Cilla the divine, Thou source of light! whom Tenedos adores, And whose bright presence gilds thy Chrysa’s shores. If e’er with wreaths I hung thy sacred fane, Or fed the flames with fat of oxen slain; God of the silver bow! thy shafts employ, Avenge thy servant, and the Greeks destroy.” Thus Chryses pray’d:—the favouring power attends, And from Olympus’ lofty tops descends. Bent was his bow, the Grecian hearts to wound; Fierce as he moved, his silver shafts resound. Breathing revenge, a sudden night he spread, And gloomy darkness roll’d about his head. The fleet in view, he twang’d his deadly bow, And hissing fly the feather’d fates below. On mules and dogs the infection first began; And last, the vengeful arrows fix’d in man. For nine long nights, through all the dusky air, The pyres, thick-flaming, shot a dismal glare. But ere the tenth revolving day was run, Inspired by Juno, Thetis’ godlike son Convened to council all the Grecian train; For much the goddess mourn’d her heroes slain. The assembly seated, rising o’er the rest, Achilles thus the king of men address’d: “Why leave we not the fatal Trojan shore, And measure back the seas we cross’d before? The plague destroying whom the sword would spare, ’Tis time to save the few remains of war. But let some prophet, or some sacred sage, Explore the cause of great Apollo’s rage; Or learn the wasteful vengeance to remove By mystic dreams, for dreams descend from Jove. If broken vows this heavy curse have laid, Let altars smoke, and hecatombs be paid. So Heaven, atoned, shall dying Greece restore, And Phœbus dart his burning shafts no more.” He said, and sat: when Chalcas thus replied; Chalcas the wise, the Grecian priest and guide, That sacred seer, whose comprehensive view, The past, the present, and the future knew: Uprising slow, the venerable sage Thus spoke the prudence and the fears of age: “Beloved of Jove, Achilles! would’st thou know Why angry Phœbus bends his fatal bow? First give thy faith, and plight a prince’s word Of sure protection, by thy power and sword: For I must speak what wisdom would conceal, And truths, invidious to the great, reveal, Bold is the task, when subjects, grown too wise, Instruct a monarch where his error lies; For though we deem the short-lived fury past, ’Tis sure the mighty will revenge at last.” To whom Pelides:—“From thy inmost soul Speak what thou know’st, and speak without control. E’en by that god I swear who rules the day, To whom thy hands the vows of Greece convey. And whose bless’d oracles thy lips declare; Long as Achilles breathes this vital air, No daring Greek, of all the numerous band, Against his priest shall lift an impious hand; Not e’en the chief by whom our hosts are led, The king of kings, shall touch that sacred head.” Encouraged thus, the blameless man replies: “Nor vows unpaid, nor slighted sacrifice, But he, our chief, provoked the raging pest, Apollo’s vengeance for his injured priest. Nor will the god’s awaken’d fury cease, But plagues shall spread, and funeral fires increase, Till the great king, without a ransom paid, To her own Chrysa send the black-eyed maid. Perhaps, with added sacrifice and prayer, The priest may pardon, and the god may spare.” ",
+            "bekker": [
+              {
+                "n": 1,
+                "offset": 0,
+                "real": true
+              },
+              {
+                "n": 8,
+                "offset": 625,
+                "real": true
+              },
+              {
+                "n": 33,
+                "offset": 2046,
+                "real": true
+              },
+              {
+                "n": 43,
+                "offset": 2659,
+                "real": true
+              },
+              {
+                "n": 53,
+                "offset": 3204,
+                "real": true
+              }
+            ]
           }
         ]
       }
@@ -1258,6 +1292,38 @@
           },
           {
             "n": 141
+          }
+        ],
+        "third": [
+          {
+            "text": "Then thus Ulysses: “Thou whom first in sway, As first in virtue, these thy realms obey; How sweet the products of a peaceful reign! The heaven-taught poet and enchanting strain; The well-filled palace, the perpetual feast, A land rejoicing, and a people bless’d! How goodly seems it ever to employ Man’s social days in union and in joy; The plenteous hoard high-heap’d with cates divine, And o’er the foaming bowl the laughing wine! “Amid these joys, why seeks thy mind to know The unhappy series of a wanderer’s woe? Rememberance sad, whose image to review, Alas, I must open all my wounds anew! And oh, what first, what last shall I relate, Of woes unnumbered sent by Heaven and Fate? “Know first the man (though now a wretch distress’d) Who hopes thee, monarch, for his future guest. Behold Ulysses! no ignoble name, Earth sounds my wisdom and high heaven my fame. “My native soil is Ithaca the fair, Where high Neritus waves his woods in air; Dulichium, Same and Zaccynthus crown’d With shady mountains spread their isles around. (These to the north and night’s dark regions run, Those to Aurora and the rising sun). Low lies our isle, yet bless’d in fruitful stores; Strong are her sons, though rocky are her shores; And none, ah none no lovely to my sight, Of all the lands that heaven o’erspreads with light. In vain Calypso long constrained my stay, With sweet, reluctant, amorous delay; With all her charms as vainly Circe strove, And added magic to secure my love. In pomps or joys, the palace or the grot, My country’s image never was forgot; My absent parents rose before my sight, And distant lay contentment and delight. “Hear, then, the woes which mighty Jove ordain’d To wait my passage from the Trojan land. The winds from Ilion to the Cicons’ shore, Beneath cold Ismarus our vessels bore. We boldly landed on the hostile place, And sack’d the city, and destroy’d the race, Their wives made captive, their possessions shared, And every soldier found a like reward I then advised to fly; not so the rest, Who stay’d to revel, and prolong the feast: The fatted sheep and sable bulls they slay, And bowls flow round, and riot wastes the day. Meantime the Cicons, to their holds retired, Call on the Cicons, with new fury fired; With early morn the gather’d country swarms, And all the continent is bright with arms; Thick as the budding leaves or rising flowers O’erspread the land, when spring descends in showers: All expert soldiers, skill’d on foot to dare, Or from the bounding courser urge the war. Now fortune changes (so the Fates ordain); Our hour was come to taste our share of pain. Close at the ships the bloody fight began, Wounded they wound, and man expires on man. Long as the morning sun increasing bright O’er heaven’s pure azure spreads the glowing light, Promiscuous death the form of war confounds, Each adverse battle gored with equal wounds; But when his evening wheels o’erhung the main, Then conquest crown’d the fierce Ciconian train. Six brave companions from each ship we lost, The rest escape in haste, and quit the coast, With sails outspread we fly the unequal strife, Sad for their loss, but joyful of our life. “Meanwhile the god, whose hand the thunder forms, Drives clouds on clouds, and blackens heaven with storms: Wide o’er the waste the rage of Boreas sweeps, And night rush’d headlong on the shaded deeps. Now here, now there, the giddy ships are borne, And all the rattling shrouds in fragments torn. We furl’d the sail, we plied the labouring oar, Took down our masts, and row’d our ships to shore. Two tedious days and two long nights we lay, O’erwatch’d and batter’d in the naked bay. But the third morning when Aurora brings, We rear the masts, we spread the canvas wings; Refresh’d and careless on the deck reclined, We sit, and trust the pilot and the wind. Then to my native country had I sail’d: But, the cape doubled, adverse winds prevail’d. Strong was the tide, which by the northern blast Impell’d, our vessels on Cythera cast, Nine days our fleet the uncertain tempest bore Far in wide ocean, and from sight of shore: The tenth we touch’d, by various errors toss’d, The land of Lotus and the flowery coast. We climb’d the beach, and springs of water found, Then spread our hasty banquet on the ground. Three men were sent, deputed from the crew (A herald one) the dubious coast to view, And learn what habitants possess’d the place. They went, and found a hospitable race: Not prone to ill, nor strange to foreign guest, They eat, they drink, and nature gives the feast The trees around them all their food produce: Lotus the name: divine, nectareous juice! (Thence call’d Lotophagi); which whose tastes, Insatiate riots in the sweet repasts, Nor other home, nor other care intends, But quits his house, his country, and his friends. The three we sent, from off the enchanting ground We dragg’d reluctant, and by force we bound. The rest in haste forsook the pleasing shore, Or, the charm tasted, had return’d no more. Now placed in order on their banks, they sweep The sea’s smooth face, and cleave the hoary deep: With heavy hearts we labour through the tide, To coasts unknown, and oceans yet untried. “The land of Cyclops first, a savage kind, Nor tamed by manners, nor by laws confined: Untaught to plant, to turn the glebe, and sow, They all their products to free nature owe: The soil, untill’d, a ready harvest yields, With wheat and barley wave the golden fields; Spontaneous wines from weighty clusters pour, And Jove descends in each prolific shower, By these no statues and no rights are known, No council held, no monarch fills the throne; But high on hills, or airy cliffs, they dwell, Or deep in caves whose entrance leads to hell. Each rules his race, his neighbour not his care, Heedless of others, to his own severe. “Opposed to the Cyclopean coast, there lay An isle, whose hill their subject fields survey; Its name Lachaea, crown’d with many a grove, Where savage goats through pathless thickets rove: No needy mortals here, with hunger bold, Or wretched hunters through the wintry cold Pursue their flight; but leave them safe to bound From hill to hill, o’er all the desert ground. Nor knows the soil to feed the fleecy care, Or feels the labours of the crooked share; But uninhabited, untill’d, unsown, It lies, and breeds the bleating goat alone. For there no vessel with vermilion prore, Or bark of traffic, glides from shore to shore; The rugged race of savages, unskill’d The seas to traverse, or the ships to build, Gaze on the coast, nor cultivate the soil, Unlearn’d in all the industrious art of toil, Yet here all products and all plants abound, Sprung from the fruitful genius of the ground; Fields waving high with heavy crops are seen, And vines that flourish in eternal green, Refreshing meads along the murmuring main, And fountains streaming down the fruitful plain. ",
+            "bekker": [
+              {
+                "n": 1,
+                "offset": 0,
+                "real": true
+              },
+              {
+                "n": 15,
+                "offset": 687,
+                "real": true
+              },
+              {
+                "n": 39,
+                "offset": 1635,
+                "real": true
+              },
+              {
+                "n": 70,
+                "offset": 3158,
+                "real": true
+              },
+              {
+                "n": 105,
+                "offset": 5173,
+                "real": true
+              }
+            ]
           }
         ]
       }

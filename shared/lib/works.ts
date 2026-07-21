@@ -29,6 +29,14 @@ export interface TranslationRef {
   // The public deploy sets PUBLIC_HIDE_PRIVATE=1 to drop them from the registry
   // (and is built from the work's -public manifest, so their text is absent too).
   private?: boolean;
+  // Set when this translation's bekker ticks are CURATED scene-boundary
+  // anchors (pipeline-emitted, ~15/book) rather than dense milestone ticks —
+  // Pope, as of the T3 scene-alignment lane (2026-07-21). Consumers (Reader.
+  // svelte's readingChunks, shared/__tests__/real-book-loader.ts) must NOT
+  // speech-snap a curated tick: it is already exact, and snapping could only
+  // move it off its intended scene boundary. Absent/false = ordinary dense
+  // milestone ticks (Murray, Butler), speech-snapped as usual.
+  curatedTicks?: true;
 }
 
 // A gap in a work's book sequence worth annotating in the reader (e.g. the
@@ -157,7 +165,7 @@ export const WORKS: Work[] = [
     translations: [
       { id: 'murray', name: 'A. T. Murray (Loeb, 1924–25)', short: 'Murray', slot: 'english', footnotes: true },
       { id: 'butler', name: 'Samuel Butler (1898)', short: 'Butler', slot: 'ross' },
-      { id: 'pope', name: 'Alexander Pope (literary translation — alignment approximate), 1715–20', short: 'Pope', slot: 'third' },
+      { id: 'pope', name: 'Alexander Pope (literary translation, scene-aligned), 1715–20', short: 'Pope', slot: 'third', curatedTicks: true },
     ],
     blurb: 'The wrath of Achilles and the war at Troy.',
     citation: { scheme: 'verse-line' },
@@ -177,7 +185,7 @@ export const WORKS: Work[] = [
     translations: [
       { id: 'murray', name: 'A. T. Murray (Loeb, 1919)', short: 'Murray', slot: 'english', footnotes: true },
       { id: 'butler', name: 'Samuel Butler (1900)', short: 'Butler', slot: 'ross' },
-      { id: 'pope', name: 'Alexander Pope (literary translation — alignment approximate), 1725–26', short: 'Pope', slot: 'third' },
+      { id: 'pope', name: 'Alexander Pope (literary translation, scene-aligned), 1725–26', short: 'Pope', slot: 'third', curatedTicks: true },
     ],
     blurb: 'The long homecoming of Odysseus from Troy to Ithaca.',
     citation: { scheme: 'verse-line' },

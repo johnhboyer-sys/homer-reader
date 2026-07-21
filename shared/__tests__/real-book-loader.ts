@@ -21,6 +21,14 @@
 //   'butler' — seg.ross[0]: text + bekker, NO paragraph markers — faithful to
 //     production, where Reader.svelte's flowOf(RossPiece) passes no paragraph
 //     offsets either (Reader.svelte flowOf; ross pieces carry no `markers`).
+//   'pope' — seg.third[0]: text + bekker, NO paragraph markers, same shape as
+//     'butler'. Pope's ticks are CURATED scene-boundary anchors (~15/book,
+//     pipeline-emitted), not milestone ticks — they are exact by construction,
+//     so speechStarts is always passed as [] for pope (never the book's real
+//     speech-opening lines): speech-snapping exists to correct milestone-tick
+//     drift near a speech's true opening line, and applying it to an anchor
+//     that is ALREADY exactly right could only move it off target. Mirrors
+//     the `curatedTicks`-gated branch in Reader.svelte's readingChunks.
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,7 +56,7 @@ import {
 const OVERRIDES_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), '../lib/scene-boundary-overrides.json');
 const boundaryOverridesFile: SceneBoundaryOverrideFile = JSON.parse(readFileSync(OVERRIDES_PATH, 'utf-8'));
 
-export type RealTranslation = 'murray' | 'butler';
+export type RealTranslation = 'murray' | 'butler' | 'pope';
 
 export interface RealBekkerTick { n: number; offset: number; real: boolean }
 export interface RealMarker { kind: string; offset: number }
@@ -114,11 +122,18 @@ export function loadRealBook(bookPath: string, translation: RealTranslation): { 
       .filter((m) => m.kind === 'paragraph')
       .map((m) => m.offset);
     chunks = buildRealChunks(seg.english.text, seg.english.bekker ?? [], paraOffsets, greekLines, speechStarts);
-  } else {
+  } else if (translation === 'butler') {
     // Homer verse-line books carry exactly one ross piece per segment.
     const piece = seg.ross?.[0];
     if (!piece?.text) return null;
     chunks = buildRealChunks(piece.text, piece.bekker ?? [], [], greekLines, speechStarts);
+  } else {
+    // pope: seg.third[0], same shape as ross — but [] speechStarts (see the
+    // module header comment: curated ticks are exact, speech-snap must not
+    // move them).
+    const piece = seg.third?.[0];
+    if (!piece?.text) return null;
+    chunks = buildRealChunks(piece.text, piece.bekker ?? [], [], greekLines, []);
   }
   const scenes: SceneRange[] = raw.apparatus.scenes.map((s: { lines: [number, number] }) => ({
     startLine: s.lines[0], endLine: s.lines[1],
