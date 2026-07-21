@@ -23,11 +23,30 @@
 //     offsets either (Reader.svelte flowOf; ross pieces carry no `markers`).
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 // `.ts` extension so `node --experimental-strip-types` (the audit CLI) resolves
 // this runtime import; vitest's bundler resolution accepts it too. (The
 // scene-paging import below is type-only — erased before resolution.)
 import { alignGroups, flowParts } from '../lib/tick-chunks.ts';
-import type { SceneRange, SceneReadingChunk } from '../lib/scene-paging';
+// `.ts` extension here too (see above) — resolveBoundaryOverrides/
+// selectBoundaryOverrideEntries are runtime imports now, not type-only.
+import {
+  resolveBoundaryOverrides,
+  selectBoundaryOverrideEntries,
+  type BoundaryOverride,
+  type SceneBoundaryOverrideFile,
+  type SceneRange,
+  type SceneReadingChunk,
+} from '../lib/scene-paging.ts';
+
+// Read directly via readFileSync/JSON.parse (not a static `import … json`) so
+// this module resolves identically under vitest's bundler AND under
+// `node --experimental-strip-types` (the audit CLI) — the two runtimes disagree
+// on JSON import-assertion syntax, but both handle plain fs + JSON.parse the
+// same way every other JSON read in this file already does (see
+// loadSpeechStarts below).
+const OVERRIDES_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), '../lib/scene-boundary-overrides.json');
+const boundaryOverridesFile: SceneBoundaryOverrideFile = JSON.parse(readFileSync(OVERRIDES_PATH, 'utf-8'));
 
 export type RealTranslation = 'murray' | 'butler';
 
@@ -105,4 +124,24 @@ export function loadRealBook(bookPath: string, translation: RealTranslation): { 
     startLine: s.lines[0], endLine: s.lines[1],
   }));
   return { chunks, scenes };
+}
+
+// Resolves scene-boundary-overrides.json entries for (work, book, translation)
+// against this book's own chunks/scenes — the SAME resolution
+// (selectBoundaryOverrideEntries + resolveBoundaryOverrides, shared/lib/
+// scene-paging.ts) that Reader.svelte and the audit script use, so tests and
+// the audit gate verify the overridden geometry rather than the pre-override
+// one (John, 2026-07-21). Empty when no override applies to this book.
+// Propagates resolveBoundaryOverrides' thrown error (missing anchor) —
+// callers must NOT swallow it (see CLAUDE.md apparatus honesty / this file's
+// mechanism doc).
+export function loadRealBoundaryOverrides(
+  work: string,
+  book: number,
+  translation: RealTranslation,
+  chunks: SceneReadingChunk[],
+  scenes: SceneRange[],
+): BoundaryOverride[] {
+  const entries = selectBoundaryOverrideEntries(boundaryOverridesFile, work, book, translation);
+  return resolveBoundaryOverrides(chunks, scenes, entries);
 }

@@ -29,7 +29,7 @@ import {
   sentenceSnapScenePages,
   type SceneFlowChunk,
 } from '../lib/scene-paging.ts';
-import { loadRealBook, type RealTranslation } from '../__tests__/real-book-loader.ts';
+import { loadRealBoundaryOverrides, loadRealBook, type RealTranslation } from '../__tests__/real-book-loader.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -99,6 +99,17 @@ export interface BookRow {
   // whose OWNED share (1 - the fractionOutside above) is below 0.5. See
   // LowOwnershipPage; also rolled into AuditTotals.lowOwnershipPages as a count.
   lowOwnershipPages: LowOwnershipPage[];
+  // Manual scene-boundary overrides (John, 2026-07-21): true when this book/
+  // translation carries no override, or every override resolved cleanly.
+  // false ⇒ resolveBoundaryOverrides threw (anchor not found or scene number
+  // out of range) — a HARD gate failure, never silently ignored (see
+  // scene-boundary-overrides.json's mechanism doc).
+  overridesResolved: boolean;
+  overrideErrors: string[];
+  // 1-based scene numbers excluded from this row's ownership-fraction metric
+  // because an override touches their page — see the exclusion comment at
+  // the computation site in auditOneBook.
+  overrideAffectedScenePages: number[];
 }
 
 export interface AuditTotals {
@@ -115,6 +126,10 @@ export interface AuditTotals {
   // Codex new-finding 1 (2026-07-21): total count of LowOwnershipPage entries
   // across every book — see BookRow.lowOwnershipPages for the per-book list.
   lowOwnershipPages: number;
+  // Manual scene-boundary overrides (John, 2026-07-21): books whose override
+  // anchor(s) failed to resolve — see BookRow.overridesResolved.
+  booksWithOverrideErrors: number;
+  overrideErrors: string[];
   // Upstream tick-chunk corruption (see BookRow.chunkGeometryValid) —
   // surfaced loudly: how many books, and which. Excluded from gate correctness.
   booksWithCorruptChunks: number;
@@ -152,6 +167,9 @@ export interface AuditGate {
   // shortPagesBelowHollowThreshold above, which stay informational). A lower
   // bound on the true violating-PAGE count (see the computation site).
   belowMinOwnershipPages: number;
+  // Manual scene-boundary overrides (John, 2026-07-21): a real gate input —
+  // any anchor-resolution failure fails the gate outright.
+  overrideResolutionFailures: number;
   pass: boolean;
 }
 
@@ -186,6 +204,9 @@ function emptyRow(epic: Epic, book: number, translation: RealTranslation): BookR
     shortPagesBelowHollowThreshold: 0,
     worstOwnershipFraction: 0,
     lowOwnershipPages: [],
+    overridesResolved: true,
+    overrideErrors: [],
+    overrideAffectedScenePages: [],
   };
 }
 
@@ -204,8 +225,41 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
 
   const { chunks, scenes } = loaded;
 
-  const pureOff = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false });
-  const guardOn = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: true });
+  // Manual scene-boundary overrides (John, 2026-07-21): resolved the SAME way
+  // Reader.svelte does (loadRealBoundaryOverrides → selectBoundaryOverrideEntries
+  // + resolveBoundaryOverrides, shared/lib/scene-paging.ts), so this audit
+  // measures the geometry actually shown to readers, not the pre-override one.
+  // A resolution failure (missing anchor / bad scene number) is a HARD gate
+  // failure — surfaced via overridesResolved/overrideErrors below, never
+  // silently ignored — and the book falls back to computing its OTHER metrics
+  // with no overrides applied (so the rest of the row still reports honestly).
+  let boundaryOverrides: ReturnType<typeof loadRealBoundaryOverrides> = [];
+  let overridesResolved = true;
+  const overrideErrors: string[] = [];
+  try {
+    boundaryOverrides = loadRealBoundaryOverrides(epic, book, translation, chunks, scenes);
+  } catch (err) {
+    overridesResolved = false;
+    overrideErrors.push(err instanceof Error ? err.message : String(err));
+  }
+
+  // Every scene index (0-based) whose PAGE TEXT an override touches: the
+  // pinned scene itself, and the scene immediately before it (whose end moved
+  // to the same offset). The ownership-fraction metric below measures
+  // conformance to the Greek-tick alignment scene-paging derives automatically
+  // — exactly what a manual override deliberately overrules (that's the whole
+  // point of John's correction), so these pages are excluded from that metric
+  // specifically, WITH attribution (overrideAffectedScenePages), not silently.
+  // Every OTHER invariant (mid-sentence, empty, lossless, duplication) still
+  // applies to these pages with no exception — see the corpus audit gate test.
+  const overrideAffectedSceneIndices = new Set<number>();
+  for (const o of boundaryOverrides) {
+    overrideAffectedSceneIndices.add(o.sceneIndex);
+    if (o.sceneIndex > 0) overrideAffectedSceneIndices.add(o.sceneIndex - 1);
+  }
+
+  const pureOff = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false, boundaryOverrides });
+  const guardOn = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: true, boundaryOverrides });
 
   // ── partitionLossless: pureOff pages concatenated === mergeSceneFlowChunks(chunks) text ──
   const whole = mergeSceneFlowChunks(chunks).flowParts.map((p) => p.text ?? '').join('');
@@ -283,6 +337,7 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
   const lowOwnershipPages: LowOwnershipPage[] = [];
   for (let i = 0; i < pureOff.length; i++) {
     if (pageText(pureOff[i]).trim() === '') continue;
+    if (overrideAffectedSceneIndices.has(i)) continue; // see overrideAffectedSceneIndices above
     const selected = chunksForScene(chunks, scenes[i]);
     const from = pageFrom[i];
     const to = pageTo[i];
@@ -397,6 +452,9 @@ function auditOneBook(distRoot: string, epic: Epic, book: number, translation: R
     shortPagesBelowHollowThreshold,
     worstOwnershipFraction,
     lowOwnershipPages,
+    overridesResolved,
+    overrideErrors,
+    overrideAffectedScenePages: [...overrideAffectedSceneIndices].sort((a, b) => a - b).map((i) => i + 1),
   };
 }
 
@@ -428,6 +486,8 @@ export function auditScenePaging(distRoot: string): AuditResult {
     corruptChunkBooks: [],
     booksAudited: 0,
     booksMissing: 0,
+    booksWithOverrideErrors: 0,
+    overrideErrors: [],
   };
   for (const row of books) {
     if (row.present) totals.booksAudited++;
@@ -444,6 +504,10 @@ export function auditScenePaging(distRoot: string): AuditResult {
     if (row.present && !row.chunkGeometryValid) {
       totals.booksWithCorruptChunks++;
       totals.corruptChunkBooks.push(`${row.epic} ${row.book} ${row.translation}`);
+    }
+    if (row.present && !row.overridesResolved) {
+      totals.booksWithOverrideErrors++;
+      totals.overrideErrors.push(`${row.epic} ${row.book} ${row.translation}: ${row.overrideErrors.join('; ')}`);
     }
   }
 
@@ -498,12 +562,14 @@ export function auditScenePaging(distRoot: string): AuditResult {
     duplicatedTextPages: gateDup,
     partitionLosslessFailures: gateLosslessFailures,
     belowMinOwnershipPages,
+    overrideResolutionFailures: totals.booksWithOverrideErrors,
     pass: gateOut <= 0
       && gateMid <= 0
       && gateEmpty <= 0
       && gateDup <= 0
       && gateLosslessFailures <= 0
-      && belowMinOwnershipPages <= 0,
+      && belowMinOwnershipPages <= 0
+      && totals.booksWithOverrideErrors <= 0,
   };
 
   return { buildDistPresent: true, books, totals, gate };

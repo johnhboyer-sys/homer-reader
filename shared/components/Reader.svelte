@@ -16,7 +16,8 @@
   import { highlightPrefixMatches } from '../lib/text';
   import { getWork, visibleTranslations, bookLabel as workBookLabel, HOUSE_AUTHOR, type TranslationRef } from '../lib/works';
   import { touchRecent } from '../lib/resume';
-  import { mergeSceneFlowChunks, sentenceSnapScenePages, type SceneFlowChunk, type SceneFlowPart, type TickChunkRange } from '../lib/scene-paging';
+  import { mergeSceneFlowChunks, resolveBoundaryOverrides, selectBoundaryOverrideEntries, sentenceSnapScenePages, type BoundaryOverride, type SceneBoundaryOverrideFile, type SceneFlowChunk, type SceneFlowPart, type TickChunkRange } from '../lib/scene-paging';
+  import sceneBoundaryOverridesFile from '../lib/scene-boundary-overrides.json';
   import WordPopup from './WordPopup.svelte';
   import FootnotePopup from './FootnotePopup.svelte';
 
@@ -526,8 +527,28 @@
   // chunksForScene(scene)+mergeSceneFlowChunks(scene) per-scene merge, which
   // rendered whole tick-chunks that could straddle (and thus duplicate) a
   // scene boundary and still cut a page open/closed mid-sentence.
+  // Manual editorial boundary pins (John, 2026-07-21 review) — see
+  // shared/lib/scene-boundary-overrides.json's header + shared/lib/
+  // scene-paging.ts's resolveBoundaryOverrides doc. A resolution failure
+  // (anchor text drifted out of the corpus, or a stale scene number) must
+  // never crash Reading Mode for a reader — surfaced via console.error and
+  // the page falls back to the plain algorithmic boundary for that book; the
+  // audit/test gate is what treats this as a hard failure during development.
+  $: sceneBoundaryOverrides = ((): BoundaryOverride[] => {
+    if (!scenes.length || !readingHasSceneAnchors) return [];
+    const entries = selectBoundaryOverrideEntries(
+      sceneBoundaryOverridesFile as SceneBoundaryOverrideFile, work, bookNum, readingTransId,
+    );
+    if (!entries.length) return [];
+    try {
+      return resolveBoundaryOverrides(readingChunks, scenes, entries);
+    } catch (err) {
+      console.error('scene-boundary override resolution failed', err);
+      return [];
+    }
+  })();
   $: sentenceSnappedPages = scenes.length && readingHasSceneAnchors
-    ? sentenceSnapScenePages(readingChunks, scenes)
+    ? sentenceSnapScenePages(readingChunks, scenes, { boundaryOverrides: sceneBoundaryOverrides })
     : [];
   $: currentSceneFlow = sentenceSnappedPages[clampedSceneIndex] ?? { flowParts: [], otables: {} };
   // Honest degradation for a book-level-only translation (Pope — see

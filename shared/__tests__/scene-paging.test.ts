@@ -7,8 +7,11 @@ import {
   mergeSceneFlowChunks,
   naturalEndOffset,
   pageCharLength,
+  resolveBoundaryOverrides,
+  selectBoundaryOverrideEntries,
   sentenceEndOffsets,
   sentenceSnapScenePages,
+  type SceneBoundaryOverrideFile,
   type SceneFlowChunk,
   type SceneFlowPart,
   type SceneReadingChunk,
@@ -16,7 +19,7 @@ import {
   type TickChunkRange,
 } from '../lib/scene-paging';
 import { alignGroups } from '../lib/tick-chunks';
-import { buildRealChunks, loadRealBook, type RealMarker, type RealTranslation } from './real-book-loader';
+import { buildRealChunks, loadRealBoundaryOverrides, loadRealBook, type RealMarker, type RealTranslation } from './real-book-loader';
 import { auditScenePaging } from '../scripts/scene-paging-audit';
 
 // A run of ~5-line tick chunks (as Reader.svelte derives from
@@ -987,4 +990,127 @@ describe('scene-paging corpus audit gate (real build/dist data)', () => {
     if (!result?.buildDistPresent) return;
     expect(result.gate.pass).toBe(true);
   });
+
+  it.skipIf(!hasAuditDistRoot)('manual scene-boundary overrides all resolve cleanly (no anchor-resolution gate failures)', () => {
+    if (!result?.buildDistPresent) return;
+    expect(result.totals.overrideErrors).toEqual([]);
+    expect(result.gate.overrideResolutionFailures).toBe(0);
+  });
+});
+
+// ── Manual scene-boundary overrides (John, 2026-07-21 review) ──────────────
+// John's editorial corrections to the algorithmic boundaries — see
+// shared/lib/scene-boundary-overrides.json's `_source`/`_semantics` header and
+// shared/lib/scene-paging.ts's resolveBoundaryOverrides doc. Every case below
+// asserts (a) the overridden scene's page starts with its startAnchor
+// verbatim, and (b) the preceding pages' text ends EXACTLY there (no gap, no
+// overlap) — i.e. the override actually moved the cut, not just added text.
+const ILIAD_8_PATH = '../build/dist/iliad/book-08.json';
+const ODYSSEY_21_PATH = '../build/dist/odyssey/book-21.json';
+const OVERRIDES_JSON_PATH = './lib/scene-boundary-overrides.json';
+const overridesFileRaw: SceneBoundaryOverrideFile | null = existsSync(OVERRIDES_JSON_PATH)
+  ? JSON.parse(readFileSync(OVERRIDES_JSON_PATH, 'utf-8'))
+  : null;
+
+function pageTextOf(page: SceneFlowChunk): string {
+  return page.flowParts.map((p) => p.text ?? '').join('');
+}
+
+interface OverrideCase {
+  label: string;
+  path: string;
+  translation: RealTranslation;
+  work: string;
+  book: number;
+  sceneNumber: number; // 1-based
+}
+
+const OVERRIDE_CASES: OverrideCase[] = [
+  { label: 'Iliad 8 (Murray) scene 17', path: ILIAD_8_PATH, translation: 'murray', work: 'iliad', book: 8, sceneNumber: 17 },
+  { label: 'Odyssey 11 (Murray) scene 13', path: ODYSSEY_11_PATH, translation: 'murray', work: 'odyssey', book: 11, sceneNumber: 13 },
+  { label: 'Odyssey 11 (Murray) scene 14', path: ODYSSEY_11_PATH, translation: 'murray', work: 'odyssey', book: 11, sceneNumber: 14 },
+  { label: 'Odyssey 11 (Butler) scene 13', path: ODYSSEY_11_PATH, translation: 'butler', work: 'odyssey', book: 11, sceneNumber: 13 },
+  { label: 'Odyssey 11 (Butler) scene 14', path: ODYSSEY_11_PATH, translation: 'butler', work: 'odyssey', book: 11, sceneNumber: 14 },
+  { label: 'Odyssey 21 (Butler) scene 3', path: ODYSSEY_21_PATH, translation: 'butler', work: 'odyssey', book: 21, sceneNumber: 3 },
+  { label: 'Odyssey 21 (Butler) scene 10', path: ODYSSEY_21_PATH, translation: 'butler', work: 'odyssey', book: 21, sceneNumber: 10 },
+  { label: 'Odyssey 21 (Murray) scene 10', path: ODYSSEY_21_PATH, translation: 'murray', work: 'odyssey', book: 21, sceneNumber: 10 },
+];
+
+describe('manual scene-boundary overrides (John, 2026-07-21)', () => {
+  it('scene-boundary-overrides.json carries exactly these 8 entries, one per case above', () => {
+    if (!overridesFileRaw) return; // file always exists in-repo, but honor the skip-if-absent convention
+    expect(overridesFileRaw.overrides).toHaveLength(8);
+    for (const c of OVERRIDE_CASES) {
+      const entries = selectBoundaryOverrideEntries(overridesFileRaw, c.work, c.book, c.translation);
+      expect(entries.map((e) => e.sceneNumber), c.label).toContain(c.sceneNumber);
+    }
+  });
+
+  it.each(OVERRIDE_CASES.map((c) => [c.label, c] as const))(
+    '%s: overridden page starts with its startAnchor, and the preceding text ends exactly there',
+    (_label, c) => {
+      const loaded = loadRealBook(c.path, c.translation);
+      if (!loaded) return; // real book source absent locally — not a suite dependency
+      const { chunks, scenes } = loaded;
+      const boundaryOverrides = loadRealBoundaryOverrides(c.work, c.book, c.translation, chunks, scenes);
+      expect(boundaryOverrides.length, c.label).toBeGreaterThan(0);
+      const pages = sentenceSnapScenePages(chunks, scenes, { boundaryOverrides });
+      const whole = mergeSceneFlowChunks(chunks).flowParts.map((p) => p.text ?? '').join('');
+
+      const sceneIndex = c.sceneNumber - 1;
+      const cumBefore = pages.slice(0, sceneIndex).reduce((n, p) => n + pageCharLength(p), 0);
+      const anchorEntry = selectBoundaryOverrideEntries(overridesFileRaw!, c.work, c.book, c.translation)
+        .find((e) => e.sceneNumber === c.sceneNumber)!;
+
+      // Previous pages, concatenated, stop EXACTLY where the anchor begins.
+      expect(whole.slice(cumBefore, cumBefore + anchorEntry.startAnchor.length), c.label).toBe(anchorEntry.startAnchor);
+      // The overridden page itself opens with the anchor, verbatim.
+      expect(pageTextOf(pages[sceneIndex]).startsWith(anchorEntry.startAnchor), c.label).toBe(true);
+    },
+  );
+
+  it('Iliad 8 (Murray) scene 16 is sunset-sentence-only (no longer includes "Then did glorious Hector…")', () => {
+    const loaded = loadRealBook(ILIAD_8_PATH, 'murray');
+    if (!loaded) return;
+    const { chunks, scenes } = loaded;
+    const boundaryOverrides = loadRealBoundaryOverrides('iliad', 8, 'murray', chunks, scenes);
+    const pages = sentenceSnapScenePages(chunks, scenes, { boundaryOverrides });
+    const scene16Text = pageTextOf(pages[15]).trim(); // scene 16 is index 15
+    expect(scene16Text).toBe(
+      'Then into Oceanus fell the bright light of the sun drawing black night over the face of the earth, '
+      + 'the giver of grain. Sorely against the will of the Trojans sank the daylight, but over the Achaeans '
+      + 'welcome, aye, thrice-prayed-for, came the darkness of night.',
+    );
+    expect(scene16Text).not.toContain('Then did glorious Hector');
+  });
+
+  it('Odyssey 21 (Butler) scene 2 ends at the bearing-posts sentence (not the suitors’ speech)', () => {
+    const loaded = loadRealBook(ODYSSEY_21_PATH, 'butler');
+    if (!loaded) return;
+    const { chunks, scenes } = loaded;
+    const boundaryOverrides = loadRealBoundaryOverrides('odyssey', 21, 'butler', chunks, scenes);
+    const pages = sentenceSnapScenePages(chunks, scenes, { boundaryOverrides });
+    const scene2Text = pageTextOf(pages[1]).trim(); // scene 2 is index 1
+    expect(scene2Text.endsWith(
+      'When she reached the suitors, she stood by one of the bearing-posts supporting the roof of the room, '
+      + 'holding a veil before her face, and with a maid on either side of her.',
+    )).toBe(true);
+    expect(scene2Text).not.toContain('Then she said');
+  });
+
+  it.each([
+    ['murray' as RealTranslation, 'This is a reproach for men that are yet to be to hear of.'],
+    ['butler' as RealTranslation, 'This will disgrace us in the eyes of those who are yet unborn.'],
+  ])(
+    'Odyssey 21 (%s): Eurymachus’ lament closer appears on scene 9’s page only, never scene 10’s',
+    (translation, lamentCloser) => {
+      const loaded = loadRealBook(ODYSSEY_21_PATH, translation);
+      if (!loaded) return;
+      const { chunks, scenes } = loaded;
+      const boundaryOverrides = loadRealBoundaryOverrides('odyssey', 21, translation, chunks, scenes);
+      const pages = sentenceSnapScenePages(chunks, scenes, { boundaryOverrides });
+      expect(pageTextOf(pages[8])).toContain(lamentCloser); // scene 9, index 8
+      expect(pageTextOf(pages[9])).not.toContain(lamentCloser); // scene 10, index 9
+    },
+  );
 });

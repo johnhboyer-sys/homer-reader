@@ -504,9 +504,130 @@ export function isHollowScenePage(snappedLen: number, rawLen: number): boolean {
   return snappedLen < HOLLOW_MAX_CHARS && snappedLen < rawLen * HOLLOW_RAW_RATIO;
 }
 
+// ── Manual scene-boundary overrides (John, 2026-07-21) ──────────────────────
+// The algorithm above is corpus-gated and generally right, but a handful of
+// real scenes need an EDITORIAL correction the algorithm can't derive on its
+// own (e.g. a scene summary and its prose landing one page apart). John's
+// calls live in shared/lib/scene-boundary-overrides.json, keyed by work/book/
+// translation/sceneNumber with a verbatim `startAnchor` — the exact opening
+// text of that scene's page. This module stays ignorant of the JSON/anchor
+// text itself (surgical, testable in isolation): callers resolve anchors to
+// offsets via resolveBoundaryOverrides, then hand sentenceSnapScenePages the
+// resulting {sceneIndex, startOffset} pairs via opts.boundaryOverrides.
+
+// One resolved override: scene `sceneIndex` (0-based into `scenes`) is PINNED
+// to start at `startOffset` — a character offset in the flattened whole-book
+// flow (buildBookFlow's `text` space, same space sentenceEndOffsets/slicePage
+// use). The previous scene's page therefore ends at exactly this offset too.
+export interface BoundaryOverride {
+  sceneIndex: number;
+  startOffset: number;
+}
+
+// One un-resolved override entry, as read (after work/book/translation
+// filtering — see selectBoundaryOverrideEntries) from
+// scene-boundary-overrides.json.
+export interface SceneBoundaryOverrideEntry {
+  /** 1-based, matching the JSON file and the apparatus's own scene numbering. */
+  sceneNumber: number;
+  /** Verbatim opening text of this scene's Reading Mode page. */
+  startAnchor: string;
+}
+
+// One row of scene-boundary-overrides.json, before work/book/translation
+// filtering.
+export interface SceneBoundaryOverrideRecord extends SceneBoundaryOverrideEntry {
+  work: string;
+  book: number;
+  translation: string;
+}
+
+// The shape of scene-boundary-overrides.json itself.
+export interface SceneBoundaryOverrideFile {
+  _source: string;
+  _semantics: string;
+  overrides: SceneBoundaryOverrideRecord[];
+}
+
+// Every override entry that applies to this (work, book, translation) —
+// shared by Reader.svelte, real-book-loader.ts, and scene-paging-audit.ts so
+// the filtering logic lives in exactly one place.
+export function selectBoundaryOverrideEntries(
+  file: SceneBoundaryOverrideFile,
+  work: string,
+  book: number,
+  translation: string,
+): SceneBoundaryOverrideEntry[] {
+  return file.overrides
+    .filter((o) => o.work === work && o.book === book && o.translation === translation)
+    .map(({ sceneNumber, startAnchor }) => ({ sceneNumber, startAnchor }));
+}
+
+// Resolve each entry's startAnchor to a {sceneIndex, startOffset} pair by
+// locating it, verbatim, in the whole book's flattened flow (the exact same
+// text sentenceSnapScenePages partitions). Resolution rules (John,
+// 2026-07-21):
+//   - A missing anchor is a HARD error (thrown) — never silently ignored, so
+//     a corpus/pipeline drift that moves or rewords the anchor text surfaces
+//     immediately in the audit/tests rather than silently no-op'ing.
+//   - An anchor occurring more than once resolves to the occurrence NEAREST
+//     the scene's own ALGORITHMIC boundary (where sentenceSnapScenePages,
+//     run with no overrides at all, would itself have started that scene) —
+//     disambiguates a short/formulaic anchor without needing a longer quote.
+export function resolveBoundaryOverrides(
+  chunks: SceneReadingChunk[],
+  scenes: SceneRange[],
+  entries: SceneBoundaryOverrideEntry[],
+): BoundaryOverride[] {
+  if (!entries.length) return [];
+  const book = buildBookFlow(chunks);
+  const baseline = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false });
+  const baselineStart: number[] = [];
+  {
+    let cursor = 0;
+    for (const page of baseline) {
+      baselineStart.push(cursor);
+      cursor += pageCharLength(page);
+    }
+  }
+
+  return entries.map((entry) => {
+    const sceneIndex = entry.sceneNumber - 1;
+    if (sceneIndex < 0 || sceneIndex >= scenes.length) {
+      throw new Error(
+        `scene-boundary override: sceneNumber ${entry.sceneNumber} is out of range (book has ${scenes.length} scenes)`,
+      );
+    }
+    const occurrences: number[] = [];
+    for (let idx = book.text.indexOf(entry.startAnchor); idx !== -1; idx = book.text.indexOf(entry.startAnchor, idx + 1)) {
+      occurrences.push(idx);
+    }
+    if (!occurrences.length) {
+      throw new Error(
+        `scene-boundary override: startAnchor not found for scene ${entry.sceneNumber}: ${JSON.stringify(entry.startAnchor)}`,
+      );
+    }
+    const algorithmicBoundary = baselineStart[sceneIndex] ?? 0;
+    let startOffset = occurrences[0];
+    let bestDist = Math.abs(startOffset - algorithmicBoundary);
+    for (const occurrence of occurrences.slice(1)) {
+      const dist = Math.abs(occurrence - algorithmicBoundary);
+      if (dist < bestDist) { startOffset = occurrence; bestDist = dist; }
+    }
+    return { sceneIndex, startOffset };
+  });
+}
+
 export interface SentenceSnapOptions {
   /** Default true. Set false to keep the pure lossless partition (tests). */
   applyHollowGuardrail?: boolean;
+  /**
+   * Manual editorial pins (John, 2026-07-21) — resolved via
+   * resolveBoundaryOverrides, never raw anchor text. An entry pins
+   * `sceneIndex`'s start (= the previous scene's end) to `startOffset`
+   * exactly; the algorithm runs normally on either side.
+   */
+  boundaryOverrides?: BoundaryOverride[];
 }
 
 // One sentence-snapped Reading Mode page per scene, covering the currently
@@ -531,12 +652,27 @@ export function sentenceSnapScenePages(
     return book.text.length;
   };
 
+  // Overrides are keyed by the scene whose START they pin — i.e. the END of
+  // the PRECEDING iteration in the forward pass below (see BoundaryOverride's
+  // header comment). A book's final scene never carries one in practice (its
+  // end is always book.text.length), but the lookup falls through harmlessly
+  // either way.
+  const overridePinBySceneIndex = new Map<number, number>();
+  for (const o of options?.boundaryOverrides ?? []) overridePinBySceneIndex.set(o.sceneIndex, o.startOffset);
+
   const pages: SceneFlowChunk[] = [];
   let cursor = 0;
   for (let si = 0; si < scenes.length; si++) {
     let end: number;
     if (si === scenes.length - 1) {
       end = book.text.length; // the last scene always runs to the true end — no trailing dangle
+    } else if (overridePinBySceneIndex.has(si + 1)) {
+      // Manual pin (John, 2026-07-21): the next scene's start is fixed by an
+      // editorial override — take it exactly, skipping the natural-end/
+      // sentence-snap computation entirely for this boundary. Clamped at
+      // `cursor` only as a defensive floor; a correctly-resolved anchor never
+      // precedes it.
+      end = Math.max(cursor, overridePinBySceneIndex.get(si + 1)!);
     } else {
       // Owned-share natural end (see naturalEndOffset): for a straddling tick,
       // land near the last Greek line of this scene, then snap to a nearby
