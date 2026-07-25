@@ -96,6 +96,25 @@
   --greek-hover:        color-mix(in srgb, var(--accent) 10%, transparent);
   --greek-hover-border: color-mix(in srgb, var(--accent) 20%, transparent);
   --greek-active:       color-mix(in srgb, var(--accent) 24%, var(--page-bg));
+  /* Nav-bar control-row tint (John, 2026-07-25 — light-theme band separation
+     fix; corrected same day, adversarial review P2: the first version of
+     this default resolved to --page-bg, which is NOT what the row painted
+     before this token existed — .nav-panel sits inside .page-header with no
+     background of its own until the merge added one, so it showed through
+     to .page-header's OWN --col-bg. Defaulting to --page-bg silently
+     recoloured the row in dark mode, #211828 -> #181120, contradicting the
+     "dark theme unchanged" claim this comment used to make — caught by
+     measuring the computed colour, not just reading the source). Defaults
+     to a plain pass-through of --col-bg (byte-identical to .page-header's
+     own background, i.e. no visible band in dark — genuinely unchanged).
+     Light theme below overrides this with a real, if faint, accent tint
+     (the row already reads "tinted" in the surrounding code comments, but
+     was previously just plain --page-bg — the same neutral grey as the
+     header a few pixels above, which is why the two bands barely read as
+     distinct there). Same color-mix(accent, page-bg) formula as
+     --greek-active above, just a much lower percentage — a hint of the
+     site's own wine accent, not a colour block. */
+  --nav-panel-bg: var(--col-bg);
 
   /* A strong hairline / gutter-number colour, one step darker than --border —
      Wine-dark's --rule-strong role (verse-line gutter numbers, masthead rule,
@@ -205,6 +224,16 @@
   --scene-map-land:       #F1EEE6; /* lifted parchment ground */
   --scene-map-coast:      #716A73; /* quiet coast boundary */
   --scene-map-label-halo: #F8F7F3; /* preserves labels across coastlines */
+  /* Control-row band separation (John, 2026-07-25; corrected same day,
+     adversarial review P2 — see the pass-through default's own comment for
+     the dark-mode regression this replaced): light-only override. Dark
+     theme deliberately shows NO separate band (the default above resolves
+     to --col-bg, matching .page-header exactly — untouched, byte-identical
+     appearance). Light theme gets an actual tint instead of a plain grey
+     swap, so the row still reads as a deliberate band rather than the page
+     continuing under the header — a plain-grey copy of --page-bg tried
+     first read as barely separated. */
+  --nav-panel-bg: color-mix(in srgb, var(--accent) 16%, var(--page-bg));
 }
 
 /* Dark-mode select chevron (lighter stroke to match the dark accent). */
@@ -370,23 +399,123 @@ select {
 /* Contents toggle leads the bar on desktop; the title's auto right-margin keeps
    the global actions (search/settings/help/theme) pinned to the far edge. */
 .header-title { margin-right: auto; }
+/* Control row (John's layout, 2026-07-25): two groups — navigation (left:
+   Scenes, Jump, book stepper) and reading controls (right: translation,
+   view, posture, Chart Room) — split by `justify-content: space-between`.
+   `flex-wrap: wrap` here means a too-narrow row wraps BETWEEN the two
+   groups (each group is one flex item); `flex-wrap: nowrap` on each group
+   (below) keeps its own controls together rather than also wrapping
+   internally. A faint tint (`--nav-panel-bg` — plain `--col-bg` by default,
+   i.e. no visible band in dark, matching `.page-header`'s own background
+   exactly; overridden to a low-percentage accent tint in light theme only —
+   see the token's definition near the top of this file for why light needs
+   one at all: a plain grey band barely separated from the header above it
+   there) instead of the plain hairline-only look. Visible >=681px (see the
+   responsive block); phones (<=680px) are unchanged — no control
+   row at all, only the Contents drawer + Settings sidebar. */
 .nav-panel {
   display: flex;
   width: 100%;
+  flex-wrap: wrap;
+  background: var(--nav-panel-bg);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  /* No horizontal padding of its own — .page-header's own side padding
+     (which itself varies by width, see the responsive block) already insets
+     it; the row-budget math throughout this file assumes only that ONE
+     inset, not a second one stacked on top. The tint spans this full width;
+     .nav-panel-inner (below) is what constrains the CONTENT. */
+  margin-top: 0.5rem;
+  padding: 0.5rem 0;
+}
+/* Content measure (John, coordinator's fix, 2026-07-25): at wide viewports
+   the two groups used to span .nav-panel's own full width, drifting apart
+   as the window grew and reading as a band stretched for a narrower
+   screen. This wrapper (ReaderShell.astro) caps the row's content — not
+   the tinted band above, which stays full-width — to the SAME measure the
+   reading column uses (`.reader-body`'s own `max-width: calc(1080px *
+   var(--colw-scale, 1))`, found below in this file — reused verbatim, not
+   a new number, so the row tracks the Settings sidebar's column-width
+   slider the same way the reading column does — true only once
+   --colw-scale is ALSO readable here: this element is not a descendant of
+   the Reader island, so the var was published on the root element itself
+   for exactly this reader, see Reader.svelte's colScale reactive
+   statement / .reader-body's own comment below, P2 fix, independent
+   review, 2026-07-25). No padding of its own: at
+   any viewport narrower than that measure (i.e. up to and including the
+   1024-family control-row widths this file's other rules are tuned
+   against) `width: 100%` simply fills the already-inset space exactly as
+   before adding this wrapper — confirmed empirically, not assumed — so the
+   two groups' own layout (moved here from .nav-panel unchanged) only ever
+   changes at widths wide enough that the cap is actually reached. Aligns
+   with .reader-body's own OUTER edge (its max-width is border-box
+   inclusive of ITS 1rem padding) rather than the inner text run one level
+   further in — close enough to read as related to the column, without
+   risking the narrow-width no-op by also duplicating that inner padding
+   here. */
+.nav-panel-inner {
+  display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.4rem 0.5rem;
-  border-top: 1px solid var(--border);
-  padding-top: 0.5rem;
+  justify-content: space-between;
+  column-gap: 1rem;
+  row-gap: 0.5rem;
+  width: 100%;
+  max-width: calc(1080px * var(--colw-scale, 1));
+  margin: 0 auto;
+}
+.nav-group-left,
+.nav-group-right {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.6rem;
 }
 .nav-toggle { display: none; }
 
+/* Contents, control-row copy (John, 2026-07-25, final form — an earlier
+   681-899/900+ split with a second "beside the wordmark" markup copy was
+   scrapped the same day: "Contents lives in the control row at every
+   width [the row can hold it]"). Lower bound moved 681->691 the same day
+   (coordinator's measured-table fix): 681-690px wrapped the control row to
+   two lines — Contents' own arrival was part of what tightened it — so
+   that 10px band now gets full phone treatment (Contents drawer, no
+   control row) instead. From 691px up this is the ONLY Contents control —
+   the phone drawer's own copy (.header-mobile-toggles) hides at the same
+   breakpoint (ReaderShell.astro's own <style> block), so exactly one is
+   ever visible/focusable despite the two markup copies. First item in
+   .nav-group-left, before Scenes. Icon-only vs full-label follows the
+   row's own boundary, same as Scenes/Chart Room (see .nav-toc-label
+   below). */
+.nav-toc-toggle { display: none; }
+@media (min-width: 691px) {
+  .nav-toc-toggle { display: inline-flex; }
+}
+
 /* Search action in the top-bar cluster: magnifying-glass icon + label on
-   desktop (icon-only on mobile — see the responsive block). */
+   desktop (icon-only on mobile — see the responsive block).
+
+   `flex-shrink: 0` + `white-space: nowrap` (2026-07-25): every labelled
+   control in `.bar-actions` holds its label on ONE line. Without them the
+   button is a shrinkable flex item, and once the row is tight the squeeze
+   lands inside the button — "Go to" breaks across two lines (measured
+   900-1022px while the full-label tier was briefly pushed below 1024px).
+   The two declarations do different jobs and both are wanted: no-shrink
+   keeps the button at its content width, nowrap guarantees the label never
+   breaks even if some future rule squeezes it anyway. `.theme-toggle`,
+   `.help-trigger` and `.bar-divider` already carried the no-shrink half;
+   `.header-search`, `.header-support` and `.settings-toggle` did not. This
+   is deliberately at base scope, not inside the 1024px tier — the defect
+   belongs to the control, not to whichever width the label happens to
+   appear at, so moving the tier boundary can never resurrect it. Below
+   681px the mobile block already sets no-shrink on all four; these rules
+   make that the rule everywhere rather than a phone-only patch. */
 .header-search {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  flex-shrink: 0;
+  white-space: nowrap;
   font-family: var(--font-ui);
   font-size: 0.85rem;
   font-weight: 600;
@@ -431,6 +560,9 @@ select {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  /* One line, never shrunk — see the note on `.header-search`. */
+  flex-shrink: 0;
+  white-space: nowrap;
   font-family: var(--font-ui);
   font-size: 0.85rem;
   font-weight: 600;
@@ -485,45 +617,198 @@ select {
 }
 .theme-icon { display: inline-flex; }
 .theme-icon svg { display: block; }
-/* On desktop the book-nav and chapter-nav dissolve their own boxes
-   (display: contents) so the Bekker jump, book links and chapter chips all flow
-   as ONE wrapping stream in the nav-panel — the chapters fill the line next to
-   the books instead of each <nav> wrapping as an atomic block. Mobile restores
-   real rows (see the responsive block). */
-.page-header .book-nav {
-  display: contents;
+/* Book stepper (John's nav-bar merge brief, 2026-07-24): replaces the old
+   Books 1–24 link-map row. A plain text button pair either side of the
+   current book's label; the arrow is simply absent at either end of the
+   work (book 1 has no ‹, the last book has no ›) rather than shown
+   disabled. */
+.nav-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   font-family: var(--font-ui);
   font-size: 0.8rem;
   color: var(--text-mid);
 }
-.book-nav-label {
-  color: var(--text-light);
+.nav-stepper-label {
   font-weight: 600;
-  letter-spacing: .03em;
-  margin-right: 0.4rem;
+  white-space: nowrap;
 }
-.page-header .book-nav a {
+.nav-stepper-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
   color: var(--text-mid);
   text-decoration: none;
-  padding: 0.15rem 0.4rem;
-  border-radius: 3px;
+  line-height: 1;
 }
-.page-header .book-nav a:hover { background: var(--border); }
-.page-header .book-nav a.current {
+.nav-stepper-arrow:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--border);
+}
+
+/* The dedicated .header-compact-stepper row (John's call, 2026-07-25,
+   removed the same day) is gone: the control row (.nav-panel) now shows its
+   own .nav-stepper continuously from 681px up, so a second, duplicate
+   stepper row was redundant the moment the control row stopped being
+   hidden behind the ☰ drawer at that width. */
+
+/* Nav-bar translation/view/posture/Chart Room controls (John's nav-bar merge
+   brief, 2026-07-24) — server-rendered in ReaderShell.astro's .nav-panel,
+   visible from 681px up (part of the control row — see .nav-panel above).
+   Reuses the reader's existing button vocabulary (.view-toggle,
+   .rc-trans-select, .posture-btn's sibling .chart-room-toggle look) rather
+   than inventing a third visual language for the same controls. */
+.nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: nowrap;
+}
+.nav-trans-label {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--text-mid);
+  max-width: 185px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* [hidden] needs its own rule at matching specificity to beat the `.view-
+   toggle`/`.nav-chart-room` display rules below — a bare `[hidden]` UA-
+   stylesheet rule ties on specificity with a later same-specificity author
+   rule and loses on source order otherwise. Toggled by ReaderShell's
+   reading-state listener: a single Reader-posture translation column has no
+   parallel views to switch, and Chart Room's rail doesn't apply there.
+   The `:root[data-rposture="reading"]` pair (P2 fix, adversarial review,
+   2026-07-25) is the PRE-HYDRATION half of the same rule: ReaderShell's head
+   bridge script stamps that attribute from a saved posture/`?mode=` before
+   paint (same mechanism as `data-rview`, see that script's own comment), so
+   these two are hidden correctly on FIRST paint — CSS alone, no dependence
+   on the small sync script also added there running first — rather than
+   painting Scholar-with-Chart-Room and flipping only once Reader.svelte
+   hydrates. */
+.nav-view-toggle[hidden],
+.nav-chart-room[hidden],
+:root[data-rposture="reading"] .nav-view-toggle,
+:root[data-rposture="reading"] .nav-chart-room { display: none; }
+
+.nav-chart-room {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.22rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--col-bg);
+  color: var(--text-mid);
+  white-space: nowrap;
+}
+.nav-chart-room:hover,
+.nav-chart-room[aria-expanded='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.nav-chart-room:focus-visible,
+.nav-posture-seg button:focus-visible,
+.nav-posture-action:focus-visible,
+.nav-stepper-arrow:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Contents/Scenes-in-the-control-row and Chart Room are icon-only below the
+   full-label boundary and gain their label at it (John's tiers, 2026-07-25;
+   boundary corrected three times the same day — 900->960->1024, then
+   1024->1040 once Contents joined the left group and Chart Room's
+   visibility bug (see the Job 1 investigation notes) was cleared, both
+   widening the row enough to push the true crossover past 1024 itself:
+   remeasured at 1024/1026/1027 (wraps) vs 1028/1030 (fits) on BOTH works —
+   1028px is the true one-row crossover for the header as a whole; 1040px is
+   the nearest round number with a real margin above it, same reasoning as
+   the previous 1023->1024 correction but sized up given how many times this
+   exact boundary has had to move). Same icon+label span pattern used
+   throughout the header (e.g. .toc-toggle-icon/-text), just with distinct
+   class names (.nav-toc-label / .nav-scenes-label / .nav-chart-room-label)
+   so they're never accidentally caught by .header-mobile-toggles' OWN
+   (phone-only, <=680px) text-hiding rule. */
+.nav-toc-label,
+.nav-scenes-label,
+.nav-chart-room-label { display: none; }
+@media (min-width: 1040px) {
+  .nav-toc-label,
+  .nav-scenes-label,
+  .nav-chart-room-label { display: inline; }
+}
+
+/* "Jump to…" cutover moved 768->775 (John, 2026-07-25, measured-table fix):
+   the coordinator's Scholar-posture sweep showed 768-774px wrapping to two
+   rows purely because Jump switched on exactly where Contents had already
+   tightened the row, with 775px the first width that holds one line WITH
+   Jump present. This also removes the one genuine monotonicity exception
+   the sweep found (767->768 taller). Wrapped around the BekkerJump island
+   rather than touching the component. */
+.nav-jump-wrap { display: none; }
+@media (min-width: 775px) {
+  .nav-jump-wrap { display: inline-flex; }
+}
+
+/* Posture: two presentations of the same boolean (John, 2026-07-24) — see the
+   markup comment in ReaderShell.astro. >=1040px shows the segmented STATE
+   control (both names, aria-pressed each; boundary moved 1280->900->960->
+   1024->1040, 2026-07-25 — see the .nav-toc-label note above for the full
+   history, most recently Contents joining the row and Chart Room's
+   visibility fix pushing the true crossover to 1028px); below that shows
+   the single ACTION button (accessible name is the verb phrase, no
+   aria-pressed). Only one is ever in the accessibility tree at a time —
+   `display:none` removes the other from it, not just from view. */
+.nav-posture-seg {
+  display: none;
+}
+.nav-posture-seg button {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.22rem 0.7rem;
+  border: 1px solid var(--border);
+  background: var(--col-bg);
+  color: var(--text-mid);
+}
+.nav-posture-seg button + button { border-left: none; }
+.nav-posture-seg button:first-child { border-radius: 4px 0 0 4px; }
+.nav-posture-seg button:last-child { border-radius: 0 4px 4px 0; }
+.nav-posture-seg button:hover { background: var(--border); }
+.nav-posture-seg button.active {
   background: var(--accent);
+  border-color: var(--accent);
   color: var(--on-accent);
 }
-/* The "common books" gap link in the book row (Eudemian Ethics IV–VI → NE). */
-.page-header .book-nav a.book-nav-missing {
-  color: var(--text-light);
-  font-style: italic;
-  font-size: 0.74rem;
-  border: 1px dashed var(--border);
+.nav-posture-action {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.22rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--col-bg);
+  color: var(--text-mid);
+  white-space: nowrap;
 }
-.page-header .book-nav a.book-nav-missing:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: transparent;
+.nav-posture-action:hover { border-color: var(--accent); color: var(--accent); }
+@media (min-width: 1040px) {
+  .nav-posture-seg { display: flex; }
+  .nav-posture-action { display: none; }
 }
 
 /* "Jump to Bekker line" citation lookup in the global header.
@@ -645,18 +930,20 @@ select {
    Layout (John's sketch, 2026-07-12): the collapsed summary chip sits ON THE
    SAME nav line as the Bekker jump + Books row — one line reading
    [Go to Stephanus page] Books I II … XII [Pages 624–650 ▸]. Both the <nav>
-   wrapper and the <details> dissolve their boxes (display:contents — the
-   same trick .book-nav uses above), so the summary chip and the open chip
-   list become DIRECT flex items of the nav-panel's wrapping stream: the
+   wrapper and the <details> dissolve their boxes (display:contents), so the
+   summary chip and the open chip list become DIRECT flex items of the
+   nav-panel's wrapping stream: the
    summary flows inline right after the book chips (wrapping naturally on a
    narrow viewport), while the open list, with flex-basis 100%, always
    breaks below the nav row at full width instead of cramming inline.
    Collapsed by default (no `open` attribute server-side) and state is
    restored from localStorage in ReaderShell's inline script.
    display:contents overrides both the desktop two-track chapter-nav grid
-   above and the ≤680px stacked-row .chapter-nav rules (.pages-nav adds a
-   third class, so this rule outranks both); moot in practice at ≤680px
-   since the nav-panel is display:none behind the drawer. */
+   above and the compact stacked-row .chapter-nav rules (.pages-nav adds a
+   third class, so this rule outranks both; that compact breakpoint was
+   raised from ≤680px to ≤1099px, John's nav-bar merge brief, 2026-07-24);
+   moot in practice there anyway, since the nav-panel is display:none
+   behind the drawer. */
 .page-header .chapter-nav.pages-nav { display: contents; }
 .pages-details { display: contents; }
 .pages-summary {
@@ -724,7 +1011,10 @@ select {
 
 .reader-body {
   /* --colw-scale: the settings sidebar's Column width slider (set inline by
-     Reader.svelte); 1 = the stock measure. */
+     Reader.svelte, AND published on the root element — see Reader.svelte's
+     colScale reactive statement — so `.nav-panel-inner` below, which is not
+     a descendant of .reader-body, resolves the same value instead of
+     falling back to 1); 1 = the stock measure. */
   max-width: calc(1080px * var(--colw-scale, 1));
   margin: 0 auto;
   padding: 1.5rem 1rem 4rem;
@@ -803,23 +1093,6 @@ select {
   gap: 1rem;
   flex-shrink: 0;
 }
-/* The view toggle + print control. In the header (desktop) they sit in this
-   inline group; on mobile the group is hidden and the same snippets render in
-   the ⚙ Settings sidebar (.settings-mobile-only) instead. */
-.rc-desktop-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-/* The abbreviated translation name shown beside the toggle on mobile, where the
-   single-translation works have no picker and the citation strip is hidden. */
-.rc-trans-abbr {
-  display: none;
-  font-family: var(--font-ui);
-  font-size: 0.76rem;
-  color: var(--text-light);
-}
-
 /* Compare: stack the controls above a row of column names aligned to the
    columns below (Greek | primary | secondary), matching the seg-row grid. */
 .reader-body.trans-compare .reader-controls { flex-direction: column; align-items: stretch; }
@@ -907,8 +1180,15 @@ select {
 }
 .trans-picker select:focus { outline: none; border-color: var(--accent); }
 
-/* Desktop translation picker, beside the view toggle. Mobile hides this (the
-   ⚙ Settings sidebar carries the picker there — see .settings-trans). */
+/* Desktop translation picker, now rendered in the nav bar (see ReaderShell.
+   astro's .nav-panel). Mobile hides this (the ⚙ Settings sidebar carries the
+   picker there — see .settings-trans). Capped and truncated (John's nav-bar
+   merge brief, 2026-07-24): the <select> otherwise sizes to its LONGEST
+   option regardless of the current selection — Pope's full citation
+   ("Alexander Pope (literary translation, scene-aligned), 1725–26") ran to
+   365px, blowing the merged row's budget. The full name stays in the
+   dropdown's own options (unaffected by the closed control's clipping) and
+   in the `title` attribute for a hover tooltip / assistive tech. */
 .rc-trans-select {
   font-family: var(--font-ui);
   font-size: 0.78rem;
@@ -919,6 +1199,10 @@ select {
   padding: 0.22rem 1.6rem 0.22rem 0.6rem;
   cursor: pointer;
   appearance: none;
+  max-width: 185px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.55rem center;
@@ -2227,11 +2511,33 @@ select {
 }
 
 @media (max-width: 680px) {
+  /* Reading-text typography, not header/nav arrangement — stays at the phone
+     breakpoint (see the 2026-07-24 split note below). */
   :root {
     --fs-greek: 1rem;
     --fs-english: 1.02rem;  /* keep English at parity with Greek (see desktop note) */
   }
+}
 
+/* ── Compact header squeeze, 681–1039px (John, 2026-07-24, boundary moved
+   1099->899->959->1023->1039 on 2026-07-25 — see the .nav-toc-label note
+   above for the full crossover measurement history, most recently Contents
+   joining the control row's left group and Chart Room's visibility fix
+   pushing the true one-row crossover to 1028px) ─────────────────
+   The header-bar's own icon-only squeeze (search/lexicon/settings/help text
+   hidden, title/work-switcher ellipsis) now runs through 1039px; the
+   dedicated control row (.nav-panel, below) shows its full two-group
+   layout from 681px up (not gated by this squeeze at all — Contents now
+   lives in that row too, 2026-07-25, not beside the wordmark). At 1040px
+   the header relaxes to its unsquashed base padding/labels — see the
+   1040px block further down for what changes there (Contents/Scenes/Chart
+   Room gain labels, posture becomes the segmented control, and this
+   squeeze's icon-only header-search/settings/help treatment ends). Rules
+   genuinely phone-only (touch-target sizing, reading-column typography/
+   squeeze, single-column stacking) stay at the original 680px breakpoint
+   below — a mouse-driven 800px window doesn't need 40px touch targets or a
+   font-size cut, only the simpler control layout. */
+@media (max-width: 1039px) {
   .page-header {
     flex-wrap: wrap;
     gap: 0.4rem;
@@ -2255,9 +2561,10 @@ select {
     flex-wrap: nowrap;
     gap: 0.5rem 0.3rem;
   }
-  /* Contents + Search go icon-only so the title + ☰ + 🔍 + ☾ always fit. */
-  .toc-toggle-text { display: none; }
-  .scenes-toggle-text { display: none; }
+  /* Contents + Search go icon-only so the title + ☰ + 🔍 + ☾ always fit.
+     (.header-mobile-toggles' own Contents/Scenes text hiding is scoped
+     separately below, at the 680px boundary that container actually shows
+     at — see "Phone-only: .header-mobile-toggles text hiding".) */
   /* Trimmed horizontal padding (was the desktop 0.4rem 0.7rem, which wins
      back over a same-specificity override here — see the `.page-header`
      specificity note above): icon-only at this width, so the label padding
@@ -2314,45 +2621,7 @@ select {
   .bar-actions .header-support,
   .bar-actions .settings-toggle,
   .bar-actions .theme-toggle { order: 0; margin-left: 0; flex-shrink: 0; }
-  /* Comfortable touch height on every header control (John: ">=40px
-     targets"). `.settings-toggle`/`.theme-toggle` carry no min-height at all
-     on desktop (23–32px, sized to icon+padding); `.toc-toggle`/`.scenes-toggle`/
-     `.header-search`/`.header-support` carry an unscoped 36px min-height
-     defined LATER in this file (own-class rules, e.g. `.toc-toggle` at
-     ~L2423) — same specificity, later source order, so it would win back
-     over a plain `.toc-toggle` override here. `.page-header`-prefixed
-     selectors out-specificity those regardless of source order (same trick
-     the landscape block above uses, for the same reason). Height-only (no
-     width floor): these are already icon-only pills at this width, and
-     forcing a width floor would just reopen the fit budget solved above. */
-  .page-header .toc-toggle, .page-header .scenes-toggle,
-  .page-header .header-search, .page-header .header-support,
-  .page-header .settings-toggle, .page-header .theme-toggle { min-height: 40px; }
 
-  .nav-panel {
-    display: none;
-    width: 100%;
-    flex-direction: column;
-    gap: 0.7rem;
-    padding-top: 0.5rem;
-  }
-  .page-header.nav-open .nav-panel { display: flex; }
-
-  .page-header .book-nav {
-    display: flex;
-    align-items: baseline;
-    margin-left: 0;
-    width: 100%;
-    flex-wrap: wrap;
-    gap: 0.3rem 0.4rem;
-  }
-  /* Comfortable tap targets for the book numerals + chapter chips. */
-  .page-header .book-nav a {
-    min-height: 36px;
-    display: inline-flex;
-    align-items: center;
-    padding: 0.3rem 0.6rem;
-  }
   /* Stacked nav: the chapter group sits on its own row again, so the inline
      left divider becomes a top border instead. */
   .page-header .chapter-nav {
@@ -2373,47 +2642,116 @@ select {
     justify-content: center;
     padding: 0.25rem 0.45rem;
   }
+}
 
+@media (max-width: 690px) {
+  /* Compact tier lower bound moved 680->690 (John, coordinator's measured-
+     table fix, 2026-07-25): 681-690px wrapped the control row to two lines,
+     so that band now gets full phone treatment (this block) rather than a
+     wrapped two-row header. .header-mobile-toggles' own Contents/Scenes go
+     icon-only (John's control-row layout, 2026-07-25 — this used to be a
+     blanket, unscoped rule inside the compact-squeeze block above; scoped
+     here to the ONE container it still matters for, since >=691px
+     Contents/Scenes live in the control row instead, using their own
+     .nav-toc-label/.nav-scenes-label classes, untouched by this rule).
+     Short-landscape (ReaderShell.astro's own <style> block, Job 4) re-shows
+     this same .header-mobile-toggles pair at width >=691px too, but that
+     query is `orientation: landscape`, so it never overlaps this
+     `max-width: 690px` portrait/narrow one — no conflict between the two
+     icon-only rules. */
+  .header-mobile-toggles .toc-toggle-text,
+  .header-mobile-toggles .scenes-toggle-text { display: none; }
+  /* The control row itself: phones (now including 681-690px) have no
+     control row at all — Contents drawer + Settings sidebar are the only
+     navigation/controls. Shown unconditionally from 691px up via the base
+     .nav-panel rule (no more hamburger-reveal `.nav-open` gate at that
+     width — dead code from a pre-nav-bar-merge mechanism, removed
+     2026-07-25 along with this). */
+  .nav-panel { display: none; }
+}
+
+@media (max-width: 680px) {
+  /* Comfortable touch height on every header control (John: ">=40px
+     targets"). `.settings-toggle`/`.theme-toggle` carry no min-height at all
+     on desktop (23–32px, sized to icon+padding); `.toc-toggle`/`.scenes-toggle`/
+     `.header-search`/`.header-support` carry an unscoped 36px min-height
+     defined LATER in this file (own-class rules, e.g. `.toc-toggle` at
+     ~L2423) — same specificity, later source order, so it would win back
+     over a plain `.toc-toggle` override here. `.page-header`-prefixed
+     selectors out-specificity those regardless of source order (same trick
+     the landscape block above uses, for the same reason). Height-only (no
+     width floor): these are already icon-only pills at this width, and
+     forcing a width floor would just reopen the fit budget solved above.
+     KEPT AT 680px (not raised with the arrangement block above, 2026-07-24):
+     this is a touch-target accommodation, not an arrangement swap — a
+     mouse-driven 900px window doesn't need 40px-tall buttons. */
+  .page-header .toc-toggle, .page-header .scenes-toggle,
+  .page-header .header-search, .page-header .header-support,
+  .page-header .settings-toggle, .page-header .theme-toggle { min-height: 40px; }
+}
+
+@media (max-width: 680px) {
+  /* Reading-column padding/type size, not header/nav arrangement — stays at
+     the phone breakpoint (2026-07-24 split note above). */
   .reader-body {
     padding: 1rem 0.6rem 3rem;
   }
 
   .seg-ref { font-size: 0.72rem; }
+}
 
-  /* On a phone the strip drops the citation line (too tall) and keeps just the
-     controls, right-aligned. Single-translation works (no picker) show the
-     abbreviated translation name beside the toggle instead. */
+@media (max-width: 690px) {
+  /* Boundary moved 1099->680->690 (2026-07-25, latest move the coordinator's
+     measured-table fix, which pushed the control row's own lower bound to
+     691 — 681-690px wraps to two lines and gets full phone treatment now,
+     this carrier included): the nav bar's translation/view/posture/Chart
+     Room show from 691px up, so the reader-controls strip's compact
+     treatment — dropping the citation line, hiding its own copy of the
+     translation select — only needs to apply below that. .rc-trans-select
+     itself (the OLD in-strip picker) no longer exists in the strip at all
+     (moved to the nav bar, 2026-07-24); the class name is reused there, so
+     a hiding rule here would wrongly hide the NAV BAR'S picker too if left
+     at a wider boundary — removed rather than kept, per John's "if a
+     boundary collapse makes a rule redundant, remove it." */
   .rc-cite { display: none; }
-  .rc-trans-abbr { display: inline-block; }
-  /* The header picker, view toggle, and print control are desktop-only; on a
-     phone they all live in the ⚙ Settings sidebar to keep the toolbar minimal. */
-  .rc-trans-select { display: none; }
-  .rc-desktop-controls { display: none; }
   /* Extra specificity (.settings-body …) so these win over the unconditional
      `display:none` defaults that appear LATER in the stylesheet — media queries
      add no specificity, so source order would otherwise re-hide them. */
   .settings-body .settings-trans { display: block; }
-  .settings-body .settings-mobile-only { display: block; }
+  .settings-body .settings-compact-only { display: block; }
   /* The view toggle + print moved into the Settings sidebar and the citation
      line is dropped above, but the strip itself stays visible (not
      display:none) — it's the ONLY carrier of the posture toggle
-     (Scholar ⇄ Reading Mode), and hiding the whole strip made Reading Mode
-     unreachable by touch on mobile (John, phone session 2026-07-18 — no way
-     to exit Reading Mode). Padding is trimmed and the toggle enlarged for a
-     comfortable thumb target below. */
+     (Scholar ⇄ Reading Mode) on a phone, and hiding the whole strip made
+     Reading Mode unreachable by touch there (John, phone session
+     2026-07-18 — no way to exit Reading Mode). */
   .reader-controls { padding: 0.4rem 0; }
   .rc-controls { gap: 0.6rem; }
+}
+
+@media (max-width: 680px) {
+  /* The remaining phone-only rules below are touch-target sizing and reading-
+     column typography — independent of the header/nav arrangement raised to
+     1100px above, so they stay at the original phone breakpoint (2026-07-24
+     split note). */
   .posture-btn {
     font-size: 0.82rem;
     padding: 0.4rem 0.85rem;
     min-height: 40px;
   }
   /* The "Translation" label pushes the picker off the edge on a phone — the
-     dropdown's own options make its purpose clear, so drop the label. */
+     dropdown's own options make its purpose clear, so drop the label. Dead
+     in this reader today (.trans-label/.trans-picker are unused legacy
+     classes inherited from a sibling reader — kept here as a harmless no-op
+     rather than pruned, which is out of this brief's scope). */
   .trans-label { display: none; }
   /* Compare on a phone stacks into one column (each block carries its own
      inline label), so the sticky's column-name row is redundant — hide it.
-     Needs the .trans-compare specificity to beat the desktop compare rule. */
+     Needs the .trans-compare specificity to beat the desktop compare rule.
+     Redundant with the unconditional `.rc-cite{display:none}` now raised to
+     1100px above (same property, same value) — kept here rather than deleted
+     since pruning a dead-but-harmless rule is outside this brief's blast
+     radius. */
   .reader-body.trans-compare .rc-cite { display: none; }
 
   /* Bigger, easier-to-hit reading-view toggle (the main control on a phone, now
@@ -2868,6 +3206,9 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  /* One line, never shrunk — see the note on `.header-search`. */
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 0.3rem 0.5rem;
   border: none;
   background: none;
@@ -3078,19 +3419,24 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
    mobile media query re-shows it. */
 .settings-trans { display: none; }
 
-/* View toggle + print control sections: shown only inside the sidebar on mobile
-   (desktop keeps them in the header). Make the controls fill the sidebar width
-   so they read as full-width rows like the other settings. */
-.settings-mobile-only { display: none; }
-.settings-mobile-only .view-toggle { justify-content: stretch; }
-.settings-mobile-only .view-toggle button { flex: 1; }
-/* Block (not inline-flex) so the inline/static dropdown stacks BELOW the button
-   instead of becoming a sibling flex item beside it. */
-.settings-mobile-only .print-menu { width: 100%; display: block; }
-.settings-mobile-only .print-btn { width: 100%; justify-content: center; }
+/* View toggle section: shown only inside the sidebar below 1100px (desktop/
+   the nav bar keeps it above that — see .nav-view-toggle in ReaderShell.astro).
+   Make the control fill the sidebar width so it reads as a full-width row like
+   the other settings. */
+.settings-compact-only { display: none; }
+.settings-compact-only .view-toggle { justify-content: stretch; }
+.settings-compact-only .view-toggle button { flex: 1; }
+/* Print section: UNCONDITIONAL (John's nav-bar merge brief, 2026-07-24) — Print
+   is dropped from the controls row entirely at every width and lives only
+   here, so unlike the view toggle/translation picker above this section's
+   gate is widened to show on desktop too, not just below 1100px. Block (not
+   inline-flex) so the inline/static dropdown stacks BELOW the button instead
+   of becoming a sibling flex item beside it. */
+.settings-print .print-menu { width: 100%; display: block; }
+.settings-print .print-btn { width: 100%; justify-content: center; }
 /* Inline (not absolute) inside the scrolling sidebar so the chapter list can't
    be clipped — it expands the panel instead of floating over it. */
-.settings-mobile-only .print-dropdown {
+.settings-print .print-dropdown {
   position: static;
   width: 100%;
   margin-top: 0.4rem;
@@ -3634,6 +3980,18 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   border-color: var(--accent);
   color: var(--on-accent);
 }
+/* At/above 691px the nav bar's own posture control (ReaderShell.astro's
+   .nav-posture-seg / .nav-posture-action) takes over — hide this strip copy
+   there so posture isn't offered twice (John's nav-bar merge brief,
+   2026-07-24; boundary moved 1100->681->691 on 2026-07-25, latest move the
+   coordinator's measured-table fix along with the rest of the control
+   row's lower bound). Below 691px (phones, now including 681-690px) this
+   stays the ONLY carrier, unchanged — moving this without moving the base
+   .nav-panel hide (above) would have left 681-690px with NEITHER posture
+   control, exactly the dead band the coordinator asked to rule out. */
+@media (min-width: 691px) {
+  .reader-controls .posture-btn { display: none; }
+}
 
 /* Reading Mode: one generous single column (~65ch), quiet chrome. */
 .reading-col {
@@ -3802,6 +4160,11 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
 .reading-scene-next:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .reading-scene-prev:focus-visible,
 .reading-scene-next:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* Contrast at this opacity: 2.26:1 (dark theme) / 1.77:1 (light theme) against
+   its background — below the 4.5:1 body-text threshold, but WCAG 1.4.3
+   exempts inactive/disabled controls, and John reviewed this specific pair
+   and chose to leave it as-is (2026-07-25). Not a bug — do not re-raise in a
+   future accessibility sweep without checking this note first. */
 .reading-scene-prev:disabled,
 .reading-scene-next:disabled { opacity: 0.4; cursor: default; }
 

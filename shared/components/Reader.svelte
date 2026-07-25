@@ -327,6 +327,20 @@
   $: fsEng   = (FS_ENG_BASE   * fsScale).toFixed(3);
   $: lhGreek = (LH_GREEK_BASE * lhScale).toFixed(3);
   $: lhEng   = (LH_ENG_BASE   * lhScale).toFixed(3);
+  // P2 fix (independent review, 2026-07-25): --colw-scale used to be set
+  // inline on .reader-body ONLY, so the nav bar's `.nav-panel-inner`
+  // (ReaderShell.astro, a sibling of the island, not its descendant) always
+  // read the CSS fallback (1) regardless of the slider — the shared-edge
+  // alignment between the control row and the reading column only held at
+  // the default scale. Same precedent as `--header-h` (ReaderShell.astro's
+  // ResizeObserver, published on `document.documentElement`): mirror the
+  // SAME `colScale` state onto the root too, so both the header and the
+  // reader body resolve one value — not a second source of truth, just a
+  // second place the one value is readable from. Re-runs on every change
+  // (slider drag, localStorage restore in onMount below), not only at mount.
+  $: if (typeof document !== 'undefined') {
+    document.documentElement.style.setProperty('--colw-scale', String(colScale));
+  }
 
   // The settings drawer is `inert` when closed (see the <aside> below), so it's
   // out of the tab order there. When open it needs the modal dance: move focus
@@ -442,6 +456,17 @@
     if (reading === on) return;
     if (on && scenes.length) { computeCurrentScene(); readingSceneIndex = currentSceneIndex; }
     reading = on;
+    // P3 fix (independent review, 2026-07-25): the scene-context rail only
+    // renders while `!reading && chartRoomOpen` (see the template below), so
+    // switching TO Reading with Chart Room open removed the rail out from
+    // under `#nav-chart-room`'s aria-controls/aria-expanded without either
+    // attribute being cleared (nothing here used to touch chartRoomOpen).
+    // Closing it here — the same chartRoomOpen mutation + persist
+    // toggleChartRoom itself uses — lets the existing chartRoomOpen reactive broadcast
+    // (below) and ReaderShell's chart-room-state listener clear both
+    // attributes through the one mechanism that already owns them, rather
+    // than a second place learning to clear aria-controls.
+    if (on && chartRoomOpen) { chartRoomOpen = false; saveChartRoom(); }
     postureMsg = on ? 'Reading mode' : 'Scholar view';
     savePosture();
     saveSceneParam();
@@ -451,6 +476,24 @@
     });
   }
   function toggleReading() { setReading(!reading); }
+
+  // ── Nav-bar bridge broadcasts (John's nav-bar merge brief, 2026-07-24) ────
+  // ReaderShell.astro server-renders the translation/view/posture/Chart Room
+  // controls in .nav-panel (the parent Astro island can't know client-only
+  // state — a restored localStorage choice, a `?trans=`/`?mode=` override —
+  // at build time), so these reactive statements broadcast this component's
+  // authoritative state on every change; ReaderShell's plain-script listeners
+  // (mirroring its existing settings-state/scenes-state pattern) use them to
+  // sync the server-rendered controls' selected option / active button /
+  // aria-pressed after hydration. Gated on `mounted` (set once onMount's
+  // restoration from localStorage/URL settles) so each also fires exactly
+  // once at that point, correcting any SSR-default mismatch — no separate
+  // "initial sync" dispatch is needed.
+  $: if (mounted) window.dispatchEvent(new CustomEvent('trans-state', { detail: { id: pickValue } }));
+  $: if (mounted) window.dispatchEvent(new CustomEvent('view-state', { detail: { view } }));
+  $: if (mounted) window.dispatchEvent(new CustomEvent('reading-state', { detail: { reading } }));
+  $: if (mounted) window.dispatchEvent(new CustomEvent('chart-room-state', { detail: { open: chartRoomOpen } }));
+
   // `r` toggles posture; ←/→ page Reading Mode's current scene. Neither fires
   // while focus is in a text field (a reader typing in the Bekker jump /
   // search box, or a future note input), nor as part of a modifier chord.
@@ -1369,6 +1412,13 @@
 
   let _onToggleSettings: () => void;
   let _onCloseSettings: () => void;
+  // Nav-bar bridge (ReaderShell.astro's server-rendered translation/view/
+  // posture/Chart Room controls — John's nav-bar merge brief, 2026-07-24):
+  // same window-CustomEvent pattern as toggle-settings/toggle-scenes above.
+  let _onSetTrans: (e: Event) => void;
+  let _onSetView: (e: Event) => void;
+  let _onToggleReading: () => void;
+  let _onToggleChartRoomNav: () => void;
 
   onDestroy(() => {
     spyObserver?.disconnect();
@@ -1380,6 +1430,10 @@
       if (_onCloseSettings)  window.removeEventListener('close-settings',  _onCloseSettings);
       if (_onToggleScenes) window.removeEventListener('toggle-scenes', _onToggleScenes);
       if (_onCloseScenes)  window.removeEventListener('close-scenes',  _onCloseScenes);
+      if (_onSetTrans) window.removeEventListener('set-trans', _onSetTrans);
+      if (_onSetView) window.removeEventListener('set-view', _onSetView);
+      if (_onToggleReading) window.removeEventListener('toggle-reading', _onToggleReading);
+      if (_onToggleChartRoomNav) window.removeEventListener('toggle-chart-room', _onToggleChartRoomNav);
       window.removeEventListener('scroll', onSceneScroll);
       readerBodyEl?.removeEventListener('click', onReaderClick);
       readerBodyEl?.removeEventListener('keydown', onReaderKeydown);
@@ -1825,6 +1879,17 @@
     try { localStorage.setItem(`reader-book-${work}`, String(bookNum)); } catch {}
     touchRecent(work);
 
+    // Pre-hydration nav-bar intent (3rd Codex adversarial review restructure,
+    // 2026-07-25): a click on the translation/view/posture controls BEFORE
+    // this island mounted records the ACTUAL VALUE chosen in
+    // window.__navPrehydrated (see ReaderShell.astro's P1 comment) — read
+    // once here, applied at a single choke point after all the URL/
+    // localStorage restoration logic below (search "choke point"), not by
+    // guarding every read site (three earlier rounds each found a fresh
+    // snap-back from exactly that scattered-guard shape).
+    const navPrehydrated = (typeof window !== 'undefined'
+      && (window as unknown as { __navPrehydrated?: { view?: View; trans?: string; reading?: boolean } }).__navPrehydrated) || {};
+
     // Restore font-size / line-height prefs.
     const savedFs = (() => { try { return localStorage.getItem(FS_KEY); } catch { return null; } })();
     if (savedFs) { const v = parseFloat(savedFs); if (!isNaN(v)) fsScale = v; }
@@ -1862,6 +1927,21 @@
     _onCloseScenes  = () => { if (sceneRailOpen) closeSceneRail(); };
     window.addEventListener('toggle-scenes', _onToggleScenes);
     window.addEventListener('close-scenes',  _onCloseScenes);
+    // Nav-bar bridge events (ReaderShell.astro's server-rendered translation/
+    // view/posture/Chart Room controls in .nav-panel — same dispatch pattern
+    // as toggle-settings/toggle-scenes above). The matching *-state broadcasts
+    // (trans-state/view-state/reading-state/chart-room-state) are reactive
+    // statements further down, gated on `mounted` so they also fire once
+    // restoration (localStorage/URL) has settled, syncing the server-rendered
+    // controls' initial visual state.
+    _onSetTrans = (e: Event) => setTrans((e as CustomEvent<{ id: string }>).detail.id);
+    _onSetView = (e: Event) => { void setView((e as CustomEvent<{ view: View }>).detail.view); };
+    _onToggleReading = () => toggleReading();
+    _onToggleChartRoomNav = () => toggleChartRoom();
+    window.addEventListener('set-trans', _onSetTrans);
+    window.addEventListener('set-view', _onSetView);
+    window.addEventListener('toggle-reading', _onToggleReading);
+    window.addEventListener('toggle-chart-room', _onToggleChartRoomNav);
     // Delegated token interaction: one click + one keydown for the whole book,
     // instead of a listener pair on each of ~7000 token spans (see greekToks).
     readerBodyEl?.addEventListener('click', onReaderClick);
@@ -1885,7 +1965,9 @@
       }
     }
     // Restore saved view, but a jump-in (loc/highlight) forces bilingual so the
-    // target Greek line is on screen.
+    // target Greek line is on screen. UNTOUCHED by the navPrehydrated fix
+    // below (2026-07-25 restructure) — a pre-hydration click is applied at a
+    // single choke point AFTER all of this, not by guarding every read site.
     if (loc || hlGrkFolds.length) {
       view = 'both';
     } else {
@@ -1911,6 +1993,9 @@
     // must not yield two identical columns.
     if (compareLeft === compareRight) compareRight = otherTrans(compareLeft);
     // The home index links can preselect a view/translation via query params.
+    // UNTOUCHED by the navPrehydrated fix (see the choke point after qMode
+    // below) — this whole block, side effects included, runs exactly as it
+    // did before nav-bar clicks existed.
     const qView = params.get('view');
     if (qView === 'greek' || qView === 'both' || qView === 'english') view = qView;
     const qTrans = params.get('trans');
@@ -1937,11 +2022,50 @@
     // bridge's single-language CSS. The class Svelte will render matches what the
     // bridge painted, so removing it here causes no layout shift.
     document.documentElement.removeAttribute('data-rview');
+    // Same for the posture half of the bridge (P2 fix, adversarial review,
+    // 2026-07-25): ReaderShell's head script and its posture-sync script
+    // painted the correct Scholar/Reading state — Chart Room and the view
+    // toggle included — from data-rposture before this component ever ran;
+    // now that `reading`'s own reactive broadcast (further down) is
+    // authoritative, drop the attribute so a later manual posture toggle
+    // isn't shadowed by the bridge's CSS (`:root[data-rposture="reading"]
+    // .nav-chart-room`/`.nav-view-toggle`, global.css).
+    document.documentElement.removeAttribute('data-rposture');
     // A shareable ?mode=reading|scholar overrides the saved posture (matches the
     // read-on-load convention of ?view / ?trans; posture is not written back).
+    // UNTOUCHED by the navPrehydrated fix — see the choke point right below.
     const qMode = params.get('mode');
     if (qMode === 'reading') reading = true;
     else if (qMode === 'scholar') reading = false;
+
+    // ── Pre-hydration intent choke point (required restructure, 2026-07-25,
+    //    after three rounds each found a fresh snap-back from a guard
+    //    scattered at one URL-reading site) ─────────────────────────────────
+    // Everything above — localStorage restore, then ?view=/?trans=/?mode=/
+    // loc/hlg, side effects (the qTrans block's "force view back to both")
+    // included — runs EXACTLY as it did before the nav bar's controls
+    // existed; a no-interaction load is byte-identical. A click on those
+    // controls before this island mounted recorded the ACTUAL VALUE the user
+    // chose in window.__navPrehydrated (see ReaderShell.astro's P1 comment),
+    // not merely "something happened" — this single choke point applies it
+    // OVER whatever the logic above computed, last, so "the URL seeds the
+    // initial state, an explicit user action overrides it" is true by
+    // construction rather than by remembering a guard at every read site.
+    // Order matters: trans (with its own view side effect, mirrored from the
+    // qTrans branch above) first, then view — so it always wins regardless
+    // of what the trans branch just did to it — then reading.
+    if (navPrehydrated.trans && validTrans.has(navPrehydrated.trans)) {
+      if (!fullLoaded && navPrehydrated.trans !== engSlot?.id) {
+        // Same "don't flash absent overlay content" deferral qTrans uses.
+        deferredQueryTrans = navPrehydrated.trans;
+        if (trans === 'compare' || trans !== engSlot?.id) trans = engSlot?.id ?? translations[0]?.id ?? trans;
+      } else {
+        trans = navPrehydrated.trans;
+        if (navPrehydrated.trans !== 'compare') lastSingle = navPrehydrated.trans;
+      }
+    }
+    if (navPrehydrated.view) view = navPrehydrated.view;
+    if (navPrehydrated.reading !== undefined) reading = navPrehydrated.reading;
     // Reading Mode's initial scene: an explicit ?scene=N (1-based, written by
     // saveSceneParam) wins; otherwise, opening directly in Reading Mode via a
     // ?loc= deep link lands on the scene CONTAINING that line (activeSceneIndex);
@@ -2813,22 +2937,15 @@
         {/if}
       </div>
       <div class="rc-controls">
-        {#if view !== 'greek' && translations.length === 1}
-          <span class="rc-trans-abbr">{citeShort(translations[0])}</span>
-        {/if}
-        {#if translations.length > 1}
-          <!-- Desktop translation picker, beside the view toggle. On mobile this
-               is hidden (see global.css) and the same control lives in the
-               ⚙ Settings sidebar instead. -->
-          <select class="rc-trans-select" value={pickValue} on:change={onPick} aria-label="English translation">
-            {#each translations as t}
-              <option value={t.id}>{t.name}</option>
-            {/each}
-          </select>
-        {/if}
-        <!-- Posture toggle: Scholar ⇄ Reading Mode (keystroke `r`). Kept in the
-             always-visible strip (not the desktop-only group) so it's reachable
-             on phones too; the aria-pressed state doubles as the SR cue. -->
+        <!-- Posture toggle: Scholar ⇄ Reading Mode (keystroke `r`). UNCHANGED
+             text/behaviour (John's nav-bar merge brief, 2026-07-24, pass/fail
+             #6: below-1100px arrangement — including this button's copy —
+             stays byte-identical to before the merge). At/above 1100px the
+             nav bar (ReaderShell.astro) carries its OWN, differently-worded
+             posture control instead — see global.css's `.reader-controls
+             .posture-btn` width gate — so this copy is the ONLY carrier below
+             1100px, same reachability rationale as before (phones/compact
+             windows need it here, not buried in Settings). -->
         <button
           type="button"
           class="posture-btn"
@@ -2836,20 +2953,6 @@
           on:click={toggleReading}
           title={reading ? 'Return to Scholar view (r)' : 'Enter Reading Mode (r)'}
         >{reading ? 'Scholar view' : 'Reading Mode'}</button>
-        <!-- Desktop only — on mobile these live in the ⚙ Settings sidebar. -->
-        <div class="rc-desktop-controls">
-          {@render viewToggle()}
-          {#if scenes.length && !reading}
-            <button
-              type="button"
-              class="chart-room-toggle"
-              aria-expanded={chartRoomOpen}
-              aria-controls={chartRoomOpen ? 'scene-context-rail' : undefined}
-              on:click={toggleChartRoom}
-            >Chart Room</button>
-          {/if}
-          {@render printControl()}
-        </div>
       </div>
     </div>
     {#if scenes.length && !reading && chartRoomOpen}
@@ -3166,9 +3269,10 @@
     <button type="button" class="settings-close" on:click={closeSettings} aria-label="Close settings">×</button>
   </div>
   <div class="settings-body">
-    <!-- Mobile-only: on desktop the view toggle and print control live in the
-         reader header (see .settings-mobile-only in global.css). -->
-    <div class="settings-section settings-mobile-only">
+    <!-- Compact-only (below 1100px): at/above 1100px the view toggle lives in
+         the nav bar instead (ReaderShell.astro's .nav-view-toggle — see
+         .settings-compact-only in global.css). -->
+    <div class="settings-section settings-compact-only">
       <div class="settings-section-label">View</div>
       {@render viewToggle()}
     </div>
@@ -3237,7 +3341,11 @@
       </div>
     {/if}
 
-    <div class="settings-section settings-mobile-only">
+    <!-- Print lives ONLY here, at every width (John's nav-bar merge brief,
+         2026-07-24: dropped from the controls row entirely) — .settings-print
+         (global.css) widens what was a mobile-only gate so this section shows
+         on desktop too, unlike the compact-only sections above. -->
+    <div class="settings-section settings-print">
       <div class="settings-section-label">Print</div>
       {@render printControl()}
     </div>
@@ -3551,25 +3659,10 @@
   /* Chart Room shares the reader's material vocabulary: restrained rules,
      display-face place names, and the existing accent rather than a new map
      palette. It floats at the reading edge so the normal Scholar flow keeps
-     its markup and token order intact. */
-  .chart-room-toggle {
-    font-family: var(--font-ui);
-    font-size: 0.78rem;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0.22rem 0.7rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background: var(--col-bg);
-    color: var(--text-mid);
-    white-space: nowrap;
-  }
-  .chart-room-toggle:hover,
-  .chart-room-toggle[aria-expanded='true'] {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-  .chart-room-toggle:focus-visible,
+     its markup and token order intact. The toggle BUTTON itself moved to
+     ReaderShell.astro's nav bar (`.nav-chart-room` in global.css, John's
+     nav-bar merge brief, 2026-07-24); this scoped block now only styles the
+     rail/sheet surface that button opens. */
   .scene-context-rail button:focus-visible,
   .scene-context-sheet-toggle:focus-visible {
     outline: 2px solid var(--accent);

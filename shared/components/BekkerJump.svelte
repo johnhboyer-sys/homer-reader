@@ -15,6 +15,14 @@
   // Deterministic prop rather than a generated id: this component is
   // server-rendered, so a random/counter id would break hydration.
   export let inputId = 'bekker-input';
+  // Optional override for the closed-state toggle button's VISIBLE text
+  // (default unset — every existing call site, including sibling forks,
+  // keeps the current "Go to {label}" wording byte-for-byte). A caller that
+  // passes this should usually also care that the accessible name stays
+  // informative: when set, the button's aria-label falls back to "Jump to a
+  // {label}" so a screen reader still hears what's being jumped to, even
+  // though the visible text (e.g. "Jump to…") no longer spells it out.
+  export let toggleLabel: string | null = null;
 
   $: workMeta = getWork(work);
   // Scheme-aware citation grammar/copy: bekker/busse take a line ("1097a15"),
@@ -119,8 +127,13 @@
 </script>
 
 {#if !open}
-  <button class="bekker-toggle" on:click={openBox} title="Look up a {citeScheme.label}">
-    Go to {citeScheme.label}
+  <button
+    class="bekker-toggle"
+    on:click={openBox}
+    title="Look up a {citeScheme.label}"
+    aria-label={toggleLabel ? `Jump to a ${citeScheme.label}` : undefined}
+  >
+    {toggleLabel ?? `Go to ${citeScheme.label}`}
   </button>
 {:else}
   <form class="bekker-jump" on:submit|preventDefault={go} role="search">

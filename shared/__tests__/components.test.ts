@@ -30,6 +30,19 @@ vi.mock('../lib/works', async (importOriginal) => {
       citation: { scheme: 'busse', hideLineNumbers: true },
       blurb: 'Fixture work for Reader.svelte tests (busse scheme, lineless).',
     },
+    // Two translations (unlike 'EN' above) — needed for the nav-bar bridge's
+    // set-trans/trans-state test below, which switches between them.
+    ENM: {
+      id: 'ENM', title: 'Fixture Multi-Translation Work', abbr: 'ENM', author: 'Test',
+      books: 1, bookLabels: ['1'],
+      greekEdition: 'Test edition',
+      greekSource: { short: 'Test', full: 'Test edition, full citation.', licence: 'Test licence' },
+      translations: [
+        { id: 'rackham', name: 'Test Translator (Test, 1900)', short: 'Rackham', slot: 'english' },
+        { id: 'ross', name: 'Second Translator (Test, 1910)', short: 'Ross', slot: 'ross' },
+      ],
+      blurb: 'Fixture work for Reader.svelte tests (bekker scheme, two translations).',
+    },
   };
   return { ...actual, getWork: (id: string) => fixtures[id] ?? actual.getWork(id) };
 });
@@ -228,6 +241,13 @@ describe('Reader.svelte — Reading Mode posture', () => {
     input.remove();
   });
 
+  // NOT replaced (see final report): the brief flagged this assertion as
+  // broken by the nav-bar merge, but pass/fail #6 requires the reader-
+  // controls strip (this component's own posture-btn, used below 1100px) to
+  // stay BYTE-IDENTICAL to before the merge — so its text stays "Reading
+  // Mode"/"Scholar view", the wide-screen nav bar's differently-worded
+  // posture control lives entirely in ReaderShell.astro (not rendered by
+  // this component-only suite), and this assertion is unaffected either way.
   it('the posture button toggles Reading Mode and reflects aria-pressed', async () => {
     window.history.replaceState(null, '', '/EN/book/1');
     const { container } = render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
@@ -247,6 +267,79 @@ describe('Reader.svelte — Reading Mode posture', () => {
     expect(container.querySelector('.reader-body')).toHaveClass('reading-mode');
     // Single reading column present; no parallel Greek column in the reading body.
     expect(container.querySelector('.reading-col')).not.toBeNull();
+  });
+});
+
+// Nav-bar bridge (John's nav-bar merge brief, 2026-07-24): ReaderShell.astro
+// now server-renders the translation/view/posture/Chart Room controls in
+// .nav-panel and drives Reader.svelte via window CustomEvents (set-trans,
+// set-view, toggle-reading, toggle-chart-room), which Reader.svelte answers
+// with matching *-state broadcasts (trans-state, view-state, reading-state,
+// chart-room-state) so the server-rendered markup can sync its selected
+// option / active button / aria-pressed after hydration — the same shape as
+// the pre-existing toggle-settings/settings-state pair (see the "closes the
+// docked lexicon when Settings opens" test above). These tests exercise the
+// Reader.svelte side of that contract in isolation (ReaderShell.astro's own
+// listeners are plain DOM script, not covered by this Svelte component suite).
+describe('Reader.svelte — nav-bar bridge events (John, 2026-07-24)', () => {
+  it('toggle-reading flips posture and dispatches reading-state', async () => {
+    window.history.replaceState(null, '', '/EN/book/1');
+    const { container } = render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+    await screen.findByText('1094a');
+    const states: boolean[] = [];
+    const onState = (e: Event) => states.push((e as CustomEvent<{ reading: boolean }>).detail.reading);
+    window.addEventListener('reading-state', onState);
+
+    await fireEvent(window, new CustomEvent('toggle-reading'));
+    expect(container.querySelector('.reader-body')).toHaveClass('reading-mode');
+    expect(states.at(-1)).toBe(true);
+
+    window.removeEventListener('reading-state', onState);
+  });
+
+  it('set-view switches the reading view and dispatches view-state', async () => {
+    window.history.replaceState(null, '', '/EN/book/1');
+    const { container } = render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+    await screen.findByText('1094a');
+    const states: string[] = [];
+    const onState = (e: Event) => states.push((e as CustomEvent<{ view: string }>).detail.view);
+    window.addEventListener('view-state', onState);
+
+    await fireEvent(window, new CustomEvent('set-view', { detail: { view: 'greek' } }));
+    expect(container.querySelector('.reader-body')).toHaveClass('view-greek');
+    expect(states.at(-1)).toBe('greek');
+
+    window.removeEventListener('view-state', onState);
+  });
+
+  it('set-trans switches the selected translation and dispatches trans-state', async () => {
+    window.history.replaceState(null, '', '/ENM/book/1');
+    const { container } = render(Reader, { props: { work: 'ENM', bookNum: 1, bookData: fixtureBook } });
+    await screen.findByText('1094a');
+    const states: string[] = [];
+    const onState = (e: Event) => states.push((e as CustomEvent<{ id: string }>).detail.id);
+    window.addEventListener('trans-state', onState);
+
+    await fireEvent(window, new CustomEvent('set-trans', { detail: { id: 'ross' } }));
+    expect(container.querySelector('.reader-body')).toHaveClass('trans-ross');
+    expect(states.at(-1)).toBe('ross');
+
+    window.removeEventListener('trans-state', onState);
+  });
+
+  it('toggle-chart-room flips the Chart Room state and dispatches chart-room-state', async () => {
+    window.history.replaceState(null, '', '/EN/book/1');
+    render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+    await screen.findByText('1094a');
+    const states: boolean[] = [];
+    const onState = (e: Event) => states.push((e as CustomEvent<{ open: boolean }>).detail.open);
+    window.addEventListener('chart-room-state', onState);
+
+    await fireEvent(window, new CustomEvent('toggle-chart-room'));
+    expect(states.at(-1)).toBe(true);
+    expect(localStorage.getItem('reader-chart-room')).toBe('true');
+
+    window.removeEventListener('chart-room-state', onState);
   });
 });
 
