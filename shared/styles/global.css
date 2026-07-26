@@ -325,12 +325,18 @@ select {
 /* ── Layout ───────────────────────────────────────────────────────── */
 
 .page-header {
+  /* Tracks this rule's own horizontal padding (and the <=1039px override
+     below) in one place — .nav-panel/.nav-panel-inner (below) read it back
+     to break the control-row tint out of this padding for a full-bleed
+     band without moving its content (John, 2026-07-26; see .nav-panel's
+     own comment). */
+  --header-pad-x: 1.5rem;
   position: sticky;
   top: 0;
   z-index: 10;
   background: var(--col-bg);
   border-bottom: 1px solid var(--border);
-  padding: 0.6rem 1.5rem;
+  padding: 0.6rem var(--header-pad-x);
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
@@ -415,17 +421,32 @@ select {
    row at all, only the Contents drawer + Settings sidebar. */
 .nav-panel {
   display: flex;
-  width: 100%;
   flex-wrap: wrap;
   background: var(--nav-panel-bg);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  /* No horizontal padding of its own — .page-header's own side padding
-     (which itself varies by width, see the responsive block) already insets
-     it; the row-budget math throughout this file assumes only that ONE
-     inset, not a second one stacked on top. The tint spans this full width;
-     .nav-panel-inner (below) is what constrains the CONTENT. */
-  margin-top: 0.5rem;
+  /* Full-bleed tint (John, 2026-07-26 — John's screenshot showed the band
+     inset from both viewport edges: this element sat INSIDE .page-header's
+     own horizontal padding, so its background stopped short like a slab
+     rather than reaching the edges). Fix: break out of that padding with
+     matching negative margins (`--header-pad-x`, declared on .page-header,
+     already tracks the one breakpoint where that padding changes) instead
+     of a viewport-unit trick (100vw / calc(-50vw + 50%)) — those overflow
+     whenever a scrollbar is present, which this layout has already been
+     bitten by. `.page-header` is itself a flex container (its own `display:
+     flex` a few rules up), so this is a FLEX item, not a normal block box —
+     unlike block layout, a flex item's `width: auto` does NOT self-expand
+     to cancel out negative margins (that auto-margin-resolves-the-
+     overconstraint behaviour is block-layout-only); a first attempt relying
+     on that shrank the row to its content's own width instead of bleeding.
+     The width has to say so explicitly: 100% (of .page-header's content
+     box, i.e. already inset by its padding) PLUS twice the padding being
+     cancelled, which is exactly what the two negative margins give back.
+     .nav-panel-inner (below) re-adds `--header-pad-x` as real padding, so
+     the CONTENT — the two nav groups — lands exactly where it did before;
+     only the tint moved. */
+  width: calc(100% + 2 * var(--header-pad-x));
+  margin: 0.5rem calc(-1 * var(--header-pad-x)) 0;
   padding: 0.5rem 0;
 }
 /* Row edges (John's call, 2026-07-26): this wrapper used to cap the row's
@@ -435,11 +456,12 @@ select {
    corrected that: the groups should sit at the ROW's own outer edges —
    flush with the header bar's wordmark (left) and Support button (right)
    above — so both bands share one set of edges, not the narrower reading
-   column's. No max-width/centring here means `width: 100%` simply fills
-   .nav-panel, which is already inset by .page-header's own side padding
-   (see .nav-panel's comment above) — the same inset the header-bar's
-   content uses. The flex layout below (still needed: .nav-panel itself
-   isn't a flex container) is otherwise unchanged. */
+   column's. Since .nav-panel itself now bleeds full-width (see its own
+   comment, 2026-07-26), this wrapper carries the `--header-pad-x` padding
+   .nav-panel gave up, so the two groups still land exactly at that inset —
+   the same one the header-bar's content above uses. The flex layout below
+   (still needed: .nav-panel itself isn't a flex container) is otherwise
+   unchanged. */
 .nav-panel-inner {
   display: flex;
   align-items: center;
@@ -448,6 +470,7 @@ select {
   column-gap: 1rem;
   row-gap: 0.5rem;
   width: 100%;
+  padding: 0 var(--header-pad-x);
 }
 .nav-group-left,
 .nav-group-right {
@@ -2526,9 +2549,13 @@ select {
    font-size cut, only the simpler control layout. */
 @media (max-width: 1039px) {
   .page-header {
+    /* Keeps --header-pad-x (read by .nav-panel/.nav-panel-inner, above) in
+       sync with this rule's own padding-x at this breakpoint (John,
+       2026-07-26). */
+    --header-pad-x: 0.9rem;
     flex-wrap: wrap;
     gap: 0.4rem;
-    padding: 0.55rem 0.9rem;
+    padding: 0.55rem var(--header-pad-x);
   }
 
   /* One-line bar: title (left) + icon buttons (right). The Menu dropdown is gone
