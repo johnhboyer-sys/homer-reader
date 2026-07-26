@@ -738,28 +738,38 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   a single site rather than a guard at each URL reader (four scattered guards
   were tried first; two were forgotten, caught in review). `setReading` now
   closes Chart Room (the rail requires `!reading`, so it otherwise left a
-  dangling `aria-controls`). `colScale` is mirrored onto
-  `document.documentElement` as `--colw-scale` (see below).
+  dangling `aria-controls`). `colScale` was briefly mirrored onto
+  `document.documentElement` as `--colw-scale` to feed `.nav-panel-inner`'s
+  now-removed width cap (see below); that mirror is gone as of 2026-07-26 —
+  it had no remaining consumer once the cap was removed.
 - `shared/components/BekkerJump.svelte` — new optional `toggleLabel` prop,
   default `null`. Homer's nav-bar instance passes `Jump to…`; every other call
   site, including the sibling forks, is byte-identical. **Do not remove the
   nullish fallback** — it is what keeps this shared component inert elsewhere.
-- `shared/styles/global.css` — new `.nav-panel-inner` capped at
-  `calc(1080px * var(--colw-scale, 1))` and centred, so at wide viewports the two
-  groups align with the READING COLUMN's edges rather than the window's (the
-  tinted band still spans full width). `--colw-scale` was previously set only on
-  `.reader-body`, inside the island — the header is not a descendant, so the
-  calc silently fell back to 1 and alignment was correct only at the default
-  column width; Reader.svelte now publishes it on the root element, same
-  precedent as `--header-h`. New `--nav-panel-bg` (light: a faint `color-mix`
+- `shared/styles/global.css` — new `.nav-panel-inner`, a flex container
+  (`justify-content: space-between`) for the two groups (the tinted band
+  still spans full width). It was initially capped at `calc(1080px *
+  var(--colw-scale, 1))` and centred, so at wide viewports the two groups
+  aligned with the READING COLUMN's edges rather than the row's own —
+  requiring `--colw-scale` (normally set only on `.reader-body`, inside the
+  island) to also be published on the root element for the header to read
+  it. **John's call, 2026-07-26: corrected to flush-left/flush-right on the
+  ROW's own outer edges instead** — they now line up with the header bar's
+  wordmark and Support button, sharing one set of edges with the band
+  above. The max-width cap, the `margin: 0 auto` centring, and the
+  root-level `--colw-scale` publication (Reader.svelte) are all removed;
+  the control row is now completely unaffected by the column-width slider.
+  New `--nav-panel-bg` (light: a faint `color-mix`
   tint so the band reads against the header; dark: `var(--col-bg)`, i.e.
   unchanged from before this work). Tier boundaries moved 680/681 → 690/691 and
   the label tier to 1039/1040; ELEVEN rules deliberately LEFT at 680 (reading
   typography, touch targets, glossary bottom-sheet, sidenote rail, TOC-drawer
   dedup) — they merely reuse the number and are not part of this arrangement.
-  Known accepted behaviour: at the minimum column-width setting (0.8) the
-  full-label row wraps to two lines, since the measure is narrower than the row
-  needs. The container still aligns; only its contents wrap.
+  Previously-known behaviour, no longer applicable after the 2026-07-26
+  correction above: at the minimum column-width setting (0.8) the full-label
+  row used to wrap to two lines, since the capped measure was narrower than
+  the row needed. With the cap gone the row is unaffected by the slider at
+  any setting.
 - `app/src/components/HelpButton.svelte` — compact-header breakpoint moved with
   the rest (it was missed in the first pass, leaving a hybrid header at
   681–1099 where every other control had gone compact but `?` had not).

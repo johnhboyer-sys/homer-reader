@@ -431,16 +431,14 @@ const intro =
          translation/view live in the ⚙ Settings sidebar, the reader-controls
          strip carries only the posture toggle). -->
     <div class="nav-panel" id="nav-panel">
-      <!-- Content measure (John, coordinator's fix, 2026-07-25): at wide
-           viewports the two groups used to span the full header width,
-           reading as a band stretched for a narrower screen. This wrapper
-           caps the row's CONTENT (not the tinted band itself, which stays
-           full-width on .nav-panel above) to the same measure the reading
-           column uses — global.css's `.reader-body { max-width: calc(1080px
-           * var(--colw-scale, 1)); }` — so the two groups align with the
-           text's own edges and stop drifting apart as the window grows.
-           See global.css's `.nav-panel-inner` for the matching padding that
-           makes the alignment exact, not just the same max-width. -->
+      <!-- Row edges (John's call, 2026-07-26): the two groups sit at this
+           row's own outer edges — no max-width/centring on .nav-panel-inner
+           — so they line up with the header bar's wordmark (left) and
+           Support button (right) above, sharing one set of edges with the
+           band above instead of the narrower reading column's. (Until
+           2026-07-26 this wrapper capped the row's content to the reading
+           column's own measure; see global.css's `.nav-panel-inner` comment
+           and DRIFT.md's "Merged nav bar" entry for what changed.) -->
       <div class="nav-panel-inner">
       <div class="nav-group-left">
         <!-- Contents, control-row copy (John, 2026-07-25, final form:

@@ -428,31 +428,18 @@ select {
   margin-top: 0.5rem;
   padding: 0.5rem 0;
 }
-/* Content measure (John, coordinator's fix, 2026-07-25): at wide viewports
-   the two groups used to span .nav-panel's own full width, drifting apart
-   as the window grew and reading as a band stretched for a narrower
-   screen. This wrapper (ReaderShell.astro) caps the row's content — not
-   the tinted band above, which stays full-width — to the SAME measure the
-   reading column uses (`.reader-body`'s own `max-width: calc(1080px *
-   var(--colw-scale, 1))`, found below in this file — reused verbatim, not
-   a new number, so the row tracks the Settings sidebar's column-width
-   slider the same way the reading column does — true only once
-   --colw-scale is ALSO readable here: this element is not a descendant of
-   the Reader island, so the var was published on the root element itself
-   for exactly this reader, see Reader.svelte's colScale reactive
-   statement / .reader-body's own comment below, P2 fix, independent
-   review, 2026-07-25). No padding of its own: at
-   any viewport narrower than that measure (i.e. up to and including the
-   1024-family control-row widths this file's other rules are tuned
-   against) `width: 100%` simply fills the already-inset space exactly as
-   before adding this wrapper — confirmed empirically, not assumed — so the
-   two groups' own layout (moved here from .nav-panel unchanged) only ever
-   changes at widths wide enough that the cap is actually reached. Aligns
-   with .reader-body's own OUTER edge (its max-width is border-box
-   inclusive of ITS 1rem padding) rather than the inner text run one level
-   further in — close enough to read as related to the column, without
-   risking the narrow-width no-op by also duplicating that inner padding
-   here. */
+/* Row edges (John's call, 2026-07-26): this wrapper used to cap the row's
+   content to the reading column's own measure (`calc(1080px *
+   var(--colw-scale, 1))`, centred) so the two groups tracked the Settings
+   sidebar's column-width slider the same way the reading column does. John
+   corrected that: the groups should sit at the ROW's own outer edges —
+   flush with the header bar's wordmark (left) and Support button (right)
+   above — so both bands share one set of edges, not the narrower reading
+   column's. No max-width/centring here means `width: 100%` simply fills
+   .nav-panel, which is already inset by .page-header's own side padding
+   (see .nav-panel's comment above) — the same inset the header-bar's
+   content uses. The flex layout below (still needed: .nav-panel itself
+   isn't a flex container) is otherwise unchanged. */
 .nav-panel-inner {
   display: flex;
   align-items: center;
@@ -461,8 +448,6 @@ select {
   column-gap: 1rem;
   row-gap: 0.5rem;
   width: 100%;
-  max-width: calc(1080px * var(--colw-scale, 1));
-  margin: 0 auto;
 }
 .nav-group-left,
 .nav-group-right {
@@ -1010,11 +995,13 @@ select {
 .pages-details:not([open]) .chapter-list { display: none; }
 
 .reader-body {
-  /* --colw-scale: the settings sidebar's Column width slider (set inline by
-     Reader.svelte, AND published on the root element — see Reader.svelte's
-     colScale reactive statement — so `.nav-panel-inner` below, which is not
-     a descendant of .reader-body, resolves the same value instead of
-     falling back to 1); 1 = the stock measure. */
+  /* --colw-scale: the settings sidebar's Column width slider, set inline by
+     Reader.svelte on this element (see the `style` attribute on
+     .reader-body in Reader.svelte); every consumer below is a descendant of
+     .reader-body, so the inline value cascades to all of them — 1 = the
+     stock measure. (Until 2026-07-26 this was also mirrored onto the root
+     element for `.nav-panel-inner`'s sake; that consumer is gone — see
+     DRIFT.md's "Merged nav bar" entry — so the mirror was removed too.) */
   max-width: calc(1080px * var(--colw-scale, 1));
   margin: 0 auto;
   padding: 1.5rem 1rem 4rem;

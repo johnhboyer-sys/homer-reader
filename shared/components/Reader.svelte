@@ -327,21 +327,6 @@
   $: fsEng   = (FS_ENG_BASE   * fsScale).toFixed(3);
   $: lhGreek = (LH_GREEK_BASE * lhScale).toFixed(3);
   $: lhEng   = (LH_ENG_BASE   * lhScale).toFixed(3);
-  // P2 fix (independent review, 2026-07-25): --colw-scale used to be set
-  // inline on .reader-body ONLY, so the nav bar's `.nav-panel-inner`
-  // (ReaderShell.astro, a sibling of the island, not its descendant) always
-  // read the CSS fallback (1) regardless of the slider — the shared-edge
-  // alignment between the control row and the reading column only held at
-  // the default scale. Same precedent as `--header-h` (ReaderShell.astro's
-  // ResizeObserver, published on `document.documentElement`): mirror the
-  // SAME `colScale` state onto the root too, so both the header and the
-  // reader body resolve one value — not a second source of truth, just a
-  // second place the one value is readable from. Re-runs on every change
-  // (slider drag, localStorage restore in onMount below), not only at mount.
-  $: if (typeof document !== 'undefined') {
-    document.documentElement.style.setProperty('--colw-scale', String(colScale));
-  }
-
   // The settings drawer is `inert` when closed (see the <aside> below), so it's
   // out of the tab order there. When open it needs the modal dance: move focus
   // in, trap Tab, and restore focus to the opener on close.
