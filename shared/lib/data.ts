@@ -474,6 +474,11 @@ export interface LsjEntry {
   key: string;
   head: string;    // Unicode Greek
   html: string;
+  // LSJ's one-line sense for THIS entry, when the source yields one. Present
+  // only on entries that have it (~5.7k of 8.7k shipped). The word popup uses
+  // it to give each dictionary-level homonym its own definition; absent it,
+  // the analysis keeps its single Morpheus gloss. See LexiconPanel.
+  short?: string;
 }
 
 // A Cunliffe (Lexicon of the Homeric Dialect) entry — the second native

@@ -124,6 +124,29 @@ non-negotiable.
   WRONG SITE (symptom: SSR fine via curl, "empty" DOM in the browser).
   Any browser-based verification must read the actual bound port from
   the server log first, and hard-reload past service workers.
+- Rebuild gotcha (2026-07-27, measured — CORRECTS a belief several briefs
+  have repeated): **pytest is NOT a rebuild.** `test_stephanus.py:272`
+  monkeypatches `stage7_emit.BUILD_DIR` to a tmp dir, so a full `pytest -q`
+  leaves `build/` mtimes untouched and finishes in ~2s. The real rebuild is
+  `python -m homer_pipeline all --work <Iliad|Odyssey>` (~6 min for both),
+  still followed by `apparatus --work <W>` for both works + a 48/48 scenes
+  check. What IS true: `app/public/data` is a symlink to `build/dist`, so a
+  rebuild instantly changes what the site serves.
+- Worktree bootstrap (2026-07-27): a fresh worktree has no `.venv`,
+  `node_modules` or `build/`. `uv sync` in `pipeline/` does NOT install
+  pytest (it is declared nowhere) — add it with
+  `uv pip install --python .venv/bin/python pytest`. `npm install` is needed
+  separately in `app/` and `shared/` (no workspaces). The Iliad TLG export
+  subprocess fails in-sandbox with exit 25 (`stage1_greek.py:42-56`,
+  `docs/PHASE0-FINDINGS.md:33-38`); copy the cached
+  `build/export/Diogenes-Resources/xml/tlg/tlg0012001.xml` from the main
+  checkout.
+- Test gotcha (2026-07-27): in `shared/` vitest (jsdom), `import.meta.url`
+  resolves relative URLs against Vite's HTTP base, NOT the filesystem — so
+  `fs.existsSync(new URL('../../x', import.meta.url))` is always false and a
+  corpus-reading test passes vacuously. Use
+  `path.resolve(process.cwd(), '../app/public/data')`, and skip loudly
+  (`ctx.skip()`) rather than returning early.
 
 ## Orchestration
 

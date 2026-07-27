@@ -75,8 +75,72 @@
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   let lemmata: Record<string, LemmaRef> = {};
   fetchLemmata().then(m => { lemmata = m; }).catch(() => {});
-  const lemmaRef = (a: Analysis): LemmaRef | null =>
-    (a.lsj[0] && lemmata[a.lsj[0]]) || null;
+  const lemmaRef = (lsjKey: string | null): LemmaRef | null =>
+    (lsjKey && lemmata[lsjKey]) || null;
+
+  // ONE BOX PER GENUINE POSSIBILITY.
+  //
+  // Distinct lemmata already render as separate cards — `analyses` carries one
+  // entry each. Dictionary-level homonyms did not: a single analysis can hold
+  // several LSJ keys (2,335 across the corpus), and only lsj[0] ever reached
+  // the screen, so ἔχω¹ "have, hold" hid ἔχω² "bear, carry, bring" behind one
+  // card.
+  //
+  // A homonym earns its own box only when it brings its OWN distinct
+  // definition. LSJ derives no short def for ὅς¹/ὅς², so splitting those would
+  // print the shared Morpheus gloss twice under one headword — two boxes, no
+  // new information. Fewer than two distinct senses ⇒ the analysis renders
+  // exactly as before, which is the case for ~94% of tokens.
+  interface Card {
+    head: string;
+    numeral: string;   // LSJ homonym index, shown only when heads collide
+    gloss: string;
+    parse: string;
+    lsjKey: string | null;
+  }
+
+  const homonymNumeral = (key: string): string => key.match(/(\d+)$/)?.[1] ?? '';
+
+  function toCards(items: Analysis[], entries: LsjEntry[]): Card[] {
+    const byKey = new Map(entries.map(e => [e.key, e]));
+    const cards: Card[] = [];
+    for (const a of items) {
+      const senses = a.lsj
+        .map(k => byKey.get(k))
+        .filter((e): e is LsjEntry => !!e && !!e.short?.trim());
+      const distinct = new Set(senses.map(e => e.short!.trim()));
+      if (distinct.size < 2) {
+        cards.push({
+          head: (a.lsj[0] && byKey.get(a.lsj[0])?.head) || betaToGreek(a.lemma),
+          numeral: '',
+          gloss: a.gloss,
+          parse: a.parse,
+          lsjKey: a.lsj[0] ?? null,
+        });
+        continue;
+      }
+      // ὅτι/ὅτι — homonyms share a headword, so number them; a handful of LSJ
+      // keys are quantity-marked rather than numbered and carry no index, and
+      // there the differing definitions do the distinguishing.
+      const collide = new Set(senses.map(e => e.head)).size < senses.length;
+      const seen = new Set<string>();
+      for (const e of senses) {
+        const text = e.short!.trim();
+        if (seen.has(text)) continue;   // one sense reached by two keys
+        seen.add(text);
+        cards.push({
+          head: e.head,
+          numeral: collide ? homonymNumeral(e.key) : '',
+          gloss: text,
+          parse: a.parse,
+          lsjKey: e.key,
+        });
+      }
+    }
+    return cards;
+  }
+
+  $: cards = toCards(analyses, lsj);
 
   // Logeion (logeion.uchicago.edu) looks up by headword, not inflected surface
   // form — use the primary analysis's resolved LSJ head (matching the first
@@ -129,14 +193,14 @@
   {:else if analyses.length === 0}
     <div class="popup-loading">No analysis found for this form.</div>
   {:else}
-    {#each analyses as a}
+    {#each cards as c}
       <div class="analysis-card">
-        <div class="lemma" lang="grc">{a.lsj[0] ? lsj.find(e => e.key === a.lsj[0])?.head ?? betaToGreek(a.lemma) : betaToGreek(a.lemma)}</div>
-        <div class="gloss">{a.gloss}</div>
-        <div class="parse">{a.parse}</div>
-        {#if lemmaRef(a)}
-          <a class="lemma-link" href={`${base}/lemma/${lemmaRef(a)!.slug}/`}>
-            Appears {lemmaRef(a)!.count.toLocaleString()}× across Homer
+        <div class="lemma" lang="grc">{c.head}{#if c.numeral}<sup class="homonym">{c.numeral}</sup>{/if}</div>
+        <div class="gloss">{c.gloss}</div>
+        <div class="parse">{c.parse}</div>
+        {#if lemmaRef(c.lsjKey)}
+          <a class="lemma-link" href={`${base}/lemma/${lemmaRef(c.lsjKey)!.slug}/`}>
+            Appears {lemmaRef(c.lsjKey)!.count.toLocaleString()}× across Homer
             <span class="lemma-link-arr" aria-hidden="true">→</span>
           </a>
         {/if}
