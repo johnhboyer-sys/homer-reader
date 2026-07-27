@@ -547,6 +547,49 @@ def test_tick_coverage_violations_clean_when_at_or_above_floor():
     assert tick_coverage_violations(counts, floor) == []
 
 
+# ── Public-domain translation allowlist (fail-closed) ──────────────────────
+
+
+def test_preflight_refuses_non_allowlisted_translation():
+    """A manifest that declares an invented, non-allowlisted translation id
+    must fail preflight. No real copyrighted text is used — only a fake id."""
+    from homer_pipeline.preflight import WorkManifest, _validate_public_domain_allowlist
+
+    data = _load_manifest("Iliad.yaml")
+    # Invented placeholder — not a real translator, not on the allowlist.
+    data["english"]["secondary"] = {
+        "id": "quilliam",
+        "name": "H. Quilliam (1977)",
+        "source": "fake/quilliam-iliad.xml",
+    }
+    manifest = WorkManifest(
+        work_id=data["work"]["id"],
+        path=MANIFESTS / "Iliad.yaml",
+        data=data,
+    )
+    problems: list = []
+    _validate_public_domain_allowlist(manifest, problems)
+    messages = [p[2] for p in problems]
+    assert any(
+        "quilliam" in m and "allowlist" in m for m in messages
+    ), f"expected allowlist refusal for quilliam, got: {messages}"
+
+
+def test_preflight_allowlist_accepts_murray_butler_pope():
+    from homer_pipeline.preflight import WorkManifest, _validate_public_domain_allowlist
+
+    for name in ("Iliad.yaml", "Odyssey.yaml"):
+        data = _load_manifest(name)
+        manifest = WorkManifest(
+            work_id=data["work"]["id"],
+            path=MANIFESTS / name,
+            data=data,
+        )
+        problems: list = []
+        _validate_public_domain_allowlist(manifest, problems)
+        assert problems == [], f"{name}: unexpected allowlist problems: {problems}"
+
+
 def test_tick_coverage_violations_missing_book_counts_as_zero():
     from homer_pipeline.preflight import tick_coverage_violations
 

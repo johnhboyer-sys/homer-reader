@@ -27,11 +27,19 @@ class WorkManifest:
     private_data: dict[str, Any] | None = None
 
 
+# Fail-closed public-domain translation allowlist (US copyright). Loaded from
+# public_domain_translations.yaml beside this module — never from a hard-coded
+# Python set. An unknown translation id fails preflight; missing/empty
+# allowlist also fails. See _validate_public_domain_allowlist.
+PUBLIC_DOMAIN_ALLOWLIST_PATH = Path(__file__).with_name("public_domain_translations.yaml")
+
+
 def validate(data_dir: Path, manifests_dir: Path) -> list[Problem]:
     problems: list[Problem] = []
     manifests = _load_manifests(manifests_dir, problems)
     for manifest in manifests:
         _validate_manifest_schema(manifest, problems)
+        _validate_public_domain_allowlist(manifest, problems)
         _validate_work_data(data_dir, manifest, problems)
     _validate_global_apparatus_emits(data_dir, manifests, problems)
     return problems
@@ -865,6 +873,97 @@ def _validate_public_gating(
                     overlays = segment.get("overlays")
                     if isinstance(overlays, dict) and overlay_id in overlays:
                         problems.append((manifest.work_id, file_name, f"private overlay {overlay_id!r} appears in public data"))
+
+
+def load_public_domain_allowlist(path: Path | None = None) -> dict[str, dict[str, Any]]:
+    """Load the positive allowlist of public-domain translation ids.
+
+    Returns a map of id -> {translator, year, note}. Raises ValueError on
+    missing file, invalid structure, or empty translations list — callers must
+    treat that as a hard preflight failure (fail-closed), never as "nothing to
+    check."
+    """
+    path = path or PUBLIC_DOMAIN_ALLOWLIST_PATH
+    if not path.is_file():
+        raise ValueError(f"public-domain allowlist missing: {path}")
+    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ValueError("public-domain allowlist root must be an object")
+    entries = raw.get("translations")
+    if not isinstance(entries, list) or not entries:
+        raise ValueError("public-domain allowlist translations must be a non-empty list")
+    allowed: dict[str, dict[str, Any]] = {}
+    for i, item in enumerate(entries):
+        if not isinstance(item, dict):
+            raise ValueError(f"public-domain allowlist translations[{i}] must be an object")
+        tid = item.get("id")
+        if not isinstance(tid, str) or not tid:
+            raise ValueError(f"public-domain allowlist translations[{i}].id must be a non-empty string")
+        if tid in allowed:
+            raise ValueError(f"public-domain allowlist has duplicate id {tid!r}")
+        translator = item.get("translator")
+        year = item.get("year")
+        note = item.get("note")
+        if not isinstance(translator, str) or not translator:
+            raise ValueError(f"public-domain allowlist {tid!r}: translator must be a non-empty string")
+        if not isinstance(year, int):
+            raise ValueError(f"public-domain allowlist {tid!r}: year must be an integer")
+        if not isinstance(note, str) or not note:
+            raise ValueError(f"public-domain allowlist {tid!r}: note must be a non-empty string")
+        allowed[tid] = {"translator": translator, "year": year, "note": note}
+    return allowed
+
+
+def manifest_translation_ids(data: dict[str, Any]) -> list[tuple[str, str]]:
+    """Collect (slot, id) pairs for every translation declared under english.*.
+
+    Slots: primary, secondary, third, and overlay:<id> for each overlays[] entry.
+    Ids are the stable keys used in work YAML (murray, butler, pope, …).
+    """
+    english = data.get("english") if isinstance(data.get("english"), dict) else {}
+    found: list[tuple[str, str]] = []
+    for slot in ("primary", "secondary", "third"):
+        block = english.get(slot)
+        if isinstance(block, dict):
+            tid = block.get("id")
+            if isinstance(tid, str) and tid:
+                found.append((slot, tid))
+    for item in english.get("overlays") or []:
+        if isinstance(item, dict):
+            tid = item.get("id")
+            if isinstance(tid, str) and tid:
+                found.append((f"overlay:{tid}", tid))
+    return found
+
+
+def _validate_public_domain_allowlist(
+    manifest: WorkManifest,
+    problems: list[Problem],
+    *,
+    allowlist_path: Path | None = None,
+) -> None:
+    """Fail-closed: every english.*.id on the active manifest must be allowlisted.
+
+    Runs regardless of whether a -public.yaml exists. The old private-content
+    check only asked "is anything marked private?"; this asks "is everything
+    explicitly permitted?" so a private-only manifest that gains a copyrighted
+    translation cannot pass preflight by accident.
+    """
+    allowlist_label = (allowlist_path or PUBLIC_DOMAIN_ALLOWLIST_PATH).name
+    try:
+        allowed = load_public_domain_allowlist(allowlist_path)
+    except Exception as exc:
+        problems.append((manifest.work_id, allowlist_label, str(exc)))
+        return
+    for slot, tid in manifest_translation_ids(manifest.data):
+        if tid not in allowed:
+            problems.append(
+                (
+                    manifest.work_id,
+                    manifest.path.name,
+                    f"translation id {tid!r} ({slot}) is not on the public-domain allowlist",
+                )
+            )
 
 
 def _validate_apparatus(
