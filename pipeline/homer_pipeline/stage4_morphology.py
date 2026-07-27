@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import re
 from collections import Counter
+from html.parser import HTMLParser
 from pathlib import Path
 
 from .beta import lookup_variants
@@ -25,6 +26,22 @@ from .config import BUILD_DIR, Manifest
 # 0/1 for proper names and rarities); proper-name groups also omit the
 # "form," prefix and carry a blank gloss.
 _GROUP = re.compile(r"\{(\d+) \d+ ([^\t}]*)\t([^\t}]*)\t([^}]*)\}")
+
+
+class _GlossTextParser(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+
+    def handle_data(self, data: str) -> None:
+        self.parts.append(data)
+
+
+def _clean_gloss(value: str) -> str:
+    parser = _GlossTextParser()
+    parser.feed(value)
+    parser.close()
+    return "".join(parser.parts)
 
 
 def parse_analysis_line(value: str) -> list[dict]:
@@ -38,7 +55,7 @@ def parse_analysis_line(value: str) -> list[dict]:
                 "lemma_id": int(lemma_id),
                 "form": form,
                 "lemma": lemma,
-                "gloss": gloss,
+                "gloss": _clean_gloss(gloss),
                 "parse": parse,
             }
         )

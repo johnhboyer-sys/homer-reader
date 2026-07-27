@@ -7,6 +7,18 @@ sys.path.insert(0, str(ROOT / "pipeline"))
 from homer_pipeline import stage4_morphology as s4
 
 
+def test_parse_analysis_line_cleans_inline_markup_from_stored_gloss():
+    value = (
+        '{123 9 qwrh/ssw,qwrh/ssw\tarm with a '
+        '<foreign lang="greek">θώραξ</foreign> &amp; shield\tpres inf act}'
+    )
+
+    [analysis] = s4.parse_analysis_line(value)
+
+    assert analysis["gloss"] == "arm with a θώραξ & shield"
+    assert "<" not in analysis["gloss"] and ">" not in analysis["gloss"]
+
+
 # ── resolve_key: capitalized-source-token lemma resolution ─────────────────
 #
 # Bug (found by the epithets-stage lane, worked around in apparatus_epithets
