@@ -1,0 +1,32 @@
+# Public-domain translation allowlist (US copyright).
+#
+# Preflight asserts that every translation id declared in a work manifest
+# (english.primary / secondary / third / overlays) is listed here. This is
+# FAIL-CLOSED: a missing file, unreadable file, empty list, or unknown id
+# fails the build. Adding a copyrighted translation for local reading must
+# NOT put its id on this list — keep it out of any public build path.
+#
+# Cutoff: works first published before 1931 are public domain in the US as
+# of 2026 (see AGENTS.md / CLAUDE.md). Lexica (Autenrieth, LSJ, Cunliffe)
+# are not translation ids and do not belong here.
+#
+# id        — must match english.*.id in the work YAML manifests
+# translator — human-readable translator name
+# year      — earliest publication year of the edition this site uses
+# note      — one-line US public-domain rationale (owner-reviewed)
+
+translations:
+  - id: murray
+    translator: "A. T. Murray"
+    year: 1919
+    note: "Loeb Odyssey (1919) and Iliad (1924–25); published before 1931, public domain in the US."
+
+  - id: butler
+    translator: "Samuel Butler"
+    year: 1898
+    note: "Iliad (1898) and Odyssey (1900); published before 1931, public domain in the US."
+
+  - id: pope
+    translator: "Alexander Pope"
+    year: 1715
+    note: "Iliad (1715–20) and Odyssey (1725–26); long in the public domain in the US."

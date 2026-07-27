@@ -197,6 +197,44 @@ def test_apparatus_scenes_coverage_passes_when_emit_matches_canonical(tmp_path, 
     assert problems == []
 
 
+def test_apparatus_scenes_coverage_fails_when_canonical_omits_manifest_book(
+    tmp_path, monkeypatch
+):
+    from homer_pipeline import apparatus_scenes
+    from homer_pipeline.preflight import WorkManifest, _validate_apparatus_scenes_coverage
+
+    scenes_dir = tmp_path / "scenes"
+    scenes_dir.mkdir()
+    canonical = _canonical_scenes_doc()
+    (scenes_dir / "testwork.json").write_text(json.dumps(canonical), encoding="utf-8")
+    monkeypatch.setattr(apparatus_scenes, "SCENES_DIR", scenes_dir)
+    manifest = WorkManifest(
+        work_id="testwork",
+        path=MANIFESTS / "Iliad.yaml",
+        data={
+            "books": [
+                {"n": 1, "start": "1.1", "end": "1.10"},
+                {"n": 2, "start": "2.1", "end": "2.6"},
+            ],
+            "expected_line_gaps": [],
+        },
+    )
+    expected_scenes = apparatus_scenes.emit_book_apparatus(canonical["books"][0])["scenes"]
+    loaded = {
+        "book-01.json": {
+            "book": 1,
+            "apparatus": {"argument": "A clean argument.", "draft": True, "scenes": expected_scenes},
+        }
+    }
+    problems: list = []
+
+    _validate_apparatus_scenes_coverage(manifest, loaded, problems)
+
+    assert [problem[2] for problem in problems] == [
+        "canonical scenes cover 1/2 manifest books; missing books: [2]"
+    ]
+
+
 def test_apparatus_scenes_coverage_fails_when_emitted_book_missing_apparatus(tmp_path, monkeypatch):
     # Reproduces the Gate-4 incident: canonical scenes.json covers book 1, but
     # the emitted book file carries no apparatus at all (a rebuild that
@@ -507,6 +545,49 @@ def test_tick_coverage_violations_clean_when_at_or_above_floor():
     counts = {1: {"murray": 12, "butler": 9}}
     floor = {1: {"murray": 12, "butler": 8}}
     assert tick_coverage_violations(counts, floor) == []
+
+
+# ── Public-domain translation allowlist (fail-closed) ──────────────────────
+
+
+def test_preflight_refuses_non_allowlisted_translation():
+    """A manifest that declares an invented, non-allowlisted translation id
+    must fail preflight. No real copyrighted text is used — only a fake id."""
+    from homer_pipeline.preflight import WorkManifest, _validate_public_domain_allowlist
+
+    data = _load_manifest("Iliad.yaml")
+    # Invented placeholder — not a real translator, not on the allowlist.
+    data["english"]["secondary"] = {
+        "id": "quilliam",
+        "name": "H. Quilliam (1977)",
+        "source": "fake/quilliam-iliad.xml",
+    }
+    manifest = WorkManifest(
+        work_id=data["work"]["id"],
+        path=MANIFESTS / "Iliad.yaml",
+        data=data,
+    )
+    problems: list = []
+    _validate_public_domain_allowlist(manifest, problems)
+    messages = [p[2] for p in problems]
+    assert any(
+        "quilliam" in m and "allowlist" in m for m in messages
+    ), f"expected allowlist refusal for quilliam, got: {messages}"
+
+
+def test_preflight_allowlist_accepts_murray_butler_pope():
+    from homer_pipeline.preflight import WorkManifest, _validate_public_domain_allowlist
+
+    for name in ("Iliad.yaml", "Odyssey.yaml"):
+        data = _load_manifest(name)
+        manifest = WorkManifest(
+            work_id=data["work"]["id"],
+            path=MANIFESTS / name,
+            data=data,
+        )
+        problems: list = []
+        _validate_public_domain_allowlist(manifest, problems)
+        assert problems == [], f"{name}: unexpected allowlist problems: {problems}"
 
 
 def test_tick_coverage_violations_missing_book_counts_as_zero():

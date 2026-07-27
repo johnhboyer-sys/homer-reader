@@ -1,0 +1,170 @@
+[
+  {
+    "surface": "ou)",
+    "lemma": "ou)",
+    "gloss": "not",
+    "justification": "Homeric negative particle; Morpheus's 'u' is not a lexical gloss."
+  },
+  {
+    "surface": "ou)/",
+    "lemma": "ou)",
+    "gloss": "not",
+    "justification": "Accented surface of the Homeric negative particle."
+  },
+  {
+    "surface": "ou)k",
+    "lemma": "ou)",
+    "gloss": "not",
+    "justification": "Negative particle before smooth breathing; Morpheus's gloss is corrupt."
+  },
+  {
+    "surface": "ou)/k",
+    "lemma": "ou)",
+    "gloss": "not",
+    "justification": "Accented negative particle before smooth breathing."
+  },
+  {
+    "surface": "ou)x",
+    "lemma": "ou)",
+    "gloss": "not",
+    "justification": "Negative particle before rough breathing; Morpheus's gloss is corrupt."
+  },
+  {
+    "surface": "ou)xi/",
+    "lemma": "ou)",
+    "gloss": "not",
+    "justification": "Emphatic form of the Homeric negative particle."
+  },
+  {
+    "surface": "ou)ki/",
+    "lemma": "ou)",
+    "gloss": "not",
+    "justification": "Emphatic form of the Homeric negative particle."
+  },
+  {
+    "surface": "mh/",
+    "lemma": "mh/",
+    "gloss": "not",
+    "justification": "Homeric negative particle; Morpheus's 'will' is a false gloss."
+  },
+  {
+    "surface": "a)/n",
+    "lemma": "a)/n1",
+    "gloss": "modal particle",
+    "justification": "Modal particle; Morpheus's 'he came' is a false gloss."
+  },
+  {
+    "surface": "ke",
+    "lemma": "a)/n1",
+    "gloss": "modal particle",
+    "justification": "Epic modal particle equivalent to an; Morpheus's gloss is false."
+  },
+  {
+    "surface": "ke/",
+    "lemma": "a)/n1",
+    "gloss": "modal particle",
+    "justification": "Accented epic modal particle equivalent to an."
+  },
+  {
+    "surface": "ken",
+    "lemma": "a)/n1",
+    "gloss": "modal particle",
+    "justification": "Epic modal particle equivalent to an; Morpheus's gloss is false."
+  },
+  {
+    "surface": "ke/n",
+    "lemma": "a)/n1",
+    "gloss": "modal particle",
+    "justification": "Accented epic modal particle equivalent to an."
+  },
+  {
+    "surface": "k'",
+    "lemma": "a)/n1",
+    "gloss": "modal particle",
+    "justification": "Elided epic modal particle ke."
+  },
+  {
+    "surface": "x'",
+    "lemma": "a)/n1",
+    "gloss": "modal particle",
+    "justification": "Breathing-assimilated elision of the epic modal particle ke."
+  },
+  {
+    "surface": "i(/ppos",
+    "lemma": "i(/ppos",
+    "gloss": "horse",
+    "justification": "Homeric hippos; Morpheus selected an unrelated riding-dress gloss."
+  },
+  {
+    "surface": "i(/ppon",
+    "lemma": "i(/ppos",
+    "gloss": "horse",
+    "justification": "Inflected form of Homeric hippos, horse."
+  },
+  {
+    "surface": "i(/ppous",
+    "lemma": "i(/ppos",
+    "gloss": "horse",
+    "justification": "Inflected form of Homeric hippos, horse."
+  },
+  {
+    "surface": "i(/ppwn",
+    "lemma": "i(/ppos",
+    "gloss": "horse",
+    "justification": "Inflected form of Homeric hippos, horse."
+  },
+  {
+    "surface": "i(/ppois",
+    "lemma": "i(/ppos",
+    "gloss": "horse",
+    "justification": "Inflected form of Homeric hippos, horse."
+  },
+  {
+    "surface": "i(/ppoisi",
+    "lemma": "i(/ppos",
+    "gloss": "horse",
+    "justification": "Epic dative plural of Homeric hippos, horse."
+  },
+  {
+    "surface": "i(/ppoisin",
+    "lemma": "i(/ppos",
+    "gloss": "horse",
+    "justification": "Epic dative plural of Homeric hippos, horse."
+  },
+  {
+    "surface": "i(/ppoiin",
+    "lemma": "i(/ppos",
+    "gloss": "horse",
+    "justification": "Dual inflection of Homeric hippos, horse."
+  },
+  {
+    "surface": "i(/ppoii+n",
+    "lemma": "i(/ppos",
+    "gloss": "horse",
+    "justification": "Diaeretic dual inflection of Homeric hippos, horse."
+  },
+  {
+    "surface": "i(/ppou",
+    "lemma": "i(/ppos",
+    "gloss": "horse",
+    "justification": "Inflected form of Homeric hippos, horse."
+  },
+  {
+    "surface": "i(/ppoio",
+    "lemma": "i(/ppos",
+    "gloss": "horse",
+    "justification": "Epic genitive singular of Homeric hippos, horse."
+  },
+  {
+    "surface": "i(/ppw",
+    "lemma": "i(/ppos",
+    "gloss": "horse",
+    "justification": "Dual inflection of Homeric hippos, horse."
+  },
+  {
+    "surface": "i(/ppw|",
+    "lemma": "i(/ppos",
+    "gloss": "horse",
+    "justification": "Inflected form of Homeric hippos, horse."
+  }
+]

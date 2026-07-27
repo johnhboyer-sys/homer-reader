@@ -9,6 +9,7 @@ sys.path.insert(0, str(ROOT / "pipeline"))
 
 from homer_pipeline.stage5_lsj import derive_short_def
 from homer_pipeline.stage7_emit import merge_short_def, resolve_parses
+import homer_pipeline.stage7_emit as stage7_emit
 
 
 @pytest.mark.parametrize(
@@ -117,10 +118,130 @@ def test_merge_short_def_refuses_non_prefix_replacement():
     ) == gloss
 
 
-def test_merge_short_def_leaves_blank_gloss_blank():
+def test_merge_short_def_empty_gloss_adopts_derived_def():
+    """Empty Morpheus gloss adopts the lemma's own short def (no prefix test)."""
     assert merge_short_def(
         "", "politiko/s", ["politiko/s"], {"politiko/s": "of, for"}
-    ) == ""
+    ) == "of, for"
+    assert merge_short_def(
+        " \t", "politiko/s", ["politiko/s"], {"politiko/s": "of, for"}
+    ) == "of, for"
+
+
+def test_merge_short_def_empty_gloss_resolves_cross_reference(monkeypatch):
+    """One-hop stub resolution: v. / = Greek referent → that entry's short def."""
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {
+            "du/w2": {"html": '<b class="lsj-head">δύω</b>, v. δύο.'},
+            "du/o": {"html": '<b class="lsj-head">δύο</b>', "short": "two"},
+            "pera/w2": {
+                "html": '<b class="lsj-head">περάω</b> (B), v. πέρνημι.',
+            },
+            "pe/rnhmi": {
+                "html": '<b class="lsj-head">πέρνημι</b>',
+                "short": "sell",
+            },
+            "la/w1": {"html": '<b class="lsj-head">λάω</b> (A), = βλέπω.'},
+            "ble/pw": {"html": '<b class="lsj-head">βλέπω</b>', "short": "see"},
+            "plou=tos2": {
+                "html": (
+                    '<b class="lsj-head">πλοῦτος</b>, εος, τό, = πλοῦτος, ὁ'
+                ),
+            },
+            "plou=tos1": {
+                "html": '<b class="lsj-head">πλοῦτος</b>',
+                "short": "wealth, riches",
+            },
+        },
+    )
+
+    assert merge_short_def("", "du/w2", ["du/w2"], {}) == "two"
+    assert merge_short_def("", "pera/w2", ["pera/w2"], {}) == "sell"
+    assert merge_short_def("", "la/w1", ["la/w1"], {}) == "see"
+    assert merge_short_def("", "plou=tos2", ["plou=tos2"], {}) == "wealth, riches"
+
+
+def test_merge_short_def_empty_gloss_refuses_stub_whose_referent_lacks_def(
+    monkeypatch,
+):
+    """Referent that is itself definitionless (or another stub) stays empty."""
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {
+            "stub1": {"html": '<b class="lsj-head">foo</b>, v. βάρ.'},
+            "ba/r": {"html": '<b class="lsj-head">βάρ</b>, v. βάζ.'},
+            "ba/z": {"html": '<b class="lsj-head">βάζ</b>', "short": "baz"},
+        },
+    )
+
+    assert merge_short_def("", "stub1", ["stub1"], {}) == ""
+
+
+def test_merge_short_def_empty_gloss_refuses_ambiguous_cross_reference(
+    monkeypatch,
+):
+    """Homonymous referents with different short defs → refuse, leave empty."""
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {
+            "plou=tos2": {
+                "html": (
+                    '<b class="lsj-head">πλοῦτος</b>, εος, τό, = πλοῦτος, ὁ'
+                ),
+            },
+            "plou=tos1": {
+                "html": '<b class="lsj-head">πλοῦτος</b>',
+                "short": "wealth",
+            },
+            "plou=tos3": {
+                "html": '<b class="lsj-head">πλοῦτος</b>',
+                "short": "riches",
+            },
+        },
+    )
+
+    assert merge_short_def("", "plou=tos2", ["plou=tos2"], {}) == ""
+
+
+def test_merge_short_def_empty_gloss_refuses_disagreeing_homonym_stubs(
+    monkeypatch,
+):
+    """Two numbered LSJ keys naming different referents → refuse."""
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {
+            "oi)/h1": {"html": '<b class="lsj-head">οἴη</b> (A), = κώμη.'},
+            "oi)/h2": {"html": '<b class="lsj-head">οἴη</b> (B), v. ὄα.'},
+            "kw/mh": {"html": '<b class="lsj-head">κώμη</b>', "short": "village"},
+            "o)/a1": {"html": '<b class="lsj-head">ὄα</b>', "short": "service-tree"},
+        },
+    )
+
+    assert merge_short_def("", "oi)/h", ["oi)/h1", "oi)/h2"], {}) == ""
+
+
+def test_merge_short_def_nonempty_gloss_preserves_existing_behavior():
+    """Non-empty glosses still only extend on prefix match (regression guard)."""
+    assert merge_short_def(
+        "of, for",
+        "politiko/s",
+        ["politiko/s"],
+        {"politiko/s": "of, for, or relating to citizens"},
+    ) == "of, for, or relating to citizens"
+    assert merge_short_def(
+        "sink", "du/w2", ["du/w2"], {"du/w": "sink, plunge"}
+    ) == "sink"
+    assert merge_short_def(
+        "of, for",
+        "politiko/s",
+        ["politiko/s"],
+        {"politiko/s": "of, for"},
+    ) == "of, for"
 
 
 def test_merge_short_def_requires_a_word_boundary():
@@ -202,3 +323,80 @@ def test_resolve_parses_keeps_a_distinct_unresolved_reading():
     kept = resolve_parses(parses, {"a": "take care of"})
 
     assert [p["gloss"] for p in kept] == ["take care of", "wholly other"]
+
+
+REAL_DIST_DIR = ROOT / "build" / "dist"
+
+
+@pytest.mark.skipif(
+    not (REAL_DIST_DIR / "lsj").is_dir(),
+    reason="requires a local build/dist/lsj (stage5, then stage7)",
+)
+def test_real_lsj_entries_ship_their_own_short_def():
+    """Every shipped LSJ entry carries the short def derived for its own key.
+
+    The reader gives each dictionary-level homonym its own box, headed by its
+    own definition (shared/components/LexiconPanel.svelte, toCards). That is
+    only possible if the definition travels ON the entry — short_defs.json is
+    a build artifact and is never shipped.
+    """
+    import json
+
+    short_defs = json.loads(
+        (ROOT / "build" / "stage5" / "short_defs.json").read_text(encoding="utf-8")
+    )
+    checked = 0
+    for shard in sorted((REAL_DIST_DIR / "lsj").glob("*.json")):
+        for key, entry in json.loads(shard.read_text(encoding="utf-8")).items():
+            short = entry.get("short")
+            if short is not None:
+                assert isinstance(short, str) and short.strip(), f"{key}: blank short"
+            # build/dist/lsj is the union across BOTH works, while
+            # short_defs.json holds only the last work built — so a key absent
+            # here is an other-work key, not a missing definition. Check the
+            # keys this build did derive.
+            expected = short_defs.get(key)
+            if expected is None:
+                continue
+            assert short == expected, f"{key}: short def not shipped"
+            checked += 1
+    assert checked > 1000, f"only {checked} entries carried a short def"
+
+
+def test_ambiguous_homonyms_the_guard_refuses_become_separate_reader_boxes():
+    """What the guard declines to guess, the reader now shows in full.
+
+    merge_short_def refuses to extend a gloss when two homonyms disagree — it
+    cannot tell which is meant. That refusal costs the reader nothing now: the
+    same input renders as one box PER homonym, each headed by its own
+    definition, so both senses reach the screen without the pipeline picking a
+    winner.
+
+    The guard still earns its place, so it stays. The surfaces that have no
+    boxes take exactly one gloss per lemma — apparatus_vocab.lemma_gloss_map
+    and app/scripts/build-lemmata.mjs — and there a wrong guess would ship
+    unchallenged.
+    """
+    defs = {
+        "a)/naltos1": "not to be filled, insatiate",
+        "a)/naltos2": "not salted",
+    }
+    keys = ["a)/naltos1", "a)/naltos2"]
+
+    # The pipeline declines to choose.
+    assert merge_short_def("not", "a)/naltos", keys, defs) == "not"
+
+    # The reader's split rule: two or more distinct short defs among the keys
+    # means two or more boxes (LexiconPanel toCards).
+    distinct = {defs[k] for k in keys if defs.get(k)}
+    assert distinct == {"not to be filled, insatiate", "not salted"}
+
+
+def test_a_lone_homonym_definition_still_extends_and_stays_one_box():
+    """One candidate is not ambiguity: the gloss extends, and the reader keeps
+    a single box rather than inventing a second from a borrowed definition."""
+    defs = {"poth/2": "sample of wine"}
+    keys = ["poth/1", "poth/2"]
+
+    assert merge_short_def("sample", "poth/", keys, defs) == "sample of wine"
+    assert len({defs[k] for k in keys if defs.get(k)}) == 1

@@ -18,7 +18,8 @@ chapters:
 
 english:
   primary:
-    id: fixture
+    # Structural fixture only; id must be on the public-domain allowlist.
+    id: murray
     name: "Fixture English"
     model: archive
     dir: fixture

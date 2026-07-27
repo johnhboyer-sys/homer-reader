@@ -863,7 +863,7 @@
       663,
       698
      ],
-     "summary": "The dying Tlepolemus is borne from the field; the badly wounded Sarpedon fights on.",
+     "summary": "The dying Tlepolemus is borne from the field; the badly wounded Sarpedon is carried out and revived.",
      "location": "the Trojan plain",
      "dayNumber": 22
     },
@@ -926,7 +926,7 @@
   },
   {
    "book": 6,
-   "argument": "Hector returns to Troy for prayers; meets Glaucus, then Andromache, before rejoining battle.",
+   "argument": "Hector returns to Troy for prayers; Diomedes meets Glaucus; Hector meets Andromache before rejoining battle.",
    "where": [
     "the Trojan plain",
     "Troy"
@@ -2281,7 +2281,7 @@
       455,
       520
      ],
-     "summary": "Idomeneus taunts Deiphobus, who fetches Aeneas; Aeneas kills Oenomaus instead, and Deiphobus's throw kills Ascalaphus.",
+     "summary": "Idomeneus taunts Deiphobus, who fetches Aeneas; Idomeneus kills Oenomaus instead, and Deiphobus's throw kills Ascalaphus.",
      "location": "the plain before Troy",
      "dayNumber": 25
     },
@@ -3943,7 +3943,7 @@
       448,
       565
      ],
-     "summary": "Antilochus's reckless driving nearly costs Menelaus second place; Achilles adds a prize and settles their quarrel.",
+     "summary": "Antilochus's reckless driving costs Menelaus second place; Achilles settles a quarrel among the spectators and adds a prize for Eumelus.",
      "location": "the funeral games ground",
      "dayNumber": 28
     },

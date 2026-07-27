@@ -779,3 +779,29 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   `.header-search` button wraps its own label onto two lines between ~900 and
   1022px, a pre-existing flex-shrink squeeze. Unreachable at the 1040 boundary,
   but it will resurface if that boundary ever moves down.
+
+## Lexicon — one box per dictionary-level homonym (Homer, 2026-07-27)
+
+- `shared/components/LexiconPanel.svelte` — the analysis cards are now derived
+  (`toCards`) instead of iterating `analyses` directly. A single analysis can
+  carry several LSJ keys (2,335 across the corpus) and only `lsj[0]` ever
+  reached the screen, so ἔχω¹ "have, hold" hid ἔχω² "bear, carry, bring" behind
+  one card. A homonym earns its own box only when it brings its OWN distinct
+  short definition: 1,462 analyses split into 3,061 boxes over 890 token-keys,
+  while ὅς¹/ὅς² (no derived definition either side) stay a single box rather
+  than print the shared Morpheus gloss twice. Homonyms share a headword, so
+  boxes carry the LSJ index as a `<sup class="homonym">`.
+- `shared/lib/data.ts` — `LsjEntry` gained optional `short?: string`, LSJ's
+  one-line sense for that key. Previously derived at stage 5 into
+  `short_defs.json` and used only to extend Morpheus glosses; it is now shipped
+  on the entry, because a per-homonym box needs a per-homonym definition.
+- `shared/styles/global.css` — new `.analysis-card .lemma .homonym` rule. It
+  inherits the `.lemma` accent colour, so contrast is unchanged in both themes.
+- `pipeline/homer_pipeline/stage5_lsj.py` — the LSJ shard entry carries `short`
+  alongside `key`/`head`/`html`. `short_defs.json` is unchanged, so
+  `merge_short_def` behaves exactly as before.
+- The ambiguity guard (739b6cefc) was reviewed and KEPT. Against real stage4
+  input it refuses zero times in 1,085 multi-key parses — it is defensive only,
+  so the split cannot have made it obsolete. It still covers the surfaces that
+  have no boxes and take one gloss per lemma (`apparatus_vocab.lemma_gloss_map`,
+  `app/scripts/build-lemmata.mjs`).

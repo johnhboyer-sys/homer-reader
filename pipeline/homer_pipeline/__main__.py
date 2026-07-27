@@ -322,10 +322,10 @@ def _stage7(manifest):
           f"cunliffe_entries={man['cunliffe']['cunliffe_entries_kept']}")
 
 
-def _stage_apparatus(manifest):
+def _stage_apparatus(manifest, *, allow_partial=False):
     from . import apparatus_scenes
 
-    result = apparatus_scenes.run(manifest)
+    result = apparatus_scenes.run(manifest, allow_partial=allow_partial)
     if not result["staging_files"]:
         print(f"apparatus: {manifest.work_id}: no staging files found, nothing to merge")
         return
@@ -439,13 +439,25 @@ def main(argv=None):
         action="store_true",
         help="use manifests/<work>-public.yaml when present",
     )
+    parser.add_argument(
+        "--allow-partial-apparatus",
+        action="store_true",
+        help="explicitly allow apparatus staging to cover fewer books than the manifest",
+    )
     args = parser.parse_args(argv)
+    if args.allow_partial_apparatus and args.stage not in ("apparatus", "all"):
+        parser.error("--allow-partial-apparatus requires stage 'apparatus' or 'all'")
     manifest = Manifest.for_work(args.work, public=args.public)
     if args.public:
         print(f"manifest: {manifest.path.relative_to(manifest.path.parents[1])}")
     if args.stage == "all":
-        for fn in _STAGES.values():
-            fn(manifest)
+        for stage, fn in _STAGES.items():
+            if stage == "apparatus":
+                fn(manifest, allow_partial=args.allow_partial_apparatus)
+            else:
+                fn(manifest)
+    elif args.stage == "apparatus":
+        _STAGES[args.stage](manifest, allow_partial=args.allow_partial_apparatus)
     else:
         _STAGES[args.stage](manifest)
 

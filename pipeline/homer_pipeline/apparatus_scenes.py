@@ -355,13 +355,14 @@ def emit_book_apparatus(book: dict) -> dict:
     return out
 
 
-def run(manifest: Manifest) -> dict:
+def run(manifest: Manifest, *, allow_partial: bool = False) -> dict:
     """The apparatus stage: merge staging -> canonical file, then emit each
     covered book's apparatus onto its already-emitted book-{n}.json under
     build/dist/<work>/. Safe to run standalone (re-emit without a full
     rebuild) as long as stage7 has already produced the book files; if a
     book's book-{n}.json doesn't exist yet, that book is reported as
-    unemitted rather than crashing."""
+    unemitted rather than crashing. Refuses to replace the canonical file
+    with partial manifest coverage unless allow_partial is explicitly set."""
     work_id = manifest.work_id
     files = discover_staging(work_id)
     if not files:
@@ -375,6 +376,14 @@ def run(manifest: Manifest) -> dict:
         }
 
     doc = merge_staging(manifest)
+    all_books = {b["n"] for b in manifest.books}
+    covered = {b["book"] for b in doc["books"]}
+    missing = sorted(all_books - covered)
+    if missing and not allow_partial:
+        raise ApparatusValidationError([
+            f"{work_id}: staged scenes cover {len(covered)}/{len(all_books)} "
+            f"manifest books; missing books: {missing}"
+        ])
     write_canonical(work_id, doc)
 
     out_dir = BUILD_DIR / "dist" / work_id
@@ -390,13 +399,11 @@ def run(manifest: Manifest) -> dict:
         book_path.write_text(json.dumps(book_doc, ensure_ascii=False), encoding="utf-8")
         emitted.append(book_n)
 
-    all_books = {b["n"] for b in manifest.books}
-    covered = {b["book"] for b in doc["books"]}
     return {
         "work": work_id,
         "staging_files": [p.name for p in files],
         "books_merged": len(doc["books"]),
         "books_emitted": emitted,
         "books_missing_emit_target": missing_target,
-        "books_without_staging": sorted(all_books - covered),
+        "books_without_staging": missing,
     }
