@@ -15,7 +15,7 @@ import ParsePopupTour from './ParsePopupTour.svelte';
 import WorkSwitcher from './WorkSwitcher.svelte';
 import ThemeInit from './ThemeInit.astro';
 import ThemeToggle from './ThemeToggle.astro';
-import { getWork, bookLabel, isBookless, workPath, workLanding, HOUSE_AUTHOR, GREEK_BOOK_LETTERS } from '@shared/lib/works';
+import { getWork, bookLabel, isBookless, workPath, workLanding, visibleTranslations, HOUSE_AUTHOR, GREEK_BOOK_LETTERS } from '@shared/lib/works';
 import { normalizeBookData, stripBookForClient } from '@shared/lib/data';
 import { setSsrBook } from '@shared/lib/ssr-book';
 import { bookArguments, type BookArgument } from '../lib/book-apparatus';
@@ -110,6 +110,29 @@ const clientBookData = stripBookForClient(bookData);
 // without it get no empty flyout.
 const sceneCount = bookData.scenes?.length ?? 0;
 
+// Nav-bar controls (John's nav-bar merge brief, 2026-07-24): the translation
+// picker, view toggle, posture toggle and Chart Room button move from
+// Reader.svelte's reader-controls strip into THIS server-rendered nav bar on
+// wide desktop (>=1100px — see global.css), so they exist in the static HTML
+// instead of waiting on client:idle hydration. Reader.svelte still owns the
+// actual interactive state; these controls dispatch/listen for window
+// CustomEvents (set-trans, set-view, toggle-reading, toggle-chart-room /
+// trans-state, view-state, reading-state, chart-room-state — see the plain
+// <script> below and Reader.svelte's matching bridge) to stay in sync after
+// hydration. Below 1100px this block is hidden (CSS) and the pre-existing
+// compact controls (Reader.svelte's own posture-btn strip copy + the
+// ⚙ Settings sidebar) carry these features unchanged.
+const navTranslations = visibleTranslations(work);
+// Same default-selection logic as Reader.svelte's own `trans` initializer
+// (works.defaultTranslation, else the primary 'english'-slot translation),
+// so the SSR-rendered <select>'s preselected option matches what Reader.
+// svelte will show before any restored (localStorage/`?trans=`) override
+// corrects it via the trans-state bridge event above.
+const navDefaultTransId =
+  navTranslations.find((t) => t.id === work.defaultTranslation)?.id
+  ?? navTranslations.find((t) => t.slot === 'english')?.id
+  ?? navTranslations[0]?.id;
+
 // Cartouche apparatus slots (argument line + where/who/day strip): optional
 // Phase-4 fields on a book's data. The cartouche renders only populated fields;
 // no lorem or placeholder text ships when a partial build lacks apparatus
@@ -121,6 +144,17 @@ const apparatus: BookApparatus | undefined = bookData.apparatus;
 // the current-book SSR loader above; the helper caches that projection per work
 // while Astro renders the 24 static book pages.
 const tocArguments: BookArgument[] = verseLine ? bookArguments(workId, work.books) : [];
+// Per-book Flaxman plate for the header band (John, 2026-07-18: committed
+// feature — the plate joins the contour band, shrunk to the band's own
+// dimensions; desktop only, plateless books simply show the band as before).
+// Build-time read of the repo's art apparatus, same posture as the loaders
+// above; the asset itself is a static alpha mask under /art/flaxman/.
+interface ArtPlate { work: string; book: number; file: string; caption?: string; }
+let artPlate: ArtPlate | undefined;
+try {
+  const art = JSON.parse(readFileSync('../apparatus/art.json', 'utf-8')) as { plates?: ArtPlate[] };
+  artPlate = art.plates?.find((p) => p.work === workId && p.book === n);
+} catch { /* no art apparatus in this build — band renders as always */ }
 const tocHasDraftArgument = tocArguments.some(({ argument, draft }) => Boolean(argument) && draft === true);
 // Apologoi day-honesty cue (John, phone session 2026-07-18): "where" carries
 // the pipeline's "(telling)" marker on a frame scene (Odysseus narrating at
@@ -242,15 +276,24 @@ const intro =
        verification token here (a sibling reader's token was intentionally
        removed from this file — it belongs to a different GSC property). -->
   <ThemeInit />
-  <!-- Pre-hydration view bridge. The Reader island is server-rendered as the
-       bilingual `view-both` layout, but on load the client picks a single
-       language on a narrow screen (or from a saved/`?view=` choice). Doing that
-       after first paint reflows the English column from a parallel column to
-       full width — a ~0.16 CLS on the giant .ross-prose block. This inline
-       script (runs before paint, like ThemeInit) computes the SAME choice the
-       island's onMount will make and stamps it on <html data-rview>, which CSS
-       uses to paint the final single-column layout immediately. Reader clears
-       the attribute in onMount once Svelte owns the reader-body class. -->
+  <!-- Pre-hydration view + posture bridge. The Reader island is server-
+       rendered as the bilingual `view-both` layout with Scholar posture
+       active, but on load the client may restore a single language and/or
+       Reading posture (saved choice, `?view=`/`?mode=` override). Doing
+       either after first paint reflows the page — a ~0.16 CLS on the giant
+       .ross-prose block for view, and a visibly-wrong Scholar/Chart-Room
+       flash-then-correct for posture (P2, Codex adversarial review,
+       2026-07-25: the view half of this bridge already existed; posture had
+       none, so a scene-bearing book loaded at `?mode=reading` or with a
+       stored `reader-posture=reading` painted Scholar — Chart Room included
+       — until hydration flipped it). This inline script (runs before paint,
+       like ThemeInit) computes the SAME choices the island's onMount will
+       make and stamps them on <html data-rview>/data-rposture, which CSS
+       (and the small sync script right after the posture markup, below)
+       use to paint the correct layout immediately — same mechanism, same
+       validation/try-catch shape, extended rather than duplicated. Reader
+       clears both attributes in onMount once Svelte's own reactive state is
+       authoritative. -->
   <script is:inline>
     (function () {
       try {
@@ -266,6 +309,16 @@ const intro =
         }
         if (v !== 'both') document.documentElement.setAttribute('data-rview', v);
       } catch (e) { /* no bridge: falls back to the (pre-fix) reflow */ }
+      try {
+        // Same precedence as Reader.svelte's own restore-then-`?mode=`-
+        // override order (see its onMount: localStorage first, `?mode=`
+        // last) — a `?mode=` overrides a stored posture, matching `?view=`.
+        var p2 = new URLSearchParams(location.search);
+        var qm = p2.get('mode'), reading;
+        if (qm === 'reading' || qm === 'scholar') reading = qm === 'reading';
+        else reading = localStorage.getItem('reader-posture') === 'reading';
+        if (reading) document.documentElement.setAttribute('data-rposture', 'reading');
+      } catch (e) { /* no bridge: static Scholar markup stands until hydration */ }
     })();
   </script>
   <title>{pageTitle}</title>
@@ -304,14 +357,23 @@ const intro =
       <p>{intro}</p>
     </div>
     <div class="header-bar">
-      <!-- The phone header keeps its compact, established control order. At the
-           desktop breakpoint its matching controls move to .nav-panel below. -->
+      <!-- The phone header (<=680px) keeps its compact, established control
+           order — UNCHANGED. Contents no longer has a beside-the-wordmark
+           copy (John, 2026-07-25, revising the note this replaced): from
+           681px up its ONLY home is the control row's left group (see
+           .nav-panel below and global.css's .nav-toc-toggle) — one rule, no
+           680/900/1024 tier split to track for Contents' own placement.
+           This same .header-mobile-toggles pair ALSO doubles as the short-
+           landscape header's Contents+Scenes (John's Job 4, same day): see
+           the intersection media query in this file's own <style> block
+           below, which re-shows and reorders it (title attrs added here so
+           both reuses carry aria-label + title on an icon-only control). -->
       <div class="header-mobile-toggles">
-        <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar" aria-label="Contents">
+        <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar" aria-label="Contents" title="Contents">
           <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text" aria-hidden="true">Contents</span>
         </button>
         {sceneCount > 0 && (
-          <button type="button" class="scenes-toggle" aria-expanded="false" aria-controls="scene-rail" aria-label="Scenes">
+          <button type="button" class="scenes-toggle" aria-expanded="false" aria-controls="scene-rail" aria-label="Scenes" title="Scenes">
             <span class="scenes-toggle-icon" aria-hidden="true">❦</span><span class="scenes-toggle-text" aria-hidden="true">Scenes</span>
           </button>
         )}
@@ -359,45 +421,221 @@ const intro =
         </a>
       </div>
     </div>
+    <!-- Control row (John's layout, 2026-07-25): two groups — navigation
+         (left: Contents, Scenes, Jump to…, book stepper) and reading
+         controls (right: translation, view, posture, Chart Room) — split by
+         `justify-content: space-between`, wrapping BETWEEN groups rather
+         than mid-group if the row can't fit both (see global.css: the
+         container wraps, each group itself doesn't). Visible >=681px;
+         phones (<=680px) are unchanged (Contents drawer is the sole nav hub,
+         translation/view live in the ⚙ Settings sidebar, the reader-controls
+         strip carries only the posture toggle). -->
     <div class="nav-panel" id="nav-panel">
-      <!-- Desktop-only counterparts to the compact phone controls above. Keep
-           their hooks identical: the header bridge below binds both copies. -->
-      <div class="header-desktop-nav-toggles">
-        <button type="button" class="toc-toggle" aria-expanded="false" aria-controls="toc-sidebar" aria-label="Contents">
-          <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="toc-toggle-text" aria-hidden="true">Contents</span>
+      <!-- Row edges (John's call, 2026-07-26): the two groups sit at this
+           row's own outer edges — no max-width/centring on .nav-panel-inner
+           — so they line up with the header bar's wordmark (left) and
+           Support button (right) above, sharing one set of edges with the
+           band above instead of the narrower reading column's. (Until
+           2026-07-26 this wrapper capped the row's content to the reading
+           column's own measure; see global.css's `.nav-panel-inner` comment
+           and DRIFT.md's "Merged nav bar" entry for what changed.) -->
+      <div class="nav-panel-inner">
+      <div class="nav-group-left">
+        <!-- Contents, control-row copy (John, 2026-07-25, final form:
+             "Contents lives in the control row at every width" — an
+             earlier 681-899/900+ split with a THIRD, beside-the-wordmark
+             markup copy was scrapped the same day). This is a SECOND
+             .toc-toggle instance — the phone drawer's own copy in
+             .header-mobile-toggles is the other one, and it also doubles as
+             the short-landscape header's own Contents (Job 4, same day) —
+             see this file's own <style> block and the .toc-toggle-driving
+             script below, both already treat every `.toc-toggle` in the
+             header as one interchangeable group, so no script change was
+             needed here. CSS keeps exactly one of the two visible at any
+             width via `display: none` — which (unlike `hidden`/
+             `visibility:hidden`) fully drops a matched element from the
+             accessibility tree and tab order, so there is never more than
+             one focusable "Contents" control despite two markup copies
+             existing. First item in the group, before Scenes, per the
+             brief. Icon-only below the row's full-label boundary, full
+             label at/above it (global.css's `.nav-toc-label`, grouped with
+             `.nav-scenes-label`/`.nav-chart-room-label`). -->
+        <button type="button" class="toc-toggle nav-toc-toggle" aria-expanded="false" aria-controls="toc-sidebar" aria-label="Contents" title="Contents">
+          <span class="toc-toggle-icon" aria-hidden="true">☰</span><span class="nav-toc-label">Contents</span>
         </button>
         {sceneCount > 0 && (
-          <button type="button" class="scenes-toggle" aria-expanded="false" aria-controls="scene-rail" aria-label="Scenes">
-            <span class="scenes-toggle-icon" aria-hidden="true">❦</span><span class="scenes-toggle-text" aria-hidden="true">Scenes</span>
+          <button type="button" class="scenes-toggle" aria-expanded="false" aria-controls="scene-rail" aria-label="Scenes" title="Scenes">
+            <span class="scenes-toggle-icon" aria-hidden="true">❦</span><span class="nav-scenes-label">Scenes</span>
+          </button>
+        )}
+        {!busse && (
+          // "Jump to…" (John's call, off a preview) replaces this instance's
+          // default "Go to {label}" wording — TEXT label, no icon-only variant
+          // (an icon tested as unreadable). Scoped to the nav-bar instance
+          // only via the optional `toggleLabel` prop; the Contents drawer's
+          // own BekkerJump below keeps the shared default, and every
+          // sibling-fork call site is untouched. Wrapped so it can be cut
+          // entirely at 691–774px (John, 2026-07-25; cutover moved to 775
+          // the same day, coordinator's measured-table fix) without
+          // touching the component itself.
+          <span class="nav-jump-wrap">
+            <BekkerJump work={workId} inputId="bekker-input-nav" toggleLabel="Jump to…" client:load />
+          </span>
+        )}
+        {!bookless && (
+          // Book stepper (John's nav-bar merge brief, 2026-07-24): replaces the
+          // old Books 1–24 link-map row (every book as its own chip) — the
+          // 24-wide strip was the thing forcing a whole extra nav-panel row.
+          // Same href construction the old strip used (workPath), just for one
+          // book back/forward. No arrow at either end (book 1 has no prev, the
+          // last book has no next) — a disabled control isn't rendered at all,
+          // per the brief, rather than shown greyed-out.
+          <nav class="nav-stepper" aria-label="Book navigation">
+            {n > 1 && (
+              <a class="nav-stepper-arrow" href={`${base}${workPath(workId, n - 1)}`} aria-label="Previous book">‹</a>
+            )}
+            <span class="nav-stepper-label">Book {label}</span>
+            {n < work.books && (
+              <a class="nav-stepper-arrow" href={`${base}${workPath(workId, n + 1)}`} aria-label="Next book">›</a>
+            )}
+          </nav>
+        )}
+      </div>
+      <!-- Translation / view / posture / Chart Room — server-rendered so they
+           paint in the initial HTML; interactivity is a plain-script bridge to
+           Reader.svelte (see the <script> below and the computed values
+           above). -->
+      <div class="nav-group-right nav-controls" data-work={workId}>
+        {navTranslations.length === 1 ? (
+          <span class="nav-trans-label" title={navTranslations[0].name}>{navTranslations[0].name}</span>
+        ) : navTranslations.length > 1 ? (
+          <select
+            class="rc-trans-select nav-trans-select"
+            id="nav-trans-select"
+            aria-label="English translation"
+            title={navTranslations.find((t) => t.id === navDefaultTransId)?.name}
+          >
+            {navTranslations.map((t) => (
+              <option value={t.id} selected={t.id === navDefaultTransId}>{t.name}</option>
+            ))}
+          </select>
+        ) : null}
+        <div class="view-toggle nav-view-toggle" id="nav-view-toggle" role="group" aria-label="Reading view">
+          <button type="button" data-view="greek" aria-pressed="false">Greek</button>
+          <button type="button" data-view="both" class="active" aria-pressed="true">Both</button>
+          <button type="button" data-view="english" aria-pressed="false">English</button>
+        </div>
+        <!-- Two presentations of the SAME posture state (John, 2026-07-24;
+             boundary moved 1280->900->960->1024->1040 on 2026-07-25 — see
+             global.css's .nav-toc-label note for the full crossover
+             history, most recently Contents joining the row and Chart
+             Room's visibility fix pushing the true crossover to 1028px):
+             >=1040px a segmented Scholar|Reader control (a STATE control,
+             aria-pressed on each); below that a single action button naming
+             the posture you'd switch TO, with the swap glyph after the word
+             (an ACTION control, no aria-pressed — its accessible name IS
+             the verb phrase). Both drive the same `reading` boolean via
+             toggle-reading; CSS
+             (global.css) shows only one per width. -->
+        <div class="nav-posture-seg" id="nav-posture-seg" role="group" aria-label="Reading posture">
+          <button type="button" data-posture="scholar" class="active" aria-pressed="true">Scholar</button>
+          <button type="button" data-posture="reader" aria-pressed="false">Reader</button>
+        </div>
+        <button type="button" class="nav-posture-action" id="nav-posture-action" aria-label="Switch to reader mode" title="Switch to reader mode (r)">Reader ⇄</button>
+        {sceneCount > 0 && (
+          // No static `aria-controls` (P3 fix, adversarial review,
+          // 2026-07-25): Reader.svelte only renders `#scene-context-rail`
+          // while chartRoomOpen is true ({#if scenes.length && !reading &&
+          // chartRoomOpen}), so a hardcoded aria-controls pointed assistive
+          // tech at a nonexistent IDREF the entire time the rail is closed —
+          // which is the default, including every static/pre-hydration
+          // load. Set only while genuinely open, by the same script that
+          // already tracks that state for aria-expanded (see
+          // applyChartRoomState below) — one state, one place it drives
+          // both attributes, rather than a second, out-of-sync source.
+          <button type="button" class="nav-chart-room" id="nav-chart-room" aria-expanded="false" aria-label="Chart Room" title="Chart Room">
+            <span class="nav-chart-room-icon" aria-hidden="true">✦</span><span class="nav-chart-room-label">Chart Room</span>
           </button>
         )}
       </div>
-      {!busse && <BekkerJump work={workId} inputId="bekker-input-nav" client:load />}
-      {!bookless && (
-        <nav class="book-nav" aria-label="Books">
-          <span class="book-nav-label">Books</span>
-          {Array.from({ length: work.books }, (_, i) => (
-            <>
-              <a
-                href={`${base}${workPath(workId, i + 1)}`}
-                class={i + 1 === n ? 'current' : ''}
-                aria-current={i + 1 === n ? 'page' : undefined}
-              >
-                {bookLabel(work, i + 1)}
-              </a>
-              {work.missingBooks && work.missingBooks.after === i + 1 && (
-                <a
-                  class="book-nav-missing"
-                  href={`${base}${workPath(work.missingBooks.linkWork, work.missingBooks.linkBook)}`}
-                  title={`${work.missingBooks.label}: ${work.missingBooks.note} → ${work.missingBooks.linkLabel}`}
-                >
-                  {work.missingBooks.label}&nbsp;→
-                </a>
-              )}
-            </>
-          ))}
-        </nav>
-      )}
+      </div>
+      <!-- P2 fix (Codex adversarial review, 2026-07-24): the head's pre-
+           hydration view bridge above computes the actual view (saved/`?view=`/
+           narrow-width default) and stamps it on <html data-rview> BEFORE
+           paint, precisely so the reading text doesn't flash-then-reflow. But
+           .nav-view-toggle here is server-rendered with "Both" hardcoded
+           active/aria-pressed — Astro can't know the client's localStorage or
+           query string at build time (this is a static build, no per-request
+           SSR). Left alone, a `?view=english`/saved-English load paints
+           English-only text next to a toggle that visibly AND audibly (aria-
+           pressed) claims Both, until the island hydrates. This script runs
+           synchronously right after the toggle exists (same "before paint of
+           this element" guarantee the head script relies on for the text
+           column), and just APPLIES the head script's already-computed
+           decision — it doesn't recompute the view choice itself, so there's
+           still exactly one place that decides. Absent data-rview means
+           "both", matching the head script's own default. -->
+      <script is:inline>
+        (function () {
+          try {
+            var v = document.documentElement.getAttribute('data-rview') || 'both';
+            var toggle = document.getElementById('nav-view-toggle');
+            if (!toggle) return;
+            Array.prototype.forEach.call(toggle.querySelectorAll('button'), function (btn) {
+              var active = btn.dataset.view === v;
+              btn.classList.toggle('active', active);
+              btn.setAttribute('aria-pressed', String(active));
+            });
+          } catch (e) { /* no bridge: the island's own broadcast corrects it on hydration */ }
+        })();
+      </script>
+      <!-- P2 fix (adversarial review, 2026-07-25): posture's own pre-
+           hydration correction, same shape as the view-toggle script above
+           and same reason — .nav-posture-seg/.nav-posture-action are server-
+           rendered hardcoded to Scholar, and .nav-chart-room/.nav-view-
+           toggle default to visible, because a static build can't know a
+           saved `reading` posture or a `?mode=reading` link at build time.
+           Left alone, a scene-bearing book loaded that way painted Scholar —
+           Chart Room included — with aria-pressed/aria-expanded both
+           audibly WRONG, until the island hydrated and flipped everything.
+           This applies the head bridge's already-computed data-rposture
+           (doesn't recompute it — one decision point, same discipline as
+           the view fix) to both presentations of the posture control AND
+           to Chart Room/view-toggle visibility. global.css also hides
+           Chart Room/view-toggle straight off `:root[data-rposture]` (the
+           `.nav-chart-room[hidden]` rule, extended) so the correct layout
+           holds even if this script is delayed or blocked — this script's
+           own `hidden`-attribute writes below are the SAME attribute the
+           LATER island bridge already reads/maintains post-hydration (see
+           applyReadingState in the nav-bar-bridge script further down), not
+           a second mechanism. -->
+      <script is:inline>
+        (function () {
+          try {
+            var reading = document.documentElement.getAttribute('data-rposture') === 'reading';
+            var seg = document.getElementById('nav-posture-seg');
+            if (seg) {
+              Array.prototype.forEach.call(seg.querySelectorAll('button'), function (btn) {
+                var active = (btn.dataset.posture === 'reader') === reading;
+                btn.classList.toggle('active', active);
+                btn.setAttribute('aria-pressed', String(active));
+              });
+            }
+            var action = document.getElementById('nav-posture-action');
+            if (action) {
+              action.textContent = reading ? 'Scholar ⇄' : 'Reader ⇄';
+              var label = reading ? 'Switch to scholar view' : 'Switch to reader mode';
+              action.setAttribute('aria-label', label);
+              action.setAttribute('title', label + ' (r)');
+            }
+            var viewToggle = document.getElementById('nav-view-toggle');
+            var chartRoom = document.getElementById('nav-chart-room');
+            if (viewToggle) viewToggle.toggleAttribute('hidden', reading);
+            if (chartRoom) chartRoom.toggleAttribute('hidden', reading);
+          } catch (e) { /* no bridge: the island's own broadcast corrects it on hydration */ }
+        })();
+      </script>
+
       {stephanus && pages.length > 0 && (
         <nav class="chapter-nav pages-nav" aria-label={bookless ? 'Stephanus pages' : `Book ${label} pages`}>
           <details class="pages-details" id="pages-details">
@@ -689,6 +927,253 @@ const intro =
       scenesToggles.forEach((toggle) => toggle.setAttribute('aria-expanded', String(open)));
     });
 
+    // Nav-bar bridge (John's nav-bar merge brief, 2026-07-24): the translation
+    // select, view toggle, posture toggle and Chart Room button are server-
+    // rendered here (see the .nav-controls markup above) but Reader.svelte
+    // owns the actual state, so — same island-bridge pattern as Settings/
+    // Scenes above — clicks dispatch a `set-*`/`toggle-*` CustomEvent and a
+    // matching `*-state` listener syncs this markup's selected option/active
+    // class/aria-pressed back afterward (including once right after
+    // hydration, correcting any restored-preference mismatch with the SSR
+    // default assumed above).
+    //
+    // P1 fix (Codex adversarial review, 2026-07-24): Reader.svelte is
+    // `client:idle` — its onMount doesn't register the set-trans/set-view/
+    // toggle-reading/toggle-chart-room listeners until hydration runs, which
+    // can be a perceptible delay after these buttons are already interactive
+    // and clickable. A click in that window used to just vanish (dispatched
+    // to no listener), and worse, once hydration DID land it broadcast
+    // whatever it restored from localStorage/URL and stomped the ignored
+    // click — a visible snap-back. Chosen fix: write the SAME persisted key
+    // Reader.svelte's onMount already restores from (reader-trans-<work>,
+    // reader-view, reader-posture, reader-chart-room — see Reader.svelte's
+    // TRANS_KEY/POSTURE_KEY/CHART_ROOM_KEY), and apply the visual change to
+    // THIS markup immediately, rather than a separate event queue. That way:
+    // (a) a pre-hydration click is never lost — it's durably persisted before
+    // hydration even starts reading it; (b) onMount's restoration naturally
+    // picks up the click's own write, so its *-state broadcast confirms the
+    // same value instead of overriding it — no snap-back; (c) there is still
+    // only ONE source of truth for the live app state (Reader.svelte's own
+    // reactive vars) — localStorage was already that source's persistence
+    // layer before this fix, this just also writes to it from here. The
+    // CustomEvent dispatch stays (still the only way to update Reader.svelte
+    // once it HAS mounted); the localStorage write only matters for the
+    // narrow pre-mount window.
+    const navControls = document.querySelector('.nav-controls');
+    const navWork = navControls?.getAttribute('data-work') ?? '';
+    const persist = (key: string, value: string) => { try { localStorage.setItem(key, value); } catch {} };
+
+    // P1 fix, restructured (3rd Codex adversarial review, 2026-07-25 — the
+    // first two rounds' scattered `!navPrehydrated.<field>` guards at every
+    // URL-reading site in Reader.svelte's onMount each left a gap a later
+    // round found: a cross-field side effect that ran AFTER a guarded
+    // assignment, and a flag that only recorded "touched" rather than a
+    // value, which a storage failure could then leave unrecoverable).
+    // Reader.svelte's onMount restores localStorage, then applies `?view=`/
+    // `?trans=`/`?mode=`/`loc`/`hlg` EXACTLY as it always has, side effects
+    // included — that logic is untouched. This flag instead records the
+    // ACTUAL VALUE a pre-hydration click chose (not a boolean), read ONCE at
+    // a single choke point at the very end of onMount, after all of the URL
+    // logic (including its side effects) has run — so the click always wins,
+    // by construction, regardless of what ran in between. Recording the
+    // value itself (not just persisting to storage) also means a disabled/
+    // failing localStorage no longer matters for correctness: the value
+    // lives in this in-memory object, which the same page load's onMount can
+    // always read regardless of storage. Storage is still written below —
+    // it remains the carrier of the PERSISTED (across-visits) preference,
+    // it just stops being the carrier of pre-hydration INTENT. A plain
+    // window flag (not a URL/history mutation) so `loc`/`hlg` — deep-link
+    // targets, not preferences — are never at risk of being stripped.
+    const navPrehydrated: { view?: 'greek' | 'both' | 'english'; trans?: string; reading?: boolean } = {};
+    (window as unknown as { __navPrehydrated?: typeof navPrehydrated }).__navPrehydrated = navPrehydrated;
+
+    const navTransSelect = document.getElementById('nav-trans-select') as HTMLSelectElement | null;
+    navTransSelect?.addEventListener('change', () => {
+      const id = navTransSelect.value;
+      navTransSelect.title = navTransSelect.selectedOptions[0]?.textContent ?? '';
+      // A <select> only fires `change` on an actual value change, so there is
+      // no no-op/early-return case here to worry about (audited per John's
+      // request — see the posture handler below for the one that had it).
+      navPrehydrated.trans = id;
+      if (navWork) persist(`reader-trans-${navWork}`, id);
+      window.dispatchEvent(new CustomEvent('set-trans', { detail: { id } }));
+    });
+    window.addEventListener('trans-state', (e) => {
+      const id = (e as CustomEvent<{ id: string }>).detail.id;
+      if (!navTransSelect || navTransSelect.value === id) return;
+      navTransSelect.value = id;
+      navTransSelect.title = navTransSelect.selectedOptions[0]?.textContent ?? '';
+    });
+
+    // Declared early (used by applyReadingState's Reader-posture hide below).
+    const navChartRoom = document.getElementById('nav-chart-room');
+
+    const navViewToggle = document.getElementById('nav-view-toggle');
+    const navViewButtons = Array.from(navViewToggle?.querySelectorAll<HTMLButtonElement>('button') ?? []);
+    const applyViewState = (view: string | undefined) => {
+      navViewButtons.forEach((btn) => {
+        const active = btn.dataset.view === view;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
+    };
+    // No early-return/no-op case here either (audited per John's request):
+    // every click runs this whole handler, even a click on the already-
+    // active button, so intent is always recorded.
+    navViewButtons.forEach((btn) => btn.addEventListener('click', () => {
+      applyViewState(btn.dataset.view);
+      const view = btn.dataset.view;
+      if (view === 'greek' || view === 'both' || view === 'english') navPrehydrated.view = view;
+      if (view) persist('reader-view', view);
+      window.dispatchEvent(new CustomEvent('set-view', { detail: { view } }));
+    }));
+    window.addEventListener('view-state', (e) => {
+      applyViewState((e as CustomEvent<{ view: string }>).detail.view);
+    });
+
+    // Posture: two presentations, one boolean. `navReading` mirrors the last
+    // known state so a segmented click on the ALREADY-active button is a
+    // no-op (toggle-reading is a plain flip, not "set to X" — see
+    // Reader.svelte's toggleReading), not an accidental switch — and so a
+    // pre-hydration click can apply and persist the new state immediately
+    // (see the P1 note above) instead of waiting for a reading-state
+    // broadcast that hasn't happened yet.
+    //
+    // P2 fix (independent review, 2026-07-25): this used to be seeded
+    // `false` unconditionally, "matching Reader.svelte's own default" — but
+    // that default is exactly what the posture pre-paint script above (see
+    // "reading = data-rposture === 'reading'") may have already overridden
+    // before this script ever runs (this is a deferred module script; the
+    // is:inline posture sync above it runs first, synchronously). A book
+    // loaded at `?mode=reading` (or with a saved `reader-posture=reading`)
+    // at 691-1039px paints "Scholar ⇄" correctly, but the stale `false` here
+    // made the button's own `!navReading` request Reading again — the
+    // toggle never switched. At >=1040px the mirror case: clicking the
+    // visibly-inactive Scholar segment computed `wantReading = false`,
+    // which now equalled the stale `navReading` (also false), so
+    // requestPosture's no-op guard swallowed the click entirely. Seeding
+    // from the SAME attribute the paint script read (not a second
+    // computation of the same thing) keeps this the one place `navReading`
+    // is initialised, honest from the first click.
+    let navReading = document.documentElement.getAttribute('data-rposture') === 'reading';
+    const navPostureSeg = document.getElementById('nav-posture-seg');
+    const navPostureSegButtons = Array.from(navPostureSeg?.querySelectorAll<HTMLButtonElement>('button') ?? []);
+    const navPostureAction = document.getElementById('nav-posture-action');
+    const applyReadingState = (reading: boolean) => {
+      navReading = reading;
+      navPostureSegButtons.forEach((btn) => {
+        const active = (btn.dataset.posture === 'reader') === navReading;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
+      if (navPostureAction) {
+        navPostureAction.textContent = navReading ? 'Scholar ⇄' : 'Reader ⇄';
+        const label = navReading ? 'Switch to scholar view' : 'Switch to reader mode';
+        navPostureAction.setAttribute('aria-label', label);
+        navPostureAction.setAttribute('title', `${label} (r)`);
+      }
+      // In Reader posture a single translation column has no parallel views to
+      // switch between, and Chart Room's scene-context rail doesn't apply
+      // (Reading Mode has its own scene-page map) — hide both nav-bar controls
+      // rather than leave them inert (CLAUDE.md-adjacent: no dead controls).
+      navViewToggle?.toggleAttribute('hidden', navReading);
+      navChartRoom?.toggleAttribute('hidden', navReading);
+    };
+    // Bug found in the 3rd adversarial review: this used to check the no-op
+    // case FIRST and return before recording anything, so a click that
+    // merely confirmed the CURRENTLY DISPLAYED state (e.g. clicking Scholar
+    // while the static, pre-hydration-default markup already shows it
+    // active — which says nothing about Reader.svelte's actual restored
+    // state once mounted) never made it into navPrehydrated at all. Intent
+    // and persistence now happen UNCONDITIONALLY, first; the no-op check
+    // below only gates the visual update + dispatch, which are genuinely
+    // unnecessary when nothing on screen needs to change.
+    const requestPosture = (wantReading: boolean) => {
+      navPrehydrated.reading = wantReading;
+      persist('reader-posture', wantReading ? 'reading' : 'scholar');
+      if (wantReading === navReading) return;
+      applyReadingState(wantReading);
+      window.dispatchEvent(new CustomEvent('toggle-reading'));
+    };
+    navPostureSegButtons.forEach((btn) => btn.addEventListener('click', () => {
+      requestPosture(btn.dataset.posture === 'reader');
+    }));
+    navPostureAction?.addEventListener('click', () => requestPosture(!navReading));
+    window.addEventListener('reading-state', (e) => {
+      applyReadingState((e as CustomEvent<{ reading: boolean }>).detail.reading);
+    });
+
+    // Chart Room: `navChartRoomOpen` mirrors the last known open/closed state
+    // the same way `navReading` does above, for the same pre-hydration-click
+    // reason (persist + apply immediately; the chart-room-state broadcast
+    // just confirms it once Reader.svelte mounts).
+    let navChartRoomOpen = false;
+    const applyChartRoomState = (open: boolean) => {
+      navChartRoomOpen = open;
+      navChartRoom?.setAttribute('aria-expanded', String(open));
+      // P3 fix (adversarial review, 2026-07-25): aria-controls only while
+      // Reader.svelte's #scene-context-rail actually exists (it's rendered
+      // solely while chartRoomOpen — see Reader.svelte's `{#if scenes.length
+      // && !reading && chartRoomOpen}`), so assistive tech never resolves
+      // the IDREF to nothing. The markup carries no static aria-controls at
+      // all now — this is the only place that sets or clears it.
+      //
+      // P3 fix, extended (independent review, 2026-07-25): `open` alone
+      // isn't enough to prove the target exists — a PRE-hydration click
+      // reaches this same function (persist-and-apply-immediately, see the
+      // click listener below) while Reader.svelte's island hasn't mounted
+      // yet, so `#scene-context-rail` genuinely isn't in the DOM. Verified
+      // empirically (devtools, a real click after full hydration): even in
+      // the ORDINARY post-hydration case the rail doesn't exist at the
+      // instant this function runs — Svelte runs the reactive statement that
+      // re-dispatches `chart-room-state` BEFORE it patches the DOM within
+      // the same component update, so a same-tick `getElementById` here
+      // always misses a freshly-opened rail, not only the pre-hydration
+      // case (a `requestAnimationFrame` retry was tried first and also
+      // proved unreliable — rAF doesn't fire at all while the tab/pane is
+      // backgrounded, which a real reader can trigger just by switching
+      // tabs mid-click). A MutationObserver has neither problem: it reports
+      // the exact moment the rail node lands, however the state got there
+      // (this click's own synchronous dispatch, or a later mount finishing
+      // a pre-hydration restore), and mutation delivery isn't paused by tab
+      // visibility. Clearing on close stays immediate (the rail is
+      // genuinely gone by then); `navChartRoomOpen` (not the closed-over
+      // `open` param) is what the observer's callback re-checks, so a rapid
+      // re-close before the rail appears can't resurrect a stale
+      // aria-controls. The 2s safety timeout only guards against a leaked
+      // observer if the rail never materializes (e.g. Reader.svelte fails
+      // to mount at all).
+      const link = (): boolean => {
+        if (navChartRoomOpen && document.getElementById('scene-context-rail')) {
+          navChartRoom?.setAttribute('aria-controls', 'scene-context-rail');
+          return true;
+        } else if (!navChartRoomOpen) {
+          navChartRoom?.removeAttribute('aria-controls');
+          return true;
+        }
+        return false;
+      };
+      if (!link() && open) {
+        const obs = new MutationObserver(() => { if (link()) obs.disconnect(); });
+        obs.observe(document.body, { childList: true, subtree: true });
+        setTimeout(() => obs.disconnect(), 2000);
+      }
+    };
+    // Not part of navPrehydrated: no URL parameter ever overrides Chart Room,
+    // so there is nothing for a choke point to protect it from. Also audited
+    // for the early-return pattern (John's request) — this is a single
+    // toggle with no "already active" case to short-circuit on, so it has
+    // none either.
+    navChartRoom?.addEventListener('click', () => {
+      const next = !navChartRoomOpen;
+      applyChartRoomState(next);
+      persist('reader-chart-room', String(next));
+      window.dispatchEvent(new CustomEvent('toggle-chart-room'));
+    });
+    window.addEventListener('chart-room-state', (e) => {
+      applyChartRoomState((e as CustomEvent<{ open: boolean }>).detail.open);
+    });
+
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
       if (document.body.classList.contains('toc-open')) { setToc(false); return; }
@@ -741,6 +1226,14 @@ const intro =
 
   {verseLine && !bookless && (
     <section class="book-plate" aria-label={`${work.title}, Book ${label} — book plate`}>
+      {artPlate && (
+        <span
+          class="plate-art"
+          aria-hidden="true"
+          style={`--art:url('${base}/art/flaxman/${artPlate.file}')`}
+          title={artPlate.caption}
+        ></span>
+      )}
       <div class="book-plate-titles">
         {cartoucheGreek && <div class="book-plate-greek" lang="grc">{cartoucheGreek}</div>}
         <div class="book-plate-en">{work.title} · Book {label}</div>
@@ -796,30 +1289,71 @@ const intro =
 </html>
 
 <style>
-  /* Keep the phone's existing header composition untouched; above its 680px
-     breakpoint the matching controls belong to the book-navigation row. */
-  .header-mobile-toggles,
-  .header-desktop-nav-toggles { display: contents; }
+  /* Keep the phone's existing header composition (<=690px) untouched. From
+     691px up, Contents has exactly ONE home: the control row's left group
+     (.nav-group-left's .nav-toc-toggle, global.css) — John, 2026-07-25,
+     replacing an earlier "beside the wordmark" placement (.header-contents-
+     toggle, since removed) that went through a 681-899/900+ split before
+     being scrapped the same day in favour of this simpler single rule.
+     Lower bound moved 681->690/691 the same day (coordinator's measured-
+     table fix): 681-690px wrapped the control row to two lines, so that
+     band now gets full phone treatment too. */
+  .header-mobile-toggles { display: contents; }
 
-  @media (min-width: 681px) {
+  @media (min-width: 691px) {
     .header-mobile-toggles { display: none; }
-
-    /* The identity lockup and global controls are one desktop header row. */
-    .header-bar { flex-wrap: nowrap; }
-
-    /* Match the compact citation and book-nav rhythm without introducing a
-       separate control treatment. */
-    .header-desktop-nav-toggles .toc-toggle,
-    .header-desktop-nav-toggles .scenes-toggle {
-      min-height: unset;
-      padding: 0.18rem 0.55rem;
-      border-radius: 3px;
-      font-size: 0.8rem;
-    }
   }
 
-  @media (max-width: 680px) {
-    .header-desktop-nav-toggles { display: none; }
+  /* Short-landscape carries its OWN Contents + Scenes (John's Job 4,
+     2026-07-25): the control row (global.css's .nav-panel) is fully
+     stripped in this orientation/height combination regardless of width
+     (see global.css's `orientation: landscape) and (max-height: 500px)`
+     block), and Contents no longer has any other >=691px home now that its
+     beside-the-wordmark copy is gone — a short, WIDE window (e.g. a tablet
+     or a shrunk laptop window in landscape) would otherwise have NO way to
+     open Contents or Scenes at all. Below 691px this is moot: the base rule
+     above already leaves .header-mobile-toggles showing there (real phones
+     in landscape, e.g. an iPhone SE at 667x375, already have it via that
+     default — untouched). This width-gated re-show intersects with (so
+     loses to nothing, and only ever ADDS to) the plain `@media (min-width:
+     691px)` rule above; same specificity, later in source, so it wins —
+     same tie-break idiom as global.css's `.book-plate.book-plate` note.
+     Threshold moved 681->691 in lockstep with the base rule above (John,
+     coordinator's fix) — this rule only matters where the base rule would
+     otherwise have hidden the pair, so it has to track that exactly. */
+  @media (orientation: landscape) and (max-height: 500px) and (min-width: 691px) {
+    .header-mobile-toggles { display: contents; }
+    /* Reposition immediately right of the work switcher (John's wording;
+       corrected same day — the coordinator's capture pass caught the FIRST
+       version of this rule rendering the pair at the far right instead,
+       grouped with search/lexicon/settings/theme/support). Root cause: this
+       same short-landscape context's generic `.page-header .header-title {
+       flex: 1 1 auto; margin-right: auto; }` (global.css) gives header-title
+       flex-GROW — its box expands to swallow ALL the free space itself, so
+       toc-toggle/scenes-toggle at order 1 sat immediately after that huge
+       INVISIBLE box, which put them visually adjacent to .bar-actions at
+       the far right, not adjacent to the visible wordmark text the box
+       merely starts with. `order` alone can't fix a flex-grow problem — the
+       growing item still eats the space before the next one regardless of
+       order. Fix: stop header-title from growing here (flex-grow: 0), and
+       move the "push the rest of the cluster right" job from its own
+       margin-right:auto onto .bar-actions' margin-left:auto instead, so the
+       free space lands AFTER toc-toggle/scenes-toggle rather than before
+       them. Doubled classes beat global.css's generic (0,2,0) rules
+       regardless of file load order (same idiom as the order rules below,
+       which are otherwise unchanged from the first version). */
+    .page-header .header-title.header-title { flex: 0 1 auto; margin-right: 0; }
+    .header-mobile-toggles.header-mobile-toggles .toc-toggle,
+    .header-mobile-toggles.header-mobile-toggles .scenes-toggle { order: 1; }
+    .page-header .bar-actions.bar-actions { order: 2; margin-left: auto; }
+  }
+
+  /* The identity lockup and global controls stay one row even past the
+     compact squeeze's own 1039px ceiling (global.css — boundary corrected
+     900->960->1024->1040 on 2026-07-25, see the .nav-toc-label note there)
+     — general invariant, not itself tier-specific. */
+  @media (min-width: 1040px) {
+    .header-bar { flex-wrap: nowrap; }
   }
 </style>
 
@@ -855,17 +1389,18 @@ const intro =
      .reader-body, not book-plate's sibling), so they simply add up to ~52px
      of dead space above the translation-picker strip. Neither rule lives in
      a file this brief is scoped to touch (both are in shared/styles/
-     global.css) — this override, scoped to the SAME >680px breakpoint the
-     rest of this file's desktop overrides use, drops the book-plate's own
-     trailing margin to 0, leaving reader-body's 24px as the sole (and now
-     single, legible) gap — roughly half the original ~52px. Mobile is
-     untouched (this block never applies below 681px). Doubled class
-     (`.book-plate.book-plate`, specificity 0-2-0) rather than plain
-     `.book-plate` (0-1-0): global.css's own `.book-plate { margin: 1.25rem 0
-     1.75rem }` shorthand rule is emitted AFTER this component's styles in
-     the page's CSS (verified empirically), so an equal-specificity override
-     here would lose the cascade tie-break to source order and silently not
-     apply. */
+     global.css) — this override, scoped to the SAME breakpoint the rest of
+     this file's non-phone overrides use (681px — briefly raised to 1100px
+     during the nav-bar-merge phase, 2026-07-24, restored to 681px with the
+     rest of the control-row boundaries, 2026-07-25), drops the book-plate's
+     own trailing margin to 0, leaving reader-body's 24px as the sole (and
+     now single, legible) gap — roughly half the original ~52px. Below
+     681px is untouched. Doubled class (`.book-plate.book-plate`,
+     specificity 0-2-0) rather than plain `.book-plate` (0-1-0): global.css's
+     own `.book-plate { margin: 1.25rem 0 1.75rem }` shorthand rule is
+     emitted AFTER this component's styles in the page's CSS (verified
+     empirically), so an equal-specificity override here would lose the
+     cascade tie-break to source order and silently not apply. */
   @media (min-width: 681px) {
     .book-plate.book-plate { margin-bottom: 0; }
   }

@@ -337,17 +337,18 @@ REAL_DIST_DIR = ROOT / "build" / "dist"
 def test_real_odyssey_book9_surfaces_the_cyclops_flocks_noun():
     # Od. 9 is the Cyclops episode: Polyphemus's flocks are the book's most
     # concrete recurring noun. Κύκλωψ itself is a proper name and correctly
-    # excluded (see is_proper_name); 'μῆλον' (Beta Code 'mh=lon1', "sheep")
-    # is the real common noun this stage actually surfaces at the top of
-    # Od. 9's ranked list against the live corpus (measured 2026-07-17: count
-    # 19, gloss "sheep", rank #2 behind the pronoun-ish 'τότε'). Pinned here
-    # so a future regression in lemma resolution or the stoplist/proper-name
-    # filters is caught, not just a byte-diff.
+    # excluded (see is_proper_name); 'μῆλον' (Beta Code 'mh=lon1') is the real
+    # common noun this stage actually surfaces at the top of Od. 9's ranked
+    # list against the live corpus (measured 2026-07-17: count 19, rank #2
+    # behind the pronoun-ish 'τότε'). Pinned here so a future regression in
+    # lemma resolution or the stoplist/proper-name filters is caught, not just
+    # a byte-diff. The gloss was Morpheus's truncated "sheep" until stage 5
+    # began deriving short defs from LSJ itself (μῆλον B, "sheep or goat").
     result = v.run(Manifest.for_work("Odyssey"), work_ids=["iliad", "odyssey"])
     doc = json.loads(result["path"].read_text(encoding="utf-8"))
     book9 = {e["lemma"]: e for e in doc["books"]["9"]}
     assert "mh=lon1" in book9
-    assert book9["mh=lon1"]["gloss"] == "sheep"
+    assert book9["mh=lon1"]["gloss"] == "sheep or goat"
     assert book9["mh=lon1"]["count"] >= 15
     # The Cyclops himself is a proper name and must be excluded, not just
     # absent by chance.

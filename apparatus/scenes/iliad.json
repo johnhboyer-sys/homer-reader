@@ -1,6 +1,6 @@
 {
  "work": "iliad",
- "status": "draft",
+ "status": "reviewed",
  "books": [
   {
    "book": 1,
@@ -201,7 +201,7 @@
      "dayNumber": 21
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 2,
@@ -402,7 +402,7 @@
      "dayNumber": 22
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 3,
@@ -576,7 +576,7 @@
      "dayNumber": 22
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 4,
@@ -731,7 +731,7 @@
      "dayNumber": 22
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 5,
@@ -922,7 +922,7 @@
      "dayNumber": 22
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 6,
@@ -1086,7 +1086,7 @@
      "dayNumber": 22
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 7,
@@ -1269,7 +1269,7 @@
      "dayNumber": 23
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 8,
@@ -1453,7 +1453,7 @@
      "dayNumber": 24
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 9,
@@ -1627,7 +1627,7 @@
      "dayNumber": 24
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 10,
@@ -1792,7 +1792,7 @@
      "dayNumber": 24
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 11,
@@ -1993,7 +1993,7 @@
      "dayNumber": 25
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 12,
@@ -2166,7 +2166,7 @@
      "dayNumber": 25
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 13,
@@ -2358,7 +2358,7 @@
      "dayNumber": 25
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 14,
@@ -2496,7 +2496,7 @@
      "dayNumber": 25
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 15,
@@ -2670,7 +2670,7 @@
      "dayNumber": 25
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 16,
@@ -2862,7 +2862,7 @@
      "dayNumber": 25
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 17,
@@ -3026,7 +3026,7 @@
      "dayNumber": 25
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 18,
@@ -3209,7 +3209,7 @@
      "dayNumber": 25
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 19,
@@ -3354,7 +3354,7 @@
      "dayNumber": 26
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 20,
@@ -3482,7 +3482,7 @@
      "dayNumber": 26
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 21,
@@ -3656,7 +3656,7 @@
      "dayNumber": 26
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 22,
@@ -3801,7 +3801,7 @@
      "dayNumber": 26
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 23,
@@ -4002,7 +4002,7 @@
      "dayNumber": 28
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "book": 24,
@@ -4203,7 +4203,7 @@
      "dayNumber": null
     }
    ],
-   "status": "draft"
+   "status": "reviewed"
   }
  ]
 }

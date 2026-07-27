@@ -475,3 +475,68 @@ HEAD this block: 5ba7978 + this ledger commit; all pushed.
 Awaiting John: Flaxman mock verdicts (A/B/C), Ogilby register decision,
 "FOR GREECE MAP" note (cut off), iPhone sheet-pin confirmation,
 domain/PR/deploy (standing).
+
+## LAUNCH — 2026-07-18, evening (Day 2)
+
+**LIVE: https://johnhboyer-sys.github.io/**
+
+John: "Let's launch tonight." Sequence executed per docs/
+LAUNCH-CHECKLIST.md: final build:public gate on the launch tree
+(4,713 pages, 314,575 links, 0 broken, 48/48 scenes, canonicals/
+sitemap on the live origin) -> PR #1 merged (John's order; 159
+commits, claude/build -> main @ 7787ab0) -> repo renamed
+johnhboyer-sys.github.io -> flipped public (John, via phone, after a
+sign-in odyssey worthy of the subject matter) -> gh-pages orphan
+published from the gated dist (+.nojekyll) -> Pages enabled
+(gh-pages/root, HTTPS enforced) -> live at attempt 3 of polling.
+Post-deploy live sweep: home, readers, maps, timeline, sitemap, data
+root, and the Outis 404 all verified on the live URL.
+
+URL decision: github.io user site tonight; custom domain may layer
+later (config/site + CNAME + DNS, no rebuild of substance).
+In flight at launch: Flaxman asset factory (art ships as the first
+post-launch update on John's render verdict - his standing order:
+"Then give me art").
+
+## Post-launch repo split (2026-07-18, late)
+
+John's call: source back under its own name. `homer-reader` (private)
+recreated with full history — canonical source, remote `origin`. The
+public `johnhboyer-sys.github.io` repo stripped to a stub README +
+`gh-pages` (the served site) only — remote `deploy`. Site verified
+live throughout.
+
+## ART LIVE — 2026-07-18, night (second deploy)
+
+John: "Then give me art." Shipped: 48/48 Flaxman book plates in the
+reader cartouches (ink-masked, --flaxman-ink, ink A dark), distinct
+hero motifs (Thetis / Sirens) behind the English-first titles, and the
+og-default.png social card (Sirens on hero navy, polytonic epigraph).
+Deployed to homer-reader gh-pages @ source 3d26b81e; verified live
+(plate assets 200, plate markup in served HTML, og 200). Known
+pre-existing headless-only cosmetic (cartouche meta clip) filed.
+
+## POPE SCENE ALIGNMENT LIVE — 2026-07-21 (fourth deploy)
+
+Ledger note: the third deploy (John, 2026-07-21 midday, gh-pages
+aa1d70b0) shipped the merged post-launch PRs #2–#6 — palette temper,
+scene-paging fixes (Murray+Butler corpus-verified), omega favicon,
+John's boundary overrides — and predates this entry; recorded here
+retroactively.
+
+This deploy: Pope pages by scene. 742 curated scene-boundary anchors
+(388 Il. + 354 Od.), AI-drafted per book, Grok-verified anchor-by-anchor
+(19 boundary corrections), 2 boundaries Opus-adjudicated from the Greek;
+stage1_pope resolver with hard-fail validation; preflight validates
+third ticks + pope floors; corpus audit 144 books (documented
+pope-specific ownership floor 0.565, binary gates all zero); Reader
+curated-tick snap-skip + discreet approximate-alignment note; Codex
+adversarial review (4 P1s fixed). PR #7 merged by John (ee3a6b5a).
+
+Gate: pytest 364 · shared vitest 678 · app vitest · build:public
+preflight 0 errors · 4,713 pages, 0/314,575 broken links · browser
+smoke both themes. Deployed gh-pages 94db410c → origin (public
+homer-reader repo serves /homer-reader/; the `deploy` remote
+johnhboyer-sys.github.io serves only the root redirect). Live verified:
+new Reader bundle 200 + served, notice string present, Il. 1 / Od. 9
+200. John spot-checking post-deploy.

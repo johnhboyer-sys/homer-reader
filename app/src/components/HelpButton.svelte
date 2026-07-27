@@ -189,9 +189,19 @@
     border-color: var(--accent);
     color: var(--accent);
   }
-  /* The mobile header (title + Contents/Menu) is already tight; the "?" is
-     desktop-only. Mobile discovery is carried by the first-visit tip below. */
-  @media (max-width: 680px) {
+  /* The compact header (title + Contents/Menu) is already tight; the "?" is
+     desktop-only. Compact-width discovery is carried by the first-visit tip
+     below. Raised from 680px to 1099px (Codex adversarial review, 2026-07-24),
+     then 899px, then 959px, then 1023px, all on 2026-07-25 (see global.css's
+     .nav-scenes-label note for the full crossover measurement — the binding
+     constraint turned out to be .header-search's own "Go to" label
+     text-wrapping below ~1023px, not the control row) — the header's
+     icon-only squeeze now runs through 1023px, full labels/Help at 1024px,
+     to match the rest of the header's compact-arrangement breakpoint (see
+     global.css's ReaderShell-adjacent split) — left at 680px, this button
+     was the one desktop-only leftover in an otherwise-compact header,
+     silently eating ~32px and forcing extra work-title truncation. */
+  @media (max-width: 1023px) {
     .help-trigger { display: none; }
   }
 

@@ -30,6 +30,19 @@ vi.mock('../lib/works', async (importOriginal) => {
       citation: { scheme: 'busse', hideLineNumbers: true },
       blurb: 'Fixture work for Reader.svelte tests (busse scheme, lineless).',
     },
+    // Two translations (unlike 'EN' above) — needed for the nav-bar bridge's
+    // set-trans/trans-state test below, which switches between them.
+    ENM: {
+      id: 'ENM', title: 'Fixture Multi-Translation Work', abbr: 'ENM', author: 'Test',
+      books: 1, bookLabels: ['1'],
+      greekEdition: 'Test edition',
+      greekSource: { short: 'Test', full: 'Test edition, full citation.', licence: 'Test licence' },
+      translations: [
+        { id: 'rackham', name: 'Test Translator (Test, 1900)', short: 'Rackham', slot: 'english' },
+        { id: 'ross', name: 'Second Translator (Test, 1910)', short: 'Ross', slot: 'ross' },
+      ],
+      blurb: 'Fixture work for Reader.svelte tests (bekker scheme, two translations).',
+    },
   };
   return { ...actual, getWork: (id: string) => fixtures[id] ?? actual.getWork(id) };
 });
@@ -228,6 +241,13 @@ describe('Reader.svelte — Reading Mode posture', () => {
     input.remove();
   });
 
+  // NOT replaced (see final report): the brief flagged this assertion as
+  // broken by the nav-bar merge, but pass/fail #6 requires the reader-
+  // controls strip (this component's own posture-btn, used below 1100px) to
+  // stay BYTE-IDENTICAL to before the merge — so its text stays "Reading
+  // Mode"/"Scholar view", the wide-screen nav bar's differently-worded
+  // posture control lives entirely in ReaderShell.astro (not rendered by
+  // this component-only suite), and this assertion is unaffected either way.
   it('the posture button toggles Reading Mode and reflects aria-pressed', async () => {
     window.history.replaceState(null, '', '/EN/book/1');
     const { container } = render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
@@ -247,6 +267,79 @@ describe('Reader.svelte — Reading Mode posture', () => {
     expect(container.querySelector('.reader-body')).toHaveClass('reading-mode');
     // Single reading column present; no parallel Greek column in the reading body.
     expect(container.querySelector('.reading-col')).not.toBeNull();
+  });
+});
+
+// Nav-bar bridge (John's nav-bar merge brief, 2026-07-24): ReaderShell.astro
+// now server-renders the translation/view/posture/Chart Room controls in
+// .nav-panel and drives Reader.svelte via window CustomEvents (set-trans,
+// set-view, toggle-reading, toggle-chart-room), which Reader.svelte answers
+// with matching *-state broadcasts (trans-state, view-state, reading-state,
+// chart-room-state) so the server-rendered markup can sync its selected
+// option / active button / aria-pressed after hydration — the same shape as
+// the pre-existing toggle-settings/settings-state pair (see the "closes the
+// docked lexicon when Settings opens" test above). These tests exercise the
+// Reader.svelte side of that contract in isolation (ReaderShell.astro's own
+// listeners are plain DOM script, not covered by this Svelte component suite).
+describe('Reader.svelte — nav-bar bridge events (John, 2026-07-24)', () => {
+  it('toggle-reading flips posture and dispatches reading-state', async () => {
+    window.history.replaceState(null, '', '/EN/book/1');
+    const { container } = render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+    await screen.findByText('1094a');
+    const states: boolean[] = [];
+    const onState = (e: Event) => states.push((e as CustomEvent<{ reading: boolean }>).detail.reading);
+    window.addEventListener('reading-state', onState);
+
+    await fireEvent(window, new CustomEvent('toggle-reading'));
+    expect(container.querySelector('.reader-body')).toHaveClass('reading-mode');
+    expect(states.at(-1)).toBe(true);
+
+    window.removeEventListener('reading-state', onState);
+  });
+
+  it('set-view switches the reading view and dispatches view-state', async () => {
+    window.history.replaceState(null, '', '/EN/book/1');
+    const { container } = render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+    await screen.findByText('1094a');
+    const states: string[] = [];
+    const onState = (e: Event) => states.push((e as CustomEvent<{ view: string }>).detail.view);
+    window.addEventListener('view-state', onState);
+
+    await fireEvent(window, new CustomEvent('set-view', { detail: { view: 'greek' } }));
+    expect(container.querySelector('.reader-body')).toHaveClass('view-greek');
+    expect(states.at(-1)).toBe('greek');
+
+    window.removeEventListener('view-state', onState);
+  });
+
+  it('set-trans switches the selected translation and dispatches trans-state', async () => {
+    window.history.replaceState(null, '', '/ENM/book/1');
+    const { container } = render(Reader, { props: { work: 'ENM', bookNum: 1, bookData: fixtureBook } });
+    await screen.findByText('1094a');
+    const states: string[] = [];
+    const onState = (e: Event) => states.push((e as CustomEvent<{ id: string }>).detail.id);
+    window.addEventListener('trans-state', onState);
+
+    await fireEvent(window, new CustomEvent('set-trans', { detail: { id: 'ross' } }));
+    expect(container.querySelector('.reader-body')).toHaveClass('trans-ross');
+    expect(states.at(-1)).toBe('ross');
+
+    window.removeEventListener('trans-state', onState);
+  });
+
+  it('toggle-chart-room flips the Chart Room state and dispatches chart-room-state', async () => {
+    window.history.replaceState(null, '', '/EN/book/1');
+    render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+    await screen.findByText('1094a');
+    const states: boolean[] = [];
+    const onState = (e: Event) => states.push((e as CustomEvent<{ open: boolean }>).detail.open);
+    window.addEventListener('chart-room-state', onState);
+
+    await fireEvent(window, new CustomEvent('toggle-chart-room'));
+    expect(states.at(-1)).toBe(true);
+    expect(localStorage.getItem('reader-chart-room')).toBe('true');
+
+    window.removeEventListener('chart-room-state', onState);
   });
 });
 
@@ -412,13 +505,18 @@ describe('Reader.svelte — Reading Mode scene paging (John, 2026-07-18)', () =>
   //  - 3 scenes whose edges deliberately DON'T land on tick boundaries
   //    (scene2 additionally spans the gap), exercising sentence-snapped
   //    paging (John, 2026-07-19; shared/lib/scene-paging.ts's
-  //    sentenceSnapScenePages): each tick chunk here happens to be exactly
-  //    one whole sentence, so the sentence-snapped pages land on the SAME
-  //    boundaries a naive chunk-overlap split would show for the scene where
-  //    a chunk is unambiguously owned (scene 1) — but scene 2 no longer
-  //    duplicates chunk B (already fully claimed by scene 1's completed
-  //    sentence) or hand chunk D's completed sentence off to scene 3: every
-  //    chunk appears on exactly one page.
+  //    sentenceSnapScenePages) under the straddle-ownership rule (John,
+  //    2026-07-20): a sentence inside a tick that straddles a scene boundary
+  //    belongs to whichever scene's owned line-share it ends within (the
+  //    owned-share midpoint target in naturalEndOffset), not to every scene
+  //    whose Greek range the raw tick happens to overlap. Each tick chunk
+  //    here is exactly one whole sentence, so which "ChunkX text." sentence
+  //    lands on which scene's page is a direct, readable trace of that rule
+  //    — scene 1 (ends at line 7) owns only 3 of chunk B's 5 lines (5-9), too
+  //    small a share to pull chunk B's sentence onto scene 1's page, so it
+  //    lands on scene 2's page instead; chunk D (15-19) similarly lands on
+  //    scene 3's page rather than scene 2's. Every chunk appears on exactly
+  //    one page, never duplicated, never dropped.
   const TICK_TEXT =
     'ChunkA text. ChunkB text. ChunkC text. ChunkD text. ChunkE text.';
   const sceneBook = (draft = false): RawBookData => ({
@@ -455,33 +553,39 @@ describe('Reader.svelte — Reading Mode scene paging (John, 2026-07-18)', () =>
     window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
     const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: sceneBook() } });
 
-    // Scene 1 (lines 1-7) claims chunks A (1-4) and B (5-9) — B's sentence
-    // isn't truncated at line 7 even though the scene's own range ends
-    // there (sentence-snapping extends/holds a page to a full sentence, and
-    // "ChunkB text." happens to complete exactly at B's own tick boundary).
+    // Scene 1 (lines 1-7) claims chunk A (1-4) only — chunk B (5-9) straddles
+    // the boundary, and scene 1 owns just 3 of its 5 lines (5-7), too small
+    // a share to pull "ChunkB text." onto scene 1's page (owned-share
+    // midpoint rule, naturalEndOffset); chunk B's sentence lands on scene 2
+    // instead (below).
     await screen.findByText(/Scene 1 of 3/);
     expect(container.querySelector('.reading-scene-pos')?.textContent).toContain('lines 1–7');
     expect(container.textContent).toContain('ChunkA text.');
-    expect(container.textContent).toContain('ChunkB text.');
+    expect(container.textContent).not.toContain('ChunkB text.');
     expect(container.textContent).not.toContain('ChunkC text.');
+    // Full presence/absence matrix (Codex new-finding 3, 2026-07-21): scene 1
+    // owns ONLY chunk A — D and E (which land on scene 3, far downstream)
+    // must be just as absent here as the already-checked B and C.
+    expect(container.textContent).not.toContain('ChunkD text.');
+    expect(container.textContent).not.toContain('ChunkE text.');
     expect(container.querySelector('.reading-scene-prev')).toHaveProperty('disabled', true);
 
     // No scene chips anywhere — the header replaces them.
     expect(container.querySelectorAll('.scene-chip')).toHaveLength(0);
 
     // Next scene → scene 2 (lines 8-16), which SPANS the vulgate gap
-    // (13-14 missing): its page shows chunks C (10-12) and D (15-19) —
-    // chunk B stays on scene 1's page (its sentence completed there; no
-    // duplication) and chunk D's sentence, though it runs past line 16 into
-    // scene 3's own range, stays whole on scene 2's page (never handed to
-    // scene 3 mid-sentence either).
+    // (13-14 missing): its page shows chunks B (5-9) and C (10-14) — chunk B
+    // was not fully owned by scene 1 above, so its sentence lands here
+    // instead (no duplication); chunk D (15-19) similarly isn't pulled onto
+    // scene 2's page (scene 2 ends at line 16, only 2 of chunk D's 5 lines),
+    // so it lands on scene 3's page instead (below).
     await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
     await screen.findByText(/Scene 2 of 3/);
     expect(container.querySelector('.reading-scene-pos')?.textContent).toContain('lines 8–16');
+    expect(container.textContent).toContain('ChunkB text.');
     expect(container.textContent).toContain('ChunkC text.');
-    expect(container.textContent).toContain('ChunkD text.');
     expect(container.textContent).not.toContain('ChunkA text.');
-    expect(container.textContent).not.toContain('ChunkB text.');
+    expect(container.textContent).not.toContain('ChunkD text.');
     expect(container.textContent).not.toContain('ChunkE text.');
     // Day + place meta render; scene 1 (no day/place) showed neither.
     expect(container.textContent).toContain('Day 3');
@@ -504,6 +608,17 @@ describe('Reader.svelte — Reading Mode scene paging (John, 2026-07-18)', () =>
     await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
     await screen.findByText(/Scene 3 of 3/);
     expect(container.querySelector('.reading-scene-next')).toHaveProperty('disabled', true);
+
+    // Scene 3 (lines 17-24) shows chunk D (15-19, not fully owned by scene 2)
+    // and chunk E (20-24) — pinning every one of the five chunk-sentences to
+    // exactly ONE scene page across the three scenes (Codex review F6,
+    // 2026-07-21): A→scene 1, B+C→scene 2, D+E→scene 3, none duplicated.
+    expect(container.querySelector('.reading-scene-pos')?.textContent).toContain('lines 17–24');
+    expect(container.textContent).toContain('ChunkD text.');
+    expect(container.textContent).toContain('ChunkE text.');
+    expect(container.textContent).not.toContain('ChunkA text.');
+    expect(container.textContent).not.toContain('ChunkB text.');
+    expect(container.textContent).not.toContain('ChunkC text.');
   });
 
   it('ignores arrow-key scene paging while focus is in a text field', async () => {

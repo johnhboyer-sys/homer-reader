@@ -180,6 +180,7 @@ const supportHref = `${base}/support`;
         <span class="fire fire-5" aria-hidden="true"></span>
         <span class="fire fire-6" aria-hidden="true"></span>
         <span class="fire fire-7" aria-hidden="true"></span>
+        <span class="epic-art epic-art-iliad" aria-hidden="true" style={`--art:url('${base}/art/flaxman/iliad-book-19.png')`}></span>
         <span class="epic-kicker">24 books &middot; the war&rsquo;s tenth year</span>
         <h2 class="epic-title">The Iliad</h2>
         <span class="epic-greek-sub" lang="grc">ΙΛΙΑΣ</span>
@@ -199,6 +200,7 @@ const supportHref = `${base}/support`;
         <span class="star star-4" aria-hidden="true"></span>
         <span class="star star-5 dusk-hide" aria-hidden="true"></span>
         <span class="star star-6 dusk-hide" aria-hidden="true"></span>
+        <span class="epic-art epic-art-odyssey" aria-hidden="true" style={`--art:url('${base}/art/flaxman/odyssey-book-12.png')`}></span>
         <span class="epic-kicker">24 books &middot; ten years&rsquo; wandering</span>
         <h2 class="epic-title">The Odyssey</h2>
         <span class="epic-greek-sub" lang="grc">ΟΔΥΣΣΕΙΑ</span>
@@ -376,11 +378,11 @@ const supportHref = `${base}/support`;
       isolation: isolate;
       --hero-ink: #EDE6E8;
       --hero-ink-soft: #B7A9B4;
-      --hero-accent: #D98BA3;
-      --hero-accent-bright: #E8A6BA;
+      --hero-accent: #D59186;
+      --hero-accent-bright: #E4B3AA;
       --hero-rule: #3A2C38;
-      --hero-rule-strong: #C77E97;
-      --hero-focus: #E8A6BA;
+      --hero-rule-strong: #C17067;
+      --hero-focus: #E4B3AA;
       color: var(--hero-ink);
       /* DUSK — default posture. --hero-bg-mid is a pre-mixed OPAQUE hex (navy warmed
          toward a dusty violet), not an alpha color — an alpha stop here would
@@ -654,6 +656,26 @@ const supportHref = `${base}/support`;
     .epic-title { font-size: clamp(2.3rem, 5.2vw, 5.6rem); }
     .epic-iliad .epic-title { margin-left: -0.05rem; }
     .epic-odyssey .epic-title { margin-right: -0.04rem; }
+    /* Flaxman line motifs behind each panel's content (John's round-2
+       verdict: bigger, neutral bone ink for value contrast, distinct plates
+       per surface; Iliad raised so the composition isn't clipped). Masks
+       tint via background color, so no per-theme asset variants. */
+    .epic-art {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: var(--hero-ink);
+      opacity: 0.30;
+      -webkit-mask: var(--art) center 62% / 88% auto no-repeat;
+      mask: var(--art) center 62% / 88% auto no-repeat;
+      z-index: 0;
+    }
+    .epic-art-iliad {
+      -webkit-mask-position: center 16%;
+      mask-position: center 16%;
+    }
+    .epic-panel > :not(.epic-art):not(.fire):not(.star) { position: relative; z-index: 1; }
+    @media (max-width: 899.98px) { .epic-art { display: none; } }
     .epic-greek-sub {
       display: block;
       font-family: var(--font-greek);

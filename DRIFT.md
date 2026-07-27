@@ -690,3 +690,92 @@ here (pipeline rename note at top still covers the package).
 - `shared/styles/global.css` — scene-map land/sea tokens (2026-07-18):
   `--scene-map-sea/-land/-coast/-label-halo` declared in all four theme
   blocks; Homer-only (Chart Room panels), no plato counterpart.
+- `shared/styles/global.css` — Flaxman art layer (2026-07-18 launch night):
+  `--flaxman-ink` in all four theme blocks + `.plate-art` cartouche plate
+  rules. Homer-only.
+- `shared/components/Reader.svelte` + `shared/lib/tick-chunks.ts` (2026-07-21,
+  Codex review F1) — extracted the tick-chunking core (`flowParts`,
+  `groupFlowByTicks`, `isTickPart`, `alignGroups`, `AlignGroup`, `TickFlowPart`)
+  VERBATIM out of Reader.svelte into the new pure `shared/lib/tick-chunks.ts`,
+  so the Reading-Mode scene-paging audit/tests measure the SAME geometry the
+  component renders. Reader.svelte now imports them (`alignGroups` takes
+  `block.lines` explicitly, no `block.flow` default); no plato-reader
+  counterpart to `tick-chunks.ts`.
+
+## Merged nav bar — three chrome bands to two (2026-07-25)
+
+A reader's screenshot showed the Books 1–24 strip wrapping to a second row, so
+three bands of chrome ate ~225 CSS px before line one (a third of a landscape
+iPad's height). The Books strip is deleted, the third controls row is merged up
+into the nav bar, and Print moves into the Settings sidebar. Homer-specific
+throughout — plato-reader has no Books strip and its controls row is untouched.
+
+Tiers: **≤690px** phone arrangement (no control row; Contents/Scenes in the
+header; controls in Settings). **691–1039** control row, icon-only, `Reader ⇄`
+action posture, `Jump to…` from 775. **≥1040** full labels with icons, segmented
+`Scholar | Reader`. Short-landscape (`orientation: landscape`, `max-height:
+500px`) strips the control row and puts Contents+Scenes beside the work switcher.
+
+- `app/src/components/ReaderShell.astro` — Books 1–24 strip deleted (the
+  Contents drawer already lists all books). `.nav-panel` gained
+  `.nav-panel-inner` → `.nav-group-left` (Contents, Scenes, `Jump to…`,
+  `‹ Book N ›` stepper) + `.nav-group-right` (translation `<select>`,
+  Greek/Both/English, posture, Chart Room), all SERVER-RENDERED and wired to the
+  `Reader.svelte` island by new `window` CustomEvents (`set-trans`/`set-view`/
+  `toggle-reading`/`toggle-chart-room` in; `*-state` back), mirroring the
+  pre-existing `toggle-settings`/`toggle-scenes` bridge. The head `is:inline`
+  bridge that stamped `data-rview` now also stamps `data-rposture`, so FIRST
+  PAINT is honest about posture (previously it always painted Scholar and
+  exposed Chart Room, then flipped at hydration). New `window.__navPrehydrated`
+  records the VALUE of any click made before hydration. `.header-title`'s
+  flex-grow is zeroed inside the short-landscape query so Contents/Scenes land
+  next to the work switcher rather than the title box's invisible far edge.
+- `shared/components/Reader.svelte` — `.rc-desktop-controls` removed from the
+  desktop path (its markup now lives in ReaderShell); listeners for the four new
+  events plus matching `*-state` broadcasts. `onMount` gained ONE choke point
+  that applies `window.__navPrehydrated` AFTER all URL/storage handling, so a
+  pre-hydration click beats `?view=`/`?trans=`/`?mode=`/`loc`/`hlg` — deliberately
+  a single site rather than a guard at each URL reader (four scattered guards
+  were tried first; two were forgotten, caught in review). `setReading` now
+  closes Chart Room (the rail requires `!reading`, so it otherwise left a
+  dangling `aria-controls`). `colScale` was briefly mirrored onto
+  `document.documentElement` as `--colw-scale` to feed `.nav-panel-inner`'s
+  now-removed width cap (see below); that mirror is gone as of 2026-07-26 —
+  it had no remaining consumer once the cap was removed.
+- `shared/components/BekkerJump.svelte` — new optional `toggleLabel` prop,
+  default `null`. Homer's nav-bar instance passes `Jump to…`; every other call
+  site, including the sibling forks, is byte-identical. **Do not remove the
+  nullish fallback** — it is what keeps this shared component inert elsewhere.
+- `shared/styles/global.css` — new `.nav-panel-inner`, a flex container
+  (`justify-content: space-between`) for the two groups (the tinted band
+  still spans full width). It was initially capped at `calc(1080px *
+  var(--colw-scale, 1))` and centred, so at wide viewports the two groups
+  aligned with the READING COLUMN's edges rather than the row's own —
+  requiring `--colw-scale` (normally set only on `.reader-body`, inside the
+  island) to also be published on the root element for the header to read
+  it. **John's call, 2026-07-26: corrected to flush-left/flush-right on the
+  ROW's own outer edges instead** — they now line up with the header bar's
+  wordmark and Support button, sharing one set of edges with the band
+  above. The max-width cap, the `margin: 0 auto` centring, and the
+  root-level `--colw-scale` publication (Reader.svelte) are all removed;
+  the control row is now completely unaffected by the column-width slider.
+  New `--nav-panel-bg` (light: a faint `color-mix`
+  tint so the band reads against the header; dark: `var(--col-bg)`, i.e.
+  unchanged from before this work). Tier boundaries moved 680/681 → 690/691 and
+  the label tier to 1039/1040; ELEVEN rules deliberately LEFT at 680 (reading
+  typography, touch targets, glossary bottom-sheet, sidenote rail, TOC-drawer
+  dedup) — they merely reuse the number and are not part of this arrangement.
+  Previously-known behaviour, no longer applicable after the 2026-07-26
+  correction above: at the minimum column-width setting (0.8) the full-label
+  row used to wrap to two lines, since the capped measure was narrower than
+  the row needed. With the cap gone the row is unaffected by the slider at
+  any setting.
+- `app/src/components/HelpButton.svelte` — compact-header breakpoint moved with
+  the rest (it was missed in the first pass, leaving a hybrid header at
+  681–1099 where every other control had gone compact but `?` had not).
+- `shared/__tests__/components.test.ts` — new describe block covering the four
+  nav-bar bridge events, mirroring the existing `toggle-settings` test.
+- Found but NOT fixed here (out of blast radius, logged separately): the header's
+  `.header-search` button wraps its own label onto two lines between ~900 and
+  1022px, a pre-existing flex-shrink squeeze. Unreachable at the 1040 boundary,
+  but it will resurface if that boundary ever moves down.

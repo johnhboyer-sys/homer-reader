@@ -45,9 +45,14 @@ non-negotiable.
   2026-07-17).** Reuse aristotle-reader's incremental gh-pages deploy recipe.
   Creating the GitHub remote and the first push are also John-gated. Stay in free
   tier; surface anything that would incur cost **before** doing it.
-- Git flow (John, 2026-07-17): private repo
-  `github.com/johnhboyer-sys/homer-reader`; commit as we go, **push promptly
-  after every commit** (backup). PR bundling at the orchestrator's judgment
+- Git flow (John, 2026-07-17; two-remote split 2026-07-18; CORRECTED
+  2026-07-21 after a deploy push bounced): `github.com/johnhboyer-sys/
+  homer-reader` (remote `origin`) is now PUBLIC and serves the site itself —
+  Pages from its own `gh-pages` branch at /homer-reader/. Deploys push
+  `gh-pages` to **origin** (worktree `~/Developer/homer-reader-site`). The
+  `johnhboyer-sys.github.io` repo (remote `deploy`) holds ONLY the root
+  redirect to /homer-reader/ — never push site deploys there.
+  Commit as we go, **push promptly after every commit** (backup). PR bundling at the orchestrator's judgment
   (John): PR #1 = claude/build → main umbrella (phases 0–3 + scenes);
   subsequent coherent units get branches off claude/build with stacked PRs
   into claude/build. Review gate applies at PR time; merging `main` is
@@ -75,6 +80,11 @@ non-negotiable.
   refreshed" — clear that state dir and start a `--fresh` thread. `codex login
   status` saying "Logged in" is not sufficient evidence the plugin runtime works.
 
+- Pipeline gotcha (2026-07-21, cost an Iliad re-emit): `build/stage1` is a
+  per-run working dir — running `stage1` then `stage7` alone against a stale
+  working dir (last full run was the other work) crashes stage7 (KeyError on
+  the token map) AFTER it has wiped the work's dist dir. A re-emit is only
+  valid as `all --work <W>` (then apparatus, per the rule below).
 - Pipeline gotcha (2026-07-17, caught by Gate 4): any stage7 re-emit
   (incl. `all` and full re-runs) must be FOLLOWED by `apparatus
   --work <W>` for both works — stage7 rewrites book JSONs without the
@@ -137,6 +147,9 @@ decisions, not on file contents.
   24% used. Well-specified implementation defaults to GPT-5.6-Terra-High
   (Codex) or Grok; Sonnet/Opus reserved for reader-core subtleties,
   philological judgment, and integration-heavy work. Judgment allowed.
+  **LIFTED (John, 2026-07-21): weekly usage reset — normal routing table
+  applies (Sonnet default; Opus on genuine difficulty; Codex/Grok per
+  their table roles). Codex effort lowered to medium the same day.**
   **Escalation rule (John, same day, refined): minor stumbles stay in
   the Codex/Grok lane — nudge, clarify the brief, retry once. Escalate
   to Claude (Sonnet; Opus on difficulty) only on a BAD fuckup: badly
@@ -186,8 +199,8 @@ decisions, not on file contents.
 | **Fable** (main thread) | Orchestrator | Planning, decomposition, briefs, integration, review of agent returns, commits/pushes, all conversation with John. No fable subagents without John's say-so. |
 | **Opus** | Heavy reasoner | Architecture decisions, subtle pipeline/alignment bugs, Homeric philological judgment calls (vulgate lineation and athetized lines, formula/epithet boundaries, morphology disputes, speech-span nesting), judgment-heavy apparatus drafting, final verification of high-stakes work |
 | **Sonnet** | Workhorse (default subagent) | Well-specified implementation, tests, mechanical multi-file edits, exploration/search sweeps, doc updates, data-build babysitting, per-book apparatus batches (~5 books/agent) |
-| **GPT-5.6-Sol-High** (Codex CLI, `--effort high`) | Adversarial reviewer | Red-team review of finished work before John's review gates and before any deploy; cross-model second opinion on designs. Precedent: the plato-reader 14th-deploy whole-site adversarial review (15 confirmed findings). |
-| **GPT-5.6-Terra-High** (Codex CLI, `--effort high`) | Cross-model implementer | Independent implementation of isolated, well-specified tasks; independent bug reproduction; second implementation when comparing approaches |
+| **GPT-5.6-Sol-High** (Codex CLI, `--effort medium` — John, 2026-07-21, lowered from high) | Adversarial reviewer | Red-team review of finished work before John's review gates and before any deploy; cross-model second opinion on designs. Precedent: the plato-reader 14th-deploy whole-site adversarial review (15 confirmed findings). |
+| **GPT-5.6-Terra-High** (Codex CLI, `--effort medium` — John, 2026-07-21, lowered from high) | Cross-model implementer | Independent implementation of isolated, well-specified tasks; independent bug reproduction; second implementation when comparing approaches |
 | **Grok-4.5** (Grok CLI, `grok-cc:grok-rescue`) | Full implementer + content verifier (off probation, John 2026-07-17; free trial) | Content/extraction verification gates (its specialty — twice found defect classes Sol/Opus/Claude all missed, with raw-line evidence), additional adversarial passes, mechanical coding tasks. Forwarder quirk (BOTH grok-rescue and codex-rescue): the runner may background the CLI task and end its turn with no result — nudge via SendMessage ("wait for the run and return the findings"). Gotcha: read-only task mode gets Cancelled by the runtime — use write-capable with a no-tracked-file-edits constraint. |
 
 Routing principles: default subagent is Sonnet; escalate to Opus on genuine
@@ -275,6 +288,10 @@ And from his expanded set, the ones this project adopts:
    rather than continuing.
 
 ## Failure-mode registry (append dated lessons — a lesson not written down will be repeated)
+
+- **Plan-mode Explore/Plan spawns ran on Fable** (2026-07-21, caught by John):
+  the plan-mode workflow's built-in Explore/Plan agent types count as spawns —
+  omitting `model:` inherits Fable there too. No explicit `model:`, no launch.
 
 - **`git add -A` while agents are in flight** (2026-07-17, twice): sweeps
   concurrent agents' uncommitted work into unrelated commits. Orchestrator

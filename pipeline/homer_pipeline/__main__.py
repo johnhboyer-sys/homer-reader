@@ -68,11 +68,22 @@ def _stage1(manifest):
             from . import stage1_pope
 
             result = stage1_pope.run(manifest, spine)
-            print(f"  third (pope, book-anchored): chunks={result['chunks']} "
+            print(f"  third (pope, scene-anchored): chunks={result['chunks']} "
                   f"books={result['books']} "
+                  f"anchors_resolved={result.get('anchors_resolved', 0)} "
+                  f"draft_count={result.get('draft_count', 0)} "
                   f"footnote_markers_stripped={result.get('footnote_markers_stripped', 0)} "
                   f"illustrations_dropped={result.get('illustrations_dropped', 0)} "
                   f"no_argument_marker={result['no_argument_marker']}")
+            if result.get("books_without_staged_scenes"):
+                print(f"  books without staged scenes (book-level fallback tick): "
+                      f"{result['books_without_staged_scenes']}")
+            if result.get("unanchored"):
+                print(f"  WARNING: unanchored scene anchors (book, n): {result['unanchored']}")
+            if result.get("sentence_warnings"):
+                print(f"  WARNING: {len(result['sentence_warnings'])} sentence-boundary warning(s):")
+                for msg in result["sentence_warnings"][:10]:
+                    print(f"    {msg}")
         return
 
     from . import stage1_greek

@@ -488,6 +488,8 @@ def _validate_books(
             if not verse:
                 _validate_english_bekker(manifest, name, seg_id or f"segments[{i}]", segment, line_numbers, problems)
                 _validate_chapter_starts(manifest, name, seg_id or f"segments[{i}]", segment, line_numbers, anchors, book["n"], column, problems, bekker_native)
+            else:
+                _validate_third_bekker(manifest, name, seg_id or f"segments[{i}]", segment, line_numbers, problems)
     return segments_by_book_col, anchors, token_keys
 
 
@@ -551,6 +553,76 @@ def _validate_english_bekker(
         # Greek, absent from this segment's line set). Both checks produced only
         # false positives on the live corpus, so marker *shape* is validated but
         # ordering/anchoring is not.
+
+
+def _validate_third_bekker(
+    manifest: WorkManifest,
+    file_name: str,
+    seg_id: str,
+    segment: dict[str, Any],
+    line_numbers: set[int],
+    problems: list[Problem],
+) -> None:
+    """Validate segment.third[*].bekker (the Pope-overlay tick lists emitted
+    by stage1_pope.py's curated scene-anchor resolution) more strictly than
+    english.bekker (_validate_english_bekker above, which validates shape
+    only): every tick's `n` must be a real Greek line of this book's single
+    verse-line segment, its `offset` must fall within that piece's own text
+    length, and the (n, offset) tuples must be strictly increasing across
+    the list (no duplicate pairs).
+    Pope's overlay is book-anchored with at most one segment per book
+    (unlike English, whose prose legitimately resets across column
+    boundaries — see that function's NOTE), so there is no equivalent excuse
+    for disorder here."""
+    third = segment.get("third")
+    if not third:
+        return
+    if not isinstance(third, list):
+        problems.append((manifest.work_id, file_name, f"{seg_id}: third must be a list"))
+        return
+    for pi, piece in enumerate(third):
+        if not isinstance(piece, dict):
+            problems.append((manifest.work_id, file_name, f"{seg_id}: third[{pi}] must be an object"))
+            continue
+        piece_text = piece.get("text")
+        text_len = len(piece_text) if isinstance(piece_text, str) else 0
+        prev_n: int | None = None
+        prev_offset: int | None = None
+        for ti, marker in enumerate(piece.get("bekker") or []):
+            if not isinstance(marker, dict):
+                problems.append(
+                    (manifest.work_id, file_name, f"{seg_id}: third[{pi}].bekker[{ti}] must be an object")
+                )
+                continue
+            n = marker.get("n")
+            offset = marker.get("offset")
+            if not isinstance(n, int):
+                problems.append(
+                    (manifest.work_id, file_name, f"{seg_id}: third[{pi}].bekker[{ti}].n must be an integer")
+                )
+                continue
+            if not isinstance(offset, int):
+                problems.append(
+                    (manifest.work_id, file_name, f"{seg_id}: third[{pi}].bekker[{ti}].offset must be an integer")
+                )
+                continue
+            if n not in line_numbers:
+                problems.append(
+                    (manifest.work_id, file_name,
+                     f"{seg_id}: third[{pi}].bekker[{ti}] n={n} is not a Greek line of this book")
+                )
+            if not (0 <= offset < text_len):
+                problems.append(
+                    (manifest.work_id, file_name,
+                     f"{seg_id}: third[{pi}].bekker[{ti}] offset={offset} is outside the piece "
+                     f"text (length {text_len})")
+                )
+            if prev_n is not None and (n, offset) <= (prev_n, prev_offset):
+                problems.append(
+                    (manifest.work_id, file_name,
+                     f"{seg_id}: third[{pi}].bekker (n, offset) is not strictly increasing at index {ti}")
+                )
+            prev_n, prev_offset = n, offset
 
 
 def _validate_chapter_starts(
@@ -831,7 +903,8 @@ def _validate_apparatus(
         if book_end is None:
             continue
         for message in apparatus_scenes.validate_emitted_apparatus(
-            n, doc["apparatus"], book_end, gaps.get(n, [])
+            n, doc["apparatus"], book_end, gaps.get(n, []),
+            reviewed=apparatus_scenes.work_reviewed(manifest.work_id),
         ):
             problems.append((manifest.work_id, file_name, message))
 
@@ -1076,26 +1149,37 @@ def _validate_global_apparatus_emits(
                 problems.append(("-", "audio.json", f"invalid JSON: {exc}"))
 
 
-# ── alignment coverage: Murray/Butler milestone-tick density per book ──────
+# ── alignment coverage: Murray/Butler/Pope milestone-tick density per book ─
 #
 # Murray (primary `english` slot) and Butler (`ross` overlay slot) are both
 # anchored to the Greek spine by REAL milestone ticks from their Perseus TEI
 # (see stage1_perseus_milestone_english.py's module docstring) — each ticks
-# list entry is `{n, offset, real: true}`. A book's tick COUNT is a cheap,
-# meaningful proxy for alignment density (roughly one tick per ~5 Murray
-# lines, ~5-13 Butler lines): a future ingest regression that thins out
-# ticks (a milestone-parsing bug, a re-export that drops anchors, ...) would
-# still pass every other structural check here while silently degrading the
-# reader's in-line English positioning. Pinning today's healthy counts as a
-# floor (see test_alignment_coverage.py) turns that into a loud test failure.
+# list entry is `{n, offset, real: true}`. Pope (`third` overlay slot) now
+# carries real ticks too, from stage1_pope.py's curated scene-anchor
+# resolution. A book's tick COUNT is a cheap, meaningful proxy for alignment
+# density (roughly one tick per ~5 Murray lines, ~5-13 Butler lines): a
+# future ingest regression that thins out ticks (a milestone-parsing bug, a
+# re-export that drops anchors, ...) would still pass every other structural
+# check here while silently degrading the reader's in-line English
+# positioning. Pinning today's healthy counts as a floor (see
+# test_alignment_coverage.py) turns that into a loud test failure.
+#
+# TODO(pope floor): alignment_coverage_floor.json does not pin "pope" counts
+# yet — the curated scene-anchor dataset (sources/pope/scene-anchors-*.json)
+# doesn't exist in this checkout (a parallel lane drafts it; see
+# stage1_pope.py's module docstring), so there is no healthy baseline to pin
+# today. tick_coverage_violations only checks translators present in the
+# floor fixture, so an absent "pope" key is tolerated automatically; pin
+# real pope floors once the dataset lands and a full build has run.
 
 
-def murray_butler_tick_counts(data_dir: Path, work_id: str) -> dict[int, dict[str, int]]:
-    """book number -> {"murray": tick_count, "butler": tick_count}, read off
-    the emitted build/dist/<work_id>/book-NN.json files. Verse-line books
-    have exactly one segment; `english.bekker` carries Murray's ticks and
-    `ross[*].bekker` carries Butler's (Butler is a single un-chaptered piece
-    per book, but summed generally in case that ever changes)."""
+def translation_tick_counts(data_dir: Path, work_id: str) -> dict[int, dict[str, int]]:
+    """book number -> {"murray": tick_count, "butler": tick_count, "pope":
+    tick_count}, read off the emitted build/dist/<work_id>/book-NN.json
+    files. Verse-line books have exactly one segment; `english.bekker`
+    carries Murray's ticks, `ross[*].bekker` carries Butler's, and
+    `third[*].bekker` carries Pope's (each summed generally in case a book
+    ever carries more than one piece)."""
     counts: dict[int, dict[str, int]] = {}
     work_dir = data_dir / work_id
     if not work_dir.is_dir():
@@ -1112,6 +1196,7 @@ def murray_butler_tick_counts(data_dir: Path, work_id: str) -> dict[int, dict[st
             continue
         murray = 0
         butler = 0
+        pope = 0
         for segment in doc.get("segments", []) or []:
             if not isinstance(segment, dict):
                 continue
@@ -1121,7 +1206,10 @@ def murray_butler_tick_counts(data_dir: Path, work_id: str) -> dict[int, dict[st
             for piece in segment.get("ross") or []:
                 if isinstance(piece, dict):
                     butler += len(piece.get("bekker") or [])
-        counts[book] = {"murray": murray, "butler": butler}
+            for piece in segment.get("third") or []:
+                if isinstance(piece, dict):
+                    pope += len(piece.get("bekker") or [])
+        counts[book] = {"murray": murray, "butler": butler, "pope": pope}
     return counts
 
 

@@ -1,0 +1,2485 @@
+{
+  "_source": "AI-drafted per book (2026-07-21 fan-out), adversarially verified by a second model; 19 boundary corrections after verification; 2 boundaries senior-adjudicated. John's editorial layer remains scene-boundary-overrides.json.",
+  "_semantics": "One entry per scene start (scenes staging truth) except each book's first scene (auto-anchored at offset 0 by stage1_pope). n = the scene's first Greek vulgate line; anchor = verbatim text from the emitted Pope book text, must occur exactly once in its book and begin at a verse-line start. Scene-boundary edits in apparatus staging will fail stage1 loudly until this dataset is updated to match.",
+  "work": "odyssey",
+  "anchors": [
+    {
+      "book": 1,
+      "n": 11,
+      "anchor": "Now at their native realms the Greeks arrived;",
+      "status": "verified",
+      "note": "New paragraph after the proem's close, opening the narrative proper with the Greeks' homecoming and Ulysses' detention by Calypso."
+    },
+    {
+      "book": 1,
+      "n": 22,
+      "anchor": "But now the god, remote, a heavenly guest,",
+      "status": "verified",
+      "note": "Marks the pivot from the Greeks'-homecoming narration to Poseidon's absence in Ethiopia and the ensuing Olympian council, matching Murray's 'save Poseidon... had gone among the far-off Ethiopians.'"
+    },
+    {
+      "book": 1,
+      "n": 44,
+      "anchor": "Here paused the god; and pensive thus replies",
+      "status": "verified",
+      "note": "Pope compresses Zeus's whole Aegisthus speech into one block (43-56); this is the transition to Minerva's plea for Odysseus that Murray's line 44 (mid-speech) leads into."
+    },
+    {
+      "book": 1,
+      "n": 80,
+      "anchor": "“Father and king adored!” Minerva cried,",
+      "status": "verified",
+      "note": "Opens Minerva's second speech (after Zeus's assent), which proposes sending Hermes to Ogygia -- matches Murray's repeated 'Father of us all... let us send forth Hermes.'"
+    },
+    {
+      "book": 1,
+      "n": 103,
+      "anchor": "From high Olympus prone her flight she bends,",
+      "status": "verified",
+      "note": "Begins Athena's actual descent to Ithaca (after the prior scene's arming/proposal), matching Murray's 'Then she went darting down from the heights of Olympus.'"
+    },
+    {
+      "book": 1,
+      "n": 125,
+      "anchor": "Thus affable and mild, the prince precedes,",
+      "status": "verified",
+      "note": "Follows directly on Telemachus's welcoming words and begins his leading the disguised goddess indoors, matching Murray's 'So saying, he led the way, and Pallas Athena followed.'"
+    },
+    {
+      "book": 1,
+      "n": 156,
+      "anchor": "Meanwhile, in whispers to his heavenly guest",
+      "status": "verified",
+      "note": "Opens Telemachus's private aside to his guest, matching Murray's 'Telemachus spoke to flashing-eyed Athena, holding his head close, that the others might not hear.'"
+    },
+    {
+      "book": 1,
+      "n": 178,
+      "anchor": "“My birth I boast (the blue-eyed virgin cries)",
+      "status": "verified",
+      "note": "Opens Mentes's reply giving her lineage and affirming Odysseus's return, matching Murray's 'I declare that I am Mentes, the son of wise Anchialus.'"
+    },
+    {
+      "book": 1,
+      "n": 213,
+      "anchor": "“To prove a genuine birth (the prince replies)",
+      "status": "verified",
+      "note": "Opens Telemachus's answer questioning his own parentage, matching Murray's 'My mother says that I am his child; but I know not.'"
+    },
+    {
+      "book": 1,
+      "n": 252,
+      "anchor": "With tender pity touch’d, the goddess cried:",
+      "status": "verified",
+      "note": "Opens the goddess's long exhortation (which later specifies the assembly and the voyage to Pylos and Sparta), matching Murray's Athena replying in anger/pity to Telemachus's lament."
+    },
+    {
+      "book": 1,
+      "n": 306,
+      "anchor": "“The counsel of my friend (the youth rejoin’d)",
+      "status": "verified",
+      "note": "Opens Telemachus's grateful reply that leads into his offer of a parting gift, matching Murray's 'Stranger, in truth thou speakest these things with kindly thought... bearing a gift.'"
+    },
+    {
+      "book": 1,
+      "n": 321,
+      "anchor": "Then first he recognized the ethereal guest;",
+      "status": "verified",
+      "note": "Follows immediately on Athena's bird-departure and opens Telemachus's realization and rejoining of the suitors to hear Phemius's song, matching Murray's 'in his heart she put strength and courage... he went among the wooers.'"
+    },
+    {
+      "book": 1,
+      "n": 365,
+      "anchor": "Meantime, rekindled at the royal charms,",
+      "status": "verified",
+      "note": "Opens the suitors' uproar of desire for Penelope that Telemachus interrupts to assert himself, matching Murray's 'the wooers broke into uproar... wise Telemachus was the first to speak.'"
+    },
+    {
+      "book": 1,
+      "n": 421,
+      "anchor": "Meantime the lyre rejoins the sprightly lay;",
+      "status": "verified",
+      "note": "Follows Telemachus's evasive answer to Eurymachus and opens the closing dance-and-feast-until-evening passage, matching Murray's 'the wooers turned to the dance and to gladsome song... waited till evening.'"
+    },
+    {
+      "book": 2,
+      "n": 15,
+      "anchor": "’Twas silence all. At last AEgyptius spoke;",
+      "status": "verified",
+      "note": "Opens Aegyptius's speech to the assembled peers, matching Murray's 'the lord Aegyptius was the first to speak.'"
+    },
+    {
+      "book": 2,
+      "n": 35,
+      "anchor": "He spoke. Telemachus with transport glows,",
+      "status": "verified",
+      "note": "Marks Telemachus rising to take the floor after Aegyptius, matching Murray's 'the dear son of Odysseus rejoiced at the word of omen... was fain to speak.'"
+    },
+    {
+      "book": 2,
+      "n": 82,
+      "anchor": "While thus he spoke, with rage and grief he frown’d,",
+      "status": "verified",
+      "note": "Narrates Telemachus dashing down his staff in tears, immediately preceding Antinous's answer, matching Murray's 'Thus he spoke in wrath, and dashed the staff down upon the ground, bursting into tears.'"
+    },
+    {
+      "book": 2,
+      "n": 129,
+      "anchor": "While yet he speaks, Telemachus replies:",
+      "status": "verified",
+      "note": "Opens Telemachus's answer to Antinous's shroud-story speech, matching Murray's 'wise Telemachus answered him.'"
+    },
+    {
+      "book": 2,
+      "n": 146,
+      "anchor": "With that, two eagles from a mountain’s height",
+      "status": "verified",
+      "note": "Opens the eagle-omen episode directly, matching Murray's 'Zeus... sent forth two eagles, flying from on high.'"
+    },
+    {
+      "book": 2,
+      "n": 177,
+      "anchor": "To whom Eurymachus—“Fly, dotard fly,",
+      "status": "verified",
+      "note": "Opens Eurymachus's dismissive reply to Halitherses's prophecy, matching Murray's 'Then Eurymachus, son of Polybus, answered him.'"
+    },
+    {
+      "book": 2,
+      "n": 208,
+      "anchor": "To whom the youth: “Since then in vain I tell",
+      "status": "verified",
+      "note": "Opens Telemachus's reply to Eurymachus, which goes on to request a ship for Pylos and Sparta, matching Murray's 'give me a swift ship.'"
+    },
+    {
+      "book": 2,
+      "n": 224,
+      "anchor": "He ceased; and while abash’d the peers attend,",
+      "status": "verified",
+      "note": "Introduces Mentor rising to speak after Telemachus's request, matching Murray's 'among them rose Mentor.'"
+    },
+    {
+      "book": 2,
+      "n": 257,
+      "anchor": "Then, with a rushing sound the assembly bend",
+      "status": "verified",
+      "note": "Narrates the assembly breaking up and Telemachus going apart to the shore, matching Murray's 'he hastily broke up the assembly... Telemachus went apart to the shore of the sea.'"
+    },
+    {
+      "book": 2,
+      "n": 297,
+      "anchor": "She spoke: to his high dome the prince returns,",
+      "status": "verified",
+      "note": "Follows Mentor/Athena's promise of a ship and narrates Telemachus's return home to the mocking Antinous, matching Murray's 'nor did Telemachus tarry long... but went his way to the house.'"
+    },
+    {
+      "book": 2,
+      "n": 322,
+      "anchor": "He spoke and frown’d, nor longer deign’d to stay,",
+      "status": "verified",
+      "note": "Follows Telemachus's retort to Antinous and opens the suitors' private mockery, matching Murray's 'he snatched his hand from the hand of Antinous... they mocked and jeered at him.'"
+    },
+    {
+      "book": 2,
+      "n": 337,
+      "anchor": "Meantime the lofty rooms the prince surveys,",
+      "status": "verified",
+      "note": "Opens the storeroom scene directly, matching Murray's 'Telemachus went down to the high-roofed treasure-chamber of his father.'"
+    },
+    {
+      "book": 2,
+      "n": 371,
+      "anchor": "“Far hence (replied the prince) thy fears be driven:",
+      "status": "verified",
+      "note": "Opens Telemachus's reply reassuring Eurycleia and asking her oath of silence, matching Murray's 'wise Telemachus answered her... swear to tell naught of this to my dear mother.'"
+    },
+    {
+      "book": 3,
+      "n": 14,
+      "anchor": "Telemachus already press’d the shore;",
+      "status": "verified",
+      "note": "Narrates Telemachus stepping ashore with Mentor/Athena leading, immediately preceding her admonishment, matching Murray's 'Forth too from the ship stepped Telemachus, and Athena led the way.'"
+    },
+    {
+      "book": 3,
+      "n": 25,
+      "anchor": "To whom the martial goddess thus rejoin’d:",
+      "status": "verified",
+      "note": "Opens Athena's reassuring second reply to Telemachus's admission of shyness, which then leads them onward to the Pylian gathering, matching Murray's 'the goddess, flashing-eyed Athena, answered him.'"
+    },
+    {
+      "book": 3,
+      "n": 41,
+      "anchor": "Then first approaching to the elder guest,",
+      "status": "verified",
+      "note": "Opens Pisistratus's address to the disguised Athena asking her to pray first, matching Murray's 'he spoke to Pallas Athena... Pray now, stranger, to the lord Poseidon.'"
+    },
+    {
+      "book": 3,
+      "n": 66,
+      "anchor": "The banquet done, the narrative old man,",
+      "status": "verified",
+      "note": "Opens Nestor's turn to speak after the feast, matching Murray's 'the horseman, Nestor of Gerenia, spoke first among them.'"
+    },
+    {
+      "book": 3,
+      "n": 102,
+      "anchor": "To him experienced Nestor thus rejoin’d:",
+      "status": "verified",
+      "note": "Opens Nestor's reply to Telemachus's question about his father, matching Murray's 'the horseman, Nestor of Gerenia, answered him.'"
+    },
+    {
+      "book": 3,
+      "n": 135,
+      "anchor": "Then Discord, sent by Pallas from above,",
+      "status": "verified",
+      "note": "Marks the pivot to Athena's strife between the sons of Atreus, matching Murray's 'through the fell wrath of the flashing-eyed goddess... for she caused strife between the two sons of Atreus.'"
+    },
+    {
+      "book": 3,
+      "n": 184,
+      "anchor": "The fourth day shone, when all their labours o’er,",
+      "status": "verified",
+      "note": "Opens the account of Nestor's own safe, separate voyage home to Pylos, matching Murray's 'It was the fourth day when in Argos the company of Diomedes... stayed their shapely ships; but I held on toward Pylos.'"
+    },
+    {
+      "book": 3,
+      "n": 210,
+      "anchor": "Thus he; and Nestor took the word: “My son,",
+      "status": "verified",
+      "note": "Opens Nestor's question about the suitors afflicting Telemachus's house, matching Murray's 'the horseman, Nestor of Gerenia, answered him... many wooers for the hand of thy mother devise evils.'"
+    },
+    {
+      "book": 3,
+      "n": 239,
+      "anchor": "Thus check’d, replied Ulysses’ prudent heir:",
+      "status": "verified",
+      "note": "Opens Telemachus's reply that pivots the conversation to ask Nestor directly how Agamemnon died, matching Murray's 'wise Telemachus answered her... Mentor, no longer let us tell of these things.'"
+    },
+    {
+      "book": 3,
+      "n": 276,
+      "anchor": "“Meantime from flaming Troy we cut the way",
+      "status": "verified",
+      "note": "Marks the pivot from Nestor's account of Aegisthus's seduction/murder to the separate account of Menelaus's storm-driven voyage, matching Murray's 'Now we were sailing together on our way from Troy, the son of Atreus and I.'"
+    },
+    {
+      "book": 3,
+      "n": 329,
+      "anchor": "Thus while he speaks the ruddy sun descends,",
+      "status": "verified",
+      "note": "Marks the sunset that closes Nestor's long narration and introduces Athena's proposal, matching Murray's 'the sun set, and darkness came on. Then among them spoke the goddess, flashing-eyed Athena.'"
+    },
+    {
+      "book": 3,
+      "n": 356,
+      "anchor": "“Well hast thou spoke (the blue-eyed maid replies),",
+      "status": "verified",
+      "note": "Opens Athena's answer to Nestor's insistence on hosting them, in which she defers Telemachus's lodging to Nestor, matching Murray's 'the goddess, flashing-eyed Athena, answered him: Well indeed hast thou spoken in this, old friend.'"
+    },
+    {
+      "book": 3,
+      "n": 374,
+      "anchor": "Then, turning with the word, Minerva flies,",
+      "status": "verified",
+      "note": "Narrates Athena's departure as a sea-eagle immediately before Nestor's amazed prayer, matching Murray's 'she departed in the likeness of a sea-eagle; and amazement fell upon all at the sight.'"
+    },
+    {
+      "book": 3,
+      "n": 402,
+      "anchor": "When now Aurora, daughter of the dawn,",
+      "status": "verified",
+      "note": "Opens the dawn formula introducing Nestor's rising and the day's preparations, matching Murray's 'Soon as early Dawn appeared, the rosy-fingered, up from his bed rose the horseman, Nestor of Gerenia.'"
+    },
+    {
+      "book": 3,
+      "n": 420,
+      "anchor": "To these the senior thus declared his will:",
+      "status": "verified",
+      "note": "Opens Nestor's instructions for the sacrifice to Athena, matching Murray's 'Come now, let one go to the plain for a heifer... let one bid the goldsmith Laerces come hither.'"
+    },
+    {
+      "book": 3,
+      "n": 463,
+      "anchor": "While these officious tend the rites divine,",
+      "status": "verified",
+      "note": "Opens the couplet introducing Polycaste's bathing of Telemachus, matching Murray's 'the fair Polycaste, the youngest daughter of Nestor... bathed Telemachus.'"
+    },
+    {
+      "book": 3,
+      "n": 487,
+      "anchor": "The glittering seat Telemachus ascends;",
+      "status": "verified",
+      "note": "Opens the departure-by-chariot passage, matching Murray's 'to the plain, and left the steep citadel of Pylos. So all day long they shook the yoke.'"
+    },
+    {
+      "book": 4,
+      "n": 31,
+      "anchor": "“Insensate! (with a sigh the king replies,)",
+      "status": "verified",
+      "note": "Opens Menelaus's rebuke of Eteoneus and order to welcome the strangers, matching Murray's 'stirred to sore displeasure, fair-haired Menelaus spoke to him.'"
+    },
+    {
+      "book": 4,
+      "n": 68,
+      "anchor": "Sufficed, soft whispering thus to Nestor’s son,",
+      "status": "verified",
+      "note": "Opens Telemachus's private aside to Pisistratus marveling at the palace, matching Murray's 'Telemachus spoke to the son of Nestor, holding his head close to him, that the others might not hear.'"
+    },
+    {
+      "book": 4,
+      "n": 120,
+      "anchor": "In this suspense bright Helen graced the room;",
+      "status": "verified",
+      "note": "Opens Helen's entrance, matching Murray's 'forth then from her fragrant high-roofed chamber came Helen, like Artemis of the golden arrows.'"
+    },
+    {
+      "book": 4,
+      "n": 155,
+      "anchor": "“See there confess’d (Pisistratus replies)",
+      "status": "verified",
+      "note": "Opens Pisistratus's confirmation of Telemachus's identity, matching Murray's 'Then Peisistratus, son of Nestor, answered him.'"
+    },
+    {
+      "book": 4,
+      "n": 183,
+      "anchor": "He ceased; a gush of grief began to rise:",
+      "status": "verified",
+      "note": "Opens the shared weeping that follows Menelaus's lament, matching Murray's 'in them all aroused the desire of lament. Argive Helen wept... Telemachus wept, and Menelaus.'"
+    },
+    {
+      "book": 4,
+      "n": 219,
+      "anchor": "He said, Asphalion swift the laver brings;",
+      "status": "verified",
+      "note": "Opens the return to the feast and Helen's drug in the wine, matching Murray's 'Asphalion poured water over their hands... Then Helen, daughter of Zeus, took other counsel.'"
+    },
+    {
+      "book": 4,
+      "n": 265,
+      "anchor": "“Right well (replied the king) your speech displays",
+      "status": "verified",
+      "note": "Opens Menelaus's reply to Helen's story, which pivots into his own Wooden Horse recollection, matching Murray's 'fair-haired Menelaus answered her and said.'"
+    },
+    {
+      "book": 4,
+      "n": 306,
+      "anchor": "Soon as the morn, in orient purple dress’d,",
+      "status": "verified",
+      "note": "Opens the dawn formula that leads directly into Menelaus rising and questioning Telemachus, matching Murray's 'Soon as early Dawn appeared, the rosy-fingered, up from his bed arose Menelaus.'"
+    },
+    {
+      "book": 4,
+      "n": 332,
+      "anchor": "“O highly-favour’d delegate of Jove!",
+      "status": "verified",
+      "note": "Opens Telemachus's reply to Menelaus's question, explaining the suitors' ravaging and requesting news of Odysseus, matching Murray's request that closes this speech before Menelaus's angry reply."
+    },
+    {
+      "book": 4,
+      "n": 351,
+      "anchor": "“Long on the Egyptian coast by calms confined,",
+      "status": "verified",
+      "note": "Opens Menelaus's Egypt narrative proper, matching Murray's 'In Egypt, eager though I was to journey hither, the gods still held me back.'"
+    },
+    {
+      "book": 4,
+      "n": 402,
+      "anchor": "She ceased, and bounding from the shelfy shore,",
+      "status": "verified",
+      "note": "Marks the end of Eidothea's spoken instructions and the resumption of Menelaus's own narration of carrying out the ambush, matching the shift from counsel to execution."
+    },
+    {
+      "book": 4,
+      "n": 464,
+      "anchor": "Vain efforts with superior power compress’d,",
+      "status": "verified",
+      "note": "Opens the moment Proteus, spent from shape-shifting, questions Menelaus, matching Murray's 'when at last that old man, skilled in wizard arts, grew weary, then he questioned me.'"
+    },
+    {
+      "book": 4,
+      "n": 512,
+      "anchor": "“By Juno’s guardian aid, the watery vast,",
+      "status": "verified",
+      "note": "Opens the account of Menelaus's brother's fate, leading into Agamemnon's murder, matching Murray's 'thy brother escaped, indeed, the fates... for queenly Hera saved him.'"
+    },
+    {
+      "book": 4,
+      "n": 540,
+      "anchor": "“He said: chill horrors shook my shivering soul,",
+      "status": "verified",
+      "note": "Opens Menelaus's grief-stricken reaction to hearing of Agamemnon's murder, followed by Proteus's comfort and the eventual reveal of Odysseus's fate, matching Murray's 'any longer desire to live... when I had had my fill of weeping and writhing, then the unerring old man of the sea said to me.'"
+    },
+    {
+      "book": 4,
+      "n": 571,
+      "anchor": "“He ceased, and plunging in the vast profound,",
+      "status": "verified",
+      "note": "Opens the close of Proteus's revelations and Menelaus's return to his ships, matching Murray's 'So saying he plunged beneath the surging sea, but I went to my ships with my god-like comrades.'"
+    },
+    {
+      "book": 4,
+      "n": 625,
+      "anchor": "Meanwhile, in Ithaca, the suitor powers",
+      "status": "verified",
+      "note": "Marks the scene shift back to Ithaca and the suitors at play, matching Murray's 'the wooers in front of the palace of Odysseus were making merry, throwing the discus and the javelin.'"
+    },
+    {
+      "book": 4,
+      "n": 674,
+      "anchor": "With vast applause the sentence all approve;",
+      "status": "verified",
+      "note": "Follows Antinous's ambush proposal and opens the move toward Medon overhearing and warning Penelope, matching Murray's 'they all praised his words, and bade him act... Now Penelope was no long time without knowledge.'"
+    },
+    {
+      "book": 4,
+      "n": 721,
+      "anchor": "The sage retired: unable to control",
+      "status": "verified",
+      "note": "Marks Penelope's renewed, uncontrolled grief after Medon's departure, leading into her lament to the household and Eurycleia's confession, matching Murray's household-wide lament that opens this scene."
+    },
+    {
+      "book": 4,
+      "n": 768,
+      "anchor": "She ceased; shrill ecstasies of joy declare",
+      "status": "verified",
+      "note": "Opens the goddess's favorable omen after Penelope's prayer, followed immediately by the suitors' uproar, matching Murray's 'she raised the sacred cry, and the goddess heard her prayer. But the wooers broke into uproar.'"
+    },
+    {
+      "book": 5,
+      "n": 43,
+      "anchor": "He spoke. The god who mounts the winged winds",
+      "status": "verified",
+      "note": "Opens Hermes's departure from Olympus after Zeus's instructions, matching Murray's 'the messenger, Argeiphontes, failed not to hearken.'"
+    },
+    {
+      "book": 5,
+      "n": 78,
+      "anchor": "Him, entering in the cave, Calypso knew;",
+      "status": "verified",
+      "note": "Opens Calypso's recognition of Hermes as he enters the cave, matching Murray's 'nor did Calypso, the beautiful goddess, fail to know him.'"
+    },
+    {
+      "book": 5,
+      "n": 148,
+      "anchor": "Thus having said, he cut the cleaving sky,",
+      "status": "verified",
+      "note": "Opens Hermes's departure and Calypso's compliant journey to find Odysseus, matching Murray's 'the strong Argeiphontes departed, and the queenly nymph went to the great-hearted Odysseus.'"
+    },
+    {
+      "book": 5,
+      "n": 192,
+      "anchor": "Thus having said, the goddess marched before:",
+      "status": "verified",
+      "note": "Opens the pair's walk back to the cave after Calypso's oath, matching Murray's 'the beautiful goddess led the way quickly, and he followed in the footsteps of the goddess.'"
+    },
+    {
+      "book": 5,
+      "n": 228,
+      "anchor": "Thus while he spoke, the beamy sun descends,",
+      "status": "verified",
+      "note": "Marks the sunset/dawn transition into the raft-building sequence, matching Murray's 'the sun set and darkness came on... As soon as early Dawn appeared, the rosy-fingered, straightway Odysseus put on a cloak and a tunic.'"
+    },
+    {
+      "book": 5,
+      "n": 263,
+      "anchor": "Four days were pass’d, and now the work complete,",
+      "status": "verified",
+      "note": "Opens the fourth/fifth-day formula that leads to Calypso sending him off, matching Murray's 'Now the fourth day came and all his work was done. And on the fifth the beautiful Calypso sent him on his way.'"
+    },
+    {
+      "book": 5,
+      "n": 282,
+      "anchor": "But him, thus voyaging the deeps below,",
+      "status": "verified",
+      "note": "Opens Poseidon's sighting of Odysseus, matching Murray's 'the glorious Earth-shaker, as he came back from the Ethiopians, beheld him from afar.'"
+    },
+    {
+      "book": 5,
+      "n": 297,
+      "anchor": "He spoke, and high the forky trident hurl’d,",
+      "status": "verified",
+      "note": "Marks the transition from Poseidon's internal decision to actually raising the storm winds, matching Murray's converging winds 'Together the East Wind and the South Wind dashed... the fierce-blowing West Wind and the North Wind.'"
+    },
+    {
+      "book": 5,
+      "n": 333,
+      "anchor": "The wandering chief with toils on toils oppress’d,",
+      "status": "verified",
+      "note": "Opens Ino/Leucothea's appearance to the storm-tossed Odysseus, matching Murray's 'the daughter of Cadmus, Ino of the fair ankles, saw him.'"
+    },
+    {
+      "book": 5,
+      "n": 365,
+      "anchor": "While thus his thoughts an anxious council hold,",
+      "status": "verified",
+      "note": "Opens the moment Poseidon finally destroys the raft outright, matching Murray's 'Poseidon, the earth-shaker, made to rise up a great wave, dread and grievous... and drove it upon him.'"
+    },
+    {
+      "book": 5,
+      "n": 388,
+      "anchor": "Now, scarce withdrawn the fierce earth-shaking power,",
+      "status": "verified",
+      "note": "Opens Athena's calming of the winds that lets Odysseus drift toward Phaeacia, matching Murray's 'she roused the swift North Wind, and broke the waves before him... Then for two nights and two days he was driven about.'"
+    },
+    {
+      "book": 5,
+      "n": 412,
+      "anchor": "No port receives me from the angry main,",
+      "status": "verified",
+      "note": "Redrafted after verification: murrayOpening's first clause ('nowhere doth there appear a way to come forth from the grey sea... without are sharp crags') is the start of Odysseus's despairing no-harbor/sharp-crags deliberation, not the later wave-dash; the narrator's own 'no harbor' description and the monologue's opening exclamation ('Ah me!... I have cloven a way through this gulf') both still belong to the preceding scene's span (endLine 411), so this line, where the deliberation's substance begins, is the true opening beat."
+    },
+    {
+      "book": 5,
+      "n": 436,
+      "anchor": "Beyond the beating surge his course he bore,",
+      "status": "verified",
+      "note": "Opens Odysseus's swim beyond the rocks toward calmer water, matching Murray's 'Making his way forth from the surge... he swam outside, looking ever toward the land in hope to find shelving beaches and harbors.'"
+    },
+    {
+      "book": 5,
+      "n": 465,
+      "anchor": "Now parting from the stream, Ulysses found",
+      "status": "verified",
+      "note": "Opens Odysseus rising from the riverbank and moving on to seek shelter, matching Murray's transition into his 'Ah, woe is me!' deliberation about where to spend the night, which leads directly to the two-olive thicket."
+    },
+    {
+      "book": 6,
+      "n": 15,
+      "anchor": "To his high palace through the fields of air\nThe goddess shot; Ulysses was her care.",
+      "status": "verified",
+      "note": "New paragraph after the Alcinous-genealogy close ('legal sway.'); Pope's 'her care' pivots straight to Athena entering the palace, matching Murray's transition to the chamber."
+    },
+    {
+      "book": 6,
+      "n": 41,
+      "anchor": "Now from her rosy car Aurora shed",
+      "status": "verified",
+      "note": "Sentence-opening dawn couplet immediately following Athena's return to Olympus, matching Murray's dawn transition before Nausicaa wakes and petitions her father."
+    },
+    {
+      "book": 6,
+      "n": 71,
+      "anchor": "Swift at the royal nod the attending train",
+      "status": "verified",
+      "note": "Follows Alcinous's granting speech; this couplet begins the servants readying the mule-car, matching Murray's 'with this he called to the slaves... they made ready the wagon.'"
+    },
+    {
+      "book": 6,
+      "n": 85,
+      "anchor": "They seek the cisterns where Phæacian dames",
+      "status": "verified",
+      "note": "Sentence start right after the drive; matches Murray's 'Now when they came to the beautiful streams of the river, where were the washing tanks.'"
+    },
+    {
+      "book": 6,
+      "n": 110,
+      "anchor": "Meantime (the care and favourite of the skies",
+      "status": "verified",
+      "note": "New paragraph pivoting back to sleeping Odysseus and Pallas's plan to rouse him, matching Murray's 'the goddess...took other counsel, that Odysseus might awake.'"
+    },
+    {
+      "book": 6,
+      "n": 127,
+      "anchor": "Then, where the grove with leaves umbrageous bends,",
+      "status": "verified",
+      "note": "Sentence start immediately after Odysseus's lament ends with a question mark; matches Murray's 'he broke from the thick wood a leafy branch.'"
+    },
+    {
+      "book": 6,
+      "n": 148,
+      "anchor": "But fearful to offend, by wisdom sway’d,",
+      "status": "verified",
+      "note": "Sentence start capping Odysseus's deliberation, matching Murray's 'it seemed to him better to stand apart and beseech her with gentle words... so straightway he spoke.'"
+    },
+    {
+      "book": 6,
+      "n": 187,
+      "anchor": "To whom the nymph: “O stranger, cease thy care;",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Odysseus's supplication ends; matches Murray's 'Then white-armed Nausicaa answered him: Stranger, since thou seemest...'"
+    },
+    {
+      "book": 6,
+      "n": 217,
+      "anchor": "To them the king: “No longer I detain",
+      "status": "verified",
+      "note": "Sentence start where Odysseus asks the maids to withdraw so he can bathe, matching Murray's 'Then among the maidens spoke goodly Odysseus: Maidens, stand yonder apart.'"
+    },
+    {
+      "book": 6,
+      "n": 236,
+      "anchor": "The wondering nymph his glorious port survey’d,",
+      "status": "verified",
+      "note": "Sentence start after Odysseus reclines by the shore, matching Murray's 'the damsel marvelled at him, and spoke to her fair-tressed handmaids.'"
+    },
+    {
+      "book": 6,
+      "n": 254,
+      "anchor": "Now on return her care Nausicaa bends,",
+      "status": "verified",
+      "note": "Sentence start after Odysseus eats his fill; matches Murray's 'the white-armed Nausicaa took other counsel... mounted the car herself... hailed Odysseus.'"
+    },
+    {
+      "book": 6,
+      "n": 291,
+      "anchor": "But would’st thou soon review thy native plain?",
+      "status": "verified",
+      "note": "Pope renders Nausicaa's whole speech as one unbroken quotation, so this scene opens mid-speech; this line is the nearest topical pivot to the escort-home/grove/Arete instructions (matching Murray's 'thou mayest win from my father an escort and a return to thy land'), though Pope punctuates the preceding line with a comma rather than a period."
+    },
+    {
+      "book": 6,
+      "n": 316,
+      "anchor": "She added not, but waving, as she wheel’d,",
+      "status": "verified",
+      "note": "Sentence start immediately after Nausicaa's speech closes; matches Murray's 'So saying, she smote the mules with the shining whip.'"
+    },
+    {
+      "book": 7,
+      "n": 14,
+      "anchor": "Now from the sacred thicket where he lay,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after the Eurymedusa digression closes; matches Murray's 'Odysseus roused himself to go to the city, and Athena...cast [a mist about him].'"
+    },
+    {
+      "book": 7,
+      "n": 20,
+      "anchor": "When near the famed Phæacian walls he drew,",
+      "status": "verified",
+      "note": "Sentence start (previous line ends 'loud.') containing the actual meeting ('His step a virgin met, and stood before'), matching Murray's disguised maiden standing before him."
+    },
+    {
+      "book": 7,
+      "n": 43,
+      "anchor": "Thus having spoke, the unknown celestial leads:",
+      "status": "verified",
+      "note": "Sentence/paragraph start after the girl's warning speech closes; matches Murray's 'the Phaeacians...took no heed of him, for...Athena...shed about him a wondrous mist,' immediately followed by his wonder at the city and her genealogy speech and departure to Athens, all within this scene's line range."
+    },
+    {
+      "book": 7,
+      "n": 85,
+      "anchor": "Meanwhile Ulysses at the palace waits,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Athena's departure to Athens closes the prior scene; matches Murray's arrival 'over the high-roofed house of great-hearted Alcinous' and the ensuing bronze-wall description."
+    },
+    {
+      "book": 7,
+      "n": 133,
+      "anchor": "Such were the glories which the gods ordain’d,",
+      "status": "verified",
+      "note": "Sentence start closing the palace-description catalogue, echoing Murray's 'Such were the glorious gifts of the gods in the palace of Alcinous,' immediately followed by his entering the hall."
+    },
+    {
+      "book": 7,
+      "n": 146,
+      "anchor": "Then from around him dropp’d the veil of night;",
+      "status": "verified",
+      "note": "Sentence start where the concealing mist drops and he is seen, matching Murray's transition into his prayer to Arete."
+    },
+    {
+      "book": 7,
+      "n": 153,
+      "anchor": "Then to the genial hearth he bow’d his face,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Odysseus's supplication speech closes; matches Murray's 'he sat down on the hearth in the ashes by the fire...Echeneus' speaking up."
+    },
+    {
+      "book": 7,
+      "n": 184,
+      "anchor": "Thus feasting high, Alcinous gave the sign,",
+      "status": "verified",
+      "note": "Sentence start (previous line ends 'repast!') introducing the libation command, matching Murray's fragment on pouring libations to Zeus before Alcinous addresses the assembly."
+    },
+    {
+      "book": 7,
+      "n": 207,
+      "anchor": "“Let no such thought (with modest grace rejoin’d",
+      "status": "verified",
+      "note": "Sentence/paragraph start immediately after Alcinous's speech on possible divine guests ends; matches Murray's 'Then Odysseus of many wiles answered him...for I am not like the immortals.'"
+    },
+    {
+      "book": 7,
+      "n": 226,
+      "anchor": "The assembled peers with general praise approved",
+      "status": "verified",
+      "note": "Sentence/paragraph start after Odysseus's plea to eat and depart at dawn ends; matches Murray's 'they all praised his words...went each man to his home...Odysseus was left behind...beside him sat Arete and Alcinous.'"
+    },
+    {
+      "book": 7,
+      "n": 240,
+      "anchor": "“Hard is the task, O princess! you impose",
+      "status": "verified",
+      "note": "Direct-speech opening right after Arete's question about his robe and origin closes; matches Murray's 'Then Odysseus of many wiles answered her...Hard were it, O queen, to tell to the end the tale of my woes.'"
+    },
+    {
+      "book": 7,
+      "n": 298,
+      "anchor": "To this the king: “Our daughter but express’d",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Odysseus finishes his narrative; matches Murray's 'Alcinous answered him...verily my daughter was not minded aright in this.'"
+    },
+    {
+      "book": 7,
+      "n": 329,
+      "anchor": "Thus he. No word the experienced man replies,",
+      "status": "verified",
+      "note": "Sentence/paragraph start after Alcinous's boast about his ships closes; matches Murray's 'the much-enduring goodly Odysseus was glad; and he spoke in prayer.'"
+    },
+    {
+      "book": 8,
+      "n": 16,
+      "anchor": "She spoke, and sudden with tumultuous sounds",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after the herald's summons ends; matches Murray's 'she roused the spirit and heart of each man...the place of assembly...were filled.'"
+    },
+    {
+      "book": 8,
+      "n": 46,
+      "anchor": "Thus spoke the prince; the attending peers obey;",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Alcinous's proposal speech ends; matches Murray's 'he led the way, and the sceptred kings followed him, while a herald went for the divine minstrel.'"
+    },
+    {
+      "book": 8,
+      "n": 71,
+      "anchor": "Then, fired by all the Muse, aloud he sings",
+      "status": "verified",
+      "note": "Sentence/paragraph start after the feast is served; matches Murray's 'the Muse moved the minstrel to sing...even the quarrel of Odysseus and Achilles.'"
+    },
+    {
+      "book": 8,
+      "n": 93,
+      "anchor": "Transported with the song, the listening train",
+      "status": "verified",
+      "note": "Sentence/paragraph start describing renewed applause and Odysseus again veiling his tears; matches Murray's 'Alcinous alone marked him and took heed...he sat by him, and heard him groaning heavily.'"
+    },
+    {
+      "book": 8,
+      "n": 104,
+      "anchor": "Thus spoke the king; the attending peers obey;",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Alcinous's games proposal closes; matches Murray's 'he led the way, and they followed him' as they proceed to the games."
+    },
+    {
+      "book": 8,
+      "n": 153,
+      "anchor": "To whom with sighs Ulysses gave reply:",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Laodamas/Euryalus's persuasion speech ends ('stretch the swelling sails'); matches Murray's 'Then Odysseus of many wiles answered him, and said: Laodamas, why do ye mock me.' (The taunt/rebuke named in the summary follows later in this same scene.)"
+    },
+    {
+      "book": 8,
+      "n": 186,
+      "anchor": "Then gliding forward with a furious bound",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Odysseus's angry rebuke to Euryalus closes ('slander stings the brave'); matches Murray's 'He spoke, and, leaping up with his cloak about him...seized a discus.'"
+    },
+    {
+      "book": 8,
+      "n": 234,
+      "anchor": "Abash’d, the numbers hear the godlike man,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Odysseus's bow-boasting speech ends; matches Murray's 'they were all hushed in silence; but Alcinous alone answered him.'"
+    },
+    {
+      "book": 8,
+      "n": 266,
+      "anchor": "Meantime the bard, alternate to the strings,",
+      "status": "verified",
+      "note": "Sentence start right after the dancers' sandals are described; matches Murray's 'the minstrel struck the chords in prelude to his sweet lay and sang of the love of Ares and Aphrodite,' the scene's core action."
+    },
+    {
+      "book": 8,
+      "n": 370,
+      "anchor": "Then to the sports his sons the king commands,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after the Ares/Aphrodite song ends; matches Murray's 'Alcinous bade Halius and Laodamas dance alone...taken in their hands the beautiful ball.'"
+    },
+    {
+      "book": 8,
+      "n": 385,
+      "anchor": "Pleas’d with his people’s fame, the monarch hears,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Odysseus's praise of Phaeacian skill ends; matches Murray's 'Alcinous was glad; and straightway he spoke...Come then, let us give him a gift of friendship.'"
+    },
+    {
+      "book": 8,
+      "n": 433,
+      "anchor": "Instant the queen, observant of the king,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Alcinous's instruction to Arete about the bath and chest ends; matches Murray's 'Arete bade her handmaids to set a great cauldron on the fire.'"
+    },
+    {
+      "book": 8,
+      "n": 469,
+      "anchor": "Now each partakes the feast, the wine prepares,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Odysseus's farewell reply to Nausicaa ends; matches Murray's 'they were serving out portions and mixing the wine.'"
+    },
+    {
+      "book": 8,
+      "n": 521,
+      "anchor": "Thus while he sung, Ulysses’ griefs renew,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after the Trojan-horse narrative closes; matches Murray's 'the heart of Odysseus was melted and tears wet his cheeks.' The preceding Pope line ends without a period (a gap in the source text itself), so this anchor carries an expected punctuation warning despite being a clean paragraph break."
+    },
+    {
+      "book": 8,
+      "n": 546,
+      "anchor": "“But, friend, discover faithful what I crave;",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Alcinous's remark on hospitality closes ('as a brother's blood'); matches Murray's 'do not thou longer hide with crafty thought...Tell me the name by which they were wont to call thee.'"
+    },
+    {
+      "book": 9,
+      "n": 15,
+      "anchor": "“Know first the man (though now a wretch distress’d)",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Odysseus's reluctance to relive his woes; matches Murray's 'First now will I tell my name...I am Odysseus, son of Laertes.'"
+    },
+    {
+      "book": 9,
+      "n": 39,
+      "anchor": "“Hear, then, the woes which mighty Jove ordain’d",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after the Ithaca description closes; matches Murray's 'let me tell thee also of my woeful home-coming...From Ilios the wind bore me...to the Cicones, to Ismarus.'"
+    },
+    {
+      "book": 9,
+      "n": 70,
+      "anchor": "Now here, now there, the giddy ships are borne,",
+      "status": "verified",
+      "note": "Sentence start describing the storm's violence, matching Murray's 'the ships were driven headlong, and their sails were torn to shreds by the violence of the wind.'"
+    },
+    {
+      "book": 9,
+      "n": 105,
+      "anchor": "“The land of Cyclops first, a savage kind,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after the Lotus-eaters episode closes; matches Murray's 'we came to the land of the Cyclopes, an overweening and lawless folk.'"
+    },
+    {
+      "book": 9,
+      "n": 142,
+      "anchor": "“A port there is, inclosed on either side,",
+      "status": "verified",
+      "note": "New paragraph opening the harbor description that the fleet sails into; matches Murray's 'Now at the head of the harbor a spring of bright water flows forth...Thither we sailed in.'"
+    },
+    {
+      "book": 9,
+      "n": 170,
+      "anchor": "I call’d my fellows, and these words address’d",
+      "status": "verified",
+      "note": "Redrafted after verification: the prior anchor ('Now sunk the sun...') caught the PRIOR scene's night-sleep close, not this scene's opening. Pope's sentence runs continuously from sunset through dawn to the muster ('Satiate we slept: but, when the sacred dawn / Arising glitter'd o'er the dewy lawn, / I call'd my fellows...'), so no verse-line start cleanly opens on 'dawn' itself; the nearest verse-line-start that states the muster action matches Murray's opening beat directly ('I called my men together and spoke among them all') (anchor is mid-sentence, preceding line ends in a comma -- expected check5 warning)."
+    },
+    {
+      "book": 9,
+      "n": 193,
+      "anchor": "A form enormous! far unlike the race",
+      "status": "verified",
+      "note": "Sentence start describing the Cyclops's monstrous size, matching Murray's 'he was fashioned a wondrous monster, and was not like a man that lives by bread.'"
+    },
+    {
+      "book": 9,
+      "n": 234,
+      "anchor": "“Then first a fire we kindle, and prepare",
+      "status": "verified",
+      "note": "New paragraph right after Odysseus overrules his men's advice to flee; matches Murray's 'we kindled a fire and offered sacrifice, and ourselves, too, took of the cheeses and ate.' Preceding Pope line lacks closing punctuation (a gap in the source text), so this anchor carries an expected punctuation warning despite the clean paragraph break."
+    },
+    {
+      "book": 9,
+      "n": 261,
+      "anchor": "Nor what we are befits us to disclaim,",
+      "status": "verified",
+      "note": "Sentence start (previous line ends with an exclamation point) within Odysseus's speech to the Cyclops; matches Murray's 'we declare that we are the men of Agamemnon...we...have come as suppliants to thy knees.'"
+    },
+    {
+      "book": 9,
+      "n": 307,
+      "anchor": "Now did the rosy-fingered morn arise,",
+      "status": "verified",
+      "note": "Sentence start right after Odysseus notes no mortal force could move the stone; matches Murray's 'we waited for the bright Dawn. As soon as early Dawn appeared...he...milked his goodly flocks.'"
+    },
+    {
+      "book": 9,
+      "n": 345,
+      "anchor": "I then approach’d him reeking with their gore,",
+      "status": "verified",
+      "note": "Sentence start right after the giant's second meal; matches Murray's 'I drew near and spoke to the Cyclops, holding in my hands an ivy bowl of the dark wine.'"
+    },
+    {
+      "book": 9,
+      "n": 375,
+      "anchor": "Sudden I stir the embers, and inspire",
+      "status": "verified",
+      "note": "Sentence start right after the sleeping Cyclops is described; matches Murray's 'I thrust in the stake under the deep ashes until it should grow hot, and heartened all my comrades.'"
+    },
+    {
+      "book": 9,
+      "n": 413,
+      "anchor": "“Joy touch’d my secret soul and conscious heart,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after the other Cyclopes depart, unaware; matches Murray's 'my heart laughed within me that my name and cunning device had so beguiled. But the Cyclops...groped with his hands.'"
+    },
+    {
+      "book": 9,
+      "n": 461,
+      "anchor": "“The giant spoke, and through the hollow rock",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Polyphemus's lament to his ram closes; matches Murray's 'So saying, he sent the ram forth from him...I first loosed myself from under the ram and set my comrades free.'"
+    },
+    {
+      "book": 9,
+      "n": 491,
+      "anchor": "Just ’scaped impending death, when now again",
+      "status": "verified",
+      "note": "Sentence start right after the first rock throw is escaped; matches Murray's 'we were twice as far distant, then was I fain to call to the Cyclops, though...my comrades...sought to check me with gentle words.'"
+    },
+    {
+      "book": 9,
+      "n": 537,
+      "anchor": "With imprecations thus he fill’d the air,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Polyphemus's prayer to Poseidon ends; matches Murray's 'So he spoke in prayer, and the dark-haired god heard him. But the Cyclops lifted on high again a far greater stone.'"
+    },
+    {
+      "book": 10,
+      "n": 28,
+      "anchor": "“Nine prosperous days we plied the labouring oar;",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Aeolus's gift is described; matches Murray's 'For nine days we sailed, night and day alike, and now on the tenth our native land came in sight.'"
+    },
+    {
+      "book": 10,
+      "n": 56,
+      "anchor": "“Meanwhile our vessels plough the liquid plain,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Odysseus's despairing sleep-on-deck close; matches Murray's 'back to the Aeolian isle...we went ashore and drew water.'"
+    },
+    {
+      "book": 10,
+      "n": 80,
+      "anchor": "Six days and nights a doubtful course we steer,",
+      "status": "verified",
+      "note": "Nearest content-matching line to Murray's 'for six days we sailed, night and day alike, and on the seventh we came to the lofty citadel of Lamus.' The preceding Pope line ends without punctuation (a gap in the source text itself), so this anchor carries an expected punctuation warning."
+    },
+    {
+      "book": 10,
+      "n": 133,
+      "anchor": "“Now dropp’d our anchors in the Ææan bay,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after the Laestrygonian escape closes; matches Murray's 'we came to the isle of Aeaea, where dwelt fair-tressed Circe.'"
+    },
+    {
+      "book": 10,
+      "n": 144,
+      "anchor": "Some god directing to this peaceful bay",
+      "status": "verified",
+      "note": "Sentence start right after Circe's lineage is described; matches Murray's 'some god guided us. Then we disembarked, and lay there for two days and two nights.'"
+    },
+    {
+      "book": 10,
+      "n": 185,
+      "anchor": "When evening rose, and darkness cover’d o’er",
+      "status": "verified",
+      "note": "Sentence start right after the stag feast; matches Murray's 'when the sun set and darkness came on, then we lay down to rest...as soon as early Dawn appeared...I called my men together.'"
+    },
+    {
+      "book": 10,
+      "n": 210,
+      "anchor": "“The palace in a woody vale they found,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after the lot-casting sends Eurylochus's party off; matches Murray's 'they found the house of Circe, built of polished stone...round about it were mountain wolves and lions.'"
+    },
+    {
+      "book": 10,
+      "n": 244,
+      "anchor": "“Eurylochus, with pensive steps and slow.",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Circe pens the transformed men with swine-fodder; matches Murray's 'Eurylochus came back straightway to the swift, black ship, to bring tiding of his comrades and their shameful doom.'"
+    },
+    {
+      "book": 10,
+      "n": 274,
+      "anchor": "“I answer’d stern: ‘Inglorious then remain,",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Eurylochus's plea to abandon the rescue closes; matches Murray's reply 'Eurylochus, do thou stay here in this place, eating and drinking...but I will go, for strong necessity is laid upon me.'"
+    },
+    {
+      "book": 10,
+      "n": 307,
+      "anchor": "This Hermes gave, then, gliding off the glade,",
+      "status": "verified",
+      "note": "Sentence start (previous line ends 'ethereal kind.') describing Hermes's departure after showing the moly plant, matching Murray's 'Hermes then departed to high Olympus through the wooded isle, and I went my way to the house of Circe' -- the nearest clean sentence break, since Pope folds the moly description and Hermes's gift into one unbroken sentence just before it."
+    },
+    {
+      "book": 10,
+      "n": 348,
+      "anchor": "“The goddess swore: then seized my hand, and led",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Odysseus demands the oath; matches Murray's 'she straightway swore the oath...I went up to the beautiful bed of Circe...her handmaids...busied in the halls.'"
+    },
+    {
+      "book": 10,
+      "n": 376,
+      "anchor": "Circe in vain invites the feast to share;",
+      "status": "verified",
+      "note": "Sentence start right after the banquet is laid; matches Murray's 'Circe noted that I sat thus, and did not put forth my hands to the food...she came close to me, and spoke winged words.'"
+    },
+    {
+      "book": 10,
+      "n": 400,
+      "anchor": "“‘Son of Laertes! (then the queen began)",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Circe restores the swine to men; matches Murray's 'the beautiful goddess drew near me, and said: Son of Laertes, sprung from Zeus, Odysseus of many devices, go now to thy swift ship.'"
+    },
+    {
+      "book": 10,
+      "n": 446,
+      "anchor": "“Meanwhile the goddess, with indulgent cares",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after the crew resolves to follow Odysseus; matches Murray's 'Meanwhile in her halls Circe bathed the rest of my comrades with kindly care.'"
+    },
+    {
+      "book": 10,
+      "n": 457,
+      "anchor": "When hush’d their passion, thus the goddess cries:",
+      "status": "verified",
+      "note": "Sentence start right after the reunited crew's tearful embrace; matches Murray's 'the beautiful goddess drew near me, and said: No longer now do ye rouse this plenteous lamenting.'"
+    },
+    {
+      "book": 10,
+      "n": 469,
+      "anchor": "“Her kind entreaty moved the general breast;",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Circe's speech urging them to set aside grief closes; matches Murray's 'our proud hearts consented. So there day after day for a full year we abode, feasting.'"
+    },
+    {
+      "book": 10,
+      "n": 496,
+      "anchor": "“Struck at the word, my very heart was dead:",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Circe reveals the trip to Hades is required; matches Murray's 'my spirit was broken within me, and I wept as I sat on the bed...I made answer, and addressed her, saying: O Circe, who will guide us.'"
+    },
+    {
+      "book": 10,
+      "n": 541,
+      "anchor": "“So speaking, from the ruddy orient shone",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Circe's rite instructions close; matches Murray's 'she spoke, and straightway came golden-throned Dawn...I went through the halls, and roused my men.'"
+    },
+    {
+      "book": 10,
+      "n": 561,
+      "anchor": "“The rest crowd round me with an eager look;",
+      "status": "verified",
+      "note": "Sentence/paragraph start right after Elpenor's death is narrated; matches Murray's 'as my men were going on their way I spoke among them, saying: Ye think, forsooth, that ye are going to your dear native land.'"
+    },
+    {
+      "book": 11,
+      "n": 51,
+      "anchor": "“There wandering through the gloom I first survey’d,",
+      "status": "verified",
+      "note": "New paragraph after Tiresias's rousing; the couplet names Elpenor as the first shade Odysseus meets, matching Murray's 'The first to come was the spirit of my comrade Elpenor.'"
+    },
+    {
+      "book": 11,
+      "n": 84,
+      "anchor": "“There as the wondrous visions I survey’d,",
+      "status": "verified",
+      "note": "New paragraph introducing 'my royal mother's shade' (Anticleia), matching Murray's 'there came up the spirit of my dead mother, Anticleia.'"
+    },
+    {
+      "book": 11,
+      "n": 90,
+      "anchor": "“When lo! the mighty Theban I behold,",
+      "status": "verified",
+      "note": "New paragraph introducing 'the mighty Theban' (Teiresias) with his golden staff, matching Murray's 'there came up the spirit of the Theban Teiresias, bearing his golden staff.'"
+    },
+    {
+      "book": 11,
+      "n": 152,
+      "anchor": "“Still in the dark abodes of death I stood,",
+      "status": "verified",
+      "note": "New paragraph immediately after Teiresias's departure, where Anticleia 'moved, and drank the blood,' matching Murray's 'my mother came up and drank the dark blood.'"
+    },
+    {
+      "book": 11,
+      "n": 225,
+      "anchor": "“Thus while she spoke, in swarms hell’s empress brings",
+      "status": "verified",
+      "note": "New paragraph where Persephone sends forth the throng of heroines' shades, matching Murray's 'the women came, for august Persephone sent them forth.'"
+    },
+    {
+      "book": 11,
+      "n": 333,
+      "anchor": "He ceased; but left so charming on their ear",
+      "status": "verified",
+      "note": "Marks Odysseus finishing the heroines' catalog and the hall falling silent before Arete speaks, matching Murray's 'they were all hushed in silence... Then among them white-armed Arete was the first to speak.'"
+    },
+    {
+      "book": 11,
+      "n": 354,
+      "anchor": "To whom the prince: “This night with joy I stay",
+      "status": "verified",
+      "note": "Odysseus's ('the prince's') reply to Alcinous's offer to stay, matching Murray's 'Then Odysseus of many wiles answered him and said.'"
+    },
+    {
+      "book": 11,
+      "n": 385,
+      "anchor": "“Now summon’d Proserpine to hell’s black hall",
+      "status": "verified",
+      "note": "New paragraph: Persephone dismisses the women's shades and Agamemnon's company of the slain appears, matching Murray's 'holy Persephone had scattered this way and that the spirits of the women, there came up the spirit of Agamemnon.'"
+    },
+    {
+      "book": 11,
+      "n": 465,
+      "anchor": "“Thus in a tide of tears our sorrows flow,",
+      "status": "verified",
+      "note": "New paragraph transitioning to Achilles' and Patroclus' ghosts approaching, matching Murray's 'there came up the spirit of Achilles, son of Peleus, and those of Patroclus.'"
+    },
+    {
+      "book": 11,
+      "n": 541,
+      "anchor": "“Now without number ghost by ghost arose,",
+      "status": "verified",
+      "note": "New paragraph introducing the crowd of other shades, from which Ajax alone stands apart in wrath, matching Murray's 'other spirits of those dead and gone stood sorrowing... Alone of them all the spirit of Aias... stood apart.'"
+    },
+    {
+      "book": 11,
+      "n": 568,
+      "anchor": "“Touch’d at his sour retreat, through deepest night,",
+      "status": "verified",
+      "note": "New paragraph marking Odysseus's abandoned pursuit of Ajax and his turn to gaze at the visions of Minos and the other underworld figures, matching Murray's 'the heart in my breast was fain to see the spirits of those others that are dead.'"
+    },
+    {
+      "book": 11,
+      "n": 628,
+      "anchor": "“Curious to view the kings of ancient days,",
+      "status": "verified",
+      "note": "Opus adjudication: Greek line 628 (but I abode there steadfastly, hoping some hero might yet come) begins here in Pope (“Resolved I stand”) right after Heracles departs at 627 (stalked away), so both contested anchors -- the Cerberus boast (~625) and Heracles first appearance (601) -- sit inside the prior scene span (568-627); the murrayOpening and the line number outrank the stale scene summary, which mislabels the encounter."
+    },
+    {
+      "book": 11,
+      "n": 636,
+      "anchor": "But swarms of spectres rose from deepest hell,",
+      "status": "verified",
+      "note": "The countless throng of dead shrieking is the event that drives Odysseus to fear Persephone will loose the Gorgon, matching Murray's transition into 'lest... the head of the Gorgon' (anchor is mid-paragraph, not preceded by sentence-ending punctuation -- expected check5 warning)."
+    },
+    {
+      "book": 12,
+      "n": 16,
+      "anchor": "“Meantime the goddess our return survey’d",
+      "status": "verified",
+      "note": "New paragraph marking Circe's arrival, matching Murray's 'Circe was not unaware of our coming forth from the house of Hades, but speedily she arrayed herself and came.'"
+    },
+    {
+      "book": 12,
+      "n": 28,
+      "anchor": "Lo, I this night, your faithful guide, explain",
+      "status": "verified",
+      "note": "Closing couplet of Circe's public speech, matching Murray's 'I will point out the way and declare to you each thing, in order that ye may not suffer pain and woes'; Pope keeps this in the same continuous speech as the preceding scene, so the anchor is mid-speech (expected check5 warning)."
+    },
+    {
+      "book": 12,
+      "n": 59,
+      "anchor": "“‘These seas o’erpass’d, be wise! but I refrain",
+      "status": "verified",
+      "note": "New paragraph where Circe turns from the Sirens to warn of new perils ahead, matching Murray's 'But when thy comrades shall have rowed past these, thereafter I shall not fully say on which side thy course is to lie.'"
+    },
+    {
+      "book": 12,
+      "n": 73,
+      "anchor": "“‘High in the air the rock its summit shrouds",
+      "status": "verified",
+      "note": "Redrafted after verification: the prior anchor ('Scarce the famed Argo...') caught the PRIOR scene's Wandering-Rocks close, not this scene's opening. This line begins the new paragraph on Scylla's cliff immediately after the Argo couplet, matching Murray's opening for this scene: 'Now on the other path are two cliffs, one of which reaches with its sharp peak to the broad heaven... This never melts away.'"
+    },
+    {
+      "book": 12,
+      "n": 101,
+      "anchor": "“‘Close by, a rock of less enormous height",
+      "status": "verified",
+      "note": "New paragraph introducing the second, lower cliff and its fig tree, matching Murray's 'the other cliff, thou wilt note, Odysseus, is lower... a great fig tree with rich foliage.'"
+    },
+    {
+      "book": 12,
+      "n": 127,
+      "anchor": "Thence to Trinacria’s shore you bend your way,",
+      "status": "verified",
+      "note": "Introduces the isle of Thrinacia and its herds, matching Murray's 'thou wilt come to the isle Thrinacia. There in great numbers feed the kine of Helios.'"
+    },
+    {
+      "book": 12,
+      "n": 142,
+      "anchor": "She ceased: and now arose the morning ray;",
+      "status": "verified",
+      "note": "New paragraph marking dawn and the end of Circe's counsel, matching Murray's 'So she spoke, and presently came golden-throned Dawn.'"
+    },
+    {
+      "book": 12,
+      "n": 166,
+      "anchor": "“While yet I speak the winged galley flies,",
+      "status": "verified",
+      "note": "New paragraph marking the ship's swift approach to the Sirens' isle, matching Murray's 'the well-built ship speedily came to the isle of the two Sirens.'"
+    },
+    {
+      "book": 12,
+      "n": 201,
+      "anchor": "“Now all at once tremendous scenes unfold;",
+      "status": "verified",
+      "note": "New paragraph marking the sudden onset of the strait's turmoil, matching Murray's 'I presently saw smoke and a great billow, and heard a booming.'"
+    },
+    {
+      "book": 12,
+      "n": 222,
+      "anchor": "Steer by the higher rock; lest whirl’d around",
+      "status": "verified",
+      "note": "The specific instruction to hug the cliff and avoid the whirlpool matches Murray's 'the ship well away and hug the cliff, lest... the ship swerve off to the other side and thou cast us into destruction'; Pope keeps this within one continuous speech that spans the prior scene, so the anchor is mid-sentence (expected check5 warning)."
+    },
+    {
+      "book": 12,
+      "n": 260,
+      "anchor": "“Now from the rocks the rapid vessel flies,",
+      "status": "verified",
+      "note": "New paragraph marking escape from the strait and approach to Thrinacia, matching Murray's 'Now when we had escaped the rocks, and dread Charybdis and Scylla, presently then we came to the goodly island of the god.'"
+    },
+    {
+      "book": 12,
+      "n": 270,
+      "anchor": "“‘O friends! O ever exercised in care!",
+      "status": "verified",
+      "note": "Start of Odysseus's direct-speech warning to the crew, matching Murray's quoted 'Hear my words, comrades, for all your evil plight'; anchor follows a narrator's colon rather than a full stop (expected check5 warning)."
+    },
+    {
+      "book": 12,
+      "n": 304,
+      "anchor": "“Thus I: and while to shore the vessel flies,",
+      "status": "verified",
+      "note": "New paragraph marking the crew's oath and landing, matching Murray's 'So I spoke; and they straightway swore that they would not, even as I bade them... we moored our well-built ship.'"
+    },
+    {
+      "book": 12,
+      "n": 334,
+      "anchor": "Pensive and pale from grove to grove I stray’d,",
+      "status": "verified",
+      "note": "Marks Odysseus withdrawing alone to pray (before falling asleep and leaving the crew to Eurylochus), matching Murray's 'I went apart up the island that I might pray to the gods.'"
+    },
+    {
+      "book": 12,
+      "n": 374,
+      "anchor": "And thus, obtesting Heaven, I mourn’d aloud;",
+      "status": "verified",
+      "note": "Matches Murray's 'and I groaned and cried aloud to the immortal gods,' the moment Odysseus wakes to find the cattle slain; anchor is mid-stanza, not preceded by a full stop (expected check5 warning)."
+    },
+    {
+      "book": 12,
+      "n": 404,
+      "anchor": "The seventh arose, and now the sire of gods",
+      "status": "verified",
+      "note": "Marks the seventh day and the calming of the storm before departure, matching Murray's 'then the wind ceased to blow tempestuously, and we straightway went on board'; anchor is mid-stanza, not preceded by a full stop (expected check5 warning)."
+    },
+    {
+      "book": 12,
+      "n": 426,
+      "anchor": "“Now sunk the west, and now a southern breeze,",
+      "status": "verified",
+      "note": "New paragraph marking the shift from West Wind to South Wind driving him back toward Charybdis, matching Murray's 'the West Wind ceased to blow tempestuously, and swiftly the South Wind came.'"
+    },
+    {
+      "book": 12,
+      "n": 447,
+      "anchor": "Then nine long days I plow’d the calmer seas,",
+      "status": "verified",
+      "note": "Matches Murray's 'Thence for nine days was I borne, and on the tenth night the gods brought me to Ogygia.'"
+    },
+    {
+      "book": 13,
+      "n": 18,
+      "anchor": "Now did the rosy-finger’d morn arise,",
+      "status": "verified",
+      "note": "New paragraph marking dawn and the start of the loading, matching Murray's 'as soon as early Dawn appeared, the rosy-fingered, they hastened to the ship.'"
+    },
+    {
+      "book": 13,
+      "n": 50,
+      "anchor": "The monarch to Pontonus gave the sign.",
+      "status": "verified",
+      "note": "Alcinous instructs his herald to mix wine for the farewell libation, matching Murray's 'Pontonous, mix the bowl, and serve out wine to all in the hall'; anchor is mid-stanza, not preceded by a full stop (expected check5 warning)."
+    },
+    {
+      "book": 13,
+      "n": 70,
+      "anchor": "Thus he: then parting prints the sandy shore",
+      "status": "verified",
+      "note": "New paragraph marking Odysseus's descent from the hall to the shore with his escort, matching Murray's 'when they had come down to the ship and to the sea, straightway the lordly youths that were his escort took these things.'"
+    },
+    {
+      "book": 13,
+      "n": 93,
+      "anchor": "But when the morning-star with early ray",
+      "status": "verified",
+      "note": "New paragraph marking the approach of dawn and the ship's approach to Ithaca, matching Murray's 'when that brightest of stars rose which ever comes to herald the light of early Dawn, even then the seafaring ship drew near to the island.'"
+    },
+    {
+      "book": 13,
+      "n": 121,
+      "anchor": "Before the throne of mighty Jove he stood,",
+      "status": "verified",
+      "note": "Redrafted after verification: the prior anchor ('His treasures next...') caught the PRIOR scene's treasure-laying, not this scene's opening. Pope folds the treasure-laying and Poseidon's remembered grudge into one sentence ending 'for eyeless Polypheme.'; this line begins the next sentence, marking Poseidon's approach to Zeus that opens the protest, matching Murray's 'the Shaker of the Earth did not forget the threat... [and went before Zeus].'"
+    },
+    {
+      "book": 13,
+      "n": 165,
+      "anchor": "Aghast the Scherians stand in deep surprise;",
+      "status": "verified",
+      "note": "New paragraph marking the Phaeacians' astonished reaction to the petrified ship, matching Murray's 'they spoke winged words to one another, the Phaeacians of the long oars... who has now bound our swift ship on the sea.'"
+    },
+    {
+      "book": 13,
+      "n": 185,
+      "anchor": "Meanwhile Ulysses in his country lay,",
+      "status": "verified",
+      "note": "New paragraph shifting the scene to Odysseus waking on Ithaca, matching Murray's 'but Odysseus awoke out of his sleep in his native land.'"
+    },
+    {
+      "book": 13,
+      "n": 221,
+      "anchor": "Disconsolate he wanders on the coast,",
+      "status": "verified",
+      "note": "Matches Murray's 'he paced by the shore of the loud-sounding sea, uttering many a moan,' immediately before Athena's appearance; anchor is mid-stanza, not preceded by a full stop (expected check5 warning)."
+    },
+    {
+      "book": 13,
+      "n": 287,
+      "anchor": "Thus while he spoke, the blue-eyed maid began",
+      "status": "verified",
+      "note": "New paragraph marking Athena's response and transformation to her true form, matching Murray's 'So he spoke, and the goddess, flashing-eyed Athena, smiled, and stroked him with her hand, and changed herself to the form of a woman.'; preceding line ends with a comma inside the closing quote rather than a full stop (expected check5 warning)."
+    },
+    {
+      "book": 13,
+      "n": 331,
+      "anchor": "Thus he. The blue-eyed goddess thus replies;",
+      "status": "verified",
+      "note": "New paragraph marking Athena's reply to Odysseus's doubt, matching Murray's 'Ever such is the thought in thy breast, and therefore it is that I cannot leave thee in thy sorrow.'"
+    },
+    {
+      "book": 13,
+      "n": 361,
+      "anchor": "Thus then Minerva: “From that anxious breast",
+      "status": "verified",
+      "note": "New paragraph marking Athena's instruction to secure the treasure in the cave, matching Murray's 'Then the goddess, flashing-eyed Athena, answered him again: Be of good cheer... let us now forthwith set thy goods in the innermost recess of the wondrous cave.'"
+    },
+    {
+      "book": 14,
+      "n": 26,
+      "anchor": "Soon as Ulysses near the inclosure drew,",
+      "status": "verified",
+      "note": "New paragraph marking the dogs' attack, matching Murray's 'Suddenly then the baying hounds caught sight of Odysseus, and rushed upon him with loud barking.'"
+    },
+    {
+      "book": 14,
+      "n": 46,
+      "anchor": "He said, and, seconding the kind request,",
+      "status": "verified",
+      "note": "New paragraph marking Eumaeus leading his guest indoors, matching Murray's 'So saying, the goodly swineherd led him to the hut, and brought him in, and made him sit.'"
+    },
+    {
+      "book": 14,
+      "n": 72,
+      "anchor": "His vest succinct then girding round his waist,",
+      "status": "verified",
+      "note": "New paragraph marking Eumaeus's move to slaughter swine, matching Murray's 'he quickly bound up his tunic with his belt, and went to the sties.'"
+    },
+    {
+      "book": 14,
+      "n": 113,
+      "anchor": "Thus he, benevolent: his unknown guest",
+      "status": "verified",
+      "note": "Marks Odysseus eating hungrily while plotting, matching Murray's 'greedily, in silence, and was sowing the seeds of evil for the wooers,' just before Eumaeus fills his cup and Odysseus questions him."
+    },
+    {
+      "book": 14,
+      "n": 148,
+      "anchor": "Thus spoke the faithful swain, and thus rejoin’d",
+      "status": "verified",
+      "note": "New paragraph marking Odysseus's oath-bound reply to Eumaeus's declaration of loyalty, matching Murray's 'Then the much-enduring, goodly Odysseus answered him,' which leads into Eumaeus's doubtful response covering Telemachus's voyage and his request for the stranger's story."
+    },
+    {
+      "book": 14,
+      "n": 191,
+      "anchor": "Thus he: and thus (with prompt invention bold)",
+      "status": "verified",
+      "note": "New paragraph marking the start of Odysseus's fabricated tale, matching Murray's 'Then Odysseus of many wiles answered him, and said.'"
+    },
+    {
+      "book": 14,
+      "n": 235,
+      "anchor": "But when great Jove that direful war decreed,",
+      "status": "verified",
+      "note": "Matches Murray's 'when Zeus, whose voice is borne afar, devised that hateful journey which loosened the knees of many a warrior, then they bade me and glorious Idomeneus to lead the ships to Ilios.'"
+    },
+    {
+      "book": 14,
+      "n": 285,
+      "anchor": "“In Ægypt thus with peace and plenty bless’d,",
+      "status": "verified",
+      "note": "New paragraph marking the seven peaceful years in Egypt, matching Murray's 'There then I stayed seven years, and much wealth did I gather among the Egyptians.'"
+    },
+    {
+      "book": 14,
+      "n": 360,
+      "anchor": "“Unhappy guest! whose sorrows touch my mind!",
+      "status": "verified",
+      "note": "New paragraph marking Eumaeus's reply, matching Murray's 'Ah, wretched stranger, verily thou hast stirred my heart deeply in telling all the tale of thy sufferings and thy wanderings.'"
+    },
+    {
+      "book": 14,
+      "n": 409,
+      "anchor": "Thus communed these; while to their lowly dome",
+      "status": "verified",
+      "note": "New paragraph marking the herdsmen's return with the swine, matching Murray's 'Thus they spoke to one another, and the swine and the swineherds drew near.'"
+    },
+    {
+      "book": 14,
+      "n": 456,
+      "anchor": "Now came the night, and darkness cover’d o’er",
+      "status": "verified",
+      "note": "New paragraph marking nightfall and the storm, matching Murray's 'Now the night came on, foul and without a moon, and Zeus rained the whole night through.'"
+    },
+    {
+      "book": 14,
+      "n": 507,
+      "anchor": "“Well hast thou spoke (rejoin’d the attentive swain):",
+      "status": "verified",
+      "note": "New paragraph marking Eumaeus's reply promising a cloak, matching Murray's 'To him then, swineherd Eumaeus, didst thou make answer, and say: Old man, the tale thou hast told is a good one.'"
+    },
+    {
+      "book": 15,
+      "n": 43,
+      "anchor": "Thus spoke the goddess, and resumed her flight",
+      "status": "verified",
+      "note": "Marks Athena's departure back to Olympus, matching Murray's 'So saying, she departed to high Olympus. But Telemachus woke the son of Nestor.'"
+    },
+    {
+      "book": 15,
+      "n": 57,
+      "anchor": "Thus he. But when the dawn bestreak’d the east,",
+      "status": "verified",
+      "note": "New paragraph marking dawn and Menelaus rising, matching Murray's 'So he spoke, and presently came golden-throned Dawn. Up to them then came Menelaus.'"
+    },
+    {
+      "book": 15,
+      "n": 95,
+      "anchor": "Now with the dawn, from his adjoining home,",
+      "status": "verified",
+      "note": "Matches Murray's 'Up to him then came Eteoneus, son of Boethous, just risen from his bed,' immediately before Menelaus descends to the treasure-chamber with Helen."
+    },
+    {
+      "book": 15,
+      "n": 135,
+      "anchor": "And now, when through the royal dome they pass’d,",
+      "status": "verified",
+      "note": "New paragraph marking the procession into the hall for the meal, matching Murray's 'a handmaid brought water for the hands in a fair pitcher of gold... beside them drew up a polished table.'"
+    },
+    {
+      "book": 15,
+      "n": 160,
+      "anchor": "Scarce ended thus the prince, when on the right",
+      "status": "verified",
+      "note": "New paragraph marking the eagle's appearance, matching Murray's 'Even as he spoke a bird flew by on the right, an eagle, bearing in his talons a great, white goose.'"
+    },
+    {
+      "book": 15,
+      "n": 185,
+      "anchor": "Till night descending intercepts the way.",
+      "status": "verified",
+      "note": "Matches Murray's 'And the sun set, and all the ways grew dark,' immediately before they reach Diocles' house at Pherae; anchor is mid-stanza, not preceded by a full stop (expected check5 warning)."
+    },
+    {
+      "book": 15,
+      "n": 198,
+      "anchor": "“Let not Pisistratus in vain be press’d,",
+      "status": "verified",
+      "note": "Start of Telemachus's direct-speech request, matching Murray's quoted 'Son of Nestor, wilt thou now make me a promise, and fulfil it, as I bid?'; anchor follows a narrator's colon rather than a full stop (expected check5 warning)."
+    },
+    {
+      "book": 15,
+      "n": 221,
+      "anchor": "Meantime the prince with sacrifice adores",
+      "status": "verified",
+      "note": "New paragraph marking the sacrifice to Athena, matching Murray's 'he verily was busied thus, and was praying and offering sacrifice to Athena by the stern of the ship.'"
+    },
+    {
+      "book": 15,
+      "n": 261,
+      "anchor": "“O thou! that dost thy happy course prepare",
+      "status": "verified",
+      "note": "Redrafted after verification: the prior anchor ('Prepare, then...') caught Telemachus's REPLY, skipping Theoclymenus's own opening address. This line is 'the stranger thus address'd' -- Theoclymenus's plea itself, matching Murray's opening for this scene: 'tell me truly what I ask... Who art thou among men, and from whence? Where is thy city, and where thy parents?'"
+    },
+    {
+      "book": 15,
+      "n": 301,
+      "anchor": "Meantime, the king, Eumaeus, and the rest,",
+      "status": "verified",
+      "note": "New paragraph shifting the narrative to Eumaeus's hut, matching Murray's 'the two, Odysseus and the goodly swineherd, were supping in the hut, and with them supped the other men.'"
+    },
+    {
+      "book": 15,
+      "n": 346,
+      "anchor": "To him the man of woes; “O gracious Jove!",
+      "status": "verified",
+      "note": "New paragraph marking Odysseus's reply, whose close asks after Laertes and Odysseus's mother, matching Murray's 'come, tell me of the mother of godlike Odysseus, and of the father.'"
+    },
+    {
+      "book": 15,
+      "n": 401,
+      "anchor": "“Above Ortygia lies an isle of fame,",
+      "status": "verified",
+      "note": "New paragraph naming the isle of his birth, matching Murray's 'There is an isle called Syria, if haply thou hast heard thereof, above Ortygia.'"
+    },
+    {
+      "book": 15,
+      "n": 485,
+      "anchor": "To him the king: “Reciting thus thy cares,",
+      "status": "verified",
+      "note": "New paragraph marking Odysseus's reply to Eumaeus's tale, matching Murray's 'To him then Zeus-born Odysseus made answer, and said: Eumaeus, of a truth thou hast deeply stirred the heart in my breast.'"
+    },
+    {
+      "book": 15,
+      "n": 495,
+      "anchor": "While in the port of Ithaca, the band",
+      "status": "verified",
+      "note": "Matches Murray's 'the comrades of Telemachus, drawing near the shore, furled the sail, and took down the mast quickly.'"
+    },
+    {
+      "book": 15,
+      "n": 525,
+      "anchor": "Thus speaking, on the right up-soar’d in air",
+      "status": "verified",
+      "note": "New paragraph marking the hawk omen, matching Murray's 'Even as he spoke a bird flew forth upon the right, a hawk, the swift messenger of Apollo.'"
+    },
+    {
+      "book": 16,
+      "n": 15,
+      "anchor": "Transported from his seat Eumaeus sprung,",
+      "status": "verified",
+      "note": "Opens the sentence describing Eumaeus leaping up and embracing Telemachus, matching Murray's 'kissed his head and both his beautiful eyes.'"
+    },
+    {
+      "book": 16,
+      "n": 30,
+      "anchor": "The prince replied: “Eumaeus, I obey;",
+      "status": "verified",
+      "note": "Matches Murray's 'Then wise Telemachus answered him: \"So shall it be, father...\"' — Telemachus's reply beginning the visit; the scene's summary (seat, meal) covers the rest of this beat."
+    },
+    {
+      "book": 16,
+      "n": 55,
+      "anchor": "And now, the rage of thirst and hunger fled,",
+      "status": "verified",
+      "note": "Directly renders Murray's 'But when they had put from them the desire of food and drink' opening the new beat."
+    },
+    {
+      "book": 16,
+      "n": 91,
+      "anchor": "To whom, while anger in his bosom glows,",
+      "status": "verified",
+      "note": "Matches Murray's 'Then the much-enduring, goodly Odysseus answered him: \"Friend, since surely it is right for me to make answer...\"' — the disguised Odysseus's indignant reply."
+    },
+    {
+      "book": 16,
+      "n": 135,
+      "anchor": "To whom the swain: “I hear and I obey:",
+      "status": "verified",
+      "note": "Matches Murray's 'To him then, swineherd Eumaeus, didst thou make answer, and say: \"I see, I give heed...\"' — Eumaeus's reply raising the Laertes question, which Telemachus then closes down."
+    },
+    {
+      "book": 16,
+      "n": 155,
+      "anchor": "While yet he spoke, impatient of delay,",
+      "status": "verified",
+      "note": "Matches Murray's 'and bound them beneath his feet and went forth to the city' — Eumaeus's departure immediately preceding Athena's transformation of Odysseus."
+    },
+    {
+      "book": 16,
+      "n": 183,
+      "anchor": "The hero reascends: the prince o’erawed",
+      "status": "verified",
+      "note": "Opens the sentence depicting Telemachus's awestruck reaction that leads into his 'a god appears!' speech, matching Murray's 'And he spoke, and addressed him with winged words.'"
+    },
+    {
+      "book": 16,
+      "n": 221,
+      "anchor": "“What ship transported thee, O father, say;",
+      "status": "verified",
+      "note": "Matches Murray's quoted question 'In what manner of ship, dear father, have sailors now brought thee hither to Ithaca?'; the preceding narration ('But checking the full torrent...') is mid-sentence, so the anchor sits at the clean sentence-opening quotation itself."
+    },
+    {
+      "book": 16,
+      "n": 266,
+      "anchor": "“Such aids expect (he cries,) when strong in might",
+      "status": "verified",
+      "note": "Opus adjudication: Greek line 266 is Odysseus reply after Telemachus affirms the two gods (262-265) -- Not long will those two hold aloof from the mighty fray... go at daybreak -- which is Odysseus SECOND speech here (Such aids expect...); the murrayOpening for n=266 opens ...rule over all men... Then Odysseus answered: Not long of a surety will those two hold aloof, confirming line 266 is this speech, not the earlier Mark well my voice (Greek 258-261), which lies in the prior scene span (221-265)."
+    },
+    {
+      "book": 16,
+      "n": 321,
+      "anchor": "While in debate they waste the hours away,",
+      "status": "verified",
+      "note": "Matches Murray's scene-transition 'Thus they spoke to one another, but meanwhile into Ithaca put the well-built ship...' shifting from the hut to the harbor."
+    },
+    {
+      "book": 16,
+      "n": 342,
+      "anchor": "At length Eurymachus: “Our hopes are vain;",
+      "status": "verified",
+      "note": "The true transition ('the wooers were dismayed and downcast... there before the gates they sat down') falls mid-line at Pope's 'Then measured back the way. The suitor band,' (l.388); the nearest clean sentence-opening line is Eurymachus's speech, which Murray also marks as a fresh sentence ('Then among them Eurymachus... was the first to speak')."
+    },
+    {
+      "book": 16,
+      "n": 406,
+      "anchor": "Then Medon, conscious of their dire debates,",
+      "status": "verified",
+      "note": "Matches Murray's 'she had learned of the threatened death of her son' — Medon's warning to Penelope that prompts her descent and rebuke."
+    },
+    {
+      "book": 16,
+      "n": 451,
+      "anchor": "And now Eumaeus, at the evening hour,",
+      "status": "verified",
+      "note": "Directly renders Murray's 'But at evening the goodly swineherd came back to Odysseus and his son.'"
+    },
+    {
+      "book": 17,
+      "n": 27,
+      "anchor": "Thus he: nor aught Telemachus replied,",
+      "status": "verified",
+      "note": "Matches Murray's transition 'So he spoke, and Telemachus passed out through the farmstead with rapid strides' immediately following the tail of Odysseus's request to wait for the sun."
+    },
+    {
+      "book": 17,
+      "n": 45,
+      "anchor": "“Oh dearest! most revered of womankind!",
+      "status": "verified",
+      "note": "Matches Murray's 'Then wise Telemachus answered her: \"My mother, stir not lamentation...\"' — his direct reply; the family's tearful greeting and her plea for news are the tail of the prior scene."
+    },
+    {
+      "book": 17,
+      "n": 64,
+      "anchor": "Arm’d with his lance, the prince then pass’d the gate,",
+      "status": "verified",
+      "note": "Directly renders Murray's 'But Telemachus thereafter went forth through the hall with his spear in his hand, and with him went two swift hounds' — the closest literal match, though embedded in one of Pope's long run-on sentences (no clean period nearby)."
+    },
+    {
+      "book": 17,
+      "n": 85,
+      "anchor": "Then disarray’d, the shining bath they sought",
+      "status": "verified",
+      "note": "Matches Murray's 'Now when they had come to the stately house they laid their cloaks... and went into the polished baths and bathed.'"
+    },
+    {
+      "book": 17,
+      "n": 100,
+      "anchor": "When thus the queen: “My son! my only friend!",
+      "status": "verified",
+      "note": "Matches Murray's 'the wise Penelope spoke first among them: \"Telemachus, I truly will go to my upper chamber...\"'"
+    },
+    {
+      "book": 17,
+      "n": 150,
+      "anchor": "When Theoclymenus the seer began:",
+      "status": "verified",
+      "note": "Redrafted after verification: the prior anchor ('He ceased; nor made the pensive queen reply,') is Telemachus finishing his report and the queen's silence — the closing beat of the prior Menelaus-report scene. The true opening is Theoclymenus rising to prophesy, matching Murray's 'Then among them spoke also the godlike Theoclymenus, saying: \"Honored wife of Odysseus... with certain knowledge will I prophesy to thee.\"'"
+    },
+    {
+      "book": 17,
+      "n": 166,
+      "anchor": "Thus communed they: while in the marble court",
+      "status": "verified",
+      "note": "Matches Murray's 'Thus they spoke to one another. And the wooers meanwhile in front of the palace of Odysseus were making merry, throwing the discus and the javelin.'"
+    },
+    {
+      "book": 17,
+      "n": 198,
+      "anchor": "“Just thy advice (the prudent chief rejoin’d),",
+      "status": "verified",
+      "note": "Matches Murray's continuation of Odysseus's short reply ('But give me a staff to lean upon...'); this is his full reply to Eumaeus's preceding speech, marked by a clean speech-turn."
+    },
+    {
+      "book": 17,
+      "n": 235,
+      "anchor": "But hateful of the wretch, Eumaeus heaved",
+      "status": "verified",
+      "note": "Matches Murray's 'the swineherd looked the man in the face, and rebuked him, and lifted up his hands, and prayed aloud'; Odysseus's restraint from striking Melanthius (Murray's 'but he stood steadfast... yet he endured') is covered by the preceding scene's 'restrains his anger.'"
+    },
+    {
+      "book": 17,
+      "n": 260,
+      "anchor": "Meantime they heard, soft circling in the sky",
+      "status": "verified",
+      "note": "Matches Murray's 'Odysseus and the goodly swineherd halted as they drew nigh, and about them rang the sound of the hollow lyre.'"
+    },
+    {
+      "book": 17,
+      "n": 290,
+      "anchor": "Thus, near the gates conferring as they drew,",
+      "status": "verified",
+      "note": "Matches Murray's 'Thus they spoke to one another. And a hound that lay there raised his head and pricked up his ears, Argos, the hound of Odysseus.'"
+    },
+    {
+      "book": 17,
+      "n": 328,
+      "anchor": "And now Telemachus, the first of all,",
+      "status": "verified",
+      "note": "Matches Murray's 'Now as the swineherd came through the hall godlike Telemachus was far the first to see him' — the scene's true opening; Argos's death (already recognized in the prior scene) closes just before this clean sentence break."
+    },
+    {
+      "book": 17,
+      "n": 361,
+      "anchor": "Soon as the suitors from the banquet rose,",
+      "status": "verified",
+      "note": "Matches Murray's 'the wooers broke into uproar throughout the halls; but Athena drew close to the side of Odysseus... and roused him to go among the wooers.'"
+    },
+    {
+      "book": 17,
+      "n": 412,
+      "anchor": "The rest with equal hand conferr’d the bread:",
+      "status": "verified",
+      "note": "Matches Murray's 'all the rest gave gifts, and filled the wallet with bread and bits of meat' immediately before Odysseus turns to Antinous specifically."
+    },
+    {
+      "book": 17,
+      "n": 466,
+      "anchor": "But shook his thoughtful head, nor more complain’d,",
+      "status": "verified",
+      "note": "Matches Murray's 'but he shook his head in silence, pondering evil in the deep of his heart'; the footstool-throw itself (Murray's preceding sentence) belongs to the prior scene, and Pope has no clean sentence break at this exact transition (mid-sentence, warning expected)."
+    },
+    {
+      "book": 17,
+      "n": 507,
+      "anchor": "Amidst her maids thus spoke the prudent queen,",
+      "status": "verified",
+      "note": "Matches Murray's 'So she spoke among her handmaids, sitting in her chamber... Then she called to her the goodly swineherd' and Penelope's summons of Eumaeus."
+    },
+    {
+      "book": 17,
+      "n": 576,
+      "anchor": "Swift to the queen returns the gentle swain:",
+      "status": "verified",
+      "note": "Matches Murray's 'And as he passed over the threshold Penelope said to him: \"Thou dost not bring him, Eumaeus...\"' — Eumaeus's return to report Odysseus's excuse."
+    },
+    {
+      "book": 18,
+      "n": 34,
+      "anchor": "Thus in a wordy war their tongues display",
+      "status": "verified",
+      "note": "Matches Murray's 'Thus on the polished threshold before the lofty doors they stirred one another's rage right heartily. And the strong and mighty Antinous heard the two...' immediately before Antinous proposes the match."
+    },
+    {
+      "book": 18,
+      "n": 62,
+      "anchor": "The peers assent: when straight his sacred head",
+      "status": "verified",
+      "note": "Matches Murray's 'among them spoke again the strong and mighty Telemachus: \"Stranger, if thy heart and thy proud spirit bid thee beat off this fellow...\"'"
+    },
+    {
+      "book": 18,
+      "n": 91,
+      "anchor": "The chief yet doubts, or to the shades below",
+      "status": "verified",
+      "note": "Matches Murray's 'the much-enduring, goodly Odysseus was divided in mind whether he should strike him so that life should leave him... or whether he should deal him a light blow.'"
+    },
+    {
+      "book": 18,
+      "n": 108,
+      "anchor": "Then to his hand a staff the victor gave,",
+      "status": "verified",
+      "note": "Matches Murray's mocking speech to Irus ('Sit there now, and scare off swine and dogs...') and its aftermath; Pope has no clean sentence break at this exact point (the passage runs on by colons from the dragging of Irus, which belongs to the prior scene), so this is the closest precise match and will register a sentence-clean warning."
+    },
+    {
+      "book": 18,
+      "n": 126,
+      "anchor": "To whom with thought mature the king replies:",
+      "status": "verified",
+      "note": "Matches Murray's '\"Amphinomus, verily thou seemest to me to be a man of prudence...\"' — Odysseus's direct reply."
+    },
+    {
+      "book": 18,
+      "n": 158,
+      "anchor": "Meanwhile Minerva with instinctive fires",
+      "status": "verified",
+      "note": "Matches Murray's 'Then the goddess, flashing-eyed Athena, put it in the heart of the daughter of Icarius, wise Penelope, to show herself to the wooers.'"
+    },
+    {
+      "book": 18,
+      "n": 188,
+      "anchor": "Then while Eurynome the mandate bears,",
+      "status": "verified",
+      "note": "Matches Murray's 'So she spoke, and the old woman went forth through the chamber to bear tidings... Then again the goddess, flashing-eyed Athena, took other counsel. On the daughter of Icarius she shed sweet sleep.'"
+    },
+    {
+      "book": 18,
+      "n": 207,
+      "anchor": "Thus wailing, slow and sadly she descends,",
+      "status": "verified",
+      "note": "Matches Murray's 'So saying, she went down from the bright upper chamber, not alone, for two handmaids attended her.'"
+    },
+    {
+      "book": 18,
+      "n": 250,
+      "anchor": "“Ah me! (returns the queen) when from this shore",
+      "status": "verified",
+      "note": "Matches Murray's 'Then wise Penelope answered him: \"Eurymachus, all excellence of mine, both of beauty and of form, the immortals destroyed...\"'"
+    },
+    {
+      "book": 18,
+      "n": 284,
+      "anchor": "Well-pleased Ulysses hears his queen deceive",
+      "status": "verified",
+      "note": "Matches Murray's 'So she spoke, and the much-enduring, goodly Odysseus was glad, because she drew from them gifts... Then Antinous, son of Eupeithes, spoke to her again.'"
+    },
+    {
+      "book": 18,
+      "n": 312,
+      "anchor": "To whom the king: “Ill suits your sex to stay",
+      "status": "verified",
+      "note": "Matches Murray's 'Then Zeus-born Odysseus, of many wiles, himself spoke among the maids, and said: \"Maidens of Odysseus... go to the chambers where your honored queen abides.\"'"
+    },
+    {
+      "book": 18,
+      "n": 346,
+      "anchor": "And now the martial maid, by deeper wrongs",
+      "status": "verified",
+      "note": "Redrafted after verification: the prior anchor ('Then to the servile task the monarch turns') is Odysseus resuming torch-duty — the closing beat of the Melantho scene. The true opening is Athena rousing the suitors to further insult, matching Murray's 'But Athena would in no wise suffer the proud wooers to abstain from bitter outrage, that pain might sink yet deeper into the heart of Odysseus' — which leads directly into Eurymachus's mockery."
+    },
+    {
+      "book": 18,
+      "n": 394,
+      "anchor": "He said, and with full force a footstool threw;",
+      "status": "verified",
+      "note": "Matches Murray's 'So saying, he seized a footstool' immediately following the tail of Eurymachus's taunt about Irus."
+    },
+    {
+      "book": 19,
+      "n": 53,
+      "anchor": "Whilst, forming plans of death, Ulysses stay’d,",
+      "status": "verified",
+      "note": "Matches Murray's 'But goodly Odysseus was left behind in the hall, planning with Athena's aid the slaying of the wooers. Then wise Penelope came forth from her chamber.'"
+    },
+    {
+      "book": 19,
+      "n": 100,
+      "anchor": "The menial fair obeys with duteous haste:",
+      "status": "verified",
+      "note": "Matches Murray's 'So she spoke, and Eurynome speedily brought a polished chair and set it in place... the wise Penelope spoke first, and said: \"Stranger, this question will I myself ask thee first.\"'"
+    },
+    {
+      "book": 19,
+      "n": 164,
+      "anchor": "“Princess! (he cries,) renew’d by your command,",
+      "status": "verified",
+      "note": "Matches Murray's 'Then Odysseus of many wiles answered her, and said: \"Honored wife of Odysseus, son of Laertes, wilt thou never cease to ask me of my lineage?\"'"
+    },
+    {
+      "book": 19,
+      "n": 203,
+      "anchor": "Thus the fam’d hero, perfected in wiles,",
+      "status": "verified",
+      "note": "Matches Murray's 'He spoke, and made the many falsehoods of his tale seem like the truth, and as she listened her tears flowed.'"
+    },
+    {
+      "book": 19,
+      "n": 261,
+      "anchor": "Then he, with pity touch’d: “O royal dame!",
+      "status": "verified",
+      "note": "Matches Murray's 'Then Odysseus of many wiles answered her, and said: \"Honored wife of Odysseus, son of Laertes, mar not now thy fair face any more.\"'"
+    },
+    {
+      "book": 19,
+      "n": 308,
+      "anchor": "“What thanks! what boon! (replied the queen), are due,",
+      "status": "verified",
+      "note": "Matches Murray's 'Then wise Penelope answered him: \"Ah, stranger, I would that this word of thine might be fulfilled.\"'"
+    },
+    {
+      "book": 19,
+      "n": 361,
+      "anchor": "Instant, obsequious to the mild command,",
+      "status": "verified",
+      "note": "Matches Murray's 'So she spoke, and the old woman hid her face in her hands and let fall hot tears, uttering words of lamentation: \"Ah, woe is me, child.\"'"
+    },
+    {
+      "book": 19,
+      "n": 396,
+      "anchor": "This on Parnassus (combating the boar)",
+      "status": "verified",
+      "note": "Marks the clean sentence break right after 'Cautious in vain! nor ceased the dame to find / This scar' (the close of the prior scene) and opens Pope's topic-sentence for the Autolycus/boar-scar digression; Murray's literal n=396 text sits mid-digression (introducing Autolycus's character), which this couplet directly precedes and summarizes."
+    },
+    {
+      "book": 19,
+      "n": 467,
+      "anchor": "Deep o’er his knee inseam’d remain’d the scar;",
+      "status": "verified",
+      "note": "Matches Murray's 'This scar the old dame, when she had taken the limb in the flat of her hands, knew by the touch, and she let fall the foot.'"
+    },
+    {
+      "book": 19,
+      "n": 491,
+      "anchor": "Then thus rejoin’d the dame, devoid of fear:",
+      "status": "verified",
+      "note": "Matches Murray's 'Then wise Eurycleia answered him: \"My child, what a word has escaped the barrier of thy teeth!\"'"
+    },
+    {
+      "book": 19,
+      "n": 508,
+      "anchor": "Adjusting to his limbs the tatter’d vest,",
+      "status": "verified",
+      "note": "Matches Murray's 'And when she had washed him, and anointed him richly with oil, Odysseus again drew his chair nearer to the fire... Then wise Penelope was the first to speak.'"
+    },
+    {
+      "book": 19,
+      "n": 535,
+      "anchor": "A visionary thought I’ll now relate;",
+      "status": "verified",
+      "note": "Matches Murray's 'But come now, hear this dream of mine, and interpret it for me. Twenty geese I have in the house.'"
+    },
+    {
+      "book": 19,
+      "n": 559,
+      "anchor": "“Hard is the task, and rare,” (the queen rejoin’d,)",
+      "status": "verified",
+      "note": "Matches Murray's 'Then wise Penelope answered him again: \"Stranger, dreams verily are baffling and unclear of meaning.\"'"
+    },
+    {
+      "book": 19,
+      "n": 588,
+      "anchor": "To whom with grace serene the queen rejoin’d:",
+      "status": "verified",
+      "note": "Matches Murray's 'Then wise Penelope answered him: \"If thou couldest but wish, stranger, to sit here in my halls and give me joy, sleep should never be shed over my eyelids.\"'"
+    },
+    {
+      "book": 20,
+      "n": 14,
+      "anchor": "“Poor suffering heart! (he cried,) support the pain",
+      "status": "verified",
+      "note": "Matches Murray's self-address following the dog/whelps simile ('so his heart growled within him... but he s[mote his breast]'); Pope has no clean sentence break at the dog-simile's own opening line (l.20, mid-sentence from the preceding dilemma), so the anchor sits at the clean sentence-opening self-rebuke that follows and resolves it."
+    },
+    {
+      "book": 20,
+      "n": 30,
+      "anchor": "When in the form of mortal nymph array’d,",
+      "status": "verified",
+      "note": "Matches Murray's 'Then Athena came down from heaven and drew near to him in the likeness of a woman.' Pope's surrounding lines run on without a period from the prior simile, so there is no clean sentence break at this exact point (warning expected)."
+    },
+    {
+      "book": 20,
+      "n": 56,
+      "anchor": "Not so the queen; the downy bands of sleep",
+      "status": "verified",
+      "note": "Matches Murray's 'his true-hearted wife awoke, and wept, as she sat upon her soft bed' following Athena's return to Olympus."
+    },
+    {
+      "book": 20,
+      "n": 92,
+      "anchor": "Thus, whilst Aurora mounts her purple throne,",
+      "status": "verified",
+      "note": "Matches Murray's 'So she spoke, and straightway came golden-throned Dawn. But as she wept goodly Odysseus heard her voice.'"
+    },
+    {
+      "book": 20,
+      "n": 122,
+      "anchor": "Big with their doom denounced in earth and sky,",
+      "status": "verified",
+      "note": "Matches Murray's 'goodly Odysseus was glad at the word of omen and at the thunder of Zeus, for he thought he had gotten vengeance on the guilty.'"
+    },
+    {
+      "book": 20,
+      "n": 158,
+      "anchor": "She said: with duteous haste a bevy fair",
+      "status": "verified",
+      "note": "Matches Murray's 'So she spoke, and they readily hearkened and obeyed. Twenty of them went to the spring of dark water.'"
+    },
+    {
+      "book": 20,
+      "n": 173,
+      "anchor": "While thus the chief his woes indignant told,",
+      "status": "verified",
+      "note": "Matches Murray's 'Thus they spoke to one another. And near to them came Melanthius the goatherd, leading she-goats.'"
+    },
+    {
+      "book": 20,
+      "n": 184,
+      "anchor": "Rejoinder to the churl the king disdain’d,",
+      "status": "verified",
+      "note": "Matches Murray's 'Odysseus of many wiles made no answer, but he shook his head in silence... Besides these a third man came, Philoetius.'"
+    },
+    {
+      "book": 20,
+      "n": 235,
+      "anchor": "“O Jove supreme! (the raptured swain replies,)",
+      "status": "verified",
+      "note": "Matches Murray's 'Then the herdsman of the cattle answered him: \"Ah, stranger, I would that the son of Cronos might fulfil this word of thine!\"'"
+    },
+    {
+      "book": 20,
+      "n": 268,
+      "anchor": "Disposed apart, Ulysses shares the treat;",
+      "status": "verified",
+      "note": "Matches Murray's scene content of Telemachus honoring his guest; directly renders the scene summary's 'Telemachus seats Odysseus with honor,' immediately preceding his welcoming speech and warning against violence that Murray's truncated opening quotes the tail of."
+    },
+    {
+      "book": 20,
+      "n": 320,
+      "anchor": "A long cessation of discourse ensued,",
+      "status": "verified",
+      "note": "Matches Murray's 'So he spoke, and they were all hushed in silence, but at last there spoke among them Agelaus.'"
+    },
+    {
+      "book": 20,
+      "n": 345,
+      "anchor": "But Pallas clouds with intellectual gloom",
+      "status": "verified",
+      "note": "Matches Murray's 'Pallas Athena roused unquenchable laughter, and turned their wits awry.'"
+    },
+    {
+      "book": 20,
+      "n": 371,
+      "anchor": "This said, to sage Piraeus sped the seer,",
+      "status": "verified",
+      "note": "Matches Murray's 'So saying, he went forth from the stately halls and came to Piraeus, who received him with a ready heart.'"
+    },
+    {
+      "book": 21,
+      "n": 42,
+      "anchor": "Now gently winding up the fair ascent,",
+      "status": "verified",
+      "note": "Marks Penelope's ascent to the storeroom threshold, matching Murray's description of her arrival at the oak threshold."
+    },
+    {
+      "book": 21,
+      "n": 68,
+      "anchor": "Full in the portal the chaste queen appears,",
+      "status": "verified",
+      "note": "Her appearance in the doorway with veil and attendant handmaids matches Murray's veil/handmaid detail opening the scene."
+    },
+    {
+      "book": 21,
+      "n": 80,
+      "anchor": "Graceful she said, and bade Eumaeus show",
+      "status": "verified",
+      "note": "Directly renders Penelope's command to Eumaeus to set out the bow, the scene's opening action per Murray."
+    },
+    {
+      "book": 21,
+      "n": 101,
+      "anchor": "Then thus Telemachus: “Some god I find",
+      "status": "verified",
+      "note": "Opens Telemachus's speech that begins the scene, matching Murray's 'spoke the strong and mighty Telemachus'."
+    },
+    {
+      "book": 21,
+      "n": 136,
+      "anchor": "He cast the bow before him, and apart",
+      "status": "verified",
+      "note": "Matches Murray's 'he set the bow from him on the ground', the moment Telemachus's speech ends and the trial proper begins."
+    },
+    {
+      "book": 21,
+      "n": 163,
+      "anchor": "To him Antinous thus with fury said:",
+      "status": "verified",
+      "note": "Matches Murray's 'Antinous rebuked him, and spoke' opening the scene."
+    },
+    {
+      "book": 21,
+      "n": 189,
+      "anchor": "Then from the hall, and from the noisy crew,",
+      "status": "verified",
+      "note": "Matches Murray's herdsmen going forth from the hall together, the scene's opening action."
+    },
+    {
+      "book": 21,
+      "n": 245,
+      "anchor": "Before the flame Eurymachus now stands,",
+      "status": "verified",
+      "note": "Matches Murray's Eurymachus handling and warming the bow at the fire, unable to string it."
+    },
+    {
+      "book": 21,
+      "n": 256,
+      "anchor": "“Not so, Eurymachus: that no man draws",
+      "status": "verified",
+      "note": "Redrafted after verification: the prior anchor glued Eurymachus's closing exclamation ('Our weakness scorn!') onto the attribution tag 'Antinous thus replied:', mixing the two speakers' lines. The true opening is Antinous's own speech alone, matching Murray's 'Then Antinous, son of Eupeithes, answered him: \"Eurymachus, this shall not be so, and thou of thyself too knowest it.\"'"
+    },
+    {
+      "book": 21,
+      "n": 270,
+      "anchor": "They heard well pleased: the ready heralds bring",
+      "status": "verified",
+      "note": "Matches Murray's heralds pouring water for libation, which opens the scene before Odysseus speaks."
+    },
+    {
+      "book": 21,
+      "n": 321,
+      "anchor": "“O fair! and wisest of so fair a kind!",
+      "status": "verified",
+      "note": "Matches Murray's 'Eurymachus, son of Polybus, answered her' opening the scene."
+    },
+    {
+      "book": 21,
+      "n": 344,
+      "anchor": "“O royal mother! ever-honour’d name!",
+      "status": "verified",
+      "note": "Matches Murray's 'wise Telemachus answered her' opening the scene."
+    },
+    {
+      "book": 21,
+      "n": 359,
+      "anchor": "Mature beyond his years, the queen admired",
+      "status": "verified",
+      "note": "Matches Murray's 'she laid to heart the wise saying of her son', the literal opening of the scene as she withdraws upstairs."
+    },
+    {
+      "book": 21,
+      "n": 391,
+      "anchor": "In the same moment forth Philaetius flies,",
+      "status": "verified",
+      "note": "Matches Murray's cable used to fasten the courtyard gates, the detail opening the scene."
+    },
+    {
+      "book": 22,
+      "n": 22,
+      "anchor": "Amazed, confounded, as they saw him fall,",
+      "status": "verified",
+      "note": "Matches Murray's wooers breaking into uproar as they see the man fallen, the scene's opening reaction."
+    },
+    {
+      "book": 22,
+      "n": 44,
+      "anchor": "Thus dreadful he. Confused the suitors stood,",
+      "status": "verified",
+      "note": "Matches Murray's pale fear seizing all the suitors after Odysseus's dreadful speech, opening the scene."
+    },
+    {
+      "book": 22,
+      "n": 68,
+      "anchor": "Hence with those coward terms; or fight or fly;",
+      "status": "verified",
+      "note": "Directly renders Murray's scene-opening line 'it lies before you to fight in open fight, or to flee'; the previous line ends with a full stop, making this a clean sentence start even though it continues Odysseus's speech from the prior scene."
+    },
+    {
+      "book": 22,
+      "n": 89,
+      "anchor": "Next bold Amphinomus his arm extends",
+      "status": "verified",
+      "note": "Directly renders Murray's 'Amphinomus made at glorious Odysseus, rushing straight upon him', the scene's opening action."
+    },
+    {
+      "book": 22,
+      "n": 100,
+      "anchor": "With speedy ardour to his sire he flies,",
+      "status": "verified",
+      "note": "Matches Murray's Telemachus speaking winged words and offering to bring a shield and spears."
+    },
+    {
+      "book": 22,
+      "n": 135,
+      "anchor": "Melanthius then: “That outlet to the gate",
+      "status": "verified",
+      "note": "Matches Murray's 'Melanthius, the goatherd, answered him' opening the scene."
+    },
+    {
+      "book": 22,
+      "n": 161,
+      "anchor": "While yet they spoke, in quest of arms again",
+      "status": "verified",
+      "note": "Directly renders Murray's 'Melanthius, the goatherd, went again to the store-room', the scene's opening action."
+    },
+    {
+      "book": 22,
+      "n": 203,
+      "anchor": "This said, they, left him, tortured as he lay,",
+      "status": "verified",
+      "note": "Matches Murray's 'he was left there, stretched in the direful bond' opening the scene."
+    },
+    {
+      "book": 22,
+      "n": 241,
+      "anchor": "Damastor’s son, bold Agelaus, leads,",
+      "status": "verified",
+      "note": "Matches Murray's naming of Agelaus, Eurynomus, and the other champions who lead the charge; this is the nearest sentence-clean line, since Pope's swallow-transformation couplet (matching the very start of Murray's snippet) falls mid-sentence just before it."
+    },
+    {
+      "book": 22,
+      "n": 261,
+      "anchor": "The storm passed innocent. The godlike man",
+      "status": "verified",
+      "note": "Matches Murray's Odysseus speaking first after the suitors' spears are all deflected by Athena; preceding line ends with a colon rather than a period, so a mild warning is expected."
+    },
+    {
+      "book": 22,
+      "n": 310,
+      "anchor": "Leiodes first before the victor falls:",
+      "status": "verified",
+      "note": "Directly renders Murray's 'Leiodes rushed forward and clasped the knees of Odysseus'."
+    },
+    {
+      "book": 22,
+      "n": 330,
+      "anchor": "Phemius alone the hand of vengeance spared,",
+      "status": "verified",
+      "note": "Directly renders Murray's introduction of Phemius seeking to escape black fate, the scene's opening line."
+    },
+    {
+      "book": 22,
+      "n": 361,
+      "anchor": "Beneath a table, trembling with dismay,",
+      "status": "verified",
+      "note": "Matches Murray's description of Medon lying crouched beneath a chair, clothed in a new ox-hide."
+    },
+    {
+      "book": 22,
+      "n": 390,
+      "anchor": "And now the king commands his son to call",
+      "status": "verified",
+      "note": "Directly renders Murray's Odysseus telling Telemachus to call the nurse Eurycleia."
+    },
+    {
+      "book": 22,
+      "n": 420,
+      "anchor": "Then she: “In these thy kingly walls remain",
+      "status": "verified",
+      "note": "Matches Murray's Eurycleia's reply beginning 'Fifty women servants hast thou in the halls'."
+    },
+    {
+      "book": 22,
+      "n": 446,
+      "anchor": "He said: the lamentable train appear,",
+      "status": "verified",
+      "note": "Matches Murray's women coming in a throng wailing to bear the bodies of the slain out."
+    },
+    {
+      "book": 22,
+      "n": 480,
+      "anchor": "To Euryclea then address’d the king:",
+      "status": "verified",
+      "note": "Directly renders Murray's 'Odysseus said to the dear nurse Eurycleia' opening the scene."
+    },
+    {
+      "book": 23,
+      "n": 25,
+      "anchor": "To whom with warmth: “My soul a lie disdains;",
+      "status": "verified",
+      "note": "Matches Murray's 'the dear nurse Eurycleia answered her' opening the scene."
+    },
+    {
+      "book": 23,
+      "n": 41,
+      "anchor": "“I saw it not (she cries), but heard alone,",
+      "status": "verified",
+      "note": "Directly renders Murray's opening 'I saw not, I asked not; only I heard the groaning of men'."
+    },
+    {
+      "book": 23,
+      "n": 60,
+      "anchor": "“Ah, no! (with sighs Penelope rejoin’d,)",
+      "status": "verified",
+      "note": "Matches Murray's Penelope insisting this is no true tale and that a god must have slain the suitors."
+    },
+    {
+      "book": 23,
+      "n": 85,
+      "anchor": "Thus speaks the queen, and no reply attends,",
+      "status": "verified",
+      "note": "Matches Murray's 'she went down from the upper chamber' opening the scene."
+    },
+    {
+      "book": 23,
+      "n": 96,
+      "anchor": "At length Telemachus: “Oh, who can find",
+      "status": "verified",
+      "note": "Matches Murray's 'Telemachus rebuked her, and spoke, and addressed her' opening the scene."
+    },
+    {
+      "book": 23,
+      "n": 111,
+      "anchor": "Pleased with her virtuous fears, the king replies:",
+      "status": "verified",
+      "note": "Matches Murray's 'the much-enduring, goodly Odysseus smiled, and straightway spoke to Telemachus'."
+    },
+    {
+      "book": 23,
+      "n": 141,
+      "anchor": "Thus spoke the king: the observant train obey,",
+      "status": "verified",
+      "note": "Matches Murray's 'they all readily hearkened and obeyed' opening the scene, following Odysseus's instructions."
+    },
+    {
+      "book": 23,
+      "n": 153,
+      "anchor": "Meanwhile the wearied king the bath ascends;",
+      "status": "verified",
+      "note": "Directly renders Murray's 'the housewife Eurynome bathed the great-hearted Odysseus' opening the scene."
+    },
+    {
+      "book": 23,
+      "n": 166,
+      "anchor": "More high he treads, and issuing forth in state,",
+      "status": "verified",
+      "note": "Matches Murray's Odysseus turning to speak to his wife, 'opposite his wife; and he spoke to her'."
+    },
+    {
+      "book": 23,
+      "n": 182,
+      "anchor": "Thus speaks the queen, still dubious, with disguise",
+      "status": "verified",
+      "note": "Matches Murray's 'she spoke, and made trial of her husband. But Odysseus, in a burst of anger, spoke'."
+    },
+    {
+      "book": 23,
+      "n": 205,
+      "anchor": "While yet he speaks, her powers of life decay;",
+      "status": "verified",
+      "note": "Directly renders Murray's 'her knees were loosened where she sat, and her heart melted'."
+    },
+    {
+      "book": 23,
+      "n": 231,
+      "anchor": "Touch’d to the soul, the king with rapture hears,",
+      "status": "verified",
+      "note": "Matches Murray's 'in his heart aroused yet more the desire for lamentation; and he wept'."
+    },
+    {
+      "book": 23,
+      "n": 247,
+      "anchor": "At length Ulysses with a sigh replies:",
+      "status": "verified",
+      "note": "Directly renders Murray's 'Odysseus of many wiles' speaking to his wife of trials yet to come."
+    },
+    {
+      "book": 23,
+      "n": 288,
+      "anchor": "To whom thus firm of soul: “If ripe for death,",
+      "status": "verified",
+      "note": "Matches Penelope's brief reply after Odysseus's prophecy speech, corresponding to Murray's 'Then wise Penelope answered him'."
+    },
+    {
+      "book": 23,
+      "n": 310,
+      "anchor": "But in discourse the king and consort lay,",
+      "status": "verified",
+      "note": "Pope collapses both spouses' accounts into one continuous passage; Murray's literal opening line ('he began by telling how... he overcame the Cicones') falls mid-sentence several lines later, at 'Sleepless devours each word; and hears how slain / Cicons on Cicons swell the ensanguined plain'. Per the method's guidance for mid-sentence openings, this is the nearest sentence-opening line before that point and the topical match (the couple's mutual account exchange, the scene's true subject) is exact."
+    },
+    {
+      "book": 23,
+      "n": 344,
+      "anchor": "He ended, sinking into sleep, and shares",
+      "status": "verified",
+      "note": "Directly renders Murray's 'sweet sleep, that loosens the limbs of men, leapt upon him', ending Odysseus's tale and opening the scene. The preceding line ('With change of raiment, brass, and heaps of gold') lacks closing punctuation in Pope's text before the stanza break, so a mild warning is expected."
+    },
+    {
+      "book": 24,
+      "n": 35,
+      "anchor": "“O son of Peleus! greater than mankind!",
+      "status": "verified",
+      "note": "Matches Murray's 'the spirit of the son of Atreus answered him' opening the scene."
+    },
+    {
+      "book": 24,
+      "n": 98,
+      "anchor": "Thus they: while Hermes o’er the dreary plain",
+      "status": "verified",
+      "note": "Directly renders Murray's 'the messenger, Argeiphontes, drew near, leading down the spirits of the wooers'."
+    },
+    {
+      "book": 24,
+      "n": 120,
+      "anchor": "“O king of men! I faithful shall relate",
+      "status": "verified",
+      "note": "Matches Murray's 'the spirit of Amphimedon answered him' opening the scene."
+    },
+    {
+      "book": 24,
+      "n": 191,
+      "anchor": "“Oh bless’d Ulysses! (thus the king express’d",
+      "status": "verified",
+      "note": "Matches Murray's 'the spirit of the son of Atreus answered him: Happy son of Laertes'."
+    },
+    {
+      "book": 24,
+      "n": 205,
+      "anchor": "While from the town, Ulysses and his band",
+      "status": "verified",
+      "note": "Directly renders Murray's 'Odysseus and his men... quickly came to the fair and well-ordered farm of Laertes'. Preceding line ends with a semicolon (closing a couplet, not a full stop), so a mild warning is expected."
+    },
+    {
+      "book": 24,
+      "n": 248,
+      "anchor": "On every plant and tree thy cares are shown,",
+      "status": "verified",
+      "note": "Matches Murray's pivot to 'thou thyself enjoyest no good care'; the nearest sentence-clean line after Pope's garden-praise list, which itself parallels Murray's plant enumeration a few lines earlier."
+    },
+    {
+      "book": 24,
+      "n": 302,
+      "anchor": "Then thus the son: “From Alybas I came,",
+      "status": "verified",
+      "note": "Directly renders Murray's 'Odysseus of many wiles answered him... I come from Alybas'."
+    },
+    {
+      "book": 24,
+      "n": 327,
+      "anchor": "Amazed, Laertes: “Give some certain sign",
+      "status": "verified",
+      "note": "Directly renders Murray's 'Laertes answered him again... tell me now some clear sign'."
+    },
+    {
+      "book": 24,
+      "n": 351,
+      "anchor": "“Yes, I believe (he cries) almighty Jove!",
+      "status": "verified",
+      "note": "Directly renders Murray's Laertes speaking again, 'Father Zeus, verily ye gods yet hold sway'; the preceding narrator tag ends in a colon rather than a period, so a mild warning is expected."
+    },
+    {
+      "book": 24,
+      "n": 384,
+      "anchor": "They communed thus; while homeward bent their way",
+      "status": "verified",
+      "note": "Matches Murray's 'they spoke to one another. But when the others had ceased from their labour' opening the scene."
+    },
+    {
+      "book": 24,
+      "n": 412,
+      "anchor": "Now flying Fame the swift report had spread",
+      "status": "verified",
+      "note": "Directly renders Murray's 'Rumor, the messenger, went swiftly throughout all the city'."
+    },
+    {
+      "book": 24,
+      "n": 439,
+      "anchor": "Here ceased he, but indignant tears let fall",
+      "status": "verified",
+      "note": "Matches Murray's 'he spoke, weeping, and pity laid hold of all the Achaeans' opening the scene."
+    },
+    {
+      "book": 24,
+      "n": 463,
+      "anchor": "His moderate words some better minds persuade:",
+      "status": "verified",
+      "note": "Matches Murray's 'they sprang up with loud cries, more than half of them' opening the scene."
+    },
+    {
+      "book": 24,
+      "n": 472,
+      "anchor": "This pass’d on earth, while in the realms above",
+      "status": "verified",
+      "note": "Directly renders Murray's 'Athena spoke to Zeus, son of Cronos, saying' opening the scene."
+    },
+    {
+      "book": 24,
+      "n": 489,
+      "anchor": "Now sat Ulysses at the rural feast",
+      "status": "verified",
+      "note": "Matches Murray's 'the much-enduring, goodly Odysseus was the first to speak among his company' opening the scene."
+    }
+  ]
+}

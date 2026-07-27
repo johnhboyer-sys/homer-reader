@@ -4,7 +4,7 @@ per book must never drop below its recorded floor.
 The floor values in fixtures/alignment_coverage_floor.json are the exact
 Murray/Butler tick counts read off the live build/dist/{iliad,odyssey}/book-
 NN.json on 2026-07-17 (Phase 6 QA pass), via
-`homer_pipeline.preflight.murray_butler_tick_counts` — see that function's
+`homer_pipeline.preflight.translation_tick_counts` — see that function's
 docstring for why tick count is a meaningful density proxy. Pinning today's
 healthy numbers as a floor means a future ingest regression (a milestone-
 parsing bug, a re-export that drops anchors, ...) that thins out alignment
@@ -14,7 +14,7 @@ This test exercises the REAL current build, so it needs build/dist to exist
 (`node scripts/build-public.mjs`, or a prior pipeline `all` run) — a fresh
 checkout with no local TLG/Diogenes access has no build/dist yet, so the
 whole module is skipped rather than failed in that case. The hermetic unit
-tests for the underlying mechanism (murray_butler_tick_counts,
+tests for the underlying mechanism (translation_tick_counts,
 tick_coverage_violations) live in test_preflight.py and always run.
 """
 
@@ -23,7 +23,7 @@ from pathlib import Path
 
 import pytest
 
-from homer_pipeline.preflight import murray_butler_tick_counts, tick_coverage_violations
+from homer_pipeline.preflight import translation_tick_counts, tick_coverage_violations
 
 ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = ROOT / "build" / "dist"
@@ -44,7 +44,7 @@ pytestmark = pytest.mark.skipif(
 def test_tick_coverage_meets_pinned_floor(work_id):
     if not (DATA_DIR / work_id).is_dir():
         pytest.skip(f"build/dist/{work_id} not present")
-    counts = murray_butler_tick_counts(DATA_DIR, work_id)
+    counts = translation_tick_counts(DATA_DIR, work_id)
     violations = tick_coverage_violations(counts, FLOOR[work_id])
     assert violations == [], f"{work_id}: " + "; ".join(violations)
 
