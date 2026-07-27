@@ -25,7 +25,11 @@ from pathlib import Path
 
 from . import scheme as scheme_mod
 from .config import BUILD_DIR, SOURCES_DIR, Manifest
-from .parse_filter import filter_parses
+from .parse_filter import (
+    apply_morphology_override,
+    filter_parses,
+    rank_parses,
+)
 from .refs import column_key
 
 
@@ -74,8 +78,12 @@ def merge_short_def(
     return extensions[0][1] if len({derived for _, derived in extensions}) == 1 else gloss
 
 
-def resolve_parses(parses: list[dict], short_defs: dict[str, str]) -> list[dict]:
-    """Drop spurious readings, then extend the survivors' truncated glosses.
+def resolve_parses(
+    parses: list[dict],
+    short_defs: dict[str, str],
+    token_key: str | None = None,
+) -> list[dict]:
+    """Filter, stably rank, extend glosses, then apply curated corrections.
 
     The order matters: filter_parses recognizes a spurious reading by its gloss
     exactly duplicating a resolved sibling's, and those are Morpheus glosses.
@@ -83,12 +91,12 @@ def resolve_parses(parses: list[dict], short_defs: dict[str, str]) -> list[dict]
     junk reading would survive — and can then become the token's primary
     analysis, which shifts the lemma bucket a lexicon page is built from.
     """
-    kept = filter_parses(parses)
+    kept = rank_parses(filter_parses(parses), token_key)
     for parse in kept:
         parse["gloss"] = merge_short_def(
             parse["gloss"], parse["lemma"], parse["lsj"], short_defs
         )
-    return kept
+    return apply_morphology_override(kept, token_key)
 
 
 def _greek_cells(text: str, tokens: list[dict]):
@@ -347,7 +355,7 @@ def emit_analyses(out_dir: Path) -> dict:
             }
             for g in analyses[stored_key]
         ]
-        kept = resolve_parses(parses, short_defs)
+        kept = resolve_parses(parses, short_defs, token_key)
         dropped += len(parses) - len(kept)
         merged[token_key] = kept
     (out_dir / "analyses.json").write_text(
