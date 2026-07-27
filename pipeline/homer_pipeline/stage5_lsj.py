@@ -246,14 +246,21 @@ def run(manifest: Manifest) -> Path:
                     end = fragment.rindex("</div2>") + len("</div2>")
                     div2 = etree.fromstring(fragment[start:end])
                     head = div2.findtext("head") or key
-                    shards[shard_letter(key)][key] = {
+                    entry = {
                         "key": key,
                         "head": head,
                         "html": entry_html(div2),
                     }
                     short_def = derive_short_def(div2)
                     if short_def:
+                        # Shipped ON the entry, not just into short_defs.json,
+                        # so the reader can show a one-line sense per homonym:
+                        # ἔχω¹ "have, hold" beside ἔχω² "bear, carry, bring".
+                        # Homonyms share a headword, so without their own
+                        # definitions two boxes would render indistinguishably.
+                        entry["short"] = short_def
                         short_defs[key] = short_def
+                    shards[shard_letter(key)][key] = entry
                     n_kept += 1
                     want = False
 

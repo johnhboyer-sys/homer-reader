@@ -2159,6 +2159,17 @@ select {
   color: var(--accent);
 }
 
+/* LSJ homonym index — ἔχω¹ beside ἔχω² is the only thing telling two boxes
+   with the same headword apart. Inherits the .lemma accent colour, so contrast
+   is unchanged in both themes. */
+.analysis-card .lemma .homonym {
+  font-size: 0.62em;
+  font-weight: 600;
+  vertical-align: super;
+  line-height: 1;
+  margin-left: 0.04em;
+}
+
 .analysis-card .gloss {
   font-style: italic;
   color: var(--text);
