@@ -540,3 +540,48 @@ homer-reader repo serves /homer-reader/; the `deploy` remote
 johnhboyer-sys.github.io serves only the root redirect). Live verified:
 new Reader bundle 200 + served, notice string present, Il. 1 / Od. 9
 200. John spot-checking post-deploy.
+
+## LSJ GLOSS REPAIR LIVE — 2026-07-27 (fifth deploy)
+
+PR #10 merged by John (a76e8e39) — the post-launch umbrella, 51 commits.
+Lexicon work is what reaches the reader here.
+
+The repair: Diogenes' greek-analyses.txt field 3 keeps only the FIRST
+italic run of LSJ sense A, so word popups shipped truncated glosses.
+Stage 5 now derives the whole leading italic run into
+build/stage5/short_defs.json; stage 7's resolve_parses extends a gloss
+only when the derived def starts with it on a word boundary. ~792 of
+9,948 distinct lemma/gloss pairs repaired (8.0%) — ei)=mi "come" ->
+"come or go", mh=lon "sheep" -> "sheep or goat".
+
+Ordering correction, and it matters: the merge must run AFTER
+filter_parses, which identifies junk readings by gloss-duplication on
+RAW Morpheus glosses. The FOURTH deploy (source 6da11c3e) shipped the
+repair WITHOUT this fix, so junk readings survived into primary
+analyses and four spurious lemma pages were live. Corrected here: 7
+lemma slugs move (charizomai->charizo, endyno->endyo, dyo-3 added;
+epasso and sidereios were spurious and now 404). Anyone holding those
+four URLs gets a 404 — the correct outcome, they were wrong pages.
+
+Homonym guards (739b6cefc): merge_short_def refuses to extend when two
+candidate LSJ entries disagree (was picking by list position), and
+treats a candidate whose def EQUALS the gloss as proof Morpheus was
+never truncated. The second fixes a wrong gloss that was live —
+malo/s "white" was showing ma/los's "white-tailed". Extensions 792 ->
+791; that single loss is the error itself. Zero correct extensions lost.
+The ordering defect itself was confirmed UNREACHABLE on current data by
+two independent counts, each reusing the real merge_short_def.
+
+Gate: pytest 385 · build:public preflight ok · LSJ + Cunliffe keys all
+resolve · 4,713 pages · 0/313,600 broken links, 148,627 anchors ·
+48/48 books with scenes (790) · glosses spot-verified in emitted data.
+Deployed gh-pages 41eb8385b -> origin. Live verified: Pages build
+"built", / and Il. 1 and Od. 9 all 200, /lemma/charizo/ 200,
+/lemma/charizomai/ and /lemma/epasso/ 404, "white-tailed" absent.
+
+Known gap, not shipped: the popup renders one card per READING, but a
+single reading carrying several LSJ homonym keys shows only the first
+(LexiconPanel.svelte:134 reads a.lsj[0]). o(/s1/o(/s2 collapse into one
+box. Splitting those into separate cards needs both a data and a
+rendering change, and may retire the ambiguity guard above. Scoped,
+not started.
