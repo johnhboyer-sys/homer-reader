@@ -179,7 +179,7 @@
         "swift of foot"
       ],
       "role": "Nestor's son; a swift young warrior, close friend of Achilles.",
-      "note": "In the cyclic Aethiopis (not the Iliad), killed by Memnon while defending his father Nestor; his death, unnarrated within the Iliad, is recalled as a paradigm of noble self-sacrifice at Odyssey 24.78-79, where he is honored above all Achilles' companions after Patroclus.",
+      "note": "In the cyclic Aethiopis (not the Iliad), killed by Memnon while defending his father Nestor; his death, unnarrated within the Iliad, is not described at Odyssey 24.78-79, which instead mentions his bones separately and says Achilles honored him above all his companions after Patroclus.",
       "dicesId": "5CDE"
     },
     {
@@ -567,7 +567,7 @@
         "early-born"
       ],
       "role": "Dawn goddess; her formulaic rising opens scenes throughout both epics.",
-      "note": "Carries off Tithonus as a mortal consort and, per Odyssey 15.250-251, Orion and Cleitus as well; mother of Memnon.",
+      "note": "Carries off Tithonus as a mortal consort and, per Odyssey 5.121 and 15.250-251, Orion and Cleitus as well; mother of Memnon.",
       "dicesId": null
     },
     {
@@ -1062,7 +1062,7 @@
         "glorious"
       ],
       "role": "Titaness; mother of Apollo and Artemis.",
-      "note": "Gathers her children's weapons after the Theomachy (Iliad 21.505-511); her own parentage (the Titans Coeus and Phoebe, per Hesiod) goes unmentioned in Homer.",
+      "note": "Gathers Artemis's bow after the Theomachy (Iliad 21.502-504); her own parentage (the Titans Coeus and Phoebe, per Hesiod) goes unmentioned in Homer.",
       "dicesId": "BB88"
     },
     {
@@ -1100,7 +1100,7 @@
         "circumspect",
         "prudent"
       ],
-      "role": "Odysseus's wife; holds off the suitors for twenty years.",
+      "role": "Odysseus's wife; holds off the suitors for nearly four years.",
       "note": "Daughter of Icarius of Sparta. Her weaving-and-unweaving ruse and the eventual bow-contest test frame the Odyssey's homecoming plot.",
       "dicesId": "F5D7"
     },

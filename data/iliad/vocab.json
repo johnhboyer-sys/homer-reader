@@ -73,19 +73,9 @@
     "gloss": "king, chief"
    },
    {
-    "lemma": "e)/peimi2",
-    "count": 9,
-    "gloss": "come upon"
-   },
-   {
     "lemma": "eu)/xomai",
     "count": 9,
     "gloss": "pray"
-   },
-   {
-    "lemma": "o(/de",
-    "count": 9,
-    "gloss": "this"
    },
    {
     "lemma": "pro/sfhmi",
@@ -126,6 +116,16 @@
     "lemma": "ge/rwn",
     "count": 8,
     "gloss": "old man"
+   },
+   {
+    "lemma": "mh/thr",
+    "count": 8,
+    "gloss": "mother"
+   },
+   {
+    "lemma": "oi)/omai",
+    "count": 8,
+    "gloss": "forebode, presage"
    }
   ],
   "2": [
@@ -257,6 +257,11 @@
   ],
   "3": [
    {
+    "lemma": "gunh/",
+    "count": 11,
+    "gloss": "woman"
+   },
+   {
     "lemma": "o(/rkion",
     "count": 11,
     "gloss": "oath"
@@ -275,11 +280,6 @@
     "lemma": "filo/ths",
     "count": 8,
     "gloss": "friendship, love, affection"
-   },
-   {
-    "lemma": "gunh/",
-    "count": 8,
-    "gloss": "woman"
    },
    {
     "lemma": "kth=ma",
@@ -307,11 +307,6 @@
     "gloss": "on account of"
    },
    {
-    "lemma": "e)/peimi2",
-    "count": 7,
-    "gloss": "come upon"
-   },
-   {
     "lemma": "gi/gnomai",
     "count": 7,
     "gloss": "come into a new state of being"
@@ -325,11 +320,6 @@
     "lemma": "mu=qos",
     "count": 7,
     "gloss": "word, speech"
-   },
-   {
-    "lemma": "o(/de",
-    "count": 7,
-    "gloss": "this"
    },
    {
     "lemma": "o(po/teros",
@@ -380,6 +370,16 @@
     "lemma": "ou(=tos",
     "count": 6,
     "gloss": "this"
+   },
+   {
+    "lemma": "ou)=n",
+    "count": 6,
+    "gloss": "certainly, in fact"
+   },
+   {
+    "lemma": "qeoeidh/s",
+    "count": 6,
+    "gloss": "godlike"
    }
   ],
   "4": [
@@ -561,19 +561,9 @@
     "gloss": "drive, set in motion"
    },
    {
-    "lemma": "o(/de",
-    "count": 12,
-    "gloss": "this"
-   },
-   {
     "lemma": "o)/xos",
     "count": 12,
     "gloss": "carriage"
-   },
-   {
-    "lemma": "qe/a",
-    "count": 12,
-    "gloss": "seeing, looking at"
    },
    {
     "lemma": "teu/xw",
@@ -634,6 +624,16 @@
     "lemma": "h(ni/a1",
     "count": 9,
     "gloss": "reins"
+   },
+   {
+    "lemma": "makro/s",
+    "count": 9,
+    "gloss": "long"
+   },
+   {
+    "lemma": "me/maa",
+    "count": 9,
+    "gloss": "be eager, press on"
    }
   ],
   "6": [
@@ -653,14 +653,14 @@
     "gloss": "city"
    },
    {
-    "lemma": "o(/de",
-    "count": 10,
-    "gloss": "this"
-   },
-   {
     "lemma": "a)/stu",
     "count": 9,
     "gloss": "town"
+   },
+   {
+    "lemma": "gunh/",
+    "count": 9,
+    "gloss": "woman"
    },
    {
     "lemma": "me/garon",
@@ -698,11 +698,6 @@
     "gloss": "at some time"
    },
    {
-    "lemma": "qea/w",
-    "count": 8,
-    "gloss": "gaze at, behold"
-   },
-   {
     "lemma": "ti/qhmi",
     "count": 8,
     "gloss": "set, put, place"
@@ -716,11 +711,6 @@
     "lemma": "gi/gnomai",
     "count": 7,
     "gloss": "come into a new state of being"
-   },
-   {
-    "lemma": "gunh/",
-    "count": 7,
-    "gloss": "woman"
    },
    {
     "lemma": "koruqai/olos",
@@ -758,9 +748,19 @@
     "gloss": "busied about, busy"
    },
    {
-    "lemma": "e)/peimi2",
+    "lemma": "e)/rgon",
     "count": 6,
-    "gloss": "come upon"
+    "gloss": "work"
+   },
+   {
+    "lemma": "eu)/xomai",
+    "count": 6,
+    "gloss": "pray"
+   },
+   {
+    "lemma": "eu)=",
+    "count": 6,
+    "gloss": "well"
    }
   ],
   "7": [
@@ -835,11 +835,6 @@
     "gloss": "battle, combat"
    },
    {
-    "lemma": "o(/de",
-    "count": 7,
-    "gloss": "this"
-   },
-   {
     "lemma": "a)/gw",
     "count": 6,
     "gloss": "lead, carry, fetch, bring"
@@ -888,6 +883,11 @@
     "lemma": "pei/qw",
     "count": 6,
     "gloss": "persuade"
+   },
+   {
+    "lemma": "polemi/zw",
+    "count": 6,
+    "gloss": "wage war, fight"
    }
   ],
   "8": [
@@ -982,19 +982,9 @@
     "gloss": "take"
    },
    {
-    "lemma": "o(/de",
-    "count": 7,
-    "gloss": "this"
-   },
-   {
     "lemma": "ou(=tos",
     "count": 7,
     "gloss": "this"
-   },
-   {
-    "lemma": "qe/a",
-    "count": 7,
-    "gloss": "seeing, looking at"
    },
    {
     "lemma": "sth=qos",
@@ -1015,6 +1005,16 @@
     "lemma": "o(/sos",
     "count": 6,
     "gloss": "as great as, how great"
+   },
+   {
+    "lemma": "pu=r",
+    "count": 6,
+    "gloss": "fire"
+   },
+   {
+    "lemma": "qea/",
+    "count": 6,
+    "gloss": "goddess"
    }
   ],
   "9": [
@@ -1042,6 +1042,11 @@
     "lemma": "mu=qos",
     "count": 14,
     "gloss": "word, speech"
+   },
+   {
+    "lemma": "gunh/",
+    "count": 13,
+    "gloss": "woman"
    },
    {
     "lemma": "klisi/a",
@@ -1074,11 +1079,6 @@
     "gloss": "gall, bile"
    },
    {
-    "lemma": "e)/ti",
-    "count": 10,
-    "gloss": "yet, still"
-   },
-   {
     "lemma": "to/te",
     "count": 10,
     "gloss": "at that time, then"
@@ -1092,11 +1092,6 @@
     "lemma": "e)mo/s",
     "count": 9,
     "gloss": "mine"
-   },
-   {
-    "lemma": "gunh/",
-    "count": 9,
-    "gloss": "woman"
    },
    {
     "lemma": "pri/n",
@@ -1142,6 +1137,11 @@
     "lemma": "ko/rh",
     "count": 8,
     "gloss": "girl"
+   },
+   {
+    "lemma": "li/ssomai",
+    "count": 8,
+    "gloss": "beg, pray"
    }
   ],
   "10": [
@@ -1313,6 +1313,11 @@
     "gloss": "at that time, then"
    },
    {
+    "lemma": "bou=s",
+    "count": 10,
+    "gloss": "bullock, bull, ox, or cow"
+   },
+   {
     "lemma": "di/fros",
     "count": 10,
     "gloss": "chariot-board"
@@ -1391,11 +1396,6 @@
     "lemma": "dai/frwn",
     "count": 8,
     "gloss": "warlike, fiery"
-   },
-   {
-    "lemma": "e(/kastos",
-    "count": 8,
-    "gloss": "each"
    }
   ],
   "12": [
@@ -1664,19 +1664,9 @@
     "gloss": "make ready, make"
    },
    {
-    "lemma": "e)/ti",
-    "count": 9,
-    "gloss": "yet, still"
-   },
-   {
     "lemma": "pei/qw",
     "count": 9,
     "gloss": "persuade"
-   },
-   {
-    "lemma": "qe/a",
-    "count": 9,
-    "gloss": "seeing, looking at"
    },
    {
     "lemma": "sth=qos",
@@ -1777,6 +1767,16 @@
     "lemma": "a(/pas",
     "count": 5,
     "gloss": "quite all, the whole"
+   },
+   {
+    "lemma": "a)/nac",
+    "count": 5,
+    "gloss": "lord, master"
+   },
+   {
+    "lemma": "a)llh/lwn",
+    "count": 5,
+    "gloss": "of one another, to one another, one another"
    }
   ],
   "15": [
@@ -1836,11 +1836,6 @@
     "gloss": "might, force"
    },
    {
-    "lemma": "o(/de",
-    "count": 10,
-    "gloss": "this"
-   },
-   {
     "lemma": "ou)/te",
     "count": 10,
     "gloss": "and not"
@@ -1861,14 +1856,14 @@
     "gloss": "fire"
    },
    {
-    "lemma": "qe/a",
-    "count": 9,
-    "gloss": "seeing, looking at"
-   },
-   {
     "lemma": "a)mu/nw",
     "count": 8,
     "gloss": "keep off, ward off"
+   },
+   {
+    "lemma": "bou=s",
+    "count": 8,
+    "gloss": "bullock, bull, ox, or cow"
    },
    {
     "lemma": "mimnh/skw",
@@ -1886,11 +1881,6 @@
     "gloss": "behold!"
    },
    {
-    "lemma": "qea/w",
-    "count": 8,
-    "gloss": "gaze at, behold"
-   },
-   {
     "lemma": "sth=qos",
     "count": 8,
     "gloss": "breast"
@@ -1904,6 +1894,16 @@
     "lemma": "bi/a",
     "count": 7,
     "gloss": "bodily strength, force"
+   },
+   {
+    "lemma": "du/namai",
+    "count": 7,
+    "gloss": "to be able, strong enough"
+   },
+   {
+    "lemma": "feu/gw",
+    "count": 7,
+    "gloss": "flee, take flight"
    }
   ],
   "16": [
@@ -2125,6 +2125,11 @@
     "gloss": "speak to, address, accost"
    },
    {
+    "lemma": "w)=",
+    "count": 9,
+    "gloss": "O! oh!"
+   },
+   {
     "lemma": "a)ei/",
     "count": 8,
     "gloss": "ever, always"
@@ -2153,11 +2158,6 @@
     "lemma": "pro/maxos",
     "count": 8,
     "gloss": "fighting before or in front"
-   },
-   {
-    "lemma": "qe/w",
-    "count": 8,
-    "gloss": "run"
    }
   ],
   "18": [
@@ -2202,6 +2202,11 @@
     "gloss": "set, put, place"
    },
    {
+    "lemma": "bou=s",
+    "count": 9,
+    "gloss": "bullock, bull, ox, or cow"
+   },
+   {
     "lemma": "e)qe/lw",
     "count": 9,
     "gloss": "to be willing"
@@ -2220,11 +2225,6 @@
     "lemma": "mh/thr",
     "count": 9,
     "gloss": "mother"
-   },
-   {
-    "lemma": "qe/a",
-    "count": 9,
-    "gloss": "seeing, looking at"
    },
    {
     "lemma": "du/o",
@@ -2257,11 +2257,6 @@
     "gloss": "back, back again"
    },
    {
-    "lemma": "bou=s",
-    "count": 7,
-    "gloss": "bullock, bull, ox, or cow"
-   },
-   {
     "lemma": "da/kruon",
     "count": 7,
     "gloss": "tear"
@@ -2285,6 +2280,11 @@
     "lemma": "fu/w",
     "count": 7,
     "gloss": "bring forth, produce, put forth"
+   },
+   {
+    "lemma": "i(ka/nw",
+    "count": 7,
+    "gloss": "come"
    }
   ],
   "19": [
@@ -2325,12 +2325,8 @@
    },
    {
     "lemma": "du/w2",
-    "count": 7
-   },
-   {
-    "lemma": "e)/ti",
     "count": 7,
-    "gloss": "yet, still"
+    "gloss": "two"
    },
    {
     "lemma": "e)me/w",
@@ -2346,6 +2342,11 @@
     "lemma": "e)qe/lw",
     "count": 7,
     "gloss": "to be willing"
+   },
+   {
+    "lemma": "gunh/",
+    "count": 7,
+    "gloss": "woman"
    },
    {
     "lemma": "i(/na",
@@ -2383,11 +2384,6 @@
     "gloss": "work"
    },
    {
-    "lemma": "gunh/",
-    "count": 6,
-    "gloss": "woman"
-   },
-   {
     "lemma": "klai/w",
     "count": 6,
     "gloss": "cry, wail, lament"
@@ -2411,6 +2407,11 @@
     "lemma": "ou(=tos",
     "count": 6,
     "gloss": "this"
+   },
+   {
+    "lemma": "pro/sfhmi",
+    "count": 6,
+    "gloss": "speak to, address"
    }
   ],
   "20": [
@@ -2418,11 +2419,6 @@
     "lemma": "keleu/w",
     "count": 10,
     "gloss": "urge, drive on"
-   },
-   {
-    "lemma": "qe/a",
-    "count": 10,
-    "gloss": "seeing, looking at"
    },
    {
     "lemma": "ti/ktw",
@@ -2535,9 +2531,14 @@
     "gloss": "greathearted"
    },
    {
-    "lemma": "o(/de",
+    "lemma": "o(ra/w",
     "count": 6,
-    "gloss": "this"
+    "gloss": "I know"
+   },
+   {
+    "lemma": "o)cu/s2",
+    "count": 6,
+    "gloss": "sharp, keen"
    }
   ],
   "21": [
@@ -2647,11 +2648,6 @@
     "gloss": "drag, draw"
    },
    {
-    "lemma": "o(/de",
-    "count": 7,
-    "gloss": "this"
-   },
-   {
     "lemma": "pau/w",
     "count": 7,
     "gloss": "make to end"
@@ -2664,6 +2660,11 @@
    {
     "lemma": "r(o/on",
     "count": 7
+   },
+   {
+    "lemma": "baqudi/nhs",
+    "count": 6,
+    "gloss": "deep-eddying"
    }
   ],
   "22": [
@@ -2743,11 +2744,6 @@
     "gloss": "draw, drag"
    },
    {
-    "lemma": "e)/ti",
-    "count": 7,
-    "gloss": "yet, still"
-   },
-   {
     "lemma": "feu/gw",
     "count": 7,
     "gloss": "flee, take flight"
@@ -2768,11 +2764,6 @@
     "gloss": "be eager, press on"
    },
    {
-    "lemma": "o(/de",
-    "count": 7,
-    "gloss": "this"
-   },
-   {
     "lemma": "prosauda/w",
     "count": 7,
     "gloss": "speak to, address, accost"
@@ -2791,6 +2782,16 @@
     "lemma": "w)ku/s",
     "count": 7,
     "gloss": "quick, swift, fleet"
+   },
+   {
+    "lemma": "xa/lkeos",
+    "count": 7,
+    "gloss": "of copper or bronze, brazen"
+   },
+   {
+    "lemma": "e)ru/w",
+    "count": 6,
+    "gloss": "drag, draw"
    }
   ],
   "23": [
@@ -2855,6 +2856,11 @@
     "gloss": "this"
    },
    {
+    "lemma": "bou=s",
+    "count": 10,
+    "gloss": "bullock, bull, ox, or cow"
+   },
+   {
     "lemma": "gai=a",
     "count": 10,
     "gloss": "land, country"
@@ -2913,11 +2919,6 @@
     "lemma": "pe/dion",
     "count": 9,
     "gloss": "plain"
-   },
-   {
-    "lemma": "pei/qw",
-    "count": 9,
-    "gloss": "persuade"
    }
   ],
   "24": [
@@ -2935,11 +2936,6 @@
     "lemma": "ou)/te",
     "count": 17,
     "gloss": "and not"
-   },
-   {
-    "lemma": "o(/de",
-    "count": 14,
-    "gloss": "this"
    },
    {
     "lemma": "a)/stu",
@@ -3035,6 +3031,11 @@
     "lemma": "e(/pomai",
     "count": 9,
     "gloss": "to be or come after, follow"
+   },
+   {
+    "lemma": "gunh/",
+    "count": 9,
+    "gloss": "woman"
    },
    {
     "lemma": "mu=qos",
