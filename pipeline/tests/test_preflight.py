@@ -197,6 +197,44 @@ def test_apparatus_scenes_coverage_passes_when_emit_matches_canonical(tmp_path, 
     assert problems == []
 
 
+def test_apparatus_scenes_coverage_fails_when_canonical_omits_manifest_book(
+    tmp_path, monkeypatch
+):
+    from homer_pipeline import apparatus_scenes
+    from homer_pipeline.preflight import WorkManifest, _validate_apparatus_scenes_coverage
+
+    scenes_dir = tmp_path / "scenes"
+    scenes_dir.mkdir()
+    canonical = _canonical_scenes_doc()
+    (scenes_dir / "testwork.json").write_text(json.dumps(canonical), encoding="utf-8")
+    monkeypatch.setattr(apparatus_scenes, "SCENES_DIR", scenes_dir)
+    manifest = WorkManifest(
+        work_id="testwork",
+        path=MANIFESTS / "Iliad.yaml",
+        data={
+            "books": [
+                {"n": 1, "start": "1.1", "end": "1.10"},
+                {"n": 2, "start": "2.1", "end": "2.6"},
+            ],
+            "expected_line_gaps": [],
+        },
+    )
+    expected_scenes = apparatus_scenes.emit_book_apparatus(canonical["books"][0])["scenes"]
+    loaded = {
+        "book-01.json": {
+            "book": 1,
+            "apparatus": {"argument": "A clean argument.", "draft": True, "scenes": expected_scenes},
+        }
+    }
+    problems: list = []
+
+    _validate_apparatus_scenes_coverage(manifest, loaded, problems)
+
+    assert [problem[2] for problem in problems] == [
+        "canonical scenes cover 1/2 manifest books; missing books: [2]"
+    ]
+
+
 def test_apparatus_scenes_coverage_fails_when_emitted_book_missing_apparatus(tmp_path, monkeypatch):
     # Reproduces the Gate-4 incident: canonical scenes.json covers book 1, but
     # the emitted book file carries no apparatus at all (a rebuild that

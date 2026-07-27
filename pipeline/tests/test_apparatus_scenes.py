@@ -205,6 +205,30 @@ def test_run_with_no_staging_files_does_not_crash(tmp_path, monkeypatch):
     assert result["books_without_staging"] == [1, 2]
 
 
+def test_run_rejects_partial_coverage_before_overwriting_canonical(tmp_path, monkeypatch):
+    manifest = TinyManifest("testwork", [{"n": 1, "start": "1.1", "end": "1.10"},
+                                          {"n": 2, "start": "2.1", "end": "2.6"}])
+    staged = {
+        "work": "testwork", "status": "draft",
+        "books": [{"book": 1, "argument": "Short.", "where": ["Troy"], "who": ["B"],
+                   "days": "1", "scenes": [_scene(1, 10)]}],
+    }
+    _write_staging(tmp_path, monkeypatch, "scenes-testwork-01.json", staged)
+    canonical_path = apparatus_scenes.SCENES_DIR / "testwork.json"
+    canonical_path.parent.mkdir()
+    original = {"work": "testwork", "status": "draft", "books": [{"book": 1}, {"book": 2}]}
+    canonical_path.write_text(json.dumps(original), encoding="utf-8")
+    monkeypatch.setattr(apparatus_scenes, "BUILD_DIR", tmp_path / "build")
+
+    with pytest.raises(apparatus_scenes.ApparatusValidationError) as exc:
+        apparatus_scenes.run(manifest)
+
+    assert exc.value.problems == [
+        "testwork: staged scenes cover 1/2 manifest books; missing books: [2]"
+    ]
+    assert json.loads(canonical_path.read_text(encoding="utf-8")) == original
+
+
 def test_run_partial_coverage_merges_available_books_and_reports_the_rest(tmp_path, monkeypatch):
     manifest = TinyManifest("testwork", [{"n": 1, "start": "1.1", "end": "1.10"},
                                           {"n": 2, "start": "2.1", "end": "2.6"}])
@@ -221,7 +245,7 @@ def test_run_partial_coverage_merges_available_books_and_reports_the_rest(tmp_pa
     (out_dir / "book-01.json").write_text(json.dumps({"book": 1, "segments": []}), encoding="utf-8")
     # book-02.json deliberately absent (stage7 hasn't emitted it in this test).
 
-    result = apparatus_scenes.run(manifest)
+    result = apparatus_scenes.run(manifest, allow_partial=True)
     assert result["books_merged"] == 1
     assert result["books_emitted"] == [1]
     assert result["books_without_staging"] == [2]

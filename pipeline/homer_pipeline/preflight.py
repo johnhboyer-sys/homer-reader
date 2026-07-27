@@ -949,6 +949,24 @@ def _validate_apparatus_scenes_coverage(
         return
 
     canonical_name = canonical_path.name
+    expected_books = {
+        book.get("n")
+        for book in manifest.data.get("books", [])
+        if isinstance(book, dict) and isinstance(book.get("n"), int)
+    }
+    canonical_books = {
+        book.get("book")
+        for book in canonical.get("books", []) or []
+        if isinstance(book, dict) and isinstance(book.get("book"), int)
+    }
+    covered_books = expected_books & canonical_books
+    missing_books = sorted(expected_books - covered_books)
+    if missing_books:
+        problems.append(
+            (manifest.work_id, canonical_name,
+             f"canonical scenes cover {len(covered_books)}/{len(expected_books)} "
+             f"manifest books; missing books: {missing_books}")
+        )
     for book in canonical.get("books", []) or []:
         if not isinstance(book, dict) or not isinstance(book.get("book"), int):
             continue
