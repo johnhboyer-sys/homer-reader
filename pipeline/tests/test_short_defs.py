@@ -9,6 +9,7 @@ sys.path.insert(0, str(ROOT / "pipeline"))
 
 from homer_pipeline.stage5_lsj import derive_short_def
 from homer_pipeline.stage7_emit import merge_short_def, resolve_parses
+import homer_pipeline.stage7_emit as stage7_emit
 
 
 @pytest.mark.parametrize(
@@ -117,10 +118,130 @@ def test_merge_short_def_refuses_non_prefix_replacement():
     ) == gloss
 
 
-def test_merge_short_def_leaves_blank_gloss_blank():
+def test_merge_short_def_empty_gloss_adopts_derived_def():
+    """Empty Morpheus gloss adopts the lemma's own short def (no prefix test)."""
     assert merge_short_def(
         "", "politiko/s", ["politiko/s"], {"politiko/s": "of, for"}
-    ) == ""
+    ) == "of, for"
+    assert merge_short_def(
+        " \t", "politiko/s", ["politiko/s"], {"politiko/s": "of, for"}
+    ) == "of, for"
+
+
+def test_merge_short_def_empty_gloss_resolves_cross_reference(monkeypatch):
+    """One-hop stub resolution: v. / = Greek referent → that entry's short def."""
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {
+            "du/w2": {"html": '<b class="lsj-head">δύω</b>, v. δύο.'},
+            "du/o": {"html": '<b class="lsj-head">δύο</b>', "short": "two"},
+            "pera/w2": {
+                "html": '<b class="lsj-head">περάω</b> (B), v. πέρνημι.',
+            },
+            "pe/rnhmi": {
+                "html": '<b class="lsj-head">πέρνημι</b>',
+                "short": "sell",
+            },
+            "la/w1": {"html": '<b class="lsj-head">λάω</b> (A), = βλέπω.'},
+            "ble/pw": {"html": '<b class="lsj-head">βλέπω</b>', "short": "see"},
+            "plou=tos2": {
+                "html": (
+                    '<b class="lsj-head">πλοῦτος</b>, εος, τό, = πλοῦτος, ὁ'
+                ),
+            },
+            "plou=tos1": {
+                "html": '<b class="lsj-head">πλοῦτος</b>',
+                "short": "wealth, riches",
+            },
+        },
+    )
+
+    assert merge_short_def("", "du/w2", ["du/w2"], {}) == "two"
+    assert merge_short_def("", "pera/w2", ["pera/w2"], {}) == "sell"
+    assert merge_short_def("", "la/w1", ["la/w1"], {}) == "see"
+    assert merge_short_def("", "plou=tos2", ["plou=tos2"], {}) == "wealth, riches"
+
+
+def test_merge_short_def_empty_gloss_refuses_stub_whose_referent_lacks_def(
+    monkeypatch,
+):
+    """Referent that is itself definitionless (or another stub) stays empty."""
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {
+            "stub1": {"html": '<b class="lsj-head">foo</b>, v. βάρ.'},
+            "ba/r": {"html": '<b class="lsj-head">βάρ</b>, v. βάζ.'},
+            "ba/z": {"html": '<b class="lsj-head">βάζ</b>', "short": "baz"},
+        },
+    )
+
+    assert merge_short_def("", "stub1", ["stub1"], {}) == ""
+
+
+def test_merge_short_def_empty_gloss_refuses_ambiguous_cross_reference(
+    monkeypatch,
+):
+    """Homonymous referents with different short defs → refuse, leave empty."""
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {
+            "plou=tos2": {
+                "html": (
+                    '<b class="lsj-head">πλοῦτος</b>, εος, τό, = πλοῦτος, ὁ'
+                ),
+            },
+            "plou=tos1": {
+                "html": '<b class="lsj-head">πλοῦτος</b>',
+                "short": "wealth",
+            },
+            "plou=tos3": {
+                "html": '<b class="lsj-head">πλοῦτος</b>',
+                "short": "riches",
+            },
+        },
+    )
+
+    assert merge_short_def("", "plou=tos2", ["plou=tos2"], {}) == ""
+
+
+def test_merge_short_def_empty_gloss_refuses_disagreeing_homonym_stubs(
+    monkeypatch,
+):
+    """Two numbered LSJ keys naming different referents → refuse."""
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {
+            "oi)/h1": {"html": '<b class="lsj-head">οἴη</b> (A), = κώμη.'},
+            "oi)/h2": {"html": '<b class="lsj-head">οἴη</b> (B), v. ὄα.'},
+            "kw/mh": {"html": '<b class="lsj-head">κώμη</b>', "short": "village"},
+            "o)/a1": {"html": '<b class="lsj-head">ὄα</b>', "short": "service-tree"},
+        },
+    )
+
+    assert merge_short_def("", "oi)/h", ["oi)/h1", "oi)/h2"], {}) == ""
+
+
+def test_merge_short_def_nonempty_gloss_preserves_existing_behavior():
+    """Non-empty glosses still only extend on prefix match (regression guard)."""
+    assert merge_short_def(
+        "of, for",
+        "politiko/s",
+        ["politiko/s"],
+        {"politiko/s": "of, for, or relating to citizens"},
+    ) == "of, for, or relating to citizens"
+    assert merge_short_def(
+        "sink", "du/w2", ["du/w2"], {"du/w": "sink, plunge"}
+    ) == "sink"
+    assert merge_short_def(
+        "of, for",
+        "politiko/s",
+        ["politiko/s"],
+        {"politiko/s": "of, for"},
+    ) == "of, for"
 
 
 def test_merge_short_def_requires_a_word_boundary():

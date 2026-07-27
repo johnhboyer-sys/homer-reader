@@ -24,6 +24,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from . import scheme as scheme_mod
+from .beta import lookup_variants, to_beta_key
 from .config import BUILD_DIR, SOURCES_DIR, Manifest
 from .parse_filter import (
     apply_morphology_override,
@@ -38,6 +39,21 @@ def _load(rel: str):
 
 
 _COLSEP = "⎪"  # U+23AA — the TLG column divider inside Aristotle's inline tables
+_LSJ_ENTRY_CACHE: dict[str, dict] | None = None
+_GREEK_RE = re.compile(r"[\u0370-\u03FF\u1F00-\u1FFF]")
+_GREEK_ONLY = re.compile(r"^[\u0370-\u03FF\u1F00-\u1FFF\s.*]+$")
+_ROMAN_SUFFIXES = {
+    "I": "1",
+    "II": "2",
+    "III": "3",
+    "IV": "4",
+    "V": "5",
+    "VI": "6",
+    "VII": "7",
+    "VIII": "8",
+    "IX": "9",
+    "X": "10",
+}
 
 
 def _normalized_gloss(value: str) -> str:
@@ -50,13 +66,230 @@ def _normalized_gloss(value: str) -> str:
     return normalized
 
 
+def _lsj_entries() -> dict[str, dict]:
+    """Corpus LSJ entries for stub resolution.
+
+    Prefer build/dist/lsj (union across works) and fall back to stage5/lsj
+    (current work only). Either may be absent in unit tests that monkeypatch
+    the cache.
+    """
+    global _LSJ_ENTRY_CACHE
+    if _LSJ_ENTRY_CACHE is None:
+        entries: dict[str, dict] = {}
+        for rel in ("dist/lsj", "stage5/lsj"):
+            lsj_dir = BUILD_DIR / rel
+            if not lsj_dir.is_dir():
+                continue
+            for shard in sorted(lsj_dir.glob("*.json")):
+                entries.update(json.loads(shard.read_text(encoding="utf-8")))
+            if entries:
+                break
+        _LSJ_ENTRY_CACHE = entries
+    return _LSJ_ENTRY_CACHE
+
+
+def _short_def_for_key(key: str, short_defs: dict[str, str]) -> str | None:
+    short = short_defs.get(key)
+    if short:
+        return short
+    entry = _lsj_entries().get(key)
+    if not entry:
+        return None
+    short = entry.get("short")
+    return short or None
+
+
+def _strip_sense_labels(chunk: str) -> str:
+    """Peel leading (A)/(B) sense marks, [ᾰ] quantity marks, and *."""
+    out = chunk.strip()
+    while True:
+        nxt = re.sub(r"^(\([^)]*\)|\[[^\]]*\]|\*)\s*", "", out).strip()
+        if nxt == out:
+            return out
+        out = nxt
+
+
+def _stub_target(entry: dict) -> str | None:
+    """If the LSJ entry is a cross-reference stub, return its Greek referent.
+
+    Accepts bodies whose first *substantive* chunk is ``v. X`` or ``= X``
+    after optional sense labels and pure-Greek morphology. Rejects entries
+    whose first substantive material is something else (e.g. χάω's
+    ``contr. χῶ, = χωρῶ, coined as etym…``) so we never follow a late
+    equals-sign buried in non-stub prose. One hop only — the caller looks
+    up the referent's short def and does not re-enter this function.
+    """
+    html = entry.get("html") or ""
+    if not html:
+        return None
+    after_head = html.split("</b>", 1)[1] if "</b>" in html else html
+    text = re.sub(r"<[^>]+>", " ", after_head)
+    text = " ".join(text.split())
+    target = None
+    for raw in (part.strip() for part in text.split(",")):
+        chunk = _strip_sense_labels(raw)
+        if not chunk:
+            continue
+        # Pure-Greek morphology (εος, τό, ὁ, …) may precede =/v. on stubs.
+        if _GREEK_ONLY.fullmatch(chunk) and not chunk.startswith(("=", "v.")):
+            continue
+        if chunk.startswith("="):
+            target = chunk[1:].strip()
+            break
+        if chunk.startswith("v."):
+            target = chunk[2:].strip()
+            break
+        # First substantive chunk is not a cross-ref → not a stub.
+        return None
+    if not target:
+        return None
+    # "v. sub X" is a "see under" pointer, not a synonym headword.
+    if target.lower().startswith("sub "):
+        return None
+    target = re.split(r"[.;:]", target, maxsplit=1)[0].strip()
+    target = re.sub(r"\s*\([^)]*\)$", "", target).strip()
+    if target.startswith("*"):
+        target = target[1:].lstrip()
+    if not target or not _GREEK_RE.search(target[:1]):
+        return None
+    return target
+
+
+def _target_variants(target: str) -> list[str]:
+    cleaned = target.strip()
+    if not cleaned:
+        return []
+    cleaned = re.sub(r"^\*+", "", cleaned).lstrip()
+    cleaned = re.sub(r"^(?:\([^)]*\)|\[[^\]]*\])\s*", "", cleaned)
+    if not cleaned or not _GREEK_RE.search(cleaned[:1]):
+        return []
+    cleaned = re.split(r"[.;:]", cleaned, maxsplit=1)[0].strip()
+    cleaned = re.sub(r"\s*\([^)]*\)$", "", cleaned).strip()
+    if not cleaned or not _GREEK_RE.search(cleaned[:1]):
+        return []
+    suffix = ""
+    m = re.search(r"\s+([IVX]+)$", cleaned)
+    if m and m.group(1) in _ROMAN_SUFFIXES:
+        suffix = _ROMAN_SUFFIXES[m.group(1)]
+        cleaned = cleaned[: m.start()].strip()
+    try:
+        beta = to_beta_key(cleaned)
+    except ValueError:
+        return []
+    variants = lookup_variants(beta, capitalized=cleaned[0].isupper())
+    if suffix:
+        numbered = [f"{variant}{suffix}" for variant in variants]
+        variants = numbered + variants
+    return variants
+
+
+def _resolve_cross_ref_target(target: str, short_defs: dict[str, str]) -> str | None:
+    """One-hop only: adopt the referent's short def, or refuse on ambiguity."""
+    variants = _target_variants(target)
+    if not variants:
+        return None
+    entries = _lsj_entries()
+    candidate_keys: list[str] = []
+    seen: set[str] = set()
+    for variant in variants:
+        if variant not in seen and (
+            variant in short_defs or variant in entries
+        ):
+            seen.add(variant)
+            candidate_keys.append(variant)
+        pattern = re.compile(rf"^{re.escape(variant)}(?:\d+)?$")
+        for key in entries:
+            if key in seen:
+                continue
+            if pattern.match(key):
+                seen.add(key)
+                candidate_keys.append(key)
+        for key in short_defs:
+            if key in seen:
+                continue
+            if pattern.match(key):
+                seen.add(key)
+                candidate_keys.append(key)
+    if not candidate_keys:
+        return None
+
+    resolved = {
+        d
+        for key in candidate_keys
+        if (d := _short_def_for_key(key, short_defs))
+    }
+    if len(resolved) == 1:
+        return resolved.pop()
+    return None
+
+
+def _empty_gloss_def(
+    lemma: str, candidate_keys: list[str], short_defs: dict[str, str]
+) -> str:
+    """Adopt a short def when Morpheus left the gloss blank.
+
+    Prefer the lemma's own / candidate LSJ keys (no prefix test — nothing to
+    conflict with). If those lack a short def but the entry is a cross-ref
+    stub, follow the referent one hop. Refuse when candidate definitions
+    disagree.
+    """
+    ordered: list[str] = []
+    seen: set[str] = set()
+    for key in [lemma, *candidate_keys]:
+        if key and key not in seen:
+            seen.add(key)
+            ordered.append(key)
+
+    by_key = {
+        key: d for key in ordered if (d := _short_def_for_key(key, short_defs))
+    }
+    if lemma in by_key:
+        return by_key[lemma]
+    unique = set(by_key.values())
+    if len(unique) == 1:
+        return unique.pop()
+    if len(unique) > 1:
+        return ""
+
+    # Cross-ref stubs are the numbered homonyms (du/w2, la/w1, …). Unnumbered
+    # "v. X" pointers often mean "see under X" (paradigm entry), not "synonym
+    # of X" — following those ships the wrong sense (ἕ → οὗ "where"). Restrict
+    # one-hop resolution to keys that end in a digit.
+    stub_targets: list[str] = []
+    for key in ordered:
+        if not re.search(r"\d+$", key):
+            continue
+        entry = _lsj_entries().get(key)
+        if not entry:
+            continue
+        target = _stub_target(entry)
+        if target:
+            stub_targets.append(target)
+    # Unique referents, order-preserving. Several numbered homonyms that name
+    # different referents are ambiguity — refuse unless every one resolves to
+    # the same non-empty short def.
+    unique_targets: list[str] = list(dict.fromkeys(stub_targets))
+    if not unique_targets:
+        return ""
+    resolved = {
+        target: _resolve_cross_ref_target(target, short_defs)
+        for target in unique_targets
+    }
+    nonempty = {d for d in resolved.values() if d}
+    if len(nonempty) != 1:
+        return ""
+    if any(not resolved[t] for t in unique_targets):
+        return ""
+    return nonempty.pop()
+
+
 def merge_short_def(
     gloss: str, lemma: str, candidate_keys: list[str], short_defs: dict[str, str]
 ) -> str:
     """Conservatively extend a truncated Morpheus gloss from an LSJ definition."""
     normalized_gloss = _normalized_gloss(gloss)
     if not normalized_gloss:
-        return gloss
+        return _empty_gloss_def(lemma, candidate_keys, short_defs)
 
     candidates = sorted(candidate_keys, key=lambda key: key != lemma)
     extensions = []
