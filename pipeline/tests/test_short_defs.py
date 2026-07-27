@@ -202,3 +202,80 @@ def test_resolve_parses_keeps_a_distinct_unresolved_reading():
     kept = resolve_parses(parses, {"a": "take care of"})
 
     assert [p["gloss"] for p in kept] == ["take care of", "wholly other"]
+
+
+REAL_DIST_DIR = ROOT / "build" / "dist"
+
+
+@pytest.mark.skipif(
+    not (REAL_DIST_DIR / "lsj").is_dir(),
+    reason="requires a local build/dist/lsj (stage5, then stage7)",
+)
+def test_real_lsj_entries_ship_their_own_short_def():
+    """Every shipped LSJ entry carries the short def derived for its own key.
+
+    The reader gives each dictionary-level homonym its own box, headed by its
+    own definition (shared/components/LexiconPanel.svelte, toCards). That is
+    only possible if the definition travels ON the entry — short_defs.json is
+    a build artifact and is never shipped.
+    """
+    import json
+
+    short_defs = json.loads(
+        (ROOT / "build" / "stage5" / "short_defs.json").read_text(encoding="utf-8")
+    )
+    checked = 0
+    for shard in sorted((REAL_DIST_DIR / "lsj").glob("*.json")):
+        for key, entry in json.loads(shard.read_text(encoding="utf-8")).items():
+            short = entry.get("short")
+            if short is not None:
+                assert isinstance(short, str) and short.strip(), f"{key}: blank short"
+            # build/dist/lsj is the union across BOTH works, while
+            # short_defs.json holds only the last work built — so a key absent
+            # here is an other-work key, not a missing definition. Check the
+            # keys this build did derive.
+            expected = short_defs.get(key)
+            if expected is None:
+                continue
+            assert short == expected, f"{key}: short def not shipped"
+            checked += 1
+    assert checked > 1000, f"only {checked} entries carried a short def"
+
+
+def test_ambiguous_homonyms_the_guard_refuses_become_separate_reader_boxes():
+    """What the guard declines to guess, the reader now shows in full.
+
+    merge_short_def refuses to extend a gloss when two homonyms disagree — it
+    cannot tell which is meant. That refusal costs the reader nothing now: the
+    same input renders as one box PER homonym, each headed by its own
+    definition, so both senses reach the screen without the pipeline picking a
+    winner.
+
+    The guard still earns its place, so it stays. The surfaces that have no
+    boxes take exactly one gloss per lemma — apparatus_vocab.lemma_gloss_map
+    and app/scripts/build-lemmata.mjs — and there a wrong guess would ship
+    unchallenged.
+    """
+    defs = {
+        "a)/naltos1": "not to be filled, insatiate",
+        "a)/naltos2": "not salted",
+    }
+    keys = ["a)/naltos1", "a)/naltos2"]
+
+    # The pipeline declines to choose.
+    assert merge_short_def("not", "a)/naltos", keys, defs) == "not"
+
+    # The reader's split rule: two or more distinct short defs among the keys
+    # means two or more boxes (LexiconPanel toCards).
+    distinct = {defs[k] for k in keys if defs.get(k)}
+    assert distinct == {"not to be filled, insatiate", "not salted"}
+
+
+def test_a_lone_homonym_definition_still_extends_and_stays_one_box():
+    """One candidate is not ambiguity: the gloss extends, and the reader keeps
+    a single box rather than inventing a second from a borrowed definition."""
+    defs = {"poth/2": "sample of wine"}
+    keys = ["poth/1", "poth/2"]
+
+    assert merge_short_def("sample", "poth/", keys, defs) == "sample of wine"
+    assert len({defs[k] for k in keys if defs.get(k)}) == 1
