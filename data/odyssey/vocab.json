@@ -162,7 +162,7 @@
    {
     "lemma": "oi)=da",
     "count": 9,
-    "gloss": "see"
+    "gloss": "behold!"
    },
    {
     "lemma": "a(/pas",
@@ -197,7 +197,7 @@
    {
     "lemma": "sfei=s",
     "count": 7,
-    "gloss": "Rendic.Pont. Accad.Rom. di Arch"
+    "gloss": "they, them"
    },
    {
     "lemma": "a)gora/",
@@ -379,7 +379,7 @@
    {
     "lemma": "dai/s3",
     "count": 6,
-    "gloss": "fire-brand, pinetorch"
+    "gloss": "fire-brand, pine-torch"
    }
   ],
   "4": [
@@ -421,7 +421,7 @@
    {
     "lemma": "oi)=da",
     "count": 14,
-    "gloss": "see"
+    "gloss": "behold!"
    },
    {
     "lemma": "pri/n",
@@ -476,7 +476,7 @@
    {
     "lemma": "do/mos",
     "count": 10,
-    "gloss": "domus"
+    "gloss": "house"
    },
    {
     "lemma": "e)mo/s",
@@ -710,7 +710,7 @@
    {
     "lemma": "e)pikoure/w",
     "count": 6,
-    "gloss": "to be an"
+    "gloss": "to be an <foreign lang=\"greek\">ἐπίκουρος,</foreign> act as an ally"
    },
    {
     "lemma": "i(/na",
@@ -782,7 +782,7 @@
    {
     "lemma": "do/mos",
     "count": 8,
-    "gloss": "domus"
+    "gloss": "house"
    },
    {
     "lemma": "keleu/w",
@@ -867,7 +867,7 @@
    {
     "lemma": "ei)/domai",
     "count": 5,
-    "gloss": "N."
+    "gloss": "to be seen, appear"
    },
    {
     "lemma": "fwne/w",
@@ -887,7 +887,7 @@
    {
     "lemma": "sfei=s",
     "count": 5,
-    "gloss": "Rendic.Pont. Accad.Rom. di Arch"
+    "gloss": "they, them"
    }
   ],
   "8": [
@@ -964,7 +964,7 @@
    {
     "lemma": "sfei=s",
     "count": 9,
-    "gloss": "Rendic.Pont. Accad.Rom. di Arch"
+    "gloss": "they, them"
    },
    {
     "lemma": "teu/xw",
@@ -989,7 +989,7 @@
    {
     "lemma": "oi)=da",
     "count": 8,
-    "gloss": "see"
+    "gloss": "behold!"
    },
    {
     "lemma": "po/lis",
@@ -1101,7 +1101,7 @@
    {
     "lemma": "dia/",
     "count": 8,
-    "gloss": "through"
+    "gloss": "in a line"
    },
    {
     "lemma": "gai=a",
@@ -1177,8 +1177,7 @@
    },
    {
     "lemma": "e)fama/w",
-    "count": 10,
-    "gloss": "sinful"
+    "count": 10
    },
    {
     "lemma": "i(kne/omai",
@@ -1253,7 +1252,7 @@
    {
     "lemma": "dia/",
     "count": 7,
-    "gloss": "through"
+    "gloss": "in a line"
    },
    {
     "lemma": "e(/zomai",
@@ -1324,8 +1323,7 @@
    },
    {
     "lemma": "e)fama/w",
-    "count": 9,
-    "gloss": "sinful"
+    "count": 9
    },
    {
     "lemma": "kalo/s",
@@ -1584,7 +1582,7 @@
    {
     "lemma": "sfei=s",
     "count": 7,
-    "gloss": "Rendic.Pont. Accad.Rom. di Arch"
+    "gloss": "they, them"
    },
    {
     "lemma": "su/n",
@@ -1619,7 +1617,7 @@
    {
     "lemma": "oi)=da",
     "count": 6,
-    "gloss": "see"
+    "gloss": "behold!"
    },
    {
     "lemma": "pa/sxw",
@@ -1736,7 +1734,7 @@
    {
     "lemma": "sfei=s",
     "count": 8,
-    "gloss": "Rendic.Pont. Accad.Rom. di Arch"
+    "gloss": "they, them"
    },
    {
     "lemma": "a)ei/",
@@ -1888,7 +1886,7 @@
    {
     "lemma": "do/mos",
     "count": 7,
-    "gloss": "domus"
+    "gloss": "house"
    },
    {
     "lemma": "e)/rgon",
@@ -1985,7 +1983,7 @@
    {
     "lemma": "sfei=s",
     "count": 7,
-    "gloss": "Rendic.Pont. Accad.Rom. di Arch"
+    "gloss": "they, them"
    },
    {
     "lemma": "u(forbo/s",
@@ -2087,7 +2085,7 @@
    {
     "lemma": "dai/s3",
     "count": 10,
-    "gloss": "fire-brand, pinetorch"
+    "gloss": "fire-brand, pine-torch"
    },
    {
     "lemma": "pro/sfhmi",
@@ -2102,7 +2100,7 @@
    {
     "lemma": "do/mos",
     "count": 9,
-    "gloss": "domus"
+    "gloss": "house"
    },
    {
     "lemma": "peri/frwn",
@@ -2199,7 +2197,7 @@
    {
     "lemma": "do/mos",
     "count": 7,
-    "gloss": "domus"
+    "gloss": "house"
    },
    {
     "lemma": "fai/nw",
@@ -2396,7 +2394,7 @@
    {
     "lemma": "oi)=da",
     "count": 8,
-    "gloss": "see"
+    "gloss": "behold!"
    },
    {
     "lemma": "pote/",
@@ -2523,7 +2521,7 @@
    {
     "lemma": "sfei=s",
     "count": 5,
-    "gloss": "Rendic.Pont. Accad.Rom. di Arch"
+    "gloss": "they, them"
    },
    {
     "lemma": "si=tos",
@@ -2722,7 +2720,7 @@
    {
     "lemma": "do/mos",
     "count": 8,
-    "gloss": "domus"
+    "gloss": "house"
    },
    {
     "lemma": "dw=ma",
@@ -2819,7 +2817,7 @@
    {
     "lemma": "oi)=da",
     "count": 8,
-    "gloss": "see"
+    "gloss": "behold!"
    },
    {
     "lemma": "oi)=kos",
@@ -2991,7 +2989,7 @@
    {
     "lemma": "sfei=s",
     "count": 8,
-    "gloss": "Rendic.Pont. Accad.Rom. di Arch"
+    "gloss": "they, them"
    },
    {
     "lemma": "su/n",
@@ -3016,7 +3014,7 @@
    {
     "lemma": "do/mos",
     "count": 7,
-    "gloss": "domus"
+    "gloss": "house"
    },
    {
     "lemma": "dw=ma",
@@ -3046,7 +3044,7 @@
    {
     "lemma": "oi)=da",
     "count": 7,
-    "gloss": "see"
+    "gloss": "behold!"
    }
   ]
  }
