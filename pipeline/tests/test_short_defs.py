@@ -138,6 +138,44 @@ def test_merge_short_def_prefers_exact_key_when_multiple_candidates_match():
     ) == "take the exact entry"
 
 
+def test_merge_short_def_refuses_ambiguous_fallback_homonyms():
+    """Fallback homonyms whose extensions disagree refuse the extension."""
+    defs = {
+        "a)/naltos1": "not to be filled, insatiate",
+        "a)/naltos2": "not salted",
+    }
+
+    assert merge_short_def(
+        "not", "a)/naltos", ["a)/naltos1", "a)/naltos2"], defs
+    ) == "not"
+    assert merge_short_def(
+        "not", "a)/naltos", ["a)/naltos2", "a)/naltos1"], defs
+    ) == "not"
+
+
+def test_merge_short_def_exact_fallback_means_gloss_is_complete():
+    defs = {"ma^lo/s2": "white-tailed", "ma_lo/s1": "white"}
+
+    assert merge_short_def(
+        "white", "malo/s", ["ma^lo/s2", "ma_lo/s1"], defs
+    ) == "white"
+    assert merge_short_def(
+        "white", "malo/s", ["ma_lo/s1", "ma^lo/s2"], defs
+    ) == "white"
+
+
+def test_merge_short_def_extends_when_fallback_homonyms_agree():
+    """Several fallbacks with the same extension still extend the gloss."""
+    defs = {
+        "a)/naltos1": "not to be filled, insatiate",
+        "a)/naltos2": "not to be filled, insatiate",
+    }
+
+    assert merge_short_def(
+        "not", "a)/naltos", ["a)/naltos1", "a)/naltos2"], defs
+    ) == "not to be filled, insatiate"
+
+
 def test_resolve_parses_filters_on_morpheus_glosses_before_extending():
     """A spurious LSJ-less reading is recognized by its gloss duplicating a
     resolved sibling's — so the extension has to happen after the filter, or the

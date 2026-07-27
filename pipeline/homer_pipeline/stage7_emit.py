@@ -55,17 +55,23 @@ def merge_short_def(
         return gloss
 
     candidates = sorted(candidate_keys, key=lambda key: key != lemma)
+    extensions = []
     for key in candidates:
         derived = short_defs.get(key)
         if not derived:
             continue
         normalized_derived = _normalized_gloss(derived)
+        if normalized_derived == normalized_gloss:
+            return gloss
         if (
             len(normalized_derived) > len(normalized_gloss)
             and re.match(rf"^{re.escape(normalized_gloss)}\b", normalized_derived)
         ):
-            return derived
-    return gloss
+            extensions.append((key, derived))
+    exact = next((derived for key, derived in extensions if key == lemma), None)
+    if exact:
+        return exact
+    return extensions[0][1] if len({derived for _, derived in extensions}) == 1 else gloss
 
 
 def resolve_parses(parses: list[dict], short_defs: dict[str, str]) -> list[dict]:
