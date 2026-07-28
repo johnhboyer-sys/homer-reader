@@ -38,6 +38,16 @@ def _write_work(build_dir: Path, doc: dict) -> None:
     (ngrams_dir / f"{doc['work']}.json").write_text(
         json.dumps(doc, ensure_ascii=False), encoding="utf-8"
     )
+    # summary.json's token total is read from the SERVED
+    # build/dist/<work>/search/offsets.json, not this stage-6 stream doc — a
+    # real build always has one by the time stage 8 runs (module docstring).
+    # Every test using this helper gets a matching one for free; the dedicated
+    # summary test below overwrites it to prove the source really is this file.
+    search_dir = build_dir / "dist" / doc["work"] / "search"
+    search_dir.mkdir(parents=True, exist_ok=True)
+    (search_dir / "offsets.json").write_text(
+        json.dumps({"token_count": doc["token_count"]}), encoding="utf-8"
+    )
 
 
 def _write_book(build_dir: Path, work: str, book: int, segments: list[dict]) -> None:
@@ -421,3 +431,91 @@ def test_lemma_map_strips_empty_headwords(tmp_path, monkeypatch):
         (build_dir / "dist" / "lemma-map" / "b.json").read_text(encoding="utf-8")
     )
     assert lemma_map["bar"] == ["foo"]
+
+
+def test_summary_json_sources_tokens_from_served_offsets(tmp_path, monkeypatch):
+    """summary.json is the guide page's only source of corpus numbers (handoff
+    §5) — a stale, hand-typed figure is exactly the mistake it exists to
+    prevent. This asserts two things a schema check alone would miss: the
+    token total comes from the SERVED search/offsets.json (not the stage-6
+    stream doc's own token_count, which is deliberately made to disagree
+    here), and each stream's "kept" count matches what its shards actually
+    hold."""
+    build_dir = tmp_path / "build"
+    monkeypatch.setattr(ngrams, "BUILD_DIR", build_dir)
+
+    _write_work(
+        build_dir,
+        {
+            "work": "iliad",
+            "token_count": 6,
+            "book_bounds": [{"book": 1, "start": 0}],
+            "chapter_bounds": [],
+            "form": ["p", "q", "p", "q", "r", "s"],
+            "lemma": ["p", "q", "p", "q", "r", "s"],
+        },
+    )
+    _write_work(
+        build_dir,
+        {
+            "work": "odyssey",
+            "token_count": 4,
+            "book_bounds": [{"book": 1, "start": 0}],
+            "chapter_bounds": [],
+            "form": ["p", "q", "x", "y"],
+            "lemma": ["p", "q", "x", "y"],
+        },
+    )
+    _write_book(build_dir, "iliad", 1, [
+        {"column": "1", "english": {"text": "rosy dawn rosy dawn"}},
+    ])
+
+    # Deliberately disagree with the doc's own token_count (6/4 above) so the
+    # test fails if summary.json ever reads the wrong source.
+    (build_dir / "dist" / "iliad" / "search" / "offsets.json").write_text(
+        json.dumps({"token_count": 61}), encoding="utf-8"
+    )
+    (build_dir / "dist" / "odyssey" / "search" / "offsets.json").write_text(
+        json.dumps({"token_count": 41}), encoding="utf-8"
+    )
+
+    ngrams.run()
+
+    summary = json.loads(
+        (build_dir / "dist" / "ngrams" / "summary.json").read_text(encoding="utf-8")
+    )
+
+    assert summary["works"] == ["iliad", "odyssey"]
+    assert summary["tokens"] == {"iliad": 61, "odyssey": 41, "total": 102}
+
+    for stream_name in ("form", "lemma", "english"):
+        browse = {}
+        for shard in (build_dir / "dist" / "ngrams" / stream_name).glob("*.json"):
+            browse.update(json.loads(shard.read_text(encoding="utf-8")))
+        assert summary["streams"][stream_name]["kept"] == len(browse)
+        assert summary["streams"][stream_name]["kept"] > 0
+
+
+def test_summary_json_fails_loudly_without_served_offsets(tmp_path, monkeypatch):
+    """A work whose search/offsets.json is missing must fail the build, not
+    silently omit that work's tokens from the corpus total."""
+    build_dir = tmp_path / "build"
+    monkeypatch.setattr(ngrams, "BUILD_DIR", build_dir)
+
+    _write_work(
+        build_dir,
+        {
+            "work": "kappa",
+            "token_count": 2,
+            "book_bounds": [{"book": 1, "start": 0}],
+            "chapter_bounds": [],
+            "form": ["a", "b"],
+            "lemma": ["a", "b"],
+        },
+    )
+    # _write_work already wrote a matching search/offsets.json; remove it to
+    # simulate stage 7 not having run yet for this work.
+    (build_dir / "dist" / "kappa" / "search" / "offsets.json").unlink()
+
+    with pytest.raises(ValueError, match="kappa"):
+        ngrams.run()

@@ -37,6 +37,20 @@ that surface can belong to. Not an n-gram artifact, but it needs the same
 corpus-wide pass, and it is what lets a typed phrase be widened to its inflected
 variants without the reader knowing any headwords.
 
+Also emits build/dist/ngrams/summary.json — the guide page's ONLY source of
+corpus numbers:
+
+  { "works": [<work>, ...],
+    "tokens": {"<work>": <token_count>, ..., "total": <sum>},
+    "streams": {"<stream>": {"kept": <phrases kept>}, ...} }
+
+`tokens` is read from each work's SERVED build/dist/<work>/search/offsets.json
+(stage 7's output), not from this stage's own build/ngrams/<work>.json — the
+guide page cites the number the site actually serves. Every figure the
+/advanced page prints must trace to this file via a build-time read; a number
+typed from a session goes stale silently (handoff §5 — this is the mistake
+that shipped a phrase count 4x off in the sibling repo).
+
 Three streams are indexed: `form` (the surface word as written), `lemma`, and
 `english`. A position licensing several lemmas contributes EVERY reading, not a
 chosen one — excluding a reading here would put it beyond the reach of any
@@ -227,10 +241,12 @@ def run() -> Path:
     # Offset -> citation for the English stream, the counterpart of the Greek
     # offsets.json the reader already fetches.
     english_segments: dict[str, list[dict]] = {}
+    works: list[str] = []
 
     for path in files:
         doc = json.loads(path.read_text(encoding="utf-8"))
         work = doc["work"]
+        works.append(work)
         total = int(doc["token_count"])
         books = _book_starts(work, doc.get("book_bounds") or [], total)
         if len(doc.get("form") or []) != total or len(doc.get("lemma") or []) != total:
@@ -272,6 +288,7 @@ def run() -> Path:
                 offsets[ENGLISH_STREAM][gram][work].append(at)
 
     out_root = BUILD_DIR / "dist" / "ngrams"
+    summary: dict = {"streams": {}}
     for stream_name in STREAMS:
         out_dir = out_root / stream_name
         occ_dir = out_dir / "occ"
@@ -279,6 +296,7 @@ def run() -> Path:
         _clean_json_dir(occ_dir)
 
         kept = {gram: count for gram, count in counts[stream_name].items() if count >= MIN_COUNT}
+        summary["streams"][stream_name] = {"kept": len(kept)}
         shards: dict[str, dict] = defaultdict(dict)
         occ_shards: dict[tuple[str, int], dict] = defaultdict(dict)
         total_tokens = tokens[stream_name]
@@ -311,6 +329,26 @@ def run() -> Path:
 
     (out_root / "english-segments.json").write_text(
         json.dumps(english_segments, ensure_ascii=False, sort_keys=True),
+        encoding="utf-8",
+    )
+
+    # Corpus token total, from the SERVED offsets.json per work (see module
+    # docstring) — never from build/ngrams/<work>.json, which is an
+    # intermediate the site does not serve.
+    tokens_by_work: dict[str, int] = {}
+    for work in sorted(set(works)):
+        offsets_path = BUILD_DIR / "dist" / work / "search" / "offsets.json"
+        if not offsets_path.exists():
+            raise ValueError(
+                f"stage8: no search/offsets.json for {work} — stage 7 must "
+                "run for every work before stage 8 (module docstring)"
+            )
+        offsets_doc = json.loads(offsets_path.read_text(encoding="utf-8"))
+        tokens_by_work[work] = int(offsets_doc["token_count"])
+    summary["works"] = sorted(tokens_by_work)
+    summary["tokens"] = {**tokens_by_work, "total": sum(tokens_by_work.values())}
+    (out_root / "summary.json").write_text(
+        json.dumps(summary, ensure_ascii=False, sort_keys=True),
         encoding="utf-8",
     )
 
