@@ -585,3 +585,68 @@ single reading carrying several LSJ homonym keys shows only the first
 box. Splitting those into separate cards needs both a data and a
 rendering change, and may retire the ambiguity guard above. Scoped,
 not started.
+
+## ADVERSARIAL REVIEW FIXES LIVE — 2026-07-27 (sixth deploy)
+
+PR #12 merged by John (8928821d), 12 commits. A three-lane adversarial
+review (reader/a11y, philology, engineering) plus follow-up verification
+found four real defects; all four shipped fixed.
+
+WRONG GREEK THAT WAS LIVE. Thirteen apparatus claims contradicted the
+text while carrying status "reviewed": Polyphemus described as blinding
+Odysseus's crew (reversed); Book 6's argument giving Hector the Glaucus
+exchange that belongs to Diomedes; Penelope holding off the suitors
+"twenty years" when Antinous dates them to the third going on fourth
+(Od. 2.89-90); Leto gathering "her children's weapons" at Il. 21.505-511
+when she gathers Artemis's bow at 21.502-504; Antilochus's self-sacrifice
+cited to Od. 24.78-79, which mentions only his bones. Each corrected with
+decisive Greek and audited by a second lane.
+
+JUNK PRIMARY ANALYSES. Nothing in the pipeline ranked parses — Morpheus
+emission order reached the reader. 9,175 token occurrences showed junk
+first: ou) as "u", a)/n and ke as "he came", mh/ as "will", a)ndrw=n as
+a)ndro/w "change into a man". Three ranking rules plus 28 curated
+overrides. Zero previously-correct primaries changed; the 1,993 debatable
+homonym keys deliberately untouched. Scope came from three independent
+measurements (6,918 / 13,944 / 9,175) — the third reproduced the other
+two and showed one missed morphological impossibilities while the other
+counted debatable homonyms as defects.
+
+Ten lemma pages now 404 — achaia, andris, androo, apeiroo, gynaikoo,
+hoste-2, hyphe, katha, podoo, theao. They existed only because junk held
+the primary slot. With the four from the fifth deploy, fourteen lemma
+URLs have gone in one day, all correctly.
+
+LEXICON. 159 glosses shipped literal <foreign> markup — from Diogenes'
+source data, not from the LSJ repair as first assumed. Sanitized at
+ingestion; extensions rose 791 -> 797 because the tags had been blocking
+prefix matches. 736 empty glosses filled by following LSJ cross-
+reference stubs one hop (du/w2 -> "two", pera/w2 -> "export for sale").
+4,652 stay empty where no definition or clean pointer exists.
+
+TWO GATES THAT COULD NOT FAIL. A build could silently delete six books of
+curated scene apparatus and exit 0 — merge_staging accepted partial
+coverage, run() overwrote the canonical file, preflight only checked what
+remained. Now raises before the write; --allow-partial-apparatus is the
+explicit opt-in. And every public build loaded the private manifest while
+the private-content check short-circuited, because no <work>-public.yaml
+exists; the check now asserts a positive public-domain allowlist and a
+missing or empty allowlist is itself a failure.
+
+Also live: a box per dictionary-level homonym in the word popup (PR #11),
+1,462 analyses rendering as 3,061 cards over 890 token-keys.
+
+Gate: pytest 403/404 (known xa/w gloss gap — its LSJ body is not a clean
+cross-reference, so the code refuses to invent one; documented in PR #12)
+· build:public preflight ok · LSJ + Cunliffe keys all resolve · 4,703
+pages · 0/312,770 broken links, 148,137 anchors · 48/48 books with scenes
+(790). Deployed gh-pages 9145cd016 -> origin. Live verified: Pages build
+"built", / and Il. 1 and Od. 9 200, /lemma/aner/ 200, /lemma/androo/ and
+/lemma/achaia/ 404, live data ou) -> "not" and a)ndrw=n -> a)nh/r "man".
+
+LESSON. apparatus/scenes/<work>.json is DERIVED from apparatus/staging/.
+Corrections written to it survive exactly until the next re-emit
+regenerates the file. They belong in staging, which also subjects them to
+schema validation — that caught a 16-word Book 6 argument against a
+15-word cap that direct editing had waved through. The loose JSONs at
+apparatus/ root (places.json, characters.json) are source, copied verbatim.

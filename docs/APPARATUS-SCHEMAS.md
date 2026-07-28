@@ -209,3 +209,25 @@ contiguous sub-sequence AND has the identical ref set; a shorter candidate
 with a broader/different ref set is kept independently.
 Both deterministic, pipeline-tested (fixture + determinism test re-run twice,
 byte-identical output).
+
+## The phrase index, and how it differs from repetitions and epithets
+
+Stage 8 (`stage8_ngrams.py`) emits a third index over recurring word
+sequences: `build/dist/ngrams/` (form 68,550 phrases, lemma 158,973,
+English 118,695 — 34 MB total) plus `build/dist/lemma-map/` (764 KB),
+which widens a typed surface form to the headwords it can belong to. This
+is not a replacement for repetitions or epithets; it answers a different
+question. Repetitions and epithets are philological claims: exact surface
+text or lemma sequence, matched within one line only, pruned by the
+maximal-n-gram rule, so each entry is a scholarly assertion about a
+specific recurring phrase. The phrase index is a search tool: it folds
+away accent and case, matches across all three streams (Greek form,
+lemma, and English), crosses line ends unless the reader turns that off,
+and keeps anything occurring twice or more anywhere in the corpus. Nothing
+in repetitions or epithets is derived from it, and nothing in it is
+folded back into them — keeping the three separate keeps the published
+philological claims exact while still letting a reader search loosely.
+The phrase index also deliberately keeps phrases that straddle a verse
+end, because the within-one-verse filter is a query-time toggle, not a
+build-time cut; Homeric formula is mostly a within-line phenomenon, which
+is the reason that toggle exists at all.

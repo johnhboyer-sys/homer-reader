@@ -1,6 +1,24 @@
 <script lang="ts">
   import { tick, onMount } from 'svelte';
-  import { search, type SearchMode, type LangOp, type MatchMode, type SearchResult } from '../lib/search';
+  import {
+    search,
+    searchCombo,
+    searchPhraseVariants,
+    lemmaOptions,
+    greekFold,
+    COMBO_WINDOW_DEFAULT,
+    COMBO_WINDOW_MAX,
+    type SearchMode,
+    type LangOp,
+    type MatchMode,
+    type SearchResult,
+    type SlotKind,
+    type SlotRelation,
+    type ComboSlot,
+    type ComboOptions,
+    type WindowUnit,
+    type GrammarQuery,
+  } from '../lib/search';
   import { fetchBook, fetchChapters, fetchSections, fetchColumns, fetchSpeeches, fetchCharacters, type Segment, type ChapterRef, type SectionRef, type ColumnRef, type Speech, type CharacterEntry } from '../lib/data';
   import { highlightPrefixMatches } from '../lib/text';
   import { WORKS, getWork, workPath, WORK_ORDER, WORK_GROUPS } from '../lib/works';
@@ -44,6 +62,12 @@
   let loading = false;                    // running the index search
   let searched = false;
   let error = '';
+  let failedWorks: string[] = [];         // works whose index didn't load this run
+  // Which control produced the results on screen — the widening button only
+  // makes sense beside a plain Greek+English search, since a solo-word,
+  // combo, or already-widened result set has no single "the query" to widen.
+  type ResultsSource = 'main' | 'solo' | 'combo' | 'variant';
+  let resultsSource: ResultsSource = 'main';
   let showHelp = false;
   let helpModal: HTMLDivElement;
   let helpTrigger: HTMLElement | null = null;
@@ -772,6 +796,9 @@
     if (!grkQuery.trim() && !engQuery.trim()) return;
     loading = true;
     error = '';
+    failedWorks = [];
+    variantsShown = false;
+    variantNote = '';
     pageError = '';
     csvNote = '';
     searched = false;
@@ -786,7 +813,10 @@
           ? grkQuery.trim().split(/\s+/).filter(Boolean).map(accentNorm)
           : [],
       };
-      rawResults = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode);
+      const outcome = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode);
+      rawResults = outcome.results;
+      failedWorks = outcome.failedWorks ?? [];
+      resultsSource = 'main';
       searched = true;
       await applyResultsPipeline();
       updateUrl();
@@ -794,6 +824,266 @@
       error = err instanceof Error ? err.message : String(err);
     } finally {
       loading = false;
+    }
+  }
+
+  // -- Retry dispatch for the failed-works notice ---------------------------
+  // The notice can follow any of the four search entry points, so "Retry"
+  // must re-run whichever one produced the results currently on screen.
+  function retryLastSearch() {
+    if (resultsSource === 'solo') doSoloSearch();
+    else if (resultsSource === 'combo') doComboSearch();
+    else if (resultsSource === 'variant') findVariants();
+    else doSearch();
+  }
+
+  // -- Inflected-form widening -----------------------------------------------
+  // A reader who types a Greek phrase gets the places where those exact
+  // spellings stand. The same formula routinely stands under other endings of
+  // the same words (case, number, mood, …); finding those by hand means
+  // knowing every word's dictionary form, which is exactly the knowledge this
+  // button removes the need for. Offered for any multi-word Greek query,
+  // whatever the current mode — it widens the SPELLING of each word, which a
+  // plain phrase or lemma search cannot do on its own.
+  let variantBusy = false;
+  let variantsShown = false;
+  let variantNote = '';
+  $: canWiden = resultsSource === 'main' && !variantsShown
+    && grkQuery.trim().split(/\s+/).filter(Boolean).length > 1;
+
+  async function findVariants() {
+    if (variantBusy) return;
+    variantBusy = true;
+    error = '';
+    variantNote = '';
+    try {
+      const works = WORKS.map(w => w.id).filter(id => selectedWorks.has(id));
+      const outcome = await searchPhraseVariants(searchCtx.grkQuery || grkQuery, works);
+      if (!outcome.results.length && !outcome.readings.length) {
+        variantNote = 'No dictionary form is recorded for one of these words, so there is nothing to widen.';
+        return;
+      }
+      rawResults = outcome.results;
+      failedWorks = outcome.failedWorks ?? [];
+      resultsSource = 'variant';
+      searched = true;
+      variantsShown = true;
+      await applyResultsPipeline();
+      // Two readings of one word routinely land on the same tokens — one
+      // passage under two parses — so the places are unioned, not added, and
+      // the count below is places, not readings tried.
+      const readingCount = outcome.productive.length || outcome.readings.length;
+      variantNote =
+        'Showing every place this phrase stands under any dictionary form of its words'
+        + ` (${readingCount} reading${readingCount === 1 ? '' : 's'} matched`
+        + (outcome.cappedFrom ? `, of ${outcome.cappedFrom} possible — the rest were not tried` : '')
+        + ').';
+    } catch (err) {
+      error = err instanceof Error ? err.message : String(err);
+    } finally {
+      variantBusy = false;
+    }
+  }
+
+  // -- "Every form of one word" panel ----------------------------------------
+  // Runs on its own, ignoring the Greek/English boxes above: type one word, in
+  // whatever form the text in front of the reader shows it, and get every
+  // place the same dictionary word stands, however it is spelled. matchMode
+  // 'lemma' already resolves a typed inflection to its headword (search.ts's
+  // resolveHeadwords), so this needs no picker of its own.
+  let soloPanelOpen = false;
+  let soloWord = '';
+  let soloBusy = false;
+
+  async function doSoloSearch() {
+    const word = soloWord.trim();
+    if (!word || soloBusy) return;
+    soloBusy = true;
+    error = '';
+    failedWorks = [];
+    pageError = '';
+    csvNote = '';
+    searched = false;
+    try {
+      const works = WORKS.map(w => w.id).filter(id => selectedWorks.has(id));
+      searchCtx = { grkQuery: word, engQuery: '', engTerms: [], grkAccentTerms: [] };
+      const outcome = await search(word, '', 'all', 'all', 'and', works, 'lemma');
+      rawResults = outcome.results;
+      failedWorks = outcome.failedWorks ?? [];
+      resultsSource = 'solo';
+      searched = true;
+      await applyResultsPipeline();
+    } catch (err) {
+      error = err instanceof Error ? err.message : String(err);
+    } finally {
+      soloBusy = false;
+    }
+  }
+
+  function onSoloEnter(e: KeyboardEvent) {
+    if (e.key === 'Enter') doSoloSearch();
+  }
+
+  // -- "Two things near each other" (combo) panel ----------------------------
+  //
+  // Grammar exists ONLY as a slot kind here, never on its own: a standalone
+  // grammatical query (e.g. genitive plural feminine) matches thousands of
+  // ordinary words and is not a result, it is a fact about Greek. As one term
+  // beside another the same index earns its keep.
+  //
+  // Vocabulary is exactly what Morpheus emits over this corpus (see
+  // stage6_search.py's _FEATURES) — no part of speech, since the analyses
+  // carry no such field and participles carry both nominal and verbal
+  // morphology.
+  const GRAMMAR_CATEGORIES: { key: string; label: string; values: string[] }[] = [
+    { key: 'case', label: 'Case', values: ['nom', 'gen', 'dat', 'acc', 'voc'] },
+    { key: 'number', label: 'Number', values: ['sg', 'pl', 'dual'] },
+    { key: 'gender', label: 'Gender', values: ['masc', 'fem', 'neut'] },
+    { key: 'tense', label: 'Tense', values: ['pres', 'imperf', 'fut', 'aor', 'perf', 'plup', 'futperf'] },
+    { key: 'mood', label: 'Mood', values: ['ind', 'subj', 'opt', 'imperat', 'inf', 'part'] },
+    { key: 'voice', label: 'Voice', values: ['act', 'mid', 'pass', 'mp'] },
+    { key: 'person', label: 'Person', values: ['1st', '2nd', '3rd'] },
+    { key: 'degree', label: 'Degree', values: ['comp', 'superl', 'irreg_comp'] },
+    { key: 'marker', label: 'Word class', values: ['adv', 'adverb', 'adverbial', 'particle', 'prep', 'conj', 'interrog', 'exclam', 'indecl', 'numeral', 'letter'] },
+  ];
+
+  interface ComboEditor {
+    id: number;
+    kind: SlotKind;
+    text: string;
+    grammar: GrammarQuery;
+    relation: SlotRelation;
+  }
+  let nextComboId = 1;
+  function newComboEditor(kind: SlotKind): ComboEditor {
+    return { id: nextComboId++, kind, text: '', grammar: {}, relation: 'near' };
+  }
+  let comboEditors: ComboEditor[] = [newComboEditor('lemma'), newComboEditor('form')];
+  let comboWindow = COMBO_WINDOW_DEFAULT;
+  // 'line' is a VERSE here — the interesting unit for Homer, a formula being a
+  // within-verse phenomenon. Homer emits no chapter bounds at all, so the
+  // sibling's "Same chapter" unit and its cross-chapter checkbox are inert
+  // here and are not offered (see ComboOptions in search.ts).
+  let comboUnit: WindowUnit = 'words';
+  let comboOrdered = false;
+  let comboPanelOpen = false;
+  let comboBusy = false;
+  let comboNote = '';
+
+  function setComboKind(id: number, kind: SlotKind) {
+    const i = comboEditors.findIndex((s) => s.id === id);
+    if (i < 0 || comboEditors[i].kind === kind) return;
+    const relation = comboEditors[i].relation;
+    comboEditors[i] = { ...newComboEditor(kind), id, relation };
+    comboEditors = [...comboEditors];
+  }
+  function setComboRelation(id: number, relation: SlotRelation) {
+    const s = comboEditors.find((e) => e.id === id);
+    if (!s) return;
+    s.relation = relation;
+    comboEditors = [...comboEditors];
+  }
+  function setComboText(id: number, text: string) {
+    const s = comboEditors.find((e) => e.id === id);
+    if (!s) return;
+    s.text = text;
+    comboEditors = [...comboEditors];
+  }
+  function setComboGrammar(id: number, key: string, value: string) {
+    const s = comboEditors.find((e) => e.id === id);
+    if (!s) return;
+    if (value) s.grammar = { ...s.grammar, [key]: value };
+    else { const g = { ...s.grammar }; delete g[key]; s.grammar = g; }
+    comboEditors = [...comboEditors];
+  }
+  function addComboEditor() {
+    if (comboEditors.length < 4) comboEditors = [...comboEditors, newComboEditor('form')];
+  }
+  function removeComboEditor(id: number) {
+    if (comboEditors.length > 2) comboEditors = comboEditors.filter((s) => s.id !== id);
+  }
+  function clampComboWindow() {
+    comboWindow = Math.max(1, Math.min(Number(comboWindow) || COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX));
+  }
+
+  $: comboReady = comboEditors.filter((e) =>
+    e.kind === 'grammatical' ? Object.keys(e.grammar).length > 0 : e.text.trim().length > 0,
+  ).length >= 2;
+
+  // A "some form of this word" slot's typed word resolved to the fold key plus
+  // every headword the corpus lemma map records for it, unioned — mirrors
+  // search.ts's resolveHeadwords, so an ambiguous surface form still finds
+  // every reading rather than guessing the wrong one.
+  //
+  // This union is correct HERE and is not the case the Phrases addendum's
+  // "a word the map records uses its headwords alone" rule (docs/advanced-
+  // search-phrases-addendum.md §1) forbids. That rule is scoped to the
+  // Phrases page's shard fetching, where reading a non-headword literally
+  // fetches a whole n-gram shard (up to 3.3 MB) with zero matching rows — the
+  // union there is expensive and wrong. A combo lemma slot instead resolves
+  // against the postings index: the extra option costs one more index lookup,
+  // not a shard, which is exactly the case the addendum names as fine
+  // ("`resolveHeadwords` in `search.ts` does union, correctly"). Do not
+  // "fix" this to drop the fold — an adversarial review already flagged it
+  // once and was wrong; the existing fallback to `[fold]` a few lines below
+  // already satisfies the addendum's rule 3 (a word the map does not record
+  // falls back to itself).
+  async function lemmaSlotTerms(word: string): Promise<string[]> {
+    const fold = greekFold(word);
+    if (!fold) return [];
+    const perTerm = await lemmaOptions([fold]);
+    const heads = perTerm?.[0] ?? [];
+    return heads.length ? [...new Set([fold, ...heads])] : [fold];
+  }
+
+  async function comboSlotFor(editor: ComboEditor): Promise<ComboSlot | null> {
+    if (editor.kind === 'grammatical') {
+      return Object.keys(editor.grammar).length
+        ? { kind: 'grammatical', query: { ...editor.grammar }, relation: editor.relation }
+        : null;
+    }
+    const text = editor.text.trim();
+    if (!text) return null;
+    if (editor.kind === 'lemma') {
+      const terms = await lemmaSlotTerms(text);
+      return terms.length ? { kind: 'lemma', terms, relation: editor.relation } : null;
+    }
+    const terms = text.split(/\s+/).filter(Boolean);
+    return terms.length ? { kind: editor.kind, terms, relation: editor.relation } : null;
+  }
+
+  async function doComboSearch() {
+    if (comboBusy) return;
+    comboBusy = true;
+    error = '';
+    failedWorks = [];
+    comboNote = '';
+    pageError = '';
+    csvNote = '';
+    searched = false;
+    try {
+      const slots = (await Promise.all(comboEditors.map(comboSlotFor)))
+        .filter((s): s is ComboSlot => !!s);
+      if (slots.length < 2) {
+        comboNote = 'Add at least two terms.';
+        return;
+      }
+      const works = WORKS.map(w => w.id).filter(id => selectedWorks.has(id));
+      // crossChapter is kept true (never toggled off) because Homer never
+      // offers the "Same chapter" unit that field otherwise gates — see
+      // ComboOptions's doc comment in search.ts.
+      const opts: ComboOptions = { window: comboWindow, unit: comboUnit, ordered: comboOrdered, crossChapter: true };
+      const outcome = await searchCombo(slots, opts, works);
+      rawResults = outcome.results;
+      failedWorks = outcome.failedWorks ?? [];
+      searchCtx = { grkQuery: '', engQuery: '', engTerms: [], grkAccentTerms: [] };
+      resultsSource = 'combo';
+      searched = true;
+      await applyResultsPipeline();
+    } catch (err) {
+      error = err instanceof Error ? err.message : String(err);
+    } finally {
+      comboBusy = false;
     }
   }
 
@@ -1000,6 +1290,151 @@
       </fieldset>
     </div>
 
+    <div class="advanced-panels">
+      <details class="lemma-panel" bind:open={soloPanelOpen}>
+        <summary>Every form of one word</summary>
+        <p class="panel-note">
+          Type one Greek word, in whatever form the text shows it, and this finds
+          every place the same word stands, however it is spelled. It searches on
+          its own — it ignores the Greek and English boxes above.
+        </p>
+        <div class="solo-lemma-row">
+          <label class="query-label" for="solo-word-input">One word</label>
+          <input
+            id="solo-word-input"
+            type="text"
+            lang="grc"
+            class="query-input greek-input"
+            placeholder="lo/gou or λόγου, …"
+            bind:value={soloWord}
+            on:keydown={onSoloEnter}
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="none"
+            spellcheck="false"
+          />
+          <button type="button" class="search-btn" on:click={doSoloSearch} disabled={!soloWord.trim() || soloBusy}>
+            {soloBusy ? 'Searching…' : 'Find every form'}
+          </button>
+        </div>
+      </details>
+
+      <details class="combo-panel" bind:open={comboPanelOpen}>
+        <summary>Two things near each other</summary>
+        <p class="panel-note">
+          Ask for terms that fall near each other in the verse, in any order (or a
+          fixed one). It searches on its own — it ignores the boxes above.
+        </p>
+
+        <div class="combo-slots">
+          {#each comboEditors as slot, slotIndex (slot.id)}
+            <section class="combo-slot" aria-labelledby={`combo-slot-${slot.id}`}>
+              <div class="combo-slot-head">
+                <span id={`combo-slot-${slot.id}`} class="combo-slot-number">Term {slotIndex + 1}</span>
+                <label class="combo-kind">
+                  <span>Kind</span>
+                  <select
+                    value={slot.kind}
+                    aria-label={`Kind for term ${slotIndex + 1}`}
+                    on:change={(e) => setComboKind(slot.id, e.currentTarget.value as SlotKind)}
+                  >
+                    <option value="phrase">Phrase</option>
+                    <option value="form">Exact spelling</option>
+                    <option value="lemma">Any form of this word</option>
+                    <option value="grammatical">Grammar</option>
+                  </select>
+                </label>
+                {#if slotIndex > 0}
+                  <label class="combo-kind">
+                    <span>Relative to term 1</span>
+                    <select
+                      value={slot.relation}
+                      disabled={comboOrdered}
+                      aria-label={`Position of term ${slotIndex + 1} relative to term 1`}
+                      on:change={(e) => setComboRelation(slot.id, e.currentTarget.value as SlotRelation)}
+                    >
+                      <option value="near">Near</option>
+                      <option value="before">Before</option>
+                      <option value="after">After</option>
+                    </select>
+                  </label>
+                {/if}
+                <button
+                  type="button"
+                  class="combo-remove"
+                  disabled={comboEditors.length <= 2}
+                  aria-label={`Remove term ${slotIndex + 1}`}
+                  on:click={() => removeComboEditor(slot.id)}
+                >Remove</button>
+              </div>
+
+              {#if slot.kind === 'grammatical'}
+                <div class="combo-grammar-grid">
+                  {#each GRAMMAR_CATEGORIES as cat}
+                    <label class="grammar-field">
+                      <span>{cat.label}</span>
+                      <select
+                        value={slot.grammar[cat.key] ?? ''}
+                        aria-label={`${cat.label} for term ${slotIndex + 1}`}
+                        on:change={(e) => setComboGrammar(slot.id, cat.key, e.currentTarget.value)}
+                      >
+                        <option value="">any</option>
+                        {#each cat.values as v}<option value={v}>{v}</option>{/each}
+                      </select>
+                    </label>
+                  {/each}
+                </div>
+              {:else}
+                <label class="combo-text-field" for={`combo-text-${slot.id}`}>
+                  <span>{slot.kind === 'phrase' ? 'Words' : slot.kind === 'form' ? 'Spelling' : 'Word'}</span>
+                  <input
+                    id={`combo-text-${slot.id}`}
+                    lang="grc"
+                    type="text"
+                    value={slot.text}
+                    on:input={(e) => setComboText(slot.id, e.currentTarget.value)}
+                    autocomplete="off"
+                    autocorrect="off"
+                    autocapitalize="none"
+                    spellcheck="false"
+                  />
+                </label>
+              {/if}
+            </section>
+          {/each}
+        </div>
+
+        <button type="button" class="combo-add" disabled={comboEditors.length >= 4} on:click={addComboEditor}>Add term</button>
+
+        <div class="combo-proximity">
+          <label class="combo-option combo-window">
+            <span>Window (words)</span>
+            <input
+              type="number"
+              min="1"
+              max={COMBO_WINDOW_MAX}
+              bind:value={comboWindow}
+              disabled={comboUnit !== 'words'}
+              on:blur={clampComboWindow}
+            />
+          </label>
+          <label class="combo-option">
+            <span>Unit</span>
+            <select bind:value={comboUnit}>
+              <option value="words">Words</option>
+              <option value="line">Same verse</option>
+            </select>
+          </label>
+          <label class="combo-check"><input type="checkbox" bind:checked={comboOrdered} /> In this order</label>
+        </div>
+
+        <button type="button" class="search-btn combo-search-btn" on:click={doComboSearch} disabled={!comboReady || comboBusy}>
+          {comboBusy ? 'Searching…' : 'Search these terms'}
+        </button>
+        {#if comboNote}<p class="search-note">{comboNote}</p>{/if}
+      </details>
+    </div>
+
     <div class="works-panel" role="group" aria-label="Works to search">
       <button
         type="button"
@@ -1141,6 +1576,13 @@
   {#if error}
     <p class="search-error">{error}</p>
   {:else if searched}
+    {#if failedWorks.length}
+      <p class="search-incomplete" role="alert">
+        ⚠ Incomplete results — couldn't load {failedWorks.length === 1 ? 'the index for' : 'indexes for'}
+        {failedWorks.map((w) => getWork(w)?.title ?? w).join(', ')}. Counts below may be short.
+        <button type="button" class="retry-btn" on:click={retryLastSearch}>Retry</button>
+      </p>
+    {/if}
     <div class="filters-row" role="group" aria-label="Filter results">
       <label class="filter-field">
         <span class="filter-label">Work</span>
@@ -1188,12 +1630,20 @@
             (searchCtx.grkAccentTerms.length ? ' before accent filtering' : '') +
             (pages.length > 1 ? ` · page ${pageIdx + 1} of ${pages.length}` : '')}
       </p>
+      {#if canWiden}
+        <button type="button" class="export-btn" on:click={findVariants} disabled={variantBusy}>
+          {variantBusy ? 'Looking…' : 'Find it under any dictionary form'}
+        </button>
+      {/if}
       {#if totalInstances > 0}
         <button type="button" class="export-btn" on:click={exportCsv} disabled={csvBusy}>
           {csvBusy ? 'Preparing CSV…' : 'Export results as CSV'}
         </button>
       {/if}
     </div>
+    {#if variantNote}
+      <p class="search-note">{variantNote}</p>
+    {/if}
     {#if csvNote}
       <p class="search-note">{csvNote}</p>
     {/if}
@@ -1449,6 +1899,152 @@
     color: var(--on-accent);
   }
 
+  /* --- "Every form of one word" / "Two things near each other" panels --- */
+  .advanced-panels {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .lemma-panel,
+  .combo-panel {
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--input-bg);
+    padding: 0.5rem 0.85rem;
+  }
+  .lemma-panel > summary,
+  .combo-panel > summary {
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--text-mid);
+  }
+  .panel-note {
+    margin: 0.5rem 0;
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--text-mid);
+    max-width: 62ch;
+  }
+  .solo-lemma-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .solo-lemma-row .query-input { flex: 1; }
+
+  .combo-slots {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
+  }
+  .combo-slot {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--col-bg);
+    padding: 0.55rem 0.65rem 0.65rem;
+  }
+  .combo-slot-head {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
+  }
+  .combo-slot-number {
+    align-self: center;
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-mid);
+  }
+  .combo-kind,
+  .combo-text-field,
+  .combo-option,
+  .grammar-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    color: var(--text-mid);
+  }
+  .combo-kind { margin-left: auto; }
+  .combo-kind select,
+  .combo-text-field input,
+  .combo-option select,
+  .combo-option input,
+  .grammar-field select {
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--text);
+    padding: 0.25rem 0.4rem;
+  }
+  .combo-text-field input {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: var(--font-greek);
+    font-size: 0.95rem;
+  }
+  .combo-kind select:focus,
+  .combo-text-field input:focus,
+  .combo-option select:focus,
+  .combo-option input:focus,
+  .grammar-field select:focus {
+    outline: 2px solid var(--accent-light);
+    outline-offset: 1px;
+  }
+  .combo-remove,
+  .combo-add {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--accent);
+    padding: 0.25rem 0.55rem;
+    cursor: pointer;
+  }
+  .combo-remove:hover:not(:disabled),
+  .combo-add:hover:not(:disabled) { border-color: var(--accent-light); }
+  .combo-remove:disabled,
+  .combo-add:disabled { opacity: 0.45; cursor: default; }
+  .combo-grammar-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+  }
+  .combo-proximity {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 0.6rem 0.9rem;
+    margin: 0.75rem 0;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--border);
+  }
+  .combo-window input { width: 4.5rem; }
+  .combo-option input:disabled { opacity: 0.5; }
+  .combo-check {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    color: var(--text);
+    cursor: pointer;
+    padding-bottom: 0.25rem;
+  }
+  .combo-search-btn { margin-left: 0; }
+
   fieldset {
     border: none;
     padding: 0;
@@ -1697,6 +2293,21 @@
   }
 
   .search-error { color: var(--error); font-family: var(--font-ui); font-size: 0.9rem; }
+
+  .search-incomplete {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    background: color-mix(in srgb, var(--error) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--error) 30%, transparent);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    margin: 0 0 0.85rem;
+  }
 
   /* --- Result filters: work / book / speaker / speeches-only ------------ */
   .filters-row {

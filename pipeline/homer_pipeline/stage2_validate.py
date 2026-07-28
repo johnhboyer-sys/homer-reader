@@ -20,8 +20,10 @@ import json
 import hashlib
 import statistics
 import unicodedata
+from bisect import bisect_right
 from collections import defaultdict
 from pathlib import Path
+from typing import Iterable
 
 from . import scheme as scheme_mod
 from .config import BUILD_DIR, Manifest
@@ -33,6 +35,8 @@ def _base(text: str) -> str:
 
 # Characters we expect in Bywater's text besides Greek letters.
 EXPECTED_NON_GREEK = set(" .,·;'’ʼ—-()[]")
+GRAMMAR_EVEN_SAMPLES = 257
+GRAMMAR_EDGE_SEGMENTS = 32
 
 
 def _is_greek_letter(ch: str) -> bool:
@@ -42,6 +46,393 @@ def _is_greek_letter(ch: str) -> bool:
         return "GREEK" in unicodedata.name(ch)
     except ValueError:
         return False
+
+
+def check_offsets(
+    offsets: dict,
+    segments: list[dict],
+    expected_line_gaps: Iterable[dict] = (),
+) -> dict:
+    """Validate the stage6 word-offset primitive against the stage3 segments.
+
+    Ported from aristotle_pipeline.stage2_validate (stage6_search.py:261 there).
+    Lives here with the other checks, but runs from stage6 -- offsets.json does
+    not exist yet when stage2's own `run()` executes earlier in the pipeline.
+
+    Structural failures (a base that walks backwards, a base delta that misses
+    its segment's token count) are hard: every offset-indexed feature
+    downstream would silently read the wrong word.
+
+    Homer-only addition: `line_runs` carries book.line resolution (Homer has no
+    Bekker column, so this is load-bearing, not an optimization) and the
+    vulgate lineation is sacred -- a `line_runs` line number must be the
+    EMITTED line number, never a renumbered enumeration index. Reusing
+    `scheme.validate_line_sequence` (the same function stage2's own line-gap
+    check calls) means a renumbering defect here is caught by the very
+    whitelist the manifest already declares, not a second, divergent one.
+    Aristotle's `chapter_bounds` accuracy bookkeeping has no Homeric analogue
+    and is intentionally not ported: Homer's offsets.json always emits
+    `chapter_bounds: []`.
+    """
+    base = offsets["seg_base_offset"]
+    coords = offsets["segments"]
+    problems: list[str] = []
+
+    if len(base) != len(segments) or len(coords) != len(segments):
+        problems.append(
+            f"length mismatch: {len(base)} bases / {len(coords)} coords / "
+            f"{len(segments)} segments"
+        )
+    else:
+        for i, seg in enumerate(segments):
+            count = sum(len(l["tokens"]) for l in seg["lines"])
+            if i and base[i] < base[i - 1]:
+                problems.append(f"base decreases at seg {i} ({seg['id']})")
+            expected = base[i] + count
+            actual = base[i + 1] if i + 1 < len(base) else offsets["token_count"]
+            if actual != expected:
+                problems.append(
+                    f"seg {i} ({seg['id']}): base delta {actual - base[i]} != "
+                    f"token count {count}"
+                )
+            expected_runs = [[line["n"], len(line["tokens"])] for line in seg["lines"]]
+            if coords[i]["line_runs"] != expected_runs:
+                problems.append(
+                    f"seg {i} ({seg['id']}): line_runs do not match stage3 lines "
+                    f"(expected {expected_runs!r}, got {coords[i]['line_runs']!r})"
+                )
+
+    # Round-trip a sample: global -> (seg, pos) must return the original.
+    def to_local(g: int) -> tuple[int, int]:
+        lo, hi = 0, len(base) - 1
+        while lo < hi:
+            mid = (lo + hi + 1) // 2
+            if base[mid] <= g:
+                lo = mid
+            else:
+                hi = mid - 1
+        return lo, g - base[lo]
+
+    sampled = 0
+    if not problems:
+        for i, seg in enumerate(segments):
+            count = sum(len(l["tokens"]) for l in seg["lines"])
+            for pos in {0, count // 2, count - 1}:
+                if not 0 <= pos < count:
+                    continue
+                sampled += 1
+                if to_local(base[i] + pos) != (i, pos):
+                    problems.append(f"round-trip failed at seg {i} pos {pos}")
+
+    # Homer-only: the vulgate lineation is sacred. `line_runs`' line numbers,
+    # grouped by book, must ascend by one except at declared gaps -- an
+    # offset that resolves to a renumbered line is worse than no offset.
+    lineation_unexpected: list[dict] = []
+    if not problems:
+        lines_by_book: dict[int, list[int]] = defaultdict(list)
+        for c in coords:
+            lines_by_book[c["book"]].extend(n for n, _ in c["line_runs"])
+        lineation_unexpected = scheme_mod.validate_line_sequence(
+            lines_by_book, expected_line_gaps
+        )
+        if lineation_unexpected:
+            g = lineation_unexpected[0]
+            problems.append(
+                f"{len(lineation_unexpected)} unexpected line-number gap(s) in "
+                f"line_runs (first: book {g['book']} {g['after']} -> {g['next']} "
+                "-- not in expected_line_gaps; line_runs must carry the emitted "
+                "vulgate line numbers, never a renumbered sequence)"
+            )
+
+    bounds = offsets["chapter_bounds"]
+    if bounds:
+        problems.append(
+            f"chapter_bounds has {len(bounds)} entries; Homer has no chapter "
+            "analogue and must always emit an empty list"
+        )
+
+    return {
+        "token_count": offsets["token_count"],
+        "segments": len(segments),
+        "round_trips_sampled": sampled,
+        "lineation_unexpected": lineation_unexpected[:30],
+        "problems": problems,
+        "ok": not problems,
+    }
+
+
+def check_ngram_streams(
+    form_stream: list,
+    lemma_stream: list,
+    greek_form: dict,
+    greek_lemma: dict,
+    base: list[int],
+    token_count: int,
+) -> dict:
+    """The n-gram streams must say exactly what the search indexes say.
+
+    Ported verbatim from aristotle_pipeline.stage2_validate. They are gathered
+    in a different walk from the posting lists, so nothing but a comparison
+    stops the two drifting. If they drift, the phrase browser would offer
+    phrases the search cannot find -- or miss ones it can.
+    """
+    problems: list[str] = []
+    if len(form_stream) != token_count or len(lemma_stream) != token_count:
+        problems.append(
+            f"stream lengths {len(form_stream)}/{len(lemma_stream)} != "
+            f"token_count {token_count}"
+        )
+        return {"problems": problems, "ok": False}
+
+    expected_form: list = [None] * token_count
+    for key, posts in greek_form.items():
+        for si, pos in posts:
+            expected_form[base[si] + pos] = key
+    expected_lemma: list = [set() for _ in range(token_count)]
+    for key, posts in greek_lemma.items():
+        for si, pos in posts:
+            expected_lemma[base[si] + pos].add(key)
+
+    form_bad = [i for i in range(token_count) if expected_form[i] != form_stream[i]]
+    lemma_bad = [
+        i for i in range(token_count)
+        if (sorted(expected_lemma[i]) or None) != lemma_stream[i]
+    ]
+    if form_bad:
+        i = form_bad[0]
+        problems.append(
+            f"{len(form_bad)} form-stream mismatches (first at offset {i}: "
+            f"index says {expected_form[i]!r}, stream says {form_stream[i]!r})"
+        )
+    if lemma_bad:
+        i = lemma_bad[0]
+        problems.append(
+            f"{len(lemma_bad)} lemma-stream mismatches (first at offset {i}: "
+            f"index says {sorted(expected_lemma[i]) or None!r}, "
+            f"stream says {lemma_stream[i]!r})"
+        )
+    return {
+        "form_tokens": sum(1 for t in form_stream if t),
+        "lemma_tokens": sum(1 for t in lemma_stream if t),
+        "multi_lemma_tokens": sum(1 for t in lemma_stream if t and len(t) > 1),
+        "problems": problems,
+        "ok": not problems,
+    }
+
+
+def check_grammar(
+    grammar: dict,
+    column: list[int],
+    offsets: dict,
+    segments: list[dict],
+    key_map: dict,
+    analyses: dict,
+    signature_fn,
+) -> dict:
+    """Validate the stage6 grammatical index. Runs from stage6, like the above.
+
+    Ported verbatim from aristotle_pipeline.stage2_validate. The column is
+    indexed by global offset, so a length that disagrees with the offset
+    primitive means every grammatical hit would name the wrong word -- hard
+    fail. Ambiguity rates are reported, not judged.
+
+    `signature_fn` is a caller-supplied closure, not the bare `signature`
+    function: Homer's stage6 passes one that first runs the token's raw
+    Morpheus analyses through the corpus's own `filter_parses` (the same
+    curation `stage7_emit.resolve_parses` applies before a reader ever sees a
+    parse card), so this re-derivation agrees with however the column was
+    actually built -- see stage6_search.py's `_curated_entries` /
+    `_signature_fn` wiring.
+    """
+    sigs = grammar["sigs"]
+    problems: list[str] = []
+
+    if len(column) != offsets["token_count"]:
+        problems.append(
+            f"column length {len(column)} != token_count {offsets['token_count']}"
+        )
+    if grammar["token_count"] != offsets["token_count"]:
+        problems.append("grammar/offsets token_count disagree — mismatched build")
+    bad = [i for i, s in enumerate(column) if not 0 <= s < len(sigs)]
+    if bad:
+        problems.append(f"{len(bad)} out-of-range signature ids (first at {bad[0]})")
+    for slot, name in ((grammar["reserved"]["unkeyed"], "unkeyed"),
+                       (grammar["reserved"]["unanalysed"], "unanalysed")):
+        if sigs[slot]:
+            problems.append(f"reserved slot {slot} ({name}) is not empty")
+
+    # Range checks cannot detect a well-formed column joined to the wrong token.
+    # Re-derive morphology from stage3/stage4 at deterministic offsets spread
+    # across the work, with extra coverage at early segment boundaries.
+    nonempty_starts: list[int] = []
+    nonempty_indexes: list[int] = []
+    expected_count = 0
+    edge_segments = 0
+    samples: set[int] = set()
+    for si, seg in enumerate(segments):
+        count = sum(len(line["tokens"]) for line in seg["lines"])
+        if count:
+            nonempty_starts.append(expected_count)
+            nonempty_indexes.append(si)
+            if edge_segments < GRAMMAR_EDGE_SEGMENTS:
+                samples.update((expected_count, expected_count + count - 1))
+                edge_segments += 1
+        expected_count += count
+
+    if expected_count:
+        evenly_spaced = min(GRAMMAR_EVEN_SAMPLES, expected_count)
+        if evenly_spaced == 1:
+            samples.add(0)
+        else:
+            samples.update(
+                i * (expected_count - 1) // (evenly_spaced - 1)
+                for i in range(evenly_spaced)
+            )
+
+    semantic_sampled = 0
+    for g in sorted(samples):
+        if g >= len(column):
+            continue  # the length failure above already names this corruption
+        sid = column[g]
+        if not 0 <= sid < len(sigs):
+            continue  # likewise for the signature-id range failure
+        nonempty_i = bisect_right(nonempty_starts, g) - 1
+        si = nonempty_indexes[nonempty_i]
+        local = g - nonempty_starts[nonempty_i]
+        token = None
+        token_pos = local
+        for line in segments[si]["lines"]:
+            if token_pos < len(line["tokens"]):
+                token = line["tokens"][token_pos]
+                break
+            token_pos -= len(line["tokens"])
+        if token is None:
+            problems.append(f"semantic sample {g} did not resolve to a stage3 token")
+            continue
+
+        semantic_sampled += 1
+        key = token.get("k")
+        if not key:
+            expected_sid = grammar["reserved"]["unkeyed"]
+            if sid != expected_sid:
+                problems.append(
+                    f"grammar semantic mismatch at global offset {g} "
+                    f"(seg {si} {segments[si]['id']}, token {local}): "
+                    f"unkeyed token expected reserved id {expected_sid}, got {sid}"
+                )
+            continue
+
+        stored = key_map.get(key)
+        entries = analyses.get(stored, []) if stored else []
+        expected_sig = signature_fn(entries)
+        if not expected_sig:
+            expected_sid = grammar["reserved"]["unanalysed"]
+            if sid != expected_sid:
+                problems.append(
+                    f"grammar semantic mismatch at global offset {g} "
+                    f"(seg {si} {segments[si]['id']}, token {local}, key {key!r}): "
+                    f"unanalysed token expected reserved id {expected_sid}, got {sid}"
+                )
+            continue
+
+        expected_content = [
+            {category: list(values) for category, values in reading}
+            for reading in expected_sig
+        ]
+        if sigs[sid] != expected_content:
+            problems.append(
+                f"grammar semantic mismatch at global offset {g} "
+                f"(seg {si} {segments[si]['id']}, token {local}, key {key!r}): "
+                f"expected {expected_content!r}, got id {sid} -> {sigs[sid]!r}"
+            )
+
+    # Ambiguity, per category: of the tokens that license a value for it, how
+    # many license more than one? This is the honesty signal — it counts values
+    # a reader could be shown, not analysis records.
+    valid_ids = [s for s in column if 0 <= s < len(sigs)]
+    analysed = sum(1 for s in valid_ids if sigs[s])
+    ambiguity: dict[str, dict] = {}
+    for category in grammar["categories"]:
+        present = ambiguous = 0
+        for sid, count in _counts(valid_ids).items():
+            readings = sigs[sid]
+            if not readings:
+                continue
+            values = {v for r in readings for v in r.get(category, [])}
+            if not values:
+                continue
+            present += count
+            if len(values) > 1:
+                ambiguous += count
+        if present:
+            ambiguity[category] = {
+                "tokens": present,
+                "ambiguous": ambiguous,
+                "rate": round(ambiguous / present, 4),
+            }
+
+    return {
+        "signatures": len(sigs),
+        "width_bytes": grammar["width"],
+        "tokens": len(column),
+        "semantic_offsets_sampled": semantic_sampled,
+        "tokens_analysed": analysed,
+        "tokens_unkeyed": sum(1 for s in column if s == grammar["reserved"]["unkeyed"]),
+        "tokens_unanalysed": sum(
+            1 for s in column if s == grammar["reserved"]["unanalysed"]
+        ),
+        "ambiguity": ambiguity,
+        "problems": problems,
+        "ok": not problems,
+    }
+
+
+def _counts(column: list[int]) -> dict[int, int]:
+    out: dict[int, int] = defaultdict(int)
+    for s in column:
+        out[s] += 1
+    return out
+
+
+def merge_search_checks(
+    report: dict,
+    *,
+    offsets: dict | None = None,
+    grammar: dict | None = None,
+    ngram_streams: dict | None = None,
+) -> dict:
+    """Fold stage6's offset/grammar/n-gram-stream validations into the
+    persisted stage2 report, so one document and one '0 errors' gate cover the
+    whole build.
+
+    stage2's own `run()` executes early in the pipeline, before stage6 has
+    built offsets.json/grammar-dict.json/the n-gram fold streams -- so those
+    sections are simply ABSENT from a plain `stage2` (or early `all`) report,
+    never a failure. stage6 calls this after it has already validated the
+    artifacts in memory (raising before ever reaching this call if a check
+    failed), so by the time a section is merged in here it is known-good;
+    this function only makes that result visible in the one report a human or
+    a preflight gate reads.
+    """
+    if offsets is not None:
+        report["checks"]["offsets"] = offsets
+    if grammar is not None:
+        report["checks"]["grammar"] = grammar
+    if ngram_streams is not None:
+        report["checks"]["ngram_streams"] = ngram_streams
+    report["ok"] = all(c.get("ok") for c in report["checks"].values())
+    return report
+
+
+def write_report(report: dict, out_dir: Path) -> None:
+    """Persist a (possibly merged) stage2 report as both .json and .md."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "validation_report.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
+    (out_dir / "validation_report.md").write_text(
+        _to_markdown(report), encoding="utf-8"
+    )
 
 
 def validate(manifest: Manifest, spine: dict, english: dict, alignment: dict) -> dict:
@@ -521,6 +912,39 @@ def _to_markdown(report: dict) -> str:
             f"- U+{ord(e['char']):04X} {e['char']!r} {e['name']} x{e['count']} "
             f"(e.g. {sample})"
         )
+    # These three sections are added later, by stage6 (see merge_search_checks):
+    # stage2's own early run() never sees offsets.json / grammar-dict.json / the
+    # n-gram fold streams, since stage6 builds them after stage2 has already run.
+    if "offsets" in c:
+        o = c["offsets"]
+        lines += [
+            "",
+            "## Search offsets (added by stage6)",
+            f"- token_count {o['token_count']}, segments {o['segments']}, "
+            f"round-trips sampled {o['round_trips_sampled']}",
+        ]
+        if o.get("lineation_unexpected"):
+            lines.append(
+                f"  - **UNEXPECTED** line-number gaps in line_runs: "
+                f"{o['lineation_unexpected']}"
+            )
+    if "grammar" in c:
+        g = c["grammar"]
+        lines += [
+            "",
+            "## Grammar signature index (added by stage6)",
+            f"- {g['signatures']} signatures, {g['tokens']} tokens, "
+            f"{g['tokens_unkeyed']} unkeyed, {g['tokens_unanalysed']} unanalysed, "
+            f"{g['semantic_offsets_sampled']} semantic samples checked",
+        ]
+    if "ngram_streams" in c:
+        n = c["ngram_streams"]
+        lines += [
+            "",
+            "## N-gram fold streams (added by stage6)",
+            f"- form tokens {n['form_tokens']}, lemma tokens {n['lemma_tokens']}, "
+            f"multi-lemma tokens {n['multi_lemma_tokens']}",
+        ]
     return "\n".join(lines) + "\n"
 
 
@@ -537,10 +961,5 @@ def run(manifest: Manifest) -> Path:
                  if align_path.exists() else {"pairs": [], "english_only": []})
     report = validate(manifest, spine, english, alignment)
     out_dir = BUILD_DIR / "stage2"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "validation_report.json").write_text(
-        json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8"
-    )
-    md_path = out_dir / "validation_report.md"
-    md_path.write_text(_to_markdown(report), encoding="utf-8")
-    return md_path
+    write_report(report, out_dir)
+    return out_dir / "validation_report.md"

@@ -1,0 +1,345 @@
+---
+import { readFileSync } from 'node:fs';
+import ThemeInit from '../components/ThemeInit.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import Pwa from '../components/Pwa.astro';
+import { jsonLdSafe } from '../lib/jsonld';
+import '@shared/styles/global.css';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Every number on this page comes from a build-time read of
+// build/dist/ngrams/summary.json (stage8_ngrams.py) — never typed by hand.
+// Handoff §5: the sibling repo shipped this guide with a phrase count 4x off
+// because a session-typed number went stale silently. Read fresh, every build.
+const summary = JSON.parse(
+  readFileSync('../build/dist/ngrams/summary.json', 'utf-8'),
+) as {
+  works: string[];
+  tokens: Record<string, number>;
+  streams: Record<string, { kept: number }>;
+};
+const fmt = (n: number) => n.toLocaleString('en-US');
+const corpus = {
+  tokens: fmt(summary.tokens.total),
+  iliadTokens: fmt(summary.tokens.iliad),
+  odysseyTokens: fmt(summary.tokens.odyssey),
+  formPhrases: fmt(summary.streams.form.kept),
+  lemmaPhrases: fmt(summary.streams.lemma.kept),
+  englishPhrases: fmt(summary.streams.english.kept),
+};
+
+const title = 'Advanced search: a guide';
+const description =
+  'How to search the Iliad and Odyssey beyond a plain word: every form of a' +
+  ' word, wildcards, two words near each other, grammar as a filter, the' +
+  ' phrase index, and English search — with worked examples.';
+const canonical = Astro.site ? new URL(`${base}/advanced/`, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(`${base}/og-default.png`, Astro.site).href : undefined;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'TechArticle',
+  name: title,
+  description,
+  ...(canonical ? { url: canonical } : {}),
+  isPartOf: { '@type': 'WebSite', name: 'The Homer Reader' },
+};
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <ThemeInit />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  {canonical && <link rel="canonical" href={canonical} />}
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:site_name" content="The Homer Reader" />
+  {canonical && <meta property="og:url" content={canonical} />}
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  {ogImage && <meta name="twitter:image" content={ogImage} />}
+  <script type="application/ld+json" set:html={jsonLdSafe(jsonLd)} />
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="icon" href={`${base}/favicon.png`} type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} sizes="180x180" />
+  <Pwa />
+</head>
+<body>
+  <SiteHeader section="Advanced search" />
+  <main class="guide">
+    <p class="guide-eyebrow">A guide</p>
+    <h1>Advanced search</h1>
+    <p class="guide-lede">
+      Six ways to ask the text a question a plain word search cannot answer.
+      You need no Greek to use most of them. Every number on this page comes
+      from the {corpus.tokens} Greek words this site searches —
+      {corpus.iliadTokens} in the Iliad, {corpus.odysseyTokens} in the
+      Odyssey. Check any of them against the search itself.
+    </p>
+
+    <nav class="guide-toc" aria-label="On this page">
+      <ol>
+        <li><a href="#forms">Every form of a word</a> — one word, however it ends</li>
+        <li><a href="#wildcards">Wildcards</a> — find a word you only partly know</li>
+        <li><a href="#near">Two things near each other</a> — words close together in the verse</li>
+        <li><a href="#grammar">Grammar as a filter</a> — find a kind of word, not a spelling</li>
+        <li><a href="#phrases">The phrase index</a> — what Homer repeats</li>
+        <li><a href="#english">Search in English</a></li>
+        <li><a href="#honesty">What these tools cannot tell you</a></li>
+      </ol>
+    </nav>
+
+    <section id="first">
+      <h2>First, one thing worth knowing</h2>
+      <p>
+        Greek changes the end of a word to show its job in the sentence, so a
+        search for one spelling misses most of the places that word stands.
+        Several of the tools below exist to fix that. You can also type Greek
+        in plain letters if you have no Greek keyboard — the search page has a
+        key to it, and shows both ways of typing.
+      </p>
+    </section>
+
+    <section id="forms">
+      <h2>Every form of a word</h2>
+      <p class="guide-q">Use this when you want one word wherever it stands, in whatever form it takes.</p>
+      <p>
+        The Greek search box has a setting for this. Set it to
+        <em>any form of the word</em> and typing one form finds them all — type
+        the word as the text has it, in whatever ending it happens to show. Set
+        it to <em>only as I typed it</em> and the search matches that one
+        spelling alone.
+      </p>
+      <p>
+        There is also a search on its own for this: <em>Every form of one
+        word</em>. Open it, type one Greek word in any form, and it finds every
+        place the same word stands, however it is spelled there. It ignores the
+        main search boxes and answers on its own.
+      </p>
+      <p class="guide-note">
+        A phrase can be widened the same way. After a search for an exact
+        phrase, a button offers to find that phrase again with each word
+        allowed to take any of its forms — useful when a phrase you searched
+        for exactly might also appear declined.
+      </p>
+    </section>
+
+    <section id="wildcards">
+      <h2>Wildcards</h2>
+      <p class="guide-q">Use this when you know part of a word but not all of it.</p>
+      <p>
+        Type <code>*</code> to stand for any run of letters, or <code>?</code>
+        for exactly one letter. Both work in the middle of a word as well as at
+        the end — <code>pod*</code> finds every word beginning
+        <span lang="grc">ποδ-</span>, and <code>an?r</code> finds
+        <span lang="grc">ἀνήρ</span> without the accent mattering.
+      </p>
+      <p class="guide-note">
+        One exception: a <code>*</code> at the very start of a word is not a
+        wildcard. In plain-letter Greek it marks a capital, so
+        <code>*a)xilleu/s</code> means <span lang="grc">Ἀχιλλεύς</span> and the
+        search reads it as that one word.
+      </p>
+    </section>
+
+    <section id="near">
+      <h2>Two things near each other</h2>
+      <p class="guide-q">Use this to find where two words, phrases, or kinds of word fall close together.</p>
+      <p>
+        Open <em>Two things near each other</em> and add a term for each thing
+        you are looking for. Each term can be a phrase, an exact spelling, a
+        word in any of its forms, or a piece of grammar (see below), and you
+        can mix them freely.
+      </p>
+      <p>
+        Choose how close counts as near: a number of <strong>words</strong>
+        apart, or the <strong>same verse</strong>. You can also ask that one
+        term come strictly before or after another, and that every term appear
+        in the order you listed them.
+      </p>
+      <p class="guide-note">
+        A match never crosses from one book into the next, however wide the
+        window — the last words of one book and the first of the next are not
+        near each other in any useful sense.
+      </p>
+    </section>
+
+    <section id="grammar">
+      <h2>Grammar as a filter</h2>
+      <p class="guide-q">Use this to find a kind of word rather than a particular spelling.</p>
+      <p>
+        Every Greek word here carries a grammatical description — case,
+        number, gender, tense, mood, voice, person, and so on. Inside
+        <em>Two things near each other</em>, set a term's kind to
+        <em>Grammar</em> and pick the description you want instead of typing a
+        word. You need not know how the matching forms are spelled; you choose
+        the description and the search finds the words.
+      </p>
+      <p>
+        Grammar works only as one term beside another, never as a search on
+        its own. A single grammatical description alone — every plural, say —
+        matches too much of the text to be a real question. Paired with a word
+        or phrase, it becomes one: <em>this word near a verb in a past
+        tense</em> is a question the tool can answer.
+      </p>
+      <p class="guide-note">
+        There is no setting for "noun" or "verb". Some words in Greek do the
+        work of both at once, and nothing in the description tells them apart,
+        so offering that choice would mean guessing.
+      </p>
+    </section>
+
+    <section id="phrases">
+      <h2>The phrase index</h2>
+      <p class="guide-q">Use this when you do not yet know what to look for.</p>
+      <p>
+        Search answers "where does this occur?" The
+        <a href={`${base}/phrases/`}>phrase index</a> answers a different
+        question: <em>what does Homer repeat?</em> It lists every run of two to
+        five words that recurs anywhere in the two poems — {corpus.formPhrases}
+        of them as printed, {corpus.lemmaPhrases} when different endings of the
+        same words count together, and {corpus.englishPhrases} in the English
+        translation.
+      </p>
+      <p>
+        This differs from the <a href={`${base}/formulas/`}>epithet-formulas</a>
+        and the <a href={`${base}/repetitions/`}>repeated lines</a> shown
+        elsewhere on this site. Those list phrases a scholar has judged
+        significant, matched exactly and within one verse. The phrase index is
+        a plainer tool: it counts anything that recurs twice or more, however
+        it is spelled, and lets a run of words cross from one verse into the
+        next unless you ask it not to — a setting worth using, since Homeric
+        repetition mostly falls within one verse.
+      </p>
+      <p>
+        Click any phrase to see every place it occurs, each one linked to its
+        passage in the reader.
+      </p>
+    </section>
+
+    <section id="english">
+      <h2>Search in English</h2>
+      <p class="guide-q">Use this to search the translation instead of the Greek.</p>
+      <p>
+        The search page has a second box for English. It takes the same three
+        settings as the Greek box — every word present, any one word present,
+        or the exact phrase — and returns the passages that match, cited the
+        same way as a Greek result.
+      </p>
+      <p class="guide-note">
+        The phrase index also has an English setting, browsing set phrases of
+        the translation rather than the Greek. An English match there is cited
+        by book rather than by verse, since translations are not lined up
+        verse for verse with the Greek.
+      </p>
+    </section>
+
+    <section id="honesty">
+      <h2>What these tools cannot tell you</h2>
+      <ul>
+        <li>
+          Searches ignore accents unless you turn accent matching on, so
+          <span lang="grc">λόγος</span> and a differently accented spelling of
+          the same letters count as one word by default.
+        </li>
+        <li>
+          None of these tools reads Greek. They match forms and count them.
+          What a passage means remains your work.
+        </li>
+      </ul>
+    </section>
+
+    <p class="guide-back">
+      <a href={`${base}/search`}>Back to search</a> ·
+      <a href={`${base}/phrases/`}>Browse phrases</a>
+    </p>
+  </main>
+</body>
+</html>
+
+<style>
+  .guide {
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 4rem;
+    font-family: var(--font-english);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .guide-eyebrow {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-mid);
+    margin: 0 0 0.2rem;
+  }
+  .guide h1 {
+    font-size: 2rem;
+    margin: 0 0 0.6rem;
+    line-height: 1.15;
+  }
+  .guide-lede {
+    font-size: 1.05rem;
+    color: var(--text-mid);
+    margin: 0 0 2rem;
+  }
+  .guide-toc {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--input-bg);
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 2.5rem;
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+  }
+  .guide-toc ol { margin: 0; padding-left: 1.2rem; }
+  .guide-toc li { margin: 0.3rem 0; color: var(--text-mid); }
+  .guide-toc a { color: var(--accent); font-weight: 600; }
+  .guide section { margin-bottom: 2.75rem; scroll-margin-top: 1rem; }
+  .guide h2 {
+    font-size: 1.4rem;
+    margin: 0 0 0.75rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .guide p { margin: 0 0 0.9rem; }
+  .guide ul { margin: 0 0 0.9rem; padding-left: 1.2rem; }
+  .guide li { margin: 0.45rem 0; }
+  .guide code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0.05em 0.3em;
+  }
+  .guide [lang='grc'] { font-family: var(--font-greek); }
+  .guide-q {
+    font-style: italic;
+    color: var(--text-mid);
+  }
+  .guide-note {
+    border-left: 2px solid var(--border);
+    padding: 0.15rem 0 0.15rem 0.8rem;
+    color: var(--text-mid);
+    font-size: 0.95rem;
+  }
+  .guide-back {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+  }
+  @media (max-width: 640px) {
+    .guide h1 { font-size: 1.6rem; }
+  }
+</style>
