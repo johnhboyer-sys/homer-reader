@@ -4,21 +4,191 @@
   "kind": "geographic",
   "status": "draft",
   "seed": 20260728,
-  "bbox": [39.86, 26.12, 40.02, 26.36],
-  "size": [880, 620],
+  "bbox": [39.86, 26.1, 40.05, 26.38],
+  "size": [880, 779],
+  "note": "The geographic register: real lat/lon, only features with a defensible position. The poem's own spatial logic — the camp order, the wagon-road and its waypoints, the ford, the tomb of Ilus — belongs to the schematic plate and is deliberately absent here. RECONSTRUCTION FOLLOWED: Kraft, Kayan and Erol 1980, as refined by Kayan (2003, 2019) and by Kraft, Rapp, Kayan and Luce 2003 — the Late Bronze Age embayment lies north and north-west of Hisarlik, so the dry, usable plain, and therefore the battlefield, lies SOUTH AND WEST of the city. That is the reverse of nearly every popular illustration, which puts the fighting on the ground north of Troy. Others differ: Luce (1984) puts the shoreline west by south of the site with a broad embayment between the city and the Sigeum ridge, and the Achaean camp on the lower slopes of that ridge some four miles west of Hisarlik — which rotates the battlefield from north-south to roughly east-west. Both cannot be drawn on one sheet; this one draws Kraft. NOTHING ON THIS PLATE IS TRACED from any published figure: see the shore layer's note for how the line was derived from stated measurements. Feature names on the sheet come from the gazetteer; Sigeion and Rhoiteion are Strabonic, not Homeric, and appear here as later reference points.",
+  "sources": [
+    {
+      "cite": "Kraft, John C., Ilhan Kayan, and Oguz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209, no. 4458 (1980): 776-82."
+    },
+    {
+      "cite": "Kraft, John C., George Rapp, Ilhan Kayan, and John V. Luce. \"Harbor Areas at Ancient Troy: Sedimentology and Geomorphology Complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163-66."
+    },
+    {
+      "cite": "Kayan, Ilhan. \"Landscape Development and Changing Environment of Troia (North-western Anatolia).\" In Landscapes and Landforms of Turkey, edited by Catherine Kuzucuoglu, Attila Ciner, and Nizamettin Kazanci, 277-91. Cham: Springer, 2019."
+    },
+    {
+      "cite": "Luce, J. V. \"The Homeric Topography of the Trojan Plain Reconsidered.\" Oxford Journal of Archaeology 3, no. 1 (1984): 31-43.",
+      "url": "https://onlinelibrary.wiley.com/doi/10.1111/j.1468-0092.1984.tb00114.x"
+    },
+    {
+      "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+    }
+  ],
   "layers": [
     {
-      "id": "coast-bronze",
+      "id": "shore-bronze",
+      "kind": "coast",
+      "style": "stipple",
+      "default": "on",
+      "placeId": "bay-of-troy",
+      "rings": [
+        [
+          [40.01, 26.186],
+          [39.998, 26.192],
+          [39.986, 26.199],
+          [39.976, 26.209],
+          [39.97, 26.221],
+          [39.968, 26.235],
+          [39.969, 26.249],
+          [39.973, 26.262],
+          [39.979, 26.272],
+          [39.988, 26.279],
+          [39.999, 26.283],
+          [40.01, 26.286]
+        ]
+      ],
+      "note": "The landward shore of the embayment at about 1200 BC. Drawn as a soft band, not a hard line: it is approximate to on the order of a kilometre. NO PUBLISHED FIGURE WAS TRACED. The line is derived arithmetically from three stated measurements: (1) at maximum Holocene transgression the embayment reached c.10 km south of Hisarlik (Kraft, Kayan and Erol 1980); (2) progradation had carried the coastline west of Troia by c.4000 BP (Kayan); (3) the modern coast lies c.6 km from the site. Those give a delta front advancing c.5 km per millennium through the narrow ria between 6000 and 4000 BP, then c.1.5 km per millennium across the wide bay from 4000 BP to the present. Carried forward 800 years from Kayan's 4000 BP checkpoint, 1200 BC puts the front roughly 1 to 1.5 km north-north-west of Hisarlik, which is where this line runs; its flanks are then closed against the surveyed feet of the Sigeion and Rhoiteion ridges. Kayan's separate figure of c.17 km is the ria measured inland from the PRESENT coast at 7000-6000 BP and is not the same quantity as Kraft's 10 km; the two are not conflated here. Rendered as stipple pending a waterline style in the renderer; the stipple is the honest register for a reconstructed band and should stay stippled even once waterlines exist, which belong on surveyed coasts.",
+      "sources": [
+        {
+          "cite": "Kraft, John C., Ilhan Kayan, and Oguz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209, no. 4458 (1980): 776-82."
+        },
+        {
+          "cite": "Kayan, Ilhan. \"Geoarchaeological Interpretations of the 'Troian Bay.'\" In Troia and the Troad: Scientific Approaches, edited by Gunther A. Wagner, Ernst Pernicka, and Hans-Peter Uerpmann. Berlin: Springer, 2003."
+        },
+        {
+          "cite": "Kraft, John C., George Rapp, Ilhan Kayan, and John V. Luce. \"Harbor Areas at Ancient Troy: Sedimentology and Geomorphology Complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163-66."
+        }
+      ]
+    },
+    {
+      "id": "barrier-bronze",
       "kind": "coast",
       "style": "stipple",
       "default": "on",
       "rings": [
-        [[39.98, 26.18], [39.97, 26.19]]
+        [
+          [40.008, 26.188],
+          [40.01, 26.215],
+          [40.011, 26.245],
+          [40.01, 26.268],
+          [40.008, 26.286]
+        ]
       ],
-      "note": "Placeholder geometry only, not a survey — two provisional points standing in for a coastline pending the cartography phase. The real Bronze Age shoreline (the Trojan plain was then a bay, per Kraft et al.) is drawn from the source below once that phase runs.",
+      "note": "The wide sandy barrier that a relative sea-level fall of 2 to 2.5 m left across the mouth of the bay in the Late Bronze Age, closing the remaining water body into a shallow lagoon. Position approximate to on the order of a kilometre, on the same derivation as the shore band: it is set between the reconstructed delta front and the modern coast, closed at both ends against the Sigeion and Rhoiteion ridges. Not traced from any figure.",
       "sources": [
         {
-          "cite": "Kraft, John C., Ilhan Kayan, and Oğuz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209 (1980): 776-82."
+          "cite": "Kayan, Ilhan. \"Landscape Development and Changing Environment of Troia (North-western Anatolia).\" In Landscapes and Landforms of Turkey, edited by Catherine Kuzucuoglu, Attila Ciner, and Nizamettin Kazanci, 277-91. Cham: Springer, 2019."
+        }
+      ]
+    },
+    {
+      "id": "lagoon-bronze",
+      "kind": "region",
+      "default": "on",
+      "polygon": [
+        [40.01, 26.186],
+        [39.998, 26.192],
+        [39.986, 26.199],
+        [39.976, 26.209],
+        [39.97, 26.221],
+        [39.968, 26.235],
+        [39.969, 26.249],
+        [39.973, 26.262],
+        [39.979, 26.272],
+        [39.988, 26.279],
+        [39.999, 26.283],
+        [40.01, 26.286],
+        [40.008, 26.286],
+        [40.01, 26.268],
+        [40.011, 26.245],
+        [40.01, 26.215],
+        [40.008, 26.188]
+      ],
+      "note": "The shallow lagoon of about 1200 BC: the water left between the prograding delta front and the sandy barrier after the Late Bronze Age sea-level fall. Its outline is the shore band and the barrier joined, so it carries their uncertainty, on the order of a kilometre. Troy overlooks a wetland, a lagoon and a distant sea, not a deep-water bay.",
+      "sources": [
+        {
+          "cite": "Kayan, Ilhan. \"Geoarchaeological Interpretations of the 'Troian Bay.'\" In Troia and the Troad: Scientific Approaches, edited by Gunther A. Wagner, Ernst Pernicka, and Hans-Peter Uerpmann. Berlin: Springer, 2003."
+        }
+      ]
+    },
+    {
+      "id": "delta-swamp",
+      "kind": "region",
+      "default": "on",
+      "polygon": [
+        [39.968, 26.206],
+        [39.966, 26.228],
+        [39.952, 26.234],
+        [39.936, 26.228],
+        [39.92, 26.222],
+        [39.906, 26.216],
+        [39.9, 26.202],
+        [39.914, 26.196],
+        [39.934, 26.202],
+        [39.952, 26.206]
+      ],
+      "note": "Swamp lay over much of the delta plain through the Late Bronze Age (Kayan). Drawn as a belt along the Scamander behind the head of the bay, where the river's own floodplain is lowest; extent generalized, not surveyed. Intended texture is stipple at a finer radius than the relief hachure, so marsh reads lighter than ridge; the renderer currently fills a region as a flat tint.",
+      "sources": [
+        {
+          "cite": "Kayan, Ilhan. \"Landscape Development and Changing Environment of Troia (North-western Anatolia).\" In Landscapes and Landforms of Turkey, edited by Catherine Kuzucuoglu, Attila Ciner, and Nizamettin Kazanci, 277-91. Cham: Springer, 2019."
+        }
+      ]
+    },
+    {
+      "id": "scamandrian-plain",
+      "kind": "region",
+      "placeId": "scamandrian-plain",
+      "default": "on",
+      "polygon": [
+        [39.966, 26.186],
+        [39.968, 26.212],
+        [39.962, 26.232],
+        [39.944, 26.246],
+        [39.93, 26.268],
+        [39.906, 26.276],
+        [39.88, 26.268],
+        [39.868, 26.24],
+        [39.87, 26.21],
+        [39.89, 26.192],
+        [39.928, 26.188]
+      ],
+      "note": "The dry, usable plain of about 1200 BC, and the point of the whole sheet: it lies south and west of Troy, hemmed by the Sigeion ridge on the west and the ridge Hisarlik stands on to the north-east, because the ground north of the city was lagoon, barrier and swamp. Kraft, Kayan and Erol drew exactly this conclusion — if the war happened, the battlefield lay to the south and west of the city. The Achaeans poured out 'onto the Scamandrian plain' and stood in 'the flowery Scamandrian meadow' (Il. 2.465-467); the poem names the plain but fixes no boundary, so this outline is a generalization of the modern lowland minus the reconstructed water, not a surveyed limit.",
+      "sources": [
+        {
+          "cite": "Kraft, John C., Ilhan Kayan, and Oguz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209, no. 4458 (1980): 776-82."
+        }
+      ]
+    },
+    {
+      "id": "coast-modern",
+      "kind": "coast",
+      "default": "off",
+      "width": 1.6,
+      "rings": [
+        [
+          [39.88, 26.158],
+          [39.905, 26.166],
+          [39.92, 26.17],
+          [39.93, 26.16],
+          [39.95, 26.164],
+          [39.972, 26.168],
+          [39.992, 26.174],
+          [40.008, 26.176],
+          [40.02, 26.186],
+          [40.026, 26.198],
+          [40.03, 26.25],
+          [40.032, 26.286],
+          [40.034, 26.316],
+          [40.036, 26.346],
+          [40.038, 26.376]
+        ]
+      ],
+      "note": "The modern coast, off by default: the toggleable ghost that shows how far the delta has since prograded. Aegean shore on the west from Besik Bay north to Kum Kale, then the Dardanelles shore running east past the Rhoiteion spur. Hand-generalized at about 1:100,000 from named landmarks (Kum Kale, the Sigeion promontory, Besik Bay, In Tepe) and from Natural Earth's 1:50m land layer, which carries only three vertices inside this sheet and cannot be used directly at this scale. A generalization, not a survey trace. Waterlines belong on the sea side of this line once the renderer supports them.",
+      "sources": [
+        {
+          "cite": "Natural Earth, 1:50m Physical Vectors, 'land' (ne_50m_land). Public domain.",
+          "url": "https://www.naturalearthdata.com/downloads/50m-physical-vectors/"
         }
       ]
     },
@@ -26,9 +196,131 @@
       "id": "scamander",
       "kind": "river",
       "placeId": "scamander",
-      "path": [[39.90, 26.15], [39.95, 26.20]],
+      "default": "on",
       "width": 2.2,
-      "note": "Schematic placeholder course only (two points), not a traced channel — the Scamander/Karamenderes's actual Bronze Age path is a cartography-phase task, not authored here."
+      "path": [
+        [39.862, 26.262],
+        [39.88, 26.248],
+        [39.898, 26.238],
+        [39.912, 26.228],
+        [39.926, 26.221],
+        [39.94, 26.214],
+        [39.952, 26.209],
+        [39.962, 26.212],
+        [39.969, 26.22]
+      ],
+      "note": "Scamander, called Xanthus by the gods (Il. 20.74); the modern Karamenderes. Drawn from the south edge of the sheet to the head of the reconstructed embayment, which is as far as it can honestly be carried: north of that it flowed into water that is now land, and no publication gives a coordinate for its Bronze Age channel. The channel then lay west of the modern one. The valley reach south of the bay head is generalized from the modern course, which has not moved far there.",
+      "sources": [
+        {
+          "cite": "Kayan, Ilhan. \"Landscape Development and Changing Environment of Troia (North-western Anatolia).\" In Landscapes and Landforms of Turkey, edited by Catherine Kuzucuoglu, Attila Ciner, and Nizamettin Kazanci, 277-91. Cham: Springer, 2019."
+        },
+        {
+          "cite": "Pleiades: Scamander.",
+          "url": "https://pleiades.stoa.org/places/550871"
+        }
+      ]
+    },
+    {
+      "id": "simoeis",
+      "kind": "river",
+      "placeId": "simoeis",
+      "default": "on",
+      "width": 1.5,
+      "path": [
+        [40.01, 26.376],
+        [40.002, 26.35],
+        [39.995, 26.326],
+        [39.988, 26.306],
+        [39.98, 26.288],
+        [39.974, 26.278]
+      ],
+      "note": "The Simoeis, coming down from the north-east along the far side of the ridge Hisarlik stands on, to the eastern flank of the embayment; 'between the streams of Simoeis and Xanthus' is where the fighting runs (Il. 6.4). The identification with the Dumrek Su is a Strabonic tradition that Leaf, Cook and Luce all accept, not an excavated fact. Course generalized from the modern Dumrek Su and carried only as far as the reconstructed shore. Homer's confluence of the two rivers (5.774) is NOT drawn: both channels have shifted and the whole delta has prograded, so its Bronze Age position cannot be fixed.",
+      "sources": [
+        {
+          "cite": "Strabo, Geography 13.1.",
+          "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
+        },
+        {
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+        }
+      ]
+    },
+    {
+      "id": "relief-sigeion-ridge",
+      "kind": "relief",
+      "placeId": "sigeion",
+      "default": "on",
+      "polygon": [
+        [40.018, 26.184],
+        [40.0, 26.178],
+        [39.978, 26.173],
+        [39.955, 26.17],
+        [39.932, 26.168],
+        [39.91, 26.17],
+        [39.908, 26.192],
+        [39.93, 26.191],
+        [39.954, 26.19],
+        [39.978, 26.189],
+        [40.0, 26.19],
+        [40.016, 26.195]
+      ],
+      "note": "The Sigeion ridge: the low ridge, 30 to 40 m, closing the plain on the west, running from Kum Kale south past Yenikoy, with the Kesik cut through it. A surveyed landform, so solid hachure rather than form lines; its outline here is a generalization of the ridge's extent, not a contour. Sigeion is not named in the Iliad — it is Strabonic geography, and the traditional western headland of the Achaean beach. Luce would put the Achaean camp on this ridge's lower western slopes.",
+      "sources": [
+        {
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+        },
+        {
+          "cite": "Pleiades: Sigeion.",
+          "url": "https://pleiades.stoa.org/places/550877"
+        }
+      ]
+    },
+    {
+      "id": "relief-rhoiteion-ridge",
+      "kind": "relief",
+      "placeId": "rhoiteion",
+      "default": "on",
+      "polygon": [
+        [40.03, 26.288],
+        [40.03, 26.318],
+        [40.024, 26.346],
+        [40.01, 26.35],
+        [40.002, 26.324],
+        [40.0, 26.298],
+        [40.012, 26.284]
+      ],
+      "note": "The Rhoiteion ridge on the Cakal Tepe spur, closing the plain on the north-east and fronting the Dardanelles. A surveyed landform; outline generalized. Rhoiteion is not named in the Iliad either; it is the traditional eastern headland of the Achaean beach, paired with Sigeion, and the tomb of Ajax was shown on its spur at In Tepe.",
+      "sources": [
+        {
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+        },
+        {
+          "cite": "Pleiades: Rhoiteion.",
+          "url": "https://pleiades.stoa.org/places/550856"
+        }
+      ]
+    },
+    {
+      "id": "relief-troy-ridge",
+      "kind": "relief",
+      "placeId": "troy",
+      "default": "on",
+      "polygon": [
+        [39.963, 26.234],
+        [39.966, 26.258],
+        [39.966, 26.286],
+        [39.96, 26.312],
+        [39.948, 26.316],
+        [39.944, 26.288],
+        [39.945, 26.26],
+        [39.951, 26.236]
+      ],
+      "note": "The ridge Troy stands on: Hisarlik is its western tip, a low spur running east with the Simoeis valley on its north side. This is why the city commands the plain to its west and south. A surveyed landform; outline generalized.",
+      "sources": [
+        {
+          "cite": "Dorpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870-1894. 2 vols. Athens: Beck & Barth, 1902."
+        }
+      ]
     }
   ]
 }

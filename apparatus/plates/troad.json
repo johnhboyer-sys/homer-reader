@@ -1,0 +1,401 @@
+{
+  "id": "troad",
+  "title": "The Troad",
+  "kind": "geographic",
+  "status": "draft",
+  "seed": 20260728,
+  "bbox": [38.95, 25.35, 40.6, 27.5],
+  "size": [840, 839],
+  "note": "The wider theatre, in the geographic register: real lat/lon, only features with a defensible position. Ida and its northern spurs, the western Troad highland, Cape Lekton, Tenedos, Imbros, Thracian Samos and Lesbos, the Hellespont between the Asian and Chersonese shores, and the Scamander, Granicus and Aesepus. The strait itself is drawn by its two coastlines rather than by an outline of its own. The Aesepus is the eastern limit of Trojan-allied territory (Il. 2.825) and leaves the sheet at the east neatline. Lemnos, the Achaeans' rear base, lies west of this sheet and is not drawn rather than drawn as a sliver. Island outlines are Natural Earth 1:50m, which is public domain but coarse at this scale and omits Tenedos entirely, so Tenedos is hand-drawn; see the layer notes. Relief bodies whose SHAPE is inferred rather than surveyed carry shading: form-lines, the surveying convention where a broken or dotted stroke says the relief was sketched rather than contoured; the renderer does not yet honour that field and hachures every relief body alike. Waterlines belong on the sea side of these coasts once the renderer supports them; nothing on this sheet is stippled, because on this project's plates stipple is reserved for reconstructed, approximate geometry, and every coast here is surveyed.",
+  "sources": [
+    {
+      "cite": "Natural Earth, 1:50m Physical Vectors, 'land' (ne_50m_land). Public domain.",
+      "url": "https://www.naturalearthdata.com/downloads/50m-physical-vectors/"
+    },
+    {
+      "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+    },
+    {
+      "cite": "Strabo, Geography 13.1.",
+      "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
+    }
+  ],
+  "layers": [
+    {
+      "id": "coast-asia",
+      "kind": "coast",
+      "default": "on",
+      "width": 1.6,
+      "rings": [
+        [
+          [39.05, 26.8],
+          [39.15, 26.74],
+          [39.24, 26.7],
+          [39.292, 26.682],
+          [39.34, 26.711],
+          [39.419, 26.813],
+          [39.517, 26.911],
+          [39.548, 26.968],
+          [39.582, 27.01],
+          [39.583, 26.94],
+          [39.563, 26.827],
+          [39.55, 26.7],
+          [39.53, 26.56],
+          [39.521, 26.484],
+          [39.5, 26.42],
+          [39.484, 26.351],
+          [39.472, 26.25],
+          [39.467, 26.16],
+          [39.4783, 26.0633],
+          [39.505, 26.078],
+          [39.521, 26.096],
+          [39.569, 26.101],
+          [39.62, 26.128],
+          [39.657, 26.155],
+          [39.7, 26.15],
+          [39.76, 26.142],
+          [39.82, 26.14],
+          [39.873, 26.15],
+          [39.92, 26.166],
+          [39.96, 26.17],
+          [39.99, 26.178],
+          [40.026, 26.198],
+          [40.03, 26.25],
+          [40.036, 26.316],
+          [40.07, 26.352],
+          [40.11, 26.382],
+          [40.147, 26.409],
+          [40.197, 26.475],
+          [40.28, 26.6],
+          [40.35, 26.7],
+          [40.4, 26.738],
+          [40.415, 26.85],
+          [40.41, 26.95],
+          [40.396, 27.012],
+          [40.425, 27.07],
+          [40.452, 27.122],
+          [40.456, 27.285],
+          [40.376, 27.333],
+          [40.32, 27.476],
+          [40.3, 27.498]
+        ]
+      ],
+      "note": "The Asian shore: north from the coast facing Lesbos, round the head of the Gulf of Adramyttium, west along the southern Troad to Cape Lekton, north past Besik Bay and the mouth of the Scamander to Kum Kale, then north-east up the Dardanelles past Abydos and out to the Marmara. Built on Natural Earth's 1:50m land vertices, which fall inside this sheet at a median spacing of about 12 km and generalize Cape Lekton away entirely; the cape is restored from its gazetteer coordinate, and the head of the Gulf of Adramyttium and the Dardanelles narrows are hand-densified. A generalization at roughly 1:500,000, not a survey trace.",
+      "sources": [
+        {
+          "cite": "Natural Earth, 1:50m Physical Vectors, 'land' (ne_50m_land). Public domain.",
+          "url": "https://www.naturalearthdata.com/downloads/50m-physical-vectors/"
+        },
+        {
+          "cite": "Pleiades: Lekton.",
+          "url": "https://pleiades.stoa.org/places/550691"
+        }
+      ]
+    },
+    {
+      "id": "coast-chersonese",
+      "kind": "coast",
+      "default": "on",
+      "width": 1.6,
+      "rings": [
+        [
+          [40.55, 26.8],
+          [40.498, 26.772],
+          [40.4, 26.65],
+          [40.261, 26.468],
+          [40.19, 26.4],
+          [40.123, 26.33],
+          [40.075, 26.203],
+          [40.045, 26.18],
+          [40.09, 26.19],
+          [40.142, 26.226],
+          [40.202, 26.26],
+          [40.26, 26.24],
+          [40.315, 26.254],
+          [40.39, 26.355],
+          [40.445, 26.447],
+          [40.52, 26.6],
+          [40.544, 26.72],
+          [40.58, 26.79]
+        ]
+      ],
+      "note": "The Thracian Chersonese, the European shore of the Hellespont, from the Marmara end down to the cape opposite Kum Kale and back up its Aegean side. Sestos stands on this shore opposite Abydos and is the only European territory in the Trojan alliance (Il. 2.836). Natural Earth vertices, hand-densified at the narrows. The ring is left open at the top edge because the peninsula's neck runs off the sheet.",
+      "sources": [
+        {
+          "cite": "Natural Earth, 1:50m Physical Vectors, 'land' (ne_50m_land). Public domain.",
+          "url": "https://www.naturalearthdata.com/downloads/50m-physical-vectors/"
+        }
+      ]
+    },
+    {
+      "id": "coast-islands",
+      "kind": "coast",
+      "default": "on",
+      "width": 1.6,
+      "rings": [
+        [
+          [39.329, 26.41],
+          [39.27, 26.393],
+          [39.172, 26.531],
+          [39.11, 26.578],
+          [39.049, 26.596],
+          [39.031, 26.584],
+          [39.064, 26.532],
+          [39.075, 26.489],
+          [39.031, 26.503],
+          [38.994, 26.547],
+          [38.973, 26.469],
+          [38.974, 26.39],
+          [39.026, 26.161],
+          [39.081, 26.108],
+          [39.164, 26.245],
+          [39.198, 26.273],
+          [39.194, 26.176],
+          [39.096, 26.072],
+          [39.139, 25.906],
+          [39.179, 25.855],
+          [39.2, 25.844],
+          [39.288, 25.91],
+          [39.285, 26.026],
+          [39.304, 26.088],
+          [39.332, 26.165],
+          [39.374, 26.165],
+          [39.383, 26.348],
+          [39.329, 26.41]
+        ],
+        [
+          [40.427, 25.686],
+          [40.4, 25.573],
+          [40.483, 25.448],
+          [40.516, 25.569],
+          [40.464, 25.664],
+          [40.427, 25.686]
+        ],
+        [
+          [40.136, 25.97],
+          [40.105, 25.74],
+          [40.136, 25.669],
+          [40.196, 25.741],
+          [40.238, 25.918],
+          [40.178, 25.977],
+          [40.136, 25.97]
+        ]
+      ],
+      "note": "Lesbos, Thracian Samos (Samothrace) and Imbros, taken verbatim from Natural Earth's 1:50m land layer, which is public domain. The resolution is honest but coarse: Lesbos gets 27 vertices, Samothrace five and Imbros six, so the two smaller islands read as polygons rather than coasts. If these plates are ever redrawn at higher fidelity, the 1:10m Natural Earth physical vectors are the drop-in replacement. Lesbos is 'above, seat of Macar', the northern bound of Priam's realm (Il. 24.544); Poseidon strides from the topmost peak of Samothrace, from which Ida, Priam's city and the Achaean ships are all visible (13.11-14); Imbros is 'rugged' on that same route (13.33).",
+      "sources": [
+        {
+          "cite": "Natural Earth, 1:50m Physical Vectors, 'land' (ne_50m_land). Public domain.",
+          "url": "https://www.naturalearthdata.com/downloads/50m-physical-vectors/"
+        }
+      ]
+    },
+    {
+      "id": "coast-tenedos",
+      "kind": "coast",
+      "placeId": "tenedos",
+      "default": "on",
+      "width": 1.6,
+      "rings": [
+        [
+          [39.856, 26.046],
+          [39.85, 26.078],
+          [39.834, 26.096],
+          [39.812, 26.092],
+          [39.796, 26.07],
+          [39.79, 26.04],
+          [39.804, 26.014],
+          [39.828, 26.01],
+          [39.856, 26.046]
+        ]
+      ],
+      "note": "Tenedos, modern Bozcaada, off the mouth of Besik Bay: under Apollo's protection (Il. 1.38), sacked by Achilles (11.625), and the waypoint for Poseidon striding from Samothrace 'midway between Tenedos and rugged Imbros' (13.33). Drawn by hand because Natural Earth's 1:50m land layer omits the island altogether — a nine-vertex generalization of an island roughly 9 by 5 km, anchored on its gazetteer coordinate. Its position is the reason the Besik Bay harbour case matters: any ship coming to Troy from the south passes it.",
+      "sources": [
+        {
+          "cite": "Pleiades: Tenedos.",
+          "url": "https://pleiades.stoa.org/places/550912"
+        }
+      ]
+    },
+    {
+      "id": "relief-ida",
+      "kind": "relief",
+      "placeId": "ida",
+      "default": "on",
+      "polygon": [
+        [39.78, 26.72],
+        [39.79, 26.86],
+        [39.78, 27.0],
+        [39.75, 27.1],
+        [39.68, 27.08],
+        [39.63, 26.95],
+        [39.63, 26.8],
+        [39.68, 26.7]
+      ],
+      "note": "Mount Ida, modern Kaz Dagi: 'many-fountained' Ida, source of the eight rivers of Il. 12.19-22, Zeus's grandstand from Book 8 onward, and the slopes Dardanus's people lived on before Ilios was built on the plain (20.218). Gargaron, Zeus's precinct and fragrant altar (8.48), is traditionally its summit, at about 1,770 m near the centre of this body. A surveyed massif, so solid hachure; the outline generalizes its extent.",
+      "sources": [
+        {
+          "cite": "Pleiades: Ida.",
+          "url": "https://pleiades.stoa.org/places/550592"
+        },
+        {
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+        }
+      ]
+    },
+    {
+      "id": "relief-ida-north-spurs",
+      "kind": "relief",
+      "default": "on",
+      "shading": "form-lines",
+      "polygon": [
+        [39.95, 26.42],
+        [39.93, 26.58],
+        [39.88, 26.7],
+        [39.82, 26.72],
+        [39.78, 26.6],
+        [39.8, 26.45],
+        [39.86, 26.36],
+        [39.92, 26.36]
+      ],
+      "note": "The broken country between Ida and the Trojan plain, through which the Scamander and the Simoeis come down. The hills are real; their extent as drawn is a generalization, so this body is marked shading: form-lines — the surveying convention for relief sketched rather than contoured, where the broken stroke is itself the honesty claim. The renderer does not yet honour the field and hachures this like a surveyed ridge.",
+      "sources": [
+        {
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+        }
+      ]
+    },
+    {
+      "id": "relief-troad-west-highland",
+      "kind": "relief",
+      "default": "on",
+      "shading": "form-lines",
+      "polygon": [
+        [39.6, 26.2],
+        [39.63, 26.35],
+        [39.65, 26.5],
+        [39.66, 26.66],
+        [39.62, 26.7],
+        [39.57, 26.58],
+        [39.55, 26.42],
+        [39.56, 26.28],
+        [39.58, 26.18]
+      ],
+      "note": "The highland of the south-western Troad, running west from Ida's foot toward Cape Lekton above the north shore of the Gulf of Adramyttium — the ground Hera and Sleep cross when they come to Lekton, leave the sea and go on over the dry land to Ida (Il. 14.283-285). Extent inferred, hence shading: form-lines.",
+      "sources": [
+        {
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+        }
+      ]
+    },
+    {
+      "id": "relief-samothrace",
+      "kind": "relief",
+      "placeId": "samothrace",
+      "default": "on",
+      "polygon": [
+        [40.472, 25.487],
+        [40.49, 25.52],
+        [40.485, 25.58],
+        [40.46, 25.61],
+        [40.452, 25.515]
+      ],
+      "note": "Mount Fengari, the central massif of Thracian Samos, over 1,600 m. Poseidon sits 'high on the topmost peak of wooded Thracian Samos, for from there all Ida was visible, and the city of Priam was visible, and the ships of the Achaeans' (Il. 13.12-14) — and Ida genuinely is visible from that summit in clear weather, which makes it one of the poem's most defensible topographic claims. A surveyed massif; outline generalized within the island.",
+      "sources": [
+        {
+          "cite": "Pleiades: Samothrace.",
+          "url": "https://pleiades.stoa.org/places/501597"
+        }
+      ]
+    },
+    {
+      "id": "relief-imbros",
+      "kind": "relief",
+      "placeId": "imbros",
+      "default": "on",
+      "polygon": [
+        [40.16, 25.72],
+        [40.19, 25.76],
+        [40.19, 25.85],
+        [40.16, 25.92],
+        [40.138, 25.88],
+        [40.135, 25.78]
+      ],
+      "note": "The spine of 'rugged Imbros' (Il. 13.33), modern Gokceada, rising to about 670 m. A surveyed landform; outline generalized within an island whose own coastline here has only six Natural Earth vertices, so this body is drawn well inside it.",
+      "sources": [
+        {
+          "cite": "Pleiades: Imbros.",
+          "url": "https://pleiades.stoa.org/places/501438"
+        }
+      ]
+    },
+    {
+      "id": "river-scamander",
+      "kind": "river",
+      "placeId": "scamander",
+      "default": "on",
+      "width": 2.0,
+      "path": [
+        [39.72, 26.82],
+        [39.76, 26.7],
+        [39.79, 26.58],
+        [39.81, 26.46],
+        [39.84, 26.38],
+        [39.87, 26.32],
+        [39.9, 26.27],
+        [39.93, 26.24],
+        [39.96, 26.21],
+        [39.995, 26.195],
+        [40.025, 26.198]
+      ],
+      "note": "Scamander, called Xanthus by the gods (Il. 20.74), from its head on Ida's north-western flank down to the Dardanelles: the river that organizes the whole Troad. Generalized from the modern Karamenderes. At this scale the Bronze Age shoreline correction is smaller than the line weight, so the modern mouth is drawn; the detail plate (trojan-plain) carries the reconstruction.",
+      "sources": [
+        {
+          "cite": "Pleiades: Scamander.",
+          "url": "https://pleiades.stoa.org/places/550871"
+        }
+      ]
+    },
+    {
+      "id": "river-granikos",
+      "kind": "river",
+      "placeId": "granikos",
+      "default": "on",
+      "width": 1.5,
+      "path": [
+        [40.45, 27.24],
+        [40.36, 27.22],
+        [40.26, 27.24],
+        [40.16, 27.2],
+        [40.06, 27.14],
+        [39.96, 27.06],
+        [39.88, 27.0]
+      ],
+      "note": "The Granicus, one of the eight Idaean rivers Poseidon and Apollo turn against the Achaean wall (Il. 12.21). Identified with the Biga Cayi, standard since antiquity — a tradition, not an excavated fact; later famous as the site of Alexander's first victory in Asia. Course generalized from the modern river.",
+      "sources": [
+        {
+          "cite": "Rose, C. Brian. The Archaeology of Greek and Roman Troy. Cambridge: Cambridge University Press, 2014."
+        }
+      ]
+    },
+    {
+      "id": "river-aisepos",
+      "kind": "river",
+      "placeId": "aisepos",
+      "default": "on",
+      "width": 1.5,
+      "path": [
+        [40.35, 27.4],
+        [40.285, 27.432],
+        [40.215, 27.47],
+        [40.15, 27.498]
+      ],
+      "note": "The Aesepus, modern Gonen Cayi, and the eastern limit of Trojan-allied territory: Pandarus's Zeleians 'drink the dark water of Aesepus' (Il. 2.825), and it is another of the eight Idaean rivers (12.21). Only the lower course is drawn, from the mouth to the east neatline; the upper course lies off this sheet and is not guessed at.",
+      "sources": [
+        {
+          "cite": "Pleiades: Aesepus.",
+          "url": "https://pleiades.stoa.org/places/511141"
+        }
+      ]
+    }
+  ]
+}
