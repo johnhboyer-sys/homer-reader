@@ -155,6 +155,9 @@
   // resolve to the book. The index itself keeps the straddling occurrences —
   // this is a query-time filter, never a build-time one.
   let withinVerse = true;
+  // Off by default: a phrase found in one poem is the ordinary case, and this
+  // narrows to the rarer one.
+  let crossEpicOnly = false;
   let page = 0;
 
   let plan: Plan = { key: '', stream: 'form', byLetter: [], readings: [], cappedFrom: 0 };
@@ -223,7 +226,7 @@
   }
 
   $: scan = loadedShardSignature === shardSignature && activePlan
-    ? scanShards(activePlan, loadedShards, lengths, minimum, isEnglish && hideCommon)
+    ? scanShards(activePlan, loadedShards, lengths, minimum, isEnglish && hideCommon, crossEpicOnly)
     : { rows: [] as PhraseItem[], matched: [] as string[] };
   $: localRows = scan.rows;
 
@@ -416,6 +419,7 @@
     keepLengths: number[],
     minimumCount: number,
     dropCommon: boolean,
+    crossEpic: boolean,
   ): { rows: PhraseItem[]; matched: string[] } {
     const rows: PhraseItem[] = [];
     const seenMatch = new Set<string>();
@@ -431,6 +435,9 @@
         if (!keepLengths.includes(row[0])) continue;
         if (row[1] < minimumCount) continue;
         if (dropCommon && contentWords(key) < 2) continue;
+        // Two, not WORKS.length: "both poems" must stay two poems even if a
+        // third work joins the registry later.
+        if (crossEpic && row[3] < 2) continue;
         rows.push({ key, row });
         if (hit) seenMatch.add(hit);
       }
@@ -789,6 +796,20 @@
           </small>
         </label>
       {/if}
+
+      <label class="field cross-epic">
+        <span>
+          <input type="checkbox" bind:checked={crossEpicOnly} on:change={() => page = 0} />
+          Only phrases that occur in both poems
+        </span>
+        <small>
+          A phrase found in both poems is evidence of shared formulaic diction;
+          a phrase in one poem alone is the ordinary case. This reads a work
+          count the index already carries, so it costs no extra fetch. With a
+          poem also ticked below, a row is here because it stands in both
+          poems, listed because one of them is the poem ticked.
+        </small>
+      </label>
     </div>
 
     <div class="work-field">
@@ -1159,7 +1180,8 @@
   }
 
   .verse-toggle small,
-  .common-words small {
+  .common-words small,
+  .cross-epic small {
     font-family: var(--font-ui);
     font-size: 0.72rem;
     line-height: 1.45;
