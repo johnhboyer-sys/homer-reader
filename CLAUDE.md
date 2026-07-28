@@ -81,6 +81,15 @@ non-negotiable.
 - Accessibility: WCAG AA contrast in BOTH themes; keyboard access on Greek tokens
   never regresses. The Aegean skin is a token layer (CSS custom properties) —
   revertible by variable swap.
+- **Colour is free (John, 2026-07-28): "we want blue for sea. this is digital,
+  not print. color is free. in print, it's expensive."** Do NOT import print
+  cartography's one-spot-colour discipline — the Landmark series and the
+  19th-century plates used a single pale ink because press runs charged per
+  ink, which does not constrain SVG in a browser. Sea reads as sea; land stays
+  warm against it. Borrow print's *linework* conventions (waterlines, hachures,
+  neatline, letterspaced caps) freely — those are craft. Its palette
+  austerity is an artifact of cost. Contrast rules still bind: colour being
+  free does not make WCAG AA optional.
 - Maintain `DRIFT.md`: one line per shared-core file diverged from plato-reader.
 
 ## Build & verify (add facts here as agents discover them)
