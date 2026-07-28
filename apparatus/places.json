@@ -1011,7 +1011,7 @@
           ]
         }
       ],
-      "note": "The town of Chryses, priest of Apollo, whose daughter Agamemnon seizes and whose anger opens the poem. Already lost by Strabo's day; the Barrington Atlas keeps a rival candidate in play too, a Chrysa on the Gulf of Adramyttium near Thebe, plus a third entry that is simply unlocated.",
+      "note": "The town of Chryses, priest of Apollo, whose daughter Agamemnon seizes and whose anger opens the poem. Already lost by Strabo's day; the identification with the Smintheion site near Hamaxitos is contested — the Barrington Atlas keeps a rival candidate in play too, a Chrysa on the Gulf of Adramyttium near Thebe, plus a third entry that is simply unlocated.",
       "sources": [
         {
           "cite": "Pleiades. \"Chrysa (Aeolis?).\" Place 554214.",
@@ -1068,10 +1068,6 @@
       "greek": "Θήβη Ὑποπλακίη",
       "certainty": "traditional",
       "tradition": "Near Adramyttium (modern Edremit), Troad, Strabo 13.1.61-65",
-      "coords": [
-        39.4,
-        26.9
-      ],
       "kind": "settlement",
       "maps": [
         "troad",
@@ -1103,7 +1099,7 @@
           ]
         }
       ],
-      "note": "Andromache's home, ruled by her father Eetion over the Cilicians; Achilles sacked it, killed Eetion, and carried off both Chryseis (1.366) and Andromache's mother (6.414-416). Strabo places it 60 stadia from Adramyttium and already deserted in his own day; no excavated site answers to it.",
+      "note": "Andromache's home, ruled by her father Eetion over the Cilicians; Achilles sacked it, killed Eetion, and carried off both Chryseis (1.366) and Andromache's mother (6.414-416). Strabo's testimony is the only anchor: Thebe lay 60 stadia from Adramyttium (modern Edremit) and was already deserted in his own day; no excavated site answers to it, so this gazetteer gives no coordinate — the distance-and-direction relation to Adramyttium is what is actually known, not a point.",
       "sources": [
         {
           "cite": "Strabo. Geography 13.1.61–65.",
@@ -1166,10 +1162,6 @@
       "greek": "Πήδασος",
       "certainty": "speculative",
       "tradition": "On the Satnioeis, following Strabo 13.1.51; site unrecovered",
-      "coords": [
-        39.5,
-        26.7
-      ],
       "kind": "settlement",
       "maps": [
         "troad"
@@ -1190,9 +1182,17 @@
             35,
             35
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 21,
+          "lines": [
+            87,
+            87
+          ]
         }
       ],
-      "note": "'Steep Pedasus on the Satnioeis' (21.87), sacked alongside Lyrnessus (20.92). Not to be confused with two Homeric namesakes: the Messenian Pedasos of Agamemnon's offer (9.152, 9.294), or Achilles' trace-horse Pedasos (16.152, 16.467).",
+      "note": "'Steep Pedasus on the Satnioeis' (21.87), sacked alongside Lyrnessus (20.92). The river is the anchor Homer and Strabo agree on, not a site — see 'satnioeis' — so no coordinate is given here; the site itself is unrecovered. Not to be confused with two Homeric namesakes: the Messenian Pedasos of Agamemnon's offer (9.152, 9.294), or Achilles' trace-horse Pedasos (16.152, 16.467).",
       "sources": [
         {
           "cite": "Strabo. Geography 13.1.51.",
@@ -1492,14 +1492,10 @@
     },
     {
       "id": "washing-troughs",
-      "name": "The two springs and the washing-troughs",
-      "greek": "κρουνὼ καλλιρρόω / πλυνοὶ εὐρέες",
+      "name": "The washing-troughs",
+      "greek": "πλυνοὶ εὐρέες",
       "certainty": "speculative",
-      "tradition": "No hot-and-cold spring pair matching Homer's description survives near Hisarlık; a 2020 hydrochemical survey (Wolkersdorfer et al., Geochemistry 80) found no basis for one",
-      "coords": [
-        39.96,
-        26.24
-      ],
+      "tradition": "No hot-and-cold spring pair matching Homer's description survives near Hisarlık; a 2020 hydrochemical survey (Wolkersdorfer et al., Geochemistry 80) found no basis for one, so no coordinate is given for a built feature standing beside a spring pair that cannot itself be located",
       "kind": "spring",
       "maps": [
         "troad",
@@ -1510,12 +1506,12 @@
           "work": "iliad",
           "book": 22,
           "lines": [
-            147,
+            153,
             156
           ]
         }
       ],
-      "note": "Twin springs on the wagon-road out of the city, one steaming hot 'as from a burning fire,' the other cold as hail even in summer, with broad stone troughs beside them where the Trojans' wives and daughters washed their clothes 'in the time of peace before the sons of the Achaeans came' (22.147-156) — the scene Achilles and Hector run past three times round the walls. No such pair exists at Hisarlık today; the 2020 survey suggests Homer may describe one spring, felt two ways across the seasons.",
+      "note": "'Broad washing-troughs, fine ones of stone, where the wives and fair daughters of the Trojans used to wash their shining clothes, in the time of peace before the sons of the Achaeans came' (22.153-156) — a built, man-made feature standing beside the two springs (see 'two-springs-of-scamander'), not the springs themselves. One of the poem's clearest images of the lost civilian world before the war. No coordinate is given: the 2020 hydrochemical survey found no hot-and-cold spring pair answering to Homer's description anywhere near Hisarlık, so a point for troughs beside an unlocatable spring pair would be invented.",
       "sources": [
         {
           "cite": "Wolkersdorfer, Christian, et al. \"Hydrochemical investigations to locate Homer's hot and cold springs of Troia (Troy)/Turkey.\" Geochemistry 80 (2020).",
@@ -2372,8 +2368,8 @@
           ]
         }
       ],
-      "note": "Coastal town opposite Aulis in Strabo's account; no firm modern site identified.",
-      "tradition": "Coastal Boeotia opposite Aulis (Strabo 9.2.12); Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970)",
+      "note": "Named once in the Boeotian contingent of the Catalogue of Ships, paired with 'rocky Aulis': 'those who dwelt in Hyria and rocky Aulis' (2.496). Strabo places it opposite Aulis. No excavated site is firmly identified with it — the coordinate here follows Simpson and Lazenby's siting in their Catalogue commentary, and the identification should be read as contested, not certain.",
+      "tradition": "Coastal Boeotia opposite Aulis (Strabo 9.2.12); siting follows Simpson–Lazenby, The Catalogue of the Ships in Homer's Iliad (1970), contested",
       "coords": [
         38.31,
         23.55
@@ -6413,11 +6409,7 @@
           ]
         }
       ],
-      "note": "River of the northern Troad flowing from Ida past Zeleia; the modern Gönen Çayı.",
-      "coords": [
-        40.35,
-        27.15
-      ]
+      "note": "River of the northern Troad flowing from Ida past Zeleia; the modern Gönen Çayı. This record duplicates the fuller river entry at 'aisepos' and is kept only because the ship-catalogue's Zeleian contingent references it by this id; it carries no independent coordinate — the Aesepus is a river, drawn as a line at 'aisepos', not a point, and the coordinate formerly attached here was Zeleia's town point, copied here in error."
     },
     {
       "id": "adrasteia",
@@ -7580,6 +7572,14 @@
       "mentions": [
         {
           "work": "iliad",
+          "book": 6,
+          "lines": [
+            434,
+            434
+          ]
+        },
+        {
+          "work": "iliad",
           "book": 7,
           "lines": [
             452,
@@ -7596,14 +7596,14 @@
         },
         {
           "work": "iliad",
-          "book": 6,
+          "book": 21,
           "lines": [
-            434,
-            434
+            516,
+            517
           ]
         }
       ],
-      "note": "Poseidon built it for Laomedon, 'wide and very fair, so that the city should be unbreachable' (21.446-447), while Apollo herded cattle on Ida; Andromache knows its one weak point, by the fig tree (6.433-434). The Troy VI circuit survives at Hisarlık and is planned in Dörpfeld's 1902 report — one of the few Homeric structures with a real footprint underfoot.",
+      "note": "Poseidon built it for Laomedon, 'wide and very fair, so that the city should be unbreachable' (21.446-447), while Apollo herded cattle on Ida; Apollo himself later goes down to defend it, 'for he cared for the wall of the well-built city, lest the Danaans should sack it before its fated day' (21.516-517); Andromache knows its one weak point, by the fig tree (6.433-434). The Troy VI circuit survives at Hisarlık and is planned in Dörpfeld's 1902 report — one of the few Homeric structures with a real footprint underfoot. Poseidon resents that the Achaeans' new wall will be famous while men forget the one he and Apollo built for Laomedon (7.452-453).",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion. 2 vols. Athens: Beck & Barth, 1902."
@@ -7929,7 +7929,7 @@
           ]
         }
       ],
-      "note": "One spring runs warm, steam rising 'as from a burning fire'; the other is cold as hail or snow even in high summer (22.149-152), on the wagon-road Achilles and Hector run past in the chase. The 2020 survey measured the local candidates and found their temperatures nearly constant year-round — they only feel warm in winter and cold in summer — and proposes that Homer describes one spring, perceived two ways across the seasons.",
+      "note": "One spring runs warm, steam rising 'as from a burning fire'; the other is cold as hail or snow even in high summer (22.149-152), on the wagon-road Achilles and Hector run past in the chase. The natural springs themselves — distinct from the man-made stone troughs beside them (see 'washing-troughs') — are what this record maps. The 2020 survey measured the local candidates and found their temperatures nearly constant year-round — they only feel warm in winter and cold in summer — and proposes that Homer describes one spring, perceived two ways across the seasons.",
       "sources": [
         {
           "cite": "Wolkersdorfer, Christian, et al. \"Hydrochemical investigations to locate Homer's hot and cold springs of Troia (Troy)/Turkey.\" Geochemistry 80 (2020).",
@@ -8378,7 +8378,7 @@
       "name": "The hut of Agamemnon",
       "greek": "κλισίη Ἀγαμέμνονος",
       "certainty": "speculative",
-      "tradition": "Position fixed only by implication — near the centre, following the councils of elders (9.669) — not by any excavated trace",
+      "tradition": "Position fixed only by implication — near the centre — not by any excavated trace; named directly at several points across the poem (2.9, 9.178, 9.669, 19.241, 23.38)",
       "kind": "camp",
       "maps": [
         "troad-plain"
@@ -8386,18 +8386,18 @@
       "mentions": [
         {
           "work": "iliad",
-          "book": 1,
+          "book": 2,
           "lines": [
-            185,
-            185
+            9,
+            9
           ]
         },
         {
           "work": "iliad",
-          "book": 2,
+          "book": 9,
           "lines": [
-            402,
-            402
+            178,
+            178
           ]
         },
         {
@@ -8407,9 +8407,25 @@
             669,
             669
           ]
+        },
+        {
+          "work": "iliad",
+          "book": 19,
+          "lines": [
+            241,
+            241
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 23,
+          "lines": [
+            38,
+            38
+          ]
         }
       ],
-      "note": "The command tent, where the councils of elders meet and the returning embassy reports its failure (9.669). Homer never fixes it in the line of ships; it sits near the centre only by implication.",
+      "note": "The command tent, named directly and often: Zeus sends the destructive Dream 'to the hut of Agamemnon son of Atreus' to open Book 2 (2.9); the envoys of the embassy set out from it (9.178) and report their failure there on return (9.669); Agamemnon's reconciliation gifts are fetched from it (19.241); and the army gathers there after Patroclus's death (23.38). Homer never fixes it in the line of ships; it sits near the centre only by implication.",
       "sources": [
         {
           "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
@@ -8890,7 +8906,7 @@
           ]
         }
       ],
-      "note": "Modern Gönen Çayı, the eastern limit of Trojan-allied territory: Pandarus's Zeleians 'drink the dark water of Aesepus' (2.825), and it is one of the eight Idaean rivers Poseidon and Apollo turn against the Achaean wall (12.21). Pleiades records it as a line, not a point, and so does this gazetteer."
+      "note": "Modern Gönen Çayı, the eastern limit of Trojan-allied territory: Pandarus's Zeleians 'drink the dark water of Aesepus' (2.825), and it is one of the eight Idaean rivers Poseidon and Apollo turn against the Achaean wall (12.21). Pleiades records it as a line, not a point, and so does this gazetteer. See also 'aesepus', a duplicate record kept for a single catalogue reference."
     },
     {
       "id": "granikos",
