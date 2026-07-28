@@ -786,7 +786,10 @@
           ? grkQuery.trim().split(/\s+/).filter(Boolean).map(accentNorm)
           : [],
       };
-      rawResults = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode);
+      // search() returns { results, failedWorks }; surfacing failedWorks as an
+      // "incomplete results" notice is the next task on this page.
+      const outcome = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode);
+      rawResults = outcome.results;
       searched = true;
       await applyResultsPipeline();
       updateUrl();

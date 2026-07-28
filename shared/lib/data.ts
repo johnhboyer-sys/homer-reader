@@ -6,6 +6,7 @@ import { scheme, schemeFor } from './citation';
 import type { AudioManifest } from './audio';
 import { parseCoastline, type Coastline } from './scenemap';
 import type { PlacesFile, JourneysFile } from './scene-place';
+import type { Offsets } from './search';
 
 export interface Token {
   t: string;   // surface form (Unicode Greek)
@@ -784,6 +785,92 @@ export function fetchLemmata(): Promise<Record<string, LemmaRef>> {
   // A missing/failed manifest just means no lemma links — don't cache the failure.
   p.catch(() => { if (_lemmataCache === p) _lemmataCache = null; });
   _lemmataCache = p;
+  return p;
+}
+
+// -- Recurrent phrases (stage 8) and the word-offset primitive --------------
+//
+// Every path below goes through ROOT(), like the rest of this file. The sibling
+// reader's phrase page fetched offsets.json with a hand-built
+// `${BASE_URL}/data/…` instead, which bypasses the data-root override — that is
+// forbidden here, so `fetchOffsets` lives in data.ts rather than in the
+// component.
+
+// Phrase shards are keyed by the phrase's fold-initial letter. The browse list
+// and the occurrences are separate fetches on purpose: browsing needs every
+// phrase, but only an EXPANDED phrase needs its offsets. A row is positional to
+// keep the list small — [length in words, corpus count, distinctiveness score,
+// number of works]. The score orders the list; it never removes anything from
+// it. (The sibling's optional fifth element flags a chapter straddle; Homer has
+// no chapters and emits four.)
+export type NgramRow = [number, number, number, number, number?];
+// 'english' indexes the translations. Same shape, same shards, different
+// language — and its occurrences are per English word, so they resolve to a
+// book rather than to a verse.
+export type NgramStream = 'form' | 'lemma' | 'english';
+
+const _ngramCache = new Map<string, Promise<Record<string, NgramRow>>>();
+export function fetchNgramShard(
+  stream: NgramStream,
+  letter: string,
+): Promise<Record<string, NgramRow>> {
+  const key = `${stream}/${letter}`;
+  const cached = _ngramCache.get(key);
+  if (cached) return cached;
+  const p = fetch(`${ROOT()}/ngrams/${key}.json`).then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status} for ngrams/${key}.json`);
+    return r.json();
+  });
+  p.catch(() => { if (_ngramCache.get(key) === p) _ngramCache.delete(key); });
+  _ngramCache.set(key, p);
+  return p;
+}
+
+// phrase -> work -> global offsets, delta-encoded after the first. Sharded by
+// (letter, phrase length) so expanding one row never pulls the whole stream.
+const _occCache = new Map<string, Promise<Record<string, Record<string, number[]>>>>();
+export function fetchNgramOccurrences(
+  stream: NgramStream,
+  letter: string,
+  n: number,
+): Promise<Record<string, Record<string, number[]>>> {
+  const key = `${stream}/occ/${letter}-${n}`;
+  const cached = _occCache.get(key);
+  if (cached) return cached;
+  const p = fetch(`${ROOT()}/ngrams/${key}.json`).then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status} for ngrams/${key}.json`);
+    return r.json();
+  });
+  p.catch(() => { if (_occCache.get(key) === p) _occCache.delete(key); });
+  _occCache.set(key, p);
+  return p;
+}
+
+// Undo the delta encoding: [first, +d, +d, ...] -> absolute global offsets.
+export function decodeOffsets(deltas: number[]): number[] {
+  const out: number[] = [];
+  let at = 0;
+  for (let i = 0; i < deltas.length; i++) {
+    at = i === 0 ? deltas[0] : at + deltas[i];
+    out.push(at);
+  }
+  return out;
+}
+
+// A work's global token offsets, with the structural coordinates beside them.
+// Pair with offsetRef() from shared/lib/search.ts to turn an offset into a
+// citable book.line. Type-only import, so this adds no runtime dependency
+// between the two modules.
+const _offsetsCache = new Map<string, Promise<Offsets>>();
+export function fetchOffsets(work: string): Promise<Offsets> {
+  const cached = _offsetsCache.get(work);
+  if (cached) return cached;
+  const p = fetch(`${workBase(work)}/search/offsets.json`).then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status} for ${work}/search/offsets.json`);
+    return r.json() as Promise<Offsets>;
+  });
+  p.catch(() => { if (_offsetsCache.get(work) === p) _offsetsCache.delete(work); });
+  _offsetsCache.set(work, p);
   return p;
 }
 
