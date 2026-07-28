@@ -1316,6 +1316,47 @@ def _validate_global_apparatus_emits(
                 except Exception as exc:
                     problems.append(("-", plate_path.name, f"invalid JSON: {exc}"))
 
+    # Phase P7a: referential integrity for a scene's optional `places[]`
+    # (authored gazetteer ids, see shared/lib/scene-place.ts) against the
+    # gazetteer this function already loaded above as places_by_id — every id
+    # a scene names must actually exist in apparatus/places.json. Checked
+    # against the canonical apparatus/scenes/<work>.json (not re-checked
+    # against the emitted book JSONs: _validate_apparatus_scenes_coverage
+    # above already asserts the emitted apparatus.scenes matches the
+    # canonical scene-for-scene, which now includes `places`).
+    for manifest in manifests:
+        canonical_path = apparatus_scenes.SCENES_DIR / f"{manifest.work_id}.json"
+        if not canonical_path.exists():
+            continue
+        try:
+            canonical = json.loads(canonical_path.read_text(encoding="utf-8"))
+        except Exception:
+            continue  # invalid JSON already reported by _validate_apparatus_scenes_coverage
+        if not isinstance(canonical, dict):
+            continue
+        for book in canonical.get("books", []) or []:
+            if not isinstance(book, dict):
+                continue
+            book_n = book.get("book")
+            for scene in book.get("scenes", []) or []:
+                if not isinstance(scene, dict):
+                    continue
+                places = scene.get("places")
+                if not places:
+                    continue
+                lines = scene.get("lines")
+                if isinstance(lines, list) and len(lines) == 2:
+                    line_range = f"{lines[0]}-{lines[1]}"
+                else:
+                    line_range = "?"
+                for place_id in places:
+                    if not isinstance(place_id, str) or place_id not in places_by_id:
+                        problems.append((
+                            manifest.work_id, canonical_path.name,
+                            f"book {book_n} scene {line_range}: places id {place_id!r} "
+                            f"does not resolve in the gazetteer"
+                        ))
+
 
 # ── alignment coverage: Murray/Butler/Pope milestone-tick density per book ─
 #

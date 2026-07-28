@@ -185,6 +185,12 @@ export interface Scene {
   startLine: number;    // opening Greek vulgate line (n) this scene covers
   endLine?: number;     // closing line n (inclusive); omitted ⇒ open-ended
   place?: string;       // where the scene is set (small-caps marker)
+  // Authored gazetteer ids (apparatus/places.json) naming where the scene is
+  // set, precisely. Takes precedence over the free-prose `place` above when
+  // resolving a scene to a map pin (see shared/lib/scene-place.ts) — `place`
+  // stays as the human-readable fallback/label. Optional: most scenes still
+  // resolve only through the prose dictionary until authored.
+  places?: string[];
   people?: string[];    // named persons in the scene (subtle markers)
   // Narrative day the scene falls on (the epic's internal chronology), carried
   // through from the pipeline's `dayNumber`. `null`/absent ⇒ no day marker (e.g.
