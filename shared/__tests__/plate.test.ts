@@ -98,6 +98,41 @@ const troy: PlatePlace = { id: 'troy', name: 'Troy', coords: [39.957, 26.239], c
 const scamander: PlatePlace = { id: 'scamander-mouth', name: 'Scamander mouth', coords: [39.93, 26.2], certainty: 'traditional' };
 const ghost: PlatePlace = { id: 'ghost-place', name: 'Unlocated Ghost', certainty: 'mythical' }; // no coords, per honesty rule
 
+// A schematic plate (unit [u,v] space, e.g. a shield device) for exercising
+// the plateAnchors/positionBasis honesty path — no defensible lat/lon.
+const schematicPlate: Plate = {
+  id: 'shield',
+  title: 'Shield',
+  kind: 'schematic',
+  status: 'draft',
+  bbox: [0, 0, 1, 1],
+  size: [200, 200],
+  layers: [],
+};
+
+const anchoredPlace: PlatePlace = {
+  id: 'anchored-place',
+  name: 'Anchored Place',
+  certainty: 'certain',
+  plateAnchors: { shield: [0.25, 0.75] },
+  positionBasis: 'conjectural',
+};
+
+const anchorWithoutBasis: PlatePlace = {
+  id: 'anchor-no-basis',
+  name: 'Anchor Without Basis',
+  plateAnchors: { shield: [0.5, 0.5] },
+  // positionBasis deliberately omitted — pairing invalid per
+  // apparatus_places.py's validate_plate; the renderer must not honour it.
+};
+
+const anchorForOtherPlate: PlatePlace = {
+  id: 'anchor-other-plate',
+  name: 'Anchor For Other Plate',
+  plateAnchors: { 'some-other-plate': [0.1, 0.1] },
+  positionBasis: 'conjectural',
+};
+
 describe('parsePlate', () => {
   it('parses the live seed plate (apparatus/plates/trojan-plain.json)', () => {
     const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
@@ -221,6 +256,42 @@ describe('renderPlate: XSS', () => {
   });
 });
 
+describe('renderPlate: schematic plateAnchors / positionBasis honesty', () => {
+  it('places a valid anchored+conjectural place at the anchored unit position, in a distinct conjectural register', () => {
+    const result = renderPlate(schematicPlate, [anchoredPlace]);
+    expect(result.unlocated).toEqual([]);
+    const feature = result.features.find((f) => f.id === 'anchored-place');
+    expect(feature).toBeDefined();
+    const [minX, minY, maxX, maxY] = feature!.bbox;
+    const actualX = (minX + maxX) / 2;
+    const actualY = maxY; // pin apex
+    // u=0.25, v=0.75 scaled directly by plate.size [200,200] (schematic
+    // projection, per projectPoint).
+    expect(actualX).toBeCloseTo(0.25 * 200, 6);
+    expect(actualY).toBeCloseTo(0.75 * 200, 6);
+
+    // Visually distinct conjectural register: a data attribute a component
+    // can key off, plus a dashed stroke not implied by its certainty tier
+    // ('certain' is normally solid, no dasharray at all).
+    expect(result.svg).toContain('data-place-id="anchored-place" data-position-basis="conjectural"');
+    const gMatch = result.svg.match(/<g data-place-id="anchored-place"[^>]*>[\s\S]*?<\/g>/);
+    expect(gMatch).not.toBeNull();
+    expect(gMatch![0]).toMatch(/stroke-dasharray="[^"]+"/);
+  });
+
+  it('does NOT honour plateAnchors without positionBasis: "conjectural" (invalid pairing per apparatus_places.py)', () => {
+    const result = renderPlate(schematicPlate, [anchorWithoutBasis]);
+    expect(result.unlocated.map((p) => p.id)).toEqual(['anchor-no-basis']);
+    expect(result.svg).not.toContain('data-place-id="anchor-no-basis"');
+  });
+
+  it('ignores a plateAnchors entry keyed for a different plate id', () => {
+    const result = renderPlate(schematicPlate, [anchorForOtherPlate]);
+    expect(result.unlocated.map((p) => p.id)).toEqual(['anchor-other-plate']);
+    expect(result.svg).not.toContain('data-place-id="anchor-other-plate"');
+  });
+});
+
 describe('renderPlate: general smoke', () => {
   it('produces a valid non-degenerate SVG with a data-feature-id per drawn layer', () => {
     const result = renderPlate(testPlate, [troy]);
@@ -301,6 +372,65 @@ describe('computeCamera', () => {
     const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
     const camera = computeCamera(testPlate, viewport, ['does-not-exist']);
     expect(camera).toEqual({ scale: 1, tx: 0, ty: 0 });
+  });
+
+  it('frames a gazetteer place (not a layer) supplied via options.places', () => {
+    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const camera = computeCamera(testPlate, viewport, ['troy', 'scamander-mouth'], {
+      places: [troy, scamander],
+    });
+
+    for (const place of [troy, scamander]) {
+      const [x, y] = project(place.coords!, viewport);
+      const outX = x * camera.scale + camera.tx;
+      const outY = y * camera.scale + camera.ty;
+      expect(outX).toBeGreaterThanOrEqual(-1e-6);
+      expect(outX).toBeLessThanOrEqual(testPlate.size[0] + 1e-6);
+      expect(outY).toBeGreaterThanOrEqual(-1e-6);
+      expect(outY).toBeLessThanOrEqual(testPlate.size[1] + 1e-6);
+    }
+  });
+
+  it('mixes a layer id and a place id in the same focus set', () => {
+    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const camera = computeCamera(testPlate, viewport, ['river-1', 'troy'], { places: [troy] });
+    expect(Number.isFinite(camera.scale)).toBe(true);
+    expect(camera.scale).toBeGreaterThan(0);
+  });
+
+  it('an id matching neither a layer nor a supplied place contributes nothing (falls back to identity), without throwing', () => {
+    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    expect(() => computeCamera(testPlate, viewport, ['nonexistent-place'], { places: [troy] })).not.toThrow();
+    const camera = computeCamera(testPlate, viewport, ['nonexistent-place'], { places: [troy] });
+    expect(camera).toEqual({ scale: 1, tx: 0, ty: 0 });
+  });
+
+  it('a place with no coords contributes nothing (honesty rule) — an all-unlocated focus set falls back to identity', () => {
+    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const camera = computeCamera(testPlate, viewport, ['ghost-place'], { places: [ghost] });
+    expect(camera).toEqual({ scale: 1, tx: 0, ty: 0 });
+  });
+
+  it('a single located place (degenerate/zero-extent bbox) does not produce an infinite or NaN zoom, and stays inside the canvas', () => {
+    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const camera = computeCamera(testPlate, viewport, ['troy'], { places: [troy] });
+    expect(Number.isFinite(camera.scale)).toBe(true);
+    expect(Number.isFinite(camera.tx)).toBe(true);
+    expect(Number.isFinite(camera.ty)).toBe(true);
+    expect(camera.scale).toBeLessThanOrEqual(8); // default maxScale
+    const [x, y] = project(troy.coords!, viewport);
+    const outX = x * camera.scale + camera.tx;
+    const outY = y * camera.scale + camera.ty;
+    expect(outX).toBeGreaterThanOrEqual(-1e-6);
+    expect(outX).toBeLessThanOrEqual(testPlate.size[0] + 1e-6);
+    expect(outY).toBeGreaterThanOrEqual(-1e-6);
+    expect(outY).toBeLessThanOrEqual(testPlate.size[1] + 1e-6);
+  });
+
+  it('a custom maxScale option clamps a single-point focus below the default', () => {
+    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const camera = computeCamera(testPlate, viewport, ['troy'], { places: [troy], maxScale: 2 });
+    expect(camera.scale).toBeLessThanOrEqual(2);
   });
 });
 

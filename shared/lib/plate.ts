@@ -114,6 +114,7 @@ export interface PlatePlace {
   coords?: LatLon;
   certainty?: Certainty;
   plateAnchors?: Record<string, [number, number]>;
+  positionBasis?: 'conjectural';
 }
 
 export interface PlateOptions {
@@ -151,10 +152,16 @@ export interface Camera {
 export interface CameraOptions {
   /** Extra room left around the focused features' bbox, as a fraction of that bbox's own width/height. */
   padFraction?: number;
+  /** Upper bound on `scale`, so a focus set that resolves to a single point (or a tight cluster) doesn't zoom toward infinity. */
+  maxScale?: number;
+  /** Gazetteer places `focusIds` may also match, by place id — resolved through the same honesty rules as renderPlate (see resolvePlacePosition): a place with no defensible position on this plate contributes nothing. */
+  places?: PlatePlace[];
 }
 
 const DEFAULT_CAMERA_OPTIONS: Required<CameraOptions> = {
   padFraction: 0.12,
+  maxScale: 8,
+  places: [],
 };
 
 // ── parsePlate ───────────────────────────────────────────────────────────
@@ -719,12 +726,22 @@ function certaintyPinStyle(certainty: Certainty | undefined): PinStyle {
   }
 }
 
-function pinMarkup(id: string, name: string, x: number, y: number, style: PinStyle, r = 5.5): string {
+// `conjectural` marks a pin resolved via a schematic plate's `plateAnchors`
+// (see resolvePlacePosition) rather than real coordinates — the honesty
+// register from docs/APPARATUS-SCHEMAS.md. It renders in its own dashed
+// stroke (distinct from the certainty-tier dash used for `mythical`) plus a
+// `data-position-basis="conjectural"` attribute a consuming component can
+// key off for e.g. an "approximate" label.
+const CONJECTURAL_DASHARRAY = '1 3';
+
+function pinMarkup(id: string, name: string, x: number, y: number, style: PinStyle, conjectural: boolean, r = 5.5): string {
   const headCy = y - r * 1.7;
   const tip = `M ${round1(x - r * 0.55)} ${round1(y - r * 0.9)} L ${round1(x + r * 0.55)} ${round1(y - r * 0.9)} L ${round1(x)} ${round1(y)} Z`;
-  const dash = style.dasharray ? ` stroke-dasharray="${style.dasharray}"` : '';
+  const dasharray = conjectural ? CONJECTURAL_DASHARRAY : style.dasharray;
+  const dash = dasharray ? ` stroke-dasharray="${dasharray}"` : '';
+  const basisAttr = conjectural ? ' data-position-basis="conjectural"' : '';
   return (
-    `<g data-place-id="${escapeXml(id)}">` +
+    `<g data-place-id="${escapeXml(id)}"${basisAttr}>` +
     `<title>${escapeXml(name)}</title>` +
     `<circle cx="${round1(x)}" cy="${round1(headCy)}" r="${r}" fill="${style.fill}" fill-opacity="${style.fillOpacity}" stroke="${style.stroke}" stroke-width="1.25"${dash}/>` +
     `<path d="${tip}" fill="${style.fill}" fill-opacity="${style.fillOpacity}" stroke="${style.stroke}" stroke-width="1.25"${dash}/>` +
@@ -779,10 +796,15 @@ function pathD(points: [number, number][], close: boolean): string {
 // Resolves a place's plate-pixel position, or undefined if it has no
 // defensible location on THIS plate. Apparatus honesty (CLAUDE.md hard
 // rule): never force-pin. Geographic plates need `coords`; schematic plates
-// need a `plateAnchors[plate.id]` unit anchor (the documented honesty
-// mechanism for a feature drawn without real-world coordinates).
+// need a `plateAnchors[plate.id]` unit anchor keyed for THIS plate, AND
+// `positionBasis: "conjectural"` — docs/APPARATUS-SCHEMAS.md documents the
+// two as required together (the pipeline validator, apparatus_places.py,
+// rejects one without the other). A `plateAnchors` entry present without the
+// matching `positionBasis` is NOT quietly honoured here either — it renders
+// as unlocated, same as having no anchor at all.
 function resolvePlacePosition(plate: Plate, place: PlatePlace, viewport: Viewport): [number, number] | undefined {
   if (plate.kind === 'schematic') {
+    if (place.positionBasis !== 'conjectural') return undefined;
     const anchor = place.plateAnchors?.[plate.id];
     return anchor ? projectPoint(plate, anchor, viewport) : undefined;
   }
@@ -921,7 +943,11 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     located.push(place);
     const [x, y] = pos;
     const style = certaintyPinStyle(place.certainty);
-    pinMarkupParts.push(pinMarkup(place.id, place.name, x, y, style));
+    // Any place resolved on a schematic plate got there via plateAnchors +
+    // positionBasis: "conjectural" (see resolvePlacePosition) — there is no
+    // other path to a position on a schematic plate.
+    const conjectural = plate.kind === 'schematic';
+    pinMarkupParts.push(pinMarkup(place.id, place.name, x, y, style, conjectural));
     features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: pinBBox(x, y) });
   }
 
@@ -945,16 +971,27 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
 
 // Computes a pure {scale, tx, ty} value that, applied as a CSS transform to
 // a group already in plate-pixel space (out = in * scale + [tx, ty]), frames
-// the plate layers named in `focusIds` inside the canvas. The library never
+// the geometry named in `focusIds` inside the canvas. The library never
 // touches the DOM — a component applies this as `transform:
 // translate(tx,ty) scale(scale)` (note CSS transform order: scale first
 // then translate reads right-to-left in `transform`, i.e. the string is
 // `translate(${tx}px, ${ty}px) scale(${scale})`).
 //
-// Operates over `plate.layers` (matched by id) rather than a features list:
-// this function's signature is `(plate, viewport, focusIds)` with no places
-// parameter, so a place-focused camera is out of scope here — see the
-// report for this call.
+// `focusIds` is matched against TWO id spaces: `plate.layers` (by layer id,
+// as before) and `options.places` (by place id — pass the same PlatePlace[]
+// given to renderPlate, or a relevant subset; the Chart Room's use case is
+// framing an Iliad scene on ITS OWN gazetteer places, which are not layers).
+// An id matching neither contributes nothing rather than throwing. A place
+// resolves through the same `resolvePlacePosition` honesty rules renderPlate
+// uses: no `coords` (geographic) or no `plateAnchors[plate.id]` +
+// `positionBasis: "conjectural"` (schematic) means it contributes nothing —
+// never an invented position. If NO id resolves to any geometry (including
+// the all-ids-unlocated case), this returns the identity camera
+// `{scale:1,tx:0,ty:0}`, showing the whole plate rather than a degenerate or
+// NaN transform. A focus set that resolves to a single point (or several
+// coincident points) is padded by a fixed pixel amount rather than
+// `padFraction * 0`, and the final scale is clamped to `options.maxScale`,
+// so a lone pin can't zoom toward infinity.
 export function computeCamera(
   plate: Plate,
   viewport: Viewport,
@@ -980,17 +1017,29 @@ export function computeCamera(
     }
   }
 
+  for (const place of opts.places) {
+    if (!idSet.has(place.id)) continue;
+    const pos = resolvePlacePosition(plate, place, viewport);
+    if (pos) points.push(pos);
+  }
+
   if (points.length === 0) return { scale: 1, tx: 0, ty: 0 };
 
   const [minX, minY, maxX, maxY] = bboxOf(points);
   const bboxW = Math.max(maxX - minX, 1e-6);
   const bboxH = Math.max(maxY - minY, 1e-6);
-  const padW = bboxW * opts.padFraction;
-  const padH = bboxH * opts.padFraction;
+  // A focus bbox that collapsed to (near-)zero width/height — one point, or
+  // several coincident ones — gets a fixed plate-pixel pad instead of
+  // `span * padFraction` (which would itself be ~0): otherwise paddedW/H
+  // stays microscopic and `scale` below explodes before the maxScale clamp
+  // even has a normal-sized denominator to reason about.
+  const DEGENERATE_PAD_PX = 24;
+  const padW = bboxW <= 1e-6 ? DEGENERATE_PAD_PX : bboxW * opts.padFraction;
+  const padH = bboxH <= 1e-6 ? DEGENERATE_PAD_PX : bboxH * opts.padFraction;
   const paddedW = bboxW + padW * 2;
   const paddedH = bboxH + padH * 2;
 
-  const scale = Math.min(viewport.width / paddedW, viewport.height / paddedH);
+  const scale = Math.min(viewport.width / paddedW, viewport.height / paddedH, opts.maxScale);
   const centerX = (minX + maxX) / 2;
   const centerY = (minY + maxY) / 2;
   const tx = viewport.width / 2 - scale * centerX;
