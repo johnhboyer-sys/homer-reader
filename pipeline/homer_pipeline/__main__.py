@@ -410,6 +410,13 @@ def _stage_repetitions(manifest):
     )
 
 
+def _stage_ngrams(manifest=None):
+    del manifest
+    from . import stage8_ngrams
+
+    stage8_ngrams.run()
+
+
 _STAGES = {
     "stage1": _stage1,
     "stage2": _stage2,
@@ -418,6 +425,7 @@ _STAGES = {
     "stage5": _stage5,
     "stage6": _stage6,
     "stage7": _stage7,
+    "stage8": _stage_ngrams,
     "apparatus": _stage_apparatus,
     "epithets": _stage_epithets,
     "speeches": _stage_speeches,
@@ -447,11 +455,16 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.allow_partial_apparatus and args.stage not in ("apparatus", "all"):
         parser.error("--allow-partial-apparatus requires stage 'apparatus' or 'all'")
+    if args.stage == "stage8":
+        _STAGES[args.stage]()
+        return
     manifest = Manifest.for_work(args.work, public=args.public)
     if args.public:
         print(f"manifest: {manifest.path.relative_to(manifest.path.parents[1])}")
     if args.stage == "all":
         for stage, fn in _STAGES.items():
+            if stage == "stage8":
+                continue
             if stage == "apparatus":
                 fn(manifest, allow_partial=args.allow_partial_apparatus)
             else:
