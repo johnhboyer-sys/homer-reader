@@ -209,5 +209,7 @@ describe('offsetRef (real built corpus)', () => {
         previous = rank;
       }
     }
-  });
+    // Walks all 199,076 offsets in both works: ~5s alone, and the default 5s
+    // timeout makes it flaky once the rest of the suite runs beside it.
+  }, 60_000);
 });
