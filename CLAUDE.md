@@ -137,6 +137,16 @@ non-negotiable.
   other's dist mid-verification. Lanes verifying against dist must
   build+verify without another build lane running, or verify via dev
   server instead.
+- Test-harness gotcha (2026-07-28, found by the grammar-search fix lane):
+  under happy-dom, `bind:value` on a `<select>` cannot be driven by
+  `fireEvent.change`. Svelte 5 reads the chosen option with
+  `select.querySelector(':checked')`, happy-dom implements no `:checked`, so
+  it falls back to "the first option that is not `disabled`" — every bound
+  select snaps back to its first option and component state never moves. The
+  test passes vacuously. Workaround in `shared/__tests__/grammar-ui.test.ts`
+  (`choose()`): disable the other options for the duration of the event.
+  Selects driven by a handler (`on:change` reading `currentTarget.value`, as
+  the combo panel does) are unaffected, which is why nobody hit this before.
 - Codex model-flag gotcha (2026-07-18): `--model gpt-5.6-terra-high` is
   REJECTED on this ChatGPT-account setup ("model is not supported…"); runs
   fall back to the account's default Codex model at `--effort high`. Label
@@ -376,6 +386,26 @@ And from his expanded set, the ones this project adopts:
   `git add shared/__tests__/` swept an in-flight lane's test edits into an
   unrelated commit. Stage explicit FILES, never directories, while any
   agent runs.
+
+- **Two Claude Code sessions in one checkout** (2026-07-28, caught by the
+  orchestrator before any commit): a second session was working this repo on
+  `claude/build` (a places/geo apparatus lane) while this one started. A
+  checkout holds ONE branch, so `git checkout -b` here silently moved the other
+  session's tree onto a branch it knew nothing about, and its uncommitted work
+  landed there. Nothing was lost — uncommitted changes survive a branch switch,
+  and both branches sat on the same commit — but the next commit from either
+  side would have swept the other's files in.
+  Symptoms: files dirty outside every lane's blast radius; an agent reporting a
+  file "already modified on disk" that `git status` showed clean at session
+  start; transient vitest failures from a half-written module (here
+  `scenemap.ts`, mid-refactor, breaking 11 unrelated files through the vite
+  cache). Diagnosis: `lsof -t +D <repo>` and look for more than one `claude`.
+  **Rule: before `git checkout -b` here, diff `git status` against the
+  session-start snapshot. If files you do not own are dirty, STOP and ask John
+  — do not branch, do not commit.** The fix is a worktree per session
+  (`git worktree add ../homer-reader-<lane> <base>`), which is where this lane
+  moved; symlink `build/` to the main checkout so the corpus is readable
+  without a 6-minute rebuild, and treat it as read-only.
 
 - **Fork drift** (aristotle→plato: ~20 files diverged in 4 days): this repo is the
   fourth fork. `DRIFT.md` is the mitigation; keep it current.
