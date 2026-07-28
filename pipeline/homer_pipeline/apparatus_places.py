@@ -29,7 +29,8 @@ from typing import Any
 CERTAINTY_TIERS = {"certain", "traditional", "speculative", "mythical"}
 
 PLACE_KIND_ENUM = {
-    "settlement", "river", "mountain", "island", "promontory", "region",
+    "settlement", "river", "mountain", "hill", "island", "promontory",
+    "region", "plain", "harbour", "strait",
     "gate", "tower", "tomb", "spring", "ford", "camp", "wall", "shrine", "tree",
 }
 
