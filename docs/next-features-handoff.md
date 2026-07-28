@@ -11,15 +11,59 @@ not building.
 
 ## The list
 
-- [ ] **1. Cross-epic phrase filter** — small. Data ships today.
-- [ ] **2. The dual as a first-class query** — small. Data ships today.
+- [x] **1. Cross-epic phrase filter** — shipped 2026-07-28, PR #14.
+- [x] **2. The dual as a first-class query** — shipped 2026-07-28, PR #14.
 - [ ] **3. Enjambment index** — medium. Data ships today; needs a page.
 - [ ] **4. Metrical position** — large. The headline. Inputs all exist.
 - [ ] **5. Certainty-aware grammar filters** — medium. Philologically the most serious.
 - [ ] *(deferred, bigger than it looks)* Dialect as a searchable facet.
 
-Suggested order: 1 and 2 together (one lane, one afternoon), then 3, then 4, then 5.
-4 and 3 are natural companions — both are about where a phrase sits in the verse.
+Suggested order: 3, then 4, then 5. 4 and 3 are natural companions — both are
+about where a phrase sits in the verse.
+
+---
+
+## What 1 and 2 changed about the rest (2026-07-28, after PR #14)
+
+Three things this document got wrong or did not know. Each changes work below.
+
+**The browse row's `works` is a COUNT, not a list.** `[n, count, score, workCount]`
+(`shared/lib/data.ts:799-806`). Cross-epic is `row[3] >= 2` — no decoding, no
+fetch. Measured: 17,956 of 68,550 form phrases stand in both poems, 46,088 of
+158,973 lemma, 39,078 of 118,695 English.
+
+**`dual` was already in the dropdown.** "Indexed and unreachable" was wrong about
+`GRAMMAR_CATEGORIES`, right about the outcome: grammar was combo-only, so the
+Iliad 9 question could not be asked at all. **That rule is now relaxed for a
+query scoped to a single work + book**, where it is selective (184 words in Il. 9
+against 3,785 across the poem). Anything below that assumes grammar is
+strictly combo-only is out of date.
+
+**ONE SEGMENT PER BOOK.** 24 segments for the Iliad, ~4,500 tokens each. A
+book-scoped search returns a SINGLE `SearchResult` carrying every hit as a
+position. This bit us once — a header counting matched words called them
+"passages", overstating the spread of the evidence by the width of a book.
+**§4 will meet this head-on**: a metrical column is per-token, but everything
+that renders it is per-book. Budget for that, and count over what the page
+renders, never over the result set.
+
+**§5 is now half-done, for free.** `compileQuery` (`search.ts:545-561`) already
+computed `{values, certain}` per signature and the UI discarded it. The solo
+grammar path now surfaces it: uncertain hits carry a dotted mark naming their
+alternatives, and the header states the split (Il. 9 duals: 184 words, 8 certain
+— 96% ambiguous, which is the normal state of Homeric morphology, not a defect).
+What remains for §5 is the **combo** path, which means confronting
+`comboWindows`' first-feasible-hit choice (`search.ts:1037-1039`), and the
+build-time is-unambiguous bit if the client-side compile ever proves too slow.
+It has not.
+
+**A process note worth keeping.** The first implementation of §2 passed its own
+tests and was still wrong in four ways, all one mistake — live filter state used
+as the submitted query's scope, so clearing a book widened 184 hits to 3,785
+while the header still claimed 8 were certain. A cross-model adversarial pass
+caught it. The tests did not, and could not: they exercised the engine, and
+would have passed against a fully reverted component. **For anything that makes
+an honesty claim on screen, write the test that fails first.**
 
 ---
 
