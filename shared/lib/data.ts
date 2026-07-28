@@ -809,6 +809,29 @@ export type NgramRow = [number, number, number, number, number?];
 // book rather than to a verse.
 export type NgramStream = 'form' | 'lemma' | 'english';
 
+// Where each English segment starts in the English offset space, one list per
+// work. The translations are aligned a block per segment and a segment IS a
+// book here, so an English phrase offset resolves to the book and no further —
+// there is no verse to name. `words` is the segment's English token count.
+export interface EnglishSegment {
+  book: number;
+  column: string;
+  base: number;
+  words: number;
+}
+
+let _englishSegments: Promise<Record<string, EnglishSegment[]>> | null = null;
+export function fetchEnglishSegments(): Promise<Record<string, EnglishSegment[]>> {
+  if (_englishSegments) return _englishSegments;
+  const p = fetch(`${ROOT()}/ngrams/english-segments.json`).then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status} for ngrams/english-segments.json`);
+    return r.json();
+  });
+  p.catch(() => { if (_englishSegments === p) _englishSegments = null; });
+  _englishSegments = p;
+  return p;
+}
+
 const _ngramCache = new Map<string, Promise<Record<string, NgramRow>>>();
 export function fetchNgramShard(
   stream: NgramStream,
