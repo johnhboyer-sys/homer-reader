@@ -55,6 +55,15 @@ and the Scaean Gate get drawn at all.
 
 ## Known, deliberately not fixed
 
+- **A place drawn as a LAYER is still listed "named, not drawn".** `plate.ts`
+  has no concept of a place carried by geometry rather than a pin, so
+  `wall-of-troy` (the `placeId` on all four citadel circuit stretches) and
+  `pergamos` (the summit region) fall into `PlatePanel`'s unlocated list while
+  being visibly drawn. This is the honesty list failing in the opposite
+  direction from the off-canvas bug fixed today: there it silently omitted
+  places, here it denies drawing ones it drew. Fix with the tab wiring (next
+  step 1): a place referenced by any rendered layer's `placeId` should count as
+  drawn, whether or not it also gets a pin.
 - `wallGlyph` picks its tick side from an open polyline's signed area against
   the pixel origin, so on short arcs around an off-origin centre the ticks land
   outside on some circuit stretches and inside on others. Cosmetic.
