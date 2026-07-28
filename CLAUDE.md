@@ -337,6 +337,26 @@ And from his expanded set, the ones this project adopts:
   unrelated commit. Stage explicit FILES, never directories, while any
   agent runs.
 
+- **Two Claude Code sessions in one checkout** (2026-07-28, caught by the
+  orchestrator before any commit): a second session was working this repo on
+  `claude/build` (a places/geo apparatus lane) while this one started. A
+  checkout holds ONE branch, so `git checkout -b` here silently moved the other
+  session's tree onto a branch it knew nothing about, and its uncommitted work
+  landed there. Nothing was lost — uncommitted changes survive a branch switch,
+  and both branches sat on the same commit — but the next commit from either
+  side would have swept the other's files in.
+  Symptoms: files dirty outside every lane's blast radius; an agent reporting a
+  file "already modified on disk" that `git status` showed clean at session
+  start; transient vitest failures from a half-written module (here
+  `scenemap.ts`, mid-refactor, breaking 11 unrelated files through the vite
+  cache). Diagnosis: `lsof -t +D <repo>` and look for more than one `claude`.
+  **Rule: before `git checkout -b` here, diff `git status` against the
+  session-start snapshot. If files you do not own are dirty, STOP and ask John
+  — do not branch, do not commit.** The fix is a worktree per session
+  (`git worktree add ../homer-reader-<lane> <base>`), which is where this lane
+  moved; symlink `build/` to the main checkout so the corpus is readable
+  without a 6-minute rebuild, and treat it as read-only.
+
 - **Fork drift** (aristotle→plato: ~20 files diverged in 4 days): this repo is the
   fourth fork. `DRIFT.md` is the mitigation; keep it current.
 - **Renumbering corruption:** sequential renumbering corrupts every citation.
