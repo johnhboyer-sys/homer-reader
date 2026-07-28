@@ -125,6 +125,13 @@ describe('Search.svelte new panels route snippets through the shared sanitizer',
     expect(main.querySelector('script')).toBeNull();
     expect(main.querySelector('img')).toBeNull();
     expect(main.innerHTML).toContain('&lt;script&gt;xss&lt;/script&gt;');
+    // The two checks above would also hold for a sanitizer that STRIPS the
+    // markup instead of escaping it — no <script>/<img> element is created
+    // either way. `textContent` decodes HTML entities back to literal
+    // characters, so this only passes when the tag survives as text the
+    // reader can actually see, proving escape rather than strip.
+    expect(main.textContent).toContain('<script>xss</script>');
+    expect(main.textContent).toContain('<img src=x onerror=alert(1)>');
   });
 
   it('"Two things near each other" panel renders a malicious token as escaped text, not markup', async () => {
@@ -148,5 +155,8 @@ describe('Search.svelte new panels route snippets through the shared sanitizer',
     expect(main.querySelector('script')).toBeNull();
     expect(main.querySelector('img')).toBeNull();
     expect(main.innerHTML).toContain('&lt;script&gt;xss&lt;/script&gt;');
+    // Same distinction as the panel above: a stripping sanitizer would also
+    // leave no <script> element, so prove the payload is literally visible.
+    expect(main.textContent).toContain('<script>xss</script>');
   });
 });

@@ -138,7 +138,15 @@ describe('searchCombo', () => {
     // zeta@12 and eta@19 are 7 apart — outside the default 5-word window, but
     // both sit in book 1 chapter 2 (offsets 10-19). Inert on the real corpus.
     const { results } = await searchCombo([slot('zeta'), slot('eta')], opts({ unit: 'chapter' }), ['C12']);
+    expect(results).toHaveLength(1);
     expect(results[0].grkPositions).toEqual([12, 19]);
+    // epsilon@8 sits in chapter 1 of the same book (chapter 2 starts at 10);
+    // pairing it with eta@19 must NOT match under the chapter unit even
+    // though the word window is unbounded here (`reach = total` when
+    // unit !== 'words') — proving the chapter boundary itself is enforced,
+    // not merely that this pair's gap happens to fit under some window.
+    const cross = await searchCombo([slot('epsilon'), slot('eta')], opts({ unit: 'chapter' }), ['C12b']);
+    expect(cross.results).toHaveLength(0);
   });
 
   it('accepts a wildcard in a slot, including inside a phrase run', async () => {

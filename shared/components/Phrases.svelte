@@ -15,7 +15,9 @@
     greekFold,
     lemmaOptions,
     lemmaReadings,
+    lineStarts,
     offsetRef,
+    unitRange,
     type Offsets,
   } from '../lib/search';
   import { formatCite, formatLocValue } from '../lib/citation';
@@ -520,34 +522,19 @@
     expanded = next;
   }
 
-  // The line-start offsets of a whole work, flattened across its segments — the
-  // same array shared/lib/search.ts builds for its same-verse window unit. That
-  // one is private and this port may not touch that file, so it is rebuilt here
-  // and cached per Offsets object.
+  // The line-start offsets of a whole work, flattened across its segments —
+  // shared/lib/search.ts's own `lineStarts`, exported for this page. A work can
+  // hold thousands of line runs, and loadPhraseDetails calls this once per
+  // expanded phrase in the work, so the walk is cached per Offsets object
+  // (which `fetchOffsets` already caches per work, giving a stable reference to
+  // key off) rather than repeated on every expand.
   const lineStartsCache = new WeakMap<Offsets, number[]>();
   function lineStartsOf(offsets: Offsets): number[] {
     const cached = lineStartsCache.get(offsets);
     if (cached) return cached;
-    const out: number[] = [];
-    offsets.segments.forEach((seg, i) => {
-      let at = offsets.seg_base_offset[i];
-      for (const [, count] of seg.line_runs) { out.push(at); at += count; }
-    });
+    const out = lineStarts(offsets);
     lineStartsCache.set(offsets, out);
     return out;
-  }
-
-  // The half-open [start, end) global-offset range of the verse an offset falls
-  // in. Binary search over the sorted starts.
-  function verseEnd(starts: number[], global: number, total: number): number {
-    let lo = 0;
-    let hi = starts.length - 1;
-    while (lo < hi) {
-      const mid = (lo + hi + 1) >> 1;
-      if (starts[mid] <= global) lo = mid;
-      else hi = mid - 1;
-    }
-    return lo + 1 < starts.length ? starts[lo + 1] : total;
   }
 
   // Bound the offsets burst: a common phrase can span most of the corpus.
@@ -627,7 +614,7 @@
                   href: `${BASE_URL}${workPath(work, ref.book)}?loc=${formatLocValue(work, ref.column, ref.line)}`,
                   // The whole phrase stands inside one verse when its last token
                   // is still short of that verse's end.
-                  sameVerse: global + span - 1 < verseEnd(starts, global, offsets.token_count),
+                  sameVerse: global + span - 1 < unitRange(starts, global, offsets.token_count)[1],
                 };
               })
               .filter((o): o is Occurrence => o !== null);

@@ -178,6 +178,17 @@ describe('Phrases: the dictionary-form index takes the form standing in the vers
   it('still matches a dictionary form typed as one', async () => {
     await typeInLemmaMode('o de apameibomai');
     expect(await findRow(GREEK.oDeApameibomai)).toBeInTheDocument();
+    // The row alone does not prove the widen ran: "o de apameibomai" typed
+    // literally is ALSO the exact shard key, so a broken widen that fell
+    // back to matching the raw typed string (e.g. because it treated any
+    // one unrecorded word — here "de" and "apameibomai" are both unrecorded
+    // in the fixture map, only "d'" and "apameibomenos" are — as reason to
+    // give up on widening the whole phrase) would find the same row by
+    // coincidence. The "Reading these words as" note only renders when a
+    // real Plan with tried readings exists, which only happens on the
+    // genuine per-word widen path.
+    const note = await screen.findByText(/Reading these words as/);
+    expect(note.textContent).toContain(GREEK.oDeApameibomai);
   });
 
   // The letter buttons type into the same box. η is a form of εἰμί, ἵημι and ὁ,

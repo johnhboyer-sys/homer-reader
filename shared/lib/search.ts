@@ -724,9 +724,11 @@ export async function searchPhraseVariants(
   if (folds.some(f => !f)) return empty;
   const perTerm = await lemmaOptions(folds);
   if (!perTerm) return empty;   // without the map there is nothing to widen with
-  if (perTerm.some(options => !options.length)) return empty;
+  // A word the map does not record falls back to itself (addendum §1, rule 3):
+  // one unrecorded word must not kill widening for the words that ARE recorded.
+  const widened = perTerm.map((options, i) => (options.length ? options : [folds[i]]));
 
-  const { readings, total } = lemmaReadings(perTerm, VARIANT_READING_CAP);
+  const { readings, total } = lemmaReadings(widened, VARIANT_READING_CAP);
   const cappedFrom = total > readings.length ? total : 0;
 
   const failedWorks: string[] = [];
@@ -876,7 +878,7 @@ function slotHits(
 // The structural unit an offset falls in, as a half-open [start, end) range of
 // global offsets. Bounds are sorted, so this is a binary search over a short
 // array. Used for the line/chapter window units and the book-edge rule.
-function unitRange(starts: number[], global: number, total: number): [number, number] {
+export function unitRange(starts: number[], global: number, total: number): [number, number] {
   let lo = 0;
   let hi = starts.length - 1;
   while (lo < hi) {
@@ -901,7 +903,7 @@ function lowerBound(hits: SlotHit[], target: number): number {
 
 // Flatten the per-segment line runs into one array of line-start offsets, so a
 // same-line window is the same kind of lookup as same-chapter.
-function lineStarts(offsets: Offsets): number[] {
+export function lineStarts(offsets: Offsets): number[] {
   const out: number[] = [];
   offsets.segments.forEach((seg, i) => {
     let at = offsets.seg_base_offset[i];

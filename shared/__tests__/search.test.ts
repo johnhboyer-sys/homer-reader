@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { englishOccurrences, greekFold, search } from '../lib/search';
+import { englishOccurrences, greekFold, search, searchPhraseVariants } from '../lib/search';
 
 const meta = [
   { id: 's1', book: 1, column: '1094a', greek_head: 'λόγος ἀρετή', greek_tokens: 'logos areth', english_head: 'virtue is a habit of choice' },
@@ -199,6 +199,36 @@ describe('lemma search resolves an inflected word to its headword', () => {
   it('does not resolve in form mode, where the typed spelling is the query', async () => {
     const { results } = await search('logou', '', 'all', 'all', 'and', ['TFormMode'], 'form');
     expect(results).toEqual([]);
+  });
+});
+
+describe('searchPhraseVariants falls back to the typed word when the map does not record it', () => {
+  // logos@0 and xyz@1 sit adjacent in one segment, so the phrase matches under
+  // the one reading that pairs logos's headword with xyz exactly as typed.
+  const partialMeta = [{ id: 'p1', book: 1, column: '1', greek_head: '', greek_tokens: '', english_head: '' }];
+  const partialIndex = {
+    logos: [[0, 0]],
+    xyz: [[0, 1]],
+  } satisfies Record<string, [number, number][]>;
+
+  beforeEach(() => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      const path = String(url);
+      if (path.endsWith('/meta.json')) return json(partialMeta);
+      if (path.endsWith('/greek_lemma.json')) return json(partialIndex);
+      if (path.endsWith('/lemma-map/l.json')) return json({ logos: ['logos'] });
+      // The shard for xyz's letter loads fine but does not record the word —
+      // this is the "unrecorded word" case, not a missing-map failure.
+      if (path.endsWith('/lemma-map/x.json')) return json({});
+      return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response);
+    });
+  });
+  afterEach(() => vi.restoreAllMocks());
+
+  it('widens the recorded word and keeps the unrecorded one as typed', async () => {
+    const { readings, results } = await searchPhraseVariants('logos xyz', ['TPartial']);
+    expect(readings).toEqual([['logos', 'xyz']]);
+    expect(results.map((r) => r.meta.id)).toEqual(['p1']);
   });
 });
 

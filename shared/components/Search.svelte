@@ -1014,6 +1014,20 @@
   // every headword the corpus lemma map records for it, unioned — mirrors
   // search.ts's resolveHeadwords, so an ambiguous surface form still finds
   // every reading rather than guessing the wrong one.
+  //
+  // This union is correct HERE and is not the case the Phrases addendum's
+  // "a word the map records uses its headwords alone" rule (docs/advanced-
+  // search-phrases-addendum.md §1) forbids. That rule is scoped to the
+  // Phrases page's shard fetching, where reading a non-headword literally
+  // fetches a whole n-gram shard (up to 3.3 MB) with zero matching rows — the
+  // union there is expensive and wrong. A combo lemma slot instead resolves
+  // against the postings index: the extra option costs one more index lookup,
+  // not a shard, which is exactly the case the addendum names as fine
+  // ("`resolveHeadwords` in `search.ts` does union, correctly"). Do not
+  // "fix" this to drop the fold — an adversarial review already flagged it
+  // once and was wrong; the existing fallback to `[fold]` a few lines below
+  // already satisfies the addendum's rule 3 (a word the map does not record
+  // falls back to itself).
   async function lemmaSlotTerms(word: string): Promise<string[]> {
     const fold = greekFold(word);
     if (!fold) return [];

@@ -63,9 +63,13 @@ describe('offsetRef (synthetic fixture)', () => {
   });
 
   it('case 3 — a zero-token line can never own an offset', () => {
-    // Line 6 has count 0 and sits last in book 1, so nothing resolves to it.
+    // Line 6 has count 0 and sits last in book 1, so nothing resolves to it —
+    // but `.not.toContain(6)` alone would also pass if offsetRef returned
+    // undefined for every offset (undefined is not 6 either), so pin the
+    // exact mapping: offsets 0-1 belong to line 1, 2-4 to line 3, 5-6 to
+    // line 5, and none is undefined or 6.
     const lines = [...Array(7).keys()].map(g => offsetRef(fixture, g)?.line);
-    expect(lines).not.toContain(6);
+    expect(lines).toEqual([1, 1, 3, 3, 3, 5, 5]);
   });
 
   it('case 4 — a segment boundary belongs to the following segment', () => {
