@@ -13,11 +13,17 @@ a renumbered enumeration index.
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "pipeline"))
 
 from homer_pipeline.stage6_search import (  # noqa: E402
+    SIG_UNANALYSED,
+    SIG_UNKEYED,
+    _FEATURES,
     _curated_entries,
+    check_known_tag,
     fold_lemma,
     parse_reading,
     signature,
@@ -67,19 +73,39 @@ class TestParseReading:
         assert parse_reading("pres part act masc nom sg")["mood"] == ["part"]
         assert parse_reading("(particle)") == {"marker": ["particle"]}
 
+    def test_classifies_the_epic_adv_marker(self):
+        # Confirmed against the real Odyssey stage-4 output: Beta a(mo/qen
+        # (Od. 1.10) parses as exactly "adv". Aristotle's own build/stage4
+        # never emits this abbreviated spelling (it is Attic prose only), but
+        # it is the same explicit, non-inflectional Morpheus marker as
+        # "adverb"/"adverbial" and belongs in the same category (F1).
+        assert parse_reading("adv") == {"marker": ["adv"]}
+
+    def test_no_part_of_speech_category_exists(self):
+        # Morpheus emits no noun/verb/adjective field, and _FEATURES must
+        # never grow one -- participles carry both nominal and verbal
+        # morphology, so a pos category would misrepresent the data.
+        assert "pos" not in _FEATURES.values()
+        assert "part_of_speech" not in _FEATURES.values()
+
 
 class TestSignature:
     def test_keeps_whole_readings_so_correlations_survive(self):
-        # A flattened per-category union would let masc+acc+sg match, though
-        # neither of these two readings licenses that combination.
+        # A flattened per-category union would collapse these two readings
+        # into ONE reading carrying every value from both ({"case": ["acc",
+        # "nom"], "gender": ["fem", "masc"], "number": ["pl", "sg"]}), which
+        # would let a masc+acc+sg query match though neither original
+        # reading licenses that combination. Asserting the exact two-reading
+        # set (not just a "no bad combo" spot check) is what catches that: a
+        # union still passes a spot check unless it happens to reproduce
+        # this exact pair, but it can never reproduce two DISTINCT readings.
         sig = signature([{"parse": "masc nom sg"}, {"parse": "fem acc pl"}])
-        combos = [dict(r) for r in sig]
-        assert len(combos) == 2
-        for reading in combos:
-            assert not (
-                reading.get("gender") == ("masc",)
-                and reading.get("case") == ("acc",)
-            )
+        expected = {
+            (("case", ("nom",)), ("gender", ("masc",)), ("number", ("sg",))),
+            (("case", ("acc",)), ("gender", ("fem",)), ("number", ("pl",))),
+        }
+        assert set(sig) == expected
+        assert len(sig) == 2  # union would flatten to a single reading
 
     def test_is_order_independent(self):
         a = signature([{"parse": "masc nom sg"}, {"parse": "fem acc pl"}])
@@ -136,6 +162,37 @@ class TestCuratedEntries:
 class TestFoldLemma:
     def test_strips_beta_code_diacritics(self):
         assert fold_lemma("a)/nqrwpos") == "anqrwpos"
+
+
+class TestCheckKnownTag:
+    """F2: a parse word outside both _FEATURES and _IGNORED_TAGS must fail
+    the build loudly rather than being logged and silently dropped."""
+
+    def test_known_feature_value_is_a_no_op(self):
+        check_known_tag("masc", work_id="iliad", surface="foo", key="foo")
+
+    def test_ignored_dialect_qualifier_is_a_no_op(self):
+        check_known_tag("epic", work_id="iliad", surface="foo", key="foo")
+
+    def test_unknown_tag_raises_naming_work_tag_and_surface_form(self):
+        with pytest.raises(ValueError) as exc_info:
+            check_known_tag(
+                "totally_bogus_tag",
+                work_id="iliad",
+                surface="a)/nqrwpos",
+                key="anqrwpos",
+            )
+        message = str(exc_info.value)
+        assert "iliad" in message
+        assert "totally_bogus_tag" in message
+        assert "a)/nqrwpos" in message
+
+
+def test_reserved_signature_ids_are_0_and_1():
+    # column.append(SIG_UNKEYED / SIG_UNANALYSED) relies on these exact
+    # values to keep the packed column aligned with the offset space.
+    assert SIG_UNKEYED == 0
+    assert SIG_UNANALYSED == 1
 
 
 def _semantic_fixture():

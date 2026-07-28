@@ -104,9 +104,18 @@ def fold_lemma(beta_key: str) -> str:
 # differ (epic favours the dual, admits contracted/uncontracted doublets, etc.),
 # and every value Homer needs (masc/fem/neut, all six cases including the
 # syncretic nom/voc/acc, sg/pl/dual, all persons/tenses/moods/voices) is already
-# present. No new value was added speculatively. `run()` below logs any parse
-# word that fails to classify, so a real corpus build will surface a gap here
-# rather than silently dropping it.
+# present. `run()` below raises on any parse word that is neither a known
+# feature value nor a listed `_IGNORED_TAG`, so a real corpus build surfaces a
+# gap here rather than silently dropping it (see F1/F2 in
+# docs/advanced-search-handoff.md's review trail).
+#
+# `adv` (found once in the real Odyssey stage-4 output, on ἁμόθεν / Beta
+# `a(mo/qen`, Od. 1.10, parse == "adv" exactly) is Aristotle's Attic prose
+# never emitting it — confirmed absent from aristotle-reader's own
+# build/stage4/analyses.json — but it is the same kind of explicit,
+# non-inflectional Morpheus marker as "adverb"/"adverbial", just an
+# abbreviated spelling epic Morpheus data uses here. It belongs in "marker"
+# alongside them, not in a new category.
 _FEATURES: dict[str, str] = {
     value: category
     for category, values in {
@@ -118,10 +127,34 @@ _FEATURES: dict[str, str] = {
         "mood": "ind subj opt imperat inf part",
         "voice": "act mid pass mp",
         "degree": "comp superl irreg_comp",
-        "marker": "adverb adverbial particle prep conj interrog exclam indecl numeral letter",
+        "marker": "adv adverb adverbial particle prep conj interrog exclam indecl numeral letter",
     }.items()
     for value in values.split()
 }
+
+# Parse words that are NOT grammatical features and must never become one:
+# dialect labels (this reading is also licensed in another dialect — it does
+# not change what the reading MEANS) and clitic/format qualifiers (how the
+# form is written or accented, not what it is). Counts are from a real,
+# corpus-wide scan of the Odyssey's stage-4 analyses.json (the Iliad's was
+# absent at review time — expect the full rebuild to add values here or to
+# _FEATURES; it should not need to add both for the same tag).
+#
+#   epic (10,493), ionic (8,413), doric (3,943), attic (3,437),
+#   aeolic (2,801), homeric (2,010)              -- dialect labels
+#   indeclform (833), enclitic (54), poetic (47), parad_form (38),
+#   proclitic (30), prose (20), nu_movable (9), a_priv (4), geog_name (3),
+#   contr (2), irreg_superl (2)                  -- clitic/format qualifiers
+#
+# Two analyses differing only by one of these collapse to one reading, which
+# is right: they are the same morphological reading.
+_IGNORED_TAGS: frozenset[str] = frozenset({
+    # dialect labels
+    "epic", "ionic", "doric", "attic", "aeolic", "homeric",
+    # clitic/format qualifiers
+    "indeclform", "enclitic", "poetic", "parad_form", "proclitic", "prose",
+    "nu_movable", "a_priv", "geog_name", "contr", "irreg_superl",
+})
 
 # Reserved signature ids, so the column stays aligned with the offset space
 # even where there is nothing to say about a token.
@@ -147,6 +180,31 @@ def parse_reading(parse: str) -> dict[str, list[str]]:
             if value not in values:
                 values.append(value)
     return {c: sorted(v) for c, v in reading.items()}
+
+
+def check_known_tag(word: str, *, work_id: str, surface: str, key: str) -> None:
+    """Raise if `word` is neither a known grammar feature nor a listed
+    dialect/format qualifier — see _FEATURES / _IGNORED_TAGS above.
+
+    A third possibility (neither) is a real Homeric tag this vocabulary has
+    never seen, and letting it through would make it vanish from grammar
+    search silently, which is exactly the failure this gate exists to catch
+    (F2, docs/advanced-search-handoff.md). Fail loudly, naming the work, the
+    tag, and an example surface form, so whoever hits it can decide
+    feature-vs-ignore without re-deriving this context.
+    """
+    if word in _FEATURES or word in _IGNORED_TAGS:
+        return
+    raise ValueError(
+        f"stage6 ({work_id}): unrecognized Morpheus parse tag {word!r} on "
+        f"surface form {surface!r} (key {key!r}) — it is neither a known "
+        "grammar feature in _FEATURES nor a listed dialect/format qualifier "
+        "in _IGNORED_TAGS. If it is a genuine morphological value, add it "
+        "to _FEATURES under the right category; if it is a dialect label or "
+        "clitic/format qualifier like the others in _IGNORED_TAGS, add it "
+        "there with a one-line reason. Do not drop it silently — an "
+        "unhandled tag disappears from every grammar query."
+    )
 
 
 def signature(entries: list[dict]) -> tuple:
@@ -390,14 +448,6 @@ def run(manifest: Manifest) -> Path:
     # no index can key, which breaks the stream: an n-gram may not span it.
     form_stream: list[str | None] = []
     lemma_stream: list[list[str] | None] = []
-    # Homer-specific coverage log (see the caution on _FEATURES above): every
-    # word in a raw Morpheus parse string that fails to classify, with how many
-    # tokens it occurred on. Dialect/clitic/format words (attic, epic, enclitic,
-    # ...) are EXPECTED to appear here — they are deliberately unclassified —
-    # but a genuinely new tag would show up too, and this is the only place a
-    # real corpus run can catch that before it silently vanishes from grammar
-    # search.
-    unclassified_words: dict[str, int] = defaultdict(int)
     for seg in segments:
         for line in seg["lines"]:
             for tok in line["tokens"]:
@@ -417,10 +467,17 @@ def run(manifest: Manifest) -> Path:
                     for a in entries
                 } - {""})
                 lemma_stream.append(lemmas or None)
+                # Every parse word must be a known feature value or a listed
+                # ignored qualifier, or the build fails now rather than the
+                # tag silently vanishing from grammar search (F2).
                 for a in entries:
                     for word in (a.get("parse") or "").replace("(", " ").replace(")", " ").split():
-                        if word not in _FEATURES:
-                            unclassified_words[word] += 1
+                        check_known_tag(
+                            word,
+                            work_id=manifest.work_id,
+                            surface=tok.get("t") or key,
+                            key=key,
+                        )
                 sig = signature(_curated_entries(entries, lemma_map))
                 if not sig:
                     column.append(SIG_UNANALYSED)
@@ -524,9 +581,6 @@ def run(manifest: Manifest) -> Path:
         "tokens_unanalysed": grammar_check["tokens_unanalysed"],
         "ngram_form_tokens": streams_check["form_tokens"],
         "ngram_multi_lemma": streams_check["multi_lemma_tokens"],
-        "unclassified_feature_words": sorted(
-            unclassified_words.items(), key=lambda kv: -kv[1]
-        )[:50],
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=1))
     (out_dir / "grammar_report.json").write_text(
