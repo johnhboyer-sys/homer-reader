@@ -10,6 +10,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "pipeline"))
 
@@ -35,6 +37,17 @@ def _write_work(build_dir: Path, doc: dict) -> None:
     ngrams_dir.mkdir(parents=True, exist_ok=True)
     (ngrams_dir / f"{doc['work']}.json").write_text(
         json.dumps(doc, ensure_ascii=False), encoding="utf-8"
+    )
+
+
+def _write_book(build_dir: Path, work: str, book: int, segments: list[dict]) -> None:
+    """Write build/dist/<work>/book-<NN>.json, the shape stage 7 emits and
+    `_english_stream` reads from — segments[].english.text."""
+    work_dir = build_dir / "dist" / work
+    work_dir.mkdir(parents=True, exist_ok=True)
+    (work_dir / f"book-{book:02d}.json").write_text(
+        json.dumps({"book": book, "segments": segments}, ensure_ascii=False),
+        encoding="utf-8",
     )
 
 
@@ -142,3 +155,269 @@ def test_run_emits_split_ngram_and_lemma_map_files(tmp_path, monkeypatch):
     for shard in (build_dir / "dist" / "ngrams" / "form").glob("*.json"):
         all_browse.update(json.loads(shard.read_text(encoding="utf-8")))
     assert "logou y" not in all_browse
+
+
+def test_recurrence_is_corpus_wide_not_per_work(tmp_path, monkeypatch):
+    """A phrase occurring once in each of two works must be KEPT (2 corpus-wide),
+    and a phrase occurring once in only one work must be DROPPED. Neither case
+    is provable by a fixture where every kept phrase already recurs inside a
+    single work — a per-work threshold would pass that fixture too."""
+    build_dir = tmp_path / "build"
+    monkeypatch.setattr(ngrams, "BUILD_DIR", build_dir)
+
+    _write_work(
+        build_dir,
+        {
+            "work": "alpha",
+            "token_count": 4,
+            "book_bounds": [{"book": 1, "start": 0}],
+            "chapter_bounds": [],
+            "form": ["p", "q", "r", "s"],
+            "lemma": ["p", "q", "r", "s"],
+        },
+    )
+    _write_work(
+        build_dir,
+        {
+            "work": "beta",
+            "token_count": 4,
+            "book_bounds": [{"book": 1, "start": 0}],
+            "chapter_bounds": [],
+            "form": ["x", "p", "q", "y"],
+            "lemma": ["x", "p", "q", "y"],
+        },
+    )
+
+    ngrams.run()
+
+    browse = {}
+    for shard in (build_dir / "dist" / "ngrams" / "form").glob("*.json"):
+        browse.update(json.loads(shard.read_text(encoding="utf-8")))
+
+    # "p q" occurs once in alpha and once in beta: 1 + 1 = 2 corpus-wide, kept.
+    assert "p q" in browse
+    assert browse["p q"][1] == 2  # count
+    assert browse["p q"][3] == 2  # across 2 works
+
+    # "r s" occurs once total (alpha only): dropped.
+    assert "r s" not in browse
+
+
+def test_browse_row_distinguishes_length_from_count(tmp_path, monkeypatch):
+    """[n, count, score, works] — n and count must not be interchangeable. A
+    2-gram occurring twice can't tell a swap bug from a correct build; a 3-gram
+    occurring twice (n=3, count=2) can."""
+    build_dir = tmp_path / "build"
+    monkeypatch.setattr(ngrams, "BUILD_DIR", build_dir)
+
+    _write_work(
+        build_dir,
+        {
+            "work": "gamma",
+            "token_count": 6,
+            "book_bounds": [{"book": 1, "start": 0}],
+            "chapter_bounds": [],
+            # "a b c" recurs at offsets 0 and 3.
+            "form": ["a", "b", "c", "a", "b", "c"],
+            "lemma": ["a", "b", "c", "a", "b", "c"],
+        },
+    )
+
+    ngrams.run()
+
+    form_a = json.loads(
+        (build_dir / "dist" / "ngrams" / "form" / "a.json").read_text(encoding="utf-8")
+    )
+    row = form_a["a b c"]
+    assert row[0] == 3  # n (length of the phrase)
+    assert row[1] == 2  # count (times it recurs)
+
+
+def test_lemma_stream_files_are_populated(tmp_path, monkeypatch):
+    """An empty dist/ngrams/lemma/** would pass a test that never opens it.
+    Open the lemma shard and assert the expected row is really there."""
+    build_dir = tmp_path / "build"
+    monkeypatch.setattr(ngrams, "BUILD_DIR", build_dir)
+
+    _write_work(
+        build_dir,
+        {
+            "work": "delta",
+            "token_count": 4,
+            "book_bounds": [{"book": 1, "start": 0}],
+            "chapter_bounds": [],
+            # Surface forms never repeat, but the lemma reading "aa bb" recurs.
+            "form": ["w1", "w2", "w3", "w4"],
+            "lemma": ["aa", "bb", "aa", "bb"],
+        },
+    )
+
+    ngrams.run()
+
+    lemma_dir = build_dir / "dist" / "ngrams" / "lemma"
+    assert lemma_dir.is_dir()
+    shard_files = list(lemma_dir.glob("*.json"))
+    assert shard_files, "lemma stream produced no shard files"
+
+    lemma_browse = {}
+    for shard in shard_files:
+        lemma_browse.update(json.loads(shard.read_text(encoding="utf-8")))
+    assert "aa bb" in lemma_browse
+    row = lemma_browse["aa bb"]
+    assert row[0] == 2  # n
+    assert row[1] == 2  # count
+    assert row[3] == 1  # 1 work
+
+    occ = json.loads(
+        (lemma_dir / "occ" / "a-2.json").read_text(encoding="utf-8")
+    )
+    assert occ["aa bb"] == {"delta": [0, 2]}
+
+
+def test_cross_line_phrase_survives(tmp_path, monkeypatch):
+    """A phrase whose tokens fall in two different line_runs entries is kept —
+    straddling is a query-time toggle, not a build-time filter. This asserts
+    the behaviour against a real line_runs fixture, not just the absence of a
+    filter."""
+    build_dir = tmp_path / "build"
+    monkeypatch.setattr(ngrams, "BUILD_DIR", build_dir)
+
+    _write_work(
+        build_dir,
+        {
+            "work": "epsilon",
+            "token_count": 8,
+            "book_bounds": [{"book": 1, "start": 0}],
+            "chapter_bounds": [],
+            # Four lines of 2 tokens each. "n o" straddles line 1/2 at offset 1
+            # and line 3/4 at offset 5 — never within one line_runs entry.
+            "segments": [{
+                "book": 1,
+                "column": "1",
+                "line_runs": [[1, 2], [2, 2], [3, 2], [4, 2]],
+            }],
+            "form": ["m", "n", "o", "p", "m", "n", "o", "p"],
+            "lemma": ["m", "n", "o", "p", "m", "n", "o", "p"],
+        },
+    )
+
+    ngrams.run()
+
+    browse = {}
+    for shard in (build_dir / "dist" / "ngrams" / "form").glob("*.json"):
+        browse.update(json.loads(shard.read_text(encoding="utf-8")))
+
+    assert "n o" in browse
+    assert browse["n o"][1] == 2
+
+
+def test_english_stream_indexed_and_segments_emitted(tmp_path, monkeypatch):
+    """The English stream is tokenized from build/dist/<work>/book-*.json, not
+    stage 6's fold streams, and a phrase recurring across both works is
+    indexed there too. english-segments.json carries the fields the client
+    needs to turn an English offset back into a citation."""
+    build_dir = tmp_path / "build"
+    monkeypatch.setattr(ngrams, "BUILD_DIR", build_dir)
+
+    # Minimal Greek streams — irrelevant here beyond satisfying run()'s
+    # per-work bookkeeping and giving _english_stream a work name to look up.
+    _write_work(
+        build_dir,
+        {
+            "work": "zeta",
+            "token_count": 2,
+            "book_bounds": [{"book": 1, "start": 0}],
+            "chapter_bounds": [],
+            "form": ["z1", "z2"],
+            "lemma": ["z1", "z2"],
+        },
+    )
+    _write_work(
+        build_dir,
+        {
+            "work": "eta",
+            "token_count": 2,
+            "book_bounds": [{"book": 1, "start": 0}],
+            "chapter_bounds": [],
+            "form": ["e1", "e2"],
+            "lemma": ["e1", "e2"],
+        },
+    )
+
+    _write_book(build_dir, "zeta", 1, [
+        {"column": "1", "english": {"text": "rosy fingered dawn appeared"}},
+    ])
+    _write_book(build_dir, "eta", 1, [
+        {"column": "1", "english": {"text": "then rosy fingered dawn came"}},
+    ])
+
+    ngrams.run()
+
+    eng_dir = build_dir / "dist" / "ngrams" / "english"
+    browse = {}
+    for shard in eng_dir.glob("*.json"):
+        browse.update(json.loads(shard.read_text(encoding="utf-8")))
+
+    assert "rosy fingered dawn" in browse
+    row = browse["rosy fingered dawn"]
+    assert row[0] == 3  # n
+    assert row[1] == 2  # count: once per work
+    assert row[3] == 2  # across 2 works
+
+    occ = json.loads((eng_dir / "occ" / "r-3.json").read_text(encoding="utf-8"))
+    assert occ["rosy fingered dawn"] == {"eta": [1], "zeta": [0]}
+
+    segments = json.loads(
+        (build_dir / "dist" / "ngrams" / "english-segments.json").read_text(encoding="utf-8")
+    )
+    assert segments["zeta"] == [{"book": 1, "column": "1", "base": 0, "words": 4}]
+    assert segments["eta"] == [{"book": 1, "column": "1", "base": 0, "words": 5}]
+
+
+def test_missing_book_bounds_fails_loudly(tmp_path, monkeypatch):
+    """Empty/missing book_bounds must never degrade to treating the whole work
+    as one book — that would let a phrase span a real book edge. It must fail
+    loudly and name the work."""
+    build_dir = tmp_path / "build"
+    monkeypatch.setattr(ngrams, "BUILD_DIR", build_dir)
+
+    _write_work(
+        build_dir,
+        {
+            "work": "theta",
+            "token_count": 4,
+            "book_bounds": [],
+            "chapter_bounds": [],
+            "form": ["a", "b", "c", "d"],
+            "lemma": ["a", "b", "c", "d"],
+        },
+    )
+
+    with pytest.raises(ValueError, match="theta"):
+        ngrams.run()
+
+
+def test_lemma_map_strips_empty_headwords(tmp_path, monkeypatch):
+    """A surface form's lemma-map entry must never include an empty headword
+    string, even when it sits alongside a real one in the same reading."""
+    build_dir = tmp_path / "build"
+    monkeypatch.setattr(ngrams, "BUILD_DIR", build_dir)
+
+    _write_work(
+        build_dir,
+        {
+            "work": "iota",
+            "token_count": 2,
+            "book_bounds": [{"book": 1, "start": 0}],
+            "chapter_bounds": [],
+            "form": ["bar", "baz"],
+            "lemma": [["", "foo"], ["baz"]],
+        },
+    )
+
+    ngrams.run()
+
+    lemma_map = json.loads(
+        (build_dir / "dist" / "lemma-map" / "b.json").read_text(encoding="utf-8")
+    )
+    assert lemma_map["bar"] == ["foo"]

@@ -37,15 +37,24 @@ that surface can belong to. Not an n-gram artifact, but it needs the same
 corpus-wide pass, and it is what lets a typed phrase be widened to its inflected
 variants without the reader knowing any headwords.
 
-Both streams are indexed: `form` (the surface word as written) and `lemma`. A
-position licensing several lemmas contributes EVERY reading, not a chosen one —
-excluding a reading here would put it beyond the reach of any later filter.
+Three streams are indexed: `form` (the surface word as written), `lemma`, and
+`english`. A position licensing several lemmas contributes EVERY reading, not a
+chosen one — excluding a reading here would put it beyond the reach of any
+later filter. The English stream does not come from stage 6's fold streams —
+there is no such thing for a translation — it is tokenized straight out of
+build/dist/<work>/book-*.json's segments[].english.text, after stage 7 has
+written those files. Stage 8 must therefore run after stage 7 for every work;
+scripts/build-public.mjs already sequences it that way (`all --work <work>`,
+then `stage8`). Stage 8 also emits build/dist/ngrams/english-segments.json, the
+English stream's offset -> citation map, the counterpart of the Greek
+offsets.json the reader already fetches.
 """
 
 from __future__ import annotations
 
 import json
 import math
+import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -53,11 +62,30 @@ from .config import BUILD_DIR
 
 NS = (2, 3, 4, 5)
 MIN_COUNT = 2
-STREAMS = ("form", "lemma")
+GREEK_STREAMS = ("form", "lemma")
+# Tokenized separately from the Greek streams (see module docstring): the
+# English stream comes from the emitted books, not stage 6's fold streams.
+ENGLISH_STREAM = "english"
+STREAMS = (*GREEK_STREAMS, ENGLISH_STREAM)
+_ENGLISH_WORD = re.compile(r"[a-z']+")
 
 
 def _shard_letter(phrase: str) -> str:
+    """The phrase's fold-initial letter, or "_" for anything else.
+
+    This holds only because stage 6 already emits fold-normalised (lower-case,
+    diacritic-stripped) keys for `form` and `lemma`, and the English tokenizer
+    below lower-cases its own output — this function does no folding of its
+    own. If a future producer stopped pre-folding, phrases would silently pile
+    into the "_" shard instead of failing, so the contract is asserted here
+    rather than trusted.
+    """
     first = phrase[0] if phrase else ""
+    assert not first or first.isascii(), (
+        f"stage8: {phrase!r} is not fold-normalised ASCII — the producer must "
+        "fold before stage 8 shards, or every non-ASCII phrase silently lands "
+        "in the '_' shard"
+    )
     return first if "a" <= first <= "z" else "_"
 
 
@@ -105,7 +133,19 @@ def _stream_options(raw: list) -> list:
     return out
 
 
-def _book_starts(book_bounds: list, total: int) -> list[int]:
+def _book_starts(work: str, book_bounds: list, total: int) -> list[int]:
+    """Book start offsets for `work`, or a loud failure.
+
+    Homer's segments ARE books: an empty or missing book_bounds must never
+    degrade to "the whole work is one book", because that would let a phrase
+    span a real book edge (e.g. the last token of Iliad 1 into the first token
+    of Iliad 2) — a hard build-time rule violation, not a shrug-and-continue.
+    """
+    if not book_bounds:
+        raise ValueError(
+            f"stage8: {work} has no book_bounds — refusing to treat the whole "
+            "work as one book (that would let phrases span book edges)"
+        )
     starts: list[int] = []
     for bound in book_bounds:
         start = bound.get("start") if isinstance(bound, dict) else bound
@@ -113,12 +153,54 @@ def _book_starts(book_bounds: list, total: int) -> list[int]:
             continue
         starts.append(int(start))
     if not starts:
-        starts = [0]
-    elif starts[0] != 0:
+        raise ValueError(f"stage8: {work} book_bounds contained no start offsets")
+    if starts[0] != 0:
         starts = [0, *starts]
     if starts[-1] > total:
-        raise ValueError("stage8: book bounds extend past token_count")
+        raise ValueError(f"stage8: {work} book bounds extend past token_count")
     return starts
+
+
+def _english_stream(work: str) -> tuple[list[list[str]], list[int], list[dict]]:
+    """One work's English as a token stream, with the segment bounds it obeys.
+
+    Ported verbatim from aristotle_pipeline.stage8_ngrams. There, English is
+    aligned per Bekker column and several segments make up a book; for Homer a
+    book *is* one segment (stage6_search's docstring: "Homer's segments are
+    BOOKS"), so bounding by segment and bounding by book coincide here today.
+    The segment-based bound is kept rather than hardcoding book edges, so this
+    stays correct if a work is ever split into multiple English segments per
+    book.
+
+    Returns (stream, bounds, segments). `stream` is one list per position,
+    matching the shape `_phrases` expects for the Greek streams — English
+    carries a single reading, where the Greek lemma stream may carry several.
+    `bounds` are the offsets a phrase may not cross. `segments` turns an offset
+    back into a citation (book/column).
+
+    Reads build/dist/<work>/book-*.json, which stage 7 writes — stage 8 must
+    run after a full `all --work <work>` for every work, never before.
+    """
+    stream: list[list[str]] = []
+    bounds: list[int] = []
+    segments: list[dict] = []
+    work_dir = BUILD_DIR / "dist" / work
+    for book_path in sorted(work_dir.glob("book-*.json")):
+        book = json.loads(book_path.read_text(encoding="utf-8"))
+        for seg in book.get("segments", []):
+            text = (seg.get("english") or {}).get("text") or ""
+            words = _ENGLISH_WORD.findall(text.lower())
+            if not words:
+                continue
+            bounds.append(len(stream))
+            segments.append({
+                "book": book.get("book"),
+                "column": seg.get("column"),
+                "base": len(stream),
+                "words": len(words),
+            })
+            stream.extend([w] for w in words)
+    return stream, bounds, segments
 
 
 def _clean_json_dir(path: Path) -> None:
@@ -142,12 +224,15 @@ def run() -> Path:
     }
     unigrams: dict[str, Counter] = {s: Counter() for s in STREAMS}
     tokens: dict[str, int] = {s: 0 for s in STREAMS}
+    # Offset -> citation for the English stream, the counterpart of the Greek
+    # offsets.json the reader already fetches.
+    english_segments: dict[str, list[dict]] = {}
 
     for path in files:
         doc = json.loads(path.read_text(encoding="utf-8"))
         work = doc["work"]
         total = int(doc["token_count"])
-        books = _book_starts(doc.get("book_bounds") or [], total)
+        books = _book_starts(work, doc.get("book_bounds") or [], total)
         if len(doc.get("form") or []) != total or len(doc.get("lemma") or []) != total:
             raise ValueError(
                 f"stage8: {work} stream length disagrees with token_count={total}"
@@ -159,9 +244,9 @@ def run() -> Path:
             if not surface or not lemmas:
                 continue
             lemma_values = [lemmas] if isinstance(lemmas, str) else lemmas
-            surface_lemmas[surface].update(lemma_values)
+            surface_lemmas[surface].update(v for v in lemma_values if v)
 
-        for stream_name in STREAMS:
+        for stream_name in GREEK_STREAMS:
             raw = doc[stream_name]
             stream = _stream_options(raw)
             for options in stream:
@@ -173,6 +258,18 @@ def run() -> Path:
             for gram, at in _phrases(stream, books, total):
                 counts[stream_name][gram] += 1
                 offsets[stream_name][gram][work].append(at)
+
+        # English, from the emitted books rather than stage 6's fold streams
+        # (see module docstring and `_english_stream`).
+        eng_stream, eng_bounds, eng_segments = _english_stream(work)
+        if eng_stream:
+            english_segments[work] = eng_segments
+            for options in eng_stream:
+                unigrams[ENGLISH_STREAM][options[0]] += 1
+                tokens[ENGLISH_STREAM] += 1
+            for gram, at in _phrases(eng_stream, eng_bounds, len(eng_stream)):
+                counts[ENGLISH_STREAM][gram] += 1
+                offsets[ENGLISH_STREAM][gram][work].append(at)
 
     out_root = BUILD_DIR / "dist" / "ngrams"
     for stream_name in STREAMS:
@@ -211,6 +308,11 @@ def run() -> Path:
                 json.dumps(occ_shards[(letter, n)], ensure_ascii=False, sort_keys=True),
                 encoding="utf-8",
             )
+
+    (out_root / "english-segments.json").write_text(
+        json.dumps(english_segments, ensure_ascii=False, sort_keys=True),
+        encoding="utf-8",
+    )
 
     map_dir = BUILD_DIR / "dist" / "lemma-map"
     _clean_json_dir(map_dir)
