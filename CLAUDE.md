@@ -47,6 +47,16 @@ non-negotiable.
   ford, tomb of Ilos, the two springs, the Achaean wall); putting those at
   guessed coordinates on the geographic plate is the failure mode. Absences are
   content: label them. Sources: `docs/TROAD-SOURCES.md`.
+- **Rich, not hedging (John, 2026-07-28): "the gods aren't real, but they are
+  present in the text. No need to be pedantic just because a historian might
+  well-actually us about where Ajax had a tent."** The certainty tier does the
+  honesty work; the note must not re-apologise for it. State what the poem
+  states as fact (Il. 8.222-26 on the camp order; 11.806-8 on the assembly and
+  altars). The `mythical` tier is a CATEGORY, not a warning label — divine
+  places (Callicolone, the wall of Heracles, Gargaron, Poseidon's seat on
+  Samothrace) go on the map with confidence. Hedging is a defect, the same as
+  overclaiming. What stays absolute: tiers, `tradition` naming its tradition,
+  citations, and **never a fabricated coordinate**.
 - **No movie branding.** No stills, no title treatment, no "Nolan". The tie-in is
   structural (Start Here funnel + SEO pages), not visual.
 - Deploying is John's call — never deploy without explicit go-ahead. Hosting:
