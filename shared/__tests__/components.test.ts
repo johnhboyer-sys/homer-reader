@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/sve
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Reader from '../components/Reader.svelte';
 import Search from '../components/Search.svelte';
-import { fetchPlaces, fetchJourneys, fetchCoastline, type BookData, type RawBookData } from '../lib/data';
+import { fetchPlaces, fetchJourneys, fetchCoastline, fetchPlate, type BookData, type RawBookData } from '../lib/data';
 import type { Work } from '../lib/works';
 
 // These Reader tests need a real Work shape (translations, citation scheme)
@@ -115,6 +115,13 @@ vi.mock('../lib/data', async (importOriginal) => {
     fetchPlaces: vi.fn(async () => ({ places: [] })),
     fetchJourneys: vi.fn(async () => ({ journeys: [] })),
     fetchCoastline: vi.fn(async () => null),
+    // Chart Room per-scene plates (Reader.svelte's ensureIliadPlate) — default
+    // to "no plate on the server" so every pre-existing Iliad/reading test
+    // above degrades to the old renderSceneMap path exactly as it did before
+    // this fetch existed (Reader.svelte's own fallback rule). The Iliad plate
+    // describe block below overrides this per-call via
+    // vi.mocked(fetchPlate).mockResolvedValueOnce.
+    fetchPlate: vi.fn(async () => null),
   };
 });
 
@@ -792,5 +799,241 @@ describe('Reader.svelte — Chart Room scene map gates on ANY resolved place (20
 
     await waitFor(() => expect(container.querySelector('.reading-plate')).toHaveClass('reading-plate-nomap'));
     expect(container.querySelector('.reading-plate-map')).toBeNull();
+  });
+});
+
+describe('Reader.svelte — Chart Room per-scene plates (Iliad only, 2026-07-28)', () => {
+  // A minimal, geographically valid plate.ts fixture (shared/lib/plate.ts's
+  // parsePlate/renderPlate) standing in for apparatus/plates/trojan-plain.json
+  // — no layers needed (this suite is about the CAMERA/FOCUS/DIMMING wiring
+  // in Reader.svelte, not plate.ts's own rendering, which is
+  // shared/__tests__/plate.test.ts's job).
+  const trojanPlainFixture = {
+    id: 'trojan-plain',
+    title: 'The Trojan Plain',
+    kind: 'geographic',
+    status: 'draft',
+    bbox: [0, 0, 10, 10],
+    size: [400, 300],
+    layers: [],
+  };
+
+  const oneSceneBook = (placeIds: string[]): RawBookData => ({
+    book: 1,
+    scenes: [{ summary: 'A scene naming places.', startLine: 1, endLine: 3, places: placeIds }],
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: [1, 2, 3].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+        // Two real bekker ticks — same posture as the describe block above:
+        // Reading Mode only pages by scene (readingHasSceneAnchors) with a
+        // real per-line alignment signal.
+        english: {
+          text: 'Scene text.',
+          notes: [],
+          markers: [],
+          bekker: [
+            { n: 1, offset: 0, real: true },
+            { n: 2, offset: 6, real: true },
+          ],
+        },
+      },
+    ],
+  });
+
+  afterEach(() => {
+    vi.mocked(fetchPlaces).mockReset();
+    vi.mocked(fetchJourneys).mockReset();
+    vi.mocked(fetchCoastline).mockReset();
+    vi.mocked(fetchPlate).mockReset();
+    vi.mocked(fetchPlaces).mockResolvedValue({ places: [] });
+    vi.mocked(fetchJourneys).mockResolvedValue({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValue(null);
+    vi.mocked(fetchPlate).mockResolvedValue(null);
+  });
+
+  it("frames the camera on an Iliad scene's multiple resolved places, undimmed", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [
+        { id: 'place-a', name: 'Place A', coords: [3, 3], certainty: 'certain' },
+        { id: 'place-b', name: 'Place B', coords: [7, 7], certainty: 'certain' },
+      ],
+    });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['place-a', 'place-b']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    const svg = container.querySelector('.chart-plate svg')!;
+    expect(svg.getAttribute('role')).toBe('img');
+    expect(svg.getAttribute('aria-label')).toContain('Place A');
+    expect(svg.getAttribute('aria-label')).toContain('Place B');
+
+    // A real camera move away from the identity (whole-plate) transform —
+    // proof the frame is actually keyed to the two resolved places, not just
+    // showing the whole sheet.
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    expect(cameraG).toBeTruthy();
+    expect(cameraG.style.transform).not.toBe('translate(0px, 0px) scale(1)');
+
+    // Both focused places are drawn and neither is dimmed (the "rest of the
+    // plate dims" rule only applies to places OUTSIDE the current focus set).
+    expect(container.querySelector('[data-place-id="place-a"]')).not.toHaveClass('plate-dimmed');
+    expect(container.querySelector('[data-place-id="place-b"]')).not.toHaveClass('plate-dimmed');
+  });
+
+  it("still renders the base plate, unframed, with an honest caption when the scene's named place has no fixed position", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [{ id: 'no-coords-place', name: 'No Coords Place', certainty: 'mythical' }],
+    });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['no-coords-place']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    expect(container.querySelector('.chart-plate-caption')?.textContent).toBe(
+      "This scene's named places have no fixed position on this plate.",
+    );
+    // computeCamera's own identity camera (plate.ts: "if NO id resolves to
+    // any geometry, this returns {scale:1,tx:0,ty:0}") — the whole plate,
+    // never a fabricated frame.
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    expect(cameraG.style.transform).toBe('translate(0px, 0px) scale(1)');
+  });
+
+  it('gives the same honest caption when the resolved place has real coordinates but falls outside this plate\'s own frame', async () => {
+    // A real, located place (mirrors Olympus/Chryse/Lemnos — real Iliad
+    // scene-dictionary targets nowhere near the Troad) whose coordinates
+    // simply aren't on THIS 0..10/0..10 sheet: renderPlate buckets it as
+    // off-canvas, never drawing a pin for it, so it must not count as a
+    // focusable id either — otherwise computeCamera would zoom the whole
+    // plate in on empty parchment trying to frame a point off the canvas.
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [{ id: 'far-place', name: 'Far Place', coords: [500, 500], certainty: 'certain' }],
+    });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['far-place']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    expect(container.querySelector('.chart-plate-caption')?.textContent).toBe(
+      "This scene's named places have no fixed position on this plate.",
+    );
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    expect(cameraG.style.transform).toBe('translate(0px, 0px) scale(1)');
+  });
+
+  it('leaves Odyssey scenes on the existing renderSceneMap path, and never fetches the plate', async () => {
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [{ id: 'has-coords-place', name: 'Has Coords Place', coords: [10, 20], certainty: 'certain' }],
+    });
+    vi.mocked(fetchCoastline).mockResolvedValueOnce({ bbox: [0, 0, 1, 1], rings: [] });
+
+    window.history.replaceState(null, '', '/odyssey/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'odyssey', bookNum: 1, bookData: oneSceneBook(['has-coords-place']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.reading-plate-map svg')).toBeTruthy());
+    expect(container.querySelector('.chart-plate')).toBeNull();
+    expect(fetchPlate).not.toHaveBeenCalled();
+  });
+
+  it('does not re-render the plate SVG when paging between scenes, only the camera/focus', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [
+        { id: 'place-a', name: 'Place A', coords: [3, 3], certainty: 'certain' },
+        { id: 'place-b', name: 'Place B', coords: [7, 7], certainty: 'certain' },
+      ],
+    });
+
+    const twoSceneBook: RawBookData = {
+      book: 1,
+      scenes: [
+        { summary: 'Scene one summary.', startLine: 1, endLine: 3, places: ['place-a'] },
+        { summary: 'Scene two summary.', startLine: 4, endLine: 6, places: ['place-b'] },
+      ],
+      segments: [
+        {
+          id: 'seg1',
+          column: '1',
+          greek: [1, 2, 3, 4, 5, 6].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+          english: {
+            text: 'Scene one text. Scene two text.',
+            notes: [],
+            markers: [],
+            bekker: [
+              { n: 1, offset: 0, real: true },
+              { n: 4, offset: 'Scene one text. '.length, real: true },
+            ],
+          },
+        },
+      ],
+    };
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: twoSceneBook } });
+    await screen.findByText(/Scene 1 of 2/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    const svgBefore = container.querySelector('.chart-plate svg');
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    const transformBefore = cameraG.style.transform;
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).toContain('Place A');
+
+    await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+    await screen.findByText(/Scene 2 of 2/i);
+
+    // Same SVG element — the base markup was never reassigned via {@html}.
+    expect(container.querySelector('.chart-plate svg')).toBe(svgBefore);
+    // The camera itself DID move, and the aria-label now names the other
+    // scene's place — proof the per-scene update ran, imperatively, on the
+    // very same DOM node.
+    expect(cameraG.style.transform).not.toBe(transformBefore);
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).toContain('Place B');
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).not.toContain('Place A');
+  });
+
+  it('snaps the camera instead of animating it under prefers-reduced-motion', async () => {
+    vi.spyOn(window, 'matchMedia').mockImplementation((query: string) => ({
+      matches: query.includes('prefers-reduced-motion'),
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }) as MediaQueryList);
+
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [{ id: 'place-a', name: 'Place A', coords: [3, 3], certainty: 'certain' }],
+    });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['place-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    expect(cameraG.style.transition).toBe('none');
   });
 });

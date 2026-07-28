@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
-  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, fetchSpeeches, fetchCharacters, fetchScansion, fetchAudioManifest, fetchPlaces, fetchJourneys, fetchCoastline, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene, type Speech, type CharacterEntry, type ScansionEntry } from '../lib/data';
+  import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, fetchSpeeches, fetchCharacters, fetchScansion, fetchAudioManifest, fetchPlaces, fetchJourneys, fetchCoastline, fetchPlate, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene, type Speech, type CharacterEntry, type ScansionEntry } from '../lib/data';
   import { joinScenesToPlaces, type PlacesFile, type JourneysFile } from '../lib/scene-place';
   import { renderSceneMap, type Coastline } from '../lib/scenemap';
+  import { parsePlate, renderPlate, computeCamera, type Plate, type PlatePlace, type Camera } from '../lib/plate';
   import { takeSsrBook } from '../lib/ssr-book';
   import { schemeFor, formatCite } from '../lib/citation';
   import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
@@ -818,6 +819,164 @@
     : null;
   $: scenePanelPlaceName = currentPlateResolution?.place.name ?? scenePanelScene?.place ?? 'Place not recorded';
   $: scenePanelCertainty = currentPlateResolution?.place.certainty ?? null;
+
+  // ── Chart Room per-scene plates (Iliad only, 2026-07-28) ────────────────
+  // John's approved design: ONE shared Trojan-plain base plate (shared/lib/
+  // plate.ts's apparatus/plates/trojan-plain.json) for every Iliad scene,
+  // rather than a bespoke drawing per scene. The Odyssey keeps the existing
+  // renderSceneMap path above (currentPlateMap) untouched — no gazetteer pin
+  // set exists for it here, and it isn't this brief's problem to solve.
+  //
+  // Lazy like ensurePlateData above: the plate JSON is fetched only once the
+  // Chart Room/Reading Mode surface that shows it is actually open — never a
+  // static import, never at build time (this component ships on every one
+  // of the 4705 built pages).
+  let iliadPlateLoadState: 'idle' | 'loading' | 'ready' | 'unavailable' = 'idle';
+  let iliadPlate: Plate | null = null;
+  async function ensureIliadPlate(): Promise<void> {
+    if (iliadPlateLoadState !== 'idle') return;
+    iliadPlateLoadState = 'loading';
+    try {
+      const raw = await fetchPlate('trojan-plain');
+      if (!raw) { iliadPlateLoadState = 'unavailable'; return; }
+      iliadPlate = parsePlate(raw);
+      iliadPlateLoadState = 'ready';
+    } catch {
+      // fetchPlate failure/malformed data: fall back to the existing
+      // renderSceneMap path (see useIliadPlate below) rather than showing
+      // nothing.
+      iliadPlateLoadState = 'unavailable';
+    }
+  }
+  $: if (mounted && work === 'iliad' && scenes.length && iliadPlateLoadState === 'idle'
+    && (reading || sceneSheetOpen || (chartRoomOpen && !scenePanelMobile))) ensureIliadPlate();
+
+  // Every distinct, LOCATED place named anywhere in this book's scenes
+  // (deduplicated by id) — the pin set baked into the once-per-book base
+  // render. Depends only on scenePlaceResolutions (book-level: recomputed
+  // when scenes/gazetteer/journeys change), never on scenePanelIndex, so
+  // this — and everything derived from it below that isn't explicitly keyed
+  // to the current scene — stays stable across scene paging.
+  $: bookPlatePlaces = ((): PlatePlace[] => {
+    const byId = new Map<string, PlatePlace>();
+    for (const res of scenePlaceResolutions) {
+      if (!res) continue;
+      for (const p of res.places) if (!byId.has(p.id)) byId.set(p.id, p);
+    }
+    return [...byId.values()];
+  })();
+
+  // A non-null resolution is required before switching to the plate path —
+  // a scene with NO resolved place at all (no authored places[], no
+  // dictionary hit, no journey-leg cover) keeps showing no map whatsoever,
+  // the same honest behavior currentPlateMap already has (never invent an
+  // "it's probably Troy" fallback — CLAUDE.md apparatus honesty).
+  $: useIliadPlate = work === 'iliad' && iliadPlateLoadState === 'ready' && !!iliadPlate && !!currentPlateResolution;
+
+  // The base plate itself — geometry + every book-wide pin — rendered ONCE
+  // per book: this reactive statement's only dependencies (iliadPlate,
+  // bookPlatePlaces) are book-scoped, never scene-scoped, so paging between
+  // scenes never re-runs renderPlate or reassigns iliadPlateHtml below (the
+  // regression the brief calls out: {@html} tears down and rebuilds its DOM
+  // subtree whenever the bound expression's VALUE changes, so the per-scene
+  // camera/focus must be applied imperatively instead — see
+  // applyPlateCamera).
+  $: iliadPlateRender = iliadPlate
+    ? renderPlate(iliadPlate, bookPlatePlaces, { idPrefix: `chart-plate-${work}-${bookNum}` })
+    : null;
+  // renderPlate returns one fixed, deterministic shape (see its own comment:
+  // `<svg ...><defs>...</defs><g clip-path="url(#ID)">CONTENT</g></svg>`)
+  // with no camera-transform group of its own — computeCamera's contract
+  // explicitly leaves that wrap to the caller. plate.ts is off-limits here
+  // (a concurrent lane owns it), so the wrap is a one-time string edit on
+  // the already-rendered markup below (wrapPlateCamera), done only when
+  // iliadPlateRender itself changes — i.e. once per book, not per scene.
+  $: iliadPlateHtml = iliadPlateRender ? wrapPlateCamera(iliadPlateRender.svg) : '';
+
+  // Which of THIS plate's rendered features are place pins actually drawn on
+  // the canvas (renderPlate's `features` list carries a `type:'place'`
+  // entry only for its `located` bucket — see plate.ts's renderPlate). A
+  // scene's resolved place can have real coordinates yet still fall off this
+  // specific sheet (Olympus, Chryse, Lemnos are all real Iliad
+  // scene-dictionary targets nowhere near the Troad) — computeCamera has no
+  // way to know that on its own, and would otherwise zoom the whole plate in
+  // on empty parchment trying to frame a point outside the canvas. Filtering
+  // the focus set to this plate's own located ids folds BOTH honesty cases
+  // (no coords at all / coords elsewhere) into one "nothing to frame here"
+  // state below.
+  $: iliadPlateLocatedIds = new Set(
+    (iliadPlateRender?.features ?? []).filter((f) => f.type === 'place').map((f) => f.id),
+  );
+  $: iliadPlateFocusIds = (currentPlateResolution?.places ?? [])
+    .map((p) => p.id)
+    .filter((id) => iliadPlateLocatedIds.has(id));
+  $: iliadPlateFocusNames = (currentPlateResolution?.places ?? [])
+    .filter((p) => iliadPlateLocatedIds.has(p.id))
+    .map((p) => p.name);
+  // computeCamera itself already returns the identity {scale:1,tx:0,ty:0}
+  // camera (the whole plate) when no id in focusIds resolves — this is just
+  // that same "nothing resolved" state, named, so the template can show an
+  // honest caption instead of a silently unframed map.
+  $: iliadPlateAllUnlocated = !!currentPlateResolution && iliadPlateFocusIds.length === 0;
+  $: iliadPlateCamera = iliadPlate && iliadPlateRender
+    ? computeCamera(iliadPlate, iliadPlateRender.viewport, iliadPlateFocusIds, { places: bookPlatePlaces })
+    : null;
+  $: iliadPlateAriaLabel = !iliadPlate
+    ? ''
+    : iliadPlateFocusNames.length
+      ? `${iliadPlate.title}, showing ${iliadPlateFocusNames.join(', ')}`
+      : iliadPlate.title;
+  // Whichever path is live (new plate vs the old renderSceneMap box), "is
+  // there a map to show at all" — drives the reserved-space/collapse
+  // gating at all three consuming template sites exactly the way
+  // `currentPlateMap` alone used to.
+  $: hasChartMap = useIliadPlate ? !!iliadPlateRender : !!currentPlateMap;
+  // The map-slot boxes (.reading-plate-map / .scene-context-map) reserve
+  // space at renderSceneMap's own 320x220 default (see global.css) — the
+  // Trojan-plain plate's own size is a different shape, so override the
+  // reserved aspect-ratio inline when it's the one showing.
+  $: chartMapAspectRatio = useIliadPlate && iliadPlate ? `${iliadPlate.size[0]} / ${iliadPlate.size[1]}` : null;
+
+  function wrapPlateCamera(svg: string): string {
+    return svg
+      .replace(/(<g clip-path="url\(#[^"]*\)">)/, '$1<g class="plate-camera">')
+      .replace(/<\/g><\/svg>$/, '</g></g></svg>');
+  }
+
+  interface PlateCameraParams {
+    camera: Camera | null;
+    focusIds: string[];
+    ariaLabel: string;
+    reduceMotion: boolean;
+  }
+
+  // Applies the per-scene camera + focus dimming to the ALREADY-RENDERED
+  // plate markup imperatively (querySelector, not a Svelte binding) — the
+  // whole point: scene paging must update the camera/dimming WITHOUT
+  // touching the `{@html}`-injected SVG's innerHTML, which would tear down
+  // and rebuild the DOM every scene change. `update` fires whenever the
+  // action's argument object is recreated (every scene-scoped reactive
+  // change); iliadPlateHtml — the base markup — is never one of those
+  // dependencies, so Svelte never re-sets innerHTML here on scene paging.
+  function applyPlateCamera(node: HTMLElement, params: PlateCameraParams) {
+    function apply(p: PlateCameraParams) {
+      const svgEl = node.querySelector('svg');
+      if (svgEl) svgEl.setAttribute('aria-label', p.ariaLabel);
+      const cameraG = node.querySelector<SVGGElement>('.plate-camera');
+      if (cameraG && p.camera) {
+        cameraG.style.transition = p.reduceMotion ? 'none' : 'transform 320ms ease';
+        cameraG.style.transform = `translate(${p.camera.tx}px, ${p.camera.ty}px) scale(${p.camera.scale})`;
+      }
+      const focusSet = new Set(p.focusIds);
+      node.querySelectorAll<SVGElement>('[data-place-id]').forEach((el) => {
+        const id = el.getAttribute('data-place-id');
+        const dim = focusSet.size > 0 && !(id !== null && focusSet.has(id));
+        el.classList.toggle('plate-dimmed', dim);
+      });
+    }
+    apply(params);
+    return { update: apply };
+  }
 
   // ── DICES speech rails (Phase 4 flagship) ─────────────────────────────────
   // Off by default; a thin speaker rail in the Greek gutter for high-
@@ -2453,6 +2612,37 @@
   {/if}
 {/snippet}
 
+<!-- Shared by all three map-slot consumers (the reading-plate header inside
+     the .reader-body branch below, and the desktop Chart Room rail + mobile
+     Chart Room sheet, both SIBLING top-level blocks after it — so this
+     snippet has to live at the true template root to be visible to all
+     three, not nested inside any one of them) — see
+     hasChartMap/useIliadPlate/currentPlateMap above): an Iliad scene with a
+     resolved, on-sheet place draws the once-per-book Trojan-plain base
+     plate, camera-framed on that scene (applyPlateCamera, imperative — the
+     SVG itself never re-renders on scene paging); an Iliad scene whose
+     resolved place(s) don't land on this sheet gets the same base plate,
+     unframed, with an honest caption; anything else (Odyssey always, or
+     Iliad before/without a successful plate fetch) falls back to the
+     existing renderSceneMap box unchanged. -->
+{#snippet chartPlateBody()}
+  {#if useIliadPlate && iliadPlateRender}
+    <div
+      class="chart-plate"
+      use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion }}
+    >
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html iliadPlateHtml}
+    </div>
+    {#if iliadPlateAllUnlocated}
+      <p class="chart-plate-caption">This scene's named places have no fixed position on this plate.</p>
+    {/if}
+  {:else if currentPlateMap}
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {@html currentPlateMap.svg}
+  {/if}
+{/snippet}
+
 {#if loading}
   <p style="padding:2rem;font-family:system-ui;color:#888">Loading Book {bookNum}…</p>
 {:else if error}
@@ -2812,12 +3002,13 @@
   <!-- A scene page's figure plate (Variant B, approved mock:
        design-board/context-panel-mocks/variantB-*): a bordered cartouche
        composing the scene's map (shared/lib/scenemap.ts, joined via
-       shared/lib/scene-place.ts — currentPlateMap, computed above) beside its
-       title treatment — position indicator + draft badge + day/place labels +
-       the one-line Landmark summary (the same fields the old plain header
-       carried; no scene title/plate-number is invented, since the pipeline
-       emits none). Replaces the old marginal scene chips now that Reading
-       Mode pages one scene at a time — this header IS the scene's
+       shared/lib/scene-place.ts — currentPlateMap, computed above; or, for an
+       Iliad scene, the Trojan-plain plate — see chartPlateBody above) beside
+       its title treatment — position indicator + draft badge + day/place
+       labels + the one-line Landmark summary (the same fields the old plain
+       header carried; no scene title/plate-number is invented, since the
+       pipeline emits none). Replaces the old marginal scene chips now that
+       Reading Mode pages one scene at a time — this header IS the scene's
        introduction, not a margin annotation.
        Map-slot presence: reserved (`!plateDataLoaded`) before the gazetteer
        fetch resolves, so the box's aspect-ratio is already in the layout
@@ -2828,11 +3019,10 @@
        this accepts on a session's very first scene view. -->
   {#snippet readingSceneHead(s: Scene, idx: number, total: number)}
     <header class="reading-scene-head">
-      <div class="reading-plate" class:reading-plate-nomap={plateDataLoaded && !currentPlateMap}>
-        {#if !plateDataLoaded || currentPlateMap}
-          <div class="reading-plate-map">
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {#if currentPlateMap}{@html currentPlateMap.svg}{/if}
+      <div class="reading-plate" class:reading-plate-nomap={plateDataLoaded && !hasChartMap}>
+        {#if !plateDataLoaded || hasChartMap}
+          <div class="reading-plate-map" style={chartMapAspectRatio ? `aspect-ratio: ${chartMapAspectRatio};` : undefined}>
+            {@render chartPlateBody()}
           </div>
         {/if}
         <div class="reading-plate-content">
@@ -2967,10 +3157,9 @@
           <span class="scene-context-place-name">{scenePanelPlaceName}</span>
           {#if scenePanelCertainty}<span class="scene-context-certainty">{scenePanelCertainty}</span>{/if}
         </div>
-        {#if !plateDataLoaded || currentPlateMap}
-          <div class="scene-context-map" class:pending={!currentPlateMap}>
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {#if currentPlateMap}{@html currentPlateMap.svg}{/if}
+        {#if !plateDataLoaded || hasChartMap}
+          <div class="scene-context-map" class:pending={!hasChartMap} style={chartMapAspectRatio ? `aspect-ratio: ${chartMapAspectRatio};` : undefined}>
+            {@render chartPlateBody()}
           </div>
         {/if}
       </aside>
@@ -3183,10 +3372,9 @@
     </button>
     <div class="scene-context-sheet-details" id="scene-context-sheet-details" aria-hidden={!sceneSheetOpen} inert={!sceneSheetOpen}>
       <div class="scene-context-sheet-label">Chart Room</div>
-      {#if !plateDataLoaded || currentPlateMap}
-        <div class="scene-context-map" class:pending={!currentPlateMap}>
-          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {#if currentPlateMap}{@html currentPlateMap.svg}{/if}
+      {#if !plateDataLoaded || hasChartMap}
+        <div class="scene-context-map" class:pending={!hasChartMap} style={chartMapAspectRatio ? `aspect-ratio: ${chartMapAspectRatio};` : undefined}>
+          {@render chartPlateBody()}
         </div>
       {/if}
       <div class="scene-context-place">
@@ -3754,6 +3942,25 @@
   .scene-context-map.pending { min-height: 7rem; }
   .scene-context-map svg { display: block; width: 100%; height: 100%; }
 
+  /* The Trojan-plain plate (shared/lib/plate.ts, chartPlateBody snippet
+     above): the wrapper fills whichever map-slot box it's inside
+     (.reading-plate-map / .scene-context-map, both sized above); the
+     transform-box/-origin pair makes CSS `transform` on the injected
+     `.plate-camera` group behave like plate.ts's own plate-pixel space
+     (origin at the canvas's top-left corner) rather than the CSS default of
+     the element's own bounding-box centre — see applyPlateCamera's comment
+     for why the transform itself is set imperatively, not here. */
+  .chart-plate { width: 100%; height: 100%; }
+  .chart-plate :global(.plate-camera) { transform-box: view-box; transform-origin: 0 0; }
+  .chart-plate :global(.plate-dimmed) { opacity: 0.42; transition: opacity 200ms ease; }
+  .chart-plate-caption {
+    margin: 0.5rem 0 0;
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-style: italic;
+    color: var(--text-mid);
+  }
+
   .scene-context-sheet { display: none; }
 
   @media (max-width: 680px) {
@@ -3852,5 +4059,11 @@
   @media (prefers-reduced-motion: reduce) {
     .scene-context-sheet-chevron,
     .scene-context-sheet-details { transition: none; }
+    /* The camera transform itself is snapped, not animated, by
+       applyPlateCamera's own reduceMotion check (the JS-detected flag this
+       CSS query can't reach on its own — see its declaration above); this is
+       the same defense-in-depth belt-and-braces the rest of the file uses
+       for the dimming fade, which IS pure CSS. */
+    .chart-plate :global(.plate-dimmed) { transition: none; }
   }
 </style>
