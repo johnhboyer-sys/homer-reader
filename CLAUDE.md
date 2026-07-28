@@ -147,6 +147,19 @@ non-negotiable.
   corpus-reading test passes vacuously. Use
   `path.resolve(process.cwd(), '../app/public/data')`, and skip loudly
   (`ctx.skip()`) rather than returning early.
+- Rebuild gotcha (2026-07-28, cost a false scene-paging regression hunt): a raw
+  CLI rebuild (`all --work <W>`) is NOT equivalent to `npm run build:public`.
+  stage7 recreates `build/dist/<work>/`, wiping the per-work apparatus copies
+  that only `scripts/build-public.mjs:91-95` restores — `speeches.json` above
+  all. Top-level copies (characters/places/journeys/coastline/audio) survive
+  because they sit above the wiped directory, so the gap is easy to miss.
+  Symptom: `shared/__tests__/scene-paging.test.ts` fails on scene boundaries and
+  on the ownership gate, because `real-book-loader.ts` has no speech starts to
+  snap to — it looks exactly like a scene-paging regression and is not one.
+  After ANY CLI rebuild, either run `build:public` or re-copy
+  `apparatus/speeches/<work>.json` into `build/dist/<work>/` and then run
+  `.venv/bin/python -m homer_pipeline.preflight ../build/dist ../manifests`,
+  which asserts the file is present.
 
 ## Orchestration
 
