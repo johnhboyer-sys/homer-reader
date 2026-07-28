@@ -657,6 +657,7 @@
       "maps": [
         "troad",
         "troad-plain",
+        "troy-citadel",
         "wanderings",
         "ships"
       ],
@@ -7475,7 +7476,8 @@
       ],
       "kind": "region",
       "maps": [
-        "troad-plain"
+        "troad-plain",
+        "troy-citadel"
       ],
       "mentions": [
         {
@@ -7541,7 +7543,8 @@
       "tradition": "Manfred Korfmann and the Tübingen Troia project, 1988–2005",
       "kind": "region",
       "maps": [
-        "troad-plain"
+        "troad-plain",
+        "troy-citadel"
       ],
       "mentions": [],
       "note": "Not a name Homer uses. Korfmann's magnetometry found a substantial lower city south of the citadel, defended by a ditch, putting Bronze Age Troy at roughly ten times the area once assumed; Kolb argued the evidence would not bear that weight, and Jablonka and Rose answered him in the same issue of the AJA. Any drawing of its circuit belongs to Korfmann's reconstruction, not to an agreed fact.",
@@ -7567,7 +7570,8 @@
       ],
       "kind": "wall",
       "maps": [
-        "troad-plain"
+        "troad-plain",
+        "troy-citadel"
       ],
       "mentions": [
         {
@@ -7625,7 +7629,8 @@
       },
       "positionBasis": "conjectural",
       "maps": [
-        "troad-plain"
+        "troad-plain",
+        "troy-citadel"
       ],
       "mentions": [
         {
@@ -7686,7 +7691,8 @@
       },
       "positionBasis": "conjectural",
       "maps": [
-        "troad-plain"
+        "troad-plain",
+        "troy-citadel"
       ],
       "mentions": [
         {
@@ -7736,7 +7742,8 @@
       },
       "positionBasis": "conjectural",
       "maps": [
-        "troad-plain"
+        "troad-plain",
+        "troy-citadel"
       ],
       "mentions": [
         {
@@ -7794,7 +7801,8 @@
       },
       "positionBasis": "conjectural",
       "maps": [
-        "troad-plain"
+        "troad-plain",
+        "troy-citadel"
       ],
       "mentions": [
         {

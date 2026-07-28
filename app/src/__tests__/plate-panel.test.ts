@@ -114,6 +114,54 @@ describe('PlatePanel', () => {
     expect(namedNotDrawn?.textContent).not.toMatch(/Off-Canvas Place/);
   });
 
+  it('shows a place carried only by a layer\'s geometry as "drawn as part of the map," not "named, not drawn" (Problem 2)', async () => {
+    mockFetchPlate.mockResolvedValue({
+      id: 'citadel-like-plate',
+      title: 'Citadel-Like Plate',
+      kind: 'geographic',
+      status: 'reviewed',
+      bbox: [0, 0, 1, 1],
+      size: [100, 80],
+      layers: [
+        {
+          id: 'wall-circuit',
+          kind: 'wall',
+          placeId: 'wall-of-troy',
+          trace: [[0.1, 0.1], [0.2, 0.2]],
+        },
+      ],
+    });
+
+    const places = [
+      // No coords/plateAnchors of its own -- its only defensible position on
+      // this plate is the wall-circuit layer's own geometry.
+      { id: 'wall-of-troy', name: 'The wall of Troy', certainty: 'certain' as const },
+      // No coords, and no layer names it either -- genuinely unlocated.
+      { id: 'no-position', name: 'No Position Place', certainty: 'speculative' as const },
+    ];
+
+    const { container, getByText } = render(PlatePanel, {
+      props: { plateId: 'citadel-like-plate', places, title: 'Citadel-Like Plate' },
+    });
+
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+    // Never pinned.
+    expect(container.querySelector('[data-place-id="wall-of-troy"]')).toBeNull();
+    // Its own list, distinct from "named, not drawn."
+    const drawnByLayerSection = container.querySelector('.pp-drawn-by-layer');
+    expect(drawnByLayerSection).toBeTruthy();
+    expect(drawnByLayerSection?.querySelector('h3')?.textContent).toMatch(/Drawn as part of the map \(1\)/);
+    expect(getByText('The wall of Troy')).toBeTruthy();
+
+    // "Named, not drawn" keeps only the genuinely unlocated place.
+    const unlocatedSections = container.querySelectorAll('.pp-unlocated');
+    const namedNotDrawn = Array.from(unlocatedSections).find((el) => /Named, not drawn/.test(el.querySelector('h3')?.textContent ?? ''));
+    expect(namedNotDrawn).toBeTruthy();
+    expect(getByText('No Position Place')).toBeTruthy();
+    expect(namedNotDrawn?.textContent).not.toMatch(/wall of Troy/);
+  });
+
   it('tolerates a hostile layer id (validator-accepted, selector-breaking) in the layer toggle', async () => {
     // A validator-accepted plate/layer id is not a trusted literal: `x"]`
     // interpolated straight into `[data-feature-id="x"]"]` breaks the

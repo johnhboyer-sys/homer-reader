@@ -200,6 +200,16 @@ export interface PlateResult {
   // consuming component needs to say "not on this sheet" for one and
   // "not securely located" for the other. Never pinned.
   offCanvas: PlatePlace[];
+  // A place with NO defensible pin position (same test as `unlocated`), but
+  // that IS visibly drawn anyway because some rendered layer names it as
+  // `placeId` — e.g. `wall-of-troy` is the placeId on every stretch of the
+  // citadel's wall circuit, `pergamos` is the placeId on the summit region.
+  // Kept OUT of `unlocated` and out of a fourth silent nowhere (2026-07-28):
+  // "named, not drawn" is a specific, false claim about a place the map
+  // plainly shows via its own linework, and a reader asking "is Pergamos on
+  // this map?" deserves a yes, not an absence. Never pinned — this bucket
+  // only ever holds places carried by geometry, not markers.
+  drawnByLayer: PlatePlace[];
 }
 
 export interface Camera {
@@ -1314,21 +1324,37 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
 
   const features: RenderedFeature[] = [];
   const layerMarkup: string[] = [];
+  // Every place id actually carried by a rendered layer (Problem 2, gap
+  // fixed 2026-07-28): a layer that failed to render (renderLayer returned
+  // undefined — e.g. its geometry field was empty) contributes nothing, so
+  // this can never claim a place is "drawn" when its only layer silently
+  // dropped out.
+  const layerPlaceIds = new Set<string>();
   for (const layer of plate.layers) {
     const rendered = renderLayer(plate, layer, viewport);
     if (!rendered) continue;
     layerMarkup.push(rendered.markup);
     features.push(rendered.feature);
+    if (layer.placeId) layerPlaceIds.add(layer.placeId);
   }
 
   const located: PlatePlace[] = [];
   const offCanvas: PlatePlace[] = [];
   const unlocated: PlatePlace[] = [];
+  const drawnByLayer: PlatePlace[] = [];
   const pinMarkupParts: string[] = [];
   for (const place of places) {
     const pos = resolvePlacePosition(plate, place, viewport);
     if (!pos) {
-      unlocated.push(place);
+      // A place with no defensible pin position may still be visibly drawn
+      // via a layer's own geometry (see `drawnByLayer`'s doc comment above)
+      // — that is a true, distinct claim from "named, not drawn," so it
+      // gets its own bucket rather than landing in `unlocated`.
+      if (layerPlaceIds.has(place.id)) {
+        drawnByLayer.push(place);
+      } else {
+        unlocated.push(place);
+      }
       continue;
     }
     const [x, y] = pos;
@@ -1370,7 +1396,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     `</g>` +
     `</svg>`;
 
-  return { svg, viewport, features, unlocated, offCanvas };
+  return { svg, viewport, features, unlocated, offCanvas, drawnByLayer };
 }
 
 // ── Camera ───────────────────────────────────────────────────────────────

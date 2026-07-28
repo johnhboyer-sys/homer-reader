@@ -50,6 +50,13 @@
   // 1) -- a different claim from `unlocated` ("no defensible position at
   // all") and kept as a visibly distinct list, never merged into it.
   let offCanvas: PlatePlace[] = [];
+  // Places with no pin position but visibly drawn anyway via a layer's own
+  // geometry (renderPlate's `drawnByLayer` bucket, 2026-07-28, Problem 2 --
+  // e.g. `wall-of-troy` carried by the citadel's wall-circuit layers,
+  // `pergamos` carried by the summit region) -- a third distinct claim from
+  // both `unlocated` and `offCanvas`, listed separately so "is X on this
+  // map?" always has an honest answer.
+  let drawnByLayer: PlatePlace[] = [];
   let togglableLayers: PlateLayer[] = [];
   let layerVisible: Record<string, boolean> = {};
   // Only ever true for a schematic plate.ts plate that resolved at least one
@@ -99,6 +106,7 @@
     svgMarkup = '';
     unlocated = [];
     offCanvas = [];
+    drawnByLayer = [];
     togglableLayers = [];
     layerVisible = {};
     hasConjectural = false;
@@ -129,9 +137,14 @@
         plateSize = plate.size;
         unlocated = result.unlocated;
         offCanvas = result.offCanvas;
+        drawnByLayer = result.drawnByLayer;
         togglableLayers = plate.layers.filter((l) => l.default === 'on' || l.default === 'off');
         layerVisible = Object.fromEntries(togglableLayers.map((l) => [l.id, l.default === 'on']));
-        const locatedCount = placesForPlate.length - result.unlocated.length - result.offCanvas.length;
+        // Pinned/located count only -- `drawnByLayer` places are visibly
+        // drawn but never pinned, so they must not inflate this the way
+        // they would if only unlocated/offCanvas were subtracted.
+        const locatedCount =
+          placesForPlate.length - result.unlocated.length - result.offCanvas.length - result.drawnByLayer.length;
         hasConjectural = plate.kind === 'schematic' && locatedCount > 0;
       }
 
@@ -194,7 +207,7 @@
         </div>
       </div>
 
-      {#if unlocated.length || offCanvas.length}
+      {#if unlocated.length || offCanvas.length || drawnByLayer.length}
         <div class="pp-honesty-lists">
           {#if offCanvas.length}
             <div class="pp-unlocated pp-offcanvas">
@@ -204,6 +217,20 @@
               </p>
               <ul>
                 {#each offCanvas as p (p.id)}
+                  <li>{p.name}{#if p.certainty} <span class="pp-tier-word">({p.certainty})</span>{/if}</li>
+                {/each}
+              </ul>
+            </div>
+          {/if}
+
+          {#if drawnByLayer.length}
+            <div class="pp-unlocated pp-drawn-by-layer">
+              <h3>Drawn as part of the map ({drawnByLayer.length})</h3>
+              <p class="pp-unlocated-caption">
+                Carried by the map's own linework — a wall, a region — rather than by its own pin.
+              </p>
+              <ul>
+                {#each drawnByLayer as p (p.id)}
                   <li>{p.name}{#if p.certainty} <span class="pp-tier-word">({p.certainty})</span>{/if}</li>
                 {/each}
               </ul>

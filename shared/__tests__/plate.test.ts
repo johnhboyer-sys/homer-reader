@@ -461,6 +461,90 @@ describe('renderPlate: offCanvas honesty (finding 1)', () => {
   });
 });
 
+describe('renderPlate: drawnByLayer honesty (Problem 2)', () => {
+  // A place with no defensible pin position can still be visibly drawn via a
+  // layer's own geometry (a wall trace, a region polygon) rather than a pin
+  // — e.g. the Troy citadel plate's wall-circuit layers and summit region
+  // all carry `placeId`s with no coords/plateAnchors of their own. Before
+  // this fix, such a place fell into `unlocated` ("named, not drawn"), which
+  // is false: the map plainly draws it, just not as a marker.
+  const layerPlate: Plate = {
+    id: 'layer-plate',
+    title: 'Layer Plate',
+    kind: 'geographic',
+    status: 'draft',
+    bbox: BBOX,
+    size: SIZE,
+    layers: [
+      {
+        id: 'wall-circuit',
+        kind: 'wall',
+        placeId: 'wall-of-troy',
+        trace: [
+          [39.95, 26.2],
+          [39.96, 26.22],
+        ],
+      },
+      {
+        id: 'summit-region',
+        kind: 'region',
+        placeId: 'pergamos',
+        polygon: [
+          [39.91, 26.16],
+          [39.93, 26.18],
+          [39.91, 26.2],
+        ],
+      },
+      {
+        // A layer whose own geometry is empty never renders (renderLayer
+        // returns undefined) — its placeId must NOT count as "drawn."
+        id: 'empty-wall',
+        kind: 'wall',
+        placeId: 'wall-of-heracles',
+        trace: [],
+      },
+    ],
+  };
+  const wallOfTroy: PlatePlace = { id: 'wall-of-troy', name: 'The wall of Troy', certainty: 'certain' }; // no coords
+  const pergamos: PlatePlace = { id: 'pergamos', name: 'Pergamos', certainty: 'traditional' }; // no coords
+  const wallOfHeracles: PlatePlace = { id: 'wall-of-heracles', name: 'Wall of Heracles', certainty: 'speculative' }; // no coords; its only layer never renders
+  const trulyUnlocated: PlatePlace = { id: 'ghost-place', name: 'Unlocated Ghost', certainty: 'mythical' }; // no coords, no layer names it
+
+  it('a place with no pin position but named as a rendered layer\'s placeId is bucketed drawnByLayer, not unlocated', () => {
+    const result = renderPlate(layerPlate, [wallOfTroy, pergamos]);
+    expect(result.drawnByLayer.map((p) => p.id).sort()).toEqual(['pergamos', 'wall-of-troy']);
+    expect(result.unlocated).toEqual([]);
+    // Never pinned: no data-place-id marker for either.
+    expect(result.svg).not.toContain('data-place-id="wall-of-troy"');
+    expect(result.svg).not.toContain('data-place-id="pergamos"');
+    // But the layer itself is present in the drawn markup.
+    expect(result.svg).toContain('data-feature-id="wall-circuit"');
+    expect(result.svg).toContain('data-feature-id="summit-region"');
+  });
+
+  it('a placeId on a layer that fails to render (empty geometry) does not count as drawn', () => {
+    const result = renderPlate(layerPlate, [wallOfHeracles]);
+    expect(result.drawnByLayer).toEqual([]);
+    expect(result.unlocated.map((p) => p.id)).toEqual(['wall-of-heracles']);
+  });
+
+  it('a place named by no layer at all stays unlocated, distinct from drawnByLayer', () => {
+    const result = renderPlate(layerPlate, [trulyUnlocated, wallOfTroy]);
+    expect(result.unlocated.map((p) => p.id)).toEqual(['ghost-place']);
+    expect(result.drawnByLayer.map((p) => p.id)).toEqual(['wall-of-troy']);
+  });
+
+  it('a place WITH its own pin position is located, not drawnByLayer, even if a layer also names its id', () => {
+    // troy has real coords in this bbox and is not named by any layer here,
+    // but exercise the precedence explicitly: give wall-of-troy coords too.
+    const pinnedWallOfTroy: PlatePlace = { ...wallOfTroy, coords: [39.957, 26.239] };
+    const result = renderPlate(layerPlate, [pinnedWallOfTroy]);
+    expect(result.drawnByLayer).toEqual([]);
+    expect(result.unlocated).toEqual([]);
+    expect(result.svg).toContain('data-place-id="wall-of-troy"');
+  });
+});
+
 describe('renderPlate: registration invariant', () => {
   it('a located place projects to the same pixel as geo.ts project() against the plate viewport', () => {
     const result = renderPlate(testPlate, [troy, scamander]);

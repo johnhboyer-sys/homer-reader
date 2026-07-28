@@ -213,12 +213,34 @@
   // to the fields plate.ts's PlatePlace actually reads -- renderPlate does
   // its own honesty resolution (coords in/out of the plate's frame), so this
   // is deliberately the full tagged set, not pre-split by coords.
-  const troadPlatePlaces: PlatePlace[] = placesForMap(places, 'troad').map((p) => ({
-    id: p.id,
-    name: p.name,
-    coords: p.coords,
-    certainty: p.certainty,
-  }));
+  //
+  // `plateAnchors`/`positionBasis` are read off the raw apparatus record via
+  // a cast, not added to maps.ts's Place interface (out of this task's
+  // scope) -- they are real fields on the JSON (docs/APPARATUS-SCHEMAS.md),
+  // just not ones the Ships/Wanderings/Greece tabs' own Place-typed code
+  // needs to know about. Without them every schematic-plate pin (the
+  // citadel's conjectural Scaean Gate etc.) resolved to undefined (2026-07-28
+  // bug) -- resolvePlacePosition (shared/lib/plate.ts) needs both to place a
+  // pin on a plate with no defensible real-world coordinate.
+  function toPlatePlace(p: Place): PlatePlace {
+    const raw = p as unknown as PlatePlace;
+    return {
+      id: p.id,
+      name: p.name,
+      coords: p.coords,
+      certainty: p.certainty,
+      plateAnchors: raw.plateAnchors,
+      positionBasis: raw.positionBasis,
+    };
+  }
+  const troadPlatePlaces: PlatePlace[] = placesForMap(places, 'troad').map(toPlatePlace);
+  // The citadel plate is schematic and draws its own, smaller set of places
+  // (tagged `troy-citadel` in places.json) -- passing the full `troad` set
+  // here was the second half of the 2026-07-28 bug: the citadel's Homeric
+  // features (Scaean Gate, Pergamos, the wall...) carry `troad`/`troad-plain`
+  // but not `troad`'s geographic coords, and weren't tagged for this plate at
+  // all until now.
+  const citadelPlatePlaces: PlatePlace[] = placesForMap(places, 'troy-citadel').map(toPlatePlace);
   const wanderingsPlaces = splitByCoords(placesForMap(places, 'wanderings'));
   const greecePlaces = splitByCoords(placesForMap(places, 'greece'));
   const wanderingsRouteStations = wanderingsRoute(places);
@@ -631,7 +653,7 @@
       <p class="mp-route-note">
         The walled city of Troy itself, on its rise above the plain.
       </p>
-      <PlatePanel plateId="troy-citadel" places={troadPlatePlaces} title="The Troy Citadel" />
+      <PlatePanel plateId="troy-citadel" places={citadelPlatePlaces} title="The Troy Citadel" />
     </div>
   {:else if activeTab === 'shield'}
     <div id="mp-panel-shield" role="tabpanel" aria-labelledby="mp-tab-shield" tabindex="0" class="mp-panel">
