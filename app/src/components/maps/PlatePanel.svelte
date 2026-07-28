@@ -45,6 +45,11 @@
   let isDraft = false;
   let plateSize: [number, number] = [4, 3];
   let unlocated: PlatePlace[] = [];
+  // Places with a real, defensible position that simply falls outside this
+  // plate's own frame (renderPlate's `offCanvas` bucket, 2026-07-28, finding
+  // 1) -- a different claim from `unlocated` ("no defensible position at
+  // all") and kept as a visibly distinct list, never merged into it.
+  let offCanvas: PlatePlace[] = [];
   let togglableLayers: PlateLayer[] = [];
   let layerVisible: Record<string, boolean> = {};
   // Only ever true for a schematic plate.ts plate that resolved at least one
@@ -70,8 +75,15 @@
     if (!mapEl) return;
     for (const layer of togglableLayers) {
       const visible = layerVisible[layer.id] !== false;
-      mapEl.querySelectorAll(`[data-feature-id="${layer.id}"]`).forEach((el) => {
-        (el as SVGElement).style.display = visible ? '' : 'none';
+      // Finding 8 (2026-07-28): a layer id is validator-accepted apparatus
+      // data, not a trusted literal -- an id like `x"]` interpolated
+      // straight into a `[data-feature-id="..."]` selector breaks the
+      // attribute-value quoting and throws a DOMException. Select every
+      // data-feature-id element and compare the dataset value in JS
+      // instead of building a selector string from the id at all.
+      mapEl.querySelectorAll<SVGElement>('[data-feature-id]').forEach((el) => {
+        if (el.dataset.featureId !== layer.id) return;
+        el.style.display = visible ? '' : 'none';
       });
     }
   }
@@ -86,6 +98,7 @@
     errorMessage = '';
     svgMarkup = '';
     unlocated = [];
+    offCanvas = [];
     togglableLayers = [];
     layerVisible = {};
     hasConjectural = false;
@@ -115,9 +128,10 @@
         isDraft = plate.status === 'draft';
         plateSize = plate.size;
         unlocated = result.unlocated;
+        offCanvas = result.offCanvas;
         togglableLayers = plate.layers.filter((l) => l.default === 'on' || l.default === 'off');
         layerVisible = Object.fromEntries(togglableLayers.map((l) => [l.id, l.default === 'on']));
-        const locatedCount = placesForPlate.length - result.unlocated.length;
+        const locatedCount = placesForPlate.length - result.unlocated.length - result.offCanvas.length;
         hasConjectural = plate.kind === 'schematic' && locatedCount > 0;
       }
 
@@ -180,17 +194,35 @@
         </div>
       </div>
 
-      {#if unlocated.length}
-        <div class="pp-unlocated">
-          <h3>Named, not drawn ({unlocated.length})</h3>
-          <p class="pp-unlocated-caption">
-            Named in the poem, but with no defensible position for this plate to draw.
-          </p>
-          <ul>
-            {#each unlocated as p (p.id)}
-              <li>{p.name}{#if p.certainty} <span class="pp-tier-word">({p.certainty})</span>{/if}</li>
-            {/each}
-          </ul>
+      {#if unlocated.length || offCanvas.length}
+        <div class="pp-honesty-lists">
+          {#if offCanvas.length}
+            <div class="pp-unlocated pp-offcanvas">
+              <h3>Off this sheet ({offCanvas.length})</h3>
+              <p class="pp-unlocated-caption">
+                A known place — just outside this sheet's frame. See another map for it.
+              </p>
+              <ul>
+                {#each offCanvas as p (p.id)}
+                  <li>{p.name}{#if p.certainty} <span class="pp-tier-word">({p.certainty})</span>{/if}</li>
+                {/each}
+              </ul>
+            </div>
+          {/if}
+
+          {#if unlocated.length}
+            <div class="pp-unlocated">
+              <h3>Named, not drawn ({unlocated.length})</h3>
+              <p class="pp-unlocated-caption">
+                Named in the poem, but with no defensible position for this plate to draw.
+              </p>
+              <ul>
+                {#each unlocated as p (p.id)}
+                  <li>{p.name}{#if p.certainty} <span class="pp-tier-word">({p.certainty})</span>{/if}</li>
+                {/each}
+              </ul>
+            </div>
+          {/if}
         </div>
       {/if}
     </div>
@@ -229,6 +261,8 @@
   .pp-mark.speculative { border-radius: 50%; border: 1.4px dashed var(--text-mid); background: transparent; }
   .pp-mark.mythical { border: 1.4px solid var(--text-mid); transform: rotate(45deg); width: 8px; height: 8px; }
   .pp-mark.conjectural { border-radius: 50%; border: 1.4px dotted var(--accent); background: transparent; }
+
+  .pp-honesty-lists { display: flex; flex-direction: column; gap: 0.9rem; }
 
   .pp-unlocated { font-family: var(--font-ui); font-size: 0.82rem; color: var(--text-mid); }
   .pp-unlocated h3 { margin: 0 0 0.2rem; font-size: 0.86rem; font-family: var(--font-display); font-weight: 600; color: var(--text); }

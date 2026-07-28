@@ -67,6 +67,96 @@ describe('PlatePanel', () => {
     await waitFor(() => expect(coastEl.style.display).toBe('none'));
   });
 
+  it('shows off-canvas places as a list distinct from unlocated ones (renderPlate\'s three buckets)', async () => {
+    mockFetchPlate.mockResolvedValue({
+      id: 'test-plate',
+      title: 'Test Plate',
+      kind: 'geographic',
+      status: 'reviewed',
+      bbox: [0, 0, 1, 1],
+      size: [100, 80],
+      layers: [],
+    });
+
+    const places = [
+      // Projects to [50, 40] -- inside the 100x80 canvas.
+      { id: 'located', name: 'Located Place', coords: [0.5, 0.5] as [number, number], certainty: 'certain' as const },
+      // Projects to [410, 40] -- a real, defensible position, but off this
+      // plate's own frame (renderPlate's `offCanvas` bucket).
+      { id: 'off-canvas-place', name: 'Off-Canvas Place', coords: [0.5, 5] as [number, number], certainty: 'traditional' as const },
+      // No coords at all -- no defensible position on any sheet.
+      { id: 'no-position', name: 'No Position Place', certainty: 'speculative' as const },
+    ];
+
+    const { container, getByText } = render(PlatePanel, {
+      props: { plateId: 'test-plate', places, title: 'Test Plate' },
+    });
+
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+    // Located: a pin, not in either honesty list.
+    expect(container.querySelector('[data-place-id="located"]')).toBeTruthy();
+
+    // Off-canvas: its own list, worded as "look elsewhere," not "unknown."
+    const offCanvasSection = container.querySelector('.pp-offcanvas');
+    expect(offCanvasSection).toBeTruthy();
+    expect(offCanvasSection?.querySelector('h3')?.textContent).toMatch(/Off this sheet \(1\)/);
+    expect(getByText('Off-Canvas Place')).toBeTruthy();
+    expect(offCanvasSection?.textContent).not.toMatch(/no defensible position/i);
+
+    // Unlocated: the pre-existing "named, not drawn" list, captioned as
+    // genuinely unknown -- and it must NOT contain the off-canvas place.
+    const unlocatedSections = container.querySelectorAll('.pp-unlocated');
+    const namedNotDrawn = Array.from(unlocatedSections).find((el) => /Named, not drawn/.test(el.querySelector('h3')?.textContent ?? ''));
+    expect(namedNotDrawn).toBeTruthy();
+    expect(namedNotDrawn?.textContent).toMatch(/no defensible position/i);
+    expect(getByText('No Position Place')).toBeTruthy();
+    expect(namedNotDrawn?.textContent).not.toMatch(/Off-Canvas Place/);
+  });
+
+  it('tolerates a hostile layer id (validator-accepted, selector-breaking) in the layer toggle', async () => {
+    // A validator-accepted plate/layer id is not a trusted literal: `x"]`
+    // interpolated straight into `[data-feature-id="x"]"]` breaks the
+    // attribute-value quoting and used to throw a DOMException on toggle
+    // (finding 8, 2026-07-28). This id is otherwise a completely ordinary
+    // layer -- the fix must not just avoid a crash, it must still actually
+    // toggle the right element.
+    const hostileId = 'x"]';
+    mockFetchPlate.mockResolvedValue({
+      id: 'hostile-plate',
+      title: 'Hostile Plate',
+      kind: 'geographic',
+      status: 'reviewed',
+      bbox: [0, 0, 1, 1],
+      size: [100, 80],
+      layers: [
+        {
+          id: hostileId,
+          kind: 'coast',
+          default: 'on',
+          rings: [[[0, 0], [1, 1]]],
+        },
+      ],
+    });
+
+    const { container, getByRole } = render(PlatePanel, {
+      props: { plateId: 'hostile-plate', places: [], title: 'Hostile Plate' },
+    });
+
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+    const targetEl = container.querySelector(`[data-feature-id]`) as SVGElement;
+    expect(targetEl.dataset.featureId).toBe(hostileId);
+    expect(targetEl.style.display).not.toBe('none');
+
+    const toggle = getByRole('checkbox') as HTMLInputElement;
+    expect(() => toggle.click()).not.toThrow();
+    await waitFor(() => expect(targetEl.style.display).toBe('none'));
+
+    toggle.click();
+    await waitFor(() => expect(targetEl.style.display).not.toBe('none'));
+  });
+
   it('renders the Shield of Achilles (schematic bands) via the real apparatus file, all 10 bands', async () => {
     // import.meta.url resolves relative URLs against Vite's HTTP base under
     // vitest, not the filesystem (see CLAUDE.md's shared/ vitest gotcha,

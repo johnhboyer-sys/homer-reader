@@ -795,9 +795,22 @@
   $: scenePanelIndex = reading ? clampedSceneIndex : currentSceneIndex;
   $: scenePanelScene = scenes[scenePanelIndex] ?? null;
   $: currentPlateResolution = scenePlaceResolutions[scenePanelIndex] ?? null;
-  $: currentPlateMap = plateCoastline && currentPlateResolution?.place.coords
+  // Gates on `places` (every resolved, coords-bearing place for the scene —
+  // shared/lib/scene-place.ts), not on `place` alone (2026-07-28, finding 4):
+  // `place` is only the FIRST resolved place and can itself be coordless
+  // (e.g. an authored scene.places[] whose first id is mythical-tier) even
+  // when a later id in the same list resolves to a real, mappable place.
+  // Gating on `place.coords` alone silently rendered no map for a
+  // perfectly mappable scene. `places` already excludes coordless ids
+  // (never force-pinned), so "any resolved place is mappable" is exactly
+  // "places is non-empty" — for the existing single-place resolution paths
+  // (setting dictionary, journey-leg fallback) `places` is unchanged, a
+  // singleton mirroring `place` or empty, so this is a no-op there.
+  // `place` itself (scenePanelPlaceName/scenePanelCertainty below) keeps
+  // its existing meaning — the first resolved place, coords or not.
+  $: currentPlateMap = plateCoastline && currentPlateResolution?.places.length
     ? renderSceneMap(
-        [currentPlateResolution.place],
+        currentPlateResolution.places,
         plateCoastline,
         { idPrefix: `scene-map-${work}-${bookNum}-${scenePanelIndex}` },
         currentPlateResolution.route,

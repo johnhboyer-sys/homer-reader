@@ -1,8 +1,8 @@
-import { fireEvent, render, screen, within } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Reader from '../components/Reader.svelte';
 import Search from '../components/Search.svelte';
-import type { BookData, RawBookData } from '../lib/data';
+import { fetchPlaces, fetchJourneys, fetchCoastline, type BookData, type RawBookData } from '../lib/data';
 import type { Work } from '../lib/works';
 
 // These Reader tests need a real Work shape (translations, citation scheme)
@@ -106,6 +106,15 @@ vi.mock('../lib/data', async (importOriginal) => {
     // lookup presentation renders without a network fetch.
     lookupWord: vi.fn(async () => ({ analyses: [], lsj: [], cunliffe: [] })),
     fetchLemmata: vi.fn(async () => ({})),
+    // Reading Mode's figure-plate payload (Reader.svelte's ensurePlateData) —
+    // default to empty/absent so the pre-existing scene-paging tests above,
+    // which never assert on the plate map, see it degrade to "no map"
+    // exactly as the real fetch would on a build with no gazetteer copied in
+    // yet. The Reader.svelte scene-map gating test below overrides these
+    // per-call via vi.mocked(...).mockResolvedValueOnce.
+    fetchPlaces: vi.fn(async () => ({ places: [] })),
+    fetchJourneys: vi.fn(async () => ({ journeys: [] })),
+    fetchCoastline: vi.fn(async () => null),
   };
 });
 
@@ -671,5 +680,117 @@ describe('Reader.svelte — Reading Mode scene paging (John, 2026-07-18)', () =>
     expect(container.querySelector('.reading-scene-head')).toBeNull();
     expect(container.querySelector('.reading-scene-nav')).toBeNull();
     expect(container.querySelectorAll('.scene-chip')).toHaveLength(0);
+  });
+});
+
+describe('Reader.svelte — Chart Room scene map gates on ANY resolved place (2026-07-28, finding 4)', () => {
+  // Reproduces the reported latent bug: a scene authored with
+  // `places: [unlocatedId, locatedId]` resolves `place` (shared/lib/
+  // scene-place.ts's ScenePlaceResolution) to the FIRST id — the unlocated
+  // one — while `places` (every resolved, coords-bearing id) still carries
+  // the second, mappable one. Before the fix, Reader.svelte's
+  // `currentPlateMap` gated on `place.coords` alone and rendered no map at
+  // all despite a perfectly mappable place; the fix gates on `places`
+  // instead. This test only exercises Reader.svelte's own gating — the
+  // `place`/`places` split itself is shared/lib/scene-place.ts's job and is
+  // covered in shared/__tests__/scene-place.test.ts.
+  const bookData: RawBookData = {
+    book: 1,
+    scenes: [
+      {
+        summary: 'A scene naming an unlocated place first, a located one second.',
+        startLine: 1,
+        endLine: 3,
+        places: ['no-coords-place', 'has-coords-place'],
+      },
+    ],
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: [1, 2, 3].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+        // Reading Mode only pages by scene when the translation carries real
+        // (>1) bekker ticks (Reader.svelte's readingHasSceneAnchors) — a
+        // markerless translation falls back to its own "aligned at book
+        // level only" notice, with no scene head/plate at all, which would
+        // make this test vacuous. Two real ticks are enough to satisfy the
+        // gate; same posture as the scene-paging describe block above.
+        english: {
+          text: 'Scene text.',
+          notes: [],
+          markers: [],
+          bekker: [
+            { n: 1, offset: 0, real: true },
+            { n: 2, offset: 6, real: true },
+          ],
+        },
+      },
+    ],
+  };
+
+  afterEach(() => {
+    vi.mocked(fetchPlaces).mockReset();
+    vi.mocked(fetchJourneys).mockReset();
+    vi.mocked(fetchCoastline).mockReset();
+    // Restore the file-level defaults (empty gazetteer/journeys, no
+    // coastline) other describe blocks rely on.
+    vi.mocked(fetchPlaces).mockResolvedValue({ places: [] });
+    vi.mocked(fetchJourneys).mockResolvedValue({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValue(null);
+  });
+
+  it('renders the scene map when `place` is coordless but `places` has a mappable entry', async () => {
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [
+        { id: 'no-coords-place', name: 'No Coords Place', certainty: 'mythical' }, // no coords: place.coords is undefined
+        { id: 'has-coords-place', name: 'Has Coords Place', coords: [10, 20], certainty: 'certain' },
+      ],
+    });
+    vi.mocked(fetchJourneys).mockResolvedValueOnce({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValueOnce({ bbox: [0, 0, 1, 1], rings: [] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData } });
+    // The reading-mode translation's real bekker ticks split "Scene text."
+    // across two `.bk-seg` spans (at the tick boundary) — wait on the scene
+    // head itself (proof `readingHasSceneAnchors` passed and paging is
+    // live) rather than a text match that would miss the split.
+    await screen.findByText(/Scene 1 of 1/i);
+
+    // The map slot renders an actual map (not the "collapsed, no map" state)
+    // once plate data resolves, even though `place` itself is coordless.
+    await waitFor(() => expect(container.querySelector('.reading-plate-map svg')).toBeTruthy());
+    expect(container.querySelector('.reading-plate')).not.toHaveClass('reading-plate-nomap');
+
+    const svg = container.querySelector('.reading-plate-map svg');
+    expect(svg?.getAttribute('aria-label')).toContain('Has Coords Place');
+    expect(svg?.getAttribute('aria-label')).not.toContain('No Coords Place');
+  });
+
+  it('still shows no map when every resolved place for the scene is coordless (unchanged honest-null behavior)', async () => {
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [
+        { id: 'no-coords-place', name: 'No Coords Place', certainty: 'mythical' },
+        { id: 'also-no-coords', name: 'Also No Coords', certainty: 'speculative' },
+      ],
+    });
+    vi.mocked(fetchJourneys).mockResolvedValueOnce({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValueOnce({ bbox: [0, 0, 1, 1], rings: [] });
+
+    const allCoordless: RawBookData = {
+      ...bookData,
+      scenes: [{ ...bookData.scenes![0], places: ['no-coords-place', 'also-no-coords'] }],
+    };
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: allCoordless } });
+    // The reading-mode translation's real bekker ticks split "Scene text."
+    // across two `.bk-seg` spans (at the tick boundary) — wait on the scene
+    // head itself (proof `readingHasSceneAnchors` passed and paging is
+    // live) rather than a text match that would miss the split.
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.reading-plate')).toHaveClass('reading-plate-nomap'));
+    expect(container.querySelector('.reading-plate-map')).toBeNull();
   });
 });
