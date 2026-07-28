@@ -226,13 +226,47 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
     label = plate_id if isinstance(plate_id, str) and plate_id else "plate"
     problems: list[str] = []
 
-    for key in ("id", "title", "kind", "status", "bbox", "size", "layers"):
-        if key not in doc:
-            problems.append(f"{label}: missing required key {key!r}")
-
     kind = doc.get("kind")
     if "kind" in doc and kind not in PLATE_KIND_ENUM:
         problems.append(f"{label}: kind must be one of {sorted(PLATE_KIND_ENUM)}, got {kind!r}")
+
+    # Required keys depend on the kind, because the two kinds are different
+    # things wearing one schema. A geographic plate is drawn by projecting
+    # lat/lon through geo.ts, so it must declare the `bbox` it projects into
+    # and the geographic `layers` it draws. A schematic plate has no geography
+    # at all — the Shield of Achilles is concentric `bands` of Iliad 18, not a
+    # place — so demanding a bbox of it would be demanding a coordinate for
+    # something that has none.
+    required = ["id", "title", "kind", "status", "size"]
+    if kind != "schematic":
+        required += ["bbox", "layers"]
+    for key in required:
+        if key not in doc:
+            problems.append(f"{label}: missing required key {key!r}")
+
+    # A schematic plate draws either concentric `bands` (the Shield of Achilles)
+    # or unit-space `layers` (the Trojan plain as the poem lays it out), so it
+    # must carry at least one of the two — an empty schematic draws nothing.
+    if kind == "schematic" and "bands" not in doc and "layers" not in doc:
+        problems.append(f"{label}: a schematic plate must declare 'bands' or 'layers'")
+
+    bands = doc.get("bands")
+    if "bands" in doc:
+        if not isinstance(bands, list) or not bands:
+            problems.append(f"{label}: bands must be a non-empty list")
+        else:
+            seen_band_ids: set[str] = set()
+            for i, band in enumerate(bands):
+                if not isinstance(band, dict):
+                    problems.append(f"{label}: bands[{i}] must be an object")
+                    continue
+                band_id = band.get("id")
+                if not isinstance(band_id, str) or not band_id:
+                    problems.append(f"{label}: bands[{i}].id must be a non-empty string")
+                elif band_id in seen_band_ids:
+                    problems.append(f"{label}: duplicate band id {band_id!r}")
+                else:
+                    seen_band_ids.add(band_id)
 
     if "status" in doc and (not isinstance(doc.get("status"), str) or not doc["status"].strip()):
         problems.append(f"{label}: status must be a non-empty string")

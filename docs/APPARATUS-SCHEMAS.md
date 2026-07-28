@@ -121,8 +121,22 @@ Projecting this geometry into rendered SVG is a later phase, not this schema.
 ```
 
 `kind` (plate-level): `geographic` (layers use real `[lat, lon]` pairs,
-contained in `bbox`) | `schematic` (layers use unit `[u, v]` pairs in 0..1;
-`bbox` still required but is not a coordinate constraint in this mode).
+contained in `bbox`) | `schematic` (unit `[u, v]` pairs in 0..1, no geography).
+
+A **geographic** plate must carry `bbox` and `layers`: it is drawn by
+projecting lat/lon through `shared/lib/geo.ts`, so it has to declare the extent
+it projects into.
+
+A **schematic** plate carries neither — demanding a `bbox` of it would be
+demanding a coordinate for something that has none. It must declare at least
+one of:
+- `bands` — concentric rings, used by `shield-of-achilles.json`, each
+  `{id, title, greek, lines: [from, to], summary, ring}`. Band ids are unique.
+- `layers` — the same layer shapes as a geographic plate, but with unit `[u, v]`
+  coordinates. This is how the Trojan plain is drawn *as the poem lays it out*
+  (the camp order of Il. 8.222-26, the road and its waypoints) rather than as
+  survey knows it. See CLAUDE.md's two-register rule.
+
 `bbox`: `[minLat, minLon, maxLat, maxLon]`. `size`: `[widthPx, heightPx]`.
 `seed`: required whenever any layer uses a stochastic draw style (`stipple`,
 `hachure`) — determinism for the render phase.

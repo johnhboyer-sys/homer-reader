@@ -174,6 +174,62 @@ def test_validate_plate_schematic_accepts_unit_coordinates():
     assert apparatus_places.validate_plate(plate, {}) == []
 
 
+def test_validate_plate_schematic_needs_no_bbox():
+    """A schematic plate has no geography, so demanding a bbox of it would be
+    demanding a coordinate for something that has none. The Shield of Achilles
+    is concentric bands of Iliad 18, not a place."""
+    plate = {
+        "id": "shield-of-achilles",
+        "title": "The Shield of Achilles",
+        "kind": "schematic",
+        "status": "draft",
+        "size": [640, 640],
+        "bands": [
+            {"id": "cosmos", "lines": [483, 489]},
+            {"id": "ocean", "lines": [607, 608]},
+        ],
+    }
+    assert apparatus_places.validate_plate(plate, {}) == []
+
+
+def test_validate_plate_schematic_must_draw_something():
+    plate = {
+        "id": "empty",
+        "title": "Empty",
+        "kind": "schematic",
+        "status": "draft",
+        "size": [10, 10],
+    }
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("must declare 'bands' or 'layers'" in p for p in problems)
+
+
+def test_validate_plate_schematic_rejects_duplicate_band_ids():
+    plate = {
+        "id": "shield",
+        "title": "Shield",
+        "kind": "schematic",
+        "status": "draft",
+        "size": [10, 10],
+        "bands": [{"id": "ocean"}, {"id": "ocean"}],
+    }
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("duplicate band id 'ocean'" in p for p in problems)
+
+
+def test_validate_plate_geographic_still_requires_bbox_and_layers():
+    plate = {
+        "id": "plain",
+        "title": "Plain",
+        "kind": "geographic",
+        "status": "draft",
+        "size": [10, 10],
+    }
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("missing required key 'bbox'" in p for p in problems)
+    assert any("missing required key 'layers'" in p for p in problems)
+
+
 def test_validate_plate_stochastic_style_requires_seed():
     plate = _plate(layers=[
         {"id": "coast-1", "kind": "coast", "style": "stipple",
