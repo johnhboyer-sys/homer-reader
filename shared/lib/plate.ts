@@ -31,6 +31,15 @@
 // One genuinely new concept has no existing token: a translucent area tint
 // for `region`/`band` layers (e.g. "the Achaean camp") — introduced here as
 // --plate-tint; a later phase defines its value in global.css.
+// --flaxman-hachure (2026-07-28, contrast fix) is a SEPARATE token from
+// --flaxman-ink, used only by the relief/hachure fill: --flaxman-ink is
+// itself alpha-composited in dark theme (see its own global.css comment —
+// "ink A: bone, subtle, not inverted"), so stacking a fixed fill-opacity on
+// top of it (the old approach) multiplied two alphas together and produced
+// nearly double the rendered contrast in light vs dark for the identical
+// declaration. --flaxman-hachure bakes the intended ink shade in as an
+// OPAQUE colour per theme instead, tuned so the two themes' rendered
+// contrast against --scene-map-land is comparable (see global.css).
 
 import { project, viewportFromBBox } from './geo';
 import type { LatLon, Viewport } from './geo';
@@ -541,6 +550,147 @@ export function stipple(path: PlatePoint[], opts: StippleOptions): string {
   return parts.join(' ');
 }
 
+export interface WaterlineOptions {
+  seed: number;
+  /** Cumulative px offsets from the shore, closest line first. Default: Huffman's growing-gap sequence (2 / 2.6 / 3.4 / 4.4 — each gap ~1.3x the last). */
+  offsets?: number[];
+  /** Per-line stroke weight, px, matching `offsets` by index (must be the same length). */
+  weights?: number[];
+  /** Per-line stroke opacity, matching `offsets` by index (must be the same length). */
+  opacities?: number[];
+  /** px of positional wobble per vertex, for a hand-drawn feel. Kept small: the growing gaps themselves read as organic (Huffman's point), jitter is a light finish, not the mechanism. */
+  jitter?: number;
+}
+
+export interface WaterlineStroke {
+  d: string;
+  width: number;
+  opacity: number;
+}
+
+// Huffman, "On Waterlines: Arguments for their Employment, Advice on their
+// Generation," Cartographic Perspectives 66 (2010): 23-30. Each successive
+// gap should grow by roughly 1.3x (monospaced gaps read as stylised;
+// growing gaps read as waves compressing toward the shore); the shore-to-
+// first-line gap is the variable that matters most; lines are confined to a
+// narrow band near the coast, not filled across the whole basin.
+const DEFAULT_WATERLINE_OFFSETS = [2, 2.6, 3.4, 4.4];
+const DEFAULT_WATERLINE_WEIGHTS = [0.55, 0.42, 0.3, 0.2];
+const DEFAULT_WATERLINE_OPACITIES = [0.85, 0.65, 0.48, 0.32];
+
+// Whole-ring winding side, the same shoelace-style pseudo-area trick
+// wallGlyph uses for its tick side (see that function's own comment): the
+// open polyline is treated as if closed so ONE consistent side is chosen
+// for the whole ring, rather than flipping per vertex. wallGlyph's ticks
+// face the ring's enclosed (inland) side; waterlines face the opposite
+// (seaward) side, so this is that same sign, negated.
+function ringSeaSide(ring: [number, number][]): 1 | -1 {
+  let signedArea = 0;
+  for (let i = 0; i + 1 < ring.length; i++) {
+    signedArea += ring[i][0] * ring[i + 1][1] - ring[i + 1][0] * ring[i][1];
+  }
+  return signedArea >= 0 ? -1 : 1;
+}
+
+// Offsets one ring perpendicular to itself by `dist` px on `side`. Each
+// vertex's normal is the (normalized) average of its two adjacent edge
+// normals — a simple polyline offset, not a full polygon-offset algorithm,
+// so tight concavities CAN self-intersect (accepted per this module's
+// standing "hand-drawn, not survey-grade" posture — see the file header).
+// Consecutive duplicate points are dropped first (degenerate edges); if
+// fewer than 2 usable points remain, returns undefined rather than emitting
+// a garbage/zero-length path.
+function offsetRing(
+  ring: [number, number][],
+  dist: number,
+  side: 1 | -1,
+  rand: () => number,
+  jitter: number,
+): [number, number][] | undefined {
+  const pts: [number, number][] = [];
+  for (const p of ring) {
+    const last = pts[pts.length - 1];
+    if (!last || Math.hypot(p[0] - last[0], p[1] - last[1]) > 1e-6) pts.push(p);
+  }
+  if (pts.length < 2) return undefined;
+
+  const edgeNormals: [number, number][] = [];
+  for (let i = 0; i + 1 < pts.length; i++) {
+    const [x1, y1] = pts[i];
+    const [x2, y2] = pts[i + 1];
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const len = Math.hypot(dx, dy);
+    edgeNormals.push([-dy / len, dx / len]);
+  }
+
+  const out: [number, number][] = [];
+  for (let i = 0; i < pts.length; i++) {
+    let nx: number;
+    let ny: number;
+    if (i === 0) {
+      [nx, ny] = edgeNormals[0];
+    } else if (i === pts.length - 1) {
+      [nx, ny] = edgeNormals[edgeNormals.length - 1];
+    } else {
+      const [n1x, n1y] = edgeNormals[i - 1];
+      const [n2x, n2y] = edgeNormals[i];
+      let ax = n1x + n2x;
+      let ay = n1y + n2y;
+      const alen = Math.hypot(ax, ay);
+      // Adjacent edges facing opposite ways (a sharp cusp) average to
+      // ~[0,0] — fall back to the incoming edge's own normal rather than an
+      // undefined direction.
+      if (alen < 1e-9) {
+        ax = n1x;
+        ay = n1y;
+      } else {
+        ax /= alen;
+        ay /= alen;
+      }
+      nx = ax;
+      ny = ay;
+    }
+    const wobble = 1 + (rand() - 0.5) * jitter;
+    out.push([pts[i][0] + nx * dist * side * wobble, pts[i][1] + ny * dist * side * wobble]);
+  }
+  return out;
+}
+
+// Concentric waterlines echoing `rings` (already-projected coast rings, same
+// pixel-space convention as hachure/stipple's inputs), per Huffman 2010:
+// several lines at growing cumulative offsets from the shore, each thinner
+// and fainter than the last. A ring that degenerates at a given offset (see
+// offsetRing) simply contributes nothing to that line; a line with no
+// surviving ring contributes nothing to the result, rather than an
+// empty/garbage stroke. NEVER call this for a river layer — waves do not
+// start in midstream and push out (Huffman); renderLayer enforces this
+// structurally by only reaching this function from the 'coast' case.
+export function waterlines(rings: [number, number][][], opts: WaterlineOptions): WaterlineStroke[] {
+  const offsets = opts.offsets ?? DEFAULT_WATERLINE_OFFSETS;
+  const weights = opts.weights ?? DEFAULT_WATERLINE_WEIGHTS;
+  const opacities = opts.opacities ?? DEFAULT_WATERLINE_OPACITIES;
+  if (offsets.length !== weights.length || offsets.length !== opacities.length) {
+    fail('waterlines: offsets/weights/opacities must have equal length');
+  }
+  const jitter = opts.jitter ?? 0.06;
+  const rand = mulberry32(opts.seed);
+  const sides = rings.map(ringSeaSide);
+
+  const strokes: WaterlineStroke[] = [];
+  for (let i = 0; i < offsets.length; i++) {
+    const dParts: string[] = [];
+    for (let r = 0; r < rings.length; r++) {
+      const offset = offsetRing(rings[r], offsets[i], sides[r], rand, jitter);
+      if (!offset) continue;
+      dParts.push(pathD(offset, false));
+    }
+    if (dParts.length === 0) continue;
+    strokes.push({ d: dParts.join(' '), width: weights[i], opacity: opacities[i] });
+  }
+  return strokes;
+}
+
 export interface ShipRowOptions {
   seed: number;
 }
@@ -851,6 +1001,18 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): { mar
       if (layer.style === 'stipple') {
         const dParts = ringsPx.map((px) => stipple(px, { seed }));
         markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" d="${dParts.join(' ')}" fill="var(--flaxman-ink)" stroke="none"/>`;
+      } else if (layer.style === 'waterline') {
+        const coastD = ringsPx.map((px) => pathD(px, false)).join(' ');
+        const strokes = waterlines(ringsPx, { seed });
+        const strokeMarkup = strokes
+          .map(
+            (ln, i) =>
+              `<path data-feature-id="${escapeXml(layer.id)}-waterline-${i}" class="plate-layer plate-layer-waterline" d="${ln.d}" fill="none" stroke="var(--scene-map-sea)" stroke-width="${ln.width}" stroke-opacity="${ln.opacity}"/>`,
+          )
+          .join('');
+        markup =
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" d="${coastD}" fill="none" stroke="var(--scene-map-coast)" stroke-width="${layer.width ?? STROKE_WEIGHT.coast}"/>` +
+          strokeMarkup;
       } else {
         const d = ringsPx.map((px) => pathD(px, false)).join(' ');
         markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" d="${d}" fill="none" stroke="var(--scene-map-coast)" stroke-width="${layer.width ?? STROKE_WEIGHT.coast}"/>`;
@@ -867,7 +1029,7 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): { mar
       const px = collect(layer.polygon);
       if (px.length < 3) return undefined;
       const d = hachure(px, { seed });
-      markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-relief" d="${d}" fill="var(--flaxman-ink)" fill-opacity="0.82" stroke="none"/>`;
+      markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-relief" d="${d}" fill="var(--flaxman-hachure)" stroke="none"/>`;
       break;
     }
     case 'shipRow': {

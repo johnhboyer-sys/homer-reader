@@ -10,8 +10,10 @@ import {
   shipRow,
   wallGlyph,
   tumulus,
+  waterlines,
   type Plate,
   type PlatePlace,
+  type PlateLayer,
 } from '../lib/plate';
 
 const SEED_PLATE_PATH = '../apparatus/plates/trojan-plain.json';
@@ -499,5 +501,108 @@ describe('draw primitives', () => {
     expect(d).toContain('Q');
     // Outer dome + two nested shading arcs + base line = 4 subpaths.
     expect(d.split('M').length - 1).toBe(4);
+  });
+});
+
+describe('waterlines', () => {
+  const straightRing: [number, number][] = [[0, 0], [40, 0]];
+
+  it('is deterministic for the same seed and differs for a different seed', () => {
+    const a = waterlines([straightRing], { seed: 5 });
+    const b = waterlines([straightRing], { seed: 5 });
+    const c = waterlines([straightRing], { seed: 6 });
+    expect(a).toEqual(b);
+    expect(a).not.toEqual(c);
+  });
+
+  it('emits the default four lines at growing cumulative offsets from the shore (jitter off for exact geometry)', () => {
+    const strokes = waterlines([straightRing], { seed: 1, jitter: 0 });
+    expect(strokes).toHaveLength(4);
+    // A straight 2-point ring offsets to a parallel line at exactly `dist`
+    // px away (both endpoints share the single edge's normal) — the
+    // cumulative Huffman offsets (2 / 2.6 / 3.4 / 4.4), verbatim.
+    expect(strokes[0].d).toBe('M0,-2 L40,-2');
+    expect(strokes[1].d).toBe('M0,-2.6 L40,-2.6');
+    expect(strokes[2].d).toBe('M0,-3.4 L40,-3.4');
+    expect(strokes[3].d).toBe('M0,-4.4 L40,-4.4');
+  });
+
+  it('tapers stroke weight and opacity, shore-adjacent line heaviest and most opaque', () => {
+    const strokes = waterlines([straightRing], { seed: 1 });
+    const widths = strokes.map((s) => s.width);
+    const opacities = strokes.map((s) => s.opacity);
+    for (let i = 1; i < widths.length; i++) {
+      expect(widths[i]).toBeLessThan(widths[i - 1]);
+      expect(opacities[i]).toBeLessThan(opacities[i - 1]);
+    }
+  });
+
+  it('successive gaps grow by roughly the 1.3x factor from Huffman 2010 ("On Waterlines")', () => {
+    const offsets = [2, 2.6, 3.4, 4.4];
+    const gaps = offsets.slice(1).map((o, i) => o - offsets[i]);
+    for (let i = 1; i < gaps.length; i++) {
+      const ratio = gaps[i] / gaps[i - 1];
+      expect(ratio).toBeGreaterThan(1.2);
+      expect(ratio).toBeLessThan(1.4);
+    }
+  });
+
+  it('drops a ring that degenerates to fewer than 2 usable points, without throwing, and contributes no strokes', () => {
+    const degenerate: [number, number][] = [[5, 5], [5, 5], [5, 5]]; // collapses to 1 point after dedup
+    expect(() => waterlines([degenerate], { seed: 1 })).not.toThrow();
+    expect(waterlines([degenerate], { seed: 1 })).toEqual([]);
+  });
+
+  it('rejects mismatched offsets/weights/opacities lengths', () => {
+    expect(() => waterlines([straightRing], { seed: 1, offsets: [1, 2], weights: [1], opacities: [1, 1] })).toThrow(/equal length/);
+  });
+});
+
+describe('renderPlate: waterline coast style', () => {
+  const waterlineCoast: PlateLayer = {
+    id: 'coast-wl',
+    kind: 'coast',
+    style: 'waterline',
+    rings: [
+      [
+        [39.98, 26.18],
+        [39.97, 26.19],
+        [39.96, 26.2],
+      ],
+    ],
+  };
+  const riverWithWaterlineStyle: PlateLayer = {
+    ...(testPlate.layers.find((l) => l.id === 'river-1') as PlateLayer),
+    style: 'waterline', // deliberately mislabeled -- rivers must ignore this
+  };
+
+  it('draws the coast boundary plus the default four fainter, thinner offset strokes', () => {
+    const plate: Plate = { ...testPlate, layers: [waterlineCoast] };
+    const result = renderPlate(plate, []);
+    expect(result.svg).toContain('class="plate-layer plate-layer-coast"');
+    const widths = [...result.svg.matchAll(/plate-layer-waterline" d="[^"]*" fill="none" stroke="var\(--scene-map-sea\)" stroke-width="([\d.]+)" stroke-opacity="([\d.]+)"/g)].map((m) => [Number(m[1]), Number(m[2])]);
+    expect(widths).toEqual([
+      [0.55, 0.85],
+      [0.42, 0.65],
+      [0.3, 0.48],
+      [0.2, 0.32],
+    ]);
+  });
+
+  it('never waterlines a river layer, even when the layer\'s own style is explicitly set to "waterline" (structural: the river case never reads layer.style)', () => {
+    const plate: Plate = { ...testPlate, layers: [riverWithWaterlineStyle] };
+    const result = renderPlate(plate, []);
+    expect(result.svg).toContain('plate-layer-river');
+    expect(result.svg).not.toContain('plate-layer-waterline');
+  });
+});
+
+describe('renderLayer: relief hachure ink token', () => {
+  it('relief fill uses the dedicated --flaxman-hachure token, with no separate fill-opacity stacked on top', () => {
+    const result = renderPlate(testPlate, []);
+    const reliefMatch = result.svg.match(/<path data-feature-id="relief-1"[^>]*\/>/);
+    expect(reliefMatch).not.toBeNull();
+    expect(reliefMatch![0]).toContain('fill="var(--flaxman-hachure)"');
+    expect(reliefMatch![0]).not.toContain('fill-opacity');
   });
 });
