@@ -177,7 +177,15 @@ def test_validate_plate_schematic_accepts_unit_coordinates():
 def test_validate_plate_schematic_needs_no_bbox():
     """A schematic plate has no geography, so demanding a bbox of it would be
     demanding a coordinate for something that has none. The Shield of Achilles
-    is concentric bands of Iliad 18, not a place."""
+    is concentric bands of Iliad 18, not a place.
+
+    Band fixture is well-formed (title/greek/summary/ring, not just id/lines):
+    shared/lib/shield.ts's renderShield dereferences all of those
+    unconditionally and throws on a non-distinct/non-negative-integer ring, so
+    an under-specified band here used to pass this validator clean and then
+    crash the renderer at runtime. That gap is now closed in validate_plate
+    itself (see the band-field checks below) — this test's job is only to
+    confirm a schematic plate still needs no bbox."""
     plate = {
         "id": "shield-of-achilles",
         "title": "The Shield of Achilles",
@@ -185,8 +193,22 @@ def test_validate_plate_schematic_needs_no_bbox():
         "status": "draft",
         "size": [640, 640],
         "bands": [
-            {"id": "cosmos", "lines": [483, 489]},
-            {"id": "ocean", "lines": [607, 608]},
+            {
+                "id": "cosmos",
+                "title": "Cosmos",
+                "greek": "γαῖα · οὐρανός · θάλασσα",
+                "lines": [483, 489],
+                "summary": "Earth, sky, sea, and the heavenly bodies fill the shield's centre.",
+                "ring": 0,
+            },
+            {
+                "id": "ocean",
+                "title": "Ocean",
+                "greek": "Ὠκεανός",
+                "lines": [607, 608],
+                "summary": "The river Ocean runs around the shield's outermost rim.",
+                "ring": 1,
+            },
         ],
     }
     assert apparatus_places.validate_plate(plate, {}) == []
@@ -283,5 +305,120 @@ def test_validate_plate_rejects_unknown_region_fill():
 def test_validate_plate_accepts_sea_region_fill():
     plate = _plate(layers=[
         {"id": "sea", "kind": "region", "fill": "sea", "polygon": [[39.95, 26.20]]}
+    ])
+    assert apparatus_places.validate_plate(plate, {}) == []
+
+
+# ── validate_plate: adversarial-review findings ─────────────────────────────
+
+
+def test_validate_plate_underspecified_band_is_rejected():
+    """The bug test_validate_plate_schematic_needs_no_bbox used to lock in:
+    a band with only id+lines passed clean here, then crashed
+    shared/lib/shield.ts's renderShield at runtime (it dereferences
+    title/greek/summary unconditionally and throws on a bad ring)."""
+    plate = {
+        "id": "shield-of-achilles",
+        "title": "The Shield of Achilles",
+        "kind": "schematic",
+        "status": "draft",
+        "size": [640, 640],
+        "bands": [{"id": "cosmos", "lines": [483, 489]}],
+    }
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("title must be a non-empty string" in p for p in problems)
+    assert any("greek must be a non-empty string" in p for p in problems)
+    assert any("summary must be a non-empty string" in p for p in problems)
+    assert any("ring must be a non-negative integer" in p for p in problems)
+
+
+def test_validate_plate_band_ring_must_be_distinct():
+    plate = {
+        "id": "shield",
+        "title": "Shield",
+        "kind": "schematic",
+        "status": "draft",
+        "size": [10, 10],
+        "bands": [
+            {"id": "cosmos", "title": "Cosmos", "greek": "g", "summary": "s", "lines": [1, 2], "ring": 0},
+            {"id": "peace", "title": "Peace", "greek": "g", "summary": "s", "lines": [3, 4], "ring": 0},
+        ],
+    }
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("duplicate ring 0" in p for p in problems)
+
+
+def test_validate_plate_band_lines_must_be_ordered_int_pair():
+    plate = {
+        "id": "shield",
+        "title": "Shield",
+        "kind": "schematic",
+        "status": "draft",
+        "size": [10, 10],
+        "bands": [
+            {"id": "cosmos", "title": "Cosmos", "greek": "g", "summary": "s", "lines": [489, 483], "ring": 0},
+        ],
+    }
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("lines must be a [from, to] pair" in p for p in problems)
+
+
+def test_real_shield_of_achilles_plate_validates_clean():
+    plate_doc = json.loads(
+        (ROOT / "apparatus" / "plates" / "shield-of-achilles.json").read_text(encoding="utf-8")
+    )
+    assert apparatus_places.validate_plate(plate_doc, {}) == []
+
+
+def test_validate_plate_rejects_numeric_or_empty_id_and_title():
+    plate = _plate(id=7, title="")
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("id must be a non-empty string" in p for p in problems)
+    assert any("title must be a non-empty string" in p for p in problems)
+
+
+def test_validate_plate_rejects_non_array_geometry_field_instead_of_skipping():
+    plate = _plate(layers=[{"id": "river-1", "kind": "river", "path": "nope"}])
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("path must be a list of points" in p for p in problems)
+
+
+def test_validate_plate_layer_kind_list_value_reports_problem_not_raise():
+    plate = _plate(layers=[{"id": "river-1", "kind": ["river"], "path": [[39.90, 26.15]]}])
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("kind must be one of" in p for p in problems)
+
+
+def test_validate_plate_layer_fill_list_value_reports_problem_not_raise():
+    plate = _plate(layers=[
+        {"id": "sea", "kind": "region", "fill": ["sea"], "polygon": [[39.95, 26.20]]}
+    ])
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("fill must be one of" in p for p in problems)
+
+
+def test_validate_plate_layer_place_id_list_value_reports_problem_not_raise():
+    plate = _plate(layers=[
+        {"id": "town", "kind": "region", "placeId": ["troy"], "polygon": [[39.95, 26.20]]}
+    ])
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("placeId" in p and "does not resolve" in p for p in problems)
+
+
+def test_validate_plate_rejects_duplicate_layer_ids():
+    plate = _plate(layers=[
+        {"id": "river-1", "kind": "river", "path": [[39.90, 26.15]]},
+        {"id": "river-1", "kind": "river", "path": [[39.91, 26.16]]},
+    ])
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("duplicate layer id 'river-1'" in p for p in problems)
+
+
+def test_validate_plate_bbox_tolerates_one_ulp_over_the_edge():
+    # A coordinate authored exactly on the bbox's max edge, then perturbed by
+    # one ULP, must not fail containment — matches shared/lib/plate.ts's
+    # assertPointsInBBox 1e-9 tolerance.
+    plate = _plate(layers=[
+        {"id": "river-1", "kind": "river", "path": [[40.02 + 1e-10, 26.36]]}
     ])
     assert apparatus_places.validate_plate(plate, {}) == []

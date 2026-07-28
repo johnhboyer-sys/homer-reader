@@ -120,6 +120,50 @@ describe('longitude compression', () => {
   });
 });
 
+describe('viewportFromBBox degenerate/polar extents (adversarial-review findings)', () => {
+  it('a zero-extent bbox yields a finite, usable viewport instead of scale: Infinity', () => {
+    const vp = viewportFromBBox([0, 0, 0, 0], [400, 200]);
+    expect(Number.isFinite(vp.scale)).toBe(true);
+    expect(Number.isFinite(vp.latSpan)).toBe(true);
+    expect(Number.isFinite(vp.lonSpan)).toBe(true);
+    expect(vp.latSpan).toBeGreaterThan(0);
+    expect(vp.lonSpan).toBeGreaterThan(0);
+
+    const [x, y] = project([0, 0], vp);
+    expect(Number.isFinite(x)).toBe(true);
+    expect(Number.isFinite(y)).toBe(true);
+  });
+
+  it('a sub-epsilon-extent bbox (min == max to float precision) also stays finite', () => {
+    const vp = viewportFromBBox([40, 25, 40 + 1e-12, 25 + 1e-12], [400, 200]);
+    expect(Number.isFinite(vp.scale)).toBe(true);
+    expect(vp.scale).toBeGreaterThan(0);
+  });
+
+  it('clamps an out-of-range bbox latitude to [-90, 90] rather than accepting it verbatim', () => {
+    const vp = viewportFromBBox([89, 0, 91, 1], [400, 200]);
+    expect(vp.centerLat).toBeLessThanOrEqual(90);
+    expect(Number.isFinite(vp.scale)).toBe(true);
+    expect(vp.scale).toBeGreaterThan(0);
+  });
+
+  it("project()'s cosine agrees with viewportFromBBox's fitted scale near the pole", () => {
+    // Regression for the specific divergence found in review: viewportFromBBox
+    // floors cos(centerLat) to size scaleX (so a tiny latSpan near the pole
+    // still yields a large, finite scale), but project() used to apply the
+    // TRUE (unfloored, near-zero) cosine when placing a point — so two
+    // distinct longitudes that fit calls apart could collapse onto the same
+    // (or a sub-pixel-different) x. A tiny latSpan forces scaleX to be the
+    // binding scale here, making the pre-fix collapse pronounced (~0.3px
+    // apart) versus the post-fix separation (hundreds of px).
+    const bbox: [number, number, number, number] = [89.999, -1, 90, 1];
+    const vp = viewportFromBBox(bbox, [400, 200]);
+    const left = project([90, -1], vp);
+    const right = project([90, 1], vp);
+    expect(Math.abs(right[0] - left[0])).toBeGreaterThan(50); // visibly separated, not collapsed
+  });
+});
+
 describe('fitViewport (moved from scenemap.ts — regression guard)', () => {
   it('enforces a minimum extent for a lone pin instead of zooming to a point', () => {
     const troy = { coords: [39.957, 26.239] as [number, number] };

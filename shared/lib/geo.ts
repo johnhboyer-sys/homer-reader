@@ -31,11 +31,41 @@ export interface Viewport {
 // default, not a claimed identification of anything.
 const FALLBACK_CENTER: LatLon = [37.9, 23.7];
 
+// This repo only ever maps the Aegean/Mediterranean at Landmark-panel scale
+// (see the file header) — true polar correctness is out of scope. Below this
+// floor, cos(centerLat) is close enough to zero that dividing by it (in
+// unproject, and in the scaleX computations below) blows up, and multiplying
+// by it (in project) collapses every longitude onto the same pixel. Both
+// directions go through this one floor so a viewport's fitted `scale` and
+// the coordinates later projected into it always agree — before this fix,
+// viewportFromBBox/fitViewport floored their scaleX computation but
+// project()/unproject() used the true, unfloored cosine, so the two
+// disagreed as centerLat approached 90.
+const MIN_COS_LAT = 0.01;
+
+function clampedCosLat(latDeg: number): number {
+  return Math.max(Math.cos((latDeg * Math.PI) / 180), MIN_COS_LAT);
+}
+
+// Coordinates outside real Earth range are an authoring error, not a valid
+// input — clamped (not thrown) to match this module's existing "pure
+// data-in, data-out, never throws" posture (unlike plate.ts/shield.ts, which
+// validate and throw). A bbox like [89, 0, 91, 1] is both polar and
+// out-of-range; clamping the latitude keeps viewportFromBBox from silently
+// accepting nonsense while still returning a usable, finite viewport.
+function clampLat(lat: number): number {
+  return Math.min(90, Math.max(-90, lat));
+}
+
+function clampLon(lon: number): number {
+  return Math.min(180, Math.max(-180, lon));
+}
+
 // ── Projection ───────────────────────────────────────────────────────────
 
 export function project(latlon: LatLon, viewport: Viewport): [number, number] {
   const [lat, lon] = latlon;
-  const cosLat = Math.cos((viewport.centerLat * Math.PI) / 180);
+  const cosLat = clampedCosLat(viewport.centerLat);
   const x = viewport.width / 2 + (lon - viewport.centerLon) * cosLat * viewport.scale;
   const y = viewport.height / 2 - (lat - viewport.centerLat) * viewport.scale;
   return [x, y];
@@ -45,7 +75,7 @@ export function project(latlon: LatLon, viewport: Viewport): [number, number] {
 // rendering itself.
 export function unproject(point: [number, number], viewport: Viewport): LatLon {
   const [x, y] = point;
-  const cosLat = Math.cos((viewport.centerLat * Math.PI) / 180);
+  const cosLat = clampedCosLat(viewport.centerLat);
   const lon = viewport.centerLon + (x - viewport.width / 2) / (cosLat * viewport.scale);
   const lat = viewport.centerLat - (y - viewport.height / 2) / viewport.scale;
   return [lat, lon];
@@ -128,8 +158,8 @@ export function fitViewport<T extends Locatable>(places: T[], options: FitViewpo
   const latSpan = Math.max(rawLatSpan * (1 + opts.padFraction * 2), opts.minExtentDeg);
   const lonSpan = Math.max(rawLonSpan * (1 + opts.padFraction * 2), opts.minExtentDeg);
 
-  const cosLat = Math.cos((centerLat * Math.PI) / 180);
-  const scaleX = opts.width / (lonSpan * Math.max(cosLat, 0.01));
+  const cosLat = clampedCosLat(centerLat);
+  const scaleX = opts.width / (lonSpan * cosLat);
   const scaleY = opts.height / latSpan;
   const scale = Math.min(scaleX, scaleY);
 
@@ -153,6 +183,16 @@ export function fitViewport<T extends Locatable>(places: T[], options: FitViewpo
 // scaleY)`. Callers that need the box flush to all four edges must pass a
 // bbox whose aspect ratio already matches `size`; when it does, both corners
 // land exactly (see the geo.test.ts contract test).
+// A hand-authored bbox is normally never degenerate (validate_plate and
+// parsePlate both reject minLat >= maxLat before this function ever runs),
+// but this function is pure math with no validation of its own — a zero (or
+// near-zero) span must still produce a finite, usable viewport rather than
+// dividing by zero (previously: scale: Infinity, every projected point
+// [NaN, NaN]). The floor is a few metres of latitude, small enough that it
+// never visibly perturbs any real plate's span — it only rescues the
+// degenerate case.
+const MIN_BBOX_SPAN_DEG = 1e-6;
+
 export function viewportFromBBox(
   bbox: [number, number, number, number], // [minLat, minLon, maxLat, maxLon]
   size: [number, number], // [widthPx, heightPx]
@@ -160,13 +200,20 @@ export function viewportFromBBox(
   const [minLat, minLon, maxLat, maxLon] = bbox;
   const [width, height] = size;
 
-  const centerLat = (minLat + maxLat) / 2;
-  const centerLon = (minLon + maxLon) / 2;
-  const latSpan = maxLat - minLat;
-  const lonSpan = maxLon - minLon;
+  // Clamp to real Earth range first (see clampLat/clampLon) — a bbox like
+  // [89, 0, 91, 1] is both polar and out-of-range.
+  const clampedMinLat = clampLat(minLat);
+  const clampedMaxLat = clampLat(maxLat);
+  const clampedMinLon = clampLon(minLon);
+  const clampedMaxLon = clampLon(maxLon);
 
-  const cosLat = Math.cos((centerLat * Math.PI) / 180);
-  const scaleX = width / (lonSpan * Math.max(cosLat, 0.01));
+  const centerLat = (clampedMinLat + clampedMaxLat) / 2;
+  const centerLon = (clampedMinLon + clampedMaxLon) / 2;
+  const latSpan = Math.max(clampedMaxLat - clampedMinLat, MIN_BBOX_SPAN_DEG);
+  const lonSpan = Math.max(clampedMaxLon - clampedMinLon, MIN_BBOX_SPAN_DEG);
+
+  const cosLat = clampedCosLat(centerLat);
+  const scaleX = width / (lonSpan * cosLat);
   const scaleY = height / latSpan;
   const scale = Math.min(scaleX, scaleY);
 

@@ -36,6 +36,13 @@ PLACE_KIND_ENUM = {
 
 PLATE_TAG_PREFIXES = ("troad-plain", "troy-citadel")
 
+# shared/lib/plate.ts's assertPointsInBBox/assertPointsInUnitRange both use
+# this same 1e-9 tolerance on their boundary checks: exact float equality on
+# an authored boundary coordinate is a real hazard (a coordinate authored as
+# the bbox edge can fail containment by one ULP). Kept as one constant so the
+# two implementations of this schema cannot drift apart on it.
+_BBOX_EPS = 1e-9
+
 PLATE_KIND_ENUM = {"geographic", "schematic"}
 LAYER_KIND_ENUM = {
     "coast", "river", "relief", "shipRow", "wall", "route", "region", "band",
@@ -193,21 +200,34 @@ def _validate_sources(sources: Any, label: str) -> list[str]:
 # ── apparatus/plates/<id>.json ──────────────────────────────────────────────
 
 
-def _iter_layer_coords(layer: dict):
+def _iter_layer_coords(layer: dict, label: str, layer_label: str, problems: list[str]):
     """Yield (field_name, pair, path_desc) for every coordinate pair present
-    in a plate layer's geometry fields."""
+    in a plate layer's geometry fields. A geometry field that is present but
+    not shaped as an array (or, for `rings`, an array of arrays) is reported
+    as a problem here rather than silently skipped, matching
+    shared/lib/plate.ts's parseLayer, which fails loudly on the same shape
+    (e.g. `"path": "nope"`)."""
     for field in _RING_FIELDS:
         rings = layer.get(field)
+        if rings is None:
+            continue
         if not isinstance(rings, list):
+            problems.append(f"{label}: layer {layer_label} {field} must be a list of rings")
             continue
         for ri, ring in enumerate(rings):
             if not isinstance(ring, list):
+                problems.append(
+                    f"{label}: layer {layer_label} {field}[{ri}] must be a list of points"
+                )
                 continue
             for pi, pair in enumerate(ring):
                 yield field, pair, f"[{ri}][{pi}]"
     for field in _FLAT_COORD_FIELDS:
         coords = layer.get(field)
+        if coords is None:
+            continue
         if not isinstance(coords, list):
+            problems.append(f"{label}: layer {layer_label} {field} must be a list of points")
             continue
         for pi, pair in enumerate(coords):
             yield field, pair, f"[{pi}]"
@@ -233,8 +253,17 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
     label = plate_id if isinstance(plate_id, str) and plate_id else "plate"
     problems: list[str] = []
 
+    # Mirrors parsePlate's `typeof d.id !== 'string' || !d.id` / same for
+    # title: a numeric or empty id/title passed preflight here before, while
+    # the TS lane already rejected it.
+    for key in ("id", "title"):
+        if key in doc:
+            val = doc.get(key)
+            if not isinstance(val, str) or not val:
+                problems.append(f"{label}: {key} must be a non-empty string")
+
     kind = doc.get("kind")
-    if "kind" in doc and kind not in PLATE_KIND_ENUM:
+    if "kind" in doc and (not isinstance(kind, str) or kind not in PLATE_KIND_ENUM):
         problems.append(f"{label}: kind must be one of {sorted(PLATE_KIND_ENUM)}, got {kind!r}")
 
     # Required keys depend on the kind, because the two kinds are different
@@ -263,6 +292,7 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
             problems.append(f"{label}: bands must be a non-empty list")
         else:
             seen_band_ids: set[str] = set()
+            seen_rings: set[int] = set()
             for i, band in enumerate(bands):
                 if not isinstance(band, dict):
                     problems.append(f"{label}: bands[{i}] must be an object")
@@ -274,6 +304,44 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                     problems.append(f"{label}: duplicate band id {band_id!r}")
                 else:
                     seen_band_ids.add(band_id)
+
+                band_label = band_id if isinstance(band_id, str) and band_id else f"bands[{i}]"
+
+                # shared/lib/shield.ts's renderShield dereferences every one
+                # of these unconditionally: title/greek build the label text,
+                # summary feeds aria-label/title, lines feeds aria-label, and
+                # a non-distinct or non-negative-integer ring is a hard
+                # `throw`. An under-specified band (e.g. `{"id": "cosmos"}`)
+                # used to pass this validator clean and then crash the
+                # renderer at runtime — this block closes that gap.
+                for field in ("title", "summary", "greek"):
+                    val = band.get(field)
+                    if not isinstance(val, str) or not val:
+                        problems.append(
+                            f"{label}: band {band_label} {field} must be a non-empty string"
+                        )
+
+                ring = band.get("ring")
+                if not isinstance(ring, int) or isinstance(ring, bool) or ring < 0:
+                    problems.append(
+                        f"{label}: band {band_label} ring must be a non-negative integer"
+                    )
+                elif ring in seen_rings:
+                    problems.append(f"{label}: band {band_label} duplicate ring {ring}")
+                else:
+                    seen_rings.add(ring)
+
+                lines = band.get("lines")
+                if not (
+                    isinstance(lines, list)
+                    and len(lines) == 2
+                    and all(isinstance(v, int) and not isinstance(v, bool) for v in lines)
+                    and lines[0] <= lines[1]
+                ):
+                    problems.append(
+                        f"{label}: band {band_label} lines must be a [from, to] pair of "
+                        f"integers with from <= to"
+                    )
 
     if "status" in doc and (not isinstance(doc.get("status"), str) or not doc["status"].strip()):
         problems.append(f"{label}: status must be a non-empty string")
@@ -306,6 +374,7 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
     layers = layers or []
 
     needs_seed = False
+    seen_layer_ids: set[str] = set()
     for i, layer in enumerate(layers):
         if not isinstance(layer, dict):
             problems.append(f"{label}: layers[{i}] must be an object")
@@ -314,16 +383,32 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
         layer_label = layer_id if isinstance(layer_id, str) and layer_id else f"layers[{i}]"
         if not isinstance(layer_id, str) or not layer_id:
             problems.append(f"{label}: layers[{i}].id must be a non-empty string")
+        elif layer_id in seen_layer_ids:
+            # shared/lib/plate.ts's per-layer stipple/hachure randomness is
+            # salted by the layer id (deriveSeed) — a duplicate id draws
+            # identical texture, so it is rejected here rather than merely
+            # noted. Message shape matches the TS lane's.
+            problems.append(f"plate {label}: duplicate layer id {layer_id!r}")
+        else:
+            seen_layer_ids.add(layer_id)
 
+        # Every one of these next three fields does an `in`-test against a
+        # set or dict. A list-valued field (e.g. `"kind": ["river"]`) used to
+        # raise `TypeError: unhashable type: 'list'` there, breaking this
+        # module's documented contract that it never raises — guarded with an
+        # isinstance check first so a malformed field is reported as a
+        # problem string like everything else.
         layer_kind = layer.get("kind")
-        if layer_kind not in LAYER_KIND_ENUM:
+        if not isinstance(layer_kind, str) or layer_kind not in LAYER_KIND_ENUM:
             problems.append(
                 f"{label}: layer {layer_label} kind must be one of "
                 f"{sorted(LAYER_KIND_ENUM)}, got {layer_kind!r}"
             )
 
         place_id = layer.get("placeId")
-        if place_id is not None and place_id not in places_by_id:
+        if place_id is not None and (
+            not isinstance(place_id, str) or place_id not in places_by_id
+        ):
             problems.append(
                 f"{label}: layer {layer_label} placeId {place_id!r} does not resolve "
                 f"in the gazetteer"
@@ -334,20 +419,21 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
             problems.append(f"{label}: layer {layer_label} default must be 'on' or 'off'")
 
         fill = layer.get("fill")
-        if fill is not None and fill not in REGION_FILL_ENUM:
+        if fill is not None and (not isinstance(fill, str) or fill not in REGION_FILL_ENUM):
             problems.append(
                 f"{label}: layer {layer_label} fill must be one of "
                 f"{sorted(REGION_FILL_ENUM)}, got {fill!r}"
             )
 
-        if layer.get("style") in STOCHASTIC_STYLES:
+        style = layer.get("style")
+        if isinstance(style, str) and style in STOCHASTIC_STYLES:
             needs_seed = True
 
         sources = layer.get("sources")
         if sources is not None:
             problems += _validate_sources(sources, f"{label}: layer {layer_label}")
 
-        for field, pair, path_desc in _iter_layer_coords(layer):
+        for field, pair, path_desc in _iter_layer_coords(layer, label, layer_label, problems):
             if not _is_pair(pair):
                 problems.append(
                     f"{label}: layer {layer_label} {field}{path_desc} must be a "
@@ -358,13 +444,18 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
             if kind == "geographic":
                 if min_lat is None:
                     continue  # bbox itself already flagged invalid above
-                if not (min_lat <= a <= max_lat and min_lon <= b <= max_lon):
+                if not (
+                    min_lat - _BBOX_EPS <= a <= max_lat + _BBOX_EPS
+                    and min_lon - _BBOX_EPS <= b <= max_lon + _BBOX_EPS
+                ):
                     problems.append(
                         f"{label}: layer {layer_label} {field}{path_desc} = [{a}, {b}] "
                         f"lies outside bbox {bbox}"
                     )
             elif kind == "schematic":
-                if not (0 <= a <= 1 and 0 <= b <= 1):
+                if not (
+                    -_BBOX_EPS <= a <= 1 + _BBOX_EPS and -_BBOX_EPS <= b <= 1 + _BBOX_EPS
+                ):
                     problems.append(
                         f"{label}: layer {layer_label} {field}{path_desc} = [{a}, {b}] "
                         f"must be a unit [u, v] pair in 0..1"
