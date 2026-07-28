@@ -109,6 +109,16 @@ non-negotiable.
   other's dist mid-verification. Lanes verifying against dist must
   build+verify without another build lane running, or verify via dev
   server instead.
+- Test-harness gotcha (2026-07-28, found by the grammar-search fix lane):
+  under happy-dom, `bind:value` on a `<select>` cannot be driven by
+  `fireEvent.change`. Svelte 5 reads the chosen option with
+  `select.querySelector(':checked')`, happy-dom implements no `:checked`, so
+  it falls back to "the first option that is not `disabled`" — every bound
+  select snaps back to its first option and component state never moves. The
+  test passes vacuously. Workaround in `shared/__tests__/grammar-ui.test.ts`
+  (`choose()`): disable the other options for the duration of the event.
+  Selects driven by a handler (`on:change` reading `currentTarget.value`, as
+  the combo panel does) are unaffected, which is why nobody hit this before.
 - Codex model-flag gotcha (2026-07-18): `--model gpt-5.6-terra-high` is
   REJECTED on this ChatGPT-account setup ("model is not supported…"); runs
   fall back to the account's default Codex model at `--effort high`. Label

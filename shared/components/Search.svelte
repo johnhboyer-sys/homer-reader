@@ -3,6 +3,7 @@
   import {
     search,
     searchCombo,
+    searchGrammar,
     searchPhraseVariants,
     lemmaOptions,
     greekFold,
@@ -34,6 +35,10 @@
     ref: string;       // e.g. "1097a15"
     html: string;      // KWIC snippet
     jumpUrl: string;
+    // Solo grammar search only: whether this word's readings settle the queried
+    // categories. Carried onto the instance so the header can count certainty
+    // over the rows that survived every filter — see grammarCounts.
+    certain?: boolean;
   }
   // All instances within one chapter, merged into a single (collapsible) card.
   interface ChapterGroup {
@@ -66,7 +71,7 @@
   // Which control produced the results on screen — the widening button only
   // makes sense beside a plain Greek+English search, since a solo-word,
   // combo, or already-widened result set has no single "the query" to widen.
-  type ResultsSource = 'main' | 'solo' | 'combo' | 'variant';
+  type ResultsSource = 'main' | 'solo' | 'combo' | 'variant' | 'grammar';
   let resultsSource: ResultsSource = 'main';
   let showHelp = false;
   let helpModal: HTMLDivElement;
@@ -192,9 +197,17 @@
   }
 
   function filterResultsByWorkBook(list: SearchResult[]): SearchResult[] {
-    const bf = parsedBookFilter();
+    // A grammar result set is DEFINED by the scope it was submitted under, so
+    // it is narrowed by that snapshot, never by whatever the scope selects read
+    // now. Post-filtering the whole-work fetch by the live controls is how
+    // clearing Book once displayed the whole-Iliad set (3,785 words) that the
+    // single-book gate exists to forbid. Every scope change re-runs instead —
+    // see onScopeChange.
+    const scope = resultsSource === 'grammar' ? grammarCtx : null;
+    const work = scope ? scope.work : workFilter;
+    const bf = scope ? Number(scope.book) : parsedBookFilter();
     return list.filter(
-      (r) => (workFilter === 'all' || r.work === workFilter) && (bf == null || r.meta.book === bf),
+      (r) => (work === 'all' || r.work === work) && (bf == null || r.meta.book === bf),
     );
   }
 
@@ -252,8 +265,11 @@
   // back empty — interface voice, states the fact rather than apologizing.
   $: zeroResultHint = (() => {
     const hints: string[] = [];
-    if (workFilter !== 'all') hints.push('widen Work to All');
-    if (bookFilterRaw) hints.push('clear Book');
+    // Work/book are not loosenable for a grammar result set — widening either
+    // is not a wider answer, it clears the answer (see onScopeChange).
+    const scoped = resultsSource === 'grammar';
+    if (workFilter !== 'all' && !scoped) hints.push('widen Work to All');
+    if (bookFilterRaw && !scoped) hints.push('clear Book');
     if (speakerFilter) hints.push('choose a different speaker or Any speaker');
     if (speechesOnly) hints.push('turn off Speeches only');
     return hints.length ? `Loosen a filter: ${hints.join('; ')}.` : '';
@@ -261,7 +277,26 @@
 
   function onWorkFilterChange() {
     if (workFilter === 'all') bookFilterRaw = '';
-    onFilterChange();
+    onScopeChange();
+  }
+
+  // Work and book are the SCOPE of a grammar result set, not a filter over it.
+  // The whole justification for running a bare grammatical query is that one
+  // book is selective where a whole work is not, so a scope change re-runs the
+  // search under the new scope (one pass over the packed column — cheap), and
+  // clears the results when the new scope is not one a grammar search may run
+  // under. Widening by post-filtering would answer with the set the gate
+  // forbids, and answering for an unsearched work would show its zero rows as
+  // if they were a real empty answer. For every other kind of result, work and
+  // book stay what they have always been: a free filter over what was fetched.
+  async function onScopeChange() {
+    if (!searched) return;
+    if (resultsSource === 'grammar') {
+      if (grammarGateOk(workFilter, bookFilterRaw, soloGrammarQuery)) await doSoloGrammarSearch();
+      else clearGrammarResults();
+      return;
+    }
+    await onFilterChange();
   }
 
   async function onFilterChange() {
@@ -289,10 +324,24 @@
     if (searchCtx.grkQuery) params.set('g', searchCtx.grkQuery); else params.delete('g');
     if (searchCtx.engQuery) params.set('e', searchCtx.engQuery); else params.delete('e');
     params.delete('q');
-    if (workFilter !== 'all') params.set('w', workFilter); else params.delete('w');
-    if (bookFilterRaw) params.set('b', bookFilterRaw); else params.delete('b');
     if (speakerFilter) params.set('spk', speakerFilter); else params.delete('spk');
     if (speechesOnly) params.set('so', '1'); else params.delete('so');
+    // A grammar link is the query AND the scope it ran under, all three read
+    // off the submitted snapshot — the shared URL must reproduce the passage on
+    // screen, not the state of controls a reader has since nudged. Only while a
+    // solo grammar search is what's actually on screen: a later search of
+    // another kind clears `gr` on ITS updateUrl() call (resultsSource has
+    // already changed by then), same pattern as g/e tracking searchCtx.
+    const scope = resultsSource === 'grammar' ? grammarCtx : null;
+    if (scope) {
+      params.set('w', scope.work);
+      params.set('b', scope.book);
+      params.set('gr', Object.entries(scope.query).map(([k, v]) => `${k}:${v}`).join(','));
+    } else {
+      if (workFilter !== 'all') params.set('w', workFilter); else params.delete('w');
+      if (bookFilterRaw) params.set('b', bookFilterRaw); else params.delete('b');
+      params.delete('gr');
+    }
     const qs = params.toString();
     window.history.replaceState(null, '', `${window.location.pathname}${qs ? `?${qs}` : ''}`);
   }
@@ -686,13 +735,30 @@
         if (ctx.grkAccentTerms.length) {
           for (const line of seg.greek) for (const tok of line.tokens) toks.push(tok.t);
         }
+        // Solo grammar search only: an explicit position -> certainty map,
+        // built here rather than trusted as index-aligned with grkPositions —
+        // grammarSearchWork happens to push them in lockstep today, but
+        // comboSearchWork already re-sorts its own pair (search.ts:1138), and
+        // relying on parallel-array order surviving a future edit is exactly
+        // the kind of assumption that silently mislabels a token's morphology.
+        // Scoped to resultsSource === 'grammar' so combo results (which also
+        // carry r.grammar, one entry per matched token of ANY slot kind) never
+        // pick up the ambiguity marker — that is separate, unscoped work.
+        let grammarByPos: Map<number, { values: Record<string, string[]>; certain: boolean }> | undefined;
+        if (resultsSource === 'grammar' && r.grammar) {
+          grammarByPos = new Map();
+          r.grkPositions.forEach((p, i) => {
+            const hit = r.grammar![i];
+            if (hit) grammarByPos!.set(p, hit);
+          });
+        }
         for (const pos of r.grkPositions) {
           if (ctx.grkAccentTerms.length
             && !accentTokenMatch(toks[pos] ?? '', ctx.grkAccentTerms)) continue;
           const line = lineOfPosition(seg, pos);
           if (lineFilter && !lineFilter(r.work, r.meta.book, line)) continue;
           const ch = lookup(seg.column, line);
-          add(r.work, r.meta.book, ch, { lang: 'grk', column: seg.column, line, ref: formatCite(r.work, seg.column, line), html: greekKwic(seg, [pos]), jumpUrl: jumpFor(r.work, r.meta.book, seg.column, line) });
+          add(r.work, r.meta.book, ch, { lang: 'grk', column: seg.column, line, ref: formatCite(r.work, seg.column, line), html: greekKwic(seg, [pos], grammarByPos), jumpUrl: jumpFor(r.work, r.meta.book, seg.column, line), certain: grammarByPos?.get(pos)?.certain });
         }
       }
       if (r.engMatch) {
@@ -779,6 +845,7 @@
     const b = params.get('b');
     const spk = params.get('spk');
     const so = params.get('so');
+    const gr = params.get('gr');
     if (g) grkQuery = g;
     if (en) engQuery = en;
     if (w === 'iliad' || w === 'odyssey') workFilter = w;
@@ -788,7 +855,24 @@
     }
     if (spk) { speakerFilter = spk; speakerFilterOpen = true; }
     if (so === '1') speechesOnly = true;
+    // Validate every pair against GRAMMAR_CATEGORIES before trusting it — `gr`
+    // is user-reachable (a pasted/shared link), so an unknown category or
+    // value is dropped silently rather than passed through to the query.
+    if (gr) {
+      const catByKey = new Map(GRAMMAR_CATEGORIES.map((c) => [c.key, c]));
+      const parsed: GrammarQuery = {};
+      for (const pair of gr.split(',')) {
+        const [key, value] = pair.split(':');
+        const cat = key ? catByKey.get(key) : undefined;
+        if (cat && value && cat.values.includes(value)) parsed[key] = value;
+      }
+      if (Object.keys(parsed).length) { soloGrammarQuery = parsed; soloGrammarOpen = true; }
+    }
     if (g || en) doSearch();
+    // doSoloGrammarSearch gates itself on the live scope, not on a `$:` derived
+    // flag that is still stale on this microtask, so a ?gr= link that names a
+    // work and a book runs here rather than silently no-opping.
+    else if (gr) doSoloGrammarSearch();
   });
 
   async function doSearch(e?: Event) {
@@ -834,6 +918,7 @@
     if (resultsSource === 'solo') doSoloSearch();
     else if (resultsSource === 'combo') doComboSearch();
     else if (resultsSource === 'variant') findVariants();
+    else if (resultsSource === 'grammar') doSoloGrammarSearch();
     else doSearch();
   }
 
@@ -924,12 +1009,140 @@
     if (e.key === 'Enter') doSoloSearch();
   }
 
+  // -- "Grammar, scoped to one book" panel ------------------------------------
+  // A standalone grammatical query (no word, just a shape — genitive plural
+  // feminine, say) matches thousands of ordinary words across a whole work,
+  // which is not a result, it is a fact about Greek. Scoped to one book it can
+  // be selective enough to read — the Iliad 9 embassy duals are 184 hits in
+  // one book against 3,785 across the whole poem. That gate is the entire
+  // justification for running grammar alone, so it is enforced, not advisory:
+  // the button stays disabled until exactly one work AND one book are picked.
+  //
+  // Reuses workFilter/bookFilterRaw (the results filter row's own state) as
+  // the scope — picking them here is the same act as picking them there.
+  let soloGrammarQuery: GrammarQuery = {};
+  let soloGrammarOpen = false;
+  let soloGrammarBusy = false;
+
+  // Immutable snapshot of the SUBMITTED grammar query and the scope it ran
+  // under, the exact counterpart of searchCtx. A grammar result set is defined
+  // by its scope — 184 dual words in Iliad 9 is a result; 3,785 across the poem
+  // is a fact about Greek — so the header, the URL and the work/book narrowing
+  // must all describe what was searched, never what the controls happen to read
+  // now. Null when nothing grammatical is on screen.
+  interface GrammarCtx { query: GrammarQuery; work: 'iliad' | 'odyssey'; book: string }
+  let grammarCtx: GrammarCtx | null = null;
+
+  // The gate, as a plain function over values passed in — NOT the `$:` derived
+  // flag below. `$:` recomputes on the next microtask flush, so a caller that
+  // has just assigned workFilter/bookFilterRaw (the ?gr= deep link on mount,
+  // above all) would be turned away by a stale gate and the search would
+  // silently no-op. Same rule as parsedBookFilter's.
+  function grammarGateOk(work: WorkFilter, book: string, query: GrammarQuery): boolean {
+    return work !== 'all' && !!book && Object.keys(query).length > 0;
+  }
+  // Derived twins, for the button's disabled state and the panel's note only.
+  $: soloGrammarGateOk = workFilter !== 'all' && !!bookFilterRaw;
+  $: soloGrammarReady = grammarGateOk(workFilter, bookFilterRaw, soloGrammarQuery);
+  // "dual", or "dual, nom" for a multi-category query — a simple join reads
+  // fine for any category, so a phrase-generation abstraction is not needed.
+  $: grammarValueLabel = Object.values(grammarCtx?.query ?? {}).join(', ');
+  // Counted in WORDS, and the result line says "words" — not "passages". This
+  // corpus emits one segment per book (24 for the Iliad, ~4,500 tokens each),
+  // so a book-scoped grammar search returns a single result carrying every hit
+  // as a position: the Iliad 9 duals are 184 words standing in 1 passage.
+  // Calling them passages would overstate the spread of the evidence by the
+  // whole width of a book.
+  //
+  // Both numbers are counted over `groups` — the rows the page actually
+  // renders. Speaker and "speeches only" are applied inside buildGroups, after
+  // the result set is fixed, so a certain count taken from the results would
+  // keep claiming the unfiltered 8 over 48 filtered rows of which 3 are certain.
+  $: grammarCounts = resultsSource === 'grammar'
+    ? groups.reduce(
+        (acc, g) => {
+          for (const inst of g.instances) { acc.total++; if (inst.certain) acc.certain++; }
+          return acc;
+        },
+        { total: 0, certain: 0 },
+      )
+    : { total: 0, certain: 0 };
+  $: displayTotal = resultsSource === 'grammar' ? grammarCounts.total : totalInstances;
+
+  // "184 words, 8 of them certainly dual." — and English, not the plural
+  // template collapsed, when a single word matched.
+  function grammarCountLine(total: number, certain: number, label: string): string {
+    if (total === 1) return `1 word, ${certain === 1 ? 'certainly' : 'not certainly'} ${label}.`;
+    return `${total} words, ${certain} of them certainly ${label}.`;
+  }
+
+  function setSoloGrammar(key: string, value: string) {
+    if (value) soloGrammarQuery = { ...soloGrammarQuery, [key]: value };
+    else { const g = { ...soloGrammarQuery }; delete g[key]; soloGrammarQuery = g; }
+  }
+
+  // A scope a grammar search may not run under leaves nothing describable on
+  // screen, so the results go rather than widen. The panel's own note ("Pick
+  // one work and one book above…") is already showing by then and says why.
+  function clearGrammarResults() {
+    grammarCtx = null;
+    rawResults = [];
+    currentResults = [];
+    groups = [];
+    pages = [];
+    pageIdx = 0;
+    totalInstances = 0;
+    searched = false;
+    soloGrammarOpen = true;
+    updateUrl();
+  }
+
+  async function doSoloGrammarSearch() {
+    if (soloGrammarBusy) return;
+    if (!grammarGateOk(workFilter, bookFilterRaw, soloGrammarQuery)) return;
+    // The scope this run is defined by, captured before the first await and
+    // never re-read after it.
+    const ctx: GrammarCtx = {
+      query: { ...soloGrammarQuery },
+      work: workFilter as 'iliad' | 'odyssey',
+      book: bookFilterRaw,
+    };
+    soloGrammarBusy = true;
+    error = '';
+    failedWorks = [];
+    pageError = '';
+    csvNote = '';
+    searched = false;
+    try {
+      searchCtx = { grkQuery: '', engQuery: '', engTerms: [], grkAccentTerms: [] };
+      const outcome = await searchGrammar(ctx.query, [ctx.work]);
+      grammarCtx = ctx;
+      // Put the controls back on the scope that was searched. The selects are
+      // disabled while the request is out, so this is a no-op in the browser;
+      // it holds the invariant "what the scope row shows is what produced these
+      // rows" against any path that moves them behind the request's back.
+      workFilter = ctx.work;
+      bookFilterRaw = ctx.book;
+      rawResults = outcome.results;
+      failedWorks = outcome.failedWorks ?? [];
+      resultsSource = 'grammar';
+      searched = true;
+      await applyResultsPipeline();
+      updateUrl();
+    } catch (err) {
+      error = err instanceof Error ? err.message : String(err);
+    } finally {
+      soloGrammarBusy = false;
+    }
+  }
+
   // -- "Two things near each other" (combo) panel ----------------------------
   //
-  // Grammar exists ONLY as a slot kind here, never on its own: a standalone
-  // grammatical query (e.g. genitive plural feminine) matches thousands of
-  // ordinary words and is not a result, it is a fact about Greek. As one term
-  // beside another the same index earns its keep.
+  // Grammar as a slot kind here answers "this term, and this shape, near each
+  // other" across a whole work. A standalone grammatical query is different:
+  // unscoped, it matches thousands of ordinary words and is not a result, it
+  // is a fact about Greek — see the solo grammar panel above, which is why
+  // that one is hard-gated to a single book and this one is not.
   //
   // Vocabulary is exactly what Morpheus emits over this corpus (see
   // stage6_search.py's _FEATURES) — no part of speech, since the analyses
@@ -1089,8 +1302,19 @@
 
   // Greek keyword-in-context: a window of surface tokens around the match,
   // with the matched token(s) highlighted. Positions come from the index.
+  // `ambiguous`, when given (solo grammar search only), maps a matched
+  // position to its grammar hit — a token whose reading is not fully
+  // determined for the query gets a quiet dotted-underline marker plus a
+  // title/sr-only note naming the alternatives, rather than being shown
+  // exactly like a certain hit. Ambiguity is Homeric morphology's normal
+  // state (176 of 184 hits in Iliad 9's dual query), so it must not read as
+  // a warning.
   const GRK_WINDOW = 8;
-  function greekKwic(seg: Segment, positions: number[]): string {
+  function greekKwic(
+    seg: Segment,
+    positions: number[],
+    ambiguous?: Map<number, { values: Record<string, string[]>; certain: boolean }>,
+  ): string {
     const toks: string[] = [];
     for (const line of seg.greek) for (const tok of line.tokens) toks.push(tok.t);
     if (!positions.length) {
@@ -1104,7 +1328,15 @@
     const win = [];
     for (let i = start; i < end; i++) {
       const w = esc(toks[i]);
-      win.push(posSet.has(i) ? `<mark>${w}</mark>` : w);
+      if (!posSet.has(i)) { win.push(w); continue; }
+      const hit = ambiguous?.get(i);
+      if (hit && !hit.certain) {
+        const alts = [...new Set(Object.values(hit.values).flat())].join(', ');
+        const note = `one of several readings: ${alts}`;
+        win.push(`<mark class="ambiguous" title="${escAttr(note)}">${w}<span class="sr-only"> (${esc(note)})</span></mark>`);
+      } else {
+        win.push(`<mark>${w}</mark>`);
+      }
     }
     let html = win.join(' ');
     if (start > 0) html = '… ' + html;
@@ -1141,6 +1373,15 @@
 
   function esc(s: string): string {
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // Same, plus quotes — for a value going into an HTML attribute (the
+  // ambiguity title) rather than element content. The grammar dictionary's
+  // reading values are corpus data, not typed by a reader, but the title
+  // string is still built by string interpolation into {@html} markup, so it
+  // is escaped like any other value on that path.
+  function escAttr(s: string): string {
+    return esc(s).replace(/"/g, '&quot;');
   }
 
   // Bekker order within a chapter: page number, then column half (a < b), then
@@ -1433,6 +1674,65 @@
         </button>
         {#if comboNote}<p class="search-note">{comboNote}</p>{/if}
       </details>
+
+      <details class="grammar-solo-panel" bind:open={soloGrammarOpen}>
+        <summary>
+          Grammar, scoped to one book
+          <span class="draft-badge" title="New, and still being tested — the counts and the certainty marks may change">Experimental</span>
+        </summary>
+        <p class="panel-note">
+          Ask for a shape alone — case, number, mood — with no word attached.
+          Across a whole work that matches thousands of ordinary forms and is
+          not a result. Scoped to one book it can be: pick a single work and
+          book below, then set the shape to look for. It searches on its own —
+          it ignores the boxes above.
+        </p>
+        <div class="solo-grammar-scope">
+          <label class="filter-field">
+            <span class="filter-label">Work</span>
+            <select bind:value={workFilter} on:change={onWorkFilterChange} disabled={soloGrammarBusy}>
+              <option value="all">Choose one…</option>
+              <option value="iliad">Iliad</option>
+              <option value="odyssey">Odyssey</option>
+            </select>
+          </label>
+          <label class="filter-field">
+            <span class="filter-label">Book</span>
+            <select bind:value={bookFilterRaw} on:change={onScopeChange} disabled={workFilter === 'all' || soloGrammarBusy}>
+              <option value="">Choose one…</option>
+              {#each Array.from({ length: bookFilterCount }, (_, i) => i + 1) as n}
+                <option value={String(n)}>{n}</option>
+              {/each}
+            </select>
+          </label>
+        </div>
+        <div class="combo-grammar-grid">
+          {#each GRAMMAR_CATEGORIES as cat}
+            <label class="grammar-field">
+              <span>{cat.label}</span>
+              <select
+                value={soloGrammarQuery[cat.key] ?? ''}
+                aria-label={cat.label}
+                on:change={(e) => setSoloGrammar(cat.key, e.currentTarget.value)}
+              >
+                <option value="">any</option>
+                {#each cat.values as v}<option value={v}>{v}</option>{/each}
+              </select>
+            </label>
+          {/each}
+        </div>
+        <button
+          type="button"
+          class="search-btn"
+          on:click={doSoloGrammarSearch}
+          disabled={!soloGrammarReady || soloGrammarBusy}
+        >
+          {soloGrammarBusy ? 'Searching…' : 'Search this book'}
+        </button>
+        {#if !soloGrammarGateOk}
+          <p class="search-note">Pick one work and one book above — a grammar search on its own only runs scoped to a single book.</p>
+        {/if}
+      </details>
     </div>
 
     <div class="works-panel" role="group" aria-label="Works to search">
@@ -1586,7 +1886,7 @@
     <div class="filters-row" role="group" aria-label="Filter results">
       <label class="filter-field">
         <span class="filter-label">Work</span>
-        <select bind:value={workFilter} on:change={onWorkFilterChange}>
+        <select bind:value={workFilter} on:change={onWorkFilterChange} disabled={soloGrammarBusy}>
           <option value="all">All</option>
           <option value="iliad">Iliad</option>
           <option value="odyssey">Odyssey</option>
@@ -1594,7 +1894,7 @@
       </label>
       <label class="filter-field">
         <span class="filter-label">Book</span>
-        <select bind:value={bookFilterRaw} on:change={onFilterChange} disabled={workFilter === 'all'}>
+        <select bind:value={bookFilterRaw} on:change={onScopeChange} disabled={workFilter === 'all' || soloGrammarBusy}>
           <option value="">Any</option>
           {#each Array.from({ length: bookFilterCount }, (_, i) => i + 1) as n}
             <option value={String(n)}>{n}</option>
@@ -1624,11 +1924,13 @@
 
     <div class="result-bar">
       <p class="result-count">
-        {totalInstances === 0
+        {displayTotal === 0
           ? `No passages found.${zeroResultHint ? ` ${zeroResultHint}` : ''}`
-          : `${totalInstances} instance${totalInstances === 1 ? '' : 's'}` +
-            (searchCtx.grkAccentTerms.length ? ' before accent filtering' : '') +
-            (pages.length > 1 ? ` · page ${pageIdx + 1} of ${pages.length}` : '')}
+          : resultsSource === 'grammar'
+            ? grammarCountLine(grammarCounts.total, grammarCounts.certain, grammarValueLabel)
+            : `${totalInstances} instance${totalInstances === 1 ? '' : 's'}` +
+              (searchCtx.grkAccentTerms.length ? ' before accent filtering' : '') +
+              (pages.length > 1 ? ` · page ${pageIdx + 1} of ${pages.length}` : '')}
       </p>
       {#if canWiden}
         <button type="button" class="export-btn" on:click={findVariants} disabled={variantBusy}>
@@ -1906,7 +2208,8 @@
     gap: 0.6rem;
   }
   .lemma-panel,
-  .combo-panel {
+  .combo-panel,
+  .grammar-solo-panel {
     margin: 0;
     border: 1px solid var(--border);
     border-radius: 5px;
@@ -1914,7 +2217,8 @@
     padding: 0.5rem 0.85rem;
   }
   .lemma-panel > summary,
-  .combo-panel > summary {
+  .combo-panel > summary,
+  .grammar-solo-panel > summary {
     cursor: pointer;
     font-family: var(--font-ui);
     font-size: 0.8rem;
@@ -1936,6 +2240,12 @@
     gap: 0.75rem;
   }
   .solo-lemma-row .query-input { flex: 1; }
+  .solo-grammar-scope {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+    margin-bottom: 0.6rem;
+  }
 
   .combo-slots {
     display: flex;
@@ -2555,6 +2865,16 @@
     border-radius: 2px;
     padding: 0 0.1em;
     color: inherit;
+  }
+  /* Ambiguity marker: a dotted underline, not a colour or a badge — ambiguity
+     is the normal state of Homeric morphology (176 of 184 hits for the Iliad
+     9 dual query), so it must read as quiet, not as a warning. currentColor
+     ties it to the token's own text colour, which is already AA-checked in
+     both themes, and the shape (not colour alone) is what carries the signal. */
+  :global(mark.ambiguous) {
+    text-decoration: underline dotted;
+    text-decoration-color: currentColor;
+    text-underline-offset: 2px;
   }
 
   @media (max-width: 500px) {

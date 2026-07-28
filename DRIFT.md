@@ -805,3 +805,24 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   so the split cannot have made it obsolete. It still covers the surfaces that
   have no boxes and take one gloss per lemma (`apparatus_vocab.lemma_gloss_map`,
   `app/scripts/build-lemmata.mjs`).
+
+## 2026-07-28 — cross-epic phrases, grammar scoped to one book
+
+- `shared/components/Phrases.svelte` — added a cross-epic filter: one predicate
+  over `row[3]` (the work count the browse shard already carries) inside
+  `scanShards`, beside the existing `dropCommon` test. No fetch, no new stream.
+  Tests: `phrases.test.ts` gained one-work fixture rows, without which the
+  toggle passes vacuously — every prior fixture row was a two-work row.
+- `shared/components/Search.svelte` — relaxes the sibling's combo-only rule for
+  grammar, but ONLY scoped to a single work + book, where the query is
+  selective (Iliad 9 `number:dual` = 184 words against 3,785 across the poem).
+  Calls `searchGrammar`, which the sibling exports and never uses. Adds a
+  `GrammarCtx` submitted-scope snapshot — query/work/book captured before the
+  first await — because reusing the live filter controls as scope let a cleared
+  book widen the set while the header still claimed the old certainty (four P1s
+  from a GPT-5.6-Sol review). Scope changes RE-RUN, never re-filter. Also adds
+  a per-token ambiguity marker (`mark.ambiguous`, `esc`/`escAttr` on the
+  `{@html}` path) and a `gr=` URL param. Marked Experimental in the UI.
+- `shared/__tests__/grammar-search.test.ts`, `grammar-ui.test.ts` — new. The
+  engine tests alone would pass against a fully reverted `Search.svelte`; the
+  UI tests are the ones that bite, and 8 of 9 were confirmed failing pre-fix.
