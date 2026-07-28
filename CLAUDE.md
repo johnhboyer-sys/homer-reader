@@ -237,6 +237,16 @@ decisions, not on file contents.
   are unchanged. For UI work, the pass ALSO reviews design fidelity
   against the approved mock (John: "I don't trust its taste") and
   captures both-theme screenshots for John before commit.**
+  **Cross-model review runs BOTH WAYS (John, 2026-07-28): "have each
+  claude agent's work (including your own) reviewed by gpt or grok."
+  Every Claude implementation lane — and the orchestrator's own hand
+  edits — gets a Sol (code) or Grok (content/data) pass before the work
+  is considered done. Not only at PR gates: a fleet of Claude agents
+  checking each other shares a model's blind spots, which is how the
+  Shield shipped rendering solid black past a colour test that only
+  checked for `var()` and never that the token existed. Sol reviews
+  code and contracts; Grok verifies content against the corpus with raw
+  evidence. Findings-only briefs — reviewers do not edit tracked files.**
 
 ### Context discipline
 
