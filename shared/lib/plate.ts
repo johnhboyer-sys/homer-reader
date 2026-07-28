@@ -189,7 +189,17 @@ export interface PlateResult {
   svg: string;
   viewport: Viewport;
   features: RenderedFeature[];
+  // A place with NO defensible position at all on this plate (no coords /
+  // no honest anchor — see resolvePlacePosition). Never pinned.
   unlocated: PlatePlace[];
+  // A place WITH a defensible position, but one that projects outside this
+  // plate's own canvas (0..width, 0..height) — it belongs on a different
+  // sheet, not "nobody knows where it is." Deliberately a separate bucket
+  // from `unlocated` (2026-07-28, finding 1): conflating "off this map"
+  // with "no honest anchor" would itself be an apparatus-honesty bug — a
+  // consuming component needs to say "not on this sheet" for one and
+  // "not securely located" for the other. Never pinned.
+  offCanvas: PlatePlace[];
 }
 
 export interface Camera {
@@ -274,6 +284,28 @@ function assertPointsInUnitRange(layer: PlateLayer): void {
   for (const p of layer.trace ?? []) check(p);
 }
 
+// Finding 3 (schema drift, 2026-07-28): `sources` used to pass through
+// unvalidated (any array, any shape) — CLAUDE.md's apparatus-sourcing rule
+// requires every sourced claim to carry its citation, so a malformed
+// source is a data bug worth failing on, not silently accepting. Mirrors
+// apparatus_places.py's `_validate_sources` exactly: every entry needs a
+// non-empty `cite`; a `url`, if present, must be http(s).
+function parseSources(raw: unknown, layerId: string): PlateSource[] | undefined {
+  if (raw === undefined) return undefined;
+  if (!Array.isArray(raw)) fail(`layer "${layerId}" has a malformed "sources" field`);
+  return (raw as unknown[]).map((s, i) => {
+    if (!s || typeof s !== 'object') fail(`layer "${layerId}" sources[${i}] must be an object`);
+    const src = s as Record<string, unknown>;
+    if (typeof src.cite !== 'string' || !src.cite.trim()) {
+      fail(`layer "${layerId}" sources[${i}].cite must be a non-empty string`);
+    }
+    if (src.url !== undefined && (typeof src.url !== 'string' || !/^https?:\/\//i.test(src.url))) {
+      fail(`layer "${layerId}" sources[${i}].url must be http(s)`);
+    }
+    return { cite: src.cite as string, url: typeof src.url === 'string' ? src.url : undefined };
+  });
+}
+
 function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, number, number, number] }): PlateLayer {
   if (!raw || typeof raw !== 'object') fail('a layer must be an object');
   const l = raw as Record<string, unknown>;
@@ -283,6 +315,14 @@ function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, numb
   }
   if (l.fill !== undefined && (typeof l.fill !== 'string' || !(l.fill in REGION_FILL_TOKENS))) {
     fail(`layer "${l.id}" has an unknown fill "${String(l.fill)}" (must be one of ${Object.keys(REGION_FILL_TOKENS).join(', ')})`);
+  }
+  // Finding 3 (schema drift, 2026-07-28): an invalid `default` used to be
+  // silently dropped to undefined rather than rejected (the ternary below
+  // only ever assigned 'on'/'off'/undefined — a typo like "true" vanished
+  // with no error). Reject it, matching apparatus_places.py's
+  // validate_plate ("default must be 'on' or 'off'").
+  if (l.default !== undefined && l.default !== 'on' && l.default !== 'off') {
+    fail(`layer "${l.id}" has an unknown default "${String(l.default)}" (must be "on" or "off")`);
   }
 
   const geometryArray = (key: string): PlatePoint[] | undefined => {
@@ -306,7 +346,7 @@ function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, numb
     kind: l.kind as LayerKind,
     placeId: typeof l.placeId === 'string' ? l.placeId : undefined,
     note: typeof l.note === 'string' ? l.note : undefined,
-    sources: Array.isArray(l.sources) ? (l.sources as PlateSource[]) : undefined,
+    sources: parseSources(l.sources, l.id),
     default: l.default === 'on' || l.default === 'off' ? l.default : undefined,
     style: typeof l.style === 'string' ? l.style : undefined,
     width: isFiniteNumber(l.width) ? l.width : undefined,
@@ -372,7 +412,10 @@ export function parsePlate(data: unknown): Plate {
   if (typeof d.id !== 'string' || !d.id) fail('missing id');
   if (typeof d.title !== 'string' || !d.title) fail('missing title');
   if (d.kind !== 'geographic' && d.kind !== 'schematic') fail(`unknown plate kind "${String(d.kind)}"`);
-  if (typeof d.status !== 'string' || !d.status) fail('missing status');
+  // Finding 3 (schema drift, 2026-07-28): must be non-empty AFTER
+  // trimming, matching apparatus_places.py's validate_plate
+  // (`doc["status"].strip()`) — a whitespace-only status used to pass.
+  if (typeof d.status !== 'string' || !d.status.trim()) fail('missing status');
   const kind = d.kind as PlateKind;
 
   let bbox: [number, number, number, number] | undefined;
@@ -386,8 +429,12 @@ export function parsePlate(data: unknown): Plate {
     fail('missing bbox');
   }
 
-  if (!Array.isArray(d.size) || d.size.length !== 2 || !d.size.every(isFiniteNumber)) {
-    fail('missing size');
+  // Finding 3 (schema drift, 2026-07-28): must be two POSITIVE numbers,
+  // matching apparatus_places.py's validate_plate (`v > 0 for v in size`)
+  // — zero/negative used to pass here (a plate that draws onto a
+  // zero-area or mirrored canvas).
+  if (!Array.isArray(d.size) || d.size.length !== 2 || !d.size.every((n) => isFiniteNumber(n) && n > 0)) {
+    fail('size must be two positive numbers');
   }
   const size = d.size as [number, number];
 
@@ -400,6 +447,32 @@ export function parsePlate(data: unknown): Plate {
   const layers = Array.isArray(d.layers)
     ? (d.layers as unknown[]).map((raw) => parseLayer(raw, { kind, bbox }))
     : [];
+
+  // Finding 6 (2026-07-28): duplicate layer ids defeat seed isolation —
+  // deriveSeed salts per-layer randomness solely by id (see its own
+  // comment), so two layers sharing an id draw byte-identical
+  // hachure/stipple. Message shape matches the Python validator's
+  // (`plate <id>: duplicate layer id 'x'`) — a parallel lane adds the
+  // same rule to apparatus_places.py's validate_plate.
+  const seenLayerIds = new Set<string>();
+  for (const layer of layers) {
+    if (seenLayerIds.has(layer.id)) {
+      throw new Error(`plate ${d.id}: duplicate layer id '${layer.id}'`);
+    }
+    seenLayerIds.add(layer.id);
+  }
+
+  // Finding 3 (schema drift, 2026-07-28): seed is required whenever any
+  // layer's `style` selects a stochastic primitive (stipple/hachure — see
+  // STOCHASTIC_STYLES in apparatus_places.py, which this mirrors exactly:
+  // the check is on the `style` field's value, not the layer `kind`).
+  // Without a seed, hachure()/stipple() derive from `plate.seed ?? 0`
+  // (see deriveSeed) — silently drawing from seed 0 rather than failing
+  // honestly.
+  const needsSeed = layers.some((l) => l.style === 'stipple' || l.style === 'hachure');
+  if (needsSeed && !isFiniteNumber(d.seed)) {
+    fail('seed is required when a layer uses a stochastic style (stipple/hachure)');
+  }
 
   const bands = d.bands !== undefined ? parseBands(d.bands, d.id) : undefined;
 
@@ -460,6 +533,16 @@ function escapeXml(s: string): string {
 
 function round1(n: number): number {
   return Math.round(n * 10) / 10;
+}
+
+// Mirrors shield.ts's safeIdFragment exactly (own copy — same posture as
+// escapeXml/round1 above): `idPrefix` is caller-supplied and interpolated
+// directly into an SVG element id, which has no attribute-value quoting to
+// escape into (escapeXml would not help), so it is sanitized to a safe
+// character set instead (2026-07-28, finding 8).
+function safeIdFragment(s: string): string {
+  const safe = s.replace(/[^a-zA-Z0-9_-]/g, '-');
+  return safe || 'plate';
 }
 
 function circlePathD(cx: number, cy: number, r: number): string {
@@ -1239,6 +1322,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   }
 
   const located: PlatePlace[] = [];
+  const offCanvas: PlatePlace[] = [];
   const unlocated: PlatePlace[] = [];
   const pinMarkupParts: string[] = [];
   for (const place of places) {
@@ -1247,8 +1331,20 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       unlocated.push(place);
       continue;
     }
-    located.push(place);
     const [x, y] = pos;
+    // Finding 1 (2026-07-28, an apparatus-honesty bug): a defensible
+    // position is not the same thing as a position ON THIS PLATE. Before
+    // this check, every place resolvePlacePosition returned ANY [x, y]
+    // for was bucketed as "located," even when that point fell outside
+    // the plate's own canvas — the SVG clip-path then hid the pin, so the
+    // place appeared neither on the map nor in the "named, not drawn"
+    // list: silently dropped. A point exactly on the canvas edge counts
+    // as located (inclusive bounds) — it is still honestly ON the sheet.
+    if (x < 0 || x > width || y < 0 || y > height) {
+      offCanvas.push(place);
+      continue;
+    }
+    located.push(place);
     const style = certaintyPinStyle(place.certainty);
     // Any place resolved on a schematic plate got there via plateAnchors +
     // positionBasis: "conjectural" (see resolvePlacePosition) — there is no
@@ -1258,7 +1354,10 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: pinBBox(x, y) });
   }
 
-  const clipId = `${opts.idPrefix}-clip`;
+  // Finding 8 (2026-07-28): idPrefix is caller-supplied and lands directly
+  // in an SVG element id — sanitize it the same way shield.ts does (see
+  // safeIdFragment), rather than interpolating it raw.
+  const clipId = `${safeIdFragment(opts.idPrefix)}-clip`;
   const ariaLabel = escapeXml(plate.title);
 
   const svg =
@@ -1271,7 +1370,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     `</g>` +
     `</svg>`;
 
-  return { svg, viewport, features, unlocated };
+  return { svg, viewport, features, unlocated, offCanvas };
 }
 
 // ── Camera ───────────────────────────────────────────────────────────────

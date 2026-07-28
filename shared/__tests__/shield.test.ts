@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   renderShield,
@@ -8,6 +9,19 @@ import {
 
 const PLATE_PATH = '../apparatus/plates/shield-of-achilles.json';
 const plate = JSON.parse(readFileSync(PLATE_PATH, 'utf-8')) as ShieldPlate;
+
+// ── Finding 7 (2026-07-28): the colour test below only checked that
+// fills/strokes were SHAPED like var(--...) references, never that the
+// token NAME they named was actually defined — this is exactly how the
+// Shield of Achilles shipped rendering solid black earlier the same day:
+// every colour was a well-formed var() reference to a token nobody had
+// defined. Parses the REAL global.css (same approach as
+// plate-map-contrast.test.ts's extractBlock and plate.test.ts's own copy
+// of this check) rather than a hand-typed token list.
+const GLOBAL_CSS = readFileSync(path.resolve(process.cwd(), 'styles/global.css'), 'utf-8');
+const DEFINED_CSS_TOKENS = new Set(
+  [...GLOBAL_CSS.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/--([a-zA-Z0-9-]+)\s*:/g)].map((m) => m[1]),
+);
 
 describe('Shield of Achilles plate data', () => {
   it('keeps every band line range inside Iliad 18.478–608', () => {
@@ -48,6 +62,17 @@ describe('renderShield', () => {
     expect(paintValues.length).toBeGreaterThan(0);
     for (const value of paintValues) {
       expect(value).toMatch(/^var\(--[a-z0-9-]+\)$/);
+    }
+  });
+
+  it('every var(--token) referenced in the emitted SVG is actually defined in global.css (finding 7)', () => {
+    const { svg } = renderShield(plate);
+    const used = new Set([...svg.matchAll(/var\(--([a-zA-Z0-9-]+)\)/g)].map((m) => m[1]));
+    expect(used.size).toBeGreaterThan(0);
+    for (const token of used) {
+      if (!DEFINED_CSS_TOKENS.has(token)) {
+        expect.fail(`var(--${token}) is referenced in the emitted shield SVG but is not defined anywhere in shared/styles/global.css`);
+      }
     }
   });
 

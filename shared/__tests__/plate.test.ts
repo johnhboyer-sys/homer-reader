@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { project, viewportFromBBox } from '../lib/geo';
 import {
@@ -236,6 +237,102 @@ describe('parsePlate', () => {
     const bad = { id: 'x', title: 'X', kind: 'geographic', status: 'draft', size: [100, 100], layers: [] };
     expect(() => parsePlate(bad)).toThrow(/missing bbox/);
   });
+
+  // ── Finding 6 (2026-07-28): duplicate layer ids defeat seed isolation —
+  // per-layer hachure/stipple randomness is salted solely by layer id (see
+  // deriveSeed in plate.ts), so two layers sharing an id draw byte-
+  // identical texture. Message shape mirrors the Python validator's.
+
+  it('rejects a plate with duplicate layer ids', () => {
+    const bad = {
+      id: 'dup-plate',
+      title: 'Dup',
+      kind: 'geographic',
+      status: 'draft',
+      bbox: BBOX,
+      size: SIZE,
+      layers: [
+        { id: 'ships-1', kind: 'river', path: [[39.9, 26.15], [39.95, 26.2]] },
+        { id: 'ships-1', kind: 'river', path: [[39.91, 26.16], [39.96, 26.21]] },
+      ],
+    };
+    expect(() => parsePlate(bad)).toThrow(/plate dup-plate: duplicate layer id 'ships-1'/);
+  });
+
+  // ── Finding 3, TS side (2026-07-28): schema drift against
+  // apparatus_places.py's validate_plate.
+
+  it('rejects a non-positive size (zero/negative used to be accepted)', () => {
+    const zero = { id: 'x', title: 'X', kind: 'geographic', status: 'draft', bbox: BBOX, size: [0, 100], layers: [] };
+    expect(() => parsePlate(zero)).toThrow(/size must be two positive numbers/);
+    const negative = { id: 'x', title: 'X', kind: 'geographic', status: 'draft', bbox: BBOX, size: [100, -5], layers: [] };
+    expect(() => parsePlate(negative)).toThrow(/size must be two positive numbers/);
+  });
+
+  it('requires seed when a layer uses a stochastic style (stipple/hachure), and accepts it once supplied', () => {
+    const stochasticLayers = [
+      { id: 'coast-1', kind: 'coast', style: 'stipple', rings: [[[39.98, 26.18], [39.97, 26.19]]] },
+    ];
+    const missingSeed = { id: 'x', title: 'X', kind: 'geographic', status: 'draft', bbox: BBOX, size: SIZE, layers: stochasticLayers };
+    expect(() => parsePlate(missingSeed)).toThrow(/seed is required/);
+    const withSeed = { ...missingSeed, seed: 1 };
+    expect(() => parsePlate(withSeed)).not.toThrow();
+  });
+
+  it('does not require seed when no layer uses a stochastic style', () => {
+    const ok = {
+      id: 'x', title: 'X', kind: 'geographic', status: 'draft', bbox: BBOX, size: SIZE,
+      layers: [{ id: 'r', kind: 'river', path: [[39.9, 26.15], [39.95, 26.2]] }],
+    };
+    expect(() => parsePlate(ok)).not.toThrow();
+  });
+
+  it('rejects a whitespace-only status (accepted before trimming was enforced)', () => {
+    const bad = { id: 'x', title: 'X', kind: 'geographic', status: '   ', bbox: BBOX, size: SIZE, layers: [] };
+    expect(() => parsePlate(bad)).toThrow(/missing status/);
+  });
+
+  it('rejects an invalid layer default instead of silently dropping it to undefined', () => {
+    const bad = {
+      id: 'x', title: 'X', kind: 'geographic', status: 'draft', bbox: BBOX, size: SIZE,
+      layers: [{ id: 'r', kind: 'river', default: 'true', path: [[39.9, 26.15], [39.95, 26.2]] }],
+    };
+    expect(() => parsePlate(bad)).toThrow(/unknown default/);
+  });
+
+  describe('sources validation', () => {
+    it('rejects a source with no cite', () => {
+      const bad = {
+        id: 'x', title: 'X', kind: 'geographic', status: 'draft', bbox: BBOX, size: SIZE,
+        layers: [{ id: 'r', kind: 'river', path: [[39.9, 26.15], [39.95, 26.2]], sources: [{ url: 'https://example.com' }] }],
+      };
+      expect(() => parsePlate(bad)).toThrow(/cite must be a non-empty string/);
+    });
+
+    it('rejects a blank (whitespace-only) cite', () => {
+      const bad = {
+        id: 'x', title: 'X', kind: 'geographic', status: 'draft', bbox: BBOX, size: SIZE,
+        layers: [{ id: 'r', kind: 'river', path: [[39.9, 26.15], [39.95, 26.2]], sources: [{ cite: '   ' }] }],
+      };
+      expect(() => parsePlate(bad)).toThrow(/cite must be a non-empty string/);
+    });
+
+    it('rejects a source url that is not http(s)', () => {
+      const bad = {
+        id: 'x', title: 'X', kind: 'geographic', status: 'draft', bbox: BBOX, size: SIZE,
+        layers: [{ id: 'r', kind: 'river', path: [[39.9, 26.15], [39.95, 26.2]], sources: [{ cite: 'Some Book', url: 'ftp://example.com' }] }],
+      };
+      expect(() => parsePlate(bad)).toThrow(/url must be http\(s\)/);
+    });
+
+    it('accepts a well-formed source (cite only, and cite + https url)', () => {
+      const ok = {
+        id: 'x', title: 'X', kind: 'geographic', status: 'draft', bbox: BBOX, size: SIZE,
+        layers: [{ id: 'r', kind: 'river', path: [[39.9, 26.15], [39.95, 26.2]], sources: [{ cite: 'Some Book' }, { cite: 'Some Site', url: 'https://example.com' }] }],
+      };
+      expect(() => parsePlate(ok)).not.toThrow();
+    });
+  });
 });
 
 describe('renderPlate: determinism', () => {
@@ -251,6 +348,28 @@ describe('renderPlate: determinism', () => {
     expect(a.svg).not.toBe(b.svg);
   });
 });
+
+// ── Finding 7 (2026-07-28): the old colour test only checked that fills/
+// strokes were SHAPED like var(--...) references, never that the token
+// NAME they named was actually defined — a fabricated var(--...) passed
+// silently. This reads the REAL global.css (same approach as
+// plate-map-contrast.test.ts's extractBlock: parse the live stylesheet,
+// not a hand-copied list) and asserts every var(--token) the renderer
+// emits resolves against it.
+const GLOBAL_CSS = readFileSync(path.resolve(process.cwd(), 'styles/global.css'), 'utf-8');
+const DEFINED_CSS_TOKENS = new Set(
+  [...GLOBAL_CSS.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/--([a-zA-Z0-9-]+)\s*:/g)].map((m) => m[1]),
+);
+
+function assertEveryVarTokenDefined(svg: string): void {
+  const used = new Set([...svg.matchAll(/var\(--([a-zA-Z0-9-]+)\)/g)].map((m) => m[1]));
+  expect(used.size).toBeGreaterThan(0);
+  for (const token of used) {
+    if (!DEFINED_CSS_TOKENS.has(token)) {
+      expect.fail(`var(--${token}) is referenced in the emitted plate SVG but is not defined anywhere in shared/styles/global.css`);
+    }
+  }
+}
 
 describe('renderPlate: theming (no baked colour)', () => {
   const FORBIDDEN_KEYWORDS = ['red', 'blue', 'green', 'black', 'white', 'orange', 'purple', 'yellow', 'brown', 'grey', 'gray'];
@@ -275,6 +394,11 @@ describe('renderPlate: theming (no baked colour)', () => {
       }
     }
   });
+
+  it('every var(--token) referenced in the emitted SVG is actually defined in global.css (finding 7)', () => {
+    const result = renderPlate(testPlate, [troy, scamander, ghost]);
+    assertEveryVarTokenDefined(result.svg);
+  });
 });
 
 describe('renderPlate: unlocated honesty', () => {
@@ -283,6 +407,57 @@ describe('renderPlate: unlocated honesty', () => {
     expect(result.unlocated.map((p) => p.id)).toEqual(['ghost-place']);
     expect(result.svg).not.toContain('data-place-id="ghost-place"');
     expect(result.svg).toContain('data-place-id="troy"');
+  });
+});
+
+describe('renderPlate: offCanvas honesty (finding 1)', () => {
+  // A defensible position that projects OUTSIDE this plate's own canvas is
+  // not the same thing as "no defensible position at all." Before the fix,
+  // both fell into `unlocated`, which is what actually dropped 18 Troad
+  // places silently (they had real coords, just off the Trojan-plain
+  // sheet) — neither drawn (the clip-path hid the pin) nor listed as
+  // "named, not drawn."
+  const farOff: PlatePlace = { id: 'far-off', name: 'Far Off Place', coords: [39.94, 30.0], certainty: 'certain' }; // lon 30 is far east of BBOX's maxLon 26.36
+
+  it('a place with real coords outside the plate canvas is bucketed offCanvas, not unlocated, and never pinned', () => {
+    const result = renderPlate(testPlate, [troy, farOff]);
+    expect(result.offCanvas.map((p) => p.id)).toEqual(['far-off']);
+    expect(result.unlocated).toEqual([]);
+    expect(result.svg).not.toContain('data-place-id="far-off"');
+    expect(result.svg).toContain('data-place-id="troy"');
+    expect(result.features.find((f) => f.id === 'far-off')).toBeUndefined();
+  });
+
+  it('a place resolving to no position at all stays unlocated, distinct from offCanvas (the two buckets never merge)', () => {
+    const result = renderPlate(testPlate, [ghost, farOff]);
+    expect(result.unlocated.map((p) => p.id)).toEqual(['ghost-place']);
+    expect(result.offCanvas.map((p) => p.id)).toEqual(['far-off']);
+  });
+
+  it('a projected point exactly on the canvas edge counts as located, not offCanvas (inclusive-bounds decision)', () => {
+    // Same aspect-matching trick as the computeCamera "near-identity" test
+    // below: bbox and size chosen so the cos-corrected bbox aspect exactly
+    // matches the canvas aspect, so the bbox's own max corner projects to
+    // EXACTLY (width, 0) — a genuine boundary case, not an approximation.
+    const centerLat = 40;
+    const cosLat = Math.cos((centerLat * Math.PI) / 180);
+    const latSpan = 4;
+    const width = 400;
+    const height = 200;
+    const lonSpan = ((width / height) * latSpan) / cosLat;
+    const bbox: [number, number, number, number] = [
+      centerLat - latSpan / 2,
+      -lonSpan / 2,
+      centerLat + latSpan / 2,
+      lonSpan / 2,
+    ];
+    const edgePlate: Plate = { id: 'edge', title: 'Edge', kind: 'geographic', status: 'draft', bbox, size: [width, height], layers: [] };
+    const edgePlace: PlatePlace = { id: 'edge-place', name: 'Edge Place', coords: [bbox[2], bbox[3]] }; // maxLat, maxLon -> (width, 0)
+
+    const result = renderPlate(edgePlate, [edgePlace]);
+    expect(result.offCanvas).toEqual([]);
+    expect(result.unlocated).toEqual([]);
+    expect(result.svg).toContain('data-place-id="edge-place"');
   });
 });
 
@@ -312,6 +487,23 @@ describe('renderPlate: XSS', () => {
     expect(result.svg).not.toContain('<script>');
     expect(result.svg).toContain('&lt;script&gt;');
     expect(result.svg).toContain('&quot;Men&quot;');
+  });
+
+  // Finding 8 (2026-07-28): idPrefix is caller-supplied and lands directly
+  // in an SVG element id (the clipPath id) — an id attribute has no
+  // attribute-VALUE quoting to escape into, so a hostile prefix used to
+  // produce literal markup, not just an escaped-but-inert string. Mirrors
+  // shield.ts's own safeIdFragment sanitizer.
+  it('sanitizes a hostile idPrefix instead of interpolating it raw into the SVG', () => {
+    const result = renderPlate(testPlate, [], { idPrefix: '"><script>alert(1)</script>' });
+    expect(result.svg).not.toContain('<script>');
+    expect(result.svg).not.toContain('</script>');
+    expect(result.svg).toMatch(/clipPath id="[a-zA-Z0-9_-]+-clip"/);
+  });
+
+  it('falls back to a safe default id when idPrefix is empty', () => {
+    const result = renderPlate(testPlate, [], { idPrefix: '' });
+    expect(result.svg).toContain('clipPath id="plate-clip"');
   });
 });
 
