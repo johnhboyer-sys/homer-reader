@@ -170,6 +170,14 @@ The shape is A's; what changes is everything downstream: the caller composes
 
 **`shared/components/Phrases.svelte` (new)**
 
+> **Superseded in part.** `docs/advanced-search-phrases-addendum.md` (2026-07-28)
+> replaces the "typed prefix names one shard" design assumed below. Read it
+> first: a typed phrase must be resolved through `lemma-map` into a multi-shard
+> *plan*, a single character never widens, a row's occurrence file comes from the
+> row's own key, and the vitest shard cache needs the documented mock. Retrofitting
+> that in the sibling repo cost a 325-line diff. `search.ts` gains two exports
+> (`lemmaOptions`, `lemmaReadings`) as a result — fold that into task 6a.
+
 - Port A's file, with these Homer changes:
   - **Data-root override**: A's `fetchWorkOffsets` (`A:496-508`) calls
     ``fetch(`${BASE_URL}/data/${work}/search/offsets.json`)`` directly — it **bypasses
