@@ -38,6 +38,15 @@ non-negotiable.
   flips it; the UI shows a discreet draft badge. Every place has a certainty tier
   (`certain | traditional | speculative | mythical`); traditional identifications
   name their tradition. Never invent an identification.
+- **Map registers (John, 2026-07-28): "it's an editorial and artistic decision
+  to let Homer's descriptions determine the map."** Two registers, never mixed.
+  A *geographic* plate carries only what survey and archaeology support. A
+  *schematic* plate carries the poem's own spatial logic — the camp order (Il.
+  8.222-26, 11.806-8), the road and its waypoints — labelled as such. Most
+  Homeric topography has NO defensible coordinate (Scaean Gate, oak, fig tree,
+  ford, tomb of Ilos, the two springs, the Achaean wall); putting those at
+  guessed coordinates on the geographic plate is the failure mode. Absences are
+  content: label them. Sources: `docs/TROAD-SOURCES.md`.
 - **No movie branding.** No stills, no title treatment, no "Nolan". The tie-in is
   structural (Start Here funnel + SEO pages), not visual.
 - Deploying is John's call — never deploy without explicit go-ahead. Hosting:
