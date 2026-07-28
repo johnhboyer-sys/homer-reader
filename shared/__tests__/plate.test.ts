@@ -17,6 +17,8 @@ import {
 } from '../lib/plate';
 
 const SEED_PLATE_PATH = '../apparatus/plates/trojan-plain.json';
+const SCHEMATIC_SEED_PLATE_PATH = '../apparatus/plates/trojan-plain-schematic.json';
+const SHIELD_SEED_PLATE_PATH = '../apparatus/plates/shield-of-achilles.json';
 
 // A synthetic geographic plate fixture — deliberately NOT the live
 // apparatus/plates/trojan-plain.json content for most tests (that file is
@@ -179,6 +181,61 @@ describe('parsePlate', () => {
     const plate = parsePlate(JSON.parse(JSON.stringify(testPlate)));
     expect(plate.layers.map((l) => l.id)).toEqual(testPlate.layers.map((l) => l.id));
   });
+
+  // ── Gap 1: a schematic plate carries neither bbox nor a geographic
+  // requirement — demanding one would demand a coordinate for something
+  // that has none (mirrors apparatus_places.py's validate_plate exactly).
+
+  it('parses a schematic plate with no bbox, unit-space layers (live seed plate: trojan-plain-schematic.json)', () => {
+    const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
+    const plate = parsePlate(raw);
+    expect(plate.kind).toBe('schematic');
+    expect(plate.bbox).toBeUndefined();
+    expect(plate.layers.length).toBeGreaterThan(0);
+  });
+
+  it('parses a schematic plate declaring only bands, no layers, no bbox (live seed plate: shield-of-achilles.json)', () => {
+    const raw = JSON.parse(readFileSync(SHIELD_SEED_PLATE_PATH, 'utf-8'));
+    const plate = parsePlate(raw);
+    expect(plate.kind).toBe('schematic');
+    expect(plate.bbox).toBeUndefined();
+    expect(plate.bands?.length).toBeGreaterThan(0);
+    expect(plate.layers).toEqual([]);
+  });
+
+  it('rejects a schematic plate declaring neither bands nor layers (an empty schematic draws nothing)', () => {
+    const bad = { id: 'x', title: 'X', kind: 'schematic', status: 'draft', size: [100, 100] };
+    expect(() => parsePlate(bad)).toThrow(/must declare bands or layers/);
+  });
+
+  it('accepts a schematic layer with unit [u, v] coordinates in 0..1', () => {
+    const ok = {
+      id: 'x',
+      title: 'X',
+      kind: 'schematic',
+      status: 'draft',
+      size: [100, 100],
+      layers: [{ id: 'river-u', kind: 'river', path: [[0.1, 0.2], [0.5, 0.6]] }],
+    };
+    expect(() => parsePlate(ok)).not.toThrow();
+  });
+
+  it('rejects a schematic layer with lat/lon-looking coordinates (outside 0..1)', () => {
+    const bad = {
+      id: 'x',
+      title: 'X',
+      kind: 'schematic',
+      status: 'draft',
+      size: [100, 100],
+      layers: [{ id: 'river-latlon', kind: 'river', path: [[39.9, 26.15], [39.95, 26.2]] }],
+    };
+    expect(() => parsePlate(bad)).toThrow(/unit \[u, v\] pair in 0\.\.1/);
+  });
+
+  it('still rejects a geographic plate missing bbox (the schematic exemption does not leak to geographic)', () => {
+    const bad = { id: 'x', title: 'X', kind: 'geographic', status: 'draft', size: [100, 100], layers: [] };
+    expect(() => parsePlate(bad)).toThrow(/missing bbox/);
+  });
 });
 
 describe('renderPlate: determinism', () => {
@@ -232,7 +289,7 @@ describe('renderPlate: unlocated honesty', () => {
 describe('renderPlate: registration invariant', () => {
   it('a located place projects to the same pixel as geo.ts project() against the plate viewport', () => {
     const result = renderPlate(testPlate, [troy, scamander]);
-    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
 
     for (const place of [troy, scamander]) {
       const [expectedX, expectedY] = project(place.coords!, viewport);
@@ -312,6 +369,104 @@ describe('renderPlate: general smoke', () => {
   });
 });
 
+describe('renderPlate: schematic plates without bbox (gap 1)', () => {
+  it('renders the live trojan-plain-schematic.json (unit-space layers, no bbox), mapping u,v across plate.size', () => {
+    const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
+    const plate = parsePlate(raw);
+    const result = renderPlate(plate, []);
+    expect(result.svg).toContain(`viewBox="0 0 ${plate.size[0]} ${plate.size[1]}"`);
+    expect(result.features.length).toBe(plate.layers.length);
+    expect(result.viewport.width).toBe(plate.size[0]);
+    expect(result.viewport.height).toBe(plate.size[1]);
+  });
+
+  it('renders the live shield-of-achilles.json (bands only, no layers, no bbox) without throwing', () => {
+    const raw = JSON.parse(readFileSync(SHIELD_SEED_PLATE_PATH, 'utf-8'));
+    const plate = parsePlate(raw);
+    expect(() => renderPlate(plate, [])).not.toThrow();
+    const result = renderPlate(plate, []);
+    expect(result.svg).toContain('<svg');
+    // No `layers` on this plate — renderShield (shield.ts) draws the bands
+    // themselves; renderPlate's job here is only to not throw on a
+    // bbox-less, layer-less schematic plate.
+    expect(result.features).toEqual([]);
+  });
+
+  it('a schematic layer point projects to [size[0]*u, size[1]*v] — a real unit-space viewport, not an invented bbox', () => {
+    const plate: Plate = {
+      id: 'unit-test',
+      title: 'Unit Test',
+      kind: 'schematic',
+      status: 'draft',
+      size: [500, 300],
+      layers: [{ id: 'diag', kind: 'route', path: [[0, 0], [1, 1]] }],
+    };
+    const result = renderPlate(plate, []);
+    const feature = result.features.find((f) => f.id === 'diag')!;
+    expect(feature.bbox).toEqual([0, 0, 500, 300]);
+  });
+});
+
+describe('renderPlate: tumulus layer kind (gap 2)', () => {
+  it('a tumulus layer emits the dome glyph, stroked in ink, not filled', () => {
+    const plate: Plate = {
+      ...testPlate,
+      layers: [{ id: 'tomb-of-ilos', kind: 'tumulus', path: [[39.93, 26.2]] }],
+    };
+    const result = renderPlate(plate, []);
+    expect(result.svg).toContain('data-feature-id="tomb-of-ilos"');
+    expect(result.svg).toContain('plate-layer-tumulus');
+    const match = result.svg.match(/<path data-feature-id="tomb-of-ilos"[^>]*d="([^"]*)"[^>]*\/>/);
+    expect(match).not.toBeNull();
+    expect(match![0]).toContain('fill="none"');
+    expect(match![0]).toContain('stroke="var(--flaxman-ink)"');
+    // dome + two nested shading arcs + base line = 4 subpaths, per tumulus()'s own contract.
+    expect(match![1].split('M').length - 1).toBe(4);
+  });
+
+  it('draws one glyph per point when a tumulus layer carries multiple points', () => {
+    const plate: Plate = {
+      ...testPlate,
+      layers: [{ id: 'two-mounds', kind: 'tumulus', path: [[39.9, 26.15], [39.95, 26.3]] }],
+    };
+    const result = renderPlate(plate, []);
+    const match = result.svg.match(/<path data-feature-id="two-mounds"[^>]*d="([^"]*)"[^>]*\/>/);
+    expect(match![1].split('M').length - 1).toBe(8); // 2 points * 4 subpaths each
+  });
+});
+
+describe('renderPlate: region fill role (gap 3)', () => {
+  it('a region layer with no fill declared keeps using --plate-tint (unchanged default)', () => {
+    const result = renderPlate(testPlate, []); // camp-1 is a plain region layer, no fill declared
+    const match = result.svg.match(/<path data-feature-id="camp-1"[^>]*\/>/);
+    expect(match![0]).toContain('fill="var(--plate-tint)"');
+    expect(match![0]).not.toContain('var(--scene-map-sea)');
+  });
+
+  it('a region layer with fill: "sea" uses --scene-map-sea, not --plate-tint', () => {
+    const campPolygon = testPlate.layers.find((l) => l.id === 'camp-1')!.polygon;
+    const seaLayer: PlateLayer = { id: 'sea-1', kind: 'region', fill: 'sea', polygon: campPolygon };
+    const plate: Plate = { ...testPlate, layers: [seaLayer] };
+    const result = renderPlate(plate, []);
+    const match = result.svg.match(/<path data-feature-id="sea-1"[^>]*\/>/);
+    expect(match![0]).toContain('fill="var(--scene-map-sea)"');
+    expect(match![0]).not.toContain('var(--plate-tint)');
+  });
+
+  it('rejects an unknown fill role at parse time (arbitrary CSS cannot pass through from data)', () => {
+    const bad = {
+      id: 'x',
+      title: 'X',
+      kind: 'geographic',
+      status: 'draft',
+      bbox: BBOX,
+      size: SIZE,
+      layers: [{ id: 'hostile', kind: 'region', fill: 'red', polygon: [[39.9, 26.15], [39.92, 26.3], [39.88, 26.3]] }],
+    };
+    expect(() => parsePlate(bad)).toThrow(/unknown fill/);
+  });
+});
+
 describe('computeCamera', () => {
   it('framing all ids is (near-)identity when the geometry already fills the canvas', () => {
     // bbox/size chosen (per geo.test.ts's trick) so the cos-corrected bbox
@@ -355,7 +510,7 @@ describe('computeCamera', () => {
   });
 
   it('framing a subset of ids yields a camera whose transform maps those features inside the canvas', () => {
-    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
     const camera = computeCamera(testPlate, viewport, ['river-1']);
 
     const layer = testPlate.layers.find((l) => l.id === 'river-1')!;
@@ -371,13 +526,13 @@ describe('computeCamera', () => {
   });
 
   it('falls back to an identity camera when no layer matches focusIds', () => {
-    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
     const camera = computeCamera(testPlate, viewport, ['does-not-exist']);
     expect(camera).toEqual({ scale: 1, tx: 0, ty: 0 });
   });
 
   it('frames a gazetteer place (not a layer) supplied via options.places', () => {
-    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
     const camera = computeCamera(testPlate, viewport, ['troy', 'scamander-mouth'], {
       places: [troy, scamander],
     });
@@ -394,27 +549,27 @@ describe('computeCamera', () => {
   });
 
   it('mixes a layer id and a place id in the same focus set', () => {
-    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
     const camera = computeCamera(testPlate, viewport, ['river-1', 'troy'], { places: [troy] });
     expect(Number.isFinite(camera.scale)).toBe(true);
     expect(camera.scale).toBeGreaterThan(0);
   });
 
   it('an id matching neither a layer nor a supplied place contributes nothing (falls back to identity), without throwing', () => {
-    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
     expect(() => computeCamera(testPlate, viewport, ['nonexistent-place'], { places: [troy] })).not.toThrow();
     const camera = computeCamera(testPlate, viewport, ['nonexistent-place'], { places: [troy] });
     expect(camera).toEqual({ scale: 1, tx: 0, ty: 0 });
   });
 
   it('a place with no coords contributes nothing (honesty rule) — an all-unlocated focus set falls back to identity', () => {
-    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
     const camera = computeCamera(testPlate, viewport, ['ghost-place'], { places: [ghost] });
     expect(camera).toEqual({ scale: 1, tx: 0, ty: 0 });
   });
 
   it('a single located place (degenerate/zero-extent bbox) does not produce an infinite or NaN zoom, and stays inside the canvas', () => {
-    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
     const camera = computeCamera(testPlate, viewport, ['troy'], { places: [troy] });
     expect(Number.isFinite(camera.scale)).toBe(true);
     expect(Number.isFinite(camera.tx)).toBe(true);
@@ -430,7 +585,7 @@ describe('computeCamera', () => {
   });
 
   it('a custom maxScale option clamps a single-point focus below the default', () => {
-    const viewport = viewportFromBBox(testPlate.bbox, testPlate.size);
+    const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
     const camera = computeCamera(testPlate, viewport, ['troy'], { places: [troy], maxScale: 2 });
     expect(camera.scale).toBeLessThanOrEqual(2);
   });

@@ -142,14 +142,31 @@ one of:
 `hachure`) — determinism for the render phase.
 
 Layer `kind`: `coast | river | relief | shipRow | wall | route | region |
-band`. Optional per layer: `placeId` (must resolve in the gazetteer), `note`,
-`sources` (same cite/url shape as places.json, Chicago citation rule),
-`default` (`"on" | "off"` for a toggleable layer), `style`, `width`,
-`shading`, `rows`, `count`, and the coordinate-geometry fields `rings`
-(a list of rings, each a list of pairs), `path`, `polygon`, `baseline`,
-`trace` (each a flat list of pairs). Apparatus honesty: geometry not yet
-sourced from real cartography must say so in `note` rather than presenting
-placeholder points as surveyed.
+band | tumulus`. Optional per layer: `placeId` (must resolve in the
+gazetteer), `note`, `sources` (same cite/url shape as places.json, Chicago
+citation rule), `default` (`"on" | "off"` for a toggleable layer), `style`,
+`width`, `shading`, `rows`, `count`, `fill` (`region`/`band` only, see
+below), and the coordinate-geometry fields `rings` (a list of rings, each a
+list of pairs), `path`, `polygon`, `baseline`, `trace` (each a flat list of
+pairs). Apparatus honesty: geometry not yet sourced from real cartography
+must say so in `note` rather than presenting placeholder points as surveyed.
+
+`tumulus` draws a burial-mound glyph (a dome profile with nested shading
+arcs, e.g. the tombs of Ilos and Batieia) at one point per entry in its
+`path` field — reusing that existing flat coordinate field rather than
+inventing a new one, so it needs no separate geometry-field wiring on
+either side of the schema. **Not yet in the pipeline's `LAYER_KIND_ENUM`**
+(`pipeline/homer_pipeline/apparatus_places.py`) — a plate JSON file using
+`kind: "tumulus"` will fail `validate_plate` until that enum is updated to
+match.
+
+`region`/`band` layers fill with `--plate-tint` by default (a translucent
+area tint). A layer may instead declare `fill: "sea"` to pick up the site's
+water colour (`--scene-map-sea`) for a body of water on a schematic plate
+(e.g. the Hellespont on the Trojan-plain schematic) — resolved through a
+closed whitelist in `shared/lib/plate.ts` (`tint | sea`), never a
+pass-through of the JSON value, so a plate file can never inject arbitrary
+CSS into the emitted SVG.
 
 ## characters.json (single file `apparatus/characters.json`)
 

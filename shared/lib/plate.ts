@@ -58,7 +58,8 @@ export type LayerKind =
   | 'wall'
   | 'route'
   | 'region'
-  | 'band';
+  | 'band'
+  | 'tumulus';
 
 const LAYER_KINDS: readonly LayerKind[] = [
   'coast',
@@ -69,7 +70,21 @@ const LAYER_KINDS: readonly LayerKind[] = [
   'route',
   'region',
   'band',
+  'tumulus',
 ];
+
+// The only fill tokens a `region`/`band` layer's `fill` field may resolve
+// to (gap 3: the "is this a body of water" honesty mechanism). Kept as a
+// closed whitelist mapping data -> a fixed var(--...) reference, never a
+// pass-through of the JSON value itself, so a hostile/malformed apparatus
+// file can never inject arbitrary CSS into the emitted SVG (same posture
+// as every other colour in this module — see the file header).
+const REGION_FILL_TOKENS = {
+  tint: 'var(--plate-tint)',
+  sea: 'var(--scene-map-sea)',
+} as const;
+
+type RegionFill = keyof typeof REGION_FILL_TOKENS;
 
 // A flat [x, y] pair — [lat, lon] on a geographic plate, [u, v] (0..1) on a
 // schematic one. Named distinctly from geo.ts's LatLon because on a
@@ -93,11 +108,28 @@ export interface PlateLayer {
   shading?: string;
   rows?: number;
   count?: number;
+  /** `region`/`band` only (gap 3): which fixed fill token to use. Default 'tint'. See REGION_FILL_TOKENS. */
+  fill?: RegionFill;
   rings?: PlatePoint[][];
   path?: PlatePoint[];
   polygon?: PlatePoint[];
   baseline?: PlatePoint[];
   trace?: PlatePoint[];
+}
+
+// A schematic plate's concentric band (the Shield of Achilles). Mirrors
+// docs/APPARATUS-SCHEMAS.md's `{id, title, greek, lines: [from, to],
+// summary, ring}` shape. The pipeline validator (validate_plate) only
+// checks `id` (non-empty, unique) — it does not type-check the rest of a
+// band's fields — so parsePlate mirrors that same leniency rather than
+// inventing stricter checks the Python side doesn't enforce (see parseBands).
+export interface PlateBand {
+  id: string;
+  title: string;
+  greek: string;
+  lines: [number, number];
+  summary: string;
+  ring: number;
 }
 
 export interface Plate {
@@ -106,9 +138,17 @@ export interface Plate {
   kind: PlateKind;
   status: string;
   seed?: number;
-  bbox: [number, number, number, number]; // [minLat, minLon, maxLat, maxLon]
+  // Required for a `geographic` plate (it projects lat/lon through this
+  // extent); absent for a `schematic` plate with no defensible bbox — see
+  // parsePlate and the module header. May still be present on a schematic
+  // plate (not forbidden, just not required), mirroring apparatus_places.py.
+  bbox?: [number, number, number, number]; // [minLat, minLon, maxLat, maxLon]
   size: [number, number]; // [widthPx, heightPx]
   layers: PlateLayer[];
+  // Schematic-only: concentric bands (see PlateBand). A schematic plate
+  // declares `bands` or `layers` (or both); geographic plates never carry
+  // this field.
+  bands?: PlateBand[];
 }
 
 // Mirrors the fields of apparatus/places.json this module needs, trimmed the
@@ -211,12 +251,38 @@ function assertPointsInBBox(
   for (const p of layer.trace ?? []) check(p);
 }
 
-function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox: [number, number, number, number] }): PlateLayer {
+// The schematic-plate mirror of assertPointsInBBox: every coordinate pair
+// in every geometry field must be a unit [u, v] pair in 0..1 — mirrors
+// apparatus_places.py's validate_plate exactly (`0 <= a <= 1 and 0 <= b <=
+// 1`), which is how that validator catches a lat/lon pair (tens of
+// degrees) mistakenly authored on a schematic plate, with no separate
+// "looks like lat/lon" heuristic needed (see that function's own comment).
+function assertPointsInUnitRange(layer: PlateLayer): void {
+  const eps = 1e-9;
+  const check = (p: PlatePoint) => {
+    const [u, v] = p;
+    if (u < -eps || u > 1 + eps || v < -eps || v > 1 + eps) {
+      fail(
+        `coordinate [${u}, ${v}] in layer "${layer.id}" must be a unit [u, v] pair in 0..1 (schematic plate)`,
+      );
+    }
+  };
+  for (const ring of layer.rings ?? []) for (const p of ring) check(p);
+  for (const p of layer.path ?? []) check(p);
+  for (const p of layer.polygon ?? []) check(p);
+  for (const p of layer.baseline ?? []) check(p);
+  for (const p of layer.trace ?? []) check(p);
+}
+
+function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, number, number, number] }): PlateLayer {
   if (!raw || typeof raw !== 'object') fail('a layer must be an object');
   const l = raw as Record<string, unknown>;
   if (typeof l.id !== 'string' || !l.id) fail('a layer is missing its id');
   if (typeof l.kind !== 'string' || !LAYER_KINDS.includes(l.kind as LayerKind)) {
     fail(`unknown layer kind "${String(l.kind)}" in layer "${l.id}"`);
+  }
+  if (l.fill !== undefined && (typeof l.fill !== 'string' || !(l.fill in REGION_FILL_TOKENS))) {
+    fail(`layer "${l.id}" has an unknown fill "${String(l.fill)}" (must be one of ${Object.keys(REGION_FILL_TOKENS).join(', ')})`);
   }
 
   const geometryArray = (key: string): PlatePoint[] | undefined => {
@@ -247,6 +313,7 @@ function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox: [number, numbe
     shading: typeof l.shading === 'string' ? l.shading : undefined,
     rows: isFiniteNumber(l.rows) ? l.rows : undefined,
     count: isFiniteNumber(l.count) ? l.count : undefined,
+    fill: typeof l.fill === 'string' && l.fill in REGION_FILL_TOKENS ? (l.fill as RegionFill) : undefined,
     rings,
     path: geometryArray('path'),
     polygon: geometryArray('polygon'),
@@ -254,14 +321,50 @@ function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox: [number, numbe
     trace: geometryArray('trace'),
   };
 
-  if (plate.kind === 'geographic') assertPointsInBBox(layer, plate.bbox);
+  if (plate.kind === 'geographic') {
+    // parsePlate never reaches parseLayer for a geographic plate without a
+    // bbox (it fails first) — bbox is guaranteed defined here.
+    assertPointsInBBox(layer, plate.bbox!);
+  } else {
+    assertPointsInUnitRange(layer);
+  }
   return layer;
+}
+
+// Mirrors validate_plate's own leniency on a band: only `id` (non-empty,
+// unique) is checked. The rest of a band's fields (title, greek, lines,
+// summary, ring) are NOT type-validated by the Python validator either, so
+// this deliberately doesn't invent stricter checks the pipeline side
+// doesn't enforce — two implementations of one contract must not drift.
+function parseBands(raw: unknown, plateLabel: string): PlateBand[] {
+  if (!Array.isArray(raw) || raw.length === 0) fail(`${plateLabel}: bands must be a non-empty list`);
+  const seen = new Set<string>();
+  return (raw as unknown[]).map((b, i) => {
+    if (!b || typeof b !== 'object') fail(`${plateLabel}: bands[${i}] must be an object`);
+    const band = b as Record<string, unknown>;
+    if (typeof band.id !== 'string' || !band.id) fail(`${plateLabel}: bands[${i}].id must be a non-empty string`);
+    if (seen.has(band.id)) fail(`${plateLabel}: duplicate band id "${band.id}"`);
+    seen.add(band.id);
+    return band as unknown as PlateBand;
+  });
 }
 
 // Validates + narrows an already-JSON.parsed plate payload (an
 // apparatus/plates/<id>.json file). No file I/O — callers do the reading.
 // Throws a distinct, named Error for each malformed-input class documented
 // in docs/APPARATUS-SCHEMAS.md's plates/<id>.json section.
+//
+// Mirrors pipeline/homer_pipeline/apparatus_places.py's validate_plate
+// exactly on the point that matters (gap 1, found by a cartography lane): a
+// `geographic` plate must carry `bbox` and `layers` (it projects lat/lon
+// through shared/lib/geo.ts, so it has to declare the extent it projects
+// into); a `schematic` plate carries neither requirement — demanding a bbox
+// of it would be demanding a coordinate for something that has none — but
+// must declare at least one of `bands` (concentric rings, e.g. the Shield
+// of Achilles) or `layers` (unit [u, v] coordinates, e.g. the Trojan plain
+// as the poem lays it out). A schematic plate MAY still carry a `bbox`
+// (not forbidden, just not required); when present it is validated like
+// any other bbox.
 export function parsePlate(data: unknown): Plate {
   if (!data || typeof data !== 'object') fail('plate data must be an object');
   const d = data as Record<string, unknown>;
@@ -270,22 +373,35 @@ export function parsePlate(data: unknown): Plate {
   if (typeof d.title !== 'string' || !d.title) fail('missing title');
   if (d.kind !== 'geographic' && d.kind !== 'schematic') fail(`unknown plate kind "${String(d.kind)}"`);
   if (typeof d.status !== 'string' || !d.status) fail('missing status');
-  if (!Array.isArray(d.bbox) || d.bbox.length !== 4 || !d.bbox.every(isFiniteNumber)) {
+  const kind = d.kind as PlateKind;
+
+  let bbox: [number, number, number, number] | undefined;
+  if (d.bbox !== undefined) {
+    if (!Array.isArray(d.bbox) || d.bbox.length !== 4 || !d.bbox.every(isFiniteNumber)) {
+      fail('malformed bbox');
+    }
+    bbox = d.bbox as [number, number, number, number];
+    if (bbox[0] >= bbox[2] || bbox[1] >= bbox[3]) fail('bbox is degenerate (min >= max)');
+  } else if (kind === 'geographic') {
     fail('missing bbox');
   }
-  const bbox = d.bbox as [number, number, number, number];
-  if (bbox[0] >= bbox[2] || bbox[1] >= bbox[3]) fail('bbox is degenerate (min >= max)');
+
   if (!Array.isArray(d.size) || d.size.length !== 2 || !d.size.every(isFiniteNumber)) {
     fail('missing size');
   }
   const size = d.size as [number, number];
-  if (!Array.isArray(d.layers)) fail('missing layers');
-  // Already runtime-checked above (fail() is `never`, so any value other
-  // than these two literals has already thrown); cast rather than lean on
-  // cross-statement narrowing of a Record<string, unknown> index access.
-  const kind = d.kind as PlateKind;
 
-  const layers = (d.layers as unknown[]).map((raw) => parseLayer(raw, { kind, bbox }));
+  if (kind === 'geographic' && d.layers === undefined) fail('missing layers');
+  if (d.layers !== undefined && !Array.isArray(d.layers)) fail('layers must be an array');
+  if (kind === 'schematic' && d.bands === undefined && d.layers === undefined) {
+    fail('a schematic plate must declare bands or layers');
+  }
+
+  const layers = Array.isArray(d.layers)
+    ? (d.layers as unknown[]).map((raw) => parseLayer(raw, { kind, bbox }))
+    : [];
+
+  const bands = d.bands !== undefined ? parseBands(d.bands, d.id) : undefined;
 
   return {
     id: d.id,
@@ -296,6 +412,7 @@ export function parsePlate(data: unknown): Plate {
     bbox,
     size,
     layers,
+    bands,
   };
 }
 
@@ -973,6 +1090,7 @@ const STROKE_WEIGHT = {
   wall: 1.15,
   route: 1,
   tick: 0.75,
+  tumulus: 1,
 } as const;
 
 // ── Layer rendering ──────────────────────────────────────────────────────
@@ -1060,7 +1178,21 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): { mar
     case 'band': {
       const px = collect(layer.polygon);
       if (px.length < 3) return undefined;
-      markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${pathD(px, true)}" fill="var(--plate-tint)" fill-opacity="0.35" stroke="var(--plate-tint)" stroke-width="0.8"/>`;
+      // Gap 3: a region/band layer normally reads --plate-tint (its
+      // decorative area colour), but one representing a body of water
+      // (e.g. a schematic plate's sea) declares `fill: "sea"` to pick up
+      // the site's own water token instead — resolved through the closed
+      // REGION_FILL_TOKENS whitelist (see its own comment), never a
+      // pass-through of the JSON value.
+      const fillToken = REGION_FILL_TOKENS[layer.fill ?? 'tint'];
+      markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${pathD(px, true)}" fill="${fillToken}" fill-opacity="0.35" stroke="${fillToken}" stroke-width="0.8"/>`;
+      break;
+    }
+    case 'tumulus': {
+      const px = collect(layer.path);
+      if (px.length === 0) return undefined;
+      const d = px.map((p) => tumulus(p)).join(' ');
+      markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-tumulus" d="${d}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${layer.width ?? STROKE_WEIGHT.tumulus}"/>`;
       break;
     }
     default:
@@ -1076,12 +1208,25 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): { mar
 
 // ── Full render ──────────────────────────────────────────────────────────
 
+// A bbox-less schematic plate has no geography to fit a geographic viewport
+// around (gap 1's second half): projectPoint's schematic branch reads
+// plate.size directly and never touches project()/the viewport's
+// geographic fields (centerLat/centerLon/latSpan/lonSpan/scale), so this
+// synthetic viewport exists only to give computeCamera and PlateResult's
+// returned `viewport` a width/height to reason about — a unit-space plate
+// maps its u,v in 0..1 across exactly that canvas. Its geographic fields
+// are meaningless placeholders, never read on a bbox-less plate.
+function unitViewport(size: [number, number]): Viewport {
+  const [width, height] = size;
+  return { width, height, centerLat: 0, centerLon: 0, latSpan: 1, lonSpan: 1, scale: 1 };
+}
+
 // Assembles a plate's layers + gazetteer pins into one self-contained SVG
 // string. Pure and deterministic: identical inputs always produce an
 // identical `svg` string (see hachure/stipple's seeded PRNG above).
 export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOptions = {}): PlateResult {
   const opts = { ...DEFAULT_PLATE_OPTIONS, ...options };
-  const viewport = viewportFromBBox(plate.bbox, plate.size);
+  const viewport = plate.bbox ? viewportFromBBox(plate.bbox, plate.size) : unitViewport(plate.size);
   const [width, height] = plate.size;
 
   const features: RenderedFeature[] = [];

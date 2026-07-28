@@ -39,7 +39,13 @@ PLATE_TAG_PREFIXES = ("troad-plain", "troy-citadel")
 PLATE_KIND_ENUM = {"geographic", "schematic"}
 LAYER_KIND_ENUM = {
     "coast", "river", "relief", "shipRow", "wall", "route", "region", "band",
+    # A burial mound in section, not a ridge. The tombs of Ilos and Batieia are
+    # mounds on the plain, and hachuring them as relief said the wrong thing.
+    "tumulus",
 }
+# Region/band fills, resolved through a closed whitelist in shared/lib/plate.ts.
+# Kept here so the two implementations of this schema cannot drift apart again.
+REGION_FILL_ENUM = {"tint", "sea"}
 STOCHASTIC_STYLES = {"stipple", "hachure"}
 
 # Layer fields that carry coordinate geometry. "rings" nests one level deeper
@@ -326,6 +332,13 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
         default = layer.get("default")
         if default is not None and default not in ("on", "off"):
             problems.append(f"{label}: layer {layer_label} default must be 'on' or 'off'")
+
+        fill = layer.get("fill")
+        if fill is not None and fill not in REGION_FILL_ENUM:
+            problems.append(
+                f"{label}: layer {layer_label} fill must be one of "
+                f"{sorted(REGION_FILL_ENUM)}, got {fill!r}"
+            )
 
         if layer.get("style") in STOCHASTIC_STYLES:
             needs_seed = True

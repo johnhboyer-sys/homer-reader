@@ -260,3 +260,28 @@ def test_real_places_and_trojan_plain_plate_validate_clean():
     )
     plate_problems = apparatus_places.validate_plate(plate_doc, places_by_id)
     assert plate_problems == [], plate_problems
+
+
+def test_validate_plate_accepts_tumulus_layer_kind():
+    """The tombs of Ilos and Batieia are mounds on the plain, not ridges.
+    The renderer draws them with a dome-in-section glyph; the enum has to
+    admit the kind or the two implementations of this schema drift apart."""
+    plate = _plate(layers=[
+        {"id": "tomb-of-ilos", "kind": "tumulus", "path": [[39.95, 26.20]]}
+    ])
+    assert apparatus_places.validate_plate(plate, {}) == []
+
+
+def test_validate_plate_rejects_unknown_region_fill():
+    plate = _plate(layers=[
+        {"id": "sea", "kind": "region", "fill": "red", "polygon": [[39.95, 26.20]]}
+    ])
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("fill must be one of" in p for p in problems)
+
+
+def test_validate_plate_accepts_sea_region_fill():
+    plate = _plate(layers=[
+        {"id": "sea", "kind": "region", "fill": "sea", "polygon": [[39.95, 26.20]]}
+    ])
+    assert apparatus_places.validate_plate(plate, {}) == []
