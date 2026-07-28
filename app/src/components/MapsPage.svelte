@@ -34,8 +34,15 @@
   } from '@shared/lib/maps';
   import { workPath } from '@shared/lib/works';
   import { formatLocValue } from '@shared/lib/citation';
+  import type { PlatePlace } from '@shared/lib/plate';
   import LandmarkMap from './maps/LandmarkMap.svelte';
   import ContingentPanel from './maps/ContingentPanel.svelte';
+  // Illustrated plates (P4) -- pure SVG, no Leaflet import anywhere in its
+  // module graph (see that file's own doc comment). Statically imported here
+  // alongside LandmarkMap: both already live inside this same client:only
+  // island, so this changes nothing about which pages ever load Leaflet --
+  // see the bundle-boundary comment in app/src/pages/maps/index.astro.
+  import PlatePanel from './maps/PlatePanel.svelte';
   // Vite/Astro JSON import (tsconfig resolveJsonModule: true) -- the same
   // "load the raw apparatus file at build time" posture as
   // places.json/catalogue.json/characters.json in
@@ -81,6 +88,9 @@
   const TABS = [
     { id: 'ships', label: 'Ships (Catalogue)' },
     { id: 'troad', label: 'Troad' },
+    { id: 'plain', label: 'Trojan Plain' },
+    { id: 'citadel', label: 'Citadel' },
+    { id: 'shield', label: 'Shield of Achilles' },
     { id: 'wanderings', label: 'Wanderings' },
     { id: 'greece', label: 'Greece' },
     { id: 'journeys', label: 'Journeys' },
@@ -113,6 +123,13 @@
   ] as const;
   type ShipSubtab = (typeof SHIP_SUBTABS)[number]['id'];
   let shipSubtab: ShipSubtab = 'achaean';
+
+  // Troad tab: illustrated plate by default (John's decision, P4), with a
+  // Drawn/Tiles toggle to the existing Leaflet map for real-world
+  // orientation. Same "Map/Story" toggle visual language as the Wanderings
+  // tab below (.mp-story-toggle/.mp-story-btn) -- reused verbatim rather
+  // than inventing a second toggle style.
+  let troadView: 'drawn' | 'tiles' = 'drawn';
 
   let sort: CatalogueSort = 'catalogue';
   let selectedAchaean: string | null = null;
@@ -191,6 +208,17 @@
     return splitByCoords(placesForMap(places, tag)).unlocated;
   }
   const troadPlaces = splitByCoords(placesForMap(places, 'troad'));
+  // The Troad plates (trojan-plain.json today; a Troy citadel plate once one
+  // exists) overlay the same Troad-tagged places as the Tiles view, trimmed
+  // to the fields plate.ts's PlatePlace actually reads -- renderPlate does
+  // its own honesty resolution (coords in/out of the plate's frame), so this
+  // is deliberately the full tagged set, not pre-split by coords.
+  const troadPlatePlaces: PlatePlace[] = placesForMap(places, 'troad').map((p) => ({
+    id: p.id,
+    name: p.name,
+    coords: p.coords,
+    certainty: p.certainty,
+  }));
   const wanderingsPlaces = splitByCoords(placesForMap(places, 'wanderings'));
   const greecePlaces = splitByCoords(placesForMap(places, 'greece'));
   const wanderingsRouteStations = wanderingsRoute(places);
@@ -565,19 +593,53 @@
         with the Achaean camp and ships, and Mount Ida rising to the
         southeast.
       </p>
-      <LandmarkMap
-        {base}
-        ariaLabel="Map of the Troad: places near Troy"
-        items={troadPlaces.located.map((p) => ({ id: p.id, place: p }))}
-      />
-      <details class="mp-unlocated" open={troadPlaces.unlocated.length > 0}>
-        <summary>Not locatable ({troadPlaces.unlocated.length})</summary>
-        <ul>
-          {#each troadPlaces.unlocated as p}
-            <li><span lang="grc">{p.greek}</span> {p.name} <span class="mp-tier-word">({p.certainty})</span></li>
-          {/each}
-        </ul>
-      </details>
+
+      <div class="mp-story-toggle" role="group" aria-label="Troad view">
+        <button type="button" class="mp-story-btn" aria-pressed={troadView === 'drawn'} on:click={() => (troadView = 'drawn')}>Drawn</button>
+        <button type="button" class="mp-story-btn" aria-pressed={troadView === 'tiles'} on:click={() => (troadView = 'tiles')}>Tiles</button>
+      </div>
+
+      {#if troadView === 'drawn'}
+        <PlatePanel plateId="trojan-plain" places={troadPlatePlaces} title="The Trojan Plain" />
+      {:else}
+        <LandmarkMap
+          {base}
+          ariaLabel="Map of the Troad: places near Troy"
+          items={troadPlaces.located.map((p) => ({ id: p.id, place: p }))}
+        />
+        <details class="mp-unlocated" open={troadPlaces.unlocated.length > 0}>
+          <summary>Not locatable ({troadPlaces.unlocated.length})</summary>
+          <ul>
+            {#each troadPlaces.unlocated as p}
+              <li><span lang="grc">{p.greek}</span> {p.name} <span class="mp-tier-word">({p.certainty})</span></li>
+            {/each}
+          </ul>
+        </details>
+      {/if}
+    </div>
+  {:else if activeTab === 'plain'}
+    <div id="mp-panel-plain" role="tabpanel" aria-labelledby="mp-tab-plain" tabindex="0" class="mp-panel">
+      <p class="mp-route-note">
+        The Trojan plain: the open ground between the city and the sea where
+        most of the Iliad's fighting happens, crossed by the Scamander and
+        Simoeis rivers.
+      </p>
+      <PlatePanel plateId="trojan-plain" places={troadPlatePlaces} title="The Trojan Plain" />
+    </div>
+  {:else if activeTab === 'citadel'}
+    <div id="mp-panel-citadel" role="tabpanel" aria-labelledby="mp-tab-citadel" tabindex="0" class="mp-panel">
+      <p class="mp-route-note">
+        The walled city of Troy itself, on its rise above the plain.
+      </p>
+      <PlatePanel plateId="troy-citadel" places={troadPlatePlaces} title="The Troy Citadel" />
+    </div>
+  {:else if activeTab === 'shield'}
+    <div id="mp-panel-shield" role="tabpanel" aria-labelledby="mp-tab-shield" tabindex="0" class="mp-panel">
+      <p class="mp-route-note">
+        The shield the god Hephaestus forges for Achilles in Book 18 — a
+        schematic diagram of its ten engraved bands, not a real map.
+      </p>
+      <PlatePanel plateId="shield-of-achilles" title="The Shield of Achilles" />
     </div>
   {:else if activeTab === 'wanderings'}
     <div id="mp-panel-wanderings" role="tabpanel" aria-labelledby="mp-tab-wanderings" tabindex="0" class="mp-panel">
@@ -720,7 +782,7 @@
         </ul>
       </details>
     </div>
-  {:else}
+  {:else if activeTab === 'journeys'}
     <div id="mp-panel-journeys" role="tabpanel" aria-labelledby="mp-tab-journeys" tabindex="0" class="mp-panel">
       <p class="mp-route-note">
         The four homecomings (nostoi) Homer narrates. Odysseus's own route
