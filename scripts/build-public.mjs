@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, lstatSync, readdirSync, rmSync } from 'node:fs';
+import { copyFileSync, existsSync, lstatSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -114,6 +114,21 @@ const journeysSrc = join(APPARATUS, 'journeys.json');
 if (existsSync(journeysSrc)) copyFileSync(journeysSrc, join(dataDir, 'journeys.json'));
 const coastlineSrc = join(ROOT, 'sources', 'naturalearth', 'mediterranean-coastline.json');
 if (existsSync(coastlineSrc)) copyFileSync(coastlineSrc, join(dataDir, 'coastline.json'));
+
+// Illustrated map "plates" (apparatus/plates/<id>.json — hand-drawn Landmark-
+// style geometry validated by pipeline/homer_pipeline/apparatus_places.py,
+// e.g. the Trojan plain), copied whole into the public data root — same
+// plain-copy, present-only treatment as places.json/journeys.json above (see
+// shared/lib/data.ts's fetchPlate). Rendering the geometry into SVG is a
+// later phase; this is only the data plumbing.
+const platesSrcDir = join(APPARATUS, 'plates');
+if (existsSync(platesSrcDir)) {
+  const platesDistDir = join(dataDir, 'plates');
+  mkdirSync(platesDistDir, { recursive: true });
+  for (const file of readdirSync(platesSrcDir)) {
+    if (file.endsWith('.json')) copyFileSync(join(platesSrcDir, file), join(platesDistDir, file));
+  }
+}
 
 // David Chamberlain's recitation-audio coverage manifest (feature #19,
 // "Hear this passage"): one whole-corpus file, same plain-copy treatment as

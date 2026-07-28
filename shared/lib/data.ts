@@ -376,6 +376,63 @@ export function fetchCoastline(): Promise<Coastline | null> {
   return p;
 }
 
+// One illustrated map "plate" (apparatus/plates/<id>.json — hand-drawn
+// Landmark-style geometry, e.g. the Trojan plain; schema in
+// docs/APPARATUS-SCHEMAS.md, validated by
+// pipeline/homer_pipeline/apparatus_places.py). A `kind: "geographic"`
+// plate's layer coordinates are real lat/lon pairs (this project's
+// [lat, lon] convention, same as Coastline above, and contained in `bbox`);
+// a `kind: "schematic"` plate's are unit [u, v] pairs in 0..1. Geometry is
+// authored data only here — projecting it into rendered SVG is a later
+// phase, not this module's job. Corpus-wide, not per-work, same posture as
+// fetchPlaces/fetchCoastline; absence (a build that hasn't copied the plate
+// in yet, or an unknown plate id) resolves to null, never an error.
+export interface PlateSource {
+  cite: string;
+  url?: string;
+}
+
+export interface PlateLayer {
+  id: string;
+  kind: string;
+  placeId?: string;
+  note?: string;
+  sources?: PlateSource[];
+  default?: 'on' | 'off';
+  style?: string;
+  width?: number;
+  shading?: string;
+  rows?: number;
+  count?: number;
+  rings?: [number, number][][];
+  path?: [number, number][];
+  polygon?: [number, number][];
+  baseline?: [number, number][];
+  trace?: [number, number][];
+}
+
+export interface PlateFile {
+  id: string;
+  title: string;
+  kind: 'geographic' | 'schematic';
+  status: string;
+  seed?: number;
+  bbox: [number, number, number, number]; // [minLat, minLon, maxLat, maxLon]
+  size: [number, number]; // [widthPx, heightPx]
+  layers: PlateLayer[];
+}
+
+const _plateCache = new Map<string, Promise<PlateFile | null>>();
+
+export function fetchPlate(id: string): Promise<PlateFile | null> {
+  const cached = _plateCache.get(id);
+  if (cached) return cached;
+  const p = fetch(`${ROOT()}/plates/${id}.json`).then((r) => (r.ok ? r.json() : null)) as Promise<PlateFile | null>;
+  p.catch(() => { if (_plateCache.get(id) === p) _plateCache.delete(id); });
+  _plateCache.set(id, p);
+  return p;
+}
+
 // One line's computed hexameter scansion (pipeline_homer's apparatus_scansion.py,
 // a clean-room prosody solver over the corpus's own Greek — not a vendored
 // scansion library). `feet` is a 6-char string, chars 1-5 in {D,S} (dactyl/

@@ -1,0 +1,34 @@
+{
+  "id": "trojan-plain",
+  "title": "The Trojan Plain",
+  "kind": "geographic",
+  "status": "draft",
+  "seed": 20260728,
+  "bbox": [39.86, 26.12, 40.02, 26.36],
+  "size": [880, 620],
+  "layers": [
+    {
+      "id": "coast-bronze",
+      "kind": "coast",
+      "style": "stipple",
+      "default": "on",
+      "rings": [
+        [[39.98, 26.18], [39.97, 26.19]]
+      ],
+      "note": "Placeholder geometry only, not a survey — two provisional points standing in for a coastline pending the cartography phase. The real Bronze Age shoreline (the Trojan plain was then a bay, per Kraft et al.) is drawn from the source below once that phase runs.",
+      "sources": [
+        {
+          "cite": "Kraft, John C., Ilhan Kayan, and Oğuz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209 (1980): 776-82."
+        }
+      ]
+    },
+    {
+      "id": "scamander",
+      "kind": "river",
+      "placeId": "scamander",
+      "path": [[39.90, 26.15], [39.95, 26.20]],
+      "width": 2.2,
+      "note": "Schematic placeholder course only (two points), not a traced channel — the Scamander/Karamenderes's actual Bronze Age path is a cartography-phase task, not authored here."
+    }
+  ]
+}

@@ -68,6 +68,75 @@ localization exists (then keep certainty `mythical` and put the localization
 in `tradition`). NEVER invent an identification. `maps`: which of
 `ships | troad | wanderings | greece` panels show it.
 
+A place record may also carry `plateAnchors` (an object mapping plate id to a
+`[u, v]` unit pair in 0..1, for placing the feature on a schematic plate that
+has no defensible lat/lon) and `positionBasis: "conjectural"` — the two are
+required together, never one without the other; that pairing is the honesty
+mechanism for a feature drawn without real-world coordinates. A place tagged
+for a plate (its `maps` array carries an entry starting with `troad-plain` or
+`troy-citadel`) additionally requires `kind` (see the plate schema below) and
+at least one `sources` entry — the legacy (pre-plate) 280 records are exempt
+from both.
+
+## plates/\<id\>.json (per plate: `apparatus/plates/<id>.json`)
+
+Illustrated, hand-drawn Landmark-style map plates (the Trojan plain, the
+Troad, the Troy citadel, Achilles' shield). Plate *geometry* is authored here
+in lat/lon (`kind: "geographic"`) or unit-space (`kind: "schematic"`) JSON,
+validated by `pipeline/homer_pipeline/apparatus_places.py`'s `validate_plate`
+(cross-checked against the gazetteer's `validate_places`) and shipped
+verbatim to `build/dist/plates/<id>.json` by `scripts/build-public.mjs`.
+Projecting this geometry into rendered SVG is a later phase, not this schema.
+
+```json
+{
+  "id": "trojan-plain",
+  "title": "The Trojan Plain",
+  "kind": "geographic",
+  "status": "draft",
+  "seed": 20260728,
+  "bbox": [39.86, 26.12, 40.02, 26.36],
+  "size": [880, 620],
+  "layers": [
+    {
+      "id": "coast-bronze",
+      "kind": "coast",
+      "style": "stipple",
+      "default": "on",
+      "rings": [[[39.98, 26.18], [39.97, 26.19]]],
+      "note": "Reconstructed c.1200 BC shoreline; provisional pending the cartography phase.",
+      "sources": [
+        {"cite": "Kraft, John C., Ilhan Kayan, and Oğuz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209 (1980): 776-82."}
+      ]
+    },
+    {
+      "id": "scamander",
+      "kind": "river",
+      "placeId": "scamander",
+      "path": [[39.90, 26.15], [39.95, 26.20]],
+      "width": 2.2
+    }
+  ]
+}
+```
+
+`kind` (plate-level): `geographic` (layers use real `[lat, lon]` pairs,
+contained in `bbox`) | `schematic` (layers use unit `[u, v]` pairs in 0..1;
+`bbox` still required but is not a coordinate constraint in this mode).
+`bbox`: `[minLat, minLon, maxLat, maxLon]`. `size`: `[widthPx, heightPx]`.
+`seed`: required whenever any layer uses a stochastic draw style (`stipple`,
+`hachure`) — determinism for the render phase.
+
+Layer `kind`: `coast | river | relief | shipRow | wall | route | region |
+band`. Optional per layer: `placeId` (must resolve in the gazetteer), `note`,
+`sources` (same cite/url shape as places.json, Chicago citation rule),
+`default` (`"on" | "off"` for a toggleable layer), `style`, `width`,
+`shading`, `rows`, `count`, and the coordinate-geometry fields `rings`
+(a list of rings, each a list of pairs), `path`, `polygon`, `baseline`,
+`trace` (each a flat list of pairs). Apparatus honesty: geometry not yet
+sourced from real cartography must say so in `note` rather than presenting
+placeholder points as surveyed.
+
 ## characters.json (single file `apparatus/characters.json`)
 
 ```json

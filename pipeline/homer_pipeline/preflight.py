@@ -1265,6 +1265,57 @@ def _validate_global_apparatus_emits(
             except Exception as exc:
                 problems.append(("-", "audio.json", f"invalid JSON: {exc}"))
 
+    # Landmark-style illustrated map plates (Phase P1): apparatus/places.json
+    # (the gazetteer, schema-validated by apparatus_places.validate_places)
+    # and every apparatus/plates/<id>.json (validated by
+    # apparatus_places.validate_plate, which resolves each layer's placeId
+    # against the gazetteer) — plus the same plain-copy presence check as the
+    # emits above: scripts/build-public.mjs copies apparatus/places.json to
+    # build/dist/places.json (checked as part of the scene-map apparatus
+    # already) and every apparatus/plates/*.json to
+    # build/dist/plates/<id>.json.
+    from . import apparatus_places
+
+    places_src = apparatus_scenes.APPARATUS_DIR / "places.json"
+    places_by_id: dict[str, Any] = {}
+    if places_src.exists():
+        try:
+            places_doc = json.loads(places_src.read_text(encoding="utf-8"))
+        except Exception as exc:
+            problems.append(("-", "places.json", f"invalid JSON: {exc}"))
+            places_doc = None
+        if places_doc is not None:
+            for msg in apparatus_places.validate_places(places_doc):
+                problems.append(("-", "places.json", msg))
+            places_by_id = {
+                p["id"]: p
+                for p in places_doc.get("places", [])
+                if isinstance(p, dict) and isinstance(p.get("id"), str)
+            }
+
+    plates_src_dir = apparatus_scenes.APPARATUS_DIR / "plates"
+    if plates_src_dir.exists():
+        for plate_path in sorted(plates_src_dir.glob("*.json")):
+            try:
+                plate_doc = json.loads(plate_path.read_text(encoding="utf-8"))
+            except Exception as exc:
+                problems.append(("-", plate_path.name, f"invalid JSON: {exc}"))
+                continue
+            for msg in apparatus_places.validate_plate(plate_doc, places_by_id):
+                problems.append(("-", plate_path.name, msg))
+            plate_dist = data_dir / "plates" / plate_path.name
+            if not plate_dist.exists():
+                problems.append(
+                    ("-", plate_path.name,
+                     f"apparatus/plates/{plate_path.name} exists but was not copied "
+                     f"into the public data root")
+                )
+            else:
+                try:
+                    json.loads(plate_dist.read_text(encoding="utf-8"))
+                except Exception as exc:
+                    problems.append(("-", plate_path.name, f"invalid JSON: {exc}"))
+
 
 # ── alignment coverage: Murray/Butler/Pope milestone-tick density per book ─
 #
