@@ -105,6 +105,9 @@ const LAYER_KINDS: readonly LayerKind[] = [
 // Achaean camp"); everything else is TERRAIN. The default is `plain`, not
 // `tint` (2026-07-28): a landform is not a highlight, and defaulting to the
 // accent is what painted the whole geographic plate wine-pink.
+//
+// `none` draws nothing at all: a lettering zone for a named tract of country
+// whose extent nobody surveyed (see the `region` case in renderLayer).
 const REGION_FILL_TOKENS = {
   tint: 'var(--plate-tint)',
   sea: 'var(--scene-map-sea)',
@@ -112,6 +115,7 @@ const REGION_FILL_TOKENS = {
   land: 'var(--scene-map-land)',
   marsh: 'var(--plate-marsh)',
   plain: 'var(--plate-plain)',
+  none: 'none',
 } as const;
 
 type RegionFill = keyof typeof REGION_FILL_TOKENS;
@@ -136,6 +140,7 @@ const REGION_FILL_OPACITY: Record<RegionFill, number> = {
   // plainly the greenest thing on the sheet.
   marsh: 0.55,
   plain: 1,
+  none: 0,
 };
 
 // Water fills get the coast token as their edge (a shoreline), land fills a
@@ -566,7 +571,7 @@ export function parsePlate(data: unknown): Plate {
   // Finding 6 (2026-07-28): duplicate layer ids defeat seed isolation —
   // deriveSeed salts per-layer randomness solely by id (see its own
   // comment), so two layers sharing an id draw byte-identical
-  // hachure/stipple. Message shape matches the Python validator's
+  // hachure. Message shape matches the Python validator's
   // (`plate <id>: duplicate layer id 'x'`) — a parallel lane adds the
   // same rule to apparatus_places.py's validate_plate.
   const seenLayerIds = new Set<string>();
@@ -578,12 +583,14 @@ export function parsePlate(data: unknown): Plate {
   }
 
   // Finding 3 (schema drift, 2026-07-28): seed is required whenever any
-  // layer's `style` selects a stochastic primitive (stipple/hachure — see
-  // STOCHASTIC_STYLES in apparatus_places.py, which this mirrors exactly:
-  // the check is on the `style` field's value, not the layer `kind`).
-  // Without a seed, hachure()/stipple() derive from `plate.seed ?? 0`
-  // (see deriveSeed) — silently drawing from seed 0 rather than failing
-  // honestly.
+  // layer's `style` selects a stochastic primitive — see STOCHASTIC_STYLES in
+  // apparatus_places.py, which this mirrors: the check is on the `style`
+  // field's value, not the layer `kind`. Without a seed, hachure() derives
+  // from `plate.seed ?? 0` (see deriveSeed) — silently drawing from seed 0
+  // rather than failing honestly. `stipple` is still listed on both sides
+  // although the primitive is gone (2026-07-29, replaced by the blurred
+  // `approximate` band): the rule is about a style value that once implied
+  // randomness, and demanding a seed for it costs a plate nothing.
   const needsSeed = layers.some((l) => l.style === 'stipple' || l.style === 'hachure');
   if (needsSeed && !isFiniteNumber(d.seed)) {
     fail('seed is required when a layer uses a stochastic style (stipple/hachure)');
@@ -608,7 +615,7 @@ export function parsePlate(data: unknown): Plate {
 // ── Seeded PRNG (mulberry32) ────────────────────────────────────────────
 // ~5 lines, no dependency, deterministic: same seed -> same stream, forever.
 // Never Math.random(). Used ONLY by the stochastic "hand-drawn" primitives
-// (hachure, stipple) — every other primitive is purely geometric.
+// (hachure) — every other primitive is purely geometric.
 
 function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
@@ -622,7 +629,7 @@ function mulberry32(seed: number): () => number {
 
 // Combines the plate's own seed with a per-layer salt (FNV-1a over the
 // layer id) so different layers on the same plate don't draw identical
-// hachure/stipple patterns, while staying fully deterministic.
+// hachure patterns, while staying fully deterministic.
 function fnv1a(str: string): number {
   let h = 0x811c9dc5;
   for (let i = 0; i < str.length; i++) {
@@ -661,18 +668,9 @@ function safeIdFragment(s: string): string {
   return safe || 'plate';
 }
 
-function circlePathD(cx: number, cy: number, r: number): string {
-  // Two-arc trick for a filled circle expressed as path data (keeps every
-  // primitive returning the same "path d string" shape).
-  const x0 = round1(cx - r);
-  const x1 = round1(cx + r);
-  const y = round1(cy);
-  const rr = round1(r);
-  return `M ${x0} ${y} A ${rr} ${rr} 0 1 0 ${x1} ${y} A ${rr} ${rr} 0 1 0 ${x0} ${y} Z`;
-}
 
 // ── Draw primitives — the source of the "illustrated" look ─────────────
-// Pure functions, pixel-space in, SVG path `d` string out. hachure/stipple
+// Pure functions, pixel-space in, SVG path `d` string out. hachure
 // take a `seed` and derive ALL randomness from it (mulberry32); the rest are
 // purely geometric (no stochastic element, so no seed parameter).
 
@@ -807,73 +805,6 @@ export function hachure(polygon: PlatePoint[], opts: HachureOptions): string {
   return parts.join(' ');
 }
 
-export interface StippleOptions {
-  seed: number;
-  spacing?: number; // px between dots along the path, at the densest (innermost) band
-  radius?: number; // dot radius at the densest band
-  bands?: number; // number of parallel bands fading away from the path (default 3)
-  bandSpacing?: number; // px between bands, perpendicular to the path
-  side?: 1 | -1 | 0; // which perpendicular side fades outward; 0 (default) = both sides
-}
-
-// The classic layered/stippled coastline: dots hug the path itself and fade
-// — sparser, smaller, further apart — moving away from it on each side, so
-// the line reads as a coast dissolving into open sea rather than a ruled
-// row of evenly spaced dots. Each of `bands` parallel offset bands is
-// sparser and lighter than the last; positions within a band are lightly
-// seeded-jittered for a scattered, hand-stippled feel.
-export function stipple(path: PlatePoint[], opts: StippleOptions): string {
-  if (path.length < 2) return '';
-  // Defaults retuned 2026-07-29 ("looks fine in a thumbnail, but when you
-  // zoom in, it's just big old lines"): a stipple has to be fine enough that
-  // the eye integrates it into TONE at every scale, and the old 1.1 px dots
-  // 5 px apart resolved into a scatter of countable blobs at a 3x zoom —
-  // which this SVG reaches routinely, since PlatePanel renders it at 100%
-  // width. Halved radius, tighter spacing, one more band: about four times
-  // the marks, each under half the area, so the band reads as a soft edge
-  // rather than as beads on a string. Same seeded PRNG, same determinism.
-  const spacing = opts.spacing ?? 2.4;
-  const radius = opts.radius ?? 0.45;
-  const bands = opts.bands ?? 4;
-  const bandSpacing = opts.bandSpacing ?? 1.7;
-  const sides: (1 | -1)[] = opts.side === undefined || opts.side === 0 ? [1, -1] : [opts.side];
-  const rand = mulberry32(opts.seed);
-
-  const parts: string[] = [];
-  for (let i = 0; i + 1 < path.length; i++) {
-    const [x1, y1] = path[i];
-    const [x2, y2] = path[i + 1];
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-    const len = Math.hypot(dx, dy);
-    if (len < 1e-9) continue;
-    const ux = dx / len;
-    const uy = dy / len;
-    const nx = -uy;
-    const ny = ux;
-
-    for (const side of sides) {
-      for (let b = 0; b < bands; b++) {
-        const fade = b / bands; // 0 right at the line, ->1 at the outermost band
-        const bandDensity = 1 - fade * 0.82;
-        const stepSpacing = spacing / Math.max(bandDensity, 0.12);
-        const bandRadius = Math.max(radius * (1 - fade * 0.55), 0.35);
-        const offsetBase = b * bandSpacing * (0.7 + rand() * 0.6);
-        const steps = Math.max(1, Math.round(len / stepSpacing));
-        for (let s = 0; s <= steps; s++) {
-          if (rand() > bandDensity) continue; // further seeded thinning per band
-          const along = (s / steps) * len + (rand() - 0.5) * spacing * 0.5;
-          const across = side * (offsetBase + (rand() - 0.5) * bandSpacing * 0.5);
-          const cx = x1 + ux * along + nx * across;
-          const cy = y1 + uy * along + ny * across;
-          parts.push(circlePathD(cx, cy, bandRadius));
-        }
-      }
-    }
-  }
-  return parts.join(' ');
-}
-
 export interface WaterlineOptions {
   seed: number;
   /** Cumulative px offsets from the shore, closest line first. Default: Huffman's growing-gap sequence (2 / 2.6 / 3.4 / 4.4 — each gap ~1.3x the last). */
@@ -982,7 +913,7 @@ function offsetRing(
 }
 
 // Concentric waterlines echoing `rings` (already-projected coast rings, same
-// pixel-space convention as hachure/stipple's inputs), per Huffman 2010:
+// pixel-space convention as hachure's inputs), per Huffman 2010:
 // several lines at growing cumulative offsets from the shore, each thinner
 // and fainter than the last. A ring that degenerates at a given offset (see
 // offsetRing) simply contributes nothing to that line; a line with no
@@ -1574,10 +1505,11 @@ const LEGEND_FONT = 9.5;
 const LEGEND_ROW_H = 14;
 const LEGEND_SWATCH_W = 22;
 
-function legendLine(x: number, y: number, stroke: string, width: number, dash = ''): string {
+function legendLine(x: number, y: number, stroke: string, width: number, dash = '', opacity = 1): string {
   return (
     `<path d="M ${round1(x)} ${round1(y)} h ${LEGEND_SWATCH_W}" fill="none" stroke="${stroke}" ` +
-    `stroke-width="${width}"${dash ? ` stroke-dasharray="${dash}"` : ''}/>`
+    `stroke-width="${width}"${dash ? ` stroke-dasharray="${dash}"` : ''}` +
+    `${opacity === 1 ? '' : ` stroke-opacity="${opacity}"`}/>`
   );
 }
 
@@ -1598,10 +1530,11 @@ const CERTAINTY_LEGEND_TEXT: Record<Certainty, string> = {
 const REGION_LEGEND_TEXT: Record<RegionFill, string> = {
   sea: 'Open sea',
   lagoon: 'Lagoon and shallow water',
-  marsh: 'Marsh and wet delta',
+  marsh: 'Marsh and wet delta — margin indefinite',
   plain: 'Dry plain',
   land: 'Land',
   tint: 'Apparatus zone',
+  none: '',
 };
 
 // One key row per drawn register. `undefined` means the layer needs no row
@@ -1609,17 +1542,22 @@ const REGION_LEGEND_TEXT: Record<RegionFill, string> = {
 function layerLegendEntry(layer: PlateLayer): LegendEntry | undefined {
   switch (layer.kind) {
     case 'coast': {
-      // The stipple register is this project's honest treatment of a
+      // The soft-band register is this project's honest treatment of a
       // RECONSTRUCTED shoreline (see trojan-plain.json's own note); a plain
       // stroked coast is a surveyed one. Two different claims, two rows.
-      const reconstructed = layer.style === 'stipple';
+      // The swatch fakes the blur with three stacked strokes rather than
+      // referencing the filter: at legend size the steps are invisible, and
+      // it keeps the key independent of the sheet's element ids.
+      const reconstructed = layer.style === 'approximate';
       return {
-        key: reconstructed ? 'coast-stipple' : 'coast-line',
+        key: reconstructed ? 'coast-approximate' : 'coast-line',
         rank: reconstructed ? 1 : 2,
         text: reconstructed ? 'Shoreline, reconstructed — approximate extent' : 'Shoreline',
         swatch: (x, y) =>
           reconstructed
-            ? `<path d="${[0, 4, 8, 12, 16, 20].map((o) => circlePathD(x + o + 1, y, 1)).join(' ')}" fill="var(--flaxman-ink)" stroke="none"/>`
+            ? legendLine(x, y, 'var(--scene-map-coast)', 7, undefined, 0.14) +
+              legendLine(x, y, 'var(--scene-map-coast)', 4, undefined, 0.22) +
+              legendLine(x, y, 'var(--scene-map-coast)', APPROX_CORE_WIDTH)
             : legendLine(x, y, 'var(--scene-map-coast)', STROKE_WEIGHT.coast),
       };
     }
@@ -1655,7 +1593,10 @@ function layerLegendEntry(layer: PlateLayer): LegendEntry | undefined {
   }
 }
 
-function regionFillLegendEntry(fill: RegionFill): LegendEntry {
+function regionFillLegendEntry(fill: RegionFill): LegendEntry | undefined {
+  // A `none` region draws nothing, so it keys nothing — its name on the sheet
+  // is the whole of its claim.
+  if (fill === 'none') return undefined;
   return {
     key: `region-${fill}`,
     rank: 20 + Object.keys(REGION_FILL_TOKENS).indexOf(fill),
@@ -1971,36 +1912,90 @@ function pathD(points: [number, number][], close: boolean): string {
   return close ? `${d} Z` : d;
 }
 
+// A vertex this close to the sheet edge is where the neatline cut the
+// geometry, not a place where the ground turns: it is a clipping artefact and
+// must stay exactly where it is. Without this, rounding the corners of
+// `sea-modern` (a polygon that runs along two frame edges) pulled the water
+// off the frame and left wedges of land colour in the corners of the sheet.
+const FRAME_EPS = 0.5;
+
+function onFrame([x, y]: [number, number], width: number, height: number): boolean {
+  return (
+    Math.abs(x) <= FRAME_EPS ||
+    Math.abs(x - width) <= FRAME_EPS ||
+    Math.abs(y) <= FRAME_EPS ||
+    Math.abs(y - height) <= FRAME_EPS
+  );
+}
+
 /**
- * A closed ring drawn as a smooth curve rather than a polygon: quadratic
- * Béziers from midpoint to midpoint, each vertex used as the control point.
- * The classic polyline-rounding construction — C1 continuous, deterministic,
- * no extra data, and it never leaves the polygon's convex hull.
+ * A polyline or ring drawn as a smooth curve rather than as a polygon:
+ * quadratic Béziers from edge midpoint to edge midpoint, each vertex used as
+ * the control point. The classic polyline-rounding construction — C1
+ * continuous, deterministic, no extra data, and every piece of it stays
+ * inside the triangle (midpoint, vertex, midpoint) whose three corners all
+ * lie ON the original line. That containment is the honesty guarantee: the
+ * curve cannot wander outside the polygon it rounds, and its distance from
+ * the original line is bounded by the corner it cuts.
  *
- * Why it exists (2026-07-29, "when you zoom in, it's just big old lines"):
- * a contour cut from a DEM and simplified with Douglas-Peucker is smooth
- * ground drawn as a spiky polygon, because DP keeps outliers and drops
- * everything between them. Smoothing the GEOMETRY instead would multiply the
- * vertex count in a file a human has to review; rounding it at draw time
- * costs nothing and is what a contour looks like. Applied only to
- * hypsometric relief bands — a coastline is a surveyed line and keeps its
- * vertices, and a schematic plate is not a survey of anything.
+ * Why it exists (2026-07-29, "when you zoom in, it's just big old lines"): a
+ * line cut from a DEM and simplified with Douglas-Peucker is smooth ground
+ * drawn as a spiky polygon, because DP keeps outliers and drops everything
+ * between them. Smoothing the GEOMETRY instead would multiply the vertex
+ * count in a file a human has to review; rounding it at draw time costs
+ * nothing and is what a contour looks like.
+ *
+ * Extended 2026-07-29 from relief bands to every measured line on a
+ * GEOGRAPHIC sheet — coast, region, band and river. The argument that was
+ * used to hold coastlines back ("a coastline is a surveyed line and keeps its
+ * vertices") is exactly backwards for the reconstructed Bronze Age shore,
+ * whose own note declares it accurate to about a kilometre and generalised to
+ * 275 m: drawn as straight facets meeting at sharp corners it asserts a
+ * precision the data does not have, and the facets are an artefact of
+ * Douglas-Peucker, not a claim about the ground. Smoothing it is the more
+ * honest drawing, and it provably does not move the line (see
+ * shared/__tests__/plate.test.ts, which measures the deviation in metres
+ * against the declared tolerance and re-checks the shore's own calibration
+ * against Hisarlık). Schematic plates are exempt: they are not surveys of
+ * anything, and their zones are authored shapes.
+ *
+ * Two kinds of vertex are never rounded: the endpoints of an open line, and
+ * any vertex lying on the sheet's frame (see FRAME_EPS).
  */
-function smoothClosedPathD(points: [number, number][]): string {
+function smoothPathD(points: [number, number][], closed: boolean, size: [number, number]): string {
   const n = points.length;
-  if (n < 4) return pathD(points, true);
+  if (n < 3) return pathD(points, closed);
+  const [width, height] = size;
+  const hard = points.map(
+    (p, i) => (!closed && (i === 0 || i === n - 1)) || onFrame(p, width, height),
+  );
   const mid = (i: number, j: number): [number, number] => [
     (points[i][0] + points[j][0]) / 2,
     (points[i][1] + points[j][1]) / 2,
   ];
-  const start = mid(n - 1, 0);
-  const parts = [`M${round1(start[0])},${round1(start[1])}`];
+  const entry = (i: number) => (hard[i] ? points[i] : mid((i - 1 + n) % n, i));
+  const exit = (i: number) => (hard[i] ? points[i] : mid(i, (i + 1) % n));
+  const fmt = (p: [number, number]) => `${round1(p[0])},${round1(p[1])}`;
+
+  const parts: string[] = [];
+  let last = '';
+  const lineTo = (p: [number, number]) => {
+    const s = fmt(p);
+    if (s === last) return;
+    parts.push(`${parts.length === 0 ? 'M' : 'L'}${s}`);
+    last = s;
+  };
   for (let i = 0; i < n; i++) {
-    const [cx, cy] = points[i];
-    const [mx, my] = mid(i, (i + 1) % n);
-    parts.push(`Q${round1(cx)},${round1(cy)} ${round1(mx)},${round1(my)}`);
+    lineTo(entry(i));
+    if (hard[i]) continue;
+    const e = exit(i);
+    parts.push(`Q${fmt(points[i])} ${fmt(e)}`);
+    last = fmt(e);
   }
-  return `${parts.join(' ')} Z`;
+  // A closed ring needs no explicit return to its start: whatever is left
+  // between the last exit point and the first entry point is a straight run
+  // along an original edge, which is exactly what Z draws.
+  return closed ? `${parts.join(' ')} Z` : parts.join(' ');
 }
 
 // Resolves a place's plate-pixel position, or undefined if it has no
@@ -2027,6 +2022,28 @@ function resolvePlacePosition(plate: Plate, place: PlatePlace, viewport: Viewpor
 // visual hierarchy rather than many near-identical linework weights: the
 // coastline is the heaviest mark on the sheet; rivers next; built features
 // (walls, routes) lighter still; fine marks (wall tick shorthand) lightest.
+// ── The soft register ────────────────────────────────────────────────────
+// One Gaussian blur, shared by the two features on these sheets whose extent
+// is genuinely indefinite: the reconstructed Bronze Age shoreline (accurate
+// to about a kilometre by its own note) and the delta wetland (which has no
+// boundary at all). A blur is the only softening that is the same drawing at
+// every magnification — a fade built out of nested bands has visible steps,
+// and a fade built out of marks has countable marks. It carries no colour, so
+// it costs the theming contract nothing.
+//
+// Two strengths, because the two claims are not equally vague. The shoreline
+// has a POSITION -- it was derived from the 10 m contour precisely because
+// that level passes 1.2 km north of Hisarlık, where the geoarchaeology puts
+// the bay head -- so its band is tight: 4 px, about 110 m of ground on these
+// sheets, enough that the edge is a gradient and not a line. The wetland has
+// no position to soften, only a margin that never existed as a line at all,
+// so it fades over roughly twice that.
+const SOFT_BLUR = { coast: 4, marsh: 8 } as const;
+type SoftKind = keyof typeof SOFT_BLUR;
+const APPROX_BAND_WIDTH = 9;
+const APPROX_BAND_OPACITY = 0.4;
+const APPROX_CORE_WIDTH = 0.9;
+
 const STROKE_WEIGHT = {
   coast: 2,
   river: 1.4,
@@ -2217,7 +2234,7 @@ function reliefRampToken(step: number): string {
 // nesting/area of every relief layer on the SAME plate (siblings only —
 // region/band layers aren't contour bands and don't participate). Exported
 // so the steepness signal itself is unit-testable independent of the SVG it
-// eventually feeds into (same posture as hachure/stipple/wallGlyph below).
+// eventually feeds into (same posture as hachure/wallGlyph below).
 export function reliefHachureParams(plate: Plate, layer: PlateLayer, viewport: Viewport): ReliefHachureParams {
   const gentle = { spacing: RELIEF_SPACING_GENTLE, weight: RELIEF_WEIGHT_GENTLE };
   const siblings = plate.layers.filter(
@@ -2256,7 +2273,12 @@ export function reliefHachureParams(plate: Plate, layer: PlateLayer, viewport: V
   };
 }
 
-function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): RenderedLayer | undefined {
+function renderLayer(
+  plate: Plate,
+  layer: PlateLayer,
+  viewport: Viewport,
+  softId: (kind: SoftKind) => string,
+): RenderedLayer | undefined {
   const allPixelPoints: [number, number][] = [];
   const collect = (pts: PlatePoint[] | undefined) => {
     if (!pts) return [];
@@ -2264,6 +2286,13 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): Rende
     allPixelPoints.push(...px);
     return px;
   };
+
+  // Every measured line on a geographic sheet is drawn as a curve; a
+  // schematic plate's authored zones stay the polygons they were drawn as.
+  // See smoothPathD for why this is the honest drawing and not a cosmetic.
+  const geographic = plate.kind === 'geographic';
+  const lineD = (px: [number, number][], close: boolean) =>
+    geographic ? smoothPathD(px, close, plate.size) : pathD(px, close);
 
   let markup = '';
   const seed = deriveSeed(plate.seed ?? 0, layer.id);
@@ -2287,14 +2316,37 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): Rende
       // pure linework, exactly as before.
       const body = layer.fill
         ? `<path data-feature-id="${escapeXml(layer.id)}-body" class="plate-layer plate-layer-coast-body" ` +
-          `d="${ringsPx.map((px) => pathD(px, true)).join(' ')}" fill="${REGION_FILL_TOKENS[layer.fill]}" ` +
+          `d="${ringsPx.map((px) => lineD(px, true)).join(' ')}" fill="${REGION_FILL_TOKENS[layer.fill]}" ` +
           `fill-opacity="${REGION_FILL_OPACITY[layer.fill]}" fill-rule="evenodd" stroke="none"/>`
         : '';
-      if (layer.style === 'stipple') {
-        const dParts = ringsPx.map((px) => stipple(px, { seed }));
-        markup = body + `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" d="${dParts.join(' ')}" fill="var(--flaxman-ink)" stroke="none"/>`;
+      if (layer.style === 'approximate') {
+        // A RECONSTRUCTED shoreline. Drawn as a soft graded band — a wide,
+        // blurred stroke with a hairline down its middle — rather than as the
+        // scatter of dots this register used to be. Two reasons, one of each
+        // kind. Perceptual: every treatment built out of discrete marks has a
+        // magnification at which it stops being tone and becomes countable
+        // marks, and this SVG renders at 100% of a browser column, so it
+        // reaches 3x routinely; a blurred stroke is the same drawing at every
+        // scale. Cartographic: a fuzzy edge IS the claim. This line's own note
+        // puts it within about a kilometre, and a band that fades out says so
+        // without a legend, where dots only said "special".
+        //
+        // The hairline down the middle stays fully opaque and is what carries
+        // WCAG 1.4.11 (3:1 for graphical objects): the soft band is a wash and
+        // may not be relied on for contrast. It also keeps the reconstructed
+        // shore plainly distinct from the surveyed modern one, which is a
+        // solid line at twice the weight and no glow at all.
+        const d = ringsPx.map((px) => lineD(px, false)).join(' ');
+        markup =
+          body +
+          `<path data-feature-id="${escapeXml(layer.id)}-band" class="plate-layer plate-layer-coast-band" ` +
+          `d="${d}" fill="none" stroke="var(--scene-map-coast)" stroke-width="${APPROX_BAND_WIDTH}" ` +
+          `stroke-opacity="${APPROX_BAND_OPACITY}" stroke-linecap="round" stroke-linejoin="round" filter="url(#${softId('coast')})"/>` +
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" ` +
+          `d="${d}" fill="none" stroke="var(--scene-map-coast)" stroke-width="${APPROX_CORE_WIDTH}" ` +
+          `stroke-linecap="round" stroke-linejoin="round"/>`;
       } else if (layer.style === 'waterline') {
-        const coastD = ringsPx.map((px) => pathD(px, false)).join(' ');
+        const coastD = ringsPx.map((px) => lineD(px, false)).join(' ');
         const strokes = waterlines(ringsPx, { seed });
         const strokeMarkup = strokes
           .map(
@@ -2307,15 +2359,18 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): Rende
           `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" d="${coastD}" fill="none" stroke="var(--scene-map-coast)" stroke-width="${layer.width ?? STROKE_WEIGHT.coast}"/>` +
           strokeMarkup;
       } else {
-        const d = ringsPx.map((px) => pathD(px, false)).join(' ');
-        markup = body + `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" d="${d}" fill="none" stroke="var(--scene-map-coast)" stroke-width="${layer.width ?? STROKE_WEIGHT.coast}"/>`;
+        const d = ringsPx.map((px) => lineD(px, false)).join(' ');
+        markup = body + `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" d="${d}" fill="none" stroke="var(--scene-map-coast)" stroke-width="${layer.width ?? STROKE_WEIGHT.coast}" stroke-linejoin="round"/>`;
       }
       break;
     }
     case 'river': {
       const px = collect(layer.path);
       if (px.length < 2) return undefined;
-      markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-river" d="${pathD(px, false)}" fill="none" stroke="var(--plate-river)" stroke-width="${layer.width ?? STROKE_WEIGHT.river}" stroke-linecap="round"/>`;
+      // Rivers are OSM polylines sampled every hundred metres or so. Drawn as
+      // segments they read as a chain of straight cuts at zoom; a watercourse
+      // does not turn corners.
+      markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-river" d="${lineD(px, false)}" fill="none" stroke="var(--plate-river)" stroke-width="${layer.width ?? STROKE_WEIGHT.river}" stroke-linecap="round" stroke-linejoin="round"/>`;
       break;
     }
     case 'relief': {
@@ -2337,7 +2392,7 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): Rende
         const step = hypsometricStep(hypsometricLevels(plate), layer.elevation);
         markup =
           `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-relief-band" ` +
-          `d="${parts.map((p) => smoothClosedPathD(p)).join(' ')}" fill="${reliefRampToken(step)}" ` +
+          `d="${parts.map((p) => lineD(p, true)).join(' ')}" fill="${reliefRampToken(step)}" ` +
           `stroke="var(--plate-contour)" stroke-width="${RELIEF_CONTOUR_WIDTH}" ` +
           `stroke-opacity="${RELIEF_CONTOUR_OPACITY}" stroke-linejoin="round"/>`;
         break;
@@ -2392,12 +2447,37 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): Rende
       // because defaulting a landform to the site's wine accent is what made
       // the geographic plate read as shapes rather than geography.
       const fill = layer.fill ?? DEFAULT_REGION_FILL;
+      const d = lineD(px, true);
+      // `none` is a region that carries a NAME and nothing else — the lettering
+      // zone for a tract of country whose extent nobody surveyed. It exists
+      // because the alternative on this sheet was worse: an eleven-vertex
+      // hand-drawn wash with a ruler-straight edge, presented as a landform,
+      // sitting on top of a hypsometric ramp cut from a DEM. The ramp already
+      // draws the ground; the region only ever had to say where the name goes.
+      if (fill === 'none') {
+        markup =
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" ` +
+          `d="${d}" fill="none" stroke="none"/>`;
+        break;
+      }
+      // A wetland has no boundary. It is a gradient from open water through
+      // reed and seasonal flood to dry ground, and it moves with the season
+      // and the year, so a crisp vector edge round it asserts a precision that
+      // exists nowhere in the evidence. The marsh register therefore draws
+      // with NO outline and a blurred fill, so the wet ground dissolves into
+      // the plain over a few hundred metres of sheet — which is what the note
+      // on the layer says in words (2026-07-29, John: "that green area is too
+      // sharp at the edges"). Smoothing alone would only have bought a curvy
+      // hard edge.
+      const soft = fill === 'marsh';
       const fillToken = REGION_FILL_TOKENS[fill];
       const strokeToken = WATER_FILLS.has(fill) ? 'var(--scene-map-coast)' : fillToken;
       const strokeOpacity = fill === 'tint' ? 1 : WATER_FILLS.has(fill) ? 0.7 : 0.5;
-      markup =
-        `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${pathD(px, true)}" ` +
-        `fill="${fillToken}" fill-opacity="${REGION_FILL_OPACITY[fill]}" stroke="${strokeToken}" stroke-width="0.8" stroke-opacity="${strokeOpacity}"/>`;
+      markup = soft
+        ? `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${d}" ` +
+          `fill="${fillToken}" fill-opacity="${REGION_FILL_OPACITY[fill]}" stroke="none" filter="url(#${softId('marsh')})"/>`
+        : `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${d}" ` +
+          `fill="${fillToken}" fill-opacity="${REGION_FILL_OPACITY[fill]}" stroke="${strokeToken}" stroke-width="0.8" stroke-opacity="${strokeOpacity}" stroke-linejoin="round"/>`;
       break;
     }
     case 'tumulus': {
@@ -2448,7 +2528,7 @@ function unitViewport(size: [number, number]): Viewport {
 
 // Assembles a plate's layers + gazetteer pins into one self-contained SVG
 // string. Pure and deterministic: identical inputs always produce an
-// identical `svg` string (see hachure/stipple's seeded PRNG above).
+// identical `svg` string (see hachure's seeded PRNG above).
 export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOptions = {}): PlateResult {
   const opts = { ...DEFAULT_PLATE_OPTIONS, ...options };
   const viewport = plate.bbox ? viewportFromBBox(plate.bbox, plate.size) : unitViewport(plate.size);
@@ -2467,8 +2547,16 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // whose `placeId` is also pinned on this sheet takes its name from the pin.
   const layerLabelCandidates: { layer: PlateLayer; rendered: RenderedLayer }[] = [];
   const legendEntries: LegendEntry[] = [];
+  // The blurred-edge filters (see SOFT_BLUR). Each is declared only when
+  // something on the sheet actually uses it, so a plate with no indefinite
+  // features emits exactly what it did before.
+  const softId = (kind: SoftKind) => `${safeIdFragment(opts.idPrefix)}-soft-${kind}`;
+  const needsSoft: Record<SoftKind, boolean> = {
+    coast: plate.layers.some((l) => l.kind === 'coast' && l.style === 'approximate'),
+    marsh: plate.layers.some((l) => l.fill === 'marsh'),
+  };
   for (const layer of plate.layers) {
-    const rendered = renderLayer(plate, layer, viewport);
+    const rendered = renderLayer(plate, layer, viewport, softId);
     if (!rendered) continue;
     layerMarkup.push(rendered.markup);
     features.push(rendered.feature);
@@ -2477,7 +2565,10 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     const legend = layerLegendEntry(layer);
     if (legend) legendEntries.push(legend);
     // A coast layer that fills its rings also keys the terrain it encloses.
-    if (layer.kind === 'coast' && layer.fill) legendEntries.push(regionFillLegendEntry(layer.fill));
+    if (layer.kind === 'coast' && layer.fill) {
+      const fillEntry = regionFillLegendEntry(layer.fill);
+      if (fillEntry) legendEntries.push(fillEntry);
+    }
   }
 
   const placeById = new Map(places.map((p) => [p.id, p]));
@@ -2583,7 +2674,17 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
 
   const svg =
     `<svg viewBox="0 0 ${width} ${height}" width="100%" height="100%" role="img" aria-label="${ariaLabel}" xmlns="http://www.w3.org/2000/svg">` +
-    `<defs><clipPath id="${clipId}"><rect x="0" y="0" width="${width}" height="${height}"/></clipPath>${labels.defs}</defs>` +
+    `<defs><clipPath id="${clipId}"><rect x="0" y="0" width="${width}" height="${height}"/></clipPath>` +
+    (Object.keys(SOFT_BLUR) as SoftKind[])
+      .filter((k) => needsSoft[k])
+      .map(
+        (k) =>
+          `<filter id="${softId(k)}" x="-25%" y="-25%" width="150%" height="150%" ` +
+          `filterUnits="objectBoundingBox" color-interpolation-filters="sRGB">` +
+          `<feGaussianBlur stdDeviation="${SOFT_BLUR[k]}"/></filter>`,
+      )
+      .join('') +
+    `${labels.defs}</defs>` +
     `<g clip-path="url(#${clipId})">` +
     `<rect class="plate-ground" x="0" y="0" width="${width}" height="${height}" fill="${GROUND_FILL_TOKENS[plate.ground ?? 'land']}"/>` +
     layerMarkup.join('') +

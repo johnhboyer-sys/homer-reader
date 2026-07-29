@@ -1034,23 +1034,137 @@ def bronze_geometry(g: Grid) -> dict:
     landward = west + shore[h:]
     lagoon = landward + barrier[::-1]
 
-    # The swamp that lay over much of the delta plain (Kayan): the belt of fill
-    # between the 10 m and 20 m contours on the western side of the plain
-    # behind the bay head -- the lowest ground on the sheet outside the lagoon,
-    # and the last of the delta to dry.
-    twenty = joined_line("trojan-plain", g, 20.0)
-    lo = [p for p in douglas_peucker(shore_line[:i0 + 1], SHORE_TOL)
-          if 39.90 <= p[0] <= LAGOON_HEAD[0] and p[1] < 26.24]
-    hi = [p for p in douglas_peucker(twenty, SHORE_TOL)
-          if 39.90 <= p[0] <= LAGOON_HEAD[0] and p[1] < 26.24]
-    swamp = lo + hi[::-1]
-
     return {
         "shore": _round(landward),
         "barrier": _round(barrier),
         "lagoon": _round(lagoon),
-        "swamp": _round(swamp),
+        "swamp": _round(swamp_geometry(g, lagoon)),
     }
+
+
+# ── The wet delta ───────────────────────────────────────────────────────────
+#
+# The swamp Kayan puts over much of the delta plain, derived the way the shore
+# was and no longer cut with a ruler. What it replaced (2026-07-29): a strip
+# taken between the 10 m and 20 m contours and then FILTERED BY LATITUDE AND
+# LONGITUDE (39.90 <= lat <= bay head, lon < 26.24), so three of the polygon's
+# four sides were the filter rather than the ground -- the sharpest lines on a
+# sheet whose whole subject is measured relief, and an artefact of how the data
+# was cut presented as a landform.
+#
+# The derivation now is a contour band and a slope threshold, which is what
+# aggraded floodplain IS: ground between the reconstructed shoreline (the 10 m
+# contour, already calibrated against the published bay head -- see above) and
+# one hypsometric step above it, flat enough not to be a ridge foot. Both
+# numbers are principled rather than tuned to a shape: 15 m is a level the
+# sheet's own ramp already draws, and 1.2 % separates the delta surface (which
+# falls about 10 m over 5 km, 0.2 %) from the foot of the Sigeion ridge (36 m
+# in well under a kilometre, 4 %). The lagoon is cut out of it, since that is
+# open water on this reconstruction, and only the component connected to the
+# bay head survives, so an unrelated flat patch elsewhere on the sheet cannot
+# join the wetland by coincidence of height.
+#
+# The mask is then blurred and traced at its half-level rather than being
+# converted cell by cell: a raster boundary at 29 m per cell drawn as a polygon
+# is a staircase, and the blur is what makes the outline read as ground. The
+# renderer softens it further -- the marsh draws with no outline at all -- for
+# the reason stated on the layer itself: a wetland margin is indefinite, and a
+# crisp edge round it claims a precision that does not exist.
+
+SWAMP_LOW = SHORE_LEVEL       # the reconstructed shoreline is its seaward limit
+SWAMP_HIGH = 15.0             # one step up the sheet's own hypsometric ramp
+SWAMP_MAX_SLOPE = 0.012       # 1.2 %: floodplain, not the flank of a ridge
+SWAMP_BLUR = 15               # box-blur passes on the mask before tracing
+SWAMP_MIN_SPAN = 0.01         # degrees; drops slivers the blur leaves behind
+
+
+def cell_metres(g: Grid, lat: float) -> float:
+    return 156543.03392 * math.cos(math.radians(lat)) / (2 ** g.z) * g.step
+
+
+def slope_grid(g: Grid, lat: float) -> array:
+    """Rise over run at every cell, by central differences."""
+    step_m = cell_metres(g, lat)
+    w, h = g.w, g.h
+    out = array("f", bytes(4 * w * h))
+    for j in range(h):
+        jm = max(0, j - 1) * w
+        jp = min(h - 1, j + 1) * w
+        row = j * w
+        for i in range(w):
+            im = max(0, i - 1)
+            ip = min(w - 1, i + 1)
+            dx = (g.data[row + ip] - g.data[row + im]) / ((ip - im) * step_m)
+            dy = (g.data[jp + i] - g.data[jm + i]) / (((jp - jm) // w) * step_m)
+            out[row + i] = math.hypot(dx, dy)
+    return out
+
+
+def _largest_component(mask: bytearray, w: int, h: int, seed: tuple[int, int]) -> bytearray:
+    out = bytearray(w * h)
+    if not mask[seed[1] * w + seed[0]]:
+        raise SystemExit("swamp: seed cell is not in the mask")
+    out[seed[1] * w + seed[0]] = 1
+    stack = [seed]
+    while stack:
+        i, j = stack.pop()
+        for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            a, b = i + di, j + dj
+            if 0 <= a < w and 0 <= b < h and mask[b * w + a] and not out[b * w + a]:
+                out[b * w + a] = 1
+                stack.append((a, b))
+    return out
+
+
+def swamp_geometry(g: Grid, lagoon: list) -> list[list[float]]:
+    w, h = g.w, g.h
+    slope = slope_grid(g, (SHEETS["trojan-plain"]["bbox"][0] + SHEETS["trojan-plain"]["bbox"][2]) / 2)
+    lats = [p[0] for p in lagoon]
+    lons = [p[1] for p in lagoon]
+
+    mask = bytearray(w * h)
+    for j in range(h):
+        row = j * w
+        for i in range(w):
+            z = g.data[row + i]
+            if not (SWAMP_LOW < z <= SWAMP_HIGH) or slope[row + i] > SWAMP_MAX_SLOPE:
+                continue
+            lat, lon = g.latlon(i, j)
+            if (min(lats) <= lat <= max(lats) and min(lons) <= lon <= max(lons)
+                    and _ring_contains(lagoon, (lat, lon))):
+                continue
+            mask[row + i] = 1
+
+    # Seed: the first masked cell working south from the bay head, i.e. the
+    # wet ground immediately behind the reconstructed shore.
+    x, y = lonlat_to_px(LAGOON_HEAD[1], LAGOON_HEAD[0], g.z)
+    si = int((x - g.x0) / g.step - 0.5)
+    sj = int((y - g.y0) / g.step - 0.5)
+    seed = None
+    for dj in range(0, 60):
+        for di in range(-30, 31):
+            i, j = si + di, sj + dj
+            if 0 <= i < w and 0 <= j < h and mask[j * w + i]:
+                seed = (i, j)
+                break
+        if seed:
+            break
+    if seed is None:
+        raise SystemExit("swamp: no masked cell within 60 cells south of the bay head")
+    comp = _largest_component(mask, w, h, seed)
+    cells = sum(comp)
+    step_m = cell_metres(g, LAGOON_HEAD[0])
+    print(f"  {'delta-swamp mask':<32} {cells:>7} cells, "
+          f"{cells * step_m * step_m / 1e6:.1f} km2 at {step_m:.0f} m/cell")
+
+    smooth = box_blur(Grid(g.z, g.x0, g.y0, w, h, g.step,
+                           array("f", [float(v) for v in comp])), SWAMP_BLUR)
+    rings = [r for r in clip_to_bbox(
+        contours(smooth, 0.5, SHORE_TOL, 5, SWAMP_MIN_SPAN),
+        SHEETS["trojan-plain"]["bbox"]) if len(r) >= 4]
+    if not rings:
+        raise SystemExit("swamp: the blurred mask traced no usable ring")
+    return max(rings, key=len)
 
 
 # ── Patching the plates ─────────────────────────────────────────────────────
@@ -1102,11 +1216,22 @@ BRONZE_NOTES = {
         "deep-water bay.",
     "delta-swamp":
         "Swamp lay over much of the delta plain through the Late Bronze Age "
-        "(Kayan). Drawn as the belt of fill between the 10 m and 20 m contours "
-        "on the western side of the plain behind the bay head -- the lowest "
-        "ground on the sheet outside the lagoon itself, and the last of the "
-        "delta to dry. Derived from the same DEM as the shore; extent "
-        "approximate.",
+        "(Kayan). A WETLAND HAS NO BOUNDARY -- it grades from open water "
+        "through reed and seasonal flood to dry ground, and it moves with the "
+        "season and the year -- so this is drawn with no outline at all and "
+        "fades out at its margin. That is the claim, not a decoration: the "
+        "extent is indefinite and the drawing says so. What is measured is "
+        "where the wet ground lay, derived from the same DEM as the shore: the "
+        "flat aggraded fill immediately behind the reconstructed shoreline, "
+        "between the 10 m contour that shoreline is cut from and 15 m, one "
+        "step up this sheet's own hypsometric ramp, on ground falling at under "
+        "1.2 per cent -- which separates the delta surface (about 10 m over "
+        "5 km) from the foot of the Sigeion ridge (36 m in well under a "
+        "kilometre). The lagoon is cut out of it, and only the ground "
+        "continuous with the bay head is kept, so a flat patch elsewhere at "
+        "the same height cannot join the wetland by coincidence. About "
+        "15 square kilometres. It does not reach Troy or the dry plain the "
+        "poem fights over, both of which stand above 20 m.",
 }
 
 
@@ -1266,11 +1391,14 @@ def patch_plain(g: Grid, gr: Grid) -> tuple[int, int]:
     # 10-to-20 m swamp belt, so a band drawn last paints the delta marsh -- the
     # plate's own argument -- out of existence.
     # `scamandrian-plain` moves with it, from over the relief to under it.
-    # Its content is untouched: it is an eleven-vertex hand-drawn wash that
-    # was fine as the only ground colour on the sheet and is a flat blob with
-    # a ruler edge once there is real terrain beneath it. Under the ramp it
-    # still anchors the name "SCAMANDRIAN PLAIN" and still shows on the delta
-    # floor below the lowest contour, which is exactly the dry plain it claims.
+    # Its geometry is untouched and no longer draws anything (2026-07-29): it
+    # is `fill: "none"` now, a lettering zone rather than a landform. It was an
+    # eleven-vertex hand-drawn wash, fine as the only ground colour on the
+    # sheet and a flat opaque blob with a ruler-straight diagonal edge once
+    # there was contoured terrain under it -- and worse than merely ugly, since
+    # at full opacity it painted the ramp's relief flat across the middle of
+    # the plain. The ramp draws the ground; the region only ever had to say
+    # where the name "SCAMANDRIAN PLAIN" goes.
     layers = [l for l in plate["layers"] if l["id"] != "scamandrian-plain"]
     wash = next(l for l in plate["layers"] if l["id"] == "scamandrian-plain")
     at = next(i for i, l in enumerate(layers) if l["id"] == "sea-modern") + 1

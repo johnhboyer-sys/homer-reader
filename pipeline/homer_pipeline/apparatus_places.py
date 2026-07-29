@@ -57,7 +57,10 @@ LAYER_KIND_ENUM = {
 # ground + fill land/water contract) while this set still read {tint, sea},
 # so a Troad plate declaring its landmasses `fill: "land"` was rejected here
 # and drawn there.
-REGION_FILL_ENUM = {"tint", "sea", "lagoon", "land", "marsh", "plain"}
+# "none" (added 2026-07-29) is a region that draws nothing at all: a lettering
+# zone for a named tract of country whose extent nobody surveyed. See
+# REGION_FILL_TOKENS in shared/lib/plate.ts, which this mirrors.
+REGION_FILL_ENUM = {"tint", "sea", "lagoon", "land", "marsh", "plain", "none"}
 # What the bare sheet is under every layer, per the same contract.
 GROUND_ENUM = {"land", "sea"}
 STOCHASTIC_STYLES = {"stipple", "hachure"}

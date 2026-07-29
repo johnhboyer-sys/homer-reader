@@ -446,7 +446,7 @@
     {
       "id": "beach",
       "kind": "coast",
-      "style": "stipple",
+      "style": "approximate",
       "default": "on",
       "rings": [
         [

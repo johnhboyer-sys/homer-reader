@@ -594,6 +594,66 @@ shadow.
 > direction — darkness encoding steepness, with no light source to invert. It is
 > visible on Ida's flanks at 3x and it costs nothing.
 >
+> **THIRD PASS, 2026-07-29 — the relief was the crudest thing on the sheet
+> until it wasn't, and then everything beside it was.** Book-quality
+> hypsometric bands at 3.5x exposed four hand-made marks the previous lane had
+> left standing, and the fix for all four is one idea: *put the uncertainty in
+> the drawing, not in a crisp line and an apology.*
+>
+> **1. Every measured line is now drawn as a curve, not just relief.** The
+> argument that held coastlines back — "a coastline is a surveyed line and
+> keeps its vertices" — is exactly backwards for a reconstruction. The Bronze
+> Age shore declares itself accurate to about a kilometre and is stored
+> generalised to 275 m; drawn as straight facets meeting at sharp corners it
+> asserted a precision the data does not have, and the facets were an artefact
+> of Douglas-Peucker, not a claim about the ground. **Smoothing it is the more
+> honest drawing.** The proof that it did not move the line is measured, in
+> metres, in `shared/__tests__/plate.test.ts`: worst-case deviation of the
+> drawn curve from the stored polyline is **215 m**, inside the 275 m
+> generalisation the line already carries, and the calibration the 10 m level
+> was chosen for still holds — the curve passes **1,241 m** north of Hisarlık
+> where the polygon passed 1,223 m, both "1.2 km", against 2.8 km for the 8 m
+> contour and 0.7 km for the 12 m. Two kinds of vertex are exempt: the
+> endpoints of an open line, and any vertex on the neatline, which is where
+> the clip cut the geometry rather than where the ground turns.
+>
+> **2. Stipple is retired, and this is the general rule.** The coast stipple
+> survived the last pass on the argument that it was a *boundary* claim rather
+> than a tonal one. It was not enough: at 3.5x it read as a scatter of
+> countable dots however fine it was tuned, and it had been tuned four times.
+> **Every treatment built out of discrete marks has a magnification at which it
+> stops being tone — the class has no exceptions, boundaries included.** What
+> replaced it is a blurred wide stroke with an opaque hairline down its middle:
+> the same drawing at every scale, plainly distinct from the crisp solid
+> modern shoreline, and a fuzzy edge is what "approximate extent" looks like.
+> The hairline stays fully opaque and is what carries WCAG 1.4.11 — a wash
+> may not be relied on for contrast.
+>
+> **3. A wetland has no boundary, so it is not drawn with one.** `delta-swamp`
+> had been cut with literal latitude and longitude filters; three of its four
+> sides were the filter rather than the ground, which made the sharpest lines
+> on the sheet an artefact of how the data was sliced. It is re-derived from
+> the DEM as a contour band (10–15 m, the shoreline's own level to one step
+> above it) plus a **slope threshold** of 1.2 %, which is what separates
+> aggraded floodplain (10 m over 5 km) from the foot of the Sigeion ridge
+> (36 m in under a kilometre), minus the lagoon, keeping only the component
+> connected to the bay head. About 15 km², and it reaches neither Troy nor the
+> dry plain the poem fights over. It then draws with **no outline at all** and
+> a blur twice the shoreline's, because the margin is genuinely more indefinite
+> than the shoreline's position is: a gradational edge, not a smoothed one.
+> Smoothing alone would have bought a curvy hard edge, which is the same lie
+> with nicer manners.
+>
+> **4. The dry-plain wash is gone, and the ramp carries the ground.**
+> `scamandrian-plain` was eleven hand-drawn vertices with a ruler-straight
+> diagonal, painted at full opacity over contoured relief — so it was not only
+> the crudest outline on the sheet, it flattened measured terrain across the
+> middle of it. It is now `fill: "none"`: a lettering zone, drawing nothing,
+> carrying the name. That is how an atlas letters a tract of country whose
+> extent nobody surveyed, and it is the right answer whenever the honest
+> options are "invent an edge" or "say nothing" — **letter it and draw
+> nothing.**
+
 > One measured caution for whoever cuts the next contoured sheet. **A contour is only
 > as smooth as the ground under it.** Simplifying a traced line at 685 m while the grid
 > still carries 124 m wiggles does not generalise it — Douglas-Peucker keeps the

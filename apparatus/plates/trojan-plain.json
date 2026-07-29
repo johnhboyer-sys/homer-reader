@@ -623,6 +623,7 @@
       "kind": "region",
       "placeId": "scamandrian-plain",
       "default": "on",
+      "fill": "none",
       "polygon": [
         [39.966, 26.186],
         [39.968, 26.212],
@@ -636,7 +637,7 @@
         [39.89, 26.192],
         [39.928, 26.188]
       ],
-      "note": "The dry, usable plain of about 1200 BC, and the point of the whole sheet: it lies south and west of Troy, hemmed by the Sigeion ridge on the west and the ridge Hisarlik stands on to the north-east, because the ground north of the city was lagoon, barrier and swamp. Kraft, Kayan and Erol drew exactly this conclusion — if the war happened, the battlefield lay to the south and west of the city. The Achaeans poured out 'onto the Scamandrian plain' and stood in 'the flowery Scamandrian meadow' (Il. 2.465-467); the poem names the plain but fixes no boundary, so this outline is a generalization of the modern lowland minus the reconstructed water, not a surveyed limit.",
+      "note": "The dry, usable plain of about 1200 BC, and the point of the whole sheet: it lies south and west of Troy, hemmed by the Sigeion ridge on the west and the ridge Hisarlik stands on to the north-east, because the ground north of the city was lagoon, barrier and swamp. Kraft, Kayan and Erol drew exactly this conclusion -- if the war happened, the battlefield lay to the south and west of the city. The Achaeans poured out 'onto the Scamandrian plain' and stood in 'the flowery Scamandrian meadow' (Il. 2.465-467); the poem names the plain but fixes no boundary. THIS LAYER THEREFORE DRAWS NOTHING. It carries the name and nothing else: the hypsometric ramp beside it is cut from the DEM and already shows the plain as its palest steps, so a wash on top of it would only have flattened measured relief under an outline nobody surveyed. Its polygon survives as the zone the lettering is centred in, which is how an atlas letters a tract of country, and is not a claim about where the plain ends.",
       "sources": [
         {
           "cite": "Kraft, John C., Ilhan Kayan, and Oguz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209, no. 4458 (1980): 776-82."
@@ -2618,91 +2619,6 @@
       ]
     },
     {
-      "id": "shore-bronze",
-      "kind": "coast",
-      "style": "stipple",
-      "default": "on",
-      "note": "The landward shore of the Late Bronze Age embayment, DERIVED rather than drawn: the ground between Hisarlik and the modern coast is infilled delta sediment, so the old shore is closely approximated by a low contour of the modern DEM, where the flat fill meets ground that was already land. This line is the 10 m contour of SRTM (AWS Terrain Tiles), generalised to about 130 m, run from the Sigeion ridge round the bay head to the Rhoiteion spur. The 10 m level was chosen against the published constraints, not picked for looks: it passes 1.2 km north of Hisarlik, where Kraft, Rapp, Kayan and Luce put the bay head; the 8 m contour puts it 2.8 km north and the 12 m only 0.7 km, both outside the published range. The DEM independently confirms the other two: the modern shore is 5 to 6 km north of the site, and the delta surface falls from about 11 m a kilometre north of Hisarlik to 5 m at the coast. Approximate to on the order of a kilometre, and a reconstruction, not a survey: no published figure was traced. Two editorial cuts, both stated rather than hidden: the bay's western shore is taken from the 20 m contour of the Sigeion ridge, whose east foot is what the water stood against; and the line stops at the bay head, because south of there the 10 m contour bounds aggraded floodplain rather than open water. The contour does run on south -- that is the landward limit of the whole alluvial fill, not of the Late Bronze Age bay.",
-      "sources": [
-        {
-          "cite": "Kraft, John C., Ilhan Kayan, and Oguz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209, no. 4458 (1980): 776-82."
-        },
-        {
-          "cite": "Kayan, Ilhan. \"Geoarchaeological Interpretations of the 'Troian Bay.'\" In Troia and the Troad: Scientific Approaches, edited by Gunther A. Wagner, Ernst Pernicka, and Hans-Peter Uerpmann. Berlin: Springer, 2003."
-        },
-        {
-          "cite": "Kraft, John C., George Rapp, Ilhan Kayan, and John V. Luce. \"Harbor Areas at Ancient Troy: Sedimentology and Geomorphology Complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163-66."
-        },
-        {
-          "cite": "Terrain Tiles on AWS Open Data (Tilezen/Mapzen `elevation-tiles-prod`), terrarium-encoded SRTM. SRTM data courtesy of the U.S. Geological Survey.",
-          "url": "https://registry.opendata.aws/terrain-tiles/"
-        }
-      ],
-      "rings": [
-        [
-          [39.995, 26.19],
-          [39.9924, 26.1908],
-          [39.9855, 26.1848],
-          [39.9784, 26.1814],
-          [39.9719, 26.1886],
-          [39.9676, 26.1873],
-          [39.9658, 26.1898],
-          [39.9582, 26.2062],
-          [39.9723, 26.2017],
-          [39.9655, 26.2126],
-          [39.9556, 26.2123],
-          [39.9576, 26.2224],
-          [39.9626, 26.2225],
-          [39.9611, 26.2257],
-          [39.9669, 26.2291],
-          [39.9708, 26.2219],
-          [39.9726, 26.2283],
-          [39.9738, 26.2244],
-          [39.9747, 26.2288],
-          [39.9889, 26.2388],
-          [39.9992, 26.2418],
-          [40.0038, 26.2862],
-          [40.0133, 26.2992],
-          [40.0169, 26.3205]
-        ]
-      ]
-    },
-    {
-      "id": "barrier-bronze",
-      "kind": "coast",
-      "style": "stipple",
-      "default": "on",
-      "note": "The wide sandy barrier that a relative sea-level fall of 2 to 2.5 m left across the mouth of the bay in the Late Bronze Age, closing the remaining water into a shallow lagoon. Derived on the same principle as the shore: the 5 m contour of the modern DEM, which runs east across the delta at about 40.00 N between the Sigeion and Rhoiteion ridges -- low ground standing proud of the fill in exactly the position Kayan's barrier occupies, and seaward of the derived shore everywhere along its length. Approximate to on the order of a kilometre. Not traced from any figure.",
-      "sources": [
-        {
-          "cite": "Kayan, Ilhan. \"Landscape Development and Changing Environment of Troia (North-western Anatolia).\" In Landscapes and Landforms of Turkey, edited by Catherine Kuzucuoglu, Attila Ciner, and Nizamettin Kazanci, 277-91. Cham: Springer, 2019."
-        },
-        {
-          "cite": "Terrain Tiles on AWS Open Data (Tilezen/Mapzen `elevation-tiles-prod`), terrarium-encoded SRTM. SRTM data courtesy of the U.S. Geological Survey.",
-          "url": "https://registry.opendata.aws/terrain-tiles/"
-        }
-      ],
-      "rings": [
-        [
-          [39.999, 26.1904],
-          [40.0084, 26.1993],
-          [40.0039, 26.2017],
-          [40.0075, 26.2038],
-          [40.0054, 26.2086],
-          [40.0017, 26.2072],
-          [40.0053, 26.212],
-          [39.9994, 26.223],
-          [40.0013, 26.2309],
-          [39.9965, 26.2343],
-          [40.0002, 26.2426],
-          [40.0008, 26.2714],
-          [40.004, 26.2862],
-          [40.0134, 26.2989],
-          [40.0174, 26.321]
-        ]
-      ]
-    },
-    {
       "id": "lagoon-bronze",
       "kind": "region",
       "default": "on",
@@ -2764,7 +2680,7 @@
       "id": "delta-swamp",
       "kind": "region",
       "default": "on",
-      "note": "Swamp lay over much of the delta plain through the Late Bronze Age (Kayan). Drawn as the belt of fill between the 10 m and 20 m contours on the western side of the plain behind the bay head -- the lowest ground on the sheet outside the lagoon itself, and the last of the delta to dry. Derived from the same DEM as the shore; extent approximate.",
+      "note": "Swamp lay over much of the delta plain through the Late Bronze Age (Kayan). A WETLAND HAS NO BOUNDARY -- it grades from open water through reed and seasonal flood to dry ground, and it moves with the season and the year -- so this is drawn with no outline at all and fades out at its margin. That is the claim, not a decoration: the extent is indefinite and the drawing says so. What is measured is where the wet ground lay, derived from the same DEM as the shore: the flat aggraded fill immediately behind the reconstructed shoreline, between the 10 m contour that shoreline is cut from and 15 m, one step up this sheet's own hypsometric ramp, on ground falling at under 1.2 per cent -- which separates the delta surface (about 10 m over 5 km) from the foot of the Sigeion ridge (36 m in well under a kilometre). The lagoon is cut out of it, and only the ground continuous with the bay head is kept, so a flat patch elsewhere at the same height cannot join the wetland by coincidence. About 15 square kilometres. It does not reach Troy or the dry plain the poem fights over, both of which stand above 20 m.",
       "sources": [
         {
           "cite": "Kayan, Ilhan. \"Landscape Development and Changing Environment of Troia (North-western Anatolia).\" In Landscapes and Landforms of Turkey, edited by Catherine Kuzucuoglu, Attila Ciner, and Nizamettin Kazanci, 277-91. Cham: Springer, 2019."
@@ -2776,19 +2692,124 @@
       ],
       "fill": "marsh",
       "polygon": [
-        [39.9065, 26.1729],
-        [39.9106, 26.1715],
-        [39.9147, 26.1516],
-        [39.9197, 26.157],
-        [39.9374, 26.1631],
-        [39.9581, 26.2381],
-        [39.9532, 26.2348],
-        [39.9463, 26.2325],
-        [39.9392, 26.2398],
-        [39.9042, 26.2169],
-        [39.9237, 26.2062],
-        [39.9237, 26.1893],
-        [39.9095, 26.1753]
+        [39.9755, 26.2353],
+        [39.9729, 26.2451],
+        [39.9645, 26.2432],
+        [39.9736, 26.2525],
+        [39.9679, 26.256],
+        [39.9633, 26.2535],
+        [39.9592, 26.2367],
+        [39.9547, 26.2329],
+        [39.9503, 26.2344],
+        [39.9429, 26.2292],
+        [39.9416, 26.2368],
+        [39.9376, 26.2343],
+        [39.9334, 26.2394],
+        [39.9314, 26.2333],
+        [39.9409, 26.2226],
+        [39.9263, 26.2235],
+        [39.9247, 26.2192],
+        [39.9224, 26.2228],
+        [39.9196, 26.2168],
+        [39.9295, 26.2003],
+        [39.9279, 26.1836],
+        [39.9343, 26.1887],
+        [39.9382, 26.1997],
+        [39.9398, 26.1945],
+        [39.957, 26.1924],
+        [39.9599, 26.1966],
+        [39.9572, 26.2055],
+        [39.9527, 26.2041],
+        [39.9484, 26.2141],
+        [39.9554, 26.213],
+        [39.9679, 26.236],
+        [39.9737, 26.2271],
+        [39.9755, 26.2353]
+      ]
+    },
+    {
+      "id": "shore-bronze",
+      "kind": "coast",
+      "style": "approximate",
+      "default": "on",
+      "note": "The landward shore of the Late Bronze Age embayment, DERIVED rather than drawn: the ground between Hisarlik and the modern coast is infilled delta sediment, so the old shore is closely approximated by a low contour of the modern DEM, where the flat fill meets ground that was already land. This line is the 10 m contour of SRTM (AWS Terrain Tiles), generalised to about 130 m, run from the Sigeion ridge round the bay head to the Rhoiteion spur. The 10 m level was chosen against the published constraints, not picked for looks: it passes 1.2 km north of Hisarlik, where Kraft, Rapp, Kayan and Luce put the bay head; the 8 m contour puts it 2.8 km north and the 12 m only 0.7 km, both outside the published range. The DEM independently confirms the other two: the modern shore is 5 to 6 km north of the site, and the delta surface falls from about 11 m a kilometre north of Hisarlik to 5 m at the coast. Approximate to on the order of a kilometre, and a reconstruction, not a survey: no published figure was traced. Two editorial cuts, both stated rather than hidden: the bay's western shore is taken from the 20 m contour of the Sigeion ridge, whose east foot is what the water stood against; and the line stops at the bay head, because south of there the 10 m contour bounds aggraded floodplain rather than open water. The contour does run on south -- that is the landward limit of the whole alluvial fill, not of the Late Bronze Age bay.",
+      "sources": [
+        {
+          "cite": "Kraft, John C., Ilhan Kayan, and Oguz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209, no. 4458 (1980): 776-82."
+        },
+        {
+          "cite": "Kayan, Ilhan. \"Geoarchaeological Interpretations of the 'Troian Bay.'\" In Troia and the Troad: Scientific Approaches, edited by Gunther A. Wagner, Ernst Pernicka, and Hans-Peter Uerpmann. Berlin: Springer, 2003."
+        },
+        {
+          "cite": "Kraft, John C., George Rapp, Ilhan Kayan, and John V. Luce. \"Harbor Areas at Ancient Troy: Sedimentology and Geomorphology Complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163-66."
+        },
+        {
+          "cite": "Terrain Tiles on AWS Open Data (Tilezen/Mapzen `elevation-tiles-prod`), terrarium-encoded SRTM. SRTM data courtesy of the U.S. Geological Survey.",
+          "url": "https://registry.opendata.aws/terrain-tiles/"
+        }
+      ],
+      "rings": [
+        [
+          [39.995, 26.19],
+          [39.9924, 26.1908],
+          [39.9855, 26.1848],
+          [39.9784, 26.1814],
+          [39.9719, 26.1886],
+          [39.9676, 26.1873],
+          [39.9658, 26.1898],
+          [39.9582, 26.2062],
+          [39.9723, 26.2017],
+          [39.9655, 26.2126],
+          [39.9556, 26.2123],
+          [39.9576, 26.2224],
+          [39.9626, 26.2225],
+          [39.9611, 26.2257],
+          [39.9669, 26.2291],
+          [39.9708, 26.2219],
+          [39.9726, 26.2283],
+          [39.9738, 26.2244],
+          [39.9747, 26.2288],
+          [39.9889, 26.2388],
+          [39.9992, 26.2418],
+          [40.0038, 26.2862],
+          [40.0133, 26.2992],
+          [40.0169, 26.3205]
+        ]
+      ]
+    },
+    {
+      "id": "barrier-bronze",
+      "kind": "coast",
+      "style": "approximate",
+      "default": "on",
+      "note": "The wide sandy barrier that a relative sea-level fall of 2 to 2.5 m left across the mouth of the bay in the Late Bronze Age, closing the remaining water into a shallow lagoon. Derived on the same principle as the shore: the 5 m contour of the modern DEM, which runs east across the delta at about 40.00 N between the Sigeion and Rhoiteion ridges -- low ground standing proud of the fill in exactly the position Kayan's barrier occupies, and seaward of the derived shore everywhere along its length. Approximate to on the order of a kilometre. Not traced from any figure.",
+      "sources": [
+        {
+          "cite": "Kayan, Ilhan. \"Landscape Development and Changing Environment of Troia (North-western Anatolia).\" In Landscapes and Landforms of Turkey, edited by Catherine Kuzucuoglu, Attila Ciner, and Nizamettin Kazanci, 277-91. Cham: Springer, 2019."
+        },
+        {
+          "cite": "Terrain Tiles on AWS Open Data (Tilezen/Mapzen `elevation-tiles-prod`), terrarium-encoded SRTM. SRTM data courtesy of the U.S. Geological Survey.",
+          "url": "https://registry.opendata.aws/terrain-tiles/"
+        }
+      ],
+      "rings": [
+        [
+          [39.999, 26.1904],
+          [40.0084, 26.1993],
+          [40.0039, 26.2017],
+          [40.0075, 26.2038],
+          [40.0054, 26.2086],
+          [40.0017, 26.2072],
+          [40.0053, 26.212],
+          [39.9994, 26.223],
+          [40.0013, 26.2309],
+          [39.9965, 26.2343],
+          [40.0002, 26.2426],
+          [40.0008, 26.2714],
+          [40.004, 26.2862],
+          [40.0134, 26.2989],
+          [40.0174, 26.321]
+        ]
       ]
     },
     {

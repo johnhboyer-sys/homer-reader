@@ -852,3 +852,36 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   own guards: monotonic luminance, >= 2:1 end to end, no seam at the sheet
   ground, river over every step, coast over the lowest three, water darker
   than step 1, and the hachure register still alive for elevation-less relief.
+
+## 2026-07-29 — the curve pass, and the two soft registers
+
+- `shared/lib/plate.ts` — `smoothClosedPathD` generalised to `smoothPathD`
+  (open lines too, and frame-aware) and applied to EVERY measured line on a
+  geographic sheet: coast, region, band and river, not relief alone. Two
+  vertices are never rounded — the endpoints of an open line, and any vertex
+  within `FRAME_EPS` of the sheet edge, because a vertex on the neatline is
+  where the clip cut the geometry, not where the ground turns (without that,
+  rounding `sea-modern`'s corners pulled the water off the frame). Schematic
+  plates are exempt. Measured deviation from the stored line: 215 m worst
+  case on the Bronze Age shore, against the 275 m generalisation the line
+  already declares — asserted, in metres, in `plate.test.ts`, along with the
+  shore's own calibration (1.2 km north of Hisarlık).
+- `shared/lib/plate.ts` — `stipple()` and `circlePathD()` DELETED, and the
+  coast `stipple` style replaced by `approximate`: a blurred wide stroke with
+  an opaque hairline down its middle. Dots resolve into countable marks at the
+  3x zoom this panel reaches however fine they are tuned (they were retuned
+  four times); a blur is the same drawing at every magnification, and a fuzzy
+  edge is the claim a reconstructed shoreline wants to make anyway.
+- `shared/lib/plate.ts` — two new region registers. `fill: "marsh"` now draws
+  with NO outline and through a blur, because a wetland margin is indefinite
+  and a crisp edge round it claims a precision that exists nowhere in the
+  evidence. `fill: "none"` (new value, mirrored in `apparatus_places.py`'s
+  `REGION_FILL_ENUM`) draws nothing at all — a lettering zone for a named
+  tract of country whose extent nobody surveyed. Both are declared through one
+  `<filter>` per strength in `<defs>`, emitted only when the sheet uses it;
+  neither carries any colour, so the theming contract is untouched.
+- `scripts/prep-terrain-contours.py` — `delta-swamp` re-derived from the DEM
+  (contour band 10–15 m plus a 1.2 % slope threshold, minus the lagoon, keeping
+  only the component connected to the bay head) in place of a strip cut by
+  literal lat/lon filters, three of whose four sides were the filter rather
+  than the ground.

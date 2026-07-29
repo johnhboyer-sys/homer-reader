@@ -294,6 +294,33 @@ def test_validate_plate_accepts_tumulus_layer_kind():
     assert apparatus_places.validate_plate(plate, {}) == []
 
 
+def test_validate_plate_accepts_a_relief_elevation():
+    """`elevation` (2026-07-29) is a contour level in metres, and its presence
+    is what puts a relief band in shared/lib/plate.ts's hypsometric register
+    -- filled from the sheet's elevation ramp and edged with a hairline rather
+    than hachured. Sea level itself is a legal elevation."""
+    plate = _plate(layers=[
+        {"id": "relief-band-0040", "kind": "relief", "elevation": 40,
+         "rings": [[[39.95, 26.20], [39.96, 26.21], [39.95, 26.22]]]},
+        {"id": "relief-shore", "kind": "relief", "elevation": 0,
+         "polygon": [[39.95, 26.20]]},
+    ])
+    assert apparatus_places.validate_plate(plate, {}) == []
+
+
+def test_validate_plate_rejects_a_malformed_relief_elevation():
+    """A malformed elevation would not fail loudly -- it would silently demote
+    a contoured band back to the hand-drawn hachure treatment -- so it is
+    rejected here, exactly as parseLayer rejects it on the TS side."""
+    for bad in (-5, "40", None.__class__, [40]):
+        plate = _plate(layers=[
+            {"id": "relief-1", "kind": "relief", "elevation": bad,
+             "polygon": [[39.95, 26.20]]}
+        ])
+        problems = apparatus_places.validate_plate(plate, {})
+        assert any("elevation must be a number" in p for p in problems), bad
+
+
 def test_validate_plate_rejects_unknown_region_fill():
     plate = _plate(layers=[
         {"id": "sea", "kind": "region", "fill": "red", "polygon": [[39.95, 26.20]]}

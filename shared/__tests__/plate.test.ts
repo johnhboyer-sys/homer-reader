@@ -7,7 +7,6 @@ import {
   renderPlate,
   computeCamera,
   hachure,
-  stipple,
   shipRow,
   wallGlyph,
   tumulus,
@@ -44,7 +43,7 @@ const testPlate: Plate = {
     {
       id: 'coast-1',
       kind: 'coast',
-      style: 'stipple',
+      style: 'approximate',
       rings: [
         [
           [39.98, 26.18],
@@ -916,15 +915,6 @@ describe('draw primitives', () => {
     expect(a).toContain('M');
   });
 
-  it('stipple is deterministic for the same seed and differs for a different seed', () => {
-    const path: [number, number][] = [[0, 0], [40, 0], [40, 40]];
-    const a = stipple(path, { seed: 7 });
-    const b = stipple(path, { seed: 7 });
-    const c = stipple(path, { seed: 8 });
-    expect(a).toBe(b);
-    expect(a).not.toBe(c);
-  });
-
   it('shipRow is deterministic for the same seed and differs for a different seed (hull/position variation is seed-derived, not Math.random)', () => {
     const baseline: [[number, number], [number, number]] = [[0, 0], [100, 0]];
     const a = shipRow(baseline, 2, 4, { seed: 3 });
@@ -1545,5 +1535,173 @@ describe('hypsometric relief bands', () => {
     const svg = renderPlate(banded, []).svg;
     expect(svg).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
     expect(svg).not.toMatch(/\b(rgb|rgba|hsl|hsla)\(/);
+  });
+});
+
+// ── The curve pass, and the proof it does not move the line ────────────────
+//
+// Every measured line on a geographic sheet is now drawn as a curve rather
+// than as the polygon it is stored as (smoothPathD in plate.ts, 2026-07-29).
+// The whole objection to doing that to a coastline is that smoothing might
+// move it, and the Bronze Age shore on apparatus/plates/trojan-plain.json is
+// a calibrated line: it was derived from the 10 m contour BECAUSE that level
+// passes 1.2 km north of Hisarlık, where Kraft, Rapp, Kayan and Luce put the
+// bay head, and the 8 m and 12 m contours (2.8 km and 0.7 km) are both
+// outside the published range. So these tests do not check that a curve was
+// emitted. They re-measure the drawing.
+//
+// The projection is equirectangular and therefore AFFINE (see geo.ts:
+// x and y are each a linear function of lon and lat), and the smoothing is
+// built entirely out of midpoints, so smoothing commutes with projection:
+// measuring the deviation in plate pixels and converting by the sheet's own
+// scale is exact, not an approximation.
+describe('the curve pass does not move the Bronze Age shoreline', () => {
+  const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
+  const livePlate = parsePlate(raw);
+  const viewport = viewportFromBBox(livePlate.bbox!, livePlate.size);
+  // Metres per plate pixel, from the plate's own projection: one degree of
+  // latitude is 111_320 m and the viewport scales latitude by `scale`.
+  const M_PER_PX = 111_320 / viewport.scale;
+
+  const shoreLayer = livePlate.layers.find((l) => l.id === 'shore-bronze')!;
+  const shorePx = shoreLayer.rings![0].map((p) => project(p as [number, number], viewport));
+
+  // Samples the emitted `d` of a curve, walking M/L/Q commands.
+  function samplePathD(d: string, per = 24): [number, number][] {
+    const out: [number, number][] = [];
+    let cur: [number, number] = [0, 0];
+    for (const m of d.matchAll(/([MLQ])([-\d.,\s]+)/g)) {
+      const n = m[2].trim().split(/[\s,]+/).map(Number);
+      if (m[1] === 'M' || m[1] === 'L') {
+        cur = [n[0], n[1]];
+        out.push(cur);
+      } else {
+        const [cx, cy, ex, ey] = n;
+        for (let i = 1; i <= per; i++) {
+          const t = i / per;
+          const u = 1 - t;
+          out.push([
+            u * u * cur[0] + 2 * u * t * cx + t * t * ex,
+            u * u * cur[1] + 2 * u * t * cy + t * t * ey,
+          ]);
+        }
+        cur = [ex, ey];
+      }
+    }
+    return out;
+  }
+
+  function distToPolyline(p: [number, number], line: [number, number][]): number {
+    let best = Infinity;
+    for (let i = 0; i + 1 < line.length; i++) {
+      const [ax, ay] = line[i];
+      const [bx, by] = line[i + 1];
+      const dx = bx - ax;
+      const dy = by - ay;
+      const len2 = dx * dx + dy * dy;
+      const t = len2 === 0 ? 0 : Math.max(0, Math.min(1, ((p[0] - ax) * dx + (p[1] - ay) * dy) / len2));
+      best = Math.min(best, Math.hypot(p[0] - (ax + t * dx), p[1] - (ay + t * dy)));
+    }
+    return best;
+  }
+
+  function shoreCurve(): [number, number][] {
+    const svg = renderPlate(livePlate, []).svg;
+    const d = svg.match(/data-feature-id="shore-bronze" class="[^"]*" d="([^"]+)"/)![1];
+    expect(d).toContain('Q'); // it really is drawn as a curve
+    return samplePathD(d);
+  }
+
+  it('every point of the drawn curve is within a fraction of the declared generalisation tolerance of the stored line', () => {
+    const worst = Math.max(...shoreCurve().map((p) => distToPolyline(p, shorePx) * M_PER_PX));
+    // Measured: 215 m, at the bay head, where Douglas-Peucker left facets up
+    // to 3.8 km long and the curve therefore has the most corner to cut. The
+    // line is stored generalised to 275 m (SHORE_TOL in
+    // scripts/prep-terrain-contours.py) and its own note declares it accurate
+    // "to on the order of a kilometre", so the curve stays INSIDE the
+    // generalisation the line already carries and nowhere near its stated
+    // uncertainty. The bound below is the declared tolerance itself: if a
+    // future change to the geometry or the smoothing pushes the drawing
+    // outside the generalisation it claims, that is a real defect and this
+    // test is where it is caught.
+    expect(worst).toBeLessThan(275);
+    expect(worst).toBeGreaterThan(150); // and it is genuinely curving, not a no-op
+  });
+
+  it('the shore still passes 1.2 km north of Hisarlık — the measurement the 10 m level was chosen for', () => {
+    const troyCoords = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places.find(
+      (p: { id: string }) => p.id === 'troy',
+    ).coords as [number, number];
+    const troyPx = project(troyCoords, viewport);
+    const near = Math.min(...shoreCurve().map((p) => Math.hypot(p[0] - troyPx[0], p[1] - troyPx[1]))) * M_PER_PX;
+    expect(near).toBeGreaterThan(1050);
+    expect(near).toBeLessThan(1350);
+  });
+
+  it('a vertex on the sheet frame is never rounded, so a water polygon still meets the neatline', () => {
+    // sea-modern runs along two edges of the sheet; rounding those corners
+    // pulled the water off the frame and left wedges of land in the corners.
+    const svg = renderPlate(livePlate, []).svg;
+    const d = svg.match(/data-feature-id="sea-modern" class="[^"]*" d="([^"]+)"/)![1];
+    expect(d).toContain('M0,0');
+    const [w, h] = livePlate.size;
+    const sea = livePlate.layers.find((l) => l.id === 'sea-modern')!;
+    const frameVertices = sea
+      .polygon!.map((p) => project(p as [number, number], viewport))
+      .filter(([x, y]) => Math.abs(x) < 0.5 || Math.abs(y) < 0.5 || Math.abs(x - w) < 0.5 || Math.abs(y - h) < 0.5)
+      .map(([x, y]) => `${Math.round(x * 10) / 10},${Math.round(y * 10) / 10}`);
+    expect(frameVertices.length).toBeGreaterThan(3);
+    // Every one of them survives as a straight-line vertex, verbatim.
+    for (const v of frameVertices) expect(d).toMatch(new RegExp(`[ML]${v.replace(/\./g, '\\.')}`));
+    expect(d).not.toMatch(/Q0,0/);
+  });
+});
+
+describe('the soft registers: an indefinite edge drawn as one', () => {
+  const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
+  const livePlate = parsePlate(raw);
+  // With the gazetteer, so a layer whose only name comes from its `placeId`
+  // is actually lettered (the `none` region's whole purpose).
+  const livePlaces = (JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[]).filter(
+    (p) => p.id === 'scamandrian-plain',
+  );
+  const svg = renderPlate(livePlate, livePlaces).svg;
+
+  it('the delta wetland draws with no outline at all, and through the blur filter', () => {
+    const m = svg.match(/data-feature-id="delta-swamp"[^>]*>/)!;
+    expect(m[0]).toContain('stroke="none"');
+    expect(m[0]).toMatch(/filter="url\(#[^"]+\)"/);
+    expect(svg).toContain('<feGaussianBlur');
+  });
+
+  it('the reconstructed shoreline is a soft band with an opaque hairline, and the surveyed one is neither', () => {
+    expect(svg).toContain('plate-layer-coast-band');
+    const band = svg.match(/data-feature-id="shore-bronze-band"[^>]*>/)![0];
+    expect(band).toMatch(/filter="url\(#[^"]+\)"/);
+    expect(band).toContain('stroke-opacity="0.4"');
+    // The modern coastline carries neither: crisp, solid, twice the weight.
+    const modern = svg.match(/data-feature-id="coast-modern"[^>]*>/)![0];
+    expect(modern).not.toContain('filter=');
+    expect(modern).not.toContain('stroke-opacity=');
+  });
+
+  it('the blur filter is declared only when the sheet actually has an indefinite feature', () => {
+    const noSoft: Plate = { ...testPlate, layers: [testPlate.layers[1]] };
+    expect(renderPlate(noSoft, []).svg).not.toContain('feGaussianBlur');
+  });
+
+  it('a `none` region draws nothing and keys nothing — it carries only its name', () => {
+    const m = svg.match(/data-feature-id="scamandrian-plain"[^>]*>/)![0];
+    expect(m).toContain('fill="none"');
+    expect(m).toContain('stroke="none"');
+    expect(svg).not.toContain('Dry plain');
+    // ...but the name is still lettered on the sheet.
+    expect(svg).toContain('SCAMANDRIAN PLAIN');
+  });
+
+  it('the soft registers bake no colour of their own', () => {
+    expect(svg).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
+    expect(svg).not.toMatch(/\b(rgb|rgba|hsl|hsla)\(/);
+    assertEveryVarTokenDefined(svg);
   });
 });
