@@ -590,7 +590,7 @@ const _footnotesCache = new Map<string, Promise<Record<string, string>>>();
 export interface RawBookData extends BookData {
   apparatus?: {
     scenes?: { lines: [number, number]; summary: string; location?: string;
-               dayNumber?: number | null }[];
+               places?: string[]; dayNumber?: number | null }[];
     draft?: boolean;
     where?: string;
   };
@@ -610,6 +610,12 @@ export function normalizeBookData(d: RawBookData): BookData {
       startLine: s.lines[0],
       endLine: s.lines[1],
       place: s.location,
+      // The authored gazetteer ids. Omitting this here silently defeated the
+      // whole scene→places sweep: `Scene.places` stayed undefined, so
+      // scene-place.ts fell back to the prose dictionary for all 412 Iliad
+      // scenes (2026-07-29). Both consumers of this function -- fetchBook and
+      // ReaderShell.astro's SSR path -- depend on it being copied.
+      places: s.places,
       day: s.dayNumber,
     }));
   }
