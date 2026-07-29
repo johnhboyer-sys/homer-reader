@@ -2780,9 +2780,9 @@
     {
       "id": "barrier-bronze",
       "kind": "coast",
-      "style": "approximate",
+      "style": "barrier",
       "default": "on",
-      "note": "The wide sandy barrier that a relative sea-level fall of 2 to 2.5 m left across the mouth of the bay in the Late Bronze Age, closing the remaining water into a shallow lagoon. Derived on the same principle as the shore: the 5 m contour of the modern DEM, which runs east across the delta at about 40.00 N between the Sigeion and Rhoiteion ridges -- low ground standing proud of the fill in exactly the position Kayan's barrier occupies, and seaward of the derived shore everywhere along its length. Approximate to on the order of a kilometre. Not traced from any figure.",
+      "note": "The wide sandy barrier that a relative sea-level fall of 2 to 2.5 m left across the mouth of the bay in the Late Bronze Age, closing the remaining water into a shallow lagoon. Derived on the same principle as the shore: the 5 m contour of the modern DEM, which runs east across the delta at about 40.00 N between the Sigeion and Rhoiteion ridges -- low ground standing proud of the fill in exactly the position Kayan's barrier occupies, and seaward of the derived shore everywhere along its length. Approximate to on the order of a kilometre. Not traced from any figure. DRAWN AS GROUND, not as a line (2026-07-29): a bar is a body of land with water on both sides, and a stroke down its axis read as a river running out across the lagoon. The stored geometry is unchanged -- it is still the 5 m contour, and it locates the bar's AXIS only. Nothing surveys how wide the bar was, so the band's width is a symbol and its edges are blurred rather than drawn, the same way the wetland's margin is. West of Kum Kale the bar runs just inside today's shoreline and the ground merges with it, which is correct: the strip between this line and the modern coast is delta the Scamander has laid down since, and by the Late Bronze Age it did not exist. East of Kum Kale the bar lies outboard of the modern coast, under water now.",
       "sources": [
         {
           "cite": "Kayan, Ilhan. \"Landscape Development and Changing Environment of Troia (North-western Anatolia).\" In Landscapes and Landforms of Turkey, edited by Catherine Kuzucuoglu, Attila Ciner, and Nizamettin Kazanci, 277-91. Cham: Springer, 2019."

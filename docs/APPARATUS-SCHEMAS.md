@@ -161,6 +161,35 @@ either side of the schema. **Not yet in the pipeline's `LAYER_KIND_ENUM`**
 `kind: "tumulus"` will fail `validate_plate` until that enum is updated to
 match.
 
+### Coast `style`: three registers, three drawings
+
+A `coast` layer's `style` says what KIND of claim its line is, and each draws
+differently enough to be told apart without the legend:
+
+| `style` | drawing | claim |
+|---|---|---|
+| *(absent)* | solid stroke, `--scene-map-coast`, no blur | a **surveyed** waterline |
+| `approximate` | wide blurred band + an opaque hairline down its middle | a **reconstructed** shoreline; the hairline carries WCAG 1.4.11, since a wash may not be relied on for contrast |
+| `waterline` | solid stroke plus tapering offset waterlines | a surveyed coast in the engraved register |
+| `barrier` | a wide **blurred band with no hairline**, filled `--plate-relief-1` | not a shoreline at all: a **sandy bar**, i.e. a body of ground with water on both sides |
+
+`barrier` was added 2026-07-29 for `barrier-bronze`, the bar that closed the
+Bronze Age lagoon off from the open sea. It is authored as a `coast` layer
+because its geometry is a contour line (the 5 m level running east across the
+bay mouth), and drawn as a line it read at zoom as a river running out across
+the water. Three things make it ground instead:
+
+- **It is filled in the sheet's lowest hypsometric step** (`--plate-relief-1`)
+  rather than in a new sand token. That is what a sand bar is — the lowest land
+  on the plate — and it inherits the ramp's existing contrast guards, which
+  already assert the palest step is 1.5:1 clear of sea and lagoon in every
+  theme (`shared/__tests__/plate-map-contrast.test.ts`).
+- **No hairline down its middle.** That mark is precisely what made it read as
+  a watercourse.
+- **Its edges are blurred, not drawn.** The stored line locates the bar's AXIS;
+  nothing surveys how wide the bar was, so the band's width is a symbol and the
+  blur says so — the same argument the wetland's margin is made with.
+
 ### Relief: hypsometric bands vs hachures (`elevation`)
 
 A `relief` layer draws in one of two registers, and the field that chooses
@@ -236,6 +265,51 @@ seven roles) and `GROUND_ENUM`, checked in `validate_plate`. The two
 implementations of this schema have drifted more than once: if a fill role or
 a ground value is ever added on one side, it is added on the other in the same
 change, or `build:public` rejects a plate the renderer draws perfectly well.
+
+#### Paint order is the renderer's, not the array's
+
+**The order of the `layers` array does NOT decide what covers what.** The
+renderer sorts every layer into a fixed four-slot paint stack (`paintRank` in
+`shared/lib/plate.ts`) and the array order only breaks ties:
+
+| slot | what | why |
+|---|---|---|
+| 0 | `fill: "land"` bodies | a landmass IS the ground its relief sits on, so it goes under the bands |
+| 1 | `relief` | land only, and never over water |
+| 2 | water bodies (`fill: "sea"`, `"lagoon"`) | painted **after** relief |
+| 3 | everything else | `marsh`, coasts, rivers, walls, ship rows, tumuli, `none` lettering zones |
+
+Why slot 2 comes after slot 1 (2026-07-29): these sheets carry **two
+independent derivations of "where the land ends"** — the hypsometric bands are
+contour polygons cut from the SRTM terrain grid
+(`scripts/prep-terrain-contours.py`), the shorelines are traced from the
+Copernicus GLO-30 water-body mask (`scripts/prep-troad-basemap.py`) — and the
+two were generalised with different tolerances. They cannot be made to agree to
+the metre. `sea-modern` was authored first, under everything, so the lowest band
+overshot the drawn coast and left a pale cream fringe standing on the water,
+outboard of the coast stroke (151 sheet pixels on the plain sheet; 0 after).
+Painting the water later makes that unrepresentable without re-cutting,
+clipping or buffering any geometry — the same principle as the drowned river
+reaches below: **where two honest drawings collide, the one that is water wins,
+and it wins by being painted later.**
+
+Three things this does not change, and one it will not:
+
+- **Bands still list in ascending elevation.** The sort is stable, so within a
+  slot the plate file still decides.
+- **A submerged river reach travels with the water that hides it** — the reach
+  is keyed to the water layer's id, so moving the water later moves the reach
+  under it too.
+- **`marsh` is never swept into the water group.** The delta swamp is a
+  *translucent wash over terrain*, with the contours reading through it and a
+  gradational margin; it belongs in slot 3, above the relief, and it is not
+  open water.
+- On a `ground: "sea"` plate the sea is the bare sheet, which no ordering can
+  move. A band overshooting a coast there paints on the ground — measured at 19
+  anti-aliased pixels on the whole Troad sheet, invisible at 10x, so relief is
+  **not** clipped to the landmass. If a future sheet's derivations disagree by
+  more than a line-width, clip; the ordering fix is the cheaper one and it is
+  enough here.
 
 #### Rivers, and where they stop
 

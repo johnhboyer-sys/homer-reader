@@ -1706,6 +1706,145 @@ describe('the soft registers: an indefinite edge drawn as one', () => {
   });
 });
 
+// ── The paint stack: water is painted after relief (2026-07-29) ──────────
+// The defect: the hypsometric bands are cut from the SRTM terrain grid and
+// the shorelines are traced from the Copernicus GLO-30 water mask — two
+// independent derivations of "where the land ends," generalised with
+// different tolerances — so on the plain sheet the lowest band overshot the
+// drawn coast and a pale cream fringe sat on the water outboard of the coast
+// stroke. `sea-modern` was authored FIRST, under everything, so every band
+// painted over it. Measured before the fix: 151 sheet pixels of relief
+// standing on the modern sea; after: 0.
+//
+// These guard the ORDER rather than the geometry, because order is the fix:
+// a land band cannot render over sea if the water is painted later, whatever
+// the two derivations disagree about. See paintRank in shared/lib/plate.ts.
+
+/** The document-order index of the first element carrying `cls`, or -1. */
+function firstIndexOfClass(svg: string, cls: string): number {
+  return svg.indexOf(`class="plate-layer ${cls}"`);
+}
+
+/** The document-order index of the LAST element carrying `cls`, or -1. */
+function lastIndexOfClass(svg: string, cls: string): number {
+  return svg.lastIndexOf(`class="plate-layer ${cls}"`);
+}
+
+describe('the paint stack: a land band can never render over water', () => {
+  const livePlain = parsePlate(JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8')));
+  const plainSvg = renderPlate(livePlain, []).svg;
+
+  it('on the live plain sheet, every relief band is emitted before every water body', () => {
+    const lastRelief = lastIndexOfClass(plainSvg, 'plate-layer-relief-band');
+    const firstWater = firstIndexOfClass(plainSvg, 'plate-layer-region');
+    expect(lastRelief).toBeGreaterThan(-1);
+    expect(firstWater).toBeGreaterThan(-1);
+    expect(lastRelief).toBeLessThan(firstWater);
+    // ...and the water bodies really are the sea and the lagoon, not some
+    // other region that happens to sort first.
+    expect(plainSvg.indexOf('data-feature-id="sea-modern"')).toBeGreaterThan(lastRelief);
+    expect(plainSvg.indexOf('data-feature-id="lagoon-bronze"')).toBeGreaterThan(lastRelief);
+  });
+
+  it('the order is the RENDERER\'s, not the plate file\'s — authoring water first cannot reintroduce the bleed', () => {
+    const sea: PlateLayer = {
+      id: 'sea', kind: 'region', fill: 'sea',
+      polygon: [[39.87, 26.13], [39.87, 26.35], [40.01, 26.35], [40.01, 26.13]],
+    };
+    const band: PlateLayer = {
+      id: 'band', kind: 'relief', elevation: 10,
+      polygon: [[39.9, 26.16], [39.9, 26.2], [39.94, 26.2], [39.94, 26.16]],
+    };
+    // Authored water-first, exactly as trojan-plain.json still is.
+    const svg = renderPlate({ ...testPlate, layers: [sea, band] }, []).svg;
+    expect(svg.indexOf('data-feature-id="band"')).toBeLessThan(svg.indexOf('data-feature-id="sea"'));
+  });
+
+  it('a `fill: "land"` body stays UNDER the relief it carries (the Troad sheet\'s construction)', () => {
+    const land: PlateLayer = {
+      id: 'island', kind: 'coast', fill: 'land',
+      rings: [[[39.9, 26.15], [39.95, 26.15], [39.95, 26.2], [39.9, 26.2], [39.9, 26.15]]],
+    };
+    const band: PlateLayer = {
+      id: 'band', kind: 'relief', elevation: 200,
+      polygon: [[39.91, 26.16], [39.91, 26.19], [39.94, 26.19], [39.94, 26.16]],
+    };
+    // Authored relief-first, to prove the rank and not the array decides.
+    const svg = renderPlate({ ...testPlate, ground: 'sea', layers: [band, land] }, []).svg;
+    expect(svg.indexOf('data-feature-id="island-body"')).toBeLessThan(svg.indexOf('data-feature-id="band"'));
+  });
+
+  it('the marsh is NOT swept into the water group: it stays a translucent wash OVER the terrain', () => {
+    const swamp = plainSvg.indexOf('data-feature-id="delta-swamp"');
+    expect(swamp).toBeGreaterThan(lastIndexOfClass(plainSvg, 'plate-layer-relief-band'));
+    expect(swamp).toBeGreaterThan(plainSvg.indexOf('data-feature-id="lagoon-bronze"'));
+    const m = plainSvg.match(/data-feature-id="delta-swamp"[^>]*>/)![0];
+    // Translucent, so the contours read through it, and no outline at all —
+    // the layer note's "a wetland has no boundary" claim, still drawn.
+    expect(m).toContain('fill-opacity="0.55"');
+    expect(m).toContain('stroke="none"');
+    expect(m).toMatch(/filter="url\(#[^"]+\)"/);
+  });
+
+  it('the sort is stable — layers sharing a rank keep the order the plate file authored them in', () => {
+    const rings: [number, number][][] = [[[39.9, 26.15], [39.95, 26.15], [39.95, 26.2], [39.9, 26.15]]];
+    const a: PlateLayer = { id: 'coast-a', kind: 'coast', rings };
+    const b: PlateLayer = { id: 'coast-b', kind: 'coast', rings };
+    const svg = renderPlate({ ...testPlate, layers: [a, b] }, []).svg;
+    expect(svg.indexOf('data-feature-id="coast-a"')).toBeLessThan(svg.indexOf('data-feature-id="coast-b"'));
+  });
+});
+
+// ── The sandy barrier is ground, not a line (2026-07-29) ──────────────────
+// `barrier-bronze` is the bar that closed the Bronze Age lagoon off from the
+// open sea. Authored as a `coast` layer because its geometry IS a contour
+// line (the 5 m level across the bay mouth), it drew as a dark hairline in a
+// glow — and at zoom that read as a river running out across the water
+// (John, 2026-07-29). It now draws as what it is: a body of the sheet's
+// lowest ground, with a blurred margin because its width was never surveyed.
+
+describe('the sandy barrier draws as ground, not as a watercourse', () => {
+  const livePlain = parsePlate(JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8')));
+  const svg = renderPlate(livePlain, []).svg;
+  const barrier = svg.match(/data-feature-id="barrier-bronze"[^>]*>/)![0];
+
+  it('is filled in the sheet\'s lowest hypsometric step, which is what a sand bar is', () => {
+    expect(barrier).toContain('class="plate-layer plate-layer-barrier"');
+    expect(barrier).toContain('stroke="var(--plate-relief-1)"');
+  });
+
+  it('carries no hairline down its middle — that mark is what made it read as a river', () => {
+    expect(svg).not.toContain('data-feature-id="barrier-bronze-band"');
+    expect(svg.match(/data-feature-id="barrier-bronze"/g)!.length).toBe(1);
+    expect(barrier).not.toContain('var(--plate-river)');
+  });
+
+  it('its width is a symbol, so its edges are blurred rather than drawn', () => {
+    expect(barrier).toMatch(/filter="url\(#[^"]+\)"/);
+    expect(svg).toContain('<feGaussianBlur');
+  });
+
+  it('stays visually distinct from BOTH shorelines — three registers, three drawings', () => {
+    const reconstructed = svg.match(/data-feature-id="shore-bronze-band"[^>]*>/)![0];
+    const modern = svg.match(/data-feature-id="coast-modern"[^>]*>/)![0];
+    // The reconstructed shore is a soft band in the coast ink with an opaque
+    // hairline; the modern coast is a solid stroke; the barrier is neither.
+    expect(reconstructed).toContain('stroke="var(--scene-map-coast)"');
+    expect(modern).toContain('stroke="var(--scene-map-coast)"');
+    expect(barrier).not.toContain('var(--scene-map-coast)');
+    expect(modern).not.toContain('filter=');
+  });
+
+  it('keys as ground in the legend, not as a shoreline', () => {
+    expect(svg).toContain('Sandy barrier, reconstructed — width not surveyed');
+  });
+
+  it('bakes no colour of its own', () => {
+    expect(barrier).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
+    assertEveryVarTokenDefined(svg);
+  });
+});
+
 // ── A river is painted beneath any water it crosses (2026-07-29) ──────────
 // The defect: our rivers are modern OSM watercourses, and their lower reaches
 // cross ground that was under water in 1200 BC — so on the plain sheet the

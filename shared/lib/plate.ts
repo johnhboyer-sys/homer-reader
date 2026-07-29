@@ -1618,6 +1618,17 @@ function layerLegendEntry(layer: PlateLayer): LegendEntry | undefined {
       // The swatch fakes the blur with three stacked strokes rather than
       // referencing the filter: at legend size the steps are invisible, and
       // it keeps the key independent of the sheet's element ids.
+      // A barrier bar is not a shoreline at all — it is ground, and it keys
+      // as ground: the swatch is a body of the lowest hypsometric step, the
+      // same tint the sheet draws it in.
+      if (layer.style === 'barrier') {
+        return {
+          key: 'coast-barrier',
+          rank: 1.5,
+          text: 'Sandy barrier, reconstructed — width not surveyed',
+          swatch: (x, y) => legendSwatchRect(x, y, reliefRampToken(1), 1, 'var(--flaxman-ink)'),
+        };
+      }
       const reconstructed = layer.style === 'approximate';
       return {
         key: reconstructed ? 'coast-approximate' : 'coast-line',
@@ -2168,11 +2179,18 @@ function resolvePlacePosition(plate: Plate, place: PlatePlace, viewport: Viewpor
 // sheets, enough that the edge is a gradient and not a line. The wetland has
 // no position to soften, only a margin that never existed as a line at all,
 // so it fades over roughly twice that.
-const SOFT_BLUR = { coast: 4, marsh: 8 } as const;
+// A third strength for the sandy barrier (2026-07-29). It is a BODY of ground
+// rather than a line, so what is soft is its WIDTH: the 5 m contour locates
+// its axis, nothing surveys how wide the bar was, and 6 px of blur says that
+// without a legend. See the `barrier` case in renderLayer.
+const SOFT_BLUR = { coast: 4, marsh: 8, barrier: 6 } as const;
 type SoftKind = keyof typeof SOFT_BLUR;
 const APPROX_BAND_WIDTH = 9;
 const APPROX_BAND_OPACITY = 0.4;
 const APPROX_CORE_WIDTH = 0.9;
+// The drawn width of a barrier bar. Not a measurement — see BARRIER above and
+// the layer's own note; the blur is what says so.
+const BARRIER_BAND_WIDTH = 11;
 
 const STROKE_WEIGHT = {
   coast: 2,
@@ -2300,6 +2318,47 @@ function collectWaterBodies(plate: Plate, viewport: Viewport): WaterBody[] {
     bodies.push({ layerId: null, contains: (p) => !landBodies.some((rings) => insideRings(rings, p)) });
   }
   return bodies;
+}
+
+// ── The paint stack (2026-07-29) ─────────────────────────────────────────
+// The order layers are PAINTED in, which is deliberately not the order they
+// are authored in.
+//
+// The defect: two independent derivations of "where the land ends" are on
+// these sheets — the hypsometric bands are contour polygons cut from the SRTM
+// terrain grid (`scripts/prep-terrain-contours.py`), the shorelines are traced
+// from the Copernicus GLO-30 water-body mask (`scripts/prep-troad-basemap.py`)
+// — and they were generalised with different tolerances. They cannot be made
+// to agree to the metre, and on the Trojan-plain sheet the lowest band
+// overshot the drawn coast by a pixel or two, leaving a pale cream fringe
+// sitting on the water outboard of the coast stroke. `sea-modern` was
+// authored FIRST, under everything, so every relief band painted on top of it.
+//
+// The fix is paint order, not a re-cut of geometry: a land band cannot render
+// over sea if the water is painted after the relief, whatever the two
+// derivations disagree about, and nothing has to be clipped, buffered or
+// re-traced. Same principle as the submerged river reaches above — where two
+// honest drawings collide, the one that is water wins, and it wins by being
+// painted later.
+//
+// Four slots, STABLE within each, so authored order still decides everything
+// else and a layer that does not move emits byte-identical markup:
+//   0  land bodies      a `fill: "land"` body IS the ground the relief sits on
+//                       (the Troad sheet's mainland and islands, on a
+//                       `ground: "sea"` plate) — it must stay under the bands
+//   1  relief           land only, and never over water
+//   2  water bodies     open sea and lagoon
+//   3  everything else  the marsh (a TRANSLUCENT wash over terrain, with
+//                       contours reading through it — never swept into the
+//                       water group), coasts, rivers, walls, ship rows,
+//                       tumuli, lettering zones
+function paintRank(layer: PlateLayer): number {
+  const fill =
+    layer.fill ?? (layer.kind === 'region' || layer.kind === 'band' ? DEFAULT_REGION_FILL : undefined);
+  if (fill === 'land') return 0;
+  if (layer.kind === 'relief') return 1;
+  if (fill !== undefined && WATER_FILLS.has(fill)) return 2;
+  return 3;
 }
 
 // Bisections used to find where a line crosses a shoreline. 24 halvings put
@@ -2611,6 +2670,35 @@ function renderLayer(
           `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" ` +
           `d="${d}" fill="none" stroke="var(--scene-map-coast)" stroke-width="${APPROX_CORE_WIDTH}" ` +
           `stroke-linecap="round" stroke-linejoin="round"/>`;
+      } else if (layer.style === 'barrier') {
+        // A SANDY BAR — a body of ground with water on both sides, not a
+        // shoreline. Authored as a `coast` layer because its geometry is a
+        // contour line (the 5 m level running east across the bay mouth), and
+        // drawn as a line it read as a watercourse in the water: a dark
+        // hairline with a glow, running out across the lagoon (2026-07-29,
+        // John: "a river where it shouldn't be").
+        //
+        // So it draws as ground: a wide band filled in the sheet's own LOWEST
+        // hypsometric step, which is what the bar is — the lowest land on the
+        // plate. Using the ramp's first step rather than a new sand token is
+        // the honest choice and the cheap one: it says "this is the lowest
+        // ground here" in the same tint the contoured relief already uses for
+        // that, and it inherits the ramp's contrast guards (the palest step is
+        // already asserted 1.5:1 clear of sea and lagoon in every theme —
+        // shared/__tests__/plate-map-contrast.test.ts).
+        //
+        // No hairline down its middle: that mark IS what made it read as a
+        // river. The band's WIDTH is not surveyed — only its axis is — so the
+        // edges are blurred rather than drawn, the same argument the marsh's
+        // margin is made with. Three registers, three drawings: the modern
+        // coast is a solid stroke, the reconstructed shore a soft grey band
+        // with an opaque hairline, the barrier a soft pale body.
+        markup =
+          body +
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-barrier" ` +
+          `d="${ringsPx.map((px) => lineD(px, false)).join(' ')}" fill="none" ` +
+          `stroke="${reliefRampToken(1)}" stroke-width="${BARRIER_BAND_WIDTH}" ` +
+          `stroke-linecap="round" stroke-linejoin="round" filter="url(#${softId('barrier')})"/>`;
       } else if (layer.style === 'waterline') {
         const coastD = ringsPx.map((px) => lineD(px, false)).join(' ');
         const strokes = waterlines(ringsPx, { seed });
@@ -2821,7 +2909,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // reach belongs to the water's paint slot, and the water is drawn before
   // the river, so the two are assembled after the whole pass rather than
   // pushed as they are rendered.
-  const drawn: { layerId: string; markup: string }[] = [];
+  const drawn: { layerId: string; markup: string; rank: number }[] = [];
   const submergedByWater = new Map<string, string[]>();
   const waters = collectWaterBodies(plate, viewport);
   // Every place id actually carried by a rendered layer (Problem 2, gap
@@ -2842,11 +2930,12 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   const needsSoft: Record<SoftKind, boolean> = {
     coast: plate.layers.some((l) => l.kind === 'coast' && l.style === 'approximate'),
     marsh: plate.layers.some((l) => l.fill === 'marsh'),
+    barrier: plate.layers.some((l) => l.kind === 'coast' && l.style === 'barrier'),
   };
   for (const layer of plate.layers) {
     const rendered = renderLayer(plate, layer, viewport, softId, waters);
     if (!rendered) continue;
-    drawn.push({ layerId: layer.id, markup: rendered.markup });
+    drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer) });
     for (const under of rendered.submerged ?? []) {
       const bucket = submergedByWater.get(under.layerId);
       if (bucket) bucket.push(under.markup);
@@ -2864,9 +2953,14 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     }
   }
 
-  const layerMarkup = drawn.map(
-    ({ layerId, markup }) => (submergedByWater.get(layerId) ?? []).join('') + markup,
-  );
+  // Into the paint stack (see paintRank). Array#sort is stable in every
+  // engine this ships to, so layers sharing a rank keep the order the plate
+  // file authored them in. A water layer's submerged river reaches travel
+  // with it, because they are keyed to its id and joined here, after the
+  // sort — so moving the sea later moves the drowned reaches under it too.
+  const layerMarkup = [...drawn]
+    .sort((a, b) => a.rank - b.rank)
+    .map(({ layerId, markup }) => (submergedByWater.get(layerId) ?? []).join('') + markup);
 
   const placeById = new Map(places.map((p) => [p.id, p]));
 
