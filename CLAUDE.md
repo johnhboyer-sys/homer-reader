@@ -251,7 +251,18 @@ decisions, not on file contents.
   claude agent's work (including your own) reviewed by gpt or grok."
   Every Claude implementation lane — and the orchestrator's own hand
   edits — gets a Sol (code) or Grok (content/data) pass before the work
-  is considered done. Not only at PR gates: a fleet of Claude agents
+  is considered done.
+  **ROSTER CHANGE (John, 2026-07-29): Codex is OFF — GPT login failures
+  on the new account. Opus, Sonnet, Grok only, until John says GPT is
+  back. Consequence the orchestrator must not paper over: Grok is now
+  the ONLY non-Claude reviewer, so it takes the code gates as well as
+  the content ones, outside its usual specialty. Where a code gate must
+  stay in-family, say so in the report — an Opus review of Sonnet's work
+  is same-family and shares its blind spots, which is exactly how the
+  black Shield and the dropped `places[]` field both got past green
+  suites. Never silently downgrade a cross-family gate to an in-family
+  one.**
+  Not only at PR gates: a fleet of Claude agents
   checking each other shares a model's blind spots, which is how the
   Shield shipped rendering solid black past a colour test that only
   checked for `var()` and never that the token existed. Sol reviews
@@ -285,8 +296,8 @@ decisions, not on file contents.
 | **Fable** (main thread) | Orchestrator | Planning, decomposition, briefs, integration, review of agent returns, commits/pushes, all conversation with John. No fable subagents without John's say-so. |
 | **Opus** | Heavy reasoner | Architecture decisions, subtle pipeline/alignment bugs, Homeric philological judgment calls (vulgate lineation and athetized lines, formula/epithet boundaries, morphology disputes, speech-span nesting), judgment-heavy apparatus drafting, final verification of high-stakes work |
 | **Sonnet** | Workhorse (default subagent) | Well-specified implementation, tests, mechanical multi-file edits, exploration/search sweeps, doc updates, data-build babysitting, per-book apparatus batches (~5 books/agent) |
-| **GPT-5.6-Sol-High** (Codex CLI, `--effort high` — John, 2026-07-28, raised back from medium) | Adversarial reviewer | Red-team review of finished work before John's review gates and before any deploy; cross-model second opinion on designs. Precedent: the plato-reader 14th-deploy whole-site adversarial review (15 confirmed findings). |
-| **GPT-5.6-Terra-High** (Codex CLI, `--effort high` — John, 2026-07-28, raised back from medium) | Cross-model implementer | Independent implementation of isolated, well-specified tasks; independent bug reproduction; second implementation when comparing approaches |
+| ~~**GPT-5.6-Sol-High**~~ **OFF ROSTER** (John, 2026-07-29: login failures on the new ChatGPT account — do not spawn until he says GPT is back) | Adversarial reviewer | Red-team review of finished work before John's review gates and before any deploy; cross-model second opinion on designs. Precedent: the plato-reader 14th-deploy whole-site adversarial review (15 confirmed findings). |
+| ~~**GPT-5.6-Terra-High**~~ **OFF ROSTER** (John, 2026-07-29, same reason) | Cross-model implementer | Independent implementation of isolated, well-specified tasks; independent bug reproduction; second implementation when comparing approaches |
 | **Grok-4.5** (Grok CLI, `grok-cc:grok-rescue`) | Full implementer + content verifier (off probation, John 2026-07-17; free trial) | Content/extraction verification gates (its specialty — twice found defect classes Sol/Opus/Claude all missed, with raw-line evidence), additional adversarial passes, mechanical coding tasks. Forwarder quirk (BOTH grok-rescue and codex-rescue): the runner may background the CLI task and end its turn with no result — nudge via SendMessage ("wait for the run and return the findings"). Gotcha: read-only task mode gets Cancelled by the runtime — use write-capable with a no-tracked-file-edits constraint. |
 
 Routing principles: default subagent is Sonnet; escalate to Opus on genuine
