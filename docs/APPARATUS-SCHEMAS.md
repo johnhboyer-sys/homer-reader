@@ -230,12 +230,49 @@ resolves to `var(--accent-light)`, the site's wine wayfinding accent, so every
 undeclared landform was painted in the UI highlight colour. A landform is not a
 highlight: terrain is the default and the accent wash is opt-in.
 
-**The pipeline validator must be updated to match** —
-`pipeline/homer_pipeline/apparatus_places.py` still carries
-`REGION_FILL_ENUM = {"tint", "sea"}` and has no `ground` key at all, so a plate
-using any of the four new fill roles, or declaring `ground`, will fail
-`validate_plate` until that enum grows the same six values and the plate-level
-key list accepts `ground` (`"land" | "sea"`).
+**The pipeline validator mirrors this table exactly.**
+`pipeline/homer_pipeline/apparatus_places.py` carries `REGION_FILL_ENUM` (all
+seven roles) and `GROUND_ENUM`, checked in `validate_plate`. The two
+implementations of this schema have drifted more than once: if a fill role or
+a ground value is ever added on one side, it is added on the other in the same
+change, or `build:public` rejects a plate the renderer draws perfectly well.
+
+#### Rivers, and where they stop
+
+**A river is painted BENEATH any water it crosses.** No field configures this
+and none should: it is a property of the drawing, not a claim in the data, so
+there is nothing to author, nothing to forget on the next river, and nothing
+for the two implementations of this schema to drift on. The renderer splits a
+`river` layer at the edge of every water body on the sheet (`fill: "sea"` /
+`"lagoon"`, plus the whole sheet when `ground: "sea"`) and hands each submerged
+reach to that water layer's own paint slot, immediately under its fill.
+
+Why it matters: our rivers are modern OSM watercourses, and their lower reaches
+cross ground that was under water in 1200 BC. Drawn over the reconstructed
+lagoon they asserted a Bronze Age river exactly where the plate's own evidence
+says there was sea.
+
+Three consequences worth knowing when authoring a sheet:
+
+- **Nothing is cut from the data.** The union of what is drawn is still exactly
+  the surveyed course; only the paint order changes. A river's mouth is
+  therefore a function of *which shoreline you are drawing* — switch the
+  reconstructed lagoon off and the water that was hiding the reach goes with
+  it, so the river runs on to the modern mouth. The clip follows the layer
+  toggles for free, because the water itself is what hides the reach.
+- **A water fill must stay opaque** (`sea`, `lagoon` — see the opacity table in
+  `shared/lib/plate.ts`). A translucent water body would leak the drowned river
+  back through it.
+- **`marsh` is not water for this purpose.** A channel through a wetland is a
+  channel; the Scamander crossing the delta swamp draws over it, as it should.
+  A reach drowned by a `ground: "sea"` sheet is simply not drawn — the ground
+  is the bottom of the paint stack, and it carries no toggle.
+
+If a river's drawn end is now somewhere its `note` did not anticipate, **fix the
+note**: `simoeis` on the plain sheet stops at two different places (the Bronze
+Age shore with the reconstruction on, the end of the OSM survey with it off),
+and its note says both, because "the survey stops here" and "the water began
+here" are different claims and neither may be allowed to impersonate the other.
 
 ### Lettering
 
@@ -247,6 +284,25 @@ is a catalogue entry rather than a map label: "Kesik Tepe (the 'Demetrius
 tumulus'), claimed tomb of Achilles" is the former. (Gazetteer-derived names are
 shortened to their head form automatically; the full name still rides on the
 pin's `<title>`.)
+
+**Pins carry the certainty tier as an inner mark, never as a hole** (changed
+2026-07-29). A map symbol is never transparent to its own basemap: three of the
+four tiers used to be drawn `fill: none` or as a 0.16 wash, so at 3.5x a pin
+over the hypsometric ramp had contour lines running straight through the middle
+of it. Every tier now has an opaque body — `--accent` for a location the
+gazetteer stands behind, `--text-mid` for one it does not — and the tier is
+carried by shape, in the sheet's own label-halo colour:
+
+| `certainty` | symbol |
+|---|---|
+| `certain` | solid, no inner mark |
+| `traditional` | solid + a closed inner ring |
+| `speculative` | solid + a broken inner ring |
+| `mythical` | solid + a broken outline |
+
+A `positionBasis: "conjectural"` pin keeps its own dashed outline on top of
+whichever tier it is. This is a deliberate divergence from `shared/lib/scenemap.ts`
+and `LandmarkMap.svelte`, which draw small dots on flat insets and are unchanged.
 
 Linear layers (`river`, `coast`, `wall`, `route`) are named ALONG their own run
 with `<textPath>` when the run is long enough to carry the name; area layers

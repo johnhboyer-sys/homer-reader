@@ -7979,7 +7979,7 @@
         [40.00098, 26.21274],
         [40.00538, 26.21594]
       ],
-      "note": "Scamander, called Xanthus by the gods (Il. 20.74), from its head on Ida's north-western flank down to the Dardanelles: the river that organises the whole Troad. The modern Karamenderes, from OpenStreetMap. At this scale the Bronze Age shoreline correction is smaller than the line weight, so the modern mouth is drawn; the detail plate (trojan-plain) carries the reconstruction.",
+      "note": "Scamander, called Xanthus by the gods (Il. 20.74), from its head on Ida's north-western flank down to the Dardanelles: the river that organises the whole Troad. The modern Karamenderes, from OpenStreetMap. At this scale the Bronze Age shoreline correction is smaller than the line weight, so the modern mouth is drawn; the detail plate (trojan-plain) carries the reconstruction. The line ends at the coast and not a few hundred metres beyond it, where the generalised waterline leaves the surveyed final vertex hanging in the sea.",
       "sources": [
         {
           "cite": "OpenStreetMap contributors, waterway data, ODbL 1.0.",

@@ -1705,3 +1705,271 @@ describe('the soft registers: an indefinite edge drawn as one', () => {
     assertEveryVarTokenDefined(svg);
   });
 });
+
+// ── A river is painted beneath any water it crosses (2026-07-29) ──────────
+// The defect: our rivers are modern OSM watercourses, and their lower reaches
+// cross ground that was under water in 1200 BC — so on the plain sheet the
+// Scamander and the Simoeis ran north past the reconstructed shoreline and
+// out into the lagoon, asserting a Bronze Age river where the plate's own
+// evidence says there was sea. See shared/lib/plate.ts's WaterBody block.
+
+/** Every `d` attribute the emitted SVG carries for one feature id, in paint order. */
+function pathsFor(svg: string, featureId: string): string[] {
+  const re = new RegExp(`<path data-feature-id="${featureId}" class="[^"]*" d="([^"]*)"`, 'g');
+  return [...svg.matchAll(re)].map((m) => m[1]);
+}
+
+function pointsOf(d: string): [number, number][] {
+  return [...d.matchAll(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/g)].map((m) => [Number(m[1]), Number(m[2])]);
+}
+
+function inPolygon([px, py]: [number, number], polygon: [number, number][]): boolean {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [xi, yi] = polygon[i];
+    const [xj, yj] = polygon[j];
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+describe('renderLayer: a river is painted beneath the water it crosses', () => {
+  // Schematic so the geometry is drawn as straight segments: every number in
+  // the emitted `d` is then a point ON the line, which makes the containment
+  // assertions exact rather than approximate.
+  const bay: Plate = {
+    id: 'bay',
+    title: 'Bay',
+    kind: 'schematic',
+    status: 'draft',
+    size: [100, 100],
+    layers: [
+      { id: 'the-bay', kind: 'region', fill: 'sea', polygon: [[0, 0.6], [1, 0.6], [1, 1], [0, 1]] },
+      { id: 'the-river', kind: 'river', path: [[0.5, 0.1], [0.5, 0.5], [0.5, 0.9]] },
+    ],
+  };
+  // u,v map straight across size [100,100] (projectPoint's schematic branch),
+  // so the bay is the band y >= 60 and the river runs down x = 50.
+  const svg = renderPlate(bay, []).svg;
+  const reaches = pathsFor(svg, 'the-river');
+
+  it('splits the river into a drawn reach and a submerged one', () => {
+    expect(reaches).toHaveLength(2);
+  });
+
+  it('draws the submerged reach BEFORE the water, so the water covers it', () => {
+    const water = svg.indexOf('data-feature-id="the-bay"');
+    const [first, second] = [svg.indexOf('data-feature-id="the-river"'), svg.lastIndexOf('data-feature-id="the-river"')];
+    expect(first).toBeLessThan(water);
+    expect(second).toBeGreaterThan(water);
+  });
+
+  it('draws nothing of the river over the water in the river\'s own paint slot', () => {
+    // The reach after the water is the one nothing covers.
+    const dry = pointsOf(reaches[1]);
+    for (const [, y] of dry) expect(y).toBeLessThanOrEqual(60 + 1e-3);
+  });
+
+  it('splits the line rather than gapping it: the two reaches share their cut point', () => {
+    const wet = pointsOf(reaches[0]);
+    const dry = pointsOf(reaches[1]);
+    // The cut lands on the shoreline itself, and both reaches end there.
+    expect(dry[dry.length - 1][1]).toBeCloseTo(60, 1);
+    expect(wet[0][1]).toBeCloseTo(60, 1);
+    expect(wet[0][0]).toBeCloseTo(dry[dry.length - 1][0], 1);
+  });
+
+  it('keeps every reach under the river\'s OWN feature id, so one toggle still governs the whole river', () => {
+    // PlatePanel toggles by exact data-feature-id match — a suffixed id (the
+    // trap the coast band's `-band` id already falls into) would leave half a
+    // river on the sheet after its own layer was switched off.
+    expect(svg.match(/data-feature-id="the-river"/g)).toHaveLength(2);
+  });
+
+  it.each(['sea', 'lagoon'] as const)(
+    'the "%s" fill a drowned reach hides under is fully opaque — a translucent one would leak the river back',
+    (fill) => {
+      const plate: Plate = { ...bay, layers: [{ ...bay.layers[0], fill }, bay.layers[1]] };
+      const water = renderPlate(plate, []).svg.match(/<path data-feature-id="the-bay"[^>]*\/>/)![0];
+      expect(water).toContain('fill-opacity="1"');
+    },
+  );
+
+  it('leaves a river alone on a sheet with no water at all', () => {
+    const dry: Plate = { ...bay, layers: [bay.layers[1]] };
+    expect(pathsFor(renderPlate(dry, []).svg, 'the-river')).toHaveLength(1);
+  });
+
+  it('does not treat marsh as water — a channel through a wetland is a channel', () => {
+    const wet: Plate = {
+      ...bay,
+      layers: [{ ...bay.layers[0], id: 'the-swamp', fill: 'marsh' }, bay.layers[1]],
+    };
+    expect(pathsFor(renderPlate(wet, []).svg, 'the-river')).toHaveLength(1);
+  });
+
+  it('drops the reach drowned by a `ground: "sea"` sheet: nothing can be drawn beneath the ground', () => {
+    const seaGround: Plate = {
+      ...bay,
+      ground: 'sea',
+      layers: [
+        { id: 'the-island', kind: 'coast', fill: 'land', rings: [[[0, 0], [1, 0], [1, 0.6], [0, 0.6]]] },
+        bay.layers[1],
+      ],
+    };
+    const svgSea = renderPlate(seaGround, []).svg;
+    const reachesSea = pathsFor(svgSea, 'the-river');
+    expect(reachesSea).toHaveLength(1);
+    for (const [, y] of pointsOf(reachesSea[0])) expect(y).toBeLessThanOrEqual(60 + 1e-3);
+  });
+});
+
+describe('the live plain sheet: the rivers stop at the Bronze Age shore', () => {
+  const plate = parsePlate(JSON.parse(readFileSync(path.resolve(process.cwd(), SEED_PLATE_PATH), 'utf-8')));
+  const svg = renderPlate(plate, []).svg;
+  const lagoonRing = pointsOf(pathsFor(svg, 'lagoon-bronze')[0]);
+
+  it('the Scamander is drawn in three reaches — the plain, the lagoon, the modern sea', () => {
+    expect(pathsFor(svg, 'scamander')).toHaveLength(3);
+    expect(pathsFor(svg, 'simoeis')).toHaveLength(2);
+  });
+
+  it('each drowned reach is drawn before the water that drowns it', () => {
+    const idsInOrder = [...svg.matchAll(/data-feature-id="([^"]+)"/g)].map((m) => m[1]);
+    const nth = (id: string, n: number) => idsInOrder.reduce<number[]>((acc, v, i) => (v === id ? [...acc, i] : acc), [])[n];
+    expect(nth('scamander', 0)).toBeLessThan(nth('sea-modern', 0));
+    expect(nth('scamander', 1)).toBeLessThan(nth('lagoon-bronze', 0));
+    expect(nth('simoeis', 0)).toBeLessThan(nth('lagoon-bronze', 0));
+  });
+
+  it('nothing of a river is drawn over the lagoon in the river\'s own paint slot', () => {
+    // The last reach of each river is the one drawn after every water layer.
+    for (const id of ['scamander', 'simoeis']) {
+      const reaches = pathsFor(svg, id);
+      const own = pointsOf(reaches[reaches.length - 1]);
+      // The reach ends ON the shore, so its own final point may sit a
+      // bisection's width either side of it; everything before it must be
+      // clear of the water by the width of the line that draws it.
+      for (const p of own.slice(0, -1)) expect(inPolygon(p, lagoonRing)).toBe(false);
+    }
+  });
+
+  it('the Scamander still crosses the delta swamp: marsh is wet ground, not open water', () => {
+    const swamp = pointsOf(pathsFor(svg, 'delta-swamp')[0]);
+    const own = pointsOf(pathsFor(svg, 'scamander').at(-1)!);
+    expect(own.some((p) => inPolygon(p, swamp))).toBe(true);
+  });
+
+  it('the calibrated Bronze Age geometry is untouched by the clip', () => {
+    // Clipping rivers against the shore must not move the shore. These are
+    // the three lines the 10 m calibration is carried by.
+    const before = JSON.parse(readFileSync(path.resolve(process.cwd(), SEED_PLATE_PATH), 'utf-8'));
+    for (const id of ['shore-bronze', 'barrier-bronze', 'lagoon-bronze']) {
+      const layer = before.layers.find((l: PlateLayer) => l.id === id)!;
+      const live = plate.layers.find((l) => l.id === id)!;
+      expect(live.rings ?? live.polygon).toEqual(layer.rings ?? layer.polygon);
+    }
+  });
+});
+
+describe('the live Troad sheet: the rivers stop at the coast', () => {
+  const plate = parsePlate(JSON.parse(readFileSync(path.resolve(process.cwd(), '../apparatus/plates/troad.json'), 'utf-8')));
+  const viewport = viewportFromBBox(plate.bbox!, plate.size);
+  const svg = renderPlate(plate, []).svg;
+
+  it('does not draw the seaward tail the generalised coastline leaves hanging in the water', () => {
+    const river = plate.layers.find((l) => l.id === 'river-scamander')!;
+    const mouth = project(river.path!.at(-1)! as [number, number], viewport);
+    const drawn = pointsOf(pathsFor(svg, 'river-scamander')[0]);
+    const end = drawn.at(-1)!;
+    // The drawn line stops short of the surveyed final vertex — on the coast.
+    expect(Math.hypot(end[0] - mouth[0], end[1] - mouth[1])).toBeGreaterThan(1);
+  });
+
+  it('cuts each river once, at its mouth, and nowhere mid-course', () => {
+    for (const id of ['river-scamander', 'river-granikos', 'river-aisepos', 'river-satnioeis']) {
+      expect(pathsFor(svg, id)).toHaveLength(1);
+    }
+  });
+});
+
+// ── Pins are opaque (2026-07-29) ─────────────────────────────────────────
+// John, zooming a pin over the hypsometric ramp: the contour lines ran
+// straight through the middle of it. The certainty register survives; it is
+// carried by an inner mark instead of by a hole.
+
+describe('renderPlate: a pin is never transparent to its own basemap', () => {
+  const TIERS = ['certain', 'traditional', 'speculative', 'mythical'] as const;
+  const pinFor = (certainty: (typeof TIERS)[number]) => {
+    const place: PlatePlace = { id: `p-${certainty}`, name: certainty, coords: [39.957, 26.239], certainty };
+    const svg = renderPlate(testPlate, [place]).svg;
+    return svg.match(new RegExp(`<g data-place-id="p-${certainty}"[^>]*>[\\s\\S]*?</g>`))![0];
+  };
+
+  it.each(TIERS)('the %s pin has an opaque body — no fill-opacity, no fill:none', (certainty) => {
+    const pin = pinFor(certainty);
+    expect(pin).not.toContain('fill-opacity');
+    // The body is one closed outline filled with a colour token. (The inner
+    // mark is a stroke-only ring and legitimately carries fill="none"; it is
+    // drawn ON the body, not through it.)
+    const body = pin.match(/<path d="[^"]*"[^>]*\/>/)![0];
+    expect(body).not.toContain('fill="none"');
+    expect(body).toMatch(/d="M [\d.-]+ [\d.-]+ A [\d.-]+ [\d.-]+ 0 1 1 [\d.-]+ [\d.-]+ L [\d.-]+ [\d.-]+ Z" fill="var\(--[a-z-]+\)"/);
+  });
+
+  it('draws the pin as ONE closed outline, so an opaque body shows no seam across itself', () => {
+    // A circle plus a separate triangle leaves two stroked edges crossing the
+    // middle of the symbol once the fill stops being transparent.
+    expect(pinFor('certain')).not.toContain('<circle');
+  });
+
+  it('keeps the four tiers distinguishable by SHAPE, not only by colour', () => {
+    const shapes = TIERS.map((t) => {
+      const pin = pinFor(t);
+      return [
+        /stroke-dasharray="2 2"/.test(pin), // broken outline
+        /<circle[^>]*stroke="var\(--scene-map-label-halo\)"/.test(pin), // an inner mark at all
+        /<circle[^>]*stroke-dasharray/.test(pin), // a BROKEN inner mark
+      ].join('|');
+    });
+    expect(new Set(shapes).size).toBe(4);
+  });
+
+  it('carries the inner mark in the sheet\'s own paper colour, never as a hole', () => {
+    const pin = pinFor('traditional');
+    expect(pin).toContain('stroke="var(--scene-map-label-halo)"');
+    expect(pin).not.toContain('fill-opacity');
+  });
+
+  it('still marks a conjectural position with its own dashed outline', () => {
+    const pin = renderPlate(schematicPlate, [anchoredPlace]).svg.match(/<g data-place-id="anchored-place"[^>]*>[\s\S]*?<\/g>/)![0];
+    expect(pin).toContain('stroke-dasharray="1 3"');
+    expect(pin).not.toContain('fill-opacity');
+  });
+
+  it('keys the legend with the SAME symbols the sheet draws', () => {
+    const places: PlatePlace[] = TIERS.map((c, i) => ({
+      id: `q-${c}`,
+      name: c,
+      coords: [39.9 + i * 0.01, 26.2] as [number, number],
+      certainty: c,
+    }));
+    const svg = renderPlate(testPlate, places).svg;
+    const legend = svg.match(/<g class="plate-legend">[\s\S]*?$/)![0];
+    // Four keyed tiers, each drawn as the pin itself (arc + point), not as a
+    // disc; and each of the four rows present.
+    expect(legend.match(/A 4 4 0 1 1/g)).toHaveLength(4);
+    for (const text of ['Location secure', 'Traditional identification', 'Identification speculative', 'Mythical — no known site']) {
+      expect(legend).toContain(text);
+    }
+    // The broken registers reach the key too.
+    expect(legend).toContain('stroke-dasharray="2 2"');
+    expect(legend).toContain(`stroke-dasharray="2.1 2.1"`);
+  });
+
+  it('bakes no colour of its own into a pin or its key row', () => {
+    const svg = renderPlate(testPlate, [troy, scamander, ghost]).svg;
+    expect(svg).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
+    assertEveryVarTokenDefined(svg);
+  });
+});

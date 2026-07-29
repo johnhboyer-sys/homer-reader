@@ -885,3 +885,43 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   only the component connected to the bay head) in place of a strip cut by
   literal lat/lon filters, three of whose four sides were the filter rather
   than the ground.
+
+## 2026-07-29 — rivers under water, and pins that are not holes
+
+- `shared/lib/plate.ts` — **a river is painted beneath any water it crosses.**
+  Our rivers are modern OSM watercourses whose lower reaches cross ground that
+  was under water in 1200 BC, so the Scamander and the Simoeis ran north past
+  the reconstructed shoreline and out into the lagoon. The fix is paint ORDER,
+  not a cut: `collectWaterBodies` + `runsWhere` split each river at the edge of
+  every water body on the sheet and hand the submerged reach to that water
+  layer's own paint slot, under its fill. Nothing is discarded — the union of
+  what is drawn is still the surveyed course — and because the water is what
+  hides the reach, the mouth follows the layer toggles with no component
+  change: switch the lagoon off and the river runs on to the modern mouth.
+  No plate field configures it (nothing to author, nothing to forget, nothing
+  for `apparatus_places.py` to drift on). A reach drowned by a `ground: "sea"`
+  sheet is dropped, the ground being the bottom of the paint stack. `marsh` is
+  not water: the delta swamp is still crossed. `smoothPathD` factored into
+  `smoothFrame` + a new `smoothPolyline`, so the clip is computed against the
+  DRAWN curve rather than the polyline behind it (at a sharp inlet the
+  smoothing pulls back further than the line weight, and the river poked out
+  into the water). River ends are butt caps now, not round: a round cap put
+  half a line-width of ink past the mouth.
+- `shared/lib/plate.ts` — **every pin is opaque.** Three of the four certainty
+  tiers carried their meaning as a HOLE (`fill: none`, or a 0.16 wash), so at
+  3.5x a pin over the hypsometric ramp had contour lines running through the
+  middle of it. Same register, carried by an inner mark in
+  `--scene-map-label-halo` instead: solid / closed ring / broken ring / broken
+  outline. The pin is one closed outline (`pinBodyPath`) rather than a circle
+  plus a triangle, which is seamless only while the fill is transparent. Legend
+  swatches draw the actual pin. A deliberate divergence from `scenemap.ts` and
+  `LandmarkMap.svelte`, which are unchanged (small dots, flat insets).
+- `apparatus/plates/trojan-plain.json`, `troad.json` — three layer notes only
+  (`scamander`, `simoeis`, `river-scamander`). No geometry touched: the Bronze
+  Age shore, barrier and lagoon are byte-identical, asserted in `plate.test.ts`.
+  The Simoeis' note now states BOTH its ends — the OSM survey stops a kilometre
+  short of the Karamenderes, and its last kilometre is under the reconstructed
+  lagoon — because "the survey stops here" and "the water began here" are
+  different claims and neither may impersonate the other.
+- `shared/__tests__/plate.test.ts` — 27 new tests; 12 of them confirmed failing
+  against the pre-fix renderer.

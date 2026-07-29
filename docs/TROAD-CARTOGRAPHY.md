@@ -654,6 +654,53 @@ shadow.
 > options are "invent an edge" or "say nothing" — **letter it and draw
 > nothing.**
 
+> **FOURTH PASS, 2026-07-29 — two things a zoomed crop caught that a whole
+> sheet hides, and both are the same mistake: a mark that lets the map show
+> through it.**
+>
+> **1. A river is painted beneath the water it crosses.** Our rivers are
+> modern OSM watercourses, and their lower reaches cross ground that was under
+> water in 1200 BC — so the Scamander and the Simoeis ran north past the
+> reconstructed shoreline and out into the lagoon, asserting a Bronze Age
+> river exactly where the sheet's own evidence says there was sea. The fix is
+> **paint order, not a cut**, and that is the whole of its honesty: the
+> renderer splits each river at the edge of every water body and hands the
+> submerged reach to that water's own paint slot, under its fill. Nothing is
+> discarded and nothing is invented — the union of what is drawn is still the
+> surveyed course. And because the water is what hides the reach, **the mouth
+> follows the layer toggles for free**: switch the lagoon off and the river
+> runs on to the modern mouth, with no state for any component to track.
+>
+> Two details a later sheet will need. The clip is computed against the
+> **drawn** curve, not the polyline behind it — at a sharp inlet (a river's own
+> valley cutting the shore) the smoothing pulls the curve back from the stored
+> corner by more than the line weight, and a river cut at the stored edge
+> visibly poked out into the water it was supposed to end at. And a river's
+> ends are **butt caps, not round**: a round cap adds half a line-width of ink
+> past the mouth, which at 3.5x is a visible bulb sitting in the water.
+>
+> The general principle, which is the third time this file has arrived at it
+> from a different direction: **where a claim stops is part of the claim.** A
+> river that stops because the survey stops (the Simoeis, whose OSM tagging
+> ends a kilometre short of the Karamenderes) and a river that stops because
+> the water began are two different statements, and the layer note has to say
+> which — the Simoeis' now says both, because it has both ends depending on
+> what is switched on.
+>
+> **2. A map symbol is never transparent to its own basemap.** Zoomed, a pin
+> showed the hypsometric bands and the contour hairlines through the middle of
+> it: three of the four certainty tiers carried their meaning as a HOLE
+> (`fill: none`, or a 0.16 wash), so the terrain under the pin was part of the
+> symbol and a pin over contoured relief read as a bracelet of bands. The
+> register survives — it is a real apparatus claim and John accepted it on
+> sight — but it is now an **inner mark on an opaque body**: solid, ringed,
+> broken ring, broken outline. Two lessons under it. A hole is only invisible
+> over flat ground, and this project stopped having flat ground when it got a
+> DEM. And an opaque body needs **one closed outline**: the pin had been a
+> circle plus a triangle, which is seamless only while the fill is
+> transparent — make it opaque and two stroked edges appear across the middle
+> of the symbol, the same defect arriving from the other side.
+
 > One measured caution for whoever cuts the next contoured sheet. **A contour is only
 > as smooth as the ground under it.** Simplifying a traced line at 685 m while the grid
 > still carries 124 m wiggles does not generalise it — Douglas-Peucker keeps the

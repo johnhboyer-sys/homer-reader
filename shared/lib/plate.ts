@@ -1105,29 +1105,68 @@ export function tumulus(point: PlatePoint, opts: TumulusOptions = {}): string {
 }
 
 // ── Certainty pin styling ───────────────────────────────────────────────
-// Mirrors scenemap.ts's certaintyPinStyle (private there) so a place reads
-// with the same certainty-tier visual language on a plate as on a scene map
-// and on app/src/components/maps/LandmarkMap.svelte: certain = solid,
-// traditional = ring, speculative = outline, mythical = dashed outline.
+// The four tiers keep the register they always had — certain solid,
+// traditional ringed, speculative broken, mythical dashed — but a MAP SYMBOL
+// IS NEVER TRANSPARENT TO ITS OWN BASEMAP (2026-07-29, John, zooming a pin
+// over the hypsometric ramp: the contour lines ran straight through the
+// middle of it). Three of the four tiers used to carry their meaning as a
+// HOLE — `fill: none`, or a 0.16 wash — so the terrain under the pin was part
+// of the symbol, and at 3.5x a pin over contoured relief read as a bracelet
+// of bands rather than as a marker.
+//
+// So the body is opaque in every tier, and the tier is carried by an INNER
+// MARK drawn in the sheet's label-halo colour (the same token the lettering
+// haloes with, so it is the paper's own colour in both themes and needs no
+// new token):
+//
+//   certain      solid, no inner mark
+//   traditional  solid + a closed inner ring     (the old "ring" tier)
+//   speculative  solid + a BROKEN inner ring     (the old "outline" tier)
+//   mythical     solid + a broken OUTLINE        (unchanged, now over a body)
+//
+// Colour separates the two pairs as before: --accent for a location the
+// gazetteer stands behind, --text-mid for one it does not. Shape alone still
+// separates all four, which is what an inner mark buys over colour.
+//
+// This is now a deliberate DIVERGENCE from scenemap.ts's certaintyPinStyle
+// and app/src/components/maps/LandmarkMap.svelte, which this used to mirror:
+// those draw 6-8 px dots on a small inset over flat land, where a hole shows
+// only the ground colour. A plate is a full-column engraving over contoured
+// relief and gets read at 3x.
 
 interface PinStyle {
+  /** The pin body. Opaque, always — no fill-opacity is emitted anywhere. */
   fill: string;
-  fillOpacity: number;
   stroke: string;
+  /** A broken outline: the mythical tier. */
   dasharray?: string;
+  /** The tier's inner mark, or absent for a plain solid pin. */
+  inner?: { dasharray?: string };
 }
+
+// Geometry of the pin: head radius r, head centre 1.7r above the tip, inner
+// mark at 0.48r. The inner ring is broken with a dash pattern tuned to leave
+// four visible arcs at 1:1 on a 5.5 px head (its circumference is ~16.6 px).
+const PIN_HEAD_RISE = 1.7;
+const PIN_INNER_RATIO = 0.48;
+const PIN_INNER_WIDTH = 1.1;
+const PIN_INNER_BROKEN = '2.1 2.1';
 
 function certaintyPinStyle(certainty: Certainty | undefined): PinStyle {
   switch (certainty) {
     case 'traditional':
-      return { fill: 'var(--accent)', fillOpacity: 0.16, stroke: 'var(--accent)' };
+      return { fill: 'var(--accent)', stroke: 'var(--accent)', inner: {} };
     case 'speculative':
-      return { fill: 'none', fillOpacity: 0, stroke: 'var(--text-mid)' };
+      return { fill: 'var(--text-mid)', stroke: 'var(--text-mid)', inner: { dasharray: PIN_INNER_BROKEN } };
     case 'mythical':
-      return { fill: 'none', fillOpacity: 0, stroke: 'var(--text-mid)', dasharray: '2 2' };
+      // The broken outline is stroked in the halo colour, not in the body's
+      // own: a dash the same colour as the fill it rims does not read as a
+      // broken line at all, it reads as a bitten edge — the gaps notch the
+      // silhouette and the pin turns ragged at zoom.
+      return { fill: 'var(--text-mid)', stroke: 'var(--scene-map-label-halo)', dasharray: '2 2' };
     case 'certain':
     default:
-      return { fill: 'var(--accent)', fillOpacity: 0.9, stroke: 'var(--accent)' };
+      return { fill: 'var(--accent)', stroke: 'var(--accent)' };
   }
 }
 
@@ -1139,17 +1178,48 @@ function certaintyPinStyle(certainty: Certainty | undefined): PinStyle {
 // key off for e.g. an "approximate" label.
 const CONJECTURAL_DASHARRAY = '1 3';
 
-function pinMarkup(id: string, name: string, x: number, y: number, style: PinStyle, conjectural: boolean, r = 5.5): string {
-  const headCy = y - r * 1.7;
-  const tip = `M ${round1(x - r * 0.55)} ${round1(y - r * 0.9)} L ${round1(x + r * 0.55)} ${round1(y - r * 0.9)} L ${round1(x)} ${round1(y)} Z`;
-  const dasharray = conjectural ? CONJECTURAL_DASHARRAY : style.dasharray;
+// The pin as ONE closed outline: the head circle and the point are a single
+// path, joined along the two tangents from the tip. Drawn as a circle plus a
+// separate triangle (which is what this was) an opaque body shows the seam
+// where the two overlap — two stroked edges crossing the middle of the
+// symbol, which is the same defect as a transparent one, arriving from the
+// other side.
+function pinBodyPath(x: number, y: number, r: number): string {
+  const cy = y - r * PIN_HEAD_RISE;
+  const cosA = 1 / PIN_HEAD_RISE; // = r / |tip - centre|
+  const sinA = Math.sqrt(1 - cosA * cosA);
+  const [tx, ty] = [r * sinA, r * cosA];
+  return (
+    `M ${round1(x - tx)} ${round1(cy + ty)} ` +
+    `A ${round1(r)} ${round1(r)} 0 1 1 ${round1(x + tx)} ${round1(cy + ty)} ` +
+    `L ${round1(x)} ${round1(y)} Z`
+  );
+}
+
+function pinInnerMark(cx: number, cy: number, r: number, style: PinStyle): string {
+  if (!style.inner) return '';
+  const dash = style.inner.dasharray ? ` stroke-dasharray="${style.inner.dasharray}"` : '';
+  return (
+    `<circle cx="${round1(cx)}" cy="${round1(cy)}" r="${round1(r * PIN_INNER_RATIO)}" fill="none" ` +
+    `stroke="var(--scene-map-label-halo)" stroke-width="${PIN_INNER_WIDTH}"${dash}/>`
+  );
+}
+
+function pinSymbol(x: number, y: number, style: PinStyle, dasharray: string | undefined, r: number): string {
   const dash = dasharray ? ` stroke-dasharray="${dasharray}"` : '';
+  return (
+    `<path d="${pinBodyPath(x, y, r)}" fill="${style.fill}" stroke="${style.stroke}" ` +
+    `stroke-width="1.25" stroke-linejoin="round"${dash}/>` +
+    pinInnerMark(x, y - r * PIN_HEAD_RISE, r, style)
+  );
+}
+
+function pinMarkup(id: string, name: string, x: number, y: number, style: PinStyle, conjectural: boolean, r = 5.5): string {
   const basisAttr = conjectural ? ' data-position-basis="conjectural"' : '';
   return (
     `<g data-place-id="${escapeXml(id)}"${basisAttr}>` +
     `<title>${escapeXml(name)}</title>` +
-    `<circle cx="${round1(x)}" cy="${round1(headCy)}" r="${r}" fill="${style.fill}" fill-opacity="${style.fillOpacity}" stroke="${style.stroke}" stroke-width="1.25"${dash}/>` +
-    `<path d="${tip}" fill="${style.fill}" fill-opacity="${style.fillOpacity}" stroke="${style.stroke}" stroke-width="1.25"${dash}/>` +
+    pinSymbol(x, y, style, conjectural ? CONJECTURAL_DASHARRAY : style.dasharray, r) +
     `</g>`
   );
 }
@@ -1612,19 +1682,22 @@ function regionFillLegendEntry(fill: RegionFill): LegendEntry | undefined {
   };
 }
 
+// A key row shows the SYMBOL, not an abstraction of it: the same pin the
+// sheet draws, at legend size (r=4, so the whole 10.8 px pin sits inside a
+// 14 px row), tip on the row's own baseline.
+const LEGEND_PIN_R = 4;
+
+function legendPin(x: number, y: number, style: PinStyle, dasharray?: string): string {
+  return pinSymbol(x + LEGEND_SWATCH_W / 2, y + LEGEND_PIN_R * 1.35, style, dasharray, LEGEND_PIN_R);
+}
+
 function certaintyLegendEntry(certainty: Certainty): LegendEntry {
   const style = certaintyPinStyle(certainty);
   return {
     key: `certainty-${certainty}`,
     rank: 40 + ['certain', 'traditional', 'speculative', 'mythical'].indexOf(certainty),
     text: CERTAINTY_LEGEND_TEXT[certainty],
-    swatch: (x, y) => {
-      const dash = style.dasharray ? ` stroke-dasharray="${style.dasharray}"` : '';
-      return (
-        `<circle cx="${round1(x + LEGEND_SWATCH_W / 2)}" cy="${round1(y)}" r="4" fill="${style.fill}" ` +
-        `fill-opacity="${style.fillOpacity}" stroke="${style.stroke}" stroke-width="1.25"${dash}/>`
-      );
-    },
+    swatch: (x, y) => legendPin(x, y, style, style.dasharray),
   };
 }
 
@@ -1962,9 +2035,18 @@ function onFrame([x, y]: [number, number], width: number, height: number): boole
  * Two kinds of vertex are never rounded: the endpoints of an open line, and
  * any vertex lying on the sheet's frame (see FRAME_EPS).
  */
-function smoothPathD(points: [number, number][], closed: boolean, size: [number, number]): string {
+// The construction shared by the two consumers of the smoothing below: which
+// vertices are hard, and where each rounded corner enters and leaves. Factored
+// so the curve that is DRAWN and the curve a river is clipped against cannot
+// drift apart — they are the same curve, read out two ways.
+interface SmoothFrame {
+  hard: boolean[];
+  entry: (i: number) => [number, number];
+  exit: (i: number) => [number, number];
+}
+
+function smoothFrame(points: [number, number][], closed: boolean, size: [number, number]): SmoothFrame {
   const n = points.length;
-  if (n < 3) return pathD(points, closed);
   const [width, height] = size;
   const hard = points.map(
     (p, i) => (!closed && (i === 0 || i === n - 1)) || onFrame(p, width, height),
@@ -1973,8 +2055,56 @@ function smoothPathD(points: [number, number][], closed: boolean, size: [number,
     (points[i][0] + points[j][0]) / 2,
     (points[i][1] + points[j][1]) / 2,
   ];
-  const entry = (i: number) => (hard[i] ? points[i] : mid((i - 1 + n) % n, i));
-  const exit = (i: number) => (hard[i] ? points[i] : mid(i, (i + 1) % n));
+  return {
+    hard,
+    entry: (i) => (hard[i] ? points[i] : mid((i - 1 + n) % n, i)),
+    exit: (i) => (hard[i] ? points[i] : mid(i, (i + 1) % n)),
+  };
+}
+
+// Samples per rounded corner when the smoothed curve is flattened back to a
+// polyline (see smoothPolyline). Four segments hold a quadratic to well under
+// a tenth of a pixel at the corner sizes these sheets carry.
+const SMOOTH_SAMPLES = 4;
+
+/**
+ * The same curve smoothPathD draws, flattened to a polyline. Used to test
+ * containment against a water body's DRAWN edge rather than against the
+ * polygon it is stored as: at a sharp inlet — a river's own valley cutting
+ * into the shore — the rounded curve pulls back from the stored corner by
+ * more than the line weight, so a river cut at the stored edge visibly poked
+ * out into the water it was supposed to end at.
+ */
+function smoothPolyline(points: [number, number][], closed: boolean, size: [number, number]): [number, number][] {
+  const n = points.length;
+  if (n < 3) return points;
+  const { hard, entry, exit } = smoothFrame(points, closed, size);
+  const out: [number, number][] = [];
+  const push = (p: [number, number]) => {
+    const last = out[out.length - 1];
+    if (!last || last[0] !== p[0] || last[1] !== p[1]) out.push(p);
+  };
+  for (let i = 0; i < n; i++) {
+    const e = entry(i);
+    push(e);
+    if (hard[i]) continue;
+    const x = exit(i);
+    for (let s = 1; s <= SMOOTH_SAMPLES; s++) {
+      const t = s / SMOOTH_SAMPLES;
+      const u = 1 - t;
+      push([
+        u * u * e[0] + 2 * u * t * points[i][0] + t * t * x[0],
+        u * u * e[1] + 2 * u * t * points[i][1] + t * t * x[1],
+      ]);
+    }
+  }
+  return out;
+}
+
+function smoothPathD(points: [number, number][], closed: boolean, size: [number, number]): string {
+  const n = points.length;
+  if (n < 3) return pathD(points, closed);
+  const { hard, entry, exit } = smoothFrame(points, closed, size);
   const fmt = (p: [number, number]) => `${round1(p[0])},${round1(p[1])}`;
 
   const parts: string[] = [];
@@ -2081,6 +2211,140 @@ interface RenderedLayer {
   labelRole: LabelRole;
   /** The feature's own run, for a name set along the line (rivers, coasts, walls, routes). */
   labelPath?: [number, number][];
+  /**
+   * Markup this layer needs drawn UNDER another layer rather than in its own
+   * paint slot — the drowned reaches of a river (see the water section
+   * below). Keyed by the layer id it must precede.
+   */
+  submerged?: { layerId: string; markup: string }[];
+}
+
+// ── Water, and where a river stops ───────────────────────────────────────
+// A river is painted BENEATH any water it crosses (2026-07-29). The defect
+// this fixes was substantive, not cosmetic: our rivers are modern OSM
+// watercourses, and their lower reaches cross ground that was under water in
+// 1200 BC. Drawn over the reconstructed lagoon they asserted a Bronze Age
+// river exactly where the plate's own evidence says there was sea.
+//
+// The mechanism is paint ORDER, not a cut, and that is the whole point of it:
+// no geometry is discarded and none is invented — the union of everything
+// drawn is still exactly the surveyed course. The renderer splits a river at
+// the edge of every water body on the sheet and hands each submerged reach to
+// that water layer's own paint slot, immediately under its fill. So:
+//
+//   - the water is drawn: its opaque fill covers the reach, and the river
+//     visibly ends at that shoreline, exactly where the DRAWN edge falls
+//     (which is why the split needs no sub-pixel accuracy — the cut is under
+//     the fill, and the smoothed curve, not the split point, is what shows);
+//   - the water is toggled off: the fill goes with it, the reach is revealed,
+//     and the river runs on to the next shoreline it meets. A river's mouth
+//     is a function of which shoreline you are drawing, so it follows the
+//     layer toggles for free, with no state for the component to track — the
+//     water itself is what hides the reach.
+//
+// A reach drowned by the sheet's own `ground: "sea"` (the Troad sheet) is
+// simply not drawn: the ground is the bottom of the paint stack, so "beneath
+// the sea" means invisible there, and the ground carries no toggle.
+//
+// No plate field configures any of this, deliberately. There is nothing to
+// author, nothing to forget on the next river, and nothing for the two
+// implementations of the plate schema to drift on — the rule is a property of
+// the drawing, not a claim in the data. `marsh` is not water for this
+// purpose: a channel through a wetland is a channel, and the Scamander
+// crossing the delta swamp is drawn as it always was.
+interface WaterBody {
+  /** The layer whose fill paints this water; null for the sheet's sea ground. */
+  layerId: string | null;
+  contains(p: [number, number]): boolean;
+}
+
+/** Even-odd across a body's rings — matches the `fill-rule="evenodd"` the coast body is painted with. */
+function insideRings(rings: [number, number][][], p: [number, number]): boolean {
+  let inside = false;
+  for (const ring of rings) if (pointInPolygon(p, ring)) inside = !inside;
+  return inside;
+}
+
+// A body's rings as they are DRAWN: smoothed on a geographic sheet, exactly
+// as renderLayer's own `lineD` smooths them, so a river ends on the line the
+// reader sees and not on the polyline behind it.
+function bodyRings(plate: Plate, layer: PlateLayer, viewport: Viewport): [number, number][][] {
+  const asDrawn = (pts: PlatePoint[]): [number, number][] => {
+    const px = projectPoints(plate, pts, viewport);
+    return plate.kind === 'geographic' ? smoothPolyline(px, true, plate.size) : px;
+  };
+  const rings: [number, number][][] = [];
+  if (layer.polygon && layer.polygon.length >= 3) rings.push(asDrawn(layer.polygon));
+  for (const ring of layer.rings ?? []) {
+    if (ring.length >= 3) rings.push(asDrawn(ring));
+  }
+  return rings;
+}
+
+// Every body of water on the sheet, in paint order. A `land`-filled body is
+// collected too, but only to define the sea ground's own extent: on a
+// `ground: "sea"` plate the water is everything the land bodies do not cover.
+function collectWaterBodies(plate: Plate, viewport: Viewport): WaterBody[] {
+  const bodies: WaterBody[] = [];
+  const landBodies: [number, number][][][] = [];
+  for (const layer of plate.layers) {
+    const fill =
+      layer.fill ?? (layer.kind === 'region' || layer.kind === 'band' ? DEFAULT_REGION_FILL : undefined);
+    if (fill === undefined || (!WATER_FILLS.has(fill) && fill !== 'land')) continue;
+    const rings = bodyRings(plate, layer, viewport);
+    if (rings.length === 0) continue;
+    if (fill === 'land') landBodies.push(rings);
+    else bodies.push({ layerId: layer.id, contains: (p) => insideRings(rings, p) });
+  }
+  if ((plate.ground ?? 'land') === 'sea') {
+    bodies.push({ layerId: null, contains: (p) => !landBodies.some((rings) => insideRings(rings, p)) });
+  }
+  return bodies;
+}
+
+// Bisections used to find where a line crosses a shoreline. 24 halvings put
+// the crossing within a millionth of the segment, which is far finer than the
+// geometry it is cutting; the count is fixed so the result is deterministic.
+const CROSSING_BISECTIONS = 24;
+
+function crossingPoint(
+  a: [number, number],
+  b: [number, number],
+  inside: (p: [number, number]) => boolean,
+): [number, number] {
+  const insideA = inside(a);
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < CROSSING_BISECTIONS; i++) {
+    const m = (lo + hi) / 2;
+    if (inside([a[0] + (b[0] - a[0]) * m, a[1] + (b[1] - a[1]) * m]) === insideA) lo = m;
+    else hi = m;
+  }
+  const t = (lo + hi) / 2;
+  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+}
+
+// The maximal runs of `px` over which `inside` holds, each carried out to the
+// exact crossing at either end so that the runs on the two sides of a
+// shoreline share a point: the line is split, never gapped.
+function runsWhere(px: [number, number][], inside: (p: [number, number]) => boolean): [number, number][][] {
+  const out: [number, number][][] = [];
+  let run: [number, number][] | null = null;
+  for (let i = 0; i < px.length; i++) {
+    if (inside(px[i])) {
+      if (!run) {
+        run = [];
+        if (i > 0) run.push(crossingPoint(px[i - 1], px[i], inside));
+      }
+      run.push(px[i]);
+    } else if (run) {
+      run.push(crossingPoint(px[i - 1], px[i], inside));
+      out.push(run);
+      run = null;
+    }
+  }
+  if (run) out.push(run);
+  return out.filter((r) => r.length >= 2);
 }
 
 // The single run a linear layer's name is set along: its path/trace, or — for
@@ -2278,6 +2542,7 @@ function renderLayer(
   layer: PlateLayer,
   viewport: Viewport,
   softId: (kind: SoftKind) => string,
+  waters: WaterBody[],
 ): RenderedLayer | undefined {
   const allPixelPoints: [number, number][] = [];
   const collect = (pts: PlatePoint[] | undefined) => {
@@ -2295,6 +2560,7 @@ function renderLayer(
     geographic ? smoothPathD(px, close, plate.size) : pathD(px, close);
 
   let markup = '';
+  let submerged: { layerId: string; markup: string }[] | undefined;
   const seed = deriveSeed(plate.seed ?? 0, layer.id);
 
   switch (layer.kind) {
@@ -2370,7 +2636,21 @@ function renderLayer(
       // Rivers are OSM polylines sampled every hundred metres or so. Drawn as
       // segments they read as a chain of straight cuts at zoom; a watercourse
       // does not turn corners.
-      markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-river" d="${lineD(px, false)}" fill="none" stroke="var(--plate-river)" stroke-width="${layer.width ?? STROKE_WEIGHT.river}" stroke-linecap="round" stroke-linejoin="round"/>`;
+      const reach = (run: [number, number][]) =>
+        `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-river" d="${lineD(run, false)}" fill="none" stroke="var(--plate-river)" stroke-width="${layer.width ?? STROKE_WEIGHT.river}" stroke-linecap="butt" stroke-linejoin="round"/>`;
+      if (waters.length === 0) {
+        markup = reach(px);
+        break;
+      }
+      // Every reach that is not under water, drawn here; each drowned reach
+      // handed to the water that drowns it, to be drawn beneath its fill.
+      // See the WaterBody block above for why this is paint order and not a
+      // cut of the data.
+      markup = runsWhere(px, (p) => !waters.some((w) => w.contains(p))).map(reach).join('');
+      submerged = waters
+        .filter((w): w is WaterBody & { layerId: string } => w.layerId !== null)
+        .map((w) => ({ layerId: w.layerId, markup: runsWhere(px, (p) => w.contains(p)).map(reach).join('') }))
+        .filter((s) => s.markup !== '');
       break;
     }
     case 'relief': {
@@ -2508,6 +2788,7 @@ function renderLayer(
     labelCentred: isArea,
     labelRole: LAYER_LABEL_ROLE[layer.kind],
     labelPath: isArea ? undefined : linearRun(plate, layer, viewport),
+    submerged,
   };
 }
 
@@ -2535,7 +2816,14 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   const [width, height] = plate.size;
 
   const features: RenderedFeature[] = [];
-  const layerMarkup: string[] = [];
+  // Each drawn layer's own markup, in paint order, plus the reaches of other
+  // layers that must be drawn UNDER it (see WaterBody): a river's submerged
+  // reach belongs to the water's paint slot, and the water is drawn before
+  // the river, so the two are assembled after the whole pass rather than
+  // pushed as they are rendered.
+  const drawn: { layerId: string; markup: string }[] = [];
+  const submergedByWater = new Map<string, string[]>();
+  const waters = collectWaterBodies(plate, viewport);
   // Every place id actually carried by a rendered layer (Problem 2, gap
   // fixed 2026-07-28): a layer that failed to render (renderLayer returned
   // undefined — e.g. its geometry field was empty) contributes nothing, so
@@ -2556,9 +2844,14 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     marsh: plate.layers.some((l) => l.fill === 'marsh'),
   };
   for (const layer of plate.layers) {
-    const rendered = renderLayer(plate, layer, viewport, softId);
+    const rendered = renderLayer(plate, layer, viewport, softId, waters);
     if (!rendered) continue;
-    layerMarkup.push(rendered.markup);
+    drawn.push({ layerId: layer.id, markup: rendered.markup });
+    for (const under of rendered.submerged ?? []) {
+      const bucket = submergedByWater.get(under.layerId);
+      if (bucket) bucket.push(under.markup);
+      else submergedByWater.set(under.layerId, [under.markup]);
+    }
     features.push(rendered.feature);
     if (layer.placeId) layerPlaceIds.add(layer.placeId);
     if (layer.label || layer.placeId) layerLabelCandidates.push({ layer, rendered });
@@ -2570,6 +2863,10 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       if (fillEntry) legendEntries.push(fillEntry);
     }
   }
+
+  const layerMarkup = drawn.map(
+    ({ layerId, markup }) => (submergedByWater.get(layerId) ?? []).join('') + markup,
+  );
 
   const placeById = new Map(places.map((p) => [p.id, p]));
 
@@ -2627,8 +2924,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         rank: 50,
         text: 'Position conjectural — set by the poem, not by survey',
         swatch: (lx, ly) =>
-          `<circle cx="${round1(lx + LEGEND_SWATCH_W / 2)}" cy="${round1(ly)}" r="4" fill="none" ` +
-          `stroke="var(--text-mid)" stroke-width="1.25" stroke-dasharray="${CONJECTURAL_DASHARRAY}"/>`,
+          legendPin(lx, ly, { fill: 'var(--text-mid)', stroke: 'var(--text-mid)' }, CONJECTURAL_DASHARRAY),
       });
     }
   }
