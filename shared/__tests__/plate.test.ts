@@ -712,12 +712,41 @@ describe('renderPlate: tumulus layer kind (gap 2)', () => {
 });
 
 describe('renderPlate: region fill role (gap 3)', () => {
-  it('a region layer with no fill declared keeps using --plate-tint (unchanged default)', () => {
+  // CHANGED 2026-07-28 (the "it's just shapes, no geography" defect): the
+  // default used to be `tint`, which resolves to var(--accent-light) — the
+  // site's wine wayfinding accent — so every undeclared landform on the
+  // geographic plate was painted in the UI highlight colour and the whole
+  // sheet read pink. A landform is not a highlight: the default is now the
+  // terrain token, and the accent wash is opt-in (see the next test).
+  it('a region layer with no fill declared defaults to the terrain token, NOT the UI accent', () => {
     const result = renderPlate(testPlate, []); // camp-1 is a plain region layer, no fill declared
     const match = result.svg.match(/<path data-feature-id="camp-1"[^>]*\/>/);
-    expect(match![0]).toContain('fill="var(--plate-tint)"');
-    expect(match![0]).not.toContain('var(--scene-map-sea)');
+    expect(match![0]).toContain('fill="var(--plate-plain)"');
+    expect(match![0]).not.toContain('var(--plate-tint)');
+    expect(match![0]).not.toContain('var(--accent');
   });
+
+  it('a region layer with fill: "tint" still opts in to --plate-tint, translucent', () => {
+    const campPolygon = testPlate.layers.find((l) => l.id === 'camp-1')!.polygon;
+    const zone: PlateLayer = { id: 'zone-1', kind: 'region', fill: 'tint', polygon: campPolygon };
+    const result = renderPlate({ ...testPlate, layers: [zone] }, []);
+    const match = result.svg.match(/<path data-feature-id="zone-1"[^>]*\/>/);
+    expect(match![0]).toContain('fill="var(--plate-tint)"');
+    expect(match![0]).toContain('fill-opacity="0.35"');
+  });
+
+  it.each(['lagoon', 'marsh', 'plain', 'land'] as const)(
+    'the terrain fill role "%s" resolves to its own token and is opaque',
+    (role) => {
+      const campPolygon = testPlate.layers.find((l) => l.id === 'camp-1')!.polygon;
+      const layer: PlateLayer = { id: `t-${role}`, kind: 'region', fill: role, polygon: campPolygon };
+      const result = renderPlate({ ...testPlate, layers: [layer] }, []);
+      const match = result.svg.match(new RegExp(`<path data-feature-id="t-${role}"[^>]*/>`));
+      expect(match).not.toBeNull();
+      expect(match![0]).not.toContain('var(--plate-tint)');
+      expect(match![0]).toMatch(/fill="var\(--(plate-lagoon|plate-marsh|plate-plain|scene-map-land)\)"/);
+    },
+  );
 
   it('a region layer with fill: "sea" uses --scene-map-sea, not --plate-tint', () => {
     const campPolygon = testPlate.layers.find((l) => l.id === 'camp-1')!.polygon;
@@ -1011,7 +1040,11 @@ describe('renderPlate: waterline coast style', () => {
     const plate: Plate = { ...testPlate, layers: [waterlineCoast] };
     const result = renderPlate(plate, []);
     expect(result.svg).toContain('class="plate-layer plate-layer-coast"');
-    const widths = [...result.svg.matchAll(/plate-layer-waterline" d="[^"]*" fill="none" stroke="var\(--scene-map-sea\)" stroke-width="([\d.]+)" stroke-opacity="([\d.]+)"/g)].map((m) => [Number(m[1]), Number(m[2])]);
+    // --plate-river, not --scene-map-sea (2026-07-28): a waterline stroked in
+    // the sea's own FILL colour is invisible on the water it is drawn on, and
+    // in dark theme that fill is near-black. The river/waterline ink is a
+    // separate token, contrast-guarded in plate-map-contrast.test.ts.
+    const widths = [...result.svg.matchAll(/plate-layer-waterline" d="[^"]*" fill="none" stroke="var\(--plate-river\)" stroke-width="([\d.]+)" stroke-opacity="([\d.]+)"/g)].map((m) => [Number(m[1]), Number(m[2])]);
     expect(widths).toEqual([
       [0.55, 0.85],
       [0.42, 0.65],
@@ -1035,5 +1068,167 @@ describe('renderLayer: relief hachure ink token', () => {
     expect(reliefMatch).not.toBeNull();
     expect(reliefMatch![0]).toContain('fill="var(--flaxman-hachure)"');
     expect(reliefMatch![0]).not.toContain('fill-opacity');
+  });
+});
+
+// ── 2026-07-28: "that looks awful, it's just shapes, no geography at all" ──
+// Four diagnosed causes. Three are the renderer's: the whole canvas was
+// painted --scene-map-land so nothing was ever water; ZERO <text> elements
+// were emitted, so no feature was ever named; and region layers defaulted to
+// --plate-tint, i.e. var(--accent-light), so every landform was drawn in the
+// site's wine UI accent. These tests hold the fixes down.
+
+describe('renderPlate: the sheet declares its own land and water', () => {
+  it('defaults to a land ground (every plate authored before `ground` existed is unchanged)', () => {
+    const result = renderPlate(testPlate, []);
+    expect(result.svg).toContain('class="plate-ground" x="0" y="0" width="400" height="300" fill="var(--scene-map-land)"');
+  });
+
+  it('`ground: "sea"` paints the bare sheet as water', () => {
+    const result = renderPlate({ ...testPlate, ground: 'sea' }, []);
+    expect(result.svg).toContain('class="plate-ground" x="0" y="0" width="400" height="300" fill="var(--scene-map-sea)"');
+  });
+
+  it('parsePlate rejects an unknown ground rather than silently dropping it', () => {
+    expect(() =>
+      parsePlate({ id: 'x', title: 'X', kind: 'geographic', status: 'draft', bbox: BBOX, size: SIZE, ground: 'lava', layers: [] }),
+    ).toThrow(/ground/);
+  });
+
+  it('a coast layer with a fill draws its rings as a filled body under the shoreline (evenodd), so a `ground: "sea"` plate reads as a coast', () => {
+    const island: PlateLayer = {
+      id: 'island', kind: 'coast', fill: 'land',
+      rings: [[[39.9, 26.15], [39.95, 26.15], [39.95, 26.2], [39.9, 26.2], [39.9, 26.15]]],
+    };
+    const result = renderPlate({ ...testPlate, ground: 'sea', layers: [island] }, []);
+    const body = result.svg.match(/<path data-feature-id="island-body"[^>]*\/>/);
+    expect(body).not.toBeNull();
+    expect(body![0]).toContain('fill="var(--scene-map-land)"');
+    expect(body![0]).toContain('fill-rule="evenodd"');
+    // The shoreline itself is still stroked on top, unfilled.
+    expect(result.svg).toMatch(/<path data-feature-id="island" [^>]*fill="none"[^>]*stroke="var\(--scene-map-coast\)"/);
+  });
+
+  it('a coast layer with no fill is pure linework, exactly as before', () => {
+    const result = renderPlate(testPlate, []);
+    expect(result.svg).not.toContain('plate-layer-coast-body');
+  });
+});
+
+describe('renderPlate: lettering (a map with no names is not a map)', () => {
+  it('names every located place — none is silently dropped, however crowded the sheet', () => {
+    const crowd: PlatePlace[] = Array.from({ length: 12 }, (_, i) => ({
+      id: `p${i}`, name: `Place${i}`, coords: [39.95 + i * 0.0005, 26.2 + i * 0.0005] as [number, number], certainty: 'certain' as const,
+    }));
+    const result = renderPlate(testPlate, crowd);
+    for (const p of crowd) expect(result.svg).toContain(`>${p.name}</text>`);
+  });
+
+  it('letters a pin with the map SHORT form, keeping the full catalogue name on the pin title', () => {
+    const place: PlatePlace = { id: 'troy', name: 'Troy (Ilios)', coords: [39.957, 26.239], certainty: 'certain' };
+    const result = renderPlate(testPlate, [place]);
+    expect(result.svg).toContain('>Troy</text>');
+    expect(result.svg).toContain('<title>Troy (Ilios)</title>');
+  });
+
+  it('drops a leading article and re-capitalises ("The wall of Troy" -> "Wall of Troy")', () => {
+    const place: PlatePlace = { id: 'w', name: 'The wall of Troy', coords: [39.957, 26.239] };
+    expect(renderPlate(testPlate, [place]).svg).toContain('>Wall of Troy</text>');
+  });
+
+  it('escapes a hostile place name in the label, not just in the title', () => {
+    const nasty: PlatePlace = { id: 'x', name: '<script>alert&"1"</script>', coords: [39.95, 26.2] };
+    const result = renderPlate(testPlate, [nasty]);
+    expect(result.svg).not.toContain('<script>');
+    expect(result.svg).toContain('&lt;script&gt;');
+  });
+
+  it('names a linear feature ALONG its own run, via a textPath into a defs path', () => {
+    const river: PlateLayer = {
+      id: 'scamander', kind: 'river', label: 'Scamander',
+      path: [[39.88, 26.14], [39.92, 26.2], [39.96, 26.3]],
+    };
+    const result = renderPlate({ ...testPlate, layers: [river] }, []);
+    expect(result.svg).toMatch(/<path id="plate-lp-scamander" d="[^"]+" fill="none" stroke="none"\/>/);
+    expect(result.svg).toContain('<textPath href="#plate-lp-scamander"');
+    expect(result.svg).toContain('>Scamander</textPath>');
+  });
+
+  it('names an area feature across its extent in letterspaced caps', () => {
+    const region: PlateLayer = {
+      id: 'plain', kind: 'region', label: 'Scamandrian plain',
+      polygon: [[39.9, 26.15], [39.95, 26.15], [39.95, 26.3], [39.9, 26.3]],
+    };
+    const result = renderPlate({ ...testPlate, layers: [region] }, []);
+    expect(result.svg).toContain('>SCAMANDRIAN PLAIN</text>');
+    expect(result.svg).toMatch(/plate-label-region[^>]*letter-spacing="/);
+  });
+
+  it('letters a name once: a layer naming a place that is also pinned yields to the pin', () => {
+    const river: PlateLayer = { id: 'r', kind: 'river', placeId: 'troy', path: [[39.88, 26.14], [39.96, 26.3]] };
+    const troyPlace: PlatePlace = { id: 'troy', name: 'Troy', coords: [39.957, 26.239] };
+    const result = renderPlate({ ...testPlate, layers: [river] }, [troyPlace]);
+    // (the pin's own <title>Troy</title> is not lettering — count <text> only)
+    expect([...result.svg.matchAll(/>Troy<\/text>/g)]).toHaveLength(1);
+    expect(result.svg).not.toContain('</textPath>');
+  });
+
+  it('haloes labels via the paint-order ATTRIBUTE, not the CSS property', () => {
+    const result = renderPlate(testPlate, [troy]);
+    expect(result.svg).toMatch(/<text[^>]*paint-order="stroke"[^>]*stroke="var\(--scene-map-label-halo\)"/);
+  });
+
+  it('uses four size steps, at least 2px apart, none below 9.5px', () => {
+    const region: PlateLayer = { id: 'reg', kind: 'region', label: 'A region', polygon: [[39.9, 26.15], [39.95, 26.15], [39.95, 26.3]] };
+    const river: PlateLayer = { id: 'riv', kind: 'river', label: 'A river', path: [[39.88, 26.14], [39.96, 26.34]] };
+    const wall: PlateLayer = { id: 'wal', kind: 'wall', label: 'A wall', trace: [[39.87, 26.13], [39.99, 26.35]] };
+    const result = renderPlate({ ...testPlate, layers: [region, river, wall] }, [troy]);
+    const sizes = [...new Set([...result.svg.matchAll(/plate-label[^>]*font-size="([\d.]+)"/g)].map((m) => Number(m[1])))].sort((a, b) => a - b);
+    expect(sizes).toHaveLength(4);
+    expect(sizes[0]).toBeGreaterThanOrEqual(9.5);
+    for (let i = 1; i < sizes.length; i++) expect(sizes[i] - sizes[i - 1]).toBeGreaterThanOrEqual(2);
+  });
+
+  it('a conjectural position gets an italic name and a DASHED leader (the dash is the claim)', () => {
+    const result = renderPlate(schematicPlate, [anchoredPlace]);
+    expect(result.svg).toMatch(/<text[^>]*font-style="italic"/);
+    expect(result.svg).toMatch(/class="plate-leader"[^>]*stroke-dasharray="2 2"/);
+  });
+});
+
+describe('renderPlate: frame, scale and legend', () => {
+  it('draws a double neatline', () => {
+    const rects = [...renderPlate(testPlate, []).svg.matchAll(/<rect class="plate-neatline"[^>]*stroke-width="([\d.]+)"/g)].map((m) => Number(m[1]));
+    expect(rects).toEqual([1.2, 0.4]);
+  });
+
+  it('computes the bar scale from the plate\'s OWN viewport, so it cannot lie', () => {
+    const wide = renderPlate(testPlate, []).svg;
+    // Half the geographic span across the same pixel canvas = half the ground distance per bar.
+    const zoomed = renderPlate({ ...testPlate, bbox: [39.94, 26.2, 39.98, 26.26] }, []).svg;
+    const km = (svg: string) => Number(svg.match(/>([\d.]+) km</)![1]);
+    expect(km(wide)).toBeGreaterThan(km(zoomed));
+  });
+
+  it('gives a schematic plate no scale bar (it has no scale, and drawing one would be a fabricated claim)', () => {
+    expect(renderPlate(schematicPlate, [anchoredPlace]).svg).not.toContain('plate-scale');
+  });
+
+  it('keys only registers the sheet actually drew, and every register it drew', () => {
+    const svg = renderPlate(testPlate, [troy, scamander]).svg;
+    expect(svg).toContain('class="plate-legend"');
+    expect(svg).toContain('>River</text>'); // river-1 is drawn
+    expect(svg).toContain('>Location secure</text>'); // troy is `certain`
+    expect(svg).toContain('>Traditional identification</text>'); // scamander is `traditional`
+    expect(svg).not.toContain('>Mythical'); // no mythical place is pinned here
+    expect(svg).not.toContain('>Tumulus<'); // no tumulus layer on this fixture
+  });
+
+  it('keys one row per register, not one per layer', () => {
+    const rivers: PlateLayer[] = [1, 2, 3].map((i) => ({
+      id: `river-${i}`, kind: 'river' as const, path: [[39.9, 26.15], [39.95, 26.2]] as [number, number][],
+    }));
+    const svg = renderPlate({ ...testPlate, layers: rivers }, []).svg;
+    expect([...svg.matchAll(/>River</g)]).toHaveLength(1);
   });
 });

@@ -145,8 +145,8 @@ Layer `kind`: `coast | river | relief | shipRow | wall | route | region |
 band | tumulus`. Optional per layer: `placeId` (must resolve in the
 gazetteer), `note`, `sources` (same cite/url shape as places.json, Chicago
 citation rule), `default` (`"on" | "off"` for a toggleable layer), `style`,
-`width`, `shading`, `rows`, `count`, `fill` (`region`/`band` only, see
-below), and the coordinate-geometry fields `rings` (a list of rings, each a
+`width`, `shading`, `rows`, `count`, `fill` (`region`/`band`/`coast`, see
+below), `label` (see below), and the coordinate-geometry fields `rings` (a list of rings, each a
 list of pairs), `path`, `polygon`, `baseline`, `trace` (each a flat list of
 pairs). Apparatus honesty: geometry not yet sourced from real cartography
 must say so in `note` rather than presenting placeholder points as surveyed.
@@ -160,13 +160,70 @@ either side of the schema. **Not yet in the pipeline's `LAYER_KIND_ENUM`**
 `kind: "tumulus"` will fail `validate_plate` until that enum is updated to
 match.
 
-`region`/`band` layers fill with `--plate-tint` by default (a translucent
-area tint). A layer may instead declare `fill: "sea"` to pick up the site's
-water colour (`--scene-map-sea`) for a body of water on a schematic plate
-(e.g. the Hellespont on the Trojan-plain schematic) — resolved through a
-closed whitelist in `shared/lib/plate.ts` (`tint | sea`), never a
-pass-through of the JSON value, so a plate file can never inject arbitrary
-CSS into the emitted SVG.
+### Land and water (the `ground` + `fill` contract)
+
+**The renderer never guesses which shape is water.** A plate says so, in two
+fields, and a plate that says neither draws land-coloured shapes on a
+land-coloured sheet — which is exactly the "it's just shapes, no geography"
+defect of 2026-07-28.
+
+`ground` (plate level, optional, `"land" | "sea"`, default `"land"`): what the
+bare sheet is under every layer.
+
+- **Mostly-dry extent** (the Trojan plain): leave the default, and draw each
+  body of water as a `region` layer with `fill: "sea"` or `fill: "lagoon"`.
+- **Coastal/marine extent** (the Troad): declare `"ground": "sea"`, and give
+  each `coast` layer whose rings are CLOSED landmasses `"fill": "land"`. The
+  rings are then filled `evenodd` under the shoreline — the same construction
+  `shared/lib/scenemap.ts` uses for the Mediterranean coastline. **The rings
+  must actually close**, or the fill leaks across the sheet.
+
+`fill` (layer level, optional) names the TERRAIN a `region`/`band` layer is, or
+the terrain a `coast` layer's rings enclose. Closed whitelist in
+`shared/lib/plate.ts` — never a pass-through of the JSON value, so a plate file
+can never inject arbitrary CSS into the emitted SVG:
+
+| `fill` | token | role |
+|---|---|---|
+| `plain` (**default**) | `--plate-plain` | dry usable ground |
+| `marsh` | `--plate-marsh` | wetland, wet delta |
+| `lagoon` | `--plate-lagoon` | shallow/silting water |
+| `sea` | `--scene-map-sea` | open water |
+| `land` | `--scene-map-land` | landmass on a `ground: "sea"` plate |
+| `tint` | `--plate-tint` | translucent **apparatus zone** (e.g. "the Achaean camp") |
+
+The default **changed 2026-07-28** from `tint` to `plain`. `--plate-tint`
+resolves to `var(--accent-light)`, the site's wine wayfinding accent, so every
+undeclared landform was painted in the UI highlight colour. A landform is not a
+highlight: terrain is the default and the accent wash is opt-in.
+
+**The pipeline validator must be updated to match** —
+`pipeline/homer_pipeline/apparatus_places.py` still carries
+`REGION_FILL_ENUM = {"tint", "sea"}` and has no `ground` key at all, so a plate
+using any of the four new fill roles, or declaring `ground`, will fail
+`validate_plate` until that enum grows the same six values and the plate-level
+key list accepts `ground` (`"land" | "sea"`).
+
+### Lettering
+
+`label` (layer level, optional): the name to letter onto the sheet for this
+feature. When absent, the renderer falls back to the gazetteer name of
+`placeId` — and only when that place is not itself pinned on this plate, so a
+feature is lettered once, not twice. Author `label` whenever the gazetteer name
+is a catalogue entry rather than a map label: "Kesik Tepe (the 'Demetrius
+tumulus'), claimed tomb of Achilles" is the former. (Gazetteer-derived names are
+shortened to their head form automatically; the full name still rides on the
+pin's `<title>`.)
+
+Linear layers (`river`, `coast`, `wall`, `route`) are named ALONG their own run
+with `<textPath>` when the run is long enough to carry the name; area layers
+(`region`, `band`, `relief`) are named across their extent in letterspaced
+caps. Neither needs any extra authoring — both come from `label`/`placeId`.
+
+The renderer also draws a **double neatline**, a **bar scale** computed from the
+plate's own viewport (stades over kilometres, geographic plates only), and a
+**legend derived from what the sheet actually drew** — every register on the map
+appears in the key, and every row in the key can be found on the map.
 
 ## characters.json (single file `apparatus/characters.json`)
 

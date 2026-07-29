@@ -170,6 +170,36 @@
      to keep a label legible over a varying fill), so a ring's own colour
      never has to be individually contrast-checked against the label text. */
   --plate-tint:           var(--accent-light);
+  /* Terrain fills for a plate's `region`/`relief` layers (2026-07-28, "that
+     looks awful, it's just shapes"). --plate-tint above resolves to the
+     site's wine wayfinding accent, and a region layer used to DEFAULT to it,
+     so every landform on the geographic plate was painted in the highlight
+     colour. These four are the restrained terrain set the renderer now
+     defaults to; --plate-tint stays, as an explicit opt-in for a decorative
+     apparatus zone ("the Achaean camp"), which is the only role it ever had.
+     Unlike the --shield-* / --plate-tint values above, these are REAL
+     per-theme colours, not var() aliases: a naturalistic terrain palette
+     cannot be derived from the UI accent. Every value below is tuned and
+     regression-guarded by shared/__tests__/plate-map-contrast.test.ts —
+     --scene-map-coast clears 3:1 over each of them in both themes,
+     --flaxman-hachure clears 4.5:1 over --plate-upland (the hachure now sits
+     ON a relief body rather than floating), and the water fill stays 1.5:1
+     apart from, and darker than, every land fill in EVERY theme, so the
+     land/water polarity a reader learns never inverts on a theme switch. */
+  --plate-lagoon:         #87AEB8; /* shallow/silting water: greener and duller than
+                                      the open --scene-map-sea, still plainly water */
+  --plate-marsh:          #C7D3A5; /* wetland: the grey-green of standing water in reeds */
+  --plate-plain:          #EDE6D0; /* dry usable ground, a warm step off the parchment sheet */
+  --plate-upland:         #DED0B3; /* relief body: warmer and heavier than the plain, so the
+                                      hachure strokes read as shading ON a landform */
+  /* River / waterline ink (2026-07-28, a defect this lane MEASURED in dark
+     theme): rivers and waterlines used to stroke in --scene-map-sea, which is
+     the SEA FILL — #0A1C2A in dark. A near-black channel over warm dark land
+     was effectively invisible, and a waterline drawn on the sea in the sea's
+     own colour is invisible by construction in both themes. This is the
+     running-water LINE, not a water fill, so it is tuned for 3:1 against every
+     land fill AND against both water fills, in both themes. */
+  --plate-river:          #1F5878;
   --shield-ring-cosmos:   var(--accent);
   --shield-ring-peace:    hsl(from var(--accent) calc(h + 36) s l);
   --shield-ring-war:      hsl(from var(--accent) calc(h + 72) s l);
@@ -240,6 +270,18 @@
                                        the oldest legible pairing in cartography */
     --scene-map-coast:      #8FA3AE; /* coast boundary, 3.99:1 over land / 6.61:1 over sea */
     --scene-map-label-halo: #17131C; /* preserves labels across coastlines */
+    /* Plate terrain, dark (see the :root block's comment for the whole set).
+       Deep, desaturated versions of the same four roles; the water fill stays
+       the darkest of them, as in light theme. --plate-upland is a step
+       LIGHTER than --plate-plain here where it is a step darker in light
+       theme: it has to separate from the ground, and the ground itself
+       inverted — unlike land-vs-water, whose polarity is fixed in both
+       themes and asserted by the contrast test. */
+    --plate-lagoon:         #0A2430;
+    --plate-marsh:          #46503A;
+    --plate-plain:          #52483A;
+    --plate-upland:         #584A3B;
+    --plate-river:          #86BBD8;
   }
 }
 
@@ -266,6 +308,11 @@
   --scene-map-land:       #473E35; /* warm dark ground, see @media dark block's comment */
   --scene-map-coast:      #8FA3AE; /* coast boundary, 3.99:1 over land / 6.61:1 over sea */
   --scene-map-label-halo: #17131C; /* preserves labels across coastlines */
+  --plate-lagoon:         #0A2430; /* plate terrain, dark — see the @media dark block's comment */
+  --plate-marsh:          #46503A;
+  --plate-plain:          #52483A;
+  --plate-upland:         #584A3B;
+  --plate-river:          #86BBD8;
   --popup-bg:     #211828;
   --popup-shadow: 0 6px 28px rgba(0,0,0,.55);
   --greek-hover:        color-mix(in srgb, var(--accent) 14%, transparent);
@@ -294,6 +341,11 @@
   --scene-map-land:       #F1EEE6; /* lifted parchment ground */
   --scene-map-coast:      #565060; /* coast boundary, see :root block's comment */
   --scene-map-label-halo: #F8F7F3; /* preserves labels across coastlines */
+  --plate-lagoon:         #87AEB8; /* plate terrain, light — see the :root block's comment */
+  --plate-marsh:          #C7D3A5;
+  --plate-plain:          #EDE6D0;
+  --plate-upland:         #DED0B3;
+  --plate-river:          #1F5878;
   /* Control-row band separation (John, 2026-07-25; corrected same day,
      adversarial review P2 — see the pass-through default's own comment for
      the dark-mode regression this replaced): light-only override. Dark

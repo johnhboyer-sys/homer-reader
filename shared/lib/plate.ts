@@ -23,14 +23,23 @@
 // reference (var(--...)), never a literal colour, so the plate recolors for
 // free across the site's light/dark/Aegean-Wine-dark theme layers (see
 // shared/styles/global.css). Reused existing tokens: --scene-map-land
-// (parchment ground), --scene-map-sea / --scene-map-coast (water/coast
-// linework — the same "water" concept as the scene-map inset), --flaxman-ink
+// (parchment ground — now only the DEFAULT ground; see `ground` on Plate),
+// --scene-map-sea / --scene-map-coast (water fill / coast linework — the same
+// "water" concept as the scene-map inset; running water is --plate-river, NOT
+// --scene-map-sea, which is a fill and is near-black in dark theme), --flaxman-ink
 // (already named for exactly this "engraving ink, light ground" plate-art
 // role — see global.css's .book-plate comment), --accent / --accent-light /
 // --text-mid (certainty-tier pin styling, matching scenemap.ts's language).
 // One genuinely new concept has no existing token: a translucent area tint
 // for `region`/`band` layers (e.g. "the Achaean camp") — introduced here as
 // --plate-tint; a later phase defines its value in global.css.
+// --plate-lagoon / --plate-marsh / --plate-plain / --plate-upland (2026-07-28)
+// are the TERRAIN tokens: --plate-tint resolves to var(--accent-light), the
+// site's wine wayfinding accent, and a `region` layer used to default to it —
+// so every landform on the geographic plate was painted in the UI highlight
+// colour ("it's just shapes"). Landforms now default to --plate-plain and a
+// layer opts IN to the accent with `fill: "tint"`, which is the only role that
+// colour ever had.
 // --flaxman-hachure (2026-07-28, contrast fix) is a SEPARATE token from
 // --flaxman-ink, used only by the relief/hachure fill: --flaxman-ink is
 // itself alpha-composited in dark theme (see its own global.css comment —
@@ -79,12 +88,57 @@ const LAYER_KINDS: readonly LayerKind[] = [
 // pass-through of the JSON value itself, so a hostile/malformed apparatus
 // file can never inject arbitrary CSS into the emitted SVG (same posture
 // as every other colour in this module — see the file header).
+//
+// `tint` is the decorative UI-accent wash (an apparatus zone, e.g. "the
+// Achaean camp"); everything else is TERRAIN. The default is `plain`, not
+// `tint` (2026-07-28): a landform is not a highlight, and defaulting to the
+// accent is what painted the whole geographic plate wine-pink.
 const REGION_FILL_TOKENS = {
   tint: 'var(--plate-tint)',
   sea: 'var(--scene-map-sea)',
+  lagoon: 'var(--plate-lagoon)',
+  land: 'var(--scene-map-land)',
+  marsh: 'var(--plate-marsh)',
+  plain: 'var(--plate-plain)',
 } as const;
 
 type RegionFill = keyof typeof REGION_FILL_TOKENS;
+
+const DEFAULT_REGION_FILL: RegionFill = 'plain';
+
+// Terrain reads as ground, so it paints opaque; only the decorative `tint`
+// wash stays translucent (it is meant to sit OVER terrain). `marsh` is a
+// shade under opaque so a wetland reads as a damp overlay on the plain it
+// covers rather than a hard-edged patch — the one place a partial alpha is
+// the intended look rather than an accident (contrast is measured on the
+// token itself, see shared/__tests__/plate-map-contrast.test.ts).
+const REGION_FILL_OPACITY: Record<RegionFill, number> = {
+  tint: 0.35,
+  sea: 1,
+  lagoon: 1,
+  land: 1,
+  marsh: 0.9,
+  plain: 1,
+};
+
+// Water fills get the coast token as their edge (a shoreline), land fills a
+// faint version of the same ink so a terrain patch has definition without
+// competing with the real coastline.
+const WATER_FILLS: ReadonlySet<RegionFill> = new Set<RegionFill>(['sea', 'lagoon']);
+
+// What the bare sheet is, under every layer. A plate whose subject is a
+// coast with the sea at its edge declares `ground: "sea"` and draws its
+// landmasses as `region` layers with `fill: "land"`; a plate whose subject
+// is an inland/mostly-dry extent (the Trojan plain) leaves the default and
+// draws its water bodies as `region` layers with `fill: "sea"`/`"lagoon"`.
+// Default 'land' — every plate authored before this field existed drew onto
+// a land ground, so the default preserves them exactly.
+export type PlateGround = 'land' | 'sea';
+
+const GROUND_FILL_TOKENS: Record<PlateGround, string> = {
+  land: 'var(--scene-map-land)',
+  sea: 'var(--scene-map-sea)',
+};
 
 // A flat [x, y] pair — [lat, lon] on a geographic plate, [u, v] (0..1) on a
 // schematic one. Named distinctly from geo.ts's LatLon because on a
@@ -100,6 +154,15 @@ export interface PlateLayer {
   id: string;
   kind: LayerKind;
   placeId?: string;
+  /**
+   * The name to letter onto the sheet for this feature. Optional: when it is
+   * absent the renderer falls back to the gazetteer name of `placeId`, and
+   * only when that place is not itself pinned on this plate (a feature is
+   * lettered once, not twice — see renderPlate). Author it whenever the
+   * gazetteer name is a catalogue entry rather than a map label ("The Bay of
+   * Troy (the silted embayment)" is the former).
+   */
+  label?: string;
   note?: string;
   sources?: PlateSource[];
   default?: 'on' | 'off';
@@ -144,6 +207,8 @@ export interface Plate {
   // plate (not forbidden, just not required), mirroring apparatus_places.py.
   bbox?: [number, number, number, number]; // [minLat, minLon, maxLat, maxLon]
   size: [number, number]; // [widthPx, heightPx]
+  /** What the bare sheet is under every layer. See PlateGround. Default 'land'. */
+  ground?: PlateGround;
   layers: PlateLayer[];
   // Schematic-only: concentric bands (see PlateBand). A schematic plate
   // declares `bands` or `layers` (or both); geographic plates never carry
@@ -355,6 +420,7 @@ function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, numb
     id: l.id,
     kind: l.kind as LayerKind,
     placeId: typeof l.placeId === 'string' ? l.placeId : undefined,
+    label: typeof l.label === 'string' && l.label.trim() ? l.label : undefined,
     note: typeof l.note === 'string' ? l.note : undefined,
     sources: parseSources(l.sources, l.id),
     default: l.default === 'on' || l.default === 'off' ? l.default : undefined,
@@ -448,6 +514,11 @@ export function parsePlate(data: unknown): Plate {
   }
   const size = d.size as [number, number];
 
+  if (d.ground !== undefined && d.ground !== 'land' && d.ground !== 'sea') {
+    fail(`unknown ground "${String(d.ground)}" (must be "land" or "sea")`);
+  }
+  const ground = d.ground as PlateGround | undefined;
+
   if (kind === 'geographic' && d.layers === undefined) fail('missing layers');
   if (d.layers !== undefined && !Array.isArray(d.layers)) fail('layers must be an array');
   if (kind === 'schematic' && d.bands === undefined && d.layers === undefined) {
@@ -494,6 +565,7 @@ export function parsePlate(data: unknown): Plate {
     seed: isFiniteNumber(d.seed) ? d.seed : undefined,
     bbox,
     size,
+    ground,
     layers,
     bands,
   };
@@ -1113,6 +1185,611 @@ function pinBBox(x: number, y: number, r = 5.5): [number, number, number, number
   return [x - r, y - r * 2.7, x + r, y];
 }
 
+// ── Lettering ────────────────────────────────────────────────────────────
+// A map with no names is not a map. This module emitted zero <text> elements
+// until 2026-07-28. The approach mirrors scenemap.ts's placeLabel + its
+// average-glyph-width estimator (both private there, so this is an own copy,
+// same posture as escapeXml/round1 above) and adds the two things a plate
+// needs that a 320px scene inset does not: Imhof's candidate ORDER, and
+// collision rejection against already-placed labels.
+//
+// Typographic rules from docs/TROAD-CARTOGRAPHY.md §5 (Axis Maps / Imhof):
+//   - four size steps, >= 2px apart, never below 9.5px;
+//   - rank by WEIGHT, not size: the settlement is the heaviest mark though a
+//     region name is the largest, because letterspacing and grey DEMOTE while
+//     weight PROMOTES — so a big tracked grey capital reads as background
+//     geography and a small bold roman reads as the town;
+//   - area features in letterspaced caps, visually centred; water in italic;
+//   - haloes via the `paint-order` ATTRIBUTE (not the CSS property), which has
+//     shipped far longer;
+//   - a conjectural position gets an italic name and a dashed leader.
+
+type LabelRole = 'region' | 'settlement' | 'water' | 'minor';
+
+interface LabelStyle {
+  size: number;
+  weight: number;
+  italic: boolean;
+  caps: boolean;
+  /** Letterspacing as a fraction of the font size (0 = none). */
+  tracking: number;
+  fill: string;
+}
+
+// Every label colour is --text or --text-mid over a --scene-map-label-halo
+// halo, deliberately NOT a per-terrain colour: the halo IS the label's
+// background, so contrast is a fixed pair per theme rather than a matrix of
+// text-over-every-fill combinations that would have to be re-measured every
+// time a terrain token is retuned.
+const LABEL_STYLES: Record<LabelRole, LabelStyle> = {
+  region: { size: 15.5, weight: 400, italic: false, caps: true, tracking: 0.16, fill: 'var(--text-mid)' },
+  settlement: { size: 13.5, weight: 600, italic: false, caps: false, tracking: 0, fill: 'var(--text)' },
+  water: { size: 11.5, weight: 400, italic: true, caps: false, tracking: 0.04, fill: 'var(--text-mid)' },
+  minor: { size: 9.5, weight: 400, italic: false, caps: false, tracking: 0.02, fill: 'var(--text-mid)' },
+};
+
+type LabelAnchor = 'start' | 'middle' | 'end';
+
+type Box = [number, number, number, number]; // [x1, y1, x2, y2]
+
+// Same average-glyph-width heuristic as scenemap.ts's estimateTextWidth (no
+// DOM measurement in a pure build-time module), widened for caps and for the
+// tracking this module adds. It only has to keep a label inside the neatline
+// and off its neighbours, not kern.
+function estimateLabelWidth(text: string, style: LabelStyle): number {
+  const perGlyph = style.size * (style.caps ? 0.64 : 0.56) + style.size * style.tracking;
+  return text.length * perGlyph;
+}
+
+function labelText(text: string, style: LabelStyle): string {
+  return style.caps ? text.toLocaleUpperCase() : text;
+}
+
+// The gazetteer's `name` is a CATALOGUE entry — "Kesik Tepe (the 'Demetrius
+// tumulus'), claimed tomb of Achilles", "Scamander (Xanthus)". Lettered onto
+// the sheet verbatim it runs across half the plain and collides with its
+// neighbours (measured, 2026-07-28: the first render of this lane). A map
+// label is the short form: the head of the name, before the first
+// parenthetical or appositive, without a leading article. Nothing is lost —
+// the full catalogue name still rides on the pin's <title> (so it is what a
+// hover and a screen reader get) and in the panel's own place list. Applied
+// ONLY to gazetteer-derived names; a layer's explicit `label` is already
+// authored as a map label and passes through untouched.
+function mapLabelText(name: string): string {
+  const head = name.split(/\s*[(,;—]/)[0].trim();
+  const base = head || name.trim();
+  const deArticled = base.replace(/^[Tt]he\s+/, '');
+  if (!deArticled) return base;
+  // "The wall of Troy" -> "Wall of Troy": dropping the article must not leave
+  // a lowercase initial on a map label.
+  return deArticled[0].toLocaleUpperCase() + deArticled.slice(1);
+}
+
+function boxesOverlap(a: Box, b: Box, pad = 1.5): boolean {
+  return !(a[2] + pad < b[0] || b[2] + pad < a[0] || a[3] + pad < b[1] || b[3] + pad < a[1]);
+}
+
+function boxInside(b: Box, width: number, height: number, margin: number): boolean {
+  return b[0] >= margin && b[1] >= margin && b[2] <= width - margin && b[3] <= height - margin;
+}
+
+interface LabelCandidate {
+  x: number;
+  y: number; // baseline
+  anchor: LabelAnchor;
+}
+
+function labelBox(c: LabelCandidate, textWidth: number, style: LabelStyle): Box {
+  const x1 = c.anchor === 'start' ? c.x : c.anchor === 'end' ? c.x - textWidth : c.x - textWidth / 2;
+  return [x1, c.y - style.size * 0.8, x1 + textWidth, c.y + style.size * 0.25];
+}
+
+// Imhof's ranking, via the 2024 reassessment cited in the cartography
+// dossier: top-right > right > top > bottom > left. His reason is that Latin
+// ascenders outnumber descenders, so a name set above a point sits visually
+// closer to it than the same name set below.
+// The ring is tried twice, close then further out, before anything is given
+// up on: on a crowded sheet a name pushed a few px clear is still attached to
+// its own pin, whereas the clamped fallback is a last resort that can land on
+// a neighbour. Measured on the Trojan plain (2026-07-28): with one ring, four
+// of nine names fell through to the fallback and overprinted the region caps.
+const LABEL_GAPS = [5, 14, 26];
+/** Candidates from the first (closest) ring; beyond these a name reads as detached from its mark. */
+const NEAR_CANDIDATE_COUNT = 8;
+
+function labelCandidates(anchorBox: Box, style: LabelStyle): LabelCandidate[] {
+  const [x1, y1, x2, y2] = anchorBox;
+  const cx = (x1 + x2) / 2;
+  const cy = (y1 + y2) / 2;
+  const half = style.size * 0.36; // roughly half a cap height, to centre a side-set name
+  const out: LabelCandidate[] = [];
+  for (const gap of LABEL_GAPS) {
+    out.push(
+      { x: x2 + gap, y: y1 + half, anchor: 'start' }, // top-right
+      { x: x2 + gap, y: cy + half, anchor: 'start' }, // right
+      { x: cx, y: y1 - gap, anchor: 'middle' }, // top
+      { x: cx, y: y2 + gap + style.size * 0.72, anchor: 'middle' }, // bottom
+      { x: x1 - gap, y: cy + half, anchor: 'end' }, // left
+      { x: x1 - gap, y: y1 + half, anchor: 'end' }, // top-left
+      { x: x2 + gap, y: y2 + gap + style.size * 0.6, anchor: 'start' }, // bottom-right
+      { x: x1 - gap, y: y2 + gap + style.size * 0.6, anchor: 'end' }, // bottom-left
+    );
+  }
+  return out;
+}
+
+interface LabelRequest {
+  text: string;
+  role: LabelRole;
+  /** The feature point a leader would run to, and the box a pin's label must clear. */
+  anchorBox: Box;
+  /** Area features are set at their own centre rather than beside a point (Axis Maps: "visually centred"). */
+  centred?: boolean;
+  /** A conjectural position: italic name plus a dashed leader (docs/TROAD-CARTOGRAPHY.md §6). */
+  conjectural?: boolean;
+  /**
+   * A linear feature's own projected run. When the name fits along it, it is
+   * set ON the line with <textPath> — a river is named along its channel, not
+   * beside a dot in the middle of its bounding box.
+   */
+  path?: [number, number][];
+  /** Stable element id for that path when it is emitted into <defs>. Required with `path`. */
+  pathId?: string;
+}
+
+function polylineLength(pts: [number, number][]): number {
+  let total = 0;
+  for (let i = 0; i + 1 < pts.length; i++) total += Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]);
+  return total;
+}
+
+// A name set along a path reads upside-down and backwards wherever the path
+// runs right-to-left. The dossier's advice is explicit: never use
+// `side="right"` — reverse the path instead. Direction is judged on the run's
+// net displacement, so one wiggle mid-course doesn't flip the whole name.
+function orientForReading(pts: [number, number][]): [number, number][] {
+  const dx = pts[pts.length - 1][0] - pts[0][0];
+  return dx < 0 ? [...pts].reverse() : pts;
+}
+
+function textPathElement(
+  text: string,
+  pathId: string,
+  style: LabelStyle,
+  role: LabelRole,
+): string {
+  const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
+  return (
+    `<text class="plate-label plate-label-${role} plate-label-along" ` +
+    `font-family="var(--font-ui)" font-size="${style.size}" font-weight="${style.weight}"` +
+    `${style.italic ? ' font-style="italic"' : ''}${tracking} fill="${style.fill}" ` +
+    `paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="2.5" ` +
+    `stroke-linejoin="round" dy="-3.5" style="font-variant-ligatures:none">` +
+    `<textPath href="#${pathId}" startOffset="50%" text-anchor="middle" method="align" spacing="exact">` +
+    `${escapeXml(labelText(text, style))}</textPath></text>`
+  );
+}
+
+function labelElement(
+  text: string,
+  c: LabelCandidate,
+  style: LabelStyle,
+  role: LabelRole,
+  forceItalic: boolean,
+): string {
+  const italic = style.italic || forceItalic;
+  const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
+  return (
+    `<text class="plate-label plate-label-${role}" x="${round1(c.x)}" y="${round1(c.y)}" ` +
+    `text-anchor="${c.anchor}" font-family="var(--font-ui)" font-size="${style.size}" ` +
+    `font-weight="${style.weight}"${italic ? ' font-style="italic"' : ''}${tracking} ` +
+    `fill="${style.fill}" paint-order="stroke" stroke="var(--scene-map-label-halo)" ` +
+    `stroke-width="2.5" stroke-linejoin="round">${escapeXml(labelText(text, style))}</text>`
+  );
+}
+
+// A leader from the feature to a name that could not sit against it. Drawn in
+// two cases, and the two are visually distinct because they claim different
+// things:
+//   - DASHED, for a conjectural position: the dash is the claim (this name is
+//     attached to a guess), per docs/TROAD-CARTOGRAPHY.md §6;
+//   - SOLID hairline, when a crowded sheet pushed the name clear of its own
+//     pin: it says nothing about certainty, only "this name belongs to that
+//     mark." On the Troad sheet ten places sit inside ~40px around Hisarlik,
+//     and the alternative to a leader is dropping names, which the project
+//     owner's calibration rules out ("omission is not honesty").
+// Never drawn when the name is already touching its feature — a leader across
+// 4px is clutter, not information.
+function leaderElement(anchorBox: Box, box: Box, dashed: boolean): string {
+  const ax = (anchorBox[0] + anchorBox[2]) / 2;
+  const ay = (anchorBox[1] + anchorBox[3]) / 2;
+  const bx = box[0] < ax ? box[2] : box[0];
+  const by = (box[1] + box[3]) / 2;
+  if (Math.hypot(bx - ax, by - ay) < 12) return '';
+  return (
+    `<path class="plate-leader" d="M ${round1(ax)} ${round1(ay)} L ${round1(bx)} ${round1(by)}" ` +
+    `fill="none" stroke="var(--text-mid)" stroke-width="0.6" stroke-opacity="${dashed ? 1 : 0.7}"` +
+    `${dashed ? ' stroke-dasharray="2 2"' : ''}/>`
+  );
+}
+
+// Lays out every requested label against the sheet, rejecting candidates that
+// leave the neatline or collide with a label already placed. Area (`centred`)
+// names are laid first — they are the sheet's background geography and their
+// position is meaningful (the shape's own centre), so a point name yields to
+// them rather than the other way round.
+//
+// A name whose every candidate is rejected is NOT dropped: it falls back to
+// its first candidate, clamped inside the frame. Silently deleting a place
+// name off an apparatus map would be exactly the class of quiet omission
+// CLAUDE.md's honesty rule exists to prevent — an overlap is visible and
+// fixable, an absence is neither.
+function layoutLabels(
+  requests: LabelRequest[],
+  width: number,
+  height: number,
+  margin: number,
+): { markup: string; defs: string } {
+  const placed: Box[] = [];
+  const parts: string[] = [];
+  const defs: string[] = [];
+  const ordered = [...requests.filter((r) => r.centred), ...requests.filter((r) => !r.centred)];
+  // One name, one place on the sheet. A layer and a pin can resolve to the
+  // same gazetteer place (the shore layer named `bay-of-troy` and a pin for
+  // the bay), and lettering it twice reads as two features.
+  const lettered = new Set<string>();
+
+  for (const req of ordered) {
+    if (!req.text.trim()) continue;
+    const dedupeKey = req.text.trim().toLocaleLowerCase();
+    if (lettered.has(dedupeKey)) continue;
+    lettered.add(dedupeKey);
+    const style = LABEL_STYLES[req.role];
+    const textWidth = estimateLabelWidth(labelText(req.text, style), style);
+
+    // A linear feature is named along its own run whenever the run is long
+    // enough to carry the name; otherwise it falls through to point placement
+    // below rather than being squeezed onto a stub.
+    if (req.path && req.pathId && req.path.length >= 2 && polylineLength(req.path) > textWidth * 1.15) {
+      const oriented = orientForReading(req.path);
+      // Reserve only the stretch the name actually occupies — the middle of
+      // the run, where startOffset="50%" puts it — not the whole polyline's
+      // bounding box, which for a river crossing the sheet would push every
+      // other name out of half the map.
+      const mid = oriented[Math.floor(oriented.length / 2)];
+      const box: Box = [mid[0] - textWidth / 2, mid[1] - style.size, mid[0] + textWidth / 2, mid[1] + style.size * 0.3];
+      if (!placed.some((p) => boxesOverlap(p, box))) {
+        defs.push(`<path id="${req.pathId}" d="${pathD(oriented, false)}" fill="none" stroke="none"/>`);
+        parts.push(textPathElement(req.text, req.pathId, style, req.role));
+        placed.push(box);
+        continue;
+      }
+      // Too crowded along the line — fall through to point placement.
+    }
+
+    let chosen: LabelCandidate;
+    let box: Box;
+    let detached = false;
+    if (req.centred) {
+      const cx = (req.anchorBox[0] + req.anchorBox[2]) / 2;
+      const cy = (req.anchorBox[1] + req.anchorBox[3]) / 2;
+      chosen = { x: cx, y: cy + style.size * 0.3, anchor: 'middle' };
+      box = labelBox(chosen, textWidth, style);
+    } else {
+      const candidates = labelCandidates(req.anchorBox, style);
+      let best: { c: LabelCandidate; b: Box } | undefined;
+      for (const c of candidates) {
+        const b = labelBox(c, textWidth, style);
+        if (!boxInside(b, width, height, margin)) continue;
+        if (placed.some((p) => boxesOverlap(p, b))) continue;
+        best = { c, b };
+        break;
+      }
+      // A name that had to travel to find room, or that fell through to the
+      // clamped fallback, gets a hairline leader back to its own mark.
+      detached = !best || candidates.indexOf(best.c) >= NEAR_CANDIDATE_COUNT;
+      if (best) {
+        chosen = best.c;
+        box = best.b;
+      } else {
+        // Every candidate rejected — keep the name, clamped into the frame.
+        const c = candidates[0];
+        const raw = labelBox(c, textWidth, style);
+        const dx = Math.min(0, width - margin - raw[2]) + Math.max(0, margin - raw[0]);
+        const dy = Math.min(0, height - margin - raw[3]) + Math.max(0, margin - raw[1]);
+        chosen = { ...c, x: c.x + dx, y: c.y + dy };
+        box = labelBox(chosen, textWidth, style);
+      }
+    }
+
+    if (!req.centred && (req.conjectural || detached)) {
+      parts.push(leaderElement(req.anchorBox, box, !!req.conjectural));
+    }
+    parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural));
+    placed.push(box);
+  }
+  return { markup: parts.join(''), defs: defs.join('') };
+}
+
+// ── Legend ───────────────────────────────────────────────────────────────
+// Derived from what this sheet ACTUALLY drew — never a fixed list. A register
+// that appears in the key is one the reader can find on the map, and every
+// register on the map appears in the key. That is also where the uncertainty
+// goes: the calibration for this lane is that caution belongs in the label,
+// not in the line, so a reconstructed shoreline is drawn confidently and the
+// key says "approximate extent" (the Landmark's own caveat, verbatim).
+
+interface LegendEntry {
+  /** Dedupe key: five river layers put ONE "River" row in the key, not five. */
+  key: string;
+  /** Sort key, so the key's order is stable regardless of layer order in the JSON. */
+  rank: number;
+  swatch: (x: number, y: number) => string;
+  text: string;
+}
+
+const LEGEND_FONT = 9.5;
+const LEGEND_ROW_H = 14;
+const LEGEND_SWATCH_W = 22;
+
+function legendLine(x: number, y: number, stroke: string, width: number, dash = ''): string {
+  return (
+    `<path d="M ${round1(x)} ${round1(y)} h ${LEGEND_SWATCH_W}" fill="none" stroke="${stroke}" ` +
+    `stroke-width="${width}"${dash ? ` stroke-dasharray="${dash}"` : ''}/>`
+  );
+}
+
+function legendSwatchRect(x: number, y: number, fill: string, fillOpacity: number, stroke: string): string {
+  return (
+    `<rect x="${round1(x)}" y="${round1(y - 4.5)}" width="${LEGEND_SWATCH_W}" height="9" ` +
+    `fill="${fill}" fill-opacity="${fillOpacity}" stroke="${stroke}" stroke-width="0.5" stroke-opacity="0.6"/>`
+  );
+}
+
+const CERTAINTY_LEGEND_TEXT: Record<Certainty, string> = {
+  certain: 'Location secure',
+  traditional: 'Traditional identification',
+  speculative: 'Identification speculative',
+  mythical: 'Mythical — no known site',
+};
+
+const REGION_LEGEND_TEXT: Record<RegionFill, string> = {
+  sea: 'Open sea',
+  lagoon: 'Lagoon and shallow water',
+  marsh: 'Marsh and wet delta',
+  plain: 'Dry plain',
+  land: 'Land',
+  tint: 'Apparatus zone',
+};
+
+// One key row per drawn register. `undefined` means the layer needs no row
+// (its meaning is carried by its own name on the sheet).
+function layerLegendEntry(layer: PlateLayer): LegendEntry | undefined {
+  switch (layer.kind) {
+    case 'coast': {
+      // The stipple register is this project's honest treatment of a
+      // RECONSTRUCTED shoreline (see trojan-plain.json's own note); a plain
+      // stroked coast is a surveyed one. Two different claims, two rows.
+      const reconstructed = layer.style === 'stipple';
+      return {
+        key: reconstructed ? 'coast-stipple' : 'coast-line',
+        rank: reconstructed ? 1 : 2,
+        text: reconstructed ? 'Shoreline, reconstructed — approximate extent' : 'Shoreline',
+        swatch: (x, y) =>
+          reconstructed
+            ? `<path d="${[0, 4, 8, 12, 16, 20].map((o) => circlePathD(x + o + 1, y, 1)).join(' ')}" fill="var(--flaxman-ink)" stroke="none"/>`
+            : legendLine(x, y, 'var(--scene-map-coast)', STROKE_WEIGHT.coast),
+      };
+    }
+    case 'river':
+      return { key: 'river', rank: 3, text: 'River', swatch: (x, y) => legendLine(x, y, 'var(--plate-river)', STROKE_WEIGHT.river) };
+    case 'relief':
+      return {
+        key: 'relief',
+        rank: 4,
+        text: 'High ground (hachured)',
+        swatch: (x, y) =>
+          legendSwatchRect(x, y, 'var(--plate-upland)', 1, 'var(--scene-map-coast)') +
+          `<path d="${[4, 9, 14, 19].map((o) => `M ${round1(x + o)} ${round1(y - 3.5)} v 7`).join(' ')}" fill="none" stroke="var(--flaxman-hachure)" stroke-width="0.9"/>`,
+      };
+    case 'wall':
+      return { key: 'wall', rank: 5, text: 'Fortification', swatch: (x, y) => legendLine(x, y, 'var(--flaxman-ink)', STROKE_WEIGHT.wall) };
+    case 'shipRow':
+      return { key: 'shipRow', rank: 6, text: 'Beached ships', swatch: (x, y) => `<path d="${shipRow([[x + 2, y + 2], [x + 20, y + 2]], 1, 2, { seed: 7 })}" fill="var(--flaxman-ink)" stroke="none"/>` };
+    case 'tumulus':
+      return { key: 'tumulus', rank: 7, text: 'Tumulus', swatch: (x, y) => `<path d="${tumulus([x + LEGEND_SWATCH_W / 2, y + 3], { radius: 6 })}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${STROKE_WEIGHT.tumulus}"/>` };
+    case 'route':
+      return { key: 'route', rank: 8, text: 'Route', swatch: (x, y) => legendLine(x, y, 'var(--accent-light)', STROKE_WEIGHT.route, '1 4') };
+    case 'region':
+    case 'band':
+      return regionFillLegendEntry(layer.fill ?? DEFAULT_REGION_FILL);
+    default:
+      return undefined;
+  }
+}
+
+function regionFillLegendEntry(fill: RegionFill): LegendEntry {
+  return {
+    key: `region-${fill}`,
+    rank: 20 + Object.keys(REGION_FILL_TOKENS).indexOf(fill),
+    text: REGION_LEGEND_TEXT[fill],
+    swatch: (x, y) =>
+      legendSwatchRect(
+        x,
+        y,
+        REGION_FILL_TOKENS[fill],
+        REGION_FILL_OPACITY[fill],
+        WATER_FILLS.has(fill) ? 'var(--scene-map-coast)' : 'var(--flaxman-ink)',
+      ),
+  };
+}
+
+function certaintyLegendEntry(certainty: Certainty): LegendEntry {
+  const style = certaintyPinStyle(certainty);
+  return {
+    key: `certainty-${certainty}`,
+    rank: 40 + ['certain', 'traditional', 'speculative', 'mythical'].indexOf(certainty),
+    text: CERTAINTY_LEGEND_TEXT[certainty],
+    swatch: (x, y) => {
+      const dash = style.dasharray ? ` stroke-dasharray="${style.dasharray}"` : '';
+      return (
+        `<circle cx="${round1(x + LEGEND_SWATCH_W / 2)}" cy="${round1(y)}" r="4" fill="${style.fill}" ` +
+        `fill-opacity="${style.fillOpacity}" stroke="${style.stroke}" stroke-width="1.25"${dash}/>`
+      );
+    },
+  };
+}
+
+// Renders the key into the sheet's bottom-right corner, inside the neatline,
+// on its own halo-coloured panel so it stays legible over whatever terrain
+// falls under it. Returns '' when there is nothing to key.
+function legendMarkup(entries: LegendEntry[], width: number, height: number): string {
+  const byKey = new Map<string, LegendEntry>();
+  for (const e of entries) if (!byKey.has(e.key)) byKey.set(e.key, e);
+  if (byKey.size === 0) return '';
+  const rows = [...byKey.values()].sort((a, b) => a.rank - b.rank || a.text.localeCompare(b.text));
+  const textW = Math.max(...rows.map((r) => r.text.length * LEGEND_FONT * 0.54));
+  const padX = 8;
+  const padY = 8;
+  const panelW = padX * 2 + LEGEND_SWATCH_W + 7 + textW;
+  const panelH = padY * 2 + rows.length * LEGEND_ROW_H;
+  // A key that overruns its own sheet is worse than no key. Small schematic
+  // devices (the Shield at 200px) have no room for one and no use for one —
+  // they are not maps, and every band already carries its own label.
+  if (panelW > width - LABEL_MARGIN * 2 || panelH > height - LABEL_MARGIN * 2) return '';
+  const x0 = width - LABEL_MARGIN - 4 - panelW;
+  const y0 = height - LABEL_MARGIN - 4 - panelH;
+
+  const parts: string[] = [
+    `<rect class="plate-legend-panel" x="${round1(x0)}" y="${round1(y0)}" width="${round1(panelW)}" ` +
+      `height="${round1(panelH)}" rx="2" fill="var(--scene-map-label-halo)" fill-opacity="0.86" ` +
+      `stroke="var(--flaxman-ink)" stroke-width="0.5" stroke-opacity="0.5"/>`,
+  ];
+  rows.forEach((row, i) => {
+    const cy = y0 + padY + LEGEND_ROW_H * i + LEGEND_ROW_H / 2;
+    parts.push(row.swatch(x0 + padX, cy));
+    parts.push(
+      `<text x="${round1(x0 + padX + LEGEND_SWATCH_W + 7)}" y="${round1(cy + LEGEND_FONT * 0.35)}" ` +
+        `font-family="var(--font-ui)" font-size="${LEGEND_FONT}" fill="var(--text)">${escapeXml(row.text)}</text>`,
+    );
+  });
+  return `<g class="plate-legend">${parts.join('')}</g>`;
+}
+
+// ── Frame and bar scale ──────────────────────────────────────────────────
+
+// Double neatline: outer 1.2px, inner 0.4px, 3px apart — docs/TROAD-
+// CARTOGRAPHY.md §5. No graticule across the face.
+const FRAME_OUTER_WIDTH = 1.2;
+const FRAME_INNER_WIDTH = 0.4;
+const FRAME_GAP = 3;
+const FRAME_OUTER_INSET = FRAME_OUTER_WIDTH / 2;
+const FRAME_INNER_INSET = FRAME_OUTER_INSET + FRAME_GAP + FRAME_INNER_WIDTH / 2;
+/** Keep lettering clear of the inner neatline. */
+const LABEL_MARGIN = FRAME_INNER_INSET + 4;
+
+function neatlineMarkup(width: number, height: number): string {
+  const rect = (inset: number, strokeWidth: number) =>
+    `<rect class="plate-neatline" x="${inset}" y="${inset}" width="${round1(width - inset * 2)}" ` +
+    `height="${round1(height - inset * 2)}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${strokeWidth}"/>`;
+  return rect(FRAME_OUTER_INSET, FRAME_OUTER_WIDTH) + rect(FRAME_INNER_INSET, FRAME_INNER_WIDTH);
+}
+
+// Mean km per degree of latitude (WGS84). The viewport's single `scale` is
+// px per cos-corrected degree and is shared by both axes (see geo.ts), so one
+// figure converts it for the whole sheet.
+const KM_PER_DEG_LAT = 110.574;
+/** The Attic stade, 600 Greek feet — the unit the sources this apparatus cites actually use. */
+const KM_PER_STADE = 0.185;
+
+const NICE_KM = [0.25, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500];
+const NICE_STADES = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000];
+
+// Picks the largest value from `steps` whose bar fits `maxPx`, or the
+// smallest step if even that overruns (a sheet too small for any honest bar).
+function niceLength(steps: number[], pxPerUnit: number, maxPx: number): number {
+  let chosen = steps[0];
+  for (const s of steps) {
+    if (s * pxPerUnit <= maxPx) chosen = s;
+  }
+  return chosen;
+}
+
+function barSegments(x0: number, y: number, len: number, height: number, segments: number): string {
+  const parts: string[] = [];
+  const w = len / segments;
+  for (let i = 0; i < segments; i++) {
+    if (i % 2 === 0) continue; // alternating filled / open
+    parts.push(
+      `M ${round1(x0 + i * w)} ${round1(y)} h ${round1(w)} v ${round1(height)} h ${round1(-w)} Z`,
+    );
+  }
+  return parts.join(' ');
+}
+
+// A bar scale computed from the plate's OWN viewport, so it is honest by
+// construction rather than a drawn decoration: stades over kilometres with
+// coincident zeros, alternating filled and open segments (dossier §5).
+// Geographic plates only — a schematic plate has no scale, and drawing one
+// would be a fabricated claim.
+function scaleBarMarkup(viewport: Viewport, width: number, height: number): string {
+  if (!Number.isFinite(viewport.scale) || viewport.scale <= 0) return '';
+  const kmPerPx = KM_PER_DEG_LAT / viewport.scale;
+  if (!Number.isFinite(kmPerPx) || kmPerPx <= 0) return '';
+  const pxPerKm = 1 / kmPerPx;
+  const maxPx = Math.min(width * 0.34, 240);
+
+  const km = niceLength(NICE_KM, pxPerKm, maxPx);
+  const stades = niceLength(NICE_STADES, pxPerKm * KM_PER_STADE, maxPx);
+  const kmPx = km * pxPerKm;
+  const stadePx = stades * KM_PER_STADE * pxPerKm;
+  if (!(kmPx > 2) || !(stadePx > 2)) return '';
+
+  const barW = Math.max(kmPx, stadePx);
+  const x0 = LABEL_MARGIN + 6;
+  const baseY = height - LABEL_MARGIN - 16;
+  const barH = 4;
+  const font = 9.5;
+
+  const panel =
+    `<rect class="plate-scale-panel" x="${round1(x0 - 6)}" y="${round1(baseY - barH - font - 8)}" ` +
+    `width="${round1(barW + 46)}" height="${round1(barH * 2 + font * 2 + 16)}" rx="2" ` +
+    `fill="var(--scene-map-label-halo)" fill-opacity="0.72" stroke="none"/>`;
+
+  const rule =
+    `<path class="plate-scale-rule" d="M ${round1(x0)} ${round1(baseY)} H ${round1(x0 + barW)}" ` +
+    `fill="none" stroke="var(--flaxman-ink)" stroke-width="0.6"/>`;
+
+  const stadeBar =
+    `<path class="plate-scale-bar" d="${barSegments(x0, baseY - barH, stadePx, barH, 4)}" ` +
+    `fill="var(--flaxman-ink)" stroke="none"/>` +
+    `<path class="plate-scale-bar-outline" d="M ${round1(x0)} ${round1(baseY - barH)} h ${round1(stadePx)} v ${barH} h ${round1(-stadePx)} Z" ` +
+    `fill="none" stroke="var(--flaxman-ink)" stroke-width="0.6"/>`;
+
+  const kmBar =
+    `<path class="plate-scale-bar" d="${barSegments(x0, baseY, kmPx, barH, 4)}" ` +
+    `fill="var(--flaxman-ink)" stroke="none"/>` +
+    `<path class="plate-scale-bar-outline" d="M ${round1(x0)} ${round1(baseY)} h ${round1(kmPx)} v ${barH} h ${round1(-kmPx)} Z" ` +
+    `fill="none" stroke="var(--flaxman-ink)" stroke-width="0.6"/>`;
+
+  const text = (x: number, y: number, s: string, anchor: LabelAnchor) =>
+    `<text class="plate-scale-label" x="${round1(x)}" y="${round1(y)}" text-anchor="${anchor}" ` +
+    `font-family="var(--font-ui)" font-size="${font}" fill="var(--text-mid)" paint-order="stroke" ` +
+    `stroke="var(--scene-map-label-halo)" stroke-width="2" stroke-linejoin="round">${escapeXml(s)}</text>`;
+
+  return (
+    `<g class="plate-scale">` +
+    panel +
+    stadeBar +
+    kmBar +
+    rule +
+    text(x0, baseY - barH - 3, '0', 'middle') +
+    text(x0 + stadePx + 3, baseY - barH - 3, `${stades} stades`, 'start') +
+    text(x0 + kmPx + 3, baseY + barH + font, `${km} km`, 'start') +
+    `</g>`
+  );
+}
+
 // ── Projection ───────────────────────────────────────────────────────────
 
 // Projects one plate point into plate-pixel space. On a `geographic` plate
@@ -1188,7 +1865,51 @@ const STROKE_WEIGHT = {
 
 // ── Layer rendering ──────────────────────────────────────────────────────
 
-function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): { markup: string; feature: RenderedFeature } | undefined {
+// Which lettering register a layer's own name belongs to (see LABEL_STYLES).
+const LAYER_LABEL_ROLE: Record<LayerKind, LabelRole> = {
+  coast: 'water',
+  river: 'water',
+  relief: 'region',
+  shipRow: 'minor',
+  wall: 'minor',
+  route: 'minor',
+  region: 'region',
+  band: 'region',
+  tumulus: 'minor',
+};
+
+// An area name is set at the shape's own centre; a linear feature's name is
+// set beside the middle of its run, not beside the centre of its bounding box
+// (which for a curving river is often not on the river at all).
+const AREA_LAYER_KINDS: ReadonlySet<LayerKind> = new Set<LayerKind>(['region', 'band', 'relief']);
+
+interface RenderedLayer {
+  markup: string;
+  feature: RenderedFeature;
+  labelAnchor: Box;
+  labelCentred: boolean;
+  labelRole: LabelRole;
+  /** The feature's own run, for a name set along the line (rivers, coasts, walls, routes). */
+  labelPath?: [number, number][];
+}
+
+// The single run a linear layer's name is set along: its path/trace, or — for
+// a coast, which may carry several rings — the longest one, since that is the
+// stretch with room for the name.
+function linearRun(plate: Plate, layer: PlateLayer, viewport: Viewport): [number, number][] | undefined {
+  let pts: PlatePoint[] | undefined;
+  if (layer.kind === 'river' || layer.kind === 'route') pts = layer.path;
+  else if (layer.kind === 'wall') pts = layer.trace;
+  else if (layer.kind === 'coast') {
+    for (const ring of layer.rings ?? []) {
+      if (!pts || ring.length > pts.length) pts = ring;
+    }
+  }
+  if (!pts || pts.length < 2) return undefined;
+  return projectPoints(plate, pts, viewport);
+}
+
+function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): RenderedLayer | undefined {
   const allPixelPoints: [number, number][] = [];
   const collect = (pts: PlatePoint[] | undefined) => {
     if (!pts) return [];
@@ -1209,38 +1930,59 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): { mar
         allPixelPoints.push(...px);
         return px;
       });
+      // A coast layer whose rings are CLOSED landmasses (the Troad sheet's
+      // mainland and its islands) may declare the terrain they enclose, and
+      // the body is filled under the shoreline — the same evenodd
+      // land-over-sea construction shared/lib/scenemap.ts already uses for
+      // the Mediterranean coastline. This is what turns a `ground: "sea"`
+      // plate from outlines on parchment into a coastal map, and it costs the
+      // plate file two words. Omit `fill` and nothing changes: the layer is
+      // pure linework, exactly as before.
+      const body = layer.fill
+        ? `<path data-feature-id="${escapeXml(layer.id)}-body" class="plate-layer plate-layer-coast-body" ` +
+          `d="${ringsPx.map((px) => pathD(px, true)).join(' ')}" fill="${REGION_FILL_TOKENS[layer.fill]}" ` +
+          `fill-opacity="${REGION_FILL_OPACITY[layer.fill]}" fill-rule="evenodd" stroke="none"/>`
+        : '';
       if (layer.style === 'stipple') {
         const dParts = ringsPx.map((px) => stipple(px, { seed }));
-        markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" d="${dParts.join(' ')}" fill="var(--flaxman-ink)" stroke="none"/>`;
+        markup = body + `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" d="${dParts.join(' ')}" fill="var(--flaxman-ink)" stroke="none"/>`;
       } else if (layer.style === 'waterline') {
         const coastD = ringsPx.map((px) => pathD(px, false)).join(' ');
         const strokes = waterlines(ringsPx, { seed });
         const strokeMarkup = strokes
           .map(
             (ln, i) =>
-              `<path data-feature-id="${escapeXml(layer.id)}-waterline-${i}" class="plate-layer plate-layer-waterline" d="${ln.d}" fill="none" stroke="var(--scene-map-sea)" stroke-width="${ln.width}" stroke-opacity="${ln.opacity}"/>`,
+              `<path data-feature-id="${escapeXml(layer.id)}-waterline-${i}" class="plate-layer plate-layer-waterline" d="${ln.d}" fill="none" stroke="var(--plate-river)" stroke-width="${ln.width}" stroke-opacity="${ln.opacity}"/>`,
           )
           .join('');
         markup =
+          body +
           `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" d="${coastD}" fill="none" stroke="var(--scene-map-coast)" stroke-width="${layer.width ?? STROKE_WEIGHT.coast}"/>` +
           strokeMarkup;
       } else {
         const d = ringsPx.map((px) => pathD(px, false)).join(' ');
-        markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" d="${d}" fill="none" stroke="var(--scene-map-coast)" stroke-width="${layer.width ?? STROKE_WEIGHT.coast}"/>`;
+        markup = body + `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-coast" d="${d}" fill="none" stroke="var(--scene-map-coast)" stroke-width="${layer.width ?? STROKE_WEIGHT.coast}"/>`;
       }
       break;
     }
     case 'river': {
       const px = collect(layer.path);
       if (px.length < 2) return undefined;
-      markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-river" d="${pathD(px, false)}" fill="none" stroke="var(--scene-map-sea)" stroke-width="${layer.width ?? STROKE_WEIGHT.river}" stroke-linecap="round"/>`;
+      markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-river" d="${pathD(px, false)}" fill="none" stroke="var(--plate-river)" stroke-width="${layer.width ?? STROKE_WEIGHT.river}" stroke-linecap="round"/>`;
       break;
     }
     case 'relief': {
       const px = collect(layer.polygon);
       if (px.length < 3) return undefined;
       const d = hachure(px, { seed });
-      markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-relief" d="${d}" fill="var(--flaxman-hachure)" stroke="none"/>`;
+      // The hachure strokes used to be the ONLY thing drawn for a relief
+      // layer, so they read as a free-floating comb with no ridge under
+      // them (2026-07-28). The body goes down first, opaque — never a
+      // fill-opacity on an already-composited ink token, which is the
+      // double-alpha defect --flaxman-hachure exists to prevent.
+      markup =
+        `<path data-feature-id="${escapeXml(layer.id)}-body" class="plate-layer plate-layer-relief-body" d="${pathD(px, true)}" fill="var(--plate-upland)" stroke="var(--scene-map-coast)" stroke-width="0.5" stroke-opacity="0.45"/>` +
+        `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-relief" d="${d}" fill="var(--flaxman-hachure)" stroke="none"/>`;
       break;
     }
     case 'shipRow': {
@@ -1271,14 +2013,20 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): { mar
     case 'band': {
       const px = collect(layer.polygon);
       if (px.length < 3) return undefined;
-      // Gap 3: a region/band layer normally reads --plate-tint (its
-      // decorative area colour), but one representing a body of water
-      // (e.g. a schematic plate's sea) declares `fill: "sea"` to pick up
-      // the site's own water token instead — resolved through the closed
-      // REGION_FILL_TOKENS whitelist (see its own comment), never a
-      // pass-through of the JSON value.
-      const fillToken = REGION_FILL_TOKENS[layer.fill ?? 'tint'];
-      markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${pathD(px, true)}" fill="${fillToken}" fill-opacity="0.35" stroke="${fillToken}" stroke-width="0.8"/>`;
+      // A region/band layer names the TERRAIN it is (plain, marsh, lagoon,
+      // sea, land) through the closed REGION_FILL_TOKENS whitelist — never a
+      // pass-through of the JSON value, so a plate file can never inject CSS.
+      // `tint` is now an explicit opt-in for the one thing that colour was
+      // ever for, a decorative apparatus zone; it is no longer the default,
+      // because defaulting a landform to the site's wine accent is what made
+      // the geographic plate read as shapes rather than geography.
+      const fill = layer.fill ?? DEFAULT_REGION_FILL;
+      const fillToken = REGION_FILL_TOKENS[fill];
+      const strokeToken = WATER_FILLS.has(fill) ? 'var(--scene-map-coast)' : fillToken;
+      const strokeOpacity = fill === 'tint' ? 1 : WATER_FILLS.has(fill) ? 0.7 : 0.5;
+      markup =
+        `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${pathD(px, true)}" ` +
+        `fill="${fillToken}" fill-opacity="${REGION_FILL_OPACITY[fill]}" stroke="${strokeToken}" stroke-width="0.8" stroke-opacity="${strokeOpacity}"/>`;
       break;
     }
     case 'tumulus': {
@@ -1293,9 +2041,22 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): { mar
   }
 
   if (allPixelPoints.length === 0) return undefined;
+  const bbox = bboxOf(allPixelPoints);
+  const isArea = AREA_LAYER_KINDS.has(layer.kind);
+  let labelAnchor: Box;
+  if (isArea) {
+    labelAnchor = bbox;
+  } else {
+    const mid = allPixelPoints[Math.floor(allPixelPoints.length / 2)];
+    labelAnchor = [mid[0] - 1, mid[1] - 1, mid[0] + 1, mid[1] + 1];
+  }
   return {
     markup,
-    feature: { id: layer.id, type: 'layer', kind: layer.kind, bbox: bboxOf(allPixelPoints) },
+    feature: { id: layer.id, type: 'layer', kind: layer.kind, bbox },
+    labelAnchor,
+    labelCentred: isArea,
+    labelRole: LAYER_LABEL_ROLE[layer.kind],
+    labelPath: isArea ? undefined : linearRun(plate, layer, viewport),
   };
 }
 
@@ -1330,19 +2091,32 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // this can never claim a place is "drawn" when its only layer silently
   // dropped out.
   const layerPlaceIds = new Set<string>();
+  // Layers that could be lettered, paired with where their name would sit.
+  // Resolved AFTER the pin pass, because a feature is lettered once: a layer
+  // whose `placeId` is also pinned on this sheet takes its name from the pin.
+  const layerLabelCandidates: { layer: PlateLayer; rendered: RenderedLayer }[] = [];
+  const legendEntries: LegendEntry[] = [];
   for (const layer of plate.layers) {
     const rendered = renderLayer(plate, layer, viewport);
     if (!rendered) continue;
     layerMarkup.push(rendered.markup);
     features.push(rendered.feature);
     if (layer.placeId) layerPlaceIds.add(layer.placeId);
+    if (layer.label || layer.placeId) layerLabelCandidates.push({ layer, rendered });
+    const legend = layerLegendEntry(layer);
+    if (legend) legendEntries.push(legend);
+    // A coast layer that fills its rings also keys the terrain it encloses.
+    if (layer.kind === 'coast' && layer.fill) legendEntries.push(regionFillLegendEntry(layer.fill));
   }
+
+  const placeById = new Map(places.map((p) => [p.id, p]));
 
   const located: PlatePlace[] = [];
   const offCanvas: PlatePlace[] = [];
   const unlocated: PlatePlace[] = [];
   const drawnByLayer: PlatePlace[] = [];
   const pinMarkupParts: string[] = [];
+  const pinLabelRequests: LabelRequest[] = [];
   for (const place of places) {
     const pos = resolvePlacePosition(plate, place, viewport);
     if (!pos) {
@@ -1378,7 +2152,57 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     const conjectural = plate.kind === 'schematic';
     pinMarkupParts.push(pinMarkup(place.id, place.name, x, y, style, conjectural));
     features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: pinBBox(x, y) });
+    pinLabelRequests.push({
+      text: mapLabelText(place.name),
+      role: 'settlement',
+      anchorBox: pinBBox(x, y),
+      conjectural,
+    });
+    legendEntries.push(certaintyLegendEntry(place.certainty ?? 'certain'));
+    if (conjectural) {
+      legendEntries.push({
+        key: 'conjectural',
+        rank: 50,
+        text: 'Position conjectural — set by the poem, not by survey',
+        swatch: (lx, ly) =>
+          `<circle cx="${round1(lx + LEGEND_SWATCH_W / 2)}" cy="${round1(ly)}" r="4" fill="none" ` +
+          `stroke="var(--text-mid)" stroke-width="1.25" stroke-dasharray="${CONJECTURAL_DASHARRAY}"/>`,
+      });
+    }
   }
+
+  // A layer's own name: its explicit `label` if it has one, else the
+  // gazetteer name of its `placeId` — and that fallback only when the place
+  // is NOT pinned here, so a feature is never lettered twice.
+  const pinnedIds = new Set(located.map((p) => p.id));
+  const layerLabelRequests: LabelRequest[] = [];
+  for (const { layer, rendered } of layerLabelCandidates) {
+    const gazName = layer.placeId && !pinnedIds.has(layer.placeId) ? placeById.get(layer.placeId)?.name : undefined;
+    const fallback = gazName ? mapLabelText(gazName) : undefined;
+    const text = layer.label ?? fallback;
+    if (!text) continue;
+    layerLabelRequests.push({
+      text,
+      role: rendered.labelRole,
+      anchorBox: rendered.labelAnchor,
+      centred: rendered.labelCentred,
+      path: rendered.labelPath,
+      pathId: `${safeIdFragment(opts.idPrefix)}-lp-${safeIdFragment(layer.id)}`,
+    });
+  }
+
+  // When a layer and a pin would letter the same name, the PIN keeps it: the
+  // pin is the thing a reader clicks and the thing the certainty tier is
+  // attached to, so an unlabelled pin beside a named line is the worse of the
+  // two failures. Filtered here rather than inside layoutLabels because only
+  // this scope knows which request came from which source.
+  const pinnedNames = new Set(pinLabelRequests.map((r) => r.text.trim().toLocaleLowerCase()));
+  const labels = layoutLabels(
+    [...layerLabelRequests.filter((r) => !pinnedNames.has(r.text.trim().toLocaleLowerCase())), ...pinLabelRequests],
+    width,
+    height,
+    LABEL_MARGIN,
+  );
 
   // Finding 8 (2026-07-28): idPrefix is caller-supplied and lands directly
   // in an SVG element id — sanitize it the same way shield.ts does (see
@@ -1388,12 +2212,21 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
 
   const svg =
     `<svg viewBox="0 0 ${width} ${height}" width="100%" height="100%" role="img" aria-label="${ariaLabel}" xmlns="http://www.w3.org/2000/svg">` +
-    `<defs><clipPath id="${clipId}"><rect x="0" y="0" width="${width}" height="${height}"/></clipPath></defs>` +
+    `<defs><clipPath id="${clipId}"><rect x="0" y="0" width="${width}" height="${height}"/></clipPath>${labels.defs}</defs>` +
     `<g clip-path="url(#${clipId})">` +
-    `<rect class="plate-ground" x="0" y="0" width="${width}" height="${height}" fill="var(--scene-map-land)"/>` +
+    `<rect class="plate-ground" x="0" y="0" width="${width}" height="${height}" fill="${GROUND_FILL_TOKENS[plate.ground ?? 'land']}"/>` +
     layerMarkup.join('') +
     pinMarkupParts.join('') +
+    labels.markup +
+    legendMarkup(legendEntries, width, height) +
     `</g>` +
+    // Frame and bar scale sit OUTSIDE the clip: their strokes run along the
+    // sheet edge and would be shaved in half by it. The scale bar is drawn
+    // from this plate's own viewport, so it is honest by construction, and
+    // only for a geographic plate — a schematic sheet has no scale, and
+    // drawing one would be a fabricated claim.
+    (plate.kind === 'geographic' ? scaleBarMarkup(viewport, width, height) : '') +
+    neatlineMarkup(width, height) +
     `</svg>`;
 
   return { svg, viewport, features, unlocated, offCanvas, drawnByLayer };

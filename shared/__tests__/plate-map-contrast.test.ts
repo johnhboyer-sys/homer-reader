@@ -83,6 +83,16 @@ interface ThemeBlock {
   land: string;
   coast: string;
   hachure: string;
+  // Terrain tokens (2026-07-28): a plate's region/relief layers used to fill
+  // with --plate-tint, which resolves to var(--accent-light) — the site's wine
+  // wayfinding accent — so every landform was painted in the UI highlight
+  // colour. These replaced it as the default, and this suite is what keeps
+  // them honest across both themes.
+  lagoon: string;
+  marsh: string;
+  plain: string;
+  upland: string;
+  river: string;
 }
 
 function readThemeBlock(name: string, selector: string): ThemeBlock {
@@ -93,6 +103,11 @@ function readThemeBlock(name: string, selector: string): ThemeBlock {
     land: readToken(block, '--scene-map-land'),
     coast: readToken(block, '--scene-map-coast'),
     hachure: readToken(block, '--flaxman-hachure'),
+    lagoon: readToken(block, '--plate-lagoon'),
+    marsh: readToken(block, '--plate-marsh'),
+    plain: readToken(block, '--plate-plain'),
+    upland: readToken(block, '--plate-upland'),
+    river: readToken(block, '--plate-river'),
   };
 }
 
@@ -146,5 +161,74 @@ describe('plate/scene-map token contrast (parsed from the real global.css)', () 
     const min = Math.min(...ratios);
     const max = Math.max(...ratios);
     expect(min / max).toBeGreaterThanOrEqual(MIN_HACHURE_RATIO);
+  });
+});
+
+// ── Terrain palette (2026-07-28) ─────────────────────────────────────────
+// The defect these guard: a `region` layer defaulted to --plate-tint, i.e.
+// var(--accent-light), so the geographic plate was drawn in the site's wine
+// accent and read as coloured shapes rather than land and water. The
+// replacement is a real terrain palette, which needs its own guards or it
+// will drift back into the same three failures — indistinguishable fills, an
+// inverted land/water polarity between themes, and linework that vanishes
+// into what it is drawn on.
+
+const LAND_FILL_KEYS = ['land', 'plain', 'marsh', 'upland'] as const;
+const ALL_FILL_KEYS = [...LAND_FILL_KEYS, 'sea', 'lagoon'] as const;
+
+describe('plate terrain palette (parsed from the real global.css)', () => {
+  it.each(THEME_BLOCKS)('$name: the coast stroke clears 3:1 against every terrain fill', (t) => {
+    for (const key of ALL_FILL_KEYS) {
+      expect(contrastRatio(t.coast, t[key]), `coast vs --${key}`).toBeGreaterThanOrEqual(MIN_COAST_CONTRAST);
+    }
+  });
+
+  // Rivers and waterlines used to stroke in --scene-map-sea, which IS the sea
+  // fill: a near-black channel over warm dark land in dark theme, and a
+  // waterline invisible against the water it is drawn on in both. The river
+  // ink is a line, so it has to clear every fill it can cross.
+  it.each(THEME_BLOCKS)('$name: the river/waterline ink clears 3:1 against every terrain fill', (t) => {
+    for (const key of ALL_FILL_KEYS) {
+      expect(contrastRatio(t.river, t[key]), `river vs --${key}`).toBeGreaterThanOrEqual(MIN_COAST_CONTRAST);
+    }
+  });
+
+  // The hachure now sits ON a relief body rather than floating free over the
+  // ground, so its contrast target moved from the ground to that body.
+  it.each(THEME_BLOCKS)('$name: hachure ink clears 4.5:1 against the relief body it shades', ({ hachure, upland }) => {
+    expect(contrastRatio(hachure, upland)).toBeGreaterThanOrEqual(MIN_HACHURE_CONTRAST);
+  });
+
+  it.each(THEME_BLOCKS)('$name: the shallow-water fill is 1.5:1 clear of every land fill', (t) => {
+    for (const key of LAND_FILL_KEYS) {
+      expect(contrastRatio(t.lagoon, t[key]), `lagoon vs --${key}`).toBeGreaterThanOrEqual(MIN_LAND_SEA_SEPARATION);
+    }
+  });
+
+  // The polarity rule the land/sea pair already lives under, extended to the
+  // whole palette: a reader who learns "darker is water" must not have that
+  // inverted on a theme switch.
+  it('water is darker than every land fill in EVERY theme block', () => {
+    for (const t of THEME_BLOCKS) {
+      for (const water of ['sea', 'lagoon'] as const) {
+        for (const key of LAND_FILL_KEYS) {
+          expect(
+            relativeLuminance(hexToRgb(t[water])) < relativeLuminance(hexToRgb(t[key])),
+            `${t.name}: --plate-${water} must be darker than --${key}`,
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  // The whole point of the change: not one terrain token may BE the wine
+  // accent, whatever the palette is retuned to. --plate-tint stays what it
+  // was (an opt-in decorative wash); these are the fills a landform gets.
+  it('no terrain token is a var() alias — least of all to the UI accent', () => {
+    for (const t of THEME_BLOCKS) {
+      for (const key of ['lagoon', 'marsh', 'plain', 'upland', 'river'] as const) {
+        expect(t[key], `${t.name}: --plate-${key}`).toMatch(/^#[0-9a-fA-F]{6}$/);
+      }
+    }
   });
 });
