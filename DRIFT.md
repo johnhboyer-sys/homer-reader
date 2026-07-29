@@ -805,3 +805,14 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   so the split cannot have made it obsolete. It still covers the surfaces that
   have no boxes and take one gloss per lemma (`apparatus_vocab.lemma_gloss_map`,
   `app/scripts/build-lemmata.mjs`).
+- `shared/components/WordPopup.svelte` + `shared/styles/global.css` — 2026-07-29
+  plato sync (REDUCES drift): backdrop-free outside-close ported from
+  plato-reader's same-day fix (`.popup-backdrop` deleted from both files, incl.
+  the print-media selector; `svelte:window pointerdown` close ignoring
+  `.word-sidebar`/`.tok`), `focus({preventScroll:true})` on mount + destroy.
+  Homer keeps its `docked` guards (pointerdown no-op and no focus restore when
+  docked) — plato has no docked variant. Plato's reactive lookup guard was NOT
+  ported: homer already has it, in `LexiconPanel.svelte` (`lookupSeq`).
+- `shared/__tests__/word-popup.test.ts` / `components.test.ts` — regression +
+  invariant coverage for the above (outside-close matrix, preventScroll on
+  mount/restore, docked invariants, Reader-level second-token swap).
