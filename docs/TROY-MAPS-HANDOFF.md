@@ -28,7 +28,13 @@ Terrain sanity-checked before anything was drawn: Kaz Dagi 1757.4 m measured
 against 1774 published; Hisarlik 36.1 m against c.38; Sigeion crest 36.0 against
 Cook's "thirty to forty"; plain 13-18 m; sea flat 0.
 
-## DECISION WAITING FOR JOHN
+## DECIDED (John, 2026-07-29)
+
+**Rivers stay. Attribution is not an issue.** The OSM rivers are kept and the
+ODbL obligations accepted: attribution plus share-alike on the derived database
+(`sources/openstreetmap/` and the river paths in the two plates — not the code,
+text, or gazetteer). Copernicus and SRTM are attribution-only. Original
+question, for the record:
 
 **ODbL rivers.** Publishing OSM-derived geometry makes that file a derivative
 database, obliging us to offer it under ODbL. It reaches `sources/openstreetmap/`
