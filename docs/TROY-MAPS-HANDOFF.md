@@ -1,7 +1,9 @@
-# Troy & Troad maps — state at pause, 2026-07-28 17:45
+# Troy & Troad maps — complete, 2026-07-28
 
-Paused at John's request. Everything below is committed and pushed to
-`claude/build`. Nothing is half-written; no agent is running.
+Shipped as PR #16. This file is the map of the work; the PR body is the summary.
+
+All three "NEXT" steps below are DONE. Kept for the file map, the
+deliberate limitations, and what still needs John.
 
 ## Where to look first
 
@@ -17,14 +19,17 @@ Paused at John's request. Everything below is committed and pushed to
 | Plate renderer | `shared/lib/plate.ts` — `parsePlate`, `renderPlate`, `computeCamera`, primitives `hachure` / `stipple` / `waterlines` / `shipRow` / `wallGlyph` / `tumulus` |
 | Shield renderer | `shared/lib/shield.ts` |
 | Validators | `pipeline/homer_pipeline/apparatus_places.py`, hooked into preflight |
-| Gazetteer | `apparatus/places.json` — 280 → **325** records |
+| Gazetteer | `apparatus/places.json` — 280 → **330** records, status `draft` |
 | Plates | `apparatus/plates/` — `trojan-plain`, `troad`, `trojan-plain-schematic`, `troy-citadel`, `shield-of-achilles` |
 | Page surface | `app/src/components/maps/PlatePanel.svelte`, `MapsPage.svelte` |
 | Scene plumbing | `places: string[]` on scenes; `scene-place.ts` precedence |
+| Scene annotation | 406/412 Iliad scenes, **42 distinct place ids** (was 1) |
+| Chart Room | `Reader.svelte` — plate once per book, camera per scene |
 | Source dossiers | `docs/TROAD-SOURCES.md`, `docs/TROAD-CARTOGRAPHY.md` |
 
-Green: **883** tests in `shared/`, 7 in `app/`, 38 validator tests, preflight 0
-errors, 4705 pages build. The one red pytest is the pre-existing χάω test.
+Green: **893** tests in `shared/`, 8 in `app/`, 499 in pipeline, preflight 0
+errors, 48/48 books carry scenes, 4705 pages build. The one red pytest is the
+pre-existing χάω test.
 
 ## The two registers (CLAUDE.md rule, John's call)
 
@@ -33,37 +38,30 @@ poem's own spatial logic. Never mixed. Most Homeric topography has no
 defensible coordinate, so the schematic register is how the fig tree, the ford
 and the Scaean Gate get drawn at all.
 
-## NEXT — in order
+## Done (was "NEXT")
 
-1. **Wire the citadel tab's Homeric pins.** `MapsPage.svelte:216-221` builds
-   `troadPlatePlaces` and maps only `{id, name, coords, certainty}` — it drops
-   `plateAnchors` and `positionBasis`, so every schematic-plate pin resolves to
-   undefined. Also the citadel records are tagged `maps: ["troad-plain"]`, not
-   `"troad"`, so they are not in that set. Fix both: add the two fields to the
-   mapped object, and pass a set filtered per plate.
-   **The citadel plate currently renders with no Homeric pins because of this.**
-2. **Chart Room per-scene plates.** `Reader.svelte`'s `currentPlateMap` block
-   (~798) still calls `renderSceneMap`. Give it an Iliad branch that renders the
-   plain plate plus `computeCamera({ places })`, applied as a CSS transform on a
-   `<g>` wrapper, gated on `prefers-reduced-motion`. Camera and the plural
-   resolution are both already in place.
-3. **The 24-book sweep.** Author `places: [id]` onto ~700 Iliad scenes in
-   `apparatus/staging/scenes-iliad-*.json`, batches of ~5 books. Then
-   `apparatus --work iliad` AND `--work odyssey` (emit shape), 48/48 scenes
-   check, preflight. **The drafting agent never signs off its own book.**
-   This is what actually retires the one-pin problem.
+1. ~~Wire the citadel tab's Homeric pins~~ — done. Four conjectural pins render,
+   each carrying `data-position-basis="conjectural"`; the eight citadel records
+   are split between pinned and drawn-by-layer, and "named, not drawn" is empty.
+2. ~~Chart Room per-scene plates~~ — done. The plain plate renders once per book;
+   per-scene framing is a CSS transform on a `<g>` wrapper, proved not to
+   re-render by asserting SVG node identity across paging.
+3. ~~The 24-book sweep~~ — done. **406 of 412 Iliad scenes, 42 distinct place
+   ids** (was 1). Verified by a Grok content gate against the Greek; six
+   confirmed defects fixed, including four consecutive Book 7 scenes wrongly
+   tagged with the camp assembly-place.
+
+Also closed: the five missing camp places (`hut-of-nestor`, `trojan-camp`,
+`thracian-camp`, `pyre-of-patroclus`, `funeral-games-ground`) that the sweep
+lanes reported rather than invented around.
+
 
 ## Known, deliberately not fixed
 
-- **A place drawn as a LAYER is still listed "named, not drawn".** `plate.ts`
-  has no concept of a place carried by geometry rather than a pin, so
-  `wall-of-troy` (the `placeId` on all four citadel circuit stretches) and
-  `pergamos` (the summit region) fall into `PlatePanel`'s unlocated list while
-  being visibly drawn. This is the honesty list failing in the opposite
-  direction from the off-canvas bug fixed today: there it silently omitted
-  places, here it denies drawing ones it drew. Fix with the tab wiring (next
-  step 1): a place referenced by any rendered layer's `placeId` should count as
-  drawn, whether or not it also gets a pin.
+(The "drawn as a layer is listed not-drawn" defect recorded here earlier was
+FIXED: `renderPlate` now has a `drawnByLayer` bucket and `PlatePanel` lists it
+as "Drawn as part of the map".)
+
 - `wallGlyph` picks its tick side from an open polyline's signed area against
   the pixel origin, so on short arcs around an off-origin centre the ticks land
   outside on some circuit stretches and inside on others. Cosmetic.
