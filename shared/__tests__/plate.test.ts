@@ -2085,9 +2085,16 @@ describe('the live Troad sheet: the rivers stop at the coast', () => {
   const svg = renderPlate(plate, []).svg;
 
   it('does not draw the seaward tail the generalised coastline leaves hanging in the water', () => {
-    const river = plate.layers.find((l) => l.id === 'river-scamander')!;
+    // Was river-scamander until 2026-07-29. Cleaning the water mask's tidal
+    // intrusions off the coastline moved the Scamander's surveyed mouth onto
+    // the drawn shore — it now ends 0.025px from its final vertex, which is a
+    // BETTER outcome, not a regression: the clipping machinery is unchanged,
+    // the fixture simply stopped having a tail to clip. The Satnioeis still
+    // hangs 3.2px past the generalised coast (Granicus 0.03, Aesepus 0.01), so
+    // it is the remaining case that exercises this.
+    const river = plate.layers.find((l) => l.id === 'river-satnioeis')!;
     const mouth = project(river.path!.at(-1)! as [number, number], viewport);
-    const drawn = pointsOf(pathsFor(svg, 'river-scamander')[0]);
+    const drawn = pointsOf(pathsFor(svg, 'river-satnioeis')[0]);
     const end = drawn.at(-1)!;
     // The drawn line stops short of the surveyed final vertex — on the coast.
     expect(Math.hypot(end[0] - mouth[0], end[1] - mouth[1])).toBeGreaterThan(1);

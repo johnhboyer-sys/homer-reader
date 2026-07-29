@@ -177,6 +177,10 @@ NOTES = {
             "Copernicus DEM GLO-30 Water Body Mask at 30 m posting and filled, so that "
             "the Bronze Age water drawn over it -- the embayment, the lagoon, the "
             "swamp -- is read against a real sea rather than against blank parchment. "
+            "It is the same cleaned mask the coast line is traced from, so the fill and "
+            "the stroke that bounds it cannot drift apart: water narrower than 186 m and "
+            "running more than 90 m inland of it is closed before either is taken, which "
+            "keeps the mask's habit of calling a river's tidal reach 'ocean' out of both. "
             "This is not the sea of 1200 BC: at that date the water reached far further "
             "south, over ground the Scamander has since filled in. Drawn first, under "
             "every other layer, because it is the sheet's water and not a feature on it."
@@ -187,7 +191,19 @@ NOTES = {
             "Dardanelles shore running east past the Rhoiteion spur. Every vertex is a "
             "measurement -- the ocean class of the Copernicus DEM GLO-30 Water Body Mask, "
             "30 m posting, contoured at the land/water boundary and generalised to about "
-            "half a pixel at this plate's size. It is drawn ON by default because the "
+            "half a pixel at this plate's size, with the river-channel intrusions removed "
+            "above 186 m. That last is a real correction and worth stating plainly: the "
+            "mask classes the tidal reach of a river as OCEAN, so at the mouths of the "
+            "Karamenderes and the Dumrek it ran one to three cells wide for three to five "
+            "hundred metres up the channel, and a trace of the ocean boundary followed it "
+            "in and back out -- a pair of thin fjords meeting at a point, and a hook that "
+            "doubled back on itself. Water the mask cannot fit a 93 m radius into, and "
+            "which reaches more than 90 m from water it can, is closed before the line is "
+            "taken. Nothing is lost by it: the filter can only turn water into land, so no "
+            "cape, spit or island can go, and the rivers themselves are drawn as rivers on "
+            "their own layers -- the coast simply no longer detours up them. The narrowest "
+            "genuine water on either Troad sheet is the Dardanelles at about 1.2 km. "
+            "It is drawn ON by default because the "
             "reconstruction above it has to be read against something surveyed: the ground "
             "between this line and the Bronze Age shore is delta the Scamander has laid "
             "down since. This layer carried fifteen hand-typed vertices before 2026-07-28."
@@ -199,7 +215,12 @@ NOTES = {
             "surveyed, not drawn. Its Bronze Age bed is not this line and is not drawn -- "
             "the channel then lay west of today's, in water that is now land, and no "
             "publication gives a coordinate for it. Read this as the river's valley, which "
-            "has not moved, rather than as its 1200 BC course, which has."
+            "has not moved, rather than as its 1200 BC course, which has. The lower reaches "
+            "are drawn UNDER the water they cross: with the reconstruction shown the line "
+            "ends at the Bronze Age shore at the bay head, because the ground beyond it was "
+            "the bay; switch the lagoon and barrier off and it runs on to the modern mouth, "
+            "which is where the survey ends. Nothing of the surveyed course is discarded -- "
+            "the water is simply painted over it."
         ),
         "simoeis": (
             "The Simoeis, coming down from the north-east along the far side of the ridge "
@@ -209,7 +230,12 @@ NOTES = {
             "gazetteer holds the river at that tier. The line is the modern Dumrek from "
             "OpenStreetMap, carried west as far as the channel is mapped: it stops about a "
             "kilometre short of the Karamenderes, which is where the survey stops, not "
-            "where the river does. Homer's confluence of the two (5.774) is deliberately "
+            "where the river does. Its last kilometre is drawn UNDER the reconstructed "
+            "lagoon, so with the Bronze Age water shown the visible end is the shore -- "
+            "that ground was water in 1200 BC -- and it is only with the lagoon switched "
+            "off that the surveyed end, short of the confluence, is the end you see. Two "
+            "different stopping points, and neither is a claim that the river ended there. "
+            "Homer's confluence of the two (5.774) is deliberately "
             "not marked -- both channels have shifted and the whole delta has prograded, so "
             "its Bronze Age position cannot be fixed."
         ),
@@ -221,7 +247,13 @@ NOTES = {
             "Besik Bay and the mouth of the Scamander to Kum Kale, then north-east up the "
             "Dardanelles past Abydos and out towards the Marmara. From the ocean class of "
             "the Copernicus DEM GLO-30 Water Body Mask at 30 m posting, generalised to "
-            "about half a pixel at this sheet's scale (a pixel here is roughly 220 m). "
+            "about half a pixel at this sheet's scale (a pixel here is roughly 220 m), "
+            "with the river-channel intrusions removed above 186 m -- the mask classes a "
+            "river's tidal reach as ocean, and a trace of the ocean boundary follows it "
+            "inland and back out. Only water is ever closed, never land, so the filter "
+            "cannot cost a cape or an island; the Dardanelles narrows at about 1.2 km, the "
+            "mouth of Besik Bay and the entrance to the Gulf of Gera are all far above it "
+            "and all survive intact. "
             "Cape Lekton, the Adramyttian head and the Dardanelles narrows are all in the "
             "data: nothing on this line is hand-placed. It replaces a 1:50m Natural Earth "
             "generalisation whose vertices fell about 12 km apart and which flattened Cape "
@@ -259,7 +291,9 @@ NOTES = {
             "north-western flank down to the Dardanelles: the river that organises the "
             "whole Troad. The modern Karamenderes, from OpenStreetMap. At this scale the "
             "Bronze Age shoreline correction is smaller than the line weight, so the modern "
-            "mouth is drawn; the detail plate (trojan-plain) carries the reconstruction."
+            "mouth is drawn; the detail plate (trojan-plain) carries the reconstruction. "
+            "The line ends at the coast and not a few hundred metres beyond it, where the "
+            "generalised waterline leaves the surveyed final vertex hanging in the sea."
         ),
         "river-granikos": (
             "The Granicus, one of the eight Idaean rivers Poseidon and Apollo turn against "
@@ -454,6 +488,145 @@ def window(grid, lat_top, lon_left, step, bbox, pad):
     c0 = max(0, int(math.floor(((lo0 - pad) - lon_left) / step)))
     c1 = min(grid.shape[1], int(math.ceil(((lo1 + pad) - lon_left) / step)))
     return grid[r0:r1, c0:c1], lat_top - r0 * step, lon_left + c0 * step
+
+
+# ── River-channel intrusions in the water mask ────────────────────────────
+#
+# WHY THIS EXISTS. The Water Body Mask has four classes -- 0 none, 1 ocean,
+# 2 lake, 3 river -- and this script contours the OCEAN boundary, so a
+# river tagged 3 is already land here and never troubled the line. What does
+# trouble it is that the mask calls the tidal reach of a river OCEAN. At the
+# Karamenderes and Dumrek mouths class 1 runs one to four cells wide for four
+# to five hundred metres up the channel, and a marching-squares trace of the
+# ocean boundary dutifully follows it in and back out. Measured on the
+# 2026-07-29 grid, inside the Trojan-plain sheet:
+#
+#     40.0047 N, 26.2103 E   43 cells   494 m inland   <= 2 cells wide
+#     40.0036 N, 26.2149 E   26 cells   402 m inland   <= 2 cells wide
+#     39.9984 N, 26.2362 E   47 cells   309 m inland   <= 3 cells wide
+#     40.0027 N, 26.2249 E   16 cells   216 m inland   <= 2 cells wide
+#     40.0005 N, 26.2634 E   32 cells   124 m inland   <= 2 cells wide
+#
+# Drawn, those are a pair of thin fjords meeting at a point and a hook that
+# doubles back on itself -- artefacts of a 30 m instrument, not headlands.
+# The rivers are drawn as rivers already (the OSM layers below); the
+# coastline simply should not detour up them.
+#
+# THE RULE, and why it cannot eat a real feature. Water the mask cannot fit
+# a disk of CHANNEL_MAX_WIDTH_M/2 into is a channel; the disk is applied as
+# a morphological opening, so the only thing the filter can ever do is turn
+# water into land. No cape, spit or island can be lost by it -- the failure
+# mode it does have is the opposite one, closing a gap behind a spit, which
+# leaves the spit as a bulge of the shore rather than deleting it.
+#
+# The width is set at 186 m, six cells of the 30 m grid. The narrowest
+# genuine water on either sheet is the Dardanelles at about 1.2 km (39
+# cells) and the mouth of Besik Bay at about 1.5 km; the widest artefact
+# channel measures three. Two orders of magnitude of daylight either side.
+#
+# The depth guard is the second half of the owner's rule -- narrow AND deep.
+# An opening also shaves the odd concave corner off a real coast, and those
+# shavings sit hard against the water they were cut from; a channel runs
+# away from it. CHANNEL_MIN_DEPTH_M is measured against the water the
+# opening KEEPS, and at 90 m (three cells) it is above every shaving the
+# 2026-07-29 grid produced on either sheet and below every intrusion.
+CHANNEL_MAX_WIDTH_M = 186.0
+CHANNEL_MIN_DEPTH_M = 90.0
+_M_PER_DEG = 111320.0
+
+
+def _ellipse(rr: float, rc: float):
+    """Offsets of a ground-circular structuring element.
+
+    Rows are latitude and columns longitude, so a circle on the ground is an
+    ellipse in the grid -- at 40 N a cell is 30.9 m tall and 23.7 m wide, and
+    a disk of equal pixel radii would be a 30 % tighter filter east-west than
+    north-south. Being sloppy about that is how a threshold quoted in metres
+    stops meaning metres.
+    """
+    ir, ic = int(math.floor(rr)), int(math.floor(rc))
+    return [(dy, dx)
+            for dy in range(-ir, ir + 1)
+            for dx in range(-ic, ic + 1)
+            if (dy / rr) ** 2 + (dx / rc) ** 2 <= 1.0 + 1e-9]
+
+
+def _shifted(mask: np.ndarray, offsets, combine: str) -> np.ndarray:
+    h, w = mask.shape
+    pr = max(abs(dy) for dy, _ in offsets)
+    pc = max(abs(dx) for _, dx in offsets)
+    pad = np.zeros((h + 2 * pr, w + 2 * pc), bool)
+    pad[pr:pr + h, pc:pc + w] = mask
+    if combine == "and":
+        out = np.ones_like(mask)
+        for dy, dx in offsets:
+            out &= pad[pr + dy:pr + dy + h, pc + dx:pc + dx + w]
+    else:
+        out = np.zeros_like(mask)
+        for dy, dx in offsets:
+            out |= pad[pr - dy:pr - dy + h, pc - dx:pc - dx + w]
+    return out
+
+
+def _components(mask: np.ndarray):
+    """8-connected labels for a sparse boolean mask: (ys, xs, root)."""
+    ys, xs = np.nonzero(mask)
+    n = len(ys)
+    ident = np.full(mask.shape, -1, np.int32)
+    ident[ys, xs] = np.arange(n)
+    parent = list(range(n))
+
+    def find(a):
+        while parent[a] != a:
+            parent[a] = parent[parent[a]]
+            a = parent[a]
+        return a
+
+    m = mask
+    for sel_a, sel_b in (
+        (np.s_[:, :-1], np.s_[:, 1:]),
+        (np.s_[:-1, :], np.s_[1:, :]),
+        (np.s_[:-1, :-1], np.s_[1:, 1:]),
+        (np.s_[:-1, 1:], np.s_[1:, :-1]),
+    ):
+        both = m[sel_a] & m[sel_b]
+        for a, b in zip(ident[sel_a][both].tolist(), ident[sel_b][both].tolist()):
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                parent[ra] = rb
+    return ys, xs, np.array([find(i) for i in range(n)], np.int32)
+
+
+def close_channels(ocean: np.ndarray, lat: float, step: float, label: str) -> np.ndarray:
+    """Fill the river-channel intrusions in an ocean mask. See the block above."""
+    m_row = step * _M_PER_DEG
+    m_col = m_row * math.cos(math.radians(lat))
+    r = CHANNEL_MAX_WIDTH_M / 2.0
+    disk = _ellipse(r / m_row, r / m_col)
+    opened = _shifted(_shifted(ocean, disk, "and"), disk, "or")
+    narrow = ocean & ~opened
+    if not narrow.any():
+        return ocean
+
+    # Depth, as the ground distance from the water the opening kept. Grown a
+    # cell at a time so the cost is bounded by the threshold rather than by
+    # the sheet: this only ever has to answer "further than D?".
+    one = _ellipse(1.0, m_row / m_col)
+    reach = opened
+    steps = int(math.ceil(CHANNEL_MIN_DEPTH_M / m_row))
+    for _ in range(steps):
+        reach = _shifted(reach, one, "or")
+    deep = narrow & ~reach
+
+    ys, xs, root = _components(narrow)
+    seeds = {int(rt) for rt, d in zip(root.tolist(), deep[ys, xs].tolist()) if d}
+    keep = np.array([rt not in seeds for rt in root.tolist()], bool)
+    fill = np.zeros_like(ocean)
+    fill[ys[~keep], xs[~keep]] = True
+    print(f"  {label}: closed {int(fill.sum())} channel cells "
+          f"({len(seeds)} intrusions) of {int(ocean.sum())} ocean cells; "
+          f"kept {int((narrow & ~fill).sum())} shaving cells")
+    return ocean & ~fill
 
 
 # ── Marching squares ──────────────────────────────────────────────────────
@@ -712,10 +885,16 @@ def land_bodies(bbox, cache, pad, want="land"):
     sheet -- and a closed ring is the only thing a point-in-polygon test can
     be run against, which is how each body finds its plate layer. The
     artificial closing edges sit outside the real bbox and are clipped away.
+
+    The ocean class is passed through close_channels() FIRST, and the land
+    field is its complement, so the stroked coastline and the filled sea are
+    two readings of one cleaned mask and cannot drift apart.
     """
     wbm, lat_top, lon_left, step = wbm_mosaic(bbox, cache)
     w, lt, ll = window(wbm, lat_top, lon_left, step, bbox, pad=pad)
-    land = (w == 1).astype(np.float64) if want == "ocean" else (w != 1).astype(np.float64)
+    ocean = close_channels(w == 1, (bbox[0] + bbox[2]) / 2.0, step,
+                           f"{want} {bbox[0]},{bbox[1]}")
+    land = ocean.astype(np.float64) if want == "ocean" else (~ocean).astype(np.float64)
     land[0, :] = land[-1, :] = land[:, 0] = land[:, -1] = 0.0
     rings = []
     for ln in marching_squares(land, 0.5):
@@ -1029,7 +1208,9 @@ def main():
                 plain_coast["coast-modern"].append(simp)
     write_json(DEM_DIR, "trojan-plain-coastline.json", coast_payload(
         PLAIN_BBOX, plain_coast,
-        "Land (Water Body Mask != ocean) contoured by marching squares at the "
+        "Land (the complement of the ocean class of the Water Body Mask, after "
+        "river-channel intrusions narrower than 186 m and reaching more than 90 m "
+        "inland are closed) contoured by marching squares at the "
         "land/ocean boundary over a window padded 0.03 deg beyond the sheet, "
         "sorted onto plate layers by point-in-polygon against gazetteer-grade "
         "anchors, clipped to the sheet as open polylines and generalised by "
@@ -1048,7 +1229,9 @@ def main():
     plain_sea = plain_sea[:1]  # the Aegean/Dardanelles body; inland ponds are not sea
     write_json(DEM_DIR, "trojan-plain-sea.json", coast_payload(
         PLAIN_BBOX, {"sea-modern": plain_sea},
-        "Ocean class (1) of the same water mask, contoured over the padded "
+        "Ocean class (1) of the same cleaned water mask -- the same array the "
+        "coastline is traced from, so the fill and its bounding stroke agree -- "
+        "contoured over the padded "
         "window with its frame forced to land so the body closes, clipped to "
         "the sheet as a polygon and generalised at "
         f"{PLAIN_TOL} deg. The modern sea, not the Bronze Age one."))
@@ -1072,7 +1255,9 @@ def main():
         troad_coast["coast-islands"].extend(clip_body(ring, TROAD_BBOX, TROAD_TOL, True))
     write_json(DEM_DIR, "troad-coastline.json", coast_payload(
         TROAD_BBOX, troad_coast,
-        "Land (Water Body Mask != ocean) contoured at the land/ocean boundary "
+        "Land (the complement of the ocean class of the Water Body Mask, after "
+        "river-channel intrusions narrower than 186 m and reaching more than 90 m "
+        "inland are closed) contoured at the land/ocean boundary "
         "over a window padded 0.05 deg beyond the sheet, sorted onto plate "
         "layers by point-in-polygon against gazetteer-grade anchors, clipped "
         "to the sheet as open polylines and generalised by Douglas-Peucker at "

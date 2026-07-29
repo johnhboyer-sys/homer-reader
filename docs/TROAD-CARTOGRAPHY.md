@@ -701,6 +701,94 @@ shadow.
 > transparent — make it opaque and two stroked edges appear across the middle
 > of the symbol, the same defect arriving from the other side.
 
+> **FIFTH PASS, 2026-07-29 — the instrument's own rivers, and the difference
+> between a defect in the data and a defect in the drawing.** Three marks
+> circled on one zoomed frame of the barrier strip. Two were the same fault
+> and one was not, and the only way to tell was to measure before touching
+> anything.
+>
+> **1. A coastline that runs up rivers is an instrument artefact, and it
+> announces itself by its width.** The Copernicus water mask has four classes
+> — none, ocean, lake, river — and this project contours the *ocean* boundary,
+> so a channel tagged `river` was never the problem. What is: **the mask calls
+> the tidal reach of a river OCEAN.** At the Karamenderes and Dümrek mouths
+> class 1 runs one to three cells wide for three to five hundred metres up the
+> channel, and a marching-squares trace of the ocean boundary follows it in
+> and back out. Drawn, that is a pair of thin fjords meeting at a point and a
+> hook doubling back on itself — which is exactly what the eye reported, from
+> the drawing, with no idea what caused it.
+>
+> The filter is a **morphological opening of the water**: water the mask
+> cannot fit a 93 m disk into, and which reaches more than 90 m from water it
+> can, is closed before the line is taken. Both halves are load-bearing. The
+> width threshold is what separates artefact from feature, and the daylight
+> either side of it is the whole argument for the number: the widest artefact
+> channel measures three cells, the narrowest genuine water on either sheet is
+> the Dardanelles at about 1.2 km, or thirty-nine. The depth guard is what
+> stops an opening quietly rounding the concave corners of a real coast —
+> those shavings sit hard against the water they were cut from, and a channel
+> runs away from it.
+>
+> The safety argument is stronger than either threshold and worth stating on
+> its own: **an opening of the water can only ever turn water into land.** No
+> cape, spit or island can be lost to it. Its one real failure mode is the
+> opposite one — closing a sub-cell gap behind a spit, which leaves the spit
+> as a bulge of the shore rather than deleting it. Verified after the fact on
+> both sheets: the Dardanelles narrows, the mouth of Beşik Bay and the
+> entrance channel of the Gulf of Gera are byte-for-byte where they were, and
+> the plain sheet's Beşik crop is an identical PNG.
+>
+> And the thing that makes it honest rather than merely tidy: **nothing is
+> deleted as information.** The rivers are drawn as rivers on their own
+> layers, from OpenStreetMap; the coastline simply stops detouring up them.
+> The layer note now says so in the sentence that is both true and useful —
+> *traced from the GLO-30 water mask with river-channel intrusions removed
+> above 186 m.* The sea polygon is cut from the same cleaned array as the
+> coast stroke, so the fill and the line that bounds it cannot drift apart:
+> measured afterwards, median separation 0.000 sheet px, p95 0.36.
+>
+> **2. The third mark was not in the data at all, and that is the lesson.**
+> The stretch where the coast stroke read as detached — water above it,
+> terrain below, the line floating in a pale band — survives a full re-cut of
+> the coastline, because the coastline was never wrong there. Ablation
+> settles it in one render: strip `barrier-bronze` and the water comes back to
+> the stroke. The barrier is an **11 px band with 6 px of blur whose width is
+> explicitly not surveyed**, and along the eastern quarter of the sheet its
+> stored axis lies **0.27 to 0.45 sheet px — 7 to 12 m — from the modern
+> coastline**, which is inside the line's own 13 m generalisation. So the band
+> paints pale over both sides of the shore and buries it.
+>
+> Why the axis is there is the actual finding, and it belongs to
+> `scripts/prep-terrain-contours.py`, not to the basemap: the barrier is cut
+> from the 5 m contour between the same two anchors as the reconstructed
+> shore, and its eastern anchor is the Rhoiteion spur. East of about
+> 26.27 E the 5 m contour has stopped being a bar across the bay mouth and
+> become the coastal slope at the foot of the ridge — so the last four
+> vertices are the modern shoreline, drawn as a sand bar. The layer's own note
+> claims that stretch "lies outboard of the modern coast, under water now";
+> measured, fourteen of its fifteen vertices are on land. **Ending the bar
+> where it stops being a bar is the fix**, and it has to be done with the
+> lagoon, which is built as `landward + barrier[::-1]` and would otherwise
+> outrun it.
+>
+> Paint order cannot rescue this one, and it is worth writing down why, since
+> ordering fixed the last two defects on this sheet. A bar is ground *with
+> water on both sides*: move it under the water slot and the sea eats its
+> seaward half and the lagoon its landward half, which is the whole feature.
+> Where a symbol's width is fiction, the fiction has to stop where the feature
+> does; there is no stacking order that makes an over-long claim read as a
+> short one.
+>
+> **3. One renderer limit the re-cut exposed, recorded so it is findable.**
+> `runsWhere` in `shared/lib/plate.ts` samples the water test at a river's
+> *vertices*. Where two water bodies are separated by less ground than the gap
+> between two consecutive vertices — here 163 m of bar between the lagoon and
+> the modern sea, inside a 258 m segment of the Karamenderes — the dry reach
+> between them opens no run and is drawn by nobody. Before the re-cut the two
+> bodies overlapped there and the gap could not arise. It shows only with the
+> Bronze Age lagoon switched off, and the fix is to test the crossings rather
+> than the vertices.
+
 > One measured caution for whoever cuts the next contoured sheet. **A contour is only
 > as smooth as the ground under it.** Simplifying a traced line at 685 m while the grid
 > still carries 124 m wiggles does not generalise it — Douglas-Peucker keeps the
