@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/svelte';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { tick } from 'svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import WordPopup from '../components/WordPopup.svelte';
 
@@ -159,7 +160,7 @@ describe('WordPopup.svelte — docked vs modal presentation', () => {
     expect(container.querySelector('.popup-backdrop')).toBeNull();
   });
 
-  it('renders a modal dialog with a backdrop when NOT docked', async () => {
+  it('renders a modal dialog with no backdrop when NOT docked', async () => {
     lookupWordMock.mockResolvedValue(analysis);
     const { container } = renderPopup({ docked: false });
 
@@ -167,7 +168,128 @@ describe('WordPopup.svelte — docked vs modal presentation', () => {
     expect(sidebar).not.toHaveClass('docked');
     expect(sidebar).toHaveAttribute('role', 'dialog');
     expect(sidebar).toHaveAttribute('aria-modal', 'true');
-    expect(container.querySelector('.popup-backdrop')).not.toBeNull();
+    // No blocking backdrop — see "pointerdown outside" describe block below
+    // for the 2026-07-29 fix (a full-page backdrop swallowed clicks meant for
+    // another Greek token, forcing close-then-reopen with two page snaps).
+    expect(container.querySelector('.popup-backdrop')).toBeNull();
+  });
+});
+
+// Regression tests for the 2026-07-29 fix: with the (non-docked) word popup
+// open, clicking another Greek word must swap the analysis in place — the old
+// full-page `.popup-backdrop` swallowed that click and forced close/reopen.
+// Closing must also not snap the page's scroll position.
+describe('WordPopup.svelte — pointerdown outside (replaces the backdrop)', () => {
+  const analysis = {
+    analyses: [{ lemma: 'mh=nis', gloss: 'wrath', parse: 'noun', lsj: ['mh=nis'], cunliffe: [] }],
+    lsj: [{ key: 'mh=nis', head: 'μῆνις', html: '<p>wrath</p>' }],
+    cunliffe: [],
+  };
+
+  it('renders no click-blocking backdrop element at all', async () => {
+    lookupWordMock.mockResolvedValue(analysis);
+    renderPopup();
+    await screen.findByText('wrath');
+    expect(document.querySelector('.popup-backdrop')).toBeNull();
+  });
+
+  it('closes on pointerdown outside, but not on the panel or on a Greek token', async () => {
+    lookupWordMock.mockResolvedValue(analysis);
+    const tok = document.createElement('span');
+    tok.className = 'tok';
+    document.body.appendChild(tok);
+
+    const onClose = vi.fn();
+    renderPopup({ onClose });
+    await screen.findByText('wrath');
+
+    // On a Greek token: the token's own click handler swaps the word — no close.
+    tok.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    await tick();
+    expect(onClose).not.toHaveBeenCalled();
+
+    // Inside the panel: no close.
+    document.querySelector('.word-sidebar')!.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    await tick();
+    expect(onClose).not.toHaveBeenCalled();
+
+    // Anywhere else: close.
+    document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    await tick();
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    tok.remove();
+  });
+
+  // Preserved-behavior coverage: docked never had outside-close, and the
+  // 2026-07-29 pointerdown handler must not introduce it by accident.
+  it('invariant: does not close on outside pointerdown when docked (rail stays persistent)', async () => {
+    lookupWordMock.mockResolvedValue(analysis);
+    const onClose = vi.fn();
+    renderPopup({ onClose, docked: true });
+    // docked opens the LSJ entry expanded by default, so "wrath" appears both
+    // as the gloss and inside the LSJ html — target the unique gloss element.
+    await screen.findByText('wrath', { selector: '.gloss' });
+
+    document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    await tick();
+    expect(onClose).not.toHaveBeenCalled();
+  });
+});
+
+describe('WordPopup.svelte — focus restore preserves scroll position', () => {
+  const analysis = {
+    analyses: [{ lemma: 'mh=nis', gloss: 'wrath', parse: 'noun', lsj: ['mh=nis'], cunliffe: [] }],
+    lsj: [{ key: 'mh=nis', head: 'μῆνις', html: '<p>wrath</p>' }],
+    cunliffe: [],
+  };
+
+  it('restores focus with preventScroll when NOT docked', async () => {
+    lookupWordMock.mockResolvedValue(analysis);
+    const opener = document.createElement('button');
+    document.body.appendChild(opener);
+    opener.focus();
+    const focusSpy = vi.spyOn(opener, 'focus');
+
+    const { unmount } = renderPopup();
+    await screen.findByText('wrath');
+
+    unmount();
+    expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+    opener.remove();
+  });
+
+  it('moves focus INTO the panel on mount with preventScroll when NOT docked', async () => {
+    lookupWordMock.mockResolvedValue(analysis);
+    const { container } = renderPopup();
+    // The mount-time focus() call runs off a setTimeout(0) inside onMount, so
+    // the spy must be attached to the panel before that timer fires (safe
+    // here — nothing yields control between render() and the spyOn call
+    // below) and the assertion flushed via waitFor.
+    const panel = container.querySelector('.word-sidebar') as HTMLDivElement;
+    const focusSpy = vi.spyOn(panel, 'focus');
+
+    await waitFor(() => expect(focusSpy).toHaveBeenCalled());
+    expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+  });
+
+  // Preserved-behavior coverage: docked never restored focus on teardown, and
+  // the 2026-07-29 pointerdown/focus changes must not disturb that.
+  it('invariant: skips focus restore entirely when docked', async () => {
+    lookupWordMock.mockResolvedValue(analysis);
+    const opener = document.createElement('button');
+    document.body.appendChild(opener);
+    opener.focus();
+    const focusSpy = vi.spyOn(opener, 'focus');
+
+    const { unmount } = renderPopup({ docked: true });
+    // docked opens the LSJ entry expanded by default, so "wrath" appears both
+    // as the gloss and inside the LSJ html — target the unique gloss element.
+    await screen.findByText('wrath', { selector: '.gloss' });
+
+    unmount();
+    expect(focusSpy).not.toHaveBeenCalled();
+    opener.remove();
   });
 });
 

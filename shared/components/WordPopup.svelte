@@ -6,13 +6,14 @@
   // The PRESENTATION shell for a word lookup. Two presentations, one shared body
   // (LexiconPanel):
   //   • docked=false (default) — the anchored MOBILE / narrow popup: a modal
-  //     bottom-sheet (phone / tablet-compare) or right slide-in, with a
-  //     backdrop and a Tab focus-trap.
+  //     bottom-sheet (phone / tablet-compare) or right slide-in, closed by a
+  //     window pointerdown listener (not a blocking backdrop — that swallowed
+  //     clicks meant for another Greek token) and a Tab focus-trap.
   //   • docked=true — the DESKTOP (≥1100px) lexicon rail: a NON-modal, in-layout
-  //     panel — no backdrop, no aria-modal, no focus-trap, part of the page tab
-  //     order. Focus management (move-in on keyboard open, return-on-Escape) is
-  //     owned by the Reader, which knows whether the token was opened by
-  //     keyboard (DESIGN.md 2026-07-17).
+  //     panel — no outside-click close, no aria-modal, no focus-trap, part of
+  //     the page tab order. Focus management (move-in on keyboard open,
+  //     return-on-Escape) is owned by the Reader, which knows whether the
+  //     token was opened by keyboard (DESIGN.md 2026-07-17).
   export let work: string = 'EN';
   export let token: { t: string; k: string };
   export const anchor: { x: number; y: number } = { x: 0, y: 0 };
@@ -48,6 +49,19 @@
     if (e.key === 'Escape') onClose();
   }
 
+  // Close on any pointer-down outside the panel — EXCEPT on a Greek token,
+  // whose own click handler swaps the popup to the new word. (A blocking
+  // backdrop here would swallow that click and force close-then-reopen, with
+  // two page reflows.) The docked rail is non-modal and was never dismissed by
+  // outside clicks (no backdrop ever rendered for it) — preserve that by
+  // no-op'ing here while docked.
+  function onOutsidePointer(e: PointerEvent) {
+    if (docked) return;
+    const t = e.target as HTMLElement | null;
+    if (!t || t.closest('.word-sidebar') || t.closest('.tok')) return;
+    onClose();
+  }
+
   function focusableEls(): HTMLElement[] {
     return dialogEl
       ? Array.from(dialogEl.querySelectorAll<HTMLElement>(
@@ -81,22 +95,20 @@
     previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     // Modal popup always takes focus; the docked rail only when the reader
     // signals a keyboard open (autofocus).
-    if (!docked || autofocus) setTimeout(() => dialogEl?.focus(), 0);
+    if (!docked || autofocus) setTimeout(() => dialogEl?.focus({ preventScroll: true }), 0);
   });
 
   onDestroy(() => {
     // The modal popup restores focus to the opener on teardown. The docked rail
     // leaves focus to the reader (it returns focus to the token on Escape), so a
     // mouse-driven close never yanks the caret around the page.
-    if (!docked) previousFocus?.focus();
+    // preventScroll: the reader pins its own scroll position across the close
+    // reflow; letting focus() scroll to the old word snaps the page around.
+    if (!docked) previousFocus?.focus({ preventScroll: true });
   });
 </script>
 
-<svelte:window on:keydown={onKey} />
-
-{#if !docked}
-  <div class="popup-backdrop" on:click={onClose} on:keydown={() => {}} role="presentation"></div>
-{/if}
+<svelte:window on:keydown={onKey} on:pointerdown={onOutsidePointer} />
 
 <!-- Desktop docked rail (non-modal) OR the anchored modal popup/sheet. Both via CSS. -->
 <div

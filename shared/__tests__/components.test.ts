@@ -376,6 +376,9 @@ describe('Reader.svelte — lexicon presentation breakpoint', () => {
     const sidebar = document.querySelector('.word-sidebar');
     expect(sidebar).toHaveClass('docked');
     expect(sidebar).toHaveAttribute('role', 'region');
+    // No blocking backdrop for either presentation — see word-popup.test.ts
+    // for the 2026-07-29 fix (a full-page backdrop swallowed clicks meant for
+    // another Greek token).
     expect(document.querySelector('.popup-backdrop')).toBeNull();
   });
 
@@ -390,7 +393,7 @@ describe('Reader.svelte — lexicon presentation breakpoint', () => {
     const sidebar = document.querySelector('.word-sidebar');
     expect(sidebar).not.toHaveClass('docked');
     expect(sidebar).toHaveAttribute('role', 'dialog');
-    expect(document.querySelector('.popup-backdrop')).not.toBeNull();
+    expect(document.querySelector('.popup-backdrop')).toBeNull();
   });
 
   // Settings and the docked lexicon rail are both right-docked, fixed
@@ -424,6 +427,31 @@ describe('Reader.svelte — lexicon presentation breakpoint', () => {
     await fireEvent.click(tok);
     expect(document.querySelector('.word-sidebar:not([inert])')).not.toBeNull();
     expect(document.querySelector('.settings-sidebar')).not.toHaveClass('open');
+  });
+
+  // Integration-level regression test for the 2026-07-29 fix (see
+  // word-popup.test.ts "pointerdown outside" describe block): a real click
+  // through Reader's delegated `.tok` handler on a SECOND token, while the
+  // popup is already open, must swap the panel to the new word in place — the
+  // old full-page `.popup-backdrop` swallowed that click. Below 1100px so the
+  // anchored modal popup (the one guarded by the pointerdown-outside handler)
+  // is what opens.
+  it('clicking a second Greek token while the popup is open swaps to that word without closing', async () => {
+    setMatchMedia(() => false);
+    window.history.replaceState(null, '', '/EN/book/1');
+    render(Reader, { props: { work: 'EN', bookNum: 1, bookData: fixtureBook } });
+
+    const first = await screen.findByText('λόγος');
+    await fireEvent.click(first);
+    expect(await screen.findByText('λόγος', { selector: '.popup-surface' })).toBeInTheDocument();
+
+    const second = screen.getByText('ἀρετή');
+    await fireEvent.click(second);
+
+    // Still open, now showing the second token's word — not closed/reopened.
+    expect(await screen.findByText('ἀρετή', { selector: '.popup-surface' })).toBeInTheDocument();
+    expect(screen.queryByText('λόγος', { selector: '.popup-surface' })).toBeNull();
+    expect(document.querySelectorAll('.word-sidebar')).toHaveLength(1);
   });
 });
 
