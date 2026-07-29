@@ -68,6 +68,163 @@ localization exists (then keep certainty `mythical` and put the localization
 in `tradition`). NEVER invent an identification. `maps`: which of
 `ships | troad | wanderings | greece` panels show it.
 
+A place record may also carry `plateAnchors` (an object mapping plate id to a
+`[u, v]` unit pair in 0..1, for placing the feature on a schematic plate that
+has no defensible lat/lon) and `positionBasis: "conjectural"` — the two are
+required together, never one without the other; that pairing is the honesty
+mechanism for a feature drawn without real-world coordinates. A place tagged
+for a plate (its `maps` array carries an entry starting with `troad-plain` or
+`troy-citadel`) additionally requires `kind` (see the plate schema below) and
+at least one `sources` entry — the legacy (pre-plate) 280 records are exempt
+from both.
+
+## plates/\<id\>.json (per plate: `apparatus/plates/<id>.json`)
+
+Illustrated, hand-drawn Landmark-style map plates (the Trojan plain, the
+Troad, the Troy citadel, Achilles' shield). Plate *geometry* is authored here
+in lat/lon (`kind: "geographic"`) or unit-space (`kind: "schematic"`) JSON,
+validated by `pipeline/homer_pipeline/apparatus_places.py`'s `validate_plate`
+(cross-checked against the gazetteer's `validate_places`) and shipped
+verbatim to `build/dist/plates/<id>.json` by `scripts/build-public.mjs`.
+Projecting this geometry into rendered SVG is a later phase, not this schema.
+
+```json
+{
+  "id": "trojan-plain",
+  "title": "The Trojan Plain",
+  "kind": "geographic",
+  "status": "draft",
+  "seed": 20260728,
+  "bbox": [39.86, 26.12, 40.02, 26.36],
+  "size": [880, 620],
+  "layers": [
+    {
+      "id": "coast-bronze",
+      "kind": "coast",
+      "style": "stipple",
+      "default": "on",
+      "rings": [[[39.98, 26.18], [39.97, 26.19]]],
+      "note": "Reconstructed c.1200 BC shoreline; provisional pending the cartography phase.",
+      "sources": [
+        {"cite": "Kraft, John C., Ilhan Kayan, and Oğuz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209 (1980): 776-82."}
+      ]
+    },
+    {
+      "id": "scamander",
+      "kind": "river",
+      "placeId": "scamander",
+      "path": [[39.90, 26.15], [39.95, 26.20]],
+      "width": 2.2
+    }
+  ]
+}
+```
+
+`kind` (plate-level): `geographic` (layers use real `[lat, lon]` pairs,
+contained in `bbox`) | `schematic` (unit `[u, v]` pairs in 0..1, no geography).
+
+A **geographic** plate must carry `bbox` and `layers`: it is drawn by
+projecting lat/lon through `shared/lib/geo.ts`, so it has to declare the extent
+it projects into.
+
+A **schematic** plate carries neither — demanding a `bbox` of it would be
+demanding a coordinate for something that has none. It must declare at least
+one of:
+- `bands` — concentric rings, used by `shield-of-achilles.json`, each
+  `{id, title, greek, lines: [from, to], summary, ring}`. Band ids are unique.
+- `layers` — the same layer shapes as a geographic plate, but with unit `[u, v]`
+  coordinates. This is how the Trojan plain is drawn *as the poem lays it out*
+  (the camp order of Il. 8.222-26, the road and its waypoints) rather than as
+  survey knows it. See CLAUDE.md's two-register rule.
+
+`bbox`: `[minLat, minLon, maxLat, maxLon]`. `size`: `[widthPx, heightPx]`.
+`seed`: required whenever any layer uses a stochastic draw style (`stipple`,
+`hachure`) — determinism for the render phase.
+
+Layer `kind`: `coast | river | relief | shipRow | wall | route | region |
+band | tumulus`. Optional per layer: `placeId` (must resolve in the
+gazetteer), `note`, `sources` (same cite/url shape as places.json, Chicago
+citation rule), `default` (`"on" | "off"` for a toggleable layer), `style`,
+`width`, `shading`, `rows`, `count`, `fill` (`region`/`band`/`coast`, see
+below), `label` (see below), and the coordinate-geometry fields `rings` (a list of rings, each a
+list of pairs), `path`, `polygon`, `baseline`, `trace` (each a flat list of
+pairs). Apparatus honesty: geometry not yet sourced from real cartography
+must say so in `note` rather than presenting placeholder points as surveyed.
+
+`tumulus` draws a burial-mound glyph (a dome profile with nested shading
+arcs, e.g. the tombs of Ilos and Batieia) at one point per entry in its
+`path` field — reusing that existing flat coordinate field rather than
+inventing a new one, so it needs no separate geometry-field wiring on
+either side of the schema. **Not yet in the pipeline's `LAYER_KIND_ENUM`**
+(`pipeline/homer_pipeline/apparatus_places.py`) — a plate JSON file using
+`kind: "tumulus"` will fail `validate_plate` until that enum is updated to
+match.
+
+### Land and water (the `ground` + `fill` contract)
+
+**The renderer never guesses which shape is water.** A plate says so, in two
+fields, and a plate that says neither draws land-coloured shapes on a
+land-coloured sheet — which is exactly the "it's just shapes, no geography"
+defect of 2026-07-28.
+
+`ground` (plate level, optional, `"land" | "sea"`, default `"land"`): what the
+bare sheet is under every layer.
+
+- **Mostly-dry extent** (the Trojan plain): leave the default, and draw each
+  body of water as a `region` layer with `fill: "sea"` or `fill: "lagoon"`.
+- **Coastal/marine extent** (the Troad): declare `"ground": "sea"`, and give
+  each `coast` layer whose rings are CLOSED landmasses `"fill": "land"`. The
+  rings are then filled `evenodd` under the shoreline — the same construction
+  `shared/lib/scenemap.ts` uses for the Mediterranean coastline. **The rings
+  must actually close**, or the fill leaks across the sheet.
+
+`fill` (layer level, optional) names the TERRAIN a `region`/`band` layer is, or
+the terrain a `coast` layer's rings enclose. Closed whitelist in
+`shared/lib/plate.ts` — never a pass-through of the JSON value, so a plate file
+can never inject arbitrary CSS into the emitted SVG:
+
+| `fill` | token | role |
+|---|---|---|
+| `plain` (**default**) | `--plate-plain` | dry usable ground |
+| `marsh` | `--plate-marsh` | wetland, wet delta |
+| `lagoon` | `--plate-lagoon` | shallow/silting water |
+| `sea` | `--scene-map-sea` | open water |
+| `land` | `--scene-map-land` | landmass on a `ground: "sea"` plate |
+| `tint` | `--plate-tint` | translucent **apparatus zone** (e.g. "the Achaean camp") |
+
+The default **changed 2026-07-28** from `tint` to `plain`. `--plate-tint`
+resolves to `var(--accent-light)`, the site's wine wayfinding accent, so every
+undeclared landform was painted in the UI highlight colour. A landform is not a
+highlight: terrain is the default and the accent wash is opt-in.
+
+**The pipeline validator must be updated to match** —
+`pipeline/homer_pipeline/apparatus_places.py` still carries
+`REGION_FILL_ENUM = {"tint", "sea"}` and has no `ground` key at all, so a plate
+using any of the four new fill roles, or declaring `ground`, will fail
+`validate_plate` until that enum grows the same six values and the plate-level
+key list accepts `ground` (`"land" | "sea"`).
+
+### Lettering
+
+`label` (layer level, optional): the name to letter onto the sheet for this
+feature. When absent, the renderer falls back to the gazetteer name of
+`placeId` — and only when that place is not itself pinned on this plate, so a
+feature is lettered once, not twice. Author `label` whenever the gazetteer name
+is a catalogue entry rather than a map label: "Kesik Tepe (the 'Demetrius
+tumulus'), claimed tomb of Achilles" is the former. (Gazetteer-derived names are
+shortened to their head form automatically; the full name still rides on the
+pin's `<title>`.)
+
+Linear layers (`river`, `coast`, `wall`, `route`) are named ALONG their own run
+with `<textPath>` when the run is long enough to carry the name; area layers
+(`region`, `band`, `relief`) are named across their extent in letterspaced
+caps. Neither needs any extra authoring — both come from `label`/`placeId`.
+
+The renderer also draws a **double neatline**, a **bar scale** computed from the
+plate's own viewport (stades over kilometres, geographic plates only), and a
+**legend derived from what the sheet actually drew** — every register on the map
+appears in the key, and every row in the key can be found on the map.
+
 ## characters.json (single file `apparatus/characters.json`)
 
 ```json

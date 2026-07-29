@@ -38,6 +38,25 @@ non-negotiable.
   flips it; the UI shows a discreet draft badge. Every place has a certainty tier
   (`certain | traditional | speculative | mythical`); traditional identifications
   name their tradition. Never invent an identification.
+- **Map registers (John, 2026-07-28): "it's an editorial and artistic decision
+  to let Homer's descriptions determine the map."** Two registers, never mixed.
+  A *geographic* plate carries only what survey and archaeology support. A
+  *schematic* plate carries the poem's own spatial logic — the camp order (Il.
+  8.222-26, 11.806-8), the road and its waypoints — labelled as such. Most
+  Homeric topography has NO defensible coordinate (Scaean Gate, oak, fig tree,
+  ford, tomb of Ilos, the two springs, the Achaean wall); putting those at
+  guessed coordinates on the geographic plate is the failure mode. Absences are
+  content: label them. Sources: `docs/TROAD-SOURCES.md`.
+- **Rich, not hedging (John, 2026-07-28): "the gods aren't real, but they are
+  present in the text. No need to be pedantic just because a historian might
+  well-actually us about where Ajax had a tent."** The certainty tier does the
+  honesty work; the note must not re-apologise for it. State what the poem
+  states as fact (Il. 8.222-26 on the camp order; 11.806-8 on the assembly and
+  altars). The `mythical` tier is a CATEGORY, not a warning label — divine
+  places (Callicolone, the wall of Heracles, Gargaron, Poseidon's seat on
+  Samothrace) go on the map with confidence. Hedging is a defect, the same as
+  overclaiming. What stays absolute: tiers, `tradition` naming its tradition,
+  citations, and **never a fabricated coordinate**.
 - **No movie branding.** No stills, no title treatment, no "Nolan". The tie-in is
   structural (Start Here funnel + SEO pages), not visual.
 - Deploying is John's call — never deploy without explicit go-ahead. Hosting:
@@ -62,6 +81,15 @@ non-negotiable.
 - Accessibility: WCAG AA contrast in BOTH themes; keyboard access on Greek tokens
   never regresses. The Aegean skin is a token layer (CSS custom properties) —
   revertible by variable swap.
+- **Colour is free (John, 2026-07-28): "we want blue for sea. this is digital,
+  not print. color is free. in print, it's expensive."** Do NOT import print
+  cartography's one-spot-colour discipline — the Landmark series and the
+  19th-century plates used a single pale ink because press runs charged per
+  ink, which does not constrain SVG in a browser. Sea reads as sea; land stays
+  warm against it. Borrow print's *linework* conventions (waterlines, hachures,
+  neatline, letterspaced caps) freely — those are craft. Its palette
+  austerity is an artifact of cost. Contrast rules still bind: colour being
+  free does not make WCAG AA optional.
 - Maintain `DRIFT.md`: one line per shared-core file diverged from plato-reader.
 
 ## Build & verify (add facts here as agents discover them)
@@ -109,6 +137,16 @@ non-negotiable.
   other's dist mid-verification. Lanes verifying against dist must
   build+verify without another build lane running, or verify via dev
   server instead.
+- Test-harness gotcha (2026-07-28, found by the grammar-search fix lane):
+  under happy-dom, `bind:value` on a `<select>` cannot be driven by
+  `fireEvent.change`. Svelte 5 reads the chosen option with
+  `select.querySelector(':checked')`, happy-dom implements no `:checked`, so
+  it falls back to "the first option that is not `disabled`" — every bound
+  select snaps back to its first option and component state never moves. The
+  test passes vacuously. Workaround in `shared/__tests__/grammar-ui.test.ts`
+  (`choose()`): disable the other options for the duration of the event.
+  Selects driven by a handler (`on:change` reading `currentTarget.value`, as
+  the combo panel does) are unaffected, which is why nobody hit this before.
 - Codex model-flag gotcha (2026-07-18): `--model gpt-5.6-terra-high` is
   REJECTED on this ChatGPT-account setup ("model is not supported…"); runs
   fall back to the account's default Codex model at `--effort high`. Label
@@ -185,7 +223,9 @@ decisions, not on file contents.
   philological judgment, and integration-heavy work. Judgment allowed.
   **LIFTED (John, 2026-07-21): weekly usage reset — normal routing table
   applies (Sonnet default; Opus on genuine difficulty; Codex/Grok per
-  their table roles). Codex effort lowered to medium the same day.**
+  their table roles). Codex effort lowered to medium the same day.
+  **RAISED BACK to `--effort high` for both Sol and Terra (John,
+  2026-07-28).**
   **Escalation rule (John, same day, refined): minor stumbles stay in
   the Codex/Grok lane — nudge, clarify the brief, retry once. Escalate
   to Claude (Sonnet; Opus on difficulty) only on a BAD fuckup: badly
@@ -207,6 +247,16 @@ decisions, not on file contents.
   are unchanged. For UI work, the pass ALSO reviews design fidelity
   against the approved mock (John: "I don't trust its taste") and
   captures both-theme screenshots for John before commit.**
+  **Cross-model review runs BOTH WAYS (John, 2026-07-28): "have each
+  claude agent's work (including your own) reviewed by gpt or grok."
+  Every Claude implementation lane — and the orchestrator's own hand
+  edits — gets a Sol (code) or Grok (content/data) pass before the work
+  is considered done. Not only at PR gates: a fleet of Claude agents
+  checking each other shares a model's blind spots, which is how the
+  Shield shipped rendering solid black past a colour test that only
+  checked for `var()` and never that the token existed. Sol reviews
+  code and contracts; Grok verifies content against the corpus with raw
+  evidence. Findings-only briefs — reviewers do not edit tracked files.**
 
 ### Context discipline
 
@@ -235,8 +285,8 @@ decisions, not on file contents.
 | **Fable** (main thread) | Orchestrator | Planning, decomposition, briefs, integration, review of agent returns, commits/pushes, all conversation with John. No fable subagents without John's say-so. |
 | **Opus** | Heavy reasoner | Architecture decisions, subtle pipeline/alignment bugs, Homeric philological judgment calls (vulgate lineation and athetized lines, formula/epithet boundaries, morphology disputes, speech-span nesting), judgment-heavy apparatus drafting, final verification of high-stakes work |
 | **Sonnet** | Workhorse (default subagent) | Well-specified implementation, tests, mechanical multi-file edits, exploration/search sweeps, doc updates, data-build babysitting, per-book apparatus batches (~5 books/agent) |
-| **GPT-5.6-Sol-High** (Codex CLI, `--effort medium` — John, 2026-07-21, lowered from high) | Adversarial reviewer | Red-team review of finished work before John's review gates and before any deploy; cross-model second opinion on designs. Precedent: the plato-reader 14th-deploy whole-site adversarial review (15 confirmed findings). |
-| **GPT-5.6-Terra-High** (Codex CLI, `--effort medium` — John, 2026-07-21, lowered from high) | Cross-model implementer | Independent implementation of isolated, well-specified tasks; independent bug reproduction; second implementation when comparing approaches |
+| **GPT-5.6-Sol-High** (Codex CLI, `--effort high` — John, 2026-07-28, raised back from medium) | Adversarial reviewer | Red-team review of finished work before John's review gates and before any deploy; cross-model second opinion on designs. Precedent: the plato-reader 14th-deploy whole-site adversarial review (15 confirmed findings). |
+| **GPT-5.6-Terra-High** (Codex CLI, `--effort high` — John, 2026-07-28, raised back from medium) | Cross-model implementer | Independent implementation of isolated, well-specified tasks; independent bug reproduction; second implementation when comparing approaches |
 | **Grok-4.5** (Grok CLI, `grok-cc:grok-rescue`) | Full implementer + content verifier (off probation, John 2026-07-17; free trial) | Content/extraction verification gates (its specialty — twice found defect classes Sol/Opus/Claude all missed, with raw-line evidence), additional adversarial passes, mechanical coding tasks. Forwarder quirk (BOTH grok-rescue and codex-rescue): the runner may background the CLI task and end its turn with no result — nudge via SendMessage ("wait for the run and return the findings"). Gotcha: read-only task mode gets Cancelled by the runtime — use write-capable with a no-tracked-file-edits constraint. |
 
 Routing principles: default subagent is Sonnet; escalate to Opus on genuine
@@ -336,6 +386,41 @@ And from his expanded set, the ones this project adopts:
   `git add shared/__tests__/` swept an in-flight lane's test edits into an
   unrelated commit. Stage explicit FILES, never directories, while any
   agent runs.
+
+- **Two Claude Code sessions in one checkout** (2026-07-28, caught by the
+  orchestrator before any commit): a second session was working this repo on
+  `claude/build` (a places/geo apparatus lane) while this one started. A
+  checkout holds ONE branch, so `git checkout -b` here silently moved the other
+  session's tree onto a branch it knew nothing about, and its uncommitted work
+  landed there. Nothing was lost — uncommitted changes survive a branch switch,
+  and both branches sat on the same commit — but the next commit from either
+  side would have swept the other's files in.
+  Symptoms: files dirty outside every lane's blast radius; an agent reporting a
+  file "already modified on disk" that `git status` showed clean at session
+  start; transient vitest failures from a half-written module (here
+  `scenemap.ts`, mid-refactor, breaking 11 unrelated files through the vite
+  cache). Diagnosis: `lsof -t +D <repo>` and look for more than one `claude`.
+  **Rule: before `git checkout -b` here, diff `git status` against the
+  session-start snapshot. If files you do not own are dirty, STOP and ask John
+  — do not branch, do not commit.** The fix is a worktree per session
+  (`git worktree add ../homer-reader-<lane> <base>`), which is where this lane
+  moved; symlink `build/` to the main checkout so the corpus is readable
+  without a 6-minute rebuild, and treat it as read-only.
+
+- **A map with no map under it** (2026-07-28, John: "it's just shapes. no
+  geography at all. my 5 year old could draw this"): the Troy plates shipped to a
+  PR with hand-authored coordinate arrays — 5-17 vertices per coastline — as
+  their base. **Geography cannot be hand-authored.** Ten times the vertices is a
+  smoother blob, not a coast. Real basemaps come from real vector data: AWMC's
+  ancient-world GeoJSON (ODbL), Natural Earth 10m, OSM, a DEM for relief. The
+  drawing primitives (hachure, waterlines, ship glyphs) are the FINISH, not the
+  foundation; a whole day went into them over nothing.
+  **And every gate was green.** 893 tests, preflight clean, 4705 pages, five
+  plates validating — none of it could see that the output was unreadable.
+  "Verify functionally, not with screenshots" means do not accept a screenshot as
+  proof of CORRECTNESS; it does not mean never look at a visual artefact. **For
+  anything whose output is an image, rendering it and LOOKING is a required gate,
+  and the agent that made it must look before reporting done.**
 
 - **Fork drift** (aristotle→plato: ~20 files diverged in 4 days): this repo is the
   fourth fork. `DRIFT.md` is the mitigation; keep it current.

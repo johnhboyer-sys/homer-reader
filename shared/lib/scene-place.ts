@@ -31,6 +31,10 @@
 // every one of the 137 distinct location strings across all 790 scenes, see
 // scratchpad/il-scenes-dump.txt and od-scenes-dump.txt) maps only the strings
 // that identify a single gazetteer place with confidence. Precedence:
+//   0. `scene.places[]` (Phase P7a: authored gazetteer ids, carried onto
+//      Scene.places — see shared/lib/data.ts) — a scene naming its places
+//      directly beats even the curated dictionary, since it is ground truth
+//      authored against the real gazetteer rather than inferred from prose.
 //   1. SETTING_DICTIONARY, keyed on the scene's own `place` prose (checked
 //      book-scoped first, then work-wide) — authored ground truth wins.
 //   2. journeys.json leg timeline (unchanged mechanism, kept because the
@@ -104,7 +108,12 @@ export interface SceneTimelineEntry {
 }
 
 export interface ScenePlaceResolution {
-  place: ScenePlace;
+  place: ScenePlace; // first resolved place (may be coordless — unchanged meaning, existing single-pin callers)
+  // Phase P7a: every resolved, LOCATED (coords-bearing) place for the scene —
+  // plural because an authored scene.places[] (precedence step 0) can name
+  // more than one. Coordless/unresolved ids never appear here (never
+  // force-pin). For steps 1/2 this is at most a singleton mirroring `place`.
+  places: ScenePlace[];
   route?: RouteLeg;
 }
 
@@ -431,8 +440,14 @@ export function buildSceneTimeline(
 
 // Resolves each scene in `scenes` (already in document order) to its current
 // place. Precedence per scene:
+//   0. scene.places[] — authored gazetteer ids (Phase P7a). Ids absent from
+//      the gazetteer are dropped (preflight's referential-integrity check
+//      makes that impossible in practice, so this layer never throws over
+//      it); a resolved-but-coordless id still counts for `place` (same
+//      honest-degradation posture as steps 1/2) but is excluded from
+//      `places` (never force-pin a mythical-tier id).
 //   1. SETTING_DICTIONARY, keyed on the scene's own authored `place` prose —
-//      authored ground truth, checked first because it beats any inference.
+//      authored ground truth, checked next because it beats any inference.
 //   2. The journey-leg timeline built above: the LAST leg-arrival at or
 //      before the scene's startLine (a wandering stop's own leg, not a
 //      mention).
@@ -455,9 +470,22 @@ export function resolveScenePlaces(
 ): (ScenePlaceResolution | null)[] {
   const byId = new Map<string, RawPlace>(placesFile.places.map((p) => [p.id, p]));
   return scenes.map((scene) => {
+    const authored = (scene.places ?? [])
+      .map((id) => byId.get(id))
+      .filter((p): p is RawPlace => p !== undefined);
+    if (authored.length > 0) {
+      return {
+        place: toScenePlace(authored[0]),
+        places: authored.filter((p) => p.coords !== undefined).map(toScenePlace),
+      };
+    }
+
     const dictionaryHit = lookupSettingDictionary(work, book, scene.place, scene.startLine, byId);
     if (dictionaryHit) {
-      return { place: toScenePlace(dictionaryHit) };
+      return {
+        place: toScenePlace(dictionaryHit),
+        places: dictionaryHit.coords !== undefined ? [toScenePlace(dictionaryHit)] : [],
+      };
     }
     if (dictionaryHit === null) {
       return null; // explicit dictionary verdict: open water, no honest pin — journey fallback would hijack.
@@ -476,7 +504,11 @@ export function resolveScenePlaces(
         : entry;
     }
     if (!best) return null; // no dictionary hit, no journey-leg cover — honest null, not a fabricated anchor.
-    return { place: best.place, route: best.route };
+    return {
+      place: best.place,
+      places: best.place.coords !== undefined ? [best.place] : [],
+      route: best.route,
+    };
   });
 }
 

@@ -1,0 +1,1866 @@
+{
+  "id": "troy-citadel",
+  "title": "The Citadel of Troy as the Spade Found It",
+  "kind": "schematic",
+  "status": "draft",
+  "seed": 1902,
+  "size": [
+    960,
+    1000
+  ],
+  "layers": [
+    {
+      "id": "mound-north-scarp",
+      "kind": "relief",
+      "placeId": "troy",
+      "style": "hachure",
+      "polygon": [
+        [
+          0.7792,
+          0.1471
+        ],
+        [
+          0.7483,
+          0.1203
+        ],
+        [
+          0.7125,
+          0.0968
+        ],
+        [
+          0.6726,
+          0.0772
+        ],
+        [
+          0.6293,
+          0.0618
+        ],
+        [
+          0.5835,
+          0.0509
+        ],
+        [
+          0.5361,
+          0.0448
+        ],
+        [
+          0.488,
+          0.0436
+        ],
+        [
+          0.4401,
+          0.0473
+        ],
+        [
+          0.3933,
+          0.0558
+        ],
+        [
+          0.3487,
+          0.0689
+        ],
+        [
+          0.307,
+          0.0865
+        ],
+        [
+          0.269,
+          0.1081
+        ],
+        [
+          0.2356,
+          0.1333
+        ],
+        [
+          0.2208,
+          0.1471
+        ],
+        [
+          0.2518,
+          0.1636
+        ],
+        [
+          0.2793,
+          0.1397
+        ],
+        [
+          0.3111,
+          0.1188
+        ],
+        [
+          0.3466,
+          0.1014
+        ],
+        [
+          0.3851,
+          0.0877
+        ],
+        [
+          0.4258,
+          0.078
+        ],
+        [
+          0.4679,
+          0.0726
+        ],
+        [
+          0.5107,
+          0.0715
+        ],
+        [
+          0.5533,
+          0.0748
+        ],
+        [
+          0.5948,
+          0.0823
+        ],
+        [
+          0.6345,
+          0.094
+        ],
+        [
+          0.6716,
+          0.1096
+        ],
+        [
+          0.7053,
+          0.1288
+        ],
+        [
+          0.735,
+          0.1513
+        ],
+        [
+          0.7482,
+          0.1636
+        ]
+      ],
+      "note": "The north face of the mound of Hisarlık, falling away to the plain. The citadel sits at the seaward end of a low ridge: the ground drops on the north and west toward the Scamander plain and the Hellespont, and runs on level to the south, which is where the lower city lies and where the excavated main gate faces. The poem's traffic runs the other way: Hector goes out through the Scaean Gate πεδίον δέ, toward the plain and the ships (Il. 6.393), and the elders sitting over it watch the fighting. That an excavated citadel opens south while the poem's city opens on the plain is one reason the west gate keeps being proposed for the Scaean, and one reason no proposal has settled the question.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "mound-west-scarp",
+      "kind": "relief",
+      "placeId": "troy",
+      "style": "hachure",
+      "polygon": [
+        [
+          0.2105,
+          0.158
+        ],
+        [
+          0.1872,
+          0.1887
+        ],
+        [
+          0.1699,
+          0.2215
+        ],
+        [
+          0.1591,
+          0.2556
+        ],
+        [
+          0.1549,
+          0.2906
+        ],
+        [
+          0.1574,
+          0.3257
+        ],
+        [
+          0.1666,
+          0.3601
+        ],
+        [
+          0.1699,
+          0.3685
+        ],
+        [
+          0.2066,
+          0.3604
+        ],
+        [
+          0.197,
+          0.33
+        ],
+        [
+          0.1932,
+          0.2989
+        ],
+        [
+          0.1955,
+          0.2678
+        ],
+        [
+          0.2037,
+          0.2371
+        ],
+        [
+          0.2176,
+          0.2076
+        ],
+        [
+          0.237,
+          0.1798
+        ],
+        [
+          0.2427,
+          0.1732
+        ]
+      ],
+      "note": "The western fall of the mound. On this side the Troy VI wall is scarped most steeply of all — about 0.40 m of setback for every metre of height, against 0.37 on the east and 0.23 on the south.",
+      "sources": [
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "circuit-northeast",
+      "kind": "wall",
+      "placeId": "wall-of-troy",
+      "trace": [
+        [
+          0.6247,
+          0.1001
+        ],
+        [
+          0.6896,
+          0.1303
+        ],
+        [
+          0.6938,
+          0.1267
+        ],
+        [
+          0.747,
+          0.169
+        ],
+        [
+          0.7416,
+          0.1717
+        ],
+        [
+          0.7555,
+          0.1875
+        ]
+      ],
+      "note": "The Troy VI fortification circuit: a battered limestone face, its outer surface sloping back as it rises, carrying a mudbrick and timber superstructure that has not survived. The northeast stretch, running from the edge of the destroyed ground down to the East Gate past the largest tower on the circuit. Of a wall about 540 m round, some 330 m — three fifths — was still standing to be planned; the rest is on the north, and is gone.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "circuit-east",
+      "kind": "wall",
+      "placeId": "wall-of-troy",
+      "trace": [
+        [
+          0.7772,
+          0.2215
+        ],
+        [
+          0.7939,
+          0.2763
+        ],
+        [
+          0.8003,
+          0.2758
+        ],
+        [
+          0.7969,
+          0.3332
+        ],
+        [
+          0.7905,
+          0.3323
+        ],
+        [
+          0.7674,
+          0.3859
+        ],
+        [
+          0.7732,
+          0.3879
+        ],
+        [
+          0.731,
+          0.4362
+        ],
+        [
+          0.726,
+          0.4332
+        ],
+        [
+          0.6692,
+          0.4711
+        ],
+        [
+          0.6729,
+          0.475
+        ],
+        [
+          0.6031,
+          0.5015
+        ],
+        [
+          0.6009,
+          0.497
+        ],
+        [
+          0.5257,
+          0.5092
+        ],
+        [
+          0.5263,
+          0.5139
+        ],
+        [
+          0.4842,
+          0.5144
+        ]
+      ],
+      "note": "The east and southeast wall, the finest masonry on the site: rectangular limestone blocks laid without mortar, about 4.60–5 m thick at the base and standing 6 m. The vertical offsets are the signature of the work — the wall is built in straight sections each set a little forward of the last, about every 10 m, so the circuit turns the mound in steps and never has to make a corner, a corner being the weak point of a defence. This plate draws the offsets at roughly a third of their real frequency, or they would read as noise.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        },
+        {
+          "cite": "Rose, C. Brian. The Archaeology of Greek and Roman Troy. Cambridge: Cambridge University Press, 2014."
+        }
+      ]
+    },
+    {
+      "id": "circuit-south",
+      "kind": "wall",
+      "placeId": "wall-of-troy",
+      "trace": [
+        [
+          0.4336,
+          0.5045
+        ],
+        [
+          0.3615,
+          0.4848
+        ],
+        [
+          0.3585,
+          0.489
+        ],
+        [
+          0.2944,
+          0.4557
+        ],
+        [
+          0.2988,
+          0.4522
+        ],
+        [
+          0.2584,
+          0.4183
+        ]
+      ],
+      "note": "The south wall, between the South Gate and the West Gate. Its blocks are the largest cut on the site, about 1.50 m long and 0.30 m high, and its batter the gentlest. Homer's Trojans have a wall built for them by a god: Poseidon says he made it πόλιν πέρι τεῖχος ... εὐρύ τε καὶ μάλα καλόν, that the city might be unbreakable (Il. 21.446-47) — and resents that men will remember the Achaeans' wall and forget the one he and Apollo built for Laomedon (7.452-53).",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "circuit-west",
+      "kind": "wall",
+      "placeId": "wall-of-troy",
+      "trace": [
+        [
+          0.2326,
+          0.3859
+        ],
+        [
+          0.2095,
+          0.3323
+        ],
+        [
+          0.2031,
+          0.3332
+        ],
+        [
+          0.1997,
+          0.2758
+        ],
+        [
+          0.2061,
+          0.2763
+        ],
+        [
+          0.2228,
+          0.2215
+        ],
+        [
+          0.2167,
+          0.2198
+        ],
+        [
+          0.253,
+          0.169
+        ],
+        [
+          0.2584,
+          0.1717
+        ],
+        [
+          0.3104,
+          0.1303
+        ]
+      ],
+      "note": "The west wall, rougher and older work than the east and south — unwrought stone where those are cut ashlar. Dörpfeld held that one wall originally ran round the whole hill and that the east and south stretches were rebuilt in the finer style during Troy VI, which is why the circuit reads as two different buildings joined. One Homeric detail belongs to the wall as a whole rather than to any stretch of it, and no position is claimed for it here: Andromache tells Hector the city is climbable and the wall can be run at by the wild fig, ἔνθα μάλιστα ἀμβατός ἐστι πόλις καὶ ἐπίδρομον ἔπλετο τεῖχος (Il. 6.433-34), and the best of the Achaeans have already tried it three times. Patroclus makes the same attempt at ἀγκῶνος ... τείχεος ὑψηλοῖο, the angle of the high wall, and Apollo throws him off three times (16.702-3). An angle in the wall is precisely what the offsets drawn here produce — which is a resemblance worth noticing and not evidence of anything.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        },
+        {
+          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912.",
+          "url": "https://archive.org/details/troyastudyinhom00leafgoog"
+        }
+      ]
+    },
+    {
+      "id": "lost-north-circuit",
+      "kind": "route",
+      "placeId": "wall-of-troy",
+      "path": [
+        [
+          0.6247,
+          0.1001
+        ],
+        [
+          0.5936,
+          0.0911
+        ],
+        [
+          0.5613,
+          0.0847
+        ],
+        [
+          0.5283,
+          0.081
+        ],
+        [
+          0.4949,
+          0.08
+        ],
+        [
+          0.4615,
+          0.0818
+        ],
+        [
+          0.4286,
+          0.0864
+        ],
+        [
+          0.3967,
+          0.0936
+        ],
+        [
+          0.3661,
+          0.1034
+        ],
+        [
+          0.3372,
+          0.1157
+        ],
+        [
+          0.3104,
+          0.1303
+        ]
+      ],
+      "note": "Drawn dashed because it is not there. In Hellenistic and Roman times the top of the mound was shaved off to make a level court around the temple of Athena of Ilion, and the cutting took the whole north side of the Troy VI citadel with it — the wall, whatever gate stood in it, and the summit. This line is a restoration closing the circuit, not a surviving stretch. There must have been a north gate; no trace of one remains.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        },
+        {
+          "cite": "Rose, C. Brian. The Archaeology of Greek and Roman Troy. Cambridge: Cambridge University Press, 2014."
+        }
+      ]
+    },
+    {
+      "id": "tower-vi-g-northeast",
+      "kind": "wall",
+      "trace": [
+        [
+          0.6501,
+          0.1005
+        ],
+        [
+          0.6664,
+          0.0835
+        ],
+        [
+          0.7047,
+          0.1203
+        ],
+        [
+          0.6884,
+          0.1373
+        ]
+      ],
+      "note": "Tower VI g, the largest on the circuit: about 18 m broad and projecting 8 m from the wall face, with a shaft inside it sunk 7.50 m to water — the citadel's supply under cover, and still in use after the earthquake that ended Troy VIh. The Roman precinct wall of Athena was built over it and buried it.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        },
+        {
+          "cite": "Blegen, Carl W. Troy and the Trojans. London: Thames & Hudson, 1963."
+        }
+      ]
+    },
+    {
+      "id": "tower-vi-h-east",
+      "kind": "wall",
+      "trace": [
+        [
+          0.7905,
+          0.2489
+        ],
+        [
+          0.814,
+          0.2465
+        ],
+        [
+          0.8173,
+          0.2788
+        ],
+        [
+          0.7938,
+          0.2812
+        ]
+      ],
+      "note": "Tower VI h, the great east tower: over 11 m broad, projecting 8 m, its upper storey carried on a wooden platform. Towers are set where the wall face needs to be swept from the flank, which is to say beside the gates.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "tower-vi-i-south",
+      "kind": "wall",
+      "trace": [
+        [
+          0.5555,
+          0.5051
+        ],
+        [
+          0.5583,
+          0.5196
+        ],
+        [
+          0.5294,
+          0.5252
+        ],
+        [
+          0.5266,
+          0.5107
+        ]
+      ],
+      "note": "Tower VI i, beside the South Gate: a rectangular tower with an inner room about 5.70 by 5.30 m, standing on a stretch of wall 2.20 m thick. Whoever came up the paved way to the main gate came up under it.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "gate-vi-t-south",
+      "kind": "region",
+      "polygon": [
+        [
+          0.4366,
+          0.4951
+        ],
+        [
+          0.4853,
+          0.5
+        ],
+        [
+          0.4837,
+          0.5215
+        ],
+        [
+          0.43,
+          0.516
+        ]
+      ],
+      "note": "The South Gate, VI T — the principal entrance, 3.20–3.35 m wide, its roadway stone-paved and carrying a drainage channel half a metre deep, flanked by tower VI i. This is where the citadel and the lower city joined. The excavated gates carry excavators' letters, never Homeric names: no gate at Hisarlık has been shown to be the Scaean Gate. The openings are drawn wider than scale so they read; the real passages run from 1.80 m to about 4 m.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        },
+        {
+          "cite": "Rose, C. Brian. The Archaeology of Greek and Roman Troy. Cambridge: Cambridge University Press, 2014."
+        }
+      ]
+    },
+    {
+      "id": "gate-vi-s-east",
+      "kind": "region",
+      "polygon": [
+        [
+          0.7647,
+          0.2248
+        ],
+        [
+          0.744,
+          0.1923
+        ],
+        [
+          0.7695,
+          0.1816
+        ],
+        [
+          0.7925,
+          0.2174
+        ]
+      ],
+      "note": "The East Gate, VI S — only about 1.80 m broad, and reached by a passage roughly 2 m wide running between two overlapping arms of wall, so that the door itself is invisible from outside and cannot be approached head-on. A ram cannot be brought to a gate it cannot see. Steps and a ramp carried the way up inside.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "gate-vi-u-west",
+      "kind": "region",
+      "polygon": [
+        [
+          0.2447,
+          0.3818
+        ],
+        [
+          0.2692,
+          0.4128
+        ],
+        [
+          0.2451,
+          0.4251
+        ],
+        [
+          0.2179,
+          0.3909
+        ]
+      ],
+      "note": "The West Gate, VI U, about 4 m wide, where the south and west walls meet, entered up a gradual incline. During the life of Troy VI it was walled up — the defenders closed their own gate, which is the sort of fact a plan records and a poem does not.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "east-gate-overlap",
+      "kind": "wall",
+      "trace": [
+        [
+          0.8192,
+          0.237
+        ],
+        [
+          0.8128,
+          0.2209
+        ],
+        [
+          0.805,
+          0.2052
+        ],
+        [
+          0.7956,
+          0.1899
+        ],
+        [
+          0.7849,
+          0.1751
+        ],
+        [
+          0.7727,
+          0.1609
+        ],
+        [
+          0.7592,
+          0.1474
+        ],
+        [
+          0.7444,
+          0.1346
+        ]
+      ],
+      "note": "The outer arm of the East Gate: a bow-shaped length of wall run out beyond the circuit and overlapping it, turning the approach into a blind corridor. The device is the most sophisticated piece of military architecture on the site.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "paved-ramp",
+      "kind": "route",
+      "path": [
+        [
+          0.472,
+          0.672
+        ],
+        [
+          0.468,
+          0.616
+        ],
+        [
+          0.463,
+          0.562
+        ],
+        [
+          0.4552,
+          0.5271
+        ],
+        [
+          0.461,
+          0.4973
+        ],
+        [
+          0.451,
+          0.4786
+        ]
+      ],
+      "note": "The paved way up to the South Gate from the level ground south of the citadel, stone-laid with its drain beneath. It is the one road on the plan that joins the two Troys, the walled citadel and the settlement outside it.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "circuit-road",
+      "kind": "route",
+      "path": [
+        [
+          0.6078,
+          0.1264
+        ],
+        [
+          0.6352,
+          0.1373
+        ],
+        [
+          0.6606,
+          0.1505
+        ],
+        [
+          0.6836,
+          0.1658
+        ],
+        [
+          0.7038,
+          0.1831
+        ],
+        [
+          0.721,
+          0.202
+        ],
+        [
+          0.7349,
+          0.2223
+        ],
+        [
+          0.7453,
+          0.2437
+        ],
+        [
+          0.752,
+          0.2659
+        ],
+        [
+          0.755,
+          0.2885
+        ],
+        [
+          0.7542,
+          0.3112
+        ],
+        [
+          0.7496,
+          0.3337
+        ],
+        [
+          0.7413,
+          0.3555
+        ],
+        [
+          0.7293,
+          0.3765
+        ],
+        [
+          0.714,
+          0.3963
+        ],
+        [
+          0.6955,
+          0.4145
+        ],
+        [
+          0.674,
+          0.431
+        ],
+        [
+          0.65,
+          0.4455
+        ],
+        [
+          0.6237,
+          0.4577
+        ],
+        [
+          0.5956,
+          0.4674
+        ],
+        [
+          0.566,
+          0.4746
+        ],
+        [
+          0.5355,
+          0.4792
+        ],
+        [
+          0.5045,
+          0.4809
+        ],
+        [
+          0.4733,
+          0.48
+        ],
+        [
+          0.4426,
+          0.4762
+        ],
+        [
+          0.4127,
+          0.4698
+        ],
+        [
+          0.3842,
+          0.4607
+        ],
+        [
+          0.3573,
+          0.4492
+        ],
+        [
+          0.3326,
+          0.4354
+        ],
+        [
+          0.3104,
+          0.4194
+        ],
+        [
+          0.291,
+          0.4017
+        ],
+        [
+          0.2747,
+          0.3823
+        ],
+        [
+          0.2618,
+          0.3616
+        ],
+        [
+          0.2524,
+          0.34
+        ],
+        [
+          0.2467,
+          0.3177
+        ],
+        [
+          0.2448,
+          0.295
+        ],
+        [
+          0.2467,
+          0.2723
+        ],
+        [
+          0.2524,
+          0.25
+        ],
+        [
+          0.2618,
+          0.2284
+        ],
+        [
+          0.2747,
+          0.2077
+        ],
+        [
+          0.291,
+          0.1883
+        ],
+        [
+          0.3104,
+          0.1706
+        ],
+        [
+          0.3326,
+          0.1546
+        ],
+        [
+          0.336,
+          0.1525
+        ]
+      ],
+      "note": "The broad ring road inside the wall, running between the wall face and the first terrace of houses — the circulation that lets defenders reach any stretch of the circuit without crossing the built-up ground.",
+      "sources": [
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "terrace-first",
+      "kind": "wall",
+      "trace": [
+        [
+          0.5929,
+          0.1498
+        ],
+        [
+          0.6165,
+          0.1592
+        ],
+        [
+          0.6383,
+          0.1705
+        ],
+        [
+          0.6581,
+          0.1837
+        ],
+        [
+          0.6755,
+          0.1986
+        ],
+        [
+          0.6903,
+          0.2149
+        ],
+        [
+          0.7023,
+          0.2324
+        ],
+        [
+          0.7113,
+          0.2508
+        ],
+        [
+          0.7171,
+          0.2699
+        ],
+        [
+          0.7196,
+          0.2894
+        ],
+        [
+          0.7189,
+          0.309
+        ],
+        [
+          0.715,
+          0.3283
+        ],
+        [
+          0.7078,
+          0.3471
+        ],
+        [
+          0.6975,
+          0.3652
+        ],
+        [
+          0.6843,
+          0.3822
+        ],
+        [
+          0.6684,
+          0.398
+        ],
+        [
+          0.6499,
+          0.4121
+        ],
+        [
+          0.6292,
+          0.4246
+        ],
+        [
+          0.6065,
+          0.4351
+        ],
+        [
+          0.5823,
+          0.4435
+        ],
+        [
+          0.5569,
+          0.4497
+        ],
+        [
+          0.5306,
+          0.4536
+        ],
+        [
+          0.5038,
+          0.4552
+        ],
+        [
+          0.477,
+          0.4543
+        ],
+        [
+          0.4506,
+          0.4511
+        ],
+        [
+          0.4248,
+          0.4455
+        ],
+        [
+          0.4002,
+          0.4377
+        ],
+        [
+          0.3771,
+          0.4278
+        ],
+        [
+          0.3558,
+          0.4159
+        ],
+        [
+          0.3367,
+          0.4022
+        ],
+        [
+          0.32,
+          0.3869
+        ],
+        [
+          0.306,
+          0.3702
+        ],
+        [
+          0.2948,
+          0.3524
+        ],
+        [
+          0.2868,
+          0.3337
+        ],
+        [
+          0.2819,
+          0.3145
+        ],
+        [
+          0.2802,
+          0.295
+        ],
+        [
+          0.2819,
+          0.2755
+        ],
+        [
+          0.2868,
+          0.2563
+        ],
+        [
+          0.2948,
+          0.2376
+        ],
+        [
+          0.306,
+          0.2198
+        ],
+        [
+          0.32,
+          0.2031
+        ],
+        [
+          0.3367,
+          0.1878
+        ],
+        [
+          0.3558,
+          0.1741
+        ],
+        [
+          0.3587,
+          0.1723
+        ]
+      ],
+      "note": "The retaining line of the first terrace. The citadel was built as concentric terraces rising toward the centre, each held up by a retaining wall, with the houses standing on the level ground behind. At least eighteen houses were planned on this first terrace alone.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "terrace-second",
+      "kind": "wall",
+      "trace": [
+        [
+          0.558,
+          0.2044
+        ],
+        [
+          0.5747,
+          0.2112
+        ],
+        [
+          0.59,
+          0.2195
+        ],
+        [
+          0.6035,
+          0.2294
+        ],
+        [
+          0.615,
+          0.2405
+        ],
+        [
+          0.6243,
+          0.2527
+        ],
+        [
+          0.6312,
+          0.2658
+        ],
+        [
+          0.6355,
+          0.2794
+        ],
+        [
+          0.6372,
+          0.2933
+        ],
+        [
+          0.6362,
+          0.3072
+        ],
+        [
+          0.6325,
+          0.3209
+        ],
+        [
+          0.6263,
+          0.3341
+        ],
+        [
+          0.6176,
+          0.3465
+        ],
+        [
+          0.6066,
+          0.3579
+        ],
+        [
+          0.5936,
+          0.3681
+        ],
+        [
+          0.5787,
+          0.3769
+        ],
+        [
+          0.5623,
+          0.3841
+        ],
+        [
+          0.5447,
+          0.3895
+        ],
+        [
+          0.5262,
+          0.3931
+        ],
+        [
+          0.5072,
+          0.3948
+        ],
+        [
+          0.488,
+          0.3946
+        ],
+        [
+          0.4691,
+          0.3924
+        ],
+        [
+          0.4508,
+          0.3883
+        ],
+        [
+          0.4335,
+          0.3824
+        ],
+        [
+          0.4174,
+          0.3748
+        ],
+        [
+          0.403,
+          0.3657
+        ],
+        [
+          0.3904,
+          0.3552
+        ],
+        [
+          0.38,
+          0.3435
+        ],
+        [
+          0.3719,
+          0.3308
+        ],
+        [
+          0.3663,
+          0.3175
+        ],
+        [
+          0.3633,
+          0.3037
+        ],
+        [
+          0.363,
+          0.2898
+        ],
+        [
+          0.3653,
+          0.2759
+        ],
+        [
+          0.3703,
+          0.2625
+        ],
+        [
+          0.3778,
+          0.2496
+        ],
+        [
+          0.3876,
+          0.2377
+        ],
+        [
+          0.3997,
+          0.2268
+        ],
+        [
+          0.4118,
+          0.2184
+        ]
+      ],
+      "note": "The second terrace, higher and smaller. Ramps at three points carried traffic from one terrace to the next. Above this the ground rose again to the summit, and above the second terrace almost nothing of Troy VI survives to be planned.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "house-vi-a",
+      "kind": "region",
+      "polygon": [
+        [
+          0.5988,
+          0.384
+        ],
+        [
+          0.5729,
+          0.4062
+        ],
+        [
+          0.5904,
+          0.4266
+        ],
+        [
+          0.6162,
+          0.4044
+        ]
+      ],
+      "note": "House VI A, a hall about 11.55 by 9.10 m with an antechamber — one of the megaron-plan houses of the first terrace.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "house-vi-b",
+      "kind": "region",
+      "polygon": [
+        [
+          0.4283,
+          0.405
+        ],
+        [
+          0.3958,
+          0.375
+        ],
+        [
+          0.3721,
+          0.4006
+        ],
+        [
+          0.4046,
+          0.4307
+        ]
+      ],
+      "note": "House VI B, about 15 by 11.85 m. Homer gives Priam a palace of dressed stone with fifty chambers for his sons and twelve more across the court for his daughters' husbands (Il. 6.242-50); the largest hall the spade has found inside this circuit would fit inside one wing of that.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "house-vi-m",
+      "kind": "region",
+      "polygon": [
+        [
+          0.6621,
+          0.2778
+        ],
+        [
+          0.6576,
+          0.3367
+        ],
+        [
+          0.6988,
+          0.3398
+        ],
+        [
+          0.7033,
+          0.281
+        ]
+      ],
+      "note": "House VI M, a multi-room building standing on its own raised terrace behind a retaining wall 6 m high — the most emphatically sited house on the surviving part of the citadel.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "house-vi-c",
+      "kind": "region",
+      "polygon": [
+        [
+          0.4006,
+          0.3024
+        ],
+        [
+          0.4075,
+          0.2578
+        ],
+        [
+          0.383,
+          0.254
+        ],
+        [
+          0.3761,
+          0.2986
+        ]
+      ],
+      "note": "House VI C on the second terrace, a hall 15.30 by 8.40 m and the only building on the site with certain interior column bases.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "pergamos-summit",
+      "kind": "region",
+      "placeId": "pergamos",
+      "polygon": [
+        [
+          0.5,
+          0.238
+        ],
+        [
+          0.5267,
+          0.2415
+        ],
+        [
+          0.5502,
+          0.2514
+        ],
+        [
+          0.5677,
+          0.2665
+        ],
+        [
+          0.577,
+          0.2851
+        ],
+        [
+          0.577,
+          0.3049
+        ],
+        [
+          0.5677,
+          0.3235
+        ],
+        [
+          0.5502,
+          0.3386
+        ],
+        [
+          0.5267,
+          0.3485
+        ],
+        [
+          0.5,
+          0.352
+        ],
+        [
+          0.4733,
+          0.3485
+        ],
+        [
+          0.4498,
+          0.3386
+        ],
+        [
+          0.4323,
+          0.3235
+        ],
+        [
+          0.423,
+          0.3049
+        ],
+        [
+          0.423,
+          0.2851
+        ],
+        [
+          0.4323,
+          0.2665
+        ],
+        [
+          0.4498,
+          0.2514
+        ],
+        [
+          0.4733,
+          0.2415
+        ]
+      ],
+      "note": "The summit — and an absence, not a find. Homer's Pergamos is the top of the citadel: Apollo's temple stands Περγάμῳ εἰν ἱερῇ (Il. 5.446), he and Ares look down from it on the fighting (4.508, 7.21), Paris comes striding down from Περγάμου ἄκρης (6.512), Ares shouts from ἀκροτάτης πόλιος (20.52), Cassandra climbs it and is the first to see Hector's body coming home (24.700). The temple of Athena ἐν πόλει ἄκρῃ that the Trojan women go up to with the robe belongs here too (6.88, 6.297), and so do the houses of Priam and of Hector, which the poem puts ἐν πόλει ἄκρῃ as well (6.317). Of all of it there is nothing to plan: the Hellenistic and Roman levelling for the Athena precinct cut the top off the mound. The part of Troy the Iliad names most often is the part the excavation cannot reach, and the outline drawn here marks where it stood, not what stood there.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        },
+        {
+          "cite": "Rose, C. Brian. The Archaeology of Greek and Roman Troy. Cambridge: Cambridge University Press, 2014."
+        }
+      ]
+    },
+    {
+      "id": "lower-city",
+      "kind": "region",
+      "placeId": "troy-lower-city",
+      "polygon": [
+        [
+          0.297,
+          0.5063
+        ],
+        [
+          0.356,
+          0.5307
+        ],
+        [
+          0.4204,
+          0.5464
+        ],
+        [
+          0.4876,
+          0.5528
+        ],
+        [
+          0.5554,
+          0.5498
+        ],
+        [
+          0.6211,
+          0.5374
+        ],
+        [
+          0.6823,
+          0.5161
+        ],
+        [
+          0.7369,
+          0.4867
+        ],
+        [
+          0.7827,
+          0.4503
+        ],
+        [
+          0.8002,
+          0.4317
+        ],
+        [
+          0.888,
+          0.47
+        ],
+        [
+          0.878,
+          0.606
+        ],
+        [
+          0.816,
+          0.73
+        ],
+        [
+          0.686,
+          0.818
+        ],
+        [
+          0.47,
+          0.852
+        ],
+        [
+          0.272,
+          0.804
+        ],
+        [
+          0.192,
+          0.674
+        ],
+        [
+          0.198,
+          0.562
+        ]
+      ],
+      "note": "Korfmann's lower city, and the plate says so because it is a reconstruction and not a plan. Geomagnetic survey and excavation by the Tübingen Troia project from 1988 argued for a settlement of roughly 200,000 square metres reaching some 400 m south and southeast of the citadel — about ten times the walled area, and a different kind of place from a fortified manor. Frank Kolb answered that the evidence will not carry that weight and that Troy VI cannot be shown to have been a city at all; Jablonka and Rose replied in the same issue of the AJA. Both papers are open access and both are linked here, because a reader who wants to know how firm this outline is should read the quarrel rather than take our word. Note the scale: the citadel is drawn large so its gates can be seen, and the lower city is compressed to roughly a third of its true reach — the two are not at one scale on this sheet.",
+      "sources": [
+        {
+          "cite": "Kolb, Frank. \"Troy VI: A Trading Center and Commercial City?\" American Journal of Archaeology 108, no. 4 (2004): 577–614.",
+          "url": "https://ajaonline.org/wp-content/uploads/2012/11/1084_Kolb.pdf"
+        },
+        {
+          "cite": "Jablonka, Peter, and C. Brian Rose. \"Late Bronze Age Troy: A Response to Frank Kolb.\" American Journal of Archaeology 108, no. 4 (2004): 615–30.",
+          "url": "https://ajaonline.org/wp-content/uploads/2012/11/1084_Jablonka.pdf"
+        },
+        {
+          "cite": "Rose, C. Brian. The Archaeology of Greek and Roman Troy. Cambridge: Cambridge University Press, 2014."
+        }
+      ]
+    },
+    {
+      "id": "lower-city-ditch",
+      "kind": "wall",
+      "placeId": "troy-lower-city",
+      "trace": [
+        [
+          0.152,
+          0.548
+        ],
+        [
+          0.158,
+          0.69
+        ],
+        [
+          0.248,
+          0.826
+        ],
+        [
+          0.47,
+          0.89
+        ],
+        [
+          0.7,
+          0.852
+        ],
+        [
+          0.85,
+          0.752
+        ],
+        [
+          0.918,
+          0.606
+        ],
+        [
+          0.93,
+          0.462
+        ]
+      ],
+      "note": "The rock-cut ditch, found by magnetometry and then dug: about 3.5–4 m across and cut 1–2 m into the bedrock, running round the south of the settlement. Korfmann read it as an obstacle against chariots, with a palisade or wall standing some metres behind it; no such wall has been found. It is the single piece of evidence the whole lower-city argument turns on, and it is the piece Kolb attacked hardest.",
+      "sources": [
+        {
+          "cite": "Jablonka, Peter, and C. Brian Rose. \"Late Bronze Age Troy: A Response to Frank Kolb.\" American Journal of Archaeology 108, no. 4 (2004): 615–30.",
+          "url": "https://ajaonline.org/wp-content/uploads/2012/11/1084_Jablonka.pdf"
+        },
+        {
+          "cite": "Kolb, Frank. \"Troy VI: A Trading Center and Commercial City?\" American Journal of Archaeology 108, no. 4 (2004): 577–614.",
+          "url": "https://ajaonline.org/wp-content/uploads/2012/11/1084_Kolb.pdf"
+        }
+      ]
+    },
+    {
+      "id": "scaean-gate-candidates",
+      "kind": "region",
+      "polygon": [
+        [
+          0.2447,
+          0.374
+        ],
+        [
+          0.2785,
+          0.4166
+        ],
+        [
+          0.2408,
+          0.4373
+        ],
+        [
+          0.2013,
+          0.3874
+        ]
+      ],
+      "note": "Where the Scaean Gate is placed on this plate, and why the pin is dashed. The poem's gate is the busiest place in Troy — the elders sit ἐπὶ Σκαιῇσι πύλῃσι with Helen (Il. 3.145-49), Hector meets Andromache going out through it (6.393), the fighting rages round it a whole day (18.453), Hector waits before it (22.6) and foresees his own death in it (22.360) — and no gate at Hisarlık has been shown to be it. The two candidates discussed since Dörpfeld and Cook are the South Gate VI T and the west or southwest gate VI U, and there is no consensus between them; the South Gate is at least as often given to the Dardanian Gates instead. This plate takes the one pairing that keeps the poem's two named gates distinct — Scaean here at VI U, Dardanian at VI T — and that pairing is the plate's own reading, reversible, not a finding. Both pins are drawn in the conjectural register for that reason.",
+      "sources": [
+        {
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+        },
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        },
+        {
+          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912.",
+          "url": "https://archive.org/details/troyastudyinhom00leafgoog"
+        }
+      ]
+    },
+    {
+      "id": "dardanian-gates-candidate",
+      "kind": "region",
+      "polygon": [
+        [
+          0.4282,
+          0.4902
+        ],
+        [
+          0.4952,
+          0.4971
+        ],
+        [
+          0.4943,
+          0.5315
+        ],
+        [
+          0.416,
+          0.5234
+        ]
+      ],
+      "note": "Where the Dardanian Gates are placed, on the reasoning that Dardania lay to the southeast and the South Gate VI T is the gate that faces that way — the identification Cook records. Hector keeps breaking for them during the chase, hoping to get in under the well-built towers (Il. 22.194-95), and Priam has to be held back from going out through them (22.413). Whether Homer means a second gate at all, or another name for the Scaean, is itself disputed.",
+      "sources": [
+        {
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+        }
+      ]
+    },
+    {
+      "id": "great-tower-position",
+      "kind": "region",
+      "polygon": [
+        [
+          0.2254,
+          0.3231
+        ],
+        [
+          0.1787,
+          0.3279
+        ],
+        [
+          0.1914,
+          0.3681
+        ],
+        [
+          0.2363,
+          0.3575
+        ]
+      ],
+      "note": "The great tower of Ilios is placed beside the Scaean pin because the poem binds tower and gate together, not because any excavated tower has been identified with it. Andromache runs ἐπὶ πύργον ... μέγαν Ἰλίου when she hears the Trojans are being worn down (Il. 6.386-87), the elders watch from a tower (3.153-54), Priam stands θείου ἐπὶ πύργου and sees Achilles coming (21.526), and Hector sets his shield against πύργῳ ἔπι προὔχοντι, the jutting tower, to wait for him (22.97). The largest tower actually planned is VI g at the northeast, on the far side of the citadel and under the Roman precinct.",
+      "sources": [
+        {
+          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912.",
+          "url": "https://archive.org/details/troyastudyinhom00leafgoog"
+        },
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
+          "url": "https://archive.org/details/trojaundilionerg00drpf"
+        }
+      ]
+    },
+    {
+      "id": "oak-outside-the-gate",
+      "kind": "region",
+      "polygon": [
+        [
+          0.2197,
+          0.438
+        ],
+        [
+          0.1907,
+          0.4528
+        ],
+        [
+          0.2523,
+          0.5027
+        ],
+        [
+          0.2755,
+          0.4832
+        ]
+      ],
+      "note": "The oak stands outside the wall, and the plate puts it there for one reason only: the formula does. Σκαιάς τε πύλας καὶ φηγόν closes the verse three times over (Il. 6.237 = 9.354 = 11.170), and men reaching the gate from the plain reach the tree in the same breath. Sarpedon is laid under the beautiful oak of aegis-bearing Zeus (5.693); Athena and Apollo settle in it as vultures to watch the duel they have arranged (7.58-60). There is no tree on the plan, and there could not be.",
+      "sources": [
+        {
+          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912.",
+          "url": "https://archive.org/details/troyastudyinhom00leafgoog"
+        }
+      ]
+    }
+  ]
+}

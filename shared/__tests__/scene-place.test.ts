@@ -281,6 +281,56 @@ describe('resolveScenePlaces / joinScenesToPlaces — audit-confirmed defects, f
     expect(a).toEqual(b);
   });
 
+  it('Phase P7a: scene.places[] takes precedence over a SETTING_DICTIONARY match for the same scene', () => {
+    // Il. 1's "Achaean assembly" would normally resolve to 'troy' via the
+    // dictionary; authoring scene.places must override that.
+    const scenes = scenesForBook(iliad, 1);
+    const scene = scenes.find((s) => s.startLine === 285)!;
+    expect(scene.place).toBe('Achaean assembly'); // dictionary would say 'troy'
+    const authored: Scene = { ...scene, places: ['olympus'] };
+    const timeline = buildSceneTimeline('iliad', 1, placesFile, journeysFile);
+    const resolved = resolveScenePlaces('iliad', 1, [authored], timeline, placesFile);
+    expect(resolved[0]).not.toBeNull();
+    expect(resolved[0]!.place.id).toBe('olympus');
+    expect(resolved[0]!.places.map((p) => p.id)).toEqual(['olympus']);
+  });
+
+  it('a scene.places[] id that resolves to a coordless gazetteer record does not become a located place', () => {
+    // 'ogygia' (mythical tier) has no coords in the real gazetteer.
+    const scene: Scene = { summary: 'x', startLine: 1, endLine: 10, places: ['ogygia'] };
+    const resolved = resolveScenePlaces('odyssey', 5, [scene], [], placesFile);
+    expect(resolved[0]).not.toBeNull();
+    expect(resolved[0]!.place.id).toBe('ogygia'); // still counts for `place` — unchanged coordless posture
+    expect(resolved[0]!.places).toEqual([]); // never force-pinned into the located list
+  });
+
+  it('an unresolvable scene.places[] id is dropped without throwing, falling through to the dictionary', () => {
+    const scenes = scenesForBook(iliad, 1);
+    const scene = scenes.find((s) => s.startLine === 285)!; // 'Achaean assembly' -> dictionary hit 'troy'
+    const authored: Scene = { ...scene, places: ['no-such-place-id'] };
+    const timeline = buildSceneTimeline('iliad', 1, placesFile, journeysFile);
+    expect(() => resolveScenePlaces('iliad', 1, [authored], timeline, placesFile)).not.toThrow();
+    const resolved = resolveScenePlaces('iliad', 1, [authored], timeline, placesFile);
+    expect(resolved[0]).not.toBeNull();
+    expect(resolved[0]!.place.id).toBe('troy'); // fell through to the dictionary, per precedence
+  });
+
+  it('every existing resolution still carries `places` mirroring the singular `place` (steps 1/2, no authored scene.places[])', () => {
+    // Existing callers only ever read `place` — this asserts the new `places`
+    // field is well-formed alongside it for the dictionary and journey-leg
+    // paths, without changing `place`'s own meaning.
+    const scenes = scenesForBook(odyssey, 9);
+    const resolved = joinScenesToPlaces('odyssey', 9, scenes, placesFile, journeysFile);
+    for (const r of resolved) {
+      if (r === null) continue;
+      if (r.place.coords !== undefined) {
+        expect(r.places.map((p) => p.id)).toEqual([r.place.id]);
+      } else {
+        expect(r.places).toEqual([]); // coordless anchor (e.g. mythical tier) — never force-pinned
+      }
+    }
+  });
+
   it('the setting dictionary takes precedence over the journey-leg timeline when both would apply', () => {
     // Od. 9 scene "Polyphemus's cave" (193-460) falls well inside the
     // lotus-eaters-land -> cyclopes-land leg's coverage AND has its own

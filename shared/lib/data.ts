@@ -185,6 +185,12 @@ export interface Scene {
   startLine: number;    // opening Greek vulgate line (n) this scene covers
   endLine?: number;     // closing line n (inclusive); omitted ⇒ open-ended
   place?: string;       // where the scene is set (small-caps marker)
+  // Authored gazetteer ids (apparatus/places.json) naming where the scene is
+  // set, precisely. Takes precedence over the free-prose `place` above when
+  // resolving a scene to a map pin (see shared/lib/scene-place.ts) — `place`
+  // stays as the human-readable fallback/label. Optional: most scenes still
+  // resolve only through the prose dictionary until authored.
+  places?: string[];
   people?: string[];    // named persons in the scene (subtle markers)
   // Narrative day the scene falls on (the epic's internal chronology), carried
   // through from the pipeline's `dayNumber`. `null`/absent ⇒ no day marker (e.g.
@@ -373,6 +379,63 @@ export function fetchCoastline(): Promise<Coastline | null> {
     .then((raw) => (raw ? parseCoastline(raw) : null));
   p.catch(() => { if (_coastlineCache === p) _coastlineCache = null; });
   _coastlineCache = p;
+  return p;
+}
+
+// One illustrated map "plate" (apparatus/plates/<id>.json — hand-drawn
+// Landmark-style geometry, e.g. the Trojan plain; schema in
+// docs/APPARATUS-SCHEMAS.md, validated by
+// pipeline/homer_pipeline/apparatus_places.py). A `kind: "geographic"`
+// plate's layer coordinates are real lat/lon pairs (this project's
+// [lat, lon] convention, same as Coastline above, and contained in `bbox`);
+// a `kind: "schematic"` plate's are unit [u, v] pairs in 0..1. Geometry is
+// authored data only here — projecting it into rendered SVG is a later
+// phase, not this module's job. Corpus-wide, not per-work, same posture as
+// fetchPlaces/fetchCoastline; absence (a build that hasn't copied the plate
+// in yet, or an unknown plate id) resolves to null, never an error.
+export interface PlateSource {
+  cite: string;
+  url?: string;
+}
+
+export interface PlateLayer {
+  id: string;
+  kind: string;
+  placeId?: string;
+  note?: string;
+  sources?: PlateSource[];
+  default?: 'on' | 'off';
+  style?: string;
+  width?: number;
+  shading?: string;
+  rows?: number;
+  count?: number;
+  rings?: [number, number][][];
+  path?: [number, number][];
+  polygon?: [number, number][];
+  baseline?: [number, number][];
+  trace?: [number, number][];
+}
+
+export interface PlateFile {
+  id: string;
+  title: string;
+  kind: 'geographic' | 'schematic';
+  status: string;
+  seed?: number;
+  bbox: [number, number, number, number]; // [minLat, minLon, maxLat, maxLon]
+  size: [number, number]; // [widthPx, heightPx]
+  layers: PlateLayer[];
+}
+
+const _plateCache = new Map<string, Promise<PlateFile | null>>();
+
+export function fetchPlate(id: string): Promise<PlateFile | null> {
+  const cached = _plateCache.get(id);
+  if (cached) return cached;
+  const p = fetch(`${ROOT()}/plates/${id}.json`).then((r) => (r.ok ? r.json() : null)) as Promise<PlateFile | null>;
+  p.catch(() => { if (_plateCache.get(id) === p) _plateCache.delete(id); });
+  _plateCache.set(id, p);
   return p;
 }
 
