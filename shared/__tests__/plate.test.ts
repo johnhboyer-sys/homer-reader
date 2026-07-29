@@ -1930,6 +1930,14 @@ function pointsOf(d: string): [number, number][] {
   return [...d.matchAll(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/g)].map((m) => [Number(m[1]), Number(m[2])]);
 }
 
+function distToSegment(p: [number, number], a: [number, number], b: [number, number]): number {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const len2 = dx * dx + dy * dy;
+  const t = len2 === 0 ? 0 : Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / len2));
+  return Math.hypot(p[0] - (a[0] + t * dx), p[1] - (a[1] + t * dy));
+}
+
 function inPolygon([px, py]: [number, number], polygon: [number, number][]): boolean {
   let inside = false;
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
@@ -2036,9 +2044,53 @@ describe('the live plain sheet: the rivers stop at the Bronze Age shore', () => 
   const svg = renderPlate(plate, []).svg;
   const lagoonRing = pointsOf(pathsFor(svg, 'lagoon-bronze')[0]);
 
-  it('the Scamander is drawn in three reaches — the plain, the lagoon, the modern sea', () => {
-    expect(pathsFor(svg, 'scamander')).toHaveLength(3);
+  // The river's own paint slot is everything emitted after the water that
+  // could drown it. Since the sandy bar was re-cut to end where it stops
+  // being a bar (2026-07-29), the Scamander has TWO reaches there: the plain,
+  // and 141 m of dry bar between the lagoon and the modern sea.
+  function ownReaches(id: string): [number, number][][] {
+    const water = svg.lastIndexOf('data-feature-id="lagoon-bronze"');
+    return [...svg.matchAll(new RegExp(`<path data-feature-id="${id}" class="[^"]*" d="([^"]*)"`, 'g'))]
+      .filter((m) => m.index! > water)
+      .map((m) => pointsOf(m[1]));
+  }
+
+  it('the Scamander is drawn in four reaches — the plain, the lagoon, the bar, the modern sea', () => {
+    // Four, not three (2026-07-29). The fourth is the crossing of the sandy
+    // bar: with the bar cut back to its landfall the lagoon and the sea no
+    // longer overlap there, and 141 m of dry ground lies between them inside
+    // a single 255 m segment of the river. It was drawn by nobody until
+    // runsWhere started cutting at the crossings rather than sampling at the
+    // vertices — see plate.ts.
+    expect(pathsFor(svg, 'scamander')).toHaveLength(4);
+    expect(ownReaches('scamander')).toHaveLength(2);
     expect(pathsFor(svg, 'simoeis')).toHaveLength(2);
+  });
+
+  it('no stretch of a river is drawn by nobody: every reach of the stored line lands in some paint slot', () => {
+    // The defect above, stated as the general property it violated. The union
+    // of everything drawn — own slot and submerged alike — must cover the
+    // whole stored polyline.
+    const viewport = viewportFromBBox(plate.bbox!, plate.size);
+    for (const id of ['scamander', 'simoeis']) {
+      const stored = plate.layers
+        .find((l) => l.id === id)!
+        .path!.map((p) => project(p as [number, number], viewport));
+      const drawn = pathsFor(svg, id).map(pointsOf);
+      const near = (p: [number, number]) =>
+        drawn.some((line) =>
+          line.some((q, i) => i + 1 < line.length && distToSegment(p, line[i], line[i + 1]) < 0.5),
+        );
+      for (let i = 0; i + 1 < stored.length; i++) {
+        for (const t of [0.25, 0.5, 0.75]) {
+          const p: [number, number] = [
+            stored[i][0] + (stored[i + 1][0] - stored[i][0]) * t,
+            stored[i][1] + (stored[i + 1][1] - stored[i][1]) * t,
+          ];
+          expect(near(p)).toBe(true);
+        }
+      }
+    }
   });
 
   it('each drowned reach is drawn before the water that drowns it', () => {
@@ -2050,21 +2102,19 @@ describe('the live plain sheet: the rivers stop at the Bronze Age shore', () => 
   });
 
   it('nothing of a river is drawn over the lagoon in the river\'s own paint slot', () => {
-    // The last reach of each river is the one drawn after every water layer.
     for (const id of ['scamander', 'simoeis']) {
-      const reaches = pathsFor(svg, id);
-      const own = pointsOf(reaches[reaches.length - 1]);
-      // The reach ends ON the shore, so its own final point may sit a
-      // bisection's width either side of it; everything before it must be
-      // clear of the water by the width of the line that draws it.
-      for (const p of own.slice(0, -1)) expect(inPolygon(p, lagoonRing)).toBe(false);
+      for (const own of ownReaches(id)) {
+        // A reach ends ON the shore, so its own end points may sit a rounding
+        // either side of it; everything between them must be clear of the
+        // water by the width of the line that draws it.
+        for (const p of own.slice(1, -1)) expect(inPolygon(p, lagoonRing)).toBe(false);
+      }
     }
   });
 
   it('the Scamander still crosses the delta swamp: marsh is wet ground, not open water', () => {
     const swamp = pointsOf(pathsFor(svg, 'delta-swamp')[0]);
-    const own = pointsOf(pathsFor(svg, 'scamander').at(-1)!);
-    expect(own.some((p) => inPolygon(p, swamp))).toBe(true);
+    expect(ownReaches('scamander').some((own) => own.some((p) => inPolygon(p, swamp)))).toBe(true);
   });
 
   it('the calibrated Bronze Age geometry is untouched by the clip', () => {
@@ -2185,5 +2235,70 @@ describe('renderPlate: a pin is never transparent to its own basemap', () => {
     const svg = renderPlate(testPlate, [troy, scamander, ghost]).svg;
     expect(svg).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
     assertEveryVarTokenDefined(svg);
+  });
+});
+
+// ── The barrier's honesty claim, guarded ─────────────────────────────────────
+//
+// `barrier-bronze`'s note asserts a machine-checkable fact: every vertex of the
+// bar is on land today, 30-600 m inside the modern shoreline. That claim was
+// FALSE for months and nobody noticed — the note said the eastern stretch "lies
+// outboard of the modern coast, under water now" while 14 of its 15 vertices
+// were on land, because the 5 m contour it is cut from stops being a bar east of
+// the Rhoiteion landfall and becomes the coastal slope.
+//
+// It shipped undetected for exactly one reason: no test read the claim. A prose
+// note that states a measurable fact and is checked by nothing is a liability,
+// not scholarship. This is the guard.
+describe('the live Trojan-plain sheet: the barrier is where its note says it is', () => {
+  const plate = parsePlate(
+    JSON.parse(readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain.json'), 'utf-8')),
+  );
+  const layer = (id: string) => plate.layers.find((l) => l.id === id)!;
+  const ringsOf = (id: string): [number, number][][] => {
+    const l = layer(id) as { rings?: [number, number][][]; polygon?: [number, number][]; path?: [number, number][] };
+    if (l.rings) return l.rings;
+    if (l.polygon) return [l.polygon];
+    return l.path ? [l.path] : [];
+  };
+
+  // Ray casting in lat/lon. Both are plate-space coordinates, so no projection
+  // is needed and none is assumed.
+  const inside = (pt: [number, number], ring: [number, number][]): boolean => {
+    let hit = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [ay, ax] = ring[i];
+      const [by, bx] = ring[j];
+      if ((ay > pt[0]) !== (by > pt[0]) && pt[1] < ((bx - ax) * (pt[0] - ay)) / (by - ay) + ax) hit = !hit;
+    }
+    return hit;
+  };
+
+  it('every vertex of the bar is on land, as the note claims', () => {
+    const sea = ringsOf('sea-modern');
+    const bar = ringsOf('barrier-bronze').flat();
+    expect(bar.length).toBeGreaterThan(5); // the assertion below is worthless on an empty array
+    const onWater = bar.filter((p) => sea.some((ring) => inside(p, ring)));
+    expect(onWater).toEqual([]);
+  });
+
+  it('the bar does not run along the modern coastline', () => {
+    // The defect's visible symptom: an 11px symbol band straddling a line whose
+    // axis sat 7-12 m away. Nearest approach is now 31 m; assert it stays clear
+    // of the coast's own 13 m generalisation by a real margin.
+    const coast = ringsOf('coast-modern').flat();
+    const bar = ringsOf('barrier-bronze').flat();
+    expect(coast.length).toBeGreaterThan(50);
+    expect(bar.length).toBeGreaterThan(5);
+    const M_PER_DEG_LAT = 111_320;
+    let nearest = Infinity;
+    for (const [blat, blon] of bar) {
+      for (const [clat, clon] of coast) {
+        const dy = (blat - clat) * M_PER_DEG_LAT;
+        const dx = (blon - clon) * M_PER_DEG_LAT * Math.cos((blat * Math.PI) / 180);
+        nearest = Math.min(nearest, Math.hypot(dx, dy));
+      }
+    }
+    expect(nearest).toBeGreaterThan(20);
   });
 });

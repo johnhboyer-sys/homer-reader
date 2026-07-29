@@ -991,6 +991,30 @@ SHORE_WEST = (39.998, 26.192)     # the Sigeion ridge, at the bay mouth
 SHORE_EAST = (40.0174, 26.321)    # the Rhoiteion spur, at the bay mouth
 LAGOON_HEAD = (39.9582, 26.2062)  # the bay head, 1.2 km NNW of Hisarlik
 
+# Where the bar stops being a bar (2026-07-29). The 5 m contour was cut between
+# the same two anchors as the shore, so it ran all the way to the Rhoiteion
+# spur -- and east of about 26.24 E it is not a bar any more but the coastal
+# slope at the foot of that ridge, which the layer's own note was busy calling
+# a sand bar "outboard of the modern coast, under water now" while fourteen of
+# its fifteen vertices sat on dry land.
+#
+# The test is what a bar IS: ground with water on both sides. The water behind
+# this one is the lagoon, whose landward margin is the 10 m contour the shore
+# is cut from, so the bar runs exactly as far as the two contours stay apart.
+# Measured on this DEM they open to between 380 m and 1.95 km across the delta
+# and then close, in one step, to 130 m at 26.243 E; east of that they run 20
+# to 45 m apart with the ground between them rising at 10 to 19 per cent
+# against 0.4 to 5 per cent on the delta.
+#
+# The threshold is the generalisation both lines already carry, SHORE_TOL --
+# about 275 m. Below that the two contours are not two lines at this sheet's
+# resolution, so there is no lagoon between them to speak of; the vertex where
+# that first happens is the bar's eastern landfall, and it is kept, because a
+# baymouth bar has to land somewhere. The daylight either side of the number is
+# the argument for it: the last width above the bar is 504 m and the first
+# below it is 123 m, and nothing on this contour falls in between.
+BARRIER_MIN_LAGOON_M = 275.0
+
 
 SIGEION_RIDGE = (39.9835, 26.1809)   # the ridge whose east foot is the bay's west shore
 LAGOON_WEST_N = (39.9975, 26.191)    # where that foot meets the barrier
@@ -1011,6 +1035,45 @@ def _arc(ring: list, a_pt, b_pt, eastern: bool = True) -> list:
     return max((fwd, bwd), key=key) if eastern else min((fwd, bwd), key=key)
 
 
+def _flat_m(p) -> tuple[float, float]:
+    """A [lat, lon] point in flat metres east and north of the sheet's origin.
+    The sheet is 24 km across and the projection it draws in is
+    equirectangular, so a spherical formula here would be false precision."""
+    min_lat, min_lon, max_lat, _ = SHEETS["trojan-plain"]["bbox"]
+    lat0 = math.radians((min_lat + max_lat) / 2)
+    return ((p[1] - min_lon) * 111320.0 * math.cos(lat0),
+            (p[0] - min_lat) * 111132.0)
+
+
+def _dist_to_line_m(p, line) -> float:
+    """Distance from a point to a polyline, to its SEGMENTS and not merely to
+    its vertices: these contours carry vertices kilometres apart."""
+    px, py = _flat_m(p)
+    best = float("inf")
+    for a, b in zip(line, line[1:]):
+        ax, ay = _flat_m(a)
+        bx, by = _flat_m(b)
+        dx, dy = bx - ax, by - ay
+        d2 = dx * dx + dy * dy
+        t = 0.0 if d2 == 0.0 else max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / d2))
+        best = min(best, math.hypot(px - (ax + t * dx), py - (ay + t * dy)))
+    return best
+
+
+def _bar_landfall(run: list, shore_line: list) -> tuple[list, list[float]]:
+    """The stretch of the 5 m contour that is actually a bar: from its western
+    anchor to its eastern landfall, where the lagoon behind it closes to less
+    than the generalisation the lines carry. Returns the truncated run and the
+    per-vertex lagoon width, so the caller can report it."""
+    width = [_dist_to_line_m(p, shore_line) for p in run]
+    opens = next((i for i, v in enumerate(width) if v > BARRIER_MIN_LAGOON_M), None)
+    if opens is None:
+        raise SystemExit("barrier: the 5 m contour never opens a lagoon behind it")
+    end = next((i for i in range(opens + 1, len(width))
+                if width[i] <= BARRIER_MIN_LAGOON_M), len(width) - 1)
+    return run[:end + 1], width
+
+
 def bronze_geometry(g: Grid) -> dict:
     shore_line = joined_line("trojan-plain", g, SHORE_LEVEL)
     barrier_line = joined_line("trojan-plain", g, BARRIER_LEVEL)
@@ -1021,18 +1084,33 @@ def bronze_geometry(g: Grid) -> dict:
 
     j0 = nearest_index(barrier_line, SHORE_WEST)
     j1 = nearest_index(barrier_line, SHORE_EAST)
-    barrier = douglas_peucker(barrier_line[j0:j1 + 1], SHORE_TOL)
+    bar_run, width = _bar_landfall(barrier_line[j0:j1 + 1], shore_line)
+    barrier = douglas_peucker(bar_run, SHORE_TOL)
+    mid = width[1:len(bar_run) - 1]
+    beyond = width[len(bar_run):]
+    print(f"  {'barrier landfall':<32} at {bar_run[-1]}: lagoon behind the bar "
+          f"{min(mid):.0f}-{max(mid):.0f} m, {width[len(bar_run) - 1]:.0f} m at the "
+          f"landfall, {min(beyond):.0f}-{max(beyond):.0f} m beyond it "
+          f"({len(beyond)} vertices dropped)")
 
     # The lagoon is the water the barrier held in: the east foot of the Sigeion
-    # ridge on the west, the derived shore round the bay head and on to the
-    # Rhoiteion spur, and the barrier closing it seaward. It stops at the bay
-    # head rather than following the contour on south, because south of there
-    # the same 10 m line bounds aggraded floodplain, not open water.
+    # ridge on the west, the derived shore round the bay head, and the barrier
+    # closing it seaward. It stops at the bay head rather than following the
+    # contour on south, because south of there the same 10 m line bounds
+    # aggraded floodplain, not open water. And it stops at the barrier's
+    # eastern landfall rather than following the shore on to the Rhoiteion
+    # spur, for the mirror-image reason: east of there the 5 m and 10 m
+    # contours run within 45 m of each other up the Rhoiteion slope, and the
+    # lagoon that used to be drawn between them was a 7 km thread of water a
+    # few tens of metres wide on a 19 per cent gradient. The shore layer itself
+    # DOES run on east -- that stretch of it faces the open sea, not the
+    # lagoon.
     ridge = body_containing("trojan-plain", g, 20, SIGEION_RIDGE)
     west = _arc(ridge, LAGOON_WEST_N, LAGOON_WEST_S)
     h = nearest_index(shore, LAGOON_HEAD)
     landward = west + shore[h:]
-    lagoon = landward + barrier[::-1]
+    e = nearest_index(shore, barrier[-1])
+    lagoon = west + shore[h:e + 1] + barrier[::-1]
 
     return {
         "shore": _round(landward),
@@ -1194,26 +1272,64 @@ BRONZE_NOTES = {
         "stops at the bay head, because south of there the 10 m contour bounds "
         "aggraded floodplain rather than open water. The contour does run on "
         "south -- that is the landward limit of the whole alluvial fill, not "
-        "of the Late Bronze Age bay.",
+        "of the Late Bronze Age bay. One thing this line is not along its "
+        "whole length is lagoon shore: east of 26.243 E, where the sandy "
+        "barrier lands at the foot of the Rhoiteion slope, it faces the open "
+        "sea instead.",
     "barrier-bronze":
         "The wide sandy barrier that a relative sea-level fall of 2 to 2.5 m "
         "left across the mouth of the bay in the Late Bronze Age, closing the "
         "remaining water into a shallow lagoon. Derived on the same principle "
-        "as the shore: the 5 m contour of the modern DEM, which runs east "
-        "across the delta at about 40.00 N between the Sigeion and Rhoiteion "
-        "ridges -- low ground standing proud of the fill in exactly the "
-        "position Kayan's barrier occupies, and seaward of the derived shore "
-        "everywhere along its length. Approximate to on the order of a "
-        "kilometre. Not traced from any figure.",
+        "as the shore: the 5 m contour of the modern DEM, running east across "
+        "the delta at about 40.00 N from the east foot of the Sigeion ridge -- "
+        "low ground standing proud of the fill, in the position Kayan's "
+        "barrier occupies, and seaward of the derived shore along its whole "
+        "length. Approximate to on the order of a kilometre. Not traced from "
+        "any figure. "
+        "WHERE IT ENDS IS PART OF THE CLAIM. A bar is ground with water on "
+        "both sides, and the water behind this one is the lagoon, whose "
+        "landward margin is the 10 m contour the shore is cut from -- so the "
+        "bar runs as far as those two contours stay apart and no further. "
+        "Across the delta they open to between 380 m and 1.95 km. At 26.243 E, "
+        "4.5 km east of the Sigeion foot, they close in one step to 130 m -- "
+        "nearer than the 275 m both lines are generalised to, so at this "
+        "sheet's resolution they have stopped being two lines -- and east of "
+        "there they run 20 to 45 m apart with the ground between them rising "
+        "at 10 to 19 per cent, against 0.4 to 5 per cent on the delta. That is "
+        "the coastal slope at the foot of the Rhoiteion ridge, not a bar with "
+        "a lagoon behind it. So the bar lands at 26.243 E and stops, and the "
+        "eastern end of the lagoon is closed by the Rhoiteion slope itself "
+        "rather than by the barrier. The earlier cut of this layer ran on to "
+        "the Rhoiteion spur and drew four more vertices of that slope as sand "
+        "bar. "
+        "DRAWN AS GROUND, not as a line: a bar is a body of land with water on "
+        "both sides, and a stroke down its axis read as a river running out "
+        "across the lagoon. The stored geometry locates the bar's AXIS only. "
+        "Nothing surveys how wide the bar was, so the band's width is a symbol "
+        "and its edges are blurred rather than drawn, the same way the "
+        "wetland's margin is. "
+        "AND IT IS ALL ON LAND TODAY, which the note this replaces denied: "
+        "measured against the same modern water mask this sheet's coastline is "
+        "traced from, every one of its eleven vertices is dry ground, between "
+        "30 and 600 m inside the modern shoreline. The strip between this line "
+        "and the modern coast is delta the Karamenderes and the Dumrek have "
+        "laid down since, and in the Late Bronze Age it did not exist.",
     "lagoon-bronze":
         "The shallow lagoon of about 1200 BC: the water left between the "
         "prograding delta front and the sandy barrier after the Late Bronze "
         "Age sea-level fall. Its outline is the derived shore and the derived "
         "barrier joined, so it carries their uncertainty, on the order of a "
-        "kilometre. It stops at the bay head 1.2 km north-north-west of "
-        "Hisarlik: south of that the 10 m contour bounds floodplain, not "
-        "water. Troy overlooks a wetland, a lagoon and a distant sea, not a "
-        "deep-water bay.",
+        "kilometre. It is closed at both ends by ground rather than by the "
+        "bar. It stops at the bay head 1.2 km north-north-west of Hisarlik: "
+        "south of that the 10 m contour bounds floodplain, not water. And it "
+        "stops on the east at 26.243 E, where the bar lands at the foot of the "
+        "Rhoiteion slope: east of there the 5 m and 10 m contours run within "
+        "45 m of each other up a gradient of 10 to 19 per cent, so there is no "
+        "water between them to hold, and what closes the lagoon on that side "
+        "is the Rhoiteion slope. The reconstructed shore does run on east from "
+        "that point to the Rhoiteion spur -- but that stretch of it faces the "
+        "open sea, not this lagoon. Troy overlooks a wetland, a lagoon and a "
+        "distant sea, not a deep-water bay.",
     "delta-swamp":
         "Swamp lay over much of the delta plain through the Late Bronze Age "
         "(Kayan). A WETLAND HAS NO BOUNDARY -- it grades from open water "

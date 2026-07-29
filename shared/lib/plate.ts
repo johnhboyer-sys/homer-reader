@@ -2274,6 +2274,8 @@ interface WaterBody {
   /** The layer whose fill paints this water; null for the sheet's sea ground. */
   layerId: string | null;
   contains(p: [number, number]): boolean;
+  /** The rings whose crossing changes `contains` — see runsWhere. */
+  edges: [number, number][][];
 }
 
 /** Even-odd across a body's rings — matches the `fill-rule="evenodd"` the coast body is painted with. */
@@ -2312,10 +2314,14 @@ function collectWaterBodies(plate: Plate, viewport: Viewport): WaterBody[] {
     const rings = bodyRings(plate, layer, viewport);
     if (rings.length === 0) continue;
     if (fill === 'land') landBodies.push(rings);
-    else bodies.push({ layerId: layer.id, contains: (p) => insideRings(rings, p) });
+    else bodies.push({ layerId: layer.id, contains: (p) => insideRings(rings, p), edges: rings });
   }
   if ((plate.ground ?? 'land') === 'sea') {
-    bodies.push({ layerId: null, contains: (p) => !landBodies.some((rings) => insideRings(rings, p)) });
+    bodies.push({
+      layerId: null,
+      contains: (p) => !landBodies.some((rings) => insideRings(rings, p)),
+      edges: landBodies.flat(),
+    });
   }
   return bodies;
 }
@@ -2361,48 +2367,78 @@ function paintRank(layer: PlateLayer): number {
   return 3;
 }
 
-// Bisections used to find where a line crosses a shoreline. 24 halvings put
-// the crossing within a millionth of the segment, which is far finer than the
-// geometry it is cutting; the count is fixed so the result is deterministic.
-const CROSSING_BISECTIONS = 24;
-
-function crossingPoint(
+// Where segment a→b crosses the edges of `rings`, as parameters in (0, 1),
+// ascending. Exact, not searched: the boundary is a polygon, so the crossing
+// is the intersection of two line segments and there is nothing to bisect
+// toward.
+function segmentCrossings(
   a: [number, number],
   b: [number, number],
-  inside: (p: [number, number]) => boolean,
-): [number, number] {
-  const insideA = inside(a);
-  let lo = 0;
-  let hi = 1;
-  for (let i = 0; i < CROSSING_BISECTIONS; i++) {
-    const m = (lo + hi) / 2;
-    if (inside([a[0] + (b[0] - a[0]) * m, a[1] + (b[1] - a[1]) * m]) === insideA) lo = m;
-    else hi = m;
+  rings: [number, number][][],
+): number[] {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const ts: number[] = [];
+  for (const ring of rings) {
+    for (let i = 0; i < ring.length; i++) {
+      const c = ring[i];
+      const d = ring[(i + 1) % ring.length];
+      const ex = d[0] - c[0];
+      const ey = d[1] - c[1];
+      const den = dx * ey - dy * ex;
+      if (den === 0) continue; // parallel, including both degenerate cases
+      const t = ((c[0] - a[0]) * ey - (c[1] - a[1]) * ex) / den;
+      const u = ((c[0] - a[0]) * dy - (c[1] - a[1]) * dx) / den;
+      if (t > 0 && t < 1 && u >= 0 && u <= 1) ts.push(t);
+    }
   }
-  const t = (lo + hi) / 2;
-  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  return [...new Set(ts)].sort((p, q) => p - q);
 }
 
-// The maximal runs of `px` over which `inside` holds, each carried out to the
-// exact crossing at either end so that the runs on the two sides of a
-// shoreline share a point: the line is split, never gapped.
-function runsWhere(px: [number, number][], inside: (p: [number, number]) => boolean): [number, number][][] {
+// The maximal runs of `px` over which `inside` holds, cut at the exact
+// crossings so that the runs on the two sides of a shoreline share a point:
+// the line is split, never gapped.
+//
+// `boundaries` are the rings that can change `inside`'s answer, and passing
+// them is not an optimisation — it is the whole correctness of this function
+// (2026-07-29). Sampling `inside` at the polyline's own VERTICES misses any
+// reach shorter than the gap between two of them: where two water bodies are
+// separated by less ground than one segment of a river, both of that
+// segment's ends are wet, no run opens on the dry reach between them, and
+// that stretch of river is drawn by nobody. Measured on the plain sheet
+// before this fix: 141 m of the Karamenderes, crossing the sandy bar between
+// the Bronze Age lagoon and the modern sea inside a single 255 m segment.
+// So each segment is split at every crossing first, and each piece is then
+// decided by its MIDPOINT — a point that cannot sit on a boundary, where a
+// containment test is ill-defined.
+function runsWhere(
+  px: [number, number][],
+  inside: (p: [number, number]) => boolean,
+  boundaries: [number, number][][] = [],
+): [number, number][][] {
+  const nodes: [number, number][] = [];
+  for (let i = 0; i < px.length; i++) {
+    nodes.push(px[i]);
+    if (i + 1 === px.length) break;
+    for (const t of segmentCrossings(px[i], px[i + 1], boundaries)) {
+      nodes.push([px[i][0] + (px[i + 1][0] - px[i][0]) * t, px[i][1] + (px[i + 1][1] - px[i][1]) * t]);
+    }
+  }
   const out: [number, number][][] = [];
   let run: [number, number][] | null = null;
-  for (let i = 0; i < px.length; i++) {
-    if (inside(px[i])) {
+  for (let i = 0; i + 1 < nodes.length; i++) {
+    const [a, b] = [nodes[i], nodes[i + 1]];
+    if (a[0] === b[0] && a[1] === b[1]) continue; // a crossing that landed on a vertex
+    if (inside([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2])) {
       if (!run) {
-        run = [];
-        if (i > 0) run.push(crossingPoint(px[i - 1], px[i], inside));
+        run = [a];
+        out.push(run);
       }
-      run.push(px[i]);
-    } else if (run) {
-      run.push(crossingPoint(px[i - 1], px[i], inside));
-      out.push(run);
+      run.push(b);
+    } else {
       run = null;
     }
   }
-  if (run) out.push(run);
   return out.filter((r) => r.length >= 2);
 }
 
@@ -2734,10 +2770,11 @@ function renderLayer(
       // handed to the water that drowns it, to be drawn beneath its fill.
       // See the WaterBody block above for why this is paint order and not a
       // cut of the data.
-      markup = runsWhere(px, (p) => !waters.some((w) => w.contains(p))).map(reach).join('');
+      const shorelines = waters.flatMap((w) => w.edges);
+      markup = runsWhere(px, (p) => !waters.some((w) => w.contains(p)), shorelines).map(reach).join('');
       submerged = waters
         .filter((w): w is WaterBody & { layerId: string } => w.layerId !== null)
-        .map((w) => ({ layerId: w.layerId, markup: runsWhere(px, (p) => w.contains(p)).map(reach).join('') }))
+        .map((w) => ({ layerId: w.layerId, markup: runsWhere(px, (p) => w.contains(p), w.edges).map(reach).join('') }))
         .filter((s) => s.markup !== '');
       break;
     }

@@ -2556,7 +2556,7 @@
       "id": "lagoon-bronze",
       "kind": "region",
       "default": "on",
-      "note": "The shallow lagoon of about 1200 BC: the water left between the prograding delta front and the sandy barrier after the Late Bronze Age sea-level fall. Its outline is the derived shore and the derived barrier joined, so it carries their uncertainty, on the order of a kilometre. It stops at the bay head 1.2 km north-north-west of Hisarlik: south of that the 10 m contour bounds floodplain, not water. Troy overlooks a wetland, a lagoon and a distant sea, not a deep-water bay.",
+      "note": "The shallow lagoon of about 1200 BC: the water left between the prograding delta front and the sandy barrier after the Late Bronze Age sea-level fall. Its outline is the derived shore and the derived barrier joined, so it carries their uncertainty, on the order of a kilometre. It is closed at both ends by ground rather than by the bar. It stops at the bay head 1.2 km north-north-west of Hisarlik: south of that the 10 m contour bounds floodplain, not water. And it stops on the east at 26.243 E, where the bar lands at the foot of the Rhoiteion slope: east of there the 5 m and 10 m contours run within 45 m of each other up a gradient of 10 to 19 per cent, so there is no water between them to hold, and what closes the lagoon on that side is the Rhoiteion slope. The reconstructed shore does run on east from that point to the Rhoiteion spur -- but that stretch of it faces the open sea, not this lagoon. Troy overlooks a wetland, a lagoon and a distant sea, not a deep-water bay.",
       "sources": [
         {
           "cite": "Kayan, Ilhan. \"Geoarchaeological Interpretations of the 'Troian Bay.'\" In Troia and the Troad: Scientific Approaches, edited by Gunther A. Wagner, Ernst Pernicka, and Hans-Peter Uerpmann. Berlin: Springer, 2003."
@@ -2590,13 +2590,6 @@
         [39.9747, 26.2288],
         [39.9889, 26.2388],
         [39.9992, 26.2418],
-        [40.0038, 26.2862],
-        [40.0133, 26.2992],
-        [40.0169, 26.3205],
-        [40.0174, 26.321],
-        [40.0134, 26.2989],
-        [40.004, 26.2862],
-        [40.0008, 26.2714],
         [40.0002, 26.2426],
         [39.9965, 26.2343],
         [40.0013, 26.2309],
@@ -2666,7 +2659,7 @@
       "kind": "coast",
       "style": "approximate",
       "default": "on",
-      "note": "The landward shore of the Late Bronze Age embayment, DERIVED rather than drawn: the ground between Hisarlik and the modern coast is infilled delta sediment, so the old shore is closely approximated by a low contour of the modern DEM, where the flat fill meets ground that was already land. This line is the 10 m contour of SRTM (AWS Terrain Tiles), generalised to about 130 m, run from the Sigeion ridge round the bay head to the Rhoiteion spur. The 10 m level was chosen against the published constraints, not picked for looks: it passes 1.2 km north of Hisarlik, where Kraft, Rapp, Kayan and Luce put the bay head; the 8 m contour puts it 2.8 km north and the 12 m only 0.7 km, both outside the published range. The DEM independently confirms the other two: the modern shore is 5 to 6 km north of the site, and the delta surface falls from about 11 m a kilometre north of Hisarlik to 5 m at the coast. Approximate to on the order of a kilometre, and a reconstruction, not a survey: no published figure was traced. Two editorial cuts, both stated rather than hidden: the bay's western shore is taken from the 20 m contour of the Sigeion ridge, whose east foot is what the water stood against; and the line stops at the bay head, because south of there the 10 m contour bounds aggraded floodplain rather than open water. The contour does run on south -- that is the landward limit of the whole alluvial fill, not of the Late Bronze Age bay.",
+      "note": "The landward shore of the Late Bronze Age embayment, DERIVED rather than drawn: the ground between Hisarlik and the modern coast is infilled delta sediment, so the old shore is closely approximated by a low contour of the modern DEM, where the flat fill meets ground that was already land. This line is the 10 m contour of SRTM (AWS Terrain Tiles), generalised to about 130 m, run from the Sigeion ridge round the bay head to the Rhoiteion spur. The 10 m level was chosen against the published constraints, not picked for looks: it passes 1.2 km north of Hisarlik, where Kraft, Rapp, Kayan and Luce put the bay head; the 8 m contour puts it 2.8 km north and the 12 m only 0.7 km, both outside the published range. The DEM independently confirms the other two: the modern shore is 5 to 6 km north of the site, and the delta surface falls from about 11 m a kilometre north of Hisarlik to 5 m at the coast. Approximate to on the order of a kilometre, and a reconstruction, not a survey: no published figure was traced. Two editorial cuts, both stated rather than hidden: the bay's western shore is taken from the 20 m contour of the Sigeion ridge, whose east foot is what the water stood against; and the line stops at the bay head, because south of there the 10 m contour bounds aggraded floodplain rather than open water. The contour does run on south -- that is the landward limit of the whole alluvial fill, not of the Late Bronze Age bay. One thing this line is not along its whole length is lagoon shore: east of 26.243 E, where the sandy barrier lands at the foot of the Rhoiteion slope, it faces the open sea instead.",
       "sources": [
         {
           "cite": "Kraft, John C., Ilhan Kayan, and Oguz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209, no. 4458 (1980): 776-82."
@@ -2716,7 +2709,7 @@
       "kind": "coast",
       "style": "barrier",
       "default": "on",
-      "note": "The wide sandy barrier that a relative sea-level fall of 2 to 2.5 m left across the mouth of the bay in the Late Bronze Age, closing the remaining water into a shallow lagoon. Derived on the same principle as the shore: the 5 m contour of the modern DEM, which runs east across the delta at about 40.00 N between the Sigeion and Rhoiteion ridges -- low ground standing proud of the fill in exactly the position Kayan's barrier occupies, and seaward of the derived shore everywhere along its length. Approximate to on the order of a kilometre. Not traced from any figure. DRAWN AS GROUND, not as a line (2026-07-29): a bar is a body of land with water on both sides, and a stroke down its axis read as a river running out across the lagoon. The stored geometry is unchanged -- it is still the 5 m contour, and it locates the bar's AXIS only. Nothing surveys how wide the bar was, so the band's width is a symbol and its edges are blurred rather than drawn, the same way the wetland's margin is. West of Kum Kale the bar runs just inside today's shoreline and the ground merges with it, which is correct: the strip between this line and the modern coast is delta the Scamander has laid down since, and by the Late Bronze Age it did not exist. East of Kum Kale the bar lies outboard of the modern coast, under water now.",
+      "note": "The wide sandy barrier that a relative sea-level fall of 2 to 2.5 m left across the mouth of the bay in the Late Bronze Age, closing the remaining water into a shallow lagoon. Derived on the same principle as the shore: the 5 m contour of the modern DEM, running east across the delta at about 40.00 N from the east foot of the Sigeion ridge -- low ground standing proud of the fill, in the position Kayan's barrier occupies, and seaward of the derived shore along its whole length. Approximate to on the order of a kilometre. Not traced from any figure. WHERE IT ENDS IS PART OF THE CLAIM. A bar is ground with water on both sides, and the water behind this one is the lagoon, whose landward margin is the 10 m contour the shore is cut from -- so the bar runs as far as those two contours stay apart and no further. Across the delta they open to between 380 m and 1.95 km. At 26.243 E, 4.5 km east of the Sigeion foot, they close in one step to 130 m -- nearer than the 275 m both lines are generalised to, so at this sheet's resolution they have stopped being two lines -- and east of there they run 20 to 45 m apart with the ground between them rising at 10 to 19 per cent, against 0.4 to 5 per cent on the delta. That is the coastal slope at the foot of the Rhoiteion ridge, not a bar with a lagoon behind it. So the bar lands at 26.243 E and stops, and the eastern end of the lagoon is closed by the Rhoiteion slope itself rather than by the barrier. The earlier cut of this layer ran on to the Rhoiteion spur and drew four more vertices of that slope as sand bar. DRAWN AS GROUND, not as a line: a bar is a body of land with water on both sides, and a stroke down its axis read as a river running out across the lagoon. The stored geometry locates the bar's AXIS only. Nothing surveys how wide the bar was, so the band's width is a symbol and its edges are blurred rather than drawn, the same way the wetland's margin is. AND IT IS ALL ON LAND TODAY, which the note this replaces denied: measured against the same modern water mask this sheet's coastline is traced from, every one of its eleven vertices is dry ground, between 30 and 600 m inside the modern shoreline. The strip between this line and the modern coast is delta the Karamenderes and the Dumrek have laid down since, and in the Late Bronze Age it did not exist.",
       "sources": [
         {
           "cite": "Kayan, Ilhan. \"Landscape Development and Changing Environment of Troia (North-western Anatolia).\" In Landscapes and Landforms of Turkey, edited by Catherine Kuzucuoglu, Attila Ciner, and Nizamettin Kazanci, 277-91. Cham: Springer, 2019."
@@ -2738,11 +2731,7 @@
           [39.9994, 26.223],
           [40.0013, 26.2309],
           [39.9965, 26.2343],
-          [40.0002, 26.2426],
-          [40.0008, 26.2714],
-          [40.004, 26.2862],
-          [40.0134, 26.2989],
-          [40.0174, 26.321]
+          [40.0002, 26.2426]
         ]
       ]
     },

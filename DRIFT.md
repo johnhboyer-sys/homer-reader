@@ -925,3 +925,19 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   different claims and neither may impersonate the other.
 - `shared/__tests__/plate.test.ts` — 27 new tests; 12 of them confirmed failing
   against the pre-fix renderer.
+
+## 2026-07-29 — the sandy bar ends where it stops being a bar
+
+- `shared/lib/plate.ts` — **`runsWhere` cuts at the crossings, not at the
+  vertices.** It sampled the water test at a river's own vertices, so any dry
+  reach shorter than the gap between two of them opened no run and was drawn by
+  nobody: measured, 141 m of the Karamenderes crossing the sandy bar between
+  the Bronze Age lagoon and the modern sea, inside one 255 m segment.
+  `WaterBody` now carries its boundary `edges`, a new `segmentCrossings` solves
+  the segment/segment intersection in closed form, and each piece is decided by
+  its MIDPOINT — a point that cannot sit on a boundary. `crossingPoint` and
+  `CROSSING_BISECTIONS` deleted with it: an exact crossing needs no bisection.
+- `shared/__tests__/plate.test.ts` — the three river-reach tests re-stated for
+  the corrected drawing (the Scamander is four reaches, not three), plus one
+  new property test — every stretch of a stored river lands in some paint slot
+  — confirmed failing against the pre-fix renderer.

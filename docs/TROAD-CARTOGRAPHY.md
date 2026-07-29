@@ -789,6 +789,59 @@ shadow.
 > Bronze Age lagoon switched off, and the fix is to test the crossings rather
 > than the vertices.
 
+> **SIXTH PASS, 2026-07-29 — the bar now ends where it stops being a bar, and
+> the fix was a measurement, not a longitude.** The defect the fifth pass
+> recorded is closed. Two things in that entry needed correcting once the
+> ground was measured rather than described, and both are worth keeping.
+>
+> **1. The cut is derived, not chosen.** The fifth pass put the break "east of
+> about 26.27 E", which was an eyeball. The test that decides it is what a bar
+> IS — ground with water on both sides — and the water behind this one is the
+> lagoon, whose landward margin is the 10 m contour the shore is cut from. So
+> the bar runs exactly as far as the 5 m and 10 m contours stay apart. Measured
+> along the 5 m line: **381 m to 1,950 m of lagoon behind it across the delta,
+> 123 m at 26.243 E, and 7 to 44 m for the six kilometres beyond**, with the
+> ground between them rising at **10 to 19 per cent against 0.4 to 5 per cent**
+> on the delta. Nothing falls between 123 m and 504 m, so the threshold sits in
+> daylight; the number used is **SHORE_TOL, the 275 m generalisation both lines
+> already carry**, on the argument that below their own generalisation they are
+> not two lines at all. The vertex where that first happens is kept, because a
+> baymouth bar has to land somewhere, and it is the bar's landfall on the
+> Rhoiteion slope. Eleven vertices instead of fifteen; **eleven of eleven on
+> land today**, 30 to 600 m inside the modern shoreline, which is what the
+> note now says, where the note it replaces said the eastern stretch lay
+> "outboard of the modern coast, under water now."
+>
+> The lagoon was recut with it — it is `landward + barrier[::-1]`, so it would
+> otherwise have outrun the bar — and the thing that recut exposed is a better
+> statement than the one it replaced: the seven kilometres of "lagoon" east of
+> the landfall were **a thread of water 20 to 45 m wide running up a 19 per
+> cent slope**, and the lagoon's own label had drifted out of the water onto
+> the land because its bounding box included that thread. The eastern end of
+> the lagoon is closed by the Rhoiteion slope, not by a bar. The reconstructed
+> shore is unchanged and still runs on east to the spur — that stretch of it
+> faces the open sea, and its note now says so. Measured after: **9.38 km of
+> modern coastline used to lie under the barrier's 11 px band; 2.97 km does
+> now**, all of it the Kum Kale stretch where the 5 m contour genuinely runs
+> just inside today's shore. Calibration untouched: the drawn shore still
+> passes 1,241 m north of Hisarlık.
+>
+> **2. The renderer limit was NOT caused by the re-cut, and that matters.**
+> The fifth pass said the two water bodies overlapped there before the cut so
+> the gap could not arise. Measured against the pre-cut sheet, **141 m of the
+> Karamenderes was already drawn by nobody** — inside a single 255 m segment,
+> where the river crosses the bar between the lagoon and the modern sea. It was
+> invisible rather than absent. The fix is the one the fifth pass named: cut at
+> the crossings, not at the vertices. `runsWhere` now takes the boundary rings
+> and splits every segment at its exact intersections — two line segments meet
+> in closed form, so there is nothing to bisect toward — and decides each piece
+> by its **midpoint**, a point that cannot sit on a boundary where a
+> containment test is ill-defined. **The general rule, which is the fourth time
+> this file has arrived at it: a predicate sampled at a polyline's vertices
+> cannot see anything narrower than its vertex spacing.** Nothing in the data
+> announces the failure; only the drawing does, and only when the two bodies
+> stop overlapping.
+
 > One measured caution for whoever cuts the next contoured sheet. **A contour is only
 > as smooth as the ground under it.** Simplifying a traced line at 685 m while the grid
 > still carries 124 m wiggles does not generalise it — Douglas-Peucker keeps the
