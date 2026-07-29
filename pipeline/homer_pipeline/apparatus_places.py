@@ -50,9 +50,16 @@ LAYER_KIND_ENUM = {
     # mounds on the plain, and hachuring them as relief said the wrong thing.
     "tumulus",
 }
-# Region/band fills, resolved through a closed whitelist in shared/lib/plate.ts.
-# Kept here so the two implementations of this schema cannot drift apart again.
-REGION_FILL_ENUM = {"tint", "sea"}
+# Terrain fills, resolved through a closed whitelist in shared/lib/plate.ts
+# (REGION_FILL_TOKENS). Kept here so the two implementations of this schema
+# cannot drift apart again -- and they HAD drifted: the renderer and
+# docs/APPARATUS-SCHEMAS.md gained lagoon/land/marsh/plain on 2026-07-28 (the
+# ground + fill land/water contract) while this set still read {tint, sea},
+# so a Troad plate declaring its landmasses `fill: "land"` was rejected here
+# and drawn there.
+REGION_FILL_ENUM = {"tint", "sea", "lagoon", "land", "marsh", "plain"}
+# What the bare sheet is under every layer, per the same contract.
+GROUND_ENUM = {"land", "sea"}
 STOCHASTIC_STYLES = {"stipple", "hachure"}
 
 # Layer fields that carry coordinate geometry. "rings" nests one level deeper
@@ -265,6 +272,12 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
     kind = doc.get("kind")
     if "kind" in doc and (not isinstance(kind, str) or kind not in PLATE_KIND_ENUM):
         problems.append(f"{label}: kind must be one of {sorted(PLATE_KIND_ENUM)}, got {kind!r}")
+
+    ground = doc.get("ground")
+    if "ground" in doc and (not isinstance(ground, str) or ground not in GROUND_ENUM):
+        problems.append(
+            f"{label}: ground must be one of {sorted(GROUND_ENUM)}, got {ground!r}"
+        )
 
     # Required keys depend on the kind, because the two kinds are different
     # things wearing one schema. A geographic plate is drawn by projecting

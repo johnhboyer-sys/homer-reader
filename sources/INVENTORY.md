@@ -48,6 +48,28 @@ are eng3/eng4 (verified via __cts__.xml). Attribute Perseus on the About page.
   See `sources/naturalearth/README.md` for full provenance + the derivation
   pipeline (`scripts/prep-naturalearth-coastline.py`).
 
+## copernicus-dem/ — coastlines and islands of the two Troad plates (attribution licence)
+
+- trojan-plain-coastline.json, trojan-plain-sea.json, troad-coastline.json —
+  contoured from the **Water Body Mask** of the Copernicus DEM GLO-30 (30 m),
+  fetched 2026-07-28 from the AWS Open Data registry. Licence: free worldwide
+  use, reproduction, modification and distribution **conditional on the
+  attribution** "© DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH
+  2014–2018 provided under COPERNICUS by the European Union and ESA" —
+  **not** share-alike. See `sources/copernicus-dem/README.md` for full
+  provenance and the derivation (`scripts/prep-troad-basemap.py`).
+
+## openstreetmap/ — river courses of the two Troad plates (⚠ ODbL 1.0)
+
+- trojan-plain-rivers.json, troad-rivers.json — Scamander, Simoeis, Granicus,
+  Aesepus, Satnioeis, from OSM `waterway` ways via Overpass, 2026-07-28.
+  **ODbL 1.0: attribution required, and share-alike applies to derivative
+  databases — which these files and the plates' river layers are.** No
+  public-domain substitute exists (measured: Natural Earth 1:10m has no
+  watercourse inside the Troad sheet). Accepting the obligation is John's
+  call; `sources/openstreetmap/README.md` states it in full and gives the
+  alternative.
+
 ## Still to vendor (later phases)
 
 - Autenrieth, A Homeric Dictionary (Eng. tr. 1880s, PD) — no clean structured

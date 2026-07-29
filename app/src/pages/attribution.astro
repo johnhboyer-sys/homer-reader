@@ -327,9 +327,10 @@ const jsonLd = {
     <p>
       The larger illustrated panels on the Maps page (the Trojan Plain, and
       the Shield of Achilles) are <strong>original drawings made for this
-      project</strong> — an SVG renderer drawing its own line work from
-      authored geometry, not a scan, trace, or redrawing of any published
-      map or figure.
+      project</strong> — an SVG renderer drawing its own line work over
+      surveyed geometry, not a scan, trace, or redrawing of any published
+      map or figure. The coastlines, islands and rivers come from the open
+      datasets credited below; the reconstructions drawn over them are ours.
     </p>
     <p>
       Where a plate's geometry encodes a scholarly claim — the Bronze Age
@@ -368,9 +369,24 @@ const jsonLd = {
       <em>Geochemistry</em> 80 (2020).
     </blockquote>
     <p>
-      The plates' modern coastline layer is drawn from
-      <a href="https://www.naturalearthdata.com/">Natural Earth</a>
-      (public domain), the same source as the scene-panel coastline above.
+      The plates' <strong>coastlines and islands</strong> are contoured from
+      the water-body mask of the
+      <a href="https://copernicus-dem-30m.s3.amazonaws.com/">Copernicus DEM
+      GLO-30</a>, a 30&nbsp;m global elevation model:
+      <em>© DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018
+      provided under COPERNICUS by the European Union and ESA; all rights
+      reserved.</em>
+    </p>
+    <p>
+      The plates' <strong>river courses</strong> — Scamander, Simoeis,
+      Granicus, Aesepus, Satnioeis — are taken from
+      <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap
+      contributors</a>, licensed
+      <a href="https://opendatacommons.org/licenses/odbl/1-0/">ODbL 1.0</a>.
+      The river geometry in the plate data files is a derivative database
+      under that licence and is offered under the same terms.
+    </p>
+    <p>
       Place coordinates follow <a href="https://pleiades.stoa.org/">Pleiades</a>,
       licensed
       <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
