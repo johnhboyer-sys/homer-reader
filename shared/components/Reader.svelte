@@ -848,7 +848,14 @@
       iliadPlateLoadState = 'unavailable';
     }
   }
-  $: if (mounted && work === 'iliad' && scenes.length && iliadPlateLoadState === 'idle'
+  // Chart Room plate path disabled pending research-first rebuild (John,
+  // 2026-07-29) — see docs/TROY-MAPS-HANDOFF-2.md §1. Flip this back to
+  // `true` to restore the plate path once that work lands. Declared here
+  // (rather than by useIliadPlate below, where it's also read) so the
+  // fetch-gating reactive right below never even loads the plate JSON
+  // while the flag is off.
+  const CHART_ROOM_PLATE_ENABLED = false;
+  $: if (CHART_ROOM_PLATE_ENABLED && mounted && work === 'iliad' && scenes.length && iliadPlateLoadState === 'idle'
     && (reading || sceneSheetOpen || (chartRoomOpen && !scenePanelMobile))) ensureIliadPlate();
 
   // Every distinct, LOCATED place named anywhere in this book's scenes
@@ -871,7 +878,9 @@
   // dictionary hit, no journey-leg cover) keeps showing no map whatsoever,
   // the same honest behavior currentPlateMap already has (never invent an
   // "it's probably Troy" fallback — CLAUDE.md apparatus honesty).
-  $: useIliadPlate = work === 'iliad' && iliadPlateLoadState === 'ready' && !!iliadPlate && !!currentPlateResolution;
+  // CHART_ROOM_PLATE_ENABLED (declared above, by ensureIliadPlate) keeps
+  // this false regardless of load state while the plate path is disabled.
+  $: useIliadPlate = CHART_ROOM_PLATE_ENABLED && work === 'iliad' && iliadPlateLoadState === 'ready' && !!iliadPlate && !!currentPlateResolution;
 
   // The base plate itself — geometry + every book-wide pin — rendered ONCE
   // per book: this reactive statement's only dependencies (iliadPlate,

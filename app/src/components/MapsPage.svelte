@@ -89,8 +89,6 @@
     { id: 'ships', label: 'Ships (Catalogue)' },
     { id: 'troad', label: 'Troad' },
     { id: 'plain', label: 'Trojan Plain' },
-    { id: 'citadel', label: 'Citadel' },
-    { id: 'shield', label: 'Shield of Achilles' },
     { id: 'wanderings', label: 'Wanderings' },
     { id: 'greece', label: 'Greece' },
     { id: 'journeys', label: 'Journeys' },
@@ -247,9 +245,6 @@
   // Troad/Trojan-plain PlatePanel calls below.
   const troadRegionalPlatePlaces: PlatePlace[] = placesForMap(places, 'troad').map(toPlatePlace);
   const troadPlainPlatePlaces: PlatePlace[] = placesForMap(places, 'troad-plain').map(toPlatePlace);
-  // The citadel plate is schematic and draws its own, smaller set of places
-  // (tagged `troy-citadel` in places.json).
-  const citadelPlatePlaces: PlatePlace[] = placesForMap(places, 'troy-citadel').map(toPlatePlace);
   const wanderingsPlaces = splitByCoords(placesForMap(places, 'wanderings'));
   const greecePlaces = splitByCoords(placesForMap(places, 'greece'));
   const wanderingsRouteStations = wanderingsRoute(places);
@@ -656,21 +651,6 @@
         Simoeis rivers.
       </p>
       <PlatePanel plateId="trojan-plain" places={troadPlainPlatePlaces} title="The Trojan Plain" />
-    </div>
-  {:else if activeTab === 'citadel'}
-    <div id="mp-panel-citadel" role="tabpanel" aria-labelledby="mp-tab-citadel" tabindex="0" class="mp-panel">
-      <p class="mp-route-note">
-        The walled city of Troy itself, on its rise above the plain.
-      </p>
-      <PlatePanel plateId="troy-citadel" places={citadelPlatePlaces} title="The Troy Citadel" />
-    </div>
-  {:else if activeTab === 'shield'}
-    <div id="mp-panel-shield" role="tabpanel" aria-labelledby="mp-tab-shield" tabindex="0" class="mp-panel">
-      <p class="mp-route-note">
-        The shield the god Hephaestus forges for Achilles in Book 18 — a
-        schematic diagram of its ten engraved bands, not a real map.
-      </p>
-      <PlatePanel plateId="shield-of-achilles" title="The Shield of Achilles" />
     </div>
   {:else if activeTab === 'wanderings'}
     <div id="mp-panel-wanderings" role="tabpanel" aria-labelledby="mp-tab-wanderings" tabindex="0" class="mp-panel">

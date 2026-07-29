@@ -802,7 +802,99 @@ describe('Reader.svelte — Chart Room scene map gates on ANY resolved place (20
   });
 });
 
-describe('Reader.svelte — Chart Room per-scene plates (Iliad only, 2026-07-28)', () => {
+describe('Reader.svelte — Chart Room plate path stays off while CHART_ROOM_PLATE_ENABLED is false (John, 2026-07-29)', () => {
+  // Reader.svelte's CHART_ROOM_PLATE_ENABLED const gates BOTH the
+  // ensureIliadPlate() fetch reactive and useIliadPlate — while it's false
+  // (current state, pending the research-first rebuild — see
+  // docs/TROY-MAPS-HANDOFF-2.md §1), an Iliad scene must fall back to the
+  // same renderSceneMap path Odyssey scenes use, even when fetchPlate WOULD
+  // resolve a ready plate. Ready-plate mock cribbed from the skipped
+  // describe block below (:812-); the point of this test is that mock is
+  // never touched while the flag is off.
+  const trojanPlainFixture = {
+    id: 'trojan-plain',
+    title: 'The Trojan Plain',
+    kind: 'geographic',
+    status: 'draft',
+    bbox: [0, 0, 10, 10],
+    size: [400, 300],
+    layers: [],
+  };
+
+  const bookData: RawBookData = {
+    book: 1,
+    scenes: [
+      {
+        summary: 'A scene naming a located place.',
+        startLine: 1,
+        endLine: 3,
+        places: ['has-coords-place'],
+      },
+    ],
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: [1, 2, 3].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+        english: {
+          text: 'Scene text.',
+          notes: [],
+          markers: [],
+          bekker: [
+            { n: 1, offset: 0, real: true },
+            { n: 2, offset: 6, real: true },
+          ],
+        },
+      },
+    ],
+  };
+
+  afterEach(() => {
+    vi.mocked(fetchPlaces).mockReset();
+    vi.mocked(fetchJourneys).mockReset();
+    vi.mocked(fetchCoastline).mockReset();
+    vi.mocked(fetchPlate).mockReset();
+    vi.mocked(fetchPlaces).mockResolvedValue({ places: [] });
+    vi.mocked(fetchJourneys).mockResolvedValue({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValue(null);
+    vi.mocked(fetchPlate).mockResolvedValue(null);
+  });
+
+  it('chart-room plate path stays off while CHART_ROOM_PLATE_ENABLED is false (falls back to scene map even with a ready plate)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [{ id: 'has-coords-place', name: 'Has Coords Place', coords: [3, 3], certainty: 'certain' }],
+    });
+    vi.mocked(fetchJourneys).mockResolvedValueOnce({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValueOnce({ bbox: [0, 0, 1, 1], rings: [] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData } });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    // The fallback renderSceneMap path renders — same as an Odyssey scene
+    // would — proving the plate path never took over.
+    await waitFor(() => expect(container.querySelector('.reading-plate-map svg')).toBeTruthy());
+    expect(container.querySelector('.chart-plate')).toBeNull();
+
+    // The gate is on the FETCH itself, not just the render: ensureIliadPlate
+    // must never even run while the flag is off (Reader.svelte's fetch-
+    // gating reactive), so fetchPlate is never called despite a ready plate
+    // waiting in the mock.
+    expect(fetchPlate).not.toHaveBeenCalled();
+  });
+});
+
+// Chart Room plate path disabled (John, 2026-07-29 — see Reader.svelte's
+// CHART_ROOM_PLATE_ENABLED and docs/TROY-MAPS-HANDOFF-2.md §1): useIliadPlate
+// is forced false and the fetch-gating reactive above it never even calls
+// ensureIliadPlate, so `.chart-plate` never renders and every Iliad scene
+// falls to the `currentPlateMap`/nomap fallback exactly like Odyssey — the
+// fetch/camera/dimming/no-rerender/reduced-motion internals this block's 6
+// tests exercise are all unreachable while the flag is off (see the active
+// guard test above, which pins that behavior). Skipped rather than rewritten
+// so the coverage comes back verbatim when the flag flips to true.
+describe.skip('Reader.svelte — Chart Room per-scene plates (Iliad only, 2026-07-28)', () => {
   // A minimal, geographically valid plate.ts fixture (shared/lib/plate.ts's
   // parsePlate/renderPlate) standing in for apparatus/plates/trojan-plain.json
   // — no layers needed (this suite is about the CAMERA/FOCUS/DIMMING wiring
