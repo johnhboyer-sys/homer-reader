@@ -810,9 +810,13 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   plato-reader's same-day fix (`.popup-backdrop` deleted from both files, incl.
   the print-media selector; `svelte:window pointerdown` close ignoring
   `.word-sidebar`/`.tok`), `focus({preventScroll:true})` on mount + destroy.
-  Homer keeps its `docked` guards (pointerdown no-op and no focus restore when
-  docked) — plato has no docked variant. Plato's reactive lookup guard was NOT
-  ported: homer already has it, in `LexiconPanel.svelte` (`lookupSeq`).
+  Homer keeps its `docked` guards (outside-close no-op and no focus restore
+  when docked) — plato has no docked variant. Plato's reactive lookup guard was
+  NOT ported: homer already has it, in `LexiconPanel.svelte` (`lookupSeq`).
+  Same-day Sol adversarial-review follow-up (also syncing with plato/classical):
+  outside-close moved from `pointerdown` to `click` (tap-not-pan), and
+  `aria-modal` + the Tab focus trap dropped — the anchored popup is genuinely
+  non-modal now that outside clicks land and tokens swap in place.
 - `shared/__tests__/word-popup.test.ts` / `components.test.ts` — regression +
   invariant coverage for the above (outside-close matrix, preventScroll on
   mount/restore, docked invariants, Reader-level second-token swap).

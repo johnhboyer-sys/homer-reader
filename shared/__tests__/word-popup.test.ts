@@ -160,14 +160,17 @@ describe('WordPopup.svelte — docked vs modal presentation', () => {
     expect(container.querySelector('.popup-backdrop')).toBeNull();
   });
 
-  it('renders a modal dialog with no backdrop when NOT docked', async () => {
+  it('renders a NON-modal dialog with no backdrop when NOT docked', async () => {
     lookupWordMock.mockResolvedValue(analysis);
     const { container } = renderPopup({ docked: false });
 
     const sidebar = container.querySelector('.word-sidebar');
     expect(sidebar).not.toHaveClass('docked');
     expect(sidebar).toHaveAttribute('role', 'dialog');
-    expect(sidebar).toHaveAttribute('aria-modal', 'true');
+    // Honest non-modality (Sol adversarial-review fix, 2026-07-29): outside
+    // clicks land on their targets and other tokens swap the panel, so the
+    // dialog must NOT claim aria-modal.
+    expect(sidebar).not.toHaveAttribute('aria-modal');
     // No blocking backdrop — see "pointerdown outside" describe block below
     // for the 2026-07-29 fix (a full-page backdrop swallowed clicks meant for
     // another Greek token, forcing close-then-reopen with two page snaps).
@@ -179,7 +182,7 @@ describe('WordPopup.svelte — docked vs modal presentation', () => {
 // open, clicking another Greek word must swap the analysis in place — the old
 // full-page `.popup-backdrop` swallowed that click and forced close/reopen.
 // Closing must also not snap the page's scroll position.
-describe('WordPopup.svelte — pointerdown outside (replaces the backdrop)', () => {
+describe('WordPopup.svelte — click outside (replaces the backdrop)', () => {
   const analysis = {
     analyses: [{ lemma: 'mh=nis', gloss: 'wrath', parse: 'noun', lsj: ['mh=nis'], cunliffe: [] }],
     lsj: [{ key: 'mh=nis', head: 'μῆνις', html: '<p>wrath</p>' }],
@@ -193,7 +196,7 @@ describe('WordPopup.svelte — pointerdown outside (replaces the backdrop)', () 
     expect(document.querySelector('.popup-backdrop')).toBeNull();
   });
 
-  it('closes on pointerdown outside, but not on the panel or on a Greek token', async () => {
+  it('closes on click outside, but not on the panel or on a Greek token', async () => {
     lookupWordMock.mockResolvedValue(analysis);
     const tok = document.createElement('span');
     tok.className = 'tok';
@@ -204,26 +207,61 @@ describe('WordPopup.svelte — pointerdown outside (replaces the backdrop)', () 
     await screen.findByText('wrath');
 
     // On a Greek token: the token's own click handler swaps the word — no close.
-    tok.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    tok.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await tick();
     expect(onClose).not.toHaveBeenCalled();
 
     // Inside the panel: no close.
-    document.querySelector('.word-sidebar')!.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    document.querySelector('.word-sidebar')!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await tick();
     expect(onClose).not.toHaveBeenCalled();
 
-    // Anywhere else: close.
-    document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    // A press alone must NOT close — a touch pan or a text-selection drag
+    // starts with one, and dismissing mid-gesture fought the Reader's
+    // open-time scroll pin (Sol adversarial-review fix, 2026-07-29).
+    document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    await tick();
+    expect(onClose).not.toHaveBeenCalled();
+
+    // A right-button press must NOT close either.
+    document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 2 }));
+    await tick();
+    expect(onClose).not.toHaveBeenCalled();
+
+    // A completed click anywhere else: close.
+    document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await tick();
     expect(onClose).toHaveBeenCalledTimes(1);
 
     tok.remove();
   });
 
+  it('is non-modal: no Tab focus trap on the dialog', async () => {
+    lookupWordMock.mockResolvedValue(analysis);
+    renderPopup();
+    await screen.findByText('wrath');
+
+    // The old trap intercepted Tab only at the focus BOUNDARIES (last
+    // focusable forward, first backward) — so exercise exactly that spot:
+    // focus the last focusable, press Tab, and require the event to pass
+    // through unhindered instead of being wrapped back to the first.
+    const dialog = document.querySelector('.word-sidebar')!;
+    const els = dialog.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    expect(els.length).toBeGreaterThan(0);
+    const last = els[els.length - 1];
+    last.focus();
+    const ev = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    last.dispatchEvent(ev);
+    expect(ev.defaultPrevented).toBe(false);
+    // And the trap must not have rewired focus back into the panel.
+    expect(document.activeElement).toBe(last);
+  });
+
   // Preserved-behavior coverage: docked never had outside-close, and the
   // 2026-07-29 pointerdown handler must not introduce it by accident.
-  it('invariant: does not close on outside pointerdown when docked (rail stays persistent)', async () => {
+  it('invariant: does not close on outside click when docked (rail stays persistent)', async () => {
     lookupWordMock.mockResolvedValue(analysis);
     const onClose = vi.fn();
     renderPopup({ onClose, docked: true });
@@ -231,7 +269,7 @@ describe('WordPopup.svelte — pointerdown outside (replaces the backdrop)', () 
     // as the gloss and inside the LSJ html — target the unique gloss element.
     await screen.findByText('wrath', { selector: '.gloss' });
 
-    document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+    document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     await tick();
     expect(onClose).not.toHaveBeenCalled();
   });
