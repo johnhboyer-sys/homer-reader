@@ -586,6 +586,7 @@
           "location": "before Troy",
           "places": [
             "wall-of-troy",
+            "oak-of-zeus",
             "scamandrian-plain"
           ],
           "dayNumber": 26
@@ -616,7 +617,8 @@
           "summary": "Apollo unveils himself to Achilles, rebuking his pursuit of a god; Achilles turns back toward Troy.",
           "location": "before Troy",
           "places": [
-            "troy"
+            "troy",
+            "scaean-gate"
           ],
           "dayNumber": 26
         },
@@ -681,7 +683,8 @@
           "location": "Olympus / before Troy",
           "places": [
             "olympus",
-            "wall-of-troy"
+            "wall-of-troy",
+            "dardanian-gates"
           ],
           "dayNumber": 26
         },
@@ -1267,7 +1270,8 @@
           "summary": "The household sleeps, but Hermes wakes Priam before dawn to slip unseen from the camp.",
           "location": "Achaean camp",
           "places": [
-            "hut-of-achilles"
+            "hut-of-achilles",
+            "ford-of-the-scamander"
           ],
           "dayNumber": null
         },
@@ -1279,7 +1283,6 @@
           "summary": "At dawn Priam nears Troy with Hector's body; Cassandra spies them and raises the city's lament.",
           "location": "Troy",
           "places": [
-            "ford-of-the-scamander",
             "pergamos"
           ],
           "dayNumber": 41

@@ -489,7 +489,8 @@
      "location": "Troy",
      "dayNumber": 22,
      "places": [
-      "scaean-gate"
+      "troy",
+      "tomb-of-aesyetes"
      ]
     },
     {
@@ -665,7 +666,8 @@
      "location": "the Trojan plain",
      "dayNumber": 22,
      "places": [
-      "scamandrian-plain"
+      "scamandrian-plain",
+      "scaean-gate"
      ]
     },
     {
@@ -951,7 +953,8 @@
      "location": "the Trojan plain",
      "dayNumber": 22,
      "places": [
-      "scamandrian-plain"
+      "scamandrian-plain",
+      "pergamos"
      ]
     }
    ],
@@ -1055,7 +1058,8 @@
      "location": "Olympus",
      "dayNumber": 22,
      "places": [
-      "olympus"
+      "olympus",
+      "scamandrian-plain"
      ]
     },
     {
@@ -1067,7 +1071,8 @@
      "location": "the Trojan plain",
      "dayNumber": 22,
      "places": [
-      "scamandrian-plain"
+      "scamandrian-plain",
+      "pergamos"
      ]
     },
     {
@@ -1127,7 +1132,8 @@
      "location": "the Trojan plain",
      "dayNumber": 22,
      "places": [
-      "scamandrian-plain"
+      "scamandrian-plain",
+      "oak-of-zeus"
      ]
     },
     {
@@ -1163,7 +1169,8 @@
      "location": "the Trojan plain",
      "dayNumber": 22,
      "places": [
-      "scamandrian-plain"
+      "scamandrian-plain",
+      "scamander-simoeis-confluence"
      ]
     },
     {
@@ -1291,9 +1298,9 @@
      "location": "Troy",
      "dayNumber": 22,
      "places": [
-      "pergamos",
       "scaean-gate",
-      "oak-of-zeus"
+      "oak-of-zeus",
+      "pergamos"
      ]
     },
     {
@@ -1494,7 +1501,8 @@
      "location": "between the armies",
      "dayNumber": 22,
      "places": [
-      "scamandrian-plain"
+      "scamandrian-plain",
+      "oak-of-zeus"
      ]
     },
     {
@@ -1503,10 +1511,10 @@
       122
      ],
      "summary": "Menelaus volunteers in shame at the Achaeans' silence; Agamemnon restrains him as unequal to Hector.",
-     "location": "Achaean assembly",
+     "location": "between the armies",
      "dayNumber": 22,
      "places": [
-      "achaean-assembly-place"
+      "scamandrian-plain"
      ]
     },
     {
@@ -1515,10 +1523,10 @@
       160
      ],
      "summary": "Nestor rebukes the Achaeans' fear, recalling his youthful duel with Ereuthalion.",
-     "location": "Achaean assembly",
+     "location": "between the armies",
      "dayNumber": 22,
      "places": [
-      "achaean-assembly-place"
+      "scamandrian-plain"
      ]
     },
     {
@@ -1527,10 +1535,10 @@
       183
      ],
      "summary": "Nine champions volunteer; lots are cast in Agamemnon's helmet to choose Hector's opponent.",
-     "location": "Achaean assembly",
+     "location": "between the armies",
      "dayNumber": 22,
      "places": [
-      "achaean-assembly-place"
+      "scamandrian-plain"
      ]
     },
     {
@@ -1539,10 +1547,10 @@
       205
      ],
      "summary": "The lot falls to Ajax; the Achaeans pray for his victory or an even match.",
-     "location": "Achaean assembly",
+     "location": "between the armies",
      "dayNumber": 22,
      "places": [
-      "achaean-assembly-place"
+      "scamandrian-plain"
      ]
     },
     {
@@ -2434,10 +2442,10 @@
      "location": "Trojan plain",
      "dayNumber": 25,
      "places": [
-      "scaean-gate",
-      "oak-of-zeus",
       "tomb-of-ilos",
-      "fig-tree"
+      "fig-tree",
+      "scaean-gate",
+      "oak-of-zeus"
      ]
     },
     {
@@ -2449,7 +2457,8 @@
      "location": "Trojan plain",
      "dayNumber": 25,
      "places": [
-      "scamandrian-plain"
+      "scamandrian-plain",
+      "ida"
      ]
     },
     {
@@ -2860,11 +2869,7 @@
      ],
      "summary": "Zeus turns his gaze from Troy toward the distant Thracians, Mysians, and Abii, trusting the gods stay clear.",
      "location": "Mount Ida",
-     "dayNumber": 25,
-     "places": [
-      "gargaron",
-      "ida"
-     ]
+     "dayNumber": 25
     },
     {
      "lines": [
@@ -3704,7 +3709,8 @@
      "location": "the Trojan wall",
      "dayNumber": 25,
      "places": [
-      "wall-of-troy"
+      "wall-of-troy",
+      "scaean-gate"
      ]
     },
     {
@@ -4766,6 +4772,7 @@
      "location": "before Troy",
      "places": [
       "wall-of-troy",
+      "oak-of-zeus",
       "scamandrian-plain"
      ],
      "dayNumber": 26
@@ -4797,7 +4804,8 @@
      "summary": "Apollo unveils himself to Achilles, rebuking his pursuit of a god; Achilles turns back toward Troy.",
      "location": "before Troy",
      "places": [
-      "troy"
+      "troy",
+      "scaean-gate"
      ],
      "dayNumber": 26
     },
@@ -4862,7 +4870,8 @@
      "location": "Olympus / before Troy",
      "places": [
       "olympus",
-      "wall-of-troy"
+      "wall-of-troy",
+      "dardanian-gates"
      ],
      "dayNumber": 26
     },
@@ -5450,7 +5459,8 @@
      "summary": "The household sleeps, but Hermes wakes Priam before dawn to slip unseen from the camp.",
      "location": "Achaean camp",
      "places": [
-      "hut-of-achilles"
+      "hut-of-achilles",
+      "ford-of-the-scamander"
      ],
      "dayNumber": null
     },
@@ -5462,7 +5472,6 @@
      "summary": "At dawn Priam nears Troy with Hector's body; Cassandra spies them and raises the city's lament.",
      "location": "Troy",
      "places": [
-      "ford-of-the-scamander",
       "pergamos"
      ],
      "dayNumber": 41

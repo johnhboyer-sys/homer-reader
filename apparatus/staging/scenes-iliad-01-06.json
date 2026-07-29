@@ -488,7 +488,8 @@
           "location": "Troy",
           "dayNumber": 22,
           "places": [
-            "scaean-gate"
+            "troy",
+            "tomb-of-aesyetes"
           ]
         },
         {
@@ -663,7 +664,8 @@
           "location": "the Trojan plain",
           "dayNumber": 22,
           "places": [
-            "scamandrian-plain"
+            "scamandrian-plain",
+            "scaean-gate"
           ]
         },
         {
@@ -948,7 +950,8 @@
           "location": "the Trojan plain",
           "dayNumber": 22,
           "places": [
-            "scamandrian-plain"
+            "scamandrian-plain",
+            "pergamos"
           ]
         }
       ]
@@ -1051,7 +1054,8 @@
           "location": "Olympus",
           "dayNumber": 22,
           "places": [
-            "olympus"
+            "olympus",
+            "scamandrian-plain"
           ]
         },
         {
@@ -1063,7 +1067,8 @@
           "location": "the Trojan plain",
           "dayNumber": 22,
           "places": [
-            "scamandrian-plain"
+            "scamandrian-plain",
+            "pergamos"
           ]
         },
         {
@@ -1123,7 +1128,8 @@
           "location": "the Trojan plain",
           "dayNumber": 22,
           "places": [
-            "scamandrian-plain"
+            "scamandrian-plain",
+            "oak-of-zeus"
           ]
         },
         {
@@ -1159,7 +1165,8 @@
           "location": "the Trojan plain",
           "dayNumber": 22,
           "places": [
-            "scamandrian-plain"
+            "scamandrian-plain",
+            "scamander-simoeis-confluence"
           ]
         },
         {
@@ -1286,9 +1293,9 @@
           "location": "Troy",
           "dayNumber": 22,
           "places": [
-            "pergamos",
             "scaean-gate",
-            "oak-of-zeus"
+            "oak-of-zeus",
+            "pergamos"
           ]
         },
         {

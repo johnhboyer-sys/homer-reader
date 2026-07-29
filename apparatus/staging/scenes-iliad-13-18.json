@@ -27,11 +27,7 @@
           ],
           "summary": "Zeus turns his gaze from Troy toward the distant Thracians, Mysians, and Abii, trusting the gods stay clear.",
           "location": "Mount Ida",
-          "dayNumber": 25,
-          "places": [
-            "gargaron",
-            "ida"
-          ]
+          "dayNumber": 25
         },
         {
           "lines": [
@@ -868,7 +864,8 @@
           "location": "the Trojan wall",
           "dayNumber": 25,
           "places": [
-            "wall-of-troy"
+            "wall-of-troy",
+            "scaean-gate"
           ]
         },
         {
