@@ -867,7 +867,7 @@
       "name": "Imbros",
       "greek": "Ἴμβρος",
       "certainty": "certain",
-      "pleiades": "https://pleiades.stoa.org/places/501438",
+      "pleiades": "https://pleiades.stoa.org/places/501439",
       "coords": [
         40.17,
         25.85
@@ -1161,7 +1161,7 @@
       "name": "Pedasus (Troad)",
       "greek": "Πήδασος",
       "certainty": "speculative",
-      "tradition": "On the Satnioeis, following Strabo 13.1.51; site unrecovered",
+      "tradition": "On the Satnioeis, following Strabo 13.1.50; site unrecovered",
       "kind": "settlement",
       "maps": [
         "troad"
@@ -1195,7 +1195,7 @@
       "note": "'Steep Pedasus on the Satnioeis' (21.87), sacked alongside Lyrnessus (20.92). The river is the anchor Homer and Strabo agree on, not a site — see 'satnioeis' — so no coordinate is given here; the site itself is unrecovered. Not to be confused with two Homeric namesakes: the Messenian Pedasos of Agamemnon's offer (9.152, 9.294), or Achilles' trace-horse Pedasos (16.152, 16.467).",
       "sources": [
         {
-          "cite": "Strabo. Geography 13.1.51.",
+          "cite": "Strabo. Geography 13.1.50.",
           "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
         }
       ]
@@ -1445,8 +1445,8 @@
       "pleiades": "https://pleiades.stoa.org/places/511461",
       "tradition": "Aesepus valley, near modern Sarıköy, Strabo 13.1.9",
       "coords": [
-        40.35,
-        27.15
+        40.2036,
+        27.5961
       ],
       "kind": "settlement",
       "maps": [
@@ -1492,7 +1492,7 @@
       "name": "The washing-troughs",
       "greek": "πλυνοὶ εὐρέες",
       "certainty": "speculative",
-      "tradition": "No hot-and-cold spring pair matching Homer's description survives near Hisarlık; a 2020 hydrochemical survey (Wolkersdorfer et al., Geochemistry 80) found no basis for one, so no coordinate is given for a built feature standing beside a spring pair that cannot itself be located",
+      "tradition": "No hot-and-cold spring pair matching Homer's description survives near Hisarlık; a 2020 hydrochemical survey (Wolkersdorfer et al., CATENA 200) found no basis for one, so no coordinate is given for a built feature standing beside a spring pair that cannot itself be located",
       "kind": "spring",
       "maps": [
         "troad-plain"
@@ -1510,8 +1510,8 @@
       "note": "'Broad washing-troughs, fine ones of stone, where the wives and fair daughters of the Trojans used to wash their shining clothes, in the time of peace before the sons of the Achaeans came' (22.153-156) — a built, man-made feature standing beside the two springs (see 'two-springs-of-scamander'), not the springs themselves. One of the poem's clearest images of the lost civilian world before the war. No coordinate is given: the 2020 hydrochemical survey found no hot-and-cold spring pair answering to Homer's description anywhere near Hisarlık, so a point for troughs beside an unlocatable spring pair would be invented.",
       "sources": [
         {
-          "cite": "Wolkersdorfer, Christian, et al. \"Hydrochemical investigations to locate Homer's hot and cold springs of Troia (Troy)/Turkey.\" Geochemistry 80 (2020).",
-          "url": "https://www.sciencedirect.com/science/article/abs/pii/S0341816220306202"
+          "cite": "Wolkersdorfer, Christian, et al. \"Hydrochemical investigations to locate Homer's hot and cold springs of Troia (Troy)/Turkey.\" CATENA 200 (2021): 105070.",
+          "url": "https://doi.org/10.1016/j.catena.2020.105070"
         }
       ]
     },
@@ -7937,7 +7937,7 @@
       "name": "The two fair-flowing springs of the Scamander",
       "greek": "κρουνὼ καλλιρρόω",
       "certainty": "speculative",
-      "tradition": "Hunted for since the 1st century BC; no candidate pair survives, and the 2020 hydrochemical survey (Wolkersdorfer et al., Geochemistry 80) closes the case",
+      "tradition": "Hunted for since the 1st century BC; no candidate pair survives, and the 2020 hydrochemical survey (Wolkersdorfer et al., CATENA 200) closes the case",
       "kind": "spring",
       "maps": [
         "troad-plain"
@@ -7963,8 +7963,12 @@
       "note": "One spring runs warm, steam rising 'as from a burning fire'; the other is cold as hail or snow even in high summer (22.149-152), on the wagon-road Achilles and Hector run past in the chase. The natural springs themselves — distinct from the man-made stone troughs beside them (see 'washing-troughs') — are what this record maps. The 2020 survey measured the local candidates and found their temperatures nearly constant year-round — they only feel warm in winter and cold in summer — and proposes that Homer describes one spring, perceived two ways across the seasons.",
       "sources": [
         {
-          "cite": "Wolkersdorfer, Christian, et al. \"Hydrochemical investigations to locate Homer's hot and cold springs of Troia (Troy)/Turkey.\" Geochemistry 80 (2020).",
-          "url": "https://www.sciencedirect.com/science/article/abs/pii/S0341816220306202"
+          "cite": "Wolkersdorfer, Christian, et al. \"Hydrochemical investigations to locate Homer's hot and cold springs of Troia (Troy)/Turkey.\" CATENA 200 (2021): 105070.",
+          "url": "https://doi.org/10.1016/j.catena.2020.105070"
+        },
+        {
+          "cite": "Wolkersdorfer, Christian, et al. \"Erratum to 'Hydrochemical investigations to locate Homer's hot and cold springs of Troia (Troy)/Turkey' [Catena 200 (2021) 105070].\" CATENA 202 (2021): 105295.",
+          "url": "https://doi.org/10.1016/j.catena.2021.105295"
         },
         {
           "cite": "Livius.org, s.v. \"Scamander.\"",
@@ -8621,13 +8625,21 @@
       "id": "uvecik-tepe",
       "name": "Üvecik Tepe",
       "certainty": "certain",
+      "coords": [
+        39.9003,
+        26.1992
+      ],
       "kind": "tomb",
       "maps": [
         "troad-plain"
       ],
       "mentions": [],
-      "note": "South of Troy on the road to Alexandria Troas — and not a heroic tomb at all. It is the tomb of Festus, a favourite of Caracalla, himself a great admirer of Achilles; built c. 214 AD, it became the largest tumulus in the Troad. A clean illustration of how the Homeric landscape kept being manufactured under Rome. No verified coordinate found.",
+      "note": "South of Troy on the road to Alexandria Troas — and not a heroic tomb at all. It is the tomb of Festus, a favourite of Caracalla, himself a great admirer of Achilles; built c. 214 AD, it became the largest tumulus in the Troad. A clean illustration of how the Homeric landscape kept being manufactured under Rome.",
       "sources": [
+        {
+          "cite": "Pleiades. \"Uvecik Tepe.\" Place 897256486.",
+          "url": "https://pleiades.stoa.org/places/897256486"
+        },
         {
           "cite": "Livius.org, s.v. \"Troy 5.\"",
           "url": "https://www.livius.org/articles/place/troy/troy-5/"
@@ -8691,6 +8703,10 @@
       "id": "adramyttion",
       "name": "Adramyttium",
       "certainty": "certain",
+      "coords": [
+        39.4986,
+        26.9361
+      ],
       "kind": "settlement",
       "maps": [
         "troad"
