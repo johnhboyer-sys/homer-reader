@@ -1,6 +1,42 @@
-# Troy & Troad maps — complete, 2026-07-28
+# Troy & Troad maps — 2026-07-28 (overnight basemap rebuild)
 
-Shipped as PR #16. This file is the map of the work; the PR body is the summary.
+PR #16, **still DRAFT**. The geographic plates were rebuilt overnight after John
+saw them and said "it's just shapes. no geography at all." He was right, and the
+cause was architectural: the basemap had been hand-authored as coordinate
+arrays. It now comes from real measured data.
+
+## The basemap, and what we owe for it
+
+| layer | source | licence |
+|---|---|---|
+| Coastlines, islands | Copernicus DEM GLO-30 water-body mask, 30 m, marching squares | attribution only, **not** share-alike |
+| Relief contours | SRTM via AWS Terrain Tiles (terrarium PNG) | "SRTM data courtesy of the U.S. Geological Survey" — one line, nothing else |
+| Rivers | OpenStreetMap via Overpass | **ODbL — needs John's decision, below** |
+
+Vertex counts: plain 30 to ~1,900; Troad 140 to ~4,200.
+
+**The Bronze Age shore is DERIVED, not drawn.** The ground between Troy and the
+sea is the infilled bay, so the ancient shore is the modern DEM's **10 m
+contour**, chosen by a decisive test: it passes 1.2 km N of Hisarlik, where 8 m
+gives 2.8 km and 12 m gives 0.7 km, both outside the published range. It
+independently satisfies the modern coast at 5-6 km N, and the 5 m contour across
+the bay mouth gives the sandy barrier the 2-2.5 m sea-level fall implies. One
+constraint could NOT be confirmed and the layer note says so: the fill runs
+~7.5 km S inside the sheet against a published 10 km, partly off-frame.
+
+Terrain sanity-checked before anything was drawn: Kaz Dagi 1757.4 m measured
+against 1774 published; Hisarlik 36.1 m against c.38; Sigeion crest 36.0 against
+Cook's "thirty to forty"; plain 13-18 m; sea flat 0.
+
+## DECISION WAITING FOR JOHN
+
+**ODbL rivers.** Publishing OSM-derived geometry makes that file a derivative
+database, obliging us to offer it under ODbL. It reaches `sources/openstreetmap/`
+and the river `path`s in the two plates — NOT the site code, the text, or the
+gazetteer. The alternative is dropping the five rivers; the lane verified there
+is no third option (Natural Earth carries no watercourse inside the Troad at
+all, and the ancient-world dataset has no named river here). See
+`sources/openstreetmap/README.md`.
 
 All three "NEXT" steps below are DONE. Kept for the file map, the
 deliberate limitations, and what still needs John.
