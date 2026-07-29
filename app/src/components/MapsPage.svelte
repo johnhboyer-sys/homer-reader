@@ -208,8 +208,7 @@
     return splitByCoords(placesForMap(places, tag)).unlocated;
   }
   const troadPlaces = splitByCoords(placesForMap(places, 'troad'));
-  // The Troad plates (trojan-plain.json today; a Troy citadel plate once one
-  // exists) overlay the same Troad-tagged places as the Tiles view, trimmed
+  // The Troad plates overlay Troad-tagged places as the Tiles view, trimmed
   // to the fields plate.ts's PlatePlace actually reads -- renderPlate does
   // its own honesty resolution (coords in/out of the plate's frame), so this
   // is deliberately the full tagged set, not pre-split by coords.
@@ -233,13 +232,23 @@
       positionBasis: raw.positionBasis,
     };
   }
-  const troadPlatePlaces: PlatePlace[] = placesForMap(places, 'troad').map(toPlatePlace);
+  // Two distinct scales, two distinct place sets (2026-07-28 fix): the
+  // regional Troad sheet (theatre-wide -- Ida, the islands, the Hellespont
+  // towns, the towns Achilles sacked) and the Trojan-plain sheet (Troy and
+  // its furniture, the camp, the promontories closing the bay, the
+  // plain-scale rivers and landmarks) are tagged separately in
+  // places.json's `maps` arrays (`troad` vs `troad-plain`) precisely so a
+  // sheet only carries what reads at its own scale -- Troy and Scamander
+  // legitimately carry both tags (Ida and the Hellespont read at both scales
+  // too, but fall outside the Trojan-plain plate's small frame regardless,
+  // so they stay troad-only -- see the places.json edit's own note).
+  // Feeding one 44-place `troad` set to both plates crammed regional-scale
+  // and plain-scale labels onto the same small Hisarlık-area frame; see the
+  // Troad/Trojan-plain PlatePanel calls below.
+  const troadRegionalPlatePlaces: PlatePlace[] = placesForMap(places, 'troad').map(toPlatePlace);
+  const troadPlainPlatePlaces: PlatePlace[] = placesForMap(places, 'troad-plain').map(toPlatePlace);
   // The citadel plate is schematic and draws its own, smaller set of places
-  // (tagged `troy-citadel` in places.json) -- passing the full `troad` set
-  // here was the second half of the 2026-07-28 bug: the citadel's Homeric
-  // features (Scaean Gate, Pergamos, the wall...) carry `troad`/`troad-plain`
-  // but not `troad`'s geographic coords, and weren't tagged for this plate at
-  // all until now.
+  // (tagged `troy-citadel` in places.json).
   const citadelPlatePlaces: PlatePlace[] = placesForMap(places, 'troy-citadel').map(toPlatePlace);
   const wanderingsPlaces = splitByCoords(placesForMap(places, 'wanderings'));
   const greecePlaces = splitByCoords(placesForMap(places, 'greece'));
@@ -622,7 +631,7 @@
       </div>
 
       {#if troadView === 'drawn'}
-        <PlatePanel plateId="trojan-plain" places={troadPlatePlaces} title="The Trojan Plain" />
+        <PlatePanel plateId="troad" places={troadRegionalPlatePlaces} title="The Troad" />
       {:else}
         <LandmarkMap
           {base}
@@ -646,7 +655,7 @@
         most of the Iliad's fighting happens, crossed by the Scamander and
         Simoeis rivers.
       </p>
-      <PlatePanel plateId="trojan-plain" places={troadPlatePlaces} title="The Trojan Plain" />
+      <PlatePanel plateId="trojan-plain" places={troadPlainPlatePlaces} title="The Trojan Plain" />
     </div>
   {:else if activeTab === 'citadel'}
     <div id="mp-panel-citadel" role="tabpanel" aria-labelledby="mp-tab-citadel" tabindex="0" class="mp-panel">

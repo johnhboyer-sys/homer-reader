@@ -742,7 +742,6 @@
       ],
       "kind": "river",
       "maps": [
-        "troad",
         "troad-plain"
       ],
       "mentions": [
@@ -1314,7 +1313,6 @@
       "tradition": "A tumulus on the Trojan plain, discussed among the tombs of the plain since Strabo (13.1.36-37); no ancient or modern survey, including Leaf (1912), matches a surviving mound to it",
       "kind": "hill",
       "maps": [
-        "troad",
         "troad-plain"
       ],
       "mentions": [
@@ -1350,7 +1348,6 @@
       ],
       "kind": "hill",
       "maps": [
-        "troad",
         "troad-plain"
       ],
       "mentions": [
@@ -1387,7 +1384,6 @@
       "tradition": "The Thymbrios–Scamander confluence, following Strabo 13.1.35; ancient sources disagree on whether Thymbra was a polis, a topos, or simply a pedion",
       "kind": "plain",
       "maps": [
-        "troad",
         "troad-plain"
       ],
       "mentions": [
@@ -1499,7 +1495,6 @@
       "tradition": "No hot-and-cold spring pair matching Homer's description survives near Hisarlık; a 2020 hydrochemical survey (Wolkersdorfer et al., Geochemistry 80) found no basis for one, so no coordinate is given for a built feature standing beside a spring pair that cannot itself be located",
       "kind": "spring",
       "maps": [
-        "troad",
         "troad-plain"
       ],
       "mentions": [
@@ -8167,8 +8162,7 @@
       "certainty": "certain",
       "kind": "harbour",
       "maps": [
-        "troad-plain",
-        "troad"
+        "troad-plain"
       ],
       "mentions": [],
       "note": "Not named by Homer, but the single most important thing to get right on the map. A marine embayment once reached roughly 10 km south of Hisarlık at maximum Holocene transgression (Kraft, Kayan, and Erol 1980); the ria intruded some 17 km up the lower Karamenderes valley by 7000–6000 BP (Kayan); progradation had carried the coast west of Troia by c. 4000 BP; and a 2–2.5 m Late Bronze Age sea-level fall left a shallow lagoon behind a wide sandy barrier, with swamp over much of the delta. The modern coast lies about 6 km north of the site.",
@@ -8533,7 +8527,7 @@
       ],
       "kind": "tomb",
       "maps": [
-        "troad"
+        "troad-plain"
       ],
       "mentions": [],
       "note": "The most impressive mound on the Trojan plain, close to ancient Sigeion. By the 4th century BC it was regarded as Achilles' tomb, and Arrian reports Alexander sacrificing to Achilles on landing near Sigeion. The coordinate is from Vici.org and has not been checked against a published survey plan.",
@@ -8562,7 +8556,7 @@
       ],
       "kind": "tomb",
       "maps": [
-        "troad"
+        "troad-plain"
       ],
       "mentions": [],
       "note": "A Hellenistic tumulus roughly 2 km SSW of Yeniköy at the north end of Beşik Bay, associated with the Achilleion sanctuary — a rival 'tomb of Achilles' to Kesik Tepe, which is itself the evidence that these are competing cult claims, not burials.",
@@ -8587,7 +8581,7 @@
       ],
       "kind": "tomb",
       "maps": [
-        "troad"
+        "troad-plain"
       ],
       "mentions": [],
       "note": "A mound near the Hellespont entrance that Schliemann took for the tomb of Achilles. Rose and Körpe's survey work shows it is in fact a Neolithic-to-Bronze-Age settlement mound, not a tumulus at all — one of several such reclassifications in the Troad.",
@@ -8609,7 +8603,7 @@
       "tradition": "Ancient hero cult of Ajax at Rhoiteion; Pliny, Natural History 5.125; Strabo 13.1.30",
       "kind": "tomb",
       "maps": [
-        "troad"
+        "troad-plain"
       ],
       "mentions": [],
       "note": "A conical mound on a spur of the Rhoiteion promontory, west of İntepe village; Pliny says a town was built beside Ajax's tomb, and the tumulus was rebuilt and vaulted in the 2nd century AD. Coordinate left null: the Vici.org record places it at Kumkale, roughly 8 km west of İntepe, almost certainly in error. Anchor conceptually to Rhoiteion (40.010, 26.303) until a published survey point is found.",
@@ -8629,7 +8623,7 @@
       "certainty": "certain",
       "kind": "tomb",
       "maps": [
-        "troad"
+        "troad-plain"
       ],
       "mentions": [],
       "note": "South of Troy on the road to Alexandria Troas — and not a heroic tomb at all. It is the tomb of Festus, a favourite of Caracalla, himself a great admirer of Achilles; built c. 214 AD, it became the largest tumulus in the Troad. A clean illustration of how the Homeric landscape kept being manufactured under Rome. No verified coordinate found.",
@@ -8654,7 +8648,7 @@
       ],
       "kind": "promontory",
       "maps": [
-        "troad"
+        "troad-plain"
       ],
       "mentions": [],
       "note": "Not named in the Iliad. A later Greek settlement at the mouth of the Scamander, forming the northwest corner of the Troad and the traditional western headland of the Achaean beach.",
@@ -8679,7 +8673,7 @@
       ],
       "kind": "promontory",
       "maps": [
-        "troad"
+        "troad-plain"
       ],
       "mentions": [],
       "note": "Not named in the Iliad. An Archaic-to-Hellenistic city on the Baba Kale spur of Çakal Tepe, its Aeantion promontory serving as a harbour in Roman times — the traditional eastern headland of the Achaean beach, paired with Sigeion.",
@@ -8720,7 +8714,7 @@
       "certainty": "certain",
       "kind": "harbour",
       "maps": [
-        "troad"
+        "troad-plain"
       ],
       "mentions": [],
       "note": "A bay on the Aegean coast southwest of Troy, facing Tenedos. Korfmann's 1982-87 excavation found a cemetery of roughly 100 graves here in which Mycenaean and Mycenaeanising LH IIIB fine ware runs to about a third of the wares — against under 1% at Troia VI/VII itself — making it the strongest archaeological candidate for a working Late Bronze Age port. Coordinate left null; anchor from Beşik Tepe at the bay's north end, 39.9171 / 26.1591.",
@@ -8740,7 +8734,7 @@
       "tradition": "Eberhard Zangger's port hypothesis, with Jablonka and Kayan on the associated water-engineering system — contested, sedimentation ambiguous and diagnostic artefacts absent",
       "kind": "harbour",
       "maps": [
-        "troad"
+        "troad-plain"
       ],
       "mentions": [],
       "note": "An artificial cut through the 40 m Yeniköy ridge west of the plain, and a former marsh, drained in the 1960s, shown by drilling to have been a marine basin in the Early Bronze Age. Zangger proposed a rectangular basin roughly 330 x 230 m functioning as a naval station or trans-shipment point; the case is thin and should be presented as a hypothesis only.",
@@ -9032,7 +9026,6 @@
       "tradition": "Strabo 13.1.35",
       "kind": "river",
       "maps": [
-        "troad",
         "troad-plain"
       ],
       "mentions": [],
