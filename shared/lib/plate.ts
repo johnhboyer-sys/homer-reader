@@ -2859,6 +2859,38 @@ function renderLayer(
       return undefined;
   }
 
+  // Every case above stamps `data-feature-id` on its own auxiliary elements
+  // too (`<id>-body`, `<id>-band`, `<id>-waterline-N`, ...) — a coast's
+  // reconstructed-shore halo and a relief's filled body are drawn as
+  // distinct features so tests and CSS can target them individually. But a
+  // consumer asking "does this element belong to LAYER X" (PlatePanel's
+  // layer-visibility toggle) cannot recover that from the feature id alone:
+  // several plates' layer ids collide by prefix (`relief-ida` is a prefix of
+  // `relief-ida-north-spurs`; `lower-city` is a prefix of `lower-city-ditch`),
+  // so a startsWith/prefix match would hide unrelated sibling layers. Rather
+  // than have PlatePanel infer the relationship from string shape (and drift
+  // from this module's suffix vocabulary the next time a new aux suffix is
+  // added), stamp the relationship explicitly: every element this layer
+  // emits — auxiliaries included — also gets `data-layer-id`, always the
+  // bare, unsuffixed layer id. `data-feature-id` itself is untouched, both in
+  // value AND in position — appended at the very END of the tag rather than
+  // beside it, so it can't shift the `data-feature-id="…" class="…"`
+  // adjacency several existing tests (and pathsFor's own regex) already rely
+  // on. Every element carrying `data-feature-id` in this module is a
+  // self-closing `<path … />`, so "find the tag, splice before its `/>`" is
+  // exact, not a heuristic. Single injection point: `markup`/`submerged`
+  // above only ever contain THIS layer's own already-built markup, so the
+  // regex can't cross-contaminate another layer's ids.
+  const layerIdAttr = ` data-layer-id="${escapeXml(layer.id)}"`;
+  const withLayerId = (s: string) =>
+    s.replace(/<path\b[^>]*\/>/g, (tag) =>
+      tag.includes('data-feature-id="') ? `${tag.slice(0, -2)}${layerIdAttr}/>` : tag,
+    );
+  markup = withLayerId(markup);
+  if (submerged) {
+    submerged = submerged.map((s) => ({ ...s, markup: withLayerId(s.markup) }));
+  }
+
   if (allPixelPoints.length === 0) return undefined;
   const bbox = bboxOf(allPixelPoints);
   const isArea = AREA_LAYER_KINDS.has(layer.kind);

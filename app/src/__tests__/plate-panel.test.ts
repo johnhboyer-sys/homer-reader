@@ -228,6 +228,109 @@ describe('PlatePanel', () => {
     expect(container.querySelector('.pp-unlocated')).toBeNull();
   });
 
+  it('toggling a layer that emits auxiliaries hides ALL of its elements (real trojan-plain.json: shore-bronze -> shore-bronze-band)', async () => {
+    // shore-bronze is a `coast` layer drawn `style: "approximate"` -- besides
+    // its own `data-feature-id="shore-bronze"` line, plate.ts also emits a
+    // separate `data-feature-id="shore-bronze-band"` element (the reconstructed
+    // shore's blurred halo). Both must carry `data-layer-id="shore-bronze"`
+    // (plate.ts, renderLayer) so the toggle below -- which matches on
+    // data-layer-id, not data-feature-id -- hides both together. Before that
+    // fix, an exact data-feature-id match left the band lit on the sheet
+    // after its own layer's checkbox was switched off.
+    const raw = JSON.parse(
+      readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain.json'), 'utf-8'),
+    );
+    mockFetchPlate.mockResolvedValue(raw);
+
+    const { container, getByRole } = render(PlatePanel, {
+      props: { plateId: 'trojan-plain', title: 'The Trojan Plain' },
+    });
+
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+    const baseEl = container.querySelector('[data-feature-id="shore-bronze"]') as SVGElement;
+    const bandEl = container.querySelector('[data-feature-id="shore-bronze-band"]') as SVGElement;
+    expect(baseEl).toBeTruthy();
+    expect(bandEl).toBeTruthy();
+    expect(baseEl.style.display).not.toBe('none');
+    expect(bandEl.style.display).not.toBe('none');
+
+    const toggle = getByRole('checkbox', { name: 'Show shore bronze' }) as HTMLInputElement;
+    expect(toggle.checked).toBe(true);
+    toggle.click();
+
+    await waitFor(() => expect(baseEl.style.display).toBe('none'));
+    expect(bandEl.style.display).toBe('none');
+  });
+
+  it('toggling relief-ida (real troad.json) does not hide relief-ida-800 / -1200 / -north-spurs -- ids that merely start with "relief-ida"', async () => {
+    // troad.json's own layer ids collide by prefix: "relief-ida" is a prefix
+    // of "relief-ida-north-spurs", "relief-ida-800" and "relief-ida-1200" --
+    // four DISTINCT authored layers, not one layer's auxiliaries. A
+    // startsWith(layer.id) toggle match (the tempting "fix" for the
+    // auxiliary-suffix bug) would wrongly hide all three whenever Ida itself
+    // is switched off; data-layer-id must not.
+    const raw = JSON.parse(readFileSync(path.resolve(process.cwd(), '../apparatus/plates/troad.json'), 'utf-8'));
+    mockFetchPlate.mockResolvedValue(raw);
+
+    const { container, getByRole } = render(PlatePanel, {
+      props: { plateId: 'troad', title: 'The Troad' },
+    });
+
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+    const idaEl = container.querySelector('[data-feature-id="relief-ida"]') as SVGElement;
+    const northSpursEl = container.querySelector('[data-feature-id="relief-ida-north-spurs"]') as SVGElement;
+    const el800 = container.querySelector('[data-feature-id="relief-ida-800"]') as SVGElement;
+    const el1200 = container.querySelector('[data-feature-id="relief-ida-1200"]') as SVGElement;
+    expect(idaEl).toBeTruthy();
+    expect(northSpursEl).toBeTruthy();
+    expect(el800).toBeTruthy();
+    expect(el1200).toBeTruthy();
+
+    const toggle = getByRole('checkbox', { name: 'Show relief ida' }) as HTMLInputElement;
+    expect(toggle.checked).toBe(true);
+    toggle.click();
+
+    await waitFor(() => expect(idaEl.style.display).toBe('none'));
+    expect(northSpursEl.style.display).not.toBe('none');
+    expect(el800.style.display).not.toBe('none');
+    expect(el1200.style.display).not.toBe('none');
+  });
+
+  it('toggling lower-city (real troy-citadel.json geometry) does not hide lower-city-ditch -- the same prefix collision on the citadel sheet', async () => {
+    // The shipped citadel file authors neither `lower-city` nor
+    // `lower-city-ditch` with a `default`, so PlatePanel renders no checkbox
+    // for either as-is -- this overrides ONLY that field (never the ids or
+    // the geometry) so the real "lower-city" / "lower-city-ditch" collision
+    // can be driven through the component's actual toggle path, without
+    // editing apparatus/plates/troy-citadel.json itself (out of this brief's
+    // scope).
+    const raw = JSON.parse(
+      readFileSync(path.resolve(process.cwd(), '../apparatus/plates/troy-citadel.json'), 'utf-8'),
+    );
+    raw.layers = raw.layers.map((l: { id: string }) => (l.id === 'lower-city' ? { ...l, default: 'on' } : l));
+    mockFetchPlate.mockResolvedValue(raw);
+
+    const { container, getByRole } = render(PlatePanel, {
+      props: { plateId: 'troy-citadel', title: 'The Troy Citadel' },
+    });
+
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+    const cityEl = container.querySelector('[data-feature-id="lower-city"]') as SVGElement;
+    const ditchEl = container.querySelector('[data-feature-id="lower-city-ditch"]') as SVGElement;
+    expect(cityEl).toBeTruthy();
+    expect(ditchEl).toBeTruthy();
+
+    const toggle = getByRole('checkbox', { name: 'Show lower city' }) as HTMLInputElement;
+    expect(toggle.checked).toBe(true);
+    toggle.click();
+
+    await waitFor(() => expect(cityEl.style.display).toBe('none'));
+    expect(ditchEl.style.display).not.toBe('none');
+  });
+
   it('degrades gracefully, not a crash or an empty box, when the plate file does not exist yet', async () => {
     mockFetchPlate.mockResolvedValue(null);
 

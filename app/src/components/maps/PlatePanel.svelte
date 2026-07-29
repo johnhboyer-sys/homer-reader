@@ -84,12 +84,26 @@
       const visible = layerVisible[layer.id] !== false;
       // Finding 8 (2026-07-28): a layer id is validator-accepted apparatus
       // data, not a trusted literal -- an id like `x"]` interpolated
-      // straight into a `[data-feature-id="..."]` selector breaks the
+      // straight into a `[data-layer-id="..."]` selector breaks the
       // attribute-value quoting and throws a DOMException. Select every
-      // data-feature-id element and compare the dataset value in JS
-      // instead of building a selector string from the id at all.
-      mapEl.querySelectorAll<SVGElement>('[data-feature-id]').forEach((el) => {
-        if (el.dataset.featureId !== layer.id) return;
+      // data-layer-id element and compare the dataset value in JS instead
+      // of building a selector string from the id at all.
+      //
+      // Match on data-layer-id, NOT data-feature-id (2026-07-29, two lanes'
+      // bug report): several plate.ts registers emit auxiliary elements with
+      // SUFFIXED feature ids for one logical layer -- `<id>-band` (the
+      // reconstructed shore's blurred halo), `<id>-body` (filled coasts),
+      // `<id>-waterline-N`. An exact data-feature-id match missed those, so
+      // toggling the layer off left its auxiliaries on the sheet. A prefix
+      // match would be worse, not better: layer ids collide by prefix on the
+      // real plates (`relief-ida` prefixes `relief-ida-north-spurs` on
+      // troad.json; `lower-city` prefixes `lower-city-ditch` on
+      // troy-citadel.json), so it would hide unrelated sibling layers.
+      // data-layer-id is plate.ts stamping the relationship explicitly on
+      // every element a layer draws (see renderLayer's own comment) --
+      // this component never has to know the renderer's suffix vocabulary.
+      mapEl.querySelectorAll<SVGElement>('[data-layer-id]').forEach((el) => {
+        if (el.dataset.layerId !== layer.id) return;
         el.style.display = visible ? '' : 'none';
       });
     }

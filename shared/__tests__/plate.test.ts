@@ -647,6 +647,64 @@ describe('renderPlate: general smoke', () => {
   });
 });
 
+// ── data-layer-id: the toggle relationship, stated, not inferred (2026-07-29) ──
+// PlatePanel's layer toggle used to match `data-feature-id` exactly, which
+// missed the auxiliary elements several registers draw for one logical layer
+// (a coast's `-body`, its reconstructed shore's `-band`, a barrier's
+// `-waterline-N`) -- switching a layer off left its auxiliaries lit on the
+// sheet. The tempting fix, a `startsWith(layer.id)` prefix match, is a worse
+// bug: real plates' layer ids collide by prefix ("relief-ida" prefixes
+// "relief-ida-north-spurs"/"relief-ida-800"/"relief-ida-1200" on troad.json;
+// "lower-city" prefixes "lower-city-ditch" on troy-citadel.json), and a
+// prefix match would hide those unrelated sibling layers too. renderLayer
+// now stamps every element it draws -- auxiliaries included -- with a second,
+// unsuffixed `data-layer-id` attribute (see its own comment), so a consumer
+// states the relationship instead of inferring it from string shape.
+describe('renderLayer: data-layer-id names the layer that drew each element, auxiliaries included', () => {
+  it('every data-feature-id in a rendered plate also carries data-layer-id, equal to the layer\'s own (unsuffixed) id', () => {
+    const result = renderPlate(testPlate, [troy]);
+    for (const layer of testPlate.layers) {
+      const m = result.svg.match(new RegExp(`data-feature-id="${layer.id}"[^>]*data-layer-id="([^"]*)"`));
+      expect(m, `layer "${layer.id}" has no matching data-layer-id`).not.toBeNull();
+      expect(m![1]).toBe(layer.id);
+    }
+  });
+
+  it('an auxiliary element (a suffixed feature id) carries the PARENT layer id, not its own suffixed id (real trojan-plain.json: shore-bronze / shore-bronze-band)', () => {
+    const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
+    const plate = parsePlate(raw);
+    const svg = renderPlate(plate, []).svg;
+    const baseMatch = svg.match(/data-feature-id="shore-bronze"[^>]*data-layer-id="([^"]*)"/);
+    const bandMatch = svg.match(/data-feature-id="shore-bronze-band"[^>]*data-layer-id="([^"]*)"/);
+    expect(baseMatch![1]).toBe('shore-bronze');
+    expect(bandMatch![1]).toBe('shore-bronze');
+  });
+
+  it('does not let a prefix collision leak: relief-ida-800 / -1200 / -north-spurs each carry their OWN data-layer-id, never "relief-ida" (real troad.json)', () => {
+    const plate = parsePlate(
+      JSON.parse(readFileSync(path.resolve(process.cwd(), '../apparatus/plates/troad.json'), 'utf-8')),
+    );
+    const svg = renderPlate(plate, []).svg;
+    for (const id of ['relief-ida-800', 'relief-ida-1200', 'relief-ida-north-spurs']) {
+      const m = svg.match(new RegExp(`data-feature-id="${id}"[^>]*data-layer-id="([^"]*)"`));
+      expect(m![1]).toBe(id);
+    }
+    const ida = svg.match(/data-feature-id="relief-ida"[^>]*data-layer-id="([^"]*)"/);
+    expect(ida![1]).toBe('relief-ida');
+  });
+
+  it('same collision, the citadel sheet: lower-city-ditch carries its own data-layer-id, never "lower-city" (real troy-citadel.json)', () => {
+    const plate = parsePlate(
+      JSON.parse(readFileSync(path.resolve(process.cwd(), '../apparatus/plates/troy-citadel.json'), 'utf-8')),
+    );
+    const svg = renderPlate(plate, []).svg;
+    const ditch = svg.match(/data-feature-id="lower-city-ditch"[^>]*data-layer-id="([^"]*)"/);
+    const city = svg.match(/data-feature-id="lower-city"[^>]*data-layer-id="([^"]*)"/);
+    expect(ditch![1]).toBe('lower-city-ditch');
+    expect(city![1]).toBe('lower-city');
+  });
+});
+
 describe('renderPlate: schematic plates without bbox (gap 1)', () => {
   it('renders the live trojan-plain-schematic.json (unit-space layers, no bbox), mapping u,v across plate.size', () => {
     const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
@@ -694,7 +752,12 @@ describe('renderPlate: tumulus layer kind (gap 2)', () => {
     const result = renderPlate(plate, []);
     expect(result.svg).toContain('data-feature-id="tomb-of-ilos"');
     expect(result.svg).toContain('plate-layer-tumulus');
-    const match = result.svg.match(/<path data-feature-id="tomb-of-ilos"[^>]*d="([^"]*)"[^>]*\/>/);
+    // A leading space in ` d="` (not bare `d="`) matters now that renderLayer
+    // also stamps a `data-layer-id` attribute at the end of the tag
+    // (2026-07-29): "data-layer-id" itself contains the bare substring
+    // `d="` (inside "...layer-id=\""), which a spaceless pattern's greedy
+    // backtracking would latch onto instead of the real `d` attribute.
+    const match = result.svg.match(/<path data-feature-id="tomb-of-ilos"[^>]*? d="([^"]*)"[^>]*\/>/);
     expect(match).not.toBeNull();
     expect(match![0]).toContain('fill="none"');
     expect(match![0]).toContain('stroke="var(--flaxman-ink)"');
@@ -708,7 +771,8 @@ describe('renderPlate: tumulus layer kind (gap 2)', () => {
       layers: [{ id: 'two-mounds', kind: 'tumulus', path: [[39.9, 26.15], [39.95, 26.3]] }],
     };
     const result = renderPlate(plate, []);
-    const match = result.svg.match(/<path data-feature-id="two-mounds"[^>]*d="([^"]*)"[^>]*\/>/);
+    // See the sibling test above for why the space in ` d="` matters here.
+    const match = result.svg.match(/<path data-feature-id="two-mounds"[^>]*? d="([^"]*)"[^>]*\/>/);
     expect(match![1].split('M').length - 1).toBe(8); // 2 points * 4 subpaths each
   });
 });
@@ -1181,7 +1245,11 @@ describe('renderLayer: relief nesting changes the rendered hachure, not just the
     };
 
     const countStrokes = (svg: string, id: string) => {
-      const match = svg.match(new RegExp(`<path data-feature-id="${id}"[^>]*d="([^"]*)"`));
+      // Non-greedy up to a SPACE-prefixed ` d="` (not bare `d="`) so this
+      // doesn't latch onto the `d="..."` substring embedded in the
+      // `data-layer-id="..."` attribute renderLayer now also stamps on the
+      // tag (see the tumulus tests above for the same fix).
+      const match = svg.match(new RegExp(`<path data-feature-id="${id}"[^>]*? d="([^"]*)"`));
       expect(match).not.toBeNull();
       return (match![1].match(/M/g) ?? []).length;
     };
