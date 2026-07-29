@@ -407,6 +407,21 @@ And from his expanded set, the ones this project adopts:
   moved; symlink `build/` to the main checkout so the corpus is readable
   without a 6-minute rebuild, and treat it as read-only.
 
+- **A map with no map under it** (2026-07-28, John: "it's just shapes. no
+  geography at all. my 5 year old could draw this"): the Troy plates shipped to a
+  PR with hand-authored coordinate arrays — 5-17 vertices per coastline — as
+  their base. **Geography cannot be hand-authored.** Ten times the vertices is a
+  smoother blob, not a coast. Real basemaps come from real vector data: AWMC's
+  ancient-world GeoJSON (ODbL), Natural Earth 10m, OSM, a DEM for relief. The
+  drawing primitives (hachure, waterlines, ship glyphs) are the FINISH, not the
+  foundation; a whole day went into them over nothing.
+  **And every gate was green.** 893 tests, preflight clean, 4705 pages, five
+  plates validating — none of it could see that the output was unreadable.
+  "Verify functionally, not with screenshots" means do not accept a screenshot as
+  proof of CORRECTNESS; it does not mean never look at a visual artefact. **For
+  anything whose output is an image, rendering it and LOOKING is a required gate,
+  and the agent that made it must look before reporting done.**
+
 - **Fork drift** (aristotle→plato: ~20 files diverged in 4 days): this repo is the
   fourth fork. `DRIFT.md` is the mitigation; keep it current.
 - **Renumbering corruption:** sequential renumbering corrupts every citation.
