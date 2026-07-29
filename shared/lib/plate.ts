@@ -129,7 +129,12 @@ const REGION_FILL_OPACITY: Record<RegionFill, number> = {
   sea: 1,
   lagoon: 1,
   land: 1,
-  marsh: 0.9,
+  // Marsh lowered from 0.9 to 0.55 (2026-07-29): with the hypsometric ramp
+  // under it there is real terrain to be a damp overlay ON, and at 0.9 the
+  // delta swamp read as a flat green wedge laid over the plain instead of as
+  // wet ground within it. Its own outline is unchanged and it is still
+  // plainly the greenest thing on the sheet.
+  marsh: 0.55,
   plain: 1,
 };
 
@@ -185,6 +190,16 @@ export interface PlateLayer {
   count?: number;
   /** `region`/`band` only (gap 3): which fixed fill token to use. Default 'tint'. See REGION_FILL_TOKENS. */
   fill?: RegionFill;
+  /**
+   * `relief` only (2026-07-29): the contour level, in metres above sea level,
+   * this body was cut at. Its presence is what switches the layer from the
+   * hand-authored hachure register to the hypsometric one — a band with an
+   * elevation is filled in the ramp step that elevation earns among the
+   * elevations present on the SAME plate (see hypsometricLevels), and edged
+   * with a hairline instead of hachured. A relief layer without it (the
+   * schematic plain, the citadel) draws exactly as it always did.
+   */
+  elevation?: number;
   rings?: PlatePoint[][];
   path?: PlatePoint[];
   polygon?: PlatePoint[];
@@ -411,6 +426,12 @@ function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, numb
   if (l.default !== undefined && l.default !== 'on' && l.default !== 'off') {
     fail(`layer "${l.id}" has an unknown default "${String(l.default)}" (must be "on" or "off")`);
   }
+  // Mirrors apparatus_places.py's validate_plate: an elevation is a real
+  // measurement off the DEM, so a non-numeric or negative one is a data
+  // error, not something to coerce away. (Sea level itself, 0, is legal.)
+  if (l.elevation !== undefined && !(isFiniteNumber(l.elevation) && l.elevation >= 0)) {
+    fail(`layer "${l.id}" has a malformed "elevation" (must be a number >= 0)`);
+  }
 
   const geometryArray = (key: string): PlatePoint[] | undefined => {
     if (l[key] === undefined) return undefined;
@@ -442,6 +463,7 @@ function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, numb
     rows: isFiniteNumber(l.rows) ? l.rows : undefined,
     count: isFiniteNumber(l.count) ? l.count : undefined,
     fill: typeof l.fill === 'string' && l.fill in REGION_FILL_TOKENS ? (l.fill as RegionFill) : undefined,
+    elevation: isFiniteNumber(l.elevation) ? l.elevation : undefined,
     rings,
     path: geometryArray('path'),
     polygon: geometryArray('polygon'),
@@ -802,10 +824,18 @@ export interface StippleOptions {
 // seeded-jittered for a scattered, hand-stippled feel.
 export function stipple(path: PlatePoint[], opts: StippleOptions): string {
   if (path.length < 2) return '';
-  const spacing = opts.spacing ?? 5;
-  const radius = opts.radius ?? 1.1;
-  const bands = opts.bands ?? 3;
-  const bandSpacing = opts.bandSpacing ?? 3.2;
+  // Defaults retuned 2026-07-29 ("looks fine in a thumbnail, but when you
+  // zoom in, it's just big old lines"): a stipple has to be fine enough that
+  // the eye integrates it into TONE at every scale, and the old 1.1 px dots
+  // 5 px apart resolved into a scatter of countable blobs at a 3x zoom —
+  // which this SVG reaches routinely, since PlatePanel renders it at 100%
+  // width. Halved radius, tighter spacing, one more band: about four times
+  // the marks, each under half the area, so the band reads as a soft edge
+  // rather than as beads on a string. Same seeded PRNG, same determinism.
+  const spacing = opts.spacing ?? 2.4;
+  const radius = opts.radius ?? 0.45;
+  const bands = opts.bands ?? 4;
+  const bandSpacing = opts.bandSpacing ?? 1.7;
   const sides: (1 | -1)[] = opts.side === undefined || opts.side === 0 ? [1, -1] : [opts.side];
   const rand = mulberry32(opts.seed);
 
@@ -1596,6 +1626,11 @@ function layerLegendEntry(layer: PlateLayer): LegendEntry | undefined {
     case 'river':
       return { key: 'river', rank: 3, text: 'River', swatch: (x, y) => legendLine(x, y, 'var(--plate-river)', STROKE_WEIGHT.river) };
     case 'relief':
+      // A contoured band is keyed by the graduated elevation scale drawn in
+      // the sheet's own margin (hypsometricKeyMarkup), which says what the
+      // tints MEAN in metres — a one-line legend row saying "high ground"
+      // would say less and crowd out the rows that carry real claims.
+      if (layer.elevation !== undefined) return undefined;
       return {
         key: 'relief',
         rank: 4,
@@ -1714,6 +1749,16 @@ const KM_PER_DEG_LAT = 110.574;
 /** The Attic stade, 600 Greek feet — the unit the sources this apparatus cites actually use. */
 const KM_PER_STADE = 0.185;
 
+// Bar-scale geometry, hoisted out of scaleBarMarkup so the hypsometric key
+// below can sit directly on top of the scale panel without re-deriving (and
+// drifting from) its arithmetic.
+const SCALE_BAR_H = 4;
+const SCALE_FONT = 9.5;
+const SCALE_X0 = LABEL_MARGIN + 6;
+function scalePanelTop(height: number): number {
+  return height - LABEL_MARGIN - 16 - SCALE_BAR_H - SCALE_FONT - 8;
+}
+
 const NICE_KM = [0.25, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500];
 const NICE_STADES = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000];
 
@@ -1758,13 +1803,13 @@ function scaleBarMarkup(viewport: Viewport, width: number, height: number): stri
   if (!(kmPx > 2) || !(stadePx > 2)) return '';
 
   const barW = Math.max(kmPx, stadePx);
-  const x0 = LABEL_MARGIN + 6;
+  const x0 = SCALE_X0;
   const baseY = height - LABEL_MARGIN - 16;
-  const barH = 4;
-  const font = 9.5;
+  const barH = SCALE_BAR_H;
+  const font = SCALE_FONT;
 
   const panel =
-    `<rect class="plate-scale-panel" x="${round1(x0 - 6)}" y="${round1(baseY - barH - font - 8)}" ` +
+    `<rect class="plate-scale-panel" x="${round1(x0 - 6)}" y="${round1(scalePanelTop(height))}" ` +
     `width="${round1(barW + 46)}" height="${round1(barH * 2 + font * 2 + 16)}" rx="2" ` +
     `fill="var(--scene-map-label-halo)" fill-opacity="0.72" stroke="none"/>`;
 
@@ -1798,6 +1843,90 @@ function scaleBarMarkup(viewport: Viewport, width: number, height: number): stri
     text(x0, baseY - barH - 3, '0', 'middle') +
     text(x0 + stadePx + 3, baseY - barH - 3, `${stades} stades`, 'start') +
     text(x0 + kmPx + 3, baseY + barH + font, `${km} km`, 'start') +
+    `</g>`
+  );
+}
+
+// ── Hypsometric key ──────────────────────────────────────────────────────
+// A graduated elevation scale: the sheet's own ground colour, then one cell
+// per contour band up the ramp, with the metres marked under the boundaries.
+// It replaces the single "High ground (hachured)" legend row a contoured
+// plate used to get, which told a reader the colour meant height but never
+// which height. Drawn only where there are at least two bands to graduate
+// between; a hand-authored relief plate carries no elevations and gets
+// nothing here.
+const HYPS_CELL_W = 14;
+const HYPS_CELL_H = 7;
+const HYPS_FONT = 8;
+/** At most this many numerals under the bar, always including the summit. */
+const HYPS_MAX_TICKS = 5;
+
+function hypsometricKeyMarkup(plate: Plate, width: number, height: number): string {
+  const levels = hypsometricLevels(plate);
+  if (levels.length < 2) return '';
+  const barW = (levels.length + 1) * HYPS_CELL_W;
+  const padX = 6;
+  const padY = 5;
+  const titleH = HYPS_FONT + 3;
+  const panelW = barW + padX * 2;
+  const panelH = padY * 2 + titleH + HYPS_CELL_H + 3 + HYPS_FONT;
+  // A key wider than the sheet can spare, or with no room above the bar
+  // scale, is not drawn at all: a truncated scale is worse than none.
+  if (panelW > width * 0.62) return '';
+  const x0 = SCALE_X0 - padX;
+  const bottom = plate.kind === 'geographic' ? scalePanelTop(height) - 6 : height - LABEL_MARGIN - 4;
+  const y0 = bottom - panelH;
+  if (y0 < LABEL_MARGIN) return '';
+
+  const barX = x0 + padX;
+  const barY = y0 + padY + titleH;
+
+  const cells: string[] = [];
+  // Cell 0 is the ground below the lowest contour — on both Troy sheets the
+  // parchment the coast fills, so the ramp visibly starts from the sheet's
+  // own lowland rather than from an unrelated colour.
+  cells.push(
+    `<rect x="${round1(barX)}" y="${round1(barY)}" width="${HYPS_CELL_W}" height="${HYPS_CELL_H}" ` +
+      `fill="var(--scene-map-land)"/>`,
+  );
+  levels.forEach((lv, i) => {
+    cells.push(
+      `<rect x="${round1(barX + (i + 1) * HYPS_CELL_W)}" y="${round1(barY)}" width="${HYPS_CELL_W}" ` +
+        `height="${HYPS_CELL_H}" fill="${reliefRampToken(hypsometricStep(levels, lv))}"/>`,
+    );
+  });
+
+  // Numerals: the first level, the last, and an evenly strided few between —
+  // dropping any that would land within two cells of the summit numeral,
+  // since a four-digit metre figure is wider than one cell and "200" printed
+  // over "320" reads as neither.
+  const stride = Math.max(1, Math.ceil(levels.length / (HYPS_MAX_TICKS - 1)));
+  const last = levels.length - 1;
+  const ticks = [0];
+  for (let i = stride; i < last; i += stride) {
+    if (last - i >= 2) ticks.push(i);
+  }
+  ticks.push(last);
+
+  const label = (x: number, y: number, s: string, anchor: LabelAnchor) =>
+    `<text x="${round1(x)}" y="${round1(y)}" text-anchor="${anchor}" font-family="var(--font-ui)" ` +
+    `font-size="${HYPS_FONT}" fill="var(--text-mid)" paint-order="stroke" ` +
+    `stroke="var(--scene-map-label-halo)" stroke-width="2" stroke-linejoin="round">${escapeXml(s)}</text>`;
+
+  const numerals = ticks.map((i) =>
+    label(barX + (i + 1) * HYPS_CELL_W, barY + HYPS_CELL_H + 3 + HYPS_FONT, String(levels[i]), 'middle'),
+  );
+
+  return (
+    `<g class="plate-hypsometric-key">` +
+    `<rect class="plate-hypsometric-panel" x="${round1(x0)}" y="${round1(y0)}" width="${round1(panelW)}" ` +
+    `height="${round1(panelH)}" rx="2" fill="var(--scene-map-label-halo)" fill-opacity="0.72" stroke="none"/>` +
+    label(barX, y0 + padY + HYPS_FONT, 'Elevation, metres', 'start') +
+    cells.join('') +
+    `<rect x="${round1(barX)}" y="${round1(barY)}" width="${round1(barW)}" height="${HYPS_CELL_H}" ` +
+    `fill="none" stroke="var(--plate-contour)" stroke-width="0.5" stroke-opacity="0.55"/>` +
+    label(barX, barY + HYPS_CELL_H + 3 + HYPS_FONT, '0', 'middle') +
+    numerals.join('') +
     `</g>`
   );
 }
@@ -1840,6 +1969,38 @@ function pathD(points: [number, number][], close: boolean): string {
     .map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${round1(x)},${round1(y)}`)
     .join(' ');
   return close ? `${d} Z` : d;
+}
+
+/**
+ * A closed ring drawn as a smooth curve rather than a polygon: quadratic
+ * Béziers from midpoint to midpoint, each vertex used as the control point.
+ * The classic polyline-rounding construction — C1 continuous, deterministic,
+ * no extra data, and it never leaves the polygon's convex hull.
+ *
+ * Why it exists (2026-07-29, "when you zoom in, it's just big old lines"):
+ * a contour cut from a DEM and simplified with Douglas-Peucker is smooth
+ * ground drawn as a spiky polygon, because DP keeps outliers and drops
+ * everything between them. Smoothing the GEOMETRY instead would multiply the
+ * vertex count in a file a human has to review; rounding it at draw time
+ * costs nothing and is what a contour looks like. Applied only to
+ * hypsometric relief bands — a coastline is a surveyed line and keeps its
+ * vertices, and a schematic plate is not a survey of anything.
+ */
+function smoothClosedPathD(points: [number, number][]): string {
+  const n = points.length;
+  if (n < 4) return pathD(points, true);
+  const mid = (i: number, j: number): [number, number] => [
+    (points[i][0] + points[j][0]) / 2,
+    (points[i][1] + points[j][1]) / 2,
+  ];
+  const start = mid(n - 1, 0);
+  const parts = [`M${round1(start[0])},${round1(start[1])}`];
+  for (let i = 0; i < n; i++) {
+    const [cx, cy] = points[i];
+    const [mx, my] = mid(i, (i + 1) % n);
+    parts.push(`Q${round1(cx)},${round1(cy)} ${round1(mx)},${round1(my)}`);
+  }
+  return `${parts.join(' ')} Z`;
 }
 
 // Resolves a place's plate-pixel position, or undefined if it has no
@@ -1998,6 +2159,60 @@ export interface ReliefHachureParams {
   weight: number;
 }
 
+// ── Hypsometric tinting (2026-07-29) ─────────────────────────────────────
+// The relief above is the HAND-AUTHORED register: one polygon, one flat
+// fill, hachures on top, density read out of how the polygons nest. It is
+// what you draw when you have no elevations. These two Troy sheets are cut
+// from a real 30 m DEM, so they carry `elevation` on every relief layer and
+// take the register a physical map has used since Sydow and Imhof instead:
+// many graduated bands, coloured up a ramp, with a hairline contour between
+// them. Depth comes from the ramp; the hairlines dissolve the polygon edge
+// that a flat fill shows as a hard outline. Hachures survive only for the
+// plates that genuinely have no elevation data (the schematic plain, the
+// citadel), which is exactly the historical division of labour between the
+// two techniques.
+//
+// The ramp is keyed to the SHEET's own elevations, not to an absolute
+// height, because that is what a physical map does: the plain runs 0-300 m
+// and the Troad 0-1750 m, and forcing one absolute scale on both would wash
+// the plain into a single tint. The mapping is by rank among the distinct
+// elevations present, so it is stable under any interval choice and needs no
+// hard-coded table.
+const RELIEF_RAMP_STEPS = 12;
+/** Hairline between bands: structure, not an outline. */
+const RELIEF_CONTOUR_WIDTH = 0.45;
+const RELIEF_CONTOUR_OPACITY = 0.42;
+
+/** Every distinct relief elevation on a plate, ascending. Empty on a plate whose relief is hand-authored. */
+export function hypsometricLevels(plate: Plate): number[] {
+  const seen = new Set<number>();
+  for (const l of plate.layers) {
+    if (l.kind === 'relief' && l.elevation !== undefined) seen.add(l.elevation);
+  }
+  return [...seen].sort((a, b) => a - b);
+}
+
+/**
+ * Which ramp step (1..RELIEF_RAMP_STEPS) an elevation earns on a sheet whose
+ * relief levels are `levels`. The lowest level takes step 1, which is tuned
+ * to sit a hair off the sheet's own ground colour, and the highest takes the
+ * summit tint, so every sheet uses the whole ramp. An elevation not in the
+ * list (nothing produces one today) is placed by how many levels it clears,
+ * rather than dropped.
+ */
+export function hypsometricStep(levels: number[], elevation: number): number {
+  if (levels.length === 0) return RELIEF_RAMP_STEPS;
+  if (levels.length === 1) return RELIEF_RAMP_STEPS;
+  const exact = levels.indexOf(elevation);
+  const rank = exact >= 0 ? exact : Math.max(0, levels.filter((l) => l <= elevation).length - 1);
+  return 1 + Math.round(((RELIEF_RAMP_STEPS - 1) * rank) / (levels.length - 1));
+}
+
+function reliefRampToken(step: number): string {
+  const clamped = Math.min(RELIEF_RAMP_STEPS, Math.max(1, Math.round(step)));
+  return `var(--plate-relief-${clamped})`;
+}
+
 // Computes {spacing, weight} for ONE relief layer's hachure from the
 // nesting/area of every relief layer on the SAME plate (siblings only —
 // region/band layers aren't contour bands and don't participate). Exported
@@ -2104,6 +2319,29 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): Rende
       break;
     }
     case 'relief': {
+      if (layer.elevation !== undefined) {
+        // Hypsometric register. A band carries either one `polygon` (a named
+        // landform — Ida, the Sigeion ridge) or `rings`, several disjoint
+        // bodies at the same contour level sharing one layer so the plate
+        // file does not need sixty layers with sixty notes to say one thing.
+        const parts: [number, number][][] = [];
+        const poly = collect(layer.polygon);
+        if (poly.length >= 3) parts.push(poly);
+        for (const ring of layer.rings ?? []) {
+          const ringPx = projectPoints(plate, ring, viewport);
+          if (ringPx.length < 3) continue;
+          allPixelPoints.push(...ringPx);
+          parts.push(ringPx);
+        }
+        if (parts.length === 0) return undefined;
+        const step = hypsometricStep(hypsometricLevels(plate), layer.elevation);
+        markup =
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-relief-band" ` +
+          `d="${parts.map((p) => smoothClosedPathD(p)).join(' ')}" fill="${reliefRampToken(step)}" ` +
+          `stroke="var(--plate-contour)" stroke-width="${RELIEF_CONTOUR_WIDTH}" ` +
+          `stroke-opacity="${RELIEF_CONTOUR_OPACITY}" stroke-linejoin="round"/>`;
+        break;
+      }
       const px = collect(layer.polygon);
       if (px.length < 3) return undefined;
       const { spacing, weight } = reliefHachureParams(plate, layer, viewport);
@@ -2359,6 +2597,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // only for a geographic plate — a schematic sheet has no scale, and
     // drawing one would be a fabricated claim.
     (plate.kind === 'geographic' ? scaleBarMarkup(viewport, width, height) : '') +
+    hypsometricKeyMarkup(plate, width, height) +
     neatlineMarkup(width, height) +
     `</svg>`;
 

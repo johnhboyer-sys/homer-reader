@@ -544,32 +544,46 @@ def close_on_bbox(line: list[list[float]], bbox, g: Grid, level: float) -> list[
         return out
 
     a, b = walk(True), walk(False)
-    # Keep the ring whose interior is the high side. Comparing the two means
-    # rather than testing each against `level` is what makes this robust when
-    # a contour wraps most of the sheet and both closures average below it.
-    return a if _mean_interior_height(a, g) >= _mean_interior_height(b, g) else b
+    # Keep the closure that actually holds the high ground. The test is the
+    # FRACTION of interior samples above `level`, not their mean (2026-07-29,
+    # a defect the 50 m contour exposed): every point inside a contour body is
+    # above the contour by definition, so the right closure scores near 1 and
+    # its complement -- which contains the sea and all the lowland -- scores
+    # low. The mean this replaced compared averages, and on the Troad sheet
+    # the mean of the WHOLE SHEET is 148 m, so at 50 m a stray fragment closed
+    # the long way round all four corners scored 148 > 50, won, and painted
+    # the Aegean beige.
+    return a if _interior_above(a, g, level)[0] >= _interior_above(b, g, level)[0] else b
 
 
-def _mean_interior_height(ring: list[list[float]], g: Grid, samples: int = 240) -> float:
+def _interior_above(ring: list[list[float]], g: Grid, level: float,
+                    samples: int = 1600) -> tuple[float, int]:
+    """(fraction of interior samples at or above `level`, number of samples
+    that landed inside). A thin sliver may catch nothing on the first grid, so
+    the sampling is refined once before giving up."""
     lats = [p[0] for p in ring]
     lons = [p[1] for p in ring]
     lo_la, hi_la = min(lats), max(lats)
     lo_lo, hi_lo = min(lons), max(lons)
-    total, n = 0.0, 0
-    k = int(math.sqrt(samples)) or 1
-    for a in range(1, k + 1):
-        for b in range(1, k + 1):
-            la = lo_la + (hi_la - lo_la) * a / (k + 1)
-            lo = lo_lo + (hi_lo - lo_lo) * b / (k + 1)
-            if not _ring_contains(ring, (la, lo)):
-                continue
-            x, y = lonlat_to_px(lo, la, g.z)
-            i = int(round((x - g.x0) / g.step - 0.5))
-            j = int(round((y - g.y0) / g.step - 0.5))
-            if 0 <= i < g.w and 0 <= j < g.h:
-                total += g.at(i, j)
-                n += 1
-    return total / n if n else -1e9
+    for total_samples in (samples, samples * 9):
+        above, n = 0, 0
+        k = int(math.sqrt(total_samples)) or 1
+        for a in range(1, k + 1):
+            for b in range(1, k + 1):
+                la = lo_la + (hi_la - lo_la) * a / (k + 1)
+                lo = lo_lo + (hi_lo - lo_lo) * b / (k + 1)
+                if not _ring_contains(ring, (la, lo)):
+                    continue
+                x, y = lonlat_to_px(lo, la, g.z)
+                i = int(round((x - g.x0) / g.step - 0.5))
+                j = int(round((y - g.y0) / g.step - 0.5))
+                if 0 <= i < g.w and 0 <= j < g.h:
+                    n += 1
+                    if g.at(i, j) >= level:
+                        above += 1
+        if n:
+            return above / n, n
+    return 0.0, 0
 
 
 def grid_stats(g: Grid) -> dict:
@@ -605,13 +619,40 @@ def grid_stats(g: Grid) -> dict:
 #                z13 = 19 m/px, which is also about SRTM's native 30 m posting
 #                over Turkey -- past this the DEM has nothing more to give.
 #
-# Contour interval is chosen from the sheet's own relief range and its scale:
-#   troad        0-1757 m over 183 km. 200 m, which puts eight contours on Ida
-#                and keeps the flanks legible; at 100 m the Ida contours close
-#                to within a pixel of each other and read as a smudge.
-#   trojan-plain 0-379 m over 24 km, and the story is LOW relief -- Hisarlik is
-#                36 m, the Sigeion ridge 36 m. 20 m below 100 m, then 50 m,
-#                so the ridges that frame the plain each get their own line.
+# Contour interval (REVISED 2026-07-29, the hypsometric lane). The first cut
+# of these sheets drew five filled relief bodies on the plain and eleven on
+# the Troad, every one of them the same flat tan under the same hachure
+# texture -- a diagram OF terrain rather than terrain. The bands below are
+# cut to be COLOURED, as a hypsometric ramp, so the interval is chosen for
+# the number of visible steps it puts on the sheet, not for how many contour
+# LINES stay legible:
+#
+#   troad        0-1749 m over 183 km. Non-linear: 50 and 100 m, then 100 m
+#                to 400, then 200 m to the summit. Ten bands, so eleven
+#                visible steps counting the lowland ground itself. The fine
+#                low end is deliberate -- the poem happens between 0 and
+#                300 m, and a linear 200 m interval washes all of it into one
+#                flat field.
+#   trojan-plain 0-376 m over 24 km, and the story is LOW relief: Hisarlik is
+#                36 m, the Sigeion ridge 36 m, and the battlefield is the
+#                floor between them. So the interval is 5 m to 30, then
+#                widening steeply -- eleven bands, twelve steps, but with SIX
+#                of them under 45 m. An even interval keyed to the sheet's
+#                376 m maximum would put the whole subject of the sheet in
+#                the palest two tints, which is how the first cut of this
+#                ramp failed. 10 and 20 m stay in the set whatever else
+#                moves: they are the levels the Bronze Age shore, barrier and
+#                swamp are derived from (see bronze_geometry).
+#
+# `post_blur` is extra box-blur applied AFTER decimation, i.e. to the grid the
+# contours are actually traced on. It exists because a contour is only as
+# smooth as the ground under it: simplifying a line at 685 m (the Troad's
+# tolerance) when the surface still carries 124 m wiggles does not generalise
+# it, it turns every wiggle into a spike, and at a 3x zoom the Troad's relief
+# read as torn paper. The rule of thumb these two sheets are tuned to is
+# smoothing sigma at roughly half the simplification tolerance. The Bronze Age
+# geometry is deliberately NOT taken from the post-blurred grid (see main) --
+# it was derived against published measurements and must not move.
 
 SHEETS: dict[str, dict] = {
     "troad": {
@@ -619,20 +660,22 @@ SHEETS: dict[str, dict] = {
         "zoom": 11,
         "blur": 4,
         "decimate": 2,
-        "tol_deg": 0.008,
+        "post_blur": 5,
+        "tol_deg": 0.005,
         "min_points": 5,
         "min_span_deg": 0.07,
-        "levels": [200, 400, 600, 800, 1000, 1200, 1400],
+        "levels": [50, 100, 200, 300, 400, 600, 800, 1000, 1200, 1400],
     },
     "trojan-plain": {
         "bbox": (39.86, 26.1, 40.05, 26.38),
         "zoom": 13,
         "blur": 10,
         "decimate": 2,
+        "post_blur": 2,
         "tol_deg": 0.0009,
         "min_points": 5,
         "min_span_deg": 0.012,
-        "levels": [10, 20, 40, 60, 100, 150, 200, 250, 300],
+        "levels": [10, 15, 20, 25, 30, 40, 60, 100, 150, 200, 320],
     },
 }
 
@@ -652,6 +695,20 @@ def build_sheet(name: str, cache: str) -> tuple[Grid, dict]:
     sm = grid_stats(g)
     print(f"[{name}] smoothed+decimated {g.w}x{g.h}: {sm}")
     return g, {"raw": raw, "smoothed": sm}
+
+
+def relief_grid(name: str, g: Grid) -> tuple[Grid, dict]:
+    """The grid the RELIEF bands are traced on: `g` with `post_blur` further
+    passes. Separate from `g` itself because the Bronze Age shore and barrier
+    were derived against published measurements on the unblurred grid and must
+    not move -- see the SHEETS comment."""
+    passes = SHEETS[name].get("post_blur", 0)
+    if not passes:
+        return g, grid_stats(g)
+    out = box_blur(g, passes)
+    st = grid_stats(out)
+    print(f"[{name}] +{passes} post-blur passes: {st}")
+    return out, st
 
 
 def sheet_lines(name: str, g: Grid, level: float, tol: float | None = None):
@@ -707,12 +764,6 @@ def join_runs(lines: list, tol: float) -> list:
     return out
 
 
-def cell_deg(name: str) -> float:
-    """One grid cell, in degrees of longitude, after decimation."""
-    spec = SHEETS[name]
-    return 360.0 / (TILE_PX * 2 ** spec["zoom"]) * spec["decimate"]
-
-
 def sheet_bodies(name: str, g: Grid, level: float) -> list[list[list[float]]]:
     """Closed relief bodies at `level`: every contour ring on the sheet, with
     the ones that run off the sheet sewn shut along the neatline."""
@@ -729,9 +780,12 @@ def sheet_bodies(name: str, g: Grid, level: float) -> list[list[list[float]]]:
         if len(ring) < 4:
             continue
         # Every point inside a contour ring is above the contour by
-        # definition, so an interior that averages below it is a closure that
-        # went the wrong way round the frame. Drop it rather than draw it.
-        if _mean_interior_height(ring, g) < level:
+        # definition, so a ring most of whose interior is below it is not a
+        # body -- either a closure that went the wrong way round the frame, or
+        # a basin traced as a hole. Drop it rather than draw it. The bar is
+        # 0.6 rather than 1.0 because the grid is smoothed and the line is
+        # simplified, so the boundary is fuzzy by a cell or two either way.
+        if _interior_above(ring, g, level)[0] < 0.6:
             continue
         out.append([[round(a, 4), round(b, 4)] for a, b in ring])
     return out
@@ -782,7 +836,22 @@ DEM_NOTE = ("Outline traced from SRTM elevation data (AWS Open Data Terrain "
             "Tiles, terrarium encoding) at about 30 m posting, smoothed and "
             "generalised for this sheet's scale. Modern terrain: ridges have "
             "not moved since the Bronze Age, and this is a survey of rock, "
-            "not of the shoreline.")
+            "not of the shoreline. The body is one step of this sheet's "
+            "hypsometric ramp: it is filled in the tint its elevation earns "
+            "and edged with a hairline contour, so height reads as colour "
+            "rather than as texture.")
+
+# One generic band layer per contour level carries every body at that level
+# that no named layer above has claimed. Together the named bodies and the
+# bands tile the sheet's relief, low to high, and the renderer paints each in
+# the ramp tint its elevation earns.
+BAND_NOTE = ("Hypsometric band: all ground on this sheet above {level} m that "
+             "no separately named landform claims. Step {step} of {steps} in "
+             "this sheet's elevation ramp, which runs from the lowland ground "
+             "colour up to the summit tint; the ramp is keyed to THIS sheet's "
+             "own relief range, as a physical map's always is, so a tint means "
+             "the same height here and a different one on the other Troy "
+             "plate. " + DEM_NOTE)
 
 TROAD_RELIEF = [
     ("relief-troad-upland", 200, (39.75, 26.60), None,
@@ -807,7 +876,11 @@ TROAD_RELIEF = [
      "toward Cape Lekton above the north shore of the Gulf of Adramyttium -- "
      "the ground Hera and Sleep cross when they come to Lekton, leave the sea "
      "and go on over the dry land to Ida (Il. 14.283-85). " + DEM_NOTE),
-    ("relief-ida-north-spurs", 400, (40.02, 26.65), None,
+    # Anchor moved 2026-07-29 (the old (40.02, 26.65) sat at 405 m, four
+    # metres inside its own contour, and fell outside the body as soon as the
+    # grid was smoothed for the ramp). (40.00, 26.70) is at about 620 m and
+    # stays well inside this body at every smoothing level tried.
+    ("relief-ida-north-spurs", 400, (40.00, 26.70), None,
      "The broken country between Ida and the Trojan plain, through which the "
      "Scamander and the Simoeis come down: the 400 m core of the spurs that "
      "run north from the massif toward the Dardanelles. The old form-line "
@@ -842,11 +915,12 @@ TROAD_RELIEF = [
 ]
 
 PLAIN_RELIEF = [
-    # Threshold, not omission: the delta plain runs 5 to 20 m and is FLAT, so
-    # hachuring anything below 40 m paints the battlefield with the same
-    # texture as the ridges and the sheet stops saying anything. Only the
-    # Sigeion ridge, which is a real isolated ridge whose crest is 36 m, is
-    # drawn from a lower contour.
+    # These five are the landforms the sheet NAMES; every other body at every
+    # level rides in the generic band layer beside them. The old threshold
+    # comment here ("hachuring anything below 40 m paints the battlefield with
+    # the same texture as the ridges") was a hachure problem and died with the
+    # hachure: a ramp tint at 10 m and one at 20 m are two different colours,
+    # so the flat delta can be drawn in full without swamping the ridges.
     ("relief-sigeion-ridge", 20, (39.9835, 26.1809), "sigeion",
      "The Sigeion ridge closing the plain on the west: a closed 20 m contour "
      "running from Kum Kale south past Yenikoy, crest at about 36 m, with the "
@@ -1050,7 +1124,7 @@ BRONZE_PLACE = {"shore-bronze": None, "lagoon-bronze": "bay-of-troy"}
 
 
 def _relief_layer(existing: dict | None, layer_id: str, place_id: str | None,
-                  note: str, polygon: list) -> dict:
+                  note: str, elevation: float, geometry: dict) -> dict:
     layer = dict(existing) if existing else {"id": layer_id, "kind": "relief"}
     layer.setdefault("id", layer_id)
     layer.setdefault("kind", "relief")
@@ -1059,47 +1133,97 @@ def _relief_layer(existing: dict | None, layer_id: str, place_id: str | None,
     layer.setdefault("default", "on")
     # The form-line register said "sketched, not contoured". It is contoured now.
     layer.pop("shading", None)
-    layer["polygon"] = polygon
+    for f_ in ("rings", "polygon"):
+        layer.pop(f_, None)
+    layer["elevation"] = elevation
+    layer.update(geometry)
     layer["note"] = note
     sources = [s for s in (existing or {}).get("sources", [])
                if "Terrain Tiles" not in s.get("cite", "")]
     layer["sources"] = sources + [dict(DEM_SOURCE)]
     # Key order: identity, geometry, prose.
     order = ["id", "kind", "placeId", "label", "default", "style", "width",
-             "fill", "rings", "path", "polygon", "baseline", "trace", "note",
-             "sources"]
+             "fill", "elevation", "rings", "path", "polygon", "baseline",
+             "trace", "note", "sources"]
     return {k: layer[k] for k in order if k in layer} | {
         k: v for k, v in layer.items() if k not in order}
 
 
-def _replace_block(layers: list, managed: list[str], new_layers: list) -> list:
+def _layer_vertices(layer: dict) -> int:
+    if "rings" in layer:
+        return sum(len(r) for r in layer["rings"])
+    return len(layer.get("polygon", ()))
+
+
+def relief_block(name: str, g: Grid, named: list, by_id: dict) -> list[dict]:
+    """The sheet's whole relief stack, ascending: for every contour level, the
+    named landforms cut from it plus one generic band layer carrying every
+    other body at that level. Ascending order IS the paint order -- a higher
+    band lies inside a lower one, so low must go down first."""
+    levels = SHEETS[name]["levels"]
+    out: list[dict] = []
+    for step, level in enumerate(levels, start=1):
+        bodies = sheet_bodies(name, g, level)
+        claimed: list[tuple] = []
+        taken: list[int] = []
+        for layer_id, lv, pt, place_id, note in named:
+            if lv != level:
+                continue
+            hits = [(k, r) for k, r in enumerate(bodies) if _ring_contains(r, pt)]
+            if not hits:
+                raise SystemExit(f"{name}: no {level} m body contains {pt} ({layer_id})")
+            k, body = min(hits, key=lambda kr: _ring_span(kr[1]))
+            taken.append(k)
+            claimed.append((layer_id, place_id, note, body))
+        rest = [r for k, r in enumerate(bodies) if k not in set(taken)]
+        if rest:
+            band_id = f"relief-band-{int(level):04d}"
+            out.append(_relief_layer(
+                by_id.get(band_id), band_id, None,
+                BAND_NOTE.format(level=int(level), step=step, steps=len(levels)),
+                level, {"rings": rest}))
+        for layer_id, place_id, note, body in claimed:
+            out.append(_relief_layer(by_id.get(layer_id), layer_id, place_id,
+                                     note, level, {"polygon": body}))
+    for layer in out:
+        print(f"  {layer['id']:<32} {layer['elevation']:>5} m  "
+              f"{_layer_vertices(layer):>5} vertices")
+    return out
+
+
+def _replace_block(layers: list, managed: list[str], new_layers: list,
+                   after: str | None = None) -> list:
     """Swaps a set of layers for a new set, in place: the block lands where its
-    first member was, and every layer outside it keeps its exact position and
-    content."""
+    first member was -- or, with `after`, immediately after the named layer --
+    and every layer outside it keeps its exact position and content."""
     idx = [i for i, l in enumerate(layers) if l.get("id") in managed]
-    at = idx[0] if idx else len(layers)
     keep = [l for i, l in enumerate(layers) if i not in set(idx)]
+    if after is not None:
+        at = next((i for i, l in enumerate(keep) if l.get("id") == after), -1) + 1
+        if at == 0:
+            raise SystemExit(f"anchor layer {after!r} not found")
+    else:
+        at = idx[0] if idx else len(layers)
     return keep[:at] + new_layers + keep[at:]
 
 
-def patch_troad(g: Grid) -> tuple[int, int]:
+def patch_troad(g: Grid, gr: Grid) -> tuple[int, int]:
     path = os.path.join(PLATES_DIR, "troad.json")
     with open(path, encoding="utf-8") as f:
         plate = json.load(f)
     by_id = {l["id"]: l for l in plate["layers"]}
-    new = []
-    for layer_id, level, pt, place_id, note in TROAD_RELIEF:
-        poly = body_containing("troad", g, level, pt)
-        new.append(_relief_layer(by_id.get(layer_id), layer_id, place_id, note, poly))
-        print(f"  {layer_id:<32} {level:>5} m  {len(poly):>4} vertices")
+    new = relief_block("troad", gr, TROAD_RELIEF, by_id)
     managed = [l["id"] for l in plate["layers"] if l["id"].startswith("relief-")]
-    managed += [d[0] for d in TROAD_RELIEF]
-    plate["layers"] = _replace_block(plate["layers"], managed, new)
+    managed += [l["id"] for l in new]
+    # The relief stack sits above the coasts (whose `fill: "land"` lays the
+    # lowland ground down) and below the rivers, which must stay on top of it.
+    plate["layers"] = _replace_block(plate["layers"], managed, new,
+                                     after="coast-tenedos")
     _write_plate(path, plate)
-    return len(new), sum(len(l["polygon"]) for l in new)
+    return len(new), sum(_layer_vertices(l) for l in new)
 
 
-def patch_plain(g: Grid) -> tuple[int, int]:
+def patch_plain(g: Grid, gr: Grid) -> tuple[int, int]:
     path = os.path.join(PLATES_DIR, "trojan-plain.json")
     with open(path, encoding="utf-8") as f:
         plate = json.load(f)
@@ -1131,15 +1255,27 @@ def patch_plain(g: Grid) -> tuple[int, int]:
         verts += n
         print(f"  {lid:<32} {'':>7}  {n:>4} vertices")
 
-    new = []
-    for layer_id, level, pt, place_id, note in PLAIN_RELIEF:
-        poly = body_containing("trojan-plain", g, level, pt)
-        new.append(_relief_layer(by_id.get(layer_id), layer_id, place_id, note, poly))
-        verts += len(poly)
-        print(f"  {layer_id:<32} {level:>5} m  {len(poly):>4} vertices")
+    new = relief_block("trojan-plain", gr, PLAIN_RELIEF, by_id)
+    verts += sum(_layer_vertices(l) for l in new)
     managed = [l["id"] for l in plate["layers"] if l["id"].startswith("relief-")]
-    managed += [d[0] for d in PLAIN_RELIEF]
-    plate["layers"] = _replace_block(plate["layers"], managed, new)
+    managed += [l["id"] for l in new]
+    # Terrain first, then the Bronze Age reconstruction, the coast and the
+    # rivers on top of it. The old order put relief LAST, which was harmless
+    # while relief was five isolated hachured knolls and fatal the moment it
+    # became a ramp tiling the sheet: the 10 m band contains the whole
+    # 10-to-20 m swamp belt, so a band drawn last paints the delta marsh -- the
+    # plate's own argument -- out of existence.
+    # `scamandrian-plain` moves with it, from over the relief to under it.
+    # Its content is untouched: it is an eleven-vertex hand-drawn wash that
+    # was fine as the only ground colour on the sheet and is a flat blob with
+    # a ruler edge once there is real terrain beneath it. Under the ramp it
+    # still anchors the name "SCAMANDRIAN PLAIN" and still shows on the delta
+    # floor below the lowest contour, which is exactly the dry plain it claims.
+    layers = [l for l in plate["layers"] if l["id"] != "scamandrian-plain"]
+    wash = next(l for l in plate["layers"] if l["id"] == "scamandrian-plain")
+    at = next(i for i, l in enumerate(layers) if l["id"] == "sea-modern") + 1
+    plate["layers"] = _replace_block(layers[:at] + [wash] + layers[at:],
+                                     managed, new, after="scamandrian-plain")
     _write_plate(path, plate)
     return len(new) + 4, verts
 
@@ -1176,7 +1312,7 @@ def _probe(name: str, g: Grid, levels: list[float]) -> None:
             lons = [p[1] for p in r]
             print(f"    {len(r):>4}v [{min(lats):.3f},{min(lons):.3f}]-"
                   f"[{max(lats):.3f},{max(lons):.3f}] mean "
-                  f"{_mean_interior_height(r, g):.0f} m")
+                  f"{_interior_above(r, g, lv)[0]:.0%} above")
 
 
 def write_vendored(name: str, g: Grid, stats: dict) -> None:
@@ -1196,6 +1332,7 @@ def write_vendored(name: str, g: Grid, stats: dict) -> None:
         "derivation": {
             "blur_passes": spec["blur"],
             "decimate": spec["decimate"],
+            "post_blur_passes": spec.get("post_blur", 0),
             "simplify_tolerance_deg": spec["tol_deg"],
             "sample_spacing_m": round(
                 156543.03392 * math.cos(math.radians((spec["bbox"][0] + spec["bbox"][2]) / 2))
@@ -1229,9 +1366,11 @@ def main() -> None:
         if args.probe is not None:
             _probe(name, g, args.probe or SHEETS[name]["levels"])
             continue
-        write_vendored(name, g, stats)
+        gr, post = relief_grid(name, g)
+        stats["relief_grid"] = post
+        write_vendored(name, gr, stats)
         if args.patch_plates:
-            layers, verts = (patch_troad(g) if name == "troad" else patch_plain(g))
+            layers, verts = (patch_troad(g, gr) if name == "troad" else patch_plain(g, gr))
             print(f"[{name}] patched {layers} layers, {verts} vertices")
 
 

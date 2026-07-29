@@ -146,7 +146,8 @@ band | tumulus`. Optional per layer: `placeId` (must resolve in the
 gazetteer), `note`, `sources` (same cite/url shape as places.json, Chicago
 citation rule), `default` (`"on" | "off"` for a toggleable layer), `style`,
 `width`, `shading`, `rows`, `count`, `fill` (`region`/`band`/`coast`, see
-below), `label` (see below), and the coordinate-geometry fields `rings` (a list of rings, each a
+below), `elevation` (`relief`, see below),
+`label` (see below), and the coordinate-geometry fields `rings` (a list of rings, each a
 list of pairs), `path`, `polygon`, `baseline`, `trace` (each a flat list of
 pairs). Apparatus honesty: geometry not yet sourced from real cartography
 must say so in `note` rather than presenting placeholder points as surveyed.
@@ -159,6 +160,38 @@ either side of the schema. **Not yet in the pipeline's `LAYER_KIND_ENUM`**
 (`pipeline/homer_pipeline/apparatus_places.py`) — a plate JSON file using
 `kind: "tumulus"` will fail `validate_plate` until that enum is updated to
 match.
+
+### Relief: hypsometric bands vs hachures (`elevation`)
+
+A `relief` layer draws in one of two registers, and the field that chooses
+between them is `elevation` — the contour level in metres above sea level the
+body was cut at (a number ≥ 0; sea level itself is legal).
+
+- **With `elevation`** — the **hypsometric** register, for relief cut from a
+  DEM. The layer is filled from a twelve-step graduated ramp
+  (`--plate-relief-1` … `--plate-relief-12`) and edged with a hairline
+  (`--plate-contour`). Nothing is hachured. The step a band gets is its RANK
+  among the distinct elevations on the SAME plate: the lowest takes step 1,
+  which is tuned to sit within about 1.05:1 of the sheet's own ground colour
+  so the first band has no visible seam, and the highest takes step 12. The
+  ramp is therefore keyed to each sheet's own relief range, as a physical
+  map's always is — the same tint means 320 m on the Trojan plain and 1400 m
+  on the Troad, and each sheet draws its own graduated key in the margin
+  saying so. Such a layer may carry either one `polygon` (a named landform)
+  or `rings` (several disjoint bodies at one level sharing one layer, so a
+  sheet does not need sixty layers with sixty notes). Bands must be listed in
+  ASCENDING elevation: that is the paint order, and a higher band lies inside
+  a lower one.
+- **Without `elevation`** — the **hachure** register, for relief authored by
+  hand (`trojan-plain-schematic.json`, `troy-citadel.json`). One `polygon`,
+  filled `--plate-upland`, hachured in `--flaxman-hachure` at a density read
+  out of how the plate's relief polygons nest.
+
+The division is the historical one: hachuring was the SUBSTITUTE for
+hypsometric tinting where no elevation data existed. Where there is a DEM
+(`scripts/prep-terrain-contours.py`), use the ramp. The `shading:
+"form-lines"` value is retired on the two contoured sheets for the same
+reason — it claimed the extent was sketched, and it is contoured.
 
 ### Land and water (the `ground` + `fill` contract)
 

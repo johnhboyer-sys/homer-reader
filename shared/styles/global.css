@@ -202,7 +202,44 @@
      own colour is invisible by construction in both themes. This is the
      running-water LINE, not a water fill, so it is tuned for 3:1 against every
      land fill AND against both water fills, in both themes. */
-  --plate-river:          #1F5878;
+  --plate-river:          #1A4C6A;
+  /* Hypsometric relief ramp (2026-07-29). Twelve graduated elevation tints,
+     low to high, for a plate's contoured `relief` bands: shared/lib/plate.ts
+     paints a band in the ramp step its own `elevation` earns among the
+     elevations present on that sheet, and edges it with --plate-contour.
+     This replaced the flat --plate-upland + hachure treatment, which drew
+     five (the plain) or eleven (the Troad) same-coloured lumps under one
+     texture and read, correctly, as a diagram OF terrain rather than
+     terrain. Hachuring was the historical SUBSTITUTE for hypsometric tinting
+     where no elevation data existed; these two sheets are cut from a real
+     DEM, so it is retired on them. --plate-upland stays, for the two plates
+     (the schematic plain, the citadel) whose relief is hand-authored and
+     carries no elevation.
+     Light ramp: step 1 sits within 1.02:1 of --scene-map-land, so the first
+     band steps out of the parchment with no seam, and step 12 lands 2.54:1
+     below it. Bounds, all asserted in plate-map-contrast.test.ts:
+     --plate-river clears 3:1 against EVERY step (a river descends the whole
+     ramp -- the Scamander comes off Ida), which is what set the dark end and
+     why --plate-river was itself darkened from #1F5878; --scene-map-coast
+     clears 3:1 against the lowest three steps, the only ground a shoreline
+     ever touches. */
+  --plate-relief-1:       #EDEEDF;
+  --plate-relief-2:       #E8E8CF;
+  --plate-relief-3:       #E4E2C0;
+  --plate-relief-4:       #E1DAB3;
+  --plate-relief-5:       #DED3A7;
+  --plate-relief-6:       #DACB9E;
+  --plate-relief-7:       #D5C296;
+  --plate-relief-8:       #D0B98C;
+  --plate-relief-9:       #CAB083;
+  --plate-relief-10:      #C2A679;
+  --plate-relief-11:      #B99C6F;
+  --plate-relief-12:      #AF9164;
+  --plate-contour:        #5A4A32; /* The hairline between hypsometric bands. The hard
+                                     polygon edge was the single ugliest thing on these
+                                     sheets; the ramp plus this line is what dissolves
+                                     it. Drawn thin and part-transparent by plate.ts,
+                                     never as an outline. */
   --shield-ring-cosmos:   var(--accent);
   --shield-ring-peace:    hsl(from var(--accent) calc(h + 36) s l);
   --shield-ring-war:      hsl(from var(--accent) calc(h + 72) s l);
@@ -293,7 +330,30 @@
     --plate-marsh:          #46503A;
     --plate-plain:          #52483A;
     --plate-upland:         #584A3B;
-    --plate-river:          #86BBD8;
+    --plate-river:          #B4DAEF;
+    /* Hypsometric relief ramp, dark (see the :root block's comment). NOT the
+     light ramp inverted: dark theme's ground is the warm near-black
+     --scene-map-land, so this ramp climbs OUT of it toward a lit ochre
+     instead of down toward brown, and much of the separation is carried by
+     chroma, because the luminance headroom above that ground is small. The
+     ceiling is set by --plate-river, which must stay 3:1 clear of the summit
+     tint and was lightened from #86BBD8 to buy the ramp its range. End to
+     end 2.17:1, against light's 2.54:1 -- the same ramp, honestly narrower,
+     which is what a dark ground costs. */
+    --plate-relief-1:       #4A4136;
+    --plate-relief-2:       #51473A;
+    --plate-relief-3:       #584D3D;
+    --plate-relief-4:       #5F523F;
+    --plate-relief-5:       #655740;
+    --plate-relief-6:       #6B5C42;
+    --plate-relief-7:       #706043;
+    --plate-relief-8:       #766444;
+    --plate-relief-9:       #7A6846;
+    --plate-relief-10:      #7E6C48;
+    --plate-relief-11:      #836F49;
+    --plate-relief-12:      #86734B;
+    --plate-contour:        #C2B189; /* band hairline, dark: lighter than every ramp step,
+                                     see the :root block's comment */
   }
 }
 
@@ -324,7 +384,30 @@
   --plate-marsh:          #46503A;
   --plate-plain:          #52483A;
   --plate-upland:         #584A3B;
-  --plate-river:          #86BBD8;
+  --plate-river:          #B4DAEF;
+  /* Hypsometric relief ramp, dark (see the :root block's comment). NOT the
+     light ramp inverted: dark theme's ground is the warm near-black
+     --scene-map-land, so this ramp climbs OUT of it toward a lit ochre
+     instead of down toward brown, and much of the separation is carried by
+     chroma, because the luminance headroom above that ground is small. The
+     ceiling is set by --plate-river, which must stay 3:1 clear of the summit
+     tint and was lightened from #86BBD8 to buy the ramp its range. End to
+     end 2.17:1, against light's 2.54:1 -- the same ramp, honestly narrower,
+     which is what a dark ground costs. */
+  --plate-relief-1:       #4A4136;
+  --plate-relief-2:       #51473A;
+  --plate-relief-3:       #584D3D;
+  --plate-relief-4:       #5F523F;
+  --plate-relief-5:       #655740;
+  --plate-relief-6:       #6B5C42;
+  --plate-relief-7:       #706043;
+  --plate-relief-8:       #766444;
+  --plate-relief-9:       #7A6846;
+  --plate-relief-10:      #7E6C48;
+  --plate-relief-11:      #836F49;
+  --plate-relief-12:      #86734B;
+  --plate-contour:        #C2B189; /* band hairline, dark: lighter than every ramp step,
+                                     see the :root block's comment */
   --popup-bg:     #211828;
   --popup-shadow: 0 6px 28px rgba(0,0,0,.55);
   --greek-hover:        color-mix(in srgb, var(--accent) 14%, transparent);
@@ -357,7 +440,44 @@
   --plate-marsh:          #C7D3A5;
   --plate-plain:          #EDE6D0;
   --plate-upland:         #DED0B3;
-  --plate-river:          #1F5878;
+  --plate-river:          #1A4C6A;
+  /* Hypsometric relief ramp (2026-07-29). Twelve graduated elevation tints,
+     low to high, for a plate's contoured `relief` bands: shared/lib/plate.ts
+     paints a band in the ramp step its own `elevation` earns among the
+     elevations present on that sheet, and edges it with --plate-contour.
+     This replaced the flat --plate-upland + hachure treatment, which drew
+     five (the plain) or eleven (the Troad) same-coloured lumps under one
+     texture and read, correctly, as a diagram OF terrain rather than
+     terrain. Hachuring was the historical SUBSTITUTE for hypsometric tinting
+     where no elevation data existed; these two sheets are cut from a real
+     DEM, so it is retired on them. --plate-upland stays, for the two plates
+     (the schematic plain, the citadel) whose relief is hand-authored and
+     carries no elevation.
+     Light ramp: step 1 sits within 1.02:1 of --scene-map-land, so the first
+     band steps out of the parchment with no seam, and step 12 lands 2.54:1
+     below it. Bounds, all asserted in plate-map-contrast.test.ts:
+     --plate-river clears 3:1 against EVERY step (a river descends the whole
+     ramp -- the Scamander comes off Ida), which is what set the dark end and
+     why --plate-river was itself darkened from #1F5878; --scene-map-coast
+     clears 3:1 against the lowest three steps, the only ground a shoreline
+     ever touches. */
+  --plate-relief-1:       #EDEEDF;
+  --plate-relief-2:       #E8E8CF;
+  --plate-relief-3:       #E4E2C0;
+  --plate-relief-4:       #E1DAB3;
+  --plate-relief-5:       #DED3A7;
+  --plate-relief-6:       #DACB9E;
+  --plate-relief-7:       #D5C296;
+  --plate-relief-8:       #D0B98C;
+  --plate-relief-9:       #CAB083;
+  --plate-relief-10:      #C2A679;
+  --plate-relief-11:      #B99C6F;
+  --plate-relief-12:      #AF9164;
+  --plate-contour:        #5A4A32; /* The hairline between hypsometric bands. The hard
+                                     polygon edge was the single ugliest thing on these
+                                     sheets; the ramp plus this line is what dissolves
+                                     it. Drawn thin and part-transparent by plate.ts,
+                                     never as an outline. */
   /* Control-row band separation (John, 2026-07-25; corrected same day,
      adversarial review P2 — see the pass-through default's own comment for
      the dark-mode regression this replaced): light-only override. Dark

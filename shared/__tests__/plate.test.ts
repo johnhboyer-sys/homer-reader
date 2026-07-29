@@ -13,6 +13,8 @@ import {
   tumulus,
   waterlines,
   reliefHachureParams,
+  hypsometricLevels,
+  hypsometricStep,
   type Plate,
   type PlatePlace,
   type PlateLayer,
@@ -1432,5 +1434,116 @@ describe('renderPlate: frame, scale and legend', () => {
     }));
     const svg = renderPlate({ ...testPlate, layers: rivers }, []).svg;
     expect([...svg.matchAll(/>River</g)]).toHaveLength(1);
+  });
+});
+
+// ── 2026-07-29, the hypsometric lane ──────────────────────────────────────
+// "It's better but still too crude. Not pretty enough." — five flat relief
+// polygons on the plain and eleven on the Troad, every one the same tan under
+// the same hachure, is a diagram OF terrain. `elevation` on a relief layer is
+// what switches it into the hypsometric register: filled from a graduated
+// ramp, edged with a hairline, not hachured. These hold that switch down at
+// BOTH ends — the new path and the old one, which must still work for the two
+// plates whose relief is hand-authored and has no elevations to give.
+
+describe('hypsometric relief bands', () => {
+  const bbox: [number, number, number, number] = [0, 0, 10, 10];
+  const size: [number, number] = [400, 400];
+  const box = (lo: number, hi: number): [number, number][] => [
+    [lo, lo],
+    [hi, lo],
+    [hi, hi],
+    [lo, hi],
+  ];
+  const banded: Plate = {
+    id: 'banded',
+    title: 'Banded',
+    kind: 'geographic',
+    status: 'draft',
+    seed: 7,
+    bbox,
+    size,
+    layers: [
+      { id: 'b-100', kind: 'relief', elevation: 100, rings: [box(1, 9)] },
+      { id: 'b-200', kind: 'relief', elevation: 200, rings: [box(2, 8), box(2.2, 3)] },
+      { id: 'b-400', kind: 'relief', elevation: 400, polygon: box(3, 7) },
+    ],
+  };
+
+  it('hypsometricLevels reports the sheet\'s own distinct elevations, ascending', () => {
+    expect(hypsometricLevels(banded)).toEqual([100, 200, 400]);
+    // A plate whose relief is hand-authored has no elevations, which is what
+    // keeps the hachure register alive for it.
+    expect(hypsometricLevels(testPlate)).toEqual([]);
+  });
+
+  it('the ramp runs from step 1 at the lowest band to the top step at the highest, monotonically', () => {
+    const levels = [10, 20, 40, 60, 100, 150, 200, 320];
+    const steps = levels.map((l) => hypsometricStep(levels, l));
+    expect(steps[0]).toBe(1);
+    expect(steps[steps.length - 1]).toBe(12);
+    for (let i = 1; i < steps.length; i++) expect(steps[i]).toBeGreaterThan(steps[i - 1]);
+  });
+
+  it('a band is filled from the ramp and edged with the contour hairline — never hachured', () => {
+    const svg = renderPlate(banded, []).svg;
+    const band = svg.match(/<path data-feature-id="b-400"[^>]*\/>/);
+    expect(band).not.toBeNull();
+    expect(band![0]).toContain('fill="var(--plate-relief-12)"');
+    expect(band![0]).toContain('stroke="var(--plate-contour)"');
+    expect(svg).toContain('plate-layer-relief-band');
+    // The hachure register is gone from this sheet entirely: no comb of
+    // strokes, and none of the tokens that drew one.
+    expect(svg).not.toContain('var(--flaxman-hachure)');
+    expect(svg).not.toContain('var(--plate-upland)');
+    // Lowest band takes step 1, so it steps out of the sheet ground with no seam.
+    expect(svg).toContain('fill="var(--plate-relief-1)"');
+  });
+
+  it('a relief layer may carry several disjoint bodies at one level as `rings`', () => {
+    const svg = renderPlate(banded, []).svg;
+    const band = svg.match(/<path data-feature-id="b-200"[^>]*\/>/)![0];
+    // Two rings, two subpaths — each closed.
+    expect(band.match(/Z/g)?.length).toBe(2);
+  });
+
+  it('band edges are drawn as curves, not as the polygon they were simplified to', () => {
+    const band = renderPlate(banded, []).svg.match(/<path data-feature-id="b-400"[^>]*\/>/)![0];
+    expect(band).toContain('Q');
+    expect(band).not.toMatch(/ L\d/);
+  });
+
+  it('a relief layer WITHOUT an elevation still hachures (the hand-authored plates)', () => {
+    const svg = renderPlate(testPlate, []).svg;
+    expect(svg).toContain('fill="var(--flaxman-hachure)"');
+    expect(svg).toContain('plate-layer-relief-body');
+    expect(svg).not.toContain('plate-layer-relief-band');
+  });
+
+  it('the sheet carries a graduated elevation key naming its own levels in metres', () => {
+    const svg = renderPlate(banded, []).svg;
+    expect(svg).toContain('plate-hypsometric-key');
+    expect(svg).toContain('Elevation, metres');
+    expect(svg).toContain('>400<');
+    // The band legend row is gone with it — the key says what the tints mean.
+    expect(svg).not.toContain('High ground (hachured)');
+  });
+
+  it('an elevation must be a number at or above sea level', () => {
+    const bad = (elevation: unknown) => () =>
+      parsePlate({
+        id: 'p', title: 'P', kind: 'geographic', status: 'draft', bbox, size,
+        layers: [{ id: 'r', kind: 'relief', elevation, polygon: box(1, 9) }],
+      });
+    expect(bad(-5)).toThrow(/elevation/);
+    expect(bad('400')).toThrow(/elevation/);
+    expect(bad(Number.NaN)).toThrow(/elevation/);
+    expect(() => bad(0)()).not.toThrow();
+  });
+
+  it('a banded sheet bakes no colour of its own — every fill is still a var() token', () => {
+    const svg = renderPlate(banded, []).svg;
+    expect(svg).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
+    expect(svg).not.toMatch(/\b(rgb|rgba|hsl|hsla)\(/);
   });
 });

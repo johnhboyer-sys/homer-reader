@@ -826,3 +826,29 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
 - `shared/__tests__/grammar-search.test.ts`, `grammar-ui.test.ts` — new. The
   engine tests alone would pass against a fully reverted `Search.svelte`; the
   UI tests are the ones that bite, and 8 of 9 were confirmed failing pre-fix.
+
+## 2026-07-29 — hypsometric relief on the two DEM-contoured Troy plates
+
+- `shared/lib/plate.ts` — a second relief register, chosen by a new
+  `elevation` field on a `relief` layer. With it, the band is filled from a
+  twelve-step ramp (`--plate-relief-1..12`) keyed to the RANK of its elevation
+  among the elevations on the same plate, edged with a `--plate-contour`
+  hairline, and drawn as quadratic curves through segment midpoints
+  (`smoothClosedPathD`) rather than as the DP-simplified polygon it is stored
+  as; without it, the old hachure path is untouched, which is what the
+  hand-authored schematic and citadel plates still use. Adds
+  `hypsometricLevels` / `hypsometricStep` (exported, unit-tested) and a
+  graduated elevation key in the margin (`hypsometricKeyMarkup`), which
+  replaces the contoured plates' "High ground (hachured)" legend row. Also:
+  `stipple()` defaults retuned four times finer (dots resolved into countable
+  blobs at the 3x zoom the panel reaches), and `REGION_FILL_OPACITY.marsh`
+  0.9 -> 0.55 so the delta swamp reads as a wash over terrain.
+- `shared/styles/global.css` — 12 ramp tokens + `--plate-contour` in all four
+  theme blocks, per theme and NOT mirrored (light darkens with height, dark
+  lightens out of its near-black ground). `--plate-river` retuned in both
+  themes (light #1F5878 -> #1A4C6A, dark #86BBD8 -> #B4DAEF) to keep 3:1 over
+  every ramp step: a river descends the whole ramp.
+- `shared/__tests__/plate-map-contrast.test.ts`, `plate.test.ts` — the ramp's
+  own guards: monotonic luminance, >= 2:1 end to end, no seam at the sheet
+  ground, river over every step, coast over the lowest three, water darker
+  than step 1, and the hachure register still alive for elevation-less relief.

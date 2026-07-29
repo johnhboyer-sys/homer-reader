@@ -438,6 +438,22 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                 f"{sorted(REGION_FILL_ENUM)}, got {fill!r}"
             )
 
+        # A relief band's contour level in metres (2026-07-29). Its presence
+        # is what puts the layer in the hypsometric register in
+        # shared/lib/plate.ts -- filled from the sheet's elevation ramp and
+        # edged with a hairline, rather than hachured -- so a malformed one
+        # would silently demote a contoured band back to the hand-drawn
+        # treatment. Mirrors parseLayer's check exactly; sea level (0) is a
+        # legal elevation, a negative one is not.
+        elevation = layer.get("elevation")
+        if elevation is not None and (
+            not _is_number(elevation) or elevation < 0
+        ):
+            problems.append(
+                f"{label}: layer {layer_label} elevation must be a number >= 0, "
+                f"got {elevation!r}"
+            )
+
         style = layer.get("style")
         if isinstance(style, str) and style in STOCHASTIC_STYLES:
             needs_seed = True

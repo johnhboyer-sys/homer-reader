@@ -93,6 +93,12 @@ interface ThemeBlock {
   plain: string;
   upland: string;
   river: string;
+  // The hypsometric elevation ramp (2026-07-29) and the hairline drawn
+  // between its bands. Twelve graduated tints replaced the single flat
+  // --plate-upland fill on the two DEM-contoured Troy sheets; these are the
+  // guards that keep the replacement legible instead of merely prettier.
+  ramp: string[];
+  contour: string;
 }
 
 function readThemeBlock(name: string, selector: string): ThemeBlock {
@@ -108,8 +114,13 @@ function readThemeBlock(name: string, selector: string): ThemeBlock {
     plain: readToken(block, '--plate-plain'),
     upland: readToken(block, '--plate-upland'),
     river: readToken(block, '--plate-river'),
+    ramp: Array.from({ length: RAMP_STEPS }, (_, i) => readToken(block, `--plate-relief-${i + 1}`)),
+    contour: readToken(block, '--plate-contour'),
   };
 }
+
+/** Must match RELIEF_RAMP_STEPS in shared/lib/plate.ts. */
+const RAMP_STEPS = 12;
 
 // The four theme blocks that declare the scene-map/plate tokens (see
 // CLAUDE.md's brief for this defect: lines 89-92 / 171-174 / 195-198 /
@@ -228,6 +239,90 @@ describe('plate terrain palette (parsed from the real global.css)', () => {
     for (const t of THEME_BLOCKS) {
       for (const key of ['lagoon', 'marsh', 'plain', 'upland', 'river'] as const) {
         expect(t[key], `${t.name}: --plate-${key}`).toMatch(/^#[0-9a-fA-F]{6}$/);
+      }
+    }
+  });
+});
+
+// ── Hypsometric ramp (2026-07-29) ────────────────────────────────────────
+// The defect these guard: eleven relief bodies painted one flat --plate-upland
+// under one hachure texture, which is a diagram OF terrain. The replacement is
+// a graduated elevation ramp, and a ramp has three ways to fail that a flat
+// fill does not — it can be too shallow to read as a ramp at all, it can run
+// the wrong way relative to the sheet's own ground, and it can push its dark
+// end under the linework that has to cross it (the Scamander comes off Ida).
+
+/** A ramp with less separation than this end to end is a flat wash pretending to be a ramp. */
+const MIN_RAMP_RANGE = 2.0;
+/** Step 1 sits on the sheet's own lowland: no visible seam where the first band meets the ground. */
+const MAX_GROUND_SEAM = 1.12;
+/** A hairline has to be visible on every band it edges — it is structure, not decoration. */
+const MIN_CONTOUR_CONTRAST = 2.0;
+/** A shoreline only ever meets low ground, so the coast guard applies to the lowest bands. */
+const COAST_BANDS = 3;
+
+describe('hypsometric relief ramp (parsed from the real global.css)', () => {
+  it.each(THEME_BLOCKS)('$name: every ramp step is a literal hex', ({ ramp, contour }) => {
+    for (const [i, step] of ramp.entries()) {
+      expect(step, `--plate-relief-${i + 1}`).toMatch(/^#[0-9a-fA-F]{6}$/);
+    }
+    expect(contour, '--plate-contour').toMatch(/^#[0-9a-fA-F]{6}$/);
+  });
+
+  it.each(THEME_BLOCKS)('$name: the ramp is strictly monotonic in luminance', ({ ramp }) => {
+    const ls = ramp.map((c) => relativeLuminance(hexToRgb(c)));
+    const rising = ls[ls.length - 1] > ls[0];
+    for (let i = 1; i < ls.length; i++) {
+      expect(rising ? ls[i] > ls[i - 1] : ls[i] < ls[i - 1], `step ${i + 1} vs ${i}`).toBe(true);
+    }
+  });
+
+  // Direction is per theme and deliberately NOT mirrored: light theme's ground
+  // is parchment, so the ramp darkens with height; dark theme's ground is a
+  // warm near-black, so it lightens. What must hold in both is that the ramp
+  // climbs AWAY from the ground rather than back through it.
+  it.each(THEME_BLOCKS)('$name: the ramp starts on the sheet ground and climbs away from it', ({ ramp, land }) => {
+    expect(contrastRatio(ramp[0], land)).toBeLessThanOrEqual(MAX_GROUND_SEAM);
+    expect(contrastRatio(ramp[ramp.length - 1], land)).toBeGreaterThan(contrastRatio(ramp[0], land));
+  });
+
+  it.each(THEME_BLOCKS)(`$name: the ramp spans at least ${MIN_RAMP_RANGE}:1 end to end`, ({ ramp }) => {
+    expect(contrastRatio(ramp[0], ramp[ramp.length - 1])).toBeGreaterThanOrEqual(MIN_RAMP_RANGE);
+  });
+
+  // A river descends the whole ramp, so its ink has to clear every step of it.
+  it.each(THEME_BLOCKS)('$name: the river ink clears 3:1 against EVERY ramp step', ({ river, ramp }) => {
+    for (const [i, step] of ramp.entries()) {
+      expect(contrastRatio(river, step), `river vs --plate-relief-${i + 1}`).toBeGreaterThanOrEqual(MIN_COAST_CONTRAST);
+    }
+  });
+
+  it.each(THEME_BLOCKS)(`$name: the coast stroke clears 3:1 against the lowest ${COAST_BANDS} ramp steps`, ({ coast, ramp }) => {
+    for (const [i, step] of ramp.slice(0, COAST_BANDS).entries()) {
+      expect(contrastRatio(coast, step), `coast vs --plate-relief-${i + 1}`).toBeGreaterThanOrEqual(MIN_COAST_CONTRAST);
+    }
+  });
+
+  it.each(THEME_BLOCKS)('$name: the band hairline stays visible on every step', ({ contour, ramp }) => {
+    for (const [i, step] of ramp.entries()) {
+      expect(contrastRatio(contour, step), `contour vs --plate-relief-${i + 1}`).toBeGreaterThanOrEqual(MIN_CONTOUR_CONTRAST);
+    }
+  });
+
+  // The land/water polarity rule, applied where it actually bites: the band a
+  // shoreline abuts. It deliberately does NOT extend up the ramp — on any
+  // physical map high ground is darker than shallow water, and the two never
+  // touch — but the lowest band must still read as land beside the sea.
+  it('water is darker than, and 1.5:1 clear of, the lowest ramp step in EVERY theme block', () => {
+    for (const t of THEME_BLOCKS) {
+      for (const water of ['sea', 'lagoon'] as const) {
+        expect(contrastRatio(t[water], t.ramp[0]), `${t.name}: --plate-${water} vs --plate-relief-1`).toBeGreaterThanOrEqual(
+          MIN_LAND_SEA_SEPARATION,
+        );
+        expect(
+          relativeLuminance(hexToRgb(t[water])) < relativeLuminance(hexToRgb(t.ramp[0])),
+          `${t.name}: --plate-${water} must be darker than --plate-relief-1`,
+        ).toBe(true);
       }
     }
   });

@@ -552,6 +552,59 @@ shadow.
 > the eastern upland, not a hill, which is exactly why the city commands the plain to
 > its west and south and nothing to its east.
 
+> **REVISED AGAIN, 2026-07-29 — hachures are retired on these two sheets, and
+> hillshade is still not the answer.** The verdict on the contoured-and-hachured
+> version was "it's better but still too crude, not pretty enough," and on a zoomed
+> crop, "the hatching is also too crude — looks fine in a thumbnail, but when you zoom
+> in, it's just big old lines." Both are correct, and they have the same cause.
+>
+> The section above treats the choice as *hachures versus hill shading*. That framing
+> is the mistake. **Hachuring is the historical SUBSTITUTE for hypsometric tinting** —
+> what a surveyor drew when he had relative steepness and no elevations. We have
+> elevations. So the two Troy sheets now carry **graduated hypsometric bands**: ten
+> levels on the Troad (50 m, then 100 m to 400, then 200 m to the summit) and eleven on
+> the plain (5 m to 30, then widening — six of the eleven under 45 m, because the
+> subject of that sheet is a battlefield 20 to 40 m above the sea), each filled from a
+> twelve-step per-theme ramp and separated by a hairline contour. No hachures, no
+> stipple, no texture of any kind on the relief. Depth comes from the ramp.
+>
+> That also disposes of the resolution problem for good, and it is worth being explicit
+> about why. **Every relief technique built out of discrete marks has a scale at which
+> it stops integrating into tone and resolves into countable marks** — hachures at
+> 1.5 px weight and 4.5 px spacing did so at about 2x, and this SVG is rendered at
+> 100% of a browser column, so it reaches 3x routinely. Fills and hairlines have no
+> such scale: they are the same drawing at every magnification. That is a stronger
+> argument for tinting on a screen than any of the ones in the print literature, and
+> it applies to the whole class. The coast `stipple` register survives because it is a
+> *boundary* claim ("reconstructed — approximate extent") rather than a tonal one, but
+> its dots were retuned four times finer for exactly this reason, and any future
+> texture on these sheets must pass the same test: a 3x crop with no countable marks.
+>
+> **Hill shading: still no, and now for the perceptual reason alone.** The surface
+> normal is one finite difference away and the honesty objection is withdrawn (above),
+> but the multistable-inversion objection stands, and a second, purely practical one
+> joins it here: a shaded relief is a raster, and this project's plates emit **no
+> colour that is not a `var()` token**, so that both themes and both contrast
+> requirements are satisfied by a stylesheet. A baked PNG cannot be re-themed, and an
+> SVG filter's light source cannot be either. The ramp needs neither.
+>
+> What replaces the plastic depth shading would have given is **contour density**: the
+> hairlines between bands bunch where the ground is steep and spread where it is flat,
+> which is Lehmann's vertical-illumination principle arrived at from the other
+> direction — darkness encoding steepness, with no light source to invert. It is
+> visible on Ida's flanks at 3x and it costs nothing.
+>
+> One measured caution for whoever cuts the next contoured sheet. **A contour is only
+> as smooth as the ground under it.** Simplifying a traced line at 685 m while the grid
+> still carries 124 m wiggles does not generalise it — Douglas-Peucker keeps the
+> outliers and drops everything between them, so every wiggle becomes a spike, and the
+> Troad's relief read as torn paper at 3x. Two fixes, both needed: extra smoothing
+> applied to the grid *after* decimation (`post_blur` in
+> `scripts/prep-terrain-contours.py`, tuned to sigma at roughly half the simplification
+> tolerance), and drawing the band as a curve rather than as the polygon it is stored
+> as (`smoothClosedPathD` in `shared/lib/plate.ts`). The second is free and does most
+> of the work; the first is what stops the geometry lying about the shape of the hill.
+
 **Typography.** Imhof's label-position ranking, via a
 [2024 reassessment](https://arxiv.org/html/2407.11996v1): **top-right > right > top >
 bottom > left**, shifting to TR, L, B, T, R under dense labelling; his reason is that
