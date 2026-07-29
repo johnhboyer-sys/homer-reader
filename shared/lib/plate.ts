@@ -49,6 +49,18 @@
 // declaration. --flaxman-hachure bakes the intended ink shade in as an
 // OPAQUE colour per theme instead, tuned so the two themes' rendered
 // contrast against --scene-map-land is comparable (see global.css).
+// Follow-up (2026-07-28, same day): matching raw WCAG contrast ratio turned
+// out not to be the same as matching PERCEIVED strength — light ink on a
+// dark ground reads bolder than dark ink on a light ground at an identical
+// measured ratio (irradiation), and this token's dark value was in fact
+// measurably HIGHER-contrast than light's against the surface it actually
+// renders on (--plate-upland: 6.95:1 dark vs 6.59:1 light), compounding the
+// effect rather than offsetting it. Dark's hex is now deliberately
+// under-contrasted relative to light's (still well clear of the 4.5:1
+// floor) to compensate — see global.css's per-theme comments and the
+// comparability test in plate.test.ts. Density/weight for the relief fill
+// itself is handled separately, geometrically, by reliefHachureParams below
+// — this token change is colour-only.
 
 import { project, viewportFromBBox } from './geo';
 import type { LatLon, Viewport } from './geo';
@@ -1909,6 +1921,126 @@ function linearRun(plate: Plate, layer: PlateLayer, viewport: Viewport): [number
   return projectPoints(plate, pts, viewport);
 }
 
+// ── Relief steepness signal (2026-07-28, hachure lane) ──────────────────
+// hachure() itself draws one polygon at one fixed density; a relief BODY cut
+// by the terrain lane into nested contour bands (Ida at 200/400/600/800/
+// 1200 m, the plain at 20-100 m) needs the density read back out of that
+// nesting, because geometry alone can't hand "how steep" to the drawing
+// routine — that has to happen here, at the renderer. Two signals, both
+// already visible in the plate's own polygons (no slope invented, no
+// elevation parsed out of a `note` string):
+//   - nesting depth: how many OTHER relief polygons on this plate contain
+//     this one's centroid. Bands stacked tightly over the same footprint
+//     (Ida's 600/800/1200 m family) mean the ground climbs fast there.
+//   - relative area: a polygon small next to the plate's biggest relief body
+//     reads as a knob or a summit, not a plateau.
+// The two average into one 0..1 "steepness" score; RELIEF_SPACING_*/
+// RELIEF_WEIGHT_* interpolate against it below — a tightly nested, small
+// polygon draws dense and a little heavier (a massif); a broad, unnested one
+// draws sparse and light (open ground). A plate with only one relief layer
+// (or a relief layer with no siblings surviving projection) has nothing to
+// compare against and gets the gentle end outright, not a divide-by-zero.
+
+function polygonArea(pts: [number, number][]): number {
+  let a = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const [x1, y1] = pts[i];
+    const [x2, y2] = pts[(i + 1) % pts.length];
+    a += x1 * y2 - x2 * y1;
+  }
+  return Math.abs(a) / 2;
+}
+
+function polygonCentroid(pts: [number, number][]): [number, number] {
+  let cx = 0;
+  let cy = 0;
+  for (const [x, y] of pts) {
+    cx += x;
+    cy += y;
+  }
+  return [cx / pts.length, cy / pts.length];
+}
+
+// Standard ray-casting point-in-polygon test (even-odd rule) — purely
+// geometric, same posture as wallGlyph's own shoelace-style side test.
+function pointInPolygon(pt: [number, number], polygon: [number, number][]): boolean {
+  const [px, py] = pt;
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [xi, yi] = polygon[i];
+    const [xj, yj] = polygon[j];
+    const crosses = yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi;
+    if (crosses) inside = !inside;
+  }
+  return inside;
+}
+
+function clamp01(n: number): number {
+  return Math.min(1, Math.max(0, n));
+}
+
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
+
+// Both ends are lighter than the module's old flat 7px spacing / 1.6px
+// weight defaults (2026-07-28: "the eastern half of the plain reads as a
+// broad tan field competing with the labels") — relief sits UNDER the map,
+// so even the steep end is thinner than the old uniform weight; density,
+// not ink weight, is what is meant to read as "massif."
+const RELIEF_SPACING_GENTLE = 11;
+const RELIEF_SPACING_STEEP = 4.5;
+const RELIEF_WEIGHT_GENTLE = 0.9;
+const RELIEF_WEIGHT_STEEP = 1.5;
+
+export interface ReliefHachureParams {
+  spacing: number;
+  weight: number;
+}
+
+// Computes {spacing, weight} for ONE relief layer's hachure from the
+// nesting/area of every relief layer on the SAME plate (siblings only —
+// region/band layers aren't contour bands and don't participate). Exported
+// so the steepness signal itself is unit-testable independent of the SVG it
+// eventually feeds into (same posture as hachure/stipple/wallGlyph below).
+export function reliefHachureParams(plate: Plate, layer: PlateLayer, viewport: Viewport): ReliefHachureParams {
+  const gentle = { spacing: RELIEF_SPACING_GENTLE, weight: RELIEF_WEIGHT_GENTLE };
+  const siblings = plate.layers.filter(
+    (l): l is PlateLayer & { polygon: PlatePoint[] } => l.kind === 'relief' && !!l.polygon && l.polygon.length >= 3,
+  );
+  if (siblings.length <= 1) return gentle;
+
+  const projected = siblings.map((l) => ({ id: l.id, px: projectPoints(plate, l.polygon, viewport) }));
+  const areaById = new Map(projected.map((p) => [p.id, polygonArea(p.px)]));
+  const maxArea = Math.max(...areaById.values(), 1e-6);
+
+  const depthById = new Map(
+    projected.map((p) => {
+      const centroid = polygonCentroid(p.px);
+      let depth = 0;
+      for (const other of projected) {
+        if (other.id === p.id) continue;
+        if (pointInPolygon(centroid, other.px)) depth++;
+      }
+      return [p.id, depth] as const;
+    }),
+  );
+  const maxDepth = Math.max(1, ...depthById.values());
+
+  const area = areaById.get(layer.id);
+  const depth = depthById.get(layer.id);
+  if (area === undefined || depth === undefined) return gentle; // this layer's own polygon didn't survive projection
+
+  const normArea = 1 - area / maxArea; // 0 = the plate's biggest relief body, ->1 a small one
+  const normDepth = depth / maxDepth; // 0 = unnested (a lone band), 1 = the most deeply nested band on the plate
+  const steepness = clamp01(0.5 * normArea + 0.5 * normDepth);
+
+  return {
+    spacing: lerp(RELIEF_SPACING_GENTLE, RELIEF_SPACING_STEEP, steepness),
+    weight: lerp(RELIEF_WEIGHT_GENTLE, RELIEF_WEIGHT_STEEP, steepness),
+  };
+}
+
 function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): RenderedLayer | undefined {
   const allPixelPoints: [number, number][] = [];
   const collect = (pts: PlatePoint[] | undefined) => {
@@ -1974,7 +2106,8 @@ function renderLayer(plate: Plate, layer: PlateLayer, viewport: Viewport): Rende
     case 'relief': {
       const px = collect(layer.polygon);
       if (px.length < 3) return undefined;
-      const d = hachure(px, { seed });
+      const { spacing, weight } = reliefHachureParams(plate, layer, viewport);
+      const d = hachure(px, { seed, spacing, weight });
       // The hachure strokes used to be the ONLY thing drawn for a relief
       // layer, so they read as a free-floating comb with no ridge under
       // them (2026-07-28). The body goes down first, opaque — never a

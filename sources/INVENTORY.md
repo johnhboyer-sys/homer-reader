@@ -59,6 +59,19 @@ are eng3/eng4 (verified via __cts__.xml). Attribute Perseus on the About page.
   **not** share-alike. See `sources/copernicus-dem/README.md` for full
   provenance and the derivation (`scripts/prep-troad-basemap.py`).
 
+## terrain-tiles/ — relief contours of the two Troad plates (public domain)
+
+- troad-contours.json, trojan-plain-contours.json — contour lines at 200 m
+  (Troad) and 20/50 m (plain), traced from the **Terrain Tiles** terrarium
+  DEM on AWS Open Data (Tilezen `elevation-tiles-prod`), fetched 2026-07-28.
+  Over Turkey the underlying data is **SRTM**, a US-government work with no
+  domestic copyright asserted; the only obligation is the credit line
+  **"SRTM data courtesy of the U.S. Geological Survey"**, which is carried in
+  the JSON and on every plate layer derived from it. Not share-alike. See
+  `sources/terrain-tiles/README.md` for provenance, the zoom/interval
+  reasoning, the elevation sanity check against Kaz Dağı, Hisarlık and sea
+  level, and the derivation (`scripts/prep-terrain-contours.py`).
+
 ## openstreetmap/ — river courses of the two Troad plates (⚠ ODbL 1.0)
 
 - trojan-plain-rivers.json, troad-rivers.json — Scamander, Simoeis, Granicus,

@@ -12,6 +12,7 @@ import {
   wallGlyph,
   tumulus,
   waterlines,
+  reliefHachureParams,
   type Plate,
   type PlatePlace,
   type PlateLayer,
@@ -1068,6 +1069,207 @@ describe('renderLayer: relief hachure ink token', () => {
     expect(reliefMatch).not.toBeNull();
     expect(reliefMatch![0]).toContain('fill="var(--flaxman-hachure)"');
     expect(reliefMatch![0]).not.toContain('fill-opacity');
+  });
+});
+
+// ── 2026-07-28, hachure lane: "the relief hachuring is too heavy and too
+// uniform" ── hachure() itself only ever drew one polygon at one fixed
+// spacing/weight; these tests hold down the fix, which lives entirely at
+// the case 'relief' call site in renderLayer (reliefHachureParams), not
+// inside hachure() itself — hachure()'s own spacing/weight defaults (7 /
+// 1.6, asserted nowhere by name here) are untouched and still apply to any
+// caller that doesn't pass explicit values.
+describe('reliefHachureParams: density carries steepness', () => {
+  const bbox: [number, number, number, number] = [0, 0, 10, 10];
+  const size: [number, number] = [1000, 1000];
+  const viewport = viewportFromBBox(bbox, size);
+
+  const basePlate: Plate = {
+    id: 'relief-steepness-plate',
+    title: 'Relief Steepness Test',
+    kind: 'geographic',
+    status: 'draft',
+    seed: 1,
+    bbox,
+    size,
+    layers: [],
+  };
+
+  it('a relief layer with no relief siblings gets the gentle (sparse, thin) end outright — lighter than hachure()\'s own old flat 7px/1.6px defaults', () => {
+    const lone: PlateLayer = {
+      id: 'lone', kind: 'relief',
+      polygon: [[1, 1], [1, 4], [4, 4], [4, 1]],
+    };
+    const plate: Plate = { ...basePlate, layers: [lone] };
+    const params = reliefHachureParams(plate, lone, viewport);
+    expect(params.spacing).toBeGreaterThan(7);
+    expect(params.weight).toBeLessThan(1.6);
+  });
+
+  it('three concentrically nested polygons (an Ida-800/1200-style family) draw denser and heavier the more deeply nested they are', () => {
+    // Outer: a broad low band; middle and inner: successively smaller bands
+    // stacked over the same footprint, same shape as a real 200/600/1200 m
+    // contour family.
+    const outer: PlateLayer = {
+      id: 'outer', kind: 'relief',
+      polygon: [[0.5, 0.5], [0.5, 9], [9, 9], [9, 0.5]],
+    };
+    const middle: PlateLayer = {
+      id: 'middle', kind: 'relief',
+      polygon: [[3, 3], [3, 7], [7, 7], [7, 3]],
+    };
+    const inner: PlateLayer = {
+      id: 'inner', kind: 'relief',
+      polygon: [[4.5, 4.5], [4.5, 5.5], [5.5, 5.5], [5.5, 4.5]],
+    };
+    const plate: Plate = { ...basePlate, layers: [outer, middle, inner] };
+
+    const pOuter = reliefHachureParams(plate, outer, viewport);
+    const pMiddle = reliefHachureParams(plate, middle, viewport);
+    const pInner = reliefHachureParams(plate, inner, viewport);
+
+    // Density carries steepness: spacing shrinks (denser strokes)...
+    expect(pOuter.spacing).toBeGreaterThan(pMiddle.spacing);
+    expect(pMiddle.spacing).toBeGreaterThan(pInner.spacing);
+    // ...and weight grows (heavier strokes) the more deeply nested the band.
+    expect(pOuter.weight).toBeLessThan(pMiddle.weight);
+    expect(pMiddle.weight).toBeLessThan(pInner.weight);
+  });
+
+  it('two UNNESTED sibling bodies (same depth) are still differentiated by relative area — a small isolated body reads denser than a broad one, not identical to it', () => {
+    const broad: PlateLayer = {
+      id: 'broad', kind: 'relief',
+      polygon: [[0.5, 0.5], [0.5, 9], [9, 9], [9, 0.5]],
+    };
+    const knob: PlateLayer = {
+      id: 'knob', kind: 'relief',
+      polygon: [[0.5, 0.5], [0.5, 1.2], [1.2, 1.2], [1.2, 0.5]],
+    };
+    const plate: Plate = { ...basePlate, layers: [broad, knob] };
+
+    const pBroad = reliefHachureParams(plate, broad, viewport);
+    const pKnob = reliefHachureParams(plate, knob, viewport);
+
+    expect(pKnob.spacing).toBeLessThan(pBroad.spacing);
+    expect(pKnob.weight).toBeGreaterThan(pBroad.weight);
+  });
+
+  it('is deterministic and pure (same plate/layer/viewport in, same params out)', () => {
+    const a: PlateLayer = { id: 'a', kind: 'relief', polygon: [[1, 1], [1, 3], [3, 3], [3, 1]] };
+    const b: PlateLayer = { id: 'b', kind: 'relief', polygon: [[4, 4], [4, 6], [6, 6], [6, 4]] };
+    const plate: Plate = { ...basePlate, layers: [a, b] };
+    expect(reliefHachureParams(plate, a, viewport)).toEqual(reliefHachureParams(plate, a, viewport));
+  });
+});
+
+// A wiring regression guard: reliefHachureParams being correct in isolation
+// (above) doesn't prove renderLayer's case 'relief' actually calls it — this
+// checks the rendered SVG itself changes stroke density when nesting
+// changes, so a future edit reverting the call site to the bare
+// `hachure(px, { seed })` this lane replaced would fail here even if it left
+// reliefHachureParams itself untouched.
+describe('renderLayer: relief nesting changes the rendered hachure, not just the isolated helper', () => {
+  it('a deeply nested relief polygon renders more stroke subpaths than an isolated one of similar size', () => {
+    const bbox: [number, number, number, number] = [0, 0, 10, 10];
+    const size: [number, number] = [1000, 1000];
+    const isolated: PlateLayer = {
+      id: 'isolated', kind: 'relief',
+      polygon: [[1, 1], [1, 3], [3, 3], [3, 1]],
+    };
+    const isolatedPlate: Plate = {
+      id: 'p1', title: 'p1', kind: 'geographic', status: 'draft', seed: 5, bbox, size,
+      layers: [isolated],
+    };
+
+    const outer: PlateLayer = { id: 'outer', kind: 'relief', polygon: [[0.5, 0.5], [0.5, 9], [9, 9], [9, 0.5]] };
+    const middleNested: PlateLayer = { id: 'nested', kind: 'relief', polygon: [[1, 1], [1, 3], [3, 3], [3, 1]] };
+    const nestedPlate: Plate = {
+      id: 'p2', title: 'p2', kind: 'geographic', status: 'draft', seed: 5, bbox, size,
+      layers: [outer, middleNested],
+    };
+
+    const countStrokes = (svg: string, id: string) => {
+      const match = svg.match(new RegExp(`<path data-feature-id="${id}"[^>]*d="([^"]*)"`));
+      expect(match).not.toBeNull();
+      return (match![1].match(/M/g) ?? []).length;
+    };
+
+    const isolatedCount = countStrokes(renderPlate(isolatedPlate, []).svg, 'isolated');
+    const nestedCount = countStrokes(renderPlate(nestedPlate, []).svg, 'nested');
+    expect(nestedCount).toBeGreaterThan(isolatedCount);
+  });
+});
+
+// ── Light/dark comparability, in the spirit of the hachure-contrast test in
+// plate-map-contrast.test.ts (out of scope for this lane) ── that suite
+// asserts RAW contrast ratio is comparable; this lane's finding is that raw
+// ratio parity is not the same as PERCEIVED strength parity for reversed
+// (light-on-dark) ink, so the fix is an intentional ASYMMETRY: dark's
+// --flaxman-hachure is retuned to read as LESS contrasty than light's
+// against the surface it actually renders on (--plate-upland), not equally.
+describe('global.css: relief hachure ink is intentionally under-contrasted in dark theme (compensates light-on-dark irradiation)', () => {
+  const CSS_PATH = path.resolve(process.cwd(), 'styles/global.css');
+  const css = readFileSync(CSS_PATH, 'utf-8');
+
+  function extractBlock(selector: string): string {
+    const selIdx = css.indexOf(selector);
+    if (selIdx === -1) throw new Error(`selector not found in global.css: ${selector}`);
+    const braceStart = css.indexOf('{', selIdx);
+    let depth = 0;
+    let i = braceStart;
+    for (; i < css.length; i++) {
+      if (css[i] === '{') depth++;
+      else if (css[i] === '}') {
+        depth--;
+        if (depth === 0) break;
+      }
+    }
+    return css.slice(braceStart, i + 1);
+  }
+
+  function readToken(block: string, name: string): string {
+    const m = block.match(new RegExp(`${name}:\\s*([^;]+);`));
+    if (!m) throw new Error(`token ${name} not found`);
+    return m[1].trim();
+  }
+
+  function hexToRgb(hex: string): [number, number, number] {
+    const n = parseInt(hex.replace('#', ''), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  }
+  function srgbToLinear(c: number): number {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  }
+  function relativeLuminance([r, g, b]: [number, number, number]): number {
+    return 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b);
+  }
+  function contrastRatio(a: string, b: string): number {
+    const la = relativeLuminance(hexToRgb(a));
+    const lb = relativeLuminance(hexToRgb(b));
+    return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+  }
+
+  const light = extractBlock(':root {');
+  const darkMedia = extractBlock(':root:not([data-theme]) {');
+  const darkTheme = extractBlock(':root[data-theme="dark"] {');
+  const lightTheme = extractBlock(':root[data-theme="light"] {');
+
+  const lightContrast = contrastRatio(readToken(light, '--flaxman-hachure'), readToken(light, '--plate-upland'));
+  const lightThemeContrast = contrastRatio(readToken(lightTheme, '--flaxman-hachure'), readToken(lightTheme, '--plate-upland'));
+
+  it.each([
+    ['dark (prefers-color-scheme)', darkMedia],
+    ['dark (data-theme="dark")', darkTheme],
+  ])('%s: hachure-vs-upland contrast is LOWER than light\'s, not matched to it, and still clears the 4.5:1 floor', (_name, block) => {
+    const darkContrast = contrastRatio(readToken(block, '--flaxman-hachure'), readToken(block, '--plate-upland'));
+    expect(darkContrast).toBeGreaterThanOrEqual(4.5);
+    expect(darkContrast).toBeLessThan(lightContrast);
+    expect(darkContrast).toBeLessThan(lightThemeContrast);
+  });
+
+  it('the two light theme blocks (:root default and data-theme="light") agree with each other (unchanged by this lane)', () => {
+    expect(lightThemeContrast).toBeCloseTo(lightContrast, 3);
   });
 });
 

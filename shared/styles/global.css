@@ -104,9 +104,12 @@
      light but only ~4.7:1 in dark for the identical declaration. This token
      bakes the light theme's old effective ink shade in as an OPAQUE colour
      (equivalent composite, so light is visually unchanged); the dark value
-     is chosen separately (see dark blocks below) for comparable rendered
-     contrast. Consumed by shared/lib/plate.ts's relief-layer hachure fill
-     only — everything else keeps using --flaxman-ink directly. */
+     is chosen separately (see dark blocks below) — originally tuned to
+     match this ratio, then (2026-07-28, later the same day) deliberately
+     tuned BELOW it instead, to compensate light-on-dark ink reading bolder
+     than dark-on-light ink at an equal ratio. Consumed by
+     shared/lib/plate.ts's relief-layer hachure fill only — everything else
+     keeps using --flaxman-ink directly. */
   --flaxman-hachure:      #493F49;
   --scene-map-land:       #F1EEE6; /* lifted parchment ground */
   --scene-map-coast:      #565060; /* coast boundary; darkened so it clears 3:1 over
@@ -258,10 +261,19 @@
                                        lighter than sea in BOTH themes */
     --flaxman-ink:          rgba(237,230,232,0.67); /* ink A (John): bone, subtle, not inverted */
     /* Hachure-only ink, dark theme (2026-07-28, contrast fix — see the :root
-       block's --flaxman-hachure comment): reuses --text's dark-mode bone
-       shade, opaque, which lands at 8.666:1 against the new
-       --scene-map-land below — within rounding of light theme's 8.707:1. */
-    --flaxman-hachure:      #EDE6E8;
+       block's --flaxman-hachure comment). Originally reused --text's
+       dark-mode bone shade at full strength (#EDE6E8): that matched light
+       theme's raw contrast ratio, but raw ratio isn't rendered strength —
+       light ink on dark ground reads bolder than dark ink on light ground
+       at an EQUAL ratio (irradiation), and #EDE6E8 was in fact slightly
+       HIGHER contrast than light's against --plate-upland (the surface the
+       hachure actually renders on), compounding rather than offsetting the
+       effect ("the same weight buys more presence" — John, same day).
+       Scaled to 88% of #EDE6E8's channels (same hue, dimmer): 6.49:1
+       against land / 5.30:1 against upland, both still clear of the 4.5:1
+       floor, and now deliberately BELOW light's 8.66:1 / 6.59:1 rather than
+       matched to them. See the comparability test in plate.test.ts. */
+    --flaxman-hachure:      #D1CACC;
     /* Land lightened (2026-07-28, contrast fix — see the :root block's
        --scene-map-sea comment): was #2A2530, DARKER than sea (wrong
        polarity, and only 1.022:1 apart). Scaled ~1.6x brighter, same hue,
@@ -304,7 +316,7 @@
   --scene-map-sea:        #0A1C2A; /* deep Aegean water, deepened so warm land reads
                                        lighter than sea in BOTH themes */
   --flaxman-ink:          rgba(237,230,232,0.67); /* ink A (John): bone, subtle, not inverted */
-  --flaxman-hachure:      #EDE6E8; /* hachure-only ink, see the @media dark block's comment */
+  --flaxman-hachure:      #D1CACC; /* hachure-only ink, see the @media dark block's comment */
   --scene-map-land:       #473E35; /* warm dark ground, see @media dark block's comment */
   --scene-map-coast:      #8FA3AE; /* coast boundary, 3.99:1 over land / 6.61:1 over sea */
   --scene-map-label-halo: #17131C; /* preserves labels across coastlines */
