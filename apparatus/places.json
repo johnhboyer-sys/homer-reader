@@ -1,5 +1,5 @@
 {
-  "status": "reviewed",
+  "status": "draft",
   "places": [
     {
       "id": "ismarus",
@@ -9041,6 +9041,173 @@
         {
           "cite": "Strabo. Geography 13.1.35.",
           "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
+        }
+      ]
+    },
+    {
+      "id": "hut-of-nestor",
+      "name": "The hut and ship of Nestor",
+      "greek": "κλισίη καὶ νηῦς Νέστορος",
+      "certainty": "speculative",
+      "tradition": "Position not fixed by the poem's one passage that places Achilles, Ajax and Odysseus in the line of ships (8.222-226 = 11.5-9) — Nestor's ship is not named there — and no excavated trace exists; Patroclus reaches it at a run from Achilles's station at one end of the line (11.617), which puts it somewhere short of that end, but no more precise position is ever given.",
+      "kind": "camp",
+      "maps": [
+        "troad-plain"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 2,
+          "lines": [
+            53,
+            54
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 10,
+          "lines": [
+            73,
+            74
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 11,
+          "lines": [
+            617,
+            618
+          ]
+        }
+      ],
+      "note": "Nestor's ship and hut, reached three times at moments that turn the plot. Agamemnon convenes the council of elders that hears the destructive Dream ‘beside the ship of the Pylos-born king’ (2.53-54 = Νεστορέῃ παρὰ νηῒ Πυλοιγενέος βασιλῆος). On the night of the Doloneia, unable to sleep, Agamemnon goes to rouse Nestor for a second council and ‘finds him beside his hut and black ship’ (10.73-74). And in the poem's own hinge, the wounded Machaon is driven there from the field; Achilles, watching from his own ship, sends Patroclus running the length of the camp to ask after him (11.599-618) — the errand that puts Patroclus in front of Nestor's long appeal on his return, the appeal that sets the rest of the poem in motion.",
+      "sources": [
+        {
+          "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
+        }
+      ]
+    },
+    {
+      "id": "trojan-camp",
+      "name": "The Trojan bivouac on the plain",
+      "greek": "πυρὰ Τρώων",
+      "certainty": "speculative",
+      "tradition": "Position fixed only by the poem's own relative description — ‘between the ships and the streams of the Xanthus’ (8.560) — not by any excavated trace or an absolute site.",
+      "kind": "camp",
+      "maps": [
+        "troad-plain"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 8,
+          "lines": [
+            489,
+            565
+          ]
+        }
+      ],
+      "note": "The Trojans' one recorded night in the open. On Hector's order, flushed with the day's success, they camp on the plain beside the ships instead of withdrawing into Troy, ‘between the ships and the streams of the Xanthus’ (8.560). A thousand fires burn there, fifty men waiting by the light of each blaze for dawn and battle (8.562-563) — the image the poem holds a moment, comparing the fires to stars around a bright moon on a windless night (8.555-559), before returning to the horses standing in harness, watching for the throned Dawn (8.564-565).",
+      "sources": [
+        {
+          "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
+        }
+      ]
+    },
+    {
+      "id": "thracian-camp",
+      "name": "The camp of Rhesus and the Thracians",
+      "greek": "εὐναὶ Θρῃκῶν",
+      "certainty": "speculative",
+      "tradition": "Position fixed only by the poem's own relative description — the newest-arrived of Troy's allies, camped apart, outermost of all (10.434) — not by any excavated trace or an absolute site.",
+      "kind": "camp",
+      "maps": [
+        "troad-plain"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 10,
+          "lines": [
+            434,
+            434
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 10,
+          "lines": [
+            469,
+            525
+          ]
+        }
+      ],
+      "note": "The camp of Rhesus, king of the Thracians: newest come to Troy and posted apart from the rest, ‘outermost of all’ (10.434) — the position the captured Dolon gives away under interrogation, along with a boast about Rhesus's gold-and-silver chariot and horses whiter than snow (10.435-441). Odysseus and Diomedes go straight there: Diomedes kills Rhesus and twelve sleeping Thracians while Odysseus drags the bodies clear so the panicked horses will not shy at them, and the two drive the horses back to the ships (10.469-514).",
+      "sources": [
+        {
+          "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
+        }
+      ]
+    },
+    {
+      "id": "pyre-of-patroclus",
+      "name": "The pyre of Patroclus",
+      "greek": "πυρὴ Πατρόκλου",
+      "certainty": "speculative",
+      "tradition": "Position fixed only by the poem's own spatial logic — piled on ‘the headland’ where Achilles had already marked out ground for the barrow (23.125-126) — not by any excavated trace.",
+      "kind": "tomb",
+      "maps": [
+        "troad-plain"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 23,
+          "lines": [
+            108,
+            257
+          ]
+        }
+      ],
+      "note": "Where Achilles burns Patroclus. Wood cut on Ida is piled ‘on the headland, where Achilles had marked out a great mound for Patroclus and for himself’ (23.125-126); the pyre itself — named outright, ‘the pyre of Patroclus’ (23.192, πυρὴ Πατρόκλου) — is built a hundred feet square, loaded with sheep and cattle, jars of honey and oil, four horses, two of Patroclus's own dogs, and twelve captured Trojan youths, and burns through the night on winds Achilles prays down from Boreas and Zephyrus (23.163-225). At dawn the bones are gathered into a golden urn and Achilles orders a barrow raised over them — but only a modest one for now: ‘not very large, but such as fits; afterward let the Achaeans make it broad and high, whoever of you are left in the benched ships when I am gone’ (23.245-248). That later, far larger monument, shared in the end with Achilles's own bones, is the Odyssey's sequel and is catalogued separately as tomb-of-achilles-and-patroclus; this record is the pyre and the first, modest barrow Book 23 itself completes (23.255-257).",
+      "sources": [
+        {
+          "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
+        }
+      ]
+    },
+    {
+      "id": "funeral-games-ground",
+      "name": "The ground of Patroclus's funeral games",
+      "greek": "εὐρὺς ἀγών",
+      "certainty": "speculative",
+      "tradition": "Position fixed only by the poem's own spatial logic — the same ground as the pyre and barrow (23.257-258), with the chariot course running out into the level plain (23.358-359) — not by any excavated trace.",
+      "kind": "region",
+      "maps": [
+        "troad-plain"
+      ],
+      "mentions": [
+        {
+          "work": "iliad",
+          "book": 23,
+          "lines": [
+            257,
+            258
+          ]
+        },
+        {
+          "work": "iliad",
+          "book": 23,
+          "lines": [
+            358,
+            359
+          ]
+        }
+      ],
+      "note": "Immediately after the barrow is closed, Achilles holds the people ‘right there’ (αὐτοῦ) and seats them in ‘a wide gathering-place’ for the games (23.257-258, εὐρὺν ἀγῶνα) — the same ground as the pyre and barrow, not a separate site; the poem gives it no other bearings, and calls the gathering itself an ἀγών again when it breaks up at the start of Book 24 (24.1, Λῦτο δ' ἀγών). Only the chariot race reaches beyond it: Achilles sets the turning-post ‘far off, in the level plain’ (23.358-359), a landmark Nestor describes only as either an old gatepost or ‘the grave-mound of some man dead long ago’ (23.331) — Homer leaves the marker's identity undetermined, and so does this record.",
+      "sources": [
+        {
+          "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
         }
       ]
     }

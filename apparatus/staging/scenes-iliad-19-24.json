@@ -861,7 +861,7 @@
           "summary": "At dawn Agamemnon sends men and mules under Meriones to fetch wood from Mount Ida.",
           "location": "the Achaean camp / Mount Ida",
           "places": [
-            "achaean-camp",
+            "pyre-of-patroclus",
             "ida"
           ],
           "dayNumber": 27
@@ -874,7 +874,7 @@
           "summary": "The armed Myrmidons escort Patroclus's body in procession, their shorn hair covering the corpse.",
           "location": "Achaean camp",
           "places": [
-            "achaean-camp"
+            "pyre-of-patroclus"
           ],
           "dayNumber": 27
         },
@@ -886,7 +886,7 @@
           "summary": "Achilles cuts a lock of hair vowed to the river Spercheius and gives it to Patroclus instead.",
           "location": "the pyre site",
           "places": [
-            "achaean-camp"
+            "pyre-of-patroclus"
           ],
           "dayNumber": 27
         },
@@ -898,7 +898,7 @@
           "summary": "Achilles dismisses the wider host and, with the chief mourners, builds a great pyre for the body.",
           "location": "the pyre site",
           "places": [
-            "achaean-camp"
+            "pyre-of-patroclus"
           ],
           "dayNumber": 27
         },
@@ -910,7 +910,7 @@
           "summary": "Achilles sacrifices sheep, oxen, horses, dogs, and twelve Trojan captives on the pyre for Patroclus.",
           "location": "the pyre site",
           "places": [
-            "achaean-camp"
+            "pyre-of-patroclus"
           ],
           "dayNumber": 27
         },
@@ -922,7 +922,7 @@
           "summary": "The pyre will not catch; Achilles prays to the winds, which come and burn it through the night.",
           "location": "the pyre site",
           "places": [
-            "achaean-camp"
+            "pyre-of-patroclus"
           ],
           "dayNumber": 27
         },
@@ -934,7 +934,7 @@
           "summary": "At dawn the fire dies; the Achaeans quench it, gather Patroclus's bones into a golden urn, and raise a barrow.",
           "location": "the pyre site",
           "places": [
-            "achaean-camp"
+            "pyre-of-patroclus"
           ],
           "dayNumber": 28
         },
@@ -946,7 +946,7 @@
           "summary": "Achilles sets prizes for a chariot race; Nestor advises his son Antilochus on rounding the turning-post.",
           "location": "the funeral games ground",
           "places": [
-            "achaean-camp"
+            "funeral-games-ground"
           ],
           "dayNumber": 28
         },
@@ -958,7 +958,7 @@
           "summary": "The chariot race runs; Apollo and Athena intervene, and Diomedes finishes first, ahead of Antilochus and Menelaus.",
           "location": "the funeral games ground",
           "places": [
-            "achaean-camp"
+            "funeral-games-ground"
           ],
           "dayNumber": 28
         },
@@ -970,7 +970,7 @@
           "summary": "Antilochus's reckless driving costs Menelaus second place; Achilles settles a quarrel among the spectators and adds a prize for Eumelus.",
           "location": "the funeral games ground",
           "places": [
-            "achaean-camp"
+            "funeral-games-ground"
           ],
           "dayNumber": 28
         },
@@ -982,7 +982,7 @@
           "summary": "Nestor receives an honorary prize and recalls his own youthful victories at Amarynceus's funeral games.",
           "location": "the funeral games ground",
           "places": [
-            "achaean-camp"
+            "funeral-games-ground"
           ],
           "dayNumber": 28
         },
@@ -994,7 +994,7 @@
           "summary": "Epeius knocks out Euryalus with a single blow to win the boxing match.",
           "location": "the funeral games ground",
           "places": [
-            "achaean-camp"
+            "funeral-games-ground"
           ],
           "dayNumber": 28
         },
@@ -1006,7 +1006,7 @@
           "summary": "Telamonian Aias and Odysseus wrestle to a draw; Achilles stops the match and awards them equal prizes.",
           "location": "the funeral games ground",
           "places": [
-            "achaean-camp"
+            "funeral-games-ground"
           ],
           "dayNumber": 28
         },
@@ -1018,7 +1018,7 @@
           "summary": "In the footrace, Athena trips Oïlean Aias to let Odysseus win; Antilochus praises Achilles's own speed.",
           "location": "the funeral games ground",
           "places": [
-            "achaean-camp"
+            "funeral-games-ground"
           ],
           "dayNumber": 28
         },
@@ -1030,7 +1030,7 @@
           "summary": "Telamonian Aias and Diomedes duel in armor for a sword; the Achaeans halt the contest for Aias's safety.",
           "location": "the funeral games ground",
           "places": [
-            "achaean-camp"
+            "funeral-games-ground"
           ],
           "dayNumber": 28
         },
@@ -1042,7 +1042,7 @@
           "summary": "Achilles holds contests in weight-throwing, archery, and javelin, honoring Polypoetes, Meriones, Teucer, and Agamemnon.",
           "location": "the funeral games ground",
           "places": [
-            "achaean-camp"
+            "funeral-games-ground"
           ],
           "dayNumber": 28
         }

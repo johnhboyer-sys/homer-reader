@@ -53,7 +53,7 @@
         {"lines": [438, 484], "summary": "Zeus rebukes Athena and Hera and foretells Hector's rampage will continue until Achilles returns and Patroclus falls.", "location": "Olympus", "dayNumber": 24, "places": ["olympus"]},
         {"lines": [485, 488], "summary": "The sun sets, ending the day's fighting.", "location": "Trojan plain", "dayNumber": 24, "places": ["scamandrian-plain"]},
         {"lines": [489, 541], "summary": "Hector orders watch-fires lit to trap the Achaeans and plans to renew battle at dawn.", "location": "Trojan plain", "dayNumber": 24, "places": ["scamandrian-plain"]},
-        {"lines": [542, 565], "summary": "The Trojans camp on the plain, feasting by a thousand fires as they await dawn.", "location": "Trojan plain", "dayNumber": 24, "places": ["scamandrian-plain"]}
+        {"lines": [542, 565], "summary": "The Trojans camp on the plain, feasting by a thousand fires as they await dawn.", "location": "Trojan plain", "dayNumber": 24, "places": ["trojan-camp"]}
       ]
     },
     {
@@ -92,7 +92,7 @@
         {"lines": [1, 24], "summary": "Sleepless with worry, Agamemnon rises before dawn and arms himself.", "location": "Achaean camp", "dayNumber": 24, "places": ["achaean-camp"]},
         {"lines": [25, 53], "summary": "Menelaus, also sleepless, arms and joins his brother to discuss the crisis.", "location": "Achaean camp", "dayNumber": 24, "places": ["achaean-camp"]},
         {"lines": [54, 71], "summary": "Agamemnon sends Menelaus to rouse Ajax and Idomeneus while he seeks Nestor.", "location": "Achaean camp", "dayNumber": 24, "places": ["achaean-camp"]},
-        {"lines": [72, 130], "summary": "Agamemnon wakes Nestor; they resolve to check the sentinels and gather the council.", "location": "Nestor's hut", "dayNumber": 24, "places": ["achaean-camp"]},
+        {"lines": [72, 130], "summary": "Agamemnon wakes Nestor; they resolve to check the sentinels and gather the council.", "location": "Nestor's hut", "dayNumber": 24, "places": ["hut-of-nestor"]},
         {"lines": [131, 179], "summary": "Nestor rouses Odysseus and Diomedes to join the night council.", "location": "Achaean camp", "dayNumber": 24, "places": ["achaean-camp"]},
         {"lines": [180, 217], "summary": "The chiefs inspect the wakeful sentinels; Nestor proposes sending a spy into the Trojan camp.", "location": "Achaean trench", "dayNumber": 24, "places": ["achaean-wall-and-ditch"]},
         {"lines": [218, 253], "summary": "Diomedes volunteers for the mission and chooses Odysseus as his companion.", "location": "Achaean trench", "dayNumber": 24, "places": ["achaean-wall-and-ditch"]},
@@ -101,9 +101,9 @@
         {"lines": [338, 368], "summary": "Odysseus and Diomedes spot Dolon, let him pass, then run him down.", "location": "Trojan plain", "dayNumber": 24, "places": ["scamandrian-plain"]},
         {"lines": [369, 445], "summary": "Dolon is captured and, begging for ransom, reveals the Trojan dispositions and the camp of Rhesus.", "location": "Trojan plain", "dayNumber": 24, "places": ["scamandrian-plain"]},
         {"lines": [446, 468], "summary": "Diomedes kills Dolon despite his information; the spoils are dedicated to Athena.", "location": "Trojan plain", "dayNumber": 24, "places": ["scamandrian-plain"]},
-        {"lines": [469, 502], "summary": "Diomedes slaughters the sleeping Thracians and King Rhesus while Odysseus frees the horses.", "location": "Trojan camp", "dayNumber": 24, "places": ["scamandrian-plain"]},
-        {"lines": [503, 514], "summary": "Athena warns Diomedes to retreat before another god rouses the Trojans.", "location": "Trojan camp", "dayNumber": 24, "places": ["scamandrian-plain"]},
-        {"lines": [515, 525], "summary": "Apollo rouses a Thracian kinsman of Rhesus, who discovers the slaughter and raises the alarm.", "location": "Trojan camp", "dayNumber": 24, "places": ["scamandrian-plain"]},
+        {"lines": [469, 502], "summary": "Diomedes slaughters the sleeping Thracians and King Rhesus while Odysseus frees the horses.", "location": "Trojan camp", "dayNumber": 24, "places": ["thracian-camp"]},
+        {"lines": [503, 514], "summary": "Athena warns Diomedes to retreat before another god rouses the Trojans.", "location": "Trojan camp", "dayNumber": 24, "places": ["thracian-camp"]},
+        {"lines": [515, 525], "summary": "Apollo rouses a Thracian kinsman of Rhesus, who discovers the slaughter and raises the alarm.", "location": "Trojan camp", "dayNumber": 24, "places": ["thracian-camp"]},
         {"lines": [526, 579], "summary": "Odysseus and Diomedes escape with Rhesus's horses; Nestor and the Achaeans welcome them and hear their tale.", "location": "Achaean camp", "dayNumber": 24, "places": ["achaean-camp"]}
       ]
     },
@@ -132,7 +132,7 @@
         {"lines": [521, 548], "summary": "Cebriones directs Hector toward Ajax's sector as Zeus makes Ajax falter and give ground.", "location": "Trojan plain", "dayNumber": 25, "places": ["scamandrian-plain"]},
         {"lines": [549, 598], "summary": "Ajax retreats stubbornly under fire; Eurypylus aids him and is wounded by Paris in turn.", "location": "Trojan plain", "dayNumber": 25, "places": ["scamandrian-plain"]},
         {"lines": [599, 654], "summary": "Achilles, watching from his ship, sends Patroclus to learn who Nestor carried from the field wounded.", "location": "Achaean camp", "dayNumber": 25, "places": ["hut-of-achilles"]},
-        {"lines": [655, 803], "summary": "At his hut, Nestor lists the wounded Achaean leaders and urges Patroclus to rouse Achilles or wear his armor.", "location": "Nestor's hut", "dayNumber": 25, "places": ["achaean-camp"]},
+        {"lines": [655, 803], "summary": "At his hut, Nestor lists the wounded Achaean leaders and urges Patroclus to rouse Achilles or wear his armor.", "location": "Nestor's hut", "dayNumber": 25, "places": ["hut-of-nestor"]},
         {"lines": [804, 848], "summary": "Hurrying back, Patroclus stops to treat the wounded Eurypylus, delaying his return to Achilles.", "location": "Achaean camp", "dayNumber": 25, "places": ["achaean-camp"]}
       ]
     },
