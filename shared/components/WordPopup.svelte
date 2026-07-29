@@ -5,15 +5,17 @@
 
   // The PRESENTATION shell for a word lookup. Two presentations, one shared body
   // (LexiconPanel):
-  //   • docked=false (default) — the anchored MOBILE / narrow popup: a modal
-  //     bottom-sheet (phone / tablet-compare) or right slide-in, closed by a
-  //     window pointerdown listener (not a blocking backdrop — that swallowed
-  //     clicks meant for another Greek token) and a Tab focus-trap.
-  //   • docked=true — the DESKTOP (≥1100px) lexicon rail: a NON-modal, in-layout
-  //     panel — no outside-click close, no aria-modal, no focus-trap, part of
-  //     the page tab order. Focus management (move-in on keyboard open,
-  //     return-on-Escape) is owned by the Reader, which knows whether the
-  //     token was opened by keyboard (DESIGN.md 2026-07-17).
+  //   • docked=false (default) — the anchored MOBILE / narrow popup: a
+  //     NON-modal bottom-sheet (phone / tablet-compare) or right slide-in,
+  //     closed by a window click listener (not a blocking backdrop — that
+  //     swallowed clicks meant for another Greek token). Non-modal for real:
+  //     outside clicks land on their targets and other tokens swap the panel,
+  //     so it claims no aria-modal and installs no focus trap.
+  //   • docked=true — the DESKTOP (≥1100px) lexicon rail: an in-layout
+  //     panel — no outside-click close, part of the page tab order. Focus
+  //     management (move-in on keyboard open, return-on-Escape) is owned by
+  //     the Reader, which knows whether the token was opened by keyboard
+  //     (DESIGN.md 2026-07-17).
   export let work: string = 'EN';
   export let token: { t: string; k: string };
   export const anchor: { x: number; y: number } = { x: 0, y: 0 };
@@ -26,7 +28,7 @@
   export let docked: boolean = false;
   // Move focus into the panel on open only when asked — keyboard activation of a
   // Greek token. A docked panel opened by MOUSE must not steal focus from the
-  // reading flow; the modal popup always takes focus.
+  // reading flow; the anchored popup always takes focus.
   export let autofocus: boolean = false;
 
   let dialogEl: HTMLDivElement;
@@ -49,57 +51,31 @@
     if (e.key === 'Escape') onClose();
   }
 
-  // Close on any pointer-down outside the panel — EXCEPT on a Greek token,
-  // whose own click handler swaps the popup to the new word. (A blocking
-  // backdrop here would swallow that click and force close-then-reopen, with
-  // two page reflows.) The docked rail is non-modal and was never dismissed by
-  // outside clicks (no backdrop ever rendered for it) — preserve that by
-  // no-op'ing here while docked.
-  function onOutsidePointer(e: PointerEvent) {
+  // Close on any CLICK outside the panel — EXCEPT on a Greek token, whose
+  // own click handler swaps the popup to the new word. (A blocking backdrop
+  // here would swallow that click and force close-then-reopen, with two page
+  // reflows.) Click, not pointerdown: a click only fires after press+release
+  // on the same target, so a touch pan, a text-selection drag, or a
+  // right-click never dismisses the panel — the same tap-not-pan semantics
+  // the old backdrop had (Sol adversarial-review catch, 2026-07-29). The
+  // docked rail was never dismissed by outside clicks (no backdrop ever
+  // rendered for it) — preserve that by no-op'ing here while docked.
+  function onOutsideClick(e: MouseEvent) {
     if (docked) return;
     const t = e.target as HTMLElement | null;
     if (!t || t.closest('.word-sidebar') || t.closest('.tok')) return;
     onClose();
   }
 
-  function focusableEls(): HTMLElement[] {
-    return dialogEl
-      ? Array.from(dialogEl.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        )).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1)
-      : [];
-  }
-
-  // Tab focus-trap — modal presentation only. The docked rail is non-modal and
-  // stays in the natural page tab order, so it installs no trap.
-  function onDialogKey(e: KeyboardEvent) {
-    if (e.key !== 'Tab') return;
-    const els = focusableEls();
-    if (els.length === 0) {
-      e.preventDefault();
-      dialogEl?.focus();
-      return;
-    }
-    const first = els[0];
-    const last = els[els.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  }
-
   onMount(() => {
     previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    // Modal popup always takes focus; the docked rail only when the reader
-    // signals a keyboard open (autofocus).
+    // The anchored popup always takes focus; the docked rail only when the
+    // reader signals a keyboard open (autofocus).
     if (!docked || autofocus) setTimeout(() => dialogEl?.focus({ preventScroll: true }), 0);
   });
 
   onDestroy(() => {
-    // The modal popup restores focus to the opener on teardown. The docked rail
+    // The anchored popup restores focus to the opener on teardown. The docked rail
     // leaves focus to the reader (it returns focus to the token on Escape), so a
     // mouse-driven close never yanks the caret around the page.
     // preventScroll: the reader pins its own scroll position across the close
@@ -108,9 +84,9 @@
   });
 </script>
 
-<svelte:window on:keydown={onKey} on:pointerdown={onOutsidePointer} />
+<svelte:window on:keydown={onKey} on:click={onOutsideClick} />
 
-<!-- Desktop docked rail (non-modal) OR the anchored modal popup/sheet. Both via CSS. -->
+<!-- Desktop docked rail OR the anchored popup/sheet (both non-modal). Both via CSS. -->
 <div
   class="word-sidebar"
   class:as-sheet={asSheet}
@@ -119,9 +95,7 @@
   transition:fly={reduceMotion ? { duration: 0 } : asSheetHere ? { y: 600, duration: 260, opacity: 1 } : { x: 420, duration: 220, opacity: 1 }}
   role={docked ? 'region' : 'dialog'}
   aria-label="Word analysis"
-  aria-modal={docked ? undefined : 'true'}
   tabindex="-1"
-  on:keydown={docked ? undefined : onDialogKey}
 >
   <div class="word-sidebar-head">
     <span class="popup-surface" lang="grc">{token.t}</span>
