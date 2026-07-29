@@ -526,6 +526,32 @@ they are also the ones that break on inversion: a low or inverted light source t
 Vertical-illumination hachures and stipple are immune, because they encode density, not
 shadow.
 
+> **SUPERSEDED, 2026-07-28 — we have a DEM now.** The clause above, "a DEM we do not
+> have," is the whole of the objection to hill shading, and it has stopped being true.
+> `scripts/prep-terrain-contours.py` pulls the SRTM-derived terrarium tiles from AWS
+> Open Data (`sources/terrain-tiles/`, public domain, one credit line owed) and both
+> Troy plates now carry relief cut from real contours: 200 m on the Troad, 20–50 m on
+> the plain, checked against Kaz Dağı at 1757 m, Hisarlık at 36 m and sea at 0. A
+> surface normal is one finite difference away. **The honesty objection to hillshade is
+> withdrawn.**
+>
+> The *perceptual* objection in the second half stands untouched, and it is why this
+> lane shipped contours and hachures rather than shading: relief inversion under a low
+> or inverted light is a property of shaded relief itself, not of where the data came
+> from, and it bites hardest in dark theme, where "parchment does not invert" already
+> forces the ink to change. Vertical illumination has no light source to invert. So the
+> register is unchanged — hachures and contour-cut bodies — but it is now a
+> **choice between two honest options** rather than the only one available.
+>
+> Two consequences worth writing down. First, **form lines are retired on these two
+> sheets**: `shading: "form-lines"` said "sketched, not contoured," and the bodies it
+> was on are contoured now, so the field is gone from them rather than left lying as a
+> false claim. Second, the DEM contradicted a hand-drawn feature and the DEM won: no
+> contour isolates the "Troy ridge," because the ground rises continuously eastward
+> from the mound (36 m at Hisarlık, 58 m a kilometre and a half east). It is a spur off
+> the eastern upland, not a hill, which is exactly why the city commands the plain to
+> its west and south and nothing to its east.
+
 **Typography.** Imhof's label-position ranking, via a
 [2024 reassessment](https://arxiv.org/html/2407.11996v1): **top-right > right > top >
 bottom > left**, shifting to TR, L, B, T, R under dense labelling; his reason is that
