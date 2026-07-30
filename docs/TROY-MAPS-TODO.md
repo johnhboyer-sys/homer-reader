@@ -46,6 +46,11 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
   pinned at the surveyed OSM peak 39.95653/26.33947 (ele 207 m = Cook's
   680 ft), tier stays speculative, tradition names the chain and Leaf's
   Ophrynion alternative. Applied to places.json same day.
+- **D12 — DECIDED (09:36): Edwards's reading for the city at war** — one
+  besieged city with forces on either side (the drawable reading; Taplin's
+  two-armies would leave the second army's position speculative), with a
+  note carrying the disagreement (Taplin: "two besieging armies, their
+  relation obscure").
 - **D16 — DEFERRED** until John can sit with the dossiers (chryse,
   dardania, thymbra).
 - **D2, D3, D7, D8, D13 — ALL settled-by-evidence items CONFIRMED**
