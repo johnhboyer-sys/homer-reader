@@ -1343,8 +1343,8 @@
       "certainty": "speculative",
       "tradition": "A contested identification: Kara Tepe, roughly 8.5 km east of Troy near the Simoeis, was identified by Spratt and Forchhammer (19th c.), defended by J. M. Cook (1973, 110-13) working from Strabo's stade-figures (13.1.35: 40 stadia from Ilium, 5 from the Simoeis), and adopted by Luce (1984); Leaf (1912, 44) instead proposed Ophrynion, on the plain's opposite side",
       "coords": [
-        39.96,
-        26.28
+        39.9565,
+        26.3395
       ],
       "kind": "hill",
       "maps": [
@@ -1368,7 +1368,7 @@
           ]
         }
       ],
-      "note": "A rise beside the Simoeis where Ares rallies the Trojans (20.53) and the pro-Trojan gods take their seats to watch the battle of the gods (20.151), the Trojan counterpart to the Achaean wall where the pro-Greek gods sit (20.144-148). The coordinate plotted here does not match Cook's Kara Tepe, which sits roughly 8.5 km (not 3.5 km) east of Troy, or any other traced authority; its provenance is unknown. Moving the pin to Kara Tepe, or adopting Leaf's Ophrynion alternative instead, is a pending editorial decision.",
+      "note": "A rise beside the Simoeis where Ares rallies the Trojans (20.53) and the pro-Trojan gods take their seats to watch the battle of the gods (20.151), the Trojan counterpart to the Achaean wall where the pro-Greek gods sit (20.144-148). Pinned at Kara Tepe (editorial ruling, 2026-07-30): the surveyed peak 8.5 km east of Troy, elevation 207 m — Cook's own 680 ft — carrying the Spratt/Forchhammer identification he defends and Luce adopts. Leaf instead proposed Ophrynion; Strabo's forty stades sit between the two, and the identification remains speculative.",
       "sources": [
         {
           "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."

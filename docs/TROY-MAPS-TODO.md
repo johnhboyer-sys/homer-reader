@@ -31,6 +31,23 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
   marked conjectural at the lost NW corner with his own vermutungsweise
   hedge quoted, stated as reversible. The unsourced guidebook
   "South Gate = Scaean" never appears.
+- **D11 — DECIDED (09:34): side with Taplin — the dance scene includes
+  the bard**, with a note carrying the disagreement: our printed text
+  (vulgate/Aristarchus) lacks him; Edwards calls the line a supplement,
+  Revermann rejects it too; Taplin — with Schadewaldt, Reinhardt and Marg
+  (who take the singer for Homer himself) — would have him. The caption
+  must state that the drawing follows Taplin's reading so plate and
+  printed text never look accidentally inconsistent.
+- **D14 — DECIDED (09:34): Option A — literal metallics.** Gold, silver,
+  bronze, tin figures on dark kyanos-inlay ground, per Il. 18.474-75 +
+  the Mycenaean inlay precedent.
+- **D15 — DECIDED (09:34): Callicolone moves to Kara Tepe** (the
+  Spratt/Forchhammer identification, defended by Cook, adopted by Luce),
+  pinned at the surveyed OSM peak 39.95653/26.33947 (ele 207 m = Cook's
+  680 ft), tier stays speculative, tradition names the chain and Leaf's
+  Ophrynion alternative. Applied to places.json same day.
+- **D16 — DEFERRED** until John can sit with the dossiers (chryse,
+  dardania, thymbra).
 - **D2, D3, D7, D8, D13 — ALL settled-by-evidence items CONFIRMED**
   (John, 09:26): wagon gate captioned without a side-word; no schematic
   scale bar (pyre keeps its cited 100-ft label); shore-bronze note
