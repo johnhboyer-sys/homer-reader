@@ -5,9 +5,17 @@ to plain + Troad. Gazetteer defects fixed. What remains:
 
 ## John (whenever you have a minute, in priority order)
 
-1. **JSTOR/uni login in Chrome**, then tell the session — I pull
-   `docs/research/PAYWALLED-ACCESS-QUEUE.md` top-down (25 items; the top 7
-   each settle a load-bearing claim).
+1. ~~JSTOR login~~ **DONE 2026-07-29 overnight** — 4 PDFs pulled, extracted,
+   verified, committed. Remaining access items:
+   a. **Two manual clicks**: the CATENA paper + erratum render with full
+      access in the proxied ScienceDirect tabs, but Chrome's PDF viewer
+      ignores automated download clicks — download both yourself, drop them
+      in `research-cache/`, tell the session.
+   b. **archive.org borrow** for the Cambridge commentary notes (Loyola
+      doesn't license them anywhere) — vols III and V first.
+   c. **ILL or borrow**: Cook 1973, Luce 1984 + 1998, *Geology* 2003
+      (GeoScienceWorld isn't in Loyola's proxy at all), the Springer *Troia
+      and the Troad* chapters, Kayan 2014 (Studia Troica Mon. 5).
 2. **Contested identifications** (can wait until Cook 1973 is pulled):
    chryse (our tradition string reverses Strabo 13.1.63), dardania,
    callicolone, the Scaean/Dardanian gate pairing, thymbra re-anchor.
