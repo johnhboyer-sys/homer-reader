@@ -1,5 +1,29 @@
 # Paywalled-access pull queue (2026-07-29)
 
+## Status after the overnight pull session (2026-07-30)
+
+**OBTAINED** (in `research-cache/`, extracted into their dossiers, Grok-verified):
+Kraft/Kayan/Erol *Science* 1980 (full text + all figures — settles the 10 km
+origin and kills the "1.2 km, Kraft" attribution); Taplin 1980 (item 12);
+Hardie 1985 (item 21 — start page settled: 11); Revermann 1998 (item 21);
+Tsagalis 2012 notes (free CHS text, needed a real browser).
+
+**BLOCKED — needs John's own click** (full access confirmed, but Chrome's PDF
+viewer ignores automated download clicks): the CATENA paper + erratum
+(item 13) — both render fine in the proxied ScienceDirect tabs; two manual
+downloads and they're done.
+
+**NO ACCESS via Loyola** (verified, not guessed): *Geology* 2003 figures
+(item 2 — GeoScienceWorld is not in the EZproxy database list at all);
+Springer *Troia and the Troad* chapters (items 9, 10, 17 — book not licensed);
+Luce 1984 (item 11/17 — Wiley purchase-only; EBSCO offers ILL only);
+**Cambridge commentary volumes (items 1, 4, 5, 6 — not licensed on Cambridge
+Core, not in EBSCO eBooks; the archive.org controlled-lending borrow is the
+fastest lawful path, or ILL)**. Cook 1973 (item 7): no online path found; ILL
+or the archive.org borrow.
+
+The tier lists below are unchanged as the master record.
+
 Consolidated from the five Grok-verified research dossiers. Ordered by leverage:
 what each item settles, and which dossier consumes it. John logs into
 JSTOR/university resources in Chrome; the orchestrator pulls; excerpts go back

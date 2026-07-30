@@ -636,10 +636,13 @@ Ordered by what each settles.
    overlays), which were WGS84 GeoJSON with `ergraben`/`rekonstruiert` already split, and
    (b) whether any of the project GIS can be released under a licence we may draw from.
    This is the highest-value single request in this dossier. Not a paywall — an email.
-4. **Dörpfeld 1902, Tafel I** ("Karte der Ebene von Troja") — absent from both Getty
-   volumes' foldouts and from the Toronto scan's four. Belongs to the plain dossier, not
-   this one, but it is the same book. Try Heidelberg
-   (`digi.ub.uni-heidelberg.de/diglit/doerpfeld1902bd2`), which blocked this lane.
+4. **Dörpfeld 1902, Tafel I** ("Karte der Ebene von Troja") — **FOUND (2026-07-29,
+   superseding this dossier's "absent from all scans" claim):** it is in the Getty
+   scan after all, at `trojaundilionerg02dorp` leaf **n268**, one leaf before
+   Tafel II, hidden behind a blank protective interleaf. Full-colour plain-of-Troy
+   map (Spratt 1840 survey, completed 1894), 3489×3501 px at `_w4000.jpg`,
+   Grok-verified by download. See RESEARCH-PD-SCAN-HUNTS.md Hunt 3. Belongs to the
+   plain dossier, but it is the same PD book.
 5. **Blegen, Caskey and Rawson, *Troy III: The Sixth Settlement* (1953), part 2** — the
    folded plans of Troy VI. Needed to know whether Blegen's plan supersedes Dörpfeld's Tafel
    V in any respect that shows at plate scale (his re-attribution of VI h and VI i, his
