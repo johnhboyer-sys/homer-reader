@@ -20,9 +20,12 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
   most recently published scholarly placement wins the camera** — currently
   the 2003 Kraft/Rapp/Kayan/Luce outer-ridge camp — and the caption names
   whose placement is framed. Later scholarship supersedes automatically.
-- **D2, D3 — CONFIRMED as settled**: the wagon gate is drawn and captioned
-  without a side-word; no scale bar on the schematic, the pyre carries its
-  cited 100-ft dimension label.
+- **D2, D3, D7, D8, D13 — ALL settled-by-evidence items CONFIRMED**
+  (John, 09:26): wagon gate captioned without a side-word; no schematic
+  scale bar (pyre keeps its cited 100-ft label); shore-bronze note
+  re-attributed (Strabo-endorsed, not measured); rivers/ford never lean on
+  the 2003 reconstruction figures and no coordinate is ever lifted from
+  them; the Shield figuration brief inherits scenes-not-ring-count.
 
 ## John (in priority order)
 
