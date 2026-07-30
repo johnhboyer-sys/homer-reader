@@ -8,16 +8,13 @@ to plain + Troad. Gazetteer defects fixed. What remains:
 1. **JSTOR/uni login in Chrome**, then tell the session — I pull
    `docs/research/PAYWALLED-ACCESS-QUEUE.md` top-down (25 items; the top 7
    each settle a load-bearing claim).
-2. **Yes/no: email Peter Jablonka** for the dead Troia WebGIS layers
-   (georeferenced citadel GeoJSON — the single best source for the citadel
-   rebuild; RESEARCH-CITADEL.md §6).
-3. **Contested identifications** (can wait until Cook 1973 is pulled):
+2. **Contested identifications** (can wait until Cook 1973 is pulled):
    chryse (our tradition string reverses Strabo 13.1.63), dardania,
    callicolone, the Scaean/Dardanian gate pairing, thymbra re-anchor.
-4. **Shield visual register**: literal metallics (gold/silver on dark inlay,
+3. **Shield visual register**: literal metallics (gold/silver on dark inlay,
    the Mycenaean dagger precedent) vs the site's terracotta family.
    RESEARCH-SHIELD.md has the evidence for both.
-5. **PR #16** — still draft, review whenever.
+4. **PR #16** — still draft, review whenever.
 
 ## Next work session (no input from John needed)
 
@@ -38,5 +35,5 @@ to plain + Troad. Gazetteer defects fixed. What remains:
    fix the `shore-bronze` Rhoiteion terminus (−0.4 m vertex);
    add ἴστωρ to the lexicon slices (reader-facing gap at 18.501).
 7. **Citadel rebuild** from Dörpfeld Tafel V (georectify on features, grid as
-   scale check) — after Messmer Abb. 2 / Jablonka answer.
-8. **Shield figuration design** — after John's register call (his #4).
+   scale check) — after Messmer Abb. 2 is pulled (Jablonka email shelved for now, 2026-07-29).
+8. **Shield figuration design** — after John's register call (his #3).
