@@ -42,10 +42,14 @@ passages translated by me and marked); Strabo 13.1.31 and 13.1.36 in the PD
 Hamilton–Falconer translation via Perseus; **Kraft, Kayan & Erol 1980, text and
 all six figures** (JSTOR scan cached at `research-cache/kraft-kayan-erol-1980-science.pdf`,
 obtained and read 2026-07-29 — this supersedes the "abstract only" line it used
-to sit on, and §1.1 now carries page and figure numbers).
+to sit on, and §1.1 now carries page and figure numbers); **Luce 1984, all
+thirteen pages and both figures** (scan cached at
+`research-cache/luce-1984-oja.pdf`, obtained and read 2026-07-30 — §1.11 now
+carries page cites, and the questions §5 item 8 was holding are answered there,
+one of them negatively).
 
 **Abstract or publisher metadata only:** Kraft, Rapp,
-Kayan & Luce 2003; Kayan et al. 2003; Kayan 2019; Luce 1984; Seeliger et al.
+Kayan & Luce 2003; Kayan et al. 2003; Kayan 2019; Seeliger et al.
 2021.
 
 **Not seen at all:** Kraft, Kayan & Erol 1982 (the long version — wanted now for
@@ -725,68 +729,319 @@ salt-water lakes, and marshes**."
   gazetteer record at tier `traditional` (Strabonic, post-Homeric — the name does
   not occur in the *Iliad*).
 
-### 1.11 Luce — the dissent, verified, and it is not a fringe position
+### 1.11 Luce 1984 — the dissent, read in full, and it is narrower and better founded than the abstract suggests
 
-**Claim (Luce 1984, verbatim abstract).** "Homeric passages bearing on the
-location of the Achaean camp at Troy are re-examined in the light of new
-scientific data on the time-scale for the alluviation of the Trojan plain. The new
-data confirm the accuracy of Strabo's account of the plain, and in particular of
-the shore-line having come close to the Hisarlik site (*Novum Ilium*) in
-Hellenistic times. **In the era of Troy VI/VII, c. 3,250 years BP, the shore-line
-appears to have run west by south of the site, and a broad marine embayment lay
-between the city and the Sigeum ridge.** It is therefore no longer possible to
-accept the received view (deriving from Schliemann and Leaf) that the Achaean camp
-was sited on the present shore-line by the Hellespont. **A new site is proposed for
-the camp on the lower slopes of the Sigeum ridge about four miles west of
-Hisarlik.** It is argued that the indications in the *Iliad* are not inconsistent
-with such a siting, and in fact suit it better than the received view. This is
-shown with regard to the course of the Scamander, evidently pictured by Homer as
-running between camp and city, and also with respect to **the general axis of the
-fighting on the plain, which is indicated to lie in an east-west rather than a
-north-south direction**. The Besika Bay site, first proposed in 1912, is rejected
-as inconsistent with the Homeric data and unsatisfactory in itself."
+**The one-sentence version.** Luce accepts Kraft's shoreline entire and moves only
+the camp: the fleet is beached on the **eastern flank of the Sigeum ridge, inside
+the embayment, 4 to 5 km from Troy** (p. 41), looking south-east across salt water at a
+citadel "**5 to 6 km across the expanse of water to the south-east**" (p. 35);
+the Scamander runs **between camp and city**, which is "a cardinal point in my
+thesis" (p. 39); and the fighting axis therefore runs **east–west**, not
+north–south.
 
 - Citation: Luce, J. V. "The Homeric Topography of the Trojan Plain
   Reconsidered." *Oxford Journal of Archaeology* 3, no. 1 (1984): 31–43.
   https://doi.org/10.1111/j.1468-0092.1984.tb00114.x
-- Authority: **identification** (camp position; fighting axis); **geometry** for
-  "four miles west" and the embayment's position, both approximate.
-- Verified how: full abstract via
-  [OpenAlex](https://api.openalex.org/works/doi:10.1111/j.1468-0092.1984.tb00114.x)
-  (Wiley and Semantic Scholar both withhold it; OpenAlex carries the publisher
-  abstract). Body and figures unseen.
-- **Why it must be on the page, not buried.** Luce is a co-author of the *Geology*
-  paper (§1.3), so his reconstruction is not an outsider's objection to the
-  geoarchaeology — it is the classicist half of the same project. His camp is
-  **west** of Troy on the Sigeum ridge, not **north-west** on the Hellespont
-  beach; his battlefield axis is **east–west**. Our plate note already says this
-  and says the sheet draws Kraft instead. That is the right posture; the note
-  should also say that Luce's placement is the same Kesik-side ground that Kraft
-  et al. pick for the harbour, i.e. the two are one reconstruction, not two.
-- **And "Kraft instead" will not do as a contrast (full text, 2026-07-29).** Kraft,
-  Kayan and Erol 1980, 782 put the Achaean camp at **Beşika** and the battlefield
-  axis "to the south of Troy and to the east of the Beşika embayment" — further
-  south-west than Luce's Sigeum-ridge camp, not opposite it. On the camp's *side of
-  the city* there is no Kraft/Luce disagreement to draw: 1980 Kraft, 2003a Kraft
-  and Luce all put the fleet west or south-west, and none of them puts it on the
-  Hellespont beach. The received Schliemann–Leaf placement is the position all
-  three reject. Any note that sets "Kraft" against "Luce" here is contrasting the
-  wrong pair (§1.1, §1.9, §4 item 10).
-- **One number to flag.** "About four miles west" is ~6.4 km. DEM measurement
-  (this dossier): from Hisarlık (39.957, 26.239) the east foot of the Sigeum
-  ridge — where the ground rises past 20 m — is ~5.4 km west, and the crest is at
-  lon 26.17–26.18. Four miles west of Hisarlık would be at or beyond the ridge's
-  seaward side. Luce's own figure is needed before any anchor is placed for his
-  camp; without it, "the lower eastern slopes of the Sigeum ridge, c. 5 km west"
-  is the defensible paraphrase.
+- Authority: **identification** (camp position; fighting axis; Kallikolone,
+  Thymbra, the Aisyetes tumulus, the fort of Heracles); **geometry** for the
+  camp-to-Troy distances and the strip marked on his Fig. 1; **prose** for the
+  Homeric argument that occupies most of the article.
+- Verified how: full text and both figures read page by page in the scan cached at
+  `research-cache/luce-1984-oja.pdf` (13 pp., 2026-07-30). Page numbers below are
+  the journal's own, 31–43. Supersedes the abstract-only entry this section
+  carried on 2026-07-29; the abstract is still quoted in §1.11a below because two
+  of its numbers do **not** match the body.
+
+**Where he puts the shore — and it is not his line.** He does not reconstruct a
+shoreline. He takes one: "in the time of Troy VI/VII, c 3,250 years BP, the
+shore-line still ran somewhat west by south of the city, and the inhabitants
+looked across a salt-water bay to the Sigeum ridge (Fig. 1)" (p. 32), and Fig. 1's
+caption says exactly where that comes from — "**After Kraft, Kayan and Erol 1980,
+fig. 2 with additions from fig. 6**" (p. 33). The evidence is Kraft's: nine
+bore-holes, the reconstruction published in Rapp and Gifford's 1982 supplement to
+Blegen's *Troy*, and the assumption "that the sea-level of the Aegean stabilised
+about 5,000 years ago" (p. 31). His own additions to the map are the camp, Mey's
+trenches, and the Homeric names. **So there is no independent "Luce shoreline" to
+draw as an alternative to Kraft's** — the two are one line. See §4 item 12: this
+kills the shoreline half of our plate note's Kraft-versus-Luce contrast.
+
+**Where he puts the camp, in his own words.** Aristarchus' `προκρόσσας`
+(scholion on *Il.* 14.35) has the ships hauled up "one above the other *like the
+steps of a ladder* (klimakedon)" so that the Ship Station looked "*like the
+auditorium of a theatre (theatroeides)*"; since "the alluvium itself is naturally
+flat," a slope steep enough for that "is forced to look to the slopes that flank
+the plain" (p. 36). Hence: "**the ships were drawn up on land on a narrow front
+somewhere along the line of the Sigeum ridge**. I have marked what seems to me the
+most likely stretch by X X on Fig. 1. Its northern end is marked by a break in the
+line of the ridge just south of the area christened 'Spratt's plateau' by Cook
+(1973, 165). Its southern flank could easily be defended by a wall and ditch as in
+the Homeric tradition. The whole strip between the alluvium and the higher ground
+of the ridge is marked as marshy on the American-Turkish maps, but drainage must
+have been better before the advance of the alluvium" (p. 36). The position is
+reached by elimination and he says so: the received north-shore camp "is clearly
+untenable in the light of the new findings," Beşika is unsatisfactory, the
+embayment's south side "brings it too close to Troy besides putting it athwart the
+Scamander delta," so "**by a process of elimination, if nothing else, one is
+forced back on the western side of the embayment as the only feasible location**"
+(p. 41). He also rejects the far-north option in the same breath — ships "beached
+well to the north close to Sigeum point" would "come into conflict with the
+Homeric indications about the distance between Troy and the ships" (p. 41), which
+is Brückner's Sigeion harbour ruled out by a Homerist on Homeric grounds.
+
+**His distances, all three of them.** 4–5 km camp-to-Troy (p. 41, in the Beşika
+comparison); 5–6 km citadel-to-fleet across the water (p. 35); and the abstract's
+"about four miles west of Hisarlik" (p. 31), which is ~6.4 km and agrees with
+neither. **Record the spread; do not average it.** The body figures are the ones
+to use: they are the figures he argues *with*, and they are what Fig. 1's X X
+strip is drawn against. Our own sheet then does something useful — see §3.6, which
+measures Luce's figures against the `shore-bronze` vertices the plate already
+carries. Short version: his 4–5 km lands on the southern half of the ridge branch
+we already draw, so **his camp can be shown as an extent along an existing line
+without inventing a coordinate**. What is still not locatable is the strip's two
+ends: the northern one depends on Cook 1973, 165's "Spratt's plateau" and the
+southern on a wall-and-ditch line he proposes without evidence, and we have not
+seen Cook. **Anchor it as an extent, never as a pin, and never from the "four
+miles".**
+
+**Why he rejects Beşika — three objections, one of which is a measurement.** He
+quotes Kraft, Kayan and Erol 1980, 782 exactly as §1.9 does ("the Besika
+embayment of 4,000 to 5,000 years ago was possibly an indentation approximately
+2 km. inland"; "it was the site of the Achaean camp"), notes the hypothesis is
+Alfred Brückner's of 1912, that Oscar Mey's 1924 trenches with Dörpfeld and Schede
+"revealed some pottery, including three prehistoric sherds possibly dating from
+the 3rd millennium BC, but nothing to confirm his Achaean camp hypothesis," and
+that Charles Vellay's rebuttal was in Cook's opinion successful "according to the
+rules of the game" (Cook 1973, 170 n.3) — then adds his own three: "**1) It is too
+exposed on the side of the Aegean for a permanent camp and ship station. 2) It is
+too far from Troy (8½ km as opposed to 4 to 5 km for the Sigeum ridge site). 3)
+Access from it to the Scamander plain is not good, lying first across a low ridge
+and then across a wide expanse of low-lying and marshy ground**" (pp. 40–41).
+Objection (2) is the substantive one and it is a distance, not a taste. Note
+against §1.9: Cook, whom Luce is otherwise following, is on the *other* side here
+— "Besika Bay must be a very much more satisfactory situation for the Homerists"
+(Cook 1973, 171–2) — and Luce says so and disagrees (p. 40).
+
+**How he uses Kraft's geology, and where he refuses it.** The whole article is
+written as a response to the 1980 paper's own invitation: Kraft's team asked
+Homeric scholars to "reconsider some of their interpretations in the light of the
+geological and geographical analysis presented here," and Luce says "this is the
+task attempted in the present paper" (p. 32). He takes the shoreline series as
+authoritative — "The new findings are totally at odds with the received view"
+(p. 32) — and he quotes 1980's floodplain morphology approvingly as the physical
+explanation of Homer's `θρωσμὸς πεδίοιο`: "The present Scamander River meanders
+across a long narrow floodplain with the highest elevation in the middle of the
+plain … and the lowest elevation on the eastern and western flanks" (Kraft et al.
+1980, 779, quoted p. 40). He closes by setting 1980, 782's "It is unlikely that we
+will discover the many ancient occupation sites that must exist on the modern
+floodplain. They are deeply buried …" beside *Il.* 12.24–33, and concludes that
+"all traces of the fortified camp were in fact covered up by flooding and
+aggradation in the centuries after the fall of Troy" and were invisible already in
+Homer's day (p. 42).
+
+But he **separates the shoreline from the rivers**, and this is the one place he
+criticises the geology rather than deploying it. Kraft's Troy VI/VII plan "moved
+[the Scamander] further to the west and there is no junction with the Simoeis. **It
+is not clear to me whether their core data determine the course of the rivers at
+different epochs as accurately as they appear to determine the shore-line**"
+(pp. 38–39). His disjunction is stated honestly: if the LBA river bed is "somewhat
+notional," follow the Eastern theory (the Kalifatli Asmak line, close under Troy);
+if Kraft's course is firm, then the river shifted east between the war and Homer,
+"as it certainly was seen by Strabo's informants" (p. 39). **Useful for us:** a
+Homerist who accepts these cores treats Kraft's *river* lines as the soft part of
+the reconstruction. Our `karamenderes-bronze`/confluence posture — not marking
+Homer's 5.774 confluence at all — is the same judgement.
+
+He also **flattens Kraft's sea level**. "Assuming that the sea-level of the Aegean
+stabilised about 5,000 years ago" (p. 31) is not what the 1980 paper's Fig. 6
+prints: +2 m at 4500 BP falling to present level by 3250 BP (§1.8, §2). The 2 m
+fall on which our barrier and lagoon depend is absent from Luce's premise.
+Contradiction recorded; it does not touch his camp argument, but it means Luce
+1984 cannot be cited for anything about sea level or the barrier.
+
+**What his Fig. 1 commits to a position** (p. 33; sketch map, scale bar 0–3 km /
+0–2 miles, north arrow, four area fills — low plateau, high plateau, Trojan plain,
+marsh to-day). Two reconstructed water lines, both labelled in the legend as
+Kraft's: "Reconstructed outline of inner shore of bay **in time of Troy VI/VII**"
+(dotted) and "…**in time of Strabo**" (barred). And these named features, each of
+which is a drawing claim:
+
+| on Fig. 1 | what it commits | Luce's own hedge |
+|---|---|---|
+| **X X**, "Projected site of Achaean Camp" | a strip, not a point, on the ridge's eastern flank | "what seems to me the most likely stretch" (36) |
+| **Wall** | the camp's south flank, a wall-and-ditch line | "could easily be defended" (36) — proposed, not evidenced |
+| **FORD** | mid-plain, on the road, near a ford that still exists | "close to my 'Homeric' ford" (38) |
+| **Ilos ?** | east of the ford, city side of the river | question mark on the map |
+| **Aisyetes ?** | "the neighbourhood of Old Kalifatli," roughly halfway across the plain, where "remains of a tumulus have been reported" (41, citing Cook 1973, 105). NB the Old-Kalifatli name is PROSE (p. 41); the map label itself is just "Aisyetes ?" | "my tentative placing" + question mark |
+| **Throsmos** | between the camp's wall and the ford — i.e. **west of the Scamander**, on the camp side | no hedge; he argues it from 10.160, 11.56, 20.3 |
+| **Beşik T = FORT OF HERACLES** | the tumulus on the highest point of the Sigeum ridge, following Leaf 1912, 43–4 | "may be located, as Leaf suggested" (38) |
+| **Kara Tepe = KALLIKOLONE** | 9 km east of Troy, following Spratt and Forchhammer (Cook 1973, 111) | "generally taken to be" (37) |
+| **THYMBRA** | near the R. Kemer, south-east of Hisarlık | "though no ancient site has been definitely found" (37) |
+| **M M**, Mey's trenches | the 1924 Beşika excavation, plotted so it can be seen to have found nothing | — |
+| **R. Simoeis** = Dümrek | accepted: "there is no good reason to doubt its identification with the Dümrek" (38) | — |
+| Sigeum ridge's "three distinct crests" between Yenişehir and Beşika Burnu, cliffs "certainly sea-beaten" (37, citing Cook 1973, 165–9) | the physical basis for reading *Il.* 20.49–50 of his camp | — |
+
+His **Fig. 2** (p. 34) is the position he is rejecting: "The Plain of Troy with
+Leaf's identifications … (After Leaf 1912, map facing p. 44)," with GREEK CAMP and
+"Achaean Harbour" strung along the Hellespont. Worth knowing that the features our
+gazetteer holds — `wall-of-heracles`, `tomb-of-ilos`, `tomb-of-aesyetes`,
+`ford-of-the-scamander`, `callicolone`, `thymbra` — are on **both** of his maps:
+the feature list is Leaf's, and what Luce changes is where several of them sit and
+which side of the plain the camp is on. `throsmos` and `stomalimne` are on the maps
+but not in the gazetteer (the former is flagged as a gap by
+`RESEARCH-POEM-TOPOGRAPHY.md` §4; the latter by §1.10 above).
+
+### 1.11a The abstract, kept because two of its numbers are not the body's
+
+"Homeric passages bearing on the location of the Achaean camp at Troy are
+re-examined in the light of new scientific data on the time-scale for the
+alluviation of the Trojan plain. The new data confirm the accuracy of Strabo's
+account of the plain, and in particular of the shore-line having come close to the
+Hisarlik site (*Novum Ilium*) in Hellenistic times. **In the era of Troy VI/VII,
+c. 3,250 years BP, the shore-line appears to have run west by south of the site,
+and a broad marine embayment lay between the city and the Sigeum ridge.** It is
+therefore no longer possible to accept the received view (deriving from Schliemann
+and Leaf) that the Achaean camp was sited on the present shore-line by the
+Hellespont. **A new site is proposed for the camp on the lower slopes of the Sigeum
+ridge about four miles west of Hisarlik.** It is argued that the indications in the
+*Iliad* are not inconsistent with such a siting, and in fact suit it better than
+the received view. This is shown with regard to the course of the Scamander,
+evidently pictured by Homer as running between camp and city, and also with
+respect to **the general axis of the fighting on the plain, which is indicated to
+lie in an east-west rather than a north-south direction**. The Besika Bay site,
+first proposed in 1912, is rejected as inconsistent with the Homeric data and
+unsatisfactory in itself." (p. 31.)
+
+Two discrepancies against the body, **recorded, not harmonised**:
+
+1. **"About four miles west"** (~6.4 km) against **"4 to 5 km"** (p. 41) and
+   **"5 to 6 km across the expanse of water"** (p. 35). Measured against the plate's
+   own ridge line (§3.6), no point on the Sigeum ridge's eastern flank is four miles
+   west of Hisarlık: the largest westward offset there is 4.91 km and the largest
+   straight-line distance 5.95 km. Use the body figures.
+2. **"East-west rather than north-south."** The body states the axis three ways:
+   "a line running **south-west** from the hill of Hisarlik, and not north-by-west
+   as required by the Leaf-Schliemann view" (p. 36), attributed there to Kraft et
+   al. 1980, 776; "the generally **east-west** axis of the contest" (p. 38); and
+   the abstract's east–west. Kraft, Kayan and Erol 1980, 782 give a fourth —
+   "south of Troy and to the east of the Beşika embayment" (§1.9). Four statements
+   of one bearing across two papers, spanning ~45°. A plate note may say "west or
+   south-west of the city"; it may not print a degree figure.
+
+### 1.11b Luce's Homeric passages, for the poem-topography lane
+
+Every *Iliad* citation Luce argues from, in his order of use, so
+`RESEARCH-POEM-TOPOGRAPHY.md` can cross-reference without re-reading the article.
+(He uses no *Odyssey*; "these and all subsequent references in the text are to the
+*Iliad*," n. 6.)
+
+- **The camp's relation to the sea and the Hellespont** — 15.233 = 18.150 (the
+  formulaic "flying they reached the ships and the Hellespont"); "on the shore of
+  the sea" at 8.501, 13.682, 14.31, 19.40, 23.59, 24.12; 9.360 and 24.545 as
+  "Hellespont" meaning the NE Aegean rather than the strait (p. 35).
+- **Whether the poem knows a bay** — 21.124–25 (`halos eurea kolpon`), 2.560,
+  18.140 (`thalasses eurea kolpon` of the open sea, which is why he declines to
+  press the argument), 14.36 ("long mouth of the shore"). Verdict at p. 35: "this
+  particular battle of texts remains drawn."
+- **The approach** — 1.71 (the fleet coming "within Ilios"); 6.434, the city
+  "most approachable," which he reads as "the apron-like plateau on its south-west
+  flank" (p. 36).
+- **The Ship Station's shape** — 14.30–36, with the scholion on 14.35
+  (`prokrossas`, Aristarchus, `klimakedon`, `theatroeides`) and Herodotus 7.188
+  (p. 36); 14.28 and 18.69 via Maclaren (n. 8).
+- **The fighting axis** — 10.428–31 (Dolon: the allies "towards the sea" and "the
+  station on the side of Thymbra"); 20.49–50 (Athena "now outside the wall by the
+  ditch and now on the sea-beaten headlands"); 20.51–53 and 20.144–52 (Ares along
+  the Simoeis at Kallikolone; the gods' stations as a matched pair; Poseidon at
+  the fort of Heracles) (pp. 37–38).
+- **The Scamander between camp and city** — 24.692–93 and 24.349–51 (Priam's
+  journey and the watering halt); 21.1 (the rout escaping across the ford);
+  5.773–74 (the confluence); 8.560–61 (the watch-fires "between the ships and the
+  streams of Xanthos"); 10.415 and 10.416 (Hector's council at the tomb of Ilos,
+  "far from the sea-surge"); 11.166–67 (past the tomb of Ilos in the midst of the
+  plain); 16.376 and 16.394–98 (Patroclus cutting the Trojans off "between the
+  ships and the river and the high wall") (pp. 38–39).
+- **The throsmos** — 10.160, 11.56, 20.3 (p. 40).
+- **The watch-post** — 2.791–94 (Polites on the tumulus of Aisyetes) (p. 41).
+- **The camp's erasure** — 12.24–33, quoted at length as the article's last word
+  (p. 42).
+- Non-Homeric anchors: Strabo 13.1.31 (the blind mouth, lagoons and marshes),
+  13.1.34 (Simoeis joining Scamander near Novum Ilium), 13.1.36 (the distance
+  question, and Hestiaea's more deeply recessed bay, n. 4); Pliny *NH* 5.33
+  (rejected, p. 41); Leaf 1912, 29–30, 43–44 and map facing p. 44; Cook 1973, 105,
+  111, 117–22, 165–71, 294.
+
+**What the article does *not* discuss, which matters for a citation we are already
+printing:** the fig tree. No mention of `ἐρινεός`, of 6.433, of 11.167 as a
+fig-tree passage, or of the two-fig problem, anywhere in 31–43. Nor the oak, the
+Scaean Gate, the springs, or the chase-circuit. See §4 item 13.
+
+### 1.11c The trajectory — Luce changed position twice, and the caption must say which one
+
+Three positions, one man:
+
+1. **1975 — the received view.** He says so himself, in a footnote: "I must admit
+   to having followed it unquestioningly in my *Homer and the Heroic Age*, London
+   1975, Fig. 95" (p. 42, n. 3).
+2. **1984 — the Sigeum ridge**, as above.
+3. **1995/1998/2003 — Kesik.** Second-hand and unread here (§1.3, §5 item 9):
+   Brückner's Fig. 3 caption has Luce 2003 identifying camp and ship station from
+   Strabo's 20 stades; Zangger 2015, 562 n. 25 reports Luce adopting the Kesik
+   harbour.
+
+**What 1984 anticipates in the 2003 paper.** The essentials: fleet and camp on the
+**inner (eastern) flank of the Sigeum ridge**, inside the embayment, west of Troy,
+with the Scamander between camp and city and the battlefield south and west of the
+citadel. On the camp's side of the city, 1984 and 2003 agree.
+
+**What 1984 contradicts in it** — four things, and they are the reason a caption
+cannot treat "Luce" as one position:
+
+- **No harbour, anywhere.** In 1984 the shelter *is* the bay: "Once established
+  there they could look across the water to their objective with their rear
+  protected by the Sigeum ridge. Given naval superiority their sea communications
+  could not be cut" (p. 36). Fig. 1 marks no harbour; the word "Kesik" does not
+  occur in the article; the only harbour on either of his maps is the "Achaean
+  Harbour" of Fig. 2, which is Leaf's and which he is rejecting.
+- **His own objection 3 to Beşika presses against the Kesik route.** Access "first
+  across a low ridge and then across a wide expanse of low-lying and marshy
+  ground" (p. 41) is a description of the Kesik saddle and the Kesik plain, and in
+  1984 it is an argument *against* a camp there.
+- **He rejects the embayment's south side outright** — it "brings it too close to
+  Troy besides putting it athwart the Scamander delta" (p. 41). Kesik is at the
+  ridge's southern end.
+- **The main text extracts no stade figure from Strabo — but Note 5 does.** The
+  body says only that "from Strabo (13, 1, 36) it appears that the distance
+  question was also much discussed in Hellenistic circles" (p. 41) and declines to
+  settle it. **His Note 5 (p. 43), however, reports the range in Strabo's
+  Demetrius material: the distance "fell within the limits of 6 and 20 stades
+  (1 to 3 km)"** — a report of the ancient debate's bounds, not a figure Luce
+  adopts for his own camp. (An earlier draft of this entry claimed he prints no
+  stade figure at all — corrected at Grok verification.) **Adopting 20 stades as
+  a working number still enters with Luce 2003, not 1984** — which reinforces
+  §6's second entry, now with the precision that 1984 already knew the 6–20 band.
+
+**Caption consequence.** "Luce" on a plate must carry a year. `Luce 1984` = camp
+on the ridge's eastern flank, no harbour, 4–5 km. `Luce 2003` = Kesik harbour,
+20 stades, unread. Do not merge them, and do not cite 1984 for a harbour claim.
+
+**Why the dissent still belongs on the page.** Unchanged, and now better founded.
+Luce is a co-author of the 2003 *Geology* paper (§1.3), so the dissent is internal
+to the same project; and the *only* thing he dissents from in the geology is the
+camp's placement, which the geologists themselves put at Beşika on non-geological
+grounds. The received Schliemann–Leaf north-shore camp is the position that Kraft
+1980, Luce 1984 and Kraft et al. 2003a all reject; on the camp's side of the city
+there is no Kraft/Luce disagreement to draw at all (§1.1, §1.9, §4 items 10, 12).
+
 - **Related, unseen:** Luce, J. V. *Celebrating Homer's Landscapes: Troy and
   Ithaca Revisited* (New Haven: Yale University Press, 1998); "The Case for
   Historical Significance in Homer's Landmarks at Troia," in *Troia and the
-  Troad: Scientific Approaches*, 9–30 (Berlin: Springer, 2003). Brückner's Fig. 3
-  caption reports Luce 2003 as identifying the Greek camp and ship station from
-  Strabo's 20 stades; Zangger reports (2015, 562, fn. 25, citing "Luce 1995,
-  211" = the German *Archäologie auf den Spuren Homers*) that Luce adopted the
-  Kesik harbour claim.
+  Troad: Scientific Approaches*, 9–30 (Berlin: Springer, 2003). Also *Homer and
+  the Heroic Age* (London: Thames & Hudson, 1975), Fig. 95 — the map he recants
+  (p. 42 n. 3). One access note gained from 1984: n. 1 says the article "features
+  the same maps and sketch plans as the Monograph and deploys the argument in
+  substantial detail," so **Fig. 1 also appears in Rapp and Gifford's 1982
+  supplement** (§5 item 1) — which is a second route to the same plate, and a
+  reason not to expect anything new from it cartographically.
 
 ### 1.12 Beşik Tepe's Mycenaean pottery — NOT verified
 
@@ -808,14 +1063,14 @@ A compact synthesis. Every number traces to §1.
 | Marine embayment, maximum extent | Head **17 km inland** from the present plain's north end, immediately NW of Pınarbaşı, at **7000–6000 BP** (Kayan et al. 2003; Brückner et al. 2005 §16); alternatively **"nearly 10 kilometers south of the site of Troy at Hisarlik"** (Kraft, Kayan & Erol 1980, 776 — exact wording, and the origin is the citadel), which the same paper states again as **"approximately 15 km south of the present shoreline of the Dardanelles"** at the c. 7000 BP peak (1980, 782). *(full text, 2026-07-29: was "roughly 10 km south of Hisarlık"; the two 1980 figures are one measurement from two origins — see §3.2a.)* | geographic, but the head is a **buried** feature |
 | Fill thickness | **Over 50 m** of strata between the Sigeum ridge and the Hisarlık/Yenikumkale cuestas; ~250–318 cores (Kayan's campaign). Kraft's 1980 sections reach ~−70 m and rest on **seven** drill holes *(full text, 2026-07-29)* — cite Brückner/Kayan for the thickness, not 1980 | geographic |
 | Progradation past the city | Coastline reaches **west of Troia c. 4000 BP** (Kayan 2019); direct sea access lost soon after **2200 BC** on Kayan's scenario, retained much later on Kraft's — on Kraft's own 1980 Fig. 6, Troy VI/VII at 3250 BP still sits **on a promontory at the edge of the estuary**, the water to its west and north-west *(full text, 2026-07-29)* | the two scenarios disagree; pick one and name it |
-| LBA shore, c. 1200 BC | **Of the order of 1 km** from the citadel, north to north-west. The number is **Strabo 13.1.36's 6 stades as read by Brückner** (§1.6, §1.10) — *not* Kraft's: **Kraft, Kayan & Erol 1980 give no citadel-to-water distance at all**, only "Fortification Troy VI and VII lay on a projection or promontory at the edge of a marine embayment" (782), and they read Strabo as describing **his own** time, not the war (778–79). Luce 1984 puts the shore **west by south** instead. *(full text, 2026-07-29: attribution corrected.)* | geographic, ±~1 km |
+| LBA shore, c. 1200 BC | **Of the order of 1 km** from the citadel, north to north-west. The number is **Strabo 13.1.36's 6 stades as read by Brückner** (§1.6, §1.10) — *not* Kraft's: **Kraft, Kayan & Erol 1980 give no citadel-to-water distance at all**, only "Fortification Troy VI and VII lay on a projection or promontory at the edge of a marine embayment" (782), and they read Strabo as describing **his own** time, not the war (778–79). **Luce 1984 is not a second opinion here:** he writes that the shore "still ran somewhat **west by south** of the city" at 3250 BP (32), but his Fig. 1 is Kraft's line redrawn — "After Kraft, Kayan and Erol 1980, fig. 2 with additions from fig. 6" (33) — so there is no alternative shore to draw (§1.11, §4 item 12). *(full text, 2026-07-29: attribution corrected. Luce full text, 2026-07-30: the Kraft/Luce shoreline contrast dissolved.)* | geographic, ±~1 km |
 | Sea-level change | Local relative fall of **2 m** (Kayan et al. 2003) or **2–3 m** (Kayan 2019) in the LBA, derived from Kelletat's 1975 curve. Independently and earlier, Kraft, Kayan & Erol 1980's Fig. 6 gives the **endpoints**: **+2 m at 4500 BP → present level at 3250 BP and at 2000 BP**, i.e. a 2 m fall *to* today's datum, from Erol's unpublished curve (ref. 17); the authors call it "valid as a **local, relative,** sea level curve for the Biga Peninsula" (781). The NE Aegean RSL database shows **continuous rise** (Seeliger et al. 2021) *(full text, 2026-07-29)* | state as **local/relative**, never regional; state the endpoints, never a bare "fell 2 m" |
 | Barrier | A **wide sandy coastal barrier** closing the remaining water into a shallow lagoon after that fall. The barrier-and-lagoon facies language is **Brückner et al. 2005**; the Kayan et al. 2003 and Kayan 2019 *abstracts* describe the fall and the swamp but do not themselves say "barrier" or "lagoon" — the full texts are unseen (see Needs paywalled access). **Kraft, Kayan & Erol 1980, read in full, has neither word**: its terms are sandy/clay-silt estuary, marsh, swamp, beaches, shoals and brackish–freshwater swamp *(full text, 2026-07-29)*. Independently, Strabo 13.1.31 describes a **blind (barred) river mouth with salt lakes and marshes** | geographic; width unsurveyed; **not drawing-ready geometry until a Kayan full text or figure is seen** |
 | Lagoon | Shallow, behind the barrier; ancient name **Stomalimne** attested between Sigeium and the Scamander mouths (Strabo 13.1.31) | geographic + identification |
 | Swamp / marsh | The area west of the city was a **broad deltaic swamp** in Troia IV–VI; the land was **swamp-covered throughout the progradation period**, and the coastal sea **very shallow** (Kayan et al. 2003). Corroborated first-hand: Kraft's Fig. 2 maps modern swamp over the Kesik/Yeniköy plain and the Scamander's western and south-western flanks, and the text allows that "low-lying swamps occurred around the base of Troy" at 3250 BP — with the honest rider "although further drilling would be required to verify this" (1980, 782) *(full text, 2026-07-29)* | geographic, extent approximate |
 | Kesik cut | **400 × 50 × 30 m**, floor **13.7 m a.s.l.**, ~150 m from the sea, 2–2.5 m of colluvium on the floor; unfinished (Cook 1973, 167); read as a tectonic depression by Kayan | geographic; **not** a harbour entrance |
 | Kesik plain | Basin ~**800 m** wide; silted **before 1300 BC**; "could not have been used as harbours during the Later Bronze Age" (Kayan et al. 2003, 400) — against Kraft et al.'s choice of it as the harbour | contested identification |
-| Beşik Bay | The project's original harbour candidate, stated first-hand in **Kraft, Kayan & Erol 1980, 782** ("the Beşika embayment was indeed the site of the Achaean camp"; "an indentation approximately **2 km inland**" at 4000–5000 BP) and again at Kraft et al. 1982, 40 and Kayan 1991, 91; rejected by Luce 1984 as inconsistent with the *Iliad* *(full text, 2026-07-29: cite 1980, not the second-hand 1982 quotation)* | contested identification |
+| Beşik Bay | The project's original harbour candidate, stated first-hand in **Kraft, Kayan & Erol 1980, 782** ("the Beşika embayment was indeed the site of the Achaean camp"; "an indentation approximately **2 km inland**" at 4000–5000 BP) and again at Kraft et al. 1982, 40 and Kayan 1991, 91. **Rejected by Luce 1984, 40–41** on three stated grounds: too exposed to the Aegean for a permanent ship station; **8½ km from Troy against 4 to 5 km for his Sigeum ridge site**; and bad access to the Scamander plain, "first across a low ridge and then across a wide expanse of low-lying and marshy ground". He adds that Mey's 1924 trenches there found "nothing to confirm his Achaean camp hypothesis" (40). Cook 1973, 171–72 is on the *other* side ("a very much more satisfactory situation for the Homerists") and Luce says so and disagrees *(full texts: Kraft 2026-07-29 — cite 1980, not the second-hand 1982 quotation; Luce 2026-07-30 — the objections are now first-hand and one of them is a measurement)* | contested identification |
 | Harbour, in general | Kayan et al. 2003: the environment "has never been suitable for the establishment of an important harbour" | prose; the strongest deflationary claim in the literature |
 
 ---
@@ -1030,6 +1285,49 @@ along lon 26.239, and rounds. Not a defect in either number, but **do not print
 1980, 776); ~4.9 km measured due north on the SRTM DEM."** `TROAD-SOURCES.md`'s
 "roughly 6 km" is Kraft's figure and should carry Kraft's citation.
 
+### 3.6 Luce's camp against our own `shore-bronze` — it is drawable, and his three distances are not
+
+DEM/geometry measurement (this dossier), the seven `shore-bronze` vertices that
+§3.4 identifies as the Sigeion-ridge stretch cut from the 20 m contour, each
+measured from Hisarlık (39.957, 26.239):
+
+| vertex | lat, lon | west of Hisarlık | straight-line distance | bearing |
+|---|---|---|---|---|
+| 0 | 39.9950, 26.1900 | 4.18 km | **5.95 km** | 315° |
+| 1 | 39.9924, 26.1908 | 4.11 km | 5.70 km | 314° |
+| 2 | 39.9855, 26.1848 | 4.62 km | 5.61 km | 304° |
+| 3 | 39.9784, 26.1814 | 4.91 km | 5.46 km | 296° |
+| 4 | 39.9719, 26.1886 | 4.30 km | 4.61 km | 291° |
+| 5 | 39.9676, 26.1873 | 4.41 km | 4.57 km | 285° |
+| 6 | 39.9658, 26.1898 | 4.20 km | **4.31 km** | 283° |
+
+Three findings, and the third is the one to carry forward.
+
+1. **The plate can already draw Luce's camp.** His 4–5 km (1984, 41) is satisfied by
+   vertices 4–6, the branch's southern half — the ground at bearings 283–291° from
+   the citadel, which is "west by south" to within a point of the compass. Nothing
+   needs to be invented: the camp is an **extent along vertices 4–6** of a line the
+   sheet carries for an independent reason. His 5–6 km "across the expanse of water"
+   (35) is satisfied by vertices 0–3, the branch's northern half. So a strip running
+   the whole branch has no single distance to Troy, which is the mundane reason his
+   two body figures differ.
+2. **That is an explanation, not a reconciliation, and the abstract still does not
+   fit.** "About four miles west" is 6.44 km. The largest *westward* offset anywhere
+   on the branch is 4.91 km and the largest straight-line distance is 5.95 km at the
+   ridge's northern tip by Kum Kale — which is not where Fig. 1 puts the strip
+   either. **No point on the Sigeum ridge's eastern flank is four miles west of
+   Hisarlık.** The discrepancy stands recorded (§1.11a).
+3. **The tension inside Fig. 1.** Luce's strip runs from "a break in the line of the
+   ridge just south of … 'Spratt's plateau'" (36) — and his own Fig. 1 prints
+   "Spratt's Plateau" in the ridge's *northern* third, above the ridge label and
+   below Yenişehir. So the strip he draws reaches into the 5.5–6 km band while the
+   number he argues from is 4–5 km. Draw the extent, state the range 4.3–6.0 km, and
+   do not print a single distance for "Luce's camp".
+
+Method note: plate-carré with cos(latitude) scaling, as everywhere else in this
+file; the vertices are read straight out of `apparatus/plates/trojan-plain.json`
+(`shore-bronze`, first ring). Reproducible in six lines — no new tooling.
+
 ---
 
 ## 4. Corrections this dossier owes to files it must not edit
@@ -1082,6 +1380,40 @@ New, from the 1980 full text (2026-07-29):
     **Kraft's own figure for the coast's distance north of the site** (1980, 776),
     not a delta-migration distance, and it runs ~1.1 km longer than the DEM's
     due-north measurement. Cite it, and state the direction (§3.5).
+
+New, from the Luce 1984 full text (2026-07-30):
+
+12. `apparatus/plates/trojan-plain.json`, the sheet note. Three things in it are
+    now falsified by Luce's own pages (§1.11).
+    (a) "**Luce (1984) puts the shoreline west by south of the site with a broad
+    embayment between the city and the Sigeum ridge … Both cannot be drawn on one
+    sheet; this one draws Kraft.**" There is no second shoreline. Luce's Fig. 1 is
+    captioned "After Kraft, Kayan and Erol 1980, fig. 2 with additions from fig. 6"
+    (Luce 1984, 33); his "west by south" (32) is a description of Kraft's line, not
+    a rival to it. The sentence should say that Luce **accepts** this shoreline and
+    differs only about the camp and the fighting axis.
+    (b) "**some four miles west of Hisarlik**" is the abstract's figure and it
+    contradicts the body twice — 4 to 5 km at p. 41, 5 to 6 km across the water at
+    p. 35. Print "4 to 5 km (Luce 1984, 41)" or say nothing.
+    (c) "**which rotates the battlefield from north-south to roughly east-west.**"
+    Defensible, but Luce states the bearing three ways (east–west at 38 and in the
+    abstract; "south-west from the hill of Hisarlik" at 36) and Kraft 1980, 782 a
+    fourth. Say "west or south-west of the city"; do not imply one bearing is his.
+13. `apparatus/places.json`, `fig-tree` (line ~7840, `tradition`; line ~7874, the
+    source entry): the record has "Fixed only by the poem's own narrative geography
+    (Leaf 1912; **Luce 1984**)" and cites the *OJA* article. **Luce 1984 does not
+    mention the fig tree.** No `ἐρινεός`, no 6.433, no treatment of 11.167 as a
+    fig-tree passage, nothing on the two-fig problem, in any of pp. 31–43. The
+    nearest thing is his reading of 6.4**34** — the city "most approachable," which
+    he locates on "the apron-like plateau on its south-west flank" (36) — and that
+    is a bearing for the *approach*, not a placement of the tree. Either drop Luce
+    from that record or re-cite it to 6.434 and say what it actually supports. This
+    also answers `RESEARCH-POEM-TOPOGRAPHY.md` §9 item 5, which asked exactly this
+    question and flagged the citation as unread.
+14. `apparatus/plates/trojan-plain.json`, `simoeis` note: "The equation with the
+    modern Dumrek Su is a Strabonic tradition that Leaf, Cook and **Luce** all
+    accept" — now first-hand for Luce and citable: "there is no good reason to doubt
+    its identification with the Dümrek" (Luce 1984, 38).
 
 ---
 
@@ -1144,14 +1476,28 @@ settles.
 7. **Kayan 2009**, "Kesik Plain and Alacalıgöl Mound," *Studia Troica* 18,
    **105–28** (esp. 105, 108 fig. 3, 124). **Settles:** the Kesik plain's geometry
    and its siltation date, first-hand.
-8. **Luce 1984**, *OJA* 3 (1): **31–43**. **Settles:** where exactly Luce's camp
-   sits ("about four miles west" needs his map), and his shoreline for
-   c. 3250 BP — the dissenting line we may want to draw as an alternative.
+8. **✅ OBTAINED 2026-07-30 — Luce 1984**, *OJA* 3 (1): **31–43**. Scan cached at
+   `research-cache/luce-1984-oja.pdf`; text and both figures read (§1.11, §1.11a–c).
+   **Settled:** where his camp sits — a *strip* (X X on his Fig. 1) on the eastern
+   flank of the Sigeum ridge, **4 to 5 km** from Troy (p. 41), which lands on the
+   20 m-contour branch our own `shore-bronze` already draws; the three Beşika
+   objections, first-hand (pp. 40–41); the fighting-axis spread; that his 1984
+   argument names **no harbour** and never mentions Kesik. **Settled negatively —
+   and this was the load-bearing question:** there is **no Luce shoreline** to draw
+   as an alternative. Fig. 1's water lines are Kraft's, captioned as such (p. 33).
+   **Did NOT settle:** the strip's two endpoints, which depend on Cook 1973, 165's
+   "Spratt's plateau" (item 12 below); and anything about the fig tree, which the
+   article does not discuss (§4 item 13).
 9. **Luce 2003**, "The Case for Historical Significance in Homer's Landmarks at
    Troia," in *Troia and the Troad*, **9–30** (esp. 22). Also **Luce 1998**,
    *Celebrating Homer's Landscapes* (Yale). **Settles:** whether Luce charts the
    fighting scene by scene (a standing question in `TROAD-CARTOGRAPHY.md`), and
-   his final camp placement.
+   his final camp placement. *(Priority raised, 2026-07-30: now that 1984 is read,
+   these are the papers that carry the Kesik harbour and the 20-stade reading, and
+   1984 contradicts them on three points — §1.11c. Partial answer to the standing
+   question already: **1984 charts no scenes.** Its Fig. 1 is a single static sheet
+   with the camp, ford, throsmos, tombs and divine stations on it, so if a
+   scene-by-scene reconstruction exists it is in 1998, not here.)*
 10. **Kayan 1991**, "Holocene Geomorphic Evolution of the Beşik Plain," *Studia
     Troica* 1, **79–92** (esp. 91). **Settles:** Beşik Bay's Bronze Age geometry —
     which is also the missing coordinate problem for `besik-bay`.
@@ -1187,10 +1533,28 @@ each is noted below with the § that now carries it. Everything else stands.
   stadia to the Scamander's mouth (§1.10). **Reinforced 2026-07-29:** the 1980
   paper prints **no stade figure at all** and reads Strabo as describing his own
   century, so the stade readings enter with the 2003 papers and belong to them
-  (§1.1).
-- **Anything about Luce's camp beyond his abstract** — in particular any anchor
-  placed from "about four miles west", which does not agree with the measured
-  distance to the Sigeum ridge's eastern foot (§1.11).
+  (§1.1). **Reinforced again 2026-07-30 from the other side, with one precision
+  (Grok verification):** Luce 1984's main text declines to settle the distance
+  ("much discussed in Hellenistic circles", p. 41), but his Note 5 (p. 43) reports
+  Strabo's Demetrius material as bounding it "within the limits of 6 and 20
+  stades (1 to 3 km)" — reported bounds, not an adopted figure. So ADOPTING the
+  20 stades belongs to **Luce 2003 and Kraft et al. 2003a specifically** — and
+  "Strabo says 20 stades" remains wrong without the year and the attribution
+  (§1.11c).
+- ~~**Anything about Luce's camp beyond his abstract**~~ — **SETTLED 2026-07-30 →
+  now carried by §1.11.** The full text is in hand. **Still binding, and now for a
+  sharper reason:** the "about four miles west" of the abstract is contradicted by
+  the body's own two figures (4–5 km, p. 41; 5–6 km across the water, p. 35), so
+  **no anchor may be placed from it**. What may be used is an **extent** along the
+  Sigeum ridge's eastern flank at 4–5 km — the line `shore-bronze` already carries.
+  **Still unverified:** the strip's northern and southern ends, which rest on Cook
+  1973, 165 ("Spratt's plateau") and on a wall-and-ditch line Luce proposes without
+  evidence; and any harbour attributed to Luce 1984, which names none.
+- **Luce 1984 on sea level or the barrier.** He works under Kraft et al.'s stated
+  premise — "Assuming that the sea-level of the Aegean stabilised about 5,000
+  years ago, THEY have been able to determine…" (p. 31; the assumption is
+  reported as theirs, not asserted by Luce independently) — which is not what
+  Kraft's own Fig. 6 prints (§1.8). Do not cite him for either (§1.11).
 - **Beşik Tepe's LH IIIB proportions** (c. 100 graves, ~1/3 of fine wares, <1% in
   Troia VI/VII). Repeated in our own `TROAD-SOURCES.md` and on amateur sites; no
   scholarly source reached (§1.12).
@@ -1217,11 +1581,15 @@ each is noted below with the § that now carries it. Everything else stands.
 - **Any claim that a Bronze Age harbour has been located.** The literature's
   positions are: Beşik (**Kraft, Kayan & Erol 1980, 782** — first-hand, and the
   earliest of them; then Kraft et al. 1982, Kayan 1991, Korfmann), Kesik
-  (A. Brückner for Sigeion; Zangger 1992; Kraft et al. 2003a; Luce), an artificial
+  (A. Brückner for Sigeion; Zangger 1992; Kraft et al. 2003a; **Luce 2003 — not
+  Luce 1984**, which names no harbour at all and never mentions Kesik: in 1984 the
+  shelter *is* the embayment, §1.11c), an artificial
   basin (Zangger & Mutlu 2015, explicitly a working hypothesis), and no viable
   harbour at all (Kayan et al. 2003). A map that picks one must name whose it is
-  **and which year** — Kraft moved from Beşika to Kesik between 1980 and 2003
-  (§1.9).
+  **and which year** — Kraft moved from Beşika to Kesik between 1980 and 2003, and
+  Luce moved from the received view (1975) to the Sigeum ridge (1984) to Kesik
+  (by 2003), so "Luce" without a year names three incompatible things
+  (§1.9, §1.11c).
 - **The Kesik cut's date and purpose.** Unresolved in every source read: Kayan
   calls it tectonic, Cook calls it unfinished, Korfmann dated the Yeniköy canal to
   the 18th century AD, an 18th-century engineer thought it Bronze Age. Its floor
