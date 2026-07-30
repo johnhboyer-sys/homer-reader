@@ -303,8 +303,12 @@ only these right, the plate is honest.
 > content than "left" and "right" ever did. This also finally agrees with what §3.3 and §9.1
 > already demanded — no compass on the camp's ends.
 >
-> **⚑ FOR JOHN (decision 2a) — the balance of authority has shifted, the recommendation has
-> not.** As of Janko's arrival (2026-07-30) the constant-Greek-viewpoint side holds
+> **✅ RULED (John, 2026-07-30 16:05): name camp sectors by who holds them; no "left" or
+> "right" on the sheet.** The evidence balance below is retained as the record behind the
+> ruling; the compass note remains available as apparatus prose, never a drawn side.
+>
+> **The balance of authority at ruling time.** As of Janko's arrival (2026-07-30) the
+> constant-Greek-viewpoint side holds
 > **Aristarchus + Janko at first hand**, plus Ribbeck and Cuillandre at Janko's second hand, and
 > Clay through a review. Against it stands Hainsworth alone — and Hainsworth *derives* the
 > attacker's-standpoint reading only to reject the reconstruction it yields. That is no longer a

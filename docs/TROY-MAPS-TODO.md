@@ -161,9 +161,11 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
    attribution needs the correction (PALEOGEOGRAPHY §1.9, §6).
 2. **Decisions queued from the research** (each with its evidence table in
    the named dossier):
-   a. Left/right labelling: the axis holds, the sense is still contested —
-      recommended re-spec unchanged: name camp sectors by who holds them, no
-      left/right on the sheet. RESEARCH-POEM-TOPOGRAPHY §3.1.
+   a. **DECIDED (John, 2026-07-30 16:05): name camp sectors by who holds
+      them; no left/right on the sheet.** The Janko-backed compass note
+      ("the standard commentary reads the axis from the Greek side… Janko
+      IV, 130–31") remains available as apparatus prose — a citable note,
+      never a drawn side. RESEARCH-POEM-TOPOGRAPHY §3.1.
       **UPDATE (2026-07-30, Janko vol. IV): the balance of authority has
       shifted, the recommendation has not.** This was framed as "Hainsworth vs
       Clay, undecidable," with Clay known only through a review. Janko now
