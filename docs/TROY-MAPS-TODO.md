@@ -198,10 +198,26 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
       39.956/26.339 (ele. 207 m ≈ Spratt's 680 ft); tier traditional;
       Leaf's Ophrynion in the note as dissent. Gazetteer edit queued in
       "next work session". RESEARCH-TROAD-TOPOGRAPHY §9.1.
-   e. Chryse / dardania / zeleia-style contested IDs (chryse's tradition
-      string reverses Strabo 13.1.63); Scaean/Dardanian pairing; thymbra
-      re-anchor; Achaean-camp treatment on the GEOGRAPHIC plate (rival
-      attributed zones: Beşika per Kraft 1980 vs Sigeum ridge per Luce 1984).
+   e. **DECIDED (John, 2026-07-30 16:29), all four:**
+      (i) **chryse tradition string** — a correction, not a call: fix the
+      reversal of Strabo 13.1.63 per RESEARCH-TROAD-TOPOGRAPHY §8.1
+      (gazetteer edit queued below).
+      (ii) **Scaean/Dardanian pairing** — the plate labels the gates by
+      Dörpfeld letters (**VI T, VI U**) for now, no Homeric gate names
+      drawn; the note carries the contested pairing and its traditions.
+      More research before any Homeric label goes on the sheet.
+      (iii) **Thymbra** — re-anchor to the better anchor, Pleiades
+      **550929** (Thymbras Pedion).
+      (iv) **Achaean camp on the GEOGRAPHIC plate** — one zone must be
+      picked for map and Chart Room; **Sigeum ridge**. John's reasoning:
+      the author set is small and some hold multiple positions over
+      time; Sigeum is the more recent published position, and Luce and
+      Kayan are both coauthors of it (Kraft, Rapp, Kayan & Luce 2003,
+      after Luce 1998; Luce 1984 the inner-flank variant). Beşika stays
+      in the note as the named rival attributed zone (Kraft/Kayan/Erol
+      1980; the 1982 "Besika Hypothesis"; Korfmann's excavations).
+      Attributed zone, tiers and citations as ever — never a coordinate
+      pin for the camp on the geographic sheet.
    f. **DECIDED (John, 2026-07-30 16:23): metallics, refined** — "not
       gaudy or tacky… GOOD and refined." Four metals + κύανος inlay in
       the Metallmalerei manner: burnished flat fields on a dark ground,
@@ -211,6 +227,17 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
 
 ## Next work session (no input from John needed)
 
+0. **Apply today's rulings to the gazetteer/plates** (all ruled 2026-07-30,
+   evidence in the named dossiers): Callicolone → Kara Tepe pin (2d);
+   chryse tradition string corrected to Strabo 13.1.63's actual direction
+   (2e-i); citadel gate labels = Dörpfeld letters VI T / VI U, Homeric
+   pairing to the note only (2e-ii); thymbra → Pleiades 550929 anchor
+   (2e-iii); Achaean-camp attributed zone on the geographic plate = Sigeum
+   ridge per Kraft, Rapp, Kayan & Luce 2003, Beşika in the note as rival
+   (2e-iv); Shield register = refined Metallmalerei metallics (2f); camp
+   sectors by holder, Greek-side axis placement (2a); no bard on the
+   dancing floor (2b); Edwards's split siege ring (2c). Plus the D6 note
+   rewording once John words it.
 1. **Contour re-cut** per RESEARCH-BASEMAP-DATA.md: relief `tol_deg` →
    0.00100 (Troad) / 0.00012 (plain), plain `decimate` → 1, no smoothing,
    cull degenerate rings. Re-render and LOOK at 3.5×+ crops.
