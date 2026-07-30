@@ -1341,7 +1341,7 @@
       "name": "Callicolone, 'Fair Hill'",
       "greek": "Καλλικολώνη",
       "certainty": "speculative",
-      "tradition": "A ridge east of Troy near the Simoeis, tentatively proposed by J. M. Cook (1973)",
+      "tradition": "A contested identification: Kara Tepe, roughly 8.5 km east of Troy near the Simoeis, was identified by Spratt and Forchhammer (19th c.), defended by J. M. Cook (1973, 110-13) working from Strabo's stade-figures (13.1.35: 40 stadia from Ilium, 5 from the Simoeis), and adopted by Luce (1984); Leaf (1912, 44) instead proposed Ophrynion, on the plain's opposite side",
       "coords": [
         39.96,
         26.28
@@ -1368,7 +1368,7 @@
           ]
         }
       ],
-      "note": "A rise beside the Simoeis where Ares rallies the Trojans (20.53) and the pro-Trojan gods take their seats to watch the battle of the gods (20.151), the Trojan counterpart to the Achaean wall where the pro-Greek gods sit (20.144-148). The ridge shown here is Cook's proposal; the identification remains tentative and contested, and no other candidate has displaced it.",
+      "note": "A rise beside the Simoeis where Ares rallies the Trojans (20.53) and the pro-Trojan gods take their seats to watch the battle of the gods (20.151), the Trojan counterpart to the Achaean wall where the pro-Greek gods sit (20.144-148). The coordinate plotted here does not match Cook's Kara Tepe, which sits roughly 8.5 km (not 3.5 km) east of Troy, or any other traced authority; its provenance is unknown. Moving the pin to Kara Tepe, or adopting Leaf's Ophrynion alternative instead, is a pending editorial decision.",
       "sources": [
         {
           "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
@@ -1492,7 +1492,7 @@
       "name": "The washing-troughs",
       "greek": "πλυνοὶ εὐρέες",
       "certainty": "speculative",
-      "tradition": "No hot-and-cold spring pair matching Homer's description survives near Hisarlık; a 2020 hydrochemical survey (Wolkersdorfer et al., CATENA 200) found no basis for one, so no coordinate is given for a built feature standing beside a spring pair that cannot itself be located",
+      "tradition": "No thermal spring pair in the strict sense survives near Hisarlık, though many Troad springs qualify in Homer's own relative sense; the hydrochemical survey (Wolkersdorfer et al., CATENA 200 (2021)) found the description does not discriminate among candidates, so no coordinate is given for a built feature standing beside a spring pair that cannot itself be located",
       "kind": "spring",
       "maps": [
         "troad-plain"
@@ -1507,7 +1507,7 @@
           ]
         }
       ],
-      "note": "'Broad washing-troughs, fine ones of stone, where the wives and fair daughters of the Trojans used to wash their shining clothes, in the time of peace before the sons of the Achaeans came' (22.153-156) — a built, man-made feature standing beside the two springs (see 'two-springs-of-scamander'), not the springs themselves. One of the poem's clearest images of the lost civilian world before the war. No coordinate is given: the 2020 hydrochemical survey found no hot-and-cold spring pair answering to Homer's description anywhere near Hisarlık, so a point for troughs beside an unlocatable spring pair would be invented.",
+      "note": "'Broad washing-troughs, fine ones of stone, where the wives and fair daughters of the Trojans used to wash their shining clothes, in the time of peace before the sons of the Achaeans came' (22.153-156) — a built, man-made feature standing beside the two springs (see 'two-springs-of-scamander'), not the springs themselves. One of the poem's clearest images of the lost civilian world before the war. No coordinate is given: the hydrochemical survey (field campaigns 2001-2006, published as Wolkersdorfer et al., CATENA 200 (2021)) found no thermal pair in the strict sense near Hisarlık (numerous springs qualify in Homer's relative sense — the surplus problem); the paper never treats the washing-troughs as a separate question from the springs, so a point for troughs beside an unlocatable spring pair would be invented.",
       "sources": [
         {
           "cite": "Wolkersdorfer, Christian, et al. \"Hydrochemical investigations to locate Homer's hot and cold springs of Troia (Troy)/Turkey.\" CATENA 200 (2021): 105070.",
@@ -7837,7 +7837,7 @@
       "name": "The wild fig tree",
       "greek": "ἐρινεός",
       "certainty": "speculative",
-      "tradition": "Fixed only by the poem's own narrative geography (Leaf 1912; Luce 1984); the tree itself is not a surviving landmark",
+      "tradition": "Fixed only by the poem's own narrative geography (Leaf 1912); the tree itself is not a surviving landmark",
       "kind": "tree",
       "maps": [
         "troad-plain"
@@ -7870,9 +7870,6 @@
       ],
       "note": "Andromache tells Hector to post the army here, 'where the city is most scalable and the wall assailable' — the Achaeans have already tried it three times (6.433-434). It stands on the wagon-road out of the city (11.167, 22.145, 'the windy fig tree'). A different fig, by the river, is where Achilles catches Lycaon cutting branches (21.37).",
       "sources": [
-        {
-          "cite": "Luce, J. V. \"The Homeric Topography of the Trojan Plain Reconsidered.\" Oxford Journal of Archaeology 3, no. 1 (1984)."
-        },
         {
           "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912."
         }
@@ -7937,7 +7934,7 @@
       "name": "The two fair-flowing springs of the Scamander",
       "greek": "κρουνὼ καλλιρρόω",
       "certainty": "speculative",
-      "tradition": "Hunted for since the 1st century BC; no candidate pair survives, and the 2020 hydrochemical survey (Wolkersdorfer et al., CATENA 200) closes the case",
+      "tradition": "Hunted for since the 1st century BC; no thermal spring in the strict sense survives near Troy, but numerous Troad springs qualify in Homer's own relative sense (λιαρός, 'lukewarm') — the identification fails from a surplus of qualifying candidates, not their absence, and the hydrochemical survey (Wolkersdorfer et al., CATENA 200 (2021)) calls identifying Homer's spring(s) within the Troad \"apparently not possible\" and locating Troy by Il. 22.147-156 a likely \"fruitless enterprise\"",
       "kind": "spring",
       "maps": [
         "troad-plain"
@@ -7960,7 +7957,7 @@
           ]
         }
       ],
-      "note": "One spring runs warm, steam rising 'as from a burning fire'; the other is cold as hail or snow even in high summer (22.149-152), on the wagon-road Achilles and Hector run past in the chase. The natural springs themselves — distinct from the man-made stone troughs beside them (see 'washing-troughs') — are what this record maps. The 2020 survey measured the local candidates and found their temperatures nearly constant year-round — they only feel warm in winter and cold in summer — and proposes that Homer describes one spring, perceived two ways across the seasons.",
+      "note": "One spring runs warm, steam rising 'as from a burning fire'; the other is cold as hail or snow even in high summer (22.149-152), on the wagon-road Achilles and Hector run past in the chase. The natural springs themselves — distinct from the man-made stone troughs beside them (see 'washing-troughs') — are what this record maps. The survey (field campaigns 2001-2006, published as Wolkersdorfer et al., CATENA 200 (2021)) measured the local candidates and found their temperatures nearly constant year-round — they only feel warm in winter and cold in summer. Its authors propose, by analogy with Plato's Kritias, that Homer describes one spring perceived two ways across the seasons — a proposal, not a measured finding.",
       "sources": [
         {
           "cite": "Wolkersdorfer, Christian, et al. \"Hydrochemical investigations to locate Homer's hot and cold springs of Troia (Troy)/Turkey.\" CATENA 200 (2021): 105070.",

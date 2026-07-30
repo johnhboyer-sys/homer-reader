@@ -323,8 +323,9 @@ correlates very well with the relevant Homeric geography."
 2005, Fig. 3) keeps a **bird's-foot delta in a quiescent, low-wave-energy
 embayment until c. 0 BC/AD**, after which the strong east–west Dardanelles
 current takes over, eroding distributary arms and building sand spits. They take
-**the Kesik plain, a former marine embayment on the eastern slope of the Sigeum
-ridge, as the best candidate for a natural harbour** at the time of the war, and
+**the Kesik plain (= the Lisgar marsh = Ilıca; naming note at §1.9), a former
+marine embayment on the eastern slope of the Sigeum ridge, as the best candidate
+for a natural harbour** at the time of the war, and
 read Strabo as putting the city 6 stades from the sea then (12 in his own day).
 Their own summary line: **"Nothing in our research negates the writings of
 Homer!"** (p. 375).
@@ -458,8 +459,9 @@ vor Troja," *AA* 26 (1912): 616–33, and "Forschungsaufgaben in der Troas," *AA
 (1925): 230–48, and it is he who drew attention to the marshes on the west side
 of the plain and to **two artificial cuts through the Yeniköy ridge** connecting
 them to the Aegean, and who proposed that the Kesik plain (also called the Lisgar
-marsh) was the harbour basin of classical **Sigeion**. *Helmut* Brückner is the
-modern geoarchaeologist of §1.6.
+marsh — **= Ilıca**, per Cook 1973, 166; naming note at §1.9, added 2026-07-30)
+was the harbour basin of classical **Sigeion**. *Helmut* Brückner is the modern
+geoarchaeologist of §1.6.
 
 - Citation: Brückner, Alfred. "Forschungsaufgaben in der Troas." *Archäologischer
   Anzeiger* 39 (1925): 230–48, esp. 246.
@@ -569,19 +571,65 @@ own case, which is why they are usable.
 
 **Claim — the Kesik cut, measured.** The "kesik" at Kesik is **400 m long, 50 m
 wide and 30 m deep**, an artificial-looking ditch cutting the coastal ridge and
-linking the Kesik plain to the Aegean shore. But Kayan's drilling in it found a
+linking the Kesik plain to the Aegean shore. Kayan's drilling in it found a
 **2–2.5 m colluvium fill** on its floor, and **the floor stands about 13.7 m above
 sea level, some 150 m from the sea**, while the ridge surface there reaches 30 m.
-So, deep as it is, the cut's floor is nowhere near sea level: **it was neither
-navigable nor a drainage channel.** Kayan takes it for a tectonic depression
-(Kayan 2009, 124; Kayan 2014, 723) widened by foot traffic between coast and
-plain (Kayan 2014, 724); J. M. Cook had already concluded that the work was never
-finished (Cook 1973, 167).
+So, deep as it is, the cut's floor is nowhere near sea level: **on either reading
+below, it was never navigable.**
+
+**Correction, 2026-07-30 (per `RESEARCH-TROAD-TOPOGRAPHY.md` §9.2, which read Cook
+1973, 166–67 off the page images): the two authorities disagree on what the
+feature IS, and this entry previously ran them together as if they agreed.**
+Do not blend them again.
+  - **Kayan: natural.** A **tectonic depression** (Kayan 2009, 124; Kayan 2014,
+    723), later **widened by foot traffic** between coast and plain (Kayan 2014,
+    724) — never a dug work at all.
+  - **Cook: artificial, and "never completed" (his words).** "An artificial cut… a great
+    V-shaped trench" (Cook 1973, 166); his verdict, verbatim: "**It seemed to us
+    clear that the work was never completed**" (167). **A tectonic depression
+    cannot be unfinished** — Cook's sentence presupposes a work in progress, which
+    is exactly what Kayan's reading rules out. **The "Cook 1973, 167" citation
+    itself is accurate** — Cook does say the work was never completed, on that
+    page, in those words (near-verbatim: "never finished" vs. "never completed").
+    What was wrong was presenting his artificial-cut, abandoned-work reading and
+    Kayan's natural-depression reading as compatible attributes of one feature,
+    rather than as rival origin theories.
+  - **Cook's own purpose-and-date guess is late Roman, and applies only under his
+    own artificial-cut reading — never under Kayan's, and never as Bronze Age
+    harbour engineering.** "Drainage seems the more plausible solution", and his
+    suggested occasion is "the foundation of Constantine's new city" — i.e.
+    **fourth-century AD** (Cook 1973, 167). The harbour reading belongs to
+    Brückner's canal theory, which Cook reports and doubts on the cost of the
+    spoil; **Cook may not be cited in support of any Bronze Age harbour claim
+    at Kesik.**
+
+**Cook's vertical figure independently brackets Kayan's — corroboration by an
+early observer, not a second measurement.** Cook, by eye in the field in the
+1960s: the floor is "**perhaps 12–15 m. above sea level**" (Cook 1973, 166).
+Kayan's later drilling: **13.7 m**. 13.7 sits inside Cook's bracket. **Record
+both; keep Cook's "perhaps"** — do not present the two as independent
+measurements of the same kind.
+
 - Authority: **geometry** (400 × 50 × 30 m; floor at 13.7 m a.s.l.; 150 m from
-  the sea), second-hand from Kayan's cores; **identification** (not a harbour
-  entrance).
+  the sea) — **Kayan's and Zangger's figures, never Cook's**: Cook gives no
+  length, width, or depth, only the two figures above; **identification**, but a
+  **contested** one — Kayan's natural/tectonic reading and Cook's artificial-cut
+  reading are mutually exclusive, not complementary.
 - Verified how: Zangger & Mutlu 2015, 565 and 569, fnn. 36–37, 57–59 (Turkish;
-  translated by me).
+  translated by me), for Kayan's reading and the 400×50×30 m / 13.7 m / 150 m
+  figures. For Cook: Grade A, read off `research-cache/page-captures/cook-p165.png`,
+  `cook-p166-kesik-cut.png`, `cook-p167-kesik-cut.png`, per
+  `RESEARCH-TROAD-TOPOGRAPHY.md` §9.2. **Crop caveat:** those captures lose the
+  last ~6–8 printed lines of every page, so the earthquake theory's proponent
+  (foot of 166) and the trough's westward, seaward descent are not verified
+  here.
+
+**Naming note, added 2026-07-30 (`RESEARCH-TROAD-TOPOGRAPHY.md` §9.2):** the Kesik
+plain, the Lisgar marsh (§1.7), and **Ilıca** are **one basin under three names**.
+Cook, independently: "east of it [Kesik Tepe] Spratt's map shows a large marsh
+(Lisgar, = Ilıca); it now seems to be drained and cultivated" (Cook 1973, 166;
+Grade A). Use whichever name a source uses, but do not treat a change of name as
+a change of feature.
 
 **Claim — the Kesik plain.** The basin is **about 800 m wide**, bounded in places
 by anomalously steep water-cut cliffs (Kayan 2009, 108 fig. 3); a lake sometimes
@@ -1068,8 +1116,8 @@ A compact synthesis. Every number traces to §1.
 | Barrier | A **wide sandy coastal barrier** closing the remaining water into a shallow lagoon after that fall. The barrier-and-lagoon facies language is **Brückner et al. 2005**; the Kayan et al. 2003 and Kayan 2019 *abstracts* describe the fall and the swamp but do not themselves say "barrier" or "lagoon" — the full texts are unseen (see Needs paywalled access). **Kraft, Kayan & Erol 1980, read in full, has neither word**: its terms are sandy/clay-silt estuary, marsh, swamp, beaches, shoals and brackish–freshwater swamp *(full text, 2026-07-29)*. Independently, Strabo 13.1.31 describes a **blind (barred) river mouth with salt lakes and marshes** | geographic; width unsurveyed; **not drawing-ready geometry until a Kayan full text or figure is seen** |
 | Lagoon | Shallow, behind the barrier; ancient name **Stomalimne** attested between Sigeium and the Scamander mouths (Strabo 13.1.31) | geographic + identification |
 | Swamp / marsh | The area west of the city was a **broad deltaic swamp** in Troia IV–VI; the land was **swamp-covered throughout the progradation period**, and the coastal sea **very shallow** (Kayan et al. 2003). Corroborated first-hand: Kraft's Fig. 2 maps modern swamp over the Kesik/Yeniköy plain and the Scamander's western and south-western flanks, and the text allows that "low-lying swamps occurred around the base of Troy" at 3250 BP — with the honest rider "although further drilling would be required to verify this" (1980, 782) *(full text, 2026-07-29)* | geographic, extent approximate |
-| Kesik cut | **400 × 50 × 30 m**, floor **13.7 m a.s.l.**, ~150 m from the sea, 2–2.5 m of colluvium on the floor; unfinished (Cook 1973, 167); read as a tectonic depression by Kayan | geographic; **not** a harbour entrance |
-| Kesik plain | Basin ~**800 m** wide; silted **before 1300 BC**; "could not have been used as harbours during the Later Bronze Age" (Kayan et al. 2003, 400) — against Kraft et al.'s choice of it as the harbour | contested identification |
+| Kesik cut | **400 × 50 × 30 m** (Kayan's/Zangger's figures, never Cook's), floor **13.7 m a.s.l.**, ~150 m from the sea, 2–2.5 m of colluvium on the floor. **Contested origin, corrected 2026-07-30 — the two authorities disagree and must not be blended:** Kayan reads a natural **tectonic depression** widened by foot traffic (Kayan 2009, 124; 2014, 723–24); Cook independently calls it "an artificial cut… never completed", floor "perhaps 12–15 m a.s.l." (brackets Kayan's 13.7 m), his own guess **drainage, late-Roman** (Constantine's new city) (Cook 1973, 166–67; `RESEARCH-TROAD-TOPOGRAPHY.md` §9.2). A tectonic depression cannot be "unfinished" — rival origin theories, not compatible attributes. **Cook is never citable for Bronze Age harbour engineering.** | geographic; **not** a harbour entrance |
+| Kesik plain | Basin ~**800 m** wide; silted **before 1300 BC**; "could not have been used as harbours during the Later Bronze Age" (Kayan et al. 2003, 400) — against Kraft et al.'s choice of it as the harbour. **= the Lisgar marsh = Ilıca** (Cook 1973, 166; one basin, three names — §1.9) | contested identification |
 | Beşik Bay | The project's original harbour candidate, stated first-hand in **Kraft, Kayan & Erol 1980, 782** ("the Beşika embayment was indeed the site of the Achaean camp"; "an indentation approximately **2 km inland**" at 4000–5000 BP) and again at Kraft et al. 1982, 40 and Kayan 1991, 91. **Rejected by Luce 1984, 40–41** on three stated grounds: too exposed to the Aegean for a permanent ship station; **8½ km from Troy against 4 to 5 km for his Sigeum ridge site**; and bad access to the Scamander plain, "first across a low ridge and then across a wide expanse of low-lying and marshy ground". He adds that Mey's 1924 trenches there found "nothing to confirm his Achaean camp hypothesis" (40). Cook 1973, 171–72 is on the *other* side ("a very much more satisfactory situation for the Homerists") and Luce says so and disagrees *(full texts: Kraft 2026-07-29 — cite 1980, not the second-hand 1982 quotation; Luce 2026-07-30 — the objections are now first-hand and one of them is a measurement)* | contested identification |
 | Harbour, in general | Kayan et al. 2003: the environment "has never been suitable for the establishment of an important harbour" | prose; the strongest deflationary claim in the literature |
 
@@ -1505,9 +1553,13 @@ settles.
     **Lambeck & Purcell 2005**, *QSR* 24, **1969–88**. **Settles:** the actual RSL
     value for the NE Aegean at ~3.2 ka BP, which is what tells us how much of
     Kayan's "fall" can be regional at all.
-12. **Cook 1973**, *The Troad*, **167** (borrowable scan exists — lending, not PD).
-    **Settles:** his verdict on the Kesik cut, first-hand rather than through
-    Zangger's Turkish paraphrase.
+12. **✅ CLOSED 2026-07-30 — Cook 1973**, *The Troad*, **165–67** (borrowable
+    scan; lending, not PD). Read off the page images by
+    `RESEARCH-TROAD-TOPOGRAPHY.md` §9.2 (Grade A). **Settled:** Cook's own
+    words are "an artificial cut… never completed", floor "perhaps 12–15 m
+    a.s.l.", purpose-guess drainage of late-Roman date — first-hand, not
+    Zangger's Turkish paraphrase, and it disagrees with Kayan's tectonic
+    reading rather than confirming it. Applied at §1.9 and §2 above.
 13. **Alfred Brückner 1912** (*AA* 26: 616–33) and **1925** (*AA* 39: 230–48, esp.
     246). Pre-1931, so **PD in the US** — worth hunting for a scan rather than a
     library visit. **Settles:** the two Yeniköy cuts and the Sigeion-harbour
@@ -1590,10 +1642,15 @@ each is noted below with the § that now carries it. Everything else stands.
   Luce moved from the received view (1975) to the Sigeum ridge (1984) to Kesik
   (by 2003), so "Luce" without a year names three incompatible things
   (§1.9, §1.11c).
-- **The Kesik cut's date and purpose.** Unresolved in every source read: Kayan
-  calls it tectonic, Cook calls it unfinished, Korfmann dated the Yeniköy canal to
-  the 18th century AD, an 18th-century engineer thought it Bronze Age. Its floor
-  at 13.7 m a.s.l. is the one hard fact.
+- **The Kesik cut's date and purpose.** Unresolved, and now sharper (2026-07-30,
+  `RESEARCH-TROAD-TOPOGRAPHY.md` §9.2): Kayan reads it as **natural**, a tectonic
+  depression widened by foot traffic; Cook reads it as **artificial**, "never
+  completed", and guesses late-Roman drainage (Constantine's new city) — the two
+  disagree on whether it was dug at all, not merely on when. Korfmann dated the
+  (different) Yeniköy canal to the 18th century AD; an 18th-century engineer
+  thought that one Bronze Age. Its floor at 13.7 m a.s.l. (Kayan) / "perhaps
+  12–15 m" (Cook, independently bracketing it) is the one hard fact both sides
+  share.
 
 ---
 
@@ -1609,7 +1666,7 @@ with OpenStreetMap's ODbL attribution.
 |---|---|---|---|
 | `besik-bay` | 39.9171, 26.1594 | `Beşiktepe`, Yeniköy, Ezine (attraction) | This is **Beşik Tepe the mound**, not the bay; the bay lies immediately west, ~8 km SW of Hisarlık. Use the mound as the anchor and say so, or take the bay's centroid from the Copernicus water mask. |
 | `uvecik-tepe` | 39.9003, 26.1992 | `Üvecik Tepe`, Kumburun, Ezine (archaeological_site) | ~6.3 km S, 3.4 km W of Hisarlık. Consistent with the Roman tumulus of Festus. |
-| — | 39.9608, 26.1680 | `Demetrius tumulus`, Çanakkale (archaeological_site) | Returned by a search for "Kesik". Probably Kesik Tepe, the mound near Sigeion that the fourth century took for Achilles' tomb — but OSM's name is a different tradition. **Do not adopt without checking.** |
+| — | 39.9608, 26.1680 | `Demetrius tumulus`, Çanakkale (archaeological_site) | Returned by a search for "Kesik". Probably Kesik Tepe, the mound near Sigeion that the fourth century took for Achilles' tomb — but OSM's name is a different tradition. **Do not adopt without checking. Corrected 2026-07-30: it is not a tumulus.** Cook 1973, 165–66 (Grade A, `RESEARCH-TROAD-TOPOGRAPHY.md` §9.2): Schliemann himself probed it with Virchow and Burnouf in 1879 and found "a natural tertiary hump with never more than 5 ft. of earth on top" — Forchhammer and Ulrichs had already called it natural. "Demetrius" names the adjacent Christian chapel, not a hero. **Three heroic traditions attach, none certain:** Antilochus (the 19th-c. travellers, per Cook), Achilles (the fourth century, per this row), Festus (Schliemann's own reading in 1868 — before he moved the Festus identification to `uvecik-tepe` by 1879). Tier no higher than `traditional`; name whichever tradition is cited. |
 | `adramyttion` | not looked up | — | Out of this dossier's area; belongs to the Troad-topography lane. |
 
 Source: [Nominatim / OpenStreetMap](https://nominatim.openstreetmap.org/),
