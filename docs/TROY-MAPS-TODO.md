@@ -7,6 +7,16 @@ pages from live archive.org borrows (26 page images in
 `research-cache/page-captures/`). PR #16 shrunk to plain + Troad. Two waves of
 gazetteer corrections applied. Every extraction Grok-verified before commit.
 
+## Rulings (John, 2026-07-30)
+
+- **D1 — DECIDED: Option A.** Camp sectors are named by who holds them
+  ("Ajax's end" / "the middle: Odysseus's ships, the assembly" /
+  "Achilles' end"); the words "left" and "right" appear nowhere on the
+  schematic sheet. Binds every anchor brief and caption.
+- **D2, D3 — CONFIRMED as settled**: the wagon gate is drawn and captioned
+  without a side-word; no scale bar on the schematic, the pyre carries its
+  cited 100-ft dimension label.
+
 ## John (in priority order)
 
 1. **ILL requests — file these two and every drawn layer has its source
