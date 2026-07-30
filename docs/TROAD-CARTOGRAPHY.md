@@ -52,18 +52,28 @@ markup = `<path … class="plate-layer plate-layer-relief" d="${d}" fill="var(--
 
 ## Unverified — do not claim publicly
 
-Three open items. Each would take a library visit. Until then we say less, not more.
+Two open items. Each would take a library visit. Until then we say less, not more.
 
-1. **What Janko's single map in Cambridge vol. IV depicts.** Richard Janko, *The Iliad:
-   A Commentary*, vol. IV, *Books 13–16* (Cambridge: CUP, 1992) is recorded as carrying
-   **one map, subject unidentified**. It is the Battle-for-the-Ships volume and the
-   likeliest place in the whole series for a plan of the Achaean camp. Nobody has
-   opened it for us.
-2. **Whether Luce 1998 charts the fighting scene by scene.** J. V. Luce, *Celebrating
+**Closed 2026-07-30 — what Janko's single map in Cambridge vol. IV depicts.** The volume was
+obtained and read; extraction at `research-cache/janko-vol4-notes.md`. **The map is at p. xxvi,
+it is titled "The northern Aegean," and it is not a camp plan or a battle plan.** It is a
+regional political-geography map in the genre of Kirk vol. I's three, running from mainland
+Greece through Macedonia, Thrace and the northern Aegean islands to the Asia Minor coast down to
+Ionia; on the Troad promontory it labels **Ilios**, **R. Skamandros**, **Sigeion**,
+**Rhoiteion** and **Cape Lekton**, but carries no camp outline, no wall, no ship-rows, and
+nothing drawn finer than the regional coastline. It exists to orient readers for the allied
+contingents of Books 13–16, not to illustrate the fighting. **Citation corrected at the same
+time: the volume is 1994, not 1992** — Richard Janko, *The Iliad: A Commentary*, vol. IV, *Books
+13–16*, gen. ed. G. S. Kirk (Cambridge: Cambridge University Press, 1994; repr. 1995, 1999),
+per its own copyright page. *(The other five volumes' years in the table below are unaffected;
+only vol. IV was wrong.)* The consequence is in the volume table: the series' near-total absence
+of camp and battle cartography can now be stated positively for all six.
+
+1. **Whether Luce 1998 charts the fighting scene by scene.** J. V. Luce, *Celebrating
    Homer's Landscapes* (Yale, 1998). The publisher's claim that he "traces the ebb and
    flow of the battle" is marketing copy. No accessible review describes his method at
    that resolution.
-3. **What is in Oscar Mey, *Das Schlachtfeld vor Troja: eine Untersuchung* (Berlin and
+2. **What is in Oscar Mey, *Das Schlachtfeld vor Troja: eine Untersuchung* (Berlin and
    Leipzig: de Gruyter, 1926).** A public-domain monograph titled "The Battlefield
    before Troy" that appears never to have been scanned. Existence and PD status
    confirmed; contents, argument and whether it carries plates, all unknown.
@@ -259,13 +269,17 @@ captures:
 | I | Kirk (1985) | 1–4 | **3 maps** — "Mainland Greece," "The Aegean and Asia Minor," "The east Aegean coast," supporting the Catalogue |
 | II | Kirk (1990) | 5–8 | none recorded |
 | III | Hainsworth (1993) | 9–12 | none recorded |
-| IV | Janko (1992) | 13–16 | **1 map — subject unidentified.** The Battle for the Ships volume; the likeliest place in the whole series for a camp plan, and unverified |
+| IV | Janko (1994) | 13–16 | **1 map — "The northern Aegean," p. xxvi. VERIFIED 2026-07-30 by reading the volume.** A regional map, mainland Greece to Ionia; Ilios, R. Skamandros, Sigeion, Rhoiteion and Cape Lekton labelled on the Troad, but no camp, no wall, no ship-rows. The likeliest place in the series for a camp plan, and it is not one |
 | V | Edwards (1991) | 17–20 | none recorded; 3 b/w illustrations, probably the Shield |
 | VI | Richardson (1993) | 21–24 | none recorded |
 
-**No volume is confirmed to print a plan of the Achaean camp or a battle map of the
-plain.** The standard modern commentary on the Iliad has, essentially, no cartography of
-the fighting. That is our opening.
+**No volume prints a plan of the Achaean camp or a battle map of the plain.** As of 2026-07-30
+this can be stated positively rather than as an absence of evidence: the one volume whose maps
+were unverified — Janko's, the Battle-for-the-Ships volume — has been read, and its single map
+is regional. The standard modern commentary on the *Iliad* has no cartography of the fighting at
+all. That is our opening. *(Vol. II, III, V and VI rest on physical descriptions and contents
+captures rather than on a page-by-page reading, so "none recorded" there is still a record of
+absence, not an inspection.)*
 
 Others: Willcock, *A Companion to the Iliad* (Chicago, 1976) — catalogue description
 lists no maps. Latacz, *Troy and Homer* (Oxford: OUP, 2004) — "illus., maps" per *JHS*;
@@ -314,7 +328,8 @@ candidate found is Elizabeth Minchin, "Homer's Landscape of War: Spatial Mental 
 and Cognitive Collage," in *Landscapes of War in Greek and Roman Literature* (London:
 Bloomsbury Academic, 2021), 25–37, which has a section on "the topography of the Trojan
 plain: Homer's locative information" — paywalled, and I could not confirm whether it
-contains a figure. Janko's single unidentified map in vol. IV remains the one loose end.
+contains a figure. **Janko's vol. IV map is no longer a loose end: read 2026-07-30, it is "The
+northern Aegean" (p. xxvi), a regional plate.** Minchin's possible figure is now the only one.
 
 ---
 

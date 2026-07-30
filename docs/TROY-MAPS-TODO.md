@@ -75,7 +75,7 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
 
 ## John (in priority order)
 
-1. **ILL requests** (updated 2026-07-30 10:20 — the *Geology* 2003 figures,
+1. **ILL requests — ✅ NONE OUTSTANDING as of 2026-07-30.** (updated 10:20 — the *Geology* 2003 figures,
    the Springer *Troia and the Troad* chapters, and Kayan 2014 are all now
    ACQUIRED via author pages/iCloud; full citations in
    `docs/research/PAYWALLED-ACCESS-QUEUE.md`):
@@ -84,8 +84,9 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
       section, Pl. 5 plan) that D5-A draws; we hold only 2003/2014
       redrawings. Request the volume if possible (Abb. 17–23 also wanted,
       CITADEL §6). Check Kayan's academia.edu first.
-   b. Janko vol. IV (notes on 13.681, 16.286; not on archive.org;
-      non-blocking).
+   b. ~~Janko vol. IV (notes on 13.681, 16.286; not on archive.org;
+      non-blocking).~~ **ACQUIRED AND READ 2026-07-30 — see the update below.
+      Nothing is left on this list.**
    **UPDATE 10:28 — Kayan 1991 ACQUIRED (offprint, cached as
    `research-cache/kayan-1991-besik-plain-studia-troica-1.pdf`; volume
    Abb. 17–23 still outstanding, low priority). His academia.edu profile
@@ -119,7 +120,29 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
    remains wanted. One second-hand dependency survives: Kayan 2001, 313, the
    sole remaining source for the "before 1300 BC" Kesik siltation date (low
    priority; PALEOGEOGRAPHY §5 item 7).
-   **Only true ILL left: Janko vol. IV.**
+
+   **UPDATE (2026-07-30) — JANKO VOL. IV LANDED AND IS EXTRACTED. THE ILL LIST
+   IS EMPTY.** Obtained as a PDF and read at the targeted lemmas the same day;
+   notes at `research-cache/janko-vol4-notes.md`. **The citation year was wrong
+   everywhere: it is 1994, not 1992** (Cambridge UP, repr. 1995, 1999) —
+   corrected in POEM-TOPOGRAPHY and TROAD-CARTOGRAPHY. What it settled:
+   - **The vol. IV map question is CLOSED.** It is "The northern Aegean"
+     (p. xxvi) — a regional plate from mainland Greece to Ionia, not a camp or
+     battle plan. **No volume of the Cambridge *Iliad* commentary prints a camp
+     plan or a battle map**, now positive for vol. IV by reading; II/III/V/VI
+     rest on contents records, not page-by-page inspection (TROAD-CARTOGRAPHY).
+   - **C-9 gains a first-hand commentator** — see decision 2a below.
+   - **`προκρόσσας` (14.35) = "in rows," no slope implied** (p. 154), from
+     κρόσσαι "echelon," with Herodotus's ships moored eight deep as the
+     parallel and Aristarchus's rows "like a theatre" *in plan*. Janko's own
+     Rhoiteion–Sigeion bay width, "some two and a half miles as the crow
+     flies," is his estimate, not a survey figure — cite it as prose
+     authority. Feeds the schematic camp block (POEM-TOPOGRAPHY §3.2).
+   - **What it did NOT settle: C-3's second leg.** On 16.284–92 (p. 354) Janko
+     treats "by Protesilaos' ship" as the *aristeia* type-scene and never
+     engages the contradiction. He answers only the Ajax leg, and answers it
+     philologically (`Αἴαντε` originally "Aias and Teukros," p. 131), not
+     geographically. Recorded as a negative finding, not papered over.
 
    **The "1997b" question is RESOLVED, and it is a misattribution in Kayan
    et al. 2003, not a change of mind by Kayan.** Kayan's own 1999 reference
@@ -138,9 +161,22 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
    attribution needs the correction (PALEOGEOGRAPHY §1.9, §6).
 2. **Decisions queued from the research** (each with its evidence table in
    the named dossier):
-   a. Left/right labelling: the axis holds, the sense is undecidable
-      (Hainsworth vs Clay) — recommended re-spec: name camp sectors by who
-      holds them, no left/right on the sheet. RESEARCH-POEM-TOPOGRAPHY §3.1.
+   a. Left/right labelling: the axis holds, the sense is still contested —
+      recommended re-spec unchanged: name camp sectors by who holds them, no
+      left/right on the sheet. RESEARCH-POEM-TOPOGRAPHY §3.1.
+      **UPDATE (2026-07-30, Janko vol. IV): the balance of authority has
+      shifted, the recommendation has not.** This was framed as "Hainsworth vs
+      Clay, undecidable," with Clay known only through a review. Janko now
+      stands on the same side as Clay **at first hand**: on 13.675 (pp. 130–31)
+      he states that "the viewpoint is always the Greeks'," endorsing
+      Aristarchus, and fixes it to the compass — **left = East toward
+      Rhoiteion** (the Skamandros side, Telamonian Aias's ships), **right =
+      West toward Sigeion** (Achilles). So the constant-Greek-viewpoint side
+      holds Aristarchus + Janko first-hand, against Hainsworth alone — who
+      derives the attacker's-standpoint reading and then rejects the picture it
+      yields. **Not unanimity, so the sheet still carries no left or right;
+      what the shift buys, if John wants it, is a citable note rather than a
+      drawn side. John's call.**
    b. The singer caption (18.603–6): three read authorities, no bard 2–1;
       recommended: draw as printed, caption the crux. RESEARCH-SHIELD §2.2.
    c. Taplin vs Edwards on the city at war: two armies vs one split siege

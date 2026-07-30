@@ -44,6 +44,20 @@ siltation date that four Kayan papers have failed to contain. Low priority — t
 paper's own figure (4000–3500 BP) is compatible with it and is quotable — but the
 BC date may not be attributed to Kayan 2009. → PALEOGEOGRAPHY §1.9, §5 item 7.
 
+**OBTAINED, fourth wave (2026-07-30) — Janko, Cambridge vol. IV (Tier 1 item 4),
+as a PDF; targeted lemmas read and extracted the same day**
+(`research-cache/janko-vol4-notes.md`). It settled the vol. IV map question and
+gave C-9 a first-hand commentator with a compass fix; it did **not** settle C-3's
+16.286 leg — Janko is silent there. Full accounting in the Tier 1 entry below.
+
+**WITH THAT, NOTHING IS IN FLIGHT.** Item 4 was the last outstanding *acquisition*
+on this queue — the ILL list is now empty and no request is pending. That is not the
+same as the queue being finished: what remains is either **blocked on a click** (the
+CATENA pair), **in hand or borrowable but unread for its dossier** (Edwards vol. V is
+in hand; Kirk vols I–II have the archive.org controlled-lending path), or **has no
+known lawful path yet** (Cook 1973, Luce 1998, the Springer chapters). Wants, not
+orders awaiting delivery.
+
 **BLOCKED — needs John's own click** (full access confirmed, but Chrome's PDF
 viewer ignores automated download clicks): the CATENA paper + erratum
 (item 13) — both render fine in the proxied ScienceDirect tabs; two manual
@@ -53,9 +67,11 @@ downloads and they're done.
 (item 2 — GeoScienceWorld is not in the EZproxy database list at all);
 Springer *Troia and the Troad* chapters (items 9, 10, 17 — book not licensed);
 Luce 1984 (item 11/17 — Wiley purchase-only; EBSCO offers ILL only);
-**Cambridge commentary volumes (items 1, 4, 5, 6 — not licensed on Cambridge
+**Cambridge commentary volumes (items 1, 5, 6 — not licensed on Cambridge
 Core, not in EBSCO eBooks; the archive.org controlled-lending borrow is the
-fastest lawful path, or ILL)**. Cook 1973 (item 7): no online path found; ILL
+fastest lawful path, or ILL. Item 4, Janko vol. IV — the one volume with no
+lending record at all — was obtained by another route on 2026-07-30 and is
+off this list)**. Cook 1973 (item 7): no online path found; ILL
 or the archive.org borrow.
 
 The tier lists below are unchanged as the master record.
@@ -78,8 +94,23 @@ only — never committed, never republished.
 3. **Kayan 2014, *Studia Troica* Monographien 5, 694–727, esp. fig. 8** (his
    plotted sea-level curve) — the single most useful figure for barrier and
    lagoon. → PALEOGEOGRAPHY §5 item 5.
-4. **Janko on Il. 13.681 and 16.286** (Cambridge vol. IV). Settles C-3
-   (Protesilaus's ship). → POEM-TOPOGRAPHY §8.
+4. ✅ **OBTAINED AND READ 2026-07-30 — Janko on Il. 13.681 and 16.286** (Cambridge
+   vol. IV). Richard Janko, *The Iliad: A Commentary*, vol. IV, *Books 13–16*, gen.
+   ed. G. S. Kirk (Cambridge: Cambridge University Press, **1994**; repr. 1995, 1999)
+   — **the year, printed 1992 across the dossiers, was wrong and is corrected**.
+   Notes file: `research-cache/janko-vol4-notes.md`. Be exact about what it did and
+   did not settle. **Settled:** the map question (p. xxvi is "The northern Aegean," a
+   regional plate — no camp plan in vol. IV, and none recorded for the other five,
+   per TROAD-CARTOGRAPHY's hedged table); the ships'-left
+   evidence for **C-9**, where Janko endorses Aristarchus at pp. 130–31 ("the
+   viewpoint is always the Greeks'") and adds a compass fix (left = E./Rhoiteion/
+   Telamonian Aias, right = W./Sigeion/Achilles); and `προκρόσσας` at p. 154 ("in
+   rows," no slope, Aristarchus's "theatre" in plan, his own 2.5-mile bay width).
+   **NOT settled: C-3's 16.286 leg.** At p. 354 Janko treats "by Protesilaos' ship"
+   as the *aristeia* type-scene and never engages the contradiction; only the Ajax
+   leg gets an answer, and that answer is philological (the `Αἴαντε` etymology,
+   p. 131), not geographic. → POEM-TOPOGRAPHY §3.1, §3.2, §7.6 (C-3, C-9), §8;
+   TROAD-CARTOGRAPHY.
 5. **Richardson on Il. 22.145–56** (Cambridge vol. VI). The chase-route
    complex: springs, washing-troughs, the circuit. → POEM-TOPOGRAPHY §8.
 6. **Edwards, *The Iliad: A Commentary* vol. V, pp. 200–209** + notes on
@@ -155,5 +186,7 @@ only — never committed, never republished.
 - **Mey, *Das Schlachtfeld vor Troja* (1926)** and the 1928 Andrae plate —
   library visit / publication hunt; would be PD. → POEM-TOPOGRAPHY §9,
   TROAD-CARTOGRAPHY "Unverified".
-- Library-visit standbys from TROAD-CARTOGRAPHY: what Janko's vol. IV map
-  depicts; whether Luce 1998 charts the fighting (item 11 may answer).
+- Library-visit standbys from TROAD-CARTOGRAPHY: ~~what Janko's vol. IV map
+  depicts~~ — **CLOSED 2026-07-30: "The northern Aegean," p. xxvi, a regional
+  plate, not a camp plan**; whether Luce 1998 charts the fighting (item 11 may
+  answer).
