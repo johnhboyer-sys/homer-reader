@@ -64,6 +64,29 @@ GIS: four candidates run down (§4), all four measured or read. Not covered: Tur
 Ministry / Troya Museum holdings; the DAI photo archive; Schmidt's *Atlas trojanischer
 Altertümer*.
 
+## DESIGN SPEC (John, 2026-07-30 16:48): the phase-coloured single sheet
+
+The plate is **one sheet carrying the whole excavation history, linework
+colour-coded by settlement phase over a neutral mound silhouette, with the
+legend doubling as the phase filter** — the presentation idea of the AIA
+*Uncovering Troy* interactive (§4.5), which may be **cited as inspiration,
+never as source**: its geometry is unattributed and its gate names are
+directional. Ours is built the lawful way:
+
+- **Linework:** traced from Dörpfeld — Tafel III (all layers, 1:500) for the
+  composite; Tafeln IV–VII for the per-settlement layers. **Troy VI is its own
+  phase, never lumped** (the AIA page buries it in a III–VI band — that is the
+  failure to avoid). North side of VI drawn as absent per the VERDICT.
+- **Gates:** Dörpfeld letters (VI T, VI U, VI S) on the sheet; the Homeric
+  pairing lives in the note only (John's 2e-ii ruling, TROY-MAPS-TODO).
+- **Filter:** the existing plate layer/toggle machinery carries the phase
+  legend (like the certainty filter on the geo plates); each layer's note
+  names its Tafel.
+- **Georeferencing:** §2's published transform, feature-rectified, grid as
+  scale check; the §4.1 archived bounds as cross-check.
+- **Every layer carries `sources`** (mandatory per the validate_plate
+  hardening item), and the LOOK gate applies at render, both themes.
+
 ---
 
 ## 1. Dörpfeld 1902 — the geometry authority
