@@ -1,6 +1,8 @@
 # Research: Troad topography — the regional identification dossier
 
 **Date:** 2026-07-29
+**Revised:** 2026-07-30 — §6 (the springs hydrochemistry) rewritten from the article itself,
+now on disk; the paywalled-access and unverified lists updated to match.
 **Extends:** [`docs/TROAD-SOURCES.md`](../TROAD-SOURCES.md) (2026-07-28). That file is the
 Trojan-plain source dossier: paleogeography, the plain's named features, the licensing
 table, and the record-by-record JSON block. **This file does not repeat it.** Where the
@@ -629,10 +631,24 @@ text; Pleiades rows read from the dump; all distances and bearings computed here
 
 ---
 
-## 6. The 2020 hydrochemistry — the citation in the repo is wrong
+## 6. The hydrochemistry of the two springs — READ IN FULL, 2026-07-30
 
-**claim:** the study that found no hot-and-cold spring pair near Troy was published in
-**CATENA**, not in *Geochemistry*, and it carries a published **erratum**.
+**Status change.** This section was written from an abstract summary. The article and its
+erratum are now on disk and have been read cover to cover:
+`research-cache/wolkersdorfer-2021-catena.pdf` (12 PDF pages = 10 offprint pages, art. no.
+105070, followed by an "Update" divider and the 1-page erratum) and
+`research-cache/wolkersdorfer-2021-catena-erratum.pdf`. **Page citations below are the
+offprint's own printed page numbers, 1–10, which correspond 1:1 to PDF pages 1–10.**
+
+Note the date drift in this section's old title: the paper was received 27 June 2020,
+accepted 23 November 2020, online 7 December 2020, and printed in **CATENA 200 (2021)**.
+Cite it as 2021. "The 2020 hydrochemistry" is how the repo has been referring to it and is
+how the wrong citation got its year.
+
+### 6.0 The citation in the repo is wrong
+
+**claim:** the study is published in **CATENA**, not in *Geochemistry*, and it carries a
+published **erratum**.
 
 **citation (corrected):** Wolkersdorfer, Christian, Susanne Stadler, Anja Bretzler, Claudia
 Müller, and Claudia Zedler. "Hydrochemical investigations to locate Homer's hot and cold
@@ -657,17 +673,289 @@ journal name nor the volume matches anything Crossref knows.
 `docs/TROAD-SOURCES.md` §B and the JSON block. **Flagged, not edited** — this dossier
 touches no other file.
 
-**The finding itself, as the abstract states it:** four springs showed elevated
-geothermometric reservoir temperatures, three above 95 °C, **none of them close to today's
-Troia**; no spring showed an elevated *discharge* temperature; springs that locals call
-"hot and cold" held nearly constant temperature through the measuring period (±0.1–0.3 K),
-so they read warm in winter and cold in summer. The authors conclude that "a spring *sensu
-Homer* never existed in Troia" and that Homer may mean one spring perceived two ways
-across the year.
-**verified how:** abstract read via search-engine summary and Semantic Scholar's record for
-the paper. **I could not open the article itself** — ScienceDirect returned HTTP 403. So the
-*wording* above is a paraphrase of the abstract, not a quotation from the paper. Do not put
-it in quotation marks on the site until someone has the PDF. See §9.
+### 6.1 What was actually sampled and measured
+
+**claim:** this is a four-campaign field study of the whole western Troad, not a spot check
+at Hisarlık.
+
+- **227 sampling locations**, four field campaigns between **2001 and 2006**; **47** of them
+  analysed in detail and carried into the geothermometry (pp. 4, 6; the 47 are Table 1, p. 5,
+  and are plotted on Fig. 2, p. 3). Coverage was "all dug wells, fountains, piped systems,
+  natural dry and wet springs and surface water sources in the investigation area" over
+  four seasons, plus interviews with locals about "hot and cold" springs *and* dry wells
+  (p. 5).
+- **Discharge temperatures.** *n* = 625 readings: range **12–34 °C**, mean **21 °C**, 90 % of
+  all values between 17 and 27 °C (p. 5). The separate histogram of 525 measurements
+  2001–2004, which folds in Virchow's 16 measurements of 1879, gives mean **20.9 °C**,
+  σ **3.7 °C**, and a trimodal distribution: ≈14.6 °C deep groundwater, ≈18.2 °C
+  groundwater, ≈21.9 °C near-surface wells, ≈25.4 °C surface water, ≈31.0 °C piped
+  fountains (Fig. 5, p. 7 — mode labels per the caption; a first draft swapped the
+  18.2/21.9 labels, caught at Grok verification).
+- **Hydrochemistry.** Electrical conductivity **0.4–7.1 mS cm⁻¹** (*n* = 652), clustering
+  into three water types: type I 0.4–2.0 (metamorphic/volcanic rocks and most surface
+  water), type II 1.8–3.5 (Troia and Kumkale ridges, deep plain wells), type III 3.7–7.1
+  (three isolated wells BBP/BBK/BAH, explained by animal carcasses in the water, not
+  geothermal) — Fig. 4, p. 6. **Cl⁻ at the elevated-reservoir sites is 36–72 mg L⁻¹**
+  against **9,430–38,463 mg L⁻¹** at the two real thermal systems of the Biga Peninsula
+  (p. 7): the Troad waters are not deep thermal waters. Waters are Mg-HCO₃ /
+  Mg-Ca-HCO₃ types with maturity index 0.5–1.5, i.e. **immature**, which is why Na-K-Mg
+  geothermometry could not be used and SiO₂ geothermometry was (pp. 5–6).
+- **Geothermometry.** SiO₂ reservoir temperatures on the revised Verma (2000) silica
+  equation, cross-checked against Fournier (1977) (Table 1, p. 5). Only **four** of the 47
+  exceed 80 °C: **BDW, BDD, BDY, BCZ** — Verma values 110.5, 105.5, 95.0 and 84.3 °C
+  (Table 1). All four lie **south-east of Hisarlık between Taştepe and Dümrek, near the
+  Ovacık thrust**, and all four are Mg-HCO₃ waters (pp. 6–7). The *discharge*
+  temperature at these sites is "near or below" the mean of all waters sampled (p. 7,
+  the paper's own wording) — BDD, mean 28 °C but piped 2 km, is expressly excepted
+  from the analysis.
+- **The nearest of the elevated-reservoir sites is "about 10 km away from the Hissarlık"**
+  (the paper's own double-s spelling)
+  (p. 7). This is the single most drawing-relevant number in the paper.
+- **Scalings.** Absent as *thermal* scalings — but the Troad is not scaling-free. Up to
+  **10 m of calcite sinter terraces** line the Roman aqueduct at Kemerdere/Civlar (Fig. 8,
+  p. 8, sampling point FAC), and most Ca-HCO₃ waters deposit travertine at the point of
+  discharge (Fig. 9, ESEM of sinter at QRW, p. 8). The paper's point is that these
+  "cannot be taken as a trace of a hot spring, as they are mineralogically and structurally
+  different from the deposits around the thermal springs in the Troad's vicinity" at
+  Kestanbol Kaplıca and Tuzla (p. 6). **See §6.6: the repo currently says "no scalings",
+  which is not what the paper says.**
+- **Real thermal springs in the region, for scale:** Çanakkale (25 km NE of Hisarlık),
+  Kestanbol Kaplıca (25 km S), Akçakeçili (28 km S), Tuzla (44 km S); discharge 32–102 °C,
+  calculated reservoir temperatures **> 140 °C** (p. 3). None is in the western Troad.
+
+**authority kind:** prose (a measured result), with **geometry** only at the level of
+Fig. 2's grid — see §6.3.
+**verified how:** all 10 offprint pages of `research-cache/wolkersdorfer-2021-catena.pdf`
+read directly, including Table 1 and all nine figures.
+
+### 6.2 The conclusion, in the paper's own words
+
+Three statements, at three different strengths, and the site must not blend them.
+
+**The abstract (p. 1):**
+> "None of the identified springs shows elevated discharge temperatures, no scalings give
+> indication for disappeared springs, and only three springs show elevated reservoir
+> temperatures above 95 °C – none of which is close to today's Troia. … These results show
+> that a spring *sensu* Homer never existed in Troia and that Homer possibly meant *one*
+> spring with warmer and colder temperatures relative to the mean air temperature depending
+> on the time of the year."
+
+**End of §4, Results and discussion (p. 7):**
+> "Based on these results, we therefore conclude that close to today's Troia at the
+> Hisarlık, a thermal spring never existed nor might once have disappeared due to an
+> earthquake. Consequently, if there is nothing like a 'hot and cold' spring around Troia,
+> the question of what Homer could have meant when he described a 'hot and a cold spring'
+> remains open."
+
+**The last paragraph of the paper (§5, p. 9) — and this is the sentence the repo is
+currently missing:**
+> "As has been shown in our investigation, there most probably never was a hot, thermal
+> spring in or around the 'Troia National Park' because the characteristic scalings
+> and the elevated reservoir temperatures cannot be found. **Furthermore, numerous
+> springs fulfill the prerequisite of being 'hot/warm and cold' *sensu* Homer.** It is
+> therefore apparently not possible to identify Homer's 'hot/warm and cold' spring(s) within
+> the Troad and all attempts to locate Homer's Troia by using Iliad XXII, 147–156 might be a
+> fruitless enterprise."
+(Bold added here; the paper does not emphasise it.)
+
+**So the paper's finding is two-sided, and "no hot-and-cold spring pair exists near Troy"
+gets only the first half.** No *thermal* spring, and none that ever disappeared — that is
+the negative. But in Homer's own relative sense, **many** Troad springs qualify, which is
+why the identification fails: not for want of a candidate, but for a surplus of them. The
+honest one-line version for the site is *the description does not discriminate*, not *the
+thing does not exist*.
+
+**authority kind:** prose.
+**verified how:** quotations transcribed from pp. 1, 7 and 9 of
+`research-cache/wolkersdorfer-2021-catena.pdf`. These are now safe to quote on the site.
+
+### 6.3 Candidate sites, coordinates and maps — what is drawable
+
+**claim:** the paper names and discusses candidate sites, but supplies **no coordinate for
+any spring**, and no coordinate at all except Hisarlık's.
+
+- **The only numeric coordinate in the paper** is Troy itself: Hisarlık at
+  **26°14′18″ E, 39°57′28″ N (WGS84), elevation 35 m a.s.l.** (p. 2) — i.e. 39.9578,
+  26.2383, which agrees with the gazetteer.
+- **Fig. 1 (p. 2)** — locator map of the north-western Biga Peninsula on a Google Earth
+  base, pink dots, **no grid and no coordinates**, scale bar 0–10 km. Named: Troia /
+  Hisarlık / Ilion, Kumkale, Dümrek, Ovacık, Civlar, Kemerkoy, Düden, Taştepe, **Kirk Göz**,
+  **Pınarbaşı (Bounarbachi)**, Ezine, Kestanbol Kaplıca, Akçakeçili, Tuzla, Bayramıç and the
+  Bayramıç Dam, Ayvacık, Çanakkale, Gallipoli/Gelibolu, Gökçeada, Tavşan Adası, Bozcaada.
+  Useful as a name list, useless as geometry.
+- **Fig. 2 (p. 3)** — the one drawing-relevant plate. All sampling points on a satellite/OSM
+  base, **graticule in UTM WGS84 Zone 35N**, eastings ≈430000–448000 and northings
+  ≈4416000–4428000 at 2000 m intervals, scale bar 0–5 km. Symbol size proportional to
+  reservoir temperature; legend bands 16–35, 35–55, 55–74, 74–94, **94–123 °C**. Named
+  settlements: Troia, Kumkale, Halileli, Dümrek, Gökçalı, Kemerkoy, Kalafat, Çıplak,
+  Akçapunar, Akçeşme, Taştepe, Derbentbaşı, Pınarbaşı, Yeniköy; named streams **Dümrek** and
+  **Karamenderes**. **Sampling points are labelled by three-letter code only.** Their
+  positions can be read off the UTM grid graphically to perhaps ±100 m — which is a
+  *derived* geometry from a raster, not a published coordinate. **Do not put a
+  graphically-read point in `places.json` as a source coordinate.**
+- **Table 1 (p. 5)** gives SiO₂, reservoir temperatures and water type for the 47 locations
+  and says only "Locations are provided in Fig. 2." There is **no coordinate table**.
+  Appendix A announces supplementary material at the article DOI; we have not fetched it,
+  and it is the one place a coordinate list might exist. Logged below.
+- **Pınarbaşı / the "Kirk Göz" springs** — the classical rival Troy and LeChevalier's
+  candidate. LeChevalier (1791) "thought he had found a hot and cold spring in the area of
+  the 'Kirk Göz' (*40 springs*) near Pınarbaşı, which was called Bounarbachi in the 18th
+  century" (p. 2). The paper measured **18 of the 40**: **17.4–18.5 °C**, which "did not
+  deviate from other temperatures measured in the Troad. It was therefore not possible to
+  verify LeChevalier's observation of a hot and cold spring there" (p. 6). Pınarbaşı is
+  named on Figs 1 and 2; sampling points QPA, QPB appear beside it on Fig. 2.
+- **QWK, the former drinking-water spring east of Dümrek** — the paper's best single
+  candidate for what Homer describes, chosen because "locals … report that there are hot and
+  cold springs" there (p. 6). Continuous logging in 2003, 2004 and 2006 (Fig. 6; the
+  numbers and the argument are in §5, p. 8)
+  gives **17.3 °C, 17.4 °C and 17.9 °C** across the three periods, "a statistically
+  significant difference to other springs in the area" and, unlike its neighbours, **no
+  diurnal variation at all** (p. 8) — a regional flow system *sensu* Tóth (1963) with a long
+  residence time, which the paper ties directly to Hippocrates' "coming from very deep
+  springs". Plotted on Fig. 2 north-east of Dümrek.
+- **The Düden spring (QCF) and Troia's spring cave / water mine (QHE, QS4)** — two years of
+  hourly logging, **Fig. 7, p. 8**. QHE is the basin 10 m behind the entrance, QS4 is 120 m
+  behind it. Both are **located, visitable features**: the qanat system south of Hisarlık,
+  rediscovered in the Tübingen/Cincinnati excavations and known in the literature as the
+  spring cave, water mine, water quarry or **KASKAL.KUR** (p. 3, citing Frank et al. 2002's
+  ²³⁰Th/U dating, Korfmann 1998/2000, Kayan 2000). Düden is named on Fig. 1 between
+  Hisarlık and Taştepe. These records are the empirical basis for the seasonal argument:
+  cold relative to air in summer (water 21–23 °C against daily mean 23–27 °C), warm relative
+  to air in winter (water 16–21 °C against daily mean 2–8 °C) — p. 8.
+- **The four elevated-reservoir sites** are located only verbally: **BDW and BDY
+  east-south-east of Dümrek**, **BCZ south-east of Taştepe** (on Fig. 2 it sits by
+  Derbentbaşı), **BDD** south of Taştepe. All ≥ ~10 km from Hisarlık (pp. 6–7).
+- **The Kesik cut / Kesik Tepe is not mentioned anywhere in the paper.** Neither is the
+  Achaean camp, the ford, or any other Homeric feature besides the springs and the
+  washing-troughs. This paper is no help on the rest of the plain.
+
+**authority kind:** identification and prose. **Not geometry** — the only publishable
+coordinate it contains is Hisarlık's.
+**verified how:** Figs 1, 2, 5, 6, 7, 8 and 9 and Table 1 inspected directly in
+`research-cache/wolkersdorfer-2021-catena.pdf`; every named site above read off the figure
+plates and the running text.
+
+### 6.4 How the paper reads Il. 22.147–56
+
+**claim:** the paper treats the passage as a hydrogeological specification and derives
+testable prerequisites from it — including one philological move the site should carry,
+because it weakens "hot" considerably.
+
+- It quotes the whole passage at p. 2 in **Butler's** translation (its bibliography:
+  "Butler, S., 1999. The Iliad Homer. Dover Publications, Mineola" — the PD Butler in a
+  Dover reprint, so no licensing problem for us), running from "On they flew along the
+  waggon-road that ran hard by under the wall, past the lookout station, and past the
+  weather-beaten wild fig-tree" through the two springs to "**Here, hard by the springs, are
+  the goodly washing-troughs of stone, where in the time of peace before the coming of the
+  Achaeans the wives and fair daughters of the Trojans used to wash their clothes.**"
+  The paper cites it as "*Iliad* (XXII, 147–156)" throughout — including in its closing
+  sentence, quoted in §6.2.
+- **The washing-troughs get no separate treatment.** They are quoted as part of the passage
+  and never mentioned again: no attempt to find them, no discussion of stone troughs as an
+  archaeological class, nothing on whether a trough could survive. **This paper is not
+  evidence about the troughs beyond the fact that they hang on the springs.** The
+  `washing-troughs` record's current reasoning — no locatable springs, therefore no
+  locatable troughs — is sound, but it is *our* inference, not the paper's.
+- **λιαρός.** "Homer used the Greek word λιαρός, which means lukewarm, to describe the hot
+  spring. This implies that the temperature of the spring is at least above the mean daily
+  air temperature and according to his description, mist ('steam' in the words of Homer),
+  technically called 'steam fog' (Saunders, 1964), can temporarily be found close to this
+  hot spring" (p. 3). So the paper's own reading is that Homer does **not** claim a thermal
+  spring: it sets the bar at "above mean daily air temperature", which is exactly why it can
+  then conclude that numerous Troad springs clear it. **Il. 22.149 is κρουνὼ … ὃ μὲν ὕδατι
+  λιαρῷ ῥέει** — the epithet is the crux, and the paper is right that λιαρός is "warm,
+  lukewarm" (Autenrieth, Cunliffe), not "hot". Note the asymmetry in Homer's own lines: the
+  warm spring gets λιαρός and smoke-like steam (22.149–50), the cold one gets hail, snow and
+  ice (22.151–52). The comparanda are hyperbolic on the cold side and modest on the warm.
+- **Hippocrates, *De aere aquis et locis*** (p. 3, Jones's Loeb 1923): the "best" springs
+  are those from high places and earthy hills, "In winter they are warm, in summer cold.
+  They would naturally be so, coming from very deep springs" — which the paper reads as a
+  *single* spring with that seasonal character, and adopts as the physical model.
+- **Plato, *Kritias*** (p. 8, citing Platon 1973 and Zangger 1993): a cold and a warm spring
+  in Atlantis' citadel "flowing out of the same location". "Though he writes about two
+  springs, he explains that in fact he only means *one* spring with hot and cold water.
+  Consequently, it may be assumed that Homer also describes such a system of springs, which
+  is 'relatively' cold in summer and 'relatively' warm in winter." **This is the paper's
+  positive proposal, and it is an argument from analogy to a Platonic myth — prose, not
+  measurement.** Report it as the authors' proposal; do not let the site state it as a
+  finding.
+- **Strabo 13.1.43 and Demetrius of Scepsis** (p. 2): "This fact of the missing springs was
+  already noted by Demetrius of Skepsis ca. 180 B.C., and based on Demetrius' observations,
+  Strabo describes in his *Geographica* that the hot spring had disappeared at that time."
+  **§4 of this file has not verified 13.1.43** — the sections read verbatim there are 5, 9,
+  35, 36, 44, 45, 50, 51, 61, 62, 63, 65. The springs section is a gap in our Strabo
+  coverage and is logged below.
+
+**authority kind:** prose.
+**verified how:** pp. 2, 3, 8, 9 read directly; λιαρός checked against the Greek of Il.
+22.149 and against Autenrieth and Cunliffe, both of which are in the repo's lexicon set.
+
+### 6.5 The erratum — read, and content-trivial
+
+**claim:** the erratum touches nothing we cite.
+
+**citation:** as at §6.0.
+**authority kind:** prose (a publisher's correction).
+**verified how:** read in full at `research-cache/wolkersdorfer-2021-catena-erratum.pdf`
+(one page; also bound at the end of the main PDF after an "Update" divider, PDF pp. 11–12).
+It corrects exactly three things: (a) a **missing e-mail address** for the author Claudia
+Müller; (b) the **typesetting of equations (1) and (2)**, which should read
+*T* = *a* / (*b* − log γ) − 273.15 and *T* = 1175.7(±31.7) / (4.88(±0.08) − log γ) − 273.15
+— i.e. the main paper's typesetting mangled "log γ" as "logy"; (c) the **format of one
+reference**, Archäologisches Landesmuseum Baden-Württemberg et al. (2001). It closes: "The
+publisher would like to apologise for any inconvenience caused." **No finding, number,
+figure, table or conclusion is affected.** Neither this dossier nor the gazetteer quotes the
+equations, so the correction has no downstream effect; the equations are recorded here only
+so that nobody has to open the PDF again to check.
+
+### 6.6 Contradictions — recorded, not harmonised
+
+1. **The repo says "no scalings"; the paper reports abundant scalings.**
+   `docs/TROAD-SOURCES.md` §B (prose AND its JSON block — `places.json` itself does
+   not carry this phrasing; scoped at Grok verification) says the survey "found four
+   springs with elevated geothermometric reservoir temperatures **but no scalings**". The paper's abstract says
+   "no scalings give indication for **disappeared** springs" (p. 1), and its body describes
+   10 m calcite sinter terraces at Kemerdere/Civlar and travertine at most Ca-HCO₃ discharge
+   points (p. 6, Figs 8–9). The correct claim is **no *thermal* scalings** — the Troad's
+   sinter is mineralogically unlike Kestanbol Kaplıca's and Tuzla's. As written, the repo
+   states something false about the Troad. **Fix the wording when `places.json` is next
+   edited.**
+2. **The gazetteer's framing runs against the paper's two-sidedness.** `places.json` →
+   `two-springs-of-scamander` actually reads (corrected wording at Grok verification —
+   an earlier draft of this item quoted a sentence that is not in the file): tradition
+   "…no candidate pair survives, and the 2020 hydrochemical survey (Wolkersdorfer et
+   al., CATENA 200) **closes the case**"; note "The **2020 survey** measured the local
+   candidates and found their temperatures nearly constant year-round… and proposes
+   that Homer describes one spring, perceived two ways across the seasons." Three
+   divergences from the paper: (a) "no candidate pair survives" states the opposite
+   emphasis to p. 9's "numerous springs fulfill the prerequisite of being 'hot/warm
+   and cold' *sensu* Homer" — the identification fails from a SURPLUS of qualifying
+   candidates, not an absence; (b) "closes the case" overstates "apparently not
+   possible … might be a fruitless enterprise"; (c) "the 2020 survey" is wrong twice —
+   field campaigns 2001–2006, publication CATENA 200 (2021). The one-spring/two-seasons
+   sentence is accurate but should be marked as the paper's *proposal* (a *Kritias*
+   analogy, p. 8), not a finding.
+3. **An internal inconsistency in the paper, on the record for whoever cites the count.**
+   The abstract (p. 1) says "only **three** springs show elevated reservoir temperatures
+   **above 95 °C**". The body (pp. 6–7) says four locations exceed **80 °C** — BDW, BDD, BDY,
+   BCZ — and then: "Two sampling locations (BDD, BCZ) are connected to the same spring
+   system by a pipe, therefore only three locations show elevated reservoir temperatures
+   (Fig. 2): BDW and BDY east-south-east of Dümrek as well as BCZ southeast of Taştepe."
+   That reduction keeps BCZ and drops BDD, while naming BDD *and BCZ* as the pipe-linked
+   pair; and Table 1's Verma values make the three sites above 95 °C **BDW, BDD, BDY**
+   (110.5, 105.5, 95.0), not the trio the body names. **The abstract's triple and the body's
+   triple are different sets.** Nothing in the argument turns on it — all candidates are
+   ≥ ~10 km from Hisarlık either way — but do not write "the four springs" or "the three
+   springs above 95 °C" as though the paper were consistent. Say "four sites above 80 °C, of
+   which the paper counts three as independent."
+4. **The paper mis-states the length of the *Iliad*.** p. 1: "This epic with 15,963 lines of
+   verse". The vulgate has **15,693**. A digit transposition, and harmless — but it is a
+   reminder that this is a hydrogeology paper on a philological question, and its Homeric
+   apparatus is Butler in a Dover reprint plus a handful of secondary works. Trust its
+   temperatures; do not trust it on the text.
+5. **The old "§9 / §10" cross-references in this section pointed at a numbering this file no
+   longer uses.** The lists are now the two `##` sections at the end of the file, "Needs
+   paywalled access" and "Unverified — do not claim publicly".
 
 ---
 
@@ -819,11 +1107,21 @@ should be asserted, page-cited, or quoted until someone has the physical or lice
    `fig-tree`, `lookout-skopie`, `wagon-road`, `scamander-simoeis-confluence`,
    `ford-of-the-scamander`, `bay-of-troy`, `achaean-camp`, `achaean-assembly-place`,
    `besik-bay`), all at work level.
-3. **Wolkersdorfer et al., *CATENA* 200 (2021) 105070, and the erratum at *CATENA* 202
-   (2021) 105295** — ScienceDirect returns HTTP 403. **Wanted:** the four springs' names
-   and coordinates, the measured discharge temperatures, and **what the erratum corrects**.
-   The erratum is the more urgent of the two: we are citing a paper whose published record
-   includes a correction we have not read.
+3. **~~Wolkersdorfer et al., *CATENA* 200 (2021) 105070, and the erratum at *CATENA* 202
+   (2021) 105295~~ — OBTAINED 2026-07-30.** Both are on disk at
+   `research-cache/wolkersdorfer-2021-catena.pdf` and
+   `research-cache/wolkersdorfer-2021-catena-erratum.pdf`, and both have been read in full;
+   findings are in §6. Of what was wanted: the four elevated-reservoir sites are named
+   (**BDW, BDD, BDY, BCZ**, all ≥ ~10 km south-east of Hisarlık between Taştepe and Dümrek)
+   but the paper gives **no coordinates** for them or for any other spring — Table 1 refers
+   the reader to Fig. 2, whose only geometry is a UTM 35N graticule on a raster (§6.3).
+   Discharge temperatures are recorded (§6.1). The erratum is **content-trivial**: an e-mail
+   address, the typesetting of eqs (1) and (2), and one reference's format (§6.5).
+   **Still wanted, and the only remaining gap:** the article's **supplementary material**
+   (Appendix A, at the article DOI), which is the one place a coordinate list for the 227
+   sampling points might exist. Fetching it is a small job with a licensed session; nothing
+   in the gazetteer depends on it, since the paper's own text places no spring within 10 km
+   of Troy.
 4. **Leaf, *Strabo on the Troad* (1923)** — PD, but I did not open it; every page number
    attributed to it here is Jones's Loeb cross-reference, not my reading. **Wanted:** Leaf's
    commentary on 13.1.35 (Callicolone's 40 stadia) and 13.1.44 (the Idaean rivers), which
@@ -852,11 +1150,19 @@ should be asserted, page-cited, or quoted until someone has the physical or lice
    compressed and the next clause is about the Village of the Ilians. Leaf's *main* text
    (p. 44) proposes Ophrynion instead, which makes the footnote harder, not easier, to
    assign. Verify in a clean copy before using either as *the* Leaf position.
-3. **The exact wording of the 2020 hydrochemistry's conclusions.** §6 paraphrases the
-   abstract from a search summary and a Semantic Scholar record; the article itself was
-   403. The *journal, volume, page, DOI, author list and the existence of the erratum* are
-   verified through Crossref and are safe. **The sentences are not quotations. Do not put
-   them in quotation marks.**
+3. **~~The exact wording of the 2020 hydrochemistry's conclusions.~~ RESOLVED 2026-07-30.**
+   The article is on disk and read; §6.2 carries the conclusions verbatim from pp. 1, 7 and
+   9, and **those quotations are now safe to use on the site.** Three things replace the old
+   caution. (a) The paper's finding is **two-sided**: no *thermal* spring near Hisarlık and
+   none that ever disappeared, but "numerous springs fulfill the prerequisite of being
+   'hot/warm and cold' *sensu* Homer" (p. 9) — the identification fails for a surplus of
+   candidates, not an absence. **Do not write "no hot-and-cold spring pair exists near
+   Troy"; two `places.json` records and `TROAD-SOURCES.md` currently imply it (§6.6).**
+   (b) The "one spring, two seasons" reading is the authors' **proposal by analogy to
+   Plato's *Kritias*** (p. 8), not a measurement; attribute it as a proposal.
+   (c) The paper's spring-count is **internally inconsistent** (§6.6 item 3) — cite "four
+   sites above 80 °C, of which the paper counts three as independent", never a bare "three
+   springs above 95 °C".
 4. **The Üvecik Tepe date of 214 AD.** Leaf says "possibly the tomb built by Caracalla for
    his freedman Festus in 214 a.d."; Kültür Envanteri says "3rd century"; Pleiades says
    "built for one Festus, a freedman of the emperor Caracalla" with no year. The gazetteer
@@ -880,3 +1186,12 @@ should be asserted, page-cited, or quoted until someone has the physical or lice
 8. **Hainsworth on the Troad as a poetical construction.** Carried over from
    `TROAD-SOURCES.md` §C, still unverified at the page, still second-hand. Repeated here so
    it does not get lost when someone reads only this file.
+9. **Strabo 13.1.43 on the disappeared hot spring.** Wolkersdorfer et al. (p. 2) report that
+   "based on Demetrius' observations, Strabo describes in his *Geographica* that the hot
+   spring had disappeared at that time" (*Geographica* XIII, 1, 43), and the earthquake
+   hypothesis the paper tests rests on it. **§4 of this file has not verified 13.1.43** — the
+   sections read verbatim are 5, 9, 35, 36, 44, 45, 50, 51, 61, 62, 63 and 65. So the whole
+   ancient half of the springs problem currently reaches us through a hydrogeology paper's
+   one-clause paraphrase. **Read 13.1.43 in Jones's Loeb before any site copy says Strabo or
+   Demetrius reported the spring gone.** Cheap to close: 13.1.43 is PD and already in the
+   text we use for the rest of §4.
