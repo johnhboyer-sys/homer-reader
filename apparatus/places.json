@@ -984,7 +984,7 @@
       "greek": "Χρύση",
       "certainty": "speculative",
       "pleiades": "https://pleiades.stoa.org/places/550501",
-      "tradition": "Near Hamaxitos and the sanctuary of Apollo Smintheus, Strabo 13.1.47-48, 13.1.63, against a rival Adramyttene Chrysa",
+      "tradition": "Strabo 13.1.63 locates Homer's Chryse at the ancient, by-then-deserted town near Thebe, not at the later Chrysa near Hamaxitos to which the temple of Apollo Smintheus was transferred after the Cilicians were driven out; Strabo names the Hamaxitos identification the view of \"those less acquainted with ancient history\"",
       "coords": [
         39.55,
         26.17
@@ -1340,8 +1340,8 @@
       "id": "callicolone",
       "name": "Callicolone, 'Fair Hill'",
       "greek": "Καλλικολώνη",
-      "certainty": "speculative",
-      "tradition": "A contested identification: Kara Tepe, roughly 8.5 km east of Troy near the Simoeis, was identified by Spratt and Forchhammer (19th c.), defended by J. M. Cook (1973, 110-13) working from Strabo's stade-figures (13.1.35: 40 stadia from Ilium, 5 from the Simoeis), and adopted by Luce (1984); Leaf (1912, 44) instead proposed Ophrynion, on the plain's opposite side",
+      "certainty": "traditional",
+      "tradition": "Kara Tepe, roughly 8.5 km east of Troy near the Simoeis: identified by Spratt and Forchhammer (19th c.), defended by J. M. Cook (1973, 110-13) working from Strabo's stade-figures (13.1.35: 40 stadia from Ilium, 5 from the Simoeis), and adopted by Luce (1984) — the consensus tradition; Leaf (1912, 44) instead proposed Ophrynion, on the plain's opposite side",
       "coords": [
         39.9565,
         26.3395
@@ -1368,7 +1368,7 @@
           ]
         }
       ],
-      "note": "A rise beside the Simoeis where Ares rallies the Trojans (20.53) and the pro-Trojan gods take their seats to watch the battle of the gods (20.151), the Trojan counterpart to the Achaean wall where the pro-Greek gods sit (20.144-148). Pinned at Kara Tepe (editorial ruling, 2026-07-30): the surveyed peak 8.5 km east of Troy, elevation 207 m — Cook's own 680 ft — carrying the Spratt/Forchhammer identification he defends and Luce adopts. Leaf instead proposed Ophrynion; Strabo's forty stades sit between the two, and the identification remains speculative.",
+      "note": "A rise beside the Simoeis where Ares rallies the Trojans (20.53) and the pro-Trojan gods take their seats to watch the battle of the gods (20.151), the Trojan counterpart to the Achaean wall where the pro-Greek gods sit (20.144-148). Pinned at Kara Tepe (editorial ruling, 2026-07-30): the surveyed peak 8.5 km east of Troy, elevation 207 m — Spratt's own 680 ft, per Cook 110 — carrying the Spratt/Forchhammer identification Cook defends and Luce adopts; the support is judged overwhelming and the tier raised accordingly. Leaf instead proposed Ophrynion, on the plain's opposite side, and stays in the record as the named dissent; Strabo's forty stades sit between the two positions.",
       "sources": [
         {
           "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
@@ -1380,8 +1380,12 @@
       "name": "Thymbra",
       "greek": "Θύμβρη",
       "certainty": "traditional",
-      "pleiades": "https://pleiades.stoa.org/places/550927",
+      "pleiades": "https://pleiades.stoa.org/places/550929",
       "tradition": "The Thymbrios–Scamander confluence, following Strabo 13.1.35; ancient sources disagree on whether Thymbra was a polis, a topos, or simply a pedion",
+      "coords": [
+        39.8997,
+        26.2933
+      ],
       "kind": "plain",
       "maps": [
         "troad-plain"
@@ -1396,11 +1400,15 @@
           ]
         }
       ],
-      "note": "Named once, in Dolon's report of the allied dispositions: 'toward Thymbra the Lycians and the lordly Mysians drew their lot' (10.430). Later the site of the Thymbraion, Apollo's sanctuary, and by legend where Achilles ambushed Troilus. A district anchored on the Thymbrios (Kemer Su)–Scamander confluence, not a point — Pleiades' own coordinate is explicitly a rough rectangle centroid.",
+      "note": "Named once, in Dolon's report of the allied dispositions: 'toward Thymbra the Lycians and the lordly Mysians drew their lot' (10.430). Later the site of the Thymbraion, Apollo's sanctuary, and by legend where Achilles ambushed Troilus. A district anchored on the Thymbrios (Kemer Su)–Scamander confluence, not a point — re-anchored to Pleiades 550929 (Thymbras Pedion), whose precise point gives that confluence directly, inside Strabo's fifty-stadia band; the earlier Pleiades 550927 carried only a rough rectangle centroid.",
       "sources": [
         {
           "cite": "Strabo. Geography 13.1.35.",
           "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
+        },
+        {
+          "cite": "Pleiades. \"Thymbras Pedion.\" Place 550929.",
+          "url": "https://pleiades.stoa.org/places/550929"
         }
       ]
     },
@@ -8744,14 +8752,35 @@
       "id": "kesik-basin",
       "name": "The Kesik basin / Kesik cut",
       "certainty": "speculative",
-      "tradition": "Eberhard Zangger's port hypothesis, with Jablonka and Kayan on the associated water-engineering system — contested, sedimentation ambiguous and diagnostic artefacts absent",
+      "tradition": "The feature — an artificial-looking cut through the 40 m Yeniköy ridge west of the plain — is certain; every reading of its purpose is speculative and contested",
       "kind": "harbour",
       "maps": [
         "troad-plain"
       ],
       "mentions": [],
-      "note": "An artificial cut through the 40 m Yeniköy ridge west of the plain, and a former marsh, drained in the 1960s, shown by drilling to have been a marine basin in the Early Bronze Age. Zangger proposed a rectangular basin roughly 330 x 230 m functioning as a naval station or trans-shipment point; the case is thin and should be presented as a hypothesis only.",
+      "note": "The reading of the cut as the Achaean wall and ditch is Luce's (1998); Kraft, Rapp, Kayan & Luce 2003 print it, but the paper's citation for it — Kayan 1995 — does not contain it. The other readings, in hedge: a harbour candidate (Kraft, Kayan, Brückner and Rapp 2003, agreeing with Zangger only in the weak form that the embayments below the Sigeum ridge \"had excellent harbor potentials\"); an undecided, unfinished canal, on Kayan's own reading (2003, 2009); and late-Roman drainage, never completed — 'It seemed to us clear that the work was never completed' (Cook 1973, 166-67). A former marsh, drained in the 1960s, shown by drilling to have been a marine basin in the Early Bronze Age; Zangger's proposed rectangular basin, roughly 330 x 230 m, functioning as a naval station or trans-shipment point, is thin and presented as hypothesis only.",
       "sources": [
+        {
+          "cite": "Luce, J. V. Celebrating Homer's Landscapes: Troy and Ithaca Revisited. New Haven: Yale University Press, 1998."
+        },
+        {
+          "cite": "Kraft, John C., George Rapp, İlhan Kayan, and John V. Luce. \"Harbor Areas at Ancient Troy: Sedimentology and Geomorphology Complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163-66."
+        },
+        {
+          "cite": "Kayan, İlhan. \"The Troia Bay and Supposed Harbour Sites in the Bronze Age.\" Studia Troica 5 (1995): 211-35."
+        },
+        {
+          "cite": "Kraft, John C., İlhan Kayan, Helmut Brückner, and George Rapp. \"Sedimentary Facies Patterns and the Interpretation of Paleogeographies of Ancient Troia.\" In Troia and the Troad: Scientific Approaches, edited by Günther A. Wagner, Ernst Pernicka, and Hans-Peter Uerpmann, 361-77. Berlin: Springer, 2003."
+        },
+        {
+          "cite": "Kayan, Ilhan. \"Geoarchaeological Interpretations of the 'Troian Bay.'\" In Troia and the Troad: Scientific Approaches, edited by Gunther A. Wagner, Ernst Pernicka, and Hans-Peter Uerpmann. Berlin: Springer, 2003."
+        },
+        {
+          "cite": "Kayan, İlhan. \"Kesik Plain and Alacalıgöl Mound: An Assessment of the Paleogeography around Troia.\" Studia Troica 18 (2009): 105-28."
+        },
+        {
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+        },
         {
           "cite": "Zangger, Eberhard. \"Searching for the Ports of Troy.\" Academia.edu.",
           "url": "https://www.academia.edu/31276138/Searching_for_the_Ports_of_Troy"

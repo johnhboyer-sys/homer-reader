@@ -1110,6 +1110,67 @@
       ]
     },
     {
+      "id": "achaean-camp-zone",
+      "kind": "region",
+      "placeId": "achaean-camp",
+      "default": "on",
+      "fill": "none",
+      "polygon": [
+        [39.995, 26.1881],
+        [39.9947, 26.1902],
+        [39.9924, 26.1907],
+        [39.9882, 26.1866],
+        [39.9787, 26.1814],
+        [39.9719, 26.1885],
+        [39.9676, 26.1874],
+        [39.9658, 26.1895],
+        [39.9671, 26.1755],
+        [39.9634, 26.1729],
+        [39.9584, 26.1725],
+        [39.9537, 26.1692],
+        [39.9513, 26.1701],
+        [39.9497, 26.1742],
+        [39.9505, 26.1784],
+        [39.9476, 26.1808],
+        [39.9421, 26.1781],
+        [39.9405, 26.1801],
+        [39.9376, 26.1802],
+        [39.9325, 26.1718],
+        [39.9297, 26.1704],
+        [39.9258, 26.1699],
+        [39.9163, 26.1735],
+        [39.914, 26.1687],
+        [39.9152, 26.1636],
+        [39.9145, 26.1559],
+        [39.9153, 26.1549],
+        [39.9197, 26.1584],
+        [39.929, 26.1599],
+        [39.9371, 26.1635],
+        [39.9421, 26.1636],
+        [39.954, 26.1679],
+        [39.9613, 26.1673],
+        [39.9687, 26.1724],
+        [39.9887, 26.1782],
+        [39.991, 26.1801],
+        [39.995, 26.1881]
+      ],
+      "note": "The one attributed zone this sheet draws for the Achaean camp: the Sigeum ridge, following Kraft, Rapp, Kayan and Luce (2003), after Luce (1998) — the more recent published placement, and one whose authors include the same two names (Kayan, Luce) behind the outer-ridge reading. The zone traces the same surveyed ridge outline drawn on this sheet's relief layer; it is not an independent claim about the camp's own extent, only about which landform the camp is set against, and no coordinate is ever given for the camp itself. Beşika Bay is the named rival — argued from Kraft, Kayan and Erol's 1980 survey and developed as the 'Besika Hypothesis' in their 1982 chapter, and the site of Korfmann's later excavations — but it is a rival attributed zone, not a second zone drawn here: this sheet draws one.",
+      "sources": [
+        {
+          "cite": "Kraft, John C., George Rapp, Ilhan Kayan, and John V. Luce. \"Harbor Areas at Ancient Troy: Sedimentology and Geomorphology Complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163-66."
+        },
+        {
+          "cite": "Luce, J. V. Celebrating Homer's Landscapes: Troy and Ithaca Revisited. New Haven: Yale University Press, 1998."
+        },
+        {
+          "cite": "Kraft, John C., Ilhan Kayan, and Oguz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209, no. 4458 (1980): 776-82."
+        },
+        {
+          "cite": "Kraft, John C., İlhan Kayan, and Oğuz Erol. \"Geology and Paleogeographic Reconstructions of the Vicinity of Troy.\" In Troy: The Archaeological Geology, edited by George Rapp and John A. Gifford, 11-41. Princeton: Princeton University Press, 1982."
+        }
+      ]
+    },
+    {
       "id": "relief-band-0025",
       "kind": "relief",
       "default": "on",

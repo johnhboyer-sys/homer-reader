@@ -628,6 +628,7 @@
     {
       "id": "gate-vi-t-south",
       "kind": "region",
+      "label": "VI T",
       "polygon": [
         [
           0.4366,
@@ -664,6 +665,7 @@
     {
       "id": "gate-vi-s-east",
       "kind": "region",
+      "label": "VI S",
       "polygon": [
         [
           0.7647,
@@ -697,6 +699,7 @@
     {
       "id": "gate-vi-u-west",
       "kind": "region",
+      "label": "VI U",
       "polygon": [
         [
           0.2447,
