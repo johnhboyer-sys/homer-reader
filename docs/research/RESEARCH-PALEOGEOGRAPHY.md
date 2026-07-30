@@ -46,11 +46,15 @@ to sit on, and §1.1 now carries page and figure numbers); **Luce 1984, all
 thirteen pages and both figures** (scan cached at
 `research-cache/luce-1984-oja.pdf`, obtained and read 2026-07-30 — §1.11 now
 carries page cites, and the questions §5 item 8 was holding are answered there,
-one of them negatively).
+one of them negatively); **Kraft, Rapp, Kayan & Luce 2003, all four pages and all
+six figures** (scan cached at
+`research-cache/kraft-rapp-kayan-luce-2003-geology.pdf`, obtained and read
+2026-07-30 — §1.3 now carries page and figure cites, the figures were measured
+pixel-by-pixel, and the dossier's number-one open question is answered; see
+§1.3a–d and the method note at §3.7).
 
-**Abstract or publisher metadata only:** Kraft, Rapp,
-Kayan & Luce 2003; Kayan et al. 2003; Kayan 2019; Seeliger et al.
-2021.
+**Abstract or publisher metadata only:** Kayan et al. 2003; Kayan 2019; Seeliger
+et al. 2021.
 
 **Not seen at all:** Kraft, Kayan & Erol 1982 (the long version — wanted now for
 the **core logs**, not for the map series, which turns out to be Fig. 6 of the 1980
@@ -227,10 +231,11 @@ use and say which page it is on.
    Kraft.** This paper does not contain it, in any form: no distance, and the
    position it does give is *at* the citadel's promontory with the estuary to the
    west and north-west, not 1.2 km to the north. The attribution in the note is to
-   the 2003 *Geology* paper, which remains unverified (§1.3) — but 1980 can no
-   longer be offered as its support, and 1980's own Strabo reading points the
-   other way. Our drawn line stays defensible on the Strabo arithmetic (§3.1); the
-   **attribution** does not.
+   the 2003 *Geology* paper — **and that paper, read in full on 2026-07-30, does
+   contain the number (§1.3), so the attribution stands.** What stands from this
+   entry is the narrower point: **1980 may not be offered as its support**, and
+   1980's own Strabo reading points the other way. Our drawn line stays defensible
+   on the Strabo arithmetic (§3.1).
 2. **Our sheet says it "draws Kraft" for the camp.** Kraft, Kayan and Erol 1980
    put the Achaean camp at the **Beşika embayment**, ~8 km SW of Hisarlık on the
    Aegean side, and the battlefield axis south of Troy and east of that bay
@@ -279,43 +284,263 @@ length and venue it is where the core logs and the full map series live.
   1980 paper *is* the five-panel series (§1.1), so the 1982 pull drops in priority
   (§5).
 
-### 1.3 Kraft, Rapp, Kayan and Luce 2003 — the harbour paper
-
-**Claim.** "For at least two thousand years scholars have debated the location of
-Troy and the events and geographic features described in Homer's *Iliad*.
-Geologic evidence is used to present a series of maps of the Trojan plain that
-show the geomorphic changes over the past six millennia. The geologic evidence
-correlates very well with the relevant Homeric geography."
+### 1.3 Kraft, Rapp, Kayan and Luce 2003 — the harbour paper, READ IN FULL 2026-07-30
 
 - Citation: Kraft, John C., George (Rip) Rapp, İlhan Kayan, and John V. Luce.
   "Harbor Areas at Ancient Troy: Sedimentology and Geomorphology Complement
   Homer's *Iliad*." *Geology* 31, no. 2 (2003): 163–66.
   https://doi.org/10.1130/0091-7613(2003)031<0163:HAAATS>2.0.CO;2
-- Authority: **prose**. That is the whole abstract, verbatim: **it contains no
-  number at all.** Every quantity anyone attributes to this paper — bay-head
-  position, harbour locations, the six-millennia map series — is in the figures
-  and the body, which are paywalled.
-- Verified how: abstract via
-  [NASA ADS](https://ui.adsabs.harvard.edu/abs/2003Geo....31..163K/abstract) and
-  the GeoScienceWorld landing text mirrored in
-  [OpenAlex](https://api.openalex.org/works/doi:10.1130/0091-7613(2003)031%3C0163:HAAATS%3E2.0.CO;2).
-- **Consequence for our data.** `shore-bronze`'s note says the 10 m contour
-  "passes 1.2 km north of Hisarlik, **where Kraft, Rapp, Kayan and Luce put the
-  bay head**". That attribution is still **unverified** — the claim is not in
-  the abstract and I have not seen the figures. What *is* verified is the
-  underlying constraint, from Strabo and from Kraft's reading of him reported by
-  Brückner: §1.6 and §1.10. Either re-attribute or pull the paper (§5, item 2).
-- **Narrowed, not settled, by the 1980 full text (2026-07-29).** The 1980 paper —
-  same lead author, same coring campaign — contains **no bay-head distance from the
-  citadel at all**, and its Bronze Age statement is that Troy VI/VII "lay on a
-  projection or promontory at the edge of a marine embayment" with the water to the
-  west and south-west (§1.1, p. 782). It also treats Strabo's description as
-  evidence for c. 2000 BP rather than for the war, so the Strabo-6-stades → LBA
-  shore chain is *not* Kraft's 1980 reasoning. So: **the "1.2 km" cannot have come
-  from the 1980 paper.** If it is genuinely Kraft's, it must be new in 2003 — and
-  that is a claim about a figure nobody in this project has seen. Until item 2 of
-  §5 is pulled, the honest note attributes the ~1 km order of magnitude to
-  **Strabo 13.1.36 as read by Brückner** (§1.6, §1.10), not to Kraft.
+- Verified how: **full text and all six figures**, scan cached at
+  `research-cache/kraft-rapp-kayan-luce-2003-geology.pdf` (4 pp.; the journal's own
+  pagination 163–66 is used throughout below). Figures extracted as 300 dpi bitmaps
+  and measured pixel-by-pixel against the printed 2 km bar; method at §3.7.
+- **Shape of the thing.** Four pages, six figures, three of them maps of the same
+  base at the same registration (Fig. 4 = Strabo's day, ca. 2000 BP; Fig. 5 = the
+  *Iliad*, ca. 3250 BP; Fig. 6 = Late Neolithic–Early Bronze Age, 5000–5500 BP),
+  plus a cross section (Fig. 2), a two-core facies diagram (Fig. 3), and Spratt's
+  1839 Admiralty chart (Fig. 1). **The abstract really does contain no number**
+  (kept verbatim at §1.3d) — everything quantitative is in the body and the
+  figures, and this entry now carries it.
+
+**THE ANSWER TO THE DOSSIER'S NUMBER-ONE QUESTION: the "1.2 km" IS in this paper,
+in these words, on p. 166 — and the paper's own Iliad map contradicts it.**
+
+Verbatim, p. 166, col. 1:
+
+> "Note the 12 stades (2400 m) to the 'Achaians Harbour' as thought of by the
+> people of New Ilium (Troy) in 2000 yr B.P., and Strabo's note that the 12 stade
+> distance would have been only half that, ~6 stades (~1200 m) at the time of the
+> *Iliad*. Note Strabo's comment that the Homeric Greek ship station and camp were
+> actually 20 stades (4000 m) from Ilium (Troy) and close to Sigeum (Figs. 4 and
+> 5). Further, Strabo's 'distances' to the shoreline and the Greek Camp and ship
+> station are **well supported by the environmental lithosome distributions and the
+> radiocarbon dates**."
+
+So the attribution `shore-bronze` prints — "1.2 km north of Hisarlik, where Kraft,
+Rapp, Kayan and Luce put the bay head" — **is not fabricated. The number is
+theirs, on their page, and they say their own cores and dates support it.** Three
+qualifications, each of which must travel with it:
+
+1. **It is Strabo's arithmetic, endorsed, not an independent measurement.** The
+   paper reaches ~1200 m by halving Strabo's 12 stades, not by drawing a shore
+   through a core. The endorsement ("well supported by … lithosome distributions
+   and the radiocarbon dates") is asserted, not shown: no core, no date, and no
+   figure in the paper is tied to that distance.
+2. **The conversion is 200 m to the stade** (12 → 2400 m, 20 → 4000 m, 6 →
+   1200 m). At the Attic stade of 177.6 m the same three numbers are 2.13, 3.55
+   and 1.07 km (§1.10). Brückner's "ca. 1.2 km" (§1.6) is the same 200 m stade.
+   **So "1.2 km" and "1.07 km" are one ancient figure under two conversions, not
+   two independent constraints** — and this paper's own figures are drawn on a
+   third stade again (§1.3a).
+3. **Their Iliad plate does not draw it.** Fig. 5's nearest open water to the Troy
+   dot is **2.17 km at bearing 334°** — a factor of 1.8 outside the number the
+   text asserts on the facing page (§1.3a). Recorded, not harmonised.
+
+**And the deeper problem, which is the one that should change how we cite this
+paper.** The figures are not independent geological evidence about Strabo,
+because Strabo is one of their inputs. Verbatim, p. 164, col. 2:
+
+> "We interpret lateral and vertical sedimentary environmental lithosome geometries
+> through the use of present surficial lineaments, our subsurface drill-core data,
+> limitations imposed by archaeological sites, **and passages from historical and
+> classical literature**. Figure 4 shows our interpretation of geomorphologies in
+> the time of Strabo, and Figure 5 delineates geomorphologies in the time of
+> Homer's *Iliad*."
+
+Fig. 5's caption says the same of the Homeric content: "Locations of morphology and
+historic features of *Iliad* are from Luce (1998)." **Citing Fig. 5 as
+corroboration of Strabo's 6 stades is circular.** Cite it for what it is: a
+literary-geological synthesis, register *identification*, not survey.
+
+- Authority: **geometry** for the three maps and the cross section (relative
+  geometry only — see the registration failure at §1.3a); **identification** for
+  Kesik (§1.9), the camp (§1.11c) and every Homeric name on Fig. 5;
+  **prose** for the Strabo argument.
+- **What the paper actually claims to have shown**, and it is weaker than the
+  abstract: "Although sedimentary environmental lithosome geometries cannot
+  validate legend, we find nothing in the stratigraphic record that negates
+  descriptions and events in the *Iliad*" (165); "Nothing that our research has
+  discovered negates descriptions in the *Iliad*" (163). A double negative twice.
+  The abstract's "correlates very well" is the strongest form of the claim and it
+  is the form the body does not support. **Quote the body, never the abstract.**
+- **The methodological sentence John will enjoy, and it is verbatim** (166):
+  "Only a classicist can translate and interpret correctly the nuances of ancient
+  Greek literature. Yet it takes a sedimentologist-geomorphologist to correlate the
+  scholarship of the classicist with the geologic data and develop reasonably
+  precise ancient landscapes."
+
+#### 1.3a The three maps, measured — geometry authority with a hole in it
+
+All three plates (Figs. 4, 5, 6) are the **same base at the same registration**:
+the Troy / New Ilium dot falls at the same pixel (±2 px) in all three, both
+graticule ticks are at the same pixel, and the scale bars are identical. That is
+good news — the three are directly comparable, and a difference between them is a
+claim about change over time rather than a difference of draughtsmanship.
+
+**Scale and projection.** No projection is named. Each plate carries a north
+arrow, a bar scale (0–1–2 km, printed length 164 px at 300 dpi ⇒ **82 px/km**), and
+exactly **two** graticule ticks: the parallel **39°58′N** on the right frame and the
+meridian **26°15′E** on the bottom frame. Two ticks and a bar are enough to
+georeference a north-up sheet, so I did.
+
+**And the georeferencing fails.** Three independent checks:
+
+| check | figure says | surveyed | discrepancy |
+|---|---|---|---|
+| Troy dot vs. its own graticule | 39.9684°N, 26.2469°E | Hisarlık 39.9575, 26.2389 | **1.4 km NE** |
+| the dot the "CAPE RHOETEUM" label attaches to (Fig. 4) | 26.245°E | Rhoiteion/In Tepe ~26.32°E | **~6 km west** |
+| Troy → Cape Sigeum, straight line | 5.6 km | 6.9 km | −19% |
+| Achilleion → Cape Sigeum, along the ridge | 8.6 km | 7.9 km | +9% |
+
+Achilleion (39.934, 26.173 read off the figure) and Üvecik Tepe land within ~0.4 km
+of truth, so the sheet is not uniformly wrong — it is **internally inconsistent at
+the 10–20% level, with at least two site labels grossly displaced**. That is what
+a redrawn 1839 Admiralty chart looks like, and Fig. 1 tells us that is exactly what
+the base is (Spratt 1839).
+
+**Rule for our plates: use Figs. 4–6 for topology and for distance-and-bearing from
+the citadel. Never lift a coordinate off them.**
+
+**The two annotation arcs are distance arcs centred on Troy, not shorelines.** Both
+Fig. 4 and Fig. 5 carry a "12 stades" arc and a "20 stades" arc; measured radii are
+**~180 px (2.20 km)** and **~306 px (3.73 km)**, ratio 1.70 against the nominal
+20⁄12 = 1.67. Dividing through, the arcs are drawn at **~15 px per stade ≈ 181–187 m
+per stade** — i.e. the *figures* use an Attic-scale stade while the *text* converts
+at 200 m (§1.3, qualification 2). The mismatch is ~8%; do not treat the two as one
+number.
+
+**Fig. 5's 12-stades arc is anchored on the shoreline.** Its inner end sits at the
+exact point where the drawn 3250 BP shore comes closest to Troy. That is the
+paper's committed Iliad-time bay-head geometry, and here it is, as a radial profile
+from the Troy dot (flood-fill of the water region, leak-tested against six probe
+points in the stippled alluvium; 82 px/km):
+
+| bearing from Troy | Fig. 5, ca. 3250 BP | Fig. 6, 5000–5500 BP |
+|---|---|---|
+| 000° (N) | 3.78 km | **0.41 km** |
+| 015° | 4.55 km | 0.46 km |
+| 030° | 5.27 km | 0.57 km |
+| 045°–165° | no water on sheet | 0.80 km at 045°, 1.21 km at 060°, 4.70 km at 075°, then none |
+| 180° (S) | no water on sheet | 1.57 km |
+| 210° | no water on sheet | 1.16 km |
+| 240° | 7.73 km | 0.61 km |
+| 270° (W) | 2.79 km | 0.44 km |
+| 285° | 2.59 km | 0.43 km |
+| 300° | 2.20 km | 0.43 km |
+| 315° | 2.18 km | 0.39 km |
+| **330°** | **2.17 km** ← nearest approach | 0.39 km |
+| 345° | 2.72 km | 0.39 km |
+
+Read off that table:
+
+- **Fig. 5 (the Iliad plate) puts no open water within 2.17 km of the citadel, and
+  the nearest water is NNW (bearing 330–334°), not N.** Between the citadel and
+  that shore Fig. 5 draws stippled alluvium, marsh symbols and a low hill — i.e.
+  **the paper's own map shows dry, marshy delta where its text puts the sea.**
+- **Fig. 6 (5000–5500 BP) has the bay lapping the citadel** — water at 0.39–0.46 km
+  through the whole NW–W–N sector, at 1.16–1.57 km round to the south, and up the
+  Simois to the east-north-east. Troy sits at the tip of a promontory with water on
+  three sides, which is Kraft, Kayan & Erol 1980's "projection or promontory at the
+  edge of a marine embayment" (§1.1) drawn out.
+- **Fig. 4 (2000 BP) is not measurable this way.** Its dotted "sandy coastline"
+  band and its thin channel lines leak under flood fill, and a probe put the
+  apparent nearest water inside the stippled alluvium. Its "(False Achaean Harbor
+  of Strabo 13.1.36)" is a long narrow dot-bordered inlet running SE from the Cape
+  Sigeum end toward the Simois plain, with the 12-stades arrow pointing NW at its
+  inner shore. Do not print a Fig. 4 distance from this dossier.
+
+**Fig. 2 and Fig. 3, the empirical core.** Fig. 2 is an axial W–E cross section of
+the Simois floodplain **north of Troy** (line of section drawn on Fig. 6), ~5.5 km
+long, +20 m to −50 m, sea level marked "SL", **"After İlhan Kayan, 1996"**, seven
+holes (CKM5, 16, 14, 37, KT36, 9, KT35, plus 33 and 80 at the east end). Dated
+brackish-to-marine *Cerastoderma edule* shells, at roughly: **3500 BP at ~−2 m**
+(hole 16), 4200 at ~−2 m and 7200 at ~−5.5 m (hole 37), 4725 at ~−2 m and 5445 at
+~−5 m (KT36), 7000 at ~−2 m (hole 9), 7600 at ~−7 m and 8100 at ~−9.5 m (KT35),
+5200 at ~−3 m and 7200 at ~−6 m (CKM5). The unit immediately below SL across the
+whole section is "Coastal Sand and Mud: Shallow Marine, Lagoon, Asmak and/or
+Estuary". Fig. 3 is the KT-36 / KT-35 facies pair, **1.3 km apart**, reading down
+through channel sand → floodplain → backswamp → coastal swamp → lagoon (4725 BP at
+~700 cm) → brackish-to-marine (5445 BP at ~1350 cm) → shallow-marine embayment
+(7600, 8100 BP) → Neogene bedrock at ~1950–2050 cm; its caption adds that the
+KT-36 fossils were recovered from **11–17 m**.
+
+**The 3500 BP shell at ~2 m below present sea level, ~4.5 km along the section west
+of its eastern end, is the only datum in this paper that bears directly on the
+Trojan-War shore, and it is on the Simois axis north of the citadel, not west of
+it.** It is a depth, not a shoreline position. Nothing in Fig. 2 or Fig. 3 puts
+water 1.2 km from Hisarlık.
+
+#### 1.3b Numbers on water depth, alluvium and the barrier — and one flat denial
+
+All p. 164, col. 2 unless noted:
+
+- **Water depth in the embayment: "frequently ~1 m and could vary to 3–4 m."** For
+  the wider facies class, Yang's (1982) biofacies IV is "very shallow nearshore
+  marine embayments or lagoons with variable salinities and water depth to 40 m."
+- **"With as much as 20 m of alluvium on the southern Scamander floodplain, we
+  cannot hope to locate the river channels of antiquity. However, we can assert
+  with confidence that river channels shifted frequently throughout the past six
+  millennia."** Note what that costs them: **Fig. 5 nonetheless draws the
+  Scamander, the Simois, a Ford and the "Bridges of War".** The paper disclaims
+  the ability to locate ancient channels and then locates them. Our own ford and
+  river layers may not lean on Fig. 5.
+- **THE BARRIER, DENIED:** "As the delta coast approached the Dardanelles, littoral
+  currents and increased wave action sorted sands into nearshore shoals and
+  possibly thin beaches, **although no barrier lineaments are evident on the lower
+  Scamander delta (Kraft et al., 1980)**." That is a flat negative from the same
+  research group whose 2005 reporter (Brückner) supplies our barrier language.
+  Applied at §2 and §3.3.
+- **Sedimentation rates "extremely low, even in the thin alluvial veneer of lower
+  delta floodplains, at the foot of the cliff faces such as at Hissarjik (Troy)
+  during the Neolithic through Middle Bronze Ages"** (164, col. 1), citing Kayan
+  1991/1995/1996/1997.
+- **No sea-level curve, no relative-sea-level number, no subsidence figure.** The
+  words "sea level" occur once in the body, of river channels incising below it.
+  **This paper may not be cited for the "2 m fall" or for any sea-level claim.**
+- **Lagoons are everywhere in the facies vocabulary** — biofacies III "brackish to
+  moderately saline lagoons, estuaries, or marshes"; "brackish to saline lagoons,
+  and bypassed flanking ponds or lakes progressing from saline to brackish to
+  freshwater"; the immediate coastal zone "included clastic silt and clay deposits
+  in lagoons, marshes, and interdistributary backswamps" — but **no lagoon is
+  located, named or dated.** Register: facies, not geography.
+- **What the "harbor areas" of the title turn out to be:** not a site. The paper's
+  positive statement is that redistribution of river sand "was limited by the very
+  low wave activity in this **long-term sheltered marine embayment**" (164, col. 1).
+  The shelter is the bay itself — which is Luce 1984's position exactly (§1.11c),
+  and the reason the title's plural has no referent in the body.
+
+#### 1.3c Who is cited, and who is not
+
+The reference list is 15 items. Present: Kraft, Kayan & Erol 1980; Kraft et al.
+1987 (Thermopylae); Kraft, Kayan, Brückner & Rapp **2001** (Ephesus/Artemision —
+*not* the 2003 Troia facies chapter of §1.4); Kayan 1991, 1995, 1996, 1997; **Luce
+1998**; Maclaren 1822; Spratt 1839; Fraser 1937; Stanley 2000; Yang 1982 (an
+unpublished Delaware M.S. thesis); Strabo 1960.
+
+**Absent, and each absence is informative:** **Luce 1984** — his own dissenting
+article, by a co-author, cited nowhere; **Kayan et al. 2003** and **Kraft, Kayan,
+Brückner & Rapp 2003** — the two companion 2003 papers by overlapping author sets,
+neither cited here, so the three 2003 positions on Kesik (§1.9) were published
+without cross-reference; **Cook 1973**; **Korfmann** (thanked in the
+acknowledgments as excavation director, cited for nothing); **Blegen**; every
+sea-level authority.
+
+Dates: manuscript received 16 May 2002, revised 22 October 2002, accepted 29
+October 2002.
+
+#### 1.3d The abstract, kept because it is what everyone else quotes
+
+**Verbatim.** "For at least two thousand years scholars have debated the location
+of Troy and the events and geographic features described in Homer's *Iliad*.
+Geologic evidence is used to present a series of maps of the Trojan plain that show
+the geomorphic changes over the past six millennia. The geologic evidence
+correlates very well with the relevant Homeric geography." Keywords: "Troy,
+harbors, archaeology, sedimentary environments, facies."
+
+Confirmed on reading the whole paper: **it contains no number, and its "correlates
+very well" is stronger than anything the body claims** (§1.3). Kept here so that
+nobody re-derives a bay-head position from it, and so the ledger shows what the
+pull actually bought.
 
 ### 1.4 Kraft, Kayan, Brückner and Rapp 2003 — the facies chapter (UNSEEN)
 
@@ -343,6 +568,15 @@ Homer!"** (p. 375).
 - **Note the pitfall.** Brückner's "Kraft et al. 2003a" is *this* chapter, not the
   *Geology* paper (his 2003b). Anything attributed to "Kraft et al. 2003" needs
   its letter checked before it goes into a citation.
+- **The pitfall is now a substantive divergence, not just a bibliographic one
+  (2026-07-30).** With 2003b read in full (§1.3), the two 2003 papers turn out to
+  disagree about Kesik: **2003a makes the Kesik plain the harbour; 2003b makes the
+  Kesik cut Nestor's wall and ditch and proposes no harbour site at all** (§1.9,
+  §1.3b). They do not cite each other. Kraft and Kayan are on both. What the two
+  *do* share is the Strabo reading — 6 stades then, 12 in Strabo's day — which 2003b
+  prints with metric conversions at p. 166 (§1.10). So this chapter's remaining
+  unique value (§5 item 3) is Scenario II's per-period shorelines and the
+  Kesik-as-harbour argument, not the Strabo arithmetic.
 
 ### 1.5 Kayan — the survey series, and the one abstract that carries numbers
 
@@ -648,7 +882,77 @@ Sea by the Kesik 'canal'"** (Kayan 2014, 723).
   English quotations are printed verbatim in his footnotes; page numbers are his.
 - **This is a head-on contradiction with §1.4**, where Kraft et al. take the Kesik
   plain as the best harbour candidate at c. 1200 BC. Both cannot be drawn. Say
-  whose it is, or draw neither.
+  whose it is, or draw neither. **And it is now a four-cornered one — see the next
+  block, which is the *Geology* paper's own answer and is a third thing again.**
+
+**Claim — Kesik as the ACHAEAN WALL AND DITCH, first-hand, and it is not a harbour
+claim at all** (2026-07-30, from the full text of the 2003 *Geology* paper, §1.3).
+Verbatim and entire, p. 166, col. 1:
+
+> "The Kesik cut, a great wall and ditch (Kayan, 1995), was proposed by Nestor:
+> Il.7, 336–343, 'And let us build near it a lofty fortification as a protection
+> for the ships and ourselves . . . not far away, let us dig a deep ditch to hold
+> back horses and fighting men so that the stout Trojan battle line may not
+> overwhelm us.'"
+
+They continue with *Il.* 12.50–54 (Hector's horses balking at the ditch's edge) and
+16.370–77 (chariot poles snapped in it) as confirmation. **That is the whole of
+what this paper says about Kesik.** The word "harbour/harbor" is never applied to
+it; the Kesik plain is not proposed as a basin; there is no channel, no entrance, no
+slipway.
+
+- Authority: **identification**, and a startling one: the Kesik cut = the Achaean
+  fortification of *Iliad* 7. Sourced to **Kayan 1995**, whose title is "The Troia
+  Bay and *supposed* harbour sites in the Bronze Age" — i.e. the paper credits the
+  wall-and-ditch reading to the very publication in which Kayan is dismantling the
+  harbour readings. **Check that against Kayan 1995 itself before repeating it**
+  (§5 item 6): the tectonic-depression reading this dossier has from Kayan is cited
+  to 2009 and 2014, not 1995, so what 1995 actually says about Kesik is still
+  unread here.
+- **Geometry as drawn** (measured off Figs. 4 and 5, §1.3a; relative to the Troy
+  dot, which is the only registration these plates support): a **ladder-hatched
+  band across the neck of the Sigeum ridge, ~5.35 km due west of Troy (bearing
+  270°), ~0.6 km long and ~0.33 km wide**, its western end on the Aegean shore and
+  its eastern end on the shore of a small **enclosed inner basin** that carries a
+  **3400 yr BP** date and whose nearest point to Troy is 3.99 km at bearing 284°.
+  It is labelled "Kesik cut" on Fig. 5 and "**Kesic** cut" on Fig. 4 — one feature,
+  two spellings, in one paper.
+  - **The drawn band is a symbol, not a survey.** Against the measured cut (400 ×
+    50 m, §1.9 above) the figure is ~1.5× too long and ~6× too wide. And its
+    plotted latitude sits ~2 km north of the modern Kesik/Kesiktepe locality, which
+    is inside the sheet's known registration error (§1.3a) but is one more reason
+    not to lift a coordinate from it.
+  - **It is drawn on the 2000 BP plate as well as the 3250 BP plate.** So on the
+    paper's own maps the cut exists in both periods.
+
+**The contradiction, sharpened. Four positions, three of them published in 2003,
+and İlhan Kayan is a co-author of three of the four.**
+
+| who | what Kesik is | when |
+|---|---|---|
+| Kraft, Kayan, Brückner & Rapp **2003a** (Springer chapter, §1.4) | the **best candidate for a natural harbour** at the time of the war — the Kesik plain as a former marine embayment | c. 1200 BC |
+| Kraft, Rapp, Kayan & Luce **2003b** (*Geology*, this block) | the **Achaean wall and ditch** of *Il.* 7.336–43 — a fortification, drawn across the ridge neck | c. 1250 BC |
+| Kayan et al. **2003** (§1.9) | **not usable at all**: "Yeniköy and Kesik bays could not have been used as harbours during the Later Bronze Age", silted before 1300 BC, "no evidence" of harbour development | — |
+| Cook **1973**, 166–67 (§1.9) | "an artificial cut… never completed", purpose-guess **drainage**, occasion-guess Constantine's new city | **fourth century AD** |
+
+Two things follow, and neither may be smoothed over:
+
+1. **2003b puts a Late Bronze Age military earthwork exactly where Cook puts an
+   unfinished late-Roman drainage trench.** Same feature, same ground, ~1,600 years
+   apart, and neither cites the other. This is the sharpest single conflict in the
+   dossier.
+2. **Kayan is the common author, and his three 2003-vintage positions do not
+   reconcile.** He is credited in 2003b for "a great wall and ditch"; he is
+   co-author of 2003a's harbour candidate; and he is lead author of the 2003 paper
+   that says the bays "could not have been used as harbours". Do not write "Kayan
+   thinks" without a year and a page. Do not write "Kraft et al. 2003" without the
+   letter (§1.4).
+3. **What we may draw.** Nothing at Kesik on a *geographic* plate. If Kesik appears
+   at all it is on a **schematic** plate, labelled with whose reading it is and
+   dated, at tier `speculative`, with the four-way disagreement stated. A feature
+   whose own excavator-adjacent authorities cannot agree whether it is natural,
+   Bronze Age military, Bronze Age maritime or late-Roman civil engineering is not
+   map-ready.
 
 **Claim — the Yeniköy plain and canal.** The Yeniköy canal, east of Beşik Bay,
 joins the Troy plain to the Yeniköy plain; cores show that marsh **was a bay until
@@ -751,6 +1055,29 @@ poet**."
   So **"of the order of 1 km from the citadel to the Bronze Age shore" is the
   ancient constraint**, and it is the only number in this whole dossier that
   independently bears on our bay-head position.
+- **Where the stade readings enter the literature — SETTLED 2026-07-30 (§1.3).**
+  The dossier's guess was right: **Kraft, Rapp, Kayan & Luce 2003, 165–66** is
+  where 13.1.36's numbers get printed with metric conversions and drawn as arcs.
+  The paper prints **Luce's own translation** of 13.1.36 (attributed "(J.V. Luce)"),
+  with two editorial insertions that are Luce's, not Strabo's — "the distance is now
+  **[ca. 0 B.C.]** 12 stades then **[ca. 1250 B.C.]** it would have been half that"
+  — and converts at **200 m to the stade**: 12 → 2400 m, 6 → ~1200 m, 20 → 4000 m.
+  Two attribution points that matter:
+  - **The 20-stades-to-the-camp reading is the PAPER'S, made through Luce's
+    translation — but the printed clause itself is ambiguous** (precision at
+    Grok verification, 2026-07-30). Luce's rendering: "The ‹Homeric› ship
+    station is actually close to Sigeion, and the ‹main› mouth of the Scamander
+    is also nearby, being 20 stades distant from Ilion" — where the relative
+    clause sits next to the Scamander's mouth, much as in the PD
+    Hamilton–Falconer translation (above). What attaches the 20 stades to the
+    camp CLEANLY is the paper's own authorial gloss (p. 166: "the Homeric Greek
+    ship station and camp were actually 20 stades (4000 m) from Ilium") and the
+    Fig. 4 caption. **So the 20-stade camp distance is the 2003 paper's
+    reading, built on Luce's version — cite it to the paper, not to the
+    translation's grammar.** §6's second entry stands, now with a page.
+  - **The paper's own figures are drawn on a ~181–187 m stade, not the 200 m stade
+    of its text** (§1.3a). So even inside this one paper the conversion is not
+    stable. Never write "Kraft et al. give 1.2 km" as though it were a measurement.
 - **One attribution to keep straight.** Brückner reports Kraft et al. as taking
   Strabo's 20 stades for the Troia-to-Achaian-harbour distance and citing
   13.1.31 + 13.1.36. In the PD translation, §31 gives **no distance at all** and
@@ -1030,16 +1357,53 @@ Three positions, one man:
 1. **1975 — the received view.** He says so himself, in a footnote: "I must admit
    to having followed it unquestioningly in my *Homer and the Heroic Age*, London
    1975, Fig. 95" (p. 42, n. 3).
-2. **1984 — the Sigeum ridge**, as above.
-3. **1995/1998/2003 — Kesik.** Second-hand and unread here (§1.3, §5 item 9):
-   Brückner's Fig. 3 caption has Luce 2003 identifying camp and ship station from
-   Strabo's 20 stades; Zangger 2015, 562 n. 25 reports Luce adopting the Kesik
-   harbour.
+2. **1984 — the Sigeum ridge's *eastern* flank**, as above.
+3. **1998/2003 — the Sigeum ridge's *outer* (Aegean) flank, 20 stades, and Kesik as
+   Nestor's ditch.** No longer second-hand: **the 2003 *Geology* figures are in
+   hand (2026-07-30, §1.3, §1.3a) and they draw position 3.**
 
-**What 1984 anticipates in the 2003 paper.** The essentials: fleet and camp on the
-**inner (eastern) flank of the Sigeum ridge**, inside the embayment, west of Troy,
-with the Scamander between camp and city and the battlefield south and west of the
-citadel. On the camp's side of the city, 1984 and 2003 agree.
+**Position 3, drawn, first-hand.** Figs. 4 and 5 both carry the label "Greek camp
+and ship station" (Fig. 4 adds "ca. 3250 yr B.P.", an overlay on its Roman-era
+sheet), with an arrow. Measured (§1.3a):
+
+- The arrow tip lands on the **Aegean-facing, west coast of the Sigeum ridge**,
+  ~0.5 km south of the Sigeum acropolis dot and ~0.7 km north of the Kesik cut, at
+  **5.4 km from the Troy dot, bearing 279°**.
+- The stretch it points at is **concave between two projections** — the Sigeum
+  headland to the north, the headland at the Kesik cut to the south — and the paper
+  says so, quoting *Il.* 14.30–36 ("the beach, though broad, could not contain all
+  the ships… they ranged them in rows, and filled all the long mouth of the shore
+  **between the enclosing headlands**") and adding: "**Note the embayment between
+  the headlands as delineated by Luce (1998) based on Strabo's distance from Troy**"
+  (166, col. 1). So the beach *is* Luce's, and it is Luce 1998's.
+- **The Kesik cut closes the southern approach to it** — which is what makes the
+  wall-and-ditch identification (§1.9) do work: the ditch protects the ships from
+  the landward side.
+- **The drawn camp does not satisfy the paper's own 20 stades.** 5.4 km is ~29
+  stades at 185 m, ~27 at 200 m; the 20-stades arc on the same sheet has a radius of
+  3.73 km. Strabo's naustathmon figure has never reached Sigeion and this paper
+  inherits the problem rather than solving it. Record the arc *and* the arrow, and
+  do not print "20 stades" as the plate's measured distance.
+
+**So 1984 is not anticipated in 2003 — it is reversed, on the point Luce cared
+about most.** 1984: fleet on the **inner, eastern** flank, *inside* the embayment,
+4–5 km out, looking south-east **across salt water** at the citadel, with the
+Scamander between camp and city ("a cardinal point in my thesis", p. 39). 2003: the
+fleet is on the **outer, western** flank, on the open Aegean, with the whole ridge
+between it and the bay — and the water it looks across is not the bay at all. The
+2003 reference list **does not cite Luce 1984** (§1.3c). What survives from 1984 is
+only the coarse claim that the camp is **west** of Troy and the battle axis runs
+west-south-west, which 2003 states in its own words: the Trojan line "extended from
+the sea in front of Troy southeastward, covering the possibility that the Greeks
+would attack anywhere on the Scamander plain **from the west-southwest**" (166).
+
+**And the harbour dissent of 1984 is vindicated by 2003b, not overturned.** The
+*Geology* paper names **no harbour site**: its only positive statement is that the
+whole embayment was "this long-term sheltered marine embayment" (164) — the shelter
+*is* the bay, which is precisely Luce 1984's position (below). It is **2003a**, the
+Springer chapter (§1.4), that puts the harbour at Kesik. So "Luce 2003 = Kesik
+harbour" was wrong in the direction of the *Geology* paper and needs the letter as
+badly as Kraft does.
 
 **What 1984 contradicts in it** — four things, and they are the reason a caption
 cannot treat "Luce" as one position:
@@ -1068,17 +1432,37 @@ cannot treat "Luce" as one position:
   a working number still enters with Luce 2003, not 1984** — which reinforces
   §6's second entry, now with the precision that 1984 already knew the 6–20 band.
 
-**Caption consequence.** "Luce" on a plate must carry a year. `Luce 1984` = camp
-on the ridge's eastern flank, no harbour, 4–5 km. `Luce 2003` = Kesik harbour,
-20 stades, unread. Do not merge them, and do not cite 1984 for a harbour claim.
+**Caption consequence, revised 2026-07-30.** "Luce" on a plate must carry a year,
+and now the years are separable on evidence:
 
-**Why the dissent still belongs on the page.** Unchanged, and now better founded.
-Luce is a co-author of the 2003 *Geology* paper (§1.3), so the dissent is internal
-to the same project; and the *only* thing he dissents from in the geology is the
-camp's placement, which the geologists themselves put at Beşika on non-geological
-grounds. The received Schliemann–Leaf north-shore camp is the position that Kraft
-1980, Luce 1984 and Kraft et al. 2003a all reject; on the camp's side of the city
-there is no Kraft/Luce disagreement to draw at all (§1.1, §1.9, §4 items 10, 12).
+- `Luce 1984` = camp on the ridge's **eastern** flank, inside the bay, **4–5 km**,
+  **no harbour anywhere**, Kesik unmentioned.
+- `Luce 1998, as drawn in Kraft et al. 2003b` = camp on the ridge's **outer,
+  Aegean** flank in an embayment between two headlands, **5.4 km at bearing 279°**
+  as plotted, **20 stades** asserted in the text, **Kesik = Nestor's wall and
+  ditch**. First-hand from the figures (§1.3a, §1.9). Luce 1998 itself is still
+  unread (§5 item 9).
+- `Kraft et al. 2003a` (Springer, §1.4) = Kesik as **harbour**. Different paper,
+  different claim, and it is the one the "Luce 2003 = Kesik harbour" shorthand was
+  really pointing at.
+
+Do not merge them, do not cite 1984 for a harbour claim, and do not cite the
+*Geology* paper for a harbour site — it names none.
+
+**Why the dissent still belongs on the page — restated, because the 2003 full text
+moves it.** Luce is a co-author of the 2003 *Geology* paper (§1.3), so the
+disagreement is internal to one project and to one man. Two parts of it now read
+differently:
+
+- **On the harbour, 1984 and 2003b agree, and it is 2003a that is the outlier.** The
+  *Geology* paper's only sheltering claim is that the bay itself was a "long-term
+  sheltered marine embayment" (164) — Luce 1984's position in geologists' words.
+- **On the camp's *flank*, 1984 and 2003b disagree flatly**, east versus west of the
+  ridge, and 2003b does not cite 1984. That is the live dissent, and it is now
+  drawable: our own `shore-bronze`'s 20 m-contour branch carries the 1984 strip
+  (§3.6), and the 2003b camp sits on the *other* side of the same branch.
+- What both reject, with Kraft 1980 and 2003a, is the received Schliemann–Leaf
+  north-shore camp (§1.1, §1.9, §4 items 10, 12).
 
 - **Related, unseen:** Luce, J. V. *Celebrating Homer's Landscapes: Troy and
   Ithaca Revisited* (New Haven: Yale University Press, 1998); "The Case for
@@ -1111,15 +1495,17 @@ A compact synthesis. Every number traces to §1.
 | Marine embayment, maximum extent | Head **17 km inland** from the present plain's north end, immediately NW of Pınarbaşı, at **7000–6000 BP** (Kayan et al. 2003; Brückner et al. 2005 §16); alternatively **"nearly 10 kilometers south of the site of Troy at Hisarlik"** (Kraft, Kayan & Erol 1980, 776 — exact wording, and the origin is the citadel), which the same paper states again as **"approximately 15 km south of the present shoreline of the Dardanelles"** at the c. 7000 BP peak (1980, 782). *(full text, 2026-07-29: was "roughly 10 km south of Hisarlık"; the two 1980 figures are one measurement from two origins — see §3.2a.)* | geographic, but the head is a **buried** feature |
 | Fill thickness | **Over 50 m** of strata between the Sigeum ridge and the Hisarlık/Yenikumkale cuestas; ~250–318 cores (Kayan's campaign). Kraft's 1980 sections reach ~−70 m and rest on **seven** drill holes *(full text, 2026-07-29)* — cite Brückner/Kayan for the thickness, not 1980 | geographic |
 | Progradation past the city | Coastline reaches **west of Troia c. 4000 BP** (Kayan 2019); direct sea access lost soon after **2200 BC** on Kayan's scenario, retained much later on Kraft's — on Kraft's own 1980 Fig. 6, Troy VI/VII at 3250 BP still sits **on a promontory at the edge of the estuary**, the water to its west and north-west *(full text, 2026-07-29)* | the two scenarios disagree; pick one and name it |
-| LBA shore, c. 1200 BC | **Of the order of 1 km** from the citadel, north to north-west. The number is **Strabo 13.1.36's 6 stades as read by Brückner** (§1.6, §1.10) — *not* Kraft's: **Kraft, Kayan & Erol 1980 give no citadel-to-water distance at all**, only "Fortification Troy VI and VII lay on a projection or promontory at the edge of a marine embayment" (782), and they read Strabo as describing **his own** time, not the war (778–79). **Luce 1984 is not a second opinion here:** he writes that the shore "still ran somewhat **west by south** of the city" at 3250 BP (32), but his Fig. 1 is Kraft's line redrawn — "After Kraft, Kayan and Erol 1980, fig. 2 with additions from fig. 6" (33) — so there is no alternative shore to draw (§1.11, §4 item 12). *(full text, 2026-07-29: attribution corrected. Luce full text, 2026-07-30: the Kraft/Luce shoreline contrast dissolved.)* | geographic, ±~1 km |
+| LBA shore, c. 1200 BC | **Two incompatible numbers, and they are in the same paper.** (a) **~1.2 km**: Kraft, Rapp, Kayan & Luce 2003, 166 — "~6 stades (~1200 m) at the time of the *Iliad*", Strabo's 12 stades halved at 200 m to the stade, which the authors say is "well supported by the environmental lithosome distributions and the radiocarbon dates" *(full text, 2026-07-30 — §1.3; the attribution `shore-bronze` prints is CORRECT, with the qualifications there)*. (b) **2.17 km at bearing 334°**: the nearest open water to the Troy dot on that paper's own *Iliad* plate, Fig. 5, measured *(§1.3a)* — with alluvium and marsh drawn between. Same authors, facing pages. Brückner's "ca. 1.2 km" (§1.6) is (a) again, not a second witness. **Kraft, Kayan & Erol 1980 give no citadel-to-water distance at all**, only "Fortification Troy VI and VII lay on a projection or promontory at the edge of a marine embayment" (782), and read Strabo as describing **his own** time (778–79). **Luce 1984 is not a second opinion:** his Fig. 1 is Kraft's line redrawn (33) — no alternative shore to draw (§1.11, §4 item 12). | (a) identification-via-Strabo, **not** survey; (b) geographic-as-drawn, ±~1 km, coordinates unusable (§1.3a) |
 | Sea-level change | Local relative fall of **2 m** (Kayan et al. 2003) or **2–3 m** (Kayan 2019) in the LBA, derived from Kelletat's 1975 curve. Independently and earlier, Kraft, Kayan & Erol 1980's Fig. 6 gives the **endpoints**: **+2 m at 4500 BP → present level at 3250 BP and at 2000 BP**, i.e. a 2 m fall *to* today's datum, from Erol's unpublished curve (ref. 17); the authors call it "valid as a **local, relative,** sea level curve for the Biga Peninsula" (781). The NE Aegean RSL database shows **continuous rise** (Seeliger et al. 2021) *(full text, 2026-07-29)* | state as **local/relative**, never regional; state the endpoints, never a bare "fell 2 m" |
-| Barrier | A **wide sandy coastal barrier** closing the remaining water into a shallow lagoon after that fall. The barrier-and-lagoon facies language is **Brückner et al. 2005**; the Kayan et al. 2003 and Kayan 2019 *abstracts* describe the fall and the swamp but do not themselves say "barrier" or "lagoon" — the full texts are unseen (see Needs paywalled access). **Kraft, Kayan & Erol 1980, read in full, has neither word**: its terms are sandy/clay-silt estuary, marsh, swamp, beaches, shoals and brackish–freshwater swamp *(full text, 2026-07-29)*. Independently, Strabo 13.1.31 describes a **blind (barred) river mouth with salt lakes and marshes** | geographic; width unsurveyed; **not drawing-ready geometry until a Kayan full text or figure is seen** |
+| Barrier | A **wide sandy coastal barrier** closing the remaining water into a shallow lagoon after that fall. The barrier-and-lagoon facies language is **Brückner et al. 2005**; the Kayan et al. 2003 and Kayan 2019 *abstracts* describe the fall and the swamp but do not themselves say "barrier" or "lagoon" — the full texts are unseen (see Needs paywalled access). **Kraft, Kayan & Erol 1980, read in full, has neither word**: its terms are sandy/clay-silt estuary, marsh, swamp, beaches, shoals and brackish–freshwater swamp *(full text, 2026-07-29)*. **DENIED outright by Kraft, Rapp, Kayan & Luce 2003, 164, citing their own 1980 paper: littoral currents sorted sands into "nearshore shoals and possibly thin beaches, although no barrier lineaments are evident on the lower Scamander delta"** *(full text, 2026-07-30 — §1.3b)*. Independently, Strabo 13.1.31 describes a **blind (barred) river mouth with salt lakes and marshes** | geographic; width unsurveyed; **now worse than not-drawing-ready — one arm of the same research group states there is no barrier to draw. Do not draw it as geographic until a Kayan full text or figure is seen (§3.3)** |
 | Lagoon | Shallow, behind the barrier; ancient name **Stomalimne** attested between Sigeium and the Scamander mouths (Strabo 13.1.31) | geographic + identification |
 | Swamp / marsh | The area west of the city was a **broad deltaic swamp** in Troia IV–VI; the land was **swamp-covered throughout the progradation period**, and the coastal sea **very shallow** (Kayan et al. 2003). Corroborated first-hand: Kraft's Fig. 2 maps modern swamp over the Kesik/Yeniköy plain and the Scamander's western and south-western flanks, and the text allows that "low-lying swamps occurred around the base of Troy" at 3250 BP — with the honest rider "although further drilling would be required to verify this" (1980, 782) *(full text, 2026-07-29)* | geographic, extent approximate |
-| Kesik cut | **400 × 50 × 30 m** (Kayan's/Zangger's figures, never Cook's), floor **13.7 m a.s.l.**, ~150 m from the sea, 2–2.5 m of colluvium on the floor. **Contested origin, corrected 2026-07-30 — the two authorities disagree and must not be blended:** Kayan reads a natural **tectonic depression** widened by foot traffic (Kayan 2009, 124; 2014, 723–24); Cook independently calls it "an artificial cut… never completed", floor "perhaps 12–15 m a.s.l." (brackets Kayan's 13.7 m), his own guess **drainage, late-Roman** (Constantine's new city) (Cook 1973, 166–67; `RESEARCH-TROAD-TOPOGRAPHY.md` §9.2). A tectonic depression cannot be "unfinished" — rival origin theories, not compatible attributes. **Cook is never citable for Bronze Age harbour engineering.** | geographic; **not** a harbour entrance |
-| Kesik plain | Basin ~**800 m** wide; silted **before 1300 BC**; "could not have been used as harbours during the Later Bronze Age" (Kayan et al. 2003, 400) — against Kraft et al.'s choice of it as the harbour. **= the Lisgar marsh = Ilıca** (Cook 1973, 166; one basin, three names — §1.9) | contested identification |
+| Kesik cut | **400 × 50 × 30 m** (Kayan's/Zangger's figures, never Cook's), floor **13.7 m a.s.l.**, ~150 m from the sea, 2–2.5 m of colluvium on the floor. **Contested origin, corrected 2026-07-30 — the two authorities disagree and must not be blended:** Kayan reads a natural **tectonic depression** widened by foot traffic (Kayan 2009, 124; 2014, 723–24); Cook independently calls it "an artificial cut… never completed", floor "perhaps 12–15 m a.s.l." (brackets Kayan's 13.7 m), his own guess **drainage, late-Roman** (Constantine's new city) (Cook 1973, 166–67; `RESEARCH-TROAD-TOPOGRAPHY.md` §9.2). A tectonic depression cannot be "unfinished" — rival origin theories, not compatible attributes. **Cook is never citable for Bronze Age harbour engineering.** **Fourth reading added 2026-07-30, first-hand: Kraft, Rapp, Kayan & Luce 2003, 166 make the cut "a great wall and ditch (Kayan, 1995)… proposed by Nestor", i.e. the Achaean fortification of *Il.* 7.336–43** — a Late Bronze Age military work on the same ground where Cook puts an unfinished late-Roman drainage trench. Drawn on Figs. 4 **and** 5 as a hatched band ~5.35 km due west of the Troy dot, ~0.6 × 0.33 km as symbolised (≈1.5× and ≈6× the surveyed cut) — §1.9, §1.3a | geographic; **not** a harbour entrance; **four mutually exclusive identifications, three of them 2003** |
+| Kesik plain | Basin ~**800 m** wide; silted **before 1300 BC**; "could not have been used as harbours during the Later Bronze Age" (Kayan et al. 2003, 400) — against Kraft et al. **2003a**'s choice of it as the harbour. Note that Kraft et al. **2003b** (*Geology*, read in full 2026-07-30) proposes **no** harbour at Kesik and no harbour site anywhere: the Kesik cut is Nestor's ditch and the shelter is the bay (§1.3b, §1.9). **= the Lisgar marsh = Ilıca** (Cook 1973, 166; one basin, three names — §1.9) | contested identification; **cite the letter, a or b** |
 | Beşik Bay | The project's original harbour candidate, stated first-hand in **Kraft, Kayan & Erol 1980, 782** ("the Beşika embayment was indeed the site of the Achaean camp"; "an indentation approximately **2 km inland**" at 4000–5000 BP) and again at Kraft et al. 1982, 40 and Kayan 1991, 91. **Rejected by Luce 1984, 40–41** on three stated grounds: too exposed to the Aegean for a permanent ship station; **8½ km from Troy against 4 to 5 km for his Sigeum ridge site**; and bad access to the Scamander plain, "first across a low ridge and then across a wide expanse of low-lying and marshy ground". He adds that Mey's 1924 trenches there found "nothing to confirm his Achaean camp hypothesis" (40). Cook 1973, 171–72 is on the *other* side ("a very much more satisfactory situation for the Homerists") and Luce says so and disagrees *(full texts: Kraft 2026-07-29 — cite 1980, not the second-hand 1982 quotation; Luce 2026-07-30 — the objections are now first-hand and one of them is a measurement)* | contested identification |
-| Harbour, in general | Kayan et al. 2003: the environment "has never been suitable for the establishment of an important harbour" | prose; the strongest deflationary claim in the literature |
+| Harbour, in general | Kayan et al. 2003: the environment "has never been suitable for the establishment of an important harbour". **And the paper titled "Harbor areas at ancient Troy" names no harbour area:** its positive claim is that river-sand redistribution "was limited by the very low wave activity in this **long-term sheltered marine embayment**" (Kraft, Rapp, Kayan & Luce 2003, 164) — the shelter is the bay, which is Luce 1984's position in geologists' words *(full text, 2026-07-30 — §1.3b, §1.11c)* | prose; the strongest deflationary claim in the literature, and the title of the "harbour paper" is not evidence against it |
+| Water depth in the embayment | "frequently ~1 m and could vary to 3–4 m" (Kraft, Rapp, Kayan & Luce 2003, 164); Yang's biofacies IV runs "to 40 m" for the class as a whole *(full text, 2026-07-30 — §1.3b)* | geographic; the ~1 m figure is what makes "beach the ships anywhere" plausible and "harbour" unnecessary |
+| Ancient river channels | **Not locatable, by the authors' own statement:** "With as much as 20 m of alluvium on the southern Scamander floodplain, we cannot hope to locate the river channels of antiquity" (Kraft, Rapp, Kayan & Luce 2003, 164) — yet their Fig. 5 draws the Scamander, the Simois, a Ford and the "Bridges of War" *(§1.3b)* | **no geographic register exists for these.** Schematic only, and never sourced to Fig. 5 |
 
 ---
 
@@ -1134,6 +1520,24 @@ Strabo's 6 stades (1.07–1.11 km; "ca. 1.2 km" as Brückner rounds it) that is
 **inside the constraint, to within about 10%**. Against Kayan's independent
 statement that the coastline reached west of Troia by c. 4000 BP, a shore ~1 km
 out at 3200 BP is also consistent. **The drawn line's position is defensible.**
+
+**And now, against the only published *Iliad*-time plate we have seen (2026-07-30).**
+Kraft, Rapp, Kayan & Luce 2003's Fig. 5, measured (§1.3a), puts its nearest water
+**2.17 km at bearing 334°** from the Troy dot. Our line is **1.22 km at NNW**.
+
+| | distance from citadel | bearing | provenance |
+|---|---|---|---|
+| our `shore-bronze` | 1.22 km | NNW | 10 m contour on SRTM |
+| Kraft et al. 2003, **text** (166) | ~1.2 km | "the plain to the north of the city towards the sea" | Strabo 13.1.36, halved, at 200 m/stade |
+| Kraft et al. 2003, **Fig. 5** | 2.17 km | 334° (NNW) | drawn |
+| Strabo's 6 stades at 177.6 m | 1.07 km | — | ancient testimony |
+
+**Our line agrees with the paper's text and Strabo, and disagrees with the paper's
+map, by ~0.95 km.** Which is the honest way to state it in a plate note: the drawn
+position sits at the *near* end of a published spread that is itself a factor of two
+wide, and the spread is internal to one paper. Do not tighten the claim; widen the
+note. The bearing agrees on all four rows, which is the part worth asserting
+without hedging: **the Bronze Age water lay north-north-west of the citadel.**
 
 **But the stated reasoning is not reproducible.** `shore-bronze`'s note says the
 8 m contour "puts it 2.8 km north and the 12 m only 0.7 km, both outside the
@@ -1301,6 +1705,18 @@ fig. 8 when that is in hand.
 
 Provenance to fix: the "2 to 2.5 m" fall (see §1.5) matches no published range.
 
+**Escalated 2026-07-30 — the provenance problem is now a contradiction.** Kraft,
+Rapp, Kayan & Luce 2003, 164 states, citing Kraft, Kayan & Erol 1980: "**no barrier
+lineaments are evident on the lower Scamander delta**" (§1.3b). So the same research
+group that Brückner 2005 reports for the barrier facies denies, in print, that a
+barrier lineament can be seen on this delta. Add to that: the 1980 full text uses
+neither "barrier" nor "lagoon" (§2), the 2003 *Geology* paper offers no sea-level
+number at all, and the "2 to 2.5 m" fall behind the barrier's stated derivation
+matches nothing published. **`barrier-bronze` is now the weakest layer on the
+sheet.** Either re-found it on a Kayan full text/figure (§5 items 4, 5) or demote it
+from the geographic register — and until then it must not be captioned as though
+Kraft's group supports it.
+
 ### 3.4 A real defect: the eastern tail of `shore-bronze` is not on the 10 m contour
 
 DEM measurement (this dossier), elevation at each of the 24 `shore-bronze`
@@ -1376,15 +1792,53 @@ Method note: plate-carré with cos(latitude) scaling, as everywhere else in this
 file; the vertices are read straight out of `apparatus/plates/trojan-plain.json`
 (`shore-bronze`, first ring). Reproducible in six lines — no new tooling.
 
+### 3.7 How the Kraft et al. 2003 figures were measured, so the numbers can be checked
+
+Every figure number in §1.3 and §1.3a is a *figure measurement (this dossier)* and
+was taken like this. No new tooling; poppler and Pillow only.
+
+1. `pdfimages -png` on `research-cache/kraft-rapp-kayan-luce-2003-geology.pdf`
+   yields the six figures as **1-bit stencils at 300 dpi**, one PNG each
+   (`fig-000` = Fig. 1, `fig-001` = Fig. 2, `fig-002` = Fig. 3, `fig-003` = Fig. 4,
+   `fig-004` = Fig. 5, `fig-005` = Fig. 6). **Polarity trap: in these stencils the
+   ink is the *bright* value.** Getting it backwards makes every seed land "on ink".
+2. **Scale.** The printed 0–1–2 km bar on Figs. 4–6 spans x = 164→328 in figure
+   pixels ⇒ **82 px/km**. Cross-check on the "12 stades" and "20 stades" arcs gives
+   ~76 px/km; the ~8% gap is the paper's, not the method's (§1.3a).
+3. **Anchors.** Troy / New Ilium dot centre at (587, 506) on Figs. 4–5 and
+   (585, 504) on Fig. 6, read off ×9 nearest-neighbour crops with a labelled pixel
+   grid. Graticule ticks found by scanning the frame for inward marks: **39°58′N at
+   y = 522**, **26°15′E at x = 609**. The frame is x 4–1073, y 5–1121.
+4. **Water regions.** Dilate ink by one pixel (`MaxFilter(3)`) to close hairline
+   gaps, then 4-connected flood fill from a seed inside the Aegean (Figs. 4–5) or
+   inside "Troia Bay" (Fig. 6). **Leak test, mandatory:** six probe points in the
+   stippled alluvium and on the eastern plateau must all fall *outside* the fill.
+   Figs. 5 and 6 pass. **Fig. 4 fails** — its dotted "sandy coastline" band and thin
+   channel lines let the fill into the plain — which is why no Fig. 4 distance is
+   quoted (§1.3a).
+5. **Radial profile.** March outward from the Troy dot at 15° steps until the first
+   fill pixel; that is the table in §1.3a. Bearings are map-north (the sheets carry a
+   north arrow and are north-up).
+6. **Do not convert to lat/lon.** Step 3's ticks *permit* it and the result is
+   wrong: the Troy dot lands 1.4 km NE of Hisarlık on the figure's own graticule,
+   and the "CAPE RHOETEUM" dot ~6 km west of Rhoiteion. Distance-and-bearing from the
+   citadel is the only output of this method that may be used (§1.3a).
+
 ---
 
 ## 4. Corrections this dossier owes to files it must not edit
 
 Findings only — no tracked file outside `docs/research/` was touched.
 
-1. `apparatus/plates/trojan-plain.json`, `shore-bronze`: the "1.2 km north of
+1. `apparatus/plates/trojan-plain.json`, `shore-bronze`: **the "1.2 km north of
    Hisarlik, where Kraft, Rapp, Kayan and Luce put the bay head" attribution is
-   unverified (§1.3). The 8 m / 12 m arithmetic does not reproduce (§3.1).
+   VERIFIED as to the number — the phrase "~6 stades (~1200 m) at the time of the
+   *Iliad*" is theirs, on p. 166 (§1.3).** Two amendments the note still owes:
+   (a) "put the bay head" overstates it — they halve Strabo's 12 stades and assert
+   their cores support it; they do not measure it, and their own Fig. 5 draws the
+   water at 2.17 km (§1.3a, §3.1); (b) "north" should be **north-north-west**, which
+   is what every source and our own line agree on. The 8 m / 12 m arithmetic still
+   does not reproduce (§3.1).
 2. Same file, `barrier-bronze`: "2 to 2.5 m" is not a published range; sources say
    about 2 m (Kayan et al. 2003) or 2–3 m (Kayan 2019). And the fall must be
    labelled **local/relative**, because the NE Aegean RSL database shows
@@ -1496,14 +1950,31 @@ settles.
    **1980** — try both titles and both years.)*
    **Settles:** the core logs; whether the 1982 map series differs from Fig. 6.
    Print book, likely borrowable.
-2. **Kraft, Rapp, Kayan & Luce 2003**, *Geology* 31 (2): **163–66**, DOI
-   `10.1130/0091-7613(2003)031<0163:HAAATS>2.0.CO;2`. **Settles:** whether the
-   c. 1200 BC shoreline in their figures really passes ~1.2 km north of Hisarlık
-   (the attribution in `shore-bronze`'s note), and which harbour areas they name.
-   **We need the figures, not the abstract** — the abstract contains no number
-   (§1.3). *(Priority raised to first, 2026-07-29: the 1980 full text ruled itself
-   out as the source of the 1.2 km, so this paper is now the **only** candidate for
-   an attribution we are currently printing on a plate.)*
+2. **✅ OBTAINED 2026-07-30 — Kraft, Rapp, Kayan & Luce 2003**, *Geology* 31 (2):
+   **163–66**, DOI `10.1130/0091-7613(2003)031<0163:HAAATS>2.0.CO;2`. Scan cached
+   at `research-cache/kraft-rapp-kayan-luce-2003-geology.pdf`; text and all six
+   figures read, figures measured (§1.3, §1.3a–d, §3.7). Entry kept so the ledger
+   shows what a pull buys.
+   **Settled — and this was the dossier's number-one question:** the "~1200 m at the
+   time of the *Iliad*" IS in the paper, p. 166, in those words, with the authors'
+   claim that their lithosomes and radiocarbon dates support it. So the attribution
+   we print on `shore-bronze` is sound; §4 item 1 now asks only for wording
+   amendments. **Settled against expectation, three times:** (a) their *Iliad* plate
+   (Fig. 5) draws the water **2.17 km** out, not 1.2 km — the paper contradicts
+   itself across facing pages; (b) they name **no harbour site at all** — the Kesik
+   cut is Nestor's wall and ditch and the shelter is the bay itself, so the
+   Kesik-as-harbour claim belongs to item 3 (2003a) and not here; (c) they **deny
+   the barrier**: "no barrier lineaments are evident on the lower Scamander delta".
+   Also settled: the whole Strabo apparatus (Luce's own translation, the 200 m
+   stade, the 20-stade camp reading — §1.10); Luce's camp on the ridge's **outer**
+   Aegean flank, reversing his 1984 position (§1.11c); and the Fig. 2/Fig. 3 core
+   data, including a **3500 BP shell at ~−2 m** on the Simois axis (§1.3a).
+   **Did NOT settle:** any coordinate — the figures' own graticule misplaces Troy by
+   1.4 km and "Cape Rhoeteum" by ~6 km, so they are relative-geometry authority only
+   (§1.3a); any sea-level value; the Kesik cut's date, which this paper asserts as
+   Bronze Age against Cook's late-Roman without citing him (§1.9); and what **Kayan
+   1995** actually says about Kesik, which this paper cites for "a great wall and
+   ditch" — now the sharpest reason to pull item 6.
 3. **Kraft, Kayan, Brückner & Rapp 2003**, "Sedimentary Facies Patterns…," in
    *Troia and the Troad*, **361–77** (esp. 367, 375). **Settles:** Scenario II's
    shoreline positions per period; the Kesik-as-harbour argument; the
@@ -1520,7 +1991,13 @@ settles.
 6. **Kayan 1995**, "The Troia Bay and Supposed Harbour Sites in the Bronze Age,"
    *Studia Troica* 5, **211–35** (esp. 217, 220–21, 231, fig. 8). **Settles:** the
    17 km measurement's basis; the Yeniköy and Kesik cores; the "abrupt change in
-   sediment character".
+   sediment character". *(Priority raised, 2026-07-30: this is the paper Kraft,
+   Rapp, Kayan & Luce 2003, 166 cite for the claim that the Kesik cut is "a great
+   wall and ditch" — the Achaean fortification of Il. 7 — and everything else we
+   have from Kayan on Kesik reads it as a natural tectonic depression, cited to 2009
+   and 2014. Either 1995 says something none of our other sources reports, or the
+   2003 citation is loose. That is the load-bearing question for §1.9's four-way
+   contradiction and for whether Kesik may appear on a plate at all.)*
 7. **Kayan 2009**, "Kesik Plain and Alacalıgöl Mound," *Studia Troica* 18,
    **105–28** (esp. 105, 108 fig. 3, 124). **Settles:** the Kesik plain's geometry
    and its siltation date, first-hand.
@@ -1571,28 +2048,48 @@ settles.
 
 ## 6. Unverified — do not claim publicly
 
-Two items left this list on 2026-07-29, when the 1980 *Science* full text arrived;
-each is noted below with the § that now carries it. Everything else stands.
+Two items left this list on 2026-07-29, when the 1980 *Science* full text arrived,
+and one more on 2026-07-30 with the 2003 *Geology* full text; each is noted below
+with the § that now carries it. Everything else stands.
 
-- **That Kraft, Rapp, Kayan & Luce 2003 put the LBA bay head ~1.2 km north of
-  Hisarlık.** Still unverified: not in the abstract; figures unseen. Currently
-  asserted in `shore-bronze`'s note. **Narrowed 2026-07-29:** the 1980 paper, read
-  in full, does not contain the claim in any form, so it cannot be the source and
-  cannot be offered as support (§1.1, §1.3). The 2003 *Geology* figures are now the
-  only candidate — §5 item 2, raised to first priority.
+- ~~**That Kraft, Rapp, Kayan & Luce 2003 put the LBA bay head ~1.2 km north of
+  Hisarlık.**~~ — **SETTLED 2026-07-30 → now carried by §1.3, §2 and §3.1.** The
+  paper says it, p. 166: "~6 stades (~1200 m) at the time of the *Iliad*", and
+  claims their lithosomes and radiocarbon dates support it. **The attribution in
+  `shore-bronze`'s note may stand.** Three things remain binding, and they are
+  publishable caveats, not blockers:
+  1. **It is Strabo halved, endorsed — not a measurement.** No core, no date and no
+     figure in the paper is tied to that distance. Register `identification`, never
+     `certain`.
+  2. **Their own *Iliad* plate contradicts it**, drawing the nearest water 2.17 km
+     out at bearing 334° with alluvium and marsh between (§1.3a). Say so; do not
+     average the two.
+  3. **"1.2 km" and Brückner's "ca. 1.2 km" and Strabo's 6 stades are one figure,
+     not three witnesses** (§1.10). A plate note that stacks them is manufacturing
+     agreement.
 - **The "20 stades from Troia to the Achaean harbour" as Strabo's own statement.**
-  It is Kraft's and Luce's reading of 13.1.36; the PD translation attaches the 20
-  stadia to the Scamander's mouth (§1.10). **Reinforced 2026-07-29:** the 1980
-  paper prints **no stade figure at all** and reads Strabo as describing his own
-  century, so the stade readings enter with the 2003 papers and belong to them
-  (§1.1). **Reinforced again 2026-07-30 from the other side, with one precision
-  (Grok verification):** Luce 1984's main text declines to settle the distance
-  ("much discussed in Hellenistic circles", p. 41), but his Note 5 (p. 43) reports
-  Strabo's Demetrius material as bounding it "within the limits of 6 and 20
-  stades (1 to 3 km)" — reported bounds, not an adopted figure. So ADOPTING the
-  20 stades belongs to **Luce 2003 and Kraft et al. 2003a specifically** — and
-  "Strabo says 20 stades" remains wrong without the year and the attribution
-  (§1.11c).
+  Still not Strabo's own words: it is Luce's translation choice, and the PD
+  Hamilton–Falconer translation attaches the 20 stadia to the Scamander's mouth
+  (§1.10). **Now sourced exactly (2026-07-30):** the reading is printed in Kraft,
+  Rapp, Kayan & Luce 2003, 165, in Luce's own translation, attributed "(J.V.
+  Luce)", with his bracketed dates and a 200 m stade — and asserted at 166 as
+  "Strabo's comment that the Homeric Greek ship station and camp were actually 20
+  stades (4000 m) from Ilium (Troy)". **Two further findings that keep this on the
+  list:** the same paper's figures draw the arcs at ~181–187 m to the stade, and the
+  camp it plots sits at **5.4 km ≈ 27–29 stades**, not 20 (§1.3a, §1.11c). So
+  "Strabo says 20 stades" is wrong; "Luce reads 20 stades" is right; and **"the camp
+  is 20 stades from Troy" is contradicted by the only figure that draws it.**
+  Earlier reinforcements stand: the 1980 paper prints no stade figure at all
+  (§1.1), and Luce 1984's Note 5 reports the ancient debate's 6–20 band without
+  adopting a figure (§1.11c).
+- **That the Kesik cut existed in the Late Bronze Age.** New to this list,
+  2026-07-30. Kraft, Rapp, Kayan & Luce 2003, 166 assert it as Nestor's wall and
+  ditch and draw it on their 3250 BP plate; Cook 1973, 166–67 reads an unfinished
+  artificial cut of probable late-Roman date; Kayan reads a natural tectonic
+  depression; Kayan et al. 2003 say the bay there was unusable by Troia VI. Four
+  readings, no cross-citation, İlhan Kayan on three sides (§1.9). **Nothing at Kesik
+  goes on a geographic plate, and no Kesik feature is dated in our data until Kayan
+  1995 and 2009 are read** (§5 items 6, 7).
 - ~~**Anything about Luce's camp beyond his abstract**~~ — **SETTLED 2026-07-30 →
   now carried by §1.11.** The full text is in hand. **Still binding, and now for a
   sharper reason:** the "about four miles west" of the abstract is contradicted by
