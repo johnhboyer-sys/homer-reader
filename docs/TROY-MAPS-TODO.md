@@ -202,7 +202,11 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
       string reverses Strabo 13.1.63); Scaean/Dardanian pairing; thymbra
       re-anchor; Achaean-camp treatment on the GEOGRAPHIC plate (rival
       attributed zones: Beşika per Kraft 1980 vs Sigeum ridge per Luce 1984).
-   f. Shield visual register: metallics vs terracotta. RESEARCH-SHIELD.
+   f. **DECIDED (John, 2026-07-30 16:23): metallics, refined** — "not
+      gaudy or tacky… GOOD and refined." Four metals + κύανος inlay in
+      the Metallmalerei manner: burnished flat fields on a dark ground,
+      no chrome gradients or jewel-tone bands. LOOK gate at render, both
+      themes; WCAG AA binds. RESEARCH-SHIELD §5.
 3. **PR #16** — still draft, review whenever.
 
 ## Next work session (no input from John needed)

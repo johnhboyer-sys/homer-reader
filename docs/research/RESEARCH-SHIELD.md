@@ -649,6 +649,16 @@ compositional idea and is fine; a traced figure is not.
 
 ## 5. The material register
 
+> **✅ RULED (John, 2026-07-30 16:23): METALLICS — "but not gaudy or tacky.
+> I want this to look GOOD and refined."** The register is the poem's four
+> metals plus κύανος as the dark inlay (5.1–5.2), executed in the
+> Metallmalerei manner (5.3): flat fields of burnished, desaturated metal
+> tone against a dark ground — the inlaid-dagger aesthetic, not chrome
+> gradients, not specular shine, not jewel-tone spectrum bands (the §3.7
+> ring-chart failure mode). Refinement is a design gate: the plate is judged
+> by LOOKING at render (both themes, 3.5×+ crops) before any lane reports
+> done, and WCAG AA contrast binds in both themes as ever.
+
 ### 5.1 What the poem assigns, line by line
 
 Four metals go into the fire at 474–75; a fifth material, **κύανος**, appears only
