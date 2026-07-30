@@ -180,9 +180,10 @@ only — never committed, never republished.
 
 - **Tsagalis 2012** (CHS, free) — every fetcher got an empty body; needs a
   real browser session. → POEM-TOPOGRAPHY §8.
-- **Peter Jablonka email** — the dead Troia WebGIS layers (real WGS84 GeoJSON
-  with excavated/reconstructed split). Highest-value single request for the
-  citadel; John's call to send. → CITADEL §6.
+- ~~**Peter Jablonka email**~~ **DECLINED (John, 2026-07-30 16:46): not
+  sending.** The dead WebGIS layers stay unobtainable; the citadel plate
+  plans around them (Dörpfeld Tafel V trace + the archived bounds in
+  CITADEL §4.1). Do not re-flag this as pending. → CITADEL §6 item 3.
 - **Mey, *Das Schlachtfeld vor Troja* (1926)** and the 1928 Andrae plate —
   library visit / publication hunt; would be PD. → POEM-TOPOGRAPHY §9,
   TROAD-CARTOGRAPHY "Unverified".

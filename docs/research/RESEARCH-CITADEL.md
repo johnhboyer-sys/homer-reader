@@ -631,11 +631,13 @@ Ordered by what each settles.
    lower-city ditch geometry, inner and outer, and the south gate passage. The chapter
    itself says the printed magnetogram is unfit as a planning base and directs users to the
    GIS.
-3. **Direct approach to Peter Jablonka / the Troia project, Universität Tübingen** — for
-   (a) the dead 2016 WebGIS layers (`TroiaVI19.js`, `TroiaVIIa22.js`, the two georeferenced
-   overlays), which were WGS84 GeoJSON with `ergraben`/`rekonstruiert` already split, and
-   (b) whether any of the project GIS can be released under a licence we may draw from.
-   This is the highest-value single request in this dossier. Not a paywall — an email.
+3. ~~**Direct approach to Peter Jablonka / the Troia project, Universität Tübingen**~~
+   **DECLINED (John, 2026-07-30 16:46): not sending — "we're doing a plate, not an
+   interactive thing."** The WGS84 GeoJSON layers would matter for a live GIS; a drawn
+   plate traces Tafel V and takes its georeferencing from §2's published transform plus
+   the archived bounds in §4.1. Do not re-flag as pending. (What the request would have
+   been, for the record: the dead 2016 WebGIS layers with the `ergraben`/`rekonstruiert`
+   split, and any project GIS releasable under a licence we may draw from.)
 4. **Dörpfeld 1902, Tafel I** ("Karte der Ebene von Troja") — **FOUND (2026-07-29,
    superseding this dossier's "absent from all scans" claim):** it is in the Getty
    scan after all, at `trojaundilionerg02dorp` leaf **n268**, one leaf before
