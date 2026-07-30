@@ -39,14 +39,18 @@ Every claim carries three things:
 **Read in full:** Brückner et al. 2005 (open access, OpenEdition); Zangger &
 Mutlu 2015 (open access, DergiPark; Turkish with English abstract — Turkish
 passages translated by me and marked); Strabo 13.1.31 and 13.1.36 in the PD
-Hamilton–Falconer translation via Perseus.
+Hamilton–Falconer translation via Perseus; **Kraft, Kayan & Erol 1980, text and
+all six figures** (JSTOR scan cached at `research-cache/kraft-kayan-erol-1980-science.pdf`,
+obtained and read 2026-07-29 — this supersedes the "abstract only" line it used
+to sit on, and §1.1 now carries page and figure numbers).
 
-**Abstract or publisher metadata only:** Kraft, Kayan & Erol 1980; Kraft, Rapp,
+**Abstract or publisher metadata only:** Kraft, Rapp,
 Kayan & Luce 2003; Kayan et al. 2003; Kayan 2019; Luce 1984; Seeliger et al.
 2021.
 
-**Not seen at all:** Kraft, Kayan & Erol 1982 (the long version, with the map
-series); Kraft, Kayan, Brückner & Rapp 2003; every one of Kayan's *Studia Troica*
+**Not seen at all:** Kraft, Kayan & Erol 1982 (the long version — wanted now for
+the **core logs**, not for the map series, which turns out to be Fig. 6 of the 1980
+paper and is in hand); Kraft, Kayan, Brückner & Rapp 2003; every one of Kayan's *Studia Troica*
 papers; Kayan 2014; Cook 1973; Luce 1995, 1998, 2003; Kelletat 1975; Vacchi et
 al. 2013. Their content appears below **only** where a source I did read quotes
 or reports them, and it is labelled as second-hand every time. §5 lists them for
@@ -62,29 +66,188 @@ session's scratchpad and the recipe is stated inline.
 
 ## 1. The sources, claim by claim
 
-### 1.1 Kraft, Kayan and Erol 1980 — the foundational paper
+### 1.1 Kraft, Kayan and Erol 1980 — the foundational paper (FULL TEXT READ, 2026-07-29)
 
-**Claim.** "Sea level rise, deltaic progradation, and floodplain aggradation have
-changed the landscape in the vicinity of ancient Troy during the past 10,000
-years." After the glacial low, a marine embayment extended **roughly 10 km south
-of Troy at Hisarlık**. By **c. 6000 BP** fluvial and marine deposition had shifted
-the Scamander and Simoeis northward, moving the delta about **6 km** toward the
-present coast. Troy occupied a coastal embayment. And the conclusion that turns
-the map around: **"If the Trojan War occurred, then the axis of the battlefield
-and associated events must be relocated to the south and west of Troy."**
+**Claim (summary, p. 776, quoted exactly).** "Sea level rise, deltaic
+progradation, and floodplain aggradation have changed the landscape in the
+vicinity of ancient Troy during the past 10,000 years. With the waning of the last
+major world glaciation and resultant sea level rise and fluctuation, **a marine
+embayment protruded nearly 10 kilometers south of the site of Troy at Hisarlik** in
+the Troad of northwest Turkey. As the sea approached its present level
+approximately 6000 years ago, fluvial and marine deposition caused a northerly
+migration of the delta and floodplain of the Scamander and Simois Rivers past the
+site of Troy toward **the present-day coast about 6 kilometers north of the site**."
+And the conclusion that turns the map around: **"If the Trojan War occurred, then
+the axis of the battlefield and associated events must be relocated to the south
+and west of Troy."**
 
 - Citation: Kraft, John C., İlhan Kayan, and Oğuz Erol. "Geomorphic
   Reconstructions in the Environs of Ancient Troy." *Science* 209, no. 4458
-  (1980): 776–82. https://doi.org/10.1126/science.209.4458.776
-- Authority: **geometry** for the 10 km and 6 km figures; **prose** for the
-  battlefield conclusion.
-- Verified how: abstract in full via
-  [PubMed 17753292](https://pubmed.ncbi.nlm.nih.gov/17753292/). Full text not
-  reached; the figures (the paleogeographic map series) are unseen. The 10 km is
-  stated *of the maximum transgression*, not of the Late Bronze Age — see §3.2,
-  where this distinction settles our open question.
+  (1980): 776–82. https://doi.org/10.1126/science.209.4458.776. Stable URL
+  [jstor.org/stable/1684627](https://www.jstor.org/stable/1684627).
+- Authority: **geometry** for the 10 km and 6 km figures, the Fig. 6 sea levels and
+  the Fig. 2 drill-hole elevations; **identification, hedged** for Beşika as the
+  Achaean camp (the paper's own strength is "one might suggest" — do not cite it
+  harder than that); **prose** for the battlefield conclusion and the reading of
+  Strabo.
+- Verified how: **full text and all six figures read 2026-07-29** from the JSTOR
+  scan cached at `research-cache/kraft-kayan-erol-1980-science.pdf` (8 pp.
+  including the cover sheet; article pp. 776–82), figures examined at 400 dpi.
+  The scan carries no text layer, so every quotation below was transcribed from
+  the image by eye. Page numbers are the printed *Science* pages.
 
-### 1.2 Kraft, Kayan and Erol 1982 — the long version (UNSEEN, highest-value pull)
+**Two corrections to what this dossier previously said about the paper.**
+(a) The 10 km is **"nearly 10 kilometers"**, not "roughly", and it is measured
+**south of the site of Troy at Hisarlık** — the origin is the citadel, not the
+coast, which is what §3.2 needed to know. (b) The 6 km is **not** a migration
+distance: the paper states it of **the present-day coast, about 6 km north of the
+site**. Our earlier gloss ("moving the delta about 6 km toward the present coast")
+misread the sentence. See §3.5 for the DEM check.
+
+**The evidential base, and it is small (ref. 11 and ref. 17, p. 782).** The paper
+rests on **seven rotary drill holes**, sunk in 1977 "along the axis of the
+Scamander River (Kara Menderes Çayi) and the Simois River (Dümrek Çayi)", plus
+Virchow's 1879 and Mey's 1926 test pits. Surface elevations as printed on Fig. 2:
+**T1 0.9 m, T2 2.6 m, T3 0.9 m, T5 2.6 m** (the plain north and west of Troy),
+**T4 4.6 m** (Simois valley, north of the citadel), **T6 14.7 m** (mid-valley),
+**T7 19.6 m** (immediately beside Pınarbaşı, at the mouth of the gorge). The
+sea-level curve inset in Fig. 3 is credited to ref. 17, **"O. Erol, unpublished
+data."** Set that against Kayan's later 318 cores (§1.9): the foundational
+geometry of this whole field is seven holes and an unpublished curve. That does
+not make the paper wrong, but it does mean **the 1980 lines are a first sketch,
+and a later core-based line outranks them wherever the two differ.**
+
+**What the figures actually are** (the dossier previously listed them as unseen).
+
+- **Fig. 1**, p. 777, "Geomorphic outlines of the northeastern Aegean": a
+  *regional* geomorphological map, Limnos and Lesvos to the Sea of Marmara, with
+  two palaeocoastlines drawn from the legend — **15,000 BP at −100 m** and
+  **10,000 BP at −30 m**. Not a Trojan-plain sheet and no use to our layers.
+- **Fig. 2**, p. 778, "Geomorphology of Troy and environs": the base map, at
+  roughly 1:100,000 with a 0–3 km bar. Legend: high plateau, low plateau, Kara
+  Menderes plain, swamp, beaches, steep slopes, cliffs, rivers, shoals, spring,
+  settlement, tumulus, cemetery, elevations in metres. It carries the **5 m, 10 m
+  and 20 m contours across the plain**, marks **swamp over the Kesik/Yeniköy plain
+  and along the western and south-western flanks of the Scamander**, plots T1–T7,
+  Virchow's B1–B6 and Mey's pits, and the section lines A, B and C. It places
+  **Pınarbaşı at the southern end of the plain beside T7** — which is what §3.2a
+  needed (see there).
+- **Fig. 3**, p. 779: the N–S cross-section along "the hypothetical axis of the
+  Kara Menderes (Scamander) valley", 0–18 km horizontally, +30 m to −70 m
+  vertically, with Erol's sea-level curve inset at the left. Time-depositional
+  surfaces are drawn for **7000, 4500, 3250 and 2000 BP**; C-14 dates plotted are
+  2045, 7653 (this digit read at the scan's limit — could be 7663), 7880, 8547,
+  9775, 20,796, 31,961, 33,238 and >39,861 BP (caption:
+  "corrected to 5730 ½ life"). Troy is marked "2 km east" at about **6 km along the
+  section**, so the section's origin is the Dardanelles shore — the same 6 km the
+  summary gives. At the southern end the sandy marine embayment interfingers with a
+  **brackish–freshwater swamp** near T7, and the 4500 and 3250 BP surfaces lie
+  **below the present floodplain surface along the whole section**.
+- **Figs. 4 and 5**, p. 780: the two transverse sections — Sigeum cliffs across the
+  floodplain to the Troy promontory (W–E, 0–9 km, +40 m to −60 m), and Troy to the
+  southern flank of the Yenikumkale cuesta along the lower Simois (N–S, 0–5 km).
+- **Fig. 6**, p. 781: **the paleogeographic map series — five panels, and this is
+  the whole of it.** With their printed sea levels: **10,000 BP (sea level −40 m);
+  7000 BP (−20 m); circa 4500 BP, Troy I/II (+2 m); circa 3250 BP, Troy VI/VII
+  (sea level same as present); "Strabo's time, circa 2000 years BP" (sea level same
+  as present)**. Legend: sandy estuary, clay-silt estuary, marsh, sea, alluvial
+  plains, highly dissected plateaus, present shoreline, present edge of alluvium;
+  0–10 km bar. Beşika embayment is labelled on the 4500 and 3250 BP panels;
+  Sigeum, Rhoeteum, Aeantium, New Ilium (Troy) and Thymbra on the 2000 BP panel.
+
+**Sea level, in the paper's own numbers — and this settles a dossier question.**
+Fig. 6's panel labels *are* the paper's sea-level statement: **+2 m at 4500 BP,
+present level at 3250 BP, present level at 2000 BP.** The text adds that at
+15,000 BP sea level was "approximately 100 m below its present level" and that the
+"peak marine transgression or inundation" came "by approximately 7000 years ago"
+(both p. 782). On the curve's status the authors are explicit: "Although some may
+argue that the sea level curve (Fig. 3) is not a truly eustatic curve, it
+certainly is valid as a **local, relative,** sea level curve for the Biga
+Peninsula" (p. 781). Two consequences:
+
+1. **The Late Bronze Age sea level in this reconstruction is at present level, not
+   below it.** The ~2 m fall the panels imply runs from a mid-Holocene high *down
+   to* today's datum, between 4500 and 3250 BP. Any note that says the sea "fell
+   2 to 2.5 m" and lets a reader infer *below present* is contradicted here — see
+   the contradiction list below and §2.
+2. The **local/relative** qualifier this dossier recommends for Kayan's fall
+   (§1.8) is the 1980 authors' own word for their own curve. Use it, and cite
+   p. 781 for it.
+
+- One internal inconsistency, recorded because this file is meant to be
+  re-checkable: Fig. 1's legend puts the 10,000 BP coastline at **−30 m**, Fig. 6's
+  10,000 BP panel at **−40 m**. Neither figure bears on our layers; the
+  discrepancy is a caution about how tightly to read the paper's numbers.
+
+**The Bronze Age shoreline relative to the citadel — the paper gives no distance
+(p. 782).** Verbatim: "By 3250 years ago (Troy VI/VII), the supposed time of the
+'Trojan War,' the delta prograded to the vicinity of Troy and lay to the southwest
+of Troy. **Fortification Troy VI and VII lay on a projection or promontory at the
+edge of a marine embayment.** It is possible that low-lying swamps occurred around
+the base of Troy at this time, although further drilling would be required to
+verify this." And for Strabo's day: "By approximately 2000 years ago the sandy
+marine embayment lay approximately **3 km south of the present shoreline, or
+northwest of Troy**." Those are the paper's only two positional statements for the
+periods we draw, and **neither is a measured citadel-to-water distance.** On
+Fig. 6's 3250 BP panel the sandy-estuary hatch reaches to immediately west and
+north-west of the Troy VI/VII dot; the citadel sits on the estuary's eastern rim.
+
+**It does not read Strabo the way our shore note assumes.** The paper's verdict is
+that "Strabo probably erred in that he described the embayment as it was in his
+time, approximately 2000 years ago" (pp. 778–79) — i.e. it treats Strabo's
+description as evidence for **c. 2000 BP, not for the war** — while praising its
+accuracy for that period: "the data determined from our study suggest that
+Strabo's statements are extremely accurate despite their secondhand source"
+(p. 782). **No stade figure appears anywhere in the paper.** The 6-stade and
+20-stade readings therefore belong to the later Kraft/Luce papers, not to 1980
+(§1.3, §1.10, §6).
+
+**The camp and the battlefield axis, first-hand (p. 782).** "Should there be a
+historic basis to the Trojan War, then **the axis of the battlefield lay to the
+south of Troy and to the east of the Beşika embayment.** Thus one might suggest
+that **the Beşika embayment was indeed the site of the Achaean camp**, and the
+events described in the *Iliad* and *Odyssey* occurred in a dramatically different
+geographic and geomorphologic setting from that described heretofore by
+archaeologists. There are no apparent contradictions between the stories of the
+*Iliad* and the *Odyssey* and the geographical concepts described in this
+article." On the bay itself: "The Beşika embayment of 4000 to 5000 years ago
+(Figs. 2 and 6) was possibly an indentation **approximately 2 km inland**"
+(p. 782). Note that **summary and body do not say the same thing**: the summary
+relocates the battlefield "to the south and **west** of Troy", the conclusion "to
+the south of Troy and to the **east of the Beşika embayment**". Quote whichever you
+use and say which page it is on.
+
+**Contradictions with our own data, recorded rather than reconciled.**
+
+1. **`shore-bronze`'s note attributes a bay head ~1.2 km north of Hisarlık to
+   Kraft.** This paper does not contain it, in any form: no distance, and the
+   position it does give is *at* the citadel's promontory with the estuary to the
+   west and north-west, not 1.2 km to the north. The attribution in the note is to
+   the 2003 *Geology* paper, which remains unverified (§1.3) — but 1980 can no
+   longer be offered as its support, and 1980's own Strabo reading points the
+   other way. Our drawn line stays defensible on the Strabo arithmetic (§3.1); the
+   **attribution** does not.
+2. **Our sheet says it "draws Kraft" for the camp.** Kraft, Kayan and Erol 1980
+   put the Achaean camp at the **Beşika embayment**, ~8 km SW of Hisarlık on the
+   Aegean side, and the battlefield axis south of Troy and east of that bay
+   (p. 782). That is much closer to Luce's west/south-west reading (§1.11) than to
+   any Hellespont-beach camp. If a plate note contrasts "Kraft" with "Luce" as
+   north-west against west, the contrast is wrong for 1980: on the camp the two
+   are on the same side of the city. Kesik enters only with Kraft et al. 2003a
+   (§1.4).
+3. **`barrier-bronze`'s "relative sea-level fall of 2 to 2.5 m."** 1980's own
+   figures give a fall of exactly **2 m, from +2 m at 4500 BP to present level at
+   3250 BP** (Fig. 6). So the *magnitude* is corroborated at the low end and the
+   *direction of the datum* is not: the sea ends at today's level, not 2–2.5 m
+   below it. Kayan's later 2 m / 2–3 m figures are for the same event; none of the
+   three sources prints 2–2.5.
+4. **1980 contains no "barrier" and no "lagoon."** Its vocabulary for the
+   remaining water is *sandy estuary*, *clay-silt estuary*, *marsh* (Fig. 6
+   legend), *swamp*, *beaches*, *shoals* (Fig. 2 legend) and
+   *brackish–freshwater swamp* (Fig. 3). The barrier-and-lagoon facies language is
+   Brückner's and Kayan's, and §2 already flags it as not drawing-ready.
+
+### 1.2 Kraft, Kayan and Erol 1982 — the long version (STILL UNSEEN; priority lowered 2026-07-29)
 
 **Claim (existence and scope only).** A 30-page treatment of the same work, in a
 book devoted to the archaeological geology of Troy. On the evidence of its
@@ -98,6 +261,19 @@ length and venue it is where the core logs and the full map series live.
 - Verified how: bibliography of Zangger & Mutlu 2015, 578 (entry "Kraft v.d.
   1982"), which quotes from p. 40. Nothing else. **Never cite its contents from
   this dossier.**
+- **Confirmed as the same work, from the 1980 paper's own reference list**
+  (full text, 2026-07-29): ref. 20, p. 782, cites it as forthcoming — "J. C.
+  Kraft, I. Kayan, O. Erol, in 'Geology and paleogeographic reconstructions in the
+  vicinity of ancient Troy,' G. Rapp, Jr., and J. Gifford, Eds. (Troy Supplementary
+  Monograph 4, Princeton Univ. Press, Princeton, N.J., 1980)". Note the drift:
+  the title as printed in 1980 differs from the 1982 published title, the series is
+  named *Troy Supplementary Monograph 4*, and the imprint year was expected to be
+  1980. Anyone hunting the volume in a catalogue should try both titles.
+- What the 1980 full text does **not** relieve: the long version is still the only
+  place the seven core logs are printed at length, and it is where the p. 40
+  Beşika quotation lives. But the map series is no longer unseen — Fig. 6 of the
+  1980 paper *is* the five-panel series (§1.1), so the 1982 pull drops in priority
+  (§5).
 
 ### 1.3 Kraft, Rapp, Kayan and Luce 2003 — the harbour paper
 
@@ -121,10 +297,21 @@ correlates very well with the relevant Homeric geography."
   [OpenAlex](https://api.openalex.org/works/doi:10.1130/0091-7613(2003)031%3C0163:HAAATS%3E2.0.CO;2).
 - **Consequence for our data.** `shore-bronze`'s note says the 10 m contour
   "passes 1.2 km north of Hisarlik, **where Kraft, Rapp, Kayan and Luce put the
-  bay head**". That attribution is currently **unverified** — the claim is not in
+  bay head**". That attribution is still **unverified** — the claim is not in
   the abstract and I have not seen the figures. What *is* verified is the
   underlying constraint, from Strabo and from Kraft's reading of him reported by
   Brückner: §1.6 and §1.10. Either re-attribute or pull the paper (§5, item 2).
+- **Narrowed, not settled, by the 1980 full text (2026-07-29).** The 1980 paper —
+  same lead author, same coring campaign — contains **no bay-head distance from the
+  citadel at all**, and its Bronze Age statement is that Troy VI/VII "lay on a
+  projection or promontory at the edge of a marine embayment" with the water to the
+  west and south-west (§1.1, p. 782). It also treats Strabo's description as
+  evidence for c. 2000 BP rather than for the war, so the Strabo-6-stades → LBA
+  shore chain is *not* Kraft's 1980 reasoning. So: **the "1.2 km" cannot have come
+  from the 1980 paper.** If it is genuinely Kraft's, it must be new in 2003 — and
+  that is a claim about a figure nobody in this project has seen. Until item 2 of
+  §5 is pulled, the honest note attributes the ~1 km order of magnitude to
+  **Strabo 13.1.36 as read by Brückner** (§1.6, §1.10), not to Kraft.
 
 ### 1.4 Kraft, Kayan, Brückner and Rapp 2003 — the facies chapter (UNSEEN)
 
@@ -303,6 +490,27 @@ period.
 - Verified how: Zangger & Mutlu 2015, 568 and fnn. 49–52 (Turkish; translated by
   me).
 
+**Claim (a second, older, and independent curve — full text, 2026-07-29).** Kayan's
+fall is not the only one on the table, and it is not the first. Kraft, Kayan and
+Erol 1980 carry their own relative curve, Fig. 3, credited to **"O. Erol,
+unpublished data"** (ref. 17, p. 782), and their Fig. 6 panels state its values:
+**+2 m at 4500 BP, present level at 3250 BP and 2000 BP.** That is a **2 m relative
+fall between 4500 and 3250 BP, ending at today's datum** — the same magnitude
+Kayan et al. 2003 print, twenty-three years earlier, from a different source, and
+with the endpoint made explicit. The authors' own hedge is the wording our layer
+notes should borrow: the curve "certainly is valid as a **local, relative,** sea
+level curve for the Biga Peninsula" (Kraft, Kayan & Erol 1980, 781).
+- Authority: **geometry** (the panel values), with the caveat that the curve itself
+  is unpublished data by a co-author and has never, so far as this dossier can
+  tell, been printed in full.
+- Verified how: Fig. 3 and Fig. 6 read at 400 dpi in
+  `research-cache/kraft-kayan-erol-1980-science.pdf` (§1.1).
+- **Why it matters here.** It removes the LBA-sea-level statement from the
+  "unverified" list (§6): we now have a published figure that names a Bronze Age
+  sea-level position — *at present level* — rather than only a fall in metres with
+  no datum. And it means the "2 m" is corroborated across two independent curves,
+  while **"2 to 2.5 m" is corroborated by neither.**
+
 **Claim (the modern regional constraint).** The current relative-sea-level
 database for the northeastern Aegean **"further demonstrates a continuous Holocene
 RSL rise in this portion of the Aegean Sea,"** with crustal subsidence of the
@@ -321,9 +529,14 @@ change.
   The regional RSL record shows **rise, not fall**, through the Late Bronze Age.
   Kayan's 2–3 m is therefore best presented as a **local, relative** fall —
   which is exactly how Kayan 2019 frames it ("probably caused by the acceleration
-  of the deltaic progradation") — and never as a regional sea-level event. A note
-  that says "the sea fell 2–2.5 m" without that qualifier states something the NE
-  Aegean database contradicts.
+  of the deltaic progradation"), and which is the 1980 authors' own word for their
+  own curve (Kraft, Kayan & Erol 1980, 781) — and never as a regional sea-level
+  event. A note that says "the sea fell 2–2.5 m" without that qualifier states
+  something the NE Aegean database contradicts. **Sharpened (full text,
+  2026-07-29):** say *from what to what*, not just how far. Kraft's Fig. 6 gives
+  the endpoints — a mid-Holocene high about 2 m above today, back to today's level
+  by Troy VI/VII — which is a claim the Seeliger database can live with, whereas
+  "2–2.5 m below present in the Bronze Age" is not.
 
 **Companion sources (unseen, for the curve itself):** Vacchi, Matteo, Alessio
 Rovere, Alexandros Chatzipetros, Nickolas Zouros, and Marco Firpo. "An Updated
@@ -409,6 +622,24 @@ fragments in the cores were never published.
   coring campaign's size and depth.
 - Verified how: Zangger & Mutlu 2015, 567–68, fnn. 43–47 — English quotations
   verbatim from his footnotes.
+- **First-hand, and two years earlier than the 1982 quotation (full text,
+  2026-07-29).** The Beşika claim does not need Zangger's footnote any more.
+  Kraft, Kayan and Erol 1980, 782 state it themselves: "Thus one might suggest
+  that **the Beşika embayment was indeed the site of the Achaean camp**", with
+  the battlefield axis "to the south of Troy and to the east of the Beşika
+  embayment", and the bay itself "possibly an indentation approximately **2 km
+  inland**" at 4000–5000 BP. They rest it on Mey's 1920s excavations on the Beşika
+  plain (Mey, *Das Schlachtfeld vor Troja*, 1926 = their ref. 18), which found
+  "shoreline sediments overlying Early Helladic artifacts several kilometers
+  inland, slightly above present sea level", and they add the tectonic caveat that
+  makes those sediments readable at all: "The Biga Peninsula is tectonically
+  active and therefore minor coastal uplift is likely. Therefore, these hypotheses
+  now merit reevaluation." **Cite 1980, 782 rather than 1982, 40** — same claim,
+  a source we have actually read.
+- **And note where this leaves Kraft.** In 1980 Kraft's camp is Beşika; in 2003a
+  (§1.4) it is the Kesik plain. Whoever writes a plate note saying "the sheet draws
+  Kraft" must name the year, because the two Krafts put the fleet on opposite sides
+  of the Sigeum/Yeniköy ridge.
 
 **Claim — the artificial-port hypothesis, stated as its authors state it.** From
 the English abstract: Troy "may well have possessed an artificial
@@ -532,6 +763,15 @@ as inconsistent with the Homeric data and unsatisfactory in itself."
   and says the sheet draws Kraft instead. That is the right posture; the note
   should also say that Luce's placement is the same Kesik-side ground that Kraft
   et al. pick for the harbour, i.e. the two are one reconstruction, not two.
+- **And "Kraft instead" will not do as a contrast (full text, 2026-07-29).** Kraft,
+  Kayan and Erol 1980, 782 put the Achaean camp at **Beşika** and the battlefield
+  axis "to the south of Troy and to the east of the Beşika embayment" — further
+  south-west than Luce's Sigeum-ridge camp, not opposite it. On the camp's *side of
+  the city* there is no Kraft/Luce disagreement to draw: 1980 Kraft, 2003a Kraft
+  and Luce all put the fleet west or south-west, and none of them puts it on the
+  Hellespont beach. The received Schliemann–Leaf placement is the position all
+  three reject. Any note that sets "Kraft" against "Luce" here is contrasting the
+  wrong pair (§1.1, §1.9, §4 item 10).
 - **One number to flag.** "About four miles west" is ~6.4 km. DEM measurement
   (this dossier): from Hisarlık (39.957, 26.239) the east foot of the Sigeum
   ridge — where the ground rises past 20 m — is ~5.4 km west, and the crest is at
@@ -565,17 +805,17 @@ A compact synthesis. Every number traces to §1.
 
 | Feature | What the sources fix | Register |
 |---|---|---|
-| Marine embayment, maximum extent | Head **17 km inland** from the present plain's north end, immediately NW of Pınarbaşı, at **7000–6000 BP** (Kayan et al. 2003; Brückner et al. 2005 §16); alternatively **"roughly 10 km south of Hisarlık"** (Kraft et al. 1980). These are the same event described with different measures — see §3.2. | geographic, but the head is a **buried** feature |
-| Fill thickness | **Over 50 m** of strata between the Sigeum ridge and the Hisarlık/Yenikumkale cuestas; ~250–318 cores | geographic |
-| Progradation past the city | Coastline reaches **west of Troia c. 4000 BP** (Kayan 2019); direct sea access lost soon after **2200 BC** on Kayan's scenario, retained much later on Kraft's | the two scenarios disagree; pick one and name it |
-| LBA shore, c. 1200 BC | North / north-west of Hisarlık, **of the order of 1 km** from the citadel (Strabo 13.1.36's 6 stades as read by Kraft et al.; Luce 1984 puts it **west by south** instead) | geographic, ±~1 km |
-| Sea-level change | Local relative fall of **2 m** (Kayan et al. 2003) or **2–3 m** (Kayan 2019) in the LBA, derived from Kelletat's 1975 curve; the NE Aegean RSL database shows **continuous rise** (Seeliger et al. 2021) | state as **local/relative**, never regional |
-| Barrier | A **wide sandy coastal barrier** closing the remaining water into a shallow lagoon after that fall. The barrier-and-lagoon facies language is **Brückner et al. 2005**; the Kayan et al. 2003 and Kayan 2019 *abstracts* describe the fall and the swamp but do not themselves say "barrier" or "lagoon" — the full texts are unseen (see Needs paywalled access). Independently, Strabo 13.1.31 describes a **blind (barred) river mouth with salt lakes and marshes** | geographic; width unsurveyed; **not drawing-ready geometry until a Kayan full text or figure is seen** |
+| Marine embayment, maximum extent | Head **17 km inland** from the present plain's north end, immediately NW of Pınarbaşı, at **7000–6000 BP** (Kayan et al. 2003; Brückner et al. 2005 §16); alternatively **"nearly 10 kilometers south of the site of Troy at Hisarlik"** (Kraft, Kayan & Erol 1980, 776 — exact wording, and the origin is the citadel), which the same paper states again as **"approximately 15 km south of the present shoreline of the Dardanelles"** at the c. 7000 BP peak (1980, 782). *(full text, 2026-07-29: was "roughly 10 km south of Hisarlık"; the two 1980 figures are one measurement from two origins — see §3.2a.)* | geographic, but the head is a **buried** feature |
+| Fill thickness | **Over 50 m** of strata between the Sigeum ridge and the Hisarlık/Yenikumkale cuestas; ~250–318 cores (Kayan's campaign). Kraft's 1980 sections reach ~−70 m and rest on **seven** drill holes *(full text, 2026-07-29)* — cite Brückner/Kayan for the thickness, not 1980 | geographic |
+| Progradation past the city | Coastline reaches **west of Troia c. 4000 BP** (Kayan 2019); direct sea access lost soon after **2200 BC** on Kayan's scenario, retained much later on Kraft's — on Kraft's own 1980 Fig. 6, Troy VI/VII at 3250 BP still sits **on a promontory at the edge of the estuary**, the water to its west and north-west *(full text, 2026-07-29)* | the two scenarios disagree; pick one and name it |
+| LBA shore, c. 1200 BC | **Of the order of 1 km** from the citadel, north to north-west. The number is **Strabo 13.1.36's 6 stades as read by Brückner** (§1.6, §1.10) — *not* Kraft's: **Kraft, Kayan & Erol 1980 give no citadel-to-water distance at all**, only "Fortification Troy VI and VII lay on a projection or promontory at the edge of a marine embayment" (782), and they read Strabo as describing **his own** time, not the war (778–79). Luce 1984 puts the shore **west by south** instead. *(full text, 2026-07-29: attribution corrected.)* | geographic, ±~1 km |
+| Sea-level change | Local relative fall of **2 m** (Kayan et al. 2003) or **2–3 m** (Kayan 2019) in the LBA, derived from Kelletat's 1975 curve. Independently and earlier, Kraft, Kayan & Erol 1980's Fig. 6 gives the **endpoints**: **+2 m at 4500 BP → present level at 3250 BP and at 2000 BP**, i.e. a 2 m fall *to* today's datum, from Erol's unpublished curve (ref. 17); the authors call it "valid as a **local, relative,** sea level curve for the Biga Peninsula" (781). The NE Aegean RSL database shows **continuous rise** (Seeliger et al. 2021) *(full text, 2026-07-29)* | state as **local/relative**, never regional; state the endpoints, never a bare "fell 2 m" |
+| Barrier | A **wide sandy coastal barrier** closing the remaining water into a shallow lagoon after that fall. The barrier-and-lagoon facies language is **Brückner et al. 2005**; the Kayan et al. 2003 and Kayan 2019 *abstracts* describe the fall and the swamp but do not themselves say "barrier" or "lagoon" — the full texts are unseen (see Needs paywalled access). **Kraft, Kayan & Erol 1980, read in full, has neither word**: its terms are sandy/clay-silt estuary, marsh, swamp, beaches, shoals and brackish–freshwater swamp *(full text, 2026-07-29)*. Independently, Strabo 13.1.31 describes a **blind (barred) river mouth with salt lakes and marshes** | geographic; width unsurveyed; **not drawing-ready geometry until a Kayan full text or figure is seen** |
 | Lagoon | Shallow, behind the barrier; ancient name **Stomalimne** attested between Sigeium and the Scamander mouths (Strabo 13.1.31) | geographic + identification |
-| Swamp / marsh | The area west of the city was a **broad deltaic swamp** in Troia IV–VI; the land was **swamp-covered throughout the progradation period**, and the coastal sea **very shallow** (Kayan et al. 2003) | geographic, extent approximate |
+| Swamp / marsh | The area west of the city was a **broad deltaic swamp** in Troia IV–VI; the land was **swamp-covered throughout the progradation period**, and the coastal sea **very shallow** (Kayan et al. 2003). Corroborated first-hand: Kraft's Fig. 2 maps modern swamp over the Kesik/Yeniköy plain and the Scamander's western and south-western flanks, and the text allows that "low-lying swamps occurred around the base of Troy" at 3250 BP — with the honest rider "although further drilling would be required to verify this" (1980, 782) *(full text, 2026-07-29)* | geographic, extent approximate |
 | Kesik cut | **400 × 50 × 30 m**, floor **13.7 m a.s.l.**, ~150 m from the sea, 2–2.5 m of colluvium on the floor; unfinished (Cook 1973, 167); read as a tectonic depression by Kayan | geographic; **not** a harbour entrance |
 | Kesik plain | Basin ~**800 m** wide; silted **before 1300 BC**; "could not have been used as harbours during the Later Bronze Age" (Kayan et al. 2003, 400) — against Kraft et al.'s choice of it as the harbour | contested identification |
-| Beşik Bay | The project's original harbour candidate (Kraft et al. 1982, 40; Kayan 1991, 91); rejected by Luce 1984 as inconsistent with the *Iliad* | contested identification |
+| Beşik Bay | The project's original harbour candidate, stated first-hand in **Kraft, Kayan & Erol 1980, 782** ("the Beşika embayment was indeed the site of the Achaean camp"; "an indentation approximately **2 km inland**" at 4000–5000 BP) and again at Kraft et al. 1982, 40 and Kayan 1991, 91; rejected by Luce 1984 as inconsistent with the *Iliad* *(full text, 2026-07-29: cite 1980, not the second-hand 1982 quotation)* | contested identification |
 | Harbour, in general | Kayan et al. 2003: the environment "has never been suitable for the establishment of an important harbour" | prose; the strongest deflationary claim in the literature |
 
 ---
@@ -619,10 +859,14 @@ difference between the candidate levels.
 1. Keep the 10 m line. It lands where the ancient testimony puts the shore.
 2. **Restate the derivation honestly**: the level was chosen because it produces a
    shore of the order of 1 km from the citadel, which is what Strabo 13.1.36
-   requires and what Kraft's scenario endorses — not because 8 m and 12 m are
-   arithmetically excluded. Record the smoothing parameters (blur 10, decimate 2,
-   tolerance 0.0009°) in the note, because without them the contour is not a
-   reproducible object.
+   requires — not because 8 m and 12 m are arithmetically excluded. Record the
+   smoothing parameters (blur 10, decimate 2, tolerance 0.0009°) in the note,
+   because without them the contour is not a reproducible object.
+   *(Amended, full text, 2026-07-29: an earlier draft of this line added "and what
+   Kraft's scenario endorses". Drop that clause. Kraft, Kayan & Erol 1980 endorse a
+   shore whose water reaches the citadel's own promontory, west and north-west, and
+   they publish no distance; they are consistent with ~1 km but do not assert it,
+   and they read Strabo's stades as evidence for Strabo's own century. §1.1, §1.3.)*
 3. There **is** a real quantitative argument available, and it is better than the
    one in the note. Strabo gives two shorelines: 6 stades in Homer's day and 12 in
    his own. DEM measurement (this dossier): the surface at 1.11 km north of
@@ -644,15 +888,45 @@ marine embayment/fill runs ~7.5 km S inside the sheet against a published figure
 of 10 km." Three findings close it.
 
 **(a) The two published figures are not the same measurement, and they do not
-agree with each other either.** Kraft et al. 1980 measure **~10 km south of
-Hisarlık**. Kayan et al. 2003 and Brückner et al. 2005 measure **~17 km inland,
+agree with each other either.** Kraft et al. 1980 measure **"nearly 10 kilometers
+south of the site of Troy at Hisarlik"** (p. 776, exact wording; full text read
+2026-07-29). Kayan et al. 2003 and Brückner et al. 2005 measure **~17 km inland,
 "up to the area immediately northwest of Pınarbaşı"**. [OSM/Nominatim](https://nominatim.openstreetmap.org/)
 puts Pınarbaşı (Ezine) at **39.8880 N, 26.2715 E**, which is **7.7 km south of
 Hisarlık**. So the same embayment head is published at 10 km south by one team and
 at ~7.7 km south by the other. **Our ~7.5 km is inside the published range — it
-sits on Kayan's value, not outside Kraft's.** (Caveat: several places in the Troad
-are called Pınarbaşı; the identification of Brückner's Pınarbaşı with the OSM
-village should be confirmed against his Fig. 3.)
+sits on Kayan's value, not outside Kraft's.**
+
+**(a′) The 10 km's origin and direction are now settled, and the figure is
+internally cross-checked (full text, 2026-07-29).** Three statements in the 1980
+paper agree:
+
+- the summary's "nearly 10 kilometers **south of the site of Troy at Hisarlik**"
+  (p. 776) — so the origin is the **citadel**, and the direction is **south** along
+  the valley, which is exactly what the handoff's open question needed;
+- the body's independent restatement of the same peak, from the other end: at
+  "approximately 7000 years ago… marine waters with both muddy and sandy bottom
+  sediments extended approximately **15 km south of the present shoreline of the
+  Dardanelles**" (p. 782);
+- and the paper's own placement of Hisarlık, "approximately **5 kilometers south
+  of the Dardanelles**" (p. 776).
+
+15 − 5 = 10. The two figures are **one measurement stated from two origins**, not a
+spread. Fig. 3's section is drawn on the same convention: it runs 0–18 km from the
+Dardanelles shore with Troy marked at ~6 km.
+
+**(a″) And Kraft's Fig. 2 settles which Pınarbaşı is meant.** Fig. 2 (p. 778)
+plots **Pınarbaşı at the southern end of the Kara Menderes plain, immediately
+beside drill hole T7, at the mouth of the gorge where the Scamander leaves the high
+plateau**, with Mahmudiye to its west-south-west and Üvecik further west. That is
+the same village OSM puts at 39.8880, 26.2715 (Üvecik Tepe at 39.9003, 26.1992
+sits west of it, as on Fig. 2), and it is where Brückner's "immediately northwest
+of Pınarbaşı" must land if his 17 km is to reach it. The §6 caveat about several
+Troad Pınarbaşıs is therefore **resolved for Kraft's own map** and, by the
+geometry, strongly supported for Brückner's — the residual doubt is only that we
+have not seen Brückner's Fig. 3.
+The 10 km / 7.7 km spread between the two teams stands: it is a real disagreement
+about how far the water reached, not a units confusion.
 
 **(b) The head of the maximum transgression is a BURIED feature, and no modern
 surface contour can reach it.** DEM measurement (this dossier), minimum elevation
@@ -673,6 +947,18 @@ stood at approximately present sea level 6000 years ago is therefore under
 **~16 m of fill** at the embayment head. **The 10 m contour cannot mark the fill
 limit south of ~3.4 km, and should never have been expected to.**
 
+**Corroborated by Kraft's own surveyed elevations (full text, 2026-07-29).** Fig. 2
+prints the surface elevation at each drill hole: **T6 at 14.7 m** in mid-valley and
+**T7 at 19.6 m** immediately beside Pınarbaşı — against the DEM's 14.0–16.1 m at
+6.6–7.5 km south and ~16 m near Pınarbaşı's latitude. The two independent
+measurements agree to about a metre or two (T7 sits on the valley side at the gorge
+mouth, so it should read a little high). And Fig. 3 draws the point directly: the
+**3250 BP and 4500 BP time-depositional surfaces lie below the present floodplain
+surface along the whole 18 km section**, with the sandy embayment at its head
+interfingering into a **brackish–freshwater swamp** near T7. The buried-feature
+argument is not our inference from a DEM; it is what the paper's own cross-section
+shows.
+
 **(c) The sheet's 10 m contour does run to the south edge — but not on the
 plain.** `sources/terrain-tiles/trojan-plain-contours.json`, level 10 m, feature 1
 spans lat 39.8602–40.05, i.e. to the sheet's southern boundary 10.8 km south of
@@ -688,6 +974,14 @@ maximum-transgression head (7.7–10 km south, depending on whose figure) is a
 **buried Middle Holocene feature**, ~4,800 years older than the shore this layer
 draws, and is deliberately **not** drawn on this sheet. If we ever want to draw
 it, it needs Kraft's or Kayan's core-based line, not a contour.
+**Update (full text, 2026-07-29): that line now exists in front of us** — Fig. 6's
+7000 BP panel — but it does not change the verdict, for two reasons. Kraft's Fig. 6
+is **copyrighted expression and must never be traced** (the posture at the head of
+this file); drawing the head would mean re-deriving it from the cores, and the 1980
+paper prints no core logs, only the sections. And the seven-hole basis (§1.1) is too
+thin to hang a 10 km shoreline on when Kayan's 318 holes put the same head ~2 km
+nearer. Leave it off the sheet and **label the absence**, as the register rule
+requires.
 
 ### 3.3 The barrier — geometry verified, provenance to fix
 
@@ -720,9 +1014,21 @@ where the declared derivation ends.
 
 Hisarlık **36.3 m** (published c. 38); Sigeion crest **35.0 m** at 39.9835,
 26.1809 (Cook's "thirty to forty"). Modern shore due north of Hisarlık along lon
-26.239 reaches 0 m at **4.9 km**; Kraft's "about 6 km" is the along-delta figure
-and `TROAD-SOURCES.md`'s "roughly 6 km" is at the high end of what the DEM shows
-on that meridian. Both fine; state the direction with the distance.
+26.239 reaches 0 m at **4.9 km**.
+
+**Corrected (full text, 2026-07-29).** This dossier previously called Kraft's
+"about 6 km" an along-delta migration figure. It is not. The paper states it of
+the coast itself: deposition drove the delta north "past the site of Troy toward
+**the present-day coast about 6 kilometers north of the site**" (Kraft, Kayan &
+Erol 1980, 776), and Fig. 3's section, drawn from the Dardanelles shore southward,
+marks Troy at ~6 km along. So Kraft's 6 km and our DEM's 4.9 km are **the same
+measurement, and they differ by about 1.1 km** — 22%. The likeliest explanation is
+that Kraft measures to the Dardanelles shore on the section's axis, which runs
+north-north-east of the citadel toward Yenikumkale/Kum Burnu rather than due north
+along lon 26.239, and rounds. Not a defect in either number, but **do not print
+"6 km due north": say "about 6 km to the Dardanelles coast (Kraft, Kayan & Erol
+1980, 776); ~4.9 km measured due north on the SRTM DEM."** `TROAD-SOURCES.md`'s
+"roughly 6 km" is Kraft's figure and should carry Kraft's citation.
 
 ---
 
@@ -750,7 +1056,32 @@ Findings only — no tracked file outside `docs/research/` was touched.
 7. Kraft et al. 1980's "10 km south" and Kayan's "17 km inland" are **not** simply
    "consistent, different measures" as §A says — converted to a common origin they
    differ by ~2 km (§3.2a). Say so; it is a real spread in the literature and it
-   is the spread our own line sits inside.
+   is the spread our own line sits inside. *(Firmed up with the 1980 full text: the
+   10 km is "nearly 10 kilometers south of the site of Troy at Hisarlik", p. 776,
+   cross-checked by the same paper's "approximately 15 km south of the present
+   shoreline of the Dardanelles", p. 782 — §3.2a′.)*
+
+New, from the 1980 full text (2026-07-29):
+
+8. `apparatus/plates/trojan-plain.json`, `shore-bronze`: whatever the note says
+   about **Kraft** and the bay head must change. The 1980 paper gives no
+   citadel-to-water distance, puts the water west and north-west of a citadel
+   standing on a promontory at the estuary's edge, and reads Strabo's measurements
+   as describing c. 2000 BP rather than the war (§1.1, §1.3). Re-attribute the
+   ~1 km to **Strabo 13.1.36 as read by Brückner et al. 2005**.
+9. Same file, `barrier-bronze`: the sea-level note should give the **endpoints**,
+   not a bare fall. Kraft, Kayan & Erol 1980's Fig. 6 prints **+2 m at 4500 BP and
+   present level at 3250 BP** — the fall ends at today's datum. Combined with §1.8,
+   the defensible wording is "a local relative fall of about 2 m from a
+   mid-Holocene high back to roughly today's level, between c. 4500 and c. 3250 BP".
+10. Any plate note that reads "the sheet draws Kraft" for the Achaean camp: name
+    the year. **Kraft, Kayan & Erol 1980, 782 put the camp at the Beşika embayment**
+    and the battlefield axis south of Troy and east of that bay; Kraft et al. 2003a
+    put the harbour at Kesik. The two are on opposite sides of the ridge (§1.9).
+11. `docs/TROAD-SOURCES.md` §A: the "roughly 6 km" to the modern coast is
+    **Kraft's own figure for the coast's distance north of the site** (1980, 776),
+    not a delta-migration distance, and it runs ~1.1 km longer than the DEM's
+    due-north measurement. Cite it, and state the direction (§3.5).
 
 ---
 
@@ -759,18 +1090,40 @@ Findings only — no tracked file outside `docs/research/` was touched.
 Ordered by how much they unblock. For each: what it is, and which claim it
 settles.
 
+0. **✅ OBTAINED 2026-07-29 — Kraft, Kayan & Erol 1980**, "Geomorphic
+   Reconstructions in the Environs of Ancient Troy," *Science* 209 (4458):
+   **776–82**. JSTOR scan cached at
+   `research-cache/kraft-kayan-erol-1980-science.pdf` (8 pp. incl. cover). Entry
+   kept so the ledger shows what a pull actually buys. **Settled:** the 10 km
+   figure's exact wording, origin and direction (§3.2a′); the whole five-panel map
+   series and its sea levels, including the LBA position (§1.1); the drill-hole
+   count and surface elevations (§1.1); Beşika-as-camp first-hand (§1.9); the
+   Pınarbaşı identification on Kraft's own base map (§3.2a″); the sea-level
+   curve's provenance as Erol's unpublished data. **Did NOT settle:** the
+   "1.2 km north of Hisarlık" bay head — the paper does not contain it, which
+   redirects that question wholly to item 2 below; and the core logs, which are not
+   printed here (item 1).
+
 1. **Kraft, Kayan & Erol 1982**, "Geology and Paleogeographic Reconstructions of
    the Vicinity of Troy," in *Troy: The Archaeological Geology*, ed. Rapp &
    Gifford (Princeton), **11–41**. The long version of the 1980 *Science* paper.
-   **Settles:** the core-based paleogeographic map series; where the
-   maximum-transgression head actually is; the 10 km measurement's origin and
-   direction; the Beşik quotation at p. 40. Print book, likely borrowable.
+   *(Priority lowered, 2026-07-29: the map series and the 10 km measurement are now
+   in hand from the 1980 full text, so this is wanted for the **core logs** — the
+   seven T-hole descriptions behind Fig. 3 — and for the Beşik quotation at p. 40,
+   whose claim we can already cite first-hand from 1980, 782. Catalogue note: the
+   1980 paper's ref. 20 lists it as "Geology and paleogeographic reconstructions in
+   the vicinity of ancient Troy", **Troy Supplementary Monograph 4**, Princeton,
+   **1980** — try both titles and both years.)*
+   **Settles:** the core logs; whether the 1982 map series differs from Fig. 6.
+   Print book, likely borrowable.
 2. **Kraft, Rapp, Kayan & Luce 2003**, *Geology* 31 (2): **163–66**, DOI
    `10.1130/0091-7613(2003)031<0163:HAAATS>2.0.CO;2`. **Settles:** whether the
    c. 1200 BC shoreline in their figures really passes ~1.2 km north of Hisarlık
    (the attribution in `shore-bronze`'s note), and which harbour areas they name.
    **We need the figures, not the abstract** — the abstract contains no number
-   (§1.3).
+   (§1.3). *(Priority raised to first, 2026-07-29: the 1980 full text ruled itself
+   out as the source of the 1.2 km, so this paper is now the **only** candidate for
+   an attribution we are currently printing on a plate.)*
 3. **Kraft, Kayan, Brückner & Rapp 2003**, "Sedimentary Facies Patterns…," in
    *Troia and the Troad*, **361–77** (esp. 367, 375). **Settles:** Scenario II's
    shoreline positions per period; the Kesik-as-harbour argument; the
@@ -820,31 +1173,55 @@ settles.
 
 ## 6. Unverified — do not claim publicly
 
+Two items left this list on 2026-07-29, when the 1980 *Science* full text arrived;
+each is noted below with the § that now carries it. Everything else stands.
+
 - **That Kraft, Rapp, Kayan & Luce 2003 put the LBA bay head ~1.2 km north of
-  Hisarlık.** Not in the abstract; figures unseen. Currently asserted in
-  `shore-bronze`'s note.
+  Hisarlık.** Still unverified: not in the abstract; figures unseen. Currently
+  asserted in `shore-bronze`'s note. **Narrowed 2026-07-29:** the 1980 paper, read
+  in full, does not contain the claim in any form, so it cannot be the source and
+  cannot be offered as support (§1.1, §1.3). The 2003 *Geology* figures are now the
+  only candidate — §5 item 2, raised to first priority.
 - **The "20 stades from Troia to the Achaean harbour" as Strabo's own statement.**
   It is Kraft's and Luce's reading of 13.1.36; the PD translation attaches the 20
-  stadia to the Scamander's mouth (§1.10).
+  stadia to the Scamander's mouth (§1.10). **Reinforced 2026-07-29:** the 1980
+  paper prints **no stade figure at all** and reads Strabo as describing his own
+  century, so the stade readings enter with the 2003 papers and belong to them
+  (§1.1).
 - **Anything about Luce's camp beyond his abstract** — in particular any anchor
   placed from "about four miles west", which does not agree with the measured
   distance to the Sigeum ridge's eastern foot (§1.11).
 - **Beşik Tepe's LH IIIB proportions** (c. 100 graves, ~1/3 of fine wares, <1% in
   Troia VI/VII). Repeated in our own `TROAD-SOURCES.md` and on amateur sites; no
   scholarly source reached (§1.12).
-- **The identification of Brückner's "Pınarbaşı" with the OSM village at 39.8880,
-  26.2715.** Several Troad places share the name; the 7.7 km figure in §3.2a
-  depends on this.
-- **Kayan's plotted sea-level curve**, and therefore any statement of the LBA
-  sea-level position in metres relative to today, beyond the "2 m" / "2–3 m"
-  fall the two abstracts print.
+- ~~**The identification of Brückner's "Pınarbaşı" with the OSM village at 39.8880,
+  26.2715.**~~ **SETTLED for practical purposes, 2026-07-29 → now carried by §3.2a″.**
+  Kraft's Fig. 2 (1980, 778) plots Pınarbaşı at the southern end of the Kara
+  Menderes plain beside drill hole T7, at the gorge mouth, with Mahmudiye and
+  Üvecik to its west — the same village OSM names, and the only Pınarbaşı a 17 km
+  inland measurement can reach. Residual doubt: we still have not seen Brückner's
+  own Fig. 3, so this is an inference from two maps agreeing, not from his caption.
+  The 7.7 km figure may be used.
+- ~~**Kayan's plotted sea-level curve**, and therefore any statement of the LBA
+  sea-level position in metres relative to today~~ — **PARTLY SETTLED, 2026-07-29 →
+  now carried by §1.8 and the sea-level row of §2.** A published LBA sea-level
+  *position* now exists in a source we have read: Kraft, Kayan & Erol 1980's Fig. 6
+  puts sea level **at present level at 3250 BP** and **+2 m at 4500 BP**, from
+  Erol's curve. **Still unverified:** Kayan's own plotted curve (Kayan 2014, fig. 8),
+  and any figure between those panel values — no interpolation, and no metre value
+  for any date the panels do not label. Also note what the 1980 curve is: **ref. 17,
+  "O. Erol, unpublished data"** — cite it as the paper's stated basis, never as an
+  independently published curve.
 - **The width of the Bronze Age barrier.** Nothing surveys it. Our layer already
   says the band's width is a symbol; keep it that way.
 - **Any claim that a Bronze Age harbour has been located.** The literature's
-  positions are: Beşik (Kraft 1982, Kayan 1991, Korfmann), Kesik (A. Brückner for
-  Sigeion; Zangger 1992; Kraft et al. 2003a; Luce), an artificial basin (Zangger &
-  Mutlu 2015, explicitly a working hypothesis), and no viable harbour at all
-  (Kayan et al. 2003). A map that picks one must name whose it is.
+  positions are: Beşik (**Kraft, Kayan & Erol 1980, 782** — first-hand, and the
+  earliest of them; then Kraft et al. 1982, Kayan 1991, Korfmann), Kesik
+  (A. Brückner for Sigeion; Zangger 1992; Kraft et al. 2003a; Luce), an artificial
+  basin (Zangger & Mutlu 2015, explicitly a working hypothesis), and no viable
+  harbour at all (Kayan et al. 2003). A map that picks one must name whose it is
+  **and which year** — Kraft moved from Beşika to Kesik between 1980 and 2003
+  (§1.9).
 - **The Kesik cut's date and purpose.** Unresolved in every source read: Kayan
   calls it tectonic, Cook calls it unfinished, Korfmann dated the Yeniköy canal to
   the 18th century AD, an 18th-century engineer thought it Bronze Age. Its floor
