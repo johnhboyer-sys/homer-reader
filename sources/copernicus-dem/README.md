@@ -25,8 +25,16 @@ Instrument Data"** terms: a free, worldwide, non-exclusive, royalty-free and
 perpetual licence to use, reproduce, modify and distribute the data and
 derivatives, **conditional on reproducing this attribution**:
 
-> © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018 provided
-> under COPERNICUS by the European Union and ESA; all rights reserved.
+> produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus
+> Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European
+> Union and ESA; all rights reserved
+
+(the Article 6(b) "adapted or modified data" form — what we ship is traced,
+simplified and reprojected, not the raw tiles; see
+`docs/research/RESEARCH-BASEMAP-DATA.md` §1.1). Article 6(c) further requires
+this liability notice on distribution: "The organisations in charge of the
+Copernicus programme by law or by delegation do not incur any liability for
+any use of the Copernicus WorldDEM-30."
 
 It is **not** a share-alike licence: nothing downstream of this data inherits
 a copyleft obligation, and the site may be published under whatever terms the

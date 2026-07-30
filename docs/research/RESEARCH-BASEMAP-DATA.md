@@ -749,6 +749,11 @@ geometry (the third added at Grok verification, 2026-07-29):
    the (modified or unmodified) data. Neither `attribution.astro` nor the
    two READMEs carry it. Same fix vehicle as gap 1: one sentence on the
    attribution page (Grok verification against the licence PDF, 2026-07-29).
+   The exact Article 6(c) sentence, pulled verbatim from the primary licence
+   PDF (2026-07-30, attribution lane): "The organisations in charge of the
+   Copernicus programme by law or by delegation do not incur any liability
+   for any use of the Copernicus WorldDEM-30." Applied to
+   `attribution.astro` the same day; the two READMEs still lack it.
 
 All three are attribution-string edits, not geometry changes — out of this
 dossier's blast radius to fix directly (this is a geometry-authority
