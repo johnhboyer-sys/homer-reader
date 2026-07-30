@@ -24,6 +24,24 @@ relation (Taplin), and the plate has to draw one or the other (3.2c, 3.2h, and
 the note under §1.2); and Edwards's **own** account of how the scenes are
 arranged on the disc is **still unread**, so no Schmiel-derived structure claim
 gets promoted (3.2o).
+**Revised a third time:** 2026-07-30 (later) — the two Edwards notes §7 listed as
+NOT FOUND were **captured as page images and read from the images**:
+`research-cache/page-captures/edwards-p230-singer.png` and `edwards-p231-singer.png`
+(the *ad* 604–6 singer note, printed pp. 229 and 231) and
+`edwards-p202-fivelayers.png` (the five-layers paragraph). Sections touched: 2.2,
+3.2, 3.4, 7, 8. Three things a reader should not miss: **Edwards is now heard on
+the singer, and he is the one read scholar who does *not* call our text defective**
+— he takes the ἀοιδός-sentence for a later supplement, so §2.2's **FLAG FOR JOHN is
+restated** on three authorities and its "both scholars read hold the text
+incomplete" premise is retired, while the no-bard rule comes out **stronger**, 2–1
+with the commentary of record on its side; the five-layers sentence read **in its
+paragraph is weaker, not stronger**, than the pointer version — Edwards offers a
+competing reading of "five" (the five *materials*) at three times the length, inside
+a paragraph whose thesis is "Probably Homer gave the matter little heed" (3.2n, and
+§3.4's "5" bullet restated); and **the captures have two holes** — printed p. **230**,
+the middle of the 604–6 note, is uncaptured (2.2j), and the image labelled
+"fivelayers" is the **introduction page, not the dedicated lemma note *ad* 481–82**,
+so both stay listed in §7 and nothing in §8 is struck.
 
 Every claim below carries an **authority kind** — `geometry` (compositional
 structure: what goes where on the disc), `identification` (what a thing is), or
@@ -72,14 +90,28 @@ web resources.
   technique" subsection (pp. 200–203) and the opening of "Subject-matter of the
   scenes" (p. 208) were read; **pp. 203–208 were only partly checked**, and the
   "(see below)" cross-reference at p. 202 to a scholarly reconstruction of the
-  scene arrangement **was not run down**. **What is missing entirely:** the lemma
-  notes on **18.481–82** (the five layers) and on **18.603–6** (the singer crux),
-  neither located — a capture lane is hunting both. Consequence for this dossier:
+  scene arrangement **was not run down**. Consequence for this dossier:
   claims sourced to the read pages are now first-hand; everything else about
   Edwards, **including his own position on the arrangement of the scenes**, stays
-  second-hand through Schmiel and is marked so in place (3.2o). Page captures are
-  being made into `research-cache/page-captures/` concurrently; every row below
-  cites the notes file, not a capture.
+  second-hand through Schmiel and is marked so in place (3.2o).
+- **Edwards vol. V, second pass, 2026-07-30 (later): three page images captured,
+  and read from the images rather than from a transcription.** In
+  `research-cache/page-captures/`: `edwards-p230-singer.png` and
+  `edwards-p231-singer.png` (the *ad* 604–6 note, printed pp. 229 and 231) and
+  `edwards-p202-fivelayers.png` (the five-layers paragraph, viewer-labelled 201);
+  `edwards-p216-istor.png` spot-confirms the already-transcribed `ἵστωρ` note.
+  Rows resting on these cite the **image file**, not the notes file, and say so in
+  "verified how". **This supersedes the bullet above on two points and only two:**
+  the **18.603–6 singer crux is no longer missing** (2.2h–2.2j), and the
+  five-layers paragraph is now read **in its paragraph** rather than as one quoted
+  sentence (3.2n, 3.2q). **What is still missing, stated plainly because the
+  capture filenames invite the opposite conclusion:** the **dedicated lemma note
+  *ad* 18.481–82** — `edwards-p202-fivelayers.png` is the *introduction* page, not
+  that note; printed p. **230**, the middle of the 604–6 note (2.2j); **pp.
+  203–208**, hence Edwards on arrangement, untouched by this pass (3.2o); and the
+  **507–8n.** Nothing of the volume is committed here; brief quotation only.
+  **Pagination caveat: the printed folio is illegible in every capture, and the
+  viewer's labels disagree by one with the earlier lane's "p. 202" — see §7.**
 - I did not consult the print Landmark series (excluded by CLAUDE.md) and did not
   read any pirated scan of Edwards vol. V; the one such host I opened
   (`vdoc.pub`) stops inside Book 17 and gave nothing. The lending copy above is
@@ -304,8 +336,14 @@ the bard exactly.
 | 2.2e | **Revermann's verdict on Athenaeus: against authenticity.** Two objections combine. First, Athenaeus's Aristarchus "is reported to have done three rather peculiar things": he held the ἀοιδός-line spurious in the *Iliad* but genuine in the *Odyssey*; he inserted a passage from one poem into the other; and he explained the Iliadic line as cross-interpolation from the *Odyssey*. "None of this is very plausible. Thus, the quality of Athenaeus' testimony becomes more than dubious. The verse quoted, then, is on a footing with those afforded by the 'wild' papyri." Second, the `θεῖος ἀοιδός` is itself un-Iliadic: the epithet is "absent from the *Iliad*", where singers appear as "rather inconspicuous craftsmen at hand", so the figure is "strikingly at odds with the Iliadic picture" and is better regarded as "a conceptual intrusion in the spirit of the *Odyssey*", probably arising from **rhapsodic intervention**. | identification | Revermann, "Text of *Iliad* 18.603–6," 34–35, 37 | Read in full, `research-cache/revermann-1998-text-iliad.pdf` |
 | 2.2f | **But Revermann does not defend our printed text as complete — this is the complication.** He argues the transmitted short text is *defective*: the closing dance is "not only unaccompanied but, apart from the mention of μολπή, even silent", and that silence is "unparalleled on the Shield, in the Homeric epics as a whole, in Ps.-Hesiod, and in the *Homeric Hymns*" (he surveys 101 geometric and early-archaic images in Wegner's catalogue and finds the iconographic evidence "quite inconclusive"). Conclusion: "a lacuna of uncertain length is to be postulated. Mention ought to be made of at least a **φόρμιγξ**… The instrumentalist(s) could be singled out, and there could be an ἀοιδός." He refuses to fill it — "The *lacuna* must remain" — and ends: "our tradition of a particular passage of this ecphrasis is lacunose. There are, however, no means of recovering the 'genuine version' of this passage. In fact, the quest for it would be misguided in principle." The gap sits "with equal plausibility either after τερπόμενοι or after the mention of the tumblers." | identification | Revermann, "Text of *Iliad* 18.603–6," 30–32, 35, 38 | as 2.2e |
 | 2.2g | **Taplin leans the other way, and the dossier will not hide it.** "There are in addition a pair of tumblers and, if we are prepared to import a line from the otherwise identical formulae at *Od.* 4.17–19…, we would have a poet, the one and only ἀοιδός to appear in the *Iliad*. **We might feel that the shield would not be complete without him.**" His note: "Most editors since Wolf have included the line and believed that it was wrongly ejected by Aristarchus… But all the experts on Aristarchus are quite clear that Athenaeus cannot have got his facts right… The case for the line must stand or fall without Athenaeus." | prose | Oliver Taplin, "The Shield of Achilles within the *Iliad*," *Greece & Rome* 27, no. 1 (1980): 1–21, at 9 and 20 n. 27 | Read in full, `research-cache/taplin-1980-shield.pdf` |
+| 2.2h | **Edwards is now read on the crux — the commentary of record, first-hand, and he does not join the other two.** His note *ad* **604–6** opens with the transmission: "**Allen prints the text as it appears in the MSS and papyri.** According to Athenaeus (180c–d), Aristarchus (or his school) added *Od.* 4.15–19 to the description of the wedding in Menelaos' palace, the last three verses running \| `τερπόμενος· μετὰ δέ σφιν ἐμέλπετο θεῖος ἀοιδὸς` \| `φορμίζων· δοιὼ δὲ…` \| `…κατὰ μέσσους`. Later (181d) Athenaeus quotes 604–6 as they appear in our MSS, without `μετὰ…φορμίζων`, claiming that Aristarchus cut them from the *Il.* text. **Wolf restored them** (see his *Prolegomena* ch. XLIX n. 49). The verse `τερπόμενος…ἀοιδός` \| recurs at *Od.* 13.27, enjambing with \| `Δημόδοκος` in the next verse." Then his own verdict, and this is the operative sentence: "**It is likely that the additional sentence was added to provide the dancers with music; there are traces of a similar effort at 606a (see below), which must have been added as an alternative.**" So Edwards reads the ἀοιδός-sentence as a **supplement**, and 𝔓51's instrument-verse (2.2a) as a second, competing supplement answering the same felt want — not as debris of a lost original. On Wolf he reports without endorsing: Wolf "restored" the lines; Edwards does not. | identification | Edwards, *Iliad* vol. 5, 229 (*ad* 604–6), citing Friedrich August Wolf, *Prolegomena ad Homerum*, ch. XLIX n. 49, and Athenaeus V 180c–d, 181d | **Read first-hand from a page image**, `research-cache/page-captures/edwards-p230-singer.png` (archive.org `iliadcommentary0005unse`, borrow session 2026-07-30; viewer label "Page 229 (252/387)"). **The middle of the note is not captured — see 2.2j** |
+| 2.2i | **But Edwards concedes the very difficulty Revermann builds his lacuna on, and answers it without a lacuna.** The same note, continued: "The omission of an instrumental accompaniment to the dancing **remains odd** (*pace* Apthorp 164), especially since both the wedding and vintaging scenes concluded with phorminx-players (494–5, 569–70). **Possibly the vulgate *Il.* and *Od.* versions represent shorter and longer variants of a standard dance-description**, though elsewhere such variants differ by complete lines rather than by the four enjambing cola in question here. (Two of the obvious doublets in the Hesiodic *Aspis*, however, begin and end at the mid-verse caesura: 201–3, 209–11.)" He raises the objection to his own suggestion and then partly answers it, so the question is left open — but the mechanism he entertains is **oral variation between two equally traditional versions**, not textual damage. He nowhere writes *lacuna*. **And he supplies the pedigree of the "singer = Homer" reading, which this dossier had only from Nagy** (2.2b): "**Schadewaldt, however, retains the sentence, suggesting that the singer may represent Homer himself** (*VHWW* 367); Reinhardt, *Iud* 402, and Marg, *Dichtung* 30, take a similar view." Those are exactly Taplin's three pervasive essays (§8.6) — and **Marg is the authority Edwards himself prefers** (3.2e), which is worth knowing before anyone reads Edwards as a hostile witness to the bard. He reports them with "however"; he adopts none of them. | identification | Edwards, *Iliad* vol. 5, 231 (*ad* 604–6, continued), citing Michael J. Apthorp, *The Manuscript Evidence for Interpolation in Homer* (Heidelberg: Carl Winter, 1980), 164; Giorgio Pasquali, *Storia della tradizione e critica del testo* (Florence: Le Monnier, 1934), 232–33; Wolfgang Schadewaldt, *Von Homers Welt und Werk*, 4th edn. (Stuttgart: Koehler, 1965), 367; Karl Reinhardt, *Die Ilias und ihr Dichter* (Göttingen: Vandenhoeck & Ruprecht, 1961), 402; Walter Marg, *Homer über die Dichtung*, 2nd edn. (Münster: Aschendorff, 1971), 30 | **Read first-hand from a page image**, `research-cache/page-captures/edwards-p231-singer.png` (viewer label "Page 231 (254/387)") |
+| 2.2j | **The capture has a hole in it, and the hole is where an attribution sits. Recorded so nobody fills it by guess.** Printed p. **229** breaks off mid-sentence — "…which must have been added as an alternative. **In an excellent recent discussion**" — and printed p. **231** resumes mid-sentence — "**Pasquali, *Storia* 232–3, that Aristarchus excised the sentence** on the basis of internal evidence (i.e. the use of `μέλπομαι` to mean 'sing' instead of 'play') without MS support." The page between them, printed **230**, was **not captured**: the two images are viewer-labelled 229 and 231 at leaves 252 and 254 of 387, a constant 23-leaf offset, so exactly one printed page is missing. **What is therefore unknown: whose "excellent recent discussion" Edwards is praising, and what fills that page.** Apthorp is the likeliest candidate — Edwards cites his *Manuscript Evidence* twice in this stretch (118 n. 139 *ad* 597–8; 164 in the next sentence, *contra*) — but that is **inference, not reading**. Do not attribute the Pasquali-derived argument to any named scholar in a caption or a `sources` entry. The two sentences that carry **Edwards's own judgement** (2.2h, 2.2i) both sit inside the captured pages, so his verdict does not depend on the gap; the history of the debate on that page does. | identification | Edwards, *Iliad* vol. 5, 230 (**not captured**) | **Explicit negative finding** from the two page images named in 2.2h and 2.2i |
 
-**Drawing consequence, and it is a hard one. UNCHANGED after reading Revermann.**
+**Drawing consequence, and it is a hard one. UNCHANGED after reading Revermann,
+and CONFIRMED — not weakened — by reading Edwards (2.2h–2.2i): the commentary of
+record treats the singer-sentence as an addition, so the no-bard rule now has the
+most conservative of the three read authorities behind it as well.**
 *Do not draw a bard on the dancing floor.* The site's own printed text has no
 singer; a plate that shows one would contradict the edition on the page beside
 it. Revermann's philology now adds a second, independent ground: the specific
@@ -318,20 +356,47 @@ without hesitation; Revermann counts him among the Shield's instrumentalists and
 notes that the vintage dance is the one Shield dance that *is* accompanied
 (Revermann 30).
 
-> **FLAG FOR JOHN — do not let a drawing lane resolve this.** The two scholars
-> who have now actually been read on this passage **both hold that the text as we
-> print it is incomplete**, and both put the gap exactly where the plate's dance
-> scene is. Revermann would restore at least a `φόρμιγξ` and will not say what
-> else; Taplin would restore the singer and thinks most editors since Wolf were
-> right to. Neither licenses a bard on the plate. What they do mean is that a
-> plate showing a **silent** dance reproduces a text two of its own sources call
-> defective. Three responses, and the choice is editorial, not philological:
-> (i) draw the dance as printed and say nothing; (ii) draw it as printed and let
-> the caption carry the lacuna briefly — "some ancient copies gave instruments
-> here, one gave a singer; the text we print gives neither, and Revermann 1998
-> holds the passage lacunose"; (iii) draw instruments without a singer, which no
-> text of ours prints. **Recommended: (ii). Not recommended: (iii).** The
-> no-bard rule stands under all three.
+> **FLAG FOR JOHN — do not let a drawing lane resolve this. RESTATED 2026-07-30
+> (later), because the third commentator has now been read in his own words and
+> he does not say what the other two say.** The earlier version of this flag
+> opened "the two scholars who have now actually been read on this passage both
+> hold that the text as we print it is incomplete." **That premise no longer
+> describes the field.** Three are now read first-hand, and they hold three
+> different things:
+>
+> - **Edwards** — the commentary of record, *ad* 604–6, pp. 229 and 231
+>   (2.2h–2.2i). Allen's short text is what he prints and comments on. The
+>   ἀοιδός-sentence "was added to provide the dancers with music"; 𝔓51's
+>   instrument-verse "must have been added as an alternative." He grants the
+>   difficulty — the omission of accompaniment "remains odd" — and explains it as
+>   "shorter and longer variants of a standard dance-description," i.e. oral
+>   variation, **not damage**. He never postulates a lacuna. **No bard.**
+> - **Revermann** 1998, pp. 30–32, 35, 38 (2.2e–2.2f). The transmitted text is
+>   *defective*: "a lacuna of uncertain length is to be postulated," holding "at
+>   least a `φόρμιγξ`." The `θεῖος ἀοιδός` is un-Iliadic and probably rhapsodic;
+>   recovering the original would be "misguided in principle." **No bard.**
+> - **Taplin** 1980, p. 9 and 20 n. 27 (2.2g). Import the *Od.* line: "we might
+>   feel that the shield would not be complete without him" — while conceding the
+>   case "must stand or fall without Athenaeus." **A bard.**
+>
+> **What changed and what did not.** The **no-bard rule is not weakened; it is
+> strengthened** — 2–1 among read authorities, with the commentary of record on
+> its side, and on top of the standing reason that our own printed Greek has no
+> singer. What *is* weakened is the caption argument for option (ii): a plate may
+> no longer say "two of this dossier's own sources call the text defective" as
+> though that were the scholarly position, because the third and most
+> conservative of the three explains the same oddity as ordinary variation
+> between traditional versions. The three responses stand: (i) draw the dance as
+> printed and say nothing; (ii) draw it as printed and let the caption carry the
+> crux briefly; (iii) draw instruments without a singer, which no text of ours
+> prints. **Still recommended: (ii). Still not recommended: (iii).** But (ii)'s
+> wording must now be even-handed — e.g. "some ancient copies gave instruments
+> here, one gave a singer; the text we print gives neither. Edwards takes the
+> added music for a later supplement; Revermann holds the passage lacunose" — and
+> **(i) is more defensible than it was yesterday**, because Edwards supplies a
+> printed, citable reason to treat our text as one whole traditional version
+> rather than a damaged one. **The choice remains editorial, not philological,
+> and it remains John's. This dossier does not resolve it.**
 
 ---
 
@@ -357,7 +422,7 @@ notes that the vintage dance is the one Shield dance that *is* accompanied
 | # | Claim | Kind | Citation | Verified how |
 |---|---|---|---|---|
 | 3.2a | **Confirmed first-hand, 2026-07-30, and now with its internal divisions.** Edwards's "Introduction to the Shield of Akhilleus" begins at **p. 200** and runs to **p. 209**. Its subsections, as read: **"Construction and technique," pp. 200–203** (the physical metalworking — layers of oxhide and bronze, comparanda from Cretan, Phoenician and Mycenaean shields and bowls), and **"Subject-matter of the scenes," from p. 208**. Two of the intervening pages are **unpaginated photographic plates** (a bronze shield from the Idaean Cave; two Levantine metal bowls). The dossier's earlier "ten-page introduction, much of it on physical construction" was right on both counts. | prose | Edwards, *Iliad* vol. 5, 200–209 | **Read first-hand via controlled digital lending** (archive.org copy `iliadcommentary0005unse`, borrow session 2026-07-30), pp. 200–203 and 208; transcribed at `research-cache/edwards-vol5-notes.md` §1. **pp. 203–208 only partly checked — see 3.2o** |
-| 3.2b | **The round-shield sentence is now first-hand, and the page moves.** Edwards, p. 200: "**The poet clearly visualizes a round shield**, not the semi-cylindrical 'tower' shield or the various forms with cut-out sides which appear in Geometric art ('Dipylon', 'figure-of-eight', or 'Boeotian' shields…). The usual Homeric round shield is made of a number of layers of oxhide, presumably stretched over a light wooden frame, with a bronze facing on the outside." **Two corrections to the second-hand version:** the sentence stands at **p. 200**, not 201–2 as this dossier had it from Schmiel; and Edwards's point about the layers is about **hide under a bronze facing**, i.e. depth, not about decorated rings. **Still second-hand and not upgraded:** the "there are *indications* that the layers of hide were concentric" and "makes little *practical sense*" phrases, which Schmiel quotes from pp. 201–2 and which the transcription did not reach. Do not cite those two as read. | geometry | Edwards, *Iliad* vol. 5, 200 (round shield, read); 201–2 (the concentric-layers and "practical sense" phrases, **still via** Schmiel, BMCR 1992.03.05) | Round-shield sentence: as 3.2a, quoting printed p. 200. The 201–2 phrases: **second-hand**, Robert Schmiel, review of Edwards vol. 5, [*Bryn Mawr Classical Review* 1992.03.05](https://bmcr.brynmawr.edu/1992/1992.03.05/) |
+| 3.2b | **The round-shield sentence is now first-hand, and the page moves.** Edwards, p. 200: "**The poet clearly visualizes a round shield**, not the semi-cylindrical 'tower' shield or the various forms with cut-out sides which appear in Geometric art ('Dipylon', 'figure-of-eight', or 'Boeotian' shields…). The usual Homeric round shield is made of a number of layers of oxhide, presumably stretched over a light wooden frame, with a bronze facing on the outside." **Two corrections to the second-hand version:** the sentence stands at **p. 200**, not 201–2 as this dossier had it from Schmiel; and Edwards's point about the layers is about **hide under a bronze facing**, i.e. depth, not about decorated rings. **UPGRADED 2026-07-30 (later), and the caution is withdrawn:** the page image now in hand (3.2n) carries both phrases Schmiel quoted. "Unfortunately, such construction **makes little practical sense**" stands verbatim, said of the layer *order* at Il. 20.269–72. Schmiel's concentric phrase corresponds to Edwards's "**Perhaps at one time the decoration followed these concentric bands, though on the shields from Crete the number of bands varies widely**" — which is about the **decoration**, not the hides, and which refuses a number (3.2q). So: cite both as read, in **Edwards's** wording rather than Schmiel's, and note that Schmiel's paraphrase dropped the clause that matters. | geometry | Edwards, *Iliad* vol. 5, 200 (round shield); 202 (the concentric-bands and "practical sense" phrases, **now read first-hand**, 3.2n and 3.2q) | Round-shield sentence: as 3.2a, quoting printed p. 200. The p. 202 phrases: **read first-hand from `research-cache/page-captures/edwards-p202-fivelayers.png`**, superseding Robert Schmiel, review of Edwards vol. 5, [*Bryn Mawr Classical Review* 1992.03.05](https://bmcr.brynmawr.edu/1992/1992.03.05/) |
 | 3.2c | **REWRITTEN 2026-07-30 from Edwards's own page. The second-hand paraphrase was close in spirit and wrong in substance, and it was on the wrong page.** Schmiel had Edwards reducing the two armies to "probably one army" at p. 207. What Edwards actually writes, ad **509, at p. 218**, is about **one city with attackers on two sides of it**: "It has often been pointed out that the description seems to be based on a **two-dimensional representation in which the besieged city appeared with the enemy forces on either side**, as on the silver dish from Amathus (see fig. 2, p. 205, and Markoe 66–7). This also recalls the siege of a city by both sea and land on the north frieze from the West House at Akrotiri, and the well-known silver rhyton fragment from Mycenae… on which only the attack on one side of the city, by sea, survives." He rules out the Thruoessa model (Il. 11.710–60: one army besieging, another relieving) — "that kind of episode does not seem to fit here" — and closes on the word itself: "`στρατός` can have the meaning 'band', 'troop', e.g. at 8.472, **so the meaning here may be simply 'two forces of (armed) men' or 'two camps', not necessarily two distinct armies.**" **So: one city, one hostile side, drawn as two flanking forces because the model behind the description is a flat picture.** Note that he does *not* say the poet blundered, and he does *not* reduce two to one; he loosens `στρατός`. **He also notes that on the Hesiodic *Aspis* (237–70) one of the two armies is the besieged city's own** (the transcription's Aspis sentence is cut mid-note; what follows in Edwards is unread). — If that parallel were transferred to the Homeric pair it would yield besieger + defender rather than two besiegers; that transfer is THIS DOSSIER'S inference, not Edwards's transcribed words (marked at Grok verification). | geometry | Edwards, *Iliad* vol. 5, 218 (ad 18.509), citing Markoe, *Phoenician Bronze and Silver Bowls*, 66–67 | **Read first-hand**, as 3.2a, quoting printed p. 218; transcribed at `research-cache/edwards-vol5-notes.md` §3. **The old p. 207 citation is retired**: Schmiel's page reference does not correspond to any Edwards sentence we have read, and his paraphrase ("one army", "misinterpretation") is not Edwards's wording |
 | 3.2d | Schmiel's counter-position: treating "the shield as if it were real … does not advance my understanding or appreciation of the poem one whit", turning Homer into "a how-to handbook for armourers". A named, citable objection to the whole reconstruct-it project. | prose | Schmiel, BMCR 1992.03.05 | Read in full |
 | 3.2e | Edwards's own preferred interpretive authority is **Marg's essay** — now identified via Taplin n. 1 as *Homer über die Dichtung* (1957; 2nd edn. 1971), see §8.6 — which Schmiel notes warns against exactly the technical approach Edwards takes. | prose | Schmiel, BMCR 1992.03.05; Taplin, 18 n. 1 (the identification) | Read in full |
@@ -370,7 +435,8 @@ notes that the vintage dance is the one Shield dance that *is* accompanied
 | 3.2l | **A drawable detail corrected.** At 558–60 the white barley is sprinkled **on the meat**, not served as barley mash: "The heralds have performed the slaughter and jointing; the women are actually cooking it, and this involves sprinkling the meat with barley, exactly as at *Od.* 14.77." That is **Leaf's** interpretation, which Taplin prefers **against Kirk's** (Kirk, *HOT* 12, has the king eating the roast beef while the workers get barley mash): Taplin "cannot see any reason for preferring this to the interpretation well argued for by Leaf." (A first draft of this row swapped Leaf and Kirk — caught at Grok verification against the PDF.) | identification | Taplin, "Shield of Achilles within the *Iliad*," 19–20 n. 23 | as 3.2h |
 | 3.2m | **The Phoenician-bowl parallel no longer needs Edwards.** Revermann, read first-hand: the bowls, "produced over a period from about 850 to about 625", have an iconography "so similar to that of the Homeric Shield that they are regularly invoked as a model or inspiration for the Homeric description… here the correspondences are so great and unique that it is difficult not to see a connection." He also states both standard objections, after Erika Simon: "bowls are not shields. And the Phoenician bowls are chased work whereas **the decorations of the Shield must be inlaid work.**" Markoe's pages for the iconography are **56–59**; the dance bowls are Markoe's Cy3, Cr 7 and G8, his periods I–II. | identification | Revermann, "Text of *Iliad* 18.603–6," 31 and 31 nn. 10–12, 32 n. 12, citing Markoe, *Phoenician Bronze and Silver Bowls*, 56–59, and Erika Simon, "Der Schild des Achilleus," in *Beschreibungskunst — Kunstbeschreibung*, ed. Gottfried Boehm and Helmut Pfotenhauer (Munich: Fink, 1995), 129f. | Read in full, `research-cache/revermann-1998-text-iliad.pdf` |
 
-| 3.2n | **Edwards on the five layers, p. 202 — a pointer, not an answer, and it must not be read as one.** "How the poet thought the shield was actually built up thus remains uncertain… **The choice of five layers (481) may reflect the arrangement of scenes worked out by modern scholars (see below).**" Two things follow. (i) Edwards holds the *construction* an open question, which corroborates §8.3 (which layer carries the figures) from the commentary of record. (ii) He connects the number **five** to a scene arrangement — but to one "worked out by **modern scholars**", explicitly not to the poem's own statement, and he defers it to a later passage. **The "(see below)" was not run down (3.2o), so which arrangement he means, and whether he endorses it, is unknown.** Do not let this sentence be quoted as Edwards supporting a five-band plate; it is a hypothesis about why the poet chose the number, pointing at an unread page. Bears on §1.1b–c and on §3.4's "5" bullet, neither of which changes on it. | geometry | Edwards, *Iliad* vol. 5, 202 | **Read first-hand**, as 3.2a, quoting printed p. 202. The cross-referenced discussion is **unread** |
+| 3.2n | **REWRITTEN 2026-07-30 (later) from the full page image. Read whole, the sentence is *weaker* than the pointer version made it look, and the paragraph it sits in argues against reconstruction altogether.** Edwards's paragraph entire: "How the poet thought the shield was actually built up thus remains uncertain. He can hardly have imagined Hephaistos laying oxhides over a frame in the manner of a human craftsman, and then superimposing the layers of metal. **Fittschen, *Schild* 7, thinks of five layers of bronze. Probably Homer gave the matter little heed.** 'All die Rekonstruktionen sind müssig, nichts als Verkennung der Dichtung. Jene Beziehungen sagen nichts mehr als dass die Phantasie des Iliasdichters im Raum des Realen bleibt' (Marg 26). **The choice of five layers (481) may reflect the arrangement of scenes worked out by modern scholars (see below). It may, however, be a reference to the five components which form the surface and its decoration** – bronze, tin, gold, silver (474–5), and `κύανος`, which forms `οἶμοι` ('stripes'?) on Agamemnon's corselet (11.24) and `πτύχες` on Hesiod's *Aspis* (143). **Inlay-work can indeed be thought of as 'layers' of different materials, in a different sense from the superimposition of oxhides in a shield.**" **How to characterise this honestly, since the summary that reached this dossier called it a significant structure statement: it is not Edwards half-crediting a five-zone arrangement.** It is one of **two** guesses at why the poet wrote *five*, offered inside a paragraph whose own thesis is that the poet "gave the matter little heed" and whose governing quotation (Marg) calls all such reconstructions idle — and the second guess, which Edwards develops at three times the length and puts in the closing, emphatic position, is that the five are the five **materials** of the surface and its inlay, not five zones of scenes. Note also the **direction of the inference**: the five-scene arrangement is credited to "**modern scholars**", and it is the poem's *number* that "may reflect" it. Edwards is explaining Homer's five by reference to a modern reconstruction; he is not deriving the reconstruction from Homer. **So the instruction stands and is now better founded: do not quote this sentence as Edwards supporting a five-band plate.** Two things it *does* give first-hand: Edwards holds the construction an open question (bears on §8.3), and **Fittschen's** own view is five layers of **bronze**. The "(see below)" is still unfollowed (3.2o). | geometry | Edwards, *Iliad* vol. 5, 202 (**the archive viewer labels this page 201** — see the pagination caveat in §7), quoting Marg, *Homer über die Dichtung*, 26, and citing Fittschen, *Der Schild des Achilleus*, 7 | **Read first-hand from a page image**, `research-cache/page-captures/edwards-p202-fivelayers.png` (archive.org `iliadcommentary0005unse`; viewer label "Page 201 (224/387)"). **This image is the *introduction* page, NOT the dedicated lemma note *ad* 18.481–82, which remains unread** (§7) |
+| 3.2q | **NEW 2026-07-30 (later) — Edwards's one first-hand sentence that does entertain concentric bands, and it declines to number them.** Higher on the same page, on Idomeneus' shield: "Idomeneus' shield is `ῥινοῖσι βοῶν καὶ νώροπι χαλκῷ` \| `δινωτήν` (13.406–7; see note *ad loc.*). **Perhaps at one time the decoration followed these concentric bands, though on the shields from Crete the number of bands varies widely.**" **Two findings that pull opposite ways, and both must travel together.** (i) 3.2f's blanket "do not cite Edwards as warrant for a concentric-band arrangement" is **too strong for this sentence**: Edwards does entertain banded decoration, in his own words, on his own comparanda. (ii) But it is a claim about the **Homeric round shield in general** and about **Cretan** parallels, not about the arrangement of Achilles' *scenes*; it is a diachronic "perhaps at one time"; and it expressly refuses a count — "the number of bands varies widely." **Net effect on the plate: a concentric-band register may cite this sentence; no band *count* may cite it.** 3.2o is untouched — Edwards on the arrangement of the *scenes* is still unread. | geometry | Edwards, *Iliad* vol. 5, 202 (viewer label 201), on Il. 13.406–7 | as 3.2n |
 | 3.2o | **STILL UNREAD: Edwards's own account of how the scenes are arranged on the disc.** No subsection titled "Structure" (or equivalent) addressing physical arrangement — concentric bands against a continuous frieze against something else — was located in the time available; it would sit in **pp. 203–208**, which were only partly checked, and the p. 202 "(see below)" that points to it (3.2n) was not followed. **The consequence is a rule for anyone reading this dossier: no structure or arrangement claim attributed to Edwards is first-hand.** 3.2b's concentric-layers phrase (via Schmiel), 3.2f's former "concentric decorated bands … per Edwards" (now corrected to a technique claim), and any future "Edwards puts scene X on ring Y" are all **second-hand or unfounded** until pp. 203–208 are read with the volume's index under "structure" or "design, of shield." The partial read of pp. 200–209 upgrades what it covers and **nothing else** — it does not confer read-authority on the introduction as a whole. | geometry | Edwards, *Iliad* vol. 5, 203–208 (**not read**) | **Explicit negative finding**, `research-cache/edwards-vol5-notes.md` §1 ("Do not assume this note answers which arrangement (zones/bands vs. continuous narrative) Edwards himself endorses"). Follow-up pass requested in §7 |
 | 3.2p | **Edwards's own framing of the subject-matter is thematic, not topographic.** "Subject-matter of the scenes" opens at p. 208 by reading the two cities as set against each other for Achilles' sake: the life of "long life and everlasting glory" against "the imminent death of which Thetis forewarns him." So peace against war, life against death — the same axis Taplin works (3.3a), reached independently by the commentator. **Usable for the plate's prose**; it is an interpretation of *why* these scenes, and says nothing about where they sit on the disc. | prose | Edwards, *Iliad* vol. 5, 208 | **Read first-hand**, as 3.2a, quoting printed p. 208 (opening of the subsection only; the rest of pp. 208–209 not transcribed) |
 
@@ -384,6 +450,18 @@ upgraded, and deliberately fenced off in 3.2o: Edwards on arrangement.** The
 older Schmiel-derived structure material does not inherit read-authority because
 some neighbouring pages were read. And one row now records a disagreement rather
 than a hierarchy: 3.2c against 3.2h on 18.509.
+
+**What the page images added, 2026-07-30 (later).** 3.2n is **rewritten** from the
+whole paragraph instead of one sentence of it, and the rewrite cuts the claim down
+rather than up (Edwards offers the five *materials* as his fuller alternative, in a
+paragraph that deprecates reconstruction). 3.2q is **new** and is the only
+first-hand Edwards sentence in this dossier that entertains concentric bands — while
+refusing to number them. 3.2b's "still second-hand, do not cite as read" caution is
+**withdrawn**: both Schmiel-quoted phrases are now on a page we have read, and
+Schmiel's paraphrase of one of them dropped the qualifying clause. **3.2o still
+stands untouched**, which is the point worth repeating: reading p. 202 in full does
+not tell us how Edwards arranges the scenes, because that discussion is the one the
+"(see below)" points at, on pp. 203–208, and it remains unread.
 
 ### 3.3 The interpretive frame (for the plate's prose, not its geometry)
 
@@ -420,18 +498,25 @@ choice the plate must own as its own, in the schematic register, with the
   Taplin 7–9 and 19 n. 22 if you group; do not present the seasons as the poem's
   own statement, because they are not stated.
 - **5** — the `πέντε πτύχες` are structural and give no zones (§1.1b–c), and that
-  holds. **New 2026-07-30, and it does not disturb it:** Edwards, read first-hand
-  at p. 202, calls the build-up of the shield "uncertain" and suggests "the choice
-  of five layers (481) may reflect the arrangement of scenes worked out by modern
-  scholars" (3.2n) — a guess about the poet's *number*, pointing at a page we have
-  not read, and explicitly crediting the arrangement to modern scholars rather
-  than to Homer. It is not a licence to say the poem gives five zones.
-  But "5" is no longer a count with nothing behind it: **Taplin's own
-  scheme is five concentric circles** (cosmos / cities / country / dance / Ocean,
-  3.1h), derived thematically rather than from the layers, and he calls the
-  divisions "widely accepted" while denying they are certain. The ancient
-  allegorists also got five rings out of the layers (§1.1d). A five-band plate is
-  therefore citable; a five-band plate that says *the poem gives five* is not.
+  holds. **RESTATED 2026-07-30 (later), from the whole page rather than one
+  sentence of it: the Edwards datum is *weaker* than this bullet reported earlier
+  the same day.** Read entire (3.2n), his p. 202 paragraph holds the build-up
+  "uncertain", says "**Probably Homer gave the matter little heed**", quotes Marg
+  that all such reconstructions are idle, and then offers **two** explanations of
+  the number five — the arrangement of scenes "worked out by modern scholars", and,
+  at three times the length and in the closing position, **the five materials that
+  make up the surface and its inlay** (bronze, tin, gold, silver, `κύανος`). So
+  Edwards is **not a "5" for zones even at half-credit**, and the direction of his
+  inference runs the wrong way for us: he explains Homer's number by a modern
+  reconstruction, not the reconstruction by Homer. His one first-hand sentence on
+  banded decoration, meanwhile, declines to number the bands — "on the shields from
+  Crete the number of bands varies widely" (3.2q). **What still makes "5" citable
+  is unchanged, and it is not Edwards: Taplin's own scheme is five concentric
+  circles** (cosmos / cities / country / dance / Ocean, 3.1h), derived thematically
+  rather than from the layers, called "widely accepted" while denied to be certain;
+  and the ancient allegorists got five rings out of the layers (§1.1d). A five-band
+  plate is therefore citable **on Taplin**; a five-band plate that says *the poem
+  gives five*, or that *Edwards gives five*, is not.
 - **2** — the count no one in this dossier proposed and the one the read
   scholarship best supports: **Hardie's cosmic frame around a single human field**
   (3.1f). If the plate wants an arrangement with a first-hand scholarly warrant
@@ -485,6 +570,30 @@ asserted):
    and Edwards neither says "one army" nor calls it a misinterpretation. Recorded
    as a caution about the whole class: a reviewer's paraphrase of a commentary is
    a pointer, not a citation, and this dossier carried it as a citation for a day.
+10. **NEW, 2026-07-30 (later) — the three read scholars split three ways on
+    whether our text of 603–6 is whole, and this contradiction changes a caption,
+    not a drawing.** **Revermann** 30–32, 35, 38: the passage is lacunose, "a
+    lacuna of uncertain length is to be postulated", holding at least a `φόρμιγξ`
+    (2.2f). **Taplin** 9: import the *Od.* line, "the shield would not be complete
+    without him" (2.2g). **Edwards** 229 and 231: the ἀοιδός-sentence "was added to
+    provide the dancers with music", 𝔓51's verse "must have been added as an
+    alternative", and the oddity of an unaccompanied dance is *possibly* explained
+    by "shorter and longer variants of a standard dance-description" — no lacuna
+    postulated anywhere in the note (2.2h–2.2i). **Not harmonised.** Two of the
+    three want something restored and disagree about what; the third takes the
+    vulgate for one whole traditional version and the plus-verses for supplements
+    to it. Unlike contradiction 8, **the plate is not forced to choose** — none of
+    the three puts a bard in the text we print — so this one is resolved in the
+    caption, and the restated **FLAG FOR JOHN** in §2.2 is where it lives.
+11. **NEW, 2026-07-30 (later) — this dossier's own "5" bullet overstated Edwards
+    for part of a day.** The version written from the transcribed sentence said the
+    p. 202 remark "does not disturb" the no-five-zones finding but treated it as
+    putting something behind the count. Read whole (3.2n), the paragraph puts
+    *less* behind it than that: two competing guesses, the longer of them about
+    materials, inside a paragraph that calls all reconstruction idle. Corrected in
+    place above. Recorded because it is the same failure as item 9 in miniature —
+    **a sentence quoted out of its paragraph behaves like a reviewer's paraphrase**,
+    and this time the paraphrase was ours.
 
 ---
 
@@ -647,7 +756,7 @@ than a blank.
 
 | Work | Exact locus wanted | Which claim it settles |
 |---|---|---|
-| Edwards, *Iliad* vol. 5 (CUP, 1991) | **Remaining:** pp. **203–208** (the arrangement-of-scenes discussion the p. 202 "(see below)" points to), and the notes on **18.481–82** (five layers), **507–8** (the talents), **603–6** (the singer), plus the earlier page carrying the **full references for "Wolff"** and MacDowell cited short at 216 | **PARTIALLY OBTAINED, 2026-07-30 — archive.org controlled digital lending** (identifier `iliadcommentary0005unse`, borrow session 2026-07-30, transcription at `research-cache/edwards-vol5-notes.md`; nothing of the volume committed here). **Read and folded in:** pp. **200–203** and **208** of the introduction (3.2a, 3.2b's round-shield sentence, 3.2f's comparanda, 3.2n, 3.2p), the trial-scene notes at **pp. 213–17** (2.1h, 2.1i, and **2.1j on the `ἴστωρ`** — he reports the winner-of-the-talents view as "preferred by Wolff and MacDowell" and adopts nothing), and **p. 218 ad 509** (3.2c — which **rewrote** the second-hand claim and retired the p. 207 citation). **STILL OPEN, and each blocks something:** (i) **pp. 203–208**, hence Edwards on arrangement — fenced off at 3.2o, and the reason no structure claim of his is first-hand; a capture lane should go at it with the index under "structure" or "design, of shield". (ii) The **18.481–82** note — §8.3 (which layer is decorated) turns on it. (iii) The **18.603–6** note, which Revermann 29 n. 3 confirms exists *ad* 604–6 — §8.11 and the §2.2 FLAG FOR JOHN turn on it, and it is the single highest-value missing item, because Edwards is the one commentator of record not yet heard on the singer. (iv) The **507–8n.**, cross-referenced by Edwards at 216 and not transcribed — it is where he says what the two talents are (2.1c). A capture lane is hunting (ii) and (iii); both stay flagged until a page image is in hand. **Efficient route, per the notes file:** navigate to the printed pages after 218–19 and continue forward to the dance (590–606). |
+| Edwards, *Iliad* vol. 5 (CUP, 1991) | **Remaining after the page captures of 2026-07-30 (later):** pp. **203–208** (the arrangement-of-scenes discussion the p. 202 "(see below)" points to); the **dedicated lemma note *ad* 18.481–82**, which is *not* what the "five layers" capture turned out to be; the **507–8n.** (the talents); printed p. **230**, the uncaptured middle of the 604–6 note (2.2j); and the earlier page carrying the **full references for "Wolff"** and MacDowell cited short at 216. **No longer wanted: the 603–6 singer note — captured and read (2.2h–2.2j).** | **PARTIALLY OBTAINED, 2026-07-30 — archive.org controlled digital lending** (identifier `iliadcommentary0005unse`, borrow session 2026-07-30, transcription at `research-cache/edwards-vol5-notes.md`; nothing of the volume committed here). **Read and folded in:** pp. **200–203** and **208** of the introduction (3.2a, 3.2b's round-shield sentence, 3.2f's comparanda, 3.2n, 3.2p), the trial-scene notes at **pp. 213–17** (2.1h, 2.1i, and **2.1j on the `ἴστωρ`** — he reports the winner-of-the-talents view as "preferred by Wolff and MacDowell" and adopts nothing), and **p. 218 ad 509** (3.2c — which **rewrote** the second-hand claim and retired the p. 207 citation). **SECOND PASS, 2026-07-30 (later) — page images captured and read; the images, not a transcription, are the authority.** Three files now sit in `research-cache/page-captures/`: `edwards-p230-singer.png` (printed p. **229**, the head of the *ad* 604–6 note), `edwards-p231-singer.png` (printed p. **231**, its tail), and `edwards-p202-fivelayers.png` (the "five layers" paragraph, viewer-labelled p. **201**). A fourth, `edwards-p216-istor.png`, spot-confirms the already-transcribed `ἵστωρ` note. **What this closed:** the **603–6 singer crux** — Edwards read first-hand at 2.2h–2.2i, §2.2's FLAG FOR JOHN **restated** on three read authorities instead of two, contradiction 10 logged in §3.4, §8.11 amended; and the **five-layers paragraph in full context** — 3.2n **rewritten** (the claim shrank), 3.2q **new**, 3.2b's second-hand caution **withdrawn**, §3.4's "5" bullet restated, §8.3 amended. **STILL OPEN, and each still blocks something:** (i) **pp. 203–208**, hence Edwards on arrangement — fenced off at 3.2o and untouched by this pass; the reason no structure claim of his is first-hand. A capture lane should go at it with the volume index under "structure" or "design, of shield", and follow the p. 202 "(see below)". (ii) **The dedicated lemma note *ad* 18.481–82.** The capture named `edwards-p202-fivelayers.png` is the **introduction** page, not that note; §8.3 (which layer is decorated) still turns on the lemma note, which would sit near the 478–82 lemmata (roughly printed pp. 209–11). Do not record this item as found. (iii) Printed p. **230** — the middle of the 604–6 note, which carries the attribution of "an excellent recent discussion" (2.2j). Edwards's own verdict does not depend on it; the history of the debate does. (iv) The **507–8n.**, cross-referenced by Edwards at 216 and not transcribed — where he says what the two talents are (2.1c). **PAGINATION CAVEAT, and it applies to every Edwards page number in this dossier.** The printed folio is not legible in any of the captures. The archive viewer's labels are internally consistent — "Page 201 (224/387)", "Page 229 (252/387)", "Page 231 (254/387)", a constant 23-leaf offset — but the earlier transcription lane recorded the five-layers paragraph as **p. 202** where the viewer says **201**. One of the two is off by one. The dossier keeps **202** for continuity with the rows already written; **before anything is published, check the Edwards page numbers against the physical volume.** |
 | ~~Taplin, "Shield of Achilles within the *Iliad*," *G&R* 27 (1980): 1–21~~ | the whole, esp. the footnote on 483 and whatever he says about arrangement | **OBTAINED** — `research-cache/taplin-1980-shield.pdf`, read in full including all 40 notes. Settled: 3.1e (the summary reading is **Fittschen's**, p. 10; the emendation objection is Taplin's, n. 13 — the dossier had it backwards); 3.1h (he adopts **five** concentric circles and disclaims them, p. 5); 3.1i (the two cities are **one** circle, p. 5); 3.1j (the rural scenes are the **four seasons**, pp. 7–9); 2.2g (he leans *for* the ἀοιδός, p. 9, n. 27); 3.2h–3.2l; §1.2's athetesis notes (Solmsen on 535–40, Leaf on 587–9); §8.4 (Lessing, *Laocoon* chs. 17–19) and §8.6 (Marg = *Homer über die Dichtung*). |
 | Fittschen, *Der Schild des Achilleus* (1973) | pp. **1 n. 1, 2, 4–5, 10**, and the reconstruction history entire (28 pp., 8 figs., 10 pls.) | **STILL OPEN, and still the highest-value item for a drawing lane.** The **reconstruction history from the 16th century on** — whether §4's typology is the real taxonomy or my simplification. **Sharpened:** exact pages now known from Taplin 18 n. 5, 19 nn. 9 and 13 and Hardie 18 n. 49, 30 n. 132 (see 3.2g); p. 10 is the locus for 3.1e's Fittschen position, currently cited at one remove. |
 | ~~Hardie, "*Imago Mundi*," *JHS* 105 (1985)~~ | the whole; and the correct **start page** | **OBTAINED** — `research-cache/hardie-1985-imago-mundi.pdf`, read in full including both plates. **START PAGE: 11**, not 12 (cover page, running head and printed folio all agree). Settled: 3.3b; 3.1f–3.1g (the two-group frame, and his denial that the human scenes schematise, p. 11); 1.1d (the ancient five-zone allegory, p. 15); 3.3f (imago mundi is Ovid's phrase, pp. 16–17); 3.3g and **4h–4i** (the ancient layouts, pp. 18–22). |
@@ -676,6 +785,17 @@ exactly as they were, now with the specific unread page named. Items 1, 2, 5, 7,
 created by this very read: a partially-read authority is easier to misquote than
 an unread one.
 
+**Updated a third time 2026-07-30 (later), after the page captures. STILL NOTHING
+IS STRUCK, and that is the honest result rather than a disappointing one.** Item
+**11** (whether 603–6 is complete) is **amended, not closed**: Edwards has now
+been read *ad* 604–6 and he is the one read scholar who does **not** call the text
+defective, so the count of opinions changed and the question did not. Item **3**
+(which layer is decorated) is **amended**: the five-layers paragraph read whole
+offers a reading on which the "which layer" question does not arise, but the
+**dedicated lemma note *ad* 18.481–82 was not the page captured** and is still
+unread. Item **12** picks up one qualification (Edwards does have a
+concentric-bands sentence, 3.2q). Items 1, 2, 5, 7, 8, 9 and 10 are untouched.
+
 1. **Quatremère de Quincy's "eight continuous sequences" and "two circles"**
    (4c). Read from a search synthesis of French sources, not from a page I read in
    full; the Utpictura18 notice I did fetch gives publication data and plate
@@ -695,10 +815,22 @@ an unread one.
    artefact of our reading; it is the oldest recorded question about the object.
    **And now open on the commentary's authority too (2026-07-30):** Edwards, p.
    202, "How the poet thought the shield was actually built up thus remains
-   uncertain" (3.2n). **His dedicated note ad 18.481–82 was not found** — that is
-   the page which would settle whether he commits to a decorated face, and a
-   capture lane is hunting it. Until it is in hand this item stays open; do not
-   read the p. 202 sentence as his last word on it.
+   uncertain" (3.2n). **AMENDED 2026-07-30 (later), from the full page image, and
+   it stays open.** Read whole, Edwards's paragraph does something more interesting
+   than leave the question open: his second and fuller reading of the `πέντε
+   πτύχες` **dissolves** the question rather than answering it. If the five are
+   "the five components which form the surface and its decoration" — bronze, tin,
+   gold, silver, `κύανος` — then, as he says, "**inlay-work can indeed be thought
+   of as 'layers' of different materials, in a different sense from the
+   superimposition of oxhides in a shield**", and there is no stack of five plates
+   for the figures to sit on one of. That is a live option, not a finding: he
+   offers it with "may, however, be", beside the scene-arrangement guess, in a
+   paragraph that says "Probably Homer gave the matter little heed." **And the
+   dedicated lemma note *ad* 18.481–82 was NOT the page captured** — the capture is
+   the introduction page (§7, item ii). So: still do not assert which layer carries
+   the figures; still do not read the p. 202 paragraph as Edwards's last word; and
+   note that Revermann independently makes the decoration inlay (3.2m, §5.3g),
+   which fits Edwards's second reading and is the register §5.4 already leans to.
 4. ~~**Lessing's chapter number.**~~ **SETTLED 2026-07-29: *Laokoon*, chs. 17–19.**
    Taplin cites the point there (19 n. 12) and states it in his own text at p. 5.
    The commonly repeated "XVIII–XIX" was too narrow. Folded into 3.3d.
@@ -744,15 +876,26 @@ an unread one.
     Do not state publicly that our text is the whole of what Homer composed here;
     do not state that a bard belongs on the shield either. The honest public form
     is the caption in §2.2's flag. **This one is John's call, not a lane's.**
-    **STILL OPEN after the partial Edwards read, 2026-07-30 — and the gap is now
-    precisely located.** Revermann 29 n. 3 confirms Edwards has a note *ad*
-    **604–6**; the 2026-07-30 lending session **did not reach it** (the
-    line-by-line notes past p. 218–19, roughly printed pp. 220–230, were not
-    read, and a search-inside for "molpe" and "divine singer" did not isolate the
-    passage). So the third commentator of record is still unheard on the singer,
-    two of the three read scholars call our text defective, and the count of
-    opinions has not changed. **Do not treat 2.2f–2.2g as the whole scholarly
-    field until Edwards ad 604–6 is read** (§7).
+    **AMENDED 2026-07-30 (later) — Edwards *ad* 604–6 is now READ, and the item
+    stays open with its arithmetic changed.** The note was captured as two page
+    images (printed pp. 229 and 231; 2.2h–2.2j) and read first-hand. Result: **the
+    third commentator of record does not agree with the other two.** Edwards holds
+    the ἀοιδός-sentence to have been "added to provide the dancers with music" and
+    𝔓51's instrument-verse "added as an alternative"; he grants that the
+    unaccompanied dance "remains odd" but explains it, tentatively, as "shorter and
+    longer variants of a standard dance-description" — **oral variation, not
+    damage**, and he nowhere writes *lacuna*. So the earlier sentence "two of the
+    three read scholars call our text defective" is now precisely right as
+    arithmetic and **must not be generalised**: it is two of three, and the third
+    is the commentary of record. **What does not change:** do not state publicly
+    that our text is certainly the whole of what Homer composed here — Revermann
+    and Taplin both deny it in print, and Edwards's own "remains odd" concedes the
+    difficulty; and **do not state that a bard belongs on the shield**, which is now
+    2–1 against among read authorities. The honest public form is still the caption
+    in §2.2's restated flag. **This one is John's call, not a lane's.** One reading
+    gap left, and it is small: printed p. **230**, the middle of the note, is
+    uncaptured, so the scholar behind "an excellent recent discussion" is unnamed
+    here (2.2j).
 12. **Do not attribute the `ἴστωρ` identification to Edwards** (NEW, 2026-07-30).
     His 501n. reports "the eventual winner of the two talents" as the view
     "preferred by **Wolff and MacDowell**" and leaves all three candidates — the
@@ -762,4 +905,12 @@ an unread one.
     which is worse than misreporting one we have not. Same caution for the
     comparanda: Edwards's Cretan shields and Phoenician bowls are **technique**
     parallels, not a warrant for concentric bands (3.2f), and his own position on
-    the arrangement of the scenes remains **unread** (3.2o).
+    the arrangement of the scenes remains **unread** (3.2o). **One qualification
+    added 2026-07-30 (later):** he *does* have a first-hand sentence entertaining
+    banded decoration — "Perhaps at one time the decoration followed these
+    concentric bands, though on the shields from Crete the number of bands varies
+    widely" (3.2q). Cite it for the **register** if you like; it cannot support a
+    band **count**, and it is not about the arrangement of the scenes. **And do not
+    attribute a five-zone arrangement to Edwards** (3.2n): the p. 202 remark
+    credits that arrangement to "modern scholars" and offers a competing reading of
+    "five" at greater length.
