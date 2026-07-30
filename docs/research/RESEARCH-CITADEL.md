@@ -690,15 +690,19 @@ Ordered by what each settles.
    map (Spratt 1840 survey, completed 1894), 3489×3501 px at `_w4000.jpg`,
    Grok-verified by download. See RESEARCH-PD-SCAN-HUNTS.md Hunt 3. Belongs to the
    plain dossier, but it is the same PD book.
-5. **Blegen, Caskey and Rawson, *Troy III: The Sixth Settlement* (1953), part 2** — the
-   folded plans of Troy VI. Needed to know whether Blegen's plan supersedes Dörpfeld's Tafel
-   V in any respect that shows at plate scale (his re-attribution of VI h and VI i, his
-   phasing of the circuit). Also **Blegen, *Troy IV: The Seventh Settlement* (1958)** for
-   Troy VIIa.
-6. **US copyright renewal search for Princeton University Press, *Troy* I–IV (1950–58).**
-   Books of those years needed renewal in their 28th year. If any volume was not renewed it
-   is PD in the US and its plans become available to us outright. Catalog of Copyright
-   Entries / Stanford Copyright Renewal Database. **Do not assume either way.**
+5. ~~**Blegen, Caskey and Rawson, *Troy III: The Sixth Settlement* (1953), part 2**~~
+   **CLOSED BY SCOPE (John, 2026-07-30 16:53): "if Blegen isn't needed for literary
+   purposes, let's not be captured by scholarly drift into archeology."** The reader's
+   plate (Plate A) traces Dörpfeld; Blegen's re-attributions and phasing are
+   archaeology-internal refinements that do not change what a Homer reader sees. Do not
+   re-flag. (Renewal search ran 2026-07-30 anyway, see item 6 — I–III renewed, so the
+   question was moot in law as well as in scope.)
+6. ~~**US copyright renewal search for Princeton University Press, *Troy* I–IV (1950–58).**~~
+   **DONE (2026-07-30):** vols. I–III RENEWED (RE116 1978; RE14031 1979; RE107295 1981)
+   — in US copyright to c. 2045–48, plates included. Vol. IV (1958): no renewal found in
+   CPRS; the Stanford cross-check sits behind a human-verification gate and was not run.
+   **Moot by the same scope ruling** — treat all four as in-copyright and move on.
+   Full record: `research-cache/blegen-renewal-search-notes.md`.
 7. **Rose, *The Archaeology of Greek and Roman Troy* (2014)** — the list of illustrations,
    to know which plans it reproduces and from whom.
 8. **UNESCO 849**: the 1998 nomination PDF and the 2009 "Troia, scale 1:5000" map from
