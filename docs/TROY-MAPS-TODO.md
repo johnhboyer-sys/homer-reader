@@ -90,12 +90,37 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
    `research-cache/kayan-1991-besik-plain-studia-troica-1.pdf`; volume
    Abb. 17–23 still outstanding, low priority). His academia.edu profile
    (https://ege.academia.edu/IlhanKayan) carries the whole remaining
-   want-list — John to click-download: (11) Rapp & Gifford 1982 chapter;
-   (30) "Bronze Age regression" = Kayan 1997b; (24) Troia Bay 1995;
-   (29) Karamenderes–Dümrek 1996; "The water supply of Troia" 2000;
-   plus (70) Kesik/Alacalıgöl ST 18; (17) Late Holocene Sea-Level W
-   Anatolia; QSR 1999 synthesis; (51) western-footslope reconstruction.
-   Only true ILL left: Janko vol. IV.**
+   want-list — John to click-download.**
+
+   **UPDATE 11:20 — THE CLICK-LIST LANDED (11:17–11:20) AND IS EXTRACTED.**
+   All seven read in full the same day, each with an extraction note in
+   `research-cache/`, integrated into
+   `docs/research/RESEARCH-PALEOGEOGRAPHY.md` (and, for the 2000 paper,
+   `RESEARCH-TROAD-TOPOGRAPHY.md` §6.8):
+   - (11) Rapp & Gifford 1982 chapter — ✅
+   - (17) Late Holocene sea-level, W Anatolia (1988) — ✅
+   - (24) Troia Bay 1995 — ✅
+   - (29) Karamenderes–Dümrek 1996 — ✅
+   - (30) "Bronze Age regression" 1997 — ✅ *(it is the NATO ASI volume
+     chapter, Dalfes/Kukla/Weiss, 431–50)*
+   - "The water supply of Troia" 2000 — ✅
+   - (51) western-footslope reconstruction 2002 — ✅
+
+   **STILL WANTED from the profile:** (70) Kesik/Alacalıgöl, *Studia
+   Troica* 18 (2009); the QSR 1999 synthesis. **NEW want, arising from the
+   1997 extraction:** Kayan, "Geomorphological Evolution of the Çıplak
+   Valley…," *Studia Troica* 7 (1997): 489–507 — the remaining candidate for
+   the "Kayan 1997a/b" that may carry the tectonic argument the NATO 1997
+   chapter argues against (PALEOGEOGRAPHY §5 item 15, §6).
+   **Only true ILL left: Janko vol. IV.**
+
+   **One finding from this wave that touches a ruling: D6.** The plate note
+   leads with "the Achaean wall and ditch itself (Kraft, Rapp, Kayan & Luce
+   2003, citing Luce 1998)". That paper in fact cites **Kayan 1995** for it —
+   and Kayan 1995, now read cover to cover, contains no wall, no ditch, no
+   Nestor and no *Iliad* fortification. The reading survives only on **Luce
+   1998**, which is still unread. D6 stands as a ruling; the note's
+   attribution needs the correction (PALEOGEOGRAPHY §1.9, §6).
 2. **Decisions queued from the research** (each with its evidence table in
    the named dossier):
    a. Left/right labelling: the axis holds, the sense is undecidable

@@ -1123,6 +1123,70 @@ that Homer's springs were transferred from Ida" citing p. 293**; write that Rich
 him doubting it, or read p. 293. The book is borrowable for another twelve days; this is the
 cheapest open item in the file.
 
+### 6.8 Kayan 2000 raised the buried-hot-spring hypothesis; the CATENA survey closes it
+
+**claim:** the geologist of the Troia project stated the negative twenty years
+before the hydrochemists did, named the *same* two regional thermal systems the
+CATENA paper later uses for comparison, and left one door open which the CATENA
+fieldwork then shuts. This is a clean before/after pair and should be cited as
+one.
+
+**Before — Kayan 2000, 141, verbatim and entire:**
+
+> "The relationship between the springs and the fault lines suggests that some
+> hot springs existed in this area. In fact, there are some well-known hot
+> springs on the other main fault zones of the region. **The Kestanbol and Tuzla
+> hot springs to the south of Alexandria Troas are the nearest examples.** In the
+> Iliad Homer mentions hot and cold springs, **although there are no hot springs
+> today in the vicinity of Troia**. This may be because of thick alluvial
+> sedimentation along the base of the slopes. It can be assumed that some
+> warm-water may have continually come from rather small springs beneath the
+> alluvium, **which is about 10–15 m thick in some places**. This water may be
+> diffuse in the loose alluvium and mixed into the present water-table. It may
+> therefore not be possible to find it on the surface (figs. 5 and 6)."
+
+**After — Wolkersdorfer et al. 2021, 9** (§6.2, already in this file): "there
+most probably never was a hot, thermal spring in or around the 'Troia National
+Park' because the characteristic scalings and the elevated reservoir temperatures
+cannot be found."
+
+**What each does.** Kayan reaches the *observational* negative — no hot spring
+exists there now — on purely geological reasoning, and then offers a **mechanism
+by which one could still be hidden**: buried under 10–15 m of alluvium, diffused
+into the water table, "not possible to find it on the surface". The CATENA survey
+tests exactly that hypothesis with instruments Kayan did not deploy — 627
+sampling locations, scaling mineralogy, geothermometry (§6.1) — and finds no
+trace of a vanished thermal system. **Kayan opens the door; CATENA closes it.**
+The two are not two witnesses to one finding: they are a hypothesis and its test.
+
+**Kestanbol and Tuzla are the same two systems in both papers.** Kayan names them
+as "the nearest examples" of real regional hot springs; CATENA §6.1 gives them as
+25 km and 44 km south of Hisarlık respectively. So the scale of the comparison —
+the nearest genuine thermal water is tens of kilometres away — is agreed across
+twenty years and two methods.
+
+**One thing this passage is not.** Kayan's springs elsewhere in the paper are the
+**Pınarbaşı/Kırk Göz and Düden** groups (140–41), "about **17 m higher than
+present sea level**", which his drilling puts "about **10–15 m below the current
+surface**" in the mid-Holocene — a geological account of why a line of springs
+could have existed and been buried. That is about Pınarbaşı, the Lechevalier
+candidate site (§6.3, §6.7), **not about Hisarlık**, and the passage attaches no
+temperature claim and no Homeric identification to those two groups.
+
+**citation:** Kayan, İlhan. "The Water Supply of Troia." *Studia Troica* 10
+(2000): 135–44, at 140–41. Mainz am Rhein: Verlag Philipp von Zabern.
+**authority kind:** prose (a hypothesis, hedged in its own words — "may be", "can
+be assumed", "may therefore not be possible"), with **geometry** for the 17 m
+elevation and the 10–15 m alluvium thickness, both borehole-derived.
+**verified how:** full text read 2026-07-30 from
+`research-cache/kayan-2000-water-supply-troia-studia-troica-10.pdf`; extraction
+note at `research-cache/kayan-2000-water-supply-notes.md`. Page range 135–44
+confirmed against the volume's own table of contents.
+**do not claim:** the geometric relationship between the Pınarbaşı and Düden
+groups. Kayan writes that "many springs would be seen along the line between the
+two spring points" if 15 m of alluvium were stripped, but gives **no bearing and
+no distance**, and his figures were not measured for this entry.
+
 ---
 
 ## 7. Two identifications the gazetteer does not currently name

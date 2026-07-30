@@ -8,6 +8,32 @@ origin and kills the "1.2 km, Kraft" attribution); Taplin 1980 (item 12);
 Hardie 1985 (item 21 — start page settled: 11); Revermann 1998 (item 21);
 Tsagalis 2012 notes (free CHS text, needed a real browser).
 
+**OBTAINED, second wave (2026-07-30, 11:17–11:20) — the Kayan click-list from
+his [academia.edu profile](https://ege.academia.edu/IlhanKayan), all seven read
+in full and extracted the same day.** Each has an extraction note in
+`research-cache/`; all seven feed PALEOGEOGRAPHY, and one also feeds
+TROAD-TOPOGRAPHY.
+
+| queue item | source | notes file | consumed by |
+|---|---|---|---|
+| **8** ✅ | Kraft, Kayan & Erol 1982, in Rapp & Gifford, 11–41 | `kayan-1982-notes.md` | PALEOGEOGRAPHY §1.2, §1.5a, §1.9, §1.10, §1.11c |
+| **16** ✅ (part) | Kayan, *Studia Troica* 5 (1995): 211–35 | `kayan-1995-troia-bay-notes.md` | PALEOGEOGRAPHY §1.9, §1.5a, §1.8 |
+| **16** ✅ (part) | Kayan, *Studia Troica* 6 (1996): 239–49 | `kayan-1996-st6-notes.md` | PALEOGEOGRAPHY §1.5b, §2 |
+| — ✅ | Kayan, *PPP* 68 (1988): 205–18 | `kayan-1988-sea-level-notes.md` | PALEOGEOGRAPHY §1.5b |
+| — ✅ | Kayan 1997, NATO ASI I/49 (Springer), 431–50 | `kayan-1997-regression-notes.md` | PALEOGEOGRAPHY §1.5a, §1.5b, §1.8, §6 |
+| — ✅ | Kayan, *Studia Troica* 10 (2000): 135–44 | `kayan-2000-water-supply-notes.md` | TROAD-TOPOGRAPHY §6.8 (and nothing for PALEOGEOGRAPHY) |
+| — ✅ | Kayan 2002, *Mauerschau* 3, 993–1004 | `kayan-2002-footslope-notes.md` | PALEOGEOGRAPHY §1.4b, §1.5a, §1.5b |
+
+**Item 16 is NOT closed:** its *Studia Troica* **18 (2009): 105–28** component
+(Kesik/Alacalıgöl) is still outstanding, and so is **Kayan 1991** as a queue
+entry — though the 1991 offprint was acquired separately the same morning.
+
+**NEW WANT arising from this wave:** Kayan, "Geomorphological Evolution of the
+Çıplak Valley…," *Studia Troica* 7 (1997): 489–507. It is the only other 1997
+Kayan title in any bibliography seen, and it is the remaining candidate for the
+"Kayan 1997b" that Kayan et al. 2003, 387 cites for a **tectonic** cause — a
+mechanism the NATO 1997 chapter argues against. → PALEOGEOGRAPHY §5 item 15, §6.
+
 **BLOCKED — needs John's own click** (full access confirmed, but Chrome's PDF
 viewer ignores automated download clicks): the CATENA paper + erratum
 (item 13) — both render fine in the proxied ScienceDirect tabs; two manual
@@ -56,9 +82,10 @@ only — never committed, never republished.
 
 ## Tier 2 — high value
 
-8. **Kraft, Kayan & Erol 1982**, in Rapp & Gifford, *Troy: The Archaeological
-   Geology*, 11–41 — the map series behind the 1980 *Science* paper.
-   → PALEOGEOGRAPHY.
+8. ✅ **ACQUIRED AND READ 2026-07-30 — Kraft, Kayan & Erol 1982**, in Rapp &
+   Gifford, *Troy: The Archaeological Geology*, 11–41. Note that what it does
+   **not** contain is the core logs (the volume's appendices, pp. 141–197, are
+   outside the copy obtained). → PALEOGEOGRAPHY §1.2.
 9. **Kraft, Kayan, Brückner & Rapp 2003**, *Troia and the Troad*, 361–77.
    → PALEOGEOGRAPHY.
 10. **Kayan et al. 2003**, same volume, 379–401 (fig. 6 at 396; pp. 400–401).
@@ -80,8 +107,10 @@ only — never committed, never republished.
 
 ## Tier 3 — completes the record
 
-16. Kayan, *Studia Troica* 1 (1991): 79–92; 5 (1995): 211–35; 6; 18; and
-    Kayan 2009: 105–28. → PALEOGEOGRAPHY.
+16. Kayan, *Studia Troica* 1 (1991): 79–92 *(offprint acquired 2026-07-30)*;
+    ✅ 5 (1995): 211–35 **read**; ✅ 6 (1996): 239–49 **read**; **18 (2009):
+    105–28 — STILL OUTSTANDING, and now the only unread item in this row.**
+    → PALEOGEOGRAPHY.
 17. Luce 1984, *OJA* 3(1): 31–43 (body + map) and Luce 2003, *Troia and the
     Troad*, 9–30. → PALEOGEOGRAPHY.
 18. Blegen, *Troy* III part 2 and IV — the plans; plus **a US copyright
