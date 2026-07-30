@@ -20,6 +20,12 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
   most recently published scholarly placement wins the camera** — currently
   the 2003 Kraft/Rapp/Kayan/Luce outer-ridge camp — and the caption names
   whose placement is framed. Later scholarship supersedes automatically.
+- **D6 — DECIDED (09:28): draw the Kesik cut; the note LEADS with "the
+  Achaean wall and ditch itself" (Kraft, Rapp, Kayan & Luce 2003, citing
+  Luce 1998), then the other readings as the hedge** (harbour candidate,
+  2003a; undecided/unfinished canal, Kayan's own 2003 chapter; late-Roman
+  drainage never completed, Cook 1973, 166-67). Feature certain,
+  identification speculative, every reading attributed.
 - **D2, D3, D7, D8, D13 — ALL settled-by-evidence items CONFIRMED**
   (John, 09:26): wagon gate captioned without a side-word; no schematic
   scale bar (pyre keeps its cited 100-ft label); shore-bronze note
