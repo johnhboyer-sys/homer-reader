@@ -55,6 +55,13 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
   the plate note carries the published facts (~700 m traced, under 3 m
   wide, ~1.5 m deep, southern gate passage; Blindow/Huebner/Jansen 2014,
   cited, its line untraceable under copyright).
+- **D5 — DECIDED (09:39): Option A, conditional on the in-flight Grok
+  verification of the Kayan 2014 figure-reading.** Remove the
+  Scamander-front barrier-bronze (refuted at the Iliad's horizon by Kayan
+  390 and Geology 2003, 164); add the Besik barrier-lagoon from Kayan
+  2014 Figs. 6-7 (dated "around the period of Troia VI", drawn in plan
+  and section). Condition drops when the verification returns clean;
+  reopens if it faults the figure reading.
 - **D16 — DEFERRED** until John can sit with the dossiers (chryse,
   dardania, thymbra).
 - **D2, D3, D7, D8, D13 — ALL settled-by-evidence items CONFIRMED**
