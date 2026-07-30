@@ -11,6 +11,19 @@ PDFs (`research-cache/`), read in full, and folded in. Sections touched: 0, 1.1,
 should not miss: the **start page of Hardie is 11**; §3.1e's attribution was
 **backwards** and is fixed; and §2.2 now carries a **FLAG FOR JOHN** on the
 singer.
+**Revised again:** 2026-07-30 — **Edwards vol. V partially read**, via the
+archive.org controlled-digital-lending copy, transcribed to
+`research-cache/edwards-vol5-notes.md` (borrow session 2026-07-30, identifier
+`iliadcommentary0005unse`). Sections touched: 0, 1.2, 2.1, 3.2, 3.4, 7, 8.
+Three things a reader should not miss: the trial-scene crux is now **read
+authority, and Edwards does not resolve it** — he reports the winner-of-the-talents
+view as "preferred by Wolff and MacDowell" without endorsing it (2.1h–2.1j); on
+**18.509 Edwards and Taplin genuinely disagree**, read against read — one besieged
+city attacked on two sides (Edwards) against two besieging armies of obscure
+relation (Taplin), and the plate has to draw one or the other (3.2c, 3.2h, and
+the note under §1.2); and Edwards's **own** account of how the scenes are
+arranged on the disc is **still unread**, so no Schmiel-derived structure claim
+gets promoted (3.2o).
 
 Every claim below carries an **authority kind** — `geometry` (compositional
 structure: what goes where on the disc), `identification` (what a thing is), or
@@ -42,12 +55,35 @@ web resources.
   `research-cache/revermann-1998-text-iliad.pdf`. Claims sourced to them now
   carry page numbers and a first-hand `verified how`, and where they correct
   what this dossier said second-hand the correction is marked in place.
-  **Edwards vol. V and Fittschen 1973 remain unread**; everything resting on
+  **Fittschen 1973 remains unread, and Edwards vol. V is only PARTIALLY read
+  (2026-07-30 — see the bullet below and §7)**; everything resting on
   them is still second-hand and still listed in §7. Nothing was inferred from a
   title.
+- **Edwards vol. V: PARTIALLY read, 2026-07-30 — and the partiality is
+  load-bearing, not a formality.** Obtained through archive.org's
+  controlled-digital-lending programme (identifier `iliadcommentary0005unse`,
+  borrow session 2026-07-30) and transcribed from page images to
+  `research-cache/edwards-vol5-notes.md`, printed page numbers recorded, brief
+  quotation only — no scan or transcription of the volume is committed to this
+  repo, and nothing of it is republished. **What is read:** the trial-scene notes
+  at **pp. 213–17** (the general note on 497–508, the 497 lemma, the 498–500
+  reading, the 501n. on the `ἴστωρ`) and the **509n. at p. 218**. **What is
+  partial:** the Shield introduction at **pp. 200–209** — the "Construction and
+  technique" subsection (pp. 200–203) and the opening of "Subject-matter of the
+  scenes" (p. 208) were read; **pp. 203–208 were only partly checked**, and the
+  "(see below)" cross-reference at p. 202 to a scholarly reconstruction of the
+  scene arrangement **was not run down**. **What is missing entirely:** the lemma
+  notes on **18.481–82** (the five layers) and on **18.603–6** (the singer crux),
+  neither located — a capture lane is hunting both. Consequence for this dossier:
+  claims sourced to the read pages are now first-hand; everything else about
+  Edwards, **including his own position on the arrangement of the scenes**, stays
+  second-hand through Schmiel and is marked so in place (3.2o). Page captures are
+  being made into `research-cache/page-captures/` concurrently; every row below
+  cites the notes file, not a capture.
 - I did not consult the print Landmark series (excluded by CLAUDE.md) and did not
   read any pirated scan of Edwards vol. V; the one such host I opened
-  (`vdoc.pub`) stops inside Book 17 and gave nothing.
+  (`vdoc.pub`) stops inside Book 17 and gave nothing. The lending copy above is
+  not that — it is a library loan of a physical copy, one borrower at a time.
 
 ---
 
@@ -80,7 +116,7 @@ containing two members, the second introduced by `Τὴν δ' ἑτέρην πό
 |---|---|---|---|---|
 | 1 | **483–489** | 7 | `Ἐν μὲν γαῖαν ἔτευξ', ἐν δ' οὐρανόν, ἐν δὲ θάλασσαν,` | Earth, sky, sea; tireless Sun and full Moon; **named** constellations — Pleiades, Hyades, the might of Orion, and the Bear "which they also call the Wain", which turns in place watching Orion and alone has no share in Ocean's baths (487–89). Four named star-groups, not a generic star-field. |
 | 2a | **490–508** | 19 | `Ἐν δὲ δύω ποίησε πόλεις μερόπων ἀνθρώπων` / `ἐν τῇ μέν ῥα γάμοι` | City at peace, two simultaneous events: (i) **wedding**, 491–96 — brides led from their chambers under blazing torches, `πολὺς … ὑμέναιος`, whirling boy-dancers, pipes and lyres sounding, women standing in wonder each at her own porch-door (`ἐπὶ προθύροισιν ἑκάστη`); (ii) **lawsuit**, 497–508 — see §2.1. |
-| 2b | **509–540** | 32 | `Τὴν δ' ἑτέρην πόλιν ἀμφὶ δύω στρατοὶ ἥατο λαῶν` | City at war — the **longest scene by far**. Besiegers in flashing armour, split in counsel (sack it, or halve the property); wives, small children and old men holding the **wall** (514–15); the sortie led by **Ares and Pallas Athene, both gold, in gold clothing, tall and beautiful and conspicuous, while the people were smaller** (516–19 — an explicit scale hierarchy, the one composition instruction the poem gives); **ambush at the river** where the watering-place is (520–22); two scouts apart, waiting for flocks and cattle (523–24); shepherds piping, foreseeing nothing (525–26); the raid, the killing of the herdsmen (527–29); the besieged mount and ride out (530–32); **battle along the river banks** (533–34); Strife, Tumult and deadly Fate among them, Fate dragging one dead man by the feet, her garment blood-red (535–38); "they mingled and fought like living mortals, and dragged away each other's dead" (539–40). |
+| 2b | **509–540** | 32 | `Τὴν δ' ἑτέρην πόλιν ἀμφὶ δύω στρατοὶ ἥατο λαῶν` | City at war — the **longest scene by far**. **How many attacking forces to draw is now disputed by two scholars both read first-hand — see the note below this table, and 3.2c against 3.2h.** Besiegers in flashing armour, split in counsel (sack it, or halve the property); wives, small children and old men holding the **wall** (514–15); the sortie led by **Ares and Pallas Athene, both gold, in gold clothing, tall and beautiful and conspicuous, while the people were smaller** (516–19 — an explicit scale hierarchy, the one composition instruction the poem gives); **ambush at the river** where the watering-place is (520–22); two scouts apart, waiting for flocks and cattle (523–24); shepherds piping, foreseeing nothing (525–26); the raid, the killing of the herdsmen (527–29); the besieged mount and ride out (530–32); **battle along the river banks** (533–34); Strife, Tumult and deadly Fate among them, Fate dragging one dead man by the feet, her garment blood-red (535–38); "they mingled and fought like living mortals, and dragged away each other's dead" (539–40). |
 | 3 | **541–549** | 9 | `Ἐν δ' ἐτίθει νειὸν μαλακὴν πίειραν ἄρουραν` | Ploughing. Wide, thrice-worked fallow; many ploughmen wheeling teams "this way and that"; at each headland (`τέλσον`) a man puts a cup of honey-sweet wine in their hands and they turn back down the furrows; **the ground darkens behind the plough and looks like ploughed earth although it is gold — `τὸ δὴ περὶ θαῦμα τέτυκτο`** (548–49). |
 | 4 | **550–560** | 11 | `Ἐν δ' ἐτίθει τέμενος βασιλήϊον· ἔνθα δ' ἔριθοι` | The king's `τέμενος` at harvest. Hired reapers with sharp sickles; swathes falling in rows; three binders behind them; boys gathering armfuls and handing them up unceasingly; **the king standing among them in silence, sceptre in hand, at the swathe, glad at heart** (556–57); heralds apart under an **oak** preparing the meal, having sacrificed a great ox; women sprinkling much white barley for the reapers' dinner. |
 | 5 | **561–572** | 12 | `Ἐν δ' ἐτίθει σταφυλῇσι μέγα βρίθουσαν ἀλωὴν` | Vineyard heavy with grapes, **beautiful and golden**; the clusters **dark** (`μέλανες … βότρυες`); it stood on **silver poles**; round it a **κυάνεος ditch** and a **fence of tin**; **one single path** for the carriers at vintage; girls and youths carrying the honey-sweet fruit in plaited baskets; **and in their midst a boy playing a clear-toned lyre and singing the Λίνος** in a delicate voice, the rest beating the ground in time, following with dance and shouting (569–72). |
@@ -90,6 +126,25 @@ containing two members, the second introduced by `Τὴν δ' ἑτέρην πό
 | 9 | **607–608** | 2 | `Ἐν δ' ἐτίθει ποταμοῖο μέγα σθένος Ὠκεανοῖο` | The great strength of the river Ocean, **`ἄντυγα πὰρ πυμάτην σάκεος πύκα ποιητοῖο`** — along the outermost rim. |
 
 Arithmetic check: 483–608 = 126 lines; 7+19+32+9+11+12+14+3+17+2 = 126. ✔
+
+**The city at war (509): how many attacking forces get drawn — a read-vs-read
+disagreement, recorded not harmonised (new 2026-07-30).** The line says
+`ἀμφὶ δύω στρατοὶ ἥατο λαῶν`, and the two scholars who have now been read on it
+in their own words take it two different ways. **Taplin:** "On the shield there
+are *two* besieging armies (their relation to each other is obscure), but like
+the Achaeans they are not agreed among themselves" (Taplin 6; 3.2h). **Edwards:**
+one besieged city with the enemy on either side of it — the description "seems to
+be based on a two-dimensional representation in which the besieged city appeared
+with the enemy forces on either side, as on the silver dish from Amathus," and
+`στρατός` can mean 'band', 'troop', "so the meaning here may be simply 'two
+forces of (armed) men' or 'two camps', **not necessarily two distinct armies**"
+(Edwards 218, ad 509; 3.2c). This is a **figuration decision, not a caption
+decision**: on Taplin the plate draws two armies and leaves their relation
+undrawn; on Edwards it draws one siege ring split left and right of the walls.
+Both are read authority; neither can be called the consensus; the plate must pick
+one and name whom it followed in `sources`. What is *not* in dispute and holds
+under either reading: one city, walls held by wives, small children and old men
+(514–15), and the sortie led by Ares and Athene at larger scale (516–19).
 
 **Brief correction (small, load-bearing for the plate's `lines` field):** the
 Ocean is **607–608**, not 606–7. The task brief said "606-7 Ocean at the rim";
@@ -188,16 +243,31 @@ staff** (505) and giving judgement **in turn** (`ἀμοιβηδὶς δὲ δί
 |---|---|---|---|---|
 | 2.1a | The elders sit in a **sacred circle** on **dressed stone** — a real, drawable furnishing, not a metaphor. | geometry | Il. 18.504 | Corpus |
 | 2.1b | The talents lie **`ἐν μέσσοισι`** — in the middle of the elders' circle, not between the litigants. | geometry | Il. 18.507 | Corpus |
-| 2.1c | **Crux, open.** What the two talents *are*: the prevailing reading is a **prize for whichever elder speaks the straightest judgement** (taking 508 `τῷ δόμεν ὃς … δίκην ἰθύντατα εἴποι` of the elders); the competing reading makes them the sum at issue / a deposit by the litigants, in which case they are the *stake*, not a *fee*. | identification | Nicholas Swift, "The Shield of Achilles: Iliad 18.478–608," [Aoidoi.org](http://www.aoidoi.org/poets/homer/il/shield.pdf), October 2005 (CC BY-SA 2.0) — reports the prize reading and lists three candidate referents for `ἴστωρ` | Fetched the document's content and its licence statement; the PDF host's TLS chain fails, so read via the mirrored copy at [yumpu](https://www.yumpu.com/en/document/view/4005917/the-shield-of-achilles-iliad-18478-608-aoidoiorg) |
+| 2.1c | **Crux, open.** What the two talents *are*: the prevailing reading is a **prize for whichever elder speaks the straightest judgement** (taking 508 `τῷ δόμεν ὃς … δίκην ἰθύντατα εἴποι` of the elders); the competing reading makes them the sum at issue / a deposit by the litigants, in which case they are the *stake*, not a *fee*. **Second-hand no longer, and still open — see 2.1j:** Edwards, read first-hand, treats "the eventual winner of the two talents" as a live candidate for the `ἴστωρ` and cross-refers his own **507–8n.** for what the talents are. That note **was not transcribed** (§7), so Edwards's page on the talents themselves is still unread. | identification | Nicholas Swift, "The Shield of Achilles: Iliad 18.478–608," [Aoidoi.org](http://www.aoidoi.org/poets/homer/il/shield.pdf), October 2005 (CC BY-SA 2.0) — reports the prize reading and lists three candidate referents for `ἴστωρ` | Fetched the document's content and its licence statement; the PDF host's TLS chain fails, so read via the mirrored copy at [yumpu](https://www.yumpu.com/en/document/view/4005917/the-shield-of-achilles-iliad-18478-608-aoidoiorg) |
 | 2.1d | **Crux, open.** What the case is *about*: (i) a question of **fact** — has the blood-price been paid or not (`ὃ μὲν εὔχετο πάντ' ἀποδοῦναι … ὃ δ' ἀναίνετο μηδὲν ἑλέσθαι`); or (ii) a question of **law** — whether a feud may be commuted to compensation at all. The choice changes who the two men are and how they stand. | identification | The controversy and both alternatives are stated in the abstract of the open-access paper "Blood-money in Homer — role of *istor* in the trial scene on the shield of Achilles (Il. 18, 497–508)" ([ResearchGate record](https://www.researchgate.net/publication/321920687_Blood-money_in_homer_-_role_of_istor_in_the_trial_scene_on_the_shield_of_Achilles_Il_18_497-508)) | Read the abstract via web search result summary; **full text not read** — see §7 |
-| 2.1e | **Crux, open.** Who decides: the assembled people, the elders collectively, or the single `ἴστωρ` of 501. Cunliffe's own gloss cannot arbitrate — see the data gap in §6. | identification | as 2.1d | as 2.1d |
+| 2.1e | **Crux, open.** Who decides: the assembled people, the elders collectively, or the single `ἴστωρ` of 501. Cunliffe's own gloss cannot arbitrate — see the data gap in §6. **Related but distinct read authority: Edwards's 501n. poses a DIFFERENT three-way — not "who decides" but "who the `ἴστωρ` is" (elders as a body / presiding officer / eventual winner of the talents) — and leaves it standing (2.1j). The who-decides question of this row remains open on its own terms** (bridge corrected at Grok verification, 2026-07-30 — an earlier draft conflated the two triads). | identification | as 2.1d, **superseded as the primary source by 2.1j** | as 2.1d |
 | 2.1f | `δίκη` at 18.508 is Cunliffe's sense 3, **"a judgement or doom"** — not "justice" in the abstract and not "lawsuit". `δικάζω` at 506 is "to pronounce judgment, give a decision". | identification | Cunliffe, *Lexicon*, s.vv. δίκη (sense 3, citing Il. 18.508), δικάζω (sense 1, citing Il. 18.506) | Queried `build/dist/cunliffe/d.json` |
 | 2.1g | **Taplin, read in full, does not settle 2.1c–2.1e** — he sets the legal crux aside deliberately: "There has been much discussion of the precise legal problem and procedure here. What matters for present purposes is that we have the stable justice of a civilized city." So the two talents and the `ἴστωρ` stay open, and the plate's caption still carries them. What he *does* add is drawable: `δίκη` at 508 is used "in a sense similar to that in the famous 'Hesiodic' simile at 16.384 ff. **Here is no vendetta** or the perilous exile which Homer and his audience associated with a murderer in the age of heroes. We have, rather, **arbitrators, speeches on both sides, and considered judgements**." The sceptre at 505 is "the symbol of a well-ordered hierarchy". And the `ξεστοὶ λίθοι` of 504 carry Homeric comparanda that fix what they look like: the epithet describes the masonry of Priam's palace (Il. 6.242ff.) and the palace of Zeus (Il. 20.11), and above all the council-stones of Pylos where Nestor sits — "white stones, with a shine on them that glistened" (Od. 3.406–8; cf. Od. 8.6f.). **Draw them as dressed, polished, light-coloured seats**, not field boulders. | identification | Taplin, "Shield of Achilles within the *Iliad*," 6 | **Read in full**, `research-cache/taplin-1980-shield.pdf`; the Homeric parallels re-read in corpus |
+| 2.1h | **The crux is a crux on the standard commentary's own authority, no longer only on a web edition's.** Edwards's general note on 497–508: "Organized communal life is further illustrated by the representation of the legal proceedings in the case of a man's killing. **There is much dispute over what the legal issue is and what roles are played by the ἵστωρ, the elders, and the golden talents displayed.**" All three of 2.1c, 2.1d and 2.1e are named as disputed by the commentary of record. The plate's caption may now say "much disputed" and cite Edwards for it. | identification | Edwards, *Iliad* vol. 5, 213 (general note ad 18.497–508) | **Read first-hand via controlled digital lending** (archive.org copy `iliadcommentary0005unse`, borrow session 2026-07-30); transcribed at `research-cache/edwards-vol5-notes.md` §2, quoting printed p. 213 |
+| 2.1i | **What Edwards himself does commit to: the litigants' two claims (2.1d).** His 498–500n.: "The straightforward interpretation of the two statements, closest to the normal meaning of the words, would thus be: 'The one man was claiming (to be able, to have a right) **to pay everything** (i.e. to be free of other penalties), the other **refused to accept anything** (i.e. any pecuniary recompense in place of the exile or death of the offender).'" That is 2.1d's alternative (ii) — a question of *law*, whether the feud may be commuted for money at all — not (i), whether a payment was in fact made. **Drawing consequence:** the two men are not a debtor and a creditor arguing over a receipt; one offers full composition and the other refuses money outright. Draw them as opposed, not as one presenting evidence. Also from p. 214, useful for the setting: `λαοί` at 497 = the citizens, distinguished from the women of the preceding sentence, and `ἀγορή` there is "probably … 'meeting-place'", the place and not the assembly. | identification | Edwards, *Iliad* vol. 5, 214 (ad 18.497 and 498–500) | as 2.1h, quoting printed p. 214 |
+| 2.1j | **THE `ἴστωρ`, first-hand — and Edwards does not resolve it.** His 501n.: `ἵστωρ` is usually derived from the root of `οἶδα` (Chantraine), "'one who sees and knows (what is right)', or perhaps (Wolff …) 'one familiar with the facts'"; the scholia's and a Boeotian inscription's "witness" "does not fit well here"; E. D. Floyd (*Glotta* 68 [1990]: 157–66) instead derives it from `ἵζειν` and reads "**convener**". Then the operative sentences: "**Here it is not clear if the reference is to the elders as a body, to their presiding officer (if any), or to the eventual winner of the two talents (see 507–8n.). The last view is preferred by Wolff and MacDowell.**" **Read this precisely: Edwards reports the winner-of-the-talents identification as the preference of Wolff and MacDowell; he does not adopt it, and he leaves all three candidates standing.** Comparanda he supplies, both drawable-adjacent: Idomeneus proposes Agamemnon as `ἵστωρ` to arbitrate against Aias (Il. 23.486), and Hesiod uses the word in the general sense "wise" (*Erga* 792); the recourse to arbitration resembles Menelaos's at Il. 23.573–8. (One transcription detail, flagged not resolved: the notes render Edwards's lemma with a rough breathing, `ἵστωρ`, where Allen's text we print has `ἴστορι` at 18.501 — a breathing discrepancy in the transcription, with no bearing on any claim here.) | identification | Edwards, *Iliad* vol. 5, 216 (ad 18.501), citing Chantraine (s.v., short-cited in the note); Wolff, at 38; and MacDowell (short-cited); against E. D. Floyd, *Glotta* 68 (1990): 157–66 (titles beyond the notes' short forms not expanded — the full references sit on an untranscribed page, §7) | as 2.1h, quoting printed p. 216. **Wolff's and MacDowell's works are cited by Edwards in short form ("Wolff, *op. cit.* 38"); the full references sit on an earlier page not transcribed — see §7** |
 
 **Drawing consequence.** The scene is drawable at full confidence except for one
 object's *meaning*: the two talents. Draw them where the text puts them (in the
 middle of the circle) and let the caption carry the crux. Do **not** resolve it by
 placing them in a litigant's hand or in a herald's.
+
+**Authority upgrade, 2026-07-30 — and what it changes and does not.** The legal
+crux is no longer carried by a web edition (Swift) and a paper read only in
+abstract; the standard commentary now states it in its own words at pp. 213–16
+(2.1h–2.1j). **What changed:** the dispute is citable to Edwards; the litigants'
+positions have his preferred construal behind them (2.1i); and the `ἴστωρ`
+question has his exact three-way alternative. **What did not change: nothing is
+resolved.** Two talents still lie `ἐν μέσσοισι`, still uninterpreted by the plate.
+And note what would be an error: attributing the winner-of-the-talents view **to
+Edwards**. He attributes it to Wolff and MacDowell. Any line in a caption or a
+`sources` field that reads "Edwards identifies the `ἴστωρ` as the winner of the
+talents" is wrong.
 
 ### 2.2 The singer among the dancers (18.603–606) — and why our own line numbers are ragged
 
@@ -286,19 +356,34 @@ notes that the vintage dance is the one Shield dance that *is* accompanied
 
 | # | Claim | Kind | Citation | Verified how |
 |---|---|---|---|---|
-| 3.2a | Edwards gives the shield a **ten-page introduction, pp. 200–209**, much of it on physical construction. | prose | Mark W. Edwards, *The Iliad: A Commentary*, vol. 5, *Books 17–20* (Cambridge: Cambridge University Press, 1991), 200–209 | **Second-hand**: Robert Schmiel, review of Edwards vol. 5, [*Bryn Mawr Classical Review* 1992.03.05](https://bmcr.brynmawr.edu/1992/1992.03.05/) |
-| 3.2b | Edwards: "The poet *clearly visualizes* a round shield… There are *indications* that the layers of hide" were concentric, with a metal composition that "makes little *practical sense*" (Edwards 201–202). | geometry | Edwards, *Iliad* vol. 5, 201–2 | **Second-hand, quoted in** Schmiel, BMCR 1992.03.05. Treat as Edwards's words at one remove until the volume is checked |
-| 3.2c | Edwards hazards that the **two armies of 18.509 were probably one army**, the doubling arising from "misinterpretation of a two-dimensional picture" (Edwards 207). **This is a live geometry claim about our scene 2b** and it contradicts the plain sense of `δύω στρατοὶ … λαῶν`. | geometry | Edwards, *Iliad* vol. 5, 207 | **Second-hand**, quoted in Schmiel, BMCR 1992.03.05, who reports it disapprovingly |
+| 3.2a | **Confirmed first-hand, 2026-07-30, and now with its internal divisions.** Edwards's "Introduction to the Shield of Akhilleus" begins at **p. 200** and runs to **p. 209**. Its subsections, as read: **"Construction and technique," pp. 200–203** (the physical metalworking — layers of oxhide and bronze, comparanda from Cretan, Phoenician and Mycenaean shields and bowls), and **"Subject-matter of the scenes," from p. 208**. Two of the intervening pages are **unpaginated photographic plates** (a bronze shield from the Idaean Cave; two Levantine metal bowls). The dossier's earlier "ten-page introduction, much of it on physical construction" was right on both counts. | prose | Edwards, *Iliad* vol. 5, 200–209 | **Read first-hand via controlled digital lending** (archive.org copy `iliadcommentary0005unse`, borrow session 2026-07-30), pp. 200–203 and 208; transcribed at `research-cache/edwards-vol5-notes.md` §1. **pp. 203–208 only partly checked — see 3.2o** |
+| 3.2b | **The round-shield sentence is now first-hand, and the page moves.** Edwards, p. 200: "**The poet clearly visualizes a round shield**, not the semi-cylindrical 'tower' shield or the various forms with cut-out sides which appear in Geometric art ('Dipylon', 'figure-of-eight', or 'Boeotian' shields…). The usual Homeric round shield is made of a number of layers of oxhide, presumably stretched over a light wooden frame, with a bronze facing on the outside." **Two corrections to the second-hand version:** the sentence stands at **p. 200**, not 201–2 as this dossier had it from Schmiel; and Edwards's point about the layers is about **hide under a bronze facing**, i.e. depth, not about decorated rings. **Still second-hand and not upgraded:** the "there are *indications* that the layers of hide were concentric" and "makes little *practical sense*" phrases, which Schmiel quotes from pp. 201–2 and which the transcription did not reach. Do not cite those two as read. | geometry | Edwards, *Iliad* vol. 5, 200 (round shield, read); 201–2 (the concentric-layers and "practical sense" phrases, **still via** Schmiel, BMCR 1992.03.05) | Round-shield sentence: as 3.2a, quoting printed p. 200. The 201–2 phrases: **second-hand**, Robert Schmiel, review of Edwards vol. 5, [*Bryn Mawr Classical Review* 1992.03.05](https://bmcr.brynmawr.edu/1992/1992.03.05/) |
+| 3.2c | **REWRITTEN 2026-07-30 from Edwards's own page. The second-hand paraphrase was close in spirit and wrong in substance, and it was on the wrong page.** Schmiel had Edwards reducing the two armies to "probably one army" at p. 207. What Edwards actually writes, ad **509, at p. 218**, is about **one city with attackers on two sides of it**: "It has often been pointed out that the description seems to be based on a **two-dimensional representation in which the besieged city appeared with the enemy forces on either side**, as on the silver dish from Amathus (see fig. 2, p. 205, and Markoe 66–7). This also recalls the siege of a city by both sea and land on the north frieze from the West House at Akrotiri, and the well-known silver rhyton fragment from Mycenae… on which only the attack on one side of the city, by sea, survives." He rules out the Thruoessa model (Il. 11.710–60: one army besieging, another relieving) — "that kind of episode does not seem to fit here" — and closes on the word itself: "`στρατός` can have the meaning 'band', 'troop', e.g. at 8.472, **so the meaning here may be simply 'two forces of (armed) men' or 'two camps', not necessarily two distinct armies.**" **So: one city, one hostile side, drawn as two flanking forces because the model behind the description is a flat picture.** Note that he does *not* say the poet blundered, and he does *not* reduce two to one; he loosens `στρατός`. **He also notes that on the Hesiodic *Aspis* (237–70) one of the two armies is the besieged city's own** (the transcription's Aspis sentence is cut mid-note; what follows in Edwards is unread). — If that parallel were transferred to the Homeric pair it would yield besieger + defender rather than two besiegers; that transfer is THIS DOSSIER'S inference, not Edwards's transcribed words (marked at Grok verification). | geometry | Edwards, *Iliad* vol. 5, 218 (ad 18.509), citing Markoe, *Phoenician Bronze and Silver Bowls*, 66–67 | **Read first-hand**, as 3.2a, quoting printed p. 218; transcribed at `research-cache/edwards-vol5-notes.md` §3. **The old p. 207 citation is retired**: Schmiel's page reference does not correspond to any Edwards sentence we have read, and his paraphrase ("one army", "misinterpretation") is not Edwards's wording |
 | 3.2d | Schmiel's counter-position: treating "the shield as if it were real … does not advance my understanding or appreciation of the poem one whit", turning Homer into "a how-to handbook for armourers". A named, citable objection to the whole reconstruct-it project. | prose | Schmiel, BMCR 1992.03.05 | Read in full |
 | 3.2e | Edwards's own preferred interpretive authority is **Marg's essay** — now identified via Taplin n. 1 as *Homer über die Dichtung* (1957; 2nd edn. 1971), see §8.6 — which Schmiel notes warns against exactly the technical approach Edwards takes. | prose | Schmiel, BMCR 1992.03.05; Taplin, 18 n. 1 (the identification) | Read in full |
-| 3.2f | Concentric decorated bands have **material parallels** in Cretan shields and Phoenician bowls, per Edwards. | identification | Edwards, *Iliad* vol. 5, ad 18.478–608 (page not established) | **Weak chain**: reported in a web-search synthesis of the Edwards commentary, not read in a source I can pin. Do not cite Edwards for this until checked. The underlying object classes are real and separately citable: Emil Kunze, *Kretische Bronzereliefs*, 2 vols. (Stuttgart: W. Kohlhammer, 1931) for the Idaean Cave shields; Glenn Markoe, *Phoenician Bronze and Silver Bowls from Cyprus and the Mediterranean*, University of California Publications in Classical Studies (Berkeley: University of California Press, 1985) |
+| 3.2f | **Half-confirmed, half-corrected 2026-07-30 — and the correction matters more than the confirmation.** Confirmed: the comparanda are Edwards's, on his "Construction and technique" pages (pp. 200–203), and they are the object classes named below — Cretan, Phoenician and Mycenaean shields and bowls, with the Idaean Cave bronze shield and two Levantine metal bowls printed as plates. **Corrected: Edwards offers them as parallels for decorative *technique*, not as a structural model for Homer's shield**, and the transcription says so explicitly of the plates. The dossier's phrasing — "concentric decorated bands have material parallels … per Edwards" — smuggled a geometry claim into a technique claim. **Do not cite Edwards as warrant for a concentric-band arrangement.** The object classes remain real and separately citable: | identification | Edwards, *Iliad* vol. 5, 200–203 and the two unpaginated plates | **Read first-hand**, as 3.2a (the earlier web-search synthesis is superseded and its "concentric bands" gloss is not Edwards's). Emil Kunze, *Kretische Bronzereliefs*, 2 vols. (Stuttgart: W. Kohlhammer, 1931) for the Idaean Cave shields; Glenn Markoe, *Phoenician Bronze and Silver Bowls from Cyprus and the Mediterranean*, University of California Publications in Classical Studies (Berkeley: University of California Press, 1985) |
 | 3.2g | Fittschen's fascicle **catalogues attempts to reconstruct the shield from the sixteenth century onward** — it is the bibliography of every plate in §4, in 28 pages with 8 figures and 10 plates. **Pages now known from citations in the read papers, which sharpens the §7 request:** p. 1 n. 1 (whether the Athena Parthenos shield alludes to the Homeric one), p. 2 (artistic representations generally), pp. 4–5 (bibliography of the "shield was a real heirloom" views), p. 10 (Fittschen's own reading of 483 as a summary of the whole shield — 3.1e). | identification | Fittschen, *Der Schild des Achilleus* (1973), 1 n. 1, 2, 4–5, 10 | Bibliographic details and extent verified from the [Classical Review notice on Cambridge Core](https://www.cambridge.org/core/journals/classical-review/article/abs/klaus-fittschen-bildkunst-teil-1-der-schild-des-achilleus-archaeologia-homerica-bd-ii-kap-n-teil-1-pp-28-8-figs-10-pls-gottingen-vandenhoeck-ruprecht-1973-paper-dm-1650/B3CC8076D0903F547E13AD87EF65C5F7) and [Open Library](https://openlibrary.org/books/OL4828152M/Der_Schild_des_Achilleus.); the page references from Taplin 18 n. 5, 19 nn. 9 and 13, and Hardie 18 n. 49, 30 n. 132. Contents still **not read** |
-| 3.2h | **Taplin, first-hand, on the two armies: two of them, and their relation obscure.** "On the shield there are *two* besieging armies (their relation to each other is obscure), but like the Achaeans they are not agreed among themselves." A read source therefore preserves the plain sense of `δύω στρατοὶ … λαῶν` while conceding the difficulty that Edwards is reported (3.2c) to solve by reduction. **Cite Taplin for this, not Edwards.** Taplin also identifies the war city as Troy — "The city on the shield stands for every threatened homeland: within the *Iliad* Troy is such a city" — with Hector's orders at Il. 8.518–22 as the closest parallel. | geometry | Taplin, "Shield of Achilles within the *Iliad*," 6–7 | Read in full, `research-cache/taplin-1980-shield.pdf` |
+| 3.2h | **Taplin, first-hand, on the two armies: two of them, and their relation obscure.** "On the shield there are *two* besieging armies (their relation to each other is obscure), but like the Achaeans they are not agreed among themselves." A read source therefore preserves the plain sense of `δύω στρατοὶ … λαῶν` while conceding the difficulty. **AMENDED 2026-07-30: this is no longer read-against-reported, it is read against read, and it is a real disagreement.** Edwards, now first-hand at p. 218 (3.2c), takes the opposite view — one besieged city with the enemy on either side, `στρατός` as 'band' or 'camp', "not necessarily two distinct armies." The earlier instruction "cite Taplin for this, not Edwards" is **withdrawn**: it was right only while Edwards's position was hearsay. **Both are now citable; they disagree; the plate chooses and says which.** See the note under §1.2 for the figuration consequence, and contradiction 8 in §3.4. Taplin also identifies the war city as Troy — "The city on the shield stands for every threatened homeland: within the *Iliad* Troy is such a city" — with Hector's orders at Il. 8.518–22 as the closest parallel. | geometry | Taplin, "Shield of Achilles within the *Iliad*," 6–7 | Read in full, `research-cache/taplin-1980-shield.pdf` |
 | 3.2i | **What the Shield omits** — Taplin's list, which is a drawing instruction in negative form: "The shield omits, for instance, poverty and misery; it omits trade and seafaring; it does not figure religion or cult, and it does not figure mythology or named heroes and places." **A tension inside his own claim, recorded not harmonised:** the dance simile names Daedalus, Ariadne and Knossos (591–2); Ares, Athene, Eris, Kydoimos and Ker are named (516–17, 535); an ox is sacrificed at 559 and the elders sit in a `ἱερὸς κύκλος` (504). Read the list as a claim about **proportion and emphasis** — no seafaring, no trade, no poverty, no temple, no hero-narrative — not as an absolute. It is still the sharpest available answer to "what must *not* be on this plate." | geometry | Taplin, "Shield of Achilles within the *Iliad*," 12 | as 3.2h; counter-instances read in corpus |
 | 3.2j | **Proportion, stated by a scholar rather than inferred by us:** "On the shield the *Iliad* takes up, so to speak, **one half of one of the five circles.**" Independent confirmation of §3.4's arithmetic objection to equal-width rings, and a usable caption line. | geometry | Taplin, "Shield of Achilles within the *Iliad*," 12 | as 3.2h |
 | 3.2k | **Which scene is the climax — a live dispute the plate must decide, and can now decide with citations.** Taplin: the dance's "length and unity… make it appear the climax of the whole shield"; "in several respects this section forms a 'ring' with the wedding scene at the beginning"; and, a geometry claim in its own right, "**It appears that the dance goes all the way round without subdivision.**" Kakridis supplies comparative material that "the main scene of an 'imagined ekphrasis' should come last"; Gaertner argues instead that the king's `τέμενος` (550–60) is the climactic scene, "but he does not refute Kakridis." | geometry | Taplin, "Shield of Achilles within the *Iliad*," 9 and 20 n. 26, citing J. T. Kakridis, *Homer Revisited* (Lund: Gleerup, 1971), 108ff., esp. 123, and H. A. Gaertner, "Beobachtungen zum Schild des Achilleus," in *Studien zum antiken Epos*, ed. H. Görgemanns and E. A. Schmidt (Meisenheim: Hain, 1976), 46ff., at 53 n. 18 | as 3.2h |
 | 3.2l | **A drawable detail corrected.** At 558–60 the white barley is sprinkled **on the meat**, not served as barley mash: "The heralds have performed the slaughter and jointing; the women are actually cooking it, and this involves sprinkling the meat with barley, exactly as at *Od.* 14.77." That is **Leaf's** interpretation, which Taplin prefers **against Kirk's** (Kirk, *HOT* 12, has the king eating the roast beef while the workers get barley mash): Taplin "cannot see any reason for preferring this to the interpretation well argued for by Leaf." (A first draft of this row swapped Leaf and Kirk — caught at Grok verification against the PDF.) | identification | Taplin, "Shield of Achilles within the *Iliad*," 19–20 n. 23 | as 3.2h |
 | 3.2m | **The Phoenician-bowl parallel no longer needs Edwards.** Revermann, read first-hand: the bowls, "produced over a period from about 850 to about 625", have an iconography "so similar to that of the Homeric Shield that they are regularly invoked as a model or inspiration for the Homeric description… here the correspondences are so great and unique that it is difficult not to see a connection." He also states both standard objections, after Erika Simon: "bowls are not shields. And the Phoenician bowls are chased work whereas **the decorations of the Shield must be inlaid work.**" Markoe's pages for the iconography are **56–59**; the dance bowls are Markoe's Cy3, Cr 7 and G8, his periods I–II. | identification | Revermann, "Text of *Iliad* 18.603–6," 31 and 31 nn. 10–12, 32 n. 12, citing Markoe, *Phoenician Bronze and Silver Bowls*, 56–59, and Erika Simon, "Der Schild des Achilleus," in *Beschreibungskunst — Kunstbeschreibung*, ed. Gottfried Boehm and Helmut Pfotenhauer (Munich: Fink, 1995), 129f. | Read in full, `research-cache/revermann-1998-text-iliad.pdf` |
+
+| 3.2n | **Edwards on the five layers, p. 202 — a pointer, not an answer, and it must not be read as one.** "How the poet thought the shield was actually built up thus remains uncertain… **The choice of five layers (481) may reflect the arrangement of scenes worked out by modern scholars (see below).**" Two things follow. (i) Edwards holds the *construction* an open question, which corroborates §8.3 (which layer carries the figures) from the commentary of record. (ii) He connects the number **five** to a scene arrangement — but to one "worked out by **modern scholars**", explicitly not to the poem's own statement, and he defers it to a later passage. **The "(see below)" was not run down (3.2o), so which arrangement he means, and whether he endorses it, is unknown.** Do not let this sentence be quoted as Edwards supporting a five-band plate; it is a hypothesis about why the poet chose the number, pointing at an unread page. Bears on §1.1b–c and on §3.4's "5" bullet, neither of which changes on it. | geometry | Edwards, *Iliad* vol. 5, 202 | **Read first-hand**, as 3.2a, quoting printed p. 202. The cross-referenced discussion is **unread** |
+| 3.2o | **STILL UNREAD: Edwards's own account of how the scenes are arranged on the disc.** No subsection titled "Structure" (or equivalent) addressing physical arrangement — concentric bands against a continuous frieze against something else — was located in the time available; it would sit in **pp. 203–208**, which were only partly checked, and the p. 202 "(see below)" that points to it (3.2n) was not followed. **The consequence is a rule for anyone reading this dossier: no structure or arrangement claim attributed to Edwards is first-hand.** 3.2b's concentric-layers phrase (via Schmiel), 3.2f's former "concentric decorated bands … per Edwards" (now corrected to a technique claim), and any future "Edwards puts scene X on ring Y" are all **second-hand or unfounded** until pp. 203–208 are read with the volume's index under "structure" or "design, of shield." The partial read of pp. 200–209 upgrades what it covers and **nothing else** — it does not confer read-authority on the introduction as a whole. | geometry | Edwards, *Iliad* vol. 5, 203–208 (**not read**) | **Explicit negative finding**, `research-cache/edwards-vol5-notes.md` §1 ("Do not assume this note answers which arrangement (zones/bands vs. continuous narrative) Edwards himself endorses"). Follow-up pass requested in §7 |
+| 3.2p | **Edwards's own framing of the subject-matter is thematic, not topographic.** "Subject-matter of the scenes" opens at p. 208 by reading the two cities as set against each other for Achilles' sake: the life of "long life and everlasting glory" against "the imminent death of which Thetis forewarns him." So peace against war, life against death — the same axis Taplin works (3.3a), reached independently by the commentator. **Usable for the plate's prose**; it is an interpretation of *why* these scenes, and says nothing about where they sit on the disc. | prose | Edwards, *Iliad* vol. 5, 208 | **Read first-hand**, as 3.2a, quoting printed p. 208 (opening of the subsection only; the rest of pp. 208–209 not transcribed) |
+
+**What the partial Edwards read did and did not do to §3.2 (2026-07-30).**
+Upgraded to first-hand: 3.2a (the introduction's extent and its subsections),
+3.2b in part (the round-shield sentence, at p. 200 not 201–2), 3.2c
+(**rewritten** — the second-hand "one army at p. 207" is retired for what he
+actually writes ad 509 at p. 218), 3.2f in part (the comparanda are his; the
+concentric-band gloss on them was not), plus the new 3.2n and 3.2p. **Not
+upgraded, and deliberately fenced off in 3.2o: Edwards on arrangement.** The
+older Schmiel-derived structure material does not inherit read-authority because
+some neighbouring pages were read. And one row now records a disagreement rather
+than a hierarchy: 3.2c against 3.2h on 18.509.
 
 ### 3.3 The interpretive frame (for the plate's prose, not its geometry)
 
@@ -335,7 +420,13 @@ choice the plate must own as its own, in the schematic register, with the
   Taplin 7–9 and 19 n. 22 if you group; do not present the seasons as the poem's
   own statement, because they are not stated.
 - **5** — the `πέντε πτύχες` are structural and give no zones (§1.1b–c), and that
-  holds. But "5" is no longer a count with nothing behind it: **Taplin's own
+  holds. **New 2026-07-30, and it does not disturb it:** Edwards, read first-hand
+  at p. 202, calls the build-up of the shield "uncertain" and suggests "the choice
+  of five layers (481) may reflect the arrangement of scenes worked out by modern
+  scholars" (3.2n) — a guess about the poet's *number*, pointing at a page we have
+  not read, and explicitly crediting the arrangement to modern scholars rather
+  than to Homer. It is not a licence to say the poem gives five zones.
+  But "5" is no longer a count with nothing behind it: **Taplin's own
   scheme is five concentric circles** (cosmos / cities / country / dance / Ocean,
   3.1h), derived thematically rather than from the layers, and he calls the
   divisions "widely accepted" while denying they are certain. The ancient
@@ -376,6 +467,24 @@ asserted):
 7. **The metals reading is *not* contradicted** by any of the three. Revermann
    independently states the register: "the decorations of the Shield must be
    inlaid work" (3.2m, §5.3g).
+8. **NEW, 2026-07-30 — the first contradiction in this dossier between two
+   sources both read in their own words, and the only one that changes what gets
+   drawn.** On 18.509, **Taplin** has "*two* besieging armies (their relation to
+   each other is obscure)" (Taplin 6, 3.2h); **Edwards** has one besieged city
+   with the enemy on either side of it, the two `στρατοί` being "'two forces of
+   (armed) men' or 'two camps', not necessarily two distinct armies" (Edwards
+   218, 3.2c). Not harmonised, and it should not be: Taplin keeps the plain sense
+   of the Greek and admits he cannot make sense of it; Edwards explains the Greek
+   by the flat picture behind it and loosens `στρατός` to do so. Neither is the
+   consensus. **The plate cannot abstain** — it draws either two armies or one
+   two-sided attack — so this is the one contradiction here that forces an
+   editorial choice rather than a caption. See the note under §1.2.
+9. **NEW, 2026-07-30 — Schmiel's page and paraphrase for the two-armies claim do
+   not check out.** He reported it at Edwards p. 207 as "probably one army" from
+   "misinterpretation of a two-dimensional picture." The note is at **p. 218**,
+   and Edwards neither says "one army" nor calls it a misinterpretation. Recorded
+   as a caution about the whole class: a reviewer's paraphrase of a commentary is
+   a pointer, not a citation, and this dossier carried it as a citation for a day.
 
 ---
 
@@ -538,7 +647,7 @@ than a blank.
 
 | Work | Exact locus wanted | Which claim it settles |
 |---|---|---|
-| Edwards, *Iliad* vol. 5 (CUP, 1991) | **pp. 200–209** (shield introduction), and the notes on 18.481, 497–508, 507–8, 509, 604–5 | **STILL OPEN.** 3.2a–c and 3.2f. Above all: (i) whether Edwards really argues the two armies of 509 are one army, in his own words and at his own page; (ii) whether the Cretan-shield / Phoenician-bowl parallel is his, and where. Both are currently second-hand through BMCR or through a search synthesis, and 3.2f should not be cited until read. **Narrowed:** the bowl parallel itself no longer depends on Edwards (3.2m, Revermann 31), and the two-armies question now has a first-hand alternative source (3.2h, Taplin 6). Revermann 29 n. 3 confirms Edwards has a note **ad 604–6**, which is the remaining item of real value here. |
+| Edwards, *Iliad* vol. 5 (CUP, 1991) | **Remaining:** pp. **203–208** (the arrangement-of-scenes discussion the p. 202 "(see below)" points to), and the notes on **18.481–82** (five layers), **507–8** (the talents), **603–6** (the singer), plus the earlier page carrying the **full references for "Wolff"** and MacDowell cited short at 216 | **PARTIALLY OBTAINED, 2026-07-30 — archive.org controlled digital lending** (identifier `iliadcommentary0005unse`, borrow session 2026-07-30, transcription at `research-cache/edwards-vol5-notes.md`; nothing of the volume committed here). **Read and folded in:** pp. **200–203** and **208** of the introduction (3.2a, 3.2b's round-shield sentence, 3.2f's comparanda, 3.2n, 3.2p), the trial-scene notes at **pp. 213–17** (2.1h, 2.1i, and **2.1j on the `ἴστωρ`** — he reports the winner-of-the-talents view as "preferred by Wolff and MacDowell" and adopts nothing), and **p. 218 ad 509** (3.2c — which **rewrote** the second-hand claim and retired the p. 207 citation). **STILL OPEN, and each blocks something:** (i) **pp. 203–208**, hence Edwards on arrangement — fenced off at 3.2o, and the reason no structure claim of his is first-hand; a capture lane should go at it with the index under "structure" or "design, of shield". (ii) The **18.481–82** note — §8.3 (which layer is decorated) turns on it. (iii) The **18.603–6** note, which Revermann 29 n. 3 confirms exists *ad* 604–6 — §8.11 and the §2.2 FLAG FOR JOHN turn on it, and it is the single highest-value missing item, because Edwards is the one commentator of record not yet heard on the singer. (iv) The **507–8n.**, cross-referenced by Edwards at 216 and not transcribed — it is where he says what the two talents are (2.1c). A capture lane is hunting (ii) and (iii); both stay flagged until a page image is in hand. **Efficient route, per the notes file:** navigate to the printed pages after 218–19 and continue forward to the dance (590–606). |
 | ~~Taplin, "Shield of Achilles within the *Iliad*," *G&R* 27 (1980): 1–21~~ | the whole, esp. the footnote on 483 and whatever he says about arrangement | **OBTAINED** — `research-cache/taplin-1980-shield.pdf`, read in full including all 40 notes. Settled: 3.1e (the summary reading is **Fittschen's**, p. 10; the emendation objection is Taplin's, n. 13 — the dossier had it backwards); 3.1h (he adopts **five** concentric circles and disclaims them, p. 5); 3.1i (the two cities are **one** circle, p. 5); 3.1j (the rural scenes are the **four seasons**, pp. 7–9); 2.2g (he leans *for* the ἀοιδός, p. 9, n. 27); 3.2h–3.2l; §1.2's athetesis notes (Solmsen on 535–40, Leaf on 587–9); §8.4 (Lessing, *Laocoon* chs. 17–19) and §8.6 (Marg = *Homer über die Dichtung*). |
 | Fittschen, *Der Schild des Achilleus* (1973) | pp. **1 n. 1, 2, 4–5, 10**, and the reconstruction history entire (28 pp., 8 figs., 10 pls.) | **STILL OPEN, and still the highest-value item for a drawing lane.** The **reconstruction history from the 16th century on** — whether §4's typology is the real taxonomy or my simplification. **Sharpened:** exact pages now known from Taplin 18 n. 5, 19 nn. 9 and 13 and Hardie 18 n. 49, 30 n. 132 (see 3.2g); p. 10 is the locus for 3.1e's Fittschen position, currently cited at one remove. |
 | ~~Hardie, "*Imago Mundi*," *JHS* 105 (1985)~~ | the whole; and the correct **start page** | **OBTAINED** — `research-cache/hardie-1985-imago-mundi.pdf`, read in full including both plates. **START PAGE: 11**, not 12 (cover page, running head and printed folio all agree). Settled: 3.3b; 3.1f–3.1g (the two-group frame, and his denial that the human scenes schematise, p. 11); 1.1d (the ancient five-zone allegory, p. 15); 3.3f (imago mundi is Ovid's phrase, pp. 16–17); 3.3g and **4h–4i** (the ancient layouts, pp. 18–22). |
@@ -559,6 +668,14 @@ than a blank.
 10 is rewritten, because the three papers change what can be said. Items 1, 2, 5,
 7, 8 and 9 are untouched — nothing in these three papers bears on them.
 
+**Updated again 2026-07-30 after the partial Edwards read. NOTHING IS STRUCK.**
+The two Edwards notes that could have closed items here — **ad 18.481–82** (item
+3) and **ad 18.603–6** (item 11) — were **not located**, so both items stand
+exactly as they were, now with the specific unread page named. Items 1, 2, 5, 7,
+8, 9 and 10 are untouched. Item **12 is new**, and it is an attribution trap
+created by this very read: a partially-read authority is easier to misquote than
+an unread one.
+
 1. **Quatremère de Quincy's "eight continuous sequences" and "two circles"**
    (4c). Read from a search synthesis of French sources, not from a page I read in
    full; the Utpictura18 notice I did fetch gives publication data and plate
@@ -576,6 +693,12 @@ than a blank.
    metal layers were assembled was already a stated problem in Aristotle,
    *Poetics* 1461b1 (Hardie, "*Imago Mundi*," 15 and 15 n. 25). This is not an
    artefact of our reading; it is the oldest recorded question about the object.
+   **And now open on the commentary's authority too (2026-07-30):** Edwards, p.
+   202, "How the poet thought the shield was actually built up thus remains
+   uncertain" (3.2n). **His dedicated note ad 18.481–82 was not found** — that is
+   the page which would settle whether he commits to a decorated face, and a
+   capture lane is hunting it. Until it is in hand this item stays open; do not
+   read the p. 202 sentence as his last word on it.
 4. ~~**Lessing's chapter number.**~~ **SETTLED 2026-07-29: *Laokoon*, chs. 17–19.**
    Taplin cites the point there (19 n. 12) and states it in his own text at p. 5.
    The commonly repeated "XVIII–XIX" was too narrow. Folded into 3.3d.
@@ -621,3 +744,22 @@ than a blank.
     Do not state publicly that our text is the whole of what Homer composed here;
     do not state that a bard belongs on the shield either. The honest public form
     is the caption in §2.2's flag. **This one is John's call, not a lane's.**
+    **STILL OPEN after the partial Edwards read, 2026-07-30 — and the gap is now
+    precisely located.** Revermann 29 n. 3 confirms Edwards has a note *ad*
+    **604–6**; the 2026-07-30 lending session **did not reach it** (the
+    line-by-line notes past p. 218–19, roughly printed pp. 220–230, were not
+    read, and a search-inside for "molpe" and "divine singer" did not isolate the
+    passage). So the third commentator of record is still unheard on the singer,
+    two of the three read scholars call our text defective, and the count of
+    opinions has not changed. **Do not treat 2.2f–2.2g as the whole scholarly
+    field until Edwards ad 604–6 is read** (§7).
+12. **Do not attribute the `ἴστωρ` identification to Edwards** (NEW, 2026-07-30).
+    His 501n. reports "the eventual winner of the two talents" as the view
+    "preferred by **Wolff and MacDowell**" and leaves all three candidates — the
+    elders as a body, their presiding officer, the prize-winner — standing
+    (2.1j). A caption, a `sources` entry or a brief that reads "Edwards
+    identifies the `ἴστωρ` as…" misreports a volume we have now actually read,
+    which is worse than misreporting one we have not. Same caution for the
+    comparanda: Edwards's Cretan shields and Phoenician bowls are **technique**
+    parallels, not a warrant for concentric bands (3.2f), and his own position on
+    the arrangement of the scenes remains **unread** (3.2o).
