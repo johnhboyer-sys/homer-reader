@@ -3,6 +3,10 @@
 **Date:** 2026-07-29
 **Revised:** 2026-07-30 — §6 (the springs hydrochemistry) rewritten from the article itself,
 now on disk; the paywalled-access and unverified lists updated to match.
+**Revised again:** 2026-07-30, later — **Cook 1973 has been read in part.** New §9 carries what
+the lending copy gave up; §1.1, §2.1, §4.2, §6, §7.1, §8.4 and both tail lists are updated to
+match. The headline: Cook puts Callicolone at Kara Tepe, ~8.5 km east of Hisarlık, which is
+**not** where the gazetteer's coordinate is.
 **Extends:** [`docs/TROAD-SOURCES.md`](../TROAD-SOURCES.md) (2026-07-28). That file is the
 Trojan-plain source dossier: paleogeography, the plain's named features, the licensing
 table, and the record-by-record JSON block. **This file does not repeat it.** Where the
@@ -45,14 +49,18 @@ shapefile is never a source of an identification.
 - **Sampled:** Strabo 13.1. I verified **sections 5, 9, 35, 36, 44, 45, 50, 51, 61, 62, 63
   and 65** verbatim. Other section numbers already in the gazetteer are **not** verified
   and are listed in §10.
-- **Not seen at all:** Cook 1973 and Luce 1998. Not one page. Every citation of them below
-  is at work level with no page number, deliberately. See §9.
+- **Read in part, 2026-07-30:** Cook 1973 — pp. 110–13, 141–46, 165–67 and 168–72, plus Fig. 6,
+  transcribed from the archive.org lending copy. Page-cited from §9 onwards. **Everything else in
+  Cook remains unread, and pp. 141–46 and 168–72 were skimmed rather than read through** — see
+  §9.7 for the list of what is still dark.
+- **Not seen at all:** Luce 1998. Not one page. Every citation of it below is at work level with
+  no page number, deliberately. See the tail lists.
 
 ---
 
 ## 1. The four authorities, and what each is actually good for
 
-### 1.1 Cook, *The Troad* (1973) — the backbone, and we have not read it
+### 1.1 Cook, *The Troad* (1973) — the backbone, now partially read
 
 **claim:** Cook is the standing modern authority for Troad site identification: a
 systematic archaeological and topographical survey, still the reference for the region's
@@ -60,14 +68,31 @@ settlement identifications outside Hisarlık itself.
 **citation:** Cook, J. M. *The Troad: An Archaeological and Topographical Study*. Oxford:
 Clarendon Press, 1973. ISBN 0198131658; LCCN 73178602; 550 scanned images.
 [archive.org `troadarchaeologi0000cook`](https://archive.org/details/troadarchaeologi0000cook)
-— **lending only.**
-**authority kind:** identification (and prose).
-**verified how:** fetched `https://archive.org/metadata/troadarchaeologi0000cook`;
-`access-restricted-item = true`, collections `inlibrary`/`printdisabled`. I could not open
-a single page, and archive.org's search-inside API did not respond. **Consequence: no
-Cook page number appears anywhere in this dossier, and none should be added to
-`places.json` until someone has the book open.** Nine `places.json` records already cite
-Cook 1973 at work level, which is honest; a page number invented later would not be.
+— **lending only** (controlled digital lending; not PD, not quotable at length).
+**authority kind:** identification (and prose). **Never geometry** — Cook's distances are
+speedometer-and-walking-time field measurements, which are *constraints* on a coordinate in
+exactly the way Strabo's stades are, and not coordinates themselves (§9.1).
+**verified how — two stages, and the second supersedes the first.**
+
+1. *2026-07-29.* Fetched `https://archive.org/metadata/troadarchaeologi0000cook`;
+   `access-restricted-item = true`, collections `inlibrary`/`printdisabled`. Not a page
+   opened, and archive.org's search-inside API did not respond.
+2. *2026-07-30.* **A borrow succeeded.** A research lane took out the lending copy (loan
+   account `celarent245`, "13 days left" at session time), ran search-inside, and
+   transcribed page images for six targets. Its transcriptions, with the printed page
+   numbers, are at **`research-cache/cook-1973-notes.md`**; everything in §9 rests on that
+   file. Page-image captures were being made concurrently into
+   `research-cache/page-captures/` — **as of this edit that directory exists and is empty**,
+   so no Cook page number below has been re-read by me off an image. The provenance chain is:
+   printed page → lending-copy page image → the lane's transcription → this file.
+
+**Consequence, revised.** Cook page numbers may now be cited for the six targets in §9, and
+only those. The nine `places.json` records citing Cook at work level (`simoeis`,
+`thebe-hypoplacia`, `callicolone`, `scaean-gate`, `dardanian-gates`, `sigeion`, `rhoiteion`,
+`gargaron`, `satnioeis`) can take a page number for **`callicolone` only** — 110–13 — and even
+there the record's *substance* has to change first, because Cook does not say what the record
+says he says (§8.4, §9.1). For the other eight, nothing has been read; a page number added to
+them from a secondary summary would still be an invention.
 
 ### 1.2 Leaf, *Troy: A Study in Homeric Geography* (1912) — PD, verified, and quotable
 
@@ -227,6 +252,37 @@ The searched-result sexagesimal form 39°54′0.842″N 26°11′57.502″E conv
    above. The tier can stay `certain` (the mound is certainly there and certainly Roman);
    the *identification of the occupant* is the hedged part, and the note should carry
    Leaf's "possibly".
+3. **Cook's description of the mound fits this coordinate, on every measure but one — added
+   2026-07-30.** **claim:** Cook describes Üvecik Tepe as "about 3 km. inland from Beşika Bay,
+   and set on rising ground so that while it has a maximum height of about 25 m. the summit is
+   perhaps 70 m. above sea level", "the greatest of the Trojan tumuli", its "cone still sharply
+   pointed", dominating "the south side of the Trojan Plain", and "alongside the road from
+   their Troy to Alexandria Troas". Checked against 39.9003/26.1992: the point lies **3.32 km**
+   from the innermost shore of Beşik Bay (39.8945/26.1610, §2.2) and 3.99 km from the derived
+   bay centroid — Cook's "about 3 km. inland" is satisfied by the shore figure and stretched by
+   the centroid figure, which is what one expects of a distance stated to a bay. Direction,
+   dominance of the plain's south side and the Alexandria-Troas road all match. **The one number
+   that does not line up is the mound's own height:** Cook says "about 25 m.", Kültür Envanteri
+   says "c. 35 m". Both are estimates; neither is sourced to a survey in what we have read.
+   **Record both; do not average them.** **authority kind:** prose (Cook) against prose (Kültür
+   Envanteri); the coordinate itself is unaffected and stays as resolved above.
+   **verified how:** Cook, *The Troad* (1973), 172, transcribed at
+   `research-cache/cook-1973-notes.md` §5 from the lending copy (provenance at §1.1); the two
+   distances computed here from the §2.2 coastline extract.
+4. **The occupant's pedigree, and a contradiction that walks back finding 1 above.**
+   **claim:** the Festus identification is **Schliemann's**, from his 1879 shafts — Cook, 172:
+   Schliemann "drove a vertical and a lateral shaft into the centre of the tumulus in 1879",
+   found a central "tower" of stonework on an apparently circular polygonal enclosure and
+   potsherds "he judged to be late Roman", and "identified the monument as the tumulus raised
+   by Caracalla for **his favourite Festus**". Two consequences. (a) The gazetteer should name
+   whose identification it is and what it rests on — a sherd date from a nineteenth-century
+   shaft — rather than asserting the occupant flatly. (b) **"Favourite" is not a Livius.org
+   invention.** Finding 1 above preferred "freedman" on Pleiades's and Leaf's authority and
+   treated the gazetteer's "a favourite of Caracalla" as the weaker reading; Cook writes
+   "favourite" too. So the sources split — Cook and Livius say *favourite*, Pleiades and Leaf
+   say *freedman* — and the honest note says both, which is what finding 1's own fallback
+   ("or say both") already allowed. **authority kind:** prose. **verified how:** as item 3;
+   Cook's phrase is verbatim in the transcription.
 
 ### 2.2 `besik-bay` — Beşik Bay → **39.891, 26.154** (derived; an areal feature)
 
@@ -423,6 +479,10 @@ not an endorsement. Even so it is the only ancient number we have, and it is a g
 constraint on the drawn sheet. The `callicolone` coordinate currently in `places.json`,
 [39.96, 26.28], is **3.55 km** from Hisarlık, i.e. about 19–23 stadia — roughly half
 Strabo's distance. See §8.
+
+**Added 2026-07-30:** Cook works this same passage line by line and reaches Kara Tepe, ~8.5 km
+east. His reading of the three constraints, and the ways his own figure strains them, are at
+**§9.1** — which is now the fullest treatment of 13.1.35 in this file.
 
 **4.3 Thymbra — 13.1.35 (verifies the gazetteer's citation and its anchor).**
 > "Again, the words, 'And towards Thymbra fell the lot of the Lycians,' are more suitable
@@ -955,7 +1015,77 @@ so that nobody has to open the PDF again to check.
    temperatures; do not trust it on the text.
 5. **The old "§9 / §10" cross-references in this section pointed at a numbering this file no
    longer uses.** The lists are now the two `##` sections at the end of the file, "Needs
-   paywalled access" and "Unverified — do not claim publicly".
+   paywalled access" and "Unverified — do not claim publicly". (There is now a §9 again — Cook
+   1973 — added 2026-07-30. It is not what those old cross-references meant.)
+
+### 6.7 The negative result is not new: Cook reached it with thermometers in 1973
+
+**claim:** the 2001–2006 hydrochemistry is the *instrumented restatement* of a conclusion Cook
+had already drawn from the nineteenth century's own thermometry. Cook's verdict on the Kırk Göz
+springs at Pınarbaşı — the pair Lechevalier identified with Homer's in 1785 — is that the
+temperature contrast is not there:
+
+> "But more than a dozen travellers with thermometers have at different times found no
+> appreciable difference between them, and we can only conclude that Choiseul-Gouffier was
+> misled by assistants who did not care to disappoint him."
+
+Three things in the surrounding pages matter for how the site frames this.
+
+- **Choiseul-Gouffier is named as the source of the error, and the mechanism is given.** He
+  "was at the greatest pains to ascertain the facts and employed Salomon Gormezano and later
+  Dubois to supplement or confirm his results" and "insisted throughout that the warm spring
+  gave a substantially higher temperature reading than the 'cold' ones" (Cook, 144). Cook's
+  reading is not that the measurement was crude but that the *assistants told their patron what
+  he wanted*. **This is a source-criticism finding, and it undermines Choiseul-Gouffier as a
+  witness** (Cook's own wording is the gentler "was misled by assistants who did not care to
+  disappoint him" — do not cite him as "retiring" the testimony outright) — which matters,
+  because Choiseul-Gouffier is the strongest early testimony for the hot spring existing.
+- **A convergent number, sixty-odd years before the CATENA paper.** "With only two exceptions,
+  all these travellers have reached a figure between **61 and 64 °F.** for the general
+  temperature" (Cook, 144) — i.e. **16.1–17.8 °C**, which sits inside §6.1's trimodal
+  distribution at the "groundwater" mode (≈18.2 °C) and well below its 20.9 °C mean. Two
+  independent measurement campaigns, a century apart in instrument, agree that these are ordinary
+  groundwater temperatures.
+- **Virchow's thermometry is the reliable set, and it shows ~1 °F, not a hot/cold pair.** Cook
+  credits Virchow (graded in tenths of a degree C., tested by the Berlin standards commission):
+  "He read 63.3 °F (17.4 °C.) in what he took to be Choiseul-Gouffier's 'warm spring', and
+  62.2–62.6 °F (16.8–17 °C.) in the rest", and attributes the difference to "contact with the
+  atmosphere" at different points. Note that **Wolkersdorfer et al. fold Virchow's 16 readings of
+  1879 into their own 525-measurement histogram** (§6.1) — so the two studies do not merely agree,
+  they share data.
+
+**citation:** Cook, J. M. *The Troad: An Archaeological and Topographical Study*. Oxford:
+Clarendon Press, 1973, 141–46 (section 6, "The Springs of Pınarbaşı"; the quotations at 144).
+**authority kind:** prose (a measured negative result, at second hand from the travellers'
+instruments) and **source criticism**.
+**verified how:** transcribed from the archive.org lending copy at
+`research-cache/cook-1973-notes.md` §4 (provenance and loan details at §1.1). **Not read
+through:** whether Cook, having demolished the thermal argument, still accepts Pınarbaşı as the
+Homeric site on other grounds. The transcription lane says explicitly that this "may sit
+elsewhere in the same section (pp. 141–46) and was not fully read". **Do not write "Cook rejects
+Pınarbaşı"** — what is verified is that he rejects the *temperature* claim made for it.
+
+**A second Cook page, reported at second hand and unread: p. 293 on Virchow's transferred
+springs.** **claim:** Richardson's Cambridge commentary, glossing *Il.* 22.145–57, sets out
+Leaf's position (no such hot/cold pair now exists in the plain, but hot springs are
+"characteristic of the Troad at large… as marked a feature as the cold which break out all over
+many-fountained Ida"), reports Virchow's proposal that the poet transferred the two large springs
+at the Skamandros' Idaean source to the walls of Troy, and closes: **"But Cook (*Troad* 293) has
+doubts about this."**
+**citation:** Richardson, Nicholas. *The Iliad: A Commentary. Volume VI: Books 21–24*. General
+editor G. S. Kirk. Cambridge: Cambridge University Press, 1993, 122–23 (on 22.145–57), citing
+Cook, *Troad* 293; Leaf, *Troy* 48, 49–50, 50–2, 165–6; and Virchow, *Beiträge zur Landeskunde
+der Troas* (Berlin, 1880), 33–43.
+**authority kind:** prose, **at second hand**.
+**verified how:** transcribed at `research-cache/richardson-vol6-notes.md`. **Cook 293 itself is
+unread — it was not among the six targets the lending session covered.** Two cautions. (a) The
+doubt Richardson reports is about **Virchow's transference theory**, which is a different claim
+from the Pınarbaşı thermometry above; they are consistent, and they are not the same finding.
+Cook may doubt the transference for literary reasons, for topographical ones, or because he
+doubts the Idaean pair's contrast too — we do not know which. (b) So **do not write "Cook doubts
+that Homer's springs were transferred from Ida" citing p. 293**; write that Richardson reports
+him doubting it, or read p. 293. The book is borrowable for another twelve days; this is the
+cheapest open item in the file.
 
 ---
 
@@ -988,7 +1118,37 @@ of the Simois" — and continues "This must be the hill called Kara Yur, 680 fee
 most conspicuous and characteristic point in the whole ridge." By context "This" is
 Kallikolone, but the footnote is compressed and the sentence immediately following is about
 the Village of the Ilians. **Do not cite "Leaf identified Kallikolone with Kara Yur" until
-someone reads p. 144 in a clean copy.** Listed in §10.
+someone reads p. 144 in a clean copy.**
+
+**Half of that caution is now closed — 2026-07-30. "Kara Yur" is Cook's Kara Tepe.**
+**claim:** Leaf's "Kara Yur, 680 feet high, the most conspicuous and characteristic point in
+the whole ridge" and Cook's Kara Tepe are the same hill. **The tell is the number and its
+source.** Cook, 110: the hill's top is "a narrow ridge 175 m. long (Koşay–Sperling) and **680
+ft. above sea level (Spratt)**". Leaf's 680 feet is the identical figure, in the same unit, for
+the same superlative — "the most conspicuous and characteristic point in the whole ridge" (Leaf)
+against "a black hull riding the plateau" (Cook, 110). Cook attributes the 680 ft to Spratt's
+survey; **Leaf does not name his source for it in anything we have read**, so the inference is
+that both are quoting one nineteenth-century spot height, not that Leaf says so. Two authors
+sixty-one years apart giving the identical odd figure for the ridge's most conspicuous hill are
+not describing two hills. **What is still open is the other half:** whether the
+footnote's "This" refers to Kallikolone or to the Village of the Ilians. Cook's own page
+sharpens the problem rather than solving it, because Cook reads the *same* Strabo sentence as
+putting the Village at 30 stades and Kallikolone at 40 — so both referents are live in Leaf's
+compressed note.
+**citation:** Cook, *The Troad* (1973), 110; Leaf, *Troy* (1912), 144 n.
+**authority kind:** identification (that two names denote one hill), not geometry.
+**verified how:** Cook's sentence transcribed from the lending copy at
+`research-cache/cook-1973-notes.md` §2 (provenance at §1.1); Leaf's read in the PD full text.
+**Consequence for the record:** Leaf is not one witness against Cook but a **split witness** —
+main text at Ophrynion, footnote at the hill Cook defends. Do not enlist "Leaf" on either side
+without saying which Leaf.
+
+### 7.1a Callicolone: Cook's Kara Tepe, and the tradition table John's decision needs
+
+See **§9.1** for Cook's argument, its measurements, the OSM peak that matches them, and the
+four-position tradition table. This subsection exists so that a reader who reaches §7.1 first
+does not leave with Leaf's Ophrynion as the only named alternative to a coordinate the
+gazetteer misattributes.
 
 ### 7.2 Lyrnessus: Leaf identified it with Antandros
 
@@ -1034,14 +1194,40 @@ Homeric Dardanie (founded on Ida's slopes *before* Ilios existed, Il. 20.216–1
 historical town of Dardanos. Naming the Pleiades record for a different place as the
 authority for this one needs at least a note.
 
-**8.4 `callicolone` — the coordinate is half Strabo's distance. (Medium.)**
+**8.4 `callicolone` — the coordinate is half Strabo's distance, and it is not Cook's.
+(Severity raised to HIGH, 2026-07-30 — the source now confirms the charge.)**
 `coords: [39.96, 26.28]` is 3.55 km from Hisarlık; Strabo 13.1.35 puts Callicolone at 40
-stadia = 6.3–7.4 km (§4.2). The record's `tradition` credits Cook's tentative proposal, but
-we cannot read Cook, so we cannot check whether the number is his (one of the nine
-Cook-citing records). Given `TROAD-SOURCES.md`
-§E already recommends null here, and given the one ancient measurement disagrees with it,
-the coordinate should not be drawn as a dot on the geographic plate. Leaf's Ophrynion
-proposal (§7.1) should be named alongside Cook's.
+stadia = 6.3–7.4 km (§4.2). When this item was written the second half of the charge could not
+be pressed: the record's `tradition` credits "a ridge east of Troy near the Simoeis, tentatively
+proposed by J. M. Cook (1973)", and Cook was unreadable, so whether the number was his was
+unknowable.
+
+**Cook has now been read on exactly this point, and the record misdescribes him three ways
+(§9.1).**
+
+1. **The coordinate is not Cook's.** Cook places Callicolone at **Kara Tepe, 8.5 km east of
+   Hisarlık** (110–13). The gazetteer's point is **5.08 km west of** the peak that matches
+   Cook's description, and **2.4 times too close** to Hisarlık. Whoever wrote "after Cook" was
+   wrong; the number has no traced source at all.
+2. **The proposal is not tentative.** Cook argues it over three pages, from Strabo's
+   stade-figures, and explicitly rejects the rival Kemer-valley/Akça Köy placing: "the Kemer
+   valley has neither a 'neck' nor a suitable hill for Kallikolone" (113).
+3. **The proposal is not Cook's own.** Luce 1984, 37 attributes Kara Tepe = Kallikolone to
+   **Spratt and Forchhammer**, citing Cook 1973, 111 (an attribution carried BY LUCE — the
+   Forchhammer sentence itself is not among our transcribed Cook pages, so it is
+   Luce-mediated until p. 111 is re-read), and calls it what is "generally taken to
+   be" the site. Cook is its best defender, not its author.
+
+**So the §8.4 accusation is doubly confirmed** — by the ancient measurement (Strabo's 40 stadia)
+and now by the modern authority the record itself names. The two disagreements are independent
+and point the same way, and Cook's own figure of ~8.5 km is *further* from Hisarlık than
+Strabo's 40 stadia, not nearer (§9.1) — so no reading of the evidence rescues 3.55 km.
+
+**What follows.** `TROAD-SOURCES.md` §E already recommends null here; the coordinate must not be
+drawn as a dot on the geographic plate, and the `tradition` string needs rewriting whatever John
+decides. **This is now a contested-identification human gate, not a data fix** — four positions
+are on the table (§9.1's tradition table), and choosing among them is John's call, as is whether
+Callicolone appears on the geographic plate at all or only on the schematic one.
 
 **8.5 `imbros` — right coordinate, wrong Pleiades id. (Low, and trivially fixable.)**
 `coords: [40.17, 25.85]` cites Pleiades 501438, which is **Imbros (settlement)**, Kaleköy,
@@ -1086,20 +1272,403 @@ orders of magnitude. **Rule for the gazetteer: a Barrington representative point
 
 ---
 
+## 9. Cook, *The Troad* (1973) — read in part, 2026-07-30
+
+**Status change.** The backbone authority of this whole dossier had never been opened (old §1.1).
+A borrow of the archive.org controlled-digital-lending copy succeeded on 2026-07-30, and six
+targets were transcribed from page images. This section carries what was got. It does **not**
+make Cook a read book: see §9.7.
+
+**Provenance, once, for every claim below.** Cook, J. M. *The Troad: An Archaeological and
+Topographical Study*. Oxford: Clarendon Press, 1973. Transcribed from page images of the
+archive.org lending copy, identifier `troadarchaeologi0000cook`, loan account `celarent245`,
+borrow session 2026-07-30 ("13 days left" at session time). Printed page numbers throughout,
+read off the page images by the transcribing lane; brief quotations only, as controlled lending
+allows. The transcriptions are at **`research-cache/cook-1973-notes.md`**. Page-image captures
+were being made concurrently into `research-cache/page-captures/`; **that directory was present
+and empty when this section was written**, so nothing here has been re-read off an image by me.
+Where a claim needs a page I have not seen, it says so.
+
+**Reference point for every distance in this section:** Hisarlık at **39.957, 26.239** — the
+`troy` coordinate in `apparatus/places.json`, cited to Pleiades 550595. §4.2's "3.55 km" for the
+gazetteer's Callicolone appears to have used a marginally different Hisarlık point; I get 3.51 km
+from this one. The 40 m difference changes no conclusion, and I have not reconciled it.
+
+### 9.1 Callicolone = Kara Tepe, 8.5 km east — the decisive finding
+
+**claim:** Cook identifies Homeric Kallikolone with **Kara Tepe**, a detached hill on the Trojan
+plateau roughly 8.5 km east of Hisarlık, and argues it from Strabo's (i.e. Demetrius's)
+stade-figures against the rival Kemer-valley placing.
+
+The hill, at 110:
+
+> "Kara Tepe is a detached hill of a beautiful regular shape when seen from the south-west;
+> covered with pines, scrub-oak, and arbutus, it is a black hull riding the plateau. Its top is
+> a narrow ridge 175 m. long (Koşay–Sperling) and 680 ft. above sea level (Spratt); it is three
+> quarters of an hour's walk from Sarçalı."
+
+The argument, at 112–13:
+
+> "The Village, Strabo continues, is 30 stades from the modern Ilion (i.e. Hisarlık), and ten
+> stades further on (at 40 stades from Ilion) is the Kallikolone hill, which is only five stades
+> from the Simois. Kallikolone, then, is fixed near the north edge of the plateau by its
+> proximity to the Simois, and it should be 40 stades from Ilion. **Kara Tepe is 8.5 km. from
+> Truva by our reckoning** (speedometer and walking time) and (as near as we can estimate) the
+> same on the 1:50,000 map; this would give about 45 stades, and the north end of the hill
+> directly overhangs the Dümrek Su at a distance of not much more than five stades… and the
+> Kemer valley has neither a 'neck' nor a suitable hill for Kallikolone."
+
+**citation:** Cook, *The Troad* (1973), 110–13 (the hill at 110; the identification and the
+distances at 112–13).
+**authority kind:** **identification** (Kallikolone = Kara Tepe) and **prose** (the argument
+from Strabo). The 8.5 km is a **field measurement offered as a constraint**, and it is treated
+here the way Strabo's stades are — it narrows where the dot may go and is not itself a dot.
+**verified how:** provenance above; `research-cache/cook-1973-notes.md` §2, which flags 112–13
+as its most consequential passage and quotes it verbatim.
+
+**Cook's own figure strains Strabo's, and he says so obliquely.** On this file's standing
+conversion band (157.5–185 m per stade, §1.5), 8.5 km is **46–54 stades**, not 40. Cook writes
+"about 45 stades", which implies a stade of ~189 m — above the top of our band. So Cook is
+**6 to 14 stades long** on Demetrius's figure and absorbs the gap into "about". Two honest
+readings, and this file takes neither: either Cook's stade is right and ours is too short, or
+Cook accepts a real overshoot because the *five-stades-from-the-Simois* constraint, which he
+calls "a precise one which should take precedence", fixes the hill and the 40 fails. **Do not
+write that Cook's Kara Tepe "matches Strabo's 40 stades."** It matches the five-stade
+constraint and overshoots the forty.
+
+**A survey-grade point that fits Cook's description, from a geometry authority.** Cook gives two
+independent numbers for the hill — 8.5 km from Hisarlık, and 680 ft above sea level from
+Spratt's survey. OpenStreetMap carries an **unnamed `natural=peak` node at 39.95653, 26.33947
+with `ele=207`**, which is **8.57 km** from Hisarlık on a bearing of **~90.3°** (due east), and
+207 m is 680 ft to within 30 cm.
+- **citation (geometry):** OpenStreetMap, queried via
+  [Overpass API](https://overpass-api.de/api/interpreter) 2026-07-30 for peaks and `Kara`-named
+  features in bbox 39.88–40.06 / 26.25–26.55; ten features returned, this the only one near
+  either of Cook's figures. ODbL.
+- **authority kind:** geometry. **The identification of this node as Kara Tepe is Cook's, not
+  OSM's** — the node is **unnamed**, and a name search for `Kara ?[Tt]epe` in the same bbox
+  returned **nothing**. So this is "the peak whose two measurable properties are Cook's", not "a
+  place OSM calls Kara Tepe". Cook's other two figures (a 175 m summit ridge; three quarters of
+  an hour's walk from Sarçalı) are not checkable against a point node.
+- **verified how:** Overpass query run here; distance and bearing computed from the repo's
+  Hisarlık point. **This is a candidate anchor, not an adopted coordinate.** Adopting it needs
+  a second geometry source — a DEM check that the 207 m summit carries a ~175 m ridge, or a
+  Turkish toponymic source giving Kara Tepe a name-bearing coordinate.
+
+**How the four positions stand against Strabo's two measurable constraints.** Strabo 13.1.35
+(§4.2) gives 40 stadia from Ilium (**6.3–7.4 km**) and 5 stadia from the Simoeis
+(**0.79–0.93 km**).
+
+| position | whose | grounds | distance from Hisarlık | distance from the Simoeis | verdict against Strabo |
+|---|---|---|---|---|---|
+| **Kara Tepe**, ~39.9565/26.3395 (candidate node) | **Spratt** and **Forchhammer** (19th c.); defended by **Cook 1973, 110–13**; adopted by **Luce 1984, 37** and drawn on his Fig. 1 as "Kara Tepe = KALLIKOLONE", "generally taken to be"; probably also **Leaf 1912, 144 n.** ("Kara Yur, 680 feet") | Strabo's five-stade Simoeis constraint, which Cook calls the precise one; the hill's conspicuousness; the absence of any rival hill on the plateau's north edge | **8.57 km** = 46–54 stades | **≥ 1.09 km** = 5.9–6.9 stades (bound, see caveat) | **overshoots the 40** by 6–14 stades; **satisfies the 5** if measured to the hill's north foot, as Cook measures it |
+| **Ophrynion**, 40.0247/26.3378 (Pleiades 550787) | **Leaf 1912, 44** | onomastic and structural: the name needs a hill with "brows", and Ophrynion's hills are the only markedly "browy" group on the plain's east side; pairs Kallikolone against the Wall of Heracles as matched divine grandstands (*Il.* 20.144–51) | **11.29 km** = 61–72 stades | **≥ 3.13 km** = 17–20 stades (bound) | **fails both**, by a wide margin — Leaf's argument does not run through Demetrius's measurements and does not try to |
+| **the Kemer valley / Akça Köy** | the "prevailing identification" Cook reports and rejects (112–13) | Strabo's naming of the Thymbrios (= Kemer Su) near the Village of the Ilians, which drags Kallikolone south-east with it | not resolved here — no coordinate taken | the Kemer Su/Thymbrios line runs 39.895–39.963 N / 26.286–26.472 E (§5), i.e. away from the Dümrek altogether | **fails the 5** on Cook's account: "the Kemer valley has neither a 'neck' nor a suitable hill for Kallikolone" (113) |
+| **the gazetteer's own point**, 39.96/26.28 | **no traced source.** `places.json` credits Cook; Cook is 5.08 km east of it | none recorded anywhere | **3.51 km** = 19–22 stades | **≥ 0.70 km** = 3.8–4.4 stades (bound) | **fails the 40** at ~half; and note the awkward fact that it fits the **5** better than Kara Tepe does — which is the only intelligible thing about it |
+
+**Caveat on the Simoeis column, and it is not small.** Those figures are **bounds, not
+point-to-line distances.** I measured each candidate to the nearest latitude edge of the AWMC
+Simoeis (Dümrek Su) *bounding box* — 39.9663–39.9966 N / 26.2299–26.3968 E (§5) — because the
+polyline vertices are not in front of me and OSM carries **no waterway named Dümrek or Simoeis**
+in this bbox (Overpass, 2026-07-30, zero ways returned). A bbox edge is a lower bound in latitude
+only. AWMC flags this river `accurate=0`. **Any plate that draws the five-stade relation must
+re-derive these against the actual polyline.**
+
+**What the table is for.** John's contested-identification gate needs the field, not a
+recommendation, and this is the field. Three notes for that decision. (a) The Kara Tepe reading
+is the only one with a modern consensus behind it — Spratt, Forchhammer, Cook, Luce, and probably
+Leaf's footnote — and Luce's "generally taken to be" is a report of that consensus, not an
+argument. (b) The two live positions disagree about *what kind of evidence decides*: Cook
+measures, Leaf construes a name and a narrative symmetry. Neither is illegitimate, and the
+gazetteer cannot show both as dots without saying which register it is in. (c) The current
+coordinate belongs to nobody, so *whatever* John decides, [39.96, 26.28] cannot stay attributed
+to Cook.
+
+**Cross-references.** Leaf's Ophrynion at §7.1; the Kara Yur = Kara Tepe resolution in the same
+section; the Strabo passage at §4.2; the flagged defect at §8.4; Luce 1984's Fig. 1 and its
+"following Spratt and Forchhammer (Cook 1973, 111)" attribution at
+[`RESEARCH-PALEOGEOGRAPHY.md`](RESEARCH-PALEOGEOGRAPHY.md) §1.11.
+
+**One more Cook page, on the hill on the other side.** At 169 Cook returns to Kallikolone in
+connection with the *pro-Achaean* gods' viewing-hill opposite it (*Il.* 20.144ff.), weighing
+Leaf's candidate (Beşik Tepe) against "Prokesch's level crest south of Yenişehir (our 'Spratt's
+plateau')" as the more comfortable vantage. **This bears on `wall-of-heracles`, not on
+`callicolone`**, and it is a single transcribed sentence with no argument attached — recorded so
+it is not lost, not usable as Cook's position until 169 is read properly.
+
+### 9.2 The Kesik problem — an open verification item, not a resolution
+
+**The state of play.** `RESEARCH-PALEOGEOGRAPHY.md` §1.9 records, at second hand through Zangger
+& Mutlu's Turkish paraphrase, that **"J. M. Cook had already concluded that the work was never
+finished (Cook 1973, 167)"** — the work being the Kesik cut, the 400 × 50 × 30 m ditch through
+the coastal ridge whose floor stands 13.7 m above sea level. That paraphrase is the sole warrant
+for Cook's name appearing in the Kesik argument at all, and the PALEO dossier's own
+paywalled-access list, item 12, names **Cook 1973, 167** as the page that would settle it
+first-hand.
+
+**What the lending session found instead.** Search-inside for "Kesik" returned **nine hits, all
+of them concerning *Kesik Tepe*** — a burial mound on the coast south of "Spratt's plateau" near
+Taşlı Burun, which the travellers took for the **Tomb of Antilochus** (Cook, 165–67). Verbatim,
+at 165:
+
+> "A kilometre or so along the coast from 'Spratt's plateau', where the ridge forms a low waist
+> at Taşlı Burun (plate 18 a, looking south from 'Spratt's plateau'), is a conspicuous mound
+> called Kesik Tepe, in which the travellers mostly recognized the Tomb of Antilochus. The
+> Greeks knew it as St. Demetrius' tepe because of an adjacent chapel…"
+
+**No discussion of a rock-cut channel or "cut" was found at or near p. 167.**
+
+**Status: OPEN. Neither reading is adopted, and the discrepancy is recorded as a discrepancy.**
+Three possibilities, and the evidence in hand does not choose among them:
+
+1. **The cut is there under another word.** Cook may discuss it as a canal, a channel, a cutting
+   or a ditch — search-inside indexes the string "Kesik", not the feature — and the
+   surrounding pages (165–72) are exactly the stretch that covers this sector of the ridge. The
+   transcription lane searched one term and read parts of the range; it did not read 165–72
+   through. **This is the possibility the page captures will settle.**
+2. **The citation is wrong.** "Cook 1973, 167" reaches us through a Turkish paraphrase of an
+   English source, in a paper whose authors are advocates of the artificial-harbour hypothesis.
+   A page slip, or an attribution of Kayan's or Brückner's view to Cook, is entirely possible.
+   Note that Kayan et al. 2003 carry the same citation, so if it is wrong it is wrong in more
+   than one place — which is evidence for a shared upstream error, not against one.
+3. **The lane's search was incomplete.** Nine hits is a small return for a book of this size, and
+   archive.org's search-inside has already failed once on this volume (§1.1). An index lookup
+   under "Kesik", "canal" or "Sigeion" was not done.
+
+**What must not happen.** Nobody may write "Cook found the Kesik cut unfinished" **or** "Cook
+does not discuss the Kesik cut" until pp. 165–72 have been read through. The first is currently
+supported only by a second-hand paraphrase; the second is an argument from a failed string
+search, which is no argument at all. The transcribing lane said this itself: "do not assume the
+brief's premise is correct."
+
+**A separate, checkable Kesik Tepe finding, worth keeping.** Cook's Kesik Tepe is a **tomb**
+identified by the travellers with **Antilochus**, and locally St Demetrius' tepe after an
+adjacent chapel. `RESEARCH-PALEOGEOGRAPHY.md`'s OSM appendix flags a node at **39.9608, 26.1680**
+returned by a search for "Kesik" and named `Demetrius tumulus` — "Probably Kesik Tepe, the mound
+near Sigeion that the fourth century took for Achilles' tomb — but OSM's name is a different
+tradition. **Do not adopt without checking.**" **Cook explains that OSM name.** The chapel of St
+Demetrius is why the mound carried the name, so `Demetrius tumulus` is a Christian-era toponym
+sitting on a mound with **two** competing heroic traditions attached — Antilochus (Cook's
+travellers) and Achilles (the fourth century, per the PALEO note). That is a resolution of the
+*name*, and no warrant at all for adopting the coordinate: the identification remains three-ways
+contested and belongs nowhere near a `certain` tier.
+**citation:** Cook, *The Troad* (1973), 165–67.
+**authority kind:** prose and **identification** (the toponym's origin), never geometry.
+**verified how:** provenance above; `research-cache/cook-1973-notes.md` §1, which reports the
+NOT-FOUND result as prominently as the transcription. Cross-reference
+[`RESEARCH-PALEOGEOGRAPHY.md`](RESEARCH-PALEOGEOGRAPHY.md) §1.9 (the cut's measurements and
+Kayan's tectonic reading), its feature table row "Kesik cut" (which carries the "unfinished (Cook
+1973, 167)" claim into a summary table, where it looks settled and is not), its OSM appendix row
+for 39.9608/26.1680, and its paywalled-access item 12. **Read-only from here; that file is not
+this lane's to edit, and its "Kesik cut" table row is the highest-visibility place the
+unverified claim currently sits.**
+
+### 9.3 Thymbra and the Thymbrios — Cook records the Kemer Su reading in order to reject it
+
+**claim:** the identification of the Homeric Thymbrios with the **Kemer Su** is, in Cook's
+presentation, the **prevailing** view — and he mentions it as one leg of a network of
+identifications he is arguing against. At 112–13, inside the Callicolone argument:
+
+> "…and the river Thymbrios (presumably the Kemer Su). This is the reason for the prevailing
+> identification of the Village of the Ilians with Akça Köy. But the figure for the distance from
+> the Simois is a precise one which should take precedence, and the Kemer valley has neither a
+> 'neck' nor a suitable hill for Kallikolone."
+
+**Read what he does and does not reject.** Cook's own "presumably the Kemer Su" *accepts*
+Thymbrios = Kemer Su, tentatively, as common ground. What he rejects is the **inference drawn
+from it** — that the Village of the Ilians (and with it Kallikolone) must therefore sit at Akça
+Köy in the Kemer valley. His ground for refusing is a ranking of evidence: Strabo's five-stade
+figure from the Simoeis is "a precise one which should take precedence" over an argument from
+which river runs near which village. **So Cook is a witness *for* the gazetteer's
+`thymbrios` = Kemer Su equation (at `traditional`, which is what §8.9 already has) and a witness
+*against* using it to locate anything else.**
+
+**citation:** Cook, *The Troad* (1973), 112–13.
+**authority kind:** identification (Thymbrios = Kemer Su, hedged with "presumably") and prose
+(the ranking of evidence).
+**verified how:** provenance above; `research-cache/cook-1973-notes.md` §3.
+**What remains unread, and it is most of the target.** **No dedicated Thymbra or Thymbraion
+passage was retrieved.** Search-inside for "Thymbraeum"/"Thymbraios" returned nothing usable;
+the "Thymbra Farm" hits are nineteenth-century estate history (the Calvert family's farm, named
+after the ancient site), not Cook's topographical argument. **Cook has not been read on Thymbra
+itself, on the temple of Thymbraean Apollo, or on the confluence** — so §8.8's recommendation
+(adopt Pleiades 550929, the Thymbrios–Scamander confluence, 39.8997/26.2933, as the district
+anchor) still rests on Strabo 13.1.35 and Pleiades alone, with no Cook behind it. The follow-up
+pass should search **"Thymbre"** and **"Akça Köy"** and work the general index.
+
+### 9.4 The springs — Cook's instrumental scepticism is at §6.7
+
+Cook, 141–46 ("6. The Springs of Pınarbaşı") is folded into §6 rather than repeated here, because
+it belongs beside the CATENA findings it anticipates by nearly fifty years: **§6.7**. In brief —
+more than a dozen travellers with thermometers found no appreciable difference between the Kırk
+Göz springs; Choiseul-Gouffier's contrary insistence is explained as assistants humouring their
+patron; the general temperature is 61–64 °F. Also there: Richardson's report that **Cook, *Troad*
+293 doubts Virchow's transferred-springs theory** — a page that was **not** among the six targets
+and **has not been read**.
+
+### 9.5 Beşika Bay, and the Achaean camp — Cook separates two questions the plates keep merging
+
+**claim:** Cook's treatment of Beşika Bay draws a line between an archaeological question (is
+there evidence of the camp there? no) and a literary-critical one (does Homer's description fit
+the narrows or the bay?), and reports that the ancient scholarly tradition itself chose the
+narrows.
+
+The bay, at 169:
+
+> "Beşika Körfezi (Beşika Bay) is a shelving bay with a flat plain behind it. It is sheltered
+> against the prevailing north winds and has running water (or at least it had as long as the
+> Pınarbaşı Çay was diverted there). It was the station used by the British and French fleets at
+> the mouth of the Dardanelles in the nineteenth century."
+
+The verdict, at 170–71 and 172:
+
+> "Mey's excavation did not produce any evidence of the Achaeans' camp having been at Beşika. At
+> the same time, the fact remains that for an army with a thousand ships the north end of the
+> Trojan Plain on the narrows is an impossible camping site, and must surely have been so three
+> thousand years ago. For those who wish to regard the Homeric record as substantially accurate
+> Beşika Bay must be a very much more [attractive site — sentence runs on to the next page, not
+> transcribed]."
+
+> "The argument against Beşika is of course a matter of Homeric criticism and not of ancient
+> topography. But it does seem possible to say that the Hellenistic scholars represented by
+> Strabo placed the Achaeans' camp on the narrows and not at Beşika; that was not disputed by
+> Brückner and Dörpfeld."
+
+**Three things this settles about how the gazetteer and the plates should talk.**
+
+1. **Cook grants the Homeric case against the narrows** — "for an army with a thousand ships the
+   north end of the Trojan Plain on the narrows is an impossible camping site" — while granting
+   equally that Mey's dig found nothing at Beşika. He does not resolve it; he **classifies** it,
+   as Homeric criticism rather than topography. That is precisely this project's own two-register
+   rule (schematic vs geographic), reached independently by Cook in 1973, and it is worth saying
+   in a plate note.
+2. **The ancient tradition is on the record for the narrows.** "The Hellenistic scholars
+   represented by Strabo placed the Achaeans' camp on the narrows and not at Beşika" — an
+   *identification* claim with a named tradition, which is exactly what the `achaean-camp`
+   record's `tradition` field is for. It also means Luce 1984's Sigeum-ridge camp and Kraft's
+   Beşika/Kesik harbours are all departures from the ancient reading, not extensions of it.
+3. **The shelter question splits from the harbour question.** Cook calls Beşika "sheltered
+   against the prevailing north winds"; Leaf, quoted at §2.2, calls both roadsteads "exposed
+   anchorages, offering no safe shelter in gales". **Recorded as a contradiction, not
+   harmonised** — Leaf is talking about gales and Cook about the prevailing northerlies, so they
+   may both be right, and the `besik-bay` note should not adopt either adjective as fact.
+
+**citation:** Cook, *The Troad* (1973), 169 (the bay), 170–71 and 172 (the verdict).
+**authority kind:** prose throughout, with one **identification** (the Hellenistic tradition
+places the camp on the narrows). **Never geometry** — the §2.2 coastline measurements stand
+untouched by this.
+**verified how:** provenance above; `research-cache/cook-1973-notes.md` §5. Note that the 170–71
+quotation **breaks mid-sentence** at a page turn the lane did not capture: the words after "very
+much more" are unread, and the sentence's force ("a very much more attractive site" is the
+obvious completion) must not be quoted as if it were transcribed. **Cross-reference the Beşika
+harbour material at [`RESEARCH-PALEOGEOGRAPHY.md`](RESEARCH-PALEOGEOGRAPHY.md) §1.9, and Mey's
+trenches as Luce plots them ("M M… plotted so it can be seen to have found nothing") at its
+§1.11.**
+
+**Üvecik Tepe and the Tomb of Aesyetes tradition** are folded into **§2.1**, findings 3 and 4,
+where the coordinate they bear on already lives: Cook's description (172) fits the Pleiades point
+on distance-inland, position and road, and disagrees with Kültür Envanteri on the mound's height
+(25 m against 35 m); the Aesyetes identification is **Lechevalier's and his followers'**, which
+Cook reports without adopting, and the passage runs straight on into Schliemann's 1879 shafts and
+their late-Roman sherds. For the gazetteer this means `tomb-of-aesyetes` — currently
+`speculative`, "no mound identified" — now has a **named tradition** to record (Lechevalier,
+identifying it with Üvecik Tepe) and a reason that tradition failed (the mound is Roman). Those
+are two different records touching one mound, and the honest note says so.
+
+### 9.6 Fig. 6, "The Trojan Plain and Environs" (pp. 110–11) — Cook's controlling site map
+
+**claim:** the controlling line-map for this sector of the Troad is **Fig. 6, "The Trojan Plain
+and Environs"**, spanning pp. 110–11. It carries contour bands (land over 100 m, land over 200
+m), the coastline, the river system, and the named features **Kum Kale, Yenişehir, İn Tepe, Kara
+Tepe, Beşika Bay** and **Üvecik Tepe** — i.e. it covers Callicolone, Beşika and Üvecik together,
+which is why it is the map to consult for all three.
+**citation:** Cook, *The Troad* (1973), Fig. 6, "The Trojan Plain and Environs", pp. 110–11.
+**authority kind:** **identification** (which features Cook commits to the sheet, and how he
+labels them) — and, emphatically, **not geometry.** It is a 1973 line map in a copyrighted book.
+It cannot be traced, and reading positions off it is not measurement. Its value is as a
+**checklist and a register-witness**: what Cook thought belonged on a map of this plain, and what
+he left off.
+**verified how:** provenance above; `research-cache/cook-1973-notes.md` §6 lists the labels read
+off the figure. The contour intervals and the feature list are the lane's reading of the image;
+**the figure's scale, projection and north orientation were not recorded**, so nothing about its
+geometry is known here.
+**Also cited in this stretch, and not seen:** photographic plates 18a (Kesik Tepe / Taşlı Burun,
+looking south from "Spratt's plateau") and 18b (the Beşik Tepe tumulus).
+**Use.** When the `troad-plain` plate lane asks "what should be on this sheet", Fig. 6's label
+list is a legitimate answer to compare against — and if our sheet carries a feature Cook's does
+not, or omits one he keeps, that difference is worth a sentence in the plate note rather than a
+silent divergence.
+
+### 9.7 What remains unread in Cook, and what it would settle
+
+The borrow has twelve days left at the time of writing. Ordered by what it costs us not to know.
+
+1. **p. 293 — Cook on Virchow's transferred springs.** The only Cook page any of our sources
+   quotes for a position we currently *state* at second hand (Richardson, via
+   `research-cache/richardson-vol6-notes.md`). One page. **Settles:** whether Cook's doubt is
+   about the transference, the Idaean pair's temperature contrast, or the whole Pınarbaşı
+   identification — three quite different things, and the springs records read differently under
+   each. **Cheapest high-value page in the file.**
+2. **pp. 165–72, read through rather than string-searched — the Kesik question.** **Settles:**
+   §9.2, and with it whether `RESEARCH-PALEOGEOGRAPHY.md`'s feature table may keep saying
+   "unfinished (Cook 1973, 167)". Also completes the mid-sentence break at 170–71 and gives
+   Cook's own view of Beşika's attractiveness in his own words.
+3. **pp. 141–46, read through — the Pınarbaşı springs.** **Settles:** whether Cook, having
+   destroyed the thermal argument, still accepts Pınarbaşı as the Homeric site on other grounds
+   (§6.7). Currently we know only what he denies.
+4. **Thymbra: "Thymbre", "Akça Köy", and the general index.** **Settles:** §9.3 — Cook on the
+   Thymbraion, the confluence, and the Village of the Ilians, which is the other half of the
+   Callicolone argument and may name a coordinate constraint for `thymbra` that §8.8 does not
+   have.
+5. **p. 169 in full — the pro-Achaean gods' viewing-hill.** Beşik Tepe (Leaf) against Prokesch's
+   crest south of Yenişehir. **Settles:** whether `wall-of-heracles` has a Cook position at all,
+   and if so which.
+6. **pp. 159–65 — the monuments available to the developing Trojan-war tradition.** The range
+   *Hainsworth* cites (`research-cache/hainsworth-vol3-notes.md`, on *Il.* 11.166), and **not**
+   the Callicolone range; both exist and are different discussions. **Settles:** Cook's own
+   framing of how much of the Homeric landscape is Iron Age construction — directly relevant to
+   how `tomb-of-ilos`, `tomb-of-aesyetes` and the tumuli are described.
+7. **The eight other `places.json` records citing Cook at work level** — `simoeis`,
+   `thebe-hypoplacia`, `scaean-gate`, `dardanian-gates`, `sigeion`, `rhoiteion`, `gargaron`,
+   `satnioeis`. **Not one has been read.** **Settles:** whether any of them misdescribes Cook the
+   way `callicolone` does. Given that `callicolone`'s attribution turned out to be wrong in three
+   separate ways (§8.4), **the base rate here is not reassuring, and the other eight should be
+   treated as unaudited rather than as fine.**
+
+---
+
 ## Needs paywalled access
 
 Every item here is a claim we would like to make and currently cannot verify. None of them
 should be asserted, page-cited, or quoted until someone has the physical or licensed copy.
 
-1. **Cook, *The Troad* (1973)** — not one page seen. archive.org
-   `troadarchaeologi0000cook` is lending-only (`access-restricted-item: true`), and the
-   search-inside API did not respond. **Wanted:** Cook's own treatment of, and page numbers
-   for, Callicolone (the tentative ridge east of Troy that `places.json` credits to him),
-   the Satnioeis = Tuzla Çayı equation, Gargaron, the Scaean/Dardanian gate question, and
-   Thebe/Lyrnessos/Pedasos in the southern Troad. **Nine `places.json` records cite Cook at
-   work level right now (`simoeis`, `thebe-hypoplacia`, `callicolone`, `scaean-gate`,
-   `dardanian-gates`, `sigeion`, `rhoiteion`, `gargaron`, `satnioeis`); a page number must
-   not be added to any of them from a secondary summary.**
+1. **Cook, *The Troad* (1973) — PARTIALLY OBTAINED 2026-07-30. Not closed.** The book is
+   lending-only (`access-restricted-item: true`) and **is not paywalled in the blocking
+   sense** — it is **borrowable**, and a borrow succeeded. Six targets were transcribed from
+   page images (`research-cache/cook-1973-notes.md`); findings in **§9**, with §1.1 carrying
+   the provenance and the page-capture caveat. **Obtained:** pp. 110–13 (Callicolone = Kara
+   Tepe, with the distances — the decisive finding, §9.1), 112–13 (the Thymbrios = Kemer Su
+   equation as prevailing view, §9.3), 141–46 in part (the Pınarbaşı springs' temperatures,
+   §6.7), 165–67 (Kesik Tepe — **but not the Kesik cut**, §9.2), 168–72 (Beşika Bay, Üvecik
+   Tepe, §9.5 and §2.1), and Fig. 6's label list (§9.6).
+   **Still wanted, in priority order (full list with what each settles at §9.7):** **p. 293**
+   on Virchow's transferred springs, the one page any other source quotes Cook for and the
+   cheapest item in this file; **pp. 165–72 read through** rather than string-searched, to
+   settle whether Cook discusses the Kesik cut at all (§9.2 is an open discrepancy, not a
+   verdict); **pp. 141–46 read through**; **Thymbra** under "Thymbre"/"Akça Köy" and in the
+   general index; **p. 169** in full on the pro-Achaean gods' hill; **pp. 159–65** on the
+   monuments available to the developing tradition (the range Hainsworth cites, not the
+   Callicolone range). Also still wanted from the original list and untouched: the Satnioeis =
+   Tuzla Çayı equation, Gargaron, the Scaean/Dardanian gate question, and
+   Thebe/Lyrnessos/Pedasos in the southern Troad.
+   **The page-number rule, narrowed rather than lifted.** Nine `places.json` records cite Cook
+   at work level. Only **`callicolone`** may now take a page number (110–13) — and only
+   together with a substantive correction, because Cook does not say what that record says he
+   says (§8.4). The other eight (`simoeis`, `thebe-hypoplacia`, `scaean-gate`,
+   `dardanian-gates`, `sigeion`, `rhoiteion`, `gargaron`, `satnioeis`) remain **unread and
+   unaudited**; a page number must still not be added to any of them from a secondary summary.
+   **The borrow had 13 days left on 2026-07-30 — the window is open, and the remaining items
+   are a reading task, not an access problem.**
 2. **Luce, *Celebrating Homer's Landscapes* (1998)** — not on archive.org at all
    (`numFound: 0`). **Wanted:** whether Luce charts the fighting scene by scene (already an
    open item in `TROAD-CARTOGRAPHY.md`), and his own positions for the ford, the wagon-road
@@ -1141,15 +1710,47 @@ should be asserted, page-cited, or quoted until someone has the physical or lice
 
 ## Unverified — do not claim publicly
 
-1. **Whether Cook 1973 actually proposes the Callicolone ridge at [39.96, 26.28].** The
-   gazetteer credits him; the number is uncited; and 3.55 km from Hisarlık contradicts
-   Strabo's 40 stadia. We do not know whether the coordinate is Cook's, someone's reading of
-   Cook, or invented. **Do not attribute the coordinate to Cook on the site.**
-2. **That Leaf identified Callicolone with Kara Yur.** The p. 144 footnote's "This must be
-   the hill called Kara Yur, 680 feet high" reads as Kallikolone by context, but the OCR is
-   compressed and the next clause is about the Village of the Ilians. Leaf's *main* text
-   (p. 44) proposes Ophrynion instead, which makes the footnote harder, not easier, to
-   assign. Verify in a clean copy before using either as *the* Leaf position.
+1. **~~Whether Cook 1973 actually proposes the Callicolone ridge at [39.96, 26.28].~~
+   RESOLVED NEGATIVELY, 2026-07-30 — he does not.** Cook, 110–13 puts Kallikolone at **Kara
+   Tepe, 8.5 km east of Hisarlık**, arguing it from Strabo's stade-figures against the
+   Kemer-valley rival (§9.1). The gazetteer's point is 3.51 km from Hisarlık and **5.08 km west
+   of** the peak matching Cook's description. Three corrections follow, all of them now
+   positively established rather than merely suspected: the coordinate is **not Cook's**; the
+   proposal is **not tentative** (he argues it, and rejects the alternative by name); and it is
+   **not his proposal** — Luce 1984, 37 credits **Spratt and Forchhammer**, citing Cook 1973,
+   111. **Do not attribute the coordinate to Cook on the site, and do not call the Kara Tepe
+   identification Cook's own.** What replaces this as the open question is **not** a
+   verification item but a **human gate**: which of the four positions in §9.1's table the
+   gazetteer adopts, and whether Callicolone appears on the geographic plate at all. **The
+   coordinate's actual origin remains untraced and probably untraceable** — that much is still
+   unverified, and if it is ever wanted, the place to look is the fork history, not the
+   scholarship.
+2. **That Leaf identified Callicolone with Kara Yur — HALF RESOLVED, 2026-07-30, and the open
+   half is now sharper.** **Resolved:** "Kara Yur" **is** Cook's Kara Tepe. Cook, 110 gives the
+   hill's height as "680 ft. above sea level (Spratt)"; Leaf's footnote gives "Kara Yur, 680
+   feet high, the most conspicuous and characteristic point in the whole ridge" — the identical
+   figure for the identical superlative (§7.1). **Still open:** whether the footnote's "This"
+   refers to Kallikolone or to the Village of the Ilians. Cook reading the *same* Strabo
+   sentence as putting the Village at 30 stades and Kallikolone at 40 keeps both referents live,
+   so the ambiguity is structural and not an OCR artefact. Leaf's *main* text (p. 44) proposes
+   Ophrynion, so Leaf is a **split witness** either way. **Do not enlist "Leaf" on either side
+   of the Callicolone question without saying which Leaf — the p. 44 main text or the p. 144
+   footnote.** Verify the footnote in a clean copy before treating either as *the* Leaf position.
+   Two geometry cautions attach to the same question, and both are unverified:
+
+   - **Whether the OSM peak at 39.95653/26.33947 is Kara Tepe.** The node is **unnamed**; it
+     matches Cook's two independent figures (8.57 km from Hisarlık against his 8.5 km; `ele=207`
+     against Spratt's 680 ft) and nothing else. An Overpass name search for `Kara ?[Tt]epe` in
+     the surrounding bbox returned **nothing**. **This is a candidate anchor and not an adopted
+     coordinate** (§9.1). Adopting it needs a second geometry source — a DEM check for the
+     ~175 m summit ridge Cook describes, or a Turkish toponymic authority attaching the name to
+     a point.
+   - **Every distance-from-the-Simoeis figure in §9.1's table.** They are measured to the
+     nearest latitude edge of the AWMC Simoeis **bounding box**, not to its polyline, because
+     OSM carries no waterway named Dümrek or Simoeis in that bbox and the AWMC vertices were
+     not to hand. They are **lower bounds in latitude only**, on a line AWMC itself flags
+     `accurate=0`. **Any plate drawing Strabo's five-stade relation must re-derive them against
+     the actual polyline.**
 3. **~~The exact wording of the 2020 hydrochemistry's conclusions.~~ RESOLVED 2026-07-30.**
    The article is on disk and read; §6.2 carries the conclusions verbatim from pp. 1, 7 and
    9, and **those quotations are now safe to use on the site.** Three things replace the old
@@ -1195,3 +1796,27 @@ should be asserted, page-cited, or quoted until someone has the physical or lice
    one-clause paraphrase. **Read 13.1.43 in Jones's Loeb before any site copy says Strabo or
    Demetrius reported the spring gone.** Cheap to close: 13.1.43 is PD and already in the
    text we use for the rest of §4.
+10. **Whether Cook 1973 says anything about the Kesik cut, and therefore whether "unfinished
+    (Cook 1973, 167)" is a real citation.** `RESEARCH-PALEOGEOGRAPHY.md` §1.9 and its feature
+    table carry that claim, reaching us through Zangger & Mutlu's Turkish paraphrase; Kayan et
+    al. 2003 carry it too. The lending session's search-inside found **only Kesik *Tepe*, a tomb
+    at 165–67, and no discussion of a cut**. **Both readings are unsupported at present** — the
+    citation may be right with the feature discussed under another word (canal, channel,
+    cutting), or the citation may be wrong, or the search may have been incomplete. §9.2 lays
+    out all three. **Nobody may write either "Cook found the cut unfinished" or "Cook does not
+    discuss the cut" until pp. 165–72 are read through.** The page captures being made into
+    `research-cache/page-captures/` are the intended settlement.
+11. **Cook's doubt at *Troad* 293 about Virchow's transferred springs.** Reported by Richardson
+    1993, 122–23; **p. 293 is unread**. We do not know what the doubt is about — the
+    transference, the Idaean pair's contrast, or Pınarbaşı as a whole. **Write "Richardson
+    reports Cook doubting…", never "Cook doubts…" citing 293** (§6.7, §9.7 item 1).
+12. **Üvecik Tepe's mound height.** Cook, 172: "a maximum height of about 25 m."; Kültür
+    Envanteri: "c. 35 m". Neither is sourced to a survey in anything we have read. **Record
+    both; do not average them, and do not print a single figure as fact** (§2.1 finding 3). The
+    coordinate is unaffected.
+13. **Whether Festus was Caracalla's freedman or his favourite.** Cook, 172 (reporting
+    Schliemann) and Livius.org say **favourite**; Pleiades 897256486 and Leaf, *Troy* 26 say
+    **freedman**. §2.1 finding 1 originally preferred "freedman" on the strength of two sources;
+    Cook makes it two against two. **Say both, or say neither** (§2.1 finding 4). Note also that
+    the Festus identification is **Schliemann's**, resting on sherds he "judged to be late
+    Roman" from an 1879 shaft — a pedigree the gazetteer's flat assertion does not carry.
