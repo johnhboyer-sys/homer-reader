@@ -193,9 +193,11 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
       siege ring split left and right of the walls; Edwards named in
       `sources`; Taplin's two-armies reading available to the caption.
       RESEARCH-SHIELD §1.2.
-   d. Callicolone pin: current coordinate matches no authority; Kara Tepe
-      (Spratt/Forchhammer/Cook/Luce, ~8.5 km E, OSM peak candidate exists)
-      vs Leaf's Ophrynion. RESEARCH-TROAD-TOPOGRAPHY §9.1.
+   d. **DECIDED (John, 2026-07-30 16:21): Kara Tepe** — support judged
+      overwhelming (Spratt/Forchhammer/Cook/Luce). Pin to the OSM peak
+      39.956/26.339 (ele. 207 m ≈ Spratt's 680 ft); tier traditional;
+      Leaf's Ophrynion in the note as dissent. Gazetteer edit queued in
+      "next work session". RESEARCH-TROAD-TOPOGRAPHY §9.1.
    e. Chryse / dardania / zeleia-style contested IDs (chryse's tradition
       string reverses Strabo 13.1.63); Scaean/Dardanian pairing; thymbra
       re-anchor; Achaean-camp treatment on the GEOGRAPHIC plate (rival

@@ -1403,6 +1403,14 @@ from this one. The 40 m difference changes no conclusion, and I have not reconci
 
 ### 9.1 Callicolone = Kara Tepe, 8.5 km east — the decisive finding
 
+> **✅ RULED (John, 2026-07-30 16:21): Kara Tepe** — the support (Spratt,
+> Forchhammer, Cook working Strabo's stades line by line, Luce) is judged
+> overwhelming. Pin moves to the Kara Tepe peak (the OSM candidate at
+> 39.956 / 26.339, ele. 207 m, matches Spratt's 680 ft ≈ 207 m); tier
+> `traditional`, tradition naming Spratt/Forchhammer/Cook/Luce; the note
+> carries Leaf's Ophrynion as the dissent (§7.1). Gazetteer edit is
+> drawing-lane work (TROY-MAPS-TODO "next work session").
+
 **claim:** Cook identifies Homeric Kallikolone with **Kara Tepe**, a detached hill on the Trojan
 plateau roughly 8.5 km east of Hisarlık, and argues it from Strabo's (i.e. Demetrius's)
 stade-figures against the rival Kemer-valley placing.
