@@ -75,15 +75,19 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
 
 ## John (in priority order)
 
-1. **ILL requests — file these two and every drawn layer has its source
-   spine** (full citations in `docs/research/PAYWALLED-ACCESS-QUEUE.md`):
-   a. Kraft/Rapp/Kayan/Luce, *Geology* 31.2 (2003): 163–66 — THE FIGURES.
-      Now the only possible source for the "bay head ~1.2 km" claim.
-   b. Wagner/Pernicka/Uerpmann, eds., *Troia and the Troad* (Springer 2003)
-      — one volume, three needed chapters (Kayan 379–401 above all; the
-      barrier row is not drawing-ready until it is read).
-   Lower priority: Kayan 2014 (Studia Troica Mon. 5, fig. 8); Janko vol. IV
-   (two notes; not on archive.org; non-blocking).
+1. **ILL requests** (updated 2026-07-30 10:20 — the *Geology* 2003 figures,
+   the Springer *Troia and the Troad* chapters, and Kayan 2014 are all now
+   ACQUIRED via author pages/iCloud; full citations in
+   `docs/research/PAYWALLED-ACCESS-QUEUE.md`):
+   a. **Kayan, *Studia Troica* 1 (1991): 79–92** — the PRIMARY publication of
+      the sea-level curve and the Beşik barrier-lagoon figures (Fig. 4
+      section, Pl. 5 plan) that D5-A draws; we hold only 2003/2014
+      redrawings. Request the volume if possible (Abb. 17–23 also wanted,
+      CITADEL §6). Check Kayan's academia.edu first.
+   b. Janko vol. IV (notes on 13.681, 16.286; not on archive.org;
+      non-blocking).
+   Tier 2 if cheap: Kayan, *Studia Troica* 5 (1995): 211–35; Kraft/Kayan/
+   Erol in Rapp & Gifford, *Troy: The Archaeological Geology* (1982), 11–41.
 2. **Decisions queued from the research** (each with its evidence table in
    the named dossier):
    a. Left/right labelling: the axis holds, the sense is undecidable
