@@ -57,6 +57,9 @@ non-negotiable.
   Samothrace) go on the map with confidence. Hedging is a defect, the same as
   overclaiming. What stays absolute: tiers, `tradition` naming its tradition,
   citations, and **never a fabricated coordinate**.
+- **Dates are BC/AD, never BCE/CE (John, 2026-07-30).** Site prose, apparatus
+  notes, captions, dossiers — all of it. Exception: verbatim quotation keeps
+  the source's own unit (a geologist's "3300 BP" stays BP).
 - **No movie branding.** No stills, no title treatment, no "Nolan". The tie-in is
   structural (Start Here funnel + SEO pages), not visual.
 - Deploying is John's call — never deploy without explicit go-ahead. Hosting:
