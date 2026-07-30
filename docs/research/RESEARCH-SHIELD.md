@@ -370,7 +370,8 @@ notes that the vintage dance is the one Shield dance that *is* accompanied
 > (569–72) is textually secure and stays drawn. The evidence record below is
 > retained behind the ruling.
 >
-> **The flag as it stood — RESTATED 2026-07-30
+> **The flag as it stood before the ruling above (historical record) —
+> RESTATED 2026-07-30
 > (later), because the third commentator has now been read in his own words and
 > he does not say what the other two say.** The earlier version of this flag
 > opened "the two scholars who have now actually been read on this passage both
@@ -731,6 +732,10 @@ with a black inlay for the dark parts**. That is the register the text points at
 | 5.3g | **A scholar states the register decision's factual premise outright:** "the Phoenician bowls are chased work whereas **the decorations of the Shield must be inlaid work**." Revermann says this in passing, as the reason the bowls are an imperfect model — which is what makes it good evidence: it is a shared premise, not a thesis he is defending. Together with §5.1 (materials named for selected details), §5.2c (Homer's own polychrome-metalwork comparanda) and §5.3a–b (gold and silver on a black ground), this is the strongest available warrant for the literal-metallic side of the §5.4 decision. | identification | Revermann, "Text of *Iliad* 18.603–6," 31, following Erika Simon, "Der Schild des Achilleus" (1995), 129f. | Read in full, `research-cache/revermann-1998-text-iliad.pdf` |
 
 ### 5.4 The register decision (John's, not mine) — the evidence for each side
+
+**✅ RULED (John, 2026-07-30 16:23, see the banner atop §5): METALLICS.**
+The evidence tables below are retained as the historical record of the
+case for each side; the decision itself is no longer open.
 
 **Literal metallics.** For: the text names materials for fourteen details (§5.1),
 and its own comparanda are inlay (§5.2c); a scholar states the premise flatly —

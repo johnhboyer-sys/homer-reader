@@ -56,6 +56,12 @@ and 4-vertex rectangles, no plate-level `sources`). Two honest routes, John's ca
    Either way the register label — `schematic` vs `geographic` — must match the geometry
    actually under it.
 
+**RULED (John, 2026-07-30 16:48/16:52/16:53) — see the DESIGN SPEC below.** The
+two routes above are superseded by a split, not a choice between them: **two
+plates**, Plate A (Troy VI, the poem's city — route 1's rebuild, reader-first)
+and Plate B (the excavation history — route 2's territory, optional and
+secondary). Plate A ships first.
+
 **Sampling.** Dörpfeld 1902: the plate apparatus is covered in full (all 8 Tafeln
 identified and looked at; the official *Erläuterung der Tafeln*, pp. 648–651, read from
 the page images; the 58 Beilagen enumerated by OCR, captions sampled not verified — see
@@ -577,9 +583,9 @@ on a Tafel V trace, and a cross-check on the numbered feature labels.
 **Claim.** The World Heritage Centre holds the 1998 nomination file for the Archaeological
 Site of Troy (849), c. 21 MB (`whc.unesco.org/uploads/nominations/849.pdf`), and a map
 "Troia, scale 1:5000" dated 2009, on <https://whc.unesco.org/en/list/849/maps/>.
-*authority:* catalogue only. **Neither was opened** — the maps page returned HTTP 403 to
-this lane. No shapefile or coordinate list was found offered.
-See §6.
+*authority:* catalogue only at first; **both OBTAINED and read 2026-07-30** (John's
+click past the 403). Verdict in §6 item 8: boundary yes, site plan no — the sheet is
+a cadastral base, not an excavation plan. Notes: `research-cache/unesco-849-notes.md`.
 
 ### 4.5 A trap to name
 
@@ -705,9 +711,21 @@ Ordered by what each settles.
    Full record: `research-cache/blegen-renewal-search-notes.md`.
 7. **Rose, *The Archaeology of Greek and Roman Troy* (2014)** — the list of illustrations,
    to know which plans it reproduces and from whom.
-8. **UNESCO 849**: the 1998 nomination PDF and the 2009 "Troia, scale 1:5000" map from
-   <https://whc.unesco.org/en/list/849/maps/> — 403 to this lane. Would give an official
-   boundary and a 1:5000 site plan.
+8. ~~**UNESCO 849**~~ **OBTAINED (John's click, 2026-07-30; extracted same day —
+   `research-cache/unesco-849-nomination-1998.pdf`, `unesco-849-troia-1to5000-2009.jpg`,
+   notes at `unesco-849-notes.md`). Boundary delivered; site plan NOT delivered.**
+   The 1:5000 sheet is a Turkish cadastral/topographic base with the World Heritage
+   boundary hand-traced in red (158 ha stated) — contours and two buildings on the
+   mound, no wall, trench or period line anywhere; no title block, agency, date or
+   datum printed. The 96-pp nomination PDF's maps are the same cadastral base plus
+   zoning diagrams, all uncredited. Usable geometry: the boundary polygon (~25–30
+   vertices; confirms OSM way 423938794's 26-vertex trace is a coarse simplification)
+   — an overlay option only, per the scope rule (a Homer reader gains nothing from
+   heritage-administration zoning). **TRAP recorded:** the nomination form's own
+   "Exact location: 26°19′E; 39°55′N" is ~8 km from the site — a clerical error;
+   never harvest it. ICOMOS 1998 recommended deferral for want of precise boundary
+   maps; the Committee inscribed on promise. Datum of the 2009 sheet's 5-point
+   coordinate table unconfirmed.
 9. **Jansen and Blindow, "The Geophysical Mapping of the Lower City of Troia/Ilion"** in
    Wagner, Pernicka and Uerpmann, eds., *Troia and the Troad* (Springer, 2003), ch. 22 —
    the earlier, fuller magnetometry publication.

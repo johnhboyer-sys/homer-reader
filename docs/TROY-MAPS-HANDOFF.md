@@ -123,6 +123,10 @@ as "Drawn as part of the map".)
   stated as reversible in its note: Scaean at the West Gate VI U, Dardanian at
   the South Gate VI T, chosen to keep the poem's two named gates distinct. A
   contested identification, so John's call.
+  **[SUPERSEDED, John, 2026-07-30 16:29, ruling 2e-ii — TROY-MAPS-TODO.md:
+  the plate now carries Dörpfeld letters only (VI T, VI U), no Homeric gate
+  name drawn; the Scaean/Dardanian pairing lives in the note only. This
+  handoff's snapshot is kept as history, not current instruction.]**
 - Three things a library visit would settle, recorded in
   `docs/TROAD-CARTOGRAPHY.md` under "Unverified — do not claim publicly": what
   Janko's single map in Cambridge vol. IV depicts, whether Luce 1998 charts the

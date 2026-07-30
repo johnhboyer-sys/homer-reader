@@ -405,6 +405,10 @@ that appears never to have been scanned.
   ready for this yet.
 - The contested **Scaean / Dardanian** pairing (currently Scaean at West Gate
   VI U, Dardanian at South Gate VI T, stated as reversible in the layer note).
+  **[SUPERSEDED, John, 2026-07-30 16:29, ruling 2e-ii — TROY-MAPS-TODO.md:
+  the plate now carries Dörpfeld letters only, no Homeric gate name drawn;
+  this pairing lives in the note only. This handoff's snapshot is kept as
+  history, not current instruction.]**
 - The Shield's visual register: literal metallics vs the site's terracotta
   family.
 - Whether the citadel gets real survey geometry or an honest retitle.

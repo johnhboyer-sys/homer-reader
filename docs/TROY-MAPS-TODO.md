@@ -13,13 +13,20 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
   ("Ajax's end" / "the middle: Odysseus's ships, the assembly" /
   "Achilles' end"); the words "left" and "right" appear nowhere on the
   schematic sheet. Binds every anchor brief and caption.
-- **D4 — DECIDED: Option A + recency tiebreak.** Geographic plates carry
+- ~~**D4 — DECIDED: Option A + recency tiebreak.** Geographic plates carry
   the camp as rival attributed zones (Kraft 1980 Beşika / Luce 1984 inner
   ridge / 2003 outer ridge), each speculative, under the certainty filter.
   Where the Chart Room (or any single-frame context) must pick ONE, **the
   most recently published scholarly placement wins the camera** — currently
   the 2003 Kraft/Rapp/Kayan/Luce outer-ridge camp — and the caption names
-  whose placement is framed. Later scholarship supersedes automatically.
+  whose placement is framed. Later scholarship supersedes automatically.~~
+  **SUPERSEDED (John, 2026-07-30 16:29, ruling 2e-iv below):** the
+  geographic plate draws **one** zone, not rival zones — Sigeum ridge
+  (Kraft, Rapp, Kayan & Luce 2003, after Luce 1998; Luce 1984 the inner-
+  flank variant). Beşika (Kraft/Kayan/Erol 1980; the 1982 "Besika
+  Hypothesis") stays in the note as the named rival attributed zone,
+  never a coordinate pin. The recency-tiebreak logic is subsumed — Sigeum
+  is both the single drawn zone and the most recent.
 - **D6 — DECIDED (09:28); note wording UPDATED (John, 2026-07-30 16:31)
   to match the research findings: draw the Kesik cut; the note LEADS
   with the wall-and-ditch reading, attributed honestly** — "the reading
@@ -31,26 +38,43 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
   2003 chapter and 2009; late-Roman drainage never completed, Cook 1973,
   166-67). Feature certain, identification speculative, every reading
   attributed.
-- **D9 — DECIDED (09:29): Option A.** Gate names follow Dörpfeld: VI T =
+- ~~**D9 — DECIDED (09:29): Option A.** Gate names follow Dörpfeld: VI T =
   the Dardanian Gate (his confident identification, 2:630); the Scaean
   marked conjectural at the lost NW corner with his own vermutungsweise
   hedge quoted, stated as reversible. The unsourced guidebook
-  "South Gate = Scaean" never appears.
-- **D11 — DECIDED (09:34): side with Taplin — the dance scene includes
+  "South Gate = Scaean" never appears.~~
+  **SUPERSEDED (John, 2026-07-30 16:29, ruling 2e-ii below):** the plate
+  labels the gates by Dörpfeld letters only (VI T, VI U) — no Homeric gate
+  name is drawn at all, conjectural or otherwise. The contested Scaean/
+  Dardanian pairing moves to the note; more research before any Homeric
+  label goes on the sheet.
+- ~~**D11 — DECIDED (09:34): side with Taplin — the dance scene includes
   the bard**, with a note carrying the disagreement: our printed text
   (vulgate/Aristarchus) lacks him; Edwards calls the line a supplement,
   Revermann rejects it too; Taplin — with Schadewaldt, Reinhardt and Marg
   (who take the singer for Homer himself) — would have him. The caption
   must state that the drawing follows Taplin's reading so plate and
-  printed text never look accidentally inconsistent.
+  printed text never look accidentally inconsistent.~~
+  **SUPERSEDED (John, 2026-07-30 16:19, ruling 2b below):** no bard on
+  the dancing floor. Edwards was read first-hand after this morning's
+  ruling and does not join Taplin; the tradition as read is 2–1 against
+  (Edwards, Revermann vs Taplin) and Taplin's case is judged special
+  pleading. Draw the vulgate as printed — tumblers lead; the caption may
+  carry the crux. RESEARCH-SHIELD §2.2.
 - **D14 — DECIDED (09:34): Option A — literal metallics.** Gold, silver,
   bronze, tin figures on dark kyanos-inlay ground, per Il. 18.474-75 +
   the Mycenaean inlay precedent.
 - **D15 — DECIDED (09:34): Callicolone moves to Kara Tepe** (the
   Spratt/Forchhammer identification, defended by Cook, adopted by Luce),
-  pinned at the surveyed OSM peak 39.95653/26.33947 (ele 207 m = Cook's
-  680 ft), tier stays speculative, tradition names the chain and Leaf's
-  Ophrynion alternative. Applied to places.json same day.
+  pinned at the surveyed OSM peak 39.95653/26.33947 (ele 207 m = **Spratt's**
+  680 ft, Cook 110 crediting Spratt for the figure — corrected attribution,
+  RESEARCH-TROAD-TOPOGRAPHY §9.1), tier stays speculative, tradition names
+  the chain and Leaf's Ophrynion alternative. Applied to places.json same day.
+  **TIER SUPERSEDED (John, 2026-07-30 16:21, ruling 2d below):** support
+  judged overwhelming (Spratt/Forchhammer/Cook/Luce) — tier raised to
+  `traditional`, tradition named; pin and the 680 ft = 207 m figure stand
+  unchanged, and Leaf's Ophrynion stays in the note as dissent.
+  RESEARCH-TROAD-TOPOGRAPHY §9.1.
 - **D12 — DECIDED (09:36): Edwards's reading for the city at war** — one
   besieged city with forces on either side (the drawable reading; Taplin's
   two-armies would leave the second army's position speculative), with a
@@ -69,8 +93,13 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
   (barrier, lagoon landward, 3500 BP shoreline on the seaward flank),
   suitable as the drawable source with the 1991 hand-auger caveats the
   dossier states.
-- **D16 — DEFERRED** until John can sit with the dossiers (chryse,
-  dardania, thymbra).
+- ~~**D16 — DEFERRED** until John can sit with the dossiers (chryse,
+  dardania, thymbra).~~
+  **PARTIALLY SUPERSEDED (John, 2026-07-30 16:29, ruling 2e below):**
+  chryse and thymbra are now decided — chryse is a correction, not a call
+  (2e-i, the Strabo 13.1.63 reversal fixed); thymbra re-anchors to Pleiades
+  550929 (2e-iii). Dardania is not addressed by 2e and stays genuinely
+  DEFERRED.
 - **D2, D3, D7, D8, D13 — ALL settled-by-evidence items CONFIRMED**
   (John, 09:26): wagon gate captioned without a side-word; no schematic
   scale bar (pyre keeps its cited 100-ft label); shore-bronze note
@@ -245,8 +274,10 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
    ridge per Kraft, Rapp, Kayan & Luce 2003, Beşika in the note as rival
    (2e-iv); Shield register = refined Metallmalerei metallics (2f); camp
    sectors by holder, Greek-side axis placement (2a); no bard on the
-   dancing floor (2b); Edwards's split siege ring (2c). Plus the D6 note
-   rewording once John words it.
+   dancing floor (2b); Edwards's split siege ring (2c). ~~Plus the D6 note
+   rewording once John words it.~~ **Done — D6 was worded and resolved at
+   16:31 (see the D6 ruling above); the reworded note is part of applying
+   D6, not a separate step.**
 1. **Contour re-cut** per RESEARCH-BASEMAP-DATA.md: relief `tol_deg` →
    0.00100 (Troad) / 0.00012 (plain), plain `decimate` → 1, no smoothing,
    cull degenerate rings. Re-render and LOOK at 3.5×+ crops.
@@ -270,5 +301,10 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
    p. 243 continuation; page-FOOT re-captures (current captures crop the last
    ~6–8 lines of every page — the cheapest verification item in the file).
 8. **Citadel rebuild** from Dörpfeld Tafel V (georectify on features; Tafel I
-   found at leaf n268) — after Messmer Abb. 2. **Shield figuration design** —
-   after John's register call.
+   found at leaf n268) — after Messmer Abb. 2. **SPLIT (John, 2026-07-30
+   16:48/16:52/16:53, DESIGN SPEC, RESEARCH-CITADEL.md): build Plate A
+   first** — Troy VI, the poem's city, reader-facing, gates as Dörpfeld
+   letters (2e-ii) — **Plate B (the excavation history, phase-coloured) is
+   secondary and optional-later**, built only after Plate A ships, if at
+   all. **Shield figuration design** — register decided (2f, refined
+   Metallmalerei metallics, 16:23); design may proceed.
