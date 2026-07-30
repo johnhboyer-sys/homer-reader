@@ -86,8 +86,16 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
       CITADEL §6). Check Kayan's academia.edu first.
    b. Janko vol. IV (notes on 13.681, 16.286; not on archive.org;
       non-blocking).
-   Tier 2 if cheap: Kayan, *Studia Troica* 5 (1995): 211–35; Kraft/Kayan/
-   Erol in Rapp & Gifford, *Troy: The Archaeological Geology* (1982), 11–41.
+   **UPDATE 10:28 — Kayan 1991 ACQUIRED (offprint, cached as
+   `research-cache/kayan-1991-besik-plain-studia-troica-1.pdf`; volume
+   Abb. 17–23 still outstanding, low priority). His academia.edu profile
+   (https://ege.academia.edu/IlhanKayan) carries the whole remaining
+   want-list — John to click-download: (11) Rapp & Gifford 1982 chapter;
+   (30) "Bronze Age regression" = Kayan 1997b; (24) Troia Bay 1995;
+   (29) Karamenderes–Dümrek 1996; "The water supply of Troia" 2000;
+   plus (70) Kesik/Alacalıgöl ST 18; (17) Late Holocene Sea-Level W
+   Anatolia; QSR 1999 synthesis; (51) western-footslope reconstruction.
+   Only true ILL left: Janko vol. IV.**
 2. **Decisions queued from the research** (each with its evidence table in
    the named dossier):
    a. Left/right labelling: the axis holds, the sense is undecidable
