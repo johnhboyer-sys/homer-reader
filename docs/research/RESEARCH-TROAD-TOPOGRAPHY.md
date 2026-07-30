@@ -7,6 +7,13 @@ now on disk; the paywalled-access and unverified lists updated to match.
 the lending copy gave up; §1.1, §2.1, §4.2, §6, §7.1, §8.4 and both tail lists are updated to
 match. The headline: Cook puts Callicolone at Kara Tepe, ~8.5 km east of Hisarlık, which is
 **not** where the gazetteer's coordinate is.
+**Revised a third time:** 2026-07-30, later still — **pp. 165–72 read off the page images, and
+the Kesik question is closed.** Cook does discuss the cut, at 166–67, and his own verdict is
+"the work was never completed" (167) — so Zangger & Mutlu's and Kayan's "Cook 1973, 167" is a
+real citation, near-verbatim. §9.2 is now a resolution; new §9.5a gives `wall-of-heracles` a
+Cook position; §9.5's mid-sentence break is completed and its page attribution corrected; §1.1,
+§9.7 and both tail lists follow. One methodological loss is recorded rather than papered over:
+the captures crop the foot of every page (§1.1).
 **Extends:** [`docs/TROAD-SOURCES.md`](../TROAD-SOURCES.md) (2026-07-28). That file is the
 Trojan-plain source dossier: paleogeography, the plain's named features, the licensing
 table, and the record-by-record JSON block. **This file does not repeat it.** Where the
@@ -49,10 +56,14 @@ shapefile is never a source of an identification.
 - **Sampled:** Strabo 13.1. I verified **sections 5, 9, 35, 36, 44, 45, 50, 51, 61, 62, 63
   and 65** verbatim. Other section numbers already in the gazetteer are **not** verified
   and are listed in §10.
-- **Read in part, 2026-07-30:** Cook 1973 — pp. 110–13, 141–46, 165–67 and 168–72, plus Fig. 6,
-  transcribed from the archive.org lending copy. Page-cited from §9 onwards. **Everything else in
-  Cook remains unread, and pp. 141–46 and 168–72 were skimmed rather than read through** — see
-  §9.7 for the list of what is still dark.
+- **Read in part, 2026-07-30:** Cook 1973 — pp. 110–13, 141–46, 165–72, plus Fig. 6,
+  transcribed from the archive.org lending copy. Page-cited from §9 onwards. **pp. 165–72 have
+  since been read through off the page images** (this is what closed §9.2); **pp. 141–46 were
+  skimmed, not read through**, and everything else in Cook remains unread — see §9.7.
+- **Cropped, on every captured page:** the archive.org reader viewport cuts the last **~6–8
+  printed lines** of each page out of the capture. So a page's *foot* is unread even where its
+  body is read, and any sentence that spans a page turn is at risk. §1.1 has the consequences;
+  they are why §9.5 still carries an unverified quotation from a page whose body I have read.
 - **Not seen at all:** Luce 1998. Not one page. Every citation of it below is at work level with
   no page number, deliberately. See the tail lists.
 
@@ -80,11 +91,36 @@ exactly the way Strabo's stades are, and not coordinates themselves (§9.1).
 2. *2026-07-30.* **A borrow succeeded.** A research lane took out the lending copy (loan
    account `celarent245`, "13 days left" at session time), ran search-inside, and
    transcribed page images for six targets. Its transcriptions, with the printed page
-   numbers, are at **`research-cache/cook-1973-notes.md`**; everything in §9 rests on that
-   file. Page-image captures were being made concurrently into
-   `research-cache/page-captures/` — **as of this edit that directory exists and is empty**,
-   so no Cook page number below has been re-read by me off an image. The provenance chain is:
-   printed page → lending-copy page image → the lane's transcription → this file.
+   numbers, are at **`research-cache/cook-1973-notes.md`**; §9.1, §9.3, §9.4 and §9.6 rest on
+   that file. The provenance chain there is: printed page → lending-copy page image → the
+   lane's transcription → this file.
+3. *2026-07-30, later.* **`research-cache/page-captures/` is now populated — 26 PNG screen
+   captures of the archive.org reader**, of which **16 are Cook**: `cook-p110-fig6`,
+   `cook-p111-kallikolone`, `cook-p112-kallikolone`, `cook-p113-thymbrios`,
+   `cook-p141-pinarbasi`, `cook-p142`, `cook-p143`, `cook-p144-pinarbasi-temp`, `cook-p165`,
+   `cook-p166-kesik-cut`, `cook-p167-kesik-cut`, `cook-p168`, `cook-p169`, `cook-p170`,
+   `cook-p171`, `cook-p172`. (The other ten are Hainsworth ×4, Richardson ×2, Edwards ×4 — not
+   this entry's business.) **pp. 165–72 have now been read off those images directly**, which
+   is the provenance for §9.2 and §9.5a and for the corrections inside §9.5: printed page →
+   page image → this file, with the lane's transcription cut out of the chain. Cook's pages
+   110–13 and 141–44 have captures but I have **not** re-read them; §9.1, §9.3 and §9.4 still
+   rest on the transcription alone.
+
+**The captures crop the foot of every page, and this is a real limit, not a nicety.** Each PNG
+is 1504 × 817 and shows the archive.org reader's *viewport*, not the page: the last **~6–8
+printed lines** fall below the frame, with one further line half-visible and mostly illegible.
+Two consequences bind anyone using these files.
+
+- **A sentence that crosses a page turn cannot be assembled from two captures.** Between the
+  last full line of one page and the first line of the next there is a hole of six to eight
+  lines. §9.2 hits this at the foot of 166 (the earthquake theory's proponent is in the hole)
+  and §9.5 hits it at the foot of 171.
+- **A quotation whose page-body I have read may still be unverified**, if it sits in the foot.
+  The §9.5 bay quotation attributed to 169 is exactly that case: 169's body says nothing of the
+  kind, and the quotation fits the cropped band, so the attribution is *consistent with* the
+  image and not *confirmed by* it.
+
+Anyone re-capturing this book should scroll each page in two overlapping frames.
 
 **Consequence, revised.** Cook page numbers may now be cited for the six targets in §9, and
 only those. The nine `places.json` records citing Cook at work level (`simoeis`,
@@ -1283,11 +1319,18 @@ make Cook a read book: see §9.7.
 Topographical Study*. Oxford: Clarendon Press, 1973. Transcribed from page images of the
 archive.org lending copy, identifier `troadarchaeologi0000cook`, loan account `celarent245`,
 borrow session 2026-07-30 ("13 days left" at session time). Printed page numbers throughout,
-read off the page images by the transcribing lane; brief quotations only, as controlled lending
-allows. The transcriptions are at **`research-cache/cook-1973-notes.md`**. Page-image captures
-were being made concurrently into `research-cache/page-captures/`; **that directory was present
-and empty when this section was written**, so nothing here has been re-read off an image by me.
-Where a claim needs a page I have not seen, it says so.
+read off the page images; brief quotations only, as controlled lending allows. Two provenance
+grades run through this section, and every subsection says which it is on.
+
+- **Grade A — read off the page image here.** pp. **165–72**, from
+  `research-cache/page-captures/cook-p165.png` … `cook-p172.png`. §9.2, §9.5a, and the
+  corrections marked inside §9.5.
+- **Grade B — the transcribing lane's reading, not re-checked.** pp. 110–13, 141–46, Fig. 6.
+  Transcriptions at **`research-cache/cook-1973-notes.md`**. §9.1, §9.3, §9.4, §9.6, and §9.5's
+  quotations other than the corrected ones.
+
+**Grade A is not "the whole page".** The captures crop the last ~6–8 printed lines of every page
+(§1.1). Where a claim needs a page, or a page's foot, that I have not seen, it says so.
 
 **Reference point for every distance in this section:** Hisarlık at **39.957, 26.239** — the
 `troy` coordinate in `apparatus/places.json`, cited to Pleiades 550595. §4.2's "3.55 km" for the
@@ -1389,79 +1432,210 @@ section; the Strabo passage at §4.2; the flagged defect at §8.4; Luce 1984's F
 "following Spratt and Forchhammer (Cook 1973, 111)" attribution at
 [`RESEARCH-PALEOGEOGRAPHY.md`](RESEARCH-PALEOGEOGRAPHY.md) §1.11.
 
-**One more Cook page, on the hill on the other side.** At 169 Cook returns to Kallikolone in
-connection with the *pro-Achaean* gods' viewing-hill opposite it (*Il.* 20.144ff.), weighing
-Leaf's candidate (Beşik Tepe) against "Prokesch's level crest south of Yenişehir (our 'Spratt's
-plateau')" as the more comfortable vantage. **This bears on `wall-of-heracles`, not on
-`callicolone`**, and it is a single transcribed sentence with no argument attached — recorded so
-it is not lost, not usable as Cook's position until 169 is read properly.
+**One more Cook page, on the hill on the other side — now read.** At 169 Cook returns to
+Kallikolone in connection with the *pro-Achaean* gods' viewing-hill opposite it (*Il.* 20.144
+ff.). **That page has since been read off the image, and it bears on `wall-of-heracles`, not on
+`callicolone`: it is at §9.5a.** Two things it gives back to *this* section. (a) Cook cites the
+Kallikolone confrontation as *Iliad* xx. 144 ff., which is the same passage Leaf's Ophrynion
+argument turns on (§7.1) — so Cook and Leaf are reading one scene and reaching different
+topographies on both of its hills, not one. (b) Cook's 169 sentence is **conditional** ("for
+those who wish to envisage the eminence on which…"), and he never asserts a location for the
+pro-Achaean hill. **His Kallikolone is an identification argued from measurements; his gods'
+hill is a suggestion offered to a reader who wants to picture the scene.** Cook draws the
+project's two-register line straight through a single Homeric passage, and it is worth a plate
+note.
 
-### 9.2 The Kesik problem — an open verification item, not a resolution
+### 9.2 The Kesik cut — RESOLVED 2026-07-30. Cook discusses it at 166–67, and the verdict is his
 
-**The state of play.** `RESEARCH-PALEOGEOGRAPHY.md` §1.9 records, at second hand through Zangger
-& Mutlu's Turkish paraphrase, that **"J. M. Cook had already concluded that the work was never
-finished (Cook 1973, 167)"** — the work being the Kesik cut, the 400 × 50 × 30 m ditch through
-the coastal ridge whose floor stands 13.7 m above sea level. That paraphrase is the sole warrant
-for Cook's name appearing in the Kesik argument at all, and the PALEO dossier's own
-paywalled-access list, item 12, names **Cook 1973, 167** as the page that would settle it
-first-hand.
+**Resolution, in one line.** Cook devotes a paragraph and a half to the cut at **166–67**, calls
+it flatly "**an artificial cut**", and closes with "**It seemed to us clear that the work was
+never completed**" (167). So `RESEARCH-PALEOGEOGRAPHY.md`'s "unfinished (Cook 1973, 167)" is **a
+real citation, on the right page, and near-verbatim** — not an embellishment and not a page slip.
+The old three-way discrepancy resolves to possibility 1: the feature was there under another
+word.
 
-**What the lending session found instead.** Search-inside for "Kesik" returned **nine hits, all
-of them concerning *Kesik Tepe*** — a burial mound on the coast south of "Spratt's plateau" near
-Taşlı Burun, which the travellers took for the **Tomb of Antilochus** (Cook, 165–67). Verbatim,
-at 165:
+**verified how — Grade A.** Read off `research-cache/page-captures/cook-p165.png`,
+`cook-p166-kesik-cut.png` and `cook-p167-kesik-cut.png` (printed pages 165, 166, 167; running
+heads "THE RIDGE TO BEŞIKA" on the rectos, "THE SIGEUM RIDGE" on the versos; archive.org leaf
+counter 187/547, 189/547, 190/547). The load-bearing lines — the 500 m, the 12–15 m, the Greek,
+and the verdict sentence — were re-cropped from the same PNGs and upscaled ×2–×4 before
+transcription. **Caveat that survives the resolution:** the captures crop the last ~6–8 lines of
+each page (§1.1), and the foot of 166 is in that band, so the *first* theory Cook reports is
+headless here — see "still dark" below.
+
+**Why nine "Kesik" hits missed it, and the lesson.** **Cook never calls the cut "Kesik".** He
+calls it "an artificial cut", "the cut", "a great V-shaped trench", "the existing cut". "Kesik"
+in his text is always *Kesik Tepe*, the mound — which he uses as the landmark the cut is measured
+*from*. A search-inside on a proper name cannot find a feature its author names descriptively;
+the failed search was evidence about Cook's diction and nothing else.
+
+**What Cook says the cut is.** At 166:
+
+> "The lowest point of the ridge is an artificial cut about 500 m. south of Kesik Tepe. The
+> profile of the crest is very distinctly shown by a photograph taken from the light cruiser
+> *Dresden* in 1913 shortly before she sailed to the German East Asiatic squadron.³ The cut is a
+> great V-shaped trench, whose bottom at the crossing of the ridge is perhaps 12–15 m. above sea
+> level; on the west the trough descends steeply to the …"
+
+That is where the capture ends. **Cook's own measurements are two, and both are locational or
+vertical:** the cut sits **about 500 m south of Kesik Tepe** and is **the lowest point of the
+ridge**; its floor at the crossing is **"perhaps 12–15 m. above sea level"**. He gives **no
+length, no width and no depth** — so the **400 × 50 × 30 m in the PALEO dossier is Kayan's and
+Zangger's, never Cook's**, and no summary may print those figures beside Cook's name.
+
+**The theories Cook reports, and whose each is.** All at 167 unless noted.
+
+| theory of the cut | whose, per Cook | Cook's handling |
+|---|---|---|
+| the **result of an earthquake** | **[not in capture]** — the proponent's name sits in the cropped foot of 166; the sentence surfaces on 167 already in progress, as "…result of an earthquake." | dismissed in four words: Cook's next sentence opens "**Coming down to earth**, Forchhammer suggested…", which files the earthquake reading (and whatever preceded it on 166) as the fanciful end of the range |
+| **drainage of the plain of flood water** | **Forchhammer** suggested it; "this opinion was adopted by **Ulrichs, Tozer, and Virchow**" | **Cook's own preference**: "Drainage seems the more plausible solution" |
+| the legend that **Heracles dug a course for the Scamander** (σκάμμα ἀνδρός), with **Pliny's "Scamander, amnis navigabilis"** | unattributed ancient/legendary material; Cook says the drainage view "has been brought into relationship with" it | reported as a *connection others have drawn*, neither endorsed nor refuted |
+| a **canal to a south harbour of Sigeum**, in **Pisistratid** times, Sigeum being placed on "Spratt's plateau" | **Brückner** — "Brückner reverted to the canal theory, imagining that…" | doubted on practicality: the "Lisgar" marsh "would have had to be excavated to below sea level for a harbour and the spoil from it banked up somewhere" |
+
+**σκάμμα ἀνδρός — an etymology, not a place-name, and it is easy to mistranscribe.** Cook prints
+it in parentheses immediately after "the legend that Heracles dug a course for the Scamander". The
+Greek is **σκάμμα ἀνδρός**, "a man's digging" — i.e. the folk etymology that splits **Σκάμανδρος**
+into its own aetiology, so that the river's name testifies to the canal. **The letters are Grade
+A** (read off a ×3 crop of 167; breathing and accents legible, and the second word is ἀνδρός, not
+a proper name). **That the parenthesis is functioning as an etymology of Σκάμανδρος is my reading,
+not Cook's statement** — he prints the phrase and moves on. Cook's footnote 1 hangs on it and
+**the footnote is in the cropped page foot**, so the ancient source for the etymology is unread
+here. Anyone chasing it should expect the scholia or Eustathius rather than Cook.
+
+**Cook's own verdict, in his words, at 167** — and it has two halves that must not be run
+together:
+
+> "Drainage seems the more plausible solution; and if we seek an occasion when the need for
+> *terra firma* in the plain would have been greatest and resources for the task most readily
+> available, the foundation of Constantine's new city would furnish an answer. **It seemed to us
+> clear that the work was never completed.** The bottom of the existing cut is much too high, and
+> the cut itself too narrow; and the sea bottom in the cove at the end of the cut looks quite
+> clear of deposited mud."
+
+1. **Purpose and date.** Drainage, and the occasion he offers is **the foundation of
+   Constantine's new city** — a **fourth-century-AD** occasion. Not Bronze Age; not Pisistratid.
+   Note the tense: Cook offers this as the answer to "if we seek an occasion", i.e. as the best
+   available candidate, not as a dated finding.
+2. **Completion.** Never completed, on **three field grounds**: the floor is too high, the cut
+   is too narrow, and **the sea bottom in the cove at the seaward end is "quite clear of
+   deposited mud"** — nothing ever ran through it.
+
+**Is "unfinished" Cook's word? No — "never completed" is, and the difference is nil.** Cook: "the
+work was never completed". Zangger & Mutlu (through Turkish, as PALEO §1.9 renders them): "the
+work was never finished". Same claim, same page, one synonym apart. **The citation is accurate.
+Nobody need hedge it again.** What *is* worth policing is not the citation but the company it
+keeps — see the next block.
+
+**Relationship to `RESEARCH-PALEOGEOGRAPHY.md` §1.9 and its feature table — contradictions
+recorded, not harmonised.** That file is read-only from here; these are flags for its lane.
+
+1. **Cook and Kayan contradict each other on whether the cut is artificial at all, and PALEO
+   §1.9 prints them as if they agreed.** Its sentence runs: "Kayan takes it for a tectonic
+   depression … widened by foot traffic …; J. M. Cook had already concluded that the work was
+   never finished." **Cook's first four words about the feature are "an artificial cut"**, and
+   his verdict presupposes a work: *a tectonic depression cannot be unfinished.* The feature-table
+   row ("**400 × 50 × 30 m**, floor **13.7 m a.s.l.** … unfinished (Cook 1973, 167); read as a
+   tectonic depression by Kayan") compresses a live disagreement into a list of compatible
+   attributes. **This is the highest-value correction available to that file**, and it is the
+   opposite of what §9.2 previously expected to find: the citation was sound and the framing is
+   not.
+2. **They agree on the fact and split on the cause.** Cook's ground for incompletion — the floor
+   "much too high" — is the same geometry Kayan's cores later quantified. Both conclude the cut
+   was never navigable. Cook says *because it was abandoned half-dug*; Kayan says *because nobody
+   dug it*. A plate note can state the shared negative finding with no hedging at all, and must
+   name the split if it goes further.
+3. **Cook's vertical figure independently brackets Kayan's.** Cook, by eye in the field in the
+   1960s: floor "perhaps 12–15 m. above sea level". Kayan, by drilling: **13.7 m**. 13.7 sits
+   inside 12–15. **Record both; do not merge them and do not drop Cook's "perhaps"** — an
+   eyeball estimate that brackets a later survey is corroboration, not a second measurement.
+4. **Cook cannot be enlisted for Bronze Age harbour engineering.** Zangger & Mutlu are advocates
+   of the artificial-harbour hypothesis and cite Cook inside that argument. Cook's actual position
+   is that the ditch is **late-Roman drainage, abandoned** — the Pisistratid *harbour* reading is
+   Brückner's, and Cook doubts it on the cost of the spoil. So: **citation accurate, use
+   tendentious.** Any site copy that says "Cook found the harbour work unfinished" would be
+   false; "Cook thought the cut an unfinished drainage work, probably of Constantine's day"
+   is what he says.
+5. **A locational constraint, and emphatically not a coordinate.** "About 500 m south of Kesik
+   Tepe", at "the lowest point of the ridge". PALEO's OSM appendix carries a `Demetrius tumulus`
+   node at **39.9608, 26.1680** which is *probably* Kesik Tepe (§9.2, below). 500 m south of that
+   would fall near 39.956/26.168 — **written here only so nobody has to re-derive it, and
+   unusable as a dot**: it would compound an unadopted node with a "500 m" and a compass word.
+   Its legitimate use is to **check** a candidate cut position, or the ridge's DEM minimum,
+   against Cook.
+
+**What is still dark, and it is small.** The **foot of 166** (~6–8 lines): the name attached to
+the earthquake theory, and Cook's description of how the trough falls away **on the west** — the
+seaward side, which is the side the harbour theory needs. Also the **footnotes** on 166 and 167
+(nn. 1–3), including the source for σκάμμα ἀνδρός and the *Dresden* photograph's publication.
+**Cheap to close:** two re-captures, scrolled to show each page's foot.
+
+**Kesik Tepe itself, the landmark the cut is measured from — and it is not a tumulus.** The
+mound is introduced at the foot of 165 and discussed through the first paragraph of 166. The
+transcription lane's quotation of the introduction:
 
 > "A kilometre or so along the coast from 'Spratt's plateau', where the ridge forms a low waist
 > at Taşlı Burun (plate 18 a, looking south from 'Spratt's plateau'), is a conspicuous mound
 > called Kesik Tepe, in which the travellers mostly recognized the Tomb of Antilochus. The
 > Greeks knew it as St. Demetrius' tepe because of an adjacent chapel…"
 
-**No discussion of a rock-cut channel or "cut" was found at or near p. 167.**
+Its **last clause is the first line of the 166 capture** and is confirmed Grade A; the sentences
+before it sit in the cropped foot of 165 and remain Grade B. What 166 then adds, and it changes
+the entry:
 
-**Status: OPEN. Neither reading is adopted, and the discrepancy is recorded as a discrepancy.**
-Three possibilities, and the evidence in hand does not choose among them:
+> "Forchhammer declared the mound natural; and so did Ulrichs, who thought it had been
+> artificially rounded off. On his journey of 1868 Schliemann took Kesik Tepe for the Tomb of
+> Festus; but he probed it with Virchow and Burnouf in 1879 and ascertained that it was a
+> **natural tertiary hump with never more than 5 ft. of earth on top**.² He dug for graves on top
+> without success."
 
-1. **The cut is there under another word.** Cook may discuss it as a canal, a channel, a cutting
-   or a ditch — search-inside indexes the string "Kesik", not the feature — and the
-   surrounding pages (165–72) are exactly the stretch that covers this sector of the ridge. The
-   transcription lane searched one term and read parts of the range; it did not read 165–72
-   through. **This is the possibility the page captures will settle.**
-2. **The citation is wrong.** "Cook 1973, 167" reaches us through a Turkish paraphrase of an
-   English source, in a paper whose authors are advocates of the artificial-harbour hypothesis.
-   A page slip, or an attribution of Kayan's or Brückner's view to Cook, is entirely possible.
-   Note that Kayan et al. 2003 carry the same citation, so if it is wrong it is wrong in more
-   than one place — which is evidence for a shared upstream error, not against one.
-3. **The lane's search was incomplete.** Nine hits is a small return for a book of this size, and
-   archive.org's search-inside has already failed once on this volume (§1.1). An index lookup
-   under "Kesik", "canal" or "Sigeion" was not done.
+Cook adds that the visible remains are "a small rubble building (evidently the chapel of St.
+Demetrius) at the north-west foot of the mound, with one large marble block among them"; that
+Schliemann "speaks quite casually of large ruins of a marble temple of Demeter adjoining the
+tepe"; that the mound is "barren and stony, with the natural rock showing through on the west side
+and in a trench on the summit"; and that **east of it "Spratt's map shows a large marsh (Lisgar,
+= Ilıca); it now seems to be drained and cultivated."**
 
-**What must not happen.** Nobody may write "Cook found the Kesik cut unfinished" **or** "Cook
-does not discuss the Kesik cut" until pp. 165–72 have been read through. The first is currently
-supported only by a second-hand paraphrase; the second is an argument from a failed string
-search, which is no argument at all. The transcribing lane said this itself: "do not assume the
-brief's premise is correct."
+**Three consequences.**
 
-**A separate, checkable Kesik Tepe finding, worth keeping.** Cook's Kesik Tepe is a **tomb**
-identified by the travellers with **Antilochus**, and locally St Demetrius' tepe after an
-adjacent chapel. `RESEARCH-PALEOGEOGRAPHY.md`'s OSM appendix flags a node at **39.9608, 26.1680**
-returned by a search for "Kesik" and named `Demetrius tumulus` — "Probably Kesik Tepe, the mound
-near Sigeion that the fourth century took for Achilles' tomb — but OSM's name is a different
-tradition. **Do not adopt without checking.**" **Cook explains that OSM name.** The chapel of St
-Demetrius is why the mound carried the name, so `Demetrius tumulus` is a Christian-era toponym
-sitting on a mound with **two** competing heroic traditions attached — Antilochus (Cook's
-travellers) and Achilles (the fourth century, per the PALEO note). That is a resolution of the
-*name*, and no warrant at all for adopting the coordinate: the identification remains three-ways
-contested and belongs nowhere near a `certain` tier.
-**citation:** Cook, *The Troad* (1973), 165–67.
-**authority kind:** prose and **identification** (the toponym's origin), never geometry.
-**verified how:** provenance above; `research-cache/cook-1973-notes.md` §1, which reports the
-NOT-FOUND result as prominently as the transcription. Cross-reference
+1. **The heroic identifications are dead by Cook's own account, and the mound is a geological
+   feature.** "Tomb of Antilochus" is what *the travellers* recognized; Forchhammer, Ulrichs and
+   then Schliemann's own 1879 probe make it natural. So a place record for this mound is a record
+   of a **tradition attached to a hill**, not of a tomb — and the tier follows: `traditional` at
+   most, naming the travellers, with Schliemann's negative result stated.
+2. **`Demetrius tumulus` is doubly wrong as a name, and Cook explains both halves.** The
+   *Demetrius* is the adjacent Christian chapel, not a hero; the *tumulus* is a tertiary hump.
+   `RESEARCH-PALEOGEOGRAPHY.md`'s OSM appendix flags the node at **39.9608, 26.1680** — "Probably
+   Kesik Tepe, the mound near Sigeion that the fourth century took for Achilles' tomb — but OSM's
+   name is a different tradition. **Do not adopt without checking.**" Cook resolves the *name*
+   (chapel), leaves the coordinate untouched, and adds a **third** heroic claimant: Antilochus
+   (the travellers), Achilles (the fourth century, per the PALEO note), Festus (Schliemann in
+   1868). **Three-ways contested, and nowhere near a `certain` tier.**
+3. **Schliemann moved the Festus identification.** He took *Kesik Tepe* for the Tomb of Festus in
+   1868 (166) and by 1879 was identifying *Üvecik Tepe* as Caracalla's monument to Festus (172,
+   §2.1). One man, two mounds, eleven years — worth a line wherever `tomb-of-aesyetes` records the
+   Festus tradition, because it shows the identification travelling.
+
+**"Lisgar" ties the two halves of this section together.** The marsh east of Kesik Tepe on
+Spratt's map is the same "'Lisgar' marsh" Cook says would have had to be dug out below sea level
+for Brückner's harbour (167), and the same basin `RESEARCH-PALEOGEOGRAPHY.md` §1.4 records as
+"the Kesik plain (also called the Lisgar…)". **Three names, one basin: Lisgar, Ilıca, the Kesik
+plain.** Cook adds the useful modern datum that it "now seems to be drained and cultivated".
+
+**citation:** Cook, *The Troad* (1973), 165–67 — the cut at 166–67, the mound at 165–66, the
+verdict at 167.
+**authority kind:** **prose** (the arguments and the field observations) and **identification**
+(the toponym's origin; the travellers' three heroic claims), plus one **vertical constraint**
+(the floor at 12–15 m a.s.l.) and one **locational constraint** (500 m south of Kesik Tepe).
+**Never geometry** — nothing here yields a coordinate.
+**verified how:** Grade A, per the block at the head of §9.2; the Grade-B remainder is flagged
+where it occurs. Cross-reference
 [`RESEARCH-PALEOGEOGRAPHY.md`](RESEARCH-PALEOGEOGRAPHY.md) §1.9 (the cut's measurements and
-Kayan's tectonic reading), its feature table row "Kesik cut" (which carries the "unfinished (Cook
-1973, 167)" claim into a summary table, where it looks settled and is not), its OSM appendix row
-for 39.9608/26.1680, and its paywalled-access item 12. **Read-only from here; that file is not
-this lane's to edit, and its "Kesik cut" table row is the highest-visibility place the
-unverified claim currently sits.**
+Kayan's tectonic reading), §1.4 (Kraft's Kesik-as-harbour), its feature table rows "Kesik cut"
+and "Kesik plain", its OSM appendix row for 39.9608/26.1680, and its paywalled-access item 12
+(**now closable — the page has been read**). **Read-only from here; that file is not this lane's
+to edit.** The five flags for its lane are numbered in the "Relationship to
+`RESEARCH-PALEOGEOGRAPHY.md`" block above, plus the two here on the mound's nature and the
+Lisgar/Ilıca/Kesik-plain name set.
 
 ### 9.3 Thymbra and the Thymbrios — Cook records the Kemer Su reading in order to reject it
 
@@ -1520,21 +1694,43 @@ The bay, at 169:
 > Pınarbaşı Çay was diverted there). It was the station used by the British and French fleets at
 > the mouth of the Dardanelles in the nineteenth century."
 
-The verdict, at 170–71 and 172:
+The verdict, at 171–72 (**the page attribution is corrected — see the completion note below**):
 
 > "Mey's excavation did not produce any evidence of the Achaeans' camp having been at Beşika. At
 > the same time, the fact remains that for an army with a thousand ships the north end of the
 > Trojan Plain on the narrows is an impossible camping site, and must surely have been so three
 > thousand years ago. For those who wish to regard the Homeric record as substantially accurate
-> Beşika Bay must be a very much more [attractive site — sentence runs on to the next page, not
-> transcribed]."
+> Beşika Bay must be a very much more | **satisfactory situation provided that it had an adequate
+> water supply before the Pınarbaşı Çay was diverted in that direction.**"
+
+**The break is completed, and the obvious guess was wrong — RESOLVED 2026-07-30.** The `|` marks
+the page turn. **The first line of 172 reads, Grade A:** "satisfactory situation provided that it
+had an adequate water supply before the Pınarbaşı Çay was diverted in that direction." So the
+sentence ends "**a very much more satisfactory situation**", not "a very much more attractive
+site" as this file previously guessed, and the guess failed twice over.
+
+1. **The noun is different, and duller.** "Situation" is Cook's topographer's word for a site's
+   position and endowments. "Attractive site" would have made him sound like an advocate.
+2. **The force is different, and this is the point.** Cook does not say Beşika is better. He says
+   it **must be a very much more satisfactory situation *provided that*** it had water in the
+   Bronze Age — and by his own account at 169 the bay's running water is an artefact of the
+   Pınarbaşı Çay's diversion. **Cook's concession to the Beşika camp is conditional on an
+   unestablished hydrological fact.** Anyone quoting Cook in support of Beşika must carry the
+   proviso; dropping it inverts him.
+3. **The pages move.** The break falls at the **171/172** turn, not 170/171. 172's opening line
+   completes it, and the "argument against Beşika" sentence follows immediately on the same page.
+   The sentence's *own* words, "must be a very much more", lie in the **cropped foot of 171**
+   (§1.1) — the 171 capture's last legible line is about Mey's volcanic particles — so the join is
+   established by the page turn and the grammar, and the fragment itself is still Grade B.
+   **Machine-checkable, and it is the one thing left:** a re-capture of 171 scrolled to its foot
+   should show ~8 lines running from "…cannot have had a" to "…a very much more".
 
 > "The argument against Beşika is of course a matter of Homeric criticism and not of ancient
 > topography. But it does seem possible to say that the Hellenistic scholars represented by
 > Strabo placed the Achaeans' camp on the narrows and not at Beşika; that was not disputed by
 > Brückner and Dörpfeld."
 
-**Three things this settles about how the gazetteer and the plates should talk.**
+**Four things this settles about how the gazetteer and the plates should talk.**
 
 1. **Cook grants the Homeric case against the narrows** — "for an army with a thousand ships the
    north end of the Trojan Plain on the narrows is an impossible camping site" — while granting
@@ -1552,18 +1748,54 @@ The verdict, at 170–71 and 172:
    anchorages, offering no safe shelter in gales". **Recorded as a contradiction, not
    harmonised** — Leaf is talking about gales and Cook about the prevailing northerlies, so they
    may both be right, and the `besik-bay` note should not adopt either adjective as fact.
+4. **Water, not shelter, is Cook's operative condition — new, 2026-07-30.** The completed sentence
+   makes Beşika's advantage hang on "**an adequate water supply before the Pınarbaşı Çay was
+   diverted in that direction**" (172). Cook is pointing at his own 169 parenthesis: the bay has
+   running water "**or at least it had as long as the Pınarbaşı Çay was diverted there**". Read
+   together, the two say the bay's present water is an artefact of a diversion, and that a Bronze
+   Age camp there needs a source nobody has demonstrated. **This is a falsifiable geoarchaeological
+   question** — what watered Beşika before the diversion — and it is the sharpest thing Cook
+   contributes to the camp problem. Any `achaean-camp` or `besik-bay` note that reaches for Cook
+   must reach for the condition too. Note the dependency: this reading leans on the 169
+   parenthesis, which is **Grade B and unconfirmed** (§1.1) — the 172 half is Grade A and stands
+   alone as a proviso either way.
 
-**citation:** Cook, *The Troad* (1973), 169 (the bay), 170–71 and 172 (the verdict).
+**A run of *other people's* Beşika material, and Cook's own scepticism about it, 168–72.** Read
+Grade A, and worth having because it is what "no evidence of the camp" actually consists of.
+Brückner argued the Beşika camp from a Berlin lecture of May 1912, winning over Col. W. von Diest
+and Dörpfeld; Oscar Mey reached the same conclusion independently from his own study of Homer;
+Mey and Dörpfeld excavated at Beşika in **October 1924**, Mey trenching "in the coastal plain
+where the Achaeans' camp should have been" while Dörpfeld and M. Schede worked the two tumuli
+(**Üvecik Tepe** and **Beşik Tepe**) (170). What Mey found was terracotta hearth fragments and no
+building foundations; he supposed "a small settlement such as a fisherman's village, or a place
+where sailors camped while waiting for a change of wind" (171). **Cook's counter-explanation is
+documentary, and it is a good one:** in 1839 Napier saw sutlers and traders at Beşika who "erected
+a small wooden town of booths on the marshy shore"; in the summer of 1853 the Earl of Carlisle
+found "a sort of extempore town … with shops for potations, pipes, Persian carpets and patés de
+foie gras" — "Such encampments would leave little trace save broken (and burnt) pottery and bits
+of hearths" (171). Cook does not claim Mey dug 1839 or 1853 debris; he says encampments *of that
+sort* are the best explanation of Mey's finds. **The `achaean-camp` note may say that the one
+excavation aimed at the Beşika camp produced material Cook reads as historical fleet-encampment
+debris. It may not say Mey found nothing at all.**
+
+**citation:** Cook, *The Troad* (1973), 169 (the bay — Grade B), 170–71 (Brückner, Mey and
+Dörpfeld's 1924 dig, the nineteenth-century encampments), 171–72 (the "very much more satisfactory
+situation" verdict), 172 (Homeric criticism vs ancient topography; the Hellenistic tradition).
 **authority kind:** prose throughout, with one **identification** (the Hellenistic tradition
 places the camp on the narrows). **Never geometry** — the §2.2 coastline measurements stand
 untouched by this.
-**verified how:** provenance above; `research-cache/cook-1973-notes.md` §5. Note that the 170–71
-quotation **breaks mid-sentence** at a page turn the lane did not capture: the words after "very
-much more" are unread, and the sentence's force ("a very much more attractive site" is the
-obvious completion) must not be quoted as if it were transcribed. **Cross-reference the Beşika
+**verified how:** 170, 171 and 172 read Grade A off `research-cache/page-captures/cook-p170.png`,
+`cook-p171.png`, `cook-p172.png`; the mid-sentence break resolved from 172's first line as set out
+above. **The bay quotation attributed to 169 is *not* confirmed:** 169's page body (Grade A) is
+about Lechevalier, Choiseul-Gouffier, Agammia and Leaf's 'mounded wall' (§9.5a) and contains no
+description of the bay. The quotation is the right length for 169's cropped foot, and 170 opens
+mid-sentence with "as an excellent harbour under the name Çökertme (= a kind of fishing net)",
+which is consistent with a bay description running off the bottom of 169 — so the attribution is
+**plausible and unverified**, and the safe form is "Cook, 169–70". **Cross-reference the Beşika
 harbour material at [`RESEARCH-PALEOGEOGRAPHY.md`](RESEARCH-PALEOGEOGRAPHY.md) §1.9, and Mey's
 trenches as Luce plots them ("M M… plotted so it can be seen to have found nothing") at its
-§1.11.**
+§1.11 — Luce's plot and Cook's reading of the same trenches are two different claims about one
+dig.**
 
 **Üvecik Tepe and the Tomb of Aesyetes tradition** are folded into **§2.1**, findings 3 and 4,
 where the coordinate they bear on already lives: Cook's description (172) fits the Pleiades point
@@ -1574,6 +1806,105 @@ their late-Roman sherds. For the gazetteer this means `tomb-of-aesyetes` — cur
 `speculative`, "no mound identified" — now has a **named tradition** to record (Lechevalier,
 identifying it with Üvecik Tepe) and a reason that tradition failed (the mound is Roman). Those
 are two different records touching one mound, and the honest note says so.
+
+### 9.5a The τεῖχος ἀμφίχυτον and the pro-Achaean gods' hill — three candidates, and Cook adopts none (165, 169)
+
+**claim:** Cook reports **three** identifications of the Homeric "mounded wall" of Heracles
+(*Il.* 20.145), each with a named proponent, and **declines to make one of his own** — but he
+does rank them, conditionally, for a reader who wants to picture *Il.* 20.144 ff. His preference
+is **Prokesch's "Spratt's plateau"**, the level crest south of Yenişehir, over Leaf's Beşik Tepe.
+This is the Cook position `wall-of-heracles` did not have, and it is a position about *viewing*,
+not about survey.
+
+**verified how — Grade A.** `research-cache/page-captures/cook-p165.png` and `cook-p169.png`,
+printed pages 165 and 169. The Greek was checked on a ×3 crop of 165.
+
+**The candidates, as Cook lists them.**
+
+| the 'mounded wall' is… | whose | where Cook says it |
+|---|---|---|
+| **"Spratt's plateau"** — the table-top plateau on the cliff edge ~1 km south-west of the Yenişehir crest, at the same altitude, "several hundred metres across in either direction", unnamed because there were no villagers to name it | **Prokesch** | 165, and preferred at 169 |
+| **the cliffs south of Cape Yenişehir** | **Lechevalier** | 169 |
+| **the tumulus of Beşik Tepe** (plate 18*b*, to the left, with Beşika Burnu on the right) | **Leaf** | 169 |
+
+At 165, introducing the plateau:
+
+> "…there being no villagers to give it a name, we call it 'Spratt's plateau'. Prokesch
+> recognized it as the 'mounded wall' (**τεῖχος ἀμφίχυτον**) of Heracles, on which the gods who
+> favoured the Achaeans took their seats to watch the battle."
+
+At 169, weighing Leaf against Prokesch:
+
+> "Leaf then went on to recognize the 'mounded wall' as the tumulus of Beşik Tepe (to the left in
+> PLATE 18*b*, with Beşika Burnu on the right); **but for those who wish to envisage the eminence
+> on which the gods favouring the Achaeans took their seats to watch the battle while those who
+> favoured the Trojans faced them on Kallikolone (*Iliad* xx. 144 ff.), Prokesch's level crest
+> south of Yenişehir (our 'Spratt's plateau') must seem better placed for viewing and much more
+> comfortable to sit on.** Beşik Tepe marks the termination of the Sigeum ridge."
+
+**A fourth candidate, from Leaf and not from Cook — and it may collide with Cook's own
+preference.** §7.1 records Leaf rejecting **Dörpfeld's** placing of the Wall at **Sigeum**,
+"because 'this would be to all intents and purposes in the Greek camp, from which the gods
+retire.'" Now set that beside 167, where **Brückner "placed [Sigeum] on 'Spratt's plateau'"**.
+**If Brückner is right about Sigeum, then Dörpfeld's Wall and Prokesch's Wall are the same
+ground under two names, and Leaf's objection lands on the crest Cook prefers.** Cook does not
+address it. The conditional is doing real work and must not be dropped: Sigeion's received
+position is Yenişehir (Pleiades 550877, **39.9835/26.1809**, §3), and Cook puts "Spratt's plateau"
+about **1 km south-west of the Yenişehir crest** along the cliff edge — near, not identical, and
+Brückner's Pisistratid Sigeum is his own proposal, not a consensus. **Recorded as a contradiction
+between authorities, not harmonised.** It is also the reason §9.7 wants p. 175 ff.
+
+**What kind of claim this is, and it matters more than which hill wins.** Cook's grounds are
+**"better placed for viewing"** and **"much more comfortable to sit on"** — the criteria you use
+to stage a scene, not to identify a site. And the whole sentence is governed by "**for those who
+wish to envisage**", which quarantines it: Cook is telling a reader who wants the picture where to
+stand, and committing to nothing. **Set beside his Kallikolone argument (§9.1), where he measures
+stades against Strabo and rejects a rival by name, this is Cook keeping two registers apart
+inside one Homeric passage** — exactly the geographic/schematic split this project's map rules
+impose. Quote him for the split; do not quote him as identifying the wall of Heracles.
+
+**Three notes for the `wall-of-heracles` record.**
+
+1. **It now has a tradition table**, which is what the `tradition` field is for: Prokesch
+   (Spratt's plateau), Lechevalier (the cliffs south of Cape Yenişehir), Leaf (Beşik Tepe). Cook
+   ranks but does not adopt. **The tier does not move on this evidence** — three named
+   nineteenth- and twentieth-century guesses about a divine grandstand is `traditional` at best,
+   and the poem's own register is where it belongs.
+2. **Cook prices Lechevalier's cliffs out in passing**, on the same page: Choiseul-Gouffier put
+   Hesione's Rocks around Yeniköy, and Cook's parenthesis is "**(but they are not rocky)**". That
+   is a field observation against a whole family of cliff-based identifications on this stretch,
+   and it is cheap to cite.
+3. **Beşik Tepe gets a topographical fact worth keeping regardless of the identification:** it
+   "**marks the termination of the Sigeum ridge**" (169). That is a drawable statement about the
+   ridge's south end, and it belongs with §2.2's Beşik Bay geometry rather than with the wall.
+
+**The other thing 169 is doing, and it constrains a different record.** Most of the page is about
+**Agammia** of Stephanus Byzantius, which Choiseul-Gouffier, J. T. Clarke "and others" took for
+the promontory of **Beşika Burnu**. Cook quotes Leaf trying "to clinch the matter finally" —
+Beşika Burnu "is the only promontory on the west coast of the plain of Troy — the north has no
+unappropriated site; and the bay is the natural sea-gate on this side. Nor is any other ancient
+name for it known" — and then dismantles it in three moves: the argument "assumes that his other
+identifications are correct, and that he knew all the features of the coast line **which for the
+most part he had not visited**"; even granted, Leaf "still knew no ancient name for Taşlı Burun or
+the Kum Kale point"; and for the "Tavolia" headland and harbour "he was reduced to ill-considered
+conjecture (above, p. 84)". Cook's own verdict: **"the difficulty with the identification of
+Agammia is that there are too many possibilities"** — and he prefixes even that with "Assuming —
+as is by no means likely — that any authentic knowledge or genuine topographical situation
+underlay Stephanus' mention of this legendary spot". **Two usable findings.** (a) **Agammia should
+not be equated with Beşika Burnu in the gazetteer**; if the name appears at all it is
+`speculative` with Cook's "too many possibilities" attached. (b) **Leaf's coastal identifications
+carry a general warning from Cook — he had not visited most of this coast.** That bears on every
+place in this file where Leaf is the sole authority for a coastal identification, §7.1's Ophrynion
+included.
+**citation:** Cook, *The Troad* (1973), 165 (Prokesch, the plateau, the Greek), 169 (the three
+candidates, the ranking, Agammia, Hesione's Rocks, Beşik Tepe as the ridge's termination).
+**authority kind:** **identification** (three named traditions for the wall; the case against
+Agammia = Beşika Burnu) and **prose** (the ranking, and its conditional frame). **Never
+geometry.**
+**verified how:** Grade A, as above. Not read: the foot of 169 and its footnotes 1–5, and Cook's
+"above, p. 84" on the Tavolia harbour. Cross-reference §7.1 (Leaf's Ophrynion, and the Wall of
+Heracles as its matched grandstand), §9.1 (the Kallikolone side of the same *Iliad* passage), and
+§2.2 (Beşik Bay's geometry and its headlands).
 
 ### 9.6 Fig. 6, "The Trojan Plain and Environs" (pp. 110–11) — Cook's controlling site map
 
@@ -1602,6 +1933,18 @@ silent divergence.
 ### 9.7 What remains unread in Cook, and what it would settle
 
 The borrow has twelve days left at the time of writing. Ordered by what it costs us not to know.
+**Two items came off this list on 2026-07-30** — the old item 2 (pp. 165–72 read through) and the
+old item 5 (p. 169 in full), both closed by the page captures; they are §9.2 and §9.5a. The old
+item 6 (pp. 159–65) has narrowed to **159–64**, since 165 is now read, and is item 4 below. One
+item is new (item 5, p. 175 ff.), raised by the pages just read. The numbering below is fresh.
+
+**A new class of gap, cheap and worth doing before anything else.** The captures crop the last
+~6–8 lines of every page (§1.1), so **eight page-feet are unread inside ranges this file otherwise
+calls read**: 165, 166, 167, 168, 169, 170, 171, 172, plus every footnote on them. Two of those
+feet carry something named: **166's** holds the proponent of the earthquake theory and Cook's
+description of the trough's west side; **171's** holds the words "Beşika Bay must be a very much
+more". **A re-capture pass scrolled to each page's foot would close all eight at once**, and it is
+the single cheapest verification item in this file — cheaper than item 1 below.
 
 1. **p. 293 — Cook on Virchow's transferred springs.** The only Cook page any of our sources
    quotes for a position we currently *state* at second hand (Richardson, via
@@ -1609,26 +1952,35 @@ The borrow has twelve days left at the time of writing. Ordered by what it costs
    about the transference, the Idaean pair's temperature contrast, or the whole Pınarbaşı
    identification — three quite different things, and the springs records read differently under
    each. **Cheapest high-value page in the file.**
-2. **pp. 165–72, read through rather than string-searched — the Kesik question.** **Settles:**
-   §9.2, and with it whether `RESEARCH-PALEOGEOGRAPHY.md`'s feature table may keep saying
-   "unfinished (Cook 1973, 167)". Also completes the mid-sentence break at 170–71 and gives
-   Cook's own view of Beşika's attractiveness in his own words.
-3. **pp. 141–46, read through — the Pınarbaşı springs.** **Settles:** whether Cook, having
-   destroyed the thermal argument, still accepts Pınarbaşı as the Homeric site on other grounds
-   (§6.7). Currently we know only what he denies.
-4. **Thymbra: "Thymbre", "Akça Köy", and the general index.** **Settles:** §9.3 — Cook on the
+2. **pp. 141–46, read through — the Pınarbaşı springs.** Captures exist for **141–44**
+   (`cook-p141-pinarbasi`, `cook-p142`, `cook-p143`, `cook-p144-pinarbasi-temp`) and **have not
+   been read here**; 145–46 have no capture. **Settles:** whether Cook, having destroyed the
+   thermal argument, still accepts Pınarbaşı as the Homeric site on other grounds (§6.7).
+   Currently we know only what he denies. **Now the cheapest substantive item after the page-feet
+   pass, because four of the six pages are already on disk.**
+3. **Thymbra: "Thymbre", "Akça Köy", and the general index.** **Settles:** §9.3 — Cook on the
    Thymbraion, the confluence, and the Village of the Ilians, which is the other half of the
    Callicolone argument and may name a coordinate constraint for `thymbra` that §8.8 does not
    have.
-5. **p. 169 in full — the pro-Achaean gods' viewing-hill.** Beşik Tepe (Leaf) against Prokesch's
-   crest south of Yenişehir. **Settles:** whether `wall-of-heracles` has a Cook position at all,
-   and if so which.
-6. **pp. 159–65 — the monuments available to the developing Trojan-war tradition.** The range
+4. **pp. 159–64 — the monuments available to the developing Trojan-war tradition.** The range
    *Hainsworth* cites (`research-cache/hainsworth-vol3-notes.md`, on *Il.* 11.166), and **not**
-   the Callicolone range; both exist and are different discussions. **Settles:** Cook's own
-   framing of how much of the Homeric landscape is Iron Age construction — directly relevant to
-   how `tomb-of-ilos`, `tomb-of-aesyetes` and the tumuli are described.
-7. **The eight other `places.json` records citing Cook at work level** — `simoeis`,
+   the Callicolone range; both exist and are different discussions. **Narrowed from 159–65:** 165
+   is read (§9.2, §9.5a) and is the start of Cook's "3. The Ridge to Beşika", with the Yenişehir
+   tumuli's later-sixth-/earlier-fifth-century dating closing at its head — so the discussion
+   Hainsworth wants is 159–64. **Settles:** Cook's own framing of how much of the Homeric
+   landscape is Iron Age construction — directly relevant to how `tomb-of-ilos`,
+   `tomb-of-aesyetes` and the tumuli are described.
+5. **p. 175 ff. — "Spratt's plateau" as a site, and Sigeum.** Cook defers to it twice from the
+   pages now read: the plateau's traces of occupation, recognized by Spratt and Forchhammer (165,
+   "to which we shall return (pp. 175 ff.)"), and Brückner on Calvert's archaic graves on its
+   steep western slope (165, "below, p. 177"). **Settles:** what is actually *at* the plateau
+   Prokesch made the wall of Heracles and Brückner made Pisistratid Sigeum (§9.5a, §9.2) — the
+   only one of the three 'mounded wall' candidates with an archaeological record attached, and the
+   place where Cook's Sigeum stands or falls. **Also wanted from the same neighbourhood:** p. 84
+   on the "Tavolia" headland and harbour, which Cook cites at 169 as Leaf's "ill-considered
+   conjecture", and the Lehmann-Haupt underground spring with its tiled shafts on the plateau's
+   seaward slope (165).
+6. **The eight other `places.json` records citing Cook at work level** — `simoeis`,
    `thebe-hypoplacia`, `scaean-gate`, `dardanian-gates`, `sigeion`, `rhoiteion`, `gargaron`,
    `satnioeis`. **Not one has been read.** **Settles:** whether any of them misdescribes Cook the
    way `callicolone` does. Given that `callicolone`'s attribution turned out to be wrong in three
@@ -1649,18 +2001,20 @@ should be asserted, page-cited, or quoted until someone has the physical or lice
    the provenance and the page-capture caveat. **Obtained:** pp. 110–13 (Callicolone = Kara
    Tepe, with the distances — the decisive finding, §9.1), 112–13 (the Thymbrios = Kemer Su
    equation as prevailing view, §9.3), 141–46 in part (the Pınarbaşı springs' temperatures,
-   §6.7), 165–67 (Kesik Tepe — **but not the Kesik cut**, §9.2), 168–72 (Beşika Bay, Üvecik
-   Tepe, §9.5 and §2.1), and Fig. 6's label list (§9.6).
-   **Still wanted, in priority order (full list with what each settles at §9.7):** **p. 293**
-   on Virchow's transferred springs, the one page any other source quotes Cook for and the
-   cheapest item in this file; **pp. 165–72 read through** rather than string-searched, to
-   settle whether Cook discusses the Kesik cut at all (§9.2 is an open discrepancy, not a
-   verdict); **pp. 141–46 read through**; **Thymbra** under "Thymbre"/"Akça Köy" and in the
-   general index; **p. 169** in full on the pro-Achaean gods' hill; **pp. 159–65** on the
-   monuments available to the developing tradition (the range Hainsworth cites, not the
-   Callicolone range). Also still wanted from the original list and untouched: the Satnioeis =
-   Tuzla Çayı equation, Gargaron, the Scaean/Dardanian gate question, and
-   Thebe/Lyrnessos/Pedasos in the southern Troad.
+   §6.7), **165–72 read through off the page images** (the **Kesik cut** at 166–67 and Cook's
+   "never completed" verdict, §9.2; Kesik Tepe as a natural hump with three heroic claimants,
+   §9.2; the τεῖχος ἀμφίχυτον's three candidates and Agammia, §9.5a; Beşika Bay and the 1924
+   Mey–Dörpfeld dig, §9.5; Üvecik Tepe, §2.1), and Fig. 6's label list (§9.6).
+   **Still wanted, in priority order (full list with what each settles at §9.7):** **the foot of
+   every captured page** — the reader viewport crops ~6–8 lines per page, which is where the
+   earthquake theory's proponent and the words "must be a very much more" sit (§1.1); **p. 293**
+   on Virchow's transferred springs, the one page any other source quotes Cook for; **pp. 141–46
+   read through**, four of whose pages are already captured; **Thymbra** under "Thymbre"/"Akça
+   Köy" and in the general index; **pp. 159–64** on the monuments available to the developing
+   tradition (the range Hainsworth cites, not the Callicolone range); **p. 175 ff. and p. 177** on
+   "Spratt's plateau" as a site, and **p. 84** on the "Tavolia" headland. Also still wanted from
+   the original list and untouched: the Satnioeis = Tuzla Çayı equation, Gargaron, the
+   Scaean/Dardanian gate question, and Thebe/Lyrnessos/Pedasos in the southern Troad.
    **The page-number rule, narrowed rather than lifted.** Nine `places.json` records cite Cook
    at work level. Only **`callicolone`** may now take a page number (110–13) — and only
    together with a substantive correction, because Cook does not say what that record says he
@@ -1796,16 +2150,29 @@ should be asserted, page-cited, or quoted until someone has the physical or lice
    one-clause paraphrase. **Read 13.1.43 in Jones's Loeb before any site copy says Strabo or
    Demetrius reported the spring gone.** Cheap to close: 13.1.43 is PD and already in the
    text we use for the rest of §4.
-10. **Whether Cook 1973 says anything about the Kesik cut, and therefore whether "unfinished
-    (Cook 1973, 167)" is a real citation.** `RESEARCH-PALEOGEOGRAPHY.md` §1.9 and its feature
-    table carry that claim, reaching us through Zangger & Mutlu's Turkish paraphrase; Kayan et
-    al. 2003 carry it too. The lending session's search-inside found **only Kesik *Tepe*, a tomb
-    at 165–67, and no discussion of a cut**. **Both readings are unsupported at present** — the
-    citation may be right with the feature discussed under another word (canal, channel,
-    cutting), or the citation may be wrong, or the search may have been incomplete. §9.2 lays
-    out all three. **Nobody may write either "Cook found the cut unfinished" or "Cook does not
-    discuss the cut" until pp. 165–72 are read through.** The page captures being made into
-    `research-cache/page-captures/` are the intended settlement.
+10. **~~Whether Cook 1973 says anything about the Kesik cut, and therefore whether "unfinished
+    (Cook 1973, 167)" is a real citation.~~ RESOLVED POSITIVELY, 2026-07-30 — it is a real
+    citation.** Cook treats the cut at **166–67** and writes "**It seemed to us clear that the
+    work was never completed**" (167). "Unfinished" is not his word; "never completed" is, and
+    Zangger & Mutlu's "never finished" is one synonym away on the right page. **Kayan's and
+    Zangger's citations are accurate, and this file's earlier suspicion of them was wrong.**
+    Verified from `research-cache/page-captures/cook-p166-kesik-cut.png` and
+    `cook-p167-kesik-cut.png`; §9.2 carries the full transcription. The failed string search is
+    explained: **Cook never calls the cut "Kesik"** — it is "an artificial cut", "a great V-shaped
+    trench". **Three things replace this item, and they are about framing rather than citation.**
+    (a) **Cook and Kayan contradict each other on whether the feature is artificial** — Cook's
+    first words are "an artificial cut", Kayan's reading is a tectonic depression widened by foot
+    traffic, and *a tectonic depression cannot be unfinished*. `RESEARCH-PALEOGEOGRAPHY.md` §1.9
+    and its feature-table row print both in one breath as compatible attributes; **that is now the
+    live defect, not the citation.** (b) **Cook's cut is late-Roman drainage, not a harbour work** —
+    he prefers Forchhammer's drainage purpose, offers the foundation of Constantine's new city as
+    the occasion, and doubts Brückner's Pisistratid harbour on the cost of the spoil. So "Cook
+    found the harbour work unfinished" would still be false: **citation accurate, use tendentious.**
+    (c) **The 400 × 50 × 30 m is not Cook's** — he gives no length, width or depth, only "the
+    lowest point of the ridge", "about 500 m. south of Kesik Tepe", and a floor "perhaps 12–15 m.
+    above sea level" (which brackets Kayan's surveyed 13.7 m). What remains genuinely unverified
+    here is small and named: the **foot of 166** holds the proponent of the earthquake theory and
+    the trough's west-side description (§1.1).
 11. **Cook's doubt at *Troad* 293 about Virchow's transferred springs.** Reported by Richardson
     1993, 122–23; **p. 293 is unread**. We do not know what the doubt is about — the
     transference, the Idaean pair's contrast, or Pınarbaşı as a whole. **Write "Richardson
@@ -1813,10 +2180,19 @@ should be asserted, page-cited, or quoted until someone has the physical or lice
 12. **Üvecik Tepe's mound height.** Cook, 172: "a maximum height of about 25 m."; Kültür
     Envanteri: "c. 35 m". Neither is sourced to a survey in anything we have read. **Record
     both; do not average them, and do not print a single figure as fact** (§2.1 finding 3). The
-    coordinate is unaffected.
+    coordinate is unaffected. **Cook's side of this is now Grade A** — re-read off
+    `research-cache/page-captures/cook-p172.png`, which gives the full sentence: "it is about 3 km.
+    inland from Beşika Bay, and set on rising ground so that while it has a maximum height of
+    about 25 m. **the summit is perhaps 70 m. above sea level**." The 70 m is new here, and it
+    explains part of the discrepancy's *shape*: Cook is measuring the mound off its own rising
+    ground, so a figure like 35 m may be measuring something else. **The two numbers may not be
+    answering the same question**, which is one more reason not to average them.
 13. **Whether Festus was Caracalla's freedman or his favourite.** Cook, 172 (reporting
     Schliemann) and Livius.org say **favourite**; Pleiades 897256486 and Leaf, *Troy* 26 say
-    **freedman**. §2.1 finding 1 originally preferred "freedman" on the strength of two sources;
+    **freedman**. **Cook's "favourite" is Grade A** (`cook-p172.png`: "the tumulus raised by
+    Caracalla for his favourite Festus, whose death he was suspected of having encompassed so that
+    he could enact Achilles mourning the dead Patroclus"). §2.1 finding 1 originally preferred
+    "freedman" on the strength of two sources;
     Cook makes it two against two. **Say both, or say neither** (§2.1 finding 4). Note also that
     the Festus identification is **Schliemann's**, resting on sherds he "judged to be late
     Roman" from an 1879 shaft — a pedigree the gazetteer's flat assertion does not carry.
