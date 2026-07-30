@@ -64,7 +64,29 @@ GIS: four candidates run down (§4), all four measured or read. Not covered: Tur
 Ministry / Troya Museum holdings; the DAI photo archive; Schmidt's *Atlas trojanischer
 Altertümer*.
 
-## DESIGN SPEC (John, 2026-07-30 16:48): the phase-coloured single sheet
+## DESIGN SPEC (John, 2026-07-30 16:48; SPLIT 16:52): TWO plates, not one
+
+**John, 16:52: "let's split the plate of what troy looked like at the time from
+the archeological levels etc; that's separate."** So:
+
+**Plate A — Troy VI: the city at the time of the poem. THE citadel plate.**
+John, 16:53: **"this is a HOMER reader, not an archeology site"** — the
+reader-facing plate is the poem's city, full stop. Tafel V's excavated Troy VI
+walls as the authority; the missing north side handled per the VERDICT — either
+drawn as absent (excavated register) or completed from Fig. 470's restored
+circuit with the restoration **visibly distinguished** (the
+`ergraben`/`rekonstruiert` split, carried by line style or tone, stated in the
+layer note). Gates as Dörpfeld letters (2e-ii); dimensions from Tolman &
+Scoggin 1903 (§3.4) as PD prose. This plate answers "what did Troy look like
+when Hector ran its walls?" and never mixes other phases in. **Build this
+first; it is the one the reader meets.**
+
+**Plate B — the excavation history. Secondary, and it must earn its place.**
+The phase-coloured sheet below is apparatus for the curious — the "nine
+cities" story — not a reader-path plate. It is built only after Plate A
+ships, if at all; John's call at that point.
+
+## Plate B spec: the phase-coloured single sheet
 
 The plate is **one sheet carrying the whole excavation history, linework
 colour-coded by settlement phase over a neutral mound silhouette, with the
