@@ -26,6 +26,11 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
   2003a; undecided/unfinished canal, Kayan's own 2003 chapter; late-Roman
   drainage never completed, Cook 1973, 166-67). Feature certain,
   identification speculative, every reading attributed.
+- **D9 — DECIDED (09:29): Option A.** Gate names follow Dörpfeld: VI T =
+  the Dardanian Gate (his confident identification, 2:630); the Scaean
+  marked conjectural at the lost NW corner with his own vermutungsweise
+  hedge quoted, stated as reversible. The unsourced guidebook
+  "South Gate = Scaean" never appears.
 - **D2, D3, D7, D8, D13 — ALL settled-by-evidence items CONFIRMED**
   (John, 09:26): wagon gate captioned without a side-word; no schematic
   scale bar (pyre keeps its cited 100-ft label); shore-bronze note
