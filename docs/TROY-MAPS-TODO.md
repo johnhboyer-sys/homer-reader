@@ -20,12 +20,17 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
   most recently published scholarly placement wins the camera** — currently
   the 2003 Kraft/Rapp/Kayan/Luce outer-ridge camp — and the caption names
   whose placement is framed. Later scholarship supersedes automatically.
-- **D6 — DECIDED (09:28): draw the Kesik cut; the note LEADS with "the
-  Achaean wall and ditch itself" (Kraft, Rapp, Kayan & Luce 2003, citing
-  Luce 1998), then the other readings as the hedge** (harbour candidate,
-  2003a; undecided/unfinished canal, Kayan's own 2003 chapter; late-Roman
-  drainage never completed, Cook 1973, 166-67). Feature certain,
-  identification speculative, every reading attributed.
+- **D6 — DECIDED (09:28); note wording UPDATED (John, 2026-07-30 16:31)
+  to match the research findings: draw the Kesik cut; the note LEADS
+  with the wall-and-ditch reading, attributed honestly** — "the reading
+  of the cut as the Achaean wall and ditch is Luce's (1998); Kraft,
+  Rapp, Kayan & Luce 2003 print it, but the paper's citation for it —
+  Kayan 1995 — does not contain it" (Kayan 1995 read in full 2026-07-30;
+  PALEOGEOGRAPHY §1.9) — **then the other readings as the hedge**
+  (harbour candidate, 2003a; undecided/unfinished canal, Kayan's own
+  2003 chapter and 2009; late-Roman drainage never completed, Cook 1973,
+  166-67). Feature certain, identification speculative, every reading
+  attributed.
 - **D9 — DECIDED (09:29): Option A.** Gate names follow Dörpfeld: VI T =
   the Dardanian Gate (his confident identification, 2:630); the Scaean
   marked conjectural at the lost NW corner with his own vermutungsweise
@@ -159,6 +164,10 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
    Nestor and no *Iliad* fortification. The reading survives only on **Luce
    1998**, which is still unread. D6 stands as a ruling; the note's
    attribution needs the correction (PALEOGEOGRAPHY §1.9, §6).
+   **✅ RESOLVED (John, 2026-07-30 16:31): the D6 ruling's note wording is
+   updated above to match the findings — the reading attributed to Luce
+   1998 with the failed 2003 citation stated. John: Luce 1998 itself is
+   not a priority right now.**
 2. **Decisions queued from the research** (each with its evidence table in
    the named dossier):
    a. **DECIDED (John, 2026-07-30 16:05, extended 16:07): name camp
