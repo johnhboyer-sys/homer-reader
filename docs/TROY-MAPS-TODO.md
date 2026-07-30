@@ -106,13 +106,28 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
    - "The water supply of Troia" 2000 — ✅
    - (51) western-footslope reconstruction 2002 — ✅
 
-   **STILL WANTED from the profile:** (70) Kesik/Alacalıgöl, *Studia
-   Troica* 18 (2009); the QSR 1999 synthesis. **NEW want, arising from the
-   1997 extraction:** Kayan, "Geomorphological Evolution of the Çıplak
-   Valley…," *Studia Troica* 7 (1997): 489–507 — the remaining candidate for
-   the "Kayan 1997a/b" that may carry the tectonic argument the NATO 1997
-   chapter argues against (PALEOGEOGRAPHY §5 item 15, §6).
+   **UPDATE 15:22 — THE LAST THREE LANDED (15:20–15:22) AND ARE EXTRACTED.**
+   All read in full the same day, each with an extraction note in
+   `research-cache/`, integrated into
+   `docs/research/RESEARCH-PALEOGEOGRAPHY.md`:
+   - (70) Kesik/Alacalıgöl, *Studia Troica* 18 (2009) — ✅ *(the year is
+     2009; Kayan 2014's bibliography misprints 2008)*
+   - the QSR 1999 synthesis — ✅
+   - Çıplak valley, *Studia Troica* 7 (1997) — ✅
+
+   **THE KAYAN WANT-LIST IS CLOSED** — nothing on his academia.edu profile
+   remains wanted. One second-hand dependency survives: Kayan 2001, 313, the
+   sole remaining source for the "before 1300 BC" Kesik siltation date (low
+   priority; PALEOGEOGRAPHY §5 item 7).
    **Only true ILL left: Janko vol. IV.**
+
+   **The "1997b" question is RESOLVED, and it is a misattribution in Kayan
+   et al. 2003, not a change of mind by Kayan.** Kayan's own 1999 reference
+   list fixes the letters (1997a = NATO chapter, 1997b = Çıplak paper), and
+   the Çıplak paper argues nothing about causation — so no Kayan 1997 text
+   supports 2003, 387's tectonic attribution, and 1997a, 1999 and 2014 hold
+   one climatic-eustatic line throughout. Details at PALEOGEOGRAPHY §1.5a
+   and §6.
 
    **One finding from this wave that touches a ruling: D6.** The plate note
    leads with "the Achaean wall and ditch itself (Kraft, Rapp, Kayan & Luce

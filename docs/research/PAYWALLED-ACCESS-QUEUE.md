@@ -24,15 +24,25 @@ TROAD-TOPOGRAPHY.
 | — ✅ | Kayan, *Studia Troica* 10 (2000): 135–44 | `kayan-2000-water-supply-notes.md` | TROAD-TOPOGRAPHY §6.8 (and nothing for PALEOGEOGRAPHY) |
 | — ✅ | Kayan 2002, *Mauerschau* 3, 993–1004 | `kayan-2002-footslope-notes.md` | PALEOGEOGRAPHY §1.4b, §1.5a, §1.5b |
 
-**Item 16 is NOT closed:** its *Studia Troica* **18 (2009): 105–28** component
-(Kesik/Alacalıgöl) is still outstanding, and so is **Kayan 1991** as a queue
-entry — though the 1991 offprint was acquired separately the same morning.
+**OBTAINED, third wave (2026-07-30, 15:20–15:22) — the last three items on the
+Kayan want-list, all read in full and extracted the same day.**
 
-**NEW WANT arising from this wave:** Kayan, "Geomorphological Evolution of the
-Çıplak Valley…," *Studia Troica* 7 (1997): 489–507. It is the only other 1997
-Kayan title in any bibliography seen, and it is the remaining candidate for the
-"Kayan 1997b" that Kayan et al. 2003, 387 cites for a **tectonic** cause — a
-mechanism the NATO 1997 chapter argues against. → PALEOGEOGRAPHY §5 item 15, §6.
+| queue item | source | notes file | what it settled |
+|---|---|---|---|
+| **16** ✅ (final part) | Kayan, *Studia Troica* 18 (2009): 105–28 (Kesik / Alacalıgöl) | `kayan-2009-kesik-notes.md` | The canal first-hand (13 m threshold, <2 m fill) and that **2009 is the source text Kayan 2014 condenses**; the wall-and-ditch absence a **second** time, leaving Luce 1998 alone; Alacalıgöl (5th millennium BC, abandoned when the inlet silted); Kesiktepe's military use dated to the **20th century**. **Negative on both numbers it was pulled for:** the "800 m" is the **Yeniköy ridge**, not the plain, and the siltation date is **4000–3500 BP**, not "before 1300 BC". Year confirmed **2009**; Kayan 2014's bibliography misprints 2008. → PALEOGEOGRAPHY §1.9, §5 item 7 |
+| **15** ✅ | Kayan 1997b, *Studia Troica* 7 (1997): 489–507 (Çıplak valley) | `kayan-1997-ciplak-notes.md` | That the paper carries **no causal argument at all** — the finding that breaks the 2003 tectonic citation; plus a destruction layer and a second rock-cut ditch at the Lower City's southern foot, neither to be confused with Kesik. → PALEOGEOGRAPHY §1.5e, §5 item 15 |
+| — ✅ | Kayan, *Quaternary Science Reviews* 18 (1999): 541–48 | `kayan-1999-qsr-notes.md` | **The letter assignment, from Kayan's own reference list**: 1997a = the NATO chapter, 1997b = the Çıplak paper. With the row above, this closes the "1997b" question as a **misattribution in Kayan et al. 2003, 387**. Also a fifth printing of 5000–3500 BP / ~2 m and the anti-tectonic position in Kayan's own 1999 voice. → PALEOGEOGRAPHY §1.5a, §1.5f, §6 |
+
+**THE KAYAN WANT-LIST IS CLOSED.** Item 16 is closed in full; nothing on his
+academia.edu profile remains wanted. **Kayan 1991** was acquired as an offprint
+the same morning (queue item 16's own row) — the volume's Abb. 17–23 are a
+CITADEL want, not a Kayan one.
+
+**The one second-hand dependency left in the Kayan material:** **Kayan 2001,
+313**, still unread, is now the sole source for the "**before 1300 BC**" Kesik
+siltation date that four Kayan papers have failed to contain. Low priority — the
+paper's own figure (4000–3500 BP) is compatible with it and is quotable — but the
+BC date may not be attributed to Kayan 2009. → PALEOGEOGRAPHY §1.9, §5 item 7.
 
 **BLOCKED — needs John's own click** (full access confirmed, but Chrome's PDF
 viewer ignores automated download clicks): the CATENA paper + erratum
@@ -107,10 +117,9 @@ only — never committed, never republished.
 
 ## Tier 3 — completes the record
 
-16. Kayan, *Studia Troica* 1 (1991): 79–92 *(offprint acquired 2026-07-30)*;
-    ✅ 5 (1995): 211–35 **read**; ✅ 6 (1996): 239–49 **read**; **18 (2009):
-    105–28 — STILL OUTSTANDING, and now the only unread item in this row.**
-    → PALEOGEOGRAPHY.
+16. ✅ **CLOSED 2026-07-30.** Kayan, *Studia Troica* 1 (1991): 79–92 *(offprint
+    acquired)*; ✅ 5 (1995): 211–35 **read**; ✅ 6 (1996): 239–49 **read**;
+    ✅ 18 (2009): 105–28 **read** (15:20–15:22 wave). → PALEOGEOGRAPHY.
 17. Luce 1984, *OJA* 3(1): 31–43 (body + map) and Luce 2003, *Troia and the
     Troad*, 9–30. → PALEOGEOGRAPHY.
 18. Blegen, *Troy* III part 2 and IV — the plans; plus **a US copyright
