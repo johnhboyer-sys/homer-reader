@@ -303,9 +303,14 @@ only these right, the plate is honest.
 > content than "left" and "right" ever did. This also finally agrees with what §3.3 and §9.1
 > already demanded — no compass on the camp's ends.
 >
-> **✅ RULED (John, 2026-07-30 16:05): name camp sectors by who holds them; no "left" or
-> "right" on the sheet.** The evidence balance below is retained as the record behind the
-> ruling; the compass note remains available as apparatus prose, never a drawn side.
+> **✅ RULED (John, 2026-07-30 16:05, extended 16:07): name camp sectors by who holds them;
+> no "left" or "right" words on the sheet — and PLACEMENT defaults to the axis described
+> from the Greek side** (Aristarchus + Janko IV, 130–31): **Ajax's end east toward Rhoiteion,
+> Achilles' end west toward Sigeion.** John's reasoning: naming by holder settles the labels,
+> not the geometry — the holders cannot be placed on the sheet at all without adopting a
+> sense. The apparatus note states the adopted reading with its authority and carries
+> Hainsworth's dissent (vol. III on 12.118); the placement stays tier `speculative`. The
+> evidence balance below is retained as the record behind the ruling.
 >
 > **The balance of authority at ruling time.** As of Janko's arrival (2026-07-30) the
 > constant-Greek-viewpoint side holds

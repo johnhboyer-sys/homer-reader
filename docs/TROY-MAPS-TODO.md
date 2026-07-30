@@ -161,11 +161,16 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
    attribution needs the correction (PALEOGEOGRAPHY §1.9, §6).
 2. **Decisions queued from the research** (each with its evidence table in
    the named dossier):
-   a. **DECIDED (John, 2026-07-30 16:05): name camp sectors by who holds
-      them; no left/right on the sheet.** The Janko-backed compass note
-      ("the standard commentary reads the axis from the Greek side… Janko
-      IV, 130–31") remains available as apparatus prose — a citable note,
-      never a drawn side. RESEARCH-POEM-TOPOGRAPHY §3.1.
+   a. **DECIDED (John, 2026-07-30 16:05, extended 16:07): name camp
+      sectors by who holds them; no "left"/"right" words on the sheet —
+      but PLACEMENT defaults to the axis described from the Greek side**
+      (Aristarchus + Janko IV, 130–31): **Ajax's end east toward
+      Rhoiteion, Achilles' end west toward Sigeion.** John's reasoning:
+      naming by holder settles the labels, not the geometry — the holders
+      cannot be placed on the map at all without adopting a sense. The
+      note carries the reading's authority and Hainsworth's dissent
+      (vol. III on 12.118); tier speculative as ever.
+      RESEARCH-POEM-TOPOGRAPHY §3.1.
       **UPDATE (2026-07-30, Janko vol. IV): the balance of authority has
       shifted, the recommendation has not.** This was framed as "Hainsworth vs
       Clay, undecidable," with Clay known only through a review. Janko now
