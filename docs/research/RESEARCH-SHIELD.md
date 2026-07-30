@@ -174,7 +174,11 @@ forces of (armed) men' or 'two camps', **not necessarily two distinct armies**"
 decision**: on Taplin the plate draws two armies and leaves their relation
 undrawn; on Edwards it draws one siege ring split left and right of the walls.
 Both are read authority; neither can be called the consensus; the plate must pick
-one and name whom it followed in `sources`. What is *not* in dispute and holds
+one and name whom it followed in `sources`.
+**✅ RULED (John, 2026-07-30 16:19): Edwards.** The plate draws one besieged
+city with the enemy split left and right of the walls, names Edwards (vol. 5,
+218, ad 509) in `sources`, and the caption may note Taplin's two-armies
+reading as the alternative. What is *not* in dispute and holds
 under either reading: one city, walls held by wives, small children and old men
 (514–15), and the sortie led by Ares and Athene at larger scale (516–19).
 
@@ -356,7 +360,17 @@ without hesitation; Revermann counts him among the Shield's instrumentalists and
 notes that the vintage dance is the one Shield dance that *is* accompanied
 (Revermann 30).
 
-> **FLAG FOR JOHN — do not let a drawing lane resolve this. RESTATED 2026-07-30
+> **✅ RULED (John, 2026-07-30 16:19): NO BARD on the dancing floor.** The
+> commentary tradition as read is 2–1 against (Edwards and Revermann on the
+> printed text's authority vs Taplin), and John judges Taplin's case special
+> pleading — it rests on the bard being *conveniens*, nothing else. Draw the
+> vulgate as printed: tumblers lead (`ἐξάρχοντες`, nominative plural), no
+> ἀοιδός. The caption may carry the crux. Scope note: this rules the dancing
+> floor (603–6) only — the vineyard boy singing the Linos to his lyre
+> (569–72) is textually secure and stays drawn. The evidence record below is
+> retained behind the ruling.
+>
+> **The flag as it stood — RESTATED 2026-07-30
 > (later), because the third commentator has now been read in his own words and
 > he does not say what the other two say.** The earlier version of this flag
 > opened "the two scholars who have now actually been read on this passage both

@@ -184,10 +184,15 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
       yields. **Not unanimity, so the sheet still carries no left or right;
       what the shift buys, if John wants it, is a citable note rather than a
       drawn side. John's call.**
-   b. The singer caption (18.603–6): three read authorities, no bard 2–1;
-      recommended: draw as printed, caption the crux. RESEARCH-SHIELD §2.2.
-   c. Taplin vs Edwards on the city at war: two armies vs one split siege
-      ring — a figuration choice. RESEARCH-SHIELD §1.2.
+   b. **DECIDED (John, 2026-07-30 16:19): no bard on the dancing floor** —
+      the tradition as read is 2–1 against and Taplin's case is special
+      pleading (*conveniens* only). Draw the vulgate as printed (tumblers
+      lead); caption may carry the crux. The vineyard Linos-boy (569–72)
+      is unaffected. RESEARCH-SHIELD §2.2.
+   c. **DECIDED (John, 2026-07-30 16:19): Edwards** — one besieged city,
+      siege ring split left and right of the walls; Edwards named in
+      `sources`; Taplin's two-armies reading available to the caption.
+      RESEARCH-SHIELD §1.2.
    d. Callicolone pin: current coordinate matches no authority; Kara Tepe
       (Spratt/Forchhammer/Cook/Luce, ~8.5 km E, OSM peak candidate exists)
       vs Leaf's Ophrynion. RESEARCH-TROAD-TOPOGRAPHY §9.1.
