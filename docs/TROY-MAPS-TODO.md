@@ -51,6 +51,10 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
   two-armies would leave the second army's position speculative), with a
   note carrying the disagreement (Taplin: "two besieging armies, their
   relation obscure").
+- **D10 — DECIDED (09:38): Option B.** The lower-city ditch is NOT drawn;
+  the plate note carries the published facts (~700 m traced, under 3 m
+  wide, ~1.5 m deep, southern gate passage; Blindow/Huebner/Jansen 2014,
+  cited, its line untraceable under copyright).
 - **D16 — DEFERRED** until John can sit with the dossiers (chryse,
   dardania, thymbra).
 - **D2, D3, D7, D8, D13 — ALL settled-by-evidence items CONFIRMED**
