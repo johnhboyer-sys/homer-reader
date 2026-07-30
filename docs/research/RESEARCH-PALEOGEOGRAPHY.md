@@ -57,17 +57,33 @@ Hocaoğlu & Vardar 2003, all twenty-three pages and all seven figures** (both in
 `research-cache/troia-troad-2003-kayan-chapters.pdf`, an author-shared 70-page
 extract of the Springer volume from İlhan Kayan's academia.edu page, obtained and
 read 2026-07-30 — §§1.4, 1.4a, 1.5, 1.5a–c; the colour plates were measured the
-same way as the *Geology* figures, §3.7a).
+same way as the *Geology* figures, §3.7a); **Kayan 2014, all thirty-four pages and
+all twenty figures** (author-shared copy from İlhan Kayan's ResearchGate page,
+cached at `research-cache/kayan-2014-troia-geoarchaeology.pdf`, obtained and read
+2026-07-30 — §1.5d; figures measured per §3.7b).
 
 **Abstract or publisher metadata only:** Kayan 2019; Seeliger et al. 2021.
 
 **Not seen at all:** Kraft, Kayan & Erol 1982 (the long version — wanted now for
 the **core logs**, not for the map series, which turns out to be Fig. 6 of the 1980
 paper and is in hand); every one of Kayan's *Studia Troica*
-papers; Kayan 2014; Cook 1973; Luce 1995, 1998, 2003; Kelletat 1975; Vacchi et
+papers; Cook 1973; Luce 1995, 1998, 2003; Kelletat 1975; Vacchi et
 al. 2013. Their content appears below **only** where a source I did read quotes
 or reports them, and it is labelled as second-hand every time. §5 lists them for
 the library.
+
+**What the Kayan 2014 PDF is, and the page range CONFIRMED (2026-07-30).** 39 PDF
+pages. **PDF pp. 1–5 are the volume's front matter for *Teil 2*** — series title
+(printed 538), title page (539), imprint and ISBN (540), part of the contents
+(542), addresses of the authors (543). That is where the "Seite 538" layout marker
+on the first page comes from, and it is **not** the chapter's page. **PDF pp. 6–39
+are the chapter, printed pp. 694–727**, verified two ways: the InDesign layout
+marker in every page header runs "Seite 694" … "Seite 727" consecutively, and the
+printed running heads and folios read 695, 696, 697 … 727 on the pages themselves.
+**The dossier's expected 694–727 is correct and no citation needs repair.** So is
+the expectation that **fig. 8 is the sea-level curve** — it is, at printed p. 709.
+Imprint detail worth carrying into the citation: the volume is *Teil 2*, and the
+publisher is **Bonn: Habelt** (ISBN 978-3-7749-3902-8), not Tübingen.
 
 **What the author-shared extract carries, checked chapter-opening by
 chapter-opening (2026-07-30).** Front matter (title page, editors, foreword,
@@ -874,6 +890,24 @@ Read off that, and each line is publishable:
   it exactly as its own author does: **local and relative**, from Beşik, cause
   attributed to tectonics.
 
+**CORROBORATED AND DIVERGED, 2026-07-30, by Kayan 2014, 709 fig. 8 (§1.5d).** The
+2014 chapter prints **the same curve** — same caption ("Middle-Late Holocene
+relative sea level changes in the Troia area (Kayan 1991)"), same two annotation
+bars, same "Trojan War" / "Homer's time" / "Strabo's time" labels. Re-measured
+independently off the 2014 print at 600 dpi (§3.7b), the numbers reproduce to
+**±0.03 m across the whole 4.3–2.3 ka span**, minimum included: **−1.99 m at
+3.28 ka BP** against 2003's −2.01 m at 3.29 ka. **The −2.0 m at ~3300 BP is
+therefore a two-print, two-measurement figure and may be quoted without hedging.**
+What does *not* corroborate: **the cause**. 2003, 387 attributes the fall to
+tectonics ("Bronze Age Regression"; Kayan 1997b); **2014, 719 reverses it** —
+"tectonic reasons are not convincing explanations for uniform sea-level changes.
+Thus, an **eustatic reason concerning a climatic effect** must be taken into
+account." Record both with their years; do not print "Kayan attributes it to X"
+without one. One measurement note in the other direction: on the **steep pre-6.2 ka
+limb** the two readings part company by up to 0.7 m (6.5 ka: −1.9 m in 2003,
+−1.17 m in 2014), which is what a ~0.15 ka horizontal registration error costs on a
+limb that steep — not a redraw, and not a stretch of the curve anyone should quote.
+
 #### 1.5b The chapter's own words on Kesik, the barrier and the lagoon — first-hand at last
 
 **Kesik, in full and in his own order (pp. 397–99).** The dossier has had this
@@ -1127,14 +1161,479 @@ Troy." In *Mauerschau: Festschrift für Manfred Korfmann*, 993–1004. 2002. · 
 dem Kernbohrer in die Vergangenheit." In *Troia: Archäologie eines
 Siedlungshügels und seiner Landschaft*, edited by Manfred Korfmann, 317–28. Mainz,
 2006. · "Kesik Plain and Alacalıgöl Mound: An Assessment of the Paleogeography
-around Troia." *Studia Troica* 18 (2009): 105–28. · "Geoarchaeological Research at
-Troia and Its Environs." In *Troia 1987–2012: Grabungen und Forschungen I*,
-Studia Troica Monographien 5, 694–727. Bonn, 2014.
+around Troia." *Studia Troica* 18 (2009): 105–28. *(Kayan 2014's own bibliography,
+p. 727, prints this as "Studia Troica 18, **2008**, 105–128" — one digit off from
+every other citation of it, including Kayan 2019's. Treat 2009 as right and the
+2014 list as the typo, but note that a reader chasing it will meet both.)* ·
+~~"Geoarchaeological Research at Troia and Its Environs." … 694–727. Bonn, 2014.~~
+**— READ IN FULL, 2026-07-30; see §1.5d.**
 
 - Verified how: all page ranges from **two independent bibliographies** — Kayan
   2019's own reference list and Zangger & Mutlu 2015, 576–77. The titles and
   pages are therefore solid; **the contents are not**, except where §1.9 quotes
-  them.
+  them and except for 2014, now first-hand.
+
+#### 1.5d Kayan 2014 — the *Endpublikation* chapter, READ IN FULL 2026-07-30
+
+- Citation: Kayan, İlhan. "Geoarchaeological Research at Troia and Its Environs."
+  In *Troia 1987–2012: Grabungen und Forschungen I — Forschungsgeschichte,
+  Methoden und Landschaft*, Teil 2, edited by Ernst Pernicka, Charles Brian Rose,
+  and Peter Jablonka, 694–727. Studia Troica Monographien 5. Bonn: Habelt, 2014.
+- Authority: **prose and geometry**, but read the author's own disclaimer first.
+- Verified how: **full text, printed pp. 694–727, and all twenty figures**,
+  author-shared copy from İlhan Kayan's ResearchGate page, cached at
+  `research-cache/kayan-2014-troia-geoarchaeology.pdf`, 2026-07-30. Page range
+  confirmed two ways (§0). Figures measured per §3.7b.
+
+**Read the epigraph before citing anything from it.** The chapter opens, above the
+author's name, with an unsigned editorial line: "**This paper is written to explain
+the research methods applied in the Troia area and to discuss the obtained results.
+Therefore it is based on former data and interpretations, instead of new research
+results.**" Kayan's own acknowledgement note repeats it: "This paper has been
+compiled from my previous publications on paleogeographical, geoarchaeological
+research at Troia" (694 n. *). **So 2014 is a synthesis, not a new dataset**, and
+every figure in it is credited to an earlier paper (Kayan 1991, 1995, 1996, 2000).
+Where 2014 and 2003 print the same figure, they are **one witness, not two** — the
+value of 2014 is that it is his last word, and that in two places the last word has
+changed.
+
+**1. THE CURVE — Fig. 8, p. 709. Same plate; corroborates §1.5a's measurement to
+±0.03 m; diverges on the cause.**
+
+Caption, verbatim: "Middle-Late Holocene relative sea level changes in the Troia
+area (Kayan 1991)." Same two annotation bars as 2003's Fig. 2 — the cultural bar
+(Beşik Sivritepe, Kumtepe I A, Beşik Yassıtepe, Troia I–IX, İlion, İlium) with
+**"Troian War"** (in quotation marks on the plate; the plate's own Troian/Trojan
+orthography could not be settled between independent reads and is not load-bearing
+— the 2003 printing of the same plate reads "Trojan War"), **Homer's time** and
+**Strabo's time** keyed on to it. The curve itself is a single heavy line bounding
+a grey fill, labelled along its length "RELATIVELY CHANGING SEA LEVEL", with a **?**
+under its left end before ~6.9 ka — the plate's only uncertainty marking.
+
+*Reading the plate correctly:* it carries **two time axes**, and they are not the
+same. The main axis under the curve is **7→0 thousand years BP**; the cultural bar
+above it has its own axis ticked **3, 2, 1, 0**, which is **thousand years BC/AD**.
+The two are registered 2000 years apart (cultural 3000 BC sits over main 5 ka BP),
+so the bar is aligned to the curve, but a reader who takes the upper "3" for 3 ka BP
+will misdate every period on it by two millennia.
+
+Measured independently off the 2014 print (figure measurement, this dossier;
+600 dpi; metre scale from the alternating left-axis bar, 188.6 px/m with 0 m at
+y = 1100; time ticks on the zero line at 385.4 px per 1000 yr with 0 ka at
+x = 3064 — §3.7b):
+
+| ka BP | RSL (m) | 2003 fig. 2 | ka BP | RSL (m) | 2003 fig. 2 |
+|---|---|---|---|---|---|
+| 6.3 | −0.57 | −0.6 | 3.60 | −1.86 | −1.86 |
+| 6.1 | −0.17 | — | 3.45 | −1.95 | −1.97 |
+| 6.0–5.2 | **+0.05 to +0.12** | 0.0 | **3.28** | **−1.99** ← min | −2.01 at 3.29 |
+| 4.8 | −0.17 | — | 3.12 | −1.96 | −1.97 |
+| 4.6 | −0.35 | −0.35 | 2.95 | −1.80 | −1.82 |
+| 4.4 | −0.61 | — | 2.62 | −1.11 | −1.13 |
+| 4.3 | −0.77 | −0.81 | 2.30 | −0.59 | −0.58 |
+| 4.1 | −1.13 | −1.11 | 2.11 | −0.41 | −0.43 |
+| 3.8 | −1.63 | −1.66 | 1.5 → 0.1 | −0.17 → −0.03 | 0.0 from 1.27 |
+
+What follows, and it is the point of the acquisition:
+
+- **The minimum is −2.0 m at ~3.3 ka BP in both prints, and the "Troian War" label
+  sits on it in both.** Two independent measurements off two different printings
+  agree to two centimetres. §1.5a's number is not a measurement artefact.
+- **The recovery limb is slower than either chapter's prose.** The curve is at
+  **−0.41 m at 2.11 ka** and only reaches within 0.15 m of present by ~1.3 ka. The
+  2014 text says the sea "rose again to its present level **around 2000 years
+  ago**" (719); 2003 said "at the time of Christ" (384, 387). **Both texts run about
+  0.4 m ahead of both plots of the same curve.** Record the discrepancy; it is the
+  chapter's, not ours.
+- **THE DIVERGENCE, and it is a reversal.** 2003, 387: "the sea level fall during
+  the Bronze Age is attributed to **tectonic movements** (Bronze Age Regression;
+  Kayan 1997b)." 2014, 719, verbatim (the … elides sentences on marine/coastal
+  sediments and >30,000-yr dates — Grok page-image check, 2026-07-30):
+
+  > "Although we have enough evidence for small sea-level changes during the last
+  > 6,000 years, **there is no proof for the cause of these events.** … there is no
+  > indicator denoting any uplift of the pre-Holocene surface on which Holocene
+  > marine sediments accumulated. In addition, the middle-late Holocene sea-level
+  > changes can be followed in the same order and magnitude all along the Aegean
+  > coast of Anatolia. The Aegean coastal region has faulted-blocky structure and
+  > **tectonic reasons are not convincing explanations for uniform sea-level
+  > changes. Thus, an eustatic reason concerning a climatic effect must be taken
+  > into account for sea-level changes**, otherwise new evidence must be produced
+  > if any different explanations are to be considered."
+
+  Same author, same curve, opposite mechanism, eleven years apart. **A caption
+  saying "Kayan attributes the fall to tectonics" is now wrong without a year.** And
+  the reversal matters beyond attribution: a *tectonic* fall is local by
+  construction and cannot be checked against a regional database, while an
+  *eustatic* one can — and Seeliger et al. 2021's NE Aegean RSL database shows
+  continuous rise across this window (§1.8). **In 2014 Kayan puts his own curve on
+  the ground where it is falsifiable, and it conflicts.** Do not smooth that; it is
+  the single most consequential thing this chapter says.
+- **Error discussion: none on the curve, and a serious one elsewhere that bears on
+  it.** The plate has no error bars, no data points, no envelope — only the "?" at
+  the left end. But pp. 707–08 discuss vertical error at length, and the numbers are
+  large against a 2 m signal: the project's levelling still uses **Dörpfeld's datum,
+  which is 60 cm below the Turkish National Geodetic System**; GPS and 1/25000-derived
+  measurements "have provided different data", and the incompatibility "causes great
+  difficulty for the correlation of subsurface sedimentary units"; **"about 20 cm
+  difference of altitude … can cause an abnormally inclined view"** on the sections
+  and "**may imply tectonic deformation (like tilting), but this is not
+  intentional**"; and agricultural levelling means "**vertical shifts of up to
+  50 cm** must be taken into account in certain drill-hole correlations". Cite this
+  when anyone treats the −2.0 m as a tenth-of-a-metre quantity: **its author reports
+  0.2–0.6 m of datum and levelling error in the machinery that produced it.**
+- **The curve remains a Beşik-plain record.** p. 704: the 80 Eijkelkamp hand
+  drillings on the Beşik plain "made it possible to delineate small relative
+  sea-level changes … in particular, that **the sea fell about 2 m in the Late
+  Bronze Age**"; p. 719 gives the interval as "first fell about 2 m **between
+  5,000–3,500 years ago**, and rose again to its present level around 2000 years
+  ago (Fig. 8)". Same provenance, same magnitude, as 2003.
+
+**2. KESIK, FIRST-HAND AT LAST — pp. 720–24, and the fifth corner of §1.9's table
+is NOT what Zangger's paraphrase made it.**
+
+The §1.9 table has carried "Kayan 2009, 124 and 2014, 723–24: a **natural tectonic
+depression**, later widened by foot traffic", second-hand through Zangger's Turkish
+footnotes. **What Kayan 2014 actually says is narrower on both halves, and it
+explicitly refuses the Holocene-tectonic reading.** The operative passage, p. 723,
+verbatim and entire:
+
+> "The origin of the Kesik canal between the Kesik depression and the Aegean Sea is
+> a subject of discussion. Our interpretations on this matter have been explained in
+> former publications. **In the new stage of our research we have obtained no
+> evidence to change our former interpretation.** In brief, **the Kesik canal
+> appears artificial with its very straight direction. However, no evidence has been
+> discovered to suggest that it was dug out, nor has any trace of dumped material
+> been found in surrounding fields.** The canal is very narrow and the bedrock forms
+> a threshold in the middle at a height of about 13 m above sea level. Therefore,
+> the canal cannot possibly be used as a waterway between the Kesik depression and
+> the sea. In addition, any archaeological material or any trace of human impact
+> were not found in colluvial deposition about 2 m thick in trenches which we dug
+> across the canal with the Unimog digger.
+>
+> On the other hand, **there is some evidence implying that the canal depression is
+> naturally formed on a fault line.** This is based on differences in elevation
+> between two sides (north and south) of the canal, and the morphology of the
+> bedrock along the eastern extension of the canal on the surface (Ballıkaya ridge)
+> and underlying alluvium (drilling data). **However, sedimentological and
+> stratigraphical features of the Holocene deposits in the Kesik depression do not
+> support such tectonic activity for the Holocene.** According to available data,
+> the most probable explanation may be as follows:"
+
+And the explanation, p. 724, opening sentence: "**The Kesik canal may have
+originally formed on a fault line before the Holocene, long before human activity in
+this area.**"
+
+Four corrections fall out, and none of them is cosmetic:
+
+- **It is a PRE-Holocene fault line, not a Holocene tectonic depression.** Kayan
+  states in the same breath that his own Holocene sediments **do not support**
+  tectonic activity in the Kesik depression during the Holocene — which is the same
+  finding he generalises at pp. 716–17 for the whole plain ("the sedimentary units
+  have not been subjected to tectonic deformation… **tectonic activity or
+  deformations are not visible on the landforms and have not been a primary factor
+  for the geomorphological development of the region since the middle Holocene**").
+  So "Kayan: tectonic depression" is a half-truth that inverts his actual claim
+  about the epoch anyone drawing a Bronze Age map cares about.
+- **It is hedged three ways in one paragraph**: "appears artificial"; "no evidence
+  … that it was dug out"; "*some* evidence implying" a fault origin; "may have
+  originally formed"; "the **most probable** explanation **may be** as follows".
+  This is not a verdict. **His 2003 position has not moved to a verdict — he says so
+  himself: "we have obtained no evidence to change our former interpretation."** The
+  2003 chapter's agnosticism (§1.5b) and this are the same position, with a
+  preferred hypothesis attached.
+- **"Widened by foot traffic" is not the 2014 claim either.** What p. 724 says is
+  that in recent centuries people trying to drain the Alacalıgöl part of the plain
+  "tried to dig some small trenches to accomplish this, **but nothing as large as
+  the Kesik canal**. It seems that such attempts could not been successfully
+  completed. **The canal has been used continuously for land passage** between the
+  Kesik plain and the coast of the Aegean Sea. This usage may have been more
+  important during the wars of the last century." Continuous *use* as a footpath —
+  he does not say the traffic cut it. And "such attempts could not been successfully
+  completed" is a *third* echo of Cook's "the work was never completed", now applied
+  to modern drainage rather than to the cut itself.
+- **The Bronze Age is ruled out on environmental, not archaeological, grounds** —
+  p. 724: "the Bronze Age, especially the period of Troia VI/VIIa, remains under
+  discussion as a period of possible canal construction. **During this period the
+  Kesik depression was not a marine embayment; instead, it was covered by a swamp.
+  Therefore, a harbor is not a subject of discussion for the Kesik depression and a
+  canal was not necessary for a waterway connection with the Aegean Sea.** In fact,
+  there is no archaeological evidence later than the Chalcolithic period in this
+  area."
+
+**And the "one can easily imagine" quotation is concessive in 2014 too — §6's open
+question is now closed.** The sentence stands at p. 723, and the paragraph it opens
+runs straight into the literature it is setting up to refute: "…one can easily
+imagine that the Kesik plain could have been an excellent harbour which was
+connected to the Aegean Sea by the Kesik 'canal.' **Concerning this idea, there are
+various interpretations in the literature**, and the Kesik 'canal' has been the
+subject of great interest in this respect. **It is thought that** the canal was
+opened by man… **Although the canal is too high for direct water connection**, there
+are some ideas that it could have been used as a dry slipway to transport ships"
+(723, footnotes to Cook 1973 and Zangger et al. 1999). The refutation lands on the
+next page in the swamp sentence quoted above. **Both instances of that sentence,
+2003 and 2014, are the setup of a refutation. The quotation may not be used to show
+Kayan in two minds — it never was two minds.**
+
+Numbers repeated verbatim from 2003 (so: one witness, not two): ridge "only about
+600 m wide", "a little more than 20 m at the top"; "the highest point in the bottom
+is 13.7 m above sea level at a distance of about 150 m from the sea"; "the inner
+side profile … opens on to the Kesik plain at an elevation of **6.3 m about 400 m
+east of the top**"; "**the Neogene bedrock (sandy marl here) is covered by 2 m of
+colluvium**"; "**no archaeological material was encountered**". 2014 adds one
+figure 2003 lacked: the mid-cut bedrock threshold "at a height of **about 13 m**
+above sea level" — his own rounding of the 13.7 m. **Still no width and no depth in
+Kayan's own text; the 400 × 50 × 30 m triple remains Zangger's.**
+
+**3. THE LBA SHORELINE — NO. There is no Late Bronze Age isochrone on any 2014 map.
+This was the last chance and it does not come.**
+
+**Fig. 16, p. 718** — "Geomorphological development of the Karamenderes (Scamander)
+plain (Kayan 2000)" — is **the same sheet as 2003's Fig. 7**, same legend, same
+colours, reprinted at a smaller scale (126 px/km at 600 dpi here against 147.3 px/km
+at 500 dpi there). Its dated coastline positions are the same four and no more:
+**6000–5500 BP · 5000–4500 BP · 2000 B.P. · Present**, plus **6000 BP** and
+**Present** at Beşik. **No Bronze Age line. No 3500 BP line.** The LBA still falls
+in the unlabelled gap between the 5000–4500 BP and 2000 BP shores.
+
+Re-measured on the 2014 print as a cross-check of the method (figure measurement,
+this dossier; §3.7b), nearest "Troia and Beşik bays 6000 BP" pixel to the Troia dot
+per bearing, against §1.5c's reading of the same plate in the 2003 print:
+
+| bearing | 2014 print | 2003 print (§1.5c) |
+|---|---|---|
+| 300°–345° | **0.31–0.33 km** | 0.27–0.33 km |
+| 000° (N) | 0.35 km | 0.31 km |
+| 270°–285° | 0.39–0.47 km | 0.39 km |
+| 225°–255° | 0.69–0.78 km | 0.47–0.65 km |
+| 045° | 0.60 km | 0.52 km |
+
+Two prints, two measurements, same plate: **the NW–W sector reproduces to within
+0.06 km; the S–SW sector to within 0.15 km.** The method is sound and §1.5c's table
+stands. What it measures is still the **6000 BP** bay, not an LBA shore.
+
+**What 2014 *does* commit for the Bronze Age, and it is a section, not a map.**
+**Fig. 15, p. 716** is a new plate (no prior-publication credit in its caption): a
+N–S cross-section "near the foot of western slope of Troia", running from the lower
+Dümrek valley south to the western slope, boreholes 126, 43, 127, 129, 182, 15 and
+75. On it, at about +1 m, runs a labelled horizon: "**End of delta formation about
+3500 years ago**". Below it "Delta 1" (coarse sandy delta sediments), "Delta 2",
+"Interchannel", "Coastal platform" and "Last marine sediments"; above it flood-plain
+sediments and colluvium. Three blue arrows on the left carry the sea-level story in
+his own captioning: **1 "Sea-level rise until 6000 years ago" · 2 "Sea-level fall
+5000–3500 years ago" · 3 "Sea-level rise until 2000 years ago"**. The caption reads:
+"a bedrock platform along the foot of northern slope of Troia, about 10 m below
+present surface **was a narrow coastal environment in the Bronze Age. Deltaic
+shoreline in the Karamenderes valley reached here with various sedimentary facies,
+towards the end of this period.**"
+
+**That is as close as Kayan ever comes to an *Iliad*-time shoreline, and it is a
+statement about a section line at the citadel's western foot, not a distance.** It
+says deltaic sedimentation at the foot of Troia's western slope **ended about
+3500 BP** — i.e. the delta front had passed the citadel by then and the shore lay
+beyond it. It commits **no** distance, and **no distance may be derived from it**:
+a section gives you a date at a place, not a shore at a date. Anyone drawing an LBA
+line still draws an interpolation, exactly as §1.5c concluded — but the interpolation
+now has a *lower* bound in Kayan's own hand: **by ~3500 BP the water was already
+past the western foot.**
+
+One further 2014 number, textual and new: the delta "presently reach[es] **about
+4 km northwest of Troia**" (703). Measured on Fig. 16 (§3.7b) the present coast is
+~4.4 km due north and beyond 4.9 km NNW, so his "about 4 km" is the map's number
+rounded down; the two are consistent within the ±10% these plates carry (§3.7a).
+
+**4. BARRIER AND LAGOON, 2014 — the Beşik-only picture is unchanged, and now it is
+DATED and DRAWN.** This is the acquisition §5 item 4 was hoping for and did not get.
+
+- **The Karamenderes denial is repeated verbatim**, p. 712, of the transition zone
+  capping the marine unit: "**There is no beach or lagoon formation. Instead,
+  sediments indicate swampy or seasonally wet environments.**" Word for word what
+  2003, 390 says. **No Scamander-front barrier at any date, in text or on any
+  plate.** (Kraft's 2000 BP Scamander barrier, §1.4a, remains the only one anyone
+  has ever drawn, and it is not in this chapter.)
+- **At Beşik the barrier is now dated to Troia VI**, p. 704 — a date 2003 did not
+  give: "We showed that the present Beşik plain formed as a small bay about 6,000
+  years ago. Afterwards, **around the period of Troia VI, a coastal barrier
+  separated a small lagoon** (Figs. 6–7). … the sea fell about 2 m in the Late
+  Bronze Age and **caused widening of the coastal barrier and reduced the lagoon.
+  This implies that no Bronze Age natural harbour with an open water surface seems
+  to have been possible here** (Fig. 8)."
+- **Fig. 6, p. 707** — "The west-east cross-section of the Beşik plain… Based on 80
+  shallow hand-drilling sediment samples, **a coastal barrier system separating a
+  laggon [sic] has been outlined in several periods (H1–5)**. (Modified from Fig. 4
+  in Kayan 1991)." The section runs W–E across ~1.4 km with the Aegean at the left,
+  and it carries a legend of **dated shoreline positions: ① 6000 BP · ② 3500 BP ·
+  ③ 2000 BP · ④ Present**, each plotted at its place on the profile. Units drawn:
+  Beach, Dune field, **Old barrier**, **Lagoon**, Lagoonal mud, Coastal sand,
+  Coastal barrier (H2/H3), Older coastal sediments (H1), Colluvial footslope,
+  Shallow marine sediments, Shallow marine Pleistocene, Neogene bedrock. ¹⁴C dates
+  in position: **8000, 6700, 5200, 4500, 3500, 5800, >24000?** and 2000.
+- **Fig. 7, p. 708** — "Geomorphological development periods of the Beşik plain.
+  (Modified from Plate 5 in Kayan 1991)" — is the same thing in plan: LAGOON, OLD
+  BARRIER, DUNE FIELD, LAGOONAL CHANNEL, DUNE RIDGE, SANDY BEACH, with the same four
+  numbered coastline positions on the map and Beşik-Yassıtepe and Sivritepe on the
+  bounding slopes.
+- **What the two figures fix, and it is drawable geometry for a Beşik plate:** at
+  **3500 BP — position ② — the shoreline is on the SEAWARD flank of the coastal
+  barrier**, with the lagoon behind it landward, at roughly −1.5 to −2 m on the
+  section (a soft read off a small figure; Grok's independent read leans −2 m). The
+  LBA sea at Beşik is therefore *outside* a barrier, and the enclosed water behind
+  it is a shrinking lagoon, not a bay. **That is what "no Bronze Age natural harbour
+  with an open water surface" means, drawn.**
+- Authority: **geometry**, for Beşik only, and **±** whatever the 1991 hand-drilling
+  survey is worth — 80 holes to 8 m with a hand auger, samples that "could not be
+  taken under undisturbed conditions" by the chapter's own admission (Fig. 5
+  caption, p. 706).
+
+**5. THE BAY'S SOUTHERN EXTENT AND THE PROGRADATION STAGES — no revision, no new
+dates, and the 17 km is gone.**
+
+- The southern limit is stated twice, both times by place-name and never in
+  kilometres: "By 7,000–6,000 years ago, a ria type bay in the present lower
+  Karamenderes valley west of Troia, extended southwards **as far as just north of
+  Pınarbaşı-Mahmudiye** (Fig. 4)" (703); "the coastline continued to advance south,
+  covering former delta plains and **reaching the vicinity of Pınarbaşı** (Fig. 4)"
+  (718). **The abstract's "17 km" of 2003 appears nowhere in this chapter** — which
+  strengthens §1.5's finding that the 17 km is the 2003 abstract's own reduction of
+  a place-name and cannot be cited to a body page in either chapter.
+- **Fig. 4, p. 705 is a NEW plate** and the only wholly new map in the chapter:
+  "Paleogeographical reconstruction of the lower parts of the Karamenderes
+  (Scamander) and Dümrek (Simois) valleys in the Middle Holocene, about 7000–6000
+  years ago." Blue sea on a yellow low plateau, legend "**Bay in the Middle Holocene
+  (7000–6000 years ago)**", with **KESİK INLET** labelled as open water, Beşik as a
+  separate small bay, swamp stipple along the southern and eastern fringes, and the
+  caption "A Troia settlement did not exist yet. However, the Alacalıgöl and
+  Kumtepe Neolithic settlements were already established on the shoreline of the
+  embayment."
+  Measured (figure measurement, this dossier; §3.7b): **open water 0.19–0.26 km from
+  the Troia dot through the whole 300°–030° sector**, 0.30–0.46 km at 240°–270°, and
+  the embayment's head **3.2–3.8 km south to south-south-east**. So Fig. 4 puts the
+  mid-Holocene water *closer* to the citadel than Fig. 16's 6000 BP bay does
+  (0.31–0.35 km) — the same research group's two plates of the same event, ~0.1 km
+  apart, which is the honest size of the noise on these sheets and a useful
+  calibration for §3.7a's ±10%.
+- The stage sequence is unchanged and is stated as three units, not four shorelines:
+  Early–Middle Holocene marine embayment; **Middle Holocene (Bronze Age) deltaic
+  progradation, "a period of faster development because of small sea level fall"**;
+  Late Holocene slower progradation and alluvial-colluvial sedimentation (abstract,
+  694). Dates repeated from earlier work: sea into the incised channel ~10,000 BP;
+  bay at maximum ~7000 BP; sea level stops rising ~6000 BP; regressive sequence
+  **5000–3500 BP**; delta formation at Troia's western foot ends **~3500 BP**
+  (Fig. 15).
+- One new number worth keeping, p. 717: "**6 to 7 m of sediment has been deposited
+  on the bottom near environs of Troia since Troia VI (over the last 3,250 years)**."
+  That both dates Troia VI at ~3250 BP in Kayan's own hand — matching the position of
+  the "Troian War" label on Fig. 8 — and gives an aggradation rate of ~1.9–2.2 mm/yr
+  at the citadel's foot. Compare §3.1's Strabo-derived ~2.8 mm/yr on the DEM: the
+  same order, from a wholly independent route. That is a genuine cross-check and it
+  is worth saying so.
+
+**6. HARBOURS, THE CAMP AND HOMER IN HIS OWN 2014 VOICE — and the trajectory has
+moved, in the direction nobody expected.**
+
+- **He now says Troia had harbours.** p. 720, opening the harbour section: "**Since
+  the Karamenderes plain was a long bay for several millennia after 7,000 years ago,
+  Troia must have had a harbour or harbours in different places following changes of
+  coastline positions during deltaic progradation. An important question then arises
+  as to where the Troia harbours were.**" Set that against the 2003 abstract's "the
+  geographical environment has never been suitable for the establishment of an
+  important harbour" (§1.5). **The 2014 opening is an affirmative, and the chapter
+  never answers the question it raises** — it goes on to dismantle the three western
+  candidates (Yeniköy, Kesik, Kumtepe) one at a time and stops. Combined with the
+  2003 conclusions' concession that "suitable places on the changing shoreline could
+  have been used according to necessity as natural harbours" (401, §1.9), **Kayan's
+  settled position is: harbours yes, harbour *works* no, location unknown.** The
+  flat "Kayan denies a harbour" that §2 has been carrying is not his 2014 voice.
+- **Kumtepe is dispatched too**, p. 725, and on a ground worth having: "This lowest
+  part of the Karamenderes plain was described by Strabo at the time of Christ, and
+  mapped by Leake based on his descriptions. **No marine indentation was shown on
+  this map.** Also, there is no evidence indicating that Kumtepe indentation was used
+  as harbour." Kayan citing **Leake 1824** against a harbour is a datum for the
+  Strabo lane (§1.10), and it is the only place in this literature where an
+  early-modern reconstruction is used as negative evidence.
+- **Yeniköy**: no natural or artificial marine connection over the Beşik–Yeniköy
+  threshold ever; the ditch across it is "almost certain[ly]" a freshwater channel
+  from the Pınarbaşı springs to the Beşik plain, last cleaned in the 1950s, feeding
+  the Hanımdeğirmeni water-mill (721). That is 2003's reading unchanged and it
+  corroborates §1.9's Yeniköy paragraph first-hand.
+- **On Homer, twice, and unusually warmly for a geomorphologist.** p. 695: "the most
+  important reason for this interest is the detailed description of the geographical
+  environment made by Homer… descriptions of the geographical environment of around
+  **2700 or 3250 years ago — depending if one assumes Homer describes the landscape
+  at his own lifetime, or at the supposedly earlier time of the Trojan War** — which
+  have reached the present day as written text are an important original feature of
+  Troia offered by Homer." And p. 696: "**Thus, in one respect, Homer has constituted
+  a basis for environmental approaches in modern archaeology and the rise of
+  geoarchaeology.**" He states the two-date problem exactly as our own apparatus has
+  to, and he does not adjudicate it.
+- **No camp claim.** The word "camp" does not occur in the chapter; Beşik is
+  discussed only as a barrier-lagoon system with no open water in the Bronze Age.
+  **Kayan 2014 is not a source for the Achaean camp anywhere** — do not let the 1980
+  and 1982 Kraft-and-Kayan camp statements be re-attributed to it.
+- **Tsunami: denied, flatly, and this is new material.** pp. 717–18: "In our core
+  drillings, which reached 318 in number… **we have never encountered any evidence of
+  a tsunami**"; a wave's intrusion up the strait or over the Yeniköy ridge is "hard
+  to postulate"; and the marine shells others read as inundation evidence are food
+  waste, mud-brick temper and ornament — "**the existence of shell remains at a site
+  about 30 m above sea level like Troia is not an evidence of an inundation caused by
+  a tsunami**". Useful if any plate or note ever reaches for a tsunami.
+- **Earthquakes: agnostic, and he says why the question is unanswerable by his
+  methods.** pp. 716–17: no tilting or deformation detected on the marine unit's top
+  surface, so "severe tectonic activity of a magnitude that could have had an effect
+  on the morphology has not occured during the last 7,000 years" — with the honest
+  rider "**of course, this is not evidence for the stability of the region**" — and
+  the trench-depth argument: since Troia VI, 6–7 m of sediment has accumulated, while
+  earthquake trenches "only reach depths of about 4–5 m", so "**it makes no sense to
+  try to find marks of tectonic deformation from supposed earthquakes in the Troia VI
+  period in these younger sediment layers**". His conclusion: "earth science research
+  techniques alone are not enough to obtain evidence to prove one way or the other if
+  earthquakes destroyed Troia VI."
+
+**7. The campaign's parameters, first-hand — and the 318 is confirmed with its
+composition.** 7 MTA rotary holes in 1977, deepest **75 m** to pre-Holocene bedrock;
+80 Eijkelkamp hand drillings to 8 m on the Beşik plain from 1983; the Daimler-Benz
+Unimog screw rig from 1988, to **20.50 m**, plus trenches to 2.5–3 m; Cobra
+percussion gouge-coring from the later 1990s (corer 35/50/60 mm, "possible to reach
+down to 30 m… however, **15–20 m is a good depth**"), hydraulic lifter from 1997.
+"**In 2006, the number of Cobra core-drillings reached 118 and the total number of
+the Troia drillings 318**" (706); Fig. 2's caption (p. 700) breaks it down —
+**1–100 Unimog, 101–218 Cobra, plus 100 on the Beşik plain and Yeniköy–Sigeion
+ridge**, "thus, the total number of the drillings reached 318 in 2006". So the
+dossier's "285 by 2001 / 318 by 2006" reading (§1.5b) is right, and **Zangger's "318
+holes between 1977 and 2006" (§1.9) checks out against the source**.
+
+**The twenty figures, so nobody hunts for one twice:**
+
+| fig. | p. | what it is | after |
+|---|---|---|---|
+| 1 | 695 | geomorphological outlines of the Troia area | — |
+| 2 | 700 | locations of the 318 core-drilling points | — |
+| 3 | 704 | photo: MTA rotary drilling (ÇKM 4) north of Troia | — |
+| 4 | 705 | **NEW: paleogeographical reconstruction, 7000–6000 BP**, blue bay, "KESİK INLET" | — |
+| 5 | 706 | photo: Eijkelkamp hand-drilling profile | — |
+| 6 | 707 | **Beşik plain W–E cross-section, barrier + lagoon, H1–5, dated shorelines ①–④** | Kayan 1991 fig. 4 |
+| 7 | 708 | **Beşik plain in plan: lagoon, old barrier, dune field, shorelines ①–④** | Kayan 1991 pl. 5 |
+| 8 | 709 | **the relative sea-level curve** (§1.5d.1) | Kayan 1991 |
+| 9 | 710 | photo: Unimog screw drilling | — |
+| 10 | 711 | photo: Unimog trench, two fills in the Troia defence ditch | — |
+| 11 | 712 | photo: screw-corer sediment samples | — |
+| 12 | 713 | photo: Cobra gouge-corer operation | — |
+| 13 | 714 | photo: core profile, drilling 213 north of Troia | — |
+| 14 | 715 | drilling log 213 in the standard computer form | — |
+| 15 | 716 | **N–S section at Troia's western foot; "End of delta formation about 3500 years ago"** | — |
+| 16 | 718 | **the reconstruction map** = 2003's fig. 7, four isochrones, **no LBA line** | Kayan 2000 |
+| 17 | 719 | simplified W–E section of the lower Karamenderes–Dümrek plain | Kayan 1995 |
+| 18 | 720 | photo: western slope of Troia, drillings 183 and 129 | — |
+| 19 | 722 | drill-hole details along Schliemann's N–S trench | Kayan 1996 |
+| 20 | 724 | **Yeniköy / Kesik / Kumtepe cross-sections** = 2003's fig. 6, + a locator inset | Kayan 1995 |
+
+Fig. 20 confirms §1.5c's reading of the 2003 Fig. 6 in every particular: three
+stacked sections, the Kesik one carrying "Canal bottom profile" and "Northern ridge
+profile" as line traces over the ridge, the Yeniköy one carrying the Beşik–Yeniköy
+threshold with its "Old canal profile" and the water-mill, dates **Kumtepe 5500,
+7000 BP · Kesik 3400, 4200, 4500 BP · Yeniköy 5500, 5800, 5300, 12,500 BP**,
+thresholds standing well above present sea level on all three, and **no barrier and
+no lagoon on any of them**.
 
 ### 1.6 Brückner, Vött, Schriever and Handl 2005 — open access, and the best single entry point
 
@@ -1321,9 +1820,28 @@ below, it was never navigable.**
 1973, 166–67 off the page images): the two authorities disagree on what the
 feature IS, and this entry previously ran them together as if they agreed.**
 Do not blend them again.
-  - **Kayan: natural.** A **tectonic depression** (Kayan 2009, 124; Kayan 2014,
+  - ~~**Kayan: natural.** A **tectonic depression** (Kayan 2009, 124; Kayan 2014,
     723), later **widened by foot traffic** between coast and plain (Kayan 2014,
-    724) — never a dug work at all.
+    724) — never a dug work at all.~~
+    **REWRITTEN 2026-07-30, first-hand from Kayan 2014 (§1.5d.2). The second-hand
+    version overstated him on both halves.** 2014, 723 says the canal "**appears
+    artificial with its very straight direction**", that "**no evidence has been
+    discovered to suggest that it was dug out**", that "there is **some evidence
+    implying** that the canal depression is naturally formed **on a fault line**" —
+    and then, in the same paragraph, that "**sedimentological and stratigraphical
+    features of the Holocene deposits in the Kesik depression do NOT support such
+    tectonic activity for the Holocene**". His preferred explanation is a
+    **pre-Holocene** fault line: "The Kesik canal **may have originally formed on a
+    fault line before the Holocene**, long before human activity in this area"
+    (724). He is explicit that this is not a new position: "**In the new stage of
+    our research we have obtained no evidence to change our former
+    interpretation**" (723) — the 2003 agnosticism (§1.5b) stands, with a preferred
+    hypothesis attached. And "**widened by foot traffic**" is not in him: 724 says
+    the canal "has been **used** continuously for land passage", and attributes the
+    only digging to modern drainage attempts that produced "nothing as large as the
+    Kesik canal". **Never write "Kayan: tectonic depression" flat** — it inverts his
+    Holocene claim, which is the only epoch a Bronze Age plate cares about. The
+    Kayan 2009, 124 leg of this is still second-hand and now unnecessary (§5 item 7).
   - **Cook: artificial, and "never completed" (his words).** "An artificial cut… a great
     V-shaped trench" (Cook 1973, 166); his verdict, verbatim: "**It seemed to us
     clear that the work was never completed**" (167). **A tectonic depression
@@ -1414,9 +1932,20 @@ the various periods of Troia culture** (Fig. 7)" (401). So Kayan denies a harbou
 "harbour, in general" row has been carrying, and it is compatible with Kraft's
 "had excellent harbor potentials" (§1.4) in a way the dossier has been treating as
 a head-on clash. Record the narrowing; the clash over **Kesik specifically**
-survives it. Elsewhere he writes the opposite mood: **"One can easily imagine that the
+survives it. ~~Elsewhere he writes the opposite mood: **"One can easily imagine that the
 Kesik plain could have been an excellent harbor which was connected to the Aegean
-Sea by the Kesik 'canal'"** (Kayan 2014, 723).
+Sea by the Kesik 'canal'"** (Kayan 2014, 723).~~ **STRUCK 2026-07-30, first-hand:
+there is no opposite mood.** That sentence stands at Kayan 2014, 723 as the opening
+of a paragraph that immediately turns on it — "**Concerning this idea, there are
+various interpretations in the literature** … It is thought that the canal was
+opened by man … **Although the canal is too high for direct water connection**,
+there are some ideas that it could have been used as a dry slipway" (723, citing
+Cook 1973 and Zangger et al. 1999) — and is refuted on the next page: "**During this
+period the Kesik depression was not a marine embayment; instead, it was covered by a
+swamp. Therefore, a harbor is not a subject of discussion for the Kesik
+depression**" (724). The 2003 instance is concessive (§1.5b) and **the 2014 instance
+is the setup of a refutation too**. §6's open question on this is closed. The
+quotation may never be used to show Kayan contradicting himself.
 - Authority: **geometry** (800 m; pre-1300 BC siltation) and **identification**
   (not an LBA harbour).
 - Verified how: **first-hand from the printed pages 398–401** (author-shared
@@ -1485,7 +2014,7 @@ closer than the dossier had them while a new and worse one has opened.**
 | Kraft, Rapp, Kayan & Luce **2003b**, 166 (§1.3) | "The Kesik cut, **a great wall and ditch**… was proposed by Nestor: Il. 7, 336–343", drawn across the ridge neck on both plates | c. 1250 BC, **unconditionally** | **Kayan 1995** |
 | Kayan, Öner, Uncu, Hocaoğlu & Vardar **2003**, 398–401 (§1.5b) | **undecided about origin, decided about use**: "the shape of the Kesik implies that it was dug by man, **there is no information about the purpose and time of construction**"; foot passage, or "**perhaps it is an unfinished canal construction**"; and "**the Kesik 'canal' was never used as a waterway**"; the bay itself unusable by the LBA | unknown | its own drilling |
 | Cook **1973**, 166–67 (§1.9) | "an artificial cut… never completed", purpose-guess **drainage**, occasion-guess Constantine's new city | **fourth century AD** | field observation |
-| Kayan **2009**, 124 and **2014**, 723–24 (§1.9, second-hand via Zangger) | a **natural tectonic depression**, later widened by foot traffic | not applicable | — |
+| ~~Kayan **2009**, 124 and **2014**, 723–24 (second-hand via Zangger)~~ **REPLACED, first-hand 2026-07-30** — Kayan **2014**, 723–24 (§1.5d.2) | a depression **"naturally formed on a fault line"** on "some evidence", the canal itself "appears artificial" but with "no evidence… that it was dug out" — and **the Holocene sediments explicitly do NOT support Holocene tectonic activity there**, so the fault is **pre-Holocene**; "no evidence to change our former interpretation" | **before the Holocene** (the fault); the canal's own date never established | its own drilling and the ridge/Ballıkaya bedrock morphology |
 
 Five things follow, and none may be smoothed over:
 
@@ -1501,12 +2030,27 @@ Five things follow, and none may be smoothed over:
    and date are unknown. **One book, two chapters, one co-author, two positions,
    no cross-reference.** Do not cite "Kayan" on the Kesik cut without a year, a
    page and which chapter.
-3. **Cook and Kayan-in-2003 are nearer than §1.9 has had them.** "Or perhaps it is
-   an unfinished canal construction" (Kayan et al. 2003, 399) and "the work was
-   never completed" (Cook 1973, 167) are the same thought, and both men ask the
-   same question about the missing spoil. The flat "Kayan: natural / Cook:
-   artificial" opposition is a **2009/2014-vs-1973** opposition, not a 2003 one.
-   **Kayan's position moved between 2003 and 2009**; date every attribution.
+3. ~~**Cook and Kayan-in-2003 are nearer than §1.9 has had them.** … The flat
+   "Kayan: natural / Cook: artificial" opposition is a **2009/2014-vs-1973**
+   opposition, not a 2003 one. **Kayan's position moved between 2003 and 2009**;
+   date every attribution.~~
+   **REVISED 2026-07-30 on the Kayan 2014 full text, and the first half survives
+   while the second does not.** Cook and Kayan are still nearer than the dossier
+   had them — "perhaps it is an unfinished canal construction" (Kayan et al. 2003,
+   399), "the work was never completed" (Cook 1973, 167), and now a third echo,
+   Kayan 2014, 724 on the modern drainage attempts: "**such attempts could not been
+   successfully completed**". Both men still ask the same question about the missing
+   spoil, and 2014 asks it again ("**nor has any trace of dumped material been found
+   in surrounding fields**", 723). **But "Kayan's position moved" is now retracted.**
+   He says in terms that it did not — "In the new stage of our research we have
+   obtained no evidence to change our former interpretation" (723) — and what he
+   holds in 2014 is 2003's agnosticism with a *pre-Holocene* fault line as the
+   preferred hypothesis, plus an explicit denial that his Holocene sediments support
+   tectonic activity there. So the opposition is **Cook's artificial-and-unfinished
+   vs. Kayan's natural-but-undated**, at every date from 1995 to 2014, and it was
+   Zangger's paraphrase — not Kayan — that manufactured the 2003→2009 shift. Date
+   every attribution anyway; but the reason is now precision, not a real change of
+   mind.
 4. **The one thing all five agree on is negative**, and it is the only Kesik
    statement that is safe: the cut's bottom stands well above sea level (13.7 m at
    its saddle, 6.3 m at its inner end — Kayan et al. 2003, 398; "perhaps 12–15 m",
@@ -1539,7 +2083,11 @@ seriously consider the possibility that the Greek fleet was beached in the
 embayment at Besika"** (Kraft, Kayan & Erol 1982, 40) and **"It is obvious that the
 Besik bay could have been used as a harbor"** (Kayan 1991, 91). Kayan drilled
 **318 holes between 1977 and 2006**, initially to 75 m depth and after 1988 to
-20.5 m with a Unimog rig (Kayan 2006, 322–23; Kayan 2014, 703). Zangger's
+20.5 m with a Unimog rig (Kayan 2006, 322–23; Kayan 2014, 703). **Checked
+first-hand 2026-07-30 and it holds, but the page cite is short:** the 75 m is at
+**703**, the Unimog's 20.50 m and the "318 in 2006" at **706**, and the breakdown
+(1–100 Unimog, 101–218 Cobra, +100 at Beşik/Yeniköy) in Fig. 2's caption at **700**
+(§1.5d.7). Cite **703, 706 and 700 fig. 2**. Zangger's
 criticisms: core descriptions were purely sedimentological and not to
 international colour/grain-size standards (Kayan 2006, 324), and the ceramic
 fragments in the cores were never published.
@@ -2097,17 +2645,17 @@ A compact synthesis. Every number traces to §1.
 |---|---|---|
 | Marine embayment, maximum extent | Head **17 km inland** from the present plain's north end, immediately NW of Pınarbaşı, at **7000–6000 BP** (Kayan et al. 2003; Brückner et al. 2005 §16); alternatively **"nearly 10 kilometers south of the site of Troy at Hisarlik"** (Kraft, Kayan & Erol 1980, 776 — exact wording, and the origin is the citadel), which the same paper states again as **"approximately 15 km south of the present shoreline of the Dardanelles"** at the c. 7000 BP peak (1980, 782). *(full text, 2026-07-29: was "roughly 10 km south of Hisarlık"; the two 1980 figures are one measurement from two origins — see §3.2a.)* | geographic, but the head is a **buried** feature |
 | Fill thickness | **Over 50 m** of strata between the Sigeum ridge and the Hisarlık/Yenikumkale cuestas; ~250–318 cores (Kayan's campaign). Kraft's 1980 sections reach ~−70 m and rest on **seven** drill holes *(full text, 2026-07-29)* — cite Brückner/Kayan for the thickness, not 1980 | geographic |
-| Progradation past the city | Coastline reaches **west of Troia c. 4000 BP** (Kayan 2019); direct sea access lost soon after **2200 BC** on Kayan's scenario, retained much later on Kraft's — on Kraft's own 1980 Fig. 6, Troy VI/VII at 3250 BP still sits **on a promontory at the edge of the estuary**, the water to its west and north-west *(full text, 2026-07-29)*. **The one borehole statement, first-hand 2026-07-30** (Kayan et al. 2003, 392–94): a Neogene bedrock platform ~50 m wide just below present sea level north of the Schliemann trench, its marine cover dated **5800–5200 BP**, above which colluvium with Troia IV, V and VI sherds — "the sea was right at the foot of the 'Schliemann trench' during the earliest periods of Troia, i.e. Troia I and II. **During Troia IV–VI, a strip of dry land formed between the slope and the old Dümrek channel**". That is the **north** side only, and it is coring rather than mapping | the two scenarios disagree; pick one and name it. **And note that all four of the group's plates keep water against the citadel's WESTERN foot while this borehole clears its NORTHERN one by Troia IV — the two are compatible and the plates should not be read as contradicting the cores** (§1.4a, §1.5b–c) |
+| Progradation past the city | Coastline reaches **west of Troia c. 4000 BP** (Kayan 2019); direct sea access lost soon after **2200 BC** on Kayan's scenario, retained much later on Kraft's — on Kraft's own 1980 Fig. 6, Troy VI/VII at 3250 BP still sits **on a promontory at the edge of the estuary**, the water to its west and north-west *(full text, 2026-07-29)*. **The one borehole statement, first-hand 2026-07-30** (Kayan et al. 2003, 392–94): a Neogene bedrock platform ~50 m wide just below present sea level north of the Schliemann trench, its marine cover dated **5800–5200 BP**, above which colluvium with Troia IV, V and VI sherds — "the sea was right at the foot of the 'Schliemann trench' during the earliest periods of Troia, i.e. Troia I and II. **During Troia IV–VI, a strip of dry land formed between the slope and the old Dümrek channel**". That is the **north** side only, and it is coring rather than mapping. **The WEST side arrives 2026-07-30 with Kayan 2014, 716 fig. 15** — a N–S section at the citadel's western foot with the horizon "**End of delta formation about 3500 years ago**" drawn on it, and the caption "Deltaic shoreline in the Karamenderes valley reached here… towards the end of this period". Kayan's text adds the present figure for scale: the plain now "**presently reach[es] about 4 km northwest of Troia**" (703), and 6–7 m of sediment has accumulated at the citadel's foot "since Troia VI (over the last 3,250 years)" (717) — ~2 mm/yr, the same order as §3.1's independent Strabo-and-DEM estimate | the two scenarios disagree; pick one and name it. **And note that all four of the group's plates keep water against the citadel's WESTERN foot while this borehole clears its NORTHERN one by Troia IV — the two are compatible and the plates should not be read as contradicting the cores** (§1.4a, §1.5b–c) |
 | LBA shore, c. 1200 BC | **Two incompatible numbers, and they are in the same paper.** (a) **~1.2 km**: Kraft, Rapp, Kayan & Luce 2003, 166 — "~6 stades (~1200 m) at the time of the *Iliad*", Strabo's 12 stades halved at 200 m to the stade, which the authors say is "well supported by the environmental lithosome distributions and the radiocarbon dates" *(full text, 2026-07-30 — §1.3; the attribution `shore-bronze` prints is CORRECT, with the qualifications there)*. (b) **2.17 km at bearing 334°**: the nearest open water to the Troy dot on that paper's own *Iliad* plate, Fig. 5, measured *(§1.3a)* — with alluvium and marsh drawn between. Same authors, facing pages. Brückner's "ca. 1.2 km" (§1.6) is (a) again, not a second witness. **Kraft, Kayan & Erol 1980 give no citadel-to-water distance at all**, only "Fortification Troy VI and VII lay on a projection or promontory at the edge of a marine embayment" (782), and read Strabo as describing **his own** time (778–79). **Luce 1984 is not a second opinion:** his Fig. 1 is Kraft's line redrawn (33) — no alternative shore to draw (§1.11, §4 item 12). | (a) identification-via-Strabo, **not** survey; (b) geographic-as-drawn, ±~1 km, coordinates unusable (§1.3a) |
-| **LBA shore, c. 1200 BC — the two Springer chapters added, 2026-07-30, and they widen the spread rather than closing it** | **(c) ~0.3 km.** Kraft, Kayan, Brückner & Rapp 2003a, **374 fig. 10**, the plate whose caption reads "1250 B.C. ca. the time of the *Iliad*": nearest open water **0.27–0.33 km** from the Troia dot through the whole W–NW–N sector, with the delta lobes prograding north up the middle of the plain and Troia on the bay's eastern shore. Its Scenario-I twin, **373 fig. 9**, gives 0.31–0.41 km on the same base at the same scale *(figure measurement, this dossier — §1.4a)*. **(d) not committed.** Kayan et al. 2003, **397 fig. 7**, draws isochrones at **6000–5500 BP, 5000–4500 BP, 2000 BP and Present and no Late Bronze Age line at all**; its 6000 BP bay laps the citadel at 0.27–0.41 km and its 2000 BP shore is ~3.4 km NW. Its one *borehole* statement on the water's edge at the citadel is that the sea was at the foot of the Schliemann trench in Troia I–II and that "**during Troia IV–VI, a strip of dry land formed between the slope and the old Dümrek channel**" (392–94) — north side only *(§1.5b, §1.5c)*. **So four plates from one research group put the bay at the citadel's foot and disagree only about when it left, and (c) sits a factor of eight from the 2.17 km measured off *Geology* Fig. 5 at (b).** Do not average. If one number must be printed, print the range and name the plate. | (c) geographic-as-drawn on a legend-bearing colour plate — the least ambiguous of the four; (d) **no LBA commitment exists**, only brackets |
-| Sea-level change | Local relative fall of **2 m** (Kayan et al. 2003) or **2–3 m** (Kayan 2019) in the LBA — a derivation the sources themselves no longer support as "Kelletat's": the plotted 2003 curve attributes the fall to tectonics and never names Kelletat (see below; the Kelletat attribution survives only in Zangger's report of the older work). Independently and earlier, Kraft, Kayan & Erol 1980's Fig. 6 gives the **endpoints**: **+2 m at 4500 BP → present level at 3250 BP and at 2000 BP**, i.e. a 2 m fall *to* today's datum, from Erol's unpublished curve (ref. 17); the authors call it "valid as a **local, relative,** sea level curve for the Biga Peninsula" (781). The NE Aegean RSL database shows **continuous rise** (Seeliger et al. 2021) *(full text, 2026-07-29)*. **THE PLOTTED CURVE IS NOW IN HAND (2026-07-30): Kayan et al. 2003, 383 fig. 2** ("Middle–Late Holocene relative sea-level changes in the Troia area", after Kayan 1991), with the Troia periods and the labels "Trojan War", "Homer's time" and "Strabo's time" printed on it. Measured: at present level **6000–5100 BP**, falling to a minimum of **−2.0 m at ~3300 BP — the point the "Trojan War" label sits on** — then rising to **about −0.4 m at 2000 BP** and to 0 by ~1300 BP *(figure measurement, this dossier — §1.5a)*. It is a **Beşik-plain record** (80 hand drillings, Kayan 1991), and the chapter attributes the fall to **tectonic movements** ("Bronze Age Regression", Kayan 1997b, at 387) — **not** to Kelletat, who is not named in it. Kraft's chapter states the same curve three more ways: "−1 to −2 m ca. 3500 years ago" (2003a, 361), "−2 m ca. 3400 years ago" (372), "a 2-m sea level drop to ca. 1400 B.C." (373 fig. 9 caption) | state as **local/relative**, never regional; state the endpoints, never a bare "fell 2 m"; **a Bronze Age RSL of about −2 m is now quotable from a plotted, published curve** — with its date (~3300 BP), its provenance (Beşik), and its author's own tectonic attribution |
-| Barrier | A **wide sandy coastal barrier** closing the remaining water into a shallow lagoon after that fall. The barrier-and-lagoon facies language is **Brückner et al. 2005**; the Kayan et al. 2003 and Kayan 2019 *abstracts* describe the fall and the swamp but do not themselves say "barrier" or "lagoon" (the 2003 full text has since been read — see the SETTLED note below; Kayan 2019's body remains unseen). **Kraft, Kayan & Erol 1980, read in full, has neither word**: its terms are sandy/clay-silt estuary, marsh, swamp, beaches, shoals and brackish–freshwater swamp *(full text, 2026-07-29)*. **DENIED outright by Kraft, Rapp, Kayan & Luce 2003, 164, citing their own 1980 paper: littoral currents sorted sands into "nearshore shoals and possibly thin beaches, although no barrier lineaments are evident on the lower Scamander delta"** *(full text, 2026-07-30 — §1.3b)*. Independently, Strabo 13.1.31 describes a **blind (barred) river mouth with salt lakes and marshes**. **SETTLED 2026-07-30, and against our layer: the Kayan full text was seen, and the barrier is at BEŞIK.** Kayan et al. 2003, 382: the Beşik plain "formed as a small bay about 6000 years ago. **Afterwards, a coastal barrier separated a small lagoon**… A small sea-level fall in the Late Bronze Age may have caused **widening of the coastal barrier and reduced the lagoon**." Kraft et al. 2003a, 372, of the same place: Beşik "evolving to a **barrier-lagoon**". On the Karamenderes, Kayan denies it in one sentence (390, of the transition zone that caps the marine unit under almost the whole plain): "**There is no beach or lagoon formation. Instead, sediments indicate swampy or seasonally wet environments.**" And Kraft et al. 2003a, 364: "**Coast-parallel lineaments occur only in the lower 2 km of the Scamander floodplain. Barrier accretion ridges do occur on the Beşik coastal plain**" — 2003b's flat denial (164) in a more exact form. **On the plates:** Kayan's Fig. 9 (2003a, 373) draws the "Sand Dunes and Coastal Barriers" symbol only at Beşika ("1500 BC") and Kum Kale; Kraft's Fig. 10 (374) draws one on the Scamander front too — **dated 2000 BP, ~2.5–3.0 km NNW of Troia**, on the "2000 BC/AD" shoreline — plus Besika's, there labelled "1280 BC" *(figure measurement, this dossier — §1.4a)* | **NOT drawing-ready as a Bronze Age Scamander-front feature, and now for a positive reason rather than an absence: every source that draws a Bronze Age barrier draws it at BEŞIK BAY, and the only Scamander-front barrier anyone draws is Roman-period.** `barrier-bronze` must be demoted or moved (§3.3) |
+| **LBA shore, c. 1200 BC — the two Springer chapters added, 2026-07-30, and they widen the spread rather than closing it** | **(c) ~0.3 km.** Kraft, Kayan, Brückner & Rapp 2003a, **374 fig. 10**, the plate whose caption reads "1250 B.C. ca. the time of the *Iliad*": nearest open water **0.27–0.33 km** from the Troia dot through the whole W–NW–N sector, with the delta lobes prograding north up the middle of the plain and Troia on the bay's eastern shore. Its Scenario-I twin, **373 fig. 9**, gives 0.31–0.41 km on the same base at the same scale *(figure measurement, this dossier — §1.4a)*. **(d) not committed.** Kayan et al. 2003, **397 fig. 7**, draws isochrones at **6000–5500 BP, 5000–4500 BP, 2000 BP and Present and no Late Bronze Age line at all**; its 6000 BP bay laps the citadel at 0.27–0.41 km and its 2000 BP shore is ~3.4 km NW. Its one *borehole* statement on the water's edge at the citadel is that the sea was at the foot of the Schliemann trench in Troia I–II and that "**during Troia IV–VI, a strip of dry land formed between the slope and the old Dümrek channel**" (392–94) — north side only *(§1.5b, §1.5c)*. **So four plates from one research group put the bay at the citadel's foot and disagree only about when it left, and (c) sits a factor of eight from the 2.17 km measured off *Geology* Fig. 5 at (b).** Do not average. If one number must be printed, print the range and name the plate. **(e) STILL not committed, and this was the last chance — Kayan 2014** (§1.5d.3). Its reconstruction map, **718 fig. 16**, is the same sheet as 2003's fig. 7 reprinted: the same four isochrones, **6000–5500 BP · 5000–4500 BP · 2000 B.P. · Present**, and **no Bronze Age line**. Re-measured on the 2014 print, the 6000 BP bay laps the citadel at **0.31–0.33 km through 300°–345°** — reproducing §1.5c's 0.27–0.33 km to within 0.06 km, so the method is sound and the absence is real. His **new** 7000–6000 BP plate, **705 fig. 4**, is closer still: open water **0.19–0.26 km** through 300°–030°. What 2014 *does* commit for the LBA is a **section, not a map**: **716 fig. 15**, a N–S profile at Troia's western foot, carries the labelled horizon "**End of delta formation about 3500 years ago**", with the caption saying the deltaic shoreline "reached here… towards the end of this period". That fixes a **date at a place** — by ~3500 BP the delta front had passed the citadel's western foot — and **no distance may be derived from it** | (c) geographic-as-drawn on a legend-bearing colour plate — the least ambiguous of the four; (d)/(e) **no LBA commitment exists on any Kayan map, in either chapter**, only brackets and one dated section horizon |
+| Sea-level change | Local relative fall of **2 m** (Kayan et al. 2003) or **2–3 m** (Kayan 2019) in the LBA — a derivation the sources themselves no longer support as "Kelletat's": the plotted 2003 curve attributes the fall to tectonics and never names Kelletat (see below; the Kelletat attribution survives only in Zangger's report of the older work). Independently and earlier, Kraft, Kayan & Erol 1980's Fig. 6 gives the **endpoints**: **+2 m at 4500 BP → present level at 3250 BP and at 2000 BP**, i.e. a 2 m fall *to* today's datum, from Erol's unpublished curve (ref. 17); the authors call it "valid as a **local, relative,** sea level curve for the Biga Peninsula" (781). The NE Aegean RSL database shows **continuous rise** (Seeliger et al. 2021) *(full text, 2026-07-29)*. **THE PLOTTED CURVE IS NOW IN HAND (2026-07-30): Kayan et al. 2003, 383 fig. 2** ("Middle–Late Holocene relative sea-level changes in the Troia area", after Kayan 1991), with the Troia periods and the labels "Trojan War", "Homer's time" and "Strabo's time" printed on it. Measured: at present level **6000–5100 BP**, falling to a minimum of **−2.0 m at ~3300 BP — the point the "Trojan War" label sits on** — then rising to **about −0.4 m at 2000 BP** and to 0 by ~1300 BP *(figure measurement, this dossier — §1.5a)*. It is a **Beşik-plain record** (80 hand drillings, Kayan 1991), and the chapter attributes the fall to **tectonic movements** ("Bronze Age Regression", Kayan 1997b, at 387) — **not** to Kelletat, who is not named in it. Kraft's chapter states the same curve three more ways: "−1 to −2 m ca. 3500 years ago" (2003a, 361), "−2 m ca. 3400 years ago" (372), "a 2-m sea level drop to ca. 1400 B.C." (373 fig. 9 caption). **CORROBORATED AND DIVERGED 2026-07-30 by Kayan 2014, 709 fig. 8** (§1.5a, §1.5d.1): the same plate, re-measured off a second printing, reproduces to **±0.03 m across 4.3–2.3 ka** — minimum **−1.99 m at 3.28 ka BP**. **But the cause has been reversed by its own author:** 2014, 719 says "**tectonic reasons are not convincing explanations for uniform sea-level changes. Thus, an eustatic reason concerning a climatic effect must be taken into account**". And 2014, 707–08 reports the error budget behind it — Dörpfeld's datum is **60 cm** below the national one, GPS and map-derived heights disagree, 20 cm of altitude error "may imply tectonic deformation… but this is not intentional", agricultural levelling shifts points by up to **50 cm** | state as **local/relative**, never regional; state the endpoints, never a bare "fell 2 m"; **a Bronze Age RSL of about −2 m is now quotable from a plotted, published curve measured twice** — with its date (~3300 BP) and its provenance (Beşik). **Do NOT print a cause without a year: tectonic in 2003, eustatic/climatic in 2014.** And do not quote it to a tenth of a metre — its author reports 0.2–0.6 m of datum and levelling error |
+| Barrier | A **wide sandy coastal barrier** closing the remaining water into a shallow lagoon after that fall. The barrier-and-lagoon facies language is **Brückner et al. 2005**; the Kayan et al. 2003 and Kayan 2019 *abstracts* describe the fall and the swamp but do not themselves say "barrier" or "lagoon" (the 2003 full text has since been read — see the SETTLED note below; Kayan 2019's body remains unseen). **Kraft, Kayan & Erol 1980, read in full, has neither word**: its terms are sandy/clay-silt estuary, marsh, swamp, beaches, shoals and brackish–freshwater swamp *(full text, 2026-07-29)*. **DENIED outright by Kraft, Rapp, Kayan & Luce 2003, 164, citing their own 1980 paper: littoral currents sorted sands into "nearshore shoals and possibly thin beaches, although no barrier lineaments are evident on the lower Scamander delta"** *(full text, 2026-07-30 — §1.3b)*. Independently, Strabo 13.1.31 describes a **blind (barred) river mouth with salt lakes and marshes**. **SETTLED 2026-07-30, and against our layer: the Kayan full text was seen, and the barrier is at BEŞIK.** Kayan et al. 2003, 382: the Beşik plain "formed as a small bay about 6000 years ago. **Afterwards, a coastal barrier separated a small lagoon**… A small sea-level fall in the Late Bronze Age may have caused **widening of the coastal barrier and reduced the lagoon**." Kraft et al. 2003a, 372, of the same place: Beşik "evolving to a **barrier-lagoon**". On the Karamenderes, Kayan denies it in one sentence (390, of the transition zone that caps the marine unit under almost the whole plain): "**There is no beach or lagoon formation. Instead, sediments indicate swampy or seasonally wet environments.**" And Kraft et al. 2003a, 364: "**Coast-parallel lineaments occur only in the lower 2 km of the Scamander floodplain. Barrier accretion ridges do occur on the Beşik coastal plain**" — 2003b's flat denial (164) in a more exact form. **On the plates:** Kayan's Fig. 9 (2003a, 373) draws the "Sand Dunes and Coastal Barriers" symbol only at Beşika ("1500 BC") and Kum Kale; Kraft's Fig. 10 (374) draws one on the Scamander front too — **dated 2000 BP, ~2.5–3.0 km NNW of Troia**, on the "2000 BC/AD" shoreline — plus Besika's, there labelled "1280 BC" *(figure measurement, this dossier — §1.4a)*. **CONFIRMED AND DATED 2026-07-30 by Kayan 2014** (§1.5d.4): the Karamenderes denial is repeated word for word at **712** ("There is no beach or lagoon formation. Instead, sediments indicate swampy or seasonally wet environments"), and **no Scamander-front barrier appears in the chapter's text or on any of its twenty figures at any date**. At Beşik the barrier is now **dated**: "**around the period of Troia VI, a coastal barrier separated a small lagoon**", and the LBA fall "caused widening of the coastal barrier and reduced the lagoon" (704). It is also **drawn twice**, in section (**707 fig. 6**, barrier phases H1–5, ¹⁴C at 8000/6700/5200/4500/3500 BP) and in plan (**708 fig. 7**), both carrying dated shoreline positions **① 6000 BP · ② 3500 BP · ③ 2000 BP · ④ Present** — and at ② the shore is on the barrier's **seaward** flank with the shrunken lagoon behind it | **NOT drawing-ready as a Bronze Age Scamander-front feature, and now for a positive reason rather than an absence: every source that draws a Bronze Age barrier draws it at BEŞIK BAY, and the only Scamander-front barrier anyone draws is Roman-period.** `barrier-bronze` must be demoted or moved (§3.3). **At Beşik, by contrast, the barrier-and-lagoon is now geometry with dates on it and could be drawn** (§1.5d.4) |
 | Lagoon | Shallow, behind the barrier; ancient name **Stomalimne** attested between Sigeium and the Scamander mouths (Strabo 13.1.31). **Same correction as the barrier row (2026-07-30): the located, dated lagoon in this literature is Beşik's** (Kayan et al. 2003, 382; Kraft et al. 2003a, 372); on the Karamenderes plain Kayan states there is "no beach or lagoon formation" (390) and the lagoons in Kraft's vocabulary stay a facies class, unlocated (§1.3b). Kraft's own pre-modern base map does label one — "**Salt Lagoon**", on the Dardanelles shore by Intepe/Rhoiteion (2003a, 365 fig. 2, after Spratt 1839) — i.e. an *asmak* on the strait, not a bay-mouth lagoon west of Troy | geographic + identification, **but the geography is Beşik's and the Dardanelles shore's, not the Trojan plain's** |
 | Swamp / marsh | The area west of the city was a **broad deltaic swamp** in Troia IV–VI; the land was **swamp-covered throughout the progradation period**, and the coastal sea **very shallow** (Kayan et al. 2003). Corroborated first-hand: Kraft's Fig. 2 maps modern swamp over the Kesik/Yeniköy plain and the Scamander's western and south-western flanks, and the text allows that "low-lying swamps occurred around the base of Troy" at 3250 BP — with the honest rider "although further drilling would be required to verify this" (1980, 782) *(full text, 2026-07-29)* | geographic, extent approximate |
-| Kesik cut | **400 × 50 × 30 m** (Kayan's/Zangger's figures, never Cook's), floor **13.7 m a.s.l.**, ~150 m from the sea, 2–2.5 m of colluvium on the floor. **Contested origin, corrected 2026-07-30 — the two authorities disagree and must not be blended:** Kayan reads a natural **tectonic depression** widened by foot traffic (Kayan 2009, 124; 2014, 723–24); Cook independently calls it "an artificial cut… never completed", floor "perhaps 12–15 m a.s.l." (brackets Kayan's 13.7 m), his own guess **drainage, late-Roman** (Constantine's new city) (Cook 1973, 166–67; `RESEARCH-TROAD-TOPOGRAPHY.md` §9.2). A tectonic depression cannot be "unfinished" — rival origin theories, not compatible attributes. **Cook is never citable for Bronze Age harbour engineering.** **Fourth reading added 2026-07-30, first-hand: Kraft, Rapp, Kayan & Luce 2003, 166 make the cut "a great wall and ditch (Kayan, 1995)… proposed by Nestor", i.e. the Achaean fortification of *Il.* 7.336–43** — a Late Bronze Age military work on the same ground where Cook puts an unfinished late-Roman drainage trench. Drawn on Figs. 4 **and** 5 as a hatched band ~5.35 km due west of the Troy dot, ~0.6 × 0.33 km as symbolised (≈1.5× and ≈6× the surveyed cut) — §1.9, §1.3a. **REVISED 2026-07-30 from Kayan's own printed measurements** (Kayan et al. 2003, 398): the **13.7 m is the HIGHEST point of the cut's bottom**, at ~150 m from the sea; the bottom then falls to **6.3 m about 400 m east of that saddle**, where it opens on the Kesik plain — so "400 m" is the saddle-to-plain distance, not a length, and the ridge there is "only about 600 m wide" at "a little more than 20 m at the top". Colluvium on the bottom is **2 m**, and "**no archaeological material was encountered** in the many drillings which were made in the bottom of the cut". **The 400 × 50 × 30 m triple is Zangger's, not Kayan's** — this chapter prints no width and no depth. **Fourth and fifth readings, first-hand:** 2003a, 376 makes it "a defensive trench before a palisade constructed by the Greeks… certainly a manmade trench as proven by Kayan (1996)", after **Luce 1998**, while Kayan's own chapter in the same volume leaves purpose and date unknown and floats "an unfinished canal construction" (399) — §1.9's revised table | geographic; **not** a harbour entrance; **five identifications across two chapters of one book plus Cook and the later Kayan; the only shared positive is that no ship ever passed through it** |
-| Kesik plain | Basin ~**800 m** wide (Zangger via Kayan 2009 — **not** in Kayan et al. 2003); **"could not have been used as harbours during the Later Bronze Age, especially during Troia VI"** (Kayan et al. 2003, **400–401**, first-hand 2026-07-30 — the sentence crosses the page break and the old "400" cite was short). Its own siltation dates are **3400 / 4200 / 4500 BP** on Fig. 6's Kesik section (396), rounded in the text to "marine conditions continued up to 3500 years ago" (398) and "changed into land… about 4000 years ago" (400); Zangger's "before 1300 BC" is later than anything the chapter prints. ~~Against Kraft et al. 2003a's choice of it as the harbour~~ — **that choice was Brückner's paraphrase, not 2003a's sentence** (§1.4): 2003a says only that all three western embayments "had excellent harbor potentials" and names none. Kraft et al. **2003b** likewise proposes no harbour at Kesik (§1.3b). **= the Lisgar marsh = Ilıca** (Cook 1973, 166; one basin, three names — §1.9) | contested identification; **cite the letter, a or b — and do not cite either 2003 chapter for a Kesik harbour** |
-| Beşik Bay | The project's original harbour candidate, stated first-hand in **Kraft, Kayan & Erol 1980, 782** ("the Beşika embayment was indeed the site of the Achaean camp"; "an indentation approximately **2 km inland**" at 4000–5000 BP) and again at Kraft et al. 1982, 40 and Kayan 1991, 91. **Rejected by Luce 1984, 40–41** on three stated grounds: too exposed to the Aegean for a permanent ship station; **8½ km from Troy against 4 to 5 km for his Sigeum ridge site**; and bad access to the Scamander plain, "first across a low ridge and then across a wide expanse of low-lying and marshy ground". He adds that Mey's 1924 trenches there found "nothing to confirm his Achaean camp hypothesis" (40). Cook 1973, 171–72 is on the *other* side ("a very much more satisfactory situation for the Homerists") and Luce says so and disagrees *(full texts: Kraft 2026-07-29 — cite 1980, not the second-hand 1982 quotation; Luce 2026-07-30 — the objections are now first-hand and one of them is a measurement)* | contested identification |
-| Harbour, in general | Kayan et al. 2003: the environment "has never been suitable for the establishment of an important harbour". **Narrowed, first-hand 2026-07-30 (§1.9): the denial is of *principal* and *big* harbours, and the same conclusions concede the ordinary case** — "**Suitable places on the changing shoreline could have been used according to necessity as natural harbours during the various periods of Troia culture**" (401), before the flattest line in the literature: "**Therefore, we suggest there is no reason to create great harbour theories relating to Troia**" (401). Kraft et al. 2003a, 376 is compatible in that register, not opposed to it: all three western embayments "had excellent harbor potentials", the southernmost already bypassed "before Late Bronze Age times", and Beşik "always provided a place of shelter for ships". **And the paper titled "Harbor areas at ancient Troy" names no harbour area:** its positive claim is that river-sand redistribution "was limited by the very low wave activity in this **long-term sheltered marine embayment**" (Kraft, Rapp, Kayan & Luce 2003, 164) — the shelter is the bay, which is Luce 1984's position in geologists' words *(full text, 2026-07-30 — §1.3b, §1.11c)* | prose; the strongest deflationary claim in the literature, and the title of the "harbour paper" is not evidence against it |
+| Kesik cut | **400 × 50 × 30 m** (Kayan's/Zangger's figures, never Cook's), floor **13.7 m a.s.l.**, ~150 m from the sea, 2–2.5 m of colluvium on the floor. **Contested origin, corrected 2026-07-30 — the two authorities disagree and must not be blended:** ~~Kayan reads a natural **tectonic depression** widened by foot traffic (Kayan 2009, 124; 2014, 723–24)~~ **— rewritten first-hand the same day (§1.5d.2): Kayan reads a canal that "appears artificial" but shows "no evidence… that it was dug out", on a depression "naturally formed on a fault line" that is *pre-Holocene*, because "sedimentological and stratigraphical features of the Holocene deposits… do not support such tectonic activity for the Holocene"; he adds "no evidence to change our former interpretation" and never says foot traffic widened it (2014, 723–24)**; Cook independently calls it "an artificial cut… never completed", floor "perhaps 12–15 m a.s.l." (brackets Kayan's 13.7 m), his own guess **drainage, late-Roman** (Constantine's new city) (Cook 1973, 166–67; `RESEARCH-TROAD-TOPOGRAPHY.md` §9.2). A tectonic depression cannot be "unfinished" — rival origin theories, not compatible attributes. **Cook is never citable for Bronze Age harbour engineering.** **Fourth reading added 2026-07-30, first-hand: Kraft, Rapp, Kayan & Luce 2003, 166 make the cut "a great wall and ditch (Kayan, 1995)… proposed by Nestor", i.e. the Achaean fortification of *Il.* 7.336–43** — a Late Bronze Age military work on the same ground where Cook puts an unfinished late-Roman drainage trench. Drawn on Figs. 4 **and** 5 as a hatched band ~5.35 km due west of the Troy dot, ~0.6 × 0.33 km as symbolised (≈1.5× and ≈6× the surveyed cut) — §1.9, §1.3a. **REVISED 2026-07-30 from Kayan's own printed measurements** (Kayan et al. 2003, 398): the **13.7 m is the HIGHEST point of the cut's bottom**, at ~150 m from the sea; the bottom then falls to **6.3 m about 400 m east of that saddle**, where it opens on the Kesik plain — so "400 m" is the saddle-to-plain distance, not a length, and the ridge there is "only about 600 m wide" at "a little more than 20 m at the top". Colluvium on the bottom is **2 m**, and "**no archaeological material was encountered** in the many drillings which were made in the bottom of the cut". **The 400 × 50 × 30 m triple is Zangger's, not Kayan's** — this chapter prints no width and no depth. **Fourth and fifth readings, first-hand:** 2003a, 376 makes it "a defensive trench before a palisade constructed by the Greeks… certainly a manmade trench as proven by Kayan (1996)", after **Luce 1998**, while Kayan's own chapter in the same volume leaves purpose and date unknown and floats "an unfinished canal construction" (399) — §1.9's revised table. **Kayan 2014, 723 adds one figure 2003 lacked** — the mid-cut bedrock threshold "at a height of **about 13 m** above sea level", his own rounding of the 13.7 m — **and still prints no width and no depth**, so the 400 × 50 × 30 m triple remains Zangger's in both chapters | geographic; **not** a harbour entrance; **five identifications across two chapters of one book plus Cook and the later Kayan; the only shared positive is that no ship ever passed through it** |
+| Kesik plain | Basin ~**800 m** wide (Zangger via Kayan 2009 — **not** in Kayan et al. 2003); **"could not have been used as harbours during the Later Bronze Age, especially during Troia VI"** (Kayan et al. 2003, **400–401**, first-hand 2026-07-30 — the sentence crosses the page break and the old "400" cite was short). Its own siltation dates are **3400 / 4200 / 4500 BP** on Fig. 6's Kesik section (396), rounded in the text to "marine conditions continued up to 3500 years ago" (398) and "changed into land… about 4000 years ago" (400); Zangger's "before 1300 BC" is later than anything the chapter prints. ~~Against Kraft et al. 2003a's choice of it as the harbour~~ — **that choice was Brückner's paraphrase, not 2003a's sentence** (§1.4): 2003a says only that all three western embayments "had excellent harbor potentials" and names none. Kraft et al. **2003b** likewise proposes no harbour at Kesik (§1.3b). **= the Lisgar marsh = Ilıca** (Cook 1973, 166; one basin, three names — §1.9). **Kayan 2014, 724 gives the Bronze Age verdict in one sentence and on environmental grounds:** "During this period [Troia VI/VIIa] the Kesik depression was **not a marine embayment; instead, it was covered by a swamp. Therefore, a harbor is not a subject of discussion for the Kesik depression** and a canal was not necessary for a waterway connection with the Aegean Sea. In fact, there is **no archaeological evidence later than the Chalcolithic period** in this area." Still no 800 m width and no "before 1300 BC" in Kayan's own text | contested identification; **cite the letter, a or b — and do not cite either 2003 chapter for a Kesik harbour** |
+| Beşik Bay | The project's original harbour candidate, stated first-hand in **Kraft, Kayan & Erol 1980, 782** ("the Beşika embayment was indeed the site of the Achaean camp"; "an indentation approximately **2 km inland**" at 4000–5000 BP) and again at Kraft et al. 1982, 40 and Kayan 1991, 91. **Rejected by Luce 1984, 40–41** on three stated grounds: too exposed to the Aegean for a permanent ship station; **8½ km from Troy against 4 to 5 km for his Sigeum ridge site**; and bad access to the Scamander plain, "first across a low ridge and then across a wide expanse of low-lying and marshy ground". He adds that Mey's 1924 trenches there found "nothing to confirm his Achaean camp hypothesis" (40). Cook 1973, 171–72 is on the *other* side ("a very much more satisfactory situation for the Homerists") and Luce says so and disagrees *(full texts: Kraft 2026-07-29 — cite 1980, not the second-hand 1982 quotation; Luce 2026-07-30 — the objections are now first-hand and one of them is a measurement)*. **Kayan 2014 rejects it on his own ground and now draws why** (§1.5d.4): the barrier separated the lagoon "**around the period of Troia VI**" and the LBA fall widened it, so "**no Bronze Age natural harbour with an open water surface seems to have been possible here**" (704); Figs. 6 and 7 (707–08) plot the barrier, the lagoon and four dated shorelines, with **3500 BP on the barrier's seaward flank**. **Kayan 2014 contains no camp claim at all** — the word does not occur — so it may not be cited for the Achaean camp in either direction | contested identification |
+| Harbour, in general | Kayan et al. 2003: the environment "has never been suitable for the establishment of an important harbour". **Narrowed, first-hand 2026-07-30 (§1.9): the denial is of *principal* and *big* harbours, and the same conclusions concede the ordinary case** — "**Suitable places on the changing shoreline could have been used according to necessity as natural harbours during the various periods of Troia culture**" (401), before the flattest line in the literature: "**Therefore, we suggest there is no reason to create great harbour theories relating to Troia**" (401). Kraft et al. 2003a, 376 is compatible in that register, not opposed to it: all three western embayments "had excellent harbor potentials", the southernmost already bypassed "before Late Bronze Age times", and Beşik "always provided a place of shelter for ships". **And the paper titled "Harbor areas at ancient Troy" names no harbour area:** its positive claim is that river-sand redistribution "was limited by the very low wave activity in this **long-term sheltered marine embayment**" (Kraft, Rapp, Kayan & Luce 2003, 164) — the shelter is the bay, which is Luce 1984's position in geologists' words *(full text, 2026-07-30 — §1.3b, §1.11c)*. **AND KAYAN'S LAST WORD IS AFFIRMATIVE, first-hand 2026-07-30 (§1.5d.6).** Kayan 2014, 720 opens the harbour section: "**Since the Karamenderes plain was a long bay for several millennia after 7,000 years ago, Troia must have had a harbour or harbours in different places following changes of coastline positions during deltaic progradation. An important question then arises as to where the Troia harbours were.**" He then dismantles Yeniköy, Kesik and Kumtepe in turn (721–25) and **never answers his own question**. With 2003's concession that ordinary beaching places "could have been used according to necessity" (401), the settled position is **harbours yes, harbour *works* no, location unknown** | prose; the strongest deflationary claim in the literature is about *installations*, and it is **not** a denial that Troy had harbours — Kayan 2014, 720 says the opposite in his own voice. The title of the "harbour paper" is not evidence against it either |
 | Water depth in the embayment | "frequently ~1 m and could vary to 3–4 m" (Kraft, Rapp, Kayan & Luce 2003, 164); Yang's biofacies IV runs "to 40 m" for the class as a whole *(full text, 2026-07-30 — §1.3b)* | geographic; the ~1 m figure is what makes "beach the ships anywhere" plausible and "harbour" unnecessary |
 | Ancient river channels | **Not locatable, by the authors' own statement:** "With as much as 20 m of alluvium on the southern Scamander floodplain, we cannot hope to locate the river channels of antiquity" (Kraft, Rapp, Kayan & Luce 2003, 164) — yet their Fig. 5 draws the Scamander, the Simois, a Ford and the "Bridges of War" *(§1.3b)* | **no geographic register exists for these.** Schematic only, and never sourced to Fig. 5 |
 
@@ -2304,8 +2852,14 @@ its closest approach the drawn barrier lies only ~230 m inside the modern shore.
 That is worth a second look: 3,200 years of continued progradation should have
 carried the modern shore further out than that along this meridian, and Kayan's
 barrier is a Bronze Age feature, not a modern one. Not a proven defect — the two
-lines are at different longitudes — but it wants checking against Kayan 2014
-fig. 8 when that is in hand.
+lines are at different longitudes — ~~but it wants checking against Kayan 2014
+fig. 8 when that is in hand.~~ **CHECKED 2026-07-30, and fig. 8 cannot answer it:
+Kayan 2014, 709 fig. 8 is the sea-level curve, not a map** (§1.5d.1). The 2014
+chapter's own maps decide the row a different way — its reconstruction sheet
+(718 fig. 16) is 2003's fig. 7 reprinted and draws no Scamander barrier at any
+date, and 712 repeats the Karamenderes denial verbatim. **The layer's problem was
+never its vertical placement; it is that no source puts a barrier on this delta in
+the Bronze Age at all.** See the verdict below.
 
 Provenance to fix: the "2 to 2.5 m" fall (see §1.5) matches no published range.
 
@@ -2367,7 +2921,22 @@ preference:
   coordinate" applies.
 - **Or move it to Beşik Bay**, where the sources put a Bronze Age barrier and
   lagoon and where they also say the result was that **no harbour was possible**.
-  Drawing it there means drawing what it was for.
+  Drawing it there means drawing what it was for. **Upgraded from "possible" to
+  "supported by drawn, dated geometry", 2026-07-30:** Kayan 2014, 704 dates the
+  barrier's formation to "**around the period of Troia VI**", and 707–08 figs. 6
+  and 7 plot the barrier, the lagoon, the dune field and the lagoonal channel in
+  section and in plan with **four dated shoreline positions (6000 / 3500 / 2000 BP /
+  Present)** on both — the **3500 BP** shore lying on the barrier's seaward flank
+  (§1.5d.4). That is the only Bronze Age barrier-and-lagoon in this literature for
+  which we now hold a dated drawing, and it is at Beşik. It remains **copyrighted
+  expression that may not be traced** (§0); what may be re-expressed is the
+  arrangement and the dates.
+
+**A fifth strike, added 2026-07-30.** Kayan 2014 repeats the Karamenderes denial in
+the same words at **712** and draws no Scamander-front barrier on any of its twenty
+figures. That is **four independent statements plus a reprint**, across three
+publications and two authors, against a Bronze Age barrier on this delta. The
+question is closed; only the disposition of `barrier-bronze` is open.
 
 What may **not** happen is the layer staying where it is with a citation to Kayan
 or to Brückner. Both authors are now on record about which bay this is.
@@ -2524,6 +3093,71 @@ seed, no leak test, no polarity trap. Poppler and Pillow only.
    internally inconsistent at the 10–20% level. **Treat every number in §1.4a and
    §1.5c as ±10%.**
 
+### 3.7b How the Kayan 2014 figures were measured
+
+Same tools, same discipline; the differences are worth recording because two of them
+bit, and because §1.5d's whole claim to corroborate §1.5a rests on this being an
+**independent** measurement of a **second printing**, not a copy of the first.
+
+1. `pdftoppm -r 600 -png` on `research-cache/kayan-2014-troia-geoarchaeology.pdf`
+   for the two load-bearing plates (**PDF p. 21 = printed 709, fig. 8**; **PDF p. 30
+   = printed 718, fig. 16**), 400 dpi for the rest. **Page arithmetic: printed = PDF
+   page + 688**, because PDF pp. 1–5 are the volume's front matter (§0).
+2. **Fig. 8, the curve.** Metre scale from the alternating black/white segments of
+   the left axis bar at x ≈ 290: boundaries at y = 725, 909, 1104, 1287, 1485, 1668
+   for +2 … −3 m ⇒ **188.6 px per metre, 0 m at y = 1100**. Time scale from the eight
+   tick marks on the zero line at x = 366, 750, 1134, 1519, 1903, 2292, 2677, 3064
+   for 7 … 0 ka ⇒ **385.4 px per 1000 yr, 0 ka at x = 3064**. The curve is the top of
+   the grey fill (RGB ≈ 162 grey): walk **upward from y = 1700**, not from the frame,
+   allowing an 80 px gap so the white "RELATIVELY CHANGING SEA LEVEL" lettering does
+   not truncate the trace.
+   - **Trap 1: the fill ends at y ≈ 1720, not at the frame.** Seeding the walk at
+     y = 1860 returns the *baseline* and yields a flat −4.03 m everywhere. If a
+     column reports the same value as its neighbours to two decimals, the walk has
+     hit the floor.
+   - **Trap 2: the axis numerals 7 … 1 sit above the zero line** and register as
+     "curve" wherever the curve is near 0. On the recovery limb, scan **downward
+     from y = 1105** (just below the line) instead; the columns at 2.0, 1.0 and
+     0.5 ka still return the zero line itself and must be discarded, not read as
+     "sea level reached present".
+   - **Trap 3, and it is an interpretive one: the plate carries two time axes.** The
+     cultural bar's ticks read 3, 2, 1, 0 in **thousand years BC/AD**, registered
+     2000 years off the main BP axis (§1.5d.1). Do not read "Troian War" against the
+     lower scale.
+3. **Fig. 16, the map.** Scale from its own 0–3 km bar, ends at x = 2654 and 3032 ⇒
+   **126.0 px/km** (the 2003 print of the same sheet gave 147.3 px/km at 500 dpi, so
+   the 2014 printing is ~0.71× — a reminder that a px/km constant is a property of a
+   *printing*, never of a plate). Troia dot centre at (4737.5, 3441) off a ×2 crop
+   with a labelled grid.
+   - **Sample the legend swatch, and sample it on a single row.** A 12 × 12 mean over
+     a swatch pulls in the hatch border and shifts the colour: "flood plains about
+     6000 BP" reads (111, 199, 53) that way and **(113, 200, 52)** on a clean row;
+     "Troia and Beşik bays 6000 BP" is **(13, 170, 82)**.
+   - **The map has five greens and the legend names two.** A colour census of the map
+     area returns (13,170,82), (50,158,62), (57,183,61), (74,191,121) and
+     (113,200,52). The intermediate three are unlabelled delta stages. **Only the two
+     legend colours may be reported as classes**; a first-hit on (57,183,61)
+     immediately west of the citadel is *not* the 6000 BP bay and reporting it as one
+     would have put the shore 0.15 km further out than it is.
+   - Radial first-hit at 15° steps, requiring ≥20 of the next 30 pixels along the ray
+     to stay in class, so a swamp glyph or a label serif cannot register.
+4. **Fig. 4, the new 7000–6000 BP plate.** Sea is a single flat blue **(24, 170,
+   232)**, so the class test is trivial; scale bar 1152→1648 px at 400 dpi ⇒
+   **165.3 px/km**; Troia dot at (2377.7, 2378.7).
+   - **Flood-fill caveat, and it fired here.** A 4-connected fill seeded west of the
+     citadel does **not** reach the Aegean or the strait: the black coastline stroke
+     and the dark-blue "MIDDLE HOLOCENE MARINE EMBAYMENT" lettering laid over the
+     water both close the region. Its bbox is therefore a **lower bound** on the
+     embayment, and the 3.2–3.8 km bay-head figure in §1.5d.5 is a **ray
+     measurement** (last in-class pixel along a bearing), not a fill extent. Do not
+     quote a fill bbox off this sheet.
+5. **Same rule as §3.7 and §3.7a: distance-and-bearing from the citadel only**, and
+   the same ±10% (Fig. 16 is the same Spratt-derived base). One calibration this
+   acquisition buys: **Fig. 4 and Fig. 16, two plates of the same mid-Holocene bay by
+   the same author in the same chapter, disagree by ~0.1 km** on the water's distance
+   from the citadel. That is the internal noise floor of these sheets, measured
+   rather than assumed.
+
 ---
 
 ## 4. Corrections this dossier owes to files it must not edit
@@ -2540,11 +3174,30 @@ Findings only — no tracked file outside `docs/research/` was touched.
    is what every source and our own line agree on. The 8 m / 12 m arithmetic still
    does not reproduce (§3.1).
 2. Same file, `barrier-bronze`: "2 to 2.5 m" is not a published range; sources say
-   about 2 m (Kayan et al. 2003) or 2–3 m (Kayan 2019). And the fall must be
-   labelled **local/relative**, because the NE Aegean RSL database shows
-   continuous rise (§1.8).
+   about 2 m (Kayan et al. 2003; Kayan 2014, 704 and 719) or 2–3 m (Kayan 2019).
+   And the fall must be labelled **local/relative**, because the NE Aegean RSL
+   database shows continuous rise (§1.8). *(Added 2026-07-30: if any note names a
+   **cause** for the fall, it must name a **year** — Kayan 2003, 387 says tectonic;
+   Kayan 2014, 719 says the tectonic reading "is not convincing" and reaches for
+   eustasy and climate. §1.5a, §6.)*
 3. Same file, sources array: the "Troian Bay" chapter is by **Kayan, Öner, Uncu,
    Hocaoğlu and Vardar**, pp. 379–401 — currently cited as sole-author, no pages.
+   *(And if Kayan 2014 is cited anywhere, the imprint is **Bonn: Habelt**, the
+   volume's *Teil 2*, ISBN 978-3-7749-3902-8 — §1.5d.)*
+3a. **Any plate note or caption anywhere that reads "Kayan: Kesik is a tectonic
+   depression".** New, 2026-07-30. It inverts him: Kayan 2014, 723 says his own
+   Holocene deposits "**do not support such tectonic activity for the Holocene**"
+   and puts the fault line **before** the Holocene, while calling the canal itself
+   "appears artificial" with "no evidence… that it was dug out". The phrase
+   "widened by foot traffic" is Zangger's, not Kayan's. **Checked 2026-07-30:
+   `apparatus/plates/` and `docs/TROAD-SOURCES.md` contain no occurrence of
+   "tectonic" today, so this is a rule for the next draft rather than a repair
+   owed** (§1.5d.2, §1.9).
+3b. `docs/TROY-MAPS-TODO.md:50` lists "Kayan 2014 (Studia Troica Mon. 5, fig. 8)"
+   as a **lower-priority** pull. It has been pulled and read (§1.5d); the line
+   should be closed. Fig. 8 is indeed the sea-level curve, and it corroborates the
+   2003 plate rather than replacing it — so "lower priority" was the right call and
+   the entry can be marked done rather than escalated.
 4. `docs/TROAD-SOURCES.md` §A: the **330 × 230 m** basin is at **Pylos**, not
    Kesik (§1.9). Delete or relocate.
 5. `docs/TROAD-SOURCES.md` §A: "modern coast … at Kumkale" — OSM puts Kumkale
@@ -2778,20 +3431,48 @@ settles.
    siltation, both still Zangger-via-Kayan-2001/2009; whether Kelletat 1975 is
    behind the curve at all — this chapter cites Kayan 1988a, 1991 and 1997b and
    never names him, so §1.8's derivation needs re-checking (§5 item 14).
-5. **Kayan 2014**, "Geoarchaeological Research at Troia and Its Environs," *Studia
-   Troica Monographien* 5, **694–727** (esp. 703, 709 fig. 8, 723–24). **Settles:**
-   the sea-level curve Kayan actually plots (fig. 8) — the single most useful
-   figure for our barrier and lagoon; the coring campaign's parameters; his final
-   position on Kesik. *(Priority CHANGED, 2026-07-30, in both directions. **Lower**
-   for the curve: a plotted, dated, period-labelled Kayan curve is now in hand from
-   2003, 383 fig. 2, and fig. 8 would be a second witness rather than the first
-   (§1.5a). **Higher** for Kesik: 2003 leaves the cut's origin open and 2014
-   allegedly calls it a tectonic depression widened by foot traffic — that is a
-   change of position over eleven years and we have it only through Zangger's
-   Turkish. And the 2014 "one can easily imagine … an excellent harbor" quotation
-   must be checked in context, because **the identical sentence in 2003 turns out to
-   be the concessive clause of a refutation**, not a concession (§1.5b). Until it
-   is checked, that quotation may not be used to show Kayan in two minds.)*
+5. **✅ OBTAINED 2026-07-30 — Kayan 2014**, "Geoarchaeological Research at Troia and
+   Its Environs," in *Troia 1987–2012: Grabungen und Forschungen I*, Teil 2, Studia
+   Troica Monographien 5, **694–727**. Author-shared copy from İlhan Kayan's
+   ResearchGate page, cached at
+   `research-cache/kayan-2014-troia-geoarchaeology.pdf`; text and all twenty figures
+   read, figs. 4, 8 and 16 measured (§1.5d, §3.7b). Entry kept so the ledger shows
+   what a pull buys.
+   **Page range confirmed, not corrected.** The expected **694–727** is right; the
+   "Seite 538" marker on the PDF's first page belongs to the volume's front matter,
+   which occupies PDF pp. 1–5 (§0). **Fig. 8 is the sea-level curve**, as the
+   bibliography predicted, at printed **709**.
+   **Settled:** the curve, **corroborating §1.5a's measurement to ±0.03 m off a
+   second printing** — minimum **−1.99 m at 3.28 ka BP**, "Troian War" on the trough
+   (§1.5d.1); the coring campaign's parameters and the **318** total with its
+   composition (706, and Fig. 2's caption at 700), which checks Zangger's figure;
+   the Kesik position first-hand, which is **not** the tectonic depression Zangger's
+   paraphrase reported (§1.5d.2); that the **2014 "one can easily imagine … an
+   excellent harbour" sentence is the setup of a refutation, exactly as the 2003 one
+   is** — §6's open question closed and §1.9's "opposite mood" struck; the
+   **Beşik barrier and lagoon dated to Troia VI and drawn twice with four dated
+   shorelines** (704, 707–08 figs. 6–7), which is the geometry §5 item 4 had hoped
+   for from the 2003 chapter's Fig. 6 and did not get; the Karamenderes barrier
+   denial repeated verbatim (712).
+   **Settled against expectation, three times.** (a) **The tectonic attribution is
+   reversed by its own author** — 2014, 719 says tectonic reasons "are not convincing"
+   and an "eustatic reason concerning a climatic effect must be taken into account",
+   against 2003, 387's Bronze Age Regression (§1.5a, §1.5d.1). (b) **Kayan says Troia
+   had harbours** — "Troia must have had a harbour or harbours in different places"
+   (720) — and then never says where (§1.5d.6). (c) **There is still no Late Bronze
+   Age isochrone**: fig. 16 (718) is 2003's fig. 7 reprinted, same four dated
+   coastlines, no LBA line (§1.5d.3).
+   **Did NOT settle:** any LBA distance from the citadel — the closest the chapter
+   comes is fig. 15's section horizon "End of delta formation about 3500 years ago"
+   at Troia's western foot (716), which is a date at a place, not a shore; the
+   **17 km**, which does not appear in this chapter either; the **800 m** Kesik-plain
+   width and the "before 1300 BC" siltation, still Zangger-via-Kayan-2001/2009; what
+   **Kayan 1991, 1995, 1996 and 2000** say, on which every figure in this chapter
+   depends (items 6, 7, 10); and **Kelletat**, who is not named here any more than in
+   2003 (item 14). Note for the ledger: this chapter is **a synthesis by its own
+   declaration** — "based on former data and interpretations, instead of new research
+   results" (694) — so where it and 2003 agree they are one witness, and the pull's
+   value lies in the two places where they do not.
 6. **Kayan 1995**, "The Troia Bay and Supposed Harbour Sites in the Bronze Age,"
    *Studia Troica* 5, **211–35** (esp. 217, 220–21, 231, fig. 8). **Settles:** the
    17 km measurement's basis; the Yeniköy and Kesik cores; the "abrupt change in
@@ -2804,7 +3485,14 @@ settles.
    contradiction and for whether Kesik may appear on a plate at all.)*
 7. **Kayan 2009**, "Kesik Plain and Alacalıgöl Mound," *Studia Troica* 18,
    **105–28** (esp. 105, 108 fig. 3, 124). **Settles:** the Kesik plain's geometry
-   and its siltation date, first-hand.
+   and its siltation date, first-hand. *(Priority LOWERED for origin, KEPT for
+   geometry, 2026-07-30: Kayan 2014, 723 says his Kesik interpretation did not
+   change — "we have obtained no evidence to change our former interpretation" — and
+   cites 2009 for it, so 2009 is now expected to say what 2014 says, first-hand and
+   in more detail. The **800 m** basin width and the **"before 1300 BC"** siltation
+   are still Zangger-via-2001/2009 and appear in neither Kayan chapter we have read;
+   those two numbers are what this pull is now for. Catalogue trap: Kayan 2014's own
+   bibliography, p. 727, dates it **2008**.)*
 8. **✅ OBTAINED 2026-07-30 — Luce 1984**, *OJA* 3 (1): **31–43**. Scan cached at
    `research-cache/luce-1984-oja.pdf`; text and both figures read (§1.11, §1.11a–c).
    **Settled:** where his camp sits — a *strip* (X X on his Fig. 1) on the eastern
@@ -2842,7 +3530,18 @@ settles.
    single pull now outstanding.
 10. **Kayan 1991**, "Holocene Geomorphic Evolution of the Beşik Plain," *Studia
     Troica* 1, **79–92** (esp. 91). **Settles:** Beşik Bay's Bronze Age geometry —
-    which is also the missing coordinate problem for `besik-bay`.
+    which is also the missing coordinate problem for `besik-bay`. **PRIORITY RAISED
+    to the top of the unpulled items, 2026-07-30.** Kayan 2014 turns out to rest on
+    this one paper for **three** of the dossier's load-bearing objects: the
+    **sea-level curve** (fig. 8 = Kayan 1991), the **Beşik barrier-lagoon section**
+    (fig. 6 = "modified from Fig. 4 in Kayan 1991") and the **Beşik plan with its
+    four dated shorelines** (fig. 7 = "modified from Plate 5 in Kayan 1991"). So the
+    curve on which our whole sea-level statement rests, and the only dated Bronze Age
+    barrier anyone draws, are **both** derivatives of an 80-hole hand-auger survey
+    published in 1991 that nobody in this dossier has read. Everything else is
+    reprint. **This is now the single largest unexamined foundation in the file**,
+    and it is also where any error bars, any core log and any radiocarbon
+    laboratory numbers behind the −2.0 m would have to be.
 11. **Vacchi et al. 2013**, *Quaternary International* 328–29, **301–10**; and
     **Lambeck & Purcell 2005**, *QSR* 24, **1969–88**. **Settles:** the actual RSL
     value for the NE Aegean at ~3.2 ka BP, which is what tells us how much of
@@ -2868,9 +3567,13 @@ settles.
 Two items left this list on 2026-07-29, when the 1980 *Science* full text arrived,
 and one more on 2026-07-30 with the 2003 *Geology* full text; two more the same day
 with the two Springer chapters (the plotted sea-level curve, and the barrier's
-width — the latter superseded by a harder question). Each is noted below with the §
-that now carries it. **Four items were added on 2026-07-30**, all from the Springer
-full texts and all of them corrections to things this dossier had been asserting.
+width — the latter superseded by a harder question); and **two more the same day
+with Kayan 2014** (the undated "Kayan reads Kesik as natural", and the "opposite
+mood" question, both settled against the dossier's own reading). Each is noted below
+with the § that now carries it. **Four items were added on 2026-07-30** from the
+Springer full texts, and **two more later that day from Kayan 2014** — the
+tectonic-to-eustatic reversal, and the retirement of "Kayan denies Troy had a
+harbour". All six are corrections to things this dossier had been asserting.
 Everything else stands.
 
 - ~~**That Kraft, Rapp, Kayan & Luce 2003 put the LBA bay head ~1.2 km north of
@@ -2919,22 +3622,67 @@ Everything else stands.
   says in terms that "**there is no information about the purpose and time of
   construction**" (399). **An LBA date for the Kesik cut is asserted by nobody who
   has dated it.** Do not print one.
-- **That "Kayan reads the Kesik cut as natural" without a year.** New, 2026-07-30.
-  In **2003** he writes that "the shape of the Kesik implies that it was dug by
-  man" and offers foot traffic or "an unfinished canal construction" (399); the
-  tectonic-depression reading reaches us only through Zangger and only from **2009
-  and 2014**. His position moved. Every attribution to Kayan on this feature needs
-  a year, and the 2009/2014 reading is still second-hand (§5 items 5, 7).
-- **That Kayan writes about the Kesik plain "in the opposite mood."** New,
-  2026-07-30, and it is a correction to this dossier's own §1.9. The sentence "one
-  can easily imagine that the Kesik plain could have been an excellent harbour…"
-  is printed in **Kayan et al. 2003, 398 as the concessive clause of a refutation**
-  — "Although the present configuration … imply that this area could have been used
-  as a harbour in ancient times, all geomorphological and various drilling evidence
-  … clearly show that the Kesik bay was covered with very shallow sea water which
-  was not convenient for boats" (398–99). Whether the near-identical Kayan 2014,
-  723 sentence is also concessive is **unchecked**. Until it is, that quotation may
-  not be used to show Kayan contradicting himself (§1.5b, §5 item 5).
+  **HARDENED AGAIN 2026-07-30 on Kayan 2014, and this is now as strong as a negative
+  gets.** 2014, 724 takes the Bronze Age candidacy seriously enough to name it —
+  "the Bronze Age, especially the period of Troia VI/VIIa, remains under discussion
+  as a period of possible canal construction" — and rules it out on two grounds:
+  **there was no bay to serve** ("the Kesik depression was **not a marine
+  embayment**; instead, it was covered by a swamp… a canal was not necessary for a
+  waterway connection") and **there is nothing there** ("**no archaeological evidence
+  later than the Chalcolithic period in this area**"; and in the cut itself, "any
+  archaeological material or any trace of human impact were not found in colluvial
+  deposition about 2 m thick in trenches which we dug across the canal", 723). So the
+  one member of the group who has actually dug the feature rules out the date the
+  other two chapters assert.
+- ~~**That "Kayan reads the Kesik cut as natural" without a year.**~~ — **SETTLED
+  2026-07-30 on the Kayan 2014 full text → now carried by §1.5d.2 and §1.9, and it
+  settled against the dossier's own reading.** There was no change of position to
+  date: 2014, 723 says "**In the new stage of our research we have obtained no
+  evidence to change our former interpretation**", and what it holds is 2003's
+  agnosticism ("appears artificial"; "no evidence… that it was dug out") with a
+  **pre-Holocene fault line** as the preferred hypothesis — plus an explicit denial
+  that "the Holocene deposits in the Kesik depression" support tectonic activity in
+  the Holocene. **Two things remain binding.** (1) "Kayan: tectonic depression" is
+  never writable flat — it inverts his Holocene claim. (2) "Widened by foot traffic"
+  is Zangger's, not Kayan's: 2014, 724 says only that the canal "has been **used**
+  continuously for land passage". Kayan 2009, 124 is still unread and is now expected
+  to say what 2014 says (§5 item 7).
+- ~~**That Kayan writes about the Kesik plain "in the opposite mood."**~~ —
+  **SETTLED 2026-07-30 → §1.5d.2, and the answer is no.** The near-identical Kayan
+  2014, 723 sentence **is also concessive**: it opens a paragraph that turns on it
+  within two sentences ("Concerning this idea, there are various interpretations in
+  the literature… **Although the canal is too high for direct water connection**…")
+  and is refuted at 724 ("the Kesik depression was **not a marine embayment**;
+  instead, it was covered by a swamp. **Therefore, a harbor is not a subject of
+  discussion**"). Both instances, 2003 and 2014, are the setup of a refutation.
+  **The quotation may never be used to show Kayan contradicting himself**, and
+  §1.9's "opposite mood" sentence has been struck.
+- **That Kayan attributes the Bronze Age sea-level fall to tectonics.** New,
+  2026-07-30, and it is a contradiction *inside* our best source rather than between
+  sources. **2003, 387:** "the sea level fall during the Bronze Age is attributed to
+  **tectonic movements** (Bronze Age Regression; Kayan 1997b)." **2014, 719:**
+  "there is **no proof for the cause**… **tectonic reasons are not convincing
+  explanations** for uniform sea-level changes. Thus, an **eustatic reason
+  concerning a climatic effect** must be taken into account for sea-level
+  changes." One author, one curve,
+  two mechanisms, eleven years apart, with no acknowledgement of the change. **Print
+  no cause without a year.** And note what the reversal costs: a tectonic fall is
+  local by construction and unfalsifiable from regional data, while an eustatic one
+  is checkable — and Seeliger et al. 2021's NE Aegean database shows continuous rise
+  across this window (§1.8). **In his last statement Kayan puts his own curve where
+  it can be contradicted, and it is.** That is a live problem for any note that
+  quotes −2 m, and it is not ours to resolve.
+- **That Kayan denies Troy had a harbour.** New, 2026-07-30, as a **retired**
+  claim, and this dossier has been carrying it. **Kayan 2014, 720 opens the harbour
+  section affirmatively:** "Troia **must have had a harbour or harbours** in
+  different places following changes of coastline positions during deltaic
+  progradation." What he denies — in both chapters — is a harbour *installation*:
+  "no reason to create **great** harbour theories" (2003, 401), no *principal* or
+  *big* harbour, and none of the three western embayments. Combined with 2003, 401's
+  concession that ordinary beaching places "could have been used according to
+  necessity", the settled reading is **harbours yes, harbour works no, location
+  unknown — and Kayan never answers his own question** (§1.5d.6, §2). A caption
+  saying "Kayan: no harbour" is wrong.
 - **That Kraft et al. 2003a put the harbour at Kesik.** New to this list,
   2026-07-30, as a **retired** claim: the chapter says all three western embayments
   "had excellent harbor potentials" and names none (376). The Kesik attribution was
@@ -2987,6 +3735,15 @@ Everything else stands.
   "O. Erol, unpublished data"** — cite it as the paper's stated basis, never as an
   independently published curve; and what the 2003 curve is: a hand-drawn line from
   **Beşik-plain** hand drillings, with a tectonic cause asserted (387).
+  **RE-MEASURED OFF A SECOND PRINTING, 2026-07-30 (Kayan 2014, 709 fig. 8 — §1.5a,
+  §1.5d.1, §3.7b).** Same plate, independent measurement: **−1.99 m at 3.28 ka BP**
+  against 2003's −2.01 at 3.29, and ±0.03 m across the whole 4.3–2.3 ka span. **The
+  −2.0 m at ~3300 BP may now be printed without hedging as to its value.** Two
+  riders that are facts, not hedges: the **cause** is stated one way in 2003 and the
+  opposite way in 2014 (see the tectonic/eustatic item above), and the author reports
+  **0.2–0.6 m of datum and levelling error** in the survey behind it (2014, 707–08).
+  And the whole object is one 1991 hand-auger survey reprinted three times (§5
+  item 10) — not three witnesses.
 - ~~**The width of the Bronze Age barrier.**~~ **SUPERSEDED 2026-07-30 → §3.3.**
   The question is no longer how wide the barrier was but **whether it is on the
   right bay**. Kayan et al. 2003, 382 puts the Bronze Age barrier and lagoon at
@@ -3023,8 +3780,12 @@ Everything else stands.
   outer flank), and **the Kesik harbour, if anyone holds it, is Zangger's and
   possibly Luce's — not Kraft's and not Kayan's** (§1.11c, §5 item 9).
 - **The Kesik cut's date and purpose.** Unresolved, and now sharper (2026-07-30,
-  `RESEARCH-TROAD-TOPOGRAPHY.md` §9.2): Kayan reads it as **natural**, a tectonic
-  depression widened by foot traffic; Cook reads it as **artificial**, "never
+  `RESEARCH-TROAD-TOPOGRAPHY.md` §9.2): Kayan reads it as **natural** — **restated
+  first-hand later the same day (§1.5d.2): a canal that "appears artificial" on a
+  depression "naturally formed on a fault line" that is *pre-Holocene*, with "no
+  evidence… that it was dug out" and no trace of spoil, and NOT a Holocene tectonic
+  feature by his own sediments; "widened by foot traffic" is Zangger's phrase, not
+  his** — while Cook reads it as **artificial**, "never
   completed", and guesses late-Roman drainage (Constantine's new city) — the two
   disagree on whether it was dug at all, not merely on when. Korfmann dated the
   (different) Yeniköy canal to the 18th century AD; an 18th-century engineer
