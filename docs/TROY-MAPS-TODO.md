@@ -13,6 +13,13 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
   ("Ajax's end" / "the middle: Odysseus's ships, the assembly" /
   "Achilles' end"); the words "left" and "right" appear nowhere on the
   schematic sheet. Binds every anchor brief and caption.
+- **D4 — DECIDED: Option A + recency tiebreak.** Geographic plates carry
+  the camp as rival attributed zones (Kraft 1980 Beşika / Luce 1984 inner
+  ridge / 2003 outer ridge), each speculative, under the certainty filter.
+  Where the Chart Room (or any single-frame context) must pick ONE, **the
+  most recently published scholarly placement wins the camera** — currently
+  the 2003 Kraft/Rapp/Kayan/Luce outer-ridge camp — and the caption names
+  whose placement is framed. Later scholarship supersedes automatically.
 - **D2, D3 — CONFIRMED as settled**: the wagon gate is drawn and captioned
   without a side-word; no scale bar on the schematic, the pyre carries its
   cited 100-ft dimension label.
