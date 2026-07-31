@@ -1158,6 +1158,65 @@ def _bar_landfall(run: list, shore_line: list) -> tuple[list, list[float]]:
     return run[:end + 1], width
 
 
+# The Sigeion-ridge arc that closes the lagoon on the west (see bronze_geometry
+# below) is cut at the ridge's OWN level, 20 m -- where it reads as a distinct
+# landform, per relief-sigeion-ridge -- not at SHORE_LEVEL, so it claims
+# everything down to 20 m as lagoon along its whole length, not just the 10 m
+# the rest of this reconstruction is held to. Measured 2026-07-30 (a Grok
+# evidence pass on a defect John's own eye caught): Kum Tepe -- a settlement
+# mound with an independent coordinate (Vici.org, OpenStreetMap;
+# apparatus/places.json), Neolithic and long dry by the Bronze Age (Kayan
+# 2014, 725: "there is no evidence indicating that Kumtepe indentation was
+# used as harbour," and no marine indentation on Leake's map either; the
+# Kumtepe embayment's own marine phase is dated 5500-7000 BP,
+# RESEARCH-PALEOGEOGRAPHY.md §1.5d/§3.4, well before this sheet's ~3200 BP
+# horizon) -- sits on 17 m ground on this DEM, 180 m inside the drawn lagoon.
+# That is the derivation's own rule (SHORE_LEVEL plus SHORE_TRIM_TOL, the same
+# 12 m bound _trim_shore_eastern_tail already holds the eastern shore to)
+# over-generalised on the west side, and it is not a one-vertex fluke: every
+# vertex on the 20 m ridge arc sits ~200-400 m of real ground short of that
+# bound, all the way along it.
+#
+# Re-tracing the whole ridge body at a lower level was tried and rejected:
+# at 12 m or 13 m, `body_containing`'s smallest-enclosing-body search merges
+# the ridge with unrelated ground toward the bay head and the arc's shape
+# breaks (vertices moving up to ~1.9 km -- not a retraction, a different
+# line). What holds without reshaping anything is walking each
+# ALREADY-DERIVED vertex due east -- toward the lagoon, off the ridge, never
+# reordering or re-deriving the line -- until the DEM crosses the same 12 m
+# bound the eastern shore already answers to. Due east rather than normal to
+# the arc or radial from the ridge's own summit: both were tried and both
+# occasionally walk back into unrelated high ground nearby, because the ridge
+# is not radially symmetric about one point; the sheet's bbox is a plain
+# rectangle in lon/lat, so on this equirectangular, 24 km sheet (see _flat_m)
+# east means the same thing at every vertex, which neither alternative did.
+LAGOON_WEST_LEVEL = SHORE_LEVEL + SHORE_TRIM_TOL  # 12 m: SHORE_TRIM_TOL's own bound
+
+
+def _retract_ridge_arc(west: list, g: Grid, level: float = LAGOON_WEST_LEVEL,
+                       max_m: float = 1000.0, step_m: float = 10.0) -> list:
+    """Push every vertex of the Sigeion-ridge arc due east until the DEM
+    drops to `level` -- see the comment above. A vertex only ever moves
+    toward the lagoon's interior, so this can only retract water off high
+    ground, never extend it; it is a DEM test applied to every vertex the
+    ridge arc has, not a fixed exception carved for the one place (Kum Tepe)
+    that exposed the defect."""
+    out = []
+    for lat, lon in west:
+        m_per_deglon = 111320.0 * math.cos(math.radians(lat))
+        found = None
+        for i in range(int(max_m / step_m) + 1):
+            lon2 = lon + (i * step_m) / m_per_deglon
+            if _grid_elev(g, lat, lon2) <= level:
+                found = [lat, lon2]
+                break
+        if found is None:
+            raise SystemExit(f"lagoon: ridge vertex [{lat}, {lon}] never drops to "
+                             f"{level} m within {max_m:.0f} m due east")
+        out.append(found)
+    return out
+
+
 def bronze_geometry(g: Grid) -> dict:
     # Pinned to the sheet's pre-recut tol_deg (`bronze_tol_deg`, defaulting to
     # the live `tol_deg` if unset), for the same reason `g` is pinned to
@@ -1199,6 +1258,7 @@ def bronze_geometry(g: Grid) -> dict:
     # lagoon.
     ridge = body_containing("trojan-plain", g, 20, SIGEION_RIDGE, btol)
     west = _arc(ridge, LAGOON_WEST_N, LAGOON_WEST_S)
+    west = _retract_ridge_arc(west, g)
     h = nearest_index(shore, LAGOON_HEAD)
     landward = west + shore[h:]
     e = nearest_index(shore, barrier[-1])
