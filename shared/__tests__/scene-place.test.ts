@@ -4,6 +4,7 @@ import {
   buildSceneTimeline,
   resolveScenePlaces,
   joinScenesToPlaces,
+  SCHEMATIC_PLATE_ID,
   type PlacesFile,
   type JourneysFile,
 } from '../lib/scene-place';
@@ -343,5 +344,129 @@ describe('resolveScenePlaces / joinScenesToPlaces — audit-confirmed defects, f
     const idx = scenes.findIndex((s) => s.startLine === 193);
     expect(scenes[idx].place).toBe("Polyphemus's cave");
     expect(resolved[idx]!.place.id).toBe('cyclopes-land');
+  });
+});
+
+describe('resolveScenePlaces — schematic-only routing (queue item 3b, 2026-07-30)', () => {
+  // A local copy of scenesForBook that ALSO carries scene.places[] through.
+  // Deliberately NOT folded into the shared scenesForBook above: several
+  // existing tests in this file call scenesForBook on real Il. 1/10 data and
+  // rely on it NOT authoring places[], to exercise the dictionary/journey
+  // precedence tiers specifically. In the real corpus, Il. 1 and Il. 10 are
+  // now almost entirely authored with places[] (19/20 and 16/16 scenes) —
+  // wiring places[] into the shared helper would silently move those
+  // existing tests onto precedence step 0 instead of the tiers they mean to
+  // test. This helper is used only by the tests below.
+  interface RawSceneBookWithPlaces {
+    book: number;
+    scenes: {
+      lines: [number, number];
+      summary: string;
+      location?: string;
+      dayNumber?: number | null;
+      places?: string[];
+    }[];
+  }
+  interface RawScenesFileWithPlaces {
+    books: RawSceneBookWithPlaces[];
+  }
+  function scenesForBookWithPlaces(raw: RawScenesFileWithPlaces, book: number): Scene[] {
+    const b = raw.books.find((x) => x.book === book);
+    if (!b) throw new Error(`no book ${book}`);
+    return b.scenes.map((s) => ({
+      summary: s.summary,
+      startLine: s.lines[0],
+      endLine: s.lines[1],
+      place: s.location,
+      day: s.dayNumber,
+      places: s.places,
+    }));
+  }
+
+  it('a scene naming only an anchored, coordless poem-place routes to the schematic plate', () => {
+    // scaean-gate: no real-world coords, plateAnchors['trojan-plain-schematic']
+    // + positionBasis:'conjectural' — exactly the honesty pair
+    // resolvePlacePosition (plate.ts) requires.
+    const scene: Scene = { summary: 'x', startLine: 1, endLine: 5, places: ['scaean-gate'] };
+    const resolved = resolveScenePlaces('iliad', 3, [scene], [], placesFile);
+    expect(resolved[0]).not.toBeNull();
+    expect(resolved[0]!.places).toEqual([]); // no coords-bearing place — the live scene map has nothing to draw
+    expect(resolved[0]!.schematic).toEqual({
+      plateId: SCHEMATIC_PLATE_ID,
+      focusIds: ['scaean-gate'],
+      unzoomed: false,
+    });
+  });
+
+  it('a scene naming a geographic (coords-bearing) place does not switch to schematic, even a dual-anchored one', () => {
+    // thymbra carries BOTH real coords AND a trojan-plain-schematic anchor —
+    // a genuine dual-plate place. The geographic path must still win.
+    const scene: Scene = { summary: 'x', startLine: 1, endLine: 5, places: ['thymbra'] };
+    const resolved = resolveScenePlaces('iliad', 10, [scene], [], placesFile);
+    expect(resolved[0]).not.toBeNull();
+    expect(resolved[0]!.places.map((p) => p.id)).toEqual(['thymbra']);
+    expect(resolved[0]!.schematic).toBeUndefined();
+  });
+
+  it('a plain geographic place alongside an anchored poem-place still does not switch to schematic', () => {
+    const scene: Scene = { summary: 'x', startLine: 1, endLine: 5, places: ['troy', 'scaean-gate'] };
+    const resolved = resolveScenePlaces('iliad', 3, [scene], [], placesFile);
+    expect(resolved[0]!.places.map((p) => p.id)).toEqual(['troy']);
+    expect(resolved[0]!.schematic).toBeUndefined();
+  });
+
+  it('scamandrian-plain yields the unzoomed frame — no anchor of its own, the whole sheet is the honest camera', () => {
+    // Per its own places.json note: "a pin would put the plain at one point
+    // of itself" — it carries no plateAnchors at all.
+    const scene: Scene = { summary: 'x', startLine: 1, endLine: 5, places: ['scamandrian-plain'] };
+    const resolved = resolveScenePlaces('iliad', 5, [scene], [], placesFile);
+    expect(resolved[0]!.schematic).toEqual({
+      plateId: SCHEMATIC_PLATE_ID,
+      focusIds: [],
+      unzoomed: true,
+    });
+  });
+
+  it('scamandrian-plain alongside a point-anchored place still reports unzoomed:true', () => {
+    // unzoomed must survive even when the scene also names a framable point —
+    // the caller (Reader.svelte) is the one that lets unzoomed override
+    // focusIds; this asserts the resolver reports both honestly rather than
+    // picking a side.
+    const scene: Scene = { summary: 'x', startLine: 1, endLine: 5, places: ['scamandrian-plain', 'scaean-gate'] };
+    const resolved = resolveScenePlaces('iliad', 5, [scene], [], placesFile);
+    expect(resolved[0]!.schematic).toEqual({
+      plateId: SCHEMATIC_PLATE_ID,
+      focusIds: ['scaean-gate'],
+      unzoomed: true,
+    });
+  });
+
+  it('never reports schematic for a scene resolved only via the dictionary or journey-leg timeline (real Od. 9 data)', () => {
+    // Confirms the module comment's claim: none of the ~30 schematic-anchored
+    // ids are reachable through SETTING_DICTIONARY or a journey leg today.
+    const odyssey: RawScenesFileWithPlaces = JSON.parse(readFileSync(SCENES_ODYSSEY_PATH, 'utf-8'));
+    const scenes = scenesForBookWithPlaces(odyssey, 9);
+    const resolved = joinScenesToPlaces('odyssey', 9, scenes, placesFile, journeysFile);
+    expect(resolved.every((r) => r === null || r.schematic === undefined)).toBe(true);
+  });
+
+  it('counts scenes actually gaining a schematic frame across the real Iliad corpus (dossier predicted ~280)', () => {
+    const iliad: RawScenesFileWithPlaces = JSON.parse(readFileSync(SCENES_ILIAD_PATH, 'utf-8'));
+    let schematicCount = 0;
+    for (const b of iliad.books) {
+      const scenes = scenesForBookWithPlaces(iliad, b.book);
+      const timeline = buildSceneTimeline('iliad', b.book, placesFile, journeysFile);
+      const resolved = resolveScenePlaces('iliad', b.book, scenes, timeline, placesFile);
+      for (const r of resolved) {
+        if (r?.schematic) schematicCount += 1;
+      }
+    }
+    // Not a pinned regression value — apparatus growth will move it. Loose
+    // bound around the dossier's ~280 prediction; the real number is logged
+    // for the record.
+    // eslint-disable-next-line no-console
+    console.log(`[schematic-only routing] scenes gaining a frame: ${schematicCount}`);
+    expect(schematicCount).toBeGreaterThan(200);
+    expect(schematicCount).toBeLessThan(400);
   });
 });

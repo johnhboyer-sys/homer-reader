@@ -2,7 +2,7 @@
   import { onMount, onDestroy, afterUpdate, tick } from 'svelte';
   import { fade } from 'svelte/transition';
   import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, fetchSpeeches, fetchCharacters, fetchScansion, fetchAudioManifest, fetchPlaces, fetchJourneys, fetchCoastline, fetchPlate, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene, type Speech, type CharacterEntry, type ScansionEntry } from '../lib/data';
-  import { joinScenesToPlaces, type PlacesFile, type JourneysFile } from '../lib/scene-place';
+  import { joinScenesToPlaces, SCHEMATIC_PLATE_ID, type PlacesFile, type JourneysFile } from '../lib/scene-place';
   import { renderSceneMap, type Coastline } from '../lib/scenemap';
   import { parsePlate, renderPlate, computeCamera, type Plate, type PlatePlace, type Camera } from '../lib/plate';
   import { takeSsrBook } from '../lib/ssr-book';
@@ -935,16 +935,89 @@
     : iliadPlateFocusNames.length
       ? `${iliadPlate.title}, showing ${iliadPlateFocusNames.join(', ')}`
       : iliadPlate.title;
+
+  // ── Chart Room SCHEMATIC plate (queue item 3b, 2026-07-30) ───────────────
+  // Routes the Chart Room to the Troad schematic plate (apparatus/plates/
+  // trojan-plain-schematic.json, shared/lib/scene-place.ts's
+  // SCHEMATIC_PLATE_ID) for a scene whose resolved places are
+  // schematic-only — see currentPlateResolution.schematic, set only when
+  // `places` is empty (no coords-bearing place, so currentPlateMap below has
+  // nothing to draw) but at least one place carries a plateAnchors point on
+  // this plate, or is the sheet's own scamandrian-plain lettering zone.
+  // Deliberately INDEPENDENT of CHART_ROOM_PLATE_ENABLED above — that flag
+  // still gates only the illustrated GEOGRAPHIC trojan-plain plate; the
+  // geographic routing is unchanged by this feature.
+  let schematicPlateLoadState: 'idle' | 'loading' | 'ready' | 'unavailable' = 'idle';
+  let schematicPlate: Plate | null = null;
+  async function ensureSchematicPlate(): Promise<void> {
+    if (schematicPlateLoadState !== 'idle') return;
+    schematicPlateLoadState = 'loading';
+    try {
+      const raw = await fetchPlate(SCHEMATIC_PLATE_ID);
+      if (!raw) { schematicPlateLoadState = 'unavailable'; return; }
+      schematicPlate = parsePlate(raw);
+      schematicPlateLoadState = 'ready';
+    } catch {
+      schematicPlateLoadState = 'unavailable';
+    }
+  }
+  $: if (mounted && work === 'iliad' && scenes.length && schematicPlateLoadState === 'idle'
+    && (reading || sceneSheetOpen || (chartRoomOpen && !scenePanelMobile))) ensureSchematicPlate();
+
+  $: useSchematicPlate = work === 'iliad' && schematicPlateLoadState === 'ready' && !!schematicPlate
+    && !!currentPlateResolution?.schematic;
+
+  // Every corpus-wide place anchored onto this plate (the ~30 poem places —
+  // small enough to bake once, not worth book-scoping like bookPlatePlaces
+  // above) plus scamandrian-plain itself, included anchor-less so its `name`
+  // is available for the aria-label below even though it draws no pin
+  // (resolvePlacePosition returns undefined for it — plate.ts's own honesty
+  // rule, unchanged here).
+  $: schematicPlatePlaces = platePlaces.places.filter(
+    (p) => (p.plateAnchors?.[SCHEMATIC_PLATE_ID] !== undefined && p.positionBasis === 'conjectural')
+      || p.id === 'scamandrian-plain',
+  ) as PlatePlace[];
+  $: schematicPlateRender = schematicPlate
+    ? renderPlate(schematicPlate, schematicPlatePlaces, { idPrefix: `chart-plate-schematic-${work}-${bookNum}` })
+    : null;
+  $: schematicPlateHtml = schematicPlateRender ? wrapPlateCamera(schematicPlateRender.svg) : '';
+  // scamandrian-plain forces the unzoomed full sheet — empty focusIds makes
+  // computeCamera return its own identity camera (see plate.ts), which is
+  // exactly "show the whole plate."
+  $: schematicFocusIds = currentPlateResolution?.schematic?.unzoomed
+    ? []
+    : (currentPlateResolution?.schematic?.focusIds ?? []);
+  $: schematicPlateCamera = schematicPlate && schematicPlateRender
+    ? computeCamera(schematicPlate, schematicPlateRender.viewport, schematicFocusIds, { places: schematicPlatePlaces })
+    : null;
+  $: schematicFocusNames = schematicPlatePlaces
+    .filter((p) => schematicFocusIds.includes(p.id))
+    .map((p) => p.name);
+  $: schematicUnzoomedName = currentPlateResolution?.schematic?.unzoomed
+    ? schematicPlatePlaces.find((p) => p.id === 'scamandrian-plain')?.name ?? null
+    : null;
+  $: schematicPlateAriaLabel = !schematicPlate
+    ? ''
+    : schematicUnzoomedName
+      ? `${schematicPlate.title}, showing ${schematicUnzoomedName}`
+      : schematicFocusNames.length
+        ? `${schematicPlate.title}, showing ${schematicFocusNames.join(', ')}`
+        : schematicPlate.title;
+
   // Whichever path is live (new plate vs the old renderSceneMap box), "is
   // there a map to show at all" — drives the reserved-space/collapse
   // gating at all three consuming template sites exactly the way
   // `currentPlateMap` alone used to.
-  $: hasChartMap = useIliadPlate ? !!iliadPlateRender : !!currentPlateMap;
+  $: hasChartMap = useIliadPlate ? !!iliadPlateRender : useSchematicPlate ? !!schematicPlateRender : !!currentPlateMap;
   // The map-slot boxes (.reading-plate-map / .scene-context-map) reserve
   // space at renderSceneMap's own 320x220 default (see global.css) — the
   // Trojan-plain plate's own size is a different shape, so override the
   // reserved aspect-ratio inline when it's the one showing.
-  $: chartMapAspectRatio = useIliadPlate && iliadPlate ? `${iliadPlate.size[0]} / ${iliadPlate.size[1]}` : null;
+  $: chartMapAspectRatio = useIliadPlate && iliadPlate
+    ? `${iliadPlate.size[0]} / ${iliadPlate.size[1]}`
+    : useSchematicPlate && schematicPlate
+      ? `${schematicPlate.size[0]} / ${schematicPlate.size[1]}`
+      : null;
 
   function wrapPlateCamera(svg: string): string {
     return svg
@@ -2626,12 +2699,16 @@
      Chart Room sheet, both SIBLING top-level blocks after it — so this
      snippet has to live at the true template root to be visible to all
      three, not nested inside any one of them) — see
-     hasChartMap/useIliadPlate/currentPlateMap above): an Iliad scene with a
-     resolved, on-sheet place draws the once-per-book Trojan-plain base
-     plate, camera-framed on that scene (applyPlateCamera, imperative — the
-     SVG itself never re-renders on scene paging); an Iliad scene whose
-     resolved place(s) don't land on this sheet gets the same base plate,
-     unframed, with an honest caption; anything else (Odyssey always, or
+     hasChartMap/useIliadPlate/useSchematicPlate/currentPlateMap above): an
+     Iliad scene with a resolved, on-sheet place draws the once-per-book
+     Trojan-plain base plate, camera-framed on that scene (applyPlateCamera,
+     imperative — the SVG itself never re-renders on scene paging); an Iliad
+     scene whose resolved place(s) don't land on this sheet gets the same
+     base plate, unframed, with an honest caption; an Iliad scene whose
+     resolved places are schematic-only (queue item 3b — no coords-bearing
+     place, but at least one plateAnchors hit or scamandrian-plain) draws the
+     Troad SCHEMATIC plate instead, camera-framed the same way (or unzoomed
+     for scamandrian-plain); anything else (Odyssey always, or
      Iliad before/without a successful plate fetch) falls back to the
      existing renderSceneMap box unchanged. -->
 {#snippet chartPlateBody()}
@@ -2646,6 +2723,14 @@
     {#if iliadPlateAllUnlocated}
       <p class="chart-plate-caption">This scene's named places have no fixed position on this plate.</p>
     {/if}
+  {:else if useSchematicPlate && schematicPlateRender}
+    <div
+      class="chart-plate"
+      use:applyPlateCamera={{ camera: schematicPlateCamera, focusIds: schematicFocusIds, ariaLabel: schematicPlateAriaLabel, reduceMotion }}
+    >
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html schematicPlateHtml}
+    </div>
   {:else if currentPlateMap}
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html currentPlateMap.svg}

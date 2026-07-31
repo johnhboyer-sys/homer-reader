@@ -879,9 +879,16 @@ describe('Reader.svelte — Chart Room plate path stays off while CHART_ROOM_PLA
 
     // The gate is on the FETCH itself, not just the render: ensureIliadPlate
     // must never even run while the flag is off (Reader.svelte's fetch-
-    // gating reactive), so fetchPlate is never called despite a ready plate
-    // waiting in the mock.
-    expect(fetchPlate).not.toHaveBeenCalled();
+    // gating reactive), so fetchPlate('trojan-plain') — the illustrated
+    // GEOGRAPHIC plate — is never called despite a ready plate waiting in
+    // the mock. fetchPlate('trojan-plain-schematic') is a SEPARATE,
+    // unflagged fetch (queue item 3b, 2026-07-30's schematic-only routing —
+    // see shared/components/Reader.svelte's ensureSchematicPlate) and is
+    // expected to fire regardless; this scene resolves to a coords-bearing
+    // place, so its resolution carries no `schematic` field and the
+    // schematic plate never activates either — the fallback renderSceneMap
+    // assertion above already proves that.
+    expect(fetchPlate).not.toHaveBeenCalledWith('trojan-plain');
   });
 });
 
