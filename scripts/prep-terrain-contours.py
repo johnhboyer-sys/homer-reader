@@ -413,8 +413,17 @@ def contours(g: Grid, level: float, tol_deg: float, min_points: int,
     for line in join_runs(raw, 0.0):
         closed = len(line) > 3 and line[0] == line[-1]
         simp = douglas_peucker(line, tol_deg)
-        if closed and len(simp) >= 3 and simp[0] != simp[-1]:
-            simp.append(simp[0])
+        if closed:
+            # Degenerate-ring cull: a ring needs at least 3 DISTINCT vertices
+            # to enclose any area at all. Aggressive simplification at a
+            # tight tol_deg can collapse a tiny ring to a point or a single
+            # segment-and-back; that is not a contour, it is a speck. Count
+            # before closing the ring (which would otherwise inflate a
+            # 2-point degenerate to a 3-coordinate "ring").
+            if len({tuple(p) for p in simp}) < 3:
+                continue
+            if len(simp) >= 3 and simp[0] != simp[-1]:
+                simp.append(simp[0])
         if len(simp) < min_points:
             continue
         lats = [p[0] for p in simp]
@@ -661,7 +670,10 @@ SHEETS: dict[str, dict] = {
         "blur": 4,
         "decimate": 2,
         "post_blur": 5,
-        "tol_deg": 0.005,
+        # Contour re-cut (RESEARCH-BASEMAP-DATA.md:428-434): tightened to the
+        # coastline's own tol_deg (0.00100, ~0.51 px, ~111 m) -- the relief
+        # was previously cut 5x coarser than the coast on this sheet.
+        "tol_deg": 0.00100,
         "min_points": 5,
         "min_span_deg": 0.07,
         "levels": [50, 100, 200, 300, 400, 600, 800, 1000, 1200, 1400],
@@ -670,9 +682,31 @@ SHEETS: dict[str, dict] = {
         "bbox": (39.86, 26.1, 40.05, 26.38),
         "zoom": 13,
         "blur": 10,
-        "decimate": 2,
+        # Contour re-cut (RESEARCH-BASEMAP-DATA.md:428-454): decimate dropped
+        # 2 -> 1. tol_deg alone cannot reach the coastline's target density
+        # here -- at decimate:2 the raw traced grid (29.3 m spacing) is
+        # coarser than the 13.4 m target tolerance, so Douglas-Peucker has
+        # nothing finer to keep. decimate:1 (14.65 m raw spacing) closes
+        # that gap.
+        "decimate": 1,
+        # Bronze Age shore/barrier/swamp geometry (`bronze_geometry`,
+        # `swamp_geometry`) is traced from the SAME base grid as relief but
+        # is tuned against published measurements (SWAMP_MAX_SLOPE etc.) at
+        # the grid this sheet used to ship at -- it must not move just
+        # because relief's `decimate` did. Pin it here; see
+        # `build_bronze_grid`.
+        "bronze_decimate": 2,
+        # Same reasoning: bronze_geometry's own initial contour trace
+        # (shore/barrier/ridge, later re-simplified at the independent
+        # SHORE_TOL) used to inherit the live relief `tol_deg`. Pin it to
+        # the pre-recut value so tightening `tol_deg` for relief cannot
+        # also move the Bronze Age reconstruction.
+        "bronze_tol_deg": 0.0009,
         "post_blur": 2,
-        "tol_deg": 0.0009,
+        # Tightened to the coastline's own tol_deg (0.00012, ~0.49 px,
+        # ~13.4 m) -- the relief was previously cut 7.5x coarser than the
+        # coast on this sheet.
+        "tol_deg": 0.00012,
         "min_points": 5,
         "min_span_deg": 0.012,
         "levels": [10, 15, 20, 25, 30, 40, 60, 100, 150, 200, 320],
@@ -695,6 +729,18 @@ def build_sheet(name: str, cache: str) -> tuple[Grid, dict]:
     sm = grid_stats(g)
     print(f"[{name}] smoothed+decimated {g.w}x{g.h}: {sm}")
     return g, {"raw": raw, "smoothed": sm}
+
+
+def build_bronze_grid(name: str, cache: str) -> Grid:
+    """A base grid at `bronze_decimate` (default: the sheet's own `decimate`)
+    -- Bronze Age shore/barrier/swamp geometry is derived against published
+    measurements at a fixed resolution and must not move when relief's
+    `decimate` changes (see the SHEETS comment on `bronze_decimate`).
+    Re-fetches nothing new: tiles are cached by `fetch_tile`."""
+    spec = SHEETS[name]
+    bd = spec.get("bronze_decimate", spec["decimate"])
+    g = build_grid(spec["zoom"], spec["bbox"], cache, verbose=False)
+    return decimate(box_blur(g, spec["blur"]), bd)
 
 
 def relief_grid(name: str, g: Grid) -> tuple[Grid, dict]:
@@ -764,12 +810,13 @@ def join_runs(lines: list, tol: float) -> list:
     return out
 
 
-def sheet_bodies(name: str, g: Grid, level: float) -> list[list[list[float]]]:
+def sheet_bodies(name: str, g: Grid, level: float,
+                 tol: float | None = None) -> list[list[list[float]]]:
     """Closed relief bodies at `level`: every contour ring on the sheet, with
     the ones that run off the sheet sewn shut along the neatline."""
     bbox = SHEETS[name]["bbox"]
     out = []
-    for line in join_runs(sheet_lines(name, g, level), 0.0):
+    for line in join_runs(sheet_lines(name, g, level, tol), 0.0):
         closed = line[0] == line[-1]
         # A run that neither closes on itself nor reaches the neatline at both
         # ends is a broken chain: there is no honest way to close it, so it is
@@ -791,10 +838,11 @@ def sheet_bodies(name: str, g: Grid, level: float) -> list[list[list[float]]]:
     return out
 
 
-def body_containing(name: str, g: Grid, level: float, pt) -> list[list[float]]:
+def body_containing(name: str, g: Grid, level: float, pt,
+                    tol: float | None = None) -> list[list[float]]:
     """The contour body at `level` that encloses `pt` -- the smallest one, so
     a nested pair resolves to the inner ring rather than its parent."""
-    hits = [r for r in sheet_bodies(name, g, level) if _ring_contains(r, pt)]
+    hits = [r for r in sheet_bodies(name, g, level, tol) if _ring_contains(r, pt)]
     if not hits:
         raise SystemExit(f"{name}: no {level} m body contains {pt}")
     return min(hits, key=lambda r: _ring_span(r))
@@ -1075,8 +1123,15 @@ def _bar_landfall(run: list, shore_line: list) -> tuple[list, list[float]]:
 
 
 def bronze_geometry(g: Grid) -> dict:
-    shore_line = joined_line("trojan-plain", g, SHORE_LEVEL)
-    barrier_line = joined_line("trojan-plain", g, BARRIER_LEVEL)
+    # Pinned to the sheet's pre-recut tol_deg (`bronze_tol_deg`, defaulting to
+    # the live `tol_deg` if unset), for the same reason `g` is pinned to
+    # `bronze_decimate`: this geometry was derived against published
+    # measurements and must not move when relief's own tolerance is
+    # retuned. See the SHEETS comment on `bronze_decimate`.
+    spec = SHEETS["trojan-plain"]
+    btol = spec.get("bronze_tol_deg", spec["tol_deg"])
+    shore_line = joined_line("trojan-plain", g, SHORE_LEVEL, btol)
+    barrier_line = joined_line("trojan-plain", g, BARRIER_LEVEL, btol)
 
     i0 = nearest_index(shore_line, SHORE_WEST)
     i1 = nearest_index(shore_line, SHORE_EAST)
@@ -1105,7 +1160,7 @@ def bronze_geometry(g: Grid) -> dict:
     # few tens of metres wide on a 19 per cent gradient. The shore layer itself
     # DOES run on east -- that stretch of it faces the open sea, not the
     # lagoon.
-    ridge = body_containing("trojan-plain", g, 20, SIGEION_RIDGE)
+    ridge = body_containing("trojan-plain", g, 20, SIGEION_RIDGE, btol)
     west = _arc(ridge, LAGOON_WEST_N, LAGOON_WEST_S)
     h = nearest_index(shore, LAGOON_HEAD)
     landward = west + shore[h:]
@@ -1464,13 +1519,13 @@ def patch_troad(g: Grid, gr: Grid) -> tuple[int, int]:
     return len(new), sum(_layer_vertices(l) for l in new)
 
 
-def patch_plain(g: Grid, gr: Grid) -> tuple[int, int]:
+def patch_plain(g: Grid, gr: Grid, gb: Grid | None = None) -> tuple[int, int]:
     path = os.path.join(PLATES_DIR, "trojan-plain.json")
     with open(path, encoding="utf-8") as f:
         plate = json.load(f)
     by_id = {l["id"]: l for l in plate["layers"]}
 
-    bronze = bronze_geometry(g)
+    bronze = bronze_geometry(gb if gb is not None else g)
     verts = 0
     for lid, field, geom in (("shore-bronze", "rings", [bronze["shore"]]),
                              ("barrier-bronze", "rings", [bronze["barrier"]]),
@@ -1614,7 +1669,11 @@ def main() -> None:
         stats["relief_grid"] = post
         write_vendored(name, gr, stats)
         if args.patch_plates:
-            layers, verts = (patch_troad(g, gr) if name == "troad" else patch_plain(g, gr))
+            if name == "troad":
+                layers, verts = patch_troad(g, gr)
+            else:
+                gb = build_bronze_grid(name, args.cache)
+                layers, verts = patch_plain(g, gr, gb)
             print(f"[{name}] patched {layers} layers, {verts} vertices")
 
 
