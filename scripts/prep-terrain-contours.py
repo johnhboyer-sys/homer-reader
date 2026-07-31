@@ -1108,6 +1108,42 @@ def _dist_to_line_m(p, line) -> float:
     return best
 
 
+def _grid_elev(g: Grid, lat: float, lon: float) -> float:
+    """Nearest-cell elevation at (lat, lon) on grid `g`, inverting
+    Grid.latlon's cell-centre formula (same inversion the swamp seed search
+    above already does). Used only to sanity-check a derived contour vertex
+    against the level it is supposed to sit on."""
+    x, y = lonlat_to_px(lon, lat, g.z)
+    i = max(0, min(g.w - 1, int((x - g.x0) / g.step - 0.5)))
+    j = max(0, min(g.h - 1, int((y - g.y0) / g.step - 0.5)))
+    return g.at(i, j)
+
+
+# RESEARCH-PALEOGEOGRAPHY.md §3.4 (measured 2026-07-30): of the 24
+# shore-bronze vertices, the last three toward the Rhoiteion spur read 13 m,
+# 14 m and -0.4 m on this DEM -- not the declared 10 m contour, and the
+# final one is below sea level, offshore in the Dardanelles. The dossier's
+# own conclusion is "either re-cut that stretch from a stated contour or
+# truncate the line where the declared derivation ends"; re-cutting from an
+# unstated level would be new, uncited scholarship, so this trims instead.
+# 2 m is generous against the 14 good vertices (all 10-11 m) and still
+# excludes the bad three by a wide margin (13/14/-0.4 vs. 8-12).
+SHORE_TRIM_TOL = 2.0  # metres either side of SHORE_LEVEL
+
+
+def _trim_shore_eastern_tail(shore: list, g: Grid) -> list:
+    """Drop shore's eastern tail while a vertex departs from the declared
+    10 m contour by more than SHORE_TRIM_TOL -- see the comment above."""
+    end = len(shore)
+    while end > 1 and abs(_grid_elev(g, *shore[end - 1]) - SHORE_LEVEL) > SHORE_TRIM_TOL:
+        end -= 1
+    dropped = len(shore) - end
+    if dropped:
+        print(f"  shore-bronze eastern trim: dropped {dropped} vertices off "
+              f"the declared 10 m contour (last kept {shore[end - 1]})")
+    return shore[:end]
+
+
 def _bar_landfall(run: list, shore_line: list) -> tuple[list, list[float]]:
     """The stretch of the 5 m contour that is actually a bar: from its western
     anchor to its eastern landfall, where the lagoon behind it closes to less
@@ -1136,6 +1172,7 @@ def bronze_geometry(g: Grid) -> dict:
     i0 = nearest_index(shore_line, SHORE_WEST)
     i1 = nearest_index(shore_line, SHORE_EAST)
     shore = douglas_peucker(shore_line[i0:i1 + 1], SHORE_TOL)
+    shore = _trim_shore_eastern_tail(shore, g)
 
     j0 = nearest_index(barrier_line, SHORE_WEST)
     j1 = nearest_index(barrier_line, SHORE_EAST)
@@ -1311,26 +1348,36 @@ BRONZE_NOTES = {
         "infilled delta sediment, so the old shore is closely approximated by "
         "a low contour of the modern DEM, where the flat fill meets ground "
         "that was already land. This line is the 10 m contour of SRTM (AWS "
-        "Terrain Tiles), generalised to about 130 m, run from the Sigeion "
-        "ridge round the bay head to the Rhoiteion spur. The 10 m level was "
-        "chosen against the published constraints, not picked for looks: it "
-        "passes 1.2 km north of Hisarlik, where Kraft, Rapp, Kayan and Luce "
-        "put the bay head; the 8 m contour puts it 2.8 km north and the 12 m "
-        "only 0.7 km, both outside the published range. The DEM independently "
-        "confirms the other two: the modern shore is 5 to 6 km north of the "
-        "site, and the delta surface falls from about 11 m a kilometre north "
-        "of Hisarlik to 5 m at the coast. Approximate to on the order of a "
-        "kilometre, and a reconstruction, not a survey: no published figure "
-        "was traced. Two editorial cuts, both stated rather than hidden: the "
-        "bay's western shore is taken from the 20 m contour of the Sigeion "
-        "ridge, whose east foot is what the water stood against; and the line "
-        "stops at the bay head, because south of there the 10 m contour bounds "
+        "Terrain Tiles), generalised to about 130 m at blur 10, decimate 2, "
+        "tolerance 0.0009 degrees -- pinned so relief re-tuning elsewhere on "
+        "the sheet cannot move it -- run from the Sigeion ridge round the bay "
+        "head and on to where the declared 10 m contour stops holding: past "
+        "that point the traced line reads 13 m, then 14 m, then below sea "
+        "level on this DEM, offshore in the strait, so it is cut there rather "
+        "than carried on to the Rhoiteion spur on a level it has already left. "
+        "The 10 m level was chosen because it puts the shore on the order of "
+        "a kilometre from the citadel, what Strabo 13.1.36 requires: this "
+        "line's nearest vertex to Hisarlik is 1.22 km away, north-north-west. "
+        "Kraft, Rapp, Kayan and Luce (2003, 166) reach the same order by "
+        "halving Strabo's twelve stades to six and citing their own cores as "
+        "consistent with it -- they do not measure the bay head, and the same "
+        "paper's own Fig. 5 draws the nearest water at 2.17 km on a bearing "
+        "of 334 degrees, nearly twice this line's distance from the citadel. "
+        "The two figures inside that one paper are a factor of two apart; "
+        "this line sits at the near end of the spread, agreeing with the "
+        "paper's text and with Strabo rather than with its own map. The DEM "
+        "independently confirms the other two published constraints: the "
+        "modern shore is 5 to 6 km north of the site, and the delta surface "
+        "falls from about 11 m a kilometre north of Hisarlik to 5 m at the "
+        "coast. Approximate to on the order of a kilometre, and a "
+        "reconstruction, not a survey: no published figure was traced. Two "
+        "editorial cuts, both stated rather than hidden: the bay's western "
+        "shore is taken from the 20 m contour of the Sigeion ridge, whose "
+        "east foot is what the water stood against; and the line stops at "
+        "the bay head, because south of there the 10 m contour bounds "
         "aggraded floodplain rather than open water. The contour does run on "
         "south -- that is the landward limit of the whole alluvial fill, not "
-        "of the Late Bronze Age bay. One thing this line is not along its "
-        "whole length is lagoon shore: east of 26.243 E, where the sandy "
-        "barrier lands at the foot of the Rhoiteion slope, it faces the open "
-        "sea instead.",
+        "of the Late Bronze Age bay.",
     "barrier-bronze":
         "The wide sandy barrier that a relative sea-level fall of 2 to 2.5 m "
         "left across the mouth of the bay in the Late Bronze Age, closing the "
@@ -1381,10 +1428,11 @@ BRONZE_NOTES = {
         "Rhoiteion slope: east of there the 5 m and 10 m contours run within "
         "45 m of each other up a gradient of 10 to 19 per cent, so there is no "
         "water between them to hold, and what closes the lagoon on that side "
-        "is the Rhoiteion slope. The reconstructed shore does run on east from "
-        "that point to the Rhoiteion spur -- but that stretch of it faces the "
-        "open sea, not this lagoon. Troy overlooks a wetland, a lagoon and a "
-        "distant sea, not a deep-water bay.",
+        "is the Rhoiteion slope. The reconstructed shore itself stops at "
+        "essentially the same point, because past it the 10 m contour is no "
+        "longer holding either (see the shore layer's own note). Troy "
+        "overlooks a wetland, a lagoon and a distant sea, not a deep-water "
+        "bay.",
     "delta-swamp":
         "Swamp lay over much of the delta plain through the Late Bronze Age "
         "(Kayan). A WETLAND HAS NO BOUNDARY -- it grades from open water "

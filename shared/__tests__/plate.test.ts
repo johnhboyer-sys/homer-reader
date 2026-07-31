@@ -1754,7 +1754,15 @@ describe('the curve pass does not move the Bronze Age shoreline', () => {
     // outside the generalisation it claims, that is a real defect and this
     // test is where it is caught.
     expect(worst).toBeLessThan(275);
-    expect(worst).toBeGreaterThan(150); // and it is genuinely curving, not a no-op
+    // Lower bound recalibrated 2026-07-30: trimming shore-bronze's eastern
+    // tail (the 3 vertices past where the declared 10 m contour stopped
+    // holding, RESEARCH-PALEOGEOGRAPHY.md §3.4) dropped the worst point from
+    // 215 m to 142.89 m — the corner that measurement was catching was on the
+    // trimmed stretch. 100 stays comfortably below the new measurement while
+    // still asserting the same thing the bound always asserted: the curve
+    // deviates from the stored polyline by a real, non-trivial amount, not a
+    // no-op flattening.
+    expect(worst).toBeGreaterThan(100);
   });
 
   it('the shore still passes 1.2 km north of Hisarlık — the measurement the 10 m level was chosen for', () => {

@@ -33,6 +33,7 @@ def _plate(**overrides):
         "layers": [
             {"id": "river-1", "kind": "river", "path": [[39.90, 26.15], [39.95, 26.20]]}
         ],
+        "sources": [{"cite": "A Book."}],
     }
     base.update(overrides)
     return base
@@ -129,6 +130,19 @@ def test_validate_plate_good_fixture_passes():
     assert apparatus_places.validate_plate(_plate(), places_by_id) == []
 
 
+def test_validate_plate_requires_plate_level_sources():
+    plate = _plate()
+    del plate["sources"]
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("sources is required" in p for p in problems)
+
+
+def test_validate_plate_rejects_empty_plate_level_sources():
+    plate = _plate(sources=[])
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("sources must be a non-empty list" in p for p in problems)
+
+
 def test_validate_plate_detects_transposed_lat_lon():
     # bbox is lat 39.86-40.02, lon 26.12-26.36; a transposed pair (lon, lat)
     # lands miles outside it.
@@ -192,6 +206,7 @@ def test_validate_plate_schematic_needs_no_bbox():
         "kind": "schematic",
         "status": "draft",
         "size": [640, 640],
+        "sources": [{"cite": "A Book."}],
         "bands": [
             {
                 "id": "cosmos",
@@ -391,10 +406,19 @@ def test_validate_plate_band_lines_must_be_ordered_int_pair():
 
 
 def test_real_shield_of_achilles_plate_validates_clean():
+    """As of 2026-07-30 (hardening queue item 7, docs/TROY-MAPS-HANDOFF-3.md
+    #1) shield-of-achilles.json has no plate-level `sources` array -- flagged
+    here rather than invented from nothing (CLAUDE.md: never fabricate a
+    citation). This assertion documents the current gap machine-checkably;
+    once a real sources array is authored for this plate, tighten it back to
+    `== []`."""
     plate_doc = json.loads(
         (ROOT / "apparatus" / "plates" / "shield-of-achilles.json").read_text(encoding="utf-8")
     )
-    assert apparatus_places.validate_plate(plate_doc, {}) == []
+    problems = apparatus_places.validate_plate(plate_doc, {})
+    assert problems == [
+        "shield-of-achilles: sources is required (a non-empty plate-level sources array)"
+    ]
 
 
 def test_validate_plate_rejects_numeric_or_empty_id_and_title():

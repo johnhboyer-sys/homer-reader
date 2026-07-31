@@ -5,6 +5,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "pipeline"))
 
 from homer_pipeline import stage5_cunliffe as sc
+from homer_pipeline import stage5_lsj as sl
 from homer_pipeline import verify_shared_cunliffe as vsc
 from homer_pipeline.stage5_lsj import shard_letter
 
@@ -58,6 +59,51 @@ def test_ionic_variants_does_not_fire_across_a_diphthong():
     # target here in fold-space terms); the guard must not swap it, so the
     # heuristic stays narrow rather than over-firing on any trailing -a.
     assert sc._ionic_variants("a(rmonia") == []
+
+
+# ── breathing_swap: the ἴστωρ/ἵστωρ crux (RESEARCH-SHIELD.md §6.2) ──────────
+# Morpheus's own lemma for the Il. 18.501 trial-scene word is rough-breathing
+# i(/stwr (verified directly against Diogenes' greek-analyses.txt: the entry
+# for surface form i)/stori is "{48772810 9 i)/stori,i(/stwr ... masc/fem dat
+# sg}"), but both LSJ and Cunliffe key their entry smooth-breathing i)/stwr
+# (verified directly against grc.lsj.xml's key="i)/stwr" div2 and
+# cunliffe-1-lex.jsonl's "key": "i)/stwr" row, both citing Il. 18.501). No
+# existing candidate (exact/base/fold/ws/teos/ionic) strips or flips a
+# breathing mark, so this single-word disagreement dropped the entry from
+# both lexicon shards before this fallback existed.
+
+def test_breathing_swap_flips_a_lone_rough_breathing():
+    assert sl.breathing_swap("i(stwr") == "i)stwr"
+
+
+def test_breathing_swap_flips_a_lone_smooth_breathing():
+    assert sl.breathing_swap("i)stwr") == "i(stwr"
+
+
+def test_breathing_swap_none_when_no_breathing_present():
+    assert sl.breathing_swap("mhnis") is None
+
+
+def test_breathing_swap_none_for_a_compound_with_two_breathings():
+    # A guard against over-firing on a synthetic compound that legitimately
+    # carries two marks (a)nti/-bla/ptw-style) — narrow like _ionic_variants.
+    assert sl.breathing_swap("a(rma-e(lissw") is None
+
+
+def test_lemma_candidates_breathing_swap_resolves_the_istor_crux():
+    cands = sl.lemma_candidates("i(/stwr")
+    values = [v for k, v in cands if k == "fold"]
+    assert "i)stwr" in values
+    # And it lands on exactly LSJ's real key, folded the same way stage5_lsj
+    # folds every div2 key it streams.
+    assert sl.fold_key("i)/stwr") in values
+
+
+def test_cunliffe_candidates_breathing_swap_resolves_the_istor_crux():
+    cands = sc.cunliffe_candidates("i(/stwr")
+    values = [v for k, v in cands if k == "fold"]
+    assert "i)stwr" in values
+    assert sl.fold_key("i)/stwr") in values
 
 
 # ── linkify_definition: citation refs -> internal link markers ─────────────

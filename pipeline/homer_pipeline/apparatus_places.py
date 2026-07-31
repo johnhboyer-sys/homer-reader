@@ -362,6 +362,19 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
     if "status" in doc and (not isinstance(doc.get("status"), str) or not doc["status"].strip()):
         problems.append(f"{label}: status must be a non-empty string")
 
+    # Plate-level sources: every plate is a scholarly artefact, not just its
+    # individually-tagged places/layers, so it must cite what it drew from.
+    # Required unconditionally (unlike the per-place/per-layer sources
+    # checks above, which only bite when tagged for a plate) — a plate
+    # document IS the thing tagged for a plate.
+    plate_sources = doc.get("sources")
+    if "sources" not in doc:
+        problems.append(f"{label}: sources is required (a non-empty plate-level sources array)")
+    elif not isinstance(plate_sources, list) or not plate_sources:
+        problems.append(f"{label}: sources must be a non-empty list")
+    else:
+        problems += _validate_sources(plate_sources, label)
+
     bbox = doc.get("bbox")
     min_lat = min_lon = max_lat = max_lon = None
     if "bbox" in doc:

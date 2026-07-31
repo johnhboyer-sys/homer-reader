@@ -8,6 +8,33 @@
     960,
     780
   ],
+  "sources": [
+    {
+      "cite": "Strabo. Geography 13.1.34.",
+      "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
+    },
+    {
+      "cite": "Pope, Alexander. The Iliad of Homer. Vol. 2. London: Bowyer for Lintott, 1716. \"An Essay on Homer's Battels,\" 11-14, and the bird's-eye plate facing p. 12, engraved by John Harris.",
+      "url": "https://commons.wikimedia.org/wiki/File:THE_ILLIAD_OF_HOMER_(translated_by_POPE)_p2.012_Troia.jpg"
+    },
+    {
+      "cite": "Cuillandre, Joseph. La droite et la gauche dans les poemes homeriques. Paris: Les Belles Lettres, 1944."
+    },
+    {
+      "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912.",
+      "url": "https://archive.org/details/troyastudyinhom00leafgoog"
+    },
+    {
+      "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
+    },
+    {
+      "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
+    },
+    {
+      "cite": "Pope, Alexander. The Iliad of Homer. Vol. 2. London: Bowyer for Lintott, 1716. \"An Essay on Homer's Battels,\" 11-14.",
+      "url": "https://archive.org/details/homerpopeiliad02"
+    }
+  ],
   "layers": [
     {
       "id": "sea",
