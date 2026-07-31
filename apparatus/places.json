@@ -8771,24 +8771,31 @@
       "id": "kum-tepe",
       "name": "Kum Tepe",
       "certainty": "traditional",
-      "tradition": "Schliemann's identification with Achilles' tomb, the Achilleum of the ancient sources",
+      "tradition": "Schliemann attached the tomb of Achilles — the Achilleum of the ancient sources — to this mound; the mound itself is a prehistoric settlement höyük",
       "coords": [
         39.9936,
         26.1926
       ],
-      "kind": "tomb",
+      "kind": "settlement",
       "maps": [
         "troad-plain"
       ],
       "mentions": [],
-      "note": "A mound near the Hellespont entrance that Schliemann took for the tomb of Achilles. Rose and Körpe's survey work shows it is in fact a Neolithic-to-Bronze-Age settlement mound, not a tumulus at all — one of several such reclassifications in the Troad.",
+      "note": "A settlement mound at the foot of the Sigeion ridge near the Hellespont entrance, on the shoreline of the mid-Holocene Kumtepe embayment — occupied from the Neolithic, millennia before the poem's horizon, and long on dry ground by the Late Bronze Age (the embayment's marine phase dates to 5500-7000 BP). Schliemann took it for the tomb of Achilles; Rose and Körpe's survey work shows such mounds in the Troad are settlement mounds, not tumuli. The coordinate is corroborated independently by Vici.org and OpenStreetMap.",
       "sources": [
         {
           "cite": "Vici.org, s.v. \"Kum Tepe.\"",
           "url": "https://vici.org/vici/11136/"
         },
         {
+          "cite": "OpenStreetMap, node 7979325496 (Kumtepe archaeological site).",
+          "url": "https://www.openstreetmap.org/node/7979325496"
+        },
+        {
           "cite": "Rose, C. Brian, and Reyhan Körpe. \"The Tumuli of Troy and the Troad.\" In Tumulus as Sema, edited by Olivier Henry and Ute Kelp. Berlin: De Gruyter, 2016."
+        },
+        {
+          "cite": "Kayan, İlhan. \"Geoarchaeological Research at Troia and Its Environs.\" In Troia 1987–2012: Grabungen und Forschungen I — Forschungsgeschichte, Methoden und Landschaft, Teil 2, edited by Ernst Pernicka, Charles Brian Rose, and Peter Jablonka, 694–727. Studia Troica Monographien 5. Bonn: Habelt, 2014."
         }
       ]
     },
