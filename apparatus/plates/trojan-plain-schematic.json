@@ -833,7 +833,7 @@
       "note": "The wagon-road, ἀμαξιτός: Hector and Achilles run along it under the wall, past the lookout and the windy fig tree, and come to the two springs (Il. 22.145-48). Priam takes the same ground outward, driving past the great tomb of Ilos and halting at the river to water the mules (24.349-51). The waypoints are strung along it in the order the poem narrates them, which fixes their sequence and not their distances."
     },
     {
-      "id": "chariot-way-to-the-left-gate",
+      "id": "chariot-way-asios-gate",
       "kind": "route",
       "placeId": "achaean-wall-and-ditch",
       "path": [
@@ -881,7 +881,7 @@
       ]
     },
     {
-      "id": "ships-left",
+      "id": "ships-ajax-end",
       "kind": "shipRow",
       "placeId": "achaean-camp",
       "rows": 3,
@@ -925,7 +925,7 @@
       "note": "Three receding ranks, and the rank nearest the plain is the one hauled up first: τὰς γὰρ πρώτας πεδίον δὲ εἴρυσαν (Il. 14.31-32). The camp therefore has depth and not merely length, and it is that first-hauled front rank the Trojans reach first — περὶ δ' ἔσχεθον ἄκραι νῆες ὅσαι πρῶται εἰρύατο (15.653-54). No contingent beyond the five named below is placed: the poem does not station the Catalogue along the beach, and no reconstruction that does so is defensible."
     },
     {
-      "id": "ships-right",
+      "id": "ships-achilles-end",
       "kind": "shipRow",
       "placeId": "achaean-camp",
       "rows": 3,
@@ -1024,6 +1024,7 @@
     {
       "id": "station-of-ajax",
       "kind": "region",
+      "fill": "none",
       "placeId": "hut-of-ajax",
       "polygon": [
         [
@@ -1084,6 +1085,7 @@
     {
       "id": "station-of-odysseus",
       "kind": "region",
+      "fill": "none",
       "placeId": "hut-of-odysseus",
       "polygon": [
         [
@@ -1108,6 +1110,7 @@
     {
       "id": "station-of-idomeneus",
       "kind": "region",
+      "fill": "none",
       "polygon": [
         [
           0.678,
@@ -1131,6 +1134,7 @@
     {
       "id": "station-of-achilles",
       "kind": "region",
+      "fill": "none",
       "placeId": "hut-of-achilles",
       "polygon": [
         [

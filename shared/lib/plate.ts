@@ -1469,10 +1469,18 @@ function textPathElement(
   pathId: string,
   style: LabelStyle,
   role: LabelRole,
+  id: string,
 ): string {
   const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
+  // `data-label-for` names the place/layer id this text belongs to (2026-
+  // 07-30, plate UX): a viewer component uses it to (a) counter-scale the
+  // label against its own anchor under camera zoom rather than the text's
+  // rendered bbox, and (b) hide a place's label together with its pin when
+  // the certainty filter hides that pin. Not a trusted selector fragment —
+  // consumers must match it via dataset comparison (see the id-injection
+  // finding on data-layer-id), never interpolate it into a CSS selector.
   return (
-    `<text class="plate-label plate-label-${role} plate-label-along" ` +
+    `<text class="plate-label plate-label-${role} plate-label-along" data-label-for="${escapeXml(id)}" ` +
     `font-family="var(--font-ui)" font-size="${style.size}" font-weight="${style.weight}"` +
     `${style.italic ? ' font-style="italic"' : ''}${tracking} fill="${style.fill}" ` +
     `paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="2.5" ` +
@@ -1488,11 +1496,12 @@ function labelElement(
   style: LabelStyle,
   role: LabelRole,
   forceItalic: boolean,
+  id: string,
 ): string {
   const italic = style.italic || forceItalic;
   const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
   return (
-    `<text class="plate-label plate-label-${role}" x="${round1(c.x)}" y="${round1(c.y)}" ` +
+    `<text class="plate-label plate-label-${role}" data-label-for="${escapeXml(id)}" x="${round1(c.x)}" y="${round1(c.y)}" ` +
     `text-anchor="${c.anchor}" font-family="var(--font-ui)" font-size="${style.size}" ` +
     `font-weight="${style.weight}"${italic ? ' font-style="italic"' : ''}${tracking} ` +
     `fill="${style.fill}" paint-order="stroke" stroke="var(--scene-map-label-halo)" ` +
@@ -1542,7 +1551,7 @@ function layoutLabels(
   height: number,
   margin: number,
   markerBoxes: LabelBox[],
-): { markup: string; defs: string } {
+): { markup: string; defs: string; placedBoxes: Box[] } {
   const placed: Box[] = [];
   const parts: string[] = [];
   const defs: string[] = [];
@@ -1574,7 +1583,7 @@ function layoutLabels(
       const box: Box = [mid[0] - textWidth / 2, mid[1] - style.size, mid[0] + textWidth / 2, mid[1] + style.size * 0.3];
       if (!placed.some((p) => boxesOverlap(p, box))) {
         defs.push(`<path id="${req.pathId}" d="${pathD(oriented, false)}" fill="none" stroke="none"/>`);
-        parts.push(textPathElement(req.text, req.pathId, style, req.role));
+        parts.push(textPathElement(req.text, req.pathId, style, req.role, req.id));
         placed.push(box);
         continue;
       }
@@ -1624,10 +1633,10 @@ function layoutLabels(
     if (!req.centred && (req.conjectural || detached)) {
       parts.push(leaderElement(req.anchorBox, box, !!req.conjectural));
     }
-    parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural));
+    parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id));
     placed.push(box);
   }
-  return { markup: parts.join(''), defs: defs.join('') };
+  return { markup: parts.join(''), defs: defs.join(''), placedBoxes: placed };
 }
 
 // ── Legend ───────────────────────────────────────────────────────────────
@@ -1788,10 +1797,31 @@ function certaintyLegendEntry(certainty: Certainty): LegendEntry {
   };
 }
 
-// Renders the key into the sheet's bottom-right corner, inside the neatline,
-// on its own halo-coloured panel so it stays legible over whatever terrain
-// falls under it. Returns '' when there is nothing to key.
-function legendMarkup(entries: LegendEntry[], width: number, height: number): string {
+// The four corners a legend panel could sit in, nearest-to-farthest from the
+// sheet's own bottom-right reading convention — a tie (nothing to avoid
+// anywhere) keeps the original bottom-right placement.
+const LEGEND_CORNERS = ['br', 'bl', 'tr', 'tl'] as const;
+type LegendCorner = (typeof LEGEND_CORNERS)[number];
+
+function legendCornerBox(corner: LegendCorner, panelW: number, panelH: number, width: number, height: number): Box {
+  const margin = LABEL_MARGIN + 4;
+  const left = corner === 'bl' || corner === 'tl' ? margin : width - margin - panelW;
+  const top = corner === 'tl' || corner === 'tr' ? margin : height - margin - panelH;
+  return [left, top, left + panelW, top + panelH];
+}
+
+// Renders the key into whichever corner of the sheet, inside the neatline,
+// overlaps the FEWEST already-placed labels and pins — the same penalty
+// spirit as placeLabelCandidates (2026-07-30, legend occlusion finding: on
+// trojan-plain-schematic the hardcoded bottom-right corner sat directly on
+// top of four Achilles'-end labels, because that sector is itself drawn in
+// the sheet's bottom-right). `avoidBoxes` is the caller's placed label boxes
+// plus pin marker boxes; an empty list (nothing on the sheet yet to avoid,
+// or a caller that hasn't wired this up) keeps the original bottom-right
+// corner exactly as before. On its own halo-coloured panel so it stays
+// legible over whatever terrain falls under it. Returns '' when there is
+// nothing to key.
+function legendMarkup(entries: LegendEntry[], width: number, height: number, avoidBoxes: Box[] = []): string {
   const byKey = new Map<string, LegendEntry>();
   for (const e of entries) if (!byKey.has(e.key)) byKey.set(e.key, e);
   if (byKey.size === 0) return '';
@@ -1805,8 +1835,18 @@ function legendMarkup(entries: LegendEntry[], width: number, height: number): st
   // devices (the Shield at 200px) have no room for one and no use for one —
   // they are not maps, and every band already carries its own label.
   if (panelW > width - LABEL_MARGIN * 2 || panelH > height - LABEL_MARGIN * 2) return '';
-  const x0 = width - LABEL_MARGIN - 4 - panelW;
-  const y0 = height - LABEL_MARGIN - 4 - panelH;
+
+  let bestBox = legendCornerBox('br', panelW, panelH, width, height);
+  let bestPenalty = Infinity;
+  for (const corner of LEGEND_CORNERS) {
+    const box = legendCornerBox(corner, panelW, panelH, width, height);
+    const penalty = avoidBoxes.reduce((total, b) => total + overlapArea(box, b), 0);
+    if (penalty < bestPenalty) {
+      bestPenalty = penalty;
+      bestBox = box;
+    }
+  }
+  const [x0, y0] = bestBox;
 
   const parts: string[] = [
     `<rect class="plate-legend-panel" x="${round1(x0)}" y="${round1(y0)}" width="${round1(panelW)}" ` +
@@ -1890,7 +1930,15 @@ function barSegments(x0: number, y: number, len: number, height: number, segment
 // coincident zeros, alternating filled and open segments (dossier §5).
 // Geographic plates only — a schematic plate has no scale, and drawing one
 // would be a fabricated claim.
-function scaleBarMarkup(viewport: Viewport, width: number, height: number): string {
+//
+// Exported (2026-07-30, plate UX) so an interactive viewer can keep the bar
+// honest under its own camera zoom: pass `{ ...viewport, scale: viewport.
+// scale * zoomFactor }` to recompute the same bar for the current zoom
+// level, and splice the returned `<g class="plate-scale">` markup in place
+// of the one this module emitted at zoom 1. This keeps the renderer itself
+// pure — it always draws for zoom 1, unaware any camera exists — while the
+// component owns the zoom-dependent re-render.
+export function scaleBarMarkup(viewport: Viewport, width: number, height: number): string {
   if (!Number.isFinite(viewport.scale) || viewport.scale <= 0) return '';
   const kmPerPx = KM_PER_DEG_LAT / viewport.scale;
   if (!Number.isFinite(kmPerPx) || kmPerPx <= 0) return '';
@@ -3228,7 +3276,10 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     layerMarkup.join('') +
     pinMarkupParts.join('') +
     labels.markup +
-    legendMarkup(legendEntries, width, height) +
+    legendMarkup(legendEntries, width, height, [
+      ...pinLabelRequests.map((request) => request.anchorBox),
+      ...labels.placedBoxes,
+    ]) +
     `</g>` +
     // Frame and bar scale sit OUTSIDE the clip: their strokes run along the
     // sheet edge and would be shaved in half by it. The scale bar is drawn

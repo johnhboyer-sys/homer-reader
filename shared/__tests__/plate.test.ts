@@ -17,6 +17,7 @@ import {
   reliefHachureParams,
   hypsometricLevels,
   hypsometricStep,
+  scaleBarMarkup,
   type Plate,
   type PlatePlace,
   type PlateLayer,
@@ -1558,6 +1559,71 @@ describe('renderPlate: frame, scale and legend', () => {
     }));
     const svg = renderPlate({ ...testPlate, layers: rivers }, []).svg;
     expect([...svg.matchAll(/>River</g)]).toHaveLength(1);
+  });
+
+  // ── 2026-07-30, plate UX lane ────────────────────────────────────────────
+
+  it('is exported so an interactive camera can recompute an honest bar at its own zoom factor without the renderer knowing a camera exists', () => {
+    const { viewport } = renderPlate(testPlate, []);
+    const native = scaleBarMarkup(viewport, SIZE[0], SIZE[1]);
+    // Zooming in 3x means each screen px now covers a third of the ground it
+    // did at zoom 1 -- pass viewport.scale * zoomFactor (exactly what
+    // PlatePanel's updateScaleBar does) and the recomputed bar must claim a
+    // shorter (or equal, at the "nice" step's granularity) distance, never a
+    // longer one.
+    const zoomedIn = scaleBarMarkup({ ...viewport, scale: viewport.scale * 3 }, SIZE[0], SIZE[1]);
+    const km = (s: string) => Number(s.match(/>([\d.]+) km</)![1]);
+    expect(km(zoomedIn)).toBeLessThanOrEqual(km(native));
+    expect(zoomedIn).toContain('class="plate-scale"');
+  });
+
+  it('tags every label with data-label-for naming the place or layer id it letters, so a viewer can key off it (certainty filter, no-magnify pivot)', () => {
+    const svg = renderPlate(testPlate, [troy, scamander]).svg;
+    expect(svg).toContain('data-label-for="troy"');
+    expect(svg).toContain('data-label-for="scamander-mouth"');
+  });
+
+  it('moves the legend out of a corner that already holds labels/pins, picking whichever corner overlaps least (occlusion finding, 2026-07-30: on trojan-plain-schematic the hardcoded bottom-right corner sat on top of four Achilles\'-end labels)', () => {
+    const size: [number, number] = [400, 300];
+    const crowded: Plate = { ...schematicPlate, size, layers: [] };
+    // A tight cluster of speculative places anchored deep in the sheet's own
+    // bottom-right -- exactly the corner legendMarkup always used before this
+    // fix, regardless of what else was drawn there.
+    const crowdedPlaces: PlatePlace[] = [
+      { id: 'hut-of-achilles', name: 'Hut of Achilles', certainty: 'speculative', plateAnchors: { shield: [0.86, 0.82] }, positionBasis: 'conjectural' },
+      { id: 'tomb-of-achilles-and-patroclus', name: 'Tomb of Achilles and Patroclus', certainty: 'speculative', plateAnchors: { shield: [0.88, 0.9] }, positionBasis: 'conjectural' },
+      { id: 'pyre-of-patroclus', name: 'Pyre of Patroclus', certainty: 'speculative', plateAnchors: { shield: [0.82, 0.9] }, positionBasis: 'conjectural' },
+      { id: 'funeral-games-ground', name: 'Funeral Games Ground', certainty: 'speculative', plateAnchors: { shield: [0.76, 0.9] }, positionBasis: 'conjectural' },
+    ];
+    const svg = renderPlate(crowded, crowdedPlaces).svg;
+    const m = svg.match(/<rect class="plate-legend-panel" x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"/);
+    expect(m).toBeTruthy();
+    const [, xs, ys, ws, hs] = m!;
+    const legendBox = [Number(xs), Number(ys), Number(xs) + Number(ws), Number(ys) + Number(hs)];
+    // The crowded quadrant, generously padded for label overhang.
+    const crowdedQuadrant = [size[0] * 0.6, size[1] * 0.6, size[0], size[1]];
+    const overlaps =
+      legendBox[0] < crowdedQuadrant[2] &&
+      legendBox[2] > crowdedQuadrant[0] &&
+      legendBox[1] < crowdedQuadrant[3] &&
+      legendBox[3] > crowdedQuadrant[1];
+    expect(overlaps).toBe(false);
+  });
+
+  it('keeps the legend in its original bottom-right corner when nothing crowds it (no regression on the ordinary case)', () => {
+    const size: [number, number] = [400, 300];
+    // A river up in the sheet's TOP-LEFT is the only thing to key or avoid --
+    // bottom-right is genuinely the least-cost corner here, and the tie-break
+    // (LEGEND_CORNERS tried 'br' first) keeps it there.
+    const plateWithKey: Plate = { ...schematicPlate, size, layers: [{ id: 'river-x', kind: 'river', path: [[0.02, 0.02], [0.1, 0.1]] }] };
+    const svg = renderPlate(plateWithKey, []).svg;
+    const m = svg.match(/<rect class="plate-legend-panel" x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"/);
+    expect(m).toBeTruthy();
+    const [, xs, ys, ws, hs] = m!;
+    // Bottom-right placement: right/bottom edges sit past the sheet's own
+    // midline, not hugging the left/top.
+    expect(Number(xs) + Number(ws)).toBeGreaterThan(size[0] * 0.5);
+    expect(Number(ys) + Number(hs)).toBeGreaterThan(size[1] * 0.5);
   });
 });
 

@@ -43,8 +43,16 @@ const GLOBAL_CSS = path.join(SHARED, 'styles', 'global.css');
 
 // Sheet id -> the tag places.json's `maps` arrays use for that sheet
 // (mirrors app/src/components/MapsPage.svelte's troadRegionalPlatePlaces /
-// troadPlainPlatePlaces split, 2026-07-28).
-const MAP_TAG = { troad: 'troad', 'trojan-plain': 'troad-plain' };
+// troadPlainPlatePlaces split, 2026-07-28). trojan-plain-schematic shares
+// the 'troad-plain' tag with the geographic trojan-plain sheet (2026-07-30):
+// a schematic-only place (e.g. hut-of-achilles) carries no `coords`, only a
+// `plateAnchors.trojan-plain-schematic` anchor, so it resolves to nothing on
+// the geographic sheet and to a conjectural pin here — same tag, two
+// different, honest outcomes per plate.kind. MapsPage.svelte does not wire
+// this sheet into a tab yet (item 3's Chart Room routing is separate,
+// unfinished work); this harness only needs the tag to fetch the same place
+// set the eventual UI will.
+const MAP_TAG = { troad: 'troad', 'trojan-plain': 'troad-plain', 'trojan-plain-schematic': 'troad-plain' };
 
 function findChromeHeadlessShell() {
   const cacheDir = path.join(process.env.HOME, 'Library', 'Caches', 'ms-playwright');
