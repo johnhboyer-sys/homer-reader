@@ -341,3 +341,32 @@ design — labels-in-beige, no hierarchy; plan in session log); Sol
 cross-family review of the session's commits (two infra-killed attempts);
 shield-of-achilles plate-level `sources` (now a validator error);
 `build:public` + preflight after the ἴστωρ re-emit.
+
+## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
+
+Session paused here 2026-07-31; John picks up when he has reference examples
+for (a) the Troy citadel plate and (b) the schematic scene-locations plate.
+No lane starts on either plate before those references arrive.
+
+1. Schematic sheet design fails the bar wholesale — labels floating in
+   beige, no hierarchy, weak drawn content. Craft pass required (aesthetic
+   register in TROAD-CARTOGRAPHY.md binds).
+2. Chart Room camera inconsistent: too loose on some scenes (achaean-camp
+   framed half the plain AND ran past the sheet edge into white); where
+   tight, the crop slices labels mid-word (assembly, Achilles'-camp scenes).
+3. Labels magnify inside Chart Room frames — the fixed-size label treatment
+   exists in PlatePanel (pp-label-descale) but was never applied to the
+   Reader.svelte Chart Room path.
+4. Frame clutter: every pin/label draws; a scene frame should pin only the
+   scene's own places over base geometry.
+5. No locator context for the zoomed frame.
+6. Citadel: WIP 3fb2d90e2, poem-city interior ruled (22:13) but undrawn,
+   fails the bar, no sign-off.
+7. AGREED DESIGN DIRECTION (John spitballed, orchestrator synthesized, John
+   ended session before formal sign-off — treat as draft spec, confirm at
+   pickup): "postcard + plate" — the Chart Room frame is a postcard (one
+   subject; camera sized around the focus label box so nothing slices; sole
+   pin+label dark, rest ghosted/omitted; moderate zoom), context via a small
+   full-sheet locator inset with a frame rectangle, and the postcard
+   click-throughs into the full plate panel (which has real pan/zoom as of
+   5008da07f) framed on the scene.
