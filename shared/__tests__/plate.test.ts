@@ -696,15 +696,20 @@ describe('renderLayer: data-layer-id names the layer that drew each element, aux
     expect(ida![1]).toBe('relief-ida');
   });
 
-  it('same collision, the citadel sheet: lower-city-ditch carries its own data-layer-id, never "lower-city" (real troy-citadel.json)', () => {
+  it('same collision, the citadel sheet: circuit-southeast-east carries its own data-layer-id, never "circuit-south" (real troy-citadel.json)', () => {
+    // The citadel sheet's colliding pair changed with the 2026-07-30 rebuild
+    // (the lower-city / lower-city-ditch layers went with Korfmann's
+    // reconstruction, which the Troy VI plate does not carry). The wall
+    // segments supply the same shape of collision: "circuit-south" is a
+    // prefix of "circuit-southeast-east".
     const plate = parsePlate(
       JSON.parse(readFileSync(path.resolve(process.cwd(), '../apparatus/plates/troy-citadel.json'), 'utf-8')),
     );
     const svg = renderPlate(plate, []).svg;
-    const ditch = svg.match(/data-feature-id="lower-city-ditch"[^>]*data-layer-id="([^"]*)"/);
-    const city = svg.match(/data-feature-id="lower-city"[^>]*data-layer-id="([^"]*)"/);
-    expect(ditch![1]).toBe('lower-city-ditch');
-    expect(city![1]).toBe('lower-city');
+    const east = svg.match(/data-feature-id="circuit-southeast-east"[^>]*data-layer-id="([^"]*)"/);
+    const south = svg.match(/data-feature-id="circuit-south"[^>]*data-layer-id="([^"]*)"/);
+    expect(east![1]).toBe('circuit-southeast-east');
+    expect(south![1]).toBe('circuit-south');
   });
 });
 

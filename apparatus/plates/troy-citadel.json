@@ -1,146 +1,495 @@
 {
   "id": "troy-citadel",
-  "title": "The Citadel of Troy as the Spade Found It",
+  "title": "Troy VI: the Citadel as the Spade Found It",
   "kind": "schematic",
   "status": "draft",
   "seed": 1902,
   "size": [
     960,
-    1000
+    696
+  ],
+  "sources": [
+    {
+      "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+      "url": "https://archive.org/details/trojaundilionerg02dorp"
+    },
+    {
+      "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+      "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+    },
+    {
+      "cite": "Messmer, Eberhard. “Die Vermessungsarbeiten in Troia seit 1987.” In Troia 1987–2012: Grabungen und Forschungen, Studia Troica Monographien 5. Tübingen: Universität Tübingen, 2014.",
+      "url": "https://publikationen.uni-tuebingen.de/xmlui/handle/10900/73562"
+    }
   ],
   "layers": [
     {
-      "id": "mound-north-scarp",
-      "kind": "relief",
-      "placeId": "troy",
-      "style": "hachure",
+      "id": "circuit-west",
+      "kind": "region",
+      "fill": "tint",
       "polygon": [
         [
-          0.7792,
-          0.1471
+          0.0657,
+          0.3829
         ],
         [
-          0.7483,
-          0.1203
+          0.0722,
+          0.3892
         ],
         [
-          0.7125,
-          0.0968
+          0.0745,
+          0.3977
         ],
         [
-          0.6726,
-          0.0772
+          0.0734,
+          0.4046
         ],
         [
-          0.6293,
-          0.0618
+          0.0765,
+          0.4056
         ],
         [
-          0.5835,
-          0.0509
+          0.0833,
+          0.4272
         ],
         [
-          0.5361,
-          0.0448
+          0.0837,
+          0.4325
         ],
         [
-          0.488,
-          0.0436
+          0.0891,
+          0.4441
         ],
         [
-          0.4401,
-          0.0473
+          0.0994,
+          0.4763
         ],
         [
-          0.3933,
-          0.0558
+          0.1013,
+          0.4758
         ],
         [
-          0.3487,
-          0.0689
+          0.1024,
+          0.4715
         ],
         [
-          0.307,
-          0.0865
+          0.0983,
+          0.4594
         ],
         [
-          0.269,
-          0.1081
+          0.0963,
+          0.4589
         ],
         [
-          0.2356,
-          0.1333
+          0.0963,
+          0.4525
         ],
         [
-          0.2208,
-          0.1471
+          0.094,
+          0.4504
         ],
         [
-          0.2518,
-          0.1636
+          0.091,
+          0.4367
         ],
         [
-          0.2793,
-          0.1397
+          0.0986,
+          0.4335
         ],
         [
-          0.3111,
-          0.1188
+          0.1021,
+          0.4293
         ],
         [
-          0.3466,
-          0.1014
+          0.1223,
+          0.4204
         ],
         [
-          0.3851,
-          0.0877
+          0.1242,
+          0.4166
         ],
         [
-          0.4258,
-          0.078
+          0.1315,
+          0.4156
         ],
         [
-          0.4679,
-          0.0726
+          0.1322,
+          0.4135
         ],
         [
-          0.5107,
-          0.0715
+          0.1407,
+          0.4109
         ],
         [
-          0.5533,
-          0.0748
+          0.1411,
+          0.4077
         ],
         [
-          0.5948,
-          0.0823
+          0.1449,
+          0.4098
         ],
         [
-          0.6345,
-          0.094
+          0.1522,
+          0.4335
         ],
         [
-          0.6716,
-          0.1096
+          0.1533,
+          0.4467
         ],
         [
-          0.7053,
-          0.1288
+          0.1468,
+          0.4473
         ],
         [
-          0.735,
-          0.1513
+          0.1453,
+          0.4462
         ],
         [
-          0.7482,
-          0.1636
+          0.1453,
+          0.443
+        ],
+        [
+          0.1433,
+          0.4425
+        ],
+        [
+          0.1414,
+          0.432
+        ],
+        [
+          0.1388,
+          0.4299
+        ],
+        [
+          0.1388,
+          0.4251
+        ],
+        [
+          0.1365,
+          0.4235
+        ],
+        [
+          0.1361,
+          0.4241
+        ],
+        [
+          0.1338,
+          0.4251
+        ],
+        [
+          0.1334,
+          0.4277
+        ],
+        [
+          0.1166,
+          0.4367
+        ],
+        [
+          0.1135,
+          0.4367
+        ],
+        [
+          0.1028,
+          0.4441
+        ],
+        [
+          0.12,
+          0.5068
+        ],
+        [
+          0.1223,
+          0.5079
+        ],
+        [
+          0.1319,
+          0.5021
+        ],
+        [
+          0.1357,
+          0.5037
+        ],
+        [
+          0.1361,
+          0.5005
+        ],
+        [
+          0.1384,
+          0.4984
+        ],
+        [
+          0.1579,
+          0.4884
+        ],
+        [
+          0.1579,
+          0.4847
+        ],
+        [
+          0.1514,
+          0.4694
+        ],
+        [
+          0.1483,
+          0.4536
+        ],
+        [
+          0.1468,
+          0.453
+        ],
+        [
+          0.1468,
+          0.4473
+        ],
+        [
+          0.1533,
+          0.4467
+        ],
+        [
+          0.156,
+          0.4483
+        ],
+        [
+          0.1583,
+          0.4546
+        ],
+        [
+          0.1602,
+          0.4678
+        ],
+        [
+          0.1617,
+          0.4689
+        ],
+        [
+          0.1644,
+          0.4794
+        ],
+        [
+          0.1659,
+          0.4799
+        ],
+        [
+          0.1659,
+          0.4837
+        ],
+        [
+          0.1755,
+          0.5153
+        ],
+        [
+          0.1751,
+          0.5206
+        ],
+        [
+          0.172,
+          0.5227
+        ],
+        [
+          0.1667,
+          0.5201
+        ],
+        [
+          0.1628,
+          0.5027
+        ],
+        [
+          0.159,
+          0.5021
+        ],
+        [
+          0.1345,
+          0.5158
+        ],
+        [
+          0.1288,
+          0.5169
+        ],
+        [
+          0.1254,
+          0.5216
+        ],
+        [
+          0.1265,
+          0.5311
+        ],
+        [
+          0.1246,
+          0.5353
+        ],
+        [
+          0.1261,
+          0.5396
+        ],
+        [
+          0.1296,
+          0.5396
+        ],
+        [
+          0.1304,
+          0.5459
+        ],
+        [
+          0.1242,
+          0.548
+        ],
+        [
+          0.1239,
+          0.5506
+        ],
+        [
+          0.1296,
+          0.5591
+        ],
+        [
+          0.1376,
+          0.5796
+        ],
+        [
+          0.1453,
+          0.5786
+        ],
+        [
+          0.1483,
+          0.5823
+        ],
+        [
+          0.1441,
+          0.5875
+        ],
+        [
+          0.1414,
+          0.587
+        ],
+        [
+          0.1407,
+          0.5918
+        ],
+        [
+          0.1327,
+          0.6023
+        ],
+        [
+          0.1307,
+          0.5934
+        ],
+        [
+          0.1284,
+          0.5913
+        ],
+        [
+          0.1242,
+          0.5802
+        ],
+        [
+          0.1223,
+          0.5791
+        ],
+        [
+          0.1223,
+          0.5754
+        ],
+        [
+          0.1181,
+          0.5675
+        ],
+        [
+          0.112,
+          0.5665
+        ],
+        [
+          0.1101,
+          0.558
+        ],
+        [
+          0.107,
+          0.5554
+        ],
+        [
+          0.107,
+          0.5491
+        ],
+        [
+          0.1024,
+          0.5401
+        ],
+        [
+          0.1021,
+          0.5353
+        ],
+        [
+          0.0978,
+          0.5274
+        ],
+        [
+          0.0963,
+          0.5195
+        ],
+        [
+          0.0948,
+          0.519
+        ],
+        [
+          0.0948,
+          0.5153
+        ],
+        [
+          0.0906,
+          0.5032
+        ],
+        [
+          0.0891,
+          0.5021
+        ],
+        [
+          0.0887,
+          0.4953
+        ],
+        [
+          0.0837,
+          0.4799
+        ],
+        [
+          0.0818,
+          0.4778
+        ],
+        [
+          0.0806,
+          0.4689
+        ],
+        [
+          0.0753,
+          0.4546
+        ],
+        [
+          0.0677,
+          0.4235
+        ],
+        [
+          0.0654,
+          0.4198
+        ],
+        [
+          0.0627,
+          0.3966
+        ],
+        [
+          0.06,
+          0.3892
+        ],
+        [
+          0.0604,
+          0.3845
+        ],
+        [
+          0.0654,
+          0.3834
         ]
       ],
-      "note": "The north face of the mound of Hisarlık, falling away to the plain. The citadel sits at the seaward end of a low ridge: the ground drops on the north and west toward the Scamander plain and the Hellespont, and runs on level to the south, which is where the lower city lies and where the excavated main gate faces. The poem's traffic runs the other way: Hector goes out through the Scaean Gate πεδίον δέ, toward the plain and the ships (Il. 6.393), and the elders sitting over it watch the fighting. That an excavated citadel opens south while the poem's city opens on the plain is one reason the west gate keeps being proposed for the Scaean, and one reason no proposal has settled the question.",
+      "note": "The west wall, from the point in the north-west where the circuit simply stops to the West Gate VI U. This is the rougher, older work of the ring — unwrought stone, where the south and east stretches are cut ashlar — and Dörpfeld took those finer stretches for a rebuilding within the life of Troy VI, which is why the circuit reads as two buildings joined. The line is a polygon and not a curve: “im Äusseren sehen wir die Linie der Mauer als Polygon aus geraden Stücken von fast gleicher Länge gebildet” (Dörpfeld 1902, 2:611) — straight lengths of nearly equal size, each set a little forward of the last, so the wall turns the hill in steps and never has to make a corner, a corner being the weak point of a defence. Every offset drawn here is one he surveyed. House VI A stands hard against the inner face along this stretch and is drawn with the wall, because it is drawn with the wall on his plate. Traced from Dörpfeld's Tafel V, rectified on the plate's own 20 m grid; every vertex is his linework, not a smoothing of it.",
       "sources": [
         {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
         },
         {
           "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
@@ -149,78 +498,1240 @@
       ]
     },
     {
-      "id": "mound-west-scarp",
-      "kind": "relief",
-      "placeId": "troy",
-      "style": "hachure",
+      "id": "circuit-south",
+      "kind": "region",
+      "fill": "tint",
+      "placeId": "wall-of-troy",
       "polygon": [
         [
-          0.2105,
-          0.158
+          0.1414,
+          0.5939
         ],
         [
-          0.1872,
-          0.1887
+          0.1483,
+          0.616
         ],
         [
-          0.1699,
-          0.2215
+          0.1479,
+          0.6223
         ],
         [
-          0.1591,
-          0.2556
+          0.1502,
+          0.6229
         ],
         [
-          0.1549,
-          0.2906
+          0.1502,
+          0.6271
         ],
         [
-          0.1574,
-          0.3257
+          0.1517,
+          0.6292
         ],
         [
-          0.1666,
-          0.3601
+          0.1525,
+          0.6377
         ],
         [
-          0.1699,
-          0.3685
+          0.1506,
+          0.6392
         ],
         [
-          0.2066,
-          0.3604
+          0.151,
+          0.6419
         ],
         [
-          0.197,
-          0.33
+          0.1537,
+          0.6413
         ],
         [
-          0.1932,
-          0.2989
+          0.154,
+          0.6387
         ],
         [
-          0.1955,
-          0.2678
+          0.1571,
+          0.6387
         ],
         [
-          0.2037,
-          0.2371
+          0.1602,
+          0.6413
         ],
         [
-          0.2176,
-          0.2076
+          0.1609,
+          0.6445
         ],
         [
-          0.237,
-          0.1798
+          0.1701,
+          0.644
         ],
         [
-          0.2427,
-          0.1732
+          0.1705,
+          0.6551
+        ],
+        [
+          0.1743,
+          0.6561
+        ],
+        [
+          0.1755,
+          0.6587
+        ],
+        [
+          0.1804,
+          0.6587
+        ],
+        [
+          0.1812,
+          0.6614
+        ],
+        [
+          0.1854,
+          0.6619
+        ],
+        [
+          0.1858,
+          0.6641
+        ],
+        [
+          0.1889,
+          0.6656
+        ],
+        [
+          0.1946,
+          0.6661
+        ],
+        [
+          0.1965,
+          0.6698
+        ],
+        [
+          0.2053,
+          0.673
+        ],
+        [
+          0.2056,
+          0.6756
+        ],
+        [
+          0.211,
+          0.6767
+        ],
+        [
+          0.216,
+          0.6835
+        ],
+        [
+          0.2259,
+          0.6894
+        ],
+        [
+          0.2274,
+          0.6935
+        ],
+        [
+          0.2378,
+          0.7009
+        ],
+        [
+          0.2405,
+          0.7009
+        ],
+        [
+          0.2443,
+          0.7068
+        ],
+        [
+          0.2469,
+          0.7068
+        ],
+        [
+          0.25,
+          0.712
+        ],
+        [
+          0.2542,
+          0.7125
+        ],
+        [
+          0.2569,
+          0.7178
+        ],
+        [
+          0.26,
+          0.7189
+        ],
+        [
+          0.2618,
+          0.722
+        ],
+        [
+          0.2653,
+          0.722
+        ],
+        [
+          0.2691,
+          0.7278
+        ],
+        [
+          0.2772,
+          0.7326
+        ],
+        [
+          0.2787,
+          0.7358
+        ],
+        [
+          0.2905,
+          0.741
+        ],
+        [
+          0.2928,
+          0.7442
+        ],
+        [
+          0.3073,
+          0.7479
+        ],
+        [
+          0.3081,
+          0.75
+        ],
+        [
+          0.318,
+          0.7532
+        ],
+        [
+          0.3215,
+          0.7568
+        ],
+        [
+          0.3329,
+          0.759
+        ],
+        [
+          0.3406,
+          0.7642
+        ],
+        [
+          0.3521,
+          0.7669
+        ],
+        [
+          0.362,
+          0.7748
+        ],
+        [
+          0.3727,
+          0.7796
+        ],
+        [
+          0.3765,
+          0.7843
+        ],
+        [
+          0.3796,
+          0.7843
+        ],
+        [
+          0.3815,
+          0.7875
+        ],
+        [
+          0.3964,
+          0.7948
+        ],
+        [
+          0.3991,
+          0.7991
+        ],
+        [
+          0.404,
+          0.8006
+        ],
+        [
+          0.4048,
+          0.8038
+        ],
+        [
+          0.4159,
+          0.808
+        ],
+        [
+          0.4182,
+          0.8112
+        ],
+        [
+          0.4228,
+          0.8112
+        ],
+        [
+          0.4243,
+          0.8138
+        ],
+        [
+          0.4331,
+          0.8191
+        ],
+        [
+          0.4488,
+          0.8249
+        ],
+        [
+          0.4633,
+          0.8265
+        ],
+        [
+          0.4713,
+          0.8312
+        ],
+        [
+          0.4935,
+          0.8365
+        ],
+        [
+          0.4954,
+          0.8386
+        ],
+        [
+          0.5027,
+          0.8391
+        ],
+        [
+          0.5038,
+          0.8418
+        ],
+        [
+          0.5203,
+          0.8439
+        ],
+        [
+          0.5206,
+          0.846
+        ],
+        [
+          0.5298,
+          0.847
+        ],
+        [
+          0.5302,
+          0.8492
+        ],
+        [
+          0.5356,
+          0.8492
+        ],
+        [
+          0.5428,
+          0.8539
+        ],
+        [
+          0.5539,
+          0.8528
+        ],
+        [
+          0.5543,
+          0.8544
+        ],
+        [
+          0.5589,
+          0.8555
+        ],
+        [
+          0.5677,
+          0.8549
+        ],
+        [
+          0.5772,
+          0.8581
+        ],
+        [
+          0.6499,
+          0.837
+        ],
+        [
+          0.6525,
+          0.8391
+        ],
+        [
+          0.6533,
+          0.8423
+        ],
+        [
+          0.6533,
+          0.8513
+        ],
+        [
+          0.6441,
+          0.8555
+        ],
+        [
+          0.6372,
+          0.8555
+        ],
+        [
+          0.6372,
+          0.856
+        ],
+        [
+          0.6227,
+          0.8603
+        ],
+        [
+          0.6216,
+          0.8655
+        ],
+        [
+          0.6269,
+          0.8929
+        ],
+        [
+          0.6472,
+          0.8882
+        ],
+        [
+          0.6472,
+          0.8777
+        ],
+        [
+          0.6441,
+          0.8555
+        ],
+        [
+          0.6533,
+          0.8513
+        ],
+        [
+          0.656,
+          0.8576
+        ],
+        [
+          0.664,
+          0.9003
+        ],
+        [
+          0.6671,
+          0.9087
+        ],
+        [
+          0.6663,
+          0.9119
+        ],
+        [
+          0.6621,
+          0.9141
+        ],
+        [
+          0.6621,
+          0.9182
+        ],
+        [
+          0.6586,
+          0.9188
+        ],
+        [
+          0.6571,
+          0.9151
+        ],
+        [
+          0.6537,
+          0.9146
+        ],
+        [
+          0.6487,
+          0.9172
+        ],
+        [
+          0.6468,
+          0.923
+        ],
+        [
+          0.6433,
+          0.923
+        ],
+        [
+          0.6433,
+          0.9198
+        ],
+        [
+          0.6407,
+          0.9193
+        ],
+        [
+          0.6261,
+          0.9225
+        ],
+        [
+          0.6258,
+          0.9241
+        ],
+        [
+          0.6204,
+          0.9235
+        ],
+        [
+          0.6178,
+          0.9093
+        ],
+        [
+          0.6181,
+          0.8987
+        ],
+        [
+          0.6166,
+          0.8951
+        ],
+        [
+          0.5914,
+          0.9003
+        ],
+        [
+          0.5852,
+          0.9035
+        ],
+        [
+          0.5791,
+          0.903
+        ],
+        [
+          0.5795,
+          0.8972
+        ],
+        [
+          0.5757,
+          0.8877
+        ],
+        [
+          0.5394,
+          0.884
+        ],
+        [
+          0.5363,
+          0.8829
+        ],
+        [
+          0.5356,
+          0.8808
+        ],
+        [
+          0.5313,
+          0.8813
+        ],
+        [
+          0.5115,
+          0.8761
+        ],
+        [
+          0.4981,
+          0.8697
+        ],
+        [
+          0.4442,
+          0.8544
+        ],
+        [
+          0.4434,
+          0.8528
+        ],
+        [
+          0.4297,
+          0.8518
+        ],
+        [
+          0.4289,
+          0.8497
+        ],
+        [
+          0.4228,
+          0.8486
+        ],
+        [
+          0.4209,
+          0.846
+        ],
+        [
+          0.414,
+          0.8434
+        ],
+        [
+          0.4132,
+          0.8413
+        ],
+        [
+          0.3895,
+          0.8275
+        ],
+        [
+          0.3884,
+          0.8249
+        ],
+        [
+          0.3788,
+          0.8175
+        ],
+        [
+          0.3483,
+          0.798
+        ],
+        [
+          0.3448,
+          0.7932
+        ],
+        [
+          0.3265,
+          0.788
+        ],
+        [
+          0.3261,
+          0.7864
+        ],
+        [
+          0.3226,
+          0.7864
+        ],
+        [
+          0.3222,
+          0.7843
+        ],
+        [
+          0.3165,
+          0.7848
+        ],
+        [
+          0.31,
+          0.7822
+        ],
+        [
+          0.3085,
+          0.7801
+        ],
+        [
+          0.2683,
+          0.7622
+        ],
+        [
+          0.2645,
+          0.7568
+        ],
+        [
+          0.1988,
+          0.7015
+        ],
+        [
+          0.1575,
+          0.6793
+        ],
+        [
+          0.1567,
+          0.6767
+        ],
+        [
+          0.1494,
+          0.6709
+        ],
+        [
+          0.1468,
+          0.6656
+        ],
+        [
+          0.1441,
+          0.6651
+        ],
+        [
+          0.1399,
+          0.6577
+        ],
+        [
+          0.135,
+          0.6556
+        ],
+        [
+          0.1334,
+          0.6514
+        ],
+        [
+          0.125,
+          0.644
+        ],
+        [
+          0.125,
+          0.6387
+        ],
+        [
+          0.133,
+          0.6255
+        ],
+        [
+          0.1384,
+          0.6208
+        ],
+        [
+          0.138,
+          0.6144
+        ],
+        [
+          0.1365,
+          0.6134
+        ],
+        [
+          0.1338,
+          0.6039
+        ],
+        [
+          0.1411,
+          0.5944
         ]
       ],
-      "note": "The western fall of the mound. On this side the Troy VI wall is scarped most steeply of all — about 0.40 m of setback for every metre of height, against 0.37 on the east and 0.23 on the south.",
+      "note": "The south wall, from the West Gate VI U to the South Gate VI T, ending in the south tower VI i. Measured across the drawn band the masonry runs 4.4 to 5.3 m thick along here. Dörpfeld printed the wall in two tones and said why: “bei der Festungsmauer ist der Unterbau hellrot, die dünnere Obermauer dunkelrot getönt” (1902, 2:650) — the substructure light red, the thinner upper wall dark red. This plate draws the two together, as one footprint, because that is what a reader standing outside the wall would have seen: one face. Homer's Trojans have their wall from a god. Poseidon made it πόλιν πέρι τεῖχος ... εὐρύ τε καὶ μάλα καλόν, wide and very beautiful, that the city might be unbreakable (Il. 21.446-47), and resents that men will remember the Achaeans' wall and forget the one he and Apollo built for Laomedon (7.452-53). Traced from Dörpfeld's Tafel V, rectified on the plate's own 20 m grid; every vertex is his linework, not a smoothing of it. How the sheet was made: Tafel V, drawn at 1:800, was rectified on its own printed 20 m grid — ninety-nine grid intersections recovered by line-fitting, a projective transform fitted through them, mean residual 0.15 m of ground and worst 0.5 m, finer than the drawn line itself. The squares check against Dörpfeld's own text: the shaft wells he places in J 4 and K 4 fall in squares J 4 and K 4 here. Everything on this sheet is therefore his survey at one uniform scale, 218 m of ground east to west by 158 m north to south. It is oriented as he printed it — “der Plan ist nach der magnetischen Nordlinie orientirt”, to the magnetic north line of the 1890s and not to true north — and no rotation has been applied. The modern excavation net kept his 20 m grid and tied it to a world coordinate system by GPS in 2000 (Messmer 2014), so this plan can be put on the ground; the plate does not do it, because a citadel plan wants the wall, not a latitude.",
       "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        },
+        {
+          "cite": "Messmer, Eberhard. “Die Vermessungsarbeiten in Troia seit 1987.” In Troia 1987–2012: Grabungen und Forschungen, Studia Troica Monographien 5. Tübingen: Universität Tübingen, 2014.",
+          "url": "https://publikationen.uni-tuebingen.de/xmlui/handle/10900/73562"
+        }
+      ]
+    },
+    {
+      "id": "circuit-southeast-east",
+      "kind": "region",
+      "fill": "tint",
+      "polygon": [
+        [
+          0.8918,
+          0.4082
+        ],
+        [
+          0.8979,
+          0.4098
+        ],
+        [
+          0.8976,
+          0.4146
+        ],
+        [
+          0.8953,
+          0.4156
+        ],
+        [
+          0.8941,
+          0.4193
+        ],
+        [
+          0.9002,
+          0.4225
+        ],
+        [
+          0.8999,
+          0.432
+        ],
+        [
+          0.8765,
+          0.547
+        ],
+        [
+          0.8681,
+          0.5807
+        ],
+        [
+          0.8666,
+          0.5818
+        ],
+        [
+          0.8628,
+          0.5944
+        ],
+        [
+          0.8593,
+          0.597
+        ],
+        [
+          0.857,
+          0.6113
+        ],
+        [
+          0.8547,
+          0.6155
+        ],
+        [
+          0.8555,
+          0.6203
+        ],
+        [
+          0.8696,
+          0.6292
+        ],
+        [
+          0.8731,
+          0.635
+        ],
+        [
+          0.8673,
+          0.6456
+        ],
+        [
+          0.8574,
+          0.6387
+        ],
+        [
+          0.8524,
+          0.6329
+        ],
+        [
+          0.8483,
+          0.6329
+        ],
+        [
+          0.8483,
+          0.6334
+        ],
+        [
+          0.8368,
+          0.6646
+        ],
+        [
+          0.8368,
+          0.6682
+        ],
+        [
+          0.8532,
+          0.6809
+        ],
+        [
+          0.8559,
+          0.6799
+        ],
+        [
+          0.857,
+          0.6741
+        ],
+        [
+          0.8597,
+          0.6709
+        ],
+        [
+          0.8635,
+          0.6572
+        ],
+        [
+          0.8666,
+          0.6524
+        ],
+        [
+          0.8673,
+          0.6456
+        ],
+        [
+          0.8731,
+          0.635
+        ],
+        [
+          0.8758,
+          0.635
+        ],
+        [
+          0.8788,
+          0.6387
+        ],
+        [
+          0.8827,
+          0.6387
+        ],
+        [
+          0.888,
+          0.6445
+        ],
+        [
+          0.8758,
+          0.6788
+        ],
+        [
+          0.8673,
+          0.6999
+        ],
+        [
+          0.8658,
+          0.7004
+        ],
+        [
+          0.8655,
+          0.7046
+        ],
+        [
+          0.8612,
+          0.7073
+        ],
+        [
+          0.8589,
+          0.703
+        ],
+        [
+          0.8524,
+          0.6999
+        ],
+        [
+          0.8513,
+          0.6973
+        ],
+        [
+          0.8375,
+          0.6872
+        ],
+        [
+          0.8368,
+          0.6846
+        ],
+        [
+          0.8311,
+          0.682
+        ],
+        [
+          0.8157,
+          0.7199
+        ],
+        [
+          0.8096,
+          0.731
+        ],
+        [
+          0.8089,
+          0.7358
+        ],
+        [
+          0.8047,
+          0.7416
+        ],
+        [
+          0.7989,
+          0.7568
+        ],
+        [
+          0.7936,
+          0.7663
+        ],
+        [
+          0.7913,
+          0.7753
+        ],
+        [
+          0.7886,
+          0.7796
+        ],
+        [
+          0.7878,
+          0.7859
+        ],
+        [
+          0.7852,
+          0.7869
+        ],
+        [
+          0.7852,
+          0.7911
+        ],
+        [
+          0.7638,
+          0.8159
+        ],
+        [
+          0.7519,
+          0.8334
+        ],
+        [
+          0.7225,
+          0.8492
+        ],
+        [
+          0.7122,
+          0.8518
+        ],
+        [
+          0.69,
+          0.8618
+        ],
+        [
+          0.6896,
+          0.8634
+        ],
+        [
+          0.6858,
+          0.8634
+        ],
+        [
+          0.6823,
+          0.8671
+        ],
+        [
+          0.6755,
+          0.8703
+        ],
+        [
+          0.6735,
+          0.8703
+        ],
+        [
+          0.6724,
+          0.8655
+        ],
+        [
+          0.6678,
+          0.8381
+        ],
+        [
+          0.6751,
+          0.8339
+        ],
+        [
+          0.6793,
+          0.8344
+        ],
+        [
+          0.682,
+          0.8312
+        ],
+        [
+          0.6861,
+          0.8312
+        ],
+        [
+          0.6877,
+          0.8286
+        ],
+        [
+          0.6915,
+          0.828
+        ],
+        [
+          0.7007,
+          0.8217
+        ],
+        [
+          0.7144,
+          0.8175
+        ],
+        [
+          0.7175,
+          0.8159
+        ],
+        [
+          0.719,
+          0.8122
+        ],
+        [
+          0.7236,
+          0.8128
+        ],
+        [
+          0.7347,
+          0.807
+        ],
+        [
+          0.7355,
+          0.8038
+        ],
+        [
+          0.7385,
+          0.8033
+        ],
+        [
+          0.7405,
+          0.7975
+        ],
+        [
+          0.7511,
+          0.7859
+        ],
+        [
+          0.7511,
+          0.7832
+        ],
+        [
+          0.7538,
+          0.7827
+        ],
+        [
+          0.7569,
+          0.779
+        ],
+        [
+          0.7572,
+          0.7758
+        ],
+        [
+          0.7622,
+          0.7732
+        ],
+        [
+          0.7691,
+          0.7622
+        ],
+        [
+          0.7802,
+          0.7358
+        ],
+        [
+          0.7821,
+          0.7347
+        ],
+        [
+          0.7825,
+          0.7305
+        ],
+        [
+          0.7848,
+          0.7294
+        ],
+        [
+          0.7848,
+          0.7258
+        ],
+        [
+          0.7863,
+          0.7247
+        ],
+        [
+          0.7821,
+          0.7125
+        ],
+        [
+          0.7821,
+          0.7084
+        ],
+        [
+          0.7848,
+          0.7036
+        ],
+        [
+          0.7898,
+          0.7036
+        ],
+        [
+          0.802,
+          0.6751
+        ],
+        [
+          0.8081,
+          0.6746
+        ],
+        [
+          0.8096,
+          0.6672
+        ],
+        [
+          0.8142,
+          0.6582
+        ],
+        [
+          0.8184,
+          0.6429
+        ],
+        [
+          0.8234,
+          0.6318
+        ],
+        [
+          0.8238,
+          0.6271
+        ],
+        [
+          0.8467,
+          0.5707
+        ],
+        [
+          0.8478,
+          0.5617
+        ],
+        [
+          0.8501,
+          0.5559
+        ],
+        [
+          0.8521,
+          0.5554
+        ],
+        [
+          0.8513,
+          0.5491
+        ],
+        [
+          0.8532,
+          0.5464
+        ],
+        [
+          0.8536,
+          0.5411
+        ],
+        [
+          0.857,
+          0.5322
+        ],
+        [
+          0.8578,
+          0.5232
+        ],
+        [
+          0.8605,
+          0.5211
+        ],
+        [
+          0.862,
+          0.5047
+        ],
+        [
+          0.8655,
+          0.4973
+        ],
+        [
+          0.8689,
+          0.4689
+        ],
+        [
+          0.8712,
+          0.4657
+        ],
+        [
+          0.8731,
+          0.452
+        ],
+        [
+          0.8765,
+          0.4504
+        ],
+        [
+          0.8746,
+          0.4446
+        ],
+        [
+          0.8769,
+          0.442
+        ],
+        [
+          0.8788,
+          0.432
+        ],
+        [
+          0.8788,
+          0.4172
+        ],
+        [
+          0.8907,
+          0.4156
+        ],
+        [
+          0.8914,
+          0.4087
+        ]
+      ],
+      "note": "The south-east and east wall, from the South Gate VI T to the East Gate VI S, with the great tower VI h jutting from it. This is the finest masonry on the site: rectangular limestone laid without mortar, the face battered so that it leans back as it rises, and stepped forward every few metres in the offsets this trace keeps. The tower stands midway between the two gates — “der Turm VI h liegt in der Mitte zwischen den zwei Thoren VI S und VI T” (Dörpfeld 1902, 1:121 ff.) — which is where a tower belongs, at the point where the wall face has to be swept from the flank. Traced from Dörpfeld's Tafel V, rectified on the plate's own 20 m grid; every vertex is his linework, not a smoothing of it.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
         {
           "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
           "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
@@ -229,1141 +1740,347 @@
     },
     {
       "id": "circuit-northeast",
-      "kind": "wall",
-      "placeId": "wall-of-troy",
-      "trace": [
-        [
-          0.6247,
-          0.1001
-        ],
-        [
-          0.6896,
-          0.1303
-        ],
-        [
-          0.6938,
-          0.1267
-        ],
-        [
-          0.747,
-          0.169
-        ],
-        [
-          0.7416,
-          0.1717
-        ],
-        [
-          0.7555,
-          0.1875
-        ]
-      ],
-      "note": "The Troy VI fortification circuit: a battered limestone face, its outer surface sloping back as it rises, carrying a mudbrick and timber superstructure that has not survived. The northeast stretch, running from the edge of the destroyed ground down to the East Gate past the largest tower on the circuit. Of a wall about 540 m round, some 330 m — three fifths — was still standing to be planned; the rest is on the north, and is gone.",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        }
-      ]
-    },
-    {
-      "id": "circuit-east",
-      "kind": "wall",
-      "placeId": "wall-of-troy",
-      "trace": [
-        [
-          0.7772,
-          0.2215
-        ],
-        [
-          0.7939,
-          0.2763
-        ],
-        [
-          0.8003,
-          0.2758
-        ],
-        [
-          0.7969,
-          0.3332
-        ],
-        [
-          0.7905,
-          0.3323
-        ],
-        [
-          0.7674,
-          0.3859
-        ],
-        [
-          0.7732,
-          0.3879
-        ],
-        [
-          0.731,
-          0.4362
-        ],
-        [
-          0.726,
-          0.4332
-        ],
-        [
-          0.6692,
-          0.4711
-        ],
-        [
-          0.6729,
-          0.475
-        ],
-        [
-          0.6031,
-          0.5015
-        ],
-        [
-          0.6009,
-          0.497
-        ],
-        [
-          0.5257,
-          0.5092
-        ],
-        [
-          0.5263,
-          0.5139
-        ],
-        [
-          0.4842,
-          0.5144
-        ]
-      ],
-      "note": "The east and southeast wall, the finest masonry on the site: rectangular limestone blocks laid without mortar, about 4.60–5 m thick at the base and standing 6 m. The vertical offsets are the signature of the work — the wall is built in straight sections each set a little forward of the last, about every 10 m, so the circuit turns the mound in steps and never has to make a corner, a corner being the weak point of a defence. This plate draws the offsets at roughly a third of their real frequency, or they would read as noise.",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        },
-        {
-          "cite": "Rose, C. Brian. The Archaeology of Greek and Roman Troy. Cambridge: Cambridge University Press, 2014."
-        }
-      ]
-    },
-    {
-      "id": "circuit-south",
-      "kind": "wall",
-      "placeId": "wall-of-troy",
-      "trace": [
-        [
-          0.4336,
-          0.5045
-        ],
-        [
-          0.3615,
-          0.4848
-        ],
-        [
-          0.3585,
-          0.489
-        ],
-        [
-          0.2944,
-          0.4557
-        ],
-        [
-          0.2988,
-          0.4522
-        ],
-        [
-          0.2584,
-          0.4183
-        ]
-      ],
-      "note": "The south wall, between the South Gate and the West Gate. Its blocks are the largest cut on the site, about 1.50 m long and 0.30 m high, and its batter the gentlest. Homer's Trojans have a wall built for them by a god: Poseidon says he made it πόλιν πέρι τεῖχος ... εὐρύ τε καὶ μάλα καλόν, that the city might be unbreakable (Il. 21.446-47) — and resents that men will remember the Achaeans' wall and forget the one he and Apollo built for Laomedon (7.452-53).",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        }
-      ]
-    },
-    {
-      "id": "circuit-west",
-      "kind": "wall",
-      "placeId": "wall-of-troy",
-      "trace": [
-        [
-          0.2326,
-          0.3859
-        ],
-        [
-          0.2095,
-          0.3323
-        ],
-        [
-          0.2031,
-          0.3332
-        ],
-        [
-          0.1997,
-          0.2758
-        ],
-        [
-          0.2061,
-          0.2763
-        ],
-        [
-          0.2228,
-          0.2215
-        ],
-        [
-          0.2167,
-          0.2198
-        ],
-        [
-          0.253,
-          0.169
-        ],
-        [
-          0.2584,
-          0.1717
-        ],
-        [
-          0.3104,
-          0.1303
-        ]
-      ],
-      "note": "The west wall, rougher and older work than the east and south — unwrought stone where those are cut ashlar. Dörpfeld held that one wall originally ran round the whole hill and that the east and south stretches were rebuilt in the finer style during Troy VI, which is why the circuit reads as two different buildings joined. One Homeric detail belongs to the wall as a whole rather than to any stretch of it, and no position is claimed for it here: Andromache tells Hector the city is climbable and the wall can be run at by the wild fig, ἔνθα μάλιστα ἀμβατός ἐστι πόλις καὶ ἐπίδρομον ἔπλετο τεῖχος (Il. 6.433-34), and the best of the Achaeans have already tried it three times. Patroclus makes the same attempt at ἀγκῶνος ... τείχεος ὑψηλοῖο, the angle of the high wall, and Apollo throws him off three times (16.702-3). An angle in the wall is precisely what the offsets drawn here produce — which is a resemblance worth noticing and not evidence of anything.",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        },
-        {
-          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912.",
-          "url": "https://archive.org/details/troyastudyinhom00leafgoog"
-        }
-      ]
-    },
-    {
-      "id": "lost-north-circuit",
-      "kind": "route",
-      "placeId": "wall-of-troy",
-      "path": [
-        [
-          0.6247,
-          0.1001
-        ],
-        [
-          0.5936,
-          0.0911
-        ],
-        [
-          0.5613,
-          0.0847
-        ],
-        [
-          0.5283,
-          0.081
-        ],
-        [
-          0.4949,
-          0.08
-        ],
-        [
-          0.4615,
-          0.0818
-        ],
-        [
-          0.4286,
-          0.0864
-        ],
-        [
-          0.3967,
-          0.0936
-        ],
-        [
-          0.3661,
-          0.1034
-        ],
-        [
-          0.3372,
-          0.1157
-        ],
-        [
-          0.3104,
-          0.1303
-        ]
-      ],
-      "note": "Drawn dashed because it is not there. In Hellenistic and Roman times the top of the mound was shaved off to make a level court around the temple of Athena of Ilion, and the cutting took the whole north side of the Troy VI citadel with it — the wall, whatever gate stood in it, and the summit. This line is a restoration closing the circuit, not a surviving stretch. There must have been a north gate; no trace of one remains.",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        },
-        {
-          "cite": "Rose, C. Brian. The Archaeology of Greek and Roman Troy. Cambridge: Cambridge University Press, 2014."
-        }
-      ]
-    },
-    {
-      "id": "tower-vi-g-northeast",
-      "kind": "wall",
-      "trace": [
-        [
-          0.6501,
-          0.1005
-        ],
-        [
-          0.6664,
-          0.0835
-        ],
-        [
-          0.7047,
-          0.1203
-        ],
-        [
-          0.6884,
-          0.1373
-        ]
-      ],
-      "note": "Tower VI g, the largest on the circuit: about 18 m broad and projecting 8 m from the wall face, with a shaft inside it sunk 7.50 m to water — the citadel's supply under cover, and still in use after the earthquake that ended Troy VIh. The Roman precinct wall of Athena was built over it and buried it.",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        },
-        {
-          "cite": "Blegen, Carl W. Troy and the Trojans. London: Thames & Hudson, 1963."
-        }
-      ]
-    },
-    {
-      "id": "tower-vi-h-east",
-      "kind": "wall",
-      "trace": [
-        [
-          0.7905,
-          0.2489
-        ],
-        [
-          0.814,
-          0.2465
-        ],
-        [
-          0.8173,
-          0.2788
-        ],
-        [
-          0.7938,
-          0.2812
-        ]
-      ],
-      "note": "Tower VI h, the great east tower: over 11 m broad, projecting 8 m, its upper storey carried on a wooden platform. Towers are set where the wall face needs to be swept from the flank, which is to say beside the gates.",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        }
-      ]
-    },
-    {
-      "id": "tower-vi-i-south",
-      "kind": "wall",
-      "trace": [
-        [
-          0.5555,
-          0.5051
-        ],
-        [
-          0.5583,
-          0.5196
-        ],
-        [
-          0.5294,
-          0.5252
-        ],
-        [
-          0.5266,
-          0.5107
-        ]
-      ],
-      "note": "Tower VI i, beside the South Gate: a rectangular tower with an inner room about 5.70 by 5.30 m, standing on a stretch of wall 2.20 m thick. Whoever came up the paved way to the main gate came up under it.",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        }
-      ]
-    },
-    {
-      "id": "gate-vi-t-south",
       "kind": "region",
-      "label": "VI T",
+      "fill": "tint",
       "polygon": [
         [
-          0.4366,
-          0.4951
+          0.9014,
+          0.2057
         ],
         [
-          0.4853,
-          0.5
+          0.906,
+          0.2078
         ],
         [
-          0.4837,
-          0.5215
+          0.909,
+          0.2315
         ],
         [
-          0.43,
-          0.516
-        ]
-      ],
-      "note": "The South Gate, VI T — the principal entrance, 3.20–3.35 m wide, its roadway stone-paved and carrying a drainage channel half a metre deep, flanked by tower VI i. This is where the citadel and the lower city joined. The excavated gates carry excavators' letters, never Homeric names: no gate at Hisarlık has been shown to be the Scaean Gate. The openings are drawn wider than scale so they read; the real passages run from 1.80 m to about 4 m.",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        },
-        {
-          "cite": "Rose, C. Brian. The Archaeology of Greek and Roman Troy. Cambridge: Cambridge University Press, 2014."
-        }
-      ]
-    },
-    {
-      "id": "gate-vi-s-east",
-      "kind": "region",
-      "label": "VI S",
-      "polygon": [
-        [
-          0.7647,
-          0.2248
-        ],
-        [
-          0.744,
-          0.1923
-        ],
-        [
-          0.7695,
-          0.1816
-        ],
-        [
-          0.7925,
-          0.2174
-        ]
-      ],
-      "note": "The East Gate, VI S — only about 1.80 m broad, and reached by a passage roughly 2 m wide running between two overlapping arms of wall, so that the door itself is invisible from outside and cannot be approached head-on. A ram cannot be brought to a gate it cannot see. Steps and a ramp carried the way up inside.",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        }
-      ]
-    },
-    {
-      "id": "gate-vi-u-west",
-      "kind": "region",
-      "label": "VI U",
-      "polygon": [
-        [
-          0.2447,
-          0.3818
-        ],
-        [
-          0.2692,
-          0.4128
-        ],
-        [
-          0.2451,
-          0.4251
-        ],
-        [
-          0.2179,
-          0.3909
-        ]
-      ],
-      "note": "The West Gate, VI U, about 4 m wide, where the south and west walls meet, entered up a gradual incline. During the life of Troy VI it was walled up — the defenders closed their own gate, which is the sort of fact a plan records and a poem does not.",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        }
-      ]
-    },
-    {
-      "id": "east-gate-overlap",
-      "kind": "wall",
-      "trace": [
-        [
-          0.8192,
-          0.237
-        ],
-        [
-          0.8128,
-          0.2209
-        ],
-        [
-          0.805,
-          0.2052
-        ],
-        [
-          0.7956,
-          0.1899
-        ],
-        [
-          0.7849,
-          0.1751
-        ],
-        [
-          0.7727,
-          0.1609
-        ],
-        [
-          0.7592,
-          0.1474
-        ],
-        [
-          0.7444,
-          0.1346
-        ]
-      ],
-      "note": "The outer arm of the East Gate: a bow-shaped length of wall run out beyond the circuit and overlapping it, turning the approach into a blind corridor. The device is the most sophisticated piece of military architecture on the site.",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        }
-      ]
-    },
-    {
-      "id": "paved-ramp",
-      "kind": "route",
-      "path": [
-        [
-          0.472,
-          0.672
-        ],
-        [
-          0.468,
-          0.616
-        ],
-        [
-          0.463,
-          0.562
-        ],
-        [
-          0.4552,
-          0.5271
-        ],
-        [
-          0.461,
-          0.4973
-        ],
-        [
-          0.451,
-          0.4786
-        ]
-      ],
-      "note": "The paved way up to the South Gate from the level ground south of the citadel, stone-laid with its drain beneath. It is the one road on the plan that joins the two Troys, the walled citadel and the settlement outside it.",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        }
-      ]
-    },
-    {
-      "id": "circuit-road",
-      "kind": "route",
-      "path": [
-        [
-          0.6078,
-          0.1264
-        ],
-        [
-          0.6352,
-          0.1373
-        ],
-        [
-          0.6606,
-          0.1505
-        ],
-        [
-          0.6836,
-          0.1658
-        ],
-        [
-          0.7038,
-          0.1831
-        ],
-        [
-          0.721,
-          0.202
-        ],
-        [
-          0.7349,
-          0.2223
-        ],
-        [
-          0.7453,
-          0.2437
-        ],
-        [
-          0.752,
-          0.2659
-        ],
-        [
-          0.755,
-          0.2885
-        ],
-        [
-          0.7542,
-          0.3112
-        ],
-        [
-          0.7496,
-          0.3337
-        ],
-        [
-          0.7413,
-          0.3555
-        ],
-        [
-          0.7293,
-          0.3765
-        ],
-        [
-          0.714,
-          0.3963
-        ],
-        [
-          0.6955,
-          0.4145
-        ],
-        [
-          0.674,
-          0.431
-        ],
-        [
-          0.65,
-          0.4455
-        ],
-        [
-          0.6237,
-          0.4577
-        ],
-        [
-          0.5956,
-          0.4674
-        ],
-        [
-          0.566,
-          0.4746
-        ],
-        [
-          0.5355,
-          0.4792
-        ],
-        [
-          0.5045,
-          0.4809
-        ],
-        [
-          0.4733,
-          0.48
-        ],
-        [
-          0.4426,
-          0.4762
-        ],
-        [
-          0.4127,
-          0.4698
-        ],
-        [
-          0.3842,
-          0.4607
-        ],
-        [
-          0.3573,
-          0.4492
-        ],
-        [
-          0.3326,
-          0.4354
-        ],
-        [
-          0.3104,
-          0.4194
-        ],
-        [
-          0.291,
-          0.4017
-        ],
-        [
-          0.2747,
-          0.3823
-        ],
-        [
-          0.2618,
-          0.3616
-        ],
-        [
-          0.2524,
-          0.34
-        ],
-        [
-          0.2467,
-          0.3177
-        ],
-        [
-          0.2448,
-          0.295
-        ],
-        [
-          0.2467,
-          0.2723
-        ],
-        [
-          0.2524,
-          0.25
-        ],
-        [
-          0.2618,
-          0.2284
-        ],
-        [
-          0.2747,
-          0.2077
-        ],
-        [
-          0.291,
-          0.1883
-        ],
-        [
-          0.3104,
-          0.1706
-        ],
-        [
-          0.3326,
-          0.1546
-        ],
-        [
-          0.336,
-          0.1525
-        ]
-      ],
-      "note": "The broad ring road inside the wall, running between the wall face and the first terrace of houses — the circulation that lets defenders reach any stretch of the circuit without crossing the built-up ground.",
-      "sources": [
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        }
-      ]
-    },
-    {
-      "id": "terrace-first",
-      "kind": "wall",
-      "trace": [
-        [
-          0.5929,
-          0.1498
-        ],
-        [
-          0.6165,
-          0.1592
-        ],
-        [
-          0.6383,
-          0.1705
-        ],
-        [
-          0.6581,
-          0.1837
-        ],
-        [
-          0.6755,
-          0.1986
-        ],
-        [
-          0.6903,
-          0.2149
-        ],
-        [
-          0.7023,
-          0.2324
-        ],
-        [
-          0.7113,
-          0.2508
-        ],
-        [
-          0.7171,
-          0.2699
-        ],
-        [
-          0.7196,
-          0.2894
-        ],
-        [
-          0.7189,
-          0.309
-        ],
-        [
-          0.715,
-          0.3283
-        ],
-        [
-          0.7078,
-          0.3471
-        ],
-        [
-          0.6975,
-          0.3652
-        ],
-        [
-          0.6843,
-          0.3822
-        ],
-        [
-          0.6684,
-          0.398
-        ],
-        [
-          0.6499,
-          0.4121
-        ],
-        [
-          0.6292,
-          0.4246
-        ],
-        [
-          0.6065,
-          0.4351
-        ],
-        [
-          0.5823,
-          0.4435
-        ],
-        [
-          0.5569,
-          0.4497
-        ],
-        [
-          0.5306,
-          0.4536
-        ],
-        [
-          0.5038,
-          0.4552
-        ],
-        [
-          0.477,
-          0.4543
-        ],
-        [
-          0.4506,
-          0.4511
-        ],
-        [
-          0.4248,
-          0.4455
-        ],
-        [
-          0.4002,
-          0.4377
-        ],
-        [
-          0.3771,
-          0.4278
-        ],
-        [
-          0.3558,
-          0.4159
-        ],
-        [
-          0.3367,
-          0.4022
-        ],
-        [
-          0.32,
-          0.3869
-        ],
-        [
-          0.306,
-          0.3702
-        ],
-        [
-          0.2948,
-          0.3524
-        ],
-        [
-          0.2868,
-          0.3337
-        ],
-        [
-          0.2819,
-          0.3145
-        ],
-        [
-          0.2802,
-          0.295
-        ],
-        [
-          0.2819,
-          0.2755
-        ],
-        [
-          0.2868,
-          0.2563
-        ],
-        [
-          0.2948,
-          0.2376
-        ],
-        [
-          0.306,
-          0.2198
-        ],
-        [
-          0.32,
-          0.2031
-        ],
-        [
-          0.3367,
-          0.1878
-        ],
-        [
-          0.3558,
-          0.1741
-        ],
-        [
-          0.3587,
-          0.1723
-        ]
-      ],
-      "note": "The retaining line of the first terrace. The citadel was built as concentric terraces rising toward the centre, each held up by a retaining wall, with the houses standing on the level ground behind. At least eighteen houses were planned on this first terrace alone.",
-      "sources": [
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
-          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        }
-      ]
-    },
-    {
-      "id": "terrace-second",
-      "kind": "wall",
-      "trace": [
-        [
-          0.558,
-          0.2044
-        ],
-        [
-          0.5747,
-          0.2112
-        ],
-        [
-          0.59,
-          0.2195
+          0.9109,
+          0.2358
         ],
         [
-          0.6035,
-          0.2294
+          0.9106,
+          0.2384
         ],
         [
-          0.615,
-          0.2405
+          0.9006,
+          0.2394
         ],
         [
-          0.6243,
+          0.9022,
           0.2527
         ],
         [
-          0.6312,
-          0.2658
+          0.9014,
+          0.259
         ],
         [
-          0.6355,
-          0.2794
+          0.9063,
+          0.2975
         ],
         [
-          0.6372,
-          0.2933
+          0.9067,
+          0.3154
         ],
         [
-          0.6362,
-          0.3072
+          0.9109,
+          0.3286
         ],
         [
-          0.6325,
-          0.3209
+          0.9117,
+          0.3375
         ],
         [
-          0.6263,
-          0.3341
+          0.9144,
+          0.3428
         ],
         [
-          0.6176,
-          0.3465
+          0.9171,
+          0.3555
         ],
         [
-          0.6066,
-          0.3579
+          0.9186,
+          0.3565
         ],
         [
-          0.5936,
-          0.3681
+          0.9262,
+          0.3892
         ],
         [
-          0.5787,
-          0.3769
+          0.9274,
+          0.3897
         ],
         [
-          0.5623,
-          0.3841
+          0.935,
+          0.4209
         ],
         [
-          0.5447,
-          0.3895
+          0.9369,
+          0.4235
         ],
         [
-          0.5262,
-          0.3931
+          0.9369,
+          0.4277
         ],
         [
-          0.5072,
-          0.3948
+          0.9354,
+          0.4283
         ],
         [
-          0.488,
-          0.3946
+          0.9366,
+          0.432
         ],
         [
-          0.4691,
-          0.3924
+          0.9358,
+          0.4388
         ],
         [
-          0.4508,
-          0.3883
+          0.9308,
+          0.4604
         ],
         [
-          0.4335,
-          0.3824
+          0.9266,
+          0.4689
         ],
         [
-          0.4174,
-          0.3748
+          0.9232,
+          0.4684
         ],
         [
-          0.403,
-          0.3657
+          0.9151,
+          0.4625
         ],
         [
-          0.3904,
-          0.3552
+          0.9117,
+          0.4625
         ],
         [
-          0.38,
-          0.3435
+          0.9098,
+          0.4604
         ],
         [
-          0.3719,
-          0.3308
+          0.9098,
+          0.4536
         ],
         [
-          0.3663,
-          0.3175
+          0.9117,
+          0.4478
         ],
         [
-          0.3633,
-          0.3037
+          0.9148,
+          0.4467
         ],
         [
-          0.363,
-          0.2898
+          0.9136,
+          0.4409
         ],
         [
-          0.3653,
-          0.2759
+          0.9155,
+          0.432
         ],
         [
-          0.3703,
-          0.2625
+          0.9186,
+          0.4309
         ],
         [
-          0.3778,
-          0.2496
+          0.9167,
+          0.4082
         ],
         [
-          0.3876,
-          0.2377
+          0.9148,
+          0.4077
         ],
         [
-          0.3997,
-          0.2268
+          0.9144,
+          0.4024
         ],
         [
-          0.4118,
-          0.2184
+          0.9109,
+          0.4019
+        ],
+        [
+          0.9086,
+          0.3966
+        ],
+        [
+          0.9056,
+          0.3966
+        ],
+        [
+          0.904,
+          0.4008
+        ],
+        [
+          0.9006,
+          0.4008
+        ],
+        [
+          0.8987,
+          0.3966
+        ],
+        [
+          0.8972,
+          0.3966
+        ],
+        [
+          0.8991,
+          0.3908
+        ],
+        [
+          0.9029,
+          0.3897
+        ],
+        [
+          0.9014,
+          0.3818
+        ],
+        [
+          0.9022,
+          0.375
+        ],
+        [
+          0.9014,
+          0.3723
+        ],
+        [
+          0.8983,
+          0.3723
+        ],
+        [
+          0.8991,
+          0.3671
+        ],
+        [
+          0.8956,
+          0.3597
+        ],
+        [
+          0.8979,
+          0.3549
+        ],
+        [
+          0.8949,
+          0.3544
+        ],
+        [
+          0.8949,
+          0.3508
+        ],
+        [
+          0.8933,
+          0.3492
+        ],
+        [
+          0.8937,
+          0.3428
+        ],
+        [
+          0.8899,
+          0.3386
+        ],
+        [
+          0.8899,
+          0.3328
+        ],
+        [
+          0.8884,
+          0.3318
+        ],
+        [
+          0.8861,
+          0.3207
+        ],
+        [
+          0.885,
+          0.3117
+        ],
+        [
+          0.8857,
+          0.3049
+        ],
+        [
+          0.8842,
+          0.3043
+        ],
+        [
+          0.8827,
+          0.2927
+        ],
+        [
+          0.883,
+          0.2827
+        ],
+        [
+          0.8815,
+          0.2816
+        ],
+        [
+          0.8807,
+          0.2769
+        ],
+        [
+          0.8815,
+          0.269
+        ],
+        [
+          0.8804,
+          0.2685
+        ],
+        [
+          0.8796,
+          0.2521
+        ],
+        [
+          0.8769,
+          0.2468
+        ],
+        [
+          0.875,
+          0.2278
+        ],
+        [
+          0.8807,
+          0.2231
+        ],
+        [
+          0.8845,
+          0.2236
+        ],
+        [
+          0.885,
+          0.2189
+        ],
+        [
+          0.8876,
+          0.2163
+        ],
+        [
+          0.8918,
+          0.2163
+        ],
+        [
+          0.8945,
+          0.2131
+        ],
+        [
+          0.8945,
+          0.2089
+        ],
+        [
+          0.9002,
+          0.2084
+        ],
+        [
+          0.9014,
+          0.2062
         ]
       ],
-      "note": "The second terrace, higher and smaller. Ramps at three points carried traffic from one terrace to the next. Above this the ground rose again to the summit, and above the second terrace almost nothing of Troy VI survives to be planned.",
+      "note": "The north-east stretch: the outer arm of the East Gate, run out beyond the circuit and overlapping it, and the wall running north from it toward the great tower. The overlap is the most sophisticated piece of military architecture on the hill. It turns the approach to the East Gate into a blind corridor, so that the door cannot be seen from outside and cannot be come at head-on — a ram cannot be brought to a gate it cannot see. Traced from Dörpfeld's Tafel V, rectified on the plate's own 20 m grid; every vertex is his linework, not a smoothing of it.",
       "sources": [
         {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
         },
         {
           "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
@@ -1372,31 +2089,923 @@
       ]
     },
     {
-      "id": "house-vi-a",
+      "id": "tower-vi-g",
       "kind": "region",
+      "fill": "tint",
+      "label": "Tower VI g",
       "polygon": [
         [
-          0.5988,
-          0.384
+          0.9029,
+          0.1023
         ],
         [
-          0.5729,
-          0.4062
+          0.9056,
+          0.1023
         ],
         [
-          0.5904,
-          0.4266
+          0.9109,
+          0.1118
         ],
         [
-          0.6162,
-          0.4044
+          0.9155,
+          0.1266
+        ],
+        [
+          0.9186,
+          0.1292
+        ],
+        [
+          0.9243,
+          0.1477
+        ],
+        [
+          0.9285,
+          0.154
+        ],
+        [
+          0.9339,
+          0.182
+        ],
+        [
+          0.9358,
+          0.1846
+        ],
+        [
+          0.9369,
+          0.1946
+        ],
+        [
+          0.9381,
+          0.1951
+        ],
+        [
+          0.9392,
+          0.2068
+        ],
+        [
+          0.9243,
+          0.2163
+        ],
+        [
+          0.9243,
+          0.2358
+        ],
+        [
+          0.9194,
+          0.2378
+        ],
+        [
+          0.9144,
+          0.2373
+        ],
+        [
+          0.9148,
+          0.2236
+        ],
+        [
+          0.9125,
+          0.2194
+        ],
+        [
+          0.9113,
+          0.2089
+        ],
+        [
+          0.9159,
+          0.2062
+        ],
+        [
+          0.9171,
+          0.202
+        ],
+        [
+          0.9148,
+          0.1999
+        ],
+        [
+          0.9094,
+          0.172
+        ],
+        [
+          0.9075,
+          0.1666
+        ],
+        [
+          0.9048,
+          0.1651
+        ],
+        [
+          0.9037,
+          0.1577
+        ],
+        [
+          0.8937,
+          0.1356
+        ],
+        [
+          0.8918,
+          0.1356
+        ],
+        [
+          0.8914,
+          0.1382
+        ],
+        [
+          0.8933,
+          0.1387
+        ],
+        [
+          0.8933,
+          0.1424
+        ],
+        [
+          0.8956,
+          0.1435
+        ],
+        [
+          0.896,
+          0.1482
+        ],
+        [
+          0.9048,
+          0.172
+        ],
+        [
+          0.9048,
+          0.1756
+        ],
+        [
+          0.9071,
+          0.1767
+        ],
+        [
+          0.9071,
+          0.1878
+        ],
+        [
+          0.9033,
+          0.1878
+        ],
+        [
+          0.9022,
+          0.1915
+        ],
+        [
+          0.893,
+          0.1946
+        ],
+        [
+          0.8911,
+          0.1978
+        ],
+        [
+          0.8807,
+          0.2025
+        ],
+        [
+          0.8773,
+          0.2068
+        ],
+        [
+          0.8716,
+          0.2057
+        ],
+        [
+          0.8712,
+          0.2009
+        ],
+        [
+          0.8681,
+          0.1951
+        ],
+        [
+          0.8739,
+          0.1883
+        ],
+        [
+          0.8792,
+          0.1894
+        ],
+        [
+          0.8796,
+          0.1872
+        ],
+        [
+          0.8857,
+          0.1835
+        ],
+        [
+          0.8926,
+          0.182
+        ],
+        [
+          0.8933,
+          0.1761
+        ],
+        [
+          0.8903,
+          0.1677
+        ],
+        [
+          0.8868,
+          0.1587
+        ],
+        [
+          0.8838,
+          0.1577
+        ],
+        [
+          0.8834,
+          0.1582
+        ],
+        [
+          0.8704,
+          0.1666
+        ],
+        [
+          0.8708,
+          0.1761
+        ],
+        [
+          0.8742,
+          0.1815
+        ],
+        [
+          0.8739,
+          0.1883
+        ],
+        [
+          0.8681,
+          0.1951
+        ],
+        [
+          0.8662,
+          0.1951
+        ],
+        [
+          0.8563,
+          0.1651
+        ],
+        [
+          0.8559,
+          0.1593
+        ],
+        [
+          0.8589,
+          0.1561
+        ],
+        [
+          0.8716,
+          0.1519
+        ],
+        [
+          0.8739,
+          0.1482
+        ],
+        [
+          0.8685,
+          0.1382
+        ],
+        [
+          0.8693,
+          0.1329
+        ],
+        [
+          0.8712,
+          0.1329
+        ],
+        [
+          0.8769,
+          0.125
+        ],
+        [
+          0.8792,
+          0.125
+        ],
+        [
+          0.8796,
+          0.1229
+        ],
+        [
+          0.8815,
+          0.1229
+        ],
+        [
+          0.9025,
+          0.1028
         ]
       ],
-      "note": "House VI A, a hall about 11.55 by 9.10 m with an antechamber — one of the megaron-plan houses of the first terrace.",
+      "note": "Tower VI g, the largest on the circuit, drawn with the surviving north-east end of the wall that carries it. Tolman and Scoggin, following Dörpfeld, give it 18 m broad and projecting 8 m, “the most stately tower”; inside it a shaft sunk to water gave the citadel its supply under cover. North of this the circuit stops. Dörpfeld notes independently that a shaft well of Troy VI, his B b, lies in square K 4 — which is this tower. Traced from Dörpfeld's Tafel V, rectified on the plate's own 20 m grid; every vertex is his linework, not a smoothing of it.",
       "sources": [
         {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "wall-vi-r",
+      "kind": "region",
+      "fill": "tint",
+      "label": "VI R",
+      "polygon": [
+        [
+          0.8899,
+          0.0728
+        ],
+        [
+          0.9025,
+          0.0733
+        ],
+        [
+          0.9121,
+          0.0759
+        ],
+        [
+          0.9121,
+          0.0786
+        ],
+        [
+          0.9079,
+          0.0823
+        ],
+        [
+          0.9025,
+          0.0812
+        ],
+        [
+          0.9022,
+          0.0796
+        ],
+        [
+          0.8811,
+          0.0812
+        ],
+        [
+          0.8716,
+          0.087
+        ],
+        [
+          0.8578,
+          0.0997
+        ],
+        [
+          0.8547,
+          0.1002
+        ],
+        [
+          0.846,
+          0.0997
+        ],
+        [
+          0.8425,
+          0.097
+        ],
+        [
+          0.8425,
+          0.0928
+        ],
+        [
+          0.8551,
+          0.0923
+        ],
+        [
+          0.8635,
+          0.0859
+        ],
+        [
+          0.8658,
+          0.0823
+        ],
+        [
+          0.8754,
+          0.078
+        ],
+        [
+          0.8765,
+          0.0754
+        ],
+        [
+          0.8819,
+          0.0759
+        ],
+        [
+          0.8842,
+          0.0739
+        ],
+        [
+          0.8895,
+          0.0733
+        ]
+      ],
+      "note": "VI R: the northernmost piece of Troy VI masonry left on the hill, curving away beyond the great tower, outside the line of the citadel wall. Dörpfeld locates it in square K 3. It is the last thing the spade found in this direction; everything north and west of it was cut away for the precinct of Athena. Traced from Dörpfeld's Tafel V, rectified on the plate's own 20 m grid; every vertex is his linework, not a smoothing of it.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        }
+      ]
+    },
+    {
+      "id": "house-vi-m",
+      "kind": "region",
+      "fill": "tint",
+      "label": "VI M",
+      "polygon": [
+        [
+          0.2898,
+          0.577
+        ],
+        [
+          0.2967,
+          0.5786
+        ],
+        [
+          0.2993,
+          0.5807
+        ],
+        [
+          0.2997,
+          0.5839
+        ],
+        [
+          0.3111,
+          0.587
+        ],
+        [
+          0.3173,
+          0.5923
+        ],
+        [
+          0.3245,
+          0.5934
+        ],
+        [
+          0.3295,
+          0.5981
+        ],
+        [
+          0.3547,
+          0.6134
+        ],
+        [
+          0.3471,
+          0.6451
+        ],
+        [
+          0.3448,
+          0.6472
+        ],
+        [
+          0.3402,
+          0.6672
+        ],
+        [
+          0.3314,
+          0.6915
+        ],
+        [
+          0.3283,
+          0.7062
+        ],
+        [
+          0.3245,
+          0.7062
+        ],
+        [
+          0.307,
+          0.6957
+        ],
+        [
+          0.3047,
+          0.692
+        ],
+        [
+          0.2905,
+          0.6851
+        ],
+        [
+          0.2848,
+          0.6815
+        ],
+        [
+          0.2844,
+          0.6793
+        ],
+        [
+          0.2615,
+          0.6666
+        ],
+        [
+          0.2607,
+          0.6646
+        ],
+        [
+          0.2423,
+          0.654
+        ],
+        [
+          0.2305,
+          0.6445
+        ],
+        [
+          0.2202,
+          0.6397
+        ],
+        [
+          0.2179,
+          0.6366
+        ],
+        [
+          0.2202,
+          0.6318
+        ],
+        [
+          0.2202,
+          0.6282
+        ],
+        [
+          0.2301,
+          0.6092
+        ],
+        [
+          0.2328,
+          0.615
+        ],
+        [
+          0.2328,
+          0.6187
+        ],
+        [
+          0.2309,
+          0.6203
+        ],
+        [
+          0.229,
+          0.6266
+        ],
+        [
+          0.2271,
+          0.6271
+        ],
+        [
+          0.2274,
+          0.6308
+        ],
+        [
+          0.2538,
+          0.6477
+        ],
+        [
+          0.258,
+          0.6477
+        ],
+        [
+          0.2657,
+          0.6223
+        ],
+        [
+          0.263,
+          0.6223
+        ],
+        [
+          0.2622,
+          0.6197
+        ],
+        [
+          0.2523,
+          0.615
+        ],
+        [
+          0.2492,
+          0.6103
+        ],
+        [
+          0.2374,
+          0.6044
+        ],
+        [
+          0.237,
+          0.6049
+        ],
+        [
+          0.2328,
+          0.615
+        ],
+        [
+          0.2301,
+          0.6092
+        ],
+        [
+          0.2339,
+          0.5944
+        ],
+        [
+          0.2362,
+          0.5939
+        ],
+        [
+          0.2439,
+          0.597
+        ],
+        [
+          0.2519,
+          0.6039
+        ],
+        [
+          0.2787,
+          0.6203
+        ],
+        [
+          0.2871,
+          0.6282
+        ],
+        [
+          0.2955,
+          0.6308
+        ],
+        [
+          0.2978,
+          0.6345
+        ],
+        [
+          0.3035,
+          0.6366
+        ],
+        [
+          0.3012,
+          0.644
+        ],
+        [
+          0.2722,
+          0.6277
+        ],
+        [
+          0.2718,
+          0.6282
+        ],
+        [
+          0.2641,
+          0.654
+        ],
+        [
+          0.2668,
+          0.6546
+        ],
+        [
+          0.2695,
+          0.6587
+        ],
+        [
+          0.2756,
+          0.6603
+        ],
+        [
+          0.2783,
+          0.6635
+        ],
+        [
+          0.2936,
+          0.672
+        ],
+        [
+          0.2939,
+          0.6651
+        ],
+        [
+          0.2993,
+          0.6535
+        ],
+        [
+          0.3012,
+          0.644
+        ],
+        [
+          0.3035,
+          0.6366
+        ],
+        [
+          0.3089,
+          0.6208
+        ],
+        [
+          0.3116,
+          0.6171
+        ],
+        [
+          0.3169,
+          0.6218
+        ],
+        [
+          0.3154,
+          0.6297
+        ],
+        [
+          0.3184,
+          0.6308
+        ],
+        [
+          0.3196,
+          0.6361
+        ],
+        [
+          0.3165,
+          0.6397
+        ],
+        [
+          0.3119,
+          0.6382
+        ],
+        [
+          0.3108,
+          0.6397
+        ],
+        [
+          0.3108,
+          0.6419
+        ],
+        [
+          0.3146,
+          0.6424
+        ],
+        [
+          0.3157,
+          0.6451
+        ],
+        [
+          0.315,
+          0.6482
+        ],
+        [
+          0.3116,
+          0.6508
+        ],
+        [
+          0.3127,
+          0.6582
+        ],
+        [
+          0.3111,
+          0.6598
+        ],
+        [
+          0.3104,
+          0.6698
+        ],
+        [
+          0.3131,
+          0.6704
+        ],
+        [
+          0.3131,
+          0.6756
+        ],
+        [
+          0.302,
+          0.6761
+        ],
+        [
+          0.302,
+          0.6783
+        ],
+        [
+          0.3203,
+          0.6894
+        ],
+        [
+          0.3219,
+          0.6894
+        ],
+        [
+          0.3234,
+          0.6856
+        ],
+        [
+          0.3303,
+          0.6577
+        ],
+        [
+          0.3322,
+          0.6551
+        ],
+        [
+          0.3433,
+          0.6187
+        ],
+        [
+          0.3433,
+          0.615
+        ],
+        [
+          0.3283,
+          0.6076
+        ],
+        [
+          0.3283,
+          0.6081
+        ],
+        [
+          0.3261,
+          0.6092
+        ],
+        [
+          0.3253,
+          0.6144
+        ],
+        [
+          0.3219,
+          0.6144
+        ],
+        [
+          0.3215,
+          0.616
+        ],
+        [
+          0.3219,
+          0.6187
+        ],
+        [
+          0.3268,
+          0.6223
+        ],
+        [
+          0.3268,
+          0.6245
+        ],
+        [
+          0.3226,
+          0.625
+        ],
+        [
+          0.3169,
+          0.6218
+        ],
+        [
+          0.3116,
+          0.6171
+        ],
+        [
+          0.3116,
+          0.6113
+        ],
+        [
+          0.3146,
+          0.6071
+        ],
+        [
+          0.315,
+          0.5986
+        ],
+        [
+          0.3169,
+          0.5944
+        ],
+        [
+          0.3108,
+          0.5913
+        ],
+        [
+          0.3039,
+          0.5918
+        ],
+        [
+          0.3008,
+          0.6008
+        ],
+        [
+          0.2982,
+          0.6008
+        ],
+        [
+          0.297,
+          0.597
+        ],
+        [
+          0.2989,
+          0.5913
+        ],
+        [
+          0.2989,
+          0.5849
+        ],
+        [
+          0.2913,
+          0.5828
+        ],
+        [
+          0.2898,
+          0.5775
+        ]
+      ],
+      "note": "House VI M, about 29 by 21 m over all — the largest single building left standing inside the circuit — set on its own terrace above the south wall, with open ground between it and the ring. Homer gives Priam a palace of polished stone with fifty chambers for his sons and twelve more across the court for his daughters' husbands (Il. 6.242-50). The largest hall the spade has found inside this wall would stand inside one wing of that. Traced from Dörpfeld's Tafel V, rectified on the plate's own 20 m grid; every vertex is his linework, not a smoothing of it.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
         },
         {
           "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
@@ -1407,29 +3016,1774 @@
     {
       "id": "house-vi-b",
       "kind": "region",
+      "fill": "tint",
+      "label": "VI b",
       "polygon": [
         [
-          0.4283,
-          0.405
+          0.1628,
+          0.2258
         ],
         [
-          0.3958,
+          0.1686,
+          0.2258
+        ],
+        [
+          0.1735,
+          0.2305
+        ],
+        [
+          0.1735,
+          0.2326
+        ],
+        [
+          0.1686,
+          0.24
+        ],
+        [
+          0.1663,
+          0.2405
+        ],
+        [
+          0.164,
+          0.2442
+        ],
+        [
+          0.1617,
+          0.2442
+        ],
+        [
+          0.1609,
+          0.2479
+        ],
+        [
+          0.1479,
+          0.2616
+        ],
+        [
+          0.1472,
+          0.2642
+        ],
+        [
+          0.1441,
+          0.2658
+        ],
+        [
+          0.1384,
+          0.2737
+        ],
+        [
+          0.135,
+          0.2753
+        ],
+        [
+          0.1319,
+          0.2816
+        ],
+        [
+          0.13,
+          0.2816
+        ],
+        [
+          0.1265,
+          0.2853
+        ],
+        [
+          0.1265,
+          0.2875
+        ],
+        [
+          0.1212,
+          0.2911
+        ],
+        [
+          0.1189,
+          0.3006
+        ],
+        [
+          0.1242,
+          0.308
+        ],
+        [
+          0.1261,
+          0.3138
+        ],
+        [
+          0.1281,
+          0.3144
+        ],
+        [
+          0.13,
+          0.3201
+        ],
+        [
+          0.1345,
+          0.3254
+        ],
+        [
+          0.1414,
+          0.3402
+        ],
+        [
+          0.1487,
+          0.3513
+        ],
+        [
+          0.1517,
+          0.3528
+        ],
+        [
+          0.1525,
+          0.3508
+        ],
+        [
+          0.1575,
+          0.3492
+        ],
+        [
+          0.1621,
+          0.3413
+        ],
+        [
+          0.1648,
+          0.3407
+        ],
+        [
+          0.1671,
+          0.3375
+        ],
+        [
+          0.1671,
+          0.3349
+        ],
+        [
+          0.1694,
+          0.3349
+        ],
+        [
+          0.1789,
+          0.3217
+        ],
+        [
+          0.1808,
+          0.3217
+        ],
+        [
+          0.1827,
+          0.317
+        ],
+        [
+          0.1919,
+          0.3091
+        ],
+        [
+          0.1942,
+          0.3043
+        ],
+        [
+          0.1988,
+          0.3027
+        ],
+        [
+          0.211,
+          0.288
+        ],
+        [
+          0.2141,
+          0.2869
+        ],
+        [
+          0.2217,
+          0.2906
+        ],
+        [
+          0.2217,
+          0.2932
+        ],
+        [
+          0.2152,
+          0.3011
+        ],
+        [
+          0.2118,
+          0.3017
+        ],
+        [
+          0.2095,
+          0.307
+        ],
+        [
+          0.2068,
+          0.3075
+        ],
+        [
+          0.2061,
+          0.3112
+        ],
+        [
+          0.2007,
+          0.3144
+        ],
+        [
+          0.1988,
+          0.3191
+        ],
+        [
+          0.1789,
+          0.3407
+        ],
+        [
+          0.177,
+          0.346
+        ],
+        [
+          0.1717,
+          0.3481
+        ],
+        [
+          0.1606,
+          0.3628
+        ],
+        [
+          0.1464,
+          0.3766
+        ],
+        [
+          0.1437,
+          0.3824
+        ],
+        [
+          0.1414,
+          0.3824
+        ],
+        [
+          0.1407,
+          0.3856
+        ],
+        [
+          0.1368,
+          0.3877
+        ],
+        [
+          0.1315,
+          0.3951
+        ],
+        [
+          0.1258,
+          0.3966
+        ],
+        [
+          0.1216,
+          0.3897
+        ],
+        [
+          0.1216,
+          0.3861
+        ],
+        [
+          0.1334,
+          0.3723
+        ],
+        [
+          0.1391,
+          0.3682
+        ],
+        [
+          0.1411,
+          0.3639
+        ],
+        [
+          0.1433,
+          0.3639
+        ],
+        [
+          0.1445,
+          0.3576
+        ],
+        [
+          0.1414,
+          0.3571
+        ],
+        [
+          0.1414,
+          0.3544
+        ],
+        [
+          0.1353,
+          0.346
+        ],
+        [
+          0.1353,
+          0.3428
+        ],
+        [
+          0.1311,
+          0.3381
+        ],
+        [
+          0.1296,
+          0.3334
+        ],
+        [
+          0.1277,
+          0.3328
+        ],
+        [
+          0.1273,
+          0.3302
+        ],
+        [
+          0.125,
+          0.3291
+        ],
+        [
+          0.1227,
+          0.3223
+        ],
+        [
+          0.1196,
+          0.3185
+        ],
+        [
+          0.117,
+          0.318
+        ],
+        [
+          0.117,
+          0.3133
+        ],
+        [
+          0.1143,
+          0.3112
+        ],
+        [
+          0.1139,
+          0.3085
+        ],
+        [
+          0.1093,
+          0.307
+        ],
+        [
+          0.1055,
+          0.308
+        ],
+        [
+          0.1047,
+          0.3117
+        ],
+        [
+          0.1013,
+          0.3128
+        ],
+        [
+          0.0983,
+          0.3185
+        ],
+        [
+          0.0933,
+          0.3201
+        ],
+        [
+          0.0925,
+          0.3244
+        ],
+        [
+          0.091,
+          0.3244
+        ],
+        [
+          0.0887,
+          0.3286
+        ],
+        [
+          0.0829,
+          0.3265
+        ],
+        [
+          0.0822,
+          0.3228
+        ],
+        [
+          0.0791,
+          0.3201
+        ],
+        [
+          0.0795,
+          0.317
+        ],
+        [
+          0.0948,
+          0.3017
+        ],
+        [
+          0.099,
+          0.2943
+        ],
+        [
+          0.1013,
+          0.2938
+        ],
+        [
+          0.1013,
+          0.2911
+        ],
+        [
+          0.1051,
+          0.2896
+        ],
+        [
+          0.1155,
+          0.2785
+        ],
+        [
+          0.1178,
+          0.2737
+        ],
+        [
+          0.1242,
+          0.269
+        ],
+        [
+          0.125,
+          0.2663
+        ],
+        [
+          0.1342,
+          0.2574
+        ],
+        [
+          0.1342,
+          0.2547
+        ],
+        [
+          0.1384,
+          0.2547
+        ],
+        [
+          0.1388,
+          0.2516
+        ],
+        [
+          0.1433,
+          0.2484
+        ],
+        [
+          0.1449,
+          0.2447
+        ],
+        [
+          0.1537,
+          0.2353
+        ],
+        [
+          0.1575,
+          0.2353
+        ],
+        [
+          0.1586,
+          0.2305
+        ],
+        [
+          0.1613,
+          0.2305
+        ],
+        [
+          0.1628,
+          0.2263
+        ]
+      ],
+      "note": "House VI b, in the north-west of the citadel, on the highest ground where anything of Troy VI still stood when Dörpfeld dug. What is drawn is what survived: arms of walling, cut off where the levelling for the Athena precinct began. Traced from Dörpfeld's Tafel V, rectified on the plate's own 20 m grid; every vertex is his linework, not a smoothing of it.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        }
+      ]
+    },
+    {
+      "id": "houses-vi-c-terrace",
+      "kind": "region",
+      "fill": "tint",
+      "label": "VI C",
+      "polygon": [
+        [
+          0.7297,
+          0.2479
+        ],
+        [
+          0.7359,
+          0.2479
+        ],
+        [
+          0.7366,
+          0.2511
+        ],
+        [
+          0.7305,
+          0.3006
+        ],
+        [
+          0.7256,
+          0.327
+        ],
+        [
+          0.7263,
+          0.3307
+        ],
+        [
+          0.7985,
+          0.3845
+        ],
+        [
+          0.8008,
+          0.3845
+        ],
+        [
+          0.8054,
+          0.394
+        ],
+        [
+          0.805,
+          0.3945
+        ],
+        [
+          0.7867,
+          0.4451
+        ],
+        [
+          0.7882,
+          0.4478
+        ],
+        [
+          0.7905,
+          0.4478
+        ],
+        [
+          0.7909,
+          0.4499
+        ],
+        [
+          0.8005,
+          0.4546
+        ],
+        [
+          0.8066,
+          0.4615
+        ],
+        [
+          0.8104,
+          0.4609
+        ],
+        [
+          0.8116,
+          0.4546
+        ],
+        [
+          0.8142,
+          0.4515
+        ],
+        [
+          0.8226,
+          0.4272
+        ],
+        [
+          0.8249,
+          0.4241
+        ],
+        [
+          0.8283,
+          0.4087
+        ],
+        [
+          0.8222,
+          0.403
+        ],
+        [
+          0.8192,
+          0.403
+        ],
+        [
+          0.8165,
+          0.3992
+        ],
+        [
+          0.8054,
+          0.394
+        ],
+        [
+          0.8008,
+          0.3845
+        ],
+        [
+          0.8024,
+          0.3797
+        ],
+        [
+          0.8047,
+          0.3797
+        ],
+        [
+          0.815,
+          0.3877
+        ],
+        [
+          0.8341,
+          0.3977
+        ],
+        [
+          0.8372,
+          0.4019
+        ],
+        [
+          0.844,
+          0.4035
+        ],
+        [
+          0.8437,
+          0.4093
+        ],
+        [
+          0.8394,
+          0.4214
+        ],
+        [
+          0.8268,
+          0.4515
+        ],
+        [
+          0.8188,
+          0.4758
+        ],
+        [
+          0.8169,
+          0.4794
+        ],
+        [
+          0.8111,
+          0.4784
+        ],
+        [
+          0.8116,
+          0.481
+        ],
+        [
+          0.8146,
+          0.481
+        ],
+        [
+          0.8157,
+          0.4837
+        ],
+        [
+          0.8207,
+          0.4858
+        ],
+        [
+          0.8215,
+          0.4884
+        ],
+        [
+          0.8253,
+          0.4894
+        ],
+        [
+          0.8253,
+          0.4963
+        ],
+        [
+          0.8268,
+          0.4968
+        ],
+        [
+          0.8272,
+          0.5
+        ],
+        [
+          0.8303,
+          0.5
+        ],
+        [
+          0.8306,
+          0.5027
+        ],
+        [
+          0.8375,
+          0.5032
+        ],
+        [
+          0.8387,
+          0.5058
+        ],
+        [
+          0.8425,
+          0.5058
+        ],
+        [
+          0.8448,
+          0.5079
+        ],
+        [
+          0.8444,
+          0.5137
+        ],
+        [
+          0.8421,
+          0.5158
+        ],
+        [
+          0.8433,
+          0.5206
+        ],
+        [
+          0.8425,
+          0.5258
+        ],
+        [
+          0.841,
+          0.5274
+        ],
+        [
+          0.8352,
+          0.5269
+        ],
+        [
+          0.8349,
+          0.519
+        ],
+        [
+          0.8299,
+          0.519
+        ],
+        [
+          0.8272,
+          0.5163
+        ],
+        [
+          0.8291,
+          0.5074
+        ],
+        [
+          0.8265,
+          0.5016
+        ],
+        [
+          0.8234,
+          0.5016
+        ],
+        [
+          0.8134,
+          0.5211
+        ],
+        [
+          0.805,
+          0.5432
+        ],
+        [
+          0.7997,
+          0.5511
+        ],
+        [
+          0.7898,
+          0.5759
+        ],
+        [
+          0.7829,
+          0.5723
+        ],
+        [
+          0.7726,
+          0.5617
+        ],
+        [
+          0.7603,
+          0.5527
+        ],
+        [
+          0.758,
+          0.548
+        ],
+        [
+          0.7554,
+          0.548
+        ],
+        [
+          0.742,
+          0.5359
+        ],
+        [
+          0.742,
+          0.5306
+        ],
+        [
+          0.7458,
+          0.5206
+        ],
+        [
+          0.7508,
+          0.5122
+        ],
+        [
+          0.7538,
+          0.5016
+        ],
+        [
+          0.7561,
+          0.4995
+        ],
+        [
+          0.7611,
+          0.4868
+        ],
+        [
+          0.7626,
+          0.4853
+        ],
+        [
+          0.7664,
+          0.4863
+        ],
+        [
+          0.7687,
+          0.4884
+        ],
+        [
+          0.7691,
+          0.4921
+        ],
+        [
+          0.7534,
+          0.5264
+        ],
+        [
+          0.7523,
+          0.5332
+        ],
+        [
+          0.7565,
+          0.5343
+        ],
+        [
+          0.7756,
+          0.5527
+        ],
+        [
+          0.7833,
+          0.557
+        ],
+        [
+          0.8093,
+          0.4968
+        ],
+        [
+          0.8096,
+          0.4932
+        ],
+        [
+          0.8066,
+          0.4926
+        ],
+        [
+          0.8005,
+          0.4863
+        ],
+        [
+          0.7982,
+          0.4863
+        ],
+        [
+          0.7944,
+          0.481
+        ],
+        [
+          0.7875,
+          0.4784
+        ],
+        [
+          0.7798,
+          0.4715
+        ],
+        [
+          0.7775,
+          0.472
+        ],
+        [
+          0.7733,
+          0.4815
+        ],
+        [
+          0.7668,
+          0.4778
+        ],
+        [
+          0.7668,
+          0.4731
+        ],
+        [
+          0.7756,
+          0.4552
+        ],
+        [
+          0.779,
+          0.4552
+        ],
+        [
+          0.7794,
+          0.4578
+        ],
+        [
+          0.7833,
+          0.4589
+        ],
+        [
+          0.781,
+          0.4541
+        ],
+        [
+          0.7783,
+          0.4541
+        ],
+        [
+          0.776,
+          0.4462
+        ],
+        [
+          0.7366,
+          0.4188
+        ],
+        [
+          0.7286,
+          0.4109
+        ],
+        [
+          0.6965,
+          0.3897
+        ],
+        [
+          0.6972,
+          0.3834
+        ],
+        [
+          0.7079,
+          0.3845
+        ],
+        [
+          0.7099,
+          0.3766
+        ],
+        [
+          0.7156,
+          0.3655
+        ],
+        [
+          0.7171,
+          0.3581
+        ],
+        [
+          0.7244,
+          0.3428
+        ],
+        [
+          0.7294,
+          0.3454
+        ],
+        [
+          0.7294,
+          0.346
+        ],
+        [
+          0.7225,
+          0.3644
+        ],
+        [
+          0.721,
+          0.3655
+        ],
+        [
+          0.7198,
+          0.3718
+        ],
+        [
+          0.7171,
           0.375
         ],
         [
-          0.3721,
-          0.4006
+          0.7137,
+          0.3897
         ],
         [
-          0.4046,
-          0.4307
+          0.7691,
+          0.4304
+        ],
+        [
+          0.7714,
+          0.4309
+        ],
+        [
+          0.7729,
+          0.4235
+        ],
+        [
+          0.7744,
+          0.423
+        ],
+        [
+          0.7756,
+          0.4172
+        ],
+        [
+          0.7772,
+          0.4161
+        ],
+        [
+          0.7848,
+          0.3956
+        ],
+        [
+          0.7867,
+          0.3861
+        ],
+        [
+          0.779,
+          0.3824
+        ],
+        [
+          0.7749,
+          0.3771
+        ],
+        [
+          0.7703,
+          0.3755
+        ],
+        [
+          0.7622,
+          0.3682
+        ],
+        [
+          0.76,
+          0.3682
+        ],
+        [
+          0.7382,
+          0.3497
+        ],
+        [
+          0.7294,
+          0.3454
+        ],
+        [
+          0.7244,
+          0.3428
+        ],
+        [
+          0.724,
+          0.3397
+        ],
+        [
+          0.7179,
+          0.3349
+        ],
+        [
+          0.7179,
+          0.3312
+        ],
+        [
+          0.7202,
+          0.3249
+        ],
+        [
+          0.7267,
+          0.2885
+        ],
+        [
+          0.7256,
+          0.2816
+        ],
+        [
+          0.6965,
+          0.2764
+        ],
+        [
+          0.6965,
+          0.2679
+        ],
+        [
+          0.7267,
+          0.2722
+        ],
+        [
+          0.7294,
+          0.2484
         ]
       ],
-      "note": "House VI B, about 15 by 11.85 m. Homer gives Priam a palace of dressed stone with fifty chambers for his sons and twelve more across the court for his daughters' husbands (Il. 6.242-50); the largest hall the spade has found inside this circuit would fit inside one wing of that.",
+      "note": "The block of the east terrace — Dörpfeld's houses VI D, VI C, VI E and VI F, drawn together because they are drawn together, wall against wall, on his sheet. VI C is the hall in the middle of the block. The citadel was built as terraces rising toward the centre, each held up by a retaining wall with the houses standing on the level ground behind, and this is the second of them. The double circles Dörpfeld draws inside these rooms are pithoi, storage jars sunk in the floors (1902, 2:649). Traced from Dörpfeld's Tafel V, rectified on the plate's own 20 m grid; every vertex is his linework, not a smoothing of it.",
       "sources": [
         {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        }
+      ]
+    },
+    {
+      "id": "house-vi-q",
+      "kind": "region",
+      "fill": "tint",
+      "label": "VI Q",
+      "polygon": [
+        [
+          0.8028,
+          0.1946
+        ],
+        [
+          0.8062,
+          0.1957
+        ],
+        [
+          0.8073,
+          0.1999
+        ],
+        [
+          0.8066,
+          0.2062
+        ],
+        [
+          0.8005,
+          0.2141
+        ],
+        [
+          0.7928,
+          0.2315
+        ],
+        [
+          0.7951,
+          0.2321
+        ],
+        [
+          0.7989,
+          0.2284
+        ],
+        [
+          0.8016,
+          0.2284
+        ],
+        [
+          0.8031,
+          0.2331
+        ],
+        [
+          0.8047,
+          0.2337
+        ],
+        [
+          0.8089,
+          0.2473
+        ],
+        [
+          0.8111,
+          0.2484
+        ],
+        [
+          0.8111,
+          0.2511
+        ],
+        [
+          0.8192,
+          0.2663
+        ],
+        [
+          0.8192,
+          0.2695
+        ],
+        [
+          0.8207,
+          0.2701
+        ],
+        [
+          0.8226,
+          0.279
+        ],
+        [
+          0.8306,
+          0.2906
+        ],
+        [
+          0.8322,
+          0.2975
+        ],
+        [
+          0.8341,
+          0.2991
+        ],
+        [
+          0.8387,
+          0.3122
+        ],
+        [
+          0.8406,
+          0.3133
+        ],
+        [
+          0.841,
+          0.3185
+        ],
+        [
+          0.8345,
+          0.3207
+        ],
+        [
+          0.8299,
+          0.3138
+        ],
+        [
+          0.8203,
+          0.2885
+        ],
+        [
+          0.8131,
+          0.2753
+        ],
+        [
+          0.8131,
+          0.2722
+        ],
+        [
+          0.8104,
+          0.2706
+        ],
+        [
+          0.8104,
+          0.2669
+        ],
+        [
+          0.8035,
+          0.2553
+        ],
+        [
+          0.7982,
+          0.2405
+        ],
+        [
+          0.7959,
+          0.24
+        ],
+        [
+          0.7821,
+          0.2527
+        ],
+        [
+          0.7779,
+          0.2542
+        ],
+        [
+          0.7744,
+          0.2611
+        ],
+        [
+          0.8081,
+          0.3359
+        ],
+        [
+          0.8073,
+          0.3407
+        ],
+        [
+          0.8035,
+          0.3418
+        ],
+        [
+          0.7859,
+          0.3033
+        ],
+        [
+          0.7833,
+          0.2927
+        ],
+        [
+          0.7772,
+          0.2848
+        ],
+        [
+          0.7767,
+          0.2806
+        ],
+        [
+          0.7664,
+          0.2579
+        ],
+        [
+          0.768,
+          0.2527
+        ],
+        [
+          0.7794,
+          0.2458
+        ],
+        [
+          0.7878,
+          0.2353
+        ],
+        [
+          0.7856,
+          0.2305
+        ],
+        [
+          0.7856,
+          0.2268
+        ],
+        [
+          0.7913,
+          0.2173
+        ],
+        [
+          0.7917,
+          0.2136
+        ],
+        [
+          0.7962,
+          0.2094
+        ],
+        [
+          0.8024,
+          0.1951
+        ]
+      ],
+      "note": "House VI Q, the north-easternmost of the terrace houses to survive. Immediately north of it the Hellenistic and Roman cutting for the temple of Athena of Ilion begins, and Troy VI ends: the plate has nothing to show above this line. Traced from Dörpfeld's Tafel V, rectified on the plate's own 20 m grid; every vertex is his linework, not a smoothing of it.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        }
+      ]
+    },
+    {
+      "id": "house-vi-o",
+      "kind": "region",
+      "fill": "tint",
+      "label": "VI O",
+      "polygon": [
+        [
+          0.7202,
+          0.4663
+        ],
+        [
+          0.7236,
+          0.4673
+        ],
+        [
+          0.7301,
+          0.4736
+        ],
+        [
+          0.7309,
+          0.4773
+        ],
+        [
+          0.7443,
+          0.4916
+        ],
+        [
+          0.7443,
+          0.4947
+        ],
+        [
+          0.729,
+          0.5211
+        ],
+        [
+          0.729,
+          0.5248
+        ],
+        [
+          0.7351,
+          0.5316
+        ],
+        [
+          0.7347,
+          0.5391
+        ],
+        [
+          0.729,
+          0.5527
+        ],
+        [
+          0.7233,
+          0.5601
+        ],
+        [
+          0.7233,
+          0.5628
+        ],
+        [
+          0.7175,
+          0.5633
+        ],
+        [
+          0.7171,
+          0.5606
+        ],
+        [
+          0.7297,
+          0.5391
+        ],
+        [
+          0.7294,
+          0.5353
+        ],
+        [
+          0.7221,
+          0.5274
+        ],
+        [
+          0.7198,
+          0.5274
+        ],
+        [
+          0.7061,
+          0.5485
+        ],
+        [
+          0.7007,
+          0.5491
+        ],
+        [
+          0.6995,
+          0.5443
+        ],
+        [
+          0.7053,
+          0.5369
+        ],
+        [
+          0.7061,
+          0.5306
+        ],
+        [
+          0.698,
+          0.5201
+        ],
+        [
+          0.698,
+          0.5153
+        ],
+        [
+          0.7011,
+          0.5132
+        ],
+        [
+          0.7106,
+          0.5264
+        ],
+        [
+          0.7171,
+          0.5232
+        ],
+        [
+          0.7179,
+          0.519
+        ],
+        [
+          0.7332,
+          0.4947
+        ],
+        [
+          0.7332,
+          0.4921
+        ],
+        [
+          0.7301,
+          0.4878
+        ],
+        [
+          0.7179,
+          0.4747
+        ],
+        [
+          0.7198,
+          0.4668
+        ]
+      ],
+      "note": "House VI O, on the lower east terrace, between the terrace houses and the ring street. Traced from Dörpfeld's Tafel V, rectified on the plate's own 20 m grid; every vertex is his linework, not a smoothing of it.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        }
+      ]
+    },
+    {
+      "id": "house-vi-g-block",
+      "kind": "region",
+      "fill": "tint",
+      "label": "VI G",
+      "polygon": [
+        [
+          0.7718,
+          0.5707
+        ],
+        [
+          0.7749,
+          0.5717
+        ],
+        [
+          0.7817,
+          0.5802
+        ],
+        [
+          0.7856,
+          0.5823
+        ],
+        [
+          0.7878,
+          0.5865
+        ],
+        [
+          0.7951,
+          0.5928
+        ],
+        [
+          0.7978,
+          0.5981
+        ],
+        [
+          0.7955,
+          0.6049
+        ],
+        [
+          0.7767,
+          0.5849
+        ],
+        [
+          0.7744,
+          0.5844
+        ],
+        [
+          0.7741,
+          0.5849
+        ],
+        [
+          0.7699,
+          0.5918
+        ],
+        [
+          0.7699,
+          0.5944
+        ],
+        [
+          0.781,
+          0.6076
+        ],
+        [
+          0.7871,
+          0.6118
+        ],
+        [
+          0.7875,
+          0.6144
+        ],
+        [
+          0.7909,
+          0.6155
+        ],
+        [
+          0.7955,
+          0.6049
+        ],
+        [
+          0.7978,
+          0.5981
+        ],
+        [
+          0.8012,
+          0.6002
+        ],
+        [
+          0.8024,
+          0.6034
+        ],
+        [
+          0.805,
+          0.6039
+        ],
+        [
+          0.805,
+          0.6065
+        ],
+        [
+          0.7756,
+          0.6625
+        ],
+        [
+          0.7668,
+          0.6761
+        ],
+        [
+          0.7649,
+          0.6825
+        ],
+        [
+          0.75,
+          0.7104
+        ],
+        [
+          0.745,
+          0.7115
+        ],
+        [
+          0.7431,
+          0.7057
+        ],
+        [
+          0.7622,
+          0.6693
+        ],
+        [
+          0.7641,
+          0.6682
+        ],
+        [
+          0.7645,
+          0.6651
+        ],
+        [
+          0.7775,
+          0.6419
+        ],
+        [
+          0.7798,
+          0.635
+        ],
+        [
+          0.7859,
+          0.6261
+        ],
+        [
+          0.7829,
+          0.6197
+        ],
+        [
+          0.7741,
+          0.6123
+        ],
+        [
+          0.7687,
+          0.6039
+        ],
+        [
+          0.7645,
+          0.6028
+        ],
+        [
+          0.7565,
+          0.616
+        ],
+        [
+          0.755,
+          0.6218
+        ],
+        [
+          0.7584,
+          0.6255
+        ],
+        [
+          0.7584,
+          0.6287
+        ],
+        [
+          0.7496,
+          0.6477
+        ],
+        [
+          0.7462,
+          0.6492
+        ],
+        [
+          0.7446,
+          0.6435
+        ],
+        [
+          0.7428,
+          0.6429
+        ],
+        [
+          0.729,
+          0.6704
+        ],
+        [
+          0.721,
+          0.6825
+        ],
+        [
+          0.7164,
+          0.6799
+        ],
+        [
+          0.7152,
+          0.6751
+        ],
+        [
+          0.7221,
+          0.6651
+        ],
+        [
+          0.7305,
+          0.6466
+        ],
+        [
+          0.7382,
+          0.6345
+        ],
+        [
+          0.7389,
+          0.6308
+        ],
+        [
+          0.7412,
+          0.6292
+        ],
+        [
+          0.7508,
+          0.6087
+        ],
+        [
+          0.7714,
+          0.5712
+        ]
+      ],
+      "note": "House VI G and its neighbours on the lower east terrace. The broad clear space between them and the wall face is Dörpfeld's ring street — “im Innern finden wir eine breite Ringstrasse, mehrere zum Centrum der Burg gerichtete Querstrassen” (1902, 2:611) — the circulation that lets defenders reach any stretch of the circuit without crossing built-up ground. It is not drawn on this plate because it is not masonry. It is the gap. Traced from Dörpfeld's Tafel V, rectified on the plate's own 20 m grid; every vertex is his linework, not a smoothing of it.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        }
+      ]
+    },
+    {
+      "id": "gate-vi-u",
+      "kind": "region",
+      "fill": "none",
+      "label": "Gate VI U",
+      "polygon": [
+        [
+          0.1261,
+          0.5791
+        ],
+        [
+          0.1628,
+          0.5791
+        ],
+        [
+          0.1628,
+          0.6297
+        ],
+        [
+          0.1261,
+          0.6297
+        ]
+      ],
+      "note": "The West Gate, VI U, with an opening about 2.50 m across (Tolman and Scoggin 1903). During the life of Troy VI it was walled up: Dörpfeld draws the blocking across the passage in hatching, so the defenders closed their own gate — the sort of fact a plan records and a poem does not. Nothing is drawn here but the name. A gate is a gap in the masonry, and masonry is what this plate traces.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
         },
         {
           "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
@@ -1438,31 +4792,33 @@
       ]
     },
     {
-      "id": "house-vi-m",
+      "id": "gate-vi-t",
       "kind": "region",
+      "fill": "none",
+      "label": "Gate VI T",
       "polygon": [
         [
-          0.6621,
-          0.2778
+          0.5917,
+          0.7658
         ],
         [
-          0.6576,
-          0.3367
+          0.6606,
+          0.7658
         ],
         [
-          0.6988,
-          0.3398
+          0.6606,
+          0.8165
         ],
         [
-          0.7033,
-          0.281
+          0.5917,
+          0.8165
         ]
       ],
-      "note": "House VI M, a multi-room building standing on its own raised terrace behind a retaining wall 6 m high — the most emphatically sited house on the surviving part of the citadel.",
+      "note": "The South Gate, VI T — 3.20 to 3.35 m broad, its roadway paved and carrying a drainage channel half a metre deep and 0.30 to 0.40 m wide (Tolman and Scoggin 1903), flanked by tower VI i. Dörpfeld took it for the main gate: “das Hauptthor der VI. Burg ist wahrscheinlich das Süd-Thor VI T gewesen”, and identified it with Homer's Dardanian Gates, on the reasoning that Dardania lay toward Ida in the south-east — “ich ohne Zögern das Thor VI T als das dardanische bezeichnet ... habe” (1902, 2:630). The identification is his reading of the poem against the ground, not a find: no gate at Hisarlık has been shown to be a gate Homer names. Hector keeps breaking for the Dardanian Gates during the chase, hoping to get in under the well-built towers (Il. 22.194-95).",
       "sources": [
         {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
         },
         {
           "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
@@ -1471,31 +4827,138 @@
       ]
     },
     {
-      "id": "house-vi-c",
+      "id": "gate-vi-s",
       "kind": "region",
+      "fill": "none",
+      "label": "Gate VI S",
       "polygon": [
         [
-          0.4006,
-          0.3024
+          0.8899,
+          0.3608
         ],
         [
-          0.4075,
-          0.2578
+          0.9266,
+          0.3608
         ],
         [
-          0.383,
-          0.254
+          0.9266,
+          0.4241
         ],
         [
-          0.3761,
-          0.2986
+          0.8899,
+          0.4241
         ]
       ],
-      "note": "House VI C on the second terrace, a hall 15.30 by 8.40 m and the only building on the site with certain interior column bases.",
+      "note": "The East Gate, VI S — a passage about 2 m wide and a door only about 1.80 m broad (Tolman and Scoggin 1903), reached along the corridor between the wall and the outer arm drawn beside it, with steps and a ramp carrying the way up inside. Dörpfeld sections it at his Fig. 41, “das Ost-Thor in der VI. Schicht (VI S) und in der VII. Schicht (VII S)”. He allowed that Homer's Scaean Gate “kann ... weiter östlich gelegen haben und würde dann vielleicht mit dem Nordost-Thor zusammenfallen” (1902, 2:630) — might have lain further east and coincided with the north-east gate. Allowed, not shown.",
       "sources": [
         {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "tower-vi-h",
+      "kind": "region",
+      "fill": "none",
+      "label": "Tower VI h",
+      "polygon": [
+        [
+          0.8349,
+          0.6203
+        ],
+        [
+          0.8853,
+          0.6203
+        ],
+        [
+          0.8853,
+          0.7089
+        ],
+        [
+          0.8349,
+          0.7089
+        ]
+      ],
+      "note": "The great east tower, VI h: over 11 m broad, jutting 8 m beyond the wall face, its front wall about 3 m thick, its upper storey carried on a wooden platform (Tolman and Scoggin 1903). Its footprint is drawn as part of the wall band, because that is how it stands on Dörpfeld's plate; only the name is set here.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "tower-vi-i",
+      "kind": "region",
+      "fill": "none",
+      "label": "Tower VI i",
+      "polygon": [
+        [
+          0.6193,
+          0.8418
+        ],
+        [
+          0.6651,
+          0.8418
+        ],
+        [
+          0.6651,
+          0.9051
+        ],
+        [
+          0.6193,
+          0.9051
+        ]
+      ],
+      "note": "The south tower, VI i, beside the main gate: front wall 4.40 m broad, side walls 2.20 m thick (Tolman and Scoggin 1903), with a chamber inside it that the plate shows as a void. Whoever came up to the South Gate came up under it.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ]
+    },
+    {
+      "id": "house-vi-a",
+      "kind": "region",
+      "fill": "none",
+      "label": "VI A",
+      "polygon": [
+        [
+          0.1101,
+          0.4177
+        ],
+        [
+          0.1835,
+          0.4177
+        ],
+        [
+          0.1835,
+          0.519
+        ],
+        [
+          0.1101,
+          0.519
+        ]
+      ],
+      "note": "House VI A, built against the inner face of the west wall — a hall with an antechamber, on the megaron plan that runs through the Troy VI houses. Its masonry is drawn with the wall layer here because Dörpfeld draws the two as one mass: the house's west wall and the citadel's inner face are the same line on his sheet, and no seam is invented to part them.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
         },
         {
           "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
@@ -1506,362 +4969,71 @@
     {
       "id": "pergamos-summit",
       "kind": "region",
+      "fill": "none",
       "placeId": "pergamos",
+      "label": "Pergamos",
       "polygon": [
         [
-          0.5,
-          0.238
+          0.2844,
+          0.1646
         ],
         [
-          0.5267,
-          0.2415
+          0.6514,
+          0.1646
         ],
         [
-          0.5502,
-          0.2514
+          0.6514,
+          0.4051
         ],
         [
-          0.5677,
-          0.2665
-        ],
-        [
-          0.577,
-          0.2851
-        ],
-        [
-          0.577,
-          0.3049
-        ],
-        [
-          0.5677,
-          0.3235
-        ],
-        [
-          0.5502,
-          0.3386
-        ],
-        [
-          0.5267,
-          0.3485
-        ],
-        [
-          0.5,
-          0.352
-        ],
-        [
-          0.4733,
-          0.3485
-        ],
-        [
-          0.4498,
-          0.3386
-        ],
-        [
-          0.4323,
-          0.3235
-        ],
-        [
-          0.423,
-          0.3049
-        ],
-        [
-          0.423,
-          0.2851
-        ],
-        [
-          0.4323,
-          0.2665
-        ],
-        [
-          0.4498,
-          0.2514
-        ],
-        [
-          0.4733,
-          0.2415
+          0.2844,
+          0.4051
         ]
       ],
-      "note": "The summit — and an absence, not a find. Homer's Pergamos is the top of the citadel: Apollo's temple stands Περγάμῳ εἰν ἱερῇ (Il. 5.446), he and Ares look down from it on the fighting (4.508, 7.21), Paris comes striding down from Περγάμου ἄκρης (6.512), Ares shouts from ἀκροτάτης πόλιος (20.52), Cassandra climbs it and is the first to see Hector's body coming home (24.700). The temple of Athena ἐν πόλει ἄκρῃ that the Trojan women go up to with the robe belongs here too (6.88, 6.297), and so do the houses of Priam and of Hector, which the poem puts ἐν πόλει ἄκρῃ as well (6.317). Of all of it there is nothing to plan: the Hellenistic and Roman levelling for the Athena precinct cut the top off the mound. The part of Troy the Iliad names most often is the part the excavation cannot reach, and the outline drawn here marks where it stood, not what stood there.",
+      "note": "The summit — and an absence, not a find. Homer's Pergamos is the top of the citadel. Apollo's temple stands Περγάμῳ εἰν ἱερῇ (Il. 5.446); he and Ares look down from it on the fighting (4.508, 7.21); Paris comes striding down from Περγάμου ἄκρης (6.512); Cassandra climbs it and is the first to see Hector's body coming home (24.700). The temple of Athena ἐν πόλει ἄκρῃ that the Trojan women go up to with the robe belongs here (6.88, 6.297), and so do the houses of Priam and of Hector (6.317). Of all of it there is nothing to plan: the Hellenistic and Roman levelling for the precinct of Athena of Ilion cut the top off the mound and took Troy VI's summit with it. The part of Troy the Iliad names most often is the part the excavation cannot reach. No outline is drawn here, only the name, over the ground where it stood.",
       "sources": [
         {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
         },
         {
           "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
           "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
-        },
-        {
-          "cite": "Rose, C. Brian. The Archaeology of Greek and Roman Troy. Cambridge: Cambridge University Press, 2014."
         }
       ]
     },
     {
-      "id": "lower-city",
+      "id": "north-side-lost",
       "kind": "region",
-      "placeId": "troy-lower-city",
+      "fill": "none",
+      "label": "the north side is gone",
       "polygon": [
         [
-          0.297,
-          0.5063
+          0.156,
+          0.0253
         ],
         [
-          0.356,
-          0.5307
+          0.8165,
+          0.0253
         ],
         [
-          0.4204,
-          0.5464
+          0.8165,
+          0.1392
         ],
         [
-          0.4876,
-          0.5528
-        ],
-        [
-          0.5554,
-          0.5498
-        ],
-        [
-          0.6211,
-          0.5374
-        ],
-        [
-          0.6823,
-          0.5161
-        ],
-        [
-          0.7369,
-          0.4867
-        ],
-        [
-          0.7827,
-          0.4503
-        ],
-        [
-          0.8002,
-          0.4317
-        ],
-        [
-          0.888,
-          0.47
-        ],
-        [
-          0.878,
-          0.606
-        ],
-        [
-          0.816,
-          0.73
-        ],
-        [
-          0.686,
-          0.818
-        ],
-        [
-          0.47,
-          0.852
-        ],
-        [
-          0.272,
-          0.804
-        ],
-        [
-          0.192,
-          0.674
-        ],
-        [
-          0.198,
-          0.562
+          0.156,
+          0.1392
         ]
       ],
-      "note": "Korfmann's lower city, and the plate says so because it is a reconstruction and not a plan. Geomagnetic survey and excavation by the Tübingen Troia project from 1988 argued for a settlement of roughly 200,000 square metres reaching some 400 m south and southeast of the citadel — about ten times the walled area, and a different kind of place from a fortified manor. Frank Kolb answered that the evidence will not carry that weight and that Troy VI cannot be shown to have been a city at all; Jablonka and Rose replied in the same issue of the AJA. Both papers are open access and both are linked here, because a reader who wants to know how firm this outline is should read the quarrel rather than take our word. Note the scale: the citadel is drawn large so its gates can be seen, and the lower city is compressed to roughly a third of its true reach — the two are not at one scale on this sheet.",
+      "note": "Dörpfeld would not draw this, and neither will we. “Den ganzen nördlichen und nordwestlichen Teil der Burgmauer, von dem keine Spur erhalten ist, habe ich deshalb auch nicht einmal durch punktirte Linien anzudeuten gewagt” (1902, 2:650): of the whole northern and north-western part of the citadel wall, of which no trace survives, he did not dare even to suggest the line with dots. He restored it elsewhere, on the small conjectural plan at his Fig. 470, where he marked what was unsecured with dotting and question marks, and he kept the survey plan clean. The gap between the wall's two broken ends is not a defect in this drawing. It is the state of the evidence — and it is exactly where the poem's traffic runs, out through the Scaean Gate πεδίον δέ, toward the plain and the ships. There must have been a gate on this side. Nothing of it is left. Dörpfeld put the Scaean Gate at the north-west corner vermutungsweise, by conjecture, and admitted at once that it “auch weiter östlich gelegen haben kann”, might equally have lain further east. No point is marked for it on this plate, because there is no coordinate to mark.",
       "sources": [
         {
-          "cite": "Kolb, Frank. \"Troy VI: A Trading Center and Commercial City?\" American Journal of Archaeology 108, no. 4 (2004): 577–614.",
-          "url": "https://ajaonline.org/wp-content/uploads/2012/11/1084_Kolb.pdf"
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
         },
         {
-          "cite": "Jablonka, Peter, and C. Brian Rose. \"Late Bronze Age Troy: A Response to Frank Kolb.\" American Journal of Archaeology 108, no. 4 (2004): 615–30.",
-          "url": "https://ajaonline.org/wp-content/uploads/2012/11/1084_Jablonka.pdf"
-        },
-        {
-          "cite": "Rose, C. Brian. The Archaeology of Greek and Roman Troy. Cambridge: Cambridge University Press, 2014."
-        }
-      ]
-    },
-    {
-      "id": "lower-city-ditch",
-      "kind": "wall",
-      "placeId": "troy-lower-city",
-      "trace": [
-        [
-          0.152,
-          0.548
-        ],
-        [
-          0.158,
-          0.69
-        ],
-        [
-          0.248,
-          0.826
-        ],
-        [
-          0.47,
-          0.89
-        ],
-        [
-          0.7,
-          0.852
-        ],
-        [
-          0.85,
-          0.752
-        ],
-        [
-          0.918,
-          0.606
-        ],
-        [
-          0.93,
-          0.462
-        ]
-      ],
-      "note": "The rock-cut ditch, found by magnetometry and then dug: about 3.5–4 m across and cut 1–2 m into the bedrock, running round the south of the settlement. Korfmann read it as an obstacle against chariots, with a palisade or wall standing some metres behind it; no such wall has been found. It is the single piece of evidence the whole lower-city argument turns on, and it is the piece Kolb attacked hardest.",
-      "sources": [
-        {
-          "cite": "Jablonka, Peter, and C. Brian Rose. \"Late Bronze Age Troy: A Response to Frank Kolb.\" American Journal of Archaeology 108, no. 4 (2004): 615–30.",
-          "url": "https://ajaonline.org/wp-content/uploads/2012/11/1084_Jablonka.pdf"
-        },
-        {
-          "cite": "Kolb, Frank. \"Troy VI: A Trading Center and Commercial City?\" American Journal of Archaeology 108, no. 4 (2004): 577–614.",
-          "url": "https://ajaonline.org/wp-content/uploads/2012/11/1084_Kolb.pdf"
-        }
-      ]
-    },
-    {
-      "id": "scaean-gate-candidates",
-      "kind": "region",
-      "polygon": [
-        [
-          0.2447,
-          0.374
-        ],
-        [
-          0.2785,
-          0.4166
-        ],
-        [
-          0.2408,
-          0.4373
-        ],
-        [
-          0.2013,
-          0.3874
-        ]
-      ],
-      "note": "Where the Scaean Gate is placed on this plate, and why the pin is dashed. The poem's gate is the busiest place in Troy — the elders sit ἐπὶ Σκαιῇσι πύλῃσι with Helen (Il. 3.145-49), Hector meets Andromache going out through it (6.393), the fighting rages round it a whole day (18.453), Hector waits before it (22.6) and foresees his own death in it (22.360) — and no gate at Hisarlık has been shown to be it. The two candidates discussed since Dörpfeld and Cook are the South Gate VI T and the west or southwest gate VI U, and there is no consensus between them; the South Gate is at least as often given to the Dardanian Gates instead. This plate takes the one pairing that keeps the poem's two named gates distinct — Scaean here at VI U, Dardanian at VI T — and that pairing is the plate's own reading, reversible, not a finding. Both pins are drawn in the conjectural register for that reason.",
-      "sources": [
-        {
-          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
-        },
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        },
-        {
-          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912.",
-          "url": "https://archive.org/details/troyastudyinhom00leafgoog"
-        }
-      ]
-    },
-    {
-      "id": "dardanian-gates-candidate",
-      "kind": "region",
-      "polygon": [
-        [
-          0.4282,
-          0.4902
-        ],
-        [
-          0.4952,
-          0.4971
-        ],
-        [
-          0.4943,
-          0.5315
-        ],
-        [
-          0.416,
-          0.5234
-        ]
-      ],
-      "note": "Where the Dardanian Gates are placed, on the reasoning that Dardania lay to the southeast and the South Gate VI T is the gate that faces that way — the identification Cook records. Hector keeps breaking for them during the chase, hoping to get in under the well-built towers (Il. 22.194-95), and Priam has to be held back from going out through them (22.413). Whether Homer means a second gate at all, or another name for the Scaean, is itself disputed.",
-      "sources": [
-        {
-          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
-        }
-      ]
-    },
-    {
-      "id": "great-tower-position",
-      "kind": "region",
-      "polygon": [
-        [
-          0.2254,
-          0.3231
-        ],
-        [
-          0.1787,
-          0.3279
-        ],
-        [
-          0.1914,
-          0.3681
-        ],
-        [
-          0.2363,
-          0.3575
-        ]
-      ],
-      "note": "The great tower of Ilios is placed beside the Scaean pin because the poem binds tower and gate together, not because any excavated tower has been identified with it. Andromache runs ἐπὶ πύργον ... μέγαν Ἰλίου when she hears the Trojans are being worn down (Il. 6.386-87), the elders watch from a tower (3.153-54), Priam stands θείου ἐπὶ πύργου and sees Achilles coming (21.526), and Hector sets his shield against πύργῳ ἔπι προὔχοντι, the jutting tower, to wait for him (22.97). The largest tower actually planned is VI g at the northeast, on the far side of the citadel and under the Roman precinct.",
-      "sources": [
-        {
-          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912.",
-          "url": "https://archive.org/details/troyastudyinhom00leafgoog"
-        },
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902.",
-          "url": "https://archive.org/details/trojaundilionerg00drpf"
-        }
-      ]
-    },
-    {
-      "id": "oak-outside-the-gate",
-      "kind": "region",
-      "polygon": [
-        [
-          0.2197,
-          0.438
-        ],
-        [
-          0.1907,
-          0.4528
-        ],
-        [
-          0.2523,
-          0.5027
-        ],
-        [
-          0.2755,
-          0.4832
-        ]
-      ],
-      "note": "The oak stands outside the wall, and the plate puts it there for one reason only: the formula does. Σκαιάς τε πύλας καὶ φηγόν closes the verse three times over (Il. 6.237 = 9.354 = 11.170), and men reaching the gate from the plain reach the tree in the same breath. Sarpedon is laid under the beautiful oak of aegis-bearing Zeus (5.693); Athena and Apollo settle in it as vultures to watch the duel they have arranged (7.58-60). There is no tree on the plan, and there could not be.",
-      "sources": [
-        {
-          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912.",
-          "url": "https://archive.org/details/troyastudyinhom00leafgoog"
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
         }
       ]
     }

@@ -7662,10 +7662,6 @@
       "tradition": "No agreed candidate at Hisarlık; discussed against Troy VI's South Gate and west gate since Dörpfeld (1902) and Cook (1973)",
       "kind": "gate",
       "plateAnchors": {
-        "troy-citadel": [
-          0.2445,
-          0.4025
-        ],
         "trojan-plain-schematic": [
           0.443,
           0.227
@@ -7728,10 +7724,6 @@
       "tradition": "Sometimes identified with Troy VI's South Gate, on the reasoning that Dardania lay to the southeast (Cook 1973)",
       "kind": "gate",
       "plateAnchors": {
-        "troy-citadel": [
-          0.4589,
-          0.5079
-        ],
         "trojan-plain-schematic": [
           0.573,
           0.226
@@ -7783,10 +7775,6 @@
       "tradition": "No specific tower securely identified; discussed as part of the Scaean Gate complex since Leaf (1912)",
       "kind": "tower",
       "plateAnchors": {
-        "troy-citadel": [
-          0.2138,
-          0.347
-        ],
         "trojan-plain-schematic": [
           0.487,
           0.234
@@ -7846,10 +7834,6 @@
       "tradition": "Fixed only by the poem's own narrative geography (Leaf 1912; Luce 1998); no physical tree survives to identify",
       "kind": "tree",
       "plateAnchors": {
-        "troy-citadel": [
-          0.2216,
-          0.4777
-        ],
         "trojan-plain-schematic": [
           0.424,
           0.258
