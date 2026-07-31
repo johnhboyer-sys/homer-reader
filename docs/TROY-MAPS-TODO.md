@@ -308,3 +308,36 @@ gazetteer corrections applied. Every extraction Grok-verified before commit.
    secondary and optional-later**, built only after Plate A ships, if at
    all. **Shield figuration design** — register decided (2f, refined
    Metallmalerei metallics, 16:23); design may proceed.
+
+## Drawing-session state (2026-07-30 evening, paused at John's call 22:22)
+
+Committed this session: all item-0 rulings applied; schematic anchors (30
+places, camp by holder); contour re-cut + in-repo render harness
+(`scripts/render-plates.mjs`); label collision avoidance + textPath fix;
+Chart Room schematic routing (291 scenes); plate UX (pan/zoom, honest scale
+bar, certainty filter); hardening (plate-level `sources` mandatory,
+shore-bronze trim, ἴστωρ breathing-swap — **pipeline re-emit still owed**);
+kum-tepe reclassified + lagoon west arc retracted (John's catch); pergamos/
+wall-of-troy off the plain sheet (John's catch).
+
+**Two new rulings (John, live):**
+- **Citadel interior (22:13): the plate carries the POEM'S city inside
+  Dörpfeld's walls** — third register, "set by the poem, not by survey":
+  house of Priam + agora at his doors (2.788), houses of Hector and Paris
+  ἐν πόλει ἄκρῃ (6.313-17), temple of Athena (6.297), Apollo's shrine in
+  Pergamos (5.446), street armature. NOT yet drawn — the v3 lane was
+  stopped mid-directive.
+- **Aesthetic register (21:20, in TROAD-CARTOGRAPHY.md): "polish and
+  professionalism with style"** — the engraved-plan bar, binds every plate.
+
+**Citadel state:** WIP commit `3fb2d90e2` — skeleton good (continuous
+circuit across registers, terraces, truthful legend, furniture), interior
+empty, **fails John's bar, no sign-off, ships nowhere**. Orchestrator's
+failure-mode entry in CLAUDE.md ("an accurate drawing of the wrong thing")
+governs the next brief.
+
+**Also owed:** schematic-sheet craft pass (John: current sheet "awful" as
+design — labels-in-beige, no hierarchy; plan in session log); Sol
+cross-family review of the session's commits (two infra-killed attempts);
+shield-of-achilles plate-level `sources` (now a validator error);
+`build:public` + preflight after the ἴστωρ re-emit.
