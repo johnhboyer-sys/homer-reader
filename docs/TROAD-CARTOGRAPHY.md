@@ -11,6 +11,16 @@ not repeat them.
 Every URL below was fetched. Every Iliad line was verified by script against
 `build/dist/iliad/book-*.json`, not from memory.
 
+**Aesthetic register, RULED (John, 2026-07-30, on the citadel plate — binds every
+plate):** "Detailed but not ugly. Styled but not abstract and overly stylized.
+Not some historical fiction fanfic art shit done with colored pencils. No. Not
+us. We want polish and professionalism with style." In practice: the
+engraved-plan tradition — fine consistent linework, real drawn detail,
+restrained palette from the site's tokens, letterspaced caps; no faux-antique
+effects, no hand-drawn wobble, no illustrative shading. Same voice as the
+Shield's 2f ("refined, not gaudy or tacky"). The LOOK-gate bar: would a
+Landmark-quality print cartographer sign it?
+
 ---
 
 ## Defects this lane found in existing code
