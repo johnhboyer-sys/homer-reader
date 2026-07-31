@@ -418,6 +418,18 @@ And from his expanded set, the ones this project adopts:
   moved; symlink `build/` to the main checkout so the corpus is readable
   without a 6-minute rebuild, and treat it as read-only.
 
+- **An accurate drawing of the wrong thing** (2026-07-30, John: "an
+  archeological picture of troy is useless"): Plate A first shipped as a
+  faithful trace of Dörpfeld's excavation record — rectified, validated,
+  LOOK-gated, and wrong, because the reader-facing plate must show the
+  poem's standing city, with research as accuracy source and excavation
+  apparatus demoted to notes. Every gate passed; none asked "what does the
+  reader of Homer see?" **Drawing briefs must state the reader-facing
+  register explicitly** — a lane handed survey sources will draw the survey.
+  Standing rule recorded the same day: "this is a HOMER reader, not an
+  archeology site"; the research was to get the details right, never the
+  subject.
+
 - **A map with no map under it** (2026-07-28, John: "it's just shapes. no
   geography at all. my 5 year old could draw this"): the Troy plates shipped to a
   PR with hand-authored coordinate arrays — 5-17 vertices per coastline — as
