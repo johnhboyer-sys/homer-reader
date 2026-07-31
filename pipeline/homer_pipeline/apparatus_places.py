@@ -60,7 +60,11 @@ LAYER_KIND_ENUM = {
 # "none" (added 2026-07-29) is a region that draws nothing at all: a lettering
 # zone for a named tract of country whose extent nobody surveyed. See
 # REGION_FILL_TOKENS in shared/lib/plate.ts, which this mirrors.
-REGION_FILL_ENUM = {"tint", "sea", "lagoon", "land", "marsh", "plain", "none"}
+# "masonry" (added 2026-07-30, citadel plate) is surveyed built stone -- a wall,
+# a tower, a house block traced off an excavation plan -- drawn opaque with an
+# ink face rather than as a wash, because on a plan of a dug site the difference
+# between measured masonry and restored line is the content of the sheet.
+REGION_FILL_ENUM = {"tint", "masonry", "sea", "lagoon", "land", "marsh", "plain", "none"}
 # What the bare sheet is under every layer, per the same contract.
 GROUND_ENUM = {"land", "sea"}
 STOCHASTIC_STYLES = {"stipple", "hachure"}
@@ -396,6 +400,25 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
     ):
         problems.append(f"{label}: size must be a 2-element array of positive numbers")
 
+    # Plate pixels per metre of ground: a schematic plate's declaration that it
+    # IS drawn to a true and constant scale, which is what lets the renderer draw
+    # a bar scale on a sheet that otherwise has no metre in it (parsePlate's
+    # `pxPerMetre` / metreBarMarkup in shared/lib/plate.ts). A bar computed from
+    # a zero or negative figure would be a drawn lie, so it is rejected rather
+    # than coerced away, matching the TS lane.
+    px_per_metre = doc.get("pxPerMetre")
+    if px_per_metre is not None and (not _is_number(px_per_metre) or px_per_metre <= 0):
+        problems.append(
+            f"{label}: pxPerMetre must be a number > 0, got {px_per_metre!r}"
+        )
+
+    # The caption under the north arrow, and the arrow's own switch. The words
+    # ARE the caveat -- an 1890s magnetic bearing is not true north -- so a blank
+    # one would draw an arrow that claims an orientation it does not name.
+    north = doc.get("north")
+    if north is not None and (not isinstance(north, str) or not north.strip()):
+        problems.append(f"{label}: north must be a non-empty string")
+
     layers = doc.get("layers")
     if "layers" in doc and not isinstance(layers, list):
         problems.append(f"{label}: layers must be a list")
@@ -446,6 +469,16 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
         default = layer.get("default")
         if default is not None and default not in ("on", "off"):
             problems.append(f"{label}: layer {layer_label} default must be 'on' or 'off'")
+
+        # The words this layer's key row is to read, overriding the register
+        # name the renderer would derive (layerLegendEntry in
+        # shared/lib/plate.ts). Blank is an authoring slip, not an instruction
+        # to key the row with an empty string.
+        legend = layer.get("legend")
+        if legend is not None and (not isinstance(legend, str) or not legend.strip()):
+            problems.append(
+                f"{label}: layer {layer_label} legend must be a non-empty string"
+            )
 
         fill = layer.get("fill")
         if fill is not None and (not isinstance(fill, str) or fill not in REGION_FILL_ENUM):

@@ -52,7 +52,19 @@ const GLOBAL_CSS = path.join(SHARED, 'styles', 'global.css');
 // this sheet into a tab yet (item 3's Chart Room routing is separate,
 // unfinished work); this harness only needs the tag to fetch the same place
 // set the eventual UI will.
-const MAP_TAG = { troad: 'troad', 'trojan-plain': 'troad-plain', 'trojan-plain-schematic': 'troad-plain' };
+// troy-citadel carries its own tag (2026-07-30). None of the eight places tagged
+// for it declares a `plateAnchors['troy-citadel']`, and a schematic plate only
+// resolves a pin through that field (resolvePlacePosition), so every one of them
+// lands in `unlocated`/`drawnByLayer` and the sheet draws no pins at all — which
+// is the intended outcome, not an oversight: no gate at Hisarlık has been shown
+// to be a gate Homer names, so there is no honest point to mark. The tag is
+// wired anyway so this harness fetches the same place set the UI will.
+const MAP_TAG = {
+  troad: 'troad',
+  'trojan-plain': 'troad-plain',
+  'trojan-plain-schematic': 'troad-plain',
+  'troy-citadel': 'troy-citadel',
+};
 
 function findChromeHeadlessShell() {
   const cacheDir = path.join(process.env.HOME, 'Library', 'Caches', 'ms-playwright');
@@ -137,6 +149,7 @@ function parseArgs(argv) {
     out: path.join('build', 'plate-review', 'recut'),
     scale: 2,
     crops: [], // { sheet, label, box: [minLat, minLon, maxLat, maxLon], zoom }
+    pxcrops: [], // { label, box: [x0, y0, x1, y1], zoom } — plate-pixel space, see --pxcrop
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -144,7 +157,15 @@ function parseArgs(argv) {
     else if (a === '--theme') out.themes = argv[++i].split(',');
     else if (a === '--out') out.out = argv[++i];
     else if (a === '--scale') out.scale = Number(argv[++i]);
-    else if (a === '--crop') {
+    else if (a === '--pxcrop') {
+      // label:x0,y0,x1,y1:zoom — a crop in the plate's OWN pixel space. The
+      // lat/lon --crop below cannot address a schematic sheet at all (it has no
+      // geography to project), and the citadel plate is the sheet whose linework
+      // most needs looking at up close.
+      const [label, box, zoomStr] = argv[++i].split(':');
+      const [x0, y0, x1, y1] = box.split(',').map(Number);
+      out.pxcrops.push({ label, box: [x0, y0, x1, y1], zoom: Number(zoomStr) });
+    } else if (a === '--crop') {
       // label:minLat,minLon,maxLat,maxLon:zoom — applies to every --sheet
       // given (a crop spec that doesn't apply to a sheet's own bbox will
       // just clip to empty space, which the maker will notice at a glance).
@@ -186,6 +207,19 @@ async function main() {
       shoot(chromeBin, htmlPath, pngPath, plateW, plateH, args.scale);
       written.push(pngPath);
       console.log(`[render-plates] wrote ${pngPath} (${plateW}x${plateH} @${args.scale}x)`);
+    }
+
+    for (const crop of args.pxcrops) {
+      const [x0, y0, x1, y1] = crop.box;
+      for (const theme of args.themes) {
+        const { html, cw, ch } = cropHtml(result.svg, theme, plateW, plateH, x0, y0, x1, y1, crop.zoom);
+        const htmlPath = path.join(outDir, `${sheet}-crop-${crop.label}-${theme}.html`);
+        const pngPath = path.join(outDir, `${sheet}-crop-${crop.label}-${theme}.png`);
+        writeFileSync(htmlPath, html);
+        shoot(chromeBin, htmlPath, pngPath, cw, ch, args.scale);
+        written.push(pngPath);
+        console.log(`[render-plates] wrote ${pngPath} (pxcrop ${crop.label} @${crop.zoom}x, ${cw}x${ch} px)`);
+      }
     }
 
     for (const crop of args.crops) {

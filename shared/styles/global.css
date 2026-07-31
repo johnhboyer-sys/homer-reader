@@ -195,6 +195,20 @@
   --plate-plain:          #EDE6D0; /* dry usable ground, a warm step off the parchment sheet */
   --plate-upland:         #DED0B3; /* relief body: warmer and heavier than the plain, so the
                                       hachure strokes read as shading ON a landform */
+  /* Surveyed masonry (2026-07-30, citadel plate): the fill for a wall, tower or
+     house block traced off an excavation plan. Not terrain and not the
+     decorative --plate-tint it replaced there: on a plan of a dug site the wall
+     IS the subject, and a 0.35-alpha wash of the UI accent drew the strongest
+     claim on the sheet as its faintest mark. Dörpfeld printed his own masonry
+     in red ("bei der Festungsmauer ist der Unterbau hellrot, die dünnere
+     Obermauer dunkelrot getönt", 1902, 2:650), so the hue follows the source
+     and only the weight is ours. Both values clear 3:1 against the sheet's own
+     ground in their theme — the band is the graphical object a reader has to
+     see, so it carries the WCAG 1.4.11 burden itself rather than leaning on the
+     hairline face drawn over it (same posture as the hachure, which is measured
+     against the relief body it shades, not against the ground). Regression-
+     guarded in shared/__tests__/plate-map-contrast.test.ts. */
+  --plate-masonry:        #A87263;
   /* River / waterline ink (2026-07-28, a defect this lane MEASURED in dark
      theme): rivers and waterlines used to stroke in --scene-map-sea, which is
      the SEA FILL — #0A1C2A in dark. A near-black channel over warm dark land
@@ -330,6 +344,7 @@
     --plate-marsh:          #46503A;
     --plate-plain:          #52483A;
     --plate-upland:         #584A3B;
+    --plate-masonry:        #A8846F; /* surveyed masonry, dark — see the :root block's comment */
     --plate-river:          #B4DAEF;
     /* Hypsometric relief ramp, dark (see the :root block's comment). NOT the
      light ramp inverted: dark theme's ground is the warm near-black
@@ -384,6 +399,7 @@
   --plate-marsh:          #46503A;
   --plate-plain:          #52483A;
   --plate-upland:         #584A3B;
+  --plate-masonry:        #A8846F; /* surveyed masonry, dark — see the :root block's comment */
   --plate-river:          #B4DAEF;
   /* Hypsometric relief ramp, dark (see the :root block's comment). NOT the
      light ramp inverted: dark theme's ground is the warm near-black
@@ -440,6 +456,7 @@
   --plate-marsh:          #C7D3A5;
   --plate-plain:          #EDE6D0;
   --plate-upland:         #DED0B3;
+  --plate-masonry:        #A87263; /* surveyed masonry, light — see the :root block's comment */
   --plate-river:          #1A4C6A;
   /* Hypsometric relief ramp (2026-07-29). Twelve graduated elevation tints,
      low to high, for a plate's contoured `relief` bands: shared/lib/plate.ts

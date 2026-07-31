@@ -110,6 +110,17 @@ const LAYER_KINDS: readonly LayerKind[] = [
 // whose extent nobody surveyed (see the `region` case in renderLayer).
 const REGION_FILL_TOKENS = {
   tint: 'var(--plate-tint)',
+  // Surveyed masonry: a wall, a tower, a house block traced off an excavation
+  // plan (2026-07-30, citadel plate). Its own register, not a decorative tint,
+  // because on a plan of a dug site the difference between "these stones were
+  // measured" and "this line is restored" is the whole content of the sheet.
+  // Dörpfeld printed his own masonry in red — "bei der Festungsmauer ist der
+  // Unterbau hellrot, die dünnere Obermauer dunkelrot getönt" (1902, 2:650) —
+  // so the token stays in that family rather than inventing a colour for a
+  // convention the source already fixed; what it adds is opacity and an INK
+  // edge, so a wall band reads as built stone with a drawn face instead of a
+  // wash. See the `region` case in renderLayer for the edge.
+  masonry: 'var(--plate-masonry)',
   sea: 'var(--scene-map-sea)',
   lagoon: 'var(--plate-lagoon)',
   land: 'var(--scene-map-land)',
@@ -130,6 +141,8 @@ const DEFAULT_REGION_FILL: RegionFill = 'plain';
 // token itself, see shared/__tests__/plate-map-contrast.test.ts).
 const REGION_FILL_OPACITY: Record<RegionFill, number> = {
   tint: 0.35,
+  // Opaque: masonry is a body of stone, not a wash over ground.
+  masonry: 1,
   sea: 1,
   lagoon: 1,
   land: 1,
@@ -185,6 +198,17 @@ export interface PlateLayer {
    * Troy (the silted embayment)" is the former).
    */
   label?: string;
+  /**
+   * The words this layer's own key row is to read (2026-07-30, citadel plate).
+   * The auto-derived rows name a REGISTER — "Fortification", "Dry plain" — which
+   * is right for a sheet whose registers are self-explaining and wrong for one
+   * where the same register carries two different claims: on the citadel plate
+   * the tinted bands are surveyed masonry and the open bands are Dörpfeld's
+   * restoration, and a key reading "Apparatus zone" against either of them tells
+   * a reader nothing about which. Set it and the row keeps its swatch and takes
+   * these words; leave it and nothing changes.
+   */
+  legend?: string;
   note?: string;
   sources?: PlateSource[];
   default?: 'on' | 'off';
@@ -241,6 +265,28 @@ export interface Plate {
   size: [number, number]; // [widthPx, heightPx]
   /** What the bare sheet is under every layer. See PlateGround. Default 'land'. */
   ground?: PlateGround;
+  /**
+   * Plate pixels per metre of ground — a schematic plate's declaration that it
+   * IS drawn to a true and constant scale (2026-07-30, citadel plate). A
+   * schematic plate normally has none: the Trojan plain laid out as the poem
+   * lays it out has no metre in it, and drawing a bar scale on such a sheet
+   * would be a fabricated claim, which is why the bar is otherwise
+   * geographic-only. The citadel plate is the other case — every vertex on it
+   * is traced off Dörpfeld's 1:800 Tafel V, so there is a real metre on the
+   * sheet and withholding the bar would be the dishonesty. Declare it only
+   * where the whole sheet is one rectified survey; a plate that mixes a
+   * measured plan with placed-by-eye material has no single figure to give.
+   */
+  pxPerMetre?: number;
+  /**
+   * The caption under this plate's north arrow (2026-07-30, citadel plate).
+   * Its presence is what draws the arrow at all, and the words are the caveat:
+   * a plan on an 1890s magnetic bearing is not on true north, and the sheet
+   * should say which it is rather than leaving a reader to assume. Omit it and
+   * no arrow is drawn — the honest default for a plate with no declared
+   * orientation.
+   */
+  north?: string;
   layers: PlateLayer[];
   // Schematic-only: concentric bands (see PlateBand). A schematic plate
   // declares `bands` or `layers` (or both); geographic plates never carry
@@ -431,6 +477,12 @@ function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, numb
   if (l.default !== undefined && l.default !== 'on' && l.default !== 'off') {
     fail(`layer "${l.id}" has an unknown default "${String(l.default)}" (must be "on" or "off")`);
   }
+  // A legend override that is present but blank is an authoring slip, not an
+  // instruction to key the row with an empty string — reject it rather than
+  // silently falling back to the derived words (mirrors apparatus_places.py).
+  if (l.legend !== undefined && (typeof l.legend !== 'string' || !l.legend.trim())) {
+    fail(`layer "${l.id}" has a malformed "legend" (must be a non-empty string)`);
+  }
   // Mirrors apparatus_places.py's validate_plate: an elevation is a real
   // measurement off the DEM, so a non-numeric or negative one is a data
   // error, not something to coerce away. (Sea level itself, 0, is legal.)
@@ -459,6 +511,7 @@ function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, numb
     kind: l.kind as LayerKind,
     placeId: typeof l.placeId === 'string' ? l.placeId : undefined,
     label: typeof l.label === 'string' && l.label.trim() ? l.label : undefined,
+    legend: typeof l.legend === 'string' && l.legend.trim() ? l.legend : undefined,
     note: typeof l.note === 'string' ? l.note : undefined,
     sources: parseSources(l.sources, l.id),
     default: l.default === 'on' || l.default === 'off' ? l.default : undefined,
@@ -558,6 +611,18 @@ export function parsePlate(data: unknown): Plate {
   }
   const ground = d.ground as PlateGround | undefined;
 
+  // See Plate.pxPerMetre / Plate.north. Both are claims a reader will measure
+  // the sheet against — a bar scale and a bearing — so a malformed one is
+  // rejected rather than coerced away: a zero or negative scale would draw a
+  // bar of nonsense, and a blank caption would draw an arrow that says nothing
+  // about which north it points to.
+  if (d.pxPerMetre !== undefined && !(isFiniteNumber(d.pxPerMetre) && d.pxPerMetre > 0)) {
+    fail('pxPerMetre must be a number > 0');
+  }
+  if (d.north !== undefined && (typeof d.north !== 'string' || !d.north.trim())) {
+    fail('north must be a non-empty string (the caption under the arrow)');
+  }
+
   if (kind === 'geographic' && d.layers === undefined) fail('missing layers');
   if (d.layers !== undefined && !Array.isArray(d.layers)) fail('layers must be an array');
   if (kind === 'schematic' && d.bands === undefined && d.layers === undefined) {
@@ -607,6 +672,8 @@ export function parsePlate(data: unknown): Plate {
     bbox,
     size,
     ground,
+    pxPerMetre: isFiniteNumber(d.pxPerMetre) ? d.pxPerMetre : undefined,
+    north: typeof d.north === 'string' && d.north.trim() ? d.north : undefined,
     layers,
     bands,
   };
@@ -1031,14 +1098,122 @@ export interface WallGlyphResult {
 // closed) tells us which way it curls on the whole, and every segment's
 // tick is drawn on that same side, consistently, rather than flipping
 // per-segment or defaulting to an arbitrary left/right.
-export function wallGlyph(trace: PlatePoint[]): WallGlyphResult {
-  if (trace.length < 2) return { line: '', ticks: '' };
-
+export function traceSide(trace: PlatePoint[]): 1 | -1 {
   let signedArea = 0;
   for (let i = 0; i + 1 < trace.length; i++) {
     signedArea += trace[i][0] * trace[i + 1][1] - trace[i + 1][0] * trace[i][1];
   }
-  const side = signedArea >= 0 ? 1 : -1;
+  return signedArea >= 0 ? 1 : -1;
+}
+
+// One side of a polyline, offset by `dist` along the vertex normals. The
+// normal at an interior vertex is the bisector of its two segment normals,
+// lengthened by 1/cos(half-angle) — a plain average pinches the offset shut
+// through a bend, which on a wall band shows up as the band narrowing at every
+// one of Dörpfeld's offsets, i.e. exactly where a reader is looking. The miter
+// is clamped so a near-reversal (a spur, a gate return) can't throw the offset
+// vertex to infinity.
+const MAX_MITER = 4;
+export function offsetPolyline(pts: PlatePoint[], dist: number): [number, number][] {
+  const n = pts.length;
+  if (n < 2) return pts.map((p) => [p[0], p[1]]);
+  const seg: [number, number][] = [];
+  for (let i = 0; i + 1 < n; i++) {
+    const dx = pts[i + 1][0] - pts[i][0];
+    const dy = pts[i + 1][1] - pts[i][1];
+    const len = Math.hypot(dx, dy) || 1;
+    seg.push([-dy / len, dx / len]); // unit normal, left of travel
+  }
+  // A polyline that comes back to its own first point (the citadel's terrace
+  // rings) is mitred across the seam too — otherwise the closing vertex takes a
+  // one-sided normal and the band shows a notch at whichever arbitrary point
+  // the author happened to start the ring.
+  const closed =
+    Math.hypot(pts[n - 1][0] - pts[0][0], pts[n - 1][1] - pts[0][1]) < 1e-6 && seg.length > 1;
+  const out: [number, number][] = [];
+  for (let i = 0; i < n; i++) {
+    const a = seg[i === 0 ? (closed ? seg.length - 1 : 0) : i - 1];
+    const b = seg[i === n - 1 ? (closed ? 0 : seg.length - 1) : i];
+    let nx = a[0] + b[0];
+    let ny = a[1] + b[1];
+    const mag = Math.hypot(nx, ny);
+    if (mag < 1e-9) {
+      nx = b[0];
+      ny = b[1];
+    } else {
+      nx /= mag;
+      ny /= mag;
+      const cos = nx * b[0] + ny * b[1];
+      const miter = Math.min(MAX_MITER, cos > 1e-3 ? 1 / cos : MAX_MITER);
+      nx *= miter;
+      ny *= miter;
+    }
+    out.push([pts[i][0] + nx * dist, pts[i][1] + ny * dist]);
+  }
+  return out;
+}
+
+export interface WallBandGlyphResult {
+  /** The two faces of the band, as one `d` of two open subpaths. */
+  faces: string;
+  /** Sparse slant strokes spanning the band, as one `d`. '' when there is no room. */
+  hatch: string;
+}
+
+// A RESTORED length of wall: the same wall, drawn hollow. Two fine faces at the
+// wall's own width with an open interior and a sparse slant hatch inside it —
+// the archaeological plan's oldest distinction, solid for what was dug and
+// outline for what was reasoned, and the reason this replaced a ticked hairline
+// (2026-07-30): drawn as a line beside 5 m bands of surveyed masonry, a
+// restored stretch did not read as the same wall continuing, it read as a
+// different kind of object, and a reader's eye lost the circuit at the join.
+// Width is the caller's, in plate pixels, because it is a DRAWING convention
+// and not a measurement — nobody has measured the thickness of a wall nobody
+// has seen; matching the surveyed band beside it is what says "this wall, here,
+// restored", and the layer's own note says the rest.
+export function wallBandGlyph(trace: PlatePoint[], width: number): WallBandGlyphResult {
+  if (trace.length < 2 || !(width > 0)) return { faces: '', hatch: '' };
+  const half = width / 2;
+  const left = offsetPolyline(trace, half);
+  const right = offsetPolyline(trace, -half);
+  const faces = `${pathD(left, false)} ${pathD(right, false)}`;
+
+  // Arc length along the centre line, so the hatch keeps an even rhythm
+  // through the offsets rather than bunching where vertices crowd.
+  const cum: number[] = [0];
+  for (let i = 0; i + 1 < trace.length; i++) {
+    cum.push(cum[i] + Math.hypot(trace[i + 1][0] - trace[i][0], trace[i + 1][1] - trace[i][1]));
+  }
+  const total = cum[cum.length - 1];
+  const spacing = Math.max(width * 1.6, 14);
+  if (!(total > spacing * 2)) return { faces, hatch: '' };
+  const at = (pts: [number, number][], s: number): [number, number] => {
+    const t = Math.min(Math.max(s, 0), total);
+    let i = 1;
+    while (i < cum.length - 1 && cum[i] < t) i++;
+    const span = cum[i] - cum[i - 1] || 1;
+    const f = (t - cum[i - 1]) / span;
+    return [
+      pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f,
+      pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f,
+    ];
+  };
+  const parts: string[] = [];
+  // The slant: each stroke runs from one face to the other one band-width
+  // further along, so it lies at about 45° to the wall all the way round and
+  // stays a hatch rather than becoming a ladder of rungs.
+  for (let s = spacing; s <= total - width - 1; s += spacing) {
+    const a = at(left, s);
+    const b = at(right, s + width);
+    parts.push(`M ${round1(a[0])} ${round1(a[1])} L ${round1(b[0])} ${round1(b[1])}`);
+  }
+  return { faces, hatch: parts.join(' ') };
+}
+
+export function wallGlyph(trace: PlatePoint[]): WallGlyphResult {
+  if (trace.length < 2) return { line: '', ticks: '' };
+
+  const side = traceSide(trace);
 
   const tickSpacing = 12;
   const tickLen = 4;
@@ -1689,12 +1864,39 @@ const REGION_LEGEND_TEXT: Record<RegionFill, string> = {
   plain: 'Dry plain',
   land: 'Land',
   tint: 'Apparatus zone',
+  masonry: 'Masonry, surveyed',
   none: '',
 };
 
 // One key row per drawn register. `undefined` means the layer needs no row
-// (its meaning is carried by its own name on the sheet).
+// (its meaning is carried by its own name on the sheet). A layer's own
+// `legend` string, when it has one, replaces the derived words and re-keys the
+// row on them, so two layers in the SAME register but making different claims
+// (the citadel's restored circuit and its restored terrace lines) each get a
+// row instead of the first one silently swallowing the second in
+// legendMarkup's first-wins dedupe.
 function layerLegendEntry(layer: PlateLayer): LegendEntry | undefined {
+  const entry = derivedLegendEntry(layer);
+  if (!entry || !layer.legend) return entry;
+  return { ...entry, key: `${entry.key}:${layer.legend}`, text: layer.legend };
+}
+
+function derivedLegendEntry(layer: PlateLayer): LegendEntry | undefined {
+  // The poem's register keys once, whatever kind of thing carries it — a house,
+  // a temple, a street. Wording mirrors the conjectural-pin row the schematic
+  // sheets already use, because it is the same claim about the same kind of
+  // knowledge; the swatch is a scrap of the drawing, an open dashed outline.
+  if (layer.style === 'poem') {
+    return {
+      key: 'poem',
+      rank: 9,
+      text: 'Set by the poem, not by survey',
+      swatch: (x, y) =>
+        `<rect x="${round1(x + 2)}" y="${round1(y - 4)}" width="${LEGEND_SWATCH_W - 4}" height="8" ` +
+        `fill="none" stroke="var(--text-mid)" stroke-width="${POEM_STROKE_WIDTH}" ` +
+        `stroke-dasharray="${POEM_DASHARRAY}"/>`,
+    };
+  }
   switch (layer.kind) {
     case 'coast': {
       // The soft-band register is this project's honest treatment of a
@@ -1744,6 +1946,23 @@ function layerLegendEntry(layer: PlateLayer): LegendEntry | undefined {
           `<path d="${[4, 9, 14, 19].map((o) => `M ${round1(x + o)} ${round1(y - 3.5)} v 7`).join(' ')}" fill="none" stroke="var(--flaxman-hachure)" stroke-width="0.9"/>`,
       };
     case 'wall':
+      // Restored and surveyed are two claims, so they are two rows. The swatch
+      // is the drawing in miniature: two faces with the interior left open and
+      // one slant stroke across it, which is the whole of what the register
+      // means — this wall, at its width, not dug.
+      if (layer.style === 'restored') {
+        return {
+          key: 'wall-restored',
+          rank: 5.5,
+          text: 'Wall restored — not surveyed',
+          swatch: (x, y) =>
+            `<path d="M ${round1(x)} ${round1(y - 3)} h ${LEGEND_SWATCH_W} M ${round1(x)} ${round1(y + 3)} h ${LEGEND_SWATCH_W}" ` +
+            `fill="none" stroke="var(--flaxman-ink)" stroke-width="${STROKE_WEIGHT.restoredFace}"/>` +
+            `<path d="M ${round1(x + 7)} ${round1(y - 3)} L ${round1(x + 13)} ${round1(y + 3)} ` +
+            `M ${round1(x + 15)} ${round1(y - 3)} L ${round1(x + 21)} ${round1(y + 3)}" ` +
+            `fill="none" stroke="var(--flaxman-ink)" stroke-width="${STROKE_WEIGHT.restoredHatch}" stroke-opacity="0.6"/>`,
+        };
+      }
       return { key: 'wall', rank: 5, text: 'Fortification', swatch: (x, y) => legendLine(x, y, 'var(--flaxman-ink)', STROKE_WEIGHT.wall) };
     case 'shipRow':
       return { key: 'shipRow', rank: 6, text: 'Beached ships', swatch: (x, y) => `<path d="${shipRow([[x + 2, y + 2], [x + 20, y + 2]], 1, 2, { seed: 7 })}" fill="var(--flaxman-ink)" stroke="none"/>` };
@@ -1938,7 +2157,72 @@ function barSegments(x0: number, y: number, len: number, height: number, segment
 // of the one this module emitted at zoom 1. This keeps the renderer itself
 // pure — it always draws for zoom 1, unaware any camera exists — while the
 // component owns the zoom-dependent re-render.
-export function scaleBarMarkup(viewport: Viewport, width: number, height: number): string {
+const NICE_METRES = [5, 10, 20, 25, 50, 100, 200, 500];
+
+function scaleLabel(x: number, y: number, s: string, anchor: LabelAnchor): string {
+  return (
+    `<text class="plate-scale-label" x="${round1(x)}" y="${round1(y)}" text-anchor="${anchor}" ` +
+    `font-family="var(--font-ui)" font-size="${SCALE_FONT}" fill="var(--text-mid)" paint-order="stroke" ` +
+    `stroke="var(--scene-map-label-halo)" stroke-width="2" stroke-linejoin="round">${escapeXml(s)}</text>`
+  );
+}
+
+function scalePanelRect(x0: number, top: number, w: number, h: number): string {
+  return (
+    `<rect class="plate-scale-panel" x="${round1(x0 - 6)}" y="${round1(top)}" ` +
+    `width="${round1(w)}" height="${round1(h)}" rx="2" ` +
+    `fill="var(--scene-map-label-halo)" fill-opacity="0.72" stroke="none"/>`
+  );
+}
+
+// The METRE bar, for a schematic plate that declares a true `pxPerMetre` (see
+// Plate.pxPerMetre). One bar, not two: a stade is 185 m and the citadel of Troy
+// is barely more than that across, so a stade bar here would run off its own
+// panel and tell a reader nothing — the sheet's unit is the excavator's, and
+// his own Fig. 470 carries a 0–200 m bar for exactly this reason. Same
+// alternating filled/open engraving as the geographic bar, so the two read as
+// one family of furniture.
+function metreBarMarkup(pxPerMetre: number, width: number, height: number): string {
+  if (!Number.isFinite(pxPerMetre) || pxPerMetre <= 0) return '';
+  const maxPx = Math.min(width * 0.34, 240);
+  const metres = niceLength(NICE_METRES, pxPerMetre, maxPx);
+  const barPx = metres * pxPerMetre;
+  if (!(barPx > 2)) return '';
+
+  const x0 = SCALE_X0;
+  const baseY = height - LABEL_MARGIN - 16;
+  const barH = SCALE_BAR_H;
+  const top = baseY - barH - SCALE_FONT - 9;
+  return (
+    `<g class="plate-scale">` +
+    scalePanelRect(x0, top, barPx + 46, barH + SCALE_FONT + 17) +
+    `<path class="plate-scale-bar" d="${barSegments(x0, baseY - barH, barPx, barH, 4)}" ` +
+    `fill="var(--flaxman-ink)" stroke="none"/>` +
+    `<path class="plate-scale-bar-outline" d="M ${round1(x0)} ${round1(baseY - barH)} h ${round1(barPx)} v ${barH} h ${round1(-barPx)} Z" ` +
+    `fill="none" stroke="var(--flaxman-ink)" stroke-width="0.6"/>` +
+    scaleLabel(x0, baseY - barH - 3, '0', 'middle') +
+    scaleLabel(x0 + barPx + 3, baseY - barH - 3, `${metres} m`, 'start') +
+    `</g>`
+  );
+}
+
+export interface ScaleBarOptions {
+  /**
+   * Plate pixels per metre. Given, the bar is drawn in METRES off this figure
+   * and the viewport is not consulted — the mode a schematic plate drawn to a
+   * true scale takes (see Plate.pxPerMetre and metreBarMarkup). Omitted, the
+   * bar is the geographic stades-over-kilometres pair computed from `viewport`.
+   */
+  pxPerMetre?: number;
+}
+
+export function scaleBarMarkup(
+  viewport: Viewport,
+  width: number,
+  height: number,
+  opts: ScaleBarOptions = {},
+): string {
+  if (opts.pxPerMetre !== undefined) return metreBarMarkup(opts.pxPerMetre, width, height);
   if (!Number.isFinite(viewport.scale) || viewport.scale <= 0) return '';
   const kmPerPx = KM_PER_DEG_LAT / viewport.scale;
   if (!Number.isFinite(kmPerPx) || kmPerPx <= 0) return '';
@@ -1957,10 +2241,7 @@ export function scaleBarMarkup(viewport: Viewport, width: number, height: number
   const barH = SCALE_BAR_H;
   const font = SCALE_FONT;
 
-  const panel =
-    `<rect class="plate-scale-panel" x="${round1(x0 - 6)}" y="${round1(scalePanelTop(height))}" ` +
-    `width="${round1(barW + 46)}" height="${round1(barH * 2 + font * 2 + 16)}" rx="2" ` +
-    `fill="var(--scene-map-label-halo)" fill-opacity="0.72" stroke="none"/>`;
+  const panel = scalePanelRect(x0, scalePanelTop(height), barW + 46, barH * 2 + font * 2 + 16);
 
   const rule =
     `<path class="plate-scale-rule" d="M ${round1(x0)} ${round1(baseY)} H ${round1(x0 + barW)}" ` +
@@ -1978,10 +2259,7 @@ export function scaleBarMarkup(viewport: Viewport, width: number, height: number
     `<path class="plate-scale-bar-outline" d="M ${round1(x0)} ${round1(baseY)} h ${round1(kmPx)} v ${barH} h ${round1(-kmPx)} Z" ` +
     `fill="none" stroke="var(--flaxman-ink)" stroke-width="0.6"/>`;
 
-  const text = (x: number, y: number, s: string, anchor: LabelAnchor) =>
-    `<text class="plate-scale-label" x="${round1(x)}" y="${round1(y)}" text-anchor="${anchor}" ` +
-    `font-family="var(--font-ui)" font-size="${font}" fill="var(--text-mid)" paint-order="stroke" ` +
-    `stroke="var(--scene-map-label-halo)" stroke-width="2" stroke-linejoin="round">${escapeXml(s)}</text>`;
+  const text = scaleLabel;
 
   return (
     `<g class="plate-scale">` +
@@ -1992,6 +2270,67 @@ export function scaleBarMarkup(viewport: Viewport, width: number, height: number
     text(x0, baseY - barH - 3, '0', 'middle') +
     text(x0 + stadePx + 3, baseY - barH - 3, `${stades} stades`, 'start') +
     text(x0 + kmPx + 3, baseY + barH + font, `${km} km`, 'start') +
+    `</g>`
+  );
+}
+
+// ── North arrow ──────────────────────────────────────────────────────────
+// A needle, half-filled, with N above it and the plate's own caption below —
+// the engraved register the rest of the furniture is in, no compass rose and
+// no ornament. Drawn only when the plate declares `north`, and the caption IS
+// the caveat: a plan surveyed on an 1890s magnetic bearing is not on true
+// north, and a bare arrow would quietly claim it was. Sits in the sheet's
+// top-left, the corner the legend's own placement pass ranks last.
+const NORTH_NEEDLE_H = 34;
+const NORTH_HALF_W = 5;
+const NORTH_FONT = 8.5;
+
+const NORTH_TOP = LABEL_MARGIN + 16;
+
+/** Half the caption's rendered width, so the arrow can sit far enough inboard for it. */
+function northCaptionHalf(caption: string): number {
+  return Math.max(NORTH_HALF_W + 4, (caption.length * (NORTH_FONT * 0.55 + 0.6)) / 2);
+}
+
+/**
+ * The arrow's centre. Pushed inboard by whatever its caption needs, because the
+ * caption is centred under the needle and a needle parked at the margin sends
+ * half of it off the sheet (2026-07-30, LOOK gate: "...tic north, 1890s").
+ */
+function northArrowCx(caption: string): number {
+  return LABEL_MARGIN + 6 + northCaptionHalf(caption);
+}
+
+/** The sheet space the arrow and its caption occupy, for the legend to avoid. */
+function northArrowBox(caption: string): Box {
+  const cx = northArrowCx(caption);
+  const half = northCaptionHalf(caption);
+  return [cx - half, NORTH_TOP - NORTH_FONT - 6, cx + half, NORTH_TOP + NORTH_NEEDLE_H + NORTH_FONT + 6];
+}
+
+function northArrowMarkup(caption: string): string {
+  if (!caption.trim()) return '';
+  const cx = northArrowCx(caption);
+  const top = NORTH_TOP;
+  const base = top + NORTH_NEEDLE_H;
+  const p = (x: number, y: number) => `${round1(x)} ${round1(y)}`;
+  return (
+    `<g class="plate-north">` +
+    // The two halves of the needle: the leading one solid, the trailing one
+    // open, which is how a plan's arrow is engraved and how it stays legible
+    // at 34 px without a fill heavy enough to read as a blot.
+    `<path class="plate-north-needle" d="M ${p(cx, top)} L ${p(cx + NORTH_HALF_W, base)} L ${p(cx, base - 7)} Z" ` +
+    `fill="var(--flaxman-ink)" stroke="none"/>` +
+    `<path class="plate-north-needle-open" d="M ${p(cx, top)} L ${p(cx - NORTH_HALF_W, base)} L ${p(cx, base - 7)} Z" ` +
+    `fill="none" stroke="var(--flaxman-ink)" stroke-width="0.7" stroke-linejoin="round"/>` +
+    `<text class="plate-north-label" x="${round1(cx)}" y="${round1(top - 4)}" text-anchor="middle" ` +
+    `font-family="var(--font-ui)" font-size="${NORTH_FONT + 1.5}" letter-spacing="1" ` +
+    `fill="var(--text)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="2" ` +
+    `stroke-linejoin="round">N</text>` +
+    `<text class="plate-north-caption" x="${round1(cx)}" y="${round1(base + NORTH_FONT + 3)}" text-anchor="middle" ` +
+    `font-family="var(--font-ui)" font-size="${NORTH_FONT}" letter-spacing="0.6" ` +
+    `fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="2" ` +
+    `stroke-linejoin="round">${escapeXml(caption)}</text>` +
     `</g>`
   );
 }
@@ -2323,7 +2662,25 @@ const STROKE_WEIGHT = {
   route: 1,
   tick: 0.75,
   tumulus: 1,
+  /** The two faces of a restored wall band (see wallBandGlyph). */
+  restoredFace: 0.9,
+  /** The slant strokes inside it: lighter than the faces, so the band reads open. */
+  restoredHatch: 0.55,
 } as const;
+
+/** The drawn face of a surveyed masonry band. See the `region` case in renderLayer. */
+const MASONRY_EDGE_WIDTH = 1;
+/** The dotted register a restored line takes when it has no width to be drawn at. */
+const RESTORED_LINE_WIDTH = 0.85;
+const RESTORED_LINE_DASH = '1 3.2';
+/**
+ * The poem's own register (`style: "poem"`): a longer, plainly OPEN dash, so it
+ * cannot be mistaken for either evidential register beside it — Dörpfeld's
+ * restoration is a tight dot in the sheet's ink, this is a stroke in the mid-ink
+ * every conjectural position on a plate already uses.
+ */
+const POEM_STROKE_WIDTH = 0.95;
+const POEM_DASHARRAY = '4 3';
 
 // ── Layer rendering ──────────────────────────────────────────────────────
 
@@ -2488,6 +2845,19 @@ function paintRank(layer: PlateLayer): number {
   if (fill === 'land') return 0;
   if (layer.kind === 'relief') return 1;
   if (fill !== undefined && WATER_FILLS.has(fill)) return 2;
+  // Restoration goes UNDER survey, always (2026-07-30, citadel plate). It is the
+  // oldest rule on an excavation plan and it is a rule about paint order, not
+  // about geometry: a restored line runs behind the stone that was actually
+  // found, so where the two meet the survey is what a reader sees. It buys three
+  // things at once here — the restored circuit slides under the broken wall face
+  // at each end instead of floating past it, the terrace lines pass behind the
+  // house blocks they cross rather than through them, and Dörpfeld's completed
+  // building plans sit behind the fragments of them that survive.
+  if (layer.kind === 'wall' && layer.style === 'restored') return 2.5;
+  // And the poem goes under the restoration, for the same reason one step
+  // further out: it is the least evidenced of the three registers, so where it
+  // meets either of the others, the other is what a reader sees.
+  if (layer.style === 'poem') return 2.4;
   return 3;
 }
 
@@ -2579,7 +2949,16 @@ function linearRun(plate: Plate, layer: PlateLayer, viewport: Viewport): [number
     }
   }
   if (!pts || pts.length < 2) return undefined;
-  return projectPoints(plate, pts, viewport);
+  const px = projectPoints(plate, pts, viewport);
+  // A restored wall is drawn as a BAND, not a line, so its name has to be set
+  // clear of the band or the label's halo punches a hole through the masonry it
+  // is naming. Offset to the band's outer side — the opposite of the side
+  // wallGlyph ticks, which is the field side of a fortification — by half the
+  // width plus the label's own baseline offset.
+  if (layer.kind === 'wall' && layer.style === 'restored' && layer.width !== undefined) {
+    return offsetPolyline(px as PlatePoint[], -traceSide(px as PlatePoint[]) * (layer.width / 2 + 4));
+  }
+  return px;
 }
 
 // ── Relief steepness signal (2026-07-28, hachure lane) ──────────────────
@@ -2950,6 +3329,32 @@ function renderLayer(
     case 'wall': {
       const px = collect(layer.trace);
       if (px.length < 2) return undefined;
+      if (layer.style === 'restored' && layer.width === undefined) {
+        // The restoration register at its lightest: a fine dotted line, which is
+        // what a restored feature gets when it HAS no width to be drawn at —
+        // Dörpfeld's own terrace fronts and completed house plans are dotted on
+        // Fig. 470 for exactly that reason. Drawn as a band they read as three
+        // more walls and the sheet becomes a target (2026-07-30, LOOK gate).
+        markup =
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-wall-restored-line" ` +
+          `d="${pathD(px, false)}" fill="none" stroke="var(--flaxman-ink)" ` +
+          `stroke-width="${RESTORED_LINE_WIDTH}" stroke-dasharray="${RESTORED_LINE_DASH}" ` +
+          `stroke-opacity="0.75" stroke-linecap="round" stroke-linejoin="round"/>`;
+        break;
+      }
+      if (layer.style === 'restored') {
+        const { faces, hatch } = wallBandGlyph(px, layer.width);
+        markup =
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-wall-restored" ` +
+          `d="${faces}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${STROKE_WEIGHT.restoredFace}" ` +
+          `stroke-linejoin="round" stroke-linecap="round"/>` +
+          (hatch
+            ? `<path data-feature-id="${escapeXml(layer.id)}-hatch" class="plate-layer plate-layer-wall-restored-hatch" ` +
+              `d="${hatch}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${STROKE_WEIGHT.restoredHatch}" ` +
+              `stroke-opacity="0.6" stroke-linecap="round"/>`
+            : '');
+        break;
+      }
       const { line, ticks } = wallGlyph(px);
       markup =
         `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-wall" d="${line}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${STROKE_WEIGHT.wall}"/>` +
@@ -2961,6 +3366,16 @@ function renderLayer(
     case 'route': {
       const px = collect(layer.path);
       if (px.length < 2) return undefined;
+      // A street the poem walks and nobody has dug: same register as a poem
+      // building above, so the way and the houses it runs between read as one
+      // claim rather than as a road drawn to a house.
+      if (layer.style === 'poem') {
+        markup =
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-poem" ` +
+          `d="${pathD(px, false)}" fill="none" stroke="var(--text-mid)" ` +
+          `stroke-width="${POEM_STROKE_WIDTH}" stroke-dasharray="${POEM_DASHARRAY}" stroke-linecap="round"/>`;
+        break;
+      }
       markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-route" d="${pathD(px, false)}" fill="none" stroke="var(--accent-light)" stroke-width="${STROKE_WEIGHT.route}" stroke-dasharray="1 4" stroke-linecap="round"/>`;
       break;
     }
@@ -2968,6 +3383,25 @@ function renderLayer(
     case 'band': {
       const px = collect(layer.polygon);
       if (px.length < 3) return undefined;
+      // ── The POEM's register ────────────────────────────────────────────
+      // A third claim on this sheet, and the one that needs the plainest
+      // marking: not surveyed masonry, not Dörpfeld's restoration of it, but a
+      // building the Iliad says stood here, drawn where the poem's own
+      // description puts it. Fine, openly dashed, no fill, in the mid-ink the
+      // rest of this project already spends on a conjectural position — so it
+      // cannot be read as either of the two evidential registers, and its name
+      // is lettered in italic like every other conjectural thing on a plate.
+      // `rings` is drawn with the polygon, which is how a court inside a range
+      // of chambers gets onto the sheet as one building and one name.
+      if (layer.style === 'poem') {
+        const parts = [px, ...(layer.rings ?? []).map((r) => collect(r))].filter((p) => p.length >= 3);
+        markup =
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-poem" ` +
+          `d="${parts.map((p) => pathD(p, true)).join(' ')}" fill="none" stroke="var(--text-mid)" ` +
+          `stroke-width="${POEM_STROKE_WIDTH}" stroke-dasharray="${POEM_DASHARRAY}" ` +
+          `stroke-linejoin="round" stroke-linecap="round"/>`;
+        break;
+      }
       // A region/band layer names the TERRAIN it is (plain, marsh, lagoon,
       // sea, land) through the closed REGION_FILL_TOKENS whitelist — never a
       // pass-through of the JSON value, so a plate file can never inject CSS.
@@ -3000,13 +3434,24 @@ function renderLayer(
       // hard edge.
       const soft = fill === 'marsh';
       const fillToken = REGION_FILL_TOKENS[fill];
-      const strokeToken = WATER_FILLS.has(fill) ? 'var(--scene-map-coast)' : fillToken;
-      const strokeOpacity = fill === 'tint' ? 1 : WATER_FILLS.has(fill) ? 0.7 : 0.5;
+      // Masonry is the one fill whose EDGE is a surveyed thing in its own
+      // right — the face of a wall, drawn on the excavation plan to the
+      // centimetre — so it gets the sheet's ink at a weight a reader can see
+      // the offsets in, where a terrain patch only wants enough of a line to
+      // hold its shape. Without it the wall bands read as a wash (2026-07-30).
+      const strokeToken = WATER_FILLS.has(fill)
+        ? 'var(--scene-map-coast)'
+        : fill === 'masonry'
+          ? 'var(--flaxman-ink)'
+          : fillToken;
+      const strokeWidth = fill === 'masonry' ? MASONRY_EDGE_WIDTH : 0.8;
+      const strokeOpacity =
+        fill === 'masonry' ? 0.85 : fill === 'tint' ? 1 : WATER_FILLS.has(fill) ? 0.7 : 0.5;
       markup = soft
         ? `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${d}" ` +
           `fill="${fillToken}" fill-opacity="${REGION_FILL_OPACITY[fill]}" stroke="none" filter="url(#${softId('marsh')})"/>`
         : `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${d}" ` +
-          `fill="${fillToken}" fill-opacity="${REGION_FILL_OPACITY[fill]}" stroke="${strokeToken}" stroke-width="0.8" stroke-opacity="${strokeOpacity}" stroke-linejoin="round"/>`;
+          `fill="${fillToken}" fill-opacity="${REGION_FILL_OPACITY[fill]}" stroke="${strokeToken}" stroke-width="${strokeWidth}" stroke-opacity="${strokeOpacity}" stroke-linejoin="round"/>`;
       break;
     }
     case 'tumulus': {
@@ -3067,7 +3512,11 @@ function renderLayer(
     feature: { id: layer.id, type: 'layer', kind: layer.kind, bbox },
     labelAnchor,
     labelCentred: isArea,
-    labelRole: LAYER_LABEL_ROLE[layer.kind],
+    // A poem building is lettered as a NAMED PLACE, not as a tract of country:
+    // the `region` role is 15.5px letterspaced caps, the register PERGAMOS is
+    // set in, and "House of Priam" set that way would be both grander than the
+    // claim and wider than the summit.
+    labelRole: layer.style === 'poem' ? 'settlement' : LAYER_LABEL_ROLE[layer.kind],
     labelPath: isArea ? undefined : linearRun(plate, layer, viewport),
     submerged,
   };
@@ -3233,6 +3682,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       role: rendered.labelRole,
       anchorBox: rendered.labelAnchor,
       centred: rendered.labelCentred,
+      // A name the poem gives to a place the poem alone locates is lettered
+      // italic, the same mark every conjectural pin's name already carries.
+      conjectural: layer.style === 'poem',
       path: rendered.labelPath,
       pathId: `${safeIdFragment(opts.idPrefix)}-lp-${safeIdFragment(layer.id)}`,
     });
@@ -3249,7 +3701,12 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     width,
     height,
     LABEL_MARGIN,
-    pinLabelRequests.map((request) => request.anchorBox),
+    // Furniture the lettering has to keep off: the pin markers, and the north
+    // arrow, which is drawn after the labels and would otherwise be lettered over.
+    [
+      ...pinLabelRequests.map((request) => request.anchorBox),
+      ...(plate.north ? [northArrowBox(plate.north)] : []),
+    ],
   );
 
   // Finding 8 (2026-07-28): idPrefix is caller-supplied and lands directly
@@ -3279,14 +3736,22 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     legendMarkup(legendEntries, width, height, [
       ...pinLabelRequests.map((request) => request.anchorBox),
       ...labels.placedBoxes,
+      ...(plate.north ? [northArrowBox(plate.north)] : []),
     ]) +
     `</g>` +
-    // Frame and bar scale sit OUTSIDE the clip: their strokes run along the
-    // sheet edge and would be shaved in half by it. The scale bar is drawn
-    // from this plate's own viewport, so it is honest by construction, and
-    // only for a geographic plate — a schematic sheet has no scale, and
-    // drawing one would be a fabricated claim.
-    (plate.kind === 'geographic' ? scaleBarMarkup(viewport, width, height) : '') +
+    // Frame, bar scale and north arrow sit OUTSIDE the clip: their strokes run
+    // along the sheet edge and would be shaved in half by it. The bar is drawn
+    // from this plate's own geometry, so it is honest by construction: from the
+    // viewport for a geographic plate, and from a declared `pxPerMetre` for a
+    // schematic one that IS a rectified survey (see Plate.pxPerMetre). A
+    // schematic plate that declares neither gets no bar, because it has no
+    // scale and drawing one would be a fabricated claim.
+    (plate.kind === 'geographic'
+      ? scaleBarMarkup(viewport, width, height)
+      : plate.pxPerMetre !== undefined
+        ? scaleBarMarkup(viewport, width, height, { pxPerMetre: plate.pxPerMetre })
+        : '') +
+    (plate.north ? northArrowMarkup(plate.north) : '') +
     hypsometricKeyMarkup(plate, width, height) +
     neatlineMarkup(width, height) +
     `</svg>`;
