@@ -7516,7 +7516,6 @@
       ],
       "kind": "region",
       "maps": [
-        "troad-plain",
         "troy-citadel"
       ],
       "mentions": [
@@ -7610,7 +7609,6 @@
       ],
       "kind": "wall",
       "maps": [
-        "troad-plain",
         "troy-citadel"
       ],
       "mentions": [
