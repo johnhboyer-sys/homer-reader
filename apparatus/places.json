@@ -1011,7 +1011,7 @@
           ]
         }
       ],
-      "note": "The town of Chryses, priest of Apollo, whose daughter Agamemnon seizes and whose anger opens the poem. Already lost by Strabo's day; the identification with the Smintheion site near Hamaxitos is contested — the Barrington Atlas keeps a rival candidate in play too, a Chrysa on the Gulf of Adramyttium near Thebe, plus a third entry that is simply unlocated.",
+      "note": "The town of Chryses, priest of Apollo, whose daughter Agamemnon seizes and whose anger opens the poem. Already lost by Strabo's day: he places Homer's Chryse at the ancient, deserted town near Thebe, and treats the Chrysa near Hamaxitos — where the cult of Apollo Smintheus was later re-established — as the view of \"those less acquainted with ancient history\". The Barrington Atlas carries both candidates, the Chrysa on the Gulf of Adramyttium near Thebe and the Smintheion site, plus a third entry that is simply unlocated.",
       "sources": [
         {
           "cite": "Pleiades. \"Chrysa (Aeolis?).\" Place 554214.",
@@ -1020,6 +1020,9 @@
         {
           "cite": "Strabo. Geography 13.1.47–48, 13.1.63.",
           "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
+        },
+        {
+          "cite": "Talbert, Richard J. A., ed. Barrington Atlas of the Greek and Roman World. Princeton: Princeton University Press, 2000."
         }
       ]
     },
@@ -1312,6 +1315,13 @@
       "certainty": "speculative",
       "tradition": "A tumulus on the Trojan plain, discussed among the tombs of the plain since Strabo (13.1.36-37); no ancient or modern survey, including Leaf (1912), matches a surviving mound to it",
       "kind": "hill",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.6554,
+          0.289
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -1325,7 +1335,7 @@
           ]
         }
       ],
-      "note": "'There is before the city a steep mound out in the plain, standing clear with a way round it on either side, which men call Batieia but the immortals the barrow of much-leaping Myrine' (2.811-814) — the double naming, men's word against the gods', is the poem's own signature for old material. It is where the Trojan and allied contingents muster before the battle begins.",
+      "note": "'There is before the city a steep mound out in the plain, standing clear with a way round it on either side, which men call Batieia but the immortals the barrow of much-leaping Myrine' (2.811-814) — the double naming, men's word against the gods', is the poem's own signature for old material. It is where the Trojan and allied contingents muster before the battle begins. Hainsworth holds that the Catalogue of Ships works from a different topography of the plain from the battle books, referring for it to the notes on 2.793 and 2.811-815 (Commentary III, 243) - and 2.811-815 is this record's only Homeric position, as 2.793 is the tomb of Aesyetes'. The schematic anchor stands where the poem's own words put it, in the plain in front of the city and clear of everything round it, with the warning attached rather than the anchor moved.",
       "sources": [
         {
           "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912."
@@ -1333,6 +1343,9 @@
         {
           "cite": "Strabo. Geography 13.1.36–37.",
           "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
+        },
+        {
+          "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
         }
       ]
     },
@@ -1372,6 +1385,16 @@
       "sources": [
         {
           "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+        },
+        {
+          "cite": "Luce, J. V. \"The Homeric Topography of the Trojan Plain Reconsidered.\" Oxford Journal of Archaeology 3, no. 1 (1984)."
+        },
+        {
+          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912."
+        },
+        {
+          "cite": "Strabo. Geography 13.1.35.",
+          "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
         }
       ]
     },
@@ -1387,6 +1410,13 @@
         26.2933
       ],
       "kind": "plain",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.672,
+          0.508
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -1400,7 +1430,7 @@
           ]
         }
       ],
-      "note": "Named once, in Dolon's report of the allied dispositions: 'toward Thymbra the Lycians and the lordly Mysians drew their lot' (10.430). Later the site of the Thymbraion, Apollo's sanctuary, and by legend where Achilles ambushed Troilus. A district anchored on the Thymbrios (Kemer Su)–Scamander confluence, not a point — re-anchored to Pleiades 550929 (Thymbras Pedion), whose precise point gives that confluence directly, inside Strabo's fifty-stadia band; the earlier Pleiades 550927 carried only a rough rectangle centroid.",
+      "note": "Named once, in Dolon's report of the allied dispositions: 'toward Thymbra the Lycians and the lordly Mysians drew their lot' (10.430). Later the site of the Thymbraion, Apollo's sanctuary, and by legend where Achilles ambushed Troilus. A district anchored on the Thymbrios (Kemer Su)–Scamander confluence, not a point — re-anchored to Pleiades 550929 (Thymbras Pedion), whose precise point gives that confluence directly, inside Strabo's fifty-stadia band; the earlier Pleiades 550927 carried only a rough rectangle centroid. In the Iliad it is not a settlement at all but a bearing: Dolon names it as the direction one wing of the allied camp lies toward, set against the wing that lies toward the sea (10.428-431). On the schematic sheet it is anchored at the inland end of that axis, and it means a direction.",
       "sources": [
         {
           "cite": "Strabo. Geography 13.1.35.",
@@ -1502,6 +1532,13 @@
       "certainty": "speculative",
       "tradition": "No thermal spring pair in the strict sense survives near Hisarlık, though many Troad springs qualify in Homer's own relative sense; the hydrochemical survey (Wolkersdorfer et al., CATENA 200 (2021)) found the description does not discriminate among candidates, so no coordinate is given for a built feature standing beside a spring pair that cannot itself be located",
       "kind": "spring",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.348,
+          0.382
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -1515,7 +1552,7 @@
           ]
         }
       ],
-      "note": "'Broad washing-troughs, fine ones of stone, where the wives and fair daughters of the Trojans used to wash their shining clothes, in the time of peace before the sons of the Achaeans came' (22.153-156) — a built, man-made feature standing beside the two springs (see 'two-springs-of-scamander'), not the springs themselves. One of the poem's clearest images of the lost civilian world before the war. No coordinate is given: the hydrochemical survey (field campaigns 2001-2006, published as Wolkersdorfer et al., CATENA 200 (2021)) found no thermal pair in the strict sense near Hisarlık (numerous springs qualify in Homer's relative sense — the surplus problem); the paper never treats the washing-troughs as a separate question from the springs, so a point for troughs beside an unlocatable spring pair would be invented.",
+      "note": "'Broad washing-troughs, fine ones of stone, where the wives and fair daughters of the Trojans used to wash their shining clothes, in the time of peace before the sons of the Achaeans came' (22.153-156) — a built, man-made feature standing beside the two springs (see 'two-springs-of-scamander'), not the springs themselves. One of the poem's clearest images of the lost civilian world before the war. No coordinate is given: the hydrochemical survey (field campaigns 2001-2006, published as Wolkersdorfer et al., CATENA 200 (2021)) found no thermal pair in the strict sense near Hisarlık (numerous springs qualify in Homer's relative sense — the surplus problem); the paper never treats the washing-troughs as a separate question from the springs, so a point for troughs beside an unlocatable spring pair would be invented. That is a statement about the ground, and it stands. The schematic sheet carries positions of a different kind - the poem's own relations rather than survey - and there the troughs go where 22.153 puts them, beside the springs (ἐγγύς): a conjectural anchor on the sheet, never a coordinate.",
       "sources": [
         {
           "cite": "Wolkersdorfer, Christian, et al. \"Hydrochemical investigations to locate Homer's hot and cold springs of Troia (Troy)/Turkey.\" CATENA 200 (2021): 105070.",
@@ -7628,6 +7665,10 @@
         "troy-citadel": [
           0.2445,
           0.4025
+        ],
+        "trojan-plain-schematic": [
+          0.443,
+          0.227
         ]
       },
       "positionBasis": "conjectural",
@@ -7690,6 +7731,10 @@
         "troy-citadel": [
           0.4589,
           0.5079
+        ],
+        "trojan-plain-schematic": [
+          0.573,
+          0.226
         ]
       },
       "positionBasis": "conjectural",
@@ -7741,6 +7786,10 @@
         "troy-citadel": [
           0.2138,
           0.347
+        ],
+        "trojan-plain-schematic": [
+          0.487,
+          0.234
         ]
       },
       "positionBasis": "conjectural",
@@ -7800,6 +7849,10 @@
         "troy-citadel": [
           0.2216,
           0.4777
+        ],
+        "trojan-plain-schematic": [
+          0.424,
+          0.258
         ]
       },
       "positionBasis": "conjectural",
@@ -7847,6 +7900,13 @@
       "certainty": "speculative",
       "tradition": "Fixed only by the poem's own narrative geography (Leaf 1912); the tree itself is not a surviving landmark",
       "kind": "tree",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.36,
+          0.328
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -7876,10 +7936,16 @@
           ]
         }
       ],
-      "note": "Andromache tells Hector to post the army here, 'where the city is most scalable and the wall assailable' — the Achaeans have already tried it three times (6.433-434). It stands on the wagon-road out of the city (11.167, 22.145, 'the windy fig tree'). A different fig, by the river, is where Achilles catches Lycaon cutting branches (21.37).",
+      "note": "Andromache tells Hector to post the army here, 'where the city is most scalable and the wall assailable' — the Achaeans have already tried it three times (6.433-434). It stands on the wagon-road out of the city (11.167, 22.145, 'the windy fig tree'). A different fig, by the river, is where Achilles catches Lycaon cutting branches (21.37). The poem in fact sets a wild fig in two places, and they do not agree: under the wall at the scalable stretch (6.433-434) and on the chase-circuit beside the lookout (22.145), against the middle of the plain by the tomb of Ilos (11.166-167). Nicanor already separated them - the fig by the city, the barrow mid-plain - and both standard modern commentaries follow that partition (Hainsworth, Commentary III, 243; Richardson, Commentary VI, 122). This record's anchor takes the tree under the wall; the disagreement is recorded rather than averaged away.",
       "sources": [
         {
           "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912."
+        },
+        {
+          "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
+        },
+        {
+          "cite": "Richardson, Nicholas. The Iliad: A Commentary, Volume VI: Books 21–24. Cambridge: Cambridge University Press, 1993."
         }
       ]
     },
@@ -7890,6 +7956,13 @@
       "certainty": "speculative",
       "tradition": "Fixed only by the poem's own narrative geography (Luce 1998); whether a natural rise or a built watch-post is not said",
       "kind": "region",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.393,
+          0.292
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -7917,6 +7990,13 @@
       "certainty": "speculative",
       "tradition": "Fixed only by the poem's own narrative geography (Luce 1998); the route is textual, not surveyed",
       "kind": "region",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.377,
+          0.31
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -7930,10 +8010,13 @@
           ]
         }
       ],
-      "note": "The road running from the Scaean Gate out across the plain, past the lookout, the fig tree, and the springs — the track Achilles and Hector run three times around the city, and the single organizing line of the whole plain.",
+      "note": "The road running from the Scaean Gate out across the plain, past the lookout, the fig tree, and the springs — the track Achilles and Hector run three times around the city, and the single organizing line of the whole plain. Two roads are being run together there, and the poem never joins them. The one road it calls ἀμαξιτός (22.146, its only occurrence) skirts the town a short way outside the wall - so Leaf reads it, and Richardson says the same without hedging (Commentary VI, 122) - carrying the chase past the lookout, the fig tree and the springs, which is how Hector and Achilles reach the springs once on every lap (22.208). The route Priam drives down to the ships is given only by its waypoints, the tomb of Ilos, the river, the ford, the towers and the ditch (24.349-351, 24.443). This record's anchor sits on the ring under the wall.",
       "sources": [
         {
           "cite": "Luce, J. V. Celebrating Homer's Landscapes: Troy and Ithaca Revisited. New Haven: Yale University Press, 1998."
+        },
+        {
+          "cite": "Richardson, Nicholas. The Iliad: A Commentary, Volume VI: Books 21–24. Cambridge: Cambridge University Press, 1993."
         }
       ]
     },
@@ -7944,6 +8027,13 @@
       "certainty": "speculative",
       "tradition": "Hunted for since the 1st century BC; no thermal spring in the strict sense survives near Troy, but numerous Troad springs qualify in Homer's own relative sense (λιαρός, 'lukewarm') — the identification fails from a surplus of qualifying candidates, not their absence, and the hydrochemical survey (Wolkersdorfer et al., CATENA 200 (2021)) calls identifying Homer's spring(s) within the Troad \"apparently not possible\" and locating Troy by Il. 22.147-156 a likely \"fruitless enterprise\"",
       "kind": "spring",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.325,
+          0.366
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -7988,6 +8078,13 @@
       "certainty": "speculative",
       "tradition": "Position fixed by narrative function alone (Leaf 1912); no mound at Hisarlık is matched to it",
       "kind": "tomb",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.4308,
+          0.4388
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -8042,6 +8139,13 @@
       "certainty": "speculative",
       "tradition": "Position fixed by function alone — high enough to see the camp, close enough to run home (Leaf 1912); no mound identified",
       "kind": "tomb",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.52,
+          0.43
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -8055,10 +8159,13 @@
           ]
         }
       ],
-      "note": "The Trojans' own watch-post: Polites sits on its summit, 'trusting in his swiftness of foot, waiting for when the Achaeans should set out from the ships' (2.793-794).",
+      "note": "The Trojans' own watch-post: Polites sits on its summit, 'trusting in his swiftness of foot, waiting for when the Achaeans should set out from the ships' (2.793-794). Function is all that fixes it: the post must see the ships, and Polites is chosen for speed because the warning has to be run home. Leaf set it mid-plain beside the tomb of Ilos, 'half way between the armies', and the schematic anchor follows him. One caution travels with it. Hainsworth holds that the Catalogue of Ships works from a different topography of the plain from the battle books (Commentary III, 243, referring to the notes on 2.793 and 2.811-815) - and 2.793 is this record's only Homeric position, as 2.811-815 is Batieia's. Both anchors may therefore sit in a frame the rest of the sheet does not share.",
       "sources": [
         {
           "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912."
+        },
+        {
+          "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
         }
       ]
     },
@@ -8068,6 +8175,13 @@
       "certainty": "speculative",
       "tradition": "Position shifts with the delta's six-millennia progradation (Kraft, Rapp, Kayan, and Luce 2003); no fixed Bronze Age location recoverable",
       "kind": "river",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.47,
+          0.33
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -8081,10 +8195,14 @@
           ]
         }
       ],
-      "note": "'Where the Simoeis and Scamander join their streams' (5.774) — Hera unyokes her horses here, and Simoeis makes ambrosia grow for them, a real divine landmark inside the poem.",
+      "note": "'Where the Simoeis and Scamander join their streams' (5.774) — Hera unyokes her horses here, and Simoeis makes ambrosia grow for them, a real divine landmark inside the poem. Where the junction is, the poem will not settle. 5.773-774 has the two rivers meeting as one comes to Troy, close under the city and so cutting it off from the camp; Book 21 drives half the rout across the plain toward the city and half into the water, and 6.4 sets the fighting between the two streams. Leaf states the conflict and leaves it (Troy: A Study in Homeric Geography, 37). The schematic anchor follows 5.774 and puts the junction in the plain under the city, while the sheet draws the two rivers to separate mouths - the disagreement is left standing, not averaged.",
       "sources": [
         {
           "cite": "Kraft, John C., George Rapp, İlhan Kayan, and John V. Luce. \"Harbor areas at ancient Troy: Sedimentology and geomorphology complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163–66."
+        },
+        {
+          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912.",
+          "url": "https://archive.org/details/troyastudyinhom00leafgoog"
         }
       ]
     },
@@ -8095,6 +8213,13 @@
       "certainty": "speculative",
       "tradition": "Position unrecoverable; the delta has prograded past it (Luce 1998)",
       "kind": "ford",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.258,
+          0.585
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -8158,7 +8283,7 @@
           ]
         }
       ],
-      "note": "The battlefield itself: the Achaeans 'poured out onto the Scamandrian plain' and 'took their stand in the flowery Scamandrian meadow' (2.465-467). Kraft, Kayan, and Erol's geomorphology puts the usable Late Bronze Age plain south and west of Hisarlık — the reverse of the ground north of the site that most illustrations still use.",
+      "note": "The battlefield itself: the Achaeans 'poured out onto the Scamandrian plain' and 'took their stand in the flowery Scamandrian meadow' (2.465-467). Kraft, Kayan, and Erol's geomorphology puts the usable Late Bronze Age plain south and west of Hisarlık — the reverse of the ground north of the site that most illustrations still use. This is the ground itself, not a place on it: the whole schematic sheet is the Scamandrian plain. It takes no anchor there for that reason - a pin would put the plain at one point of itself - and the honest camera for a scene set here is the sheet unzoomed. The sheet carries it as a lettering zone instead, drawn by name and by nothing else.",
       "sources": [
         {
           "cite": "Kraft, John C., İlhan Kayan, and Oğuz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209, no. 4458 (1980): 776–82."
@@ -8194,6 +8319,13 @@
       "certainty": "speculative",
       "tradition": "Position fixed by the poem's own spatial logic (14.31-36), not by any excavated trace",
       "kind": "camp",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.522,
+          0.828
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -8223,13 +8355,19 @@
           ]
         }
       ],
-      "note": "The poem is exact about the camp's shape even where it will not fix its ground: the ships were drawn up in rows because the beach, wide as it was, could not hold them all, and they 'filled the whole long mouth of the shore, as much as the headlands enclosed' (14.31-36) — a beach between two headlands. The traditional headlands are Sigeion and Rhoiteion; Beşik Bay is the archaeological alternative.",
+      "note": "The poem is exact about the camp's shape even where it will not fix its ground: the ships were drawn up in rows because the beach, wide as it was, could not hold them all, and they 'filled the whole long mouth of the shore, as much as the headlands enclosed' (14.31-36) — a beach between two headlands. The traditional headlands are Sigeion and Rhoiteion; Beşik Bay is the archaeological alternative. On the schematic sheet the camp is built out of the order the poem gives and nothing else: one extremity (Ajax), the middle at Odysseus's ships where the assembly-ground, the place of judgement and the gods' altars stand (8.222-226 = 11.5-9; 11.806-808), the other extremity (Achilles), with the ships in receding ranks because one line of beach could not hold them (14.31-36). The ends are named by who holds them, never by a hand. The axis is drawn from the Greek side, following Aristarchus and Janko (Commentary IV, 130-31); Hainsworth reads Asius's 'left of the ships' at 12.118 from the attacker's side and reverses it (Commentary III, 313-14), which is why the sector placements stay speculative.",
       "sources": [
         {
           "cite": "Kraft, John C., George Rapp, İlhan Kayan, and John V. Luce. \"Harbor areas at ancient Troy: Sedimentology and geomorphology complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163–66."
         },
         {
           "cite": "Luce, J. V. Celebrating Homer's Landscapes: Troy and Ithaca Revisited. New Haven: Yale University Press, 1998."
+        },
+        {
+          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
+        },
+        {
+          "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
         }
       ]
     },
@@ -8240,6 +8378,13 @@
       "certainty": "speculative",
       "tradition": "Erased inside the poem itself — Poseidon and Apollo turn the eight Idaean rivers against it after the war (12.17-24); Aristotle already noted this as the poet's own device (ap. Strabo 13.1.36)",
       "kind": "wall",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.523,
+          0.714
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -8287,6 +8432,13 @@
       "certainty": "speculative",
       "tradition": "Position fixed by the poem's own spatial logic (11.806-808), not by any excavated trace",
       "kind": "camp",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.52,
+          0.748
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -8314,6 +8466,13 @@
       "certainty": "speculative",
       "tradition": "Position fixed by the poem's own spatial logic (8.222-223 = 11.5-6), not by any excavated trace",
       "kind": "camp",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.52,
+          0.79
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -8349,6 +8508,13 @@
       "certainty": "speculative",
       "tradition": "Position fixed by the poem's own spatial logic (8.224-226 = 11.7-9), not by any excavated trace",
       "kind": "camp",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.274,
+          0.79
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -8370,10 +8536,16 @@
           ]
         }
       ],
-      "note": "One extremity of the camp: he and Achilles 'had drawn up their balanced ships at the ends, trusting in their manhood and the strength of their hands' (8.225-226 = 11.8-9). Which end is Ajax's and which Achilles' the poem never says.",
+      "note": "One extremity of the camp: he and Achilles 'had drawn up their balanced ships at the ends, trusting in their manhood and the strength of their hands' (8.225-226 = 11.8-9). Which end is Ajax's and which Achilles' the poem never says. The schematic sheet has to put him somewhere, so it names the camp's ends by who holds them and places Ajax's end toward the promontory later called Rhoiteion. That follows Aristarchus, and Janko states it outright: the 'left of the ships' is always seen from the Greek side, so the left is the eastern end where the Scamander ran and Telamonian Ajax lay, the right the western end toward Sigeion where Achilles was stationed (Commentary IV, 130-31, on 13.675). Hainsworth reads the same phrase at 12.118 from the attacker's side, which would swap the two ends (Commentary III, 313-14). Neither headland is named in the Iliad; both names are Strabo's. The placement is speculative for that reason, and the words left and right are kept off the sheet.",
       "sources": [
         {
           "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
+        },
+        {
+          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
+        },
+        {
+          "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
         }
       ]
     },
@@ -8384,6 +8556,13 @@
       "certainty": "speculative",
       "tradition": "Position fixed by the poem's own spatial logic (8.225-226 = 11.8-9), not by any excavated trace",
       "kind": "camp",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.766,
+          0.79
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -8405,10 +8584,16 @@
           ]
         }
       ],
-      "note": "The camp's other extremity, opposite Ajax — the setting of the Embassy in Book 9 and of Priam's supplication in Book 24. Its distance from the centre is a plot device: Achilles cannot see what is happening at the ships and has to send Patroclus to find out (11.599ff.).",
+      "note": "The camp's other extremity, opposite Ajax — the setting of the Embassy in Book 9 and of Priam's supplication in Book 24. Its distance from the centre is a plot device: Achilles cannot see what is happening at the ships and has to send Patroclus to find out (11.599ff.). The sheet places his end toward the promontory later called Sigeion, on the same adopted reading of the camp's axis that puts Ajax's end toward Rhoiteion: Aristarchus's, stated at first hand by Janko (Commentary IV, 130-31), against Hainsworth, who reads Asius's 'left of the ships' at 12.118 from the attacker's side and lands on the opposite end (Commentary III, 313-14). Neither headland is named in the Iliad. The poem itself says only 'at the ends', so the placement is speculative and the sheet names the ends by their holders rather than by a hand.",
       "sources": [
         {
           "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
+        },
+        {
+          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
+        },
+        {
+          "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
         }
       ]
     },
@@ -8419,6 +8604,13 @@
       "certainty": "speculative",
       "tradition": "Position fixed only by implication — near the centre — not by any excavated trace; named directly at several points across the poem (2.9, 9.178, 9.669, 19.241, 23.38)",
       "kind": "camp",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.6,
+          0.79
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -8478,6 +8670,13 @@
       "certainty": "speculative",
       "tradition": "Discussed among the Troad's hero-tumuli by Rose and Körpe (2016), who find the surviving 'tomb of Achilles' candidates to be later cult sites, not burials",
       "kind": "tomb",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.786,
+          0.834
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -8505,6 +8704,13 @@
       "certainty": "speculative",
       "tradition": "No location given in the poem, and none claimed for it in antiquity — unlike the other Trojan War tombs, it never became a cult site in the Troad",
       "kind": "tomb",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.652,
+          0.243
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -8518,7 +8724,7 @@
           ]
         }
       ],
-      "note": "The last image of the poem: the bones laid in a hollow grave, covered with great close-set stones, the barrow heaped in haste with lookouts posted all round against an Achaean attack (24.797-801).",
+      "note": "The last image of the poem: the bones laid in a hollow grave, covered with great close-set stones, the barrow heaped in haste with lookouts posted all round against an Achaean attack (24.797-801). The poem never says where the barrow stands. The lookouts are the only clue: a guard set against an Achaean sally puts the grave outside the walls and within reach of one, so the schematic anchor sits just outside the circuit on the plain side. That is an inference from 24.799, not a statement. Strabo 13.1.29 records a precinct of Hector near Ophrynium, which is a later cult site and a different place.",
       "sources": [
         {
           "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
@@ -8878,6 +9084,13 @@
       "greek": "τεῖχος Ἡρακλῆος",
       "certainty": "mythical",
       "kind": "wall",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.186,
+          0.52
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -9086,6 +9299,13 @@
       "certainty": "speculative",
       "tradition": "Position not fixed by the poem's one passage that places Achilles, Ajax and Odysseus in the line of ships (8.222-226 = 11.5-9) — Nestor's ship is not named there — and no excavated trace exists; Patroclus reaches it at a run from Achilles's station at one end of the line (11.617), which puts it somewhere short of that end, but no more precise position is ever given.",
       "kind": "camp",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.64,
+          0.79
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -9129,6 +9349,13 @@
       "certainty": "speculative",
       "tradition": "Position fixed only by the poem's own relative description — ‘between the ships and the streams of the Xanthus’ (8.560) — not by any excavated trace or an absolute site.",
       "kind": "camp",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.545,
+          0.628
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -9142,7 +9369,7 @@
           ]
         }
       ],
-      "note": "The Trojans' one recorded night in the open. On Hector's order, flushed with the day's success, they camp on the plain beside the ships instead of withdrawing into Troy, ‘between the ships and the streams of the Xanthus’ (8.560). A thousand fires burn there, fifty men waiting by the light of each blaze for dawn and battle (8.562-563) — the image the poem holds a moment, comparing the fires to stars around a bright moon on a windless night (8.555-559), before returning to the horses standing in harness, watching for the throned Dawn (8.564-565).",
+      "note": "The Trojans' one recorded night in the open. On Hector's order, flushed with the day's success, they camp on the plain beside the ships instead of withdrawing into Troy, ‘between the ships and the streams of the Xanthus’ (8.560). A thousand fires burn there, fifty men waiting by the light of each blaze for dawn and battle (8.562-563) — the image the poem holds a moment, comparing the fires to stars around a bright moon on a windless night (8.555-559), before returning to the horses standing in harness, watching for the throned Dawn (8.564-565). Three passages fix the position, and they agree: the assembly Hector holds away from the ships by the eddying river, in a clear space among the dead (8.489-491); the bivouac on the rise of the plain, ἐπὶ θρωσμῷ πεδίοιο, close to the ships with only a little ground left between (10.160-161, and the same phrase at 11.56 and 20.3); and the thousand fires between the ships and the streams of Xanthus, in front of Ilios (8.560-562). That is a band on the plain outside the Achaean ditch rather than a point, and the schematic anchor stands at its middle.",
       "sources": [
         {
           "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
@@ -9156,6 +9383,13 @@
       "certainty": "speculative",
       "tradition": "Position fixed only by the poem's own relative description — the newest-arrived of Troy's allies, camped apart, outermost of all (10.434) — not by any excavated trace or an absolute site.",
       "kind": "camp",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.735,
+          0.42
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -9177,7 +9411,7 @@
           ]
         }
       ],
-      "note": "The camp of Rhesus, king of the Thracians: newest come to Troy and posted apart from the rest, ‘outermost of all’ (10.434) — the position the captured Dolon gives away under interrogation, along with a boast about Rhesus's gold-and-silver chariot and horses whiter than snow (10.435-441). Odysseus and Diomedes go straight there: Diomedes kills Rhesus and twelve sleeping Thracians while Odysseus drags the bodies clear so the panicked horses will not shy at them, and the two drive the horses back to the ships (10.469-514).",
+      "note": "The camp of Rhesus, king of the Thracians: newest come to Troy and posted apart from the rest, ‘outermost of all’ (10.434) — the position the captured Dolon gives away under interrogation, along with a boast about Rhesus's gold-and-silver chariot and horses whiter than snow (10.435-441). Odysseus and Diomedes go straight there: Diomedes kills Rhesus and twelve sleeping Thracians while Odysseus drags the bodies clear so the panicked horses will not shy at them, and the two drive the horses back to the ships (10.469-514). On the schematic sheet they sit beyond the far end of the allied array Dolon lists - the contingents toward the sea against those toward Thymbra (10.428-431) - because that is what ἔσχατοι ἄλλων gives them. Which flank is theirs the poem does not say.",
       "sources": [
         {
           "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
@@ -9191,6 +9425,13 @@
       "certainty": "speculative",
       "tradition": "Position fixed only by the poem's own spatial logic — piled on ‘the headland’ where Achilles had already marked out ground for the barrow (23.125-126) — not by any excavated trace.",
       "kind": "tomb",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.752,
+          0.834
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -9218,6 +9459,13 @@
       "certainty": "speculative",
       "tradition": "Position fixed only by the poem's own spatial logic — the same ground as the pyre and barrow (23.257-258), with the chariot course running out into the level plain (23.358-359) — not by any excavated trace.",
       "kind": "region",
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.712,
+          0.834
+        ]
+      },
+      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],

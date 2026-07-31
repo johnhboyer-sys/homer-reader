@@ -746,14 +746,15 @@ geometry (the third added at Grok verification, 2026-07-29):
 3. **Copernicus Article 6(c) liability notice is absent.** Beyond 6(a)/6(b),
    Article 6 of the primary licence requires a sentence disclaiming the
    liability of the Copernicus programme organisations on distribution of
-   the (modified or unmodified) data. Neither `attribution.astro` nor the
-   two READMEs carry it. Same fix vehicle as gap 1: one sentence on the
-   attribution page (Grok verification against the licence PDF, 2026-07-29).
-   The exact Article 6(c) sentence, pulled verbatim from the primary licence
-   PDF (2026-07-30, attribution lane): "The organisations in charge of the
-   Copernicus programme by law or by delegation do not incur any liability
-   for any use of the Copernicus WorldDEM-30." Applied to
-   `attribution.astro` the same day; the two READMEs still lack it.
+   the (modified or unmodified) data. At the time of the 2026-07-29 audit,
+   neither `attribution.astro` nor the two READMEs carried it. Same fix
+   vehicle as gap 1: one sentence on the attribution page (Grok verification
+   against the licence PDF, 2026-07-29). The exact Article 6(c) sentence,
+   pulled verbatim from the primary licence PDF (2026-07-30, attribution
+   lane): "The organisations in charge of the Copernicus programme by law or
+   by delegation do not incur any liability for any use of the Copernicus
+   WorldDEM-30." CLOSED 2026-07-30: applied to `attribution.astro` and
+   `sources/copernicus-dem/README.md` (with the 6(b) modified-data form).
 
 All three are attribution-string edits, not geometry changes — out of this
 dossier's blast radius to fix directly (this is a geometry-authority

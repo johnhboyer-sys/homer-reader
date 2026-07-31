@@ -55,6 +55,37 @@
       "fill": "sea"
     },
     {
+      "id": "scamandrian-plain",
+      "kind": "region",
+      "placeId": "scamandrian-plain",
+      "fill": "none",
+      "polygon": [
+        [
+          0.1,
+          0.28
+        ],
+        [
+          0.9,
+          0.28
+        ],
+        [
+          0.9,
+          0.7
+        ],
+        [
+          0.1,
+          0.7
+        ]
+      ],
+      "note": "The ground itself. The Achaeans pour out from the ships and the huts ἐς πεδίον … Σκαμάνδριον and take their stand μυρίοι in the flowery Scamandrian meadow (Il. 2.464-68) — everything between the camp and the city. Drawn as a lettering zone and nothing more, because the plain is not a place on this sheet: it is the sheet. That is also why it takes no anchor — a pin would put the plain at one point of itself — and why a scene set here is framed by the whole plate, unzoomed.",
+      "sources": [
+        {
+          "cite": "Strabo. Geography 13.1.34.",
+          "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
+        }
+      ]
+    },
+    {
       "id": "achaean-camp",
       "kind": "region",
       "placeId": "achaean-camp",
@@ -76,7 +107,7 @@
           0.848
         ]
       ],
-      "note": "The camp fills the whole long mouth of the shore, ἠϊόνος στόμα μακρόν, ὅσον συνεέργαθον ἄκραι (Il. 14.36) — the beach could not hold the ships in one line, so they were hauled up in tiers, προκρόσσας (14.35). The plate takes Pope's 1716 viewpoint, sea at the bottom and Troy at the top, because that is where the poet stands and it makes the camp's left and right unambiguous.",
+      "note": "The camp fills the whole long mouth of the shore, ἠϊόνος στόμα μακρόν, ὅσον συνεέργαθον ἄκραι (Il. 14.36) — the beach could not hold the ships in one line, so they were hauled up in tiers, προκρόσσας (14.35). The plate takes Pope's 1716 viewpoint, sea at the bottom and Troy at the top, because that is where the poet stands. The camp's two ends are named by who holds them and never by a hand: Ajax's end and Achilles' end, ἔσχατα (8.222-26 = 11.5-9).",
       "sources": [
         {
           "cite": "Pope, Alexander. The Iliad of Homer. Vol. 2. London: Bowyer for Lintott, 1716. \"An Essay on Homer's Battels,\" 11-14, and the bird's-eye plate facing p. 12, engraved by John Harris.",
@@ -364,7 +395,7 @@
           0.862
         ]
       ],
-      "note": "The river runs down the left flank of the plain and reaches the sea beyond the end of the ships. Its head on this plate is the pair of springs under Troy's wall, because that is where the poem puts it: πηγαὶ δοιαὶ ἀναΐσσουσι Σκαμάνδρου δινήεντος (Il. 22.147-48) — a hydrography the ground cannot support, which is exactly why it belongs to this register and not to the geographic plate.",
+      "note": "The river runs down one flank of the plain and reaches the sea beyond that end of the ships — the flank the Simoeis does not hold. Which flank that is in the ground is a question for the geographic sheet, and the one line that ties a hand to a physical feature, μάχης ἐπ' ἀριστερὰ … ὄχθας πὰρ ποταμοῖο Σκαμάνδρου (Il. 11.498-99), hands it to a river position nobody has. Its head on this plate is the pair of springs under Troy's wall, because that is where the poem puts it: πηγαὶ δοιαὶ ἀναΐσσουσι Σκαμάνδρου δινήεντος (Il. 22.147-48) — a hydrography the ground cannot support, which is exactly why it belongs to this register and not to the geographic plate.",
       "sources": [
         {
           "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912.",
@@ -812,7 +843,15 @@
           0.772
         ]
       ],
-      "note": "The chariot way into the camp, crossing ditch and wall at the left of the ships: Asius drives at the gate νηῶν ἐπ' ἀριστερά, τῇ περ Ἀχαιοὶ ἐκ πεδίου νίσοντο σὺν ἵπποισιν καὶ ὄχεσφι (Il. 12.118-19), and the gates were built wide on purpose, ὄφρα δι' αὐτάων ἱππηλασίη ὁδὸς εἴη (7.438-39). Drawn as a separate stretch because the poem attests both this approach and the wagon-road without ever saying they are one road."
+      "note": "The chariot way into the camp, crossing ditch and wall at the end of the line where the teams come back in off the plain: Asius drives at that gate, νηῶν ἐπ' ἀριστερά, τῇ περ Ἀχαιοὶ ἐκ πεδίου νίσοντο σὺν ἵπποισιν καὶ ὄχεσφι (Il. 12.118-19), and it is there Idomeneus kills him (12.117; 13.384-88). The gates were built wide on purpose, ὄφρα δι' αὐτάων ἱππηλασίη ὁδὸς εἴη (7.438-39). Labelled by that event rather than by a hand, because whose left 12.118 means is disputed — Janko reads it from the Greek side, Hainsworth from Asius's. Drawn as a separate stretch because the poem attests both this approach and the wagon-road without ever saying they are one road.",
+      "sources": [
+        {
+          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
+        },
+        {
+          "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
+        }
+      ]
     },
     {
       "id": "ships-left",
@@ -830,7 +869,15 @@
           0.775
         ]
       ],
-      "note": "The left of the line. The poem divides the army in three of its own accord — ἐπὶ δεξιόφιν παντὸς στρατοῦ, ἦ ἀνὰ μέσσους, ἦ ἐπ' ἀριστερόφιν (Il. 13.308-9) — and left, centre and right are the only stations it will name."
+      "note": "Ajax's end of the line. The poem divides the army in three of its own accord — ἐπὶ δεξιόφιν παντὸς στρατοῦ, ἦ ἀνὰ μέσσους, ἦ ἐπ' ἀριστερόφιν (Il. 13.308-9) — three sectors and no more, and this sheet names them by who holds them rather than by a hand, because whose left the poem's ἀριστερά is remains disputed.",
+      "sources": [
+        {
+          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
+        },
+        {
+          "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
+        }
+      ]
     },
     {
       "id": "ships-centre",
@@ -866,7 +913,7 @@
           0.775
         ]
       ],
-      "note": "The right of the line, running out to Achilles at the far end. Menelaus, searching the ranks for Ajax, catches sight of him μάχης ἐπ' ἀριστερὰ πάσης, on the left of the whole battle (Il. 17.116), which is the other end of this same line."
+      "note": "Achilles' end of the line, running out to the Myrmidon station at the far extremity. Menelaus, searching the ranks for Ajax, catches sight of him μάχης ἐπ' ἀριστερὰ πάσης (Il. 17.116) — the sector at the other end of this same line, which the poem names by a hand and this sheet names by its holder."
     },
     {
       "id": "batieia",
@@ -969,7 +1016,15 @@
           0.818
         ]
       ],
-      "note": "Ajax son of Telamon at one extreme of the line: he and Achilles hauled their ships up ἔσχατα, trusting in their manhood and the strength of their hands (Il. 8.224-26 = 11.7-9). He is put on the left because this is the end Hector breaks into, and because the left is the end Ajax is always fighting on."
+      "note": "Ajax son of Telamon at one extreme of the line: he and Achilles hauled their ships up ἔσχατα, trusting in their manhood and the strength of their hands (Il. 8.224-26 = 11.7-9). His end is set toward the promontory later called Rhoiteion, following Aristarchus and Janko, for whom the poem's ἀριστερά is always read from the Greek side — the eastern end where the Scamander ran and Telamonian Ajax lay, against the western end toward Sigeion where Achilles was stationed (Janko, Commentary IV, 130-31, on 13.675). Hainsworth reads the same phrase at 12.118 from Asius's side and swaps the two ends (Commentary III, 313-14). Neither headland is named in the Iliad, and the placement is speculative for that reason; what the sheet states is the holder, not the hand.",
+      "sources": [
+        {
+          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
+        },
+        {
+          "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
+        }
+      ]
     },
     {
       "id": "ship-of-protesilaus",
