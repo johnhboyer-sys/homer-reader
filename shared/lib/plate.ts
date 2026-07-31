@@ -1271,9 +1271,11 @@ const LABEL_STYLES: Record<LabelRole, LabelStyle> = {
   minor: { size: 9.5, weight: 400, italic: false, caps: false, tracking: 0.02, fill: 'var(--text-mid)' },
 };
 
-type LabelAnchor = 'start' | 'middle' | 'end';
+export type LabelAnchor = 'start' | 'middle' | 'end';
 
-type Box = [number, number, number, number]; // [x1, y1, x2, y2]
+export type LabelBox = [number, number, number, number]; // [x1, y1, x2, y2]
+
+type Box = LabelBox;
 
 // Same average-glyph-width heuristic as scenemap.ts's estimateTextWidth (no
 // DOM measurement in a pure build-time module), widened for caps and for the
@@ -1312,17 +1314,23 @@ function boxesOverlap(a: Box, b: Box, pad = 1.5): boolean {
   return !(a[2] + pad < b[0] || b[2] + pad < a[0] || a[3] + pad < b[1] || b[3] + pad < a[1]);
 }
 
-function boxInside(b: Box, width: number, height: number, margin: number): boolean {
-  return b[0] >= margin && b[1] >= margin && b[2] <= width - margin && b[3] <= height - margin;
+function overlapArea(a: Box, b: Box): number {
+  return Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])) * Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1]));
 }
 
-interface LabelCandidate {
+export type LabelPosition = 'E' | 'W' | 'N' | 'S' | 'NE' | 'NW' | 'SE' | 'SW';
+
+interface LabelPoint {
   x: number;
   y: number; // baseline
   anchor: LabelAnchor;
 }
 
-function labelBox(c: LabelCandidate, textWidth: number, style: LabelStyle): Box {
+export interface LabelCandidate extends LabelPoint {
+  position: LabelPosition;
+}
+
+function labelBox(c: LabelPoint, textWidth: number, style: Pick<LabelStyle, 'size'>): Box {
   const x1 = c.anchor === 'start' ? c.x : c.anchor === 'end' ? c.x - textWidth : c.x - textWidth / 2;
   return [x1, c.y - style.size * 0.8, x1 + textWidth, c.y + style.size * 0.25];
 }
@@ -1340,28 +1348,89 @@ const LABEL_GAPS = [5, 14, 26];
 /** Candidates from the first (closest) ring; beyond these a name reads as detached from its mark. */
 const NEAR_CANDIDATE_COUNT = 8;
 
-function labelCandidates(anchorBox: Box, style: LabelStyle): LabelCandidate[] {
+export function labelCandidates(anchorBox: LabelBox, fontSize: number): LabelCandidate[] {
   const [x1, y1, x2, y2] = anchorBox;
   const cx = (x1 + x2) / 2;
   const cy = (y1 + y2) / 2;
-  const half = style.size * 0.36; // roughly half a cap height, to centre a side-set name
+  const half = fontSize * 0.36; // roughly half a cap height, to centre a side-set name
   const out: LabelCandidate[] = [];
   for (const gap of LABEL_GAPS) {
     out.push(
-      { x: x2 + gap, y: y1 + half, anchor: 'start' }, // top-right
-      { x: x2 + gap, y: cy + half, anchor: 'start' }, // right
-      { x: cx, y: y1 - gap, anchor: 'middle' }, // top
-      { x: cx, y: y2 + gap + style.size * 0.72, anchor: 'middle' }, // bottom
-      { x: x1 - gap, y: cy + half, anchor: 'end' }, // left
-      { x: x1 - gap, y: y1 + half, anchor: 'end' }, // top-left
-      { x: x2 + gap, y: y2 + gap + style.size * 0.6, anchor: 'start' }, // bottom-right
-      { x: x1 - gap, y: y2 + gap + style.size * 0.6, anchor: 'end' }, // bottom-left
+      { position: 'NE', x: x2 + gap, y: y1 + half, anchor: 'start' },
+      { position: 'E', x: x2 + gap, y: cy + half, anchor: 'start' },
+      { position: 'N', x: cx, y: y1 - gap, anchor: 'middle' },
+      { position: 'S', x: cx, y: y2 + gap + fontSize * 0.72, anchor: 'middle' },
+      { position: 'W', x: x1 - gap, y: cy + half, anchor: 'end' },
+      { position: 'NW', x: x1 - gap, y: y1 + half, anchor: 'end' },
+      { position: 'SE', x: x2 + gap, y: y2 + gap + fontSize * 0.6, anchor: 'start' },
+      { position: 'SW', x: x1 - gap, y: y2 + gap + fontSize * 0.6, anchor: 'end' },
     );
   }
   return out;
 }
 
+export interface LabelPlacementInput {
+  id: string;
+  anchorBox: LabelBox;
+  textWidth: number;
+  fontSize: number;
+}
+
+export interface LabelPlacement {
+  id: string;
+  candidate: LabelCandidate;
+  candidateIndex: number;
+  box: LabelBox;
+  penalty: number;
+}
+
+export interface LabelPlacementOptions {
+  width: number;
+  height: number;
+  margin: number;
+  markerBoxes?: LabelBox[];
+  placedBoxes?: LabelBox[];
+}
+
+function offViewBoxArea(box: Box, width: number, height: number, margin: number): number {
+  const visibleWidth = Math.max(0, Math.min(box[2], width - margin) - Math.max(box[0], margin));
+  const visibleHeight = Math.max(0, Math.min(box[3], height - margin) - Math.max(box[1], margin));
+  return Math.max(0, (box[2] - box[0]) * (box[3] - box[1]) - visibleWidth * visibleHeight);
+}
+
+// Places pin labels from a fixed candidate set. Large multipliers make a
+// visible collision more costly than a modestly longer leader, while the
+// candidate index gives exact ties a stable, deliberate outcome.
+export function placeLabelCandidates(
+  inputs: LabelPlacementInput[],
+  options: LabelPlacementOptions,
+): LabelPlacement[] {
+  const placed = [...(options.placedBoxes ?? [])];
+  const markerBoxes = options.markerBoxes ?? [];
+  const results: LabelPlacement[] = [];
+
+  for (const input of [...inputs].sort((a, b) => a.id.localeCompare(b.id))) {
+    const candidates = labelCandidates(input.anchorBox, input.fontSize);
+    let best: LabelPlacement | undefined;
+    for (let index = 0; index < candidates.length; index++) {
+      const candidate = candidates[index];
+      const box = labelBox(candidate, input.textWidth, { size: input.fontSize });
+      const labelOverlap = placed.reduce((total, other) => total + overlapArea(box, other), 0);
+      const markerOverlap = markerBoxes.reduce((total, marker) => total + overlapArea(box, marker), 0);
+      const offView = offViewBoxArea(box, options.width, options.height, options.margin);
+      const penalty = offView * 10_000 + labelOverlap * 1_000 + markerOverlap * 100 + index / 1_000;
+      const placement = { id: input.id, candidate, candidateIndex: index, box, penalty };
+      if (!best || placement.penalty < best.penalty) best = placement;
+    }
+    if (!best) continue;
+    results.push(best);
+    placed.push(best.box);
+  }
+  return results;
+}
+
 interface LabelRequest {
+  id: string;
   text: string;
   role: LabelRole;
   /** The feature point a leader would run to, and the box a pin's label must clear. */
@@ -1390,7 +1459,7 @@ function polylineLength(pts: [number, number][]): number {
 // runs right-to-left. The dossier's advice is explicit: never use
 // `side="right"` — reverse the path instead. Direction is judged on the run's
 // net displacement, so one wiggle mid-course doesn't flip the whole name.
-function orientForReading(pts: [number, number][]): [number, number][] {
+export function orientPathForReading(pts: [number, number][]): [number, number][] {
   const dx = pts[pts.length - 1][0] - pts[0][0];
   return dx < 0 ? [...pts].reverse() : pts;
 }
@@ -1415,7 +1484,7 @@ function textPathElement(
 
 function labelElement(
   text: string,
-  c: LabelCandidate,
+  c: LabelPoint,
   style: LabelStyle,
   role: LabelRole,
   forceItalic: boolean,
@@ -1462,21 +1531,23 @@ function leaderElement(anchorBox: Box, box: Box, dashed: boolean): string {
 // position is meaningful (the shape's own centre), so a point name yields to
 // them rather than the other way round.
 //
-// A name whose every candidate is rejected is NOT dropped: it falls back to
-// its first candidate, clamped inside the frame. Silently deleting a place
-// name off an apparatus map would be exactly the class of quiet omission
-// CLAUDE.md's honesty rule exists to prevent — an overlap is visible and
-// fixable, an absence is neither.
+// A name whose candidates all cross the neatline is NOT dropped: it keeps the
+// least-cost direction, then clamps it inside the frame. Silently deleting a
+// place name off an apparatus map would be exactly the class of quiet omission
+// CLAUDE.md's honesty rule exists to prevent — an overlap is visible and fixable,
+// an absence is neither.
 function layoutLabels(
   requests: LabelRequest[],
   width: number,
   height: number,
   margin: number,
+  markerBoxes: LabelBox[],
 ): { markup: string; defs: string } {
   const placed: Box[] = [];
   const parts: string[] = [];
   const defs: string[] = [];
-  const ordered = [...requests.filter((r) => r.centred), ...requests.filter((r) => !r.centred)];
+  const byId = (a: LabelRequest, b: LabelRequest) => a.id.localeCompare(b.id);
+  const ordered = [...requests.filter((r) => r.centred).sort(byId), ...requests.filter((r) => !r.centred).sort(byId)];
   // One name, one place on the sheet. A layer and a pin can resolve to the
   // same gazetteer place (the shore layer named `bay-of-troy` and a pin for
   // the bay), and lettering it twice reads as two features.
@@ -1494,7 +1565,7 @@ function layoutLabels(
     // enough to carry the name; otherwise it falls through to point placement
     // below rather than being squeezed onto a stub.
     if (req.path && req.pathId && req.path.length >= 2 && polylineLength(req.path) > textWidth * 1.15) {
-      const oriented = orientForReading(req.path);
+      const oriented = orientPathForReading(req.path);
       // Reserve only the stretch the name actually occupies — the middle of
       // the run, where startOffset="50%" puts it — not the whole polyline's
       // bounding box, which for a river crossing the sheet would push every
@@ -1510,7 +1581,7 @@ function layoutLabels(
       // Too crowded along the line — fall through to point placement.
     }
 
-    let chosen: LabelCandidate;
+    let chosen: LabelPoint;
     let box: Box;
     let detached = false;
     if (req.centred) {
@@ -1519,21 +1590,26 @@ function layoutLabels(
       chosen = { x: cx, y: cy + style.size * 0.3, anchor: 'middle' };
       box = labelBox(chosen, textWidth, style);
     } else {
-      const candidates = labelCandidates(req.anchorBox, style);
-      let best: { c: LabelCandidate; b: Box } | undefined;
-      for (const c of candidates) {
-        const b = labelBox(c, textWidth, style);
-        if (!boxInside(b, width, height, margin)) continue;
-        if (placed.some((p) => boxesOverlap(p, b))) continue;
-        best = { c, b };
-        break;
-      }
-      // A name that had to travel to find room, or that fell through to the
-      // clamped fallback, gets a hairline leader back to its own mark.
-      detached = !best || candidates.indexOf(best.c) >= NEAR_CANDIDATE_COUNT;
+      const candidates = labelCandidates(req.anchorBox, style.size);
+      const best = placeLabelCandidates(
+        [{ id: req.id, anchorBox: req.anchorBox, textWidth, fontSize: style.size }],
+        { width, height, margin, markerBoxes, placedBoxes: placed },
+      )[0];
+      // A name that had to travel to the outer candidate ring gets a hairline
+      // leader back to its own mark.
+      detached = !best || best.candidateIndex >= NEAR_CANDIDATE_COUNT;
       if (best) {
-        chosen = best.c;
-        box = best.b;
+        chosen = best.candidate;
+        box = best.box;
+        // If every candidate crosses the neatline, retain the least-bad
+        // direction but bring its box back into view. A map must not lose a
+        // place name merely because a pin lies near its edge.
+        if (offViewBoxArea(box, width, height, margin) > 0) {
+          const dx = Math.min(0, width - margin - box[2]) + Math.max(0, margin - box[0]);
+          const dy = Math.min(0, height - margin - box[3]) + Math.max(0, margin - box[1]);
+          chosen = { ...chosen, x: chosen.x + dx, y: chosen.y + dy };
+          box = labelBox(chosen, textWidth, style);
+        }
       } else {
         // Every candidate rejected — keep the name, clamped into the frame.
         const c = candidates[0];
@@ -3075,6 +3151,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     pinMarkupParts.push(pinMarkup(place.id, place.name, x, y, style, conjectural));
     features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: pinBBox(x, y) });
     pinLabelRequests.push({
+      id: place.id,
       text: mapLabelText(place.name),
       role: 'settlement',
       anchorBox: pinBBox(x, y),
@@ -3103,6 +3180,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     const text = layer.label ?? fallback;
     if (!text) continue;
     layerLabelRequests.push({
+      id: layer.id,
       text,
       role: rendered.labelRole,
       anchorBox: rendered.labelAnchor,
@@ -3123,6 +3201,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     width,
     height,
     LABEL_MARGIN,
+    pinLabelRequests.map((request) => request.anchorBox),
   );
 
   // Finding 8 (2026-07-28): idPrefix is caller-supplied and lands directly

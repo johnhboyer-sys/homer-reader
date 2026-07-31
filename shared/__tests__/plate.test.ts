@@ -11,6 +11,9 @@ import {
   wallGlyph,
   tumulus,
   waterlines,
+  labelCandidates,
+  placeLabelCandidates,
+  orientPathForReading,
   reliefHachureParams,
   hypsometricLevels,
   hypsometricStep,
@@ -1378,12 +1381,70 @@ describe('renderPlate: the sheet declares its own land and water', () => {
 });
 
 describe('renderPlate: lettering (a map with no names is not a map)', () => {
+  it('reverses a leftward text path for reading', () => {
+    const path: [number, number][] = [[80, 20], [50, 30], [10, 40]];
+    expect(orientPathForReading(path)).toEqual([[10, 40], [50, 30], [80, 20]]);
+  });
+
+  it('keeps a rightward text path unchanged', () => {
+    const path: [number, number][] = [[10, 40], [50, 30], [80, 20]];
+    expect(orientPathForReading(path)).toBe(path);
+  });
+
+  it('places overlapping pin labels in non-overlapping candidate boxes', () => {
+    const inputs = [
+      { id: 'alpha', anchorBox: [100, 100, 110, 110] as [number, number, number, number], textWidth: 40, fontSize: 12 },
+      { id: 'beta', anchorBox: [104, 104, 114, 114] as [number, number, number, number], textWidth: 40, fontSize: 12 },
+    ];
+    const defaultBox = (input: (typeof inputs)[number]) => {
+      const candidate = labelCandidates(input.anchorBox, input.fontSize)[0];
+      return [candidate.x, candidate.y - input.fontSize * 0.8, candidate.x + input.textWidth, candidate.y + input.fontSize * 0.25];
+    };
+    const [defaultFirst, defaultSecond] = inputs.map(defaultBox);
+    const defaultOverlap = Math.max(0, Math.min(defaultFirst[2], defaultSecond[2]) - Math.max(defaultFirst[0], defaultSecond[0])) *
+      Math.max(0, Math.min(defaultFirst[3], defaultSecond[3]) - Math.max(defaultFirst[1], defaultSecond[1]));
+    expect(defaultOverlap).toBeGreaterThan(0);
+    const placements = placeLabelCandidates(inputs, { width: 300, height: 200, margin: 8 });
+    expect(labelCandidates(inputs[0].anchorBox, 12).map((candidate) => candidate.position)).toEqual(
+      expect.arrayContaining(['E', 'W', 'N', 'S', 'NE', 'NW', 'SE', 'SW']),
+    );
+    const [first, second] = placements;
+    const overlap = Math.max(0, Math.min(first.box[2], second.box[2]) - Math.max(first.box[0], second.box[0])) *
+      Math.max(0, Math.min(first.box[3], second.box[3]) - Math.max(first.box[1], second.box[1]));
+    expect(overlap).toBe(0);
+  });
+
+  it('places label candidates identically for the same input', () => {
+    const inputs = [
+      { id: 'beta', anchorBox: [104, 104, 114, 114] as [number, number, number, number], textWidth: 40, fontSize: 12 },
+      { id: 'alpha', anchorBox: [100, 100, 110, 110] as [number, number, number, number], textWidth: 40, fontSize: 12 },
+    ];
+    const options = { width: 300, height: 200, margin: 8, markerBoxes: [[100, 100, 110, 110]] as [number, number, number, number][] };
+    expect(placeLabelCandidates(inputs, options)).toEqual(placeLabelCandidates(inputs, options));
+  });
+
   it('names every located place — none is silently dropped, however crowded the sheet', () => {
     const crowd: PlatePlace[] = Array.from({ length: 12 }, (_, i) => ({
       id: `p${i}`, name: `Place${i}`, coords: [39.95 + i * 0.0005, 26.2 + i * 0.0005] as [number, number], certainty: 'certain' as const,
     }));
     const result = renderPlate(testPlate, crowd);
     for (const p of crowd) expect(result.svg).toContain(`>${p.name}</text>`);
+  });
+
+  it('draws a leader when a crowded point label moves to an outer candidate ring', () => {
+    const outerPlacement = placeLabelCandidates(
+      [{ id: 'outer', anchorBox: [95, 95, 105, 105], textWidth: 20, fontSize: 12 }],
+      { width: 300, height: 200, margin: 8, placedBoxes: [[70, 85, 130, 117]] },
+    )[0];
+    expect(outerPlacement.candidateIndex).toBeGreaterThanOrEqual(8);
+    const crowd: PlatePlace[] = Array.from({ length: 12 }, (_, i) => ({
+      id: `crowded-${i}`,
+      name: `Crowded place ${i}`,
+      coords: [39.95, 26.2] as [number, number],
+      certainty: 'certain' as const,
+    }));
+    const result = renderPlate(testPlate, crowd);
+    expect(result.svg).toContain('class="plate-leader"');
   });
 
   it('letters a pin with the map SHORT form, keeping the full catalogue name on the pin title', () => {
