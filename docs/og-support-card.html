@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html,body{margin:0;padding:0;background:#241827;}
+  svg{display:block;}
+</style>
+</head>
+<body>
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="vignette" cx="42%" cy="40%" r="85%">
+      <stop offset="0%" stop-color="#2E2033"/>
+      <stop offset="70%" stop-color="#241827"/>
+      <stop offset="100%" stop-color="#1C1220"/>
+    </radialGradient>
+    <g id="wave">
+      <path d="M 0 46
+               C 14 10, 52 2, 66 20
+               C 76 33, 68 48, 54 46
+               C 44 44, 42 32, 52 28"
+            fill="none" stroke="#EDE6D0" stroke-width="5" stroke-linecap="round"/>
+      <path d="M 66 20 C 84 34, 96 42, 112 46"
+            fill="none" stroke="#EDE6D0" stroke-width="5" stroke-linecap="round"/>
+    </g>
+    <g id="ship">
+      <!-- rigging -->
+      <line x1="800" y1="452" x2="1148" y2="836" stroke="#EDE6D0" stroke-width="3" opacity="0.75"/>
+      <line x1="800" y1="452" x2="452" y2="700" stroke="#EDE6D0" stroke-width="3" opacity="0.75"/>
+      <!-- mast + yard -->
+      <line x1="800" y1="450" x2="800" y2="852" stroke="#EDE6D0" stroke-width="9"/>
+      <path d="M 588 502 Q 800 480 1012 502" fill="none" stroke="#EDE6D0" stroke-width="7" stroke-linecap="round"/>
+      <!-- sail -->
+      <path d="M 600 508
+               C 640 630, 640 700, 596 764
+               C 760 726, 900 726, 1030 768
+               C 976 700, 976 630, 1000 512
+               C 870 534, 730 534, 600 508 Z"
+            fill="#A05744" opacity="0.96"/>
+      <path d="M 668 520 C 692 620, 692 680, 664 752" fill="none" stroke="#241827" stroke-width="4" opacity="0.55"/>
+      <path d="M 740 528 C 756 620, 756 680, 738 740" fill="none" stroke="#241827" stroke-width="4" opacity="0.55"/>
+      <path d="M 812 530 C 820 620, 820 680, 812 736" fill="none" stroke="#241827" stroke-width="4" opacity="0.55"/>
+      <path d="M 884 526 C 884 620, 884 680, 890 740" fill="none" stroke="#241827" stroke-width="4" opacity="0.55"/>
+      <path d="M 952 518 C 944 616, 944 678, 958 752" fill="none" stroke="#241827" stroke-width="4" opacity="0.55"/>
+      <!-- hull -->
+      <path d="M 452 826
+               C 560 872, 720 892, 850 892
+               C 990 892, 1090 868, 1148 836
+               L 1236 878
+               C 1150 912, 1000 936, 848 936
+               C 690 936, 540 908, 448 862
+               Z"
+            fill="#EDE6D0"/>
+      <path d="M 470 840 C 580 882, 730 900, 850 900 C 985 900, 1080 878, 1140 848"
+            fill="none" stroke="#241827" stroke-width="3.5" opacity="0.5"/>
+      <!-- sternpost -->
+      <path d="M 470 852
+               C 420 800, 402 728, 428 660
+               C 446 614, 492 600, 512 632
+               C 528 658, 508 684, 484 676"
+            fill="none" stroke="#EDE6D0" stroke-width="14" stroke-linecap="round"/>
+      <!-- prow stem + eye -->
+      <path d="M 1140 846 C 1160 800, 1156 762, 1128 726"
+            fill="none" stroke="#EDE6D0" stroke-width="12" stroke-linecap="round"/>
+      <circle cx="1104" cy="866" r="9" fill="#241827"/>
+      <!-- steering oar -->
+      <path d="M 520 900 L 462 1024" stroke="#EDE6D0" stroke-width="9" stroke-linecap="round"/>
+      <path d="M 462 1024 L 448 1058" stroke="#EDE6D0" stroke-width="16" stroke-linecap="round"/>
+      <!-- oars -->
+      <g stroke="#EDE6D0" stroke-width="6" stroke-linecap="round" opacity="0.9">
+        <line x1="620" y1="940" x2="592" y2="1026"/>
+        <line x1="700" y1="948" x2="672" y2="1034"/>
+        <line x1="780" y1="952" x2="752" y2="1038"/>
+        <line x1="860" y1="952" x2="832" y2="1038"/>
+        <line x1="940" y1="948" x2="912" y2="1034"/>
+        <line x1="1020" y1="940" x2="992" y2="1026"/>
+        <line x1="1096" y1="928" x2="1068" y2="1014"/>
+      </g>
+    </g>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#vignette)"/>
+
+  <!-- frame -->
+  <rect x="28" y="28" width="1144" height="574" fill="none" stroke="#EDE6D0" stroke-width="2.5" opacity="0.85"/>
+  <rect x="40" y="40" width="1120" height="550" fill="none" stroke="#EDE6D0" stroke-width="1" opacity="0.55"/>
+
+  <!-- ship, right side -->
+  <g transform="translate(462,-62) scale(0.56)">
+    <use href="#ship"/>
+  </g>
+
+  <!-- text block, left -->
+  <text x="96" y="188" font-family="Optima,Seravek,'Gill Sans',sans-serif"
+        font-size="27" letter-spacing="11" fill="#C68B76">THE HOMER READER</text>
+
+  <text x="90" y="290" font-family="'Big Caslon','Hoefler Text',Palatino,serif"
+        font-size="92" fill="#EDE6D0">Support the</text>
+  <text x="90" y="392" font-family="'Big Caslon','Hoefler Text',Palatino,serif"
+        font-size="92" fill="#EDE6D0">Homer Reader</text>
+
+  <g opacity="0.8">
+    <line x1="94" y1="438" x2="284" y2="438" stroke="#EDE6D0" stroke-width="1.5"/>
+    <rect x="298" y="431" width="14" height="14" transform="rotate(45 305 438)" fill="#A05744"/>
+  </g>
+
+  <text x="94" y="492" font-family="'Iowan Old Style',Charter,Palatino,serif"
+        font-size="31" fill="#CDC2CB">Free and open — every word parsed,</text>
+  <text x="94" y="533" font-family="'Iowan Old Style',Charter,Palatino,serif"
+        font-size="31" fill="#CDC2CB">every place mapped. Help keep it that way.</text>
+
+  <!-- wave band along the bottom -->
+  <g opacity="0.8">
+    <use href="#wave" x="88" y="548"/>
+    <use href="#wave" x="202" y="548"/>
+    <use href="#wave" x="316" y="548"/>
+    <use href="#wave" x="430" y="548"/>
+    <use href="#wave" x="544" y="548"/>
+    <use href="#wave" x="658" y="548"/>
+    <use href="#wave" x="772" y="548"/>
+    <use href="#wave" x="886" y="548"/>
+    <use href="#wave" x="1000" y="548"/>
+  </g>
+</svg>
+</body>
+</html>
