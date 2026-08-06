@@ -650,3 +650,34 @@ regenerates the file. They belong in staging, which also subjects them to
 schema validation — that caught a 16-word Book 6 argument against a
 15-word cap that direct editing had waved through. The loose JSONs at
 apparatus/ root (places.json, characters.json) are source, copied verbatim.
+
+## SUPPORT FUNNEL LIVE — 2026-08-05 (seventh deploy)
+
+PR #19 merged by John's order (be3d047c9): the donation funnel, end to
+end, in one visual language. app/src/lib/support.ts now carries the live
+Stripe Payment Link. og-support.png and og-default.png redrawn as the
+black-figure galley — terracotta sail, bone linework, wave band, wine-dark
+ground — matching the 1600px graphic John uploaded to the Stripe checkout
+itself. Oars fully formed per John's review: shafts from under the hull,
+blades in the water. SVG sources live in docs/ (og-support-card.html,
+og-default-card.html, stripe-checkout-graphic.html); render via headless
+Chrome (macOS system fonts: Big Caslon, Palatino, Iowan Old Style).
+
+Deliberately narrow: cherry-picked support-funnel branch off main, so the
+Chart Room and the unsigned citadel plate stayed on claude/build behind
+John's sign-off gate. The deploy therefore also ships what main had
+accumulated since the sixth deploy: Troad plates as rescoped (PR #16) and
+the WordPopup Sol fixes (PR #18).
+
+Built in an isolated worktree (main + PR #19 only): own build/ (export
+cache copied, 1.6M), venv symlinked read-only — the main checkout's
+build/dist untouched with a second session active in it. Gate: pipeline
+public build both works · preflight ok · LSJ + Cunliffe keys all resolve
+· 4,705 pages · 0/331,431 broken links, 148,145 anchors. Deployed
+gh-pages 350799e11 -> origin (source be3d047c9). Live verified: Pages
+"built"; /, /support/, Il. 1, Od. 9 all 200; /support/ serves the live
+payment link; both OG PNGs byte-identical to the reviewed renders.
+
+Stripe-side, only John can fix: checkout header reads "Aristotle Reader"
+(Settings -> Business -> Public business name) and the link description
+is missing "is" ("The Homer Reader s free and open").
