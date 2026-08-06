@@ -202,6 +202,15 @@ non-negotiable.
   `.venv/bin/python -m homer_pipeline.preflight ../build/dist ../manifests`,
   which asserts the file is present.
 
+- Deploy-from-main recipe (2026-08-05, seventh deploy): `npm run build:public`
+  runs fully isolated in a fresh worktree off main — copy `build/export`
+  (1.6M) into the worktree, symlink `pipeline/.venv` to the main checkout's,
+  `npm install` in app/ and shared/, nvm 22. build:public WIPES AND REBUILDS
+  `build/dist` under its own root, so never run it in the main checkout while
+  another session holds build/dist. Deploy = rsync app/dist →
+  ~/Developer/homer-reader-site (exclude .git/.DS_Store), commit, push
+  origin gh-pages.
+
 ## Orchestration
 
 You (Fable) are the **orchestrator**. Your job is planning, decomposition,
