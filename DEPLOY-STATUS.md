@@ -666,8 +666,12 @@ Chrome (macOS system fonts: Big Caslon, Palatino, Iowan Old Style).
 Deliberately narrow: cherry-picked support-funnel branch off main, so the
 Chart Room and the unsigned citadel plate stayed on claude/build behind
 John's sign-off gate. The deploy therefore also ships what main had
-accumulated since the sixth deploy: Troad plates as rescoped (PR #16) and
-the WordPopup Sol fixes (PR #18).
+accumulated since the sixth deploy: advanced search (PR #13), cross-epic
+phrases and dual-number search (PR #14), and the word-popup fixes (PRs
+#17, #18). CORRECTION (same night): this entry first claimed the Troad
+plates (PR #16) shipped here — false. PR #16 is still OPEN; the five
+plates live only on claude/build. A stale session note ("PR #16 merged",
+2026-07-29) propagated into the first draft of this entry.
 
 Built in an isolated worktree (main + PR #19 only): own build/ (export
 cache copied, 1.6M), venv symlinked read-only — the main checkout's
