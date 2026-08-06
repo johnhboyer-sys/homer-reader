@@ -88,6 +88,79 @@
   "sigla": {
    "characters": [],
    "ok": true
+  },
+  "offsets": {
+   "token_count": 87189,
+   "segments": 24,
+   "round_trips_sampled": 72,
+   "lineation_unexpected": [],
+   "problems": [],
+   "ok": true
+  },
+  "grammar": {
+   "signatures": 1937,
+   "width_bytes": 2,
+   "tokens": 87189,
+   "semantic_offsets_sampled": 303,
+   "tokens_analysed": 87077,
+   "tokens_unkeyed": 0,
+   "tokens_unanalysed": 112,
+   "ambiguity": {
+    "case": {
+     "tokens": 48538,
+     "ambiguous": 20424,
+     "rate": 0.4208
+    },
+    "degree": {
+     "tokens": 222,
+     "ambiguous": 0,
+     "rate": 0.0
+    },
+    "gender": {
+     "tokens": 46932,
+     "ambiguous": 16620,
+     "rate": 0.3541
+    },
+    "marker": {
+     "tokens": 29961,
+     "ambiguous": 1546,
+     "rate": 0.0516
+    },
+    "mood": {
+     "tokens": 21900,
+     "ambiguous": 4910,
+     "rate": 0.2242
+    },
+    "number": {
+     "tokens": 61296,
+     "ambiguous": 8914,
+     "rate": 0.1454
+    },
+    "person": {
+     "tokens": 19765,
+     "ambiguous": 4799,
+     "rate": 0.2428
+    },
+    "tense": {
+     "tokens": 21891,
+     "ambiguous": 4590,
+     "rate": 0.2097
+    },
+    "voice": {
+     "tokens": 21900,
+     "ambiguous": 2391,
+     "rate": 0.1092
+    }
+   },
+   "problems": [],
+   "ok": true
+  },
+  "ngram_streams": {
+   "form_tokens": 87189,
+   "lemma_tokens": 87077,
+   "multi_lemma_tokens": 16804,
+   "problems": [],
+   "ok": true
   }
  },
  "ok": true

@@ -1,0 +1,175 @@
+<!DOCTYPE html><html lang="en" data-astro-cid-m4elyh4q> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><script>
+  (function () {
+    try {
+      var saved = localStorage.getItem('ne-theme');
+      document.documentElement.dataset.theme = saved === 'dark' ? 'dark' : 'light';
+    } catch (e) {
+      /* localStorage unavailable: fall back to light (CSS default). */
+    }
+  })();
+</script><title>Advanced search: a guide</title><meta name="description" content="How to search the Iliad and Odyssey beyond a plain word: every form of a word, wildcards, two words near each other, grammar as a filter, the phrase index, and English search — with worked examples."><link rel="canonical" href="https://johnhboyer-sys.github.io/homer-reader/advanced/"><meta property="og:type" content="article"><meta property="og:title" content="Advanced search: a guide"><meta property="og:description" content="How to search the Iliad and Odyssey beyond a plain word: every form of a word, wildcards, two words near each other, grammar as a filter, the phrase index, and English search — with worked examples."><meta property="og:site_name" content="The Homer Reader"><meta property="og:url" content="https://johnhboyer-sys.github.io/homer-reader/advanced/"><meta property="og:image" content="https://johnhboyer-sys.github.io/homer-reader/og-default.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Advanced search: a guide"><meta name="twitter:description" content="How to search the Iliad and Odyssey beyond a plain word: every form of a word, wildcards, two words near each other, grammar as a filter, the phrase index, and English search — with worked examples."><meta name="twitter:image" content="https://johnhboyer-sys.github.io/homer-reader/og-default.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","name":"Advanced search: a guide","description":"How to search the Iliad and Odyssey beyond a plain word: every form of a word, wildcards, two words near each other, grammar as a filter, the phrase index, and English search — with worked examples.","url":"https://johnhboyer-sys.github.io/homer-reader/advanced/","isPartOf":{"@type":"WebSite","name":"The Homer Reader"}}</script><link rel="icon" href="/homer-reader/favicon.svg" type="image/svg+xml"><link rel="icon" href="/homer-reader/favicon.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/homer-reader/apple-touch-icon.png" sizes="180x180"><link rel="manifest" href="/homer-reader/manifest.webmanifest"><script>(function(){const swUrl = "/homer-reader/sw.js";
+const swScope = "/homer-reader/";
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register(swUrl, { scope: swScope }).catch(() => {});
+    });
+  }
+})();</script><style>.site-header[data-astro-cid-ctg3m53h] .site-nav[data-astro-cid-ctg3m53h]{gap:.45rem}.site-header[data-astro-cid-ctg3m53h] .site-nav-links[data-astro-cid-ctg3m53h]{display:flex;align-items:center;gap:.12rem}.site-header[data-astro-cid-ctg3m53h] .site-nav-link[data-astro-cid-ctg3m53h]{border-bottom:1px solid transparent;border-radius:0;font-size:.72rem;letter-spacing:.01em;line-height:1.25;padding:.2rem .25rem!important;white-space:nowrap}.site-header[data-astro-cid-ctg3m53h] .site-nav-link[data-astro-cid-ctg3m53h].is-current{border-bottom-color:var(--accent);color:var(--accent);font-weight:600}.site-header[data-astro-cid-ctg3m53h] .site-nav-mobile[data-astro-cid-ctg3m53h]{display:none;position:relative}.site-header[data-astro-cid-ctg3m53h] .site-nav-mobile[data-astro-cid-ctg3m53h] summary[data-astro-cid-ctg3m53h]{color:var(--text-mid);cursor:pointer;font-family:var(--font-ui);font-size:.78rem;list-style:none;padding:.2rem .25rem;white-space:nowrap}.site-header[data-astro-cid-ctg3m53h] .site-nav-mobile[data-astro-cid-ctg3m53h] summary[data-astro-cid-ctg3m53h]::-webkit-details-marker{display:none}.site-header[data-astro-cid-ctg3m53h] .site-nav-mobile[data-astro-cid-ctg3m53h] summary[data-astro-cid-ctg3m53h]:after{content:" ▾"}.site-header[data-astro-cid-ctg3m53h] .site-nav-mobile[data-astro-cid-ctg3m53h] summary[data-astro-cid-ctg3m53h]:focus-visible,.site-header[data-astro-cid-ctg3m53h] .site-nav-link[data-astro-cid-ctg3m53h]:focus-visible{outline:2px solid var(--accent-light);outline-offset:2px}.site-header[data-astro-cid-ctg3m53h] .site-nav-menu[data-astro-cid-ctg3m53h]{background:var(--col-bg);border:1px solid var(--border);box-shadow:0 .4rem 1rem color-mix(in srgb,var(--text) 16%,transparent);display:grid;gap:.1rem;min-width:11rem;padding:.35rem;position:absolute;right:0;top:calc(100% + .4rem);z-index:1}.site-header[data-astro-cid-ctg3m53h] .site-nav-menu[data-astro-cid-ctg3m53h] .site-nav-link[data-astro-cid-ctg3m53h]{color:var(--text-mid);padding:.35rem .45rem!important}.site-header[data-astro-cid-ctg3m53h] .site-nav-menu[data-astro-cid-ctg3m53h] .site-nav-link[data-astro-cid-ctg3m53h]:hover{background:var(--border);color:var(--accent)}@media(max-width:1050px){.site-header[data-astro-cid-ctg3m53h] .site-nav-links[data-astro-cid-ctg3m53h]{display:none}.site-header[data-astro-cid-ctg3m53h] .site-nav-mobile[data-astro-cid-ctg3m53h]{display:block}}
+</style>
+<link rel="stylesheet" href="/homer-reader/_astro/global.C8IzdpbM.css">
+<style>.guide[data-astro-cid-m4elyh4q]{max-width:46rem;margin:0 auto;padding:1.5rem 1.25rem 4rem;font-family:var(--font-english);color:var(--text);line-height:1.6}.guide-eyebrow[data-astro-cid-m4elyh4q]{font-family:var(--font-ui);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-mid);margin:0 0 .2rem}.guide[data-astro-cid-m4elyh4q] h1[data-astro-cid-m4elyh4q]{font-size:2rem;margin:0 0 .6rem;line-height:1.15}.guide-lede[data-astro-cid-m4elyh4q]{font-size:1.05rem;color:var(--text-mid);margin:0 0 2rem}.guide-toc[data-astro-cid-m4elyh4q]{border:1px solid var(--border);border-radius:6px;background:var(--input-bg);padding:.9rem 1.1rem;margin-bottom:2.5rem;font-family:var(--font-ui);font-size:.9rem}.guide-toc[data-astro-cid-m4elyh4q] ol[data-astro-cid-m4elyh4q]{margin:0;padding-left:1.2rem}.guide-toc[data-astro-cid-m4elyh4q] li[data-astro-cid-m4elyh4q]{margin:.3rem 0;color:var(--text-mid)}.guide-toc[data-astro-cid-m4elyh4q] a[data-astro-cid-m4elyh4q]{color:var(--accent);font-weight:600}.guide[data-astro-cid-m4elyh4q] section[data-astro-cid-m4elyh4q]{margin-bottom:2.75rem;scroll-margin-top:1rem}.guide[data-astro-cid-m4elyh4q] h2[data-astro-cid-m4elyh4q]{font-size:1.4rem;margin:0 0 .75rem;padding-bottom:.35rem;border-bottom:1px solid var(--border)}.guide[data-astro-cid-m4elyh4q] p[data-astro-cid-m4elyh4q]{margin:0 0 .9rem}.guide[data-astro-cid-m4elyh4q] ul[data-astro-cid-m4elyh4q]{margin:0 0 .9rem;padding-left:1.2rem}.guide[data-astro-cid-m4elyh4q] li[data-astro-cid-m4elyh4q]{margin:.45rem 0}.guide[data-astro-cid-m4elyh4q] code[data-astro-cid-m4elyh4q]{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em;background:var(--input-bg);border:1px solid var(--border);border-radius:3px;padding:.05em .3em}.guide[data-astro-cid-m4elyh4q] [data-astro-cid-m4elyh4q][lang=grc]{font-family:var(--font-greek)}.guide-q[data-astro-cid-m4elyh4q]{font-style:italic;color:var(--text-mid)}.guide-note[data-astro-cid-m4elyh4q]{border-left:2px solid var(--border);padding:.15rem 0 .15rem .8rem;color:var(--text-mid);font-size:.95rem}.guide-back[data-astro-cid-m4elyh4q]{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--border);font-family:var(--font-ui);font-size:.9rem}@media(max-width:640px){.guide[data-astro-cid-m4elyh4q] h1[data-astro-cid-m4elyh4q]{font-size:1.6rem}}
+</style></head> <body data-astro-cid-m4elyh4q> <header class="simple-header site-header" data-astro-cid-ctg3m53h> <div class="header-title" data-astro-cid-ctg3m53h> <a class="home-link home-wordmark" href="/homer-reader/" aria-label="The Homer Reader — home" data-astro-cid-ctg3m53h> <span class="wordmark-name" data-astro-cid-ctg3m53h>The Homer Reader</span> <span class="wordmark-eyebrow" data-astro-cid-ctg3m53h>The Iliad &amp; Odyssey · Greek and English</span> </a> </div> <nav class="header-actions site-nav" aria-label="Site" data-astro-cid-ctg3m53h> <div class="site-nav-links" data-astro-cid-ctg3m53h> <a href="/homer-reader/iliad" class="search-link site-nav-link" data-astro-cid-ctg3m53h> Iliad </a><a href="/homer-reader/odyssey" class="search-link site-nav-link" data-astro-cid-ctg3m53h> Odyssey </a><a href="/homer-reader/maps/" class="search-link site-nav-link" data-astro-cid-ctg3m53h> Maps </a><a href="/homer-reader/timeline/" class="search-link site-nav-link" data-astro-cid-ctg3m53h> Timeline </a><a href="/homer-reader/characters/" class="search-link site-nav-link" data-astro-cid-ctg3m53h> Characters </a><a href="/homer-reader/places/" class="search-link site-nav-link" data-astro-cid-ctg3m53h> Places </a><a href="/homer-reader/genealogies/" class="search-link site-nav-link" data-astro-cid-ctg3m53h> Genealogies </a><a href="/homer-reader/vocabulary/" class="search-link site-nav-link" data-astro-cid-ctg3m53h> Vocabulary </a><a href="/homer-reader/formulas/" class="search-link site-nav-link" data-astro-cid-ctg3m53h> Formulas </a><a href="/homer-reader/repetitions/" class="search-link site-nav-link" data-astro-cid-ctg3m53h> Repetitions </a><a href="/homer-reader/search" class="search-link site-nav-link" data-astro-cid-ctg3m53h> Search </a><a href="/homer-reader/advanced" class="search-link site-nav-link is-current" aria-current="page" data-astro-cid-ctg3m53h> Advanced </a><a href="/homer-reader/phrases/" class="search-link site-nav-link" data-astro-cid-ctg3m53h> Phrases </a><a href="/homer-reader/about" class="search-link site-nav-link" data-astro-cid-ctg3m53h> About </a> </div> <details class="site-nav-mobile" data-astro-cid-ctg3m53h> <summary data-astro-cid-ctg3m53h>Sections</summary> <div class="site-nav-menu" data-astro-cid-ctg3m53h> <a href="/homer-reader/iliad" class="site-nav-link" data-astro-cid-ctg3m53h> Iliad </a><a href="/homer-reader/odyssey" class="site-nav-link" data-astro-cid-ctg3m53h> Odyssey </a><a href="/homer-reader/maps/" class="site-nav-link" data-astro-cid-ctg3m53h> Maps </a><a href="/homer-reader/timeline/" class="site-nav-link" data-astro-cid-ctg3m53h> Timeline </a><a href="/homer-reader/characters/" class="site-nav-link" data-astro-cid-ctg3m53h> Characters </a><a href="/homer-reader/places/" class="site-nav-link" data-astro-cid-ctg3m53h> Places </a><a href="/homer-reader/genealogies/" class="site-nav-link" data-astro-cid-ctg3m53h> Genealogies </a><a href="/homer-reader/vocabulary/" class="site-nav-link" data-astro-cid-ctg3m53h> Vocabulary </a><a href="/homer-reader/formulas/" class="site-nav-link" data-astro-cid-ctg3m53h> Formulas </a><a href="/homer-reader/repetitions/" class="site-nav-link" data-astro-cid-ctg3m53h> Repetitions </a><a href="/homer-reader/search" class="site-nav-link" data-astro-cid-ctg3m53h> Search </a><a href="/homer-reader/advanced" class="site-nav-link is-current" aria-current="page" data-astro-cid-ctg3m53h> Advanced </a><a href="/homer-reader/phrases/" class="site-nav-link" data-astro-cid-ctg3m53h> Phrases </a><a href="/homer-reader/about" class="site-nav-link" data-astro-cid-ctg3m53h> About </a> </div> </details> <button type="button" class="theme-toggle" aria-label="Toggle night mode" title="Toggle night mode"> <span class="theme-icon" aria-hidden="true"></span> </button> <script>
+  (function () {
+    var btn = document.querySelector('.theme-toggle');
+    if (!btn) return;
+    var icon = btn.querySelector('.theme-icon');
+
+    // Sleek, stroked line icons (Feather-style) that inherit currentColor, so
+    // they read as a refined monochrome glyph rather than a gold emoji.
+    var MOON =
+      '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    var SUN =
+      '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.4 4.4l1.6 1.6M18 18l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.4 19.6l1.6-1.6M18 6l1.6-1.6"/></svg>';
+
+    function render() {
+      var dark = document.documentElement.dataset.theme === 'dark';
+      // Icon shows the theme you'll switch TO: moon in light, sun in dark.
+      icon.innerHTML = dark ? SUN : MOON;
+      btn.setAttribute('aria-pressed', String(dark));
+    }
+    render();
+
+    // Flip the theme. Wrapped in a View Transition so the browser snapshots the
+    // page, applies the change, then crossfades old→new as ONE uniform fade —
+    // chrome, borders, text and the icon swap all dissolve together instead of
+    // the body fading while everything else snaps. Browsers without the API (or
+    // with reduce-motion on) fall back to a clean instant flip.
+    function applyTheme() {
+      var next =
+        document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try {
+        localStorage.setItem('ne-theme', next);
+      } catch (e) {}
+      render();
+    }
+
+    btn.addEventListener('click', function () {
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (document.startViewTransition && !reduce) {
+        document.startViewTransition(applyTheme);
+      } else {
+        applyTheme();
+      }
+    });
+  })();
+</script> </nav> </header> <main class="guide" data-astro-cid-m4elyh4q> <p class="guide-eyebrow" data-astro-cid-m4elyh4q>A guide</p> <h1 data-astro-cid-m4elyh4q>Advanced search</h1> <p class="guide-lede" data-astro-cid-m4elyh4q>
+Six ways to ask the text a question a plain word search cannot answer.
+      You need no Greek to use most of them. Every number on this page comes
+      from the 199,076 Greek words this site searches —
+111,887 in the Iliad, 87,189 in the
+      Odyssey. Check any of them against the search itself.
+</p> <nav class="guide-toc" aria-label="On this page" data-astro-cid-m4elyh4q> <ol data-astro-cid-m4elyh4q> <li data-astro-cid-m4elyh4q><a href="#forms" data-astro-cid-m4elyh4q>Every form of a word</a> — one word, however it ends</li> <li data-astro-cid-m4elyh4q><a href="#wildcards" data-astro-cid-m4elyh4q>Wildcards</a> — find a word you only partly know</li> <li data-astro-cid-m4elyh4q><a href="#near" data-astro-cid-m4elyh4q>Two things near each other</a> — words close together in the verse</li> <li data-astro-cid-m4elyh4q><a href="#grammar" data-astro-cid-m4elyh4q>Grammar as a filter</a> — find a kind of word, not a spelling</li> <li data-astro-cid-m4elyh4q><a href="#phrases" data-astro-cid-m4elyh4q>The phrase index</a> — what Homer repeats</li> <li data-astro-cid-m4elyh4q><a href="#english" data-astro-cid-m4elyh4q>Search in English</a></li> <li data-astro-cid-m4elyh4q><a href="#honesty" data-astro-cid-m4elyh4q>What these tools cannot tell you</a></li> </ol> </nav> <section id="first" data-astro-cid-m4elyh4q> <h2 data-astro-cid-m4elyh4q>First, one thing worth knowing</h2> <p data-astro-cid-m4elyh4q>
+Greek changes the end of a word to show its job in the sentence, so a
+        search for one spelling misses most of the places that word stands.
+        Several of the tools below exist to fix that. You can also type Greek
+        in plain letters if you have no Greek keyboard — the search page has a
+        key to it, and shows both ways of typing.
+</p> </section> <section id="forms" data-astro-cid-m4elyh4q> <h2 data-astro-cid-m4elyh4q>Every form of a word</h2> <p class="guide-q" data-astro-cid-m4elyh4q>Use this when you want one word wherever it stands, in whatever form it takes.</p> <p data-astro-cid-m4elyh4q>
+The Greek search box has a setting for this. Set it to
+<em data-astro-cid-m4elyh4q>any form of the word</em> and typing one form finds them all — type
+        the word as the text has it, in whatever ending it happens to show. Set
+        it to <em data-astro-cid-m4elyh4q>only as I typed it</em> and the search matches that one
+        spelling alone.
+</p> <p data-astro-cid-m4elyh4q>
+There is also a search on its own for this: <em data-astro-cid-m4elyh4q>Every form of one
+        word</em>. Open it, type one Greek word in any form, and it finds every
+        place the same word stands, however it is spelled there. It ignores the
+        main search boxes and answers on its own.
+</p> <p class="guide-note" data-astro-cid-m4elyh4q>
+A phrase can be widened the same way. After a search for an exact
+        phrase, a button offers to find that phrase again with each word
+        allowed to take any of its forms — useful when a phrase you searched
+        for exactly might also appear declined.
+</p> </section> <section id="wildcards" data-astro-cid-m4elyh4q> <h2 data-astro-cid-m4elyh4q>Wildcards</h2> <p class="guide-q" data-astro-cid-m4elyh4q>Use this when you know part of a word but not all of it.</p> <p data-astro-cid-m4elyh4q>
+Type <code data-astro-cid-m4elyh4q>*</code> to stand for any run of letters, or <code data-astro-cid-m4elyh4q>?</code>
+for exactly one letter. Both work in the middle of a word as well as at
+        the end — <code data-astro-cid-m4elyh4q>pod*</code> finds every word beginning
+<span lang="grc" data-astro-cid-m4elyh4q>ποδ-</span>, and <code data-astro-cid-m4elyh4q>an?r</code> finds
+<span lang="grc" data-astro-cid-m4elyh4q>ἀνήρ</span> without the accent mattering.
+</p> <p class="guide-note" data-astro-cid-m4elyh4q>
+One exception: a <code data-astro-cid-m4elyh4q>*</code> at the very start of a word is not a
+        wildcard. In plain-letter Greek it marks a capital, so
+<code data-astro-cid-m4elyh4q>*a)xilleu/s</code> means <span lang="grc" data-astro-cid-m4elyh4q>Ἀχιλλεύς</span> and the
+        search reads it as that one word.
+</p> </section> <section id="near" data-astro-cid-m4elyh4q> <h2 data-astro-cid-m4elyh4q>Two things near each other</h2> <p class="guide-q" data-astro-cid-m4elyh4q>Use this to find where two words, phrases, or kinds of word fall close together.</p> <p data-astro-cid-m4elyh4q>
+Open <em data-astro-cid-m4elyh4q>Two things near each other</em> and add a term for each thing
+        you are looking for. Each term can be a phrase, an exact spelling, a
+        word in any of its forms, or a piece of grammar (see below), and you
+        can mix them freely.
+</p> <p data-astro-cid-m4elyh4q>
+Choose how close counts as near: a number of <strong data-astro-cid-m4elyh4q>words</strong>
+apart, or the <strong data-astro-cid-m4elyh4q>same verse</strong>. You can also ask that one
+        term come strictly before or after another, and that every term appear
+        in the order you listed them.
+</p> <p class="guide-note" data-astro-cid-m4elyh4q>
+A match never crosses from one book into the next, however wide the
+        window — the last words of one book and the first of the next are not
+        near each other in any useful sense.
+</p> </section> <section id="grammar" data-astro-cid-m4elyh4q> <h2 data-astro-cid-m4elyh4q>Grammar as a filter</h2> <p class="guide-q" data-astro-cid-m4elyh4q>Use this to find a kind of word rather than a particular spelling.</p> <p data-astro-cid-m4elyh4q>
+Every Greek word here carries a grammatical description — case,
+        number, gender, tense, mood, voice, person, and so on. Inside
+<em data-astro-cid-m4elyh4q>Two things near each other</em>, set a term's kind to
+<em data-astro-cid-m4elyh4q>Grammar</em> and pick the description you want instead of typing a
+        word. You need not know how the matching forms are spelled; you choose
+        the description and the search finds the words.
+</p> <p data-astro-cid-m4elyh4q>
+Grammar works only as one term beside another, never as a search on
+        its own. A single grammatical description alone — every plural, say —
+        matches too much of the text to be a real question. Paired with a word
+        or phrase, it becomes one: <em data-astro-cid-m4elyh4q>this word near a verb in a past
+        tense</em> is a question the tool can answer.
+</p> <p class="guide-note" data-astro-cid-m4elyh4q>
+There is no setting for "noun" or "verb". Some words in Greek do the
+        work of both at once, and nothing in the description tells them apart,
+        so offering that choice would mean guessing.
+</p> </section> <section id="phrases" data-astro-cid-m4elyh4q> <h2 data-astro-cid-m4elyh4q>The phrase index</h2> <p class="guide-q" data-astro-cid-m4elyh4q>Use this when you do not yet know what to look for.</p> <p data-astro-cid-m4elyh4q>
+Search answers "where does this occur?" The
+<a href="/homer-reader/phrases/" data-astro-cid-m4elyh4q>phrase index</a> answers a different
+        question: <em data-astro-cid-m4elyh4q>what does Homer repeat?</em> It lists every run of two to
+        five words that recurs anywhere in the two poems — 68,550
+of them as printed, 158,973 when different endings of the
+        same words count together, and 118,695 in the English
+        translation.
+</p> <p data-astro-cid-m4elyh4q>
+This differs from the <a href="/homer-reader/formulas/" data-astro-cid-m4elyh4q>epithet-formulas</a>
+and the <a href="/homer-reader/repetitions/" data-astro-cid-m4elyh4q>repeated lines</a> shown
+        elsewhere on this site. Those list phrases a scholar has judged
+        significant, matched exactly and within one verse. The phrase index is
+        a plainer tool: it counts anything that recurs twice or more, however
+        it is spelled, and lets a run of words cross from one verse into the
+        next unless you ask it not to — a setting worth using, since Homeric
+        repetition mostly falls within one verse.
+</p> <p data-astro-cid-m4elyh4q>
+Click any phrase to see every place it occurs, each one linked to its
+        passage in the reader.
+</p> </section> <section id="english" data-astro-cid-m4elyh4q> <h2 data-astro-cid-m4elyh4q>Search in English</h2> <p class="guide-q" data-astro-cid-m4elyh4q>Use this to search the translation instead of the Greek.</p> <p data-astro-cid-m4elyh4q>
+The search page has a second box for English. It takes the same three
+        settings as the Greek box — every word present, any one word present,
+        or the exact phrase — and returns the passages that match, cited the
+        same way as a Greek result.
+</p> <p class="guide-note" data-astro-cid-m4elyh4q>
+The phrase index also has an English setting, browsing set phrases of
+        the translation rather than the Greek. An English match there is cited
+        by book rather than by verse, since translations are not lined up
+        verse for verse with the Greek.
+</p> </section> <section id="honesty" data-astro-cid-m4elyh4q> <h2 data-astro-cid-m4elyh4q>What these tools cannot tell you</h2> <ul data-astro-cid-m4elyh4q> <li data-astro-cid-m4elyh4q>
+Searches ignore accents unless you turn accent matching on, so
+<span lang="grc" data-astro-cid-m4elyh4q>λόγος</span> and a differently accented spelling of
+          the same letters count as one word by default.
+</li> <li data-astro-cid-m4elyh4q>
+None of these tools reads Greek. They match forms and count them.
+          What a passage means remains your work.
+</li> </ul> </section> <p class="guide-back" data-astro-cid-m4elyh4q> <a href="/homer-reader/search" data-astro-cid-m4elyh4q>Back to search</a> ·
+<a href="/homer-reader/phrases/" data-astro-cid-m4elyh4q>Browse phrases</a> </p> </main></body></html>

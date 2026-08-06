@@ -26,3 +26,12 @@ Overall: PASS
 ## Proper names
 
 ## Non-Greek character inventory
+
+## Search offsets (added by stage6)
+- token_count 87189, segments 24, round-trips sampled 72
+
+## Grammar signature index (added by stage6)
+- 1937 signatures, 87189 tokens, 0 unkeyed, 112 unanalysed, 303 semantic samples checked
+
+## N-gram fold streams (added by stage6)
+- form tokens 87189, lemma tokens 87077, multi-lemma tokens 16804
