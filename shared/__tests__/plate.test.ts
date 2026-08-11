@@ -562,7 +562,10 @@ describe('renderPlate: registration invariant', () => {
       expect(feature).toBeDefined();
       const [minX, minY, maxX, maxY] = feature!.bbox;
       const actualX = (minX + maxX) / 2;
-      const actualY = maxY; // pin apex sits exactly at the projected point
+      // testPlate is geographic, so a located place draws as a DOT (2026-08-
+      // 10), whose box is centred on the coordinate — unlike the teardrop
+      // pin it replaced there, a dot has no tip to anchor a bbox edge to.
+      const actualY = (minY + maxY) / 2;
       expect(actualX).toBeCloseTo(expectedX, 6);
       expect(actualY).toBeCloseTo(expectedY, 6);
     }
@@ -2297,55 +2300,58 @@ describe('the live Troad sheet: the rivers stop at the coast', () => {
   });
 });
 
-// ── Pins are opaque (2026-07-29) ─────────────────────────────────────────
+// ── Markers are opaque (2026-07-29; dot symbology 2026-08-10) ────────────
 // John, zooming a pin over the hypsometric ramp: the contour lines ran
-// straight through the middle of it. The certainty register survives; it is
-// carried by an inner mark instead of by a hole.
+// straight through the middle of it. The certainty register survives on the
+// GEOGRAPHIC-plate dot that replaced the teardrop pin (see certaintyDotStyle)
+// exactly the way it survived on the pin: an "open" marker fills with the
+// sheet's own halo token, never `fill: none` — a hole would let the terrain
+// under it show through, which is the defect this whole register exists to
+// prevent. testPlate is geographic, so every place here draws as a dot.
 
-describe('renderPlate: a pin is never transparent to its own basemap', () => {
+describe('renderPlate: a marker is never transparent to its own basemap', () => {
   const TIERS = ['certain', 'traditional', 'speculative', 'mythical'] as const;
-  const pinFor = (certainty: (typeof TIERS)[number]) => {
+  const dotFor = (certainty: (typeof TIERS)[number]) => {
     const place: PlatePlace = { id: `p-${certainty}`, name: certainty, coords: [39.957, 26.239], certainty };
     const svg = renderPlate(testPlate, [place]).svg;
     return svg.match(new RegExp(`<g data-place-id="p-${certainty}"[^>]*>[\\s\\S]*?</g>`))![0];
   };
 
-  it.each(TIERS)('the %s pin has an opaque body — no fill-opacity, no fill:none', (certainty) => {
-    const pin = pinFor(certainty);
-    expect(pin).not.toContain('fill-opacity');
-    // The body is one closed outline filled with a colour token. (The inner
-    // mark is a stroke-only ring and legitimately carries fill="none"; it is
-    // drawn ON the body, not through it.)
-    const body = pin.match(/<path d="[^"]*"[^>]*\/>/)![0];
-    expect(body).not.toContain('fill="none"');
-    expect(body).toMatch(/d="M [\d.-]+ [\d.-]+ A [\d.-]+ [\d.-]+ 0 1 1 [\d.-]+ [\d.-]+ L [\d.-]+ [\d.-]+ Z" fill="var\(--[a-z-]+\)"/);
+  it.each(TIERS)('the %s dot has an opaque body — no fill-opacity, and an "open" tier fills with the halo token rather than none', (certainty) => {
+    const dot = dotFor(certainty);
+    expect(dot).not.toContain('fill-opacity');
+    expect(dot).not.toContain('fill="none"');
+    expect(dot).toMatch(/fill="var\(--(accent|scene-map-label-halo)\)"/);
   });
 
-  it('draws the pin as ONE closed outline, so an opaque body shows no seam across itself', () => {
-    // A circle plus a separate triangle leaves two stroked edges crossing the
-    // middle of the symbol once the fill stops being transparent.
-    expect(pinFor('certain')).not.toContain('<circle');
+  it('draws each tier as a single primitive shape, not a compound of parts', () => {
+    // A dot has no seam to begin with (unlike the teardrop pin it replaced,
+    // built from an arc-plus-triangle outline) — this is the equivalent
+    // sanity check: exactly one <circle> or <rect> shape per marker.
+    for (const t of TIERS) {
+      const dot = dotFor(t);
+      const shapes = [...dot.matchAll(/<(circle|rect)\b/g)];
+      expect(shapes).toHaveLength(1);
+    }
   });
 
-  it('keeps the four tiers distinguishable by SHAPE, not only by colour', () => {
-    const shapes = TIERS.map((t) => {
-      const pin = pinFor(t);
-      return [
-        /stroke-dasharray="2 2"/.test(pin), // broken outline
-        /<circle[^>]*stroke="var\(--scene-map-label-halo\)"/.test(pin), // an inner mark at all
-        /<circle[^>]*stroke-dasharray/.test(pin), // a BROKEN inner mark
-      ].join('|');
-    });
-    expect(new Set(shapes).size).toBe(4);
-  });
-
-  it('carries the inner mark in the sheet\'s own paper colour, never as a hole', () => {
-    const pin = pinFor('traditional');
-    expect(pin).toContain('stroke="var(--scene-map-label-halo)"');
-    expect(pin).not.toContain('fill-opacity');
+  it('keeps the four tiers distinguishable without relying on colour alone', () => {
+    // Three signals, none of them hue: shape (circle vs square), fill state
+    // (solid ink vs the halo token, i.e. filled disc vs open ring), and a
+    // dashed outline. All four tiers land on a distinct combination.
+    const signature = (t: (typeof TIERS)[number]) => {
+      const dot = dotFor(t);
+      const isSquare = dot.includes('<rect');
+      const isSolid = /fill="var\(--accent\)"/.test(dot);
+      const isDashed = dot.includes('stroke-dasharray');
+      return [isSquare, isSolid, isDashed].join('|');
+    };
+    expect(new Set(TIERS.map(signature)).size).toBe(4);
   });
 
   it('still marks a conjectural position with its own dashed outline', () => {
+    // Schematic plates keep the teardrop pin, unchanged — this exercises
+    // that path, not the geographic dot.
     const pin = renderPlate(schematicPlate, [anchoredPlace]).svg.match(/<g data-place-id="anchored-place"[^>]*>[\s\S]*?<\/g>/)![0];
     expect(pin).toContain('stroke-dasharray="1 3"');
     expect(pin).not.toContain('fill-opacity');
@@ -2360,18 +2366,19 @@ describe('renderPlate: a pin is never transparent to its own basemap', () => {
     }));
     const svg = renderPlate(testPlate, places).svg;
     const legend = svg.match(/<g class="plate-legend">[\s\S]*?$/)![0];
-    // Four keyed tiers, each drawn as the pin itself (arc + point), not as a
-    // disc; and each of the four rows present.
-    expect(legend.match(/A 4 4 0 1 1/g)).toHaveLength(4);
+    // Three circular tiers (certain, traditional, mythical) at the legend's
+    // own dot radius, plus one open square (speculative) — no other legend
+    // row on this fixture draws a circle or a 7.2px-square swatch.
+    expect(legend.match(/<circle[^>]*r="4"/g)).toHaveLength(3);
+    expect(legend.match(/<rect[^>]*width="7.2"/g)).toHaveLength(1);
     for (const text of ['Location secure', 'Traditional identification', 'Identification speculative', 'Mythical — no known site']) {
       expect(legend).toContain(text);
     }
-    // The broken registers reach the key too.
+    // The dashed (mythical) register reaches the key too.
     expect(legend).toContain('stroke-dasharray="2 2"');
-    expect(legend).toContain(`stroke-dasharray="2.1 2.1"`);
   });
 
-  it('bakes no colour of its own into a pin or its key row', () => {
+  it('bakes no colour of its own into a marker or its key row', () => {
     const svg = renderPlate(testPlate, [troy, scamander, ghost]).svg;
     expect(svg).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
     assertEveryVarTokenDefined(svg);
