@@ -107,6 +107,28 @@ FOCAL = (W / 2.0) / math.tan(math.radians(HFOV_DEG) / 2.0)
 # rings are stepped to a target screen-y separation on flat ground. ──────
 COL_PX = 7.2
 RING_PX = 8.2
+# ── THE SAWTOOTH ALONG THE FRONT EDGE, and why it was in the mesh ────────
+# A row of 37 px teeth ran across the foot of the plate wherever the ridge
+# mask's edge met the near ground, and no amount of smoothing was ever going to
+# cure it, because a smoother cannot invent a sample the mesh never took.
+#
+# RING_PX steps the rings by their separation ON FLAT GROUND. That is the right
+# rule almost everywhere and it fails in one place: the near foreground is the
+# BACK OF THE SIGEION RIDGE falling away from the viewpoint, and ground that
+# drops away spreads the same ring step over far more screen than flat ground
+# would. Measured, on the shipped frame: rings 30-36 m apart at 420-750 m land
+# 5 px apart straight ahead, where the ground is nearly level, and 37 px apart
+# out to the right, where the ridge back falls. Any boundary the mesh carries
+# there -- a cover class, a tone region -- is quantised to a 37 px riser, and a
+# mask edge that runs nearly PARALLEL to the rings then alternates rings every
+# seven columns, which is a sawtooth by construction.
+#
+# So the near band is stepped on a finer screen rule. It is the same argument
+# RING_MAX_M already makes from the other direction (the mesh must resolve the
+# ground it is drawing); this one just measures the failure in pixels instead
+# of metres. It costs 42 rings of the 150 and about 8% of the shipped SVG.
+RING_PX_NEAR = 3.0
+RING_NEAR_DETAIL = 1600.0
 RANGE_NEAR, RANGE_FAR = 420.0, 45000.0
 BLEED = 90.0                      # screen units of mesh outside the frame
 
@@ -288,8 +310,40 @@ SWAMP_LAYER = "delta-swamp"
 #            structural ones survive (the 30 m lobe closing round the citadel;
 #            the 10 m the Bronze Age shore is calibrated on) and the web goes.
 #   "none"   the panorama with no isolines at all.
-CONTOURS = "all"
+#
+# THE DEFAULT IS NOW "none" (2026-08-14). Two things changed under it. The
+# hypsometric bands went, so nothing on the sheet reads height as colour and
+# the isolines stopped being the key to a legend; and the sun arrived, so the
+# near foreground the contours were kept for now has slope shading and cast
+# shadows on it. What was left was the one mark that still says "plan map" on
+# a plate whose whole argument is that it is a COUNTRY seen from a ridge, and
+# it says it loudly: 0.75-1.5 px of ink meandering across every landform,
+# redundant with the light that already models the same ground.
+#
+# THE RESERVATION WAS TESTED, NOT INHERITED. The previous lane kept "all"
+# because with none Ilios "floats" at 8x -- nothing marked the bluff. It no
+# longer holds, and the fix was not the contours: the citadel floated because
+# it threw NO SHADOW while every hull and hut on the beach threw one (see
+# city_shadow). With the shadow off its own walls the bluff reads at 8x with
+# no isoline anywhere near it. All three modes stay on the flag.
+CONTOURS = "none"
 CONTOUR_MODES = ("all", "index", "none")
+# ── smoothing, in low-pass passes (see soften) ───────────────────────────
+# One idea, three strengths, because the three lines are three different
+# claims. A CONTOUR is a measured line -- the bilinear crossing of the DEM --
+# and only its cell-edge kinks are artefact, so it gets the lightest touch that
+# takes the angles off. A TONE EDGE is where the quantiser fell and stands for
+# nothing, so it can be softened until it reads as a wash. A COVER BOUNDARY is
+# derived from a mask the mesh under-resolves, and its staircase risers are a
+# whole ring tall in the near field, which needs the heaviest kernel on the
+# sheet. Deviation is asserted against the mesh's own resolving power in
+# test_panorama_relief.py -- a line smoothed off its ground is the one failure
+# mode this device has.
+CONTOUR_SOFT = 3
+SHADE_SOFT_PASSES = 3
+COVER_SOFT = 5
+RIVER_SOFT = 2           # corner-cutting passes over the river CENTRELINE, in
+                         # lat/lon, before it is draped (see rivers_svg)
 
 
 # ── vertical exaggeration ────────────────────────────────────────────────
@@ -517,15 +571,15 @@ def disclosure(curve: str | None = None) -> str:
 LIGHT_AZ = 228.4
 LIGHT_ALT = 9.9
 LIGHT_AZ_DEFAULT, LIGHT_ALT_DEFAULT = LIGHT_AZ, LIGHT_ALT
-SHADE_STEPS = 6          # quantisation; 0 turns slope shading off entirely
+SHADE_STEPS = 10         # quantisation; 0 turns slope shading off entirely
 SHADE_MAX = 0.34         # peak opacity of --pp-shade on a slope turned away
 LIT_MAX = 0.22           # peak opacity of --pp-lit on a slope facing the light
 # A tone region's edge is NOT a measured line -- it is where the quantisation
-# happened to fall -- so it is generalised hard and then rounded. Left as raw
-# lattice loops the steps print as a sawtooth through the middle of a band,
-# which is the one way continuous tone could resolve into countable marks.
-SHADE_TOL = 3.2
-SHADE_ROUND = 2
+# happened to fall -- so it is low-passed before it is generalised, and the
+# ORDER is the fix (see SHADE_SOFT_PASSES and the note in terrain_svg). The old
+# dials generalised at 3.2 px FIRST, which kept every riser corner and threw
+# away the treads, and then corner-cut the jagged result: that is where the
+# scalloped tone edges came from.
 SHADE_SMOOTH = 5         # box passes over the CONTINUOUS field, in mesh cells
 SHADE_MIN_AREA = 140.0   # px^2; below this a tone region is a sliver, not a
                          # slope, and it prints as a bead rather than as tone
@@ -733,9 +787,10 @@ def ring_ranges(flat_y) -> list[float]:
     rngs, r = [RANGE_NEAR], RANGE_NEAR
     y0 = flat_y(r)
     while r < RANGE_FAR:
-        step = max(6.0, r * 0.008)
+        step = max(2.5, r * 0.004) if r < RING_NEAR_DETAIL else max(6.0, r * 0.008)
+        want = RING_PX_NEAR if r < RING_NEAR_DETAIL else RING_PX
         nr = r + step
-        while nr < RANGE_FAR and (y0 - flat_y(nr)) < RING_PX:
+        while nr < RANGE_FAR and (y0 - flat_y(nr)) < want:
             nr += step
         cap = r + RING_MAX_M if r < RING_DETAIL_FAR else RANGE_FAR
         rc = min(nr, RANGE_FAR, cap)
@@ -941,6 +996,120 @@ def chaikin(pts, passes=2, closed=True):
     return pts
 
 
+# ── the low-pass, and why corner-cutting was never going to do it ────────
+# EVERY LINE ON THIS SHEET THAT COMES OFF THE MESH IS A STAIRCASE. A union
+# boundary walks lattice edges; a marching-squares contour turns at every cell
+# it crosses; a tone region's edge is where the quantiser happened to fall.
+# TROAD-CARTOGRAPHY.md's third pass settled the principle for the coastline --
+# "every measured line is now drawn as a curve, not just relief", and a facet
+# asserts a precision the data does not have -- and the coastline got chaikin()
+# and nothing else on the sheet did.
+#
+# CHAIKIN ALONE IS NOT ENOUGH, and the reason is worth stating because it cost
+# a pass to find. Corner-cutting converges to the quadratic B-spline of its
+# control polygon: it rounds a riser and then STOPS, whatever the pass count,
+# leaving about half the step standing. That is fine for a shoreline whose
+# facets are a pixel or two. It is useless against the near-foreground cover
+# boundary, whose risers are ONE RING TALL -- 37 px on the shipped frame,
+# measured -- because half of 37 px is still a sawtooth.
+#
+# A REPEATED NEIGHBOUR AVERAGE is the filter that actually fits the defect. It
+# is a true low-pass: a one-vertex spike dies outright, a straight run is a
+# FIXED POINT (which is what keeps a stratum seam and the neatline edge exactly
+# where they were), and the pass count buys real attenuation instead of
+# converging. The +lam/-mu alternation is Taubin's: plain Laplacian smoothing
+# shrinks a closed loop toward its centroid a little on every pass, and a
+# five-cell tone island would have shrunk into nothing.
+SOFT_LAM = 0.55
+SOFT_MU = -0.58
+
+
+def soften(pts, passes=2, closed=True):
+    """Taubin low-pass along a polyline. Endpoints of an OPEN line are pinned
+    -- they are where the geometry was cut, not where the ground turns, which
+    is the same exemption the cartography doc gives the neatline."""
+    if passes <= 0 or len(pts) < (4 if closed else 3):
+        return pts
+    for p in range(2 * passes):
+        w = SOFT_LAM if p % 2 == 0 else SOFT_MU
+        n = len(pts)
+        out = []
+        for i in range(n):
+            if not closed and (i == 0 or i == n - 1):
+                out.append(pts[i])
+                continue
+            (ax, ay) = pts[(i - 1) % n]
+            (bx, by) = pts[i]
+            (cx, cy) = pts[(i + 1) % n]
+            out.append((bx + w * ((ax + cx) * 0.5 - bx),
+                        by + w * ((ay + cy) * 0.5 - by)))
+        pts = out
+    return pts
+
+
+def max_deviation(a, b):
+    """How far the low-pass moved the line, worst vertex, in the line's own
+    units. soften() is index-preserving -- vertex i of the curve is vertex i of
+    the polyline, moved -- so the honest measure is the pairwise displacement
+    and not a nearest-point search, which would flatter the result by sliding
+    along the curve. The simplify() that follows is bounded by its own
+    tolerance and adds at most that.
+
+    THE GATE: a smoothed line that no longer follows the ground it was cut from
+    is a worse drawing than the facets it replaced."""
+    return max((math.hypot(p[0] - q[0], p[1] - q[1])
+                for p, q in zip(a, b)), default=0.0)
+
+
+def chain_segments(segs):
+    """Marching-squares segments -> polylines.
+
+    THE CONTOURS WERE NEVER LINES. Each cell that a level crossed emitted its
+    own two-point `M…l…`, so a hairline was a soup of disconnected facets:
+    nothing to smooth, sharp angles at every cell edge, and the corner of one
+    facet meeting the corner of the next is exactly what "just a bunch of
+    straight lines forming sharp angles" describes.
+
+    `segs` is [((key_a, pt_a), (key_b, pt_b))], where the key is the LATTICE
+    EDGE the crossing sits on -- the pair of nodes it lies between. Chaining on
+    the edge identity rather than on the coordinate is exact: the same crossing
+    computed from either of the two cells that share the edge differs in the
+    last bit of the float, and a coordinate-keyed chain drops those joins.
+
+    Returns [(points, closed)].
+    """
+    adj: dict = {}
+    for idx, (a, b) in enumerate(segs):
+        adj.setdefault(a[0], []).append(idx)
+        adj.setdefault(b[0], []).append(idx)
+    used = [False] * len(segs)
+    # Open ends first: starting a walk in the middle of an open line would cut
+    # it in two and leave a corner the smoothing then pins.
+    order = [k for k, v in adj.items() if len(v) == 1] + list(adj)
+    lines = []
+    for k0 in order:
+        for idx in adj.get(k0, ()):
+            if used[idx]:
+                continue
+            k, i = k0, idx
+            a, b = segs[i]
+            line = [a[1] if a[0] == k else b[1]]
+            while True:
+                used[i] = True
+                a, b = segs[i]
+                nk, npt = (b[0], b[1]) if a[0] == k else (a[0], a[1])
+                line.append(npt)
+                nxt = next((j for j in adj.get(nk, ()) if not used[j]), None)
+                if nxt is None:
+                    break
+                k, i = nk, nxt
+            if len(line) < 2:
+                continue
+            shut = (nk == k0 and len(line) > 3)
+            lines.append((line[:-1] if shut else line, shut))
+    return lines
+
+
 def clip_to_depth(pts_world, cam):
     def depth(p):
         return ((p[0] - cam.e) * cam.fwd[0] + (p[1] - cam.n) * cam.fwd[1]
@@ -1079,7 +1248,7 @@ def sun_offset(h: float) -> tuple[float, float]:
     return (SUN_H[0] * L, SUN_H[1] * L)
 
 
-def object_shadow(cam, terr, lat, lon, bearing, silhouette):
+def object_shadow(cam, terr, lat, lon, bearing, silhouette, drape=False):
     """The shadow one built object throws on the ground.
 
     `silhouette` is [((u, v), height)] in the object's own frame: the points
@@ -1089,7 +1258,9 @@ def object_shadow(cam, terr, lat, lon, bearing, silhouette):
 
     It is laid FLAT on the ground under the object, not draped down-slope: at
     the camp's 2-3 km a hull's shadow is 11 m long and the beach falls less
-    than a metre across it."""
+    than a metre across it. `drape` lifts that simplification for objects big
+    enough to need it -- Ilios's shadow is 90 m long and runs off the edge of
+    the spur, where a flat lay would have floated 20 m above the ground."""
     if not OBJ_SHADOW or LIGHT_ALT <= 0.5:
         return ""
     g = terr.elev(lat, lon)
@@ -1104,9 +1275,13 @@ def object_shadow(cam, terr, lat, lon, bearing, silhouette):
         world.append((e, n))
         dx, dy = sun_offset(h)
         world.append((e + dx, n + dy))
+    mlat = 1.0 / 111132.0
+    mlon = 1.0 / (111320.0 * math.cos(math.radians(VIEWPOINT[0])))
     scr = []
     for e, n in _hull2d(world):
-        p = cam.project(e, n, built_h(0.05, g))
+        gz = terr.elev(VIEWPOINT[0] + n * mlat,
+                       VIEWPOINT[1] + e * mlon) if drape else g
+        p = cam.project(e, n, built_h(0.05, gz))
         if p:
             scr.append((p[0], p[1]))
     if len(scr) < 3:
@@ -1174,11 +1349,37 @@ def hut(cam, terr, lat, lon, bearing, w=7.0, d=5.0, wall=1.8, ridge=3.2):
             f'<path d="{rel_poly([P(ol), P(orr), P(rr), P(rl)])}" class="pp-hut-roof"/>')
 
 
+ROOFS = [(-0.62, 0.30, 8.0, 26), (-0.34, 0.46, 10.5, 30), (-0.02, 0.34, 9.0, 26),
+         (0.28, 0.50, 12.5, 32), (0.58, 0.30, 8.5, 26), (-0.20, 0.10, 11.0, 30),
+         (0.34, 0.06, 9.5, 26)]
+
+
 def city(cam, terr, centre, radius=105.0, wall_h=6.0, tower_h=9.5):
     """Ilios on its spur, as a massing: one wall face, one crest, the great
     tower over the plain, a stepped skyline of roofs behind. At 1x this is a
     50 px mark; the DETAILED city is a separate artifact, and this plate does
-    not pretend otherwise."""
+    not pretend otherwise.
+
+    IT THREW NO SHADOW, AND THAT IS WHY IT FLOATED. "Troy looks like it's
+    floating" (John, on the 8x crop). Every one of the 459 hulls and 270 huts
+    on the beach is pinned to the ground by a true-length shadow of its own;
+    the citadel -- the biggest built thing in the frame and the one the plate
+    is named for -- was excluded from that pass and read as a sticker laid on
+    the surface. Nothing about the ground under it was wrong; there was simply
+    no mark tying it down.
+
+    It is the same machinery, at the same true heights, with two differences
+    the size forces. The shadow is DRAPED, not laid flat: at 9.9 deg the wall
+    throws 34 m and the great tower 87, which runs off the edge of the spur,
+    and a flat lay would have floated the far end of it 20 m over the plain.
+    And it takes the ROOFS into its silhouette as well as the wall ring,
+    because a 12.5 m ridge inside a 6 m wall throws 72 m and reaches well past
+    the wall's own shadow -- the citadel's shadow is longer than the citadel.
+
+    THE WALL IS ALSO MODELLED NOW. A flat ellipse ring in perspective reads as
+    a plan-view oval however well it is grounded; a low raking sun gives it a
+    sunward face and a far face, which is the same cue the huts have had all
+    along and is what makes it a thing standing on a spur."""
     lat0, lon0 = centre
     g = terr.elev(lat0, lon0)
     mlat = 1.0 / 111132.0
@@ -1199,11 +1400,15 @@ def city(cam, terr, centre, radius=105.0, wall_h=6.0, tower_h=9.5):
     base, top = ring(1.0, 0.0), ring(1.0, wall_h)
     if len(base) < 32 or len(top) < 32:
         return ""
-    out = []
-    for fx, fy, hh, wd in [
-            (-0.62, 0.30, 8.0, 26), (-0.34, 0.46, 10.5, 30), (-0.02, 0.34, 9.0, 26),
-            (0.28, 0.50, 12.5, 32), (0.58, 0.30, 8.5, 26), (-0.20, 0.10, 11.0, 30),
-            (0.34, 0.06, 9.5, 26)]:
+    # ── the shadow, first, so everything else stands on it ───────────────
+    sil = [((radius * 0.86 * math.sin(2 * math.pi * k / 20),
+             radius * math.cos(2 * math.pi * k / 20)), wall_h)
+           for k in range(20)]
+    sil += [((-9.0, -radius * 1.04), tower_h * 1.6),
+            ((9.0, -radius * 1.04), tower_h * 1.6)]
+    sil += [((radius * fy, radius * fx), hh) for fx, fy, hh, _ in ROOFS]
+    out = [object_shadow(cam, terr, lat0, lon0, 0.0, sil, drape=True)]
+    for fx, fy, hh, wd in ROOFS:
         cxm, cym = radius * fx, radius * fy
         eaves = hh * 0.62
         a = at(cxm - wd / 2, cym, eaves)
@@ -1223,6 +1428,33 @@ def city(cam, terr, centre, radius=105.0, wall_h=6.0, tower_h=9.5):
                      > sum(top[k][1] for k in arc_b) / len(arc_b)) else arc_b
     out.append('<path d="%s" class="pp-wall"/>' % rel_poly(
         [top[k] for k in near] + [base[k] for k in reversed(near)]))
+    # THE SUNWARD FACE AND THE FAR FACE. The wall's outward normal at ring
+    # index k, for the ellipse it is drawn on, is (cos/a, sin/b) in (east,
+    # north); dotted with the horizontal direction of the light it says which
+    # stretch of the drawn face the sun is on. The washes are the terrain's own
+    # --pp-lit and --pp-shade at the terrain's own peak opacities, so the
+    # citadel is lit by the same sun as the ground it stands on and re-keys
+    # with the theme like everything else.
+    n_ = len(top)
+    sunward = (math.sin(math.radians(LIGHT_AZ)), math.cos(math.radians(LIGHT_AZ)))
+    face = []
+    for k in near:
+        a = 2 * math.pi * k / n_
+        nx, ny = math.cos(a) / radius, math.sin(a) / (radius * 0.86)
+        face.append(nx * sunward[0] + ny * sunward[1] > 0.0)
+    run = 0
+    while run < len(near) and SHADE_STEPS:
+        end = run
+        while end + 1 < len(near) and face[end + 1] == face[run]:
+            end += 1
+        arc = near[run:end + 2]           # one index of overlap closes the seam
+        if len(arc) > 1:
+            cls = "pp-wall-lit" if face[run] else "pp-wall-shade"
+            op = LIT_MAX if face[run] else SHADE_MAX
+            out.append('<path class="%s" fill-opacity="%.3f" d="%s"/>' % (
+                cls, op, rel_poly([top[k] for k in arc]
+                                  + [base[k] for k in reversed(arc)])))
+        run = end + 1
     out.append('<path d="%s" class="pp-wall-crest"/>' % rel_poly(top))
     gt = []
     for h in (tower_h * 1.6, 0.0):
@@ -1282,12 +1514,29 @@ def draped_ribbon(cam, terr, latlons, half_w_m, cls, z_off=0.0, taper=None):
 # THE GROUND-COVER TOKENS INHERIT THAT RULE, and it is what fixes the terraces.
 # The twelve-step relief ramp spanned 2.50x in luminance, so every band edge
 # was a tonal step and in perspective a stack of them read as flat tables. The
-# four cover values span 1.22x in light and 1.19x in dark: they are separated
+# four cover values span 1.24x in light and 1.32x in dark: they are separated
 # by HUE, not by value, so a class boundary is a change of ground and not a
 # step in the light. The rank order is identical in both themes -- dry fan
 # brightest, then unclassified ground, then ridge, then the wet delta darkest,
 # which is also the order they take in life -- because dark theme is a
 # different light, not an inverted one.
+#
+# WARMTH IS BOUGHT IN CHROMA, NOT IN VALUE (2026-08-14). Killing the terraces
+# left the plate sage-and-cream where the Troad is sand and ochre, and the
+# obvious repair -- open the value range back up -- is the one move that is not
+# available, for a reason worth writing down: --text-mid must hold 4.5:1 on
+# every class, which in light theme puts a FLOOR of L=0.539 under all four, and
+# the spread test puts a ceiling of 1.45x over them. Between a floor and a
+# ceiling there is no room to be warmer by being darker.
+#
+# There is a great deal of room to be warmer by being MORE SATURATED, and that
+# is free -- "this is digital, not print. color is free" (John). Every class
+# keeps the luminance its constraints allow and roughly doubles its chroma:
+# 0.19 -> 0.32 on the fan, 0.10 -> 0.19 on unclassified ground, 0.14 -> 0.24 on
+# the ridge, 0.17 -> 0.29 on the wet delta, with dark theme moved further still
+# because its ink is looser. The hues are what the classes are: warm sand at
+# 41 deg for the dusty fan, a quieter buff at 32 for the ground that carries no
+# claim, olive at 54 for scrub on limestone, and 92 for the green delta.
 #
 # --pp-cover-wet is the wash's own token, painted at 0.55 over the fan beneath
 # it; the composite is what the reader sees and what the key swatch draws, and
@@ -1305,8 +1554,8 @@ TOKENS = {
   --pp-shade:#2A1E10; --pp-lit:#FFFCF2;
   --plate-masonry:#A87263; --plate-river:#1A4C6A;
   --pp-hull:#3A2C3C; --pp-hull-side:#1B1220; --pp-hull-edge:#140D18;
-  --pp-cover-fan:#E3D7B2; --pp-cover-open:#D9D6BF; --pp-cover-ridge:#CFCDAC;
-  --pp-cover-wet:#A9BE93;
+  --pp-cover-fan:#F0D69E; --pp-cover-open:#E3CDB3; --pp-cover-ridge:#D1CB95;
+  --pp-cover-wet:#9BC279;
   --pp-ida-mass:#AF9164; --pp-tumulus:#CAB083;
 """,
     "dark": """
@@ -1316,8 +1565,8 @@ TOKENS = {
   --pp-shade:#0A0704; --pp-lit:#F2E4C4;
   --plate-masonry:#A8846F; --plate-river:#123A4A;
   --pp-hull:#241C2A; --pp-hull-side:#120C16; --pp-hull-edge:#C3B49E;
-  --pp-cover-fan:#453E2E; --pp-cover-open:#413C36; --pp-cover-ridge:#393D31;
-  --pp-cover-wet:#263821;
+  --pp-cover-fan:#4D3D23; --pp-cover-open:#4B3A2B; --pp-cover-ridge:#3D3B24;
+  --pp-cover-wet:#263519;
   --pp-ida-mass:#86734B; --pp-tumulus:#7A6846;
 """,
 }
@@ -1354,6 +1603,9 @@ CSS = """
 .pp-wall{fill:var(--plate-masonry);stroke:var(--pp-hull-edge);stroke-width:0.5;
   stroke-linejoin:round}
 .pp-wall-crest{fill:none;stroke:var(--pp-hull-edge);stroke-width:0.8}
+/* the citadel's own sunward and far faces: the terrain's tones, on masonry */
+.pp-wall-lit{fill:var(--pp-lit);stroke:none}
+.pp-wall-shade{fill:var(--pp-shade);stroke:none}
 .pp-tower{fill:var(--plate-masonry);stroke:var(--pp-hull-edge);stroke-width:0.5;
   stroke-linejoin:round}
 .pp-roof{fill:var(--plate-masonry);stroke:var(--pp-hull-edge);stroke-width:0.4;
@@ -1603,6 +1855,8 @@ class Plate:
                     continue
                 quad = [(a0[0], a0[1]), (a1[0], a1[1]),
                         (b1[0], b1[1]), (b0[0], b0[1])]
+                # the lattice edge each quad edge IS, so the crossings chain
+                nodes = [(i, j), (i + 1, j), (i + 1, j + 1), (i, j + 1)]
                 for k in range(k0, k1):
                     if CONTOURS == "index" and k not in INDEX_LEVELS:
                         continue
@@ -1613,17 +1867,27 @@ class Plate:
                         if (e0 - lv) * (e1 - lv) < 0:
                             t = (lv - e0) / (e1 - e0)
                             p0, p1 = quad[m], quad[(m + 1) % 4]
-                            seg.append((p0[0] + t * (p1[0] - p0[0]),
-                                        p0[1] + t * (p1[1] - p0[1])))
+                            na, nb = nodes[m], nodes[(m + 1) % 4]
+                            seg.append(((na, nb) if na < nb else (nb, na),
+                                        (p0[0] + t * (p1[0] - p0[0]),
+                                         p0[1] + t * (p1[1] - p0[1]))))
                     if len(seg) == 2:
-                        cont.setdefault(k, []).append(rel_seg(*seg))
+                        cont.setdefault(k, []).append(tuple(seg))
             for c in COVER_ORDER:
                 cells = interior.get(c)
                 if not cells:
                     continue
                 d = []
                 for loop in union_loops(cells, corner):
-                    d.append(rel_poly(simplify(loop, 0.6)))
+                    # THE SAWTOOTH ALONG THE FRONT EDGE lives here. In the
+                    # near field a ring is 37 px of screen and the ridge
+                    # mask's own edge runs nearly PARALLEL to the rings, so
+                    # classifying by cell centre put the boundary a whole ring
+                    # out every seven columns: a row of 37 px teeth across the
+                    # foot of the plate, the first thing the eye found. The
+                    # low-pass is sized for exactly that riser.
+                    d.append(rel_poly(chaikin(simplify(
+                        soften(loop, COVER_SOFT), 0.7), 1)))
                 if d:
                     # A hairline of page-bg used to show wherever a simplified
                     # union loop pulled away from its neighbour, or where one
@@ -1641,9 +1905,17 @@ class Plate:
                 for loop in union_loops(shade[st], corner):
                     if abs(poly_area(loop)) < SHADE_MIN_AREA:
                         continue          # a sliver, not a slope
-                    lp = simplify(loop, SHADE_TOL)
-                    if SHADE_ROUND and len(lp) >= 4:
-                        lp = simplify(chaikin(lp, SHADE_ROUND), 0.5)
+                    # SOFTEN FIRST, GENERALISE AFTER, and the order is the
+                    # whole fix. Douglas-Peucker on a raw staircase keeps
+                    # every riser corner (a 7 px step clears a 3.2 px band by
+                    # a factor of two) and throws away the treads that made it
+                    # read as a diagonal, so what arrived at chaikin() was a
+                    # jagged polyline with SHARPER angles than the lattice had
+                    # -- and corner-cutting scalloped those instead of curing
+                    # them. Low-pass the lattice loop while it is still dense
+                    # and regular, then generalise the curve that comes out.
+                    lp = chaikin(simplify(
+                        soften(loop, SHADE_SOFT_PASSES), 0.8), 1)
                     d.append(rel_poly(lp))
                 if not d:
                     continue
@@ -1657,7 +1929,18 @@ class Plate:
                            f'fill-opacity="{op:.3f}" d="{"".join(d)}"/>')
             for k in sorted(cont):
                 cls = "pp-contour-index" if k in INDEX_LEVELS else "pp-contour"
-                out.append(f'<path class="{cls}" d="{"".join(cont[k])}"/>')
+                d = []
+                for line, shut in chain_segments(cont[k]):
+                    curve = soften(line, CONTOUR_SOFT, closed=shut)
+                    self.stats["contour_dev_px"] = max(
+                        self.stats.get("contour_dev_px", 0.0),
+                        max_deviation(curve, line))
+                    sm = simplify(curve, 0.5, closed=shut)
+                    if len(sm) < 2:
+                        continue
+                    d.append(rel_poly(sm, close=shut))
+                if d:
+                    out.append(f'<path class="{cls}" d="{"".join(d)}"/>')
         return "".join(out)
 
     # ── slope shading ────────────────────────────────────────────────────
@@ -1785,6 +2068,10 @@ class Plate:
         if len(sky) < 4:
             return "", None
         sky.sort(key=lambda q: q[0])
+        # a per-column maximum is a ragged silhouette by construction; the
+        # mountain behind the mesh is the one line on the sheet with no
+        # measured vertices at all
+        sky = soften(sky, 2, closed=False)
         poly = sky + [(sky[-1][0], float(H) + 40), (sky[0][0], float(H) + 40)]
         crest = min(sky, key=lambda q: q[1])
         return ('<path d="%s" class="pp-ida"/><path d="%s" class="pp-ida-crest"/>'
@@ -1927,17 +2214,61 @@ class Plate:
                 runs.append(cur)
             return runs
 
+        # A RIVER IS A MEASURED LINE AND IT WAS DRAWN AS FACETS. The survey
+        # path carries a vertex every 122 m (median; 625 m at worst), which at
+        # the Scamander's 7-12 km is a 17-28 px straight run, and the plate
+        # printed the channel as a zigzag of them meeting at sharp corners --
+        # "just a bunch of straight lines forming sharp angles". The
+        # cartography doc's third pass settled this for the coastline and the
+        # rivers never got it.
+        #
+        # SMOOTHED IN LAT/LON, NOT ON SCREEN, and with the coastline's own
+        # device. Corner-cutting is the honest smoother for a surveyed line:
+        # every point it emits lies ON a segment of the original, so the curve
+        # cannot leave the polyline's own corridor, and the worst displacement
+        # is a quarter of the shorter adjacent segment. Doing it in the world
+        # and re-draping afterwards is what keeps the channel in its valley --
+        # smoothing the two screen edges instead would have let the ribbon
+        # climb out of the ground it was cut for.
+        def course(path):
+            curve = chaikin(path, passes=RIVER_SOFT, closed=False)
+            # measured to the POLYLINE, not to its vertices: a corner-cut point
+            # sits mid-segment, and on a 625 m segment the nearest vertex is
+            # 300 m away while the line it is on is 0 m away
+            flat = [pp._flat_m(p, *VIEWPOINT) for p in path]
+            worst = 0.0
+            for c in curve:
+                cx, cy = pp._flat_m(c, *VIEWPOINT)
+                best = float("inf")
+                for (x0, y0), (x1, y1) in zip(flat, flat[1:]):
+                    ux, uy = x1 - x0, y1 - y0
+                    L2 = ux * ux + uy * uy
+                    t = 0.0 if L2 < 1e-9 else max(0.0, min(
+                        1.0, ((cx - x0) * ux + (cy - y0) * uy) / L2))
+                    best = min(best, math.hypot(cx - x0 - t * ux,
+                                                cy - y0 - t * uy))
+                worst = max(worst, best)
+            self.stats["river_dev_m"] = max(
+                self.stats.get("river_dev_m", 0.0), worst)
+            dense = []
+            for a, b in zip(curve, curve[1:]):
+                steps = max(1, int(math.hypot(*pp._flat_m(b, *a)) / 40.0))
+                for s in range(steps):
+                    t = s / steps
+                    dense.append((a[0] + t * (b[0] - a[0]),
+                                  a[1] + t * (b[1] - a[1])))
+            dense.append(curve[-1])
+            return dense
+
         out = []
-        n_sc = len(self.lay["scamander"]["path"])
         for run in dry_runs(self.lay["scamander"]["path"]):
             out.append('<g>' + draped_ribbon(
-                self.cam, self.terr, run, 17.0, "pp-river",
+                self.cam, self.terr, course(run), 17.0, "pp-river",
                 taper=lambda t: 0.55 + 0.45 * t) + '</g>')
         for run in dry_runs(self.lay["simoeis"]["path"]):
             out.append('<g class="tm2">' + draped_ribbon(
-                self.cam, self.terr, run, 11.0, "pp-river",
+                self.cam, self.terr, course(run), 11.0, "pp-river",
                 taper=lambda t: 1.0 - 0.4 * t) + '</g>')
-        _ = n_sc
         return "".join(p for p in out if "<path" in p)
 
     # ── the camp ─────────────────────────────────────────────────────────
@@ -2115,7 +2446,7 @@ class Plate:
         # towers it was a uniform band the width of the frame and read as a
         # road; the towers are what make it a wall. Their SPACING is drawn,
         # their number is not a claim.
-        wall_pts, ditch_pts = [], []
+        wall_pts, ditch_pts, wall_ground = [], [], []
         for nth, lateral in enumerate([x * 34.0 for x in range(-22, 52)]):
             fs = shore_forward(lateral)
             if fs is None:
@@ -2131,19 +2462,45 @@ class Plate:
             c = cam.project_ll(latd, lond, built_h(0.0, terr.elev(latd, lond)))
             if a and b:
                 wall_pts.append(((a[0], a[1]), (b[0], b[1])))
+                wall_ground.append((a[0], lat, lon, crest))
             if c:
                 ditch_pts.append((c[0], c[1]))
         wall_svg = ""
         if len(wall_pts) > 4:
             wall_pts.sort(key=lambda q: q[0][0])
-            wall_svg = ('<path class="pp-rampart" d="%s"/>'
+            # THE RAMPART THREW NOTHING EITHER, and a 4.6 m bank standing on
+            # open ground with no shadow is the citadel's defect at a smaller
+            # scale. It is drawn as ONE band rather than 74 object shadows:
+            # the wall is continuous, so its shadow is, and hulling each
+            # station separately would have printed the seams between them.
+            wall_shadow = ""
+            if OBJ_SHADOW and LIGHT_ALT > 0.5 and len(wall_ground) > 4:
+                wall_ground.sort(key=lambda q: q[0])
+                foot, cast = [], []
+                for _, wlat, wlon, crest in wall_ground:
+                    e, n = pp._flat_m((wlat, wlon), *VIEWPOINT)
+                    dx, dy = sun_offset(crest)
+                    gz = terr.elev(wlat, wlon)
+                    a_ = cam.project(e, n, built_h(0.05, gz))
+                    b_ = cam.project(e + dx, n + dy, built_h(0.05, gz))
+                    if a_ and b_:
+                        foot.append((a_[0], a_[1]))
+                        cast.append((b_[0], b_[1]))
+                if len(foot) > 4:
+                    wall_shadow = ('<path class="pp-objshadow" d="%s"/>'
+                                   % rel_poly(cast + list(reversed(foot))))
+            wall_svg = (wall_shadow + '<path class="pp-rampart" d="%s"/>'
                         % rel_poly([p[1] for p in wall_pts]
                                    + [p[0] for p in reversed(wall_pts)]))
             self.stats["wall_mid"] = list(wall_pts[len(wall_pts) // 4][1])
         ditch_svg = ""
         if len(ditch_pts) > 4:
             ditch_pts.sort(key=lambda q: q[0])
-            ditch_svg = '<path class="pp-ditch" d="%s"/>' % rel_poly(ditch_pts, close=False)
+            # the RAMPART is deliberately not softened: every fourth station
+            # stands 3.4 m higher and those spikes are its towers (7.436-439),
+            # which a low-pass would file off. The ditch has no such content.
+            ditch_svg = '<path class="pp-ditch" d="%s"/>' % rel_poly(
+                soften(ditch_pts, 2, closed=False), close=False)
 
         self.stats["hulls"] = hulls_drawn
         self.stats["huts"] = len(huts)
@@ -2519,8 +2876,10 @@ def build(terr, cam, plate_json):
         if p:
             road.append((p[0], p[1]))
     if len(road) > 3:
+        # draped on a real DEM at 41 stations, so its kinks are the terrain's
+        # sampling and not the road's course, which is conjectural anyway
         body.append('<g class="tm3"><path class="pp-road" d="%s"/></g>'
-                    % rel_poly(road, close=False))
+                    % rel_poly(soften(road, 2, closed=False), close=False))
 
     marks, labels = [], []
     anchors: dict = {}
@@ -2536,7 +2895,16 @@ def build(terr, cam, plate_json):
         if w["kind"] in ("site", "tumulus") and w["id"] != "ilios":
             r = max(2.4, FOCAL * 9.0 / d)
             if w["kind"] == "tumulus":
-                marks.append(f'<g class="{tcls(tier)}"><path class="pp-tumulus" '
+                # A BARROW IS A BUILT MOUND and it stood on the plain casting
+                # nothing, which is the citadel's defect in miniature. Its
+                # shadow is the hull of a 14 m footprint and the shadow of its
+                # own summit -- a cone's shadow, exactly, and the same call the
+                # hulls and huts make.
+                sil = [((14.0 * math.cos(a), 14.0 * math.sin(a)), 0.0)
+                       for a in (0.0, 1.05, 2.09, 3.14, 4.19, 5.24)]
+                sil.append(((0.0, 0.0), w["height"]))
+                sd = object_shadow(cam, terr, lat, lon, 0.0, sil)
+                marks.append(f'<g class="{tcls(tier)}">{sd}<path class="pp-tumulus" '
                              f'd="M{n1(x - r * 1.6)} {n1(y)}a{n1(r * 1.6)} {n1(r * 1.1)} 0 0 1 '
                              f'{n1(r * 3.2)} 0Z"/></g>')
             else:
@@ -2894,6 +3262,10 @@ def main():
               f"toned cells, {P.stats.get('obj_shadows', 0)} object shadows, "
               f"{P.stats.get('shade_islands_filtered', 0)} tone islands "
               f"filtered by the median")
+    print(f"smoothing: cover {COVER_SOFT} / tone {SHADE_SOFT_PASSES} / contour "
+          f"{CONTOUR_SOFT} low-pass passes; worst contour move "
+          f"{P.stats.get('contour_dev_px', 0.0):.2f} px, worst river move "
+          f"{P.stats.get('river_dev_m', 0.0):.0f} m")
     cc = P.stats.get("cover_cells", {})
     print("ground cover: " + ", ".join(
         f"{k} {v} ({100 * v / max(1, sum(cc.values())):.0f}%)"

@@ -735,8 +735,193 @@ def test_the_shade_median_removes_islands_without_moving_an_edge(s3):
 
 
 def test_the_shade_dials_are_the_ones_that_were_measured(s3):
-    """Raising the step count made the near foreground WORSE -- more step
-    boundaries for the lattice to show through, printing as countable ovals.
-    Six steps is the light's own setting and is not this pass's to move."""
-    assert s3.SHADE_STEPS == 6
+    """SIX WAS RIGHT WHILE THE EDGES WERE RAW, AND IS NOT RIGHT NOW.
+
+    The old finding -- "raising the step count made the near foreground worse,
+    more step boundaries for the lattice to show through" -- was true of a
+    lattice that showed through. Two things changed under it: the near band is
+    stepped on a finer screen rule (RING_PX_NEAR), and every tone edge is
+    low-passed before it is generalised, so a step boundary is no longer a
+    place the lattice can print. Re-measured on the shipped frame at 6 / 10 /
+    14 steps: at 6 the near foreground is nearly unmodelled -- the gully
+    system under the camp does not read at all; at 14 it breaks into pale
+    filaments and countable marks, which is the old defect arriving on
+    schedule; at 10 the gullies read and no filament appears. SVG weight
+    525 / 606 / 680 KB for the same three.
+
+    The dial is not free and this test is the record of what it cost to move.
+    """
+    assert s3.SHADE_STEPS == 10
     assert s3.SHADE_MEDIAN >= 1 and s3.SHADE_SMOOTH >= 3
+    assert s3.SHADE_SOFT_PASSES >= 1, (
+        "more steps is only safe while the tone edges are low-passed")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# the low-pass: every lattice-derived line gets the curve the coastline had
+# ═══════════════════════════════════════════════════════════════════════════
+# docs/TROAD-CARTOGRAPHY.md, third pass: "every measured line is now drawn as a
+# curve, not just relief" -- facets assert a precision the data does not have.
+# The coastline obeyed it and nothing else on the sheet did: the contours were
+# emitted as DISCONNECTED per-cell segments (nothing to smooth), the rivers as
+# raw survey facets, the tone and cover boundaries as lattice staircases.
+
+
+def test_a_straight_run_is_a_fixed_point_of_the_low_pass(s3):
+    """Why a neighbour average and not more corner-cutting: it must leave a
+    stratum seam and a neatline edge exactly where they are."""
+    line = [(float(x), 100.0) for x in range(0, 200, 10)]
+    out = s3.soften(line, 6, closed=False)
+    for a, b in zip(line, out):
+        assert abs(a[0] - b[0]) < 1e-6 and abs(a[1] - b[1]) < 1e-6
+
+
+def test_the_low_pass_kills_a_one_ring_riser_and_chaikin_does_not(s3):
+    """The measured defect: a 37 px riser in the near-field cover boundary.
+    Corner-cutting converges to a quadratic B-spline and leaves about half of
+    it standing however many passes it is given; a repeated neighbour average
+    keeps attenuating. This is the whole argument for soften() over chaikin()."""
+    step = [(float(x), 0.0) for x in range(0, 60, 6)]
+    step += [(60.0, 37.0)]
+    step += [(float(x), 37.0) for x in range(66, 126, 6)]
+    amp = lambda p: max(y for _, y in p) - min(y for _, y in p)
+    # WHAT IS MEASURED IS THE SLOPE OF THE JOIN, not the rise per segment:
+    # corner-cutting inserts points ON the riser, so its segments get short
+    # while the knee stays exactly as steep. That is the defect.
+    def steepest(p):
+        return max(abs(b[1] - a[1]) / max(1e-6, abs(b[0] - a[0]))
+                   for a, b in zip(p, p[1:]))
+    assert steepest(step) > 6.0
+    ch = s3.chaikin(s3.chaikin(step, 4, closed=False), 4, closed=False)
+    sf = s3.soften(step, 8, closed=False)
+    assert steepest(sf) < steepest(ch) * 0.5, (
+        f"low-pass slope {steepest(sf):.2f} is not beating corner-cutting "
+        f"{steepest(ch):.2f} on a one-ring riser")
+    assert steepest(sf) < 2.5, "the riser is still a step, not a ramp"
+    assert amp(sf) > 30.0, "the low-pass moved the boundary, not just the step"
+
+
+def test_the_low_pass_does_not_shrink_a_small_tone_island(s3):
+    """Plain Laplacian smoothing pulls a closed loop toward its centroid on
+    every pass and a five-cell tone region would vanish. Taubin's +lam/-mu
+    alternation is why the loop keeps its area."""
+    import math as _m
+    ring = [(20 * _m.cos(2 * _m.pi * k / 12), 20 * _m.sin(2 * _m.pi * k / 12))
+            for k in range(12)]
+    out = s3.soften(ring, 8)
+    r0 = sum(_m.hypot(*p) for p in ring) / len(ring)
+    r1 = sum(_m.hypot(*p) for p in out) / len(out)
+    assert r1 > 0.9 * r0, f"the loop shrank from {r0:.1f} to {r1:.1f}"
+
+
+def test_contours_are_chained_into_lines_before_they_are_drawn(s3):
+    """They were a soup of two-point facets: 'just a bunch of straight lines
+    forming sharp angles' (John). Chaining is on the LATTICE EDGE each crossing
+    sits on, not on the coordinate -- the same crossing computed from either of
+    the two cells that share an edge differs in the last bit of the float."""
+    # a four-cell run of a level crossing left to right
+    segs = []
+    for i in range(4):
+        a = (((i, 0), (i, 1)), (float(i), 0.5))
+        b = (((i + 1, 0), (i + 1, 1)), (float(i + 1), 0.5))
+        segs.append((a, b))
+    lines = s3.chain_segments(segs)
+    assert len(lines) == 1, f"{len(lines)} lines from one continuous contour"
+    pts, shut = lines[0]
+    assert not shut and len(pts) == 5
+    assert [p[0] for p in pts] == [0.0, 1.0, 2.0, 3.0, 4.0]
+
+
+def test_a_closed_contour_chains_as_a_closed_ring(s3):
+    ring_nodes = [(0, 0), (1, 0), (1, 1), (0, 1)]
+    pts = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)]
+    segs = [((ring_nodes[k], pts[k]),
+             (ring_nodes[(k + 1) % 4], pts[(k + 1) % 4])) for k in range(4)]
+    lines = s3.chain_segments(segs)
+    assert len(lines) == 1
+    out, shut = lines[0]
+    assert shut and len(out) == 4
+
+
+def test_the_smoothing_is_tuned_per_line_type(s3):
+    """Three different claims, three strengths. A contour is a measured line
+    and takes the lightest touch; a tone edge stands for nothing and can be
+    softened until it reads as a wash; a cover boundary has a whole ring of
+    quantisation in it and needs the heaviest kernel on the sheet."""
+    assert s3.CONTOUR_SOFT < s3.COVER_SOFT
+    assert s3.SHADE_SOFT_PASSES <= s3.COVER_SOFT
+    assert s3.CONTOUR_SOFT >= 1 and s3.RIVER_SOFT >= 1
+
+
+def test_the_near_band_is_stepped_on_a_finer_screen_rule(s3):
+    """The sawtooth was in the MESH, not in the drawing. RING_PX steps rings by
+    their separation on FLAT ground, and the near foreground is the back of the
+    Sigeion ridge falling away, which spreads the same step over far more
+    screen. A smoother cannot invent a sample the mesh never took."""
+    assert s3.RING_PX_NEAR < s3.RING_PX
+    rngs = s3.ring_ranges(lambda r: 1000.0 - 900.0 * r / (r + 4000.0))
+    near = [b - a for a, b in zip(rngs, rngs[1:]) if b < s3.RING_NEAR_DETAIL]
+    far = [b - a for a, b in zip(rngs, rngs[1:])
+           if s3.RING_NEAR_DETAIL < a < 6000.0]
+    assert near and far
+    assert max(near) < min(far), (
+        "the near band is not sampled more finely than the band beyond it")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Ilios stands on the ground: the citadel's own shadow
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def test_the_citadel_throws_a_shadow_like_everything_else_that_stands(s3):
+    """'Troy looks like it's floating' (John). 459 hulls and 270 huts were each
+    pinned to the beach by a true-length shadow; the citadel -- the biggest
+    built thing in the frame -- was excluded and read as a sticker."""
+    src = open(STAGE3).read()
+    body = src.split("def city(", 1)[1].split("\ndef draped_ribbon", 1)[0]
+    assert "object_shadow(" in body, "the city still throws nothing"
+    assert "drape=True" in body, (
+        "a 90 m shadow off a spur cannot be laid flat at the centre's height")
+    # and it takes the roofs, whose ridges out-throw the wall
+    assert "ROOFS" in body
+
+
+def test_the_citadel_shadow_is_the_true_height_over_tan_altitude(s3):
+    """Same rule as the hulls: no fudge factor for the big object."""
+    s3.set_light(s3.LIGHT_AZ_DEFAULT, 9.9)
+    for h in (6.0, 15.2):
+        dx, dy = s3.sun_offset(h)
+        assert abs(math.hypot(dx, dy)
+                   - h / math.tan(math.radians(9.9))) < 1e-6
+
+
+def test_the_wall_takes_a_lit_face_and_a_shaded_face(s3):
+    """A flat ellipse ring in perspective reads as a plan-view oval however
+    well it is grounded. Both washes are the terrain's own tokens, so the
+    citadel is lit by the same sun as the ground it stands on."""
+    for cls, tok in (("pp-wall-lit", "var(--pp-lit)"),
+                     ("pp-wall-shade", "var(--pp-shade)")):
+        m = re.search(r"\." + cls + r"\{([^}]*)\}", s3.CSS)
+        assert m, f"{cls} is not in the stylesheet"
+        assert f"fill:{tok}" in m.group(1)
+
+
+def test_the_rampart_and_the_barrows_throw_too(s3):
+    """Anything standing on the ground that does not cast reads as pasted on.
+    The rampart is drawn as ONE shadow band rather than 74 hulls, because the
+    wall is continuous and hulling each station would print the seams."""
+    src = open(STAGE3).read()
+    camp = src.split("def camp(", 1)[1].split("def waypoints", 1)[0]
+    assert "wall_ground" in camp and "pp-objshadow" in camp
+    build = src.split("def build(", 1)[1].split("def emit(", 1)[0]
+    assert "object_shadow(" in build, "the tumuli still throw nothing"
+
+
+def test_the_rampart_keeps_its_towers(s3):
+    """Every fourth station stands 3.4 m higher and those spikes ARE the towers
+    (Il. 7.436-439). A low-pass would file them off, so the rampart is the one
+    line on the sheet that is deliberately not softened."""
+    src = open(STAGE3).read()
+    camp = src.split("def camp(", 1)[1].split("def waypoints", 1)[0]
+    ramp = camp.split("pp-rampart", 1)[1][:400]
+    assert "soften(" not in ramp.split("wall_pts")[0]
