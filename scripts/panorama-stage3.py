@@ -107,6 +107,41 @@ RING_PX = 8.2
 RANGE_NEAR, RANGE_FAR = 420.0, 45000.0
 BLEED = 90.0                      # screen units of mesh outside the frame
 
+# ── ring spacing has a GROUND floor as well as a screen one ──────────────
+# RING_PX alone sets ring spacing from screen separation ON FLAT GROUND, and
+# that rule under-resolves the TERRAIN at range: 8.2 flat pixels is 17 m of
+# ground at 1 km and 332 m at 7 km. Any landform narrower than the local ring
+# spacing is not smoothed, it is never sampled -- the mesh draws a straight
+# ramp between the two rings that straddle it.
+#
+# That is what was flattening Ilios. Hisarlik's bluff climbs 24 m over about
+# 250 m of ground, and at Troy's 7.0 km the rings sat 332 m apart, so the
+# citadel fell inside a single cell and drew at 29.7 m instead of its measured
+# 34.6 m -- one hypsometric band low, with the 30 m isoline that ought to ring
+# the citadel missing. The DEM was never the problem: 10+2 box-blur passes
+# cost the mound 1.4 m of 25 (prep-terrain-contours.py SHEETS['trojan-plain']).
+# The mesh was.
+#
+# So rings are also capped in METRES over the range where the plate's own
+# subject lies -- the extent of the trojan-plain z13 sheet, which the sightline
+# leaves at about 19 km. 110 m is the grid's own resolving power: 12 box-blur
+# passes at 14.65 m/px is a Gaussian of sigma 41 m, so nothing narrower than
+# ~85 m survives in the data and a finer mesh would only resample the blur.
+# THIS IS NOT A FIX FOR TROY. It is a floor on the whole near-and-middle
+# field, and it lifts every landform of that scale: Callicolone (150 -> 191 m
+# of 209 measured), Rhoiteion, Kesik Tepe, the Sigeion bluff's own edge.
+# Beyond 19 km the ground comes from the troad z11 sheet, whose 117 m samples
+# have nothing finer to give, and the flat-ground rule takes over again.
+#
+# The metre cap gets a floor of its own the other way, and it is about the
+# raster, not about the ground: left alone the cap drives rings to 0.4 screen
+# pixels apart at 15 km, which emits cells the sheet cannot show. RING_MIN_PX
+# stops at one pixel. It costs Callicolone its last 4% (191 m drawn against
+# 209 measured) and saves 46 KB of the shipped SVG.
+RING_MAX_M = 110.0
+RING_DETAIL_FAR = 19000.0
+RING_MIN_PX = 1.0
+
 LEVELS = [5, 10, 15, 20, 30, 45, 70, 110, 180, 300, 600]  # 11 levels, 12 bands
 
 # depth strata: painter order is by stratum, far first. Within a stratum the
@@ -200,6 +235,32 @@ DISCLOSURE = {
          "draws higher and Mount Ida keeps its true height. Built heights "
          "TRUE." % C_F,
 }
+
+
+def ring_ranges(flat_y) -> list[float]:
+    """The mesh's radial sampling, near to far. `flat_y(r)` is the screen y of
+    flat ground at range r; it is the only thing the rule needs from the
+    camera, which is what makes the rule testable without a DEM.
+
+    Rings are stepped to RING_PX of screen separation ON FLAT GROUND, then
+    held to RING_MAX_M of ground inside RING_DETAIL_FAR and to RING_MIN_PX of
+    screen everywhere. See the comment on RING_MAX_M for why the screen rule
+    alone is not enough."""
+    rngs, r = [RANGE_NEAR], RANGE_NEAR
+    y0 = flat_y(r)
+    while r < RANGE_FAR:
+        step = max(6.0, r * 0.008)
+        nr = r + step
+        while nr < RANGE_FAR and (y0 - flat_y(nr)) < RING_PX:
+            nr += step
+        cap = r + RING_MAX_M if r < RING_DETAIL_FAR else RANGE_FAR
+        rc = min(nr, RANGE_FAR, cap)
+        while rc < nr and (y0 - flat_y(rc)) < RING_MIN_PX:
+            rc += step
+        r = min(rc, nr, RANGE_FAR)
+        y0 = flat_y(r)
+        rngs.append(r)
+    return rngs
 
 
 def built_h(metres: float, ground_elev: float) -> float:
@@ -760,21 +821,12 @@ class Plate:
         while x <= W + BLEED:
             azs.append(math.degrees(math.atan((x - W / 2.0) / FOCAL)))
             x += COL_PX
-        # rings stepped to a target screen-y separation on flat ground
+        # rings: see ring_ranges / RING_MAX_M
         def flat_y(r):
             p = cam.project(cam.e + r * math.sin(cam.theta),
                             cam.n + r * math.cos(cam.theta), 0.0)
             return p[1] if p else -1e9
-        rngs, r = [RANGE_NEAR], RANGE_NEAR
-        y0 = flat_y(r)
-        while r < RANGE_FAR:
-            step = max(6.0, r * 0.008)
-            nr = r + step
-            while nr < RANGE_FAR and (y0 - flat_y(nr)) < RING_PX:
-                nr += step
-            r = min(nr, RANGE_FAR)
-            y0 = flat_y(r)
-            rngs.append(r)
+        rngs = ring_ranges(flat_y)
         self.azs, self.rngs = azs, rngs
 
         grid = [[None] * len(rngs) for _ in azs]
@@ -811,6 +863,25 @@ class Plate:
                 if max(xs) < -BLEED or min(xs) > W + BLEED:
                     continue
                 if min(ys) > H + BLEED:
+                    continue
+                # BACK-FACE CULL. Where the ground falls away behind a crest
+                # the quad FOLDS OVER in screen space: its far edge projects
+                # above its near edge, and what it would paint is the back of
+                # the slope, which the eye cannot see -- the crest in front of
+                # it is the visible surface there. Two reasons to drop it and
+                # neither is taste. It is occluded; and it winds the opposite
+                # way, so when the band union merges it with the front-facing
+                # ground beside it the nonzero fill rule CANCELS over the
+                # overlap and the page shows through. That is where the pale
+                # lens-shaped slivers along the middle-distance crests came
+                # from. Denser rings make folds commoner -- adding the ring
+                # floor above took the defect from 204 stray pixels to 1206 --
+                # but it was always there, and dropping these cells also takes
+                # 8% off the shipped SVG.
+                if ((a0[0] * a1[1] - a1[0] * a0[1])
+                        + (a1[0] * b1[1] - b1[0] * a1[1])
+                        + (b1[0] * b0[1] - b0[0] * b1[1])
+                        + (b0[0] * a0[1] - a0[0] * b0[1])) > 0.0:
                     continue
                 # `hor` covers rings STRICTLY NEARER than this cell. Folding
                 # the cell's own far edge (ring j+1) into the silhouette

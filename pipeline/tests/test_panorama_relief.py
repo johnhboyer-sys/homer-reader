@@ -107,3 +107,101 @@ def test_built_heights_stay_true(s3, curve):
 
 def test_shipped_default_is_not_the_legacy_curve(s3):
     assert s3.CURVE in SHIPPABLE
+
+
+# ── the mesh must resolve the ground, not just the screen ─────────────────
+# Ilios drew at plain level because the mesh's RINGS, stepped to a screen
+# separation on FLAT ground, sat 332 m apart at Troy's 7.0 km. Hisarlik's
+# bluff climbs 24 m over about 250 m, so the citadel fell inside one cell and
+# the mesh drew a ramp: 29.7 m instead of the 34.6 m the DEM carries, one
+# hypsometric band low. The blur was never the cause -- prep-terrain-contours'
+# 10+2 box passes cost the mound 1.4 m of 25.
+
+
+def _flat_y_of(cam_alt=800.0, focal=1651.7, horizon=380.0):
+    """A stand-in for the camera's flat-ground projection: screen y falls
+    towards a horizon as 1/range, which is the only shape the ring rule
+    depends on."""
+    return lambda r: horizon + focal * cam_alt / max(r, 1.0)
+
+
+def test_rings_resolve_the_ground_inside_the_plain_sheet(s3):
+    """Inside the plain sheet a ring may not outrun RING_MAX_M -- except
+    where the raster floor bites first, which is the stated trade."""
+    fy = _flat_y_of()
+    rngs = s3.ring_ranges(fy)
+    for a, b in zip(rngs, rngs[1:]):
+        if a >= s3.RING_DETAIL_FAR:
+            continue
+        if fy(a) - fy(a + s3.RING_MAX_M) < s3.RING_MIN_PX:
+            continue                       # a capped ring would be sub-pixel
+        assert b - a <= s3.RING_MAX_M + 1e-6, (
+            f"ring spacing {b - a:.1f} m at {a:.0f} m outruns the DEM")
+
+
+def test_the_citadel_gets_more_than_one_ring(s3):
+    """The bug in one number. Hisarlik's bluff is about 250 m of ground at
+    7 km; a single cell across it is what drew Ilios at plain level."""
+    rngs = s3.ring_ranges(_flat_y_of())
+    near = [b - a for a, b in zip(rngs, rngs[1:]) if 6000.0 <= a <= 8000.0]
+    assert max(near) <= 125.0, (
+        f"worst ring spacing at Troy's range is {max(near):.0f} m")
+
+
+def test_the_screen_rule_alone_would_not_have(s3):
+    """The defect, reproduced: with RING_MAX_M off, the flat-ground screen
+    rule puts rings hundreds of metres apart across the whole plain."""
+    saved = s3.RING_DETAIL_FAR
+    try:
+        s3.RING_DETAIL_FAR = 0.0
+        rngs = s3.ring_ranges(_flat_y_of())
+        worst = max(b - a for a, b in zip(rngs, rngs[1:])
+                    if a < 8000.0)
+        assert worst > 250.0, (
+            "expected the unaided screen rule to under-resolve the plain; "
+            f"worst spacing inside 8 km was only {worst:.0f} m")
+    finally:
+        s3.RING_DETAIL_FAR = saved
+
+
+def test_rings_are_increasing_and_span_the_plate(s3):
+    rngs = s3.ring_ranges(_flat_y_of())
+    assert rngs[0] == s3.RANGE_NEAR
+    assert rngs[-1] == s3.RANGE_FAR
+    assert all(b > a for a, b in zip(rngs, rngs[1:]))
+
+
+def test_rings_never_close_below_a_raster_pixel(s3):
+    fy = _flat_y_of()
+    rngs = s3.ring_ranges(fy)
+    for a, b in zip(rngs, rngs[1:]):
+        if b < s3.RANGE_FAR:
+            assert fy(a) - fy(b) >= s3.RING_MIN_PX - 1e-6
+
+
+# ── back-face cull ────────────────────────────────────────────────────────
+# Where the ground falls away behind a crest the mesh quad folds over in
+# screen space. It is occluded, and it winds the other way, so the band
+# union's nonzero fill CANCELS over the overlap and the page shows through.
+
+
+def _plate_with(grid, azs, rngs):
+    p = object.__new__(_PLATE[0])
+    p.grid, p.azs, p.rngs, p.stats = grid, azs, rngs, {}
+    return p
+
+
+_PLATE = [None]
+
+
+def test_back_facing_cells_are_culled(s3):
+    _PLATE[0] = s3.Plate
+    # two columns, three rings. Ring 0 -> 1 rises to a crest (front-facing);
+    # ring 1 -> 2 falls away behind it, so that quad folds.
+    #            (x,        y,    elev, range)
+    g = [[(0.0, 500.0, 10.0, 1000.0), (0.0, 460.0, 100.0, 1200.0), (0.0, 480.0, 40.0, 1400.0)],
+         [(40.0, 500.0, 10.0, 1000.0), (40.0, 460.0, 100.0, 1200.0), (40.0, 480.0, 40.0, 1400.0)]]
+    p = _plate_with(g, [0.0, 1.0], [1000.0, 1200.0, 1400.0])
+    p.cull()
+    assert (0, 0) in p.visible, "the front face of the crest must be drawn"
+    assert (0, 1) not in p.visible, "the folded back face must not be"
