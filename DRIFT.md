@@ -941,3 +941,40 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   the corrected drawing (the Scamander is four reaches, not three), plus one
   new property test — every stretch of a stored river lands in some paint slot
   — confirmed failing against the pre-fix renderer.
+
+## 2026-08-14 — the halo has to be the label's background, or it is decoration
+
+- `shared/lib/plate.ts` — **the fixed-pair contrast argument was measuring a
+  pair no reader sees.** The `LABEL_STYLES` comment reasoned about every name
+  as `--text-mid` over `--scene-map-label-halo` — 7.48:1 light, 8.15:1 dark, so
+  the lettering "passed". But at `LABEL_HALO_WIDTH` 0.65px the halo covers
+  about a third of a CSS pixel outside the glyph, so on a geographic sheet the
+  real surround is the twelve-step hypsometric ramp. Sampling the rendered PNGs
+  (`scripts/measure-label-contrast.mjs`, new) put **17 of 28 region/feature
+  labels below 4.5:1** — MOUNT IDA 2.50:1, CALLICOLONE 2.06:1, THYMBRA 2.56:1
+  in dark theme; light was no better (MOUNT IDA 4.10:1, THRACIAN SAMOS 4.18:1).
+  No ink can fix it: the dark ramp's pale steps sit where pure white reaches
+  only 4.60:1 and pure black 4.56:1, so the ceiling is under AA from BOTH
+  directions and any flat ink trades one failing set of steps for another.
+  New `RELIEF_HALO_WIDTH` 2.6 / `RELIEF_HALO_OPACITY` 0.72, applied through
+  `haloAttrs()` on geographic plates only. The 2.5px halo retired 2026-08-10
+  ("kill the white halo") was OPAQUE, and opacity — never width — is what made
+  it read as its own shape; at 0.72 the contour hairlines and the ramp step
+  still show through the stroke, so it dims the terrain around the letterforms
+  instead of punching a hole in it. Every ink token is unchanged, so the
+  grey-demotes / weight-promotes hierarchy is untouched. **Schematic sheets
+  keep the 0.65px hairline: `trojan-plain-schematic.json` and
+  `troy-citadel.json` render byte-identical, asserted.** After: 26 of 28 clear
+  4.5:1. The two that do not are KESIK TEPE in both themes, which is lettered
+  across the shoreline glow rather than across terrain — a placement problem
+  the halo cannot reach, and John's call whether to move the name.
+- `scripts/measure-label-contrast.mjs` — new. Renders the real plates through
+  the shipped renderer, reads each label's laid-out rect out of the page, and
+  samples the actual PNG pixels one glyph-stem out. Standard library only: the
+  PNG decoder is `zlib` plus the scanline filters, no image dependency.
+- `shared/__tests__/plate.test.ts`, `plate-map-contrast.test.ts` — the two
+  halves of the guard: the emitter carries the wide translucent halo on
+  geographic sheets and the untouched hairline on schematic ones; and every
+  label ink composited over the halo clears 4.5:1 on all twelve ramp steps and
+  every flat terrain fill, in both complete theme pairings. Both confirmed
+  failing against the pre-fix values.

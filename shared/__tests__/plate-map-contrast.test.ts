@@ -16,6 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { RELIEF_HALO_OPACITY } from '../lib/plate';
 
 const CSS_PATH = path.resolve(process.cwd(), 'styles/global.css');
 const css = fs.readFileSync(CSS_PATH, 'utf-8');
@@ -77,6 +78,12 @@ function readToken(block: string, name: string): string {
   return m[1].trim();
 }
 
+/** As readToken, but falls back to the `:root` declaration (see ThemeBlock). */
+function readTokenOrRoot(block: string, name: string): string {
+  const m = block.match(new RegExp(`${name}:\\s*([^;]+);`));
+  return m ? m[1].trim() : readToken(extractBlock(':root {'), name);
+}
+
 interface ThemeBlock {
   name: string;
   sea: string;
@@ -99,6 +106,12 @@ interface ThemeBlock {
   // guards that keep the replacement legible instead of merely prettier.
   ramp: string[];
   contour: string;
+  // Label lettering (2026-08-13). A plate's names are painted in these inks
+  // over a --scene-map-label-halo stroke; on a geographic sheet that stroke
+  // is what stands between the name and the relief ramp underneath it.
+  textMid: string;
+  text: string;
+  labelHalo: string;
 }
 
 function readThemeBlock(name: string, selector: string): ThemeBlock {
@@ -116,6 +129,13 @@ function readThemeBlock(name: string, selector: string): ThemeBlock {
     river: readToken(block, '--plate-river'),
     ramp: Array.from({ length: RAMP_STEPS }, (_, i) => readToken(block, `--plate-relief-${i + 1}`)),
     contour: readToken(block, '--plate-contour'),
+    // --text/--text-mid are declared ONLY in `:root` and
+    // `:root[data-theme="dark"]`; the other two blocks override map tokens and
+    // inherit the lettering inks. Falling back to `:root` is what the cascade
+    // actually does, so this reads the value that really applies.
+    textMid: readTokenOrRoot(block, '--text-mid'),
+    text: readTokenOrRoot(block, '--text'),
+    labelHalo: readToken(block, '--scene-map-label-halo'),
   };
 }
 
@@ -306,6 +326,69 @@ describe('hypsometric relief ramp (parsed from the real global.css)', () => {
   it.each(THEME_BLOCKS)('$name: the band hairline stays visible on every step', ({ contour, ramp }) => {
     for (const [i, step] of ramp.entries()) {
       expect(contrastRatio(contour, step), `contour vs --plate-relief-${i + 1}`).toBeGreaterThanOrEqual(MIN_CONTOUR_CONTRAST);
+    }
+  });
+
+  // ── Label lettering over the relief ramp (2026-08-13) ──
+  //
+  // shared/lib/plate.ts used to reason about label contrast as a FIXED PAIR:
+  // --text-mid over --scene-map-label-halo, ~7.5:1 light / ~8.2:1 dark, and by
+  // that measure the lettering passed everywhere. It does not, because the
+  // halo was only 0.65px — about a third of a CSS pixel outside the glyph, far
+  // too little to BE the label's background. The pair being measured was not
+  // the pair a reader sees. Sampling the rendered PNGs instead
+  // (scripts/measure-label-contrast.mjs) put 17 of 28 region/feature labels
+  // below the AA floor, MOUNT IDA at 2.36:1 over the ramp in dark theme.
+  //
+  // Retuning the ink cannot fix it. The dark ramp's pale steps sit at a
+  // luminance where pure white reaches only 4.60:1 and pure black 4.56:1 —
+  // the ceiling is below AA from BOTH directions, so any flat ink trades one
+  // failing set of steps for another. The fix is a halo wide enough to be the
+  // background (RELIEF_HALO_WIDTH), translucent enough not to read as its own
+  // shape (RELIEF_HALO_OPACITY). These guard the composite that produces:
+  // retune the ramp, the inks, or the halo opacity into a combination that
+  // stops clearing AA and this fails.
+  const LABEL_INK_KEYS = ['textMid', 'text'] as const;
+  const TERRAIN_KEYS = ['land', 'plain', 'marsh', 'upland', 'sea', 'lagoon'] as const;
+  const MIN_LABEL_CONTRAST = 4.5; // AA for normal-size text; every label class
+                                  // is under the 18.66px-bold/24px large-text bar.
+
+  /** The halo stroke composited over a terrain fill at RELIEF_HALO_OPACITY. */
+  function haloOver(halo: string, terrain: string): string {
+    const [hr, hg, hb] = hexToRgb(halo);
+    const [tr, tg, tb] = hexToRgb(terrain);
+    const a = RELIEF_HALO_OPACITY;
+    const mix = (h: number, t: number) => Math.round(h * a + t * (1 - a));
+    return `#${[mix(hr, tr), mix(hg, tg), mix(hb, tb)].map((c) => c.toString(16).padStart(2, '0')).join('')}`;
+  }
+
+  // Only the two blocks that pair a full theme. `:root:not([data-theme])` sets
+  // DARK map tokens under a dark OS while inheriting the LIGHT lettering inks
+  // from `:root` — a combination app/src/components/ThemeInit.astro prevents
+  // (it stamps data-theme light|dark in <head> before paint, defaulting to
+  // light whatever the OS says), so asserting it would be asserting a state
+  // the site never renders.
+  const LABEL_THEMES = THEME_BLOCKS.filter((t) => t.name.startsWith('light (:root default)') || t.name === 'dark (data-theme="dark")');
+
+  it.each(LABEL_THEMES)('$name: every label ink clears AA over the halo on EVERY ramp step', (t) => {
+    for (const inkKey of LABEL_INK_KEYS) {
+      for (const [i, step] of t.ramp.entries()) {
+        expect(
+          contrastRatio(t[inkKey], haloOver(t.labelHalo, step)),
+          `--${inkKey === 'textMid' ? 'text-mid' : 'text'} over halo on --plate-relief-${i + 1}`,
+        ).toBeGreaterThanOrEqual(MIN_LABEL_CONTRAST);
+      }
+    }
+  });
+
+  it.each(LABEL_THEMES)('$name: every label ink clears AA over the halo on every flat terrain fill', (t) => {
+    for (const inkKey of LABEL_INK_KEYS) {
+      for (const key of TERRAIN_KEYS) {
+        expect(
+          contrastRatio(t[inkKey], haloOver(t.labelHalo, t[key])),
+          `--${inkKey === 'textMid' ? 'text-mid' : 'text'} over halo on --${key}`,
+        ).toBeGreaterThanOrEqual(MIN_LABEL_CONTRAST);
+      }
     }
   });
 
