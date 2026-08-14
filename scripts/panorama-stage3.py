@@ -899,8 +899,38 @@ class Plate:
 
     def water_svg(self):
         out = []
+        # A WATER LAYER IS DRAWN AT THE ELEVATION OF THE GROUND IT WAS DERIVED
+        # FROM. sea-modern is the modern coastline on a modern DEM, so its own
+        # ground is 0 and a flat 0 plane is both the datum and the drape.
+        #
+        # lagoon-bronze is not. It was flood-filled from DEM cells at or below
+        # the 10 m contour (fix-lagoon-connectivity.py; SHORE_LEVEL in
+        # prep-terrain-contours.py:1034), and that 10 m is a HORIZONTAL device
+        # -- the contour that puts the bay head 1.2 km NNW of Hisarlik, where
+        # Kraft, Rapp, Kayan and Luce put it -- standing in for the sediment
+        # the plain has gained since. It is not a paleo sea level. The Late
+        # Bronze Age relative sea level here is about 2 m BELOW present
+        # (Kayan et al. 2003, 383 fig. 2, after Kayan 1991, the minimum at
+        # ~3300 BP carrying the "Trojan War" label; and 379, "a relative fall
+        # in sea level of about 2 m in the Bronze Age").
+        #
+        # So it was drawn at exaggerate(10.0) = a flat 40 apparent metres.
+        # Measured over the polygon's 140 vertices, that is right where the
+        # outline follows the contour (120 of 140 sit at 8-12 m; median
+        # displacement from the ground 0.5 px) and wrong where it meets the
+        # sea (13 vertices under 2 m; up to 35 px), which is precisely the
+        # junction where a raised plane reads as a lake perched above the
+        # Aegean and covers the modern water behind it.
+        #
+        # Dropping it to a flat 0 fixes the mouth and breaks the head: median
+        # displacement 14.8 px, up to 32.7 px, pulling the reconstructed
+        # shoreline off the contour it was traced from. Draping is right at
+        # both ends, costs nothing, and asserts no sea level at all -- it
+        # shades the ground the reconstruction says was under water, which on
+        # a modern DEM carrying Holocene fill is the only claim the base can
+        # actually support. delta-swamp already does this, for this reason.
         sea = self.water_path(self.lay["sea-modern"]["polygon"], 0.0)
-        lagoon = self.water_path(self.lay["lagoon-bronze"]["polygon"], exaggerate(10.0))
+        lagoon = self.water_path(self.lay["lagoon-bronze"]["polygon"], drape=True)
         swamp = self.water_path(self.lay["delta-swamp"]["polygon"], drape=True)
         if sea:
             out.append(f'<path d="{rel_poly(sea)}" class="pp-sea"/>')
