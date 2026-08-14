@@ -79,6 +79,7 @@ import importlib.util
 import json
 import math
 import os
+import re
 import subprocess
 import time
 
@@ -227,8 +228,42 @@ INDEX_LEVELS = frozenset(
 # depth spread is small enough that a band union cannot mis-occlude.
 STRATA_EDGES = [45000.0, 26000.0, 16000.0, 10500.0, 7000.0, 4800.0,
                 3300.0, 2300.0, 1600.0, 1100.0, 750.0, 0.0]
-# haze applied on crossing INTO the stratum whose far edge is the key
-HAZE = {26000.0: 0.20, 10500.0: 0.13, 4800.0: 0.09, 2300.0: 0.05}
+
+# ── AERIAL PERSPECTIVE IS A LAW, NOT A TABLE (2026-08-14) ────────────────
+# The haze was four hand-set numbers on four of the eleven strata --
+# 0.20 / 0.13 / 0.09 / 0.05 -- and its colour was --page-bg. Both are now
+# wrong for the same reason: distance is not a stylistic dose, it is
+# extinction, and extinction is Beer-Lambert.
+#
+# The painter order does the integration for free and always did. Strata are
+# drawn far to near, and the wash laid down before stratum s covers
+# everything already painted -- that is, everything beyond it -- so the wash
+# emitted at edge k is exactly the SLAB of air between edges[k] and
+# edges[k+1], and a stratum ends up under the product of every slab in front
+# of it. Transmittance therefore composites correctly with no extra work:
+#
+#     T(d) = prod over the slabs in front = exp(-d / HAZE_D)
+#     a_k  = 1 - exp(-(edges[k] - edges[k+1]) / HAZE_D)
+#
+# So there is one dial, HAZE_D, the e-folding distance of the air; every
+# stratum gets its own wash instead of four of them, which is also what
+# takes the visible STEPS out of the distance. At 30 km the old table had
+# reached 0.40 and this reaches 0.55, and the far mesh is meant to be nearly
+# gone: it is 45 km of Anatolian afternoon.
+HAZE_D = 34000.0
+HAZE = {
+    STRATA_EDGES[k]: 1.0 - math.exp(
+        -(STRATA_EDGES[k] - STRATA_EDGES[k + 1]) / HAZE_D)
+    for k in range(len(STRATA_EDGES) - 1)
+}
+
+
+def haze_at(dist_m: float) -> float:
+    """Cumulative opacity of the air over ground `dist_m` away — the same
+    law the strata integrate, for the things that are not strata: the water,
+    which is one flat plane and takes its haze from a gradient in screen y,
+    and Ida, which is beyond the mesh entirely."""
+    return 1.0 - math.exp(-max(0.0, dist_m) / HAZE_D)
 
 PLAIN_BBOX = (39.86, 40.05, 26.1, 26.38)
 
@@ -486,9 +521,8 @@ def sun_disclosure() -> str:
     if not SHADE_STEPS:
         return "No light source; relief carried by the hypsometric ramp alone."
     sh = "with cast shadows" if SHADOW else "slope shading only, no cast shadows"
-    return ("Lit by the sun at bearing %.0f°, %.0f° above the horizon — %s; "
-            "%s, on the exaggerated ground, at true built heights."
-            % (LIGHT_AZ, LIGHT_ALT, SUN_NOTE, sh))
+    return ("Lit by the sun at bearing %.0f°, %.0f° above the horizon — %s, "
+            "%s." % (LIGHT_AZ, LIGHT_ALT, SUN_NOTE, sh))
 
 
 def disclosure(curve: str | None = None) -> str:
@@ -503,9 +537,8 @@ def disclosure(curve: str | None = None) -> str:
                 "above 300 m — applied as a rate and integrated, so higher "
                 "ground always draws higher. Built heights TRUE.")
     return ("Vertical exaggeration %.3g× at the shore, easing to %.2f× on the "
-            "high ground — applied as a rate and integrated, so higher ground "
-            "always draws higher and Mount Ida keeps its true height. Built "
-            "heights TRUE." % (C_A, C_F))
+            "high ground — applied as a rate, so higher ground always draws "
+            "higher. Built heights TRUE." % (C_A, C_F))
 
 
 # ── slope shading ────────────────────────────────────────────────────────
@@ -595,9 +628,133 @@ def disclosure(curve: str | None = None) -> str:
 LIGHT_AZ = 228.4
 LIGHT_ALT = 9.9
 LIGHT_AZ_DEFAULT, LIGHT_ALT_DEFAULT = LIGHT_AZ, LIGHT_ALT
-SHADE_STEPS = 10         # quantisation; 0 turns slope shading off entirely
-SHADE_MAX = 0.34         # peak opacity of --pp-shade on a slope turned away
-LIT_MAX = 0.22           # peak opacity of --pp-lit on a slope facing the light
+# ── THE TONE IS BUILT UP IN WASHES, NOT CUT INTO STEPS (2026-08-14) ──────
+# The step count was pinned at 10 by a measurement that was true of the
+# drawing as it then stood: at 14 the near foreground broke into a lattice of
+# countable ovals -- fish scales -- and the SVG went 682 -> 776 KB to print
+# them. Both halves of that failure come from ONE decision that was never the
+# step count's fault: each tone level was drawn as the region where the light
+# lands EXACTLY on that step, which makes every level an isolated island with
+# two boundaries, and makes the area filter's rescue catastrophic -- a sliver
+# dropped at level 7 loses SEVEN TENTHS of its tone and prints as a bright
+# bead in the middle of a shadow.
+#
+# Superlevel sets do not have either property. Level k draws the region where
+# the light is at or beyond step k -- {st >= k} -- so the regions NEST, and a
+# cell at step 7 is covered by seven washes instead of one. Three things fall
+# out at once:
+#
+#   1. WEIGHT GOES DOWN, not up. An exact-level region is bounded by the
+#      contours at k AND k+1; a superlevel region is bounded by the contour
+#      at k alone. Every boundary on the sheet was being drawn twice.
+#   2. A DROPPED SLIVER COSTS ONE WASH. At 18 steps that is 3% of full tone
+#      instead of 70%, so the fish scales have nothing to print with.
+#   3. THE RAMP STOPS BEING LINEAR. n washes of alpha a composite to
+#      1-(1-a)^n, which is optical density -- the curve a real wash builds,
+#      and the curve film and eye both have. Tone compresses in the darks
+#      exactly where it should.
+#
+# Per-wash alpha is solved, not chosen: a = 1 - (1-MAX)^(1/steps), so the
+# deepest tone still lands on MAX however many washes it is built from.
+#
+# RE-MEASURED at 10 / 18 / 26 steps on the shipped frame: at 10 the wash
+# banding is still countable on the bay-facing slope under Rhoiteion; at 18
+# no band edge can be found anywhere at 1x and the gully system under the
+# camp holds; at 26 nothing visible improves and the SVG gains 90 KB. 18.
+SHADE_STEPS = 18         # quantisation; 0 turns slope shading off entirely
+# ── THE SHADE COMES DOWN AND THE LIGHT GOES UP, and the reason is both
+# physical and measured.
+#
+# PHYSICAL: the sun is at bearing 228 and the camera looks 104, so the light
+# is over the reader's right shoulder and this is a FRONT-LIT scene. What a
+# raking sun behind the viewer actually produces is bright sunward faces and
+# shadows that mostly hide behind their own casters -- not deep shade across
+# the near field. And a shadow now has sky in it (see SHADOW_AMBIENT), so the
+# tonal budget no longer has to reach total darkness: flat ground in shadow
+# sits at 0.61 of full tone and a vertical face in shadow at 0.81.
+#
+# THE CAP WAS NEVER PHYSICAL, IT WAS A MEASUREMENT ARTEFACT. This dial stood
+# at 0.40 with a note recording that 0.50 "looked best" and had been backed
+# down because it cost label contrast in a 16-28 px annulus round each label
+# anchor. That annulus is not a label's background -- see HALO_W, where the
+# whole argument and the re-measured numbers are. With the halo credited (and
+# made translucent, so it dims the ground round a letter instead of deleting
+# it) the labels stopped moving with the ground at all except one part in
+# four, and the tone was free.
+#
+# MEASURED, on rendered pixels, halo credited, worst of the 44 labels on the
+# sheet, at four settings of this dial:
+#
+#     shade / lit   light   dark
+#     0.40 / 0.32    5.15   6.04
+#     0.50 / 0.36    5.09   6.05
+#     0.62 / 0.36    5.04   6.08
+#     0.72 / 0.36    5.00   6.11
+#
+# The whole range moves the worst label by fifteen HUNDREDTHS of a ratio
+# point, and in dark theme it moves the WRONG WAY -- up. That is the finding,
+# and it is stronger than the one this pass went looking for: with the halo
+# credited the tone is not trading against label contrast at all. (The worst
+# label is THE SHIPS, lettered over the hulls, and a hull is not terrain, so
+# the shade ramp never touches what it stands on.)
+#
+# So AA does not pick this number; the DRAWING does. 0.62 is where the bluff
+# under Ilios finally carries the weight a 25 m scarp under a 10 degree sun
+# ought to have while the deep shade still has landform inside it. 0.72 was
+# rendered and looked at and is not visibly better at 1x, and it closes the
+# shaded faces further, so the extra tenth buys nothing and costs modelling.
+SHADE_MAX = 0.62         # peak opacity of --pp-shade on a slope turned away
+LIT_MAX = 0.36           # peak opacity of --pp-lit on a slope facing the light
+
+# ── THE TERMINATOR WAS THE AIRBRUSH ──────────────────────────────────────
+# "Bolder, or sharper" (John, 2026-08-14). Tone alone is bolder; what makes a
+# drawing SHARP is where the tone changes, and this sheet's light was linear
+# in slope from the first step to the last, which spends most of its range on
+# the middle -- exactly the gradient an airbrush lays down.
+#
+# The nested-wash ramp made it worse, and it is worth being precise about
+# why. n washes of alpha a composite to 1-(1-a)^n, which is CONCAVE: the
+# first washes do most of the work and the last ones almost none. Optical
+# density is the right curve for a wash, but it means the deep end of the
+# range -- 0.7 of full tone through 1.0 -- is nearly flat, so a face turned
+# hard from the light and a face turned harder still print the same, and the
+# shaded side of a ridge goes mushy exactly where it should be firmest.
+#
+# The fix is a gamma on the light BEFORE it is quantised, which is where the
+# material gain already lives and for the same reason: shade_raw stays a pure
+# function of slope and light. gamma < 1 pushes tone on fast near the
+# terminator and then holds, so the lit/shaded boundary reads as a boundary
+# and the interior of each side stays open.
+#
+# RENDERED AND LOOKED AT at 1.00 / 0.85 / 0.78 / 0.70. At 1.00 the far ridges
+# are the smudges the complaint was about. At 0.70 every ridge has an edge and
+# the plate is bolder than it has ever been, but the mid-distance masses go
+# hard all the way round and start to read as cut paper laid on the plain --
+# an edge is not the same thing as a silhouette. 0.78 is where the terminator
+# is definite and the masses still turn.
+SHADE_GAMMA = 0.78
+
+# ── MATERIAL: THE GROUND CLASSES DO NOT TAKE LIGHT ALIKE ─────────────────
+# One light field over four ground covers was drawing sand, scrub, limestone
+# and waterlogged delta as though they were the same substance with different
+# paint on. They are not, and the difference is not a matter of hue:
+#
+#   the dry fan is pale, dusty and very rough at grain scale, so it
+#   backscatters and multiply-scatters hard. Its shadows fill in and its
+#   modelling is SOFT -- this is why a sand dune photographs flat at midday
+#   and only reads at all near sunset;
+#   ridge scrub on thin soil over limestone is broken cover -- rock, bush and
+#   bare pan in the same square metre -- so it takes tone HARDER than either
+#   pure surface would;
+#   ground beyond the sector carries no claim and takes the field as it is.
+#
+# The gain multiplies the light field, not the geometry: no elevation, no
+# slope and no shadow moves, and shade_raw stays a pure function of slope and
+# light (the test that pins that still passes, because this is applied over
+# the field in shade_field, where the classification exists). What changes is
+# how much tone a measured slope is worth on a given substance, which is a
+# material property and belongs exactly here.
+MATERIAL = {COVER_FAN: 0.76, COVER_OPEN: 1.0, COVER_RIDGE: 1.16}
 # A tone region's edge is NOT a measured line -- it is where the quantisation
 # happened to fall -- so it is low-passed before it is generalised, and the
 # ORDER is the fix (see SHADE_SOFT_PASSES and the note in terrain_svg). The old
@@ -622,6 +779,11 @@ LIT_MAX = 0.22           # peak opacity of --pp-lit on a slope facing the light
 # readable gully-and-spur system at 2; at 1 the tone islands the median has
 # to filter jump from 3,628 to 5,057 and the near foreground starts to bead.
 SHADE_SMOOTH = 2         # box passes over the CONTINUOUS field, in mesh cells
+SHADE_SIMPLIFY = 1.1     # px of Douglas-Peucker on a wash edge. It was 0.8
+                         # while an edge was the seam between two tones seven
+                         # tenths apart; a nested wash edge is one eighteenth
+                         # of the tone, so it can be generalised harder, and
+                         # that is what pays for nine more of them.
 SHADE_MIN_AREA = 140.0   # px^2; below this a tone region is a sliver, not a
                          # slope, and it prints as a bead rather than as tone
 # ── THE BLOTCHY FOREGROUND, and why smoothing alone never cured it ────────
@@ -686,7 +848,38 @@ SHADOW_REACH = 16000.0   # radius from the viewpoint, m. Beyond it the ground
                          # keeps slope shading only.
 SHADOW_SOFT_M = 5.0      # metres of ray clearance over which a shadow fades
                          # in, so a grazing edge is a penumbra, not a cut
-SHADOW_BLUR = 1          # box passes over the mask, in raster cells
+# ── AND NO BOX BLUR ON TOP OF IT. The mask's raster is 40 m; one box pass
+# over it spreads a shadow edge across 40-80 m of ground. The sun's disc is
+# half a degree, so the true penumbra of a 25 m scarp at the tip of its own
+# 140 m shadow is 1.3 m. The blur was three orders of magnitude of softness
+# that nothing outdoors has, laid over the one boundary on this sheet that is
+# genuinely a cut. SHADOW_SOFT_M already models the grazing edge, where the
+# ray clears the ground by little and the shadow really does fade.
+SHADOW_BLUR = 0          # box passes over the mask, in raster cells
+# ── A SHADOW IS NOT A HOLE (2026-08-14) ──────────────────────────────────
+# Ground that cannot see the sun was given illumination ZERO, which lands it
+# at the bottom step whatever it is doing -- so every cast shadow on the
+# plate was one flat black shape with no landform inside it, and the long
+# shadow off Troy's scarp, the whole point of having cast shadows at all,
+# fell across a gully system and erased it.
+#
+# Nothing outdoors is lit by the sun alone. The sky is a 2π source of its own
+# and it is what fills a shadow; a surface tilted away from the zenith sees
+# less of it, so the sky term is the surface's own SKY VIEW FACTOR, which for
+# a plane is (1 + nz)/2 -- 1 on flat ground, 0.5 on a vertical face. That is
+# the whole model and it costs one term:
+#
+#     illum = max(0, N.L) * sunlit + AMBIENT * (1 + nz) / 2
+#
+# and the datum flat ground is measured against gains the same ambient, so
+# level ground in full sun still takes no wash at all.
+#
+# 0.11 is a defensible clear-afternoon diffuse fraction and it is also what
+# the drawing wants: flat ground in shadow lands at 0.61 of full tone and a
+# vertical face in shadow at 0.82, so a shadow now has a floor, a ceiling and
+# everything between. The colour does the rest -- --pp-shade went cool
+# because the light filling a shadow is the blue hemisphere, not the sun.
+SHADOW_AMBIENT = 0.11
 OBJ_SHADOW = True        # hulls and huts throw their own, at TRUE heights
 LIGHT = (0.0, 0.0, 1.0)  # set by set_light()
 
@@ -858,18 +1051,26 @@ def built_h(metres: float, ground_elev: float) -> float:
 # camera / terrain  (Stage 2's, unchanged)
 # ═══════════════════════════════════════════════════════════════════════════
 class Camera:
-    def __init__(self, plain_grid):
+    def __init__(self, plain_grid, pitch=None):
         self.theta = math.radians(HEADING_DEG)
         self.e = -SETBACK * math.sin(self.theta)
         self.n = -SETBACK * math.cos(self.theta)
         self.z = ALT
-        far_lat, far_lon = pp._dest_point(VIEWPOINT, HEADING_DEG, 9500.0)
-        far_e, far_n = pp._flat_m((far_lat, far_lon), *VIEWPOINT)
-        far_z = exaggerate(pp.bilinear_elev(plain_grid, far_lat, far_lon))
-        view_z = exaggerate(pp.bilinear_elev(plain_grid, *VIEWPOINT))
-        near_angle = math.atan2(ALT - view_z, SETBACK)
-        far_angle = math.atan2(ALT - far_z, math.hypot(far_e - self.e, far_n - self.n))
-        self.pitch = (near_angle + far_angle) / 2.0
+        if pitch is not None:
+            # a camera given its pitch and no DEM to read. The sky, the air
+            # and the two water ramps are functions of the FRAME and not of
+            # the ground under it, so they can be tested without loading
+            # nine million elevation samples to find out where to point.
+            self.pitch = pitch
+        else:
+            far_lat, far_lon = pp._dest_point(VIEWPOINT, HEADING_DEG, 9500.0)
+            far_e, far_n = pp._flat_m((far_lat, far_lon), *VIEWPOINT)
+            far_z = exaggerate(pp.bilinear_elev(plain_grid, far_lat, far_lon))
+            view_z = exaggerate(pp.bilinear_elev(plain_grid, *VIEWPOINT))
+            near_angle = math.atan2(ALT - view_z, SETBACK)
+            far_angle = math.atan2(
+                ALT - far_z, math.hypot(far_e - self.e, far_n - self.n))
+            self.pitch = (near_angle + far_angle) / 2.0
         cp, sp = math.cos(self.pitch), math.sin(self.pitch)
         self.fwd = (math.sin(self.theta) * cp, math.cos(self.theta) * cp, -sp)
         self.right = (math.cos(self.theta), -math.sin(self.theta), 0.0)
@@ -992,6 +1193,98 @@ def poly_area(pts) -> float:
         x1, y1 = pts[(i + 1) % n]
         a += x0 * y1 - x1 * y0
     return a / 2.0
+
+
+def winding_sign(poly) -> float:
+    """WHICH WAY IS IN. The polygon's own shoelace sign, which answers it
+    locally everywhere — concavities, spits and all — where "toward the
+    centroid" only answers it on a convex body."""
+    return 1.0 if poly_area(poly) > 0 else -1.0
+
+
+def inset(poly, sgn, dist):
+    """One inward offset of a closed screen polygon. `dist` is either px or a
+    callable (x, y) -> px, so an offset can hold a constant width IN GROUND
+    and shrink with distance the way the ground it measures does.
+
+    Segments that invert — where the offset has swallowed a concavity
+    narrower than itself — are dropped rather than folded back."""
+    n = len(poly)
+    off = []
+    for i in range(n):
+        x0, y0 = poly[(i - 1) % n]
+        x1, y1 = poly[i]
+        x2, y2 = poly[(i + 1) % n]
+        tx, ty = x2 - x0, y2 - y0
+        L = math.hypot(tx, ty) or 1e-9
+        nx, ny = sgn * -ty / L, sgn * tx / L
+        w = dist(x1, y1) if callable(dist) else dist
+        off.append((x1 + nx * w, y1 + ny * w, tx / L, ty / L))
+    keep = []
+    for i in range(len(off)):
+        ax, ay, tx, ty = off[i]
+        bx, by, _, _ = off[(i + 1) % len(off)]
+        if (bx - ax) * tx + (by - ay) * ty >= 0:
+            keep.append((ax, ay))
+    return keep
+
+
+def hazed(svg: str) -> str:
+    """Lay the air over marks that are painted after the strata have already
+    laid theirs down. The gradient is #pp-air — the same Beer-Lambert law,
+    read off the z=0 plane by screen y — so a mark drawn out of depth order
+    still recedes with everything at its distance."""
+    return svg + "".join(f'<path d="{d}" fill="url(#pp-air)"/>'
+                         for d in re.findall(r'\sd="([^"]+)"', svg))
+
+
+def plane_scale(cam):
+    """r -> screen px per ground metre measured ALONG the line of sight on
+    the z=0 plane. Differentiated from the camera by projecting two points
+    either side of r, so it carries the real pitch and setback and not a
+    small-angle formula."""
+    s, c = math.sin(cam.theta), math.cos(cam.theta)
+
+    def at(r):
+        r = max(150.0, r)
+        a = cam.project(cam.e + s * r * 0.995, cam.n + c * r * 0.995, 0.0)
+        b = cam.project(cam.e + s * r * 1.005, cam.n + c * r * 1.005, 0.0)
+        if not a or not b:
+            return 0.0
+        return abs(a[1] - b[1]) / (r * 0.01)
+    return at
+
+
+def plane_depth(cam, n=72):
+    """y -> range on the z=0 plane, as a lookup. The inverse of the mapping
+    plane_ramp uses, and exact for the same reason: image y on a horizontal
+    plane is a function of axial depth alone."""
+    tab = []
+    for k in range(n + 1):
+        r = 90.0 * (90000.0 / 90.0) ** (k / n)
+        p = cam.project(cam.e + math.sin(cam.theta) * r,
+                        cam.n + math.cos(cam.theta) * r, 0.0)
+        if p:
+            tab.append((p[1], r))
+    tab.sort()
+
+    def at(y):
+        if y <= tab[0][0]:
+            return tab[0][1]
+        if y >= tab[-1][0]:
+            return tab[-1][1]
+        lo, hi = 0, len(tab) - 1
+        while hi - lo > 1:
+            mid = (lo + hi) // 2
+            if tab[mid][0] <= y:
+                lo = mid
+            else:
+                hi = mid
+        y0, r0 = tab[lo]
+        y1, r1 = tab[hi]
+        t = (y - y0) / (y1 - y0 or 1e-9)
+        return r0 + t * (r1 - r0)
+    return at
 
 
 def rel_seg(a, b) -> str:
@@ -1605,37 +1898,109 @@ def draped_ribbon(cam, terr, latlons, half_w_m, cls, z_off=0.0, taper=None):
 # values they had as relief-12 and relief-9 when the ramp was deleted, because
 # neither is terrain the classification speaks for: one is the mountain beyond
 # the mesh, the other a built mound.
+# ── AIR, SKY AND WATER (2026-08-14, the realism pass) ────────────────────
+# Five new families, and every one of them is a physical quantity the plate
+# was drawing as a constant.
+#
+# --pp-haze is what distance is made of. It was --page-bg, a NEUTRAL grey,
+# which makes the far plain recede toward paper rather than toward air.
+# Aerial perspective is Rayleigh scattering: the extinguished light is
+# replaced by scattered SKYLIGHT, which is blue, so the distance goes cool
+# and pale, not grey and pale. The token is therefore a pale cool blue in
+# daylight -- and in dark theme a DARK cool blue, because a night landscape
+# fades toward the dark sky behind it, not toward a light one. That is also
+# what keeps the labels legal: the far ground moves AWAY from the ink in
+# both themes, never toward it.
+#
+# --pp-sky-hi / --pp-sky-lo are the two ends of the sky. A real sky under a
+# low sun is dark and saturated at the zenith and pale and warm at the
+# horizon, because the horizon is five to ten air masses of forward-scattered
+# light. --pp-sky-lo is deliberately CLOSE to --pp-haze: the horizon sky and
+# the colour distance resolves to must agree, or the far ground floats
+# instead of dissolving.
+#
+# --pp-water-far is the far bay. Water at grazing incidence is a mirror
+# (Fresnel: ~2% reflectance looking straight down, >50% at 10 deg), so the
+# far water shows the SKY and the near water shows its own body colour.
+# --plate-lagoon and --scene-map-sea keep their measured values and stay the
+# NEAR end of that ramp, because the lagoon/land fill pair is a pinned
+# contrast fact (see test_the_marks_this_pass_moved_clear_wcag_1_4_11).
+#
+# --pp-shade GOES COOL. It was #2A1E10, a warm brown-black, which is the one
+# thing an outdoor shadow is not: the sun is warm and everything it does not
+# reach is lit by the blue hemisphere instead. Warm light, cool shadow is the
+# oldest observation in landscape painting and it is also just the spectrum.
+# The value barely moves (L 0.0146 -> 0.0111 in light, 0.0023 -> 0.0016 in
+# dark), so every ordering the tests pin is untouched.
 TOKENS = {
     "light": """
   --page-bg:#E7E7E9; --text:#241827; --text-mid:#5B4C58;
   --scene-map-label-halo:#F8F7F3; --scene-map-coast:#565060;
   --plate-lagoon:#87AEB8; --scene-map-sea:#9BBFD6; --plate-contour:#5A4A32;
-  --pp-shade:#2A1E10; --pp-lit:#FFFCF2;
+  --pp-shade:#181A2C; --pp-lit:#FFFAEB;
   --plate-masonry:#A87263; --plate-river:#1A4C6A;
   --pp-hull:#3A2C3C; --pp-hull-side:#1B1220; --pp-hull-edge:#140D18;
-  --pp-cover-fan:#F0D69E; --pp-cover-open:#E3CDB3; --pp-cover-ridge:#D1CB95;
-  --pp-cover-wet:#9BC279;
+  --pp-cover-fan:#FAD391; --pp-cover-open:#E0CDBA; --pp-cover-ridge:#CDCD83;
+  --pp-cover-wet:#94C472;
   --pp-ida-mass:#AF9164; --pp-tumulus:#CAB083;
+  --pp-haze:#CBD9E4; --pp-sky-hi:#93B4D2; --pp-sky-lo:#E1DDD2;
+  --pp-water-far:#DCE6EC; --pp-water-shoal:#CFE0D8;
 """,
     "dark": """
   --page-bg:#181120; --text:#EDE6E8; --text-mid:#B7A9B4;
   --scene-map-label-halo:#17131C; --scene-map-coast:#8FA3AE;
   --plate-lagoon:#0A2430; --scene-map-sea:#0A1C2A; --plate-contour:#332818;
-  --pp-shade:#0A0704; --pp-lit:#F2E4C4;
+  --pp-shade:#03050E; --pp-lit:#F2E4C4;
   --plate-masonry:#A8846F; --plate-river:#123A4A;
   --pp-hull:#241C2A; --pp-hull-side:#120C16; --pp-hull-edge:#C3B49E;
-  --pp-cover-fan:#4D3D23; --pp-cover-open:#4B3A2B; --pp-cover-ridge:#3D3B24;
-  --pp-cover-wet:#263519;
+  --pp-cover-fan:#513B1F; --pp-cover-open:#493B30; --pp-cover-ridge:#3C3C1E;
+  --pp-cover-wet:#233616;
   --pp-ida-mass:#86734B; --pp-tumulus:#7A6846;
+  --pp-haze:#141B28; --pp-sky-hi:#0B1120; --pp-sky-lo:#242B3A;
+  --pp-water-far:#1E3244; --pp-water-shoal:#15343C;
 """,
 }
 COVER_WASH_OP = 0.55        # the wet delta's wash over the fan beneath it
 
+# ── the shoal (see water_svg). Widths are METRES OF GROUND out from the
+# waterline, painted OUTERMOST FIRST so the three bands stack: full strength
+# at the shore, two thirds of it at 110 m, a third at 260 m, gone at 560.
+SHOAL_BANDS = (560.0, 260.0, 110.0)
+SHOAL_OP = (0.10, 0.11, 0.13)
+SHOAL_PX_MAX = 80.0         # a near-field clamp, and it is the near field
+                            # that needs one: the plane's scale goes as
+                            # 1/r^2 and runs away under the reader's feet
+
+
+def _shoal_px(px_per_m: float, ground_m: float) -> float:
+    """Ground metres, measured AWAY FROM THE VIEWER on the water plane, in
+    screen px.
+
+    Which scale to use is the whole question and the first answer was wrong.
+    A metre ACROSS the line of sight projects to FOCAL/r px; a metre ALONG it
+    projects to about FOCAL*h/r^2 — sixty times smaller at eight kilometres,
+    because that is what an oblique does to a horizontal plane. Using the
+    across-sight scale left the far shore of the bay with a band fifty pixels
+    wide, which is the "widest where the water is farthest" failure this was
+    written to avoid, arriving by a different door. A shoal band is measured
+    PERPENDICULAR TO ITS SHORE, and on a bay seen from above one end that is
+    mostly the receding direction, so the along-sight scale is both the
+    honest choice and the conservative one. It is computed from the camera
+    itself (plane_scale), never from a formula fitted here."""
+    return min(SHOAL_PX_MAX, ground_m * px_per_m)
+
 CSS = """
 .pp-cover{stroke:none}
 .pp-shade{stroke-linejoin:round}
-.pp-ida{fill:var(--pp-ida-mass);fill-opacity:0.22;stroke:none}
-.pp-ida-crest{fill:none;stroke:var(--plate-contour);stroke-width:0.8;stroke-opacity:0.5}
+/* IDA IS DRAWN BEFORE THE AIR, so it takes all of it: the mountain sits at
+   45-80 km and the strata lay 0.73 of --pp-haze over it before anything else
+   is painted. At 0.22 it disappeared outright once the haze became a law
+   instead of a table. The mass is asserted harder so that what SURVIVES the
+   air is about what it was — 0.62 x 0.27 = 0.17 — which is the right way
+   round: the mountain is stated at full strength and the distance takes it
+   down, rather than being pre-faded and then faded again. */
+.pp-ida{fill:var(--pp-ida-mass);fill-opacity:0.62;stroke:none}
+.pp-ida-crest{fill:none;stroke:var(--plate-contour);stroke-width:0.9;stroke-opacity:0.95}
 .pp-sea{fill:var(--scene-map-sea)}
 .pp-lagoon{fill:var(--plate-lagoon)}
 .pp-marsh{fill:var(--pp-cover-wet);fill-opacity:0.55;stroke:none}
@@ -1723,16 +2088,85 @@ CSS = """
 .pp-neat-o{fill:none;stroke:var(--text);stroke-width:2.2}
 .pp-neat-i{fill:none;stroke:var(--text);stroke-width:0.7}
 .pp-key-sw{stroke:var(--text-mid);stroke-width:0.4}
-text{font-family:var(--font-ui,Optima,Seravek,"Gill Sans","Gill Sans MT",sans-serif);
-  paint-order:stroke;stroke:var(--scene-map-label-halo);stroke-width:3.2;
-  stroke-linejoin:round}
 .pp-l-region{font-size:15.5px;letter-spacing:2.48px;fill:var(--text-mid)}
 .pp-l-settlement{font-size:15px;font-weight:600;fill:var(--text)}
 .pp-l-water{font-size:12.5px;font-style:italic;letter-spacing:0.5px;fill:var(--text-mid)}
 .pp-l-site{font-size:11.5px;fill:var(--text)}
-.pp-l-note{font-size:10px;fill:var(--text-mid);stroke-width:2.4}
+.pp-l-note{font-size:10px;fill:var(--text-mid)}
 .pp-l-title{font-size:22px;letter-spacing:3.2px;fill:var(--text)}
 """
+
+# ── THE HALO IS THE LABEL'S BACKGROUND, AND SAYING SO IS WHAT LET THE TONE
+# OFF ITS LEASH (2026-08-14) ─────────────────────────────────────────────
+# The sheet was pale on purpose. SHADE_MAX sat at 0.40 with a note saying
+# 0.50 "looked best" and had been backed down because it cost label contrast
+# -- so the ground was being kept light to protect the lettering standing on
+# it, which is the wrong thing to trade and, it turns out, was not even the
+# trade being made.
+#
+# WHAT WAS ACTUALLY CAPPING THE TONE WAS THE MEASUREMENT. The numbers in the
+# old SHADE_MAX note were taken from "the median ground in a 16-28 px annulus"
+# round each label's anchor. A 16-28 px ring is not a label's background: it
+# is the terrain a quarter of an inch away, on the far side of a halo the
+# sheet has always drawn. Re-measured on rendered pixels with that halo
+# credited, EVERY label on the plate came out at 7.48:1 (--text-mid) and
+# 15.86:1 (--text) in light -- because the halo was OPAQUE, so the composite
+# under the lettering was the halo token exactly and had nothing to do with
+# the ground at all. The three labels the old note reports as "already
+# failing" (SIGEION, GROUND COVER, THE SHIPS, at 3.30-3.42) fail only under
+# the annulus, and only against ground they never touch.
+#
+# So the fix is the one the sister geographic plates shipped the same morning
+# (shared/lib/plate.ts, RELIEF_HALO_WIDTH / RELIEF_HALO_OPACITY): let the
+# label carry its own background, and MEASURE THAT. The opacity is the whole
+# craft of it. An opaque knockout reads as its own shape -- a white worm
+# round every word, and the bolder the ground gets the more it shows -- while
+# at 0.72 the stroke DIMS the terrain round the letterforms instead of
+# deleting it: the tone edges and the cover boundaries still run through the
+# halo, and the label still sits on a background it brought with it.
+#
+# WHAT IT COSTS AND WHAT IT BUYS, both stated, because one number goes down.
+# An opaque halo scores 7.48:1 on every --text-mid label in light and 8.15 in
+# dark REGARDLESS OF THE GROUND, since the composite under the letterform is
+# then the halo token and nothing else. Translucent, the composite is 0.72
+# halo over whatever is there, so it moves with the ground -- and the worst
+# label on the sheet measures 5.04:1 light, 6.08:1 dark, 4.75:1 on the 4x camp
+# crop. Lower than 7.48, clear of AA everywhere, and it is the number that
+# means something: it is what a reader compares.
+#
+# Measured across the dial, worst label, so the trade is on the record:
+#
+#     opacity   light   dark   camp 4x
+#     0.72       5.04   6.08     4.75
+#     0.78       5.51   6.54     5.27
+#     0.82       5.84   6.85     5.63
+#     0.86       6.18   7.16     6.02
+#     1.00       7.48   8.15     7.48
+#
+# 0.72 because it is what the sister geographic plates ship: one atlas, one
+# halo, and a reader moving between a plan sheet and this one should not meet
+# two different treatments of the same lettering. Raise it here if the margin
+# is ever wanted -- the cost is that the knockout starts to show.
+#
+# And the floor rose where it actually mattered. The three labels the old note
+# reports as failing had NO honest measurement at all: 3.30-3.42 against
+# ground a quarter-inch away. Measured against what they sit on, SIGEION is
+# 5.31, THE SHIPS 5.04, and GROUND COVER has left the picture entirely for the
+# margin, where it letters on page.
+HALO_W = 2.6             # px of knockout on the display type
+HALO_W_NOTE = 2.2        # the 10 px note face wants proportionally less
+HALO_OP = 0.72           # dims the ground round a letter; never punches it out
+
+
+def label_css() -> str:
+    return (
+        'text{font-family:var(--font-ui,Optima,Seravek,"Gill Sans",'
+        '"Gill Sans MT",sans-serif);paint-order:stroke;'
+        'stroke:var(--scene-map-label-halo);'
+        f'stroke-width:{HALO_W:g};stroke-opacity:{HALO_OP:g};'
+        'stroke-linejoin:round}'
+        f'.pp-l-note{{stroke-width:{HALO_W_NOTE:g}}}'
+    )
 
 # ── contour ink ──────────────────────────────────────────────────────────
 # Generated, not literal, because the weights are what this pass is testing.
@@ -1922,7 +2356,8 @@ class Plate:
             far, near = edges[s], edges[s + 1]
             if far in HAZE and s > 0:
                 out.append(f'<rect x="0" y="0" width="{W}" height="{H}" '
-                           f'fill="var(--page-bg)" fill-opacity="{HAZE[far]}"/>')
+                           f'fill="var(--pp-haze)" '
+                           f'fill-opacity="{HAZE[far]:.4f}"/>')
             interior: dict = {}
             cont: dict = {}
             shade: dict = {}
@@ -1997,33 +2432,50 @@ class Plate:
                                f'd="{"".join(d)}"/>')
             # SHADING sits between the cover and the contours: it models the
             # surface the cover colours, and the hairlines stay on top of both.
-            for st in sorted(shade):
-                d = []
-                for loop in union_loops(shade[st], corner):
-                    if abs(poly_area(loop)) < SHADE_MIN_AREA:
-                        continue          # a sliver, not a slope
-                    # SOFTEN FIRST, GENERALISE AFTER, and the order is the
-                    # whole fix. Douglas-Peucker on a raw staircase keeps
-                    # every riser corner (a 7 px step clears a 3.2 px band by
-                    # a factor of two) and throws away the treads that made it
-                    # read as a diagonal, so what arrived at chaikin() was a
-                    # jagged polyline with SHARPER angles than the lattice had
-                    # -- and corner-cutting scalloped those instead of curing
-                    # them. Low-pass the lattice loop while it is still dense
-                    # and regular, then generalise the curve that comes out.
-                    lp = chaikin(simplify(
-                        soften(loop, SHADE_SOFT_PASSES), 0.8), 1)
-                    d.append(rel_poly(lp))
-                if not d:
+            #
+            # NESTED WASHES, not cut steps -- see SHADE_STEPS for why. Level k
+            # is the region where the light has reached step k or beyond, so
+            # the regions contain one another and the tone is however many
+            # washes a cell lies under.
+            for sgn, tone, mx in ((-1, "var(--pp-shade)", SHADE_MAX),
+                                  (1, "var(--pp-lit)", LIT_MAX)):
+                if not mx:
                     continue
-                tone = "var(--pp-shade)" if st < 0 else "var(--pp-lit)"
-                op = (SHADE_MAX if st < 0 else LIT_MAX) * abs(st) / SHADE_STEPS
-                # NOT stroked, unlike the bands. A wash needs no seam-closing
-                # -- a gap between two tones just reads as the tone between
-                # them -- and a stroke doubles the width of any thin region,
-                # which is what printed the pale filaments at 8x.
-                out.append(f'<path class="pp-shade" fill="{tone}" '
-                           f'fill-opacity="{op:.3f}" d="{"".join(d)}"/>')
+                a = 1.0 - (1.0 - mx) ** (1.0 / SHADE_STEPS)
+                acc: set = set()
+                for k in range(SHADE_STEPS, 0, -1):
+                    acc |= shade.get(sgn * k, set())
+                    if not acc:
+                        continue
+                    d = []
+                    for loop in union_loops(acc, corner):
+                        if abs(poly_area(loop)) < SHADE_MIN_AREA:
+                            continue      # a sliver, not a slope
+                        # SOFTEN FIRST, GENERALISE AFTER, and the order is
+                        # the whole fix. Douglas-Peucker on a raw staircase
+                        # keeps every riser corner (a 7 px step clears a
+                        # 3.2 px band by a factor of two) and throws away the
+                        # treads that made it read as a diagonal, so what
+                        # arrived at chaikin() was a jagged polyline with
+                        # SHARPER angles than the lattice had -- and
+                        # corner-cutting scalloped those instead of curing
+                        # them. Low-pass the lattice loop while it is still
+                        # dense and regular, then generalise the curve that
+                        # comes out. The tolerance can be looser than it was
+                        # because a wash edge now carries 1/18 of the tone,
+                        # not 7/10 of it.
+                        d.append(rel_poly(chaikin(simplify(
+                            soften(loop, SHADE_SOFT_PASSES),
+                            SHADE_SIMPLIFY), 1)))
+                    if not d:
+                        continue
+                    # NOT stroked, unlike the bands. A wash needs no
+                    # seam-closing -- a gap between two tones just reads as
+                    # the tone between them -- and a stroke doubles the width
+                    # of any thin region, which is what printed the pale
+                    # filaments at 8x.
+                    out.append(f'<path class="pp-shade" fill="{tone}" '
+                               f'fill-opacity="{a:.4f}" d="{"".join(d)}"/>')
             for k in sorted(cont):
                 cls = "pp-contour-index" if k in INDEX_LEVELS else "pp-contour"
                 d = []
@@ -2064,26 +2516,70 @@ class Plate:
             self.stats["shadow_raster"] = self.shadow.n
             self.stats["shadow_secs"] = round(time.time() - t0, 1)
         raw = {ij: self.shade_raw(*ij) for ij in self.visible}
+        # ── THE SMOOTHER WAS EATING THE SHADOW EDGE, and a shadow edge is the
+        # one edge on this sheet that is genuinely hard. The sun's disc is
+        # half a degree, so the penumbra of a 25 m scarp at its own shadow's
+        # tip is about 1.3 m of ground -- a fifth of a mesh cell. Everything
+        # softer than that in the drawing was put there by the drawing.
+        #
+        # The box pass above exists for a real defect (speckled normals, see
+        # the docstring), and it is the right tool for that; it is simply the
+        # wrong tool to run ACROSS a discontinuity. So it is made edge-aware:
+        # a cell averages only with neighbours that agree with it about
+        # whether they can see the sun. Inside a shadow the filter is exactly
+        # what it was; at the boundary it stops, and the boundary survives at
+        # the lattice's own resolution instead of being smeared over two mesh
+        # cells, which in the near field is 400 m of ground.
+        lit = ({ij: (1.0 if self.sunlit_at(*ij) > 0.5 else 0.0)
+                for ij in raw} if self.shadow is not None else None)
         for _ in range(max(1, SHADE_SMOOTH)):
             nxt = {}
             for (i, j), v in raw.items():
                 tot, wsum = v * 2.0, 2.0
+                s0 = None if lit is None else lit[(i, j)]
                 for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1),
                                (1, 1), (1, -1), (-1, 1), (-1, -1)):
-                    n = raw.get((i + di, j + dj))
-                    if n is not None:
-                        tot += n
-                        wsum += 1.0
+                    ij2 = (i + di, j + dj)
+                    n = raw.get(ij2)
+                    if n is None or (s0 is not None and lit[ij2] != s0):
+                        continue
+                    tot += n
+                    wsum += 1.0
                 nxt[(i, j)] = tot / wsum
             raw = nxt
         q: dict = {}
         for ij, v in raw.items():
+            # MATERIAL GAIN. The light field is one thing; what a substance
+            # does with it is another (see MATERIAL). It multiplies here,
+            # after the field has been smoothed and before it is quantised,
+            # so shade_raw stays a pure function of slope and light and the
+            # gain lands where the ground classification actually exists.
+            v *= MATERIAL.get(self.cover.get(ij), 1.0)
+            # TERMINATOR GAMMA, and it belongs beside the material gain for
+            # the same reason: shade_raw stays a pure function of slope and
+            # light, and this is a statement about how the sheet DRAWS that
+            # light. See SHADE_GAMMA. Sign-preserving, so lit and shaded are
+            # steepened alike and flat ground still takes nothing.
+            if SHADE_GAMMA != 1.0 and v:
+                v = math.copysign(abs(v) ** SHADE_GAMMA, v)
             st = int(round(v * SHADE_STEPS))
             q[ij] = max(-SHADE_STEPS, min(SHADE_STEPS, st))
         q, islands = median_lattice(q, SHADE_MEDIAN)
         self.shade_q = q
         self.stats["shaded_cells"] = sum(1 for v in q.values() if v)
         self.stats["shade_islands_filtered"] = islands
+
+    def sunlit_at(self, i, j):
+        """The cast-shadow visibility at one cell's centre, on its own — the
+        same number shade_raw folds into the light, read separately so the
+        smoother can be told where not to cross. No shadow field, all lit."""
+        if self.shadow is None:
+            return 1.0
+        w = self.wor
+        (e00, n00), (e10, n10) = w[i][j], w[i + 1][j]
+        (e11, n11), (e01, n01) = w[i + 1][j + 1], w[i][j + 1]
+        return self.shadow.at((e00 + e10 + e11 + e01) * 0.25,
+                              (n00 + n10 + n11 + n01) * 0.25)
 
     def shade_raw(self, i, j):
         """The continuous light at one mesh cell, in [-1, 1]: negative for a
@@ -2123,12 +2619,16 @@ class Plate:
         if m < 1e-9:
             return 0
         lam = (nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2]) / m
-        illum = max(0.0, lam)
+        sunlit = 1.0
         if self.shadow is not None:
             ec = (e00 + e10 + e11 + e01) * 0.25
             nc = (n00 + n10 + n11 + n01) * 0.25
-            illum *= self.shadow.at(ec, nc)
-        flat = LIGHT[2]
+            sunlit = self.shadow.at(ec, nc)
+        # the sky is the second source, and a shadow is where it is the only
+        # one; the surface's own sky view factor is (1 + nz)/2 (see
+        # SHADOW_AMBIENT)
+        illum = max(0.0, lam) * sunlit + SHADOW_AMBIENT * 0.5 * (1.0 + nz / m)
+        flat = LIGHT[2] + SHADOW_AMBIENT
         d = illum - flat
         return d / (1.0 - flat) if d > 0 else d / flat
 
@@ -2235,50 +2735,139 @@ class Plate:
         sea = self.water_path(self.lay["sea-modern"]["polygon"], 0.0)
         lagoon = self.water_path(self.lay["lagoon-bronze"]["polygon"], drape=True)
         swamp = self.water_path(self.lay["delta-swamp"]["polygon"], drape=True)
+        # ── WHAT MAKES IT WATER AND NOT A BLUE SHAPE ─────────────────────
+        # Both bodies were flat fills, which is why the far arm of the bay
+        # twenty kilometres out sat at exactly the saturation of the water
+        # under the reader's feet. Water is not a colour, it is a surface,
+        # and two measured things happen to it across that distance:
+        #
+        #   1. FRESNEL. Reflectance runs from about 2% looking straight down
+        #      to over 80% at eight degrees above the horizontal, so the near
+        #      bay shows its body colour and the far bay is a mirror of the
+        #      sky. That is the #pp-water-sky ramp, and it is Schlick's curve
+        #      on the camera height and the range, with nothing chosen.
+        #   2. AIR. The same Beer-Lambert extinction the land strata already
+        #      integrate — which the water was getting none of, because
+        #      water_svg paints after terrain_svg and after every haze rect.
+        #      That is #pp-air.
+        #
+        # Both go on UNDER the shoreline strokes. The fills may recede; the
+        # lines that carry the land/water boundary are a cartographic
+        # assertion and keep their measured contrast at every distance.
+        def _air(d):
+            return (f'<path d="{d}" fill="url(#pp-water-sky)"/>'
+                    f'<path d="{d}" fill="url(#pp-air)"/>')
+
+        # ── THE SHOAL, and why it is not a bathymetric claim ─────────────
+        # A body of water is never the same colour at its edge as in its
+        # middle, because at its edge you are looking at the bottom. The bay
+        # of Troy is the extreme case: Kayan's cores have it silting up
+        # through the Bronze Age, a shallow embayment over a sand and mud
+        # floor, and a metre of clear water over pale sand is paler and
+        # greener than four metres of the same water. This is the single
+        # thing that stops a flat fill reading as a coloured shape.
+        #
+        # IT STATES NO DEPTH ANYWHERE. What it says is only "water shallows
+        # at a shore", which is true of every shore there has ever been; it
+        # carries no isobath, no soundings and no coordinate. The band holds
+        # a constant width IN GROUND (see SHOAL_M) rather than in pixels, so
+        # it narrows with distance exactly as the ground does — a fixed pixel
+        # margin would have been widest where the water is farthest away,
+        # which is the one thing that would have made it a claim about
+        # something other than perspective.
+        #
+        # It goes PALER, never darker, which is both what a sand floor does
+        # and what the label ink needs: "the bay of Troy" sits on this water.
+        # IT IS A CLIPPED STROKE, NOT AN OFFSET RING, and that is a defect
+        # fixed rather than a preference. Offsetting a closed polygon inward
+        # by seventy pixels across a bay this concave inverts whole runs of
+        # it; dropping the inverted runs -- which is what the waterlines' own
+        # filter does, correctly, at four pixels -- closes the ring with long
+        # straight CHORDS, and the first render put two of them clean across
+        # the middle of the bay. A stroke centred on the shoreline and
+        # clipped to the water cannot do that: it has no topology of its own
+        # to lose. The clip also takes away the half of the stroke that would
+        # otherwise have fallen on the beach.
+        depth_at = plane_depth(self.cam)
+        scale_at = plane_scale(self.cam)
+
+        def shoal(poly, gid):
+            # THE WIDTH IS IN GROUND, so the shore is cut into runs of
+            # roughly equal range and each run strokes at its own width. One
+            # width for the whole shore would have been widest where the
+            # water is farthest, which is the one thing that would have made
+            # this a claim about something other than perspective.
+            # A RUN ENDS WHEN THE BAND'S WIDTH HAS MOVED BY ONE PIXEL. The
+            # first cut was a sixth of an octave, which stepped the width
+            # twenty pixels at a time on a band a hundred wide, and every one
+            # of those steps printed a straight-edged wedge into the bay. A
+            # one-pixel step cannot be seen; the only cost is more pieces.
+            runs, cur, dep, last = [], [], [], None
+            for (x, y) in poly:
+                k = scale_at(depth_at(y))
+                b = round(_shoal_px(k, SHOAL_BANDS[0]))
+                if last is not None and b != last and len(cur) > 1:
+                    cur.append((x, y))          # share a vertex: no gap
+                    runs.append((sum(dep) / len(dep), cur))
+                    cur, dep = [cur[-2]], [k]
+                cur.append((x, y))
+                dep.append(k)
+                last = b
+            if len(cur) > 1 and dep:
+                runs.append((sum(dep) / len(dep), cur))
+            # EACH BAND IS ONE GROUP AT ONE OPACITY, and that is the third
+            # defect this one wash has produced. Runs of different width have
+            # to be separate <path> elements, and two translucent paths that
+            # overlap composite TWICE: where the shore turned, the wedge
+            # where a hundred-and-sixty-pixel stroke met its neighbour went
+            # to double strength, and the near bay filled with a faint quilt
+            # of straight-edged patches. Group opacity is the fix and it is
+            # exact: SVG flattens a group before applying its opacity, so
+            # every run of one band composites once however they overlap.
+            svg = [f'<defs><clipPath id="{gid}">'
+                   f'<path d="{rel_poly(poly)}"/></clipPath></defs>'
+                   f'<g clip-path="url(#{gid})" fill="none" '
+                   f'stroke="var(--pp-water-shoal)" stroke-linecap="butt" '
+                   f'stroke-linejoin="round">']
+            for m, op in zip(SHOAL_BANDS, SHOAL_OP):   # outermost band first
+                band, d, w0 = [], [], None
+                for k, run in runs:
+                    w = round(2.0 * _shoal_px(k, m), 1)
+                    if w < 1.2:
+                        continue
+                    if w != w0 and d:
+                        band.append(f'<path d="{"".join(d)}" '
+                                    f'stroke-width="{w0:g}"/>')
+                        d = []
+                    d.append(rel_poly(run, close=False))
+                    w0 = w
+                if d:
+                    band.append(f'<path d="{"".join(d)}" '
+                                f'stroke-width="{w0:g}"/>')
+                if band:
+                    svg.append(f'<g opacity="{op:.3f}">'
+                               + "".join(band) + '</g>')
+            svg.append('</g>')
+            return "".join(svg)
+
         if sea:
             out.append(f'<path d="{rel_poly(sea)}" class="pp-sea"/>')
+            out.append(shoal(sea, "pp-shoal-sea"))
+            out.append(_air(rel_poly(sea)))
             out.append(f'<path d="{rel_poly(sea)}" class="pp-coast"/>')
         if lagoon:
             out.append(f'<path d="{rel_poly(lagoon)}" class="pp-lagoon"/>')
-            gaps, d = [], 3.2
-            for _ in range(2):
-                gaps.append(d)
-                d *= 1.3
-            # WHICH WAY IS INTO THE WATER. It used to be "toward the polygon's
-            # centroid", and that is only the same question on a convex body.
-            # The bay is not convex: the Scamander's sand spit runs half a
-            # kilometre out into it, and along the spit's far flank the
-            # centroid lies ACROSS the land, so the offset walked the
-            # waterlines up onto the beach and drew three grey lines along the
-            # spit's spine. They were there all along and the dashed shore was
-            # covering them.
-            #
-            # The polygon's own WINDING answers it without reference to any
-            # point: the shoelace sign says which side the interior is on, and
-            # that is true locally everywhere, concavities included.
-            n = len(lagoon)
-            area2 = sum(lagoon[i][0] * lagoon[(i + 1) % n][1]
-                        - lagoon[(i + 1) % n][0] * lagoon[i][1]
-                        for i in range(n))
-            sgn = 1.0 if area2 > 0 else -1.0
+            out.append(shoal(lagoon, "pp-shoal-lagoon"))
+            out.append(_air(rel_poly(lagoon)))
+            # THE WATERLINES. Two hairlines stepped in from the shore, the
+            # oldest convention on any sea chart. Their offset is in PIXELS
+            # and stays so: they are a drawn mark, not a measured margin, and
+            # they must not thin below the raster in the distance.
+            sgn = winding_sign(lagoon)
             acc = 0.0
-            for gap in gaps:
+            for gap in (3.2, 4.16):
                 acc += gap
-                off = []
-                for i in range(n):
-                    x0, y0 = lagoon[(i - 1) % n]
-                    x1, y1 = lagoon[i]
-                    x2, y2 = lagoon[(i + 1) % n]
-                    tx, ty = x2 - x0, y2 - y0
-                    L = math.hypot(tx, ty) or 1e-9
-                    nx, ny = sgn * -ty / L, sgn * tx / L
-                    off.append((x1 + nx * acc, y1 + ny * acc, tx / L, ty / L))
-                keep = []
-                for i in range(len(off)):
-                    ax, ay, tx, ty = off[i]
-                    bx, by, _, _ = off[(i + 1) % len(off)]
-                    if (bx - ax) * tx + (by - ay) * ty >= 0:
-                        keep.append((ax, ay))
+                keep = inset(lagoon, sgn, acc)
                 if len(keep) > 8:
                     out.append(f'<path d="{rel_poly(keep)}" class="pp-waterline"/>')
             out.append(f'<path d="{rel_poly(lagoon)}" class="pp-coast-approx"/>')
@@ -2414,7 +3003,14 @@ class Plate:
             out.append('<g class="tm2">' + draped_ribbon(
                 self.cam, self.terr, course(run), 11.0, "pp-river",
                 taper=lambda t: 1.0 - 0.4 * t) + '</g>')
-        return "".join(p for p in out if "<path" in p)
+        # THE AIR IS OVER THE RIVERS TOO. The channels are drawn after every
+        # haze rect the strata laid down, so the Scamander was arriving at
+        # 8-14 km at the full strength of a mark two hundred metres away --
+        # the one thing left in the middle distance that read as a map line
+        # rather than as a thing seen. It takes the SAME gradient the bay
+        # does, which is the same law the ground does; nothing about the
+        # channel moves.
+        return hazed("".join(p for p in out if "<path" in p))
 
     # ── the camp ─────────────────────────────────────────────────────────
     def camp(self):
@@ -2868,54 +3464,84 @@ COVER_KEY = (
      "outside the sector and its ridges — not classified"),
 )
 COVER_KEY_UNDRAWN = (
-    "RIVERBANK THICKET — elm, willow, tamarisk over lotus, rush and galingale, "
-    "Il. 21.350–52: lettered, not bounded. The Bronze Age channels lie under "
-    "as much as 20 m of alluvium and cannot be located, so the thicket has no "
-    "defensible extent and is given none."
+    "RIVERBANK THICKET — elm, willow, tamarisk over lotus, rush and galingale "
+    "(Il. 21.350–52): lettered, not bounded. Its channels lie under 20 m of "
+    "alluvium and cannot be located."
 )
+# ── THE FURNITURE COMES OFF THE PICTURE (2026-08-14) ─────────────────────
+# "the legends are unhelpful and obscure too much of the images" (John). The
+# key, the two scale bars and the four-line cartouche were laid ON the map
+# face, over the bottom-left quarter of the frame. The note that put them
+# there argued the ground under them was dead — "the back of the ridge: real
+# ground with nothing on it" — and it was RIGHT about the ground and wrong
+# about the answer. Print's answer to a plate with dead foreground is not to
+# letter over it. It is to CROP IT OFF and set the furniture in a margin
+# below the neatline, where nothing it says can cover anything the plate
+# draws. Which is the honest arrangement as well as the conventional one: a
+# key that overlaps the map is making a claim about the ground it covers,
+# namely that the ground does not matter.
+#
+# So the sheet is now a picture and a margin. The picture keeps its camera,
+# its projection and its width exactly; what it loses is 300 px of empty near
+# foreground at the foot, which takes the panorama from 16:9 to about 2.2:1 —
+# a panorama's own proportion, and a closer crop on the thing the plate is
+# of. The margin holds everything that is apparatus rather than picture.
+BAND_H = 300.0           # the margin below the neatline, in px
+NEAT_M = 16.0            # neatline inset from the sheet edge
+PIC_BOT = H - BAND_H     # the picture's own bottom edge
+
+
 def furniture(cam, terr, ship_depth, troy_depth):
     out = []
-    m = 16.0
-    out.append(f'<rect x="{m}" y="{m}" width="{W - 2 * m}" height="{H - 2 * m}" '
-               f'class="pp-neat-o"/>')
+    m = NEAT_M
+    # Double neatline, per docs/TROAD-CARTOGRAPHY.md — 1.2/0.4 px, 3 px apart
+    # at the doc's own sheet size, doubled here because this sheet is drawn at
+    # 2400 px for a 1200 px column.
+    out.append(f'<rect x="{m}" y="{m}" width="{W - 2 * m}" '
+               f'height="{PIC_BOT - 2 * m}" class="pp-neat-o"/>')
     out.append(f'<rect x="{m + 6}" y="{m + 6}" width="{W - 2 * m - 12}" '
-               f'height="{H - 2 * m - 12}" class="pp-neat-i"/>')
+               f'height="{PIC_BOT - 2 * m - 12}" class="pp-neat-i"/>')
     out.append(f'<text class="pp-l-title" x="{W / 2}" y="{m + 44}" '
                f'text-anchor="middle">THE SHIPS, THE BAY, AND ILIOS</text>')
     out.append(f'<text class="pp-l-note" x="{W / 2}" y="{m + 64}" '
                f'text-anchor="middle">the plain of Troy from the Achaean camp, '
                f'looking east-south-east</text>')
 
-    # ── THE CARTOUCHE, IN THE DEAD FOREGROUND. The bottom third of a raised
-    # oblique from a ridge is the back of the ridge: real ground with nothing
-    # on it. Printed cartography has always answered that with the furniture,
-    # and it is the honest answer here too — the key, the scale and the
-    # disclosures make the empty quarter deliberate instead of unused.
-    bx, by = 62.0, H - 320.0
-    out.append(f'<path class="pp-neat-i" d="M{n1(bx)} {n1(by - 26)}h820" '
-               f'stroke-opacity="0.5"/>')
-    out.append(f'<text class="pp-l-region" x="{n1(bx)}" y="{n1(by - 34)}">'
-               f'GROUND COVER</text>')
+    bx = 62.0                      # the margin's own left edge
+    rx = W - 62.0                  # and its right
+    sx0 = 1300.0                   # where the scale column starts
+    y0 = PIC_BOT + 38.0            # first baseline in the margin
 
-    kw, kh, row, col = 30.0, 16.0, 34.0, 410.0
+    # ── the key. Every entry still carries its evidence in the same breath as
+    # its swatch — that is the honesty mechanism and it is not negotiable —
+    # but the heading now carries the sentence the cartouche used to spend a
+    # whole line on, which is where it belonged: it is what the key MEANS.
+    out.append(f'<text class="pp-l-region" x="{n1(bx)}" y="{n1(y0)}">'
+               f'GROUND COVER</text>')
+    out.append(f'<text class="pp-l-note" x="{n1(bx + 214)}" y="{n1(y0)}" '
+               f'fill-opacity="0.85">colour says what the ground is, '
+               f'not how high it is</text>')
+    out.append(f'<text class="pp-l-region" x="{n1(sx0)}" y="{n1(y0)}">'
+               f'SCALE</text>')
+    out.append(f'<text class="pp-l-note" x="{n1(sx0 + 92)}" y="{n1(y0)}" '
+               f'fill-opacity="0.85">an oblique has no one scale; '
+               f'these are along the sight-line</text>')
+    out.append(f'<path class="pp-neat-i" d="M{n1(bx)} {n1(y0 + 9)}'
+               f'H{n1(sx0 - 40)}M{n1(sx0)} {n1(y0 + 9)}H{n1(rx)}" '
+               f'stroke-opacity="0.5"/>')
+
+    kw, kh, row, col = 30.0, 16.0, 36.0, 600.0
+    ky0 = y0 + 32.0
     for i, (cls, name, gloss) in enumerate(COVER_KEY):
         sx = bx + (i % 2) * col
-        sy_ = by + (i // 2) * row
+        sy_ = ky0 + (i // 2) * row
         # the wet delta's swatch is what the reader actually sees: the wash at
         # its own opacity over the fan it lies on, drawn the same way here as
         # on the plate, so the key cannot promise a colour the sheet never
-        # prints.
-        #
-        # AND EVERY SWATCH IS MATTED. The cartouche floats on the near
-        # foreground, which is itself one of the classes -- so the ridge
-        # swatch was drawn in ridge colour ON ridge ground and read as an
-        # empty box, and "ground beyond the plain" nearly did too. Three
-        # points of page around each one is what separates the colour from
-        # the identical colour it happens to be standing on.
+        # prints. (The matte the swatches used to carry is gone with the move:
+        # it existed because the key floated on ground that was itself one of
+        # these classes. In the margin every swatch is already on page.)
         base = COVER_TOKEN.get(cls, COVER_TOKEN[COVER_FAN])
-        out.append(f'<rect x="{n1(sx - 3)}" y="{n1(sy_ - 3)}" '
-                   f'width="{n1(kw + 6)}" height="{n1(kh + 6)}" '
-                   f'fill="var(--page-bg)"/>')
         out.append(f'<rect class="pp-key-sw" x="{n1(sx)}" y="{n1(sy_)}" '
                    f'width="{n1(kw)}" height="{n1(kh)}" fill="var({base})"/>')
         if cls == "wet":
@@ -2926,74 +3552,171 @@ def furniture(cam, terr, ship_depth, troy_depth):
                    f'y="{n1(sy_ + 7)}" letter-spacing="0.9">{esc(name)}</text>')
         out.append(f'<text class="pp-l-note" x="{n1(sx + kw + 9)}" '
                    f'y="{n1(sy_ + 20)}" fill-opacity="0.85">{esc(gloss)}</text>')
-    ky = by + 2 * row + 16
-    out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(ky)}">'
+    out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(ky0 + 2 * row + 8)}">'
                f'{esc(COVER_KEY_UNDRAWN)}</text>')
 
-    # scale. On an oblique there is no one scale, so the bar is given at two
-    # depths and says which.
-    sy = ky + 44
-    out.append(f'<text class="pp-l-region" x="{n1(bx)}" y="{n1(sy - 12)}">'
-               f'SCALE — VARIES WITH DEPTH</text>')
+    # the two bars, at the two depths the plate is mostly about
     for k, (d, lbl) in enumerate(((ship_depth, "1 km at the ships"),
                                   (troy_depth, "1 km at Ilios"))):
         px = FOCAL * 1000.0 / d
-        yy = sy + k * 24
-        out.append(f'<path class="pp-neat-i" d="M{n1(bx)} {n1(yy)}h{n1(px)}'
-                   f'M{n1(bx)} {n1(yy - 4)}v8M{n1(bx + px)} {n1(yy - 4)}v8" '
+        yy = ky0 + 9.0 + k * 32.0
+        out.append(f'<path class="pp-neat-i" d="M{n1(sx0)} {n1(yy)}h{n1(px)}'
+                   f'M{n1(sx0)} {n1(yy - 4)}v8M{n1(sx0 + px)} {n1(yy - 4)}v8" '
                    f'stroke-width="1.1"/>')
-        out.append(f'<text class="pp-l-note" x="{n1(bx + px + 9)}" y="{n1(yy + 3.5)}">'
-                   f'{lbl}</text>')
+        out.append(f'<text class="pp-l-note" x="{n1(sx0 + px + 9)}" '
+                   f'y="{n1(yy + 3.5)}">{lbl}</text>')
 
-    # ── the disclosures, which are part of the plate, not of the report
-    ty = H - 93
+    # ── the disclosures, cut from five lines to three. Nothing that was a
+    # CLAIM has gone: every citation, the measured/conjectural split, the
+    # never-an-invented-coordinate rule, how the reconstruction is drawn and
+    # the DRAFT stamp are all still here. What went was the prose around
+    # them, and one whole line that was explaining the key, which the key now
+    # says itself.
+    ty = ky0 + 2 * row + 44.0
     for line in (
-        disclosure(),
-        sun_disclosure(),
-        "Colour says what the ground is, not how high it is: the ridges reuse this "
-        "sheet's own DEM outlines, the wet delta its 10–15 m slope-under-1.2% mask, "
-        "and the dry fan is what the plain sector has left. Height is in the "
-        "geometry and the light" + {
-            "all": ", and in the contour hairlines.",
-            "index": ", and in the index contours at 10, 30, 110 and 600 m.",
-            "none": " alone; no contours are drawn.",
-        }[CONTOURS],
-        "Terrain, coastlines, rivers, Hisarlık, Callicolone, Sigeion and Rhoiteion are "
-        "measured. Ships, huts, the wall and ditch, and every waypoint of the poem are "
-        "conjectural — each placed by a stated rule, never at an invented coordinate.",
+        disclosure() + " " + sun_disclosure(),
+        "Measured: terrain, coastlines, rivers, Hisarlık, Callicolone, Sigeion, "
+        "Rhoiteion. Conjectural: the ships, the huts, the wall and ditch, and every "
+        "waypoint of the poem — each placed by a stated rule, never at an invented "
+        "coordinate. The ridges are this sheet's own DEM outlines, the wet delta its "
+        "10–15 m slope-under-1.2% mask, the dry fan what the plain sector has left.",
         "The bay is the reconstructed Late Bronze Age embayment (Kraft, Kayan and Erol "
-        "1980; Kayan). Its shore is approximate, and is drawn as a hairline against "
-        "the modern coastline's heavier survey line — a reconstruction asserted more "
-        "lightly, not a different kind of mark. DRAFT.",
+        "1980; Kayan); its shore is approximate, drawn as a hairline against the modern "
+        "coastline's heavier survey line. Height is in the geometry and the light"
+        + {"all": ", and in the contour hairlines.",
+           "index": ", and in the index contours at 10, 30, 110 and 600 m.",
+           "none": " alone; no contours are drawn."}[CONTOURS]
+        + " DRAFT.",
     ):
         out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(ty)}">{esc(line)}</text>')
-        ty += 15
+        ty += 18
     return "".join(out)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 # assembly
 # ═══════════════════════════════════════════════════════════════════════════
-DEFS = ('<defs><filter id="pp-soft" x="-25%" y="-25%" width="150%" height="150%">'
+DEFS = ''          # set by build(): three of the four gradients need the camera
+
+
+# ── GRADIENTS, AND THE ONE TRICK THAT KEEPS THEM RE-THEMABLE ─────────────
+# Every colour on this plate is a var() token and a gradient does not change
+# that, but it does constrain HOW: two tokens cannot be interpolated between,
+# because the interpolation would have to happen at authoring time and would
+# bake a literal. So no ramp here ever interpolates colour. Each ramp is ONE
+# token whose stop-OPACITY varies, laid over a flat rect or fill of a second
+# token. Opacity is a number, not a colour; the compositing is the browser's,
+# in the reader's own theme, and swapping the two tokens re-themes the whole
+# ramp. That is the same discipline the haze rects have always used, written
+# as a gradient instead of as a stack.
+SKY_GAMMA = 2.4    # how tightly the pale band hugs the horizon: brightness
+                   # near the horizon rises as the air mass does, not linearly
+
+
+def horizon_y(cam) -> float:
+    """Screen y of the true horizon — where the z=0 plane goes to infinity.
+    Everything about the sky is measured from it, so it is projected, never
+    guessed at."""
+    p = cam.project(math.sin(cam.theta) * 1e7, math.cos(cam.theta) * 1e7, 0.0)
+    return p[1]
+
+
+def plane_ramp(cam, alpha_of_range, n=44, r0=150.0, r1=70000.0):
+    """Gradient stops over the z=0 plane, keyed by screen y.
+
+    A pinhole camera with no roll maps a horizontal plane so that image y is
+    a function of AXIAL DEPTH ALONE — lateral offset moves only the `right`
+    component, which y does not see. So one vertical gradient over the bay
+    is not an approximation of depth: on the sea plane it IS depth, exactly.
+    The stops are projected from real ranges, and the alpha at each is
+    whatever law the caller passes."""
+    hy = horizon_y(cam)
+    stops = []
+    for k in range(n + 1):
+        r = r0 * (r1 / r0) ** (k / n)
+        e = cam.e + math.sin(cam.theta) * r
+        nn = cam.n + math.cos(cam.theta) * r
+        p = cam.project(e, nn, 0.0)
+        if not p:
+            continue
+        stops.append((max(hy, p[1]) / H, alpha_of_range(r)))
+    stops.sort()
+    out, last = [], -1.0
+    for off, a in stops:
+        off = min(1.0, max(0.0, off))
+        if off <= last:
+            continue
+        out.append((off, a))
+        last = off
+    return out
+
+
+def _ramp(gid, token, stops):
+    s = "".join(f'<stop offset="{o:.4f}" stop-color="var({token})" '
+                f'stop-opacity="{a:.4f}"/>' for o, a in stops)
+    return (f'<linearGradient id="{gid}" x1="0" y1="0" x2="0" y2="{H}" '
+            f'gradientUnits="userSpaceOnUse">{s}</linearGradient>')
+
+
+def make_defs(cam) -> str:
+    hy = horizon_y(cam)
+    # THE SKY. Flat --pp-sky-hi under a --pp-sky-lo ramp that goes from
+    # nothing at the zenith to solid at the horizon. The exponent is the air
+    # mass: looking up you see one atmosphere and the sky is its own dark
+    # blue; looking level you see forty, and forty atmospheres of
+    # forward-scattered light is the pale warm band every landscape has along
+    # its horizon. Below the horizon the ramp holds at solid, so the holes
+    # the far delta punches through the mesh read as distance and not as page.
+    sky = []
+    n = 12
+    for k in range(n + 1):
+        y = hy * k / n
+        sky.append((y / H, (k / n) ** SKY_GAMMA))
+    sky.append((1.0, 1.0))
+
+    # THE BAY TAKES THE SKY, and it is Fresnel that says how much. Schlick's
+    # approximation with water's R0 = 0.02: looking down at 70 degrees off
+    # the vertical the bay shows a fifth sky and four fifths its own body
+    # colour; at the far arm, eight degrees off the horizontal, it is five
+    # sixths mirror. That single curve is the whole difference between a flat
+    # blue shape and water, and none of it is invented — it is the camera
+    # height, the range, and one constant.
+    def fresnel(r):
+        c = cam.z / math.hypot(cam.z, r)
+        return min(1.0, 0.02 + 0.98 * (1.0 - c) ** 5)
+
+    return (
+        '<defs><filter id="pp-soft" x="-25%" y="-25%" width="150%" height="150%">'
         '<feGaussianBlur stdDeviation="9"/></filter>'
-        f'<clipPath id="pp-frame"><rect x="23" y="23" width="{W - 46}" '
-        f'height="{H - 46}"/></clipPath></defs>')
+        + _ramp("pp-sky", "--pp-sky-lo", sky)
+        + _ramp("pp-water-sky", "--pp-water-far",
+                plane_ramp(cam, fresnel))
+        + _ramp("pp-air", "--pp-haze",
+                plane_ramp(cam, lambda r: haze_at(math.hypot(r, cam.z))))
+        + f'<clipPath id="pp-frame"><rect x="23" y="23" width="{W - 46}" '
+        f'height="{PIC_BOT - 46}"/></clipPath></defs>')
 
 
 def build(terr, cam, plate_json):
+    globals()["DEFS"] = make_defs(cam)
     P = Plate(terr, cam, plate_json)
     P.mesh()
     P.cull()
     P.cover_field()
     P.shade_field()
     body = ['<g clip-path="url(#pp-frame)">']
-    # THE SKY IS NOT THE PAGE. Left as bare --page-bg it sat within a shade of
-    # the palest relief band, and every patch of delta under 5 m in the far plain
-    # read as a hole punched through the plate rather than as low wet ground.
-    # A wash of the coast ink over the page separates them, and gives the top
-    # fifth of the frame something to be.
+    # THE SKY IS NOT THE PAGE, and it is not a flat strip either. Left as bare
+    # --page-bg it sat within a shade of the palest relief band, and every
+    # patch of delta under 5 m in the far plain read as a hole punched through
+    # the plate; a flat wash of coast ink over the page fixed that and left the
+    # top fifth of the frame with nothing to be. It is now a graduated sky
+    # (see make_defs) — dark and cool at the zenith, pale and warm along the
+    # horizon, which is what forty air masses of forward-scattered light does
+    # under a low sun.
     body.append(f'<rect x="0" y="0" width="{W}" height="{H}" '
-                f'fill="var(--scene-map-coast)" fill-opacity="0.1"/>')
+                f'fill="var(--pp-sky-hi)"/>')
+    body.append(f'<rect x="0" y="0" width="{W}" height="{H}" '
+                f'fill="url(#pp-sky)"/>')
     ida, ida_crest = P.ida_svg()
     body.append(ida)
     body.append(P.terrain_svg())
@@ -3173,8 +3896,9 @@ def emit(theme, inner, vx, vy, vw, vh, scale, out_svg, tier=3, descale=1.0,
                      f'.pp-l-settlement{{font-size:{15 * k:.2f}px}}'
                      f'.pp-l-water{{font-size:{12.5 * k:.2f}px}}'
                      f'.pp-l-site{{font-size:{11.5 * k:.2f}px}}'
-                     f'text{{stroke-width:{3.2 * k:.2f}}}'
-                     f'.pp-l-note{{font-size:{10 * k:.2f}px;stroke-width:{2.4 * k:.2f}}}')
+                     f'text{{stroke-width:{HALO_W * k:.2f}}}'
+                     f'.pp-l-note{{font-size:{10 * k:.2f}px;'
+                     f'stroke-width:{HALO_W_NOTE * k:.2f}}}')
     furn_css = "" if furn else ".pp-furn{display:none}"
     cap = ""
     if caption:
@@ -3182,11 +3906,11 @@ def emit(theme, inner, vx, vy, vw, vh, scale, out_svg, tier=3, descale=1.0,
         cap = (f'<text class="pp-l-region" x="{n1(vx + vw / 2)}" '
                f'y="{n1(vy + 34 * k)}" text-anchor="middle" '
                f'font-size="{15.5 * k:.2f}px" letter-spacing="{2.48 * k:.2f}px" '
-               f'stroke-width="{3.2 * k:.2f}">{esc(caption)}</text>')
+               f'stroke-width="{HALO_W * k:.2f}">{esc(caption)}</text>')
     svg = (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{px_w}" height="{px_h}" '
         f'viewBox="{n1(vx)} {n1(vy)} {n1(vw)} {n1(vh)}">'
-        f'<style>svg{{{TOKENS[theme]}}}{CSS}{contour_css()}'
+        f'<style>svg{{{TOKENS[theme]}}}{CSS}{label_css()}{contour_css()}'
         f'{tier_css}{ds}{scale_css}{furn_css}</style>'
         f'{DEFS}'
         f'<rect x="{n1(vx)}" y="{n1(vy)}" width="{n1(vw)}" height="{n1(vh)}" '
@@ -3239,7 +3963,9 @@ def camera_targets(wps, plate_stats):
                         "line": (820.0, 461.0), "settlement": (560.0, 315.0),
                         "tumulus": (520.0, 293.0)}.get(w["kind"], (520.0, 293.0))
         bw, bh = max(x1 - x0, min_w), max(y1 - y0, min_h)
-        zoom = min(W / bw, H / bh)
+        # against the PICTURE, not the sheet: the margin below the neatline is
+        # apparatus, and a postcard that frames it is framing the legend
+        zoom = min(W / bw, PIC_BOT / bh)
         zoom = max(1.6, min(4.0, zoom))
         rows.append({
             "id": w["id"],
@@ -3261,7 +3987,9 @@ def camera_targets(wps, plate_stats):
         "id": "panorama-ships-bay-ilios",
         "title": "The Ships, the Bay, and Ilios",
         "status": "draft",
-        "frame": {"w": W, "h": H},
+        # w/h is the SVG's own box; pictureH is where the neatline closes and
+        # the margin begins, which is the bound every crop has to respect
+        "frame": {"w": W, "h": H, "pictureH": round(PIC_BOT)},
         "camera": {
             "viewpoint": list(VIEWPOINT), "headingDeg": HEADING_DEG,
             "hfovDeg": HFOV_DEG, "altM": ALT, "setbackM": SETBACK,
@@ -3353,6 +4081,9 @@ def main():
                     help="0 turns slope shading off")
     ap.add_argument("--shade-max", type=float, default=SHADE_MAX)
     ap.add_argument("--lit-max", type=float, default=LIT_MAX)
+    ap.add_argument("--shade-gamma", type=float, default=SHADE_GAMMA,
+                    help="terminator sharpness; <1 is sharper "
+                         "(see SHADE_GAMMA)")
     ap.add_argument("--shade-min-area", type=float, default=SHADE_MIN_AREA)
     ap.add_argument("--no-shadow", action="store_true",
                     help="slope shading only -- no cast shadows")
@@ -3381,7 +4112,8 @@ def main():
         CONTOUR_INDEX_OP=args.contour_index_op,
         RING_MAX_M=args.ring_max, SHADE_SMOOTH=max(1, args.shade_smooth),
         SHADE_STEPS=max(0, args.shade_steps), SHADE_MAX=args.shade_max,
-        LIT_MAX=args.lit_max, SHADE_MIN_AREA=args.shade_min_area,
+        LIT_MAX=args.lit_max, SHADE_GAMMA=args.shade_gamma,
+        SHADE_MIN_AREA=args.shade_min_area,
         SHADOW=not args.no_shadow, OBJ_SHADOW=not args.no_obj_shadow,
         SHADOW_STEP=args.shadow_step, SHADOW_REACH=args.shadow_reach,
         OBJ_SHADOW_OP=args.obj_shadow_op, CONTOURS=args.contours)
@@ -3505,10 +4237,11 @@ def main():
         s2t = os.path.join(args.out_dir, f"stage3-full-tier2{tag}{sfx}.svg")
         w2t, h2t = emit(theme, inner, 0, 0, W, H, 1.0, s2t, tier=2)
         shoot(s2t, os.path.join(args.out_dir, f"stage3-full-tier2{tag}{sfx}.png"), w2t, h2t)
-        pw = H * (390.0 / 780.0)
+        ph = PIC_BOT
+        pw = ph * (390.0 / 780.0)
         s3 = os.path.join(args.out_dir, f"stage3-mobile-portrait{tag}{sfx}.svg")
-        w3, h3 = emit(theme, inner, 1376 - pw / 2, 0, pw, H, 780.0 / H, s3,
-                      tier=1, descale=780.0 / H, furn=False,
+        w3, h3 = emit(theme, inner, 1376 - pw / 2, 0, pw, ph, 780.0 / ph, s3,
+                      tier=1, descale=780.0 / ph, furn=False,
                       caption="THE SHIPS, THE BAY, AND ILIOS")
         shoot(s3, os.path.join(args.out_dir, f"stage3-mobile-portrait{tag}{sfx}.png"), w3, h3)
     print("done")

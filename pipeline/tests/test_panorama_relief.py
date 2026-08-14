@@ -588,10 +588,179 @@ def test_the_hypsometric_ramp_is_gone(s3):
 def test_no_colour_on_the_plate_is_anything_but_a_var_token(s3):
     """TROAD-CARTOGRAPHY.md's standing rule, and half the reason hillshade
     was refused: a baked colour cannot be re-themed, so both themes and both
-    contrast requirements are satisfied by the stylesheet or not at all."""
+    contrast requirements are satisfied by the stylesheet or not at all.
+
+    IT NOW SCANS THE EMITTED SVG TOO, and that is the half that was missing.
+    Scanning s3.CSS alone could only ever catch a literal written in the
+    stylesheet; every colour the drawing code emits inline — and the
+    gradients above all, which are generated in Python and never appear in
+    CSS at all — went straight past it."""
     lit = re.findall(r"(?:fill|stroke)\s*[:=]\s*[\"']?(#[0-9A-Fa-f]{3,8}|"
                      r"rgba?\([^)]*\)|hsla?\([^)]*\))", s3.CSS)
     assert lit == [], f"literal colours in CSS: {lit}"
+    # and the DRAWING CODE, which is where every colour the stylesheet never
+    # sees is written: inline fills, inline strokes, and the gradients, which
+    # are generated in Python and appear in no stylesheet at all.
+    src = open(STAGE3).read()
+    src = "\n".join(l for l in src.split("\n")
+                    if not l.lstrip().startswith("#"))
+    lit = re.findall(r"(?:fill|stroke|stop-color)\s*[:=]\s*[\\\"']?"
+                     r"(#[0-9A-Fa-f]{3,8}|rgba?\([^)]*\)|hsla?\([^)]*\))", src)
+    assert lit == [], f"literal colours emitted by the drawing: {sorted(set(lit))}"
+
+
+def _cam(s3):
+    """The shipped camera with its pitch handed to it, so the frame-level
+    machinery — sky, air, water ramps — can be tested without the DEM."""
+    return s3.Camera(None, pitch=math.radians(13.23))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# air, sky and water — the realism pass, 2026-08-14
+# ═══════════════════════════════════════════════════════════════════════════
+# Three quantities the plate had been drawing as constants: the air between
+# the eye and the ground, the sky above the horizon, and the surface of the
+# bay. Each is now a law with one dial, and these tests are what stops the
+# laws being quietly replaced by taste again.
+
+
+def test_the_air_is_beer_lambert_and_not_a_table(s3):
+    """HAZE was four hand-set numbers on four of the eleven strata. It is now
+    derived: the wash emitted at a stratum edge is exactly the slab of air
+    that stratum spans, so the product of the washes in front of any ground
+    is exp(-range / HAZE_D). This checks the integration, which is the whole
+    claim — get it wrong and the distance is a dose, not a depth."""
+    edges = s3.STRATA_EDGES
+    assert len(s3.HAZE) == len(edges) - 1, (
+        "not every stratum lays down its own slab: the distance will step")
+    for k in range(len(edges) - 1):
+        cum = 1.0
+        for j in range(k + 1, len(edges) - 1):     # every slab nearer than k
+            cum *= 1.0 - s3.HAZE[edges[j]]
+        want = math.exp(-edges[k + 1] / s3.HAZE_D)
+        assert cum == pytest.approx(want, rel=1e-9), (
+            f"transmittance to {edges[k + 1]:.0f} m is {cum:.4f}, "
+            f"Beer-Lambert says {want:.4f}")
+    assert s3.haze_at(0.0) == 0.0
+    assert 0.4 < s3.haze_at(26000.0) < 0.75, (
+        "the far shore of the bay is either not receding or gone entirely")
+
+
+def test_the_gradients_are_one_token_and_an_opacity_ramp(s3):
+    """The rule that keeps a gradient re-themable: two tokens cannot be
+    interpolated between without baking a literal, so no ramp on this plate
+    interpolates COLOUR. Each is one var() token whose stop-opacity varies,
+    over a flat fill of a second token."""
+    defs = s3.make_defs(_cam(s3))
+    grads = re.findall(r"<linearGradient[^>]*>(.*?)</linearGradient>", defs)
+    assert len(grads) >= 3, "the sky and the two water ramps are not there"
+    for g in grads:
+        stops = re.findall(r"<stop[^>]*>", g)
+        assert len(stops) >= 8, "a ramp this coarse will band"
+        cols = {re.search(r'stop-color="([^"]+)"', s).group(1) for s in stops}
+        assert len(cols) == 1 and cols.pop().startswith("var(--"), (
+            "a gradient interpolates between colours: it has baked a literal")
+        ops = [float(re.search(r'stop-opacity="([\d.]+)"', s).group(1))
+               for s in stops]
+        assert ops == sorted(ops) or ops == sorted(ops, reverse=True), (
+            "a ramp that is not monotonic in opacity is not a depth cue")
+
+
+def test_the_land_dissolves_into_the_horizon_it_meets(s3):
+    """--pp-haze is what distance resolves to and --pp-sky-lo is what the sky
+    is where the land meets it. If they disagree, the far ground stops
+    receding and starts floating in front of the sky. They must be close in
+    value, and the ground must always end up the DARKER of the two — nothing
+    on the earth is brighter than the sky behind it."""
+    for theme in ("light", "dark"):
+        t = _tokens(s3, theme)
+        haze, sky = _srgb_lum(t["--pp-haze"]), _srgb_lum(t["--pp-sky-lo"])
+        assert haze < sky, f"{theme}: the distance is brighter than the sky"
+        assert abs(haze - sky) < 0.10, (
+            f"{theme}: haze L={haze:.3f} and horizon sky L={sky:.3f} are far "
+            "enough apart that the far ground will read as a cut-out")
+
+
+def test_dark_theme_is_a_different_light_for_the_air_too(s3):
+    """The plate's oldest rule, applied to the air, and MEASURED ON WHAT THE
+    LABELS SIT ON rather than on the token.
+
+    The naive claim — "daylight haze is lighter than every ground colour" —
+    is false and should be: a veil at a fixed luminance darkens whatever is
+    brighter than it and lightens whatever is darker, which is what haze
+    does to pale sand under a blue sky in life. What actually has to hold is
+    the consequence: at FULL haze, on the farthest ground the plate draws,
+    --text-mid must still clear WCAG AA on every class in both themes. In
+    daylight the veil is pale; at night it is dark; either way the veil
+    COLLAPSES the ground toward itself, which is the thing aerial
+    perspective actually is, and the collapse must not take a class through
+    the ink on the way."""
+    full = s3.haze_at(max(s3.STRATA_EDGES))
+    classes = ("--pp-cover-fan", "--pp-cover-open", "--pp-cover-ridge")
+    for theme in ("light", "dark"):
+        t = _tokens(s3, theme)
+        raw, veiled = [], []
+        for g in classes:
+            hazed = _over(t["--pp-haze"], t[g], full)
+            r = _ratio(t["--text-mid"], hazed)
+            assert r >= 4.5, (
+                f"{theme}: --text-mid on {g} under full haze is {r:.2f}:1")
+            raw.append(_srgb_lum(t[g]))
+            veiled.append(_srgb_lum(hazed))
+        assert max(veiled) - min(veiled) < 0.5 * (max(raw) - min(raw)), (
+            f"{theme}: the air is not flattening the distance's contrast")
+        ink = _srgb_lum(t["--text-mid"])
+        assert all((v > ink) == (r > ink) for v, r in zip(veiled, raw)), (
+            f"{theme}: the haze carried a ground class across the label ink")
+
+
+def test_the_shoal_is_lighter_than_its_water_in_both_themes(s3):
+    """Shallow water over a pale sand floor is lighter than deep water, at
+    noon and at dusk alike — and it has to be, because 'the bay of Troy' is
+    lettered on this water and the shoal must never take contrast away from
+    it."""
+    for theme in ("light", "dark"):
+        t = _tokens(s3, theme)
+        assert _srgb_lum(t["--pp-water-shoal"]) > _srgb_lum(t["--plate-lagoon"]), (
+            f"{theme}: the shoal is darker than the water it shallows into")
+
+
+def test_the_shoal_holds_its_width_in_ground_not_in_pixels(s3):
+    """A fixed pixel margin would be widest where the water is farthest,
+    which would make the band a claim about something other than
+    perspective. And the SCALE has to be the along-sight one: the first cut
+    used FOCAL/r, the across-sight scale, and left the far shore of the bay
+    with a band fifty pixels wide — the same failure by a different door."""
+    k = s3.plane_scale(_cam(s3))
+    near, far = k(2600.0), k(18000.0)
+    assert near > far * 20.0, (
+        f"the plane's scale is falling off as 1/r, not 1/r^2: {near:.4f} "
+        f"px/m at 2.6 km against {far:.4f} at 18 km — this is the "
+        "across-sight scale and it is the wrong one for a shoal")
+    assert s3._shoal_px(far, s3.SHOAL_BANDS[0]) < 6.0, (
+        "the shoal on the far shore of the bay is still a visible band")
+    assert s3._shoal_px(k(300.0), s3.SHOAL_BANDS[0]) <= s3.SHOAL_PX_MAX
+    assert s3.SHOAL_BANDS == tuple(sorted(s3.SHOAL_BANDS, reverse=True)), (
+        "the bands are painted outermost first so that they stack")
+
+
+def test_the_sky_and_the_water_are_measured_off_the_camera(s3):
+    """Both ramps are keyed to SCREEN Y and both are exact for the reason
+    that image y on a horizontal plane is a function of axial depth alone.
+    The horizon is projected, never guessed; the water stops start at it and
+    run to the foot of the frame, monotonically."""
+    cam = _cam(s3)
+    hy = s3.horizon_y(cam)
+    assert 0 < hy < s3.H / 2, (
+        f"the horizon is at y={hy:.0f}, which is not where a 13-degree "
+        "downward pitch puts it")
+    stops = s3.plane_ramp(cam, lambda r: s3.haze_at(r))
+    offs = [o for o, _ in stops]
+    assert offs == sorted(offs) and len(set(offs)) == len(offs)
+    assert offs[0] * s3.H >= hy - 1.0, "a water stop is above the horizon"
+    alphas = [a for _, a in stops]
+    assert alphas == sorted(alphas, reverse=True), (
+        "the air is not thinning toward the reader")
     for c, tok in s3.COVER_TOKEN.items():
         assert tok.startswith("--"), f"{c} is not a CSS custom property"
         for theme in ("light", "dark"):
@@ -766,11 +935,107 @@ def test_the_shade_dials_are_the_ones_that_were_measured(s3):
     on the sheet by a factor of four. At 2 passes the gully system under the
     camp reads; at 1 the tone islands the median has to filter go 3,628 ->
     5,057 and the foreground starts to bead. The floor here is 2, not 3.
+
+    RE-MEASURED A THIRD TIME 2026-08-14, and TEN IS NO LONGER THE ANSWER,
+    because the thing ten was the best answer to has been replaced. Every
+    finding above is about EXACT-LEVEL tone regions -- the drawing where
+    level k is the ground that lands exactly on step k. Those regions are
+    isolated, they each carry seven tenths of the tone, and the area filter's
+    rescue therefore prints a bright bead in the middle of a shadow: that is
+    what the fish scales always were, and it is why more steps made it worse.
+    The tone is now built from SUPERLEVEL SETS, nested washes of one
+    eighteenth each (see SHADE_STEPS in the script), and neither property
+    survives the change.
+
+    Measured again on the shipped frame, 10 / 18 / 26 steps, light theme,
+    full 1x:
+
+        10   677 KB   wash banding is still countable on the bay-facing
+                      slope under Rhoiteion and along the near ridge back
+        18   868 KB   no band edge findable anywhere at 1x; the gully system
+                      under the camp holds; nothing beads at 8x
+        26  1058 KB   indistinguishable from 18 at 1x and at 8x
+
+    So the cost curve is linear and the benefit stops at 18. The fish scales
+    did not come back at 26 either, which is the positive evidence that the
+    old ceiling was the exact-level drawing and not the step count.
     """
-    assert s3.SHADE_STEPS == 10
+    assert s3.SHADE_STEPS == 18
     assert s3.SHADE_MEDIAN >= 1 and s3.SHADE_SMOOTH >= 2
     assert s3.SHADE_SOFT_PASSES >= 1, (
         "more steps is only safe while the tone edges are low-passed")
+    # and the drawing it was re-measured on: superlevel sets, not exact
+    # levels. If this ever goes back to `shade.get(st)` alone the number
+    # above is wrong again.
+    src = open(STAGE3).read()
+    body = src.split("def terrain_svg(", 1)[1].split("def shade_field", 1)[0]
+    assert "acc |= shade.get" in body, (
+        "the tone is back to exact-level regions; 18 was measured on "
+        "nested washes and is not a number that transfers")
+
+
+def test_the_wash_alpha_is_solved_not_chosen(s3):
+    """n nested washes of alpha a composite to 1-(1-a)^n. The per-wash alpha
+    is solved so that lands exactly on SHADE_MAX however many washes there
+    are — otherwise every change to the step count would silently change how
+    dark the plate's darkest ground is."""
+    for mx in (s3.SHADE_MAX, s3.LIT_MAX):
+        a = 1.0 - (1.0 - mx) ** (1.0 / s3.SHADE_STEPS)
+        assert 1.0 - (1.0 - a) ** s3.SHADE_STEPS == pytest.approx(mx, abs=1e-9)
+        assert 0.0 < a < 0.1, (
+            f"a single wash at {a:.3f} is heavy enough to band on its own")
+
+
+def test_a_shadow_has_sky_in_it(s3):
+    """SHADOW_AMBIENT. Ground that cannot see the sun is not black: it is lit
+    by the hemisphere, in proportion to how much of it the surface can see.
+    Three things must hold, or the long shadow off Troy's scarp goes back to
+    being a flat hole with no landform inside it."""
+    s3.set_light(228.4, 9.9)
+
+    class _Blocked:
+        def at(self, e, n):
+            return 0.0
+
+    def cell(dz, shadow):
+        P = object.__new__(s3.Plate)
+        P.shadow = shadow
+        # a facet tilted dz metres over 100 m, across the light
+        P.grid = [[(0, 0, 0.0, 1e3), (0, 0, 0.0, 1e3)],
+                  [(0, 0, dz, 1e3), (0, 0, dz, 1e3)]]
+        P.wor = [[(0.0, 0.0), (0.0, 100.0)], [(100.0, 0.0), (100.0, 100.0)]]
+        return P.shade_raw(0, 0)
+
+    flat_shadowed = cell(0.0, _Blocked())
+    steep_shadowed = cell(400.0, _Blocked())
+    assert flat_shadowed > -0.95, (
+        "flat ground in shadow is still at the bottom step: the shadow has "
+        "no sky in it and nothing inside it can be modelled")
+    assert steep_shadowed < flat_shadowed, (
+        "a steep face in shadow must be darker than flat ground in shadow — "
+        "it sees less of the sky")
+    assert cell(0.0, None) == pytest.approx(0.0, abs=1e-12), (
+        "flat ground in full sun must still take no wash at all")
+    s3.set_light(s3.LIGHT_AZ_DEFAULT, s3.LIGHT_ALT_DEFAULT)
+
+
+def test_the_material_gain_is_a_property_of_the_ground_not_of_the_light(s3):
+    """Sand, scrub and unclassified ground do not take light alike (see
+    MATERIAL). Two things are pinned: the gain exists for exactly the three
+    cover classes, in the order the substances actually take tone; and it is
+    NOT in shade_raw, which must stay a pure function of slope and light."""
+    assert set(s3.MATERIAL) == {s3.COVER_FAN, s3.COVER_RIDGE, s3.COVER_OPEN}
+    assert (s3.MATERIAL[s3.COVER_FAN] < s3.MATERIAL[s3.COVER_OPEN]
+            < s3.MATERIAL[s3.COVER_RIDGE]), (
+        "the dry fan is the brightest, dustiest, most multiply-scattering "
+        "ground on the sheet and must take tone the most softly")
+    for v in s3.MATERIAL.values():
+        assert 0.5 < v < 1.6, "a material gain this far from 1 is a repaint"
+    src = open(STAGE3).read()
+    raw = src.split("def shade_raw(", 1)[1].split("def ida_svg", 1)[0]
+    assert "MATERIAL" not in raw, (
+        "the material gain has leaked into shade_raw, which makes the light "
+        "a function of where a cell is")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1173,8 +1438,21 @@ def test_the_waterlines_offset_by_winding_not_by_centroid(s3):
     correct in a concavity; a centroid is neither."""
     src = open(STAGE3).read()
     w = src.split("def water_svg(", 1)[1].split("def rivers_svg", 1)[0]
-    assert "area2" in w and "sgn" in w, "the winding test is gone"
+    assert "winding_sign" in w and "inset(" in w, "the winding test is gone"
     assert "cx - x1" not in w, "the centroid rule is back"
+    # the rule itself, now that both the waterlines and the shoal share it:
+    # a square wound one way and the same square wound the other must offset
+    # to the same place, and that place must be INSIDE
+    sq = [(0.0, 0.0), (100.0, 0.0), (100.0, 100.0), (0.0, 100.0)]
+    got = []
+    for poly in (sq, list(reversed(sq))):
+        off = s3.inset(poly, s3.winding_sign(poly), 10.0)
+        assert len(off) == 4
+        for x, y in off:
+            assert 0.0 < x < 100.0 and 0.0 < y < 100.0, (
+                f"the offset left the square: {off}")
+        got.append(sorted(round(v, 6) for p in off for v in p))
+    assert got[0] == got[1], "the winding changed where the offset went"
 
 
 # ── WCAG 1.4.11 on the marks this pass moved ──────────────────────────────
@@ -1239,3 +1517,137 @@ def test_the_ditch_and_road_opacity_is_the_one_that_was_solved_for(s3):
         m = re.search(r"\." + cls + r"\{([^}]*)\}", s3.CSS, re.S)
         op = re.search(r"stroke-opacity:([0-9.]+)", m.group(1))
         assert op and float(op.group(1)) >= 0.75, f"{cls} is back under AA"
+
+
+# ── the halo, the tone it paid for, and the margin the legend moved to ────
+# (2026-08-14). Three claims, and they stand or fall together: the ground can
+# only be this bold because the lettering carries its own background, and the
+# lettering can only be measured that way because the halo is really there.
+
+def _halo_over(s3, theme, ground_hex):
+    """What a reader's eye actually compares a letterform against: the halo
+    token at its shipped opacity, over whatever the sheet has drawn there."""
+    t = _tokens(s3, theme)
+    return _over(t["--scene-map-label-halo"], ground_hex, s3.HALO_OP)
+
+
+@pytest.mark.parametrize("theme", ("light", "dark"))
+def test_the_halo_carries_the_label_over_the_boldest_ground_the_sheet_draws(s3, theme):
+    """The measurement that replaced the annulus, and the one that binds.
+
+    SHADE_MAX stood at 0.40 because a 16-28 px ring round each label anchor
+    went under 4.5:1 above it. That ring is not a label's background -- the
+    halo is -- and this asserts the thing the ring was standing in for: the
+    DIMMEST ink on the sheet, over the halo, over every ground class the plate
+    can draw, each taken to the darkest the shade ramp reaches AND the
+    lightest the lit ramp reaches. If that holds, the tone is free."""
+    t = _tokens(s3, theme)
+    grounds = [v for k, v in t.items()
+               if k.startswith(("--pp-cover", "--pp-sky", "--pp-water"))
+               or k in ("--plate-lagoon", "--scene-map-sea", "--pp-haze",
+                        "--pp-ida-mass", "--pp-tumulus", "--plate-masonry")]
+    worst, where = 99.0, None
+    for g in grounds:
+        for tone, mx in ((t["--pp-shade"], s3.SHADE_MAX),
+                         (t["--pp-lit"], s3.LIT_MAX)):
+            lit = _over(tone, g, mx)
+            r = _ratio(t["--text-mid"], _halo_over(s3, theme, lit))
+            if r < worst:
+                worst, where = r, (g, mx)
+    assert worst >= 4.5, (
+        f"{theme}: --text-mid over the halo over {where} is {worst:.2f}:1")
+
+
+def test_the_halo_dims_the_ground_it_does_not_punch_a_hole_in_it(s3):
+    """An OPAQUE knockout is what reads as its own shape -- a white worm round
+    every word, and the bolder the ground the more it shows. The sister
+    geographic plates settled this the same morning at 2.6 px and 0.72
+    (shared/lib/plate.ts, RELIEF_HALO_WIDTH / RELIEF_HALO_OPACITY). Wide
+    enough to BE the background, translucent enough that the tone edges still
+    run through it."""
+    assert 0.5 < s3.HALO_OP < 1.0, "an opaque halo is a hole, not a halo"
+    assert s3.HALO_W >= 2.4, "a halo this thin is not the label's background"
+    css = s3.label_css()
+    assert f"stroke-opacity:{s3.HALO_OP:g}" in css
+    assert "paint-order:stroke" in css
+
+
+def test_the_tone_is_no_longer_capped_by_a_measurement(s3):
+    """The dial the whole pass was about. 0.40 was the annulus's ceiling, not
+    the drawing's; anything at or below it means the halo argument has been
+    quietly reverted and the sheet is pale again."""
+    assert s3.SHADE_MAX > 0.5, "the ground is back to being kept pale"
+
+
+def test_the_terminator_gamma_sharpens_rather_than_softens(s3):
+    """gamma < 1 puts the tone on fast at the lit/shaded boundary and then
+    holds, which is what makes an edge read as an edge. gamma > 1 would do the
+    opposite and is the airbrush this pass was hired to remove."""
+    assert 0.0 < s3.SHADE_GAMMA < 1.0
+    g = s3.SHADE_GAMMA
+    near, far = 0.05, 0.9
+    assert near ** g / near > far ** g / far, (
+        "the gamma is not steeper near the terminator than away from it")
+
+
+def test_the_cast_shadow_edge_is_not_blurred_over_the_ground_it_falls_on(s3):
+    """The sun's disc is half a degree, so the penumbra of a 25 m scarp at the
+    tip of its own 140 m shadow is about 1.3 m. The mask's raster is 40 m: one
+    box pass over it is 40-80 m of softness on the one boundary this sheet has
+    that is genuinely a cut. SHADOW_SOFT_M still models the grazing edge."""
+    assert s3.SHADOW_BLUR == 0
+    assert s3.SHADOW_SOFT_M > 0, "the grazing edge still needs its penumbra"
+    src = open(STAGE3).read()
+    field = src.split("def shade_field(", 1)[1].split("def sunlit_at(", 1)[0]
+    assert "lit[ij2] != s0" in field, (
+        "the box pass is averaging across the shadow boundary again")
+
+
+# ── the furniture is off the picture ─────────────────────────────────────
+
+def test_the_sheet_is_a_picture_and_a_margin(s3):
+    assert s3.PIC_BOT + s3.BAND_H == s3.H
+    assert s3.BAND_H > 200.0, "there is no margin to letter in"
+    src = open(STAGE3).read()
+    assert "PIC_BOT - 46" in src, (
+        "the frame clip still runs to the foot of the sheet, so the terrain "
+        "is drawn under the margin")
+
+
+def test_nothing_in_the_legend_is_drawn_on_the_map_face(s3):
+    """The defect, machine-checked. The key, the scale bars and the cartouche
+    used to sit ON the bottom-left quarter of the picture. Every mark they
+    make must now fall below the neatline -- the title block and the neatline
+    itself excepted, which are the frame, not the legend."""
+    svg = s3.furniture(None, None, 2600.0, 5500.0)
+    ys = []
+    for m in re.finditer(r'<(text|rect|path)\b([^>]*)>', svg):
+        a = dict(re.findall(r'(\w[\w-]*)="([^"]*)"', m.group(2)))
+        cls = a.get("class", "")
+        if "pp-neat" in cls or "pp-l-title" in cls:
+            continue
+        if a.get("text-anchor") == "middle":
+            continue                      # the title block's subtitle
+        if "y" in a:
+            ys.append(float(a["y"]))
+        for mm in re.finditer(r'[Mm][-\d.]+ ([-\d.]+)', a.get("d", "")):
+            ys.append(float(mm.group(1)))
+    assert ys, "the legend drew nothing at all"
+    assert min(ys) >= s3.PIC_BOT, (
+        f"a legend mark is at y={min(ys):.0f}, above the picture's foot "
+        f"at {s3.PIC_BOT:.0f} — it is covering the drawing")
+
+
+def test_the_cartouche_was_cut_to_what_a_reader_needs_at_a_glance(s3):
+    """"unhelpful" was the other half of the complaint. Five dense lines of
+    10 px prose went to three, and the line that was explaining the key went
+    to the key's own heading. What may NOT go is a claim: every citation, the
+    measured/conjectural split and the DRAFT stamp are asserted here so a
+    later tightening cannot quietly delete one."""
+    svg = s3.furniture(None, None, 2600.0, 5500.0)
+    body = re.findall(r'<text class="pp-l-note" x="62"[^>]*>(.*?)</text>', svg)
+    assert len(body) <= 4, f"the cartouche is back to {len(body)} lines"
+    joined = " ".join(body).lower()
+    for claim in ("kayan", "1980", "21.350", "not bounded", "conjectural",
+                  "never at an invented coordinate", "hairline", "draft"):
+        assert claim in joined, f"the cartouche dropped {claim!r}"
