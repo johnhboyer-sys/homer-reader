@@ -8598,7 +8598,7 @@
       "kind": "camp",
       "plateAnchors": {
         "trojan-plain-schematic": [
-          0.6,
+          0.55,
           0.79
         ]
       },
@@ -9304,7 +9304,7 @@
       "kind": "camp",
       "plateAnchors": {
         "trojan-plain-schematic": [
-          0.64,
+          0.58,
           0.79
         ]
       },
@@ -9452,13 +9452,6 @@
       "certainty": "speculative",
       "tradition": "Position fixed only by the poem's own spatial logic — piled on ‘the headland’ where Achilles had already marked out ground for the barrow (23.125-126) — not by any excavated trace.",
       "kind": "tomb",
-      "plateAnchors": {
-        "trojan-plain-schematic": [
-          0.752,
-          0.834
-        ]
-      },
-      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],
@@ -9486,13 +9479,6 @@
       "certainty": "speculative",
       "tradition": "Position fixed only by the poem's own spatial logic — the same ground as the pyre and barrow (23.257-258), with the chariot course running out into the level plain (23.358-359) — not by any excavated trace.",
       "kind": "region",
-      "plateAnchors": {
-        "trojan-plain-schematic": [
-          0.712,
-          0.834
-        ]
-      },
-      "positionBasis": "conjectural",
       "maps": [
         "troad-plain"
       ],

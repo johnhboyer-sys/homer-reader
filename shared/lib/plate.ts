@@ -1175,6 +1175,44 @@ export function shipRowExtent(baseline: [PlatePoint, PlatePoint], rows: number, 
   return out;
 }
 
+// ── Reserving drawn linework (2026-08-14) ────────────────────────────────
+// shipRowExtent above answers "what block of sheet does this drawing cover"
+// for the one layer kind whose ink IS a block. The other kinds a name must
+// not print through — a shoreline, a fortification — are BANDS along a line,
+// and their bounding rectangle is the wrong answer by an order of magnitude:
+// the beach on the schematic sheet is 770px wide and 16px tall, so reserving
+// its bbox would forbid lettering across the entire foot of the plate.
+//
+// So the reservation is a CORRIDOR: a chain of small axis-aligned boxes that
+// follows the run, each inflated by half the band's drawn width. Long
+// segments are sub-divided (LINEWORK_RESERVE_STEP) so the chain hugs a
+// diagonal run instead of degenerating back into its bounding rectangle —
+// without that, one 200px segment at 45° reserves a 200px square.
+const LINEWORK_RESERVE_STEP = 12;
+
+export function lineworkExtent(run: [number, number][], halfWidth: number): Box[] {
+  const out: Box[] = [];
+  for (let i = 0; i + 1 < run.length; i++) {
+    const [x1, y1] = run[i];
+    const [x2, y2] = run[i + 1];
+    const len = Math.hypot(x2 - x1, y2 - y1);
+    const steps = Math.max(1, Math.ceil(len / LINEWORK_RESERVE_STEP));
+    for (let s = 0; s < steps; s++) {
+      const ax = x1 + ((x2 - x1) * s) / steps;
+      const ay = y1 + ((y2 - y1) * s) / steps;
+      const bx = x1 + ((x2 - x1) * (s + 1)) / steps;
+      const by = y1 + ((y2 - y1) * (s + 1)) / steps;
+      out.push([
+        Math.min(ax, bx) - halfWidth,
+        Math.min(ay, by) - halfWidth,
+        Math.max(ax, bx) + halfWidth,
+        Math.max(ay, by) + halfWidth,
+      ]);
+    }
+  }
+  return out;
+}
+
 export interface WallGlyphResult {
   line: string; // the trace itself
   ticks: string; // the perpendicular tick marks, on ONE consistent side — see below
@@ -1299,13 +1337,20 @@ export function wallBandGlyph(trace: PlatePoint[], width: number): WallBandGlyph
   return { faces, hatch: parts.join(' ') };
 }
 
+/**
+ * How far a fortification's tick marks stand off its trace. Module-level so
+ * the reservation corridor (see lineworkReserveHalfWidth) measures the band
+ * this function actually draws instead of re-guessing it.
+ */
+const WALL_TICK_LENGTH = 4;
+
 export function wallGlyph(trace: PlatePoint[]): WallGlyphResult {
   if (trace.length < 2) return { line: '', ticks: '' };
 
   const side = traceSide(trace);
 
   const tickSpacing = 12;
-  const tickLen = 4;
+  const tickLen = WALL_TICK_LENGTH;
   const lineParts: string[] = [`M ${round1(trace[0][0])} ${round1(trace[0][1])}`];
   const tickParts: string[] = [];
   let carry = 0;
@@ -1950,6 +1995,15 @@ interface LabelRequest {
   priority?: number;
 }
 
+/**
+ * A block of drawing the lettering must keep off. `layerId` names the layer it
+ * came from, where one is known — see the owner exemption in layoutLabels.
+ */
+interface ReservedBox {
+  box: Box;
+  layerId?: string;
+}
+
 function polylineLength(pts: [number, number][]): number {
   let total = 0;
   for (let i = 0; i + 1 < pts.length; i++) total += Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]);
@@ -2213,17 +2267,24 @@ function layoutLabels(
   // schematic plate is affected; its guide stays the raw polyline exactly as
   // before, matching every other schematic drawing convention in this file.
   smoothSize?: [number, number],
-  // Blocks of drawing a name may not be laid across, seeded into `placed` so
-  // they carry a LABEL's weight in the cost function rather than a marker's
-  // (2026-08-13). A marker box is a soft preference — ten times cheaper to
-  // overprint than another name — which is right for a 5px dot and wrong for
-  // a 180 x 34px block of three ranks of ships: "Hut and ship of Nestor" chose
-  // to print straight through the ships rather than shift a few pixels away
-  // from its neighbour. Seeding them here fixes that without re-weighting the
-  // solver for every plate in the project.
-  reservedBoxes: Box[] = [],
+  // Blocks of drawing a name may not be laid across, carrying a LABEL's weight
+  // in the cost function rather than a marker's (2026-08-13). A marker box is a
+  // soft preference — ten times cheaper to overprint than another name — which
+  // is right for a 5px dot and wrong for a 180 x 34px block of three ranks of
+  // ships: "Hut and ship of Nestor" chose to print straight through the ships
+  // rather than shift a few pixels away from its neighbour. Reserving them
+  // fixes that without re-weighting the solver for every plate in the project.
+  //
+  // `layerId`, where present, is the layer whose own drawing this box came from
+  // (2026-08-14). It buys exactly one exemption, in the textPath branch below:
+  // a name set ALONG a line has to be allowed to ride the line it is naming.
+  // Everywhere else the reservation binds, including for that layer's own POINT
+  // label — which is the fix for "ACHAEAN WALL AND DITCH" printing straight
+  // through the wall it names.
+  reservedBoxes: ReservedBox[] = [],
 ): { markup: string; defs: string; placedBoxes: Box[]; suppressed: string[] } {
-  const placed: Box[] = [...reservedBoxes];
+  const reservedAll = reservedBoxes.map((r) => r.box);
+  const placed: Box[] = [];
   const parts: string[] = [];
   const defs: string[] = [];
   const suppressed: string[] = [];
@@ -2245,6 +2306,11 @@ function layoutLabels(
   const lettered = new Set<string>();
 
   for (const req of ordered) {
+    // Everything this name must clear: the names already laid, plus the drawn
+    // linework reserved for it. Recomputed per request only because of the
+    // owner exemption below — with no reservations it is `placed`, exactly as
+    // before.
+    const blocking = [...placed, ...reservedAll];
     if (!req.text.trim()) continue;
     const dedupeKey = req.text.trim().toLocaleLowerCase();
     if (lettered.has(dedupeKey)) continue;
@@ -2263,7 +2329,14 @@ function layoutLabels(
       // sheet would push every other name out of half the map.
       const { frac, point: mid } = bestPathLabelOffset(oriented, textWidth);
       const box: Box = [mid[0] - textWidth / 2, mid[1] - style.size, mid[0] + textWidth / 2, mid[1] + style.size * 0.3];
-      if (!placed.some((p) => boxesOverlap(p, box))) {
+      // A name riding its own line is exempt from that line's own reservation
+      // (see `layerId` on ReservedBox) — otherwise reserving a coast would
+      // forbid the coast's name from being set along the coast.
+      const alongOwnRun = [
+        ...placed,
+        ...reservedBoxes.filter((r) => r.layerId !== req.id).map((r) => r.box),
+      ];
+      if (!alongOwnRun.some((p) => boxesOverlap(p, box))) {
         // Thinned for the guide only (see thinForTextPathGuide) — `oriented`
         // itself, used above for the reserved box and for reading direction,
         // is untouched.
@@ -2289,7 +2362,7 @@ function layoutLabels(
       const candidates = labelCandidates(req.anchorBox, style.size);
       const best = placeLabelCandidates(
         [{ id: req.id, anchorBox: req.anchorBox, textWidth, fontSize: style.size }],
-        { width, height, margin, markerBoxes, placedBoxes: placed },
+        { width, height, margin, markerBoxes, placedBoxes: blocking },
       )[0];
       // A name that had to travel to the outer candidate ring gets a hairline
       // leader back to its own mark.
@@ -2325,7 +2398,7 @@ function layoutLabels(
     // nothing about it is silent.
     if (!req.centred && req.priority !== undefined) {
       const boxArea = Math.max(1e-6, (box[2] - box[0]) * (box[3] - box[1]));
-      const overlapFrac = placed.reduce((sum, p) => sum + overlapArea(box, p), 0) / boxArea;
+      const overlapFrac = blocking.reduce((sum, p) => sum + overlapArea(box, p), 0) / boxArea;
       if (overlapFrac > SUPPRESS_OVERLAP_FRACTION) {
         suppressed.push(req.id);
         continue;
@@ -2338,7 +2411,10 @@ function layoutLabels(
     parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic));
     placed.push(box);
   }
-  return { markup: parts.join(''), defs: defs.join(''), placedBoxes: placed, suppressed };
+  // Reservations lead, exactly as when they were seeded into `placed`: the
+  // caller feeds this straight to the legend's corner chooser, which must go
+  // on treating drawn linework as occupied sheet.
+  return { markup: parts.join(''), defs: defs.join(''), placedBoxes: [...reservedAll, ...placed], suppressed };
 }
 
 // ── Legend ───────────────────────────────────────────────────────────────
@@ -3659,6 +3735,51 @@ function linearRun(plate: Plate, layer: PlateLayer, viewport: Viewport): [number
   return px;
 }
 
+// ── Which drawn linework the lettering has to keep off ───────────────────
+// A RULE, keyed on layer kind, not a list of layers or sheets: any plate that
+// declares a coast or a wall gets its linework reserved, on every sheet, for
+// free. Two kinds qualify, and the test for qualifying is the same one the
+// ship-row block already passed — the ink is dense enough, and wide enough,
+// that a name laid across it is unreadable and so is the feature underneath.
+//
+// Deliberately NOT in the table:
+//   - `river`, because a river is named ALONG its own channel (see the
+//     textPath branch in layoutLabels): reserving its corridor would forbid
+//     the one placement its name actually wants.
+//   - `route`, because a route is a dotted hairline. A name crossing it stays
+//     legible and so does the route — reserving every road on a sheet would
+//     spend the solver's freedom on a collision nobody can see.
+// Adding a kind here is the whole extension mechanism; nothing below is
+// aware of any particular plate.
+function lineworkReserveHalfWidth(layer: PlateLayer): number | undefined {
+  switch (layer.kind) {
+    case 'coast':
+      // The shoreline stroke, plus the outermost waterline running beside it.
+      return (layer.width ?? STROKE_WEIGHT.coast) / 2 + DEFAULT_WATERLINE_OFFSETS[DEFAULT_WATERLINE_OFFSETS.length - 1];
+    case 'wall':
+      // A restored wall is a BAND of its own declared width; a plain one is a
+      // line with ticks standing off one side. Both measured from the glyph
+      // routines that draw them, so the two cannot drift apart.
+      return layer.style === 'restored' && layer.width !== undefined
+        ? layer.width / 2 + STROKE_WEIGHT.restoredFace
+        : STROKE_WEIGHT.wall / 2 + WALL_TICK_LENGTH;
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Every run a reservable layer actually draws, projected. `linearRun` above
+ * answers a different question — which single run should carry the NAME — so
+ * for a coast it returns only the longest ring. A reservation has to cover all
+ * of them, or a name walks over the rings that one skipped.
+ */
+function lineworkRuns(plate: Plate, layer: PlateLayer, viewport: Viewport): [number, number][][] {
+  const runs: PlatePoint[][] =
+    layer.kind === 'wall' ? (layer.trace ? [layer.trace] : []) : layer.kind === 'coast' ? (layer.rings ?? []) : [];
+  return runs.map((run) => projectPoints(plate, run, viewport)).filter((px) => px.length >= 2);
+}
+
 // ── Relief steepness signal (2026-07-28, hachure lane) ──────────────────
 // hachure() itself draws one polygon at one fixed density; a relief BODY cut
 // by the terrain lane into nested contour bands (Ida at 200/400/600/800/
@@ -4311,8 +4432,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // solver: an inset's own contents are ordinary layers whose names must be
   // free to sit INSIDE the panel, which is the whole point of the tier.
   const insetBoxes: Box[] = [];
-  // Drawn blocks a name must not be laid across (see the shipRow case below).
-  const denseBoxes: Box[] = [];
+  // Drawn ink a name must not be laid across: solid blocks (a ship row) and
+  // band-along-a-line corridors (a shore, a fortification). See the loop below.
+  const denseBoxes: ReservedBox[] = [];
   const legendEntries: LegendEntry[] = [];
   // The blurred-edge filters (see SOFT_BLUR). Each is declared only when
   // something on the sheet actually uses it, so a plate with no indefinite
@@ -4341,7 +4463,16 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // IS the drawing rather than a bounding rectangle around a thin line: a
     // block of beached ships. Handed to the label solver as furniture to keep
     // off, exactly like a pin marker.
-    if (layer.kind === 'shipRow') denseBoxes.push(rendered.feature.bbox);
+    if (layer.kind === 'shipRow') denseBoxes.push({ box: rendered.feature.bbox, layerId: layer.id });
+    // The band kinds (see lineworkReserveHalfWidth): reserved as a corridor
+    // following the run, never as a bounding rectangle. Purely rule-driven —
+    // this loop names no layer and no sheet.
+    const halfWidth = lineworkReserveHalfWidth(layer);
+    if (halfWidth !== undefined) {
+      for (const run of lineworkRuns(plate, layer, viewport)) {
+        for (const box of lineworkExtent(run, halfWidth)) denseBoxes.push({ box, layerId: layer.id });
+      }
+    }
     if (layer.style === 'inset') insetBoxes.push(rendered.feature.bbox);
     else if (layer.label || layer.placeId) layerLabelCandidates.push({ layer, rendered });
     const legend = layerLegendEntry(layer);

@@ -18,6 +18,7 @@ import {
   hypsometricLevels,
   hypsometricStep,
   scaleBarMarkup,
+  lineworkExtent,
   type Plate,
   type PlatePlace,
   type PlateLayer,
@@ -2530,5 +2531,150 @@ describe('the live Trojan-plain sheet: the barrier is where its note says it is'
       }
     }
     expect(nearest).toBeGreaterThan(20);
+  });
+});
+
+// ── Reserving drawn linework (2026-08-14) ─────────────────────────────────
+// The defect: on the schematic Trojan plain, the label solver had been taught
+// to reserve the ship rows but nothing else, so names walked straight over the
+// shoreline and the fortifications — "ACHAEAN WALL AND DITCH" printed through
+// its own wall, and the Book 23 names printed through the beach into the open
+// sea. The fix reserves the drawn linework of the band kinds (coast, wall) as a
+// CORRIDOR following the run. These tests lock both halves of that: the
+// corridor geometry, and the property it exists to guarantee.
+describe('linework reservation', () => {
+  it('reserves a corridor along the run, not its bounding rectangle', () => {
+    // A 45° diagonal is the case that separates the two: its bounding box is
+    // enormous next to the ink it actually covers.
+    const halfWidth = 5;
+    const diagonal: [number, number][] = [
+      [0, 0],
+      [200, 200],
+    ];
+    const boxes = lineworkExtent(diagonal, halfWidth);
+    expect(boxes.length).toBeGreaterThan(10); // sub-divided, not one box
+
+    const reserved = boxes.reduce((sum, b) => sum + (b[2] - b[0]) * (b[3] - b[1]), 0);
+    const boundingArea = (200 + 2 * halfWidth) ** 2;
+    expect(reserved).toBeLessThan(boundingArea * 0.25);
+
+    // Every box still straddles the line it follows.
+    for (const [x1, y1, x2, y2] of boxes) {
+      const cx = (x1 + x2) / 2;
+      const cy = (y1 + y2) / 2;
+      expect(Math.abs(cx - cy)).toBeLessThan(1e-9);
+    }
+  });
+
+  it('inflates the corridor by the band half-width on both sides', () => {
+    const boxes = lineworkExtent(
+      [
+        [0, 50],
+        [10, 50],
+      ],
+      4,
+    );
+    expect(boxes).toHaveLength(1);
+    expect(boxes[0]).toEqual([-4, 46, 14, 54]);
+  });
+
+  it('degenerate runs reserve nothing', () => {
+    expect(lineworkExtent([], 5)).toEqual([]);
+    expect(lineworkExtent([[1, 1]], 5)).toEqual([]);
+  });
+
+  // The property the whole mechanism exists for, asserted end to end on a
+  // rendered sheet: a place anchored ON a fortification and a place anchored
+  // just inland of a shoreline both used to be lettered straight across the
+  // linework, because a wall's ink and a shore's ink were invisible to the
+  // solver. Deliberately synthetic rather than read from apparatus/places.json
+  // — see the note at the top of this file on that file's stability.
+  it('no point label is laid across drawn coast or wall linework', () => {
+    const sheet: Plate = {
+      id: 'reservation-fixture',
+      title: 'Reservation Fixture',
+      kind: 'schematic',
+      status: 'draft',
+      seed: 7,
+      size: [480, 320],
+      layers: [
+        {
+          id: 'shore',
+          kind: 'coast',
+          style: 'waterline',
+          width: 1.6,
+          rings: [
+            [
+              [0.02, 0.84],
+              [0.35, 0.87],
+              [0.7, 0.86],
+              [0.98, 0.83],
+            ],
+          ],
+        },
+        {
+          id: 'rampart',
+          kind: 'wall',
+          trace: [
+            [0.05, 0.4],
+            [0.5, 0.42],
+            [0.95, 0.4],
+          ],
+        },
+      ],
+    };
+    const places: PlatePlace[] = [
+      // Straddling the wall, and named at length so a lazy placement overlaps it.
+      { id: 'on-the-wall', name: 'The rampart gate and its towers', certainty: 'speculative', positionBasis: 'conjectural', plateAnchors: { 'reservation-fixture': [0.5, 0.42] } },
+      // On the beach, with the sea immediately below it.
+      { id: 'on-the-beach', name: 'The barrow raised above the strand', certainty: 'speculative', positionBasis: 'conjectural', plateAnchors: { 'reservation-fixture': [0.62, 0.82] } },
+      { id: 'beside-it', name: 'The hut of the far-shooting lord', certainty: 'speculative', positionBasis: 'conjectural', plateAnchors: { 'reservation-fixture': [0.4, 0.8] } },
+    ];
+
+    const { svg } = renderPlate(parsePlate(sheet), places);
+
+    // Rebuild each point label's box from what the element itself declares,
+    // by the same arithmetic the solver used (estimateLabelWidth/labelBox):
+    // a caps style is emitted already uppercased, and `letter-spacing` is the
+    // style's own size * tracking. <textPath> names carry no x/y and are
+    // exempt by design — a name set ALONG a line rides that line.
+    const attr = (tag: string, name: string) => tag.match(new RegExp(`${name}="([^"]*)"`))?.[1];
+    const labelBoxes: { id: string; box: [number, number, number, number] }[] = [];
+    for (const m of svg.matchAll(/<text\b([^>]*)>([\s\S]*?)<\/text>/g)) {
+      const tag = m[1];
+      const id = attr(tag, 'data-label-for');
+      const x = Number(attr(tag, 'x'));
+      if (!id || !Number.isFinite(x)) continue;
+      const y = Number(attr(tag, 'y'));
+      const size = Number(attr(tag, 'font-size'));
+      const tracking = Number(attr(tag, 'letter-spacing') ?? 0);
+      const anchor = attr(tag, 'text-anchor') ?? 'start';
+      const text = m[2].replace(/&apos;/g, "'").replace(/&amp;/g, '&');
+      const width = text.length * (size * (/[a-z]/.test(text) ? 0.56 : 0.64) + tracking);
+      const x1 = anchor === 'start' ? x : anchor === 'end' ? x - width : x - width / 2;
+      labelBoxes.push({ id, box: [x1, y - size * 0.8, x1 + width, y + size * 0.25] });
+    }
+    expect(labelBoxes.map((l) => l.id).sort()).toEqual(['beside-it', 'on-the-beach', 'on-the-wall']);
+
+    // The corridors, rebuilt from the plate's own geometry in plate pixels.
+    const [W, H] = sheet.size;
+    const corridors: [number, number, number, number][] = [
+      ...lineworkExtent(
+        sheet.layers[0].rings![0].map(([u, v]) => [u * W, v * H] as [number, number]),
+        1.6 / 2 + 4.4,
+      ),
+      ...lineworkExtent(
+        sheet.layers[1].trace!.map(([u, v]) => [u * W, v * H] as [number, number]),
+        1.15 / 2 + 4,
+      ),
+    ];
+    expect(corridors.length).toBeGreaterThan(20);
+
+    const overlaps = (a: number[], b: number[]) =>
+      !(a[2] < b[0] || b[2] < a[0] || a[3] < b[1] || b[3] < a[1]);
+    const offenders = labelBoxes
+      .filter((l) => corridors.some((c) => overlaps(l.box, c)))
+      .map((l) => l.id);
+    expect(offenders).toEqual([]);
   });
 });
