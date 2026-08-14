@@ -376,28 +376,35 @@ def disclosure(curve: str | None = None) -> str:
 # casting it: the flattest light on the list, and useless. The three suns that
 # do rake are:
 #
-#   76.0 / 11.5   early August, 1 h after sunrise.  SHIPPED.  The poem's own
-#                 season and its own hour -- the fighting days open at dawn --
-#                 and 28 deg off the sightline, so shadows come towards the
-#                 eye and are fully visible. Most three-dimensional plate of
-#                 the set. Costs: near-foreground tone is blotchier than the
-#                 afternoon suns, and Troy's own scarp reads softer.
+#   76.0 / 11.5   early August, 1 h after sunrise. The poem's own season and
+#                 its own hour -- the fighting days open at dawn -- and 28 deg
+#                 off the sightline, so shadows come towards the eye and are
+#                 fully visible. Most three-dimensional plate of the set.
+#                 Costs: near-foreground tone is blotchier than the afternoon
+#                 suns, and Troy's own scarp reads softer.
 #  260.2 / 11.4   equinox, 1 h before sunset. The most restrained. Lights
 #                 Troy's west face, the face the camp looked at, but 156 deg
 #                 round is still nearly behind the viewer and the citadel's
 #                 shadow hides behind the citadel. Troy barely helped.
-#  228.4 /  9.9   winter solstice, 3.5 h after noon. The best raking angle
-#                 available at all -- 124 deg off the sightline -- and the
-#                 ONLY light in which Troy's bluff reads crisply, because the
-#                 shadow off its scarp lies across the frame instead of
-#                 pointing away down it. Wrong season for the poem, which is
-#                 why it is not the default and is John's call to take.
+#  228.4 /  9.9   winter solstice, 3.5 h after noon.  SHIPPED (John,
+#                 2026-08-14).  The best raking angle available at all -- 124
+#                 deg off the sightline -- and the ONLY light in which Troy's
+#                 bluff reads crisply, because the shadow off its scarp lies
+#                 across the frame instead of pointing away down it. The
+#                 seasonal match of 76/11.5 does not bind here: this plate
+#                 depicts the SIEGE, a ten-year standing condition (ships
+#                 drawn up, camp, wall and ditch), not one day's action, so
+#                 the season is free and there is no reason to pay for a
+#                 seasonally "correct" light with a flatter picture. The
+#                 cartouche itself says only what it must -- bearing,
+#                 altitude, "a low sun in the afternoon sky" -- and claims no
+#                 date; the reasoning above is the log entry, not the label.
 #
 # Whichever ships, SUN_NOTE ships with it: --shade-az and --shade-alt REFUSE
 # to move without --sun-note, because a plate that draws one sun and names
 # another is worse than one that names none.
-LIGHT_AZ = 76.0
-LIGHT_ALT = 11.5
+LIGHT_AZ = 228.4
+LIGHT_ALT = 9.9
 LIGHT_AZ_DEFAULT, LIGHT_ALT_DEFAULT = LIGHT_AZ, LIGHT_ALT
 SHADE_STEPS = 6          # quantisation; 0 turns slope shading off entirely
 SHADE_MAX = 0.34         # peak opacity of --pp-shade on a slope turned away
@@ -448,8 +455,7 @@ SUN_H = (0.0, 0.0)       # down-sun horizontal unit vector; set by set_light()
 # The solar solution the default light came from, named in the cartouche.
 # It MUST be changed with the light -- a plate that draws one sun and names
 # another is worse than one that names none.
-SUN_NOTE = ("the solved position for 39.98° N in early August, about an "
-            "hour after sunrise")
+SUN_NOTE = "a low sun in the afternoon sky"
 
 
 def set_light(az_deg: float, alt_deg: float) -> None:
@@ -1101,6 +1107,17 @@ def draped_ribbon(cam, terr, latlons, half_w_m, cls, z_off=0.0, taper=None):
 # ═══════════════════════════════════════════════════════════════════════════
 # tokens + CSS
 # ═══════════════════════════════════════════════════════════════════════════
+# DARK THEME IS A DIFFERENT LIGHT, NOT AN INVERTED ONE (2026-08-14). --text
+# and --text-mid are ink -- they are SUPPOSED to swap from dark-on-light to
+# light-on-dark, the same as a page of type does. --plate-river and
+# --plate-contour are not ink; they are the water and the isolines of actual
+# ground, and ground does not swap which parts of it are darker just because
+# the sun went down. --plate-river inverted anyway (a pale ice-blue ribbon,
+# the brightest thing on the plate) and so did --plate-contour (a pale gold
+# web fighting the labels for attention). Both are now their own dark-theme
+# values, chosen to stay DARKER than every relief band they cross in that
+# theme, exactly as they are in daylight -- water reads as water, contours
+# read as a quiet line, in both themes.
 TOKENS = {
     "light": """
   --page-bg:#E7E7E9; --text:#241827; --text-mid:#5B4C58;
@@ -1117,9 +1134,9 @@ TOKENS = {
     "dark": """
   --page-bg:#181120; --text:#EDE6E8; --text-mid:#B7A9B4;
   --scene-map-label-halo:#17131C; --scene-map-coast:#8FA3AE;
-  --plate-lagoon:#0A2430; --scene-map-sea:#0A1C2A; --plate-contour:#C2B189;
+  --plate-lagoon:#0A2430; --scene-map-sea:#0A1C2A; --plate-contour:#332818;
   --pp-shade:#0A0704; --pp-lit:#F2E4C4;
-  --plate-masonry:#A8846F; --plate-river:#B4DAEF; --plate-marsh:#46503A;
+  --plate-masonry:#A8846F; --plate-river:#123A4A; --plate-marsh:#46503A;
   --pp-hull:#241C2A; --pp-hull-side:#120C16; --pp-hull-edge:#C3B49E;
   --plate-relief-1:#4A4136; --plate-relief-2:#51473A; --plate-relief-3:#584D3D;
   --plate-relief-4:#5F523F; --plate-relief-5:#655740; --plate-relief-6:#6B5C42;
@@ -1150,10 +1167,19 @@ CSS = """
 .pp-hut-wall{fill:var(--pp-hull-side);stroke:none}
 .pp-hut-roof{fill:var(--plate-masonry);stroke:var(--pp-hull-edge);stroke-width:0.3;
   stroke-linejoin:round}
-.pp-wall{fill:var(--plate-masonry);stroke:var(--text);stroke-width:0.5;stroke-linejoin:round}
-.pp-wall-crest{fill:none;stroke:var(--text);stroke-width:0.8}
-.pp-tower{fill:var(--plate-masonry);stroke:var(--text);stroke-width:0.5;stroke-linejoin:round}
-.pp-roof{fill:var(--text-mid);stroke:var(--text);stroke-width:0.4;stroke-linejoin:round}
+/* Ilios's wall, crest, tower and roofs are a BUILT MASS on the skyline, the
+   same kind of thing a hull is, and they had the hull bug: keyed to --text,
+   a 50 px ring of pure label-white appeared round the citadel in dark theme.
+   They take the same fix the hulls already have -- --pp-hull-edge, dark rim
+   on light ground, restrained rim on dark ground -- instead of re-deriving a
+   third rim token for one more built shape. */
+.pp-wall{fill:var(--plate-masonry);stroke:var(--pp-hull-edge);stroke-width:0.5;
+  stroke-linejoin:round}
+.pp-wall-crest{fill:none;stroke:var(--pp-hull-edge);stroke-width:0.8}
+.pp-tower{fill:var(--plate-masonry);stroke:var(--pp-hull-edge);stroke-width:0.5;
+  stroke-linejoin:round}
+.pp-roof{fill:var(--plate-masonry);stroke:var(--pp-hull-edge);stroke-width:0.4;
+  stroke-linejoin:round}
 /* A built work, not terrain: keyed to the relief ramp it was a shade of the
    ground it stands on in both themes and read as one more contour. */
 .pp-rampart{fill:var(--plate-masonry);stroke:var(--text-mid);stroke-width:0.5;

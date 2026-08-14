@@ -16,6 +16,7 @@ from __future__ import annotations
 import importlib.util
 import math
 import os
+import re
 
 import pytest
 
@@ -316,8 +317,8 @@ def _solar(lat_deg, dec_deg, H_deg):
 
 def test_the_shipped_sun_is_a_real_solar_position(s3):
     """No faked sun. The default must be reachable at 39.9755 N -- here at
-    declination +18 (early August), an hour after sunrise."""
-    alt, az = _solar(39.9755, 18.0, -90.0)
+    declination -23.44 (winter solstice), 3.5 h after noon."""
+    alt, az = _solar(39.9755, -23.44, 53.0)
     assert alt == pytest.approx(s3.LIGHT_ALT, abs=0.6)
     assert az == pytest.approx(s3.LIGHT_AZ, abs=0.6)
 
@@ -415,3 +416,93 @@ def test_the_cartouche_names_the_sun_it_draws(s3):
     assert "%.0f°" % s3.LIGHT_AZ in line
     assert "%.0f°" % s3.LIGHT_ALT in line
     assert s3.SUN_NOTE in line
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# dark theme is a different light, not an inverted one
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-14: --plate-river inverted between themes -- a pale ice-blue ribbon
+# at night, the brightest thing on the plate -- and --plate-contour did too, a
+# pale gold web fighting the labels. Both are physical ground (water, and the
+# isolines of the terrain itself), not ink, so the relationship that must
+# hold is: each stays DARKER than every relief band it is drawn over, in BOTH
+# themes. Ink tokens (--text, --text-mid, --scene-map-coast) are exempt --
+# they are supposed to swap dark-on-light for light-on-dark, the same as a
+# page of type does, and that is not the bug.
+def _parse_tokens(css_vars: str) -> dict[str, tuple[int, int, int]]:
+    out = {}
+    for name, hexval in re.findall(r"--([\w-]+):\s*#([0-9A-Fa-f]{6})", css_vars):
+        out[name] = tuple(int(hexval[i:i + 2], 16) for i in (0, 2, 4))
+    return out
+
+
+def _srgb_to_linear(c):
+    v = c / 255.0
+    return v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4
+
+
+def _luminance(rgb):
+    r, g, b = rgb
+    return (0.2126 * _srgb_to_linear(r) + 0.7152 * _srgb_to_linear(g)
+            + 0.0722 * _srgb_to_linear(b))
+
+
+RELIEF_NAMES = [f"plate-relief-{k}" for k in range(1, 13)]
+
+
+def test_river_stays_darker_than_every_relief_band_in_both_themes(s3):
+    """Water is darker than the land it crosses, in daylight AND at night.
+    A river keyed to a value that inverts is the glowing-ribbon bug; this
+    pins the fix so it cannot come back."""
+    for theme in ("light", "dark"):
+        tokens = _parse_tokens(s3.TOKENS[theme])
+        river_l = _luminance(tokens["plate-river"])
+        for name in RELIEF_NAMES:
+            band_l = _luminance(tokens[name])
+            assert river_l < band_l, (
+                f"{theme}: river (L={river_l:.3f}) is not darker than "
+                f"{name} (L={band_l:.3f})")
+
+
+def test_contour_stays_darker_than_every_relief_band_in_both_themes(s3):
+    """Same rule for the isolines: an engraved contour reads as a quiet
+    subordinate line by staying darker than its ground in both themes, not
+    by inverting to the ink convention and outshining the labels."""
+    for theme in ("light", "dark"):
+        tokens = _parse_tokens(s3.TOKENS[theme])
+        contour_l = _luminance(tokens["plate-contour"])
+        for name in RELIEF_NAMES:
+            band_l = _luminance(tokens[name])
+            assert contour_l < band_l, (
+                f"{theme}: contour (L={contour_l:.3f}) is not darker than "
+                f"{name} (L={band_l:.3f})")
+
+
+def test_contour_and_river_stay_subordinate_to_label_ink(s3):
+    """'Never compete with labels' (John, 2026-08-14), machine-checked: in
+    both themes the river and the contour must read as less salient than
+    the labels' own --text-mid ink -- the dimmest tier of type on the sheet
+    -- so neither can out-shine what the plate is actually saying."""
+    for theme in ("light", "dark"):
+        tokens = _parse_tokens(s3.TOKENS[theme])
+        text_mid_l = _luminance(tokens["text-mid"])
+        for name in ("plate-river", "plate-contour"):
+            assert _luminance(tokens[name]) < text_mid_l, (
+                f"{theme}: {name} is not subordinate to --text-mid")
+
+
+def test_city_architecture_no_longer_keyed_to_inverting_ink(s3):
+    """The recorded ship bug (elements keyed to --text invert to white in
+    dark theme) had a second, unfixed instance: Ilios's wall, crest, tower
+    and roofs used --text/--text-mid directly and rang the citadel in
+    label-white at night. They now take the rim token the hulls already
+    use. Pinned so a future edit cannot quietly key them back to --text."""
+    css = s3.CSS
+    for cls in ("pp-wall", "pp-wall-crest", "pp-tower", "pp-roof"):
+        m = re.search(r"\." + cls + r"\{([^}]*)\}", css)
+        assert m, f"{cls} not found in CSS"
+        block = m.group(1)
+        assert "stroke:var(--pp-hull-edge)" in block, (
+            f"{cls} stroke is not keyed to --pp-hull-edge: {block}")
+        assert "var(--text)" not in block and "var(--text-mid)" not in block, (
+            f"{cls} is still keyed to an inverting ink token: {block}")
