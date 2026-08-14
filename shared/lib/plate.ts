@@ -4063,11 +4063,20 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         continue;
       }
       // settlement or feature: the two classes that DO carry a small dot
-      // (item 3 — solid/open/open-square by certainty tier, 2.5-4px at 1x).
+      // (item 3 — solid/open/open-square by certainty tier, 2.5-4px at 1x)
+      // — EXCEPT a mountain (AUDIT-PLATE-LABELS.md item 2, 2026-08-13): an
+      // orographic mass has no point to mark, unlike a cape or hill's actual
+      // summit-as-landmark reading, so it keeps the feature register's
+      // italic caps label but never earns the settlement/cape dot. The
+      // label's anchor box still reserves the same footprint a dot would
+      // have, so its placement is byte-for-byte what it was before.
       const dotStyle = certaintyDotStyle(place.certainty);
       const r = cls === 'settlement' ? SETTLEMENT_DOT_R[place.rank ?? 2] : FEATURE_DOT_R;
-      pinMarkupParts.push(dotMarkup(place.id, place.name, x, y, dotStyle, r));
-      features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: dotBBox(x, y, r) });
+      const showDot = place.kind !== 'mountain';
+      if (showDot) {
+        pinMarkupParts.push(dotMarkup(place.id, place.name, x, y, dotStyle, r));
+        features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: dotBBox(x, y, r) });
+      }
       pinLabelRequests.push({
         id: place.id,
         text: mapLabelText(place.name),
@@ -4084,7 +4093,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         // bearing enough to matter at a glance.
         priority: cls === 'settlement' ? (place.rank === 3 ? 1 : undefined) : cls === 'feature' ? 1 : undefined,
       });
-      legendEntries.push(certaintyDotLegendEntry(place.certainty ?? 'certain'));
+      if (showDot) legendEntries.push(certaintyDotLegendEntry(place.certainty ?? 'certain'));
       continue;
     }
 

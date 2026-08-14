@@ -17042,6 +17042,7 @@
       "id": "river-granikos",
       "kind": "river",
       "placeId": "granikos",
+      "label": "Granicus",
       "default": "on",
       "width": 1.5,
       "path": [
@@ -17201,6 +17202,7 @@
       "id": "river-aisepos",
       "kind": "river",
       "placeId": "aisepos",
+      "label": "Aesepus",
       "default": "on",
       "width": 1.5,
       "path": [
@@ -17306,6 +17308,7 @@
       "id": "river-satnioeis",
       "kind": "river",
       "placeId": "satnioeis",
+      "label": "Satnioeis",
       "default": "on",
       "width": 1.5,
       "path": [
