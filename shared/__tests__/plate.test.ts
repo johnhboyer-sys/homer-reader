@@ -1828,15 +1828,20 @@ describe('the curve pass does not move the Bronze Age shoreline', () => {
     // outside the generalisation it claims, that is a real defect and this
     // test is where it is caught.
     expect(worst).toBeLessThan(275);
-    // Lower bound recalibrated 2026-07-30: trimming shore-bronze's eastern
-    // tail (the 3 vertices past where the declared 10 m contour stopped
-    // holding, RESEARCH-PALEOGEOGRAPHY.md §3.4) dropped the worst point from
-    // 215 m to 142.89 m — the corner that measurement was catching was on the
-    // trimmed stretch. 100 stays comfortably below the new measurement while
-    // still asserting the same thing the bound always asserted: the curve
-    // deviates from the stored polyline by a real, non-trivial amount, not a
-    // no-op flattening.
-    expect(worst).toBeGreaterThan(100);
+    // Lower bound recalibrated 2026-08-11: shore-bronze was re-derived as a
+    // sea-connected sub-10 m region (flood fill on the DEM, not stitched
+    // contour arcs — see scripts/fix-lagoon-connectivity.py and the layer's
+    // own note) after an Opus review found the old line was itself a
+    // "generalised 10 m contour... that doubles back on itself" at its
+    // 275 m (SHORE_TOL) simplification, which is what let a 3.8 km facet
+    // exist to cut a 215 m corner off of. The new line is traced at this
+    // sheet's own tighter 0.00012 deg (~13 m) tolerance and carries roughly
+    // 6x the vertices (121 vs 21), so there is far less corner left for the
+    // curve pass to cut — measured worst point 30.2 m. 20 stays comfortably
+    // below that while still asserting the same thing the bound always
+    // asserted: the curve deviates from the stored polyline by a real,
+    // non-trivial amount, not a no-op flattening.
+    expect(worst).toBeGreaterThan(20);
   });
 
   it('the shore still passes 1.2 km north of Hisarlık — the measurement the 10 m level was chosen for', () => {
@@ -2188,9 +2193,7 @@ describe('the live plain sheet: the rivers stop at the Bronze Age shore', () => 
   const lagoonRing = pointsOf(pathsFor(svg, 'lagoon-bronze')[0]);
 
   // The river's own paint slot is everything emitted after the water that
-  // could drown it. Since the sandy bar was re-cut to end where it stops
-  // being a bar (2026-07-29), the Scamander has TWO reaches there: the plain,
-  // and 141 m of dry bar between the lagoon and the modern sea.
+  // could drown it.
   function ownReaches(id: string): [number, number][][] {
     const water = svg.lastIndexOf('data-feature-id="lagoon-bronze"');
     return [...svg.matchAll(new RegExp(`<path data-feature-id="${id}" class="[^"]*" d="([^"]*)"`, 'g'))]
@@ -2198,15 +2201,22 @@ describe('the live plain sheet: the rivers stop at the Bronze Age shore', () => 
       .map((m) => pointsOf(m[1]));
   }
 
-  it('the Scamander is drawn in four reaches — the plain, the lagoon, the bar, the modern sea', () => {
-    // Four, not three (2026-07-29). The fourth is the crossing of the sandy
-    // bar: with the bar cut back to its landfall the lagoon and the sea no
-    // longer overlap there, and 141 m of dry ground lies between them inside
-    // a single 255 m segment of the river. It was drawn by nobody until
-    // runsWhere started cutting at the crossings rather than sampling at the
-    // vertices — see plate.ts.
-    expect(pathsFor(svg, 'scamander')).toHaveLength(4);
-    expect(ownReaches('scamander')).toHaveLength(2);
+  it('the Scamander is drawn in three reaches — the plain, the lagoon, the modern sea', () => {
+    // Recalibrated 2026-08-11: lagoon-bronze (and shore-bronze) were
+    // re-derived as a sea-connected sub-10 m region (flood fill on the DEM,
+    // not stitched contour arcs -- scripts/fix-lagoon-connectivity.py) after
+    // an Opus review found the shipped polygon a ray-casting artifact. Under
+    // the old, hand-cut boundary the sandy bar was cut back to its landfall
+    // (2026-07-29) so the lagoon and the sea did not overlap there, leaving
+    // 141 m of dry bar as its own fourth reach. The re-derived lagoon
+    // boundary now reaches the barrier's own landfall directly (both are
+    // anchored to the same shipped barrier-bronze vertex — see the fix
+    // script), so there is no dry gap left for the river to cross there: the
+    // lagoon and modern-sea reaches meet with nothing of the bar between
+    // them on this crossing, and own reaches drops from two (the plain, the
+    // dry bar) to one (the plain).
+    expect(pathsFor(svg, 'scamander')).toHaveLength(3);
+    expect(ownReaches('scamander')).toHaveLength(1);
     expect(pathsFor(svg, 'simoeis')).toHaveLength(2);
   });
 
