@@ -2,10 +2,12 @@
 """Stage 3 — THE WHOLE PLATE: "The Ships, the Bay, and Ilios".
 
 The full 2400x1350 raised oblique from the settled Stage-1D camera, in the
-Stage-2 register (hypsometric bands with true-isoline edges, hairline
-contours, waterlines, the dashed approximate bronze shore, flat fills, no
-texture), carrying what Stage 2 still owed: the delta swamp with a faded
-margin, the neatline, the scale and the hypsometric key.
+Stage-2 register (flat fills, hairline contours, waterlines, the dashed
+approximate bronze shore, no texture), carrying what Stage 2 still owed: the
+delta swamp with a faded margin, the neatline, the scale and the key.
+
+THE GROUND IS COLOURED BY WHAT IT IS, NOT BY HOW HIGH IT IS (2026-08-14, and
+see the GROUND COVER section below). The twelve hypsometric bands are gone.
 
 WHAT IS NEW HERE, against Stage 2
   1. THE PLATE IS NAVIGABLE, and that changes what "legible" means. Stage 2
@@ -143,7 +145,11 @@ RING_MAX_M = 110.0
 RING_DETAIL_FAR = 19000.0
 RING_MIN_PX = 1.0
 
-LEVELS = [5, 10, 15, 20, 30, 45, 70, 110, 180, 300, 600]  # 11 levels, 12 bands
+# CONTOUR levels. They were also the boundaries of twelve hypsometric bands
+# until the ground stopped being coloured by height (see GROUND COVER); now
+# they are what they say on the tin -- the elevations the hairlines are cut at,
+# and nothing else on the sheet depends on them.
+LEVELS = [5, 10, 15, 20, 30, 45, 70, 110, 180, 300, 600]
 
 # ── INDEX CONTOURS ───────────────────────────────────────────────────────
 # The oldest weighting convention there is, and the only one that is a RULE
@@ -179,6 +185,111 @@ STRATA_EDGES = [45000.0, 26000.0, 16000.0, 10500.0, 7000.0, 4800.0,
 HAZE = {26000.0: 0.20, 10500.0: 0.13, 4800.0: 0.09, 2300.0: 0.05}
 
 PLAIN_BBOX = (39.86, 40.05, 26.1, 26.38)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# GROUND COVER — colour says what the ground IS, not how high it is
+# ═══════════════════════════════════════════════════════════════════════════
+# THE DEFECT. Hypsometric tint is a PLAN-VIEW device: it encodes height as
+# colour because in plan you cannot see height. An oblique already shows height
+# geometrically, so tinting by height says it twice, and the plate read as a
+# flat map draped over terrain. Worse in perspective: quantised bands print as
+# a stack of flat terraces -- "topographic strata aren't working here, troy
+# looks like it's on a flat table" (John, on an 8x crop of Ilios) -- and once
+# the sun arrived they fought the shading, two tonal systems on one surface,
+# one stepped and one smooth, with the stepped one winning.
+#
+# THE ARCHITECTURE. Three channels, each saying one thing:
+#     COLOUR  what the ground is        -- the classes below, categorical
+#     TONE    where the light falls     -- slope shading + cast shadows,
+#                                          continuous, no steps
+#     HEIGHT  nothing in colour at all  -- it is in the geometry, and in the
+#                                          contour hairlines if they are on
+#
+# THE CLASSES, and their evidence, come from docs/research/
+# GROUND-COVER-TROJAN-PLAIN.md, which is this code's specification. Six classes
+# were proposed there; three have a DEM-derivable rule and are drawn:
+#
+#   WET DELTA / SWAMP   reuse `delta-swamp` -- SRTM 10-15 m, slope < 1.2%,
+#                       4-connected to the published bay head. INFERABLE
+#                       (Kayan et al. 2003, 384, 389: "a broad deltaic swamp").
+#                       Drawn as the blurred, outline-less wash this sheet
+#                       already used, NOT as a mesh class: a wetland has no
+#                       boundary (TROAD-CARTOGRAPHY.md, third pass, §3), and a
+#                       lattice union would have given it a hard one.
+#   DRY DELTA FAN       by ELIMINATION inside the `scamandrian-plain` sector:
+#                       what is neither ridge nor wet. Kayan 2002, 1003 locates
+#                       and describes the surface -- "a sand-covered and dusty
+#                       plain... there is no need to look for a battlefield in
+#                       the distance" -- but maps no boundary, so the boundary
+#                       here is derived, never traced.
+#   RIDGE SCRUB / BARE  reuse `relief-sigeion-ridge`, `relief-troy-ridge`,
+#                       `relief-rhoiteion-ridge`. Their extents are already cut
+#                       from the DEM; re-deriving thresholds would only invent
+#                       a second, worse boundary. The vegetation itself is a
+#                       stated Mediterranean-Aegean default for thin soil on
+#                       exposed limestone, not a Troad finding -- the weakest
+#                       claim on the sheet, and the key says so.
+#
+# TWO CLASSES ARE NOT DRAWN, and naming them is the point:
+#
+#   RIVERBANK THICKET   elm, willow, tamarisk over lotus, rush and galingale,
+#                       Il. 21.350-52, explicitly "about the river's fair
+#                       streams". POEM-ONLY, and the Bronze Age channels are
+#                       not locatable at all ("with as much as 20 m of alluvium
+#                       ... we cannot hope to locate the river channels of
+#                       antiquity" -- Kraft, Rapp, Kayan and Luce 2003, 164),
+#                       so there is no defensible extent and no defensible
+#                       width. It is LETTERED IN THE KEY AND NOT BOUNDED, which
+#                       is this project's standing answer when the honest
+#                       options are "invent an edge" or "say nothing".
+#   SAND BARRIER        a Bronze Age dune belt across the Scamander front is
+#                       NOT KNOWABLE and is contradicted four times over (Kayan
+#                       1997, 438; 2002, 1002; Kayan et al. 2003, 390; Kraft et
+#                       al. 2003b, 164). No beach, dune or strand class exists
+#                       in this file, and none may be built from the live
+#                       `barrier-bronze` layer's footprint.
+#
+# A FOURTH FILL IS NOT A CLASS. Everything outside the plain sector and its
+# three ridges -- the Troad hinterland, the far country under Ida -- carries
+# NO ground-cover claim, because the specification makes none for it. It takes
+# one quiet neutral fill and the key says "not classified". Painting it as
+# scrub by extending the ridge default would be exactly the fabrication the
+# whole exercise is against.
+#
+# WHERE WATER MEETS THE RULE. The specification's elimination clause also
+# excludes water from the dry fan. Here that is discharged by PAINT ORDER
+# rather than by the mask -- the sea, the lagoon and the swamp are painted
+# over the ground, so no dry-fan claim survives under them -- which is the
+# same device this sheet already uses to keep modern river channels out of the
+# Bronze Age bay. A mask-based exclusion would have printed a neutral rim
+# wherever the cell mask and the drawn waterline disagreed.
+COVER_FAN = "fan"          # dry delta fan: the plain the poem fights over
+COVER_RIDGE = "ridge"      # ridge scrub / bare slope
+COVER_OPEN = "open"        # beyond the sector: no claim
+# Painter order within a depth stratum. The classes tile the ground without
+# overlap, so this decides nothing but which seam-stroke laps which.
+COVER_ORDER = (COVER_OPEN, COVER_RIDGE, COVER_FAN)
+COVER_TOKEN = {COVER_FAN: "--pp-cover-fan", COVER_RIDGE: "--pp-cover-ridge",
+               COVER_OPEN: "--pp-cover-open"}
+# The layers whose geometry is REUSED, never re-derived.
+RIDGE_LAYERS = ("relief-sigeion-ridge", "relief-troy-ridge",
+                "relief-rhoiteion-ridge")
+PLAIN_LAYER = "scamandrian-plain"
+SWAMP_LAYER = "delta-swamp"
+# CONTOURS ARE THE LAST PIECE OF PLAN-MAP LANGUAGE LEFT ON THE SHEET, and
+# whether they belong on an oblique is a real question, not a setting. Draped
+# in perspective they read as form lines wrapping the ground, which is craft;
+# they are also the one mark left that says "map" rather than "country", and
+# with the hypsometric bands gone they are what the eye reads the near
+# foreground by, since the back of the Sigeion ridge has nothing else on it.
+#   "all"    every level: the full web. The most information, the most map.
+#   "index"  10, 30, 110 and 600 m only -- the index rule's own lines. The
+#            structural ones survive (the 30 m lobe closing round the citadel;
+#            the 10 m the Bronze Age shore is calibrated on) and the web goes.
+#   "none"   the panorama with no isolines at all.
+CONTOURS = "all"
+CONTOUR_MODES = ("all", "index", "none")
 
 
 # ── vertical exaggeration ────────────────────────────────────────────────
@@ -413,11 +524,41 @@ LIT_MAX = 0.22           # peak opacity of --pp-lit on a slope facing the light
 # happened to fall -- so it is generalised hard and then rounded. Left as raw
 # lattice loops the steps print as a sawtooth through the middle of a band,
 # which is the one way continuous tone could resolve into countable marks.
-SHADE_TOL = 2.6
-SHADE_ROUND = 1
-SHADE_SMOOTH = 2         # box passes over the quantised field, in mesh cells
-SHADE_MIN_AREA = 90.0    # px^2; below this a tone region is a sliver, not a
+SHADE_TOL = 3.2
+SHADE_ROUND = 2
+SHADE_SMOOTH = 5         # box passes over the CONTINUOUS field, in mesh cells
+SHADE_MIN_AREA = 140.0   # px^2; below this a tone region is a sliver, not a
                          # slope, and it prints as a bead rather than as tone
+# ── THE BLOTCHY FOREGROUND, and why smoothing alone never cured it ────────
+# The near ground read as irregular smudges -- "stains rather than landform".
+# The previous lane blurred the continuous field and dropped sub-90 px slivers
+# and it helped and did not fix it, and the reason is that neither device can
+# touch the defect's actual shape. Quantisation happens ON THE LATTICE, so a
+# cell whose smoothed value lands a hair over a step boundary becomes a tone
+# region ONE CELL BIG. Blurring the field beforehand cannot stop that -- it
+# only moves where it happens -- and the area filter cannot catch it in the
+# NEAR field, where a single cell is 200-400 px^2 and clears a 90 px^2 bar by
+# a factor of four. Rounded, those one-cell regions print as ovals: at the
+# foot of the frame they read as fish scales, and raising the step count makes
+# it worse, because more steps means more boundaries for the lattice to show
+# through.
+#
+# A MEDIAN OVER THE QUANTISED FIELD is the fix, and it is the right tool for
+# a reason worth stating: a median is the filter that removes isolated values
+# and one-cell filaments WITHOUT moving an edge, which is exactly the
+# difference between this defect and the tone it is sitting in. A single cell
+# out of step with all eight of its neighbours cannot survive one pass; a
+# genuine slope, which is many cells wide, is untouched. It runs after
+# quantisation, where the islands actually exist, and not before it, where
+# they do not yet.
+#
+# MEASURED, on the shipped dials: 6 steps / 5 smoothing passes / 3 median
+# passes / 140 px^2 removes the fish-scale beading from the near foreground
+# outright and leaves the tone regions broad enough to read as gullies. SIX
+# STEPS IS DELIBERATELY UNCHANGED -- the light itself is not this pass's to
+# move, and raising the step count made the foreground WORSE for the reason
+# above, which is worth knowing before anyone tries it again.
+SHADE_MEDIAN = 3         # median passes over the QUANTISED field
 
 # ── CAST SHADOWS ─────────────────────────────────────────────────────────
 # Slope shading models a facet; it cannot throw anything. The long shadow off
@@ -535,6 +676,31 @@ class ShadowField:
         top = v[q0][p0] + (v[q0][p0 + 1] - v[q0][p0]) * tx
         bot = v[q0 + 1][p0] + (v[q0 + 1][p0 + 1] - v[q0 + 1][p0]) * tx
         return top + (bot - top) * ty
+
+
+def median_lattice(q, passes):
+    """Median-filter a quantised field over the (i, j) lattice.
+
+    See SHADE_MEDIAN. Returns the filtered field and how many cells the FIRST
+    pass moved, which is the island count: on a field that is already locally
+    consistent a median moves nothing at all."""
+    islands = 0
+    for p in range(max(0, passes)):
+        nxt = {}
+        for (i, j), v in q.items():
+            vals = [v]
+            for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1),
+                           (1, 1), (1, -1), (-1, 1), (-1, -1)):
+                n = q.get((i + di, j + dj))
+                if n is not None:
+                    vals.append(n)
+            vals.sort()
+            m = vals[len(vals) // 2]
+            if p == 0 and m != v:
+                islands += 1
+            nxt[(i, j)] = m
+        q = nxt
+    return q, islands
 
 
 def _box_blur(g, n):
@@ -775,34 +941,6 @@ def chaikin(pts, passes=2, closed=True):
     return pts
 
 
-def clip_below(poly, evals, level):
-    out_p = []
-    n = len(poly)
-    for i in range(n):
-        p0, e0 = poly[i], evals[i]
-        p1, e1 = poly[(i + 1) % n], evals[(i + 1) % n]
-        if e0 <= level:
-            out_p.append(p0)
-        if (e0 <= level) != (e1 <= level) and e1 != e0:
-            t = (level - e0) / (e1 - e0)
-            out_p.append((p0[0] + t * (p1[0] - p0[0]), p0[1] + t * (p1[1] - p0[1])))
-    return out_p
-
-
-def clip_above(poly, evals, level):
-    out_p = []
-    n = len(poly)
-    for i in range(n):
-        p0, e0 = poly[i], evals[i]
-        p1, e1 = poly[(i + 1) % n], evals[(i + 1) % n]
-        if e0 >= level:
-            out_p.append(p0)
-        if (e0 >= level) != (e1 >= level) and e1 != e0:
-            t = (level - e0) / (e1 - e0)
-            out_p.append((p0[0] + t * (p1[0] - p0[0]), p0[1] + t * (p1[1] - p0[1])))
-    return out_p
-
-
 def clip_to_depth(pts_world, cam):
     def depth(p):
         return ((p[0] - cam.e) * cam.fwd[0] + (p[1] - cam.n) * cam.fwd[1]
@@ -836,6 +974,28 @@ def point_in_poly(x, y, poly):
 
 def point_in_poly_ll(lat, lon, poly_latlon):
     return point_in_poly(lon, lat, [(p[1], p[0]) for p in poly_latlon])
+
+
+class Mask:
+    """A lat/lon polygon with a bounding box, tested once per visible mesh
+    cell -- some sixty thousand times per mask. The box is the whole
+    optimisation and it earns its keep: most of this plate's mesh lies outside
+    every mask, and a box test rejects those in four comparisons."""
+
+    __slots__ = ("poly", "lat0", "lat1", "lon0", "lon1")
+
+    def __init__(self, poly_latlon):
+        self.poly = [(p[1], p[0]) for p in poly_latlon]      # (lon, lat)
+        lats = [p[0] for p in poly_latlon]
+        lons = [p[1] for p in poly_latlon]
+        self.lat0, self.lat1 = min(lats), max(lats)
+        self.lon0, self.lon1 = min(lons), max(lons)
+
+    def has(self, lat, lon):
+        if not (self.lat0 <= lat <= self.lat1
+                and self.lon0 <= lon <= self.lon1):
+            return False
+        return point_in_poly(lon, lat, self.poly)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1118,41 +1278,59 @@ def draped_ribbon(cam, terr, latlons, half_w_m, cls, z_off=0.0, taper=None):
 # values, chosen to stay DARKER than every relief band they cross in that
 # theme, exactly as they are in daylight -- water reads as water, contours
 # read as a quiet line, in both themes.
+#
+# THE GROUND-COVER TOKENS INHERIT THAT RULE, and it is what fixes the terraces.
+# The twelve-step relief ramp spanned 2.50x in luminance, so every band edge
+# was a tonal step and in perspective a stack of them read as flat tables. The
+# four cover values span 1.22x in light and 1.19x in dark: they are separated
+# by HUE, not by value, so a class boundary is a change of ground and not a
+# step in the light. The rank order is identical in both themes -- dry fan
+# brightest, then unclassified ground, then ridge, then the wet delta darkest,
+# which is also the order they take in life -- because dark theme is a
+# different light, not an inverted one.
+#
+# --pp-cover-wet is the wash's own token, painted at 0.55 over the fan beneath
+# it; the composite is what the reader sees and what the key swatch draws, and
+# it is the composite the contrast tests measure.
+#
+# --pp-ida-mass and --pp-tumulus are NOT ground cover. They kept the exact
+# values they had as relief-12 and relief-9 when the ramp was deleted, because
+# neither is terrain the classification speaks for: one is the mountain beyond
+# the mesh, the other a built mound.
 TOKENS = {
     "light": """
   --page-bg:#E7E7E9; --text:#241827; --text-mid:#5B4C58;
   --scene-map-label-halo:#F8F7F3; --scene-map-coast:#565060;
   --plate-lagoon:#87AEB8; --scene-map-sea:#9BBFD6; --plate-contour:#5A4A32;
   --pp-shade:#2A1E10; --pp-lit:#FFFCF2;
-  --plate-masonry:#A87263; --plate-river:#1A4C6A; --plate-marsh:#C7D3A5;
+  --plate-masonry:#A87263; --plate-river:#1A4C6A;
   --pp-hull:#3A2C3C; --pp-hull-side:#1B1220; --pp-hull-edge:#140D18;
-  --plate-relief-1:#EDEEDF; --plate-relief-2:#E8E8CF; --plate-relief-3:#E4E2C0;
-  --plate-relief-4:#E1DAB3; --plate-relief-5:#DED3A7; --plate-relief-6:#DACB9E;
-  --plate-relief-7:#D5C296; --plate-relief-8:#D0B98C; --plate-relief-9:#CAB083;
-  --plate-relief-10:#C2A679; --plate-relief-11:#B99C6F; --plate-relief-12:#AF9164;
+  --pp-cover-fan:#E3D7B2; --pp-cover-open:#D9D6BF; --pp-cover-ridge:#CFCDAC;
+  --pp-cover-wet:#A9BE93;
+  --pp-ida-mass:#AF9164; --pp-tumulus:#CAB083;
 """,
     "dark": """
   --page-bg:#181120; --text:#EDE6E8; --text-mid:#B7A9B4;
   --scene-map-label-halo:#17131C; --scene-map-coast:#8FA3AE;
   --plate-lagoon:#0A2430; --scene-map-sea:#0A1C2A; --plate-contour:#332818;
   --pp-shade:#0A0704; --pp-lit:#F2E4C4;
-  --plate-masonry:#A8846F; --plate-river:#123A4A; --plate-marsh:#46503A;
+  --plate-masonry:#A8846F; --plate-river:#123A4A;
   --pp-hull:#241C2A; --pp-hull-side:#120C16; --pp-hull-edge:#C3B49E;
-  --plate-relief-1:#4A4136; --plate-relief-2:#51473A; --plate-relief-3:#584D3D;
-  --plate-relief-4:#5F523F; --plate-relief-5:#655740; --plate-relief-6:#6B5C42;
-  --plate-relief-7:#706043; --plate-relief-8:#766444; --plate-relief-9:#7A6846;
-  --plate-relief-10:#7E6C48; --plate-relief-11:#836F49; --plate-relief-12:#86734B;
+  --pp-cover-fan:#453E2E; --pp-cover-open:#413C36; --pp-cover-ridge:#393D31;
+  --pp-cover-wet:#263821;
+  --pp-ida-mass:#86734B; --pp-tumulus:#7A6846;
 """,
 }
+COVER_WASH_OP = 0.55        # the wet delta's wash over the fan beneath it
 
 CSS = """
-.pp-band{stroke:none}
+.pp-cover{stroke:none}
 .pp-shade{stroke-linejoin:round}
-.pp-ida{fill:var(--plate-relief-12);fill-opacity:0.22;stroke:none}
+.pp-ida{fill:var(--pp-ida-mass);fill-opacity:0.22;stroke:none}
 .pp-ida-crest{fill:none;stroke:var(--plate-contour);stroke-width:0.8;stroke-opacity:0.5}
 .pp-sea{fill:var(--scene-map-sea)}
 .pp-lagoon{fill:var(--plate-lagoon)}
-.pp-marsh{fill:var(--plate-marsh);fill-opacity:0.55;stroke:none}
+.pp-marsh{fill:var(--pp-cover-wet);fill-opacity:0.55;stroke:none}
 .pp-coast{fill:none;stroke:var(--scene-map-coast);stroke-width:1.1}
 .pp-coast-approx{fill:none;stroke:var(--scene-map-coast);stroke-width:1.1;
   stroke-dasharray:4.5 3;stroke-linecap:round}
@@ -1190,7 +1368,7 @@ CSS = """
   stroke-dasharray:9 5;stroke-linecap:round}
 .pp-mark{fill:none;stroke:var(--text-mid);stroke-width:1.1}
 .pp-mark-f{fill:var(--text-mid);stroke:none}
-.pp-tumulus{fill:var(--plate-relief-9);fill-opacity:0.9;stroke:var(--text-mid);
+.pp-tumulus{fill:var(--pp-tumulus);fill-opacity:0.9;stroke:var(--text-mid);
   stroke-width:0.6}
 .pp-leader{fill:none;stroke:var(--text-mid);stroke-width:0.8;stroke-opacity:0.75}
 .pp-neat-o{fill:none;stroke:var(--text);stroke-width:2.2}
@@ -1254,6 +1432,7 @@ class Plate:
         self.stats: dict = {}
         self.shadow = None               # the ShadowField; set by shade_field
         self.shade_q: dict = {}
+        self.cover: dict = {}            # (i, j) -> ground-cover class
 
     # ── mesh ─────────────────────────────────────────────────────────────
     def mesh(self):
@@ -1346,6 +1525,45 @@ class Plate:
         self.stats["cells_tested"] = tested
         self.stats["cells_visible"] = len(visible)
 
+    # ── ground cover ─────────────────────────────────────────────────────
+    def cover_field(self):
+        """Classify every visible mesh cell by what the ground IS.
+
+        One class per cell, taken at the cell's CENTRE, and no cell is ever
+        split: a ground-cover boundary is not an isoline, so there is nothing
+        to clip a cell against. (The hypsometric bands did split cells, at the
+        level they crossed -- that machinery went with them, and the contour
+        hairlines are now extracted on their own.)
+
+        The masks are the plate's own layers, reused verbatim. Priority runs
+        most specific first, which is also most defensible first: the ridges
+        are cut from the DEM, the plain sector is a lettering polygon, and
+        anything in neither carries no claim at all. The wet delta is not here
+        -- it is a wash painted over this, because a wetland has no boundary.
+        """
+        ridge = [Mask(self.lay[k]["polygon"]) for k in RIDGE_LAYERS]
+        plain = Mask(self.lay[PLAIN_LAYER]["polygon"])
+        vp_lat, vp_lon = VIEWPOINT
+        mlat = 1.0 / 111132.0
+        mlon = 1.0 / (111320.0 * math.cos(math.radians(vp_lat)))
+        cov = {}
+        tally = {COVER_FAN: 0, COVER_RIDGE: 0, COVER_OPEN: 0}
+        for (i, j) in self.visible:
+            (e0, n0), (e1, n1) = self.wor[i][j], self.wor[i + 1][j]
+            (e2, n2), (e3, n3) = self.wor[i + 1][j + 1], self.wor[i][j + 1]
+            lat = vp_lat + (n0 + n1 + n2 + n3) * 0.25 * mlat
+            lon = vp_lon + (e0 + e1 + e2 + e3) * 0.25 * mlon
+            if any(m.has(lat, lon) for m in ridge):
+                c = COVER_RIDGE
+            elif plain.has(lat, lon):
+                c = COVER_FAN
+            else:
+                c = COVER_OPEN
+            cov[(i, j)] = c
+            tally[c] += 1
+        self.cover = cov
+        self.stats["cover_cells"] = tally
+
     def terrain_svg(self):
         grid, azs, rngs = self.grid, self.azs, self.rngs
         corner = lambda i, j: (grid[i][j][0], grid[i][j][1])
@@ -1357,32 +1575,38 @@ class Plate:
                 out.append(f'<rect x="0" y="0" width="{W}" height="{H}" '
                            f'fill="var(--page-bg)" fill-opacity="{HAZE[far]}"/>')
             interior: dict = {}
-            frag: dict = {}
             cont: dict = {}
             shade: dict = {}
             for (i, j) in self.visible:
                 rr = grid[i][j][3]
                 if not (near * 0.965 <= rr < far):
                     continue
-                a0, a1 = grid[i][j], grid[i + 1][j]
-                b1, b0 = grid[i + 1][j + 1], grid[i][j + 1]
-                quad = [(a0[0], a0[1]), (a1[0], a1[1]), (b1[0], b1[1]), (b0[0], b0[1])]
-                evs = [a0[2], a1[2], b1[2], b0[2]]
                 st = self.shade_q.get((i, j), 0)
                 if st:
                     shade.setdefault(st, set()).add((i, j))
+                interior.setdefault(self.cover[(i, j)], set()).add((i, j))
+                if CONTOURS == "none":
+                    continue
+                # THE HAIRLINES ARE NOW EXTRACTED ON THEIR OWN. While the ground
+                # was tinted by height the isolines fell out of the fill as the
+                # seam between two bands; nothing colours by height any more, so
+                # a contour is cut here directly -- the segment where the cell's
+                # bilinear surface crosses a level. Every level a cell crosses
+                # gets its line, which is one line more than the old code drew
+                # on a cliff cell (it fell into the three-band branch and emitted
+                # fills only).
+                a0, a1 = grid[i][j], grid[i + 1][j]
+                b1, b0 = grid[i + 1][j + 1], grid[i][j + 1]
+                evs = [a0[2], a1[2], b1[2], b0[2]]
                 k0, k1 = band_of(min(evs)), band_of(max(evs))
                 if k0 == k1:
-                    interior.setdefault(k0, set()).add((i, j))
                     continue
-                if k1 == k0 + 1:
-                    lv = LEVELS[k0]
-                    lo = clip_below(quad, evs, lv)
-                    hi = clip_above(quad, evs, lv)
-                    if len(lo) >= 3:
-                        frag.setdefault(k0, []).append(rel_poly(lo))
-                    if len(hi) >= 3:
-                        frag.setdefault(k1, []).append(rel_poly(hi))
+                quad = [(a0[0], a0[1]), (a1[0], a1[1]),
+                        (b1[0], b1[1]), (b0[0], b0[1])]
+                for k in range(k0, k1):
+                    if CONTOURS == "index" and k not in INDEX_LEVELS:
+                        continue
+                    lv = LEVELS[k]
                     seg = []
                     for m in range(4):
                         e0, e1 = evs[m], evs[(m + 1) % 4]
@@ -1392,39 +1616,26 @@ class Plate:
                             seg.append((p0[0] + t * (p1[0] - p0[0]),
                                         p0[1] + t * (p1[1] - p0[1])))
                     if len(seg) == 2:
-                        cont.setdefault(k0, []).append(rel_seg(*seg))
-                else:
-                    # three or more bands in one cell: a cliff. Split at every
-                    # level it crosses so the ramp stays a ramp.
-                    for k in range(k0, k1 + 1):
-                        lo_lv = LEVELS[k - 1] if k > 0 else -1e9
-                        hi_lv = LEVELS[k] if k < len(LEVELS) else 1e9
-                        part = clip_above(quad, evs, lo_lv) if k > 0 else quad
-                        if len(part) < 3:
-                            continue
-                        if k < len(LEVELS):
-                            pev = []
-                            for px_, py_ in part:
-                                pev.append(self._interp_elev(quad, evs, px_, py_))
-                            part = clip_below(part, pev, hi_lv)
-                        if len(part) >= 3:
-                            frag.setdefault(k, []).append(rel_poly(part))
-            for k in sorted(set(list(interior) + list(frag))):
+                        cont.setdefault(k, []).append(rel_seg(*seg))
+            for c in COVER_ORDER:
+                cells = interior.get(c)
+                if not cells:
+                    continue
                 d = []
-                for loop in union_loops(interior.get(k, set()), corner):
+                for loop in union_loops(cells, corner):
                     d.append(rel_poly(simplify(loop, 0.6)))
-                d.extend(frag.get(k, []))
                 if d:
-                    # A hairline of page-bg used to show wherever a
-                    # simplified union loop pulled away from the fragment
-                    # polygons beside it, or where one depth stratum met the
-                    # next. Stroking a band in its OWN fill closes the seam
-                    # for 0.3 px of expansion and no change to the drawing.
-                    out.append(f'<path class="pp-band" fill="var(--plate-relief-{k + 1})" '
-                               f'stroke="var(--plate-relief-{k + 1})" stroke-width="0.7" '
+                    # A hairline of page-bg used to show wherever a simplified
+                    # union loop pulled away from its neighbour, or where one
+                    # depth stratum met the next. Stroking a class in its OWN
+                    # fill closes the seam for 0.3 px of expansion and no
+                    # change to the drawing.
+                    tok = f"var({COVER_TOKEN[c]})"
+                    out.append(f'<path class="pp-cover" fill="{tok}" '
+                               f'stroke="{tok}" stroke-width="0.7" '
                                f'd="{"".join(d)}"/>')
-            # SHADING sits between the bands and the contours: it models the
-            # surface the bands colour, and the hairlines stay on top of both.
+            # SHADING sits between the cover and the contours: it models the
+            # surface the cover colours, and the hairlines stay on top of both.
             for st in sorted(shade):
                 d = []
                 for loop in union_loops(shade[st], corner):
@@ -1489,8 +1700,10 @@ class Plate:
         for ij, v in raw.items():
             st = int(round(v * SHADE_STEPS))
             q[ij] = max(-SHADE_STEPS, min(SHADE_STEPS, st))
+        q, islands = median_lattice(q, SHADE_MEDIAN)
         self.shade_q = q
         self.stats["shaded_cells"] = sum(1 for v in q.values() if v)
+        self.stats["shade_islands_filtered"] = islands
 
     def shade_raw(self, i, j):
         """The continuous light at one mesh cell, in [-1, 1]: negative for a
@@ -1538,17 +1751,6 @@ class Plate:
         flat = LIGHT[2]
         d = illum - flat
         return d / (1.0 - flat) if d > 0 else d / flat
-
-    @staticmethod
-    def _interp_elev(quad, evs, x, y):
-        """Inverse-distance elevation at a point inside the cell -- only used
-        for the rare three-band cell, where exactness buys nothing."""
-        num = den = 0.0
-        for (qx, qy), e in zip(quad, evs):
-            w = 1.0 / (max(1e-6, (qx - x) ** 2 + (qy - y) ** 2))
-            num += w * e
-            den += w
-        return num / den
 
     # ── Ida beyond the mesh ──────────────────────────────────────────────
     def ida_svg(self):
@@ -1689,9 +1891,19 @@ class Plate:
         # drawn with no outline at all and blurred out at its margin -- the
         # same argument, and the same treatment, the geographic sheet already
         # uses for delta-swamp.
+        #
+        # IT IS NOW A GROUND-COVER CLASS, and that promoted it out of tier 2.
+        # As an annotation it could wait for the 2x zoom; as one of the three
+        # classes on this sheet with a derivable rule it belongs in the
+        # overview, or the overview shows a delta with no wet ground on it.
+        # It stays a wash rather than a mesh class for the reason above: the
+        # lattice would have given it the hard boundary the layer's own note
+        # says it does not have. What it washes over is the dry fan, so the
+        # composite is the wet delta's colour and the blur is the gradation
+        # between the two -- which is the only edge either of them really has.
         if swamp:
-            out.append(f'<g class="tm2"><path d="{rel_poly(swamp)}" class="pp-marsh" '
-                       f'filter="url(#pp-soft)"/></g>')
+            out.append(f'<path d="{rel_poly(swamp)}" class="pp-marsh" '
+                       f'filter="url(#pp-soft)"/>')
         return "".join(out)
 
     def rivers_svg(self):
@@ -2128,8 +2340,37 @@ def esc(s):
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# furniture: neatline, scale, hypsometric key, disclosure
+# furniture: neatline, scale, ground-cover key, disclosure
 # ═══════════════════════════════════════════════════════════════════════════
+# THE KEY IS THE ARGUMENT IN MINIATURE. It used to be a twelve-step ramp
+# under a heading naming elevation in metres -- the plan-view apparatus that
+# told the reader to read colour as height. It is now four ground-cover entries
+# and no numbers at all, because the plate no longer makes a claim a number
+# could answer. Each entry carries its evidence in the same breath as its
+# swatch: whose finding it is, or that it is a default, or that it is nothing.
+#
+# THE FIFTH ENTRY HAS NO SWATCH, and that is the entry doing the most work.
+# The riverbank thicket is the best-attested flora on this plain -- a named
+# assemblage, sited in the poem's own words -- and it is unmappable, because
+# the channels it grew along are under twenty metres of alluvium. So it is
+# lettered and not bounded. A key that only lists what could be drawn would
+# have quietly deleted the strongest thing the poem says about this ground.
+COVER_KEY = (
+    (COVER_FAN, "DRY DELTA FAN",
+     "sand-covered, dusty, firm — the battlefield (Kayan 2002)"),
+    (COVER_RIDGE, "RIDGE SCRUB, BARE SLOPE",
+     "thin soil on limestone — a regional default, not a survey"),
+    ("wet", "WET DELTA, SWAMP",
+     "waterlogged delta behind the bay (Kayan 2003) — no edge"),
+    (COVER_OPEN, "GROUND BEYOND THE PLAIN",
+     "outside the sector and its ridges — not classified"),
+)
+COVER_KEY_UNDRAWN = (
+    "RIVERBANK THICKET — elm, willow, tamarisk over lotus, rush and galingale, "
+    "Il. 21.350–52: lettered, not bounded. The Bronze Age channels lie under "
+    "as much as 20 m of alluvium and cannot be located, so the thicket has no "
+    "defensible extent and is given none."
+)
 def furniture(cam, terr, ship_depth, troy_depth):
     out = []
     m = 16.0
@@ -2148,25 +2389,48 @@ def furniture(cam, terr, ship_depth, troy_depth):
     # on it. Printed cartography has always answered that with the furniture,
     # and it is the honest answer here too — the key, the scale and the
     # disclosures make the empty quarter deliberate instead of unused.
-    bx, by = 62.0, H - 258.0
-    out.append(f'<path class="pp-neat-i" d="M{n1(bx)} {n1(by - 26)}h520" '
+    bx, by = 62.0, H - 320.0
+    out.append(f'<path class="pp-neat-i" d="M{n1(bx)} {n1(by - 26)}h820" '
                f'stroke-opacity="0.5"/>')
     out.append(f'<text class="pp-l-region" x="{n1(bx)}" y="{n1(by - 34)}">'
-               f'ELEVATION, METRES</text>')
+               f'GROUND COVER</text>')
 
-    kw, kh = 42.0, 20.0
-    for i in range(12):
-        out.append(f'<rect class="pp-key-sw" x="{n1(bx + i * kw)}" y="{n1(by)}" '
-                   f'width="{n1(kw)}" height="{n1(kh)}" '
-                   f'fill="var(--plate-relief-{i + 1})"/>')
-    out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(by + kh + 13)}">0</text>')
-    for i, lv in enumerate(LEVELS):
-        out.append(f'<text class="pp-l-note" x="{n1(bx + (i + 1) * kw)}" '
-                   f'y="{n1(by + kh + 13)}" text-anchor="middle">{lv}</text>')
+    kw, kh, row, col = 30.0, 16.0, 34.0, 410.0
+    for i, (cls, name, gloss) in enumerate(COVER_KEY):
+        sx = bx + (i % 2) * col
+        sy_ = by + (i // 2) * row
+        # the wet delta's swatch is what the reader actually sees: the wash at
+        # its own opacity over the fan it lies on, drawn the same way here as
+        # on the plate, so the key cannot promise a colour the sheet never
+        # prints.
+        #
+        # AND EVERY SWATCH IS MATTED. The cartouche floats on the near
+        # foreground, which is itself one of the classes -- so the ridge
+        # swatch was drawn in ridge colour ON ridge ground and read as an
+        # empty box, and "ground beyond the plain" nearly did too. Three
+        # points of page around each one is what separates the colour from
+        # the identical colour it happens to be standing on.
+        base = COVER_TOKEN.get(cls, COVER_TOKEN[COVER_FAN])
+        out.append(f'<rect x="{n1(sx - 3)}" y="{n1(sy_ - 3)}" '
+                   f'width="{n1(kw + 6)}" height="{n1(kh + 6)}" '
+                   f'fill="var(--page-bg)"/>')
+        out.append(f'<rect class="pp-key-sw" x="{n1(sx)}" y="{n1(sy_)}" '
+                   f'width="{n1(kw)}" height="{n1(kh)}" fill="var({base})"/>')
+        if cls == "wet":
+            out.append(f'<rect x="{n1(sx)}" y="{n1(sy_)}" width="{n1(kw)}" '
+                       f'height="{n1(kh)}" fill="var(--pp-cover-wet)" '
+                       f'fill-opacity="{COVER_WASH_OP:g}"/>')
+        out.append(f'<text class="pp-l-note" x="{n1(sx + kw + 9)}" '
+                   f'y="{n1(sy_ + 7)}" letter-spacing="0.9">{esc(name)}</text>')
+        out.append(f'<text class="pp-l-note" x="{n1(sx + kw + 9)}" '
+                   f'y="{n1(sy_ + 20)}" fill-opacity="0.85">{esc(gloss)}</text>')
+    ky = by + 2 * row + 16
+    out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(ky)}">'
+               f'{esc(COVER_KEY_UNDRAWN)}</text>')
 
     # scale. On an oblique there is no one scale, so the bar is given at two
     # depths and says which.
-    sy = by + kh + 62
+    sy = ky + 44
     out.append(f'<text class="pp-l-region" x="{n1(bx)}" y="{n1(sy - 12)}">'
                f'SCALE — VARIES WITH DEPTH</text>')
     for k, (d, lbl) in enumerate(((ship_depth, "1 km at the ships"),
@@ -2180,10 +2444,18 @@ def furniture(cam, terr, ship_depth, troy_depth):
                    f'{lbl}</text>')
 
     # ── the disclosures, which are part of the plate, not of the report
-    ty = H - 78
+    ty = H - 93
     for line in (
         disclosure(),
         sun_disclosure(),
+        "Colour says what the ground is, not how high it is: the ridges reuse this "
+        "sheet's own DEM outlines, the wet delta its 10–15 m slope-under-1.2% mask, "
+        "and the dry fan is what the plain sector has left. Height is in the "
+        "geometry and the light" + {
+            "all": ", and in the contour hairlines.",
+            "index": ", and in the index contours at 10, 30, 110 and 600 m.",
+            "none": " alone; no contours are drawn.",
+        }[CONTOURS],
         "Terrain, coastlines, rivers, Hisarlık, Callicolone, Sigeion and Rhoiteion are "
         "measured. Ships, huts, the wall and ditch, and every waypoint of the poem are "
         "conjectural — each placed by a stated rule, never at an invented coordinate.",
@@ -2208,10 +2480,11 @@ def build(terr, cam, plate_json):
     P = Plate(terr, cam, plate_json)
     P.mesh()
     P.cull()
+    P.cover_field()
     P.shade_field()
     body = ['<g clip-path="url(#pp-frame)">']
     # THE SKY IS NOT THE PAGE. Left as bare --page-bg it sat within a shade of
-    # --plate-relief-1, and every patch of delta under 5 m in the far plain
+    # the palest relief band, and every patch of delta under 5 m in the far plain
     # read as a hole punched through the plate rather than as low wet ground.
     # A wash of the coast ink over the page separates them, and gives the top
     # fifth of the frame something to be.
@@ -2546,6 +2819,9 @@ def main():
     ap.add_argument("--contour-op", type=float, default=CONTOUR_OP)
     ap.add_argument("--contour-index-w", type=float, default=CONTOUR_INDEX_W)
     ap.add_argument("--contour-index-op", type=float, default=CONTOUR_INDEX_OP)
+    ap.add_argument("--contours", choices=CONTOUR_MODES, default=CONTOURS,
+                    help="all levels, the index levels only, or none — the "
+                         "last piece of plan-map language on the sheet")
     ap.add_argument("--shade-az", type=float, default=LIGHT_AZ,
                     help="compass bearing the light comes FROM")
     ap.add_argument("--shade-alt", type=float, default=LIGHT_ALT)
@@ -2586,7 +2862,7 @@ def main():
         LIT_MAX=args.lit_max, SHADE_MIN_AREA=args.shade_min_area,
         SHADOW=not args.no_shadow, OBJ_SHADOW=not args.no_obj_shadow,
         SHADOW_STEP=args.shadow_step, SHADOW_REACH=args.shadow_reach,
-        OBJ_SHADOW_OP=args.obj_shadow_op)
+        OBJ_SHADOW_OP=args.obj_shadow_op, CONTOURS=args.contours)
     tag = args.tag
     os.makedirs(args.out_dir, exist_ok=True)
     print(f"curve {args.curve} ve(0)={C_A:g} scale={C_L:g} floor={C_F:.4f} "
@@ -2595,10 +2871,12 @@ def main():
               for e in (10, 25, 100, 300, 800, 1774)))
     print(f"sun az {LIGHT_AZ:g} alt {LIGHT_ALT:g} (shadow x{1.0 / max(1e-6, math.tan(math.radians(LIGHT_ALT))):.1f} "
           f"height), cast shadows {SHADOW}, object shadows {OBJ_SHADOW}")
-    print(f"{SHADE_STEPS} steps, "
-          f"shade<={SHADE_MAX:g} lit<={LIT_MAX:g}; contours {CONTOUR_W:g}/"
-          f"{CONTOUR_OP:g}, index {CONTOUR_INDEX_W:g}/{CONTOUR_INDEX_OP:g} "
-          f"at {[LEVELS[k] for k in sorted(INDEX_LEVELS)]} m")
+    print(f"{SHADE_STEPS} steps, shade<={SHADE_MAX:g} lit<={LIT_MAX:g}, "
+          f"{SHADE_SMOOTH} smoothing + {SHADE_MEDIAN} median passes; contours "
+          + ("OFF" if CONTOURS == "none" else
+             f"{CONTOURS}: {CONTOUR_W:g}/{CONTOUR_OP:g}, index "
+             f"{CONTOUR_INDEX_W:g}/{CONTOUR_INDEX_OP:g} at "
+             f"{[LEVELS[k] for k in sorted(INDEX_LEVELS)]} m"))
 
     terr = Terrain()
     cam = Camera(terr.plain)
@@ -2613,7 +2891,13 @@ def main():
         n_ = P.stats["shadow_raster"]
         print(f"shadow raster {n_}x{n_} = {n_ * n_} samples in "
               f"{P.stats['shadow_secs']}s; {P.stats.get('shaded_cells', 0)} "
-              f"toned cells, {P.stats.get('obj_shadows', 0)} object shadows")
+              f"toned cells, {P.stats.get('obj_shadows', 0)} object shadows, "
+              f"{P.stats.get('shade_islands_filtered', 0)} tone islands "
+              f"filtered by the median")
+    cc = P.stats.get("cover_cells", {})
+    print("ground cover: " + ", ".join(
+        f"{k} {v} ({100 * v / max(1, sum(cc.values())):.0f}%)"
+        for k, v in sorted(cc.items(), key=lambda kv: -kv[1])))
     print(f"mesh {len(P.azs)}x{len(P.rngs)} = {len(P.azs) * len(P.rngs)} nodes; "
           f"cells tested {P.stats['cells_tested']}, visible "
           f"{P.stats['cells_visible']} "

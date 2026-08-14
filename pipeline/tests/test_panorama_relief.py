@@ -447,35 +447,92 @@ def _luminance(rgb):
             + 0.0722 * _srgb_to_linear(b))
 
 
-RELIEF_NAMES = [f"plate-relief-{k}" for k in range(1, 13)]
+def _mix(fg, bg, a):
+    return tuple(a * fg[i] + (1 - a) * bg[i] for i in range(3))
 
 
-def test_river_stays_darker_than_every_relief_band_in_both_themes(s3):
+def _ground_values(s3, theme):
+    """Every colour the READER sees as ground, per theme: the three opaque
+    cover fills, the wet delta as it is actually composited (its wash over the
+    fan beneath it), and the two non-cover terrain marks."""
+    t = _parse_tokens(s3.TOKENS[theme])
+    out = {n: t[n] for n in
+           ("pp-cover-fan", "pp-cover-ridge", "pp-cover-open",
+            "pp-ida-mass", "pp-tumulus")}
+    out["pp-cover-wet*"] = _mix(t["pp-cover-wet"], t["pp-cover-fan"],
+                                s3.COVER_WASH_OP)
+    return out
+
+
+def test_river_stays_darker_than_every_ground_colour_in_both_themes(s3):
     """Water is darker than the land it crosses, in daylight AND at night.
     A river keyed to a value that inverts is the glowing-ribbon bug; this
-    pins the fix so it cannot come back."""
+    pins the fix so it cannot come back. Inherited by the ground-cover
+    tokens when the twelve-step relief ramp was deleted."""
     for theme in ("light", "dark"):
-        tokens = _parse_tokens(s3.TOKENS[theme])
-        river_l = _luminance(tokens["plate-river"])
-        for name in RELIEF_NAMES:
-            band_l = _luminance(tokens[name])
-            assert river_l < band_l, (
+        river_l = _luminance(_parse_tokens(s3.TOKENS[theme])["plate-river"])
+        for name, rgb in _ground_values(s3, theme).items():
+            assert river_l < _luminance(rgb), (
                 f"{theme}: river (L={river_l:.3f}) is not darker than "
-                f"{name} (L={band_l:.3f})")
+                f"{name} (L={_luminance(rgb):.3f})")
 
 
-def test_contour_stays_darker_than_every_relief_band_in_both_themes(s3):
+def test_contour_stays_darker_than_every_ground_colour_in_both_themes(s3):
     """Same rule for the isolines: an engraved contour reads as a quiet
     subordinate line by staying darker than its ground in both themes, not
     by inverting to the ink convention and outshining the labels."""
     for theme in ("light", "dark"):
-        tokens = _parse_tokens(s3.TOKENS[theme])
-        contour_l = _luminance(tokens["plate-contour"])
-        for name in RELIEF_NAMES:
-            band_l = _luminance(tokens[name])
-            assert contour_l < band_l, (
+        contour_l = _luminance(_parse_tokens(s3.TOKENS[theme])["plate-contour"])
+        for name, rgb in _ground_values(s3, theme).items():
+            assert contour_l < _luminance(rgb), (
                 f"{theme}: contour (L={contour_l:.3f}) is not darker than "
-                f"{name} (L={band_l:.3f})")
+                f"{name} (L={_luminance(rgb):.3f})")
+
+
+def test_the_cover_classes_keep_their_order_in_both_themes(s3):
+    """DARK THEME IS A DIFFERENT LIGHT, NOT AN INVERTED ONE, applied to the
+    ground itself. Dry sand is the brightest ground and wet delta the
+    darkest, in daylight and at night alike; if the rank flipped, the plate
+    would be telling two different stories about the same ground."""
+    order = ["pp-cover-fan", "pp-cover-open", "pp-cover-ridge", "pp-cover-wet*"]
+    for theme in ("light", "dark"):
+        g = _ground_values(s3, theme)
+        lums = [_luminance(g[n]) for n in order]
+        assert lums == sorted(lums, reverse=True), (
+            f"{theme}: cover order is not fan > open > ridge > wet: "
+            + ", ".join(f"{n}={l:.4f}" for n, l in zip(order, lums)))
+
+
+def test_the_ground_is_no_longer_a_tonal_ramp(s3):
+    """The terraces were a LUMINANCE problem. Twelve hypsometric bands spanned
+    2.50x in light, so every band edge was a step in the light and a stack of
+    them read as flat tables. Ground-cover classes are separated by hue, and
+    the whole set must stay inside a spread narrow enough that a class
+    boundary cannot read as a step."""
+    for theme in ("light", "dark"):
+        lums = [_luminance(v) for v in _ground_values(s3, theme).values()
+                if v is not None]
+        cover = [_luminance(v) for k, v in _ground_values(s3, theme).items()
+                 if k.startswith("pp-cover")]
+        assert max(cover) / min(cover) < 1.45, (
+            f"{theme}: cover luminance spread {max(cover)/min(cover):.2f}x "
+            "is wide enough to read as a tonal ramp")
+
+
+def test_labels_keep_wcag_aa_on_every_ground_colour(s3):
+    """Measured, not eyeballed, and on the DIMMEST tier of type on the sheet.
+    Small text needs 4.5:1; the labels also carry a halo, but the halo is a
+    stroke and the contrast has to hold without leaning on it."""
+    for theme in ("light", "dark"):
+        ink = _luminance(_parse_tokens(s3.TOKENS[theme])["text-mid"])
+        for name, rgb in _ground_values(s3, theme).items():
+            if name in ("pp-ida-mass", "pp-tumulus"):
+                continue          # marks, not label ground
+            g = _luminance(rgb)
+            hi, lo = max(ink, g), min(ink, g)
+            ratio = (hi + 0.05) / (lo + 0.05)
+            assert ratio >= 4.5, (
+                f"{theme}: --text-mid on {name} is {ratio:.2f}:1, under AA")
 
 
 def test_contour_and_river_stay_subordinate_to_label_ink(s3):
@@ -506,3 +563,180 @@ def test_city_architecture_no_longer_keyed_to_inverting_ink(s3):
             f"{cls} stroke is not keyed to --pp-hull-edge: {block}")
         assert "var(--text)" not in block and "var(--text-mid)" not in block, (
             f"{cls} is still keyed to an inverting ink token: {block}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ground cover: colour says what the ground IS, not how high it is
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-14. The plate coloured the ground by elevation -- twelve hypsometric
+# bands with a metres key -- which is a PLAN-VIEW device on an oblique that
+# already shows height geometrically, and which printed as a stack of flat
+# terraces ("troy looks like it's on a flat table"). Colour now carries the
+# ground-cover classes of docs/research/GROUND-COVER-TROJAN-PLAIN.md; tone
+# carries the light; height carries itself.
+
+
+def test_the_hypsometric_ramp_is_gone(s3):
+    """The bug, in its own terms: no relief-ramp token may survive, and no
+    fill may be keyed to one."""
+    for theme in ("light", "dark"):
+        assert "plate-relief" not in s3.TOKENS[theme]
+    assert "plate-relief" not in s3.CSS
+    assert not hasattr(s3, "COVER_TOKEN_RELIEF")
+
+
+def test_no_colour_on_the_plate_is_anything_but_a_var_token(s3):
+    """TROAD-CARTOGRAPHY.md's standing rule, and half the reason hillshade
+    was refused: a baked colour cannot be re-themed, so both themes and both
+    contrast requirements are satisfied by the stylesheet or not at all."""
+    lit = re.findall(r"(?:fill|stroke)\s*[:=]\s*[\"']?(#[0-9A-Fa-f]{3,8}|"
+                     r"rgba?\([^)]*\)|hsla?\([^)]*\))", s3.CSS)
+    assert lit == [], f"literal colours in CSS: {lit}"
+    for c, tok in s3.COVER_TOKEN.items():
+        assert tok.startswith("--"), f"{c} is not a CSS custom property"
+        for theme in ("light", "dark"):
+            assert tok + ":" in s3.TOKENS[theme], (
+                f"{tok} has no {theme} value")
+
+
+def test_every_cover_class_has_a_token_in_both_themes(s3):
+    for theme in ("light", "dark"):
+        t = _parse_tokens(s3.TOKENS[theme])
+        for name in ("pp-cover-fan", "pp-cover-ridge", "pp-cover-open",
+                     "pp-cover-wet"):
+            assert name in t, f"{theme} is missing --{name}"
+
+
+def test_the_masks_are_the_plate_s_own_layers_never_re_derived(s3):
+    """§2.1 and §2.4 of the specification: the wet delta and the ridges
+    already exist on this sheet, cut from the DEM. Re-deriving thresholds
+    here would invent a second, worse boundary for the same ground."""
+    assert s3.RIDGE_LAYERS == ("relief-sigeion-ridge", "relief-troy-ridge",
+                               "relief-rhoiteion-ridge")
+    assert s3.PLAIN_LAYER == "scamandrian-plain"
+    assert s3.SWAMP_LAYER == "delta-swamp"
+    plate = os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")
+    if not os.path.exists(plate):
+        pytest.skip("plate JSON not present")
+    import json
+    ids = {l["id"] for l in json.load(open(plate))["layers"]}
+    for layer in s3.RIDGE_LAYERS + (s3.PLAIN_LAYER, s3.SWAMP_LAYER):
+        assert layer in ids, f"{layer} is not a layer on this plate"
+
+
+def test_no_sand_barrier_or_beach_class_exists(s3):
+    """§2.5: a Bronze Age barrier on the Scamander front is NOT KNOWABLE and
+    is contradicted four times over. It may not re-enter as ground cover,
+    and `barrier-bronze`'s footprint may not be used as a mask."""
+    src = open(s3.__file__ if hasattr(s3, "__file__") else STAGE3).read() \
+        if False else open(STAGE3).read()
+    for forbidden in ("COVER_BARRIER", "COVER_BEACH", "COVER_DUNE",
+                      "pp-cover-barrier", "pp-cover-beach", "pp-cover-dune"):
+        assert forbidden not in src, f"{forbidden} is a forbidden class"
+    assert "barrier-bronze" not in s3.COVER_TOKEN.values()
+    body = src.split("def cover_field", 1)[1].split("def terrain_svg", 1)[0]
+    assert "barrier" not in body, (
+        "the classifier reads barrier-bronze; §2.5 forbids it")
+
+
+def test_the_riverbank_thicket_is_lettered_and_never_bounded(s3):
+    """§2.3: the flora is the best-attested thing the poem says about this
+    ground AND has no defensible extent, because the channels it grew along
+    are unlocatable. It must appear in the key and nowhere in the geometry."""
+    assert any("RIVERBANK THICKET" in s for s in [s3.COVER_KEY_UNDRAWN])
+    assert "21.350" in s3.COVER_KEY_UNDRAWN
+    assert "not bounded" in s3.COVER_KEY_UNDRAWN
+    assert "thicket" not in str(s3.COVER_TOKEN)
+    assert all(c != "thicket" for c in s3.COVER_ORDER)
+
+
+def test_the_key_names_the_classes_and_no_longer_names_metres(s3):
+    """The key WAS the instruction to read colour as height. It is now four
+    ground-cover entries and carries no elevation numbers at all."""
+    src = open(STAGE3).read()
+    assert "ELEVATION, METRES" not in src
+    assert "GROUND COVER" in src
+    named = {c for c, _, _ in s3.COVER_KEY}
+    assert named == set(s3.COVER_ORDER) | {"wet"}
+    for _, name, gloss in s3.COVER_KEY:
+        assert name and gloss, "every key entry states its evidence"
+    # the weakest class says so, and the unclassified one says that
+    joined = " ".join(g for _, _, g in s3.COVER_KEY)
+    assert "default" in joined and "not classified" in joined
+
+
+def test_the_contour_switch_has_three_settings_and_none_means_none(s3):
+    assert s3.CONTOUR_MODES == ("all", "index", "none")
+    assert s3.CONTOURS in s3.CONTOUR_MODES
+
+
+def test_cover_classification_is_priority_ordered(s3):
+    """Ridge beats plain-sector, and anything in neither carries no claim.
+    Driven through the real classifier with two square masks, so the test
+    exercises the code and not a restatement of it."""
+    lat0, lon0 = s3.VIEWPOINT
+    mlon = 111320.0 * math.cos(math.radians(lat0))
+    box = lambda la, lo, d: [[la - d, lo - d], [la - d, lo + d],
+                             [la + d, lo + d], [la + d, lo - d]]
+    # the ridge lies wholly inside the plain sector, so their overlap is the
+    # case the priority rule exists for
+    P = object.__new__(s3.Plate)
+    P.lay = {"relief-sigeion-ridge": {"polygon": box(lat0, lon0, 0.004)},
+             "relief-troy-ridge": {"polygon": box(lat0 + 9, lon0, 0.001)},
+             "relief-rhoiteion-ridge": {"polygon": box(lat0 + 9.5, lon0, 0.001)},
+             "scamandrian-plain": {"polygon": box(lat0, lon0, 0.02)}}
+    P.stats = {}
+
+    def cover_at(dlon_deg):
+        """One cell whose four corners all sit at the same offset, so the
+        cell centre is exactly that offset."""
+        e = dlon_deg * mlon
+        P.wor = [[(e, 0.0), (e, 0.0)], [(e, 0.0), (e, 0.0)]]
+        P.visible = {(0, 0)}
+        P.cover_field()
+        return P.cover[(0, 0)]
+
+    assert cover_at(0.0) == s3.COVER_RIDGE, "ridge must beat the sector"
+    assert cover_at(0.01) == s3.COVER_FAN, "the sector's remainder is the fan"
+    assert cover_at(0.5) == s3.COVER_OPEN, (
+        "ground outside every mask carries no claim")
+    assert P.stats["cover_cells"][s3.COVER_OPEN] == 1
+
+
+def test_a_cover_class_is_never_split_at_an_isoline(s3):
+    """A ground-cover boundary is not an isoline, so no cell is clipped
+    against one. The band-fragment machinery that did that is gone, and the
+    contour hairlines are extracted on their own."""
+    src = open(STAGE3).read()
+    assert "def clip_below" not in src and "def clip_above" not in src
+    assert "_interp_elev" not in src
+    body = src.split("def terrain_svg", 1)[1].split("def shade_field", 1)[0]
+    assert "frag" not in body, "fill fragments are band machinery"
+
+
+def test_the_shade_median_removes_islands_without_moving_an_edge(s3):
+    """The blotchy foreground: one-cell tone islands round into countable
+    ovals. A median kills an isolated cell in one pass and leaves a straight
+    edge between two broad regions exactly where it was."""
+    # a 7x7 quantised field: left half at -3, right half at 0, one island
+    q = {(i, j): (-3 if i < 3 else 0) for i in range(7) for j in range(7)}
+    q[(1, 1)] = 5
+    out, islands = s3.median_lattice(q, 1)
+    assert out[(1, 1)] == -3, "the one-cell island survived the median"
+    assert islands >= 1, "the island was not counted"
+    # and the edge between the two regions has not moved
+    for j in range(1, 6):
+        assert out[(2, j)] == -3 and out[(3, j)] == 0, (
+            "the median moved the boundary between two broad regions")
+    # a field with no islands is a fixed point
+    clean = {(i, j): (-3 if i < 3 else 0) for i in range(7) for j in range(7)}
+    same, none = s3.median_lattice(clean, 3)
+    assert same == clean and none == 0
+
+
+def test_the_shade_dials_are_the_ones_that_were_measured(s3):
+    """Raising the step count made the near foreground WORSE -- more step
+    boundaries for the lattice to show through, printing as countable ovals.
+    Six steps is the light's own setting and is not this pass's to move."""
+    assert s3.SHADE_STEPS == 6
+    assert s3.SHADE_MEDIAN >= 1 and s3.SHADE_SMOOTH >= 3
