@@ -1048,11 +1048,33 @@ export interface ShipRowOptions {
 
 // Small stylized beached-ship glyphs — a curved hull with a raised, kicked
 // prow, plus a mast — spaced along `baseline`, stacked in `rows` ranks
-// offset perpendicular to it. Each ship's proportions, position, and mast
-// height are lightly seeded-jittered so a row of many ships doesn't read as
-// a stamped pattern, while staying fully deterministic for a given seed.
-// Returns a single filled `d` string (every hull/mast is its own small
-// closed shape).
+// offset perpendicular to it. Returns a single filled `d` string (every
+// hull/mast is its own small closed shape).
+//
+// RE-CUT 2026-08-13 (schematic-camp comp). The first version jittered each
+// ship's position along the baseline by up to a third of its own slot, gave
+// every rank its own randomised offset, and varied hull length by ±22%. At
+// sheet size that read as "a uniform scribble in irregular rows" — the marks
+// were too alike to tell apart and too unaligned to read as ranks, which is
+// the worst of both. It also breaks docs/TROAD-CARTOGRAPHY.md's aesthetic
+// rule outright ("no faux-antique effects, no hand-drawn wobble"). Three
+// changes, and every one of them is a claim the poem makes:
+//
+//   - POSITION IS REGULAR. Ships sit on their slot centres. Nothing wobbles.
+//   - RANKS ARE STAGGERED BY HALF A SLOT, alternating. That is προκρόσσας
+//     (Il. 14.35) — drawn up in echelon, not in a grid — and it is what lets
+//     three ranks 1.25 hull-lengths apart read as three ranks rather than as
+//     one thicket.
+//   - RANKS RECEDE. This sheet takes Pope's oblique viewpoint (sea at the
+//     bottom, Troy at the top), so the rank furthest UP the sheet is the
+//     furthest away; each successive rank draws ~9% larger toward the
+//     viewer. Depth is drawn, not implied.
+//
+// The seed still varies hull length, by ±7% rather than ±22%: real ships
+// differ, and a stamped repeat is its own kind of lie. It is the only
+// randomness left in the glyph.
+const SHIP_RANK_GAP = 1.55; // in hull half-lengths
+const SHIP_RANK_DEPTH = 0.06; // per-rank size gain toward the viewer
 export function shipRow(baseline: [PlatePoint, PlatePoint], rows: number, count: number, opts: ShipRowOptions): string {
   const [[x1, y1], [x2, y2]] = baseline;
   const dx = x2 - x1;
@@ -1065,9 +1087,14 @@ export function shipRow(baseline: [PlatePoint, PlatePoint], rows: number, count:
   const ny = ux;
   const rand = mulberry32(opts.seed);
 
-  const baseHalfLen = Math.min(len / count, 18) * 0.42;
-  const rankSpacing = baseHalfLen * 0.9;
   const slotWidth = len / count;
+  // The cap stops a sparse baseline (two ships across a legend swatch) drawing
+  // absurdly long hulls. Raised 18 → 32 with the re-cut: at 18 it was BINDING
+  // on the Trojan-plain camp rows, which meant a named inset drawing the same
+  // ships at 1.55x got hulls of exactly the same size as the main sheet — an
+  // enlargement that enlarged nothing. It now binds only where it was meant to.
+  const baseHalfLen = Math.min(slotWidth, 32) * 0.46;
+  const rankSpacing = baseHalfLen * SHIP_RANK_GAP;
 
   // A hull is authored in local (u = along the ship, v = across it) space,
   // then mapped into world space via the same affine frame (dir, nrm) used
@@ -1080,39 +1107,72 @@ export function shipRow(baseline: [PlatePoint, PlatePoint], rows: number, count:
 
   const parts: string[] = [];
   for (let r = 0; r < rows; r++) {
-    const rankOffset = r * rankSpacing * (1.6 + rand() * 0.3);
+    // Rank 0 is the landward rank — the first hauled, τὰς γὰρ πρώτας πεδίον
+    // δὲ εἴρυσαν (Il. 14.31-32) — and on this viewpoint it is the furthest
+    // away, so it is also the smallest.
+    const rankOffset = r * rankSpacing;
+    const stagger = (r % 2) * slotWidth * 0.5;
+    const rankScale = 1 + r * SHIP_RANK_DEPTH;
     for (let i = 0; i < count; i++) {
-      const jitterAlong = (rand() - 0.5) * slotWidth * 0.35;
-      const t = (i + 0.5) / count;
-      const bx = x1 + ux * (len * t + jitterAlong) + nx * rankOffset;
-      const by = y1 + uy * (len * t + jitterAlong) + ny * rankOffset;
+      const along = slotWidth * (i + 0.5) + stagger;
+      if (along > len) continue; // the staggered rank's last slot falls off the end of the line
+      const bx = x1 + ux * along + nx * rankOffset;
+      const by = y1 + uy * along + ny * rankOffset;
 
-      const L = baseHalfLen * (0.82 + rand() * 0.36);
-      const W = L * 0.3 * (0.85 + rand() * 0.3);
-      const prowLift = W * (1.1 + rand() * 0.5);
-      const prowKick = L * (0.12 + rand() * 0.08);
-      const sternRise = W * (0.25 + rand() * 0.25);
+      const L = baseHalfLen * rankScale * (0.93 + rand() * 0.14);
+      // A long, shallow crescent: hull about four and a half times its own
+      // depth, prow swept up, stern a little higher still — the aphlaston.
+      // Tuned at 3x on a crop, twice: too fat and it is a leaf, too deep and
+      // it is a hook.
+      const W = L * 0.22;
+      const prowLift = W * 1.36;
+      const prowKick = L * 0.12;
+      const sternRise = W * 1.64;
 
       const A = toWorld(bx, by, -L, 0); // stern base
-      const Cctrl = toWorld(bx, by, 0, W * 1.15); // belly bulge control
-      const C = toWorld(bx, by, L * 0.68, 0); // bow base
+      const Cctrl = toWorld(bx, by, 0, W * 1.36); // belly bulge control
+      const C = toWorld(bx, by, L * 0.78, 0); // bow base
       const D = toWorld(bx, by, L + prowKick, -prowLift); // raised, kicked prow tip
-      const Ectrl = toWorld(bx, by, 0, -W * 0.55); // sheer-line control
-      const E = toWorld(bx, by, -L * 0.86, -sternRise); // stern top
+      const Ectrl = toWorld(bx, by, 0, -W * 0.6); // sheer-line control
+      const E = toWorld(bx, by, -L * 1.05, -sternRise); // stern top, the curled aphlaston
 
       parts.push(`M ${A[0]} ${A[1]} Q ${Cctrl[0]} ${Cctrl[1]} ${C[0]} ${C[1]} L ${D[0]} ${D[1]} Q ${Ectrl[0]} ${Ectrl[1]} ${E[0]} ${E[1]} Z`);
 
-      // Mast: a thin filled needle, not a stroked tick, so it stays part
-      // of the same fill-only path as the hull.
-      const mastHalf = W * 0.16;
-      const mastHeight = W * 1.6 * (0.7 + rand() * 0.6);
-      const M1 = toWorld(bx, by, -mastHalf, -W * 0.1);
-      const M2 = toWorld(bx, by, mastHalf, -W * 0.1);
-      const M3 = toWorld(bx, by, 0, -W * 0.1 - mastHeight);
-      parts.push(`M ${M1[0]} ${M1[1]} L ${M2[0]} ${M2[1]} L ${M3[0]} ${M3[1]} Z`);
+      // NO MAST (2026-08-13). The glyph carried a standing mast, and a beached
+      // ship has none: coming into moorings they furl the sail, stow it, and
+      // lower the mast into the mast-crutch — ἱστὸν δ' ἱστοδόκῃ πέλασαν
+      // προτόνοισιν ὑφέντες (Il. 1.433-35), before the stern-cables go ashore
+      // (1.436). It was also the mark that failed worst at magnification: a
+      // filled needle a fifth of a hull-width across reads as a pin stuck
+      // through a leaf. Dropping it is the accurate drawing AND the cleaner
+      // one, which is usually the way round it goes.
     }
   }
   return parts.join(' ');
+}
+
+// The rectangle of sheet a shipRow() call covers: its four corners, in the
+// same (dir, nrm) frame the glyphs are laid out in. Kept next to shipRow so
+// the two cannot drift — every constant here is read from the block above.
+// `up` is the prow-lift-and-mast side, `down` the direction the ranks recede.
+export function shipRowExtent(baseline: [PlatePoint, PlatePoint], rows: number, count: number): [number, number][] {
+  const [[x1, y1], [x2, y2]] = baseline;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.hypot(dx, dy);
+  if (len < 1e-9 || rows < 1 || count < 1) return [];
+  const nx = -dy / len;
+  const ny = dx / len;
+  const half = Math.min(len / count, 32) * 0.46;
+  const lastScale = 1 + (rows - 1) * SHIP_RANK_DEPTH;
+  const up = half * 0.36; // the stern post, the tallest part of the hull
+  const down = (rows - 1) * half * SHIP_RANK_GAP + half * lastScale * 0.3;
+  const out: [number, number][] = [];
+  for (const [ex, ey] of [[x1, y1], [x2, y2]]) {
+    out.push([ex + nx * -up, ey + ny * -up]);
+    out.push([ex + nx * down, ey + ny * down]);
+  }
+  return out;
 }
 
 export interface WallGlyphResult {
@@ -1540,7 +1600,72 @@ const LABEL_CLASS_OVERRIDE: Record<string, LabelRole> = {
   tenedos: 'settlement', // a small island CITY (Landmark convention), unlike Lesbos/Imbros/Lemnos/Samothrace
 };
 
-function placeLabelClass(place: PlatePlace): LabelRole {
+// ── Label class on a SCHEMATIC plate (2026-08-13) ─────────────────────────
+// Until this lane, every located place on a schematic plate lettered as
+// `settlement` — one size, one weight, italic (because every schematic
+// position is conjectural, see below). Thirty-five names in one register is
+// no register at all: on the Trojan-plain schematic sheet, "Pyre of
+// Patroclus" printed exactly as loudly as the city of Troy.
+//
+// So the five Landmark classes apply here too, but through their OWN table.
+// The geographic map above (KIND_LABEL_CLASS) is not reusable, and the reason
+// is worth stating: it is built for a survey sheet, where `camp` and `plain`
+// are tracts of country and letter as regions. On this sheet a `camp` is a
+// station of huts belonging to a named man — a BUILT thing, the exact
+// register a settlement is in — and lettering the huts of Ajax in 15.5px
+// tracked capitals would make five hut-clusters the loudest geography on the
+// plain. The split follows the dossier's own five classes as the poem's
+// content divides:
+//
+//   built and inhabited  → settlement   huts, gates, towers, walls, camps
+//   tract of country     → region       a district, a plain, an island
+//   water                → water        rivers, springs, fords, the strait
+//   a mark on the ground → feature      tombs, trees, hills, headlands
+//
+// (`minor` stays what it was: the register a layer's own name takes.)
+const SCHEMATIC_KIND_LABEL_CLASS: Record<string, LabelRole> = {
+  settlement: 'settlement',
+  camp: 'settlement',
+  shrine: 'settlement',
+  // A gate, a tower, a stretch of wall: marks ON a built place, not built
+  // places in their own right. Set in the settlement register they made the
+  // Scaean Gate shout as loudly as Troy, which is the exact defect the five
+  // classes exist to prevent.
+  gate: 'feature',
+  tower: 'feature',
+  wall: 'feature',
+  region: 'feature',
+  plain: 'region',
+  island: 'region',
+  river: 'water',
+  spring: 'water',
+  ford: 'water',
+  harbour: 'water',
+  strait: 'water',
+  tomb: 'feature',
+  tree: 'feature',
+  hill: 'feature',
+  mountain: 'feature',
+  promontory: 'feature',
+};
+
+// No id overrides on a schematic sheet, and one was tried and withdrawn:
+// `achaean-camp` as a `region` letters CENTRED over its own drawn extent,
+// which on this plate is the middle of three ranks of ships — the name lands
+// on the drawing it names. Its point anchor sits in the clear beach below the
+// ships, so the settlement register its `kind` gives it is also the placement
+// that reads. Kept as a record because the reasoning ("it is a tract, not a
+// station") is right and the drawing still says otherwise.
+const SCHEMATIC_LABEL_CLASS_OVERRIDE: Record<string, LabelRole> = {};
+
+function placeLabelClass(place: PlatePlace, plateKind: PlateKind = 'geographic'): LabelRole {
+  if (plateKind === 'schematic') {
+    return (
+      SCHEMATIC_LABEL_CLASS_OVERRIDE[place.id] ??
+      (place.kind ? SCHEMATIC_KIND_LABEL_CLASS[place.kind] : undefined) ??
+      'settlement'
+    );
+  }
   return LABEL_CLASS_OVERRIDE[place.id] ?? (place.kind ? KIND_LABEL_CLASS[place.kind] : undefined) ?? 'settlement';
 }
 
@@ -2040,8 +2165,17 @@ function layoutLabels(
   // schematic plate is affected; its guide stays the raw polyline exactly as
   // before, matching every other schematic drawing convention in this file.
   smoothSize?: [number, number],
+  // Blocks of drawing a name may not be laid across, seeded into `placed` so
+  // they carry a LABEL's weight in the cost function rather than a marker's
+  // (2026-08-13). A marker box is a soft preference — ten times cheaper to
+  // overprint than another name — which is right for a 5px dot and wrong for
+  // a 180 x 34px block of three ranks of ships: "Hut and ship of Nestor" chose
+  // to print straight through the ships rather than shift a few pixels away
+  // from its neighbour. Seeding them here fixes that without re-weighting the
+  // solver for every plate in the project.
+  reservedBoxes: Box[] = [],
 ): { markup: string; defs: string; placedBoxes: Box[]; suppressed: string[] } {
-  const placed: Box[] = [];
+  const placed: Box[] = [...reservedBoxes];
   const parts: string[] = [];
   const defs: string[] = [];
   const suppressed: string[] = [];
@@ -2179,6 +2313,8 @@ interface LegendEntry {
 const LEGEND_FONT = 9.5;
 const LEGEND_ROW_H = 14;
 const LEGEND_SWATCH_W = 22;
+/** Gutter between the columns of a folded key. See legendMarkup. */
+const LEGEND_COLUMN_GAP = 16;
 
 function legendLine(x: number, y: number, stroke: string, width: number, dash = '', opacity = 1): string {
   return (
@@ -2227,6 +2363,24 @@ function layerLegendEntry(layer: PlateLayer): LegendEntry | undefined {
 }
 
 function derivedLegendEntry(layer: PlateLayer): LegendEntry | undefined {
+  // An inset panel and a title block are sheet FURNITURE, not a register a
+  // reader has to look up; keying them would say nothing and cost a row.
+  if (layer.style === 'inset') return undefined;
+  // A pictorial hill profile keys as what it is: a silhouette, drawn, not
+  // measured. It must never inherit the hachure row's wording, which claims a
+  // treatment this style exists to replace.
+  if (layer.kind === 'relief' && layer.style === 'profile') {
+    return {
+      key: 'relief-profile',
+      rank: 4,
+      text: 'High ground, in profile',
+      swatch: (x, y) =>
+        `<path d="M ${round1(x + 1)} ${round1(y + 4)} L ${round1(x + 7)} ${round1(y - 4)} ` +
+        `L ${round1(x + 12)} ${round1(y + 0.5)} L ${round1(x + 16)} ${round1(y - 3)} ` +
+        `L ${round1(x + 21)} ${round1(y + 4)} Z" fill="var(--plate-upland)" ` +
+        `stroke="var(--flaxman-ink)" stroke-width="${PROFILE_OUTLINE_WIDTH}" stroke-opacity="0.7" stroke-linejoin="round"/>`,
+    };
+  }
   // The poem's register keys once, whatever kind of thing carries it — a house,
   // a temple, a street. Wording mirrors the conjectural-pin row the schematic
   // sheets already use, because it is the same claim about the same kind of
@@ -2413,8 +2567,34 @@ function legendMarkup(entries: LegendEntry[], width: number, height: number, avo
   const textW = Math.max(...rows.map((r) => r.text.length * LEGEND_FONT * 0.54));
   const padX = 8;
   const padY = 8;
-  const panelW = padX * 2 + LEGEND_SWATCH_W + 7 + textW;
-  const panelH = padY * 2 + rows.length * LEGEND_ROW_H;
+  // Two columns once one column would run deeper than a quarter of the sheet
+  // (2026-08-13). A thirteen-row key is 200px tall, and on a 780px plate there
+  // is no corner that deep which is also empty — it simply moved from eating
+  // the top-left quarter of the map face to eating the top-right. Folded in
+  // two it is half as deep and fits the margin strip a plate is supposed to
+  // keep its furniture in. The test is depth, not row count, so a key that
+  // already fits a corner is laid out exactly as it always was.
+  const colW = LEGEND_SWATCH_W + 7 + textW;
+  const oneColumnH = padY * 2 + rows.length * LEGEND_ROW_H;
+  const marginStrip = height * 0.115;
+  const widthFor = (c: number) => padX * 2 + colW * c + (c - 1) * LEGEND_COLUMN_GAP;
+  const heightFor = (c: number) => padY * 2 + Math.ceil(rows.length / c) * LEGEND_ROW_H;
+  // Fold only as far as the sheet is actually wide enough to take. A small
+  // plate whose key already fits one column keeps it, and a plate too narrow
+  // for two columns is never folded into a panel that then overruns its own
+  // frame and gets dropped entirely (which is what an unconditional fold did
+  // to the 200px test fixtures — the key vanished rather than moved).
+  let columns = 1;
+  while (
+    columns < 3 &&
+    heightFor(columns) > marginStrip &&
+    widthFor(columns + 1) <= width - LABEL_MARGIN * 2
+  ) {
+    columns++;
+  }
+  const perColumn = Math.ceil(rows.length / columns);
+  const panelW = padX * 2 + colW * columns + (columns - 1) * LEGEND_COLUMN_GAP;
+  const panelH = padY * 2 + perColumn * LEGEND_ROW_H;
   // A key that overruns its own sheet is worse than no key. Small schematic
   // devices (the Shield at 200px) have no room for one and no use for one —
   // they are not maps, and every band already carries its own label.
@@ -2438,10 +2618,12 @@ function legendMarkup(entries: LegendEntry[], width: number, height: number, avo
       `stroke="var(--flaxman-ink)" stroke-width="0.5" stroke-opacity="0.5"/>`,
   ];
   rows.forEach((row, i) => {
-    const cy = y0 + padY + LEGEND_ROW_H * i + LEGEND_ROW_H / 2;
-    parts.push(row.swatch(x0 + padX, cy));
+    const col = Math.floor(i / perColumn);
+    const colX = x0 + padX + col * (colW + LEGEND_COLUMN_GAP);
+    const cy = y0 + padY + LEGEND_ROW_H * (i % perColumn) + LEGEND_ROW_H / 2;
+    parts.push(row.swatch(colX, cy));
     parts.push(
-      `<text x="${round1(x0 + padX + LEGEND_SWATCH_W + 7)}" y="${round1(cy + LEGEND_FONT * 0.35)}" ` +
+      `<text x="${round1(colX + LEGEND_SWATCH_W + 7)}" y="${round1(cy + LEGEND_FONT * 0.35)}" ` +
         `font-family="var(--font-ui)" font-size="${LEGEND_FONT}" fill="var(--text)">${escapeXml(row.text)}</text>`,
     );
   });
@@ -3054,6 +3236,78 @@ const STROKE_WEIGHT = {
 
 /** The drawn face of a surveyed masonry band. See the `region` case in renderLayer. */
 const MASONRY_EDGE_WIDTH = 1;
+/** The silhouette of a pictorial hill profile (`style: "profile"`). See the `relief` case. */
+const PROFILE_OUTLINE_WIDTH = 0.9;
+
+// ── The named inset (`region`/`band` with `style: "inset"`, 2026-08-13) ────
+// The Landmark's third map tier — locator, main sheet, NAMED inset — and the
+// device that fixes a crowded corner without moving anything on the sheet
+// (docs/TROAD-CARTOGRAPHY.md §3: "Three tiers: locator map → main map →
+// *named* (not numbered) inset").
+//
+// It is a `region` style rather than a new layer KIND on purpose: the layer
+// kinds are a closed enum validated twice over, here and in
+// pipeline/homer_pipeline/apparatus_places.py's LAYER_KIND_ENUM, and a new
+// one drifts the two schemas apart for a panel that is geometrically just a
+// filled rectangle. `style` is validated on neither side beyond the
+// stochastic set, so this costs the schema nothing.
+//
+// The panel is OPAQUE and framed in the sheet's own double-neatline
+// proportions, because that is what makes it read as a separate sheet-within-
+// a-sheet rather than as another wash on the plain. Its contents are ordinary
+// layers, authored in the same unit space at whatever scale the author draws
+// them: the inset carries no transform, so there is no second coordinate
+// system for anything to go wrong in.
+//
+// `label` is the panel's own head, split on "|" into lines: the first in
+// letterspaced caps (the inset's NAME — the Landmark keys marginal references
+// to it by name, never by number), the rest in a small roman for the scale
+// statement and any caveat. It is lettered here, at a fixed position in the
+// panel's head strip, and deliberately NOT handed to layoutLabels — a title
+// block whose position a solver may move is not a title block.
+const INSET_FRAME_OUTER = 1;
+const INSET_FRAME_INNER = 0.4;
+const INSET_FRAME_GAP = 2.5;
+const INSET_PAD = 9;
+const INSET_HEAD_SIZE = 11;
+const INSET_SUB_SIZE = 8.6;
+const INSET_LINE_GAP = 3;
+
+function insetMarkup(id: string, px: [number, number][], label: string | undefined): string {
+  const [x0, y0, x1, y1] = bboxOf(px);
+  const frame = (inset: number, w: number) =>
+    `<rect x="${round1(x0 + inset)}" y="${round1(y0 + inset)}" width="${round1(x1 - x0 - inset * 2)}" ` +
+    `height="${round1(y1 - y0 - inset * 2)}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${w}"/>`;
+  const parts = [
+    `<rect data-feature-id="${escapeXml(id)}" class="plate-layer plate-layer-inset-panel" ` +
+      `x="${round1(x0)}" y="${round1(y0)}" width="${round1(x1 - x0)}" height="${round1(y1 - y0)}" ` +
+      `fill="var(--scene-map-label-halo)" fill-opacity="0.97" stroke="none"/>`,
+    frame(INSET_FRAME_OUTER / 2, INSET_FRAME_OUTER),
+    frame(INSET_FRAME_OUTER + INSET_FRAME_GAP, INSET_FRAME_INNER),
+  ];
+  const lines = (label ?? '').split('|').map((s) => s.trim()).filter(Boolean);
+  let baseline = y0 + INSET_PAD + INSET_HEAD_SIZE;
+  lines.forEach((line, i) => {
+    if (i > 0) baseline += INSET_SUB_SIZE + INSET_LINE_GAP;
+    const head = i === 0;
+    const size = head ? INSET_HEAD_SIZE : INSET_SUB_SIZE;
+    parts.push(
+      `<text class="plate-inset-title" x="${round1(x0 + INSET_PAD)}" y="${round1(baseline)}" ` +
+        `font-family="var(--font-ui)" font-size="${size}" font-weight="${head ? 600 : 400}" ` +
+        `letter-spacing="${head ? round1(size * 0.14) : 0}" fill="var(--text${head ? '' : '-mid'})" ` +
+        `paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="2" ` +
+        `stroke-linejoin="round">${escapeXml(head ? line.toLocaleUpperCase() : line)}</text>`,
+    );
+  });
+  if (lines.length) {
+    const ruleY = baseline + (lines.length > 1 ? INSET_SUB_SIZE : INSET_HEAD_SIZE) * 0.55;
+    parts.push(
+      `<path d="M ${round1(x0 + INSET_PAD)} ${round1(ruleY)} H ${round1(x1 - INSET_PAD)}" fill="none" ` +
+        `stroke="var(--flaxman-ink)" stroke-width="0.5" stroke-opacity="0.6"/>`,
+    );
+  }
+  return parts.join('');
+}
 /** The dotted register a restored line takes when it has no width to be drawn at. */
 const RESTORED_LINE_WIDTH = 0.85;
 const RESTORED_LINE_DASH = '1 3.2';
@@ -3703,6 +3957,30 @@ function renderLayer(
       }
       const px = collect(layer.polygon);
       if (px.length < 3) return undefined;
+      // ── The pictorial hill profile (`style: "profile"`, 2026-08-13) ──────
+      // Pope's own register, and the one docs/TROAD-CARTOGRAPHY.md settles the
+      // question with: "Pictorial hill profiles ('molehills') are honest by
+      // being obviously pictorial — and they are what Pope's plate uses, which
+      // settles the register question."
+      //
+      // It exists because a SCHEMATIC sheet has no third option. The two Troy
+      // geographic sheets answered the same problem with hypsometric bands cut
+      // from a DEM; this sheet has no elevations and inventing one would be a
+      // fabricated measurement. Hachure is the only other treatment the module
+      // offers, and the same dossier retires it outright: "every treatment
+      // built out of discrete marks has a magnification at which it stops being
+      // tone," and a hachured ridge at 3x is a comb. A closed opaque body with
+      // an ink outline is the same drawing at every magnification, asserts no
+      // slope, no light source and no elevation, and reads at a glance as a
+      // pictorial silhouette rather than as measured relief — which is exactly
+      // the claim a schematic sheet is entitled to make.
+      if (layer.style === 'profile') {
+        markup =
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-relief-profile" ` +
+          `d="${pathD(px, true)}" fill="var(--plate-upland)" stroke="var(--flaxman-ink)" ` +
+          `stroke-width="${PROFILE_OUTLINE_WIDTH}" stroke-opacity="0.7" stroke-linejoin="round"/>`;
+        break;
+      }
       const { spacing, weight } = reliefHachureParams(plate, layer, viewport);
       const d = hachure(px, { seed, spacing, weight });
       // The hachure strokes used to be the ONLY thing drawn for a relief
@@ -3718,7 +3996,19 @@ function renderLayer(
     case 'shipRow': {
       const px = collect(layer.baseline);
       if (px.length < 2) return undefined;
-      const d = shipRow([px[0], px[1]], layer.rows ?? 1, layer.count ?? 1, { seed });
+      const rows = layer.rows ?? 1;
+      const count = layer.count ?? 1;
+      const d = shipRow([px[0], px[1]], rows, count, { seed });
+      // The BLOCK of ink the ranks actually cover, pushed in as geometry
+      // (2026-08-13). Before this a ship row's bbox was the bbox of its two
+      // BASELINE points — a hairline — so both the feature box and the label
+      // anchor knew nothing about the three ranks of hulls hanging off it, and
+      // names were laid straight across them: "Assembly and law-place" and
+      // "Hut of Agamemnon" each printed through the ships they were naming
+      // beside. The corners come from shipRowExtent, which is computed in the
+      // same frame shipRow() draws in, so this is the drawing's own box and not
+      // an estimate of it.
+      for (const corner of shipRowExtent([px[0], px[1]], rows, count)) allPixelPoints.push(corner);
       markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-shiprow" d="${d}" fill="var(--flaxman-ink)" stroke="none"/>`;
       break;
     }
@@ -3789,6 +4079,13 @@ function renderLayer(
       // is lettered in italic like every other conjectural thing on a plate.
       // `rings` is drawn with the polygon, which is how a court inside a range
       // of chambers gets onto the sheet as one building and one name.
+      // A named inset panel, or the sheet's title block, which is the same
+      // primitive: an opaque framed panel that letters its own head. See
+      // insetMarkup.
+      if (layer.style === 'inset') {
+        markup = insetMarkup(layer.id, px, layer.label);
+        break;
+      }
       if (layer.style === 'poem') {
         const parts = [px, ...(layer.rings ?? []).map((r) => collect(r))].filter((p) => p.length >= 3);
         markup =
@@ -3960,6 +4257,14 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // Resolved AFTER the pin pass, because a feature is lettered once: a layer
   // whose `placeId` is also pinned on this sheet takes its name from the pin.
   const layerLabelCandidates: { layer: PlateLayer; rendered: RenderedLayer }[] = [];
+  // Named-inset / title-block panels (see insetMarkup). Handed to the legend's
+  // corner chooser so the key cannot land on top of one — the same occlusion
+  // rule that already keeps it off pins and labels. NOT handed to the label
+  // solver: an inset's own contents are ordinary layers whose names must be
+  // free to sit INSIDE the panel, which is the whole point of the tier.
+  const insetBoxes: Box[] = [];
+  // Drawn blocks a name must not be laid across (see the shipRow case below).
+  const denseBoxes: Box[] = [];
   const legendEntries: LegendEntry[] = [];
   // The blurred-edge filters (see SOFT_BLUR). Each is declared only when
   // something on the sheet actually uses it, so a plate with no indefinite
@@ -3981,7 +4286,16 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     }
     features.push(rendered.feature);
     if (layer.placeId) layerPlaceIds.add(layer.placeId);
-    if (layer.label || layer.placeId) layerLabelCandidates.push({ layer, rendered });
+    // An inset panel letters its own head at a fixed position inside its
+    // frame (see insetMarkup) and is furniture the sheet's own lettering must
+    // keep OFF, not lettering the solver may move.
+    // The densest ink on a schematic sheet, and the only layer kind whose box
+    // IS the drawing rather than a bounding rectangle around a thin line: a
+    // block of beached ships. Handed to the label solver as furniture to keep
+    // off, exactly like a pin marker.
+    if (layer.kind === 'shipRow') denseBoxes.push(rendered.feature.bbox);
+    if (layer.style === 'inset') insetBoxes.push(rendered.feature.bbox);
+    else if (layer.label || layer.placeId) layerLabelCandidates.push({ layer, rendered });
     const legend = layerLegendEntry(layer);
     if (legend) legendEntries.push(legend);
     // A coast layer that fills its rings also keys the terrain it encloses.
@@ -4088,31 +4402,59 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       continue;
     }
 
-    // ── Schematic plate: unchanged (teardrop pin, always role 'settlement') ──
-    const style = certaintyPinStyle(place.certainty);
-    // Any place resolved on a schematic plate got there via plateAnchors +
-    // positionBasis: "conjectural" (see resolvePlacePosition) — there is no
-    // other path to a position on a schematic plate.
-    const conjectural = plate.kind === 'schematic';
-    pinMarkupParts.push(pinMarkup(place.id, place.name, x, y, style, conjectural));
-    features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: pinBBox(x, y) });
-    pinLabelRequests.push({
-      id: place.id,
-      text: mapLabelText(place.name),
-      role: 'settlement',
-      anchorBox: pinBBox(x, y),
-      conjectural,
-    });
-    legendEntries.push(certaintyLegendEntry(place.certainty ?? 'certain'));
-    if (conjectural) {
-      legendEntries.push({
-        key: 'conjectural',
-        rank: 50,
-        text: 'Position conjectural — set by the poem, not by survey',
-        swatch: (lx, ly) =>
-          legendPin(lx, ly, { fill: 'var(--text-mid)', stroke: 'var(--text-mid)' }, CONJECTURAL_DASHARRAY),
-      });
+    // ── Schematic plate ──────────────────────────────────────────────────
+    // The teardrop is gone (2026-08-13). It was the most amateur mark on the
+    // sheet: a web-map pin has no place in an engraved plan, and this module
+    // already carries the mark that does — the small ranked dot the
+    // Landmark-label lane built and John approved for the geographic sheets
+    // (see certaintyDotStyle). One symbology across both registers is also one
+    // fewer thing for a reader to learn.
+    //
+    // The certainty tier survives intact, which is the point: solid disc,
+    // open disc, open square, dashed open disc — four tiers, four shapes, each
+    // an opaque closed body so no terrain reads through it.
+    //
+    // What DOES go is the per-mark conjectural dash and the dashed leader that
+    // came with it. Not a softening: on a schematic plate `conjectural` is
+    // provably CONSTANT — resolvePlacePosition has exactly one path to a
+    // position here, through plateAnchors + positionBasis: "conjectural" — so
+    // the dash distinguished nothing from nothing, on every mark, and the
+    // leaders were thirty-odd dotted lines drawn across the plain to say a
+    // single sheet-wide fact. That fact is now said once, where a reader can
+    // actually read it: in the key, and in the sheet's own title block. The
+    // per-place `data-position-basis="conjectural"` attribute is untouched, so
+    // nothing downstream loses the claim.
+    const cls = placeLabelClass(place, 'schematic');
+    const conjectural = true;
+    if (cls === 'region') {
+      // A tract of country carries no mark, and — when a layer of this sheet
+      // already draws its extent — no point name either: the layer letters it
+      // centred over its own shape, which is where an area name belongs. Same
+      // rule and same reason as the geographic branch above.
+      if (!layerPlaceIds.has(place.id)) {
+        pinLabelRequests.push({ id: place.id, text: mapLabelText(place.name), role: cls, anchorBox: [x, y, x, y] });
+      }
+    } else {
+      // Everything else carries a mark. Note that `water` does here where it
+      // does not on a survey sheet: there a bay's name is set over its own
+      // drawn body, but a spring or a ford on this plate IS a point the poem
+      // names and nothing else draws, so it keeps its dot.
+      const dotStyle = certaintyDotStyle(place.certainty);
+      const r = cls === 'settlement' ? SETTLEMENT_DOT_R[place.rank ?? 2] : FEATURE_DOT_R;
+      pinMarkupParts.push(
+        dotMarkup(place.id, place.name, x, y, dotStyle, r).replace(
+          '<g ',
+          '<g data-position-basis="conjectural" ',
+        ),
+      );
+      features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: dotBBox(x, y, r) });
+      pinLabelRequests.push({ id: place.id, text: mapLabelText(place.name), role: cls, anchorBox: dotBBox(x, y, r) });
+      legendEntries.push(certaintyDotLegendEntry(place.certainty ?? 'certain'));
     }
+    // No "every position is conjectural" row. It is true of every mark on the
+    // sheet without exception, which makes it a statement about the SHEET, not
+    // a register to look up — and the title block states it in full. A key row
+    // that repeats the title block costs a row and teaches nothing.
   }
 
   // A layer's own name: its explicit `label` if it has one, else the
@@ -4161,6 +4503,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       ...(plate.north ? [northArrowBox(plate.north)] : []),
     ],
     plate.kind === 'geographic' ? plate.size : undefined,
+    denseBoxes,
   );
 
   // Finding 8 (2026-07-28): idPrefix is caller-supplied and lands directly
@@ -4190,6 +4533,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     legendMarkup(legendEntries, width, height, [
       ...pinLabelRequests.map((request) => request.anchorBox),
       ...labels.placedBoxes,
+      ...insetBoxes,
       ...(plate.north ? [northArrowBox(plate.north)] : []),
       // Geographic only (see scaleBarBox): the metre-bar schematic path is
       // untouched, out of this lane's scope.

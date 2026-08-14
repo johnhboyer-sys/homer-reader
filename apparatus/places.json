@@ -8423,8 +8423,7 @@
       "id": "achaean-assembly-place",
       "name": "The assembly and law-place, with the gods' altars",
       "greek": "ἀγορή τε θέμις τε",
-      "certainty": "speculative",
-      "tradition": "Position fixed by the poem's own spatial logic (11.806-808), not by any excavated trace",
+      "certainty": "certain",
       "kind": "camp",
       "plateAnchors": {
         "trojan-plain-schematic": [
@@ -8446,7 +8445,7 @@
           ]
         }
       ],
-      "note": "Located precisely within the camp: 'when he came running to the ships of godlike Odysseus, where their place of assembly and of justice was, and where the altars of the gods had been built for them' (11.806-808) — read together with 8.222-226, this puts the camp's civic centre exactly at its midpoint.",
+      "note": "The poem states it outright: Antilochus runs to the ships of godlike Odysseus, ἵνά σφ' ἀγορή τε θέμις τε ἤην, τῇ δὴ καί σφι θεῶν ἐτετεύχατο βωμοί — assembly, place of judgement and the gods' altars, all at Odysseus's ships (11.806-808). Read with 8.222-226, which puts that ship in the very middle of the line, the camp's civic centre stands at its midpoint. What is conjectural on this sheet is the whole camp's position on the ground, not the assembly's position within it.",
       "sources": [
         {
           "cite": "Luce, J. V. Celebrating Homer's Landscapes: Troy and Ithaca Revisited. New Haven: Yale University Press, 1998."
@@ -8457,8 +8456,7 @@
       "id": "hut-of-odysseus",
       "name": "The ship and hut of Odysseus",
       "greek": "νηῦς Ὀδυσσῆος",
-      "certainty": "speculative",
-      "tradition": "Position fixed by the poem's own spatial logic (8.222-223 = 11.5-6), not by any excavated trace",
+      "certainty": "certain",
       "kind": "camp",
       "plateAnchors": {
         "trojan-plain-schematic": [
@@ -8488,7 +8486,7 @@
           ]
         }
       ],
-      "note": "At the exact middle of the line of ships: Agamemnon and Strife both stand on its deck 'to shout to either side' (8.222-223 = 11.5-6) — the camp's midpoint, and its civic centre.",
+      "note": "ἐν μεσσάτῳ — in the very middle. Agamemnon and Strife each take their stand on Odysseus's black ship of vast hold γεγωνέμεν ἀμφοτέρωσε, to carry a shout both ways, to Ajax's huts at one end of the line and to Achilles' at the other (8.222-223 = 11.5-6, verbatim). The poem states the centre; it is the one station in the camp that needs no inference.",
       "sources": [
         {
           "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
@@ -8659,10 +8657,10 @@
     },
     {
       "id": "tomb-of-achilles-and-patroclus",
-      "name": "The barrow of Achilles and Patroclus",
-      "greek": "τύμβος",
+      "name": "The mound raised over Patroclus",
+      "greek": "σῆμα",
       "certainty": "speculative",
-      "tradition": "Discussed among the Troad's hero-tumuli by Rose and Körpe (2016), who find the surviving 'tomb of Achilles' candidates to be later cult sites, not burials",
+      "tradition": "Position fixed only by the poem's own spatial logic — heaped where the pyre had burned, on the headland Achilles had marked out (23.125-126) — not by any excavated trace; the Troad's surviving 'tomb of Achilles' candidates are later cult sites, not burials (Rose and Körpe 2016)",
       "kind": "tomb",
       "plateAnchors": {
         "trojan-plain-schematic": [
@@ -8679,12 +8677,12 @@
           "work": "iliad",
           "book": 23,
           "lines": [
-            245,
-            248
+            255,
+            257
           ]
         }
       ],
-      "note": "Achilles orders a modest barrow for Patroclus now, to be made 'broad and high' later by whichever Achaeans outlive him (23.245-248). The Odyssey delivers the sequel: their bones mixed in one urn, Antilochus's set apart, under 'a great and faultless barrow on a jutting headland by the broad Hellespont, so as to be visible far off from the sea to men now alive and those to come' (Od. 24.80-84).",
+      "note": "What the Iliad actually raises here. The Achaeans mark a circle round the pyre, lay the foundation, and heap the earth over it — τορνώσαντο δὲ σῆμα θεμείλιά τε προβάλοντο ἀμφὶ πυρήν· εἶθαρ δὲ χυτὴν ἐπὶ γαῖαν ἔχευαν (23.255-56) — and it is modest by Achilles's own order: not large, but such as fits, for the Achaeans who outlive him to make broad and high afterward (23.245-248). The great barrow shared with Achilles's own bones, on a jutting headland by the broad Hellespont, visible far out to sea, belongs to the Odyssey (24.80-84) and is not raised anywhere in this poem. This sheet draws what Book 23 builds.",
       "sources": [
         {
           "cite": "Rose, C. Brian, and Reyhan Körpe. \"The Tumuli of Troy and the Troad.\" In Tumulus as Sema, edited by Olivier Henry and Ute Kelp. Berlin: De Gruyter, 2016."

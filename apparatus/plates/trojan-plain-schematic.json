@@ -119,11 +119,11 @@
       "polygon": [
         [
           0.235,
-          0.712
+          0.716
         ],
         [
           0.808,
-          0.708
+          0.712
         ],
         [
           0.818,
@@ -205,7 +205,7 @@
       "id": "ida",
       "kind": "relief",
       "placeId": "ida",
-      "style": "hachure",
+      "style": "profile",
       "polygon": [
         [
           0.04,
@@ -265,7 +265,7 @@
     {
       "id": "headland-left",
       "kind": "relief",
-      "style": "hachure",
+      "style": "profile",
       "polygon": [
         [
           0.055,
@@ -297,7 +297,7 @@
     {
       "id": "headland-right",
       "kind": "relief",
-      "style": "hachure",
+      "style": "profile",
       "polygon": [
         [
           0.848,
@@ -330,7 +330,7 @@
       "id": "pergamos",
       "kind": "relief",
       "placeId": "pergamos",
-      "style": "hachure",
+      "style": "profile",
       "polygon": [
         [
           0.418,
@@ -504,7 +504,7 @@
     {
       "id": "beach",
       "kind": "coast",
-      "style": "approximate",
+      "style": "waterline",
       "default": "on",
       "rings": [
         [
@@ -550,7 +550,15 @@
           ]
         ]
       ],
-      "note": "The beach, αἰγιαλός, broad and still too narrow to take all the ships in one line (Il. 14.33-34). Its curve here is compositional, not surveyed — the reconstructed Bronze Age shoreline belongs to the geographic plate."
+      "note": "The beach, αἰγιαλός, broad and still too narrow to take all the ships in one line (Il. 14.33-34). Drawn with waterlines, which is a drawing convention and not a claim: the lines say sea without a fill having to carry it, and their gaps grow away from the shore because waves compress against it (Huffman 2010). The curve itself is compositional — the reconstructed Bronze Age shoreline belongs to the geographic plate.",
+      "width": 1.6,
+      "legend": "Shore — the poem’s beach",
+      "sources": [
+        {
+          "cite": "Huffman, Daniel P. “On Waterlines: Arguments for their Employment, Advice on their Generation.” Cartographic Perspectives 66 (Fall 2010): 23–30.",
+          "url": "https://cartographicperspectives.org/index.php/journal/article/view/cp66-huffman"
+        }
+      ]
     },
     {
       "id": "wall-of-troy",
@@ -647,47 +655,27 @@
       "trace": [
         [
           0.242,
-          0.7
-        ],
-        [
-          0.3,
-          0.703
+          0.688
         ],
         [
           0.36,
-          0.705
-        ],
-        [
-          0.42,
-          0.707
+          0.6893
         ],
         [
           0.48,
-          0.708
-        ],
-        [
-          0.54,
-          0.708
+          0.6905
         ],
         [
           0.6,
-          0.707
-        ],
-        [
-          0.66,
-          0.706
+          0.6918
         ],
         [
           0.72,
-          0.704
-        ],
-        [
-          0.768,
-          0.702
+          0.6931
         ],
         [
           0.804,
-          0.699
+          0.694
         ]
       ],
       "note": "Outside the wall they dug the ditch, deep and wide and great, and planted stakes in it: ἔκτοσθεν δὲ βαθεῖαν ἐπ' αὐτῷ τάφρον ὄρυξαν (Il. 7.440-41)."
@@ -699,47 +687,27 @@
       "trace": [
         [
           0.248,
-          0.717
-        ],
-        [
-          0.3,
-          0.72
+          0.705
         ],
         [
           0.36,
-          0.723
-        ],
-        [
-          0.42,
-          0.725
+          0.7062
         ],
         [
           0.48,
-          0.726
-        ],
-        [
-          0.54,
-          0.726
+          0.7075
         ],
         [
           0.6,
-          0.725
-        ],
-        [
-          0.66,
-          0.724
+          0.7088
         ],
         [
           0.72,
-          0.722
-        ],
-        [
-          0.765,
-          0.72
+          0.7101
         ],
         [
           0.798,
-          0.717
+          0.711
         ]
       ],
       "note": "The wall with its high towers, a defence for the ships and for the men (Il. 7.436-37), built at the sterns of the first-hauled rank: τεῖχος ἐπὶ πρύμνῃσιν ἔδειμαν (14.32). It is drawn light because the poem itself unbuilds it — Poseidon and Apollo turn the Idaean rivers against it and sweep it into the sea (12.17-24)."
@@ -885,18 +853,18 @@
       "kind": "shipRow",
       "placeId": "achaean-camp",
       "rows": 3,
-      "count": 8,
+      "count": 9,
       "baseline": [
         [
           0.245,
-          0.775
+          0.738
         ],
         [
           0.428,
-          0.775
+          0.738
         ]
       ],
-      "note": "Ajax's end of the line. The poem divides the army in three of its own accord — ἐπὶ δεξιόφιν παντὸς στρατοῦ, ἦ ἀνὰ μέσσους, ἦ ἐπ' ἀριστερόφιν (Il. 13.308-9) — three sectors and no more, and this sheet names them by who holds them rather than by a hand, because whose left the poem's ἀριστερά is remains disputed.",
+      "note": "Ajax's end of the line. The poem divides the army in three of its own accord — ἐπὶ δεξιόφιν παντὸς στρατοῦ, ἦ ἀνὰ μέσσους, ἢ ἐπό ἀριστερόφιν (Il. 13.308-9) — three sectors and no more. What the poem fixes is that Ajax holds one end, Achilles the other and Odysseus the middle (8.222-26 = 11.5-9); WHICH end is whose it never says. Assigning Ajax to this end is Janko's inference from reading ἀριστερά from the Greek side, and Hainsworth reads the same word the other way. This sheet names the sectors by their holders for that reason, never by a hand.",
       "sources": [
         {
           "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
@@ -911,42 +879,41 @@
       "kind": "shipRow",
       "placeId": "achaean-camp",
       "rows": 3,
-      "count": 8,
+      "count": 9,
       "baseline": [
         [
           0.428,
-          0.775
+          0.738
         ],
         [
           0.612,
-          0.775
+          0.738
         ]
       ],
-      "note": "Three receding ranks, and the rank nearest the plain is the one hauled up first: τὰς γὰρ πρώτας πεδίον δὲ εἴρυσαν (Il. 14.31-32). The camp therefore has depth and not merely length, and it is that first-hauled front rank the Trojans reach first — περὶ δ' ἔσχεθον ἄκραι νῆες ὅσαι πρῶται εἰρύατο (15.653-54). No contingent beyond the five named below is placed: the poem does not station the Catalogue along the beach, and no reconstruction that does so is defensible."
+      "note": "Three receding ranks, and the rank nearest the plain is the one hauled up first: τὰς γὰρ πρώτας πεδίον δὲ εἴρυσαν (Il. 14.31-32), with the wall built at its sterns (14.32). The camp therefore has depth and not merely length, and it is that first-hauled front rank the Trojans reach first — περὶ δέ ἔσχεθον ἄκραι νῆες ὅσαι πρῶται εἰρύατο (15.653-54). The ranks are drawn staggered because the poem says they were: the beach could not hold them in one line, so τώ ῥα προκρόσσας ἔρυσαν, in echelon (14.35). No contingent beyond the five named below is placed: the poem does not station the Catalogue along the beach, and no reconstruction that does so is defensible."
     },
     {
       "id": "ships-achilles-end",
       "kind": "shipRow",
       "placeId": "achaean-camp",
       "rows": 3,
-      "count": 8,
+      "count": 9,
       "baseline": [
         [
           0.612,
-          0.775
+          0.738
         ],
         [
           0.795,
-          0.775
+          0.738
         ]
       ],
-      "note": "Achilles' end of the line, running out to the Myrmidon station at the far extremity. Menelaus, searching the ranks for Ajax, catches sight of him μάχης ἐπ' ἀριστερὰ πάσης (Il. 17.116) — the sector at the other end of this same line, which the poem names by a hand and this sheet names by its holder."
+      "note": "Achilles' end of the line, running out to the Myrmidon station at the far extremity (Il. 8.225-26 = 11.8-9). Nestor and Agamemnon are drawn inboard of it, and that is placement, not testimony: the poem never fixes either man's station in the line. It shows Nestor at his hut and his black ship (10.74) and Patroclus running the length of the huts and ships to reach it (11.617-18), which gives a distance from Achilles and no direction; of Agamemnon's place in the line it says nothing whatever."
     },
     {
       "id": "batieia",
       "kind": "tumulus",
       "placeId": "batieia",
-      "style": "hachure",
       "note": "A steep mound in front of the city, standing apart in the plain and clear on every side, αἰπεῖα κολώνη ... περίδρομος ἔνθα καὶ ἔνθα — men call it Batieia, the gods the barrow of Myrine, and there the Trojans and their allies drew up in their companies (Il. 2.811-15).",
       "path": [
         [
@@ -959,7 +926,7 @@
       "id": "callicolone",
       "kind": "relief",
       "placeId": "callicolone",
-      "style": "hachure",
+      "style": "profile",
       "polygon": [
         [
           0.762,
@@ -988,7 +955,6 @@
       "id": "tomb-of-ilos",
       "kind": "tumulus",
       "placeId": "tomb-of-ilos",
-      "style": "hachure",
       "note": "The barrow of Ilos son of Dardanus, out in the middle of the plain: Hector takes counsel beside it at night (Il. 10.415), the rout streams past it κατὰ μέσσον πεδίον toward the city (11.166-67), wounded Agamemnon leans on its pillar (11.371-72), and Priam drives past it on the way down to the ships (24.349).",
       "path": [
         [
@@ -1075,12 +1041,13 @@
           0.818
         ]
       ],
-      "note": "Hector holds the breach where he first leapt the gates and the wall, ἔνθ' ἔσαν Αἴαντός τε νέες καὶ Πρωτεσιλάου (Il. 13.679-81), and it is Protesilaus's ship he sets alight (15.704-6). A crux the plate records rather than resolves: Patroclus, sallying from Achilles' ships at the far end of the line, is at that same stern in a single verse (16.286). Either the poet holds two incompatible pictures of the camp or the narrative compresses the distance; the drawing keeps the two extremes apart and lets the contradiction stand.",
+      "note": "Hector holds the breach where he first leapt the gates and the wall, ἔνθώ ἔσαν Αἴαντός τε νέες καὶ Πρωτεσιλάου (Il. 13.679-81), and it is Protesilaus's ship he sets alight (15.704-6). At main-sheet scale this stretch of the line carries no separate glyph — one ship among a hundred cannot be picked out at that size without lying about the spacing of the rest — so the ship is drawn and named in the inset instead. The crux the plate records rather than resolves: Patroclus, sallying from Achilles' ships at the far end of the line, is at that same stern in a single verse (16.286). Either the poet holds two incompatible pictures of the camp or the narrative compresses the distance; the drawing keeps the two extremes apart and lets the contradiction stand.",
       "sources": [
         {
           "cite": "Cuillandre, Joseph. La droite et la gauche dans les poemes homeriques. Paris: Les Belles Lettres, 1944."
         }
-      ]
+      ],
+      "fill": "none"
     },
     {
       "id": "station-of-odysseus",
@@ -1353,6 +1320,266 @@
         ]
       ],
       "note": "The ford of the fair-flowing river, eddying Xanthus whom immortal Zeus begot — the one crossing between the city and the ships, and a whole verse-pair that recurs unchanged at Il. 14.433-34, 21.1-2 and 24.692-93. Placed where the wagon-road meets the river because the poem's traffic crosses there, not on any survey."
+    },
+    {
+      "id": "mound-of-patroclus",
+      "kind": "tumulus",
+      "placeId": "tomb-of-achilles-and-patroclus",
+      "path": [
+        [
+          0.786,
+          0.834
+        ]
+      ],
+      "note": "The Achaeans mark a circle round the pyre, lay the foundation and heap the earth over it — χεύαν δὲ σῆμα (Il. 23.255-57). Modest by Achilles's own order, to be made broad and high later by whoever outlives him (23.245-48); that greater barrow, shared with his own bones, is the Odyssey's (24.80-84) and is raised nowhere in this poem."
+    },
+    {
+      "id": "inset-panel",
+      "kind": "region",
+      "style": "inset",
+      "fill": "land",
+      "polygon": [
+        [
+          0.024,
+          0.104
+        ],
+        [
+          0.282,
+          0.104
+        ],
+        [
+          0.282,
+          0.474
+        ],
+        [
+          0.024,
+          0.474
+        ]
+      ],
+      "label": "Ajax's end of the line|The sector where Hector breaks the wall|Il. 8.222-26 · 12.118-19 · 13.679-81 · 15.704-6",
+      "note": "The Landmark's third map tier: a named inset, not a numbered one. It draws the sector the main sheet has no room to name — the end of the line where the chariots come back in off the plain, where Hector bursts the gates and the wall, and where Protesilaus's ship burns. It is drawn at a larger size and with the ranks spaced for reading, and neither is a distortion of anything, because this sheet asserts no distance to distort: what an inset in a schematic register must preserve is the ORDER along the ground — ditch, wall, the sterns of the first-hauled rank, three ranks receding, beach, sea — and that order is exactly the main sheet's."
+    },
+    {
+      "id": "inset-sea",
+      "kind": "region",
+      "fill": "sea",
+      "polygon": [
+        [
+          0.0276,
+          0.392
+        ],
+        [
+          0.09,
+          0.3958
+        ],
+        [
+          0.16,
+          0.3978
+        ],
+        [
+          0.22,
+          0.3986
+        ],
+        [
+          0.2784,
+          0.399
+        ],
+        [
+          0.2784,
+          0.4695
+        ],
+        [
+          0.0276,
+          0.4695
+        ]
+      ],
+      "note": "The Hellespont, at the inset's own scale. The ships are hauled out of it onto the grey sea's beach, θῖνώ ἐφώ ἁλὸς πολιῆς (Il. 14.31)."
+    },
+    {
+      "id": "inset-shore",
+      "kind": "coast",
+      "style": "waterline",
+      "width": 1.5,
+      "rings": [
+        [
+          [
+            0.0276,
+            0.392
+          ],
+          [
+            0.09,
+            0.3958
+          ],
+          [
+            0.16,
+            0.3978
+          ],
+          [
+            0.22,
+            0.3986
+          ],
+          [
+            0.2784,
+            0.399
+          ]
+        ]
+      ],
+      "note": "The same beach as the main sheet. Drawn with waterlines, whose gaps grow away from the shore because waves compress against it (Huffman 2010); the band of open sand between the seaward rank and the water is the ground the ships are launched across.",
+      "legend": "Shore — the poem’s beach"
+    },
+    {
+      "id": "inset-ditch",
+      "kind": "wall",
+      "label": "The ditch",
+      "trace": [
+        [
+          0.0276,
+          0.2045
+        ],
+        [
+          0.1,
+          0.2055
+        ],
+        [
+          0.19,
+          0.2062
+        ],
+        [
+          0.2784,
+          0.2068
+        ]
+      ],
+      "note": "Outside the wall they dug the ditch, deep and wide and great, and planted stakes in it: ἔκτοσθεν δὲ βαθεῖαν ἐπ' αὐτῷ τάφρον ὄρυξαν / εὐρεῖαν μεγάλην, ἐν δὲ σκόλοπας κατέπηξαν (Il. 7.440-41)."
+    },
+    {
+      "id": "inset-wall",
+      "kind": "wall",
+      "label": "The wall, at the sterns",
+      "trace": [
+        [
+          0.0276,
+          0.2375
+        ],
+        [
+          0.1,
+          0.2385
+        ],
+        [
+          0.19,
+          0.2392
+        ],
+        [
+          0.2784,
+          0.2398
+        ]
+      ],
+      "note": "The wall with its high towers, a defence for the ships and for the men (Il. 7.436-37), built at the sterns of the first-hauled rank: τεῖχος ἐπὶ πρύμνῃσιν ἔδειμαν (14.32)."
+    },
+    {
+      "id": "inset-chariot-gate",
+      "kind": "route",
+      "label": "Chariot gate",
+      "path": [
+        [
+          0.2295,
+          0.193
+        ],
+        [
+          0.2308,
+          0.2045
+        ],
+        [
+          0.232,
+          0.217
+        ],
+        [
+          0.2332,
+          0.2398
+        ],
+        [
+          0.2344,
+          0.256
+        ]
+      ],
+      "note": "The gate the teams come back in through: Asius drives at it, νηῶν ἐπώ ἀριστερά, τῇ περ Ἀχαιοὶ ἐκ πεδίου νίσοντο σὺν ἵπποισιν καὶ ὄχεσφι (Il. 12.118-19), and Idomeneus kills him there (13.384-88). The gates were built wide on purpose, ὄφρα διώ αὐτάων ἱππηλασίη ὁδὸς εἴη (7.438-39). Whose left 12.118 means is disputed — Janko reads it from the Greek side, Hainsworth from Asius's — so the gate is labelled by the event and not by a hand."
+    },
+    {
+      "id": "inset-ships-ajax",
+      "kind": "shipRow",
+      "rows": 3,
+      "count": 3,
+      "baseline": [
+        [
+          0.0276,
+          0.29
+        ],
+        [
+          0.1,
+          0.29
+        ]
+      ],
+      "label": "Ajax’s ships",
+      "note": "Ajax hauled his ships up at one extreme of the line, ἔσχατα, trusting in his manhood and the strength of his hands (Il. 8.224-26 = 11.7-9)."
+    },
+    {
+      "id": "inset-ship-protesilaus",
+      "kind": "shipRow",
+      "rows": 3,
+      "count": 1,
+      "baseline": [
+        [
+          0.108,
+          0.29
+        ],
+        [
+          0.134,
+          0.29
+        ]
+      ],
+      "label": "Protesilaus’s ship",
+      "note": "ἔνθ' ἔσαν Αἴαντός τε νέες καὶ Πρωτεσιλάου (Il. 13.681) — the station where Hector, having burst the gates and the wall, holds his ground (13.679-81), and it is Protesilaus's own hull he fires (15.704-6). Drawn here rather than on the main sheet because at sheet scale a single named ship cannot be picked out of the rank without falsifying the spacing of every ship beside it. The crux stands unresolved: Patroclus, sallying from Achilles's ships at the far end of the line, reaches this same stern in one verse (16.286)."
+    },
+    {
+      "id": "inset-ships-line",
+      "kind": "shipRow",
+      "rows": 3,
+      "count": 5,
+      "baseline": [
+        [
+          0.142,
+          0.29
+        ],
+        [
+          0.262,
+          0.29
+        ]
+      ],
+      "note": "The line running on toward the middle. Every ship past the five named stations stays an anonymous glyph: the poem does not station the Catalogue along the beach."
+    },
+    {
+      "id": "title-block",
+      "kind": "region",
+      "style": "inset",
+      "polygon": [
+        [
+          0.022,
+          0.88
+        ],
+        [
+          0.415,
+          0.88
+        ],
+        [
+          0.415,
+          0.972
+        ],
+        [
+          0.022,
+          0.972
+        ]
+      ],
+      "label": "The Plain of Troy as the Iliad lays it out|Schematic register: every position is the poem’s own order along the ground.|No coordinate is claimed and no bar scale drawn: the Iliad states no distance here.|After Pope, Iliad vol. II (1716), plate facing p. 12, engraved by John Harris.",
+      "note": "The title block states the register the sheet is drawn in, and states what it does not have. A bar scale is the one piece of standard furniture missing, and its absence is the honest reading: the Iliad gives this plain no distance anywhere — no stades between camp and city, no measure of the beach beyond ὅσον συνεέργαθον ἄκραι (14.36) — so any bar drawn on it would be a measurement this project invented. The one enlargement that IS measurable, the inset's, is stated on the inset."
     }
   ]
 }

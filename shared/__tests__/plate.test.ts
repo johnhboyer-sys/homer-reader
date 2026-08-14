@@ -601,26 +601,38 @@ describe('renderPlate: XSS', () => {
 });
 
 describe('renderPlate: schematic plateAnchors / positionBasis honesty', () => {
-  it('places a valid anchored+conjectural place at the anchored unit position, in a distinct conjectural register', () => {
+  it('places a valid anchored+conjectural place at the anchored unit position, and keeps the honesty attribute on it', () => {
     const result = renderPlate(schematicPlate, [anchoredPlace]);
     expect(result.unlocated).toEqual([]);
     const feature = result.features.find((f) => f.id === 'anchored-place');
     expect(feature).toBeDefined();
     const [minX, minY, maxX, maxY] = feature!.bbox;
-    const actualX = (minX + maxX) / 2;
-    const actualY = maxY; // pin apex
-    // u=0.25, v=0.75 scaled directly by plate.size [200,200] (schematic
-    // projection, per projectPoint).
-    expect(actualX).toBeCloseTo(0.25 * 200, 6);
-    expect(actualY).toBeCloseTo(0.75 * 200, 6);
+    // The mark is CENTRED on its coordinate, not hung by a tip below it: the
+    // teardrop is gone (2026-08-13) and a dot means "this point", so its box
+    // is symmetric about the anchor. u=0.25, v=0.75 scaled directly by
+    // plate.size [200,200] (schematic projection, per projectPoint).
+    expect((minX + maxX) / 2).toBeCloseTo(0.25 * 200, 6);
+    expect((minY + maxY) / 2).toBeCloseTo(0.75 * 200, 6);
 
-    // Visually distinct conjectural register: a data attribute a component
-    // can key off, plus a dashed stroke not implied by its certainty tier
-    // ('certain' is normally solid, no dasharray at all).
-    expect(result.svg).toContain('data-place-id="anchored-place" data-position-basis="conjectural"');
-    const gMatch = result.svg.match(/<g data-place-id="anchored-place"[^>]*>[\s\S]*?<\/g>/);
+    // The claim survives the symbology change: a data attribute a component
+    // can key off is still stamped on every schematic mark.
+    expect(result.svg).toContain('data-position-basis="conjectural"');
+    const gMatch = result.svg.match(/<g[^>]*data-place-id="anchored-place"[^>]*>[\s\S]*?<\/g>/);
     expect(gMatch).not.toBeNull();
-    expect(gMatch![0]).toMatch(/stroke-dasharray="[^"]+"/);
+    expect(gMatch![0]).toContain('data-position-basis="conjectural"');
+  });
+
+  it('does NOT repeat the conjectural claim on every mark, because on a schematic plate it is true of every mark', () => {
+    // resolvePlacePosition has exactly ONE path to a position on a schematic
+    // plate — plateAnchors + positionBasis: "conjectural" — so a per-mark
+    // dash distinguished nothing from nothing, and a dashed leader per name
+    // drew the same sheet-wide fact thirty times. `anchoredPlace` is
+    // `certain`, whose tier register is a plain solid disc: no dasharray of
+    // any kind should reach it, and no leader should be drawn for it.
+    const svg = renderPlate(schematicPlate, [anchoredPlace]).svg;
+    const g = svg.match(/<g[^>]*data-place-id="anchored-place"[^>]*>[\s\S]*?<\/g>/)![0];
+    expect(g).not.toContain('stroke-dasharray');
+    expect(svg).not.toContain('class="plate-leader"');
   });
 
   it('does NOT honour plateAnchors without positionBasis: "conjectural" (invalid pairing per apparatus_places.py)', () => {
@@ -1521,10 +1533,26 @@ describe('renderPlate: lettering (a map with no names is not a map)', () => {
     for (let i = 1; i < sizes.length; i++) expect(sizes[i] - sizes[i - 1]).toBeGreaterThanOrEqual(2);
   });
 
-  it('a conjectural position gets an italic name and a DASHED leader (the dash is the claim)', () => {
-    const result = renderPlate(schematicPlate, [anchoredPlace]);
-    expect(result.svg).toMatch(/<text[^>]*font-style="italic"/);
-    expect(result.svg).toMatch(/class="plate-leader"[^>]*stroke-dasharray="2 2"/);
+  it('letters a schematic plate in ranked classes, not one flat register (the sheet\'s own headline defect)', () => {
+    // Before 2026-08-13 every located place on a schematic plate lettered as
+    // `settlement`, one size, one weight — so on the Trojan-plain sheet "Pyre
+    // of Patroclus" printed exactly as loudly as Troy. The gazetteer's own
+    // `kind` now selects a class, and the classes must be separated the way
+    // docs/TROAD-CARTOGRAPHY.md requires: at least 2px apart, never under 9.5.
+    const kinds: [string, string][] = [['camp', 'a-camp'], ['tomb', 'b-tomb'], ['spring', 'c-spring']];
+    const places: PlatePlace[] = kinds.map(([kind, id], i) => ({
+      id,
+      name: `Name ${id}`,
+      kind,
+      certainty: 'speculative' as const,
+      plateAnchors: { shield: [0.2 + i * 0.25, 0.3 + i * 0.2] as [number, number] },
+      positionBasis: 'conjectural' as const,
+    }));
+    const svg = renderPlate(schematicPlate, places).svg;
+    const sizes = [...new Set([...svg.matchAll(/plate-label[^>]*font-size="([\d.]+)"/g)].map((m) => Number(m[1])))].sort((a, b) => a - b);
+    expect(sizes.length).toBeGreaterThanOrEqual(3);
+    expect(sizes[0]).toBeGreaterThanOrEqual(9.5);
+    for (let i = 1; i < sizes.length; i++) expect(sizes[i] - sizes[i - 1]).toBeGreaterThanOrEqual(2);
   });
 });
 
@@ -2359,12 +2387,16 @@ describe('renderPlate: a marker is never transparent to its own basemap', () => 
     expect(new Set(TIERS.map(signature)).size).toBe(4);
   });
 
-  it('still marks a conjectural position with its own dashed outline', () => {
-    // Schematic plates keep the teardrop pin, unchanged — this exercises
-    // that path, not the geographic dot.
-    const pin = renderPlate(schematicPlate, [anchoredPlace]).svg.match(/<g data-place-id="anchored-place"[^>]*>[\s\S]*?<\/g>/)![0];
-    expect(pin).toContain('stroke-dasharray="1 3"');
-    expect(pin).not.toContain('fill-opacity');
+  it('draws a schematic mark with the same opaque dot symbology as a geographic one', () => {
+    // The teardrop is retired on every plate kind (2026-08-13): an engraved
+    // plan does not use a web-map pin, and one symbology across both registers
+    // is one fewer thing for a reader to learn. What must NOT change is that
+    // the mark is a single opaque closed body — no fill-opacity, nothing of the
+    // basemap reading through the middle of it.
+    const mark = renderPlate(schematicPlate, [anchoredPlace]).svg.match(/<g[^>]*data-place-id="anchored-place"[^>]*>[\s\S]*?<\/g>/)![0];
+    expect(mark).not.toContain('fill-opacity');
+    expect(mark).not.toContain('A '); // no arc-and-tip teardrop path
+    expect([...mark.matchAll(/<(circle|rect)\b/g)]).toHaveLength(1);
   });
 
   it('keys the legend with the SAME symbols the sheet draws', () => {
