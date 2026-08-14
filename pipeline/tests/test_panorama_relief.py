@@ -808,15 +808,91 @@ def test_no_sand_barrier_or_beach_class_exists(s3):
         "the classifier reads barrier-bronze; §2.5 forbids it")
 
 
-def test_the_riverbank_thicket_is_lettered_and_never_bounded(s3):
-    """§2.3: the flora is the best-attested thing the poem says about this
-    ground AND has no defensible extent, because the channels it grew along
-    are unlocatable. It must appear in the key and nowhere in the geometry."""
-    assert any("RIVERBANK THICKET" in s for s in [s3.COVER_KEY_UNDRAWN])
-    assert "21.350" in s3.COVER_KEY_UNDRAWN
-    assert "not bounded" in s3.COVER_KEY_UNDRAWN
+def test_the_riverbank_thicket_is_drawn_but_its_width_never_is(s3):
+    """THIS TEST REPLACES ONE THAT ASSERTED THE OPPOSITE, and the replacement
+    is the point: the old claim was "lettered, never drawn", on the reasoning
+    that the Bronze Age channels are unlocatable. That reasoning bounds the
+    thicket's EXTENT and this plate never had to state one -- it already draws
+    the Scamander and the Simoeis as declared schematic lines, so a fringe hung
+    on a drawn course adds no locational claim the sheet is not already making,
+    which is exactly what §2.3 asks for ("tie this class to the schematic river
+    line as a schematic band"). What §2.3 still forbids is printing a metre
+    value for the fringe's width, and that is what is pinned here."""
+    key = " ".join(n + " " + g for n, g in s3.VEG_KEY)
+    assert "RIVERBANK THICKET" in key
+    assert "21.350" in key, "the thicket must carry its line of the poem"
+    # it is not a ground-cover class: it hangs on the river, not on the mesh
     assert "thicket" not in str(s3.COVER_TOKEN)
     assert all(c != "thicket" for c in s3.COVER_ORDER)
+    # and the sheet may not state a width for it
+    svg = s3.furniture(None, None, 2600.0, 5500.0)
+    assert "artist" in s3.COVER_KEY_UNDRAWN and "never a measured one" in s3.COVER_KEY_UNDRAWN
+    assert f"{s3.BANK_OFFSET_M:g} m" not in svg, (
+        "the fringe's offset is an artist's convention and may not be printed "
+        "on the sheet as if it were measured")
+
+
+def test_every_plant_drawn_carries_a_line_of_the_poem_or_a_stated_class(s3):
+    """The rule the whole vegetation pass runs on. Three of the four things
+    that grow here are named in the Iliad and cite it; the fourth is the ridge
+    default the key already carried, and it says in the key that it has no
+    line."""
+    cites = {n: g for n, g in s3.VEG_KEY}
+    assert "6.237" in cites["THE OAK"]
+    assert "22.145" in cites["THE WILD FIG"]
+    assert "21.350" in cites["RIVERBANK THICKET"]
+    assert "no line of the poem" in cites["RIDGE SCRUB"], (
+        "ridge scrub is a regional default and the key must not imply a text")
+
+
+def test_ida_s_timber_is_attested_and_declared_undrawn(s3):
+    """Il. 23.114-20 cuts high-crowned oaks on Ida's spurs and 14.287 puts a
+    towering fir there, so the poem carries a wooded Ida -- and the mountain
+    sits at 45-80 km behind 0.73 of the air, where a 20 m tree is a tenth of a
+    pixel. It is lettered, exactly as the thicket's width is."""
+    assert "23.114" in s3.COVER_KEY_UNDRAWN and "Ida" in s3.COVER_KEY_UNDRAWN
+    src = open(STAGE3).read()
+    veg = src.split("def vegetation_svg", 1)[1].split("def camp", 1)[0]
+    assert "ida" not in veg.lower(), "nothing is planted on Ida"
+
+
+def test_the_dry_fan_grows_nothing(s3):
+    """GROUND-COVER-TROJAN-PLAIN.md §5.3 forbids furrowed grainfields and plot
+    boundaries outright; the fertility epithets qualify the class and give no
+    pattern. Only the ridge class may carry a mark."""
+    src = open(STAGE3).read()
+    veg = src.split("def vegetation_svg", 1)[1].split("def camp", 1)[0]
+    assert "COVER_RIDGE" in veg
+    assert "COVER_FAN" not in veg, "something was planted on the battlefield"
+
+
+def test_vegetation_throws_a_true_shadow_like_every_built_thing(s3):
+    """The trees go through object_shadow at their own height, the same call
+    the hulls, the huts and the tumuli make. That is what puts them ON the
+    ground; without it they float, which was the citadel's old defect."""
+    src = open(STAGE3).read()
+    for fn in ("def tree(", "def thicket("):
+        body = src.split(fn, 1)[1].split("\ndef ", 1)[0]
+        assert "object_shadow(" in body, f"{fn} draws no shadow"
+        assert "built_h(" in body, f"{fn} does not stand on the exaggerated ground"
+
+
+def test_the_crowd_gains_members_at_the_zoom_tiers_it_does_not_scale(s3):
+    """The zoom finding: a mark-based texture only survives magnification if
+    it is REGENERATED per tier. Both crowds put a subset in the overview and
+    the rest behind tm2, so zooming in finds more trees among the ones already
+    there rather than the same trees drawn bigger."""
+    src = open(STAGE3).read()
+    veg = src.split("def vegetation_svg", 1)[1].split("def camp", 1)[0]
+    assert "marks_t1" in veg and "marks_t3" in veg
+    assert '"tm2"' in veg, "the extra crowd is never gated to a zoom tier"
+    assert s3.SCRUB_PX2 > s3.SCRUB_PX2_ZOOM, (
+        "the zoom tiers must be denser in screen area, not larger in mark")
+    # deterministic: the same seed gives the same jitter, so tier 3 contains
+    # tier 1 instead of being a different wood
+    assert s3._rnd(4, 11) == s3._rnd(4, 11)
+    assert s3._rnd(4, 11) != s3._rnd(5, 11)
+    assert 0.0 <= s3._rnd(7, 3, 9) < 1.0
 
 
 def test_the_key_names_the_classes_and_no_longer_names_metres(s3):
@@ -826,7 +902,10 @@ def test_the_key_names_the_classes_and_no_longer_names_metres(s3):
     assert "ELEVATION, METRES" not in src
     assert "GROUND COVER" in src
     named = {c for c, _, _ in s3.COVER_KEY}
-    assert named == set(s3.COVER_ORDER) | {"wet"}
+    # COVER_DROWNED is not a key row and must not become one: it is a REPAIR
+    # of a hole between the two drawn shores, painted as the reconstruction
+    # already paints itself, and it is declared in the cartouche instead.
+    assert named == (set(s3.COVER_ORDER) - {s3.COVER_DROWNED}) | {"wet"}
     for _, name, gloss in s3.COVER_KEY:
         assert name and gloss, "every key entry states its evidence"
     # the weakest class says so, and the unclassified one says that
@@ -850,17 +929,24 @@ def test_cover_classification_is_priority_ordered(s3):
     # the ridge lies wholly inside the plain sector, so their overlap is the
     # case the priority rule exists for
     P = object.__new__(s3.Plate)
+    # the two shores are parked far away, so no cell here can be a drowned gap
+    # and the priority rule is what is under test
     P.lay = {"relief-sigeion-ridge": {"polygon": box(lat0, lon0, 0.004)},
              "relief-troy-ridge": {"polygon": box(lat0 + 9, lon0, 0.001)},
              "relief-rhoiteion-ridge": {"polygon": box(lat0 + 9.5, lon0, 0.001)},
-             "scamandrian-plain": {"polygon": box(lat0, lon0, 0.02)}}
+             "scamandrian-plain": {"polygon": box(lat0, lon0, 0.02)},
+             "lagoon-bronze": {"polygon": box(lat0 + 4, lon0 + 4, 0.002)},
+             "sea-modern": {"polygon": box(lat0 + 4.5, lon0 + 4, 0.002)}}
     P.stats = {}
+    P._rings = {}
 
-    def cover_at(dlon_deg):
+    def cover_at(dlon_deg, elev=40.0):
         """One cell whose four corners all sit at the same offset, so the
         cell centre is exactly that offset."""
         e = dlon_deg * mlon
         P.wor = [[(e, 0.0), (e, 0.0)], [(e, 0.0), (e, 0.0)]]
+        P.grid = [[(0.0, 0.0, elev, 1.0), (0.0, 0.0, elev, 1.0)],
+                  [(0.0, 0.0, elev, 1.0), (0.0, 0.0, elev, 1.0)]]
         P.visible = {(0, 0)}
         P.cover_field()
         return P.cover[(0, 0)]
@@ -1645,9 +1731,214 @@ def test_the_cartouche_was_cut_to_what_a_reader_needs_at_a_glance(s3):
     measured/conjectural split and the DRAFT stamp are asserted here so a
     later tightening cannot quietly delete one."""
     svg = s3.furniture(None, None, 2600.0, 5500.0)
-    body = re.findall(r'<text class="pp-l-note" x="62"[^>]*>(.*?)</text>', svg)
-    assert len(body) <= 4, f"the cartouche is back to {len(body)} lines"
+    # only the note BLOCK, not the vegetation key, which also letters at x=62
+    body = [t for t in
+            re.findall(r'<text class="pp-l-note" x="62"[^>]*>(.*?)</text>', svg)
+            if len(t) > 60]
+    assert len(body) <= 5, f"the cartouche is back to {len(body)} lines"
     joined = " ".join(body).lower()
-    for claim in ("kayan", "1980", "21.350", "not bounded", "conjectural",
-                  "never at an invented coordinate", "hairline", "draft"):
+    for claim in ("kayan", "1980", "conjectural", "artist",
+                  "never at an invented coordinate", "hairline", "draft",
+                  "never the catalogue", "23.114"):
         assert claim in joined, f"the cartouche dropped {claim!r}"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# the left-edge defect: a coastline low-pass, a neck cut, and a drowned gap
+# ═══════════════════════════════════════════════════════════════════════════
+def test_the_coast_low_pass_runs_in_world_metres_before_the_projection(s3):
+    """The staircase is a property of the SOURCE GRID, not of this camera, so
+    it is taken off at its own scale and by the same amount everywhere. Doing
+    it on screen would have removed however much this particular oblique
+    happened to magnify, which is a different line at every range."""
+    src = open(STAGE3).read()
+    body = src.split("def coast_ring", 1)[1].split("def shore", 1)[0]
+    assert "_flat_m" in body and "soften(" in body
+    assert "cam.project" not in body, "the ring is smoothed before projection"
+    assert s3.COAST_STEP_M == 30.0, "resample at the source posting"
+
+
+def test_the_coast_ring_is_resampled_before_it_is_smoothed(s3):
+    """The defect this clause was written for, reproduced. A vertex low-pass
+    on an unevenly sampled ring drags a vertex toward the CHORD between its
+    distant neighbours: on sea-modern, which steps 30 m round the headlands
+    and then runs straight for kilometres, the worst move was 6339.7 m before
+    the ring was resampled. Uniform sampling is what bounds it."""
+    ragged = [(0.0, 0.0), (30.0, 0.0), (60.0, 0.0),
+              (60.0, 9000.0), (60.0, 18000.0), (0.0, 18000.0)]
+    raw = s3.soften(list(ragged), s3.COAST_SOFT, closed=True)
+    worst_raw = max(math.hypot(a[0] - b[0], a[1] - b[1])
+                    for a, b in zip(ragged, raw))
+    dense = []
+    n = len(ragged)
+    for k in range(n):
+        a, b = ragged[k], ragged[(k + 1) % n]
+        steps = max(1, int(math.hypot(b[0] - a[0], b[1] - a[1])
+                           / s3.COAST_STEP_M))
+        for t in range(steps):
+            f = t / steps
+            dense.append((a[0] + f * (b[0] - a[0]), a[1] + f * (b[1] - a[1])))
+    soft = s3.soften(dense, s3.COAST_SOFT, closed=True)
+    worst_dense = max(math.hypot(a[0] - b[0], a[1] - b[1])
+                      for a, b in zip(dense, soft))
+    assert worst_raw > 500.0, "the ragged case must actually be ragged"
+    assert worst_dense < s3.COAST_STEP_M, (
+        f"resampled, the filter still moved a vertex {worst_dense:.0f} m")
+
+
+def test_a_neck_narrower_than_the_ink_is_spliced_out(s3):
+    """A ring that returns within COAST_NECK_M of itself after a long arc is
+    a tongue, and a tongue thinner than the four lines drawn along it is a
+    landform the sheet cannot resolve. Two lobes joined by a 20 m neck: the
+    short lobe goes, the long one stays."""
+    body = ([(x * 40.0, 0.0) for x in range(40)]
+            + [(1560.0, y * 40.0) for y in range(1, 20)]
+            + [(x * 40.0, 760.0) for x in range(39, -1, -1)]
+            + [(0.0, y * 40.0) for y in range(19, 0, -1)])
+    # a spike 400 m long and 20 m across the neck, sampled every 40 m
+    tongue = ([(-k * 40.0, 160.0) for k in range(1, 11)]
+              + [(-k * 40.0, 140.0) for k in range(10, 0, -1)])
+    ring = body[:1] + tongue + body[1:]
+    out, cuts = s3.cut_necks(ring)
+    assert cuts >= 1, "the neck was not found"
+    assert all(p[0] > -30.0 for p in out), "the tongue survived the cut"
+    assert len(out) > len(body) * 0.9, "the cut took the body, not the tongue"
+
+
+def test_a_strait_is_never_closed_by_the_neck_cut(s3):
+    """The Dardanelles is 1.3 km across at its narrowest on this sheet, twenty
+    times the threshold. The rule must not be able to weld a real strait."""
+    assert s3.COAST_NECK_M < 100.0
+    ring = [(0.0, 0.0), (0.0, 2000.0), (1300.0, 2000.0), (1300.0, 0.0)]
+    dense = []
+    n = len(ring)
+    for k in range(n):
+        a, b = ring[k], ring[(k + 1) % n]
+        steps = max(1, int(math.hypot(b[0] - a[0], b[1] - a[1]) / 30.0))
+        for t in range(steps):
+            f = t / steps
+            dense.append((a[0] + f * (b[0] - a[0]), a[1] + f * (b[1] - a[1])))
+    out, cuts = s3.cut_necks(dense)
+    assert cuts == 0, "a 1.3 km channel was treated as a neck"
+    assert len(out) == len(dense)
+
+
+def test_the_drowned_gap_rule_needs_both_shores_and_the_reconstruction_s_cut(s3):
+    """The rule is a GAP CLOSER, not a re-flooding rule, and the clause that
+    makes it one is proximity to BOTH drawn shores. With only the
+    reconstruction's shore in the test, the modern Scamander spit -- low
+    ground between the two waters, 150 m wide -- went under the bay's wash and
+    the plate grew a rash of blue blotches. All three clauses are asserted
+    here because dropping any one of them re-opens a different defect."""
+    src = open(STAGE3).read()
+    body = src.split("def cover_field", 1)[1].split("def terrain_svg", 1)[0]
+    assert "SHORE_CUT_M" in body, "the elevation clause is gone"
+    assert "near_lag" in body and "near_sea" in body, (
+        "the rule must require proximity to BOTH shores")
+    assert "lag_mask" in body, "a cell already inside the bay is not a gap"
+    assert s3.SHORE_CUT_M == 10.0, (
+        "the cut must be the contour lagoon-bronze was filled to")
+    assert s3.DROWN_REACH_M < 200.0, (
+        "the reach is a gap width, not a flood radius")
+
+
+def test_a_drowned_gap_is_painted_as_the_reconstruction_paints_itself(s3):
+    """No third colour appears on the sheet: the repair is the ground it would
+    have had, under the bay's own wash at the bay's own opacity, so a closed
+    gap is indistinguishable from the polygon that should have covered it."""
+    assert s3.COVER_TOKEN[s3.COVER_DROWNED] == "--plate-lagoon"
+    src = open(STAGE3).read()
+    body = src.split("def terrain_svg", 1)[1].split("def shade_field", 1)[0]
+    assert "COVER_DROWNED" in body
+    assert "0.87" in body, "the repair must carry the lagoon's own opacity"
+    # and it takes no slope shading: it stands in for water, and water is flat
+    assert "st = 0 if cls_ == COVER_DROWNED" in body
+
+
+def test_the_repair_is_declared_on_the_sheet(s3):
+    """Anything this plate does to its own source geometry is stated in the
+    margin. A silent repair is the same defect as a silent fabrication."""
+    svg = s3.furniture(None, None, 2600.0, 5500.0)
+    assert "stranded between them" in svg and "10 m contour" in svg
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# two waters, two kinds of claim
+# ═══════════════════════════════════════════════════════════════════════════
+def test_the_reconstruction_is_a_wash_and_the_survey_is_opaque(s3):
+    """The plate already says it in line weight -- 0.7 px reconstructed
+    against 1.1 px surveyed. The fills say it twice more: the survey is
+    opaque, the reconstruction is a wash over the ground it is draped on."""
+    css = s3.CSS
+    sea = re.search(r'\.pp-sea\{([^}]*)\}', css).group(1)
+    lag = re.search(r'\.pp-lagoon\{([^}]*)\}', css).group(1)
+    assert "fill-opacity" not in sea, "the survey must be opaque"
+    op = float(re.search(r'fill-opacity:([\d.]+)', lag).group(1))
+    assert 0.7 < op < 1.0, f"the reconstruction is not a wash (opacity {op})"
+
+
+def test_the_two_waters_differ_in_value_in_both_themes(s3):
+    """A reader who cannot tell the surveyed sea from the reconstructed bay
+    cannot tell which coastline this sheet asserts as measured. Value alone,
+    before the chroma step the ratio cannot see."""
+    for theme in ("light", "dark"):
+        t = _tokens(s3, theme)
+        r = _ratio(t["--scene-map-sea"], t["--plate-lagoon"])
+        assert r > 1.25, f"{theme}: the two waters read alike ({r:.2f}:1)"
+
+
+def test_the_reconstruction_is_the_LIGHTER_assertion_in_both_themes(s3):
+    """Which way round is the claim. The reconstruction is asserted more
+    lightly than the survey -- the same direction as its hairline against the
+    survey's heavier line -- and it must be the same direction in both themes
+    or the plate says one thing by day and the opposite by night."""
+    for theme in ("light", "dark"):
+        t = _tokens(s3, theme)
+        assert _srgb_lum(t["--plate-lagoon"]) > _srgb_lum(t["--scene-map-sea"]), (
+            f"{theme}: the reconstruction is heavier than the survey")
+
+
+def test_the_coast_line_still_carries_the_boundary_on_both_waters(s3):
+    """WCAG 1.4.11 wants 3:1 on a graphical boundary and NEITHER FILL has ever
+    carried it -- the opaque coast line does. Moving a water token moves this
+    number, and the first sea token tried in this pass failed it at 2.91:1."""
+    for theme in ("light", "dark"):
+        t = _tokens(s3, theme)
+        ink = t["--scene-map-coast"]
+        for tok in ("--scene-map-sea", "--plate-lagoon"):
+            r = _ratio(ink, t[tok])
+            assert r >= 3.0, f"{theme}: coast ink on {tok} is {r:.2f}:1"
+
+
+def test_the_key_names_both_waters_with_their_evidence(s3):
+    """The legend rewrite to four ground-cover rows dropped "Open sea" and
+    "Lagoon and shallow water", and the plate went on drawing two different
+    kinds of claim while explaining neither."""
+    ids = {c for c, _, _ in s3.WATER_KEY}
+    assert ids == {"sea", "lagoon"}
+    joined = " ".join(n + " " + g for _, n, g in s3.WATER_KEY).lower()
+    assert "surveyed" in joined and "copernicus" in joined
+    assert "kraft" in joined and "wash" in joined
+    svg = s3.furniture(None, None, 2600.0, 5500.0)
+    assert "OPEN SEA" in svg and "RECONSTRUCTED" in svg
+
+
+def test_the_key_explains_the_marks_a_reader_can_count(s3):
+    """459 hulls is a convention, not a claim about the catalogue's 1186 ships,
+    and until this line existed nothing on the sheet said so. The wall, the
+    ditch, the tumuli and the road were drawn and unexplained too."""
+    joined = s3.DRAWN_MARKS.lower()
+    for claim in ("ships", "huts", "wall", "ditch", "tumulus", "wagon-road",
+                  "never the catalogue"):
+        assert claim in joined, f"the marks key drops {claim!r}"
+
+
+def test_the_margin_still_fits_inside_the_sheet(s3):
+    """The furniture band is 300 px and the crop is not this lane's to move,
+    so everything the key gained had to be paid for in leading."""
+    svg = s3.furniture(None, None, 2600.0, 5500.0)
+    ys = [float(m.group(1)) for m in re.finditer(r' y="([\d.]+)"', svg)]
+    assert ys
+    assert max(ys) <= s3.H - 8.0, (
+        f"the margin's last baseline is at y={max(ys):.0f} on a {s3.H:.0f} px "
+        f"sheet — something is printing off the bottom edge")

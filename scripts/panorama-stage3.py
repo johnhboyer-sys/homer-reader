@@ -338,6 +338,41 @@ PLAIN_BBOX = (39.86, 40.05, 26.1, 26.38)
 # scrub by extending the ridge default would be exactly the fabrication the
 # whole exercise is against.
 #
+# THAT IS 44% OF THE SHEET AND IT WAS RE-EXAMINED (2026-08-14), on the
+# suspicion that the blank was a SCOPING artefact rather than an absence of
+# evidence: the ridge-scrub default is graded INFERABLE from a regional
+# analogue, and a regional analogue does not stop at a sector line. The
+# suspicion is right about the CLASS and wrong about the FILL, and two things
+# settle it.
+#
+#   1. THERE IS NO RULE TO CARRY OUTWARD. The specification does not derive
+#      the ridges from a criterion; it reuses three existing polygons --
+#      "this sheet's own relief-sigeion-ridge, relief-troy-ridge and
+#      relief-rhoiteion-ridge layers already isolate exactly this ground by
+#      elevation and slope. Reuse those polygons ... rather than re-deriving
+#      elevation thresholds" (§2.4). Read the three layers and the sentence
+#      turns out to be describing a coincidence, not a rule: they are cut at
+#      the 20 m, 40 m and 100 m contours respectively, each chosen because it
+#      was the contour that isolated THAT landform ("no contour isolates the
+#      Troy ridge, because it is a spur and not a hill"). Three different
+#      thresholds are not one criterion, and inventing the criterion they do
+#      not share, in order to run it over the hinterland, would be deriving a
+#      boundary the sources do not have -- which is the specific move every
+#      class on this sheet is written to avoid.
+#   2. THE 44% IS NOT ONE THING, AND THE POEM SAYS SO. Mount Ida lies inside
+#      it, and the Iliad puts tall timber on Ida twice over: the Achaeans
+#      climb κνημοὺς ... πολυπίδακος Ἴδης and cut δρῦς ὑψικόμους for the pyre
+#      (23.117-19), and Sleep hides in an ἐλάτη περιμήκετος there (14.287).
+#      Washing the whole hinterland in ridge scrub would assert maquis over
+#      the one ground on this sheet the poem explicitly calls forest. The
+#      blank is doing real work: it is the difference between "we have not
+#      classified this" and "we have classified this wrongly, at scale".
+#
+# So the fill stays, the key now says WHY rather than only THAT, and the
+# bareness it contributes is answered where it can honestly be answered --
+# by putting on the ground the things that are attested to be on it. See the
+# VEGETATION note.
+#
 # WHERE WATER MEETS THE RULE. The specification's elimination clause also
 # excludes water from the dry fan. Here that is discharged by PAINT ORDER
 # rather than by the mask -- the sea, the lagoon and the swamp are painted
@@ -348,11 +383,13 @@ PLAIN_BBOX = (39.86, 40.05, 26.1, 26.38)
 COVER_FAN = "fan"          # dry delta fan: the plain the poem fights over
 COVER_RIDGE = "ridge"      # ridge scrub / bare slope
 COVER_OPEN = "open"        # beyond the sector: no claim
+COVER_DROWNED = "drowned"  # a gap between the two drawn shores, below the
+                           # reconstruction's own cut (see SHORE_CUT_M)
 # Painter order within a depth stratum. The classes tile the ground without
 # overlap, so this decides nothing but which seam-stroke laps which.
-COVER_ORDER = (COVER_OPEN, COVER_RIDGE, COVER_FAN)
+COVER_ORDER = (COVER_OPEN, COVER_RIDGE, COVER_FAN, COVER_DROWNED)
 COVER_TOKEN = {COVER_FAN: "--pp-cover-fan", COVER_RIDGE: "--pp-cover-ridge",
-               COVER_OPEN: "--pp-cover-open"}
+               COVER_OPEN: "--pp-cover-open", COVER_DROWNED: "--plate-lagoon"}
 # The layers whose geometry is REUSED, never re-derived.
 RIDGE_LAYERS = ("relief-sigeion-ridge", "relief-troy-ridge",
                 "relief-rhoiteion-ridge")
@@ -403,6 +440,105 @@ SHADE_SOFT_PASSES = 3
 COVER_SOFT = 5
 RIVER_SOFT = 2           # corner-cutting passes over the river CENTRELINE, in
                          # lat/lon, before it is draped (see rivers_svg)
+# ── the coastlines, and a defect this dial fixes ─────────────────────────
+# THE SHORELINES ARE DEM STAIRCASES. `sea-modern` is contoured from the
+# Copernicus GLO-30 water mask at 30 m posting and `lagoon-bronze` is cut
+# from the same 30 m SRTM grid, so both rings step in 30 m risers -- their
+# own note says so ("Contoured from the ocean class of the ... Water Body
+# Mask at 30 m posting"). In plan that is invisible. In THIS camera it is
+# not, because at the far left of the frame the Aegean shore runs nearly
+# ALONG the line of sight, and a 30 m riser across the sightline projects to
+# 8 px of lateral swing at 6 km while the run advances barely 2 px down the
+# screen. Measured on the shipped frame at x 90-190, y 495-530: the outline
+# reverses direction eleven times in twenty-two vertices, swinging x by 109,
+# 174 and 197 screen px 605-621 while the DEPTH falls monotonically from
+# 6477 m to 5573 m. The ring therefore crosses its own scanline three times
+# instead of once, the nonzero fill rule cancels over the crossings, and two
+# triangular slivers of `--pp-cover-open` ground print THROUGH the sea with
+# `pp-coast` drawing the zigzag round them: John's "what's this?" at the left
+# edge, and the same defect class cull() already documents for the mesh
+# ("the nonzero fill rule CANCELS over the overlap and the page shows
+# through"). chaikin's two passes inside water_path could not touch it --
+# corner-cutting halves a staircase's corners, it does not remove a riser
+# whose amplitude is the grid.
+#
+# THE LOW-PASS RUNS IN WORLD METRES, BEFORE THE PROJECTION, exactly as
+# RIVER_SOFT does and for the same reason: the artefact is a property of the
+# source grid, not of the camera, so it is removed at its own scale and the
+# same amount everywhere, rather than by however much this particular oblique
+# happens to magnify it. What comes out is asserted against the grid it was
+# cut from -- the worst displacement is printed every run and pinned in
+# test_panorama_relief.py at under one 30 m cell, which is the honest bound: a
+# line smoothed off its own posting would be a line we no longer measured.
+COAST_SOFT = 6
+COAST_STEP_M = 30.0      # the source posting, so the filter sees one feature
+                         # size all the way round the ring (see coast_ring)
+# ── AND THE OTHER HALF OF THE LEFT-EDGE DEFECT, WHICH IS A DATA GAP ──────
+# False-colouring the three layers at the artefact settled what it is, and it
+# is not the fold this file's cull() documents. Between the modern sea and
+# the reconstructed bay, at the bay's MOUTH, the two rings do not meet: they
+# are independently derived -- sea-modern from the Copernicus 30 m water
+# mask, lagoon-bronze flood-filled to the 10 m contour -- and at 39.99 N,
+# 26.24 E a tongue of unclassified ground about 150 m long and 40 m across
+# the neck is left standing between them, with the reconstruction's own
+# boundary wrapping round it. That tongue is ground between the modern
+# waterline and the 10 m contour, which is exactly the sediment the delta has
+# gained since; the reconstruction says it was water, so the gap is a
+# connectivity defect in the source polygon and not a landform.
+#
+# THE DATA IS NOT THIS FILE'S TO REPAIR. lagoon-bronze lives in
+# apparatus/plates/trojan-plain.json and scripts/fix-lagoon-connectivity.py
+# owns its flood fill; both are outside this lane. What IS this file's to
+# decide is whether a plate may assert a landform NARROWER THAN THE INK IT IS
+# DRAWN WITH -- the tongue's neck is under a pixel at 6 km, and the coast
+# stroke, the approximate-shore hairline and two waterlines are laid across
+# it four times over. It may not: that is ordinary cartographic
+# generalisation, the same judgement SHADE_MIN_AREA already makes ("below
+# this a tone region is a sliver, not a slope") and inset() already makes
+# when it drops a concavity narrower than its own offset.
+#
+# THE CUT IS SURGICAL, not a blur. A closing (offset out, offset back) would
+# have generalised the WHOLE ring to remove one notch. Instead the ring is
+# searched for places where it returns within COAST_NECK_M of itself after
+# running at least COAST_NECK_GAP samples, and the loop between them is
+# spliced out. Everything else is left at the vertex it was at: the
+# displacement this introduces is zero except across the neck it removes, and
+# the count of cuts is printed every run so a silent one cannot happen. The
+# Dardanelles is 1.3 km across at its narrowest here, twenty times the
+# threshold, so nothing that is really a strait can be closed by it.
+COAST_NECK_M = 60.0      # two cells of the source grid
+COAST_NECK_GAP = 8       # samples; a neck must enclose at least 240 m of ring
+# ── AND THE GAP ITSELF, WHICH THE DEM SETTLES ───────────────────────────
+# The tongue survived the neck cut, so the DEM was asked what stands there.
+# Forty-seven mesh nodes across it, at 7.0-7.5 km: the ground runs 0.0 to
+# 4.6 m, most of it under 1 m, and the nodes at 0.7-2.6 m sit in NEITHER
+# sea-modern NOR lagoon-bronze. That is decisive. lagoon-bronze is flood-
+# filled to the 10 m contour (SHORE_LEVEL, prep-terrain-contours.py:1034),
+# so ground at 1 m is ground the reconstruction itself says was water, and
+# the only reason it is not inside the polygon is that the fill did not reach
+# round the mouth. It is a hole in the source layer, not a bar across the
+# bay -- and a plate that paints dry-fan colour on it is stating a landform
+# the reconstruction denies.
+#
+# THE RULE THAT FILLS IT IS THE RECONSTRUCTION'S OWN, and nothing else. A
+# visible cell is DROWNED when all three hold: it lies below the level the
+# reconstructed shore is cut from; it is inside neither drawn water ring; and
+# it is within DROWN_REACH_M of the drawn reconstructed shore. The third
+# clause is the safety catch, and it is why this cannot quietly repaint the
+# delta: the rule is only allowed to close gaps at the water's own edge, and
+# the count of cells it takes is printed on every run and pinned in
+# test_panorama_relief.py. It invents no coordinate -- every input is this
+# sheet's own DEM and this sheet's own drawn rings.
+SHORE_CUT_M = 10.0       # the contour lagoon-bronze was filled to
+DROWN_REACH_M = 130.0    # how far from EACH drawn shore a gap may be closed
+# BOTH SHORES, AND THAT CLAUSE IS THE WHOLE SAFETY CATCH. Requiring only
+# "below the cut and near the reconstructed shore" is not a gap rule, it is a
+# re-flooding rule, and it showed: the modern Scamander spit lies between the
+# two waters at 2-8 m, so half of it went under the bay's wash and the plate
+# grew a rash of blue blotches across ground the source polygon had
+# deliberately left out. A GAP is where the two shores nearly touch and the
+# ground is stranded between them, so the test is proximity to BOTH -- which
+# the spit's interior fails, being a hundred and fifty metres wide.
 
 
 # ── vertical exaggeration ────────────────────────────────────────────────
@@ -1229,6 +1365,42 @@ def inset(poly, sgn, dist):
     return keep
 
 
+def cut_necks(ring, d=COAST_NECK_M, gap=COAST_NECK_GAP):
+    """Splice out loops of a closed ring whose NECK is narrower than `d`.
+
+    See COAST_NECK_M. Returns (ring, cuts). The scan is greedy and runs to a
+    fixed point: cutting one neck can expose another, and a ring with none
+    costs one O(n^2) sweep that finds nothing."""
+    cuts = 0
+    for _ in range(6):
+        n = len(ring)
+        if n < gap * 3:
+            break
+        found = None
+        for i in range(n):
+            xi, yi = ring[i]
+            for k in range(gap, n - gap):
+                j = (i + k) % n
+                xj, yj = ring[j]
+                if math.hypot(xi - xj, yi - yj) < d:
+                    found = (i, k)
+                    break
+            if found:
+                break
+        if not found:
+            break
+        i, k = found
+        # keep the LONGER of the two arcs the neck divides: a neck cuts a ring
+        # into the body and the tongue, and the tongue is the short one
+        keep = ([ring[(i + m) % n] for m in range(k, n + 1)] if k * 2 < n
+                else [ring[(i + m) % n] for m in range(0, k + 1)])
+        if len(keep) < 8:
+            break
+        ring = keep
+        cuts += 1
+    return ring, cuts
+
+
 def hazed(svg: str) -> str:
     """Lay the air over marks that are painted after the strata have already
     laid theirs down. The gradient is #pp-air — the same Beer-Lambert law,
@@ -1701,6 +1873,225 @@ def hut(cam, terr, lat, lon, bearing, w=7.0, d=5.0, wall=1.8, ridge=3.2):
             f'<path d="{rel_poly([P(ol), P(orr), P(rr), P(rl)])}" class="pp-hut-roof"/>')
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# VEGETATION -- the poem names its trees, and that is the only reason any of
+# them are here
+# ═══════════════════════════════════════════════════════════════════════════
+# THE PROBLEM WAS SCALE, NOT DECORATION. "it does feel a bit small. no trees
+# or vegetation. only the little huts for scale" (John). A tree is the best
+# scale cue a landscape has, and this sheet had none, so the plain read as a
+# tabletop -- and the featureless ground was never a rendering artefact:
+# docs/research/PHOTOGRAPHS-OF-THE-TROAD.md §2.2 found the fill pass "only
+# ever paints one of: sea, lagoon, an elevation-banded relief colour, or a
+# contour hairline... the 'featureless dome' is not a rendering artifact, it
+# is the literal absence of a data layer."
+#
+# THE RULE, AND IT IS THE WHOLE OF IT: every plant on this sheet traces to a
+# line of the Iliad or to a ground-cover class the specification already
+# states. Nothing is scattered for interest. The corpus was read for each one
+# (build/dist/iliad, the pipeline's own text) and the line is carried in the
+# key beside the mark, the same way the ground-cover swatches carry theirs.
+#
+#   THE OAK, φηγός -- a NAMED INDIVIDUAL at the Scaean Gate. Il. 6.237
+#       Ἕκτωρ δ' ὡς Σκαιάς τε πύλας καὶ φηγὸν ἵκανεν, repeated verbatim at
+#       9.354 and 11.170; it is Zeus's tree and big enough to lay a wounded
+#       man under (5.693 εἷσαν ὑπ' αἰγιόχοιο Διὸς περικαλλέϊ φηγῷ) and to
+#       lean on (21.549 φηγῷ κεκλιμένος); two gods meet beside it (7.22
+#       ἀλλήλοισι δὲ τώ γε συναντέσθην παρὰ φηγῷ).
+#   THE WILD FIG, ἐρινεός -- a NAMED INDIVIDUAL by the wall. Il. 22.145
+#       παρὰ σκοπιὴν καὶ ἐρινεὸν ἠνεμόεντα, the windswept fig; Andromache
+#       posts the host at it because there the city is most scalable (6.433
+#       λαὸν δὲ στῆσον παρ' ἐρινεόν, ἔνθα μάλιστα / ἀμβατός ἐστι πόλις), and
+#       the rout runs past it across mid-plain (11.167).
+#   THE RIVERBANK THICKET -- Il. 21.350-52, what Hephaestus's fire takes
+#       along the Scamander: καίοντο πτελέαι τε καὶ ἰτέαι ἠδὲ μυρῖκαι, /
+#       καίετο δὲ λωτός τε ἰδὲ θρύον ἠδὲ κύπειρον, / τὰ περὶ καλὰ ῥέεθρα ἅλις
+#       ποταμοῖο πεφύκει. The third line is a LOCATIVE and it is why this can
+#       be drawn at all: the poem says this assemblage grows about the
+#       river's streams, not over the plain. Tamarisk twice more, both times
+#       at the water or as a way-mark (21.18 κεκλιμένον μυρίκῃσιν; 10.466-67
+#       θῆκεν ἀνὰ μυρίκην ... συμμάρψας δόνακας μυρίκης τ' ἐριθηλέας ὄζους).
+#   RIDGE SCRUB -- not the poem's, and the key has always said so: a stated
+#       Mediterranean-Aegean default for thin soil on exposed limestone
+#       (GROUND-COVER-TROJAN-PLAIN.md §2.4), already a colour on this sheet.
+#       All that is new is that the class now has a MARK as well as a tint.
+#
+# WHY A THICKET MAY BE DRAWN WHEN ITS EXTENT IS UNKNOWABLE. The specification
+# grades the riverbank thicket POEM-ONLY with no derivable extent, because
+# "with as much as 20 m of alluvium on the southern Scamander floodplain, we
+# cannot hope to locate the river channels of antiquity" (Kraft, Rapp, Kayan
+# and Luce 2003, 164). That grading stands and is not being argued with. What
+# has changed is only what it is being asked to license. THIS SHEET ALREADY
+# DRAWS THE SCAMANDER AND THE SIMOEIS -- schematic, modern-survey lines,
+# declared as such in the cartouche -- and a fringe drawn ALONG a course the
+# plate has already committed to adds no locational claim the plate is not
+# already making. It says what 21.352 says: wherever the river ran, this grew
+# beside it. Draw the same flora anywhere else on the plain and it becomes a
+# new claim; draw it on the drawn line and it inherits that line's own
+# register exactly, which is what §2.3 asks for ("tie this class to the
+# schematic river line as a schematic band"). The one thing §2.3 forbids is
+# printing a metre value for the fringe's width, so BANK_OFFSET_M is captioned
+# in the key as an artist's convention and no width is stated on the sheet.
+#
+# WHAT IS NOT DRAWN, and each because the text will not carry it:
+#   IDA'S OAKS. Il. 23.114-20 is unambiguous -- the Achaeans climb κνημοὺς
+#       ... πολυπίδακος Ἴδης and cut δρῦς ὑψικόμους for the pyre, and 14.287
+#       puts an ἐλάτη περιμήκετος on the mountain. Ida is on this sheet at
+#       45-80 km behind 0.73 of --pp-haze, drawn as a mass and a crest line;
+#       a 20 m tree there is a tenth of a pixel and the treeline's altitude is
+#       not attested by anything. It is LETTERED IN THE KEY AND NOT DRAWN,
+#       which is the same answer this plate already gives the thicket's
+#       extent.
+#   TAMARISK SCATTERED ON THE PLAIN. 10.466-68 is one man tying one way-mark
+#       at a spot the poem does not locate, and the specification's own
+#       reading is that the three passages "support tamarisk as a common,
+#       way-marking shrub of wet or riparian ground, not a claim about its
+#       density or range beyond the water's edge." So tamarisk is drawn, in
+#       the thicket where 21.350 puts it, and nowhere else.
+#   ANYTHING ON THE DRY FAN. The fertility epithets (6.315 Τροίῃ ἐριβώλακι;
+#       20.226 ζείδωρον ἄρουραν) qualify the class and give no pattern, and
+#       GROUND-COVER-TROJAN-PLAIN.md §5.3 forbids drawing furrowed grainfields
+#       or plot boundaries outright. The fan therefore stays a flat bright
+#       tone, which is also what Imhof prescribes for flat ground and what the
+#       drawn-landscape survey found the whole tradition doing.
+VEG = True
+# Heights are TRUE metres and go through built_h, exactly as the hulls, the
+# huts and the tumuli do, so every one of these throws a true-length shadow
+# under the same 9.9-degree sun. That is what puts a tree ON the ground
+# instead of over it, and it is most of why the plate now reads at a size.
+OAK_H, OAK_R = 15.0, 8.0        # a mature valonia oak; the poem gives no
+FIG_H, FIG_R = 8.0, 6.0         # height, so these are a drawing convention,
+BANK_TREE_H, BANK_TREE_R = 13.0, 6.0    # stated in the key -- the same kind
+BANK_SHRUB_H, BANK_SHRUB_R = 4.2, 3.4   # of convention as the hull's 24 m
+SCRUB_H = 1.4                   # maquis, and the tick self-extinguishes
+                                # with distance because a true height must
+BANK_OFFSET_M = 26.0            # AN ARTIST'S CONVENTION, NOT A MEASUREMENT
+                                # (GROUND-COVER-TROJAN-PLAIN.md §2.3): the
+                                # poem gives no width for the fringe and the
+                                # key says the sheet is not claiming one.
+BANK_STEP_M = 96.0              # clump pitch at the overview; halved at the
+                                # zoom tiers, so the thicket GAINS members
+                                # rather than being drawn bigger
+SCRUB_PX2 = 1250.0              # screen px^2 of ridge per tick at tier 1
+SCRUB_PX2_ZOOM = 300.0          # and at tiers 2-3: the same regeneration
+SCRUB_REACH = 16000.0           # m; the same reach the cast shadows take
+VEG_MIN_PX = 0.75               # below this a mark is smaller than the ink
+
+
+def _rnd(*seed) -> float:
+    """A deterministic value in [0, 1) from integer seeds -- FNV-1a, folded.
+
+    Deterministic is the whole point and it is a zoom requirement, not a
+    tidiness one. The tier-3 crowd must CONTAIN the tier-1 crowd: a reader
+    zooming in should find more trees among the ones already there, not a
+    different wood. Keying every jitter to the mark's own integer position
+    gives that for free, and it also gives the plate the one thing a lattice
+    cannot -- spacing that no system would have produced."""
+    h = 0x811C9DC5
+    for s in seed:
+        h = (h ^ (int(s) & 0xFFFFFFFF)) & 0xFFFFFFFF
+        h = (h * 0x01000193) & 0xFFFFFFFF
+        h ^= h >> 13
+    return ((h ^ (h >> 16)) & 0xFFFFFF) / 16777216.0
+
+
+def _crown_sil(r: float, h: float):
+    """A crown's shadow silhouette: the canopy ring at its own height, plus
+    the trunk's foot. Six points is exact enough for a body this round and it
+    is what the tumulus already uses."""
+    return ([((r * math.cos(a), r * math.sin(a)), h * 0.72)
+             for a in (0.0, 1.05, 2.09, 3.14, 4.19, 5.24)]
+            + [((0.0, 0.0), 0.0)])
+
+
+def tree(cam, terr, lat, lon, h, r, seed=0, lean=0.0):
+    """One tree at a true height, drawn with the fewest marks that still gain
+    something at 8x: a trunk, a crown, and the crown's sunward lobe.
+
+    The crown is sized from the PROJECTED trunk -- base and top are both
+    projected and the screen height between them sets the radius -- so it
+    carries the camera's real foreshortening instead of a 1/d formula, and it
+    shrinks with depth the way the ground does. Nothing here is regenerated
+    per tier: a named tree is an object, not a texture, and an object may
+    simply be drawn larger when the reader comes closer."""
+    g = terr.elev(lat, lon)
+    e0, n0 = pp._flat_m((lat, lon), *VIEWPOINT)
+    base = cam.project(e0, n0, built_h(0.0, g))
+    top = cam.project(e0, n0, built_h(h, g))
+    if not base or not top:
+        return ""
+    hp = base[1] - top[1]
+    if hp < VEG_MIN_PX:
+        return ""
+    rp = max(0.55, hp * (r / h))
+    cy = base[1] - hp * 0.72
+    cx = base[0] + lean * rp
+    # a crown is not a circle: two lobes, the second offset by the tree's own
+    # hash, which is the "one asymmetry no system would produce" the drawn-
+    # landscape survey asks for. Both are var() fills; neither is a gradient.
+    out = [f'<path class="pp-veg-trunk" d="M{n1(base[0])} {n1(base[1])}'
+           f'L{n1(cx)} {n1(cy + rp * 0.35)}"/>',
+           f'<ellipse class="pp-veg" cx="{n1(cx)}" cy="{n1(cy)}" '
+           f'rx="{n1(rp)}" ry="{n1(rp * 0.80)}"/>']
+    # FOUR LOBES, NOT ONE ELLIPSE, and the reason is the zoom tier. A single
+    # ellipse is a lollipop at 8x however faithfully it is sized; a cluster
+    # whose offsets come out of the tree's own hash has a broken silhouette
+    # that goes on saying "crown" as it grows, and at 1x the four merge into
+    # the same three-pixel dot the ellipse was. Nothing is regenerated: a
+    # named tree is one object and may simply be drawn larger up close.
+    for k, (fr, fs) in enumerate(((0.62, 0.70), (0.55, 0.62), (0.48, 0.55))):
+        jx = (_rnd(seed, 11 + k) - 0.5) * rp * 1.15
+        jy = (_rnd(seed, 23 + k) - 0.5) * rp * 0.55 - rp * 0.18
+        out.append(f'<ellipse class="pp-veg" cx="{n1(cx + jx)}" '
+                   f'cy="{n1(cy + jy)}" rx="{n1(rp * fr)}" '
+                   f'ry="{n1(rp * fs)}"/>')
+    # the lit face, on the sun's side, and only once it can be seen. SUN_H is
+    # the DOWN-sun horizontal, so the light comes from -SUN_H.
+    if rp >= 2.2:
+        out.append(f'<ellipse class="pp-veg-lit" '
+                   f'cx="{n1(cx - SUN_H[0] * rp * 0.38)}" '
+                   f'cy="{n1(cy - rp * 0.30)}" rx="{n1(rp * 0.45)}" '
+                   f'ry="{n1(rp * 0.34)}"/>')
+    sd = object_shadow(cam, terr, lat, lon, 0.0, _crown_sil(r, h))
+    return sd + "".join(out)
+
+
+def thicket(cam, terr, lat, lon, h, r, seed):
+    """One clump of the riverbank assemblage: a canopy silhouette, not a
+    portrait of a tree.
+
+    At the Scamander's 7-15 km a 13 m elm is one and a half pixels, so
+    drawing individuals there would be drawing a stipple and calling it a
+    wood. The tradition draws a wood as a scalloped edge -- Berann's forests
+    are marks whose OUTLINE does the work -- so a clump is one path of three
+    to five lobes across about fourteen metres of ground, at the true height
+    of what stands in it, with its own true shadow."""
+    g = terr.elev(lat, lon)
+    e0, n0 = pp._flat_m((lat, lon), *VIEWPOINT)
+    base = cam.project(e0, n0, built_h(0.0, g))
+    top = cam.project(e0, n0, built_h(h, g))
+    if not base or not top:
+        return ""
+    hp = base[1] - top[1]
+    if hp < VEG_MIN_PX:
+        return ""
+    rp = max(0.6, hp * (r / h))
+    n_lobe = 3 if rp < 2.5 else 5
+    pts = []
+    for k in range(n_lobe):
+        f = (k + 0.5) / n_lobe
+        x = base[0] + (f - 0.5) * 2.0 * rp
+        lift = 0.62 + 0.38 * _rnd(seed, k)
+        pts.append((x, base[1] - hp * lift - rp * 0.30, rp / n_lobe * 1.35))
+    d = [f'M{n1(base[0] - rp)} {n1(base[1])}']
+    for x, y, w in pts:
+        d.append(f'Q{n1(x - w)} {n1(y)} {n1(x)} {n1(y)}'
+                 f'Q{n1(x + w)} {n1(y)} {n1(x + w * 1.4)} {n1(base[1] - hp * 0.2)}')
+    d.append(f'L{n1(base[0] + rp)} {n1(base[1])}Z')
+    sd = object_shadow(cam, terr, lat, lon, 0.0, _crown_sil(r * 0.9, h))
+    return sd + f'<path class="pp-veg" d="{"".join(d)}"/>'
+
+
 ROOFS = [(-0.62, 0.30, 8.0, 26), (-0.34, 0.46, 10.5, 30), (-0.02, 0.34, 9.0, 26),
          (0.28, 0.50, 12.5, 32), (0.58, 0.30, 8.5, 26), (-0.20, 0.10, 11.0, 30),
          (0.34, 0.06, 9.5, 26)]
@@ -1936,12 +2327,13 @@ TOKENS = {
     "light": """
   --page-bg:#E7E7E9; --text:#241827; --text-mid:#5B4C58;
   --scene-map-label-halo:#F8F7F3; --scene-map-coast:#565060;
-  --plate-lagoon:#87AEB8; --scene-map-sea:#9BBFD6; --plate-contour:#5A4A32;
+  --plate-lagoon:#A8C3C6; --scene-map-sea:#71AEDC; --plate-contour:#5A4A32;
   --pp-shade:#181A2C; --pp-lit:#FFFAEB;
   --plate-masonry:#A87263; --plate-river:#1A4C6A;
   --pp-hull:#3A2C3C; --pp-hull-side:#1B1220; --pp-hull-edge:#140D18;
   --pp-cover-fan:#FAD391; --pp-cover-open:#E0CDBA; --pp-cover-ridge:#CDCD83;
   --pp-cover-wet:#94C472;
+  --pp-veg:#46612E; --pp-veg-lit:#7C9945; --pp-veg-tick:#4E6B34;
   --pp-ida-mass:#AF9164; --pp-tumulus:#CAB083;
   --pp-haze:#CBD9E4; --pp-sky-hi:#93B4D2; --pp-sky-lo:#E1DDD2;
   --pp-water-far:#DCE6EC; --pp-water-shoal:#CFE0D8;
@@ -1949,15 +2341,16 @@ TOKENS = {
     "dark": """
   --page-bg:#181120; --text:#EDE6E8; --text-mid:#B7A9B4;
   --scene-map-label-halo:#17131C; --scene-map-coast:#8FA3AE;
-  --plate-lagoon:#0A2430; --scene-map-sea:#0A1C2A; --plate-contour:#332818;
+  --plate-lagoon:#22363E; --scene-map-sea:#071C33; --plate-contour:#332818;
   --pp-shade:#03050E; --pp-lit:#F2E4C4;
   --plate-masonry:#A8846F; --plate-river:#123A4A;
   --pp-hull:#241C2A; --pp-hull-side:#120C16; --pp-hull-edge:#C3B49E;
   --pp-cover-fan:#513B1F; --pp-cover-open:#493B30; --pp-cover-ridge:#3C3C1E;
   --pp-cover-wet:#233616;
+  --pp-veg:#1C2A12; --pp-veg-lit:#3C5223; --pp-veg-tick:#93AE6A;
   --pp-ida-mass:#86734B; --pp-tumulus:#7A6846;
   --pp-haze:#141B28; --pp-sky-hi:#0B1120; --pp-sky-lo:#242B3A;
-  --pp-water-far:#1E3244; --pp-water-shoal:#15343C;
+  --pp-water-far:#1E3244; --pp-water-shoal:#1E3F45;
 """,
 }
 COVER_WASH_OP = 0.55        # the wet delta's wash over the fan beneath it
@@ -2001,8 +2394,53 @@ CSS = """
    down, rather than being pre-faded and then faded again. */
 .pp-ida{fill:var(--pp-ida-mass);fill-opacity:0.62;stroke:none}
 .pp-ida-crest{fill:none;stroke:var(--plate-contour);stroke-width:0.9;stroke-opacity:0.95}
+/* ── TWO WATERS, TWO KINDS OF CLAIM ──────────────────────────────────────
+   `sea-modern` is the Aegean and the Dardanelles as they stand now, contoured
+   off the Copernicus GLO-30 water mask: a SURVEY. `lagoon-bronze` is the
+   reconstructed Late Bronze Age embayment after Kraft, Kayan and Erol: a
+   RECONSTRUCTION. They were within six points of value and a few of chroma,
+   and a reader who cannot tell them apart cannot tell which coastline this
+   sheet asserts as measured -- the same defect class as the barrier layer
+   that came off the plate.
+   THE PLATE ALREADY DECIDED THE MECHANISM and this only extends it to the
+   fills. The reconstruction's SHORE draws at 0.7 px against the survey's
+   1.1 px: "the difference between the two lines is how heavily they are
+   asserted" (see pp-coast-approx). So the fills say it twice more, in the
+   two registers a fill has:
+     CHROMA. The surveyed sea keeps a saturated blue and gains some; the
+     reconstruction is drained toward grey-blue. Value is left almost where
+     it was, deliberately -- the bay is the plate's subject and is named in
+     the title, and pushing it down the value scale to make a point about
+     epistemics would have been a composition error. It reads as a
+     provisional blue, not as a receding one.
+     OPACITY. The survey is opaque; the reconstruction is a WASH, and that is
+     not a graphic device but the literal claim: what lies under it on this
+     base is the ground the reconstruction says was water, so the ground
+     modulates it. delta-swamp is already drawn this way for the same reason,
+     and lagoon-bronze is already DRAPED on that ground rather than floated
+     on a sea level (see water_svg). At 0.87 the ground's tone comes through
+     as a faint grain and the water still reads as one body.
+   MEASURED ON RENDERED PIXELS, off the margin swatches, which is where each
+   fill is seen unveiled. Out on the plate both waters lie under the same
+   Fresnel and air ramps, and at the bay mouth those are 57% and 19% of the
+   pixel, so they compress ANY token difference to about 1.1:1 -- that is
+   physics, it is shared, and it is not a thing to tune around:
+       sea vs bay        1.32:1 light, 1.37:1 dark, plus a chroma step the
+                         ratio cannot see -- blue-minus-red is 107 on the sea
+                         and 21 on the bay in light theme.
+   AND THE LOAD-BEARING NUMBER IS NOT THAT ONE. Neither fill has ever carried
+   the land/water boundary; the opaque coast line does, and WCAG 1.4.11 wants
+   3:1 on it. Re-measured after this change, because moving a water token
+   moves that number -- and the first sea token tried here FAILED it, at
+   2.91:1, which is why the sea is #71AEDC and not the darker blue:
+       coast ink on sea  3.24:1 light, 6.56:1 dark
+       coast ink on bay  4.28:1 light, 4.77:1 dark
+   The bay is LIGHTER than it was, which is why its line improved and why the
+   fill boundary alone is now 1.05-1.27:1 against the ground classes where it
+   was 1.45-1.69. Neither figure was ever load-bearing: both are far under
+   3:1, which is the whole reason the hairline exists. */
 .pp-sea{fill:var(--scene-map-sea)}
-.pp-lagoon{fill:var(--plate-lagoon)}
+.pp-lagoon{fill:var(--plate-lagoon);fill-opacity:0.87}
 .pp-marsh{fill:var(--pp-cover-wet);fill-opacity:0.55;stroke:none}
 .pp-coast{fill:none;stroke:var(--scene-map-coast);stroke-width:1.1}
 /* THE RECONSTRUCTED SHORE IS A HAIRLINE, NOT A DASH -- and NOT nothing.
@@ -2080,6 +2518,28 @@ CSS = """
 .pp-ditch{fill:none;stroke:var(--text-mid);stroke-width:0.9;stroke-opacity:0.75}
 .pp-road{fill:none;stroke:var(--text-mid);stroke-width:0.9;stroke-opacity:0.75;
   stroke-linecap:round}
+/* ── VEGETATION ──────────────────────────────────────────────────────────
+   A CROWN IS A MASS AND TAKES THE MASS RULE: --pp-veg is darker than every
+   ground class it can stand on, in BOTH themes, so the tonal rank cannot
+   photo-negative between them. In dark theme that leaves the fill at 1.4:1
+   against the ridge, which is exactly where the hulls already are (1.56:1)
+   and is answered the same way -- --pp-hull-edge, the sheet's one rim token,
+   dark on a light ground and restrained-light on a dark one. One convention
+   for every standing thing on the plate, not a second one for trees.
+   THE TICK IS NOT A MASS and does not get the mass rule. A 1 px tuft has no
+   interior to hold a rank, and a --pp-veg tick measures 1.31:1 on the dark
+   ridge -- invisible, which is not honesty, it is just a mark that failed to
+   print. --pp-veg-tick therefore follows the RIM convention instead: green in
+   both themes, dark on the light sheet and light on the dark one, 3.59:1 and
+   4.44:1 against the ridge it sits on. The inversion is confined to hairline
+   texture; nothing with an area inverts. */
+.pp-veg{fill:var(--pp-veg);stroke:var(--pp-hull-edge);stroke-width:0.35;
+  stroke-linejoin:round}
+.pp-veg-lit{fill:var(--pp-veg-lit);stroke:none}
+.pp-veg-trunk{fill:none;stroke:var(--pp-hull-edge);stroke-width:0.7;
+  stroke-linecap:round}
+.pp-scrub{fill:none;stroke:var(--pp-veg-tick);stroke-width:0.85;
+  stroke-linecap:round;stroke-linejoin:round}
 .pp-mark{fill:none;stroke:var(--text-mid);stroke-width:1.1}
 .pp-mark-f{fill:var(--text-mid);stroke:none}
 .pp-tumulus{fill:var(--pp-tumulus);fill-opacity:0.9;stroke:var(--text-mid);
@@ -2216,6 +2676,7 @@ class Plate:
         self.shadow = None               # the ShadowField; set by shade_field
         self.shade_q: dict = {}
         self.cover: dict = {}            # (i, j) -> ground-cover class
+        self._rings: dict = {}           # layer id -> the DRAWN shore ring
 
     # ── mesh ─────────────────────────────────────────────────────────────
     def mesh(self):
@@ -2329,13 +2790,62 @@ class Plate:
         vp_lat, vp_lon = VIEWPOINT
         mlat = 1.0 / 111132.0
         mlon = 1.0 / (111320.0 * math.cos(math.radians(vp_lat)))
+        # ── the drowned-gap catch (see SHORE_CUT_M / DROWN_REACH_M). The
+        # reconstructed shore's own vertices go into a coarse spatial hash so
+        # the "near the drawn shore" clause costs nine bucket lookups per
+        # cell instead of a thousand distances; without it this test would
+        # have doubled the render.
+        lag_ring = self.shore("lagoon-bronze")
+        lag_mask = Mask(lag_ring)
+        B = DROWN_REACH_M
+
+        def _hash(ring):
+            h: dict = {}
+            for lat_, lon_ in ring:
+                e_, n_ = pp._flat_m((lat_, lon_), vp_lat, vp_lon)
+                h.setdefault((int(e_ // B), int(n_ // B)), []).append((e_, n_))
+            return h
+
+        def _near(h, ec, nc):
+            bx, by = int(ec // B), int(nc // B)
+            return any((ec - qe) ** 2 + (nc - qn) ** 2 < B * B
+                       for dx in (-1, 0, 1) for dy in (-1, 0, 1)
+                       for qe, qn in h.get((bx + dx, by + dy), ()))
+
+        near_lag = _hash(lag_ring)
+        near_sea = _hash(self.shore("sea-modern"))
         cov = {}
-        tally = {COVER_FAN: 0, COVER_RIDGE: 0, COVER_OPEN: 0}
+        tally = {COVER_FAN: 0, COVER_RIDGE: 0, COVER_OPEN: 0, COVER_DROWNED: 0}
         for (i, j) in self.visible:
             (e0, n0), (e1, n1) = self.wor[i][j], self.wor[i + 1][j]
             (e2, n2), (e3, n3) = self.wor[i + 1][j + 1], self.wor[i][j + 1]
-            lat = vp_lat + (n0 + n1 + n2 + n3) * 0.25 * mlat
-            lon = vp_lon + (e0 + e1 + e2 + e3) * 0.25 * mlon
+            ec = (e0 + e1 + e2 + e3) * 0.25
+            nc = (n0 + n1 + n2 + n3) * 0.25
+            lat = vp_lat + nc * mlat
+            lon = vp_lon + ec * mlon
+            g = self.grid
+            elev = (g[i][j][2] + g[i + 1][j][2]
+                    + g[i + 1][j + 1][2] + g[i][j + 1][2]) * 0.25
+            if elev < SHORE_CUT_M:
+                hit = (_near(near_lag, ec, nc) and _near(near_sea, ec, nc))
+                # NOT TESTED AGAINST THE SEA, and that is the last piece of
+                # the left-edge defect. A cell inside the sea MASK can still
+                # be outside the sea's DRAWN edge, because the drawn edge is
+                # corner-cut and simplified; at this corner the source ring
+                # swings twenty pixels a vertex, so the two disagree by
+                # several cells and the disagreement printed as dry ground
+                # between two waters. Testing only against the reconstruction
+                # makes the rule paint bay-wash over anything below the cut
+                # at the junction, and the sea's own fill lands on top of it
+                # wherever the sea actually reaches -- so the only place the
+                # wash is ever SEEN is the gap, which is what it is for. It
+                # cannot spread inland either: lagoon-bronze is cut ON the
+                # 10 m contour, so ground just outside it is at or above the
+                # cut by construction and fails the first clause.
+                if hit and not lag_mask.has(lat, lon):
+                    cov[(i, j)] = COVER_DROWNED
+                    tally[COVER_DROWNED] += 1
+                    continue
             if any(m.has(lat, lon) for m in ridge):
                 c = COVER_RIDGE
             elif plain.has(lat, lon):
@@ -2365,10 +2875,16 @@ class Plate:
                 rr = grid[i][j][3]
                 if not (near * 0.965 <= rr < far):
                     continue
-                st = self.shade_q.get((i, j), 0)
+                cls_ = self.cover[(i, j)]
+                # A DROWNED CELL TAKES NO SLOPE SHADING. It stands in for
+                # water, and water is flat: Imhof excludes cast shadow from
+                # the relief system entirely and the bay itself carries none.
+                # Left in the tone field the repair printed as a modelled dark
+                # hollow exactly where the plate is asserting a smooth surface.
+                st = 0 if cls_ == COVER_DROWNED else self.shade_q.get((i, j), 0)
                 if st:
                     shade.setdefault(st, set()).add((i, j))
-                interior.setdefault(self.cover[(i, j)], set()).add((i, j))
+                interior.setdefault(cls_, set()).add((i, j))
                 if CONTOURS == "none":
                     continue
                 # THE HAIRLINES ARE NOW EXTRACTED ON THEIR OWN. While the ground
@@ -2418,8 +2934,17 @@ class Plate:
                     # out every seven columns: a row of 37 px teeth across the
                     # foot of the plate, the first thing the eye found. The
                     # low-pass is sized for exactly that riser.
+                    # A DROWNED GAP IS ONE OR TWO CELLS WIDE and the cover
+                    # low-pass is sized for a 37 px riser, so five passes over
+                    # a sliver that thin collapse it onto its own centreline
+                    # and the gap re-opens under the smoothing that was meant
+                    # to tidy it. It gets one pass, and the seam-closing
+                    # stroke every class carries is widened for it: this is a
+                    # repair of a hole, so erring outward closes the hole and
+                    # erring inward is the defect coming back.
                     d.append(rel_poly(chaikin(simplify(
-                        soften(loop, COVER_SOFT), 0.7), 1)))
+                        soften(loop, 1 if c == COVER_DROWNED else COVER_SOFT),
+                        0.7), 1)))
                 if d:
                     # A hairline of page-bg used to show wherever a simplified
                     # union loop pulled away from its neighbour, or where one
@@ -2427,6 +2952,21 @@ class Plate:
                     # fill closes the seam for 0.3 px of expansion and no
                     # change to the drawing.
                     tok = f"var({COVER_TOKEN[c]})"
+                    if c == COVER_DROWNED:
+                        # painted as the RECONSTRUCTION paints itself -- the
+                        # ground it would have had, under the bay's own wash
+                        # at the bay's own opacity -- so a gap closed here is
+                        # indistinguishable from the polygon that should have
+                        # covered it, and no third colour appears on the sheet
+                        base = f"var({COVER_TOKEN[COVER_OPEN]})"
+                        out.append(f'<path class="pp-cover" fill="{base}" '
+                                   f'stroke="{base}" stroke-width="5.0" '
+                                   f'd="{"".join(d)}"/>')
+                        out.append(f'<path class="pp-cover" fill="{tok}" '
+                                   f'fill-opacity="0.87" stroke="{tok}" '
+                                   f'stroke-opacity="0.87" stroke-width="5.0" '
+                                   f'd="{"".join(d)}"/>')
+                        continue
                     out.append(f'<path class="pp-cover" fill="{tok}" '
                                f'stroke="{tok}" stroke-width="0.7" '
                                f'd="{"".join(d)}"/>')
@@ -2675,6 +3215,72 @@ class Plate:
                 % (rel_poly(poly), rel_poly(sky, close=False))), crest
 
     # ── water ────────────────────────────────────────────────────────────
+    def coast_ring(self, poly_latlon, label):
+        """One water polygon's ring, with the source grid's 30 m staircase
+        taken off it in WORLD METRES (see COAST_SOFT).
+
+        Taubin's lambda/mu pair, which is the shrink-free low-pass this file
+        already uses on cover boundaries and tone edges; a plain box or
+        Laplacian pass would pull a closed ring in toward its own centre and
+        that would move the shoreline in one direction, which is a bias and
+        not a smoothing. The displacement is measured against the ORIGINAL
+        ring, in metres, and reported.
+
+        MEMOISED, and that matters for more than speed: the camp lays its
+        ships against the shore, the rivers stop at it, and the fill and the
+        coast line are drawn on it. All four must read the SAME ring, or the
+        fleet beaches thirty metres off the water it is drawn against."""
+        hit = self._rings.get(label)
+        if hit is not None:
+            return hit
+        raw = [pp._flat_m(p, *VIEWPOINT) for p in poly_latlon]
+        # DENSIFY FIRST, AND THAT IS NOT AN OPTIMISATION. A vertex low-pass
+        # averages a point toward its NEIGHBOURS, so on a ring whose sampling
+        # is uneven -- sea-modern runs 30 m risers round the headlands and
+        # then straight for kilometres across the open Aegean -- a vertex
+        # between two distant neighbours is dragged most of the way to the
+        # chord between them. Measured before this line existed: worst move
+        # 6339.7 m on sea-modern, which is not a smoothing, it is a different
+        # coastline. Resampled at the source posting the filter sees one
+        # feature size everywhere and the move falls to the grid's own scale.
+        flat = []
+        n_ = len(raw)
+        for k in range(n_):
+            a, b = raw[k], raw[(k + 1) % n_]
+            seg = math.hypot(b[0] - a[0], b[1] - a[1])
+            for s in range(max(1, int(seg / COAST_STEP_M))):
+                t = s / max(1, int(seg / COAST_STEP_M))
+                flat.append((a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])))
+        soft = soften(flat, COAST_SOFT, closed=True)
+        soft, cuts = cut_necks(soft)
+        self.stats.setdefault("coast_necks", {})[label] = cuts
+        # measured to the ORIGINAL POLYLINE, not to its vertices, for the
+        # reason course() gives: a smoothed point sits mid-segment, and the
+        # nearest vertex can be far away on a line the point never left
+        worst = 0.0
+        for cx, cy in soft:
+            best = float("inf")
+            for k in range(n_):
+                x0, y0 = raw[k]
+                x1, y1 = raw[(k + 1) % n_]
+                ux, uy = x1 - x0, y1 - y0
+                L2 = ux * ux + uy * uy
+                t = 0.0 if L2 < 1e-9 else max(0.0, min(
+                    1.0, ((cx - x0) * ux + (cy - y0) * uy) / L2))
+                best = min(best, math.hypot(cx - x0 - t * ux, cy - y0 - t * uy))
+            worst = max(worst, best)
+        self.stats.setdefault("coast_dev_m", {})[label] = round(worst, 1)
+        mlat = 1.0 / 111132.0
+        mlon = 1.0 / (111320.0 * math.cos(math.radians(VIEWPOINT[0])))
+        ring = [(VIEWPOINT[0] + n * mlat, VIEWPOINT[1] + e * mlon)
+                for e, n in soft]
+        self._rings[label] = ring
+        return ring
+
+    def shore(self, label):
+        """The drawn ring for one water body, by layer id."""
+        return self.coast_ring(self.lay[label]["polygon"], label)
+
     def water_path(self, poly_latlon, z=0.0, drape=False):
         cam, terr = self.cam, self.terr
         dense = []
@@ -2698,7 +3304,15 @@ class Plate:
                 scr.append((p[0], p[1]))
         if len(scr) < 4:
             return None
-        return simplify(chaikin(scr, passes=2, closed=True), 0.6)
+        # ONE CORNER-CUT, NOT TWO, now that coast_ring low-passes the ring in
+        # world metres before it ever reaches here. Two on top of that pulled
+        # the DRAWN edge well inside its own MASK -- and cover_field
+        # classifies against the mask, so wherever the two disagreed the
+        # ground kept a dry cover colour that the water fill no longer reached
+        # to hide. That is what was left of the left-edge sliver after the
+        # drowned-gap rule had done its work: not a misclassification, but a
+        # drawn line that had walked away from the classification.
+        return simplify(chaikin(scr, passes=1, closed=True), 0.6)
 
     def water_svg(self):
         out = []
@@ -2732,8 +3346,11 @@ class Plate:
         # shades the ground the reconstruction says was under water, which on
         # a modern DEM carrying Holocene fill is the only claim the base can
         # actually support. delta-swamp already does this, for this reason.
-        sea = self.water_path(self.lay["sea-modern"]["polygon"], 0.0)
-        lagoon = self.water_path(self.lay["lagoon-bronze"]["polygon"], drape=True)
+        sea = self.water_path(self.shore("sea-modern"), 0.0)
+        lagoon = self.water_path(self.shore("lagoon-bronze"), drape=True)
+        # the swamp keeps its raw ring: it is drawn with NO outline and a 9 px
+        # blur, so a 30 m riser on it was never visible and taking one off
+        # would be moving a line nobody can see.
         swamp = self.water_path(self.lay["delta-swamp"]["polygon"], drape=True)
         # ── WHAT MAKES IT WATER AND NOT A BLUE SHAPE ─────────────────────
         # Both bodies were flat fills, which is why the far arm of the bay
@@ -2896,8 +3513,8 @@ class Plate:
         the bay is the Bronze Age reconstruction, and running a modern channel
         across a reconstructed lagoon mixes the two registers in one mark --
         which printed as a dark line wandering over open water."""
-        lagoon = self.lay["lagoon-bronze"]["polygon"]
-        sea = self.lay["sea-modern"]["polygon"]
+        lagoon = self.shore("lagoon-bronze")
+        sea = self.shore("sea-modern")
 
         def wet(p):
             return (point_in_poly_ll(p[0], p[1], lagoon)
@@ -2995,13 +3612,24 @@ class Plate:
             return dense
 
         out = []
+        # THE COURSES ARE KEPT so the thicket can be hung on the LINE THE
+        # PLATE DREW rather than on the survey path it came from. That is the
+        # whole licence for drawing bank flora at all (see the vegetation
+        # note): a fringe along a drawn schematic course inherits that
+        # course's register and makes no new claim. Recomputing it from the
+        # raw path in vegetation_svg would have let the two drift apart.
+        self.river_courses = []
         for run in dry_runs(self.lay["scamander"]["path"]):
+            c = course(run)
+            self.river_courses.append(("scamander", 1, c))
             out.append('<g>' + draped_ribbon(
-                self.cam, self.terr, course(run), 17.0, "pp-river",
+                self.cam, self.terr, c, 17.0, "pp-river",
                 taper=lambda t: 0.55 + 0.45 * t) + '</g>')
         for run in dry_runs(self.lay["simoeis"]["path"]):
+            c = course(run)
+            self.river_courses.append(("simoeis", 2, c))
             out.append('<g class="tm2">' + draped_ribbon(
-                self.cam, self.terr, course(run), 11.0, "pp-river",
+                self.cam, self.terr, c, 11.0, "pp-river",
                 taper=lambda t: 1.0 - 0.4 * t) + '</g>')
         # THE AIR IS OVER THE RIVERS TOO. The channels are drawn after every
         # haze rect the strata laid down, so the Scamander was arriving at
@@ -3012,6 +3640,157 @@ class Plate:
         # channel moves.
         return hazed("".join(p for p in out if "<path" in p))
 
+    # ── vegetation ───────────────────────────────────────────────────────
+    def _aired(self, marks, cls=""):
+        """Group marks by the strata the terrain already integrates, and give
+        each band the air's own transmittance.
+
+        The terrain gets its haze from wash rects laid BETWEEN strata, which
+        only reaches what was painted before them; anything drawn afterwards
+        -- the rivers, the camp, and now this -- arrives at full strength
+        however far away it is. rivers_svg answers that with hazed(), which
+        re-emits every path under #pp-air; that device needs a FILLED path and
+        would flood a stroked scrub tick with colour, and it doubles the
+        element count, which on fifteen hundred ticks is not free. So the
+        marks are bucketed by depth instead and each bucket carries the same
+        exp(-d/HAZE_D) as a group opacity. It is the identical law read at the
+        band's own range, and the approximation it makes -- fading a mark
+        toward the ground beneath it rather than toward the haze token -- is
+        invisible because the ground beneath it has itself already been
+        hazed by exactly the same amount."""
+        out = []
+        edges = STRATA_EDGES
+        for s in range(len(edges) - 1):
+            far, near = edges[s], edges[s + 1]
+            band = [m for d, m in marks if near <= d < far]
+            if not band:
+                continue
+            t = math.exp(-((far + near) * 0.5) / HAZE_D)
+            g = f'<g class="{cls}" opacity="{t:.3f}">' if cls else \
+                f'<g opacity="{t:.3f}">'
+            out.append(g + "".join(band) + "</g>")
+        return "".join(out)
+
+    def vegetation_svg(self):
+        """Everything that grows on this sheet. See the VEGETATION note above
+        the primitives for what each class is and which line of the poem puts
+        it there; this method is only the placement.
+
+        Painted after the water and the rivers and before the camp, which is
+        depth order for these marks: the thicket is at 6-15 km, the ridge
+        scrub runs from under the reader's feet to the mesh's edge, and the
+        fleet is nearer than either."""
+        if not VEG:
+            return ""
+        cam, terr = self.cam, self.terr
+        marks_t1: list = []      # in the overview, and therefore in all tiers
+        marks_t3: list = []      # only once the reader has come closer
+        n_bank = n_scrub = 0
+
+        # ── the riverbank thicket, along the drawn courses ───────────────
+        # THE CLUMPS ALTERNATE BANKS and their pitch halves at the zoom
+        # tiers, which is what "regenerate, do not scale" means here: the
+        # tier-1 clumps are placed at every even index of the tier-3 walk, so
+        # the reader zooming in finds the same trees plus more between them.
+        for name, tier, course in getattr(self, "river_courses", []):
+            if len(course) < 4:
+                continue
+            step = BANK_STEP_M * 0.5
+            flat = [pp._flat_m(p, *VIEWPOINT) for p in course]
+            run = 0.0
+            k = 0
+            for a, b in zip(flat, flat[1:]):
+                seg = math.hypot(b[0] - a[0], b[1] - a[1])
+                if seg < 1e-6:
+                    continue
+                tx, ty = (b[0] - a[0]) / seg, (b[1] - a[1]) / seg
+                while run < seg:
+                    f = run / seg
+                    k += 1
+                    side = 1.0 if k % 2 else -1.0
+                    jit = 0.55 + 0.9 * _rnd(k, int(a[0]), int(a[1]))
+                    off = BANK_OFFSET_M * jit * side
+                    e = a[0] + tx * run - ty * off
+                    n = a[1] + ty * run + tx * off
+                    lat = VIEWPOINT[0] + n / 111132.0
+                    lon = (VIEWPOINT[1] + e
+                           / (111320.0 * math.cos(math.radians(VIEWPOINT[0]))))
+                    # tall over low, as 21.350-51 has it: elm, willow and
+                    # tamarisk over lotus, rush and galingale. The herb layer
+                    # is under a tenth of a pixel at these ranges and is
+                    # lettered in the key instead of drawn.
+                    tall = _rnd(k, 7, int(e)) < 0.58
+                    h, r = ((BANK_TREE_H, BANK_TREE_R) if tall
+                            else (BANK_SHRUB_H, BANK_SHRUB_R))
+                    sv = thicket(cam, terr, lat, lon, h, r, seed=k * 31 + tier)
+                    run += step
+                    if not sv:
+                        continue
+                    p = cam.project_ll(lat, lon, built_h(0.0, terr.elev(lat, lon)))
+                    if not p or not (-BLEED < p[0] < W + BLEED
+                                     and -BLEED < p[1] < H + BLEED):
+                        continue
+                    n_bank += 1
+                    (marks_t1 if k % 2 == 0 else marks_t3).append((p[2], sv))
+                run -= seg
+
+        # ── ridge scrub, one tick per so many square pixels of ridge ─────
+        # DENSITY IS HELD IN SCREEN AREA, NOT IN GROUND AREA, which is the
+        # hachure discipline: the marks keep a constant apparent spacing and
+        # so the ridge reads as one texture from the foreground to the far
+        # crests instead of as a lattice going to mush. It also makes the
+        # class self-extinguishing where it should be -- the tick's height is
+        # TRUE, so 1.4 m of maquis falls under the ink at about 3 km and the
+        # far ridges simply stop carrying scrub, exactly as slope hachures
+        # vanish on flat ground by construction.
+        grid = self.grid
+        for (i, j) in self.visible:
+            if self.cover.get((i, j)) != COVER_RIDGE:
+                continue
+            a0, a1 = grid[i][j], grid[i + 1][j]
+            b1, b0 = grid[i + 1][j + 1], grid[i][j + 1]
+            if a0[3] > SCRUB_REACH:
+                continue
+            quad = [(a0[0], a0[1]), (a1[0], a1[1]), (b1[0], b1[1]), (b0[0], b0[1])]
+            area = abs(poly_area(quad))
+            if area < 2.0:
+                continue
+            (e0, n0), (e1, n1_) = self.wor[i][j], self.wor[i + 1][j]
+            (e2, n2), (e3, n3) = self.wor[i + 1][j + 1], self.wor[i][j + 1]
+            want = area / SCRUB_PX2_ZOOM
+            n_tick = int(want) + (1 if _rnd(i, j, 3) < (want % 1.0) else 0)
+            for t in range(min(n_tick, 6)):
+                u, v = _rnd(i, j, t, 5), _rnd(i, j, t, 9)
+                e = (e0 * (1 - u) + e1 * u) * (1 - v) + (e3 * (1 - u) + e2 * u) * v
+                n = (n0 * (1 - u) + n1_ * u) * (1 - v) + (n3 * (1 - u) + n2 * u) * v
+                lat = VIEWPOINT[0] + n / 111132.0
+                lon = (VIEWPOINT[1] + e
+                       / (111320.0 * math.cos(math.radians(VIEWPOINT[0]))))
+                g_ = terr.elev(lat, lon)
+                pb = cam.project(e, n, built_h(0.0, g_))
+                pt = cam.project(e, n, built_h(SCRUB_H, g_))
+                if not pb or not pt:
+                    continue
+                hp = pb[1] - pt[1]
+                if hp < VEG_MIN_PX:
+                    continue
+                w_ = hp * 0.75
+                # three strokes from one foot: a tuft, which is the smallest
+                # mark that still says "low woody thing" rather than "dot"
+                d = (f'M{n1(pb[0] - w_)} {n1(pb[1] - hp * 0.9)}'
+                     f'L{n1(pb[0])} {n1(pb[1])}'
+                     f'L{n1(pb[0] + w_)} {n1(pb[1] - hp * 0.85)}'
+                     f'M{n1(pb[0])} {n1(pb[1])}L{n1(pb[0] + w_ * 0.15)} '
+                     f'{n1(pb[1] - hp)}')
+                n_scrub += 1
+                (marks_t1 if t == 0 and _rnd(i, j, 17) <
+                 SCRUB_PX2_ZOOM / SCRUB_PX2 else marks_t3).append(
+                    (a0[3], f'<path class="pp-scrub" d="{d}"/>'))
+
+        self.stats["veg_bank"] = n_bank
+        self.stats["veg_scrub"] = n_scrub
+        return self._aired(marks_t1) + self._aired(marks_t3, "tm2")
+
     # ── the camp ─────────────────────────────────────────────────────────
     def camp(self):
         """Ships hauled up in rows, prows to the water; huts on the ridge
@@ -3020,7 +3799,7 @@ class Plate:
         about the camp's SHAPE (14.31-36, rows because one row would not fit
         between the headlands) and silent about its ground."""
         cam, terr = self.cam, self.terr
-        lagoon_poly = self.lay["lagoon-bronze"]["polygon"]
+        lagoon_poly = self.shore("lagoon-bronze")
         camp_zone = self.lay["achaean-camp-zone"]["polygon"]
         th = math.radians(HEADING_DEG)
 
@@ -3298,7 +4077,7 @@ class Plate:
             ford_t, ford = 0.72, road_pt(0.72)
         # a guard, not a hope: if any point of the road as laid falls in water,
         # the rule has failed and the plate must not draw it.
-        wet = self.lay["lagoon-bronze"]["polygon"]
+        wet = self.shore("lagoon-bronze")
         for m in range(41):
             q = road_pt(m * ford_t / 40.0)
             if point_in_poly_ll(q[0], q[1], wet):
@@ -3461,12 +4240,54 @@ COVER_KEY = (
     ("wet", "WET DELTA, SWAMP",
      "waterlogged delta behind the bay (Kayan 2003) — no edge"),
     (COVER_OPEN, "GROUND BEYOND THE PLAIN",
-     "outside the sector and its ridges — not classified"),
+     "not classified — the three ridges are cut at 20, 40 and 100 m, so there "
+     "is no one rule to carry outward"),
 )
 COVER_KEY_UNDRAWN = (
-    "RIVERBANK THICKET — elm, willow, tamarisk over lotus, rush and galingale "
-    "(Il. 21.350–52): lettered, not bounded. Its channels lie under 20 m of "
-    "alluvium and cannot be located."
+    "Not drawn: the thicket’s WIDTH — the Bronze Age channels lie under 20 m of "
+    "alluvium, so the fringe follows the drawn course at an artist’s width, never a "
+    "measured one. Ida’s oaks and firs (Il. 23.114–20; 14.287), attested but 66 km "
+    "off behind the air. Nothing on the dry fan: the epithets (6.315; 20.226) call "
+    "it good soil and give no pattern, and no Bronze Age field boundary is evidenced."
+)
+# ── THE TWO WATERS, AND WHY THE KEY HAD LOST THEM ────────────────────────
+# When the legend was rewritten from a twelve-step elevation ramp to four
+# ground-cover entries, the old "Open sea" and "Lagoon and shallow water"
+# rows went with it -- and the plate draws two water bodies that are two
+# different KINDS OF CLAIM. A reader who cannot tell which coastline is
+# surveyed and which is reconstructed cannot read the sheet. They are back,
+# each carrying its evidence in the same breath as its swatch, exactly as the
+# ground-cover rows do.
+WATER_KEY = (
+    ("sea", "OPEN SEA",
+     "the Aegean and the Dardanelles as they stand — surveyed (Copernicus GLO-30)"),
+    ("lagoon", "THE BAY OF TROY, RECONSTRUCTED",
+     "the Late Bronze Age embayment (Kraft, Kayan and Erol 1980; Kayan) — a wash, "
+     "and a lighter line"),
+)
+# ── AND THE MARKS. Everything below is drawn on the plate and, until now,
+# explained nowhere: a reader could count 459 hulls and think we were making
+# a claim about the fleet. Every line here is a CONVENTION being declared,
+# which is the only kind of thing a key can honestly say about a mark whose
+# position is conjectural.
+DRAWN_MARKS = (
+    "Marks, each a declared convention: ships as hulls in ranks with the huts behind, "
+    "filling the frontage in view and never the catalogue’s count; the wall and its "
+    "ditch one line each at the camp’s inland edge (Il. 7.436–441; 14.30–36); a "
+    "tumulus a low shadowed mound; the wagon-road one line from the gate onto the "
+    "plain (22.146), an open ring at each waypoint in the poem’s own order."
+)
+# ── VEGETATION, and the four things on this sheet that grow. Each carries
+# the line of the poem that puts it there in the same breath as its mark,
+# which is the ground-cover key's own rule applied to the layer that was
+# missing from it.
+VEG_KEY = (
+    ("THE OAK", "φηγός — Il. 6.237 = 9.354 = 11.170, at the Scaean Gate"),
+    ("THE WILD FIG", "ἐρινεός — Il. 22.145, ἠνεμόεντα, “windswept”"),
+    ("RIVERBANK THICKET", "elm, willow, tamarisk over lotus, rush, galingale "
+     "— Il. 21.350–52"),
+    ("RIDGE SCRUB", "no line of the poem — the regional default above, now "
+     "given a mark as well as a tint"),
 )
 # ── THE FURNITURE COMES OFF THE PICTURE (2026-08-14) ─────────────────────
 # "the legends are unhelpful and obscure too much of the images" (John). The
@@ -3552,8 +4373,44 @@ def furniture(cam, terr, ship_depth, troy_depth):
                    f'y="{n1(sy_ + 7)}" letter-spacing="0.9">{esc(name)}</text>')
         out.append(f'<text class="pp-l-note" x="{n1(sx + kw + 9)}" '
                    f'y="{n1(sy_ + 20)}" fill-opacity="0.85">{esc(gloss)}</text>')
-    out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(ky0 + 2 * row + 8)}">'
-               f'{esc(COVER_KEY_UNDRAWN)}</text>')
+    # ── the two sub-blocks the legend rewrite had dropped: what GROWS, and
+    # WHICH WATER IS WHICH. They sit under their own columns at a smaller
+    # step than the swatch rows, because each is one line and not two.
+    sub = ky0 + 2 * row + 12.0
+    out.append(f'<text class="pp-l-region" x="{n1(bx)}" y="{n1(sub)}">'
+               f'VEGETATION</text>')
+    out.append(f'<text class="pp-l-note" x="{n1(bx + 196)}" y="{n1(sub)}" '
+               f'fill-opacity="0.85">every plant traces to a line of the poem '
+               f'or to a class above</text>')
+    for i, (name, gloss) in enumerate(VEG_KEY):
+        yy = sub + 18.0 + i * 14.0
+        out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(yy)}" '
+                   f'letter-spacing="0.9">{esc(name)}</text>')
+        out.append(f'<text class="pp-l-note" x="{n1(bx + 168)}" y="{n1(yy)}" '
+                   f'fill-opacity="0.85">{esc(gloss)}</text>')
+
+    out.append(f'<text class="pp-l-region" x="{n1(sx0)}" y="{n1(sub)}">'
+               f'WATER</text>')
+    out.append(f'<text class="pp-l-note" x="{n1(sx0 + 112)}" y="{n1(sub)}" '
+               f'fill-opacity="0.85">two bodies, two kinds of claim</text>')
+    for i, (cls, name, gloss) in enumerate(WATER_KEY):
+        sy_ = sub + 10.0 + i * 24.0
+        # THE SWATCH IS DRAWN THE WAY THE PLATE DRAWS IT, wash and all, so the
+        # key cannot promise a water the sheet never prints: the survey is
+        # opaque on page, the reconstruction is its wash over the GROUND it is
+        # draped on, which is what a reader sees on the sheet.
+        out.append(f'<rect class="pp-key-sw" x="{n1(sx0)}" y="{n1(sy_)}" '
+                   f'width="{n1(kw)}" height="{n1(kh)}" fill="var('
+                   + ('--pp-cover-open' if cls == "lagoon" else '--scene-map-sea')
+                   + ')"/>')
+        if cls == "lagoon":
+            out.append(f'<rect x="{n1(sx0)}" y="{n1(sy_)}" width="{n1(kw)}" '
+                       f'height="{n1(kh)}" fill="var(--plate-lagoon)" '
+                       f'fill-opacity="0.87"/>')
+        out.append(f'<text class="pp-l-note" x="{n1(sx0 + kw + 9)}" '
+                   f'y="{n1(sy_ + 11)}" letter-spacing="0.9">{esc(name)}</text>')
+        out.append(f'<text class="pp-l-note" x="{n1(sx0 + kw + 268)}" '
+                   f'y="{n1(sy_ + 11)}" fill-opacity="0.85">{esc(gloss)}</text>')
 
     # the two bars, at the two depths the plate is mostly about
     for k, (d, lbl) in enumerate(((ship_depth, "1 km at the ships"),
@@ -3572,8 +4429,14 @@ def furniture(cam, terr, ship_depth, troy_depth):
     # the DRAFT stamp are all still here. What went was the prose around
     # them, and one whole line that was explaining the key, which the key now
     # says itself.
-    ty = ky0 + 2 * row + 44.0
+    # THE LEADING DROPS FROM 18 TO 14 to buy the two lines the key was
+    # missing. The margin is 300 px and fixed -- it is the crop, and the crop
+    # is not this lane's to move -- so the five notes are set at the 10 px
+    # face's own comfortable leading instead of at a display step.
+    ty = sub + 18.0 + len(VEG_KEY) * 14.0 + 4.0
     for line in (
+        COVER_KEY_UNDRAWN,
+        DRAWN_MARKS,
         disclosure() + " " + sun_disclosure(),
         "Measured: terrain, coastlines, rivers, Hisarlık, Callicolone, Sigeion, "
         "Rhoiteion. Conjectural: the ships, the huts, the wall and ditch, and every "
@@ -3581,15 +4444,19 @@ def furniture(cam, terr, ship_depth, troy_depth):
         "coordinate. The ridges are this sheet's own DEM outlines, the wet delta its "
         "10–15 m slope-under-1.2% mask, the dry fan what the plain sector has left.",
         "The bay is the reconstructed Late Bronze Age embayment (Kraft, Kayan and Erol "
-        "1980; Kayan); its shore is approximate, drawn as a hairline against the modern "
-        "coastline's heavier survey line. Height is in the geometry and the light"
+        "1980; Kayan): a wash over the ground it is draped on, inside a hairline, "
+        "against the modern coastline's opaque fill and heavier survey line — the two "
+        "waters differ in weight because they differ in kind. Where the two shores "
+        "leave ground stranded between them below that 10 m contour, the wash closes "
+        "the gap by the reconstruction's own rule. Height is in the "
+        "geometry and the light"
         + {"all": ", and in the contour hairlines.",
            "index": ", and in the index contours at 10, 30, 110 and 600 m.",
            "none": " alone; no contours are drawn."}[CONTOURS]
         + " DRAFT.",
     ):
         out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(ty)}">{esc(line)}</text>')
-        ty += 18
+        ty += 14
     return "".join(out)
 
 
@@ -3722,6 +4589,9 @@ def build(terr, cam, plate_json):
     body.append(P.terrain_svg())
     body.append(P.water_svg())
     body.append(P.rivers_svg())
+    # vegetation goes down after the water and the rivers it grows beside,
+    # and before the fleet, which is nearer than any of it
+    body.append(P.vegetation_svg())
 
     wps = P.waypoints()
     ships, huts, mass, wall_svg, ditch_svg, ship_px, obj_sh = P.camp()
@@ -3777,9 +4647,33 @@ def build(terr, cam, plate_json):
                 marks.append(f'<g class="{tcls(tier)}">{sd}<path class="pp-tumulus" '
                              f'd="M{n1(x - r * 1.6)} {n1(y)}a{n1(r * 1.6)} {n1(r * 1.1)} 0 0 1 '
                              f'{n1(r * 3.2)} 0Z"/></g>')
+            elif w["id"] == "fig-tree":
+                # THE POEM'S TWO NAMED TREES ARE DRAWN AS TREES. Both were
+                # open circles -- the same ring the lookout and the springs
+                # get -- which is the right mark for a place and the wrong one
+                # for a thing that stands up out of the ground and has a name.
+                # ἐρινεὸν ἠνεμόεντα (22.145), the WINDSWEPT fig: the epithet
+                # says it stands exposed, so the crown leans, which is the one
+                # thing about its appearance the poem actually gives us.
+                marks.append(f'<g class="{tcls(tier)}">'
+                             + tree(cam, terr, lat, lon, FIG_H, FIG_R,
+                                    seed=71, lean=0.30) + '</g>')
             else:
                 marks.append(f'<g class="{tcls(tier)}"><circle class="pp-mark" cx="{n1(x)}" '
                              f'cy="{n1(y)}" r="{n1(r)}"/></g>')
+            if w["id"] == "scaean-gate":
+                # THE GATE KEEPS ITS RING AND THE OAK STANDS BESIDE IT. They
+                # are one formulaic pair -- Σκαιάς τε πύλας καὶ φηγόν, 6.237 =
+                # 9.354 = 11.170 -- and the label has always named both, but
+                # one ring could only ever draw one of them. The oak is set
+                # 45 m out along the road, which is a drawing convention and
+                # not a position: what the poem fixes is that they are
+                # adjacent (9.354 measures Hector's furthest sally as "only as
+                # far as the Scaean gates and the oak").
+                olat, olon = off_road(w["at"], pp.TROY, -45.0)
+                marks.append(f'<g class="{tcls(tier)}">'
+                             + tree(cam, terr, olat, olon, OAK_H, OAK_R,
+                                    seed=13) + '</g>')
 
     if "wall_mid" in P.stats and "achaean-wall" in anchors:
         anchors["achaean-wall"] = (P.stats["wall_mid"][0], P.stats["wall_mid"][1],
@@ -4161,7 +5055,15 @@ def main():
           f"cells tested {P.stats['cells_tested']}, visible "
           f"{P.stats['cells_visible']} "
           f"({100 * P.stats['cells_visible'] / max(1, P.stats['cells_tested']):.0f}%)")
-    print(f"hulls {P.stats['hulls']}, huts {P.stats['huts']}")
+    print(f"hulls {P.stats['hulls']}, huts {P.stats['huts']}, "
+          f"thicket clumps {P.stats.get('veg_bank', 0)}, scrub ticks "
+          f"{P.stats.get('veg_scrub', 0)}")
+    nk = P.stats.get("coast_necks", {})
+    print("coastline low-pass worst move: " + ", ".join(
+        f"{k} {v:g} m ({nk.get(k, 0)} neck cut)"
+        for k, v in sorted(P.stats.get("coast_dev_m", {}).items()))
+          + f" (source grid 30 m; COAST_SOFT={COAST_SOFT}, "
+            f"neck<{COAST_NECK_M:g} m)")
 
     tgt = camera_targets(wps, dict(P.stats))
     tgt["camera"]["pitchDegDown"] = round(math.degrees(cam.pitch), 2)
