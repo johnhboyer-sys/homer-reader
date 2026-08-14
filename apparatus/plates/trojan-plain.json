@@ -6,7 +6,7 @@
   "seed": 20260728,
   "bbox": [39.86, 26.1, 40.05, 26.38],
   "size": [880, 779],
-  "note": "The geographic register: real lat/lon, only features with a defensible position. The poem's own spatial logic — the camp order, the wagon-road and its waypoints, the ford, the tomb of Ilus — belongs to the schematic plate and is deliberately absent here. RECONSTRUCTION FOLLOWED: Kraft, Kayan and Erol 1980, as refined by Kayan (2003, 2019) and by Kraft, Rapp, Kayan and Luce 2003 — the Late Bronze Age embayment lies north and north-west of Hisarlik, so the dry, usable plain, and therefore the battlefield, lies SOUTH AND WEST of the city. That is the reverse of nearly every popular illustration, which puts the fighting on the ground north of Troy. Others differ: Luce (1984) puts the shoreline west by south of the site with a broad embayment between the city and the Sigeum ridge, and the Achaean camp on the lower slopes of that ridge some four miles west of Hisarlik — which rotates the battlefield from north-south to roughly east-west. Both cannot be drawn on one sheet; this one draws Kraft. The BASE of this sheet is survey: the modern coast is contoured from the Copernicus DEM's 30 m water mask, and the rivers are OpenStreetMap's mapped channels, so the reconstruction has something measured to be read against. The Bronze Age reconstruction drawn over that base is NOT TRACED from any published figure -- see the shore layer's note for how its line was derived from stated measurements. Feature names on the sheet come from the gazetteer; Sigeion and Rhoiteion are Strabonic, not Homeric, and appear here as later reference points.",
+  "note": "The geographic register: real lat/lon, only features with a defensible position. The poem's own spatial logic — the camp order, the wagon-road and its waypoints, the ford, the tomb of Ilus — belongs to the schematic plate and is deliberately absent here. RECONSTRUCTION FOLLOWED: Kraft, Kayan and Erol 1980, as refined by Kayan (2003, 2019) and by Kraft, Rapp, Kayan and Luce 2003 — the Late Bronze Age embayment lies north and north-west of Hisarlik, so the dry, usable plain, and therefore the battlefield, lies SOUTH AND WEST of the city. That is the reverse of nearly every popular illustration, which puts the fighting on the ground north of Troy. Others differ: Luce (1984) puts the shoreline west by south of the site with a broad embayment between the city and the Sigeum ridge, and the Achaean camp on the lower slopes of that ridge some four miles west of Hisarlik — which rotates the battlefield from north-south to roughly east-west. Both cannot be drawn on one sheet; this one draws Kraft. The BASE of this sheet is survey: the modern coast is contoured from the Copernicus DEM's 30 m water mask, and the rivers are OpenStreetMap's mapped channels, so the reconstruction has something measured to be read against. The Bronze Age reconstruction drawn over that base is NOT TRACED from any published figure -- see the shore layer's note for how its line was derived from stated measurements. Feature names on the sheet come from the gazetteer; Sigeion and Rhoiteion are Strabonic, not Homeric, and appear here as later reference points. A `barrier-bronze` layer -- a sandy bar closing the bay into a lagoon -- was removed 2026-08-14: no source in this dossier draws a Bronze Age barrier on this delta, and three deny one outright (Kayan et al. 2003, 390; Kraft, Rapp, Kayan and Luce 2003, 164; Kraft et al. 2003a, 364); every Bronze Age barrier-and-lagoon in the literature belongs to Beşik Bay, not the Scamander front.",
   "sources": [
     {
       "cite": "Kraft, John C., Ilhan Kayan, and Oguz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209, no. 4458 (1980): 776-82."
@@ -7463,37 +7463,6 @@
           [39.9997, 26.2426],
           [40.0, 26.2427],
           [40.0001, 26.2426]
-        ]
-      ]
-    },
-    {
-      "id": "barrier-bronze",
-      "kind": "coast",
-      "style": "barrier",
-      "default": "on",
-      "note": "The wide sandy barrier that a relative sea-level fall of 2 to 2.5 m left across the mouth of the bay in the Late Bronze Age, closing the remaining water into a shallow lagoon. Derived on the same principle as the shore: the 5 m contour of the modern DEM, running east across the delta at about 40.00 N from the east foot of the Sigeion ridge -- low ground standing proud of the fill, in the position Kayan's barrier occupies, and seaward of the derived shore along its whole length. Approximate to on the order of a kilometre. Not traced from any figure. WHERE IT ENDS IS PART OF THE CLAIM. A bar is ground with water on both sides, and the water behind this one is the lagoon, whose landward margin is the 10 m contour the shore is cut from -- so the bar runs as far as those two contours stay apart and no further. Across the delta they open to between 380 m and 1.95 km. At 26.243 E, 4.5 km east of the Sigeion foot, they close in one step to 130 m -- nearer than the 275 m both lines are generalised to, so at this sheet's resolution they have stopped being two lines -- and east of there they run 20 to 45 m apart with the ground between them rising at 10 to 19 per cent, against 0.4 to 5 per cent on the delta. That is the coastal slope at the foot of the Rhoiteion ridge, not a bar with a lagoon behind it. So the bar lands at 26.243 E and stops, and the eastern end of the lagoon is closed by the Rhoiteion slope itself rather than by the barrier. The earlier cut of this layer ran on to the Rhoiteion spur and drew four more vertices of that slope as sand bar. DRAWN AS GROUND, not as a line: a bar is a body of land with water on both sides, and a stroke down its axis read as a river running out across the lagoon. The stored geometry locates the bar's AXIS only. Nothing surveys how wide the bar was, so the band's width is a symbol and its edges are blurred rather than drawn, the same way the wetland's margin is. AND IT IS ALL ON LAND TODAY, which the note this replaces denied: measured against the same modern water mask this sheet's coastline is traced from, every one of its eleven vertices is dry ground, between 30 and 600 m inside the modern shoreline. The strip between this line and the modern coast is delta the Karamenderes and the Dumrek have laid down since, and in the Late Bronze Age it did not exist.",
-      "sources": [
-        {
-          "cite": "Kayan, Ilhan. \"Landscape Development and Changing Environment of Troia (North-western Anatolia).\" In Landscapes and Landforms of Turkey, edited by Catherine Kuzucuoglu, Attila Ciner, and Nizamettin Kazanci, 277-91. Cham: Springer, 2019."
-        },
-        {
-          "cite": "Terrain Tiles on AWS Open Data (Tilezen/Mapzen `elevation-tiles-prod`), terrarium-encoded SRTM. SRTM data courtesy of the U.S. Geological Survey.",
-          "url": "https://registry.opendata.aws/terrain-tiles/"
-        }
-      ],
-      "rings": [
-        [
-          [39.999, 26.1904],
-          [40.0084, 26.1993],
-          [40.0039, 26.2017],
-          [40.0075, 26.2038],
-          [40.0054, 26.2086],
-          [40.0017, 26.2072],
-          [40.0053, 26.212],
-          [39.9994, 26.223],
-          [40.0013, 26.2309],
-          [39.9965, 26.2343],
-          [40.0002, 26.2426]
         ]
       ]
     },

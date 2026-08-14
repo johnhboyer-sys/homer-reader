@@ -2052,56 +2052,6 @@ describe('the paint stack: a land band can never render over water', () => {
   });
 });
 
-// ── The sandy barrier is ground, not a line (2026-07-29) ──────────────────
-// `barrier-bronze` is the bar that closed the Bronze Age lagoon off from the
-// open sea. Authored as a `coast` layer because its geometry IS a contour
-// line (the 5 m level across the bay mouth), it drew as a dark hairline in a
-// glow — and at zoom that read as a river running out across the water
-// (John, 2026-07-29). It now draws as what it is: a body of the sheet's
-// lowest ground, with a blurred margin because its width was never surveyed.
-
-describe('the sandy barrier draws as ground, not as a watercourse', () => {
-  const livePlain = parsePlate(JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8')));
-  const svg = renderPlate(livePlain, []).svg;
-  const barrier = svg.match(/data-feature-id="barrier-bronze"[^>]*>/)![0];
-
-  it('is filled in the sheet\'s lowest hypsometric step, which is what a sand bar is', () => {
-    expect(barrier).toContain('class="plate-layer plate-layer-barrier"');
-    expect(barrier).toContain('stroke="var(--plate-relief-1)"');
-  });
-
-  it('carries no hairline down its middle — that mark is what made it read as a river', () => {
-    expect(svg).not.toContain('data-feature-id="barrier-bronze-band"');
-    expect(svg.match(/data-feature-id="barrier-bronze"/g)!.length).toBe(1);
-    expect(barrier).not.toContain('var(--plate-river)');
-  });
-
-  it('its width is a symbol, so its edges are blurred rather than drawn', () => {
-    expect(barrier).toMatch(/filter="url\(#[^"]+\)"/);
-    expect(svg).toContain('<feGaussianBlur');
-  });
-
-  it('stays visually distinct from BOTH shorelines — three registers, three drawings', () => {
-    const reconstructed = svg.match(/data-feature-id="shore-bronze-band"[^>]*>/)![0];
-    const modern = svg.match(/data-feature-id="coast-modern"[^>]*>/)![0];
-    // The reconstructed shore is a soft band in the coast ink with an opaque
-    // hairline; the modern coast is a solid stroke; the barrier is neither.
-    expect(reconstructed).toContain('stroke="var(--scene-map-coast)"');
-    expect(modern).toContain('stroke="var(--scene-map-coast)"');
-    expect(barrier).not.toContain('var(--scene-map-coast)');
-    expect(modern).not.toContain('filter=');
-  });
-
-  it('keys as ground in the legend, not as a shoreline', () => {
-    expect(svg).toContain('Sandy barrier, reconstructed — width not surveyed');
-  });
-
-  it('bakes no colour of its own', () => {
-    expect(barrier).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
-    assertEveryVarTokenDefined(svg);
-  });
-});
-
 // ── A river is painted beneath any water it crosses (2026-07-29) ──────────
 // The defect: our rivers are modern OSM watercourses, and their lower reaches
 // cross ground that was under water in 1200 BC — so on the plain sheet the
@@ -2313,9 +2263,11 @@ describe('the live plain sheet: the rivers stop at the Bronze Age shore', () => 
 
   it('the calibrated Bronze Age geometry is untouched by the clip', () => {
     // Clipping rivers against the shore must not move the shore. These are
-    // the three lines the 10 m calibration is carried by.
+    // the two lines the 10 m calibration is carried by (`barrier-bronze` was
+    // removed 2026-08-14: unsupported by any dossier source — see the plate's
+    // own note).
     const before = JSON.parse(readFileSync(path.resolve(process.cwd(), SEED_PLATE_PATH), 'utf-8'));
-    for (const id of ['shore-bronze', 'barrier-bronze', 'lagoon-bronze']) {
+    for (const id of ['shore-bronze', 'lagoon-bronze']) {
       const layer = before.layers.find((l: PlateLayer) => l.id === id)!;
       const live = plate.layers.find((l) => l.id === id)!;
       expect(live.rings ?? live.polygon).toEqual(layer.rings ?? layer.polygon);
@@ -2436,67 +2388,8 @@ describe('renderPlate: a marker is never transparent to its own basemap', () => 
   });
 });
 
-// ── The barrier's honesty claim, guarded ─────────────────────────────────────
-//
-// `barrier-bronze`'s note asserts a machine-checkable fact: every vertex of the
-// bar is on land today, 30-600 m inside the modern shoreline. That claim was
-// FALSE for months and nobody noticed — the note said the eastern stretch "lies
-// outboard of the modern coast, under water now" while 14 of its 15 vertices
-// were on land, because the 5 m contour it is cut from stops being a bar east of
-// the Rhoiteion landfall and becomes the coastal slope.
-//
-// It shipped undetected for exactly one reason: no test read the claim. A prose
-// note that states a measurable fact and is checked by nothing is a liability,
-// not scholarship. This is the guard.
-describe('the live Trojan-plain sheet: the barrier is where its note says it is', () => {
-  const plate = parsePlate(
-    JSON.parse(readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain.json'), 'utf-8')),
-  );
-  const layer = (id: string) => plate.layers.find((l) => l.id === id)!;
-  const ringsOf = (id: string): [number, number][][] => {
-    const l = layer(id) as { rings?: [number, number][][]; polygon?: [number, number][]; path?: [number, number][] };
-    if (l.rings) return l.rings;
-    if (l.polygon) return [l.polygon];
-    return l.path ? [l.path] : [];
-  };
-
-  // Ray casting in lat/lon. Both are plate-space coordinates, so no projection
-  // is needed and none is assumed.
-  const inside = (pt: [number, number], ring: [number, number][]): boolean => {
-    let hit = false;
-    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-      const [ay, ax] = ring[i];
-      const [by, bx] = ring[j];
-      if ((ay > pt[0]) !== (by > pt[0]) && pt[1] < ((bx - ax) * (pt[0] - ay)) / (by - ay) + ax) hit = !hit;
-    }
-    return hit;
-  };
-
-  it('every vertex of the bar is on land, as the note claims', () => {
-    const sea = ringsOf('sea-modern');
-    const bar = ringsOf('barrier-bronze').flat();
-    expect(bar.length).toBeGreaterThan(5); // the assertion below is worthless on an empty array
-    const onWater = bar.filter((p) => sea.some((ring) => inside(p, ring)));
-    expect(onWater).toEqual([]);
-  });
-
-  it('the bar does not run along the modern coastline', () => {
-    // The defect's visible symptom: an 11px symbol band straddling a line whose
-    // axis sat 7-12 m away. Nearest approach is now 31 m; assert it stays clear
-    // of the coast's own 13 m generalisation by a real margin.
-    const coast = ringsOf('coast-modern').flat();
-    const bar = ringsOf('barrier-bronze').flat();
-    expect(coast.length).toBeGreaterThan(50);
-    expect(bar.length).toBeGreaterThan(5);
-    const M_PER_DEG_LAT = 111_320;
-    let nearest = Infinity;
-    for (const [blat, blon] of bar) {
-      for (const [clat, clon] of coast) {
-        const dy = (blat - clat) * M_PER_DEG_LAT;
-        const dx = (blon - clon) * M_PER_DEG_LAT * Math.cos((blat * Math.PI) / 180);
-        nearest = Math.min(nearest, Math.hypot(dx, dy));
-      }
-    }
-    expect(nearest).toBeGreaterThan(20);
-  });
-});
+// The barrier's honesty-claim guard (`barrier-bronze` is where its note says
+// it is) and the ground-not-a-line render tests above it were removed
+// 2026-08-14 along with the layer itself: `barrier-bronze` was unsupported by
+// any source in RESEARCH-PALEOGEOGRAPHY.md and contradicted by three — see
+// the plate's own note.
