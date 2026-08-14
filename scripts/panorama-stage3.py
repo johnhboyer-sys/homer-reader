@@ -59,13 +59,15 @@ and its Iliad citation IN THE DATA. No coordinate is invented: each
 conjectural waypoint is placed by a stated rule against measured ground, and
 the rule travels with it in the camera-target table.
 
-VERTICAL EXAGGERATION is Stage 1D's: 4.0x at or under 100 m real, tapering to
-1.0x at 300 m. Built heights are TRUE (Stage 2's finding: a 4x stem-post
-reads as a mast). Disclosed on the plate.
+VERTICAL EXAGGERATION is a RATE that is INTEGRATED, not a multiplier that is
+applied (see ve/exaggerate below: the multiplier form inverted, drawing a
+300 m ridge shorter than a 100 m hill). Built heights are TRUE (Stage 2's
+finding: a 4x stem-post reads as a mast). Disclosed on the plate.
 
 Usage
   python3 scripts/panorama-stage3.py               # both themes, all renders
   python3 scripts/panorama-stage3.py --quick       # light theme, 1x only
+  python3 scripts/panorama-stage3.py --curve B     # a different height curve
 """
 from __future__ import annotations
 
@@ -117,13 +119,87 @@ HAZE = {26000.0: 0.20, 10500.0: 0.13, 4800.0: 0.09, 2300.0: 0.05}
 PLAIN_BBOX = (39.86, 40.05, 26.1, 26.38)
 
 
-def ve(e: float) -> float:
-    t = min(1.0, max(0.0, (e - 100.0) / 200.0))
+# ── vertical exaggeration ────────────────────────────────────────────────
+# ve() IS A RATE, NOT A MULTIPLIER. It is d(apparent)/d(real), and apparent
+# height is its INTEGRAL from sea level -- not the product e * ve(e).
+#
+# The product form was NON-MONOTONIC and drew high ground low. With the
+# 4x-to-1x taper as a multiplier, apparent(e) = 5.5e - 0.015e^2: it peaks at
+# e = 183.3 m (504.2 apparent) and falls away after, so
+#       100 m -> 400      183 m -> 504      267 m -> 400      300 m -> 300
+# and a 300 m ridge printed SHORTER than a 100 m hill. About a fifth of the
+# plain sheet's ground (p80 = 107 m, p90 = 190 m) sat inside that inverting
+# band, which is exactly the middle-distance ridge line the plate's skyline
+# is made of. A decreasing multiplier applied to a rising input need not
+# produce a rising product, and here it did not.
+#
+# The integral cannot invert: apparent(e) = INT(0..e) ve(t) dt is strictly
+# increasing wherever ve > 0, whatever shape the taper takes. That is the
+# whole fix, and it is why ve() is now documented as a rate.
+#
+# THREE CURVES, because the integral changes the composition and that is
+# John's call, not the draughtsman's (--curve):
+#   A  the legacy product form. NON-MONOTONIC; kept only so the baseline
+#      render is reproducible. Delete once a curve is chosen.
+#   B  the integral of the SAME rate law A used (4x to 1x over 100-300 m,
+#      1x above). Near ground is bit-identical to A; every ridge above
+#      183 m rises, and the lift is a flat +600 m once the rate reaches 1x.
+#   C  the integral of an exponential taper -- 4x at the shore, decaying
+#      with a 150 m scale to a floor set so that MOUNT IDA KEEPS ITS PRESENT
+#      APPARENT HEIGHT. Near ground reads as now, the ridges are put in true
+#      order, and the horizon does not move.
+CURVE = "C"
+
+C_L = 150.0           # decay scale: the excess over the floor halves at
+                      # L*ln2 = 104 m, which is where the plain sheet's own
+                      # p80 (107 m) puts the plain's edge and the ridges'
+                      # start -- the taper follows the terrain's own break.
+IDA_M = 1774.0        # published Kaz Dagi summit (panorama-profile.py:
+                      # DEM 1757.4 measured, 1774 published). Curve C's floor
+                      # is solved so exaggerate(IDA_M) == IDA_M.
+_C_K = C_L * (1.0 - math.exp(-IDA_M / C_L))
+C_F = (IDA_M - 4.0 * _C_K) / (IDA_M - _C_K)      # ~0.7229
+
+
+def ve(e: float, curve: str | None = None) -> float:
+    """The exaggeration RATE at real elevation `e` metres: d(apparent)/d(real).
+    Strictly positive on every curve, which is what makes exaggerate()
+    monotonic."""
+    c = curve or CURVE
+    if c == "C":
+        return C_F + (4.0 - C_F) * math.exp(-e / C_L)
+    t = min(1.0, max(0.0, (e - 100.0) / 200.0))   # A and B share this rate law
     return 4.0 + t * (1.0 - 4.0)
 
 
-def exaggerate(e: float) -> float:
-    return e * ve(e)
+def exaggerate(e: float, curve: str | None = None) -> float:
+    """Apparent height (drawing metres) for a real elevation, = INT(0..e) ve."""
+    c = curve or CURVE
+    if c == "A":                       # legacy product form; DO NOT SHIP
+        return e * ve(e, "A")
+    if e <= 0.0:                       # the DEM dips a metre or so below zero
+        return 4.0 * e                 # extend at the sea-level rate
+    if c == "C":
+        return C_F * e + (4.0 - C_F) * C_L * (1.0 - math.exp(-e / C_L))
+    if e <= 100.0:                     # B, piecewise integral of the rate law
+        return 4.0 * e
+    if e <= 300.0:
+        d = e - 100.0
+        return 400.0 + 4.0 * d - 0.0075 * d * d
+    return 900.0 + (e - 300.0)
+
+
+DISCLOSURE = {
+    "A": "Vertical exaggeration 4× at and under 100 m, tapering to 1× above "
+         "300 m; built heights TRUE.",
+    "B": "Vertical exaggeration 4× at and under 100 m, easing to 1× above "
+         "300 m — applied as a rate and integrated, so higher ground always "
+         "draws higher. Built heights TRUE.",
+    "C": "Vertical exaggeration 4× at the shore, easing to %.2f× on the high "
+         "ground — applied as a rate and integrated, so higher ground always "
+         "draws higher and Mount Ida keeps its true height. Built heights "
+         "TRUE." % C_F,
+}
 
 
 def built_h(metres: float, ground_elev: float) -> float:
@@ -852,11 +928,17 @@ class Plate:
             while d < 100000.0:
                 lat, lon = pp._dest_point(VIEWPOINT, bearing, d)
                 if 38.95 <= lat <= 40.6 and 25.35 <= lon <= 27.5:
-                    el = terr.elev(lat, lon)
+                    # THE SKYLINE IS IN THE SAME HEIGHT SPACE AS THE MESH.
+                    # It used to be drawn at RAW elevation, which happened to
+                    # match only because the legacy curve was flat 1x above
+                    # 300 m and every skyline sample here is over 373 m. Any
+                    # curve with lift up high would have stepped the mesh's
+                    # far edge above the horizon behind it.
+                    z = exaggerate(terr.elev(lat, lon))
                     e, n = pp._flat_m((lat, lon), *VIEWPOINT)
-                    ang = math.atan2(el - cam.z, math.hypot(e - cam.e, n - cam.n))
+                    ang = math.atan2(z - cam.z, math.hypot(e - cam.e, n - cam.n))
                     if ang > best_angle:
-                        best_angle, best = ang, (e, n, el)
+                        best_angle, best = ang, (e, n, z)
                 d += 500.0
             if best:
                 p = cam.project(*best)
@@ -1448,8 +1530,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
     # ── the disclosures, which are part of the plate, not of the report
     ty = H - 60
     for line in (
-        "Vertical exaggeration 4× at and under 100 m, tapering to 1× above 300 m; "
-        "built heights TRUE.",
+        DISCLOSURE[CURVE],
         "Terrain, coastlines, rivers, Hisarlık, Callicolone, Sigeion and Rhoiteion are "
         "measured. Ships, huts, the wall and ditch, and every waypoint of the poem are "
         "conjectural — each placed by a stated rule, never at an invented coordinate.",
@@ -1737,8 +1818,9 @@ def camera_targets(wps, plate_stats):
         "camera": {
             "viewpoint": list(VIEWPOINT), "headingDeg": HEADING_DEG,
             "hfovDeg": HFOV_DEG, "altM": ALT, "setbackM": SETBACK,
-            "pitchDegDown": None, "verticalExaggeration":
-                "4x at/under 100 m, tapering to 1x above 300 m; built heights true",
+            "pitchDegDown": None,
+            "verticalExaggerationCurve": CURVE,
+            "verticalExaggeration": DISCLOSURE[CURVE],
         },
         "note": (
             "Camera targets for the Chart Room 'postcard' frames. Each row is "
@@ -1757,8 +1839,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=os.path.join(REPO, "build", "panorama"))
     ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--curve", choices=("A", "B", "C"), default=CURVE,
+                    help="vertical-exaggeration curve (see ve/exaggerate)")
     args = ap.parse_args()
+    globals()["CURVE"] = args.curve
     os.makedirs(args.out_dir, exist_ok=True)
+    print(f"curve {args.curve}: " + " ".join(
+        f"{e:g}->{exaggerate(float(e)):.0f}" for e in (10, 100, 300, 800, 1774)))
 
     terr = Terrain()
     cam = Camera(terr.plain)
