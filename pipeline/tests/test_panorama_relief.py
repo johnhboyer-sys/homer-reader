@@ -14,6 +14,7 @@ strictly increasing over the plate's whole range, sea level to Mount Ida.
 from __future__ import annotations
 
 import importlib.util
+import math
 import os
 
 import pytest
@@ -205,3 +206,212 @@ def test_back_facing_cells_are_culled(s3):
     p.cull()
     assert (0, 0) in p.visible, "the front face of the crest must be drawn"
     assert (0, 1) not in p.visible, "the folded back face must not be"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# curve C is a FAMILY: the near-ground rate is a dial, the floor never is
+# ═══════════════════════════════════════════════════════════════════════════
+# `ve(0)` was 4.0 and hard-coded. It is now set by set_curve(near, scale),
+# which SOLVES the floor so exaggerate(IDA_M) == IDA_M. That constraint puts a
+# hard ceiling on the near rate: past it the floor goes non-positive and the
+# curve inverts, which is the defect the tests above exist to prevent.
+
+
+@pytest.fixture
+def restore_curve(s3):
+    saved = (s3.C_A, s3.C_L)
+    yield
+    s3.set_curve(*saved)
+
+
+@pytest.mark.parametrize("near", [4.0, 5.0, 6.0, 7.0, 8.0, 10.0, 11.5])
+def test_every_shippable_near_rate_stays_monotonic(s3, restore_curve, near):
+    s3.set_curve(near, 150.0)
+    prev = s3.exaggerate(0.0, "C")
+    e = 0.0
+    while e < IDA_M + 50.0:
+        e += 0.25
+        a = s3.exaggerate(e, "C")
+        assert a > prev, f"ve(0)={near} inverts at {e:.2f} m"
+        prev = a
+
+
+@pytest.mark.parametrize("near", [4.0, 6.0, 8.0, 10.0, 11.5])
+def test_ida_keeps_its_true_height_at_every_near_rate(s3, restore_curve, near):
+    """The whole point of the family: turning the near dial must not move the
+    horizon."""
+    s3.set_curve(near, 150.0)
+    assert s3.exaggerate(IDA_M, "C") == pytest.approx(IDA_M, abs=0.5)
+    assert s3.ve(0.0, "C") == pytest.approx(near, abs=1e-9)
+
+
+def test_the_near_rate_has_a_ceiling_and_the_ceiling_is_enforced(s3, restore_curve):
+    """Past the ceiling the solved floor is non-positive, so the rate can go
+    to zero or negative and apparent height can stop rising. set_curve must
+    refuse rather than emit a curve that inverts."""
+    ceil = s3.max_near_rate(150.0)
+    assert 11.5 < ceil < 12.5
+    s3.set_curve(ceil - 0.05, 150.0)
+    assert s3.C_F > 0.0
+    with pytest.raises(ValueError):
+        s3.set_curve(ceil + 0.5, 150.0)
+
+
+def test_a_longer_taper_lowers_the_ceiling(s3):
+    """Counter-intuitive and worth pinning: a longer decay scale spends more
+    of Ida's budget low down, so it permits LESS lift at the shore."""
+    assert s3.max_near_rate(100.0) > s3.max_near_rate(150.0) > s3.max_near_rate(250.0)
+
+
+def test_the_cartouche_cannot_declare_a_rate_it_does_not_draw(s3, restore_curve):
+    """The disclosure is generated from the live dials. A plate saying 4x
+    while drawing 8x discredits everything else on the sheet."""
+    for near in (4.0, 6.0, 8.0):
+        s3.set_curve(near, 150.0)
+        assert ("%.3g×" % near) in s3.disclosure("C")
+        assert ("%.2f×" % s3.C_F) in s3.disclosure("C")
+
+
+def test_built_heights_stay_true_at_every_near_rate(s3, restore_curve):
+    saved = s3.CURVE
+    try:
+        s3.CURVE = "C"
+        for near in (4.0, 6.0, 8.0, 11.0):
+            s3.set_curve(near, 150.0)
+            for ground in (0.0, 5.0, 12.5, 40.0, 100.0, 300.0, 661.0):
+                for h in (0.0, 2.4, 6.4, 9.0):
+                    assert s3.built_h(h, ground) - s3.exaggerate(ground) == \
+                        pytest.approx(h, abs=1e-9)
+    finally:
+        s3.CURVE = saved
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# index contours: a rule across the sheet, never a weight chosen for a place
+# ═══════════════════════════════════════════════════════════════════════════
+def test_index_contours_are_every_third_level(s3):
+    assert sorted(s3.INDEX_LEVELS) == [1, 4, 7, 10]
+    assert [s3.LEVELS[k] for k in sorted(s3.INDEX_LEVELS)] == [10, 30, 110, 600]
+
+
+def test_index_weight_is_heavier_than_the_intermediate(s3):
+    assert s3.CONTOUR_INDEX_W > s3.CONTOUR_W > 0.6
+    css = s3.contour_css()
+    assert ".pp-contour-index{" in css and ".pp-contour{" in css
+    assert f"stroke-width:{s3.CONTOUR_INDEX_W:g}" in css
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# the light: a solved sun, and shadows that are the cull run from it
+# ═══════════════════════════════════════════════════════════════════════════
+def _solar(lat_deg, dec_deg, H_deg):
+    phi, d, H = (math.radians(x) for x in (lat_deg, dec_deg, H_deg))
+    alt = math.asin(math.sin(phi) * math.sin(d)
+                    + math.cos(phi) * math.cos(d) * math.cos(H))
+    ca = ((math.sin(d) - math.sin(alt) * math.sin(phi))
+          / (math.cos(alt) * math.cos(phi)))
+    A = math.degrees(math.acos(max(-1.0, min(1.0, ca))))
+    return math.degrees(alt), (360.0 - A if H_deg > 0 else A)
+
+
+def test_the_shipped_sun_is_a_real_solar_position(s3):
+    """No faked sun. The default must be reachable at 39.9755 N -- here at
+    declination +18 (early August), an hour after sunrise."""
+    alt, az = _solar(39.9755, 18.0, -90.0)
+    assert alt == pytest.approx(s3.LIGHT_ALT, abs=0.6)
+    assert az == pytest.approx(s3.LIGHT_AZ, abs=0.6)
+
+
+def test_the_light_vector_matches_its_bearing_and_altitude(s3):
+    for az, alt in ((76.0, 11.5), (228.4, 9.9), (260.2, 11.4)):
+        s3.set_light(az, alt)
+        lx, ly, lz = s3.LIGHT
+        assert math.hypot(math.hypot(lx, ly), lz) == pytest.approx(1.0, abs=1e-12)
+        assert math.degrees(math.atan2(lx, ly)) % 360 == pytest.approx(az, abs=1e-9)
+        assert math.degrees(math.asin(lz)) == pytest.approx(alt, abs=1e-9)
+        # shadows travel the opposite way along the ground
+        assert s3.SUN_H[0] == pytest.approx(-lx / math.cos(math.radians(alt)), abs=1e-12)
+    s3.set_light(s3.LIGHT_AZ_DEFAULT, s3.LIGHT_ALT_DEFAULT)
+
+
+def test_shadow_length_is_the_true_height_over_tan_altitude(s3):
+    """Built heights are true, so their shadows are true lengths. A 6.4 m
+    stem-post at 11.5 deg throws 31.4 m and not whatever looks good."""
+    s3.set_light(76.0, 11.5)
+    for h in (2.4, 3.2, 6.4, 25.0):
+        dx, dy = s3.sun_offset(h)
+        assert math.hypot(dx, dy) == pytest.approx(
+            h / math.tan(math.radians(11.5)), rel=1e-9)
+    assert s3.sun_offset(0.0) == (0.0, 0.0)
+    s3.set_light(s3.LIGHT_AZ_DEFAULT, s3.LIGHT_ALT_DEFAULT)
+
+
+def test_the_shadow_sweep_puts_ground_behind_a_ridge_in_shadow(s3):
+    """The cull, run from the sun. A wall of ground must shadow what lies
+    down-sun of it and nothing up-sun of it."""
+    class _Terr:
+        """A 40 m step running across the light, at the origin."""
+        def elev(self, lat, lon):
+            e = (lon - 26.1785) * (111320.0 * math.cos(math.radians(39.9755)))
+            return 40.0 if 0.0 <= e <= 200.0 else 0.0
+
+    saved = s3.CURVE
+    try:
+        s3.CURVE = "B"                      # 4x flat under 100 m: 40 -> 160
+        sf = s3.ShadowField(_Terr(), 270.0, 11.5, step=25.0, reach=2000.0)
+    finally:
+        s3.CURVE = saved
+    # light from due west, so shadows run east. 160 apparent metres at 11.5
+    # deg reaches 786 m east of the step's east face.
+    assert sf.at(500.0, 0.0) < 0.35, "ground just east of the step must be dark"
+    assert sf.at(-500.0, 0.0) > 0.95, "ground west of it -- up-sun -- must be lit"
+    assert sf.at(1600.0, 0.0) > 0.95, "beyond the shadow's reach must be lit"
+
+
+def test_shadow_visibility_is_bounded_and_defaults_lit_outside_the_raster(s3):
+    class _Flat:
+        def elev(self, lat, lon):
+            return 0.0
+    sf = s3.ShadowField(_Flat(), 76.0, 11.5, step=200.0, reach=1000.0)
+    assert sf.at(0.0, 0.0) == pytest.approx(1.0, abs=1e-9)
+    assert sf.at(9e5, 9e5) == 1.0          # off the raster: no claim, full sun
+    for row in sf.vis:
+        for v in row:
+            assert 0.0 <= v <= 1.0
+
+
+def test_shading_is_a_function_of_slope_and_light_only(s3):
+    """No location-dependent effects. Two identical cells at different places
+    must take the same tone."""
+    s3.set_light(76.0, 11.5)
+    P = object.__new__(s3.Plate)
+    P.shadow = None
+    # a cell tilted the same way at two different positions 5 km apart
+    def cell(off_e, off_n):
+        P.grid = [[(0, 0, 0.0, 1e3), (0, 0, 10.0, 1e3)],
+                  [(0, 0, 0.0, 1e3), (0, 0, 10.0, 1e3)]]
+        P.wor = [[(off_e, off_n), (off_e, off_n + 100.0)],
+                 [(off_e + 100.0, off_n), (off_e + 100.0, off_n + 100.0)]]
+        return P.shade_raw(0, 0)
+    assert cell(0.0, 0.0) == pytest.approx(cell(5000.0, -3000.0), abs=1e-12)
+    s3.set_light(s3.LIGHT_AZ_DEFAULT, s3.LIGHT_ALT_DEFAULT)
+
+
+def test_flat_ground_in_full_sun_takes_no_wash(s3):
+    """The hypsometric ramp is left to say what it says; only slopes and
+    shadows are modelled."""
+    s3.set_light(76.0, 11.5)
+    P = object.__new__(s3.Plate)
+    P.shadow = None
+    P.grid = [[(0, 0, 12.0, 1e3), (0, 0, 12.0, 1e3)],
+              [(0, 0, 12.0, 1e3), (0, 0, 12.0, 1e3)]]
+    P.wor = [[(0.0, 0.0), (0.0, 100.0)], [(100.0, 0.0), (100.0, 100.0)]]
+    assert P.shade_raw(0, 0) == pytest.approx(0.0, abs=1e-12)
+    s3.set_light(s3.LIGHT_AZ_DEFAULT, s3.LIGHT_ALT_DEFAULT)
+
+
+def test_the_cartouche_names_the_sun_it_draws(s3):
+    line = s3.sun_disclosure()
+    assert "%.0f°" % s3.LIGHT_AZ in line
+    assert "%.0f°" % s3.LIGHT_ALT in line
+    assert s3.SUN_NOTE in line

@@ -77,6 +77,7 @@ import json
 import math
 import os
 import subprocess
+import time
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -144,6 +145,32 @@ RING_MIN_PX = 1.0
 
 LEVELS = [5, 10, 15, 20, 30, 45, 70, 110, 180, 300, 600]  # 11 levels, 12 bands
 
+# ── INDEX CONTOURS ───────────────────────────────────────────────────────
+# The oldest weighting convention there is, and the only one that is a RULE
+# rather than a thumb on the scale: every Nth isoline is drawn heavier, so the
+# eye can count bands and read a slope without any line being chosen for what
+# it happens to encircle. It applies across the sheet, by elevation alone.
+#
+# N = 3. The ladder is roughly geometric (ratio ~1.5), so every third level is
+# a step of about 3.4x in elevation -- the even spacing in LOG height that
+# "every fifth contour" is in linear height on a uniform ladder.
+#
+# The PHASE is set by the 10 m level, and not by anything on this sheet's
+# subject: 10 m is the level the Bronze Age shoreline was calibrated against
+# (TROAD-CARTOGRAPHY.md -- the 10 m contour passes 1.24 km north of Hisarlik
+# where the reconstructed shore passes 1.22, against 2.8 km for the 8 m and
+# 0.7 for the 12 m). Index lines therefore fall at 10, 30, 110 and 600 m.
+#
+# DECLARED, because it should not be enjoyed silently: a consequence of that
+# phase is that the 30 m isoline -- the one that closes round the citadel --
+# is an index line. It arrives by the rule, not for Troy, and the rule would
+# have to be broken to keep it out.
+CONTOUR_INDEX_EVERY = 3
+CONTOUR_INDEX_PHASE = 1
+INDEX_LEVELS = frozenset(
+    k for k in range(len(LEVELS))
+    if k % CONTOUR_INDEX_EVERY == CONTOUR_INDEX_PHASE)
+
 # depth strata: painter order is by stratum, far first. Within a stratum the
 # depth spread is small enough that a band union cannot mis-occlude.
 STRATA_EDGES = [45000.0, 26000.0, 16000.0, 10500.0, 7000.0, 4800.0,
@@ -183,8 +210,24 @@ PLAIN_BBOX = (39.86, 40.05, 26.1, 26.38)
 #      with a 150 m scale to a floor set so that MOUNT IDA KEEPS ITS PRESENT
 #      APPARENT HEIGHT. Near ground reads as now, the ridges are put in true
 #      order, and the horizon does not move.
+#
+# CURVE C IS A FAMILY, NOT A CONSTANT (2026-08-14). The near-ground rate
+# C_A = ve(0) and the decay scale C_L are the two dials; the floor C_F is
+# never a dial, it is SOLVED so that exaggerate(IDA_M) == IDA_M. Raising the
+# near rate therefore lifts the plain, the bluff, the camp ridge and the
+# headlands -- everything this sheet is about, all of it under 50 m -- and
+# leaves the horizon where it is.
+#
+# The Ida constraint puts a HARD CEILING on the near rate, and it is worth
+# stating because it is the reason this dial cannot simply be turned up:
+# solving f = (I - A*K)/(I - K) with K = L*(1 - exp(-I/L)) gives f <= 0 once
+# A >= I/K, and a non-positive floor is a non-monotonic curve. At L = 150 the
+# ceiling is 11.83x; at L = 250 it is 7.10x; at L = 100, 17.74x. A longer
+# taper spends more of Ida's budget low down and so allows LESS lift at the
+# shore, which is the opposite of the intuition.
 CURVE = "C"
 
+C_A = 4.0             # ve(0): the exaggeration RATE at the shoreline.
 C_L = 150.0           # decay scale: the excess over the floor halves at
                       # L*ln2 = 104 m, which is where the plain sheet's own
                       # p80 (107 m) puts the plain's edge and the ridges'
@@ -192,8 +235,32 @@ C_L = 150.0           # decay scale: the excess over the floor halves at
 IDA_M = 1774.0        # published Kaz Dagi summit (panorama-profile.py:
                       # DEM 1757.4 measured, 1774 published). Curve C's floor
                       # is solved so exaggerate(IDA_M) == IDA_M.
-_C_K = C_L * (1.0 - math.exp(-IDA_M / C_L))
-C_F = (IDA_M - 4.0 * _C_K) / (IDA_M - _C_K)      # ~0.7229
+C_F = 0.0             # solved by set_curve() below; never set by hand
+
+
+def max_near_rate(scale: float = None) -> float:
+    """The largest ve(0) for which curve C's solved floor stays positive --
+    i.e. the largest near-ground rate compatible with Ida keeping its true
+    height. Above it the curve inverts and must not ship."""
+    s = C_L if scale is None else scale
+    return IDA_M / (s * (1.0 - math.exp(-IDA_M / s)))
+
+
+def set_curve(near_rate: float, scale: float) -> None:
+    """Set curve C's two dials and re-solve the floor. Raises if the pair
+    would put the floor at or below zero (a non-monotonic curve)."""
+    global C_A, C_L, C_F
+    k = scale * (1.0 - math.exp(-IDA_M / scale))
+    f = (IDA_M - near_rate * k) / (IDA_M - k)
+    if f <= 0.0:
+        raise ValueError(
+            f"ve(0)={near_rate:g} with scale {scale:g} solves to a floor of "
+            f"{f:.4f}: the curve would invert. Ceiling is "
+            f"{max_near_rate(scale):.2f}x at this scale.")
+    C_A, C_L, C_F = float(near_rate), float(scale), f
+
+
+set_curve(C_A, C_L)
 
 
 def ve(e: float, curve: str | None = None) -> float:
@@ -202,7 +269,7 @@ def ve(e: float, curve: str | None = None) -> float:
     monotonic."""
     c = curve or CURVE
     if c == "C":
-        return C_F + (4.0 - C_F) * math.exp(-e / C_L)
+        return C_F + (C_A - C_F) * math.exp(-e / C_L)
     t = min(1.0, max(0.0, (e - 100.0) / 200.0))   # A and B share this rate law
     return 4.0 + t * (1.0 - 4.0)
 
@@ -213,9 +280,9 @@ def exaggerate(e: float, curve: str | None = None) -> float:
     if c == "A":                       # legacy product form; DO NOT SHIP
         return e * ve(e, "A")
     if e <= 0.0:                       # the DEM dips a metre or so below zero
-        return 4.0 * e                 # extend at the sea-level rate
+        return ve(0.0, c) * e          # extend at the sea-level rate
     if c == "C":
-        return C_F * e + (4.0 - C_F) * C_L * (1.0 - math.exp(-e / C_L))
+        return C_F * e + (C_A - C_F) * C_L * (1.0 - math.exp(-e / C_L))
     if e <= 100.0:                     # B, piecewise integral of the rate law
         return 4.0 * e
     if e <= 300.0:
@@ -224,17 +291,262 @@ def exaggerate(e: float, curve: str | None = None) -> float:
     return 900.0 + (e - 300.0)
 
 
-DISCLOSURE = {
-    "A": "Vertical exaggeration 4× at and under 100 m, tapering to 1× above "
-         "300 m; built heights TRUE.",
-    "B": "Vertical exaggeration 4× at and under 100 m, easing to 1× above "
-         "300 m — applied as a rate and integrated, so higher ground always "
-         "draws higher. Built heights TRUE.",
-    "C": "Vertical exaggeration 4× at the shore, easing to %.2f× on the high "
-         "ground — applied as a rate and integrated, so higher ground always "
-         "draws higher and Mount Ida keeps its true height. Built heights "
-         "TRUE." % C_F,
-}
+def sun_disclosure() -> str:
+    """The light, named. A lit plate that does not say where its sun is has
+    turned a measurement into decoration."""
+    if not SHADE_STEPS:
+        return "No light source; relief carried by the hypsometric ramp alone."
+    sh = "with cast shadows" if SHADOW else "slope shading only, no cast shadows"
+    return ("Lit by the sun at bearing %.0f°, %.0f° above the horizon — %s; "
+            "%s, on the exaggerated ground, at true built heights."
+            % (LIGHT_AZ, LIGHT_ALT, SUN_NOTE, sh))
+
+
+def disclosure(curve: str | None = None) -> str:
+    """The cartouche's exaggeration line. It is GENERATED from the live dials,
+    so the sheet cannot declare one rate and draw another."""
+    c = curve or CURVE
+    if c == "A":
+        return ("Vertical exaggeration 4× at and under 100 m, tapering to 1× "
+                "above 300 m; built heights TRUE.")
+    if c == "B":
+        return ("Vertical exaggeration 4× at and under 100 m, easing to 1× "
+                "above 300 m — applied as a rate and integrated, so higher "
+                "ground always draws higher. Built heights TRUE.")
+    return ("Vertical exaggeration %.3g× at the shore, easing to %.2f× on the "
+            "high ground — applied as a rate and integrated, so higher ground "
+            "always draws higher and Mount Ida keeps its true height. Built "
+            "heights TRUE." % (C_A, C_F))
+
+
+# ── slope shading ────────────────────────────────────────────────────────
+# THE PLATE HAD NO LIGHT IN IT. Flat colour bands and hairline contours are a
+# PLAN sheet's answer to relief, and on a plan they are the right one; on an
+# OBLIQUE they remove the cue the eye actually reads height from, which is
+# which face is lit and which is turned away. Correct geometry with no light
+# reads as a paper map bent into perspective, and that is what this was.
+#
+# TROAD-CARTOGRAPHY.md's ban does not reach this, and the reasons matter:
+#   - The general rule it states is about DISCRETE MARKS -- "every treatment
+#     built out of discrete marks has a magnification at which it stops being
+#     tone." That is an argument against hachures and stipple. Continuous tone
+#     has no such magnification; this is the same drawing at every zoom.
+#   - Its hillshade paragraph adds two more. The MULTISTABLE-INVERSION
+#     objection is a plan-sheet objection: on a plan, nothing but the shading
+#     says which way is up, so the reading can flip. Here perspective, the
+#     horizon, the ships and the depth strata all fix the surface's
+#     orientation before the shading is consulted, and it cannot flip.
+#   - The other is the one that would really have bound us: "a shaded relief
+#     is a raster, and this project's plates emit no colour that is not a
+#     var() token... a baked PNG cannot be re-themed, and an SVG filter's
+#     light source cannot be either." That is correct and is honoured, not
+#     dodged: this shading is VECTOR, it is unioned lattice polygons like the
+#     bands, and every tone it uses is --pp-shade or --pp-lit at a computed
+#     opacity. Both themes re-key from the stylesheet exactly as before, and
+#     there is no raster and no filter anywhere in it.
+#
+# LIGHT_AZ is the compass bearing the light COMES FROM; LIGHT_ALT its height
+# above the horizon.
+#
+# WHY NORTH-WEST. It is the plan-sheet convention, and on this camera it is
+# also the right light for the scene: the heading is 104°, so a light from
+# 315° stands over the viewer's LEFT SHOULDER. Slopes facing the camera are
+# lit and slopes falling away from it go dark, so every ridge shows a bright
+# near flank and a dark far flank -- ground rising towards you, which is what
+# it is. The two alternatives were rendered and are worse. From 14°
+# (screen-left) the modelling is too faint to see. From 59° -- the frame's
+# upper left, i.e. from BEYOND the scene -- the light is behind the subject:
+# near flanks go dark and far flanks light, the plain reads mottled, and the
+# multistable inversion the cartography doc warns about arrives by the back
+# door. Perspective fixes the surface's orientation, but only if the light
+# agrees with it.
+#
+# A REAL SUN, NOT A CARTOGRAPHER'S LAMP (2026-08-14). This plate is to become
+# a lit scene, so its light is a SOLVED SOLAR POSITION for 39.9755 N and not a
+# conventional upper-left wash. Every candidate below was computed from
+#     sin(alt) = sin(phi) sin(dec) + cos(phi) cos(dec) cos(H)
+#     cos(A)   = (sin(dec) - sin(alt) sin(phi)) / (cos(alt) cos(phi))
+# and none of them is invented.
+#
+# THE CAMERA MAKES THIS HARDER THAN IT LOOKS, and the finding is worth stating
+# because it contradicts the obvious guess. The heading is 104 deg, ESE. A
+# summer AFTERNOON sun at this latitude sits at bearing 281-284 -- which is
+# 177-180 deg round from the heading, i.e. DIRECTLY BEHIND THE VIEWER. Every
+# shadow then falls straight away from the camera and hides behind the thing
+# casting it: the flattest light on the list, and useless. The three suns that
+# do rake are:
+#
+#   76.0 / 11.5   early August, 1 h after sunrise.  SHIPPED.  The poem's own
+#                 season and its own hour -- the fighting days open at dawn --
+#                 and 28 deg off the sightline, so shadows come towards the
+#                 eye and are fully visible. Most three-dimensional plate of
+#                 the set. Costs: near-foreground tone is blotchier than the
+#                 afternoon suns, and Troy's own scarp reads softer.
+#  260.2 / 11.4   equinox, 1 h before sunset. The most restrained. Lights
+#                 Troy's west face, the face the camp looked at, but 156 deg
+#                 round is still nearly behind the viewer and the citadel's
+#                 shadow hides behind the citadel. Troy barely helped.
+#  228.4 /  9.9   winter solstice, 3.5 h after noon. The best raking angle
+#                 available at all -- 124 deg off the sightline -- and the
+#                 ONLY light in which Troy's bluff reads crisply, because the
+#                 shadow off its scarp lies across the frame instead of
+#                 pointing away down it. Wrong season for the poem, which is
+#                 why it is not the default and is John's call to take.
+#
+# Whichever ships, SUN_NOTE ships with it: --shade-az and --shade-alt REFUSE
+# to move without --sun-note, because a plate that draws one sun and names
+# another is worse than one that names none.
+LIGHT_AZ = 76.0
+LIGHT_ALT = 11.5
+LIGHT_AZ_DEFAULT, LIGHT_ALT_DEFAULT = LIGHT_AZ, LIGHT_ALT
+SHADE_STEPS = 6          # quantisation; 0 turns slope shading off entirely
+SHADE_MAX = 0.34         # peak opacity of --pp-shade on a slope turned away
+LIT_MAX = 0.22           # peak opacity of --pp-lit on a slope facing the light
+# A tone region's edge is NOT a measured line -- it is where the quantisation
+# happened to fall -- so it is generalised hard and then rounded. Left as raw
+# lattice loops the steps print as a sawtooth through the middle of a band,
+# which is the one way continuous tone could resolve into countable marks.
+SHADE_TOL = 2.6
+SHADE_ROUND = 1
+SHADE_SMOOTH = 2         # box passes over the quantised field, in mesh cells
+SHADE_MIN_AREA = 90.0    # px^2; below this a tone region is a sliver, not a
+                         # slope, and it prints as a bead rather than as tone
+
+# ── CAST SHADOWS ─────────────────────────────────────────────────────────
+# Slope shading models a facet; it cannot throw anything. The long shadow off
+# Troy's scarp -- the thing that actually makes a 25 m bluff read -- needs an
+# OCCLUSION test: can this piece of ground see the sun?
+#
+# It is the renderer's own floating-horizon cull pointed somewhere else. The
+# camera cull marches each screen column near-to-far keeping a running
+# silhouette; this marches each SUN-ALIGNED column down-sun keeping a running
+# ray height. Same algorithm, different origin -- and the sun is at infinity,
+# so its natural lattice is a regular raster rotated to the solar azimuth
+# rather than the camera's polar fan.
+#
+# It runs on the EXAGGERATED surface. Shadows have to belong to the ground as
+# DRAWN or they will not sit on it.
+#
+# The mask becomes drawable geometry for free: the shadow depth joins the
+# slope term in one illumination value, which the existing quantise-and-union
+# path already turns into filled lattice polygons. No new geometry machinery.
+SHADOW = True
+SHADOW_STEP = 60.0       # raster pitch, m. The plain grid's own resolving
+                         # power is ~85 m (sigma 41), so finer buys nothing.
+SHADOW_REACH = 16000.0   # radius from the viewpoint, m. Beyond it the ground
+                         # comes from the troad z11 sheet at 117 m samples,
+                         # where a cast shadow would be fiction; that field
+                         # keeps slope shading only.
+SHADOW_SOFT_M = 5.0      # metres of ray clearance over which a shadow fades
+                         # in, so a grazing edge is a penumbra, not a cut
+SHADOW_BLUR = 1          # box passes over the mask, in raster cells
+OBJ_SHADOW = True        # hulls and huts throw their own, at TRUE heights
+LIGHT = (0.0, 0.0, 1.0)  # set by set_light()
+
+
+SUN_H = (0.0, 0.0)       # down-sun horizontal unit vector; set by set_light()
+# The solar solution the default light came from, named in the cartouche.
+# It MUST be changed with the light -- a plate that draws one sun and names
+# another is worse than one that names none.
+SUN_NOTE = ("the solved position for 39.98° N in early August, about an "
+            "hour after sunrise")
+
+
+def set_light(az_deg: float, alt_deg: float) -> None:
+    """Unit vector toward the light, in (east, north, up), and the horizontal
+    unit vector shadows travel along, which is its opposite."""
+    global LIGHT_AZ, LIGHT_ALT, LIGHT, SUN_H
+    LIGHT_AZ, LIGHT_ALT = float(az_deg), float(alt_deg)
+    a, h = math.radians(LIGHT_AZ), math.radians(LIGHT_ALT)
+    LIGHT = (math.sin(a) * math.cos(h), math.cos(a) * math.cos(h), math.sin(h))
+    SUN_H = (-math.sin(a), -math.cos(a))
+
+
+set_light(LIGHT_AZ, LIGHT_ALT)
+
+
+class ShadowField:
+    """Which ground can see the sun, over a sun-aligned raster.
+
+    Axes: `a` runs DOWN-sun (the way shadows travel), `b` across it. One pass
+    per across-sun column, keeping the running height of the sun ray -- the
+    floating-horizon cull, run from the sun.
+
+    `at(e, n)` returns visibility in [0, 1]: 1 in full sun, 0 in full shadow,
+    and a bilinear blend at the penumbra."""
+
+    def __init__(self, terr, az_deg, alt_deg, step=None, reach=None):
+        step = SHADOW_STEP if step is None else step
+        reach = SHADOW_REACH if reach is None else reach
+        th = math.radians(az_deg)
+        sx, sy = math.sin(th), math.cos(th)          # toward the sun
+        self.ax, self.ay = -sx, -sy                  # down-sun
+        self.bx, self.by = -sy, sx                   # across
+        self.step = step
+        self.m = math.tan(math.radians(alt_deg))     # ray fall per metre
+        # a square in the rotated frame is enough: the reach is a radius
+        self.half = reach
+        n = int(2.0 * reach / step) + 1
+        self.n = n
+        lat0, lon0 = VIEWPOINT
+        dlat = 1.0 / 111132.0
+        dlon = 1.0 / (111320.0 * math.cos(math.radians(lat0)))
+        # elevations, exaggerated, over the raster
+        z = [[0.0] * n for _ in range(n)]
+        for q in range(n):
+            bq = -reach + q * step
+            for p in range(n):
+                ap = -reach + p * step
+                e = ap * self.ax + bq * self.bx
+                nn = ap * self.ay + bq * self.by
+                z[q][p] = exaggerate(terr.elev(lat0 + nn * dlat, lon0 + e * dlon))
+        # the sweep: one running ray height per across-sun column
+        sh = [[0.0] * n for _ in range(n)]
+        fall = self.m * step
+        for q in range(n):
+            row = z[q]
+            out = sh[q]
+            ray = -1e18
+            for p in range(n):
+                ray -= fall
+                h = row[p]
+                if h >= ray:
+                    ray = h
+                else:
+                    out[p] = min(1.0, (ray - h) / SHADOW_SOFT_M)
+        for _ in range(max(0, SHADOW_BLUR)):
+            sh = _box_blur(sh, n)
+        self.vis = [[1.0 - v for v in row] for row in sh]
+
+    def at(self, e, nn):
+        fp = (e * self.ax + nn * self.ay + self.half) / self.step
+        fq = (e * self.bx + nn * self.by + self.half) / self.step
+        if fp < 0 or fq < 0 or fp > self.n - 1.001 or fq > self.n - 1.001:
+            return 1.0
+        p0, q0 = int(fp), int(fq)
+        tx, ty = fp - p0, fq - q0
+        v = self.vis
+        top = v[q0][p0] + (v[q0][p0 + 1] - v[q0][p0]) * tx
+        bot = v[q0 + 1][p0] + (v[q0 + 1][p0 + 1] - v[q0 + 1][p0]) * tx
+        return top + (bot - top) * ty
+
+
+def _box_blur(g, n):
+    out = [[0.0] * n for _ in range(n)]
+    for q in range(n):
+        row, o = g[q], out[q]
+        for p in range(n):
+            a = row[p - 1] if p else row[0]
+            b = row[p + 1] if p + 1 < n else row[n - 1]
+            o[p] = (a + row[p] * 2.0 + b) * 0.25
+    fin = [[0.0] * n for _ in range(n)]
+    for q in range(n):
+        up = out[q - 1] if q else out[0]
+        dn = out[q + 1] if q + 1 < n else out[n - 1]
+        cu, fq = out[q], fin[q]
+        for p in range(n):
+            fq[p] = (up[p] + cu[p] * 2.0 + dn[p]) * 0.25
+    return fin
 
 
 def ring_ranges(flat_y) -> list[float]:
@@ -383,6 +695,17 @@ def rel_poly(pts, close=True) -> str:
     out.append("l" + "".join(
         s if s.startswith("-") else (" " + s) for s in body).lstrip())
     return "".join(out) + ("Z" if close else "")
+
+
+def poly_area(pts) -> float:
+    """Signed shoelace area in square screen units."""
+    a = 0.0
+    n = len(pts)
+    for i in range(n):
+        x0, y0 = pts[i]
+        x1, y1 = pts[(i + 1) % n]
+        a += x0 * y1 - x1 * y0
+    return a / 2.0
 
 
 def rel_seg(a, b) -> str:
@@ -560,6 +883,71 @@ def union_loops(cells, corner):
 # ═══════════════════════════════════════════════════════════════════════════
 # built content
 # ═══════════════════════════════════════════════════════════════════════════
+def _hull2d(pts):
+    """Convex hull, monotone chain. Small inputs only -- 8 to 20 points."""
+    pts = sorted(set((round(x, 2), round(y, 2)) for x, y in pts))
+    if len(pts) < 3:
+        return pts
+
+    def half(ps):
+        h: list = []
+        for p in ps:
+            while len(h) >= 2 and ((h[-1][0] - h[-2][0]) * (p[1] - h[-2][1])
+                                   - (h[-1][1] - h[-2][1]) * (p[0] - h[-2][0])) <= 0:
+                h.pop()
+            h.append(p)
+        return h
+
+    lo = half(pts)
+    up = half(list(reversed(pts)))
+    return lo[:-1] + up[:-1]
+
+
+def sun_offset(h: float) -> tuple[float, float]:
+    """How far down-sun a point `h` metres up throws its shadow, in metres of
+    ground. A TRUE height gives a true length -- the same discipline built_h()
+    keeps for the objects themselves."""
+    if LIGHT_ALT <= 0.5:
+        return (0.0, 0.0)
+    L = h / math.tan(math.radians(LIGHT_ALT))
+    return (SUN_H[0] * L, SUN_H[1] * L)
+
+
+def object_shadow(cam, terr, lat, lon, bearing, silhouette):
+    """The shadow one built object throws on the ground.
+
+    `silhouette` is [((u, v), height)] in the object's own frame: the points
+    whose shadows bound the figure. Each contributes its foot and its shadow
+    point, and the shadow is their convex hull -- exact for a convex solid,
+    which a hull and a gabled hut both are.
+
+    It is laid FLAT on the ground under the object, not draped down-slope: at
+    the camp's 2-3 km a hull's shadow is 11 m long and the beach falls less
+    than a metre across it."""
+    if not OBJ_SHADOW or LIGHT_ALT <= 0.5:
+        return ""
+    g = terr.elev(lat, lon)
+    th = math.radians(bearing)
+    ux, uy = math.sin(th), math.cos(th)
+    vx, vy = math.cos(th), -math.sin(th)
+    e0, n0 = pp._flat_m((lat, lon), *VIEWPOINT)
+    world = []
+    for (u, v), h in silhouette:
+        e = e0 + u * ux + v * vx
+        n = n0 + u * uy + v * vy
+        world.append((e, n))
+        dx, dy = sun_offset(h)
+        world.append((e + dx, n + dy))
+    scr = []
+    for e, n in _hull2d(world):
+        p = cam.project(e, n, built_h(0.05, g))
+        if p:
+            scr.append((p[0], p[1]))
+    if len(scr) < 3:
+        return ""
+    return f'<path d="{rel_poly(scr)}" class="pp-objshadow"/>'
+
+
 def ship(cam, terr, lat, lon, bearing, length=24.0, beam=4.2):
     """One beached galley, prow toward the water. Deck in plan, the visible
     side along one edge, the stem-post standing clear: three marks, which at
@@ -718,6 +1106,7 @@ TOKENS = {
   --page-bg:#E7E7E9; --text:#241827; --text-mid:#5B4C58;
   --scene-map-label-halo:#F8F7F3; --scene-map-coast:#565060;
   --plate-lagoon:#87AEB8; --scene-map-sea:#9BBFD6; --plate-contour:#5A4A32;
+  --pp-shade:#2A1E10; --pp-lit:#FFFCF2;
   --plate-masonry:#A87263; --plate-river:#1A4C6A; --plate-marsh:#C7D3A5;
   --pp-hull:#3A2C3C; --pp-hull-side:#1B1220; --pp-hull-edge:#140D18;
   --plate-relief-1:#EDEEDF; --plate-relief-2:#E8E8CF; --plate-relief-3:#E4E2C0;
@@ -729,6 +1118,7 @@ TOKENS = {
   --page-bg:#181120; --text:#EDE6E8; --text-mid:#B7A9B4;
   --scene-map-label-halo:#17131C; --scene-map-coast:#8FA3AE;
   --plate-lagoon:#0A2430; --scene-map-sea:#0A1C2A; --plate-contour:#C2B189;
+  --pp-shade:#0A0704; --pp-lit:#F2E4C4;
   --plate-masonry:#A8846F; --plate-river:#B4DAEF; --plate-marsh:#46503A;
   --pp-hull:#241C2A; --pp-hull-side:#120C16; --pp-hull-edge:#C3B49E;
   --plate-relief-1:#4A4136; --plate-relief-2:#51473A; --plate-relief-3:#584D3D;
@@ -740,8 +1130,7 @@ TOKENS = {
 
 CSS = """
 .pp-band{stroke:none}
-.pp-contour{fill:none;stroke:var(--plate-contour);stroke-width:0.6;stroke-opacity:0.6;
-  stroke-linecap:round}
+.pp-shade{stroke-linejoin:round}
 .pp-ida{fill:var(--plate-relief-12);fill-opacity:0.22;stroke:none}
 .pp-ida-crest{fill:none;stroke:var(--plate-contour);stroke-width:0.8;stroke-opacity:0.5}
 .pp-sea{fill:var(--scene-map-sea)}
@@ -792,6 +1181,32 @@ text{font-family:var(--font-ui,Optima,Seravek,"Gill Sans","Gill Sans MT",sans-se
 .pp-l-title{font-size:22px;letter-spacing:3.2px;fill:var(--text)}
 """
 
+# ── contour ink ──────────────────────────────────────────────────────────
+# Generated, not literal, because the weights are what this pass is testing.
+# The old values were 0.6 px at 0.6 opacity for every isoline on the sheet:
+# on tan ground that is a whisper, and the landforms the contours carry --
+# the closed lobe round the citadel above all -- were in the drawing and
+# invisible. Index lines (see INDEX_LEVELS) take the heavier weight.
+CONTOUR_W = 0.75
+CONTOUR_OP = 0.80
+CONTOUR_INDEX_W = 1.5
+CONTOUR_INDEX_OP = 0.95
+OBJ_SHADOW_OP = 0.3
+
+
+def contour_css() -> str:
+    return (
+        f".pp-objshadow{{fill:var(--pp-shade);"
+        f"fill-opacity:{OBJ_SHADOW_OP:g};stroke:none}}"
+        f".pp-contour{{fill:none;stroke:var(--plate-contour);"
+        f"stroke-width:{CONTOUR_W:g};stroke-opacity:{CONTOUR_OP:g};"
+        f"stroke-linecap:round}}"
+        f".pp-contour-index{{fill:none;stroke:var(--plate-contour);"
+        f"stroke-width:{CONTOUR_INDEX_W:g};stroke-opacity:{CONTOUR_INDEX_OP:g};"
+        f"stroke-linecap:round;stroke-linejoin:round}}"
+    )
+
+
 # The three level-of-detail tiers. Content and labels are both tiered; a
 # panel turns them on by zoom. Static renders set the same switch.
 TIER_CSS = {
@@ -811,6 +1226,8 @@ class Plate:
         self.lay = {l["id"]: l for l in plate_json["layers"]}
         self.targets: list = []          # camera-target table rows
         self.stats: dict = {}
+        self.shadow = None               # the ShadowField; set by shade_field
+        self.shade_q: dict = {}
 
     # ── mesh ─────────────────────────────────────────────────────────────
     def mesh(self):
@@ -830,18 +1247,23 @@ class Plate:
         self.azs, self.rngs = azs, rngs
 
         grid = [[None] * len(rngs) for _ in azs]
+        # the ground positions in metres, kept because the slope shading needs
+        # a surface normal and the screen point cannot give it one
+        wor = [[(0.0, 0.0)] * len(rngs) for _ in azs]
         for i, az in enumerate(azs):
             th = math.radians(HEADING_DEG + az)
             s, c = math.sin(th), math.cos(th)
             for j, rr in enumerate(rngs):
                 e = cam.e + rr * s
                 n = cam.n + rr * c
+                wor[i][j] = (e, n)
                 lat = VIEWPOINT[0] + n / 111132.0
                 lon = VIEWPOINT[1] + e / (111320.0 * math.cos(math.radians(VIEWPOINT[0])))
                 el = terr.elev_smooth(lat, lon, max(35.0, rr * 0.006))
                 p = cam.project(e, n, exaggerate(el))
                 grid[i][j] = None if p is None else (p[0], p[1], el, rr)
         self.grid = grid
+        self.wor = wor
 
     def cull(self):
         """Floating horizon. The mesh is a single-valued height field seen
@@ -910,7 +1332,8 @@ class Plate:
                            f'fill="var(--page-bg)" fill-opacity="{HAZE[far]}"/>')
             interior: dict = {}
             frag: dict = {}
-            cont = []
+            cont: dict = {}
+            shade: dict = {}
             for (i, j) in self.visible:
                 rr = grid[i][j][3]
                 if not (near * 0.965 <= rr < far):
@@ -919,6 +1342,9 @@ class Plate:
                 b1, b0 = grid[i + 1][j + 1], grid[i][j + 1]
                 quad = [(a0[0], a0[1]), (a1[0], a1[1]), (b1[0], b1[1]), (b0[0], b0[1])]
                 evs = [a0[2], a1[2], b1[2], b0[2]]
+                st = self.shade_q.get((i, j), 0)
+                if st:
+                    shade.setdefault(st, set()).add((i, j))
                 k0, k1 = band_of(min(evs)), band_of(max(evs))
                 if k0 == k1:
                     interior.setdefault(k0, set()).add((i, j))
@@ -940,7 +1366,7 @@ class Plate:
                             seg.append((p0[0] + t * (p1[0] - p0[0]),
                                         p0[1] + t * (p1[1] - p0[1])))
                     if len(seg) == 2:
-                        cont.append(rel_seg(*seg))
+                        cont.setdefault(k0, []).append(rel_seg(*seg))
                 else:
                     # three or more bands in one cell: a cliff. Split at every
                     # level it crosses so the ramp stays a ramp.
@@ -971,9 +1397,121 @@ class Plate:
                     out.append(f'<path class="pp-band" fill="var(--plate-relief-{k + 1})" '
                                f'stroke="var(--plate-relief-{k + 1})" stroke-width="0.7" '
                                f'd="{"".join(d)}"/>')
-            if cont:
-                out.append(f'<path class="pp-contour" d="{"".join(cont)}"/>')
+            # SHADING sits between the bands and the contours: it models the
+            # surface the bands colour, and the hairlines stay on top of both.
+            for st in sorted(shade):
+                d = []
+                for loop in union_loops(shade[st], corner):
+                    if abs(poly_area(loop)) < SHADE_MIN_AREA:
+                        continue          # a sliver, not a slope
+                    lp = simplify(loop, SHADE_TOL)
+                    if SHADE_ROUND and len(lp) >= 4:
+                        lp = simplify(chaikin(lp, SHADE_ROUND), 0.5)
+                    d.append(rel_poly(lp))
+                if not d:
+                    continue
+                tone = "var(--pp-shade)" if st < 0 else "var(--pp-lit)"
+                op = (SHADE_MAX if st < 0 else LIT_MAX) * abs(st) / SHADE_STEPS
+                # NOT stroked, unlike the bands. A wash needs no seam-closing
+                # -- a gap between two tones just reads as the tone between
+                # them -- and a stroke doubles the width of any thin region,
+                # which is what printed the pale filaments at 8x.
+                out.append(f'<path class="pp-shade" fill="{tone}" '
+                           f'fill-opacity="{op:.3f}" d="{"".join(d)}"/>')
+            for k in sorted(cont):
+                cls = "pp-contour-index" if k in INDEX_LEVELS else "pp-contour"
+                out.append(f'<path class="{cls}" d="{"".join(cont[k])}"/>')
         return "".join(out)
+
+    # ── slope shading ────────────────────────────────────────────────────
+    def shade_field(self):
+        """Quantise the light over every visible cell, ONCE, with a smoothing
+        pass first.
+
+        The smoothing is why this is a field and not a per-cell call. Raw
+        per-cell normals speckle: a single cell whose normal differs from its
+        neighbours' becomes a one-cell tone island, and a one-cell island
+        draws as a filament. At 8x those filaments printed as pale threads
+        across the plain -- continuous tone resolving into countable marks,
+        which is the one thing the cartography doc's general rule really does
+        forbid. A 3x3 box over the LATTICE (not over the ground) removes them
+        at the source, and it generalises TONE, not terrain: no elevation, no
+        contour and no band moves."""
+        self.shadow = None
+        if not SHADE_STEPS:
+            self.shade_q = {}
+            return
+        if SHADOW:
+            t0 = time.time()
+            self.shadow = ShadowField(self.terr, LIGHT_AZ, LIGHT_ALT)
+            self.stats["shadow_raster"] = self.shadow.n
+            self.stats["shadow_secs"] = round(time.time() - t0, 1)
+        raw = {ij: self.shade_raw(*ij) for ij in self.visible}
+        for _ in range(max(1, SHADE_SMOOTH)):
+            nxt = {}
+            for (i, j), v in raw.items():
+                tot, wsum = v * 2.0, 2.0
+                for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1),
+                               (1, 1), (1, -1), (-1, 1), (-1, -1)):
+                    n = raw.get((i + di, j + dj))
+                    if n is not None:
+                        tot += n
+                        wsum += 1.0
+                nxt[(i, j)] = tot / wsum
+            raw = nxt
+        q: dict = {}
+        for ij, v in raw.items():
+            st = int(round(v * SHADE_STEPS))
+            q[ij] = max(-SHADE_STEPS, min(SHADE_STEPS, st))
+        self.shade_q = q
+        self.stats["shaded_cells"] = sum(1 for v in q.values() if v)
+
+    def shade_raw(self, i, j):
+        """The continuous light at one mesh cell, in [-1, 1]: negative for a
+        slope turned away from the light and positive for one facing it, zero
+        on ground lying flat to it.
+
+        The normal is taken from the DRAWN surface (exaggerated z), not the
+        real one, because the shading has to model the geometry the sheet
+        actually shows. It is a function of the cell's own slope and aspect
+        and of one global light vector -- of nothing else, and above all not
+        of where the cell is.
+
+        Flat ground is the datum: N.L there is sin(altitude), and the tone is
+        the DEPARTURE from it, so level ground in full sun takes no wash at
+        all and the hypsometric ramp is left to say what it says.
+
+        CAST SHADOW enters as a factor on the same quantity. A cell that
+        cannot see the sun has illumination 0 however it is tilted, which
+        lands it at the bottom step -- so the slope term and the occlusion
+        term are ONE number and need no second drawing pass."""
+        g, w = self.grid, self.wor
+        a0, a1 = g[i][j], g[i + 1][j]
+        b1, b0 = g[i + 1][j + 1], g[i][j + 1]
+        (e00, n00), (e10, n10) = w[i][j], w[i + 1][j]
+        (e11, n11), (e01, n01) = w[i + 1][j + 1], w[i][j + 1]
+        z00, z10 = exaggerate(a0[2]), exaggerate(a1[2])
+        z11, z01 = exaggerate(b1[2]), exaggerate(b0[2])
+        # normal from the cell's two diagonals
+        ux, uy, uz = e11 - e00, n11 - n00, z11 - z00
+        vx, vy, vz = e01 - e10, n01 - n10, z01 - z10
+        nx = uy * vz - uz * vy
+        ny = uz * vx - ux * vz
+        nz = ux * vy - uy * vx
+        if nz < 0.0:
+            nx, ny, nz = -nx, -ny, -nz
+        m = math.sqrt(nx * nx + ny * ny + nz * nz)
+        if m < 1e-9:
+            return 0
+        lam = (nx * LIGHT[0] + ny * LIGHT[1] + nz * LIGHT[2]) / m
+        illum = max(0.0, lam)
+        if self.shadow is not None:
+            ec = (e00 + e10 + e11 + e01) * 0.25
+            nc = (n00 + n10 + n11 + n01) * 0.25
+            illum *= self.shadow.at(ec, nc)
+        flat = LIGHT[2]
+        d = illum - flat
+        return d / (1.0 - flat) if d > 0 else d / flat
 
     @staticmethod
     def _interp_elev(quad, evs, x, y):
@@ -1208,6 +1746,16 @@ class Plate:
         # the fleet in one line (14.31-36). 13 m of lateral pitch on a 4.2 m
         # beam is roomy; five ranks is what the frontage in view then carries.
         ships, ship_px, hulls_drawn, depths = [], [], 0, []
+        obj_sh: list = []
+        # the silhouettes that throw: a hull's deck at its true 2.4 m with the
+        # stem-post's 6.4 m tip, and a hut's eaves at 1.8 with its ridge at
+        # 3.2. Every height here is the one the object is drawn at.
+        HULL_SIL = ([((f * 24.0, s * hb * 4.2), 2.4)
+                     for f, hb in ((0.0, 0.30), (0.34, 0.50), (0.82, 0.36), (1.0, 0.06))
+                     for s in (1, -1)] + [((24.0 * 0.90, 0.0), 6.4)])
+        HUT_SIL = [((-2.5, -3.5), 1.8), ((-2.5, 3.5), 1.8),
+                   ((2.5, -3.5), 1.8), ((2.5, 3.5), 1.8),
+                   ((0.0, -3.5), 3.2), ((0.0, 3.5), 3.2)]
         lat_span = [x * 13.0 for x in range(-70, 150)]
         shore = {L: shore_forward(L) for L in lat_span}
 
@@ -1246,6 +1794,9 @@ class Plate:
                 sh = ship(cam, terr, lat, lon, bearing)
                 if sh:
                     ships.append(sh)
+                    sd = object_shadow(cam, terr, lat, lon, bearing, HULL_SIL)
+                    if sd:
+                        obj_sh.append(sd)
                     hulls_drawn += 1
                     ship_px.append((sp[0], sp[1], lateral, f, lat, lon))
                     depths.append(sp[2])
@@ -1261,10 +1812,13 @@ class Plate:
                 lat, lon = ll(f, lateral)
                 if not near_camp(lat, lon, 260.0):
                     continue
-                hh = hut(cam, terr, lat, lon, seaward(round(lateral / 13.0) * 13.0)
-                         + (17 if row % 2 else -11))
+                hb = seaward(round(lateral / 13.0) * 13.0) + (17 if row % 2 else -11)
+                hh = hut(cam, terr, lat, lon, hb)
                 if hh:
                     huts.append(hh)
+                    sd = object_shadow(cam, terr, lat, lon, hb, HUT_SIL)
+                    if sd:
+                        obj_sh.append(sd)
 
         # THE MASS, for tier 1: the same fleet, drawn as one body with a
         # serrated seaward edge, because at 1x 1,100 outlines is a smudge and
@@ -1358,7 +1912,8 @@ class Plate:
         self.stats["ship_depth"] = round(sum(depths) / len(depths), 1) if depths else 2600.0
         self.stats["beach_frontage_m"] = round(
             (max(q[2] for q in ship_px) - min(q[2] for q in ship_px)) if ship_px else 0.0)
-        return ships, huts, mass, wall_svg, ditch_svg, ship_px
+        self.stats["obj_shadows"] = len(obj_sh)
+        return ships, huts, mass, wall_svg, ditch_svg, ship_px, obj_sh
 
     # ── the poem's waypoints, placed by rule ─────────────────────────────
     def waypoints(self):
@@ -1599,9 +2154,10 @@ def furniture(cam, terr, ship_depth, troy_depth):
                    f'{lbl}</text>')
 
     # ── the disclosures, which are part of the plate, not of the report
-    ty = H - 60
+    ty = H - 78
     for line in (
-        DISCLOSURE[CURVE],
+        disclosure(),
+        sun_disclosure(),
         "Terrain, coastlines, rivers, Hisarlık, Callicolone, Sigeion and Rhoiteion are "
         "measured. Ships, huts, the wall and ditch, and every waypoint of the poem are "
         "conjectural — each placed by a stated rule, never at an invented coordinate.",
@@ -1626,6 +2182,7 @@ def build(terr, cam, plate_json):
     P = Plate(terr, cam, plate_json)
     P.mesh()
     P.cull()
+    P.shade_field()
     body = ['<g clip-path="url(#pp-frame)">']
     # THE SKY IS NOT THE PAGE. Left as bare --page-bg it sat within a shade of
     # --plate-relief-1, and every patch of delta under 5 m in the far plain
@@ -1641,11 +2198,15 @@ def build(terr, cam, plate_json):
     body.append(P.rivers_svg())
 
     wps = P.waypoints()
-    ships, huts, mass, wall_svg, ditch_svg, ship_px = P.camp()
+    ships, huts, mass, wall_svg, ditch_svg, ship_px, obj_sh = P.camp()
 
     # wall and ditch, then huts, then ships: inland to seaward is also far to
     # near in this camera, so painter order is depth order.
     body.append(f'<g class="tm2">{wall_svg}{ditch_svg}</g>')
+    # the fleet's own shadows go down on the beach BEFORE the fleet: 459 hulls
+    # and 270 huts each throwing a true-length shadow is most of what makes
+    # the camp read as objects standing on ground rather than marks on paper.
+    body.append('<g class="tm2">' + "".join(obj_sh) + "</g>")
     body.append('<g>' + "".join(h for h in huts if h) + "</g>")
     body.append('<g class="tm2">' + "".join(s for s in ships if s) + "</g>")
     body.append('<g class="t1-only">' + mass + "</g>")
@@ -1811,7 +2372,8 @@ def emit(theme, inner, vx, vy, vw, vh, scale, out_svg, tier=3, descale=1.0,
     svg = (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{px_w}" height="{px_h}" '
         f'viewBox="{n1(vx)} {n1(vy)} {n1(vw)} {n1(vh)}">'
-        f'<style>svg{{{TOKENS[theme]}}}{CSS}{tier_css}{ds}{scale_css}{furn_css}</style>'
+        f'<style>svg{{{TOKENS[theme]}}}{CSS}{contour_css()}'
+        f'{tier_css}{ds}{scale_css}{furn_css}</style>'
         f'{DEFS}'
         f'<rect x="{n1(vx)}" y="{n1(vy)}" width="{n1(vw)}" height="{n1(vh)}" '
         f'fill="var(--page-bg)"/>'
@@ -1891,7 +2453,10 @@ def camera_targets(wps, plate_stats):
             "hfovDeg": HFOV_DEG, "altM": ALT, "setbackM": SETBACK,
             "pitchDegDown": None,
             "verticalExaggerationCurve": CURVE,
-            "verticalExaggeration": DISCLOSURE[CURVE],
+            "verticalExaggerationNearRate": round(C_A, 4),
+            "verticalExaggerationScaleM": round(C_L, 2),
+            "verticalExaggerationFloor": round(C_F, 4),
+            "verticalExaggeration": disclosure(),
         },
         "note": (
             "Camera targets for the Chart Room 'postcard' frames. Each row is "
@@ -1906,25 +2471,123 @@ def camera_targets(wps, plate_stats):
     }
 
 
+def troy_prominence(terr, cam):
+    """Ilios's apparent prominence in PIXELS at 1x: how far the drawn citadel
+    top stands above the drawn plain around it, measured on the screen.
+
+    The base is the 10th percentile of the ground in an annulus 700-1400 m out
+    from Hisarlik, which is the plain the mound stands on; the top is the
+    highest DEM sample within 250 m of it. Both are pushed through the live
+    exaggeration curve and projected at the mound's own position, so the
+    number is the drawing's, not the terrain's."""
+    lat0, lon0 = pp.TROY
+    dlat = 1.0 / 111132.0
+    dlon = 1.0 / (111320.0 * math.cos(math.radians(lat0)))
+    top = terr.elev(lat0, lon0)
+    ring = []
+    for a in range(0, 360, 5):
+        th = math.radians(a)
+        for r in (250.0,):
+            e = terr.elev(lat0 + r * math.cos(th) * dlat,
+                          lon0 + r * math.sin(th) * dlon)
+            top = max(top, e)
+        for r in (700.0, 900.0, 1100.0, 1400.0):
+            ring.append(terr.elev(lat0 + r * math.cos(th) * dlat,
+                                  lon0 + r * math.sin(th) * dlon))
+    ring.sort()
+    base = ring[int(0.10 * len(ring))]
+    e, n = pp._flat_m((lat0, lon0), *VIEWPOINT)
+    pt = cam.project(e, n, exaggerate(top))
+    pb = cam.project(e, n, exaggerate(base))
+    px = (pb[1] - pt[1]) if (pt and pb) else float("nan")
+    return {"topM": round(top, 2), "baseM": round(base, 2),
+            "reliefM": round(top - base, 2),
+            "apparentM": round(exaggerate(top) - exaggerate(base), 2),
+            "prominencePx": round(px, 2)}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=os.path.join(REPO, "build", "panorama"))
     ap.add_argument("--quick", action="store_true")
     ap.add_argument("--curve", choices=("A", "B", "C"), default=CURVE,
                     help="vertical-exaggeration curve (see ve/exaggerate)")
+    ap.add_argument("--ve-near", type=float, default=C_A,
+                    help="curve C's ve(0): the exaggeration rate at the shore")
+    ap.add_argument("--ve-scale", type=float, default=C_L,
+                    help="curve C's decay scale in metres")
+    ap.add_argument("--contour-w", type=float, default=CONTOUR_W)
+    ap.add_argument("--contour-op", type=float, default=CONTOUR_OP)
+    ap.add_argument("--contour-index-w", type=float, default=CONTOUR_INDEX_W)
+    ap.add_argument("--contour-index-op", type=float, default=CONTOUR_INDEX_OP)
+    ap.add_argument("--shade-az", type=float, default=LIGHT_AZ,
+                    help="compass bearing the light comes FROM")
+    ap.add_argument("--shade-alt", type=float, default=LIGHT_ALT)
+    ap.add_argument("--sun-note", default=None,
+                    help="the solar solution named in the cartouche; "
+                         "REQUIRED whenever --shade-az/--shade-alt move")
+    ap.add_argument("--shade-steps", type=int, default=SHADE_STEPS,
+                    help="0 turns slope shading off")
+    ap.add_argument("--shade-max", type=float, default=SHADE_MAX)
+    ap.add_argument("--lit-max", type=float, default=LIT_MAX)
+    ap.add_argument("--shade-min-area", type=float, default=SHADE_MIN_AREA)
+    ap.add_argument("--no-shadow", action="store_true",
+                    help="slope shading only -- no cast shadows")
+    ap.add_argument("--no-obj-shadow", action="store_true")
+    ap.add_argument("--shadow-step", type=float, default=SHADOW_STEP)
+    ap.add_argument("--shadow-reach", type=float, default=SHADOW_REACH)
+    ap.add_argument("--obj-shadow-op", type=float, default=0.3)
+    ap.add_argument("--tag", default="",
+                    help="suffix for every output name, so variants coexist")
+    ap.add_argument("--variant", action="store_true",
+                    help="the comparison render set: full plate in both "
+                         "themes, the 8x Ilios crop in both, the camp zoom")
     args = ap.parse_args()
     globals()["CURVE"] = args.curve
+    set_curve(args.ve_near, args.ve_scale)
+    set_light(args.shade_az, args.shade_alt)
+    if args.sun_note:
+        globals()["SUN_NOTE"] = args.sun_note
+    elif (abs(args.shade_az - LIGHT_AZ_DEFAULT) > 0.01
+          or abs(args.shade_alt - LIGHT_ALT_DEFAULT) > 0.01):
+        ap.error("--shade-az/--shade-alt moved without --sun-note: the "
+                 "cartouche would name a sun the plate does not draw")
+    globals().update(
+        CONTOUR_W=args.contour_w, CONTOUR_OP=args.contour_op,
+        CONTOUR_INDEX_W=args.contour_index_w,
+        CONTOUR_INDEX_OP=args.contour_index_op,
+        SHADE_STEPS=max(0, args.shade_steps), SHADE_MAX=args.shade_max,
+        LIT_MAX=args.lit_max, SHADE_MIN_AREA=args.shade_min_area,
+        SHADOW=not args.no_shadow, OBJ_SHADOW=not args.no_obj_shadow,
+        SHADOW_STEP=args.shadow_step, SHADOW_REACH=args.shadow_reach,
+        OBJ_SHADOW_OP=args.obj_shadow_op)
+    tag = args.tag
     os.makedirs(args.out_dir, exist_ok=True)
-    print(f"curve {args.curve}: " + " ".join(
-        f"{e:g}->{exaggerate(float(e)):.0f}" for e in (10, 100, 300, 800, 1774)))
+    print(f"curve {args.curve} ve(0)={C_A:g} scale={C_L:g} floor={C_F:.4f} "
+          f"(ceiling {max_near_rate():.2f}x): " + " ".join(
+              f"{e:g}->{exaggerate(float(e)):.0f}"
+              for e in (10, 25, 100, 300, 800, 1774)))
+    print(f"sun az {LIGHT_AZ:g} alt {LIGHT_ALT:g} (shadow x{1.0 / max(1e-6, math.tan(math.radians(LIGHT_ALT))):.1f} "
+          f"height), cast shadows {SHADOW}, object shadows {OBJ_SHADOW}")
+    print(f"{SHADE_STEPS} steps, "
+          f"shade<={SHADE_MAX:g} lit<={LIT_MAX:g}; contours {CONTOUR_W:g}/"
+          f"{CONTOUR_OP:g}, index {CONTOUR_INDEX_W:g}/{CONTOUR_INDEX_OP:g} "
+          f"at {[LEVELS[k] for k in sorted(INDEX_LEVELS)]} m")
 
     terr = Terrain()
     cam = Camera(terr.plain)
     with open(os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")) as f:
         plate_json = json.load(f)
 
+    prom = troy_prominence(terr, cam)
+    print("Ilios: " + " ".join(f"{k}={v}" for k, v in prom.items()))
     print(f"pitch {math.degrees(cam.pitch):.2f} deg down; focal {FOCAL:.1f}")
     inner, wps, P = build(terr, cam, plate_json)
+    if "shadow_raster" in P.stats:
+        n_ = P.stats["shadow_raster"]
+        print(f"shadow raster {n_}x{n_} = {n_ * n_} samples in "
+              f"{P.stats['shadow_secs']}s; {P.stats.get('shaded_cells', 0)} "
+              f"toned cells, {P.stats.get('obj_shadows', 0)} object shadows")
     print(f"mesh {len(P.azs)}x{len(P.rngs)} = {len(P.azs) * len(P.rngs)} nodes; "
           f"cells tested {P.stats['cells_tested']}, visible "
           f"{P.stats['cells_visible']} "
@@ -1933,17 +2596,44 @@ def main():
 
     tgt = camera_targets(wps, dict(P.stats))
     tgt["camera"]["pitchDegDown"] = round(math.degrees(cam.pitch), 2)
-    tp = os.path.join(args.out_dir, "stage3-camera-targets.json")
+    tgt["stats"]["ilios"] = prom
+    tp = os.path.join(args.out_dir, f"stage3-camera-targets{tag}.json")
     with open(tp, "w") as f:
         json.dump(tgt, f, ensure_ascii=False, indent=2)
     print(f"camera targets -> {tp} ({len(tgt['targets'])} rows)")
 
+    if args.variant:
+        # the comparison set: full plate both themes, the 8x Ilios crop both
+        # themes, the camp zoom in light. Nothing else -- these renders exist
+        # to be put side by side, not to ship.
+        by_id = {t["id"]: t for t in tgt["targets"]}
+        ic = by_id["ilios"]["camera"]
+        for theme in ("light", "dark"):
+            sfx = "" if theme == "light" else "-dark"
+            svg = os.path.join(args.out_dir, f"stage3-full{tag}{sfx}.svg")
+            w, h = emit(theme, inner, 0, 0, W, H, 1.0, svg, tier=1)
+            shoot(svg, os.path.join(args.out_dir, f"stage3-full{tag}{sfx}.png"), w, h)
+            print(f"[{theme}] full 1x {os.path.getsize(svg) / 1024:.0f} KB")
+            cw, ch = W / 8.0, H / 8.0
+            s2 = os.path.join(args.out_dir, f"stage3-zoom8-troy{tag}{sfx}.svg")
+            w2, h2 = emit(theme, inner, ic["cx"] - cw / 2, ic["cy"] - ch / 2,
+                          cw, ch, 8.0, s2, tier=3, descale=8.0)
+            shoot(s2, os.path.join(args.out_dir,
+                                   f"stage3-zoom8-troy{tag}{sfx}.png"), w2, h2)
+        cw, ch = W / 4.0, H / 4.0
+        s3 = os.path.join(args.out_dir, f"stage3-zoom-camp{tag}.svg")
+        w3, h3 = emit("light", inner, 1250.0 - cw / 2, 665.0 - ch / 2, cw, ch,
+                      4.0, s3, tier=3, descale=4.0)
+        shoot(s3, os.path.join(args.out_dir, f"stage3-zoom-camp{tag}.png"), w3, h3)
+        print("variant set done")
+        return
+
     themes = ("light",) if args.quick else ("light", "dark")
     for theme in themes:
         sfx = "" if theme == "light" else "-dark"
-        svg = os.path.join(args.out_dir, f"stage3-full{sfx}.svg")
+        svg = os.path.join(args.out_dir, f"stage3-full{tag}{sfx}.svg")
         w, h = emit(theme, inner, 0, 0, W, H, 1.0, svg, tier=1)
-        shoot(svg, os.path.join(args.out_dir, f"stage3-full{sfx}.png"), w, h)
+        shoot(svg, os.path.join(args.out_dir, f"stage3-full{tag}{sfx}.png"), w, h)
         sz = os.path.getsize(svg)
         print(f"[{theme}] full 1x  {sz / 1024:.0f} KB ({sz} bytes) -> {w}x{h}")
         if args.quick:
@@ -1956,10 +2646,10 @@ def main():
                 "camp": (1250.0, 665.0)}
         for name, (cx, cy) in cams.items():
             cw, ch = W / 4.0, H / 4.0
-            s2 = os.path.join(args.out_dir, f"stage3-zoom-{name}{sfx}.svg")
+            s2 = os.path.join(args.out_dir, f"stage3-zoom-{name}{tag}{sfx}.svg")
             w2, h2 = emit(theme, inner, cx - cw / 2, cy - ch / 2, cw, ch, 4.0, s2,
                           tier=3, descale=4.0)
-            shoot(s2, os.path.join(args.out_dir, f"stage3-zoom-{name}{sfx}.png"), w2, h2)
+            shoot(s2, os.path.join(args.out_dir, f"stage3-zoom-{name}{tag}{sfx}.png"), w2, h2)
         # mobile portrait: the crop frames the SIGHTLINE, not the panorama --
         # camp, bay, city, Ida in depth order. What portrait gives up is the
         # flanks: the headlands and the swamp.
@@ -1975,15 +2665,15 @@ def main():
         # a tier-2 full frame as well: it is the state the swamp, the wall,
         # the ditch, the Simoeis and the headland labels first appear in, and
         # nothing else renders them.
-        s2t = os.path.join(args.out_dir, f"stage3-full-tier2{sfx}.svg")
+        s2t = os.path.join(args.out_dir, f"stage3-full-tier2{tag}{sfx}.svg")
         w2t, h2t = emit(theme, inner, 0, 0, W, H, 1.0, s2t, tier=2)
-        shoot(s2t, os.path.join(args.out_dir, f"stage3-full-tier2{sfx}.png"), w2t, h2t)
+        shoot(s2t, os.path.join(args.out_dir, f"stage3-full-tier2{tag}{sfx}.png"), w2t, h2t)
         pw = H * (390.0 / 780.0)
-        s3 = os.path.join(args.out_dir, f"stage3-mobile-portrait{sfx}.svg")
+        s3 = os.path.join(args.out_dir, f"stage3-mobile-portrait{tag}{sfx}.svg")
         w3, h3 = emit(theme, inner, 1376 - pw / 2, 0, pw, H, 780.0 / H, s3,
                       tier=1, descale=780.0 / H, furn=False,
                       caption="THE SHIPS, THE BAY, AND ILIOS")
-        shoot(s3, os.path.join(args.out_dir, f"stage3-mobile-portrait{sfx}.png"), w3, h3)
+        shoot(s3, os.path.join(args.out_dir, f"stage3-mobile-portrait{tag}{sfx}.png"), w3, h3)
     print("done")
 
 
