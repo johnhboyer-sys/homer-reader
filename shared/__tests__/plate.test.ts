@@ -407,6 +407,47 @@ describe('renderPlate: theming (no baked colour)', () => {
   });
 });
 
+// The label halo is the only thing standing between a name and the
+// hypsometric relief ramp it is lettered over: measured on rendered pixels
+// (scripts/measure-label-contrast.mjs, 2026-08-13) the 0.65px halo left 17 of
+// 28 region/feature labels below the 4.5:1 AA floor, MOUNT IDA at 2.36:1. See
+// shared/lib/plate.ts's RELIEF_HALO_WIDTH for why no flat ink can substitute.
+// These assertions pin the two halves of that fix: the geographic sheets get
+// a halo wide enough to be a background, and the schematic sheets — whose
+// flat token fills never had the problem — keep the hairline exactly.
+describe('renderPlate: label halo', () => {
+  const haloOf = (svg: string) =>
+    [...svg.matchAll(/<text class="plate-label[^"]*"[^>]*>/g)].map((m) => ({
+      width: m[0].match(/stroke-width="([\d.]+)"/)?.[1],
+      opacity: m[0].match(/stroke-opacity="([\d.]+)"/)?.[1],
+      stroke: m[0].match(/stroke="([^"]+)"/)?.[1],
+    }));
+
+  it('a geographic plate letters over relief, so every label carries the wide translucent halo', () => {
+    const haloes = haloOf(renderPlate(testPlate, [troy, scamander]).svg);
+    expect(haloes.length).toBeGreaterThan(0);
+    for (const h of haloes) {
+      expect(h.stroke).toBe('var(--scene-map-label-halo)');
+      expect(Number(h.width)).toBeGreaterThanOrEqual(2.5);
+      // Translucent, not a knockout: an opaque stroke this wide is the
+      // "white halo" the 2026-08-10 lane retired, and it reads as its own
+      // shape rather than as the terrain dimming around the letterforms.
+      expect(Number(h.opacity)).toBeGreaterThan(0.5);
+      expect(Number(h.opacity)).toBeLessThan(1);
+    }
+  });
+
+  it('a schematic plate keeps the 0.65px opaque hairline, unchanged', () => {
+    const haloes = haloOf(renderPlate(schematicPlate, [anchoredPlace]).svg);
+    expect(haloes.length).toBeGreaterThan(0);
+    for (const h of haloes) {
+      expect(h.stroke).toBe('var(--scene-map-label-halo)');
+      expect(h.width).toBe('0.65');
+      expect(h.opacity).toBeUndefined();
+    }
+  });
+});
+
 describe('renderPlate: unlocated honesty', () => {
   it('a place with no coords is reported unlocated and never pinned', () => {
     const result = renderPlate(testPlate, [troy, ghost]);

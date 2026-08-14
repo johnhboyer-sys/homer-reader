@@ -2058,7 +2058,49 @@ function bestPathLabelOffset(points: [number, number][], textWidth: number): { f
 // 0.65px keeps just enough of a knockout to hold a label legible where it
 // crosses a coastline or a contour, tinted to --scene-map-label-halo (the
 // map's own background token, not a literal colour) exactly as before.
+// Kept as-is for SCHEMATIC plates, whose fills are flat tokens already
+// paired against the label inks — see RELIEF_HALO_* for why a geographic
+// sheet cannot live with it.
 const LABEL_HALO_WIDTH = 0.65;
+
+// Geographic plates only. On a schematic sheet a label sits on one flat
+// token fill, so the ink/fill pair can be measured once and holds. On a
+// geographic sheet it sits on the 12-step hypsometric relief ramp, and
+// there the fixed --text-mid-over---scene-map-label-halo pair the LABEL_STYLES
+// comment reasons about is simply not what a reader's eye compares: at
+// 0.65px the halo covers about a third of a CSS pixel outside the glyph, far
+// too little to BE the label's background, so the real surround is the ramp.
+// Measured on rendered pixels (scripts/measure-label-contrast.mjs,
+// 2026-08-14) that put 17 of 28 region/feature labels below the 4.5:1 AA
+// floor — MOUNT IDA at 2.50:1 and CALLICOLONE at 2.06:1 in dark theme, and
+// light no better (MOUNT IDA 4.10:1, THRACIAN SAMOS 4.18:1).
+//
+// No flat ink can fix it. The dark ramp's pale high steps sit at a relative
+// luminance (#86734B, L=0.178) where even PURE WHITE reaches only 4.60:1 and
+// pure black only 4.56:1 — the ceiling is below AA from both directions, so
+// retuning the ink (or adding a map-only ink token) trades one failing set of
+// steps for another. The label has to carry its own background instead.
+//
+// So the halo is restored to a width that actually covers the surround, and
+// the objection that retired the 2.5px version is answered on the other axis:
+// that halo was OPAQUE, and an opaque knockout is what reads as its own
+// shape. At 0.72 the stroke dims the terrain around the letterforms instead
+// of punching a hole in it — the contour hairlines and the ramp step still
+// show through it — which is the effect a halo is supposed to have.
+//
+// Exported so shared/__tests__/plate-map-contrast.test.ts asserts the
+// composite these actually produce against the real terrain tokens, rather
+// than re-typing the opacity into the test and guarding a number this file
+// no longer uses.
+export const RELIEF_HALO_WIDTH = 2.6;
+export const RELIEF_HALO_OPACITY = 0.72;
+
+/** Halo paint attributes for a label, per plate kind (see the constants above). */
+function haloAttrs(geographic: boolean): string {
+  const width = geographic ? RELIEF_HALO_WIDTH : LABEL_HALO_WIDTH;
+  const opacity = geographic ? ` stroke-opacity="${RELIEF_HALO_OPACITY}"` : '';
+  return `stroke="var(--scene-map-label-halo)" stroke-width="${width}"${opacity} stroke-linejoin="round"`;
+}
 
 function textPathElement(
   text: string,
@@ -2067,6 +2109,7 @@ function textPathElement(
   role: LabelRole,
   id: string,
   offsetPct: number,
+  geographic: boolean,
 ): string {
   const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
   // `data-label-for` names the place/layer id this text belongs to (2026-
@@ -2080,8 +2123,8 @@ function textPathElement(
     `<text class="plate-label plate-label-${role} plate-label-along" data-label-for="${escapeXml(id)}" ` +
     `font-family="var(--font-ui)" font-size="${style.size}" font-weight="${style.weight}"` +
     `${style.italic ? ' font-style="italic"' : ''}${tracking} fill="${style.fill}" ` +
-    `paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="${LABEL_HALO_WIDTH}" ` +
-    `stroke-linejoin="round" dy="-3.5" style="font-variant-ligatures:none">` +
+    `paint-order="stroke" ${haloAttrs(geographic)} ` +
+    `dy="-3.5" style="font-variant-ligatures:none">` +
     // startOffset is normally the run's own straightest window (see
     // bestPathLabelOffset), NOT always dead centre — see that function's
     // comment for why 50% can print a name through a bend.
@@ -2097,6 +2140,7 @@ function labelElement(
   role: LabelRole,
   forceItalic: boolean,
   id: string,
+  geographic: boolean,
 ): string {
   const italic = style.italic || forceItalic;
   const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
@@ -2104,8 +2148,8 @@ function labelElement(
     `<text class="plate-label plate-label-${role}" data-label-for="${escapeXml(id)}" x="${round1(c.x)}" y="${round1(c.y)}" ` +
     `text-anchor="${c.anchor}" font-family="var(--font-ui)" font-size="${style.size}" ` +
     `font-weight="${style.weight}"${italic ? ' font-style="italic"' : ''}${tracking} ` +
-    `fill="${style.fill}" paint-order="stroke" stroke="var(--scene-map-label-halo)" ` +
-    `stroke-width="${LABEL_HALO_WIDTH}" stroke-linejoin="round">${escapeXml(labelText(text, style))}</text>`
+    `fill="${style.fill}" paint-order="stroke" ${haloAttrs(geographic)}` +
+    `>${escapeXml(labelText(text, style))}</text>`
   );
 }
 
@@ -2151,6 +2195,10 @@ function layoutLabels(
   height: number,
   margin: number,
   markerBoxes: LabelBox[],
+  // Selects the halo weight the lettering needs: a geographic sheet letters
+  // over the hypsometric relief ramp and needs a halo wide enough to be the
+  // label's background, a schematic one does not. See RELIEF_HALO_WIDTH.
+  geographic: boolean,
   // Geographic plates only (2026-08-10, LOOK-gate catch): a river's textPath
   // GUIDE — the invisible <path> a name rides along — used to be drawn from
   // the RAW stored polyline (`pathD`), while the river's own visible line
@@ -2222,7 +2270,7 @@ function layoutLabels(
         const guidePts = smoothSize ? thinForTextPathGuide(oriented) : oriented;
         const guideD = smoothSize ? smoothPathD(guidePts, false, smoothSize) : pathD(guidePts, false);
         defs.push(`<path id="${req.pathId}" d="${guideD}" fill="none" stroke="none"/>`);
-        parts.push(textPathElement(req.text, req.pathId, style, req.role, req.id, frac * 100));
+        parts.push(textPathElement(req.text, req.pathId, style, req.role, req.id, frac * 100, geographic));
         placed.push(box);
         continue;
       }
@@ -2287,7 +2335,7 @@ function layoutLabels(
     if (!req.centred && (req.conjectural || detached)) {
       parts.push(leaderElement(req.anchorBox, box, !!req.conjectural));
     }
-    parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id));
+    parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic));
     placed.push(box);
   }
   return { markup: parts.join(''), defs: defs.join(''), placedBoxes: placed, suppressed };
@@ -4377,11 +4425,20 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         continue;
       }
       // settlement or feature: the two classes that DO carry a small dot
-      // (item 3 — solid/open/open-square by certainty tier, 2.5-4px at 1x).
+      // (item 3 — solid/open/open-square by certainty tier, 2.5-4px at 1x)
+      // — EXCEPT a mountain (AUDIT-PLATE-LABELS.md item 2, 2026-08-13): an
+      // orographic mass has no point to mark, unlike a cape or hill's actual
+      // summit-as-landmark reading, so it keeps the feature register's
+      // italic caps label but never earns the settlement/cape dot. The
+      // label's anchor box still reserves the same footprint a dot would
+      // have, so its placement is byte-for-byte what it was before.
       const dotStyle = certaintyDotStyle(place.certainty);
       const r = cls === 'settlement' ? SETTLEMENT_DOT_R[place.rank ?? 2] : FEATURE_DOT_R;
-      pinMarkupParts.push(dotMarkup(place.id, place.name, x, y, dotStyle, r));
-      features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: dotBBox(x, y, r) });
+      const showDot = place.kind !== 'mountain';
+      if (showDot) {
+        pinMarkupParts.push(dotMarkup(place.id, place.name, x, y, dotStyle, r));
+        features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: dotBBox(x, y, r) });
+      }
       pinLabelRequests.push({
         id: place.id,
         text: mapLabelText(place.name),
@@ -4398,7 +4455,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         // bearing enough to matter at a glance.
         priority: cls === 'settlement' ? (place.rank === 3 ? 1 : undefined) : cls === 'feature' ? 1 : undefined,
       });
-      legendEntries.push(certaintyDotLegendEntry(place.certainty ?? 'certain'));
+      if (showDot) legendEntries.push(certaintyDotLegendEntry(place.certainty ?? 'certain'));
       continue;
     }
 
@@ -4502,6 +4559,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       ...pinLabelRequests.map((request) => request.anchorBox),
       ...(plate.north ? [northArrowBox(plate.north)] : []),
     ],
+    plate.kind === 'geographic',
     plate.kind === 'geographic' ? plate.size : undefined,
     denseBoxes,
   );
