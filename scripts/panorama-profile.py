@@ -107,6 +107,19 @@ def load_plain_grid():
     return gr, stats, relief_stats
 
 
+def load_panorama_grid():
+    """The trojan-plain sheet as the PANORAMA's height field — smoothed at
+    `panorama_blur` rather than at the contour product's `blur`, because a
+    shaded surface and a traced line want opposite treatments. See the
+    `panorama_blur` comment in prep-terrain-contours.py for the measurements.
+
+    Deliberately NOT what `load_plain_grid` returns: --verify checks the
+    sheet the vendored contours and the README table were measured on, and
+    that check must keep testing that grid."""
+    g, stats = ptc.panorama_grid("trojan-plain", CACHE)
+    return g, stats, stats
+
+
 def cmd_verify(args):
     gr, stats, relief_stats = load_plain_grid()
     checks = [

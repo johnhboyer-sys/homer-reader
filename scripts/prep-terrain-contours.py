@@ -662,6 +662,36 @@ def grid_stats(g: Grid) -> dict:
 # smoothing sigma at roughly half the simplification tolerance. The Bronze Age
 # geometry is deliberately NOT taken from the post-blurred grid (see main) --
 # it was derived against published measurements and must not move.
+#
+# ── `panorama_blur` / `panorama_post_blur`: A SURFACE IS NOT A CONTOUR ────
+# The panorama (scripts/panorama-stage3.py) samples this sheet as a HEIGHT
+# FIELD and shades it, and the two consumers want opposite things. A contour
+# is a LINE and wants the surface generalised before it is traced, or every
+# wiggle becomes a spike (the paragraph above). A shaded surface wants the
+# opposite: its tone IS the derivative of the grid, so smoothing the grid is
+# smoothing away the picture.
+#
+# MEASURED, 2026-08-14, over the whole trojan-plain sheet, land cells only:
+#   - the shipped 10+2 passes (sigma 41.4 m) remove an RMS of just 1.14 m of
+#     height, and 13% of the slope at a 29 m baseline (7.89% -> 6.86%)
+#   - the radial power spectrum of the RAW grid falls at d(logP)/d(logk) of
+#     about -5 between 234 m and 39 m wavelength, with NO white floor. Real
+#     terrain is red noise near -2 or -3; sensor speckle is a flat floor.
+#     -5 and no floor means the DEM carries almost nothing below ~200 m and
+#     there is no noise down there to protect the render from either. SRTM's
+#     1-arcsec posting, void-filled and resampled to z13, already did the
+#     smoothing this blur was added to do.
+# So the panorama takes 2+1 (sigma 20.7 m): it recovers 9% of the slope at
+# the mesh's own baseline, it costs nothing in noise because there is no
+# noise, and it stops short of raw because a height field should not carry
+# structure finer than its sampler's own ring spacing.
+#
+# It is a SEPARATE key and not a change to `blur`, for two reasons. `blur`
+# also feeds `build_bronze_grid`, and the Bronze Age shore, barrier and swamp
+# were tuned against published measurements at 10 passes and must not move
+# (see `bronze_decimate`); and the vendored contour product
+# sources/terrain-tiles/trojan-plain-contours.json is a LINE product that
+# still wants the generalisation.
 
 SHEETS: dict[str, dict] = {
     "troad": {
@@ -703,6 +733,10 @@ SHEETS: dict[str, dict] = {
         # also move the Bronze Age reconstruction.
         "bronze_tol_deg": 0.0009,
         "post_blur": 2,
+        # The panorama's height field, not the contour product's: see the
+        # SHEETS comment on `panorama_blur`. sigma 20.7 m against 41.4.
+        "panorama_blur": 2,
+        "panorama_post_blur": 1,
         # Tightened to the coastline's own tol_deg (0.00012, ~0.49 px,
         # ~13.4 m) -- the relief was previously cut 7.5x coarser than the
         # coast on this sheet.
@@ -741,6 +775,25 @@ def build_bronze_grid(name: str, cache: str) -> Grid:
     bd = spec.get("bronze_decimate", spec["decimate"])
     g = build_grid(spec["zoom"], spec["bbox"], cache, verbose=False)
     return decimate(box_blur(g, spec["blur"]), bd)
+
+
+def panorama_grid(name: str, cache: str) -> tuple[Grid, dict]:
+    """The sheet as a HEIGHT FIELD for the raised oblique, smoothed at
+    `panorama_blur` + `panorama_post_blur` instead of `blur` + `post_blur`.
+
+    Falls back to the contour chain's own dials for any sheet that does not
+    declare panorama ones, so `troad` is unaffected. See the SHEETS comment
+    on `panorama_blur` for the measurements behind the split."""
+    spec = SHEETS[name]
+    b = spec.get("panorama_blur", spec["blur"])
+    pb = spec.get("panorama_post_blur", spec.get("post_blur", 0))
+    g = build_grid(spec["zoom"], spec["bbox"], cache)
+    g = box_blur(decimate(box_blur(g, b), spec["decimate"]), pb)
+    st = grid_stats(g)
+    n = b + pb
+    print(f"[{name}] panorama field {g.w}x{g.h} at {b}+{pb} passes "
+          f"(sigma {math.sqrt(2.0 * n / 3.0):.2f} px): {st}")
+    return g, st
 
 
 def relief_grid(name: str, g: Grid) -> tuple[Grid, dict]:

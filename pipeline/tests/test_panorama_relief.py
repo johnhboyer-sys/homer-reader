@@ -750,11 +750,83 @@ def test_the_shade_dials_are_the_ones_that_were_measured(s3):
     525 / 606 / 680 KB for the same three.
 
     The dial is not free and this test is the record of what it cost to move.
+
+    RE-MEASURED AGAIN 2026-08-14, on a finer mesh and a sharper field, on the
+    suspicion that the filaments at 14 were an artefact of quantising a smooth
+    surface and would not survive a surface with real texture. THEY SURVIVED,
+    and 14 is still wrong: rendered at ring floor 45 m, field sigma 20.7 m and
+    2 smoothing passes, the near foreground breaks into a regular lattice of
+    countable ovals across the dry fan below the camp -- the fish scales, by
+    name -- and the SVG goes 682 -> 776 KB to print them. 10 stands.
+
+    SHADE_SMOOTH is 2, not 5, and that is this pass's real find. Its kernel is
+    a centre-doubled 3x3, variance 0.6 cells a pass, so five passes was sigma
+    1.73 MESH CELLS -- at the old 110 m ring floor, 190 m of ground, against
+    the DEM blur's 41 m that everyone was blaming. It was the biggest smoother
+    on the sheet by a factor of four. At 2 passes the gully system under the
+    camp reads; at 1 the tone islands the median has to filter go 3,628 ->
+    5,057 and the foreground starts to bead. The floor here is 2, not 3.
     """
     assert s3.SHADE_STEPS == 10
-    assert s3.SHADE_MEDIAN >= 1 and s3.SHADE_SMOOTH >= 3
+    assert s3.SHADE_MEDIAN >= 1 and s3.SHADE_SMOOTH >= 2
     assert s3.SHADE_SOFT_PASSES >= 1, (
         "more steps is only safe while the tone edges are low-passed")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# the field the mesh samples is not the grid the contours are traced on
+# ═══════════════════════════════════════════════════════════════════════════
+# "too soft and painterly. more detail fixes that" (John, 2026-08-14). The
+# suspect was prep-terrain-contours' 10+2 box passes, and the suspect was
+# largely innocent: measured over the whole trojan-plain sheet they cost
+# 1.14 m RMS of height and 13% of the slope at a 29 m baseline, because the
+# raw grid's power spectrum falls at about -5 from 234 m to 39 m wavelength
+# with no white floor -- SRTM has neither landform nor noise down there. The
+# blur still goes, because it buys nothing either, but the detail came from
+# the mesh and from SHADE_SMOOTH.
+
+
+def test_the_panorama_has_its_own_smoothing_and_the_bronze_age_does_not_move():
+    """A traced contour and a shaded surface want opposite treatments, so the
+    panorama's field is a separate key. What must NOT have moved is `blur`:
+    build_bronze_grid reads it, and the Bronze Age shore, barrier and swamp
+    were tuned against published measurements at 10 passes."""
+    import importlib.util as iu
+    p = os.path.join(REPO, "scripts", "prep-terrain-contours.py")
+    if not os.path.exists(p):
+        pytest.skip("prep-terrain-contours.py not present")
+    sp = iu.spec_from_file_location("ptc", p)
+    ptc = iu.module_from_spec(sp)
+    sp.loader.exec_module(ptc)
+    spec = ptc.SHEETS["trojan-plain"]
+    assert spec["blur"] == 10 and spec.get("post_blur") == 2, (
+        "the CONTOUR chain's dials moved; the vendored contour product and "
+        "the Bronze Age geometry are derived at these")
+    assert spec["bronze_decimate"] == 2 and spec["bronze_tol_deg"] == 0.0009
+    pb = spec["panorama_blur"] + spec["panorama_post_blur"]
+    cb = spec["blur"] + spec["post_blur"]
+    assert 0 < pb < cb, (
+        f"the panorama field ({pb} passes) must be smoothed less than the "
+        f"contour grid ({cb}) and still be smoothed at all")
+    # and the panorama must actually take the panorama dials
+    assert hasattr(ptc, "panorama_grid")
+
+
+def test_the_mesh_does_not_smooth_away_what_it_went_to_sample(s3):
+    """Three numbers that have to move together: the field's own resolving
+    power, the ring floor, and the mesh's height stencil. A stencil wider than
+    the ring spacing throws away ground the mesh paid to sample; a ring floor
+    finer than the field only resamples the smoothing."""
+    # the nine-point stencil's sigma is 0.62 of its radius (weights 2 centre,
+    # 1 at r on the axes, 0.7 at 0.99r on the diagonals)
+    assert s3.MESH_STENCIL_M * 0.62 * 2.0 <= s3.RING_MAX_M, (
+        f"stencil {s3.MESH_STENCIL_M} m is wide against a {s3.RING_MAX_M} m "
+        "ring floor")
+    # 41 m is 2 sigma of the panorama field at 2+1 passes: the finest thing
+    # in the data. The rings must straddle it, not sit on it.
+    assert s3.RING_MAX_M <= 45.0
+    assert s3.SHADOW_STEP <= 45.0, (
+        "the cast-shadow raster is coarser than the ground it is cast on")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -925,3 +997,245 @@ def test_the_rampart_keeps_its_towers(s3):
     camp = src.split("def camp(", 1)[1].split("def waypoints", 1)[0]
     ramp = camp.split("pp-rampart", 1)[1][:400]
     assert "soften(" not in ramp.split("wall_pts")[0]
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# a river that ends in mid-air
+# ═══════════════════════════════════════════════════════════════════════════
+# "The Scamander does not connect to the water" (John, 2026-08-14): on the sand
+# spit at the head of the bay the channel ran down the spit and simply stopped,
+# short of the shore, in the middle of dry ground. The channel DATA was never
+# short -- apparatus/plates/trojan-plain.json's `scamander` path has 170
+# vertices and 43 of them lie inside lagoon-bronze. rivers_svg draws a river on
+# land only, and it was cutting the run at the last VERTEX outside the water on
+# a path whose vertices are 122 m apart (625 m at worst), so the mouth was left
+# up to a whole segment inland: 37 m on the Scamander, 40 m on the Simoeis.
+
+
+def _plate_layers():
+    p = os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")
+    if not os.path.exists(p):
+        pytest.skip("trojan-plain.json not present")
+    import json
+    with open(p) as f:
+        return {l["id"]: l for l in json.load(f)["layers"]}
+
+
+def _dry_runs_of(s3, rid):
+    """rivers_svg's own run splitter, re-derived here from the same layers so
+    the test measures the drawing rule and not a copy of it."""
+    lay = _plate_layers()
+    lagoon, sea = lay["lagoon-bronze"]["polygon"], lay["sea-modern"]["polygon"]
+
+    def wet(p):
+        return (s3.point_in_poly_ll(p[0], p[1], lagoon)
+                or s3.point_in_poly_ll(p[0], p[1], sea))
+
+    def waterline(dry, w, iters=20):
+        for _ in range(iters):
+            mid = ((dry[0] + w[0]) / 2.0, (dry[1] + w[1]) / 2.0)
+            if wet(mid):
+                w = mid
+            else:
+                dry = mid
+        return w
+
+    runs, cur, prev = [], [], None
+    for q in lay[rid]["path"]:
+        p = (q[0], q[1])
+        if wet(p):
+            if len(cur) > 2:
+                cur.append(waterline(cur[-1], p))
+                runs.append(cur)
+            cur = []
+        else:
+            if not cur and prev is not None and wet(prev):
+                cur.append(waterline(p, prev))
+            cur.append(p)
+        prev = p
+    if len(cur) > 2:
+        runs.append(cur)
+    return runs, lagoon, sea
+
+
+def _gap_to_water_m(s3, pt, poly):
+    """Distance from `pt` to the nearest point ON the polygon's boundary, flat
+    metres — measured to the segments, not to the vertices."""
+    best = float("inf")
+    for a, b in zip(poly, poly[1:] + [poly[0]]):
+        ax, ay = s3.pp._flat_m(a, *pt)
+        bx, by = s3.pp._flat_m(b, *pt)
+        ux, uy = bx - ax, by - ay
+        L2 = ux * ux + uy * uy
+        t = 0.0 if L2 < 1e-9 else max(0.0, min(1.0, (-ax * ux - ay * uy) / L2))
+        best = min(best, math.hypot(ax + t * ux, ay + t * uy))
+    return best
+
+
+@pytest.mark.parametrize("rid,was", (("scamander", 37.0), ("simoeis", 40.0)))
+def test_the_channel_data_always_reached_the_bay(s3, rid, was):
+    """The defect was NOT missing data, and the record matters: nobody should
+    ever be tempted to draw a mouth that is not in the survey."""
+    lay = _plate_layers()
+    lagoon = lay["lagoon-bronze"]["polygon"]
+    inside = sum(1 for p in lay[rid]["path"]
+                 if s3.point_in_poly_ll(p[0], p[1], lagoon))
+    assert inside > 3, (
+        f"{rid} has only {inside} vertices inside the reconstructed bay; if "
+        "the survey really stops short, the mouth is an editorial question")
+
+
+@pytest.mark.parametrize("rid,was", (("scamander", 37.0), ("simoeis", 40.0)))
+def test_a_river_is_drawn_all_the_way_to_the_water(s3, rid, was):
+    """The fix, in one number: the drawn run now ends ON the reconstructed
+    shore instead of at the last surveyed vertex before it."""
+    runs, lagoon, sea = _dry_runs_of(s3, rid)
+    assert runs, f"{rid} draws no run at all"
+    end = runs[-1][-1]
+    gap = min(_gap_to_water_m(s3, end, lagoon), _gap_to_water_m(s3, end, sea))
+    assert gap < 1.0, (
+        f"{rid} still stops {gap:.0f} m short of the water (it was {was:.0f})")
+    # and the mouth is ON the surveyed line, not beside it: every drawn point
+    # must lie within a metre of the original polyline
+    path = [(p[0], p[1]) for p in _plate_layers()[rid]["path"]]
+    worst = 0.0
+    for c in runs[-1]:
+        worst = max(worst, _gap_to_water_m(s3, c, path))
+    assert worst < 1.0, (
+        f"{rid}'s drawn course leaves its own survey line by {worst:.0f} m")
+
+
+def test_the_gap_the_old_rule_left(s3):
+    """The bug, reproduced: cutting at the last dry VERTEX leaves the mouth
+    inland by up to a survey segment. Remove this test only with the rule."""
+    lay = _plate_layers()
+    lagoon, sea = lay["lagoon-bronze"]["polygon"], lay["sea-modern"]["polygon"]
+    for rid, floor in (("scamander", 20.0), ("simoeis", 20.0)):
+        cur = []
+        for q in lay[rid]["path"]:
+            p = (q[0], q[1])
+            if (s3.point_in_poly_ll(p[0], p[1], lagoon)
+                    or s3.point_in_poly_ll(p[0], p[1], sea)):
+                break
+            cur.append(p)
+        gap = _gap_to_water_m(s3, cur[-1], lagoon)
+        assert gap > floor, (
+            f"expected the vertex rule to strand {rid} well inland; it left "
+            f"only {gap:.0f} m")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# "and no dotty lines" (John, 2026-08-14)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def test_nothing_on_the_sheet_is_drawn_dashed(s3):
+    """Three lines were: the reconstructed shore, the ditch and the wagon-road.
+    None of the three dashes was carrying a claim the plate does not already
+    make in words, and a dash is read as texture before it is read as meaning.
+    """
+    assert "stroke-dasharray" not in s3.CSS, (
+        "a dashed stroke is back in the stylesheet")
+    src = open(STAGE3).read()
+    body = src.split("CSS = ", 1)[1]
+    assert 'stroke-dasharray="' not in body, (
+        "a dash was set as an attribute rather than in the stylesheet")
+
+
+def test_the_reconstruction_is_still_marked_as_one(s3):
+    """The dash went; the claim may not. The reconstructed shore keeps a line
+    -- WCAG 1.4.11 needs 3:1 and the lagoon/land fill pair gives 1.41-1.69:1
+    in both themes -- and it is LIGHTER than the surveyed modern coastline, so
+    the difference between them is how heavily each is asserted."""
+    def width(cls):
+        m = re.search(r"\." + cls + r"\{([^}]*)\}", s3.CSS, re.S)
+        assert m, f"{cls} is not in the stylesheet"
+        w = re.search(r"stroke-width:([0-9.]+)", m.group(1))
+        assert w, f"{cls} has no stroke-width"
+        return float(w.group(1))
+    approx, survey = width("pp-coast-approx"), width("pp-coast")
+    assert 0 < approx < survey, (
+        f"the reconstructed shore ({approx} px) must be lighter than the "
+        f"surveyed coastline ({survey} px) and must still be drawn")
+    # and the plate must not describe a mark it does not draw
+    src = open(STAGE3).read()
+    cartouche = src.split("def furniture(", 1)[1].split("\ndef build(", 1)[0]
+    assert "dash" not in cartouche.lower(), (
+        "the cartouche still names a dash the plate does not draw")
+    assert "hairline" in cartouche, (
+        "the cartouche no longer says how the reconstruction is drawn")
+
+
+def test_the_waterlines_offset_by_winding_not_by_centroid(s3):
+    """The sand spit runs half a kilometre into the bay, so along its far
+    flank the polygon's centroid lies ACROSS the land and a centroid-chosen
+    normal walked the waterlines up onto the beach. Winding is local and
+    correct in a concavity; a centroid is neither."""
+    src = open(STAGE3).read()
+    w = src.split("def water_svg(", 1)[1].split("def rivers_svg", 1)[0]
+    assert "area2" in w and "sgn" in w, "the winding test is gone"
+    assert "cx - x1" not in w, "the centroid rule is back"
+
+
+# ── WCAG 1.4.11 on the marks this pass moved ──────────────────────────────
+# The dashes came off three lines, and taking a dash off a line is a change to
+# how it is READ, not to its contrast -- but two of the three were failing 3:1
+# before anyone looked, and a pass that is already in the file has no excuse
+# for leaving them there.
+
+
+def _srgb_lum(hexstr):
+    hexstr = hexstr.lstrip("#")
+    ch = [int(hexstr[i:i + 2], 16) / 255.0 for i in (0, 2, 4)]
+    lin = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+           for c in ch]
+    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+
+
+def _ratio(a, b):
+    la, lb = _srgb_lum(a), _srgb_lum(b)
+    hi, lo = max(la, lb), min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def _over(fg, bg, alpha):
+    f = [int(fg.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)]
+    b = [int(bg.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)]
+    return "#%02X%02X%02X" % tuple(
+        round(alpha * f[i] + (1 - alpha) * b[i]) for i in range(3))
+
+
+def _tokens(s3, theme):
+    """Straight out of the module's own TOKENS dict, so the test cannot drift
+    from the values the plate ships."""
+    return dict(re.findall(r"(--[a-z0-9-]+):(#[0-9A-Fa-f]{6})",
+                           s3.TOKENS[theme]))
+
+
+@pytest.mark.parametrize("theme", ("light", "dark"))
+def test_the_marks_this_pass_moved_clear_wcag_1_4_11(s3, theme):
+    t = _tokens(s3, theme)
+    ground = [t["--pp-cover-fan"], t["--pp-cover-open"], t["--pp-cover-ridge"]]
+    # 1. the reconstructed shore, now a hairline instead of a dash. It is the
+    #    ONLY thing separating water from land: the fill pair is 1.41-1.69:1.
+    for bg in [t["--plate-lagoon"]] + ground:
+        r = _ratio(t["--scene-map-coast"], bg)
+        assert r >= 3.0, f"{theme}: shore hairline on {bg} is {r:.2f}:1"
+    fill = min(_ratio(t["--plate-lagoon"], g) for g in ground)
+    assert fill < 3.0, (
+        f"{theme}: the lagoon/land fill pair is {fill:.2f}:1 — if it ever "
+        "clears 3:1 the shore may drop its stroke, and the cartography doc's "
+        "no-boundary rule becomes available for it")
+    # 2. the ditch and the road, which were at 0.55 and failing in both themes
+    for bg in ground:
+        r = _ratio(_over(t["--text-mid"], bg, 0.75), bg)
+        assert r >= 3.0, f"{theme}: ditch/road on {bg} is {r:.2f}:1"
+
+
+def test_the_ditch_and_road_opacity_is_the_one_that_was_solved_for(s3):
+    """0.55 measured 2.19:1 at worst. 3:1 needs 0.74 in light and 0.68 in
+    dark; anything under 0.75 puts one theme or the other back under."""
+    for cls in ("pp-ditch", "pp-road"):
+        m = re.search(r"\." + cls + r"\{([^}]*)\}", s3.CSS, re.S)
+        op = re.search(r"stroke-opacity:([0-9.]+)", m.group(1))
+        assert op and float(op.group(1)) >= 0.75, f"{cls} is back under AA"

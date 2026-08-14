@@ -2,8 +2,9 @@
 """Stage 3 — THE WHOLE PLATE: "The Ships, the Bay, and Ilios".
 
 The full 2400x1350 raised oblique from the settled Stage-1D camera, in the
-Stage-2 register (flat fills, hairline contours, waterlines, the dashed
-approximate bronze shore, no texture), carrying what Stage 2 still owed: the
+Stage-2 register (flat fills, hairline contours, waterlines, the approximate
+bronze shore drawn as a hairline against the modern coast's heavier survey
+line, no texture), carrying what Stage 2 still owed: the
 delta swamp with a faded margin, the neatline, the scale and the key.
 
 THE GROUND IS COLOURED BY WHAT IT IS, NOT BY HOW HIGH IT IS (2026-08-14, and
@@ -149,9 +150,21 @@ BLEED = 90.0                      # screen units of mesh outside the frame
 #
 # So rings are also capped in METRES over the range where the plate's own
 # subject lies -- the extent of the trojan-plain z13 sheet, which the sightline
-# leaves at about 19 km. 110 m is the grid's own resolving power: 12 box-blur
-# passes at 14.65 m/px is a Gaussian of sigma 41 m, so nothing narrower than
-# ~85 m survives in the data and a finer mesh would only resample the blur.
+# leaves at about 19 km. The cap is the GRID'S OWN RESOLVING POWER, and it
+# moved when the grid did: the panorama's field is now smoothed at 2+1 box
+# passes (sigma 20.7 m at 14.65 m/px) rather than 10+2 (sigma 41.4 m), so
+# nothing narrower than about 41 m survives in the data instead of 85 m, and
+# the floor drops from 110 m to 45 m to match. See prep-terrain-contours.py's
+# `panorama_blur` comment for why the blur went: measured over the whole
+# sheet it was costing 1.14 m RMS of height and 13% of the slope, and the raw
+# grid's power spectrum shows SRTM has neither landform nor noise below
+# ~200 m, so there was nothing down there the blur was protecting anyone from.
+#
+# WHAT IT COSTS, measured 2026-08-14: 462 rings -> 523, 165,858 mesh nodes ->
+# 187,757, and 626 -> 658 KB of SVG. It is that cheap because RING_MIN_PX
+# binds first over most of the range -- a 45 m ring is sub-pixel past about
+# 6 km -- so the finer floor buys rings exactly where the eye is, in the near
+# and middle field, and nothing where it could not see them.
 # THIS IS NOT A FIX FOR TROY. It is a floor on the whole near-and-middle
 # field, and it lifts every landform of that scale: Callicolone (150 -> 191 m
 # of 209 measured), Rhoiteion, Kesik Tepe, the Sigeion bluff's own edge.
@@ -163,7 +176,18 @@ BLEED = 90.0                      # screen units of mesh outside the frame
 # pixels apart at 15 km, which emits cells the sheet cannot show. RING_MIN_PX
 # stops at one pixel. It costs Callicolone its last 4% (191 m drawn against
 # 209 measured) and saves 46 KB of the shipped SVG.
-RING_MAX_M = 110.0
+RING_MAX_M = 45.0
+
+# The near floor on the mesh's own height stencil (Terrain.elev_smooth), in
+# metres of ground. It is an ANTI-ALIAS for the sampler and nothing more now
+# that the hypsometric bands it also served are gone, so the right size is
+# half the finest ring: a stencil wider than the ring spacing is throwing
+# away ground the mesh went to the trouble of sampling. The nine-point
+# stencil's own sigma is 0.62 of its radius, so 22 m is sigma 13.6 m against
+# the field's 20.7 -- it adds a fifth to the smoothing in quadrature where
+# the old 35 m added a half. It was 35 m when the field was sigma 41 m and
+# the rings 110 m apart; all three numbers moved together.
+MESH_STENCIL_M = 22.0
 RING_DETAIL_FAR = 19000.0
 RING_MIN_PX = 1.0
 
@@ -580,7 +604,24 @@ LIT_MAX = 0.22           # peak opacity of --pp-lit on a slope facing the light
 # dials generalised at 3.2 px FIRST, which kept every riser corner and threw
 # away the treads, and then corner-cut the jagged result: that is where the
 # scalloped tone edges came from.
-SHADE_SMOOTH = 5         # box passes over the CONTINUOUS field, in mesh cells
+# ── SHADE_SMOOTH WAS THE BIGGEST SMOOTHER ON THE SHEET, by a factor of four
+# over the one everybody suspected. Its kernel is a 3x3 with the centre
+# doubled, variance 0.6 cells per pass, so five passes is a Gaussian of sigma
+# 1.73 MESH CELLS -- and a mesh cell is a ring apart in depth, which at the
+# old 110 m floor was 190 m of ground. The DEM's own blur, the thing the
+# "too soft and painterly" hunt started on, was sigma 41 m. The tone was
+# being generalised over five times the ground the height field was.
+#
+# Two passes now, and the reason it can come down is that the defect it was
+# hired for is being caught by the tools that actually fit it: the MEDIAN
+# removes one-cell islands without moving an edge (see SHADE_MEDIAN), the
+# area filter drops slivers, and the boundary low-pass takes the lattice out
+# of the edges. Smoothing the field was doing none of those jobs well and was
+# flattening the gullies to do them. Measured on the shipped frame at 5 / 3 /
+# 2 / 1 passes: the ground under the camp is unmodelled at 5 and carries a
+# readable gully-and-spur system at 2; at 1 the tone islands the median has
+# to filter jump from 3,628 to 5,057 and the near foreground starts to bead.
+SHADE_SMOOTH = 2         # box passes over the CONTINUOUS field, in mesh cells
 SHADE_MIN_AREA = 140.0   # px^2; below this a tone region is a sliver, not a
                          # slope, and it prints as a bead rather than as tone
 # ── THE BLOTCHY FOREGROUND, and why smoothing alone never cured it ────────
@@ -633,8 +674,12 @@ SHADE_MEDIAN = 3         # median passes over the QUANTISED field
 # slope term in one illumination value, which the existing quantise-and-union
 # path already turns into filled lattice polygons. No new geometry machinery.
 SHADOW = True
-SHADOW_STEP = 60.0       # raster pitch, m. The plain grid's own resolving
-                         # power is ~85 m (sigma 41), so finer buys nothing.
+SHADOW_STEP = 40.0       # raster pitch, m: the plain grid's own resolving
+                         # power, which is now ~41 m (sigma 20.7) and was
+                         # ~85 m (sigma 41) before the field stopped being
+                         # smoothed for a contour tracer. Finer than the
+                         # grid still buys nothing; this rule did not
+                         # change, only the number it reads off.
 SHADOW_REACH = 16000.0   # radius from the viewpoint, m. Beyond it the ground
                          # comes from the troad z11 sheet at 117 m samples,
                          # where a cast shadow would be fiction; that field
@@ -850,7 +895,15 @@ class Camera:
 
 class Terrain:
     def __init__(self):
-        self.plain, _, _ = pp.load_plain_grid()
+        # The PANORAMA's field, not the contour product's: 2+1 box passes
+        # (sigma 20.7 m) against the tracing chain's 10+2 (sigma 41.4 m).
+        # A shaded surface's tone IS the grid's derivative, so generalising
+        # the grid generalises the picture; a traced contour wants the
+        # opposite. Measurements in prep-terrain-contours.py's `panorama_blur`
+        # comment -- and the headline is that the old blur was cheap to lose
+        # (1.14 m RMS of height, 13% of the slope) because SRTM has nothing
+        # under ~200 m to give and no noise down there either.
+        self.plain, _, _ = pp.load_panorama_grid()
         self.troad, _ = ptc.build_sheet("troad", pp.CACHE)
         self._cache: dict = {}
 
@@ -863,10 +916,16 @@ class Terrain:
         return 0.0
 
     def elev_smooth(self, lat, lon, radius_m):
-        """Nine-point stencil at a radius that grows with range: the DEM is
-        quantised, and a flat plateau straddling a hypsometric level prints as
-        a rectilinear terrace. Generalising far ground harder than near ground
-        is also just what a draughtsman does."""
+        """Nine-point stencil at a radius that grows with range.
+
+        HALF ITS REASON HAS EXPIRED. It was written for two: that a flat
+        plateau straddling a hypsometric level printed as a rectilinear
+        terrace, and that generalising far ground harder than near ground is
+        what a draughtsman does. The first died with the hypsometric bands
+        (2026-08-14, "colour says what the ground is, not how high it is") --
+        there are no band edges left to terrace. The second still stands, and
+        is why the stencil stays and why its radius still grows with range.
+        What comes down is the NEAR FLOOR: see MESH_STENCIL_M."""
         if radius_m <= 0:
             return self.elev(lat, lon)
         dlat = radius_m / 111132.0
@@ -1581,8 +1640,28 @@ CSS = """
 .pp-lagoon{fill:var(--plate-lagoon)}
 .pp-marsh{fill:var(--pp-cover-wet);fill-opacity:0.55;stroke:none}
 .pp-coast{fill:none;stroke:var(--scene-map-coast);stroke-width:1.1}
-.pp-coast-approx{fill:none;stroke:var(--scene-map-coast);stroke-width:1.1;
-  stroke-dasharray:4.5 3;stroke-linecap:round}
+/* THE RECONSTRUCTED SHORE IS A HAIRLINE, NOT A DASH -- and NOT nothing.
+   It was drawn dashed and the dash ran all the way round the bay, which made
+   it the dottiest mark on the sheet. The obvious repair is the one
+   docs/TROAD-CARTOGRAPHY.md prescribes for an indefinite margin: NO BOUNDARY
+   at all, lettered and not outlined, as delta-swamp already is in water_svg.
+   IT IS NOT AVAILABLE HERE, and the reason is measured. WCAG 1.4.11 wants
+   3:1 on a graphical boundary, and the fill boundary alone gives
+   1.69:1 / 1.56:1 / 1.45:1 in light and 1.54 / 1.48 / 1.41 in dark, lagoon
+   against fan, unclassified ground and ridge. The same doc says it in
+   words -- "a wash may not be relied on for contrast" -- and answers itself
+   with an opaque hairline. So the wetland rule cannot cross to a shoreline
+   whose two sides are a value pair this close.
+   --scene-map-coast at full opacity DOES carry it: 3.24:1 on the lagoon in
+   light, 6.13 in dark, and 4.0-5.5 on every land class in both. Full opacity
+   is not a choice either -- 3.24 in light theme has no headroom to give away.
+   What is left free is WEIGHT, and weight is the oldest certainty convention
+   there is and one this sheet already runs on (see CONTOUR_INDEX_EVERY). The
+   reconstruction draws at 0.7 px against the surveyed modern coastline's
+   1.1 px solid, so the difference between the two lines is how heavily they
+   are asserted. The claim itself is in the cartouche, in words. */
+.pp-coast-approx{fill:none;stroke:var(--scene-map-coast);stroke-width:0.7;
+  stroke-linejoin:round}
 .pp-waterline{fill:none;stroke:var(--scene-map-coast);stroke-width:0.6;stroke-opacity:0.45}
 .pp-river{fill:var(--plate-river);stroke:none}
 .pp-hull{fill:var(--pp-hull);stroke:var(--pp-hull-edge);stroke-width:0.35;
@@ -1614,10 +1693,28 @@ CSS = """
    ground it stands on in both themes and read as one more contour. */
 .pp-rampart{fill:var(--plate-masonry);stroke:var(--text-mid);stroke-width:0.5;
   stroke-linejoin:round}
-.pp-ditch{fill:none;stroke:var(--text-mid);stroke-width:1.0;stroke-opacity:0.55;
-  stroke-dasharray:6 4}
-.pp-road{fill:none;stroke:var(--text-mid);stroke-width:1.2;stroke-opacity:0.55;
-  stroke-dasharray:9 5;stroke-linecap:round}
+/* The ditch and the road were dashed too, and neither dash was carrying what
+   the shore's was. Both are CONJECTURAL positions, and that claim is already
+   made in words on the plate ("the wall and ditch, and every waypoint of the
+   poem are conjectural — each placed by a stated rule, never at an invented
+   coordinate") and in the data, where every waypoint ships its
+   positionBasis. A dash cannot say "conjectural" twice, and it was saying it
+   in the one register the eye reads as texture. So both go solid and quiet:
+   a fine low-opacity line states the shape without claiming a survey, which
+   is the same trade the cartouche already makes. The road keeps its open
+   waypoint circles, which are what actually mark the places; the line
+   between them only says these lie in this order along the ground.
+   OPACITY GOES UP, NOT DOWN, and that is a defect fixed rather than a taste.
+   Both marks were at 0.55, which put --text-mid over the ground classes at
+   2.19-2.33:1 in light and 2.47-2.62:1 in dark -- under WCAG 1.4.11's 3:1 in
+   BOTH themes, and under it before this pass touched them. 3:1 needs 0.74 in
+   light and 0.68 in dark, so 0.75 clears both with a little to spare and
+   measures 3.06-3.40:1 light, 3.33-3.57:1 dark. The marks stay quiet by being
+   THIN (0.9 px, the road down from 1.2), which costs no contrast, instead of
+   by being faint, which costs nothing else. */
+.pp-ditch{fill:none;stroke:var(--text-mid);stroke-width:0.9;stroke-opacity:0.75}
+.pp-road{fill:none;stroke:var(--text-mid);stroke-width:0.9;stroke-opacity:0.75;
+  stroke-linecap:round}
 .pp-mark{fill:none;stroke:var(--text-mid);stroke-width:1.1}
 .pp-mark-f{fill:var(--text-mid);stroke:none}
 .pp-tumulus{fill:var(--pp-tumulus);fill-opacity:0.9;stroke:var(--text-mid);
@@ -1716,7 +1813,7 @@ class Plate:
                 wor[i][j] = (e, n)
                 lat = VIEWPOINT[0] + n / 111132.0
                 lon = VIEWPOINT[1] + e / (111320.0 * math.cos(math.radians(VIEWPOINT[0])))
-                el = terr.elev_smooth(lat, lon, max(35.0, rr * 0.006))
+                el = terr.elev_smooth(lat, lon, max(MESH_STENCIL_M, rr * 0.006))
                 p = cam.project(e, n, exaggerate(el))
                 grid[i][j] = None if p is None else (p[0], p[1], el, rr)
         self.grid = grid
@@ -2147,22 +2244,34 @@ class Plate:
             for _ in range(2):
                 gaps.append(d)
                 d *= 1.3
-            cx = sum(p[0] for p in lagoon) / len(lagoon)
-            cy = sum(p[1] for p in lagoon) / len(lagoon)
+            # WHICH WAY IS INTO THE WATER. It used to be "toward the polygon's
+            # centroid", and that is only the same question on a convex body.
+            # The bay is not convex: the Scamander's sand spit runs half a
+            # kilometre out into it, and along the spit's far flank the
+            # centroid lies ACROSS the land, so the offset walked the
+            # waterlines up onto the beach and drew three grey lines along the
+            # spit's spine. They were there all along and the dashed shore was
+            # covering them.
+            #
+            # The polygon's own WINDING answers it without reference to any
+            # point: the shoelace sign says which side the interior is on, and
+            # that is true locally everywhere, concavities included.
+            n = len(lagoon)
+            area2 = sum(lagoon[i][0] * lagoon[(i + 1) % n][1]
+                        - lagoon[(i + 1) % n][0] * lagoon[i][1]
+                        for i in range(n))
+            sgn = 1.0 if area2 > 0 else -1.0
             acc = 0.0
             for gap in gaps:
                 acc += gap
                 off = []
-                n = len(lagoon)
                 for i in range(n):
                     x0, y0 = lagoon[(i - 1) % n]
                     x1, y1 = lagoon[i]
                     x2, y2 = lagoon[(i + 1) % n]
                     tx, ty = x2 - x0, y2 - y0
                     L = math.hypot(tx, ty) or 1e-9
-                    nx, ny = -ty / L, tx / L
-                    if (nx * (cx - x1) + ny * (cy - y1)) < 0:
-                        nx, ny = -nx, -ny
+                    nx, ny = sgn * -ty / L, sgn * tx / L
                     off.append((x1 + nx * acc, y1 + ny * acc, tx / L, ty / L))
                 keep = []
                 for i in range(len(off)):
@@ -2201,15 +2310,51 @@ class Plate:
         lagoon = self.lay["lagoon-bronze"]["polygon"]
         sea = self.lay["sea-modern"]["polygon"]
 
+        def wet(p):
+            return (point_in_poly_ll(p[0], p[1], lagoon)
+                    or point_in_poly_ll(p[0], p[1], sea))
+
+        # ── A RIVER THAT STOPS SHORT OF THE WATER ────────────────────────
+        # The Scamander ran down the sand spit and ended in mid-ground, a
+        # blunt stub with beach on every side. The channel data was never the
+        # problem: apparatus/plates/trojan-plain.json's `scamander` path has
+        # 170 vertices and 43 of them lie INSIDE lagoon-bronze, so the survey
+        # line reaches the reconstructed bay and crosses it. What ended short
+        # was the DRAWING -- the run was cut at the last vertex outside the
+        # water, and this path carries a vertex every 122 m (625 m at worst),
+        # so the mouth was left up to a whole segment inland. Measured on the
+        # shipped frame: the Scamander's last drawn vertex sat 37 m from the
+        # lagoon boundary and the Simoeis's 40 m.
+        #
+        # So the run ends where the measured line CROSSES the reconstructed
+        # shore, found by bisection on the straddling segment. Nothing is
+        # invented: the route is the survey's own, and all that changes is
+        # where along it the ribbon stops. It stops AT the waterline and not
+        # past it, because water_svg paints before rivers_svg and a channel
+        # drawn over the bay is the register mixing the docstring forbids.
+        def waterline(dry, w, iters=20):
+            for _ in range(iters):
+                mid = ((dry[0] + w[0]) / 2.0, (dry[1] + w[1]) / 2.0)
+                if wet(mid):
+                    w = mid
+                else:
+                    dry = mid
+            return w
+
         def dry_runs(path):
-            runs, cur = [], []
-            for lat, lon in path:
-                if point_in_poly_ll(lat, lon, lagoon) or point_in_poly_ll(lat, lon, sea):
+            runs, cur, prev = [], [], None
+            for p in path:
+                p = (p[0], p[1])
+                if wet(p):
                     if len(cur) > 2:
+                        cur.append(waterline(cur[-1], p))
                         runs.append(cur)
                     cur = []
                 else:
-                    cur.append((lat, lon))
+                    if not cur and prev is not None and wet(prev):
+                        cur.append(waterline(p, prev))
+                    cur.append(p)
+                prev = p
             if len(cur) > 2:
                 runs.append(cur)
             return runs
@@ -2817,7 +2962,9 @@ def furniture(cam, terr, ship_depth, troy_depth):
         "measured. Ships, huts, the wall and ditch, and every waypoint of the poem are "
         "conjectural — each placed by a stated rule, never at an invented coordinate.",
         "The bay is the reconstructed Late Bronze Age embayment (Kraft, Kayan and Erol "
-        "1980; Kayan), its shore approximate and drawn dashed. DRAFT.",
+        "1980; Kayan). Its shore is approximate, and is drawn as a hairline against "
+        "the modern coastline's heavier survey line — a reconstruction asserted more "
+        "lightly, not a different kind of mark. DRAFT.",
     ):
         out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(ty)}">{esc(line)}</text>')
         ty += 15
@@ -3196,6 +3343,12 @@ def main():
     ap.add_argument("--sun-note", default=None,
                     help="the solar solution named in the cartouche; "
                          "REQUIRED whenever --shade-az/--shade-alt move")
+    ap.add_argument("--ring-max", type=float, default=RING_MAX_M,
+                    help="ground floor on ring spacing inside the plain "
+                         "sheet, in metres (see RING_MAX_M)")
+    ap.add_argument("--shade-smooth", type=int, default=SHADE_SMOOTH,
+                    help="box passes over the CONTINUOUS light field, in "
+                         "mesh cells (see SHADE_SMOOTH)")
     ap.add_argument("--shade-steps", type=int, default=SHADE_STEPS,
                     help="0 turns slope shading off")
     ap.add_argument("--shade-max", type=float, default=SHADE_MAX)
@@ -3226,6 +3379,7 @@ def main():
         CONTOUR_W=args.contour_w, CONTOUR_OP=args.contour_op,
         CONTOUR_INDEX_W=args.contour_index_w,
         CONTOUR_INDEX_OP=args.contour_index_op,
+        RING_MAX_M=args.ring_max, SHADE_SMOOTH=max(1, args.shade_smooth),
         SHADE_STEPS=max(0, args.shade_steps), SHADE_MAX=args.shade_max,
         LIT_MAX=args.lit_max, SHADE_MIN_AREA=args.shade_min_area,
         SHADOW=not args.no_shadow, OBJ_SHADOW=not args.no_obj_shadow,
@@ -3239,6 +3393,7 @@ def main():
               for e in (10, 25, 100, 300, 800, 1774)))
     print(f"sun az {LIGHT_AZ:g} alt {LIGHT_ALT:g} (shadow x{1.0 / max(1e-6, math.tan(math.radians(LIGHT_ALT))):.1f} "
           f"height), cast shadows {SHADOW}, object shadows {OBJ_SHADOW}")
+    print(f"ring floor {RING_MAX_M:g} m inside {RING_DETAIL_FAR:g} m")
     print(f"{SHADE_STEPS} steps, shade<={SHADE_MAX:g} lit<={LIT_MAX:g}, "
           f"{SHADE_SMOOTH} smoothing + {SHADE_MEDIAN} median passes; contours "
           + ("OFF" if CONTOURS == "none" else
