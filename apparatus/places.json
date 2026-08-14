@@ -654,6 +654,7 @@
         26.239
       ],
       "kind": "settlement",
+      "rank": 1,
       "maps": [
         "troad",
         "troad-plain",
@@ -823,6 +824,7 @@
         26.06
       ],
       "kind": "island",
+      "rank": 2,
       "maps": [
         "troad"
       ],
@@ -990,6 +992,7 @@
         26.17
       ],
       "kind": "settlement",
+      "rank": 2,
       "maps": [
         "troad"
       ],
@@ -1033,6 +1036,7 @@
       "certainty": "speculative",
       "tradition": "Troad, near Thebe under Placus; Barrington Atlas map 56 lists it unlocated",
       "kind": "settlement",
+      "rank": 3,
       "maps": [
         "troad"
       ],
@@ -1072,6 +1076,7 @@
       "certainty": "traditional",
       "tradition": "Near Adramyttium (modern Edremit), Troad, Strabo 13.1.61-65",
       "kind": "settlement",
+      "rank": 2,
       "maps": [
         "troad",
         "ships"
@@ -1125,6 +1130,7 @@
         27.082
       ],
       "kind": "settlement",
+      "rank": 3,
       "maps": [
         "troad",
         "ships"
@@ -1166,6 +1172,7 @@
       "certainty": "speculative",
       "tradition": "On the Satnioeis, following Strabo 13.1.50; site unrecovered",
       "kind": "settlement",
+      "rank": 3,
       "maps": [
         "troad"
       ],
@@ -1214,6 +1221,7 @@
         26.41
       ],
       "kind": "settlement",
+      "rank": 2,
       "maps": [
         "troad",
         "ships"
@@ -1249,6 +1257,7 @@
         26.4
       ],
       "kind": "settlement",
+      "rank": 2,
       "maps": [
         "troad",
         "ships"
@@ -1487,6 +1496,7 @@
         27.5961
       ],
       "kind": "settlement",
+      "rank": 3,
       "maps": [
         "troad",
         "ships"
@@ -6552,6 +6562,7 @@
         26.5888
       ],
       "kind": "settlement",
+      "rank": 3,
       "maps": [
         "ships",
         "troad"
@@ -6621,6 +6632,7 @@
         26.5358
       ],
       "kind": "settlement",
+      "rank": 3,
       "maps": [
         "ships",
         "troad"
@@ -8777,6 +8789,7 @@
         26.1926
       ],
       "kind": "settlement",
+      "rank": 3,
       "maps": [
         "troad-plain"
       ],
@@ -8859,6 +8872,7 @@
         26.1809
       ],
       "kind": "promontory",
+      "rank": 2,
       "maps": [
         "troad-plain"
       ],
@@ -8884,6 +8898,7 @@
         26.303
       ],
       "kind": "promontory",
+      "rank": 2,
       "maps": [
         "troad-plain"
       ],
@@ -8908,6 +8923,7 @@
         26.9361
       ],
       "kind": "settlement",
+      "rank": 3,
       "maps": [
         "troad"
       ],

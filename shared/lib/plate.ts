@@ -307,6 +307,26 @@ export interface PlatePlace {
   certainty?: Certainty;
   plateAnchors?: Record<string, [number, number]>;
   positionBasis?: 'conjectural';
+  /**
+   * The gazetteer's own fine-grained category (`settlement`, `river`,
+   * `mountain`, `island`, `strait`, `hill`, `plain`, ...) — see
+   * apparatus/places.json. Used only on a GEOGRAPHIC plate (see
+   * `placeLabelClass` below) to derive which of the five Landmark label
+   * classes — region / water / river / settlement / feature — a place
+   * prints as; a schematic plate ignores it entirely and keeps its existing
+   * pin+label treatment, unchanged. Optional and best-effort: a place with
+   * no `kind` (most of the gazetteer, as of this writing) defaults to
+   * `settlement`, which is exactly today's behaviour for every such place.
+   */
+  kind?: string;
+  /**
+   * Editorial settlement hierarchy — 1 (Troy), 2 (often met in the poem), 3
+   * (minor) — from docs/research/AUDIT-PLATE-LABELS.md's rank column. NOT a
+   * certainty claim (that is `certainty`); only changes a settlement
+   * label's type weight/size on a geographic plate. Undefined reads as
+   * rank 2, the ordinary case.
+   */
+  rank?: 1 | 2 | 3;
 }
 
 export interface PlateOptions {
@@ -353,6 +373,15 @@ export interface PlateResult {
   // this map?" deserves a yes, not an absence. Never pinned — this bucket
   // only ever holds places carried by geometry, not markers.
   drawnByLayer: PlatePlace[];
+  // Ids (place or layer) whose label was DROPPED rather than printed
+  // illegibly — only ever an id that opted into suppression via
+  // LabelRequest.priority (geographic settlement rank 3 / feature, see
+  // renderPlate), and only when its own best placement was still badly
+  // overlapped (see SUPPRESS_OVERLAP_FRACTION). Reported, not silent: this
+  // is the honesty mechanism item 7 asks for — a name that cannot be read is
+  // worse than an absent one, but the absence itself is never quiet. Always
+  // empty for a schematic plate, which suppresses nothing.
+  suppressedLabels: string[];
 }
 
 export interface Camera {
@@ -1403,6 +1432,121 @@ function pinBBox(x: number, y: number, r = 5.5): [number, number, number, number
   return [x - r, y - r * 2.7, x + r, y];
 }
 
+// ── Dot symbology (geographic plates only, 2026-08-10) ─────────────────────
+// The Landmark-style comp's approved replacement for the teardrop pin above,
+// which stays exactly as it was and stays in use on every SCHEMATIC plate
+// (the citadel, the shield, the Trojan-plain schematic sheet — see the
+// LabelRole/layerLabelRole comments for why the split is on plate.kind).
+// A dot has no tip to anchor a leader to the way a pin's point does, so its
+// box (see dotBBox) is centred on the coordinate, not tip-anchored — the
+// honest shape for a symbol that MEANS "this point," not "this point is at
+// my bottom corner."
+//
+// Certainty keeps the colour split the teardrop pins used (--accent for a
+// tier the gazetteer stands behind, --text-mid for one it does not) and adds
+// shape: solid disc / open disc / open square, plus a dashed open disc for
+// `mythical` (the audit's own note: "same visual family as traditional").
+// "Open" fills with --scene-map-label-halo rather than `none` — the same
+// non-transparency argument certaintyPinStyle's own comment makes: a hollow
+// marker over hachured relief must still read as ground covered by a symbol,
+// not as the terrain simply continuing through it.
+interface DotStyle {
+  shape: 'circle' | 'square';
+  fill: string;
+  stroke: string;
+  dasharray?: string;
+}
+
+function certaintyDotStyle(certainty: Certainty | undefined): DotStyle {
+  switch (certainty) {
+    case 'traditional':
+      return { shape: 'circle', fill: 'var(--scene-map-label-halo)', stroke: 'var(--accent)' };
+    case 'speculative':
+      return { shape: 'square', fill: 'var(--scene-map-label-halo)', stroke: 'var(--text-mid)' };
+    case 'mythical':
+      return { shape: 'circle', fill: 'var(--scene-map-label-halo)', stroke: 'var(--text-mid)', dasharray: '2 2' };
+    case 'certain':
+    default:
+      return { shape: 'circle', fill: 'var(--accent)', stroke: 'var(--accent)' };
+  }
+}
+
+const DOT_STROKE_WIDTH = 1;
+
+function dotSymbol(x: number, y: number, style: DotStyle, r: number): string {
+  const dash = style.dasharray ? ` stroke-dasharray="${style.dasharray}"` : '';
+  if (style.shape === 'square') {
+    const half = round1(r * 0.9); // a square at the dot's own radius reads oversized next to a circle of the same r
+    return (
+      `<rect x="${round1(x - half)}" y="${round1(y - half)}" width="${round1(half * 2)}" height="${round1(half * 2)}" ` +
+      `fill="${style.fill}" stroke="${style.stroke}" stroke-width="${DOT_STROKE_WIDTH}"${dash}/>`
+    );
+  }
+  return `<circle cx="${round1(x)}" cy="${round1(y)}" r="${round1(r)}" fill="${style.fill}" stroke="${style.stroke}" stroke-width="${DOT_STROKE_WIDTH}"${dash}/>`;
+}
+
+function dotMarkup(id: string, name: string, x: number, y: number, style: DotStyle, r: number): string {
+  return `<g data-place-id="${escapeXml(id)}"><title>${escapeXml(name)}</title>${dotSymbol(x, y, style, r)}</g>`;
+}
+
+function dotBBox(x: number, y: number, r: number): [number, number, number, number] {
+  return [x - r, y - r, x + r, y + r];
+}
+
+// Small — 2.5-4px at 1x (the brief's own range) — and ranked: a settlement's
+// dot grows with its rank the same way its label's weight does, so Troy
+// reads as the biggest mark on the sheet by BOTH registers, not just one.
+const SETTLEMENT_DOT_R: Record<1 | 2 | 3, number> = { 1: 4, 2: 3.2, 3: 2.6 };
+const FEATURE_DOT_R = 2.6;
+
+// ── Label class (geographic places only) ────────────────────────────────
+// Which of the five Landmark classes — region / water / river / settlement /
+// feature — a place prints as. Derived from the gazetteer's own fine-grained
+// `kind` (apparatus/places.json), which every place this renders already
+// carries (docs/research/AUDIT-PLATE-LABELS.md spot-checked all 73 places on
+// the two shipping sheets against it). A handful of ids read differently
+// than their raw `kind` in context — Sigeion/Rhoiteion are inhabited
+// headlands, not bare capes; Tenedos is a small island CITY, not a
+// landmass; Dardania is a territory the gazetteer happens to type
+// `settlement` — and those are the audit's own recommended overrides, not a
+// re-reading of `kind` itself. A place with no `kind` at all (most of the
+// gazetteer, as of this writing, and every synthetic test fixture) defaults
+// to `settlement` — exactly today's pin+bold-label treatment.
+const KIND_LABEL_CLASS: Record<string, LabelRole> = {
+  settlement: 'settlement',
+  river: 'river',
+  mountain: 'feature',
+  island: 'region',
+  strait: 'water',
+  hill: 'feature',
+  plain: 'region',
+  spring: 'feature',
+  region: 'region',
+  wall: 'feature',
+  gate: 'feature',
+  tower: 'feature',
+  tree: 'feature',
+  tomb: 'feature',
+  ford: 'feature',
+  harbour: 'water',
+  camp: 'region',
+  promontory: 'feature',
+};
+
+const LABEL_CLASS_OVERRIDE: Record<string, LabelRole> = {
+  dardania: 'region', // a territory name, not the city of Dardanos
+  sigeion: 'settlement', // inhabited headland city, not a bare cape
+  rhoiteion: 'settlement', // inhabited headland city, not a bare cape
+  tenedos: 'settlement', // a small island CITY (Landmark convention), unlike Lesbos/Imbros/Lemnos/Samothrace
+};
+
+function placeLabelClass(place: PlatePlace): LabelRole {
+  return LABEL_CLASS_OVERRIDE[place.id] ?? (place.kind ? KIND_LABEL_CLASS[place.kind] : undefined) ?? 'settlement';
+}
+
+/** Classes that never carry a marker on a geographic plate (item 3: "Regions, water and rivers get NO marker"). */
+const MARKERLESS_LABEL_CLASSES: ReadonlySet<LabelRole> = new Set<LabelRole>(['region', 'water', 'river']);
+
 // ── Lettering ────────────────────────────────────────────────────────────
 // A map with no names is not a map. This module emitted zero <text> elements
 // until 2026-07-28. The approach mirrors scenemap.ts's placeLabel + its
@@ -1422,7 +1566,14 @@ function pinBBox(x: number, y: number, r = 5.5): [number, number, number, number
 //     shipped far longer;
 //   - a conjectural position gets an italic name and a dashed leader.
 
-type LabelRole = 'region' | 'settlement' | 'water' | 'minor';
+// `river` and `feature` (2026-08-10, landmark-label lane) are ADDITIVE: the
+// four original roles keep their exact styling and every existing call site
+// (schematic plates, and any place/layer that never resolves to one of the
+// two new roles) is byte-for-byte unchanged. The two new roles are assigned
+// ONLY on a GEOGRAPHIC plate — see `layerLabelRole` and `placeLabelClass` —
+// so a schematic sheet (the citadel, the shield, the Trojan-plain schematic)
+// never emits them and never sees a pixel of difference from this lane.
+type LabelRole = 'region' | 'settlement' | 'water' | 'minor' | 'river' | 'feature';
 
 interface LabelStyle {
   size: number;
@@ -1444,6 +1595,33 @@ const LABEL_STYLES: Record<LabelRole, LabelStyle> = {
   settlement: { size: 13.5, weight: 600, italic: false, caps: false, tracking: 0, fill: 'var(--text)' },
   water: { size: 11.5, weight: 400, italic: true, caps: false, tracking: 0.04, fill: 'var(--text-mid)' },
   minor: { size: 9.5, weight: 400, italic: false, caps: false, tracking: 0.02, fill: 'var(--text-mid)' },
+  // Geographic-plate-only (see the LabelRole comment above). A river is
+  // running water, the same claim `water` makes, so it takes the same
+  // --plate-river ink (already 3:1-tested against every relief step) —
+  // but set mixed-case, not letterspaced caps, because it is read ALONG a
+  // line via textPath, not centred over an area: caps+tracking is the
+  // area convention (region, water), and a channel name in that register
+  // reads as a second bay, not a river.
+  river: { size: 11.5, weight: 400, italic: true, caps: false, tracking: 0, fill: 'var(--plate-river)' },
+  // A hill, tumulus, cape or spring is not a town: italic marks it as the
+  // "not built" register `water`/`river` already use, caps keeps it in the
+  // area-ish family (a feature is a spot on the ground, not an inhabited
+  // place), and it sits at the type floor — smaller and muted, so it never
+  // competes with a settlement pin's roman weight.
+  feature: { size: 9.5, weight: 400, italic: true, caps: true, tracking: 0.08, fill: 'var(--text-mid)' },
+};
+
+// Settlement rank (docs/research/AUDIT-PLATE-LABELS.md's rank column, thread
+// through PlatePlace.rank) overlays weight/size on the base `settlement`
+// style rather than replacing it — rank 2 (the ordinary case, and every
+// place with no rank set at all) is the base style, UNCHANGED. Weight leads
+// the hierarchy, per the dossier's own "rank by weight, not size" rule; size
+// moves too, but modestly, so Troy is unmistakably the heaviest mark on the
+// sheet without a region name outsizing every settlement under it.
+const SETTLEMENT_RANK_STYLE: Record<1 | 2 | 3, Partial<LabelStyle>> = {
+  1: { weight: 700, size: 16 },
+  2: {},
+  3: { weight: 500, size: 11.5 },
 };
 
 export type LabelAnchor = 'start' | 'middle' | 'end';
@@ -1604,6 +1782,13 @@ export function placeLabelCandidates(
   return results;
 }
 
+// A label eligible for suppression (LabelRequest.priority set) is dropped
+// once its own box is covered this much by already-placed labels — a third
+// or more of the name simply isn't there to read. Below this it keeps its
+// placement, exactly like every label that never opted into suppression at
+// all.
+const SUPPRESS_OVERLAP_FRACTION = 0.4;
+
 interface LabelRequest {
   id: string;
   text: string;
@@ -1622,6 +1807,22 @@ interface LabelRequest {
   path?: [number, number][];
   /** Stable element id for that path when it is emitted into <defs>. Required with `path`. */
   pathId?: string;
+  /** Overlays onto `LABEL_STYLES[role]` — currently only settlement rank (see SETTLEMENT_RANK_STYLE). Absent for every existing caller: zero behaviour change unless set. */
+  styleOverride?: Partial<LabelStyle>;
+  /**
+   * Opt-in suppression eligibility (item 7, 2026-08-10): a LOWER number is
+   * higher priority. Absent (every existing caller — schematic-plate places,
+   * every layer name) means what it always meant: this name is NEVER
+   * dropped, however crowded the sheet — the file's own long-standing
+   * anti-omission stance ("Silently deleting a place name... is exactly the
+   * class of quiet omission CLAUDE.md's honesty rule exists to prevent").
+   * Setting it makes a label ELIGIBLE to be dropped, and only when its own
+   * best candidate is still badly overlapped (see SUPPRESS_OVERLAP_FRACTION)
+   * — never merely for being present on a crowded sheet. A suppressed label
+   * is reported, not silently vanished: see `suppressed` in layoutLabels's
+   * return and `PlateResult.suppressedLabels`.
+   */
+  priority?: number;
 }
 
 function polylineLength(pts: [number, number][]): number {
@@ -1639,12 +1840,151 @@ export function orientPathForReading(pts: [number, number][]): [number, number][
   return dx < 0 ? [...pts].reverse() : pts;
 }
 
+// A stored river is an OSM polyline sampled every ~10-20m, which on a river
+// with a genuine tight meander can put a dozen vertices inside a single
+// glyph's width. Fine for the drawn LINE — a viewer's eye integrates
+// continuous curvature over a whole stroke — but ruinous for a name riding
+// it: `method="align"` rotates every glyph to the path's LOCAL tangent, and
+// that many almost-coincident vertices each contributing their own direction
+// makes the letters flutter and overlap (2026-08-10, LOOK gate: "Scamander"
+// scattered into "am / d / e / r" down the Trojan-plain sheet's river). Corner
+// rounding (smoothPathD) does not fix this — it rounds the SAME noisy corners,
+// it does not remove them. This drops any vertex closer than `minDist` to the
+// last one KEPT, which is the textPath guide's own business, never the
+// visible line's: the guide only has to carry a smoothly turning tangent
+// under a dozen or so letters, not survey the river.
+const TEXTPATH_GUIDE_MIN_SEGMENT = 10;
+
+function thinForTextPathGuide(points: [number, number][], minDist = TEXTPATH_GUIDE_MIN_SEGMENT): [number, number][] {
+  if (points.length <= 2) return points;
+  const out: [number, number][] = [points[0]];
+  for (let i = 1; i < points.length - 1; i++) {
+    const last = out[out.length - 1];
+    if (Math.hypot(points[i][0] - last[0], points[i][1] - last[1]) >= minDist) out.push(points[i]);
+  }
+  out.push(points[points.length - 1]);
+  return out;
+}
+
+function cumulativeLengths(points: [number, number][]): number[] {
+  const cum = [0];
+  for (let i = 0; i + 1 < points.length; i++) {
+    cum.push(cum[i] + Math.hypot(points[i + 1][0] - points[i][0], points[i + 1][1] - points[i][1]));
+  }
+  return cum;
+}
+
+function pointAtLength(points: [number, number][], cum: number[], len: number): [number, number] {
+  const total = cum[cum.length - 1];
+  const target = Math.max(0, Math.min(total, len));
+  for (let i = 0; i + 1 < points.length; i++) {
+    if (target <= cum[i + 1] || i === points.length - 2) {
+      const segLen = cum[i + 1] - cum[i];
+      const t = segLen > 0 ? (target - cum[i]) / segLen : 0;
+      return [points[i][0] + (points[i + 1][0] - points[i][0]) * t, points[i][1] + (points[i + 1][1] - points[i][1]) * t];
+    }
+  }
+  return points[points.length - 1];
+}
+
+// Where along a path a name reads most cleanly. Thinning the guide (above)
+// fixes vertex-level noise; it does nothing for genuine curvature at the
+// scale of the text itself — a river that bends through its own middle turns
+// "Scamander" set dead-centre into a scattered, overlapping S (2026-08-10,
+// LOOK gate). `method="align"` rotates every glyph to the LOCAL tangent, so
+// what actually matters is not the path's overall length (the existing
+// length check above) but how STRAIGHT the specific stretch under the text
+// is. Candidates are tried centre-out, closest to 50% first, so a genuinely
+// straight river keeps its name dead centre and only a bend gets nudged off
+// it — never further than it has to be. `straightness` is chord/arc over the
+// window the text would occupy; 1.0 is a straight line, lower means more bend.
+const PATH_LABEL_OFFSET_CANDIDATES = [0.5, 0.42, 0.58, 0.34, 0.66, 0.26, 0.74];
+const PATH_LABEL_STRAIGHT_ENOUGH = 0.97;
+
+function bestPathLabelOffset(points: [number, number][], textWidth: number): { frac: number; point: [number, number] } {
+  const cum = cumulativeLengths(points);
+  const total = cum[cum.length - 1];
+  const half = textWidth / 2;
+  let bestFrac = 0.5;
+  let bestPoint = pointAtLength(points, cum, total * 0.5);
+  let bestStraightness = -1;
+  for (const frac of PATH_LABEL_OFFSET_CANDIDATES) {
+    const centreLen = total * frac;
+    const lo = Math.max(0, centreLen - half);
+    const hi = Math.min(total, centreLen + half);
+    const arc = hi - lo;
+    const p0 = pointAtLength(points, cum, lo);
+    const p1 = pointAtLength(points, cum, hi);
+    const chord = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]);
+    const straightness = arc > 0 ? chord / arc : 0;
+    if (straightness > bestStraightness) {
+      bestFrac = frac;
+      bestPoint = pointAtLength(points, cum, centreLen);
+      bestStraightness = straightness;
+    }
+    if (straightness >= PATH_LABEL_STRAIGHT_ENOUGH) break;
+  }
+  return { frac: bestFrac, point: bestPoint };
+}
+
+// Knockout width for a label's halo — was 2.5px, an opaque stroke thick
+// enough to read as its own shape rather than as a gap cut around the
+// letterforms (2026-08-10, landmark-label lane, "kill the white halo").
+// 0.65px keeps just enough of a knockout to hold a label legible where it
+// crosses a coastline or a contour, tinted to --scene-map-label-halo (the
+// map's own background token, not a literal colour) exactly as before.
+// Kept as-is for SCHEMATIC plates, whose fills are flat tokens already
+// paired against the label inks — see RELIEF_HALO_* for why a geographic
+// sheet cannot live with it.
+const LABEL_HALO_WIDTH = 0.65;
+
+// Geographic plates only. On a schematic sheet a label sits on one flat
+// token fill, so the ink/fill pair can be measured once and holds. On a
+// geographic sheet it sits on the 12-step hypsometric relief ramp, and
+// there the fixed --text-mid-over---scene-map-label-halo pair the LABEL_STYLES
+// comment reasons about is simply not what a reader's eye compares: at
+// 0.65px the halo covers about a third of a CSS pixel outside the glyph, far
+// too little to BE the label's background, so the real surround is the ramp.
+// Measured on rendered pixels (scripts/measure-label-contrast.mjs,
+// 2026-08-14) that put 17 of 28 region/feature labels below the 4.5:1 AA
+// floor — MOUNT IDA at 2.50:1 and CALLICOLONE at 2.06:1 in dark theme, and
+// light no better (MOUNT IDA 4.10:1, THRACIAN SAMOS 4.18:1).
+//
+// No flat ink can fix it. The dark ramp's pale high steps sit at a relative
+// luminance (#86734B, L=0.178) where even PURE WHITE reaches only 4.60:1 and
+// pure black only 4.56:1 — the ceiling is below AA from both directions, so
+// retuning the ink (or adding a map-only ink token) trades one failing set of
+// steps for another. The label has to carry its own background instead.
+//
+// So the halo is restored to a width that actually covers the surround, and
+// the objection that retired the 2.5px version is answered on the other axis:
+// that halo was OPAQUE, and an opaque knockout is what reads as its own
+// shape. At 0.72 the stroke dims the terrain around the letterforms instead
+// of punching a hole in it — the contour hairlines and the ramp step still
+// show through it — which is the effect a halo is supposed to have.
+//
+// Exported so shared/__tests__/plate-map-contrast.test.ts asserts the
+// composite these actually produce against the real terrain tokens, rather
+// than re-typing the opacity into the test and guarding a number this file
+// no longer uses.
+export const RELIEF_HALO_WIDTH = 2.6;
+export const RELIEF_HALO_OPACITY = 0.72;
+
+/** Halo paint attributes for a label, per plate kind (see the constants above). */
+function haloAttrs(geographic: boolean): string {
+  const width = geographic ? RELIEF_HALO_WIDTH : LABEL_HALO_WIDTH;
+  const opacity = geographic ? ` stroke-opacity="${RELIEF_HALO_OPACITY}"` : '';
+  return `stroke="var(--scene-map-label-halo)" stroke-width="${width}"${opacity} stroke-linejoin="round"`;
+}
+
 function textPathElement(
   text: string,
   pathId: string,
   style: LabelStyle,
   role: LabelRole,
   id: string,
+  offsetPct: number,
+  geographic: boolean,
 ): string {
   const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
   // `data-label-for` names the place/layer id this text belongs to (2026-
@@ -1658,9 +1998,12 @@ function textPathElement(
     `<text class="plate-label plate-label-${role} plate-label-along" data-label-for="${escapeXml(id)}" ` +
     `font-family="var(--font-ui)" font-size="${style.size}" font-weight="${style.weight}"` +
     `${style.italic ? ' font-style="italic"' : ''}${tracking} fill="${style.fill}" ` +
-    `paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="2.5" ` +
-    `stroke-linejoin="round" dy="-3.5" style="font-variant-ligatures:none">` +
-    `<textPath href="#${pathId}" startOffset="50%" text-anchor="middle" method="align" spacing="exact">` +
+    `paint-order="stroke" ${haloAttrs(geographic)} ` +
+    `dy="-3.5" style="font-variant-ligatures:none">` +
+    // startOffset is normally the run's own straightest window (see
+    // bestPathLabelOffset), NOT always dead centre — see that function's
+    // comment for why 50% can print a name through a bend.
+    `<textPath href="#${pathId}" startOffset="${round1(offsetPct)}%" text-anchor="middle" method="align" spacing="exact">` +
     `${escapeXml(labelText(text, style))}</textPath></text>`
   );
 }
@@ -1672,6 +2015,7 @@ function labelElement(
   role: LabelRole,
   forceItalic: boolean,
   id: string,
+  geographic: boolean,
 ): string {
   const italic = style.italic || forceItalic;
   const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
@@ -1679,8 +2023,8 @@ function labelElement(
     `<text class="plate-label plate-label-${role}" data-label-for="${escapeXml(id)}" x="${round1(c.x)}" y="${round1(c.y)}" ` +
     `text-anchor="${c.anchor}" font-family="var(--font-ui)" font-size="${style.size}" ` +
     `font-weight="${style.weight}"${italic ? ' font-style="italic"' : ''}${tracking} ` +
-    `fill="${style.fill}" paint-order="stroke" stroke="var(--scene-map-label-halo)" ` +
-    `stroke-width="2.5" stroke-linejoin="round">${escapeXml(labelText(text, style))}</text>`
+    `fill="${style.fill}" paint-order="stroke" ${haloAttrs(geographic)}` +
+    `>${escapeXml(labelText(text, style))}</text>`
   );
 }
 
@@ -1726,12 +2070,41 @@ function layoutLabels(
   height: number,
   margin: number,
   markerBoxes: LabelBox[],
-): { markup: string; defs: string; placedBoxes: Box[] } {
+  // Selects the halo weight the lettering needs: a geographic sheet letters
+  // over the hypsometric relief ramp and needs a halo wide enough to be the
+  // label's background, a schematic one does not. See RELIEF_HALO_WIDTH.
+  geographic: boolean,
+  // Geographic plates only (2026-08-10, LOOK-gate catch): a river's textPath
+  // GUIDE — the invisible <path> a name rides along — used to be drawn from
+  // the RAW stored polyline (`pathD`), while the river's own visible line
+  // draws from the smoothed one (smoothPathD, see renderLayer's `lineD`).
+  // A geographic river is an OSM polyline sampled every ~100m, noisy enough
+  // at that resolution that the raw guide zigzags under a name set along it
+  // — every glyph rotates to the local raw tangent (`method="align"`), and
+  // the name reads as scattered, rotated fragments instead of a smooth
+  // italic running along the visible curve beside it. Only surfaced once a
+  // river actually GOT a textPath label rather than being pinned as a
+  // settlement (see the settlement-role fix in renderPlate) — nothing on a
+  // schematic plate is affected; its guide stays the raw polyline exactly as
+  // before, matching every other schematic drawing convention in this file.
+  smoothSize?: [number, number],
+): { markup: string; defs: string; placedBoxes: Box[]; suppressed: string[] } {
   const placed: Box[] = [];
   const parts: string[] = [];
   const defs: string[] = [];
+  const suppressed: string[] = [];
   const byId = (a: LabelRequest, b: LabelRequest) => a.id.localeCompare(b.id);
-  const ordered = [...requests.filter((r) => r.centred).sort(byId), ...requests.filter((r) => !r.centred).sort(byId)];
+  // Priority (see LabelRequest.priority) orders the non-centred group too, so
+  // a high-priority name claims a clean candidate before a low-priority one
+  // is even tried — the low-priority request is then the one left holding a
+  // bad placement, which is exactly what makes it eligible for suppression
+  // below. Every existing caller leaves `priority` unset on every request,
+  // so `priorityRank` ties uniformly and this sort is byId, same as before.
+  const priorityRank = (r: LabelRequest) => r.priority ?? -Infinity;
+  const ordered = [
+    ...requests.filter((r) => r.centred).sort(byId),
+    ...requests.filter((r) => !r.centred).sort((a, b) => priorityRank(a) - priorityRank(b) || byId(a, b)),
+  ];
   // One name, one place on the sheet. A layer and a pin can resolve to the
   // same gazetteer place (the shore layer named `bay-of-troy` and a pin for
   // the bay), and lettering it twice reads as two features.
@@ -1742,7 +2115,7 @@ function layoutLabels(
     const dedupeKey = req.text.trim().toLocaleLowerCase();
     if (lettered.has(dedupeKey)) continue;
     lettered.add(dedupeKey);
-    const style = LABEL_STYLES[req.role];
+    const style = req.styleOverride ? { ...LABEL_STYLES[req.role], ...req.styleOverride } : LABEL_STYLES[req.role];
     const textWidth = estimateLabelWidth(labelText(req.text, style), style);
 
     // A linear feature is named along its own run whenever the run is long
@@ -1750,15 +2123,20 @@ function layoutLabels(
     // below rather than being squeezed onto a stub.
     if (req.path && req.pathId && req.path.length >= 2 && polylineLength(req.path) > textWidth * 1.15) {
       const oriented = orientPathForReading(req.path);
-      // Reserve only the stretch the name actually occupies — the middle of
-      // the run, where startOffset="50%" puts it — not the whole polyline's
-      // bounding box, which for a river crossing the sheet would push every
-      // other name out of half the map.
-      const mid = oriented[Math.floor(oriented.length / 2)];
+      // Reserve only the stretch the name actually occupies — its own
+      // straightest window near the centre (see bestPathLabelOffset), not
+      // the whole polyline's bounding box, which for a river crossing the
+      // sheet would push every other name out of half the map.
+      const { frac, point: mid } = bestPathLabelOffset(oriented, textWidth);
       const box: Box = [mid[0] - textWidth / 2, mid[1] - style.size, mid[0] + textWidth / 2, mid[1] + style.size * 0.3];
       if (!placed.some((p) => boxesOverlap(p, box))) {
-        defs.push(`<path id="${req.pathId}" d="${pathD(oriented, false)}" fill="none" stroke="none"/>`);
-        parts.push(textPathElement(req.text, req.pathId, style, req.role, req.id));
+        // Thinned for the guide only (see thinForTextPathGuide) — `oriented`
+        // itself, used above for the reserved box and for reading direction,
+        // is untouched.
+        const guidePts = smoothSize ? thinForTextPathGuide(oriented) : oriented;
+        const guideD = smoothSize ? smoothPathD(guidePts, false, smoothSize) : pathD(guidePts, false);
+        defs.push(`<path id="${req.pathId}" d="${guideD}" fill="none" stroke="none"/>`);
+        parts.push(textPathElement(req.text, req.pathId, style, req.role, req.id, frac * 100, geographic));
         placed.push(box);
         continue;
       }
@@ -1805,13 +2183,28 @@ function layoutLabels(
       }
     }
 
+    // Suppression (item 7): only for a request that opted in via `priority`
+    // (every existing caller leaves it unset — unconditionally kept, as
+    // before), and only when the placement THIS FUNCTION ACTUALLY FOUND is
+    // still badly overlapped — never merely for sharing a busy sheet with
+    // other names. `id` goes to `suppressed` so the caller can report it;
+    // nothing about it is silent.
+    if (!req.centred && req.priority !== undefined) {
+      const boxArea = Math.max(1e-6, (box[2] - box[0]) * (box[3] - box[1]));
+      const overlapFrac = placed.reduce((sum, p) => sum + overlapArea(box, p), 0) / boxArea;
+      if (overlapFrac > SUPPRESS_OVERLAP_FRACTION) {
+        suppressed.push(req.id);
+        continue;
+      }
+    }
+
     if (!req.centred && (req.conjectural || detached)) {
       parts.push(leaderElement(req.anchorBox, box, !!req.conjectural));
     }
-    parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id));
+    parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic));
     placed.push(box);
   }
-  return { markup: parts.join(''), defs: defs.join(''), placedBoxes: placed };
+  return { markup: parts.join(''), defs: defs.join(''), placedBoxes: placed, suppressed };
 }
 
 // ── Legend ───────────────────────────────────────────────────────────────
@@ -2016,6 +2409,26 @@ function certaintyLegendEntry(certainty: Certainty): LegendEntry {
   };
 }
 
+// The dot-symbology counterpart, geographic plates only — same row text and
+// dedupe key as certaintyLegendEntry (the two are never emitted for the same
+// render, so there is no collision), swatched with the dot the sheet itself
+// draws rather than the teardrop pin.
+const LEGEND_DOT_R = 4;
+
+function legendDot(x: number, y: number, style: DotStyle): string {
+  return dotSymbol(x + LEGEND_SWATCH_W / 2, y, style, LEGEND_DOT_R);
+}
+
+function certaintyDotLegendEntry(certainty: Certainty): LegendEntry {
+  const style = certaintyDotStyle(certainty);
+  return {
+    key: `certainty-${certainty}`,
+    rank: 40 + ['certain', 'traditional', 'speculative', 'mythical'].indexOf(certainty),
+    text: CERTAINTY_LEGEND_TEXT[certainty],
+    swatch: (x, y) => legendDot(x, y, style),
+  };
+}
+
 // The four corners a legend panel could sit in, nearest-to-farthest from the
 // sheet's own bottom-right reading convention — a tie (nothing to avoid
 // anywhere) keeps the original bottom-right placement.
@@ -2214,6 +2627,25 @@ export interface ScaleBarOptions {
    * bar is the geographic stades-over-kilometres pair computed from `viewport`.
    */
   pxPerMetre?: number;
+}
+
+// The geographic scale bar's own on-sheet box, mirroring the panel rect
+// `scaleBarMarkup` actually draws (see scalePanelRect there) — so the
+// legend's own corner-avoidance (legendMarkup's `avoidBoxes`) can steer clear
+// of it too. A gap the 2026-07-30 occlusion fix never closed: the scale bar
+// was never in that list, invisible only because the "least-occluded corner"
+// score happened to keep landing on bottom-right anyway. Sized for the
+// widest the panel can ever draw (`niceLength`'s own `maxPx` cap) rather than
+// the actual computed bar width, which is cheap here and never wrong in the
+// dangerous direction — it can only push the legend a few px further from a
+// corner it did not strictly need to avoid.
+function scaleBarBox(width: number, height: number): Box {
+  const maxBarPx = Math.min(width * 0.34, 240);
+  const x0 = SCALE_X0;
+  const top = scalePanelTop(height);
+  const w = maxBarPx + 46;
+  const h = SCALE_BAR_H * 2 + SCALE_FONT * 2 + 16;
+  return [x0 - 6, top, x0 - 6 + w, top + h];
 }
 
 export function scaleBarMarkup(
@@ -2696,6 +3128,18 @@ const LAYER_LABEL_ROLE: Record<LayerKind, LabelRole> = {
   band: 'region',
   tumulus: 'minor',
 };
+
+// A river layer's role on a GEOGRAPHIC plate only (2026-08-10, landmark-label
+// lane): `river`, not `water` — set along the channel in mixed case, not
+// letterspaced caps over an area (see the `river` LABEL_STYLES entry). Every
+// other layer kind, and a river layer on a SCHEMATIC plate, keeps exactly
+// LAYER_LABEL_ROLE's existing mapping — the citadel plate, the shield and the
+// Trojan-plain schematic sheet author no `river` layers as of this writing,
+// but the gate is on plate kind, not on absence, so a future one stays safe.
+function layerLabelRole(kind: LayerKind, plateKind: PlateKind): LabelRole {
+  if (plateKind === 'geographic' && kind === 'river') return 'river';
+  return LAYER_LABEL_ROLE[kind];
+}
 
 // An area name is set at the shape's own centre; a linear feature's name is
 // set beside the middle of its run, not beside the centre of its bounding box
@@ -3516,7 +3960,7 @@ function renderLayer(
     // the `region` role is 15.5px letterspaced caps, the register PERGAMOS is
     // set in, and "House of Priam" set that way would be both grander than the
     // claim and wider than the summit.
-    labelRole: layer.style === 'poem' ? 'settlement' : LAYER_LABEL_ROLE[layer.kind],
+    labelRole: layer.style === 'poem' ? 'settlement' : layerLabelRole(layer.kind, plate.kind),
     labelPath: isArea ? undefined : linearRun(plate, layer, viewport),
     submerged,
   };
@@ -3640,6 +4084,68 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       continue;
     }
     located.push(place);
+
+    if (plate.kind === 'geographic') {
+      // Five Landmark classes, not one flat "settlement" for every located
+      // place (the bug docs/research/AUDIT-PLATE-LABELS.md's §2.1 names: a
+      // river or bay with a coordinate used to get a teardrop and lose its
+      // own along-channel/area name to it). `region`/`water`/`river` never
+      // get a marker at all (item 3); when the SAME place is also carried by
+      // a rendered layer (a river's own channel, a bay's own polygon), it is
+      // fully silent here and the layer's own fallback-name lookup below
+      // (keyed off `labeledPointIds`) picks up its gazetteer name instead —
+      // one name, one source, never a duplicate. When no layer carries it
+      // (Hellespont, Thymbra, Dardania, Lesbos — a coordinate but no drawn
+      // geometry of its own on this sheet), it still prints, in its class's
+      // own register, just with no dot.
+      const cls = placeLabelClass(place);
+      if (MARKERLESS_LABEL_CLASSES.has(cls)) {
+        if (!layerPlaceIds.has(place.id)) {
+          pinLabelRequests.push({
+            id: place.id,
+            text: mapLabelText(place.name),
+            role: cls,
+            anchorBox: [x, y, x, y],
+          });
+        }
+        continue;
+      }
+      // settlement or feature: the two classes that DO carry a small dot
+      // (item 3 — solid/open/open-square by certainty tier, 2.5-4px at 1x)
+      // — EXCEPT a mountain (AUDIT-PLATE-LABELS.md item 2, 2026-08-13): an
+      // orographic mass has no point to mark, unlike a cape or hill's actual
+      // summit-as-landmark reading, so it keeps the feature register's
+      // italic caps label but never earns the settlement/cape dot. The
+      // label's anchor box still reserves the same footprint a dot would
+      // have, so its placement is byte-for-byte what it was before.
+      const dotStyle = certaintyDotStyle(place.certainty);
+      const r = cls === 'settlement' ? SETTLEMENT_DOT_R[place.rank ?? 2] : FEATURE_DOT_R;
+      const showDot = place.kind !== 'mountain';
+      if (showDot) {
+        pinMarkupParts.push(dotMarkup(place.id, place.name, x, y, dotStyle, r));
+        features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: dotBBox(x, y, r) });
+      }
+      pinLabelRequests.push({
+        id: place.id,
+        text: mapLabelText(place.name),
+        role: cls,
+        anchorBox: dotBBox(x, y, r),
+        styleOverride: cls === 'settlement' ? SETTLEMENT_RANK_STYLE[place.rank ?? 2] : undefined,
+        // Item 7's label budget: only the two least load-bearing prints on a
+        // geographic sheet — a rank-3 settlement (the minor headlands and
+        // allied towns) and a feature (a hill, tumulus, cape) — are eligible
+        // to drop if their best placement is still badly overlapped. Troy,
+        // every rank-1/2 settlement, and every region/water/river name is
+        // never eligible (`priority` left unset), matching this file's own
+        // long-standing "never silently omit" stance for anything load-
+        // bearing enough to matter at a glance.
+        priority: cls === 'settlement' ? (place.rank === 3 ? 1 : undefined) : cls === 'feature' ? 1 : undefined,
+      });
+      if (showDot) legendEntries.push(certaintyDotLegendEntry(place.certainty ?? 'certain'));
+      continue;
+    }
+
+    // ── Schematic plate: unchanged (teardrop pin, always role 'settlement') ──
     const style = certaintyPinStyle(place.certainty);
     // Any place resolved on a schematic plate got there via plateAnchors +
     // positionBasis: "conjectural" (see resolvePlacePosition) — there is no
@@ -3668,11 +4174,15 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
 
   // A layer's own name: its explicit `label` if it has one, else the
   // gazetteer name of its `placeId` — and that fallback only when the place
-  // is NOT pinned here, so a feature is never lettered twice.
-  const pinnedIds = new Set(located.map((p) => p.id));
+  // has not already been given a point label above, so a feature is never
+  // lettered twice. Sourced from the point-label requests actually built,
+  // not from `located`: a geographic place in a markerless class that IS
+  // carried by a layer never enters `pinLabelRequests` (see the loop above),
+  // which is exactly what lets that layer's own fallback name fire instead.
+  const labeledPointIds = new Set(pinLabelRequests.map((r) => r.id));
   const layerLabelRequests: LabelRequest[] = [];
   for (const { layer, rendered } of layerLabelCandidates) {
-    const gazName = layer.placeId && !pinnedIds.has(layer.placeId) ? placeById.get(layer.placeId)?.name : undefined;
+    const gazName = layer.placeId && !labeledPointIds.has(layer.placeId) ? placeById.get(layer.placeId)?.name : undefined;
     const fallback = gazName ? mapLabelText(gazName) : undefined;
     const text = layer.label ?? fallback;
     if (!text) continue;
@@ -3707,6 +4217,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       ...pinLabelRequests.map((request) => request.anchorBox),
       ...(plate.north ? [northArrowBox(plate.north)] : []),
     ],
+    plate.kind === 'geographic',
+    plate.kind === 'geographic' ? plate.size : undefined,
   );
 
   // Finding 8 (2026-07-28): idPrefix is caller-supplied and lands directly
@@ -3737,6 +4249,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       ...pinLabelRequests.map((request) => request.anchorBox),
       ...labels.placedBoxes,
       ...(plate.north ? [northArrowBox(plate.north)] : []),
+      // Geographic only (see scaleBarBox): the metre-bar schematic path is
+      // untouched, out of this lane's scope.
+      ...(plate.kind === 'geographic' ? [scaleBarBox(width, height)] : []),
     ]) +
     `</g>` +
     // Frame, bar scale and north arrow sit OUTSIDE the clip: their strokes run
@@ -3756,7 +4271,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     neatlineMarkup(width, height) +
     `</svg>`;
 
-  return { svg, viewport, features, unlocated, offCanvas, drawnByLayer };
+  return { svg, viewport, features, unlocated, offCanvas, drawnByLayer, suppressedLabels: labels.suppressed };
 }
 
 // ── Camera ───────────────────────────────────────────────────────────────
