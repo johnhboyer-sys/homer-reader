@@ -5,6 +5,11 @@
   "status": "draft",
   "seed": 180478,
   "size": [960, 760],
+  "sources": [
+    {
+      "cite": "Homer. Iliad 18.478–608. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25."
+    }
+  ],
   "bands": [
     {
       "id": "cosmos",
