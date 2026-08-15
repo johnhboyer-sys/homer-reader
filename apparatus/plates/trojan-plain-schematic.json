@@ -1130,6 +1130,131 @@
       ]
     },
     {
+      "id": "station-of-agamemnon",
+      "kind": "region",
+      "fill": "none",
+      "placeId": "hut-of-agamemnon",
+      "polygon": [
+        [
+          0.533,
+          0.763
+        ],
+        [
+          0.567,
+          0.763
+        ],
+        [
+          0.567,
+          0.817
+        ],
+        [
+          0.533,
+          0.817
+        ]
+      ],
+      "note": "The command hut. Zeus sends the destructive Dream ‘to the hut of Agamemnon son of Atreus’ (Il. 2.9); the embassy sets out from it (9.178) and reports its failure back there (9.669). Placement, not testimony: the poem sets Agamemnon among the middle ships with Odysseus and Nestor and never gives his berth a bearing."
+    },
+    {
+      "id": "station-of-nestor",
+      "kind": "region",
+      "fill": "none",
+      "placeId": "hut-of-nestor",
+      "polygon": [
+        [
+          0.563,
+          0.763
+        ],
+        [
+          0.597,
+          0.763
+        ],
+        [
+          0.597,
+          0.817
+        ],
+        [
+          0.563,
+          0.817
+        ]
+      ],
+      "note": "Nestor's ship and hut. The council of elders that hears the Dream meets ‘beside the ship of the Pylos-born king’ (Il. 2.53-54, Νεστορέῃ παρὰ νηῒ Πυλοιγενέος βασιλῆος); he brings the wounded Machaon here (11.618-43). Placement, not testimony."
+    },
+    {
+      "id": "thracian-camp",
+      "kind": "region",
+      "fill": "none",
+      "placeId": "thracian-camp",
+      "polygon": [
+        [
+          0.69,
+          0.388
+        ],
+        [
+          0.78,
+          0.388
+        ],
+        [
+          0.78,
+          0.452
+        ],
+        [
+          0.69,
+          0.452
+        ]
+      ],
+      "note": "Rhesus and the Thracians, newest come and posted apart from the rest — ‘outermost of all’, ἔσχατοι ἄλλων (Il. 10.434) — which is the position Dolon gives away under interrogation (10.433-41) and what makes the night raid possible (10.469-514). The poem states the RELATION, not the ground: outermost is drawn as outermost."
+    },
+    {
+      "id": "trojan-camp",
+      "kind": "region",
+      "fill": "none",
+      "placeId": "trojan-camp",
+      "polygon": [
+        [
+          0.47,
+          0.592
+        ],
+        [
+          0.62,
+          0.592
+        ],
+        [
+          0.62,
+          0.664
+        ],
+        [
+          0.47,
+          0.664
+        ]
+      ],
+      "note": "The Trojans' one recorded night in the open. Flushed with the day, Hector keeps them on the plain instead of withdrawing into the city, ‘between the ships and the streams of the Xanthus’ (Il. 8.560) — the poem's own bearing, and the only one it gives — with a thousand fires burning and fifty men at each (8.562-63)."
+    },
+    {
+      "id": "scamander-simoeis-confluence",
+      "kind": "region",
+      "fill": "none",
+      "placeId": "scamander-simoeis-confluence",
+      "polygon": [
+        [
+          0.448,
+          0.312
+        ],
+        [
+          0.492,
+          0.312
+        ],
+        [
+          0.492,
+          0.348
+        ],
+        [
+          0.448,
+          0.348
+        ]
+      ],
+      "note": "‘Where the Simoeis and Scamander join their streams’ (Il. 5.774) — Hera unyokes her horses there and Simoeis makes ambrosia grow for them. Drawn because the poem names it as a place; drawn WITHOUT a bearing because the poem will not settle where it is, and Leaf excised 5.774 as an interpolation on exactly that ground."
+    },
+    {
       "id": "scaean-gate",
       "kind": "region",
       "placeId": "scaean-gate",
@@ -1331,7 +1456,13 @@
           0.834
         ]
       ],
-      "note": "The Achaeans mark a circle round the pyre, lay the foundation and heap the earth over it — χεύαν δὲ σῆμα (Il. 23.255-57). Modest by Achilles's own order, to be made broad and high later by whoever outlives him (23.245-48); that greater barrow, shared with his own bones, is the Odyssey's (24.80-84) and is raised nowhere in this poem."
+      "note": "One ground, three names, because that is what the poem gives. The wood is piled ‘on the headland, where Achilles had marked out a great mound for Patroclus and for himself’ (23.125–26); the barrow is heaped over the quenched pyre, χεύαν δὲ σῆμα (23.255–57); and the games ring is marked out αὐτοῦ, right there, immediately after (23.257–58). The pyre and the barrow are distinct THINGS — a fire and what is left when it is out — and the sheet names both, but it does not claim they stand apart, because the poem says they do not. Modest by Achilles’s own order, to be made broad and high later by whoever outlives him (23.245–48); that greater barrow, shared with his own bones, is the Odyssey’s (24.80–84) and is raised nowhere in this poem.",
+      "claims": [
+        "tomb-of-achilles-and-patroclus",
+        "pyre-of-patroclus",
+        "funeral-games-ground"
+      ],
+      "label": "Patroclus: pyre, barrow, games"
     },
     {
       "id": "inset-panel",

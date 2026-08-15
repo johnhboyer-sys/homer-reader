@@ -190,6 +190,20 @@ export interface PlateLayer {
   kind: LayerKind;
   placeId?: string;
   /**
+   * Other places this one feature IS, for when the poem gives one ground
+   * several names. Patroclus's pyre, his barrow and the games ring are the
+   * case that forced it: 23.125-26 piles the wood where the mound is already
+   * marked out, 23.255-57 heaps the barrow over the quenched pyre, and
+   * 23.257-58 marks the games ring out αὐτοῦ — right there. They are
+   * distinct THINGS, and the sheet names them, but they do not stand apart.
+   *
+   * A claimed place KEEPS its anchor, so a scene that turns on the pyre still
+   * frames the right ground; but it is reported as `drawnByLayer` and draws
+   * no second pin, because a pin would assert a separate site, which is what
+   * the poem denies. The feature is lettered once, from this layer's `label`.
+   */
+  claims?: string[];
+  /**
    * The name to letter onto the sheet for this feature. Optional: when it is
    * absent the renderer falls back to the gazetteer name of `placeId`, and
    * only when that place is not itself pinned on this plate (a feature is
@@ -539,6 +553,9 @@ function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, numb
     id: l.id,
     kind: l.kind as LayerKind,
     placeId: typeof l.placeId === 'string' ? l.placeId : undefined,
+    claims: Array.isArray(l.claims)
+      ? l.claims.filter((c: unknown): c is string => typeof c === 'string' && !!c.trim())
+      : undefined,
     label: typeof l.label === 'string' && l.label.trim() ? l.label : undefined,
     legend: typeof l.legend === 'string' && l.legend.trim() ? l.legend : undefined,
     note: typeof l.note === 'string' ? l.note : undefined,
@@ -4422,6 +4439,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // this can never claim a place is "drawn" when its only layer silently
   // dropped out.
   const layerPlaceIds = new Set<string>();
+  // Places a layer draws AS ITSELF (PlateLayer.claims): they keep their
+  // anchor, so scenes still frame them, but they must not pin a second time.
+  const claimedByLayer = new Set<string>();
   // Layers that could be lettered, paired with where their name would sit.
   // Resolved AFTER the pin pass, because a feature is lettered once: a layer
   // whose `placeId` is also pinned on this sheet takes its name from the pin.
@@ -4456,6 +4476,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     }
     features.push(rendered.feature);
     if (layer.placeId) layerPlaceIds.add(layer.placeId);
+    // One ground, several names — see PlateLayer.claims. Claimed places are
+    // drawn by this feature, so they must not also pin.
+    for (const id of layer.claims ?? []) { layerPlaceIds.add(id); claimedByLayer.add(id); }
     // An inset panel letters its own head at a fixed position inside its
     // frame (see insetMarkup) and is furniture the sheet's own lettering must
     // keep OFF, not lettering the solver may move.
@@ -4502,6 +4525,13 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   const pinMarkupParts: string[] = [];
   const pinLabelRequests: LabelRequest[] = [];
   for (const place of places) {
+    // A place a layer claims IS that feature, however well anchored it is:
+    // pinning it again would draw a second site on ground the poem gives as
+    // one (see PlateLayer.claims). It keeps its anchor for scene framing.
+    if (claimedByLayer.has(place.id)) {
+      drawnByLayer.push(place);
+      continue;
+    }
     const pos = resolvePlacePosition(plate, place, viewport);
     if (!pos) {
       // A place with no defensible pin position may still be visibly drawn

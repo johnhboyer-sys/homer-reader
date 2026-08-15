@@ -9470,7 +9470,14 @@
         {
           "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
         }
-      ]
+      ],
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.786,
+          0.834
+        ]
+      },
+      "positionBasis": "conjectural"
     },
     {
       "id": "funeral-games-ground",
@@ -9505,7 +9512,14 @@
         {
           "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
         }
-      ]
+      ],
+      "plateAnchors": {
+        "trojan-plain-schematic": [
+          0.786,
+          0.834
+        ]
+      },
+      "positionBasis": "conjectural"
     }
   ]
 }
