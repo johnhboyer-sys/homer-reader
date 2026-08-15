@@ -933,22 +933,153 @@ def test_vegetation_throws_a_true_shadow_like_every_built_thing(s3):
         assert "built_h(" in body, f"{fn} does not stand on the exaggerated ground"
 
 
-def test_the_crowd_gains_members_at_the_zoom_tiers_it_does_not_scale(s3):
-    """The zoom finding: a mark-based texture only survives magnification if
-    it is REGENERATED per tier. Both crowds put a subset in the overview and
-    the rest behind tm2, so zooming in finds more trees among the ones already
-    there rather than the same trees drawn bigger."""
+def test_the_overview_draws_a_mass_and_the_zoom_draws_its_members(s3):
+    """THIS TEST REPLACES ONE THAT PINNED THE DEFECT, and the replacement is
+    the point. The old claim was that the overview carries a SUBSET of the
+    crowd and the zoom tiers the rest -- fewer marks of the same kind. That is
+    still a crowd, and at 800 m up with Ilios 7 km out a crowd is the whole
+    problem: an 8 m canopy is under a pixel there, so anything a reader can
+    COUNT at 1x is drawing something that cannot be seen ("those look like
+    individual trees"; "it looks like stubble on a man's chin" -- John,
+    2026-08-14).
+
+    So the two tiers now carry DIFFERENT MARKS, which is what "regenerate, do
+    not scale" was always trying to say. The overview gets a mass -- one lobed
+    ribbon for the fringe, merged scalloped patches for the cover -- and the
+    zoom tier gets the clumps and the tufts that mass stands for. Nothing is
+    the same mark at two sizes."""
     src = open(STAGE3).read()
     veg = src.split("def vegetation_svg", 1)[1].split("def camp", 1)[0]
     assert "marks_t1" in veg and "marks_t3" in veg
-    assert '"tm2"' in veg, "the extra crowd is never gated to a zoom tier"
-    assert s3.SCRUB_PX2 > s3.SCRUB_PX2_ZOOM, (
-        "the zoom tiers must be denser in screen area, not larger in mark")
-    # deterministic: the same seed gives the same jitter, so tier 3 contains
-    # tier 1 instead of being a different wood
+    # the members are gated to the zoom tier ...
+    assert '"tm3"' in veg, "the crowd is never gated to a zoom tier"
+    # ... and the overview's own marks step aside there
+    assert '"t1-only"' in veg, "the mass is never gated to the overview"
+    assert "bank_mass(" in veg and "scrub_mass_svg(" in veg
+    assert "tm3" in s3.TIER_CSS[1] and "t1-only" in s3.TIER_CSS[3], (
+        "tier 1 must hide the members and tier 3 must hide the mass")
+    # deterministic: the same seed gives the same mark every render, so the
+    # patch that resolves is the patch that was there
     assert s3._rnd(4, 11) == s3._rnd(4, 11)
     assert s3._rnd(4, 11) != s3._rnd(5, 11)
     assert 0.0 <= s3._rnd(7, 3, 9) < 1.0
+
+
+def test_the_mass_mark_is_bounded_by_a_foliate_edge_not_by_the_lattice(s3):
+    """In the drawn tradition a wood is recognised by its OUTLINE, so the mass
+    marks live or die on their boundary. A union of mesh cells is a staircase
+    and reads as a region; what makes it read as cover is the scallop laid on
+    it, and the offsets have to be hashed or the lobes are a pitch of their
+    own."""
+    pts = [(0.0, 0.0), (40.0, 0.0), (40.0, 30.0), (0.0, 30.0)]
+    d = s3.rel_scallop(pts, 4.0, seed=3, closed=True)
+    assert d.startswith("M") and d.endswith("Z")
+    assert d.count("q") >= 4, "every segment must bend"
+    assert d == s3.rel_scallop(pts, 4.0, seed=3, closed=True)
+    assert d != s3.rel_scallop(pts, 4.0, seed=4, closed=True)
+    # `fixed` puts the lobes on one side however the run runs, which is what
+    # an open canopy edge needs
+    up = s3.rel_scallop([(0.0, 0.0), (10.0, 0.0), (20.0, 0.0)], 3.0, seed=1,
+                        closed=False, fixed=(0.0, -1.0))
+    assert up and "q" in up and not up.endswith("Z")
+
+
+def test_the_ridge_covers_density_is_measured_and_leaves_bare_ground(s3):
+    """The class is a regional default with no survey behind it and the key
+    says so; what this pins is that its DENSITY is not a constant. A constant
+    is a pitch, the eye finds a pitch at once, and countable marks follow --
+    which is the stubble. Curvature, slope and aspect are all read off the DEM
+    the plate already carries, so the patchiness costs no honesty; and the
+    floor is as load-bearing as the weights, because without genuinely bare
+    ground the stands have nothing to be stands against."""
+    src = open(STAGE3).read()
+    body = src.split("def scrub_cover", 1)[1].split("\n    def ", 1)[0]
+    for term in ("curv", "steep", "face"):
+        assert term in body, f"the {term} control is gone"
+    assert "elev_smooth" in body, "the controls must come off the DEM"
+    # measured over a GROUND radius, never over a mesh cell: the lattice is
+    # 20 m near and 300 m far and wider across the view than along it, and a
+    # field read on it prints as streaks lying along the rings
+    assert "SCRUB_STENCIL_M" in body and s3.SCRUB_STENCIL_M > 0
+    assert all(w > 0 for w in (s3.SCRUB_W_CURV, s3.SCRUB_W_SLOPE,
+                               s3.SCRUB_W_ASPECT))
+    assert s3.SCRUB_BARE > 0.0, "no floor means no bare ground"
+    assert s3.SCRUB_MASS_MIN >= s3.SCRUB_BARE
+    assert s3.SCRUB_CORE_MIN > s3.SCRUB_MASS_MIN, (
+        "the stand must be closed in the middle and open at its margin")
+
+
+def test_no_stand_of_scrub_may_grow_into_a_forest(s3):
+    """The one thing the poem does constrain here. Il. 23.114-20 sends the
+    Achaeans twenty-odd km up Ida's spurs with mules to cut δρῦς ὑψικόμους for
+    the pyre; men do not haul beams that far past timber, so the ground in this
+    frame carries no wood worth felling. Scrub in the ravines is not one and
+    may be drawn; a canopy sheet over a whole ridge is, and may not. So an
+    oversized merged patch keeps the thin skirt and is refused the closed
+    core."""
+    src = open(STAGE3).read()
+    body = src.split("def scrub_mass_svg", 1)[1].split("\n    def ", 1)[0]
+    assert "SCRUB_PATCH_MAX" in body
+    assert "23.114" in body, "the refusal must carry the line it rests on"
+    assert s3.SCRUB_PATCH_MAX > s3.SCRUB_PATCH_PX2 > 0
+
+
+def test_the_mass_tokens_stay_darker_than_every_ground_they_lie_on(s3):
+    """The mass rule, extended to the mark this pass added. --pp-veg-mass is a
+    LIGHTER green than the crown token on purpose -- spread over hillsides at
+    two coats the crown colour took the ground under SIGEION and THE SHIPS
+    with it, and a label's background is not a drawing's to spend -- but
+    lighter may not become light: in both themes it must still read as cover
+    ON ground, which means darker than every ground class it can stand on, so
+    the tonal rank cannot photo-negative between the themes."""
+    for theme in ("light", "dark"):
+        t = _parse_tokens(s3.TOKENS[theme])
+        mass = _luminance(t["pp-veg-mass"])
+        assert mass > _luminance(t["pp-veg"]), (
+            f"{theme}: --pp-veg-mass is not lighter than the crown token")
+        for name, rgb in _ground_values(s3, theme).items():
+            if name in ("pp-ida-wood", "pp-tumulus"):
+                continue              # marks, not ground the cover lies on
+            assert mass < _luminance(rgb), (
+                f"{theme}: --pp-veg-mass is not darker than {name}")
+        r, g, b = t["pp-veg-mass"]
+        assert g > r and g > b, f"{theme}: --pp-veg-mass is not a green"
+
+
+def test_ida_is_darker_in_its_folds_and_thinner_toward_its_tops(s3):
+    """A forested massif is not one tone. The fold band is read off the SAME
+    per-column DEM samples the skyline itself is drawn from -- the running
+    local maximum is the summit line, and a column's drop below it is how deep
+    a col stands there -- so it places no tree and claims no treeline, which
+    is the only register 66 km of air leaves open."""
+    src = open(STAGE3).read()
+    body = src.split("def ida_folds", 1)[1].split("\n    def ", 1)[0]
+    assert "IDA_FOLD_WIN" in body and "IDA_FOLD_K" in body
+    assert "pp-ida-fold" in body
+    assert s3.IDA_FOLD_WIN >= 1 and s3.IDA_FOLD_K > 0
+    for theme in ("light", "dark"):
+        t = _parse_tokens(s3.TOKENS[theme])
+        assert _luminance(t["pp-ida-fold"]) < _luminance(t["pp-ida-wood"]), (
+            f"{theme}: the folds are not darker than the mountain")
+        r, g, b = t["pp-ida-fold"]
+        assert g > r and g > b, f"{theme}: --pp-ida-fold is not a green"
+    # a skyline with no fold in it gets no band at all
+    flat = [(float(x), 100.0) for x in range(0, 60)]
+    assert s3.Plate.ida_folds(None, flat) == ""
+
+
+def test_the_key_says_the_density_is_a_drawing_rule_and_not_a_survey(s3):
+    """Every other claim on this sheet carries its evidence beside the mark.
+    The cover's patchiness is a DRAWING decision taken off measured terrain,
+    and the key has to say both halves of that or a reader is entitled to read
+    the stands as surveyed vegetation."""
+    cites = {n: g for n, g in s3.VEG_KEY}
+    scrub = cites["RIDGE SCRUB"]
+    assert "no line of the poem" in scrub, (
+        "ridge scrub is a regional default and the key must not imply a text")
+    for word in ("curvature", "slope", "aspect"):
+        assert word in scrub, f"the key does not name the {word} control"
+    assert "not a survey" in scrub
 
 
 def test_the_key_names_the_classes_and_no_longer_names_metres(s3):

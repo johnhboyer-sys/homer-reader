@@ -2041,17 +2041,153 @@ BANK_STEP_M = 62.0              # clump pitch at the overview; halved at the
                                 # captioned offset -- so this is the one place
                                 # on the sheet where more marks say something
                                 # the poem itself says.
-SCRUB_PX2 = 460.0               # screen px^2 of ridge per tick at tier 1
-SCRUB_PX2_ZOOM = 120.0          # and at tiers 2-3: the same regeneration.
-                                # These were 1250 and 300, chosen for restraint
-                                # and not derived from anything: the class is
-                                # already licensed as a regional default
-                                # (§2.4), so its DENSITY asserts nothing new
-                                # and is a drawing decision. A scrub slope
-                                # carrying one tuft per 1250 px^2 read as an
-                                # empty slope with a few specks on it.
+SCRUB_PX2_ZOOM = 84.0           # screen px^2 of ridge per tuft where the
+                                # cover is at full density. It is the ZOOM
+                                # figure and there is no longer a tier-1 one,
+                                # because at the overview the class is not
+                                # drawn as tufts at all (see below). It was
+                                # 120, which was the right figure while the
+                                # cover was even; a STAND has to hold together
+                                # when the reader walks into it, and thirteen
+                                # bushes across a hundred metres is a thicket
+                                # at 1x and a scatter at 8x.
 SCRUB_REACH = 16000.0           # m; the same reach the cast shadows take
 VEG_MIN_PX = 0.75               # below this a mark is smaller than the ink
+
+# ── AT PLATE SCALE, COVER IS A MASS AND NOT A CROWD (2026-08-14) ──────────
+# "those look like individual trees" ... "it looks like stubble on a man's
+# chin" (John), and both verdicts are arithmetic before they are taste. The
+# camera is 800 m up and Ilios is 7 km out; a canopy 8 m across subtends
+# well under a pixel there, so ANYTHING THE READER CAN COUNT at 1x is drawing
+# a thing that cannot be seen. The old pass drew the same tuft everywhere the
+# class applied, at one tick per fixed unit of screen area, and a constant
+# pitch is what the eye locks onto: find the pitch and the marks become
+# countable by construction, however small each one is.
+#
+# So the class is drawn TWICE, and the two drawings are different marks and
+# not the same mark at two sizes:
+#   TIER 1-2, THE OVERVIEW -- a MASS. Adjacent dense cells are merged into one
+#       outline by union_loops (interior edges cost nothing) and the outline
+#       is scalloped, so what prints is a lobed patch of cover with a broken
+#       edge and no countable member. Two nested thresholds give it an
+#       interior: a broad skirt at SCRUB_MASS_MIN and a darker core at
+#       SCRUB_CORE_MIN, which is a wood's own tonal structure -- open at the
+#       margin, closed in the middle -- and is read off the density field
+#       rather than invented.
+#   TIER 3, ZOOMED -- the TUFTS, at SCRUB_PX2_ZOOM, in the same places. At 4x
+#       and 8x a 1.4 m bush genuinely is resolvable, so the mass dissolving
+#       into its parts is not a trick; it is what happens when you walk
+#       closer. The tufts are keyed to the same density field, so they crowd
+#       where the patch was dense and thin where it was open.
+#
+# AND THE DENSITY IS MEASURED, WHICH IS WHY THE PATCHINESS COSTS NO HONESTY.
+# Maquis and garrigue on thin limestone are not evenly spread. They collect
+# where water and soil collect and thin where neither does, and all three
+# controls are already in this file's own DEM:
+#   CURVATURE -- concave ground (gully heads, hollows) gathers soil and water;
+#       convex ground (crests, spurs) sheds both. The lattice Laplacian,
+#       normalised by the local relief so it means the same thing at 2 km and
+#       at 14 km.
+#   SLOPE -- steep faces shed soil. Taken from the RAW ground normal, not the
+#       exaggerated one the shading uses: the shading models the geometry the
+#       sheet shows, but soil creeps down the real hill.
+#   ASPECT -- the strong Mediterranean control, and free here. Sun-facing
+#       ground bakes; shaded ground holds moisture. The sun bears 228.4, so
+#       the south-west faces are the dry ones, and the term is the ground
+#       normal against the light's own horizontal -- the same vector the
+#       shading takes. It scales with slope by construction, which is right:
+#       flat ground has no aspect.
+# The result is a factor on density, not on placement. No plant moves to
+# ground it did not already have, no class changes, and the key says in so
+# many words that the DENSITY is a drawing rule and not a survey.
+#
+# AND THE ANSWER IS COPSES, NOT A LAWN (John, 2026-08-14: "clusters of trees.
+# like idk a small forest"). The first pass at this modulated a constant
+# gently and got a slightly uneven constant, which is stubble with a wobble in
+# it. Real maquis and garrigue on thin soil over limestone is not an even
+# cover with variation; it is CLUMPED -- kermes and holm oak, wild olive,
+# terebinth, standing at tree form in the gullies and the hollows where the
+# thin soil and the winter water collect, and bare rock on the convex, the
+# steep and the baked. So the weights below use the field's whole range: where
+# all three controls favour cover the density reaches a coherent stand, and
+# where all three refuse it the ground goes BARE, not thin. The bare rock is
+# not the absence of the drawing; it is half of it, and it is what lets the
+# stands read as stands.
+#
+# THIS DOES NOT MOVE THE HONESTY LINE and it is worth saying where the line
+# is. The CLASS is unchanged -- the regional default for this ground, no
+# survey, no line of the poem, exactly as the key has always said. What varies
+# is DENSITY, and it varies with three numbers the DEM already holds. No copse
+# is placed by hand and none is placed by a text.
+# THE POEM CONSTRAINS THE SIZE, THOUGH, AND IS ALLOWED TO. Il. 23.114-20 sends
+# the Achaeans twenty-odd kilometres up Ida's spurs with mules to cut δρῦς
+# ὑψικόμους for Patroclus's pyre. Men do not haul beams that far past timber,
+# so the ground in this frame carries NO WOOD WORTH FELLING -- and a stand of
+# scrubby holm oak in a ravine is not one, which is exactly why it may be
+# drawn. What may not be drawn is a canopy sheet over a whole ridge, which
+# would be a forest and would contradict the pyre. The patches are therefore
+# held to the size of a wood a reader would walk across, by SCRUB_PATCH_MAX.
+SCRUB_W_CURV = 1.35             # weights on the three measured controls, and
+SCRUB_W_SLOPE = 1.10            # they are set so the field SPANS its range:
+SCRUB_W_ASPECT = 1.25           # a sheltered concave north-east hollow gets
+                                # a closed stand, a baked convex spur gets
+                                # nothing at all.
+SCRUB_STENCIL_M = 130.0         # the radius, IN GROUND METRES, all three
+                                # controls are measured over. It is a stand's
+                                # own scale, and being a ground length it is
+                                # the same everywhere -- which the mesh cell
+                                # is emphatically not (20 m near, 300 m far,
+                                # and wider across the view than along it at
+                                # every range). Measured on the lattice, the
+                                # field printed as horizontal streaks lying
+                                # along the rings.
+SCRUB_SLOPE_0 = 0.16            # sin(slope) below which slope costs nothing
+SCRUB_SLOPE_K = 0.26            # and the scale it costs on above that
+SCRUB_DENS_MAX = 1.90           # the field is clamped to [0, this]
+SCRUB_BARE = 0.92               # below this the ground carries NO scrub, and
+                                # it sits near the field's own middle on
+                                # purpose: more than half this ground is
+                                # limestone with nothing on it
+SCRUB_MASS_MIN = 1.02           # the stand's skirt, and
+SCRUB_CORE_MIN = 1.34           # its closed crown
+SCRUB_SMOOTH = 1                # lattice passes over the density field: a
+                                # patch has to span cells or it is a pitch
+                                # again, at the lattice's own spacing -- but
+                                # each pass also pulls the field toward its
+                                # own mean, and a flat field is a pitch too
+SCRUB_PATCH_PX2 = 26.0          # a merged loop under this many screen px^2
+                                # is a speck and is dropped
+SCRUB_PATCH_MAX = 34000.0       # and one over this many is a FOREST, which
+                                # 23.114-20 does not allow on this ground:
+                                # such a loop is drawn as the skirt only, so
+                                # it stays a thin cover and never closes
+SCRUB_COPSE_H = 5.0             # m, an artist's convention like the fringe's
+                                # heights and stated in the key: what a stand
+                                # of holm oak and terebinth throws its shadow
+                                # from. The shadow is what makes a copse read
+                                # as a thing standing on the hill rather than
+                                # a stain laid on it.
+SCRUB_TUFT_RANGE = 2300.0       # m. Beyond this a 1.4 m tuft is under the ink
+                                # even at 8x (0.92 px at 1x here, 0.23 at
+                                # 10 km), so beyond it the mass is not
+                                # standing in for a crowd and does not step
+                                # aside at the zoom tiers. It is a STRATA
+                                # EDGE, so the boundary costs no new seam.
+SCRUB_LOBE_PX = 3.1            # how far a scallop bulges off the merged
+                                # outline. THE EDGE IS THE WHOLE MARK: in the
+                                # drawn tradition a wood is recognised by its
+                                # boundary, not by anything inside it.
+BANK_MASS_LOBE = 0.55           # the fringe's scallop, as a fraction of the
+                                # canopy's own screen height
+BANK_MASS_MIN_PTS = 3           # a run shorter than this is not a fringe
+IDA_FOLD_WIN = 9                # horizon columns each side that make up the
+                                # local SUMMIT line the folds are measured
+                                # from -- about a fifth of the mountain's
+                                # frontage, which is a massif's own spacing of
+                                # summits, not a peak's
+IDA_FOLD_K = 2.6                # how far the dark band hangs below the
+IDA_FOLD_MAX_PX = 26.0          # skyline per pixel of drop under that line,
+                                # and its ceiling
 
 
 def _rnd(*seed) -> float:
@@ -2168,7 +2304,96 @@ def thicket(cam, terr, lat, lon, h, r, seed):
     return sd + f'<path class="pp-veg" d="{"".join(d)}"/>'
 
 
-ROOFS = [(-0.62, 0.30, 8.0, 26), (-0.34, 0.46, 10.5, 30), (-0.02, 0.34, 9.0, 26),
+def rel_scallop(pts, amp, seed=0, closed=True, sgn=1.0, fixed=None) -> str:
+    """A polyline redrawn as a FOLIATE one: every segment becomes a quadratic
+    whose control point is pushed off the segment's own normal by a hashed
+    amount, so the boundary leaves and re-meets the straight line it was.
+
+    This is the whole of the mass mark. A wood at plate scale is recognised by
+    its OUTLINE -- Berann's forests, the Dufour sheets' timber, every drawn
+    landscape that survived the century -- and a lattice union is a staircase,
+    which reads as a region, not as cover. Amplitude is capped at a third of
+    the segment so a long edge bulges rather than balloons, and MOST of the
+    lobes go out while a few tuck in, which is what stops the boundary reading
+    as a row of arcs. The offsets come out of _rnd, so the same patch scallops
+    the same way every render.
+
+    `fixed` replaces the segment's own normal with one direction for the whole
+    chain -- what an open canopy edge wants, where the lobes belong on the sky
+    side however the run happens to be running.
+
+    Relative data, pen tracked at the rounded value written, exactly as
+    rel_poly does it: a merged patch is a long loop and the file is the
+    plate's second constraint after the eye."""
+    if len(pts) < 2:
+        return ""
+    seq = list(zip(pts, pts[1:]))
+    if closed:
+        seq.append((pts[-1], pts[0]))
+    px, py = round(pts[0][0], 1), round(pts[0][1], 1)
+    out = [f"M{n1(px)} {n1(py)}"]
+    for k, (a, b) in enumerate(seq):
+        ex, ey = b[0] - a[0], b[1] - a[1]
+        L = math.hypot(ex, ey)
+        if L < 0.2:
+            continue
+        f = amp * (-0.28 + 1.62 * _rnd(seed, k, 3)) * sgn
+        f = max(-L * 0.32, min(f, L * 0.32))
+        if fixed is None:
+            ox, oy = -ey / L, ex / L
+        else:
+            ox, oy = fixed
+        cx = (a[0] + b[0]) * 0.5 + ox * f
+        cy = (a[1] + b[1]) * 0.5 + oy * f
+        d1x, d1y = round(cx - px, 1), round(cy - py, 1)
+        d2x, d2y = round(b[0] - px, 1), round(b[1] - py, 1)
+        px, py = round(px + d2x, 1), round(py + d2y, 1)
+        out.append(f"q{n1(d1x)} {n1(d1y)} {n1(d2x)} {n1(d2y)}")
+    if len(out) < 2:
+        return ""
+    return "".join(out) + ("Z" if closed else "")
+
+
+def bank_mass(pts, seed, lit=False) -> str:
+    """The riverbank fringe as ONE canopy, not as a row of clumps.
+
+    `pts` is a run of stations along the drawn course: (x, ground_y, canopy_y).
+    The path runs out along a scalloped top edge and back along the ground, so
+    what closes is a continuous ribbon with a lobed upper boundary -- the thing
+    a fringe of elm and willow actually presents at 7-15 km, where the clumps
+    it is made of are a pixel apart and cannot be told from each other.
+
+    THE LOBE PITCH IS THE STATION PITCH, so the lobes OVERLAP: a scallop whose
+    control point sits above the midpoint of a 4 px span never returns to the
+    baseline between neighbours, and a boundary that never returns to its
+    baseline has no countable member. That is the difference between this and
+    the row of beads it replaces, and it is the only difference -- same
+    course, same stations, same citation.
+
+    `lit` draws the sunward crest instead: the same top edge lifted a little
+    toward the light, which gives the mass an interior. A flat silhouette is a
+    cut-out; a mass is lighter on the side the sun is on."""
+    if len(pts) < BANK_MASS_MIN_PTS:
+        return ""
+    top = [(x, cy) for x, _, cy in pts]
+    amp = max(0.5, sum(gy - cy for _, gy, cy in pts) / len(pts) * BANK_MASS_LOBE)
+    if lit:
+        k = -SUN_H[0] * amp * 0.9
+        crest = [(x + k, y + amp * 0.30) for x, y in top]
+        d = rel_scallop(crest, amp * 0.55, seed + 5, closed=False,
+                        fixed=(0.0, -1.0))
+        if not d:
+            return ""
+        return (f'<path class="pp-veg-crest" d="{d}" '
+                f'stroke-width="{max(0.6, amp * 0.75):.1f}"/>')
+    d = rel_scallop(top, amp, seed, closed=False, fixed=(0.0, -1.0))
+    back = rel_poly([(x, gy) for x, gy, _ in reversed(pts)], close=False)
+    if not d or not back:
+        return ""
+    return f'<path class="pp-veg" d="{d}L{back[1:]}Z"/>'
+
+
+ROOFS =[(-0.62, 0.30, 8.0, 26), (-0.34, 0.46, 10.5, 30), (-0.02, 0.34, 9.0, 26),
          (0.28, 0.50, 12.5, 32), (0.58, 0.30, 8.5, 26), (-0.20, 0.10, 11.0, 30),
          (0.34, 0.06, 9.5, 26)]
 
@@ -2413,7 +2638,8 @@ TOKENS = {
   --pp-cover-fan:#FAD391; --pp-cover-open:#E0CDBA; --pp-cover-ridge:#CDCD83;
   --pp-cover-wet:#94C472;
   --pp-veg:#46612E; --pp-veg-lit:#7C9945; --pp-veg-tick:#4E6B34;
-  --pp-ida-wood:#617F4C; --pp-tumulus:#CAB083;
+  --pp-veg-mass:#7A8C5C;
+  --pp-ida-wood:#617F4C; --pp-ida-fold:#465E36; --pp-tumulus:#CAB083;
   --pp-haze:#CBD9E4; --pp-sky-hi:#93B4D2; --pp-sky-lo:#E1DDD2;
   --pp-water-far:#DCE6EC; --pp-water-shoal:#CFE0D8;
 """,
@@ -2427,7 +2653,8 @@ TOKENS = {
   --pp-cover-fan:#513B1F; --pp-cover-open:#493B30; --pp-cover-ridge:#3C3C1E;
   --pp-cover-wet:#233616;
   --pp-veg:#1C2A12; --pp-veg-lit:#3C5223; --pp-veg-tick:#93AE6A;
-  --pp-ida-wood:#2E4224; --pp-tumulus:#7A6846;
+  --pp-veg-mass:#26331A;
+  --pp-ida-wood:#2E4224; --pp-ida-fold:#1E2D17; --pp-tumulus:#7A6846;
   --pp-haze:#141B28; --pp-sky-hi:#0B1120; --pp-sky-lo:#242B3A;
   --pp-water-far:#1E3244; --pp-water-shoal:#1E3F45;
 """,
@@ -2486,7 +2713,21 @@ CSS = """
    Measured on the shipped frame, the mountain's green-minus-red goes from 5
    to 18 while its luminance drops about 8% — subtle, which is what 0.73 of
    air allows, and the right direction, which is what it never was. */
+/* AND A FORESTED MASSIF IS NOT ONE TONE. It is darker in the folds, where the
+   ground turns away and the timber stands deepest, and thinner toward the
+   tops, where it is exposed and the rock comes through. The old fill said one
+   flat colour across sixty kilometres of skyline, which is the same defect as
+   the bare tan it replaced, only in the right hue.
+   THE FOLDS ARE READ OFF THE SAMPLED SKYLINE and nothing else. Each column of
+   the horizon already carries its own maximum-angle DEM sample; the running
+   local maximum over a window of those samples is the SUMMIT line, and how
+   far a column falls below it is exactly how deep a col or a re-entrant that
+   column is. The dark wedge hangs below the skyline in proportion to that
+   drop -- deepest at the saddles, nothing at all on the summits. It places no
+   tree, it claims no treeline, and it is a function of the elevation data the
+   mountain's own outline is already drawn from. */
 .pp-ida{fill:var(--pp-ida-wood);fill-opacity:0.80;stroke:none}
+.pp-ida-fold{fill:var(--pp-ida-fold);fill-opacity:0.62;stroke:none}
 .pp-ida-crest{fill:none;stroke:var(--plate-contour);stroke-width:0.9;stroke-opacity:0.95}
 /* ── TWO WATERS, TWO KINDS OF CLAIM ──────────────────────────────────────
    `sea-modern` is the Aegean and the Dardanelles as they stand now, contoured
@@ -2630,10 +2871,45 @@ CSS = """
 .pp-veg{fill:var(--pp-veg);stroke:var(--pp-hull-edge);stroke-width:0.35;
   stroke-linejoin:round}
 .pp-veg-lit{fill:var(--pp-veg-lit);stroke:none}
+/* THE MASS MARKS, and they are washes, not fills. The patch lays cover over
+   ground the sheet has already toned, shaded and banded, and an opaque fill
+   would delete all of it and print a green shape -- which is the cut-out
+   failure the fringe was already committing one clump at a time. At 0.36 the
+   relief, the slope wash and the cover boundary all still read through, so
+   what the reader sees is ground WITH scrub on it. The core is the same wash
+   laid twice over the denser half of the field, so the interior carries two
+   values and the margin one; nothing is a gradient and no filter is involved.
+   AND IT HAS ITS OWN TOKEN, WHICH IS A LABEL FACT BEFORE IT IS A COLOUR ONE.
+   --pp-veg is the CROWN colour: it is as dark as it is because a canopy seen
+   against open ground is nearly a silhouette, which is right for a clump of
+   elm on a riverbank a pixel and a half wide. Spread over whole hillsides at
+   two coats it took the ground under SIGEION and THE SHIPS down with it, and
+   a label's background is not this lane's to spend. --pp-veg-mass is a
+   lighter green that still obeys the mass rule -- darker than every ground
+   class it can stand on, in BOTH themes, so the tonal rank cannot
+   photo-negative -- and carries the class by HUE and a moderate value step
+   rather than by value alone. Colour is free; contrast is not.
+   THE COPSE SHADOW is a CRESCENT and takes the even-odd rule to be one: the
+   displaced outline with the outline itself cut back out of it, so only the
+   strip that falls on open ground is painted. See scrub_mass_svg.
+   THE CREST is the fringe's sunward face -- the one thing that keeps the
+   ribbon from being a silhouette. It is a stroke and not a fill, because a
+   canopy's lit side is an edge condition and the mark is one to three px. */
+.pp-scrub-mass{fill:var(--pp-veg-mass);fill-opacity:0.34;stroke:none}
+.pp-scrub-core{fill:var(--pp-veg);fill-opacity:0.46;stroke:none}
+.pp-copse-shadow{fill:var(--pp-shade);fill-opacity:0.26;fill-rule:evenodd;
+  stroke:none}
+.pp-veg-crest{fill:none;stroke:var(--pp-veg-lit);stroke-linecap:round;
+  stroke-linejoin:round;stroke-opacity:0.55}
 .pp-veg-trunk{fill:none;stroke:var(--pp-hull-edge);stroke-width:0.7;
   stroke-linecap:round}
-.pp-scrub{fill:none;stroke:var(--pp-veg-tick);stroke-width:0.85;
-  stroke-linecap:round;stroke-linejoin:round}
+/* THE TUFT IS NOW A ZOOM MARK AND IS DRAWN LIKE ONE. It used to carry the
+   class on its own at 1x, where 0.85 px was the least ink that would print;
+   it is only ever seen at 4x and 8x now, where that same width is seven
+   output pixels on a mark sixteen tall -- a club, not a bush. At 0.35, with
+   the round cap off, the stems read as stems. */
+.pp-scrub{fill:none;stroke:var(--pp-veg-tick);stroke-width:0.35;
+  stroke-linejoin:round}
 .pp-mark{fill:none;stroke:var(--text-mid);stroke-width:1.1}
 .pp-mark-f{fill:var(--text-mid);stroke:none}
 .pp-tumulus{fill:var(--pp-tumulus);fill-opacity:0.9;stroke:var(--text-mid);
@@ -3313,8 +3589,33 @@ class Plate:
         sky = soften(sky, 2, closed=False)
         poly = sky + [(sky[-1][0], float(H) + 40), (sky[0][0], float(H) + 40)]
         crest = min(sky, key=lambda q: q[1])
-        return ('<path d="%s" class="pp-ida"/><path d="%s" class="pp-ida-crest"/>'
-                % (rel_poly(poly), rel_poly(sky, close=False))), crest
+        return ('<path d="%s" class="pp-ida"/>%s'
+                '<path d="%s" class="pp-ida-crest"/>'
+                % (rel_poly(poly), self.ida_folds(sky),
+                   rel_poly(sky, close=False))), crest
+
+    def ida_folds(self, sky) -> str:
+        """The mountain's own folds, from the skyline the sheet already sampled.
+
+        `sky` is one DEM-derived point per horizon column. The running maximum
+        over a window of them is the SUMMIT line; a column's drop below it is
+        how deep a saddle or a re-entrant stands there. The dark band hangs
+        under the skyline in proportion to that drop -- deepest at the cols,
+        nothing at all on the tops -- so it follows the elevation data rather
+        than a taste for texture, and it plants nothing. See the .pp-ida-fold
+        note in CSS."""
+        n = len(sky)
+        if n < IDA_FOLD_WIN * 2 + 2:
+            return ""
+        top = [min(q[1] for q in sky[max(0, i - IDA_FOLD_WIN):
+                                     min(n, i + IDA_FOLD_WIN + 1)])
+               for i in range(n)]
+        low = [(x, y + min(IDA_FOLD_MAX_PX, (y - top[i]) * IDA_FOLD_K))
+               for i, (x, y) in enumerate(sky)]
+        if max(b[1] - a[1] for a, b in zip(sky, low)) < 1.0:
+            return ""
+        return ('<path d="%s" class="pp-ida-fold"/>'
+                % rel_poly(sky + list(reversed(low))))
 
     # ── water ────────────────────────────────────────────────────────────
     def coast_ring(self, poly_latlon, label):
@@ -3799,6 +4100,248 @@ class Plate:
         ys = sorted(p[1] for p in pts)
         return xs[len(xs) // 2], ys[len(ys) // 2]
 
+    def scrub_cover(self):
+        """How much cover each ridge cell carries, in [0, SCRUB_DENS_MAX], as
+        a function of curvature, slope and aspect -- see the note over
+        SCRUB_W_CURV. One number per cell, and it drives BOTH drawings of the
+        class: which ground the merged patch covers at the overview, and how
+        many tufts stand on it once the reader is close enough to see tufts.
+
+        A CONSTANT DENSITY IS WHAT MADE THE CLASS READ AS STUBBLE. One mark
+        per fixed unit of area is a pitch, the eye finds a pitch immediately,
+        and once it has found one the marks are countable however small they
+        are. The fix is not fewer marks or smaller ones; it is to stop the
+        pitch existing, and the terrain will do that for nothing, because real
+        maquis IS patchy and the DEM already knows where.
+
+        THE STENCIL IS IN GROUND METRES, NOT IN LATTICE CELLS, and the first
+        attempt at this proves why it has to be. Read off the mesh's own
+        neighbours, all three controls are measured over a cell -- twenty
+        metres under the reader's feet and three hundred at the far crests,
+        and wider across the view than along it at every range. The field that
+        came out was banded the way the lattice is banded, and it printed as
+        horizontal streaks lying along the rings: a drawing of the mesh, not
+        of the hill. Sampled instead at a fixed SCRUB_STENCIL_M in east and
+        north, the field is isotropic and has ONE scale everywhere, which is
+        also the scale of the thing being drawn -- a stand of trees a couple
+        of hundred metres across."""
+        g, terr = self.grid, self.terr
+        cells = [ij for ij in self.visible
+                 if self.cover.get(ij) == COVER_RIDGE
+                 and g[ij[0]][ij[1]][3] <= SCRUB_REACH]
+        a = math.radians(LIGHT_AZ)
+        lx, ly = math.sin(a), math.cos(a)
+        mlat = 1.0 / 111132.0
+        mlon = 1.0 / (111320.0 * math.cos(math.radians(VIEWPOINT[0])))
+
+        dens = {}
+        for (i, j) in cells:
+            (e0, n0), (e1, n1_) = self.wor[i][j], self.wor[i + 1][j]
+            (e2, n2), (e3, n3) = self.wor[i + 1][j + 1], self.wor[i][j + 1]
+            ec, nc = (e0 + e1 + e2 + e3) * 0.25, (n0 + n1_ + n2 + n3) * 0.25
+            # AND THE STENCIL CANNOT BE FINER THAN THE LATTICE IT IS READ ON.
+            # Sampled at a flat 130 m the far field aliased: the columns are
+            # 24 m apart at 10 km and the rings 250, so the field came out
+            # correlated across the view and noisy along it, which is a
+            # horizontal streak by construction. Widening it to the ring's own
+            # spacing where the ring is wider is the ordinary anti-aliasing
+            # rule -- the drawing simply generalises with distance, which is
+            # what a draughtsman does anyway and what elev_smooth already does
+            # for the mesh itself.
+            R = max(SCRUB_STENCIL_M, math.hypot(e3 - e0, n3 - n0) * 0.9)
+            el = lambda de, dn: terr.elev_smooth(
+                VIEWPOINT[0] + (nc + dn) * mlat,
+                VIEWPOINT[1] + (ec + de) * mlon, R * 0.5)
+            zc = el(0.0, 0.0)
+            zE, zW, zN, zS = el(R, 0), el(-R, 0), el(0, R), el(0, -R)
+            # the Laplacian at the stencil's own scale, normalised by the
+            # local relief so a hollow means the same thing on a 20 m spur and
+            # on a 200 m ridge. Positive is CONCAVE: a gully head, a hollow,
+            # ground that gathers the winter water and what soil there is.
+            relief = max(zc, zE, zW, zN, zS) - min(zc, zE, zW, zN, zS)
+            curv = math.tanh(2.4 * ((zE + zW + zN + zS) * 0.25 - zc)
+                             / (relief + 0.5))
+            gx, gy = (zE - zW) / (2 * R), (zN - zS) / (2 * R)
+            den = math.sqrt(1.0 + gx * gx + gy * gy)
+            sn = math.hypot(gx, gy) / den
+            steep = min(1.0, max(0.0, (sn - SCRUB_SLOPE_0) / SCRUB_SLOPE_K))
+            # >0 where the face is turned toward the light's own bearing,
+            # which at 228.4 deg is the baked south-west side
+            face = math.tanh((-gx * lx - gy * ly) / den / 0.30)
+            dens[(i, j)] = (1.0 + SCRUB_W_CURV * curv
+                            - SCRUB_W_SLOPE * steep - SCRUB_W_ASPECT * face)
+        # A PATCH HAS TO SPAN CELLS. Unsmoothed, the field alternates at the
+        # lattice's own spacing and the drawing is back to a pitch, only a
+        # coarser one; two passes make the runs a few cells long, which is a
+        # patch of cover a couple of hundred metres across.
+        for _ in range(max(0, SCRUB_SMOOTH)):
+            nxt = {}
+            for (i, j), v in dens.items():
+                tot, wt = v * 2.0, 2.0
+                for q in ((i + 1, j), (i - 1, j), (i, j + 1), (i, j - 1)):
+                    if q in dens:
+                        tot += dens[q]
+                        wt += 1.0
+                nxt[(i, j)] = tot / wt
+            dens = nxt
+        out = {}
+        for ij, v in dens.items():
+            v = min(SCRUB_DENS_MAX, v)
+            # and the BARE GROUND, which is the half of patchiness that the
+            # weights alone will not give: without a floor the field only
+            # thins, and thin-everywhere is still a pitch
+            out[ij] = v if v >= SCRUB_BARE else 0.0
+        if out:
+            self.stats["scrub_dens_mean"] = round(
+                sum(out.values()) / len(out), 3)
+            self.stats["scrub_bare_frac"] = round(
+                sum(1 for v in out.values() if v == 0.0) / len(out), 3)
+        return out
+
+    def scrub_mass_svg(self, dens):
+        """The overview drawing of the ridge cover: merged patches, scalloped.
+
+        union_loops drops every interior edge, so a run of dense cells costs
+        its perimeter and not its area -- which is why the mass is CHEAPER
+        than the crowd it replaces and not dearer. Two thresholds are laid
+        one over the other, so the interior carries two values and the margin
+        one: a wood is open at its edge and closed in the middle, and that is
+        read off the density field rather than invented.
+
+        Built per depth stratum, which does two jobs: each patch takes the
+        air at its own range, exactly as every other mark on the sheet does,
+        and no single patch can merge across the whole ridge from the
+        foreground to the far crests.
+
+        Two returns, and the split is the LEVEL OF DETAIL rule read honestly.
+        Inside SCRUB_TUFT_RANGE a 1.4 m bush is over the ink at 1x, so there
+        the mass is the overview's drawing of a thing the zoom will draw as
+        tufts, and it steps aside at tier 3. Beyond it the tuft is a fifth of
+        a pixel at 1x and still under the ink at 8x, so there is no crowd for
+        the mass to stand in for and it stays on at every tier -- the same
+        argument the sheet already makes for Ida, where a forested mountain is
+        a tone at any range because a tree there is a tenth of a pixel. The
+        boundary is a stratum edge, so it costs no seam the plate did not
+        already have."""
+        grid = self.grid
+        corner = lambda i, j: (grid[i][j][0], grid[i][j][1])
+        near_m, far_m, n_loop, n_big = [], [], 0, 0
+        edges = STRATA_EDGES
+        for s in range(len(edges) - 1):
+            far, near = edges[s], edges[s + 1]
+            band = {ij: v for ij, v in dens.items()
+                    if near <= grid[ij[0]][ij[1]][3] < far}
+            if not band:
+                continue
+            out = near_m if near < SCRUB_TUFT_RANGE else far_m
+            sx, sy = self.copse_shadow_px(band)
+            for lvl, (thr, cls) in enumerate(
+                    ((SCRUB_MASS_MIN, "pp-scrub-mass"),
+                     (SCRUB_CORE_MIN, "pp-scrub-core"))):
+                cells = {ij for ij, v in band.items() if v >= thr}
+                if not cells:
+                    continue
+                for lp in union_loops(cells, corner):
+                    # A LONE CELL IS A SPECK, NOT A STAND. Small islands were
+                    # the countability defect coming back one size up: three
+                    # far cells union into a rounded blob the eye picks off
+                    # immediately.
+                    a = abs(poly_area(lp))
+                    if a < SCRUB_PATCH_PX2:
+                        continue
+                    lp = simplify(lp, 1.1, closed=True)
+                    if len(lp) < 7:
+                        continue
+                    # THE STAIRCASE HAS TO GO FIRST. A union loop is the
+                    # lattice's own right angles, and in the near field a cell
+                    # is forty pixels across, so a 3 px scallop laid over that
+                    # draws a staircase with a frill on it. Taubin's
+                    # shrink-free low-pass -- the pass the cover boundaries
+                    # and the tone edges already take -- rounds the steps out,
+                    # and the lobe then has something to be a lobe on.
+                    # ... and the low-pass leaves a great many near-collinear
+                    # points behind it. They are not information -- the
+                    # tolerance is well under the sheet's own 1.1 px hairline
+                    # -- and on a hundred merged loops they are most of the
+                    # file.
+                    lp = simplify(soften(lp, 3, closed=True), 0.9, closed=True)
+                    if len(lp) < 7:
+                        continue
+                    seg = sum(math.hypot(q[0] - p_[0], q[1] - p_[1])
+                              for p_, q in zip(lp, lp[1:])) / max(1, len(lp) - 1)
+                    # AND THE LOBE SCALES WITH THE STAND. A fixed amplitude is
+                    # a fixed pitch, which is the same defect one level up:
+                    # a near copse wants big crowns and a far one small ones,
+                    # exactly as its trees do.
+                    amp = min(15.0, max(SCRUB_LOBE_PX, seg * 0.42))
+                    # OUTWARD: for a loop of positive shoelace the segment's
+                    # own left normal points INTO the body, and a wood's
+                    # crowns bulge off it, not into it
+                    d = rel_scallop(lp, amp, seed=n_loop + lvl * 7919,
+                                    closed=True, sgn=-winding_sign(lp))
+                    if not d:
+                        continue
+                    if a > SCRUB_PATCH_MAX:
+                        # a sheet this size would be a FOREST, and the pyre of
+                        # Il. 23.114-20 says there is none here: it keeps the
+                        # thin skirt and is refused the closed crown
+                        if lvl:
+                            continue
+                        n_big += 1
+                    n_loop += 1
+                    if not lvl and (sx or sy):
+                        # THE STAND STANDS ON THE HILL. One true-length
+                        # shadow per copse, the same rule as every built thing
+                        # on the sheet -- SCRUB_COPSE_H down-sun at the
+                        # stratum's own range -- and the cheapest mark that
+                        # stops a patch reading as a stain.
+                        #
+                        # A CRESCENT, NOT A DUPLICATE. The whole silhouette
+                        # displaced is what object_shadow draws for a hut,
+                        # and it is wrong for a body the size of a wood:
+                        # nearly all of that shadow falls on the wood itself,
+                        # and only the strip beyond the down-sun edge lands on
+                        # open ground. Drawn as a duplicate at 0.30 over a
+                        # near ridge carrying stands at every turn, the
+                        # overlaps stacked and took the ground under SIGEION
+                        # and THE SHIPS to almost black -- a label's
+                        # background spent on a shadow that is not there. The
+                        # displaced outline and the outline itself in ONE path
+                        # under the even-odd rule leave exactly the strip.
+                        sd = rel_scallop([(q[0] + sx, q[1] + sy) for q in lp],
+                                         amp, seed=n_loop + lvl * 7919,
+                                         closed=True, sgn=-winding_sign(lp))
+                        out.append(((far + near) * 0.5,
+                                    f'<path class="pp-copse-shadow" '
+                                    f'd="{sd}{d}"/>'))
+                    out.append(((far + near) * 0.5,
+                                f'<path class="{cls}" d="{d}"/>'))
+        self.stats["scrub_forest_skirts"] = n_big
+        self.stats["scrub_mass_loops"] = n_loop
+        return near_m, far_m
+
+    def copse_shadow_px(self, band):
+        """How far down-sun a SCRUB_COPSE_H stand throws its shadow, in screen
+        pixels, at one stratum's own range.
+
+        One sample per band, taken at a cell that is actually in it: the
+        offset is a few pixels and its variation across a stratum is well
+        under one, so a per-loop solve would cost a projection each and print
+        the identical drawing. The RULE is the one every built thing on this
+        sheet obeys -- a true height at the true solar altitude, through
+        sun_offset -- and only the sampling is coarse."""
+        if not band or not OBJ_SHADOW or LIGHT_ALT <= 0.5:
+            return (0.0, 0.0)
+        i, j = min(band)
+        e, n = self.wor[i][j]
+        g = self.grid[i][j][2]
+        p0 = self.cam.project(e, n, built_h(0.05, g))
+        dx, dy = sun_offset(SCRUB_COPSE_H)
+        p1 = self.cam.project(e + dx, n + dy, built_h(0.05, g))
+        if not p0 or not p1:
+            return (0.0, 0.0)
+        return (p1[0] - p0[0], p1[1] - p0[1])
+
     def vegetation_svg(self):
         """Everything that grows on this sheet. See the VEGETATION note above
         the primitives for what each class is and which line of the poem puts
@@ -3807,19 +4350,31 @@ class Plate:
         Painted after the water and the rivers and before the camp, which is
         depth order for these marks: the thicket is at 6-15 km, the ridge
         scrub runs from under the reader's feet to the mesh's edge, and the
-        fleet is nearer than either."""
+        fleet is nearer than either.
+
+        EVERY CLASS IS DRAWN TWICE AND THE TWO DRAWINGS ARE DIFFERENT MARKS.
+        At the overview the fringe is one lobed ribbon and the cover is one
+        merged patch, because at 800 m up and 7 km out an 8 m canopy is under
+        a pixel and anything countable is drawing what cannot be seen. At the
+        zoom tier the same ground carries the clumps and the tufts, because at
+        4x and 8x they genuinely are resolvable. Nothing is scaled between the
+        two; each is generated for its own tier."""
         if not VEG:
             return ""
         cam, terr = self.cam, self.terr
-        marks_t1: list = []      # in the overview, and therefore in all tiers
-        marks_t3: list = []      # only once the reader has come closer
-        n_bank = n_scrub = 0
+        marks_t1: list = []      # the mass, at the overview
+        marks_t3: list = []      # its members, once the reader has come closer
+        n_bank = n_scrub = n_run = 0
 
         # ── the riverbank thicket, along the drawn courses ───────────────
-        # THE CLUMPS ALTERNATE BANKS and their pitch halves at the zoom
-        # tiers, which is what "regenerate, do not scale" means here: the
-        # tier-1 clumps are placed at every even index of the tier-3 walk, so
-        # the reader zooming in finds the same trees plus more between them.
+        # THE CLUMPS ALTERNATE BANKS. At the overview they are not drawn as
+        # clumps at all: the stations are collected into runs and each run
+        # closes as ONE ribbon whose upper edge is a chain of overlapping
+        # scallops -- the lobe pitch is the station pitch, so the boundary
+        # never returns to its baseline between neighbours and has no member
+        # to count. The tall-over-low alternation of 21.350-51 is what breaks
+        # that edge up: elm at 13 m and tamarisk at 4 m give the silhouette
+        # its own rise and fall, at true heights, with no mark added.
         for name, tier, course in getattr(self, "river_courses", []):
             if len(course) < 4:
                 continue
@@ -3827,6 +4382,28 @@ class Plate:
             flat = [pp._flat_m(p, *VIEWPOINT) for p in course]
             run = 0.0
             k = 0
+            band: list = []      # the current run: (x, ground_y, canopy_y)
+            foot: list = []      # and its ground and down-sun shadow feet
+            b_dep = None
+
+            def close_run():
+                nonlocal band, foot, b_dep, n_run
+                if len(band) >= BANK_MASS_MIN_PTS and b_dep is not None:
+                    sd = ""
+                    if OBJ_SHADOW and len(foot) >= BANK_MASS_MIN_PTS:
+                        ring = [q[0] for q in foot] + [q[1] for q in
+                                                       reversed(foot)]
+                        sd = ('<path class="pp-objshadow" d="%s"/>'
+                              % rel_poly(ring))
+                    sd_seed = n_run * 17 + 3
+                    body = bank_mass(band, seed=sd_seed)
+                    if body:
+                        n_run += 1
+                        marks_t1.append((b_dep, sd + body
+                                         + bank_mass(band, seed=sd_seed,
+                                                     lit=True)))
+                band, foot, b_dep = [], [], None
+
             for a, b in zip(flat, flat[1:]):
                 seg = math.hypot(b[0] - a[0], b[1] - a[1])
                 if seg < 1e-6:
@@ -3838,8 +4415,16 @@ class Plate:
                     side = 1.0 if k % 2 else -1.0
                     jit = 0.55 + 0.9 * _rnd(k, int(a[0]), int(a[1]))
                     off = BANK_OFFSET_M * jit * side
-                    e = a[0] + tx * run - ty * off
-                    n = a[1] + ty * run + tx * off
+                    # the CLUMP takes its bank; the MASS takes the course. The
+                    # alternation is right for the clumps and wrong for the
+                    # ribbon: at 26 m it is two pixels here, and two pixels
+                    # flipped at every station is a sawtooth -- a pitch, and
+                    # therefore countable, which is the whole defect. On the
+                    # course line the same run has only the rise and fall of
+                    # what stands in it, which is what a fringe looks like.
+                    ce, cn = a[0] + tx * run, a[1] + ty * run
+                    e = ce - ty * off
+                    n = cn + tx * off
                     lat = VIEWPOINT[0] + n / 111132.0
                     lon = (VIEWPOINT[1] + e
                            / (111320.0 * math.cos(math.radians(VIEWPOINT[0]))))
@@ -3852,17 +4437,43 @@ class Plate:
                             else (BANK_SHRUB_H, BANK_SHRUB_R))
                     sv = thicket(cam, terr, lat, lon, h, r, seed=k * 31 + tier)
                     run += step
-                    if not sv:
-                        continue
-                    p = cam.project_ll(lat, lon, built_h(0.0, terr.elev(lat, lon)))
-                    if not p or not (-BLEED < p[0] < W + BLEED
-                                     and -BLEED < p[1] < H + BLEED):
+                    clat = VIEWPOINT[0] + cn / 111132.0
+                    clon = (VIEWPOINT[1] + ce
+                            / (111320.0 * math.cos(math.radians(VIEWPOINT[0]))))
+                    gz = terr.elev(clat, clon)
+                    p = cam.project(ce, cn, built_h(0.0, gz))
+                    pt = cam.project(ce, cn, built_h(h, gz))
+                    ok = (sv and p and pt
+                          and -BLEED < p[0] < W + BLEED
+                          and -BLEED < p[1] < H + BLEED)
+                    if not ok:
+                        close_run()
                         continue
                     n_bank += 1
-                    (marks_t1 if k % 2 == 0 else marks_t3).append((p[2], sv))
+                    marks_t3.append((p[2], sv))
+                    # a run breaks at a stratum edge, so each ribbon takes the
+                    # air at its own range, and at a jump in screen position,
+                    # which is where the course has left the frame and come
+                    # back or crossed a ridge
+                    dep = next(s for s in range(len(STRATA_EDGES) - 1)
+                               if STRATA_EDGES[s + 1] <= p[2] < STRATA_EDGES[s])
+                    if b_dep is not None and (dep != b_dep or (
+                            band and math.hypot(p[0] - band[-1][0],
+                                                p[1] - band[-1][1]) > 34.0)):
+                        close_run()
+                    b_dep = dep
+                    band.append((p[0], p[1], pt[1]))
+                    dx, dy = sun_offset(h)
+                    ps = cam.project(ce + dx, cn + dy, built_h(0.05, gz))
+                    if ps:
+                        foot.append(((p[0], p[1]), (ps[0], ps[1])))
                 run -= seg
+            close_run()
+        # the ribbons carry a stratum INDEX; _aired wants a range
+        marks_t1 = [((STRATA_EDGES[s] + STRATA_EDGES[s + 1]) * 0.5, m)
+                    for s, m in marks_t1]
 
-        # ── ridge scrub, one tick per so many square pixels of ridge ─────
+        # ── ridge scrub ─────────────────────────────────────────────────
         # DENSITY IS HELD IN SCREEN AREA, NOT IN GROUND AREA, which is the
         # hachure discipline: the marks keep a constant apparent spacing and
         # so the ridge reads as one texture from the foreground to the far
@@ -3871,9 +4482,22 @@ class Plate:
         # TRUE, so 1.4 m of maquis falls under the ink at about 3 km and the
         # far ridges simply stop carrying scrub, exactly as slope hachures
         # vanish on flat ground by construction.
+        #
+        # AND IT IS NOW MODULATED BY THE GROUND ITSELF (see scrub_cover): the
+        # constant that used to sit here was a pitch, and a pitch is what the
+        # eye counts. Curvature, slope and aspect say where maquis thickens
+        # and where the limestone shows through, all three off the DEM, so the
+        # patchiness is measured and the class still covers exactly the ground
+        # it covered before.
+        dens = self.scrub_cover()
+        near_m, far_m = self.scrub_mass_svg(dens)
+        marks_t1 += near_m
         grid = self.grid
         for (i, j) in self.visible:
             if self.cover.get((i, j)) != COVER_RIDGE:
+                continue
+            dv = dens.get((i, j), 0.0)
+            if dv <= 0.0:
                 continue
             a0, a1 = grid[i][j], grid[i + 1][j]
             b1, b0 = grid[i + 1][j + 1], grid[i][j + 1]
@@ -3885,7 +4509,7 @@ class Plate:
                 continue
             (e0, n0), (e1, n1_) = self.wor[i][j], self.wor[i + 1][j]
             (e2, n2), (e3, n3) = self.wor[i + 1][j + 1], self.wor[i][j + 1]
-            want = area / SCRUB_PX2_ZOOM
+            want = area / SCRUB_PX2_ZOOM * dv
             n_tick = int(want) + (1 if _rnd(i, j, 3) < (want % 1.0) else 0)
             for t in range(min(n_tick, 14)):
                 u, v = _rnd(i, j, t, 5), _rnd(i, j, t, 9)
@@ -3903,21 +4527,28 @@ class Plate:
                 if hp < VEG_MIN_PX:
                     continue
                 w_ = hp * 0.75
-                # three strokes from one foot: a tuft, which is the smallest
-                # mark that still says "low woody thing" rather than "dot"
+                # four stems from one foot, and the fourth is what the mark
+                # gained when it stopped having to carry the class at 1x: at
+                # 8x a three-stroke tuft is a fork, a four-stroke one is a
+                # bush. The lean of each is the mark's own hash, so no two
+                # stand the same way.
+                jx = (_rnd(i, j, t, 21) - 0.5) * w_ * 0.5
                 d = (f'M{n1(pb[0] - w_)} {n1(pb[1] - hp * 0.9)}'
                      f'L{n1(pb[0])} {n1(pb[1])}'
                      f'L{n1(pb[0] + w_)} {n1(pb[1] - hp * 0.85)}'
                      f'M{n1(pb[0])} {n1(pb[1])}L{n1(pb[0] + w_ * 0.15)} '
-                     f'{n1(pb[1] - hp)}')
+                     f'{n1(pb[1] - hp)}'
+                     f'M{n1(pb[0])} {n1(pb[1])}L{n1(pb[0] - w_ * 0.45 + jx)} '
+                     f'{n1(pb[1] - hp * 0.62)}')
                 n_scrub += 1
-                (marks_t1 if t == 0 and _rnd(i, j, 17) <
-                 SCRUB_PX2_ZOOM / SCRUB_PX2 else marks_t3).append(
-                    (a0[3], f'<path class="pp-scrub" d="{d}"/>'))
+                marks_t3.append((a0[3], f'<path class="pp-scrub" d="{d}"/>'))
 
         self.stats["veg_bank"] = n_bank
+        self.stats["veg_bank_runs"] = n_run
         self.stats["veg_scrub"] = n_scrub
-        return self._aired(marks_t1) + self._aired(marks_t3, "tm2")
+        return (self._aired(far_m)
+                + self._aired(marks_t1, "t1-only")
+                + self._aired(marks_t3, "tm3"))
 
     # ── the camp ─────────────────────────────────────────────────────────
     def camp(self):
@@ -4416,11 +5047,13 @@ VEG_KEY = (
     ("THE WILD FIG", "ἐρινεός — Il. 22.145, ἠνεμόεντα, “windswept”"),
     ("RIVERBANK THICKET", "elm, willow, tamarisk over lotus, rush, galingale "
      "— Il. 21.350–52, growing ἅλις, “in abundance”, which is why it is drawn "
-     "as thick as it is"),
+     "as thick as it is; one canopy here, its clumps when you come closer"),
     ("IDA’S TIMBER", "δρῦς ὑψίκομοι, ἐλάτη — Il. 23.114–20; 14.287 — coloured "
-     "as a wooded mass; no tree drawn on it, no treeline claimed"),
+     "as a wooded mass, darker in the folds of its own sampled skyline; no "
+     "tree drawn on it, no treeline claimed"),
     ("RIDGE SCRUB", "no line of the poem — the regional default above, now "
-     "given a mark as well as a tint"),
+     "given a mark as well as a tint. Its DENSITY follows the ground’s "
+     "curvature, slope and aspect: a drawing rule, not a survey"),
 )
 # ── THE FURNITURE COMES OFF THE PICTURE (2026-08-14) ─────────────────────
 # "the legends are unhelpful and obscure too much of the images" (John). The
@@ -5222,8 +5855,12 @@ def main():
           f"{P.stats['cells_visible']} "
           f"({100 * P.stats['cells_visible'] / max(1, P.stats['cells_tested']):.0f}%)")
     print(f"hulls {P.stats['hulls']}, huts {P.stats['huts']}, "
-          f"thicket clumps {P.stats.get('veg_bank', 0)}, scrub ticks "
-          f"{P.stats.get('veg_scrub', 0)}")
+          f"thicket clumps {P.stats.get('veg_bank', 0)} in "
+          f"{P.stats.get('veg_bank_runs', 0)} fringe runs, scrub tufts "
+          f"{P.stats.get('veg_scrub', 0)} under "
+          f"{P.stats.get('scrub_mass_loops', 0)} merged patches "
+          f"(density mean {P.stats.get('scrub_dens_mean', 0):.2f}, "
+          f"{100 * P.stats.get('scrub_bare_frac', 0):.0f}% of the ridge bare)")
     nk = P.stats.get("coast_necks", {})
     print("coastline low-pass worst move: " + ", ".join(
         f"{k} {v:g} m ({nk.get(k, 0)} neck cut)"
