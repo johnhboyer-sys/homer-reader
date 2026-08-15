@@ -18,11 +18,13 @@ WHAT IS NEW HERE, against Stage 2
   2. LEVEL OF DETAIL, in content as well as in labels. Three tiers, carried
      as CSS classes on the shipping SVG so a panel can switch them:
        t1  the overview: Ilios, Scamander, the bay, Ida, and the camp -- the
-           ships as ONE SERRATED MASS with the huts behind it. (The huts sit
-           at tier 1 on purpose: without them the near third of the frame is
-           bare ridge, and a mass of ships with no camp behind it reads as a
-           mark rather than as an army's quarters.)
-       t2  ~2-3x: individual hulls resolve out of the mass; the delta swamp,
+           ships as A RANK OF HULLS, half the berths at two and a half times
+           the drawn beam, with the huts behind them. (The huts sit at tier 1
+           on purpose: without them the near third of the frame is bare
+           ridge, and a fleet with no camp behind it reads as a mark rather
+           than as an army's quarters.)
+       t2  ~2-3x: the true fleet resolves under the rank -- every berth, five
+           rows deep at a true 13 m pitch; the delta swamp,
            the Simoeis, the ford, both headlands, Callicolone, the Achaean
            wall and its ditch, the throsmos
        t3  ~4x+: the wagon-road and everything strung along it -- the Scaean
@@ -51,7 +53,10 @@ WHAT IS NEW HERE, against Stage 2
      inverts: Homer's black ships went pale in dark theme. They now carry
      --pp-hull / --pp-hull-side / --pp-hull-edge, dark in BOTH themes, with
      the edge token doing the separating -- a dark hull on dark ground needs
-     a light rim, not a light hull.
+     a light rim, not a light hull. The camp is now FOUR materials and each
+     one carries the line that puts it there: pitch, the painted prow
+     (κυανόπρῳρος, and μιλτοπάρῃοι for Odysseus's twelve), fir timber and
+     cut reed. See the note above TOKENS.
 
 POSITIONS. Terrain, coastlines, the rivers, Hisarlik, Callicolone, Sigeion
 and Rhoiteion are measured. Everything the poem leaves unplaced -- the ford,
@@ -1850,10 +1855,71 @@ def object_shadow(cam, terr, lat, lon, bearing, silhouette, drape=False):
     return f'<path d="{rel_poly(scr)}" class="pp-objshadow"/>'
 
 
-def ship(cam, terr, lat, lon, bearing, length=24.0, beam=4.2):
-    """One beached galley, prow toward the water. Deck in plan, the visible
-    side along one edge, the stem-post standing clear: three marks, which at
-    17 px is the honest limit."""
+# ── THE OVERVIEW'S RANK. Every number here is a DRAWING decision and the
+# key declares it as one; none of them is a claim about the fleet. The true
+# fleet — 13 m of lateral pitch, five rows 38 m apart, a 4.2 m beam — is
+# untouched and is what the zoom shows. See camp() for why there are two.
+#
+# MEASURED, at the depth the ships are drawn at (about 2,600 m, 0.635 px per
+# metre across the sight-line):
+#
+#     pitch   beam_k   ink   air   what it looks like at 1x
+#     13 m      1.0    2.7    5.6   the rows behind fill the air: one band
+#     26 m      1.8    4.7   11.8   a dotted line; ships too small to read
+#     26 m      2.6    6.9    9.6   hull, air, hull — a fleet drawn up
+#     26 m      3.4    9.0    7.5   the hulls touch again at the bends
+FLEET_T1_PITCH_M = 26.0     # lateral pitch of the rank: every other berth
+FLEET_T1_ROWS = 2           # of the true five. Two still reads as ranks
+FLEET_T1_ROW_M = 170.0      # and 170 m keeps a row's prows well clear of the
+                            # row in front's sterns at 3.4x drawn length
+FLEET_T1_FIRST_M = 90.0     # the seaward row's stern, back from the waterline
+FLEET_T1_BEAM_K = 2.0
+FLEET_T1_LEN_K = 3.4        # LONGER THAN IT IS WIDE, and by more than the
+                            # ship is. The fleet points at the water and the
+                            # camera looks at the water, so every hull is seen
+                            # end-on down a 17-degree depression and its 5.7:1
+                            # proportion projects to about 1.6:1. Scaling beam
+                            # and length together only made a bigger pear;
+                            # what reads as a hull is a shape longer than it
+                            # is wide ON THE PAGE, and that costs 3.4x length
+                            # against 2.0x beam.
+FLEET_T1_STERN_H = 5.4      # the ἄφλαστον, in true metres above the beach
+ODYSSEUS_TWELVE = 12        # δυώδεκα μιλτοπάρῃοι, Il. 2.637, and the number
+                            # is the poem's own — the only count on this
+                            # beach that IS a claim
+
+SHIP_STATIONS = [(0.00, 0.30), (0.14, 0.46), (0.34, 0.50), (0.60, 0.48),
+                 (0.82, 0.36), (0.95, 0.18), (1.00, 0.06)]
+SHIP_DECK_H = 2.4         # true, and true is the point (see built_h)
+SHIP_POST_H = 6.4
+SHIP_PROW_F = 0.62        # forward of this the bow is PAINTED, not pitched
+
+
+def ship(cam, terr, lat, lon, bearing, length=24.0, beam=4.2,
+         beam_k=1.0, len_k=1.0, post_cls="pp-post", prow_cls="pp-prow",
+         stern_h=0.0):
+    """One beached galley, prow toward the water — which is the poem's own
+    order: the ships are hauled up and the wall goes in behind them, τεῖχος
+    ἐπὶ πρύμνῃσιν ἔδειμαν, built at their STERNS (Il. 14.32). Four marks:
+    the visible side, the deck in plan, the painted bow, the stem-post.
+
+    THE MAST IS ABSENT AND THAT IS THE POEM'S STATE, not an omission. A ship
+    coming to her moorings lowers it into the crutch — ἱστὸν δ' ἱστοδόκῃ
+    πέλασαν προτόνοισιν ὑφέντες (1.434) — and steps it again only to sail
+    (1.480, ἱστὸν στήσαντ'). The upright here is the stem-post at its true
+    6.4 m; the recorded finding is that stretching it by the terrain's 4x
+    turned every beached galley into a ship under sail.
+
+    THE BOW IS PAINTED. κυανόπρῳρος, dark-blue-prowed, is the standing
+    formula (15.693 = 23.852 = 23.878); μιλτοπάρῃοι, vermilion-cheeked, is
+    said of Odysseus's twelve and of no one else in the Iliad (2.637), which
+    is why prow_cls is a parameter and not a constant — see camp().
+
+    beam_k and len_k are the DRAWN CONVENTION and never the ship. At 1x a
+    true 4.2 m beam is 2.7 px on this sheet and 465 of them integrate into a
+    band with no air in it, so the overview draws fewer hulls larger. HEIGHTS
+    ARE NEVER SCALED: deck and stem-post stay at 2.4 and 6.4 m at every tier,
+    so a glyph and a hull throw the same true-length shadow."""
     g = terr.elev(lat, lon)
     th = math.radians(bearing)
     ux, uy = math.sin(th), math.cos(th)
@@ -1863,29 +1929,59 @@ def ship(cam, terr, lat, lon, bearing, length=24.0, beam=4.2):
     def W3(u, v, h):
         return cam.project(e0 + u * ux + v * vx, n0 + u * uy + v * vy, built_h(h, g))
 
-    stations = [(0.00, 0.30), (0.14, 0.46), (0.34, 0.50), (0.60, 0.48),
-                (0.82, 0.36), (0.95, 0.18), (1.00, 0.06)]
-    deck_h = 2.4
-    top_r, top_l, side = [], [], []
-    for f, hb in stations:
-        u, v = f * length, hb * beam
-        pr = W3(u, +v, deck_h)
-        pl = W3(u, -v, deck_h)
+    top_r, top_l, side, fs = [], [], [], []
+    for f, hb in SHIP_STATIONS:
+        u, v = f * length * len_k, hb * beam * beam_k
+        pr = W3(u, +v, SHIP_DECK_H)
+        pl = W3(u, -v, SHIP_DECK_H)
         pg = W3(u, +v * 0.8, 0.0)
         if pr and pl and pg:
             top_r.append((pr[0], pr[1]))
             top_l.append((pl[0], pl[1]))
             side.append((pg[0], pg[1]))
+            fs.append(f)
     if len(top_r) < 5:
         return ""
     out = [f'<path d="{rel_poly(top_r + list(reversed(side)))}" class="pp-hull-side"/>',
            f'<path d="{rel_poly(top_r + list(reversed(top_l)))}" class="pp-hull"/>']
-    base = W3(length * 0.98, 0.0, deck_h)
-    mid = W3(length * 1.02, 0.0, 4.2)
-    tip = W3(length * 0.90, 0.0, 6.4)
+    # The painted bow, laid over the pitch: BOTH faces of it forward of
+    # SHIP_PROW_F, in one path with two subpaths. The deck alone put the
+    # colour on a sliver that narrows to nothing at the stem and the flank
+    # alone put it on a strip that is edge-on there, so either by itself came
+    # out at 8x as a single blue nick. παρήϊον is a cheek: the bow has two of
+    # them and a foredeck between.
+    k = next((i for i, f in enumerate(fs) if f >= SHIP_PROW_F), None)
+    if k is not None and len(fs) - k >= 2:
+        out.append('<path d="%s%s" class="%s"/>'
+                   % (rel_poly(top_r[k:] + list(reversed(top_l[k:]))),
+                      rel_poly(top_r[k:] + list(reversed(side[k:]))),
+                      prow_cls))
+    # the stem-post rises FORWARD, over the water. Curving it back over its
+    # own deck (tip at 0.90 of the length, base at 0.98) gave every hull at
+    # 8x the profile of a bird's head, and a rank of them was a rank of geese.
+    base = W3(length * len_k * 0.97, 0.0, SHIP_DECK_H)
+    mid = W3(length * len_k * 1.05, 0.0, 4.4)
+    tip = W3(length * len_k * 1.12, 0.0, SHIP_POST_H)
     if base and mid and tip:
         out.append(f'<path d="M{n1(base[0])} {n1(base[1])}'
-                   f'Q{n1(mid[0])} {n1(mid[1])} {n1(tip[0])} {n1(tip[1])}" class="pp-post"/>')
+                   f'Q{n1(mid[0])} {n1(mid[1])} {n1(tip[0])} {n1(tip[1])}" '
+                   f'class="{post_cls}"/>')
+    # THE STERN ORNAMENT, ἄφλαστον (Il. 15.717, the thing Hector gets his
+    # hands on) with the ἄκρα κόρυμβα, the stern-tips he means to hack off
+    # (9.241). It is drawn because of where the reader is standing: the fleet
+    # points at the water and the camera looks at the water, so what faces the
+    # eye is 457 STERNS, and the stem-post at the far end is behind its own
+    # hull. A rank of little dark slats with a horn rising at the near end of
+    # each is a beach with ships drawn up on it; the same rank without the
+    # horns is a row of lumps, which is what it was.
+    if stern_h > 0.0:
+        b2 = W3(length * len_k * 0.03, 0.0, SHIP_DECK_H)
+        m2 = W3(-length * len_k * 0.07, 0.0, stern_h * 0.62)
+        t2 = W3(-length * len_k * 0.04, 0.0, stern_h)
+        if b2 and m2 and t2:
+            out.append(f'<path d="M{n1(b2[0])} {n1(b2[1])}'
+                       f'Q{n1(m2[0])} {n1(m2[1])} {n1(t2[0])} {n1(t2[1])}" '
+                       f'class="{post_cls}"/>')
     return "".join(out)
 
 
@@ -2405,7 +2501,7 @@ def city(cam, terr, centre, radius=105.0, wall_h=6.0, tower_h=9.5):
     not pretend otherwise.
 
     IT THREW NO SHADOW, AND THAT IS WHY IT FLOATED. "Troy looks like it's
-    floating" (John, on the 8x crop). Every one of the 459 hulls and 270 huts
+    floating" (John, on the 8x crop). Every one of the 465 hulls and 265 huts
     on the beach is pinned to the ground by a true-length shadow of its own;
     the citadel -- the biggest built thing in the frame and the one the plate
     is named for -- was excluded from that pass and read as a sticker laid on
@@ -2627,6 +2723,33 @@ def draped_ribbon(cam, terr, latlons, half_w_m, cls, z_off=0.0, taper=None):
 # oldest observation in landscape painting and it is also just the spectrum.
 # The value barely moves (L 0.0146 -> 0.0111 in light, 0.0023 -> 0.0016 in
 # dark), so every ordering the tests pin is untouched.
+#
+# ── THE CAMP IS FOUR MATERIALS, AND THE POEM NAMES EVERY ONE ─────────────
+# "a bit more color on the camps... like, not just black shapes" (John). It
+# was two tokens for the whole beach -- a near-black hull and a terracotta
+# roof borrowed off the citadel's masonry -- and the Achaean camp is not
+# built of the same stuff as Ilios. What the Iliad actually gives:
+#
+#   PITCH, the hull.  νηυσὶ μελαίνῃσιν, the black ships, everywhere the
+#       formula falls (9.235 = 11.824 = 12.107). --pp-hull / --pp-hull-side.
+#       These stay the DARKEST fills on the beach in both themes; the plate
+#       has the recorded bug where hulls keyed to --text went pale at night,
+#       and test_the_black_ships_stay_the_darkest_thing_on_the_beach pins it.
+#   DARK BLUE, the prow.  νηὸς κυανοπρῴροιο, Il. 15.693 = 23.852 = 23.878, a
+#       standing formula. --pp-hull-prow, a lapis so dark it is only a prow
+#       when you are close enough to be looking at one ship.
+#   VERMILION, the cheek.  δυώδεκα μιλτοπάρῃοι, Il. 2.637 -- Odysseus's
+#       twelve, and ONLY his twelve, which is why the red is a block in the
+#       middle of the line and not a colour the fleet has. μίλτος is red
+#       ochre. --pp-hull-cheek.
+#   FIR AND CUT REED, the huts.  Il. 24.450-51: the Myrmidons built Achilles'
+#       hut δοῦρ' ἐλάτης κέρσαντες, cutting fir timbers, and roofed it
+#       λαχνήεντ' ὄροφον λειμωνόθεν ἀμήσαντες, with shaggy thatch mown from
+#       the meadow. --pp-timber is cut fir, --pp-thatch is dry mown meadow.
+#       Both are LIGHTER than the hulls on purpose: a camp of timber and
+#       straw standing behind a fleet of pitch is the tonal fact the poem
+#       states, and it is also what lets a reader tell the huts from the
+#       ships at plate scale, which two near-black tokens never could.
 TOKENS = {
     "light": """
   --page-bg:#E7E7E9; --text:#241827; --text-mid:#5B4C58;
@@ -2635,6 +2758,9 @@ TOKENS = {
   --pp-shade:#181A2C; --pp-lit:#FFFAEB;
   --plate-masonry:#A87263; --plate-river:#1A4C6A;
   --pp-hull:#3A2C3C; --pp-hull-side:#1B1220; --pp-hull-edge:#140D18;
+  --pp-hull-rim:#140D18;
+  --pp-hull-prow:#2A4270; --pp-hull-cheek:#93331E;
+  --pp-timber:#8E7150; --pp-thatch:#E0C892;
   --pp-cover-fan:#FAD391; --pp-cover-open:#E0CDBA; --pp-cover-ridge:#CDCD83;
   --pp-cover-wet:#94C472;
   --pp-veg:#46612E; --pp-veg-lit:#7C9945; --pp-veg-tick:#4E6B34;
@@ -2650,6 +2776,9 @@ TOKENS = {
   --pp-shade:#03050E; --pp-lit:#F2E4C4;
   --plate-masonry:#A8846F; --plate-river:#123A4A;
   --pp-hull:#241C2A; --pp-hull-side:#120C16; --pp-hull-edge:#C3B49E;
+  --pp-hull-rim:#38303A;
+  --pp-hull-prow:#1F3059; --pp-hull-cheek:#5A1E11;
+  --pp-timber:#4E3D28; --pp-thatch:#8A7248;
   --pp-cover-fan:#513B1F; --pp-cover-open:#493B30; --pp-cover-ridge:#3C3C1E;
   --pp-cover-wet:#233616;
   --pp-veg:#1C2A12; --pp-veg-lit:#3C5223; --pp-veg-tick:#93AE6A;
@@ -2802,14 +2931,43 @@ CSS = """
   stroke-linejoin:round}
 .pp-waterline{fill:none;stroke:var(--scene-map-coast);stroke-width:0.6;stroke-opacity:0.45}
 .pp-river{fill:var(--plate-river);stroke:none}
-.pp-hull{fill:var(--pp-hull);stroke:var(--pp-hull-edge);stroke-width:0.35;
+/* THE SHIPS KEEP THEIR OWN RIM, and the reason is the oldest bug on this
+   plate. --pp-hull-edge in dark theme is #C3B49E, a near-label cream, and it
+   is right for the CITADEL, which is a pale stone mass on a dark hill. On a
+   hull it inverts the one thing the epithet asks a drawing for: at 8x the
+   fleet came out as bone-white canoes with cream posts, the LIGHTEST marks on
+   the beach, and at 1x the rank read as a row of white ticks. --pp-hull-rim
+   is the same near-black in daylight and a restrained slate at night -- above
+   the beach it lies on, nowhere near the ink -- and the posts take the hull's
+   own fill rather than any rim at all, because a post is a piece of the ship
+   and not an outline of one. Pinned by
+   test_the_black_ships_stay_the_darkest_thing_on_the_beach. */
+.pp-hull{fill:var(--pp-hull);stroke:var(--pp-hull-rim);stroke-width:0.35;
   stroke-linejoin:round}
 .pp-hull-side{fill:var(--pp-hull-side);stroke:none}
-.pp-post{fill:none;stroke:var(--pp-hull-edge);stroke-width:0.9;stroke-linecap:round}
-.pp-ship-mass{fill:var(--pp-hull);stroke:var(--pp-hull-edge);stroke-width:0.7;
+/* 0.45, not 0.9. The tier-2 fleet is only ever LOOKED at from 2x up, and a
+   stroke width is in user units, so 0.9 became a seven-pixel club at 8x --
+   every galley a frying pan. A stem-post is about 0.3 m of worked timber,
+   which is what 0.45 comes to on the 8x crop. The overview's post keeps its
+   own weight below, because at 1x it is carrying the whole silhouette. */
+.pp-post{fill:none;stroke:var(--pp-hull-side);stroke-width:0.45;stroke-linecap:round}
+/* THE OVERVIEW'S HULL IS THE SAME SOLID, DRAWN BOLDER. Its stem-post and its
+   stern ornament are the two marks on a 15 px glyph that have to survive at
+   1x, so they take a heavier stroke -- and a ROUND cap, which is what a
+   carved post end is; a butt cap at this weight chops the ἄφλαστον square. */
+.pp-post-t1{fill:none;stroke:var(--pp-hull-side);stroke-width:1.6;
+  stroke-linecap:round}
+/* the painted bow. Two formulae, two colours, and which one a hull gets is
+   decided by whose contingent it is beached in -- see ODYSSEUS_TWELVE. */
+.pp-prow{fill:var(--pp-hull-prow);stroke:none}
+.pp-prow-miltos{fill:var(--pp-hull-cheek);stroke:none}
+/* fir wall, cut-reed roof (Il. 24.450-51). The roof was --plate-masonry,
+   which is the CITADEL's stone: it made every hut a terracotta domino and
+   said, in the one language a plate has, that Achilles slept in a stone
+   house. The rim stays --pp-hull-edge, the sheet's one rim token. */
+.pp-hut-wall{fill:var(--pp-timber);stroke:var(--pp-hull-rim);stroke-width:0.25;
   stroke-linejoin:round}
-.pp-hut-wall{fill:var(--pp-hull-side);stroke:none}
-.pp-hut-roof{fill:var(--plate-masonry);stroke:var(--pp-hull-edge);stroke-width:0.3;
+.pp-hut-roof{fill:var(--pp-thatch);stroke:var(--pp-hull-rim);stroke-width:0.3;
   stroke-linejoin:round}
 /* Ilios's wall, crest, tower and roofs are a BUILT MASS on the skyline, the
    same kind of thing a hull is, and they had the hull bug: keyed to --text,
@@ -4556,22 +4714,71 @@ class Plate:
         behind; the wall and its ditch inland of both. Every position is
         conjectural, laid against the measured shoreline: the poem is exact
         about the camp's SHAPE (14.31-36, rows because one row would not fit
-        between the headlands) and silent about its ground."""
+        between the headlands) and silent about its ground.
+
+        THE FLEET IS DRAWN TWICE, and this is the whole of the ships fix.
+        The plate is NAMED for the ships and they were the weakest thing on
+        it: 465 hulls at a true 13 m pitch, five deep, are 2.7 px of beam
+        each with the rows behind filling every gap, so at 1x they integrate
+        into one dark body — and the tier-1 mark was worse than that, a
+        SOLID BAND with a zigzag top edge, which is a fence. A reader had to
+        ask outright whether it was ships or a wall.
+
+        The vegetation lane's defect was the inverse of this one and so is
+        the fix. Plants read as countable individuals and had to be merged
+        into mass; the ships had merged into mass and had to be given back
+        their identity. What makes a hull read as a hull is AIR either side
+        of it, and air at 1x can only be bought with count.
+
+        So the overview draws a RANK: half the stations, two rows instead of
+        five, each hull at FLEET_T1_BEAM_K times its beam — Pope's plate of
+        1716 and the whole tradition after it draw the beached fleet as one
+        glyph repeated at a pitch, never as individuated hulls, and that is
+        why his reads at plate scale and ours did not
+        (docs/research/DEPICTIONS-OF-TROY.md, "Concrete, implementable
+        lessons", 1). It is not a claim and it does not become one: the key
+        has always declared the ships "hulls in ranks with the huts behind,
+        filling the frontage in view and never the catalogue's count", and
+        that sentence covers the drawn size exactly as it covers the drawn
+        number. At 4x and 8x the tier-1 rank switches off and the true fleet
+        — 13 m pitch, five ranks, 4.2 m beam — is what is underneath it."""
         cam, terr = self.cam, self.terr
         lagoon_poly = self.shore("lagoon-bronze")
         camp_zone = self.lay["achaean-camp-zone"]["polygon"]
         th = math.radians(HEADING_DEG)
 
+        def wet(f, lateral):
+            e = f * math.sin(th) + lateral * math.cos(th)
+            n = f * math.cos(th) - lateral * math.sin(th)
+            return point_in_poly_ll(
+                VIEWPOINT[0] + n / 111132.0,
+                VIEWPOINT[1] + e / (111320.0 * math.cos(math.radians(VIEWPOINT[0]))),
+                lagoon_poly)
+
         def shore_forward(lateral):
+            """How far forward the beach runs on this line, REFINED to about
+            a metre. It used to return the last dry 25 m step, and the 25 m
+            staircase was invisible in everything that consumed it except the
+            one thing that differentiates it: the prow bearing below took the
+            slope over a 26 m baseline, so a single step of the staircase was
+            a 44-degree swing, and adjacent ships in the same rank pointed
+            44 degrees apart. At a 2.7 px hull nobody could see it. At the
+            overview's glyph it was the whole defect — a rank that looked
+            like a heap."""
             lo = None
             f = 100.0
             while f < 5200.0:
-                e = f * math.sin(th) + lateral * math.cos(th)
-                n = f * math.cos(th) - lateral * math.sin(th)
-                lat = VIEWPOINT[0] + n / 111132.0
-                lon = VIEWPOINT[1] + e / (111320.0 * math.cos(math.radians(VIEWPOINT[0])))
-                if point_in_poly_ll(lat, lon, lagoon_poly):
-                    return lo
+                if wet(f, lateral):
+                    if lo is None:
+                        return None
+                    a, b = lo, f
+                    for _ in range(4):           # 25 m -> ~1.5 m
+                        mid = 0.5 * (a + b)
+                        if wet(mid, lateral):
+                            b = mid
+                        else:
+                            a = mid
+                    return a
                 lo = f
                 f += 25.0
             return None
@@ -4594,13 +4801,26 @@ class Plate:
         # the fleet in one line (14.31-36). 13 m of lateral pitch on a 4.2 m
         # beam is roomy; five ranks is what the frontage in view then carries.
         ships, ship_px, hulls_drawn, depths = [], [], 0, []
-        obj_sh: list = []
-        # the silhouettes that throw: a hull's deck at its true 2.4 m with the
-        # stem-post's 6.4 m tip, and a hut's eaves at 1.8 with its ridge at
-        # 3.2. Every height here is the one the object is drawn at.
-        HULL_SIL = ([((f * 24.0, s * hb * 4.2), 2.4)
-                     for f, hb in ((0.0, 0.30), (0.34, 0.50), (0.82, 0.36), (1.0, 0.06))
-                     for s in (1, -1)] + [((24.0 * 0.90, 0.0), 6.4)])
+        ships_t1: list = []
+        obj_sh: list = []           # the hulls', which are tier 2 and up
+        obj_sh_t1: list = []        # the overview rank's
+        hut_sh: list = []           # the huts', which are on at EVERY tier,
+                                    # because the huts are
+
+        # The silhouette that throws: the deck's outline at its true 2.4 m
+        # with the stem-post's 6.4 m tip.
+        #
+        # THE OVERVIEW'S GLYPH THROWS THE TRUE SHIP'S SHADOW, not its own.
+        # Drawn at the glyph's 82 m by 8.4 m the shadow came out BIGGER than
+        # the hull and squarer, and eighty grey slabs with a ship on each is
+        # a rank of pallets. It is also the more honest division of labour:
+        # the shadow says where a ship stands and how big it is, the glyph
+        # says what it is, and only one of those two jobs needs a convention.
+        HULL_SIL = ([((f * 24.0, s * hb * 4.2), SHIP_DECK_H)
+                     for f, hb in ((0.0, 0.30), (0.34, 0.50),
+                                   (0.82, 0.36), (1.0, 0.06))
+                     for s in (1, -1)]
+                    + [((24.0 * 1.12, 0.0), SHIP_POST_H)])
         HUT_SIL = [((-2.5, -3.5), 1.8), ((-2.5, 3.5), 1.8),
                    ((2.5, -3.5), 1.8), ((2.5, 3.5), 1.8),
                    ((0.0, -3.5), 3.2), ((0.0, 3.5), 3.2)]
@@ -4612,42 +4832,124 @@ class Plate:
             SHORE at this point on the beach, not a constant. Every ship laid
             on the camera's own heading pointed straight away from the eye
             wherever the coast turned, and a beached galley seen exactly
-            end-on is a dark blob, not a ship."""
-            a = shore.get(lateral - 13.0)
-            b = shore.get(lateral + 13.0)
-            if a is None or b is None:
+            end-on is a dark blob, not a ship.
+
+            THE SLOPE IS TAKEN OVER 130 m, not over 26. A shoreline sampled
+            off a reconstructed polygon has metre-scale wobble in it that is
+            not coastline, it is the polygon's own vertex spacing; over a
+            26 m baseline that wobble IS the derivative, and the ranks came
+            out fanned. 130 m is about five true berths — the scale at which
+            a beach really does turn — and it is what makes a rank read as
+            προκρόσσας (14.35) rather than as wreckage."""
+            xs, ys = [], []
+            for k in range(-5, 6):
+                q = shore.get(round((lateral + k * 13.0) / 13.0) * 13.0)
+                if q is not None:
+                    xs.append(k * 13.0)
+                    ys.append(q)
+            if len(xs) < 4:
                 return HEADING_DEG
-            dfdl = (b - a) / 26.0
+            mx = sum(xs) / len(xs)
+            my = sum(ys) / len(ys)
+            den = sum((x - mx) ** 2 for x in xs)
+            if den <= 0:
+                return HEADING_DEG
+            dfdl = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / den
             nf, nl = 1.0, -dfdl
             L = math.hypot(nf, nl)
             de = (nf * math.sin(th) + nl * math.cos(th)) / L
             dn = (nf * math.cos(th) - nl * math.sin(th)) / L
             return math.degrees(math.atan2(de, dn))
 
-        for lateral in lat_span:
-            fs = shore[lateral]
-            if fs is None:
-                continue
-            bearing = seaward(lateral)
-            for row in range(5):
-                f = fs - 66.0 - row * 38.0 + (11.0 if row % 2 else 0.0)
-                if f < 60:
+        def berths(pitch, rows, row_m, first_m=66.0, stagger=11.0):
+            """Every place on the beach a hull can stand, collected BEFORE
+            anything is drawn. The order matters: Odysseus's twelve are the
+            twelve nearest the middle of the line (8.222-23, ἐν μεσσάτῳ),
+            and the middle of the line is not known until the whole line
+            is."""
+            out = []
+            # the same frontage the beach has always been tested over,
+            # -910 m to 1950 m of lateral, sampled at whatever pitch asks
+            for lateral in [x * pitch for x in
+                            range(int(-910.0 / pitch), int(1950.0 / pitch))]:
+                fs = shore.get(round(lateral / 13.0) * 13.0)
+                if fs is None:
+                    fs = shore_forward(lateral)
+                if fs is None:
                     continue
-                lat, lon = ll(f, lateral)
-                if terr.elev(lat, lon) > 16.0 or not near_camp(lat, lon):
-                    continue
-                sp = cam.project_ll(lat, lon, built_h(2.4, terr.elev(lat, lon)))
-                if not sp or not (-BLEED < sp[0] < W + BLEED and -BLEED < sp[1] < H + BLEED):
-                    continue
-                sh = ship(cam, terr, lat, lon, bearing)
-                if sh:
-                    ships.append(sh)
-                    sd = object_shadow(cam, terr, lat, lon, bearing, HULL_SIL)
-                    if sd:
-                        obj_sh.append(sd)
-                    hulls_drawn += 1
-                    ship_px.append((sp[0], sp[1], lateral, f, lat, lon))
-                    depths.append(sp[2])
+                bearing = seaward(round(lateral / 13.0) * 13.0)
+                for row in range(rows):
+                    f = fs - first_m - row * row_m + (stagger if row % 2 else 0.0)
+                    if f < 60:
+                        continue
+                    lat, lon = ll(f, lateral)
+                    if terr.elev(lat, lon) > 16.0 or not near_camp(lat, lon):
+                        continue
+                    sp = cam.project_ll(lat, lon, built_h(SHIP_DECK_H,
+                                                          terr.elev(lat, lon)))
+                    if not sp or not (-BLEED < sp[0] < W + BLEED
+                                      and -BLEED < sp[1] < H + BLEED):
+                        continue
+                    out.append((lateral, row, f, lat, lon, bearing, sp))
+            return out
+
+        def miltos(berth_list, n):
+            """ODYSSEUS'S TWELVE, and only his twelve. δυώδεκα μιλτοπάρῃοι
+            (2.637) is said of his contingent alone in the Iliad, and his
+            ship is ἐν μεσσάτῳ, in the very middle, because from there he
+            can be heard both ways down the line — to Ajax's huts at the one
+            end and Achilles' at the other (8.222-26). So the vermilion is a
+            BLOCK in the middle of the fleet, which is the poem's own
+            statement about where Odysseus is, drawn in the one language a
+            plate has. Everything else keeps the general formula's dark-blue
+            prow.
+
+            n is twelve on the true fleet. On the overview's rank it is
+            twelve scaled by the rank's own count, for the same reason every
+            other number there is scaled: the rank draws a sixth of the
+            berths, so twelve of them would be a sixth of the fleet in
+            vermilion and the plate would be saying something false about how
+            much of the line is Odysseus's."""
+            if not berth_list or n < 1:
+                return set()
+            lats = sorted(q[0] for q in berth_list)
+            med = lats[len(lats) // 2]
+            order = sorted(range(len(berth_list)),
+                           key=lambda i: (abs(berth_list[i][0] - med),
+                                          berth_list[i][1]))
+            return set(order[:n])
+
+        true_berths = berths(13.0, 5, 38.0)
+        red = miltos(true_berths, ODYSSEUS_TWELVE)
+        for i, (lateral, row, f, lat, lon, bearing, sp) in enumerate(true_berths):
+            sh = ship(cam, terr, lat, lon, bearing,
+                      prow_cls="pp-prow-miltos" if i in red else "pp-prow")
+            if sh:
+                ships.append(sh)
+                sd = object_shadow(cam, terr, lat, lon, bearing, HULL_SIL)
+                if sd:
+                    obj_sh.append(sd)
+                hulls_drawn += 1
+                ship_px.append((sp[0], sp[1], lateral, f, lat, lon))
+                depths.append(sp[2])
+
+        # ── and the same beach, at the overview's own count and size ──────
+        t1_berths = berths(FLEET_T1_PITCH_M, FLEET_T1_ROWS, FLEET_T1_ROW_M,
+                           first_m=FLEET_T1_FIRST_M,
+                           stagger=FLEET_T1_PITCH_M * 0.5)
+        red_t1 = miltos(t1_berths, max(1, round(
+            ODYSSEUS_TWELVE * len(t1_berths) / max(1, len(true_berths)))))
+        for i, (lateral, row, f, lat, lon, bearing, sp) in enumerate(t1_berths):
+            sh = ship(cam, terr, lat, lon, bearing,
+                      beam_k=FLEET_T1_BEAM_K, len_k=FLEET_T1_LEN_K,
+                      post_cls="pp-post-t1", stern_h=FLEET_T1_STERN_H,
+                      prow_cls="pp-prow-miltos" if i in red_t1 else "pp-prow")
+            if sh:
+                ships_t1.append(sh)
+                sd = object_shadow(cam, terr, lat, lon, bearing, HULL_SIL)
+                if sd:
+                    obj_sh_t1.append(sd)
+
         huts = []
         for lateral in [x * 34.0 for x in range(-26, 58)]:
             fs = shore_forward(lateral)
@@ -4666,54 +4968,16 @@ class Plate:
                     huts.append(hh)
                     sd = object_shadow(cam, terr, lat, lon, hb, HUT_SIL)
                     if sd:
-                        obj_sh.append(sd)
+                        hut_sh.append(sd)
 
-        # THE MASS, for tier 1: the same fleet, drawn as one body with a
-        # serrated seaward edge, because at 1x 1,100 outlines is a smudge and
-        # a smudge is a mark standing for tone.
-        # THE ORDER ALONG THE BEACH IS `lateral`, NOT SCREEN X. The shoreline
-        # curves through this camera, so chaining the rows by x threaded the
-        # band back and forth across the bay and printed a black snake over
-        # open water. The beach parameter is monotone by construction.
-        mass = ""
-        if ship_px:
-            front: dict = {}
-            back: dict = {}
-            for q in ship_px:
-                key = round(q[2] / 13.0)
-                if key not in front or q[3] > front[key][3]:
-                    front[key] = q
-                if key not in back or q[3] < back[key][3]:
-                    back[key] = q
-            keys = sorted(front)
-            # split at any gap in the beach parameter: two stretches of beach
-            # separated by ground the ships are not on must not be joined.
-            runs, cur = [], [keys[0]]
-            for k in keys[1:]:
-                if k - cur[-1] <= 2:
-                    cur.append(k)
-                else:
-                    runs.append(cur)
-                    cur = [k]
-            runs.append(cur)
-            parts = []
-            for run in runs:
-                if len(run) < 6:
-                    continue
-                # a serrated seaward edge: at 1x the prows are what says
-                # "ships" rather than "a dark band".
-                # The band follows the SEAWARD ROW only, at a modest depth.
-                # Running it back to the landward row made it as deep as the
-                # camp really is and printed a slab; the huts behind carry the
-                # camp's depth, and the ships carry its line.
-                top, bot = [], []
-                for n_, k in enumerate(run):
-                    x, y = front[k][0], front[k][1]
-                    top.append((x, y - (6.5 if n_ % 2 else 2.0)))
-                    bot.append((x, y + 8.0))
-                parts.append(rel_poly(simplify(top + list(reversed(bot)), 0.5)))
-            if parts:
-                mass = '<path class="pp-ship-mass" d="%s"/>' % "".join(parts)
+        # THE SERRATED MASS IS GONE, and its removal is the fix, not a side
+        # effect of it. It was one filled polygon per stretch of beach with a
+        # zigzag along the seaward edge — the note that built it argued the
+        # prows in the zigzag would say "ships" rather than "a dark band",
+        # and on the page they said fence. A solid has no air in it, and air
+        # between the hulls is the only thing that makes a hull a hull. What
+        # stands here now is the rank built above: individual glyphs, at the
+        # overview's own count and size, with the beach showing between them.
 
         # THE ACHAEAN WALL AND ITS DITCH (7.436-441), inland of the huts:
         # a rampart with the ditch beyond it, toward the plain. Conjectural;
@@ -4782,12 +5046,15 @@ class Plate:
                 soften(ditch_pts, 2, closed=False), close=False)
 
         self.stats["hulls"] = hulls_drawn
+        self.stats["hulls_t1"] = len(ships_t1)
+        self.stats["hulls_miltos"] = len(red)
         self.stats["huts"] = len(huts)
         self.stats["ship_depth"] = round(sum(depths) / len(depths), 1) if depths else 2600.0
         self.stats["beach_frontage_m"] = round(
             (max(q[2] for q in ship_px) - min(q[2] for q in ship_px)) if ship_px else 0.0)
-        self.stats["obj_shadows"] = len(obj_sh)
-        return ships, huts, mass, wall_svg, ditch_svg, ship_px, obj_sh
+        self.stats["obj_shadows"] = len(obj_sh) + len(obj_sh_t1) + len(hut_sh)
+        return (ships, ships_t1, huts, wall_svg, ditch_svg, ship_px,
+                obj_sh, obj_sh_t1, hut_sh)
 
     # ── the poem's waypoints, placed by rule ─────────────────────────────
     def waypoints(self):
@@ -5027,7 +5294,7 @@ WATER_KEY = (
      "and a lighter line"),
 )
 # ── AND THE MARKS. Everything below is drawn on the plate and, until now,
-# explained nowhere: a reader could count 459 hulls and think we were making
+# explained nowhere: a reader could count 465 hulls and think we were making
 # a claim about the fleet. Every line here is a CONVENTION being declared,
 # which is the only kind of thing a key can honestly say about a mark whose
 # position is conjectural.
@@ -5037,6 +5304,17 @@ DRAWN_MARKS = (
     "ditch one line each at the camp’s inland edge (Il. 7.436–441; 14.30–36); a "
     "tumulus a low shadowed mound; the wagon-road one line from the gate onto the "
     "plain (22.146), an open ring at each waypoint in the poem’s own order."
+)
+# ── THE CAMP IS BUILT OF FOUR THINGS AND THE POEM NAMES ALL FOUR. Same rule
+# as VEG_KEY: the mark carries the line that puts it there, in the same
+# breath as the mark. It was two near-black tokens and a roof borrowed off
+# the citadel's masonry, which is neither honest nor legible.
+CAMP_KEY = (
+    ("THE SHIPS", "pitch, νῆες μέλαιναι — Il. 9.235 = 11.824 = 12.107; dark-blue prows, "
+     "κυανόπρῳρος — 15.693; vermilion on Odysseus’ twelve alone, μιλτοπάρῃοι — 2.637, "
+     "a block ἐν μεσσάτῳ — 8.222–26"),
+    ("THE HUTS", "fir timber and cut reed — δοῦρ’ ἐλάτης κέρσαντες, λαχνήεντ’ ὄροφον "
+     "λειμωνόθεν ἀμήσαντες, Il. 24.450–51"),
 )
 # ── VEGETATION, and the four things on this sheet that grow. Each carries
 # the line of the poem that puts it there in the same breath as its mark,
@@ -5079,6 +5357,10 @@ VEG_ROW = 12.5           # leading for the key's own small face. It was 14
                          # crop, and the crop is not this lane's to move -- so
                          # the row is paid for out of the leading rather than
                          # out of the sheet.
+NOTE_ROW = 11.5          # and the same again for THE CAMP's two rows. The
+                         # disclosure block is five lines of a 10 px face, so
+                         # a 12.5 px step was a display leading on running
+                         # text; 11.5 is still 1.15 em and it buys the rows.
 BAND_H = 300.0           # the margin below the neatline, in px
 NEAT_M = 16.0            # neatline inset from the sheet edge
 PIC_BOT = H - BAND_H     # the picture's own bottom edge
@@ -5103,7 +5385,11 @@ def furniture(cam, terr, ship_depth, troy_depth):
     bx = 62.0                      # the margin's own left edge
     rx = W - 62.0                  # and its right
     sx0 = 1300.0                   # where the scale column starts
-    y0 = PIC_BOT + 38.0            # first baseline in the margin
+    y0 = PIC_BOT + 22.0            # first baseline in the margin. It was 38,
+                                   # which put 54 px of white between the
+                                   # neatline and the first word: the most
+                                   # expensive whitespace on the sheet, and
+                                   # what THE CAMP's rows are paid for with.
 
     # ── the key. Every entry still carries its evidence in the same breath as
     # its swatch — that is the honesty mechanism and it is not negotiable —
@@ -5124,7 +5410,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
                f'stroke-opacity="0.5"/>')
 
     kw, kh, row, col = 30.0, 16.0, 36.0, 600.0
-    ky0 = y0 + 32.0
+    ky0 = y0 + 26.0
     for i, (cls, name, gloss) in enumerate(COVER_KEY):
         sx = bx + (i % 2) * col
         sy_ = ky0 + (i // 2) * row
@@ -5184,6 +5470,25 @@ def furniture(cam, terr, ship_depth, troy_depth):
         out.append(f'<text class="pp-l-note" x="{n1(sx0 + kw + 268)}" '
                    f'y="{n1(sy_ + 11)}" fill-opacity="0.85">{esc(gloss)}</text>')
 
+    # ── THE CAMP, under the water it is drawn up beside. The plate is named
+    # for the ships and until now the key said nothing about what they are
+    # made of; the hulls were one near-black token and the huts wore the
+    # citadel's masonry. Same rule as VEGETATION and GROUND COVER: the mark
+    # carries the line that puts it there, in the same breath as the mark.
+    camp_y = sub + 68.0
+    out.append(f'<text class="pp-l-region" x="{n1(sx0)}" y="{n1(camp_y)}">'
+               f'THE CAMP</text>')
+    out.append(f'<text class="pp-l-note" x="{n1(sx0 + 148)}" y="{n1(camp_y)}" '
+               f'fill-opacity="0.85">four materials, and the poem names all '
+               f'four; at 1× the hulls are drawn fewer and larger than the '
+               f'beach holds</text>')
+    for i, (name, gloss) in enumerate(CAMP_KEY):
+        yy = camp_y + 14.0 + i * VEG_ROW
+        out.append(f'<text class="pp-l-note" x="{n1(sx0)}" y="{n1(yy)}" '
+                   f'letter-spacing="0.9">{esc(name)}</text>')
+        out.append(f'<text class="pp-l-note" x="{n1(sx0 + 148)}" y="{n1(yy)}" '
+                   f'fill-opacity="0.85">{esc(gloss)}</text>')
+
     # the two bars, at the two depths the plate is mostly about
     for k, (d, lbl) in enumerate(((ship_depth, "1 km at the ships"),
                                   (troy_depth, "1 km at Ilios"))):
@@ -5205,7 +5510,8 @@ def furniture(cam, terr, ship_depth, troy_depth):
     # missing. The margin is 300 px and fixed -- it is the crop, and the crop
     # is not this lane's to move -- so the five notes are set at the 10 px
     # face's own comfortable leading instead of at a display step.
-    ty = sub + 18.0 + len(VEG_KEY) * VEG_ROW + 4.0
+    ty = max(sub + 18.0 + len(VEG_KEY) * VEG_ROW,
+             camp_y + 14.0 + (len(CAMP_KEY) - 1) * VEG_ROW) + 13.5
     for line in (
         COVER_KEY_UNDRAWN,
         DRAWN_MARKS,
@@ -5228,7 +5534,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
         + " DRAFT.",
     ):
         out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(ty)}">{esc(line)}</text>')
-        ty += VEG_ROW
+        ty += NOTE_ROW
     return "".join(out)
 
 
@@ -5366,18 +5672,25 @@ def build(terr, cam, plate_json):
     body.append(P.vegetation_svg())
 
     wps = P.waypoints()
-    ships, huts, mass, wall_svg, ditch_svg, ship_px, obj_sh = P.camp()
+    (ships, ships_t1, huts, wall_svg, ditch_svg, ship_px,
+     obj_sh, obj_sh_t1, hut_sh) = P.camp()
 
     # wall and ditch, then huts, then ships: inland to seaward is also far to
     # near in this camera, so painter order is depth order.
     body.append(f'<g class="tm2">{wall_svg}{ditch_svg}</g>')
-    # the fleet's own shadows go down on the beach BEFORE the fleet: 459 hulls
-    # and 270 huts each throwing a true-length shadow is most of what makes
+    # the camp's own shadows go down on the beach BEFORE what throws them: a
+    # true-length shadow under every hull and every hut is most of what makes
     # the camp read as objects standing on ground rather than marks on paper.
+    # THE HUTS' SHADOWS ARE ON AT EVERY TIER, because the huts are. They were
+    # in the tier-2 group with the hulls', so at 1x the whole camp behind the
+    # fleet floated — and it floated hardest after the huts stopped being
+    # near-black boxes and became pale timber and straw on pale ground.
+    body.append('<g>' + "".join(hut_sh) + "</g>")
     body.append('<g class="tm2">' + "".join(obj_sh) + "</g>")
+    body.append('<g class="t1-only">' + "".join(obj_sh_t1) + "</g>")
     body.append('<g>' + "".join(h for h in huts if h) + "</g>")
     body.append('<g class="tm2">' + "".join(s for s in ships if s) + "</g>")
-    body.append('<g class="t1-only">' + mass + "</g>")
+    body.append('<g class="t1-only">' + "".join(s for s in ships_t1 if s) + "</g>")
 
     # the wagon-road, and the marks for the poem's waypoints
     road = []
@@ -5854,7 +6167,8 @@ def main():
           f"cells tested {P.stats['cells_tested']}, visible "
           f"{P.stats['cells_visible']} "
           f"({100 * P.stats['cells_visible'] / max(1, P.stats['cells_tested']):.0f}%)")
-    print(f"hulls {P.stats['hulls']}, huts {P.stats['huts']}, "
+    print(f"hulls {P.stats['hulls']} ({P.stats['hulls_miltos']} vermilion), "
+          f"overview rank {P.stats['hulls_t1']}, huts {P.stats['huts']}, "
           f"thicket clumps {P.stats.get('veg_bank', 0)} in "
           f"{P.stats.get('veg_bank_runs', 0)} fringe runs, scrub tufts "
           f"{P.stats.get('veg_scrub', 0)} under "

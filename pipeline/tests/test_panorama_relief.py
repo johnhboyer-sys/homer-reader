@@ -2219,3 +2219,185 @@ def test_the_tone_washes_close_their_seam_at_the_stratum_join(s3):
     # and the wash edge is generalised no harder than the cover edge it is cut
     # against, which is half of why the gap was 2 px instead of a fraction
     assert s3.SHADE_SIMPLIFY <= 0.7
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# the ships: the plate is named for them, and they were the weakest thing on it
+# ═══════════════════════════════════════════════════════════════════════════
+CAMP_MATERIALS = (
+    # token, the line it rests on, the Greek that has to appear beside it
+    ("pp-hull-side", "9.235", "μέλαιναι"),
+    ("pp-hull-prow", "15.693", "κυανόπρῳρος"),
+    ("pp-hull-cheek", "2.637", "μιλτοπάρῃοι"),
+    ("pp-timber", "24.450", "ἐλάτης"),
+    ("pp-thatch", "24.450–51", "ὄροφον"),
+)
+
+
+def test_the_black_ships_stay_the_darkest_thing_on_the_beach(s3):
+    """νηυσὶ μελαίνῃσιν (Il. 9.235 = 11.824 = 12.107), machine-checked, and
+    it is this plate's oldest bug wearing its third face. Stage 2 keyed hulls
+    to --text and the fleet went label-white at night. The fix gave them
+    --pp-hull*, but the RIM stayed --pp-hull-edge, which in dark theme is a
+    near-cream chosen for the citadel's pale stone — so at 8x the fleet was
+    bone-white canoes with cream posts, the lightest marks on the beach, and
+    at 1x the overview's rank read as a row of white ticks.
+
+    So: every token the fleet is drawn with — the two fills, the rim, and
+    both painted prows — must be darker than every ground class it lies on,
+    in BOTH themes. Not just the fill: a mark is as light as its lightest
+    part when the part is a stroke on a fifteen-pixel glyph."""
+    for theme in ("light", "dark"):
+        t = _parse_tokens(s3.TOKENS[theme])
+        ground = _ground_values(s3, theme)
+        for name in ("pp-hull", "pp-hull-side", "pp-hull-rim",
+                     "pp-hull-prow", "pp-hull-cheek"):
+            ship_l = _luminance(t[name])
+            for gname, rgb in ground.items():
+                assert ship_l < _luminance(rgb), (
+                    f"{theme}: --{name} (L={ship_l:.4f}) is not darker than "
+                    f"{gname} (L={_luminance(rgb):.4f}) — the black ships "
+                    "have inverted again")
+        # and darker than the camp's own timber and straw, which stand behind
+        # them: pitch against fir and cut reed is the tonal fact the poem
+        # states, and it is what tells a hull from a hut at plate scale
+        for name in ("pp-hull", "pp-hull-side"):
+            for lighter in ("pp-timber", "pp-thatch"):
+                assert _luminance(t[name]) < _luminance(t[lighter]), (
+                    f"{theme}: --{name} is not darker than --{lighter}")
+
+
+def test_the_fleet_is_never_keyed_to_the_citadels_rim_or_to_ink(s3):
+    """The same bug, pinned at the stylesheet instead of at the palette, so
+    an edit cannot quietly key a hull back to the token that inverts."""
+    css = s3.CSS
+    for cls in ("pp-hull", "pp-hull-side", "pp-post", "pp-post-t1",
+                "pp-prow", "pp-prow-miltos"):
+        m = re.search(r"\." + cls + r"\{([^}]*)\}", css)
+        assert m, f"{cls} is not in the stylesheet"
+        block = m.group(1)
+        for bad in ("var(--text)", "var(--text-mid)", "var(--pp-hull-edge)"):
+            assert bad not in block, f"{cls} is keyed to {bad}: {block}"
+
+
+def test_every_material_on_the_beach_carries_its_line(s3):
+    """The camp is four materials and the poem names all four. Same rule the
+    vegetation key runs on: the mark carries the line that puts it there, in
+    the same breath as the mark — so the citation lives in the plate's own
+    data and not only in a comment."""
+    key = " ".join(n + " " + g for n, g in s3.CAMP_KEY)
+    for token, line, greek in CAMP_MATERIALS:
+        assert f"--{token}" in s3.TOKENS["light"], f"--{token} has no value"
+        assert f"--{token}" in s3.TOKENS["dark"], f"--{token} has no dark value"
+        assert line in key, f"the camp key drops the citation {line} for {token}"
+        assert greek in key, f"the camp key drops {greek!r} for {token}"
+    svg = s3.furniture(None, None, 2600.0, 5500.0)
+    assert "THE CAMP" in svg and "THE SHIPS" in svg and "THE HUTS" in svg
+
+
+def test_the_camp_is_not_built_of_the_citadels_masonry(s3):
+    """The huts wore --plate-masonry, the token Ilios's walls and roofs are
+    drawn in, and read as terracotta dominoes. Il. 24.450-51 is explicit:
+    Achilles' hut is fir timber under thatch mown from the meadow."""
+    for cls, tok in (("pp-hut-wall", "--pp-timber"),
+                     ("pp-hut-roof", "--pp-thatch")):
+        m = re.search(r"\." + cls + r"\{([^}]*)\}", s3.CSS)
+        assert m, f"{cls} is not in the stylesheet"
+        assert f"fill:var({tok})" in m.group(1), (
+            f"{cls} is not keyed to {tok}: {m.group(1)}")
+        assert "--plate-masonry" not in m.group(1)
+
+
+def test_the_overview_draws_a_rank_and_the_zoom_draws_the_fleet(s3):
+    """The tier-1 mark was ONE FILLED POLYGON per stretch of beach with a
+    zigzag along its seaward edge, and a reader had to ask outright whether
+    it was ships or a wall. A solid has no air in it and air between the
+    hulls is the only thing that makes a hull a hull.
+
+    What stands there now is a rank: coarser pitch, fewer rows, each hull
+    drawn larger — Pope's plate of 1716 draws the beached fleet as one glyph
+    repeated at a pitch, which is why his reads at plate scale
+    (docs/research/DEPICTIONS-OF-TROY.md). The true fleet is still drawn and
+    is what the zoom shows."""
+    src = open(STAGE3).read()
+    assert "pp-ship-mass" not in src, "the serrated mass is back"
+    assert s3.FLEET_T1_PITCH_M > 13.0, "the rank is at the true berth pitch"
+    assert s3.FLEET_T1_ROWS < 5, "the rank is as deep as the true fleet"
+    assert s3.FLEET_T1_BEAM_K > 1.0 and s3.FLEET_T1_LEN_K > 1.0
+    # longer than it is wide, and by MORE than the ship is: a hull seen
+    # end-on down this camera's depression loses most of its length
+    assert s3.FLEET_T1_LEN_K > s3.FLEET_T1_BEAM_K
+    build = src.split("def build(", 1)[1].split("def emit(", 1)[0]
+    assert 'class="t1-only">\' + "".join(s for s in ships_t1' in build, (
+        "the rank is not gated to the overview")
+    assert 'class="tm2">\' + "".join(s for s in ships' in build, (
+        "the true fleet is not gated to the zoom")
+
+
+def test_the_overview_glyph_never_scales_a_height(s3):
+    """The recorded finding, kept: a 4x stem-post reads as a mast. beam_k and
+    len_k are a DRAWING convention in the horizontal plane only — deck and
+    stem-post stay at their true 2.4 and 6.4 m at every tier, so a glyph and
+    a hull throw the same true-length shadow."""
+    src = open(STAGE3).read()
+    body = src.split("def ship(", 1)[1].split("\ndef hut(", 1)[0]
+    for h in ("SHIP_DECK_H", "SHIP_POST_H"):
+        for bad in (f"{h} * beam_k", f"{h} * len_k",
+                    f"beam_k * {h}", f"len_k * {h}"):
+            assert bad not in body, f"the glyph scales a height: {bad}"
+    assert s3.SHIP_DECK_H == 2.4 and s3.SHIP_POST_H == 6.4
+    # and the shadow is thrown by the TRUE ship, not by the drawn glyph:
+    # at the glyph's size it came out bigger and squarer than the hull, and
+    # eighty grey slabs with a ship on each is a rank of pallets
+    camp = src.split("def camp(", 1)[1].split("def waypoints", 1)[0]
+    assert "HULL_SIL_T1" not in camp
+    assert camp.count("object_shadow(cam, terr, lat, lon, bearing, HULL_SIL)") == 2
+
+
+def test_odysseus_twelve_are_twelve_and_lie_in_the_middle(s3):
+    """δυώδεκα μιλτοπάρῃοι (Il. 2.637) is said of Odysseus's contingent and
+    of no other in the Iliad, and 8.222-23 puts his own ship ἐν μεσσάτῳ, in
+    the very middle, so that he can be heard both ways down the line. The
+    count is therefore the one number on this beach that IS a claim, and the
+    vermilion is a block in the middle rather than a colour the fleet has."""
+    assert s3.ODYSSEUS_TWELVE == 12
+    src = open(STAGE3).read()
+    camp = src.split("def camp(", 1)[1].split("def waypoints", 1)[0]
+    mil = camp.split("def miltos(", 1)[1].split("\n        true_berths", 1)[0]
+    assert "2.637" in mil and "8.222" in mil, (
+        "the vermilion block does not carry the lines it rests on")
+    assert "med" in mil and "abs(" in mil, (
+        "the block is not chosen by distance from the middle of the line")
+    assert "miltos(true_berths, ODYSSEUS_TWELVE)" in camp
+
+
+def test_the_prow_bearing_is_taken_over_a_beach_and_not_over_a_wobble(s3):
+    """A rank that fans is not a rank. shore_forward used to return the last
+    dry 25 m step and seaward() differentiated it over a 26 m baseline, so a
+    single step of that staircase swung a hull's bearing by 44 degrees and
+    neighbours in the same row pointed different ways. Invisible at a 2.7 px
+    hull; the whole defect at the overview's glyph. προκρόσσας (Il. 14.35)
+    is a claim about ORDER, and a drawing either keeps it or does not."""
+    src = open(STAGE3).read()
+    camp = src.split("def camp(", 1)[1].split("def waypoints", 1)[0]
+    fwd = camp.split("def shore_forward(", 1)[1].split("\n        def ", 1)[0]
+    assert "for _ in range(4)" in fwd and "0.5 * (a + b)" in fwd, (
+        "the shoreline is still quantised to its 25 m search step")
+    sea = camp.split("def seaward(", 1)[1].split("\n        def ", 1)[0]
+    assert "range(-5, 6)" in sea, (
+        "the shore slope is still taken over one berth's baseline")
+    assert "14.35" in sea and "προκρόσσας" in sea
+
+
+def test_the_huts_are_grounded_at_every_tier_the_huts_are_drawn_at(s3):
+    """The huts have always been on at tier 1 — without them the near third
+    of the frame is bare ridge — but their shadows sat in the tier-2 group
+    with the hulls', so at the overview the whole camp behind the fleet
+    floated. It floats hardest now that a hut is pale timber and straw on
+    pale ground rather than a near-black box."""
+    src = open(STAGE3).read()
+    camp = src.split("def camp(", 1)[1].split("def waypoints", 1)[0]
+    assert "hut_sh.append(sd)" in camp, "the huts' shadows are not kept apart"
+    build = src.split("def build(", 1)[1].split("def emit(", 1)[0]
+    assert '\'<g>\' + "".join(hut_sh) + "</g>"' in build, (
+        "the huts' shadows are gated to a tier the huts are not")
