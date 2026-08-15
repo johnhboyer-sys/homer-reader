@@ -1634,6 +1634,16 @@ COVER_WASH_OP = 0.55        # the wet delta's wash over the fan beneath it
 CSS = """
 .pp-cover{stroke:none}
 .pp-shade{stroke-linejoin:round}
+/* THE BURIN. Every cut on the sheet is one of these four, they are all
+   stroke and no fill, and their WIDTH is set per tier as an attribute --
+   HATCH_W_PX divided by that tier's magnification -- because the whole point
+   is that the line is the same weight on the reader's screen at 1x and at
+   8x. Butt caps: a round cap adds half a line-width of ink at each end of
+   every cut, and there are tens of thousands of ends. */
+.pp-hatch{fill:none;stroke:var(--pp-shade);stroke-linecap:butt}
+.pp-white{fill:none;stroke:var(--pp-lit);stroke-linecap:butt}
+.pp-cmark{fill:none;stroke:var(--pp-shade);stroke-linecap:butt}
+.pp-marsh-rule{fill:none;stroke:var(--plate-river);stroke-linecap:butt}
 .pp-ida{fill:var(--pp-ida-mass);fill-opacity:0.22;stroke:none}
 .pp-ida-crest{fill:none;stroke:var(--plate-contour);stroke-width:0.8;stroke-opacity:0.5}
 .pp-sea{fill:var(--scene-map-sea)}
@@ -1760,13 +1770,255 @@ def contour_css() -> str:
     )
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# THE ENGRAVED TAKE — tone cut in line, and the magnification question
+# ═══════════════════════════════════════════════════════════════════════════
+# WHAT THIS EXISTS TO ANSWER. docs/TROAD-CARTOGRAPHY.md bans hachure and
+# stipple on this project's sheets, and its reason is general and correct:
+# "every treatment built out of discrete marks has a magnification at which it
+# stops being tone." This plate ZOOMS -- three level-of-detail tiers, 1x to
+# 8x -- so it is exactly the case the ban is about, and no amount of "but it
+# is vector and re-themeable" touches the objection, because the objection is
+# about apparent size, not about how the colour is stored.
+#
+# THE ONLY ANSWER THAT CAN WORK is the one a real engraver used: he did not
+# enlarge a plate, he CUT A NEW ONE for the new size. So the marks here are
+# not scaled with the zoom -- they are REGENERATED per tier, at a pitch chosen
+# so that the ruling has the SAME SCREEN SPACING at that tier's magnification
+# as it does at 1x on the overview. The plate carries three rulings of the
+# same drawing and the tier switch shows one of them, which is the existing
+# level-of-detail mechanism doing one more job.
+#
+# HATCH_PITCH_PX and HATCH_W_PX are therefore SCREEN quantities and constant.
+# The user-space pitch a tier is cut at is HATCH_PITCH_PX / (that tier's
+# magnification), which is why the cost of the ladder is the sum of the
+# magnifications and not their product: halving the pitch doubles the number
+# of lines over an area, it does not square it. That is the whole reason this
+# is worth trying at all, and it is still expensive -- see the byte report the
+# run prints, which is the finding this take was commissioned for.
+ENGRAVE = True
+# The pitch. 4.0 px between cuts is inside the range a burin actually worked
+# (a 19th-c. plate runs 40-60 lines to the inch, ~2 px at 96 dpi) and is as
+# open as tone can be before the eye starts counting.
+HATCH_PITCH_PX = 4.8
+HATCH_W_PX = 0.72
+HATCH_OP = 0.9
+# HOW MANY DIRECTIONS THE PLATE IS RULED IN. Not a resolution knob: an
+# engraver ruled in a few fixed directions and let the form break the ruling
+# where it turned, and quantising here buys exactly that look AND the
+# chaining that makes it affordable -- two neighbouring cells that agree on a
+# direction agree on the whole global line family, so their cuts are
+# collinear and merge into one long confident stroke instead of two stubs.
+HATCH_DIRS = 8
+HATCH_DIR_SMOOTH = 3     # box passes over the direction field, as an axis
+# tier -> the magnification that tier's plate is cut for. Tier 1 is the
+# overview, tier 2 is where individual hulls resolve (~2-3x), tier 3 is the
+# 4x-and-up detail plate; 8x is the deepest zoom the render set exercises.
+HATCH_TIERS = ((1, 1.0), (2, 3.0), (3, 8.0))
+# ── THE TONAL LADDER, five stages, which is how a plate is actually cut.
+# Each row is (the tone step at which this cut enters, its direction as a
+# fraction of a half-turn off the cell's own downslope, and the STRIDE and
+# PHASE it takes on the fine lattice).
+#
+# The stride is what buys the lightest tone. A first cut on every OTHER line
+# is a half ruling -- the open grey an engraver lays over a slope that is
+# merely turned from the light -- and the second cut fills the lines between
+# it, so the two together are the full ruling and neither ever doubles the
+# other. Below that the plate deepens by CROSS-HATCHING at 90, 45 and 135
+# degrees, which is the historical method and also the one that keeps every
+# family on a global lattice, so cuts from neighbouring cells stay collinear
+# and chain.
+#
+# WITHOUT THE HALF RULING the plate went flat, and the reason is worth
+# recording: the light on this ground is mostly SUBTLE -- a quarter of the
+# sheet sits between one and four steps down, which a wash renders in four
+# graded opacities and a single-pitch hatch renders as nothing at all. The
+# stride is how line answers that without spending a second lattice on it.
+HATCH_PLAN = (
+    (-3.0, 0.0, 2, 0),
+    (-5.0, 0.0, 2, 1),
+    (-7.0, 0.5, 1, 0),
+    (-8.5, 0.25, 1, 0),
+    (-9.5, 0.75, 1, 0),
+)
+HATCH_MERGE_PX = 0.9     # collinear cuts closer than this are one cut
+HATCH_MIN_PX = 1.1       # a cut shorter than this is a speck, not a line
+# ── THE WHITE LINE, and why dark theme is not the light theme inverted.
+# In daylight the page carries the light: a lit slope takes no mark at all,
+# which is what "an engraving is mostly page" means. That cannot cross to a
+# dark ground, where "no mark" is the DARKEST the sheet gets and a sunlit
+# slope would read as its deepest shadow. The historical answer is the
+# white-line technique -- mezzotint, and Bewick's white-line wood engraving --
+# where the burin cuts the LIGHT out of a dark ground. So dark theme gets one
+# extra family, in --pp-lit, on the slopes that face the sun, and it is the
+# only mark whose presence depends on the theme. The dark cuts do NOT invert:
+# what is darker than its ground at noon is darker than its ground at night.
+# It gets a LADDER OF ITS OWN, and a longer one than a first pass gave it,
+# because in dark theme the white line is not a garnish -- it is where most
+# of the modelling has to live. A near-black cut on a dark ground can only
+# deepen a shadow slightly (measured: 1.9:1 against the fan, against 5.5:1 in
+# daylight), so the shadow is mostly the untouched ground, exactly as in a
+# mezzotint, and what separates one lit slope from another is how much light
+# has been cut back into it. Two stages, half ruling then full, on the same
+# stride device the shadow uses.
+LIT_PLAN = ((3.0, 2, 0), (5.5, 2, 1))
+LIT_LEVEL = 3            # the step the first highlight cut enters at
+LIT_PITCH_MULT = 1.5     # the highlight is cut more openly than the shadow
+LIT_OP = 0.6
+# ── GROUND COVER, DISTINGUISHED BY MARK AND NOT ONLY BY HUE ──────────────
+# One convention per class, and the class that carries no claim carries no
+# mark. Direction is the DEM's, never a decorative sweep: the ridge tick runs
+# downslope, the fan's ruling runs across its grade (the delta fan really does
+# fall toward the bay, so that direction is a measured thing and not a
+# flourish), and where the gradient is too weak to have a direction the cell
+# is left open rather than ruled in an invented one.
+COVER_MARK = True
+FAN_PITCH_MULT = 12.0     # the plain is ruled openly: it is the subject
+FAN_MIN_SLOPE = 0.013    # below this the fan has no direction and takes none
+RIDGE_PITCH_MULT = 8.0
+RIDGE_MIN_SLOPE = 0.05
+RIDGE_CHAIN = True       # ruled, not ticked (see the note in cut_runs)
+COVER_MARK_OP = 0.28
+# The cover mark is cut FINER as well as fainter: the tone is the drawing
+# and the texture is under it, and a hierarchy carried by opacity alone goes
+# flat wherever there is a lot of the fainter mark -- which on a sheet whose
+# ridges are a third of the ground is most of it.
+COVER_MARK_W = 0.62
+MARSH_PITCH_MULT = 2.2   # the marsh rule, inside the wash's own core
+MARSH_DASH_PX = 5.0
+MARSH_GAP_PX = 7.0
+
+
+HATCH_DIRV = tuple(
+    (math.cos(math.pi * b / HATCH_DIRS), math.sin(math.pi * b / HATCH_DIRS))
+    for b in range(HATCH_DIRS))
+
+
+def clip_quad_to_line(quad, p, d, c):
+    """Where the line {v : v·p = c} crosses a convex screen quad, as the
+    interval [s0, s1] it spans along d. None if it misses.
+
+    p is the unit perpendicular, d the unit direction, and the pair is one of
+    HATCH_DIRS fixed rulings, so c = k·pitch is a GLOBAL lattice: every cell
+    that picks the same direction picks the same lines, which is what lets
+    neighbouring cuts chain."""
+    f0 = quad[0][0] * p[0] + quad[0][1] * p[1] - c
+    hits = []
+    prev = f0
+    for m in range(4):
+        a = quad[m]
+        b = quad[(m + 1) % 4]
+        fb = (b[0] * p[0] + b[1] * p[1] - c) if m < 3 else f0
+        if (prev < 0.0) != (fb < 0.0):
+            t = prev / (prev - fb)
+            hits.append((a[0] + t * (b[0] - a[0])) * d[0]
+                        + (a[1] + t * (b[1] - a[1])) * d[1])
+        prev = fb
+    if len(hits) < 2:
+        return None
+    return min(hits), max(hits)
+
+
+def _pair(dx, dy) -> str:
+    sy = n1(dy)
+    return f"{n1(dx)}{'' if sy.startswith('-') else ' '}{sy}"
+
+
+def cut_runs(runs, pitch, merge=True):
+    """Chain the per-cell cuts on each global line into single strokes, and
+    write them ONE RULING AT A TIME IN ITS OWN FRAME.
+
+    `runs` maps (direction bucket, line index) to the intervals the cells put
+    on that line. Two things happen here and both are what make the technique
+    affordable at all.
+
+    CHAINING. Every cell that chose a bucket chose the same global family of
+    lines, so a cut and its neighbour's cut on the same line are collinear and
+    touch. Merging them turns tens of thousands of seven-pixel stubs into
+    long confident strokes, which is both what a burin makes and a third of
+    the path data.
+
+    THE FRAME. A ruling is a set of PARALLEL lines, so in a frame rotated to
+    its own direction every cut is horizontal and costs a single `h`: the
+    group carries one rotate() and each stroke is `m dx dy h len` -- eleven
+    characters where a general segment costs twenty-four. Rotation is an
+    isometry, so nothing about the drawing or the stroke weight changes.
+
+    `merge=False` is the ridge tick: short separate strokes, one per cell,
+    which is a different convention and not a paler version of the same one."""
+    by_b: dict = {}
+    for (b, k), segs in runs.items():
+        by_b.setdefault(b, []).append((k, segs))
+    out = []
+    n_cuts = 0
+    for b, lines in by_b.items():
+        lines.sort()
+        parts = []
+        px = py = 0.0
+        first = True
+        for k, segs in lines:
+            c = k * pitch
+            segs.sort()
+            if merge:
+                cur0, cur1 = segs[0]
+                merged = []
+                for s0, s1 in segs[1:]:
+                    if s0 <= cur1 + HATCH_MERGE_PX:
+                        if s1 > cur1:
+                            cur1 = s1
+                    else:
+                        merged.append((cur0, cur1))
+                        cur0, cur1 = s0, s1
+                merged.append((cur0, cur1))
+            else:
+                merged = segs
+            for s0, s1 in merged:
+                if s1 - s0 < HATCH_MIN_PX:
+                    continue
+                x, y = round(s0, 1), round(c, 1)
+                if first:
+                    parts.append(f"M{n1(x)} {n1(y)}")
+                    first = False
+                else:
+                    parts.append("m" + _pair(round(x - px, 1), round(y - py, 1)))
+                    x, y = round(px + round(x - px, 1), 1), round(py + round(y - py, 1), 1)
+                ln = round(s1, 1) - x
+                if ln < HATCH_MIN_PX:
+                    ln = HATCH_MIN_PX
+                parts.append(f"h{n1(ln)}")
+                px, py = round(x + ln, 1), y
+                n_cuts += 1
+        if parts:
+            out.append((b, "".join(parts)))
+    return out, n_cuts
+
+
+def cut_svg(cuts, cls, wpx, op):
+    """One rotated group per ruling."""
+    out = []
+    for b, d in cuts:
+        deg = 180.0 * b / HATCH_DIRS
+        rot = "" if b == 0 else f' transform="rotate({deg:g})"'
+        out.append(f'<path class="{cls}"{rot} stroke-width="{wpx:.3f}" '
+                   f'stroke-opacity="{op:g}" d="{d}"/>')
+    return "".join(out)
+
+
 # The three level-of-detail tiers. Content and labels are both tiered; a
 # panel turns them on by zoom. Static renders set the same switch.
+#
+# THE HATCH RIDES THE SAME SWITCH. `.hx1/.hx2/.hx3` are the three rulings of
+# the same drawing, cut at three pitches; exactly one is ever shown, and which
+# one is the tier, which is the zoom. That is the whole mechanism by which
+# engraved tone is meant to survive magnification here.
 TIER_CSS = {
-    1: ".tm2,.tm3{display:none}",
-    2: ".tm3{display:none}",
-    3: ".t1-only{display:none}",
+    1: ".tm2,.tm3,.hx2,.hx3{display:none}",
+    2: ".tm3,.hx1,.hx3{display:none}",
+    3: ".t1-only,.hx1,.hx2{display:none}",
 }
+# The white line is the one mark that is a property of the theme rather than
+# of the ground, so it is switched here and not by a token.
+THEME_CSS = {"light": ".pp-white{display:none}", "dark": ""}
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1913,6 +2165,251 @@ class Plate:
         self.cover = cov
         self.stats["cover_cells"] = tally
 
+    # ── the burin direction at every cell ────────────────────────────────
+    def hatch_field(self):
+        """For each visible cell: which of HATCH_DIRS rulings its cuts take,
+        and how steeply it falls.
+
+        The direction is the DOWNSLOPE OF THE DRAWN SURFACE, projected into
+        the picture. It is taken the same way the shading takes its normal --
+        from the exaggerated z over the cell's own two world edges -- and then
+        carried into screen space through the cell's OWN screen edges, which
+        is a local affine map and therefore carries the perspective for free:
+        the cut lies in the ground, foreshortened with it, which is what makes
+        hatching read as a surface rather than as a pattern laid over one.
+
+        Where the ground is flat the gradient has no direction, and inventing
+        one would be the decorative sweep this take is not allowed. Flat
+        ground in the sun takes no tone anyway; flat ground in CAST SHADOW
+        does, and there the cut runs DOWN-SUN -- the direction the shadow
+        itself travels, which is a measured thing and the one direction the
+        page can honestly claim there."""
+        g, w = self.grid, self.wor
+        # the down-sun direction in screen space, taken once at the plate's
+        # middle depth, for cells whose own ground is level
+        sun_b = 0
+        e0, n0 = 0.0, 3000.0
+        pa = self.cam.project(e0, n0, 0.0)
+        pb = self.cam.project(e0 + SUN_H[0] * 200.0, n0 + SUN_H[1] * 200.0, 0.0)
+        if pa and pb:
+            sun_b = int(round(math.atan2(pb[1] - pa[1], pb[0] - pa[0])
+                              % math.pi / (math.pi / HATCH_DIRS))) % HATCH_DIRS
+        bucket, slope = {}, {}
+        for (i, j) in self.visible:
+            a0, a1 = g[i][j], g[i + 1][j]
+            b1, b0 = g[i + 1][j + 1], g[i][j + 1]
+            (e00, n00), (e10, n10) = w[i][j], w[i + 1][j]
+            (e11, n11), (e01, n01) = w[i + 1][j + 1], w[i][j + 1]
+            z00, z10 = exaggerate(a0[2]), exaggerate(a1[2])
+            z11, z01 = exaggerate(b1[2]), exaggerate(b0[2])
+            ux, uy, uz = e11 - e00, n11 - n00, z11 - z00
+            vx, vy, vz = e01 - e10, n01 - n10, z01 - z10
+            nx = uy * vz - uz * vy
+            ny = uz * vx - ux * vz
+            nz = ux * vy - uy * vx
+            if nz < 0.0:
+                nx, ny, nz = -nx, -ny, -nz
+            hyp = math.hypot(nx, ny)
+            slope[(i, j)] = (hyp / nz) if nz > 1e-9 else 0.0
+            # world downslope, as a combination of the cell's own two edges
+            ea, na_ = e10 - e00, n10 - n00
+            er, nr = e01 - e00, n01 - n00
+            det = ea * nr - er * na_
+            if hyp < 1e-9 or abs(det) < 1e-12:
+                bucket[(i, j)] = sun_b
+                continue
+            dx, dy = nx / hyp, ny / hyp
+            a = (dx * nr - er * dy) / det
+            b = (ea * dy - dx * na_) / det
+            sx = a * (a1[0] - a0[0]) + b * (b0[0] - a0[0])
+            sy = a * (a1[1] - a0[1]) + b * (b0[1] - a0[1])
+            if abs(sx) < 1e-9 and abs(sy) < 1e-9:
+                bucket[(i, j)] = sun_b
+                continue
+            bucket[(i, j)] = math.atan2(sy, sx) % math.pi
+        # ── THE DIRECTION FIELD IS SMOOTHED BEFORE IT IS QUANTISED, and it
+        # buys the drawing and the budget the same thing. A direction is an
+        # AXIS, not a vector -- 179 deg and 1 deg are neighbours -- so it is
+        # averaged as the doubled angle, which is the only way to blur one
+        # without the wrap-around tearing it. What comes out is a calmer
+        # ruling (a cell whose normal wobbles no longer flips its cuts 90 deg
+        # against its neighbours') and, because neighbours now agree far more
+        # often, cuts that chain into long strokes instead of stubs: the same
+        # tone in a third of the bytes.
+        for _ in range(max(0, HATCH_DIR_SMOOTH)):
+            nxt = {}
+            for (i, j), th in bucket.items():
+                cx, sy_ = math.cos(2 * th) * 2.0, math.sin(2 * th) * 2.0
+                for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1),
+                               (1, 1), (1, -1), (-1, 1), (-1, -1)):
+                    n = bucket.get((i + di, j + dj))
+                    if n is not None:
+                        cx += math.cos(2 * n)
+                        sy_ += math.sin(2 * n)
+                nxt[(i, j)] = (math.atan2(sy_, cx) * 0.5) % math.pi
+            bucket = nxt
+        self.hbucket = {ij: int(round(th / (math.pi / HATCH_DIRS))) % HATCH_DIRS
+                        for ij, th in bucket.items()}
+        self.hslope = slope
+        self.stats["hatch_sun_bucket"] = sun_b
+        # ── THE TONE AS A LINEAR FUNCTION OF SCREEN POSITION, per cell, so a
+        # cut can be clipped where the LIGHT reaches its threshold instead of
+        # where the lattice happens to end. Node values first (a node is the
+        # mean of the cells that meet at it), then the plane through the
+        # cell's own three first corners, which for a cell this close to a
+        # parallelogram is the bilinear surface to well under a tone step.
+        c = getattr(self, "shade_c", None) or {}
+        node: dict = {}
+        for (i, j), v in c.items():
+            for nn in ((i, j), (i + 1, j), (i, j + 1), (i + 1, j + 1)):
+                a_, b_ = node.get(nn, (0.0, 0))
+                node[nn] = (a_ + v, b_ + 1)
+        node = {k: v[0] / v[1] for k, v in node.items()}
+        tone: dict = {}
+        g = self.grid
+        for (i, j) in self.visible:
+            t00 = node.get((i, j))
+            t10 = node.get((i + 1, j))
+            t01 = node.get((i, j + 1))
+            if t00 is None or t10 is None or t01 is None:
+                continue
+            p00, p10, p01 = g[i][j], g[i + 1][j], g[i][j + 1]
+            ax, ay = p10[0] - p00[0], p10[1] - p00[1]
+            rx, ry = p01[0] - p00[0], p01[1] - p00[1]
+            det = ax * ry - rx * ay
+            if abs(det) < 1e-9:
+                continue
+            da, dr = t10 - t00, t01 - t00
+            # (a, r) from screen (dx, dy) by inverting [[ax,rx],[ay,ry]]
+            cx = (da * ry - dr * ay) / det
+            cy = (dr * ax - da * rx) / det
+            t11 = node.get((i + 1, j + 1), t00)
+            tone[(i, j)] = (t00, cx, cy, p00[0], p00[1],
+                            min(t00, t10, t01, t11), max(t00, t10, t01, t11))
+        self.htone = tone
+
+    def _quad(self, i, j):
+        g = self.grid
+        return ((g[i][j][0], g[i][j][1]), (g[i + 1][j][0], g[i + 1][j][1]),
+                (g[i + 1][j + 1][0], g[i + 1][j + 1][1]),
+                (g[i][j + 1][0], g[i][j + 1][1]))
+
+    def _rule(self, runs, i, j, off, pitch, thr=None, sign=-1.0,
+              stride=1, phase=0):
+        """Put one family of cuts across one cell onto the global lattice.
+
+        `thr` is where this family of cuts STOPS, in the continuous light of
+        the surface -- not in the quantised one. Each cut is clipped against
+        the plane of the tone over its own cell, so a family thins out along
+        the light's own contour at whatever resolution the ruling has, and
+        not along a cell edge."""
+        b = (self.hbucket[(i, j)] + off) % HATCH_DIRS
+        dv = HATCH_DIRV[b]
+        pv = (-dv[1], dv[0])
+        quad = self._quad(i, j)
+        fs = [q[0] * pv[0] + q[1] * pv[1] for q in quad]
+        k0 = int(math.ceil(min(fs) / pitch))
+        k1 = int(math.floor(max(fs) / pitch))
+        if k1 < k0 or k1 - k0 > 4000:
+            return
+        tn = self.htone.get((i, j)) if thr is not None else None
+        for k in range(k0, k1 + 1):
+            if stride > 1 and k % stride != phase:
+                continue
+            c = k * pitch
+            r = clip_quad_to_line(quad, pv, dv, c)
+            if r is None:
+                continue
+            if tn is not None:
+                t0, cx, cy, x0, y0 = tn[:5]
+                A = (t0 + cx * (c * pv[0] - x0) + cy * (c * pv[1] - y0)) * sign
+                B = (cx * dv[0] + cy * dv[1]) * sign
+                lim = thr * sign
+                # keep where sign*tone >= sign*thr, which is `tone <= thr`
+                # for a cut in shadow and `tone >= thr` for one in light.
+                # Getting this the wrong way round feathers each family
+                # OUTWARD instead of inward, which still looks plausible
+                # because the cell was gated on its own darkest corner --
+                # caught only by a test on a made-up cell.
+                s0, s1 = r
+                if abs(B) < 1e-12:
+                    if A < lim:
+                        continue
+                else:
+                    sx = (lim - A) / B
+                    if B > 0.0:
+                        s0 = max(s0, sx)
+                    else:
+                        s1 = min(s1, sx)
+                    if s1 - s0 < HATCH_MIN_PX:
+                        continue
+                r = (s0, s1)
+            runs.setdefault((b, k), []).append(r)
+
+    def hatch_stratum(self, toned, covered, pitch, wpx):
+        """The cuts for one depth stratum at one tier's pitch.
+
+        Three mark systems, all on the same lattice machinery and all in
+        line: the SHADOW hatch (families deepening by cross-hatch as the tone
+        falls), the WHITE LINE on sunlit slopes (dark theme only), and the
+        GROUND-COVER conventions."""
+        out = []
+        shade_runs: dict = {}
+        white_runs: dict = {}
+        steps = float(max(1, SHADE_STEPS))
+        for (i, j), st in toned.items():
+            tn = self.htone.get((i, j))
+            tmin = tn[5] if tn else st / steps
+            tmax = tn[6] if tn else st / steps
+            if st < 0:
+                for lv, frac, stride, phase in HATCH_PLAN:
+                    thr = lv / steps
+                    if tmin <= thr:
+                        self._rule(shade_runs, i, j,
+                                   int(round(frac * HATCH_DIRS)), pitch, thr,
+                                   -1.0, stride, phase)
+            else:
+                for lv, stride, phase in LIT_PLAN:
+                    if tmax >= lv / steps:
+                        self._rule(white_runs, i, j, 0,
+                                   pitch * LIT_PITCH_MULT, lv / steps, 1.0,
+                                   stride, phase)
+        cuts, n_shade = cut_runs(shade_runs, pitch)
+        out.append(cut_svg(cuts, "pp-hatch", wpx, HATCH_OP))
+        cuts, n_white = cut_runs(white_runs, pitch * LIT_PITCH_MULT)
+        out.append(cut_svg(cuts, "pp-white", wpx, LIT_OP))
+        n_cover = 0
+        if COVER_MARK:
+            # THE PLAIN'S RULING runs ACROSS its grade -- the delta fan really
+            # does fall toward the bay, so that direction is measured -- and
+            # it is cut far more openly than the tone. It is the subject of
+            # the sheet: it gets a texture, not a treatment.
+            cov_runs: dict = {}
+            for (i, j) in covered.get(COVER_FAN, ()):
+                if self.hslope.get((i, j), 0.0) >= FAN_MIN_SLOPE:
+                    self._rule(cov_runs, i, j, HATCH_DIRS // 2,
+                               pitch * FAN_PITCH_MULT)
+            cuts, n = cut_runs(cov_runs, pitch * FAN_PITCH_MULT)
+            n_cover += n
+            out.append(cut_svg(cuts, "pp-cmark", wpx * COVER_MARK_W, COVER_MARK_OP))
+            # THE RIDGE TICK IS NOT CHAINED, and that is what makes it a
+            # different convention rather than a paler version of the same
+            # one. Scrub on a bare slope is drawn as short separate strokes;
+            # merging them across cells would rule the ridge instead.
+            tick_runs: dict = {}
+            for (i, j) in covered.get(COVER_RIDGE, ()):
+                if self.hslope.get((i, j), 0.0) >= RIDGE_MIN_SLOPE:
+                    self._rule(tick_runs, i, j, HATCH_DIRS // 2,
+                               pitch * RIDGE_PITCH_MULT)
+            cuts, n = cut_runs(tick_runs, pitch * RIDGE_PITCH_MULT,
+                               merge=RIDGE_CHAIN)
+            n_cover += n
+            out.append(cut_svg(cuts, "pp-cmark", wpx * COVER_MARK_W, COVER_MARK_OP))
+        by = self.stats.setdefault("cut_by_system", {})
+        by["tone"] = by.get("tone", 0) + len(out[0]) + len(out[1])
+        by["cover"] = by.get("cover", 0) + sum(len(x) for x in out[2:])
+        return "".join(out), n_shade + n_white + n_cover
+
     def terrain_svg(self):
         grid, azs, rngs = self.grid, self.azs, self.rngs
         corner = lambda i, j: (grid[i][j][0], grid[i][j][1])
@@ -1995,9 +2492,25 @@ class Plate:
                     out.append(f'<path class="pp-cover" fill="{tok}" '
                                f'stroke="{tok}" stroke-width="0.7" '
                                f'd="{"".join(d)}"/>')
+            # ── THE ENGRAVED TONE, cut once per tier at that tier's pitch.
+            # It sits exactly where the wash sat: over the cover colour that
+            # says what the ground is, under the hairlines. All three rulings
+            # are emitted here and the tier switch shows one.
+            if ENGRAVE:
+                toned = {ij: st for st, cells in shade.items() for ij in cells}
+                for tier, mag in HATCH_TIERS:
+                    d, n = self.hatch_stratum(
+                        toned, interior, HATCH_PITCH_PX / mag,
+                        HATCH_W_PX / mag)
+                    if d:
+                        out.append(f'<g class="hx{tier}">{d}</g>')
+                        by = self.stats.setdefault("cut_bytes", {})
+                        by[tier] = by.get(tier, 0) + len(d)
+                    ct = self.stats.setdefault("cuts", {})
+                    ct[tier] = ct.get(tier, 0) + n
             # SHADING sits between the cover and the contours: it models the
             # surface the cover colours, and the hairlines stay on top of both.
-            for st in sorted(shade):
+            for st in (() if ENGRAVE else sorted(shade)):
                 d = []
                 for loop in union_loops(shade[st], corner):
                     if abs(poly_area(loop)) < SHADE_MIN_AREA:
@@ -2082,6 +2595,22 @@ class Plate:
             q[ij] = max(-SHADE_STEPS, min(SHADE_STEPS, st))
         q, islands = median_lattice(q, SHADE_MEDIAN)
         self.shade_q = q
+        # THE CONTINUOUS FIELD IS KEPT, and the burin uses it rather than the
+        # quantised one. A wash needs the steps -- it is drawn as filled
+        # regions and a region needs an edge. A CUT DOES NOT: a family of
+        # cuts thins out by its lines getting SHORTER, which is how an
+        # engraver feathers one tone into the next, and to do that it needs
+        # the tone at a point and not the tone of a cell. Clipping to the
+        # quantised field instead put every family boundary on the lattice,
+        # and at 8x a mesh cell is 58 px, so the hatch patches printed with a
+        # visible staircase along every edge -- the drawing showing its own
+        # sampling, which is the one thing this plate has spent four passes
+        # getting out of the relief.
+        self.shade_c = raw
+        hist: dict = {}
+        for v in q.values():
+            hist[v] = hist.get(v, 0) + 1
+        self.stats["shade_hist"] = hist
         self.stats["shaded_cells"] = sum(1 for v in q.values() if v)
         self.stats["shade_islands_filtered"] = islands
 
@@ -2240,8 +2769,15 @@ class Plate:
             out.append(f'<path d="{rel_poly(sea)}" class="pp-coast"/>')
         if lagoon:
             out.append(f'<path d="{rel_poly(lagoon)}" class="pp-lagoon"/>')
-            gaps, d = [], 3.2
-            for _ in range(2):
+            # FOUR WATERLINES, not two, and the gap grows by 1.3 each time
+            # (Huffman 2010, 23-30, and TROAD-CARTOGRAPHY.md (5)): monospaced
+            # gaps read as a stylisation, growing ones as waves compressing
+            # against the shore. Four is what the plate tradition cuts and
+            # what the doc's own style note asks for; the band still stops
+            # well short of filling the basin, which is the other half of
+            # Huffman's rule and the reason the bay stays free for the ships.
+            gaps, d = [], 2.6
+            for _ in range(4):
                 gaps.append(d)
                 d *= 1.3
             # WHICH WAY IS INTO THE WATER. It used to be "toward the polygon's
@@ -2857,15 +3393,19 @@ def esc(s):
 # the channels it grew along are under twenty metres of alluvium. So it is
 # lettered and not bounded. A key that only lists what could be drawn would
 # have quietly deleted the strongest thing the poem says about this ground.
+# EACH CLASS IS TOLD BY ITS MARK AS WELL AS BY ITS HUE, and the class that
+# carries no claim carries no mark, which is the same argument the fifth
+# entry makes in words. The last field is the convention, drawn in the swatch
+# so the key shows what the sheet does rather than describing it.
 COVER_KEY = (
     (COVER_FAN, "DRY DELTA FAN",
-     "sand-covered, dusty, firm — the battlefield (Kayan 2002)"),
+     "sand-covered, dusty, firm — the battlefield (Kayan 2002)", "fan"),
     (COVER_RIDGE, "RIDGE SCRUB, BARE SLOPE",
-     "thin soil on limestone — a regional default, not a survey"),
+     "thin soil on limestone — a regional default, not a survey", "ridge"),
     ("wet", "WET DELTA, SWAMP",
-     "waterlogged delta behind the bay (Kayan 2003) — no edge"),
+     "waterlogged delta behind the bay (Kayan 2003) — no edge", "wet"),
     (COVER_OPEN, "GROUND BEYOND THE PLAIN",
-     "outside the sector and its ridges — not classified"),
+     "outside the sector and its ridges — not classified", "none"),
 )
 COVER_KEY_UNDRAWN = (
     "RIVERBANK THICKET — elm, willow, tamarisk over lotus, rush and galingale, "
@@ -2891,14 +3431,35 @@ def furniture(cam, terr, ship_depth, troy_depth):
     # on it. Printed cartography has always answered that with the furniture,
     # and it is the honest answer here too — the key, the scale and the
     # disclosures make the empty quarter deliberate instead of unused.
-    bx, by = 62.0, H - 320.0
+    # the cartouche starts higher than it did: the tone scale is a fifth
+    # block and the disclosures are pinned to the foot of the sheet
+    bx, by = 62.0, H - (410.0 if ENGRAVE else 320.0)
+    # ── THE CARTOUCHE IS CLEARED GROUND, and it has to be now. While the
+    # foreground was a flat wash the furniture could sit straight on it; the
+    # burin put ruling under every word of it and the key went unreadable.
+    # An engraved plate answers this the same way -- the cartouche panel is
+    # cleared, ruled round, and the drawing stops at its edge -- so the
+    # matting each swatch already had is promoted to the whole block. It is
+    # not fully opaque: the country still shows faintly through, which is
+    # what keeps it a panel on a plate rather than a box on a screenshot.
+    if ENGRAVE:
+        # SIZED TO ITS OWN CONTENT, not to the sheet. A panel the full width
+        # of the plate cleared the entire near foreground, which is a third
+        # of the drawing, to hold text that occupies the left half of it.
+        px0, px1 = bx - 24, 1478.0
+        py0, py1 = by - 54, H - 12.0
+        for extra in ('fill="var(--page-bg)" fill-opacity="0.9"',
+                      'class="pp-neat-i" stroke-opacity="0.4"'):
+            out.append(f'<rect x="{n1(px0)}" y="{n1(py0)}" '
+                       f'width="{n1(px1 - px0)}" height="{n1(py1 - py0)}" '
+                       f'{extra}/>')
     out.append(f'<path class="pp-neat-i" d="M{n1(bx)} {n1(by - 26)}h820" '
                f'stroke-opacity="0.5"/>')
     out.append(f'<text class="pp-l-region" x="{n1(bx)}" y="{n1(by - 34)}">'
                f'GROUND COVER</text>')
 
     kw, kh, row, col = 30.0, 16.0, 34.0, 410.0
-    for i, (cls, name, gloss) in enumerate(COVER_KEY):
+    for i, (cls, name, gloss, mark) in enumerate(COVER_KEY):
         sx = bx + (i % 2) * col
         sy_ = by + (i // 2) * row
         # the wet delta's swatch is what the reader actually sees: the wash at
@@ -2922,6 +3483,16 @@ def furniture(cam, terr, ship_depth, troy_depth):
             out.append(f'<rect x="{n1(sx)}" y="{n1(sy_)}" width="{n1(kw)}" '
                        f'height="{n1(kh)}" fill="var(--pp-cover-wet)" '
                        f'fill-opacity="{COVER_WASH_OP:g}"/>')
+        if mark == "fan":
+            d = "".join(f"M{n1(sx + 6 + k * 8.5)} {n1(sy_ + 2)}v{n1(kh - 4)}"
+                        for k in range(3))
+            out.append(f'<path class="pp-cmark" stroke-width="{COVER_MARK_W * 0.72:.2f}" '
+                       f'stroke-opacity="{COVER_MARK_OP:g}" d="{d}"/>')
+        elif mark == "ridge":
+            d = "".join(f"M{n1(sx + 2)} {n1(sy_ + 3 + k * 3.4)}h{n1(kw - 4)}"
+                        for k in range(4))
+            out.append(f'<path class="pp-cmark" stroke-width="{COVER_MARK_W * 0.72:.2f}" '
+                       f'stroke-opacity="{COVER_MARK_OP:g}" d="{d}"/>')
         out.append(f'<text class="pp-l-note" x="{n1(sx + kw + 9)}" '
                    f'y="{n1(sy_ + 7)}" letter-spacing="0.9">{esc(name)}</text>')
         out.append(f'<text class="pp-l-note" x="{n1(sx + kw + 9)}" '
@@ -2929,6 +3500,59 @@ def furniture(cam, terr, ship_depth, troy_depth):
     ky = by + 2 * row + 16
     out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(ky)}">'
                f'{esc(COVER_KEY_UNDRAWN)}</text>')
+
+    # ── THE TONE SCALE. A plate that carries its tone in line has always
+    # printed the ladder it was cut with, and it is the one piece of
+    # furniture that tells the reader what he is looking at: five stages,
+    # half ruling to fourth cut, at the same pitch and weight as the sheet.
+    if ENGRAVE:
+        ty0 = ky + 30
+        out.append(f'<text class="pp-l-region" x="{n1(bx)}" y="{n1(ty0)}">'
+                   f'TONE — CUT, NOT WASHED</text>')
+        sw, sh_ = 44.0, 26.0
+        py0 = ty0 + 10
+        for k in range(len(HATCH_PLAN)):
+            x0 = bx + k * (sw + 7)
+            out.append(f'<rect class="pp-key-sw" x="{n1(x0)}" y="{n1(py0)}" '
+                       f'width="{n1(sw)}" height="{n1(sh_)}" '
+                       f'fill="var(--pp-cover-fan)"/>')
+            d = []
+            for f, (lv, frac, stride, phase) in enumerate(HATCH_PLAN[:k + 1]):
+                ang = math.pi * frac
+                dx, dy = math.cos(ang), math.sin(ang)
+                px_, py_ = -dy, dx
+                lo = min(px_ * (x0 + q[0] * sw) + py_ * (py0 + q[1] * sh_)
+                         for q in ((0, 0), (1, 0), (1, 1), (0, 1)))
+                hi = max(px_ * (x0 + q[0] * sw) + py_ * (py0 + q[1] * sh_)
+                         for q in ((0, 0), (1, 0), (1, 1), (0, 1)))
+                quad = [(x0, py0), (x0 + sw, py0), (x0 + sw, py0 + sh_),
+                        (x0, py0 + sh_)]
+                kk = int(math.ceil(lo / HATCH_PITCH_PX))
+                while kk * HATCH_PITCH_PX <= hi:
+                    if stride > 1 and kk % stride != phase:
+                        kk += 1
+                        continue
+                    r = clip_quad_to_line(quad, (px_, py_), (dx, dy),
+                                          kk * HATCH_PITCH_PX)
+                    if r:
+                        c = kk * HATCH_PITCH_PX
+                        d.append(rel_seg(
+                            (px_ * c + dx * r[0], py_ * c + dy * r[0]),
+                            (px_ * c + dx * r[1], py_ * c + dy * r[1])))
+                    kk += 1
+            out.append(f'<path class="pp-hatch" stroke-width="{HATCH_W_PX:g}" '
+                       f'stroke-opacity="{HATCH_OP:g}" d="{"".join(d)}"/>')
+            out.append(f'<text class="pp-l-note" x="{n1(x0 + sw / 2)}" '
+                       f'y="{n1(py0 + sh_ + 11)}" text-anchor="middle" '
+                       f'fill-opacity="0.85">{k + 1}</text>')
+        out.append(f'<text class="pp-l-note" x="{n1(bx + 5 * (sw + 7) + 6)}" '
+                   f'y="{n1(py0 + 11)}">half ruling, full ruling, then the '
+                   f'cross, third and fourth cuts.</text>')
+        out.append(f'<text class="pp-l-note" x="{n1(bx + 5 * (sw + 7) + 6)}" '
+                   f'y="{n1(py0 + 24)}" fill-opacity="0.85">'
+                   f'{HATCH_PITCH_PX:g} px between cuts — on the screen, at '
+                   f'every magnification.</text>')
+        ky = py0 + sh_ + 20
 
     # scale. On an oblique there is no one scale, so the bar is given at two
     # depths and says which.
@@ -2958,6 +3582,13 @@ def furniture(cam, terr, ship_depth, troy_depth):
             "index": ", and in the index contours at 10, 30, 110 and 600 m.",
             "none": " alone; no contours are drawn.",
         }[CONTOURS],
+        ("The light is cut in line, not washed: the ruling follows the fall of "
+         "the ground as the DEM gives it, and deepens by cross-hatching. Each "
+         f"zoom tier carries its OWN ruling, cut at {HATCH_PITCH_PX:g} px of "
+         "screen pitch for that magnification, so the cuts never enlarge with "
+         "the plate — an engraver did not blow a plate up, he cut a new one."
+         if ENGRAVE else
+         "Slope shading and cast shadows, drawn as a continuous wash."),
         "Terrain, coastlines, rivers, Hisarlık, Callicolone, Sigeion and Rhoiteion are "
         "measured. Ships, huts, the wall and ditch, and every waypoint of the poem are "
         "conjectural — each placed by a stated rule, never at an invented coordinate.",
@@ -2986,6 +3617,8 @@ def build(terr, cam, plate_json):
     P.cull()
     P.cover_field()
     P.shade_field()
+    if ENGRAVE or COVER_MARK:
+        P.hatch_field()
     body = ['<g clip-path="url(#pp-frame)">']
     # THE SKY IS NOT THE PAGE. Left as bare --page-bg it sat within a shade of
     # the palest relief band, and every patch of delta under 5 m in the far plain
@@ -3187,7 +3820,7 @@ def emit(theme, inner, vx, vy, vw, vh, scale, out_svg, tier=3, descale=1.0,
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{px_w}" height="{px_h}" '
         f'viewBox="{n1(vx)} {n1(vy)} {n1(vw)} {n1(vh)}">'
         f'<style>svg{{{TOKENS[theme]}}}{CSS}{contour_css()}'
-        f'{tier_css}{ds}{scale_css}{furn_css}</style>'
+        f'{tier_css}{THEME_CSS[theme]}{ds}{scale_css}{furn_css}</style>'
         f'{DEFS}'
         f'<rect x="{n1(vx)}" y="{n1(vy)}" width="{n1(vw)}" height="{n1(vh)}" '
         f'fill="var(--page-bg)"/>'
@@ -3360,6 +3993,20 @@ def main():
     ap.add_argument("--shadow-step", type=float, default=SHADOW_STEP)
     ap.add_argument("--shadow-reach", type=float, default=SHADOW_REACH)
     ap.add_argument("--obj-shadow-op", type=float, default=0.3)
+    ap.add_argument("--no-engrave", action="store_true",
+                    help="the continuous wash instead of the burin hatch")
+    ap.add_argument("--no-cover-mark", action="store_true")
+    ap.add_argument("--hatch-pitch", type=float, default=HATCH_PITCH_PX,
+                    help="SCREEN px between cuts, at every magnification")
+    ap.add_argument("--hatch-w", type=float, default=HATCH_W_PX)
+    ap.add_argument("--hatch-op", type=float, default=HATCH_OP)
+    ap.add_argument("--hatch-dirs", type=int, default=HATCH_DIRS)
+    ap.add_argument("--hatch-dir-smooth", type=int, default=HATCH_DIR_SMOOTH)
+    ap.add_argument("--hatch-levels",
+                    default=",".join(str(r[0]) for r in HATCH_PLAN),
+                    help="the tone steps at which each cut of the ladder enters")
+    ap.add_argument("--hatch-mags", default=",".join(str(m) for _, m in HATCH_TIERS),
+                    help="the magnification each tier's plate is cut for")
     ap.add_argument("--tag", default="",
                     help="suffix for every output name, so variants coexist")
     ap.add_argument("--variant", action="store_true",
@@ -3384,7 +4031,20 @@ def main():
         LIT_MAX=args.lit_max, SHADE_MIN_AREA=args.shade_min_area,
         SHADOW=not args.no_shadow, OBJ_SHADOW=not args.no_obj_shadow,
         SHADOW_STEP=args.shadow_step, SHADOW_REACH=args.shadow_reach,
-        OBJ_SHADOW_OP=args.obj_shadow_op, CONTOURS=args.contours)
+        OBJ_SHADOW_OP=args.obj_shadow_op, CONTOURS=args.contours,
+        ENGRAVE=not args.no_engrave, COVER_MARK=not args.no_cover_mark,
+        HATCH_PITCH_PX=args.hatch_pitch, HATCH_W_PX=args.hatch_w,
+        HATCH_OP=args.hatch_op, HATCH_DIRS=max(2, args.hatch_dirs),
+        HATCH_DIR_SMOOTH=max(0, args.hatch_dir_smooth),
+        HATCH_PLAN=tuple((float(v),) + r[1:] for v, r in
+                         zip(args.hatch_levels.split(","), HATCH_PLAN)),
+        HATCH_TIERS=tuple((k + 1, float(m)) for k, m
+                          in enumerate(args.hatch_mags.split(","))))
+    globals()["HATCH_DIRV"] = tuple(
+        (math.cos(math.pi * b / HATCH_DIRS), math.sin(math.pi * b / HATCH_DIRS))
+        for b in range(HATCH_DIRS))
+    globals()["HATCH_FAMILY_OFF"] = (0, HATCH_DIRS // 2, HATCH_DIRS // 4,
+                                     3 * HATCH_DIRS // 4)
     tag = args.tag
     os.makedirs(args.out_dir, exist_ok=True)
     print(f"curve {args.curve} ve(0)={C_A:g} scale={C_L:g} floor={C_F:.4f} "
@@ -3421,6 +4081,25 @@ def main():
           f"{CONTOUR_SOFT} low-pass passes; worst contour move "
           f"{P.stats.get('contour_dev_px', 0.0):.2f} px, worst river move "
           f"{P.stats.get('river_dev_m', 0.0):.0f} m")
+    hh = P.stats.get("shade_hist", {})
+    tot_h = max(1, sum(hh.values()))
+    print("tone steps: " + " ".join(
+        f"{k:+d}:{100 * hh[k] / tot_h:.0f}%" for k in sorted(hh) if hh[k] * 200 > tot_h))
+    if ENGRAVE:
+        ct = P.stats.get("cuts", {})
+        by = P.stats.get("cut_bytes", {})
+        print("burin: pitch %.2f px on screen at every tier, %d rulings, "
+              "ladder at %s" % (HATCH_PITCH_PX, HATCH_DIRS,
+                                 ",".join(f"{r[0]:g}" for r in HATCH_PLAN)))
+        for tier, mag in HATCH_TIERS:
+            print(f"  tier {tier} cut for {mag:g}x: user pitch "
+                  f"{HATCH_PITCH_PX / mag:.3f} px, {ct.get(tier, 0):7d} cuts, "
+                  f"{by.get(tier, 0) / 1024:8.1f} KB")
+        print(f"  all three rulings {sum(by.values()) / 1024:.1f} KB "
+              f"(the wash they replace was 334 KB)")
+        sy = P.stats.get("cut_by_system", {})
+        print("  of which tone %.1f KB, ground-cover marks %.1f KB"
+              % (sy.get("tone", 0) / 1024, sy.get("cover", 0) / 1024))
     cc = P.stats.get("cover_cells", {})
     print("ground cover: " + ", ".join(
         f"{k} {v} ({100 * v / max(1, sum(cc.values())):.0f}%)"

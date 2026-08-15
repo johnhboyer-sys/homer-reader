@@ -656,12 +656,12 @@ def test_the_key_names_the_classes_and_no_longer_names_metres(s3):
     src = open(STAGE3).read()
     assert "ELEVATION, METRES" not in src
     assert "GROUND COVER" in src
-    named = {c for c, _, _ in s3.COVER_KEY}
+    named = {r[0] for r in s3.COVER_KEY}
     assert named == set(s3.COVER_ORDER) | {"wet"}
-    for _, name, gloss in s3.COVER_KEY:
-        assert name and gloss, "every key entry states its evidence"
+    for r in s3.COVER_KEY:
+        assert r[1] and r[2], "every key entry states its evidence"
     # the weakest class says so, and the unclassified one says that
-    joined = " ".join(g for _, _, g in s3.COVER_KEY)
+    joined = " ".join(r[2] for r in s3.COVER_KEY)
     assert "default" in joined and "not classified" in joined
 
 
@@ -1239,3 +1239,241 @@ def test_the_ditch_and_road_opacity_is_the_one_that_was_solved_for(s3):
         m = re.search(r"\." + cls + r"\{([^}]*)\}", s3.CSS, re.S)
         op = re.search(r"stroke-opacity:([0-9.]+)", m.group(1))
         assert op and float(op.group(1)) >= 0.75, f"{cls} is back under AA"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# THE ENGRAVED TAKE — the burin, and the magnification claim
+# ═══════════════════════════════════════════════════════════════════════════
+# docs/TROAD-CARTOGRAPHY.md bans mark-based tone on this project's sheets
+# because "every treatment built out of discrete marks has a magnification at
+# which it stops being tone". The claim these tests hold the code to is the
+# only one that can answer it: the marks do not magnify, because each zoom
+# tier carries its own ruling cut at its own pitch. If any of these fail, the
+# ban applies again and the technique is not usable here.
+
+
+def test_the_pitch_is_a_screen_quantity_and_is_constant(s3):
+    """Every tier's ruling comes out at the same SCREEN pitch. That is the
+    whole design: what the reader sees is the same ruling at 1x and at 8x."""
+    for tier, mag in s3.HATCH_TIERS:
+        user_pitch = s3.HATCH_PITCH_PX / mag
+        assert abs(user_pitch * mag - s3.HATCH_PITCH_PX) < 1e-9
+
+
+def test_every_tier_is_cut_for_its_own_magnification(s3):
+    """Tiers 1, 2, 3 and strictly increasing magnifications, so the finest
+    ruling is the one shown at the deepest zoom."""
+    tiers = [t for t, _ in s3.HATCH_TIERS]
+    mags = [m for _, m in s3.HATCH_TIERS]
+    assert tiers == [1, 2, 3]
+    assert mags[0] == 1.0
+    assert mags == sorted(mags) and len(set(mags)) == 3
+
+
+def test_the_tier_switch_shows_exactly_one_ruling(s3):
+    """Three rulings ride in the sheet and the level-of-detail switch shows
+    one. Two at once would double the tone; none would lose it."""
+    for tier in (1, 2, 3):
+        css = s3.TIER_CSS[tier]
+        hidden = {f"hx{k}" for k in (1, 2, 3) if f".hx{k}" in css}
+        assert hidden == {f"hx{k}" for k in (1, 2, 3)} - {f"hx{tier}"}, css
+
+
+def test_the_deepest_zoom_the_plate_serves_has_a_ruling_cut_for_it(s3):
+    """The camera-target table caps a postcard frame at 4x and the render set
+    exercises 8x. The finest ruling must be cut for at least the deepest of
+    those, because a ruling used ABOVE its own magnification is exactly the
+    failure the cartography doc forbids."""
+    assert max(m for _, m in s3.HATCH_TIERS) >= 8.0
+
+
+def test_the_stroke_weight_is_a_screen_quantity_too(s3, tmp_path):
+    """A constant pitch with a scaling weight would still change the tone.
+    The emitted stroke-width is HATCH_W_PX divided by the tier's own
+    magnification, so it lands at HATCH_W_PX on the screen at every tier."""
+    import re
+    cuts = [((0, 0), [(0.0, 40.0)])]
+    for tier, mag in s3.HATCH_TIERS:
+        svg = s3.cut_svg([(0, "M0 0h40")], "pp-hatch",
+                         s3.HATCH_W_PX / mag, s3.HATCH_OP)
+        w = float(re.search(r'stroke-width="([\d.]+)"', svg).group(1))
+        assert abs(w * mag - s3.HATCH_W_PX) < 5e-3
+
+
+def test_a_cut_is_never_a_dash_pattern_or_a_pattern_fill(s3):
+    """Two things that would have been easier and are both wrong here. A
+    dasharray scales with the zoom; an SVG <pattern> scales with whatever
+    transforms it. Neither can be regenerated per tier, which is the only
+    device that answers the magnification objection."""
+    src = open(STAGE3).read()
+    assert "stroke-dasharray" not in src
+    assert "<pattern" not in src and "patternUnits" not in src
+
+
+def test_the_ladder_deepens_by_cross_hatching_not_by_closing_the_pitch(s3):
+    """Every family after the first two sits on the SAME global lattice at a
+    different angle. Closing the pitch instead would put each family on its
+    own lattice, which breaks the chaining the technique is affordable by."""
+    levels = [r[0] for r in s3.HATCH_PLAN]
+    assert levels == sorted(levels, reverse=True), "darker enters later"
+    assert all(v < 0 for v in levels), "the ladder is cut in SHADOW"
+    fracs = [r[1] for r in s3.HATCH_PLAN]
+    assert len(set(fracs)) >= 3, "it cross-hatches"
+    strides = {r[2] for r in s3.HATCH_PLAN}
+    assert strides == {1, 2}, "a half ruling, then the full one"
+    # the two stride-2 rows are opposite phases of one lattice, so together
+    # they are the full ruling and neither ever doubles the other
+    halves = [r for r in s3.HATCH_PLAN if r[2] == 2]
+    assert len(halves) == 2 and {r[3] for r in halves} == {0, 1}
+    assert halves[0][1] == halves[1][1], "and in the same direction"
+
+
+def test_the_cuts_follow_real_slope_and_never_a_decorative_sweep(s3):
+    """The burin direction is the DOWNSLOPE of the drawn surface, projected.
+    Where the ground has no gradient it takes the down-sun direction, which
+    is the direction a cast shadow actually travels — never a fixed angle
+    chosen to look good."""
+    src = open(STAGE3).read()
+    assert "hatch_field" in src
+    fn = src[src.index("def hatch_field"):src.index("def _quad")]
+    assert "exaggerate(" in fn, "the normal is the DRAWN surface's"
+    assert "SUN_H" in fn, "flat ground falls back to the sun, not to a constant"
+
+
+def test_the_direction_field_is_smoothed_as_an_axis_not_as_a_vector(s3):
+    """179 degrees and 1 degree are neighbours. Averaging them as angles
+    gives 90, which would flip a cell's ruling square against its own
+    neighbours; the doubled angle is the only correct average."""
+    src = open(STAGE3).read()
+    fn = src[src.index("def hatch_field"):src.index("def _quad")]
+    assert "math.cos(2 * th)" in fn and "math.sin(2 * th)" in fn
+    assert "* 0.5) % math.pi" in fn
+
+
+def test_a_family_stops_at_the_light_and_not_at_a_cell_edge(s3):
+    """Clipped to the quantised field, every family boundary landed on the
+    lattice, and at 8x a mesh cell is 58 px. The clip is against the
+    CONTINUOUS light over the cell, so a family thins out along the light's
+    own contour at the resolution of the ruling."""
+    src = open(STAGE3).read()
+    assert "self.shade_c = raw" in src
+    fn = src[src.index("    def _rule("):src.index("    def hatch_stratum")]
+    assert "thr" in fn and "self.htone" in fn
+
+
+def test_a_cut_is_clipped_to_the_threshold_it_is_given(s3):
+    """The clip itself, on a made-up cell: a unit quad whose tone runs from
+    -1 at the left edge to 0 at the right, ruled vertically. A family that
+    enters at -0.5 must cover the left half and stop."""
+    class Fake:
+        pass
+    P = Fake()
+    P.hbucket = {(0, 0): 0}
+    # a 100x20 quad at the origin
+    P.grid = [[(0.0, 0.0, 0.0, 0.0), (0.0, 20.0, 0.0, 0.0)],
+              [(100.0, 0.0, 0.0, 0.0), (100.0, 20.0, 0.0, 0.0)]]
+    P._quad = s3.Plate._quad.__get__(P, Fake)
+    P._rule = s3.Plate._rule.__get__(P, Fake)
+    # tone(x, y) = -1 + x/100, so tone = -0.5 at x = 50
+    P.htone = {(0, 0): (-1.0, 1.0 / 100.0, 0.0, 0.0, 0.0, -1.0, 0.0)}
+    runs = {}
+    P._rule(runs, 0, 0, 0, 4.0, thr=-0.5, sign=-1.0)
+    assert runs, "the family is present on the dark half"
+    ends = [max(b for _, b in v) for v in runs.values()]
+    assert 49.0 <= max(ends) <= 51.0, ends
+    assert max(ends) < 60.0, "and it stops where the light reaches -0.5"
+
+
+def test_cuts_from_neighbouring_cells_chain_into_one_stroke(s3):
+    """Two cells that pick the same ruling put collinear, touching cuts on
+    the same global line. If they did not merge, the sheet would carry tens
+    of thousands of stubs and cost three times what it does."""
+    runs = {(0, 3): [(0.0, 10.0), (10.0, 21.0), (60.0, 70.0)]}
+    cuts, n = s3.cut_runs(dict(runs), 4.0)
+    assert n == 2, "three touching-or-not intervals become two strokes"
+    d = cuts[0][1]
+    assert d.count("h") == 2 and d.count("M") == 1
+
+
+def test_a_ruling_is_written_in_its_own_frame(s3):
+    """Every cut in one ruling is parallel, so the group carries one
+    rotate() and each stroke costs a single h. Rotation is an isometry: the
+    drawing and the stroke weight are unchanged, only the bytes."""
+    cuts, _ = s3.cut_runs({(2, 1): [(0.0, 30.0)]}, 4.0)
+    svg = s3.cut_svg(cuts, "pp-hatch", 0.7, 0.9)
+    assert "rotate(" in svg and "h30" in svg
+
+
+def test_the_white_line_is_the_only_theme_dependent_mark(s3):
+    """Dark theme is a different light, not an inverted one. The dark cuts
+    are in both themes and stay darker than their ground in both; the
+    highlight cut, which is the mezzotint device, shows only at night."""
+    assert ".pp-white{display:none}" in s3.THEME_CSS["light"]
+    assert "pp-white" not in s3.THEME_CSS["dark"]
+    assert "pp-hatch" not in s3.THEME_CSS["light"]
+    assert "pp-hatch" not in s3.THEME_CSS["dark"]
+    assert all(r[0] > 0 for r in s3.LIT_PLAN), "the highlight is cut in LIGHT"
+
+
+def _hex(h):
+    h = h.lstrip("#")
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def test_the_dark_cut_stays_darker_than_every_ground_colour_in_both_themes(s3):
+    """The project's standing rule: what is darker than its ground in
+    daylight is darker than its ground at night. The cut is --pp-shade in
+    both themes and must never cross over."""
+    for theme in ("light", "dark"):
+        tok = _tokens(s3, theme)
+        ink = _luminance(_hex(tok["--pp-shade"]))
+        for k in ("--pp-cover-fan", "--pp-cover-open", "--pp-cover-ridge",
+                  "--pp-cover-wet"):
+            assert ink < _luminance(_hex(tok[k])), (theme, k)
+
+
+def test_the_white_line_is_lighter_than_the_ground_it_cuts(s3):
+    """And the highlight is the other way round, in the theme that has it."""
+    tok = _tokens(s3, "dark")
+    lit = _luminance(_hex(tok["--pp-lit"]))
+    for k in ("--pp-cover-fan", "--pp-cover-open", "--pp-cover-ridge"):
+        assert lit > _luminance(_hex(tok[k])), k
+
+
+def test_no_colour_in_the_engraving_is_anything_but_a_var_token(s3):
+    """Same rule the rest of the sheet keeps: both themes and both contrast
+    requirements have to be satisfiable by a stylesheet."""
+    src = open(STAGE3).read()
+    css = src[src.index("CSS = \"\"\""):src.index("# ── contour ink")]
+    for cls in ("pp-hatch", "pp-white", "pp-cmark"):
+        line = [l for l in css.splitlines() if l.startswith("." + cls)][0]
+        assert "stroke:var(--" in line, line
+        assert "#" not in line
+
+
+def test_the_plate_still_declares_no_raster_and_no_filter_texture(s3):
+    src = open(STAGE3).read()
+    assert "<image" not in src
+    # the one filter on the sheet is the wetland's margin, which predates
+    # this take and is a BOUNDARY device, not a texture
+    assert src.count("<filter") == 1 and "feGaussianBlur" in src
+
+
+def test_the_key_carries_the_ladder_it_was_cut_with(s3):
+    """A plate whose tone is in line prints its own tone scale."""
+    src = open(STAGE3).read()
+    assert "TONE — CUT, NOT WASHED" in src
+    assert "at every magnification" in src
+    marks = {r[3] for r in s3.COVER_KEY}
+    assert "none" in marks, "the class with no claim carries no mark"
+    assert len(marks) == len(s3.COVER_KEY), "one convention per class"
+
+
+def test_the_waterlines_are_four_and_their_gaps_grow(s3):
+    """Huffman 2010, 23-30, and TROAD-CARTOGRAPHY.md (5) item 7: monospaced
+    gaps read as a stylisation, gaps multiplied by 1.3 read as waves
+    compressing against the shore."""
+    src = open(STAGE3).read()
+    blk = src[src.index("gaps, d = []"):src.index("# WHICH WAY IS INTO THE WATER")]
+    assert "for _ in range(4)" in blk
+    assert "d *= 1.3" in blk
