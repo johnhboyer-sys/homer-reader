@@ -915,11 +915,48 @@ MATERIAL = {COVER_FAN: 0.76, COVER_OPEN: 1.0, COVER_RIDGE: 1.16}
 # readable gully-and-spur system at 2; at 1 the tone islands the median has
 # to filter jump from 3,628 to 5,057 and the near foreground starts to bead.
 SHADE_SMOOTH = 2         # box passes over the CONTINUOUS field, in mesh cells
-SHADE_SIMPLIFY = 1.1     # px of Douglas-Peucker on a wash edge. It was 0.8
+SHADE_SIMPLIFY = 0.7     # px of Douglas-Peucker on a wash edge. It was 0.8
                          # while an edge was the seam between two tones seven
-                         # tenths apart; a nested wash edge is one eighteenth
-                         # of the tone, so it can be generalised harder, and
-                         # that is what pays for nine more of them.
+                         # tenths apart, then 1.1 once a nested wash edge
+                         # carried only one eighteenth of the tone. It is back
+                         # to the COVER's own 0.7 because of the stratum seam
+                         # below: a wash edge that wanders 1.1 px away from the
+                         # cover edge cut at the same range leaves a hole, and
+                         # the hole is multiplied by however many washes are
+                         # stacked there.
+# ── THE PALE HAIRLINE ACROSS THE FOREGROUND (2026-08-14) ─────────────────
+# "what's this line?" (John, on a crop of the near ridge): a fine, continuous,
+# LIGHTER-than-its-ground line running diagonally across the foreground, and
+# nothing on the sheet it could be. It is a DEPTH-STRATUM SEAM in the slope
+# shading, and it was found by elimination, not by guessing:
+#   --shade-max 0 --lit-max 0   the line goes. So it is in the washes.
+#   --lit-max 0 alone           the line stays, unchanged. So it is --pp-shade.
+#   --shade-min-area 0          no change. Not the sliver filter.
+#   STRATA_EDGES moved 1600/1100/750 -> 1400/1000/700: the line VANISHES from
+#                               its old position. So it is a stratum join.
+#   --shade-steps 1             the line is still there at one wash, at 73% of
+#                               the ground's own tone: the hole is about 0.3 px
+#                               of a pixel's width, and it is EIGHTEEN NESTED
+#                               WASHES all missing the same sliver that turns a
+#                               sub-pixel gap into 26 levels of luminance.
+# The mechanism: a stratum's ground cover is opaque and repaints the join, so
+# the farther stratum's shading is erased under it; the nearer stratum's own
+# wash, generalised on its own loop with its own tolerance, does not land on
+# exactly the same line, and the sliver between them shows unshaded cover.
+# The cover has always closed its own seams by stroking a band in its own fill
+# (see terrain_svg); the washes were explicitly NOT stroked, on the reasoning
+# that "a gap between two tones just reads as the tone between them" -- true
+# WITHIN a stratum, where the neighbour tone is one step away, and false ACROSS
+# one, where the neighbour is bare cover.
+# So the washes now carry the same device, at a third of the width. It is a
+# reduction and not a cure, and the honest reason is that two independently
+# generalised polylines cannot be made to coincide: measured on the worst seam
+# in the frame, +26 and +25 luminance became +1 and -4; on the next, +13 became
+# +7 and -8. A wider stroke closes the gap and opens a DARK one in its place
+# (at 0.7 the same seam reads -14), because the stroke then laps the far
+# stratum's surviving wash and doubles it. 0.25 is where the two errors are
+# smallest together.
+SHADE_SEAM_W = 0.25      # px of own-tone stroke on a wash, to close the join
 SHADE_MIN_AREA = 140.0   # px^2; below this a tone region is a sliver, not a
                          # slope, and it prints as a bead rather than as tone
 # ── THE BLOTCHY FOREGROUND, and why smoothing alone never cured it ────────
@@ -1933,15 +1970,37 @@ def hut(cam, terr, lat, lon, bearing, w=7.0, d=5.0, wall=1.8, ridge=3.2):
 # printing a metre value for the fringe's width, so BANK_OFFSET_M is captioned
 # in the key as an artist's convention and no width is stated on the sheet.
 #
+#   IDA'S TIMBER -- A WOODED MOUNTAIN, and not a single tree. Il. 23.114-20:
+#       the Achaeans climb κνημοὺς ... πολυπίδακος Ἴδης and cut δρῦς
+#       ὑψικόμους for the pyre; 14.287 puts an ἐλάτη περιμήκετος there. The
+#       previous pass lettered this and refused to draw it, because at 45-80 km
+#       behind 0.73 of --pp-haze a 20 m oak is a tenth of a pixel and no source
+#       gives a treeline altitude. Both facts are true and neither is an
+#       argument against the thing the poem actually says. A FORESTED MOUNTAIN
+#       DOES NOT READ AS TREES AT ANY RANGE; it reads as a darker, cooler,
+#       greener mass. That is a claim about TONE, so it places nothing and
+#       needs no treeline -- and the tan the mountain carried was asserting the
+#       opposite of the text over the whole horizon of the plate. Drawn as
+#       colour, in .pp-ida, and nothing is planted on it.
+#
 # WHAT IS NOT DRAWN, and each because the text will not carry it:
-#   IDA'S OAKS. Il. 23.114-20 is unambiguous -- the Achaeans climb κνημοὺς
-#       ... πολυπίδακος Ἴδης and cut δρῦς ὑψικόμους for the pyre, and 14.287
-#       puts an ἐλάτη περιμήκετος on the mountain. Ida is on this sheet at
-#       45-80 km behind 0.73 of --pp-haze, drawn as a mass and a crest line;
-#       a 20 m tree there is a tenth of a pixel and the treeline's altitude is
-#       not attested by anything. It is LETTERED IN THE KEY AND NOT DRAWN,
-#       which is the same answer this plate already gives the thicket's
-#       extent.
+#   A REED BED ON THE WET DELTA. Il. 21.351 does name θρύον and κύπειρον, and
+#       a mass of reeds at 8 km would be perfectly drawable as a tone where an
+#       individual stem is not. The specification forbids it in so many words,
+#       twice, and the forbidden thing is exactly the mark that was wanted:
+#       §5.8 rules out "lotus/rush/galingale colour or texture spread broadcast
+#       across the whole swamp rather than confined to the river's immediate
+#       margin -- the poem locates this flora 'around the river's fair streams'
+#       (21.352), not over the delta generally", and §5.2 rules out "reed
+#       forests" as wetland dressing. 21.351 is the same sentence as 21.352:
+#       the locative that licenses the thicket is the locative that denies the
+#       delta. The one passage that puts anything growing on marsh ground --
+#       Erichthonius's mares pasturing ἕλος κάτα, 20.221 -- is graded by §4 as
+#       "poem-only, and non-locating", and it is a stronger argument than it
+#       looks, because the marsh here is placed by the DEM and not by that
+#       line; it is recorded for John's call and NOT drawn on this lane's own
+#       authority. What the wet delta does gain is the thicket, at the pitch
+#       21.352's own ἅλις asks for, wherever the drawn courses cross it.
 #   TAMARISK SCATTERED ON THE PLAIN. 10.466-68 is one man tying one way-mark
 #       at a spot the poem does not locate, and the specification's own
 #       reading is that the three passages "support tamarisk as a common,
@@ -1969,11 +2028,28 @@ BANK_OFFSET_M = 26.0            # AN ARTIST'S CONVENTION, NOT A MEASUREMENT
                                 # (GROUND-COVER-TROJAN-PLAIN.md §2.3): the
                                 # poem gives no width for the fringe and the
                                 # key says the sheet is not claiming one.
-BANK_STEP_M = 96.0              # clump pitch at the overview; halved at the
+BANK_STEP_M = 62.0              # clump pitch at the overview; halved at the
                                 # zoom tiers, so the thicket GAINS members
-                                # rather than being drawn bigger
-SCRUB_PX2 = 1250.0              # screen px^2 of ridge per tick at tier 1
-SCRUB_PX2_ZOOM = 300.0          # and at tiers 2-3: the same regeneration
+                                # rather than being drawn bigger. It was 96,
+                                # and the POEM is why it came down: 21.352 has
+                                # this assemblage growing ἅλις, "in abundance",
+                                # about the river's streams. ἅλις is a density
+                                # word in the text's own voice and a fringe
+                                # with 96 m between clumps was not drawing it.
+                                # Pitch is not a locational claim -- the clumps
+                                # stay on the same drawn course at the same
+                                # captioned offset -- so this is the one place
+                                # on the sheet where more marks say something
+                                # the poem itself says.
+SCRUB_PX2 = 460.0               # screen px^2 of ridge per tick at tier 1
+SCRUB_PX2_ZOOM = 120.0          # and at tiers 2-3: the same regeneration.
+                                # These were 1250 and 300, chosen for restraint
+                                # and not derived from anything: the class is
+                                # already licensed as a regional default
+                                # (§2.4), so its DENSITY asserts nothing new
+                                # and is a drawing decision. A scrub slope
+                                # carrying one tuft per 1250 px^2 read as an
+                                # empty slope with a few specks on it.
 SCRUB_REACH = 16000.0           # m; the same reach the cast shadows take
 VEG_MIN_PX = 0.75               # below this a mark is smaller than the ink
 
@@ -2285,10 +2361,13 @@ def draped_ribbon(cam, terr, latlons, half_w_m, cls, z_off=0.0, taper=None):
 # it; the composite is what the reader sees and what the key swatch draws, and
 # it is the composite the contrast tests measure.
 #
-# --pp-ida-mass and --pp-tumulus are NOT ground cover. They kept the exact
-# values they had as relief-12 and relief-9 when the ramp was deleted, because
-# neither is terrain the classification speaks for: one is the mountain beyond
-# the mesh, the other a built mound.
+# --pp-ida-wood and --pp-tumulus are NOT ground cover: neither is terrain the
+# classification speaks for -- one is the mountain beyond the mesh, the other a
+# built mound. The tumulus kept the exact value it had as relief-9 when the
+# ramp was deleted. --pp-ida-mass, the bare tan Ida inherited from relief-12,
+# is GONE: the poem calls that mountain forest twice over and the sheet now
+# says so in the one register 66 km of air leaves open, which is hue (see
+# .pp-ida). Nothing else on the plate used it.
 # ── AIR, SKY AND WATER (2026-08-14, the realism pass) ────────────────────
 # Five new families, and every one of them is a physical quantity the plate
 # was drawing as a constant.
@@ -2334,7 +2413,7 @@ TOKENS = {
   --pp-cover-fan:#FAD391; --pp-cover-open:#E0CDBA; --pp-cover-ridge:#CDCD83;
   --pp-cover-wet:#94C472;
   --pp-veg:#46612E; --pp-veg-lit:#7C9945; --pp-veg-tick:#4E6B34;
-  --pp-ida-mass:#AF9164; --pp-tumulus:#CAB083;
+  --pp-ida-wood:#617F4C; --pp-tumulus:#CAB083;
   --pp-haze:#CBD9E4; --pp-sky-hi:#93B4D2; --pp-sky-lo:#E1DDD2;
   --pp-water-far:#DCE6EC; --pp-water-shoal:#CFE0D8;
 """,
@@ -2348,7 +2427,7 @@ TOKENS = {
   --pp-cover-fan:#513B1F; --pp-cover-open:#493B30; --pp-cover-ridge:#3C3C1E;
   --pp-cover-wet:#233616;
   --pp-veg:#1C2A12; --pp-veg-lit:#3C5223; --pp-veg-tick:#93AE6A;
-  --pp-ida-mass:#86734B; --pp-tumulus:#7A6846;
+  --pp-ida-wood:#2E4224; --pp-tumulus:#7A6846;
   --pp-haze:#141B28; --pp-sky-hi:#0B1120; --pp-sky-lo:#242B3A;
   --pp-water-far:#1E3244; --pp-water-shoal:#1E3F45;
 """,
@@ -2389,10 +2468,25 @@ CSS = """
    45-80 km and the strata lay 0.73 of --pp-haze over it before anything else
    is painted. At 0.22 it disappeared outright once the haze became a law
    instead of a table. The mass is asserted harder so that what SURVIVES the
-   air is about what it was — 0.62 x 0.27 = 0.17 — which is the right way
-   round: the mountain is stated at full strength and the distance takes it
-   down, rather than being pre-faded and then faded again. */
-.pp-ida{fill:var(--pp-ida-mass);fill-opacity:0.62;stroke:none}
+   air is about what it was, which is the right way round: the mountain is
+   stated at full strength and the distance takes it down, rather than being
+   pre-faded and then faded again.
+   AND IDA IS WOODED. The mountain was --pp-ida-mass, a bare warm tan, which
+   under 0.73 of air printed as a flat pale grey band across the whole
+   horizon — and the poem says the opposite twice: the Achaeans climb
+   κνημοὺς ... πολυπίδακος Ἴδης and cut δρῦς ὑψικόμους for the pyre
+   (Il. 23.114-20), and Sleep hides on it in an ἐλάτη περιμήκετος (14.287).
+   The old refusal to draw that was right about TREES and wrong about the
+   MOUNTAIN: at 66 km a 20 m oak is a tenth of a pixel, but a forested
+   mountain does not read as trees at any distance — it reads as a darker,
+   cooler, greener mass, and that is a claim about tone, which needs no
+   treeline and places nothing. So the fill is a forest token and the mass is
+   asserted at 0.80 instead of 0.62, because what has to survive the air is
+   now a HUE and not just a value. Nothing is planted on Ida; the key says so.
+   Measured on the shipped frame, the mountain's green-minus-red goes from 5
+   to 18 while its luminance drops about 8% — subtle, which is what 0.73 of
+   air allows, and the right direction, which is what it never was. */
+.pp-ida{fill:var(--pp-ida-wood);fill-opacity:0.80;stroke:none}
 .pp-ida-crest{fill:none;stroke:var(--plate-contour);stroke-width:0.9;stroke-opacity:0.95}
 /* ── TWO WATERS, TWO KINDS OF CLAIM ──────────────────────────────────────
    `sea-modern` is the Aegean and the Dardanelles as they stand now, contoured
@@ -3009,13 +3103,21 @@ class Plate:
                             SHADE_SIMPLIFY), 1)))
                     if not d:
                         continue
-                    # NOT stroked, unlike the bands. A wash needs no
-                    # seam-closing -- a gap between two tones just reads as
-                    # the tone between them -- and a stroke doubles the width
-                    # of any thin region, which is what printed the pale
-                    # filaments at 8x.
+                    # STROKED IN ITS OWN TONE, at a third of the cover's
+                    # width. It was not stroked at all, on the reasoning that
+                    # "a gap between two tones just reads as the tone between
+                    # them" -- which holds inside a stratum and fails across
+                    # one, where the gap reads as bare cover and eighteen
+                    # nested washes miss the same sliver at once. See
+                    # SHADE_SEAM_W for the diagnosis and for why the width is
+                    # 0.25 and not the cover's 0.7: a wider stroke laps the
+                    # far stratum's surviving wash and prints a dark line
+                    # instead of a pale one.
                     out.append(f'<path class="pp-shade" fill="{tone}" '
-                               f'fill-opacity="{a:.4f}" d="{"".join(d)}"/>')
+                               f'fill-opacity="{a:.4f}" stroke="{tone}" '
+                               f'stroke-opacity="{a:.4f}" '
+                               f'stroke-width="{SHADE_SEAM_W:g}" '
+                               f'd="{"".join(d)}"/>')
             for k in sorted(cont):
                 cls = "pp-contour-index" if k in INDEX_LEVELS else "pp-contour"
                 d = []
@@ -3671,6 +3773,32 @@ class Plate:
             out.append(g + "".join(band) + "</g>")
         return "".join(out)
 
+    def cover_centre(self, cls, near, far):
+        """The screen point to letter a ground-cover class at: the median of
+        the visible cells of that class inside a depth band.
+
+        THE MEDIAN AND NOT THE CENTROID, because a class on this sheet is
+        rarely one blob -- the dry fan has a lobe west of the citadel and a
+        much larger sheet east of the camp -- and a centroid of two lobes
+        lands between them, on ground that is not the class at all. The band
+        is what chooses WHICH stretch gets the name: the fan is lettered where
+        the fighting is, between the camp and the city, and not out at the
+        mesh's edge where it is four pixels tall.
+
+        This is region lettering in the sense TROAD-CARTOGRAPHY.md means: an
+        unbounded tract gets letterspaced caps laid across it, no pin and no
+        outline, because a pin would claim a point and an outline a boundary,
+        and the class has neither."""
+        pts = [(self.grid[i][j][0], self.grid[i][j][1])
+               for (i, j) in self.visible
+               if self.cover.get((i, j)) == cls
+               and near <= self.grid[i][j][3] < far]
+        if len(pts) < 40:
+            return None
+        xs = sorted(p[0] for p in pts)
+        ys = sorted(p[1] for p in pts)
+        return xs[len(xs) // 2], ys[len(ys) // 2]
+
     def vegetation_svg(self):
         """Everything that grows on this sheet. See the VEGETATION note above
         the primitives for what each class is and which line of the poem puts
@@ -3759,7 +3887,7 @@ class Plate:
             (e2, n2), (e3, n3) = self.wor[i + 1][j + 1], self.wor[i][j + 1]
             want = area / SCRUB_PX2_ZOOM
             n_tick = int(want) + (1 if _rnd(i, j, 3) < (want % 1.0) else 0)
-            for t in range(min(n_tick, 6)):
+            for t in range(min(n_tick, 14)):
                 u, v = _rnd(i, j, t, 5), _rnd(i, j, t, 9)
                 e = (e0 * (1 - u) + e1 * u) * (1 - v) + (e3 * (1 - u) + e2 * u) * v
                 n = (n0 * (1 - u) + n1_ * u) * (1 - v) + (n3 * (1 - u) + n2 * u) * v
@@ -4234,7 +4362,8 @@ def esc(s):
 # have quietly deleted the strongest thing the poem says about this ground.
 COVER_KEY = (
     (COVER_FAN, "DRY DELTA FAN",
-     "sand-covered, dusty, firm — the battlefield (Kayan 2002)"),
+     "sand-covered, dusty, firm — lettered THE BATTLEFIELD after Kayan 2002, "
+     "his reading of the surface, not the poem’s name"),
     (COVER_RIDGE, "RIDGE SCRUB, BARE SLOPE",
      "thin soil on limestone — a regional default, not a survey"),
     ("wet", "WET DELTA, SWAMP",
@@ -4244,11 +4373,12 @@ COVER_KEY = (
      "is no one rule to carry outward"),
 )
 COVER_KEY_UNDRAWN = (
-    "Not drawn: the thicket’s WIDTH — the Bronze Age channels lie under 20 m of "
-    "alluvium, so the fringe follows the drawn course at an artist’s width, never a "
-    "measured one. Ida’s oaks and firs (Il. 23.114–20; 14.287), attested but 66 km "
-    "off behind the air. Nothing on the dry fan: the epithets (6.315; 20.226) call "
-    "it good soil and give no pattern, and no Bronze Age field boundary is evidenced."
+    "Not drawn: the thicket’s WIDTH — the channels lie under 20 m of alluvium, so the "
+    "fringe follows the drawn course at an artist’s width, never a measured one. Ida’s "
+    "timber as TREES (Il. 23.114–20; 14.287) — at 66 km one is a tenth of a pixel, so "
+    "the mountain is coloured wooded and nothing is planted on it. Reeds over the wet "
+    "delta — 21.351 names rush and galingale, 21.352 sites them at the river. Nothing "
+    "on the dry fan — the epithets (6.315; 20.226) call it good soil, and no pattern."
 )
 # ── THE TWO WATERS, AND WHY THE KEY HAD LOST THEM ────────────────────────
 # When the legend was rewritten from a twelve-step elevation ramp to four
@@ -4285,7 +4415,10 @@ VEG_KEY = (
     ("THE OAK", "φηγός — Il. 6.237 = 9.354 = 11.170, at the Scaean Gate"),
     ("THE WILD FIG", "ἐρινεός — Il. 22.145, ἠνεμόεντα, “windswept”"),
     ("RIVERBANK THICKET", "elm, willow, tamarisk over lotus, rush, galingale "
-     "— Il. 21.350–52"),
+     "— Il. 21.350–52, growing ἅλις, “in abundance”, which is why it is drawn "
+     "as thick as it is"),
+    ("IDA’S TIMBER", "δρῦς ὑψίκομοι, ἐλάτη — Il. 23.114–20; 14.287 — coloured "
+     "as a wooded mass; no tree drawn on it, no treeline claimed"),
     ("RIDGE SCRUB", "no line of the poem — the regional default above, now "
      "given a mark as well as a tint"),
 )
@@ -4307,6 +4440,12 @@ VEG_KEY = (
 # foreground at the foot, which takes the panorama from 16:9 to about 2.2:1 —
 # a panorama's own proportion, and a closer crop on the thing the plate is
 # of. The margin holds everything that is apparatus rather than picture.
+VEG_ROW = 12.5           # leading for the key's own small face. It was 14
+                         # for four vegetation rows; Ida's timber is a fifth,
+                         # and the margin is 300 px and FIXED -- it is the
+                         # crop, and the crop is not this lane's to move -- so
+                         # the row is paid for out of the leading rather than
+                         # out of the sheet.
 BAND_H = 300.0           # the margin below the neatline, in px
 NEAT_M = 16.0            # neatline inset from the sheet edge
 PIC_BOT = H - BAND_H     # the picture's own bottom edge
@@ -4383,7 +4522,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
                f'fill-opacity="0.85">every plant traces to a line of the poem '
                f'or to a class above</text>')
     for i, (name, gloss) in enumerate(VEG_KEY):
-        yy = sub + 18.0 + i * 14.0
+        yy = sub + 18.0 + i * VEG_ROW
         out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(yy)}" '
                    f'letter-spacing="0.9">{esc(name)}</text>')
         out.append(f'<text class="pp-l-note" x="{n1(bx + 168)}" y="{n1(yy)}" '
@@ -4433,7 +4572,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
     # missing. The margin is 300 px and fixed -- it is the crop, and the crop
     # is not this lane's to move -- so the five notes are set at the 10 px
     # face's own comfortable leading instead of at a display step.
-    ty = sub + 18.0 + len(VEG_KEY) * 14.0 + 4.0
+    ty = sub + 18.0 + len(VEG_KEY) * VEG_ROW + 4.0
     for line in (
         COVER_KEY_UNDRAWN,
         DRAWN_MARKS,
@@ -4456,7 +4595,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
         + " DRAFT.",
     ):
         out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(ty)}">{esc(line)}</text>')
-        ty += 14
+        ty += VEG_ROW
     return "".join(out)
 
 
@@ -4701,7 +4840,24 @@ def build(terr, cam, plate_json):
                  + '</text></g>')
         w["_label"] = [round(A[pid][0] + dx, 1), round(A[pid][1] + dy, 1)]
 
-    # tier 1 — six marks and no more
+    # ── tier 1 — what a reader needs in order to know where they are ──────
+    # THE BATTLEFIELD WAS IN THE LEGEND AND NOT ON THE GROUND. The key has
+    # always said "dry delta fan -- the battlefield (Kayan 2002)", so the sheet
+    # knew the one thing about that surface that matters to a reader of the
+    # Iliad and said it in a swatch caption. It is lettered on the fan itself
+    # now, in the region manner, and the register is Kayan's: he makes the
+    # correlation in his own voice ("Characteristics of the surface recall
+    # Homer's descriptions of the battlefield: a sand-covered and dusty plain
+    # ... there is no need to look for a battlefield in the distance", Kayan
+    # 2002, 1003), which is why the key entry names him rather than a line of
+    # the poem. It is not the poem's own name for the ground.
+    fanc = P.cover_centre(COVER_FAN, 2500.0, 5000.0)
+    if fanc:
+        # nudged clear of the bay's own hairline, which the median's left end
+        # was sitting on: region lettering may cross ground, never a drawn line
+        L.append(f'<g><text class="plate-label pp-l-region" '
+                 f'x="{n1(fanc[0] + 40.0)}" y="{n1(fanc[1])}" '
+                 f'text-anchor="middle">THE BATTLEFIELD</text></g>')
     if "ilios" in A:
         x, y, _ = A["ilios"]
         L.append(f'<g><path class="pp-leader" d="M{n1(x + 5)} {n1(y - 7)}'
@@ -4739,11 +4895,21 @@ def build(terr, cam, plate_json):
                  f'y="{n1(mid[1] + 52)}" text-anchor="middle">'
                  f'Odysseus’ ships and the place of assembly</text></g>')
 
+    # THE NAMED GEOGRAPHY OF THE PICTURE, all of it measured, all of it
+    # already drawn, and until now all of it waiting for a 2x zoom. Tier 1
+    # carries what ORIENTS: the two rivers, the two headlands the camp's own
+    # ends are named against ("Ajax's ships, the end toward Rhoiteion" is a
+    # tier-3 label anchored on a headland the overview did not name), the
+    # city, the bay, the mountain, the fleet, and the ground they fought over.
+    # Tier 2 keeps the poem's fine waypoints and everything conjectural in
+    # position -- the ford, Callicolone, the Achaean wall, the throsmos -- so
+    # the split is now "what is here" against "what happened here".
+    put("simoeis", 8, -8, "pp-l-water", 1)
+    put("rhoiteion", 0, -14, "pp-l-region", 1, "middle")
+    put("sigeion", 0, -14, "pp-l-region", 1, "middle")
+
     # tier 2
-    put("simoeis", 8, -8, "pp-l-water", 2)
     put("ford-of-the-scamander", 10, -10, "pp-l-site", 2, text="the ford of the Scamander")
-    put("rhoiteion", 0, -14, "pp-l-region", 2, "middle")
-    put("sigeion", 0, -14, "pp-l-region", 2, "middle")
     put("callicolone", 10, -12, "pp-l-site", 2, greek="Καλλικολώνη")
     put("achaean-wall", 0, 22, "pp-l-site", 2, "middle",
         text="the wall of the Achaeans, and the ditch")

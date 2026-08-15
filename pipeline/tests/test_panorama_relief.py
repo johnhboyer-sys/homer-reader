@@ -458,7 +458,7 @@ def _ground_values(s3, theme):
     t = _parse_tokens(s3.TOKENS[theme])
     out = {n: t[n] for n in
            ("pp-cover-fan", "pp-cover-ridge", "pp-cover-open",
-            "pp-ida-mass", "pp-tumulus")}
+            "pp-ida-wood", "pp-tumulus")}
     out["pp-cover-wet*"] = _mix(t["pp-cover-wet"], t["pp-cover-fan"],
                                 s3.COVER_WASH_OP)
     return out
@@ -526,7 +526,7 @@ def test_labels_keep_wcag_aa_on_every_ground_colour(s3):
     for theme in ("light", "dark"):
         ink = _luminance(_parse_tokens(s3.TOKENS[theme])["text-mid"])
         for name, rgb in _ground_values(s3, theme).items():
-            if name in ("pp-ida-mass", "pp-tumulus"):
+            if name in ("pp-ida-wood", "pp-tumulus"):
                 continue          # marks, not label ground
             g = _luminance(rgb)
             hi, lo = max(ink, g), min(ink, g)
@@ -845,15 +845,71 @@ def test_every_plant_drawn_carries_a_line_of_the_poem_or_a_stated_class(s3):
         "ridge scrub is a regional default and the key must not imply a text")
 
 
-def test_ida_s_timber_is_attested_and_declared_undrawn(s3):
-    """Il. 23.114-20 cuts high-crowned oaks on Ida's spurs and 14.287 puts a
-    towering fir there, so the poem carries a wooded Ida -- and the mountain
-    sits at 45-80 km behind 0.73 of the air, where a 20 m tree is a tenth of a
-    pixel. It is lettered, exactly as the thicket's width is."""
-    assert "23.114" in s3.COVER_KEY_UNDRAWN and "Ida" in s3.COVER_KEY_UNDRAWN
+def test_ida_is_coloured_as_a_wooded_mountain_and_planted_with_nothing(s3):
+    """THIS TEST REPLACES ONE THAT ASSERTED THE OPPOSITE, and the replacement is
+    the point. The old claim was "attested, lettered, and not drawn", reasoning
+    that a 20 m tree at 66 km behind 0.73 of haze is a tenth of a pixel and that
+    no source gives a treeline. Both facts are true and neither bears on what
+    the poem says: Il. 23.114-20 has the Achaeans cut δρῦς ὑψικόμους on Ida's
+    spurs and 14.287 puts an ἐλάτη περιμήκετος there, and a FORESTED MOUNTAIN
+    DOES NOT READ AS TREES AT ANY RANGE -- it reads as a darker, greener mass.
+    Tone is the one register the distance leaves open, it places nothing, and it
+    needs no treeline. What the old refusal actually shipped was a bare warm tan
+    across the whole horizon of the plate, which is what the text denies."""
     src = open(STAGE3).read()
+    # the citation travels with the mark, as every other plant's does
+    cites = {n: g for n, g in s3.VEG_KEY}
+    ida = next(v for k, v in cites.items() if "IDA" in k)
+    assert "23.114" in ida and "14.287" in ida
+    assert "no treeline" in ida, "the sheet must not imply a treeline it cannot source"
+    # the claim is a colour, and it is the mountain's whole fill
+    ida_rule = re.search(r"\.pp-ida\{([^}]*)\}", s3.CSS).group(1)
+    assert "--pp-ida-wood" in ida_rule
+    assert "--pp-ida-mass" not in "".join(s3.TOKENS.values()), (
+        "the bare-rock token is gone; nothing may quietly restore it")
+    # and it is a GREEN, in both themes
+    for theme in ("light", "dark"):
+        r, g, b = _parse_tokens(s3.TOKENS[theme])["pp-ida-wood"]
+        assert g > r and g > b, f"{theme}: --pp-ida-wood is not a green"
+    # nothing is planted on it
     veg = src.split("def vegetation_svg", 1)[1].split("def camp", 1)[0]
     assert "ida" not in veg.lower(), "nothing is planted on Ida"
+    assert "23.114" in s3.COVER_KEY_UNDRAWN, (
+        "the sheet must still say why Ida carries no drawn tree")
+
+
+def test_the_thickets_pitch_is_the_poems_own_density_word(s3):
+    """"more vegetation" is not, by itself, a licence to draw more. It is here,
+    for exactly one class, because 21.352 says τὰ περὶ καλὰ ῥέεθρα ἅλις ποταμοῖο
+    πεφύκει -- the assemblage grew ἅλις, IN ABUNDANCE, about the river's streams.
+    ἅλις is a density word in the text's own voice, so the clump pitch is the one
+    number on this sheet that more marks make MORE faithful, not less. The offset
+    is untouched, because that one the poem does not give."""
+    assert s3.BANK_STEP_M < 96.0, "the fringe was set thinner than ἅλις asks for"
+    cites = {n: g for n, g in s3.VEG_KEY}
+    assert "ἅλις" in cites["RIVERBANK THICKET"] and "21.350" in cites["RIVERBANK THICKET"]
+    assert s3.BANK_OFFSET_M == 26.0, (
+        "the WIDTH is an artist's convention and is not this lane's to move")
+
+
+def test_no_reed_bed_grows_on_the_wet_delta(s3):
+    """THE ONE THING ASKED FOR THAT THE EVIDENCE REFUSES. Il. 21.351 does name
+    θρύον and κύπειρον, and a reed MASS at 8 km is drawable where a single stem
+    is not -- but GROUND-COVER-TROJAN-PLAIN.md §5.8 forbids this flora "spread
+    broadcast across the whole swamp rather than confined to the river's
+    immediate margin", on the strength of 21.352, and §5.2 forbids reed dressing
+    outright. 21.351 is the same sentence as 21.352: the locative that licenses
+    the thicket is the locative that denies the delta. So the wet delta stays a
+    wash, it gains vegetation only where the drawn courses cross it, and the
+    sheet says so."""
+    src = open(STAGE3).read()
+    veg = src.split("def vegetation_svg", 1)[1].split("def camp", 1)[0]
+    for word in ("swamp", "marsh", "reed", "SWAMP_LAYER"):
+        assert word not in veg.lower().replace("swamp_layer", ""), (
+            f"{word!r} appears in the placement pass: something grows on the delta")
+    assert "Reeds over the wet delta" in s3.COVER_KEY_UNDRAWN
+    assert "21.352" in s3.COVER_KEY_UNDRAWN, (
+        "the refusal must carry the line it rests on, like every other claim here")
 
 
 def test_the_dry_fan_grows_nothing(s3):
@@ -1631,7 +1687,7 @@ def test_the_halo_carries_the_label_over_the_boldest_ground_the_sheet_draws(s3, 
     grounds = [v for k, v in t.items()
                if k.startswith(("--pp-cover", "--pp-sky", "--pp-water"))
                or k in ("--plate-lagoon", "--scene-map-sea", "--pp-haze",
-                        "--pp-ida-mass", "--pp-tumulus", "--plate-masonry")]
+                        "--pp-ida-wood", "--pp-tumulus", "--plate-masonry")]
     worst, where = 99.0, None
     for g in grounds:
         for tone, mx in ((t["--pp-shade"], s3.SHADE_MAX),
@@ -1942,3 +1998,93 @@ def test_the_margin_still_fits_inside_the_sheet(s3):
     assert max(ys) <= s3.H - 8.0, (
         f"the margin's last baseline is at y={max(ys):.0f} on a {s3.H:.0f} px "
         f"sheet — something is printing off the bottom edge")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# tier 1, and the ground the plate exists to show
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _tier_of_puts(src):
+    """{waypoint id: tier} for every put() call in build()."""
+    body = src.split("def build(", 1)[1]
+    return {m.group(1): int(m.group(2)) for m in
+            re.finditer(r'put\("([a-z\-]+)",\s*-?[\d.]+,\s*-?[\d.]+,\s*'
+                        r'"[a-z\-]+",\s*(\d)', body)}
+
+
+def test_the_battlefield_is_lettered_on_the_ground_and_not_only_in_the_legend(s3):
+    """The key has always said "dry delta fan -- the battlefield (Kayan 2002)",
+    so the sheet knew the one fact about that surface a reader of the Iliad
+    needs and said it in a swatch caption. It is on the ground now.
+
+    THE REGISTER IS KAYAN'S AND THE KEY SAYS SO. He makes the correlation in his
+    own voice -- "Characteristics of the surface recall Homer's descriptions of
+    the battlefield: a sand-covered and dusty plain ... there is no need to look
+    for a battlefield in the distance" (Kayan 2002, 1003) -- so this is a
+    geologist's reading of a measured surface, not a name the poem gives the
+    ground, and the key must not let it read as one."""
+    src = open(STAGE3).read()
+    body = src.split("def build(", 1)[1]
+    assert "THE BATTLEFIELD" in body
+    # region lettering: letterspaced caps across an unbounded tract, no pin
+    assert re.search(r'pp-l-region[^>]*>THE BATTLEFIELD', body), (
+        "the battlefield must be lettered in the region manner, not pinned")
+    # placed ON its own class, by the class's own cells -- never at a constant
+    assert "cover_centre(COVER_FAN" in body
+    # tier 1: its own group carries no tier class, so it is in the overview
+    grp = body.rsplit("THE BATTLEFIELD", 1)[0].rsplit("L.append(", 1)[1]
+    assert "<g>" in grp and 'class="tm' not in grp, (
+        "the battlefield may not be gated behind a zoom tier")
+    fan = next(g for c, n, g in s3.COVER_KEY if c == s3.COVER_FAN)
+    assert "Kayan 2002" in fan and "BATTLEFIELD" in fan
+    assert "not the poem" in fan, (
+        "the key must not let a geologist's identification read as the poem's "
+        "own name for the ground")
+
+
+def test_tier_one_letters_the_named_geography_and_leaves_the_waypoints_to_tier_two(s3):
+    """Tier 1 carries what ORIENTS: the city, the bay, the two rivers, the two
+    headlands the camp's own ends are measured against, the mountain, the fleet,
+    and the ground they fought over. Tier 2 keeps the poem's fine waypoints and
+    everything conjectural in position. The plate is a picture before it is an
+    index, so this is a bounded list and the test's job is to keep it bounded."""
+    tiers = _tier_of_puts(open(STAGE3).read())
+    t1 = {k for k, v in tiers.items() if v == 1}
+    assert {"ilios", "bay-of-troy", "scamander", "simoeis",
+            "sigeion", "rhoiteion"} <= t1
+    assert len(t1) <= 8, f"tier 1 is becoming a gazetteer: {sorted(t1)}"
+    # what stays at 2 and 3, and why: conjectural in position, or fine detail
+    for pid in ("ford-of-the-scamander", "callicolone", "achaean-wall",
+                "throsmos", "delta-swamp"):
+        assert tiers.get(pid) == 2, f"{pid} belongs at tier 2"
+    for pid in ("scaean-gate", "fig-tree", "two-springs-of-scamander",
+                "tomb-of-ilos", "wagon-road", "batieia", "wall-of-heracles"):
+        assert tiers.get(pid) == 3, f"{pid} belongs at tier 3"
+
+
+def test_the_tone_washes_close_their_seam_at_the_stratum_join(s3):
+    """THE PALE HAIRLINE ACROSS THE FOREGROUND. The cover fills have always
+    closed their own seams by stroking a band in its own fill; the washes were
+    deliberately not stroked, on the reasoning that a gap between two tones
+    reads as the tone between them -- true within a stratum and false across
+    one, where the neighbour is bare cover and every nested wash misses the same
+    sliver at once. See SHADE_SEAM_W for the elimination that found it.
+
+    Two things are pinned. The wash carries a seam-closing stroke IN ITS OWN
+    TONE at its own opacity -- any other colour would be a new mark on the
+    sheet. And the stroke stays well under the cover's, because a wide one laps
+    the far stratum's surviving wash and prints a DARK line in place of a pale
+    one; the cure and the defect are the same knob turned too far."""
+    src = open(STAGE3).read()
+    shade = re.search(r'out\.append\(f\'<path class="pp-shade".*?\)\n',
+                      src, re.S).group(0)
+    assert 'stroke="{tone}"' in shade, "the wash has no seam-closing stroke"
+    assert 'stroke-opacity="{a:.4f}"' in shade, (
+        "the stroke must carry the wash's own opacity, or it prints as a line")
+    assert "SHADE_SEAM_W" in shade
+    assert 0.0 < s3.SHADE_SEAM_W < 0.5, (
+        f"{s3.SHADE_SEAM_W} px of own-tone stroke will overshoot into a dark "
+        "seam; measured, 0.7 turns a +26 luminance gap into a -14 one")
+    # and the wash edge is generalised no harder than the cover edge it is cut
+    # against, which is half of why the gap was 2 px instead of a fraction
+    assert s3.SHADE_SIMPLIFY <= 0.7
