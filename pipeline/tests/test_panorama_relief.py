@@ -2271,8 +2271,12 @@ def test_the_fleet_is_never_keyed_to_the_citadels_rim_or_to_ink(s3):
     """The same bug, pinned at the stylesheet instead of at the palette, so
     an edit cannot quietly key a hull back to the token that inverts."""
     css = s3.CSS
+    # pp-erma is the props, and it is on this list for the same reason the
+    # posts are: a shore under a hull is a piece of the fleet's ink, and a
+    # light stroke there would put the beach's lightest mark directly under
+    # its darkest fill.
     for cls in ("pp-hull", "pp-hull-side", "pp-post", "pp-post-t1",
-                "pp-prow", "pp-prow-miltos"):
+                "pp-prow", "pp-prow-miltos", "pp-erma"):
         m = re.search(r"\." + cls + r"\{([^}]*)\}", css)
         assert m, f"{cls} is not in the stylesheet"
         block = m.group(1)
@@ -2324,9 +2328,21 @@ def test_the_overview_draws_a_rank_and_the_zoom_draws_the_fleet(s3):
     assert s3.FLEET_T1_PITCH_M > 13.0, "the rank is at the true berth pitch"
     assert s3.FLEET_T1_ROWS < 5, "the rank is as deep as the true fleet"
     assert s3.FLEET_T1_BEAM_K > 1.0 and s3.FLEET_T1_LEN_K > 1.0
-    # longer than it is wide, and by MORE than the ship is: a hull seen
-    # end-on down this camera's depression loses most of its length
-    assert s3.FLEET_T1_LEN_K > s3.FLEET_T1_BEAM_K
+    # THE ENLARGEMENT IS ISOTROPIC, and this assertion REPLACES its opposite.
+    # The test used to require FLEET_T1_LEN_K > FLEET_T1_BEAM_K, on the
+    # argument that a hull seen end-on down this depression loses most of her
+    # length and needs it back. The premise is true and measured -- ten metres
+    # of depth draws 0.5-1.2 px against 4.0 for ten metres across -- but the
+    # remedy was wrong: stretching length x3.4 against beam x2.0 pulls the
+    # shape 1.7x along one axis, and what came out was not a ship but a quill.
+    # "they look frigging huge relative to everything else" (John), on a glyph
+    # measuring 12.7 px -- the bulk was in the anisotropy and the post's
+    # stroke, never in the extent. Scale the two together or the mark stops
+    # being a ship. The end-on loss is answered by the SIZE of the
+    # enlargement, which the key now declares outright.
+    assert s3.FLEET_T1_LEN_K == s3.FLEET_T1_BEAM_K, (
+        "the overview's enlargement is anisotropic: it makes a quill, not a "
+        "ship. Scale length and beam together")
     build = src.split("def build(", 1)[1].split("def emit(", 1)[0]
     assert 'class="t1-only">\' + "".join(s for s in ships_t1' in build, (
         "the rank is not gated to the overview")
@@ -2351,7 +2367,17 @@ def test_the_overview_glyph_never_scales_a_height(s3):
     # eighty grey slabs with a ship on each is a rank of pallets
     camp = src.split("def camp(", 1)[1].split("def waypoints", 1)[0]
     assert "HULL_SIL_T1" not in camp
-    assert camp.count("object_shadow(cam, terr, lat, lon, bearing, HULL_SIL)") == 2
+    # Both fleets throw the TRUE ship's silhouette, and both throw it from the
+    # keel: `lift` is matched on the same call because a shadow that starts at
+    # the footprint is the cue that reads as CONTACT, which is what made the
+    # hulls look buried. Matched loosely on purpose -- the old exact-literal
+    # form broke the moment the lift argument was added, which told us nothing
+    # about the drawing.
+    calls = re.findall(r"object_shadow\(cam, terr, lat, lon, bearing,\s*"
+                       r"HULL_SIL,\s*lift=SHIP_KEEL_H\)", camp)
+    assert len(calls) == 2, (
+        "both fleets must cast the true hull's silhouette, lifted off the "
+        f"sand onto its props; found {len(calls)}")
 
 
 def test_odysseus_twelve_are_twelve_and_lie_in_the_middle(s3):
@@ -2401,3 +2427,172 @@ def test_the_huts_are_grounded_at_every_tier_the_huts_are_drawn_at(s3):
     build = src.split("def build(", 1)[1].split("def emit(", 1)[0]
     assert '\'<g>\' + "".join(hut_sh) + "</g>"' in build, (
         "the huts' shadows are gated to a tier the huts are not")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ὑψοῦ ἐπὶ ψαμάθοις: the ships stand on the beach, not in it
+# ═══════════════════════════════════════════════════════════════════════════
+CORPUS = os.path.join(REPO, "build", "dist", "iliad")
+
+
+def _iliad_line(book: int, n: int):
+    """The Greek of one line, straight out of the built corpus. Returns None
+    if the corpus is not here -- callers SKIP LOUDLY rather than pass, which
+    is the recorded gotcha: a corpus test that quietly returns early is a
+    test that has never once run."""
+    path = os.path.join(CORPUS, f"book-{book:02d}.json")
+    if not os.path.exists(path):
+        return None
+    import json
+    with open(path) as f:
+        doc = json.load(f)
+    for seg in doc.get("segments", []):
+        for ln in seg.get("greek", []):
+            if ln.get("n") == n:
+                return ln.get("text", "")
+    return ""
+
+
+def test_the_props_are_the_poems_own_and_quoted_from_the_corpus():
+    """Il. 1.485-86 is the warrant for the whole ships-on-props fix, so the
+    plate's own comment and key must quote what the corpus actually reads and
+    not what anybody remembers it reading.
+
+    νῆα μὲν οἵ γε μέλαιναν ἐπ' ἠπείροιο ἔρυσσαν
+    ὑψοῦ ἐπὶ ψαμάθοις, ὑπὸ δ' ἕρματα μακρὰ τάνυσσαν
+
+    and 2.154, ὑπὸ δ' ᾕρεον ἕρματα νηῶν, is what fixes the STANDING condition:
+    the props come out to launch, so a beached ship is a propped ship."""
+    l485, l486 = _iliad_line(1, 485), _iliad_line(1, 486)
+    if l485 is None:
+        pytest.skip(f"Iliad corpus not built at {CORPUS} — this test needs it")
+    assert "ἐπ' ἠπείροιο ἔρυσσαν" in l485 or "ἐπ’ ἠπείροιο ἔρυσσαν" in l485, l485
+    assert "ὑψοῦ" in l486 and "ψαμάθοις" in l486, l486
+    assert "ἕρματα μακρὰ" in l486, l486
+    l154 = _iliad_line(2, 154)
+    assert "ἕρματα νηῶν" in l154, l154
+    # and the wall goes in at their STERNS, which is what puts the prows
+    # seaward and the props under a hull facing the water
+    l32 = _iliad_line(14, 32)
+    assert "πρύμνῃσιν" in l32 and "τεῖχος" in l32, l32
+    # the ranks are the poem's own word, not the drawing's idea
+    l35 = _iliad_line(14, 35)
+    assert "προκρόσσας" in l35, l35
+    src = open(STAGE3).read()
+    for cite in ("1.485-86", "2.154"):
+        assert cite in src, f"the props are drawn without citing {cite}"
+    for greek in ("ὑψοῦ", "ἕρματα", "ψαμάθοις"):
+        assert greek in src, f"the plate draws props without {greek} anywhere"
+
+
+def test_a_hull_has_freeboard_and_never_meets_the_sand(s3):
+    """"the ships look like they are buried in the sand at an angle" (John).
+
+    The flank ran from the deck down to h=0, so the hull's outline closed on
+    the beach the whole way round and it read as a shape painted on the sand.
+    An object with no visible side cannot read as standing on anything -- the
+    huts never had the problem because they have 1.8 m of wall. The flank now
+    runs from the garboard at SHIP_KEEL_H to the gunwale at SHIP_DECK_H, and
+    NO height is stretched to buy it: the same true 2.4 m is divided into the
+    part that is hull and the part that is air under her."""
+    assert 0.0 < s3.SHIP_KEEL_H < s3.SHIP_DECK_H, (
+        "the keel is on the sand or above the deck")
+    assert s3.SHIP_DECK_H - s3.SHIP_KEEL_H >= 1.2, (
+        "less than 1.2 m of freeboard is not a hull side a reader can see")
+    assert 0.0 < s3.SHIP_KEEL_V < 1.0, "the garboard is outboard of the gunwale"
+    src = open(STAGE3).read()
+    body = src.split("def ship(", 1)[1].split("\ndef hut(", 1)[0]
+    assert "SHIP_KEEL_V, SHIP_KEEL_H)" in body, (
+        "the hull's flank no longer runs to the garboard")
+    assert "+ v * 0.8, 0.0)" not in body, "the flank runs to the sand again"
+    # the true heights are untouched, which is the standing finding
+    assert s3.SHIP_DECK_H == 2.4 and s3.SHIP_POST_H == 6.4
+    # and the props stay UNDER her: raked outboard of the gunwale they read
+    # as legs, and a rank of them as a column of beetles
+    assert s3.SHIP_PROP_V < 1.0, (
+        "the props rake outside the hull's own silhouette — they draw as legs")
+
+
+def test_the_hulls_shadow_starts_at_the_keel_so_daylight_runs_under_her(s3):
+    """The cue that says CONTACT WITH THE GROUND is shade hard against an
+    object's outline all the way round, and the old shadow was exactly that:
+    the convex hull of the deck outline's FEET and their shadow points. A ship
+    0.9 m up on her ἕρματα casts from the keel, and at this plate's 9.9-degree
+    sun that throws the near edge of the shade about five metres clear."""
+    assert s3.LIGHT_ALT < 15.0, "the sun moved; the lit gap is a low-sun effect"
+    gap = s3.SHIP_KEEL_H / math.tan(math.radians(s3.LIGHT_ALT))
+    assert gap > 3.0, (
+        f"the props lift her {s3.SHIP_KEEL_H} m and the shade only clears "
+        f"{gap:.1f} m — no daylight under the hull")
+    src = open(STAGE3).read()
+    sh = src.split("def object_shadow(", 1)[1].split("\n# ", 1)[0]
+    assert "lift=0.0" in sh, "object_shadow has no lift, so nothing stands off"
+    assert "sun_offset(lift)" in sh, "the lift is not thrown down-sun"
+    # a hut SITS on the ground and must keep its footprint: lift defaults to 0
+    camp = src.split("def camp(", 1)[1].split("def waypoints", 1)[0]
+    hut_call = re.search(r"object_shadow\([^)]*HUT_SIL[^)]*\)", camp)
+    assert hut_call and "lift" not in hut_call.group(0), (
+        "a hut has been lifted off the ground; only ships stand on props")
+
+
+def test_no_hull_is_berthed_with_its_forefoot_in_the_water(s3):
+    """A hull straddling the waterline reads as afloat or half-launched, which
+    is the opposite of a fleet hauled up ὑψοῦ ἐπὶ ψαμάθοις and shored for ten
+    years. The berth's anchor is her STERN and she runs forward along the
+    SHORE NORMAL, not the camera's heading, so the clearance has to be tested
+    at the forefoot -- which both advances toward the water and slides along
+    the beach to a lateral whose waterline is somewhere else."""
+    assert s3.DRY_MARGIN_M > 0.0, "no sand is required between hull and water"
+    src = open(STAGE3).read()
+    camp = src.split("def camp(", 1)[1].split("def waypoints", 1)[0]
+    af = camp.split("def afloat(", 1)[1].split("\n        def ", 1)[0]
+    assert "DRY_MARGIN_M" in af, "the clearance test admits a hull to the edge"
+    assert af.count("for u, v in") == 1 and "reach_m * 0.80" in af, (
+        "only one point of the bow is tested; a bow is not a needle")
+    # and it is actually APPLIED, at both fleets, with each one's own reach
+    assert "if afloat(f, lateral, bearing, reach_m):" in camp, (
+        "afloat() is defined and never called")
+    assert "reach_m=24.0)" in camp, "the true fleet is berthed without a reach"
+    assert "reach_m=24.0 * FLEET_T1_LEN_K)" in camp, (
+        "the overview's longer glyph is berthed at the true ship's reach")
+
+
+def test_the_ranks_are_spaced_further_apart_than_a_ship_is_long(s3):
+    """προκρόσσας (14.35) is a claim about ORDER. Five rows at 38 m left 11 m
+    of sand between a stem-post and the row in front — generous on the ground
+    and nothing on the page, because ten metres of DEPTH draws 0.5-1.2 px down
+    this sight-line against 4.0 px for ten metres ACROSS it. So the rows were
+    about a pixel apart while each ship stood 2.5 px tall on her post, and
+    every rank was drawn straight through the one ahead."""
+    reach = 24.0 * 1.12          # stem-post tip, the furthest-forward point
+    clear = s3.FLEET_ROW_M - reach
+    assert clear > 40.0, (
+        f"only {clear:.0f} m between one rank and the next: at this camera "
+        f"that is about {clear / 10.0:.1f} px, and a ship stands 2.5 px tall")
+    assert s3.FLEET_ROWS >= 2, "προκρόσσας is a plural: one row is not ranks"
+    # the camp must still finish inland of the huts, which start at 300 m
+    assert s3.FLEET_ROWS * s3.FLEET_ROW_M < 300.0, (
+        "the fleet's ranks now reach back into the huts")
+
+
+def test_the_key_declares_the_enlargement_and_the_props(s3):
+    """The plate may not draw a convention it does not declare. The key's
+    standing wording covers the drawn NUMBER ("filling the frontage in view
+    and never the catalogue's count") and says nothing about the drawn SIZE,
+    which is the freedom the overview actually spends -- so the size and its
+    factor are stated outright, and so are the props."""
+    key = s3.furniture(None, None, 2600.0, 5500.0)
+    assert f"×{s3.FLEET_T1_LEN_K:g} oversize" in key, (
+        "the overview enlarges the hulls and the key does not say by how much")
+    assert "length and beam alike" in key, (
+        "the key does not say the enlargement is isotropic")
+    assert "ἕρματα μακρά" in key and "1.485–86" in key, (
+        "the props are drawn and the key does not cite them")
+    assert "ὑψοῦ ἐπὶ ψαμάθοις" in key
+    assert "2.154" in key, "the key omits the line that makes propping the "\
+                           "STANDING condition of a beached ship"
+    # and the margin still fits: the new row is paid for out of the leading
+    ys = [float(m.group(1)) for m in re.finditer(r' y="([\d.]+)"', key)]
+    assert max(ys) <= s3.H - 8.0, (
+        f"the key's new row is being paid for out of the sheet: last baseline "
+        f"y={max(ys):.0f} on {s3.H:.0f} px")
