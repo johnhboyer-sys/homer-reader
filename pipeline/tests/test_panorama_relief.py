@@ -1911,23 +1911,39 @@ def test_nothing_in_the_legend_is_drawn_on_the_map_face(s3):
         f"at {s3.PIC_BOT:.0f} — it is covering the drawing")
 
 
-def test_the_cartouche_was_cut_to_what_a_reader_needs_at_a_glance(s3):
-    """"unhelpful" was the other half of the complaint. Five dense lines of
-    10 px prose went to three, and the line that was explaining the key went
-    to the key's own heading. What may NOT go is a claim: every citation, the
-    measured/conjectural split and the DRAFT stamp are asserted here so a
-    later tightening cannot quietly delete one."""
+def test_the_colophon_is_set_to_a_measure_and_keeps_every_claim(s3):
+    """THIS TEST REPLACES ONE WHOSE MECHANISM STOPPED MATCHING ITS INTENT, and
+    the replacement is the point. The intent was right and is kept: no later
+    tightening may quietly drop a claim. The mechanism was "the long <text>
+    elements at x=62", which was the same thing as "the note block" only while
+    the notes were FULL-WIDTH SINGLE LINES -- which was the defect. Set in
+    columns, x=62 is column one, so the old scrape read a fifth of the block
+    and would have reported four claims missing that are all still on the
+    sheet.
+
+    So the claims are now asserted against the whole margin, wherever it
+    chooses to carry them, and the thing that was actually wrong is asserted
+    directly: SVG text does not wrap, so every note was one physical line of
+    about 380 characters across 2,276 px, five times a readable measure and a
+    grey slab with no entry point."""
     svg = s3.furniture(None, None, 2600.0, 5500.0)
-    # only the note BLOCK, not the vegetation key, which also letters at x=62
-    body = [t for t in
-            re.findall(r'<text class="pp-l-note" x="62"[^>]*>(.*?)</text>', svg)
-            if len(t) > 60]
-    assert len(body) <= 5, f"the cartouche is back to {len(body)} lines"
-    joined = " ".join(body).lower()
+    body = re.findall(r'<text class="pp-l-note pp-colophon"[^>]*>(.*?)</text>',
+                      svg)
+    assert body, "the colophon drew nothing"
+    assert max(len(t) for t in body) <= 110, (
+        f"the colophon is back to a {max(len(t) for t in body)}-character "
+        f"measure: it is not wrapped into columns")
+    # a column is only a column if there are several of them, at their own x
+    xs = {m.group(1) for m in re.finditer(
+        r'<text class="pp-l-note pp-colophon" x="([\d.]+)"', svg)}
+    assert len(xs) >= 4, f"the colophon is in {len(xs)} column(s)"
+    # every claim, anywhere in the margin -- the key may carry it or the
+    # colophon may, but the sheet may not stop saying it
+    joined = " ".join(re.findall(r'<text[^>]*>(.*?)</text>', svg)).lower()
     for claim in ("kayan", "1980", "conjectural", "artist",
                   "never at an invented coordinate", "hairline", "draft",
                   "never the catalogue", "23.114"):
-        assert claim in joined, f"the cartouche dropped {claim!r}"
+        assert claim in joined, f"the margin dropped {claim!r}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -2122,13 +2138,20 @@ def test_the_key_explains_the_marks_a_reader_can_count(s3):
 
 def test_the_margin_still_fits_inside_the_sheet(s3):
     """The furniture band is 300 px and the crop is not this lane's to move,
-    so everything the key gained had to be paid for in leading."""
+    so everything the key gained had to be paid for in leading.
+
+    THE BAR IS THE NEATLINE'S OWN INSET, not 8 px. It was 8, which is the
+    number that let the shipped sheet put its last baseline at y=1341 of 1350
+    and pass: 9 px of air under a 10 px face with descenders, while every
+    other edge on the plate holds 16. A test set to the symptom licenses the
+    symptom. The block is anchored to the foot now (see furniture), so this
+    holds by construction and fails loudly if that anchoring is undone."""
     svg = s3.furniture(None, None, 2600.0, 5500.0)
     ys = [float(m.group(1)) for m in re.finditer(r' y="([\d.]+)"', svg)]
     assert ys
-    assert max(ys) <= s3.H - 8.0, (
+    assert max(ys) <= s3.H - s3.NEAT_M, (
         f"the margin's last baseline is at y={max(ys):.0f} on a {s3.H:.0f} px "
-        f"sheet — something is printing off the bottom edge")
+        f"sheet — it is inside the {s3.NEAT_M:g} px the neatline holds")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -2593,6 +2616,6 @@ def test_the_key_declares_the_enlargement_and_the_props(s3):
                            "STANDING condition of a beached ship"
     # and the margin still fits: the new row is paid for out of the leading
     ys = [float(m.group(1)) for m in re.finditer(r' y="([\d.]+)"', key)]
-    assert max(ys) <= s3.H - 8.0, (
+    assert max(ys) <= s3.H - s3.NEAT_M, (
         f"the key's new row is being paid for out of the sheet: last baseline "
         f"y={max(ys):.0f} on {s3.H:.0f} px")

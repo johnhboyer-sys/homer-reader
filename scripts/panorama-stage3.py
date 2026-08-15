@@ -3255,6 +3255,7 @@ CSS = """
 .pp-l-water{font-size:12.5px;font-style:italic;letter-spacing:0.5px;fill:var(--text-mid)}
 .pp-l-site{font-size:11.5px;fill:var(--text)}
 .pp-l-note{font-size:10px;fill:var(--text-mid)}
+.pp-colophon{fill-opacity:0.85}
 .pp-l-title{font-size:22px;letter-spacing:3.2px;fill:var(--text)}
 """
 
@@ -5474,6 +5475,52 @@ def esc(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+# ── THE NOTES HAD NO MEASURE, AND THAT IS WHY THEY READ AS A SLAB ────────
+# "legend is too busy" (John, 2026-08-15). Measured before anything was
+# touched: the margin sets about 3,500 characters, and 1,930 of them were
+# five <text> elements running the full 2,276 px between the margins. SVG
+# text does not wrap, so each note WAS one physical line -- about 380
+# characters of it, against print's 45-75 and this project's own rule for
+# every other block on the sheet. Five of those stacked at 11.5 px is a grey
+# slab across the foot of the plate, and a slab has no entry point: there is
+# nowhere for the eye to start, so the whole block reads as one texture and
+# none of it gets read.
+#
+# The fix is a MEASURE, not a cut. Every sentence down there is a claim that
+# a test pins -- the citations, the measured/conjectural split, the
+# never-an-invented-coordinate rule, the repair of the drowned gap, DRAFT --
+# and the handoff's own warning is the right one: cutting a gloss thoughtlessly
+# makes the plate assert silently. So the text stays and the TYPESETTING
+# changes: wrapped to a real measure, set in columns, each column under its own
+# heading so the block has four entry points instead of none.
+#
+# 4.4 px per character is measured off the shipped frame, not assumed: note 1
+# is 486 characters and runs 62 -> ~2200 px, note 2 is 382 and runs to ~1712.
+# It is only used to CHOOSE the wrap width; nothing downstream depends on the
+# glyph advance being right, because a column that comes out narrow is still
+# a column.
+NOTE_CH_PX = 4.4
+
+
+def wrap(text: str, width_px: float, ch=NOTE_CH_PX) -> list[str]:
+    """Greedy word wrap to a width in PIXELS. Deterministic, no hyphenation:
+    a word longer than the measure gets its own line rather than being cut,
+    because every over-long token on this sheet is a Greek phrase or a
+    citation and neither may be broken."""
+    n = max(1, int(width_px / ch))
+    out, line = [], ""
+    for word in text.split():
+        cand = word if not line else line + " " + word
+        if len(cand) <= n or not line:
+            line = cand
+        else:
+            out.append(line)
+            line = word
+    if line:
+        out.append(line)
+    return out
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # furniture: neatline, scale, ground-cover key, disclosure
 # ═══════════════════════════════════════════════════════════════════════════
@@ -5620,7 +5667,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
     bx = 62.0                      # the margin's own left edge
     rx = W - 62.0                  # and its right
     sx0 = 1300.0                   # where the scale column starts
-    y0 = PIC_BOT + 22.0            # first baseline in the margin. It was 38,
+    y0 = PIC_BOT + 16.0            # first baseline in the margin. It was 38,
                                    # which put 54 px of white between the
                                    # neatline and the first word: the most
                                    # expensive whitespace on the sheet, and
@@ -5644,8 +5691,8 @@ def furniture(cam, terr, ship_depth, troy_depth):
                f'H{n1(sx0 - 40)}M{n1(sx0)} {n1(y0 + 9)}H{n1(rx)}" '
                f'stroke-opacity="0.5"/>')
 
-    kw, kh, row, col = 30.0, 16.0, 36.0, 600.0
-    ky0 = y0 + 26.0
+    kw, kh, row, col = 30.0, 16.0, 32.0, 600.0
+    ky0 = y0 + 22.0
     for i, (cls, name, gloss) in enumerate(COVER_KEY):
         sx = bx + (i % 2) * col
         sy_ = ky0 + (i // 2) * row
@@ -5669,7 +5716,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
     # ── the two sub-blocks the legend rewrite had dropped: what GROWS, and
     # WHICH WATER IS WHICH. They sit under their own columns at a smaller
     # step than the swatch rows, because each is one line and not two.
-    sub = ky0 + 2 * row + 12.0
+    sub = ky0 + 2 * row + 10.0
     out.append(f'<text class="pp-l-region" x="{n1(bx)}" y="{n1(sub)}">'
                f'VEGETATION</text>')
     out.append(f'<text class="pp-l-note" x="{n1(bx + 196)}" y="{n1(sub)}" '
@@ -5687,7 +5734,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
     out.append(f'<text class="pp-l-note" x="{n1(sx0 + 112)}" y="{n1(sub)}" '
                f'fill-opacity="0.85">two bodies, two kinds of claim</text>')
     for i, (cls, name, gloss) in enumerate(WATER_KEY):
-        sy_ = sub + 10.0 + i * 24.0
+        sy_ = sub + 10.0 + i * 22.0
         # THE SWATCH IS DRAWN THE WAY THE PLATE DRAWS IT, wash and all, so the
         # key cannot promise a water the sheet never prints: the survey is
         # opaque on page, the reconstruction is its wash over the GROUND it is
@@ -5710,7 +5757,12 @@ def furniture(cam, terr, ship_depth, troy_depth):
     # made of; the hulls were one near-black token and the huts wore the
     # citadel's masonry. Same rule as VEGETATION and GROUND COVER: the mark
     # carries the line that puts it there, in the same breath as the mark.
-    camp_y = sub + 68.0
+    # THE CAMP has to clear WATER's second SWATCH, not its baseline: the
+    # swatch runs 16 px below the row's own top, and a 15.5 px display face
+    # reaches ~11 px above its baseline. Tightening this to 53 put the
+    # heading straight through THE BAY OF TROY's swatch — caught on the
+    # render, which is the only place it shows.
+    camp_y = sub + 10.0 + (len(WATER_KEY) - 1) * 22.0 + kh + 14.0
     out.append(f'<text class="pp-l-region" x="{n1(sx0)}" y="{n1(camp_y)}">'
                f'THE CAMP</text>')
     out.append(f'<text class="pp-l-note" x="{n1(sx0 + 148)}" y="{n1(camp_y)}" '
@@ -5724,7 +5776,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
         # ON PROPS is a third row that has to come out of the leading. The
         # margin is 300 px and FIXED — it is the crop, and the crop is not
         # this lane's to move.
-        yy = camp_y + 14.0 + i * NOTE_ROW
+        yy = camp_y + 12.0 + i * NOTE_ROW
         out.append(f'<text class="pp-l-note" x="{n1(sx0)}" y="{n1(yy)}" '
                    f'letter-spacing="0.9">{esc(name)}</text>')
         out.append(f'<text class="pp-l-note" x="{n1(sx0 + 148)}" y="{n1(yy)}" '
@@ -5741,45 +5793,74 @@ def furniture(cam, terr, ship_depth, troy_depth):
         out.append(f'<text class="pp-l-note" x="{n1(sx0 + px + 9)}" '
                    f'y="{n1(yy + 3.5)}">{lbl}</text>')
 
-    # ── the disclosures, cut from five lines to three. Nothing that was a
-    # CLAIM has gone: every citation, the measured/conjectural split, the
-    # never-an-invented-coordinate rule, how the reconstruction is drawn and
-    # the DRAFT stamp are all still here. What went was the prose around
-    # them, and one whole line that was explaining the key, which the key now
-    # says itself.
-    # THE LEADING DROPS FROM 18 TO 14 to buy the two lines the key was
-    # missing. The margin is 300 px and fixed -- it is the crop, and the crop
-    # is not this lane's to move -- so the five notes are set at the 10 px
-    # face's own comfortable leading instead of at a display step.
-    # 8.0, down from 13.5: the rest of ON PROPS's row. A block break wants to
-    # be bigger than a line step and 8.0 still is, against NOTE_ROW's 11.5 of
-    # leading inside the block -- it reads as a break because the rule above
-    # it does that work, not because of the gap's size.
-    ty = max(sub + 18.0 + len(VEG_KEY) * VEG_ROW,
-             camp_y + 14.0 + (len(CAMP_KEY) - 1) * NOTE_ROW) + 8.0
-    for line in (
-        COVER_KEY_UNDRAWN,
-        DRAWN_MARKS,
-        disclosure() + " " + sun_disclosure(),
-        "Measured: terrain, coastlines, rivers, Hisarlık, Callicolone, Sigeion, "
-        "Rhoiteion. Conjectural: the ships, the huts, the wall and ditch, and every "
-        "waypoint of the poem — each placed by a stated rule, never at an invented "
-        "coordinate. The ridges are this sheet's own DEM outlines, the wet delta its "
-        "10–15 m slope-under-1.2% mask, the dry fan what the plain sector has left.",
-        "The bay is the reconstructed Late Bronze Age embayment (Kraft, Kayan and Erol "
-        "1980; Kayan): a wash over the ground it is draped on, inside a hairline, "
-        "against the modern coastline's opaque fill and heavier survey line — the two "
-        "waters differ in weight because they differ in kind. Where the two shores "
-        "leave ground stranded between them below that 10 m contour, the wash closes "
-        "the gap by the reconstruction's own rule. Height is in the "
-        "geometry and the light"
-        + {"all": ", and in the contour hairlines.",
-           "index": ", and in the index contours at 10, 30, 110 and 600 m.",
-           "none": " alone; no contours are drawn."}[CONTOURS]
-        + " DRAFT.",
-    ):
-        out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(ty)}">{esc(line)}</text>')
-        ty += NOTE_ROW
+    # ── the notes, set to a measure and in columns (2026-08-15) ──────────
+    # NOTHING HERE WAS CUT. Every sentence below is a claim a test pins --
+    # the citations, the measured/conjectural split, the
+    # never-an-invented-coordinate rule, the repair of the drowned gap, how
+    # the reconstruction is drawn, DRAFT -- and the standing warning is the
+    # right one: a gloss cut thoughtlessly makes the plate assert silently.
+    # What changed is the TYPESETTING (see wrap()): five 380-character lines
+    # running the full width became five columns at a ~90-character measure,
+    # each under its own heading. The block goes from a slab with no entry
+    # point to a colophon with five, and it gets SHORTER, because a wrapped
+    # column packs the same text into a quarter of the width.
+    #
+    # THE BLOCK BREAK IS NOW BIGGER THAN THE LINE STEP, which is what a block
+    # break is for and what the old 8.0 was not: the leading inside these
+    # blocks is NOTE_ROW's 11.5, so 8.0 separated two blocks by LESS than it
+    # separated two lines of one, and the notes read as a sixth row of THE
+    # CAMP. (The comment that set it claimed "8.0 still is" bigger. It is not,
+    # and the arithmetic was never done.)
+    note_cols = (
+        ("NOT DRAWN", COVER_KEY_UNDRAWN),
+        ("THE MARKS", DRAWN_MARKS),
+        ("THE DRAWING", disclosure() + " " + sun_disclosure()
+         + " Height is in the geometry and the light"
+         + {"all": ", and in the contour hairlines.",
+            "index": ", and in the index contours at 10, 30, 110 and 600 m.",
+            "none": " alone; no contours are drawn."}[CONTOURS]),
+        ("MEASURED, AND CONJECTURAL",
+         "Measured: terrain, coastlines, rivers, Hisarlık, Callicolone, Sigeion, "
+         "Rhoiteion. Conjectural: the ships, the huts, the wall and ditch, and every "
+         "waypoint of the poem — each placed by a stated rule, never at an invented "
+         "coordinate. The ridges are this sheet's own DEM outlines, the wet delta its "
+         "10–15 m slope-under-1.2% mask, the dry fan what the plain sector has left."),
+        ("THE TWO WATERS",
+         "The bay is the reconstructed Late Bronze Age embayment (Kraft, Kayan and Erol "
+         "1980; Kayan): a wash over the ground it is draped on, inside a hairline, "
+         "against the modern coastline's opaque fill and heavier survey line — they "
+         "differ in weight because they differ in kind. Where the two shores leave "
+         "ground stranded between them below that 10 m contour, the wash closes the "
+         "gap by the reconstruction's own rule. DRAFT."),
+    )
+    # THE BLOCK IS ANCHORED TO THE FOOT OF THE SHEET, NOT TO THE KEY ABOVE
+    # IT, and that is what stops this defect coming back. Set from the top,
+    # the notes ran off the bottom edge whenever a row was added above them:
+    # the shipped sheet had its last baseline at y=1341 of 1350 — 9 px of air
+    # under a 10 px face with descenders, where the neatline holds 16. Set
+    # from the BOTTOM, the last line lands on the neatline's own inset by
+    # construction, and it is the SPACE ABOVE the block that runs short
+    # instead — which shows as a collision on the render rather than as ink
+    # printing off the sheet.
+    gut = 20.0
+    ncol = len(note_cols)
+    colw = ((rx - bx) - gut * (ncol - 1)) / ncol
+    nline = max(len(wrap(b, colw)) for _, b in note_cols)
+    ty = H - NEAT_M - (nline - 1) * NOTE_ROW - 13.0
+    key_bot = max(sub + 18.0 + len(VEG_KEY) * VEG_ROW,
+                  camp_y + 12.0 + (len(CAMP_KEY) - 1) * NOTE_ROW)
+    if ty < key_bot + 16.0:
+        print(f"  ! margin: the notes want y={ty:.0f} and the key runs to "
+              f"{key_bot:.0f} — {key_bot + 16.0 - ty:.0f} px short")
+    out.append(f'<path class="pp-neat-i" d="M{n1(bx)} {n1(ty - 10)}'
+               f'H{n1(rx)}" stroke-opacity="0.5"/>')
+    for i, (head, body) in enumerate(note_cols):
+        cx = bx + i * (colw + gut)
+        out.append(f'<text class="pp-l-note pp-colophon-h" x="{n1(cx)}" '
+                   f'y="{n1(ty)}" letter-spacing="0.9">{esc(head)}</text>')
+        for j, line in enumerate(wrap(body, colw)):
+            out.append(f'<text class="pp-l-note pp-colophon" x="{n1(cx)}" '
+                       f'y="{n1(ty + 13.0 + j * NOTE_ROW)}">{esc(line)}</text>')
     return "".join(out)
 
 
