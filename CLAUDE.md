@@ -325,6 +325,18 @@ And from his expanded set, the ones this project adopts:
 
 ## Failure-mode registry (append dated lessons — a lesson not written down will be repeated)
 
+- **Ported a sibling's fix from a SHA, and the SHA was superseded** (2026-08-18):
+  a brief named plato-reader `8fdd4492c`; that commit carried a bug fixed two
+  commits later on the same branch, so the port copied the bug faithfully. Port
+  from the branch TIP (or the PR), never from a SHA quoted in a brief — and when
+  a brief names one, check what sits on top of it before applying. Second lesson
+  from the same incident: **a ported fix's consumer set is fork-specific.** The
+  upstream diff updated the consumers UPSTREAM has, and cannot show you one your
+  fork added — Homer rebuilds Tokens from the SSR DOM (`tokenFromEl`,
+  `rebuildTokensFromDom`), which plato and aristotle have no equivalent of, so
+  those two readers silently inherited the new token text. Grep your own repo's
+  consumers and follow the call chain; a cross-family review found this one.
+
 - **Plan-mode Explore/Plan spawns ran on Fable** (2026-07-21, caught by John):
   the plan-mode workflow's built-in Explore/Plan agent types count as spawns —
   omitting `model:` inherits Fable there too. No explicit `model:`, no launch.
