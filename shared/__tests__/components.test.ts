@@ -429,6 +429,43 @@ describe('Reader.svelte — lexicon presentation breakpoint', () => {
     expect(document.querySelector('.settings-sidebar')).not.toHaveClass('open');
   });
 
+  // Regression test for the DOM round-trip half of the sigla-inside-a-word fix.
+  // Token spans print the VERBATIM slice, so a word carrying an editorial
+  // siglum renders as "ἔπει<τα>" — but this repo rebuilds Tokens by reading
+  // that surface back out of the DOM (tokenFromEl / rebuildTokensFromDom), so
+  // the popup header, its Logeion fallback and the aria-label would all inherit
+  // the brackets. They must see the bare word the pipeline emitted. Latent: no
+  // line in the corpus carries sigla today.
+  it('shows the bare word in the popup for a token printed with sigla inside it', async () => {
+    setMatchMedia(() => false);
+    window.history.replaceState(null, '', '/EN/book/1');
+    const bracketedBook = {
+      ...fixtureBook,
+      segments: [{
+        ...fixtureBook.segments[0],
+        greek: [{
+          n: 1,
+          text: 'ἔπει<τα> ἀρετή',
+          tokens: [{ t: 'ἔπειτα', o: 0, k: 'e)/peita' }, { t: 'ἀρετή', o: 9, k: 'areth' }],
+        }],
+      }],
+    } as BookData;
+    const { container } = render(Reader, { props: { work: 'EN', bookNum: 1, bookData: bracketedBook } });
+
+    // The line prints byte-identically to its source, the word once.
+    const lineText = container.querySelector('.line-text');
+    expect(lineText?.textContent).toBe('ἔπει<τα> ἀρετή');
+    const toks = Array.from(container.querySelectorAll('.tok'));
+    expect(toks.map((t) => t.textContent)).toEqual(['ἔπει<τα>', 'ἀρετή']);
+    // The click target keeps its verbatim form, but names the bare word.
+    expect(toks[0].getAttribute('aria-label')).toBe('Analyse ἔπειτα');
+
+    // Clicking it resolves the bare word, not the bracketed surface.
+    await fireEvent.click(toks[0]);
+    expect(await screen.findByText('ἔπειτα', { selector: '.popup-surface' })).toBeInTheDocument();
+    expect(screen.queryByText('ἔπει<τα>', { selector: '.popup-surface' })).toBeNull();
+  });
+
   // Integration-level regression test for the 2026-07-29 fix (see
   // word-popup.test.ts "pointerdown outside" describe block): a real click
   // through Reader's delegated `.tok` handler on a SECOND token, while the

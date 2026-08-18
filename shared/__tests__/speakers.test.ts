@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type FlowRow } from '../lib/speakers';
+import { lineRenderParts, bareTokenText, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type FlowRow } from '../lib/speakers';
 import type { Token, GreekLine, Segment, TurnFlow, EnglishTurn } from '../lib/data';
 
 // A token as the pipeline emits it: surface form, char offset, Beta Code key.
@@ -78,6 +78,16 @@ describe('lineRenderParts — editorial sigla inside a word', () => {
     // what matters is that it is OUTSIDE the clickable token span.
     expect(texts(parts)).toEqual(['[', 'ἀ<μφι>γνοεῖν', '] ', 'δὲ']);
     expect(parts.find((p) => p.kind === 'token')).toMatchObject({ text: 'ἀ<μφι>γνοεῖν' });
+  });
+
+  it('bareTokenText recovers the pipeline surface from a rendered span', () => {
+    // Reader reads token surfaces back out of the DOM; the span carries the
+    // verbatim slice, which differs from `tok.t` only by inserted sigla.
+    expect(bareTokenText('ἔπει<τα>')).toBe('ἔπειτα');
+    expect(bareTokenText('προς]θῶμεν')).toBe('προςθῶμεν');
+    expect(bareTokenText('ἀ<μφι>γνοεῖν')).toBe('ἀμφιγνοεῖν');
+    // The overwhelmingly common case is a no-op.
+    expect(bareTokenText('Μῆνιν')).toBe('Μῆνιν');
   });
 
   it('keeps speaker lead-ins positioned around a bracketed word', () => {

@@ -44,6 +44,19 @@ const SIGLUM = /[<>[\]]/;
 const OPENER = /[<[]/;
 const CLOSER = /[>\]]/;
 
+// The bare token surface behind a RENDERED token span. lineRenderParts prints a
+// token as its verbatim slice, which differs from the pipeline's `tok.t` only by
+// sigla inserted inside the word (locateToken matches `t` char-for-char and
+// skips nothing else), so dropping those characters recovers `t` exactly. Greek
+// word surfaces never contain brackets themselves. Reader needs this on its DOM
+// round-trip: this repo strips tokens from the island props and rebuilds them
+// from the SSR token spans, so it reads a token's surface back out of the DOM
+// rather than carrying the Token object through (plato-reader hands `part.tok`
+// straight to its click handler and has no such consumer).
+export function bareTokenText(rendered: string): string {
+  return rendered.replace(/[<>[\]]/g, '');
+}
+
 // Locate `t` in `text` at or after `from`, tolerating sigla printed inside the
 // word, and return its VERBATIM span (sigla included) so the rendered line
 // stays byte-identical to the source. Null when the word really isn't there.

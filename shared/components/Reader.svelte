@@ -6,7 +6,7 @@
   import { renderSceneMap, type Coastline } from '../lib/scenemap';
   import { takeSsrBook } from '../lib/ssr-book';
   import { schemeFor, formatCite } from '../lib/citation';
-  import { lineRenderParts, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
+  import { lineRenderParts, bareTokenText, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { classifySpeech, realLinesFromSegments, speechLabel } from '../lib/speeches';
   import { flowParts, alignGroups } from '../lib/tick-chunks';
@@ -162,7 +162,9 @@
         const spans = el?.querySelectorAll<HTMLElement>('.line-text .tok');
         if (!spans || !spans.length) continue;
         line.tokens = Array.from(spans, (s) => ({
-          t: s.textContent ?? '',
+          // Recover the bare word the pipeline emitted: the span prints the
+          // verbatim slice, which may carry sigla set inside the word.
+          t: bareTokenText(s.textContent ?? ''),
           o: Number(s.dataset.o ?? '0'),
           k: s.dataset.k ?? '',
         }));
@@ -2203,7 +2205,9 @@
   // form is the span's text; the popup/lexicon only read `t` and `k`, and `o`
   // is preserved for completeness.
   function tokenFromEl(el: HTMLElement): Token {
-    return { t: el.textContent ?? '', o: Number(el.dataset.o ?? '0'), k: el.dataset.k ?? '' };
+    // The span prints the VERBATIM slice; the popup, its Logeion fallback and
+    // the aria-label all want the bare word (see bareTokenText).
+    return { t: bareTokenText(el.textContent ?? ''), o: Number(el.dataset.o ?? '0'), k: el.dataset.k ?? '' };
   }
 
   function activateToken(el: HTMLElement, viaKeyboard = false) {
