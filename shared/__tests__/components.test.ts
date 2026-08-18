@@ -470,7 +470,10 @@ describe('Reader.svelte — verse-line (epic) rendering', () => {
         greek: [1, 2, 3, 4, 5, 7].map((n) => ({
           n,
           text: `Greek line ${n}`,
-          tokens: [{ t: `tok${n}`, o: 0, k: `key${n}` }],
+          // The token surface must actually occur in the line text at `o`, as
+          // the pipeline always emits it — lineRenderParts locates each token
+          // by its surface and emits nothing for one that isn't there.
+          tokens: [{ t: 'Greek', o: 0, k: `key${n}` }],
           ...(n === 7 && bracketLine7 ? { bracketed: true } : {}),
         })),
         english: { text: 'English filler.', notes: [], markers: [] },

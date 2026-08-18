@@ -2457,7 +2457,7 @@
         class="tok"
         role="button"
         tabindex="-1"
-        aria-label="Analyse {part.text}"
+        aria-label="Analyse {part.tok.t}"
         aria-haspopup="dialog"
         data-k={part.tok.k}
         data-o={part.tok.o}
