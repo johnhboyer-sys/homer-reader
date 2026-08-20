@@ -1,0 +1,90 @@
+{
+  "id": "shield-of-achilles",
+  "title": "The Shield of Achilles",
+  "kind": "schematic",
+  "status": "draft",
+  "seed": 180478,
+  "size": [960, 760],
+  "bands": [
+    {
+      "id": "cosmos",
+      "title": "Cosmos",
+      "greek": "γαῖα · οὐρανός · θάλασσα",
+      "lines": [483, 489],
+      "summary": "Earth, sky, sea, the heavenly bodies, and the constellations fill the shield's centre.",
+      "ring": 0
+    },
+    {
+      "id": "city-at-peace",
+      "title": "City at Peace",
+      "greek": "γάμοι · ἀγορή",
+      "lines": [490, 508],
+      "summary": "A wedding procession moves through the streets while a lawsuit is argued in the agora.",
+      "ring": 1
+    },
+    {
+      "id": "city-at-war",
+      "title": "City at War",
+      "greek": "πόλις · λόχος · ποταμός",
+      "lines": [509, 540],
+      "summary": "A besieged city sends an ambush to the river, where the two forces meet in battle.",
+      "ring": 2
+    },
+    {
+      "id": "fallow-field",
+      "title": "Fallow Field",
+      "greek": "νειός",
+      "lines": [541, 549],
+      "summary": "Ploughmen turn their teams across a broad field that has been worked three times.",
+      "ring": 3
+    },
+    {
+      "id": "kings-estate",
+      "title": "King's Estate",
+      "greek": "τέμενος βασιλήϊον",
+      "lines": [550, 560],
+      "summary": "Reapers gather grain before the king while attendants prepare the harvest meal.",
+      "ring": 4
+    },
+    {
+      "id": "vineyard",
+      "title": "Vineyard",
+      "greek": "ἀλωή",
+      "lines": [561, 572],
+      "summary": "Young people carry ripe grapes from a vineyard as a boy plays and sings.",
+      "ring": 5
+    },
+    {
+      "id": "cattle-and-lions",
+      "title": "Cattle and Lions",
+      "greek": "ἀγέλη βοῶν · λέοντε",
+      "lines": [573, 586],
+      "summary": "Two lions seize a bull from the herd while herdsmen and dogs try to drive them off.",
+      "ring": 6
+    },
+    {
+      "id": "sheep-pasture",
+      "title": "Sheep Pasture",
+      "greek": "νομὸς οἰῶν",
+      "lines": [587, 589],
+      "summary": "A valley holds a large sheep pasture with folds, shelters, and pens.",
+      "ring": 7
+    },
+    {
+      "id": "dancing-floor",
+      "title": "Dancing Floor",
+      "greek": "χορός",
+      "lines": [590, 606],
+      "summary": "Young men and women dance on a floor like the one Daedalus made for Ariadne at Knossos.",
+      "ring": 8
+    },
+    {
+      "id": "ocean",
+      "title": "Ocean",
+      "greek": "Ὠκεανός",
+      "lines": [607, 608],
+      "summary": "The river Ocean runs around the shield's outermost rim.",
+      "ring": 9
+    }
+  ]
+}
