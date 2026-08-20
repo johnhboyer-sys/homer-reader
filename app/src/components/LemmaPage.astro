@@ -11,7 +11,7 @@ import ThemeInit from './ThemeInit.astro';
 import SiteHeader from './SiteHeader.astro';
 import Pwa from './Pwa.astro';
 import { getWork, workPath, workLanding, bookLabel, isBookless } from '@shared/lib/works';
-import { sanitizeHtml } from '../lib/html';
+import { renderLsjEntry } from '../lib/html';
 import { jsonLdSafe } from '../lib/jsonld';
 import '@shared/styles/global.css';
 
@@ -46,7 +46,9 @@ try {
   const shard = JSON.parse(
     readFileSync(`public/data/lsj/${lsjShardLetter(data.key)}.json`, 'utf-8'),
   );
-  lsjHtml = sanitizeHtml(shard[data.key]?.html ?? '');
+  lsjHtml = renderLsjEntry(shard[data.key]?.html ?? '', {
+    base, scale: 'page', outline: true,
+  });
 } catch { /* no shard */ }
 
 // Deep-link an instance back into the reader: scroll to the Bekker line and
@@ -277,7 +279,7 @@ const breadcrumb = Astro.site ? {
       <>
         <h2 class="lx-h">Dictionary (LSJ)</h2>
         <!-- eslint-disable-next-line -->
-        <div class="lsj" set:html={lsjHtml} />
+        <Fragment set:html={lsjHtml} />
       </>
     )}
 
