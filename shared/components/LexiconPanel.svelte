@@ -1,5 +1,6 @@
 <script lang="ts">
   import { lookupWord, fetchLemmata, type Analysis, type LsjEntry, type CunliffeEntry, type LemmaRef } from '../lib/data';
+  import { renderLsjEntry } from '../lib/html';
   import { betaToGreek } from '../lib/betacode';
   import { workPath } from '../lib/works';
   import { formatLocValue } from '../lib/citation';
@@ -257,10 +258,8 @@
         <div id="dict-panel-lsj" role="tabpanel" aria-labelledby="dict-tab-lsj" tabindex="0" hidden={activeTab !== 'lsj'}>
           {#if lsj.length > 0}
             {#each lsj as entry}
-              <div class="lsj-entry">
-                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                {@html entry.html}
-              </div>
+              <!-- eslint-disable-next-line svelte/no-at-html-tags — sanitized by the shared renderer -->
+              {@html renderLsjEntry(entry.html, { base })}
             {/each}
           {:else}
             <div class="popup-loading">Not in LSJ.</div>
