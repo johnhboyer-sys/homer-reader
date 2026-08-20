@@ -3,6 +3,57 @@
 Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). No deploys have
 occurred; deploying, the GitHub remote, and the first push are John-gated.
 
+## Deploy — 2026-08-19: the LSJ sense hierarchy, and one quotation per line
+
+gh-pages `350799e11` → `7e29263` (source: main `3eee452d6`, PR #22). App-only
+build, Node 22. Ported from aristotle-reader, which shipped the same work
+earlier the same night.
+
+LSJ divides a word's senses A → I → 1 → a, and that division is the argument of
+the entry. The sanitizer dropped every sense wrapper, so the stylesheet's
+`.lsj-sense` rules matched nothing: **4,708 entries** read as one wall of prose.
+Restoring the wrappers is not enough on its own — depth is stored absolutely and
+an entry need not start at level 1, so **299 entries** had their real sections
+drawn as sub-senses and **937** more sat a step too deep, skipping a rank.
+`renderLsjEntry` (now `shared/lib/html.ts`, re-exported by `app/src/lib/html.ts`
+**by relative path** — the `@shared` alias is configured for the Astro build only
+and breaks under vitest and plain Node) stamps `data-depth`, the ranks THAT entry
+uses compressed onto 1..n. `data-level` stays in the markup, so anything keyed on
+it keeps working. Quotations take one line each; the break goes BEFORE the
+citation so LSJ's own semicolon stays at the end of the line it closes. A
+contents list is published for **915 entries**, only where it is a real division.
+
+**The LSJ tab of the lexicon panel was injecting shard HTML RAW, with no
+sanitizer at all** — it goes through the shared renderer now. **The Cunliffe tab
+is a different dictionary and is deliberately untouched.**
+
+⚠️ **Deployed from `origin/main`, NOT from `claude/build`.** `claude/build`
+carries **154 commits that have never shipped** (maps, panorama, plates,
+research). The LSJ work was written there first and had to be rebased onto
+`origin/main` before deploying, or all of it would have gone live under cover of
+a dictionary fix. What shipped beyond the previous deploy is PRs #20/#21 — the
+sigla-token fixes, merged to main and not previously deployed — plus this. **Any
+future deploy from this repo must check the same thing.**
+
+Accessibility: sense numbers inherit the entry size (never shrunk), the deepest
+numbers clear 4.5:1 on both grounds in both themes, and on a phone in landscape
+the contents list is capped and scrolls inside itself rather than filling the
+screen.
+
+Tests shared 808 / app 2 (on the deployed commit; the `claude/build` base
+reports 1,087 / 17 because of its unshipped features). Deploy diff 4,778 files,
+9 bundle rehashes, **0 dangling references** (checked against a positive control
+— a bare `grep --include` under zsh fails to glob and reports a clean 0 without
+ever running); the gh-pages `.gitignore` is preserved through the rsync.
+Live-verified: `/homer-reader/lemma/an/` renders 56 senses across four depths
+with a contents list; home and search 200.
+
+Reviewed by Sol across all three sibling ports: LSJ logic byte-identical to
+aristotle's by SHA-256, real-data probes zero on every failure mode. Its one real
+finding — the homonym separator (`.lsj-entry + .lsj-entry`) dropped because the
+stylesheet block was extracted one rule too low — was fixed before the deploy.
+
+
 ## Build progress (2026-07-17)
 
 - **Gate 0 PASSED**: docs/PHASE0-FINDINGS.md. Greek source = Perseus
