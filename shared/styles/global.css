@@ -2190,25 +2190,37 @@ select {
   margin-bottom: 0.4rem;
 }
 
-/* ── dictionary tabs (LSJ · Cunliffe · Logeion ↗) ────────────────────── */
-.dict-section {
-  border-top: 1px solid var(--border);
-  padding-top: 0.6rem;
+/* The dialect the parse is limited to — "epic", "epic ionic", and in 217
+   analyses all five at once. Homer prints every label it is given (John,
+   2026-08-30): LSJ writes from an Attic baseline whatever text you are
+   reading, so "epic" and "ionic" are the informative words here, not noise.
+   It must WRAP, never truncate and never shrink: five dialects is 30-odd
+   characters and the reader is on a phone in landscape. */
+.analysis-card .parse-dialect {
+  display: inline;
+  color: var(--text-light);
+  font-style: italic;
+  overflow-wrap: anywhere;
+}
+.analysis-card .parse-dialect::before {
+  content: " · ";
+  font-style: normal;
 }
 
-.dict-tabs {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.dict-tablist {
+/* ── per-card lexicon tabs (LSJ · Cunliffe · Logeion ↗) ─────────────────
+   One row per card, because a card IS one dictionary entry: tapping LSJ opens
+   THAT entry under THAT card (John, 2026-08-30). Closed by default everywhere,
+   so nothing is fetched for a reader who wanted only the parse. */
+.card-lex {
   display: flex;
   align-items: center;
   gap: 0.2rem;
+  margin-top: 0.4rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.3rem;
 }
 
-.dict-tab {
+.lex-tab {
   font-family: var(--font-ui);
   font-size: 0.75rem;
   font-weight: 600;
@@ -2222,18 +2234,30 @@ select {
   text-decoration: none;
 }
 
-.dict-tab[aria-selected="true"] {
+.lex-tab.active {
   color: var(--accent);
   border-bottom-color: var(--accent);
 }
 
-.dict-tab:hover {
+.lex-tab:hover {
   color: var(--accent);
 }
 
-.dict-tab-link {
+.lex-tab-link {
   margin-left: auto;
 }
+
+/* The opened entry, under the card that asked for it. */
+.card-entry {
+  margin-top: 0.4rem;
+}
+
+/* The ONE sanctioned style knob into the grammata widget: its own handoff says
+   everything else it renders is generated from grammata's design system and
+   changes with it, so touch nothing else inside the mount. This renders entries
+   in the reader's own Greek face, with grammata's Athena Lyceum behind it per
+   glyph, so an unshapeable mark falls back rather than showing tofu. */
+.grammata-mount { --grammata-greek: var(--font-greek); }
 
 /* Homonyms (a)1, a)2 …) come back as separate entries; rule them apart so the
    second headword does not read as a continuation of the first. */

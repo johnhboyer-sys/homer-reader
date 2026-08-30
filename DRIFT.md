@@ -75,8 +75,10 @@ Homer-specific reason.
   markers to a real reader URL via `workPath`/`formatLocValue` (same pattern as
   `BekkerJump.svelte`); new `onTabRowKey` for arrow-key tab navigation; new
   `logeionHref` reactive. No plato-reader counterpart (Cunliffe is Homer-only).
-- `shared/styles/global.css` — new `.dict-tabs`/`.dict-tablist`/`.dict-tab`/
-  `.dict-tab-link` (the tab row) and `.cunliffe-entry` + its `.cunliffe-sense`/
+- `shared/styles/global.css` — the lexicon tab row (SUPERSEDED 2026-08-30: the
+  single `.dict-tabs`/`.dict-tablist`/`.dict-tab`/`.dict-tab-link` row became
+  per-card `.card-lex`/`.lex-tab`/`.card-entry`, plus `.parse-dialect` and
+  `.grammata-mount`) and `.cunliffe-entry` + its `.cunliffe-sense`/
   `.cunliffe-cite` child rules (Cunliffe HTML classes from stage5_cunliffe),
   placed beside the existing `.lsj-section`/`.lsj-entry` rules. Reuses only
   existing CSS custom properties — no new palette values. No plato-reader
@@ -825,3 +827,21 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   stops opening the forms table (62 entries). plato-reader and
   aristotle-reader still carry the defect; when they take the fix this line
   goes away. A patch-forward pass must propagate it, not overwrite it.
+
+- `shared/components/LexiconPanel.svelte`, `shared/lib/data.ts`,
+  `app/scripts/build-lsj-heads.mjs` — the grammata port (2026-08-30), ported
+  from aristotle-reader `main` @ 282b70a7e but NOT a file copy: aristotle has no
+  LexiconPanel (its popup is one component) and no Cunliffe. Homer-specific
+  decisions, all John's:
+  * Cards are keyed by dictionary entry, and each card carries its OWN
+    LSJ · Cunliffe tabs — the entry opens under the card tapped. Aristotle has a
+    single lexicon and no per-card tab row.
+  * Dialect labels are PRINTED, not suppressed. Aristotle hides "attic" because
+    its corpus and LSJ's baseline are both Attic; Homer is Epic and LSJ's
+    baseline is Attic regardless, so "epic"/"ionic" are the informative labels.
+    Suppressing on attic's presence would have hidden 7,443 analyses here.
+  * `lsj-heads.json` carries `short` as well as `head`/`hom` (157 KB gzipped vs
+    aristotle's 139 KB), so each homonym keeps its own definition without a
+    shard fetch — a feature this reader already had.
+  Cunliffe still reads its own shards, on tap only; its presentation is a later
+  question (John, 2026-08-30).

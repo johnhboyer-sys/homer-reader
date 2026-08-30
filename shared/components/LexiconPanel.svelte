@@ -1,43 +1,31 @@
 <script lang="ts">
-  import { lookupWord, fetchLemmata, type Analysis, type LsjEntry, type CunliffeEntry, type LemmaRef } from '../lib/data';
-  import { renderLsjEntry } from '../lib/html';
+  import { tick } from 'svelte';
+  import {
+    lookupWord, fetchLemmata, fetchLsjHeads, fetchCunliffeShard, cunliffeShard,
+    type Analysis, type CunliffeEntry, type LemmaRef, type LsjHead,
+  } from '../lib/data';
   import { betaToGreek } from '../lib/betacode';
   import { workPath } from '../lib/works';
   import { formatLocValue } from '../lib/citation';
 
   // The shared BODY of the word lookup, rendered identically inside the docked
   // desktop lexicon rail AND the anchored mobile popup (WordPopup). It owns the
-  // single entry-fetch (lookupWord) and the dictionary presentation — headword,
-  // short gloss, the EXPAND disclosure to the full LSJ/Cunliffe entry, and the
-  // LSJ · Cunliffe · Logeion tab row — so neither presentation duplicates it
-  // (DESIGN.md 2026-07-17: "one source of truth for the entry-fetch logic").
+  // single analyses-fetch and the dictionary presentation.
+  //
+  // One card per DICTIONARY ENTRY, each carrying its own LSJ · Cunliffe tabs;
+  // the entry opens under the card tapped (John, 2026-08-30). Nothing is
+  // fetched for a reader who only wanted the parse.
   export let work: string = 'EN';
   export let token: { t: string; k: string };
   // Whether this body is rendered inside the DESKTOP docked lexicon rail (true)
-  // vs the anchored mobile popup (false). The docked rail has room to surface the
-  // LSJ · Cunliffe · Logeion tab row upfront, so the gloss is anchored to the
-  // dictionary structure instead of floating in an empty rail (punch-list #12,
-  // 2026-07-18). The compact mobile popup stays collapsed for scannability.
+  // vs the anchored mobile popup (false). Both now show the same thing: the tab
+  // row is surfaced on every card (punch-list #12's intent), closed until asked.
   export let docked: boolean = false;
 
   let panelEl: HTMLDivElement;
   let analyses: Analysis[] = [];
-  let lsj: LsjEntry[] = [];
-  let cunliffe: CunliffeEntry[] = [];
   let loading = true;
   let error = '';
-  // LSJ default; Cunliffe is the second native lexicon pane; Logeion (a plain
-  // external link, not a real panel) rides the same tab row — see below.
-  let activeTab: 'lsj' | 'cunliffe' = 'lsj';
-  // The definition shows the short gloss first; the full dictionary entry
-  // (LSJ/Cunliffe HTML) is revealed IN PLACE behind an EXPAND control, and is
-  // collapsible (DESIGN.md 2026-07-17). In the docked desktop rail it opens
-  // expanded so the LSJ · Cunliffe · Logeion tabs are surfaced upfront (#12);
-  // the mobile popup opens closed so it stays scannable. Nothing here opens a
-  // new tab except the Logeion link.
-  let expanded = docked;
-  // Monotonic id so an out-of-order response for word A can't overwrite word B
-  // when the user clicks quickly while the sidebar stays open.
   let lookupSeq = 0;
 
   // Re-fetch whenever the clicked token (or work) changes. A one-shot top-level
@@ -51,108 +39,226 @@
     loading = true;
     error = '';
     analyses = [];
-    lsj = [];
-    cunliffe = [];
-    lookupWord(w, k)
-      .then(r => {
-        if (seq !== lookupSeq) return;
-        analyses = r.analyses;
-        lsj = r.lsj;
-        cunliffe = r.cunliffe;
-      })
-      .catch(e => {
-        if (seq !== lookupSeq) return;
-        error = String(e);
-      })
-      .finally(() => {
-        if (seq !== lookupSeq) return;
-        loading = false;
-      });
+    // Everything the previous word opened belongs to the previous word.
+    open = {};
+    cunliffeText = {};
+    entryError = {};
+    // entries:false — no dictionary shard is fetched for a lookup any more.
+    // The cards come from the analyses plus the heads manifest; an entry's text
+    // is fetched only when its tab is tapped.
+    lookupWord(w, k, { entries: false })
+      .then(r => { if (seq === lookupSeq) analyses = r.analyses; })
+      .catch(e => { if (seq === lookupSeq) error = String(e); })
+      .finally(() => { if (seq === lookupSeq) loading = false; });
   }
 
-  // The lemma-page manifest (loaded once, cached): lets each analysis card offer
-  // a "see all N occurrences" link into /lemma/<slug>, but only for lemmata that
-  // actually have a page. Absent manifest = no links, panel unchanged.
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+  // The lemma-page manifest (loaded once, cached): lets each card offer a "see
+  // all N occurrences" link into /lemma/<slug>, but only for lemmata that
+  // actually have a page. Absent manifest = no links, panel unchanged.
   let lemmata: Record<string, LemmaRef> = {};
   fetchLemmata().then(m => { lemmata = m; }).catch(() => {});
-  const lemmaRef = (lsjKey: string | null): LemmaRef | null =>
-    (lsjKey && lemmata[lsjKey]) || null;
 
-  // ONE BOX PER GENUINE POSSIBILITY.
-  //
-  // Distinct lemmata already render as separate cards — `analyses` carries one
-  // entry each. Dictionary-level homonyms did not: a single analysis can hold
-  // several LSJ keys (2,335 across the corpus), and only lsj[0] ever reached
-  // the screen, so ἔχω¹ "have, hold" hid ἔχω² "bear, carry, bring" behind one
-  // card.
-  //
-  // A homonym earns its own box only when it brings its OWN distinct
-  // definition. LSJ derives no short def for ὅς¹/ὅς², so splitting those would
-  // print the shared Morpheus gloss twice under one headword — two boxes, no
-  // new information. Fewer than two distinct senses ⇒ the analysis renders
-  // exactly as before, which is the case for ~94% of tokens.
-  interface Card {
-    head: string;
-    numeral: string;   // LSJ homonym index, shown only when heads collide
-    gloss: string;
-    parse: string;
-    lsjKey: string | null;
+  // The headword manifest: head, LSJ's own homograph letter, and LSJ's one-line
+  // sense, for every key an analysis names. Absent manifest = the betaToGreek
+  // fallback below, which is why nothing here throws.
+  let heads: Record<string, LsjHead> = {};
+  fetchLsjHeads().then(m => { heads = m; }).catch(() => {});
+
+  // ── Cards are keyed by DICTIONARY ENTRY, not by Morpheus lemma ────────────
+  // An analysis can name several LSJ entries (2,335 across this corpus: ὅς's
+  // single analysis points at both o(/s1 and o(/s2). Keying on the entry means
+  // its parses join each of those entries' cards, no card ever names more than
+  // one entry, and there is no unresolved parent card that opens nothing.
+  const DIALECTS = ['attic', 'epic', 'doric', 'ionic', 'aeolic', 'homeric'];
+
+  // HOMER IS EPIC, and prints every dialect label it is given (John,
+  // 2026-08-30). Aristotle suppresses "attic" because LSJ's baseline dialect
+  // and its corpus are the same, so the label says nothing. That equivalence
+  // does not hold here: LSJ still writes from an Attic baseline whatever text
+  // you are reading, so "epic" and "ionic" are the informative labels — the
+  // ones a Homer reader opens the entry to see. Suppressing on Attic's
+  // presence would additionally have hidden 7,443 analyses here, 3,303 of them
+  // "attic epic ionic". 48% of analyses carry a label; the rest carry none and
+  // show no chip.
+  function splitParse(parse: string): { text: string; dialect: string } {
+    const m = /\(([^)]*)\)\s*$/.exec(parse ?? '');
+    if (!m) return { text: (parse ?? '').trim(), dialect: '' };
+    // The trailing parenthesis is not always dialect — "indeclform (particle)",
+    // "(conj)", "(prep)". Only the dialect words become a chip.
+    const named = m[1].split(/\s+/).filter(w => DIALECTS.includes(w));
+    if (named.length === 0) return { text: (parse ?? '').trim(), dialect: '' };
+    return { text: parse.slice(0, m.index).trim(), dialect: named.join(' ') };
   }
 
-  const homonymNumeral = (key: string): string => key.match(/(\d+)$/)?.[1] ?? '';
+  interface EntryCard {
+    id: string;
+    lsjKey: string;          // '' when this analysis names no LSJ entry
+    head: string;
+    hom: string;             // LSJ's own homograph letter, '' when unmarked
+    gloss: string;
+    // Whether `gloss` came from an analysis naming this entry ALONE. An
+    // analysis can fan out across several entries carrying the gloss of only
+    // one of them, and first-wins then mislabels the rest.
+    glossExact: boolean;
+    /** Settled after grouping — see the precedence note below. */
+    definition: string;
+    rows: { text: string; dialect: string }[];
+    cunliffeKeys: string[];
+    ref: LemmaRef | null;
+  }
 
-  function toCards(items: Analysis[], entries: LsjEntry[]): Card[] {
-    const byKey = new Map(entries.map(e => [e.key, e]));
-    const cards: Card[] = [];
-    for (const a of items) {
-      const senses = a.lsj
-        .map(k => byKey.get(k))
-        .filter((e): e is LsjEntry => !!e && !!e.short?.trim());
-      const distinct = new Set(senses.map(e => e.short!.trim()));
-      if (distinct.size < 2) {
-        cards.push({
-          head: (a.lsj[0] && byKey.get(a.lsj[0])?.head) || betaToGreek(a.lemma),
-          numeral: '',
-          gloss: a.gloss,
-          parse: a.parse,
-          lsjKey: a.lsj[0] ?? null,
-        });
-        continue;
-      }
-      // ὅτι/ὅτι — homonyms share a headword, so number them; a handful of LSJ
-      // keys are quantity-marked rather than numbered and carry no index, and
-      // there the differing definitions do the distinguishing.
-      const collide = new Set(senses.map(e => e.head)).size < senses.length;
-      const seen = new Set<string>();
-      for (const e of senses) {
-        const text = e.short!.trim();
-        if (seen.has(text)) continue;   // one sense reached by two keys
-        seen.add(text);
-        cards.push({
-          head: e.head,
-          numeral: collide ? homonymNumeral(e.key) : '',
-          gloss: text,
-          parse: a.parse,
-          lsjKey: e.key,
-        });
+  $: cards = (() => {
+    const out: EntryCard[] = [];
+    const byId = new Map<string, EntryCard>();
+    for (const a of analyses) {
+      const keys = a.lsj && a.lsj.length ? a.lsj : [''];
+      // An analysis naming exactly one entry describes THAT entry; one naming
+      // several is unresolved and its gloss belongs to none in particular.
+      const exact = keys.length === 1;
+      for (const k of keys) {
+        const id = k || `lemma:${a.lemma}`;
+        let card = byId.get(id);
+        if (!card) {
+          const meta = k ? heads[k] : undefined;
+          card = {
+            id,
+            lsjKey: k,
+            head: meta?.head || betaToGreek(a.lemma),
+            hom: meta?.hom ?? '',
+            gloss: a.gloss,
+            glossExact: exact,
+            definition: '',
+            rows: [],
+            cunliffeKeys: [],
+            ref: (k && lemmata[k]) || null,
+          };
+          byId.set(id, card);
+          out.push(card);
+        }
+        // Precedence, in order:
+        //  - a non-empty exact gloss always wins, even over an earlier exact:
+        //    two analyses of one lemma where the first is glossed "" must not
+        //    leave the card blank.
+        //  - an empty exact still marks the card exact, and CLEARS a gloss that
+        //    came from a fan-out, because a fan-out gloss may be a sibling
+        //    entry's meaning and blank is honest where borrowed is not.
+        //  - a fan-out gloss only ever fills a hole, and never overwrites.
+        if (exact) {
+          if (a.gloss) card.gloss = a.gloss;
+          else if (!card.glossExact) card.gloss = '';
+          card.glossExact = true;
+        } else if (!card.glossExact && !card.gloss && a.gloss) {
+          card.gloss = a.gloss;
+        }
+        const row = splitParse(a.parse);
+        // Drop rows this card already carries: an analysis naming several
+        // entries repeats its parse into each of them.
+        if (!card.rows.some(r => r.text === row.text && r.dialect === row.dialect)) {
+          card.rows.push(row);
+        }
+        // Cunliffe keys ride on the ANALYSIS, not on the LSJ entry, so a
+        // fan-out hands the same Cunliffe entry to each of its cards. That is
+        // not a fudge: Cunliffe simply does not make LSJ's homonym split — ὅς
+        // is one Cunliffe entry against LSJ's o(/s1 and o(/s2 — so one entry
+        // genuinely covers both cards.
+        for (const c of a.cunliffe ?? []) {
+          if (!card.cunliffeKeys.includes(c)) card.cunliffeKeys.push(c);
+        }
       }
     }
-    return cards;
+    // Each card's definition, settled here rather than in the template so it is
+    // computed once per card and reads in one place. LSJ's own one-line sense
+    // outranks a gloss fanned out across several entries — "swim" stamped onto
+    // the entry for "spin" is a card lying about what it is about to open — but
+    // not an exact gloss, which is already about this entry and is usually the
+    // crisper of the two.
+    for (const c of out) {
+      c.definition = (c.glossExact && c.gloss)
+        || (c.lsjKey ? heads[c.lsjKey]?.short ?? '' : '')
+        || c.gloss || '';
+    }
+    return out;
+  })();
+
+  // ── the entry, opened under the card that asked for it ────────────────────
+  // Served by grammata (grammar-site's deploy), not rendered here: one grammata
+  // deploy updates every reader site. Architecture decided 2026-08-29. Do not
+  // vendor, proxy, pin or cache-bust this URL — its deploys ARE the update
+  // mechanism — and do not style anything inside the container: the widget's
+  // CSS is generated from grammata's design system and changes with it.
+  const GRAMMATA_LOOKUP = 'https://grammata.pages.dev/t8/lookup.js';
+  type LookupFn = (
+    word: string,
+    el: HTMLElement,
+    opts?: { lang?: string; key?: string },
+  ) => Promise<void>;
+  let _grammata: Promise<LookupFn> | null = null;
+  function grammata(): Promise<LookupFn> {
+    // @vite-ignore is REQUIRED: Vite cannot resolve an https: import at build
+    // time and the build fails without it.
+    if (!_grammata) {
+      const p = import(/* @vite-ignore */ GRAMMATA_LOOKUP).then(m => m.lookup as LookupFn);
+      p.catch(() => { if (_grammata === p) _grammata = null; });
+      _grammata = p;
+    }
+    return _grammata;
   }
 
-  $: cards = toCards(analyses, lsj);
+  // Which lexicon each card has open, by card id. Absent = closed, and closed
+  // is the default everywhere: nothing is fetched for a reader who wanted only
+  // the parse.
+  let open: Record<string, 'lsj' | 'cunliffe'> = {};
+  let cunliffeText: Record<string, CunliffeEntry[]> = {};
+  let entryError: Record<string, string> = {};
 
-  // Logeion (logeion.uchicago.edu) looks up by headword, not inflected surface
-  // form — use the primary analysis's resolved LSJ head (matching the first
-  // card's lemma display), falling back to the raw lemma transliteration, or the
-  // clicked surface form if nothing resolved yet.
-  $: primaryHead = analyses[0]
-    ? (analyses[0].lsj[0]
-        ? lsj.find(e => e.key === analyses[0].lsj[0])?.head ?? betaToGreek(analyses[0].lemma)
-        : betaToGreek(analyses[0].lemma))
-    : token.t;
-  $: logeionHref = `https://logeion.uchicago.edu/${encodeURIComponent(primaryHead)}`;
+  async function toggle(card: EntryCard, i: number, which: 'lsj' | 'cunliffe') {
+    if (open[card.id] === which) {
+      const { [card.id]: _drop, ...rest } = open;
+      open = rest;
+      return;
+    }
+    open = { ...open, [card.id]: which };
+    entryError = { ...entryError, [card.id]: '' };
+    await tick();   // the mount point only exists once the panel has rendered
+    if (which === 'lsj') await openLsj(card, i);
+    else await openCunliffe(card);
+  }
+
+  async function openLsj(card: EntryCard, i: number) {
+    const el = panelEl?.querySelector<HTMLElement>(`#lex-panel-${i} .grammata-mount`);
+    if (!el) return;
+    try {
+      const lookup = await grammata();
+      // PASS THE KEY, NEVER THE SURFACE FORM. A surface form makes the widget
+      // re-analyse from scratch and discard the disambiguation this reader has
+      // already done — εἰσὶ comes back as ἵημι, εἰμί and εἶμι with ἵημι first,
+      // so the entry under a card reading "εἰμί" would be a different verb.
+      // Their pack keys are Perseus betacode, the same key space as ours, so
+      // the key passes verbatim, homograph digits included.
+      if (card.lsjKey) await lookup('', el, { lang: 'grc', key: card.lsjKey });
+      else await lookup(card.head, el, { lang: 'grc' });
+    } catch {
+      // The widget renders its own loading, not-found and network-failure
+      // states; this catch is only for the module itself failing to load.
+      entryError = { ...entryError, [card.id]: 'The dictionary could not be loaded.' };
+    }
+  }
+
+  async function openCunliffe(card: EntryCard) {
+    if (cunliffeText[card.id]) return;
+    try {
+      const found: CunliffeEntry[] = [];
+      for (const key of card.cunliffeKeys) {
+        const shard = await fetchCunliffeShard(cunliffeShard(key));
+        if (shard[key]) found.push(shard[key]);
+      }
+      cunliffeText = { ...cunliffeText, [card.id]: found };
+    } catch {
+      entryError = { ...entryError, [card.id]: 'Cunliffe could not be loaded.' };
+    }
+  }
 
   // A Cunliffe entry's HTML embeds internal citation links as
   // <a class="cunliffe-cite" data-work data-book data-line> markers rather than
@@ -169,146 +275,87 @@
     window.location.href = `${base}${workPath(w, book)}?loc=${formatLocValue(w, String(book), line)}`;
   }
 
-  // Minimal ARIA-tabs keyboard support: left/right moves selection AND focus
-  // between the two real tabs (LSJ, Cunliffe). The Logeion item is a plain
-  // external link, not a tab panel, so it isn't in this cycle — it stays
-  // reachable via normal Tab order.
-  const TAB_ORDER: Array<'lsj' | 'cunliffe'> = ['lsj', 'cunliffe'];
-  function onTabRowKey(e: KeyboardEvent) {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-    e.preventDefault();
-    const i = TAB_ORDER.indexOf(activeTab);
-    const next = e.key === 'ArrowRight'
-      ? TAB_ORDER[(i + 1) % TAB_ORDER.length]
-      : TAB_ORDER[(i - 1 + TAB_ORDER.length) % TAB_ORDER.length];
-    activeTab = next;
-    panelEl?.querySelector<HTMLElement>(`#dict-tab-${next}`)?.focus();
-  }
+  // Logeion looks up by headword, not inflected surface form — and now each
+  // card HAS its own headword, so the link is per card rather than one link
+  // built from the first analysis for the whole panel.
+  const logeionHref = (c: EntryCard) =>
+    `https://logeion.uchicago.edu/${encodeURIComponent(c.head)}`;
 </script>
 
-<div class="lexicon-panel" bind:this={panelEl}>
+<div class="lexicon-panel" class:docked bind:this={panelEl}>
   {#if loading}
     <div class="popup-loading">Looking up…</div>
   {:else if error}
     <div class="popup-loading">Error: {error}</div>
-  {:else if analyses.length === 0}
+  {:else if cards.length === 0}
     <div class="popup-loading">No analysis found for this form.</div>
   {:else}
-    {#each cards as c}
+    {#each cards as c, i}
       <div class="analysis-card">
-        <div class="lemma" lang="grc">{c.head}{#if c.numeral}<sup class="homonym">{c.numeral}</sup>{/if}</div>
-        <div class="gloss">{c.gloss}</div>
-        <div class="parse">{c.parse}</div>
-        {#if lemmaRef(c.lsjKey)}
-          <a class="lemma-link" href={`${base}/lemma/${lemmaRef(c.lsjKey)!.slug}/`}>
-            Appears {lemmaRef(c.lsjKey)!.count.toLocaleString()}× across Homer
+        <div class="lemma" lang="grc">{c.head}{#if c.hom}<sup class="homonym">({c.hom})</sup>{/if}</div>
+        {#if c.definition}<div class="gloss">{c.definition}</div>{/if}
+        {#each c.rows as row}
+          <div class="parse">
+            {row.text}{#if row.dialect}<span class="parse-dialect">{row.dialect}</span>{/if}
+          </div>
+        {/each}
+        {#if c.ref}
+          <a class="lemma-link" href={`${base}/lemma/${c.ref.slug}/`}>
+            Appears {c.ref.count.toLocaleString()}× across Homer
             <span class="lemma-link-arr" aria-hidden="true">→</span>
           </a>
         {/if}
+
+        <div class="card-lex">
+          <button
+            type="button"
+            class="lex-tab"
+            class:active={open[c.id] === 'lsj'}
+            aria-expanded={open[c.id] === 'lsj'}
+            on:click={() => toggle(c, i, 'lsj')}
+          >LSJ</button>
+          {#if c.cunliffeKeys.length}
+            <button
+              type="button"
+              class="lex-tab"
+              class:active={open[c.id] === 'cunliffe'}
+              aria-expanded={open[c.id] === 'cunliffe'}
+              on:click={() => toggle(c, i, 'cunliffe')}
+            >Cunliffe</button>
+          {/if}
+          <!-- A real external navigation, not a panel switch: the ONE control
+               here that opens a new tab. -->
+          <a class="lex-tab lex-tab-link" href={logeionHref(c)} target="_blank" rel="noopener"
+            >Logeion <span aria-hidden="true">↗</span></a>
+        </div>
+
+        {#if open[c.id]}
+          <div class="card-entry" id={`lex-panel-${i}`}>
+            {#if entryError[c.id]}
+              <div class="popup-loading">{entryError[c.id]}</div>
+            {:else if open[c.id] === 'lsj'}
+              <!-- grammata fills this; it renders its own loading, not-found
+                   and failure states, so there is nothing to add here. -->
+              <div class="grammata-mount"></div>
+            {:else}
+              <div class="cunliffe-body" on:click={onCunliffeClick} on:keydown={() => {}}>
+                {#if cunliffeText[c.id] === undefined}
+                  <div class="popup-loading">Looking up…</div>
+                {:else if cunliffeText[c.id].length === 0}
+                  <div class="popup-loading">Not in Cunliffe.</div>
+                {:else}
+                  {#each cunliffeText[c.id] as entry}
+                    <div class="cunliffe-entry">
+                      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                      {@html entry.html}
+                    </div>
+                  {/each}
+                {/if}
+              </div>
+            {/if}
+          </div>
+        {/if}
       </div>
     {/each}
-
-    <button
-      type="button"
-      class="lex-expand"
-      aria-expanded={expanded}
-      aria-controls="dict-section"
-      on:click={() => (expanded = !expanded)}
-    >
-      <span class="lex-expand-caret" class:open={expanded} aria-hidden="true">▸</span>
-      {expanded ? 'Hide full dictionary entry' : 'Expand full dictionary entry'}
-    </button>
-
-    {#if expanded}
-      <div class="dict-section" id="dict-section">
-        <div class="dict-tabs">
-          <div class="dict-tablist" role="tablist" aria-label="Dictionary" tabindex="-1" on:keydown={onTabRowKey}>
-            <button
-              type="button"
-              role="tab"
-              id="dict-tab-lsj"
-              aria-selected={activeTab === 'lsj'}
-              aria-controls="dict-panel-lsj"
-              tabindex={activeTab === 'lsj' ? 0 : -1}
-              class="dict-tab"
-              on:click={() => (activeTab = 'lsj')}
-            >LSJ</button>
-            <button
-              type="button"
-              role="tab"
-              id="dict-tab-cunliffe"
-              aria-selected={activeTab === 'cunliffe'}
-              aria-controls="dict-panel-cunliffe"
-              tabindex={activeTab === 'cunliffe' ? 0 : -1}
-              class="dict-tab"
-              on:click={() => (activeTab = 'cunliffe')}
-            >Cunliffe</button>
-          </div>
-          <!-- Not part of the tablist: role="tablist" only permits role="tab"
-               children, and this is a real external navigation, not a panel
-               switch. It stays reachable via normal Tab order (a[href]) and is
-               the ONE control here that opens a new tab. -->
-          <a
-            class="dict-tab dict-tab-link"
-            href={logeionHref}
-            target="_blank"
-            rel="noopener"
-          >Logeion <span aria-hidden="true">↗</span></a>
-        </div>
-        <div id="dict-panel-lsj" role="tabpanel" aria-labelledby="dict-tab-lsj" tabindex="0" hidden={activeTab !== 'lsj'}>
-          {#if lsj.length > 0}
-            {#each lsj as entry}
-              <!-- eslint-disable-next-line svelte/no-at-html-tags — sanitized by the shared renderer -->
-              {@html renderLsjEntry(entry.html, { base })}
-            {/each}
-          {:else}
-            <div class="popup-loading">Not in LSJ.</div>
-          {/if}
-        </div>
-        <div id="dict-panel-cunliffe" role="tabpanel" aria-labelledby="dict-tab-cunliffe" tabindex="0" hidden={activeTab !== 'cunliffe'} on:click={onCunliffeClick} on:keydown={() => {}}>
-          {#if cunliffe.length > 0}
-            {#each cunliffe as entry}
-              <div class="cunliffe-entry">
-                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                {@html entry.html}
-              </div>
-            {/each}
-          {:else}
-            <div class="popup-loading">Not in Cunliffe.</div>
-          {/if}
-        </div>
-      </div>
-    {/if}
   {/if}
 </div>
-
-<style>
-  .lexicon-panel { display: flex; flex-direction: column; gap: 0.75rem; }
-
-  /* EXPAND disclosure to the full dictionary entry — a quiet, full-width control
-     between the short gloss and the (revealed) tabbed entry. Uses the Aegean
-     bronze accent, like the other reader labels; AA in both themes. */
-  .lex-expand {
-    display: inline-flex; align-items: center; gap: 0.4em;
-    align-self: flex-start;
-    padding: 0.3rem 0.1rem;
-    background: none; border: none; cursor: pointer;
-    font-family: var(--font-ui); font-size: 0.82rem; font-weight: 600;
-    color: var(--accent);
-  }
-  .lex-expand:hover { color: var(--accent-light); text-decoration: underline; }
-  .lex-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
-  .lex-expand-caret { transition: transform .12s ease; font-size: 0.72em; }
-  .lex-expand-caret.open { transform: rotate(90deg); }
-
-  /* "See all occurrences" link into the lemma page — the panel's one bridge to
-     the deeper reference view. Sits at the foot of each analysis card. */
-  .lemma-link {
-    display: inline-flex; align-items: center; gap: 0.35em;
-    margin-top: 0.5rem; font-family: var(--font-ui); font-size: 0.8rem;
-    font-weight: 600; color: var(--accent); text-decoration: none;
-  }
-  .lemma-link:hover { text-decoration: underline; }
-  .lemma-link-arr { transition: transform .1s ease; }
-  .lemma-link:hover .lemma-link-arr { transform: translateX(2px); }
-</style>

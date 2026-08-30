@@ -788,6 +788,46 @@ export function fetchLemmata(): Promise<Record<string, LemmaRef>> {
   return p;
 }
 
+// The headword manifest: LSJ key → { head, hom }, built by
+// app/scripts/build-lsj-heads.mjs.
+//
+// A card needs two things about its dictionary entry before the reader taps
+// anything — the Unicode headword (key `ei)mi/` displays as εἰμί) and LSJ's own
+// homograph letter (the (A) in "δέω (A)"). Both used to arrive by downloading a
+// whole letter shard per lookup: 4.7 MB of lsj/e.json read for a headword, with
+// every sense in it discarded unread. This manifest is 82 KB gzipped, fetched
+// once.
+//
+// NOT lemmata.json: that is the lemma-PAGE manifest, scoped to lemmata that
+// have a page, and the keys it misses are the commonest words in the corpus —
+// ὁ, καί, δέ, γάρ, μέν — which are exactly the words a reader taps.
+export interface LsjHead {
+  head: string;
+  /** LSJ's own homograph letter, absent when the entry carries none. */
+  hom?: string;
+  /**
+   * LSJ's one-line sense for THIS entry (91% of entries carry one). What lets
+   * each dictionary-level homonym keep its own definition on its own card
+   * without a shard fetch — see LexiconPanel's gloss precedence.
+   */
+  short?: string;
+}
+let _lsjHeadsCache: Promise<Record<string, LsjHead>> | null = null;
+export function fetchLsjHeads(): Promise<Record<string, LsjHead>> {
+  if (_lsjHeadsCache) return _lsjHeadsCache;
+  // Throw on a bad status rather than resolving to {}: a resolved empty object
+  // is CACHED, so one 404 would strand every card on the transliterated lemma
+  // for the life of the page. Throwing lets the catch below clear the slot so
+  // the next lookup retries.
+  const p = fetch(`${ROOT()}/lsj-heads.json`).then(r => {
+    if (!r.ok) throw new Error(`lsj-heads ${r.status}`);
+    return r.json();
+  });
+  p.catch(() => { if (_lsjHeadsCache === p) _lsjHeadsCache = null; });
+  _lsjHeadsCache = p;
+  return p;
+}
+
 // -- Recurrent phrases (stage 8) and the word-offset primitive --------------
 //
 // Every path below goes through ROOT(), like the rest of this file. The sibling
@@ -947,10 +987,23 @@ export async function fetchCunliffeShard(letter: string): Promise<Record<string,
 
 export async function lookupWord(
   work: string,
-  key: string
+  key: string,
+  // `entries` says whether to pull the dictionary SHARDS for this word.
+  //
+  // The popup no longer needs them: cards are built from the analyses plus the
+  // lsj-heads manifest, and an entry's text is fetched only when the reader
+  // taps a lexicon tab — LSJ from grammata, keyed; Cunliffe from its own shard.
+  // Fetching them here cost 4.7 MB of lsj/e.json plus 1.8 MB of cunliffe/a.json
+  // on every word click, nearly all of it thrown away unread.
+  //
+  // Defaults TRUE so every other caller keeps the behaviour it had; only the
+  // popup passes false.
+  opts: { entries?: boolean } = {}
 ): Promise<{ analyses: Analysis[]; lsj: LsjEntry[]; cunliffe: CunliffeEntry[] }> {
+  const { entries: withEntries = true } = opts;
   const allAnalyses = await fetchAnalyses(work);
   const entries = allAnalyses[key] ?? [];
+  if (!withEntries) return { analyses: entries, lsj: [], cunliffe: [] };
   const lsjEntries: LsjEntry[] = [];
   const seenLsj = new Set<string>();
   const cunliffeEntries: CunliffeEntry[] = [];
