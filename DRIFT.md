@@ -820,3 +820,8 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
 - `shared/__tests__/word-popup.test.ts` / `components.test.ts` — regression +
   invariant coverage for the above (outside-close matrix, preventScroll on
   mount/restore, docked invariants, Reader-level second-token swap).
+- `shared/lib/html.ts` — NOT Homer-specific, and NOT to be reverted by a sync:
+  `buildFormsBlock`/`formAt` skips a headword's quantity mark so the lemma
+  stops opening the forms table (62 entries). plato-reader and
+  aristotle-reader still carry the defect; when they take the fix this line
+  goes away. A patch-forward pass must propagate it, not overwrite it.
