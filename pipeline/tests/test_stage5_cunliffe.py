@@ -244,7 +244,14 @@ def test_the_whole_lexicon_survives_the_t8_parse(tmp_path):
     if not src.exists():
         import pytest
         pytest.skip(f"Cunliffe source not present at {src}")
-    sig = lambda s: re.sub(r"\s+", "", s)
+    from collections import Counter
+    nows = lambda s: re.sub(r"\s+", "", s)
+    # Connectors ("Cf.", ",", ":", "=") carry nothing a T8 row keeps — it joins
+    # citations with its own separator — and the brackets around a parenthetical
+    # go when its text is lifted into `e`. Those are the ONLY characters this
+    # parse is allowed to drop, and the assertion names them rather than
+    # stripping both sides, which would blind it to what it is auditing.
+    allowed = set(",.:;=()") | set("Cfcand")   # "Cf." and lowercase "cf."
     lossy = []
     rows = 0
     for line in src.open(encoding="utf-8"):
@@ -253,9 +260,53 @@ def test_the_whole_lexicon_survives_the_t8_parse(tmp_path):
         r = json.loads(line)
         t8 = sc.to_t8(r["key"], r["headword"], r["definition"])
         rows += len(t8["rows"])
-        rebuilt = t8["head"] + t8["i"] + "".join(
-            (x.get("n") or "") + (x.get("z") or "") + (x.get("ex") or "") for x in t8["rows"])
-        if sig(rebuilt) != sig(r["definition"]):
-            lossy.append(r["headword"])
-    assert lossy == [], f"{len(lossy)} entries changed: {lossy[:5]}"
-    assert rows > 15000, rows
+        parts = [t8["head"], t8["i"]]
+        for x in t8["rows"]:
+            parts += [x.get("n") or "", x.get("z") or ""]
+            for item in x.get("ex") or []:
+                parts += [item.get("g") or "", item.get("e") or "", item.get("c") or ""]
+            parts += list(x.get("au") or [])
+        dropped = Counter(nows(r["definition"])) - Counter(nows("".join(parts)))
+        added = Counter(nows("".join(parts))) - Counter(nows(r["definition"]))
+        assert not added, f"{r['headword']} gained {list(added)}"
+        real = [ch for ch in dropped if ch not in allowed]
+        if real:
+            lossy.append((r["headword"], real))
+    assert lossy == [], f"{len(lossy)} entries lost content: {lossy[:5]}"
+    assert rows > 20000, rows
+
+
+def test_a_quotation_becomes_an_example_and_a_bare_citation_an_author():
+    t8 = sc.to_t8("m", "μῆνις",
+                  "μῆνις ἡ. 1 Wrath, ire : μῆνιν ἄειδε Ἀχιλῆος Il. 1.1. Cf. Il. 1.75, Il. 5.178.")
+    row = t8["rows"][0]
+    assert row["ex"] == [{"g": "μῆνιν ἄειδε Ἀχιλῆος", "c": "Il. 1.1"}]
+    assert row["au"] == ["Il. 1.75", "Il. 5.178"]
+
+
+def test_a_parenthetical_translation_becomes_the_example_gloss():
+    t8 = sc.to_t8("a", "ἀναιδής",
+                  "ἀναιδής 1 Shameless: ἀναιδέα δηϊοτῆτος (app., shamelessly insatiate) Il. 5.593.")
+    assert t8["rows"][0]["ex"] == [
+        {"g": "ἀναιδέα δηϊοτῆτος", "c": "Il. 5.593", "e": "app., shamelessly insatiate"}
+    ]
+
+
+def test_prose_between_citations_is_never_dropped():
+    # ἀγακλεής puts its DEFINITION after its principal parts, so it lands in the
+    # evidence run rather than in `z`. An earlier version discarded any evidence
+    # text with no Greek in it, and this entry lost "Very famous, glorious,
+    # splendid, worthy" outright — 2,534 entries (25.8%) lost content that way.
+    t8 = sc.to_t8("a", "ἀγακλεής",
+                  "ἀγακλεής -ές Genit. ἀγακλῆος Il. 16.738. Very famous, glorious Il. 17.716.")
+    assert any("Very famous, glorious" in (r.get("z") or "") for r in t8["rows"])
+
+
+def test_prose_between_citations_keeps_the_citations_that_follow_it():
+    t8 = sc.to_t8("a", "ἀναιδής",
+                  "ἀναιδής 1 Shameless Od. 1.254. Absol. Il. 1.158.")
+    tail = t8["rows"][-1]
+    assert tail["z"] == "Absol."
+    assert tail["au"] == ["Il. 1.158"]
+    assert tail["n"] == ""      # a continuation carries no number of its own
+    assert "s" not in tail      # and never `s`, which would draw a dash

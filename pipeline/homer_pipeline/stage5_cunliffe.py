@@ -324,6 +324,13 @@ def _evidence_start(body: str, cite_at: int) -> int:
             continue
         bound = m.end()
     run = before[bound if bound != -1 else 0:]
+    # A quotation is a phrase Homer wrote. It never contains an etymology
+    # bracket, and it is not a paragraph: without these guards the head run of
+    # an unnumbered entry — "ἄλειφαρ -ατος, τό [ἀλείφω.] Unguent, oil" — is
+    # Greek enough to be mistaken for one, and the definition disappears into
+    # `g` where it reads as though Homer wrote it.
+    if "[" in run or "]" in run:
+        return cite_at
     if _GREEK_RE.search(run) and run.strip():
         return bound if bound != -1 else 0
     return cite_at
@@ -339,7 +346,123 @@ def parse_sense(body: str) -> tuple[str, str]:
     if not m:
         return body.strip(), ""
     start = _evidence_start(body, m.start())
-    return body[:start].strip(), body[start:].strip()
+    # The colon that introduced the quotation belongs to neither side once the
+    # two are separate fields.
+    return body[:start].strip().rstrip(" :;,"), body[start:].strip()
+
+
+# Evidence, split into what T8 renders: `ex` is a quotation with its citation
+# (and the parenthetical translation Cunliffe sometimes gives it), `au` is a
+# bare citation with no quotation attached.
+#
+# Cunliffe writes evidence as "QUOTATION Cite. Cf. Cite, Cite : Cite." — the
+# quotation leads, its own citation follows it, and everything after "Cf." is
+# corroboration with nothing quoted.
+#
+# Bare continuations are real: "Il. 19.35, 75" means Il. 19.75. They are kept as
+# printed rather than expanded, because the citations[] pass that resolves them
+# from urns owns that, and guessing which book a loose number belongs to is how
+# a citation quietly points at the wrong line.
+_CITE_TOKEN_RE = re.compile(r"\b(?:Il|Od)\.\s*\d+\.\d+|\b\d+\b")
+# Connectors between pieces of evidence. These carry no information a T8 row
+# keeps — it joins citations with its own separator — so they are dropped, and
+# the audit below asserts that NOTHING ELSE is.
+# Only genuinely empty joining words are dropped. "etc." is NOT one: in a
+# lexicon it tells the reader the citation list is not exhaustive, and treating
+# it as furniture cost 1,336 entries that signal. Dashes and "So" likewise carry
+# Cunliffe's own sequencing and stay in the text.
+_CONNECTOR_RE = re.compile(r"^[\s,.:;=]*(?:Cf\.|cf\.|and|=)?[\s,.:;=]*")
+_PAREN_RE = re.compile(r"\(([^)]*)\)\s*$")
+# Cunliffe's own "and so on" marks. Kept in the text, never given a row.
+_TRAILING_NOTE_RE = re.compile(r"[\s.:,;–-]*(?:etc\.?|So|and so on)?[\s.:,;–-]*")
+
+
+def split_evidence(evidence: str) -> list[dict]:
+    """One sense's evidence as an ordered list of segments.
+
+    A segment is {z?, ex[], au[]}. A new one opens whenever Cunliffe writes
+    PROSE between citations, because that prose is a further statement with its
+    own evidence — "Absol. Il. 1.158", or ἀγακλεής's "Very famous, glorious,
+    splendid, worthy" following its principal parts.
+
+    Dropping that prose is what an earlier version did, and it cost 2,534
+    entries (25.8%) real content — ἀγακλεής lost its entire definition, because
+    the definition follows the principal-parts citations and so lands here
+    rather than in `z`. Nothing but connectors is ever discarded now.
+    """
+    segments: list[dict] = [{"ex": [], "au": []}]
+    pos = 0
+    for m in _CITE_TOKEN_RE.finditer(evidence):
+        lead = evidence[pos:m.start()]
+        pos = m.end()
+        cite = m.group(0)
+        body = _CONNECTOR_RE.sub("", lead).strip()
+        # English ahead of the quotation is Cunliffe's own prose, not part of
+        # what it is quoting: "Together, at the same moment: ἁ. ἄμφω σύν ῥʼ
+        # ἔπεσον" is a remark and then a quotation. Split at the first Greek,
+        # or the remark ends up inside `g` and reads as though Homer wrote it.
+        gm = _GREEK_RE.search(body)
+        if gm and gm.start() > 0:
+            prose = _CONNECTOR_RE.sub("", body[:gm.start()]).strip().rstrip(" :;,")
+            if prose:
+                segments.append({"z": prose, "ex": [], "au": []})
+            body = body[gm.start():].strip()
+        if _GREEK_RE.search(body):
+            gloss = ""
+            pm = _PAREN_RE.search(body)
+            if pm and not _GREEK_RE.search(pm.group(1)):
+                gloss = pm.group(1).strip()
+                body = body[:pm.start()].strip()
+            item = {"g": body, "c": cite}
+            if gloss:
+                item["e"] = gloss
+            segments[-1]["ex"].append(item)
+        elif body:
+            if _TRAILING_NOTE_RE.fullmatch(body):
+                # "etc.", "So", a bare dash: Cunliffe saying the list above goes
+                # on. It is real signal and is never dropped — but it belongs to
+                # the row it qualifies, not to a row of its own, which is how it
+                # produced sense rows reading only "etc."
+                prev = segments[-1]
+                prev["z"] = (prev.get("z", "") + " " + body).strip()
+                prev["au"].append(cite)
+            else:
+                # prose with no Greek: a new statement, and the citations that
+                # follow belong to it
+                segments.append({"z": body, "ex": [], "au": [cite]})
+        else:
+            segments[-1]["au"].append(cite)
+    tail = _CONNECTOR_RE.sub("", evidence[pos:]).strip()
+    if tail:
+        if _GREEK_RE.search(tail):
+            segments[-1]["ex"].append({"g": tail})
+        elif _TRAILING_NOTE_RE.fullmatch(tail):
+            segments[-1]["z"] = (segments[-1].get("z", "") + " " + tail).strip()
+        else:
+            segments.append({"z": tail, "ex": [], "au": []})
+    return segments
+
+
+def _rows_from(base: dict, evidence: str) -> list[dict]:
+    """`base` carries lv/n/z; evidence segments extend it, the first onto the
+    row itself and any others as unnumbered continuations of it."""
+    out = []
+    for i, seg in enumerate(split_evidence(evidence)):
+        if i == 0:
+            row = dict(base)
+        else:
+            # A continuation: same level, no number of its own. `s` stays unset
+            # — grammata draws its dash on a row carrying `s` with an empty
+            # numeral, and these are Cunliffe's own prose, not supplied text.
+            row = {"lv": base["lv"], "n": "", "z": seg.get("z", "")}
+        if i == 0 and seg.get("z"):
+            row["z"] = (row.get("z", "") + " " + seg["z"]).strip()
+        if seg["ex"]:
+            row["ex"] = seg["ex"]
+        if seg["au"]:
+            row["au"] = seg["au"]
+        out.append(row)
+    return out
 
 
 def to_t8(key: str, headword: str, definition: str) -> dict:
@@ -354,39 +477,50 @@ def to_t8(key: str, headword: str, definition: str) -> dict:
     p = split_senses(definition)
     roman = {d["at"]: d["n"] for d in p["divisions"]}
     if not p["senses"]:
-        z, ex = parse_sense(definition[len(headword):])
+        z, evidence = parse_sense(definition[len(headword):])
         return {"key": key, "head": headword, "i": "",
-                "rows": [{"lv": 1, "n": "", "z": z, "ex": ex}]}
+                "rows": _rows_from({"lv": 1, "n": "", "z": z}, evidence)}
 
     head_end = len(p["head"])
-    rows: list[dict] = []
+    # Each sense becomes one or more rows (prose between citations opens a
+    # continuation), so rows are built per sense and kept with the span they
+    # came from — a division that interrupts a sense has to rebuild it from
+    # that span, and only the sense's FIRST row carries the offsets.
+    built: list[tuple[dict, list[dict]]] = []   # (sense, its rows)
     last_div = None
+    banners: list[tuple[int, dict]] = []        # (index into built, banner row)
     for sense in p["senses"]:
         div_at = sense["div_at"]
         if div_at != -1 and div_at != last_div:
             numeral = roman.get(div_at, "")
             heading = ""
-            prev = next((r for r in reversed(rows) if not r.get("b")), None)
-            if prev is not None and prev["_end"] > div_at:
-                # The division interrupts the previous sense: its numeral AND
-                # its heading sit between one sense and the next. Cut the
-                # previous row there and hand that span to the banner — emitting
-                # the numeral without removing it made 63 entries GAIN
-                # characters they never had.
-                heading = definition[div_at + len(numeral):prev["_end"]]
-                z, ex = parse_sense(definition[prev["_start"]:div_at])
-                prev["z"], prev["ex"], prev["_end"] = z, ex, div_at
+            if built and built[-1][0]["end"] > div_at:
+                # The division interrupts the previous sense: its numeral and
+                # heading sit between one sense and the next. Cut that sense
+                # short and give the span to the banner — emitting the numeral
+                # without removing it made 63 entries GAIN characters.
+                prev_sense, _ = built[-1]
+                heading = definition[div_at + len(numeral):prev_sense["end"]]
+                z, evidence = parse_sense(definition[prev_sense["start"]:div_at])
+                built[-1] = ({**prev_sense, "end": div_at},
+                             _rows_from({"lv": 1, "n": prev_sense["n"], "z": z}, evidence))
             elif div_at < head_end:
                 # The first division sits inside the head run, so its numeral is
                 # already in `i`; take it out or the entry carries it twice.
                 heading = definition[div_at + len(numeral):head_end]
                 head_end = div_at
-            rows.append({"lv": 0, "n": numeral, "z": heading.strip(), "b": 1,
-                         "_start": div_at, "_end": sense["start"]})
+            banners.append((len(built), {"lv": 0, "n": numeral,
+                                         "z": heading.strip(), "b": 1}))
             last_div = div_at
-        z, ex = parse_sense(sense["body"])
-        rows.append({"lv": 1, "n": sense["n"], "z": z, "ex": ex,
-                     "_start": sense["start"], "_end": sense["end"]})
+        z, evidence = parse_sense(sense["body"])
+        built.append((sense, _rows_from({"lv": 1, "n": sense["n"], "z": z}, evidence)))
+
+    rows: list[dict] = []
+    banner_at = {i: b for i, b in banners}
+    for i, (_, sense_rows) in enumerate(built):
+        if i in banner_at:
+            rows.append(banner_at[i])
+        rows.extend(sense_rows)
 
     # `gr` names the divisions grammata may turn into a tab strip. It does so
     # only at >= 2 divisions AND >= 10 rows: measured here, 43 entries carry two
@@ -396,9 +530,6 @@ def to_t8(key: str, headword: str, definition: str) -> dict:
     # (ἄλλος has senses before its first banner and falls back to untabbed —
     # grammata's documented behaviour, harmless, and not a misfiring threshold.)
     gr = [[r["n"], r["z"]] for r in rows if r.get("b") and r["n"]]
-    for r in rows:
-        r.pop("_start", None)
-        r.pop("_end", None)
     out = {"key": key, "head": headword,
            "i": definition[len(headword):head_end].strip(), "rows": rows}
     if len(gr) >= 2:
