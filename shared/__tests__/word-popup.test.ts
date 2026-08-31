@@ -453,3 +453,64 @@ describe('WordPopup.svelte — the Cunliffe entry reads as an entry', () => {
     expect(r.body).toBe('ὅς1. See ἑός.');
   });
 });
+
+describe('WordPopup.svelte — following a Cunliffe cross-reference', () => {
+  // Cunliffe points from entry to entry constantly ("See πολλός."), and those
+  // pointers were dead text. stage5 marks the ones whose target actually ships;
+  // the panel follows them in place and can come back.
+  const setup = async () => {
+    lookupWordMock.mockResolvedValue({
+      analyses: [{ lemma: 'p', gloss: 'much', parse: 'adj', lsj: ['p1'], cunliffe: ['polu/s'] }],
+      lsj: [], cunliffe: [],
+    });
+    headsMock.mockResolvedValue({ p1: { head: 'πολύς' } });
+    cunliffeShardMock.mockResolvedValue({
+      'polu/s': {
+        key: 'polu/s', head: 'πολύς', src: 'lex',
+        html: '<div class="cunliffe-sense">See '
+          + '<a class="cunliffe-xref" href="#" data-key="pollo/s">πολλός</a>.</div>',
+      },
+      'pollo/s': {
+        key: 'pollo/s', head: 'πολλός', src: 'lex',
+        html: '<div class="cunliffe-sense">πολλός Much, many.</div>',
+      },
+    });
+    const r = renderPopup();
+    await screen.findByText('much');
+    await fireEvent.click(screen.getByRole('button', { name: 'Cunliffe' }));
+    await screen.findByText('πολλός');
+    return r;
+  };
+
+  it('opens the entry the pointer names, in place', async () => {
+    const { container } = await setup();
+    await fireEvent.click(container.querySelector('a.cunliffe-xref')!);
+    expect(await screen.findByText(/Much, many/)).toBeInTheDocument();
+    // The followed entry always names itself — it is a different word from the
+    // one on the card.
+    expect(container.querySelector('.cunliffe-lemma')?.textContent).toBe('πολλός');
+  });
+
+  it('comes back to the entry it was called from', async () => {
+    const { container } = await setup();
+    await fireEvent.click(container.querySelector('a.cunliffe-xref')!);
+    await screen.findByText(/Much, many/);
+
+    const back = screen.getByRole('button', { name: /Back to πολύς/ });
+    await fireEvent.click(back);
+    await waitFor(() => expect(screen.queryByText(/Much, many/)).toBeNull());
+    expect(container.querySelector('a.cunliffe-xref')).toBeInTheDocument();
+  });
+
+  it('leaves the trail behind when the reader moves to another word', async () => {
+    // A trail belongs to the word it was followed from; carrying it to the next
+    // word would strand the reader inside a pointer chain they did not open.
+    const { container, rerender } = await setup();
+    await fireEvent.click(container.querySelector('a.cunliffe-xref')!);
+    await screen.findByText(/Much, many/);
+
+    await rerender({ token: { t: 'ἄλλο', k: 'a)/llo' } });
+    await waitFor(() =>
+      expect(screen.queryByRole('button', { name: /Back to/ })).toBeNull());
+  });
+});

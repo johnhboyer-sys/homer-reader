@@ -2548,6 +2548,28 @@ select {
   border-top: 1px dashed var(--border);
 }
 
+/* A followed "See <headword>" pointer, and the way back out of it. */
+.cunliffe-entry a.cunliffe-xref {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  cursor: pointer;
+}
+.cunliffe-entry a.cunliffe-xref:hover,
+.cunliffe-entry a.cunliffe-xref:focus-visible { border-bottom-color: var(--accent); }
+
+.cunliffe-back {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--text-mid);
+  background: none;
+  border: none;
+  padding: 0 0 0.35rem 0;
+  cursor: pointer;
+}
+.cunliffe-back:hover, .cunliffe-back:focus-visible { color: var(--accent); }
+
 /* Cunliffe HTML classes from stage5_cunliffe */
 .cunliffe-entry .cunliffe-sense { margin: 0 0 0.5rem 0; }
 .cunliffe-entry .cunliffe-sense:last-child { margin-bottom: 0; }

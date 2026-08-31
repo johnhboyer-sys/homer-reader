@@ -118,6 +118,65 @@ _CTS_RE = re.compile(r"(tlg\d+\.tlg\d+)\.[^:]*:(\d+)\.(\d+)$")
 _TLG_WORK = {"tlg0012.tlg001": "iliad", "tlg0012.tlg002": "odyssey"}
 _TRAIL_PUNCT = " ,.;:"
 
+# Scaife's citations[] does not carry every reference Cunliffe prints. Measured
+# on the shipped shards before this pass: 64,050 of 78,273 refs were linked and
+# 14,223 were dead text, spread over 3,032 of 7,511 entries. A reader whose
+# whole purpose is jumping to the poem was being handed "Il. 5.396" as
+# unclickable prose two words after an identical live link.
+#
+# So anything left over is linked from the visible reference. Only a FULL ref
+# is matched — work abbreviation, book and line all present. Bare continuations
+# ("Il. 19.35, 75", where 75 means Il. 19.75) are deliberately left alone: the
+# citations[] pass already resolves those from their urns, and guessing which
+# book a loose number belongs to is how a citation silently points at the wrong
+# line.
+_PLAIN_REF_RE = re.compile(r"\b(Il|Od)\.\s*(\d+)\.(\d+)")
+_ABBR_WORK = {"Il": "iliad", "Od": "odyssey"}
+
+
+def _link_plain_refs(escaped: str) -> str:
+    """Link full references in an already-escaped run of definition text."""
+    def one(m: re.Match[str]) -> str:
+        return (
+            f'<a class="cunliffe-cite" href="#" data-work="{_ABBR_WORK[m.group(1)]}" '
+            f'data-book="{m.group(2)}" data-line="{m.group(3)}">{m.group(0)}</a>'
+        )
+    return _PLAIN_REF_RE.sub(one, escaped)
+
+
+# Cunliffe points from one entry to another constantly — "See πολλός." — and
+# those pointers were dead text. The target is resolved against the head of
+# every entry in the SOURCE, then kept only if that entry actually ships, so a
+# pointer is either live or plain: never a link to nothing.
+_SEE_RE = re.compile(r"\bSee(?: also)? ([\u0370-\u03ff\u1f00-\u1fff][^\s.,;:\]]*)")
+
+
+def _link_xrefs(html: str, resolve) -> str:
+    """Link "See <headword>" pointers whose target ships. Runs over rendered
+    HTML, so it must not reach inside an existing anchor — the citation links
+    are already in place and their text can contain nothing this matches."""
+    out: list[str] = []
+    pos = 0
+    for m in re.finditer(r"<a\b[^>]*>.*?</a>", html, re.S):
+        out.append(_link_xrefs_run(html[pos:m.start()], resolve))
+        out.append(m.group(0))
+        pos = m.end()
+    out.append(_link_xrefs_run(html[pos:], resolve))
+    return "".join(out)
+
+
+def _link_xrefs_run(run: str, resolve) -> str:
+    def one(m: re.Match[str]) -> str:
+        key = resolve(m.group(1))
+        if not key:
+            return m.group(0)
+        head = m.group(0)[: m.start(1) - m.start(0)]
+        return (
+            f'{head}<a class="cunliffe-xref" href="#" data-key="{escape(key)}">'
+            f'{m.group(1)}</a>'
+        )
+    return _SEE_RE.sub(one, run)
+
 
 def linkify_definition(text: str, citations: list[dict]) -> str:
     """Escape a Cunliffe definition to safe HTML, turning each embedded
@@ -147,7 +206,7 @@ def linkify_definition(text: str, citations: list[dict]) -> str:
             # leaving this citation un-linked rather than dropping/misplacing
             # text.
             continue
-        parts.append(escape(text[pos:idx]))
+        parts.append(_link_plain_refs(escape(text[pos:idx])))
         core = ref.rstrip(_TRAIL_PUNCT)
         trail = ref[len(core):]
         target = None
@@ -164,20 +223,35 @@ def linkify_definition(text: str, citations: list[dict]) -> str:
                 f'{escape(core)}</a>{escape(trail)}'
             )
         else:
-            parts.append(escape(ref))
+            parts.append(_link_plain_refs(escape(ref)))
         pos = idx + len(ref)
-    parts.append(escape(text[pos:]))
+    parts.append(_link_plain_refs(escape(text[pos:])))
     return "".join(parts)
 
 
-def entry_html(rows: list[dict]) -> str:
+def _head_forms(head: str) -> list[str]:
+    """The head as written, plus the bare form a cross-reference would use."""
+    forms = [head]
+    bare = head.lstrip("\u2020").rstrip(".")
+    bare = re.sub(r"-\d+$", "", bare)
+    if bare and bare != head:
+        forms.append(bare)
+    return forms
+
+
+def entry_html(rows: list[dict], resolve=None) -> str:
     """Render every row sharing a key (usually one; Cunliffe numbers homonyms
     only in the headword text — "ἄγη2" — not in a distinct key, unlike LSJ's
-    a)1/a)2 convention) as its own sense block."""
-    return "".join(
-        f'<div class="cunliffe-sense">{linkify_definition(r["definition"], r.get("citations", []))}</div>'
-        for r in rows
-    )
+    a)1/a)2 convention) as its own sense block.
+
+    `resolve` maps a "See <headword>" target to a shipped Cunliffe key, or to
+    None where the pointer cannot be honoured."""
+    def block(r: dict) -> str:
+        inner = linkify_definition(r["definition"], r.get("citations", []))
+        if resolve is not None:
+            inner = _link_xrefs(inner, resolve)
+        return f'<div class="cunliffe-sense">{inner}</div>'
+    return "".join(block(r) for r in rows)
 
 
 def _merged_src(rows: list[dict]) -> str:
@@ -237,6 +311,34 @@ def run(manifest: Manifest) -> Path:
             missing.append(lemma)
     wanted = {k for keys in lemma_map.values() for k in keys}
 
+    # Headword -> key over EVERY source entry, so a pointer can be resolved
+    # before deciding whether its target ships. Cunliffe's heads carry marks
+    # that a "See" target does not repeat — a leading dagger, a "-1" homonym
+    # suffix, a trailing period — so each head is indexed bare as well. First
+    # writer wins, which keeps "-1" ahead of "-2" for a bare target.
+    head_to_key: dict[str, str] = {}
+    for key, rows in rows_by_key.items():
+        for r in rows:
+            for form in _head_forms(r["headword"]):
+                head_to_key.setdefault(form, key)
+
+    # A pointer is a promise that the entry exists. Honour it: an entry named
+    # by a "See" in something we ship is itself worth shipping, even though no
+    # lemma in the corpus reaches it. One level only — a pointer's pointer is
+    # not something the reader asked for, and the closure has no natural end.
+    pulled_in = 0
+    for key in list(wanted):
+        for r in rows_by_key[key]:
+            for m in _SEE_RE.finditer(r["definition"]):
+                target = head_to_key.get(m.group(1))
+                if target and target not in wanted:
+                    wanted.add(target)
+                    pulled_in += 1
+
+    def resolve(target: str) -> str | None:
+        key = head_to_key.get(target)
+        return key if key in wanted else None
+
     shards: dict[str, dict] = defaultdict(dict)
     kept_lex = 0
     kept_hompers = 0
@@ -245,7 +347,7 @@ def run(manifest: Manifest) -> Path:
         shards[shard_letter(key)][key] = {
             "key": key,
             "head": rows[0]["headword"],
-            "html": entry_html(rows),
+            "html": entry_html(rows, resolve),
             "src": _merged_src(rows),
         }
         for r in rows:
@@ -274,6 +376,7 @@ def run(manifest: Manifest) -> Path:
         "cunliffe_rows_kept_hompers": kept_hompers,
         "shards": len(shards),
         "lemmata_without_entry": len(missing),
+        "cunliffe_entries_pulled_in_by_xref": pulled_in,
     }
     (out_dir / "cunliffe_summary.json").write_text(json.dumps(summary, indent=1))
     return shard_dir

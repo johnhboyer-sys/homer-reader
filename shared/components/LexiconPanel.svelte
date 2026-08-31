@@ -43,6 +43,7 @@
     open = {};
     cunliffeText = {};
     entryError = {};
+    xrefStack = {};
     // entries:false — no dictionary shard is fetched for a lookup any more.
     // The cards come from the analyses plus the heads manifest; an entry's text
     // is fetched only when its tab is tapped.
@@ -300,11 +301,55 @@
       + e.html.slice(from + e.head.length).replace(/^\s+/, '');
   }
 
+  // Following a "See <headword>" pointer. Cunliffe cross-references constantly,
+  // and those pointers used to be dead text; stage5 now marks the ones whose
+  // target actually ships as <a class="cunliffe-xref" data-key="…">.
+  //
+  // A stack, not a swap, because pointers chain — and because a reader who
+  // followed one wants the entry they came from back.
+  let xrefStack: Record<string, { key: string; entries: CunliffeEntry[] }[]> = {};
+  // Derived, not a function called from the template: a plain helper hides its
+  // dependency on cunliffeText from Svelte, so the panel never re-rendered when
+  // the fetch resolved and every Cunliffe body stayed empty. `undefined` still
+  // means "still loading" and `[]` means "nothing there" — the two states the
+  // template distinguishes.
+  $: shownCunliffe = (() => {
+    const out: Record<string, CunliffeEntry[] | undefined> = {};
+    for (const c of cards) {
+      const st = xrefStack[c.id];
+      out[c.id] = st && st.length ? st[st.length - 1].entries : cunliffeText[c.id];
+    }
+    return out;
+  })();
+
+  async function followXref(cardId: string, key: string) {
+    try {
+      const shard = await fetchCunliffeShard(cunliffeShard(key));
+      const entry = shard[key];
+      if (!entry) return;   // stage5 only marks targets it ships; nothing to say
+      xrefStack = { ...xrefStack, [cardId]: [...(xrefStack[cardId] ?? []), { key, entries: [entry] }] };
+    } catch {
+      entryError = { ...entryError, [cardId]: 'Cunliffe could not be loaded.' };
+    }
+  }
+
+  function backFromXref(cardId: string) {
+    const st = (xrefStack[cardId] ?? []).slice(0, -1);
+    xrefStack = { ...xrefStack, [cardId]: st };
+  }
+
   // A Cunliffe entry's HTML embeds internal citation links as
   // <a class="cunliffe-cite" data-work data-book data-line> markers rather than
   // baked hrefs (BASE_URL is only known client-side). Resolve the destination
   // here, in-place navigation (same tab), the way BekkerJump/CommandPalette do.
-  function onCunliffeClick(e: MouseEvent) {
+  function onCunliffeClick(e: MouseEvent, cardId: string) {
+    const xref = (e.target as HTMLElement).closest('a.cunliffe-xref') as HTMLElement | null;
+    if (xref) {
+      e.preventDefault();
+      const key = xref.dataset.key;
+      if (key) followXref(cardId, key);
+      return;
+    }
     const target = (e.target as HTMLElement).closest('a.cunliffe-cite') as HTMLElement | null;
     if (!target) return;
     e.preventDefault();
@@ -378,19 +423,25 @@
                    and failure states, so there is nothing to add here. -->
               <div class="grammata-mount"></div>
             {:else}
-              <div class="cunliffe-body" on:click={onCunliffeClick} on:keydown={() => {}}>
-                {#if cunliffeText[c.id] === undefined}
+              <div class="cunliffe-body" on:click={(e) => onCunliffeClick(e, c.id)} on:keydown={() => {}}>
+                {#if (xrefStack[c.id] ?? []).length}
+                  <button type="button" class="cunliffe-back" on:click|stopPropagation={() => backFromXref(c.id)}>
+                    <span aria-hidden="true">←</span> Back to {c.head}
+                  </button>
+                {/if}
+                {#if shownCunliffe[c.id] === undefined}
                   <div class="popup-loading">Looking up…</div>
-                {:else if cunliffeText[c.id].length === 0}
+                {:else if shownCunliffe[c.id]!.length === 0}
                   <div class="popup-loading">Not in Cunliffe.</div>
                 {:else}
-                  {#each cunliffeText[c.id] as entry}
+                  {#each shownCunliffe[c.id]! as entry}
                     <article class="cunliffe-entry">
                       <!-- The card overhead already names the word. Cunliffe's
                            head earns a line only when it differs — its own
                            homonym marks (Ἀρηΐλυκος-1), a dagger, a different
-                           accentuation. -->
-                      {#if liftsHead(entry) && entry.head !== c.head}
+                           accentuation. A followed cross-reference is always a
+                           different word, so it always names itself. -->
+                      {#if (xrefStack[c.id] ?? []).length || (liftsHead(entry) && entry.head !== c.head)}
                         <div class="cunliffe-lemma" lang="grc">{entry.head}</div>
                       {/if}
                       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
