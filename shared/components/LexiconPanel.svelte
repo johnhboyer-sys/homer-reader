@@ -237,8 +237,14 @@
       // so the entry under a card reading "εἰμί" would be a different verb.
       // Their pack keys are Perseus betacode, the same key space as ours, so
       // the key passes verbatim, homograph digits included.
-      if (card.lsjKey) await lookup('', el, { lang: 'grc', key: card.lsjKey });
-      else await lookup(card.head, el, { lang: 'grc' });
+      // logeion:false — this card's own tab row already carries a Logeion link
+      // for this headword, and grammata's entry header prints one too, so the
+      // reader saw the same link twice a few lines apart. Their option, shipped
+      // in grammar-site#32 at John's request; it defaults on, so aristotle
+      // keeps its link untouched.
+      const opts = { lang: 'grc', logeion: false };
+      if (card.lsjKey) await lookup('', el, { ...opts, key: card.lsjKey });
+      else await lookup(card.head, el, opts);
     } catch {
       // The widget renders its own loading, not-found and network-failure
       // states; this catch is only for the module itself failing to load.

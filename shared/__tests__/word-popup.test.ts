@@ -86,7 +86,9 @@ describe('WordPopup.svelte — the entry opens under the card tapped', () => {
     await waitFor(() => expect(grammataLookup).toHaveBeenCalled());
     const [word, , opts] = grammataLookup.mock.calls[0] as [string, HTMLElement, Record<string, string>];
     expect(word).toBe('');
-    expect(opts).toEqual({ lang: 'grc', key: 'mh=nis' });
+    // logeion:false — grammata suppresses its own header link, so the card's
+    // tab row is the only one. Their option; it defaults on for other hosts.
+    expect(opts).toEqual({ lang: 'grc', logeion: false, key: 'mh=nis' });
     expect(container.querySelector('.grammata-mount')).toBeInTheDocument();
   });
 
