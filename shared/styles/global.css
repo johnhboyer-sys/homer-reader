@@ -2259,6 +2259,16 @@ select {
    glyph, so an unshapeable mark falls back rather than showing tofu. */
 .grammata-mount { --grammata-greek: var(--font-greek); }
 
+/* The card's tab row already carries a Logeion link, and grammata's entry
+   header prints its own, so an open LSJ entry showed the reader the same link
+   twice (John, 2026-08-30: "not in the lsj. keep it on the tabs").
+   KNOWINGLY AN EXCEPTION to the rule above — this reaches inside the widget,
+   which its handoff asks us not to do, and it is therefore brittle in exactly
+   the way that rule predicts: grammata renames .t8-logeion and the duplicate
+   link quietly comes back. The durable fix is an option on their side; until
+   then the failure mode is a link reappearing, not a broken page. */
+.grammata-mount .t8-logeion { display: none; }
+
 /* Homonyms (a)1, a)2 …) come back as separate entries; rule them apart so the
    second headword does not read as a continuation of the first. */
 .lsj-entry + .lsj-entry {
