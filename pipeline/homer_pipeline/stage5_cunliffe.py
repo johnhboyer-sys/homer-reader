@@ -229,6 +229,183 @@ def linkify_definition(text: str, citations: list[dict]) -> str:
     return "".join(parts)
 
 
+# ── Cunliffe as a T8 record ────────────────────────────────────────────────
+#
+# Cunliffe ships one flat prose string per entry. grammata's T8 presentation —
+# sense rows, division tabs, example drawers — renders from a STRUCTURED record
+# instead: rows carrying a level, a number and a definition. Confirmed with
+# grammar-site 2026-08-31: a T8 pack IS a list of these records, so this shape
+# is the same whether the entries are served from grammata or rendered from
+# here.
+#
+# Every rule below was measured over all 9,825 source entries, and every one of
+# them replaced a rule that sounded right and was not:
+#
+#   * The colon is NOT the definition/evidence boundary. After a spaced " : "
+#     the next thing is Greek 71.7% of the time and a citation 27.1%; after an
+#     unspaced ": " it is 72.1% / 26.5%. The spacing carries no signal at all.
+#   * "The definition is the leading English run" fails too — definitions
+#     contain Greek ("Of κυδοιμός figured as a symbol").
+#   * A sense number cannot be recognised by what follows it. 2,651 entries
+#     carry "1 sing." / "2 pl.", which is person and number.
+#
+# What does work is SEQUENCE: real sense numbers run 1, 2, 3…, so a candidate
+# is kept only if it continues the run and a stray line number rejects itself.
+
+# A division banner: " I ", " II " … before a capital. 64 entries carry them.
+_ROMAN_RE = re.compile(r"(?:^|[\s.])([IVX]{1,4})\s+(?=[A-ZΑ-Ω(])")
+# A candidate sense number.
+_SENSE_CAND_RE = re.compile(r"(?:^|[\s.(])(\d{1,2})\s+")
+# Person/number labels, which open with a digit and are never senses.
+_MORPH_RE = re.compile(r"^(sing|pl|dual|s|p)\b")
+_BRACKET_RE = re.compile(r"\[[^\]]*\]")
+_GREEK_RE = re.compile(r"[\u0370-\u03ff\u1f00-\u1fff]")
+_FULL_CITE_RE = re.compile(r"\b(?:Il|Od)\.\s*\d+\.\d+")
+# A period after a short Greek token is Cunliffe abbreviating its own headword
+# inside a quotation ("σκεψάμενος ἐς νῆʼ ἁ. καὶ μεθʼ ἑταίρους"), not a sentence
+# end. Reading those as boundaries cut 3,179 quotations in half.
+_ABBREV_TAIL_RE = re.compile(r"(^|\s)[\u0370-\u03ff\u1f00-\u1fff]{1,3}[ʼ’]?$")
+
+
+def split_senses(definition: str) -> dict:
+    """Split a definition into its head run and its numbered senses."""
+    divisions = [
+        {"at": m.start() + m.group(0).index(m.group(1)), "n": m.group(1)}
+        for m in _ROMAN_RE.finditer(definition)
+    ]
+    # Spans inside [ ... ] are etymology, and Cunliffe's etymologies carry
+    # HOMONYM REFERENCES shaped exactly like sense numbers: ἀμβατός reads
+    # "[ἀμ-, ἀνα- 1 + βα-, βαίνω.]" where that 1 points at ἀνα-1. A round-trip
+    # check cannot see this — a false 1 still forms a valid run and loses no
+    # characters — so it has to be excluded by position. 185 false senses.
+    brackets = [(m.start(), m.end()) for m in _BRACKET_RE.finditer(definition)]
+
+    cands = []
+    for m in _SENSE_CAND_RE.finditer(definition):
+        at = m.start() + m.group(0).index(m.group(1))
+        if any(a <= at < b for a, b in brackets):
+            continue
+        if _MORPH_RE.match(definition[at + len(m.group(1)):].lstrip()):
+            continue
+        after = at + len(m.group(1))
+        ws = len(definition[after:]) - len(definition[after:].lstrip())
+        cands.append({"at": at, "n": int(m.group(1)), "end": after + ws})
+
+    kept: list[dict] = []
+    want = 1
+    for c in cands:
+        prior = [d["at"] for d in divisions if d["at"] < c["at"]]
+        div_at = prior[-1] if prior else -1
+        if kept and div_at > kept[-1]["at"]:
+            want = 1
+        if c["n"] == want:
+            kept.append({**c, "div_at": div_at})
+            want += 1
+
+    if not kept:
+        return {"head": definition, "senses": [], "divisions": divisions}
+    senses = []
+    for i, k in enumerate(kept):
+        end = kept[i + 1]["at"] if i + 1 < len(kept) else len(definition)
+        senses.append({
+            "n": str(k["n"]), "div_at": k["div_at"],
+            "start": k["end"], "end": end,
+            "body": definition[k["end"]:end].strip(),
+        })
+    return {"head": definition[:kept[0]["at"]], "senses": senses, "divisions": divisions}
+
+
+def _evidence_start(body: str, cite_at: int) -> int:
+    """Where a sense's evidence begins, walking back from its first citation."""
+    before = body[:cite_at]
+    bound = -1
+    for m in re.finditer(r"[:.;]\s", before):
+        if m.group(0)[0] == "." and _ABBREV_TAIL_RE.search(before[:m.start()]):
+            continue
+        bound = m.end()
+    run = before[bound if bound != -1 else 0:]
+    if _GREEK_RE.search(run) and run.strip():
+        return bound if bound != -1 else 0
+    return cite_at
+
+
+def parse_sense(body: str) -> tuple[str, str]:
+    """A sense body as (definition, evidence).
+
+    Evidence is anchored on the CITATION, which is the one unambiguous mark in
+    the text and is already what the reader clicks; a quotation attaches to the
+    citation that follows it."""
+    m = _FULL_CITE_RE.search(body)
+    if not m:
+        return body.strip(), ""
+    start = _evidence_start(body, m.start())
+    return body[:start].strip(), body[start:].strip()
+
+
+def to_t8(key: str, headword: str, definition: str) -> dict:
+    """A Cunliffe entry as a T8 record: head, the undecomposed head run, and
+    rows. Division banners are lv 0 and carry the numeral plus the division's
+    own heading; senses are lv 1.
+
+    `s` is never set. grammata renders a continuation dash on rows that carry
+    `s` AND an empty numeral, and three quarters of this dictionary is a single
+    unnumbered row — every one of which would sprout a dash it should not have.
+    """
+    p = split_senses(definition)
+    roman = {d["at"]: d["n"] for d in p["divisions"]}
+    if not p["senses"]:
+        z, ex = parse_sense(definition[len(headword):])
+        return {"key": key, "head": headword, "i": "",
+                "rows": [{"lv": 1, "n": "", "z": z, "ex": ex}]}
+
+    head_end = len(p["head"])
+    rows: list[dict] = []
+    last_div = None
+    for sense in p["senses"]:
+        div_at = sense["div_at"]
+        if div_at != -1 and div_at != last_div:
+            numeral = roman.get(div_at, "")
+            heading = ""
+            prev = next((r for r in reversed(rows) if not r.get("b")), None)
+            if prev is not None and prev["_end"] > div_at:
+                # The division interrupts the previous sense: its numeral AND
+                # its heading sit between one sense and the next. Cut the
+                # previous row there and hand that span to the banner — emitting
+                # the numeral without removing it made 63 entries GAIN
+                # characters they never had.
+                heading = definition[div_at + len(numeral):prev["_end"]]
+                z, ex = parse_sense(definition[prev["_start"]:div_at])
+                prev["z"], prev["ex"], prev["_end"] = z, ex, div_at
+            elif div_at < head_end:
+                # The first division sits inside the head run, so its numeral is
+                # already in `i`; take it out or the entry carries it twice.
+                heading = definition[div_at + len(numeral):head_end]
+                head_end = div_at
+            rows.append({"lv": 0, "n": numeral, "z": heading.strip(), "b": 1,
+                         "_start": div_at, "_end": sense["start"]})
+            last_div = div_at
+        z, ex = parse_sense(sense["body"])
+        rows.append({"lv": 1, "n": sense["n"], "z": z, "ex": ex,
+                     "_start": sense["start"], "_end": sense["end"]})
+
+    # `gr` names the divisions grammata may turn into a tab strip. It does so
+    # only at >= 2 divisions AND >= 10 rows: measured here, 43 entries carry two
+    # or more divisions and 24 of those clear the row threshold — ἔχω at 4
+    # divisions and 63 rows, then εἴδω, ἵστημι, βάλλω, ἄγω, ἐπί. Exactly the
+    # entries where scrolling to the middle voice is the problem tabs solve.
+    # (ἄλλος has senses before its first banner and falls back to untabbed —
+    # grammata's documented behaviour, harmless, and not a misfiring threshold.)
+    gr = [[r["n"], r["z"]] for r in rows if r.get("b") and r["n"]]
+    for r in rows:
+        r.pop("_start", None)
+        r.pop("_end", None)
+    out = {"key": key, "head": headword,
+           "i": definition[len(headword):head_end].strip(), "rows": rows}
+    if len(gr) >= 2:
+        out["gr"] = gr
+    return out
+
+
 def _head_forms(head: str) -> list[str]:
     """The head as written, plus the bare form a cross-reference would use."""
     forms = [head]
@@ -340,6 +517,10 @@ def run(manifest: Manifest) -> Path:
         return key if key in wanted else None
 
     shards: dict[str, dict] = defaultdict(dict)
+    # T8 records go in their OWN shards, not beside the html. The two carry the
+    # same text, so folding them together would double what a reader downloads
+    # on a Cunliffe tap for the benefit of whichever renderer is not in use.
+    t8_shards: dict[str, dict] = defaultdict(dict)
     kept_lex = 0
     kept_hompers = 0
     for key in wanted:
@@ -350,6 +531,10 @@ def run(manifest: Manifest) -> Path:
             "html": entry_html(rows, resolve),
             "src": _merged_src(rows),
         }
+        # One record per row sharing the key, matching entry_html's blocks.
+        t8_shards[shard_letter(key)][key] = [
+            to_t8(key, r["headword"], r["definition"]) for r in rows
+        ]
         for r in rows:
             if r["src"] == "lex":
                 kept_lex += 1
@@ -361,6 +546,12 @@ def run(manifest: Manifest) -> Path:
     shard_dir.mkdir(parents=True, exist_ok=True)
     for letter, entries in sorted(shards.items()):
         (shard_dir / f"{letter}.json").write_text(
+            json.dumps(entries, ensure_ascii=False), encoding="utf-8"
+        )
+    t8_dir = out_dir / "cunliffe-t8"
+    t8_dir.mkdir(parents=True, exist_ok=True)
+    for letter, entries in sorted(t8_shards.items()):
+        (t8_dir / f"{letter}.json").write_text(
             json.dumps(entries, ensure_ascii=False), encoding="utf-8"
         )
     (out_dir / "cunliffe_lemma_map.json").write_text(
@@ -377,6 +568,10 @@ def run(manifest: Manifest) -> Path:
         "shards": len(shards),
         "lemmata_without_entry": len(missing),
         "cunliffe_entries_pulled_in_by_xref": pulled_in,
+        "cunliffe_t8_rows": sum(
+            len(rec["rows"]) for recs in t8_shards.values()
+            for group in recs.values() for rec in group
+        ),
     }
     (out_dir / "cunliffe_summary.json").write_text(json.dumps(summary, indent=1))
     return shard_dir

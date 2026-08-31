@@ -146,3 +146,116 @@ def test_emitter_shard_letter_agrees_with_front_end_shard_on_real_keys():
         if key.startswith("*"):
             continue
         assert shard_letter(key) == expected
+
+
+# ── Cunliffe as a T8 record ────────────────────────────────────────────────
+# Every case below is a real entry, and each one broke a rule that sounded
+# right before it was measured.
+
+def test_sense_numbers_are_kept_by_sequence_not_by_lookahead():
+    # ἄγαμαι carries a citation line number that reads as a sense ("… Od.
+    # 5.41 Ἀ…"), and lookahead rules accept it. It cannot continue the run,
+    # so sequence rejects it.
+    out = sc.split_senses("x 1 First. 41 Stray. 2 Second. 3 Third.")
+    assert [s["n"] for s in out["senses"]] == ["1", "2", "3"]
+
+
+def test_person_and_number_labels_are_never_senses():
+    # 2,651 entries carry these. "1 sing." is morphology, not a division of
+    # meaning, and taking it as one silently invents senses.
+    out = sc.split_senses("†ἄγαμαι 1 sing. pres. ἄγαμαι Od. 6.168. 2 pl. ἀγάασθε Od. 5.119.")
+    assert out["senses"] == []
+
+
+def test_a_homonym_reference_inside_an_etymology_is_not_a_sense():
+    # ἀμβατός reads "[ἀμ-, ἀνα- 1 + βα-, βαίνω.]" — that 1 points at ἀνα-1.
+    # A round-trip check cannot catch this: a false 1 still forms a valid run
+    # and loses no characters. 185 entries were affected.
+    out = sc.split_senses("ἀμβατός -όν [ἀμ-, ἀνα- 1 + βα-, βαίνω.] Capable of being scaled: πόλις Il. 6.434.")
+    assert out["senses"] == []
+
+
+def test_numbering_restarts_under_a_division():
+    # ἄγω runs 1-10, then II, then 1-7. A flat rule keeps only the first run.
+    out = sc.split_senses("ἄγω 1 One. 2 Two. II In mid. 1 Mid one. 2 Mid two.")
+    assert [s["n"] for s in out["senses"]] == ["1", "2", "1", "2"]
+    assert [d["n"] for d in out["divisions"]] == ["II"]
+
+
+def test_the_definition_stops_where_the_evidence_starts():
+    z, ex = sc.parse_sense("Wrath, ire : μῆνιν ἄειδε Ἀχιλῆος Il. 1.1. Cf. Il. 1.75.")
+    assert z.rstrip(" :") == "Wrath, ire"
+    assert ex.startswith("μῆνιν ἄειδε")
+
+
+def test_a_headword_abbreviation_does_not_end_the_definition():
+    # "ἁ." is Cunliffe abbreviating ἅμα INSIDE its own quotation. Reading that
+    # period as a sentence end cut 3,179 quotations in half, stranding the
+    # front of the quotation in the definition.
+    z, ex = sc.parse_sense("At the same time: σκεψάμενος ἐς νῆʼ ἁ. καὶ μεθʼ ἑταίρους Od. 12.247.")
+    assert "σκεψάμενος" not in z
+    assert ex.startswith("σκεψάμενος")
+
+
+def test_a_division_banner_takes_its_numeral_out_of_the_running_text():
+    # Emitting the numeral without removing it made 63 entries GAIN characters.
+    t8 = sc.to_t8("a", "ἅμα", "ἅμα [σα-.] I Adv. 1 With. 2 Together. II Prep. 1 Along with Il. 3.1.")
+    banners = [r for r in t8["rows"] if r.get("b")]
+    assert [b["n"] for b in banners] == ["I", "II"]
+    joined = t8["i"] + "".join((r.get("n") or "") + (r.get("z") or "") + (r.get("ex") or "")
+                               for r in t8["rows"])
+    assert joined.count("II") == 1
+
+
+def test_no_row_ever_carries_s():
+    # grammata draws a continuation dash on a row with `s` AND an empty
+    # numeral. Three quarters of this dictionary is one unnumbered row, and
+    # every one of them would sprout a dash it should not have.
+    t8 = sc.to_t8("m", "μῆνις", "μῆνις ἡ. 1 Wrath Il. 1.1. 2 Its effect Il. 5.34.")
+    assert all("s" not in r for r in t8["rows"])
+
+
+def test_gr_is_offered_only_when_there_are_divisions_to_tab():
+    plain = sc.to_t8("m", "μῆνις", "μῆνις ἡ. 1 Wrath Il. 1.1. 2 Its effect Il. 5.34.")
+    assert "gr" not in plain
+    divided = sc.to_t8("a", "ἅμα", "ἅμα [σα-.] I Adv. 1 With. 2 Together. II Prep. 1 Along with Il. 3.1.")
+    assert [g[0] for g in divided["gr"]] == ["I", "II"]
+
+
+def test_an_unnumbered_entry_is_one_row():
+    t8 = sc.to_t8("x", "ἄλειφαρ", "ἄλειφαρ -ατος, τό [ἀλείφω.] Unguent, oil Il. 18.351.")
+    assert len(t8["rows"]) == 1
+    assert t8["rows"][0]["n"] == ""
+
+
+def test_the_whole_lexicon_survives_the_t8_parse(tmp_path):
+    """Not a sample: every entry, every character.
+
+    This assertion caught three separate bugs that nothing else could see —
+    a regex eating the separator it matched on (all 2,555 split entries lost
+    a character), a division banner printing a numeral without removing it
+    from the text (63 entries gained one), and the Roman matcher indexing the
+    separator rather than the numeral. None of them changed a count; all of
+    them changed the text.
+    """
+    import json
+    import re
+    src = SOURCES = Path("/Users/johnboyer/Developer/homer-reader/sources/cunliffe/cunliffe-1-lex.jsonl")
+    if not src.exists():
+        import pytest
+        pytest.skip(f"Cunliffe source not present at {src}")
+    sig = lambda s: re.sub(r"\s+", "", s)
+    lossy = []
+    rows = 0
+    for line in src.open(encoding="utf-8"):
+        if not line.strip():
+            continue
+        r = json.loads(line)
+        t8 = sc.to_t8(r["key"], r["headword"], r["definition"])
+        rows += len(t8["rows"])
+        rebuilt = t8["head"] + t8["i"] + "".join(
+            (x.get("n") or "") + (x.get("z") or "") + (x.get("ex") or "") for x in t8["rows"])
+        if sig(rebuilt) != sig(r["definition"]):
+            lossy.append(r["headword"])
+    assert lossy == [], f"{len(lossy)} entries changed: {lossy[:5]}"
+    assert rows > 15000, rows
