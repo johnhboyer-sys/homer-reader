@@ -266,6 +266,40 @@
     }
   }
 
+  // Cunliffe writes its headword as the first words of the definition —
+  // "μῆνις ἡ. 1 Wrath, ire : …" — so the entry opened as an undifferentiated
+  // wall of prose with nothing to catch the eye. Lift the headword into a
+  // header of its own, the way the LSJ entry beside it has one.
+  //
+  // Only where there is ONE block. 328 entries carry several, and their heads
+  // carry Cunliffe's own homonym marks ("Ἀρηΐλυκος-1", "-2") which do real
+  // work in place — the `head` field matches only the first of them, in 33 of
+  // those 328. Those keep their prose exactly as it was.
+  //
+  // Measured over all 7,511 shipped entries: every one begins with its head,
+  // and the join is always a single space before the body ("[ἀριθμός.]",
+  // "-ατος, τό", "(ῡ)"). The guard below still checks rather than trusts.
+  const SENSE_OPEN = '<div class="cunliffe-sense">';
+  /** Where the head sits at the very front of a single block, and so can move.
+   *
+   *  It must be followed by WHITESPACE. In 9 of 7,183 otherwise-liftable
+   *  entries it is not, and those are exactly the ones that would break: ὁ
+   *  reads "ὁ, ἡ, τό" and ὅδε "ὅδε, ἥδε, τόδε", where the head is the first
+   *  item of a paradigm rather than a heading, so lifting it leaves the body
+   *  opening on a comma and the paradigm short of a member. μῶμος is worse —
+   *  the head IS the whole entry, and lifting would leave nothing behind. */
+  function liftsHead(e: CunliffeEntry): boolean {
+    if (e.html.split(SENSE_OPEN).length - 1 !== 1) return false;
+    const rest = e.html.slice(e.html.indexOf(SENSE_OPEN) + SENSE_OPEN.length);
+    return rest.startsWith(e.head) && /^\s/.test(rest.slice(e.head.length));
+  }
+  function cunliffeBody(e: CunliffeEntry): string {
+    if (!liftsHead(e)) return e.html;
+    const from = e.html.indexOf(SENSE_OPEN) + SENSE_OPEN.length;
+    return e.html.slice(0, from)
+      + e.html.slice(from + e.head.length).replace(/^\s+/, '');
+  }
+
   // A Cunliffe entry's HTML embeds internal citation links as
   // <a class="cunliffe-cite" data-work data-book data-line> markers rather than
   // baked hrefs (BASE_URL is only known client-side). Resolve the destination
@@ -351,10 +385,17 @@
                   <div class="popup-loading">Not in Cunliffe.</div>
                 {:else}
                   {#each cunliffeText[c.id] as entry}
-                    <div class="cunliffe-entry">
+                    <article class="cunliffe-entry">
+                      <!-- The card overhead already names the word. Cunliffe's
+                           head earns a line only when it differs — its own
+                           homonym marks (Ἀρηΐλυκος-1), a dagger, a different
+                           accentuation. -->
+                      {#if liftsHead(entry) && entry.head !== c.head}
+                        <div class="cunliffe-lemma" lang="grc">{entry.head}</div>
+                      {/if}
                       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                      {@html entry.html}
-                    </div>
+                      {@html cunliffeBody(entry)}
+                    </article>
                   {/each}
                 {/if}
               </div>

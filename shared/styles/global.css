@@ -2517,23 +2517,56 @@ select {
   .lsj-outline-list { max-height: 8.5rem; overflow-y: auto; }
 }
 
+/* Cunliffe sits in the same panel as the LSJ entry grammata renders, so it is
+   set to the same measure: 0.875rem/1.55, matching that entry's 14px body. It
+   was 0.85rem — smaller than the dictionary beside it, which is backwards, and
+   reading type is never shrunk here. */
 .cunliffe-entry {
   font-family: var(--font-english);
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   line-height: 1.55;
   color: var(--text);
+}
+
+/* The headword, lifted out of the prose it used to open (see cunliffeBody).
+   Cunliffe writes "μῆνις ἡ. 1 Wrath, ire : …" as one run, so an entry arrived
+   as a wall with nothing to enter it by. */
+.cunliffe-entry .cunliffe-lemma {
+  font-family: var(--font-greek);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--accent);
+  margin-bottom: 0.1rem;
+}
+
+/* Two Cunliffe entries under one card are different words (ὅς¹, ὅς²) — rule
+   them apart, as the LSJ entries are. */
+.cunliffe-entry + .cunliffe-entry {
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--border);
 }
 
 /* Cunliffe HTML classes from stage5_cunliffe */
 .cunliffe-entry .cunliffe-sense { margin: 0 0 0.5rem 0; }
 .cunliffe-entry .cunliffe-sense:last-child { margin-bottom: 0; }
+/* Cunliffe cites the poem constantly — μῆνις alone carries a dozen refs — so
+   at full accent strength the apparatus shouted down the definition the reader
+   came for. They recede to the muted text colour and keep a faint rule, which
+   is what still marks them as links: colour alone would not (WCAG 1.4.1). The
+   accent returns on hover and focus. */
 .cunliffe-entry a.cunliffe-cite {
-  color: var(--accent);
+  color: var(--text-mid);
   text-decoration: none;
-  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--text-mid) 32%, transparent);
   cursor: pointer;
 }
-.cunliffe-entry a.cunliffe-cite:hover { border-bottom-color: var(--accent); }
+.cunliffe-entry a.cunliffe-cite:hover,
+.cunliffe-entry a.cunliffe-cite:focus-visible {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
 
 .popup-loading {
   font-family: var(--font-ui);

@@ -388,3 +388,68 @@ describe('WordPopup.svelte — token switch while open', () => {
     expect(lookupWordMock).toHaveBeenCalledTimes(2);
   });
 });
+
+describe('WordPopup.svelte — the Cunliffe entry reads as an entry', () => {
+  // Cunliffe writes its headword as the first words of the definition, so an
+  // entry arrived as an undifferentiated wall. The head is lifted out — but
+  // only where lifting it is safe, which is not everywhere.
+  const cunliffeCard = {
+    analyses: [{
+      lemma: 'x', gloss: 'g', parse: 'fem nom sg', lsj: ['x1'], cunliffe: ['ck'],
+    }],
+    lsj: [], cunliffe: [],
+  };
+  const openCunliffe = async (head: string, html: string, cardHead = 'ξ') => {
+    lookupWordMock.mockResolvedValue(cunliffeCard);
+    headsMock.mockResolvedValue({ x1: { head: cardHead } });
+    cunliffeShardMock.mockResolvedValue({ ck: { key: 'ck', head, html, src: 'lex' } });
+    const { container } = renderPopup();
+    await screen.findByText('g');
+    await fireEvent.click(screen.getByRole('button', { name: 'Cunliffe' }));
+    await waitFor(() => expect(container.querySelector('.cunliffe-entry')).toBeTruthy());
+    const e = container.querySelector('.cunliffe-entry')!;
+    return {
+      header: e.querySelector('.cunliffe-lemma')?.textContent ?? null,
+      body: e.querySelector('.cunliffe-sense')!.textContent!.trim(),
+    };
+  };
+  const block = (inner: string) => `<div class="cunliffe-sense">${inner}</div>`;
+
+  it('lifts the headword out of the prose it used to open', async () => {
+    const r = await openCunliffe('μῆνις', block('μῆνις ἡ. 1 Wrath, ire'), 'μῆνις');
+    expect(r.body).toBe('ἡ. 1 Wrath, ire');
+    // …and prints no header, because the card overhead already says μῆνις.
+    expect(r.header).toBeNull();
+  });
+
+  it('keeps a head the card does not already show', async () => {
+    // Cunliffe accents τῶ where LSJ has τῷ; the dagger words differ too.
+    const r = await openCunliffe('τῶ', block('τῶ Adv. Therefore'), 'τῷ');
+    expect(r.header).toBe('τῶ');
+    expect(r.body).toBe('Adv. Therefore');
+  });
+
+  it('NEVER lifts a head that opens a paradigm', async () => {
+    // ὁ reads "ὁ, ἡ, τό" — the head is the first member of a list, not a
+    // heading. Lifting it opened the body on a comma and left the paradigm a
+    // member short. 8 entries do this; ὁ and ὅδε are two of them.
+    const r = await openCunliffe('ὁ', block('ὁ, ἡ, τό Genit. τοῦ, τῆς, τοῦ'), 'ὁ');
+    expect(r.body).toBe('ὁ, ἡ, τό Genit. τοῦ, τῆς, τοῦ');
+    expect(r.body.startsWith(',')).toBe(false);
+  });
+
+  it('NEVER lifts a head that is the whole entry', async () => {
+    // μῶμος: nothing follows the headword, so lifting leaves a blank entry.
+    const r = await openCunliffe('μῶμος', block('μῶμος'), 'μῶμος');
+    expect(r.body).toBe('μῶμος');
+  });
+
+  it('leaves a multi-block entry alone, where the homonym marks do the work', async () => {
+    // ὅς1 / ὅς2 disambiguate in place, and `head` matches only the first of
+    // them, so nothing is lifted and nothing is repeated above.
+    const html = block('ὅς1. See ἑός.') + block('ὅς2 ἥ, ὅ. Genit. masc. ὅου');
+    const r = await openCunliffe('ὅς1.', html, 'ὅς');
+    expect(r.header).toBeNull();
+    expect(r.body).toBe('ὅς1. See ἑός.');
+  });
+});
