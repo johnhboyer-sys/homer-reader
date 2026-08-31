@@ -3,16 +3,30 @@ import { tick } from 'svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import WordPopup from '../components/WordPopup.svelte';
 
-const { lookupWordMock } = vi.hoisted(() => ({ lookupWordMock: vi.fn() }));
+const { lookupWordMock, headsMock, cunliffeShardMock } = vi.hoisted(() => ({
+  lookupWordMock: vi.fn(),
+  headsMock: vi.fn(async () => ({})),
+  cunliffeShardMock: vi.fn(async () => ({})),
+}));
 
 vi.mock('../lib/data', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../lib/data')>();
   return {
     ...actual,
     fetchLemmata: vi.fn(async () => ({})),
+    fetchLsjHeads: headsMock,
+    fetchCunliffeShard: cunliffeShardMock,
     lookupWord: lookupWordMock,
   };
 });
+
+// The dictionary entry itself is served by grammata over the network. Stub the
+// module so the popup's contract with it can be asserted without a fetch — above
+// all that it is handed the KEY and never the surface form.
+const grammataLookup = vi.fn(async () => {});
+vi.mock('https://grammata.pages.dev/t8/lookup.js', () => ({
+  lookup: (...args: unknown[]) => grammataLookup(...(args as [])),
+}));
 
 afterEach(() => {
   cleanup();
@@ -31,114 +45,114 @@ function renderPopup(props: Record<string, unknown> = {}) {
   });
 }
 
-// The full dictionary entry (tabs + HTML) now lives behind an EXPAND disclosure
-// (DESIGN.md 2026-07-17): the panel shows the short gloss first. Reveal it.
-async function expand() {
-  const btn = await screen.findByRole('button', { name: /dictionary entry/i });
-  await fireEvent.click(btn);
-  return btn;
-}
+// The dictionary is no longer behind one EXPAND control for the whole panel.
+// Each CARD carries its own LSJ · Cunliffe tabs, and the entry opens under the
+// card tapped (John, 2026-08-30) — so nothing is fetched for a reader who
+// wanted only the parse.
+const WRATH = {
+  analyses: [{
+    lemma: 'mh=nis', gloss: 'wrath', parse: 'fem nom sg',
+    lsj: ['mh=nis'], cunliffe: ['mh=nis'],
+  }],
+  lsj: [], cunliffe: [],
+};
+const HEADS = { 'mh=nis': { head: 'μῆνις' } };
 
-describe('WordPopup.svelte — gloss + EXPAND disclosure', () => {
-  it('shows the short gloss first and reveals the full entry only after EXPAND', async () => {
-    lookupWordMock.mockResolvedValue({
-      analyses: [{ lemma: 'mh=nis', gloss: 'wrath', parse: 'noun', lsj: ['mh=nis'], cunliffe: ['mh=nis'] }],
-      lsj: [{ key: 'mh=nis', head: 'μῆνις', html: '<p>wrath, ire</p>' }],
-      cunliffe: [{ key: 'mh=nis', head: 'μῆνις', html: '<div class="cunliffe-sense">Wrath, ire.</div>', src: 'lex' }],
-    });
-    renderPopup();
+describe('WordPopup.svelte — the entry opens under the card tapped', () => {
+  it('shows the gloss at once, and fetches no entry until a tab is tapped', async () => {
+    lookupWordMock.mockResolvedValue(WRATH);
+    headsMock.mockResolvedValue(HEADS);
+    const { container } = renderPopup();
 
-    // The gloss shows immediately; the tab row does NOT until expanded.
     expect(await screen.findByText('wrath')).toBeInTheDocument();
-    const expandBtn = await screen.findByRole('button', { name: /dictionary entry/i });
-    expect(expandBtn).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.queryByRole('tab', { name: 'LSJ' })).toBeNull();
-
-    await fireEvent.click(expandBtn);
-    expect(expandBtn).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByRole('tab', { name: 'LSJ' })).toBeInTheDocument();
-    expect(screen.getByText('wrath, ire')).toBeVisible();
+    const lsjTab = screen.getByRole('button', { name: 'LSJ' });
+    expect(lsjTab).toHaveAttribute('aria-expanded', 'false');
+    // Closed means CLOSED: no mount point, and grammata never called.
+    expect(container.querySelector('.grammata-mount')).toBeNull();
+    expect(grammataLookup).not.toHaveBeenCalled();
+    // And the panel asked for no dictionary shards in the first place.
+    expect(lookupWordMock).toHaveBeenCalledWith('iliad', 'mhnis', { entries: false });
   });
 
-  it('shows the LSJ · Cunliffe · Logeion tab row (LSJ default) once expanded', async () => {
-    lookupWordMock.mockResolvedValue({
-      analyses: [{ lemma: 'mh=nis', gloss: 'wrath', parse: 'noun', lsj: ['mh=nis'], cunliffe: ['mh=nis'] }],
-      lsj: [{ key: 'mh=nis', head: 'μῆνις', html: '<p>wrath, ire</p>' }],
-      cunliffe: [{ key: 'mh=nis', head: 'μῆνις', html: '<div class="cunliffe-sense">Wrath, ire.</div>', src: 'lex' }],
-    });
-    renderPopup();
-    await expand();
+  it('hands grammata the KEY, never the surface form', async () => {
+    // A surface form makes the widget re-analyse and discard this reader's
+    // disambiguation: εἰσὶ comes back as ἵημι, εἰμί and εἶμι, ἵημι first.
+    lookupWordMock.mockResolvedValue(WRATH);
+    headsMock.mockResolvedValue(HEADS);
+    const { container } = renderPopup();
+    await screen.findByText('wrath');
 
-    const lsjTab = screen.getByRole('tab', { name: 'LSJ' });
-    const cunliffeTab = screen.getByRole('tab', { name: 'Cunliffe' });
-    const logeionLink = screen.getByRole('link', { name: /Logeion/ });
-
-    expect(lsjTab).toHaveAttribute('aria-selected', 'true');
-    expect(cunliffeTab).toHaveAttribute('aria-selected', 'false');
-    expect(logeionLink).toHaveAttribute('target', '_blank');
-    expect(logeionLink).toHaveAttribute('rel', 'noopener');
-    expect(logeionLink.getAttribute('href')).toContain('logeion.uchicago.edu/');
-    expect(logeionLink.getAttribute('href')).toContain(encodeURIComponent('μῆνις'));
-
-    expect(screen.getByText('wrath, ire')).toBeVisible();
-    expect(screen.getByText('Wrath, ire.').closest('[role="tabpanel"]')).toHaveAttribute('hidden');
-
-    await fireEvent.click(cunliffeTab);
-    expect(cunliffeTab).toHaveAttribute('aria-selected', 'true');
-    expect(lsjTab).toHaveAttribute('aria-selected', 'false');
-    expect(screen.getByText('Wrath, ire.').closest('[role="tabpanel"]')).not.toHaveAttribute('hidden');
+    await fireEvent.click(screen.getByRole('button', { name: 'LSJ' }));
+    await waitFor(() => expect(grammataLookup).toHaveBeenCalled());
+    const [word, , opts] = grammataLookup.mock.calls[0] as [string, HTMLElement, Record<string, string>];
+    expect(word).toBe('');
+    expect(opts).toEqual({ lang: 'grc', key: 'mh=nis' });
+    expect(container.querySelector('.grammata-mount')).toBeInTheDocument();
   });
 
-  it('Logeion is the ONLY link that opens a new tab in the rendered popup', async () => {
-    lookupWordMock.mockResolvedValue({
-      analyses: [{ lemma: 'mh=nis', gloss: 'wrath', parse: 'noun', lsj: ['mh=nis'], cunliffe: ['mh=nis'] }],
-      lsj: [{ key: 'mh=nis', head: 'μῆνις', html: '<p>wrath, ire</p>' }],
-      cunliffe: [{ key: 'mh=nis', head: 'μῆνις', html: '<div class="cunliffe-sense">Wrath.</div>', src: 'lex' }],
+  it('opens Cunliffe under the same card, and closes on a second tap', async () => {
+    lookupWordMock.mockResolvedValue(WRATH);
+    headsMock.mockResolvedValue(HEADS);
+    cunliffeShardMock.mockResolvedValue({
+      'mh=nis': {
+        key: 'mh=nis', head: 'μῆνις', src: 'lex',
+        html: '<div class="cunliffe-sense">Wrath, ire.</div>',
+      },
     });
     const { container } = renderPopup();
-    await expand();
+    await screen.findByText('wrath');
+
+    const cunliffeTab = screen.getByRole('button', { name: 'Cunliffe' });
+    await fireEvent.click(cunliffeTab);
+    expect(await screen.findByText('Wrath, ire.')).toBeInTheDocument();
+    // The entry sits INSIDE the card it belongs to, not below the whole stack.
+    expect(container.querySelector('.analysis-card .card-entry')).toBeInTheDocument();
+
+    await fireEvent.click(cunliffeTab);
+    await waitFor(() => expect(screen.queryByText('Wrath, ire.')).toBeNull());
+    expect(cunliffeTab).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('offers no Cunliffe tab on a card no Cunliffe entry covers', async () => {
+    lookupWordMock.mockResolvedValue({
+      analyses: [{
+        lemma: 'a)/gnwstos', gloss: 'unknown', parse: 'adj',
+        lsj: ['a)/gnwstos'], cunliffe: [],
+      }],
+      lsj: [], cunliffe: [],
+    });
+    headsMock.mockResolvedValue({ 'a)/gnwstos': { head: 'ἄγνωστος' } });
+    renderPopup();
+    await screen.findByText('unknown');
+
+    expect(screen.getByRole('button', { name: 'LSJ' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Cunliffe' })).toBeNull();
+  });
+
+  it('says so quietly when Cunliffe is named but holds nothing', async () => {
+    lookupWordMock.mockResolvedValue(WRATH);
+    headsMock.mockResolvedValue(HEADS);
+    cunliffeShardMock.mockResolvedValue({});
+    renderPopup();
+    await screen.findByText('wrath');
+
+    await fireEvent.click(screen.getByRole('button', { name: 'Cunliffe' }));
+    expect(await screen.findByText('Not in Cunliffe.')).toBeInTheDocument();
+  });
+
+  it('gives every card its own Logeion link, and it is the only new tab', async () => {
+    lookupWordMock.mockResolvedValue(WRATH);
+    headsMock.mockResolvedValue(HEADS);
+    const { container } = renderPopup();
+    await screen.findByText('wrath');
 
     const blankTargets = container.querySelectorAll('[target="_blank"]');
     expect(blankTargets).toHaveLength(1);
     expect(blankTargets[0]).toHaveTextContent(/Logeion/);
     expect(blankTargets[0]).toHaveAttribute('rel', 'noopener');
-  });
-
-  it('shows a quiet "not in Cunliffe" empty state when no entry matched', async () => {
-    lookupWordMock.mockResolvedValue({
-      analyses: [{ lemma: 'a)/gnwstos', gloss: 'unknown', parse: 'adj', lsj: ['a)/gnwstos'], cunliffe: [] }],
-      lsj: [{ key: 'a)/gnwstos', head: 'ἄγνωστος', html: '<p>unknown</p>' }],
-      cunliffe: [],
-    });
-    renderPopup();
-    await expand();
-
-    const cunliffeTab = screen.getByRole('tab', { name: 'Cunliffe' });
-    await fireEvent.click(cunliffeTab);
-
-    expect(screen.getByText('Not in Cunliffe.')).toBeInTheDocument();
-  });
-
-  it('arrow-key navigation moves focus and selection between LSJ and Cunliffe tabs', async () => {
-    lookupWordMock.mockResolvedValue({
-      analyses: [{ lemma: 'mh=nis', gloss: 'wrath', parse: 'noun', lsj: ['mh=nis'], cunliffe: ['mh=nis'] }],
-      lsj: [{ key: 'mh=nis', head: 'μῆνις', html: '<p>wrath</p>' }],
-      cunliffe: [{ key: 'mh=nis', head: 'μῆνις', html: '<div class="cunliffe-sense">Wrath.</div>', src: 'lex' }],
-    });
-    renderPopup();
-    await expand();
-
-    const lsjTab = screen.getByRole('tab', { name: 'LSJ' });
-    const cunliffeTab = screen.getByRole('tab', { name: 'Cunliffe' });
-
-    lsjTab.focus();
-    await fireEvent.keyDown(lsjTab, { key: 'ArrowRight' });
-    expect(cunliffeTab).toHaveAttribute('aria-selected', 'true');
-    expect(document.activeElement).toBe(cunliffeTab);
-
-    await fireEvent.keyDown(cunliffeTab, { key: 'ArrowLeft' });
-    expect(lsjTab).toHaveAttribute('aria-selected', 'true');
-    expect(document.activeElement).toBe(lsjTab);
+    // Keyed off THIS card's headword, not the first analysis in the panel.
+    expect(blankTargets[0].getAttribute('href'))
+      .toContain(encodeURIComponent('μῆνις'));
   });
 });
 
@@ -352,7 +366,7 @@ describe('WordPopup.svelte — token switch while open', () => {
 
     expect(await screen.findByText('wrath')).toBeInTheDocument();
     expect(screen.getByText('fem acc sg')).toBeInTheDocument();
-    expect(lookupWordMock).toHaveBeenCalledWith('iliad', 'mh=nin');
+    expect(lookupWordMock).toHaveBeenCalledWith('iliad', 'mh=nin', { entries: false });
 
     // Same instance stays mounted (Reader keeps {#if popup}); only the token
     // prop changes — this is the sitewide second-click path. Svelte 5: use
@@ -368,7 +382,7 @@ describe('WordPopup.svelte — token switch while open', () => {
     expect(await screen.findByText('sing')).toBeInTheDocument();
     expect(screen.getByText('pres imperat act 2nd sg')).toBeInTheDocument();
     expect(screen.queryByText('wrath')).toBeNull();
-    expect(lookupWordMock).toHaveBeenCalledWith('iliad', 'a)ei/de');
+    expect(lookupWordMock).toHaveBeenCalledWith('iliad', 'a)ei/de', { entries: false });
     expect(lookupWordMock).toHaveBeenCalledTimes(2);
   });
 });
