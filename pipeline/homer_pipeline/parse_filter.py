@@ -214,10 +214,33 @@ def apply_morphology_override(
 # no definition of its own. It was taking ἐφάμην, the imperfect of φημί, which
 # is "I said" and is most of Odysseus' narration.
 #
+# ἐλεάω's whole entry is "ἐλεάω, later form of ἐλεέω, EM 327.29, LXX Pr.
+# 21.26." — a form recorded only from the Etymologicum Magnum and the
+# Septuagint, with no independent Homeric standing. It was Morpheus's FIRST
+# analysis on every occurrence: 38 tokens across the two poems (28 Iliad, 10
+# Odyssey; 15 distinct surface forms), every one displacing ἐλεέω "have pity
+# on, show mercy to" — and always with the identical parse in the same slot
+# (e.g. ἐλεήσῃ's "aor subj mid 2nd sg" is tagged on both lemmata verbatim), so
+# dropping the ghost changes no morphology, only which lemma is attached to
+# it.
+#
+# ἀπέχθομαι's whole entry is likewise "ἀπέχθομαι, later form of ἀπεχθάνομαι"
+# (Theocritus onward). It was Morpheus's FIRST analysis on all 12 occurrences
+# (8 Iliad, 4 Odyssey; 6 distinct surface forms), reading the Homeric aorist
+# middle forms ἀπήχθετο, ἀπέχθηται, ἀπεχθόμενος etc. as its OWN present-stem
+# imperfect or present. But LSJ's ἀπεχθάνομαι entry itself cites the very
+# form ἀπήχθετο as that verb's aorist ("ἀπήχθετο πᾶσι θεοῖσι", Il. 6.140) and
+# notes Homer uses the verb "always in aor." Dropping the ghost does not
+# relabel anything: it removes the mismatched present/imperfect parse
+# outright, and ἀπεχθάνομαι's own aorist parse — already correctly tagged by
+# Morpheus — takes its place.
+#
 # A ghost is only ever dropped when the token has some other reading: see
 # tests/test_parse_filter.py, which asserts over the shipped corpus that no
 # token is left empty.
-GHOST_LEMMA: frozenset[str] = frozenset({"xa/w", "e)fama/w"})
+GHOST_LEMMA: frozenset[str] = frozenset(
+    {"xa/w", "e)fama/w", "e)lea/w", "a)pe/xqomai"}
+)
 
 
 def filter_parses(parses: list[dict]) -> list[dict]:
