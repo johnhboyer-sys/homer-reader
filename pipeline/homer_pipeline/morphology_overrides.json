@@ -214,5 +214,11 @@
     "lemma": "xw/omai",
     "gloss": "to be angry",
     "justification": "Present participle of χώομαι 'to be angry' — Achilles at Il. 1.44 and throughout. Morpheus offers χάζομαι 'cause to retire' as a FUTURE participle for this form, but χάζομαι's future participle is χασσόμενος; χωόμενος is present. (χάω, ranked ahead of both, is dropped as a ghost lemma — see parse_filter.GHOST_LEMMA.)"
+  },
+  {
+    "surface": "mh/ti",
+    "lemma": "mh=tis",
+    "gloss": "wisdom, skill, craft",
+    "justification": "All four occurrences of this surface form (Il. 23.315, 316, 318; Od. 13.299) are the epic dative of μῆτις 'wisdom, skill, craft', contracted from μήτιϊ — LSJ s.v. μῆτις notes 'Ep. μήτῑ for μήτιϊ, Hom.' and cites these exact lines ('μήτι . . μέγ' ἀμείνων ἠὲ βίηφι' Il. 23.315; 'μήτι . . καὶ κέρδεσιν' Od. 13.299). Morpheus ranks μήτις = μηδείς ('no one', an old Doric/Cretan form for μηδείς; Morpheus's gloss is corrupted to 'do I') first instead. μήτις = μή τις is itself genuinely Homeric elsewhere (Il. 12.272), so the lemma is NOT a ghost and must not be dropped corpus-wide — only this surface form, where the correct μῆτις reading is already present as a lower-ranked Morpheus candidate, is promoted."
   }
 ]

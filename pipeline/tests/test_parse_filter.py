@@ -308,6 +308,84 @@ def test_an_override_still_repairs_in_place_when_the_lemma_is_absent():
     assert out[0]["gloss"] == "not"
 
 
+def test_faros_ghost_is_dropped_beside_correctly_glossed_pharos_cloth():
+    # φάρος bundles two non-Homeric LSJ senses under one Morpheus lemma: LSJ's
+    # φάρος (A) "= φάρυγξ [throat], Lyc. 154" and φάρος (B) "plough, Alcm.
+    # 23.61 ... Antim." -- both riding the one parse whose lsj field reads
+    # ["fa/ros1", "fa/ros2"]. Its gloss here is itself a data bug, borrowed
+    # from an unrelated third entry (φᾶρος (A), the real word). Dropping it
+    # leaves φᾶρος "a large piece of cloth, web" (Od. 5.258, Il. 2.43)
+    # standing under its own, correctly tagged and correctly glossed entry.
+    parses = [
+        {"lemma": "fa/ros", "gloss": "a large piece of cloth, web",
+         "parse": "neut dat sg", "lsj": ["fa/ros1", "fa/ros2"]},
+        {"lemma": "fa=ros", "gloss": "a large piece of cloth, web",
+         "parse": "neut dat sg", "lsj": ["fa=ros1"]},
+    ]
+    out = filter_parses(parses)
+    assert [p["lemma"] for p in out] == ["fa=ros"]
+    assert out[0]["gloss"] == "a large piece of cloth, web"
+
+
+def test_faros_ghost_is_kept_rather_than_stranding_the_token():
+    only = [{"lemma": "fa/ros", "gloss": "a large piece of cloth, web",
+             "parse": "neut nom/voc/acc pl (epic ionic)",
+             "lsj": ["fa/ros1", "fa/ros2"]}]
+    assert filter_parses(only) == only
+
+
+def test_kleitos_ghost_is_dropped_beside_correctly_tagged_kleitos_renowned():
+    # κλεῖτος bundles two non-Homeric LSJ senses the same way: κλεῖτος (A)
+    # "poet. for κλέος, Alcm. 96, cf. Hsch." and κλεῖτος (B) "= [κλίτος], pl.
+    # κλείτεα A.R. 1.599" -- neither Homeric, both blank-glossed, both riding
+    # the one parse whose lsj field reads ["klei=tos1", "klei=tos2"].
+    # Dropping it leaves κλειτός "renowned, famous" (Il. 3.451's κλειτοὶ
+    # ἐπίκουροι) standing under its own correctly tagged entries.
+    parses = [
+        {"lemma": "klei=tos", "gloss": "",
+         "parse": "neut gen pl (attic epic doric)",
+         "lsj": ["klei=tos1", "klei=tos2"]},
+        {"lemma": "kleito/s", "gloss": "renowned, famous",
+         "parse": "fem gen pl", "lsj": ["kleito/s1"]},
+        {"lemma": "kleito/s", "gloss": "renowned, famous",
+         "parse": "masc/neut gen pl", "lsj": ["kleito/s1"]},
+    ]
+    out = filter_parses(parses)
+    assert [p["lemma"] for p in out] == ["kleito/s", "kleito/s"]
+
+
+def test_kleitos_ghost_is_kept_rather_than_stranding_the_token():
+    only = [{"lemma": "klei=tos", "gloss": "", "parse": "neut nom/voc/acc sg",
+             "lsj": ["klei=tos1", "klei=tos2"]}]
+    assert filter_parses(only) == only
+
+
+def test_mhti_override_promotes_metis_dative_over_medeis_ghost_reading():
+    # μήτι at Il. 23.315, 316, 318 and Od. 13.299 -- its only four occurrences
+    # -- is the epic dative of μῆτις "wisdom, skill, craft", contracted from
+    # μήτιϊ (LSJ s.v. μῆτις: "Ep. μήτῑ for μήτιϊ, Hom.", citing these exact
+    # lines). Morpheus ranks μήτις = μηδείς ("no one") first instead, gloss
+    # corrupted to "do I". μήτις = μή τις is itself genuinely Homeric
+    # elsewhere (Il. 12.272), so the lemma is not ghosted -- only this
+    # surface form is overridden, promoting the μῆτις reading Morpheus
+    # already offers rather than relabelling the μηδείς entry.
+    parses = [
+        {"lemma": "mh/tis", "gloss": "do I", "parse": "indeclform (adverb)",
+         "lsj": ["mh/ti^s"], "cunliffe": ["mh=tis"]},
+        {"lemma": "mh/tis", "gloss": "do I", "parse": "nom/voc/acc sg",
+         "lsj": ["mh/ti^s"], "cunliffe": ["mh=tis"]},
+        {"lemma": "mh=tis", "gloss": "wisdom, skill, craft",
+         "parse": "fem dat sg (epic doric ionic aeolic)",
+         "lsj": ["mh=tis"], "cunliffe": ["mh=tis"]},
+    ]
+    resolved = resolve_parses(parses, short_defs={}, token_key="mh/ti")
+    assert resolved[0]["lemma"] == "mh=tis"
+    assert resolved[0]["gloss"] == "wisdom, skill, craft"
+    assert resolved[0]["parse"].startswith("fem dat sg"), "kept its own parse"
+    # the μηδείς reading is not destroyed, only demoted
+    assert any(p["lemma"] == "mh/tis" for p in resolved)
+
+
 def test_no_shipped_token_still_reads_by_a_ghost():
     """The invariant a ghost addition can actually violate.
 

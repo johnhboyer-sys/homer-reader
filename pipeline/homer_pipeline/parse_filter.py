@@ -235,11 +235,99 @@ def apply_morphology_override(
 # outright, and ἀπεχθάνομαι's own aorist parse — already correctly tagged by
 # Morpheus — takes its place.
 #
+# πέδιον's whole entry is "πέδιον, τό, Dim. of πέδη, EM 658.23." — a diminutive
+# of πέδη "fetter," recorded only in the Etymologicum Magnum, spelled exactly
+# like the real word but for where the accent falls. It was Morpheus's FIRST
+# analysis on all 68 occurrences across the two poems (3 distinct surface
+# forms — πεδίοιο, πεδίῳ, πεδίου), always beside πεδίον "plain" tagged with the
+# identical case and number, so dropping it changes no morphology, only which
+# lemma is attached to it.
+#
+# νεί's whole entry is "νεί, Boeot. for νή, Ar. Ach. 867, 905; also Arc." — a
+# Boeotian and Arcadian dialect spelling of the oath-particle νή, attested
+# only in Aristophanes and an Orchomenos inscription. It was Morpheus's FIRST
+# analysis on 43 occurrences across the two poems (7 distinct surface forms of
+# νεῖκος "quarrel, strife, feud" and νεικέω "quarrel, wrangle with"), always
+# beside a correctly-tagged νεῖκος or νεικέω sibling in the identical
+# case/number/person — nei/kei even carries three ghost entries in the same
+# slot list, each matched by its own nei=kos or neike/w counterpart.
+#
+# θέραψ's whole entry is "θέραψ, ᾰπος, ὁ, poet., = θεράπων, rare in sg." and
+# every citation in it is Euripides, Anacreon, or an inscription — never
+# Homer. It was Morpheus's FIRST analysis on all 26 occurrences of θεράπων
+# "henchman, attendant" (Patroclus is θεράπων Ἀχιλῆος throughout the Iliad),
+# tagging the nominative singular surface θεράπων as θέραψ's genitive plural,
+# always beside θεράπων's own correctly-tagged nominative singular.
+#
+# ῥόον's whole entry is "ῥόον, τό, only in pl. ῥόα, = τὰ ἐκ τῆς συκαμίνου μόρα
+# τὰ ἄωρα ξηρανθέντα" — unripe, dried mulberries, a Hippocratic medical term.
+# It was Morpheus's FIRST analysis on all 23 occurrences of ῥόος "stream, flow
+# of water, current" (the rivers of the Troad — Scamander, Ocean), always
+# beside ῥόος's own correctly-tagged sibling in the identical case/number.
+#
+# ἄμυμος's whole entry is "ἄμυμος, ον, = sq., Cyr., prob. in Hsch." — a
+# conjectural form standing in for the real adjective, sourced from Cyril and
+# a probable Hesychius gloss. It was Morpheus's FIRST analysis on all 19
+# occurrences of ἀμύμων "blameless, noble, excellent," one of Homer's most
+# frequent epithets, always beside ἀμύμων's own correctly-tagged sibling.
+#
+# οἴη (as a common noun, not the fem. of οἶος) has two LSJ entries and neither
+# is Homeric: οἴη (A), "= κώμη [village]," attested at Chios, in Apollonius
+# Rhodius, and in Hesychius; and οἴη (B), a bare cross-reference to ὄα (A).
+# Both ride the single Morpheus lemma οἴη, whose lsj field reads ["οἴη1",
+# "οἴη2"]. It was Morpheus's FIRST analysis on 43 occurrences across the two
+# poems (7 distinct surface forms), always beside οἶος "alone, lonely" tagged
+# with the identical feminine case/number — LSJ's own entry for οἶος cites
+# this exact spelling as its Epic feminine ("μία οἴη, one alone," Il. 4.397).
+#
+# κάλη's whole entry is a cross-reference stub, "κάλη, καλήτης, v. κήλη,
+# κηλήτης" — the Attic spelling of κήλη "tumour, hernia," a medical term
+# absent from Homer under either spelling. It was Morpheus's FIRST analysis on
+# 14 occurrences (κάλ', καλέων), always beside κάλως "reefing rope, reef"
+# (Od. 5.260, of Odysseus's raft) or κήλη's own tumour sense, each an
+# independently, correctly tagged sibling.
+#
+# κραταιά's whole entry is "κραταιά, ἡ, = χελιδόνιον μέγα, Ps.-Dsc. 2.180" —
+# greater celandine, a plant name from Pseudo-Dioscorides. It was Morpheus's
+# FIRST analysis on all 9 occurrences (Iliad only) of κραταιός "strong,
+# mighty" (Il. 16.334's μοῖρα κραταιή and its kin), always beside κραταιός's
+# own correctly-tagged sibling in the identical case/number.
+#
+# τήλη's whole entry is "τήλη, ἡ, = τῆλις" (fenugreek), attested only in a
+# gloss and in Ptolemaic-era papyri. It was Morpheus's FIRST analysis on all 8
+# occurrences of τῆλε "at a distance, far off," a common Homeric adverb,
+# always beside τῆλε's own correctly-tagged sibling.
+#
+# φάρος bundles two non-Homeric LSJ senses under one Morpheus lemma: the
+# pipeline's lemma field drops LSJ's disambiguating digit, so φάρος (A), "=
+# φάρυγξ [throat], Lyc. 154" (attested only in Lycophron), is inseparable
+# here from φάρος (B), "plough, Alcm. 23.61 ... Antim." (also non-Homeric,
+# attested only in Alcman and Antimachus) — both ride the one parse whose lsj
+# field reads ["φάρος1", "φάρος2"]. That parse's gloss, "a large piece of
+# cloth, web," is a separate data bug: the text belongs to a third, unrelated
+# entry, φᾶρος (A) — see this session's report; not fixed here. All 7
+# occurrences (φάρεϊ, φάρεα, φάρε') sit beside a correctly-tagged φᾶρος "a
+# large piece of cloth, web" sibling (Od. 5.258's φάρε' ἔνεικε Καλυψώ, Il.
+# 2.43) in the identical case/number, so dropping φάρος leaves the real word
+# standing under its own, correctly glossed entry.
+#
+# κλεῖτος bundles two non-Homeric LSJ senses the same way: κλεῖτος (A), "poet.
+# for κλέος, Alcm. 96, cf. Hsch."; and κλεῖτος (B), "= [κλίτος], pl. κλείτεα
+# A.R. 1.599" (Apollonius Rhodius) — neither Homeric, both blank-glossed, both
+# riding the one parse whose lsj field reads ["κλεῖτος1", "κλεῖτος2"]. It was
+# Morpheus's FIRST analysis on all 3 occurrences of κλειτῶν (genitive
+# plural), always beside κλειτός "renowned, famous" (Il. 3.451's κλειτοὶ
+# ἐπίκουροι) correctly tagged in the identical case/number.
+#
 # A ghost is only ever dropped when the token has some other reading: see
 # tests/test_parse_filter.py, which asserts over the shipped corpus that no
 # token is left empty.
 GHOST_LEMMA: frozenset[str] = frozenset(
-    {"xa/w", "e)fama/w", "e)lea/w", "a)pe/xqomai"}
+    {
+        "xa/w", "e)fama/w", "e)lea/w", "a)pe/xqomai",
+        "pe/dion", "nei", "qe/ray", "r(o/on", "a)/mumos", "oi)/h", "ka/lh",
+        "krataia/", "th/lh", "fa/ros", "klei=tos",
+    }
 )
 
 
