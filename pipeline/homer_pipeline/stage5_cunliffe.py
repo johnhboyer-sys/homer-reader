@@ -525,17 +525,39 @@ def _unbalanced(text: str) -> bool:
     """Whether a bracket or parenthesis opens or closes outside `text`.
 
     A quotation is a phrase Homer wrote: whatever it opens it closes. An
-    unmatched delimiter means a citation fell inside one of Cunliffe's
-    parentheses and cut the run in half — but it cuts BOTH kinds of run, so on
-    its own it says nothing about which half this is. Read together with an
-    English phrase it does: the tail of an etymology ("τρέμω.] Without motion,
-    still", ἀτρέμας), of the compound list he heads a verb with ("ἀνα-) Of
-    armour, to rattle, clash, ring", βράχω), of an epithet list (Πάτροκλος).
-    Without one it is Homer, mid-parenthesis — τεκμαίρομαι's "Κρονίδης]
-    τεκμαίρεται ἀμφοτέροισιν", ἐπισσείω's "αἰγίδι) ἐπισσείων φοβέειν
-    Ἀχαιούς" — and the first draft of this rule moved 19 such quotations into
-    the definition, which is the very fault it was written to cure. With the
-    test it clears 123 runs across 119 entries.
+    unmatched delimiter means the run is half of something larger — but it
+    cuts BOTH kinds of run, so on its own it says nothing about which half
+    this is. Read together with an English phrase it does: the tail of an
+    etymology ("τρέμω.] Without motion, still", ἀτρέμας), of the compound list
+    he heads a verb with ("ἀνα-) Of armour, to rattle, clash, ring", βράχω),
+    of an epithet list (Πάτροκλος). Without one it is Homer, mid-parenthesis —
+    τεκμαίρομαι's "Κρονίδης] τεκμαίρεται ἀμφοτέροισιν", ἐπισσείω's "αἰγίδι)
+    ἐπισσείων φοβέειν Ἀχαιούς" — and the first draft of this rule moved 19
+    such quotations into the definition, which is the very fault it was
+    written to cure.
+
+    What breaks a run in half is no longer what it was. This rule was written
+    when a citation INSIDE one of Cunliffe's parentheses ended the lead and
+    left the parenthesis hanging open; split_evidence now walks past such a
+    citation (see `depth` there), so that shape reaches here whole and this
+    test no longer sees it. Two shapes still arrive unmatched, and they are
+    what the rule now stands on:
+
+      · A SQUARE BRACKET. The depth walk counts parentheses only, so the
+        etymology bracket is untouched by it — ἀτρέμας's "τρέμω.] Without
+        motion, still", πολεμιστής's "πολεμίζω.] A fighter, warrior".
+      · A PARENTHESIS OPENED BEFORE THE EVIDENCE RUN BEGAN. parse_sense cuts
+        the sense at its first citation, so an opener standing in the
+        definition — ὀκτωκαιδέκατος's "ὀκτωκαιδεκάτῃ (sc. ἡμέρῃ), on the
+        eighteenth day" — never enters the string split_evidence measures
+        depth over, and the ")" that ends the remark is all that is left of
+        it. The depth map cannot see it; the stray close can.
+
+    Measured, not assumed: with _paren_holds_cite carrying the first shape,
+    disabling this test alone changes 9 entries and puts 9 more of Cunliffe's
+    remarks back into `g` — 2 by bracket (ἀτρέμας, πολεμιστής), 7 by orphaned
+    parenthesis (ἀγορή, ἀμφίπολος, αὐλός, λέβης, νεύω, ὀκτωκαιδέκατος,
+    ὀρσοθύρη). The two guards are independent; neither subsumes the other.
 
     Balance, not presence: _evidence_start refuses a run holding a bracket at
     all, but Cunliffe also supplies an implied word inside a genuine quotation
@@ -551,6 +573,56 @@ def _unbalanced(text: str) -> bool:
                 return True
             depth[opener[ch]] -= 1
     return any(depth.values())
+
+# One of Cunliffe's parentheses, innermost first so a nested pair is still seen.
+_INNER_PAREN_RE = re.compile(r"\(([^()]*)\)")
+
+
+def _paren_holds_cite(text: str) -> bool:
+    """Whether a parenthesis in `text` carries a citation of its own.
+
+    _unbalanced was doing this job by accident. A run reading "ἵπποι in sense
+    chariot (see ἵππος 3)" (ἀερσίπους) used to reach it with the parenthesis
+    cut open at the 3, and the open delimiter plus the English was what told
+    it this was Cunliffe's prose and not a quotation. Once the parenthesis is
+    kept whole the run balances, and 19 entries put his remark in `g` as
+    though Homer had written it. The signal is the same one, said directly.
+    Measured by disabling this test alone: 19 entries change, and every one
+    of them is a remark of Cunliffe's moving out of Homer's mouth.
+    """
+    return any(_CITE_TOKEN_RE.search(m.group(1))
+               for m in _INNER_PAREN_RE.finditer(text))
+
+
+def _paren_depth(text: str) -> list[int]:
+    """Parenthesis nesting depth BEFORE each character, plus one past the end.
+
+    A closing parenthesis with nothing open is clamped rather than going
+    negative: a run handed to split_evidence can begin inside one of
+    Cunliffe's parentheses, and the ")" that ends it is then all that is
+    left of it.
+    """
+    out: list[int] = []
+    d = 0
+    for ch in text:
+        out.append(d)
+        if ch == "(":
+            d += 1
+        elif ch == ")":
+            d = max(0, d - 1)
+    out.append(d)
+    return out
+
+
+def _depth_at(text: str, base: int, idx: int) -> int:
+    """Parenthesis depth at `idx` in `text`, given the depth it opens at."""
+    d = base
+    for ch in text[:idx]:
+        if ch == "(":
+            d += 1
+        elif ch == ")":
+            d = max(0, d - 1)
+    return d
 
 
 def split_evidence(evidence: str) -> list[dict]:
@@ -569,8 +641,15 @@ def split_evidence(evidence: str) -> list[dict]:
     segments: list[dict] = [{"ex": [], "au": []}]
     pos = 0
     book: str | None = None
+    depth = _paren_depth(evidence)
     for m in _CITE_TOKEN_RE.finditer(evidence):
+        # A citation inside one of Cunliffe's parentheses is part of the remark
+        # he is making, not a piece of evidence standing on its own — see the
+        # note above _paren_depth's callers.
+        if depth[m.start()]:
+            continue
         lead = evidence[pos:m.start()]
+        lead_depth = depth[pos]
         pos = m.end()
         cite, book = _expand(m.group(0), book)
         body = _CONNECTOR_RE.sub("", lead).strip()
@@ -586,7 +665,14 @@ def split_evidence(evidence: str) -> list[dict]:
         # χαλκῷ (at the point)", a quotation whose supplement the preceding
         # citation had split off, reads as prose without it.
         core = body[q:]
-        if _GREEK_RE.search(core) and _unbalanced(core) and _has_english(core):
+        if (_GREEK_RE.search(core) and _has_english(core)
+                and (_unbalanced(core) or _paren_holds_cite(core))):
+            q = len(body)
+        # Greek inside a parenthesis is a word Cunliffe is naming in his own
+        # remark, not a phrase of Homer's he is quoting — ἁμός's "Our
+        # ( = ἡμέτερος)" put ἡμέτερος in `g` and left "Our ( =" standing as a
+        # definition. The whole lead is then his prose.
+        elif _depth_at(body, lead_depth, q):
             q = len(body)
         if q > 0:
             prose = _CONNECTOR_RE.sub("", body[:q]).strip().rstrip(" :;,")
@@ -632,7 +718,13 @@ def split_evidence(evidence: str) -> list[dict]:
             segments[-1]["au"].append(cite)
     tail = _CONNECTOR_RE.sub("", evidence[pos:]).strip()
     if tail:
-        if _GREEK_RE.search(tail):
+        gm = _GREEK_RE.search(tail)
+        # The run that closes an evidence list has no citation of its own to
+        # test it against, so the parenthesis is the only signal there is that
+        # it is Cunliffe talking: ἁμός ends on a whole paragraph of his own
+        # ("But the sense my (cf. ἡμέτερος 2) is always admissible …") and
+        # that Greek made the paragraph a quotation of Homer.
+        if gm and not _depth_at(tail, depth[pos], gm.start()):
             segments[-1]["ex"].append({"g": tail})
         elif _TRAILING_NOTE_RE.fullmatch(tail):
             _append_note(segments[-1], tail)

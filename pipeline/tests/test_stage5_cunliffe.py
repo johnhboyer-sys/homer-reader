@@ -587,3 +587,170 @@ def test_a_parenthesised_translation_does_not_cut_its_own_quotation():
     t8 = sc.to_t8("di/kh", "δίκη", real)
     quoted = [it["g"] for r in t8["rows"] for it in (r.get("ex") or [])]
     assert any(g.startswith("οὐ δίκας εἰδότα οὐδὲ θέμιστας") for g in quoted)
+
+
+# ── a parenthesis Cunliffe opens is a parenthesis he closes ────────────────
+# `z` and an example's `g` carry markup (grammata runs them through
+# wrapGreekInHtml), so a full reference inside them arrives as an anchor.
+# These tests are about where the TEXT lands, so they read it without tags.
+def _text(v: str) -> str:
+    import re as _re
+    v = _re.sub(r"<[^>]*>", "", v)
+    return (v.replace("&amp;", "&").replace("&lt;", "<")
+             .replace("&gt;", ">").replace("&quot;", '"').replace("&#x27;", "'"))
+
+
+def test_a_parenthetical_remark_is_not_cut_by_the_citations_inside_it():
+    """ἁμός, whole and real: the entry this pass was opened on.
+
+    Cunliffe closes the entry with a remark of his own — "(But the sense my
+    (cf. ἡμέτερος 2) is always admissible, and in Il. 6.414, and perh. in Il.
+    8.178, is preferable.)". Every citation in it used to end a run, so the
+    remark reached the reader as four separate rows, each of them presented as
+    a definition of ἁμός: "(But the sense my (cf.", ") is always admissible,
+    and in", "perh. in", "is preferable.)". A citation inside one of his
+    parentheses is part of the remark, not evidence standing on its own.
+    """
+    real = (
+        "ἁμός -ή, -όν. Our ( = ἡμέτερος) Il. 6.414, Il. 8.178, Il. 10.448, "
+        "Il. 13.96, Il. 16.830: Od. 11.166 = 481. (But the sense my (cf. "
+        "ἡμέτερος 2) is always admissible, and in Il. 6.414, and perh. in "
+        "Il. 8.178, is preferable.)"
+    )
+    t8 = sc.to_t8("a(mo/s", "ἁμός", real)
+    prose = [_text(r["z"]) for r in t8["rows"] if r.get("z")]
+    assert (
+        "(But the sense my (cf. ἡμέτερος 2) is always admissible, and in "
+        "Il. 6.414, and perh. in Il. 8.178, is preferable.)"
+    ) in prose
+
+
+def test_a_word_named_inside_a_parenthesis_is_not_homers_words():
+    """ἁμός again: the other half of the same entry.
+
+    "Our ( = ἡμέτερος)" is Cunliffe naming the word he is glossing ἁμός by.
+    Cutting at the first Greek put ἡμέτερος in an example — Homer credited
+    with "ἡμέτερος)" at Il. 6.414 — and left "Our ( =" standing as the whole
+    definition of the word.
+    """
+    real = (
+        "ἁμός -ή, -όν. Our ( = ἡμέτερος) Il. 6.414, Il. 8.178, Il. 10.448, "
+        "Il. 13.96, Il. 16.830: Od. 11.166 = 481. (But the sense my (cf. "
+        "ἡμέτερος 2) is always admissible, and in Il. 6.414, and perh. in "
+        "Il. 8.178, is preferable.)"
+    )
+    t8 = sc.to_t8("a(mo/s", "ἁμός", real)
+    quoted = [it["g"] for r in t8["rows"] for it in (r.get("ex") or [])]
+    assert quoted == []
+    assert "Our ( = ἡμέτερος)" in [
+        _text(r["z"]) for r in t8["rows"] if r.get("z")
+    ]
+
+
+def test_a_cross_reference_parenthesis_is_not_homers_words():
+    """ἀερσίπους, whole and real: _paren_holds_cite's own case.
+
+    "Applied to ἵπποι in sense chariot (see ἵππος 3) Il. 18.532" is one
+    statement of Cunliffe's, and the sense-number 3 is not a line of Homer.
+    Reading it as a citation used to end the run at "(see ἵππος", so the
+    reader was shown a quotation running "Applied to ἵπποι in sense chariot
+    (see ἵππος" — his prose in Homer's mouth — and a bare ")" on the row
+    below. This is the shape _unbalanced used to catch by accident, before
+    the parenthesis was kept whole.
+    """
+    real = (
+        "ἀερσίπους -ποδος [ἀερ-, ἀείρω + -σι- + πούς.] Lifting the feet, "
+        "high-stepping. Epithet of horses: Il. 3.327, Il. 23.475. Applied "
+        "to ἵπποι in sense chariot (see ἵππος 3) Il. 18.532."
+    )
+    t8 = sc.to_t8("a)ersi/pous", "ἀερσίπους", real)
+    quoted = [it["g"] for r in t8["rows"] for it in (r.get("ex") or [])]
+    assert quoted == []
+    assert "Applied to ἵπποι in sense chariot (see ἵππος 3)" in [
+        r["z"] for r in t8["rows"] if r.get("z")
+    ]
+
+
+def test_a_nested_parenthesis_reaches_the_reader_whole():
+    """Ἴασος-2, whole and real: a parenthesis inside a parenthesis.
+
+    "(Argos-1 (3))" is one cross-reference, and both its numbers used to be
+    read as lines of Homer: the entry came out as three rows — "…all southern
+    Greece (Argos-", then "(", then "))" — none of which says anything. The
+    depth walk has to count nesting, not merely notice a parenthesis.
+    """
+    real = (
+        "Ἴασος-2 (ῑ). Ἴασον Ἄργος, of doubtful origin, apparently denoting "
+        "all southern Greece (Argos-1 (3)) Od. 18.246."
+    )
+    t8 = sc.to_t8("i)/asos", "Ἴασος-2", real)
+    prose = [_text(r["z"]) for r in t8["rows"] if r.get("z")]
+    assert prose == [
+        "Ἴασον Ἄργος, of doubtful origin, apparently denoting all southern "
+        "Greece (Argos-1 (3))"
+    ]
+
+
+def test_an_etymology_bracket_still_holds_cunliffes_prose_out_of_homers_mouth():
+    """πολεμιστής, whole and real: _unbalanced's first remaining shape.
+
+    The depth walk in split_evidence counts PARENTHESES only, so the
+    etymology bracket is untouched by it: "πολεμίζω.] A fighter, warrior"
+    still arrives with its "[" gone, and only _unbalanced can tell that this
+    is the tail of Cunliffe's etymology rather than a line of the poem.
+    A characterization test — it passes before the parenthesis fix as well as
+    after, which is the point: the fix must not have taken this signal away.
+    """
+    real = (
+        "πολεμιστής ὁ. πτολεμιστής Il. 22.132. [πολεμίζω.] A fighter, "
+        "warrior Il. 5.289= Il. 20.78= Il. 22.267, Il. 5.571, 602= Il. "
+        "16.493= Il. 22.269, Il. 10.549, Il. 13.300, Il. 15.585, Il. 17.26, "
+        "Il. 21.589, Il. 22.132 : Od. 24.499. With implied notion of "
+        "stoutness : πολεμιστὰ μετʼ ἀνδράσιν Il. 16.492."
+    )
+    t8 = sc.to_t8("polemisth/s", "πολεμιστής", real)
+    quoted = [it["g"] for r in t8["rows"] for it in (r.get("ex") or [])]
+    assert any("A fighter, warrior" in _text(r.get("z") or "") for r in t8["rows"])
+    assert not any("A fighter" in _text(g) for g in quoted)
+
+
+def test_a_parenthesis_opened_before_the_evidence_still_holds_cunliffes_prose():
+    """ὀκτωκαιδέκατος, whole and real: _unbalanced's second remaining shape.
+
+    parse_sense cuts the sense at its first citation, so the "(" of "(sc.
+    ἡμέρῃ)" stands in the definition and never enters the string
+    split_evidence measures depth over. What reaches the guard is
+    "ἡμέρῃ), on the eighteenth day" — a stray close with no opener in sight.
+    The depth map cannot see the opener; _unbalanced can see the orphan.
+    Characterization, like the bracket above: it must still hold after the
+    parenthesis fix.
+    """
+    real = (
+        "ὀκτωκαιδέκατος -η, -ον [ὀκτώ + καί + δέκατος.] The eighteenth : "
+        "ὀκτωκαιδεκάτῃ (sc. ἡμέρῃ), on the eighteenth day Od. 5.279 = "
+        "Od. 7.268, Od. 24.65."
+    )
+    t8 = sc.to_t8("o)ktwkaide/katos", "ὀκτωκαιδέκατος", real)
+    quoted = [it["g"] for r in t8["rows"] for it in (r.get("ex") or [])]
+    assert not any("on the eighteenth day" in _text(g) for g in quoted)
+    assert any("on the eighteenth day" in _text(r.get("z") or "")
+               for r in t8["rows"])
+
+
+def test_a_quotation_inside_a_parenthesis_is_still_homers_words():
+    """ἐπισσείω, whole and real: the guard on all of the above.
+
+    "τῇ (sc. αἰγίδι) ἐπισσείων φοβέειν Ἀχαιούς" is Homer, with Cunliffe's
+    supplement parenthesised inside it. Nothing in this pass may move it into
+    the definition: the parenthesis here closes where it opened and carries no
+    citation, so neither the depth walk nor _paren_holds_cite touches it.
+    """
+    real = (
+        "ἐπισσείω [ἐπι- 5.] 1 To shake something (threateningly) at a "
+        "person: τῇ (sc. αἰγίδι) ἐπισσείων φοβέειν Ἀχαιούς Il. 15.230 (τῇ "
+        "with φοβέειν). 2 To shake (thus) at. With dat.: αἰγίδα πᾶσιν "
+        "Il. 4.167."
+    )
+    t8 = sc.to_t8("e)pissei/w", "ἐπισσείω", real)
+    quoted = [it["g"] for r in t8["rows"] for it in (r.get("ex") or [])]
+    assert any("ἐπισσείων φοβέειν Ἀχαιούς" in _text(g) for g in quoted)
