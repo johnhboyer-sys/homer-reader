@@ -383,6 +383,33 @@ def test_a_full_reference_resets_the_book_across_the_poems():
     assert "Il. 5.40" not in au
 
 
+def test_a_bare_reference_pointer_joins_the_citation_list_not_the_definition():
+    # ἅμα: "– Other combinations in Il. 1.417, Il. 2.281, …" names no sense
+    # of its own — the citations ARE what "in" points at. Given a row of its
+    # own it read as though Cunliffe defined ἅμα as "Other combinations in"
+    # (John, on seeing it). It joins the list above instead, dash and all.
+    t8 = sc.to_t8("a", "ἅμα",
+                  "ἅμα 1 With Il. 1.424. – Other combinations in Il. 1.417, Il. 2.281.")
+    assert len(t8["rows"]) == 1
+    row = t8["rows"][0]
+    assert row["z"] == "With"
+    assert "– Other combinations in" in row["au"]
+
+
+def test_a_leading_reference_pointer_does_not_become_the_definition():
+    # ἄατος: "Except in Il. 22.218 in contr. form. Insatiate of Il. 5.388."
+    # opens with a citation the split has nothing to draw a boundary from,
+    # so parse_sense reads the pointer itself ("Except in") as the whole
+    # definition and the real gloss ("Insatiate of") as evidence. The
+    # pointer carries no sense of its own; it moves onto the row that holds
+    # the real definition, in order, ahead of its own citation.
+    t8 = sc.to_t8("a", "ἄατος",
+                  "ἄατος Except in Il. 22.218 in contr. form. Insatiate of Il. 5.388.")
+    assert not any((r.get("z") or "").strip() == "Except in" for r in t8["rows"])
+    au = [a for r in t8["rows"] for a in (r.get("au") or [])]
+    assert au.index("Except in") < au.index("Il. 22.218")
+
+
 def test_a_sub_sense_letter_becomes_a_row_not_part_of_the_definition():
     # "1 His a ἑός Il. 1.83 …" is sense 1 "His" with a sub-sense a. Left in the
     # text it read "His a".

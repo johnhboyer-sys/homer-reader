@@ -387,6 +387,20 @@ _LEADING_NOTE_RE = re.compile(r"^(?:[\s.:,;–-]*(?:etc\.?|So|and so on))+[\s.:,
 # standing above examples that belong to the sense before it).
 _TRAILING_NOTE_RE = re.compile(r"(?:[\s.:,;–-]*(?:etc\.?|So|and so on))*[\s.:,;–-]*")
 
+# A bare reference pointer: Cunliffe's own citation IS the grammatical object
+# ("Except in Il. 22.218", "– Other combinations in Il. 1.417, …", "Prob.
+# also in Od. 14.363") — the phrase names no sense of its own, and reads as
+# though Cunliffe defined the word as "Other combinations in" when it is
+# given a row (John, on seeing it). Measured over both source volumes
+# (11,416 entries, 29,441 T8 rows): exactly these three shapes survive to a
+# row with none of Homer's own Greek and no other content — everything else
+# that LOOKS like this ("As in 4.a", "Sim. in 3 pl. impf.") is not a
+# reference at all but a sense cross-reference number mistaken for a
+# citation, a separate and unfixed defect (see stage5_cunliffe test notes);
+# folding those in too would have hidden that bug rather than fixed this
+# one, so the pattern names exactly what was verified and nothing wider.
+_REF_NOTE_RE = re.compile(r"^[\s–-]*(?:Except|Prob\.\s*also|Other\s+\w+)\s+in$", re.I)
+
 
 def _append_note(segment: dict, note: str) -> None:
     """Attach one of Cunliffe's "and so on" marks to the row it qualifies.
@@ -479,6 +493,12 @@ def split_evidence(evidence: str) -> list[dict]:
             if _TRAILING_NOTE_RE.fullmatch(body):
                 _append_note(segments[-1], body)
                 segments[-1]["au"].append(cite)
+            elif _REF_NOTE_RE.fullmatch(body):
+                # A bare pointer to this citation, not a new statement — see
+                # _REF_NOTE_RE. It joins the list above exactly as "etc." does
+                # (kept verbatim, dash and all — nothing is ever dropped here).
+                _append_note(segments[-1], body)
+                segments[-1]["au"].append(cite)
             else:
                 # prose with no Greek: a new statement, and the citations that
                 # follow belong to it — but any note in FRONT of it closes the
@@ -563,6 +583,42 @@ def _move_leading_notes(rows: list[dict]) -> None:
             continue
         prev.setdefault("au", []).append(m.group(0).strip())
         r["z"] = r["z"][m.end():]
+
+
+def _fold_leading_ref_note(rows: list[dict]) -> None:
+    """A row whose ENTIRE definition is a bare reference pointer ("Except in
+    Il. 22.218") is not a sense of its own — see _REF_NOTE_RE. It is
+    _move_leading_notes' mirror image: there, a note trails into the row
+    AFTER it; here, the whole row IS the note, because parse_sense drew the
+    sense/evidence boundary at the citation itself — nothing came before it
+    to draw the boundary from (ἄατος: "Except in Il. 22.218 in contr. form
+    ἆτος. Insatiate of, indefatigable in. …" reads the exception as the
+    definition and the real gloss as evidence). The real definition is in
+    the row that follows in the same evidence run, so the note and its
+    citation move onto the FRONT of that row, in order, and the row's own
+    sense number (if it had one) moves with them rather than being dropped.
+    Never merges across a division banner or into the start of a different
+    numbered sense — only into a continuation (unnumbered) row of its own
+    run, which is the only case where "the next row" is guaranteed to still
+    be the same sense.
+    """
+    out: list[dict] = []
+    i, n = 0, len(rows)
+    while i < n:
+        r = rows[i]
+        z = (r.get("z") or "").strip()
+        nxt = rows[i + 1] if i + 1 < n else None
+        if (not r.get("b") and not r.get("ex") and z
+                and _REF_NOTE_RE.fullmatch(z)
+                and nxt is not None and not nxt.get("b") and not nxt.get("n")):
+            nxt["au"] = [z] + (r.get("au") or []) + (nxt.get("au") or [])
+            if r.get("n"):
+                nxt["n"] = r["n"]
+            i += 1
+            continue
+        out.append(r)
+        i += 1
+    rows[:] = out
 
 
 def _rows_from(base: dict, evidence: str) -> list[dict]:
@@ -732,6 +788,7 @@ def to_t8(key: str, headword: str, definition: str, resolve=None) -> dict:
         rows = _rows_from({"lv": 1, "n": "", "z": z}, evidence)
         _lift_subsense(rows)
         _move_leading_notes(rows)
+        _fold_leading_ref_note(rows)
         for r in rows:
             if r.get("z"):
                 r["z"] = _markup(r["z"], resolve)
@@ -794,6 +851,7 @@ def to_t8(key: str, headword: str, definition: str, resolve=None) -> dict:
 
     _lift_subsense(rows)
     _move_leading_notes(rows)
+    _fold_leading_ref_note(rows)
 
     # `gr` names the divisions grammata may turn into a tab strip. It does so
     # only at >= 2 divisions AND >= 10 rows: measured here, 43 entries carry two
