@@ -400,3 +400,67 @@ def test_a_lone_homonym_definition_still_extends_and_stays_one_box():
 
     assert merge_short_def("sample", "poth/", keys, defs) == "sample of wine"
     assert len({defs[k] for k in keys if defs.get(k)}) == 1
+
+
+def test_cross_ref_refuses_when_referent_headword_is_split(monkeypatch):
+    """ἕ is the LSJ stub "ἕ, v. οὗ", and οὗ is two entries: the adverb ou(=1
+    "where" and the pronoun ou(=2, which has no derived short def.
+
+    Counting *definitions found* elects "where" unopposed and would ship an
+    adverb of place as the sense of οἱ / οἵ / οὗ / ἕθεν / ἕο — 2,053 top-analysis
+    token occurrences across both poems. Counting *entries* refuses, because the
+    pronoun homonym never spoke.
+    """
+    entries = {
+        "e(/": {"html": '<b class="lsj-head">ἕ</b>, v. οὗ.'},
+        "ou(=1": {
+            "html": '<b class="lsj-head">οὗ</b>, gen. of relat. Pron.',
+            "short": "where",
+        },
+        "ou(=2": {"html": '<b class="lsj-head">οὗ</b>, οἷ, ἕ,'},
+    }
+    monkeypatch.setattr(stage7_emit, "_LSJ_ENTRY_CACHE", entries)
+    assert stage7_emit._resolve_cross_ref_target("οὗ", {}) is None
+
+    # The refusal is the split headword, not an unfindable referent: drop the
+    # definitionless homonym and the very same pointer resolves.
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {k: v for k, v in entries.items() if k != "ou(=2"},
+    )
+    assert stage7_emit._resolve_cross_ref_target("οὗ", {}) == "where"
+
+    # Nor is it "more than one entry" on its own — homonyms that agree resolve.
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {
+            **{k: v for k, v in entries.items() if k != "ou(=2"},
+            "ou(=2": {"html": '<b class="lsj-head">οὗ</b>', "short": "where"},
+        },
+    )
+    assert stage7_emit._resolve_cross_ref_target("οὗ", {}) == "where"
+
+
+def test_merge_short_def_keeps_he_blank(monkeypatch):
+    """ἕ ships with no definition, and for a stated reason.
+
+    The digit restriction below _empty_gloss_def's own-key pass already skips
+    the unnumbered key e(/, so the second stanza uses a numbered key to reach
+    the stub path: what refuses there is the homonym guard, which is what must
+    keep holding if the digit restriction is ever lifted.
+    """
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {
+            "e(/": {"html": '<b class="lsj-head">ἕ</b>, v. οὗ.'},
+            "e(/1": {"html": '<b class="lsj-head">ἕ</b>, v. οὗ.'},
+            "ou(=1": {"html": '<b class="lsj-head">οὗ</b>', "short": "where"},
+            "ou(=2": {"html": '<b class="lsj-head">οὗ</b>, οἷ, ἕ,'},
+        },
+    )
+
+    assert merge_short_def("", "e(/", ["e(/"], {}) == ""
+    assert merge_short_def("", "e(/1", ["e(/1"], {}) == ""

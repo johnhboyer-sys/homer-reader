@@ -186,8 +186,18 @@ def _target_variants(target: str) -> list[str]:
     return variants
 
 
-def _resolve_cross_ref_target(target: str, short_defs: dict[str, str]) -> str | None:
-    """One-hop only: adopt the referent's short def, or refuse on ambiguity."""
+def _resolve_cross_ref_target(
+    target: str,
+    short_defs: dict[str, str],
+    origin_keys: frozenset[str] = frozenset(),
+) -> str | None:
+    """One-hop only: adopt the referent's short def, or refuse on ambiguity.
+
+    ``origin_keys`` are the pointing lemma's own LSJ keys, already known to
+    carry no short def. They are excluded from the vote below: a stub is a stub
+    because it has no definition of its own, so its silence is not a dissent
+    (πλοῦτος, τό "= πλοῦτος, ὁ" must not veto its own referent).
+    """
     variants = _target_variants(target)
     if not variants:
         return None
@@ -213,17 +223,23 @@ def _resolve_cross_ref_target(target: str, short_defs: dict[str, str]) -> str | 
             if pattern.match(key):
                 seen.add(key)
                 candidate_keys.append(key)
-    if not candidate_keys:
+    voters = [key for key in candidate_keys if key not in origin_keys]
+    if not voters:
         return None
 
-    resolved = {
-        d
-        for key in candidate_keys
-        if (d := _short_def_for_key(key, short_defs))
-    }
-    if len(resolved) == 1:
-        return resolved.pop()
-    return None
+    # A "v. X" pointer names a HEADWORD, not one of its numbered homonyms. When
+    # LSJ splits X into several entries the pointer does not choose between
+    # them, so a lone short def wins only because its rivals happen to lack one
+    # — an accident of derive_short_def's coverage, not evidence. ἕ "v. οὗ" is
+    # the case in point: ou(=1 is the adverb "where" and ou(=2 the pronoun with
+    # no short def, so counting *definitions found* elects "where" unopposed.
+    # Count *entries* instead: every homonym under the referent must speak, and
+    # they must agree.
+    defs = [_short_def_for_key(key, short_defs) for key in voters]
+    resolved = {d for d in defs if d}
+    if len(resolved) != 1 or any(d is None for d in defs):
+        return None
+    return resolved.pop()
 
 
 def _empty_gloss_def(
@@ -254,10 +270,17 @@ def _empty_gloss_def(
     if len(unique) > 1:
         return ""
 
-    # Cross-ref stubs are the numbered homonyms (du/w2, la/w1, …). Unnumbered
-    # "v. X" pointers often mean "see under X" (paradigm entry), not "synonym
-    # of X" — following those ships the wrong sense (ἕ → οὗ "where"). Restrict
-    # one-hop resolution to keys that end in a digit.
+    # Cross-ref stubs are the numbered homonyms (du/w2, la/w1, …). Lifting this
+    # to unnumbered stubs too was measured over both works (2026-09-01): it adds
+    # a definition to 129 surface forms / 538 top-analysis token occurrences,
+    # of which only ~49% are right. The failures are not cross-ref failures —
+    # they are ghost lemmata ranked first (Δαναῶν's top analysis is Δανάη, whose
+    # LSJ entry is "= δάφνη"; the correct Δαναοί sits second WITH its gloss) and
+    # one junk short def (μέμαα → μέμονα → "mṇ", 115 occurrences). Today the
+    # blank line is the only signal that the top analysis is junk, so filling it
+    # trades a visibly incomplete card for a confidently wrong one. Keep the
+    # restriction until ranking and derive_short_def are fixed; what protects ἕ
+    # is the homonym guard in _resolve_cross_ref_target, not this digit test.
     stub_targets: list[str] = []
     for key in ordered:
         if not re.search(r"\d+$", key):
@@ -274,8 +297,9 @@ def _empty_gloss_def(
     unique_targets: list[str] = list(dict.fromkeys(stub_targets))
     if not unique_targets:
         return ""
+    origin_keys = frozenset(ordered)
     resolved = {
-        target: _resolve_cross_ref_target(target, short_defs)
+        target: _resolve_cross_ref_target(target, short_defs, origin_keys)
         for target in unique_targets
     }
     nonempty = {d for d in resolved.values() if d}
