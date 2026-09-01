@@ -375,6 +375,10 @@ _CITE_TOKEN_RE = re.compile(r"\b(?:Il|Od)\.\s*\d+\.\d+|\b\d+\b")
 # Cunliffe's own sequencing and stay in the text.
 _CONNECTOR_RE = re.compile(r"^[\s,.:;=]*(?:Cf\.|cf\.|and|=)?[\s,.:;=]*")
 _PAREN_RE = re.compile(r"\(([^)]*)\)\s*$")
+# Two or more English words running together. One is not enough to go on: a
+# lone "Absol." or "sc." is apparatus Cunliffe prints inside a quotation, and
+# a Greek quotation never carries a phrase.
+_EN_RUN_RE = re.compile(r"[A-Za-z]{2,}(?:[.,;:]?\s+[A-Za-z]{2,})+")
 # A note at the FRONT of some prose belongs to the citation list before it, not
 # to the definition it precedes: "etc. Absol. with the article" opened a sense
 # reading "etc. Absol. …" (John, on seeing it). Peeled off and handed back.
@@ -438,6 +442,117 @@ def _expand(cite: str, book: str | None) -> tuple[str, str | None]:
     return cite, book
 
 
+def _split_gloss(body: str) -> tuple[str, str]:
+    """A quotation and the English translation Cunliffe parenthesises after it.
+
+    Told apart from a quotation that simply ends inside brackets by having no
+    Greek in it.
+    """
+    pm = _PAREN_RE.search(body)
+    if pm and not _GREEK_RE.search(pm.group(1)):
+        return body[:pm.start()].strip(), pm.group(1).strip()
+    return body, ""
+
+
+def _has_english(text: str) -> bool:
+    """Whether Cunliffe is writing his OWN prose here, outside a parenthesis.
+
+    English inside a parenthesis is the translation he hangs on the quotation
+    before it, so it proves nothing about where his prose resumes: δίκη's "οὐ
+    δίκας εἰδότα οὐδὲ θέμιστας (having no regard for justice . . .; see εἴδω
+    III.12)" moved the quotation itself into the definition on the strength of
+    the translation inside its own brackets. Counting only what is outside
+    them keeps 30 such quotations where they belong, at the cost of 13 runs
+    whose only English is parenthesised staying in `g` — a remark beside
+    Homer's words rather than a definition standing in for them.
+    """
+    depth = 0
+    out = []
+    for ch in text:
+        if ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(0, depth - 1)
+        elif not depth:
+            out.append(ch)
+    return bool(_EN_RUN_RE.search("".join(out)))
+
+
+def _quote_start(body: str) -> int:
+    """Where Homer's own words begin in one lead of an evidence run.
+
+    Cunliffe's English does not stop at the first Greek word. ἄατος reads
+    "Except in Il. 22.218 in contr. form ἆτος. Insatiate of, indefatigable in.
+    With genit.: πολέμοιο Il. 5.388" — a form, then the gloss, then the
+    quotation — and cutting at the FIRST Greek left the whole gloss inside
+    `g`, so the entry defined the word as "in contr. form" and rendered
+    "Insatiate of, indefatigable in" as though Homer had written it. That is
+    the one thing a reader came to ἄατος for.
+
+    So the boundary walks FORWARD over the same sentence stops
+    _evidence_start walks back over, and moves across one only when there is
+    ENGLISH PROSE behind it. The ellipsis inside a quotation carries none and
+    moves nothing (μή: "ἴδοι τις μὴ . . . ὦσιν" stays whole), and a stop with
+    no Greek left after it ends the walk, because that would leave the
+    citation with no quotation at all. 208 quotations held English this way,
+    across 182 entries.
+    """
+    gm = _GREEK_RE.search(body)
+    if not gm:
+        return 0
+    start = gm.start()
+    for m in re.finditer(r"[:.;]\s", body):
+        if m.end() <= start:
+            continue
+        if m.group(0)[0] == "." and _ABBREV_TAIL_RE.search(body[:m.start()]):
+            continue
+        if not _GREEK_RE.search(body[m.end():]):
+            break
+        gap = body[start:m.start()]
+        if _has_english(gap):
+            start = m.end()
+        elif start > gm.start() and not gap.strip(" .:;,"):
+            # Cunliffe's own ellipsis, still inside the prose the walk is
+            # already crossing: "the rest of the . . . : λαόν" (ἄλλος) put
+            # ". . : λαόν" in `g` when each stop had to earn its own English.
+            # Only once the walk has started, so that an ellipsis INSIDE a
+            # quotation cannot open one. 8 quotations, 8 entries.
+            start = m.end()
+    return start
+
+
+def _unbalanced(text: str) -> bool:
+    """Whether a bracket or parenthesis opens or closes outside `text`.
+
+    A quotation is a phrase Homer wrote: whatever it opens it closes. An
+    unmatched delimiter means a citation fell inside one of Cunliffe's
+    parentheses and cut the run in half — but it cuts BOTH kinds of run, so on
+    its own it says nothing about which half this is. Read together with an
+    English phrase it does: the tail of an etymology ("τρέμω.] Without motion,
+    still", ἀτρέμας), of the compound list he heads a verb with ("ἀνα-) Of
+    armour, to rattle, clash, ring", βράχω), of an epithet list (Πάτροκλος).
+    Without one it is Homer, mid-parenthesis — τεκμαίρομαι's "Κρονίδης]
+    τεκμαίρεται ἀμφοτέροισιν", ἐπισσείω's "αἰγίδι) ἐπισσείων φοβέειν
+    Ἀχαιούς" — and the first draft of this rule moved 19 such quotations into
+    the definition, which is the very fault it was written to cure. With the
+    test it clears 123 runs across 119 entries.
+
+    Balance, not presence: _evidence_start refuses a run holding a bracket at
+    all, but Cunliffe also supplies an implied word inside a genuine quotation
+    — ἔνδον's "Διὸς [δώματος] ἐ." — and those close what they open.
+    """
+    depth = {"(": 0, "[": 0}
+    opener = {")": "(", "]": "["}
+    for ch in text:
+        if ch in depth:
+            depth[ch] += 1
+        elif ch in opener:
+            if not depth[opener[ch]]:
+                return True
+            depth[opener[ch]] -= 1
+    return any(depth.values())
+
+
 def split_evidence(evidence: str) -> list[dict]:
     """One sense's evidence as an ordered list of segments.
 
@@ -461,11 +576,20 @@ def split_evidence(evidence: str) -> list[dict]:
         body = _CONNECTOR_RE.sub("", lead).strip()
         # English ahead of the quotation is Cunliffe's own prose, not part of
         # what it is quoting: "Together, at the same moment: ἁ. ἄμφω σύν ῥʼ
-        # ἔπεσον" is a remark and then a quotation. Split at the first Greek,
-        # or the remark ends up inside `g` and reads as though Homer wrote it.
-        gm = _GREEK_RE.search(body)
-        if gm and gm.start() > 0:
-            prose = _CONNECTOR_RE.sub("", body[:gm.start()]).strip().rstrip(" :;,")
+        # ἔπεσον" is a remark and then a quotation. Split at the quotation, or
+        # the remark ends up inside `g` and reads as though Homer wrote it.
+        q = _quote_start(body)
+        # A run that leaves a delimiter open AND carries an English phrase is
+        # not a quotation at all, so the whole lead is Cunliffe's own — see
+        # _unbalanced. _has_english is what keeps a quotation's own
+        # translation from counting here: κατά's "[ξυστὰ] κατὰ στόμα εἱμένα
+        # χαλκῷ (at the point)", a quotation whose supplement the preceding
+        # citation had split off, reads as prose without it.
+        core = body[q:]
+        if _GREEK_RE.search(core) and _unbalanced(core) and _has_english(core):
+            q = len(body)
+        if q > 0:
+            prose = _CONNECTOR_RE.sub("", body[:q]).strip().rstrip(" :;,")
             if prose:
                 # A note here qualifies the row above and must not open a new
                 # one — otherwise the quotation that follows lands on a row
@@ -478,13 +602,9 @@ def split_evidence(evidence: str) -> list[dict]:
                         _append_note(segments[-1], lead.group(0).strip())
                         prose = prose[lead.end():]
                     segments.append({"z": prose, "ex": [], "au": []})
-            body = body[gm.start():].strip()
+            body = body[q:].strip()
         if _GREEK_RE.search(body):
-            gloss = ""
-            pm = _PAREN_RE.search(body)
-            if pm and not _GREEK_RE.search(pm.group(1)):
-                gloss = pm.group(1).strip()
-                body = body[:pm.start()].strip()
+            body, gloss = _split_gloss(body)
             item = {"g": body, "c": cite}
             if gloss:
                 item["e"] = gloss

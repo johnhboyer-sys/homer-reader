@@ -409,11 +409,12 @@ def test_a_leading_reference_pointer_does_not_become_the_definition():
     which changes what `i` absorbs and what the first row holds — a shortened
     fixture here would pass while the shipped entry did something else.
 
-    NOT fixed by this, and deliberately not asserted as fixed: the row that
-    survives still reads "in contr. form", because ἄατος's actual gloss
-    ("Insatiate of, indefatigable in") sits inside a Greek EXAMPLE, as though
-    Homer wrote it. That is the αἴγειρος defect — a definition landing in a
-    quotation — and it belongs to head-run parsing, not to pointer folding.
+    The row that survives used to read "in contr. form", because ἄατος's
+    actual gloss ("Insatiate of, indefatigable in") sat inside a Greek
+    EXAMPLE, as though Homer wrote it. That was a separate defect and is
+    fixed separately, in split_evidence — see
+    test_a_gloss_behind_a_form_does_not_become_a_quotation. This test still
+    asserts only what pointer folding owns.
     """
     real = ("ἄατος [ἀ-1 + (σ)άω.] Except in Il. 22.218 in contr. form ἆτος. "
             "Insatiate of, indefatigable in. With genit.: πολέμοιο Il. 5.388. "
@@ -433,3 +434,156 @@ def test_a_sub_sense_letter_becomes_a_row_not_part_of_the_definition():
     subs = [r for r in t8["rows"] if r.get("n") in ("a", "b")]
     assert [r["n"] for r in subs] == ["a", "b"]
     assert all(r["lv"] == 2 for r in subs)
+
+
+# ── Cunliffe's English never belongs inside a quotation ─────────────────────
+
+
+def test_a_gloss_behind_a_form_does_not_become_a_quotation():
+    """ἄατος, on its REAL source text.
+
+    split_evidence cut the lead at the FIRST Greek word, so the form
+    "ἆτος." carried the gloss behind it into `g`: the entry defined the
+    word as "in contr. form" and rendered "Insatiate of, indefatigable in"
+    as though Homer had written it. That is the one thing a reader came to
+    ἄατος for.
+
+    The real string, not a shortened one: a reconstruction that drops the
+    etymology bracket changes what `i` absorbs and what the first row holds,
+    and would pass here while the shipped entry did something else.
+    """
+    real = (
+        "ἄατος [ἀ-1 + (σ)άω.] Except in Il. 22.218 in contr. form ἆτος. "
+        "Insatiate of, indefatigable in. With genit.: πολέμοιο Il. 5.388. "
+        "Cf. Il. 5.863, Il. 6.203, Il. 11.430, Il. 13.746, Il. 22.218: Od. "
+        "13.293."
+    )
+    t8 = sc.to_t8("a)/atos", "ἄατος", real)
+    quoted = [it["g"] for r in t8["rows"] for it in (r.get("ex") or [])]
+    assert quoted == ["πολέμοιο"]
+    assert any("Insatiate of, indefatigable in" in (r.get("z") or "")
+               for r in t8["rows"])
+
+
+def test_a_definition_between_a_lemma_and_its_quotation_stays_a_definition():
+    # θηρευτής, whole and real. "With κύων, a hunting dog: ἐν κυσὶ
+    # θηρευτῇσιν" names the word Cunliffe is pairing with and then quotes.
+    # The lemma is Greek, so the cut at the first Greek left "a hunting dog"
+    # inside the quotation and "With" alone as the definition.
+    real = (
+        "θηρευτής ὁ [θηρεύω.] A hunter Il. 12.41. With κύων, a hunting dog: "
+        "ἐν κυσὶ θηρευτῇσιν Il. 11.325."
+    )
+    t8 = sc.to_t8("qhreuth/s", "θηρευτής", real)
+    row = t8["rows"][-1]
+    assert row["z"] == "With κύων, a hunting dog"
+    assert [it["g"] for it in row["ex"]] == ["ἐν κυσὶ θηρευτῇσιν"]
+
+
+def test_an_adverbial_gloss_is_not_read_as_homers_words():
+    # ὑπέρβιος, whole and real: the neuter-as-adverb note opens with the
+    # form itself, and its gloss ("in overweening wise, wantonly,
+    # recklessly") was reading as part of the quotation after it.
+    real = (
+        "ὑπέρβιος -ον [ὑπερ- 6 + βίη.] 1 Headlong, headstrong, not to be "
+        "restrained or turned aside Il. 18.262 : Od. 15.212. 2 Overweening, "
+        "arrogant, wanton : ὕβριν Od. 1.368=Od. 4.321, Od. 16.410. In neut. "
+        "ὑπέρβιον as adv., in overweening wise, wantonly, recklessly : βοῦς "
+        "μευ ἔκτειναν ὑ. Od. 12.379. Cf. Il. 17.19 : Od. 14.92, 95, Od. "
+        "16.315."
+    )
+    t8 = sc.to_t8("u(pe/rbios", "ὑπέρβιος", real)
+    row = t8["rows"][-1]
+    assert row["z"] == ("In neut. ὑπέρβιον as adv., in overweening wise, "
+                        "wantonly, recklessly")
+    assert [it["g"] for it in row["ex"]] == ["βοῦς μευ ἔκτειναν ὑ."]
+
+
+def test_a_compound_list_cut_off_by_a_citation_is_not_a_quotation():
+    """βράχω, whole and real.
+
+    The citation before it ends inside Cunliffe's list of compounds, so the
+    run "(ἀνα-) Of armour, to rattle, clash, ring" opens with Greek and
+    closes a parenthesis it never opened. Read as a quotation it put the
+    whole first definition of the verb into Homer's mouth.
+    """
+    real = (
+        "†βράχω 3 sing. aor. ἔβραχε, βράχε. (ἀνα-) Of armour, to rattle, "
+        "clash, ring Il. 4.420, Il. 12.396, Il. 13.181, Il. 14.420, Il. "
+        "16.566. Of an axle, to creak, grate Il. 5.838. So of a door Od. "
+        "21.49. Of a river, to resound under the splash of something "
+        "falling into it Il. 21.9. Of the earth, to give forth a sound, "
+        "resound Il. 21.387. Of persons, to roar, shriek Il. 5.859, 863, "
+        "Il. 16.468."
+    )
+    t8 = sc.to_t8("bra/xw", "†βράχω", real)
+    assert not any(r.get("ex") for r in t8["rows"]), \
+        "no part of this entry is a quotation"
+    assert any((r.get("z") or "").startswith("(ἀνα-) Of armour")
+               for r in t8["rows"])
+
+
+def test_a_stop_the_prose_has_already_crossed_does_not_hold_the_quotation():
+    # πάννυχος, whole and real. Cunliffe writes " : " with a space on
+    # each side, so the sentence stop and the colon are two stops in a row
+    # with nothing between them; requiring English behind EVERY stop left
+    # the colon itself at the head of the quotation.
+    real = (
+        "πάννυχος [as παννύχιος.] =παννύχιος. Il. 11.551=Il. 17.660, Il. "
+        "23.218 : Od. 14.458, Od. 20.53. In neut. sing. πάννυχον as adv. : "
+        "τί π. ἀωτεῖς; Il. 10.159."
+    )
+    t8 = sc.to_t8("pa/nnuxos", "πάννυχος", real)
+    row = t8["rows"][-1]
+    assert row["z"] == "In neut. sing. πάννυχον as adv."
+    assert [it["g"] for it in row["ex"]] == ["τί π. ἀωτεῖς;"]
+
+
+def test_an_unmatched_bracket_without_english_leaves_the_quotation_alone():
+    """τεκμαίρομαι, whole and real: the mirror image, and a guard.
+
+    A citation falls inside the bracket Cunliffe supplies the subject in, so
+    "[Κρονίδης] τεκμαίρεται ἀμφοτέροισιν" reaches split_evidence with the
+    "[" already gone. An unmatched delimiter alone must NOT condemn a run:
+    this is Homer, and the first draft of that rule moved 39 quotations like
+    it into the definition.
+    """
+    real = (
+        "τεκμαίρομαι [τέκμαρ = τέκμωρ.] 3 sing. aor. τεκμήρατο Od. 10.563. "
+        "3 pl. τεκμήραντο Il. 6.349, 1 To ordain, appoint, decree : τάδε "
+        "κακά Il. 6.349, [Κρονίδης] τεκμαίρεται ἀμφοτέροισιν, εἰς ὅ κεν ἢ . "
+        ". . ἢ . . . (app., settles an appointed time against which either "
+        ". . . or . . .) Il. 7.70. Cf. Od. 7.317, Od. 10.563. 2 To foretell "
+        ": ὄλεθρον Od. 11.112 = Od. 12.139."
+    )
+    t8 = sc.to_t8("tekmai/romai", "τεκμαίρομαι", real)
+    quoted = [it["g"] for r in t8["rows"] for it in (r.get("ex") or [])]
+    assert "Κρονίδης] τεκμαίρεται ἀμφοτέροισιν, εἰς ὅ κεν ἢ . . . ἢ . . ." in quoted
+
+
+def test_a_parenthesised_translation_does_not_cut_its_own_quotation():
+    """δίκη, whole and real: the other guard.
+
+    "οὐ δίκας εἰδότα οὐδὲ θέμιστας (having no regard for justice
+    . . .)" is a quotation carrying its own translation. English inside the
+    parenthesis is that translation, never Cunliffe's prose resuming, so it
+    cannot be grounds for cutting the quotation it belongs to.
+    """
+    real = (
+        "δίκη -ης, ἡ. 1 Custom, usage, way: βασιλήων Od. 4.691. Cf. Od. "
+        "18.275, Od. 19.43. With notion of privilege: γερόντων Od. 24.255. "
+        "Applied to a mode of existence or action imposed from without: "
+        "δμώων Od. 14.59. Cf. Od. 11.218. Something that always happens in "
+        "specified circumstances Od. 19.168. 2 Right, justice Il. 16.388, "
+        "Il. 19.180: Od. 14.84. In pl., rules of right, principles of "
+        "justice: οὐ δίκας εἰδότα οὐδὲ θέμιστας (having no regard for "
+        "justice or the usages of (civilized) men; see εἴδω III.12) Od. "
+        "9.215. Cf. Od. 3.244. 3 A judgement or doom: ὃς λυκίην εἴρυτο "
+        "δίκῃσιν (by his (impartial) administration of justice) Il. 16.542. "
+        "Cf. Il. 18.508. 4 A plea of right, a claim: δίκας εἴροντο (were "
+        "asking questions about their . . ., seeking decisions in regard to "
+        "them) Od. 11.570. Cf. Il. 23.542."
+    )
+    t8 = sc.to_t8("di/kh", "δίκη", real)
+    quoted = [it["g"] for r in t8["rows"] for it in (r.get("ex") or [])]
+    assert any(g.startswith("οὐ δίκας εἰδότα οὐδὲ θέμιστας") for g in quoted)
