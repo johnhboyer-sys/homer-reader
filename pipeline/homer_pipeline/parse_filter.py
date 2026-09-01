@@ -160,25 +160,77 @@ def apply_morphology_override(
     surface: str | None,
     overrides: dict[str, dict] = MORPHOLOGY_OVERRIDES,
 ) -> list[dict]:
-    """Apply a curated lemma/gloss repair after automatic resolution."""
+    """Apply a curated lemma/gloss repair after automatic resolution.
+
+    Two shapes, and the difference matters:
+
+    * The target lemma is ALREADY among the parses — Morpheus simply ranked it
+      below something else. Promote the real analysis, which keeps its own
+      parse and its lexicon links. Rewriting the front entry instead would
+      relabel a different reading: χωόμενος took χάζομαι's FUTURE participle,
+      stamped "χώομαι" on it, and so claimed χωόμενος was a future participle
+      of χώομαι, with no LSJ link. A false morphological claim, and worse than
+      the wrong lemma it replaced.
+    * The target is absent — Morpheus offers no correct reading at all, as with
+      the negative particle whose gloss comes through as "u". There the front
+      entry is repaired in place, which is the only option and changes no
+      ordering.
+    """
     override = overrides.get(surface) if surface is not None else None
     if override is None or not parses:
         return parses
 
+    lemma = override.get("lemma")
+    if lemma:
+        index = _preferred_index(parses, lemma)
+        if index is not None:
+            return _promote(parses, index)
+
     corrected = list(parses)
     corrected[0] = dict(corrected[0])
-    if lemma := override.get("lemma"):
+    if lemma:
         corrected[0]["lemma"] = lemma
     if gloss := override.get("gloss"):
         corrected[0]["gloss"] = gloss
     return corrected
 
 
+# ── Ghost lemmata ───────────────────────────────────────────────────────────
+# Lemmata Morpheus offers that are not Homeric words at all. Dropped here, at
+# the emit, so every consumer is clean at once — the word popup's cards, the
+# vocabulary lists, and the lemma pages — rather than each filtering its own.
+#
+# χάω is the whole of LSJ s.v.:
+#
+#     χάω, contr. χῶ, = χωρῶ, coined as etym. of χάος by Simp. in Ph. 620.14.
+#
+# Simplicius coined it in the sixth century AD as an etymological guess for
+# χάος; it is attested once, in a commentary on the Physics. It was Morpheus's
+# FIRST analysis on 39 forms across the two poems, displacing χέω "pour out"
+# (28 — libations and tears), χώομαι "to be angry" (9, in the poem about
+# Achilles' wrath), χαίτη and χήν.
+#
+# ἐφαμάω's whole entry is "ἐφαμάω, v. ἐπαμάομαι." — a cross-reference stub with
+# no definition of its own. It was taking ἐφάμην, the imperfect of φημί, which
+# is "I said" and is most of Odysseus' narration.
+#
+# A ghost is only ever dropped when the token has some other reading: see
+# tests/test_parse_filter.py, which asserts over the shipped corpus that no
+# token is left empty.
+GHOST_LEMMA: frozenset[str] = frozenset({"xa/w", "e)fama/w"})
+
+
 def filter_parses(parses: list[dict]) -> list[dict]:
-    """Return `parses` with redundant unresolved readings removed.
+    """Return `parses` with redundant unresolved readings and ghost lemmata
+    removed.
 
     Each parse is a dict with at least `gloss` (str) and `lsj` (list) keys.
     """
+    # Never strand a token: a ghost is dropped only where something else
+    # remains to read the form by.
+    if any(p.get("lemma") not in GHOST_LEMMA for p in parses):
+        parses = [p for p in parses if p.get("lemma") not in GHOST_LEMMA]
+
     has_resolved = any(p["lsj"] for p in parses)
     if not has_resolved:
         return parses

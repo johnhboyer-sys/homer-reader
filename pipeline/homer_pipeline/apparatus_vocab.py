@@ -113,6 +113,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from .config import BUILD_DIR, Manifest
+from .parse_filter import GHOST_LEMMA as _GHOST_LEMMA
 
 STOPLIST_SIZE = 100
 MAX_ENTRIES_PER_BOOK = 25
@@ -121,6 +122,12 @@ MAX_GLOSS_LEN = 80
 # ── Curated homograph resolution (see module docstring "Homograph
 #    resolution"). Beta Code SURFACE key -> corpus-correct lemma. Applied only
 #    when the target lemma is among that token's own Morpheus analyses. ──────
+# Ghost lemmata are dropped at the emit (parse_filter.GHOST_LEMMA), so they
+# should never reach a vocab list at all. resolve_lemma still skips them: the
+# apparatus can be re-run over an older build/dist that predates that filter,
+# and a ghost reaching a vocabulary list is worse than a redundant check.
+GHOST_LEMMA = _GHOST_LEMMA
+
 HOMOGRAPH_LEMMA: dict[str, str] = {
     # νηός/νηὸς gen sg, νηῶν & νεῶν gen pl of ναῦς "ship" (Homeric). Morpheus
     # ranks ναός "temple" first for these; corpus-wide ναῦς (680) dwarfs ναός
@@ -130,6 +137,10 @@ HOMOGRAPH_LEMMA: dict[str, str] = {
     "nho/s": "nau=s",  # νηός / νηὸς — gen sg "of a ship"
     "nhw=n": "nau=s",  # νηῶν — gen pl "of ships"
     "new=n": "nau=s",  # νεῶν — gen pl "of ships"
+    # χωόμενος and ἐφάμην are NOT here: they are repaired at the emit instead
+    # (morphology_overrides.json + parse_filter.GHOST_LEMMA), which fixes the
+    # word popup's card order as well as the vocab lists. A copy here would be
+    # a second place to keep the same judgement correct.
 }
 
 # ── Hand-curated gloss overrides (see module docstring "Curated glosses").
@@ -213,7 +224,14 @@ def resolve_lemma(tok: dict, analyses: dict[str, list[dict]]) -> str | None:
     override = HOMOGRAPH_LEMMA.get(tok["k"])
     if override is not None and any(e.get("lemma") == override for e in entries):
         return override
-    return entries[0].get("lemma")
+    # First entry that is not a ghost (see GHOST_LEMMA). Falling all the way
+    # through means every analysis was a ghost, which no form in this corpus
+    # does; returning None then is the honest answer rather than a ghost.
+    for entry in entries:
+        lemma = entry.get("lemma")
+        if lemma is not None and lemma not in GHOST_LEMMA:
+            return lemma
+    return None
 
 
 def is_proper_name(lemma: str) -> bool:

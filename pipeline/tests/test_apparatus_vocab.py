@@ -58,11 +58,57 @@ def test_resolve_lemma_homograph_override_ignored_when_target_absent():
 
 
 def test_homograph_targets_are_purely_reranking_not_fabrication():
-    # Every HOMOGRAPH_LEMMA maps a ship surface form to ναῦς (never a lemma
-    # invented out of nothing); pins the table's intent so a future edit that
-    # smuggled in a non-ship target would fail loudly.
-    assert set(v.HOMOGRAPH_LEMMA.values()) == {"nau=s"}
-    assert set(v.HOMOGRAPH_LEMMA) == {"nho/s", "nhw=n", "new=n"}
+    """Every override must re-rank one of Morpheus's OWN analyses for that
+    form, never invent a lemma.
+
+    This used to pin the table to the three ship forms by name, which said
+    nothing about the property the table actually has to hold and failed the
+    moment the table legitimately grew. Checked against the shipped analyses
+    instead: for each entry, the target must appear among the candidates for
+    that surface form in at least one work — which is the thing that makes an
+    override a re-ranking rather than a fabrication.
+    """
+    import json
+    dist = REAL_DIST_DIR
+    if not (dist / "iliad").is_dir():
+        import pytest
+        pytest.skip("requires a local build/dist")
+    candidates: dict[str, set[str]] = {}
+    for work in ("iliad", "odyssey"):
+        f = dist / work / "analyses.json"
+        if not f.exists():
+            continue
+        for key, entries in json.loads(f.read_text(encoding="utf-8")).items():
+            candidates.setdefault(key, set()).update(
+                e.get("lemma") for e in entries)
+    fabricated = [
+        (form, target) for form, target in v.HOMOGRAPH_LEMMA.items()
+        if target not in candidates.get(form, set())
+    ]
+    assert fabricated == [], f"targets Morpheus never offers: {fabricated}"
+
+
+def test_ghost_lemmata_are_never_the_only_analysis():
+    """Skipping a ghost must stand a token down to a real lemma, not to nothing.
+
+    χάω is LSJ's "coined as etym. of χάος by Simp. in Ph. 620.14" — a sixth
+    century AD invention that was winning 39 Homeric forms.
+    """
+    import json
+    dist = REAL_DIST_DIR
+    if not (dist / "iliad").is_dir():
+        import pytest
+        pytest.skip("requires a local build/dist")
+    stranded = []
+    for work in ("iliad", "odyssey"):
+        f = dist / work / "analyses.json"
+        if not f.exists():
+            continue
+        for key, entries in json.loads(f.read_text(encoding="utf-8")).items():
+            lemmas = {e.get("lemma") for e in entries}
+            if lemmas and lemmas <= v.GHOST_LEMMA:
+                stranded.append((work, key))
+    assert stranded == [], f"only a ghost analysis: {stranded}"
 
 
 # ── top_stoplist: mechanical, no hand list ──────────────────────────────────

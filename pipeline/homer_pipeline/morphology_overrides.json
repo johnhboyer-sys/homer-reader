@@ -166,5 +166,53 @@
     "lemma": "i(/ppos",
     "gloss": "horse",
     "justification": "Inflected form of Homeric hippos, horse."
+  },
+  {
+    "surface": "xwo/menos",
+    "lemma": "xw/omai",
+    "gloss": "to be angry",
+    "justification": "Present participle of χώομαι 'to be angry' — Achilles at Il. 1.44 and throughout. Morpheus offers χάζομαι 'cause to retire' as a FUTURE participle for this form, but χάζομαι's future participle is χασσόμενος; χωόμενος is present. (χάω, ranked ahead of both, is dropped as a ghost lemma — see parse_filter.GHOST_LEMMA.)"
+  },
+  {
+    "surface": "xwo/menon",
+    "lemma": "xw/omai",
+    "gloss": "to be angry",
+    "justification": "Present participle of χώομαι 'to be angry' — Achilles at Il. 1.44 and throughout. Morpheus offers χάζομαι 'cause to retire' as a FUTURE participle for this form, but χάζομαι's future participle is χασσόμενος; χωόμενος is present. (χάω, ranked ahead of both, is dropped as a ghost lemma — see parse_filter.GHOST_LEMMA.)"
+  },
+  {
+    "surface": "xwo/menoi",
+    "lemma": "xw/omai",
+    "gloss": "to be angry",
+    "justification": "Present participle of χώομαι 'to be angry' — Achilles at Il. 1.44 and throughout. Morpheus offers χάζομαι 'cause to retire' as a FUTURE participle for this form, but χάζομαι's future participle is χασσόμενος; χωόμενος is present. (χάω, ranked ahead of both, is dropped as a ghost lemma — see parse_filter.GHOST_LEMMA.)"
+  },
+  {
+    "surface": "xwome/nh",
+    "lemma": "xw/omai",
+    "gloss": "to be angry",
+    "justification": "Present participle of χώομαι 'to be angry' — Achilles at Il. 1.44 and throughout. Morpheus offers χάζομαι 'cause to retire' as a FUTURE participle for this form, but χάζομαι's future participle is χασσόμενος; χωόμενος is present. (χάω, ranked ahead of both, is dropped as a ghost lemma — see parse_filter.GHOST_LEMMA.)"
+  },
+  {
+    "surface": "xwome/noio",
+    "lemma": "xw/omai",
+    "gloss": "to be angry",
+    "justification": "Present participle of χώομαι 'to be angry' — Achilles at Il. 1.44 and throughout. Morpheus offers χάζομαι 'cause to retire' as a FUTURE participle for this form, but χάζομαι's future participle is χασσόμενος; χωόμενος is present. (χάω, ranked ahead of both, is dropped as a ghost lemma — see parse_filter.GHOST_LEMMA.)"
+  },
+  {
+    "surface": "xwome/nou",
+    "lemma": "xw/omai",
+    "gloss": "to be angry",
+    "justification": "Present participle of χώομαι 'to be angry' — Achilles at Il. 1.44 and throughout. Morpheus offers χάζομαι 'cause to retire' as a FUTURE participle for this form, but χάζομαι's future participle is χασσόμενος; χωόμενος is present. (χάω, ranked ahead of both, is dropped as a ghost lemma — see parse_filter.GHOST_LEMMA.)"
+  },
+  {
+    "surface": "xwome/nhs",
+    "lemma": "xw/omai",
+    "gloss": "to be angry",
+    "justification": "Present participle of χώομαι 'to be angry' — Achilles at Il. 1.44 and throughout. Morpheus offers χάζομαι 'cause to retire' as a FUTURE participle for this form, but χάζομαι's future participle is χασσόμενος; χωόμενος is present. (χάω, ranked ahead of both, is dropped as a ghost lemma — see parse_filter.GHOST_LEMMA.)"
+  },
+  {
+    "surface": "xwome/nw|",
+    "lemma": "xw/omai",
+    "gloss": "to be angry",
+    "justification": "Present participle of χώομαι 'to be angry' — Achilles at Il. 1.44 and throughout. Morpheus offers χάζομαι 'cause to retire' as a FUTURE participle for this form, but χάζομαι's future participle is χασσόμενος; χωόμενος is present. (χάω, ranked ahead of both, is dropped as a ghost lemma — see parse_filter.GHOST_LEMMA.)"
   }
 ]
