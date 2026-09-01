@@ -5,6 +5,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "pipeline"))
 
 from homer_pipeline.parse_filter import (
+    GHOST_LEMMA,
     MORPHOLOGY_OVERRIDES,
     apply_morphology_override,
     filter_parses,
@@ -251,6 +252,53 @@ def test_an_override_promotes_the_real_analysis_rather_than_relabelling_one():
     assert any(p["lemma"] == "xa/zomai" for p in out)
 
 
+def test_elea_ghost_is_dropped_when_eleeo_reads_the_form():
+    # ἐλεάω: LSJ's whole entry is "later form of ἐλεέω, EM 327.29, LXX Pr.
+    # 21.26" -- not attested before the Etymologicum Magnum / Septuagint. It
+    # is Morpheus's FIRST analysis on every Homeric occurrence, always with
+    # the identical parse ἐλεέω also carries for the same slot, so dropping
+    # it changes no morphology, only the lemma tag.
+    parses = [
+        {"lemma": "e)lea/w", "gloss": "", "parse": "aor subj mid 2nd sg (attic ionic)",
+         "lsj": ["e)lea/w"]},
+        {"lemma": "e)lee/w", "gloss": "to have pity on, show mercy to",
+         "parse": "aor subj mid 2nd sg", "lsj": ["e)lee/w"]},
+    ]
+    assert [p["lemma"] for p in filter_parses(parses)] == ["e)lee/w"]
+
+
+def test_elea_ghost_is_kept_rather_than_stranding_the_token():
+    only = [{"lemma": "e)lea/w", "gloss": "", "parse": "aor ind act 3rd sg",
+             "lsj": ["e)lea/w"]}]
+    assert filter_parses(only) == only
+
+
+def test_apechthomai_ghost_is_dropped_and_apechthanomai_keeps_its_own_aorist_parse():
+    # ἀπέχθομαι: LSJ's whole entry is "later form of ἀπεχθάνομαι". Morpheus
+    # reads the Homeric aorist middle ἀπήχθετο as ἀπέχθομαι's own PRESENT-
+    # stem imperfect -- but LSJ's ἀπεχθάνομαι entry itself cites this exact
+    # form as that verb's aorist ("ἀπήχθετο πᾶσι θεοῖσι", Il. 6.140) and notes
+    # Homer uses the verb "always in aor." Dropping the ghost does not
+    # relabel anything: it removes the mismatched imperfect parse outright,
+    # and ἀπεχθάνομαι's own aorist parse -- already correctly tagged -- takes
+    # its place.
+    parses = [
+        {"lemma": "a)pe/xqomai", "gloss": "", "parse": "imperf ind mp 3rd sg",
+         "lsj": ["a)pe/xqomai"]},
+        {"lemma": "a)pexqa/nomai", "gloss": "to be hated, incur hatred",
+         "parse": "aor ind mid 3rd sg", "lsj": ["a)pexqa/nomai"]},
+    ]
+    out = filter_parses(parses)
+    assert [p["lemma"] for p in out] == ["a)pexqa/nomai"]
+    assert out[0]["parse"] == "aor ind mid 3rd sg", "kept its own aorist parse"
+
+
+def test_apechthomai_ghost_is_kept_rather_than_stranding_the_token():
+    only = [{"lemma": "a)pe/xqomai", "gloss": "", "parse": "pres subj mp 3rd sg",
+             "lsj": ["a)pe/xqomai"]}]
+    assert filter_parses(only) == only
+
+
 def test_an_override_still_repairs_in_place_when_the_lemma_is_absent():
     # The negative particle: Morpheus's gloss comes through as "u" and there is
     # no better candidate to promote.
@@ -258,3 +306,43 @@ def test_an_override_still_repairs_in_place_when_the_lemma_is_absent():
                "parse": "proclitic indeclform (adverb)", "lsj": ["ou)"], "cunliffe": []}]
     out = apply_morphology_override(parses, "ou)")
     assert out[0]["gloss"] == "not"
+
+
+def test_no_shipped_token_still_reads_by_a_ghost():
+    """The invariant a ghost addition can actually violate.
+
+    `filter_parses` is guarded — it drops ghosts only when a non-ghost remains —
+    so a ghost can never leave a token with NO reading, and a test asserting
+    that passes by construction. What it CAN do is leave a token reading by the
+    ghost itself: a form whose only analysis is the ghost keeps it, and the
+    reader is shown a lemma that is not a Homeric word.
+
+    That is the check worth having, and the one that can see a lemma added to
+    GHOST_LEMMA since the last build: `build/dist` is already filtered, so a
+    test that only reads it is blind until a rebuild has shipped the damage.
+    Re-running the filter over the shipped analyses exercises the CURRENT set
+    against the real corpus.
+
+    Both ghosts added on 2026-09-01 pass because every form naming them also
+    names its real sibling — ἐλεάω always beside ἐλεέω, ἀπέχθομαι always beside
+    ἀπεχθάνομαι. A future ghost without that property fails here.
+    """
+    import json
+    dist = ROOT / "build" / "dist"
+    if not (dist / "iliad").is_dir():
+        import pytest
+        pytest.skip("requires a local build/dist")
+    showing = []
+    for work in ("iliad", "odyssey"):
+        f = dist / work / "analyses.json"
+        if not f.exists():
+            continue
+        for key, entries in json.loads(f.read_text(encoding="utf-8")).items():
+            if not entries:
+                continue
+            kept = filter_parses(list(entries))
+            if any(p.get("lemma") in GHOST_LEMMA for p in kept):
+                showing.append((work, key))
+    assert showing == [], (
+        f"{len(showing)} tokens would be shown a ghost lemma: {showing[:5]}"
+    )
