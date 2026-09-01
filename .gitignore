@@ -3,6 +3,10 @@ build
 build/
 dist/
 .venv/
+# and as a SYMLINK: a worktree points its .venv at the main checkout's (see
+# CLAUDE.md, build:public in a worktree), and a trailing-slash pattern matches
+# only directories, so the link itself showed up as untracked.
+.venv
 .DS_Store
 *.log
 .astro/
