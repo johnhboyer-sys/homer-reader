@@ -9,6 +9,9 @@ Per the approved formats:
                       LSJ and Cunliffe keys for each lemma merged in.
   - lsj/{letter}.json       letter-sharded LSJ entries, corpus lemmata only.
   - cunliffe/{letter}.json  letter-sharded Cunliffe entries, corpus lemmata only.
+  - cunliffe-t8/{letter}.json  the same entries as T8 records, which is what
+    the word popup renders from (the html shards remain for anything that
+    wants the prose).
   - manifest.json     work metadata and per-book stats.
 Reports (validation, unmatched tokens, sigla, missing lemmata) are copied
 to build/dist/reports/ for the Milestone 2 review.
@@ -641,6 +644,30 @@ def _merge_shared_cunliffe() -> None:
         dest.write_text(json.dumps(merged, ensure_ascii=False), encoding="utf-8")
 
 
+def _merge_shared_cunliffe_t8() -> None:
+    """Merge this work's Cunliffe T8 records into build/dist/cunliffe-t8/,
+    union by key, exactly as _merge_shared_cunliffe does for the html shards.
+
+    Without this a real build emits no T8 shards at all and the reader's
+    Cunliffe tab 404s: the popup renders from these records, not from the html.
+    The records only ever existed because a one-off script wrote them, which is
+    precisely the kind of gap a deploy finds."""
+    src_dir = BUILD_DIR / "stage5" / "cunliffe-t8"
+    if not src_dir.is_dir():
+        return
+    shared = BUILD_DIR / "dist" / "cunliffe-t8"
+    shared.mkdir(parents=True, exist_ok=True)
+    for shard in sorted(src_dir.glob("*.json")):
+        src = json.loads(shard.read_text(encoding="utf-8"))
+        dest = shared / shard.name
+        if dest.exists():
+            merged = json.loads(dest.read_text(encoding="utf-8"))
+            merged.update(src)
+        else:
+            merged = src
+        dest.write_text(json.dumps(merged, ensure_ascii=False), encoding="utf-8")
+
+
 def run(manifest: Manifest) -> Path:
     spine = _load("stage1/greek_spine.json")
     tokens_doc = _load("stage3/tokens.json")
@@ -821,6 +848,7 @@ def run(manifest: Manifest) -> Path:
 
     _merge_shared_lsj()
     _merge_shared_cunliffe()
+    _merge_shared_cunliffe_t8()
 
     (out_dir / "search").mkdir(exist_ok=True)
     for f in [

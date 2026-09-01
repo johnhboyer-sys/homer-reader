@@ -1,8 +1,8 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import {
-    lookupWord, fetchLemmata, fetchLsjHeads, fetchCunliffeShard, cunliffeShard,
-    type Analysis, type CunliffeEntry, type LemmaRef, type LsjHead,
+    lookupWord, fetchLemmata, fetchLsjHeads, fetchCunliffeT8Shard, cunliffeShard,
+    type Analysis, type CunliffeT8, type LemmaRef, type LsjHead,
   } from '../lib/data';
   import { betaToGreek } from '../lib/betacode';
   import { workPath } from '../lib/works';
@@ -43,6 +43,7 @@
     open = {};
     cunliffeText = {};
     entryError = {};
+    xrefStack = {};
     // entries:false — no dictionary shard is fetched for a lookup any more.
     // The cards come from the analyses plus the heads manifest; an entry's text
     // is fetched only when its tab is tapped.
@@ -192,14 +193,24 @@
   type LookupFn = (
     word: string,
     el: HTMLElement,
-    opts?: { lang?: string; key?: string },
+    opts?: { lang?: string; key?: string; logeion?: boolean },
   ) => Promise<void>;
-  let _grammata: Promise<LookupFn> | null = null;
-  function grammata(): Promise<LookupFn> {
+  type RenderEntryFn = (
+    rec: unknown,
+    el: HTMLElement,
+    opts?: {
+      abbr?: boolean;
+      logeion?: boolean;
+      citation?: (token: string) => string | null;
+    },
+  ) => void;
+  interface Grammata { lookup: LookupFn; renderEntry: RenderEntryFn; T8_SCHEMA_VERSION: number }
+  let _grammata: Promise<Grammata> | null = null;
+  function grammata(): Promise<Grammata> {
     // @vite-ignore is REQUIRED: Vite cannot resolve an https: import at build
     // time and the build fails without it.
     if (!_grammata) {
-      const p = import(/* @vite-ignore */ GRAMMATA_LOOKUP).then(m => m.lookup as LookupFn);
+      const p = import(/* @vite-ignore */ GRAMMATA_LOOKUP).then(m => m as Grammata);
       p.catch(() => { if (_grammata === p) _grammata = null; });
       _grammata = p;
     }
@@ -210,7 +221,7 @@
   // is the default everywhere: nothing is fetched for a reader who wanted only
   // the parse.
   let open: Record<string, 'lsj' | 'cunliffe'> = {};
-  let cunliffeText: Record<string, CunliffeEntry[]> = {};
+  let cunliffeText: Record<string, CunliffeT8[]> = {};
   let entryError: Record<string, string> = {};
 
   async function toggle(card: EntryCard, i: number, which: 'lsj' | 'cunliffe') {
@@ -222,15 +233,19 @@
     open = { ...open, [card.id]: which };
     entryError = { ...entryError, [card.id]: '' };
     await tick();   // the mount point only exists once the panel has rendered
-    if (which === 'lsj') await openLsj(card, i);
-    else await openCunliffe(card);
+    if (which === 'lsj') {
+      await openLsj(card, i);
+    } else {
+      await openCunliffe(card);
+      await paintCunliffe(card.id, i);
+    }
   }
 
   async function openLsj(card: EntryCard, i: number) {
     const el = panelEl?.querySelector<HTMLElement>(`#lex-panel-${i} .grammata-mount`);
     if (!el) return;
     try {
-      const lookup = await grammata();
+      const { lookup } = await grammata();
       // PASS THE KEY, NEVER THE SURFACE FORM. A surface form makes the widget
       // re-analyse from scratch and discard the disambiguation this reader has
       // already done — εἰσὶ comes back as ἵημι, εἰμί and εἶμι with ἵημι first,
@@ -255,10 +270,10 @@
   async function openCunliffe(card: EntryCard) {
     if (cunliffeText[card.id]) return;
     try {
-      const found: CunliffeEntry[] = [];
+      const found: CunliffeT8[] = [];
       for (const key of card.cunliffeKeys) {
-        const shard = await fetchCunliffeShard(cunliffeShard(key));
-        if (shard[key]) found.push(shard[key]);
+        const shard = await fetchCunliffeT8Shard(cunliffeShard(key));
+        for (const rec of shard[key] ?? []) found.push(rec);
       }
       cunliffeText = { ...cunliffeText, [card.id]: found };
     } catch {
@@ -266,11 +281,100 @@
     }
   }
 
+  // Following a "See <headword>" pointer. Cunliffe cross-references constantly,
+  // and those pointers were dead text; stage5 marks the ones whose target ships
+  // as <a class="cunliffe-xref" data-key="…">, inside the record's own `z`.
+  //
+  // A stack, not a swap, because pointers chain — and because a reader who
+  // followed one wants the entry they came from back.
+  let xrefStack: Record<string, { key: string; entries: CunliffeT8[] }[]> = {};
+
+  // Derived, not a function called from the template: a plain helper hides its
+  // dependency on cunliffeText from Svelte, so the panel never re-rendered when
+  // the fetch resolved and every Cunliffe body stayed empty. `undefined` still
+  // means "still loading" and `[]` means "nothing there".
+  $: shownCunliffe = (() => {
+    const out: Record<string, CunliffeT8[] | undefined> = {};
+    for (const c of cards) {
+      const st = xrefStack[c.id];
+      out[c.id] = st && st.length ? st[st.length - 1].entries : cunliffeText[c.id];
+    }
+    return out;
+  })();
+
+  async function followXref(cardId: string, key: string) {
+    try {
+      const shard = await fetchCunliffeT8Shard(cunliffeShard(key));
+      const entry = (shard[key] ?? [])[0];
+      if (!entry) return;   // stage5 only marks targets it ships
+      xrefStack = {
+        ...xrefStack,
+        [cardId]: [...(xrefStack[cardId] ?? []), { key, entries: [entry] }],
+      };
+      await paintCunliffe(cardId, cards.findIndex(c => c.id === cardId));
+    } catch {
+      entryError = { ...entryError, [cardId]: 'Cunliffe could not be loaded.' };
+    }
+  }
+
+  async function backFromXref(cardId: string) {
+    xrefStack = { ...xrefStack, [cardId]: (xrefStack[cardId] ?? []).slice(0, -1) };
+    await paintCunliffe(cardId, cards.findIndex(c => c.id === cardId));
+  }
+
+  // grammata renders the record; we supply the links, because we are the only
+  // side that knows how to reach the poem. Its own citation hook is what turns
+  // `au` and an example's `c` into anchors — the ones inside `z` and `i` are
+  // already in the markup stage5 wrote.
+  const citationHref = (token: string): string | null => {
+    const m = /^(Il|Od)\.\s*(\d+)\.(\d+)$/.exec(token.trim());
+    if (!m) return null;   // a bare continuation ("75") has no book of its own
+    const work = m[1] === 'Il' ? 'iliad' : 'odyssey';
+    return `${base}${workPath(work, Number(m[2]))}`
+      + `?loc=${formatLocValue(work, m[2], Number(m[3]))}`;
+  };
+
+  /** Paint the T8 records for a card into their mount points. */
+  async function paintCunliffe(cardId: string, i: number) {
+    let g: Grammata;
+    try {
+      g = await grammata();
+    } catch {
+      entryError = { ...entryError, [cardId]: 'The dictionary could not be loaded.' };
+      return;
+    }
+    // AFTER the tick: shownCunliffe is derived, so reading it before Svelte has
+    // recomputed gives the previous word's records — or none at all, which read
+    // as "nothing to paint" and left every Cunliffe body blank.
+    await tick();
+    const recs = shownCunliffe[cardId];
+    if (!recs?.length) return;
+    const mounts = panelEl?.querySelectorAll<HTMLElement>(
+      `#lex-panel-${i} .cunliffe-mount`);
+    if (!mounts) return;
+    recs.forEach((rec, k) => {
+      const el = mounts[k];
+      if (!el) return;
+      el.innerHTML = '';
+      // abbr:false — grammata's abbreviation table is LSJ-shaped and Cunliffe's
+      // conventions are narrower; a wrong expansion is worse than none.
+      // logeion:false — the card's tab row already carries that link.
+      g.renderEntry(rec, el, { abbr: false, logeion: false, citation: citationHref });
+    });
+  }
+
   // A Cunliffe entry's HTML embeds internal citation links as
   // <a class="cunliffe-cite" data-work data-book data-line> markers rather than
   // baked hrefs (BASE_URL is only known client-side). Resolve the destination
   // here, in-place navigation (same tab), the way BekkerJump/CommandPalette do.
-  function onCunliffeClick(e: MouseEvent) {
+  function onCunliffeClick(e: MouseEvent, cardId: string) {
+    const xref = (e.target as HTMLElement).closest('a.cunliffe-xref') as HTMLElement | null;
+    if (xref) {
+      e.preventDefault();
+      const key = xref.dataset.key;
+      if (key) followXref(cardId, key);
+      return;
+    }
     const target = (e.target as HTMLElement).closest('a.cunliffe-cite') as HTMLElement | null;
     if (!target) return;
     e.preventDefault();
@@ -344,17 +448,23 @@
                    and failure states, so there is nothing to add here. -->
               <div class="grammata-mount"></div>
             {:else}
-              <div class="cunliffe-body" on:click={onCunliffeClick} on:keydown={() => {}}>
-                {#if cunliffeText[c.id] === undefined}
+              <div class="cunliffe-body" on:click={(e) => onCunliffeClick(e, c.id)} on:keydown={() => {}}>
+                {#if (xrefStack[c.id] ?? []).length}
+                  <button type="button" class="cunliffe-back" on:click|stopPropagation={() => backFromXref(c.id)}>
+                    <span aria-hidden="true">←</span> Back to {c.head}
+                  </button>
+                {/if}
+                {#if shownCunliffe[c.id] === undefined}
                   <div class="popup-loading">Looking up…</div>
-                {:else if cunliffeText[c.id].length === 0}
+                {:else if shownCunliffe[c.id]!.length === 0}
                   <div class="popup-loading">Not in Cunliffe.</div>
                 {:else}
-                  {#each cunliffeText[c.id] as entry}
-                    <div class="cunliffe-entry">
-                      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                      {@html entry.html}
-                    </div>
+                  {#each shownCunliffe[c.id]! as _rec}
+                    <!-- grammata renders the record into this: headword, forms
+                         bar, division tabs, sense rows, example drawers. The
+                         citation and cross-reference links inside it are the
+                         markup stage5 wrote plus our own citation hook. -->
+                    <div class="cunliffe-mount"></div>
                   {/each}
                 {/if}
               </div>

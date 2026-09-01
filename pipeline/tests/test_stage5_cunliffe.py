@@ -146,3 +146,248 @@ def test_emitter_shard_letter_agrees_with_front_end_shard_on_real_keys():
         if key.startswith("*"):
             continue
         assert shard_letter(key) == expected
+
+
+# ── Cunliffe as a T8 record ────────────────────────────────────────────────
+# Every case below is a real entry, and each one broke a rule that sounded
+# right before it was measured.
+
+def test_sense_numbers_are_kept_by_sequence_not_by_lookahead():
+    # ἄγαμαι carries a citation line number that reads as a sense ("… Od.
+    # 5.41 Ἀ…"), and lookahead rules accept it. It cannot continue the run,
+    # so sequence rejects it.
+    out = sc.split_senses("x 1 First. 41 Stray. 2 Second. 3 Third.")
+    assert [s["n"] for s in out["senses"]] == ["1", "2", "3"]
+
+
+def test_person_and_number_labels_are_never_senses():
+    # 2,651 entries carry these. "1 sing." is morphology, not a division of
+    # meaning, and taking it as one silently invents senses.
+    out = sc.split_senses("†ἄγαμαι 1 sing. pres. ἄγαμαι Od. 6.168. 2 pl. ἀγάασθε Od. 5.119.")
+    assert out["senses"] == []
+
+
+def test_a_homonym_reference_inside_an_etymology_is_not_a_sense():
+    # ἀμβατός reads "[ἀμ-, ἀνα- 1 + βα-, βαίνω.]" — that 1 points at ἀνα-1.
+    # A round-trip check cannot catch this: a false 1 still forms a valid run
+    # and loses no characters. 185 entries were affected.
+    out = sc.split_senses("ἀμβατός -όν [ἀμ-, ἀνα- 1 + βα-, βαίνω.] Capable of being scaled: πόλις Il. 6.434.")
+    assert out["senses"] == []
+
+
+def test_numbering_restarts_under_a_division():
+    # ἄγω runs 1-10, then II, then 1-7. A flat rule keeps only the first run.
+    out = sc.split_senses("ἄγω 1 One. 2 Two. II In mid. 1 Mid one. 2 Mid two.")
+    assert [s["n"] for s in out["senses"]] == ["1", "2", "1", "2"]
+    assert [d["n"] for d in out["divisions"]] == ["II"]
+
+
+def test_the_definition_stops_where_the_evidence_starts():
+    z, ex = sc.parse_sense("Wrath, ire : μῆνιν ἄειδε Ἀχιλῆος Il. 1.1. Cf. Il. 1.75.")
+    assert z.rstrip(" :") == "Wrath, ire"
+    assert ex.startswith("μῆνιν ἄειδε")
+
+
+def test_a_headword_abbreviation_does_not_end_the_definition():
+    # "ἁ." is Cunliffe abbreviating ἅμα INSIDE its own quotation. Reading that
+    # period as a sentence end cut 3,179 quotations in half, stranding the
+    # front of the quotation in the definition.
+    z, ex = sc.parse_sense("At the same time: σκεψάμενος ἐς νῆʼ ἁ. καὶ μεθʼ ἑταίρους Od. 12.247.")
+    assert "σκεψάμενος" not in z
+    assert ex.startswith("σκεψάμενος")
+
+
+def test_a_division_banner_takes_its_numeral_out_of_the_running_text():
+    # Emitting the numeral without removing it made 63 entries GAIN characters.
+    t8 = sc.to_t8("a", "ἅμα", "ἅμα [σα-.] I Adv. 1 With. 2 Together. II Prep. 1 Along with Il. 3.1.")
+    banners = [r for r in t8["rows"] if r.get("b")]
+    assert [b["n"] for b in banners] == ["I", "II"]
+    joined = t8["i"] + "".join((r.get("n") or "") + (r.get("z") or "") + (r.get("ex") or "")
+                               for r in t8["rows"])
+    assert joined.count("II") == 1
+
+
+def test_no_row_ever_carries_s():
+    # grammata draws a continuation dash on a row with `s` AND an empty
+    # numeral. Three quarters of this dictionary is one unnumbered row, and
+    # every one of them would sprout a dash it should not have.
+    t8 = sc.to_t8("m", "μῆνις", "μῆνις ἡ. 1 Wrath Il. 1.1. 2 Its effect Il. 5.34.")
+    assert all("s" not in r for r in t8["rows"])
+
+
+def test_gr_is_offered_only_when_there_are_divisions_to_tab():
+    plain = sc.to_t8("m", "μῆνις", "μῆνις ἡ. 1 Wrath Il. 1.1. 2 Its effect Il. 5.34.")
+    assert "gr" not in plain
+    divided = sc.to_t8("a", "ἅμα", "ἅμα [σα-.] I Adv. 1 With. 2 Together. II Prep. 1 Along with Il. 3.1.")
+    assert [g[0] for g in divided["gr"]] == ["I", "II"]
+
+
+def test_an_unnumbered_entry_is_one_row():
+    t8 = sc.to_t8("x", "ἄλειφαρ", "ἄλειφαρ -ατος, τό [ἀλείφω.] Unguent, oil Il. 18.351.")
+    assert len(t8["rows"]) == 1
+    assert t8["rows"][0]["n"] == ""
+
+
+def test_the_whole_lexicon_survives_the_t8_parse(tmp_path):
+    """Not a sample: every entry, every character.
+
+    This assertion caught three separate bugs that nothing else could see —
+    a regex eating the separator it matched on (all 2,555 split entries lost
+    a character), a division banner printing a numeral without removing it
+    from the text (63 entries gained one), and the Roman matcher indexing the
+    separator rather than the numeral. None of them changed a count; all of
+    them changed the text.
+    """
+    import json
+    import re
+    src = SOURCES = Path("/Users/johnboyer/Developer/homer-reader/sources/cunliffe/cunliffe-1-lex.jsonl")
+    if not src.exists():
+        import pytest
+        pytest.skip(f"Cunliffe source not present at {src}")
+    from collections import Counter
+    # z, i and an example's g carry markup now (grammata runs them through
+    # wrapGreekInHtml, not escapeHtml, which is what lets the cross-references
+    # survive into the records). Compare the TEXT, and check the tags separately
+    # rather than letting them count as content.
+    def plain(v):
+        v = re.sub(r"<[^>]*>", "", v)
+        return (v.replace("&amp;", "&").replace("&lt;", "<")
+                 .replace("&gt;", ">").replace("&quot;", '"').replace("&#x27;", "'"))
+    nows = lambda s: re.sub(r"\s+", "", plain(s))
+    # Connectors ("Cf.", ",", ":", "=") carry nothing a T8 row keeps — it joins
+    # citations with its own separator — and the brackets around a parenthetical
+    # go when its text is lifted into `e`. Those are the ONLY characters this
+    # parse is allowed to drop, and the assertion names them rather than
+    # stripping both sides, which would blind it to what it is auditing.
+    allowed = set(",.:;=()") | set("Cfcand")   # "Cf." and lowercase "cf."
+    lossy = []
+    rows = 0
+    for line in src.open(encoding="utf-8"):
+        if not line.strip():
+            continue
+        r = json.loads(line)
+        t8 = sc.to_t8(r["key"], r["headword"], r["definition"])
+        rows += len(t8["rows"])
+        parts = [t8["head"], t8["i"]]
+        # the forms block and the entry-level citations it pulled out of the
+        # head run
+        for lab, form in t8.get("f") or []:
+            parts += [lab, form]
+        parts += list(t8.get("au") or [])
+        for x in t8["rows"]:
+            parts += [x.get("n") or "", x.get("z") or ""]
+            for item in x.get("ex") or []:
+                parts += [item.get("g") or "", item.get("e") or "", item.get("c") or ""]
+            parts += list(x.get("au") or [])
+        dropped = Counter(nows(r["definition"])) - Counter(nows("".join(parts)))
+        added = Counter(nows("".join(parts))) - Counter(nows(r["definition"]))
+        # Gains are allowed ONLY where a continuation reference has had its book
+        # restored — "496" becoming "Il. 1.496" — so the permitted characters
+        # are exactly a work abbreviation, digits and a dot. Anything else means
+        # the parse invented text.
+        restorable = set("IlOd.0123456789")
+        invented = [ch for ch in added if ch not in restorable]
+        assert not invented, f"{r['headword']} invented {invented}"
+        # every anchor this parse inserts must be closed
+        for field in [t8["i"]] + [x.get("z") or "" for x in t8["rows"]] + [
+                e.get("g") or "" for x in t8["rows"] for e in (x.get("ex") or [])]:
+            assert field.count("<a ") == field.count("</a>"), r["headword"]
+        real = [ch for ch in dropped if ch not in allowed]
+        if real:
+            lossy.append((r["headword"], real))
+    assert lossy == [], f"{len(lossy)} entries lost content: {lossy[:5]}"
+    assert rows > 20000, rows
+
+
+def test_a_quotation_becomes_an_example_and_a_bare_citation_an_author():
+    t8 = sc.to_t8("m", "μῆνις",
+                  "μῆνις ἡ. 1 Wrath, ire : μῆνιν ἄειδε Ἀχιλῆος Il. 1.1. Cf. Il. 1.75, Il. 5.178.")
+    row = t8["rows"][0]
+    assert row["ex"] == [{"g": "μῆνιν ἄειδε Ἀχιλῆος", "c": "Il. 1.1"}]
+    assert row["au"] == ["Il. 1.75", "Il. 5.178"]
+
+
+def test_a_parenthetical_translation_becomes_the_example_gloss():
+    t8 = sc.to_t8("a", "ἀναιδής",
+                  "ἀναιδής 1 Shameless: ἀναιδέα δηϊοτῆτος (app., shamelessly insatiate) Il. 5.593.")
+    assert t8["rows"][0]["ex"] == [
+        {"g": "ἀναιδέα δηϊοτῆτος", "c": "Il. 5.593", "e": "app., shamelessly insatiate"}
+    ]
+
+
+def test_prose_between_citations_is_never_dropped():
+    # ἀγακλεής puts its DEFINITION after its principal parts, so it lands in the
+    # evidence run rather than in `z`. An earlier version discarded any evidence
+    # text with no Greek in it, and this entry lost "Very famous, glorious,
+    # splendid, worthy" outright — 2,534 entries (25.8%) lost content that way.
+    t8 = sc.to_t8("a", "ἀγακλεής",
+                  "ἀγακλεής -ές Genit. ἀγακλῆος Il. 16.738. Very famous, glorious Il. 17.716.")
+    assert any("Very famous, glorious" in (r.get("z") or "") for r in t8["rows"])
+
+
+def test_prose_between_citations_keeps_the_citations_that_follow_it():
+    t8 = sc.to_t8("a", "ἀναιδής",
+                  "ἀναιδής 1 Shameless Od. 1.254. Absol. Il. 1.158.")
+    tail = t8["rows"][-1]
+    assert tail["z"] == "Absol."
+    assert tail["au"] == ["Il. 1.158"]
+    assert tail["n"] == ""      # a continuation carries no number of its own
+    assert "s" not in tail      # and never `s`, which would draw a dash
+
+
+def test_an_unnumbered_entrys_morphology_is_not_read_as_a_quotation():
+    # αἴγειρος came out with z="-" and "ου, ἡ. The poplar" inside `g`, reading
+    # as though Homer had written it — the definition in the wrong field, and
+    # the endings split in half. 151 entries did this.
+    t8 = sc.to_t8("a", "αἴγειρος", "αἴγειρος -ου, ἡ. The poplar Il. 4.482: Od. 5.64.")
+    assert t8["i"] == "-ου, ἡ."
+    row = t8["rows"][0]
+    assert row["z"] == "The poplar"
+    assert all("poplar" not in e.get("g", "") for e in row.get("ex", []))
+
+
+def test_an_etymology_bracket_stays_out_of_the_quotation():
+    t8 = sc.to_t8("a", "ἄλειφαρ", "ἄλειφαρ -ατος, τό [ἀλείφω.] Unguent, oil Il. 18.351.")
+    assert "[ἀλείφω.]" in t8["i"]
+    assert t8["rows"][0]["z"] == "Unguent, oil"
+
+
+def test_a_note_joins_the_citation_list_not_the_definition():
+    # "etc." qualifies the citations above it. Given a row to itself it produced
+    # sense rows whose whole definition read "etc." (839 of them); appended to
+    # the definition instead it produced "With, along with, in company with
+    # etc. etc.". It belongs in `au`, which renders as "Il. 1.424 · etc.".
+    t8 = sc.to_t8("a", "ἅμα", "ἅμα 1 With Il. 1.424. etc.: κήρυχʼ ἁ. ὀπάσσας Od. 9.90.")
+    assert len(t8["rows"]) == 1
+    row = t8["rows"][0]
+    assert row["z"] == "With"
+    assert "etc." in row["au"]
+
+
+def test_a_continuation_reference_keeps_its_book():
+    # "Il. 1.83, 496, 533" means Il. 1.83, Il. 1.496, Il. 1.533. Cunliffe drops
+    # the book because the previous reference established it — which reads
+    # correctly in prose and not at all once the references are a separated
+    # list, where "496 · 533" has nothing to attach to (John, on seeing it).
+    segs = sc.split_evidence("ἑός Il. 1.83, 496, 533, Il. 2.662 : Od. 1.216, 218.")
+    assert segs[0]["au"] == ["Il. 1.496", "Il. 1.533", "Il. 2.662",
+                             "Od. 1.216", "Od. 1.218"]
+
+
+def test_a_full_reference_resets_the_book_across_the_poems():
+    segs = sc.split_evidence("ἑός Il. 1.10, 20 : Od. 5.30, 40.")
+    au = [c for seg in segs for c in seg["au"]]
+    assert "Il. 1.20" in au
+    assert "Od. 5.40" in au
+    # the book must not leak across the colon that separates the poems
+    assert "Il. 5.40" not in au
+
+
+def test_a_sub_sense_letter_becomes_a_row_not_part_of_the_definition():
+    # "1 His a ἑός Il. 1.83 …" is sense 1 "His" with a sub-sense a. Left in the
+    # text it read "His a".
+    t8 = sc.to_t8("e", "ἑός", "ἑός 1 His a ἑός Il. 1.83, 496. – b ὅς Il. 1.609.")
+    assert not any("His a" in (r.get("z") or "") for r in t8["rows"])
+    subs = [r for r in t8["rows"] if r.get("n") in ("a", "b")]
+    assert [r["n"] for r in subs] == ["a", "b"]
+    assert all(r["lv"] == 2 for r in subs)

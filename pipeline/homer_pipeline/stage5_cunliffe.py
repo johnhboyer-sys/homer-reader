@@ -118,6 +118,65 @@ _CTS_RE = re.compile(r"(tlg\d+\.tlg\d+)\.[^:]*:(\d+)\.(\d+)$")
 _TLG_WORK = {"tlg0012.tlg001": "iliad", "tlg0012.tlg002": "odyssey"}
 _TRAIL_PUNCT = " ,.;:"
 
+# Scaife's citations[] does not carry every reference Cunliffe prints. Measured
+# on the shipped shards before this pass: 64,050 of 78,273 refs were linked and
+# 14,223 were dead text, spread over 3,032 of 7,511 entries. A reader whose
+# whole purpose is jumping to the poem was being handed "Il. 5.396" as
+# unclickable prose two words after an identical live link.
+#
+# So anything left over is linked from the visible reference. Only a FULL ref
+# is matched — work abbreviation, book and line all present. Bare continuations
+# ("Il. 19.35, 75", where 75 means Il. 19.75) are deliberately left alone: the
+# citations[] pass already resolves those from their urns, and guessing which
+# book a loose number belongs to is how a citation silently points at the wrong
+# line.
+_PLAIN_REF_RE = re.compile(r"\b(Il|Od)\.\s*(\d+)\.(\d+)")
+_ABBR_WORK = {"Il": "iliad", "Od": "odyssey"}
+
+
+def _link_plain_refs(escaped: str) -> str:
+    """Link full references in an already-escaped run of definition text."""
+    def one(m: re.Match[str]) -> str:
+        return (
+            f'<a class="cunliffe-cite" href="#" data-work="{_ABBR_WORK[m.group(1)]}" '
+            f'data-book="{m.group(2)}" data-line="{m.group(3)}">{m.group(0)}</a>'
+        )
+    return _PLAIN_REF_RE.sub(one, escaped)
+
+
+# Cunliffe points from one entry to another constantly — "See πολλός." — and
+# those pointers were dead text. The target is resolved against the head of
+# every entry in the SOURCE, then kept only if that entry actually ships, so a
+# pointer is either live or plain: never a link to nothing.
+_SEE_RE = re.compile(r"\bSee(?: also)? ([\u0370-\u03ff\u1f00-\u1fff][^\s.,;:\]]*)")
+
+
+def _link_xrefs(html: str, resolve) -> str:
+    """Link "See <headword>" pointers whose target ships. Runs over rendered
+    HTML, so it must not reach inside an existing anchor — the citation links
+    are already in place and their text can contain nothing this matches."""
+    out: list[str] = []
+    pos = 0
+    for m in re.finditer(r"<a\b[^>]*>.*?</a>", html, re.S):
+        out.append(_link_xrefs_run(html[pos:m.start()], resolve))
+        out.append(m.group(0))
+        pos = m.end()
+    out.append(_link_xrefs_run(html[pos:], resolve))
+    return "".join(out)
+
+
+def _link_xrefs_run(run: str, resolve) -> str:
+    def one(m: re.Match[str]) -> str:
+        key = resolve(m.group(1))
+        if not key:
+            return m.group(0)
+        head = m.group(0)[: m.start(1) - m.start(0)]
+        return (
+            f'{head}<a class="cunliffe-xref" href="#" data-key="{escape(key)}">'
+            f'{m.group(1)}</a>'
+        )
+    return _SEE_RE.sub(one, run)
+
 
 def linkify_definition(text: str, citations: list[dict]) -> str:
     """Escape a Cunliffe definition to safe HTML, turning each embedded
@@ -147,7 +206,7 @@ def linkify_definition(text: str, citations: list[dict]) -> str:
             # leaving this citation un-linked rather than dropping/misplacing
             # text.
             continue
-        parts.append(escape(text[pos:idx]))
+        parts.append(_link_plain_refs(escape(text[pos:idx])))
         core = ref.rstrip(_TRAIL_PUNCT)
         trail = ref[len(core):]
         target = None
@@ -164,20 +223,631 @@ def linkify_definition(text: str, citations: list[dict]) -> str:
                 f'{escape(core)}</a>{escape(trail)}'
             )
         else:
-            parts.append(escape(ref))
+            parts.append(_link_plain_refs(escape(ref)))
         pos = idx + len(ref)
-    parts.append(escape(text[pos:]))
+    parts.append(_link_plain_refs(escape(text[pos:])))
     return "".join(parts)
 
 
-def entry_html(rows: list[dict]) -> str:
+# ── Cunliffe as a T8 record ────────────────────────────────────────────────
+#
+# Cunliffe ships one flat prose string per entry. grammata's T8 presentation —
+# sense rows, division tabs, example drawers — renders from a STRUCTURED record
+# instead: rows carrying a level, a number and a definition. Confirmed with
+# grammar-site 2026-08-31: a T8 pack IS a list of these records, so this shape
+# is the same whether the entries are served from grammata or rendered from
+# here.
+#
+# Every rule below was measured over all 9,825 source entries, and every one of
+# them replaced a rule that sounded right and was not:
+#
+#   * The colon is NOT the definition/evidence boundary. After a spaced " : "
+#     the next thing is Greek 71.7% of the time and a citation 27.1%; after an
+#     unspaced ": " it is 72.1% / 26.5%. The spacing carries no signal at all.
+#   * "The definition is the leading English run" fails too — definitions
+#     contain Greek ("Of κυδοιμός figured as a symbol").
+#   * A sense number cannot be recognised by what follows it. 2,651 entries
+#     carry "1 sing." / "2 pl.", which is person and number.
+#
+# What does work is SEQUENCE: real sense numbers run 1, 2, 3…, so a candidate
+# is kept only if it continues the run and a stray line number rejects itself.
+
+# A division banner: " I ", " II " … before a capital. 64 entries carry them.
+_ROMAN_RE = re.compile(r"(?:^|[\s.])([IVX]{1,4})\s+(?=[A-ZΑ-Ω(])")
+# A candidate sense number.
+_SENSE_CAND_RE = re.compile(r"(?:^|[\s.(])(\d{1,2})\s+")
+# Person/number labels, which open with a digit and are never senses.
+_MORPH_RE = re.compile(r"^(sing|pl|dual|s|p)\b")
+_BRACKET_RE = re.compile(r"\[[^\]]*\]")
+_GREEK_RE = re.compile(r"[\u0370-\u03ff\u1f00-\u1fff]")
+_FULL_CITE_RE = re.compile(r"\b(?:Il|Od)\.\s*\d+\.\d+")
+# A period after a short Greek token is Cunliffe abbreviating its own headword
+# inside a quotation ("σκεψάμενος ἐς νῆʼ ἁ. καὶ μεθʼ ἑταίρους"), not a sentence
+# end. Reading those as boundaries cut 3,179 quotations in half.
+_ABBREV_TAIL_RE = re.compile(r"(^|\s)[\u0370-\u03ff\u1f00-\u1fff]{1,3}[ʼ’]?$")
+
+
+def split_senses(definition: str) -> dict:
+    """Split a definition into its head run and its numbered senses."""
+    divisions = [
+        {"at": m.start() + m.group(0).index(m.group(1)), "n": m.group(1)}
+        for m in _ROMAN_RE.finditer(definition)
+    ]
+    # Spans inside [ ... ] are etymology, and Cunliffe's etymologies carry
+    # HOMONYM REFERENCES shaped exactly like sense numbers: ἀμβατός reads
+    # "[ἀμ-, ἀνα- 1 + βα-, βαίνω.]" where that 1 points at ἀνα-1. A round-trip
+    # check cannot see this — a false 1 still forms a valid run and loses no
+    # characters — so it has to be excluded by position. 185 false senses.
+    brackets = [(m.start(), m.end()) for m in _BRACKET_RE.finditer(definition)]
+
+    cands = []
+    for m in _SENSE_CAND_RE.finditer(definition):
+        at = m.start() + m.group(0).index(m.group(1))
+        if any(a <= at < b for a, b in brackets):
+            continue
+        if _MORPH_RE.match(definition[at + len(m.group(1)):].lstrip()):
+            continue
+        after = at + len(m.group(1))
+        ws = len(definition[after:]) - len(definition[after:].lstrip())
+        cands.append({"at": at, "n": int(m.group(1)), "end": after + ws})
+
+    kept: list[dict] = []
+    want = 1
+    for c in cands:
+        prior = [d["at"] for d in divisions if d["at"] < c["at"]]
+        div_at = prior[-1] if prior else -1
+        if kept and div_at > kept[-1]["at"]:
+            want = 1
+        if c["n"] == want:
+            kept.append({**c, "div_at": div_at})
+            want += 1
+
+    if not kept:
+        return {"head": definition, "senses": [], "divisions": divisions}
+    senses = []
+    for i, k in enumerate(kept):
+        end = kept[i + 1]["at"] if i + 1 < len(kept) else len(definition)
+        senses.append({
+            "n": str(k["n"]), "div_at": k["div_at"],
+            "start": k["end"], "end": end,
+            "body": definition[k["end"]:end].strip(),
+        })
+    return {"head": definition[:kept[0]["at"]], "senses": senses, "divisions": divisions}
+
+
+def _evidence_start(body: str, cite_at: int) -> int:
+    """Where a sense's evidence begins, walking back from its first citation."""
+    before = body[:cite_at]
+    bound = -1
+    for m in re.finditer(r"[:.;]\s", before):
+        if m.group(0)[0] == "." and _ABBREV_TAIL_RE.search(before[:m.start()]):
+            continue
+        bound = m.end()
+    run = before[bound if bound != -1 else 0:]
+    # A quotation is a phrase Homer wrote. It never contains an etymology
+    # bracket, and it is not a paragraph: without these guards the head run of
+    # an unnumbered entry — "ἄλειφαρ -ατος, τό [ἀλείφω.] Unguent, oil" — is
+    # Greek enough to be mistaken for one, and the definition disappears into
+    # `g` where it reads as though Homer wrote it.
+    if "[" in run or "]" in run:
+        return cite_at
+    if _GREEK_RE.search(run) and run.strip():
+        return bound if bound != -1 else 0
+    return cite_at
+
+
+def parse_sense(body: str) -> tuple[str, str]:
+    """A sense body as (definition, evidence).
+
+    Evidence is anchored on the CITATION, which is the one unambiguous mark in
+    the text and is already what the reader clicks; a quotation attaches to the
+    citation that follows it."""
+    m = _FULL_CITE_RE.search(body)
+    if not m:
+        return body.strip(), ""
+    start = _evidence_start(body, m.start())
+    # The colon that introduced the quotation belongs to neither side once the
+    # two are separate fields.
+    # Not ";": the source carries a literal "&gt;" in at least one entry
+    # (κεφαλή), and trimming the semicolon turned the entity into "&gt".
+    return body[:start].strip().rstrip(" :,"), body[start:].strip()
+
+
+# Evidence, split into what T8 renders: `ex` is a quotation with its citation
+# (and the parenthetical translation Cunliffe sometimes gives it), `au` is a
+# bare citation with no quotation attached.
+#
+# Cunliffe writes evidence as "QUOTATION Cite. Cf. Cite, Cite : Cite." — the
+# quotation leads, its own citation follows it, and everything after "Cf." is
+# corroboration with nothing quoted.
+#
+# Bare continuations are real: "Il. 19.35, 75" means Il. 19.75. They are kept as
+# printed rather than expanded, because the citations[] pass that resolves them
+# from urns owns that, and guessing which book a loose number belongs to is how
+# a citation quietly points at the wrong line.
+_CITE_TOKEN_RE = re.compile(r"\b(?:Il|Od)\.\s*\d+\.\d+|\b\d+\b")
+# Connectors between pieces of evidence. These carry no information a T8 row
+# keeps — it joins citations with its own separator — so they are dropped, and
+# the audit below asserts that NOTHING ELSE is.
+# Only genuinely empty joining words are dropped. "etc." is NOT one: in a
+# lexicon it tells the reader the citation list is not exhaustive, and treating
+# it as furniture cost 1,336 entries that signal. Dashes and "So" likewise carry
+# Cunliffe's own sequencing and stay in the text.
+_CONNECTOR_RE = re.compile(r"^[\s,.:;=]*(?:Cf\.|cf\.|and|=)?[\s,.:;=]*")
+_PAREN_RE = re.compile(r"\(([^)]*)\)\s*$")
+# A note at the FRONT of some prose belongs to the citation list before it, not
+# to the definition it precedes: "etc. Absol. with the article" opened a sense
+# reading "etc. Absol. …" (John, on seeing it). Peeled off and handed back.
+_LEADING_NOTE_RE = re.compile(r"^(?:[\s.:,;–-]*(?:etc\.?|So|and so on))+[\s.:,;–-]*")
+
+
+# Cunliffe's own "and so on" marks. Kept in the text, never given a row.
+# Notes come in runs — "etc. So", "– etc.:", a bare "– –". Matching only one
+# at a time left the rest to open a row of its own (John, on seeing "etc. So"
+# standing above examples that belong to the sense before it).
+_TRAILING_NOTE_RE = re.compile(r"(?:[\s.:,;–-]*(?:etc\.?|So|and so on))*[\s.:,;–-]*")
+
+
+def _append_note(segment: dict, note: str) -> None:
+    """Attach one of Cunliffe's "and so on" marks to the row it qualifies.
+
+    Never dropped — in a lexicon "etc." says the list is not exhaustive — and
+    never given a row of its own. It joins the CITATION LIST it qualifies rather
+    than the definition: a row is rendered as "Il. 1.158 · 226 · etc.", which is
+    how the list reads on the page, where appending it to the definition gave
+    "With, along with, in company with etc. etc." A repeat is kept — the two
+    marks are separately printed, and skipping the second was content loss the
+    corpus audit caught at once.
+    """
+    segment["au"].append(note)
+
+
+_WORK_ABBR_RE = re.compile(r"^(Il|Od)\.\s*(\d+)\.(\d+)$")
+
+
+def _expand(cite: str, book: str | None) -> tuple[str, str | None]:
+    """A citation, and the book context it leaves behind.
+
+    Cunliffe drops the book when the previous reference established it —
+    "Il. 1.83, 496, 533" means Il. 1.83, Il. 1.496, Il. 1.533. That reads
+    correctly in running prose and not at all once the references are a
+    separated list, where "496 · 533" has nothing to attach to. So a bare
+    continuation is restored to the book it belongs to, which also makes it
+    linkable; a full reference resets the context, including across the ":"
+    that separates one poem from the other.
+    """
+    m = _WORK_ABBR_RE.match(cite.strip())
+    if m:
+        return cite, f"{m.group(1)}. {m.group(2)}"
+    if book and cite.strip().isdigit():
+        return f"{book}.{cite.strip()}", book
+    return cite, book
+
+
+def split_evidence(evidence: str) -> list[dict]:
+    """One sense's evidence as an ordered list of segments.
+
+    A segment is {z?, ex[], au[]}. A new one opens whenever Cunliffe writes
+    PROSE between citations, because that prose is a further statement with its
+    own evidence — "Absol. Il. 1.158", or ἀγακλεής's "Very famous, glorious,
+    splendid, worthy" following its principal parts.
+
+    Dropping that prose is what an earlier version did, and it cost 2,534
+    entries (25.8%) real content — ἀγακλεής lost its entire definition, because
+    the definition follows the principal-parts citations and so lands here
+    rather than in `z`. Nothing but connectors is ever discarded now.
+    """
+    segments: list[dict] = [{"ex": [], "au": []}]
+    pos = 0
+    book: str | None = None
+    for m in _CITE_TOKEN_RE.finditer(evidence):
+        lead = evidence[pos:m.start()]
+        pos = m.end()
+        cite, book = _expand(m.group(0), book)
+        body = _CONNECTOR_RE.sub("", lead).strip()
+        # English ahead of the quotation is Cunliffe's own prose, not part of
+        # what it is quoting: "Together, at the same moment: ἁ. ἄμφω σύν ῥʼ
+        # ἔπεσον" is a remark and then a quotation. Split at the first Greek,
+        # or the remark ends up inside `g` and reads as though Homer wrote it.
+        gm = _GREEK_RE.search(body)
+        if gm and gm.start() > 0:
+            prose = _CONNECTOR_RE.sub("", body[:gm.start()]).strip().rstrip(" :;,")
+            if prose:
+                # A note here qualifies the row above and must not open a new
+                # one — otherwise the quotation that follows lands on a row
+                # whose whole definition reads "etc.". That was 839 rows.
+                if _TRAILING_NOTE_RE.fullmatch(prose):
+                    _append_note(segments[-1], prose)
+                else:
+                    lead = _LEADING_NOTE_RE.match(prose)
+                    if lead and lead.group(0).strip(" .:,;–-"):
+                        _append_note(segments[-1], lead.group(0).strip())
+                        prose = prose[lead.end():]
+                    segments.append({"z": prose, "ex": [], "au": []})
+            body = body[gm.start():].strip()
+        if _GREEK_RE.search(body):
+            gloss = ""
+            pm = _PAREN_RE.search(body)
+            if pm and not _GREEK_RE.search(pm.group(1)):
+                gloss = pm.group(1).strip()
+                body = body[:pm.start()].strip()
+            item = {"g": body, "c": cite}
+            if gloss:
+                item["e"] = gloss
+            segments[-1]["ex"].append(item)
+        elif body:
+            if _TRAILING_NOTE_RE.fullmatch(body):
+                _append_note(segments[-1], body)
+                segments[-1]["au"].append(cite)
+            else:
+                # prose with no Greek: a new statement, and the citations that
+                # follow belong to it — but any note in FRONT of it closes the
+                # list above rather than opening this one.
+                lead = _LEADING_NOTE_RE.match(body)
+                if lead and lead.group(0).strip(" .:,;–-"):
+                    _append_note(segments[-1], lead.group(0).strip())
+                    body = body[lead.end():]
+                segments.append({"z": body, "ex": [], "au": [cite]})
+        else:
+            segments[-1]["au"].append(cite)
+    tail = _CONNECTOR_RE.sub("", evidence[pos:]).strip()
+    if tail:
+        if _GREEK_RE.search(tail):
+            segments[-1]["ex"].append({"g": tail})
+        elif _TRAILING_NOTE_RE.fullmatch(tail):
+            _append_note(segments[-1], tail)
+        else:
+            segments.append({"z": tail, "ex": [], "au": []})
+    return segments
+
+
+_SUBSENSE_RE = re.compile(r"^([a-z])\s+(?=[A-ZΑ-Ωa-zἀ-῿(])")
+# The same letter where it trails a definition rather than leading one.
+_SUBSENSE_TAIL_RE = re.compile(r"\s([a-z])$")
+
+
+def _lift_subsense(rows: list[dict]) -> None:
+    """Cunliffe divides a sense with letters — "1 His a ἑός … – b ὅς …".
+
+    Left in the text those read as part of the definition ("His a"), which is
+    what John saw. T8 already knows what to do with them: a row whose number is
+    a single letter renders as a sub-row.
+    """
+    out: list[dict] = []
+    for r in rows:
+        if r.get("b") or not r.get("z"):
+            out.append(r)
+            continue
+        # the letter LEADS: "b ὅς …" — the row is that sub-sense
+        m = _SUBSENSE_RE.match(r["z"])
+        if m and not r.get("n"):
+            r["n"] = m.group(1)
+            r["lv"] = 2
+            r["z"] = r["z"][m.end():]
+            out.append(r)
+            continue
+        # the letter TRAILS the definition: "1 His a ἑός Il. 1.83 …". The
+        # definition belongs to the sense, and the letter opens a sub-sense
+        # that owns the evidence after it. Split rather than leave "His a".
+        t = _SUBSENSE_TAIL_RE.search(r["z"])
+        if t and (r.get("ex") or r.get("au")):
+            parent = {k: v for k, v in r.items() if k not in ("ex", "au")}
+            parent["z"] = r["z"][:t.start()].strip()
+            child = {"lv": 2, "n": t.group(1), "z": ""}
+            if r.get("ex"):
+                child["ex"] = r["ex"]
+            if r.get("au"):
+                child["au"] = r["au"]
+            out.append(parent)
+            out.append(child)
+            continue
+        out.append(r)
+    rows[:] = out
+
+
+def _move_leading_notes(rows: list[dict]) -> None:
+    """A row whose definition OPENS with a note is closing the row before it.
+
+    split_evidence catches these inside an evidence run, but a numbered sense
+    can begin with one too — "2 etc. Absol. with the article" — and there the
+    previous row is only in view once the whole entry is built.
+    """
+    for i, r in enumerate(rows):
+        if r.get("b") or not r.get("z"):
+            continue
+        m = _LEADING_NOTE_RE.match(r["z"])
+        if not m or not m.group(0).strip(" .:,;–-"):
+            continue
+        prev = next((p for p in reversed(rows[:i]) if not p.get("b")), None)
+        if prev is None:
+            continue
+        prev.setdefault("au", []).append(m.group(0).strip())
+        r["z"] = r["z"][m.end():]
+
+
+def _rows_from(base: dict, evidence: str) -> list[dict]:
+    """`base` carries lv/n/z; evidence segments extend it, the first onto the
+    row itself and any others as unnumbered continuations of it."""
+    out = []
+    for i, seg in enumerate(split_evidence(evidence)):
+        if i == 0:
+            row = dict(base)
+        else:
+            # A continuation: same level, no number of its own. `s` stays unset
+            # — grammata draws its dash on a row carrying `s` with an empty
+            # numeral, and these are Cunliffe's own prose, not supplied text.
+            row = {"lv": base["lv"], "n": "", "z": seg.get("z", "")}
+        if i == 0 and seg.get("z"):
+            row["z"] = (row.get("z", "") + " " + seg["z"]).strip()
+        if seg["ex"]:
+            row["ex"] = seg["ex"]
+        if seg["au"]:
+            row["au"] = seg["au"]
+        out.append(row)
+    return out
+
+
+# The morphology an entry opens with, before any definition: declension endings
+# ("-ου,", "-ατος,"), gender, a quantity mark, an etymology bracket. Cunliffe
+# closes it with a full stop.
+_MORPH_HEAD_RE = re.compile(
+    r"^(?:\s*(?:-[^\s,.]+|[,;]|\([^)]*\)|\[[^\]]*\]|[ὁἡτότάοἱαἱ]{1,3}|"
+    r"\b(?:masc|fem|neut|pl|sing|dual)\b\.?))+"
+)
+
+
+def _split_head_run(body: str) -> tuple[str, str]:
+    """(head run, the rest) for an entry with no numbered senses.
+
+    Without this the head run is Greek enough to be read as a QUOTATION, and
+    the definition goes with it: αἴγειρος came out with z="-" and the poplar
+    itself sitting in `g`, as though Homer had written "ου, ἡ. The poplar".
+    151 entries did that.
+    """
+    m = _MORPH_HEAD_RE.match(body)
+    if not m or not m.group(0).strip(" ,;"):
+        return "", body
+    end = m.end()
+    # Cunliffe ends the run with a full stop; take it and any gender that
+    # trails the endings ("-ου, ἡ.").
+    tail = re.match(r"\s*(?:[ὁἡτότάοἱαἱ]{1,3}|\bpl\b|,)*\s*\.", body[end:])
+    if tail:
+        end += tail.end()
+    return body[:end].strip(), body[end:]
+
+
+def _markup(text: str, resolve) -> str:
+    """A T8 text field, escaped and carrying the links the HTML shard carries.
+
+    grammata runs `z`, `i` and an example's `g` through wrapGreekInHtml rather
+    than escapeHtml, so these fields ARE html and anchors survive in them. That
+    is the whole reason the T8 records can keep the cross-references: 316 of
+    them fall in `z`, 79 in `i`, 61 inside a quotation, and rendering from
+    records without this step would have dropped every one — along with the 13
+    citations that land in a definition rather than in the evidence.
+
+    Citations in `au` and in an example's `c` are NOT touched: those are bare
+    tokens, and grammata's own `citation` hook turns them into links at render
+    time using the host's URL scheme.
+    """
+    out = _link_plain_refs(escape(text))
+    return _link_xrefs(out, resolve) if resolve is not None else out
+
+
+# Cunliffe's own labels for a principal part, learned from the head runs of the
+# entries whose boundary the sense-split hands over for free: Infin. 393,
+# Pple. 300, Imp. 134, Aor. 107, Fem. 73, Fut. 72, Subj. 64, Opt. 56 … and the
+# digit-then-lowercase shape it writes person and number in ("3 sing. pres.").
+_FORM_LABEL_RE = re.compile(
+    r"(?:\d\s+(?:sing|pl|dual)\.(?:\s+[a-z]{2,8}\.)*"
+    r"|(?:Infin|Pple|Imp|Aor|Fem|Fut|Subj|Opt|Pl|Acc|Dat|Genit|Nom|Masc|Neut"
+    r"|Sing|Dual|Voc|Perf|Plup|Pres|Impf|Mid|Pass|Act|Contr|Instrumental|Locative)"
+    r"\b[a-z. ]*\.)\s+(?=[\u0370-\u03ff\u1f00-\u1fff])"
+)
+
+
+def split_forms(head_run: str) -> tuple[str, list[list[str]], list[str]]:
+    """(what stays in `i`, the forms block, entry-level citations).
+
+    Cunliffe puts its principal parts in the head run, chained and only
+    half-labelled — "Aor. ἤγειρα Il. 17.222: Od. 2.41. ἄγειρα Od. 14.285.
+    3 sing. ἤγειρε Od. 2.28." T8 renders these as `f`, a list of
+    [label, form] pairs, which is what the forms bar above the senses is for.
+
+    What precedes the first label — endings, gender, a quantity mark, the
+    etymology — is not a form and stays in `i`.
+    """
+    first = _FORM_LABEL_RE.search(head_run)
+    if not first:
+        return head_run, [], []
+    keep = head_run[:first.start()].strip()
+    rest = head_run[first.start():]
+
+    forms: list[list[str]] = []
+    au: list[str] = []
+    label = ""
+    pos = 0
+    pending: list[str] = []      # label words with no form of their own yet
+    for m in _FORM_LABEL_RE.finditer(rest):
+        if m.start() > pos:
+            left = _consume_form(rest[pos:m.start()], label, forms, au)
+            if left:
+                pending.append(left)
+        label = " ".join(pending + [m.group(0).strip()])
+        pending = []
+        pos = m.end()
+    left = _consume_form(rest[pos:], label, forms, au)
+    if left:
+        # nothing followed it: keep it as a labelled row of its own rather than
+        # dropping it. 204 entries lost words like "Mid." and "Pass." this way.
+        forms.append([left, ""])
+    return keep, forms, au
+
+
+def _consume_form(chunk: str, label: str, forms: list, au: list) -> str:
+    """One label's worth of head run: its form(s) and their citations.
+
+    A label can cover SEVERAL forms, and Cunliffe writes the later ones bare:
+    "Aor. ἤγειρα Il. 17.222: Od. 2.41. ἄγειρα Od. 14.285." — ἄγειρα sits
+    between two citations under the same "Aor." Taking only the text before the
+    first citation and after the last one dropped it.
+    """
+    pos = 0
+    first = True
+    for c in _CITE_TOKEN_RE.finditer(chunk):
+        piece = chunk[pos:c.start()].strip(" .,;:")
+        if piece and _GREEK_RE.search(piece):
+            forms.append([label if first else "", piece])
+            first = False
+        elif piece:
+            # "etc." between two citations, as everywhere else in this parse:
+            # it qualifies the list and joins it rather than being dropped.
+            au.append(piece)
+        au.append(c.group(0))
+        pos = c.end()
+    tail = chunk[pos:].strip(" .,;:")
+    if tail and _GREEK_RE.search(tail):
+        forms.append([label if first else "", tail])
+    elif tail:
+        # No Greek: this is a label waiting for its form ("Mid." before
+        # "Aor. ἀ̄ᾰσάμην"), so hand it back to prefix the next one.
+        return tail
+    return ""
+
+
+def to_t8(key: str, headword: str, definition: str, resolve=None) -> dict:
+    """A Cunliffe entry as a T8 record: head, the undecomposed head run, and
+    rows. Division banners are lv 0 and carry the numeral plus the division's
+    own heading; senses are lv 1.
+
+    `s` is never set. grammata renders a continuation dash on rows that carry
+    `s` AND an empty numeral, and three quarters of this dictionary is a single
+    unnumbered row — every one of which would sprout a dash it should not have.
+    """
+    p = split_senses(definition)
+    roman = {d["at"]: d["n"] for d in p["divisions"]}
+    if not p["senses"]:
+        head_run, rest = _split_head_run(definition[len(headword):])
+        z, evidence = parse_sense(rest)
+        rows = _rows_from({"lv": 1, "n": "", "z": z}, evidence)
+        _lift_subsense(rows)
+        _move_leading_notes(rows)
+        for r in rows:
+            if r.get("z"):
+                r["z"] = _markup(r["z"], resolve)
+            for item in r.get("ex") or []:
+                if item.get("g"):
+                    item["g"] = _markup(item["g"], resolve)
+                if item.get("e"):
+                    item["e"] = escape(item["e"])
+        keep, forms, form_cites = split_forms(head_run)
+        out: dict = {"key": key, "head": headword,
+                     "i": _markup(keep, resolve), "rows": rows}
+        # `f` and entry-level `au` are escaped by grammata itself (unlike i and
+        # z, which it treats as html), so they stay raw.
+        if forms:
+            out["f"] = forms
+        if form_cites:
+            out["au"] = form_cites
+        return out
+
+    head_end = len(p["head"])
+    # Each sense becomes one or more rows (prose between citations opens a
+    # continuation), so rows are built per sense and kept with the span they
+    # came from — a division that interrupts a sense has to rebuild it from
+    # that span, and only the sense's FIRST row carries the offsets.
+    built: list[tuple[dict, list[dict]]] = []   # (sense, its rows)
+    last_div = None
+    banners: list[tuple[int, dict]] = []        # (index into built, banner row)
+    for sense in p["senses"]:
+        div_at = sense["div_at"]
+        if div_at != -1 and div_at != last_div:
+            numeral = roman.get(div_at, "")
+            heading = ""
+            if built and built[-1][0]["end"] > div_at:
+                # The division interrupts the previous sense: its numeral and
+                # heading sit between one sense and the next. Cut that sense
+                # short and give the span to the banner — emitting the numeral
+                # without removing it made 63 entries GAIN characters.
+                prev_sense, _ = built[-1]
+                heading = definition[div_at + len(numeral):prev_sense["end"]]
+                z, evidence = parse_sense(definition[prev_sense["start"]:div_at])
+                built[-1] = ({**prev_sense, "end": div_at},
+                             _rows_from({"lv": 1, "n": prev_sense["n"], "z": z}, evidence))
+            elif div_at < head_end:
+                # The first division sits inside the head run, so its numeral is
+                # already in `i`; take it out or the entry carries it twice.
+                heading = definition[div_at + len(numeral):head_end]
+                head_end = div_at
+            banners.append((len(built), {"lv": 0, "n": numeral,
+                                         "z": heading.strip(), "b": 1}))
+            last_div = div_at
+        z, evidence = parse_sense(sense["body"])
+        built.append((sense, _rows_from({"lv": 1, "n": sense["n"], "z": z}, evidence)))
+
+    rows: list[dict] = []
+    banner_at = {i: b for i, b in banners}
+    for i, (_, sense_rows) in enumerate(built):
+        if i in banner_at:
+            rows.append(banner_at[i])
+        rows.extend(sense_rows)
+
+    _lift_subsense(rows)
+    _move_leading_notes(rows)
+
+    # `gr` names the divisions grammata may turn into a tab strip. It does so
+    # only at >= 2 divisions AND >= 10 rows: measured here, 43 entries carry two
+    # or more divisions and 24 of those clear the row threshold — ἔχω at 4
+    # divisions and 63 rows, then εἴδω, ἵστημι, βάλλω, ἄγω, ἐπί. Exactly the
+    # entries where scrolling to the middle voice is the problem tabs solve.
+    # (ἄλλος has senses before its first banner and falls back to untabbed —
+    # grammata's documented behaviour, harmless, and not a misfiring threshold.)
+    for r in rows:
+        if r.get("z"):
+            r["z"] = _markup(r["z"], resolve)
+        for item in r.get("ex") or []:
+            if item.get("g"):
+                item["g"] = _markup(item["g"], resolve)
+            if item.get("e"):
+                item["e"] = escape(item["e"])
+
+    gr = [[r["n"], r["z"]] for r in rows if r.get("b") and r["n"]]
+    keep, forms, form_cites = split_forms(
+        definition[len(headword):head_end].strip())
+    out = {"key": key, "head": headword, "i": _markup(keep, resolve),
+           "rows": rows}
+    if forms:
+        out["f"] = forms
+    if form_cites:
+        out["au"] = form_cites
+    if len(gr) >= 2:
+        out["gr"] = gr
+    return out
+
+
+def _head_forms(head: str) -> list[str]:
+    """The head as written, plus the bare form a cross-reference would use."""
+    forms = [head]
+    bare = head.lstrip("\u2020").rstrip(".")
+    bare = re.sub(r"-\d+$", "", bare)
+    if bare and bare != head:
+        forms.append(bare)
+    return forms
+
+
+def entry_html(rows: list[dict], resolve=None) -> str:
     """Render every row sharing a key (usually one; Cunliffe numbers homonyms
     only in the headword text — "ἄγη2" — not in a distinct key, unlike LSJ's
-    a)1/a)2 convention) as its own sense block."""
-    return "".join(
-        f'<div class="cunliffe-sense">{linkify_definition(r["definition"], r.get("citations", []))}</div>'
-        for r in rows
-    )
+    a)1/a)2 convention) as its own sense block.
+
+    `resolve` maps a "See <headword>" target to a shipped Cunliffe key, or to
+    None where the pointer cannot be honoured."""
+    def block(r: dict) -> str:
+        inner = linkify_definition(r["definition"], r.get("citations", []))
+        if resolve is not None:
+            inner = _link_xrefs(inner, resolve)
+        return f'<div class="cunliffe-sense">{inner}</div>'
+    return "".join(block(r) for r in rows)
 
 
 def _merged_src(rows: list[dict]) -> str:
@@ -237,7 +907,39 @@ def run(manifest: Manifest) -> Path:
             missing.append(lemma)
     wanted = {k for keys in lemma_map.values() for k in keys}
 
+    # Headword -> key over EVERY source entry, so a pointer can be resolved
+    # before deciding whether its target ships. Cunliffe's heads carry marks
+    # that a "See" target does not repeat — a leading dagger, a "-1" homonym
+    # suffix, a trailing period — so each head is indexed bare as well. First
+    # writer wins, which keeps "-1" ahead of "-2" for a bare target.
+    head_to_key: dict[str, str] = {}
+    for key, rows in rows_by_key.items():
+        for r in rows:
+            for form in _head_forms(r["headword"]):
+                head_to_key.setdefault(form, key)
+
+    # A pointer is a promise that the entry exists. Honour it: an entry named
+    # by a "See" in something we ship is itself worth shipping, even though no
+    # lemma in the corpus reaches it. One level only — a pointer's pointer is
+    # not something the reader asked for, and the closure has no natural end.
+    pulled_in = 0
+    for key in list(wanted):
+        for r in rows_by_key[key]:
+            for m in _SEE_RE.finditer(r["definition"]):
+                target = head_to_key.get(m.group(1))
+                if target and target not in wanted:
+                    wanted.add(target)
+                    pulled_in += 1
+
+    def resolve(target: str) -> str | None:
+        key = head_to_key.get(target)
+        return key if key in wanted else None
+
     shards: dict[str, dict] = defaultdict(dict)
+    # T8 records go in their OWN shards, not beside the html. The two carry the
+    # same text, so folding them together would double what a reader downloads
+    # on a Cunliffe tap for the benefit of whichever renderer is not in use.
+    t8_shards: dict[str, dict] = defaultdict(dict)
     kept_lex = 0
     kept_hompers = 0
     for key in wanted:
@@ -245,9 +947,13 @@ def run(manifest: Manifest) -> Path:
         shards[shard_letter(key)][key] = {
             "key": key,
             "head": rows[0]["headword"],
-            "html": entry_html(rows),
+            "html": entry_html(rows, resolve),
             "src": _merged_src(rows),
         }
+        # One record per row sharing the key, matching entry_html's blocks.
+        t8_shards[shard_letter(key)][key] = [
+            to_t8(key, r["headword"], r["definition"], resolve) for r in rows
+        ]
         for r in rows:
             if r["src"] == "lex":
                 kept_lex += 1
@@ -259,6 +965,12 @@ def run(manifest: Manifest) -> Path:
     shard_dir.mkdir(parents=True, exist_ok=True)
     for letter, entries in sorted(shards.items()):
         (shard_dir / f"{letter}.json").write_text(
+            json.dumps(entries, ensure_ascii=False), encoding="utf-8"
+        )
+    t8_dir = out_dir / "cunliffe-t8"
+    t8_dir.mkdir(parents=True, exist_ok=True)
+    for letter, entries in sorted(t8_shards.items()):
+        (t8_dir / f"{letter}.json").write_text(
             json.dumps(entries, ensure_ascii=False), encoding="utf-8"
         )
     (out_dir / "cunliffe_lemma_map.json").write_text(
@@ -274,6 +986,11 @@ def run(manifest: Manifest) -> Path:
         "cunliffe_rows_kept_hompers": kept_hompers,
         "shards": len(shards),
         "lemmata_without_entry": len(missing),
+        "cunliffe_entries_pulled_in_by_xref": pulled_in,
+        "cunliffe_t8_rows": sum(
+            len(rec["rows"]) for recs in t8_shards.values()
+            for group in recs.values() for rec in group
+        ),
     }
     (out_dir / "cunliffe_summary.json").write_text(json.dumps(summary, indent=1))
     return shard_dir

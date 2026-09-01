@@ -2252,12 +2252,31 @@ select {
   margin-top: 0.4rem;
 }
 
-/* The ONE sanctioned style knob into the grammata widget: its own handoff says
-   everything else it renders is generated from grammata's design system and
-   changes with it, so touch nothing else inside the mount. This renders entries
-   in the reader's own Greek face, with grammata's Athena Lyceum behind it per
-   glyph, so an unshapeable mark falls back rather than showing tofu. */
-.grammata-mount { --grammata-greek: var(--font-greek); }
+/* The sanctioned knobs into the grammata widget. Everything else it renders is
+   generated from grammata's design system and changes with it, so nothing else
+   inside a mount is touched.
+
+   --grammata-greek renders entries in the reader's own Greek face, with
+   grammata's Athena Lyceum behind it per glyph, so an unshapeable mark falls
+   back rather than showing tofu.
+
+   The four colour tokens (grammata, 2026-08-31, at John's ask — the same shape
+   as the font knob) hand the widget THIS page's palette. Before them the entry
+   took its foreground from grammata's own light palette while painting no
+   background of its own, so on our dark ground it measured 1.08:1 — present,
+   correctly laid out, and invisible; you could only read it by selecting it.
+   The widget paints no background by design, which is why the entry sits on our
+   ground rather than as a foreign card on it.
+   These are var() references, not literals, so they resolve to whichever theme
+   is active and need no per-theme rules of their own. */
+.grammata-mount,
+.cunliffe-mount {
+  --grammata-greek: var(--font-greek);
+  --grammata-fg: var(--text);
+  --grammata-muted: var(--text-mid);
+  --grammata-border: var(--border);
+  --grammata-accent: var(--accent);
+}
 
 /* Homonyms (a)1, a)2 …) come back as separate entries; rule them apart so the
    second headword does not read as a continuation of the first. */
@@ -2517,23 +2536,72 @@ select {
   .lsj-outline-list { max-height: 8.5rem; overflow-y: auto; }
 }
 
-.cunliffe-entry {
+/* Cunliffe sits in the same panel as the LSJ entry grammata renders, so it is
+   set to the same measure: 0.875rem/1.55, matching that entry's 14px body. It
+   was 0.85rem — smaller than the dictionary beside it, which is backwards, and
+   reading type is never shrunk here. */
+.cunliffe-entry,
+.cunliffe-mount {
   font-family: var(--font-english);
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   line-height: 1.55;
   color: var(--text);
 }
+.cunliffe-mount + .cunliffe-mount {
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--border);
+}
+
+/* Two Cunliffe entries under one card are different words (ὅς¹, ὅς²) — rule
+   them apart, as the LSJ entries are. */
+.cunliffe-entry + .cunliffe-entry {
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--border);
+}
+
+/* A followed "See <headword>" pointer, and the way back out of it. */
+.cunliffe-entry a.cunliffe-xref {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  cursor: pointer;
+}
+.cunliffe-entry a.cunliffe-xref:hover,
+.cunliffe-entry a.cunliffe-xref:focus-visible { border-bottom-color: var(--accent); }
+
+.cunliffe-back {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--text-mid);
+  background: none;
+  border: none;
+  padding: 0 0 0.35rem 0;
+  cursor: pointer;
+}
+.cunliffe-back:hover, .cunliffe-back:focus-visible { color: var(--accent); }
 
 /* Cunliffe HTML classes from stage5_cunliffe */
 .cunliffe-entry .cunliffe-sense { margin: 0 0 0.5rem 0; }
 .cunliffe-entry .cunliffe-sense:last-child { margin-bottom: 0; }
+/* Cunliffe cites the poem constantly — μῆνις alone carries a dozen refs — so
+   at full accent strength the apparatus shouted down the definition the reader
+   came for. They recede to the muted text colour and keep a faint rule, which
+   is what still marks them as links: colour alone would not (WCAG 1.4.1). The
+   accent returns on hover and focus. */
 .cunliffe-entry a.cunliffe-cite {
-  color: var(--accent);
+  color: var(--text-mid);
   text-decoration: none;
-  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--text-mid) 32%, transparent);
   cursor: pointer;
 }
-.cunliffe-entry a.cunliffe-cite:hover { border-bottom-color: var(--accent); }
+.cunliffe-entry a.cunliffe-cite:hover,
+.cunliffe-entry a.cunliffe-cite:focus-visible {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
 
 .popup-loading {
   font-family: var(--font-ui);
