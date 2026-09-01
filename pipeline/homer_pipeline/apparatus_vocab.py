@@ -113,6 +113,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from .config import BUILD_DIR, Manifest
+from .parse_filter import GHOST_LEMMA as _GHOST_LEMMA
 
 STOPLIST_SIZE = 100
 MAX_ENTRIES_PER_BOOK = 25
@@ -121,22 +122,11 @@ MAX_GLOSS_LEN = 80
 # ── Curated homograph resolution (see module docstring "Homograph
 #    resolution"). Beta Code SURFACE key -> corpus-correct lemma. Applied only
 #    when the target lemma is among that token's own Morpheus analyses. ──────
-# ── Ghost lemmata: never the right answer for a Homeric form ────────────────
-# Morpheus offers analyses under lemmata that are not Homeric words at all, and
-# first-entry-wins hands them the token. χάω is the whole of LSJ s.v.:
-#
-#     χάω, contr. χῶ, = χωρῶ, coined as etym. of χάος by Simp. in Ph. 620.14.
-#
-# A word invented by Simplicius in the sixth century AD as an etymological guess
-# for χάος, attested once, in a commentary on the Physics. It cannot be the
-# lemma of anything in Homer — and it was winning 39 forms across the two poems,
-# displacing χέω "pour out" (28 forms: libations, tears), χώομαι "to be angry"
-# (9 — in the poem of Achilles' wrath), χαίτη and χήν. Every one of those forms
-# carries the correct lemma as a later candidate, and none has χάω as its ONLY
-# analysis, so skipping it strands nothing.
-#
-# This is a skip, not a substitution: the next candidate wins normally.
-GHOST_LEMMA: frozenset[str] = frozenset({"xa/w"})
+# Ghost lemmata are dropped at the emit (parse_filter.GHOST_LEMMA), so they
+# should never reach a vocab list at all. resolve_lemma still skips them: the
+# apparatus can be re-run over an older build/dist that predates that filter,
+# and a ghost reaching a vocabulary list is worse than a redundant check.
+GHOST_LEMMA = _GHOST_LEMMA
 
 HOMOGRAPH_LEMMA: dict[str, str] = {
     # νηός/νηὸς gen sg, νηῶν & νεῶν gen pl of ναῦς "ship" (Homeric). Morpheus
@@ -147,26 +137,10 @@ HOMOGRAPH_LEMMA: dict[str, str] = {
     "nho/s": "nau=s",  # νηός / νηὸς — gen sg "of a ship"
     "nhw=n": "nau=s",  # νηῶν — gen pl "of ships"
     "new=n": "nau=s",  # νεῶν — gen pl "of ships"
-    # χωόμενος and friends: present participle of χώομαι "to be angry", which
-    # is what Achilles does for twenty-four books. With the χάω ghost skipped
-    # (above) these fall to χάζομαι "cause to retire", offered as a FUTURE
-    # participle — but χάζομαι's future participle is χασσόμενος, not
-    # χωόμενος. Morpheus over-generates it; χώομαι is a candidate on every one
-    # of these forms and is the present participle the text actually has.
-    "xwo/menos": "xw/omai",   # χωόμενος   Il. 1.44 etc.
-    "xwo/menon": "xw/omai",   # χωόμενον
-    "xwo/menoi": "xw/omai",   # χωόμενοι
-    "xwome/nh": "xw/omai",    # χωομένη
-    "xwome/noio": "xw/omai",  # χωομένοιο
-    "xwome/nou": "xw/omai",   # χωομένου
-    "xwome/nhs": "xw/omai",   # χωομένης
-    "xwome/nw|": "xw/omai",   # χωομένῳ
-    # ἐφάμην is the imperfect of φημί — "I said", which Odysseus says all the
-    # way through his own narration. Morpheus ranks ἐφαμάω first, whose whole
-    # LSJ entry is "ἐφαμάω, v. ἐπαμάομαι." — a cross-reference stub with no
-    # definition of its own, and not this form in any case. φημί is among its
-    # candidates. Surfaced once the χάω ghost stopped masking it.
-    "e)fa/mhn": "fhmi/",      # ἐφάμην  Od. 9.500 etc.
+    # χωόμενος and ἐφάμην are NOT here: they are repaired at the emit instead
+    # (morphology_overrides.json + parse_filter.GHOST_LEMMA), which fixes the
+    # word popup's card order as well as the vocab lists. A copy here would be
+    # a second place to keep the same judgement correct.
 }
 
 # ── Hand-curated gloss overrides (see module docstring "Curated glosses").
