@@ -397,16 +397,31 @@ def test_a_bare_reference_pointer_joins_the_citation_list_not_the_definition():
 
 
 def test_a_leading_reference_pointer_does_not_become_the_definition():
-    # ἄατος: "Except in Il. 22.218 in contr. form. Insatiate of Il. 5.388."
-    # opens with a citation the split has nothing to draw a boundary from,
-    # so parse_sense reads the pointer itself ("Except in") as the whole
-    # definition and the real gloss ("Insatiate of") as evidence. The
-    # pointer carries no sense of its own; it moves onto the row that holds
-    # the real definition, in order, ahead of its own citation.
-    t8 = sc.to_t8("a", "ἄατος",
-                  "ἄατος Except in Il. 22.218 in contr. form. Insatiate of Il. 5.388.")
+    """ἄατος, on its REAL source text rather than a reconstruction.
+
+    parse_sense draws the sense/evidence boundary at the first citation, and
+    here there is nothing before it, so the pointer "Except in" became the
+    whole definition of a row of its own. It carries no sense; it joins the
+    citation list instead. This is the only entry in the corpus the rule
+    reaches (1 of 11,416).
+
+    Use the real string. A simplified version drops the etymology bracket,
+    which changes what `i` absorbs and what the first row holds — a shortened
+    fixture here would pass while the shipped entry did something else.
+
+    NOT fixed by this, and deliberately not asserted as fixed: the row that
+    survives still reads "in contr. form", because ἄατος's actual gloss
+    ("Insatiate of, indefatigable in") sits inside a Greek EXAMPLE, as though
+    Homer wrote it. That is the αἴγειρος defect — a definition landing in a
+    quotation — and it belongs to head-run parsing, not to pointer folding.
+    """
+    real = ("ἄατος [ἀ-1 + (σ)άω.] Except in Il. 22.218 in contr. form ἆτος. "
+            "Insatiate of, indefatigable in. With genit.: πολέμοιο Il. 5.388. "
+            "Cf. Il. 5.863, Il. 6.203")
+    t8 = sc.to_t8("a)/atos", "ἄατος", real)
     assert not any((r.get("z") or "").strip() == "Except in" for r in t8["rows"])
     au = [a for r in t8["rows"] for a in (r.get("au") or [])]
+    assert "Except in" in au, "the pointer is kept, never dropped"
     assert au.index("Except in") < au.index("Il. 22.218")
 
 
