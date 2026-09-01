@@ -1,8 +1,8 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import {
-    lookupWord, fetchLemmata, fetchLsjHeads, fetchCunliffeShard, cunliffeShard,
-    type Analysis, type CunliffeEntry, type LemmaRef, type LsjHead,
+    lookupWord, fetchLemmata, fetchLsjHeads, fetchCunliffeT8Shard, cunliffeShard,
+    type Analysis, type CunliffeT8, type LemmaRef, type LsjHead,
   } from '../lib/data';
   import { betaToGreek } from '../lib/betacode';
   import { workPath } from '../lib/works';
@@ -193,14 +193,24 @@
   type LookupFn = (
     word: string,
     el: HTMLElement,
-    opts?: { lang?: string; key?: string },
+    opts?: { lang?: string; key?: string; logeion?: boolean },
   ) => Promise<void>;
-  let _grammata: Promise<LookupFn> | null = null;
-  function grammata(): Promise<LookupFn> {
+  type RenderEntryFn = (
+    rec: unknown,
+    el: HTMLElement,
+    opts?: {
+      abbr?: boolean;
+      logeion?: boolean;
+      citation?: (token: string) => string | null;
+    },
+  ) => void;
+  interface Grammata { lookup: LookupFn; renderEntry: RenderEntryFn; T8_SCHEMA_VERSION: number }
+  let _grammata: Promise<Grammata> | null = null;
+  function grammata(): Promise<Grammata> {
     // @vite-ignore is REQUIRED: Vite cannot resolve an https: import at build
     // time and the build fails without it.
     if (!_grammata) {
-      const p = import(/* @vite-ignore */ GRAMMATA_LOOKUP).then(m => m.lookup as LookupFn);
+      const p = import(/* @vite-ignore */ GRAMMATA_LOOKUP).then(m => m as Grammata);
       p.catch(() => { if (_grammata === p) _grammata = null; });
       _grammata = p;
     }
@@ -211,7 +221,7 @@
   // is the default everywhere: nothing is fetched for a reader who wanted only
   // the parse.
   let open: Record<string, 'lsj' | 'cunliffe'> = {};
-  let cunliffeText: Record<string, CunliffeEntry[]> = {};
+  let cunliffeText: Record<string, CunliffeT8[]> = {};
   let entryError: Record<string, string> = {};
 
   async function toggle(card: EntryCard, i: number, which: 'lsj' | 'cunliffe') {
@@ -223,15 +233,19 @@
     open = { ...open, [card.id]: which };
     entryError = { ...entryError, [card.id]: '' };
     await tick();   // the mount point only exists once the panel has rendered
-    if (which === 'lsj') await openLsj(card, i);
-    else await openCunliffe(card);
+    if (which === 'lsj') {
+      await openLsj(card, i);
+    } else {
+      await openCunliffe(card);
+      await paintCunliffe(card.id, i);
+    }
   }
 
   async function openLsj(card: EntryCard, i: number) {
     const el = panelEl?.querySelector<HTMLElement>(`#lex-panel-${i} .grammata-mount`);
     if (!el) return;
     try {
-      const lookup = await grammata();
+      const { lookup } = await grammata();
       // PASS THE KEY, NEVER THE SURFACE FORM. A surface form makes the widget
       // re-analyse from scratch and discard the disambiguation this reader has
       // already done — εἰσὶ comes back as ἵημι, εἰμί and εἶμι with ἵημι first,
@@ -256,10 +270,10 @@
   async function openCunliffe(card: EntryCard) {
     if (cunliffeText[card.id]) return;
     try {
-      const found: CunliffeEntry[] = [];
+      const found: CunliffeT8[] = [];
       for (const key of card.cunliffeKeys) {
-        const shard = await fetchCunliffeShard(cunliffeShard(key));
-        if (shard[key]) found.push(shard[key]);
+        const shard = await fetchCunliffeT8Shard(cunliffeShard(key));
+        for (const rec of shard[key] ?? []) found.push(rec);
       }
       cunliffeText = { ...cunliffeText, [card.id]: found };
     } catch {
@@ -267,54 +281,20 @@
     }
   }
 
-  // Cunliffe writes its headword as the first words of the definition —
-  // "μῆνις ἡ. 1 Wrath, ire : …" — so the entry opened as an undifferentiated
-  // wall of prose with nothing to catch the eye. Lift the headword into a
-  // header of its own, the way the LSJ entry beside it has one.
-  //
-  // Only where there is ONE block. 328 entries carry several, and their heads
-  // carry Cunliffe's own homonym marks ("Ἀρηΐλυκος-1", "-2") which do real
-  // work in place — the `head` field matches only the first of them, in 33 of
-  // those 328. Those keep their prose exactly as it was.
-  //
-  // Measured over all 7,511 shipped entries: every one begins with its head,
-  // and the join is always a single space before the body ("[ἀριθμός.]",
-  // "-ατος, τό", "(ῡ)"). The guard below still checks rather than trusts.
-  const SENSE_OPEN = '<div class="cunliffe-sense">';
-  /** Where the head sits at the very front of a single block, and so can move.
-   *
-   *  It must be followed by WHITESPACE. In 9 of 7,183 otherwise-liftable
-   *  entries it is not, and those are exactly the ones that would break: ὁ
-   *  reads "ὁ, ἡ, τό" and ὅδε "ὅδε, ἥδε, τόδε", where the head is the first
-   *  item of a paradigm rather than a heading, so lifting it leaves the body
-   *  opening on a comma and the paradigm short of a member. μῶμος is worse —
-   *  the head IS the whole entry, and lifting would leave nothing behind. */
-  function liftsHead(e: CunliffeEntry): boolean {
-    if (e.html.split(SENSE_OPEN).length - 1 !== 1) return false;
-    const rest = e.html.slice(e.html.indexOf(SENSE_OPEN) + SENSE_OPEN.length);
-    return rest.startsWith(e.head) && /^\s/.test(rest.slice(e.head.length));
-  }
-  function cunliffeBody(e: CunliffeEntry): string {
-    if (!liftsHead(e)) return e.html;
-    const from = e.html.indexOf(SENSE_OPEN) + SENSE_OPEN.length;
-    return e.html.slice(0, from)
-      + e.html.slice(from + e.head.length).replace(/^\s+/, '');
-  }
-
   // Following a "See <headword>" pointer. Cunliffe cross-references constantly,
-  // and those pointers used to be dead text; stage5 now marks the ones whose
-  // target actually ships as <a class="cunliffe-xref" data-key="…">.
+  // and those pointers were dead text; stage5 marks the ones whose target ships
+  // as <a class="cunliffe-xref" data-key="…">, inside the record's own `z`.
   //
   // A stack, not a swap, because pointers chain — and because a reader who
   // followed one wants the entry they came from back.
-  let xrefStack: Record<string, { key: string; entries: CunliffeEntry[] }[]> = {};
+  let xrefStack: Record<string, { key: string; entries: CunliffeT8[] }[]> = {};
+
   // Derived, not a function called from the template: a plain helper hides its
   // dependency on cunliffeText from Svelte, so the panel never re-rendered when
   // the fetch resolved and every Cunliffe body stayed empty. `undefined` still
-  // means "still loading" and `[]` means "nothing there" — the two states the
-  // template distinguishes.
+  // means "still loading" and `[]` means "nothing there".
   $: shownCunliffe = (() => {
-    const out: Record<string, CunliffeEntry[] | undefined> = {};
+    const out: Record<string, CunliffeT8[] | undefined> = {};
     for (const c of cards) {
       const st = xrefStack[c.id];
       out[c.id] = st && st.length ? st[st.length - 1].entries : cunliffeText[c.id];
@@ -324,18 +304,63 @@
 
   async function followXref(cardId: string, key: string) {
     try {
-      const shard = await fetchCunliffeShard(cunliffeShard(key));
-      const entry = shard[key];
-      if (!entry) return;   // stage5 only marks targets it ships; nothing to say
-      xrefStack = { ...xrefStack, [cardId]: [...(xrefStack[cardId] ?? []), { key, entries: [entry] }] };
+      const shard = await fetchCunliffeT8Shard(cunliffeShard(key));
+      const entry = (shard[key] ?? [])[0];
+      if (!entry) return;   // stage5 only marks targets it ships
+      xrefStack = {
+        ...xrefStack,
+        [cardId]: [...(xrefStack[cardId] ?? []), { key, entries: [entry] }],
+      };
+      await paintCunliffe(cardId, cards.findIndex(c => c.id === cardId));
     } catch {
       entryError = { ...entryError, [cardId]: 'Cunliffe could not be loaded.' };
     }
   }
 
-  function backFromXref(cardId: string) {
-    const st = (xrefStack[cardId] ?? []).slice(0, -1);
-    xrefStack = { ...xrefStack, [cardId]: st };
+  async function backFromXref(cardId: string) {
+    xrefStack = { ...xrefStack, [cardId]: (xrefStack[cardId] ?? []).slice(0, -1) };
+    await paintCunliffe(cardId, cards.findIndex(c => c.id === cardId));
+  }
+
+  // grammata renders the record; we supply the links, because we are the only
+  // side that knows how to reach the poem. Its own citation hook is what turns
+  // `au` and an example's `c` into anchors — the ones inside `z` and `i` are
+  // already in the markup stage5 wrote.
+  const citationHref = (token: string): string | null => {
+    const m = /^(Il|Od)\.\s*(\d+)\.(\d+)$/.exec(token.trim());
+    if (!m) return null;   // a bare continuation ("75") has no book of its own
+    const work = m[1] === 'Il' ? 'iliad' : 'odyssey';
+    return `${base}${workPath(work, Number(m[2]))}`
+      + `?loc=${formatLocValue(work, m[2], Number(m[3]))}`;
+  };
+
+  /** Paint the T8 records for a card into their mount points. */
+  async function paintCunliffe(cardId: string, i: number) {
+    let g: Grammata;
+    try {
+      g = await grammata();
+    } catch {
+      entryError = { ...entryError, [cardId]: 'The dictionary could not be loaded.' };
+      return;
+    }
+    // AFTER the tick: shownCunliffe is derived, so reading it before Svelte has
+    // recomputed gives the previous word's records — or none at all, which read
+    // as "nothing to paint" and left every Cunliffe body blank.
+    await tick();
+    const recs = shownCunliffe[cardId];
+    if (!recs?.length) return;
+    const mounts = panelEl?.querySelectorAll<HTMLElement>(
+      `#lex-panel-${i} .cunliffe-mount`);
+    if (!mounts) return;
+    recs.forEach((rec, k) => {
+      const el = mounts[k];
+      if (!el) return;
+      el.innerHTML = '';
+      // abbr:false — grammata's abbreviation table is LSJ-shaped and Cunliffe's
+      // conventions are narrower; a wrong expansion is worse than none.
+      // logeion:false — the card's tab row already carries that link.
+      g.renderEntry(rec, el, { abbr: false, logeion: false, citation: citationHref });
+    });
   }
 
   // A Cunliffe entry's HTML embeds internal citation links as
@@ -434,19 +459,12 @@
                 {:else if shownCunliffe[c.id]!.length === 0}
                   <div class="popup-loading">Not in Cunliffe.</div>
                 {:else}
-                  {#each shownCunliffe[c.id]! as entry}
-                    <article class="cunliffe-entry">
-                      <!-- The card overhead already names the word. Cunliffe's
-                           head earns a line only when it differs — its own
-                           homonym marks (Ἀρηΐλυκος-1), a dagger, a different
-                           accentuation. A followed cross-reference is always a
-                           different word, so it always names itself. -->
-                      {#if (xrefStack[c.id] ?? []).length || (liftsHead(entry) && entry.head !== c.head)}
-                        <div class="cunliffe-lemma" lang="grc">{entry.head}</div>
-                      {/if}
-                      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                      {@html cunliffeBody(entry)}
-                    </article>
+                  {#each shownCunliffe[c.id]! as _rec}
+                    <!-- grammata renders the record into this: headword, forms
+                         bar, division tabs, sense rows, example drawers. The
+                         citation and cross-reference links inside it are the
+                         markup stage5 wrote plus our own citation hook. -->
+                    <div class="cunliffe-mount"></div>
                   {/each}
                 {/if}
               </div>

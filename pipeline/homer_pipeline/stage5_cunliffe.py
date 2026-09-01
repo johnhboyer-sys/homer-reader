@@ -348,7 +348,9 @@ def parse_sense(body: str) -> tuple[str, str]:
     start = _evidence_start(body, m.start())
     # The colon that introduced the quotation belongs to neither side once the
     # two are separate fields.
-    return body[:start].strip().rstrip(" :;,"), body[start:].strip()
+    # Not ";": the source carries a literal "&gt;" in at least one entry
+    # (κεφαλή), and trimming the semicolon turned the entity into "&gt".
+    return body[:start].strip().rstrip(" :,"), body[start:].strip()
 
 
 # Evidence, split into what T8 renders: `ex` is a quotation with its citation
@@ -374,7 +376,10 @@ _CITE_TOKEN_RE = re.compile(r"\b(?:Il|Od)\.\s*\d+\.\d+|\b\d+\b")
 _CONNECTOR_RE = re.compile(r"^[\s,.:;=]*(?:Cf\.|cf\.|and|=)?[\s,.:;=]*")
 _PAREN_RE = re.compile(r"\(([^)]*)\)\s*$")
 # Cunliffe's own "and so on" marks. Kept in the text, never given a row.
-_TRAILING_NOTE_RE = re.compile(r"[\s.:,;–-]*(?:etc\.?|So|and so on)?[\s.:,;–-]*")
+# Notes come in runs — "etc. So", "– etc.:", a bare "– –". Matching only one
+# at a time left the rest to open a row of its own (John, on seeing "etc. So"
+# standing above examples that belong to the sense before it).
+_TRAILING_NOTE_RE = re.compile(r"(?:[\s.:,;–-]*(?:etc\.?|So|and so on))*[\s.:,;–-]*")
 
 
 def _append_note(segment: dict, note: str) -> None:
@@ -509,7 +514,106 @@ def _split_head_run(body: str) -> tuple[str, str]:
     return body[:end].strip(), body[end:]
 
 
-def to_t8(key: str, headword: str, definition: str) -> dict:
+def _markup(text: str, resolve) -> str:
+    """A T8 text field, escaped and carrying the links the HTML shard carries.
+
+    grammata runs `z`, `i` and an example's `g` through wrapGreekInHtml rather
+    than escapeHtml, so these fields ARE html and anchors survive in them. That
+    is the whole reason the T8 records can keep the cross-references: 316 of
+    them fall in `z`, 79 in `i`, 61 inside a quotation, and rendering from
+    records without this step would have dropped every one — along with the 13
+    citations that land in a definition rather than in the evidence.
+
+    Citations in `au` and in an example's `c` are NOT touched: those are bare
+    tokens, and grammata's own `citation` hook turns them into links at render
+    time using the host's URL scheme.
+    """
+    out = _link_plain_refs(escape(text))
+    return _link_xrefs(out, resolve) if resolve is not None else out
+
+
+# Cunliffe's own labels for a principal part, learned from the head runs of the
+# entries whose boundary the sense-split hands over for free: Infin. 393,
+# Pple. 300, Imp. 134, Aor. 107, Fem. 73, Fut. 72, Subj. 64, Opt. 56 … and the
+# digit-then-lowercase shape it writes person and number in ("3 sing. pres.").
+_FORM_LABEL_RE = re.compile(
+    r"(?:\d\s+(?:sing|pl|dual)\.(?:\s+[a-z]{2,8}\.)*"
+    r"|(?:Infin|Pple|Imp|Aor|Fem|Fut|Subj|Opt|Pl|Acc|Dat|Genit|Nom|Masc|Neut"
+    r"|Sing|Dual|Voc|Perf|Plup|Pres|Impf|Mid|Pass|Act|Contr|Instrumental|Locative)"
+    r"\b[a-z. ]*\.)\s+(?=[\u0370-\u03ff\u1f00-\u1fff])"
+)
+
+
+def split_forms(head_run: str) -> tuple[str, list[list[str]], list[str]]:
+    """(what stays in `i`, the forms block, entry-level citations).
+
+    Cunliffe puts its principal parts in the head run, chained and only
+    half-labelled — "Aor. ἤγειρα Il. 17.222: Od. 2.41. ἄγειρα Od. 14.285.
+    3 sing. ἤγειρε Od. 2.28." T8 renders these as `f`, a list of
+    [label, form] pairs, which is what the forms bar above the senses is for.
+
+    What precedes the first label — endings, gender, a quantity mark, the
+    etymology — is not a form and stays in `i`.
+    """
+    first = _FORM_LABEL_RE.search(head_run)
+    if not first:
+        return head_run, [], []
+    keep = head_run[:first.start()].strip()
+    rest = head_run[first.start():]
+
+    forms: list[list[str]] = []
+    au: list[str] = []
+    label = ""
+    pos = 0
+    pending: list[str] = []      # label words with no form of their own yet
+    for m in _FORM_LABEL_RE.finditer(rest):
+        if m.start() > pos:
+            left = _consume_form(rest[pos:m.start()], label, forms, au)
+            if left:
+                pending.append(left)
+        label = " ".join(pending + [m.group(0).strip()])
+        pending = []
+        pos = m.end()
+    left = _consume_form(rest[pos:], label, forms, au)
+    if left:
+        # nothing followed it: keep it as a labelled row of its own rather than
+        # dropping it. 204 entries lost words like "Mid." and "Pass." this way.
+        forms.append([left, ""])
+    return keep, forms, au
+
+
+def _consume_form(chunk: str, label: str, forms: list, au: list) -> str:
+    """One label's worth of head run: its form(s) and their citations.
+
+    A label can cover SEVERAL forms, and Cunliffe writes the later ones bare:
+    "Aor. ἤγειρα Il. 17.222: Od. 2.41. ἄγειρα Od. 14.285." — ἄγειρα sits
+    between two citations under the same "Aor." Taking only the text before the
+    first citation and after the last one dropped it.
+    """
+    pos = 0
+    first = True
+    for c in _CITE_TOKEN_RE.finditer(chunk):
+        piece = chunk[pos:c.start()].strip(" .,;:")
+        if piece and _GREEK_RE.search(piece):
+            forms.append([label if first else "", piece])
+            first = False
+        elif piece:
+            # "etc." between two citations, as everywhere else in this parse:
+            # it qualifies the list and joins it rather than being dropped.
+            au.append(piece)
+        au.append(c.group(0))
+        pos = c.end()
+    tail = chunk[pos:].strip(" .,;:")
+    if tail and _GREEK_RE.search(tail):
+        forms.append([label if first else "", tail])
+    elif tail:
+        # No Greek: this is a label waiting for its form ("Mid." before
+        # "Aor. ἀ̄ᾰσάμην"), so hand it back to prefix the next one.
+        return tail
+    return ""
+
+
+def to_t8(key: str, headword: str, definition: str, resolve=None) -> dict:
     """A Cunliffe entry as a T8 record: head, the undecomposed head run, and
     rows. Division banners are lv 0 and carry the numeral plus the division's
     own heading; senses are lv 1.
@@ -523,8 +627,25 @@ def to_t8(key: str, headword: str, definition: str) -> dict:
     if not p["senses"]:
         head_run, rest = _split_head_run(definition[len(headword):])
         z, evidence = parse_sense(rest)
-        return {"key": key, "head": headword, "i": head_run,
-                "rows": _rows_from({"lv": 1, "n": "", "z": z}, evidence)}
+        rows = _rows_from({"lv": 1, "n": "", "z": z}, evidence)
+        for r in rows:
+            if r.get("z"):
+                r["z"] = _markup(r["z"], resolve)
+            for item in r.get("ex") or []:
+                if item.get("g"):
+                    item["g"] = _markup(item["g"], resolve)
+                if item.get("e"):
+                    item["e"] = escape(item["e"])
+        keep, forms, form_cites = split_forms(head_run)
+        out: dict = {"key": key, "head": headword,
+                     "i": _markup(keep, resolve), "rows": rows}
+        # `f` and entry-level `au` are escaped by grammata itself (unlike i and
+        # z, which it treats as html), so they stay raw.
+        if forms:
+            out["f"] = forms
+        if form_cites:
+            out["au"] = form_cites
+        return out
 
     head_end = len(p["head"])
     # Each sense becomes one or more rows (prose between citations opens a
@@ -574,9 +695,24 @@ def to_t8(key: str, headword: str, definition: str) -> dict:
     # entries where scrolling to the middle voice is the problem tabs solve.
     # (ἄλλος has senses before its first banner and falls back to untabbed —
     # grammata's documented behaviour, harmless, and not a misfiring threshold.)
+    for r in rows:
+        if r.get("z"):
+            r["z"] = _markup(r["z"], resolve)
+        for item in r.get("ex") or []:
+            if item.get("g"):
+                item["g"] = _markup(item["g"], resolve)
+            if item.get("e"):
+                item["e"] = escape(item["e"])
+
     gr = [[r["n"], r["z"]] for r in rows if r.get("b") and r["n"]]
-    out = {"key": key, "head": headword,
-           "i": definition[len(headword):head_end].strip(), "rows": rows}
+    keep, forms, form_cites = split_forms(
+        definition[len(headword):head_end].strip())
+    out = {"key": key, "head": headword, "i": _markup(keep, resolve),
+           "rows": rows}
+    if forms:
+        out["f"] = forms
+    if form_cites:
+        out["au"] = form_cites
     if len(gr) >= 2:
         out["gr"] = gr
     return out
@@ -709,7 +845,7 @@ def run(manifest: Manifest) -> Path:
         }
         # One record per row sharing the key, matching entry_html's blocks.
         t8_shards[shard_letter(key)][key] = [
-            to_t8(key, r["headword"], r["definition"]) for r in rows
+            to_t8(key, r["headword"], r["definition"], resolve) for r in rows
         ]
         for r in rows:
             if r["src"] == "lex":

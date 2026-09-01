@@ -2521,23 +2521,19 @@ select {
    set to the same measure: 0.875rem/1.55, matching that entry's 14px body. It
    was 0.85rem — smaller than the dictionary beside it, which is backwards, and
    reading type is never shrunk here. */
-.cunliffe-entry {
+.cunliffe-entry,
+.cunliffe-mount {
   font-family: var(--font-english);
   font-size: 0.875rem;
   line-height: 1.55;
   color: var(--text);
 }
-
-/* The headword, lifted out of the prose it used to open (see cunliffeBody).
-   Cunliffe writes "μῆνις ἡ. 1 Wrath, ire : …" as one run, so an entry arrived
-   as a wall with nothing to enter it by. */
-.cunliffe-entry .cunliffe-lemma {
-  font-family: var(--font-greek);
-  font-size: 1.15rem;
-  font-weight: 600;
-  line-height: 1.25;
-  color: var(--accent);
-  margin-bottom: 0.1rem;
+/* The one sanctioned knob into grammata's own markup, as for the LSJ mount. */
+.cunliffe-mount { --grammata-greek: var(--font-greek); }
+.cunliffe-mount + .cunliffe-mount {
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--border);
 }
 
 /* Two Cunliffe entries under one card are different words (ὅς¹, ὅς²) — rule

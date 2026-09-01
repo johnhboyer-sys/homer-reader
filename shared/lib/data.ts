@@ -985,6 +985,44 @@ export async function fetchCunliffeShard(letter: string): Promise<Record<string,
   return shard;
 }
 
+// A Cunliffe entry as a T8 record — the structured shape grammata's renderer
+// takes, built by stage5_cunliffe. Rows carry a level, a number and a
+// definition; `ex` is a quotation with its citation, `au` bare citations, `f`
+// the principal parts, `gr` the divisions that may become a tab strip.
+//
+// `i`, `z` and an example's `g` are HTML: grammata runs those through
+// wrapGreekInHtml rather than escapeHtml, which is what lets the citation and
+// cross-reference links survive into the records. `f` and `au` are plain text —
+// grammata escapes those itself, and turns `au` into links via its own
+// citation hook.
+export interface CunliffeT8 {
+  key: string;
+  head: string;
+  i?: string;
+  f?: [string, string][];
+  au?: string[];
+  gr?: [string, string][];
+  rows: {
+    lv: number; n: string; z?: string; b?: 1;
+    ex?: { g: string; e?: string; c?: string }[];
+    au?: string[];
+  }[];
+}
+
+const _cunliffeT8Cache = new Map<string, Record<string, CunliffeT8[]>>();
+
+/** The T8 records for a letter, at /data/cunliffe-t8/<letter>.json. */
+export async function fetchCunliffeT8Shard(
+  letter: string,
+): Promise<Record<string, CunliffeT8[]>> {
+  if (_cunliffeT8Cache.has(letter)) return _cunliffeT8Cache.get(letter)!;
+  const r = await fetch(`${ROOT()}/cunliffe-t8/${letter}.json`);
+  if (!r.ok) return {};
+  const shard = await r.json();
+  _cunliffeT8Cache.set(letter, shard);
+  return shard;
+}
+
 export async function lookupWord(
   work: string,
   key: string,

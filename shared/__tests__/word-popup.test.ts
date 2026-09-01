@@ -15,7 +15,7 @@ vi.mock('../lib/data', async (importOriginal) => {
     ...actual,
     fetchLemmata: vi.fn(async () => ({})),
     fetchLsjHeads: headsMock,
-    fetchCunliffeShard: cunliffeShardMock,
+    fetchCunliffeT8Shard: cunliffeShardMock,
     lookupWord: lookupWordMock,
   };
 });
@@ -24,8 +24,15 @@ vi.mock('../lib/data', async (importOriginal) => {
 // module so the popup's contract with it can be asserted without a fetch — above
 // all that it is handed the KEY and never the surface form.
 const grammataLookup = vi.fn(async () => {});
+// renderEntry is what draws a Cunliffe record. Stubbed so the popup's contract
+// with it can be asserted — which record, and which options — without a fetch.
+const grammataRender = vi.fn((_rec: unknown, el: HTMLElement) => {
+  el.innerHTML = '<article class="t8-entry">rendered</article>';
+});
 vi.mock('https://grammata.pages.dev/t8/lookup.js', () => ({
   lookup: (...args: unknown[]) => grammataLookup(...(args as [])),
+  renderEntry: (...args: unknown[]) => grammataRender(...(args as [never, never])),
+  T8_SCHEMA_VERSION: 1,
 }));
 
 afterEach(() => {
@@ -96,23 +103,49 @@ describe('WordPopup.svelte — the entry opens under the card tapped', () => {
     lookupWordMock.mockResolvedValue(WRATH);
     headsMock.mockResolvedValue(HEADS);
     cunliffeShardMock.mockResolvedValue({
-      'mh=nis': {
-        key: 'mh=nis', head: 'μῆνις', src: 'lex',
-        html: '<div class="cunliffe-sense">Wrath, ire.</div>',
-      },
+      'mh=nis': [{ key: 'mh=nis', head: 'μῆνις', i: 'ἡ.',
+                   rows: [{ lv: 1, n: '1', z: 'Wrath, ire' }] }],
     });
     const { container } = renderPopup();
     await screen.findByText('wrath');
 
     const cunliffeTab = screen.getByRole('button', { name: 'Cunliffe' });
     await fireEvent.click(cunliffeTab);
-    expect(await screen.findByText('Wrath, ire.')).toBeInTheDocument();
+    await waitFor(() => expect(grammataRender).toHaveBeenCalled());
+    const [rec] = grammataRender.mock.calls[0] as [{ head: string }];
+    expect(rec.head).toBe('μῆνις');
     // The entry sits INSIDE the card it belongs to, not below the whole stack.
     expect(container.querySelector('.analysis-card .card-entry')).toBeInTheDocument();
 
     await fireEvent.click(cunliffeTab);
-    await waitFor(() => expect(screen.queryByText('Wrath, ire.')).toBeNull());
+    await waitFor(() =>
+      expect(container.querySelector('.cunliffe-mount')).toBeNull());
     expect(cunliffeTab).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('renders Cunliffe with our links and without LSJ abbreviations', async () => {
+    lookupWordMock.mockResolvedValue(WRATH);
+    headsMock.mockResolvedValue(HEADS);
+    cunliffeShardMock.mockResolvedValue({
+      'mh=nis': [{ key: 'mh=nis', head: 'μῆνις', rows: [{ lv: 1, n: '1', z: 'Wrath' }] }],
+    });
+    renderPopup();
+    await screen.findByText('wrath');
+    await fireEvent.click(screen.getByRole('button', { name: 'Cunliffe' }));
+    await waitFor(() => expect(grammataRender).toHaveBeenCalled());
+
+    const [, , opts] = grammataRender.mock.calls[0] as [unknown, unknown, {
+      abbr: boolean; logeion: boolean; citation: (t: string) => string | null }];
+    // abbr:false — grammata's table is LSJ-shaped and Cunliffe's conventions
+    // are narrower; a wrong expansion is worse than none.
+    expect(opts.abbr).toBe(false);
+    // logeion:false — the card's own tab row already carries that link.
+    expect(opts.logeion).toBe(false);
+    // We supply the hrefs: grammata deliberately does not know our URL scheme.
+    expect(opts.citation('Il. 1.75')).toContain('/iliad/');
+    // A bare continuation has no book of its own and must stay plain rather
+    // than become a link to the wrong line.
+    expect(opts.citation('75')).toBeNull();
   });
 
   it('offers no Cunliffe tab on a card no Cunliffe entry covers', async () => {
@@ -389,75 +422,10 @@ describe('WordPopup.svelte — token switch while open', () => {
   });
 });
 
-describe('WordPopup.svelte — the Cunliffe entry reads as an entry', () => {
-  // Cunliffe writes its headword as the first words of the definition, so an
-  // entry arrived as an undifferentiated wall. The head is lifted out — but
-  // only where lifting it is safe, which is not everywhere.
-  const cunliffeCard = {
-    analyses: [{
-      lemma: 'x', gloss: 'g', parse: 'fem nom sg', lsj: ['x1'], cunliffe: ['ck'],
-    }],
-    lsj: [], cunliffe: [],
-  };
-  const openCunliffe = async (head: string, html: string, cardHead = 'ξ') => {
-    lookupWordMock.mockResolvedValue(cunliffeCard);
-    headsMock.mockResolvedValue({ x1: { head: cardHead } });
-    cunliffeShardMock.mockResolvedValue({ ck: { key: 'ck', head, html, src: 'lex' } });
-    const { container } = renderPopup();
-    await screen.findByText('g');
-    await fireEvent.click(screen.getByRole('button', { name: 'Cunliffe' }));
-    await waitFor(() => expect(container.querySelector('.cunliffe-entry')).toBeTruthy());
-    const e = container.querySelector('.cunliffe-entry')!;
-    return {
-      header: e.querySelector('.cunliffe-lemma')?.textContent ?? null,
-      body: e.querySelector('.cunliffe-sense')!.textContent!.trim(),
-    };
-  };
-  const block = (inner: string) => `<div class="cunliffe-sense">${inner}</div>`;
-
-  it('lifts the headword out of the prose it used to open', async () => {
-    const r = await openCunliffe('μῆνις', block('μῆνις ἡ. 1 Wrath, ire'), 'μῆνις');
-    expect(r.body).toBe('ἡ. 1 Wrath, ire');
-    // …and prints no header, because the card overhead already says μῆνις.
-    expect(r.header).toBeNull();
-  });
-
-  it('keeps a head the card does not already show', async () => {
-    // Cunliffe accents τῶ where LSJ has τῷ; the dagger words differ too.
-    const r = await openCunliffe('τῶ', block('τῶ Adv. Therefore'), 'τῷ');
-    expect(r.header).toBe('τῶ');
-    expect(r.body).toBe('Adv. Therefore');
-  });
-
-  it('NEVER lifts a head that opens a paradigm', async () => {
-    // ὁ reads "ὁ, ἡ, τό" — the head is the first member of a list, not a
-    // heading. Lifting it opened the body on a comma and left the paradigm a
-    // member short. 8 entries do this; ὁ and ὅδε are two of them.
-    const r = await openCunliffe('ὁ', block('ὁ, ἡ, τό Genit. τοῦ, τῆς, τοῦ'), 'ὁ');
-    expect(r.body).toBe('ὁ, ἡ, τό Genit. τοῦ, τῆς, τοῦ');
-    expect(r.body.startsWith(',')).toBe(false);
-  });
-
-  it('NEVER lifts a head that is the whole entry', async () => {
-    // μῶμος: nothing follows the headword, so lifting leaves a blank entry.
-    const r = await openCunliffe('μῶμος', block('μῶμος'), 'μῶμος');
-    expect(r.body).toBe('μῶμος');
-  });
-
-  it('leaves a multi-block entry alone, where the homonym marks do the work', async () => {
-    // ὅς1 / ὅς2 disambiguate in place, and `head` matches only the first of
-    // them, so nothing is lifted and nothing is repeated above.
-    const html = block('ὅς1. See ἑός.') + block('ὅς2 ἥ, ὅ. Genit. masc. ὅου');
-    const r = await openCunliffe('ὅς1.', html, 'ὅς');
-    expect(r.header).toBeNull();
-    expect(r.body).toBe('ὅς1. See ἑός.');
-  });
-});
-
 describe('WordPopup.svelte — following a Cunliffe cross-reference', () => {
-  // Cunliffe points from entry to entry constantly ("See πολλός."), and those
-  // pointers were dead text. stage5 marks the ones whose target actually ships;
-  // the panel follows them in place and can come back.
+  // Cunliffe points from entry to entry constantly ("See πολλός."). stage5
+  // marks the pointers whose target ships, inside the record's own `z`; the
+  // panel follows them in place and can come back.
   const setup = async () => {
     lookupWordMock.mockResolvedValue({
       analyses: [{ lemma: 'p', gloss: 'much', parse: 'adj', lsj: ['p1'], cunliffe: ['polu/s'] }],
@@ -465,41 +433,37 @@ describe('WordPopup.svelte — following a Cunliffe cross-reference', () => {
     });
     headsMock.mockResolvedValue({ p1: { head: 'πολύς' } });
     cunliffeShardMock.mockResolvedValue({
-      'polu/s': {
-        key: 'polu/s', head: 'πολύς', src: 'lex',
-        html: '<div class="cunliffe-sense">See '
-          + '<a class="cunliffe-xref" href="#" data-key="pollo/s">πολλός</a>.</div>',
-      },
-      'pollo/s': {
-        key: 'pollo/s', head: 'πολλός', src: 'lex',
-        html: '<div class="cunliffe-sense">πολλός Much, many.</div>',
-      },
+      'polu/s': [{ key: 'polu/s', head: 'πολύς', rows: [{ lv: 1, n: '',
+        z: 'See <a class="cunliffe-xref" href="#" data-key="pollo/s">πολλός</a>.' }] }],
+      'pollo/s': [{ key: 'pollo/s', head: 'πολλός', rows: [{ lv: 1, n: '', z: 'Much, many.' }] }],
+    });
+    // the stub paints the record's own markup, so the xref anchor is clickable
+    grammataRender.mockImplementation((rec: any, el: HTMLElement) => {
+      el.innerHTML = `<article class="t8-entry" data-head="${rec.head}">`
+        + rec.rows.map((r: any) => r.z ?? '').join('') + '</article>';
     });
     const r = renderPopup();
     await screen.findByText('much');
     await fireEvent.click(screen.getByRole('button', { name: 'Cunliffe' }));
-    await screen.findByText('πολλός');
+    await waitFor(() => expect(r.container.querySelector('a.cunliffe-xref')).toBeTruthy());
     return r;
   };
 
   it('opens the entry the pointer names, in place', async () => {
     const { container } = await setup();
     await fireEvent.click(container.querySelector('a.cunliffe-xref')!);
-    expect(await screen.findByText(/Much, many/)).toBeInTheDocument();
-    // The followed entry always names itself — it is a different word from the
-    // one on the card.
-    expect(container.querySelector('.cunliffe-lemma')?.textContent).toBe('πολλός');
+    await waitFor(() =>
+      expect(container.querySelector('[data-head="πολλός"]')).toBeTruthy());
   });
 
   it('comes back to the entry it was called from', async () => {
     const { container } = await setup();
     await fireEvent.click(container.querySelector('a.cunliffe-xref')!);
-    await screen.findByText(/Much, many/);
+    await waitFor(() => expect(container.querySelector('[data-head="πολλός"]')).toBeTruthy());
 
-    const back = screen.getByRole('button', { name: /Back to πολύς/ });
-    await fireEvent.click(back);
-    await waitFor(() => expect(screen.queryByText(/Much, many/)).toBeNull());
-    expect(container.querySelector('a.cunliffe-xref')).toBeInTheDocument();
+    await fireEvent.click(screen.getByRole('button', { name: /Back to πολύς/ }));
+    await waitFor(() =>
+      expect(container.querySelector('[data-head="πολύς"]')).toBeTruthy());
   });
 
   it('leaves the trail behind when the reader moves to another word', async () => {
@@ -507,7 +471,7 @@ describe('WordPopup.svelte — following a Cunliffe cross-reference', () => {
     // word would strand the reader inside a pointer chain they did not open.
     const { container, rerender } = await setup();
     await fireEvent.click(container.querySelector('a.cunliffe-xref')!);
-    await screen.findByText(/Much, many/);
+    await waitFor(() => expect(container.querySelector('[data-head="πολλός"]')).toBeTruthy());
 
     await rerender({ token: { t: 'ἄλλο', k: 'a)/llo' } });
     await waitFor(() =>

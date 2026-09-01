@@ -245,7 +245,15 @@ def test_the_whole_lexicon_survives_the_t8_parse(tmp_path):
         import pytest
         pytest.skip(f"Cunliffe source not present at {src}")
     from collections import Counter
-    nows = lambda s: re.sub(r"\s+", "", s)
+    # z, i and an example's g carry markup now (grammata runs them through
+    # wrapGreekInHtml, not escapeHtml, which is what lets the cross-references
+    # survive into the records). Compare the TEXT, and check the tags separately
+    # rather than letting them count as content.
+    def plain(v):
+        v = re.sub(r"<[^>]*>", "", v)
+        return (v.replace("&amp;", "&").replace("&lt;", "<")
+                 .replace("&gt;", ">").replace("&quot;", '"').replace("&#x27;", "'"))
+    nows = lambda s: re.sub(r"\s+", "", plain(s))
     # Connectors ("Cf.", ",", ":", "=") carry nothing a T8 row keeps — it joins
     # citations with its own separator — and the brackets around a parenthetical
     # go when its text is lifted into `e`. Those are the ONLY characters this
@@ -261,6 +269,11 @@ def test_the_whole_lexicon_survives_the_t8_parse(tmp_path):
         t8 = sc.to_t8(r["key"], r["headword"], r["definition"])
         rows += len(t8["rows"])
         parts = [t8["head"], t8["i"]]
+        # the forms block and the entry-level citations it pulled out of the
+        # head run
+        for lab, form in t8.get("f") or []:
+            parts += [lab, form]
+        parts += list(t8.get("au") or [])
         for x in t8["rows"]:
             parts += [x.get("n") or "", x.get("z") or ""]
             for item in x.get("ex") or []:
@@ -269,6 +282,10 @@ def test_the_whole_lexicon_survives_the_t8_parse(tmp_path):
         dropped = Counter(nows(r["definition"])) - Counter(nows("".join(parts)))
         added = Counter(nows("".join(parts))) - Counter(nows(r["definition"]))
         assert not added, f"{r['headword']} gained {list(added)}"
+        # every anchor this parse inserts must be closed
+        for field in [t8["i"]] + [x.get("z") or "" for x in t8["rows"]] + [
+                e.get("g") or "" for x in t8["rows"] for e in (x.get("ex") or [])]:
+            assert field.count("<a ") == field.count("</a>"), r["headword"]
         real = [ch for ch in dropped if ch not in allowed]
         if real:
             lossy.append((r["headword"], real))
