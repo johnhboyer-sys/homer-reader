@@ -141,6 +141,22 @@ non-negotiable.
   `docs/PHASE0-FINDINGS.md:33-38`); copy the cached
   `build/export/Diogenes-Resources/xml/tlg/tlg0012001.xml` from the main
   checkout.
+- `build:public` in a worktree (2026-08-31, cost the shared `build/dist`):
+  the script's FIRST step deletes `build/dist`, and only then spawns
+  `<repo>/pipeline/.venv/bin/python` — which a worktree does not have (see the
+  bootstrap note above). So it wipes the shared dist, dies with ENOENT, and
+  leaves every worktree's `app/public/data` pointing at nothing. Symlink the
+  venv first: `ln -sfn <main-checkout>/pipeline/.venv pipeline/.venv`, the same
+  way `build` is symlinked. Verified afterwards that this imports the
+  WORKTREE's `homer_pipeline` while writing to the shared `build/` — which is
+  what you want. Recovery is a re-run: only `dist` is cleaned and it is
+  regenerable from stage1–6, which survive.
+- Never pipe a build or test command into `tail`/`head` when you intend to read
+  its exit status (2026-08-31, same incident): the pipeline's status is the
+  LAST command's, so `npm run build:public | tail` reported 0 for a run that
+  had crashed. Redirect to a file and echo `$?` instead. (CLAUDE.md already
+  said not to pipe through `tail` before a `&&`; this is the same rule and it
+  is easy to walk into when you only want the last few lines.)
 - Test gotcha (2026-07-27): in `shared/` vitest (jsdom), `import.meta.url`
   resolves relative URLs against Vite's HTTP base, NOT the filesystem — so
   `fs.existsSync(new URL('../../x', import.meta.url))` is always false and a
