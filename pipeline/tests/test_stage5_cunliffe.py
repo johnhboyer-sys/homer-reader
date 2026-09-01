@@ -310,3 +310,32 @@ def test_prose_between_citations_keeps_the_citations_that_follow_it():
     assert tail["au"] == ["Il. 1.158"]
     assert tail["n"] == ""      # a continuation carries no number of its own
     assert "s" not in tail      # and never `s`, which would draw a dash
+
+
+def test_an_unnumbered_entrys_morphology_is_not_read_as_a_quotation():
+    # αἴγειρος came out with z="-" and "ου, ἡ. The poplar" inside `g`, reading
+    # as though Homer had written it — the definition in the wrong field, and
+    # the endings split in half. 151 entries did this.
+    t8 = sc.to_t8("a", "αἴγειρος", "αἴγειρος -ου, ἡ. The poplar Il. 4.482: Od. 5.64.")
+    assert t8["i"] == "-ου, ἡ."
+    row = t8["rows"][0]
+    assert row["z"] == "The poplar"
+    assert all("poplar" not in e.get("g", "") for e in row.get("ex", []))
+
+
+def test_an_etymology_bracket_stays_out_of_the_quotation():
+    t8 = sc.to_t8("a", "ἄλειφαρ", "ἄλειφαρ -ατος, τό [ἀλείφω.] Unguent, oil Il. 18.351.")
+    assert "[ἀλείφω.]" in t8["i"]
+    assert t8["rows"][0]["z"] == "Unguent, oil"
+
+
+def test_a_note_joins_the_citation_list_not_the_definition():
+    # "etc." qualifies the citations above it. Given a row to itself it produced
+    # sense rows whose whole definition read "etc." (839 of them); appended to
+    # the definition instead it produced "With, along with, in company with
+    # etc. etc.". It belongs in `au`, which renders as "Il. 1.424 · etc.".
+    t8 = sc.to_t8("a", "ἅμα", "ἅμα 1 With Il. 1.424. etc.: κήρυχʼ ἁ. ὀπάσσας Od. 9.90.")
+    assert len(t8["rows"]) == 1
+    row = t8["rows"][0]
+    assert row["z"] == "With"
+    assert "etc." in row["au"]

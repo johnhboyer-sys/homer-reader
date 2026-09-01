@@ -377,6 +377,20 @@ _PAREN_RE = re.compile(r"\(([^)]*)\)\s*$")
 _TRAILING_NOTE_RE = re.compile(r"[\s.:,;–-]*(?:etc\.?|So|and so on)?[\s.:,;–-]*")
 
 
+def _append_note(segment: dict, note: str) -> None:
+    """Attach one of Cunliffe's "and so on" marks to the row it qualifies.
+
+    Never dropped — in a lexicon "etc." says the list is not exhaustive — and
+    never given a row of its own. It joins the CITATION LIST it qualifies rather
+    than the definition: a row is rendered as "Il. 1.158 · 226 · etc.", which is
+    how the list reads on the page, where appending it to the definition gave
+    "With, along with, in company with etc. etc." A repeat is kept — the two
+    marks are separately printed, and skipping the second was content loss the
+    corpus audit caught at once.
+    """
+    segment["au"].append(note)
+
+
 def split_evidence(evidence: str) -> list[dict]:
     """One sense's evidence as an ordered list of segments.
 
@@ -405,7 +419,13 @@ def split_evidence(evidence: str) -> list[dict]:
         if gm and gm.start() > 0:
             prose = _CONNECTOR_RE.sub("", body[:gm.start()]).strip().rstrip(" :;,")
             if prose:
-                segments.append({"z": prose, "ex": [], "au": []})
+                # A note here qualifies the row above and must not open a new
+                # one — otherwise the quotation that follows lands on a row
+                # whose whole definition reads "etc.". That was 839 rows.
+                if _TRAILING_NOTE_RE.fullmatch(prose):
+                    _append_note(segments[-1], prose)
+                else:
+                    segments.append({"z": prose, "ex": [], "au": []})
             body = body[gm.start():].strip()
         if _GREEK_RE.search(body):
             gloss = ""
@@ -419,13 +439,8 @@ def split_evidence(evidence: str) -> list[dict]:
             segments[-1]["ex"].append(item)
         elif body:
             if _TRAILING_NOTE_RE.fullmatch(body):
-                # "etc.", "So", a bare dash: Cunliffe saying the list above goes
-                # on. It is real signal and is never dropped — but it belongs to
-                # the row it qualifies, not to a row of its own, which is how it
-                # produced sense rows reading only "etc."
-                prev = segments[-1]
-                prev["z"] = (prev.get("z", "") + " " + body).strip()
-                prev["au"].append(cite)
+                _append_note(segments[-1], body)
+                segments[-1]["au"].append(cite)
             else:
                 # prose with no Greek: a new statement, and the citations that
                 # follow belong to it
@@ -437,7 +452,7 @@ def split_evidence(evidence: str) -> list[dict]:
         if _GREEK_RE.search(tail):
             segments[-1]["ex"].append({"g": tail})
         elif _TRAILING_NOTE_RE.fullmatch(tail):
-            segments[-1]["z"] = (segments[-1].get("z", "") + " " + tail).strip()
+            _append_note(segments[-1], tail)
         else:
             segments.append({"z": tail, "ex": [], "au": []})
     return segments
@@ -465,6 +480,35 @@ def _rows_from(base: dict, evidence: str) -> list[dict]:
     return out
 
 
+# The morphology an entry opens with, before any definition: declension endings
+# ("-ου,", "-ατος,"), gender, a quantity mark, an etymology bracket. Cunliffe
+# closes it with a full stop.
+_MORPH_HEAD_RE = re.compile(
+    r"^(?:\s*(?:-[^\s,.]+|[,;]|\([^)]*\)|\[[^\]]*\]|[ὁἡτότάοἱαἱ]{1,3}|"
+    r"\b(?:masc|fem|neut|pl|sing|dual)\b\.?))+"
+)
+
+
+def _split_head_run(body: str) -> tuple[str, str]:
+    """(head run, the rest) for an entry with no numbered senses.
+
+    Without this the head run is Greek enough to be read as a QUOTATION, and
+    the definition goes with it: αἴγειρος came out with z="-" and the poplar
+    itself sitting in `g`, as though Homer had written "ου, ἡ. The poplar".
+    151 entries did that.
+    """
+    m = _MORPH_HEAD_RE.match(body)
+    if not m or not m.group(0).strip(" ,;"):
+        return "", body
+    end = m.end()
+    # Cunliffe ends the run with a full stop; take it and any gender that
+    # trails the endings ("-ου, ἡ.").
+    tail = re.match(r"\s*(?:[ὁἡτότάοἱαἱ]{1,3}|\bpl\b|,)*\s*\.", body[end:])
+    if tail:
+        end += tail.end()
+    return body[:end].strip(), body[end:]
+
+
 def to_t8(key: str, headword: str, definition: str) -> dict:
     """A Cunliffe entry as a T8 record: head, the undecomposed head run, and
     rows. Division banners are lv 0 and carry the numeral plus the division's
@@ -477,8 +521,9 @@ def to_t8(key: str, headword: str, definition: str) -> dict:
     p = split_senses(definition)
     roman = {d["at"]: d["n"] for d in p["divisions"]}
     if not p["senses"]:
-        z, evidence = parse_sense(definition[len(headword):])
-        return {"key": key, "head": headword, "i": "",
+        head_run, rest = _split_head_run(definition[len(headword):])
+        z, evidence = parse_sense(rest)
+        return {"key": key, "head": headword, "i": head_run,
                 "rows": _rows_from({"lv": 1, "n": "", "z": z}, evidence)}
 
     head_end = len(p["head"])
