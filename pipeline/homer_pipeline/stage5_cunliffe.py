@@ -375,6 +375,12 @@ _CITE_TOKEN_RE = re.compile(r"\b(?:Il|Od)\.\s*\d+\.\d+|\b\d+\b")
 # Cunliffe's own sequencing and stay in the text.
 _CONNECTOR_RE = re.compile(r"^[\s,.:;=]*(?:Cf\.|cf\.|and|=)?[\s,.:;=]*")
 _PAREN_RE = re.compile(r"\(([^)]*)\)\s*$")
+# A note at the FRONT of some prose belongs to the citation list before it, not
+# to the definition it precedes: "etc. Absol. with the article" opened a sense
+# reading "etc. Absol. …" (John, on seeing it). Peeled off and handed back.
+_LEADING_NOTE_RE = re.compile(r"^(?:[\s.:,;–-]*(?:etc\.?|So|and so on))+[\s.:,;–-]*")
+
+
 # Cunliffe's own "and so on" marks. Kept in the text, never given a row.
 # Notes come in runs — "etc. So", "– etc.:", a bare "– –". Matching only one
 # at a time left the rest to open a row of its own (John, on seeing "etc. So"
@@ -396,6 +402,28 @@ def _append_note(segment: dict, note: str) -> None:
     segment["au"].append(note)
 
 
+_WORK_ABBR_RE = re.compile(r"^(Il|Od)\.\s*(\d+)\.(\d+)$")
+
+
+def _expand(cite: str, book: str | None) -> tuple[str, str | None]:
+    """A citation, and the book context it leaves behind.
+
+    Cunliffe drops the book when the previous reference established it —
+    "Il. 1.83, 496, 533" means Il. 1.83, Il. 1.496, Il. 1.533. That reads
+    correctly in running prose and not at all once the references are a
+    separated list, where "496 · 533" has nothing to attach to. So a bare
+    continuation is restored to the book it belongs to, which also makes it
+    linkable; a full reference resets the context, including across the ":"
+    that separates one poem from the other.
+    """
+    m = _WORK_ABBR_RE.match(cite.strip())
+    if m:
+        return cite, f"{m.group(1)}. {m.group(2)}"
+    if book and cite.strip().isdigit():
+        return f"{book}.{cite.strip()}", book
+    return cite, book
+
+
 def split_evidence(evidence: str) -> list[dict]:
     """One sense's evidence as an ordered list of segments.
 
@@ -411,10 +439,11 @@ def split_evidence(evidence: str) -> list[dict]:
     """
     segments: list[dict] = [{"ex": [], "au": []}]
     pos = 0
+    book: str | None = None
     for m in _CITE_TOKEN_RE.finditer(evidence):
         lead = evidence[pos:m.start()]
         pos = m.end()
-        cite = m.group(0)
+        cite, book = _expand(m.group(0), book)
         body = _CONNECTOR_RE.sub("", lead).strip()
         # English ahead of the quotation is Cunliffe's own prose, not part of
         # what it is quoting: "Together, at the same moment: ἁ. ἄμφω σύν ῥʼ
@@ -430,6 +459,10 @@ def split_evidence(evidence: str) -> list[dict]:
                 if _TRAILING_NOTE_RE.fullmatch(prose):
                     _append_note(segments[-1], prose)
                 else:
+                    lead = _LEADING_NOTE_RE.match(prose)
+                    if lead and lead.group(0).strip(" .:,;–-"):
+                        _append_note(segments[-1], lead.group(0).strip())
+                        prose = prose[lead.end():]
                     segments.append({"z": prose, "ex": [], "au": []})
             body = body[gm.start():].strip()
         if _GREEK_RE.search(body):
@@ -448,7 +481,12 @@ def split_evidence(evidence: str) -> list[dict]:
                 segments[-1]["au"].append(cite)
             else:
                 # prose with no Greek: a new statement, and the citations that
-                # follow belong to it
+                # follow belong to it — but any note in FRONT of it closes the
+                # list above rather than opening this one.
+                lead = _LEADING_NOTE_RE.match(body)
+                if lead and lead.group(0).strip(" .:,;–-"):
+                    _append_note(segments[-1], lead.group(0).strip())
+                    body = body[lead.end():]
                 segments.append({"z": body, "ex": [], "au": [cite]})
         else:
             segments[-1]["au"].append(cite)
@@ -461,6 +499,70 @@ def split_evidence(evidence: str) -> list[dict]:
         else:
             segments.append({"z": tail, "ex": [], "au": []})
     return segments
+
+
+_SUBSENSE_RE = re.compile(r"^([a-z])\s+(?=[A-ZΑ-Ωa-zἀ-῿(])")
+# The same letter where it trails a definition rather than leading one.
+_SUBSENSE_TAIL_RE = re.compile(r"\s([a-z])$")
+
+
+def _lift_subsense(rows: list[dict]) -> None:
+    """Cunliffe divides a sense with letters — "1 His a ἑός … – b ὅς …".
+
+    Left in the text those read as part of the definition ("His a"), which is
+    what John saw. T8 already knows what to do with them: a row whose number is
+    a single letter renders as a sub-row.
+    """
+    out: list[dict] = []
+    for r in rows:
+        if r.get("b") or not r.get("z"):
+            out.append(r)
+            continue
+        # the letter LEADS: "b ὅς …" — the row is that sub-sense
+        m = _SUBSENSE_RE.match(r["z"])
+        if m and not r.get("n"):
+            r["n"] = m.group(1)
+            r["lv"] = 2
+            r["z"] = r["z"][m.end():]
+            out.append(r)
+            continue
+        # the letter TRAILS the definition: "1 His a ἑός Il. 1.83 …". The
+        # definition belongs to the sense, and the letter opens a sub-sense
+        # that owns the evidence after it. Split rather than leave "His a".
+        t = _SUBSENSE_TAIL_RE.search(r["z"])
+        if t and (r.get("ex") or r.get("au")):
+            parent = {k: v for k, v in r.items() if k not in ("ex", "au")}
+            parent["z"] = r["z"][:t.start()].strip()
+            child = {"lv": 2, "n": t.group(1), "z": ""}
+            if r.get("ex"):
+                child["ex"] = r["ex"]
+            if r.get("au"):
+                child["au"] = r["au"]
+            out.append(parent)
+            out.append(child)
+            continue
+        out.append(r)
+    rows[:] = out
+
+
+def _move_leading_notes(rows: list[dict]) -> None:
+    """A row whose definition OPENS with a note is closing the row before it.
+
+    split_evidence catches these inside an evidence run, but a numbered sense
+    can begin with one too — "2 etc. Absol. with the article" — and there the
+    previous row is only in view once the whole entry is built.
+    """
+    for i, r in enumerate(rows):
+        if r.get("b") or not r.get("z"):
+            continue
+        m = _LEADING_NOTE_RE.match(r["z"])
+        if not m or not m.group(0).strip(" .:,;–-"):
+            continue
+        prev = next((p for p in reversed(rows[:i]) if not p.get("b")), None)
+        if prev is None:
+            continue
+        prev.setdefault("au", []).append(m.group(0).strip())
+        r["z"] = r["z"][m.end():]
 
 
 def _rows_from(base: dict, evidence: str) -> list[dict]:
@@ -628,6 +730,8 @@ def to_t8(key: str, headword: str, definition: str, resolve=None) -> dict:
         head_run, rest = _split_head_run(definition[len(headword):])
         z, evidence = parse_sense(rest)
         rows = _rows_from({"lv": 1, "n": "", "z": z}, evidence)
+        _lift_subsense(rows)
+        _move_leading_notes(rows)
         for r in rows:
             if r.get("z"):
                 r["z"] = _markup(r["z"], resolve)
@@ -687,6 +791,9 @@ def to_t8(key: str, headword: str, definition: str, resolve=None) -> dict:
         if i in banner_at:
             rows.append(banner_at[i])
         rows.extend(sense_rows)
+
+    _lift_subsense(rows)
+    _move_leading_notes(rows)
 
     # `gr` names the divisions grammata may turn into a tab strip. It does so
     # only at >= 2 divisions AND >= 10 rows: measured here, 43 entries carry two

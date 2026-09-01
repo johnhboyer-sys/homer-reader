@@ -281,7 +281,13 @@ def test_the_whole_lexicon_survives_the_t8_parse(tmp_path):
             parts += list(x.get("au") or [])
         dropped = Counter(nows(r["definition"])) - Counter(nows("".join(parts)))
         added = Counter(nows("".join(parts))) - Counter(nows(r["definition"]))
-        assert not added, f"{r['headword']} gained {list(added)}"
+        # Gains are allowed ONLY where a continuation reference has had its book
+        # restored — "496" becoming "Il. 1.496" — so the permitted characters
+        # are exactly a work abbreviation, digits and a dot. Anything else means
+        # the parse invented text.
+        restorable = set("IlOd.0123456789")
+        invented = [ch for ch in added if ch not in restorable]
+        assert not invented, f"{r['headword']} invented {invented}"
         # every anchor this parse inserts must be closed
         for field in [t8["i"]] + [x.get("z") or "" for x in t8["rows"]] + [
                 e.get("g") or "" for x in t8["rows"] for e in (x.get("ex") or [])]:
@@ -356,3 +362,32 @@ def test_a_note_joins_the_citation_list_not_the_definition():
     row = t8["rows"][0]
     assert row["z"] == "With"
     assert "etc." in row["au"]
+
+
+def test_a_continuation_reference_keeps_its_book():
+    # "Il. 1.83, 496, 533" means Il. 1.83, Il. 1.496, Il. 1.533. Cunliffe drops
+    # the book because the previous reference established it — which reads
+    # correctly in prose and not at all once the references are a separated
+    # list, where "496 · 533" has nothing to attach to (John, on seeing it).
+    segs = sc.split_evidence("ἑός Il. 1.83, 496, 533, Il. 2.662 : Od. 1.216, 218.")
+    assert segs[0]["au"] == ["Il. 1.496", "Il. 1.533", "Il. 2.662",
+                             "Od. 1.216", "Od. 1.218"]
+
+
+def test_a_full_reference_resets_the_book_across_the_poems():
+    segs = sc.split_evidence("ἑός Il. 1.10, 20 : Od. 5.30, 40.")
+    au = [c for seg in segs for c in seg["au"]]
+    assert "Il. 1.20" in au
+    assert "Od. 5.40" in au
+    # the book must not leak across the colon that separates the poems
+    assert "Il. 5.40" not in au
+
+
+def test_a_sub_sense_letter_becomes_a_row_not_part_of_the_definition():
+    # "1 His a ἑός Il. 1.83 …" is sense 1 "His" with a sub-sense a. Left in the
+    # text it read "His a".
+    t8 = sc.to_t8("e", "ἑός", "ἑός 1 His a ἑός Il. 1.83, 496. – b ὅς Il. 1.609.")
+    assert not any("His a" in (r.get("z") or "") for r in t8["rows"])
+    subs = [r for r in t8["rows"] if r.get("n") in ("a", "b")]
+    assert [r["n"] for r in subs] == ["a", "b"]
+    assert all(r["lv"] == 2 for r in subs)
