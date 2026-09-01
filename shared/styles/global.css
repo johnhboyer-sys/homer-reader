@@ -2252,12 +2252,31 @@ select {
   margin-top: 0.4rem;
 }
 
-/* The ONE sanctioned style knob into the grammata widget: its own handoff says
-   everything else it renders is generated from grammata's design system and
-   changes with it, so touch nothing else inside the mount. This renders entries
-   in the reader's own Greek face, with grammata's Athena Lyceum behind it per
-   glyph, so an unshapeable mark falls back rather than showing tofu. */
-.grammata-mount { --grammata-greek: var(--font-greek); }
+/* The sanctioned knobs into the grammata widget. Everything else it renders is
+   generated from grammata's design system and changes with it, so nothing else
+   inside a mount is touched.
+
+   --grammata-greek renders entries in the reader's own Greek face, with
+   grammata's Athena Lyceum behind it per glyph, so an unshapeable mark falls
+   back rather than showing tofu.
+
+   The four colour tokens (grammata, 2026-08-31, at John's ask — the same shape
+   as the font knob) hand the widget THIS page's palette. Before them the entry
+   took its foreground from grammata's own light palette while painting no
+   background of its own, so on our dark ground it measured 1.08:1 — present,
+   correctly laid out, and invisible; you could only read it by selecting it.
+   The widget paints no background by design, which is why the entry sits on our
+   ground rather than as a foreign card on it.
+   These are var() references, not literals, so they resolve to whichever theme
+   is active and need no per-theme rules of their own. */
+.grammata-mount,
+.cunliffe-mount {
+  --grammata-greek: var(--font-greek);
+  --grammata-fg: var(--text);
+  --grammata-muted: var(--text-mid);
+  --grammata-border: var(--border);
+  --grammata-accent: var(--accent);
+}
 
 /* Homonyms (a)1, a)2 …) come back as separate entries; rule them apart so the
    second headword does not read as a continuation of the first. */
@@ -2528,8 +2547,6 @@ select {
   line-height: 1.55;
   color: var(--text);
 }
-/* The one sanctioned knob into grammata's own markup, as for the LSJ mount. */
-.cunliffe-mount { --grammata-greek: var(--font-greek); }
 .cunliffe-mount + .cunliffe-mount {
   margin-top: 0.8rem;
   padding-top: 0.8rem;
