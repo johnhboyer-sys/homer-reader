@@ -4870,6 +4870,13 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // the river, so the two are assembled after the whole pass rather than
   // pushed as they are rendered.
   const drawn: { layerId: string; markup: string; rank: number; kind: LayerKind }[] = [];
+  // A `frame`d inset whose frame sits in the margin band (frame.x >=
+  // frameWidth) is furniture, not map content — same tier as the legend,
+  // scale bar and north arrow. Its markup is pulled out of `drawn` (which
+  // paints inside the pannable camera group) and emitted alongside them
+  // instead, or a margin postcard would pan and crop with the map, defeating
+  // the whole point of giving it a fixed sheet-pixel frame.
+  const marginInsetMarkup: string[] = [];
   const submergedByWater = new Map<string, string[]>();
   const waters = collectWaterBodies(plate, viewport);
   // Every place id actually carried by a rendered layer (Problem 2, gap
@@ -4897,6 +4904,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   const legendEntries: LegendEntry[] = [];
   const sceneKeyByLayer = new Map((plate.sceneKey ?? []).map((row) => [row.layerId, row]));
   const zoneLetters: { letter: string; x: number; y: number }[] = [];
+  // A zone letter for a margin inset's own polygon is furniture too (see
+  // marginInsetMarkup above) — it must move with its panel, not with the map.
+  const furnitureZoneLetters: { letter: string; x: number; y: number }[] = [];
   // The blurred-edge filters (see SOFT_BLUR). Each is declared only when
   // something on the sheet actually uses it, so a plate with no indefinite
   // features emits exactly what it did before.
@@ -4909,7 +4919,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   for (const layer of plate.layers) {
     const rendered = renderLayer(plate, layer, viewport, softId, waters);
     if (!rendered) continue;
-    drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind });
+    const isMarginInset = layer.style === 'inset' && layer.frame !== undefined && layer.frame[0] >= frameWidth;
+    if (isMarginInset) marginInsetMarkup.push(rendered.markup);
+    else drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind });
     for (const under of rendered.submerged ?? []) {
       const bucket = submergedByWater.get(under.layerId);
       if (bucket) bucket.push(under.markup);
@@ -4928,7 +4940,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
             )
           : projectPoints(plate, layer.polygon, viewport);
       const [cx, cy] = polygonCentroid(px);
-      zoneLetters.push({ letter: keyRow.letter, x: cx, y: cy });
+      (isMarginInset ? furnitureZoneLetters : zoneLetters).push({ letter: keyRow.letter, x: cx, y: cy });
     }
     if (layer.placeId) layerPlaceIds.add(layer.placeId);
     // One ground, several names — see PlateLayer.claims. Claimed places are
@@ -5282,6 +5294,13 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       .map((z) => zoneLetterMarkup(z.letter, z.x, z.y, plate.kind === 'geographic'))
       .join('') +
     (opts.cameraGroup ? '</g>' : '') +
+    // Margin insets (frame.x >= frameWidth) are furniture: fixed to the
+    // sheet, never panned or cropped by the camera, exactly like the legend
+    // below. See marginInsetMarkup above.
+    marginInsetMarkup.join('') +
+    furnitureZoneLetters
+      .map((z) => zoneLetterMarkup(z.letter, z.x, z.y, plate.kind === 'geographic'))
+      .join('') +
     legend.markup +
     sceneKeyMarkup(plate.sceneKey, width, marginRight, legend.bottom) +
     `</g>` +

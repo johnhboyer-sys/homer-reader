@@ -756,3 +756,43 @@ def test_real_achaean_camp_zone_polygon_matches_the_plate_layer():
         "exactly, or the geographic, schematic and panorama plates will "
         "draw the camp on different ground."
     )
+
+
+def test_real_plate_anchors_validate_against_every_real_plate():
+    """The plateAnchors range check moved from validate_places into
+    validate_plate (it must know whether THIS plate has a bbox). Prove it
+    actually runs clean against the real gazetteer and every real plate,
+    the way preflight.py's loop does — including the ~30 places anchored
+    to trojan-plain-schematic, which has no bbox and so must stay 0..1."""
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    places_by_id = {
+        p["id"]: p
+        for p in places_doc.get("places", [])
+        if isinstance(p, dict) and isinstance(p.get("id"), str)
+    }
+
+    schematic_anchor_count = sum(
+        1
+        for p in places_by_id.values()
+        if isinstance(p.get("plateAnchors"), dict)
+        and "trojan-plain-schematic" in p["plateAnchors"]
+    )
+    assert schematic_anchor_count == 30, (
+        f"expected 30 places anchored to trojan-plain-schematic, found "
+        f"{schematic_anchor_count} — the plate list below assumes this "
+        f"fixture count; update it if the gazetteer legitimately changed."
+    )
+
+    plates_dir = ROOT / "apparatus" / "plates"
+    plate_paths = sorted(plates_dir.glob("*.json"))
+    assert plate_paths, "expected real plates in apparatus/plates/"
+
+    all_problems: list[str] = []
+    for plate_path in plate_paths:
+        plate_doc = json.loads(plate_path.read_text(encoding="utf-8"))
+        all_problems += [
+            f"{plate_path.name}: {msg}"
+            for msg in apparatus_places.validate_plate(plate_doc, places_by_id)
+        ]
+
+    assert all_problems == []

@@ -3392,6 +3392,47 @@ describe('renderPlate: inset layer frame in sheet pixels', () => {
     expect(feat!.bbox[2]).toBeLessThanOrEqual(480 + 1e-6);
   });
 
+  it('a margin inset (frame.x >= frameWidth) is furniture: it sits OUTSIDE .plate-camera, never panning or scaling with the map', () => {
+    const frame: [number, number, number, number] = [320, 20, 160, 120];
+    const plate = parsePlate({
+      id: 'framed-inset-camera',
+      title: 'Framed inset camera',
+      kind: 'schematic',
+      status: 'draft',
+      bbox: BBOX,
+      size: [500, 300],
+      marginRight: 200,
+      layers: [
+        {
+          id: 'locator',
+          kind: 'region',
+          style: 'inset',
+          label: 'Locator',
+          frame,
+          polygon: [
+            [0.25, 0.25],
+            [0.75, 0.25],
+            [0.75, 0.75],
+            [0.25, 0.75],
+          ],
+        },
+      ],
+      sceneKey: [{ letter: 'A', title: 'Inner box', ref: 'Il. 1.1', layerId: 'locator' }],
+    });
+    const result = renderPlate(plate, [], { cameraGroup: true });
+    const root = parseSvgFragment(result.svg);
+    const cameraG = root.querySelector('.plate-camera');
+    expect(cameraG).not.toBeNull();
+
+    // The inset panel (and its zone letter, since sceneKey names this same
+    // layer) must NOT be inside the pannable camera group...
+    expect(cameraG!.querySelector('[data-layer-id="locator"]')).toBeNull();
+    expect(cameraG!.querySelector('.plate-zone-letter')).toBeNull();
+    // ...but must still be present in the document, alongside the legend.
+    expect(root.querySelector('[data-layer-id="locator"]')).not.toBeNull();
+    expect(root.querySelector('.plate-zone-letter')).not.toBeNull();
+  });
+
   it('parsePlate rejects a frame that sits outside the sheet', () => {
     expect(() =>
       parsePlate({
