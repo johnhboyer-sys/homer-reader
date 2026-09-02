@@ -357,6 +357,12 @@ export interface Plate {
    */
   sceneKey?: PlateSceneKey[];
   /**
+   * Numbered feature key for the margin band (stage 5c): groups of place or
+   * layer ids, lettered on the sheet as numeral badges and listed below the
+   * scene key. `n` is derived from position in this array (no stored field).
+   */
+  featureKey?: PlateFeatureKeyGroup[];
+  /**
    * Layer ids whose fallback name (see PlateLayer.label: the gazetteer name
    * of `placeId`, drawn when the layer has no `label` of its own) must NOT
    * be lettered on THIS plate (2026-09-02, stage 4b LOOK-gate fix). Ground
@@ -377,6 +383,19 @@ export interface PlateSceneKey {
   title: string;
   ref: string;
   layerId: string;
+}
+
+/** One row of `Plate.featureKey`. Exactly one of `placeId` / `layerId`. */
+export interface PlateFeatureKeyItem {
+  placeId?: string;
+  layerId?: string;
+  /** Short form shown in the margin key. The gazetteer/layer name is the long form. */
+  label?: string;
+}
+
+export interface PlateFeatureKeyGroup {
+  title: string;
+  items: PlateFeatureKeyItem[];
 }
 
 // Mirrors the fields of apparatus/places.json this module needs, trimmed the
@@ -904,6 +923,47 @@ export function parsePlate(data: unknown): Plate {
     });
   }
 
+  let featureKey: PlateFeatureKeyGroup[] | undefined;
+  if (d.featureKey !== undefined) {
+    if (!Array.isArray(d.featureKey)) fail('featureKey must be an array');
+    const layerIds = new Set(layers.map((l) => l.id));
+    const seenKeyIds = new Set<string>();
+    featureKey = (d.featureKey as unknown[]).map((raw, gi) => {
+      if (!raw || typeof raw !== 'object') fail(`featureKey[${gi}] must be an object`);
+      const group = raw as Record<string, unknown>;
+      if (typeof group.title !== 'string' || !group.title.trim()) {
+        fail(`featureKey[${gi}].title must be a non-empty string`);
+      }
+      if (group.items !== undefined && !Array.isArray(group.items)) {
+        fail(`featureKey[${gi}].items must be an array`);
+      }
+      const items = ((group.items as unknown[]) ?? []).map((itemRaw, ii) => {
+        if (!itemRaw || typeof itemRaw !== 'object') fail(`featureKey[${gi}].items[${ii}] must be an object`);
+        const item = itemRaw as Record<string, unknown>;
+        const placeId = typeof item.placeId === 'string' && item.placeId ? item.placeId : undefined;
+        const layerId = typeof item.layerId === 'string' && item.layerId ? item.layerId : undefined;
+        if (!!placeId === !!layerId) {
+          fail(`featureKey[${gi}].items[${ii}] must name exactly one of placeId/layerId`);
+        }
+        if (layerId && !layerIds.has(layerId)) {
+          fail(`featureKey[${gi}].items[${ii}].layerId '${layerId}' is not a layer of this plate`);
+        }
+        const id = placeId ?? layerId!;
+        if (seenKeyIds.has(id)) fail(`featureKey[${gi}].items[${ii}] id '${id}' appears twice`);
+        seenKeyIds.add(id);
+        if (item.label !== undefined && typeof item.label !== 'string') {
+          fail(`featureKey[${gi}].items[${ii}].label must be a string`);
+        }
+        const parsed: PlateFeatureKeyItem = {};
+        if (placeId) parsed.placeId = placeId;
+        if (layerId) parsed.layerId = layerId;
+        if (typeof item.label === 'string') parsed.label = item.label;
+        return parsed;
+      });
+      return { title: group.title as string, items };
+    });
+  }
+
   let suppressLayerLabels: string[] | undefined;
   if (d.suppressLayerLabels !== undefined) {
     if (!Array.isArray(d.suppressLayerLabels)) fail('suppressLayerLabels must be an array');
@@ -936,6 +996,7 @@ export function parsePlate(data: unknown): Plate {
     layers,
     bands,
     sceneKey,
+    featureKey,
     suppressLayerLabels,
   };
 }
@@ -2195,6 +2256,68 @@ export function placeLabelCandidates(
   return results;
 }
 
+// Badge placement (stage 5c): the name solver treats overlap as a cost, which
+// is right for lettering and wrong for numeral discs — two discs occupying
+// the same pixels cannot be read. Same candidate rings as names, plus one
+// farther ring, with overlap against already-placed badges forbidden when
+// any clear candidate exists.
+const BADGE_FAR_GAPS = [32, 48, 64];
+
+function placeKeyBadges(
+  inputs: (LabelPlacementInput & { r: number })[],
+  options: LabelPlacementOptions,
+): LabelPlacement[] {
+  const placed = [...(options.placedBoxes ?? [])];
+  const markerBoxes = options.markerBoxes ?? [];
+  const results: LabelPlacement[] = [];
+  const badgeBoxes: Box[] = [];
+  for (const input of inputs) {
+    const [x1, y1, x2, y2] = input.anchorBox;
+    const cx = (x1 + x2) / 2;
+    const cy = (y1 + y2) / 2;
+    const half = input.fontSize * 0.36;
+    const extra: LabelCandidate[] = [];
+    for (const gap of BADGE_FAR_GAPS) {
+      extra.push(
+        { position: 'NE', x: x2 + gap, y: y1 + half, anchor: 'start' },
+        { position: 'E', x: x2 + gap, y: cy + half, anchor: 'start' },
+        { position: 'N', x: cx, y: y1 - gap, anchor: 'middle' },
+        { position: 'S', x: cx, y: y2 + gap + input.fontSize * 0.72, anchor: 'middle' },
+        { position: 'W', x: x1 - gap, y: cy + half, anchor: 'end' },
+        { position: 'NW', x: x1 - gap, y: y1 + half, anchor: 'end' },
+        { position: 'SE', x: x2 + gap, y: y2 + gap + input.fontSize * 0.6, anchor: 'start' },
+        { position: 'SW', x: x1 - gap, y: y2 + gap + input.fontSize * 0.6, anchor: 'end' },
+      );
+    }
+    const all = [...labelCandidates(input.anchorBox, input.fontSize), ...extra];
+    let bestClear: LabelPlacement | undefined;
+    let bestAny: LabelPlacement | undefined;
+    for (let index = 0; index < all.length; index++) {
+      const candidate = all[index];
+      const box = labelBox(candidate, input.textWidth, { size: input.fontSize });
+      const bcx = (box[0] + box[2]) / 2;
+      const bcy = (box[1] + box[3]) / 2;
+      const circle: Box = [bcx - input.r, bcy - input.r, bcx + input.r, bcy + input.r];
+      const badgeHit = badgeBoxes.some((other) => boxesOverlap(circle, other)) ? 1 : 0;
+      const labelOverlap = placed.reduce((total, other) => total + overlapArea(box, other), 0);
+      const markerOverlap = markerBoxes.reduce((total, marker) => total + overlapArea(box, marker), 0);
+      const offView = offViewBoxArea(box, options.width, options.height, options.margin);
+      const penalty = offView * 10_000 + labelOverlap * 1_000 + markerOverlap * 100 + badgeHit * 100_000 + index / 1_000;
+      const placement = { id: input.id, candidate, candidateIndex: index, box, penalty };
+      if (!bestAny || placement.penalty < bestAny.penalty) bestAny = placement;
+      if (badgeHit === 0 && (!bestClear || placement.penalty < bestClear.penalty)) bestClear = placement;
+    }
+    const chosen = bestClear ?? bestAny;
+    if (!chosen) continue;
+    results.push(chosen);
+    placed.push(chosen.box);
+    const cxb = (chosen.box[0] + chosen.box[2]) / 2;
+    const cyb = (chosen.box[1] + chosen.box[3]) / 2;
+    badgeBoxes.push([cxb - input.r, cyb - input.r, cxb + input.r, cyb + input.r]);
+  }
+  return results;
+}
+
 // A label eligible for suppression (LabelRequest.priority set) is dropped
 // once its own box is covered this much by already-placed labels — a third
 // or more of the name simply isn't there to read. Below this it keeps its
@@ -2240,6 +2363,12 @@ interface LabelRequest {
   labelTier?: 1 | 2;
   /** "small" uses LABEL_STYLES.minor; omit or "base" keeps the role default. */
   labelSize?: 'small' | 'base';
+  /**
+   * Projected polygon of an area feature (stage 5c). When `centred`, a
+   * colliding centroid falls through interior samples of this polygon
+   * rather than sitting on reserved ink.
+   */
+  area?: [number, number][];
 }
 
 /**
@@ -2249,6 +2378,8 @@ interface LabelRequest {
 interface ReservedBox {
   box: Box;
   layerId?: string;
+  /** When set, this reservation binds only centred area names (stage 5c). */
+  areaOnly?: boolean;
 }
 
 function polylineLength(pts: [number, number][]): number {
@@ -2567,7 +2698,8 @@ function layoutLabels(
   // through the wall it names.
   reservedBoxes: ReservedBox[] = [],
 ): { markup: string; defs: string; placedBoxes: Box[]; boxes: { id: string; box: LabelBox }[]; suppressed: string[] } {
-  const reservedAll = reservedBoxes.map((r) => r.box);
+  const reservedAll = reservedBoxes.filter((r) => !r.areaOnly).map((r) => r.box);
+  const reservedArea = reservedBoxes.map((r) => r.box);
   const placed: Box[] = [];
   // Mirrors `placed`, but keeps the request id each box belongs to — the
   // camera (computeCamera) needs "which box is achaean-assembly-place's
@@ -2599,7 +2731,7 @@ function layoutLabels(
     // linework reserved for it. Recomputed per request only because of the
     // owner exemption below — with no reservations it is `placed`, exactly as
     // before.
-    const blocking = [...placed, ...reservedAll];
+    const blocking = [...placed, ...(req.centred ? reservedArea : reservedAll)];
     if (!req.text.trim()) continue;
     const dedupeKey = req.text.trim().toLocaleLowerCase();
     if (lettered.has(dedupeKey)) continue;
@@ -2624,7 +2756,7 @@ function layoutLabels(
       // forbid the coast's name from being set along the coast.
       const alongOwnRun = [
         ...placed,
-        ...reservedBoxes.filter((r) => r.layerId !== req.id).map((r) => r.box),
+        ...reservedBoxes.filter((r) => r.layerId !== req.id && !r.areaOnly).map((r) => r.box),
       ];
       if (!alongOwnRun.some((p) => boxesOverlap(p, box))) {
         // Thinned for the guide only (see thinForTextPathGuide) — `oriented`
@@ -2649,6 +2781,33 @@ function layoutLabels(
       const cy = (req.anchorBox[1] + req.anchorBox[3]) / 2;
       chosen = { x: cx, y: cy + style.size * 0.3, anchor: 'middle' };
       box = labelBox(chosen, textWidth, style);
+      if (blocking.some((p) => boxesOverlap(p, box)) && req.area && req.area.length >= 3) {
+        let found = false;
+        for (const [px, py] of interiorSamplePoints(req.area, [cx, cy])) {
+          const cand: LabelPoint = { x: px, y: py + style.size * 0.3, anchor: 'middle' };
+          const candBox = labelBox(cand, textWidth, style);
+          if (!blocking.some((p) => boxesOverlap(p, candBox))) {
+            chosen = cand;
+            box = candBox;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          const beside = placeLabelCandidates(
+            [{ id: req.id, anchorBox: req.anchorBox, textWidth, fontSize: style.size }],
+            { width, height, margin, markerBoxes, placedBoxes: blocking },
+          )[0];
+          if (beside && !blocking.some((p) => boxesOverlap(p, beside.box))) {
+            chosen = beside.candidate;
+            box = beside.box;
+            detached = true;
+            found = true;
+          } else {
+            detached = true;
+          }
+        }
+      }
     } else {
       const candidates = labelCandidates(req.anchorBox, style.size);
       const best = placeLabelCandidates(
@@ -2698,6 +2857,8 @@ function layoutLabels(
 
     if (!req.centred && (req.conjectural || detached)) {
       parts.push(leaderElement(req.anchorBox, box, !!req.conjectural, req.id, req.labelTier));
+    } else if (req.centred && detached) {
+      parts.push(leaderElement(req.anchorBox, box, false, req.id, req.labelTier));
     }
     parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic, req.labelTier));
     placed.push(box);
@@ -3148,19 +3309,37 @@ function legendMarkup(
   return { markup: `<g class="plate-legend">${parts.join('')}</g>`, bottom: y0 + panelH };
 }
 
-function zoneLetterMarkup(letter: string, x: number, y: number, geographic: boolean): string {
+function badgeMarkup(
+  text: string,
+  x: number,
+  y: number,
+  geographic: boolean,
+  opts: { r: number; className: string; fontSize?: number; textClass?: string; attrs?: string; title?: string },
+): string {
   const style = LABEL_STYLES.minor;
-  const r = style.size * 0.8;
+  const fontSize = opts.fontSize ?? style.size;
+  const textClass = opts.textClass !== undefined ? opts.textClass : opts.className;
+  const textClassAttr = textClass ? ` class="${textClass}"` : '';
+  const title = opts.title ? `<title>${escapeXml(opts.title)}</title>` : '';
+  const attrs = opts.attrs ?? '';
   return (
-    `<g class="plate-zone-letter">` +
-    `<circle cx="${round1(x)}" cy="${round1(y)}" r="${round1(r)}" fill="var(--scene-map-label-halo)" ` +
+    `<g class="${opts.className}"${attrs}>` +
+    title +
+    `<circle cx="${round1(x)}" cy="${round1(y)}" r="${round1(opts.r)}" fill="var(--scene-map-label-halo)" ` +
       `fill-opacity="0.86" stroke="${style.fill}" stroke-width="0.7"/>` +
-    `<text class="plate-zone-letter" x="${round1(x)}" y="${round1(y)}" text-anchor="middle" ` +
-      `dominant-baseline="central" font-family="var(--font-ui)" font-size="${style.size}" ` +
+    `<text${textClassAttr} x="${round1(x)}" y="${round1(y)}" text-anchor="middle" ` +
+      `dominant-baseline="central" font-family="var(--font-ui)" font-size="${fontSize}" ` +
       `font-weight="600" fill="${style.fill}" paint-order="stroke" ${haloAttrs(geographic)}` +
-      `>${escapeXml(letter)}</text>` +
+      `>${escapeXml(text)}</text>` +
     `</g>`
   );
+}
+
+function zoneLetterMarkup(letter: string, x: number, y: number, geographic: boolean): string {
+  return badgeMarkup(letter, x, y, geographic, {
+    r: LABEL_STYLES.minor.size * 0.8,
+    className: 'plate-zone-letter',
+  });
 }
 
 function sceneKeyMarkup(
@@ -3168,8 +3347,8 @@ function sceneKeyMarkup(
   width: number,
   marginRight: number,
   legendBottom: number,
-): string {
-  if (!rows?.length || marginRight <= 0) return '';
+): { markup: string; bottom: number } {
+  if (!rows?.length || marginRight <= 0) return { markup: '', bottom: legendBottom };
   const padX = 8;
   const padY = 8;
   const x0 = width - marginRight + 12;
@@ -3200,7 +3379,94 @@ function sceneKeyMarkup(
       y += LEGEND_FONT + (lines.length - 1) * LEGEND_WRAP_LINE_H + 4;
     }
   }
-  return `<g class="plate-scene-key">${parts.join('')}</g>`;
+  return { markup: `<g class="plate-scene-key">${parts.join('')}</g>`, bottom: y };
+}
+
+const FEATURE_KEY_HEADING_PITCH = 16;
+const FEATURE_KEY_ROW_PITCH = 12;
+const FEATURE_KEY_N_COL = 16;
+const FEATURE_KEY_LABEL_GAP = 22;
+const NUMERAL_BADGE_FONT = 8.5;
+
+function featureKeyMarkup(
+  groups: PlateFeatureKeyGroup[] | undefined,
+  width: number,
+  marginRight: number,
+  sceneKeyBottom: number,
+): { markup: string; bottom: number } {
+  if (!groups?.length || marginRight <= 0) return { markup: '', bottom: sceneKeyBottom };
+  const padX = 8;
+  const x0 = width - marginRight + 12;
+  const wrapW = marginRight - 12 - 8 - padX * 2 - FEATURE_KEY_LABEL_GAP;
+  const nX = x0 + padX + FEATURE_KEY_N_COL;
+  const labelX = x0 + padX + FEATURE_KEY_LABEL_GAP;
+  const headingX = x0 + padX;
+  const headingTracking = round1(LEGEND_FONT * 0.08);
+  let y = sceneKeyBottom + 10;
+  const parts: string[] = [];
+  let n = 0;
+  for (const group of groups) {
+    y += FEATURE_KEY_HEADING_PITCH;
+    parts.push(
+      `<text class="plate-key-heading" x="${round1(headingX)}" y="${round1(y)}" ` +
+        `font-family="var(--font-ui)" font-size="${LEGEND_FONT}" font-variant="small-caps" ` +
+        `letter-spacing="${headingTracking}" fill="var(--text-mid)">${escapeXml(group.title)}</text>`,
+    );
+    for (const item of group.items) {
+      n += 1;
+      const label = item.label ?? '';
+      const lines = wrapLegendText(label, wrapW);
+      const nAttr = ` class="plate-key-row" data-key-n="${n}"`;
+      if (lines.length <= 1) {
+        y += FEATURE_KEY_ROW_PITCH;
+        parts.push(
+          `<text${nAttr} x="${round1(nX)}" y="${round1(y)}" text-anchor="end" ` +
+            `font-family="var(--font-ui)" font-size="${LEGEND_FONT}" fill="var(--text)">${n}</text>` +
+          `<text${nAttr} x="${round1(labelX)}" y="${round1(y)}" ` +
+            `font-family="var(--font-ui)" font-size="${LEGEND_FONT}" fill="var(--text)">${escapeXml(label)}</text>`,
+        );
+      } else {
+        const tspans = lines
+          .map((line, li) => {
+            const ly = y + FEATURE_KEY_ROW_PITCH + li * LEGEND_WRAP_LINE_H;
+            return `<tspan x="${round1(labelX)}" y="${round1(ly)}">${escapeXml(line)}</tspan>`;
+          })
+          .join('');
+        y += FEATURE_KEY_ROW_PITCH;
+        parts.push(
+          `<text${nAttr} x="${round1(nX)}" y="${round1(y)}" text-anchor="end" ` +
+            `font-family="var(--font-ui)" font-size="${LEGEND_FONT}" fill="var(--text)">${n}</text>` +
+          `<text${nAttr} font-family="var(--font-ui)" font-size="${LEGEND_FONT}" fill="var(--text)">${tspans}</text>`,
+        );
+        y += (lines.length - 1) * LEGEND_WRAP_LINE_H;
+      }
+    }
+  }
+  return { markup: `<g class="plate-feature-key">${parts.join('')}</g>`, bottom: y };
+}
+
+function numeralBadgeRadius(n: number): number {
+  const tw = estimateLabelWidth(String(n), {
+    ...LABEL_STYLES.minor,
+    size: NUMERAL_BADGE_FONT,
+    tracking: 0,
+    caps: false,
+    italic: false,
+    weight: 600,
+  });
+  return Math.max(6, tw / 2 + 2.4);
+}
+
+function keyLeaderElement(anchorBox: Box, box: Box, n: number): string {
+  const ax = (anchorBox[0] + anchorBox[2]) / 2;
+  const ay = (anchorBox[1] + anchorBox[3]) / 2;
+  const bx = box[0] < ax ? box[2] : box[0];
+  const by = (box[1] + box[3]) / 2;
+  if (Math.hypot(bx - ax, by - ay) < 12) return '';
+  return (
+    `<path class="plate-key-leader" data-key-n="${n}" d="M ${round1(ax)} ${round1(ay)} L ${round1(bx)} ${round1(by)}" ` +
+    `fill="none" stroke="var(--text-mid)" stroke-width="0.6" stroke-opacity="0.7"/>`
+  );
 }
 
 // ── Frame and bar scale ──────────────────────────────────────────────────
@@ -3605,7 +3871,7 @@ function hypsometricKeyMarkup(plate: Plate, width: number, height: number): stri
     `<g class="plate-hypsometric-key">` +
     `<rect class="plate-hypsometric-panel" x="${round1(x0)}" y="${round1(y0)}" width="${round1(panelW)}" ` +
     `height="${round1(panelH)}" rx="2" fill="var(--scene-map-label-halo)" fill-opacity="0.72" stroke="none"/>` +
-    label(barX, y0 + padY + HYPS_FONT, 'Elevation, metres', 'start') +
+    label(barX, y0 + padY + HYPS_FONT, 'Elevation, meters', 'start') +
     cells.join('') +
     `<rect x="${round1(barX)}" y="${round1(barY)}" width="${round1(barW)}" height="${HYPS_CELL_H}" ` +
     `fill="none" stroke="var(--plate-contour)" stroke-width="0.5" stroke-opacity="0.55"/>` +
@@ -4005,6 +4271,8 @@ interface RenderedLayer {
   labelRole: LabelRole;
   /** The feature's own run, for a name set along the line (rivers, coasts, walls, routes). */
   labelPath?: [number, number][];
+  /** Projected polygon of an area layer, for centred-label interior fallback (stage 5c). */
+  labelArea?: [number, number][];
   /**
    * Markup this layer needs drawn UNDER another layer rather than in its own
    * paint slot — the drowned reaches of a river (see the water section
@@ -4367,6 +4635,22 @@ function polygonArea(pts: [number, number][]): number {
     a += x1 * y2 - x2 * y1;
   }
   return Math.abs(a) / 2;
+}
+
+function interiorSamplePoints(polygon: [number, number][], centroid: [number, number]): [number, number][] {
+  if (polygon.length < 3) return [];
+  const [minX, minY, maxX, maxY] = bboxOf(polygon);
+  const n = 8;
+  const out: [number, number][] = [];
+  for (let i = 1; i < n; i++) {
+    for (let j = 1; j < n; j++) {
+      const p: [number, number] = [minX + ((maxX - minX) * i) / n, minY + ((maxY - minY) * j) / n];
+      if (pointInPolygon(p, polygon)) out.push(p);
+    }
+  }
+  const [cx, cy] = centroid;
+  out.sort((a, b) => Math.hypot(a[0] - cx, a[1] - cy) - Math.hypot(b[0] - cx, b[1] - cy));
+  return out;
 }
 
 function polygonCentroid(pts: [number, number][]): [number, number] {
@@ -4969,6 +5253,7 @@ function renderLayer(
     // claim and wider than the summit.
     labelRole: layer.style === 'poem' ? 'settlement' : layerLabelRole(layer.kind, plate.kind),
     labelPath: isArea ? undefined : linearRun(plate, layer, viewport),
+    labelArea: isArea && allPixelPoints.length >= 3 ? allPixelPoints : undefined,
     submerged,
   };
 }
@@ -5033,6 +5318,16 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // See Plate.suppressLayerLabels: a ground layer's own fallback name,
   // withheld on this plate.
   const suppressedLayerLabelIds = new Set(plate.suppressLayerLabels ?? []);
+  const keyedIds = new Set<string>();
+  for (const group of plate.featureKey ?? []) {
+    for (const item of group.items) {
+      const id = item.placeId ?? item.layerId;
+      if (id) keyedIds.add(id);
+    }
+  }
+  const silentIds = new Set(keyedIds);
+  for (const id of plate.suppressLayerLabels ?? []) silentIds.add(id);
+  const renderedById = new Map<string, RenderedLayer>();
   // Named-inset / title-block panels (see insetMarkup). Handed to the legend's
   // corner chooser so the key cannot land on top of one — the same occlusion
   // rule that already keeps it off pins and labels. NOT handed to the label
@@ -5060,6 +5355,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   for (const layer of plate.layers) {
     const rendered = renderLayer(plate, layer, viewport, softId, waters);
     if (!rendered) continue;
+    renderedById.set(layer.id, rendered);
     const isMarginInset = layer.style === 'inset' && layer.frame !== undefined && layer.frame[0] >= frameWidth;
     if (isMarginInset) marginInsetMarkup.push(rendered.markup);
     else drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind, fill: layer.fill });
@@ -5095,6 +5391,17 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // block of beached ships. Handed to the label solver as furniture to keep
     // off, exactly like a pin marker.
     if (layer.kind === 'shipRow') denseBoxes.push({ box: rendered.feature.bbox, layerId: layer.id });
+    if (plate.kind === 'schematic' && layer.kind === 'tumulus') {
+      denseBoxes.push({ box: rendered.feature.bbox, layerId: layer.id, areaOnly: true });
+    }
+    if (plate.kind === 'schematic' && layer.kind === 'route' && layer.style !== 'inset' && layer.path) {
+      const run = projectPoints(plate, layer.path, viewport);
+      if (run.length >= 2) {
+        for (const box of lineworkExtent(run, STROKE_WEIGHT.route / 2 + 1)) {
+          denseBoxes.push({ box, layerId: layer.id, areaOnly: true });
+        }
+      }
+    }
     // Open water is not empty ground ON A SCHEMATIC SHEET (2026-09-02,
     // fixing the KNOWN, NOT FIXED regression logged at d0c4e947d): the shore
     // corridor above reserves only the linework along the coast, never the
@@ -5362,7 +5669,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // not from `located`: a geographic place in a markerless class that IS
   // carried by a layer never enters `pinLabelRequests` (see the loop above),
   // which is exactly what lets that layer's own fallback name fire instead.
-  const labeledPointIds = new Set(pinLabelRequests.map((r) => r.id));
+  const labeledPointIds = new Set([...pinLabelRequests.map((r) => r.id), ...silentIds]);
   const layerLabelRequests: LabelRequest[] = [];
   for (const { layer, rendered } of layerLabelCandidates) {
     const gazName =
@@ -5385,17 +5692,89 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       pathId: `${safeIdFragment(opts.idPrefix)}-lp-${safeIdFragment(layer.id)}`,
       labelTier: layer.labelTier,
       labelSize: layer.labelSize,
+      area: rendered.labelArea,
     });
   }
+
+  const pinAnchors = new Map<string, Box>();
+  for (const req of pinLabelRequests) pinAnchors.set(req.id, req.anchorBox);
+
+  const badgeMeta: { n: number; item: PlateFeatureKeyItem; id: string; r: number; anchorBox: Box; longName: string }[] =
+    [];
+  let keyN = 0;
+  for (const group of plate.featureKey ?? []) {
+    for (const item of group.items) {
+      keyN += 1;
+      const id = item.placeId ?? item.layerId!;
+      const rendered = renderedById.get(id);
+      const anchorBox = pinAnchors.get(id) ?? rendered?.labelAnchor ?? rendered?.feature.bbox;
+      if (!anchorBox) continue;
+      const r = numeralBadgeRadius(keyN);
+      const layer = item.layerId ? plate.layers.find((l) => l.id === item.layerId) : undefined;
+      const longName = item.placeId
+        ? (placeById.get(item.placeId)?.name ?? item.label ?? id)
+        : (layer?.label ?? (layer?.placeId ? placeById.get(layer.placeId)?.name : undefined) ?? item.label ?? id);
+      badgeMeta.push({ n: keyN, item, id, r, anchorBox, longName });
+    }
+  }
+  const badgePlacements = placeKeyBadges(
+    badgeMeta.map((m) => ({
+      id: String(m.n).padStart(3, '0'),
+      anchorBox: m.anchorBox,
+      textWidth: 2 * m.r,
+      fontSize: 2 * m.r,
+      r: m.r,
+    })),
+    {
+      width: frameWidth,
+      height,
+      margin: LABEL_MARGIN,
+      markerBoxes: [...pinAnchors.values()],
+      placedBoxes: denseBoxes.map((d) => d.box),
+    },
+  );
+  const placementByN = new Map(badgePlacements.map((p) => [Number(p.id), p]));
+  const badgeParts: string[] = [];
+  const geographicHalo = plate.kind === 'geographic';
+  for (const meta of badgeMeta) {
+    const best = placementByN.get(meta.n);
+    const box = best?.box ?? meta.anchorBox;
+    const cx = (box[0] + box[2]) / 2;
+    const cy = (box[1] + box[3]) / 2;
+    if (best && best.candidateIndex >= NEAR_CANDIDATE_COUNT) {
+      badgeParts.push(keyLeaderElement(meta.anchorBox, box, meta.n));
+    }
+    const badgePad = 4;
+    denseBoxes.push({
+      box: [cx - meta.r - badgePad, cy - meta.r - badgePad, cx + meta.r + badgePad, cy + meta.r + badgePad],
+    });
+    const aria = `${meta.n}. ${meta.longName}`;
+    const idAttr = meta.item.placeId
+      ? ` data-place-id="${escapeXml(meta.item.placeId)}"`
+      : ` data-layer-id="${escapeXml(meta.item.layerId!)}"`;
+    badgeParts.push(
+      badgeMarkup(String(meta.n), cx, cy, geographicHalo, {
+        r: meta.r,
+        className: 'plate-key-badge',
+        fontSize: NUMERAL_BADGE_FONT,
+        textClass: '',
+        attrs: `${idAttr} data-key-n="${meta.n}" role="img" aria-label="${escapeXml(aria)}"`,
+        title: aria,
+      }),
+    );
+  }
+
+  const pinRequestsForLayout = pinLabelRequests.filter((r) => !silentIds.has(r.id));
+  const layerRequestsForLayout = layerLabelRequests.filter((r) => !keyedIds.has(r.id));
 
   // When a layer and a pin would letter the same name, the PIN keeps it: the
   // pin is the thing a reader clicks and the thing the certainty tier is
   // attached to, so an unlabelled pin beside a named line is the worse of the
   // two failures. Filtered here rather than inside layoutLabels because only
   // this scope knows which request came from which source.
-  const pinnedNames = new Set(pinLabelRequests.map((r) => r.text.trim().toLocaleLowerCase()));
+  const pinnedNames = new Set(pinRequestsForLayout.map((r) => r.text.trim().toLocaleLowerCase()));
   const labels = layoutLabels(
-    [...layerLabelRequests.filter((r) => !pinnedNames.has(r.text.trim().toLocaleLowerCase())), ...pinLabelRequests],
+    [...layerRequestsForLayout.filter((r) => !pinnedNames.has(r.text.trim().toLocaleLowerCase())), ...pinRequestsForLayout],
     frameWidth,
     height,
     LABEL_MARGIN,
@@ -5437,6 +5816,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     ],
     marginRight,
   );
+  const sceneKey = sceneKeyMarkup(plate.sceneKey, width, marginRight, legend.bottom);
+  const featureKeyBlock = featureKeyMarkup(plate.featureKey, width, marginRight, sceneKey.bottom);
 
   const svg =
     `<svg viewBox="0 0 ${width} ${height}" width="100%" height="100%" role="img" aria-label="${ariaLabel}" xmlns="http://www.w3.org/2000/svg">` +
@@ -5460,6 +5841,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     layerMarkup.join('') +
     pinMarkupParts.join('') +
     labels.markup +
+    badgeParts.join('') +
     zoneLetters
       .map((z) => zoneLetterMarkup(z.letter, z.x, z.y, plate.kind === 'geographic'))
       .join('') +
@@ -5472,7 +5854,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       .map((z) => zoneLetterMarkup(z.letter, z.x, z.y, plate.kind === 'geographic'))
       .join('') +
     legend.markup +
-    sceneKeyMarkup(plate.sceneKey, width, marginRight, legend.bottom) +
+    sceneKey.markup +
+    featureKeyBlock.markup +
     `</g>` +
     // Frame, bar scale and north arrow sit OUTSIDE the clip: their strokes run
     // along the sheet edge and would be shaved in half by it. The bar is drawn
