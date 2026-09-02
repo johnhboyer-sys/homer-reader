@@ -53,13 +53,35 @@ def fold_key(key: str) -> str:
     return _FOLD_STRIP.sub("", key)
 
 
+def breathing_swap(fold: str) -> str | None:
+    """Swap a fold key's one breathing mark, rough for smooth or back.
+
+    Morpheus's own lemma for a word occasionally disagrees with a
+    dictionary's headword on which breathing it takes: ἴστωρ/ἵστωρ at Il.
+    18.501 is the case that surfaced this (RESEARCH-SHIELD.md; also the
+    ancient trial-scene accent dispute, Hdn. ap. LSJ s.v.) — Morpheus lemmatizes
+    the corpus token as i(/stwr (rough), while both LSJ and Cunliffe key
+    their entry i)/stwr (smooth). fold_key does not strip '(' or ')' (a real
+    breathing distinction elsewhere), so a disagreement like this survives
+    every other candidate untried. Restricted to a fold carrying exactly one
+    breathing mark, so it never fires on a compound that legitimately carries
+    two."""
+    rough, smooth = fold.count("("), fold.count(")")
+    if rough == 1 and smooth == 0:
+        return fold.replace("(", ")")
+    if smooth == 1 and rough == 0:
+        return fold.replace(")", "(")
+    return None
+
+
 def lemma_candidates(lemma: str) -> list[tuple[str, str]]:
     """Ranked (index, value) lookups for a lemma against LSJ keys.
 
     Fallbacks cover Morpheus lemmatizations LSJ heads differently:
     adverbs in -ws live under the adjective (a)kribw=s -> a)kribh/s),
-    verbal adjectives in -teos are headed as -teon, and synthetic
-    compounds carry hyphens and extra accents (a)nti/-bla/ptw).
+    verbal adjectives in -teos are headed as -teon, synthetic compounds
+    carry hyphens and extra accents (a)nti/-bla/ptw), and a lone breathing
+    disagreement is retried with the mark flipped (see breathing_swap).
     """
     cands = [("exact", lemma), ("base", base_key(lemma))]
     fold = fold_key(lemma)
@@ -68,6 +90,9 @@ def lemma_candidates(lemma: str) -> list[tuple[str, str]]:
         cands.append(("fold", fold[:-2] + "hs"))
     if fold.endswith("teos"):
         cands.append(("fold", fold[:-4] + "teon"))
+    swapped = breathing_swap(fold)
+    if swapped:
+        cands.append(("fold", swapped))
     return cands
 
 

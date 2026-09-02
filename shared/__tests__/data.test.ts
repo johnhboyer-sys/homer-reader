@@ -168,6 +168,34 @@ describe('fetch and lookup helpers', () => {
     expect((d as typeof raw).apparatus.draft).toBe(true);
   });
 
+  // 2026-07-29: normalizeBookData dropped `places` on the floor, so the whole
+  // 24-book scene→gazetteer sweep (406/412 scenes, 42 distinct ids) never
+  // reached scene-place.ts at all -- every scene fell through to the prose
+  // dictionary and the Chart Room showed the one-pin behaviour the sweep
+  // existed to kill. Neither the mapping nor RawBookData declared the field,
+  // so the compiler could not see it either. This is the assertion whose
+  // absence let that ship.
+  it('normalizeBookData carries authored scene places[] through to Scene', () => {
+    const raw = {
+      book: 2,
+      segments: [],
+      apparatus: {
+        scenes: [
+          { lines: [1, 47] as [number, number], summary: 'The Dream.', location: 'the Achaean camp',
+            places: ['achaean-camp'] },
+          { lines: [48, 100] as [number, number], summary: 'The assembly.', location: 'Achaean assembly',
+            places: ['achaean-assembly-place', 'achaean-camp'] },
+          // No authored ids: stays undefined, so the prose dictionary still runs.
+          { lines: [101, 120] as [number, number], summary: 'Elsewhere.', location: 'Troy' },
+        ],
+      },
+    };
+    const d = normalizeBookData(raw);
+    expect(d.scenes?.[0].places).toEqual(['achaean-camp']);
+    expect(d.scenes?.[1].places).toEqual(['achaean-assembly-place', 'achaean-camp']);
+    expect(d.scenes?.[2].places).toBeUndefined();
+  });
+
   it('normalizeBookData leaves an already-normalized book untouched', () => {
     const scenes = [{ summary: 'x', startLine: 1 }];
     const d = normalizeBookData({ book: 1, segments: [], scenes });
