@@ -2396,6 +2396,24 @@ const LABEL_HALO_WIDTH = 0.65;
 export const RELIEF_HALO_WIDTH = 2.6;
 export const RELIEF_HALO_OPACITY = 0.72;
 
+// `--plate-schematic-ink` (stage 5a, 2026-09-02): a schematic sheet washes
+// every area/relief fill it draws to `Plate.groundOpacity` (renderPlate's
+// `plate-ground-wash` group) — labels print over that SOFTENED colour, not
+// the ramp step's own full-strength hex. `--text-mid` composited over the
+// darkest washed relief step measured 4.36:1 in dark theme, under the AA
+// 4.5:1 floor for text (CLAUDE.md's accessibility rule binds in both
+// themes, no exception) — and the same compositing puts light theme just
+// under it too at the ramp's own top step (4.27:1), a near-miss nobody had
+// measured yet. `--plate-schematic-ink` replaces `--text-mid` on a
+// schematic sheet's own labels ONLY (see shared/__tests__/plate-map-
+// contrast.test.ts's ramp-under-wash suite for the derivation); a geographic
+// sheet's `--text-mid` is untouched — its halo is wide/opaque enough to BE
+// the background (RELIEF_HALO_WIDTH/OPACITY above), which is why it never
+// had this problem.
+function schematicInkFill(fill: string, geographic: boolean): string {
+  return !geographic && fill === 'var(--text-mid)' ? 'var(--plate-schematic-ink)' : fill;
+}
+
 /** Halo paint attributes for a label, per plate kind (see the constants above). */
 function haloAttrs(geographic: boolean): string {
   const width = geographic ? RELIEF_HALO_WIDTH : LABEL_HALO_WIDTH;
@@ -2426,7 +2444,7 @@ function textPathElement(
   return (
     `<text class="plate-label plate-label-${role} plate-label-along${tierClass}" data-label-for="${escapeXml(id)}"${tierAttr} ` +
     `font-family="var(--font-ui)" font-size="${style.size}" font-weight="${style.weight}"` +
-    `${style.italic ? ' font-style="italic"' : ''}${tracking} fill="${style.fill}" ` +
+    `${style.italic ? ' font-style="italic"' : ''}${tracking} fill="${schematicInkFill(style.fill, geographic)}" ` +
     `paint-order="stroke" ${haloAttrs(geographic)} ` +
     `dy="-3.5" style="font-variant-ligatures:none">` +
     // startOffset is normally the run's own straightest window (see
@@ -2455,7 +2473,7 @@ function labelElement(
     `<text class="plate-label plate-label-${role}${tierClass}" data-label-for="${escapeXml(id)}"${tierAttr} x="${round1(c.x)}" y="${round1(c.y)}" ` +
     `text-anchor="${c.anchor}" font-family="var(--font-ui)" font-size="${style.size}" ` +
     `font-weight="${style.weight}"${italic ? ' font-style="italic"' : ''}${tracking} ` +
-    `fill="${style.fill}" paint-order="stroke" ${haloAttrs(geographic)}` +
+    `fill="${schematicInkFill(style.fill, geographic)}" paint-order="stroke" ${haloAttrs(geographic)}` +
     `>${escapeXml(labelText(text, style))}</text>`
   );
 }
