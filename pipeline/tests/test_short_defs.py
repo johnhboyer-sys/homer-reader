@@ -1,4 +1,6 @@
+import re
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 import pytest
@@ -7,6 +9,7 @@ from lxml import etree
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "pipeline"))
 
+from homer_pipeline.config import Manifest
 from homer_pipeline.stage5_lsj import derive_short_def
 from homer_pipeline.stage7_emit import merge_short_def, resolve_parses
 import homer_pipeline.stage7_emit as stage7_emit
@@ -466,42 +469,122 @@ def test_merge_short_def_keeps_he_blank(monkeypatch):
     assert merge_short_def("", "e(/1", ["e(/1"], {}) == ""
 
 
-# Real LSJ bodies, copied from grc.lsj.xml (Perseus TEI), abridged only by
-# cutting citation material after the run these cases turn on.
+# The cases below run on the WHOLE entry, read from the same grc.lsj.xml that
+# stage 5 reads. Abridged fixtures are reconstructions, and a reconstruction has
+# already hidden a defect in this lane's history (ἄατος, 2026-09-01): a test can
+# then pass on text the pipeline never sees. Nothing here is retyped.
+_LSJ_KEY_RE = re.compile(r'<div2 [^>]*key="([^"]*)"')
+
+
+@lru_cache(maxsize=1)
+def _real_lsj_entries() -> dict[str, str]:
+    """Every div2 fragment this module asserts on, verbatim from grc.lsj.xml.
+
+    The file is not one XML document (no root element) but a stream of div2
+    fragments, so it is scanned line-wise exactly as stage5_lsj.run does.
+    """
+    path = Manifest.for_work("Iliad").diogenes_data() / "grc.lsj.xml"
+    if not path.exists():
+        return {}
+    wanted = set(_REAL_ENTRY_KEYS)
+    out: dict[str, str] = {}
+    buf: list[str] = []
+    key = ""
+    want = False
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            if "<div2 " in line:
+                m = _LSJ_KEY_RE.search(line)
+                key = m.group(1) if m else ""
+                want = key in wanted and key not in out
+                buf = []
+            if want:
+                buf.append(line)
+                if "</div2>" in line:
+                    fragment = "".join(buf)
+                    start = fragment.index("<div2 ")
+                    end = fragment.rindex("</div2>") + len("</div2>")
+                    out[key] = fragment[start:end]
+                    want = False
+                    if len(out) == len(wanted):
+                        break
+    return out
+
+
+_REAL_ENTRY_KEYS = (
+    "ou)",
+    "a)lla/",
+    "ki/rkos",
+    "me/mona",
+    "a)gro/teros",
+    "*(eka/ergos",
+    "qa/los",
+    "ga/r",
+    "pa=s1",
+    "e)k",
+)
+
+
+def _real_entry(key: str):
+    entries = _real_lsj_entries()
+    if not entries:
+        pytest.skip("grc.lsj.xml not present (manifest sources.diogenes_data)")
+    assert key in entries, f"{key} not found in grc.lsj.xml"
+    return etree.fromstring(entries[key])
+
+
 def test_derive_short_def_refuses_italics_governed_by_the_lead_in():
     """οὐ: LSJ italicises words INSIDE its prose, and the run is a fragment.
 
     "the negative of <i>fact</i> and <i>statement</i>" yielded the short def
-    "fact and statement" on 1,456 corpus occurrences.
+    "fact and statement" on 1,456 corpus occurrences — the commonest wrong
+    gloss in the dictionary. Morpheus supplies the right one, "not".
     """
-    div2 = etree.fromstring(
-        '<div2 key="ou)"><head>οὐ</head><sense n="•" level="1">the negative of '
-        "<i>fact</i> and <i>statement,</i> as <foreign>μή</foreign> of "
-        "<i>will</i> and <i>thought</i></sense></div2>"
-    )
+    assert derive_short_def(_real_entry("ou)")) == ""
 
-    assert derive_short_def(div2) == ""
+
+def test_derive_short_def_refuses_a_name_for_a_number():
+    """Ἑκάεργος: "Pythag. name for <i>nine</i>" is the same defect as οὐ's.
+
+    The lead-in names a linguistic entity ("name for"), so the italic is what
+    is being named, not what the headword means.
+    """
+    assert derive_short_def(_real_entry("*(eka/ergos")) == ""
+
+
+def test_derive_short_def_keeps_a_definition_after_a_bare_of():
+    """ἀγρότερος: "in <author>Hom.</author> always of <i>wild</i> animals".
+
+    A bare "of" before the run governs the CLASS being described, not the run:
+    "wild" is the Homeric gloss and LSJ gives no other. The first version of
+    the οὐ rule refused every lead-in ending on of/for/as/to and lost this one
+    along with 14 more sound definitions, 61 corpus occurrences between them.
+    """
+    assert derive_short_def(_real_entry("a)gro/teros")) == "wild"
+
+
+def test_derive_short_def_still_drops_thalos():
+    """θάλος: "= θαλλός, but only nom. and acc. in metaph. sense of <i>scion,
+    child</i>" — a real definition, and the rule drops it anyway.
+
+    "sense of" is on the list because περ's "a shortd. form of περί (q. v.) in
+    the sense of <i>very much, however much</i>" attributes that sense to περί,
+    not to περ, on 534 occurrences. The two shapes are identical and no signal
+    in the entry separates them, so this test records the cost rather than
+    pretending there is none. Morpheus glosses θάλος "scion, child" — the same
+    string — so the card does not change.
+    """
+    assert derive_short_def(_real_entry("qa/los")) == ""
 
 
 def test_derive_short_def_keeps_a_run_introduced_by_a_grammatical_label():
-    """ἀλλά: a label ends on a separator and does not govern the run."""
-    div2 = etree.fromstring(
-        '<div2 key="a)lla/"><head>ἀλλά</head><sense level="1">in simple '
-        "oppositions, <i>but</i>, <foreign>οὐ μὲν . . ἀλλά</foreign></sense>"
-        "</div2>"
-    )
-
-    assert derive_short_def(div2) == "but"
+    """ἀλλά: a label ("in simple oppositions,") does not govern the run."""
+    assert derive_short_def(_real_entry("a)lla/")) == "but"
 
 
 def test_derive_short_def_absorbs_a_leading_article():
     """κίρκος: "a kind of" belongs to the definition, not to the lead-in."""
-    div2 = etree.fromstring(
-        '<div2 key="ki/rkos"><head>κίρκος</head><sense level="1">a kind of '
-        "<i>hawk</i> or <i>falcon,</i> <bibl>Il. 22.139</bibl></sense></div2>"
-    )
-
-    assert derive_short_def(div2) == "a kind of hawk or falcon"
+    assert derive_short_def(_real_entry("ki/rkos")) == "a kind of hawk or falcon"
 
 
 def test_derive_short_def_refuses_an_etymological_root():
@@ -510,11 +593,13 @@ def test_derive_short_def_refuses_an_etymological_root():
     "(fr. <sense><i>mṇ</i>-), cogn. with μένος" made the Proto-Indo-European
     root the entry's definition, and stage7 propagated it to μεμαώς.
     """
-    div2 = etree.fromstring(
-        '<div2 key="me/mona"><head>μέμονα</head>, redupl. <tns>pf.</tns> of '
-        "root <itype>μεν</itype>-, weak form <itype>μᾰ</itype>- (fr. "
-        '<sense n="" level="1"><i>mṇ</i>-), cogn. with <foreign>μένος</foreign>'
-        "</sense></div2>"
-    )
+    assert derive_short_def(_real_entry("me/mona")) == ""
 
-    assert derive_short_def(div2) == ""
+
+@pytest.mark.parametrize(
+    ("key", "expected"),
+    [("a)lla/", "but"), ("ga/r", "for"), ("pa=s1", "all"), ("e)k", "from out of")],
+)
+def test_derive_short_def_leaves_the_commonest_entries_alone(key, expected):
+    """The regression guard: four of the highest-frequency entries in Homer."""
+    assert derive_short_def(_real_entry(key)) == expected

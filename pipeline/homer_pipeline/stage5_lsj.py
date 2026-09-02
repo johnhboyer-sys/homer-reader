@@ -42,11 +42,17 @@ _FOLD_STRIP = re.compile(r"[0-9_^\-/=\\|+]")
 _CONNECTIVE = re.compile(r"^[\s,;]*(?:(?:or|and)[\s,;]*)?$", re.IGNORECASE)
 _DANGLING_CONNECTIVE = re.compile(r"(?:\s*[,;]\s*)?\b(?:or|and)\s*$", re.IGNORECASE)
 _DANGLING_ARTICLE = re.compile(r"\b(?:an?|the)$", re.IGNORECASE)
-# The mirror of _DANGLING_ARTICLE, applied to the material BEFORE the run: a
-# lead-in ending on a word that governs what follows means the italic is a
-# phrase inside a sentence, not the sense's definition. Grammatical labels
-# ("Act.,", "of Place,", "Conj.,") end on a separator and are harmless.
-_GOVERNING_LEAD = re.compile(r"\b(?:of|for|as|to)$", re.IGNORECASE)
+# Applied to the material BEFORE the run: when the lead-in names a LINGUISTIC
+# ENTITY — "the negative of <i>fact</i> and <i>statement</i>" (οὐ), "Pythag.
+# name for <i>nine</i>" (Ἑκάεργος) — the italics are the object of LSJ's own
+# metalanguage, and lifting them out yields a sentence fragment, not a gloss.
+# A bare preposition does NOT govern that way: "in Hom. always of <i>wild</i>
+# animals" is ἀγρότερος's real definition, and "expld. by Hsch. as <i>wrought
+# with much pains</i>" is μορόεις's. Refusing every lead-in that ended on
+# of/for/as/to was measured over the whole dictionary: it fired on 23 of the
+# 8,700 corpus entries and was wrong on 15 of them. These three nouns are the
+# governors actually attested in the cases it got right.
+_GOVERNING_LEAD = re.compile(r"\b(?:negative|name|sense)\s+(?:of|for)$", re.IGNORECASE)
 # "a kind of <i>hawk</i>", "a <i>narrow space</i>": the article and the
 # classifier belong TO the definition, so they are absorbed, not refused —
 # but only when nothing but a label precedes them. ἐπί's "to denote the" is a
@@ -169,11 +175,10 @@ def derive_short_def(div2) -> str:
     if first_i is None:
         return ""
 
-    # The run has to START the definition. When the words just before it govern
-    # it grammatically — οὐ "the negative of <i>fact</i> and <i>statement</i>",
-    # ἐπί "to denote the <i>being upon</i>" — the italics are emphasis inside
-    # LSJ's own prose, and lifting them out yields a sentence fragment, not a
-    # gloss. Labels that merely introduce a sense end on a separator and pass.
+    # The run has to START the definition. When the lead-in names a linguistic
+    # entity the run is its object — οὐ "the negative of <i>fact</i> and
+    # <i>statement</i>" — and the italics are emphasis inside LSJ's own prose,
+    # not a sense. Labels that merely introduce a sense pass untouched.
     lead = _HOMONYM_LABEL.sub("", _lead_in(body, children, first_i))
     lead = _strip_edge_punctuation(lead)
     article = _LEAD_ARTICLE.search(lead)
