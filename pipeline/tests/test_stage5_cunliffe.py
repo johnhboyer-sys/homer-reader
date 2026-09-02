@@ -754,3 +754,371 @@ def test_a_quotation_inside_a_parenthesis_is_still_homers_words():
     t8 = sc.to_t8("e)pissei/w", "ἐπισσείω", real)
     quoted = [it["g"] for r in t8["rows"] for it in (r.get("ex") or [])]
     assert any("ἐπισσείων φοβέειν Ἀχαιούς" in _text(g) for g in quoted)
+
+
+# ── Cunliffe's own sense numbers are not line numbers ──────────────────────
+# He cross-references his senses constantly — "As in 4.b", "Sim. in 3 pl.",
+# "See also under ἵημι1 9" — and every one of those digits used to be read as
+# a bare continuation and restored to the book the previous reference had
+# established. The reader got a live link to a real line with nothing to do
+# with the entry. See _is_sense_ref and _holds_sense_ref.
+#
+# Every fixture below is a whole real source entry, copied from
+# sources/cunliffe/cunliffe-1-lex.jsonl and wrapped, never reconstructed: a
+# shortened one is exactly what let the last defect in this module hide.
+
+
+def _cites(t8: dict) -> list[str]:
+    """Every reference the entry hands the reader as a link."""
+    out = []
+    for r in t8["rows"]:
+        out += list(r.get("au") or [])
+        out += [it["c"] for it in (r.get("ex") or []) if it.get("c")]
+    return out
+
+
+def _all_text(t8: dict) -> str:
+    parts = [_text(t8.get("i") or "")]
+    for r in t8["rows"]:
+        parts.append(_text(r.get("z") or ""))
+        for it in (r.get("ex") or []):
+            parts.append(_text(it.get("g") or ""))
+    return " | ".join(parts)
+
+
+def test_a_sub_sense_pointer_is_not_a_line_number():
+    """ἄγω, whole and real: the entry this defect was reported on.
+
+    Sense II.5 reads "a As in 4.a : ... b As in 4.b : ἄξομαι ἀμφοτέροις
+    ἀλόχους Od. 21.214. Cf. Od. 4.10." The 4 of "As in 4.b" points at sense
+    II.4, and it was emitted as Od. 15.4 — the book the reference before it
+    left behind. The pointer is content: it must stay in the row, whole and
+    readable, and it must not be a citation.
+    """
+    real = (
+        "ἄγω Fut. ἄξω, -εις Il. 1.139, Il. 3.401, Il. 4.239, Il. 8.166, Il. "
+        "9.429, 692, Il. 24.154, 183: Od. 2.326, Od. 10.268, Od. 16.272, "
+        "Od. 17.22, 250. Acc. sing. masc. pple. ἄξοντα Il. 8.368: Od. "
+        "11.623. Infin. ἀξέμεναι Od. 23.221. ἀξέμεν Il. 23.668. ἄξειν Il. "
+        "16.832, Il. 19.298: Od. 13.212. Aor. ἤγαγον, -ες Il. 4.179, Il. "
+        "5.731, Il. 6.426, Il. 11.480, 663, Il. 24.547, etc.: Od. 1.172, "
+        "Od. 3.383, Od. 4.258, Od. 7.9, 248, Od. 9.495, Od. 11.509, 625, "
+        "Od. 13.323, Od. 17.171, 376, etc. ἄγαγον, -ες Il. 1.346, Il. "
+        "11.112, Il. 19.118, Il. 24.447, 577, etc.: Od. 14.404, Od. 16.227. "
+        "Subj. ἀγάγωμι Il. 24.717. ἀγάγω Il. 2.231. 3 sing. -ῃσι Il. "
+        "24.155. -ῃ Od. 15.311. 1 pl. -ωμεν Il. 20.300. 3 sing. opt. ἀγάγοι "
+        "Od. 17.243, Od. 21.201. Imp. ἄγαγε Il. 24.337. Pple. ἀγαγών, -οῦσα "
+        "Il. 4.407, Il. 8.490: Od. 4.175, 407, Od. 15.428, Od. 23.295. Aor. "
+        "imp. pl. ἄξετε Il. 3.105, Il. 24.778: Od. 14.414. Infin. ἀξέμεναι "
+        "Il. 23.50. ἀξέμεν Il. 23.111, Il. 24.663. Mid. Fut. ἄξομαι Il. "
+        "9.367: Od. 4.601, Od. 21.214. Infin. ἄξεσθαι Od. 21.316, 322. Aor. "
+        "ἠγαγόμην Od. 4.82, Od. 14.211. 3 sing. -ετο Il. 7.390, Il. 16.190, "
+        "Il. 22.116, 471: Od. 15.238. 3 sing. subj. ἀγάγηται Od. 6.159. "
+        "Infin. ἀγαγέσθαι Il. 18.87. 3 pl. aor. ἄξοντο (v. l. ἄξαντο) Od. "
+        "8.545. Imp. pl. ἄξεσθε (v.l. ἄξασθε) Od. 8.505. (ἀν-, ἀπ-, δι-, "
+        "εἰσ-, εισαν-, ἐξ-, ἐπ-, κατ-, προσ-, συν-, ὑπ-, ὑπεξ-.) I In act. "
+        "1 To drive, lead, bring (an animal) Il. 21.368, Il. 11.480, Il. "
+        "13.572, Il. 17.134, Il. 23.596, 613, 654: Od. 3.439, Od. 4.622, "
+        "Od. 11.623, 625, Od. 14.27, 414, Od. 17.171, 213= Od. 20.174, Od. "
+        "17.600, Od. 20.186, etc. To take as a prize: ἵππον Il. 23.577, "
+        "ἡμίονον 662, 668. – to put (under the yoke) Il. 5.731, Il. 10.293, "
+        "Il. 23.294, 300: Od. 3.383, 476, Od. 15.47. 2 In reference to "
+        "persons, to cause to come or go, lead, conduct, take, bring, fetch "
+        "Il. 1.346, 440, Il. 3.105, Il. 4.541, Il. 6.291, Il. 7.310, Il. "
+        "9.89, etc.: Od. 2.326, Od. 3.270, Od. 4.262, Od. 9.98, Od. 13.134, "
+        "etc. In reference to corpses Il. 7.418, Il. 22.392, etc. : Od. "
+        "24.419. Of an impersonal agency: τίπτε δέσε χρειὼ δεῦρʼ ἤγαγεν; "
+        "Od. 4.312. Of fate, to lead on Il. 2.834, Il. 5.614, etc. In "
+        "reference to leading astray Il. 10.391. 3 To lead as a chief Il. "
+        "2.557, 580, 631, Il. 4.179, Il. 12.330, Il. 17.96, etc.: Od. "
+        "3.189, Od. 6.7, Od. 10.551, Od. 14.469, Od. 24.427. To take "
+        "(companions) with one Od. 4.434. 4 To carry off (a horse) as spoil "
+        "Il. 16.153. To carry off (persons) captive: υἱόν Il. 2.231. Cf. "
+        "Il. 4.239, Il. 6.426, Il. 8.166, Il. 9.594, Il. 11.112, Il. 21.36, "
+        "etc.: γυναῖκας Od. 14.264, etc. Sim. with φέρω (φέρω referring to "
+        "things, ἄγω to men and cattle) Il. 5.484. In reference to the rape "
+        "of Helen Il. 24.764. In reference to taking her back Od. 23.221. "
+        "In reference to taking back her and the spoils Il. 7.351, Il. "
+        "22.117. In reference to carrying off Briseïs Il. 1.184, 323, 338, "
+        "391, Il. 19.273, etc. To seizing and taking away (a γέρας) Il. "
+        "1.139. 5 Of a chariot, horses, etc., to bear, carry, bring Il. "
+        "5.839, Il. 11.598: Od. 6.37. Of ships Il. 24.396: Od. 7.9, Od. "
+        "24.299. 6 In reference to things, to fetch, bring, carry, take Il. "
+        "1.99, Il. 7.335, Il. 11.632, Il. 15.531, Il. 23.50, Il. 24.367, "
+        "etc.: Od. 1.184, Od. 3.312, Od. 13.216, Od. 14.296, Od. 15.159, "
+        "etc. To bring in, import: οἶνον Il. 7.467, Il. 9.72, μέθυ Il. "
+        "7.471. To carry off as spoil Il. 1.367. In reference to levying "
+        "compensation Od. 22.57. 7 To bring on, cause: πῆμα Il. 24.547: "
+        "τερπωλήν Od. 18.37. In reference to atmospheric phenomena: νέφος "
+        "ἄγει λαίλαπα Il. 4.278. Cf. Il. 23.188. To bring on (a period of "
+        "time): ἦμαρ Od. 18.137, Ἠῶ Od. 23.246. 8 In various uses. In "
+        "reference to conducting water in a channel Il. 21.262. To direct "
+        "the course of (a battle) Il. 11.721. To cause (a ship) to take a "
+        "certain direction Od. 9.495. To bring (to the birth) Il. 19.118. "
+        "Of hunters, to draw (a cordon) Od. 4.792. To bring back "
+        "(intelligence) Od. 4.258. To keep in memory Od. 5.311. 9 In pres. "
+        "pple. with a finite vb., to take and . . . (cf. αἱρέω I 10, εἶμι "
+        "1.c, εἶμι 6.b, ἔρχομαι 1, 4, κίον 2, λαμβάνω 7, φέρω 6, 10): ἀνὰ "
+        "δʼ εἷσεν ἄγων Il. 1.311, στῆσεν ἄγων Il. 2.558. Cf. Il. 4.392, "
+        "etc.: Od. 1.130, Od. 3.416, Od. 4.525, 634, Od. 15.542, etc. 10 "
+        "For imp. sing. and pl. ἄγε, ἄγετε, used interjectionally see these "
+        "words. II In mid. (often hardly to be distinguished from the "
+        "act.). 1 In reference to cattle, to drive, bring Il. 8.505, 545. 2 "
+        "To carry or take, take with one: χρυσόν Il. 9.367. Cf. Il. 16.223: "
+        "εἵματα Od. 6.58. Cf. Od. 4.82, 601, Od. 10.35, 40. In reference to "
+        "corpses Il. 17.163, Il. 24.139. 3 To carry off captive or as spoil "
+        "Il. 2.659, Il. 6.455, Il. 7.390, Il. 22.116, Il. 23.829. In "
+        "reference to Helen and the spoils Il. 3.72 = 93. To the spoils Il. "
+        "7.363. To taking her back Il. 4.19. To take as a prize Il. 23.263. "
+        "4 To take to oneself as a wife, marry. a With οἴκαδε or the like: "
+        "οἴκαδʼ ἄγεσθαι Il. 3.404, ἠγάγετο πρὸς δώματα Il. 16.190. Cf. Il. "
+        "9.146, etc.: Od. 6.159, Od. 21.316. b Without such a word Il. "
+        "18.87, Il. 22.471: Od. 14.211, Od. 21.322. 5 To get (a wife for "
+        "another). a As in 4.a : κασιγνήτῳ γυναῖκα ἠγάγετο πρὸς δώματα Od. "
+        "15.238. b As in 4.b : ἄξομαι ἀμφοτέροις ἀλόχους Od. 21.214. Cf. "
+        "Od. 4.10. 6 In reference to conducting a bride to her new home Od. "
+        "6.28. 7 In reference to speech, to cause to pass, utter: μῦθον ὃν "
+        "οὔ κεν ἀνὴρ διὰ στόμʼ ἄγοιτο Il. 14.91."
+    )
+    t8 = sc.to_t8("a)/gw", "ἄγω", real)
+    assert "Od. 15.4" not in _cites(t8)
+    assert "As in 4.b" in _all_text(t8)
+    assert "As in 4.a" in _all_text(t8)
+    # and the real references either side of it are untouched
+    assert "Od. 21.214" in _cites(t8)
+    assert "Od. 4.10" in _cites(t8)
+
+
+def test_person_and_number_after_a_pointer_is_not_a_line_number():
+    """φημί, whole and real: the shape split_senses already refuses.
+
+    "Sim. in 3 pl. impf. mid. : ἔφαντό μιν ἐπιδήμιον εἶναι Od. 1.194" — the 3
+    is person, not a line, and it came out as Od. 13.3. _MORPH_RE decides it
+    here exactly as it decides a sense number in split_senses.
+    """
+    real = (
+        "†φημί (Enclitic in pres. indic. act. except 2 sing.) 1 sing. pres. "
+        "φημί Il. 2.129, Il. 5.652, Il. 6.98, etc. : Od. 2.171, Od. 4.141, "
+        "Od. 5.290, etc. 2 sing. φῄς Il. 4.351, Il. 14.265, Il. 17.174 : "
+        "Od. 1.391, Od. 7.239. φῇσθα Od. 14.149. 3 sing. φησί Il. 1.521, "
+        "Il. 14.366, Il. 15.107, etc. : Od. 1.215, Od. 5.105, Od. 17.352, "
+        "etc. 1 pl. φαμέν Il. 15.735. 2 pl. φατέ Od. 16.93, Od. 17.196. 3 "
+        "pl. φασί Il. 2.783, Il. 4.375, Il. 5.635, etc. : Od. 1.33, Od. "
+        "3.84, Od. 4.201, etc. 3 sing. subj. φήῃ Od. 11.128, Od. 23.275. "
+        "φῇσι Od. 1.168. φῇ Od. 19.122. Opt. φαίην Il. 6.285 : Od. 20.326. "
+        "2 sing. φαίης Il. 3.220, 392, Il. 4.429, Il. 15.697, Il. 17.366 : "
+        "Od. 3.124. 3 sing. φαίη Od. 18.218, Od. 23.135. 1 pl. φαῖμεν Il. "
+        "2.81, Il. 24.222. Pple. φάς Il. 9.35. Nom. pl. masc. φάντες Il. "
+        "3.44, Il. 14.126. Impf. ἔφην Il. 16.61, Il. 20.348 : Od. 4.171, "
+        "Od. 11.430, 540, Od. 14.176. φῆν Il. 18.326 : Od. 2.174. 2 sing. "
+        "ἔφης Il. 22.280, 331. φῆς Il. 5.473 : Od. 14.117. ἔφησθα Il. "
+        "1.397, Il. 16.830 : Od. 3.357, Od. 23.71. φῆσθα Il. 21.186. 3 "
+        "sing. ἔφη Il. 1.584, Il. 2.265, Il. 5.111, etc. : Od. 2.377, Od. "
+        "12.390, Od. 17.409, etc. φῆ Il. 2.37, Il. 21.361, Il. 24.608 : Od. "
+        "4.504, Od. 8.567, Od. 11.237, etc. 1 pl. ἔφαμεν Od. 24.24. φάμεν "
+        "Il. 8.229, Il. 23.440 : Od. 4.664, Od. 9.496, Od. 16.347. 2 pl. "
+        "φάτε Od. 17.25. 3 pl. ἔφασαν Il. 15.700 : Od. 10.35, 46, Od. "
+        "20.384. φάσαν Il. 2.278, Il. 4.374 : Od. 9.500, Od. 10.67, Od. "
+        "12.192, Od. 21.366, Od. 22.31. ἔφαν Il. 3.161, 302, Il. 7.206, "
+        "etc.: Od. 9.413, Od. 10.422, Od. 17.488, etc. φάν Il. 6.108 : Od. "
+        "2.337, Od. 7.343, Od. 18.342. 3 sing. fut. φήσει Il. 8.148, 153. "
+        "Mid. 2 pl. pres. φάσθε Od. 6.200, Od. 10.562. Imp. φάο Od. 16.168, "
+        "Od. 18.171. 3 sing. φάσθω Od. 20.100. Pple. φάμενος Il. 5.290. Pl. "
+        "φάμενοι Od. 10.446. Fem. φαμένη Il. 5.835, Il. 22.247, 460 : Od. "
+        "11.150, Od. 13.429, Od. 18.206, Od. 23.85. Infin. φάσθαι Il. "
+        "1.187, Il. 9.100, Il. 11.788, etc. : Od. 8.549, Od. 9.504, Od. "
+        "11.443, etc. Impf. ἐφάμην Il. 3.366, Il. 5.190, Il. 8.498, etc. : "
+        "Od. 4.382, Od. 9.272, Od. 10.70, etc. 3 sing. ἔφατο Il. 1.33, Il. "
+        "2.807, Il. 4.326, etc. : Od. 1.42, Od. 2.267, Od. 5.301, etc. φάτο "
+        "Il. 1.188, Il. 2.182, Il. 3.28, etc. : Od. 1.420, Od. 2.296, Od. "
+        "4.37, etc. 3 pl. ἔφαντο Il. 6.510, Il. 12.106, 125, Il. 17.379 : "
+        "Od. 1.194, Od. 4.638, Od. 13.211. φάντο Od. 24.460. (ἀπο-, ἐκ-, "
+        "μετα-, παρα-, προσ-) In act. and mid. 1 To utter speech, speak, "
+        "say : ὣς ἔφη Il. 1.584, ὣς φάμενος Il. 5.290. Cf. Il. 1.188, Il. "
+        "2.278, Il. 3.161, Il. 21.361, etc. : Od. 1.42, Od. 2.35, 377, Od. "
+        "4.382, Od. 10.46, etc. 2 To utter, speak, say, tell : ἔπος ἔφατο "
+        "Il. 1.361. Cf. Il. 9.100, Il. 18.17, Il. 21.393, etc. : μῦθόν κε "
+        "φαίην Od. 20.326. Cf. Od. 2.384, Od. 3.357, Od. 16.168, etc. 3 To "
+        "speak out, make disclosure Od. 8.549, Od. 21.194. To say, "
+        "communicate, reveal, disclose : τὸ μὲν φάσθαι, τὸ δὲ καὶ "
+        "κεκρυμμένον εἶναι Od. 11.443. 4 To say, state, assert, declare : "
+        "ὡς φάσαν οἵ μιν ἴδοντο πονεύμενον Il. 4.374. With infin. : "
+        "κρονίωνι λοιγὸν ἀμῦναι Il. 1.397, ἄτερ λαῶν πόλιν ἑξέμεν Il. "
+        "5.473. Cf. Il. 2.129, Il. 4.351, Il. 6.206, Il. 8.229, Il. 17.174, "
+        "etc. : Od. 1.33, Od. 2.171, Od. 4.504, Od. 7.239, Od. 8.567, Od. "
+        "9.504, Od. 11.540, etc. With omission of the infin. : εἴ δε κακὸν "
+        "φήσει Il. 8.153. 5 In 3 pl. pres. with indefinite subject "
+        "understood, they say, men say, it is said. With infin. : περὶ "
+        "ἄλλων φασὶ γενέσθαι Il. 4.375, ζώειν ἔτι φασὶ μενοίτιον Il. 16.14. "
+        "Cf. Il. 2.783, Il. 5.635, Il. 6.100, Il. 9.401, etc. : Od. 1.189, "
+        "Od. 3.188, Od. 4.387, Od. 6.42, Od. 13.249, etc. Sim. in 3 pl. "
+        "impf. mid. : ἔφαντό μιν ἐπιδήμιον εἶναι Od. 1.194. 6 With neg., to "
+        "declare that . . . not . . . (cf. φάσκω 1) : ἡμίονον δʼ οὔ φημί "
+        "τινʼ ἀξέμεν ἄλλον Il. 23.668. Cf. Il. 23.579, etc. : Od. 8.138, "
+        "etc. To refuse : οὔ φησιν δώσειν Il. 7.393. 7 To deem, suppose, "
+        "think. With infin. : αἱρήσειν πόλιν Il. 2.37, ἀθανάτων τίνʼ "
+        "κατελθέμεν Il. 6.108, δηΐφοβον παρεῖναι Il. 22.298. Cf. Il. 3.44, "
+        "366, Il. 4.429, Il. 5.190, Il. 8.498, etc. : Od. 1.391, Od. 4.171, "
+        "Od. 6.200, Od. 9.496, Od. 11.430, Od. 13.357, etc. With omission "
+        "of the infin. : ψεῦδός κεν φαῖμεν Il. 2.81=Il. 24.222. Cf. Il. "
+        "5.184, Il. 14.126. Without construction : ἦ τοι ἔφης γε Il. "
+        "22.280. 8 To have such and such an opinion of oneself, think so "
+        "and so of oneself, be minded so and so : ἶσον ἐμοὶ φάσθαι Il. "
+        "1.187, Il. 15.167. Cf. Il. 14.366, Il. 15.183."
+    )
+    t8 = sc.to_t8("fhmi/", "†φημί", real)
+    assert "Od. 13.3" not in _cites(t8)
+    assert "Sim. in 3 pl. impf. mid." in _all_text(t8)
+    assert "Od. 1.194" in _cites(t8)
+
+
+def test_a_sub_sense_letter_marks_the_digit_before_it():
+    """δεύτερος, whole and real.
+
+    "d So as to come in as in 3.b: ὁρμηθείς Il. 16.467. Cf. Il. 3.349." The 3
+    of "3.b" points at sense 3 and was emitted as Od. 18.3 — and the pointer
+    was left standing as two rows, one of them a definition reading "b".
+    """
+    real = (
+        "δεύτερος [prob. fr. δεύω2.] 1 Coming second in a contest: γνώσεσθʼ "
+        "ἵππους οἳ δεύτεροι οἵ τε πάροιθεν Il. 23.498. With ellipse of sb.: "
+        "τῷ δευτέρῳ ἵππον ἔθηκεν Il. 23.265. Cf. Il. 23.750. In neut. pl. "
+        "δεύτερα, the prize for the secondIl. 23.538. 2 Coming second in "
+        "gaining estimation, taking a second place: ἵνα μὴ δ. ἔλθοι Il. "
+        "10.368. Cf. Il. 22.207. 3 (except in Il. 17.45, Il. 21.596 "
+        "strengthened by αὖτε) a Second in doing something, following "
+        "another in doing it: ἠρᾶτο Il. 10.283. Cf. Il. 23.729, 841. b In "
+        "fighting, coming in with one's throw or stroke after an opponent: "
+        "προΐει ἔγχος Il. 7.248, Il. 20.273. Cf. Il. 5.855, Il. 7.268, Il. "
+        "17.45, Il. 21.169, 596. 4 With genit.: ἐμεῖο δεύτεροι (left behind "
+        "or surviving me) Il. 23.248. 5 In neut. δεύτερον as adv. a In the "
+        "second place. With αὖ: δ. αὖ θώρηκʼ ἔδυνεν Il. 3.332 = Il. 11.19 = "
+        "Il. 16.133 = Il. 19.371. Cf. Il. 6.184. b A second time, again: "
+        "ὁρμηθείς Il. 16.402. With αὖτε Il. 3.191. With αὖτις Il. 1.513: "
+        "Od. 3.161, Od. 19.65 (cf. Od. 18.321), Od. 22.69. Sim.: ᾔτεέ με δ. "
+        "αὖτις (asked for a second supply) Od. 9.354. c Another time, for "
+        "the future. With αὖτε: δ. αὖτʼ ἀλέασθαι ἀμείνονας ἠπεροπεύειν Il. "
+        "23.605. Again, in the future: οὔ μʼ ἔτι δ. ὦδε ἵξετʼ ἄχος Il. "
+        "23.46. Cf. Od. 18.24. d So as to come in as in 3.b: ὁρμηθείς Il. "
+        "16.467. Cf. Il. 3.349."
+    )
+    t8 = sc.to_t8("deu/teros", "δεύτερος", real)
+    assert "Od. 18.3" not in _cites(t8)
+    assert "as to come in as in 3.b" in _all_text(t8)
+    assert "Il. 16.467" in _cites(t8)
+    assert "Il. 3.349" in _cites(t8)
+
+
+def test_a_division_numeral_marks_the_digit_after_it():
+    """ἤπιος, whole and real: the Roman-numeral shape.
+
+    "See in reference to these εἴδω III.12." points at division III sense 12
+    of εἴδω. The 12 was emitted as Od. 15.12. Nothing but the numeral in front
+    of it tells you so — it carries no sub-sense letter and no morphology.
+    """
+    real = (
+        "ἤπιος -η, -ον. 1 Well or kindly disposed, kindly, gentle, mild, "
+        "not harsh or rigorous: ἤπια δήνεα οἶδεν (is well disposed towards "
+        "me) Il. 4.361 (see εἴδω III.12), ἐθέλω τοι ἠ. εἶναι Il. 8.40 = Il. "
+        "22.184. Cf. Il. 24.770, 775: Od. 2.47, 230 = Od. 5.8, Od. 2.234 = "
+        "Od. 5.12, Od. 10.337, Od. 11.441, Od. 13.314, Od. 14.139, Od. "
+        "15.152, 490. Absol. in neut. pl.: εἴ μοι ἤπια εἰδείη (were well "
+        "disposed towards me) Il. 16.73: ὁμῶς τοι ἤπια οἶδεν (is at one "
+        "with you in loyalty of heart) Od. 13.405 = Od. 15.39, ἀνάκτεσιν "
+        "ἤπια εἰδώς (loyal to them) Od. 15.557. See in reference to these "
+        "εἴδω III.12. 2 Giving kindly tendance, solicitous for the "
+        "well-being of what is committed to one Il. 23.281. 3 Of speech, "
+        "tending to effect reconcilement or bring peace Od. 20.327. 4 Of "
+        "medicinal applications, soothing, allaying pain Il. 4.218, Il. "
+        "11.515, 830."
+    )
+    t8 = sc.to_t8("h)/pios", "ἤπιος", real)
+    assert "Od. 15.12" not in _cites(t8)
+    assert "See in reference to these εἴδω III.12." in _all_text(t8)
+    assert "Il. 16.73" in _cites(t8)
+
+
+def test_a_pointer_at_another_entry_is_prose_not_a_quotation():
+    """ἐδητύς, whole and real: the other half of the fix.
+
+    The entry ends "See also under ἵημι1 9." — the 9 was emitted as Od. 17.9.
+    Once it stops being a citation the run has none, and Greek in it alone
+    made it a quotation of Homer's. It is Cunliffe's own prose and belongs in
+    the definition (see _holds_sense_ref).
+    """
+    real = (
+        "ἐδητύς -ύος, ἡ [ἔδω.] Food, meat Il. 11.780, Il. 19.231, 320: Od. "
+        "4.788, Od. 5.201, Od. 6.250, Od. 10.384, Od. 17.603. See also "
+        "under ἵημι1 9."
+    )
+    t8 = sc.to_t8("e)dhtu/s", "ἐδητύς", real)
+    assert "Od. 17.9" not in _cites(t8)
+    quoted = [_text(it.get("g") or "") for r in t8["rows"] for it in (r.get("ex") or [])]
+    assert not any("ἵημι" in g for g in quoted)
+    assert any("See also under ἵημι1 9." in _text(r.get("z") or "")
+               for r in t8["rows"])
+
+
+def test_a_bare_continuation_still_names_its_book():
+    """ἀποεῖπον, whole and real: the behaviour the fix must not break.
+
+    "μῆνιν Il. 19.35, 75" means Il. 19.75, and a bare continuation like it is
+    the reason a loose digit is read as a citation at all. 75 carries none of
+    the marks a sense number carries — no sub-sense letter, no person and
+    number, no division numeral in front, no cross-reference introducing it —
+    so nothing in this pass can reach it.
+    """
+    real = (
+        "ἀποεῖπον ἀπέειπον aor. [ἀπο- 1, ἀπο- 7.] Pple. ἀποειπών Il. 19.35. "
+        "1 To make refusal, refuse: ὑπόσχεο ἤ ὐπόειπε Il. 1.515, κρατερῶς "
+        "Il. 9.431 (or perh. this should come under (3)). Cf. Il. 9.510, "
+        "675. 2 To renounce: θεῶν ἀπόειπε κελεύθους Il. 3.406 (u.l.ἀπόεικε "
+        "κελεύθου), μῆνιν Il. 19.35, 75. 3 To speak out, declare freely: "
+        "μῦθον Il. 9.309: Od. 1.373. Absol. to speak one's mind freely Od. "
+        "1.91. 4 To announce publicly, state: ἀγγελίην Il. 7.416. Cf. Il. "
+        "23.361. To deliver (a message) Od. 16.340 (the prefix here app. "
+        "giving the notion at full length)."
+    )
+    t8 = sc.to_t8("a)poei=pon", "ἀποεῖπον", real)
+    cites = _cites(t8)
+    assert "Il. 19.35" in cites
+    assert "Il. 19.75" in cites
+
+
+def test_the_one_mis_scanned_connector_does_not_become_a_definition():
+    """ἐπιτρέχω, whole and real: Cunliffe printed "Cf.", the scan says "Of."
+
+    Once, in 11,416 entries. Left standing it is a row whose whole definition
+    reads "Of.", sitting between "Of dogs" and "Of a spear" as though it were
+    a third sense of the same shape. It is not dropped and the text is not
+    corrected — it joins the citation list it introduces, as "etc." does.
+    See _MISSCAN_CF_RE.
+    """
+    real = (
+        "ἐπιτρέχω [ἐπι- 11 14.] Genit. sing. neut. aor. pple. ἐπιθρέξαντος "
+        "Il. 13.409. 3 sing. aor. ἐπέδραμε Il. 4.524, Il. 5.617. 3 dual "
+        "ἐπεδραμέτην, ἐπιδραμέτην Il. 10.354, Il. 23.418, 433, 447. 3 pl. "
+        "ἐπέδραμον Il. 14.421, Il. 18.527: Od. 14.30. 3 sing. pf. "
+        "ἐπιδέδρομε Od. 6.45, Od. 20.357. 1 To run towards in its course, "
+        "tend to approach. With dat.: ἅρμαθʼ ἵπποις ἐπέτρεχον Il. 23.504. 2 "
+        "To run towards or up to a person, etc., with hostile intent: "
+        "ἐπέδραμεν ὅς ῥʼ ἔβαλεν Il. 4.524. Of. Il. 5.617, Il. 10.354, Il. "
+        "14.421, Il. 18.527. Of dogs Od. 14.30. 3 To run after or in "
+        "pursuit of a competitor in a race. Of horses Il. 23.418, 447. 4 To "
+        "run over (a space). Of horses: πόσσον ἐπιδραμέτην Il. 23.433. Of a "
+        "spear, to pass over (and graze) something: ἀσπὶς ἐπιθρέξαντος "
+        "ἄϋσεν ἔγχεος (genit. absolute) Il. 13.409. 5 In pf., of light, to "
+        "play or be shed upon something: λευκὴ ἐπιδέδρομεν αἴγλη Od. 6.45. "
+        "Of a mist, to be spread over something Od. 20.357."
+    )
+    t8 = sc.to_t8("e)pitre/xw", "ἐπιτρέχω", real)
+    assert not any(_text(r.get("z") or "").strip() == "Of." for r in t8["rows"])
+    # its citations join the sense above, exactly as a "Cf." list does
+    hostile = next(r for r in t8["rows"] if r.get("n") == "2")
+    assert "Il. 5.617" in (hostile.get("au") or [])
+    assert "Il. 18.527" in (hostile.get("au") or [])
+    # nothing is dropped: what was printed is still on the page
+    assert "Of." in (hostile.get("au") or [])
+    # and the real "Of ..." senses either side are untouched
+    zs = [_text(r.get("z") or "") for r in t8["rows"]]
+    assert "Of dogs" in zs and "Of a spear, to pass over (and graze) something" in zs

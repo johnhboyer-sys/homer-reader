@@ -366,6 +366,95 @@ def parse_sense(body: str) -> tuple[str, str]:
 # from urns owns that, and guessing which book a loose number belongs to is how
 # a citation quietly points at the wrong line.
 _CITE_TOKEN_RE = re.compile(r"\b(?:Il|Od)\.\s*\d+\.\d+|\b\d+\b")
+
+# But Cunliffe also cross-references his OWN sense numbers, and those are digits
+# standing exactly where a line number could stand: "As in 4.b" (ἄγω), "Sim. in
+# 3 pl." (φημί), "in 3.b" (δεύτερος), "For βοὴν ἀ. see βοή 2" (ἀγαθός), "See
+# also under ἵημι1 9" (ἐδητύς). Read as continuations they are restored to
+# whatever book the previous reference established and become live links to real
+# lines that have nothing to do with the entry — Od. 15.4 under ἄγω, Il. 3.349
+# under δεύτερος. The digit itself says nothing; what tells the two apart is
+# what Cunliffe writes AROUND it, and a line number carries none of these marks:
+#
+#   · a SUB-SENSE LETTER hanging off it — "4.a", "1.b.β", "ἦμαρ 4 (j)". The
+#     letter is Latin and unspaced, so neither the Greek that follows a real
+#     citation nor the spaced sub-sense opener "Il. 23.581. b With . . ." is
+#     touched.
+#   · PERSON AND NUMBER behind it — "3 pl.", "2 sing.", the same shape
+#     split_senses already refuses a sense number for, decided by the same
+#     _MORPH_RE.
+#   · a DIVISION NUMERAL in front of it — "εἴδω III.12", "ὅς2 II.9.a".
+#   · a HEADWORD in front of it, named as a cross-reference — "See γυνή 3",
+#     "in sense 4". A bare "See 648" is NOT one of these: δέμνια's "Il. 24.644
+#     two beds are referred to. See 648" has no headword between the cue and
+#     the digit, and there Cunliffe is pointing at a line. So the cue alone
+#     never decides it; the Greek word after the cue does.
+#
+# A marked digit is passed over exactly as a citation inside one of Cunliffe's
+# parentheses is (see the depth walk in split_evidence): it stays in the lead
+# text and reaches the row as what he wrote, because "As in 4.b" is him telling
+# the reader where to look and deleting it would lose the reference altogether.
+_SUBSENSE_MARK_RE = re.compile(r"\.[a-z](?![a-z])|\s*\([a-z]\)")
+_DIVISION_MARK_RE = re.compile(r"\b[IVX]{1,4}\.$")
+_XREF_CUE_RE = re.compile(r"\b(?:see|under|senses?)\b", re.I)
+
+
+def _is_sense_ref(text: str, start: int, end: int, lead: str) -> bool:
+    """Whether the bare digit at [start:end) is a sense number, not a line."""
+    if _SUBSENSE_MARK_RE.match(text, end):
+        return True
+    if _MORPH_RE.match(text[end:].lstrip()) and text[end:end + 1].isspace():
+        return True
+    if _DIVISION_MARK_RE.search(text[:start]):
+        return True
+    cue = None
+    for m in _XREF_CUE_RE.finditer(lead):
+        cue = m
+    if cue is None:
+        return False
+    after = lead[cue.end():]
+    # "sense" names a sense outright; "see"/"under" only point at one when a
+    # headword stands between the cue and the digit.
+    return (cue.group(0).lower().startswith("sense")
+            or bool(_GREEK_RE.search(after)))
+
+
+def _holds_sense_ref(text: str) -> bool:
+    """Whether `text` is Cunliffe pointing the reader at another sense.
+
+    A quotation of Homer never does. This is the other half of _is_sense_ref:
+    once the sense number stops being read as a citation there is nothing left
+    to END the run, and a run with Greek in it and no citation is taken for a
+    quotation. ἧος's "Correlative with τόφρα. See τόφρα 3." reaches the tail of
+    the evidence exactly so, and ἀμφί's "see βαίνω I.6.a, and cf. ἀμφιβαίνω 4."
+    reaches a lead. Both are his own prose and read as Homer's without this.
+    27 runs, across 27 entries.
+
+    A cross-reference INSIDE one of his parentheses proves nothing, exactly as
+    English inside one does not (see _has_english): δίκη's "οὐ δίκας εἰδότα
+    οὐδὲ θέμιστας (having no regard for justice . . .; see εἴδω III.12)" is a
+    quotation of Homer carrying a remark, and reading the remark as the run's
+    own character puts Homer's words in the definition.
+    """
+    depth = _paren_depth(text)
+    for m in re.finditer(r"\b\d+\b", text):
+        if depth[m.start()]:
+            continue
+        cue = None
+        for c in _XREF_CUE_RE.finditer(text[:m.start()]):
+            cue = c
+        if cue is None:
+            continue
+        after = text[cue.end():m.start()]
+        # A full reference between the cue and the digit means the digit
+        # belongs to that reference's list, not to the cross-reference.
+        if _FULL_CITE_RE.search(after):
+            continue
+        if cue.group(0).lower().startswith("sense") or _GREEK_RE.search(after):
+            return True
+    return False
+
+
 # Connectors between pieces of evidence. These carry no information a T8 row
 # keeps — it joins citations with its own separator — so they are dropped, and
 # the audit below asserts that NOTHING ELSE is.
@@ -404,6 +493,21 @@ _TRAILING_NOTE_RE = re.compile(r"(?:[\s.:,;–-]*(?:etc\.?|So|and so on))*[\s.:,
 # folding those in too would have hidden that bug rather than fixed this
 # one, so the pattern names exactly what was verified and nothing wider.
 _REF_NOTE_RE = re.compile(r"^[\s–-]*(?:Except|Prob\.\s*also|Other\s+\w+)\s+in$", re.I)
+
+# The one mis-scanned connector in the whole dictionary. Cunliffe printed
+# "Cf."; the scan reads "Of.", exactly ONCE in 11,416 entries — ἐπιτρέχω sense
+# 2, "ἐπέδραμεν ὅς ῥʼ ἔβαλεν Il. 4.524. Of. Il. 5.617, Il. 10.354, …" — and no
+# other confusion of the class occurs anywhere (0 for "Gf.", "O f.", a bare
+# "Cf" with no stop; "Of" without a stop is his own word and is left entirely
+# alone). Given a row of its own it reads as a third sense between two real
+# ones, "Of dogs" and "Of a spear", whose whole definition is "Of."
+#
+# It is NOT dropped, and the text is NOT corrected: this edition reproduces
+# what was printed, and the module's corpus audit refuses a parse that loses a
+# character (it caught the first attempt at this, which classed "Of." as a
+# connector and swallowed the O). It joins the citation list it introduces,
+# verbatim, exactly as "etc." and a bare reference pointer do.
+_MISSCAN_CF_RE = re.compile(r"^Of\.$")
 
 
 def _append_note(segment: dict, note: str) -> None:
@@ -648,6 +752,12 @@ def split_evidence(evidence: str) -> list[dict]:
         # note above _paren_depth's callers.
         if depth[m.start()]:
             continue
+        # One of Cunliffe's own sense numbers, not a line number — see
+        # _is_sense_ref. Passed over so that it stays where he printed it.
+        if (m.group(0).strip().isdigit()
+                and _is_sense_ref(evidence, m.start(), m.end(),
+                                  evidence[pos:m.start()])):
+            continue
         lead = evidence[pos:m.start()]
         lead_depth = depth[pos]
         pos = m.end()
@@ -667,6 +777,10 @@ def split_evidence(evidence: str) -> list[dict]:
         core = body[q:]
         if (_GREEK_RE.search(core) and _has_english(core)
                 and (_unbalanced(core) or _paren_holds_cite(core))):
+            q = len(body)
+        # A cross-reference to another sense is his prose too — see
+        # _holds_sense_ref.
+        elif _holds_sense_ref(core):
             q = len(body)
         # Greek inside a parenthesis is a word Cunliffe is naming in his own
         # remark, not a phrase of Homer's he is quoting — ἁμός's "Our
@@ -699,6 +813,11 @@ def split_evidence(evidence: str) -> list[dict]:
             if _TRAILING_NOTE_RE.fullmatch(body):
                 _append_note(segments[-1], body)
                 segments[-1]["au"].append(cite)
+            elif _MISSCAN_CF_RE.fullmatch(body):
+                # A mis-scanned "Cf." — see _MISSCAN_CF_RE. Kept as printed,
+                # joining the list it introduces rather than opening a sense.
+                _append_note(segments[-1], body)
+                segments[-1]["au"].append(cite)
             elif _REF_NOTE_RE.fullmatch(body):
                 # A bare pointer to this citation, not a new statement — see
                 # _REF_NOTE_RE. It joins the list above exactly as "etc." does
@@ -724,7 +843,8 @@ def split_evidence(evidence: str) -> list[dict]:
         # it is Cunliffe talking: ἁμός ends on a whole paragraph of his own
         # ("But the sense my (cf. ἡμέτερος 2) is always admissible …") and
         # that Greek made the paragraph a quotation of Homer.
-        if gm and not _depth_at(tail, depth[pos], gm.start()):
+        if (gm and not _depth_at(tail, depth[pos], gm.start())
+                and not _holds_sense_ref(tail)):
             segments[-1]["ex"].append({"g": tail})
         elif _TRAILING_NOTE_RE.fullmatch(tail):
             _append_note(segments[-1], tail)
