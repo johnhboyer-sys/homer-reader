@@ -8400,7 +8400,7 @@
     {
       "id": "zone-a-the-camp",
       "kind": "region",
-      "fill": "tint",
+      "fill": "zone",
       "default": "on",
       "polygon": [
         [39.995, 26.1881],
@@ -8456,7 +8456,7 @@
     {
       "id": "zone-b-ditch-and-wall",
       "kind": "region",
-      "fill": "tint",
+      "fill": "zone",
       "default": "on",
       "polygon": [
         [39.9929, 26.18766],
@@ -8505,7 +8505,7 @@
     {
       "id": "zone-c-plain-before-the-ships",
       "kind": "region",
-      "fill": "tint",
+      "fill": "zone",
       "default": "on",
       "polygon": [
         [39.988, 26.193],
@@ -8532,7 +8532,7 @@
     {
       "id": "zone-d-the-fan-before-troy",
       "kind": "region",
-      "fill": "tint",
+      "fill": "zone",
       "default": "on",
       "polygon": [
         [39.966, 26.2265],
@@ -8557,7 +8557,7 @@
     {
       "id": "zone-e-the-ford",
       "kind": "region",
-      "fill": "tint",
+      "fill": "zone",
       "default": "on",
       "polygon": [
         [39.9625, 26.2035],
@@ -8583,7 +8583,7 @@
     {
       "id": "zone-f-the-walls-of-troy",
       "kind": "region",
-      "fill": "tint",
+      "fill": "zone",
       "default": "on",
       "polygon": [
         [39.96086, 26.239],
@@ -8630,7 +8630,7 @@
     {
       "id": "zone-g-the-circuit-of-the-chase",
       "kind": "region",
-      "fill": "tint",
+      "fill": "zone",
       "default": "on",
       "polygon": [
         [39.96122, 26.239],
@@ -8748,37 +8748,37 @@
       "kind": "wall",
       "placeId": "wall-of-troy",
       "trace": [
-        [39.95803, 26.239],
-        [39.95801, 26.2393],
-        [39.95793, 26.23958],
-        [39.95781, 26.23984],
-        [39.95764, 26.24005],
-        [39.95745, 26.24021],
-        [39.95723, 26.24031],
-        [39.957, 26.24035],
-        [39.95677, 26.24031],
-        [39.95655, 26.24021],
-        [39.95636, 26.24005],
-        [39.95619, 26.23984],
-        [39.95607, 26.23958],
-        [39.95599, 26.2393],
-        [39.95597, 26.239],
-        [39.95599, 26.2387],
-        [39.95607, 26.23842],
-        [39.95619, 26.23816],
-        [39.95636, 26.23795],
-        [39.95655, 26.23779],
-        [39.95677, 26.23769],
-        [39.957, 26.23765],
-        [39.95723, 26.23769],
-        [39.95745, 26.23779],
-        [39.95764, 26.23795],
-        [39.95781, 26.23816],
-        [39.95793, 26.23842],
-        [39.95801, 26.2387],
-        [39.95803, 26.239]
+        [39.958577, 26.239],
+        [39.958546, 26.239465],
+        [39.958422, 26.239899],
+        [39.958236, 26.240302],
+        [39.957972, 26.240627],
+        [39.957678, 26.240876],
+        [39.957337, 26.241031],
+        [39.95698, 26.241092],
+        [39.956624, 26.241031],
+        [39.956283, 26.240876],
+        [39.955988, 26.240627],
+        [39.955725, 26.240302],
+        [39.955539, 26.239899],
+        [39.955415, 26.239465],
+        [39.955384, 26.239],
+        [39.955415, 26.238535],
+        [39.955539, 26.238101],
+        [39.955725, 26.237698],
+        [39.955988, 26.237373],
+        [39.956283, 26.237125],
+        [39.956624, 26.23697],
+        [39.95698, 26.236907],
+        [39.957337, 26.23697],
+        [39.957678, 26.237125],
+        [39.957972, 26.237373],
+        [39.958236, 26.237698],
+        [39.958422, 26.238101],
+        [39.958546, 26.238535],
+        [39.958577, 26.239]
       ],
-      "note": "The city wall of the poem, drawn on the Troy VI citadel circuit at Hisarlık: the τεῖχος Hector is chased around (22.136–66), the wall Andromache runs to (6.373), the circuit with one stretch that is scalable and can be run along, ἀμβατός ... καὶ ἐπίδρομον (6.433–34). Radius from the citadel centre, not a traced excavation line — the citadel plate carries Dörpfeld's own trace. The lower-city circuit is not drawn (ruling D10).",
+      "note": "The city wall of the poem, drawn on the Troy VI citadel circuit at Hisarlık: the τεῖχος Hector is chased around (22.136–66), the wall Andromache runs to (6.373), the circuit with one stretch that is scalable and can be run along, ἀμβατός ... καὶ ἐπίδρομον (6.433–34). Radius from the citadel centre, not a traced excavation line — the citadel plate carries Dörpfeld's own trace. The lower-city circuit is not drawn (ruling D10). Drawn about 55% larger on this sheet than the citadel-circuit radius alone would give it, so the ring clears the zone-key badge that shares its centre and reads as a built place rather than vanishing under the letter (the sheet asserts no pxPerMetre and makes no true-scale claim).",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion. 2 vols. Athens: Beck & Barth, 1902."
@@ -8787,8 +8787,9 @@
           "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912."
         }
       ],
-      "labelTier": 2,
-      "labelSize": "small"
+      "labelTier": 1,
+      "labelSize": "base",
+      "label": "Ilios"
     },
     {
       "id": "wagon-road",
@@ -9711,5 +9712,9 @@
       ],
       "label": "The beach"
     }
+  ],
+  "suppressLayerLabels": [
+    "relief-troy-ridge",
+    "relief-sigeion-ridge"
   ]
 }

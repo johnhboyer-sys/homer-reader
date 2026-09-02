@@ -64,7 +64,12 @@ LAYER_KIND_ENUM = {
 # a tower, a house block traced off an excavation plan -- drawn opaque with an
 # ink face rather than as a wash, because on a plan of a dug site the difference
 # between measured masonry and restored line is the content of the sheet.
-REGION_FILL_ENUM = {"tint", "masonry", "sea", "lagoon", "land", "marsh", "plain", "none"}
+# "zone" (added 2026-09-02, stage 4b LOOK-gate fix) is the apparatus's own
+# lettered scene band (A-G): a faint tint in the sheet's own neutral ground
+# token, distinct from "tint" (a decorative wash strong enough to read as a
+# feature, e.g. a claimed camp zone) so seven stacked scene zones never
+# outweigh the relief and coastline under them.
+REGION_FILL_ENUM = {"tint", "zone", "masonry", "sea", "lagoon", "land", "marsh", "plain", "none"}
 # What the bare sheet is under every layer, per the same contract.
 GROUND_ENUM = {"land", "sea"}
 STOCHASTIC_STYLES = {"stipple", "hachure"}
@@ -692,6 +697,29 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                     problems.append(
                         f"{label}: sceneKey[{i}].layerId {row_layer_id!r} is not a "
                         f"layer of this plate"
+                    )
+
+    # See Plate.suppressLayerLabels in shared/lib/plate.ts, which this
+    # mirrors: layer ids whose fallback name (the gazetteer name of
+    # `placeId`, drawn when the layer has no `label` of its own) must not be
+    # lettered on this plate -- a ground layer synced verbatim from a
+    # geographic sheet (scripts/sync-schematic-ground.py) carrying a name
+    # the schematic sheet already gives through its own pin or glyph.
+    suppress_layer_labels = doc.get("suppressLayerLabels")
+    if suppress_layer_labels is not None:
+        if not isinstance(suppress_layer_labels, list):
+            problems.append(f"{label}: suppressLayerLabels must be a list")
+        else:
+            for i, layer_id in enumerate(suppress_layer_labels):
+                if not isinstance(layer_id, str) or not layer_id:
+                    problems.append(
+                        f"{label}: suppressLayerLabels[{i}] must be a "
+                        f"non-empty string"
+                    )
+                elif layer_id not in seen_layer_ids:
+                    problems.append(
+                        f"{label}: suppressLayerLabels[{i}] {layer_id!r} is "
+                        f"not a layer of this plate"
                     )
 
     # plateAnchors range belongs here, not in validate_places: a schematic

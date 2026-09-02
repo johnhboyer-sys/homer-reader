@@ -3763,3 +3763,152 @@ describe('renderPlate: sceneKey', () => {
     }
   });
 });
+
+describe('parsePlate: suppressLayerLabels', () => {
+  const base = {
+    id: 'suppressed',
+    title: 'Suppressed',
+    kind: 'schematic' as const,
+    status: 'draft',
+    size: [400, 300] as [number, number],
+    layers: [
+      {
+        id: 'ridge',
+        kind: 'relief' as const,
+        placeId: 'troy',
+        polygon: [
+          [0.1, 0.1],
+          [0.3, 0.1],
+          [0.3, 0.3],
+          [0.1, 0.3],
+        ],
+      },
+    ],
+  };
+
+  it('reads a well-formed suppressLayerLabels list', () => {
+    const plate = parsePlate({ ...base, suppressLayerLabels: ['ridge'] });
+    expect(plate.suppressLayerLabels).toEqual(['ridge']);
+  });
+
+  it('rejects an id that is not a layer of this plate', () => {
+    expect(() => parsePlate({ ...base, suppressLayerLabels: ['no-such'] })).toThrow(/suppressLayerLabels/);
+  });
+});
+
+describe('renderPlate: suppressLayerLabels (2026-09-02, stage 4b LOOK-gate fix)', () => {
+  // A ground layer whose only name is its `placeId`'s gazetteer fallback
+  // (see PlateLayer.label): the case a synced ground ridge is in on the
+  // Trojan-plain schematic sheet -- `relief-troy-ridge`/`relief-sigeion-
+  // ridge` carry `placeId: "troy"`/`"sigeion"` and no `label` of their own.
+  function plateWith(suppressLayerLabels: string[] | undefined) {
+    return parsePlate({
+      id: 'suppressed-render',
+      title: 'Suppressed render',
+      kind: 'schematic',
+      status: 'draft',
+      size: [400, 300],
+      layers: [
+        {
+          id: 'ridge',
+          kind: 'relief',
+          placeId: 'troy',
+          polygon: [
+            [0.1, 0.1],
+            [0.3, 0.1],
+            [0.3, 0.3],
+            [0.1, 0.3],
+          ],
+        },
+      ],
+      suppressLayerLabels,
+    });
+  }
+  const places = [{ id: 'troy', name: 'Troy' } as PlatePlace];
+
+  it('without suppressLayerLabels, the ridge letters its placeId fallback name', () => {
+    // A `relief` layer's label role is letterspaced caps (see LABEL_STYLES.region),
+    // so the gazetteer name "Troy" prints as "TROY".
+    const svg = renderPlate(plateWith(undefined), places).svg;
+    expect(svg).toContain('>TROY<');
+  });
+
+  it('with the ridge listed, the fallback name is withheld', () => {
+    const svg = renderPlate(plateWith(['ridge']), places).svg;
+    expect(svg).not.toContain('>TROY<');
+    expect(svg).not.toContain('plate-label-region');
+  });
+
+  it('an explicit layer.label survives suppressLayerLabels (only the fallback is withheld)', () => {
+    const plate = parsePlate({
+      id: 'suppressed-explicit',
+      title: 'Suppressed explicit',
+      kind: 'schematic',
+      status: 'draft',
+      size: [400, 300],
+      layers: [
+        {
+          id: 'ridge',
+          kind: 'relief',
+          placeId: 'troy',
+          label: 'Ilios',
+          polygon: [
+            [0.1, 0.1],
+            [0.3, 0.1],
+            [0.3, 0.3],
+            [0.1, 0.3],
+          ],
+        },
+      ],
+      suppressLayerLabels: ['ridge'],
+    });
+    const svg = renderPlate(plate, places).svg;
+    expect(svg).toContain('>ILIOS<');
+  });
+});
+
+describe('legendMarkup: a right-margin band never folds into multiple columns (2026-09-02, stage 4b LOOK-gate fix)', () => {
+  // Before this fix, the fold loop's width check was bounded by the FULL
+  // SHEET width, not the band's own width -- a key with enough distinct
+  // rows to want two columns folded even though the band itself (120px of
+  // a 400px sheet) could not take a second column, and the swatch column
+  // landed past the sheet's own right edge. Six distinct-fill region rows
+  // plus a wall row are enough to make the old height check want to fold.
+  const fills = ['sea', 'lagoon', 'marsh', 'plain', 'land', 'masonry'] as const;
+  const bandPlate: Plate = {
+    ...testPlate,
+    bbox: undefined,
+    marginRight: 120,
+    layers: [
+      ...fills.map((fill, i) => ({
+        id: `region-${fill}`,
+        kind: 'region' as const,
+        fill,
+        polygon: [
+          [i * 0.1, 0],
+          [i * 0.1 + 0.05, 0],
+          [i * 0.1 + 0.05, 0.05],
+          [i * 0.1, 0.05],
+        ] as [number, number][],
+      })),
+      { id: 'wall-1', kind: 'wall' as const, trace: [[0, 0.5], [0.2, 0.6]] as [number, number][] },
+    ],
+  };
+
+  it('lays every row out in a single column, clear of the sheet edge', () => {
+    const svg = renderPlate(bandPlate, []).svg;
+    const panelMatch = svg.match(/<rect class="plate-legend-panel" x="([-\d.]+)" y="[-\d.]+" width="([\d.]+)"/);
+    expect(panelMatch).toBeTruthy();
+    const panelRight = Number(panelMatch![1]) + Number(panelMatch![2]);
+    expect(panelRight).toBeLessThanOrEqual(bandPlate.size[0]);
+
+    // Single column: every legend row's own SWATCH (a wrapped row's <text>
+    // has no x of its own -- only its <tspan> lines do -- but every row's
+    // swatch rect/line always carries one) sits at the same x. A second
+    // column would put half the rows at colX + colW + GAP instead.
+    const legend = svg.match(/<g class="plate-legend">([\s\S]*?)<\/g>/)![1];
+    const swatchXs = [...legend.matchAll(/<rect x="([-\d.]+)" y="[-\d.]+" width="22"/g)].map((m) => Number(m[1]));
+    expect(swatchXs.length).toBe(fills.length); // one filled-region swatch per distinct fill
+    expect(new Set(swatchXs).size).toBe(1);
+  });
+});

@@ -386,6 +386,25 @@ def test_validate_plate_rejects_scene_key_layer_id_that_is_not_a_layer():
     assert any("sceneKey" in p and "layerId" in p and "no-such" in p for p in problems)
 
 
+def test_validate_plate_accepts_suppress_layer_labels_naming_a_layer():
+    plate = _plate(suppressLayerLabels=["river-1"])
+    assert apparatus_places.validate_plate(plate, {}) == []
+
+
+def test_validate_plate_rejects_suppress_layer_labels_id_that_is_not_a_layer():
+    plate = _plate(suppressLayerLabels=["no-such"])
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any(
+        "suppressLayerLabels" in p and "no-such" in p for p in problems
+    )
+
+
+def test_validate_plate_rejects_suppress_layer_labels_that_is_not_a_list():
+    plate = _plate(suppressLayerLabels="river-1")
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("suppressLayerLabels must be a list" in p for p in problems)
+
+
 def test_validate_plate_schematic_needs_no_bbox():
     """A schematic plate has no geography, so demanding a bbox of it would be
     demanding a coordinate for something that has none. The Shield of Achilles
@@ -555,6 +574,15 @@ def test_validate_plate_rejects_unknown_region_fill():
 def test_validate_plate_accepts_sea_region_fill():
     plate = _plate(layers=[
         {"id": "sea", "kind": "region", "fill": "sea", "polygon": [[39.95, 26.20]]}
+    ])
+    assert apparatus_places.validate_plate(plate, {}) == []
+
+
+def test_validate_plate_accepts_zone_region_fill():
+    # "zone" (2026-09-02, stage 4b LOOK-gate fix): the apparatus's own
+    # lettered scene band, mirroring shared/lib/plate.ts's REGION_FILL_TOKENS.
+    plate = _plate(layers=[
+        {"id": "zone-a", "kind": "region", "fill": "zone", "polygon": [[39.95, 26.20]]}
     ])
     assert apparatus_places.validate_plate(plate, {}) == []
 

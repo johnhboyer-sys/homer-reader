@@ -110,6 +110,16 @@ const LAYER_KINDS: readonly LayerKind[] = [
 // whose extent nobody surveyed (see the `region` case in renderLayer).
 const REGION_FILL_TOKENS = {
   tint: 'var(--plate-tint)',
+  // A scene-key zone (2026-09-02, stage 4b LOOK-gate fix): the apparatus's OWN
+  // lettered scene band (the Iliad's camp/plain/citadel divisions, A-G), which
+  // must read as a faint tint over the ground it sits on, not as a second
+  // terrain. `tint` (above) is the sheet's one wash strong enough to READ as a
+  // feature in its own right (a claimed camp zone); a scene zone exists only
+  // to carry a letter and is drawn at a fraction of that strength, in the
+  // sheet's own neutral ground token rather than the accent colour, so seven
+  // stacked zones never outweigh the relief and coastline under them. See the
+  // `region` case in renderLayer for the dashed edge this token gets.
+  zone: 'var(--plate-plain)',
   // Surveyed masonry: a wall, a tower, a house block traced off an excavation
   // plan (2026-07-30, citadel plate). Its own register, not a decorative tint,
   // because on a plan of a dug site the difference between "these stones were
@@ -141,6 +151,10 @@ const DEFAULT_REGION_FILL: RegionFill = 'plain';
 // token itself, see shared/__tests__/plate-map-contrast.test.ts).
 const REGION_FILL_OPACITY: Record<RegionFill, number> = {
   tint: 0.35,
+  // 0.12 (stage 4b LOOK-gate fix): faint enough that the relief/coast under a
+  // scene zone stays legible, strong enough that the zone's own dashed edge
+  // still reads as an area, not just a line. See the token comment above.
+  zone: 0.12,
   // Opaque: masonry is a body of stone, not a wash over ground.
   masonry: 1,
   sea: 1,
@@ -342,6 +356,20 @@ export interface Plate {
    * below the legend as `letter — title — ref`.
    */
   sceneKey?: PlateSceneKey[];
+  /**
+   * Layer ids whose fallback name (see PlateLayer.label: the gazetteer name
+   * of `placeId`, drawn when the layer has no `label` of its own) must NOT
+   * be lettered on THIS plate (2026-09-02, stage 4b LOOK-gate fix). Ground
+   * layers synced verbatim from a geographic sheet (scripts/sync-schematic-
+   * ground.py) carry a `placeId` that names the ridge/ground they ARE —
+   * right on the geographic sheet, where that name is the only one a reader
+   * gets, and wrong on a schematic sheet that already names the same place
+   * through its own gazetteer pin or feature glyph: a ground name a reader
+   * never gets to click floats free of everything drawn around it. Every id
+   * listed must be a layer of this plate (enforced in parsePlate/
+   * validate_plate, same posture as sceneKey's own layerId).
+   */
+  suppressLayerLabels?: string[];
 }
 
 export interface PlateSceneKey {
@@ -867,6 +895,21 @@ export function parsePlate(data: unknown): Plate {
     });
   }
 
+  let suppressLayerLabels: string[] | undefined;
+  if (d.suppressLayerLabels !== undefined) {
+    if (!Array.isArray(d.suppressLayerLabels)) fail('suppressLayerLabels must be an array');
+    const layerIds = new Set(layers.map((l) => l.id));
+    suppressLayerLabels = (d.suppressLayerLabels as unknown[]).map((raw, i) => {
+      if (typeof raw !== 'string' || !raw) {
+        fail(`suppressLayerLabels[${i}] must be a non-empty string`);
+      }
+      if (!layerIds.has(raw as string)) {
+        fail(`suppressLayerLabels[${i}] '${raw}' is not a layer of this plate`);
+      }
+      return raw as string;
+    });
+  }
+
   return {
     id: d.id,
     title: d.title,
@@ -884,6 +927,7 @@ export function parsePlate(data: unknown): Plate {
     layers,
     bands,
     sceneKey,
+    suppressLayerLabels,
   };
 }
 
@@ -2718,6 +2762,7 @@ const REGION_LEGEND_TEXT: Record<RegionFill, string> = {
   plain: 'Dry plain',
   land: 'Land',
   tint: 'Apparatus zone',
+  zone: 'Scene zone (lettered)',
   masonry: 'Masonry, surveyed',
   none: '',
 };
@@ -2973,8 +3018,17 @@ function legendMarkup(
   // for two columns is never folded into a panel that then overruns its own
   // frame and gets dropped entirely (which is what an unconditional fold did
   // to the 200px test fixtures — the key vanished rather than moved).
+  //
+  // A right-margin band never folds (2026-09-02, stage 4b LOOK-gate fix):
+  // `widthFor` is bounded by the FULL SHEET width, which on a plate with a
+  // narrow furniture band a two-column key comfortably clears even though
+  // the band itself cannot — the panel then starts at the band's x0 and
+  // runs past the sheet's own right edge. A band already wraps each row's
+  // text to `bandTextMaxW` above, so stacking single-column is the fold: it
+  // never needs the second dimension a corner legend does.
   let columns = 1;
   while (
+    marginRight === 0 &&
     columns < 3 &&
     heightFor(columns) > marginStrip &&
     widthFor(columns + 1) <= width - LABEL_MARGIN * 2
@@ -4794,19 +4848,26 @@ function renderLayer(
       // centimetre — so it gets the sheet's ink at a weight a reader can see
       // the offsets in, where a terrain patch only wants enough of a line to
       // hold its shape. Without it the wall bands read as a wash (2026-07-30).
-      const strokeToken = WATER_FILLS.has(fill)
-        ? 'var(--scene-map-coast)'
-        : fill === 'masonry'
-          ? 'var(--flaxman-ink)'
-          : fillToken;
-      const strokeWidth = fill === 'masonry' ? MASONRY_EDGE_WIDTH : 0.8;
+      // A scene zone's edge is the sheet's own ink, not the fill colour: it
+      // needs to read as a boundary drawn over the ground, the same register
+      // a conjectural pin's dashed ring already uses, never as a second
+      // terrain outline (2026-09-02, stage 4b LOOK-gate fix).
+      const strokeToken = fill === 'zone'
+        ? 'var(--text-mid)'
+        : WATER_FILLS.has(fill)
+          ? 'var(--scene-map-coast)'
+          : fill === 'masonry'
+            ? 'var(--flaxman-ink)'
+            : fillToken;
+      const strokeWidth = fill === 'masonry' ? MASONRY_EDGE_WIDTH : fill === 'zone' ? 0.6 : 0.8;
       const strokeOpacity =
-        fill === 'masonry' ? 0.85 : fill === 'tint' ? 1 : WATER_FILLS.has(fill) ? 0.7 : 0.5;
+        fill === 'masonry' ? 0.85 : fill === 'zone' ? 0.5 : fill === 'tint' ? 1 : WATER_FILLS.has(fill) ? 0.7 : 0.5;
+      const strokeDasharray = fill === 'zone' ? ' stroke-dasharray="3 2"' : '';
       markup = soft
         ? `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${d}" ` +
           `fill="${fillToken}" fill-opacity="${REGION_FILL_OPACITY[fill]}" stroke="none" filter="url(#${softId('marsh')})"/>`
         : `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${d}" ` +
-          `fill="${fillToken}" fill-opacity="${REGION_FILL_OPACITY[fill]}" stroke="${strokeToken}" stroke-width="${strokeWidth}" stroke-opacity="${strokeOpacity}" stroke-linejoin="round"/>`;
+          `fill="${fillToken}" fill-opacity="${REGION_FILL_OPACITY[fill]}" stroke="${strokeToken}" stroke-width="${strokeWidth}" stroke-opacity="${strokeOpacity}"${strokeDasharray} stroke-linejoin="round"/>`;
       break;
     }
     case 'tumulus': {
@@ -4911,7 +4972,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // reach belongs to the water's paint slot, and the water is drawn before
   // the river, so the two are assembled after the whole pass rather than
   // pushed as they are rendered.
-  const drawn: { layerId: string; markup: string; rank: number; kind: LayerKind }[] = [];
+  const drawn: { layerId: string; markup: string; rank: number; kind: LayerKind; fill?: RegionFill }[] = [];
   // A `frame`d inset whose frame sits in the margin band (frame.x >=
   // frameWidth) is furniture, not map content — same tier as the legend,
   // scale bar and north arrow. Its markup is pulled out of `drawn` (which
@@ -4934,6 +4995,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // Resolved AFTER the pin pass, because a feature is lettered once: a layer
   // whose `placeId` is also pinned on this sheet takes its name from the pin.
   const layerLabelCandidates: { layer: PlateLayer; rendered: RenderedLayer }[] = [];
+  // See Plate.suppressLayerLabels: a ground layer's own fallback name,
+  // withheld on this plate.
+  const suppressedLayerLabelIds = new Set(plate.suppressLayerLabels ?? []);
   // Named-inset / title-block panels (see insetMarkup). Handed to the legend's
   // corner chooser so the key cannot land on top of one — the same occlusion
   // rule that already keeps it off pins and labels. NOT handed to the label
@@ -4963,7 +5027,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     if (!rendered) continue;
     const isMarginInset = layer.style === 'inset' && layer.frame !== undefined && layer.frame[0] >= frameWidth;
     if (isMarginInset) marginInsetMarkup.push(rendered.markup);
-    else drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind });
+    else drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind, fill: layer.fill });
     for (const under of rendered.submerged ?? []) {
       const bucket = submergedByWater.get(under.layerId);
       if (bucket) bucket.push(under.markup);
@@ -5065,7 +5129,13 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
           const fills: string[] = [];
           const rest: string[] = [];
           for (const item of sortedDrawn) {
-            (AREA_LAYER_KINDS.has(item.kind) ? fills : rest).push(paintOf(item));
+            // A scene zone (fill: 'zone') is apparatus furniture over the
+            // ground, not the ground itself — it stays OUT of the washed
+            // group so its own (already low) opacity is the only dimming it
+            // gets, and it paints after every terrain fill rather than
+            // being flattened into the same dim layer as the relief under
+            // it (2026-09-02, stage 4b LOOK-gate fix).
+            (AREA_LAYER_KINDS.has(item.kind) && item.fill !== 'zone' ? fills : rest).push(paintOf(item));
           }
           return fills.length === 0
             ? rest
@@ -5260,7 +5330,10 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   const labeledPointIds = new Set(pinLabelRequests.map((r) => r.id));
   const layerLabelRequests: LabelRequest[] = [];
   for (const { layer, rendered } of layerLabelCandidates) {
-    const gazName = layer.placeId && !labeledPointIds.has(layer.placeId) ? placeById.get(layer.placeId)?.name : undefined;
+    const gazName =
+      layer.placeId && !labeledPointIds.has(layer.placeId) && !suppressedLayerLabelIds.has(layer.id)
+        ? placeById.get(layer.placeId)?.name
+        : undefined;
     const fallback = gazName ? mapLabelText(gazName) : undefined;
     const text = layer.label ?? fallback;
     if (!text) continue;
