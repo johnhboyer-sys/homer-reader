@@ -464,3 +464,57 @@ def test_merge_short_def_keeps_he_blank(monkeypatch):
 
     assert merge_short_def("", "e(/", ["e(/"], {}) == ""
     assert merge_short_def("", "e(/1", ["e(/1"], {}) == ""
+
+
+# Real LSJ bodies, copied from grc.lsj.xml (Perseus TEI), abridged only by
+# cutting citation material after the run these cases turn on.
+def test_derive_short_def_refuses_italics_governed_by_the_lead_in():
+    """οὐ: LSJ italicises words INSIDE its prose, and the run is a fragment.
+
+    "the negative of <i>fact</i> and <i>statement</i>" yielded the short def
+    "fact and statement" on 1,456 corpus occurrences.
+    """
+    div2 = etree.fromstring(
+        '<div2 key="ou)"><head>οὐ</head><sense n="•" level="1">the negative of '
+        "<i>fact</i> and <i>statement,</i> as <foreign>μή</foreign> of "
+        "<i>will</i> and <i>thought</i></sense></div2>"
+    )
+
+    assert derive_short_def(div2) == ""
+
+
+def test_derive_short_def_keeps_a_run_introduced_by_a_grammatical_label():
+    """ἀλλά: a label ends on a separator and does not govern the run."""
+    div2 = etree.fromstring(
+        '<div2 key="a)lla/"><head>ἀλλά</head><sense level="1">in simple '
+        "oppositions, <i>but</i>, <foreign>οὐ μὲν . . ἀλλά</foreign></sense>"
+        "</div2>"
+    )
+
+    assert derive_short_def(div2) == "but"
+
+
+def test_derive_short_def_absorbs_a_leading_article():
+    """κίρκος: "a kind of" belongs to the definition, not to the lead-in."""
+    div2 = etree.fromstring(
+        '<div2 key="ki/rkos"><head>κίρκος</head><sense level="1">a kind of '
+        "<i>hawk</i> or <i>falcon,</i> <bibl>Il. 22.139</bibl></sense></div2>"
+    )
+
+    assert derive_short_def(div2) == "a kind of hawk or falcon"
+
+
+def test_derive_short_def_refuses_an_etymological_root():
+    """μέμονα: its first <sense> opens inside the etymology parenthesis.
+
+    "(fr. <sense><i>mṇ</i>-), cogn. with μένος" made the Proto-Indo-European
+    root the entry's definition, and stage7 propagated it to μεμαώς.
+    """
+    div2 = etree.fromstring(
+        '<div2 key="me/mona"><head>μέμονα</head>, redupl. <tns>pf.</tns> of '
+        "root <itype>μεν</itype>-, weak form <itype>μᾰ</itype>- (fr. "
+        '<sense n="" level="1"><i>mṇ</i>-), cogn. with <foreign>μένος</foreign>'
+        "</sense></div2>"
+    )
+
+    assert derive_short_def(div2) == ""
