@@ -4,7 +4,7 @@
   import { fetchBook, parseBekker, parseLocation, fetchSidenotes, fetchFigures, fetchSpeeches, fetchCharacters, fetchScansion, fetchAudioManifest, fetchPlaces, fetchJourneys, fetchCoastline, fetchPlate, activeSceneIndex, type Segment, type GreekLine, type Token, type BookData, type RawBookData, type RossPiece, type Scene, type Speech, type CharacterEntry, type ScansionEntry } from '../lib/data';
   import { joinScenesToPlaces, SCHEMATIC_PLATE_ID, type PlacesFile, type JourneysFile } from '../lib/scene-place';
   import { renderSceneMap, type Coastline } from '../lib/scenemap';
-  import { parsePlate, renderPlate, computeCamera, type Plate, type PlatePlace, type Camera } from '../lib/plate';
+  import { parsePlate, renderPlate, computeCamera, type Plate, type PlateLayer, type PlatePlace, type Camera, type LabelBox } from '../lib/plate';
   import { takeSsrBook } from '../lib/ssr-book';
   import { schemeFor, formatCite } from '../lib/citation';
   import { lineRenderParts, bareTokenText, buildFlowRows, buildEnglishTurnBlocks, labelSuppression, type SpeakerEvent, type LineRenderPart, type FlowRow, type EnglishTurnBlock } from '../lib/speakers';
@@ -21,6 +21,12 @@
   import sceneBoundaryOverridesFile from '../lib/scene-boundary-overrides.json';
   import WordPopup from './WordPopup.svelte';
   import FootnotePopup from './FootnotePopup.svelte';
+
+  // Same base-path idiom as shared/lib/glossary.ts's BASE — Astro's
+  // BASE_URL may or may not carry a trailing slash, stripped once here so
+  // the Chart Room postcard's click-through to /maps/ never hardcodes root
+  // (CLAUDE.md: "never hardcode a base path").
+  const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
   export let work: string = 'EN';
   export let bookNum: number = 1;
@@ -893,16 +899,16 @@
   // camera/focus must be applied imperatively instead — see
   // applyPlateCamera).
   $: iliadPlateRender = iliadPlate
-    ? renderPlate(iliadPlate, bookPlatePlaces, { idPrefix: `chart-plate-${work}-${bookNum}` })
+    ? renderPlate(iliadPlate, bookPlatePlaces, { idPrefix: `chart-plate-${work}-${bookNum}`, cameraGroup: true })
     : null;
-  // renderPlate returns one fixed, deterministic shape (see its own comment:
-  // `<svg ...><defs>...</defs><g clip-path="url(#ID)">CONTENT</g></svg>`)
-  // with no camera-transform group of its own — computeCamera's contract
-  // explicitly leaves that wrap to the caller. plate.ts is off-limits here
-  // (a concurrent lane owns it), so the wrap is a one-time string edit on
-  // the already-rendered markup below (wrapPlateCamera), done only when
+  // `cameraGroup: true` (plate.ts, 2026-09-02) has renderPlate itself wrap
+  // the pannable content in `<g class="plate-camera">` — replacing a
+  // caller-side regex (wrapPlateCamera) that assumed the document ended
+  // `</g></svg>` and silently mis-wrapped once the furniture (legend/scale
+  // bar/north arrow/key/neatline) is emitted after the clip group, panning
+  // and scaling chrome that must stay fixed. Recomputed only when
   // iliadPlateRender itself changes — i.e. once per book, not per scene.
-  $: iliadPlateHtml = iliadPlateRender ? wrapPlateCamera(iliadPlateRender.svg) : '';
+  $: iliadPlateHtml = iliadPlateRender?.svg ?? '';
 
   // Which of THIS plate's rendered features are place pins actually drawn on
   // the canvas (renderPlate's `features` list carries a `type:'place'`
@@ -929,14 +935,36 @@
   // that same "nothing resolved" state, named, so the template can show an
   // honest caption instead of a silently unframed map.
   $: iliadPlateAllUnlocated = !!currentPlateResolution && iliadPlateFocusIds.length === 0;
+  // maxScale: 4 (John's postcard design, 2026-07-30) — the library default
+  // (8) is what drove 92/163 framed schematic scenes to the clamp and a
+  // 120x97 plate-px window that sliced labels mid-word; 4 is a moderate
+  // zoom other callers (the full pan/zoom /maps/ panel) don't share, so it's
+  // passed here rather than changed in plate.ts's own default.
+  // `labelBoxes: iliadPlateRender.labelBoxes` (plate.ts, 2026-09-02) sizes
+  // the camera on the focus place's LABEL too, not just its pin.
   $: iliadPlateCamera = iliadPlate && iliadPlateRender
-    ? computeCamera(iliadPlate, iliadPlateRender.viewport, iliadPlateFocusIds, { places: bookPlatePlaces })
+    ? computeCamera(iliadPlate, iliadPlateRender.viewport, iliadPlateFocusIds, {
+        places: bookPlatePlaces,
+        labelBoxes: iliadPlateRender.labelBoxes,
+        maxScale: 4,
+      })
     : null;
   $: iliadPlateAriaLabel = !iliadPlate
     ? ''
     : iliadPlateFocusNames.length
       ? `${iliadPlate.title}, showing ${iliadPlateFocusNames.join(', ')}`
       : iliadPlate.title;
+
+  // The Trojan-plain plate is the one geographic path with a real `/maps/`
+  // tab to link to (MapsPage.svelte's `plain` tab; there is no tab for the
+  // schematic plate — see the schematic postcard branch below). `focusIds`
+  // is user-visible in the resulting URL, but it is built here from the
+  // gazetteer's own place ids, not from anything user-supplied, so no extra
+  // sanitizing is needed beyond what MapsPage's own reader does on the way
+  // in.
+  $: iliadPlateLinkHref = useIliadPlate && iliadPlate
+    ? `${BASE}/maps/?map=plain${iliadPlateFocusIds.length ? `&focus=${iliadPlateFocusIds.map(encodeURIComponent).join(',')}` : ''}`
+    : null;
 
   // ── Chart Room SCHEMATIC plate (queue item 3b, 2026-07-30) ───────────────
   // Routes the Chart Room to the Troad schematic plate (apparatus/plates/
@@ -963,7 +991,17 @@
       schematicPlateLoadState = 'unavailable';
     }
   }
+  // Gated the same way ensureIliadPlate is above (a Chart-Room-showing
+  // surface must actually be open), PLUS (2026-09-02 fix — Codex review: the
+  // old condition fetched trojan-plain-schematic.json on every Iliad scene a
+  // surface was open for, even ones that resolve to the geographic plate or
+  // to nothing) the current scene's own resolution must actually route here
+  // — currentPlateResolution.schematic is set only when this scene has no
+  // coords-bearing place but does have a schematic anchor (see its own
+  // comment above). A scene that never needs this plate now never fetches
+  // it; paging to one that does still fetches lazily, on demand.
   $: if (mounted && work === 'iliad' && scenes.length && schematicPlateLoadState === 'idle'
+    && !!currentPlateResolution?.schematic
     && (reading || sceneSheetOpen || (chartRoomOpen && !scenePanelMobile))) ensureSchematicPlate();
 
   $: useSchematicPlate = work === 'iliad' && schematicPlateLoadState === 'ready' && !!schematicPlate
@@ -980,17 +1018,23 @@
       || p.id === 'scamandrian-plain',
   ) as PlatePlace[];
   $: schematicPlateRender = schematicPlate
-    ? renderPlate(schematicPlate, schematicPlatePlaces, { idPrefix: `chart-plate-schematic-${work}-${bookNum}` })
+    ? renderPlate(schematicPlate, schematicPlatePlaces, { idPrefix: `chart-plate-schematic-${work}-${bookNum}`, cameraGroup: true })
     : null;
-  $: schematicPlateHtml = schematicPlateRender ? wrapPlateCamera(schematicPlateRender.svg) : '';
+  $: schematicPlateHtml = schematicPlateRender?.svg ?? '';
   // scamandrian-plain forces the unzoomed full sheet — empty focusIds makes
   // computeCamera return its own identity camera (see plate.ts), which is
   // exactly "show the whole plate."
   $: schematicFocusIds = currentPlateResolution?.schematic?.unzoomed
     ? []
     : (currentPlateResolution?.schematic?.focusIds ?? []);
+  // Same maxScale/labelBoxes treatment as iliadPlateCamera above — this is
+  // the path measured at the clamp for 92/163 scenes (see that comment).
   $: schematicPlateCamera = schematicPlate && schematicPlateRender
-    ? computeCamera(schematicPlate, schematicPlateRender.viewport, schematicFocusIds, { places: schematicPlatePlaces })
+    ? computeCamera(schematicPlate, schematicPlateRender.viewport, schematicFocusIds, {
+        places: schematicPlatePlaces,
+        labelBoxes: schematicPlateRender.labelBoxes,
+        maxScale: 4,
+      })
     : null;
   $: schematicFocusNames = schematicPlatePlaces
     .filter((p) => schematicFocusIds.includes(p.id))
@@ -1005,6 +1049,54 @@
       : schematicFocusNames.length
         ? `${schematicPlate.title}, showing ${schematicFocusNames.join(', ')}`
         : schematicPlate.title;
+
+  // ── Chart Room locator inset (postcard design, John 2026-07-30) ──────────
+  // A small, unframed full-sheet locator in the postcard's own corner, plus
+  // a frame rect showing where the zoomed camera is looking — orientation
+  // context for a reader looking at a tight, moderately-zoomed crop. Built
+  // from a LEAN plate (coastline/rivers/open water only, not relief, walls,
+  // ships, pins or labels) rather than reusing the full renderPlate output:
+  // the full render's label-placement solver alone costs O(labels^2) at a
+  // size never meant to be read at ~28% of the postcard's width. Measured:
+  // 1.9ms/30KB for the lean render below vs 22ms/204KB for the full one.
+  // Book-scoped like iliadPlateRender/schematicPlateRender (recomputed only
+  // when the plate itself changes, not per scene) — the frame rect alone is
+  // scene-scoped, via the *Camera values already computed above.
+  function isLocatorLayer(l: PlateLayer): boolean {
+    // `region`/fill:'sea'|'lagoon' is how open water is actually drawn on
+    // these plates (verified against apparatus/plates/trojan-plain.json: its
+    // bay is a `region` layer, not `coast`) — a lean plate that dropped it
+    // would render as bare parchment with no shoreline at all.
+    return l.kind === 'coast' || l.kind === 'river' || (l.kind === 'region' && (l.fill === 'sea' || l.fill === 'lagoon'));
+  }
+  interface LocatorFrame { x: number; y: number; w: number; h: number }
+  function locatorFrame(plate: Plate, camera: Camera | null): LocatorFrame | null {
+    if (!camera) return null;
+    return {
+      x: -camera.tx / camera.scale,
+      y: -camera.ty / camera.scale,
+      w: plate.size[0] / camera.scale,
+      h: plate.size[1] / camera.scale,
+    };
+  }
+
+  $: iliadLocatorRender = iliadPlate
+    ? renderPlate(
+        { ...iliadPlate, layers: iliadPlate.layers.filter(isLocatorLayer) },
+        [],
+        { idPrefix: `chart-locator-${work}-${bookNum}` },
+      )
+    : null;
+  $: iliadLocatorFrame = iliadPlate ? locatorFrame(iliadPlate, iliadPlateCamera) : null;
+
+  $: schematicLocatorRender = schematicPlate
+    ? renderPlate(
+        { ...schematicPlate, layers: schematicPlate.layers.filter(isLocatorLayer) },
+        [],
+        { idPrefix: `chart-locator-schematic-${work}-${bookNum}` },
+      )
+    : null;
+  $: schematicLocatorFrame = schematicPlate ? locatorFrame(schematicPlate, schematicPlateCamera) : null;
 
   // Whichever path is live (new plate vs the old renderSceneMap box), "is
   // there a map to show at all" — drives the reserved-space/collapse
@@ -1021,29 +1113,102 @@
       ? `${schematicPlate.size[0]} / ${schematicPlate.size[1]}`
       : null;
 
-  function wrapPlateCamera(svg: string): string {
-    return svg
-      .replace(/(<g clip-path="url\(#[^"]*\)">)/, '$1<g class="plate-camera">')
-      .replace(/<\/g><\/svg>$/, '</g></g></svg>');
-  }
-
   interface PlateCameraParams {
     camera: Camera | null;
     focusIds: string[];
     ariaLabel: string;
     reduceMotion: boolean;
+    // The plate's own width in plate px (Plate.size[0]) — the label-descale
+    // formula below needs it alongside the rendered slot's CSS width.
+    plateWidth: number;
   }
 
-  // Applies the per-scene camera + focus dimming to the ALREADY-RENDERED
-  // plate markup imperatively (querySelector, not a Svelte binding) — the
-  // whole point: scene paging must update the camera/dimming WITHOUT
-  // touching the `{@html}`-injected SVG's innerHTML, which would tear down
-  // and rebuild the DOM every scene change. `update` fires whenever the
-  // action's argument object is recreated (every scene-scoped reactive
-  // change); iliadPlateHtml — the base markup — is never one of those
-  // dependencies, so Svelte never re-sets innerHTML here on scene paging.
+  // Label descale (postcard design, part D): a plate.ts label is sized for
+  // the FULL plate (13.5px text on an 880px sheet); the postcard renders
+  // that sheet into a ~288px slot at 4x camera zoom, so without correction
+  // type would print at a fraction of a CSS pixel. `f` below counter-scales
+  // each label so it lands at its own designed on-screen size regardless of
+  // slot width or zoom — NOT the naive `1/camK` PlatePanel.svelte's own
+  // pan/zoom widget uses (see that file's setupCamera/updateLabelDescale):
+  // PlatePanel draws its plate near 1:1 in a large panel, where undoing the
+  // zoom is exactly right; the postcard draws it shrunk to begin with, where
+  // undoing zoom AND slot-shrink both is what reads as legible type. Clamped
+  // so a pathological slot width can't blow a label up or down absurdly.
+  const LABEL_DESCALE_MIN = 0.35;
+  const LABEL_DESCALE_MAX = 2.2;
+
+  // Applies the per-scene camera + focus dimming/label-hiding + label
+  // descale to the ALREADY-RENDERED plate markup imperatively (querySelector,
+  // not a Svelte binding) — the whole point: scene paging must update the
+  // camera/dimming WITHOUT touching the `{@html}`-injected SVG's innerHTML,
+  // which would tear down and rebuild the DOM every scene change. `update`
+  // fires whenever the action's argument object is recreated (every
+  // scene-scoped reactive change); iliadPlateHtml/schematicPlateHtml — the
+  // base markup — are book-scoped, never scene-scoped, so Svelte never
+  // re-sets innerHTML here on scene paging — but book navigation DOES
+  // replace the `{@html}`'d SVG wholesale (a new book's render), which is
+  // why label-wrapping below re-detects staleness by SVG identity rather
+  // than wrapping only once for the action's whole lifetime.
   function applyPlateCamera(node: HTMLElement, params: PlateCameraParams) {
+    let labelWrappers: { el: SVGGElement; x: number; y: number }[] = [];
+    let lastSvgEl: SVGSVGElement | null = null;
+    let current = params;
+    let resizeObserver: ResizeObserver | undefined;
+
+    // Wraps every `.plate-label` text node in its own counter-scale group,
+    // pivoted on the label's own x/y (a textPath label — a river/road name
+    // set along its line — has neither, so its rendered bbox centre is the
+    // fallback pivot; see PlatePanel.svelte's setupCamera, the same trick).
+    // Re-run whenever the SVG subtree itself is a different element than
+    // last time (first mount, or a book navigation that swapped the
+    // `{@html}`'d content) — never on a same-book scene-paging update, where
+    // the SVG is unchanged and re-wrapping would double-wrap.
+    function ensureLabelWrappers() {
+      const svgEl = node.querySelector('svg');
+      if (svgEl === lastSvgEl) return;
+      lastSvgEl = svgEl as SVGSVGElement | null;
+      labelWrappers = [];
+      if (!svgEl) return;
+      svgEl.querySelectorAll<SVGTextElement>('.plate-label').forEach((textEl) => {
+        const xAttr = textEl.getAttribute('x');
+        const yAttr = textEl.getAttribute('y');
+        let x: number;
+        let y: number;
+        if (xAttr !== null && yAttr !== null) {
+          x = parseFloat(xAttr);
+          y = parseFloat(yAttr);
+        } else if (typeof textEl.getBBox === 'function') {
+          // happy-dom (vitest) implements no getBBox at all — guarded so a
+          // textPath label (the only case with no x/y) never throws in
+          // tests; it simply gets no descale wrapper there, same as any
+          // other jsdom/happy-dom rendering gap.
+          const bbox = textEl.getBBox();
+          x = bbox.x + bbox.width / 2;
+          y = bbox.y + bbox.height / 2;
+        } else {
+          return;
+        }
+        const wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        wrapper.setAttribute('class', 'chart-label-descale');
+        textEl.parentNode?.insertBefore(wrapper, textEl);
+        wrapper.appendChild(textEl);
+        labelWrappers.push({ el: wrapper, x, y });
+      });
+    }
+
+    function updateLabelDescale() {
+      if (!labelWrappers.length) return;
+      const slotWidth = node.clientWidth || current.plateWidth || 1;
+      const camK = current.camera?.scale ?? 1;
+      const raw = current.plateWidth / (slotWidth * camK);
+      const f = Math.min(LABEL_DESCALE_MAX, Math.max(LABEL_DESCALE_MIN, raw));
+      for (const { el, x, y } of labelWrappers) {
+        el.setAttribute('transform', `translate(${x} ${y}) scale(${f}) translate(${-x} ${-y})`);
+      }
+    }
+
     function apply(p: PlateCameraParams) {
+      current = p;
       const svgEl = node.querySelector('svg');
       if (svgEl) svgEl.setAttribute('aria-label', p.ariaLabel);
       const cameraG = node.querySelector<SVGGElement>('.plate-camera');
@@ -1057,9 +1222,31 @@
         const dim = focusSet.size > 0 && !(id !== null && focusSet.has(id));
         el.classList.toggle('plate-dimmed', dim);
       });
+      // The postcard design (John, 2026-07-30): the sole focus place's own
+      // name stays dark; every OTHER label is OMITTED, not merely ghosted
+      // (`.plate-hidden` is display:none — see the pin dimming above for
+      // the contrasting "ghost, don't omit" treatment of pins).
+      node.querySelectorAll<SVGElement>('[data-label-for]').forEach((el) => {
+        const id = el.getAttribute('data-label-for');
+        const hide = focusSet.size > 0 && !(id !== null && focusSet.has(id));
+        el.classList.toggle('plate-hidden', hide);
+      });
+      ensureLabelWrappers();
+      updateLabelDescale();
     }
+
     apply(params);
-    return { update: apply };
+    if (typeof ResizeObserver !== 'undefined') {
+      // happy-dom (vitest) has no ResizeObserver — guarded the same way as
+      // getBBox above, per CLAUDE.md's Chart Room test gotchas.
+      resizeObserver = new ResizeObserver(() => updateLabelDescale());
+      resizeObserver.observe(node);
+    }
+
+    return {
+      update: apply,
+      destroy() { resizeObserver?.disconnect(); },
+    };
   }
 
   // ── DICES speech rails (Phase 4 flagship) ─────────────────────────────────
@@ -2698,6 +2885,25 @@
   {/if}
 {/snippet}
 
+<!-- The locator inset (part E of the postcard design): a small unframed
+     full-sheet map in the postcard's own corner, with a frame rect showing
+     where the zoomed camera is looking. `size`/`svg`/`frame` come from the
+     book-scoped *LocatorRender/*LocatorFrame values above. Absent (no
+     `frame`, i.e. no camera yet) renders nothing. -->
+{#snippet chartLocatorInset(size: [number, number], svg: string, frame: { x: number; y: number; w: number; h: number } | null)}
+  {#if frame}
+    <div class="chart-locator" style="aspect-ratio: {size[0]} / {size[1]};" aria-hidden="true">
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html svg}
+      <svg class="chart-locator-overlay" viewBox="0 0 {size[0]} {size[1]}" width="100%" height="100%" focusable="false">
+        <!-- vector-effect keeps the frame a true 1px screen stroke regardless
+             of how much the viewBox is scaled down to fit the inset. -->
+        <rect class="chart-locator-frame" x={frame.x} y={frame.y} width={frame.w} height={frame.h} vector-effect="non-scaling-stroke" />
+      </svg>
+    </div>
+  {/if}
+{/snippet}
+
 <!-- Shared by all three map-slot consumers (the reading-plate header inside
      the .reader-body branch below, and the desktop Chart Room rail + mobile
      Chart Room sheet, both SIBLING top-level blocks after it — so this
@@ -2714,26 +2920,63 @@
      Troad SCHEMATIC plate instead, camera-framed the same way (or unzoomed
      for scamandrian-plain); anything else (Odyssey always, or
      Iliad before/without a successful plate fetch) falls back to the
-     existing renderSceneMap box unchanged. -->
+     existing renderSceneMap box unchanged.
+
+     Postcard treatment (John's design, 2026-07-30): the geographic path
+     (`useIliadPlate`, currently flag-gated off — see CHART_ROOM_PLATE_ENABLED
+     above) additionally links through to the full pan/zoom /maps/ panel,
+     framed on the same scene; the schematic path (live today) gets every
+     other postcard element — moderate-zoom camera, focus/ghost/omit, label
+     descale, locator inset — but no link, because /maps/ has no tab for the
+     schematic plate (John's open decision, noted at that constant). -->
 {#snippet chartPlateBody()}
-  {#if useIliadPlate && iliadPlateRender}
-    <div
-      class="chart-plate"
-      use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion }}
-    >
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html iliadPlateHtml}
-    </div>
+  {#if useIliadPlate && iliadPlateRender && iliadPlate}
+    {#if iliadPlateLinkHref}
+      <a
+        class="chart-plate-postcard"
+        href={iliadPlateLinkHref}
+        aria-label="Open the Trojan Plain plate framed on this scene"
+      >
+        <div
+          class="chart-plate"
+          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0] }}
+        >
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          {@html iliadPlateHtml}
+        </div>
+        {#if iliadLocatorRender}
+          {@render chartLocatorInset(iliadPlate.size, iliadLocatorRender.svg, iliadLocatorFrame)}
+        {/if}
+      </a>
+    {:else}
+      <div class="chart-plate-postcard">
+        <div
+          class="chart-plate"
+          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0] }}
+        >
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          {@html iliadPlateHtml}
+        </div>
+        {#if iliadLocatorRender}
+          {@render chartLocatorInset(iliadPlate.size, iliadLocatorRender.svg, iliadLocatorFrame)}
+        {/if}
+      </div>
+    {/if}
     {#if iliadPlateAllUnlocated}
       <p class="chart-plate-caption">This scene's named places have no fixed position on this plate.</p>
     {/if}
-  {:else if useSchematicPlate && schematicPlateRender}
-    <div
-      class="chart-plate"
-      use:applyPlateCamera={{ camera: schematicPlateCamera, focusIds: schematicFocusIds, ariaLabel: schematicPlateAriaLabel, reduceMotion }}
-    >
-      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-      {@html schematicPlateHtml}
+  {:else if useSchematicPlate && schematicPlateRender && schematicPlate}
+    <div class="chart-plate-postcard">
+      <div
+        class="chart-plate"
+        use:applyPlateCamera={{ camera: schematicPlateCamera, focusIds: schematicFocusIds, ariaLabel: schematicPlateAriaLabel, reduceMotion, plateWidth: schematicPlate.size[0] }}
+      >
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+        {@html schematicPlateHtml}
+      </div>
+      {#if schematicLocatorRender}
+        {@render chartLocatorInset(schematicPlate.size, schematicLocatorRender.svg, schematicLocatorFrame)}
+      {/if}
     </div>
   {:else if currentPlateMap}
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
@@ -4051,6 +4294,39 @@
   .chart-plate { width: 100%; height: 100%; }
   .chart-plate :global(.plate-camera) { transform-box: view-box; transform-origin: 0 0; }
   .chart-plate :global(.plate-dimmed) { opacity: 0.42; transition: opacity 200ms ease; }
+  /* Postcard design part C: a non-focus label is OMITTED (display:none), not
+     ghosted like a non-focus pin above — see applyPlateCamera's own comment
+     for why the two get different treatments. */
+  .chart-plate :global(.plate-hidden) { display: none; }
+
+  /* Postcard wrapper (parts C-F): the plate slot plus its locator inset,
+     optionally a click-through link on the geographic path (part F) — see
+     chartPlateBody's own comment for which path gets the link. An <a> here
+     must look and behave like the plain <div> the schematic path renders,
+     not like inline link text. */
+  .chart-plate-postcard { position: relative; display: block; width: 100%; height: 100%; color: inherit; text-decoration: none; }
+  a.chart-plate-postcard:hover .chart-plate { outline: 1px solid var(--accent); outline-offset: -1px; }
+  a.chart-plate-postcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Locator inset (part E): a small unframed full-sheet map in the
+     postcard's own bottom-right corner, ~28% of its width, with a frame
+     rect (drawn by the svg inside chartLocatorInset) showing where the
+     zoomed camera is looking. */
+  .chart-locator {
+    position: absolute;
+    right: 0.35rem;
+    bottom: 0.35rem;
+    width: 28%;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--page-bg);
+    box-shadow: 0 1px 4px color-mix(in srgb, var(--text) 25%, transparent);
+  }
+  .chart-locator :global(svg) { display: block; width: 100%; height: 100%; }
+  .chart-locator-overlay { position: absolute; inset: 0; pointer-events: none; }
+  .chart-locator-frame { fill: none; stroke: var(--accent); stroke-width: 1; }
+
   .chart-plate-caption {
     margin: 0.5rem 0 0;
     font-family: var(--font-ui);
