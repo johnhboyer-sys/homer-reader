@@ -519,6 +519,47 @@ def _is_sense_ref(text: str, start: int, end: int, lead: str) -> bool:
             or bool(_GREEK_RE.search(after)))
 
 
+# A HOMONYM SUFFIX: the digit Cunliffe hangs on a name to tell one bearer of
+# it from another — "of Eurynome-1" (Ὠκεανός), "terrified by Lycourgus-1"
+# (Θέτις), "Daughter of Dymas-1" (Ἑκάβη) — and the same mark on a prefix in an
+# etymology, "[ἀ-1 + τρέμω.]" (ἀτρέμας). It is part of the name, and the whole
+# proper-name volume is built on it.
+#
+# Read as a bare continuation it is legal under every other rule here — it IS
+# a loose digit standing after a reference — so _expand restores it to the
+# book last established and the reader gets a live, clickable link to a real
+# line the entry never cites: Il. 14.1 under Ὠκεανός, Il. 1.1 under Θέτις. The
+# name is left cut in half as well ("of Eurynome-"), and Cunliffe's sentence
+# torn into two rows around the hole.
+#
+# Measured over both source volumes (11,416 entries) by tracing every bare
+# digit the parse expands into a live reference and locating it back in the
+# source: 159 such digits hang off a hyphen — 150 of them a homonym suffix,
+# across 87 entries. What tells them apart is the character IN FRONT of the
+# hyphen, and only two ever occur: a letter, Greek or Latin, and a digit.
+#
+# The other 9 are the tail of a LINE RANGE he prints in full — "Od. 6.177-8"
+# (ἄστυ), "Il. 16.514-529" (παιήων) — where the digit before the hyphen is
+# what marks it. That shape is NOT touched here. It is a real defect (four of
+# the nine expand to an outright wrong line, 177-8 meaning 178 and reaching
+# the reader as "Od. 6.8"), but its cure is not this one: passing the digit
+# over leaves "-8," standing as a row of its own, and folding the range into
+# the citation token costs the link on the range's FIRST line, which the
+# reader's citation hook resolves today and would not resolve for "Od. 6.177-8"
+# (LexiconPanel.svelte's citationHref matches a bare "Il. B.L" and nothing
+# else). Left measured and named rather than half-fixed.
+#
+# The digit is passed over exactly as one of Cunliffe's own sense numbers is
+# (see _is_sense_ref): it stays in the text, where he printed it, whole.
+_HOMONYM_SUFFIX_RE = re.compile(r"[^\W\d_]-$")
+
+
+def _is_homonym_suffix(text: str, start: int) -> bool:
+    """Whether the digit at `start` is a homonym mark hung on the name before
+    it, rather than a line number — see _HOMONYM_SUFFIX_RE."""
+    return bool(_HOMONYM_SUFFIX_RE.search(text[:start]))
+
+
 def _holds_sense_ref(text: str) -> bool:
     """Whether `text` is Cunliffe pointing the reader at another sense.
 
@@ -877,6 +918,11 @@ def split_evidence(evidence: str) -> list[dict]:
         if (m.group(0).strip().isdigit()
                 and _is_sense_ref(evidence, m.start(), m.end(),
                                   evidence[pos:m.start()])):
+            continue
+        # The digit that tells one Eurynome from another, not a line — see
+        # _is_homonym_suffix. Passed over so that the name keeps it.
+        if (m.group(0).strip().isdigit()
+                and _is_homonym_suffix(evidence, m.start())):
             continue
         lead = evidence[pos:m.start()]
         lead_depth = depth[pos]

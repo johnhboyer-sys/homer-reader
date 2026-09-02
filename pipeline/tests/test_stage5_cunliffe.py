@@ -1423,3 +1423,104 @@ def test_a_numbered_row_whose_sub_senses_carry_the_definition_is_kept():
         ("1", 1), ("a", 2), ("b", 2), ("2", 1)]
     assert not t8["rows"][0].get("z")
     assert t8["rows"][1]["z"].startswith("A chariot")
+
+
+OKEANOS = (
+    "Ὠκεανός (ἀκαλαρρείτης, ἀψόρροος , βαθυδίνης, βαθυρρείτης , βαθύρροος, "
+    "Ὠ. ποταμός ). The river Oceanus, encircling the earth and flowing back "
+    "upon itself Il. 1.423, Il. 3.5, Il. 5.6, Il. 7.422, Il. 21.485, "
+    "Il. 16.151, Il. 18.240, 402, 489, 607, Il. 19.1, Il. 23.205: Od. 4.568, "
+    "Od. 5.275, Od. 10.508, 511, Od. 11.13, 21, 158, 639, Od. 12.1, "
+    "Od. 19.434, Od. 20.65, Od. 22.197, Od. 23.244, 347, Od. 24.11. "
+    "Personified. A god Od. 3.7. Associated with Tethys in the rearing of "
+    "Hera Il. 14.201, 302 Father (Il. 18.399) of Eurynome-1 and (Od. 10.139) "
+    "of Perse. θεῶν γένεσις Od. 14.201 , 302. γ. πάντεσσιν Il. 14.246. Parent "
+    "of all waters Il. 21.195 (but see Ξάνθος-1). δῶμʼ Ὠκεανοῖο Il. 14.311 ."
+)
+
+
+def test_a_homonym_suffix_is_not_a_line_number():
+    """Ὠκεανός, whole and real.
+
+    Cunliffe tells one Eurynome from another with a trailing digit. Read as a
+    bare continuation it was restored to the book the reference before it left
+    behind — a live, clickable "Il. 14.1" the entry never cites — and the name
+    reached the reader cut in half, "of Eurynome-", with the sentence torn into
+    two rows around the hole.
+    """
+    t8 = sc.to_t8("w)keano/s", "Ὠκεανός", OKEANOS)
+    assert "Il. 14.1" not in _cites(t8)
+    text = _all_text(t8)
+    assert "Eurynome-1" in text
+    assert "Eurynome-" not in text.replace("Eurynome-1", "")
+    # one row, not two: the parenthesised references stay inside the sentence
+    row = next(r for r in t8["rows"] if "Eurynome-1" in _text(r.get("z") or ""))
+    assert _text(row["z"]) == (
+        "Father (Il. 18.399) of Eurynome-1 and (Od. 10.139) of Perse.")
+    # and the references the entry really does cite are all still there
+    for c in ("Il. 14.201", "Il. 14.302", "Il. 14.246", "Il. 14.311"):
+        assert c in _cites(t8), c
+
+
+HEKABE = (
+    "Ἑκάβη (ἠπιόδωρος). Daughter of Dymas-1, full sister of Asius-1 and wife "
+    "of Priam (for her children see under Πρίαμος) Il. 6.251; collects the "
+    "aged women to pray to Athene Il. 6.286, her gift to Α. 288, 293; "
+    "Il. 6.451, Il. 16.718; vainly beseeches Hector to take refuge from "
+    "Achilles Il. 22.79; Il. 22.234; she sees Hector's corpse being dragged "
+    "away Il. 22.405, her lament 430; summoned by Priam Il. 24.193, she tries "
+    "to dissuade him from going to the ships 200, she speeds him on his way "
+    "283; her lament over Hector's ransomed, corpse Il. 24.747."
+)
+
+
+def test_a_homonym_suffix_before_any_reference_is_not_a_citation():
+    """Ἑκάβη, whole and real.
+
+    Her parentage is named before the entry has cited anything, so the two
+    homonym digits had no book to expand against and reached the reader as a
+    citation list reading "1" — with the sentence broken into three rows,
+    "Daughter of Dymas-" / "full sister of Asius-" / the rest.
+    """
+    t8 = sc.to_t8("e(ka/bh", "Ἑκάβη", HEKABE)
+    assert "1" not in _cites(t8)
+    assert t8["rows"][0]["au"] == ["Il. 6.251"]
+    assert _text(t8["rows"][0]["z"]) == (
+        "Daughter of Dymas-1, full sister of Asius-1 and wife of Priam "
+        "(for her children see under Πρίαμος)")
+    # the bare continuations that ARE continuations still expand
+    assert "Il. 22.430" in _cites(t8)
+    assert "Il. 24.200" in _cites(t8)
+
+
+ATREMAS = (
+    "ἀτρέμας Before a consonant ἀτρέμα Il. 15.318. [ἀ-1 + τρέμω.] Without "
+    "motion, still Il. 2.200, Il. 5.524, Il. 13.280, 438, 557, Il. 14.352, "
+    "Il. 15.318: Od. 13.92, Od. 19.212."
+)
+
+
+def test_a_homonym_suffix_inside_an_etymology_is_not_a_line_number():
+    """ἀτρέμας, whole and real.
+
+    The same mark on a prefix: "[ἀ-1 + τρέμω.]" points at ἀ-1, and the digit
+    was emitted as a live "Il. 15.1" with the bracket split across three rows
+    — "[", then ἀ- as a quotation of Homer, then "+ τρέμω.]".
+    """
+    t8 = sc.to_t8("a)tre/mas", "ἀτρέμας", ATREMAS)
+    assert "Il. 15.1" not in _cites(t8)
+    row = next(r for r in t8["rows"] if "τρέμω" in _text(r.get("z") or ""))
+    assert _text(row["z"]) == "[ἀ-1 + τρέμω.] Without motion, still"
+    assert "Il. 13.438" in _cites(t8) and "Il. 13.557" in _cites(t8)
+
+
+def test_what_stands_before_the_hyphen_decides_the_homonym_mark():
+    """The mark is a digit hung on a NAME. A digit hung on another digit is
+    the tail of a line range Cunliffe prints in full ("Od. 6.177-8"), which is
+    a different shape with a different cure, and this rule must not claim it.
+    """
+    assert sc._is_homonym_suffix("of Eurynome-1", len("of Eurynome-"))
+    assert sc._is_homonym_suffix("[ἀ-1 + τρέμω.]", len("[ἀ-"))
+    assert not sc._is_homonym_suffix("Od. 6.177-8", len("Od. 6.177-"))
+    # nor a loose digit that is a genuine bare continuation
+    assert not sc._is_homonym_suffix("Il. 19.35, 75", len("Il. 19.35, "))
