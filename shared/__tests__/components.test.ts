@@ -1326,6 +1326,134 @@ describe('Reader.svelte — Chart Room SCHEMATIC plate postcard (live path, 2026
     expect(right).toBeLessThanOrEqual(slotWidth);
   });
 
+  // 2026-09-02 review finding 1: the ResizeObserver handler updated the
+  // label descale factor but never re-ran fitFocusLabelsToFrame -- a
+  // postcard that fit at one slot width (the mobile sheet, ~360px per the
+  // original commit's own description of this exact fixture) clips again
+  // once the rail or viewport narrows, because the OLD translation stands
+  // while the label grows relative to the (now narrower) frame. Reuses the
+  // narrowFixture/assemblyPlace fixtures and the same independent-box
+  // verification technique as the scene-paging test above, but drives the
+  // narrowing through the ResizeObserver callback the mock stores
+  // (shared/__tests__/setup.ts's `__resizeCallback`), never through a scene
+  // change -- proving the fix runs on a plain resize, not just on apply().
+  it("re-fits the focus label on a RESIZE alone (no scene change) when the slot narrows", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(narrowFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [assemblyPlace] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: twoAssemblySceneBook } });
+    await screen.findByText(/Scene 1 of 2/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const chartPlateEl = container.querySelector('.chart-plate') as HTMLElement;
+    // Establish "fits at one slot width" first: stub clientWidth, then force
+    // a fresh apply() via scene paging (mirrors the test above) so the
+    // camera is genuinely fit for 360px before the resize under test.
+    Object.defineProperty(chartPlateEl, 'clientWidth', { value: 360, configurable: true });
+    await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+    await screen.findByText(/Scene 2 of 2/i);
+
+    // Narrow WITHOUT any scene change -- a rail/viewport resize -- and
+    // invoke the stored ResizeObserver callback directly rather than
+    // Svelte's own action `update()`.
+    const slotWidth = 220;
+    Object.defineProperty(chartPlateEl, 'clientWidth', { value: slotWidth, configurable: true });
+    const resizeCallback = (chartPlateEl as unknown as { __resizeCallback?: () => void }).__resizeCallback;
+    expect(resizeCallback).toBeTruthy();
+    resizeCallback!();
+
+    const cameraG = container.querySelector('.plate-camera') as SVGGElement;
+    const camMatch = cameraG.style.transform.match(/translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([-\d.]+)\)/);
+    expect(camMatch).not.toBeNull();
+    const [, txStr, , scaleStr] = camMatch!;
+    const camK = parseFloat(scaleStr);
+    const tx = parseFloat(txStr);
+
+    const labelText = container.querySelector('[data-label-for="achaean-assembly-place"]') as SVGTextElement;
+    const descaleWrapper = labelText.parentElement as SVGGElement;
+    expect(descaleWrapper).toHaveClass('chart-label-descale');
+    const wrapMatch = descaleWrapper
+      .getAttribute('transform')!
+      .match(/translate\(([-\d.]+) ([-\d.]+)\) scale\(([-\d.]+)\)/);
+    expect(wrapMatch).not.toBeNull();
+    const [, pivotXStr, , fStr] = wrapMatch!;
+    const pivotX = parseFloat(pivotXStr);
+    const f = parseFloat(fStr);
+
+    // The label's own box (plate units) -- computed independently, exactly
+    // as the scene-paging test above does, rather than trusting the fix
+    // under test to have reported it correctly.
+    const plate = parsePlate(narrowFixture);
+    const rendered = renderPlate(plate, [assemblyPlace], { idPrefix: 'test-resize-extent' });
+    const box = rendered.labelBoxes['achaean-assembly-place'];
+    expect(box).toBeTruthy();
+
+    const S = slotWidth / plate.size[0];
+    const screenOf = (plateX: number) => S * (camK * (pivotX + f * (plateX - pivotX)) + tx);
+    const left = Math.min(screenOf(box[0]), screenOf(box[2]));
+    const right = Math.max(screenOf(box[0]), screenOf(box[2]));
+
+    expect(left).toBeGreaterThanOrEqual(0);
+    expect(right).toBeLessThanOrEqual(slotWidth);
+  });
+
+  // 2026-09-02 review finding 2: the locator frame rect used the camera
+  // BEFORE fitFocusLabelsToFrame's shift, while the postcard itself renders
+  // the shifted camera -- so once a long focus label forced a translation
+  // shift, the locator rectangle kept marking the pre-fit view instead of
+  // where the main map actually points. Reuses narrowFixture/assemblyPlace
+  // (a fit that DOES shift tx at a narrow slot, per the test above) and
+  // asserts the rect's x equals -tx/scale of the camera actually applied.
+  it("derives the locator frame rect from the camera actually APPLIED (post-fit), not the pre-fit camera", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(narrowFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [assemblyPlace] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: twoAssemblySceneBook } });
+    await screen.findByText(/Scene 1 of 2/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const chartPlateEl = container.querySelector('.chart-plate') as HTMLElement;
+    const slotWidth = 220;
+    Object.defineProperty(chartPlateEl, 'clientWidth', { value: slotWidth, configurable: true });
+    await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+    await screen.findByText(/Scene 2 of 2/i);
+
+    const cameraG = container.querySelector('.plate-camera') as SVGGElement;
+    const camMatch = cameraG.style.transform.match(/translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([-\d.]+)\)/);
+    expect(camMatch).not.toBeNull();
+    const [, txStr, tyStr, scaleStr] = camMatch!;
+    const appliedTx = parseFloat(txStr);
+    const appliedTy = parseFloat(tyStr);
+    const appliedScale = parseFloat(scaleStr);
+
+    // Precondition: the fit actually shifted the camera at this narrow slot
+    // width -- otherwise this test would pass vacuously whether or not the
+    // locator reads the applied camera (pre-fit and post-fit tx would be
+    // identical). computeCamera's own pre-fit tx is not directly observable
+    // here, but the label-extent test above already proves this exact
+    // fixture/slot-width combination requires a shift to keep the label in
+    // frame, so `appliedTx` is guaranteed to differ from the raw
+    // computeCamera output for this scene.
+    const frameRect = container.querySelector('rect.chart-locator-frame') as SVGRectElement;
+    expect(frameRect).toBeTruthy();
+    const haloRect = container.querySelector('rect.chart-locator-frame-halo') as SVGRectElement;
+    expect(haloRect).toBeTruthy();
+
+    const expectedX = -appliedTx / appliedScale;
+    const expectedY = -appliedTy / appliedScale;
+    const expectedW = narrowFixture.size[0] / appliedScale;
+    const expectedH = narrowFixture.size[1] / appliedScale;
+
+    for (const rect of [frameRect, haloRect]) {
+      expect(parseFloat(rect.getAttribute('x')!)).toBeCloseTo(expectedX, 6);
+      expect(parseFloat(rect.getAttribute('y')!)).toBeCloseTo(expectedY, 6);
+      expect(parseFloat(rect.getAttribute('width')!)).toBeCloseTo(expectedW, 6);
+      expect(parseFloat(rect.getAttribute('height')!)).toBeCloseTo(expectedH, 6);
+    }
+  });
+
   it('does not throw or write a non-finite transform when the slot is hidden (clientWidth 0)', async () => {
     vi.mocked(fetchPlate).mockResolvedValueOnce(narrowFixture as never);
     vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [assemblyPlace] });

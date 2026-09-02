@@ -1,7 +1,17 @@
 import '@testing-library/jest-dom/vitest';
 
+// happy-dom never computes real layout, so this mock never fires on its
+// own — but it stamps its callback onto every observed element as
+// `__resizeCallback` (Reader.svelte's applyPlateCamera is the only current
+// consumer that needs a resize refit under test) so a test can invoke it
+// directly to simulate a real resize, e.g.
+// `(el as any).__resizeCallback?.()`.
 class ResizeObserverMock {
-  observe() {}
+  constructor(private callback: ResizeObserverCallback) {}
+  observe(target: Element) {
+    (target as unknown as { __resizeCallback?: () => void }).__resizeCallback = () =>
+      this.callback([] as unknown as ResizeObserverEntry[], this as unknown as ResizeObserver);
+  }
   unobserve() {}
   disconnect() {}
 }
