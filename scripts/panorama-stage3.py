@@ -2016,7 +2016,27 @@ CAMP_AXIS_DEG = 13.3
 CAMP_SEAWARD_DEG = (CAMP_AXIS_DEG - 90.0) % 360.0   # 283.3, west
 WALL_BEHIND_STERN_M = 60.0
 DITCH_WEST_OF_WALL_M = 20.0
+# Ground metres the wall's inland shadow-line and the ditch stroke represent.
+# Same inverse-depth law as a hull's screen size (FOCAL * m / d): at plate B's
+# ~950 m the wall reads ~2.8 px and the ditch ~2.1 px; at plate A's ~1.6 km
+# (and at the far ~2.8 km the brief names) they stay about 1 px.
+WALL_STROKE_M = 1.10
+DITCH_STROKE_M = 0.82
 FLEET_FIRST_M = 66.0
+
+
+def defence_strokes(depth, focal=None):
+    """Px widths for the Achaean wall (inland shadow line) and its ditch.
+
+    Hulls scale because they are true-metre geometry under FOCAL/d; these
+    strokes are CSS-px unless they use the same law. `depth` is along-sight
+    metres of the wall stations being drawn.
+    """
+    f = FOCAL if focal is None else focal
+    d = max(float(depth), 1.0)
+    return (f * WALL_STROKE_M / d, f * DITCH_STROKE_M / d)
+
+
 KRAFT_2003_CITE = (
     "Kraft, John C., George Rapp, Ilhan Kayan, and John V. Luce. "
     '"Harbor Areas at Ancient Troy: Sedimentology and Geomorphology '
@@ -3367,8 +3387,12 @@ CSS = """
   stroke-linejoin:round}
 /* A built work, not terrain: keyed to the relief ramp it was a shade of the
    ground it stands on in both themes and read as one more contour. */
-.pp-rampart{fill:var(--plate-masonry);stroke:var(--text-mid);stroke-width:0.5;
-  stroke-linejoin:round}
+.pp-rampart{fill:var(--plate-masonry);stroke:none;stroke-linejoin:round}
+/* Dark inland shadow-line of the rampart. Width is set per camera by
+   defence_strokes() — the CSS 1 px is the far-plate hairline. --pp-hull-edge
+   is the sheet's rim token (dark on light ground, restrained on dark). */
+.pp-rampart-shadow{fill:none;stroke:var(--pp-hull-edge);stroke-width:1;
+  stroke-linejoin:round;stroke-linecap:round}
 /* The ditch and the road were dashed too, and neither dash was carrying what
    the shore's was. Both are CONJECTURAL positions, and that claim is already
    made in words on the plate ("the wall and ditch, and every waypoint of the
@@ -5520,10 +5544,21 @@ class Plate:
             latd, lond = ll(fs - ditch_back, lateral)
             c = cam.project_ll(latd, lond, built_h(0.0, terr.elev(latd, lond)))
             if a and b:
-                wall_pts.append(((a[0], a[1]), (b[0], b[1])))
+                wall_pts.append(((a[0], a[1]), (b[0], b[1]), a[2]))
                 wall_ground.append((a[0], lat, lon, crest))
             if c:
-                ditch_pts.append((c[0], c[1]))
+                ditch_pts.append((c[0], c[1], c[2]))
+        wall_w, ditch_w = 1.0, 0.9
+        def_depths = [q[2] for q in wall_pts]
+        if not def_depths:
+            def_depths = [q[2] for q in ditch_pts]
+        if def_depths:
+            def_depths.sort()
+            wall_w, ditch_w = defence_strokes(def_depths[len(def_depths) // 2])
+            self.stats["defence_depth"] = round(
+                def_depths[len(def_depths) // 2], 1)
+            self.stats["wall_stroke_px"] = round(wall_w, 2)
+            self.stats["ditch_stroke_px"] = round(ditch_w, 2)
         wall_svg = ""
         if len(wall_pts) > 4:
             wall_pts.sort(key=lambda q: q[0][0])
@@ -5548,9 +5583,17 @@ class Plate:
                 if len(foot) > 4:
                     wall_shadow = ('<path class="pp-objshadow" d="%s"/>'
                                    % rel_poly(cast + list(reversed(foot))))
+            # Masonry fill of the low rampart, then a dark inland shadow-line
+            # along its foot — that line is what reads at plate B, where the
+            # fill's own contrast against the beach is under 3:1 in light.
+            inland = ('<path class="pp-rampart-shadow" d="%s" '
+                      'stroke-width="%s"/>'
+                      % (rel_poly([p[0] for p in wall_pts], close=False),
+                         n1(wall_w)))
             wall_svg = (wall_shadow + '<path class="pp-rampart" d="%s"/>'
                         % rel_poly([p[1] for p in wall_pts]
-                                   + [p[0] for p in reversed(wall_pts)]))
+                                   + [p[0] for p in reversed(wall_pts)])
+                        + inland)
             self.stats["wall_mid"] = list(wall_pts[len(wall_pts) // 4][1])
         ditch_svg = ""
         if len(ditch_pts) > 4:
@@ -5558,8 +5601,10 @@ class Plate:
             # the RAMPART is deliberately not softened: every fourth station
             # stands 3.4 m higher and those spikes are its towers (7.436-439),
             # which a low-pass would file off. The ditch has no such content.
-            ditch_svg = '<path class="pp-ditch" d="%s"/>' % rel_poly(
-                soften(ditch_pts, 2, closed=False), close=False)
+            ditch_svg = ('<path class="pp-ditch" d="%s" stroke-width="%s"/>'
+                         % (rel_poly(soften([(q[0], q[1]) for q in ditch_pts],
+                                            2, closed=False), close=False),
+                            n1(ditch_w)))
 
         self.stats["hulls"] = hulls_drawn
         self.stats["hulls_t1"] = len(ships_t1)
@@ -6156,16 +6201,24 @@ def furniture(cam, terr, ship_depth, troy_depth):
         out.append(f'<text class="pp-l-note" x="{n1(sx0 + 148)}" y="{n1(yy)}" '
                    f'fill-opacity="0.85">{esc(gloss)}</text>')
 
-    # the two bars, at the two depths the plate is mostly about
-    for k, (d, lbl) in enumerate(((ship_depth, "1 km at the ships"),
-                                  (troy_depth, "1 km at Ilios"))):
-        px = FOCAL * 1000.0 / d
+    # the two bars, at the two depths the plate is mostly about — except on
+    # plate B, where Ilios is off the sheet and a second rule is meaningless.
+    # A close camera makes 1 km wider than the SCALE column; sit that label
+    # at the bar's left so it cannot run off the right edge.
+    scale_rules = [(ship_depth, "1 km at the ships")]
+    if PLATE_FAMILY != "B":
+        scale_rules.append((troy_depth, "1 km at Ilios"))
+    for k, (d, lbl) in enumerate(scale_rules):
+        px = FOCAL * 1000.0 / max(float(d), 1.0)
         yy = ky0 + 9.0 + k * 32.0
         out.append(f'<path class="pp-neat-i" d="M{n1(sx0)} {n1(yy)}h{n1(px)}'
                    f'M{n1(sx0)} {n1(yy - 4)}v8M{n1(sx0 + px)} {n1(yy - 4)}v8" '
                    f'stroke-width="1.1"/>')
-        out.append(f'<text class="pp-l-note" x="{n1(sx0 + px + 9)}" '
-                   f'y="{n1(yy + 3.5)}">{lbl}</text>')
+        lx, ly = sx0 + px + 9.0, yy + 3.5
+        if lx > rx:
+            lx, ly = sx0, yy - 8.0
+        out.append(f'<text class="pp-l-note" x="{n1(lx)}" '
+                   f'y="{n1(ly)}">{lbl}</text>')
 
     # ── the notes, set to a measure and in columns (2026-08-15) ──────────
     # NOTHING HERE WAS CUT. Every sentence below is a claim a test pins --
@@ -6355,7 +6408,14 @@ def build(terr, cam, plate_json):
 
     # wall and ditch, then huts, then ships: inland to seaward is also far to
     # near in this camera, so painter order is depth order.
-    body.append(f'<g class="tm2">{wall_svg}{ditch_svg}</g>')
+    # NOT tm2: the wall and ditch are camp-scale terrain, like the huts (see
+    # the huts'-shadows note just below) -- not full-detail-only content like
+    # the ship glyphs. Tier 1 (the plain "full" render both plates use) sets
+    # `.tm2,.tm3{display:none}`, so a tm2 wrapper here hid the ENTIRE group
+    # at every ordinary render regardless of stroke width -- confirmed by
+    # re-shooting a copy of stage3-B-fullstage2c.svg with tier 1's CSS
+    # swapped for tier 2's: the wall and ditch appeared exactly as drawn.
+    body.append(f'<g>{wall_svg}{ditch_svg}</g>')
     # the camp's own shadows go down on the beach BEFORE what throws them: a
     # true-length shadow under every hull and every hut is most of what makes
     # the camp read as objects standing on ground rather than marks on paper.
@@ -6562,8 +6622,13 @@ def build(terr, cam, plate_json):
     body.append("</g>")
 
     troy_d = A.get("ilios", (0, 0, 5500))[2]
+    ship_d = P.stats.get("ship_depth", 2600.0)
+    if PLATE_FAMILY == "B":
+        fc = P.stats.get("fleet_centroid_screen")
+        if fc:
+            ship_d = fc[2]
     body.append('<g class="pp-furn">'
-                + furniture(cam, terr, P.stats.get("ship_depth", 2600.0), troy_d)
+                + furniture(cam, terr, ship_d, troy_d)
                 + '</g>')
     return "".join(body), wps, P
 

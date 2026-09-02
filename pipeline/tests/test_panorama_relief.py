@@ -3116,3 +3116,73 @@ def test_output_stem_prefixes_the_plate_letter(s3):
     assert s3.output_stem("B1", "camera-targets", "stage2b") == (
         "stage3-B1-camera-targetsstage2b")
     assert s3.output_stem("B2", "full", "-x") == "stage3-B2-full-x"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# plate B: wall/ditch must read; one scale rule, labelled (stage 2c)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def _in_frame_wall_depth(s3):
+    """Median along-sight depth of Achaean-wall stations in the current
+    camera's frame. Same sampling camp() uses (34 m along the axis, shore
+    cache, wall_back inland); z=0 is enough for depth, which is what
+    defence_strokes consumes."""
+    sea, lagoon, zone = _camp_polys()
+    fleet = s3.aegean_fleet(sea, zone, lagoon)
+    origin = fleet["origin"]
+    cam = s3.Camera(None, pitch=math.atan2(s3.ALT, s3.SETBACK))
+    depths = []
+    for lateral in [x * 34.0 for x in range(
+            int(math.floor(fleet["a0"] / 34.0)),
+            int(math.ceil(fleet["a1"] / 34.0)) + 1)]:
+        fs = fleet["shore"].get(round(lateral / 13.0) * 13.0)
+        if fs is None:
+            continue
+        lat, lon = s3.camp_ll(origin, lateral, fs - fleet["wall_back"])
+        p = cam.project_ll(lat, lon, 0.0)
+        if p and -s3.BLEED < p[0] < s3.W + s3.BLEED and -s3.BLEED < p[1] < s3.H + s3.BLEED:
+            depths.append(p[2])
+    assert depths, "no wall station landed in frame"
+    depths.sort()
+    return depths[len(depths) // 2]
+
+
+def test_wall_and_ditch_strokes_read_at_plate_b_and_stay_hairline_at_plate_a(
+        s3, restore_camera):
+    """Same inverse-depth law a hull's screen size uses (FOCAL * m / d).
+    Drive defence_strokes with both cameras' wall depths."""
+    _apply_plate(s3, "--plate", "B")
+    wall_b, ditch_b = s3.defence_strokes(_in_frame_wall_depth(s3))
+    assert wall_b >= 2.5, f"plate B wall stroke {wall_b:.2f} px is under 2.5"
+    assert ditch_b >= 2.0, f"plate B ditch stroke {ditch_b:.2f} px is under 2.0"
+    _apply_plate(s3, "--plate", "A")
+    wall_a, ditch_a = s3.defence_strokes(_in_frame_wall_depth(s3))
+    assert wall_a <= 1.2, f"plate A wall stroke {wall_a:.2f} px is over 1.2"
+    assert ditch_a <= 1.2, f"plate A ditch stroke {ditch_a:.2f} px is over 1.2"
+
+
+def _scale_rule_labels(svg):
+    return re.findall(r">1 km at [^<]+", svg)
+
+
+def test_plate_b_margin_emits_one_scale_rule_at_the_ships(s3, restore_camera):
+    """Ilios is off plate B; the 'at Ilios' rule is meaningless there.
+    One rule, labelled, and the label must sit on the sheet even when 1 km
+    at the fleet's depth is wider than the SCALE column."""
+    _apply_plate(s3, "--plate", "B")
+    svg = s3.furniture(None, None, 900.0, 5500.0)
+    labels = _scale_rule_labels(svg)
+    assert labels == [">1 km at the ships"], labels
+    for m in re.finditer(
+            r'<text class="pp-l-note" x="([^"]+)" y="([^"]+)">1 km at', svg):
+        x, y = float(m.group(1)), float(m.group(2))
+        assert 0.0 < x < s3.W, f"scale label x={x:.0f} is off the sheet"
+        assert y >= s3.PIC_BOT, f"scale label y={y:.0f} is on the picture"
+
+
+def test_plate_a_margin_emits_both_scale_rules(s3, restore_camera):
+    _apply_plate(s3, "--plate", "A")
+    svg = s3.furniture(None, None, 2600.0, 5500.0)
+    labels = _scale_rule_labels(svg)
+    assert labels == [">1 km at the ships", ">1 km at Ilios"], labels
