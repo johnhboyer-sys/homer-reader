@@ -24,6 +24,7 @@ today's 280 records are unaffected).
 
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Any
 
 CERTAINTY_TIERS = {"certain", "traditional", "speculative", "mythical"}
@@ -89,6 +90,102 @@ def _is_pair(x: Any) -> bool:
     return isinstance(x, list) and len(x) == 2 and all(_is_number(v) for v in x)
 
 
+# `mentions[].work` values this module knows how to bounds-check, mapped to
+# the manifest filename (manifests/<Work>.yaml) that carries that work's
+# vulgate line counts.
+_MENTION_WORK_MANIFESTS = {"iliad": "Iliad", "odyssey": "Odyssey"}
+
+
+@lru_cache(maxsize=None)
+def _book_line_counts() -> dict[str, dict[int, int]]:
+    """{"iliad"|"odyssey": {book_number: last_line_in_that_book}}, read from
+    manifests/Iliad.yaml and manifests/Odyssey.yaml's `books: [{n, start,
+    end}]` list -- `end` is a "book.line" vulgate ref, the last line present
+    in that book under this project's sacred, never-renumbered lineation
+    (CLAUDE.md). Chosen over reading build/dist/<work>/*.json directly: the
+    manifest table is committed data, so this rule works even before a
+    pipeline build exists, and it is the same table stage1/preflight already
+    treat as authoritative for vulgate line counts -- not a second, invented
+    source of truth. Never raises: a missing/malformed manifest just yields
+    an empty table for that work, and callers degrade to skipping the range
+    check rather than crashing (matching this module's documented contract).
+    """
+    from .config import Manifest
+
+    counts: dict[str, dict[int, int]] = {}
+    for work, manifest_name in _MENTION_WORK_MANIFESTS.items():
+        book_counts: dict[int, int] = {}
+        try:
+            manifest = Manifest.for_work(manifest_name)
+            books = manifest.books
+        except Exception:
+            books = []
+        for book in books:
+            if not isinstance(book, dict):
+                continue
+            n = book.get("n")
+            end = book.get("end")
+            if isinstance(n, int) and isinstance(end, str) and "." in end:
+                try:
+                    book_counts[n] = int(end.rsplit(".", 1)[1])
+                except ValueError:
+                    continue
+        counts[work] = book_counts
+    return counts
+
+
+def _validate_mentions(mentions: Any, label: str) -> list[str]:
+    """`mentions` referential-integrity check (2026-09-02, stage 4c): a
+    `{"work", "book", "lines": [lo, hi]}` reference must name a real book
+    (Iliad and Odyssey both run 1-24) and a real line within that book's
+    vulgate length. This catches a citation-authoring slip that produced two
+    real findings: a document section number like "(§3.5)" or "(§1.75)",
+    left unresolved in prose, harvested as if it were a verse ref and turned
+    into a `mentions` entry -- book 3 line 5, book 1 line 75. NEITHER of
+    those numbers is out of range (book 3 has far more than 5 lines; book 1
+    far more than 75), so THIS RULE, by itself, cannot catch that class of
+    error -- it only catches a book or line number that does not exist at
+    all (book 25, or a line past a book's last line). The two section-number
+    ghosts were caught by hand (verified against the real Greek text) and
+    removed as data fixes; this rule guards against the disjoint, purely
+    structural failure mode: a typo'd book/line that is simply out of
+    bounds.
+    """
+    if not isinstance(mentions, list):
+        return [f"{label}: mentions must be a list"]
+    problems: list[str] = []
+    line_counts = _book_line_counts()
+    for i, mention in enumerate(mentions):
+        if not isinstance(mention, dict):
+            problems.append(f"{label}: mentions[{i}] must be an object")
+            continue
+        work = mention.get("work")
+        book = mention.get("book")
+        lines = mention.get("lines")
+        if not isinstance(book, int) or isinstance(book, bool) or not (1 <= book <= 24):
+            problems.append(
+                f"{label}: mentions[{i}] book {book!r} must be an integer 1-24"
+            )
+            continue
+        work_counts = line_counts.get(work) if isinstance(work, str) else None
+        if not work_counts:
+            # Unknown `work` value, or the manifest table could not be read
+            # (e.g. manifests/ absent in this environment) -- can't
+            # bounds-check the line without it, but the book-range check
+            # above still ran.
+            continue
+        max_line = work_counts.get(book)
+        if max_line is None or not isinstance(lines, list):
+            continue
+        for ln in lines:
+            if _is_number(ln) and ln > max_line:
+                problems.append(
+                    f"{label}: mentions[{i}] {work} {book}.{ln} exceeds book "
+                    f"{book}'s length ({max_line} lines)"
+                )
+    return problems
+
+
 # ── apparatus/places.json ───────────────────────────────────────────────────
 
 
@@ -151,6 +248,10 @@ def validate_places(doc: Any) -> list[str]:
         sources = place.get("sources")
         if sources is not None:
             problems += _validate_sources(sources, f"place {label}")
+
+        mentions = place.get("mentions")
+        if mentions is not None:
+            problems += _validate_mentions(mentions, f"place {label}")
 
         # `zone` (2026-09-02, camp-zone ruling 2e-iv): a gazetteer place's own
         # attributed-zone polygon -- the source of truth a plate layer's

@@ -8074,14 +8074,6 @@
         },
         {
           "work": "iliad",
-          "book": 11,
-          "lines": [
-            167,
-            167
-          ]
-        },
-        {
-          "work": "iliad",
           "book": 22,
           "lines": [
             145,
@@ -8097,7 +8089,7 @@
           ]
         }
       ],
-      "note": "Andromache tells Hector to post the army here, 'where the city is most scalable and the wall assailable' — the Achaeans have already tried it three times (6.433-434). It stands on the wagon-road out of the city (11.167, 22.145, 'the windy fig tree'). A different fig, by the river, is where Achilles catches Lycaon cutting branches (21.37). The poem in fact sets a wild fig in two places, and they do not agree: under the wall at the scalable stretch (6.433-434) and on the chase-circuit beside the lookout (22.145), against the middle of the plain by the tomb of Ilos (11.166-167). Nicanor already separated them - the fig by the city, the barrow mid-plain - and both standard modern commentaries follow that partition (Hainsworth, Commentary III, 243; Richardson, Commentary VI, 122). This record's anchor takes the tree under the wall; the disagreement is recorded rather than averaged away.",
+      "note": "Andromache tells Hector to post the army here, 'where the city is most scalable and the wall assailable' — the Achaeans have already tried it three times (6.433-434). It stands on the wagon-road out of the city, by the lookout, 'the windy fig tree' (22.145). A different fig, by the river, is where Achilles catches Lycaon cutting branches (21.37). The poem in fact sets a wild fig in two places, and they do not agree: under the wall at the scalable stretch (6.433-434) and on the chase-circuit beside the lookout (22.145), against the middle of the plain by the tomb of Ilos (11.166-167, see fig-tree-mid-plain). Nicanor already separated them - the fig by the city, the barrow mid-plain - and both standard modern commentaries follow that partition (Hainsworth, Commentary III, 243; Richardson, Commentary VI, 122). This record's anchor takes the tree under the wall; the disagreement is recorded rather than averaged away.",
       "sources": [
         {
           "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912."
@@ -8118,6 +8110,7 @@
     {
       "id": "fig-tree-mid-plain",
       "name": "The wild fig in the middle of the plain",
+      "greek": "ἐρινεός",
       "certainty": "speculative",
       "kind": "tree",
       "plateAnchors": {
@@ -8260,7 +8253,7 @@
           ]
         }
       ],
-      "note": "The road running from the Scaean Gate out across the plain, past the lookout, the fig tree, and the springs — the track Achilles and Hector run three times around the city, and the single organizing line of the whole plain. Two roads are being run together there, and the poem never joins them. The one road it calls ἀμαξιτός (22.146, its only occurrence) skirts the town a short way outside the wall - so Leaf reads it, and Richardson says the same without hedging (Commentary VI, 122) - carrying the chase past the lookout, the fig tree and the springs, which is how Hector and Achilles reach the springs once on every lap (22.208). The route Priam drives down to the ships is given only by its waypoints, the tomb of Ilos, the river, the ford, the towers and the ditch (24.349-351, 24.443). This record's anchor sits on the ring under the wall.",
+      "note": "The chase-ring under the wall — the track Achilles and Hector run three laps of, out past the lookout, the fig tree, and the springs. Two roads are being run together on this plain, and the poem never joins them. The one road it calls ἀμαξιτός (22.146, its only occurrence) skirts the town a short way outside the wall - so Leaf reads it, and Richardson says the same without hedging (Commentary VI, 122) - carrying the chase past the lookout, the fig tree and the springs, which is how Hector and Achilles reach the springs once on every lap (22.208). The other road — the one Priam drives down to the ships, given only by its waypoints, the tomb of Ilos, the river, the ford, the towers and the ditch (24.349-351, 24.443) — is a different object, catalogued separately as road-to-the-ships. This record's anchor sits on the ring under the wall.",
       "sources": [
         {
           "cite": "Luce, J. V. Celebrating Homer's Landscapes: Troy and Ithaca Revisited. New Haven: Yale University Press, 1998."
@@ -8291,14 +8284,6 @@
         "troad-plain"
       ],
       "mentions": [
-        {
-          "work": "iliad",
-          "book": 3,
-          "lines": [
-            5,
-            5
-          ]
-        },
         {
           "work": "iliad",
           "book": 24,
@@ -8378,7 +8363,7 @@
           ]
         }
       ],
-      "note": "One spring runs warm, steam rising 'as from a burning fire'; the other is cold as hail or snow even in high summer (22.149-152), on the wagon-road Achilles and Hector run past in the chase. The natural springs themselves — distinct from the man-made stone troughs beside them (see 'washing-troughs') — are what this record maps. The survey (field campaigns 2001-2006, published as Wolkersdorfer et al., CATENA 200 (2021)) measured the local candidates and found their temperatures nearly constant year-round — they only feel warm in winter and cold in summer. Its authors propose, by analogy with Plato's Kritias, that Homer describes one spring perceived two ways across the seasons — a proposal, not a measured finding.",
+      "note": "One spring runs warm, steam rising 'as from a burning fire'; the other is cold as hail or snow even in high summer (22.149-152), on the wagon-road Achilles and Hector run past in the chase. The natural springs themselves — distinct from the man-made stone troughs beside them (see 'washing-troughs') — are what this record maps. The survey (field campaigns 2001-2006, published as Wolkersdorfer et al., CATENA 200 (2021)) measured the local candidates and found their temperatures nearly constant year-round — they only feel warm in winter and cold in summer.",
       "sources": [
         {
           "cite": "Wolkersdorfer, Christian, et al. \"Hydrochemical investigations to locate Homer's hot and cold springs of Troia (Troy)/Turkey.\" CATENA 200 (2021): 105070.",
@@ -8549,6 +8534,7 @@
     {
       "id": "scamander-simoeis-confluence",
       "name": "The confluence of Simoeis and Scamander",
+      "greek": null,
       "certainty": "speculative",
       "tradition": "Position shifts with the delta's six-millennia progradation (Kraft, Rapp, Kayan, and Luce 2003); no fixed Bronze Age location recoverable",
       "kind": "river",
@@ -8586,17 +8572,9 @@
             4,
             4
           ]
-        },
-        {
-          "work": "iliad",
-          "book": 1,
-          "lines": [
-            75,
-            75
-          ]
         }
       ],
-      "note": "'Where the Simoeis and Scamander join their streams' (5.774) — Hera unyokes her horses here, and Simoeis makes ambrosia grow for them, a real divine landmark inside the poem. Where the junction is, the poem will not settle. 5.773-774 has the two rivers meeting as one comes to Troy, close under the city and so cutting it off from the camp; Book 21 drives half the rout across the plain toward the city and half into the water, and 6.4 sets the fighting between the two streams. Leaf states the conflict and leaves it (Troy: A Study in Homeric Geography, 37). The schematic anchor follows 5.774 and puts the junction in the plain under the city, while the sheet draws the two rivers to separate mouths - the disagreement is left standing, not averaged.",
+      "note": "ῥοὰς Σιμόεις συμβάλλετον ἠδὲ Σκάμανδρος, 'where the Simoeis and Scamander join their streams' (5.774) — Hera unyokes her horses here, and Simoeis makes ambrosia grow for them, a real divine landmark inside the poem. Where the junction is, the poem will not settle. 5.773-774 has the two rivers meeting as one comes to Troy, close under the city and so cutting it off from the camp; Book 21 drives half the rout across the plain toward the city and half into the water, and 6.4 sets the fighting between the two streams. Leaf states the conflict and leaves it (Troy: A Study in Homeric Geography, 37). The schematic anchor follows 5.774 and puts the junction in the plain under the city, while the sheet draws the two rivers to separate mouths - the disagreement is left standing, not averaged.",
       "sources": [
         {
           "cite": "Kraft, John C., George Rapp, İlhan Kayan, and John V. Luce. \"Harbor areas at ancient Troy: Sedimentology and geomorphology complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163–66."
@@ -9088,6 +9066,7 @@
     {
       "id": "wagon-gate",
       "name": "The chariot gate",
+      "greek": null,
       "certainty": "speculative",
       "kind": "gate",
       "plateAnchors": {
@@ -9369,17 +9348,9 @@
             681,
             681
           ]
-        },
-        {
-          "work": "iliad",
-          "book": 13,
-          "lines": [
-            312,
-            313
-          ]
         }
       ],
-      "note": "One extremity of the camp: he and Achilles 'had drawn up their balanced ships at the ends, trusting in their manhood and the strength of their hands' (8.225-226 = 11.8-9). Which end is Ajax's and which Achilles' the poem never says. The schematic sheet has to put him somewhere, so it names the camp's ends by who holds them and places Ajax's end toward the promontory later called Rhoiteion. That follows Aristarchus, and Janko states it outright: the 'left of the ships' is always seen from the Greek side, so the left is the eastern end where the Scamander ran and Telamonian Ajax lay, the right the western end toward Sigeion where Achilles was stationed (Commentary IV, 130-31, on 13.675). Hainsworth reads the same phrase at 12.118 from the attacker's side, which would swap the two ends (Commentary III, 313-14). Neither headland is named in the Iliad; both names are Strabo's. The placement is speculative for that reason, and the words left and right are kept off the sheet.",
+      "note": "One extremity of the camp: he and Achilles 'had drawn up their balanced ships at the ends, trusting in their manhood and the strength of their hands' (8.225-226 = 11.8-9). Which end is Ajax's and which Achilles' the poem never says. The schematic sheet has to put him somewhere, so it names the camp's ends by who holds them: this record sets Ajax at the end opposite Achilles, who holds the Sigeion end (see hut-of-achilles). That follows Aristarchus, and Janko states it outright: the 'left of the ships' is always seen from the Greek side, so the left is the eastern end where the Scamander ran and Telamonian Ajax lay, the right the western end toward Sigeion where Achilles was stationed (Commentary IV, 130-31, on 13.675). Hainsworth reads the same phrase at 12.118 from the attacker's side, which would swap the two ends (Commentary III, 313-14). Neither headland is named in the Iliad; both names are Strabo's. The placement is speculative for that reason, and the words left and right are kept off the sheet. In the fighting at the ships the Ajaxes are named defending the MIDDLE ships, not their own station — Idomeneus tells Thoas 'others are there to defend among the middle ships, both Ajaxes and Teucer' (13.312-13) — a passage about where they fight, not where they lie.",
       "sources": [
         {
           "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
@@ -9400,6 +9371,7 @@
     {
       "id": "ship-of-protesilaus",
       "name": "The ship of Protesilaus",
+      "greek": "νηῦς Πρωτεσιλάου",
       "certainty": "speculative",
       "kind": "camp",
       "plateAnchors": {
@@ -9526,7 +9498,7 @@
           ]
         }
       ],
-      "note": "The camp's other extremity, opposite Ajax — the setting of the Embassy in Book 9 and of Priam's supplication in Book 24. Its distance from the centre is a plot device: Achilles cannot see what is happening at the ships and has to send Patroclus to find out (11.599ff.). The sheet places his end toward the promontory later called Sigeion, on the same adopted reading of the camp's axis that puts Ajax's end toward Rhoiteion: Aristarchus's, stated at first hand by Janko (Commentary IV, 130-31), against Hainsworth, who reads Asius's 'left of the ships' at 12.118 from the attacker's side and lands on the opposite end (Commentary III, 313-14). Neither headland is named in the Iliad. The poem itself says only 'at the ends', so the placement is speculative and the sheet names the ends by their holders rather than by a hand.",
+      "note": "The camp's other extremity, opposite Ajax — the setting of the Embassy in Book 9 and of Priam's supplication in Book 24. Its distance from the centre is a plot device: Achilles cannot see what is happening at the ships and has to send Patroclus to find out (11.599ff.). The sheet places his end toward the promontory later called Sigeion, on the same adopted reading of the camp's axis that puts Ajax at the opposite end: Aristarchus's, stated at first hand by Janko (Commentary IV, 130-31), against Hainsworth, who reads Asius's 'left of the ships' at 12.118 from the attacker's side and lands on the opposite end (Commentary III, 313-14). Neither headland is named in the Iliad. The poem itself says only 'at the ends', so the placement is speculative and the sheet names the ends by their holders rather than by a hand.",
       "sources": [
         {
           "cite": "Homer. The Iliad. Translated by A. T. Murray. Loeb Classical Library 170–171. Cambridge, MA: Harvard University Press, 1924."
@@ -10471,14 +10443,6 @@
         },
         {
           "work": "iliad",
-          "book": 15,
-          "lines": [
-            409,
-            409
-          ]
-        },
-        {
-          "work": "iliad",
           "book": 10,
           "lines": [
             112,
@@ -10542,7 +10506,7 @@
           ]
         }
       ],
-      "note": "Idomeneus's quarter, inboard of Ajax's end. Nestor pairs Idomeneus with Ajax as the two whose ships lie furthest from his own, οὐδὲ μάλ' ἐγγύς (10.112–13) — a distance from Nestor, not an end. What fixes the END is the poem's own chain: Asius drives at the sector where the teams come in and is killed ἔγχεϊ Ἰδομενῆος (12.117–19), and the death is narrated in the sector Idomeneus chooses at 13.326 and executes at 13.384–88. Hainsworth reaches the same sector from the other side: 'the quarters of Idomeneus which were on the Achaean left' (III, 314). THIS MOVES HIM FROM THE OLD SHEET, which put him inboard of Achilles and said in its own note that the placement was 'the plate's own guess and is not fixed by the text'.",
+      "note": "Idomeneus's quarter, inboard of Ajax's end. Nestor pairs Idomeneus with Ajax as the two whose ships lie furthest from his own, οὐδὲ μάλ' ἐγγύς (10.112–13) — a distance from Nestor, not an end. What fixes the END is the poem's own chain: Asius drives at the sector where the teams come in and is killed ἔγχεϊ Ἰδομενῆος (12.117–19), the death itself narrated at 13.384–88. Hainsworth reaches the same sector from the other side: 'the quarters of Idomeneus which were on the Achaean left' (III, 314). THIS MOVES HIM FROM THE OLD SHEET, which put him inboard of Achilles and said in its own note that the placement was 'the plate's own guess and is not fixed by the text'.",
       "sources": [
         {
           "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
@@ -10745,14 +10709,6 @@
           "work": "iliad",
           "book": 23,
           "lines": [
-            108,
-            257
-          ]
-        },
-        {
-          "work": "iliad",
-          "book": 23,
-          "lines": [
             125,
             126
           ]
@@ -10779,14 +10735,6 @@
           "lines": [
             257,
             259
-          ]
-        },
-        {
-          "work": "odyssey",
-          "book": 24,
-          "lines": [
-            80,
-            84
           ]
         }
       ],
@@ -10872,14 +10820,6 @@
           "lines": [
             257,
             259
-          ]
-        },
-        {
-          "work": "odyssey",
-          "book": 24,
-          "lines": [
-            80,
-            84
           ]
         }
       ],

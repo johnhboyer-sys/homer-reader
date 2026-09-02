@@ -19,7 +19,7 @@
       "url": "https://commons.wikimedia.org/wiki/File:THE_ILLIAD_OF_HOMER_(translated_by_POPE)_p2.012_Troia.jpg"
     },
     {
-      "cite": "Cuillandre, Joseph. La droite et la gauche dans les poemes homeriques. Paris: Les Belles Lettres, 1944."
+      "cite": "Cuillandre, Joseph. La droite et la gauche dans les poèmes homériques. Paris: Les Belles Lettres, 1943."
     },
     {
       "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912.",
@@ -77,7 +77,7 @@
     {
       "letter": "C",
       "title": "The plain before the ships",
-      "ref": "Il. 8.489–565 · Il. 10.160–161 · Il. 11.56 · Il. 13.1–837 · Il. 15.592–746 · Il. 16.1–418",
+      "ref": "Il. 8.489–565 · Il. 10.160–161 · Il. 11.56",
       "layerId": "zone-c-plain-before-the-ships"
     },
     {
@@ -8725,7 +8725,7 @@
           "url": "https://commons.wikimedia.org/wiki/File:THE_ILLIAD_OF_HOMER_(translated_by_POPE)_p2.012_Troia.jpg"
         },
         {
-          "cite": "Cuillandre, Joseph. La droite et la gauche dans les poemes homeriques. Paris: Les Belles Lettres, 1944."
+          "cite": "Cuillandre, Joseph. La droite et la gauche dans les poèmes homériques. Paris: Les Belles Lettres, 1943."
         },
         {
           "cite": "Kraft, John C., George Rapp, İlhan Kayan, and John V. Luce. \"Harbor areas at ancient Troy: Sedimentology and geomorphology complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163–66."
@@ -9390,7 +9390,7 @@
         [39.96578, 26.17619],
         [39.96628, 26.17853]
       ],
-      "note": "Agamemnon's quarter, adjacent to Nestor's (2.53–54) and inboard of the centre. The poem gives function, not position; the adjacency is the only geometry.",
+      "note": "Agamemnon's hut, named directly across the poem (2.9, 9.178, 9.669, 19.241, 23.38; see hut-of-agamemnon). The poem states no position for it relative to Nestor's or any other station.",
       "sources": [
         {
           "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
@@ -9414,7 +9414,7 @@
         [39.96153, 26.1727],
         [39.96292, 26.17326]
       ],
-      "note": "Nestor's quarter, beside Agamemnon's and just inboard of Odysseus's centre (2.53–54; 10.74; 11.618).",
+      "note": "Nestor's ship, where the council of elders sits, Νεστορέῃ παρὰ νηῒ Πυλοιγενέος βασιλῆος (2.53–54); on the night of the Doloneia, Agamemnon goes to rouse him and finds him beside his hut and black ship (10.73–74); Patroclus, sent from Achilles's ships, reaches it at a run (11.617–18). The poem states no position for it relative to Agamemnon's or Odysseus's station.",
       "sources": [
         {
           "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
@@ -9445,7 +9445,7 @@
         [39.93289, 26.17291],
         [39.93445, 26.1749]
       ],
-      "note": "Idomeneus's quarter, inboard of Ajax's end. Nestor pairs Idomeneus with Ajax as the two whose ships lie furthest from his own, οὐδὲ μάλ' ἐγγύς (10.112–13) — a distance from Nestor, not an end. What fixes the END is the poem's own chain: Asius drives at the sector where the teams come in and is killed ἔγχεϊ Ἰδομενῆος (12.117–19), and the death is narrated in the sector Idomeneus chooses at 13.326 and executes at 13.384–88.",
+      "note": "Idomeneus's quarter, inboard of Ajax's end. Nestor pairs Idomeneus with Ajax as the two whose ships lie furthest from his own, οὐδὲ μάλ' ἐγγύς (10.112–13) — a distance from Nestor, not an end. What fixes the END is the poem's own chain: Asius drives at the sector where the teams come in and is killed ἔγχεϊ Ἰδομενῆος (12.117–19), the death itself narrated at 13.384–88.",
       "sources": [
         {
           "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
@@ -9596,7 +9596,7 @@
       "kind": "route",
       "style": "inset",
       "frame": [1132, 760, 316, 300],
-      "note": "The gate the teams come back in through: Asius drives at it, νηῶν ἐπώ ἀριστερά, τῇ περ Ἀχαιοὶ ἐκ πεδίου νίσοντο σὺν ἵπποισιν καὶ ὄχεσφι (Il. 12.118-19), and Idomeneus kills him there (13.384-88). The gates were built wide on purpose, ὄφρα διώ αὐτάων ἱππηλασίη ὁδὸς εἴη (7.438-39). Whose left 12.118 means is disputed — Janko reads it from the Greek side, Hainsworth from Asius's — so the gate is labelled by the event and not by a hand.",
+      "note": "The gate the teams come back in through: Asius drives at it, νηῶν ἐπ' ἀριστερά, τῇ περ Ἀχαιοὶ ἐκ πεδίου νίσοντο σὺν ἵπποισιν καὶ ὄχεσφι (Il. 12.118-19), and Idomeneus kills him there (13.384-88). The gates were built wide on purpose, ὄφρα δι' αὐτάων ἱππηλασίη ὁδὸς εἴη (7.439). Whose left 12.118 means is disputed — Janko reads it from the Greek side, Hainsworth from Asius's — so the gate is labelled by the event and not by a hand.",
       "sources": [
         {
           "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
@@ -9699,6 +9699,10 @@
         },
         {
           "cite": "Leaf, Walter, ed. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902."
+        },
+        {
+          "cite": "Huffman, Daniel P. \"On Waterlines: Arguments for their Employment, Advice on their Generation.\" Cartographic Perspectives 66 (Fall 2010): 23–30.",
+          "url": "https://cartographicperspectives.org/index.php/journal/article/download/cp66-huffman/pdf/815"
         }
       ],
       "labelTier": 1,
