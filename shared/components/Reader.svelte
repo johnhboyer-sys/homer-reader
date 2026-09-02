@@ -1070,13 +1070,22 @@
     return l.kind === 'coast' || l.kind === 'river' || (l.kind === 'region' && (l.fill === 'sea' || l.fill === 'lagoon'));
   }
   interface LocatorFrame { x: number; y: number; w: number; h: number }
-  function locatorFrame(plate: Plate, camera: Camera | null): LocatorFrame | null {
+  // `frame`, not `plate.size` (item 2, stage 5a, 2026-09-02): `camera.tx`/
+  // `.scale` are computeCamera's own output, computed against `viewport`,
+  // which is already frame-width (not sheet-width) on a plate with a
+  // margin band — see plate.ts's renderPlate. `x`/`y` (an origin) stay
+  // correct read either way, since the frame and the sheet share the same
+  // top-left corner; only `w`/`h` (a SPAN) were wrong, scaled by the wider
+  // sheet width instead of the frame's own — the locator's frame rect used
+  // to mark a stretch of the overview wider than what the postcard, cropped
+  // to the frame, actually shows.
+  function locatorFrame(frame: [number, number], camera: Camera | null): LocatorFrame | null {
     if (!camera) return null;
     return {
       x: -camera.tx / camera.scale,
       y: -camera.ty / camera.scale,
-      w: plate.size[0] / camera.scale,
-      h: plate.size[1] / camera.scale,
+      w: frame[0] / camera.scale,
+      h: frame[1] / camera.scale,
     };
   }
 
@@ -1087,7 +1096,7 @@
         { idPrefix: `chart-locator-${work}-${bookNum}` },
       )
     : null;
-  $: iliadLocatorFrame = iliadPlate ? locatorFrame(iliadPlate, iliadPlateCamera) : null;
+  $: iliadLocatorFrame = iliadPlateRender ? locatorFrame(iliadPlateRender.frame, iliadPlateCamera) : null;
 
   $: schematicLocatorRender = schematicPlate
     ? renderPlate(
@@ -1096,7 +1105,7 @@
         { idPrefix: `chart-locator-schematic-${work}-${bookNum}` },
       )
     : null;
-  $: schematicLocatorFrame = schematicPlate ? locatorFrame(schematicPlate, schematicPlateCamera) : null;
+  $: schematicLocatorFrame = schematicPlateRender ? locatorFrame(schematicPlateRender.frame, schematicPlateCamera) : null;
 
   // Whichever path is live (new plate vs the old renderSceneMap box), "is
   // there a map to show at all" — drives the reserved-space/collapse
@@ -1107,10 +1116,19 @@
   // space at renderSceneMap's own 320x220 default (see global.css) — the
   // Trojan-plain plate's own size is a different shape, so override the
   // reserved aspect-ratio inline when it's the one showing.
-  $: chartMapAspectRatio = useIliadPlate && iliadPlate
-    ? `${iliadPlate.size[0]} / ${iliadPlate.size[1]}`
-    : useSchematicPlate && schematicPlate
-      ? `${schematicPlate.size[0]} / ${schematicPlate.size[1]}`
+  //
+  // `.frame`, not `.size` (item 2, stage 5a, 2026-09-02): the schematic
+  // sheet's `size` now includes its own 340px margin band (legend/scene
+  // key), and the postcard draws no margin content at all (FURNITURE_
+  // SELECTOR hides it) — reserving `size`'s wider ratio left a blank band
+  // down the postcard's right edge, ~30% of its width. `.frame` (plate.ts's
+  // PlateResult.frame) is the map content's own size, `size` on a plate
+  // with no `marginRight` (every geographic plate today, so useIliadPlate's
+  // branch is unaffected).
+  $: chartMapAspectRatio = useIliadPlate && iliadPlateRender
+    ? `${iliadPlateRender.frame[0]} / ${iliadPlateRender.frame[1]}`
+    : useSchematicPlate && schematicPlateRender
+      ? `${schematicPlateRender.frame[0]} / ${schematicPlateRender.frame[1]}`
       : null;
 
   interface PlateCameraParams {
@@ -1173,8 +1191,15 @@
   // the slot's corner underneath the locator inset. Both are hidden
   // unconditionally: this action only ever drives the postcard, never
   // PlatePanel's full-plate `/maps/` view, which still wants all of them.
+  // `.plate-scene-key` added (item 2, stage 5a, 2026-09-02): the schematic
+  // sheet's margin band furniture — its legend (`.plate-legend`, already
+  // here) and scene key both draw INTO the reclaimed margin band, and both
+  // must vanish from the postcard the same way the corner legend already
+  // does. `[data-layer-style="inset"]` already covers a margin-band inset
+  // panel (renderPlate wraps a margin inset the same way as a map-content
+  // one) — nothing new needed there.
   const FURNITURE_SELECTOR =
-    '[data-layer-style="inset"], .plate-legend, .plate-scale, .plate-north, .plate-hypsometric-key';
+    '[data-layer-style="inset"], .plate-legend, .plate-scale, .plate-north, .plate-hypsometric-key, .plate-scene-key';
 
   function applyPlateCamera(node: HTMLElement, params: PlateCameraParams) {
     let labelWrappers: { el: SVGGElement; x: number; y: number; id: string | null }[] = [];
@@ -1208,6 +1233,24 @@
       lastSvgEl = svgEl as SVGSVGElement | null;
       labelWrappers = [];
       if (!svgEl) return;
+      // Crop to the MAP FRAME, not the whole sheet (item 2, stage 5a,
+      // 2026-09-02): plate.ts's own `viewBox` always spans the full sheet
+      // (`0 0 ${width} ${height}`, margin band included — PlatePanel wants
+      // that, to show the legend/scene key it draws there), but the
+      // postcard's own box is now sized to the FRAME's ratio
+      // (chartMapAspectRatio, off PlateResult.frame). The two ratios only
+      // differ when marginRight > 0 (today, only the schematic sheet) — the
+      // default `xMidYMid meet` would then letterbox AND still show a
+      // sliver of the (furniture-hidden but still ground-filled) margin
+      // band down one side, rather than actually crop it. `slice` scales up
+      // to fill the box on the constraining axis and clips the overflow;
+      // `xMinYMin` anchors the kept corner to the FRAME's own origin (the
+      // margin sits at the sheet's right edge, `size[0] - marginRight`, so
+      // the overflow clipped away is the margin, never the map). On a plate
+      // with no margin (frame === size, marginRight 0/undefined) the two
+      // ratios already match and this is a no-op — verified for the
+      // geographic path in components.test.ts.
+      svgEl.setAttribute('preserveAspectRatio', 'xMinYMin slice');
       svgEl.querySelectorAll<SVGElement>(FURNITURE_SELECTOR).forEach((el) => el.classList.add('plate-hidden'));
       // The locator inset (chartLocatorInset, a sibling of `node` under the
       // same `.chart-plate-postcard`/`<a class="chart-plate-postcard">`) is
@@ -3195,7 +3238,7 @@
       >
         <div
           class="chart-plate"
-          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0], plateHeight: iliadPlate.size[1], labelBoxes: iliadPlateRender.labelBoxes }}
+          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlateRender.frame[0], plateHeight: iliadPlateRender.frame[1], labelBoxes: iliadPlateRender.labelBoxes }}
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html iliadPlateHtml}
@@ -3208,7 +3251,7 @@
       <div class="chart-plate-postcard">
         <div
           class="chart-plate"
-          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0], plateHeight: iliadPlate.size[1], labelBoxes: iliadPlateRender.labelBoxes }}
+          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlateRender.frame[0], plateHeight: iliadPlateRender.frame[1], labelBoxes: iliadPlateRender.labelBoxes }}
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html iliadPlateHtml}
@@ -3225,7 +3268,7 @@
     <div class="chart-plate-postcard">
       <div
         class="chart-plate"
-        use:applyPlateCamera={{ camera: schematicPlateCamera, focusIds: schematicFocusIds, ariaLabel: schematicPlateAriaLabel, reduceMotion, plateWidth: schematicPlate.size[0], plateHeight: schematicPlate.size[1], labelBoxes: schematicPlateRender.labelBoxes }}
+        use:applyPlateCamera={{ camera: schematicPlateCamera, focusIds: schematicFocusIds, ariaLabel: schematicPlateAriaLabel, reduceMotion, plateWidth: schematicPlateRender.frame[0], plateHeight: schematicPlateRender.frame[1], labelBoxes: schematicPlateRender.labelBoxes }}
       >
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html schematicPlateHtml}

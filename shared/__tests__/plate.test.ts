@@ -810,6 +810,27 @@ describe('renderPlate: schematic plates (gap 1)', () => {
     const feature = result.features.find((f) => f.id === 'diag')!;
     expect(feature.bbox).toEqual([0, 0, 500, 300]);
   });
+
+  // PlateResult.frame (stage 5a, 2026-09-02): the MAP frame's own size,
+  // `[size[0] - marginRight, size[1]]`, as opposed to `plate.size` (the
+  // whole sheet, margin band included). A caller sizing a postcard's
+  // aspect-ratio box off `plate.size` on this sheet reserves a slot ~30%
+  // wider than the map itself and shows blank band down the right edge —
+  // this is what it should read instead.
+  it('exposes `frame` — the map frame\'s own size, inset by marginRight — on the live schematic plate', () => {
+    const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
+    const plate = parsePlate(raw);
+    const result = renderPlate(plate, []);
+    expect(plate.marginRight).toBeGreaterThan(0);
+    expect(result.frame).toEqual([plate.size[0] - plate.marginRight!, plate.size[1]]);
+    expect(result.frame).toEqual([result.viewport.width, result.viewport.height]);
+  });
+
+  it('`frame` equals `plate.size` on a plate with no marginRight (every geographic plate today)', () => {
+    const result = renderPlate(testPlate, []);
+    expect(testPlate.marginRight).toBeUndefined();
+    expect(result.frame).toEqual(testPlate.size);
+  });
 });
 
 // A label on open water asserts a place IN THE SEA, which is false on a

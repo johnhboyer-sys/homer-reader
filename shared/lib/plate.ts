@@ -499,6 +499,15 @@ export interface PlateResult {
   // by computeCamera so a framed focus's label — not just its pin — fits
   // inside the camera window.
   labelBoxes: Record<string, LabelBox>;
+  // The MAP frame's own size in plate px — `[size[0] - marginRight, size[1]]`
+  // — as opposed to `Plate.size`, which is the whole SHEET including the
+  // margin band a schematic plate reserves for its legend/scene key (stage
+  // 5a, 2026-09-02). A caller sizing a viewport/aspect-ratio box or deriving
+  // a locator rect from `viewport`/`camera` wants THIS, not `plate.size`:
+  // the margin band draws no map content, so reserving `plate.size`'s own
+  // (wider) ratio leaves a blank band down one side. Equal to `plate.size`
+  // whenever `marginRight` is unset (every geographic plate today).
+  frame: [number, number];
 }
 
 export interface Camera {
@@ -5487,6 +5496,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     drawnByLayer,
     suppressedLabels: labels.suppressed,
     labelBoxes,
+    frame: [frameWidth, height],
   };
 }
 
