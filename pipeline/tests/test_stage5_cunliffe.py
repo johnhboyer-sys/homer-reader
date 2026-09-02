@@ -1917,3 +1917,32 @@ def test_a_translation_ending_in_greek_stays_beside_the_quotation():
     assert any(g.startswith("ἀγγελίην ἐπὶ Tυδῆ στεῖλαν (dispatched him")
                and not e for g, e in _ex(t8))
 
+
+
+def test_the_note_rules_do_not_behead_a_word_that_merely_starts_with_so():
+    """"So" is one of Cunliffe's list-closing marks, and it was matched without
+    a word boundary — so it ate the opening of any definition beginning
+    "Something", "Source", "Soothing", "Sorry".
+
+    ἀρχή's second sense read "mething to serve as a basis or foundation".
+    γενέθλη's read "urce, origin". 37 entries, and they are common words:
+    ἀρχή, γένος, δίκη, δόρυ, αἰδώς, ἄλλος, ἔργον, δῶρον.
+
+    The corpus round-trip audit is blind to it, which is why it survived
+    eleven commits of work on this file: the stolen "So" is moved into the
+    citation list as a note, so no character is lost — only the word is
+    broken. Nothing but reading the rendered entry finds this.
+    """
+    real = ("ἀρχή [ἄρχω]. 1 A beginning, a first phase Il. 11.604. "
+            "2 So, something to serve as a basis or foundation Od. 8.499.")
+    t8 = sc.to_t8("a)rxh/", "ἀρχή", real)
+    import re as _re
+    zs = [_re.sub(r"<[^>]+>", "", r.get("z") or "") for r in t8["rows"]]
+    assert not any(z.strip().startswith("mething") for z in zs), zs
+    assert any("something to serve as a basis" in z for z in zs), zs
+
+    # The mark itself still works where it really is one.
+    assert sc._LEADING_NOTE_RE.match("So ")
+    assert sc._LEADING_NOTE_RE.match("So. ")
+    assert not sc._LEADING_NOTE_RE.match("Something")
+    assert not sc._LEADING_NOTE_RE.match("Source, origin")

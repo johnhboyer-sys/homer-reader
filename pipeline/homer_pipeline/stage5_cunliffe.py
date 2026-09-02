@@ -624,14 +624,14 @@ _EN_RUN_RE = re.compile(r"[A-Za-z]{2,}(?:[.,;:]?\s+[A-Za-z]{2,})+")
 # A note at the FRONT of some prose belongs to the citation list before it, not
 # to the definition it precedes: "etc. Absol. with the article" opened a sense
 # reading "etc. Absol. …" (John, on seeing it). Peeled off and handed back.
-_LEADING_NOTE_RE = re.compile(r"^(?:[\s.:,;–-]*(?:etc\.?|So|and so on))+[\s.:,;–-]*")
+_LEADING_NOTE_RE = re.compile(r"^(?:[\s.:,;–-]*(?:etc\.?|So\b|and so on))+[\s.:,;–-]*")
 
 
 # Cunliffe's own "and so on" marks. Kept in the text, never given a row.
 # Notes come in runs — "etc. So", "– etc.:", a bare "– –". Matching only one
 # at a time left the rest to open a row of its own (John, on seeing "etc. So"
 # standing above examples that belong to the sense before it).
-_TRAILING_NOTE_RE = re.compile(r"(?:[\s.:,;–-]*(?:etc\.?|So|and so on))*[\s.:,;–-]*")
+_TRAILING_NOTE_RE = re.compile(r"(?:[\s.:,;–-]*(?:etc\.?|So\b|and so on))*[\s.:,;–-]*")
 
 # A bare reference pointer: Cunliffe's own citation IS the grammatical object
 # ("Except in Il. 22.218", "– Other combinations in Il. 1.417, …", "Prob.
