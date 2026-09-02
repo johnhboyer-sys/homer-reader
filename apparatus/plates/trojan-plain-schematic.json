@@ -8876,31 +8876,38 @@
       "kind": "wall",
       "placeId": "achaean-wall-and-ditch",
       "trace": [
-        [39.99299, 26.1901],
-        [39.98937, 26.18939],
-        [39.98541, 26.18647],
-        [39.98153, 26.1844],
-        [39.97822, 26.18383],
-        [39.97495, 26.1865],
-        [39.97076, 26.18894],
-        [39.96628, 26.18779],
-        [39.96468, 26.18397],
-        [39.96481, 26.17856],
-        [39.96398, 26.17532],
-        [39.96033, 26.17404],
-        [39.95604, 26.17278],
-        [39.95264, 26.17108],
-        [39.95071, 26.17381],
-        [39.94977, 26.17882],
-        [39.94533, 26.18017],
-        [39.94125, 26.17992],
-        [39.93692, 26.17954],
-        [39.93342, 26.17593],
-        [39.93034, 26.17255],
-        [39.92677, 26.17111],
-        [39.92285, 26.17163],
-        [39.91847, 26.17328],
-        [39.91487, 26.17194]
+        [39.99511, 26.18826],
+        [39.994834, 26.188054],
+        [39.994281, 26.187642],
+        [39.993453, 26.187023],
+        [39.992348, 26.186199],
+        [39.990471, 26.185221],
+        [39.987821, 26.184087],
+        [39.984399, 26.182799],
+        [39.980204, 26.181357],
+        [39.976298, 26.179954],
+        [39.972681, 26.178592],
+        [39.969352, 26.177269],
+        [39.966313, 26.175986],
+        [39.962597, 26.17475],
+        [39.958205, 26.173561],
+        [39.953136, 26.172419],
+        [39.947391, 26.171324],
+        [39.942284, 26.170041],
+        [39.937815, 26.168569],
+        [39.933984, 26.166908],
+        [39.930791, 26.165058],
+        [39.927727, 26.163875],
+        [39.924793, 26.163359],
+        [39.921989, 26.16351],
+        [39.919314, 26.164328],
+        [39.917027, 26.165137],
+        [39.915129, 26.165938],
+        [39.913619, 26.16673],
+        [39.912497, 26.167514],
+        [39.911656, 26.168102],
+        [39.911095, 26.168494],
+        [39.910815, 26.16869]
       ],
       "note": "Outside the wall they dug the ditch, broad, great and deep, and planted stakes in it, ἔκτοσθεν δὲ βαθεῖαν ἐπ' αὐτῷ τάφρον ὄρυξαν (7.440–41); its faces are overhanging on both sides and a chariot cannot get in (12.54–59); Apollo bridges it a spear-cast wide (15.357–59). Drawn 150 m outside the wall. THE INTERVAL IS A DRAWN CHOICE with a cited reason: 9.87–88 camps seven companies of a hundred men between ditch and wall with their fires, which needs a real gap, while 8.213 admits either a close pairing or a distant one and Leaf refuses to choose (C-6).",
       "sources": [
@@ -8919,31 +8926,38 @@
       "kind": "wall",
       "placeId": "achaean-wall-and-ditch",
       "trace": [
-        [39.99318, 26.18836],
-        [39.98984, 26.18774],
-        [39.986, 26.18489],
-        [39.98187, 26.1827],
-        [39.97792, 26.18212],
-        [39.97432, 26.18495],
-        [39.97058, 26.1872],
-        [39.96696, 26.18627],
-        [39.96602, 26.18374],
-        [39.96614, 26.17829],
-        [39.96484, 26.17397],
-        [39.96067, 26.17234],
-        [39.9564, 26.17109],
-        [39.95237, 26.16936],
-        [39.94954, 26.17295],
-        [39.94883, 26.17756],
-        [39.94525, 26.17842],
-        [39.94132, 26.17816],
-        [39.93741, 26.1779],
-        [39.93428, 26.17457],
-        [39.93098, 26.171],
-        [39.9269, 26.16936],
-        [39.92259, 26.1699],
-        [39.91842, 26.17152],
-        [39.91526, 26.17026]
+        [39.995156, 26.188033],
+        [39.99488, 26.187827],
+        [39.994327, 26.187415],
+        [39.993499, 26.186797],
+        [39.992394, 26.185973],
+        [39.990517, 26.184994],
+        [39.987867, 26.183861],
+        [39.984445, 26.182573],
+        [39.98025, 26.18113],
+        [39.976342, 26.179727],
+        [39.972723, 26.178364],
+        [39.969391, 26.17704],
+        [39.966346, 26.175756],
+        [39.962627, 26.174519],
+        [39.958232, 26.17333],
+        [39.953162, 26.172188],
+        [39.947417, 26.171093],
+        [39.942306, 26.169809],
+        [39.937828, 26.168337],
+        [39.933985, 26.166677],
+        [39.930775, 26.164829],
+        [39.927699, 26.163646],
+        [39.924757, 26.163131],
+        [39.921948, 26.163282],
+        [39.919273, 26.164099],
+        [39.916986, 26.164909],
+        [39.915088, 26.165709],
+        [39.913578, 26.166502],
+        [39.912456, 26.167286],
+        [39.911615, 26.167874],
+        [39.911054, 26.168266],
+        [39.910774, 26.168462]
       ],
       "note": "The wall built ἐπὶ πρύμνῃσιν, at the sterns of the rearmost rank (14.32), raised on the single common barrow of the Achaean dead out of the plain — τύμβον δ' ἀμφ' αὐτὴν ἕνα ποίεον ... ποτὶ δ' αὐτὸν τεῖχος ἔδειμαν πύργους θ' ὑψηλούς (7.435–37), so the wall and the mass grave are one feature — with gates wide enough that a chariot road ran through them, ὄφρα δι' αὐτάων ἱππηλασίη ὁδὸς εἴη (7.439). Drawn along the inland edge of the camp band. The poem provides for its own erasure (12.13–33) and antiquity noticed (Aristotle apud Strabo 13.1.36), so it is drawn light.",
       "sources": [
@@ -9041,10 +9055,10 @@
       "kind": "shipRow",
       "placeId": "achaean-camp",
       "rows": 3,
-      "count": 9,
+      "count": 8,
       "baseline": [
-        [39.92576, 26.16094],
-        [39.91506, 26.16421]
+        [39.925837, 26.161371],
+        [39.915137, 26.164641]
       ],
       "note": "The ships and huts at the other extremity — Ajax's end, where the returning chariots come in and where the wall stands lowest. Three ranks; the rearmost rank's sterns carry the wall.",
       "sources": [
@@ -9066,10 +9080,10 @@
       "kind": "shipRow",
       "placeId": "achaean-camp",
       "rows": 3,
-      "count": 9,
+      "count": 8,
       "baseline": [
-        [39.96225, 26.16963],
-        [39.93927, 26.16525]
+        [39.961858, 26.173134],
+        [39.938878, 26.168754]
       ],
       "note": "The middle of the line, at Odysseus's ships, from which a shout carries both ways, ἐν μεσσάτῳ ... γεγωνέμεν ἀμφοτέρωσε (8.222–26 = 11.5–9). Three ranks as elsewhere.",
       "sources": [
@@ -9088,10 +9102,10 @@
       "kind": "shipRow",
       "placeId": "achaean-camp",
       "rows": 3,
-      "count": 9,
+      "count": 8,
       "baseline": [
-        [39.99148, 26.18106],
-        [39.9747, 26.17529]
+        [39.990875, 26.184056],
+        [39.974095, 26.178286]
       ],
       "note": "The ships and huts at the Sigeion extremity of the line — Achilles' end. Ranks drawn three deep, the rearmost hauled furthest inland with its sterns at the wall (14.30–36); huts and ships alternate, each man's hut by his own ship (Leaf 1902 on 15.409). Anonymous prow glyphs: the poem names positions, never counts them along the beach.",
       "sources": [
@@ -9276,7 +9290,7 @@
           "cite": "Leaf, Walter, ed. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902."
         }
       ],
-      "labelTier": 1,
+      "labelTier": 2,
       "labelSize": "small"
     },
     {
@@ -9298,6 +9312,7 @@
         [39.92229, 26.17034],
         [39.92486, 26.16947]
       ],
+      "label": "Ajax's end",
       "note": "Ajax's sector — the extremity where the returning chariots come in, where Asius attacks and Idomeneus kills him, where the wall stands lowest and Hector breaks it, and where Protesilaus's ship burns (8.224–26; 12.117–19; 13.679–84; 15.704–8). Named by who holds it. THE HARD CALL: Ajax's own tomb tradition is at Rhoiteion on the Dardanelles shore (Strabo 13.1.30), which is not on this zone at all — it belongs to a camp reconstruction this sheet has not adopted.",
       "sources": [
         {
@@ -9310,8 +9325,8 @@
           "cite": "Strabo. Geography 13.1.30."
         }
       ],
-      "labelTier": 2,
-      "labelSize": "small"
+      "labelTier": 1,
+      "labelSize": "base"
     },
     {
       "id": "station-of-odysseus",
@@ -9328,14 +9343,15 @@
         [39.95587, 26.1709],
         [39.95869, 26.17181]
       ],
+      "label": "The centre",
       "note": "The middle, at Odysseus's ships, with the assembly, the law-place and the gods' altars (8.222–26 = 11.5–9; 11.806–8). The one sector the poem places without ambiguity.",
       "sources": [
         {
           "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
         }
       ],
-      "labelTier": 2,
-      "labelSize": "small"
+      "labelTier": 1,
+      "labelSize": "base"
     },
     {
       "id": "station-of-achilles",
@@ -9356,6 +9372,7 @@
         [39.99203, 26.18926],
         [39.9948, 26.1877]
       ],
+      "label": "Achilles' end",
       "note": "Achilles' sector, named by who holds it and never by a hand (ruling D1). The Sigeion extremity: Achilles' own mound stands here on the jutting headland by the broad Hellespont (Od. 24.80–84), the Ilian cult of Achilles was near Sigeium (Strabo 13.1.32), and Janko's compass fix puts Achilles' station 'W. towards the Sigeion headland' (IV, 130–31). Three independent lines on the same end of this zone.",
       "sources": [
         {
@@ -9372,8 +9389,8 @@
           "cite": "Luce, J. V. Celebrating Homer's Landscapes: Troy and Ithaca Revisited. New Haven: Yale University Press, 1998."
         }
       ],
-      "labelTier": 2,
-      "labelSize": "small"
+      "labelTier": 1,
+      "labelSize": "base"
     },
     {
       "id": "station-of-agamemnon",

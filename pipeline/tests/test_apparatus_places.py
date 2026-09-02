@@ -526,6 +526,69 @@ def test_real_trojan_plain_schematic_plate_validates_clean():
     assert plate_problems == [], plate_problems
 
 
+def test_camp_label_tiers_declutter_the_beach_crop():
+    """Stage 5b: John's LOOK-gate verdict on the camp crop ("that's a mess")
+    found six tier-1 labels stacked on ~450px of beach. The fix promotes
+    three sector zone layers to tier 1 (by holder: Achilles, Odysseus/the
+    centre, Ajax), each with its own short `label`; every individual feature
+    pin (the assembly, the wall-and-ditch, and the huts of Odysseus/Ajax/
+    Achilles) is demoted to tier 2. `achaean-camp` itself stays the tier-1
+    settlement pin it always was: a `region` reading of the same shared camp
+    polygon was tried and abandoned (see the "No id overrides" comment in
+    shared/lib/plate.ts) because its centroid sits on the ship/wall drawing
+    it names, and — this stage's own finding — on top of
+    `station-of-odysseus`'s centroid (both are un-collision-checked "centred"
+    area requests). This locks the places.json half of the fix in as data,
+    so a future edit that silently re-promotes one of the five demoted items
+    back to tier 1 fails loudly."""
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    places_by_id = {p["id"]: p for p in places_doc["places"]}
+
+    assert places_by_id["achaean-camp"]["labelTier"] == 1, "achaean-camp stays the tier-1 settlement pin"
+
+    demoted_to_tier_2 = [
+        "achaean-wall-and-ditch",
+        "achaean-assembly-place",
+        "hut-of-odysseus",
+        "hut-of-ajax",
+        "hut-of-achilles",
+    ]
+    for place_id in demoted_to_tier_2:
+        place = places_by_id[place_id]
+        assert place["labelTier"] == 2, f"{place_id} must be labelTier 2 (an individual camp feature, not a sector)"
+
+    plate_doc = json.loads(
+        (ROOT / "apparatus" / "plates" / "trojan-plain-schematic.json").read_text(encoding="utf-8")
+    )
+    layers_by_id = {layer["id"]: layer for layer in plate_doc["layers"]}
+
+    # The `achaean-camp` region LAYER (as opposed to the place pin above)
+    # stays inert — no `label` of its own — so the settlement pin remains
+    # the sole tier-1 voice for the camp-wide name.
+    achaean_camp_layer = layers_by_id["achaean-camp"]
+    assert "label" not in achaean_camp_layer, "achaean-camp layer must not duplicate the settlement pin's name"
+
+    # The three sector zones (by holder) are the only OTHER tier-1 voices at
+    # the camp; each carries its own short `label` so it never falls back to
+    # a gazetteer name a demoted pin already claims.
+    tier_1_sector_labels = {
+        "station-of-achilles": "Achilles' end",
+        "station-of-odysseus": "The centre",
+        "station-of-ajax": "Ajax's end",
+    }
+    for layer_id, label in tier_1_sector_labels.items():
+        layer = layers_by_id[layer_id]
+        assert layer["labelTier"] == 1, f"{layer_id} must be labelTier 1"
+        assert layer["label"] == label, f"{layer_id} must carry its own sector label, not a gazetteer fallback"
+
+    # The three main shipRow layers keep three ranks (Il. 14.30-36) but thin
+    # to 8 glyphs/rank (John: "I don't think we need so many ships in there").
+    for ship_layer_id in ("ships-achilles-end", "ships-centre", "ships-ajax-end"):
+        layer = layers_by_id[ship_layer_id]
+        assert layer["rows"] == 3
+        assert layer["count"] == 8
+
+
 def test_validate_plate_accepts_tumulus_layer_kind():
     """The tombs of Ilos and Batieia are mounds on the plain, not ridges.
     The renderer draws them with a dome-in-section glyph; the enum has to
