@@ -11,7 +11,11 @@ sys.path.insert(0, str(ROOT / "pipeline"))
 
 from homer_pipeline.config import Manifest
 from homer_pipeline.stage5_lsj import derive_short_def
-from homer_pipeline.stage7_emit import merge_short_def, resolve_parses
+from homer_pipeline.stage7_emit import (
+    SHORT_DEF_CORRECTIONS,
+    merge_short_def,
+    resolve_parses,
+)
 import homer_pipeline.stage7_emit as stage7_emit
 
 
@@ -522,6 +526,10 @@ _REAL_ENTRY_KEYS = (
     "ga/r",
     "pa=s1",
     "e)k",
+    "oi)=nos",
+    "oi)=da",
+    "tre/fw",
+    "dai/s2",
 )
 
 
@@ -603,3 +611,112 @@ def test_derive_short_def_refuses_an_etymological_root():
 def test_derive_short_def_leaves_the_commonest_entries_alone(key, expected):
     """The regression guard: four of the highest-frequency entries in Homer."""
     assert derive_short_def(_real_entry(key)) == expected
+
+
+# ── The reviewed correction list ────────────────────────────────────────────
+# derive_short_def checks shape, not sense, and reads the entry's FIRST sense.
+# So "prefer LSJ wherever the two disagree" is unsafe, and the corrections file
+# is the reviewed alternative. These tests pin both halves: the corrections
+# fire, and everything outside the list keeps the old conservative behaviour.
+
+
+def test_short_def_corrections_are_a_reviewed_list_not_a_rule():
+    assert SHORT_DEF_CORRECTIONS
+    for lemma, entry in SHORT_DEF_CORRECTIONS.items():
+        assert entry["lemma"] == lemma
+        assert entry["source"] in ("lsj", "editorial")
+        assert entry["justification"].strip()
+        assert entry["prefer"] != entry["morpheus"]
+
+
+@pytest.mark.parametrize(
+    ("lemma", "morpheus", "prefer"),
+    [
+        ("oi)=nos", "the ace", "wine"),
+        ("oi)=da", "behold!", "know, have knowledge of, be acquainted with"),
+        ("pw", "where?", "up to this time, yet"),
+        ("pws", "how?", "in any way, at all, by any means"),
+        ("dai/s3", "fire-brand, pine-torch", "meal, banquet"),
+        ("fo/bos", "having a horror of water, having hydrophobia", "panic flight"),
+    ],
+)
+def test_merge_short_def_applies_a_reviewed_correction(lemma, morpheus, prefer):
+    assert merge_short_def(morpheus, lemma, [lemma], {lemma: prefer}) == prefer
+
+
+def test_every_correction_fires_on_the_gloss_it_records():
+    """The list is inert unless each entry's recorded Morpheus gloss is live."""
+    for lemma, entry in SHORT_DEF_CORRECTIONS.items():
+        assert (
+            merge_short_def(entry["morpheus"], lemma, [lemma], {})
+            == entry["prefer"]
+        )
+
+
+def test_a_correction_lapses_when_the_morpheus_gloss_changes():
+    """Guard against silently redirecting the correction at different text.
+
+    If Morpheus ships a new gloss for οἶνος, the reviewed verdict no longer
+    applies to it, and the entry must go back through review rather than
+    overwrite whatever arrived.
+    """
+    assert merge_short_def("wine-jar", "oi)=nos", ["oi)=nos"], {}) == "wine-jar"
+
+
+def test_merge_short_def_leaves_trepho_untouched():
+    """The counterexample that ruled out preferring LSJ on disagreement.
+
+    LSJ's first sense of τρέφω is "thicken or congeal" — real, shape-clean, and
+    wrong for Homer. It is not on the reviewed list, so the correction path
+    must not touch it; the prefix-extension rule alone governs it, exactly as
+    before.
+    """
+    assert "tre/fw" not in SHORT_DEF_CORRECTIONS
+    derived = derive_short_def(_real_entry("tre/fw"))
+    assert derived == "thicken or congeal"
+    assert (
+        merge_short_def("thicken", "tre/fw", ["tre/fw"], {"tre/fw": derived})
+        == derived
+    )
+
+
+def test_merge_short_def_keeps_the_torch_sense_of_dais():
+    """δαΐς "torch" and δαίς "meal" share a Morpheus gloss AND an LSJ def.
+
+    Both lemma buckets carry Morpheus's "fire-brand, pine-torch" and both
+    resolve to LSJ dai/s2 "meal, banquet". dai/s3 (δαῖτα, δαιτός, δαιτί) is
+    corrected; dai/s1 (δαΐδας, δαΐδων) is the torch and keeps Morpheus. No
+    rule can separate them, which is the case for a reviewed list.
+    """
+    meal = derive_short_def(_real_entry("dai/s2"))
+    assert meal == "meal, banquet"
+    assert "dai/s1" not in SHORT_DEF_CORRECTIONS
+    torch = "fire-brand, pine-torch"
+    assert merge_short_def(torch, "dai/s1", ["dai/s2"], {"dai/s2": meal}) == torch
+    assert merge_short_def(torch, "dai/s3", ["dai/s2"], {"dai/s2": meal}) == meal
+
+
+def test_ou_still_falls_back_to_morpheus():
+    """οὐ is 1,456 occurrences of the commonest wrong LSJ short def."""
+    assert "ou)" not in SHORT_DEF_CORRECTIONS
+    assert (
+        merge_short_def("not", "ou)", ["ou)"], {"ou)": "fact and statement"}) == "not"
+    )
+
+
+def test_ego_is_the_one_editorial_correction():
+    """Neither source glosses ἐγώ "I": LSJ's first sense treats ἔγωγε, and
+    Morpheus repeats it. 2,877 occurrences, and no rule reaches them."""
+    editorial = [e for e in SHORT_DEF_CORRECTIONS.values() if e["source"] == "editorial"]
+    assert [e["lemma"] for e in editorial] == ["e)gw/"]
+    assert editorial[0]["prefer"] == "I"
+
+
+@pytest.mark.parametrize(
+    ("lemma", "key"), [("oi)=nos", "oi)=nos"), ("oi)=da", "oi)=da")]
+)
+def test_lsj_sourced_corrections_quote_the_real_entry(lemma, key):
+    """prefer is LSJ's own derived def, not a paraphrase — checked against
+    grc.lsj.xml, the file stage 5 reads."""
+    assert SHORT_DEF_CORRECTIONS[lemma]["source"] == "lsj"
+    assert SHORT_DEF_CORRECTIONS[lemma]["prefer"] == derive_short_def(_real_entry(key))

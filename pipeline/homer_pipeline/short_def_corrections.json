@@ -1,0 +1,254 @@
+[
+  {
+    "lemma": "e)gw/",
+    "morpheus": "I at least, for my part, indeed, for myself",
+    "prefer": "I",
+    "source": "editorial",
+    "justification": "2,877 occurrences — the single largest gloss defect in the corpus. Both sources ship the same wrong string: LSJ's ἐγώ entry opens on ἔγωγε ('I at least, for my part'), so the derived short def and the Morpheus gloss agree on a gloss that belongs to a different word. Neither source supplies 'I', hence source=editorial. The lemma bucket is the whole first-person paradigm (μοι, με, ἐμοί, ἡμεῖς, νῶϊ), and 'I' is its citation-form gloss the way 'wine' is οἴνοιο's; the card's parse line carries number and case. ἔγωγε itself (34 tokens) keeps the emphatic force in its parse, not its gloss."
+  },
+  {
+    "lemma": "oi)=da",
+    "morpheus": "behold!",
+    "prefer": "know, have knowledge of, be acquainted with",
+    "source": "lsj",
+    "justification": "οἶδα is a perfect with present sense, 'I know', throughout Homer — Calchas ὃς ᾔδη τά τ' ἐόντα τά τ' ἐσσόμενα πρό τ' ἐόντα (Il. 1.70). Morpheus's 'behold!' belongs to the aorist εἶδον of the same root (*ϝιδ-), not to the perfect."
+  },
+  {
+    "lemma": "pw",
+    "morpheus": "where?",
+    "prefer": "up to this time, yet",
+    "source": "lsj",
+    "justification": "Enclitic temporal particle, in Homer always under a negative or a conditional: οὔ πώ ποτέ μοι τὸ κρήγυον εἶπας (Il. 1.106). Morpheus's 'where?' is the interrogative πῶ/ποῦ, a different and accented word; every one of the 124 tokens is parsed 'enclitic indeclform (particle)'."
+  },
+  {
+    "lemma": "pws",
+    "morpheus": "how?",
+    "prefer": "in any way, at all, by any means",
+    "source": "lsj",
+    "justification": "Enclitic indefinite πως, as in αἴ κέν πως (Il. 1.66) and οὐδέ τί πως. The interrogative πῶς is a distinct accented word with its own token key; all 72 tokens here are parsed 'enclitic indeclform (particle)'."
+  },
+  {
+    "lemma": "dai/s3",
+    "morpheus": "fire-brand, pine-torch",
+    "prefer": "meal, banquet",
+    "source": "lsj",
+    "justification": "Every token in this bucket is the feast word δαίς, δαιτός — δαῖτα (34), δαιτός (23), δαιτί (11) — as in δαιτὸς ἐΐσης (Il. 1.468). The torch word δαΐς, δαΐδος sits in a separate bucket (lemma dai/s1: δαΐδας, δαΐδων) where Morpheus's 'fire-brand, pine-torch' is correct and is deliberately left alone. Same Morpheus gloss, same LSJ def, opposite verdicts — this pair is why the preference is a reviewed list and not a rule."
+  },
+  {
+    "lemma": "sa/kos",
+    "morpheus": "coarse cloth of hair",
+    "prefer": "shield",
+    "source": "lsj",
+    "justification": "σάκος is the Homeric body-shield, Ajax's σάκος ἠΰτε πύργον (Il. 7.219). Morpheus's gloss belongs to σάκκος 'sackcloth', a different word."
+  },
+  {
+    "lemma": "h)eroeidh/s",
+    "morpheus": "like the sky",
+    "prefer": "misty, cloudy, dark",
+    "source": "lsj",
+    "justification": "In Homer ἀήρ is mist, not sky (the sky is αἰθήρ/οὐρανός), so ἠεροειδής is 'misty, hazy' — of the sea, πόντον ἐπ' ἠεροειδέα (Il. 23.744), and of caves. 'like the sky' imports the post-Homeric sense of ἀήρ."
+  },
+  {
+    "lemma": "fo/bos",
+    "morpheus": "having a horror of water, having hydrophobia",
+    "prefer": "panic flight",
+    "source": "lsj",
+    "justification": "Homeric φόβος is rout, not fear — fear is δέος. μήστωρε φόβοιο, 'devisers of the rout' (Il. 5.272; Il. 6.97). Morpheus's gloss is ὑδροφόβος and is simply a wrong word."
+  },
+  {
+    "lemma": "kapno/s",
+    "morpheus": "with smoke-coloured grapes",
+    "prefer": "smoke",
+    "source": "lsj",
+    "justification": "καπνός is smoke — καπνὸν ἀποθρῴσκοντα, the smoke Odysseus longs to see leaping from Ithaca (Od. 1.58). Morpheus's gloss is the adjective καπνίας of wine."
+  },
+  {
+    "lemma": "oi)=nos",
+    "morpheus": "the ace",
+    "prefer": "wine",
+    "source": "lsj",
+    "justification": "οἶνος is wine throughout Homer — ὡς ὅδε οἶνος (Il. 3.300, the oath-libation); οἶνος ἀέξει (Il. 6.261). 'The ace' is the late sense of οἶνος as a throw of the dice."
+  },
+  {
+    "lemma": "katakla/w",
+    "morpheus": "bewail loudly, lament",
+    "prefer": "break short, snap off",
+    "source": "lsj",
+    "justification": "Eight of the nine tokens are κατεκλάσθη φίλον ἦτορ, 'his heart was broken' (Od. 4.481, 4.538, 9.256, 10.198, 10.566, 12.277); the ninth is κατέκλων of horses running over the corn-ears without breaking them (Il. 20.227). Both are κατακλάω 'break'. Morpheus's gloss belongs to κατακλαίω 'weep'."
+  },
+  {
+    "lemma": "a)/tta",
+    "morpheus": "something, some",
+    "prefer": "father",
+    "source": "lsj",
+    "justification": "ἄττα is the vocative of respect to an elder — Φοῖνιξ ἄττα γεραιέ (Il. 9.607, 17.561); Odysseus to Eumaeus, ἔσσεται οὕτως, ἄττα (Od. 16.31). All eight tokens are parsed 'indeclform (exclam)'. Morpheus's gloss is Attic ἄττα = τινά, not Homeric."
+  },
+  {
+    "lemma": "kh=pos",
+    "morpheus": "nisnas monkey, Cercopithecus pyrrhonotus",
+    "prefer": "garden, orchard, or plantation",
+    "source": "lsj",
+    "justification": "κῆπος is the orchard-garden — Alcinous' ἀνὰ κῆπον ἅπαντα (Od. 7.129), Menelaus' κῆπον πολυδένδρεον (Od. 4.737), Laertes' (Od. 24.247). Morpheus's gloss is the monkey κῆβος."
+  },
+  {
+    "lemma": "qh/ra",
+    "morpheus": "Thera",
+    "prefer": "hunting of wild beasts, the chase",
+    "source": "lsj",
+    "justification": "All four tokens are the common noun θήρη, θήρης — μενοεικέα θήρην (Od. 9.158), βάν ῥ' ἴμεν ἐς θήρην, the boar hunt on Parnassus (Od. 19.429). The island Θήρα does not appear in Homer."
+  },
+  {
+    "lemma": "ptele/a",
+    "morpheus": "wild boar",
+    "prefer": "elm, Ulmus glabra",
+    "source": "lsj",
+    "justification": "πτελέη is the elm — the elms the mountain-nymphs planted round Eëtion's tomb (Il. 6.419), and the one Achilles grasps on the bank of Scamander (Il. 21.242). Morpheus's 'wild boar' has no bearing on this word."
+  },
+  {
+    "lemma": "h)e/rios",
+    "morpheus": "misty",
+    "prefer": "early, at or with early morn",
+    "source": "lsj",
+    "justification": "Homer uses ἠέριος temporally: ἠερίη δ' ἀνέβη μέγαν οὐρανόν, Thetis going up at dawn (Il. 1.497), and ἠερίη γὰρ σοί γε παρέζετο (Il. 1.557). Cognate with ἀήρ 'mist' it may be, but 'misty' is not the sense of the adjective in these lines."
+  },
+  {
+    "lemma": "mh/n",
+    "morpheus": "month",
+    "prefer": "verily, truly",
+    "source": "lsj",
+    "justification": "Every one of the 24 tokens is the epic-Doric particle μάν, parsed 'epic doric aeolic (indeclform particle)' — ἦ μὰν αὖτ' ἀγορῇ νικᾷς (Il. 2.370), οὐ μὰν οὐδ' Ἀχιλεύς (Il. 4.512), ἄγρει μάν (Il. 5.765). The noun μήν 'month' is not attested in this bucket at all."
+  },
+  {
+    "lemma": "u(pe/r-qrw/|skw",
+    "morpheus": "leap, spring",
+    "prefer": "overleap, leap or spring over",
+    "source": "lsj",
+    "justification": "Morpheus glosses the whole θρῴσκω compound family with the simplex's gloss, dropping the preverb. LSJ's compound-specific def restores it: ὑπερθρῴσκω of the lion leaping the wall of the fold (Il. 5.138)."
+  },
+  {
+    "lemma": "pro/-qrw/|skw",
+    "morpheus": "leap, spring",
+    "prefer": "spring forth or forward",
+    "source": "lsj",
+    "justification": "Simplex gloss on a compound; the preverb πρό carries the sense. Same family as ὑπερθρῴσκω."
+  },
+  {
+    "lemma": "e)pi/-qrw/|skw",
+    "morpheus": "leap, spring",
+    "prefer": "leap upon",
+    "source": "lsj",
+    "justification": "Simplex gloss on a compound; the preverb ἐπί carries the sense. Same family as ὑπερθρῴσκω."
+  },
+  {
+    "lemma": "e)k-qrw/|skw",
+    "morpheus": "leap, spring",
+    "prefer": "leap out of",
+    "source": "lsj",
+    "justification": "Simplex gloss on a compound; the preverb ἐκ carries the sense. Same family as ὑπερθρῴσκω."
+  },
+  {
+    "lemma": "a)po/-qrw/|skw",
+    "morpheus": "leap, spring",
+    "prefer": "leap off from",
+    "source": "lsj",
+    "justification": "Simplex gloss on a compound; καπνὸν ἀποθρῴσκοντα, the smoke leaping up off the land (Od. 1.58)."
+  },
+  {
+    "lemma": "ei)s-qrw/|skw",
+    "morpheus": "leap, spring",
+    "prefer": "leap into or in",
+    "source": "lsj",
+    "justification": "Simplex gloss on a compound; the preverb εἰς carries the sense. Same family as ὑπερθρῴσκω."
+  },
+  {
+    "lemma": "e)n-qrw/|skw",
+    "morpheus": "leap, spring",
+    "prefer": "leap in, on, or among",
+    "source": "lsj",
+    "justification": "Simplex gloss on a compound; the preverb ἐν carries the sense. Same family as ὑπερθρῴσκω."
+  },
+  {
+    "lemma": "a)na/-qrw/|skw",
+    "morpheus": "leap, spring",
+    "prefer": "spring up",
+    "source": "lsj",
+    "justification": "Simplex gloss on a compound; the preverb ἀνά carries the sense. Same family as ὑπερθρῴσκω."
+  },
+  {
+    "lemma": "a)po/-du/w1",
+    "morpheus": "two",
+    "prefer": "stripping",
+    "source": "lsj",
+    "justification": "Morpheus attaches the numeral δύω's gloss to the compound verb ἀποδύω: εἵματα ταῦτ' ἀποδύς, Odysseus stripping off Ino's veil and his clothes (Od. 5.343). 'Two' is not a possible reading of the verb."
+  },
+  {
+    "lemma": "peri/-du/w1",
+    "morpheus": "two",
+    "prefer": "strip off",
+    "source": "lsj",
+    "justification": "Same numeral-for-verb defect as ἀποδύω: ἐπεὶ περίδυσε χιτῶνας, Agamemnon stripping the tunics from the dead (Il. 11.100)."
+  },
+  {
+    "lemma": "a)mfi/-dai/w1",
+    "morpheus": "light up, kindle",
+    "prefer": "kindle around",
+    "source": "lsj",
+    "justification": "Simplex gloss on a compound; ἄστυ τόδ' ἀμφιδέδηε, 'this city blazes round about' (Il. 6.329)."
+  },
+  {
+    "lemma": "a)mfi/-ce/w",
+    "morpheus": "shave",
+    "prefer": "smooth all round",
+    "source": "lsj",
+    "justification": "κορμὸν δ' ἐκ ῥίζης προταμὼν ἀμφέξεσα χαλκῷ — Odysseus smoothing the olive-stump into the bedpost (Od. 23.196). 'Shave' loses both the preverb and the sense."
+  },
+  {
+    "lemma": "e)k-de/rkomai",
+    "morpheus": "see clearly, see",
+    "prefer": "look out from",
+    "source": "lsj",
+    "justification": "οὔτέ τοι ὀξύτατον κεφαλῆς ἐκδέρκεται ὄσσε, of eyes looking out from the head (Il. 23.477). The preverb ἐκ governs κεφαλῆς and Morpheus's simplex gloss loses it."
+  },
+  {
+    "lemma": "sfondu/lion",
+    "morpheus": "cow-parsnip, Heracleum sphondylium",
+    "prefer": "neck vertebra",
+    "source": "lsj",
+    "justification": "μυελὸς αὖτε σφονδυλίων ἔκπαλθ', the marrow leaping from the vertebrae as Achilles beheads Deucalion (Il. 20.483). Morpheus's gloss is the plant σφονδύλιον."
+  },
+  {
+    "lemma": "sa/lpigc",
+    "morpheus": "saupe, Box salpa",
+    "prefer": "war-trumpet",
+    "source": "lsj",
+    "justification": "ὡς δ' ὅτ' ἀριζήλη φωνή, ὅτε τ' ἴαχε σάλπιγξ — Achilles' shout compared to the trumpet (Il. 18.219). Morpheus's gloss is the fish σάλπη."
+  },
+  {
+    "lemma": "pontopore/w",
+    "morpheus": "sea-sailing",
+    "prefer": "sail the open sea",
+    "source": "lsj",
+    "justification": "The token is the participle ποντοπορούσης, of the ship crossing the open sea (Od. 11.11). Morpheus gives the adjective ποντοπόρος's gloss, which is the wrong part of speech for the verb."
+  },
+  {
+    "lemma": "pate/w",
+    "morpheus": "eat",
+    "prefer": "tread, walk",
+    "source": "lsj",
+    "justification": "κατὰ δ' ὅρκια πιστὰ πάτησαν, the Trojans trampling the sworn oaths (Il. 4.157) — aorist active of πατέω. Morpheus's 'eat' belongs to πατέομαι (πασάμην), a different verb with a different aorist."
+  },
+  {
+    "lemma": "ou)ro/s",
+    "morpheus": "the watery",
+    "prefer": "trench or channel",
+    "source": "lsj",
+    "justification": "οὐρούς τ' ἐξεκάθαιρον, the Achaeans clearing the launching-channels for the ships (Il. 2.153) — the only occurrence, masculine accusative plural. Morpheus's gloss is not English for any sense of the word."
+  },
+  {
+    "lemma": "fa/w",
+    "morpheus": "dive, plunge headlong",
+    "prefer": "shine",
+    "source": "lsj",
+    "justification": "φάε δὲ χρυσόθρονος Ἠώς, 'and golden-throned Dawn shone' (Od. 14.502) — the sole occurrence. Morpheus's gloss belongs to a different root."
+  }
+]
