@@ -18,6 +18,7 @@ import {
   hypsometricLevels,
   hypsometricStep,
   scaleBarMarkup,
+  lineworkExtent,
   type Plate,
   type PlatePlace,
   type PlateLayer,
@@ -407,6 +408,47 @@ describe('renderPlate: theming (no baked colour)', () => {
   });
 });
 
+// The label halo is the only thing standing between a name and the
+// hypsometric relief ramp it is lettered over: measured on rendered pixels
+// (scripts/measure-label-contrast.mjs, 2026-08-13) the 0.65px halo left 17 of
+// 28 region/feature labels below the 4.5:1 AA floor, MOUNT IDA at 2.36:1. See
+// shared/lib/plate.ts's RELIEF_HALO_WIDTH for why no flat ink can substitute.
+// These assertions pin the two halves of that fix: the geographic sheets get
+// a halo wide enough to be a background, and the schematic sheets — whose
+// flat token fills never had the problem — keep the hairline exactly.
+describe('renderPlate: label halo', () => {
+  const haloOf = (svg: string) =>
+    [...svg.matchAll(/<text class="plate-label[^"]*"[^>]*>/g)].map((m) => ({
+      width: m[0].match(/stroke-width="([\d.]+)"/)?.[1],
+      opacity: m[0].match(/stroke-opacity="([\d.]+)"/)?.[1],
+      stroke: m[0].match(/stroke="([^"]+)"/)?.[1],
+    }));
+
+  it('a geographic plate letters over relief, so every label carries the wide translucent halo', () => {
+    const haloes = haloOf(renderPlate(testPlate, [troy, scamander]).svg);
+    expect(haloes.length).toBeGreaterThan(0);
+    for (const h of haloes) {
+      expect(h.stroke).toBe('var(--scene-map-label-halo)');
+      expect(Number(h.width)).toBeGreaterThanOrEqual(2.5);
+      // Translucent, not a knockout: an opaque stroke this wide is the
+      // "white halo" the 2026-08-10 lane retired, and it reads as its own
+      // shape rather than as the terrain dimming around the letterforms.
+      expect(Number(h.opacity)).toBeGreaterThan(0.5);
+      expect(Number(h.opacity)).toBeLessThan(1);
+    }
+  });
+
+  it('a schematic plate keeps the 0.65px opaque hairline, unchanged', () => {
+    const haloes = haloOf(renderPlate(schematicPlate, [anchoredPlace]).svg);
+    expect(haloes.length).toBeGreaterThan(0);
+    for (const h of haloes) {
+      expect(h.stroke).toBe('var(--scene-map-label-halo)');
+      expect(h.width).toBe('0.65');
+      expect(h.opacity).toBeUndefined();
+    }
+  });
+});
+
 describe('renderPlate: unlocated honesty', () => {
   it('a place with no coords is reported unlocated and never pinned', () => {
     const result = renderPlate(testPlate, [troy, ghost]);
@@ -562,7 +604,10 @@ describe('renderPlate: registration invariant', () => {
       expect(feature).toBeDefined();
       const [minX, minY, maxX, maxY] = feature!.bbox;
       const actualX = (minX + maxX) / 2;
-      const actualY = maxY; // pin apex sits exactly at the projected point
+      // testPlate is geographic, so a located place draws as a DOT (2026-08-
+      // 10), whose box is centred on the coordinate — unlike the teardrop
+      // pin it replaced there, a dot has no tip to anchor a bbox edge to.
+      const actualY = (minY + maxY) / 2;
       expect(actualX).toBeCloseTo(expectedX, 6);
       expect(actualY).toBeCloseTo(expectedY, 6);
     }
@@ -598,26 +643,38 @@ describe('renderPlate: XSS', () => {
 });
 
 describe('renderPlate: schematic plateAnchors / positionBasis honesty', () => {
-  it('places a valid anchored+conjectural place at the anchored unit position, in a distinct conjectural register', () => {
+  it('places a valid anchored+conjectural place at the anchored unit position, and keeps the honesty attribute on it', () => {
     const result = renderPlate(schematicPlate, [anchoredPlace]);
     expect(result.unlocated).toEqual([]);
     const feature = result.features.find((f) => f.id === 'anchored-place');
     expect(feature).toBeDefined();
     const [minX, minY, maxX, maxY] = feature!.bbox;
-    const actualX = (minX + maxX) / 2;
-    const actualY = maxY; // pin apex
-    // u=0.25, v=0.75 scaled directly by plate.size [200,200] (schematic
-    // projection, per projectPoint).
-    expect(actualX).toBeCloseTo(0.25 * 200, 6);
-    expect(actualY).toBeCloseTo(0.75 * 200, 6);
+    // The mark is CENTRED on its coordinate, not hung by a tip below it: the
+    // teardrop is gone (2026-08-13) and a dot means "this point", so its box
+    // is symmetric about the anchor. u=0.25, v=0.75 scaled directly by
+    // plate.size [200,200] (schematic projection, per projectPoint).
+    expect((minX + maxX) / 2).toBeCloseTo(0.25 * 200, 6);
+    expect((minY + maxY) / 2).toBeCloseTo(0.75 * 200, 6);
 
-    // Visually distinct conjectural register: a data attribute a component
-    // can key off, plus a dashed stroke not implied by its certainty tier
-    // ('certain' is normally solid, no dasharray at all).
-    expect(result.svg).toContain('data-place-id="anchored-place" data-position-basis="conjectural"');
-    const gMatch = result.svg.match(/<g data-place-id="anchored-place"[^>]*>[\s\S]*?<\/g>/);
+    // The claim survives the symbology change: a data attribute a component
+    // can key off is still stamped on every schematic mark.
+    expect(result.svg).toContain('data-position-basis="conjectural"');
+    const gMatch = result.svg.match(/<g[^>]*data-place-id="anchored-place"[^>]*>[\s\S]*?<\/g>/);
     expect(gMatch).not.toBeNull();
-    expect(gMatch![0]).toMatch(/stroke-dasharray="[^"]+"/);
+    expect(gMatch![0]).toContain('data-position-basis="conjectural"');
+  });
+
+  it('does NOT repeat the conjectural claim on every mark, because on a schematic plate it is true of every mark', () => {
+    // resolvePlacePosition has exactly ONE path to a position on a schematic
+    // plate — plateAnchors + positionBasis: "conjectural" — so a per-mark
+    // dash distinguished nothing from nothing, and a dashed leader per name
+    // drew the same sheet-wide fact thirty times. `anchoredPlace` is
+    // `certain`, whose tier register is a plain solid disc: no dasharray of
+    // any kind should reach it, and no leader should be drawn for it.
+    const svg = renderPlate(schematicPlate, [anchoredPlace]).svg;
+    const g = svg.match(/<g[^>]*data-place-id="anchored-place"[^>]*>[\s\S]*?<\/g>/)![0];
+    expect(g).not.toContain('stroke-dasharray');
+    expect(svg).not.toContain('class="plate-leader"');
   });
 
   it('does NOT honour plateAnchors without positionBasis: "conjectural" (invalid pairing per apparatus_places.py)', () => {
@@ -1518,10 +1575,26 @@ describe('renderPlate: lettering (a map with no names is not a map)', () => {
     for (let i = 1; i < sizes.length; i++) expect(sizes[i] - sizes[i - 1]).toBeGreaterThanOrEqual(2);
   });
 
-  it('a conjectural position gets an italic name and a DASHED leader (the dash is the claim)', () => {
-    const result = renderPlate(schematicPlate, [anchoredPlace]);
-    expect(result.svg).toMatch(/<text[^>]*font-style="italic"/);
-    expect(result.svg).toMatch(/class="plate-leader"[^>]*stroke-dasharray="2 2"/);
+  it('letters a schematic plate in ranked classes, not one flat register (the sheet\'s own headline defect)', () => {
+    // Before 2026-08-13 every located place on a schematic plate lettered as
+    // `settlement`, one size, one weight — so on the Trojan-plain sheet "Pyre
+    // of Patroclus" printed exactly as loudly as Troy. The gazetteer's own
+    // `kind` now selects a class, and the classes must be separated the way
+    // docs/TROAD-CARTOGRAPHY.md requires: at least 2px apart, never under 9.5.
+    const kinds: [string, string][] = [['camp', 'a-camp'], ['tomb', 'b-tomb'], ['spring', 'c-spring']];
+    const places: PlatePlace[] = kinds.map(([kind, id], i) => ({
+      id,
+      name: `Name ${id}`,
+      kind,
+      certainty: 'speculative' as const,
+      plateAnchors: { shield: [0.2 + i * 0.25, 0.3 + i * 0.2] as [number, number] },
+      positionBasis: 'conjectural' as const,
+    }));
+    const svg = renderPlate(schematicPlate, places).svg;
+    const sizes = [...new Set([...svg.matchAll(/plate-label[^>]*font-size="([\d.]+)"/g)].map((m) => Number(m[1])))].sort((a, b) => a - b);
+    expect(sizes.length).toBeGreaterThanOrEqual(3);
+    expect(sizes[0]).toBeGreaterThanOrEqual(9.5);
+    for (let i = 1; i < sizes.length; i++) expect(sizes[i] - sizes[i - 1]).toBeGreaterThanOrEqual(2);
   });
 });
 
@@ -2307,58 +2380,65 @@ describe('the live Troad sheet: the rivers stop at the coast', () => {
   });
 });
 
-// ── Pins are opaque (2026-07-29) ─────────────────────────────────────────
+// ── Markers are opaque (2026-07-29; dot symbology 2026-08-10) ────────────
 // John, zooming a pin over the hypsometric ramp: the contour lines ran
-// straight through the middle of it. The certainty register survives; it is
-// carried by an inner mark instead of by a hole.
+// straight through the middle of it. The certainty register survives on the
+// GEOGRAPHIC-plate dot that replaced the teardrop pin (see certaintyDotStyle)
+// exactly the way it survived on the pin: an "open" marker fills with the
+// sheet's own halo token, never `fill: none` — a hole would let the terrain
+// under it show through, which is the defect this whole register exists to
+// prevent. testPlate is geographic, so every place here draws as a dot.
 
-describe('renderPlate: a pin is never transparent to its own basemap', () => {
+describe('renderPlate: a marker is never transparent to its own basemap', () => {
   const TIERS = ['certain', 'traditional', 'speculative', 'mythical'] as const;
-  const pinFor = (certainty: (typeof TIERS)[number]) => {
+  const dotFor = (certainty: (typeof TIERS)[number]) => {
     const place: PlatePlace = { id: `p-${certainty}`, name: certainty, coords: [39.957, 26.239], certainty };
     const svg = renderPlate(testPlate, [place]).svg;
     return svg.match(new RegExp(`<g data-place-id="p-${certainty}"[^>]*>[\\s\\S]*?</g>`))![0];
   };
 
-  it.each(TIERS)('the %s pin has an opaque body — no fill-opacity, no fill:none', (certainty) => {
-    const pin = pinFor(certainty);
-    expect(pin).not.toContain('fill-opacity');
-    // The body is one closed outline filled with a colour token. (The inner
-    // mark is a stroke-only ring and legitimately carries fill="none"; it is
-    // drawn ON the body, not through it.)
-    const body = pin.match(/<path d="[^"]*"[^>]*\/>/)![0];
-    expect(body).not.toContain('fill="none"');
-    expect(body).toMatch(/d="M [\d.-]+ [\d.-]+ A [\d.-]+ [\d.-]+ 0 1 1 [\d.-]+ [\d.-]+ L [\d.-]+ [\d.-]+ Z" fill="var\(--[a-z-]+\)"/);
+  it.each(TIERS)('the %s dot has an opaque body — no fill-opacity, and an "open" tier fills with the halo token rather than none', (certainty) => {
+    const dot = dotFor(certainty);
+    expect(dot).not.toContain('fill-opacity');
+    expect(dot).not.toContain('fill="none"');
+    expect(dot).toMatch(/fill="var\(--(accent|scene-map-label-halo)\)"/);
   });
 
-  it('draws the pin as ONE closed outline, so an opaque body shows no seam across itself', () => {
-    // A circle plus a separate triangle leaves two stroked edges crossing the
-    // middle of the symbol once the fill stops being transparent.
-    expect(pinFor('certain')).not.toContain('<circle');
+  it('draws each tier as a single primitive shape, not a compound of parts', () => {
+    // A dot has no seam to begin with (unlike the teardrop pin it replaced,
+    // built from an arc-plus-triangle outline) — this is the equivalent
+    // sanity check: exactly one <circle> or <rect> shape per marker.
+    for (const t of TIERS) {
+      const dot = dotFor(t);
+      const shapes = [...dot.matchAll(/<(circle|rect)\b/g)];
+      expect(shapes).toHaveLength(1);
+    }
   });
 
-  it('keeps the four tiers distinguishable by SHAPE, not only by colour', () => {
-    const shapes = TIERS.map((t) => {
-      const pin = pinFor(t);
-      return [
-        /stroke-dasharray="2 2"/.test(pin), // broken outline
-        /<circle[^>]*stroke="var\(--scene-map-label-halo\)"/.test(pin), // an inner mark at all
-        /<circle[^>]*stroke-dasharray/.test(pin), // a BROKEN inner mark
-      ].join('|');
-    });
-    expect(new Set(shapes).size).toBe(4);
+  it('keeps the four tiers distinguishable without relying on colour alone', () => {
+    // Three signals, none of them hue: shape (circle vs square), fill state
+    // (solid ink vs the halo token, i.e. filled disc vs open ring), and a
+    // dashed outline. All four tiers land on a distinct combination.
+    const signature = (t: (typeof TIERS)[number]) => {
+      const dot = dotFor(t);
+      const isSquare = dot.includes('<rect');
+      const isSolid = /fill="var\(--accent\)"/.test(dot);
+      const isDashed = dot.includes('stroke-dasharray');
+      return [isSquare, isSolid, isDashed].join('|');
+    };
+    expect(new Set(TIERS.map(signature)).size).toBe(4);
   });
 
-  it('carries the inner mark in the sheet\'s own paper colour, never as a hole', () => {
-    const pin = pinFor('traditional');
-    expect(pin).toContain('stroke="var(--scene-map-label-halo)"');
-    expect(pin).not.toContain('fill-opacity');
-  });
-
-  it('still marks a conjectural position with its own dashed outline', () => {
-    const pin = renderPlate(schematicPlate, [anchoredPlace]).svg.match(/<g data-place-id="anchored-place"[^>]*>[\s\S]*?<\/g>/)![0];
-    expect(pin).toContain('stroke-dasharray="1 3"');
-    expect(pin).not.toContain('fill-opacity');
+  it('draws a schematic mark with the same opaque dot symbology as a geographic one', () => {
+    // The teardrop is retired on every plate kind (2026-08-13): an engraved
+    // plan does not use a web-map pin, and one symbology across both registers
+    // is one fewer thing for a reader to learn. What must NOT change is that
+    // the mark is a single opaque closed body — no fill-opacity, nothing of the
+    // basemap reading through the middle of it.
+    const mark = renderPlate(schematicPlate, [anchoredPlace]).svg.match(/<g[^>]*data-place-id="anchored-place"[^>]*>[\s\S]*?<\/g>/)![0];
+    expect(mark).not.toContain('fill-opacity');
+    expect(mark).not.toContain('A '); // no arc-and-tip teardrop path
+    expect([...mark.matchAll(/<(circle|rect)\b/g)]).toHaveLength(1);
   });
 
   it('keys the legend with the SAME symbols the sheet draws', () => {
@@ -2370,18 +2450,19 @@ describe('renderPlate: a pin is never transparent to its own basemap', () => {
     }));
     const svg = renderPlate(testPlate, places).svg;
     const legend = svg.match(/<g class="plate-legend">[\s\S]*?$/)![0];
-    // Four keyed tiers, each drawn as the pin itself (arc + point), not as a
-    // disc; and each of the four rows present.
-    expect(legend.match(/A 4 4 0 1 1/g)).toHaveLength(4);
+    // Three circular tiers (certain, traditional, mythical) at the legend's
+    // own dot radius, plus one open square (speculative) — no other legend
+    // row on this fixture draws a circle or a 7.2px-square swatch.
+    expect(legend.match(/<circle[^>]*r="4"/g)).toHaveLength(3);
+    expect(legend.match(/<rect[^>]*width="7.2"/g)).toHaveLength(1);
     for (const text of ['Location secure', 'Traditional identification', 'Identification speculative', 'Mythical — no known site']) {
       expect(legend).toContain(text);
     }
-    // The broken registers reach the key too.
+    // The dashed (mythical) register reaches the key too.
     expect(legend).toContain('stroke-dasharray="2 2"');
-    expect(legend).toContain(`stroke-dasharray="2.1 2.1"`);
   });
 
-  it('bakes no colour of its own into a pin or its key row', () => {
+  it('bakes no colour of its own into a marker or its key row', () => {
     const svg = renderPlate(testPlate, [troy, scamander, ghost]).svg;
     expect(svg).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
     assertEveryVarTokenDefined(svg);
@@ -2450,5 +2531,150 @@ describe('the live Trojan-plain sheet: the barrier is where its note says it is'
       }
     }
     expect(nearest).toBeGreaterThan(20);
+  });
+});
+
+// ── Reserving drawn linework (2026-08-14) ─────────────────────────────────
+// The defect: on the schematic Trojan plain, the label solver had been taught
+// to reserve the ship rows but nothing else, so names walked straight over the
+// shoreline and the fortifications — "ACHAEAN WALL AND DITCH" printed through
+// its own wall, and the Book 23 names printed through the beach into the open
+// sea. The fix reserves the drawn linework of the band kinds (coast, wall) as a
+// CORRIDOR following the run. These tests lock both halves of that: the
+// corridor geometry, and the property it exists to guarantee.
+describe('linework reservation', () => {
+  it('reserves a corridor along the run, not its bounding rectangle', () => {
+    // A 45° diagonal is the case that separates the two: its bounding box is
+    // enormous next to the ink it actually covers.
+    const halfWidth = 5;
+    const diagonal: [number, number][] = [
+      [0, 0],
+      [200, 200],
+    ];
+    const boxes = lineworkExtent(diagonal, halfWidth);
+    expect(boxes.length).toBeGreaterThan(10); // sub-divided, not one box
+
+    const reserved = boxes.reduce((sum, b) => sum + (b[2] - b[0]) * (b[3] - b[1]), 0);
+    const boundingArea = (200 + 2 * halfWidth) ** 2;
+    expect(reserved).toBeLessThan(boundingArea * 0.25);
+
+    // Every box still straddles the line it follows.
+    for (const [x1, y1, x2, y2] of boxes) {
+      const cx = (x1 + x2) / 2;
+      const cy = (y1 + y2) / 2;
+      expect(Math.abs(cx - cy)).toBeLessThan(1e-9);
+    }
+  });
+
+  it('inflates the corridor by the band half-width on both sides', () => {
+    const boxes = lineworkExtent(
+      [
+        [0, 50],
+        [10, 50],
+      ],
+      4,
+    );
+    expect(boxes).toHaveLength(1);
+    expect(boxes[0]).toEqual([-4, 46, 14, 54]);
+  });
+
+  it('degenerate runs reserve nothing', () => {
+    expect(lineworkExtent([], 5)).toEqual([]);
+    expect(lineworkExtent([[1, 1]], 5)).toEqual([]);
+  });
+
+  // The property the whole mechanism exists for, asserted end to end on a
+  // rendered sheet: a place anchored ON a fortification and a place anchored
+  // just inland of a shoreline both used to be lettered straight across the
+  // linework, because a wall's ink and a shore's ink were invisible to the
+  // solver. Deliberately synthetic rather than read from apparatus/places.json
+  // — see the note at the top of this file on that file's stability.
+  it('no point label is laid across drawn coast or wall linework', () => {
+    const sheet: Plate = {
+      id: 'reservation-fixture',
+      title: 'Reservation Fixture',
+      kind: 'schematic',
+      status: 'draft',
+      seed: 7,
+      size: [480, 320],
+      layers: [
+        {
+          id: 'shore',
+          kind: 'coast',
+          style: 'waterline',
+          width: 1.6,
+          rings: [
+            [
+              [0.02, 0.84],
+              [0.35, 0.87],
+              [0.7, 0.86],
+              [0.98, 0.83],
+            ],
+          ],
+        },
+        {
+          id: 'rampart',
+          kind: 'wall',
+          trace: [
+            [0.05, 0.4],
+            [0.5, 0.42],
+            [0.95, 0.4],
+          ],
+        },
+      ],
+    };
+    const places: PlatePlace[] = [
+      // Straddling the wall, and named at length so a lazy placement overlaps it.
+      { id: 'on-the-wall', name: 'The rampart gate and its towers', certainty: 'speculative', positionBasis: 'conjectural', plateAnchors: { 'reservation-fixture': [0.5, 0.42] } },
+      // On the beach, with the sea immediately below it.
+      { id: 'on-the-beach', name: 'The barrow raised above the strand', certainty: 'speculative', positionBasis: 'conjectural', plateAnchors: { 'reservation-fixture': [0.62, 0.82] } },
+      { id: 'beside-it', name: 'The hut of the far-shooting lord', certainty: 'speculative', positionBasis: 'conjectural', plateAnchors: { 'reservation-fixture': [0.4, 0.8] } },
+    ];
+
+    const { svg } = renderPlate(parsePlate(sheet), places);
+
+    // Rebuild each point label's box from what the element itself declares,
+    // by the same arithmetic the solver used (estimateLabelWidth/labelBox):
+    // a caps style is emitted already uppercased, and `letter-spacing` is the
+    // style's own size * tracking. <textPath> names carry no x/y and are
+    // exempt by design — a name set ALONG a line rides that line.
+    const attr = (tag: string, name: string) => tag.match(new RegExp(`${name}="([^"]*)"`))?.[1];
+    const labelBoxes: { id: string; box: [number, number, number, number] }[] = [];
+    for (const m of svg.matchAll(/<text\b([^>]*)>([\s\S]*?)<\/text>/g)) {
+      const tag = m[1];
+      const id = attr(tag, 'data-label-for');
+      const x = Number(attr(tag, 'x'));
+      if (!id || !Number.isFinite(x)) continue;
+      const y = Number(attr(tag, 'y'));
+      const size = Number(attr(tag, 'font-size'));
+      const tracking = Number(attr(tag, 'letter-spacing') ?? 0);
+      const anchor = attr(tag, 'text-anchor') ?? 'start';
+      const text = m[2].replace(/&apos;/g, "'").replace(/&amp;/g, '&');
+      const width = text.length * (size * (/[a-z]/.test(text) ? 0.56 : 0.64) + tracking);
+      const x1 = anchor === 'start' ? x : anchor === 'end' ? x - width : x - width / 2;
+      labelBoxes.push({ id, box: [x1, y - size * 0.8, x1 + width, y + size * 0.25] });
+    }
+    expect(labelBoxes.map((l) => l.id).sort()).toEqual(['beside-it', 'on-the-beach', 'on-the-wall']);
+
+    // The corridors, rebuilt from the plate's own geometry in plate pixels.
+    const [W, H] = sheet.size;
+    const corridors: [number, number, number, number][] = [
+      ...lineworkExtent(
+        sheet.layers[0].rings![0].map(([u, v]) => [u * W, v * H] as [number, number]),
+        1.6 / 2 + 4.4,
+      ),
+      ...lineworkExtent(
+        sheet.layers[1].trace!.map(([u, v]) => [u * W, v * H] as [number, number]),
+        1.15 / 2 + 4,
+      ),
+    ];
+    expect(corridors.length).toBeGreaterThan(20);
+
+    const overlaps = (a: number[], b: number[]) =>
+      !(a[2] < b[0] || b[2] < a[0] || a[3] < b[1] || b[3] < a[1]);
+    const offenders = labelBoxes
+      .filter((l) => corridors.some((c) => overlaps(l.box, c)))
+      .map((l) => l.id);
+    expect(offenders).toEqual([]);
   });
 });

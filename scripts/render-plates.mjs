@@ -90,7 +90,9 @@ function bundle() {
 
 function toPlatePlace(p) {
   // Mirrors MapsPage.svelte's toPlatePlace: trimmed to the fields plate.ts's
-  // PlatePlace actually reads.
+  // PlatePlace actually reads. `kind`/`rank` (2026-08-10, landmark-label
+  // lane) drive the five geographic-plate label classes and settlement
+  // hierarchy — see shared/lib/plate.ts's placeLabelClass/SETTLEMENT_RANK_STYLE.
   return {
     id: p.id,
     name: p.name,
@@ -98,6 +100,8 @@ function toPlatePlace(p) {
     certainty: p.certainty,
     plateAnchors: p.plateAnchors,
     positionBasis: p.positionBasis,
+    kind: p.kind,
+    rank: p.rank,
   };
 }
 

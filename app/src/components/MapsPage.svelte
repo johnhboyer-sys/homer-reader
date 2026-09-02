@@ -228,6 +228,13 @@
       certainty: p.certainty,
       plateAnchors: raw.plateAnchors,
       positionBasis: raw.positionBasis,
+      // `kind`/`rank` (2026-08-10, landmark-label lane): real fields on the
+      // apparatus JSON (apparatus/places.json), not on maps.ts's Place
+      // interface, same posture as plateAnchors/positionBasis above -- they
+      // drive the five geographic-plate label classes and settlement
+      // hierarchy (shared/lib/plate.ts's placeLabelClass/SETTLEMENT_RANK_STYLE).
+      kind: raw.kind,
+      rank: raw.rank,
     };
   }
   // Two distinct scales, two distinct place sets (2026-07-28 fix): the
