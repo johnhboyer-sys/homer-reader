@@ -198,6 +198,14 @@ non-negotiable.
   had crashed. Redirect to a file and echo `$?` instead. (CLAUDE.md already
   said not to pipe through `tail` before a `&&`; this is the same rule and it
   is easy to walk into when you only want the last few lines.)
+- Plate-render gotcha (2026-09-02): `scripts/render-plates.mjs` looks for
+  Playwright's headless Chrome at `chromium_headless_shell-*/chrome-headless-shell-mac-arm64/chrome-headless-shell`,
+  but current Playwright installs (`npx playwright install chromium-headless-shell`,
+  build 1187+) unpack to `chrome-mac/headless_shell`. Bridge it with two symlinks
+  in the cache dir (`chrome-headless-shell-mac-arm64 -> chrome-mac`, and
+  `chrome-mac/chrome-headless-shell -> headless_shell`) rather than editing the
+  script; the cache dir also gets wiped by other tooling, so re-check before a
+  render lane.
 - Test gotcha (2026-07-27): in `shared/` vitest (jsdom), `import.meta.url`
   resolves relative URLs against Vite's HTTP base, NOT the filesystem — so
   `fs.existsSync(new URL('../../x', import.meta.url))` is always false and a

@@ -169,6 +169,34 @@ def test_validate_plate_resolves_real_place_id():
     assert problems == []
 
 
+def test_validate_plate_detects_dangling_claim():
+    plate = _plate(layers=[
+        {"id": "town", "kind": "region", "claims": ["nonexistent-place"]}
+    ])
+    problems = apparatus_places.validate_plate(plate, {"troy": {"id": "troy"}})
+    assert problems == [
+        "testplate: layer town claims unknown place 'nonexistent-place'"
+    ]
+
+
+def test_validate_plate_resolves_known_claims():
+    plate = _plate(layers=[
+        {"id": "town", "kind": "region", "claims": ["troy", "ilion"]}
+    ])
+    problems = apparatus_places.validate_plate(
+        plate, {"troy": {"id": "troy"}, "ilion": {"id": "ilion"}}
+    )
+    assert problems == []
+
+
+def test_validate_plate_rejects_non_list_claims():
+    plate = _plate(layers=[
+        {"id": "town", "kind": "region", "claims": "troy"}
+    ])
+    problems = apparatus_places.validate_plate(plate, {"troy": {"id": "troy"}})
+    assert any("layer town claims" in p for p in problems)
+
+
 def test_validate_plate_schematic_rejects_lat_lon_coordinates():
     plate = _plate(
         kind="schematic",

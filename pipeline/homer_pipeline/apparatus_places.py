@@ -466,6 +466,18 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                 f"in the gazetteer"
             )
 
+        claims = layer.get("claims")
+        if claims is not None:
+            if not isinstance(claims, list):
+                problems.append(f"{label}: layer {layer_label} claims must be a list")
+            else:
+                for claimed_id in claims:
+                    if not isinstance(claimed_id, str) or claimed_id not in places_by_id:
+                        problems.append(
+                            f"{label}: layer {layer_label} claims unknown place "
+                            f"{claimed_id!r}"
+                        )
+
         default = layer.get("default")
         if default is not None and default not in ("on", "off"):
             problems.append(f"{label}: layer {layer_label} default must be 'on' or 'off'")
