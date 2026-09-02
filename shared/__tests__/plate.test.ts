@@ -3116,3 +3116,53 @@ describe('renderPlate: groundOpacity wash', () => {
     expect(renderPlate(testPlate, []).svg).not.toContain('plate-ground-wash');
   });
 });
+
+// The 25 ground layers on trojan-plain-schematic-v2.json are a copy of the
+// geographic sheet, kept in sync by scripts/sync-schematic-ground.py. The
+// gazetteer-side geographic sheet is the source of truth.
+const SCHEMATIC_V2_GROUND_IDS = [
+  'sea-modern',
+  'scamandrian-plain',
+  'relief-band-0010',
+  'relief-band-0015',
+  'relief-band-0020',
+  'relief-band-0025',
+  'relief-band-0030',
+  'relief-band-0040',
+  'relief-band-0060',
+  'relief-band-0100',
+  'relief-band-0150',
+  'relief-band-0200',
+  'relief-band-0320',
+  'relief-sigeion-ridge',
+  'relief-plain-south',
+  'relief-troy-ridge',
+  'relief-rhoiteion-ridge',
+  'relief-plain-east-200',
+  'lagoon-bronze',
+  'delta-swamp',
+  'shore-bronze',
+  'barrier-bronze',
+  'coast-modern',
+  'scamander',
+  'simoeis',
+] as const;
+
+describe('trojan-plain-schematic-v2 ground layers match the geographic sheet', () => {
+  it('deep-equals each of the 25 ground layers by id', () => {
+    const geo = JSON.parse(
+      readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain.json'), 'utf-8'),
+    );
+    const v2 = JSON.parse(
+      readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain-schematic-v2.json'), 'utf-8'),
+    );
+    const geoById = new Map((geo.layers as { id: string }[]).map((l) => [l.id, l]));
+    const v2ById = new Map((v2.layers as { id: string }[]).map((l) => [l.id, l]));
+    for (const id of SCHEMATIC_V2_GROUND_IDS) {
+      expect(
+        v2ById.get(id),
+        'the gazetteer-side geographic sheet is the source of truth; run the sync script',
+      ).toEqual(geoById.get(id));
+    }
+  });
+});
