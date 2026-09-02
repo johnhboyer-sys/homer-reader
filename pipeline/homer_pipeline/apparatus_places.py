@@ -561,9 +561,11 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                 )
                 continue
             a, b = pair
-            if kind == "geographic":
-                if min_lat is None:
-                    continue  # bbox itself already flagged invalid above
+            # Coordinate space is declared by the PRESENCE of a bbox, not by
+            # kind: a plate that carries a bbox projects lat/lon; a plate
+            # with none (schematic, always) stays in unit [u, v] space.
+            use_bbox = min_lat is not None
+            if use_bbox:
                 if not (
                     min_lat - _BBOX_EPS <= a <= max_lat + _BBOX_EPS
                     and min_lon - _BBOX_EPS <= b <= max_lon + _BBOX_EPS

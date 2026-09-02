@@ -117,7 +117,6 @@ const schematicPlate: Plate = {
   title: 'Shield',
   kind: 'schematic',
   status: 'draft',
-  bbox: [0, 0, 1, 1],
   size: [200, 200],
   layers: [],
 };
@@ -2946,5 +2945,174 @@ describe('linework reservation', () => {
       .filter((l) => corridors.some((c) => overlaps(l.box, c)))
       .map((l) => l.id);
     expect(offenders).toEqual([]);
+  });
+});
+
+describe('parsePlate: rotationDeg, marginRight, groundOpacity', () => {
+  const base = {
+    id: 'x',
+    title: 'X',
+    kind: 'geographic' as const,
+    status: 'draft',
+    bbox: BBOX,
+    size: SIZE,
+    layers: [] as PlateLayer[],
+  };
+
+  it('reads finite rotationDeg / non-negative marginRight / groundOpacity in (0, 1]', () => {
+    const plate = parsePlate({ ...base, rotationDeg: 90, marginRight: 200, groundOpacity: 0.55 });
+    expect(plate.rotationDeg).toBe(90);
+    expect(plate.marginRight).toBe(200);
+    expect(plate.groundOpacity).toBe(0.55);
+  });
+
+  it('defaults the three fields to today when they are omitted', () => {
+    const plate = parsePlate(base);
+    expect(plate.rotationDeg).toBeUndefined();
+    expect(plate.marginRight).toBeUndefined();
+    expect(plate.groundOpacity).toBeUndefined();
+  });
+
+  it('rejects a non-finite rotationDeg', () => {
+    expect(() => parsePlate({ ...base, rotationDeg: Infinity })).toThrow(/rotationDeg/);
+    expect(() => parsePlate({ ...base, rotationDeg: NaN })).toThrow(/rotationDeg/);
+  });
+
+  it('rejects a negative marginRight', () => {
+    expect(() => parsePlate({ ...base, marginRight: -1 })).toThrow(/marginRight/);
+  });
+
+  it('rejects a groundOpacity outside (0, 1]', () => {
+    expect(() => parsePlate({ ...base, groundOpacity: 0 })).toThrow(/groundOpacity/);
+    expect(() => parsePlate({ ...base, groundOpacity: 1.5 })).toThrow(/groundOpacity/);
+    expect(() => parsePlate({ ...base, groundOpacity: -0.1 })).toThrow(/groundOpacity/);
+  });
+});
+
+describe('renderPlate: schematic plate with a geographic bbox (lat/lon space)', () => {
+  const geoSchematic: Plate = {
+    id: 'schematic-geo',
+    title: 'Schematic with geography',
+    kind: 'schematic',
+    status: 'draft',
+    bbox: BBOX,
+    size: SIZE,
+    layers: [
+      {
+        id: 'river-geo',
+        kind: 'river',
+        path: [
+          [39.9, 26.15],
+          [39.95, 26.2],
+        ],
+      },
+    ],
+  };
+
+  it('projects a lat/lon layer point through project(), not unit scaling', () => {
+    const result = renderPlate(geoSchematic, []);
+    const vp = viewportFromBBox(BBOX, SIZE);
+    const [x0, y0] = project([39.9, 26.15], vp);
+    const [x1, y1] = project([39.95, 26.2], vp);
+    const feature = result.features.find((f) => f.id === 'river-geo')!;
+    expect(feature.bbox[0]).toBeCloseTo(Math.min(x0, x1), 6);
+    expect(feature.bbox[1]).toBeCloseTo(Math.min(y0, y1), 6);
+    expect(feature.bbox[2]).toBeCloseTo(Math.max(x0, x1), 6);
+    expect(feature.bbox[3]).toBeCloseTo(Math.max(y0, y1), 6);
+  });
+
+  it('draws a scale bar (a sheet with a bbox has a metre)', () => {
+    expect(renderPlate(geoSchematic, []).svg).toContain('plate-scale');
+  });
+
+  it('parsePlate accepts lat/lon layer points on a schematic plate with a geographic bbox', () => {
+    expect(() =>
+      parsePlate({
+        id: 'schematic-geo',
+        title: 'Schematic with geography',
+        kind: 'schematic',
+        status: 'draft',
+        bbox: BBOX,
+        size: SIZE,
+        layers: [{ id: 'river-geo', kind: 'river', path: [[39.9, 26.15], [39.95, 26.2]] }],
+      }),
+    ).not.toThrow();
+  });
+
+  it('parsePlate rejects a layer point outside that bbox', () => {
+    expect(() =>
+      parsePlate({
+        id: 'schematic-geo',
+        title: 'Schematic with geography',
+        kind: 'schematic',
+        status: 'draft',
+        bbox: BBOX,
+        size: SIZE,
+        layers: [{ id: 'stray', kind: 'river', path: [[0, 0], [1, 1]] }],
+      }),
+    ).toThrow(/outside the plate bbox/);
+  });
+});
+
+describe('renderPlate: marginRight and rotationDeg flow into the sheet', () => {
+  it('a 200px right margin on a [1320, 1265] sheet leaves a 1120px map frame, keeps ground in it, and parks the legend in the band', () => {
+    const plate: Plate = { ...testPlate, size: [1320, 1265], marginRight: 200 };
+    const result = renderPlate(plate, []);
+    expect(result.viewport.width).toBe(1120);
+    expect(result.viewport.height).toBe(1265);
+    for (const f of result.features.filter((feat) => feat.type === 'layer')) {
+      expect(f.bbox[2]).toBeLessThanOrEqual(1120 + 1e-6);
+    }
+    const legendX = result.svg.match(/<rect class="plate-legend-panel" x="([-\d.]+)"/);
+    expect(legendX).toBeTruthy();
+    expect(Number(legendX![1])).toBeGreaterThanOrEqual(1120);
+    expect(result.svg).toMatch(/<line class="plate-neatline"[^>]*x1="1120"/);
+  });
+
+  it('rotationDeg: 90 wraps the north needle in rotate(-90 …) about the arrow centre', () => {
+    const plate: Plate = { ...testPlate, rotationDeg: 90, north: 'True north' };
+    const svg = renderPlate(plate, []).svg;
+    expect(svg).toMatch(/class="plate-north"/);
+    expect(svg).toMatch(/transform="rotate\(-90 /);
+  });
+});
+
+describe('renderPlate: groundOpacity wash', () => {
+  function washGroup(svg: string): { opacity: string; inner: string } | null {
+    const open = svg.match(/<g class="plate-ground-wash" opacity="([^"]+)">/);
+    if (!open || open.index === undefined) return null;
+    const start = open.index + open[0].length;
+    let depth = 1;
+    let i = start;
+    while (i < svg.length && depth > 0) {
+      if (svg.startsWith('</g>', i)) {
+        depth--;
+        if (depth === 0) return { opacity: open[1], inner: svg.slice(start, i) };
+        i += 4;
+      } else if (svg.startsWith('<g', i)) {
+        depth++;
+        i += 2;
+      } else {
+        i++;
+      }
+    }
+    return null;
+  }
+
+  it('wraps region/band/relief fills in one plate-ground-wash group and leaves the river outside it', () => {
+    const plate: Plate = { ...testPlate, groundOpacity: 0.55 };
+    const svg = renderPlate(plate, []).svg;
+    expect([...svg.matchAll(/class="plate-ground-wash"/g)]).toHaveLength(1);
+    const wash = washGroup(svg);
+    expect(wash).not.toBeNull();
+    expect(wash!.opacity).toBe('0.55');
+    expect(wash!.inner).toContain('data-feature-id="camp-1"');
+    expect(wash!.inner).toContain('data-feature-id="relief-1"');
+    expect(wash!.inner).not.toContain('plate-layer-river');
+    expect(svg).toContain('data-feature-id="river-1"');
+  });
+
+  it('emits no wash group when groundOpacity is omitted', () => {
+    expect(renderPlate(testPlate, []).svg).not.toContain('plate-ground-wash');
   });
 });

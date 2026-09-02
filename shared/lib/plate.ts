@@ -301,6 +301,24 @@ export interface Plate {
    * orientation.
    */
   north?: string;
+  /**
+   * Compass bearing that points UP the sheet (0 = north-up). Fed to
+   * viewportFromBBox / project(). Omit (or 0) and the sheet is north-up,
+   * exactly today's behaviour.
+   */
+  rotationDeg?: number;
+  /**
+   * Empty right-hand band, in plate pixels, reserved for furniture (the
+   * legend). The map frame is `[0, size[0] − marginRight] × [0, size[1]]`.
+   * Omit (or 0) and the frame is the whole sheet.
+   */
+  marginRight?: number;
+  /**
+   * Opacity of region/band/relief fills, composited over the opaque ground
+   * rect. Linework stays at full strength. Omit (or 1) and fills paint as
+   * they always did.
+   */
+  groundOpacity?: number;
   layers: PlateLayer[];
   // Schematic-only: concentric bands (see PlateBand). A schematic plate
   // declares `bands` or `layers` (or both); geographic plates never carry
@@ -612,10 +630,10 @@ function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, numb
     trace: geometryArray('trace'),
   };
 
-  if (plate.kind === 'geographic') {
-    // parsePlate never reaches parseLayer for a geographic plate without a
-    // bbox (it fails first) — bbox is guaranteed defined here.
-    assertPointsInBBox(layer, plate.bbox!);
+  // Coordinate space is declared by the PRESENCE of a bbox, not by kind: a
+  // plate that carries a bbox projects lat/lon; a plate with none stays 0..1.
+  if (plate.bbox) {
+    assertPointsInBBox(layer, plate.bbox);
   } else {
     assertPointsInUnitRange(layer);
   }
@@ -705,6 +723,15 @@ export function parsePlate(data: unknown): Plate {
   if (d.north !== undefined && (typeof d.north !== 'string' || !d.north.trim())) {
     fail('north must be a non-empty string (the caption under the arrow)');
   }
+  if (d.rotationDeg !== undefined && !isFiniteNumber(d.rotationDeg)) {
+    fail('rotationDeg must be a finite number');
+  }
+  if (d.marginRight !== undefined && !(isFiniteNumber(d.marginRight) && d.marginRight >= 0)) {
+    fail('marginRight must be a number >= 0');
+  }
+  if (d.groundOpacity !== undefined && !(isFiniteNumber(d.groundOpacity) && d.groundOpacity > 0 && d.groundOpacity <= 1)) {
+    fail('groundOpacity must be a number in (0, 1]');
+  }
 
   if (kind === 'geographic' && d.layers === undefined) fail('missing layers');
   if (d.layers !== undefined && !Array.isArray(d.layers)) fail('layers must be an array');
@@ -757,6 +784,9 @@ export function parsePlate(data: unknown): Plate {
     ground,
     pxPerMetre: isFiniteNumber(d.pxPerMetre) ? d.pxPerMetre : undefined,
     north: typeof d.north === 'string' && d.north.trim() ? d.north : undefined,
+    rotationDeg: isFiniteNumber(d.rotationDeg) ? d.rotationDeg : undefined,
+    marginRight: isFiniteNumber(d.marginRight) ? d.marginRight : undefined,
+    groundOpacity: isFiniteNumber(d.groundOpacity) ? d.groundOpacity : undefined,
     layers,
     bands,
   };
@@ -2755,7 +2785,13 @@ function legendCornerBox(corner: LegendCorner, panelW: number, panelH: number, w
 // corner exactly as before. On its own halo-coloured panel so it stays
 // legible over whatever terrain falls under it. Returns '' when there is
 // nothing to key.
-function legendMarkup(entries: LegendEntry[], width: number, height: number, avoidBoxes: Box[] = []): string {
+function legendMarkup(
+  entries: LegendEntry[],
+  width: number,
+  height: number,
+  avoidBoxes: Box[] = [],
+  marginRight = 0,
+): string {
   const byKey = new Map<string, LegendEntry>();
   for (const e of entries) if (!byKey.has(e.key)) byKey.set(e.key, e);
   if (byKey.size === 0) return '';
@@ -2796,17 +2832,25 @@ function legendMarkup(entries: LegendEntry[], width: number, height: number, avo
   // they are not maps, and every band already carries its own label.
   if (panelW > width - LABEL_MARGIN * 2 || panelH > height - LABEL_MARGIN * 2) return '';
 
-  let bestBox = legendCornerBox('br', panelW, panelH, width, height);
-  let bestPenalty = Infinity;
-  for (const corner of LEGEND_CORNERS) {
-    const box = legendCornerBox(corner, panelW, panelH, width, height);
-    const penalty = avoidBoxes.reduce((total, b) => total + overlapArea(box, b), 0);
-    if (penalty < bestPenalty) {
-      bestPenalty = penalty;
-      bestBox = box;
+  let x0: number;
+  let y0: number;
+  if (marginRight > 0) {
+    // Right-hand furniture band: top of the margin, not a map-face corner.
+    x0 = width - marginRight + 12;
+    y0 = 12;
+  } else {
+    let bestBox = legendCornerBox('br', panelW, panelH, width, height);
+    let bestPenalty = Infinity;
+    for (const corner of LEGEND_CORNERS) {
+      const box = legendCornerBox(corner, panelW, panelH, width, height);
+      const penalty = avoidBoxes.reduce((total, b) => total + overlapArea(box, b), 0);
+      if (penalty < bestPenalty) {
+        bestPenalty = penalty;
+        bestBox = box;
+      }
     }
+    [x0, y0] = bestBox;
   }
-  const [x0, y0] = bestBox;
 
   const parts: string[] = [
     `<rect class="plate-legend-panel" x="${round1(x0)}" y="${round1(y0)}" width="${round1(panelW)}" ` +
@@ -2838,11 +2882,16 @@ const FRAME_INNER_INSET = FRAME_OUTER_INSET + FRAME_GAP + FRAME_INNER_WIDTH / 2;
 /** Keep lettering clear of the inner neatline. */
 const LABEL_MARGIN = FRAME_INNER_INSET + 4;
 
-function neatlineMarkup(width: number, height: number): string {
+function neatlineMarkup(width: number, height: number, frameWidth = width): string {
   const rect = (inset: number, strokeWidth: number) =>
     `<rect class="plate-neatline" x="${inset}" y="${inset}" width="${round1(width - inset * 2)}" ` +
     `height="${round1(height - inset * 2)}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${strokeWidth}"/>`;
-  return rect(FRAME_OUTER_INSET, FRAME_OUTER_WIDTH) + rect(FRAME_INNER_INSET, FRAME_INNER_WIDTH);
+  const marginRule =
+    frameWidth < width
+      ? `<line class="plate-neatline" x1="${round1(frameWidth)}" y1="${FRAME_OUTER_INSET}" x2="${round1(frameWidth)}" ` +
+        `y2="${round1(height - FRAME_OUTER_INSET)}" stroke="var(--flaxman-ink)" stroke-width="${FRAME_OUTER_WIDTH}"/>`
+      : '';
+  return rect(FRAME_OUTER_INSET, FRAME_OUTER_WIDTH) + rect(FRAME_INNER_INSET, FRAME_INNER_WIDTH) + marginRule;
 }
 
 // Mean km per degree of latitude (WGS84). The viewport's single `scale` is
@@ -3063,33 +3112,75 @@ function northArrowCx(caption: string): number {
   return LABEL_MARGIN + 6 + northCaptionHalf(caption);
 }
 
-/** The sheet space the arrow and its caption occupy, for the legend to avoid. */
-function northArrowBox(caption: string): Box {
-  const cx = northArrowCx(caption);
-  const half = northCaptionHalf(caption);
-  return [cx - half, NORTH_TOP - NORTH_FONT - 6, cx + half, NORTH_TOP + NORTH_NEEDLE_H + NORTH_FONT + 6];
+/** SVG `rotate(-deg cx cy)` — y-down, so positive deg is clockwise. */
+function rotateAbout(x: number, y: number, cx: number, cy: number, deg: number): [number, number] {
+  const a = (-deg * Math.PI) / 180;
+  const c = Math.cos(a);
+  const s = Math.sin(a);
+  const dx = x - cx;
+  const dy = y - cy;
+  return [cx + dx * c - dy * s, cy + dx * s + dy * c];
 }
 
-function northArrowMarkup(caption: string): string {
+/** The sheet space the arrow and its caption occupy, for the legend to avoid. */
+function northArrowBox(caption: string, rotationDeg = 0): Box {
+  const cx = northArrowCx(caption);
+  const half = northCaptionHalf(caption);
+  const box: Box = [cx - half, NORTH_TOP - NORTH_FONT - 6, cx + half, NORTH_TOP + NORTH_NEEDLE_H + NORTH_FONT + 6];
+  if (!rotationDeg) return box;
+  const cy = NORTH_TOP + NORTH_NEEDLE_H / 2;
+  const [x0, y0, x1, y1] = box;
+  const corners: [number, number][] = [
+    rotateAbout(x0, y0, cx, cy, rotationDeg),
+    rotateAbout(x1, y0, cx, cy, rotationDeg),
+    rotateAbout(x1, y1, cx, cy, rotationDeg),
+    rotateAbout(x0, y1, cx, cy, rotationDeg),
+  ];
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const [x, y] of corners) {
+    if (x < minX) minX = x;
+    if (y < minY) minY = y;
+    if (x > maxX) maxX = x;
+    if (y > maxY) maxY = y;
+  }
+  return [minX, minY, maxX, maxY];
+}
+
+function northArrowMarkup(caption: string, rotationDeg = 0): string {
   if (!caption.trim()) return '';
   const cx = northArrowCx(caption);
   const top = NORTH_TOP;
   const base = top + NORTH_NEEDLE_H;
   const p = (x: number, y: number) => `${round1(x)} ${round1(y)}`;
+  const needles =
+    `<path class="plate-north-needle" d="M ${p(cx, top)} L ${p(cx + NORTH_HALF_W, base)} L ${p(cx, base - 7)} Z" ` +
+    `fill="var(--flaxman-ink)" stroke="none"/>` +
+    `<path class="plate-north-needle-open" d="M ${p(cx, top)} L ${p(cx - NORTH_HALF_W, base)} L ${p(cx, base - 7)} Z" ` +
+    `fill="none" stroke="var(--flaxman-ink)" stroke-width="0.7" stroke-linejoin="round"/>`;
+  const cy = top + NORTH_NEEDLE_H / 2;
+  const needleGroup = rotationDeg
+    ? `<g transform="rotate(${-rotationDeg} ${round1(cx)} ${round1(cy)})">${needles}</g>`
+    : needles;
+  const [nX, nY] = rotationDeg ? rotateAbout(cx, top - 4, cx, cy, rotationDeg) : [cx, top - 4];
+  const [cX, cY] = rotationDeg
+    ? rotateAbout(cx, base + NORTH_FONT + 3, cx, cy, rotationDeg)
+    : [cx, base + NORTH_FONT + 3];
   return (
     `<g class="plate-north">` +
     // The two halves of the needle: the leading one solid, the trailing one
     // open, which is how a plan's arrow is engraved and how it stays legible
-    // at 34 px without a fill heavy enough to read as a blot.
-    `<path class="plate-north-needle" d="M ${p(cx, top)} L ${p(cx + NORTH_HALF_W, base)} L ${p(cx, base - 7)} Z" ` +
-    `fill="var(--flaxman-ink)" stroke="none"/>` +
-    `<path class="plate-north-needle-open" d="M ${p(cx, top)} L ${p(cx - NORTH_HALF_W, base)} L ${p(cx, base - 7)} Z" ` +
-    `fill="none" stroke="var(--flaxman-ink)" stroke-width="0.7" stroke-linejoin="round"/>` +
-    `<text class="plate-north-label" x="${round1(cx)}" y="${round1(top - 4)}" text-anchor="middle" ` +
+    // at 34 px without a fill heavy enough to read as a blot. Rotated as a
+    // group about the needle centre so the N glyph and caption can stay
+    // upright at the rotated tip / base.
+    needleGroup +
+    `<text class="plate-north-label" x="${round1(nX)}" y="${round1(nY)}" text-anchor="middle" ` +
     `font-family="var(--font-ui)" font-size="${NORTH_FONT + 1.5}" letter-spacing="1" ` +
     `fill="var(--text)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="2" ` +
     `stroke-linejoin="round">N</text>` +
-    `<text class="plate-north-caption" x="${round1(cx)}" y="${round1(base + NORTH_FONT + 3)}" text-anchor="middle" ` +
+    `<text class="plate-north-caption" x="${round1(cX)}" y="${round1(cY)}" text-anchor="middle" ` +
     `font-family="var(--font-ui)" font-size="${NORTH_FONT}" letter-spacing="0.6" ` +
     `fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="2" ` +
     `stroke-linejoin="round">${escapeXml(caption)}</text>` +
@@ -3183,13 +3274,21 @@ function hypsometricKeyMarkup(plate: Plate, width: number, height: number): stri
 
 // ── Projection ───────────────────────────────────────────────────────────
 
-// Projects one plate point into plate-pixel space. On a `geographic` plate
-// the point is a real [lat, lon] pair, run through geo.ts's project() — the
-// same projection that places gazetteer pins, per this module's whole
-// premise. On a `schematic` plate the point is a unit [u, v] pair (0..1,
-// top-left origin, same sense as SVG y-down) scaled directly by plate.size.
+// Coordinate space is declared by the PRESENCE of a bbox, not by `kind` and
+// not by the bbox's own extent: a plate that carries a bbox projects its
+// points as lat/lon through geo.ts; a plate with no bbox treats them as unit
+// [u, v]. A schematic plate that wants unit space simply omits bbox.
+function usesLatLon(plate: { bbox?: [number, number, number, number] }): boolean {
+  return plate.bbox !== undefined;
+}
+
+// Projects one plate point into plate-pixel space. A sheet with a bbox runs
+// the point through geo.ts's project() — the same projection that places
+// gazetteer pins. A sheet without one treats the point as a unit [u, v] pair
+// (0..1, top-left origin, same sense as SVG y-down) scaled directly by
+// plate.size.
 function projectPoint(plate: Plate, p: PlatePoint, viewport: Viewport): [number, number] {
-  if (plate.kind === 'schematic') {
+  if (!usesLatLon(plate)) {
     return [p[0] * plate.size[0], p[1] * plate.size[1]];
   }
   return project(p as LatLon, viewport);
@@ -4526,8 +4625,13 @@ function unitViewport(size: [number, number]): Viewport {
 // identical `svg` string (see hachure's seeded PRNG above).
 export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOptions = {}): PlateResult {
   const opts = { ...DEFAULT_PLATE_OPTIONS, ...options };
-  const viewport = plate.bbox ? viewportFromBBox(plate.bbox, plate.size) : unitViewport(plate.size);
   const [width, height] = plate.size;
+  const marginRight = plate.marginRight ?? 0;
+  const rotationDeg = plate.rotationDeg ?? 0;
+  const frameWidth = width - marginRight;
+  const viewport = plate.bbox
+    ? viewportFromBBox(plate.bbox, [frameWidth, height], rotationDeg)
+    : unitViewport(plate.size);
 
   const features: RenderedFeature[] = [];
   // Each drawn layer's own markup, in paint order, plus the reaches of other
@@ -4535,7 +4639,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // reach belongs to the water's paint slot, and the water is drawn before
   // the river, so the two are assembled after the whole pass rather than
   // pushed as they are rendered.
-  const drawn: { layerId: string; markup: string; rank: number }[] = [];
+  const drawn: { layerId: string; markup: string; rank: number; kind: LayerKind }[] = [];
   const submergedByWater = new Map<string, string[]>();
   const waters = collectWaterBodies(plate, viewport);
   // Every place id actually carried by a rendered layer (Problem 2, gap
@@ -4573,7 +4677,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   for (const layer of plate.layers) {
     const rendered = renderLayer(plate, layer, viewport, softId, waters);
     if (!rendered) continue;
-    drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer) });
+    drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind });
     for (const under of rendered.submerged ?? []) {
       const bucket = submergedByWater.get(under.layerId);
       if (bucket) bucket.push(under.markup);
@@ -4651,9 +4755,23 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // file authored them in. A water layer's submerged river reaches travel
   // with it, because they are keyed to its id and joined here, after the
   // sort — so moving the sea later moves the drowned reaches under it too.
-  const layerMarkup = [...drawn]
-    .sort((a, b) => a.rank - b.rank)
-    .map(({ layerId, markup }) => (submergedByWater.get(layerId) ?? []).join('') + markup);
+  const sortedDrawn = [...drawn].sort((a, b) => a.rank - b.rank);
+  const paintOf = (item: (typeof drawn)[number]) =>
+    (submergedByWater.get(item.layerId) ?? []).join('') + item.markup;
+  const groundOpacity = plate.groundOpacity ?? 1;
+  const layerMarkup =
+    groundOpacity < 1
+      ? (() => {
+          const fills: string[] = [];
+          const rest: string[] = [];
+          for (const item of sortedDrawn) {
+            (AREA_LAYER_KINDS.has(item.kind) ? fills : rest).push(paintOf(item));
+          }
+          return fills.length === 0
+            ? rest
+            : [`<g class="plate-ground-wash" opacity="${groundOpacity}">${fills.join('')}</g>`, ...rest];
+        })()
+      : sortedDrawn.map(paintOf);
 
   const placeById = new Map(places.map((p) => [p.id, p]));
 
@@ -4693,7 +4811,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // place appeared neither on the map nor in the "named, not drawn"
     // list: silently dropped. A point exactly on the canvas edge counts
     // as located (inclusive bounds) — it is still honestly ON the sheet.
-    if (x < 0 || x > width || y < 0 || y > height) {
+    if (x < 0 || x > frameWidth || y < 0 || y > height) {
       offCanvas.push(place);
       continue;
     }
@@ -4850,17 +4968,17 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   const pinnedNames = new Set(pinLabelRequests.map((r) => r.text.trim().toLocaleLowerCase()));
   const labels = layoutLabels(
     [...layerLabelRequests.filter((r) => !pinnedNames.has(r.text.trim().toLocaleLowerCase())), ...pinLabelRequests],
-    width,
+    frameWidth,
     height,
     LABEL_MARGIN,
     // Furniture the lettering has to keep off: the pin markers, and the north
     // arrow, which is drawn after the labels and would otherwise be lettered over.
     [
       ...pinLabelRequests.map((request) => request.anchorBox),
-      ...(plate.north ? [northArrowBox(plate.north)] : []),
+      ...(plate.north ? [northArrowBox(plate.north, rotationDeg)] : []),
     ],
     plate.kind === 'geographic',
-    plate.kind === 'geographic' ? plate.size : undefined,
+    plate.kind === 'geographic' ? [frameWidth, height] : undefined,
     denseBoxes,
   );
 
@@ -4897,27 +5015,27 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       ...pinLabelRequests.map((request) => request.anchorBox),
       ...labels.placedBoxes,
       ...insetBoxes,
-      ...(plate.north ? [northArrowBox(plate.north)] : []),
-      // Geographic only (see scaleBarBox): the metre-bar schematic path is
-      // untouched, out of this lane's scope.
-      ...(plate.kind === 'geographic' ? [scaleBarBox(width, height)] : []),
-    ]) +
+      ...(plate.north ? [northArrowBox(plate.north, rotationDeg)] : []),
+      // A sheet with a geographic bbox has a metre (see scaleBarBox). The
+      // metre-bar path for a declared pxPerMetre is untouched.
+      ...(usesLatLon(plate) ? [scaleBarBox(frameWidth, height)] : []),
+    ], marginRight) +
     `</g>` +
     // Frame, bar scale and north arrow sit OUTSIDE the clip: their strokes run
     // along the sheet edge and would be shaved in half by it. The bar is drawn
     // from this plate's own geometry, so it is honest by construction: from the
-    // viewport for a geographic plate, and from a declared `pxPerMetre` for a
-    // schematic one that IS a rectified survey (see Plate.pxPerMetre). A
-    // schematic plate that declares neither gets no bar, because it has no
-    // scale and drawing one would be a fabricated claim.
-    (plate.kind === 'geographic'
-      ? scaleBarMarkup(viewport, width, height)
+    // viewport for a sheet with a geographic bbox (it has a metre), and from a
+    // declared `pxPerMetre` for a schematic one that IS a rectified survey
+    // (see Plate.pxPerMetre). A schematic plate that declares neither gets no
+    // bar, because it has no scale and drawing one would be a fabricated claim.
+    (usesLatLon(plate)
+      ? scaleBarMarkup(viewport, frameWidth, height)
       : plate.pxPerMetre !== undefined
-        ? scaleBarMarkup(viewport, width, height, { pxPerMetre: plate.pxPerMetre })
+        ? scaleBarMarkup(viewport, frameWidth, height, { pxPerMetre: plate.pxPerMetre })
         : '') +
-    (plate.north ? northArrowMarkup(plate.north) : '') +
+    (plate.north ? northArrowMarkup(plate.north, rotationDeg) : '') +
     hypsometricKeyMarkup(plate, width, height) +
-    neatlineMarkup(width, height) +
+    neatlineMarkup(width, height, frameWidth) +
     `</svg>`;
 
   // `Object.create(null)` (2026-09-02, Codex finding): a place/layer id is

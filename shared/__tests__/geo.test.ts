@@ -197,3 +197,94 @@ describe('fitViewport (moved from scenemap.ts — regression guard)', () => {
     expect(Number.isFinite(viewport.centerLon)).toBe(true);
   });
 });
+
+describe('viewport rotation (rotationDeg)', () => {
+  const ROT_BBOX: [number, number, number, number] = [36, 20, 44, 28];
+  const ROT_SIZE: [number, number] = [400, 300];
+  const ROT_POINTS: [number, number][] = [
+    [40, 24],
+    [38, 22],
+    [42, 26],
+    [36.5, 20.5],
+    [43.5, 27.5],
+  ];
+
+  it('round-trips unproject(project(p)) at θ ∈ {0, 90, 37} for five points', () => {
+    for (const theta of [0, 90, 37]) {
+      const vp = viewportFromBBox(ROT_BBOX, ROT_SIZE, theta);
+      for (const p of ROT_POINTS) {
+        const back = unproject(project(p, vp), vp);
+        expect(back[0]).toBeCloseTo(p[0], 9);
+        expect(back[1]).toBeCloseTo(p[1], 9);
+      }
+    }
+  });
+
+  it('at θ=90 (east-up) a point east of centre projects above centre and a point north of centre projects left of centre', () => {
+    const vp = viewportFromBBox(ROT_BBOX, ROT_SIZE, 90);
+    const [, yEast] = project([vp.centerLat, vp.centerLon + 0.01], vp);
+    expect(yEast).toBeLessThan(vp.height / 2);
+    const [xNorth] = project([vp.centerLat + 0.01, vp.centerLon], vp);
+    expect(xNorth).toBeLessThan(vp.width / 2);
+  });
+
+  it('at θ=0 viewportFromBBox returns exactly the unrotated formula', () => {
+    const bbox: [number, number, number, number] = [36, 20, 44, 22];
+    const size: [number, number] = [400, 200];
+    const [minLat, minLon, maxLat, maxLon] = bbox;
+    const [width, height] = size;
+    const centerLat = (minLat + maxLat) / 2;
+    const centerLon = (minLon + maxLon) / 2;
+    const latSpan = maxLat - minLat;
+    const lonSpan = maxLon - minLon;
+    const cosLat = Math.max(Math.cos((centerLat * Math.PI) / 180), 0.01);
+    const scale = Math.min(width / (lonSpan * cosLat), height / latSpan);
+
+    const vp = viewportFromBBox(bbox, size, 0);
+    expect(vp.width).toBe(width);
+    expect(vp.height).toBe(height);
+    expect(vp.centerLat).toBe(centerLat);
+    expect(vp.centerLon).toBe(centerLon);
+    expect(vp.latSpan).toBe(latSpan);
+    expect(vp.lonSpan).toBe(lonSpan);
+    expect(vp.scale).toBe(scale);
+    expect(vp.rotationDeg).toBe(0);
+  });
+});
+
+describe('rotation on the real trojan-plain bbox (Troy vs Sigeion, and scale-bar isotropy)', () => {
+  // Real production bbox and place coordinates — apparatus/plates/trojan-plain.json's
+  // bbox, and Troy / Sigeion from apparatus/places.json. Under east-up
+  // (rotationDeg 90) a point further EAST projects ABOVE centre and a point
+  // further NORTH projects LEFT of centre (see the rotationDeg=90 test above).
+  // Troy [39.957, 26.239] sits east of Sigeion [39.9835, 26.1809], which in
+  // turn sits north of Troy (higher latitude).
+  const TROJAN_PLAIN_BBOX: [number, number, number, number] = [39.86, 26.1, 40.05, 26.38];
+  const TROY: [number, number] = [39.957, 26.239];
+  const SIGEION: [number, number] = [39.9835, 26.1809];
+
+  it('at θ=90, Troy (further east) projects above Sigeion, and Sigeion (further north) projects left of Troy', () => {
+    const vp = viewportFromBBox(TROJAN_PLAIN_BBOX, [800, 600], 90);
+    const [xTroy, yTroy] = project(TROY, vp);
+    const [xSigeion, ySigeion] = project(SIGEION, vp);
+    expect(yTroy).toBeLessThan(ySigeion);
+    expect(xSigeion).toBeLessThan(xTroy);
+  });
+
+  it("the scale bar's px→km reading (driven by viewport.scale) is the same in every direction on the sheet, at any rotation — not stretched along one axis", () => {
+    for (const theta of [0, 37, 90, 163]) {
+      const vp = viewportFromBBox(TROJAN_PLAIN_BBOX, [800, 600], theta);
+      const cosLat = Math.cos((vp.centerLat * Math.PI) / 180);
+      // Two 0.01°-equivalent offsets from centre — one pure "east", one pure
+      // "north" — sized in cos-corrected degree terms so they represent the
+      // same on-the-ground distance.
+      const east: [number, number] = [vp.centerLat, vp.centerLon + 0.01];
+      const north: [number, number] = [vp.centerLat + 0.01 * cosLat, vp.centerLon];
+      const [ex, ey] = project(east, vp);
+      const [nx, ny] = project(north, vp);
+      const pxEast = Math.hypot(ex - vp.width / 2, ey - vp.height / 2);
+      const pxNorth = Math.hypot(nx - vp.width / 2, ny - vp.height / 2);
+      expect(pxEast).toBeCloseTo(pxNorth, 6);
+    }
+  });
+});

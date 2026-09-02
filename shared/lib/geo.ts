@@ -23,6 +23,8 @@ export interface Viewport {
   latSpan: number; // degrees
   lonSpan: number; // degrees of longitude (pre cos-correction)
   scale: number; // px per (cos-corrected) degree
+  /** Compass bearing that points UP the sheet (0 = north-up, 90 = east-up). */
+  rotationDeg?: number;
 }
 
 // Fallback camera center used ONLY when fitViewport() is given zero located
@@ -63,11 +65,20 @@ function clampLon(lon: number): number {
 
 // ── Projection ───────────────────────────────────────────────────────────
 
+function rotationRad(viewport: Viewport): number {
+  return ((viewport.rotationDeg ?? 0) * Math.PI) / 180;
+}
+
 export function project(latlon: LatLon, viewport: Viewport): [number, number] {
   const [lat, lon] = latlon;
   const cosLat = clampedCosLat(viewport.centerLat);
-  const x = viewport.width / 2 + (lon - viewport.centerLon) * cosLat * viewport.scale;
-  const y = viewport.height / 2 - (lat - viewport.centerLat) * viewport.scale;
+  const dx = (lon - viewport.centerLon) * cosLat * viewport.scale;
+  const dy = -(lat - viewport.centerLat) * viewport.scale;
+  const theta = rotationRad(viewport);
+  const cosT = Math.cos(-theta);
+  const sinT = Math.sin(-theta);
+  const x = viewport.width / 2 + dx * cosT - dy * sinT;
+  const y = viewport.height / 2 + dx * sinT + dy * cosT;
   return [x, y];
 }
 
@@ -76,8 +87,17 @@ export function project(latlon: LatLon, viewport: Viewport): [number, number] {
 export function unproject(point: [number, number], viewport: Viewport): LatLon {
   const [x, y] = point;
   const cosLat = clampedCosLat(viewport.centerLat);
-  const lon = viewport.centerLon + (x - viewport.width / 2) / (cosLat * viewport.scale);
-  const lat = viewport.centerLat - (y - viewport.height / 2) / viewport.scale;
+  const theta = rotationRad(viewport);
+  const cosT = Math.cos(theta);
+  const sinT = Math.sin(theta);
+  const xP = x - viewport.width / 2;
+  const yP = y - viewport.height / 2;
+  // Inverse-rotate by +θ (undo the −θ applied in project), then the
+  // unrotated inverse.
+  const dx = xP * cosT - yP * sinT;
+  const dy = xP * sinT + yP * cosT;
+  const lon = viewport.centerLon + dx / (cosLat * viewport.scale);
+  const lat = viewport.centerLat - dy / viewport.scale;
   return [lat, lon];
 }
 
@@ -196,6 +216,7 @@ const MIN_BBOX_SPAN_DEG = 1e-6;
 export function viewportFromBBox(
   bbox: [number, number, number, number], // [minLat, minLon, maxLat, maxLon]
   size: [number, number], // [widthPx, heightPx]
+  rotationDeg = 0,
 ): Viewport {
   const [minLat, minLon, maxLat, maxLon] = bbox;
   const [width, height] = size;
@@ -213,9 +234,15 @@ export function viewportFromBBox(
   const lonSpan = Math.max(clampedMaxLon - clampedMinLon, MIN_BBOX_SPAN_DEG);
 
   const cosLat = clampedCosLat(centerLat);
-  const scaleX = width / (lonSpan * cosLat);
-  const scaleY = height / latSpan;
-  const scale = Math.min(scaleX, scaleY);
+  const theta = (rotationDeg * Math.PI) / 180;
+  const lonSpanEff = lonSpan * cosLat;
+  const absCos = Math.abs(Math.cos(theta));
+  const absSin = Math.abs(Math.sin(theta));
+  // Rotated envelope of the (cos-corrected) lon × lat rectangle. At θ=0
+  // this is exactly today's scale = min(width/(lonSpan·cosLat), height/latSpan).
+  const wDeg = absCos * lonSpanEff + absSin * latSpan;
+  const hDeg = absSin * lonSpanEff + absCos * latSpan;
+  const scale = Math.min(width / wDeg, height / hDeg);
 
-  return { width, height, centerLat, centerLon, latSpan, lonSpan, scale };
+  return { width, height, centerLat, centerLon, latSpan, lonSpan, scale, rotationDeg };
 }

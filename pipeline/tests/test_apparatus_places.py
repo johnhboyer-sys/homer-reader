@@ -198,11 +198,14 @@ def test_validate_plate_rejects_non_list_claims():
 
 
 def test_validate_plate_schematic_rejects_lat_lon_coordinates():
+    # Coordinate space is declared by the PRESENCE of bbox, not by kind or
+    # by the bbox's own extent — a schematic plate that wants unit space
+    # simply omits bbox (no dummy [0,0,1,1] needed).
     plate = _plate(
         kind="schematic",
-        bbox=[0, 0, 1, 1],
         layers=[{"id": "river-1", "kind": "river", "path": [[39.90, 26.15]]}],
     )
+    del plate["bbox"]
     problems = apparatus_places.validate_plate(plate, {})
     assert any("must be a unit [u, v] pair in 0..1" in p for p in problems)
 
@@ -210,10 +213,43 @@ def test_validate_plate_schematic_rejects_lat_lon_coordinates():
 def test_validate_plate_schematic_accepts_unit_coordinates():
     plate = _plate(
         kind="schematic",
-        bbox=[0, 0, 1, 1],
         layers=[{"id": "river-1", "kind": "river", "path": [[0.2, 0.4]]}],
     )
+    del plate["bbox"]
     assert apparatus_places.validate_plate(plate, {}) == []
+
+
+def test_validate_plate_schematic_with_geographic_bbox_accepts_lat_lon():
+    plate = _plate(
+        kind="schematic",
+        bbox=[39.86, 26.12, 40.02, 26.36],
+        layers=[{"id": "river-1", "kind": "river", "path": [[39.90, 26.15], [39.95, 26.20]]}],
+    )
+    assert apparatus_places.validate_plate(plate, {}) == []
+
+
+def test_validate_plate_schematic_with_geographic_bbox_rejects_out_of_bbox():
+    plate = _plate(
+        kind="schematic",
+        bbox=[39.86, 26.12, 40.02, 26.36],
+        layers=[{"id": "river-1", "kind": "river", "path": [[0.2, 0.4]]}],
+    )
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("lies outside bbox" in p for p in problems)
+
+
+def test_validate_plate_schematic_without_bbox_still_requires_unit_range():
+    plate = {
+        "id": "unit-sheet",
+        "title": "Unit Sheet",
+        "kind": "schematic",
+        "status": "draft",
+        "size": [100, 100],
+        "sources": [{"cite": "A Book."}],
+        "layers": [{"id": "river-1", "kind": "river", "path": [[39.90, 26.15]]}],
+    }
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("must be a unit [u, v] pair in 0..1" in p for p in problems)
 
 
 def test_validate_plate_schematic_needs_no_bbox():
