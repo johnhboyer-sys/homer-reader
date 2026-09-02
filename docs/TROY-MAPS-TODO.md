@@ -367,6 +367,21 @@ shield-of-achilles plate-level `sources` (now a validator error);
    sheets may set a coastal name over water with a leader (Kum Tepe, Kesik
    Tepe come back).
 
+6. **Dense clusters use Pope's method (John, 18:06):** on the schematic
+   sheet the camp and the citadel's features carry NUMERALS at the pin, a
+   numbered key in the margin (grouped: the camp; before the walls; the
+   plain), and hover/focus shows the name in both consumers. Zones keep
+   letters A–G. Only ground names and a few sheet-wide names stay on the
+   map face. Sector captions come OFF the map face; sectors are named by
+   holder (D1): the middle is "Odysseus's ships, the assembly and altars",
+   never "the centre".
+7. **Area captions never print over drawn features (John, 18:07, "why is
+   it superimposed?"):** centred region captions enter the collision solver
+   with linework, glyphs and badges reserved.
+8. **American English is the house style for reader-facing text (John,
+   18:06, "we're not English").** Quoted titles and quotations keep their
+   source's spelling; "Catalogue of Ships" stays as the established title.
+
 ## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
 
 Session paused here 2026-07-31; John picks up when he has reference examples
