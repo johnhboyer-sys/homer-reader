@@ -1946,3 +1946,200 @@ def test_the_note_rules_do_not_behead_a_word_that_merely_starts_with_so():
     assert sc._LEADING_NOTE_RE.match("So. ")
     assert not sc._LEADING_NOTE_RE.match("Something")
     assert not sc._LEADING_NOTE_RE.match("Source, origin")
+
+
+# ── a line range is one reference, not a reference and a loose digit ────────
+# Cunliffe prints "Od. 6.177-8" and "Il. 2.671-673". The tail was read as a
+# bare continuation and restored to the book in front of it, so the reader got
+# a live "Od. 6.8" — a real line with nothing to do with the entry — and the
+# hyphen was left standing in the citation list as an item of its own. See
+# _CITE_TOKEN_RE and _WORK_ABBR_RE.
+
+ASTU = (
+    "ἄστυ -εος, τό (ϝάστυ). A town or city (used as = πόλις 1 Il. 21.607: "
+    "Od. 6.177-8, Od. 8.524-5, Od. 14.472-3; but in Il. 17.144 app. the "
+    "inhabited part of the city as opposed to the citadel; see πόλις (2)) "
+    "Il. 2.332, Il. 3.116, Il. 6.256, Il. 7.32, etc.: Od. 1.3, Od. 3.107, "
+    "Od. 4.9, Od. 7.40, etc. With name of a particular town in genit.: "
+    "ἀ. ζελείης Il. 4.103 = 121. Cf. Il. 14.281, Il. 21.128: Od. 18.1, "
+    "Od. 22.223."
+)
+
+
+def test_a_line_range_does_not_expand_its_tail_into_a_second_reference():
+    """ἄστυ, whole and real.
+
+    Three ranges, and every tail became a live link to a line the entry never
+    cites: Od. 6.8, Od. 8.5, Od. 14.3. The hyphen between the two halves
+    reached the citation list as a bare "-".
+    """
+    t8 = sc.to_t8("a)/stu", "ἄστυ", ASTU)
+    cites = _cites(t8)
+    for ghost in ("Od. 6.8", "Od. 8.5", "Od. 14.3"):
+        assert ghost not in cites, ghost
+    assert "-" not in cites
+    # the range is kept as Cunliffe printed it, whole
+    for printed in ("Od. 6.177-8", "Od. 8.524-5", "Od. 14.472-3"):
+        assert printed in cites, printed
+    # and the references around it are untouched
+    assert "Il. 21.607" in cites
+    assert "Il. 4.121" in cites          # the genuine bare continuation
+    assert "Od. 22.223" in cites
+
+
+NIREUS = (
+    "Νιρεύς Son of Charopus and Aglaia and leader of the men of Syme. "
+    "His beauty Il. 2.671-673."
+)
+
+
+def test_a_three_digit_range_tail_is_not_a_reference_of_its_own():
+    """Νιρεύς, whole and real.
+
+    The tail lands inside its own range here, so the link went to a real line
+    of the passage — which is exactly why it survived thirteen passes. It is
+    still a citation Cunliffe did not print, and it still arrived with a bare
+    "-" beside it.
+    """
+    t8 = sc.to_t8("nireu/s", "Νιρεύς", NIREUS)
+    assert _cites(t8) == ["Il. 2.671-673"]
+    assert _text(t8["rows"][0]["z"]) == (
+        "Son of Charopus and Aglaia and leader of the men of Syme. His beauty")
+
+
+def test_a_range_still_names_the_book_a_continuation_belongs_to():
+    """A range resets the book context exactly as a plain reference does, so a
+    bare continuation behind one is restored to the range's own book."""
+    assert sc._expand("Od. 6.177-8", "Il. 21") == ("Od. 6.177-8", "Od. 6")
+    assert sc._expand("12", "Od. 6") == ("Od. 6.12", "Od. 6")
+
+
+# ── a pointer into Cunliffe's grammatical Tables is not a line number ───────
+# He closes the dictionary with tables of constructions and points into them
+# by section — "See Table III.B.a 1 2 (3), b.1.2.3, C.a.6". Those digits stood
+# exactly where a continuation stands and were restored to the book the last
+# reference left behind: Il. 8.1, Il. 8.2, Il. 8.3, Il. 8.6 under ὅτε. See
+# _is_table_ref.
+
+HOTE = (
+    "ὅτε 1 When, at the time when. a With indic. α ὅτε Τρώεσσιν ἐν "
+    "ἀγρομένοισιν ἔμιχθεν Il. 3.209. Cf. Il. 1.397, Il. 2.303, 471, etc. : "
+    "Od. 1.16, Od. 2.314 (now that I am . . .), Od. 3.180, Od. 4.145, etc. "
+    "β So ᾔδεα μὲν ὅτε . . . οἶδα δὲ νῦν ὅτε . . . (I knew what it meant "
+    "when . . .) Il. 14.71 : ἦ οὐκ οἶσθʼ ὅτε . . .; (what happened "
+    "when . . .) Od. 16.424. γ Introducing similes : ὡς ὅτε . . . Il. 2.209, "
+    "Il. 3.33, Il. 4.275, etc. : Od. 5.432, Od. 12.251, Od. 13.31, etc.– "
+    "ὡς ὅτʼ ἂν . . . Il. 12.41 : Od. 10.410. δ With πρίν. See πρίν 6.a. "
+    "b α ὅτʼ ἄν with subj. like 1.a.β ὄφρα ἰδῇ (ἰδῇς) ὅτʼ ἂν ᾧ (σῷ) πατρὶ "
+    "μάχηται (μάχηαι) (i.e. what it is to fight with . . .) Il. 8.406, 420. "
+    "β With subj. in a relative sentence corresponding to sentences with "
+    "εἰ 4. See Table at end II.B.a 1. γ With fut., subj. or opt. in "
+    "conditional relative sentences. For the examples and constructions see "
+    "Table III.B.a 1 2 (3), b.1.2.3, C.a.6, (D) (9) (12) (17) (20) (26) (32) "
+    "(34) (35) (37) (45) (51) (52) (54) (55) (56) (57) (58). δ With subj. "
+    "introducing similes : ὡς ὅτε Il. 2.147, Il. 4.130, 141, Il. 5.597, "
+    "Il. 6.506, etc. : Od. 5.328, Od. 6.232= Od. 23.159, Od. 9.391, "
+    "Od. 19.518, Od. 20.25. With ἄν: ὡς ὅτʼ ἄν Il. 10.5, Il. 11.269, "
+    "Il. 15.80, 170, Il. 17.520, Il. 19.375, Il. 24.480 : Od. 5.394, "
+    "Od. 10.216, Od. 22.468, Od. 23.233. With opt. : ὡς ὅτε Od. 9.384. "
+    "ε With πρίν with subj. and ἄν or opt. See πρίν 6.b 6.c 2 Introducing "
+    "similes without expressed vb. : ὡς ὅτε Il. 2.394, Il. 4.462, Il. 12.132, "
+    "Il. 13.471, 571, Il. 15.362, 679, Il. 16.406, Il. 18.219, Il. 23.712 : "
+    "Od. 5.281, Od. 11.368, Od. 19.494. 3 Against the time when : "
+    "ποτιδέγμενον ἀγγελίην, ὅτʼ ἀποφθιμένοιο πύθηται (waiting for the tidings "
+    "which shall tell him that . . .) Il. 19.337. 4 At which time, when : "
+    "ἔσσεται ἦμαρ ὅτʼ ἄν ποτʼ ὀλώλῃ Ἴλιος Il. 4.164. Cf. Il. 2.351, "
+    "Il. 8.373 (the day will come when . . .), 475, etc. : Od. 18.272. So "
+    "ἦ οὐ μέμνῃ ὅτε . . . (the time when . . . how . . .) Il. 15.18, "
+    "Il. 20.188, Il. 21.396 : Od. 24.115.– εἰς ὅτε κε . . . (against the time "
+    "when . . .) Od. 2.99= Od. 19.144= Od. 24.134. 5 When, after that, as "
+    "soon as : ὅτε δὴ σχεδὸν ἦσαν Il. 3.15. Cf. Il. 1.432, 493, Il. 6.191, "
+    "etc. : Od. 1.332, Od. 3.269, 286, etc. 6 Since, from the time when : "
+    "ἐμοὶ χλαῖναι καὶ ῥήγεα ἤχθεθʼ, ὅτε κρήτης ὄρεα νοσφισάμην Od. 19.338. "
+    "Cf. Il. 21.81, 156 : Od. 24.288. 7 While : ὅτε δή ῥʼ ἐπὶ νῆʼ ᾔομεν, "
+    "τόφρα . . . Od. 10.569. 8 When, whereas : ὅτε τʼ ἄλλοι ἅπαξ θνῄσκουσιν "
+    "Od. 12.22. 9 Since, seeing that : ὅτʼ ὀνείδεα βάζεις Od. 17.461. "
+    "Cf. Od. 13.129. 10 ὅτε μή without expressed vb., unless, except : "
+    "ὅτε μὴ διὶ πατρί Il. 16.227. 11 Written oxytone, ὁτέ. With ἄλλοτε. See "
+    "ἄλλοτε 2.–ὁτέ alone, at another time, again Il. 16.690, Il. 17.178."
+)
+
+
+def test_a_table_section_number_is_not_a_line_number():
+    """ὅτε, whole and real.
+
+    "Table III.B.a 1 2 (3), b.1.2.3, C.a.6" gave the reader four live links
+    into Iliad 8 — Il. 8.1, Il. 8.2, Il. 8.3, Il. 8.6 — none of which the
+    entry cites, and cut Cunliffe's own sentence into rows around them.
+    """
+    t8 = sc.to_t8("o(/te", "ὅτε", HOTE)
+    cites = _cites(t8)
+    for ghost in ("Il. 8.1", "Il. 8.2", "Il. 8.3", "Il. 8.6"):
+        assert ghost not in cites, ghost
+    # the pointer stays whole, where he printed it
+    text = _all_text(t8)
+    assert "Table III.B.a 1 2 (3), b.1.2.3, C.a.6" in text
+    assert "Table at end II.B.a 1." in text
+    # and Il. 8.373 — a real reference in the same entry — is untouched, as is
+    # the bare continuation that follows it
+    assert "Il. 8.373" in cites
+    assert "Il. 8.475" in cites
+
+
+def test_a_table_pointer_ends_where_cunliffes_sentence_does():
+    """The run reaches to the sentence stop and no further: a period inside a
+    section coordinate ("b.1.2.3") does not end it, and a period that closes
+    the sentence does — so the sense number behind one is still a sense.
+    """
+    text = "See Table at end (P) B.a.3. 2 With subj. Il. 5.100"
+    assert sc._is_table_ref(text, text.index("3."))
+    assert not sc._is_table_ref(text, text.index("2 With"))
+    assert not sc._is_table_ref(text, text.index("100"))
+    # and a digit with no Table in front of it is never one
+    assert not sc._is_table_ref("Il. 19.35, 75", len("Il. 19.35, "))
+
+
+def _real_entry(headword: str):
+    """One whole entry, as the source has it. Read rather than pasted: these
+    two run to several thousand characters, and a shortened fixture is exactly
+    what let the last defect in this module hide."""
+    import json
+    import pytest
+    src = Path("/Users/johnboyer/Developer/homer-reader/sources/cunliffe"
+               "/cunliffe-1-lex.jsonl")
+    if not src.exists():
+        pytest.skip(f"Cunliffe source not present at {src}")
+    for line in src.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        d = json.loads(line)
+        if d["headword"] == headword:
+            return d
+    pytest.skip(f"{headword} not in the source")
+
+
+def test_a_note_in_front_of_a_closing_run_does_not_hide_its_sub_sense():
+    """ὄφρα and ὅσος, whole and real.
+
+    Cunliffe's "etc." closes the citation list above; the sub-sense letter
+    behind it opens the row. Between two citations split_evidence already
+    peeled the one off the other, but the run that CLOSES a sense reached the
+    row whole — which nothing noticed while such a run was always cut short at
+    a Table pointer's digits. Once those digits stop being citations the whole
+    sentence arrives here, and "etc. b With subj. . . ." stood in front of the
+    letter that _lift_subsense (which runs before the note is peeled) was
+    written to find. The entry then printed "etc. b With subj." as a
+    definition instead of opening sub-sense b.
+    """
+    for headword, letter, opening in (
+            ("ὄφρα", "b", "With subj. in conditional relative sentences."),
+            ("ὅσος", "d", "Correlative with τόσον."),
+    ):
+        d = _real_entry(headword)
+        t8 = sc.to_t8(d["key"], d["headword"], d["definition"])
+        row = next(r for r in t8["rows"]
+                   if _text(r.get("z") or "").startswith(opening))
+        assert row["n"] == letter, headword
+        assert row["lv"] == 2, headword
+        # the note is not dropped — it joins the list it closes
+        assert "etc." not in _text(row["z"]), headword

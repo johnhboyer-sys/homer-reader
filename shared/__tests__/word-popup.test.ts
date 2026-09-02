@@ -146,6 +146,13 @@ describe('WordPopup.svelte — the entry opens under the card tapped', () => {
     // A bare continuation has no book of its own and must stay plain rather
     // than become a link to the wrong line.
     expect(opts.citation('75')).toBeNull();
+    // A line range Cunliffe prints in full ("Od. 6.177-8") is ONE reference,
+    // and it opens on Od. 6.177. Leaving it unresolved would cost the link on
+    // a reference he really does make; resolving it to the tail would point at
+    // Od. 6.8, which is the defect the range token was folded to prevent.
+    expect(opts.citation('Od. 6.177-8')).toContain('6.177');
+    expect(opts.citation('Od. 6.177-8')).not.toContain('6.8');
+    expect(opts.citation('Il. 2.671-673')).toContain('2.671');
   });
 
   it('offers no Cunliffe tab on a card no Cunliffe entry covers', async () => {

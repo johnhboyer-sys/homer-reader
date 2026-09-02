@@ -478,7 +478,22 @@ def parse_sense(body: str) -> tuple[str, str]:
 # printed rather than expanded, because the citations[] pass that resolves them
 # from urns owns that, and guessing which book a loose number belongs to is how
 # a citation quietly points at the wrong line.
-_CITE_TOKEN_RE = re.compile(r"\b(?:Il|Od)\.\s*\d+\.\d+|\b\d+\b")
+#
+# A LINE RANGE is one reference and is matched whole. Cunliffe prints
+# "Od. 6.177-8" (ἄστυ), "Il. 2.671-673" (Νιρεύς), and the tail used to fall out
+# of the token and reach _expand as a loose digit, which restored it to the book
+# in front of it: Od. 6.8, Od. 8.5, Od. 14.3, Od. 5.1 — four live links to lines
+# the entries never cite — plus a bare "-" standing in the citation list where
+# the hyphen had been. Measured over both source volumes (11,416 entries): 13
+# printed ranges in 10 entries, of which 5 reach a citation list (ἄστυ 3, ἑκών
+# 1, Νιρεύς 1) and the other 8 stand inside one of Cunliffe's parentheses, where
+# the depth walk already passes them over. No range is ever written as a bare
+# continuation ("75-8" behind a full reference): 0 occurrences.
+#
+# The range goes to the reader as he printed it, and links to its FIRST line,
+# which is the line the range opens on and what a reader clicking "Od. 6.177-8"
+# expects. LexiconPanel.svelte's citationHref resolves the token.
+_CITE_TOKEN_RE = re.compile(r"\b(?:Il|Od)\.\s*\d+\.\d+(?:-\d+)?|\b\d+\b")
 
 # But Cunliffe also cross-references his OWN sense numbers, and those are digits
 # standing exactly where a line number could stand: "As in 4.b" (ἄγω), "Sim. in
@@ -551,16 +566,13 @@ def _is_sense_ref(text: str, start: int, end: int, lead: str) -> bool:
 # across 87 entries. What tells them apart is the character IN FRONT of the
 # hyphen, and only two ever occur: a letter, Greek or Latin, and a digit.
 #
-# The other 9 are the tail of a LINE RANGE he prints in full — "Od. 6.177-8"
+# The others are the tail of a LINE RANGE he prints in full — "Od. 6.177-8"
 # (ἄστυ), "Il. 16.514-529" (παιήων) — where the digit before the hyphen is
-# what marks it. That shape is NOT touched here. It is a real defect (four of
-# the nine expand to an outright wrong line, 177-8 meaning 178 and reaching
-# the reader as "Od. 6.8"), but its cure is not this one: passing the digit
-# over leaves "-8," standing as a row of its own, and folding the range into
-# the citation token costs the link on the range's FIRST line, which the
-# reader's citation hook resolves today and would not resolve for "Od. 6.177-8"
-# (LexiconPanel.svelte's citationHref matches a bare "Il. B.L" and nothing
-# else). Left measured and named rather than half-fixed.
+# what marks it. That shape is not this rule's, and is not touched here: it is
+# cured a step earlier, by matching the range whole as one citation token (see
+# _CITE_TOKEN_RE), so the tail never reaches a rule that has to decide what a
+# loose digit means. Passing it over here was tried and rejected — it leaves
+# "-8," standing as a row whose whole definition is a hyphen.
 #
 # The digit is passed over exactly as one of Cunliffe's own sense numbers is
 # (see _is_sense_ref): it stays in the text, where he printed it, whole.
@@ -571,6 +583,44 @@ def _is_homonym_suffix(text: str, start: int) -> bool:
     """Whether the digit at `start` is a homonym mark hung on the name before
     it, rather than a line number — see _HOMONYM_SUFFIX_RE."""
     return bool(_HOMONYM_SUFFIX_RE.search(text[:start]))
+
+
+# A POINTER INTO CUNLIFFE'S GRAMMATICAL TABLES. He closes the dictionary with
+# tables of constructions and points into them by section: "See Table III.B.a
+# 1 2 (3), b.1.2.3, C.a.6" (ὅτε), "See Table at end II.B.a 1, b, (D) (7)"
+# (ὁπότε). The coordinates are Roman division, capital, letter, digit — and the
+# digits stand exactly where a bare continuation stands, so _expand restored
+# them to the book the last reference left behind and the reader got live links
+# to lines the entry never cites: Il. 8.1, Il. 8.2, Il. 8.3, Il. 8.6 under ὅτε,
+# Od. 8.1 and Od. 8.2 under ἐπεί, Il. 11.1 and Il. 11.2 under ὁπότε. Cunliffe's
+# own sentence was cut into rows around each of them.
+#
+# This is the third member of the family _is_sense_ref and _is_homonym_suffix
+# belong to, and it is settled the same way: not by the digit, which says
+# nothing, but by what he writes around it. A Table pointer opens with the word
+# "Table" and runs to the end of that sentence. A period inside a coordinate
+# does NOT end it — "b.1.2.3", "C.a.6", "II.D.3)" are single coordinates — so
+# the run ends only at a period that a space or a dash follows, which is where
+# his next sentence or sense begins.
+#
+# Measured over both source volumes (11,416 entries): 41 pointers in 27
+# entries. Not one of the 41 runs reaches over a full reference or over a word
+# of Greek, so the rule cannot swallow a citation or a quotation; and not one
+# of their digits is taken for a sense number by split_senses, so the guard is
+# needed here and nowhere else. 26 digits in 10 entries stop expanding —
+# ἐπεί 4, ὁπότε 4, ὅτε 6, ὄφρα 3, εὖτε 2, ὅπως 2, ὁ, ὅθι, ὅπῃ, ὅς2.
+#
+# The digit stays in the text, where he printed it, whole: "See Table III.B.a
+# 1 2" is him telling the reader where to look, and deleting it would lose the
+# reference altogether.
+_TABLE_REF_RE = re.compile(r"\bTables?\b(?:[^.]|\.(?![\s–—]))*")
+
+
+def _is_table_ref(text: str, start: int) -> bool:
+    """Whether the digit at `start` is a section coordinate in one of
+    Cunliffe's grammatical Tables, rather than a line number."""
+    return any(m.start() <= start < m.end()
+               for m in _TABLE_REF_RE.finditer(text))
 
 
 def _holds_sense_ref(text: str) -> bool:
@@ -677,7 +727,7 @@ def _append_note(segment: dict, note: str) -> None:
     segment["au"].append(note)
 
 
-_WORK_ABBR_RE = re.compile(r"^(Il|Od)\.\s*(\d+)\.(\d+)$")
+_WORK_ABBR_RE = re.compile(r"^(Il|Od)\.\s*(\d+)\.(\d+)(?:-\d+)?$")
 
 
 def _expand(cite: str, book: str | None) -> tuple[str, str | None]:
@@ -690,6 +740,10 @@ def _expand(cite: str, book: str | None) -> tuple[str, str | None]:
     continuation is restored to the book it belongs to, which also makes it
     linkable; a full reference resets the context, including across the ":"
     that separates one poem from the other.
+
+    A line range ("Od. 6.177-8") resets it the same way and to its OWN book:
+    it is a full reference, and a continuation behind one belongs to the book
+    the range opens in.
     """
     m = _WORK_ABBR_RE.match(cite.strip())
     if m:
@@ -1128,6 +1182,11 @@ def split_evidence(evidence: str) -> list[dict]:
         if (m.group(0).strip().isdigit()
                 and _is_homonym_suffix(evidence, m.start())):
             continue
+        # A section coordinate in one of his grammatical Tables, not a line —
+        # see _is_table_ref. Passed over so that the pointer stays whole.
+        if (m.group(0).strip().isdigit()
+                and _is_table_ref(evidence, m.start())):
+            continue
         lead = evidence[pos:m.start()]
         lead_depth = depth[pos]
         pos = m.end()
@@ -1229,7 +1288,21 @@ def split_evidence(evidence: str) -> list[dict]:
         elif _TRAILING_NOTE_RE.fullmatch(tail):
             _append_note(segments[-1], tail)
         else:
-            segments.append({"z": tail, "ex": [], "au": []})
+            # A note in FRONT of the closing run closes the list above rather
+            # than opening this row, exactly as it does between two citations.
+            # The tail branch had no need of this while a run reaching it had
+            # already been cut at its last citation; once a pointer into the
+            # grammatical Tables stops being one (see _is_table_ref), a whole
+            # sense-end arrives here intact and the note arrives with it —
+            # ὄφρα's "etc. b With subj. …" then stood in front of the sub-sense
+            # letter, and _lift_subsense, which runs before _move_leading_notes
+            # can peel it, no longer saw the "b" it was written for.
+            note = _LEADING_NOTE_RE.match(tail)
+            if note and note.group(0).strip(" .:,;–-"):
+                _append_note(segments[-1], note.group(0).strip())
+                tail = tail[note.end():]
+            if tail:
+                segments.append({"z": tail, "ex": [], "au": []})
     return segments
 
 

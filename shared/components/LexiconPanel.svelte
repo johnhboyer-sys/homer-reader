@@ -326,8 +326,14 @@
   // side that knows how to reach the poem. Its own citation hook is what turns
   // `au` and an example's `c` into anchors — the ones inside `z` and `i` are
   // already in the markup stage5 wrote.
+  // A LINE RANGE is one token and links to the line it opens on. Cunliffe
+  // prints "Od. 6.177-8", and stage5 now keeps that whole rather than letting
+  // the tail fall out and be restored to the book in front of it (which gave
+  // the reader a live "Od. 6.8"). The first line is where the passage begins
+  // and is what a reader clicking the range expects; the reader has no way to
+  // open a span, so pointing at the opening line is the honest destination.
   const citationHref = (token: string): string | null => {
-    const m = /^(Il|Od)\.\s*(\d+)\.(\d+)$/.exec(token.trim());
+    const m = /^(Il|Od)\.\s*(\d+)\.(\d+)(?:-\d+)?$/.exec(token.trim());
     if (!m) return null;   // a bare continuation ("75") has no book of its own
     const work = m[1] === 'Il' ? 'iliad' : 'odyssey';
     return `${base}${workPath(work, Number(m[2]))}`
