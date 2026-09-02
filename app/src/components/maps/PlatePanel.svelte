@@ -169,14 +169,21 @@
     // Layers carry their gazetteer place as `placeId` on the plate object,
     // not as `data-place-id` on the SVG (that attribute is pins/dots only).
     // Match `[data-layer-id]` via dataset — never interpolate an id into a
-    // selector (plate.ts, data-layer-id stamp). Only set `none` here; showing
-    // is applyLayerVisibility's job, so a category that's off stays off.
+    // selector (plate.ts, data-layer-id stamp). This pass owns both
+    // directions for layers with a placeId: hide when the tier is off;
+    // otherwise leave applyLayerVisibility's decision on categorized
+    // layers (a category that's off stays off) and restore uncategorized
+    // ones (region/wall/route/shipRow/tumulus/band have no category pass).
     const hiddenLayers = new Set(
       plateLayers.filter((l) => l.placeId && hidden.has(l.placeId)).map((l) => l.id),
     );
     mapEl.querySelectorAll<SVGElement>('[data-layer-id]').forEach((el) => {
       const id = el.dataset.layerId;
-      if (id && hiddenLayers.has(id)) el.style.display = 'none';
+      if (!id) return;
+      const layer = plateLayers.find((l) => l.id === id);
+      if (!layer?.placeId) return;
+      if (hiddenLayers.has(id)) el.style.display = 'none';
+      else if (!layerCategory(layer)) el.style.display = '';
     });
     // A label carries `data-label-for` naming the place OR layer id it
     // letters (plate.ts, 2026-07-30) -- hide a place's name together with

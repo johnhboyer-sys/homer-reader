@@ -171,6 +171,81 @@ describe('PlatePanel', () => {
     expect(surePin.style.display).not.toBe('none');
   });
 
+  it('re-showing a certainty tier restores an uncategorized layer, not a categorized layer still off', async () => {
+    // applyLayerVisibility only resets display on relief/river/coast, so a
+    // tumulus (or region/wall/…) hidden by certainty would stay display:none
+    // forever unless the certainty pass itself restores it. A river hidden
+    // by its category toggle must stay hidden even when certainty releases it.
+    mockFetchPlate.mockResolvedValue({
+      id: 'uncategorized-certainty-plate',
+      title: 'Uncategorized Certainty Plate',
+      kind: 'geographic',
+      status: 'reviewed',
+      bbox: [0, 0, 1, 1],
+      size: [100, 80],
+      layers: [
+        {
+          id: 'tomb-of-ilos',
+          kind: 'tumulus',
+          placeId: 'ilos',
+          label: 'Tomb of Ilos',
+          path: [[0.5, 0.5]],
+        },
+        {
+          id: 'river-satnioeis',
+          kind: 'river',
+          placeId: 'satnioeis',
+          label: 'Satnioeis',
+          path: [
+            [0.2, 0.2],
+            [0.8, 0.8],
+          ],
+        },
+      ],
+    });
+
+    const places = [
+      { id: 'ilos', name: 'Tomb of Ilos', certainty: 'traditional' as const },
+      { id: 'satnioeis', name: 'Satnioeis', certainty: 'traditional' as const },
+    ];
+
+    const { container, getByRole } = render(PlatePanel, {
+      props: { plateId: 'uncategorized-certainty-plate', places, title: 'Uncategorized Certainty Plate' },
+    });
+
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+    const tumulusEl = container.querySelector('[data-layer-id="tomb-of-ilos"]') as SVGElement;
+    const tumulusLabel = container.querySelector('[data-label-for="tomb-of-ilos"]') as SVGElement;
+    const riverEl = container.querySelector('[data-layer-id="river-satnioeis"]') as SVGElement;
+    expect(tumulusEl).toBeTruthy();
+    expect(tumulusLabel).toBeTruthy();
+    expect(riverEl).toBeTruthy();
+    expect(tumulusEl.style.display).not.toBe('none');
+    expect(tumulusLabel.style.display).not.toBe('none');
+    expect(riverEl.style.display).not.toBe('none');
+
+    const riversToggle = getByRole('checkbox', { name: /show rivers/i }) as HTMLInputElement;
+    expect(riversToggle.checked).toBe(true);
+    riversToggle.click();
+    await waitFor(() => expect(riverEl.style.display).toBe('none'));
+    expect(tumulusEl.style.display).not.toBe('none');
+
+    const traditionalToggle = getByRole('checkbox', { name: 'traditional' }) as HTMLInputElement;
+    expect(traditionalToggle.checked).toBe(true);
+    traditionalToggle.click();
+
+    await waitFor(() => expect(tumulusEl.style.display).toBe('none'));
+    expect(tumulusLabel.style.display).toBe('none');
+    expect(riverEl.style.display).toBe('none');
+
+    traditionalToggle.click();
+
+    await waitFor(() => expect(tumulusEl.style.display).toBe(''));
+    expect(tumulusLabel.style.display).toBe('');
+    expect(riverEl.style.display).toBe('none');
+  });
+
   it('shows no certainty filter for the Shield of Achilles (it takes no places at all)', async () => {
     const shieldRaw = JSON.parse(
       readFileSync(path.resolve(process.cwd(), '../apparatus/plates/shield-of-achilles.json'), 'utf-8'),
