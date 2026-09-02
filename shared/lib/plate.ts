@@ -248,6 +248,14 @@ export interface PlateLayer {
   polygon?: PlatePoint[];
   baseline?: PlatePoint[];
   trace?: PlatePoint[];
+  /**
+   * `style: "inset"` only. Panel rectangle in SHEET PIXELS `[x, y, w, h]`.
+   * When present, `polygon`/`path` are unit coordinates inside this frame
+   * (0..1 across its width/height), so a panel can sit in the margin band
+   * of a lat/lon sheet. Omit it and the panel is the bbox of the layer's
+   * own projected points, exactly as before.
+   */
+  frame?: [number, number, number, number];
 }
 
 // A schematic plate's concentric band (the Shield of Achilles). Mirrors
@@ -324,6 +332,19 @@ export interface Plate {
   // declares `bands` or `layers` (or both); geographic plates never carry
   // this field.
   bands?: PlateBand[];
+  /**
+   * Lettered scene key for the margin band: one row per named zone, each
+   * lettered on the sheet at that layer's polygon centroid and listed
+   * below the legend as `letter — title — ref`.
+   */
+  sceneKey?: PlateSceneKey[];
+}
+
+export interface PlateSceneKey {
+  letter: string;
+  title: string;
+  ref: string;
+  layerId: string;
 }
 
 // Mirrors the fields of apparatus/places.json this module needs, trimmed the
@@ -557,7 +578,10 @@ function parseSources(raw: unknown, layerId: string): PlateSource[] | undefined 
   });
 }
 
-function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, number, number, number] }): PlateLayer {
+function parseLayer(
+  raw: unknown,
+  plate: { kind: PlateKind; bbox?: [number, number, number, number]; size: [number, number] },
+): PlateLayer {
   if (!raw || typeof raw !== 'object') fail('a layer must be an object');
   const l = raw as Record<string, unknown>;
   if (typeof l.id !== 'string' || !l.id) fail('a layer is missing its id');
@@ -630,9 +654,28 @@ function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, numb
     trace: geometryArray('trace'),
   };
 
+  if (l.frame !== undefined) {
+    if (!Array.isArray(l.frame) || l.frame.length !== 4 || !l.frame.every(isFiniteNumber)) {
+      fail(`layer "${l.id}" has a malformed "frame" (must be [x, y, w, h])`);
+    }
+    const frame = l.frame as [number, number, number, number];
+    if (!(frame[2] > 0 && frame[3] > 0)) {
+      fail(`layer "${l.id}" frame width and height must be > 0`);
+    }
+    const [sheetW, sheetH] = plate.size;
+    if (frame[0] < 0 || frame[1] < 0 || frame[0] + frame[2] > sheetW || frame[1] + frame[3] > sheetH) {
+      fail(`layer "${l.id}" frame lies outside the sheet`);
+    }
+    layer.frame = frame;
+  }
+
   // Coordinate space is declared by the PRESENCE of a bbox, not by kind: a
   // plate that carries a bbox projects lat/lon; a plate with none stays 0..1.
-  if (plate.bbox) {
+  // A framed inset is the exception: its polygon/path are unit coordinates
+  // inside the sheet-pixel frame, never lat/lon.
+  if (layer.style === 'inset' && layer.frame) {
+    assertPointsInUnitRange(layer);
+  } else if (plate.bbox) {
     assertPointsInBBox(layer, plate.bbox);
   } else {
     assertPointsInUnitRange(layer);
@@ -740,7 +783,7 @@ export function parsePlate(data: unknown): Plate {
   }
 
   const layers = Array.isArray(d.layers)
-    ? (d.layers as unknown[]).map((raw) => parseLayer(raw, { kind, bbox }))
+    ? (d.layers as unknown[]).map((raw) => parseLayer(raw, { kind, bbox, size }))
     : [];
 
   // Finding 6 (2026-07-28): duplicate layer ids defeat seed isolation —
@@ -773,6 +816,37 @@ export function parsePlate(data: unknown): Plate {
 
   const bands = d.bands !== undefined ? parseBands(d.bands, d.id) : undefined;
 
+  let sceneKey: PlateSceneKey[] | undefined;
+  if (d.sceneKey !== undefined) {
+    if (!Array.isArray(d.sceneKey)) fail('sceneKey must be an array');
+    const layerIds = new Set(layers.map((l) => l.id));
+    sceneKey = (d.sceneKey as unknown[]).map((raw, i) => {
+      if (!raw || typeof raw !== 'object') fail(`sceneKey[${i}] must be an object`);
+      const row = raw as Record<string, unknown>;
+      if (typeof row.letter !== 'string' || row.letter.length < 1 || row.letter.length > 2) {
+        fail(`sceneKey[${i}].letter must be 1 or 2 characters`);
+      }
+      if (typeof row.title !== 'string' || !row.title.trim()) {
+        fail(`sceneKey[${i}].title must be a non-empty string`);
+      }
+      if (typeof row.ref !== 'string' || !row.ref.trim()) {
+        fail(`sceneKey[${i}].ref must be a non-empty string`);
+      }
+      if (typeof row.layerId !== 'string' || !row.layerId) {
+        fail(`sceneKey[${i}].layerId must be a non-empty string`);
+      }
+      if (!layerIds.has(row.layerId)) {
+        fail(`sceneKey[${i}].layerId '${row.layerId}' is not a layer of this plate`);
+      }
+      return {
+        letter: row.letter,
+        title: row.title,
+        ref: row.ref,
+        layerId: row.layerId,
+      };
+    });
+  }
+
   return {
     id: d.id,
     title: d.title,
@@ -789,6 +863,7 @@ export function parsePlate(data: unknown): Plate {
     groundOpacity: isFiniteNumber(d.groundOpacity) ? d.groundOpacity : undefined,
     layers,
     bands,
+    sceneKey,
   };
 }
 
@@ -2821,10 +2896,11 @@ function legendMarkup(
   height: number,
   avoidBoxes: Box[] = [],
   marginRight = 0,
-): string {
+): { markup: string; bottom: number } {
+  const emptyBottom = marginRight > 0 ? 12 : 0;
   const byKey = new Map<string, LegendEntry>();
   for (const e of entries) if (!byKey.has(e.key)) byKey.set(e.key, e);
-  if (byKey.size === 0) return '';
+  if (byKey.size === 0) return { markup: '', bottom: emptyBottom };
   const rows = [...byKey.values()].sort((a, b) => a.rank - b.rank || a.text.localeCompare(b.text));
   const padX = 8;
   const padY = 8;
@@ -2880,7 +2956,9 @@ function legendMarkup(
   // A key that overruns its own sheet is worse than no key. Small schematic
   // devices (the Shield at 200px) have no room for one and no use for one —
   // they are not maps, and every band already carries its own label.
-  if (panelW > width - LABEL_MARGIN * 2 || panelH > height - LABEL_MARGIN * 2) return '';
+  if (panelW > width - LABEL_MARGIN * 2 || panelH > height - LABEL_MARGIN * 2) {
+    return { markup: '', bottom: emptyBottom };
+  }
 
   let x0: number;
   let y0: number;
@@ -2936,7 +3014,62 @@ function legendMarkup(
       );
     }
   });
-  return `<g class="plate-legend">${parts.join('')}</g>`;
+  return { markup: `<g class="plate-legend">${parts.join('')}</g>`, bottom: y0 + panelH };
+}
+
+function zoneLetterMarkup(letter: string, x: number, y: number, geographic: boolean): string {
+  const style = LABEL_STYLES.minor;
+  const r = style.size * 0.8;
+  return (
+    `<g class="plate-zone-letter">` +
+    `<circle cx="${round1(x)}" cy="${round1(y)}" r="${round1(r)}" fill="var(--scene-map-label-halo)" ` +
+      `fill-opacity="0.86" stroke="${style.fill}" stroke-width="0.7"/>` +
+    `<text class="plate-zone-letter" x="${round1(x)}" y="${round1(y)}" text-anchor="middle" ` +
+      `dominant-baseline="central" font-family="var(--font-ui)" font-size="${style.size}" ` +
+      `font-weight="600" fill="${style.fill}" paint-order="stroke" ${haloAttrs(geographic)}` +
+      `>${escapeXml(letter)}</text>` +
+    `</g>`
+  );
+}
+
+function sceneKeyMarkup(
+  rows: PlateSceneKey[] | undefined,
+  width: number,
+  marginRight: number,
+  legendBottom: number,
+): string {
+  if (!rows?.length || marginRight <= 0) return '';
+  const padX = 8;
+  const padY = 8;
+  const x0 = width - marginRight + 12;
+  const textMaxW = marginRight - 12 - 8 - padX * 2;
+  const textX = x0 + padX;
+  let y = legendBottom + 10 + padY;
+  const parts: string[] = [];
+  for (const row of rows) {
+    const full = `${row.letter} — ${row.title} — ${row.ref}`;
+    const lines = wrapLegendText(full, textMaxW);
+    if (lines.length <= 1) {
+      y += LEGEND_FONT;
+      parts.push(
+        `<text class="plate-scene-key-row" x="${round1(textX)}" y="${round1(y)}" ` +
+          `font-family="var(--font-ui)" font-size="${LEGEND_FONT}" fill="var(--text)">${escapeXml(full)}</text>`,
+      );
+      y += 4;
+    } else {
+      const tspans = lines
+        .map((line, li) => {
+          const ly = y + LEGEND_FONT + li * LEGEND_WRAP_LINE_H;
+          return `<tspan x="${round1(textX)}" y="${round1(ly)}">${escapeXml(line)}</tspan>`;
+        })
+        .join('');
+      parts.push(
+        `<text class="plate-scene-key-row" font-family="var(--font-ui)" font-size="${LEGEND_FONT}" fill="var(--text)">${tspans}</text>`,
+      );
+      y += LEGEND_FONT + (lines.length - 1) * LEGEND_WRAP_LINE_H + 4;
+    }
+  }
+  return `<g class="plate-scene-key">${parts.join('')}</g>`;
 }
 
 // ── Frame and bar scale ──────────────────────────────────────────────────
@@ -3647,8 +3780,15 @@ const INSET_HEAD_SIZE = 11;
 const INSET_SUB_SIZE = 8.6;
 const INSET_LINE_GAP = 3;
 
-function insetMarkup(id: string, px: [number, number][], label: string | undefined): string {
-  const [x0, y0, x1, y1] = bboxOf(px);
+function insetMarkup(
+  id: string,
+  px: [number, number][],
+  label: string | undefined,
+  panel?: [number, number, number, number],
+): string {
+  const [x0, y0, x1, y1] = panel
+    ? [panel[0], panel[1], panel[0] + panel[2], panel[1] + panel[3]]
+    : bboxOf(px);
   const frame = (inset: number, w: number) =>
     `<rect x="${round1(x0 + inset)}" y="${round1(y0 + inset)}" width="${round1(x1 - x0 - inset * 2)}" ` +
     `height="${round1(y1 - y0 - inset * 2)}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${w}"/>`;
@@ -4250,9 +4390,15 @@ function renderLayer(
   waters: WaterBody[],
 ): RenderedLayer | undefined {
   const allPixelPoints: [number, number][] = [];
+  const framedInset = layer.style === 'inset' && layer.frame !== undefined;
   const collect = (pts: PlatePoint[] | undefined) => {
     if (!pts) return [];
-    const px = projectPoints(plate, pts, viewport);
+    const px = framedInset
+      ? pts.map(([u, v]): [number, number] => [
+          layer.frame![0] + u * layer.frame![2],
+          layer.frame![1] + v * layer.frame![3],
+        ])
+      : projectPoints(plate, pts, viewport);
     allPixelPoints.push(...px);
     return px;
   };
@@ -4540,6 +4686,11 @@ function renderLayer(
       // primitive: an opaque framed panel that letters its own head. See
       // insetMarkup.
       if (layer.style === 'inset') {
+        if (layer.path) collect(layer.path);
+        if (layer.frame) {
+          const [fx, fy, fw, fh] = layer.frame;
+          allPixelPoints.push([fx, fy], [fx + fw, fy], [fx + fw, fy + fh], [fx, fy + fh]);
+        }
         // Wrapped in its own group carrying `data-layer-id`/`data-layer-style`
         // (2026-09-02, Reader.svelte postcard fix): insetMarkup's own parts —
         // the panel rect, its double frame, the title/rule lines — are sheet
@@ -4552,7 +4703,7 @@ function renderLayer(
         // `[data-layer-style="inset"]` group outright — it pans and crops
         // with the map like any other camera-group content, which a postcard
         // showing one subject and a locator must never do.
-        markup = `<g data-layer-id="${escapeXml(layer.id)}" data-layer-style="inset">${insetMarkup(layer.id, px, layer.label)}</g>`;
+        markup = `<g data-layer-id="${escapeXml(layer.id)}" data-layer-style="inset">${insetMarkup(layer.id, px, layer.label, layer.frame)}</g>`;
         break;
       }
       if (layer.style === 'poem') {
@@ -4744,6 +4895,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // band-along-a-line corridors (a shore, a fortification). See the loop below.
   const denseBoxes: ReservedBox[] = [];
   const legendEntries: LegendEntry[] = [];
+  const sceneKeyByLayer = new Map((plate.sceneKey ?? []).map((row) => [row.layerId, row]));
+  const zoneLetters: { letter: string; x: number; y: number }[] = [];
   // The blurred-edge filters (see SOFT_BLUR). Each is declared only when
   // something on the sheet actually uses it, so a plate with no indefinite
   // features emits exactly what it did before.
@@ -4763,6 +4916,20 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       else submergedByWater.set(under.layerId, [under.markup]);
     }
     features.push(rendered.feature);
+    const keyRow = sceneKeyByLayer.get(layer.id);
+    if (keyRow && layer.polygon && layer.polygon.length >= 3) {
+      const px =
+        layer.style === 'inset' && layer.frame
+          ? layer.polygon.map(
+              ([u, v]): [number, number] => [
+                layer.frame![0] + u * layer.frame![2],
+                layer.frame![1] + v * layer.frame![3],
+              ],
+            )
+          : projectPoints(plate, layer.polygon, viewport);
+      const [cx, cy] = polygonCentroid(px);
+      zoneLetters.push({ letter: keyRow.letter, x: cx, y: cy });
+    }
     if (layer.placeId) layerPlaceIds.add(layer.placeId);
     // One ground, several names — see PlateLayer.claims. Claimed places are
     // drawn by this feature, so they must not also pin.
@@ -5075,6 +5242,19 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // safeIdFragment), rather than interpolating it raw.
   const clipId = `${safeIdFragment(opts.idPrefix)}-clip`;
   const ariaLabel = escapeXml(plate.title);
+  const legend = legendMarkup(
+    legendEntries,
+    width,
+    height,
+    [
+      ...pinLabelRequests.map((request) => request.anchorBox),
+      ...labels.placedBoxes,
+      ...insetBoxes,
+      ...(plate.north ? [northArrowBox(plate.north, rotationDeg)] : []),
+      ...(usesLatLon(plate) ? [scaleBarBox(frameWidth, height)] : []),
+    ],
+    marginRight,
+  );
 
   const svg =
     `<svg viewBox="0 0 ${width} ${height}" width="100%" height="100%" role="img" aria-label="${ariaLabel}" xmlns="http://www.w3.org/2000/svg">` +
@@ -5098,16 +5278,12 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     layerMarkup.join('') +
     pinMarkupParts.join('') +
     labels.markup +
+    zoneLetters
+      .map((z) => zoneLetterMarkup(z.letter, z.x, z.y, plate.kind === 'geographic'))
+      .join('') +
     (opts.cameraGroup ? '</g>' : '') +
-    legendMarkup(legendEntries, width, height, [
-      ...pinLabelRequests.map((request) => request.anchorBox),
-      ...labels.placedBoxes,
-      ...insetBoxes,
-      ...(plate.north ? [northArrowBox(plate.north, rotationDeg)] : []),
-      // A sheet with a geographic bbox has a metre (see scaleBarBox). The
-      // metre-bar path for a declared pxPerMetre is untouched.
-      ...(usesLatLon(plate) ? [scaleBarBox(frameWidth, height)] : []),
-    ], marginRight) +
+    legend.markup +
+    sceneKeyMarkup(plate.sceneKey, width, marginRight, legend.bottom) +
     `</g>` +
     // Frame, bar scale and north arrow sit OUTSIDE the clip: their strokes run
     // along the sheet edge and would be shaved in half by it. The bar is drawn

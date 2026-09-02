@@ -3310,3 +3310,235 @@ describe('legendMarkup: a right-margin band wraps an entry too long for it inste
     expect(svg).not.toContain('<tspan');
   });
 });
+
+describe('renderPlate: inset layer frame in sheet pixels', () => {
+  it('without frame, the panel is still the polygon in plate space', () => {
+    const plate = parsePlate({
+      id: 'unframed-inset',
+      title: 'Unframed',
+      kind: 'schematic',
+      status: 'draft',
+      size: [200, 200],
+      layers: [
+        {
+          id: 'title-block',
+          kind: 'region',
+          style: 'inset',
+          polygon: [
+            [0.1, 0.1],
+            [0.5, 0.1],
+            [0.5, 0.5],
+            [0.1, 0.5],
+          ],
+        },
+      ],
+    });
+    const result = renderPlate(plate, []);
+    const panel = result.svg.match(
+      /class="plate-layer plate-layer-inset-panel" x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"/,
+    );
+    expect(panel).toBeTruthy();
+    expect(Number(panel![1])).toBeCloseTo(20, 5);
+    expect(Number(panel![2])).toBeCloseTo(20, 5);
+    expect(Number(panel![3])).toBeCloseTo(80, 5);
+    expect(Number(panel![4])).toBeCloseTo(80, 5);
+  });
+
+  it('an inset layer with frame in the margin renders its rect at the frame and its points scaled into it', () => {
+    const frame: [number, number, number, number] = [320, 20, 160, 120];
+    const plate = parsePlate({
+      id: 'framed-inset',
+      title: 'Framed inset',
+      kind: 'schematic',
+      status: 'draft',
+      bbox: BBOX,
+      size: [500, 300],
+      marginRight: 200,
+      layers: [
+        {
+          id: 'locator',
+          kind: 'region',
+          style: 'inset',
+          label: 'Locator',
+          frame,
+          // Inner rectangle: without a frame this would be the panel; with
+          // one the panel is the frame and these are unit coords inside it.
+          polygon: [
+            [0.25, 0.25],
+            [0.75, 0.25],
+            [0.75, 0.75],
+            [0.25, 0.75],
+          ],
+        },
+      ],
+    });
+    const result = renderPlate(plate, []);
+    const panel = result.svg.match(
+      /class="plate-layer plate-layer-inset-panel" x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"/,
+    );
+    expect(panel).toBeTruthy();
+    expect(Number(panel![1])).toBeCloseTo(320, 5);
+    expect(Number(panel![2])).toBeCloseTo(20, 5);
+    expect(Number(panel![3])).toBeCloseTo(160, 5);
+    expect(Number(panel![4])).toBeCloseTo(120, 5);
+    const feat = result.features.find((f) => f.id === 'locator');
+    expect(feat).toBeTruthy();
+    // Scaled inner points: 320+0.25*160=360, 20+0.25*120=50, 320+0.75*160=440, 20+0.75*120=110.
+    expect(feat!.bbox[0]).toBeLessThanOrEqual(360 + 1e-6);
+    expect(feat!.bbox[1]).toBeLessThanOrEqual(50 + 1e-6);
+    expect(feat!.bbox[2]).toBeGreaterThanOrEqual(440 - 1e-6);
+    expect(feat!.bbox[3]).toBeGreaterThanOrEqual(110 - 1e-6);
+    expect(feat!.bbox[0]).toBeGreaterThanOrEqual(320 - 1e-6);
+    expect(feat!.bbox[2]).toBeLessThanOrEqual(480 + 1e-6);
+  });
+
+  it('parsePlate rejects a frame that sits outside the sheet', () => {
+    expect(() =>
+      parsePlate({
+        id: 'framed-inset',
+        title: 'Framed inset',
+        kind: 'schematic',
+        status: 'draft',
+        bbox: BBOX,
+        size: [500, 300],
+        layers: [
+          {
+            id: 'locator',
+            kind: 'region',
+            style: 'inset',
+            frame: [400, 10, 200, 100],
+            polygon: [
+              [0, 0],
+              [1, 0],
+              [1, 1],
+              [0, 1],
+            ],
+          },
+        ],
+      }),
+    ).toThrow(/frame/);
+  });
+});
+
+describe('parsePlate: sceneKey', () => {
+  const base = {
+    id: 'keyed',
+    title: 'Keyed',
+    kind: 'schematic' as const,
+    status: 'draft',
+    size: [400, 300] as [number, number],
+    layers: [
+      {
+        id: 'zone-camp',
+        kind: 'region' as const,
+        fill: 'none' as const,
+        polygon: [
+          [0.1, 0.1],
+          [0.3, 0.1],
+          [0.3, 0.3],
+          [0.1, 0.3],
+        ],
+      },
+    ],
+  };
+
+  it('reads a well-formed sceneKey', () => {
+    const plate = parsePlate({
+      ...base,
+      sceneKey: [{ letter: 'A', title: 'The camp', ref: 'Il. 8.222–26', layerId: 'zone-camp' }],
+    });
+    expect(plate.sceneKey).toEqual([
+      { letter: 'A', title: 'The camp', ref: 'Il. 8.222–26', layerId: 'zone-camp' },
+    ]);
+  });
+
+  it('rejects a layerId that is not a layer', () => {
+    expect(() =>
+      parsePlate({
+        ...base,
+        sceneKey: [{ letter: 'A', title: 'The camp', ref: 'Il. 8.222–26', layerId: 'no-such' }],
+      }),
+    ).toThrow(/layerId/);
+  });
+});
+
+describe('renderPlate: sceneKey', () => {
+  it('letters each zone at its polygon centroid and stacks the key below the legend in the margin band', () => {
+    const plate = parsePlate({
+      id: 'keyed',
+      title: 'Keyed',
+      kind: 'schematic',
+      status: 'draft',
+      size: [400, 300],
+      marginRight: 120,
+      layers: [
+        {
+          id: 'plain',
+          kind: 'region',
+          fill: 'plain',
+          polygon: [
+            [0, 0],
+            [0.05, 0],
+            [0.05, 0.05],
+            [0, 0.05],
+          ],
+        },
+        {
+          id: 'zone-camp',
+          kind: 'region',
+          fill: 'none',
+          polygon: [
+            [0.1, 0.1],
+            [0.3, 0.1],
+            [0.3, 0.3],
+            [0.1, 0.3],
+          ],
+        },
+        {
+          id: 'zone-road',
+          kind: 'region',
+          fill: 'none',
+          polygon: [
+            [0.5, 0.4],
+            [0.7, 0.4],
+            [0.7, 0.6],
+            [0.5, 0.6],
+          ],
+        },
+      ],
+      sceneKey: [
+        { letter: 'A', title: 'The camp', ref: 'Il. 8.222–26', layerId: 'zone-camp' },
+        { letter: 'B', title: 'The road', ref: 'Il. 11.806–8', layerId: 'zone-road' },
+      ],
+    });
+    const svg = renderPlate(plate, []).svg;
+    const letters = [...svg.matchAll(/<text class="plate-zone-letter"[^>]*x="([-\d.]+)" y="([-\d.]+)"[^>]*>([^<]*)<\/text>/g)];
+    expect(letters).toHaveLength(2);
+    const byLetter = Object.fromEntries(letters.map((m) => [m[3], { x: Number(m[1]), y: Number(m[2]) }]));
+    expect(byLetter.A.x).toBeCloseTo(80, 5);
+    expect(byLetter.A.y).toBeCloseTo(60, 0);
+    expect(byLetter.B.x).toBeCloseTo(240, 5);
+    expect(byLetter.B.y).toBeCloseTo(150, 0);
+
+    const legendPanel = svg.match(
+      /<rect class="plate-legend-panel" x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"/,
+    );
+    expect(legendPanel).toBeTruthy();
+    const legendBottom = Number(legendPanel![2]) + Number(legendPanel![4]);
+    expect(svg).toContain('class="plate-scene-key"');
+    const keyTop = svg.match(/<g class="plate-scene-key"[^>]*>[\s\S]*?y="([-\d.]+)"/);
+    expect(keyTop).toBeTruthy();
+    expect(Number(keyTop![1])).toBeGreaterThan(legendBottom);
+
+    const keyRows = [...svg.matchAll(/class="plate-scene-key-row"[^>]*>([^<]*)<\/text>/g)].map((m) => m[1]);
+    const keyTspans = [...svg.matchAll(/<g class="plate-scene-key"[\s\S]*?<\/g>/g)][0]?.[0].match(/<tspan[^>]*>([^<]*)<\/tspan>/g) ?? [];
+    expect(keyRows.length + keyTspans.length).toBeGreaterThanOrEqual(2);
+    const bandRight = plate.size[0] - 12;
+    for (const m of svg.matchAll(/<g class="plate-scene-key"[\s\S]*?<\/g>/g)) {
+      for (const tm of m[0].matchAll(/<(?:text|tspan)[^>]*x="([-\d.]+)"[^>]*>([^<]*)</g)) {
+        const estRight = Number(tm[1]) + tm[2].length * 9.5 * 0.54;
+        expect(estRight).toBeLessThanOrEqual(bandRight);
+      }
+    }
+  });
+});
