@@ -1166,6 +1166,31 @@
   // so a pathological slot width can't blow a label up or down absurdly.
   const LABEL_DESCALE_MIN = 0.35;
   const LABEL_DESCALE_MAX = 2.2;
+  // Unzoomed ceiling (item 3, stage 5a, 2026-09-02): at camK===1 (the
+  // "whole plate, no single focus" postcard state — computeCamera's own
+  // identity camera, e.g. the schematic plain's own unzoomed name) `f`'s
+  // raw value regularly exceeds 2.2 at a normal ~220px slot (a 1120px-wide
+  // frame divided by a 220px slot alone asks for f≈5.1), so the 2.2 ceiling
+  // was landing type at ~4-5 CSS px — illegible. Raising LABEL_DESCALE_MAX
+  // itself was rejected: it is a general safety valve against a
+  // pathological slot (its own comment), and every OTHER zoom level's `f`
+  // already sits well under 2.2 (camK>1 shrinks the raw value), so a global
+  // raise would only ever matter here anyway — but naming it explicitly,
+  // gated on camK<=1, keeps the change legible as "the unzoomed case was
+  // wrong," not "the general clamp changed," and cannot alter a single
+  // already-correct zoomed scene. Sized so a settlement-role label (13.5px
+  // design size, the largest role a focus name typically uses) clears 10
+  // CSS px at a 220px slot on the live schematic frame (1120px): raw f =
+  // 1120/220 ≈ 5.09, and 13.5 * 5.09 * (220/1120) ≈ 13.5, comfortably past
+  // 10 — see the descale-floor test in components.test.ts.
+  const UNZOOMED_LABEL_DESCALE_MAX = 5.2;
+
+  /** The label counter-scale factor (see the comment above) — shared by updateLabelDescale and fitFocusLabelsToFrame, which must agree on it exactly (see the latter's own comment). */
+  function labelDescaleFactor(plateWidth: number, slotWidth: number, camK: number): number {
+    const raw = plateWidth / (slotWidth * camK);
+    const cap = camK <= 1 ? UNZOOMED_LABEL_DESCALE_MAX : LABEL_DESCALE_MAX;
+    return Math.min(cap, Math.max(LABEL_DESCALE_MIN, raw));
+  }
 
   // Applies the per-scene camera + focus dimming/label-hiding + label
   // descale to the ALREADY-RENDERED plate markup imperatively (querySelector,
@@ -1296,8 +1321,7 @@
       if (!labelWrappers.length) return;
       const slotWidth = node.clientWidth || current.plateWidth || 1;
       const camK = current.camera?.scale ?? 1;
-      const raw = current.plateWidth / (slotWidth * camK);
-      const f = Math.min(LABEL_DESCALE_MAX, Math.max(LABEL_DESCALE_MIN, raw));
+      const f = labelDescaleFactor(current.plateWidth, slotWidth, camK);
       for (const { el, x, y } of labelWrappers) {
         el.setAttribute('transform', `translate(${x} ${y}) scale(${f}) translate(${-x} ${-y})`);
       }
@@ -1369,7 +1393,7 @@
       const { scale: camK, tx, ty } = cam;
       const S = slotWidth / p.plateWidth;
       if (!(camK > 0) || !Number.isFinite(tx) || !(S > 0)) return cam;
-      const f = Math.min(LABEL_DESCALE_MAX, Math.max(LABEL_DESCALE_MIN, p.plateWidth / (slotWidth * camK)));
+      const f = labelDescaleFactor(p.plateWidth, slotWidth, camK);
 
       // Worst-offender wins: the single largest correction needed among the
       // visible focus labels. A shift that fixes one label cannot always
