@@ -724,6 +724,7 @@
         }
       ],
       "note": "The Trojan plain's principal river, called Xanthus by the gods and Scamander by men (20.74) — Homer gives it both names in a single line, and its god fights Achilles the length of Book 21. Modern Karamenderes; its Bronze Age channel ran further west than today's, into the since-silted embayment north of the site.",
+      "modernName": "Karamenderes",
       "sources": [
         {
           "cite": "Kayan, İlhan. \"Landscape Development and Changing Environment of Troia (North-western Anatolia).\" In Landscapes and Landforms of Turkey, edited by Catherine Kuzucuoğlu, Attila Çiner, and Nizamettin Kazancı, 277–91. Cham: Springer, 2019."
@@ -764,6 +765,7 @@
         }
       ],
       "note": "The Scamander's partner river, coming down off Ida; the fighting on the plain runs 'between the streams of Simoeis and Xanthus' (6.4). The river is certain; its equation with the modern Dümrek Su is Strabo's tradition, not an excavated fact.",
+      "modernName": "Dümrek Su",
       "sources": [
         {
           "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
@@ -8976,11 +8978,19 @@
         "troad-plain"
       ],
       "mentions": [],
-      "note": "A conical mound on a spur of the Rhoiteion promontory, west of İntepe village; Pliny says a town was built beside Ajax's tomb, and the tumulus was rebuilt and vaulted in the 2nd century AD. Coordinate left null: the Vici.org record places it at Kumkale, roughly 8 km west of İntepe, almost certainly in error. Anchor conceptually to Rhoiteion (40.010, 26.303) until a published survey point is found.",
+      "coords": [
+        40.01,
+        26.303
+      ],
+      "note": "A conical mound on a spur of the Rhoiteion promontory, west of İntepe village; Pliny says a town was built beside Ajax's tomb, and the tumulus was rebuilt and vaulted in the 2nd century AD. The only published point (Vici.org 39.9916 / 26.2420) places the mound at Kumkale, roughly 8 km west of İntepe, and is almost certainly an error. The label is therefore anchored at Rhoiteion's Pleiades point (40.010 / 26.303), the tradition's own site (Strabo 13.1.30: a tomb and temple of Aias on the low shore beside Rhoeteium), until a published survey of İn Tepe is found. This is Rhoiteion's coordinate, not a survey of the mound.",
       "sources": [
         {
           "cite": "Pleiades. \"Rhoiteion.\" Place 550856.",
           "url": "https://pleiades.stoa.org/places/550856"
+        },
+        {
+          "cite": "Strabo. Geography 13.1.30.",
+          "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
         },
         {
           "cite": "Rose, C. Brian. The Archaeology of Greek and Roman Troy. Cambridge: Cambridge University Press, 2014."
@@ -9102,13 +9112,38 @@
         "troad-plain"
       ],
       "mentions": [],
-      "note": "A bay on the Aegean coast southwest of Troy, facing Tenedos. Korfmann's 1982-87 excavation found a cemetery of roughly 100 graves here in which Mycenaean and Mycenaeanising LH IIIB fine ware runs to about a third of the wares — against under 1% at Troia VI/VII itself — making it the strongest archaeological candidate for a working Late Bronze Age port. Coordinate left null; anchor from Beşik Tepe at the bay's north end, 39.9171 / 26.1591.",
+      "note": "A bay on the Aegean coast southwest of Troy, facing Tenedos. Kraft, Rapp, Kayan and Luce 2003 read it as a harbour: the Beşik embayment 'always provided a place of shelter for ships' against the Dardanelles current, an important roadstead even after the Troian bay had silted. Korfmann's 1982-87 excavation found a cemetery of roughly 100 graves here in which Mycenaean and Mycenaeanising LH IIIB fine ware runs to about a third of the wares — against under 1% at Troia VI/VII itself — making it the strongest archaeological candidate for a working Late Bronze Age port. No survey coordinate for the bay as a whole; the sheet letters it as a water name over the modern sea, anchored from Beşik Tepe at the bay's north end, 39.9171 / 26.1591.",
       "sources": [
         {
           "cite": "Korfmann, Manfred. Beşik-Tepe excavation reports, 1982–1987."
         },
         {
           "cite": "Kraft, John C., George Rapp, İlhan Kayan, and John V. Luce. \"Harbor areas at ancient Troy: Sedimentology and geomorphology complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163–66."
+        }
+      ]
+    },
+    {
+      "id": "pinarbasi",
+      "name": "Pınarbaşı",
+      "certainty": "traditional",
+      "tradition": "Lechevalier's identification (1785) of the Kirk Göz springs at Bunarbashi as Homer's two springs, and of Ballı Dağ as Troy — the rival site until Schliemann",
+      "coords": [
+        39.888,
+        26.2715
+      ],
+      "kind": "spring",
+      "maps": [
+        "troad-plain"
+      ],
+      "mentions": [],
+      "note": "The Kirk Göz ('forty springs') at Pınarbaşı, called Bounarbachi in the eighteenth century: Lechevalier's 1785 identification of Homer's two springs (Il. 22.147-152) and of Ballı Dağ as Troy, the rival site until Schliemann dug at Hisarlık. Cook 1973, 141–46 (section 6, 'The Springs of Pınarbaşı') records that travellers with thermometers found no appreciable hot/cold contrast there. Wolkersdorfer et al. 2021 measured 18 of the 40 springs at 17.4–18.5 °C, ordinary groundwater, and could not verify Lechevalier's pair. The coordinate 39.8880 / 26.2715 is a modern-village proxy from OSM/Nominatim for Pınarbaşı (Ezine), noted as such in RESEARCH-PALEOGEOGRAPHY.md — not a surveyed spring-head.",
+      "sources": [
+        {
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973, 141–46."
+        },
+        {
+          "cite": "Wolkersdorfer, Christian, Susanne Stadler, Anja Bretzler, Claudia Müller, and Claudia Zedler. \"Hydrochemical investigations to locate Homer's hot and cold springs of Troia (Troy)/Turkey.\" CATENA 200 (2021): 105070.",
+          "url": "https://doi.org/10.1016/j.catena.2020.105070"
         }
       ]
     },
@@ -9122,7 +9157,7 @@
         "troad-plain"
       ],
       "mentions": [],
-      "note": "The reading of the cut as the Achaean wall and ditch is Luce's (1998); Kraft, Rapp, Kayan & Luce 2003 print it, but the paper's citation for it — Kayan 1995 — does not contain it. The other readings, in hedge: a harbour candidate (Kraft, Kayan, Brückner and Rapp 2003, agreeing with Zangger only in the weak form that the embayments below the Sigeum ridge \"had excellent harbor potentials\"); an undecided, unfinished canal, on Kayan's own reading (2003, 2009); and late-Roman drainage, never completed — 'It seemed to us clear that the work was never completed' (Cook 1973, 166-67). A former marsh, drained in the 1960s, shown by drilling to have been a marine basin in the Early Bronze Age; Zangger's proposed rectangular basin, roughly 330 x 230 m, functioning as a naval station or trans-shipment point, is thin and presented as hypothesis only.",
+      "note": "The reading of the cut as the Achaean wall and ditch is Luce's (1998); Kraft, Rapp, Kayan & Luce 2003 print it, but the paper's citation for it — Kayan 1995 — does not contain it. The other readings, in hedge: a harbour candidate (Kraft, Kayan, Brückner and Rapp 2003, agreeing with Zangger only in the weak form that the embayments below the Sigeum ridge \"had excellent harbor potentials\"); an undecided, unfinished canal, on Kayan's own reading (2003, 2009); and late-Roman drainage, never completed — 'It seemed to us clear that the work was never completed' (Cook 1973, 166-67). A former marsh, drained in the 1960s, shown by drilling to have been a marine basin in the Early Bronze Age; Zangger's proposed rectangular basin, roughly 330 x 230 m, functioning as a naval station or trans-shipment point, is thin and presented as hypothesis only. The sheet letters it 'Kesik cut (contested)' with no linework, in a lettering zone south of Kesik Tepe. Cook 1973, 166 places the cut about 500 m south of the mound; the dossier marks that derived point unusable as a published coordinate. The zone is centred further south still, clear of the Achaean-camp label it printed through when first centred nearer the mound.",
       "sources": [
         {
           "cite": "Luce, J. V. Celebrating Homer's Landscapes: Troy and Ithaca Revisited. New Haven: Yale University Press, 1998."
@@ -9434,19 +9469,30 @@
     },
     {
       "id": "thymbrios",
-      "name": "The Thymbrios river",
+      "name": "The Thymbrios",
       "certainty": "traditional",
       "tradition": "Strabo 13.1.35",
+      "coords": [
+        39.8997,
+        26.2933
+      ],
       "kind": "river",
       "maps": [
         "troad-plain"
       ],
       "mentions": [],
-      "note": "Not named by Homer. A Scamander tributary identified with the Kemer Su, included as the anchor for locating Thymbra at their confluence.",
+      "note": "Not named by Homer. A Scamander tributary identified with the Kemer Su (Cook 1973, 112–13, 'presumably the Kemer Su'), included as the anchor for locating Thymbra at their confluence. The label sits at the Thymbrios–Scamander confluence (Pleiades 550929, 39.8997 / 26.2933). The Kemer Su is not in the sheet's OSM river cache (build/basemap-cache/osm_plain-all.json; PLAIN_RIVERS in scripts/prep-troad-basemap.py names only karamenderes and dombrik/dumrek), so the channel is not drawn.",
       "sources": [
         {
           "cite": "Strabo. Geography 13.1.35.",
           "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
+        },
+        {
+          "cite": "Pleiades. \"Thymbras Pedion.\" Place 550929.",
+          "url": "https://pleiades.stoa.org/places/550929"
+        },
+        {
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
         }
       ]
     },

@@ -796,3 +796,36 @@ def test_real_plate_anchors_validate_against_every_real_plate():
         ]
 
     assert all_problems == []
+
+
+# ── geo-enrich gazetteer entries (2026-09-02) ───────────────────────────────
+# The new and updated Trojan-plain records must validate against the live
+# corpus, and every one of them carries a non-empty sources array (CLAUDE.md:
+# every sourced claim in the data).
+
+
+_GEO_ENRICH_PLACE_IDS = (
+    "besik-bay",
+    "thymbrios",
+    "pinarbasi",
+    "tomb-of-ajax-in-tepe",
+    "kesik-basin",
+)
+
+
+def test_real_geo_enrich_places_validate_and_carry_sources():
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    by_id = {p["id"]: p for p in places_doc["places"]}
+    for pid in _GEO_ENRICH_PLACE_IDS:
+        place = by_id.get(pid)
+        assert place is not None, f"gazetteer is missing {pid}"
+        sources = place.get("sources")
+        assert isinstance(sources, list) and sources, f"{pid} has empty sources"
+        for j, src in enumerate(sources):
+            assert isinstance(src, dict), f"{pid} sources[{j}] must be an object"
+            cite = src.get("cite")
+            assert isinstance(cite, str) and cite.strip(), (
+                f"{pid} sources[{j}].cite must be a non-empty string"
+            )
+    problems = apparatus_places.validate_places(places_doc)
+    assert problems == [], problems

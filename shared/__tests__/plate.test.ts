@@ -902,6 +902,101 @@ describe('renderPlate: the no-label-on-water rule binds the schematic register o
   });
 });
 
+// ── Geographic sheet geo-enrich labels (2026-09-02) ────────────────────────
+// John's ruling: add Beşik Bay, Thymbrios, Pınarbaşı, Ajax's tomb, the Kesik
+// cut, and the Aegean to the geographic Trojan Plain sheet. The gate is the
+// SET of placed ids (CLAUDE.md 2026-09-02: a positions-only diff cannot see
+// a dropped label). The 14 ids already on the sheet must all still place.
+
+const TROJAN_PLAIN_PREEXISTING_LABEL_IDS = [
+  'achaean-camp-zone',
+  'besik-sivritepe',
+  'callicolone',
+  'kesik-tepe',
+  'kum-tepe',
+  'lagoon-bronze',
+  'rhoiteion',
+  'scamander',
+  'scamandrian-plain',
+  'sigeion',
+  'simoeis',
+  'thymbra',
+  'troy',
+  'uvecik-tepe',
+] as const;
+
+const TROJAN_PLAIN_GEO_ENRICH_LABEL_IDS = [
+  'besik-bay',
+  'pinarbasi',
+  'tomb-of-ajax-in-tepe',
+  'kesik-basin',
+  'thymbrios',
+  'aegean',
+] as const;
+
+describe('renderPlate: geographic trojan-plain geo-enrich labels (2026-09-02)', () => {
+  it('places the new labels and keeps every pre-existing label id', () => {
+    const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
+    const plate = parsePlate(raw);
+    expect(plate.kind).toBe('geographic');
+    const allPlaces = (JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[]).filter(
+      (p) => (p as unknown as { maps?: string[] }).maps?.includes('troad-plain'),
+    );
+    const result = renderPlate(plate, allPlaces);
+
+    for (const id of TROJAN_PLAIN_PREEXISTING_LABEL_IDS) {
+      expect(result.labelBoxes[id], `pre-existing label "${id}" must still be placed`).toBeDefined();
+    }
+    for (const id of TROJAN_PLAIN_GEO_ENRICH_LABEL_IDS) {
+      expect(result.labelBoxes[id], `expected a labelBox for "${id}"`).toBeDefined();
+    }
+  });
+
+  // Both `achaean-camp-zone` and `kesik-basin` are `centred` region requests
+  // — laid at their own polygon's bounding-box centre with NO collision check
+  // against each other (layoutLabels's own comment: "Area (`centred`) names
+  // are laid first... a point name yields to them"). The first cut of the
+  // kesik-basin polygon landed its centroid on top of achaean-camp-zone's,
+  // and the two labels printed through each other. The fix moved the zone
+  // further south; this pins the two boxes disjoint so a future edit to
+  // either polygon that reintroduces the collision fails loudly.
+  it('the Kesik cut lettering zone does not overprint the Achaean camp label', () => {
+    const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
+    const plate = parsePlate(raw);
+    const allPlaces = (JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[]).filter(
+      (p) => (p as unknown as { maps?: string[] }).maps?.includes('troad-plain'),
+    );
+    const result = renderPlate(plate, allPlaces);
+    const camp = result.labelBoxes['achaean-camp-zone'];
+    const kesik = result.labelBoxes['kesik-basin'];
+    expect(camp, 'achaean-camp-zone must place').toBeDefined();
+    expect(kesik, 'kesik-basin must place').toBeDefined();
+    const disjoint = camp[2] < kesik[0] || kesik[2] < camp[0] || camp[3] < kesik[1] || kesik[3] < camp[1];
+    expect(disjoint, `camp box ${JSON.stringify(camp)} and kesik box ${JSON.stringify(kesik)} must not overlap`).toBe(
+      true,
+    );
+  });
+
+  // tomb-of-ajax-in-tepe's `coords` are deliberately Rhoiteion's own point
+  // (its note: "This is Rhoiteion's coordinate, not a survey of the mound").
+  // Drawing both places' dots put two discs on one pixel, the second
+  // (open, traditional-tier) entirely hidden under Rhoiteion's solid one —
+  // present in the DOM, invisible on the sheet. It still gets its own label.
+  it('tomb-of-ajax-in-tepe prints its label but draws no marker of its own', () => {
+    const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
+    const plate = parsePlate(raw);
+    const allPlaces = (JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[]).filter(
+      (p) => (p as unknown as { maps?: string[] }).maps?.includes('troad-plain'),
+    );
+    const result = renderPlate(plate, allPlaces);
+    expect(result.labelBoxes['tomb-of-ajax-in-tepe'], 'tomb-of-ajax-in-tepe must still print a label').toBeDefined();
+    const ownMarker = result.features.find((f) => f.id === 'tomb-of-ajax-in-tepe' && f.type === 'place');
+    expect(ownMarker, 'tomb-of-ajax-in-tepe must not draw its own marker over Rhoiteion\'s').toBeUndefined();
+    const rhoiteionMarker = result.features.find((f) => f.id === 'rhoiteion' && f.type === 'place');
+    expect(rhoiteionMarker, 'rhoiteion must keep its own marker').toBeDefined();
+  });
+});
+
 describe('renderPlate: tumulus layer kind (gap 2)', () => {
   it('a tumulus layer emits the dome glyph, stroked in ink, not filled', () => {
     const plate: Plate = {
@@ -3117,7 +3212,7 @@ describe('renderPlate: groundOpacity wash', () => {
   });
 });
 
-// The 25 ground layers on trojan-plain-schematic-v2.json are a copy of the
+// The ground layers on trojan-plain-schematic-v2.json are a copy of the
 // geographic sheet, kept in sync by scripts/sync-schematic-ground.py. The
 // gazetteer-side geographic sheet is the source of truth.
 const SCHEMATIC_V2_GROUND_IDS = [
@@ -3146,10 +3241,12 @@ const SCHEMATIC_V2_GROUND_IDS = [
   'coast-modern',
   'scamander',
   'simoeis',
+  'besik-bay',
+  'aegean',
 ] as const;
 
 describe('trojan-plain-schematic-v2 ground layers match the geographic sheet', () => {
-  it('deep-equals each of the 25 ground layers by id', () => {
+  it('deep-equals each of the listed ground layers by id', () => {
     const geo = JSON.parse(
       readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain.json'), 'utf-8'),
     );
