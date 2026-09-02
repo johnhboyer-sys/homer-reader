@@ -1121,6 +1121,11 @@
     // The plate's own width in plate px (Plate.size[0]) — the label-descale
     // formula below needs it alongside the rendered slot's CSS width.
     plateWidth: number;
+    // The plate's own height in plate px (Plate.size[1]) — updateLocatorFrame
+    // below needs it to derive the locator's frame rect from the camera
+    // actually applied (2026-09-02 review finding 2; locatorFrame's own
+    // top-level computation only ever saw the PRE-fit camera).
+    plateHeight: number;
     // renderPlate's own labelBoxes (plate.ts, 2026-09-02's label-framing
     // commit) — the RENDERED box of each label, keyed by place/layer id.
     // computeCamera already uses this to size the camera on a focus place's
@@ -1175,6 +1180,15 @@
     let labelWrappers: { el: SVGGElement; x: number; y: number; id: string | null }[] = [];
     let lastSvgEl: SVGSVGElement | null = null;
     let current = params;
+    // The ORIGINAL, pre-fit params as Svelte last passed them — refits
+    // always start from THIS camera, never from `current.camera` (which
+    // holds the already-shifted, effective one). Refitting from an
+    // already-shifted camera would compound on a second resize: the first
+    // fit's dx is baked into `tx` at the OLD slot width's own scale factor,
+    // so re-deriving a further shift from it drifts rather than snapping to
+    // the single correct fit for the new width (2026-09-02 review finding
+    // 1 — the resize handler below).
+    let baseParams = params;
     let resizeObserver: ResizeObserver | undefined;
 
     // Wraps every `.plate-label` text node in its own counter-scale group,
@@ -1349,7 +1363,40 @@
       return { scale: camK, tx: tx + dx / S, ty };
     }
 
+    // The locator inset (chartLocatorInset) is a sibling of `node`, drawn
+    // from its own static {@html} render never routed through this action
+    // — the same sibling reach ensureLabelWrappers already uses to hide the
+    // locator's own furniture leak above. Its frame rect (`.chart-locator-
+    // frame`/`-halo`) is first painted by Svelte from `iliadLocatorFrame`/
+    // `schematicLocatorFrame`, computed at the template level from the
+    // PRE-fit camera (`iliadPlateCamera`/`schematicPlateCamera` — the same
+    // camera `params.camera` carries in here) — wrong whenever
+    // fitFocusLabelsToFrame has shifted `tx` (2026-09-02 review finding 2:
+    // the rect kept marking the pre-fit view after a long focus label
+    // shifted the map). Re-derived here from the camera actually applied to
+    // `.plate-camera`, and overwritten onto the DOM the same imperative way
+    // the camera transform itself is (never a Svelte binding), so it stays
+    // correct on every apply() and on the resize refit below.
+    function updateLocatorFrame(p: PlateCameraParams, appliedCamera: Camera | null) {
+      if (!appliedCamera || !p.plateWidth || !p.plateHeight) return;
+      const { scale, tx, ty } = appliedCamera;
+      if (!(scale > 0)) return;
+      const x = -tx / scale;
+      const y = -ty / scale;
+      const w = p.plateWidth / scale;
+      const h = p.plateHeight / scale;
+      node.parentElement
+        ?.querySelectorAll<SVGRectElement>('.chart-locator-frame, .chart-locator-frame-halo')
+        .forEach((rect) => {
+          rect.setAttribute('x', String(x));
+          rect.setAttribute('y', String(y));
+          rect.setAttribute('width', String(w));
+          rect.setAttribute('height', String(h));
+        });
+    }
+
     function apply(p: PlateCameraParams) {
+      baseParams = p;
       const svgEl = node.querySelector('svg');
       if (svgEl) svgEl.setAttribute('aria-label', p.ariaLabel);
       ensureLabelWrappers();
@@ -1385,13 +1432,38 @@
         el.classList.toggle('plate-hidden', hide);
       });
       updateLabelDescale();
+      updateLocatorFrame(p, effectiveCamera);
+    }
+
+    // Re-fit on resize (2026-09-02 review finding 1): a postcard that fit at
+    // one slot width can clip again once the rail or viewport narrows — the
+    // label's on-screen extent after descale is independent of camera scale
+    // (see fitFocusLabelsToFrame's own comment), so only the SLOT WIDTH
+    // changing can re-open the clip; nothing about `params` itself needs to
+    // change for that to happen, which is exactly what a same-scene resize
+    // is. Recomputes from `baseParams` (the pre-fit camera), never from
+    // `current.camera` — see the comment on `baseParams` above for why
+    // refitting from an already-shifted camera would compound. Refreshes
+    // both the camera transform and the locator frame rect (finding 2), the
+    // same two things a normal apply() touches.
+    function refit() {
+      const effectiveCamera = fitFocusLabelsToFrame(baseParams);
+      current = { ...baseParams, camera: effectiveCamera };
+      const cameraG = node.querySelector<SVGGElement>('.plate-camera');
+      if (cameraG && effectiveCamera) {
+        cameraG.style.transform = `translate(${effectiveCamera.tx}px, ${effectiveCamera.ty}px) scale(${effectiveCamera.scale})`;
+      }
+      updateLabelDescale();
+      updateLocatorFrame(baseParams, effectiveCamera);
     }
 
     apply(params);
     if (typeof ResizeObserver !== 'undefined') {
-      // happy-dom (vitest) has no ResizeObserver — guarded the same way as
-      // getBBox above, per CLAUDE.md's Chart Room test gotchas.
-      resizeObserver = new ResizeObserver(() => updateLabelDescale());
+      // happy-dom (vitest) stubs a no-op ResizeObserver (__tests__/setup.ts)
+      // that never actually fires — real layout changes are what happy-dom
+      // can't do, not the API itself; tests trigger this callback directly
+      // via the mock's stored `__resizeCallback`.
+      resizeObserver = new ResizeObserver(() => refit());
       resizeObserver.observe(node);
     }
 
@@ -3103,7 +3175,7 @@
       >
         <div
           class="chart-plate"
-          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0], labelBoxes: iliadPlateRender.labelBoxes }}
+          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0], plateHeight: iliadPlate.size[1], labelBoxes: iliadPlateRender.labelBoxes }}
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html iliadPlateHtml}
@@ -3116,7 +3188,7 @@
       <div class="chart-plate-postcard">
         <div
           class="chart-plate"
-          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0], labelBoxes: iliadPlateRender.labelBoxes }}
+          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0], plateHeight: iliadPlate.size[1], labelBoxes: iliadPlateRender.labelBoxes }}
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html iliadPlateHtml}
@@ -3133,7 +3205,7 @@
     <div class="chart-plate-postcard">
       <div
         class="chart-plate"
-        use:applyPlateCamera={{ camera: schematicPlateCamera, focusIds: schematicFocusIds, ariaLabel: schematicPlateAriaLabel, reduceMotion, plateWidth: schematicPlate.size[0], labelBoxes: schematicPlateRender.labelBoxes }}
+        use:applyPlateCamera={{ camera: schematicPlateCamera, focusIds: schematicFocusIds, ariaLabel: schematicPlateAriaLabel, reduceMotion, plateWidth: schematicPlate.size[0], plateHeight: schematicPlate.size[1], labelBoxes: schematicPlateRender.labelBoxes }}
       >
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html schematicPlateHtml}
