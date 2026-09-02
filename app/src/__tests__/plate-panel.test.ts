@@ -117,6 +117,60 @@ describe('PlatePanel', () => {
     expect(surePin.style.display).not.toBe('none');
   });
 
+  it('filters layers (and their labels) by the placeId certainty, the same way pins are filtered', async () => {
+    // A layer carries its place as `placeId` on the plate object, not as
+    // `data-place-id` on the SVG (that attribute is pins/dots only). Unticking
+    // the place's certainty tier must hide the layer group and its label the
+    // same way it hides pins today (`style.display = 'none'`).
+    mockFetchPlate.mockResolvedValue({
+      id: 'layer-certainty-plate',
+      title: 'Layer Certainty Plate',
+      kind: 'geographic',
+      status: 'reviewed',
+      bbox: [0, 0, 1, 1],
+      size: [100, 80],
+      layers: [
+        {
+          id: 'river-satnioeis',
+          kind: 'river',
+          placeId: 'satnioeis',
+          label: 'Satnioeis',
+          path: [
+            [0.2, 0.2],
+            [0.8, 0.8],
+          ],
+        },
+      ],
+    });
+
+    const places = [
+      { id: 'satnioeis', name: 'Satnioeis', certainty: 'traditional' as const },
+      { id: 'sure-thing', name: 'Sure Thing', coords: [0.5, 0.5] as [number, number], certainty: 'certain' as const },
+    ];
+
+    const { container, getByRole } = render(PlatePanel, {
+      props: { plateId: 'layer-certainty-plate', places, title: 'Layer Certainty Plate' },
+    });
+
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+    const layerEl = container.querySelector('[data-layer-id="river-satnioeis"]') as SVGElement;
+    const layerLabel = container.querySelector('[data-label-for="river-satnioeis"]') as SVGElement;
+    const surePin = container.querySelector('[data-place-id="sure-thing"]') as SVGElement;
+    expect(layerEl).toBeTruthy();
+    expect(layerLabel).toBeTruthy();
+    expect(layerEl.style.display).not.toBe('none');
+    expect(layerLabel.style.display).not.toBe('none');
+
+    const traditionalToggle = getByRole('checkbox', { name: 'traditional' }) as HTMLInputElement;
+    expect(traditionalToggle.checked).toBe(true);
+    traditionalToggle.click();
+
+    await waitFor(() => expect(layerEl.style.display).toBe('none'));
+    expect(layerLabel.style.display).toBe('none');
+    expect(surePin.style.display).not.toBe('none');
+  });
+
   it('shows no certainty filter for the Shield of Achilles (it takes no places at all)', async () => {
     const shieldRaw = JSON.parse(
       readFileSync(path.resolve(process.cwd(), '../apparatus/plates/shield-of-achilles.json'), 'utf-8'),
