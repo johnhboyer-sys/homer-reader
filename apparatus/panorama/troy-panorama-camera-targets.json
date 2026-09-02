@@ -4,32 +4,90 @@
   "status": "draft",
   "frame": {
     "w": 2400,
-    "h": 1350
+    "h": 1350,
+    "pictureH": 1050
   },
   "camera": {
     "viewpoint": [
-      39.9755,
-      26.1785
+      39.925,
+      26.1585
     ],
-    "headingDeg": 104.0,
+    "headingDeg": 90.0,
     "hfovDeg": 72.0,
-    "altM": 800.0,
-    "setbackM": 1500.0,
-    "pitchDegDown": 12.82,
-    "verticalExaggeration": "4x at/under 100 m, tapering to 1x above 300 m; built heights true"
+    "altM": 1100.0,
+    "setbackM": 1700.0,
+    "pitchDegDown": 18.67,
+    "verticalExaggerationCurve": "C",
+    "verticalExaggerationNearRate": 4.0,
+    "verticalExaggerationScaleM": 150.0,
+    "verticalExaggerationFloor": 0.7229,
+    "verticalExaggeration": "Vertical exaggeration 4× at the shore, easing to 0.72× on the high ground — applied as a rate, so higher ground always draws higher. Built heights TRUE."
   },
   "note": "Camera targets for the Chart Room 'postcard' frames. Each row is sized round its own subject AND its label box, so no crop slices a label; showTiers says which level-of-detail tiers a frame turns on, so a frame pins only its own subject. Labels carry class plate-label and must be counter-scaled (pp-label-descale) — type never magnifies. A locator inset showing this rectangle against the full frame is the caller's job.",
   "stats": {
-    "cells_tested": 70884,
-    "cells_visible": 36510,
+    "cells_tested": 202986,
+    "cells_visible": 101961,
+    "coast_necks": {
+      "lagoon-bronze": 0,
+      "sea-modern": 2
+    },
+    "coast_dev_m": {
+      "lagoon-bronze": 10.7,
+      "sea-modern": 13.2
+    },
+    "cover_cells": {
+      "fan": 35645,
+      "ridge": 18269,
+      "open": 48047,
+      "drowned": 0
+    },
+    "shadow_raster": 801,
+    "shadow_secs": 0.9,
+    "shaded_cells": 68765,
+    "shade_islands_filtered": 7595,
+    "river_dev_m": 15.820961900208195,
+    "scrub_dens_mean": 0.459,
+    "scrub_bare_frac": 0.626,
+    "scrub_forest_skirts": 0,
+    "scrub_mass_loops": 82,
+    "veg_bank": 747,
+    "veg_bank_runs": 54,
+    "veg_scrub": 1514,
     "wall_mid": [
-      1200.0000000002738,
-      826.098103584371
+      -1507.157289952253,
+      609.8966402839791
     ],
-    "hulls": 459,
-    "huts": 270,
-    "ship_depth": 2589.8,
-    "beach_frontage_m": 2119
+    "hulls": 140,
+    "hulls_t1": 28,
+    "hulls_miltos": 12,
+    "huts": 523,
+    "ship_depth": 1804.0,
+    "beach_frontage_m": 3016,
+    "obj_shadows": 691,
+    "fleet_centroid": [
+      39.9452,
+      26.16527
+    ],
+    "fleet_centroid_screen": [
+      -295.3,
+      822.8,
+      2479.8
+    ],
+    "wall_at": [
+      39.95402,
+      26.1698
+    ],
+    "ditch_at": [
+      39.95406,
+      26.16958
+    ],
+    "ilios": {
+      "topM": 38.01,
+      "baseM": 10.35,
+      "reliefM": 27.66,
+      "apparentM": 97.25,
+      "prominencePx": 19.31
+    }
   },
   "targets": [
     {
@@ -46,14 +104,14 @@
         26.239
       ],
       "frame": {
-        "x": 1376.7,
-        "y": 456.1,
-        "depthM": 6973.9
+        "x": 503.0,
+        "y": 314.6,
+        "depthM": 8427.1
       },
       "camera": {
-        "cx": 1397.3,
-        "cy": 445.1,
-        "zoom": 4.0
+        "cx": 523.6,
+        "cy": 303.6,
+        "zoom": 3.33
       },
       "showTiers": [
         1
@@ -73,14 +131,14 @@
         26.2445
       ],
       "frame": {
-        "x": 1928.3,
-        "y": 453.0,
-        "depthM": 8159.8
+        "x": 1107.2,
+        "y": 321.5,
+        "depthM": 8900.2
       },
       "camera": {
-        "cx": 1933.9,
-        "cy": 453.0,
-        "zoom": 2.4
+        "cx": 1112.8,
+        "cy": 321.5,
+        "zoom": 1.87
       },
       "showTiers": [
         1
@@ -100,14 +158,14 @@
         26.206
       ],
       "frame": {
-        "x": 302.8,
-        "y": 670.4,
-        "depthM": 3525.9
+        "x": -795.1,
+        "y": 440.0,
+        "depthM": 5796.0
       },
       "camera": {
-        "cx": 302.8,
-        "cy": 670.4,
-        "zoom": 2.4
+        "cx": -795.1,
+        "cy": 440.0,
+        "zoom": 1.87
       },
       "showTiers": [
         1
@@ -127,14 +185,14 @@
         26.8653
       ],
       "frame": {
-        "x": 1602.8,
-        "y": 273.9,
-        "depthM": 63917.9
+        "x": 1906.7,
+        "y": 97.5,
+        "depthM": 58565.7
       },
       "camera": {
-        "cx": 1602.8,
-        "cy": 273.9,
-        "zoom": 2.09
+        "cx": 1906.7,
+        "cy": 97.5,
+        "zoom": 1.62
       },
       "showTiers": [
         1
@@ -154,14 +212,14 @@
         26.29
       ],
       "frame": {
-        "x": 903.1,
-        "y": 405.3,
-        "depthM": 10702.3
+        "x": 513.2,
+        "y": 253.2,
+        "depthM": 12560.2
       },
       "camera": {
-        "cx": 908.7,
-        "cy": 405.3,
-        "zoom": 2.4
+        "cx": 518.8,
+        "cy": 253.2,
+        "zoom": 1.87
       },
       "showTiers": [
         1,
@@ -182,14 +240,14 @@
         26.23178
       ],
       "frame": {
-        "x": 2082.6,
-        "y": 473.9,
-        "depthM": 7118.3
+        "x": 1082.8,
+        "y": 346.7,
+        "depthM": 7869.6
       },
       "camera": {
-        "cx": 2089.2,
-        "cy": 473.9,
-        "zoom": 4.0
+        "cx": 1089.4,
+        "cy": 346.7,
+        "zoom": 3.58
       },
       "showTiers": [
         1,
@@ -210,14 +268,14 @@
         26.303
       ],
       "frame": {
-        "x": 227.5,
-        "y": 352.7,
-        "depthM": 10681.5
+        "x": 46.6,
+        "y": 209.3,
+        "depthM": 13526.8
       },
       "camera": {
-        "cx": 227.5,
-        "cy": 352.7,
-        "zoom": 2.09
+        "cx": 46.6,
+        "cy": 209.3,
+        "zoom": 1.62
       },
       "showTiers": [
         1,
@@ -238,14 +296,14 @@
         26.1809
       ],
       "frame": {
-        "x": 254.1,
-        "y": 999.7,
-        "depthM": 1592.8
+        "x": -1676.5,
+        "y": 570.4,
+        "depthM": 3733.0
       },
       "camera": {
-        "cx": 254.1,
-        "cy": 999.7,
-        "zoom": 2.09
+        "cx": -1676.5,
+        "cy": 570.4,
+        "zoom": 1.62
       },
       "showTiers": [
         1,
@@ -266,14 +324,14 @@
         26.3395
       ],
       "frame": {
-        "x": 1059.9,
-        "y": 333.5,
-        "depthM": 15022.5
+        "x": 848.2,
+        "y": 178.0,
+        "depthM": 16433.7
       },
       "camera": {
-        "cx": 1066.5,
-        "cy": 333.5,
-        "zoom": 4.0
+        "cx": 854.8,
+        "cy": 178.0,
+        "zoom": 3.58
       },
       "showTiers": [
         1,
@@ -288,20 +346,20 @@
       "positionBasis": "conjectural",
       "citation": "Il. 7.436-441; 12.17-24; 14.30-36",
       "tradition": null,
-      "rule": "Laid parallel to the drawn shoreline, on the landward side of the huts — the poem's own order is sea, ships in ranks, then the wall at the camp's inland edge with the ditch beyond it (14.30-36; 7.440-441). Note the tension this plate does not hide: on the Late Bronze Age reconstruction the water the ships face is the embayment, and the plain the wall was built against lies round its head.",
+      "rule": "On the Aegean (outer) flank of the Sigeum ridge, 60 m landward of the rearmost sterns, after Kraft, Rapp, Kayan and Luce 2003; the beach uses the modern coastline, no Bronze Age reconstruction of the outer coast being published in our sources.",
       "at": [
-        39.97223,
-        26.19556
+        39.95402,
+        26.1698
       ],
       "frame": {
-        "x": 1200.0,
-        "y": 716.9,
-        "depthM": 3094.6
+        "x": -666.8,
+        "y": 744.0,
+        "depthM": 2853.3
       },
       "camera": {
-        "cx": 1200.0,
-        "cy": 767.5,
-        "zoom": 2.93
+        "cx": -1110.2,
+        "cy": 699.0,
+        "zoom": 2.21
       },
       "showTiers": [
         1,
@@ -322,14 +380,14 @@
         26.23496
       ],
       "frame": {
-        "x": 1774.4,
-        "y": 476.3,
-        "depthM": 7064.4
+        "x": 818.2,
+        "y": 340.6,
+        "depthM": 8128.5
       },
       "camera": {
-        "cx": 1774.4,
-        "cy": 476.3,
-        "zoom": 2.09
+        "cx": 818.2,
+        "cy": 340.6,
+        "zoom": 1.62
       },
       "showTiers": [
         1,
@@ -350,14 +408,14 @@
         26.247
       ],
       "frame": {
-        "x": 1014.4,
-        "y": 474.6,
-        "depthM": 7303.3
+        "x": 293.0,
+        "y": 319.4,
+        "depthM": 9106.7
       },
       "camera": {
-        "cx": 1014.4,
-        "cy": 474.6,
-        "zoom": 2.09
+        "cx": 293.0,
+        "cy": 319.4,
+        "zoom": 1.62
       },
       "showTiers": [
         1,
@@ -378,14 +436,14 @@
         26.23865
       ],
       "frame": {
-        "x": 1412.0,
-        "y": 457.6,
-        "depthM": 6981.6
+        "x": 529.8,
+        "y": 317.4,
+        "depthM": 8401.9
       },
       "camera": {
-        "cx": 1412.0,
-        "cy": 453.6,
-        "zoom": 4.0
+        "cx": 529.8,
+        "cy": 313.4,
+        "zoom": 3.58
       },
       "showTiers": [
         1,
@@ -407,14 +465,14 @@
         26.23789
       ],
       "frame": {
-        "x": 1487.0,
-        "y": 466.1,
-        "depthM": 7002.9
+        "x": 587.8,
+        "y": 324.9,
+        "depthM": 8350.3
       },
       "camera": {
-        "cx": 1487.0,
-        "cy": 466.1,
-        "zoom": 4.0
+        "cx": 587.8,
+        "cy": 324.9,
+        "zoom": 3.58
       },
       "showTiers": [
         1,
@@ -436,14 +494,14 @@
         26.23728
       ],
       "frame": {
-        "x": 1546.5,
-        "y": 476.5,
-        "depthM": 7023.4
+        "x": 635.2,
+        "y": 334.9,
+        "depthM": 8315.2
       },
       "camera": {
-        "cx": 1546.5,
-        "cy": 476.5,
-        "zoom": 4.0
+        "cx": 635.2,
+        "cy": 334.9,
+        "zoom": 3.58
       },
       "showTiers": [
         1,
@@ -465,14 +523,14 @@
         26.23648
       ],
       "frame": {
-        "x": 1626.2,
-        "y": 473.9,
-        "depthM": 7035.3
+        "x": 697.7,
+        "y": 334.8,
+        "depthM": 8247.1
       },
       "camera": {
-        "cx": 1626.2,
-        "cy": 473.9,
-        "zoom": 4.0
+        "cx": 697.7,
+        "cy": 334.8,
+        "zoom": 3.58
       },
       "showTiers": [
         1,
@@ -494,14 +552,14 @@
         26.23295
       ],
       "frame": {
-        "x": 1970.6,
-        "y": 474.9,
-        "depthM": 7098.7
+        "x": 984.2,
+        "y": 344.6,
+        "depthM": 7964.4
       },
       "camera": {
-        "cx": 1970.6,
-        "cy": 474.9,
-        "zoom": 4.0
+        "cx": 984.2,
+        "cy": 344.6,
+        "zoom": 3.58
       },
       "showTiers": [
         1,
@@ -523,14 +581,14 @@
         26.23476
       ],
       "frame": {
-        "x": 1794.1,
-        "y": 476.8,
-        "depthM": 7068.4
+        "x": 834.5,
+        "y": 341.4,
+        "depthM": 8112.7
       },
       "camera": {
-        "cx": 1805.3,
-        "cy": 476.8,
-        "zoom": 2.93
+        "cx": 845.7,
+        "cy": 341.4,
+        "zoom": 2.28
       },
       "showTiers": [
         1,
@@ -552,14 +610,14 @@
         26.22886
       ],
       "frame": {
-        "x": 1726.8,
-        "y": 493.4,
-        "depthM": 6443.1
+        "x": 675.8,
+        "y": 354.8,
+        "depthM": 7634.3
       },
       "camera": {
-        "cx": 1726.8,
-        "cy": 493.4,
-        "zoom": 4.0
+        "cx": 675.8,
+        "cy": 354.8,
+        "zoom": 3.58
       },
       "showTiers": [
         1,
@@ -581,19 +639,47 @@
         26.24069
       ],
       "frame": {
-        "x": 1995.2,
-        "y": 456.7,
-        "depthM": 7878.2
+        "x": 1126.8,
+        "y": 327.2,
+        "depthM": 8589.0
       },
       "camera": {
-        "cx": 1985.2,
-        "cy": 456.7,
-        "zoom": 4.0
+        "cx": 1116.8,
+        "cy": 327.2,
+        "zoom": 3.58
       },
       "showTiers": [
         1,
         2,
         3
+      ]
+    },
+    {
+      "id": "ships",
+      "name": "the ships",
+      "greek": "νῆες",
+      "tier": 1,
+      "positionBasis": "conjectural",
+      "citation": "Il. 14.30-36; 8.222-26",
+      "tradition": null,
+      "rule": "Fleet centroid on the Aegean (outer) flank of the Sigeum ridge.",
+      "at": [
+        39.9452,
+        26.16527
+      ],
+      "frame": {
+        "x": -295.3,
+        "y": 822.8,
+        "depthM": 2479.8
+      },
+      "camera": {
+        "cx": -295.3,
+        "cy": 822.8,
+        "zoom": 1.62
+      },
+      "showTiers": [
+        1,
+        2
       ]
     }
   ]
