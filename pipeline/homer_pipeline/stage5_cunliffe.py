@@ -415,11 +415,22 @@ def split_senses(definition: str) -> dict:
     return {"head": definition[:kept[0]["at"]], "senses": senses, "divisions": divisions}
 
 
-def _evidence_start(body: str, cite_at: int) -> int:
-    """Where a sense's evidence begins, walking back from its first citation."""
+def _evidence_start(body: str, cite_at: int, depth: list[int] | None = None) -> int:
+    """Where a sense's evidence begins, walking back from its first citation.
+
+    A stop INSIDE one of Cunliffe's parentheses ends nothing: the remark he is
+    making runs on to its closing bracket. ἐρίηρος's "(and in Od. 1.346,
+    Od. 8.62, 471 of ἀοιδός)" offers three of them, and taking the last cut
+    the parenthesis in half — "Od." was left hanging on the end of the
+    definition and its book number reached the row as three loose digits.
+    """
+    if depth is None:
+        depth = _paren_depth(body)
     before = body[:cite_at]
     bound = -1
     for m in re.finditer(r"[:.;]\s", before):
+        if depth[m.start()]:
+            continue
         if m.group(0)[0] == "." and _ABBREV_TAIL_RE.search(before[:m.start()]):
             continue
         bound = m.end()
@@ -442,10 +453,12 @@ def parse_sense(body: str) -> tuple[str, str]:
     Evidence is anchored on the CITATION, which is the one unambiguous mark in
     the text and is already what the reader clicks; a quotation attaches to the
     citation that follows it."""
-    m = _FULL_CITE_RE.search(body)
+    depth = _paren_depth(body)
+    m = next((c for c in _FULL_CITE_RE.finditer(body) if not depth[c.start()]),
+             None)
     if not m:
         return body.strip(), ""
-    start = _evidence_start(body, m.start())
+    start = _evidence_start(body, m.start(), depth)
     # The colon that introduced the quotation belongs to neither side once the
     # two are separate fields.
     # Not ";": the source carries a literal "&gt;" in at least one entry
@@ -711,6 +724,11 @@ def _has_english(text: str) -> bool:
     whose only English is parenthesised staying in `g` — a remark beside
     Homer's words rather than a definition standing in for them.
     """
+    return bool(_EN_RUN_RE.search(_outside_parens(text)))
+
+
+def _outside_parens(text: str) -> str:
+    """`text` with everything inside its parentheses removed."""
     depth = 0
     out = []
     for ch in text:
@@ -720,7 +738,7 @@ def _has_english(text: str) -> bool:
             depth = max(0, depth - 1)
         elif not depth:
             out.append(ch)
-    return bool(_EN_RUN_RE.search("".join(out)))
+    return "".join(out)
 
 
 def _quote_start(body: str) -> int:
@@ -763,7 +781,66 @@ def _quote_start(body: str) -> int:
             # Only once the walk has started, so that an ellipsis INSIDE a
             # quotation cannot open one. 8 quotations, 8 entries.
             start = m.end()
+    if start == gm.start() and _sentence_runs_through(body, start):
+        return len(body)
     return start
+
+
+_EN_WORD_RE = re.compile(r"[A-Za-z]{2,}")
+
+
+def _sentence_runs_through(body: str, start: int) -> bool:
+    """Whether Cunliffe's own sentence merely CONTAINS the Greek at `start`.
+
+    _quote_start presumes the first Greek word opens the quotation, and then
+    earns every later move with a sentence stop and English behind it. The
+    presumption itself was never earned, and "GreekName-N + English" is where
+    it fails outright: Ἀμφίων-3 reads "Patronymic Ἰασίδης-1 King of
+    Orchomenus-1 and father of Chloris Od. 11.283", and the entry came out
+    saying Homer wrote Cunliffe's genealogy. Ἴφιτος-1 and Ἑλλάς are the same
+    sentence, and the lane that added the homonym rule named all three as a
+    known cost.
+
+    So the presumption is tested the same way the moves are: Cunliffe's
+    sentence is still running if a word of his stands in front of the Greek
+    AND his prose resumes behind it. What stands in front has to be his own
+    prose to count:
+
+      · A COLON is where he hands the sentence over — "the colon that
+        introduced the quotation" (parse_sense), "With sb. to be supplied:
+        ἀμφοτέρῃσι [χερσίν], with both hands" (ἀμφότερος). Behind one, the
+        Greek is quoted and the English after it is its translation.
+      · "etc." and "So" are the marks that close the citation list above, not
+        words of a sentence — ἠέλιος's "etc. b ὑπʼ αὐγὰς ἠελίοιο", πολυάϊξ's
+        "So κάματος πολυάϊξ". _LEADING_NOTE_RE already knows them.
+
+    Behind it, only a PHRASE counts, by _has_english's own rule: a lone
+    "Absol." or "sc." is apparatus Cunliffe prints inside a quotation.
+
+    The same presumption is made of the run that CLOSES an evidence list,
+    which has no citation to test it against, so split_evidence's tail asks
+    this too: Ἑλλάς ends on "Of northern in contrast to southern Greece, in
+    phrase καθʼ (ἀνʼ) Ἑλλάδα καὶ μέσον Ἄργος. See Argos-1 (3)." — a whole
+    sentence of his that reached the reader as a quotation.
+
+    Measured over both source volumes (11,416 entries): 87 quotations stop
+    holding his English, across 85 entries. The cost is a handful where he
+    introduces a real quotation with no colon and no stop — ἄλλοθεν's "Sim.
+    νείκεον ἀ. ἄλλον", θρωσμός's "Only in phrase ἐπὶ θρωσμῷ πεδίοιο",
+    πρώτιστος, ἱμάς, κεῖνος — whose Greek moves into the definition, where it
+    still reads as the page reads it. Homer's words in Cunliffe's voice is
+    the lesser fault; Cunliffe's words in Homer's is the one this file exists
+    to prevent.
+    """
+    if not _has_english(body[start:]):
+        return False
+    lead = _outside_parens(body[:start])
+    if lead.rstrip().endswith(":"):
+        return False
+    note = _LEADING_NOTE_RE.match(lead)
+    if note:
+        lead = lead[note.end():]
+    return bool(_EN_WORD_RE.search(lead))
 
 
 def _unbalanced(text: str) -> bool:
@@ -798,11 +875,17 @@ def _unbalanced(text: str) -> bool:
         depth over, and the ")" that ends the remark is all that is left of
         it. The depth map cannot see it; the stray close can.
 
-    Measured, not assumed: with _paren_holds_cite carrying the first shape,
-    disabling this test alone changes 9 entries and puts 9 more of Cunliffe's
-    remarks back into `g` — 2 by bracket (ἀτρέμας, πολεμιστής), 7 by orphaned
-    parenthesis (ἀγορή, ἀμφίπολος, αὐλός, λέβης, νεύω, ὀκτωκαιδέκατος,
-    ὀρσοθύρη). The two guards are independent; neither subsumes the other.
+    Measured, not assumed — and RE-measured after parse_sense learned to see
+    a parenthesis (see _paren_depth's use there). The orphan shape is gone:
+    the cut no longer falls inside one of his parentheses, so the seven
+    entries this test used to carry alone (ἀγορή, ἀμφίπολος, αὐλός, λέβης,
+    νεύω, ὀκτωκαιδέκατος, ὀρσοθύρη) now reach the guard whole, and
+    _names_one_word carries πολεμιστής. Disabling this test alone now changes
+    ONE entry — ἀτρέμας, "τρέμω.] Without motion, still", the square
+    etymology bracket the depth walk still cannot see. One entry is not
+    nothing, and it is the only thing left holding this rule up.
+    (_paren_holds_cite, measured the same way, is down from 19 entries to 5:
+    ἄρτιος, γόνυ, κεδνός, Αἴας-1, Ἴασος-2.)
 
     Balance, not presence: _evidence_start refuses a run holding a bracket at
     all, but Cunliffe also supplies an implied word inside a genuine quotation
@@ -857,6 +940,29 @@ def _paren_holds_cite(text: str) -> bool:
     """
     return any(_CITE_TOKEN_RE.search(m.group(1))
                for m in _INNER_PAREN_RE.finditer(text))
+
+
+_GREEK_WORD_RE = re.compile(r"[\u0370-\u03ff\u1f00-\u1fff][\u0370-\u03ff\u1f00-\u1fff\u02bc\u2019'-]*")
+
+
+def _names_one_word(text: str) -> bool:
+    """Whether the run is Cunliffe NAMING one Greek word, not quoting a phrase.
+
+    The mirror of _EN_RUN_RE's own rule, which refuses to call a lone English
+    word prose: a quotation of Homer is a phrase, and one word with an English
+    phrase hanging off it is him naming a form and glossing it —
+    ὀκτωκαιδέκατος's "ὀκτωκαιδεκάτῃ (sc. ἡμέρῃ), on the eighteenth day".
+
+    _unbalanced used to catch that one by accident: parse_sense cut the sense
+    at a citation standing inside his parenthesis, so the "(" was left in the
+    definition and the ")" arrived here orphaned. The cut now respects the
+    parenthesis, the run arrives whole and balanced, and the signal has to be
+    said directly — the same move _paren_holds_cite made for its own shape.
+
+    Counted outside his parentheses, because what he supplies inside one is
+    his, not Homer's.
+    """
+    return len(_GREEK_WORD_RE.findall(_outside_parens(text))) == 1
 
 
 def _paren_depth(text: str) -> list[int]:
@@ -942,7 +1048,8 @@ def split_evidence(evidence: str) -> list[dict]:
         # citation had split off, reads as prose without it.
         core = body[q:]
         if (_GREEK_RE.search(core) and _has_english(core)
-                and (_unbalanced(core) or _paren_holds_cite(core))):
+                and (_unbalanced(core) or _paren_holds_cite(core)
+                     or _names_one_word(core))):
             q = len(body)
         # A derived adverb Cunliffe names by its ending — see
         # _SUFFIX_BRACKET_RE. Tested on its own rather than joined to the
@@ -1018,6 +1125,7 @@ def split_evidence(evidence: str) -> list[dict]:
         # that Greek made the paragraph a quotation of Homer.
         if (gm and not _depth_at(tail, depth[pos], gm.start())
                 and not _holds_sense_ref(tail)
+                and not _sentence_runs_through(tail, gm.start())
                 and not _SUFFIX_BRACKET_RE.search(tail)):
             segments[-1]["ex"].append({"g": tail})
         elif _TRAILING_NOTE_RE.fullmatch(tail):

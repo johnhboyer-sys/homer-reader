@@ -1160,11 +1160,18 @@ def test_a_reference_glued_to_the_word_before_it_is_still_one_reference():
     # the two the lost space fabricated
     assert "Il. 19.5" not in cites
     assert "Il. 19.52" not in cites
-    # and Cunliffe's own English is out of Homer's mouth
-    quote = next(e for r in t8["rows"] for e in (r.get("ex") or [])
-                 if "ἄγρια, wild creatures" in _text(e.get("g") or ""))
-    assert _text(quote["g"]) == "ἄγρια, wild creatures"
-    assert quote["c"] == "Il. 5.52"
+    # and Cunliffe's own English is out of Homer's mouth. "Absol. in neut. pl.
+    # ἄγρια, wild creatures" is one sentence of his, and the parse now reads
+    # it as one — exactly as it reads the same entry's sense 5, "Absol. in
+    # neut. pl. ἄγρια, fierceness", whose colon hands the quotation over.
+    # (This assertion replaces one that required "ἄγρια, wild creatures" to
+    # BE the quotation, which left his gloss inside `g` — see
+    # _sentence_runs_through.)
+    assert not [e for r in t8["rows"] for e in (r.get("ex") or [])
+                if "wild creatures" in _text(e.get("g") or "")]
+    row = next(r for r in t8["rows"]
+               if _text(r.get("z") or "").endswith("ἄγρια, wild creatures"))
+    assert row["au"] == ["Il. 5.52"]
 
 
 def test_a_glued_reference_does_not_move_a_citation_into_the_other_poem():
@@ -1524,3 +1531,126 @@ def test_what_stands_before_the_hyphen_decides_the_homonym_mark():
     assert not sc._is_homonym_suffix("Od. 6.177-8", len("Od. 6.177-"))
     # nor a loose digit that is a genuine bare continuation
     assert not sc._is_homonym_suffix("Il. 19.35, 75", len("Il. 19.35, "))
+
+
+# ── a Greek name inside Cunliffe's sentence is not a quotation ──────────────
+# The proper-name volume is written as "Patronymic <Greek> <English genealogy>",
+# and _quote_start presumed the first Greek word opened a quotation. The entry
+# then said Homer wrote the genealogy. Every fixture below is a WHOLE real
+# source entry, copied verbatim from sources/cunliffe/cunliffe-2-hompers.jsonl —
+# the tests for the homonym rule used Latin names and bracketed roots and so
+# never touched this interaction. See _sentence_runs_through.
+
+def test_a_greek_patronymic_does_not_turn_the_genealogy_into_a_quotation():
+    """Ἀμφίων-3, whole and real (cunliffe-2-hompers.jsonl, key a)mfi/wn).
+
+    "Patronymic Ἰασίδης-1 King of Orchomenus-1 and father of Chloris
+    Od. 11.283" came out as z="Patronymic" with Homer credited for
+    "Ἰασίδης-1 King of Orchomenus-1 and father of Chloris".
+    """
+    real = ("Ἀμφίων-3 Patronymic Ἰασίδης-1 King of Orchomenus-1 and father "
+            "of Chloris Od. 11.283.")
+    t8 = sc.to_t8("a)mfi/wn", "Ἀμφίων-3", real)
+    quoted = [_text(it["g"]) for r in t8["rows"] for it in (r.get("ex") or [])]
+    assert not any("King of Orchomenus" in g for g in quoted), quoted
+    row = next(r for r in t8["rows"] if "Ἰασίδης-1" in _text(r.get("z") or ""))
+    assert _text(row["z"]) == ("Patronymic Ἰασίδης-1 King of Orchomenus-1 "
+                               "and father of Chloris")
+    assert row["au"] == ["Od. 11.283"]
+
+
+def test_a_second_greek_patronymic_entry_reads_the_same_way():
+    """Ἴφιτος-1, whole and real (cunliffe-2-hompers.jsonl, key i)/fitos).
+
+    The same sentence, and the second entry the homonym lane named as a known
+    cost. Its quantity mark and epithet stay in `i`, where they already were.
+    """
+    real = ("Ἴφιτος-1 (ι) (μεγάθυμος). Patronymic Ναυβολίδης-1 Father of "
+            "Schedius-1 and Epistrophus-1 Il. 2.518, Il. 17.306.")
+    t8 = sc.to_t8("i)/fitos", "Ἴφιτος-1", real)
+    quoted = [_text(it["g"]) for r in t8["rows"] for it in (r.get("ex") or [])]
+    assert not any("Father of Schedius" in g for g in quoted), quoted
+    row = next(r for r in t8["rows"] if "Ναυβολίδης-1" in _text(r.get("z") or ""))
+    assert _text(row["z"]) == ("Patronymic Ναυβολίδης-1 Father of Schedius-1 "
+                               "and Epistrophus-1")
+    assert row["au"] == ["Il. 2.518", "Il. 17.306"]
+    assert _text(t8["i"]) == "(ι) (μεγάθυμος)."
+
+
+def test_a_closing_run_of_cunliffes_own_prose_is_not_a_quotation():
+    """Ἑλλάς, whole and real (cunliffe-2-hompers.jsonl, key e(lla/s).
+
+    The third entry the homonym lane named. It reaches `ex` by split_evidence's
+    TAIL, which has no citation to test the run against, so the same
+    presumption is made there and the same sentence — English first, Greek in
+    the middle — was handed to Homer.
+    """
+    real = ("Ἑλλάς (εὐρύχορος, καλλιγύναιξ ). Part of the realm of Peleus, "
+            "the valley of the Spercheius Il. 2.683, Il. 9.395, 447 , 478, "
+            "Il. 16.595: Od. 11.496. Of northern in contrast to southern "
+            "Greece, in phrase καθʼ (ἀνʼ) Ἑλλάδα καὶ μέσον Ἄργος. "
+            "See Argos-1 (3).")
+    t8 = sc.to_t8("e(lla/s", "Ἑλλάς", real)
+    quoted = [_text(it["g"]) for r in t8["rows"] for it in (r.get("ex") or [])]
+    assert not any("Of northern in contrast" in g for g in quoted), quoted
+    assert any("Of northern in contrast to southern Greece" in _text(r.get("z") or "")
+               for r in t8["rows"])
+
+
+# ── a parenthesis Cunliffe opens before the evidence is still one remark ────
+
+def test_a_citation_inside_a_parenthesis_does_not_cut_the_sense():
+    """Ἀμύντωρ, whole and real (cunliffe-2-hompers.jsonl, key a)mu/ntwr).
+
+    Its first citation stands inside "(but in Il. 10.266 he is spoken of as
+    living in Eleon)". parse_sense cut the sense there, so the definition
+    ended "Ruler of Hellas (but in" and the rest of the remark opened a row of
+    its own beginning "he is spoken of as living in Eleon)". split_evidence
+    already walks past a citation inside one of his parentheses; the cut that
+    happens BEFORE it did not, and its depth map, measured on the text after
+    the cut, could not see the opener.
+    """
+    real = ("Ἀμύντωρ Patronymic Ὀρμενίδης. Ruler of Hellas (but in Il. 10.266 "
+            "he is spoken of as living in Eleon) and father of Phoenix-1 "
+            "Il. 9.448 , Il. 10.266.")
+    t8 = sc.to_t8("a)mu/ntwr", "Ἀμύντωρ", real)
+    zs = [_text(r.get("z") or "") for r in t8["rows"]]
+    assert not any(z.endswith("(but in") for z in zs), zs
+    assert not any(z.startswith("he is spoken of") for z in zs), zs
+    row = next(r for r in t8["rows"] if "Ruler of Hellas" in _text(r.get("z") or ""))
+    assert _text(row["z"]) == (
+        "Patronymic Ὀρμενίδης. Ruler of Hellas (but in Il. 10.266 he is "
+        "spoken of as living in Eleon) and father of Phoenix-1")
+    assert row["au"] == ["Il. 9.448", "Il. 10.266"]
+
+
+def test_a_stop_inside_a_parenthesis_does_not_open_the_evidence():
+    """ἐρίηρος, whole and real (cunliffe-1-lex.jsonl, key e)ri/hros).
+
+    The other half of the same fix, and the one that proves parse_sense alone
+    is not enough: once the cut moves to the first citation OUTSIDE his
+    parentheses, _evidence_start walks back over the stops inside one — "(and
+    in Od. 1.346, Od. 8.62, 471 of ἀοιδός)" — and cut the remark in half,
+    leaving "Od." hanging on the definition and its book number reaching the
+    row as three loose digits.
+
+    Alone among these fixtures this one PASSES against the pre-fix module: the
+    old cut fell at the citation inside the parenthesis and never reached
+    these stops. It guards the fix's own second half, not the defect the fix
+    was written for, and it caught that half — parse_sense was changed first
+    and this entry lost Od. 8.62 outright.
+    """
+    real = ("ἐρίηρος [ἐρι- + (ϝ)ήρ. Cf. ἐπιήρανος.] Pl. ἐρίηρες. Epithet of "
+            "ἑταῖρος, ἑταῖροι (and in Od. 1.346, Od. 8.62, 471 of ἀοιδός), "
+            "worthy, faithful, trusty or the like Il. 3.47, Il. 3.378, "
+            "Il. 4.266, Il. 8.332, Il. 13.421, Il. 16.363, Il. 23.6: "
+            "Od. 1.346, Od. 8.62, 471, Od. 9.100, Od. 9.172, Od. 9.193, "
+            "Od. 9.555, Od. 10.387, Od. 10.405, Od. 10.408, Od. 10.471, "
+            "Od. 12.199, Od. 12.397.")
+    t8 = sc.to_t8("e)ri/hros", "ἐρίηρος", real)
+    cites = [c for r in t8["rows"] for c in (r.get("au") or [])]
+    assert "Od. 8.62" in cites
+    assert not [c for c in cites if c.strip().isdigit()], cites
+    assert not any(_text(r.get("z") or "").endswith("Od.") for r in t8["rows"])
+    assert any("(and in Od. 1.346, Od. 8.62, 471 of ἀοιδός)"
+               in _text(r.get("z") or "") for r in t8["rows"])
