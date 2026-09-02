@@ -868,41 +868,37 @@ describe('renderPlate: a label never seats on open water (d0c4e947d regression)'
   });
 });
 
-describe('renderPlate: the water reservation is the sea\'s SHAPE, not its bounding box (real trojan-plain.json)', () => {
-  // The sea-modern layer's bbox spans the whole sheet height (it traces the
-  // Hellespont along one edge), so reserving that bbox wrongly buried every
-  // land label on that side of the plate under the open-water suppression
-  // rule. Reserving the true polygon instead frees the labels whose actual
-  // position is dry ground: besik-sivritepe and uvecik-tepe, checked here.
+describe('renderPlate: the no-label-on-water rule binds the schematic register only (John, ruling 2e-iv/5, 2026-09-02)', () => {
+  // The open-water label reservation above exists to stop a schematic label
+  // from asserting a place IN THE SEA (see the d0c4e947d comment on the
+  // Patroclus test). A GEOGRAPHIC sheet is a different register: it already
+  // draws coastal names over water with a leader line (Sigeion, on this same
+  // sheet), so reserving open water against the solver there was never the
+  // right rule — it was a schematic-register fix applied plate-wide.
   //
-  // kesik-tepe and kum-tepe are DELIBERATELY left out of this assertion —
-  // verified directly (point-in-polygon against the real sea-modern /
-  // lagoon-bronze rings, independent of the label solver) that their own
-  // best candidate positions genuinely fall inside the sea/lagoon polygon:
-  // kum-tepe's chosen box sits 100% inside the reconstructed Bronze-Age
-  // lagoon, and kesik-tepe's only low-corridor-overlap direction sits 100%
-  // inside the modern sea. That is a true placement conflict the old bbox
-  // reservation was masking by suppressing everything nearby, not an
-  // artifact of the box this fix removes — asserting labelBoxes for these
-  // two would be asserting a label on open water, which is the exact defect
-  // this whole reservation exists to prevent (see the schematic-plate test
-  // below, "a label never seats on open water"). They are asserted
-  // SUPPRESSED instead, so a future regression that silently drops the
-  // suppression bucket (rather than genuinely relocating them) is caught.
-  it('keeps besik-sivritepe and uvecik-tepe — the sea-modern bbox wrongly buried them; honestly suppresses kesik-tepe and kum-tepe, whose own candidate positions genuinely overlap real water', () => {
+  // Superseded here: an earlier version of this test asserted besik-sivritepe
+  // and uvecik-tepe placed while kesik-tepe and kum-tepe were HONESTLY
+  // suppressed, because their best candidate positions genuinely fell inside
+  // the sea/lagoon polygon — true under the old plate-wide rule, where any
+  // water overlap was a defect. Once the rule is scoped to schematic plates
+  // only, that same overlap is no longer a defect on a geographic sheet: a
+  // coastal name sitting over open water, with a leader to its point, is
+  // exactly what this register draws (John's ruling 5: "Kum Tepe, Kesik Tepe
+  // come back"). So all four now regain a labelBox on the real
+  // trojan-plain.json — the SET of placed ids is the gate here, per the
+  // 2026-09-02 CLAUDE.md lesson that a positions-only diff cannot see a
+  // dropped (or regained) label.
+  it('regains kum-tepe and kesik-tepe on the geographic trojan-plain sheet, alongside besik-sivritepe and uvecik-tepe', () => {
     const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
     const plate = parsePlate(raw);
+    expect(plate.kind).toBe('geographic');
     const allPlaces = (JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[]).filter(
       (p) => (p as unknown as { maps?: string[] }).maps?.includes('troad-plain'),
     );
     const result = renderPlate(plate, allPlaces);
 
-    for (const id of ['besik-sivritepe', 'uvecik-tepe']) {
+    for (const id of ['besik-sivritepe', 'uvecik-tepe', 'kum-tepe', 'kesik-tepe']) {
       expect(result.labelBoxes[id], `expected a labelBox for "${id}"`).toBeDefined();
-    }
-    for (const id of ['kesik-tepe', 'kum-tepe']) {
-      expect(result.labelBoxes[id], `expected NO labelBox for "${id}" (it belongs on water)`).toBeUndefined();
-      expect(result.suppressedLabels, `expected "${id}" reported as suppressed, not silently dropped`).toContain(id);
     }
   });
 });
