@@ -1278,3 +1278,148 @@ def test_the_two_misstated_references_point_at_the_lines_cunliffe_means():
 
     # Anchored to the entry: the same printed string elsewhere is left alone.
     assert sc.fix_source_misscan("a)/gw", "Sirius 22.29") == "Sirius 22.29"
+
+
+# ── the line number of a reference is not a sense number ───────────────────
+
+MERMHRIZW = (
+    "μερμηρίζω [μερ- as in μέρμερος.] Aor. μερμήριξα Od. 10.50, 151, 438. "
+    "3 sing. -ε Il. 1.189, Il. 5.671, Il. 14.159, etc. : Od. 2.93, Od. 4.791, "
+    "Od. 17.235, etc. Subj. μερμηρίξω Od. 16.261. Pple. μερμηρίξας Od. 11.204, "
+    "Od. 16.237. Infin. μερμηρίξαι Od. 16.256. 1 To turn (a thing) anxiously "
+    "over in one's mind, to ponder or consider (it), meditate (it), have (it) "
+    "in view : πολλά Od. 1.427, φόνον ἡμῖν Od. 2.325. Cf. Il. 20.17 : "
+    "Od. 4.533, Od. 19.2 = 52, Od. 20.38, 41. Of a lion Od. 4.791. To think "
+    "out or contrive : δόλον τόνδε Od. 2.93, Od. 24.128. To think of, find : "
+    "ἀμύντορά τινα Od. 16.256, 261. 2 Absol., to ponder, consider, deliberate, "
+    "meditate : τρὶς μερμήριξεν Il. 8.169, ἔτι μερμήριζον (were hesitating) "
+    "Il. 12.199. Cf. Od. 5.354, Od. 11.204, Od. 16.237, Od. 20.93. With "
+    "dependent clause. a With relative : ὅ τι κύντατον ἕρδοι Il. 10.503. "
+    "b With clause introduced by ὡς (how) Il. 2.3. c By ὅπως Il. 14.159 : "
+    "Od. 9.554, Od. 15.169, Od. 20.28, 38. d With alternatives introduced by "
+    "ἢ... ἦ... Il. 1.189, Il. 5.671, Il. 13.455, Il. 16.647 : Od. 4.117, "
+    "Od. 6.141, Od. 10.50, Od. 16.73, Od. 17.235, Od. 18.90, Od. 20.10, "
+    "Od. 22.333. With the first alternative expressed by an infin. and the "
+    "second introduced by ἦ: μερμήριξε κύσσαι... ἦ... Od. 24.235. With infin. "
+    "expressing only one of the alternatives : διάνδιχα μερμήριξεν ἵππους "
+    "στρέψαι (had half a mind to...) Il. 8.167. Cf. Od. 10.151, 438."
+)
+
+
+def test_a_reference_line_number_is_not_a_sense_number():
+    """The whole μερμηρίζω, because the fault needs the entry's real length.
+
+    "Od. 19.2 = 52" offers a 2 that continues the run and takes it, so the
+    phantom sense swallows the number the REAL sense 2 ("Absol., to ponder")
+    then cannot have, and the 19 left in front of it is restored to the last
+    book the parse saw — a live link to Od. 4.19, which this entry never
+    cites.
+    """
+    t8 = sc.to_t8("mermhri/zw", "μερμηρίζω", MERMHRIZW)
+    cites = [c for r in t8["rows"]
+             for c in list(r.get("au") or [])
+                    + [e["c"] for e in (r.get("ex") or []) if e.get("c")]]
+    assert "Od. 4.19" not in cites
+    assert "Od. 19.2" in cites and "Od. 19.52" in cites
+    # the real sense 2 keeps its number and its definition
+    two = [r for r in t8["rows"] if r.get("n") == "2"]
+    assert len(two) == 1
+    assert "Absol., to ponder" in two[0]["z"]
+
+
+def test_a_sense_number_inside_a_reference_is_refused_but_a_real_one_is_kept():
+    """The exclusion is by POSITION, so a sense number that merely follows a
+    reference is untouched."""
+    inside = sc.split_senses("x 1 First Od. 3.3 = Od. 12.386. Cf. Il. 1.1.")
+    assert [s["n"] for s in inside["senses"]] == ["1"]
+    after = sc.split_senses("x 1 First Il. 1.5. 2 Second Il. 2.7.")
+    assert [s["n"] for s in after["senses"]] == ["1", "2"]
+
+
+# ── a suffix in brackets is Cunliffe's note, not Homer's words ─────────────
+
+ABUDOS = (
+    "Ἄβυδος A city on the southeast of the Hellespont, a little below Sestus "
+    "on the other side Il. 2.836. Ἀβυδόθεν [-θεν], from Abydus Il. 4.500 . "
+    "Ἀβυδόθι [-θι], at Abydus Il. 16.584 ."
+)
+
+
+def test_a_derived_adverb_named_by_its_ending_is_not_a_quotation():
+    t8 = sc.to_t8("a)/budos", "Ἄβυδος", ABUDOS)
+    quoted = [e["g"] for r in t8["rows"] for e in (r.get("ex") or [])]
+    assert quoted == []
+    defs = [r.get("z") or "" for r in t8["rows"]]
+    assert "Ἀβυδόθεν [-θεν], from Abydus" in defs
+    assert "Ἀβυδόθι [-θι], at Abydus" in defs
+    assert [r.get("au") for r in t8["rows"]] == [
+        ["Il. 2.836"], ["Il. 4.500"], ["Il. 16.584"]]
+
+
+KLEPTW = (
+    "κλέπτω 3 sing. aor, ἔκλεψε Il. 5.268, Il. 14.217. Infin. κλέψαι "
+    "Il. 24.24, 71, 109. (ἐκ-, ὑποκλοπέομαι.) 1 To take away by stealth, "
+    "filch, purloin : τῆς γενεῆς ἔκλεψεν Ἀγχίσης (filched (a strain) from "
+    "that . . . ) Il. 5.268, κλέψαι [Ἕκτορα (i.e. his corpse)] ὀτρύνεσκον "
+    "Ἀργειφόντην Il. 24.24. Cf. Il. 24.71, 109. 2 To cozen, beguile, lead "
+    "astray : μὴ κλέπτε νόῳ Il. 1.132. Cf. Il. 14.217."
+)
+
+
+def test_a_supplied_word_in_brackets_is_still_a_quotation():
+    """The hyphen is what tells them apart: κλέπτω supplies a WORD.
+
+    The whole entry, because the bracket only reaches split_evidence as a
+    lead once a citation stands in front of it.
+    """
+    t8 = sc.to_t8("kle/ptw", "κλέπτω", KLEPTW)
+    quoted = [e["g"] for r in t8["rows"] for e in (r.get("ex") or [])]
+    assert "κλέψαι [Ἕκτορα (i.e. his corpse)] ὀτρύνεσκον Ἀργειφόντην" in quoted
+
+
+# ── a row with nothing in it is a blank line ───────────────────────────────
+
+def test_a_sense_number_left_alone_moves_onto_its_own_definition():
+    """ἀκριτόμυθος splits sense 2 at its quotation and leaves the number
+    standing above an unnumbered row, so the entry printed a bare "2"."""
+    t8 = sc.to_t8("a)krito/muqos", "ἀκριτόμυθος",
+                  "ἀκριτόμυθος [ἄκριτος + μῦθος.] 1 Indiscriminate or reckless "
+                  "in speech Il. 2.246. 2 Hard to be discerned or interpreted "
+                  "ὄνειροι Od. 19.560.")
+    assert [(r.get("n"), r.get("z")) for r in t8["rows"]] == [
+        ("1", "Indiscriminate or reckless in speech"),
+        ("2", "Hard to be discerned or interpreted"),
+    ]
+    assert t8["rows"][1]["ex"] == [{"g": "ὄνειροι", "c": "Od. 19.560"}]
+
+
+def test_a_row_with_no_number_and_no_content_is_not_emitted():
+    t8 = sc.to_t8("a)qhrhloigo/s", "ἀθηρηλοιγός",
+                  "ἀθηρηλοιγός ὁ [ἀθήρ, ear of corn = λοιγός. Consumer of ears "
+                  "of corn.] App., a shovel by which grain to be winnowed was "
+                  "thrown against the wind ( = πτύον) Od. 11.128 = Od. 23.275.")
+    assert len(t8["rows"]) == 1
+    assert t8["rows"][0]["z"].startswith("App., a shovel")
+
+
+DIFROS = (
+    "δίφρος -ου, ὁ [contr. fr. διφόρος fr. δι-, δισ- + -φορος, φέρω. Something "
+    "that carries two, i. e. (in war) the ἡνίοχος and the παραιβάτης.] "
+    "1 a A chariot, whether used in war, for racing, for travel or for "
+    "conveyance in general (hardly to be distinguished from ἅρμα) Il. 3.262, "
+    "310, Il. 5.20, Il. 13.392, Il. 23.335, 370, Il. 24.322, etc.: Od. 3.324, "
+    "369, 481, 483, Od. 4.590, Od. 14.280. b The platform thereof, composed of "
+    "straps plaited and strained tight Il. 5.727. 2 A seat (the notion of two "
+    "app. lost) Il. 3.424, Il. 6.354, Il. 24.578: Od. 4.717, Od. 17.330, "
+    "Od. 19.97, Od. 20.259, etc."
+)
+
+
+def test_a_numbered_row_whose_sub_senses_carry_the_definition_is_kept():
+    """δίφρος's sense 1 has no definition of its own because a and b hold it.
+    That is how Cunliffe wrote it, and the number must not move onto a."""
+    t8 = sc.to_t8("di/fros", "δίφρος", DIFROS)
+    assert [(r.get("n"), r.get("lv")) for r in t8["rows"]] == [
+        ("1", 1), ("a", 2), ("b", 2), ("2", 1)]
+    assert not t8["rows"][0].get("z")
+    assert t8["rows"][1]["z"].startswith("A chariot")

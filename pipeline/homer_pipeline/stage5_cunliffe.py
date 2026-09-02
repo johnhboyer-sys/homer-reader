@@ -360,11 +360,30 @@ def split_senses(definition: str) -> dict:
     # check cannot see this — a false 1 still forms a valid run and loses no
     # characters — so it has to be excluded by position. 185 false senses.
     brackets = [(m.start(), m.end()) for m in _BRACKET_RE.finditer(definition)]
+    # A reference's own LINE NUMBER stands exactly where a sense number
+    # stands: "Qualified by θνητός Od. 3.3 = Od. 12.386" (βροτός) offers a 3
+    # that continues the run 1, 2 and takes it, and the entry gains a sense
+    # whose whole definition is "= Od. 12.386". μερμηρίζω is worse — the 2 in
+    # "Od. 19.2 = 52" takes the number its REAL sense 2 ("Absol., to ponder")
+    # then cannot have, so the real sense is refused and its evidence hangs on
+    # the phantom. The digit left over in front reaches split_evidence as a
+    # bare continuation and is restored to the wrong book: Od. 4.19 under
+    # μερμηρίζω, Od. 12.3 under βροτός, Od. 17.15 under καλός, Od. 21.21 under
+    # τίθημι — four live links to lines the entry never cites.
+    #
+    # The sequence rule cannot catch this, because a stolen number continues
+    # the run by construction. Position can: Cunliffe never prints a sense
+    # number inside a reference. Excluded exactly as an etymology bracket is.
+    # Measured over both source volumes (11,416 entries): 4 candidates fall
+    # inside a reference, and all four are false.
+    cites = [(m.start(), m.end()) for m in _FULL_CITE_RE.finditer(definition)]
 
     cands = []
     for m in _SENSE_CAND_RE.finditer(definition):
         at = m.start() + m.group(0).index(m.group(1))
         if any(a <= at < b for a, b in brackets):
+            continue
+        if any(a <= at < b for a, b in cites):
             continue
         if _MORPH_RE.match(definition[at + len(m.group(1)):].lstrip()):
             continue
@@ -759,6 +778,26 @@ def _unbalanced(text: str) -> bool:
             depth[opener[ch]] -= 1
     return any(depth.values())
 
+# A SUFFIX in brackets: "Ἀβυδόθεν [-θεν], from Abydus", "Κρήτηνδε [-δε], to
+# Crete". Cunliffe hangs the derived adverbs of a place name off the entry this
+# way, naming the ending he derived them with — his own note, in his own
+# notation, and never a phrase of Homer's.
+#
+# It reads as one because the adverb is Greek and its gloss is English, so the
+# lead came through as a quotation and the entry printed "Ἀβυδόθεν [-θεν], from
+# Abydus" as though the Iliad contained it.
+#
+# The bracket is what tells the two apart, and it is the OPENING HYPHEN that
+# does the telling, not the bracket. Cunliffe also supplies an implied word
+# inside a genuine quotation — ἀμφοτέρῃσι [χερσίν], κλέψαι [Ἕκτορα] ὀτρύνεσκον
+# Ἀργειφόντην, Διὸς [δώματος] ἐ. — and those hold a WORD. Measured over both
+# source volumes (11,416 entries): 63 suffix brackets in 55 entries, 39 of them
+# reaching a quotation; the other 251 bracketed quotations all hold a word, and
+# not one of the 39 is Homer. Τηΰγετον's "[Cunliffe prints -ος]" carries a
+# hyphen too and is correctly left alone: the bracket does not OPEN with it.
+_SUFFIX_BRACKET_RE = re.compile(r"\[-[^\]]*\]")
+
+
 # One of Cunliffe's parentheses, innermost first so a nested pair is still seen.
 _INNER_PAREN_RE = re.compile(r"\(([^()]*)\)")
 
@@ -859,6 +898,13 @@ def split_evidence(evidence: str) -> list[dict]:
         if (_GREEK_RE.search(core) and _has_english(core)
                 and (_unbalanced(core) or _paren_holds_cite(core))):
             q = len(body)
+        # A derived adverb Cunliffe names by its ending — see
+        # _SUFFIX_BRACKET_RE. Tested on its own rather than joined to the
+        # English above, because four of these carry too little English to
+        # count ("Μυκήνηθεν [-θεν], from M.", "Κόωνδε [-δε], to C.") and the
+        # bracket alone already settles it.
+        elif _SUFFIX_BRACKET_RE.search(core):
+            q = len(body)
         # A cross-reference to another sense is his prose too — see
         # _holds_sense_ref.
         elif _holds_sense_ref(core):
@@ -925,7 +971,8 @@ def split_evidence(evidence: str) -> list[dict]:
         # ("But the sense my (cf. ἡμέτερος 2) is always admissible …") and
         # that Greek made the paragraph a quotation of Homer.
         if (gm and not _depth_at(tail, depth[pos], gm.start())
-                and not _holds_sense_ref(tail)):
+                and not _holds_sense_ref(tail)
+                and not _SUFFIX_BRACKET_RE.search(tail)):
             segments[-1]["ex"].append({"g": tail})
         elif _TRAILING_NOTE_RE.fullmatch(tail):
             _append_note(segments[-1], tail)
@@ -1030,6 +1077,47 @@ def _fold_leading_ref_note(rows: list[dict]) -> None:
             i += 1
             continue
         out.append(r)
+        i += 1
+    rows[:] = out
+
+
+def _drop_empty_rows(rows: list[dict]) -> None:
+    """A row with no definition, no quotation and no citation is a blank line.
+
+    Two shapes reach here, and they are not the same thing.
+
+    A row with NO NUMBER carries nothing whatever: the sense's whole evidence
+    opened a continuation segment, and the row it continues was left with the
+    definition split_evidence had already handed forward. 86 of these, and
+    dropping one loses no character — which is why the corpus audit cannot see
+    them and only reading the entry can.
+
+    A NUMBERED one is different: the number is Cunliffe's, and it is the only
+    thing the row holds. ἀκριτόμυθος's "2 Hard to be discerned or interpreted
+    ὄνειροι Od. 19.560" splits at the quotation and leaves "2" standing alone
+    above its own definition, so the entry prints a bare "2" and then an
+    unnumbered sense. The number moves onto the row that follows — but only
+    onto a continuation of the same sense, never onto a banner and never onto
+    a row that has a number of its own. 50 of these move; one does not
+    (δίφρος, whose sense 1 has no definition because its sub-senses a and b
+    carry it, and that is how Cunliffe wrote it).
+    """
+    out: list[dict] = []
+    i, n = 0, len(rows)
+    while i < n:
+        r = rows[i]
+        if (r.get("b") or (r.get("z") or "").strip()
+                or r.get("ex") or r.get("au")):
+            out.append(r)
+            i += 1
+            continue
+        nxt = rows[i + 1] if i + 1 < n else None
+        if r.get("n"):
+            if nxt is not None and not nxt.get("b") and not nxt.get("n"):
+                nxt["n"] = r["n"]
+                i += 1
+                continue
+            out.append(r)
         i += 1
     rows[:] = out
 
@@ -1206,6 +1294,7 @@ def to_t8(key: str, headword: str, definition: str, resolve=None) -> dict:
         _lift_subsense(rows)
         _move_leading_notes(rows)
         _fold_leading_ref_note(rows)
+        _drop_empty_rows(rows)
         for r in rows:
             if r.get("z"):
                 r["z"] = _markup(r["z"], resolve)
@@ -1269,6 +1358,7 @@ def to_t8(key: str, headword: str, definition: str, resolve=None) -> dict:
     _lift_subsense(rows)
     _move_leading_notes(rows)
     _fold_leading_ref_note(rows)
+    _drop_empty_rows(rows)
 
     # `gr` names the divisions grammata may turn into a tab strip. It does so
     # only at >= 2 divisions AND >= 10 rows: measured here, 43 entries carry two
