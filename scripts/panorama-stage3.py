@@ -6408,7 +6408,14 @@ def build(terr, cam, plate_json):
 
     # wall and ditch, then huts, then ships: inland to seaward is also far to
     # near in this camera, so painter order is depth order.
-    body.append(f'<g class="tm2">{wall_svg}{ditch_svg}</g>')
+    # NOT tm2: the wall and ditch are camp-scale terrain, like the huts (see
+    # the huts'-shadows note just below) -- not full-detail-only content like
+    # the ship glyphs. Tier 1 (the plain "full" render both plates use) sets
+    # `.tm2,.tm3{display:none}`, so a tm2 wrapper here hid the ENTIRE group
+    # at every ordinary render regardless of stroke width -- confirmed by
+    # re-shooting a copy of stage3-B-fullstage2c.svg with tier 1's CSS
+    # swapped for tier 2's: the wall and ditch appeared exactly as drawn.
+    body.append(f'<g>{wall_svg}{ditch_svg}</g>')
     # the camp's own shadows go down on the beach BEFORE what throws them: a
     # true-length shadow under every hull and every hut is most of what makes
     # the camp read as objects standing on ground rather than marks on paper.
