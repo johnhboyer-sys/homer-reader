@@ -2619,3 +2619,235 @@ def test_the_key_declares_the_enlargement_and_the_props(s3):
     assert max(ys) <= s3.H - s3.NEAT_M, (
         f"the key's new row is being paid for out of the sheet: last baseline "
         f"y={max(ys):.0f} on {s3.H:.0f} px")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# the beach is the Aegean, not the bay (ruling 4, 2026-09-02)
+# ═══════════════════════════════════════════════════════════════════════════
+KRAFT_2003 = (
+    "Kraft, John C., George Rapp, Ilhan Kayan, and John V. Luce. "
+    '"Harbor Areas at Ancient Troy: Sedimentology and Geomorphology '
+    'Complement Homer\'s Iliad." Geology 31, no. 2 (2003): 163-66.'
+)
+
+
+def _camp_polys():
+    lay = _plate_layers()
+    return (lay["sea-modern"]["polygon"],
+            lay["lagoon-bronze"]["polygon"],
+            lay["achaean-camp-zone"]["polygon"])
+
+
+def _easting(s3, lat, lon, origin):
+    return s3.pp._flat_m((lat, lon), *origin)[0]
+
+
+@pytest.fixture
+def restore_camera(s3):
+    saved = (s3.VIEWPOINT, s3.HEADING_DEG, s3.ALT, s3.SETBACK,
+             s3.RANGE_NEAR, s3.HFOV_DEG, s3.FOCAL)
+    yield
+    (s3.VIEWPOINT, s3.HEADING_DEG, s3.ALT, s3.SETBACK,
+     s3.RANGE_NEAR, s3.HFOV_DEG, s3.FOCAL) = saved
+
+
+def test_every_berth_is_on_the_aegean_flank_west_of_the_zone(s3):
+    """The fleet beaches on sea-modern, west of the Sigeum-ridge camp zone,
+    never in the reconstructed bay."""
+    sea, lagoon, zone = _camp_polys()
+    fleet = s3.aegean_fleet(sea, zone, lagoon)
+    berths = fleet["berths"]
+    origin = fleet["origin"]
+    assert berths, "the Aegean beach produced no berths"
+    for along, _row, f, lat, lon, _brg in berths:
+        assert not s3.point_in_poly_ll(lat, lon, sea), (
+            f"berth {(lat, lon)} is inside sea-modern")
+        assert not s3.point_in_poly_ll(lat, lon, lagoon), (
+            f"berth {(lat, lon)} is inside lagoon-bronze")
+        assert not s3.point_in_poly_ll(lat, lon, zone), (
+            f"berth {(lat, lon)} is inside the ridge-crest zone")
+        assert f > 0.0, (
+            f"berth {(lat, lon)} is not seaward of the camp axis")
+        if abs(along) < 40.0:
+            assert _easting(s3, lat, lon, origin) < 0.0, (
+                f"mid-camp berth {(lat, lon)} is not west of the centroid")
+
+
+def test_the_rearmost_rank_is_east_of_the_frontmost(s3):
+    """Ranks step landward (east) from the Aegean waterline."""
+    sea, lagoon, zone = _camp_polys()
+    berths = s3.aegean_fleet(sea, zone, lagoon)["berths"]
+    rows = {}
+    for _along, row, _f, lat, lon, _brg in berths:
+        rows.setdefault(row, []).append((lat, lon))
+    assert 0 in rows and (s3.FLEET_ROWS - 1) in rows
+    front_e = sum(p[1] for p in rows[0]) / len(rows[0])
+    rear_e = sum(p[1] for p in rows[s3.FLEET_ROWS - 1]) / len(rows[s3.FLEET_ROWS - 1])
+    assert rear_e > front_e, (
+        f"rearmost rank lon {rear_e:.5f} is not east of frontmost {front_e:.5f}")
+
+
+def test_the_achaean_wall_is_dry_east_of_the_sterns_west_of_the_centroid(s3):
+    """Il. 7.436-41 / 14.30-36: wall landward of the rearmost sterns, still
+    on the outer flank, not in the bay."""
+    sea, lagoon, zone = _camp_polys()
+    fleet = s3.aegean_fleet(sea, zone, lagoon)
+    wlat, wlon = fleet["wall"]
+    origin = fleet["origin"]
+    assert not s3.point_in_poly_ll(wlat, wlon, sea), "wall is in the Aegean"
+    assert not s3.point_in_poly_ll(wlat, wlon, lagoon), "wall is in the bay"
+    wall_e = _easting(s3, wlat, wlon, origin)
+    assert wall_e < 0.0, "wall is not west of the camp-zone centroid"
+    # the waypoint is the central station; the wall line itself sits
+    # landward of that station's sterns (the north end of a 13.3° beach
+    # is east of this one pin and is not what the pin claims)
+    mid = [q for q in fleet["berths"] if abs(q[0]) < 20.0]
+    assert mid, "no sterns at the wall's central station"
+    for _along, _row, _f, lat, lon, _brg in mid:
+        assert wall_e > _easting(s3, lat, lon, origin), (
+            f"wall is not east of stern at {(lat, lon)}")
+
+
+def test_the_true_fleet_hull_count_is_at_least_200(s3):
+    """Diagnosis 2026-09-02 (ruling 4): the pre-move (bay-side) true fleet
+    drew 258 hulls; near_camp's polygon-vertex blob was gating berths
+    against the ridge-LANDFORM zone (not a thin crest — 600-900 m wide
+    station to station, apparatus/plates/trojan-plain.json's own note on
+    achaean-camp-zone) for no reason connected to whether a berth is a sane
+    place to stand a ship, rejecting ~1/4 of otherwise-good stations. Camera
+    framing aside (a single render only ever shows a slice of 9 km), the
+    beach itself must still hold a fleet of the pre-move's own order — not
+    the 28 a bad gate left standing."""
+    sea, lagoon, zone = _camp_polys()
+    berths = s3.aegean_fleet(sea, zone, lagoon, pitch=13.0, rows=s3.FLEET_ROWS,
+                             row_m=s3.FLEET_ROW_M,
+                             first_m=s3.FLEET_FIRST_M)["berths"]
+    assert len(berths) >= 200, (
+        f"the Aegean beach holds only {len(berths)} true-fleet berths, well "
+        f"under the pre-move (bay-side) fleet's own 258")
+
+
+def test_every_hut_stands_east_of_the_true_fleet_at_its_station(s3):
+    """Huts behind the ships, not among them: the huts loop's own front row
+    (scripts/panorama-stage3.py ~5407-5409, fs - 300 m) must sit east
+    (landward, a smaller west-offset) of even the true fleet's deepest,
+    most-staggered rank (fs - first_m - (rows-1)*row_m - stagger) at the
+    SAME station, for every station the beach actually offers."""
+    sea, lagoon, zone = _camp_polys()
+    fleet = s3.aegean_fleet(sea, zone, lagoon)
+    HUT_FRONT_M = 300.0          # scripts/panorama-stage3.py: f = fs - 300.0
+    stagger = 11.0                # aegean_fleet's own default
+    deepest_true_rank = (s3.FLEET_FIRST_M
+                         + (s3.FLEET_ROWS - 1) * s3.FLEET_ROW_M + stagger)
+    assert HUT_FRONT_M > deepest_true_rank, (
+        f"the huts' front row ({HUT_FRONT_M} m back from shore) is not east "
+        f"of the true fleet's deepest rank ({deepest_true_rank:.0f} m)")
+    # and the same holds against every station's own measured shore, not
+    # just the constants above
+    for lateral, fs in fleet["shore"].items():
+        if fs is None:
+            continue
+        hut_f = fs - HUT_FRONT_M
+        stern_f = fs - deepest_true_rank
+        assert hut_f < stern_f, (
+            f"at along={lateral:.0f}, hut offset {hut_f:.0f} is not east of "
+            f"the deepest stern offset {stern_f:.0f}")
+
+
+def test_the_wall_line_is_east_of_every_true_fleet_stern(s3):
+    """The drawn wall (per-station, camp()'s wall_pts) is placed at
+    fs - wall_back for every station using the SAME global wall_back
+    (layout['wall_back']); confirm that offset clears the true fleet's own
+    deepest, most-staggered rank at every station the beach offers, so the
+    wall never lands in front of (west of) a stern (Il. 7.436-441: the wall
+    is built at the ships' sterns, landward of them)."""
+    sea, lagoon, zone = _camp_polys()
+    fleet = s3.aegean_fleet(sea, zone, lagoon)
+    stagger = 11.0
+    deepest_true_rank = (s3.FLEET_FIRST_M
+                         + (s3.FLEET_ROWS - 1) * s3.FLEET_ROW_M + stagger)
+    assert fleet["wall_back"] > deepest_true_rank, (
+        f"wall_back ({fleet['wall_back']:.0f} m) is not east of the true "
+        f"fleet's deepest rank ({deepest_true_rank:.0f} m)")
+    for lateral, fs in fleet["shore"].items():
+        if fs is None:
+            continue
+        wall_f = fs - fleet["wall_back"]
+        stern_f = fs - deepest_true_rank
+        assert wall_f < stern_f, (
+            f"at along={lateral:.0f}, wall offset {wall_f:.0f} is not east "
+            f"of the deepest stern offset {stern_f:.0f}")
+
+
+def test_the_ditch_is_west_of_the_wall(s3):
+    """20 m outside (west of) the wall, toward the sea."""
+    sea, lagoon, zone = _camp_polys()
+    fleet = s3.aegean_fleet(sea, zone, lagoon)
+    origin = fleet["origin"]
+    ditch_e = _easting(s3, fleet["ditch"][0], fleet["ditch"][1], origin)
+    wall_e = _easting(s3, fleet["wall"][0], fleet["wall"][1], origin)
+    assert ditch_e < wall_e, (
+        f"ditch easting {ditch_e:.1f} is not west of wall {wall_e:.1f}")
+
+
+def test_cli_viewpoint_reaches_the_camera(s3, restore_camera):
+    """--viewpoint LAT,LON is applied before Camera reads VIEWPOINT."""
+    ns = s3.build_arg_parser().parse_args(["--viewpoint", "39.95,26.16"])
+    s3.apply_camera_args(ns)
+    assert s3.VIEWPOINT[0] == pytest.approx(39.95)
+    assert s3.VIEWPOINT[1] == pytest.approx(26.16)
+    cam = s3.Camera(None, pitch=math.radians(13.23))
+    p = cam.project_ll(39.95, 26.16, 0.0)
+    assert p is not None, "Camera does not see the flagged viewpoint"
+    assert abs(p[0] - s3.W / 2.0) < 2.0, (
+        f"flagged viewpoint projects at x={p[0]:.1f}, not frame centre")
+
+
+def test_the_ships_camera_target_row_exists(s3):
+    wps = [{
+        "id": "ilios", "name": "Ilios", "greek": "Ἴλιος", "tier": 1,
+        "positionBasis": "measured", "citation": "Il. 3.145",
+        "tradition": "", "rule": "", "kind": "settlement",
+        "at": [39.957, 26.239],
+        "_screen": [1200.0, 400.0, 7000.0],
+        "_label": [1200.0, 400.0],
+    }]
+    stats = {
+        "fleet_centroid": [39.9520, 26.1610],
+        "fleet_centroid_screen": [900.0, 800.0, 1800.0],
+    }
+    tgt = s3.camera_targets(wps, stats)
+    ships = next((r for r in tgt["targets"] if r["id"] == "ships"), None)
+    assert ships is not None, "camera_targets has no ships row"
+    assert ships["showTiers"] == [1, 2]
+    assert ships["at"] == [39.9520, 26.1610]
+
+
+def test_the_subtitle_is_from_above_the_camp(s3):
+    svg = s3.furniture(None, None, 2600.0, 5500.0)
+    assert "from above the Achaean camp" in svg
+    assert "from the Achaean camp" not in svg.replace(
+        "from above the Achaean camp", "")
+
+
+def test_the_camp_key_names_the_outer_flank_and_the_modern_coast(s3):
+    """Placement sentence names Kraft 2003 (short form — the sheet's margin
+    is a fixed 300 px and cannot carry the full Chicago citation without
+    colliding with the key above it, diagnosed 2026-09-02) and the
+    modern-coast caveat; the citation itself carries in the DATA, per
+    CLAUDE.md's apparatus-sourcing rule ("every sourced claim carries its
+    citation in the data, not just the prose") — the achaean-camp-zone
+    layer's own `sources`, asserted below."""
+    key = " ".join(n + " " + g for n, g in s3.CAMP_KEY) + " " + s3.DRAWN_MARKS
+    assert "Kraft" in key and "2003" in key
+    assert "outer" in key.lower() or "Aegean" in key
+    assert "modern" in key.lower()
+    lay = _plate_layers()
+    zone_cites = " ".join(s["cite"] for s in lay["achaean-camp-zone"]["sources"])
+    assert KRAFT_2003 in zone_cites, (
+        "the full Kraft 2003 citation is missing from the achaean-camp-zone "
+        "layer's own sources — the sheet's short form has nothing to point at")
+    src = open(STAGE3).read()
+    wp = src.split('add("achaean-wall"', 1)[1].split("add(", 1)[0]
+    assert "embayment" not in wp, "the wall note still explains the old bay beach"
+    assert "1500.0" not in wp, "the wall is still pinned 1500 m into the bay"

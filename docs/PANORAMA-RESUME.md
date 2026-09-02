@@ -62,7 +62,9 @@ numbers**, which was its first checkpoint — so nothing is verified yet.
 
 - **Foreground** — ships on the beach, the camp, the wall and ditch (Il.
   7.436–41). Sectors by holder, never left/right: Ajax's end east toward
-  Rhoiteion, Achilles' end west toward Sigeion (ruling 2a).
+  Rhoiteion, Achilles' end west toward Sigeion (ruling 2a). The 2026-09-02
+  outer-flank beach does not change this: Sigeion is still the northern end
+  of the ridge, Rhoiteion the other headland.
 - **Midground** — the plain; Scamander and Simoeis; the ford; the wagon-road;
   the tomb of Ilos (11.166–72); the oak; the fig tree; the two springs
   (22.145–56).

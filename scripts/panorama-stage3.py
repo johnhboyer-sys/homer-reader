@@ -1971,6 +1971,157 @@ ODYSSEUS_TWELVE = 12        # δυώδεκα μιλτοπάρῃοι, Il. 2.637,
                             # is the poem's own — the only count on this
                             # beach that IS a claim
 
+# ── THE BEACH IS THE AEGEAN, NOT THE BAY (ruling 4, 2026-09-02) ──────────
+# Kraft, Rapp, Kayan & Luce 2003 (after Luce 1998) put the camp on the
+# outer (west) flank of the Sigeum ridge. The zone polygon's long axis
+# bears 13.3°; seaward is perpendicular, west, 283.3°. The dossier has no
+# published Bronze Age reconstruction of this outer coast, so the berth
+# line is the modern Aegean shoreline (sea-modern).
+CAMP_AXIS_DEG = 13.3
+CAMP_SEAWARD_DEG = (CAMP_AXIS_DEG - 90.0) % 360.0   # 283.3, west
+WALL_BEHIND_STERN_M = 60.0
+DITCH_WEST_OF_WALL_M = 20.0
+FLEET_FIRST_M = 66.0
+KRAFT_2003_CITE = (
+    "Kraft, John C., George Rapp, Ilhan Kayan, and John V. Luce. "
+    '"Harbor Areas at Ancient Troy: Sedimentology and Geomorphology '
+    'Complement Homer\'s Iliad." Geology 31, no. 2 (2003): 163-66.'
+)
+
+
+def camp_origin(camp_zone):
+    return (sum(p[0] for p in camp_zone) / len(camp_zone),
+            sum(p[1] for p in camp_zone) / len(camp_zone))
+
+
+def camp_ll(origin, along, west):
+    """Metres along the camp axis and west (seaward) of the centroid."""
+    p = pp._dest_point(origin, CAMP_AXIS_DEG, along)
+    return pp._dest_point(p, CAMP_SEAWARD_DEG, west)
+
+
+def aegean_fleet(sea_poly, camp_zone, lagoon_poly=None, pitch=13.0, rows=None,
+                 row_m=None, first_m=None, stagger=11.0):
+    """Stern anchors on the Aegean beach: west of the camp zone, dry against
+    sea-modern, ranks stepping landward (east). No camera, no DEM."""
+    if rows is None:
+        rows = FLEET_ROWS
+    if row_m is None:
+        row_m = FLEET_ROW_M
+    if first_m is None:
+        first_m = FLEET_FIRST_M
+    origin = camp_origin(camp_zone)
+    alongs = []
+    ath = math.radians(CAMP_AXIS_DEG)
+    for p in camp_zone:
+        e, n = pp._flat_m(p, *origin)
+        alongs.append(e * math.sin(ath) + n * math.cos(ath))
+    a0, a1 = min(alongs), max(alongs)
+    # shore samples stay on the true fleet's 13 m grid; berths may step wider
+    lat_span = [x * 13.0 for x in range(int(math.floor(a0 / 13.0)),
+                                        int(math.ceil(a1 / 13.0)) + 1)]
+
+    def wet(f, along):
+        lat, lon = camp_ll(origin, along, f)
+        return point_in_poly_ll(lat, lon, sea_poly)
+
+    def west_edge(along):
+        lo = None
+        f = -400.0
+        while f < 2000.0:
+            lat, lon = camp_ll(origin, along, f)
+            if point_in_poly_ll(lat, lon, camp_zone):
+                lo = f
+            elif lo is not None and f > 0:
+                break
+            f += 25.0
+        return lo
+
+    def shore_at(along):
+        edge = west_edge(along)
+        if edge is None:
+            return None
+        lo = None
+        f = edge
+        while f < edge + 2500.0:
+            if wet(f, along):
+                if lo is None:
+                    return None
+                a, b = lo, f
+                for _ in range(4):
+                    mid = 0.5 * (a + b)
+                    if wet(mid, along):
+                        b = mid
+                    else:
+                        a = mid
+                return a
+            lo = f
+            f += 25.0
+        return None
+
+    shore = {L: shore_at(L) for L in lat_span}
+
+    def seaward(lateral):
+        xs, ys = [], []
+        for k in range(-5, 6):
+            q = shore.get(round((lateral + k * 13.0) / 13.0) * 13.0)
+            if q is not None:
+                xs.append(k * 13.0)
+                ys.append(q)
+        if len(xs) < 4:
+            return CAMP_SEAWARD_DEG
+        mx = sum(xs) / len(xs)
+        my = sum(ys) / len(ys)
+        den = sum((x - mx) ** 2 for x in xs)
+        if den <= 0:
+            return CAMP_SEAWARD_DEG
+        dfdl = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / den
+        nf, nl = 1.0, -dfdl
+        L = math.hypot(nf, nl)
+        th_s = math.radians(CAMP_SEAWARD_DEG)
+        th_a = math.radians(CAMP_AXIS_DEG)
+        de = (nf * math.sin(th_s) + nl * math.sin(th_a)) / L
+        dn = (nf * math.cos(th_s) + nl * math.cos(th_a)) / L
+        return math.degrees(math.atan2(de, dn)) % 360.0
+
+    berths = []
+    for lateral in [x * pitch for x in
+                    range(int(math.floor(a0 / pitch)),
+                          int(math.ceil(a1 / pitch)) + 1)]:
+        fs = shore.get(round(lateral / 13.0) * 13.0)
+        if fs is None:
+            fs = shore_at(lateral)
+        if fs is None:
+            continue
+        bearing = seaward(round(lateral / 13.0) * 13.0)
+        for row in range(rows):
+            f = fs - first_m - row * row_m + (stagger if row % 2 else 0.0)
+            if f < 60:
+                continue
+            lat, lon = camp_ll(origin, lateral, f)
+            if point_in_poly_ll(lat, lon, camp_zone):
+                continue
+            if lagoon_poly and point_in_poly_ll(lat, lon, lagoon_poly):
+                continue
+            berths.append((lateral, row, f, lat, lon, bearing))
+
+    along0 = 0.0
+    fs0 = shore.get(0.0)
+    if fs0 is None:
+        sampled = [(abs(k), k, v) for k, v in shore.items() if v is not None]
+        if sampled:
+            _, along0, fs0 = min(sampled)
+    wall_back = first_m + (rows - 1) * row_m + WALL_BEHIND_STERN_M
+    ditch_back = wall_back - DITCH_WEST_OF_WALL_M
+    wall = camp_ll(origin, along0, fs0 - wall_back) if fs0 is not None else origin
+    ditch = camp_ll(origin, along0, fs0 - ditch_back) if fs0 is not None else origin
+    return {
+        "origin": origin, "shore": shore, "berths": berths,
+        "wall": wall, "ditch": ditch, "along0": along0, "fs0": fs0,
+        "wall_back": wall_back, "ditch_back": ditch_back,
+        "a0": a0, "a1": a1,
+    }
+
 SHIP_STATIONS = [(0.00, 0.30), (0.14, 0.46), (0.34, 0.50), (0.60, 0.48),
                  (0.82, 0.36), (0.95, 0.18), (1.00, 0.06)]
 SHIP_DECK_H = 2.4         # true, and true is the point (see built_h)
@@ -4927,20 +5078,18 @@ class Plate:
         At 4x and 8x the tier-1 rank switches off and the true fleet — 13 m
         pitch, three ranks, 4.2 m beam, every hull true — is underneath."""
         cam, terr = self.cam, self.terr
-        lagoon_poly = self.shore("lagoon-bronze")
+        sea_poly = self.shore("sea-modern")
         camp_zone = self.lay["achaean-camp-zone"]["polygon"]
-        th = math.radians(HEADING_DEG)
+        layout = aegean_fleet(sea_poly, camp_zone, self.shore("lagoon-bronze"))
+        origin = layout["origin"]
+        th = math.radians(CAMP_SEAWARD_DEG)
 
         def wet(f, lateral):
-            e = f * math.sin(th) + lateral * math.cos(th)
-            n = f * math.cos(th) - lateral * math.sin(th)
-            return point_in_poly_ll(
-                VIEWPOINT[0] + n / 111132.0,
-                VIEWPOINT[1] + e / (111320.0 * math.cos(math.radians(VIEWPOINT[0]))),
-                lagoon_poly)
+            lat, lon = camp_ll(origin, lateral, f)
+            return point_in_poly_ll(lat, lon, sea_poly)
 
         def shore_forward(lateral):
-            """How far forward the beach runs on this line, REFINED to about
+            """How far west the beach runs on this station, REFINED to about
             a metre. It used to return the last dry 25 m step, and the 25 m
             staircase was invisible in everything that consumed it except the
             one thing that differentiates it: the prow bearing below took the
@@ -4948,11 +5097,22 @@ class Plate:
             a 44-degree swing, and adjacent ships in the same rank pointed
             44 degrees apart. At a 2.7 px hull nobody could see it. At the
             overview's glyph it was the whole defect — a rank that looked
-            like a heap."""
+            like a heap.
+
+            Walk starts at the camp zone's west edge, not at the camera:
+            the beach is the Aegean, ~700 m west of the ridge-crest zone."""
+            q = layout["shore"].get(round(lateral / 13.0) * 13.0)
+            if q is not None:
+                return q
             lo = None
-            f = 100.0
-            while f < 5200.0:
-                if wet(f, lateral):
+            f = -400.0
+            started = False
+            while f < 4000.0:
+                lat, lon = camp_ll(origin, lateral, f)
+                in_zone = point_in_poly_ll(lat, lon, camp_zone)
+                if in_zone:
+                    started = True
+                if started and wet(f, lateral):
                     if lo is None:
                         return None
                     a, b = lo, f
@@ -4963,23 +5123,34 @@ class Plate:
                         else:
                             a = mid
                     return a
-                lo = f
+                if started or in_zone:
+                    lo = f
                 f += 25.0
             return None
 
         def near_camp(lat, lon, margin_m=380.0):
+            """The zone polygon is the ridge crest/plateau, 13-24 m up; the
+            beach sits ~700 m west of its west edge down the scarp. A 380 m
+            vertex blob never reaches that sand, so the gate also accepts a
+            point from which an eastward walk hits the zone (the zone's own
+            west apron). Widening the blob would have admitted the bay side
+            too; measuring from the west edge does not."""
             if point_in_poly_ll(lat, lon, camp_zone):
                 return True
             for plat, plon in camp_zone:
                 if math.hypot(*pp._flat_m((plat, plon), lat, lon)) < margin_m:
                     return True
+            landward = (CAMP_SEAWARD_DEG + 180.0) % 360.0
+            d = 25.0
+            while d <= 1000.0:
+                plat, plon = pp._dest_point((lat, lon), landward, d)
+                if point_in_poly_ll(plat, plon, camp_zone):
+                    return True
+                d += 25.0
             return False
 
         def ll(f, lateral):
-            e = f * math.sin(th) + lateral * math.cos(th)
-            n = f * math.cos(th) - lateral * math.sin(th)
-            return (VIEWPOINT[0] + n / 111132.0,
-                    VIEWPOINT[1] + e / (111320.0 * math.cos(math.radians(VIEWPOINT[0]))))
+            return camp_ll(origin, lateral, f)
 
         # ROWS, at the poem's own reason for them: the beach could not hold
         # the fleet in one line (14.31-36) -- οὐδὲ γὰρ οὐδ' εὐρύς περ ἐὼν
@@ -5011,8 +5182,10 @@ class Plate:
         HUT_SIL = [((-2.5, -3.5), 1.8), ((-2.5, 3.5), 1.8),
                    ((2.5, -3.5), 1.8), ((2.5, 3.5), 1.8),
                    ((0.0, -3.5), 3.2), ((0.0, 3.5), 3.2)]
-        lat_span = [x * 13.0 for x in range(-70, 150)]
-        shore = {L: shore_forward(L) for L in lat_span}
+        lat_span = [x * 13.0 for x in range(
+            int(math.floor(layout["a0"] / 13.0)),
+            int(math.ceil(layout["a1"] / 13.0)) + 1)]
+        shore = layout["shore"]
 
         def seaward(lateral):
             """The bearing a hull's prow takes: the OUTWARD NORMAL OF THE
@@ -5035,18 +5208,20 @@ class Plate:
                     xs.append(k * 13.0)
                     ys.append(q)
             if len(xs) < 4:
-                return HEADING_DEG
+                return CAMP_SEAWARD_DEG
             mx = sum(xs) / len(xs)
             my = sum(ys) / len(ys)
             den = sum((x - mx) ** 2 for x in xs)
             if den <= 0:
-                return HEADING_DEG
+                return CAMP_SEAWARD_DEG
             dfdl = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / den
             nf, nl = 1.0, -dfdl
             L = math.hypot(nf, nl)
-            de = (nf * math.sin(th) + nl * math.cos(th)) / L
-            dn = (nf * math.cos(th) - nl * math.sin(th)) / L
-            return math.degrees(math.atan2(de, dn))
+            th_s = math.radians(CAMP_SEAWARD_DEG)
+            th_a = math.radians(CAMP_AXIS_DEG)
+            de = (nf * math.sin(th_s) + nl * math.sin(th_a)) / L
+            dn = (nf * math.cos(th_s) + nl * math.cos(th_a)) / L
+            return math.degrees(math.atan2(de, dn)) % 360.0
 
         def dry_at(lateral):
             """The waterline on this line of the beach, from the cache where
@@ -5096,14 +5271,27 @@ class Plate:
             and the middle of the line is not known until the whole line
             is."""
             out = []
-            # the same frontage the beach has always been tested over,
-            # -910 m to 1950 m of lateral, sampled at whatever pitch asks
+            # the camp zone's own long axis, sampled at whatever pitch asks.
+            #
+            # STATION ACCEPTANCE IS BY THE SHORE WALK ALONE, not by
+            # near_camp's polygon-vertex blob (ruling 4 diagnosis,
+            # 2026-09-02): the zone polygon is the RIDGE LANDFORM's own
+            # outline (apparatus/plates/trojan-plain.json note on
+            # achaean-camp-zone), 600-900 m wide station to station because
+            # it is a real hill, not a thin crest line -- so a berth's
+            # near_camp() eastward walk (capped at 1000 m) missed it at
+            # ~1/4 of stations for no reason connected to whether the berth
+            # is a sane place to put a ship. The shore walk already answers
+            # the only question that matters -- is this station's waterline
+            # within reach of the axis at all -- so a bare distance check on
+            # fs replaces it.
             for lateral in [x * pitch for x in
-                            range(int(-910.0 / pitch), int(1950.0 / pitch))]:
+                            range(int(math.floor(layout["a0"] / pitch)),
+                                  int(math.ceil(layout["a1"] / pitch)) + 1)]:
                 fs = shore.get(round(lateral / 13.0) * 13.0)
                 if fs is None:
                     fs = shore_forward(lateral)
-                if fs is None:
+                if fs is None or fs > 1500.0:
                     continue
                 bearing = seaward(round(lateral / 13.0) * 13.0)
                 for row in range(rows):
@@ -5111,7 +5299,11 @@ class Plate:
                     if f < 60:
                         continue
                     lat, lon = ll(f, lateral)
-                    if terr.elev(lat, lon) > 16.0 or not near_camp(lat, lon):
+                    if point_in_poly_ll(lat, lon, camp_zone):
+                        continue
+                    if point_in_poly_ll(lat, lon, self.shore("lagoon-bronze")):
+                        continue
+                    if terr.elev(lat, lon) > 16.0:
                         continue
                     if afloat(f, lateral, bearing, reach_m):
                         continue
@@ -5149,7 +5341,8 @@ class Plate:
                                           berth_list[i][1]))
             return set(order[:n])
 
-        true_berths = berths(13.0, FLEET_ROWS, FLEET_ROW_M, reach_m=24.0)
+        true_berths = berths(13.0, FLEET_ROWS, FLEET_ROW_M, first_m=FLEET_FIRST_M,
+                             reach_m=24.0)
         red = miltos(true_berths, ODYSSEUS_TWELVE)
         for i, (lateral, row, f, lat, lon, bearing, sp) in enumerate(true_berths):
             sh = ship(cam, terr, lat, lon, bearing, props=True,
@@ -5184,7 +5377,25 @@ class Plate:
                     obj_sh_t1.append(sd)
 
         huts = []
-        for lateral in [x * 34.0 for x in range(-26, 58)]:
+        # HUTS BEHIND THE SHIPS, not across the whole 9 km zone. The zone
+        # polygon is the ridge landform's own outline (diagnosis, ruling 4,
+        # 2026-09-02) and the true fleet only stands where the beach is wide
+        # enough for it -- most of the 9 km has none. Sampling every 34 m of
+        # the zone regardless painted huts the length of the ridge, on the
+        # plateau far from any ship, which is the dense mid-ground field the
+        # camp() docstring's own convention never asked for. Huts are drawn
+        # only over the along-span the true fleet actually occupies (with a
+        # margin so a hut can sit behind the end berths), and only where the
+        # projection lands in frame -- the same test the ships already pass.
+        hut_laterals = ([q[0] for q in true_berths] if true_berths
+                        else [x * 34.0 for x in range(
+                            int(math.floor(layout["a0"] / 34.0)),
+                            int(math.ceil(layout["a1"] / 34.0)) + 1)])
+        hut_lo = min(hut_laterals) - 100.0
+        hut_hi = max(hut_laterals) + 100.0
+        for lateral in [x * 34.0 for x in range(
+                int(math.floor(hut_lo / 34.0)),
+                int(math.ceil(hut_hi / 34.0)) + 1)]:
             fs = shore_forward(lateral)
             if fs is None:
                 continue
@@ -5194,6 +5405,10 @@ class Plate:
                     continue
                 lat, lon = ll(f, lateral)
                 if not near_camp(lat, lon, 260.0):
+                    continue
+                sp = cam.project_ll(lat, lon, built_h(3.2, terr.elev(lat, lon)))
+                if not sp or not (-BLEED < sp[0] < W + BLEED
+                                  and -BLEED < sp[1] < H + BLEED):
                     continue
                 hb = seaward(round(lateral / 13.0) * 13.0) + (17 if row % 2 else -11)
                 hh = hut(cam, terr, lat, lon, hb)
@@ -5223,18 +5438,22 @@ class Plate:
         # road; the towers are what make it a wall. Their SPACING is drawn,
         # their number is not a claim.
         wall_pts, ditch_pts, wall_ground = [], [], []
-        for nth, lateral in enumerate([x * 34.0 for x in range(-22, 52)]):
+        wall_back = layout["wall_back"]
+        ditch_back = layout["ditch_back"]
+        for nth, lateral in enumerate([x * 34.0 for x in range(
+                int(math.floor(layout["a0"] / 34.0)),
+                int(math.ceil(layout["a1"] / 34.0)) + 1)]):
             fs = shore_forward(lateral)
             if fs is None:
                 continue
-            lat, lon = ll(fs - 640.0, lateral)
+            lat, lon = ll(fs - wall_back, lateral)
             if not near_camp(lat, lon, 300.0):
                 continue
             g = terr.elev(lat, lon)
             crest = 4.6 + (3.4 if nth % 4 == 0 else 0.0)
             a = cam.project_ll(lat, lon, built_h(0.0, g))
             b = cam.project_ll(lat, lon, built_h(crest, g))
-            latd, lond = ll(fs - 760.0, lateral)
+            latd, lond = ll(fs - ditch_back, lateral)
             c = cam.project_ll(latd, lond, built_h(0.0, terr.elev(latd, lond)))
             if a and b:
                 wall_pts.append(((a[0], a[1]), (b[0], b[1])))
@@ -5286,6 +5505,19 @@ class Plate:
         self.stats["beach_frontage_m"] = round(
             (max(q[2] for q in ship_px) - min(q[2] for q in ship_px)) if ship_px else 0.0)
         self.stats["obj_shadows"] = len(obj_sh) + len(obj_sh_t1) + len(hut_sh)
+        geo = layout["berths"]
+        if geo:
+            clat = sum(q[3] for q in geo) / len(geo)
+            clon = sum(q[4] for q in geo) / len(geo)
+            self.stats["fleet_centroid"] = [round(clat, 5), round(clon, 5)]
+            spc = cam.project_ll(clat, clon, built_h(0.0, terr.elev(clat, clon)))
+            if spc:
+                self.stats["fleet_centroid_screen"] = [
+                    round(spc[0], 1), round(spc[1], 1), round(spc[2], 1)]
+        self.stats["wall_at"] = [round(layout["wall"][0], 5),
+                                 round(layout["wall"][1], 5)]
+        self.stats["ditch_at"] = [round(layout["ditch"][0], 5),
+                                  round(layout["ditch"][1], 5)]
         return (ships, ships_t1, huts, wall_svg, ditch_svg, ship_px,
                 obj_sh, obj_sh_t1, hut_sh)
 
@@ -5387,14 +5619,13 @@ class Plate:
             "Spratt/Forchhammer identification, editorial ruling 2026-07-30.")
         add("achaean-wall", "the wall of the Achaeans", "τεῖχος", 2, "conjectural",
             "Il. 7.436-441; 12.17-24; 14.30-36",
-            ll_along(VIEWPOINT, HEADING_DEG, 1500.0), 4.6, "line",
-            "Laid parallel to the drawn shoreline, on the landward side of "
-            "the huts — the poem's own order is sea, ships in ranks, then the "
-            "wall at the camp's inland edge with the ditch beyond it "
-            "(14.30-36; 7.440-441). Note the tension this plate does not "
-            "hide: on the Late Bronze Age reconstruction the water the ships "
-            "face is the embayment, and the plain the wall was built against "
-            "lies round its head.")
+            aegean_fleet(self.shore("sea-modern"),
+                         self.lay["achaean-camp-zone"]["polygon"],
+                         self.shore("lagoon-bronze"))["wall"], 4.6, "line",
+            "On the Aegean (outer) flank of the Sigeum ridge, 60 m landward "
+            "of the rearmost sterns, after Kraft, Rapp, Kayan and Luce 2003; "
+            "the beach uses the modern coastline, no Bronze Age reconstruction "
+            "of the outer coast being published in our sources.")
         add("throsmos", "the rising ground of the plain", "θρωσμὸς πεδίοιο", 2,
             "conjectural", "Il. 10.160; 11.56; 20.3", road_pt(0.40), 0.0, "region",
             "On the plain between the ford and the city, where the Trojans "
@@ -5580,7 +5811,9 @@ WATER_KEY = (
 DRAWN_MARKS = (
     "Marks, each a declared convention: ships as hulls in ranks with the huts behind, "
     "filling the frontage in view and never the catalogue’s count; the wall and its "
-    "ditch one line each at the camp’s inland edge (Il. 7.436–441; 14.30–36); a "
+    "ditch one line each at the camp’s inland edge (Il. 7.436–441; 14.30–36); the "
+    "ships beach on the Sigeum ridge’s Aegean flank, modern coast standing in "
+    "(Kraft et al. 2003); a "
     "tumulus a low shadowed mound; the wagon-road one line from the gate onto the "
     "plain (22.146), an open ring at each waypoint in the poem’s own order."
 )
@@ -5591,7 +5824,9 @@ DRAWN_MARKS = (
 CAMP_KEY = (
     ("THE SHIPS", "pitch, νῆες μέλαιναι — Il. 9.235 = 11.824 = 12.107; dark-blue prows, "
      "κυανόπρῳρος — 15.693; vermilion on Odysseus’ twelve alone, μιλτοπάρῃοι — 2.637, "
-     "a block ἐν μεσσάτῳ — 8.222–26"),
+     "a block ἐν μεσσάτῳ — 8.222–26. Beached on the Aegean outer flank of the "
+     "Sigeum ridge; modern coast, no Bronze Age outer-coast reconstruction in "
+     "our sources"),
     ("ON PROPS", "hauled out ὑψοῦ ἐπὶ ψαμάθοις, high on the sands, and shored "
      "on ἕρματα μακρά — Il. 1.485–86; to launch, the props come out — 2.154. "
      "Sterns landward — 14.32. The props draw from 2× up"),
@@ -5661,7 +5896,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
     out.append(f'<text class="pp-l-title" x="{W / 2}" y="{m + 44}" '
                f'text-anchor="middle">THE SHIPS, THE BAY, AND ILIOS</text>')
     out.append(f'<text class="pp-l-note" x="{W / 2}" y="{m + 64}" '
-               f'text-anchor="middle">the plain of Troy from the Achaean camp, '
+               f'text-anchor="middle">the plain of Troy from above the Achaean camp, '
                f'looking east-south-east</text>')
 
     bx = 62.0                      # the margin's own left edge
@@ -6315,6 +6550,37 @@ def camera_targets(wps, plate_stats):
                        "zoom": round(zoom, 2)},
             "showTiers": list(range(1, w["tier"] + 1)),
         })
+    fc = plate_stats.get("fleet_centroid")
+    if fc:
+        scr = plate_stats.get("fleet_centroid_screen") or [W / 2.0, PIC_BOT * 0.6, 2000.0]
+        x, y, d = scr[0], scr[1], scr[2]
+        name = "the ships"
+        chars = max(len(name), 12)
+        lw = chars * 7.2
+        x0 = min(x - 40, x - lw * 0.5) - 60
+        x1 = max(x + 40, x + lw * 0.5) + 60
+        y0 = min(y - 46, y - 24) - 40
+        y1 = max(y + 46, y + 16) + 40
+        min_w, min_h = 1150.0, 647.0
+        bw, bh = max(x1 - x0, min_w), max(y1 - y0, min_h)
+        zoom = min(W / bw, PIC_BOT / bh)
+        zoom = max(1.6, min(4.0, zoom))
+        rows.append({
+            "id": "ships",
+            "name": name,
+            "greek": "νῆες",
+            "tier": 1,
+            "positionBasis": "conjectural",
+            "citation": "Il. 14.30-36; 8.222-26",
+            "tradition": None,
+            "rule": "Fleet centroid on the Aegean (outer) flank of the Sigeum ridge.",
+            "at": [round(fc[0], 5), round(fc[1], 5)],
+            "frame": {"x": x, "y": y, "depthM": d},
+            "camera": {"cx": round((x0 + x1) / 2, 1),
+                       "cy": round((y0 + y1) / 2, 1),
+                       "zoom": round(zoom, 2)},
+            "showTiers": [1, 2],
+        })
     return {
         "id": "panorama-ships-bay-ilios",
         "title": "The Ships, the Bay, and Ilios",
@@ -6380,10 +6646,31 @@ def troy_prominence(terr, cam):
             "prominencePx": round(px, 2)}
 
 
-def main():
+def _parse_latlon(s):
+    parts = s.split(",")
+    if len(parts) != 2:
+        raise argparse.ArgumentTypeError("expected LAT,LON")
+    return (float(parts[0].strip()), float(parts[1].strip()))
+
+
+def build_arg_parser():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=os.path.join(REPO, "build", "panorama"))
     ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--viewpoint", type=_parse_latlon, default=None,
+                    metavar="LAT,LON",
+                    help="camera look-at, default %.4f,%.4f"
+                         % (VIEWPOINT[0], VIEWPOINT[1]))
+    ap.add_argument("--heading", type=float, default=None, metavar="DEG",
+                    help="compass heading, default %g" % HEADING_DEG)
+    ap.add_argument("--alt", type=float, default=None, metavar="M",
+                    help="camera height in metres, default %g" % ALT)
+    ap.add_argument("--setback", type=float, default=None, metavar="M",
+                    help="camera setback behind the viewpoint, default %g" % SETBACK)
+    ap.add_argument("--range-near", type=float, default=None, metavar="M",
+                    help="near edge of the drawn mesh, default %g" % RANGE_NEAR)
+    ap.add_argument("--hfov", type=float, default=None, metavar="DEG",
+                    help="horizontal field of view, default %g" % HFOV_DEG)
     ap.add_argument("--curve", choices=("A", "B", "C"), default=CURVE,
                     help="vertical-exaggeration curve (see ve/exaggerate)")
     ap.add_argument("--ve-near", type=float, default=C_A,
@@ -6428,7 +6715,32 @@ def main():
     ap.add_argument("--variant", action="store_true",
                     help="the comparison render set: full plate in both "
                          "themes, the 8x Ilios crop in both, the camp zoom")
+    return ap
+
+
+def apply_camera_args(args):
+    """Module constants Camera, ring_ranges and project_ll read. Apply
+    before any of those run."""
+    g = globals()
+    if args.viewpoint is not None:
+        g["VIEWPOINT"] = args.viewpoint
+    if args.heading is not None:
+        g["HEADING_DEG"] = float(args.heading)
+    if args.alt is not None:
+        g["ALT"] = float(args.alt)
+    if args.setback is not None:
+        g["SETBACK"] = float(args.setback)
+    if args.range_near is not None:
+        g["RANGE_NEAR"] = float(args.range_near)
+    if args.hfov is not None:
+        g["HFOV_DEG"] = float(args.hfov)
+    g["FOCAL"] = (W / 2.0) / math.tan(math.radians(g["HFOV_DEG"]) / 2.0)
+
+
+def main():
+    ap = build_arg_parser()
     args = ap.parse_args()
+    apply_camera_args(args)
     globals()["CURVE"] = args.curve
     set_curve(args.ve_near, args.ve_scale)
     set_light(args.shade_az, args.shade_alt)
@@ -6472,8 +6784,21 @@ def main():
 
     prom = troy_prominence(terr, cam)
     print("Ilios: " + " ".join(f"{k}={v}" for k, v in prom.items()))
+    print(f"camera viewpoint {VIEWPOINT[0]:.4f},{VIEWPOINT[1]:.4f} "
+          f"heading {HEADING_DEG:g} alt {ALT:g} setback {SETBACK:g} "
+          f"range-near {RANGE_NEAR:g} hfov {HFOV_DEG:g}")
     print(f"pitch {math.degrees(cam.pitch):.2f} deg down; focal {FOCAL:.1f}")
     inner, wps, P = build(terr, cam, plate_json)
+    def _xy(lat, lon):
+        p = cam.project_ll(lat, lon, built_h(0.0, terr.elev(lat, lon)))
+        return (round(p[0], 1), round(p[1], 1)) if p else None
+    fc = P.stats.get("fleet_centroid")
+    print("screen xy: fleet=%s ridge=%s troy=%s ida=%s prominencePx=%s" % (
+        _xy(*fc) if fc else None,
+        _xy(*pp.SIGEION),
+        _xy(*pp.TROY),
+        _xy(*pp.IDA_SUMMIT),
+        prom.get("prominencePx")))
     if "shadow_raster" in P.stats:
         n_ = P.stats["shadow_raster"]
         print(f"shadow raster {n_}x{n_} = {n_ * n_} samples in "
