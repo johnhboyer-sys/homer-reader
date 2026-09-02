@@ -193,10 +193,10 @@ def validate_places(doc: Any) -> list[str]:
                 problems.append(f"place {label}: plateAnchors must be an object")
             else:
                 for plate_id, uv in plate_anchors.items():
-                    if not _is_pair(uv) or not all(0 <= v <= 1 for v in uv):
+                    if not _is_pair(uv):
                         problems.append(
                             f"place {label}: plateAnchors[{plate_id!r}] must be a "
-                            f"[u, v] pair in 0..1"
+                            f"2-element numeric array"
                         )
 
         kind = place.get("kind")
@@ -553,6 +553,43 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
         if sources is not None:
             problems += _validate_sources(sources, f"{label}: layer {layer_label}")
 
+        # `style: "inset"` may declare a sheet-pixel `frame` so the panel
+        # can sit in the margin of a lat/lon sheet. Polygon/path on such a
+        # layer are unit coordinates inside the frame, not lat/lon.
+        framed_inset = False
+        frame = layer.get("frame")
+        if frame is not None:
+            if (
+                not isinstance(frame, list)
+                or len(frame) != 4
+                or not all(_is_number(v) for v in frame)
+            ):
+                problems.append(
+                    f"{label}: layer {layer_label} frame must be a 4-element "
+                    f"numeric array [x, y, w, h]"
+                )
+            else:
+                fx, fy, fw, fh = frame
+                if not (fw > 0 and fh > 0):
+                    problems.append(
+                        f"{label}: layer {layer_label} frame width and height must be > 0"
+                    )
+                else:
+                    size_ok = (
+                        isinstance(size, list)
+                        and len(size) == 2
+                        and all(_is_number(v) and v > 0 for v in size)
+                    )
+                    if size_ok and (
+                        fx < 0 or fy < 0 or fx + fw > size[0] or fy + fh > size[1]
+                    ):
+                        problems.append(
+                            f"{label}: layer {layer_label} frame {frame} lies outside "
+                            f"the sheet size {size}"
+                        )
+                    elif style == "inset":
+                        framed_inset = True
+
         for field, pair, path_desc in _iter_layer_coords(layer, label, layer_label, problems):
             if not _is_pair(pair):
                 problems.append(
@@ -564,8 +601,18 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
             # Coordinate space is declared by the PRESENCE of a bbox, not by
             # kind: a plate that carries a bbox projects lat/lon; a plate
             # with none (schematic, always) stays in unit [u, v] space.
+            # A framed inset is the exception: its geometry is unit coords
+            # inside the sheet-pixel frame.
             use_bbox = min_lat is not None
-            if use_bbox:
+            if framed_inset:
+                if not (
+                    -_BBOX_EPS <= a <= 1 + _BBOX_EPS and -_BBOX_EPS <= b <= 1 + _BBOX_EPS
+                ):
+                    problems.append(
+                        f"{label}: layer {layer_label} {field}{path_desc} = [{a}, {b}] "
+                        f"must be a unit [u, v] pair in 0..1"
+                    )
+            elif use_bbox:
                 if not (
                     min_lat - _BBOX_EPS <= a <= max_lat + _BBOX_EPS
                     and min_lon - _BBOX_EPS <= b <= max_lon + _BBOX_EPS
@@ -585,5 +632,78 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
 
     if needs_seed and "seed" not in doc:
         problems.append(f"{label}: seed is required (a layer uses a stochastic style)")
+
+    scene_key = doc.get("sceneKey")
+    if scene_key is not None:
+        if not isinstance(scene_key, list):
+            problems.append(f"{label}: sceneKey must be a list")
+        else:
+            for i, row in enumerate(scene_key):
+                if not isinstance(row, dict):
+                    problems.append(f"{label}: sceneKey[{i}] must be an object")
+                    continue
+                letter = row.get("letter")
+                if not isinstance(letter, str) or not (1 <= len(letter) <= 2):
+                    problems.append(
+                        f"{label}: sceneKey[{i}].letter must be 1 or 2 characters"
+                    )
+                title = row.get("title")
+                if not isinstance(title, str) or not title.strip():
+                    problems.append(
+                        f"{label}: sceneKey[{i}].title must be a non-empty string"
+                    )
+                ref = row.get("ref")
+                if not isinstance(ref, str) or not ref.strip():
+                    problems.append(
+                        f"{label}: sceneKey[{i}].ref must be a non-empty string"
+                    )
+                row_layer_id = row.get("layerId")
+                if not isinstance(row_layer_id, str) or not row_layer_id:
+                    problems.append(
+                        f"{label}: sceneKey[{i}].layerId must be a non-empty string"
+                    )
+                elif row_layer_id not in seen_layer_ids:
+                    problems.append(
+                        f"{label}: sceneKey[{i}].layerId {row_layer_id!r} is not a "
+                        f"layer of this plate"
+                    )
+
+    # plateAnchors range belongs here, not in validate_places: a schematic
+    # plate with a bbox authors lat/lon anchors, a plate without one stays
+    # in unit 0..1. Only a pair keyed to THIS plate's id is this plate's
+    # concern — an anchor for another sheet is ignored.
+    if isinstance(plate_id, str) and plate_id:
+        for place_key, place in places_by_id.items():
+            if not isinstance(place, dict):
+                continue
+            anchors = place.get("plateAnchors")
+            if not isinstance(anchors, dict) or plate_id not in anchors:
+                continue
+            uv = anchors[plate_id]
+            if not _is_pair(uv):
+                continue
+            a, b = uv
+            place_label = (
+                place["id"]
+                if isinstance(place.get("id"), str) and place["id"]
+                else place_key
+            )
+            use_bbox = min_lat is not None
+            if use_bbox:
+                if not (
+                    min_lat - _BBOX_EPS <= a <= max_lat + _BBOX_EPS
+                    and min_lon - _BBOX_EPS <= b <= max_lon + _BBOX_EPS
+                ):
+                    problems.append(
+                        f"{label}: place {place_label} plateAnchors[{plate_id!r}] "
+                        f"= [{a}, {b}] lies outside bbox {bbox}"
+                    )
+            elif not (
+                -_BBOX_EPS <= a <= 1 + _BBOX_EPS and -_BBOX_EPS <= b <= 1 + _BBOX_EPS
+            ):
+                problems.append(
+                    f"{label}: place {place_label} plateAnchors[{plate_id!r}] "
+                    f"= [{a}, {b}] must be a unit [u, v] pair in 0..1"
+                )
 
     return problems

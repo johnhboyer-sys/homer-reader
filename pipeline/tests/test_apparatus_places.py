@@ -84,7 +84,9 @@ def test_validate_places_source_url_must_be_http():
 
 
 def test_validate_places_plate_anchors_without_position_basis_rejected():
-    doc = {"status": "draft", "places": [_place(plateAnchors={"trojan-plain": [0.5, 0.5]})]}
+    # Range is no longer this validator's job: a lat/lon pair is a legal
+    # shape here. Pairing with positionBasis still is.
+    doc = {"status": "draft", "places": [_place(plateAnchors={"trojan-plain": [39.95, 26.20]})]}
     problems = apparatus_places.validate_places(doc)
     assert any("positionBasis is not 'conjectural'" in p for p in problems)
 
@@ -96,16 +98,32 @@ def test_validate_places_position_basis_without_plate_anchors_rejected():
 
 
 def test_validate_places_plate_anchors_with_position_basis_passes():
+    # A lat/lon pair (not in 0..1) must pass here — the range check lives
+    # on validate_plate, which knows whether THIS plate has a bbox.
     doc = {
         "status": "draft",
         "places": [
             _place(
-                plateAnchors={"trojan-plain": [0.5, 0.5]},
+                plateAnchors={"trojan-plain": [39.95, 26.20]},
                 positionBasis="conjectural",
             )
         ],
     }
     assert apparatus_places.validate_places(doc) == []
+
+
+def test_validate_places_plate_anchors_must_be_a_2_number_list():
+    doc = {
+        "status": "draft",
+        "places": [
+            _place(
+                plateAnchors={"trojan-plain": [0.5]},
+                positionBasis="conjectural",
+            )
+        ],
+    }
+    problems = apparatus_places.validate_places(doc)
+    assert any("plateAnchors['trojan-plain'] must be a 2-element numeric array" in p for p in problems)
 
 
 def test_validate_places_grandfathers_legacy_records_without_kind_or_sources():
@@ -250,6 +268,122 @@ def test_validate_plate_schematic_without_bbox_still_requires_unit_range():
     }
     problems = apparatus_places.validate_plate(plate, {})
     assert any("must be a unit [u, v] pair in 0..1" in p for p in problems)
+
+
+def test_validate_plate_accepts_lat_lon_anchor_inside_bbox():
+    plate = _plate()
+    places = {
+        "camp": {
+            "id": "camp",
+            "plateAnchors": {"testplate": [39.95, 26.20]},
+            "positionBasis": "conjectural",
+        }
+    }
+    assert apparatus_places.validate_plate(plate, places) == []
+
+
+def test_validate_plate_rejects_lat_lon_anchor_outside_bbox():
+    plate = _plate()
+    places = {
+        "camp": {
+            "id": "camp",
+            "plateAnchors": {"testplate": [0.2, 0.4]},
+            "positionBasis": "conjectural",
+        }
+    }
+    problems = apparatus_places.validate_plate(plate, places)
+    assert any("plateAnchors['testplate']" in p and "lies outside bbox" in p for p in problems)
+
+
+def test_validate_plate_without_bbox_still_requires_unit_anchor():
+    plate = _plate(
+        kind="schematic",
+        layers=[{"id": "river-1", "kind": "river", "path": [[0.2, 0.4]]}],
+    )
+    del plate["bbox"]
+    places = {
+        "camp": {
+            "id": "camp",
+            "plateAnchors": {"testplate": [39.95, 26.20]},
+            "positionBasis": "conjectural",
+        }
+    }
+    problems = apparatus_places.validate_plate(plate, places)
+    assert any(
+        "plateAnchors['testplate']" in p and "must be a unit [u, v] pair in 0..1" in p
+        for p in problems
+    )
+
+
+def test_validate_plate_ignores_anchor_keyed_for_a_different_plate():
+    plate = _plate()
+    places = {
+        "camp": {
+            "id": "camp",
+            "plateAnchors": {"some-other-plate": [0.2, 0.4]},
+            "positionBasis": "conjectural",
+        }
+    }
+    assert apparatus_places.validate_plate(plate, places) == []
+
+
+def test_validate_plate_accepts_inset_frame_in_the_margin_with_unit_polygon():
+    plate = _plate(
+        size=[880, 620],
+        layers=[
+            {
+                "id": "locator",
+                "kind": "region",
+                "style": "inset",
+                "frame": [700, 20, 160, 120],
+                "polygon": [[0, 0], [1, 0], [1, 1], [0, 1]],
+            }
+        ],
+    )
+    assert apparatus_places.validate_plate(plate, {}) == []
+
+
+def test_validate_plate_rejects_inset_frame_outside_the_sheet():
+    plate = _plate(
+        size=[880, 620],
+        layers=[
+            {
+                "id": "locator",
+                "kind": "region",
+                "style": "inset",
+                "frame": [800, 10, 200, 100],
+                "polygon": [[39.90, 26.15], [39.91, 26.16], [39.90, 26.17]],
+            }
+        ],
+    )
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("frame" in p and "outside" in p for p in problems)
+
+
+def test_validate_plate_accepts_scene_key_naming_a_layer():
+    plate = _plate(
+        layers=[
+            {
+                "id": "zone-camp",
+                "kind": "region",
+                "polygon": [[39.90, 26.15], [39.92, 26.18], [39.90, 26.20]],
+            }
+        ],
+        sceneKey=[
+            {"letter": "A", "title": "The camp", "ref": "Il. 8.222–26", "layerId": "zone-camp"}
+        ],
+    )
+    assert apparatus_places.validate_plate(plate, {}) == []
+
+
+def test_validate_plate_rejects_scene_key_layer_id_that_is_not_a_layer():
+    plate = _plate(
+        sceneKey=[
+            {"letter": "A", "title": "The camp", "ref": "Il. 8.222–26", "layerId": "no-such"}
+        ]
+    )
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("sceneKey" in p and "layerId" in p and "no-such" in p for p in problems)
 
 
 def test_validate_plate_schematic_needs_no_bbox():
@@ -622,3 +756,43 @@ def test_real_achaean_camp_zone_polygon_matches_the_plate_layer():
         "exactly, or the geographic, schematic and panorama plates will "
         "draw the camp on different ground."
     )
+
+
+def test_real_plate_anchors_validate_against_every_real_plate():
+    """The plateAnchors range check moved from validate_places into
+    validate_plate (it must know whether THIS plate has a bbox). Prove it
+    actually runs clean against the real gazetteer and every real plate,
+    the way preflight.py's loop does — including the ~30 places anchored
+    to trojan-plain-schematic, which has no bbox and so must stay 0..1."""
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    places_by_id = {
+        p["id"]: p
+        for p in places_doc.get("places", [])
+        if isinstance(p, dict) and isinstance(p.get("id"), str)
+    }
+
+    schematic_anchor_count = sum(
+        1
+        for p in places_by_id.values()
+        if isinstance(p.get("plateAnchors"), dict)
+        and "trojan-plain-schematic" in p["plateAnchors"]
+    )
+    assert schematic_anchor_count == 30, (
+        f"expected 30 places anchored to trojan-plain-schematic, found "
+        f"{schematic_anchor_count} — the plate list below assumes this "
+        f"fixture count; update it if the gazetteer legitimately changed."
+    )
+
+    plates_dir = ROOT / "apparatus" / "plates"
+    plate_paths = sorted(plates_dir.glob("*.json"))
+    assert plate_paths, "expected real plates in apparatus/plates/"
+
+    all_problems: list[str] = []
+    for plate_path in plate_paths:
+        plate_doc = json.loads(plate_path.read_text(encoding="utf-8"))
+        all_problems += [
+            f"{plate_path.name}: {msg}"
+            for msg in apparatus_places.validate_plate(plate_doc, places_by_id)
+        ]
+
+    assert all_problems == []
