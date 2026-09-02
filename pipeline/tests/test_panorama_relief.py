@@ -1911,7 +1911,7 @@ def test_nothing_in_the_legend_is_drawn_on_the_map_face(s3):
         f"at {s3.PIC_BOT:.0f} — it is covering the drawing")
 
 
-def test_the_colophon_is_set_to_a_measure_and_keeps_every_claim(s3):
+def test_the_colophon_is_set_to_a_measure_and_keeps_every_claim(s3, restore_camera):
     """THIS TEST REPLACES ONE WHOSE MECHANISM STOPPED MATCHING ITS INTENT, and
     the replacement is the point. The intent was right and is kept: no later
     tightening may quietly drop a claim. The mechanism was "the long <text>
@@ -1925,7 +1925,13 @@ def test_the_colophon_is_set_to_a_measure_and_keeps_every_claim(s3):
     chooses to carry them, and the thing that was actually wrong is asserted
     directly: SVG text does not wrap, so every note was one physical line of
     about 380 characters across 2,276 px, five times a readable measure and a
-    grey slab with no entry point."""
+    grey slab with no entry point.
+
+    Pinned to plate B: that is the plate that still draws the camp and the
+    plain together, so every claim in this list still belongs on the sheet.
+    Plate A's companion-plate camp key is asserted separately."""
+    if hasattr(s3, "apply_plate_preset"):
+        s3.apply_plate_preset("B")
     svg = s3.furniture(None, None, 2600.0, 5500.0)
     body = re.findall(r'<text class="pp-l-note pp-colophon"[^>]*>(.*?)</text>',
                       svg)
@@ -2598,12 +2604,16 @@ def test_the_ranks_are_spaced_further_apart_than_a_ship_is_long(s3):
         "the fleet's ranks now reach back into the huts")
 
 
-def test_the_key_declares_the_enlargement_and_the_props(s3):
+def test_the_key_declares_the_enlargement_and_the_props(s3, restore_camera):
     """The plate may not draw a convention it does not declare. The key's
     standing wording covers the drawn NUMBER ("filling the frontage in view
     and never the catalogue's count") and says nothing about the drawn SIZE,
     which is the freedom the overview actually spends -- so the size and its
-    factor are stated outright, and so are the props."""
+    factor are stated outright, and so are the props.
+
+    Pinned to plate B: the overview rank lives on the ships plate."""
+    if hasattr(s3, "apply_plate_preset"):
+        s3.apply_plate_preset("B")
     key = s3.furniture(None, None, 2600.0, 5500.0)
     assert f"×{s3.FLEET_T1_LEN_K:g} oversize" in key, (
         "the overview enlarges the hulls and the key does not say by how much")
@@ -2646,9 +2656,15 @@ def _easting(s3, lat, lon, origin):
 def restore_camera(s3):
     saved = (s3.VIEWPOINT, s3.HEADING_DEG, s3.ALT, s3.SETBACK,
              s3.RANGE_NEAR, s3.HFOV_DEG, s3.FOCAL)
+    extra = {k: getattr(s3, k) for k in (
+        "PLATE", "PLATE_FAMILY", "DRAW_FLEET", "DRAW_HUTS",
+        "PLATE_TITLE", "PLATE_SUBTITLE", "OBJ_SHADOW",
+    ) if hasattr(s3, k)}
     yield
     (s3.VIEWPOINT, s3.HEADING_DEG, s3.ALT, s3.SETBACK,
      s3.RANGE_NEAR, s3.HFOV_DEG, s3.FOCAL) = saved
+    for k, v in extra.items():
+        setattr(s3, k, v)
 
 
 def test_every_berth_is_on_the_aegean_flank_west_of_the_zone(s3):
@@ -2803,7 +2819,9 @@ def test_cli_viewpoint_reaches_the_camera(s3, restore_camera):
         f"flagged viewpoint projects at x={p[0]:.1f}, not frame centre")
 
 
-def test_the_ships_camera_target_row_exists(s3):
+def test_the_ships_camera_target_row_exists(s3, restore_camera):
+    if hasattr(s3, "apply_plate_preset"):
+        s3.apply_plate_preset("B")
     wps = [{
         "id": "ilios", "name": "Ilios", "greek": "Ἴλιος", "tier": 1,
         "positionBasis": "measured", "citation": "Il. 3.145",
@@ -2815,6 +2833,8 @@ def test_the_ships_camera_target_row_exists(s3):
     stats = {
         "fleet_centroid": [39.9520, 26.1610],
         "fleet_centroid_screen": [900.0, 800.0, 1800.0],
+        "hut_centroid": [39.9570, 26.1680],
+        "hut_centroid_screen": [950.0, 780.0, 1900.0],
     }
     tgt = s3.camera_targets(wps, stats)
     ships = next((r for r in tgt["targets"] if r["id"] == "ships"), None)
@@ -2851,3 +2871,241 @@ def test_the_camp_key_names_the_outer_flank_and_the_modern_coast(s3):
     wp = src.split('add("achaean-wall"', 1)[1].split("add(", 1)[0]
     assert "embayment" not in wp, "the wall note still explains the old bay beach"
     assert "1500.0" not in wp, "the wall is still pinned 1500 m into the bay"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# two plates from one script (John, 2026-09-02 14:47)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _axis_stations(s3):
+    """Independent of plate_presets(): central / north / south on the camp
+    zone's long axis, the same construction the brief names."""
+    zone = _camp_polys()[2]
+    origin = s3.camp_origin(zone)
+    alongs = []
+    ath = math.radians(s3.CAMP_AXIS_DEG)
+    for p in zone:
+        e, n = s3.pp._flat_m(p, *origin)
+        alongs.append(e * math.sin(ath) + n * math.cos(ath))
+    a0, a1 = min(alongs), max(alongs)
+    south = s3.camp_ll(origin, a0, 0.0)
+    north = s3.camp_ll(origin, a1, 0.0)
+    centre = s3.camp_ll(origin, 0.5 * (a0 + a1), 0.0)
+    return centre, north, south
+
+
+def _fake_plate(s3):
+    sea, lagoon, zone = _camp_polys()
+    P = object.__new__(s3.Plate)
+
+    class Cam:
+        def project_ll(self, lat, lon, z):
+            return (1200.0, 600.0, 2000.0)
+
+        def project(self, e, n, z):
+            return (1200.0, 600.0, 2000.0)
+
+    class Terr:
+        def elev(self, lat, lon):
+            return 5.0
+
+    P.cam = Cam()
+    P.terr = Terr()
+    P.lay = {"achaean-camp-zone": {"polygon": zone}}
+    P.stats = {}
+    rings = {"sea-modern": sea, "lagoon-bronze": lagoon}
+    P.shore = lambda label: rings[label]
+    return P
+
+
+def _apply_plate(s3, *argv):
+    ns = s3.build_arg_parser().parse_args(list(argv))
+    s3.apply_plate_preset(ns.plate)
+    s3.apply_camera_args(ns)
+    return ns
+
+
+def test_plate_flag_defaults_to_a_and_accepts_b_aliases(s3):
+    ap = s3.build_arg_parser()
+    assert ap.parse_args([]).plate == "A"
+    assert ap.parse_args(["--plate", "B"]).plate == "B"
+    assert ap.parse_args(["--plate", "B1"]).plate == "B1"
+    assert ap.parse_args(["--plate", "B2"]).plate == "B2"
+
+
+def test_preset_a_resolves_to_the_settled_bay_camera(s3, restore_camera):
+    _apply_plate(s3, "--plate", "A")
+    assert s3.VIEWPOINT[0] == pytest.approx(39.9755, abs=1e-6)
+    assert s3.VIEWPOINT[1] == pytest.approx(26.1785, abs=1e-6)
+    assert s3.HEADING_DEG == pytest.approx(104.0)
+    assert s3.HFOV_DEG == pytest.approx(72.0)
+    assert s3.ALT == pytest.approx(800.0)
+    assert s3.SETBACK == pytest.approx(1500.0)
+    assert s3.RANGE_NEAR == pytest.approx(420.0)
+
+
+def test_preset_b1_is_2500_m_west_of_the_central_station(s3, restore_camera):
+    centre, _north, _south = _axis_stations(s3)
+    vp = s3.ll_along(centre, s3.CAMP_SEAWARD_DEG, 2500.0)
+    heading = s3.pp._bearing_deg(vp, centre)
+    _apply_plate(s3, "--plate", "B1")
+    assert s3.VIEWPOINT[0] == pytest.approx(vp[0], abs=1e-6)
+    assert s3.VIEWPOINT[1] == pytest.approx(vp[1], abs=1e-6)
+    assert s3.HEADING_DEG == pytest.approx(heading, abs=0.05)
+    assert s3.HEADING_DEG == pytest.approx(103.0, abs=2.0)
+    assert s3.ALT == pytest.approx(600.0)
+    assert s3.SETBACK == pytest.approx(0.0)
+    assert s3.HFOV_DEG == pytest.approx(72.0)
+    assert s3.RANGE_NEAR == pytest.approx(150.0)
+
+
+def test_preset_b2_looks_along_the_beach_from_the_north(s3, restore_camera):
+    _centre, north, south = _axis_stations(s3)
+    vp = s3.ll_along(north, s3.CAMP_SEAWARD_DEG, 1800.0)
+    heading = s3.pp._bearing_deg(vp, south)
+    _apply_plate(s3, "--plate", "B2")
+    assert s3.VIEWPOINT[0] == pytest.approx(vp[0], abs=1e-6)
+    assert s3.VIEWPOINT[1] == pytest.approx(vp[1], abs=1e-6)
+    assert s3.HEADING_DEG == pytest.approx(heading, abs=0.05)
+    assert s3.ALT == pytest.approx(700.0)
+    assert s3.SETBACK == pytest.approx(0.0)
+    assert s3.HFOV_DEG == pytest.approx(72.0)
+    assert s3.RANGE_NEAR == pytest.approx(150.0)
+
+
+def test_plate_b_aliases_b1(s3, restore_camera):
+    _apply_plate(s3, "--plate", "B1")
+    b1 = (s3.VIEWPOINT, s3.HEADING_DEG, s3.ALT, s3.SETBACK, s3.RANGE_NEAR)
+    _apply_plate(s3, "--plate", "B")
+    assert s3.VIEWPOINT == pytest.approx(b1[0])
+    assert s3.HEADING_DEG == pytest.approx(b1[1])
+    assert s3.ALT == pytest.approx(b1[2])
+    assert s3.SETBACK == pytest.approx(b1[3])
+    assert s3.RANGE_NEAR == pytest.approx(b1[4])
+
+
+def test_explicit_heading_overrides_the_preset(s3, restore_camera):
+    _apply_plate(s3, "--plate", "B", "--heading", "95")
+    assert s3.HEADING_DEG == pytest.approx(95.0)
+    assert s3.ALT == pytest.approx(600.0)
+    assert s3.SETBACK == pytest.approx(0.0)
+
+
+def test_plate_titles_and_subtitles_are_exact(s3, restore_camera):
+    _apply_plate(s3, "--plate", "A")
+    svg_a = s3.furniture(None, None, 2600.0, 5500.0)
+    assert ">THE BAY AND ILIOS</text>" in svg_a
+    assert ("the plain of Troy from above the Achaean camp, "
+            "looking east-south-east") in svg_a
+    assert s3.PLATE_TITLE == "THE BAY AND ILIOS"
+    assert s3.PLATE_SUBTITLE == (
+        "the plain of Troy from above the Achaean camp, looking east-south-east")
+    _apply_plate(s3, "--plate", "B")
+    svg_b = s3.furniture(None, None, 2600.0, 5500.0)
+    assert ">THE SHIPS ON THE AEGEAN SHORE</text>" in svg_b
+    assert ("the Achaean camp from over the sea, looking east; "
+            "Ilios lies beyond the ridge, out of sight") in svg_b
+    assert s3.PLATE_TITLE == "THE SHIPS ON THE AEGEAN SHORE"
+    assert s3.PLATE_SUBTITLE == (
+        "the Achaean camp from over the sea, looking east; "
+        "Ilios lies beyond the ridge, out of sight")
+
+
+def test_plate_a_camp_key_names_the_companion_plate(s3, restore_camera):
+    _apply_plate(s3, "--plate", "A")
+    svg = s3.furniture(None, None, 2600.0, 5500.0)
+    assert "behind the viewer" in svg
+    assert "companion plate" in svg
+
+
+def test_plate_a_draws_zero_hulls_and_huts_and_keeps_the_wall(s3, restore_camera):
+    _apply_plate(s3, "--plate", "A")
+    s3.OBJ_SHADOW = False
+    P = _fake_plate(s3)
+    ships, ships_t1, huts, wall_svg, ditch_svg, ship_px, *_ = P.camp()
+    assert P.stats["hulls"] == 0
+    assert not ships and not ships_t1
+    assert P.stats["huts"] == 0
+    assert not huts
+    assert "wall_at" in P.stats
+    wps = [{
+        "id": "achaean-wall", "name": "the wall of the Achaeans",
+        "greek": "τεῖχος", "tier": 2, "positionBasis": "conjectural",
+        "citation": "Il. 7.436-441", "tradition": "", "rule": "",
+        "kind": "line", "at": P.stats["wall_at"],
+        "_screen": [1100.0, 700.0, 2500.0], "_label": [1100.0, 722.0],
+    }]
+    tgt = s3.camera_targets(wps, dict(P.stats))
+    ids = {r["id"] for r in tgt["targets"]}
+    assert "achaean-wall" in ids
+    assert "ships" not in ids
+
+
+def test_plate_b_draws_at_least_200_true_fleet_hulls(s3, restore_camera):
+    _apply_plate(s3, "--plate", "B")
+    s3.OBJ_SHADOW = False
+    P = _fake_plate(s3)
+    ships, ships_t1, huts, wall_svg, ditch_svg, ship_px, *_ = P.camp()
+    assert P.stats["hulls"] >= 200, (
+        f"--plate B drew {P.stats['hulls']} true-fleet hulls")
+    assert len(ships) >= 200
+
+
+def test_plate_a_targets_drop_ships_plate_b_keeps_ships_and_huts(
+        s3, restore_camera):
+    wall = {
+        "id": "achaean-wall", "name": "the wall of the Achaeans",
+        "greek": "τεῖχος", "tier": 2, "positionBasis": "conjectural",
+        "citation": "Il. 7.436-441", "tradition": "", "rule": "flank",
+        "kind": "line", "at": [39.96, 26.17],
+        "_screen": [1100.0, 700.0, 2500.0], "_label": [1100.0, 722.0],
+    }
+    sigeion = {
+        "id": "sigeion", "name": "SIGEION", "greek": "Σίγειον", "tier": 2,
+        "positionBasis": "measured", "citation": "Il. 14.31-36",
+        "tradition": "", "rule": "", "kind": "region",
+        "at": [39.9835, 26.1809],
+        "_screen": [800.0, 500.0, 3000.0], "_label": [800.0, 486.0],
+    }
+    bay = {
+        "id": "bay-of-troy", "name": "the bay of Troy", "greek": "", "tier": 1,
+        "positionBasis": "reconstructed", "citation": "Kayan 1995",
+        "tradition": "", "rule": "", "kind": "water",
+        "at": [39.9880, 26.2060],
+        "_screen": [1400.0, 550.0, 4000.0], "_label": [1400.0, 550.0],
+    }
+    ilios = {
+        "id": "ilios", "name": "Ilios", "greek": "Ἴλιος", "tier": 1,
+        "positionBasis": "measured", "citation": "Il. 3.145",
+        "tradition": "", "rule": "", "kind": "settlement",
+        "at": [39.957, 26.239],
+        "_screen": [1200.0, 400.0, 7000.0], "_label": [1200.0, 400.0],
+    }
+    stats = {
+        "fleet_centroid": [39.9520, 26.1610],
+        "fleet_centroid_screen": [900.0, 800.0, 1800.0],
+        "hut_centroid": [39.9570, 26.1680],
+        "hut_centroid_screen": [950.0, 780.0, 1900.0],
+    }
+    _apply_plate(s3, "--plate", "A")
+    ids_a = {r["id"] for r in s3.camera_targets(
+        [wall, sigeion, bay, ilios], stats)["targets"]}
+    assert "ships" not in ids_a
+    assert "huts" not in ids_a
+    assert "achaean-wall" in ids_a
+    _apply_plate(s3, "--plate", "B")
+    ids_b = {r["id"] for r in s3.camera_targets(
+        [wall, sigeion, bay, ilios], stats)["targets"]}
+    assert "ships" in ids_b
+    assert "huts" in ids_b
+    assert "achaean-wall" in ids_b
+    assert "sigeion" in ids_b
+    assert "bay-of-troy" in ids_b
+    assert "ilios" not in ids_b
+
+
+def test_output_stem_prefixes_the_plate_letter(s3):
+    assert s3.output_stem("A", "full", "stage2b") == "stage3-A-fullstage2b"
+    assert s3.output_stem("B1", "camera-targets", "stage2b") == (
+        "stage3-B1-camera-targetsstage2b")
+    assert s3.output_stem("B2", "full", "-x") == "stage3-B2-full-x"

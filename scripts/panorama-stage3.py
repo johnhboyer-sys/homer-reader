@@ -140,6 +140,18 @@ RING_NEAR_DETAIL = 1600.0
 RANGE_NEAR, RANGE_FAR = 420.0, 45000.0
 BLEED = 90.0                      # screen units of mesh outside the frame
 
+# ── two plates, one script (John, 2026-09-02 14:47) ──────────────────────
+# One camera cannot show the fleet on the Aegean flank and Troy across the
+# bay at once. Default is plate A, the previous composition; B/B1/B2 look
+# at the camp from over the sea. apply_plate_preset writes these.
+PLATE = "A"
+PLATE_FAMILY = "A"
+DRAW_FLEET = False
+DRAW_HUTS = False
+PLATE_TITLE = "THE BAY AND ILIOS"
+PLATE_SUBTITLE = (
+    "the plain of Troy from above the Achaean camp, looking east-south-east")
+
 # ── ring spacing has a GROUND floor as well as a screen one ──────────────
 # RING_PX alone sets ring spacing from screen separation ON FLAT GROUND, and
 # that rule under-resolves the TERRAIN at range: 8.2 flat pixels is 17 m of
@@ -1998,6 +2010,26 @@ def camp_ll(origin, along, west):
     """Metres along the camp axis and west (seaward) of the centroid."""
     p = pp._dest_point(origin, CAMP_AXIS_DEG, along)
     return pp._dest_point(p, CAMP_SEAWARD_DEG, west)
+
+
+def camp_axis_stations(camp_zone):
+    """Central station and the two long-axis ends of the camp zone.
+
+    Along-positive is 13.3° (slightly east of north), so max along is the
+    northern endpoint and min along the southern."""
+    origin = camp_origin(camp_zone)
+    alongs = []
+    ath = math.radians(CAMP_AXIS_DEG)
+    for p in camp_zone:
+        e, n = pp._flat_m(p, *origin)
+        alongs.append(e * math.sin(ath) + n * math.cos(ath))
+    a0, a1 = min(alongs), max(alongs)
+    return {
+        "origin": origin, "a0": a0, "a1": a1,
+        "south": camp_ll(origin, a0, 0.0),
+        "north": camp_ll(origin, a1, 0.0),
+        "centre": camp_ll(origin, 0.5 * (a0 + a1), 0.0),
+    }
 
 
 def aegean_fleet(sea_poly, camp_zone, lagoon_poly=None, pitch=13.0, rows=None,
@@ -5341,42 +5373,47 @@ class Plate:
                                           berth_list[i][1]))
             return set(order[:n])
 
-        true_berths = berths(13.0, FLEET_ROWS, FLEET_ROW_M, first_m=FLEET_FIRST_M,
-                             reach_m=24.0)
-        red = miltos(true_berths, ODYSSEUS_TWELVE)
-        for i, (lateral, row, f, lat, lon, bearing, sp) in enumerate(true_berths):
-            sh = ship(cam, terr, lat, lon, bearing, props=True,
-                      prow_cls="pp-prow-miltos" if i in red else "pp-prow")
-            if sh:
-                ships.append(sh)
-                sd = object_shadow(cam, terr, lat, lon, bearing, HULL_SIL,
-                                   lift=SHIP_KEEL_H)
-                if sd:
-                    obj_sh.append(sd)
-                hulls_drawn += 1
-                ship_px.append((sp[0], sp[1], lateral, f, lat, lon))
-                depths.append(sp[2])
+        red = set()
+        if DRAW_FLEET:
+            true_berths = berths(13.0, FLEET_ROWS, FLEET_ROW_M,
+                                 first_m=FLEET_FIRST_M, reach_m=24.0)
+            red = miltos(true_berths, ODYSSEUS_TWELVE)
+            for i, (lateral, row, f, lat, lon, bearing, sp) in enumerate(true_berths):
+                sh = ship(cam, terr, lat, lon, bearing, props=True,
+                          prow_cls="pp-prow-miltos" if i in red else "pp-prow")
+                if sh:
+                    ships.append(sh)
+                    sd = object_shadow(cam, terr, lat, lon, bearing, HULL_SIL,
+                                       lift=SHIP_KEEL_H)
+                    if sd:
+                        obj_sh.append(sd)
+                    hulls_drawn += 1
+                    ship_px.append((sp[0], sp[1], lateral, f, lat, lon))
+                    depths.append(sp[2])
 
-        # ── and the same beach, at the overview's own count and size ──────
-        t1_berths = berths(FLEET_T1_PITCH_M, FLEET_T1_ROWS, FLEET_T1_ROW_M,
-                           first_m=FLEET_T1_FIRST_M,
-                           stagger=FLEET_T1_PITCH_M * 0.5,
-                           reach_m=24.0 * FLEET_T1_LEN_K)
-        red_t1 = miltos(t1_berths, max(1, round(
-            ODYSSEUS_TWELVE * len(t1_berths) / max(1, len(true_berths)))))
-        for i, (lateral, row, f, lat, lon, bearing, sp) in enumerate(t1_berths):
-            sh = ship(cam, terr, lat, lon, bearing,
-                      beam_k=FLEET_T1_BEAM_K, len_k=FLEET_T1_LEN_K,
-                      post_cls="pp-post-t1", stern_h=FLEET_T1_STERN_H,
-                      prow_cls="pp-prow-miltos" if i in red_t1 else "pp-prow")
-            if sh:
-                ships_t1.append(sh)
-                sd = object_shadow(cam, terr, lat, lon, bearing, HULL_SIL,
-                                   lift=SHIP_KEEL_H)
-                if sd:
-                    obj_sh_t1.append(sd)
+            # ── and the same beach, at the overview's own count and size ──
+            t1_berths = berths(FLEET_T1_PITCH_M, FLEET_T1_ROWS, FLEET_T1_ROW_M,
+                               first_m=FLEET_T1_FIRST_M,
+                               stagger=FLEET_T1_PITCH_M * 0.5,
+                               reach_m=24.0 * FLEET_T1_LEN_K)
+            red_t1 = miltos(t1_berths, max(1, round(
+                ODYSSEUS_TWELVE * len(t1_berths) / max(1, len(true_berths)))))
+            for i, (lateral, row, f, lat, lon, bearing, sp) in enumerate(t1_berths):
+                sh = ship(cam, terr, lat, lon, bearing,
+                          beam_k=FLEET_T1_BEAM_K, len_k=FLEET_T1_LEN_K,
+                          post_cls="pp-post-t1", stern_h=FLEET_T1_STERN_H,
+                          prow_cls="pp-prow-miltos" if i in red_t1 else "pp-prow")
+                if sh:
+                    ships_t1.append(sh)
+                    sd = object_shadow(cam, terr, lat, lon, bearing, HULL_SIL,
+                                       lift=SHIP_KEEL_H)
+                    if sd:
+                        obj_sh_t1.append(sd)
+        else:
+            true_berths = []
 
         huts = []
+        hut_lls = []
         # HUTS BEHIND THE SHIPS, not across the whole 9 km zone. The zone
         # polygon is the ridge landform's own outline (diagnosis, ruling 4,
         # 2026-09-02) and the true fleet only stands where the beach is wide
@@ -5387,7 +5424,8 @@ class Plate:
         # only over the along-span the true fleet actually occupies (with a
         # margin so a hut can sit behind the end berths), and only where the
         # projection lands in frame -- the same test the ships already pass.
-        hut_laterals = ([q[0] for q in true_berths] if true_berths
+        span = true_berths if true_berths else layout["berths"]
+        hut_laterals = ([q[0] for q in span] if span
                         else [x * 34.0 for x in range(
                             int(math.floor(layout["a0"] / 34.0)),
                             int(math.ceil(layout["a1"] / 34.0)) + 1)])
@@ -5409,6 +5447,9 @@ class Plate:
                 sp = cam.project_ll(lat, lon, built_h(3.2, terr.elev(lat, lon)))
                 if not sp or not (-BLEED < sp[0] < W + BLEED
                                   and -BLEED < sp[1] < H + BLEED):
+                    continue
+                hut_lls.append((lat, lon))
+                if not DRAW_HUTS:
                     continue
                 hb = seaward(round(lateral / 13.0) * 13.0) + (17 if row % 2 else -11)
                 hh = hut(cam, terr, lat, lon, hb)
@@ -5514,6 +5555,14 @@ class Plate:
             if spc:
                 self.stats["fleet_centroid_screen"] = [
                     round(spc[0], 1), round(spc[1], 1), round(spc[2], 1)]
+        if hut_lls:
+            hlat = sum(q[0] for q in hut_lls) / len(hut_lls)
+            hlon = sum(q[1] for q in hut_lls) / len(hut_lls)
+            self.stats["hut_centroid"] = [round(hlat, 5), round(hlon, 5)]
+            sph = cam.project_ll(hlat, hlon, built_h(3.2, terr.elev(hlat, hlon)))
+            if sph:
+                self.stats["hut_centroid_screen"] = [
+                    round(sph[0], 1), round(sph[1], 1), round(sph[2], 1)]
         self.stats["wall_at"] = [round(layout["wall"][0], 5),
                                  round(layout["wall"][1], 5)]
         self.stats["ditch_at"] = [round(layout["ditch"][0], 5),
@@ -5833,6 +5882,19 @@ CAMP_KEY = (
     ("THE HUTS", "fir timber and cut reed — δοῦρ’ ἐλάτης κέρσαντες, λαχνήεντ’ ὄροφον "
      "λειμωνόθεν ἀμήσαντες, Il. 24.450–51"),
 )
+# Plate A looks inland: the fleet is behind the camera. Same three headings
+# so the key's shape holds; the gloss points at the companion plate.
+PLATE_A_CAMP_KEY = (
+    ("THE SHIPS", "lie behind the viewer on the Aegean shore, on the companion plate"),
+    ("ON PROPS", "with the ships, behind the viewer, on the companion plate"),
+    ("THE HUTS", "with the ships, behind the viewer, on the companion plate"),
+)
+PLATE_A_MARKS = (
+    "Marks: the wall and its ditch one line each at the camp’s inland edge "
+    "(Il. 7.436–441; 14.30–36), where they fall in this frame. The ships and "
+    "huts lie behind the viewer on the Aegean shore, on the companion plate."
+)
+MARGIN_DROPPED = []           # names furniture() dropped on plate B for space
 # ── VEGETATION, and the four things on this sheet that grow. Each carries
 # the line of the poem that puts it there in the same breath as its mark,
 # which is the ground-cover key's own rule applied to the layer that was
@@ -5894,10 +5956,9 @@ def furniture(cam, terr, ship_depth, troy_depth):
     out.append(f'<rect x="{m + 6}" y="{m + 6}" width="{W - 2 * m - 12}" '
                f'height="{PIC_BOT - 2 * m - 12}" class="pp-neat-i"/>')
     out.append(f'<text class="pp-l-title" x="{W / 2}" y="{m + 44}" '
-               f'text-anchor="middle">THE SHIPS, THE BAY, AND ILIOS</text>')
+               f'text-anchor="middle">{esc(PLATE_TITLE)}</text>')
     out.append(f'<text class="pp-l-note" x="{W / 2}" y="{m + 64}" '
-               f'text-anchor="middle">the plain of Troy from above the Achaean camp, '
-               f'looking east-south-east</text>')
+               f'text-anchor="middle">{esc(PLATE_SUBTITLE)}</text>')
 
     bx = 62.0                      # the margin's own left edge
     rx = W - 62.0                  # and its right
@@ -5928,6 +5989,55 @@ def furniture(cam, terr, ship_depth, troy_depth):
 
     kw, kh, row, col = 30.0, 16.0, 32.0, 600.0
     ky0 = y0 + 22.0
+    camp_key = list(PLATE_A_CAMP_KEY if PLATE_FAMILY == "A" else CAMP_KEY)
+    veg_key = list(VEG_KEY)
+    drawn_marks = PLATE_A_MARKS if PLATE_FAMILY == "A" else DRAWN_MARKS
+    dropped = []
+    gut = 20.0
+    ncol = 5
+    colw = ((rx - bx) - gut * (ncol - 1)) / ncol
+    note_cols_trial = (
+        ("NOT DRAWN", COVER_KEY_UNDRAWN),
+        ("THE MARKS", drawn_marks),
+        ("THE DRAWING", disclosure() + " " + sun_disclosure()
+         + " Height is in the geometry and the light"
+         + {"all": ", and in the contour hairlines.",
+            "index": ", and in the index contours at 10, 30, 110 and 600 m.",
+            "none": " alone; no contours are drawn."}[CONTOURS]),
+        ("MEASURED, AND CONJECTURAL",
+         "Measured: terrain, coastlines, rivers, Hisarlık, Callicolone, Sigeion, "
+         "Rhoiteion. Conjectural: the ships, the huts, the wall and ditch, and every "
+         "waypoint of the poem — each placed by a stated rule, never at an invented "
+         "coordinate. The ridges are this sheet's own DEM outlines, the wet delta its "
+         "10–15 m slope-under-1.2% mask, the dry fan what the plain sector has left."),
+        ("THE TWO WATERS",
+         "The bay is the reconstructed Late Bronze Age embayment (Kraft, Kayan and Erol "
+         "1980; Kayan): a wash over the ground it is draped on, inside a hairline, "
+         "against the modern coastline's opaque fill and heavier survey line — they "
+         "differ in weight because they differ in kind. Where the two shores leave "
+         "ground stranded between them below that 10 m contour, the wash closes the "
+         "gap by the reconstruction's own rule. DRAFT."),
+    )
+    nline = max(len(wrap(b, colw)) for _, b in note_cols_trial)
+    ty_trial = H - NEAT_M - (nline - 1) * NOTE_ROW - 13.0
+    sub_trial = ky0 + 2 * row + 10.0
+    camp_y_trial = sub_trial + 10.0 + (len(WATER_KEY) - 1) * 22.0 + kh + 14.0
+    key_bot_trial = max(sub_trial + 18.0 + len(veg_key) * VEG_ROW,
+                        camp_y_trial + 12.0 + (len(camp_key) - 1) * NOTE_ROW)
+    if PLATE_FAMILY == "B" and ty_trial < key_bot_trial + 16.0:
+        plain_veg = {"THE OAK", "THE WILD FIG", "RIVERBANK THICKET", "IDA'S TIMBER"}
+        dropped = [n for n, _ in veg_key if n in plain_veg]
+        veg_key = [(n, g) for n, g in veg_key if n not in plain_veg]
+        key_bot_trial = max(sub_trial + 18.0 + len(veg_key) * VEG_ROW,
+                            camp_y_trial + 12.0 + (len(camp_key) - 1) * NOTE_ROW)
+        if ty_trial < key_bot_trial + 16.0:
+            dropped.append("NOT DRAWN")
+            note_cols_trial = tuple(c for c in note_cols_trial if c[0] != "NOT DRAWN")
+            ncol = len(note_cols_trial)
+            colw = ((rx - bx) - gut * (ncol - 1)) / ncol
+    globals()["MARGIN_DROPPED"] = dropped
+    if dropped:
+        print("  ! plate B margin dropped: " + ", ".join(dropped))
     for i, (cls, name, gloss) in enumerate(COVER_KEY):
         sx = bx + (i % 2) * col
         sy_ = ky0 + (i // 2) * row
@@ -5957,7 +6067,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
     out.append(f'<text class="pp-l-note" x="{n1(bx + 196)}" y="{n1(sub)}" '
                f'fill-opacity="0.85">every plant traces to a line of the poem '
                f'or to a class above</text>')
-    for i, (name, gloss) in enumerate(VEG_KEY):
+    for i, (name, gloss) in enumerate(veg_key):
         yy = sub + 18.0 + i * VEG_ROW
         out.append(f'<text class="pp-l-note" x="{n1(bx)}" y="{n1(yy)}" '
                    f'letter-spacing="0.9">{esc(name)}</text>')
@@ -6000,12 +6110,18 @@ def furniture(cam, terr, ship_depth, troy_depth):
     camp_y = sub + 10.0 + (len(WATER_KEY) - 1) * 22.0 + kh + 14.0
     out.append(f'<text class="pp-l-region" x="{n1(sx0)}" y="{n1(camp_y)}">'
                f'THE CAMP</text>')
+    if PLATE_FAMILY == "A":
+        camp_gloss = ("the ships lie behind the viewer on the Aegean shore, "
+                      "on the companion plate")
+    else:
+        camp_gloss = (
+            "four materials, and the poem names all "
+            "four; at 1× the hulls are fewer than the beach holds and "
+            f"×{FLEET_T1_LEN_K:g} oversize, length and beam alike — seen "
+            "end-on a ship draws a third of her size. True from 2× up")
     out.append(f'<text class="pp-l-note" x="{n1(sx0 + 148)}" y="{n1(camp_y)}" '
-               f'fill-opacity="0.85">four materials, and the poem names all '
-               f'four; at 1× the hulls are fewer than the beach holds and '
-               f'×{FLEET_T1_LEN_K:g} oversize, length and beam alike — seen '
-               f'end-on a ship draws a third of her size. True from 2× up</text>')
-    for i, (name, gloss) in enumerate(CAMP_KEY):
+               f'fill-opacity="0.85">{esc(camp_gloss)}</text>')
+    for i, (name, gloss) in enumerate(camp_key):
         # NOTE_ROW, not VEG_ROW: these are note rows with no swatch beside
         # them, which is what NOTE_ROW was cut for in the first place, and
         # ON PROPS is a third row that has to come out of the leading. The
@@ -6046,28 +6162,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
     # separated two lines of one, and the notes read as a sixth row of THE
     # CAMP. (The comment that set it claimed "8.0 still is" bigger. It is not,
     # and the arithmetic was never done.)
-    note_cols = (
-        ("NOT DRAWN", COVER_KEY_UNDRAWN),
-        ("THE MARKS", DRAWN_MARKS),
-        ("THE DRAWING", disclosure() + " " + sun_disclosure()
-         + " Height is in the geometry and the light"
-         + {"all": ", and in the contour hairlines.",
-            "index": ", and in the index contours at 10, 30, 110 and 600 m.",
-            "none": " alone; no contours are drawn."}[CONTOURS]),
-        ("MEASURED, AND CONJECTURAL",
-         "Measured: terrain, coastlines, rivers, Hisarlık, Callicolone, Sigeion, "
-         "Rhoiteion. Conjectural: the ships, the huts, the wall and ditch, and every "
-         "waypoint of the poem — each placed by a stated rule, never at an invented "
-         "coordinate. The ridges are this sheet's own DEM outlines, the wet delta its "
-         "10–15 m slope-under-1.2% mask, the dry fan what the plain sector has left."),
-        ("THE TWO WATERS",
-         "The bay is the reconstructed Late Bronze Age embayment (Kraft, Kayan and Erol "
-         "1980; Kayan): a wash over the ground it is draped on, inside a hairline, "
-         "against the modern coastline's opaque fill and heavier survey line — they "
-         "differ in weight because they differ in kind. Where the two shores leave "
-         "ground stranded between them below that 10 m contour, the wash closes the "
-         "gap by the reconstruction's own rule. DRAFT."),
-    )
+    note_cols = note_cols_trial
     # THE BLOCK IS ANCHORED TO THE FOOT OF THE SHEET, NOT TO THE KEY ABOVE
     # IT, and that is what stops this defect coming back. Set from the top,
     # the notes ran off the bottom edge whenever a row was added above them:
@@ -6077,13 +6172,12 @@ def furniture(cam, terr, ship_depth, troy_depth):
     # construction, and it is the SPACE ABOVE the block that runs short
     # instead — which shows as a collision on the render rather than as ink
     # printing off the sheet.
-    gut = 20.0
     ncol = len(note_cols)
     colw = ((rx - bx) - gut * (ncol - 1)) / ncol
     nline = max(len(wrap(b, colw)) for _, b in note_cols)
     ty = H - NEAT_M - (nline - 1) * NOTE_ROW - 13.0
-    key_bot = max(sub + 18.0 + len(VEG_KEY) * VEG_ROW,
-                  camp_y + 12.0 + (len(CAMP_KEY) - 1) * NOTE_ROW)
+    key_bot = max(sub + 18.0 + len(veg_key) * VEG_ROW,
+                  camp_y + 12.0 + (len(camp_key) - 1) * NOTE_ROW)
     if ty < key_bot + 16.0:
         print(f"  ! margin: the notes want y={ty:.0f} and the key runs to "
               f"{key_bot:.0f} — {key_bot + 16.0 - ty:.0f} px short")
@@ -6490,9 +6584,14 @@ def emit(theme, inner, vx, vy, vw, vh, scale, out_svg, tier=3, descale=1.0,
 
 
 def shoot(svg_path, png_path, w, h):
-    subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars",
-                    f"--window-size={w},{h}", f"--screenshot={png_path}", svg_path],
-                   check=True, capture_output=True)
+    try:
+        subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars",
+                        f"--window-size={w},{h}", f"--screenshot={png_path}", svg_path],
+                       check=True, capture_output=True)
+    except (subprocess.CalledProcessError, FileNotFoundError, OSError) as e:
+        print(f"  ! chrome failed for {png_path}: {e}")
+        return False
+    return True
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -6550,11 +6649,11 @@ def camera_targets(wps, plate_stats):
                        "zoom": round(zoom, 2)},
             "showTiers": list(range(1, w["tier"] + 1)),
         })
-    fc = plate_stats.get("fleet_centroid")
-    if fc:
-        scr = plate_stats.get("fleet_centroid_screen") or [W / 2.0, PIC_BOT * 0.6, 2000.0]
+    def add_subject(pid, name, greek, cite, rule, at, scr, show_tiers):
+        if not at:
+            return
+        scr = scr or [W / 2.0, PIC_BOT * 0.6, 2000.0]
         x, y, d = scr[0], scr[1], scr[2]
-        name = "the ships"
         chars = max(len(name), 12)
         lw = chars * 7.2
         x0 = min(x - 40, x - lw * 0.5) - 60
@@ -6566,24 +6665,46 @@ def camera_targets(wps, plate_stats):
         zoom = min(W / bw, PIC_BOT / bh)
         zoom = max(1.6, min(4.0, zoom))
         rows.append({
-            "id": "ships",
+            "id": pid,
             "name": name,
-            "greek": "νῆες",
+            "greek": greek,
             "tier": 1,
             "positionBasis": "conjectural",
-            "citation": "Il. 14.30-36; 8.222-26",
+            "citation": cite,
             "tradition": None,
-            "rule": "Fleet centroid on the Aegean (outer) flank of the Sigeum ridge.",
-            "at": [round(fc[0], 5), round(fc[1], 5)],
+            "rule": rule,
+            "at": [round(at[0], 5), round(at[1], 5)],
             "frame": {"x": x, "y": y, "depthM": d},
             "camera": {"cx": round((x0 + x1) / 2, 1),
                        "cy": round((y0 + y1) / 2, 1),
                        "zoom": round(zoom, 2)},
-            "showTiers": [1, 2],
+            "showTiers": show_tiers,
         })
+
+    add_subject(
+        "ships", "the ships", "νῆες",
+        "Il. 14.30-36; 8.222-26",
+        "Fleet centroid on the Aegean (outer) flank of the Sigeum ridge.",
+        plate_stats.get("fleet_centroid"),
+        plate_stats.get("fleet_centroid_screen"),
+        [1, 2])
+    add_subject(
+        "huts", "the huts", "κλισίαι",
+        "Il. 24.450-51",
+        "Hut centroid on the Aegean (outer) flank, inland of the sterns.",
+        plate_stats.get("hut_centroid"),
+        plate_stats.get("hut_centroid_screen"),
+        [1])
+    if PLATE_FAMILY == "A":
+        rows = [r for r in rows if r["id"] not in ("ships", "huts")]
+    elif PLATE_FAMILY == "B":
+        keep = {"ships", "achaean-wall", "sigeion", "bay-of-troy", "huts"}
+        rows = [r for r in rows if r["id"] in keep]
     return {
-        "id": "panorama-ships-bay-ilios",
-        "title": "The Ships, the Bay, and Ilios",
+        "id": ("panorama-bay-ilios" if PLATE_FAMILY == "A"
+               else "panorama-ships-aegean"),
+        "title": ("The Bay and Ilios" if PLATE_FAMILY == "A"
+                  else "The Ships on the Aegean Shore"),
         "status": "draft",
         # w/h is the SVG's own box; pictureH is where the neatline closes and
         # the margin begins, which is the bound every crop has to respect
@@ -6653,10 +6774,85 @@ def _parse_latlon(s):
     return (float(parts[0].strip()), float(parts[1].strip()))
 
 
+def output_stem(plate, kind, tag=""):
+    return f"stage3-{plate}-{kind}{tag}"
+
+
+def _camp_zone_polygon():
+    path = os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")
+    with open(path) as f:
+        for layer in json.load(f)["layers"]:
+            if layer["id"] == "achaean-camp-zone":
+                return layer["polygon"]
+    raise KeyError("achaean-camp-zone")
+
+
+_PRESETS = None
+
+
+def plate_presets():
+    """Named cameras. B aliases B1. B1/B2 are computed from the camp zone."""
+    global _PRESETS
+    if _PRESETS is not None:
+        return _PRESETS
+    ax = camp_axis_stations(_camp_zone_polygon())
+    vp_b1 = ll_along(ax["centre"], CAMP_SEAWARD_DEG, 2500.0)
+    vp_b2 = ll_along(ax["north"], CAMP_SEAWARD_DEG, 1800.0)
+    b_title = "THE SHIPS ON THE AEGEAN SHORE"
+    b_sub = ("the Achaean camp from over the sea, looking east; "
+             "Ilios lies beyond the ridge, out of sight")
+    a = {
+        "viewpoint": (39.9755, 26.1785),
+        "heading": 104.0, "hfov": 72.0, "alt": 800.0,
+        "setback": 1500.0, "range_near": 420.0,
+        "family": "A",
+        "title": "THE BAY AND ILIOS",
+        "subtitle": ("the plain of Troy from above the Achaean camp, "
+                     "looking east-south-east"),
+        "draw_fleet": False, "draw_huts": False,
+    }
+    b1 = {
+        "viewpoint": vp_b1,
+        "heading": pp._bearing_deg(vp_b1, ax["centre"]),
+        "hfov": 72.0, "alt": 600.0, "setback": 0.0, "range_near": 150.0,
+        "family": "B", "title": b_title, "subtitle": b_sub,
+        "draw_fleet": True, "draw_huts": True,
+    }
+    b2 = dict(b1)
+    b2["viewpoint"] = vp_b2
+    b2["heading"] = pp._bearing_deg(vp_b2, ax["south"])
+    b2["alt"] = 700.0
+    _PRESETS = {"A": a, "B1": b1, "B2": b2, "B": dict(b1)}
+    return _PRESETS
+
+
+def apply_plate_preset(name):
+    """Named camera+content preset. Apply before apply_camera_args so
+    explicit camera flags still override."""
+    p = plate_presets()[name]
+    g = globals()
+    g["VIEWPOINT"] = tuple(p["viewpoint"])
+    g["HEADING_DEG"] = float(p["heading"])
+    g["ALT"] = float(p["alt"])
+    g["SETBACK"] = float(p["setback"])
+    g["RANGE_NEAR"] = float(p["range_near"])
+    g["HFOV_DEG"] = float(p["hfov"])
+    g["FOCAL"] = (W / 2.0) / math.tan(math.radians(g["HFOV_DEG"]) / 2.0)
+    g["PLATE"] = name
+    g["PLATE_FAMILY"] = p["family"]
+    g["PLATE_TITLE"] = p["title"]
+    g["PLATE_SUBTITLE"] = p["subtitle"]
+    g["DRAW_FLEET"] = p["draw_fleet"]
+    g["DRAW_HUTS"] = p["draw_huts"]
+
+
 def build_arg_parser():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=os.path.join(REPO, "build", "panorama"))
     ap.add_argument("--quick", action="store_true")
+    ap.add_argument("--plate", choices=("A", "B", "B1", "B2"), default="A",
+                    help="named camera+content preset (B aliases B1); "
+                         "camera flags override the preset")
     ap.add_argument("--viewpoint", type=_parse_latlon, default=None,
                     metavar="LAT,LON",
                     help="camera look-at, default %.4f,%.4f"
@@ -6740,6 +6936,7 @@ def apply_camera_args(args):
 def main():
     ap = build_arg_parser()
     args = ap.parse_args()
+    apply_plate_preset(args.plate)
     apply_camera_args(args)
     globals()["CURVE"] = args.curve
     set_curve(args.ve_near, args.ve_scale)
@@ -6763,6 +6960,7 @@ def main():
         OBJ_SHADOW_OP=args.obj_shadow_op, CONTOURS=args.contours)
     tag = args.tag
     os.makedirs(args.out_dir, exist_ok=True)
+    print(f"plate {args.plate} family {PLATE_FAMILY} title {PLATE_TITLE!r}")
     print(f"curve {args.curve} ve(0)={C_A:g} scale={C_L:g} floor={C_F:.4f} "
           f"(ceiling {max_near_rate():.2f}x): " + " ".join(
               f"{e:g}->{exaggerate(float(e)):.0f}"
@@ -6782,8 +6980,9 @@ def main():
     with open(os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")) as f:
         plate_json = json.load(f)
 
-    prom = troy_prominence(terr, cam)
-    print("Ilios: " + " ".join(f"{k}={v}" for k, v in prom.items()))
+    prom = troy_prominence(terr, cam) if PLATE_FAMILY == "A" else {}
+    if prom:
+        print("Ilios: " + " ".join(f"{k}={v}" for k, v in prom.items()))
     print(f"camera viewpoint {VIEWPOINT[0]:.4f},{VIEWPOINT[1]:.4f} "
           f"heading {HEADING_DEG:g} alt {ALT:g} setback {SETBACK:g} "
           f"range-near {RANGE_NEAR:g} hfov {HFOV_DEG:g}")
@@ -6793,12 +6992,24 @@ def main():
         p = cam.project_ll(lat, lon, built_h(0.0, terr.elev(lat, lon)))
         return (round(p[0], 1), round(p[1], 1)) if p else None
     fc = P.stats.get("fleet_centroid")
-    print("screen xy: fleet=%s ridge=%s troy=%s ida=%s prominencePx=%s" % (
+    hc = P.stats.get("hut_centroid")
+    wall_ll = P.stats.get("wall_at")
+    print("screen xy: fleet=%s huts=%s wall=%s ridge=%s troy=%s ida=%s" % (
         _xy(*fc) if fc else None,
+        _xy(*hc) if hc else None,
+        _xy(*wall_ll) if wall_ll else None,
         _xy(*pp.SIGEION),
         _xy(*pp.TROY),
-        _xy(*pp.IDA_SUMMIT),
-        prom.get("prominencePx")))
+        _xy(*pp.IDA_SUMMIT)))
+    if wall_ll:
+        e, n = pp._flat_m(tuple(wall_ll), *VIEWPOINT)
+        cam_e = -SETBACK * math.sin(math.radians(HEADING_DEG))
+        cam_n = -SETBACK * math.cos(math.radians(HEADING_DEG))
+        wr = math.hypot(e - cam_e, n - cam_n)
+        print(f"wall range {wr:.0f} m  RANGE_NEAR {RANGE_NEAR:g}  "
+              f"{'behind RANGE_NEAR' if wr < RANGE_NEAR else 'in mesh'}")
+    if MARGIN_DROPPED:
+        print("margin dropped: " + ", ".join(MARGIN_DROPPED))
     if "shadow_raster" in P.stats:
         n_ = P.stats["shadow_raster"]
         print(f"shadow raster {n_}x{n_} = {n_ * n_} samples in "
@@ -6836,7 +7047,7 @@ def main():
     tgt = camera_targets(wps, dict(P.stats))
     tgt["camera"]["pitchDegDown"] = round(math.degrees(cam.pitch), 2)
     tgt["stats"]["ilios"] = prom
-    tp = os.path.join(args.out_dir, f"stage3-camera-targets{tag}.json")
+    tp = os.path.join(args.out_dir, output_stem(args.plate, "camera-targets", tag) + ".json")
     with open(tp, "w") as f:
         json.dump(tgt, f, ensure_ascii=False, indent=2)
     print(f"camera targets -> {tp} ({len(tgt['targets'])} rows)")
@@ -6846,33 +7057,35 @@ def main():
         # themes, the camp zoom in light. Nothing else -- these renders exist
         # to be put side by side, not to ship.
         by_id = {t["id"]: t for t in tgt["targets"]}
-        ic = by_id["ilios"]["camera"]
+        ic = by_id["ilios"]["camera"] if "ilios" in by_id else None
         for theme in ("light", "dark"):
             sfx = "" if theme == "light" else "-dark"
-            svg = os.path.join(args.out_dir, f"stage3-full{tag}{sfx}.svg")
+            svg = os.path.join(args.out_dir, output_stem(args.plate, "full", tag) + f"{sfx}.svg")
             w, h = emit(theme, inner, 0, 0, W, H, 1.0, svg, tier=1)
-            shoot(svg, os.path.join(args.out_dir, f"stage3-full{tag}{sfx}.png"), w, h)
+            shoot(svg, os.path.join(args.out_dir, output_stem(args.plate, "full", tag) + f"{sfx}.png"), w, h)
             print(f"[{theme}] full 1x {os.path.getsize(svg) / 1024:.0f} KB")
+            if ic is None:
+                continue
             cw, ch = W / 8.0, H / 8.0
-            s2 = os.path.join(args.out_dir, f"stage3-zoom8-troy{tag}{sfx}.svg")
+            s2 = os.path.join(args.out_dir, output_stem(args.plate, "zoom8-troy", tag) + f"{sfx}.svg")
             w2, h2 = emit(theme, inner, ic["cx"] - cw / 2, ic["cy"] - ch / 2,
                           cw, ch, 8.0, s2, tier=3, descale=8.0)
             shoot(s2, os.path.join(args.out_dir,
-                                   f"stage3-zoom8-troy{tag}{sfx}.png"), w2, h2)
+                                   output_stem(args.plate, "zoom8-troy", tag) + f"{sfx}.png"), w2, h2)
         cw, ch = W / 4.0, H / 4.0
-        s3 = os.path.join(args.out_dir, f"stage3-zoom-camp{tag}.svg")
+        s3 = os.path.join(args.out_dir, output_stem(args.plate, "zoom-camp", tag) + ".svg")
         w3, h3 = emit("light", inner, 1250.0 - cw / 2, 665.0 - ch / 2, cw, ch,
                       4.0, s3, tier=3, descale=4.0)
-        shoot(s3, os.path.join(args.out_dir, f"stage3-zoom-camp{tag}.png"), w3, h3)
+        shoot(s3, os.path.join(args.out_dir, output_stem(args.plate, "zoom-camp", tag) + ".png"), w3, h3)
         print("variant set done")
         return
 
     themes = ("light",) if args.quick else ("light", "dark")
     for theme in themes:
         sfx = "" if theme == "light" else "-dark"
-        svg = os.path.join(args.out_dir, f"stage3-full{tag}{sfx}.svg")
+        svg = os.path.join(args.out_dir, output_stem(args.plate, "full", tag) + f"{sfx}.svg")
         w, h = emit(theme, inner, 0, 0, W, H, 1.0, svg, tier=1)
-        shoot(svg, os.path.join(args.out_dir, f"stage3-full{tag}{sfx}.png"), w, h)
+        shoot(svg, os.path.join(args.out_dir, output_stem(args.plate, "full", tag) + f"{sfx}.png"), w, h)
         sz = os.path.getsize(svg)
         print(f"[{theme}] full 1x  {sz / 1024:.0f} KB ({sz} bytes) -> {w}x{h}")
         if args.quick:
@@ -6881,14 +7094,15 @@ def main():
         # has a row for them, so the renders John looks at are the frames the
         # Chart Room would actually serve.
         by_id = {t["id"]: t for t in tgt["targets"]}
-        cams = {"troy": (by_id["ilios"]["camera"]["cx"], by_id["ilios"]["camera"]["cy"]),
-                "camp": (1250.0, 665.0)}
+        cams = {"camp": (1250.0, 665.0)}
+        if "ilios" in by_id:
+            cams["troy"] = (by_id["ilios"]["camera"]["cx"], by_id["ilios"]["camera"]["cy"])
         for name, (cx, cy) in cams.items():
             cw, ch = W / 4.0, H / 4.0
-            s2 = os.path.join(args.out_dir, f"stage3-zoom-{name}{tag}{sfx}.svg")
+            s2 = os.path.join(args.out_dir, output_stem(args.plate, f"zoom-{name}", tag) + f"{sfx}.svg")
             w2, h2 = emit(theme, inner, cx - cw / 2, cy - ch / 2, cw, ch, 4.0, s2,
                           tier=3, descale=4.0)
-            shoot(s2, os.path.join(args.out_dir, f"stage3-zoom-{name}{tag}{sfx}.png"), w2, h2)
+            shoot(s2, os.path.join(args.out_dir, output_stem(args.plate, f"zoom-{name}", tag) + f"{sfx}.png"), w2, h2)
         # mobile portrait: the crop frames the SIGHTLINE, not the panorama --
         # camp, bay, city, Ida in depth order. What portrait gives up is the
         # flanks: the headlands and the swamp.
@@ -6904,16 +7118,16 @@ def main():
         # a tier-2 full frame as well: it is the state the swamp, the wall,
         # the ditch, the Simoeis and the headland labels first appear in, and
         # nothing else renders them.
-        s2t = os.path.join(args.out_dir, f"stage3-full-tier2{tag}{sfx}.svg")
+        s2t = os.path.join(args.out_dir, output_stem(args.plate, "full-tier2", tag) + f"{sfx}.svg")
         w2t, h2t = emit(theme, inner, 0, 0, W, H, 1.0, s2t, tier=2)
-        shoot(s2t, os.path.join(args.out_dir, f"stage3-full-tier2{tag}{sfx}.png"), w2t, h2t)
+        shoot(s2t, os.path.join(args.out_dir, output_stem(args.plate, "full-tier2", tag) + f"{sfx}.png"), w2t, h2t)
         ph = PIC_BOT
         pw = ph * (390.0 / 780.0)
-        s3 = os.path.join(args.out_dir, f"stage3-mobile-portrait{tag}{sfx}.svg")
+        s3 = os.path.join(args.out_dir, output_stem(args.plate, "mobile-portrait", tag) + f"{sfx}.svg")
         w3, h3 = emit(theme, inner, 1376 - pw / 2, 0, pw, ph, 780.0 / ph, s3,
                       tier=1, descale=780.0 / ph, furn=False,
-                      caption="THE SHIPS, THE BAY, AND ILIOS")
-        shoot(s3, os.path.join(args.out_dir, f"stage3-mobile-portrait{tag}{sfx}.png"), w3, h3)
+                      caption=PLATE_TITLE)
+        shoot(s3, os.path.join(args.out_dir, output_stem(args.plate, "mobile-portrait", tag) + f"{sfx}.png"), w3, h3)
     print("done")
 
 

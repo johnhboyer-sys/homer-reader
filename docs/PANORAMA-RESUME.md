@@ -91,3 +91,22 @@ oak, the fig tree, the tomb of Ilos, the wagon-road, the springs have been
 unmappable all along — putting them at guessed coordinates on a geographic sheet
 is the exact failure John ruled against. On a schematic panorama they are not
 guesses; they are the poem's own order along a sightline.
+
+## Two plates (2026-09-02)
+
+John, 14:47: the single oblique "The Ships, the Bay, and Ilios" is two plates
+from the same script. One camera cannot show the fleet on the Aegean flank and
+Troy across the bay at once — Troy is invisible from the camp (Luce's
+placement; ruling 4 in `docs/TROY-MAPS-TODO.md` § "Rulings 2026-09-02").
+
+- **Plate A, "The Bay and Ilios"** — the previous composition, looking
+  east-south-east from above the camp. Fleet and huts off-plate (they sit
+  behind the camera). Wall and ditch stay where they fall in frame.
+- **Plate B, "The Ships on the Aegean Shore"** — camera over the sea looking
+  at the flank. Fleet, huts, wall and ditch draw as now. Presets B1 and B2
+  are both stored; `B` aliases B1 until the orchestrator picks.
+
+`--plate A|B|B1|B2` applies the named camera before the existing camera
+flags, which still override. Outputs are `stage3-<plate>-full<tag>.{svg,png}`
+and `stage3-<plate>-camera-targets<tag>.json`. Nothing is copied into
+`apparatus/`.
