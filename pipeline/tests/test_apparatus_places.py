@@ -905,3 +905,116 @@ def test_real_geo_enrich_places_validate_and_carry_sources():
             )
     problems = apparatus_places.validate_places(places_doc)
     assert problems == [], problems
+
+
+# ── mentions referential integrity (2026-09-02, stage 4c) ───────────────────
+#
+# The rule: every `mentions[]` entry's `{work, book, lines}` must name a real
+# book (1-24, both works) and a real line within that book's vulgate length
+# (manifests/<Work>.yaml's `books[].end`). It is a pure bounds check.
+#
+# IMPORTANT LIMITATION, stated here because a bounds check cannot state it in
+# its own problem messages: two of the real findings this rule was written
+# after fixing were document section numbers -- "(§3.5)" and "(§1.75)",
+# left unresolved in prose -- harvested as if they were verse refs into
+# `mentions` entries reading book 3 line 5 and book 1 line 75. BOTH of those
+# are perfectly real, in-range lines (Iliad 3 has 461 lines; Iliad 1 has 611)
+# that simply have nothing to do with the place they were attached to (3.5 is
+# the crane simile, not "the road to the ships"; 1.75 is Calchas asking
+# Achilles for protection, not the Simoeis-Scamander confluence). A range
+# check is structurally incapable of catching a wrong-but-existing citation;
+# that class of error was caught here only by reading the Greek at the cited
+# line and checking it against the place's own claim. This rule instead
+# catches the other, disjoint failure mode: a book or line number that does
+# not exist at all (confirmed empty on the real corpus as of this fix --
+# see test_real_places_mentions_pass_the_line_bounds_check below).
+
+
+def test_validate_places_mentions_rejects_book_out_of_range():
+    doc = {
+        "status": "draft",
+        "places": [_place(mentions=[{"work": "iliad", "book": 25, "lines": [1, 1]}])],
+    }
+    problems = apparatus_places.validate_places(doc)
+    assert any("book 25 must be an integer 1-24" in p for p in problems)
+
+
+def test_validate_places_mentions_rejects_book_zero():
+    doc = {
+        "status": "draft",
+        "places": [_place(mentions=[{"work": "odyssey", "book": 0, "lines": [1, 1]}])],
+    }
+    problems = apparatus_places.validate_places(doc)
+    assert any("book 0 must be an integer 1-24" in p for p in problems)
+
+
+def test_validate_places_mentions_rejects_line_past_book_end():
+    # Iliad book 1 is 611 lines (manifests/Iliad.yaml); 612 does not exist.
+    doc = {
+        "status": "draft",
+        "places": [_place(mentions=[{"work": "iliad", "book": 1, "lines": [1, 612]}])],
+    }
+    problems = apparatus_places.validate_places(doc)
+    assert any("iliad 1.612 exceeds book 1's length (611 lines)" in p for p in problems)
+
+
+def test_validate_places_mentions_accepts_the_books_last_line():
+    # The boundary itself must validate clean (611 is in range, 612 is not).
+    doc = {
+        "status": "draft",
+        "places": [_place(mentions=[{"work": "iliad", "book": 1, "lines": [1, 611]}])],
+    }
+    assert apparatus_places.validate_places(doc) == []
+
+
+def test_validate_places_mentions_checks_odyssey_book_lengths_independently():
+    # Odyssey book 1 is 444 lines, not 611 -- the two works' tables must not
+    # be conflated.
+    doc = {
+        "status": "draft",
+        "places": [_place(mentions=[{"work": "odyssey", "book": 1, "lines": [1, 445]}])],
+    }
+    problems = apparatus_places.validate_places(doc)
+    assert any("odyssey 1.445 exceeds book 1's length (444 lines)" in p for p in problems)
+
+
+def test_validate_places_mentions_must_be_a_list():
+    doc = {"status": "draft", "places": [_place(mentions="1.75")]}
+    problems = apparatus_places.validate_places(doc)
+    assert any("mentions must be a list" in p for p in problems)
+
+
+def test_validate_places_mentions_entry_must_be_an_object():
+    doc = {"status": "draft", "places": [_place(mentions=["1.75"])]}
+    problems = apparatus_places.validate_places(doc)
+    assert any("mentions[0] must be an object" in p for p in problems)
+
+
+def test_validate_places_mentions_good_fixture_passes():
+    doc = {
+        "status": "draft",
+        "places": [
+            _place(
+                mentions=[
+                    {"work": "iliad", "book": 6, "lines": [433, 434]},
+                    {"work": "odyssey", "book": 9, "lines": [39, 40]},
+                ]
+            )
+        ],
+    }
+    assert apparatus_places.validate_places(doc) == []
+
+
+def test_real_places_mentions_pass_the_line_bounds_check():
+    """The new rule, run against the live gazetteer after the stage 4c
+    content fixes (hut-of-ajax, fig-tree, road-to-the-ships,
+    scamander-simoeis-confluence, hut-of-nestor, pyre-of-patroclus,
+    funeral-games-ground and the rest): zero problems. This does not prove
+    every citation is semantically right -- see the module docstring above
+    for the two that were in-range and wrong regardless -- only that no
+    `mentions` entry names a book or line that does not exist."""
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    problems = [
+        p for p in apparatus_places.validate_places(places_doc) if "mentions[" in p
+    ]
+    assert problems == [], problems
