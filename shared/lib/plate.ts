@@ -4554,6 +4554,21 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // block of beached ships. Handed to the label solver as furniture to keep
     // off, exactly like a pin marker.
     if (layer.kind === 'shipRow') denseBoxes.push({ box: rendered.feature.bbox, layerId: layer.id });
+    // Open water is not empty ground (2026-09-02, fixing the KNOWN, NOT
+    // FIXED regression logged at d0c4e947d): the shore corridor above
+    // reserves only the linework along the coast, never the sea itself, so
+    // a crowded camp band sent "Patroclus: pyre, barrow, games" out past the
+    // beach and onto the Hellespont — a false claim on a schematic register
+    // (a label asserts a place, and open sea is not a place). Same
+    // treatment as a ship row: the region/band layer's own bounding box,
+    // reserved whenever its fill is a water fill (see WATER_FILLS/
+    // collectWaterBodies), on every plate that draws one — a general rule,
+    // one place, not a per-sheet patch.
+    const layerFill =
+      layer.fill ?? (layer.kind === 'region' || layer.kind === 'band' ? DEFAULT_REGION_FILL : undefined);
+    if (layerFill !== undefined && WATER_FILLS.has(layerFill)) {
+      denseBoxes.push({ box: rendered.feature.bbox, layerId: layer.id });
+    }
     // The band kinds (see lineworkReserveHalfWidth): reserved as a corridor
     // following the run, never as a bounding rectangle. Purely rule-driven —
     // this loop names no layer and no sheet.

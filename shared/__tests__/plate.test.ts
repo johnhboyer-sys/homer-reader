@@ -809,6 +809,65 @@ describe('renderPlate: schematic plates without bbox (gap 1)', () => {
   });
 });
 
+// A label on open water asserts a place IN THE SEA, which is false on a
+// schematic register (John, 2026-08-15, d0c4e947d "known, not fixed"): the
+// beach corridor (see lineworkReserveHalfWidth) reserves only a band along
+// the shoreline, not the open water beyond it, so the solver's cost
+// function (placeLabelCandidates) sees the sea as free space — cheaper than
+// any candidate that so much as grazes the shore corridor or a neighbouring
+// label. The `mound-of-patroclus` layer's name ("Patroclus: pyre, barrow,
+// games") is the label that regression actually hit, because the camp band
+// at the Achilles end is full (see e966484dd) and its own anchor sits right
+// at the shoreline.
+describe('renderPlate: a label never seats on open water (d0c4e947d regression)', () => {
+  // Ray-casting point-in-polygon, even-odd rule — mirrors plate.ts's own
+  // private `pointInPolygon` (not exported), used here only to test against
+  // the sheet's own sea geometry rather than a hardcoded y.
+  function pointInPolygon(pt: [number, number], polygon: [number, number][]): boolean {
+    const [px, py] = pt;
+    let inside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const [xi, yi] = polygon[i];
+      const [xj, yj] = polygon[j];
+      const crosses = yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi;
+      if (crosses) inside = !inside;
+    }
+    return inside;
+  }
+
+  // Nine samples (corners, edge midpoints, centre) rather than a single
+  // point: a box that only PARTLY overlaps the sea is still a false claim.
+  // The sea's boundary here is a shallow wave-like curve (see the `sea`
+  // layer's own polygon), not a hard edge close to any sampled point, so
+  // this is not a coin-flip near a boundary — a genuine overlap lands at
+  // least one sample inside.
+  function boxTouchesPolygon(box: [number, number, number, number], polygon: [number, number][]): boolean {
+    const [x1, y1, x2, y2] = box;
+    const xs = [x1, (x1 + x2) / 2, x2];
+    const ys = [y1, (y1 + y2) / 2, y2];
+    for (const x of xs) for (const y of ys) if (pointInPolygon([x, y], polygon)) return true;
+    return false;
+  }
+
+  it('the Patroclus label (pyre, barrow, games) does not sit on the sea layer\'s own polygon', () => {
+    const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
+    const plate = parsePlate(raw);
+    const allPlaces = (JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[]).filter(
+      (p) => (p as unknown as { maps?: string[] }).maps?.includes('troad-plain'),
+    );
+    const result = renderPlate(plate, allPlaces);
+
+    const seaLayer = plate.layers.find((l) => l.id === 'sea')!;
+    expect(seaLayer.polygon).toBeDefined();
+    const [width, height] = plate.size;
+    const seaPolygon: [number, number][] = seaLayer.polygon!.map(([u, v]) => [u * width, v * height]);
+
+    const box = result.labelBoxes['mound-of-patroclus'];
+    expect(box).toBeDefined();
+    expect(boxTouchesPolygon(box, seaPolygon)).toBe(false);
+  });
+});
+
 describe('renderPlate: tumulus layer kind (gap 2)', () => {
   it('a tumulus layer emits the dome glyph, stroked in ink, not filled', () => {
     const plate: Plate = {
