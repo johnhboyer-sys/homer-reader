@@ -197,3 +197,57 @@ describe('fitViewport (moved from scenemap.ts — regression guard)', () => {
     expect(Number.isFinite(viewport.centerLon)).toBe(true);
   });
 });
+
+describe('viewport rotation (rotationDeg)', () => {
+  const ROT_BBOX: [number, number, number, number] = [36, 20, 44, 28];
+  const ROT_SIZE: [number, number] = [400, 300];
+  const ROT_POINTS: [number, number][] = [
+    [40, 24],
+    [38, 22],
+    [42, 26],
+    [36.5, 20.5],
+    [43.5, 27.5],
+  ];
+
+  it('round-trips unproject(project(p)) at θ ∈ {0, 90, 37} for five points', () => {
+    for (const theta of [0, 90, 37]) {
+      const vp = viewportFromBBox(ROT_BBOX, ROT_SIZE, theta);
+      for (const p of ROT_POINTS) {
+        const back = unproject(project(p, vp), vp);
+        expect(back[0]).toBeCloseTo(p[0], 9);
+        expect(back[1]).toBeCloseTo(p[1], 9);
+      }
+    }
+  });
+
+  it('at θ=90 (east-up) a point east of centre projects above centre and a point north of centre projects left of centre', () => {
+    const vp = viewportFromBBox(ROT_BBOX, ROT_SIZE, 90);
+    const [, yEast] = project([vp.centerLat, vp.centerLon + 0.01], vp);
+    expect(yEast).toBeLessThan(vp.height / 2);
+    const [xNorth] = project([vp.centerLat + 0.01, vp.centerLon], vp);
+    expect(xNorth).toBeLessThan(vp.width / 2);
+  });
+
+  it('at θ=0 viewportFromBBox returns exactly the unrotated formula', () => {
+    const bbox: [number, number, number, number] = [36, 20, 44, 22];
+    const size: [number, number] = [400, 200];
+    const [minLat, minLon, maxLat, maxLon] = bbox;
+    const [width, height] = size;
+    const centerLat = (minLat + maxLat) / 2;
+    const centerLon = (minLon + maxLon) / 2;
+    const latSpan = maxLat - minLat;
+    const lonSpan = maxLon - minLon;
+    const cosLat = Math.max(Math.cos((centerLat * Math.PI) / 180), 0.01);
+    const scale = Math.min(width / (lonSpan * cosLat), height / latSpan);
+
+    const vp = viewportFromBBox(bbox, size, 0);
+    expect(vp.width).toBe(width);
+    expect(vp.height).toBe(height);
+    expect(vp.centerLat).toBe(centerLat);
+    expect(vp.centerLon).toBe(centerLon);
+    expect(vp.latSpan).toBe(latSpan);
+    expect(vp.lonSpan).toBe(lonSpan);
+    expect(vp.scale).toBe(scale);
+    expect(vp.rotationDeg).toBe(0);
+  });
+});
