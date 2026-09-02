@@ -203,6 +203,17 @@ def validate_places(doc: Any) -> list[str]:
         if kind is not None and kind not in PLACE_KIND_ENUM:
             problems.append(f"place {label}: kind {kind!r} not in {sorted(PLACE_KIND_ENUM)}")
 
+        label_tier = place.get("labelTier")
+        if label_tier is not None and (not _is_number(label_tier) or label_tier not in (1, 2)):
+            problems.append(
+                f"place {label}: labelTier must be 1 or 2, got {label_tier!r}"
+            )
+        label_size = place.get("labelSize")
+        if label_size is not None and label_size not in ("small", "base"):
+            problems.append(
+                f"place {label}: labelSize must be 'small' or 'base', got {label_size!r}"
+            )
+
         maps = place.get("maps") if isinstance(place.get("maps"), list) else []
         tagged_for_plate = any(
             isinstance(tag, str) and tag.startswith(PLATE_TAG_PREFIXES) for tag in maps
@@ -543,6 +554,21 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
             problems.append(
                 f"{label}: layer {layer_label} elevation must be a number >= 0, "
                 f"got {elevation!r}"
+            )
+
+        label_tier = layer.get("labelTier")
+        if label_tier is not None and (
+            not _is_number(label_tier) or label_tier not in (1, 2)
+        ):
+            problems.append(
+                f"{label}: layer {layer_label} labelTier must be 1 or 2, "
+                f"got {label_tier!r}"
+            )
+        label_size = layer.get("labelSize")
+        if label_size is not None and label_size not in ("small", "base"):
+            problems.append(
+                f"{label}: layer {layer_label} labelSize must be 'small' or "
+                f"'base', got {label_size!r}"
             )
 
         style = layer.get("style")

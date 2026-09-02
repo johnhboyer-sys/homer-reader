@@ -24,7 +24,7 @@
 //
 // Usage — a crop in the plate's own pixel space (the lat/lon --crop cannot
 // address a window that is not geography, e.g. the right-margin legend band):
-//   node scripts/render-plates.mjs --sheet trojan-plain-schematic-v2 --theme light \
+//   node scripts/render-plates.mjs --sheet trojan-plain-schematic --theme light \
 //     --out build/plate-review/schematic-ground \
 //     --pxcrop camp-band:280,800,860,1080:3
 //
@@ -71,7 +71,6 @@ const MAP_TAG = {
   troad: 'troad',
   'trojan-plain': 'troad-plain',
   'trojan-plain-schematic': 'troad-plain',
-  'trojan-plain-schematic-v2': 'troad-plain',
   'troy-citadel': 'troy-citadel',
 };
 

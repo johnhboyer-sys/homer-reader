@@ -256,6 +256,10 @@ export interface PlateLayer {
    * own projected points, exactly as before.
    */
   frame?: [number, number, number, number];
+  /** See PlatePlace.labelTier. Default 1. */
+  labelTier?: 1 | 2;
+  /** See PlatePlace.labelSize. */
+  labelSize?: 'small' | 'base';
 }
 
 // A schematic plate's concentric band (the Shield of Achilles). Mirrors
@@ -380,6 +384,14 @@ export interface PlatePlace {
    * rank 2, the ordinary case.
    */
   rank?: 1 | 2 | 3;
+  /**
+   * Label visibility tier. 1 (default) is always shown; 2 is tagged so a
+   * later Chart Room / plate-panel zoom threshold can hide it. The library
+   * itself does not hide anything.
+   */
+  labelTier?: 1 | 2;
+  /** "small" maps to LABEL_STYLES.minor; "base" (or omit) leaves the role's default. */
+  labelSize?: 'small' | 'base';
 }
 
 export interface PlateOptions {
@@ -611,6 +623,12 @@ function parseLayer(
   if (l.elevation !== undefined && !(isFiniteNumber(l.elevation) && l.elevation >= 0)) {
     fail(`layer "${l.id}" has a malformed "elevation" (must be a number >= 0)`);
   }
+  if (l.labelTier !== undefined && l.labelTier !== 1 && l.labelTier !== 2) {
+    fail(`layer "${l.id}" has a malformed "labelTier" (must be 1 or 2)`);
+  }
+  if (l.labelSize !== undefined && l.labelSize !== 'small' && l.labelSize !== 'base') {
+    fail(`layer "${l.id}" has a malformed "labelSize" (must be "small" or "base")`);
+  }
 
   const geometryArray = (key: string): PlatePoint[] | undefined => {
     if (l[key] === undefined) return undefined;
@@ -647,6 +665,8 @@ function parseLayer(
     count: isFiniteNumber(l.count) ? l.count : undefined,
     fill: typeof l.fill === 'string' && l.fill in REGION_FILL_TOKENS ? (l.fill as RegionFill) : undefined,
     elevation: isFiniteNumber(l.elevation) ? l.elevation : undefined,
+    labelTier: l.labelTier === 1 || l.labelTier === 2 ? l.labelTier : undefined,
+    labelSize: l.labelSize === 'small' || l.labelSize === 'base' ? l.labelSize : undefined,
     rings,
     path: geometryArray('path'),
     polygon: geometryArray('polygon'),
@@ -2163,6 +2183,10 @@ interface LabelRequest {
    * return and `PlateResult.suppressedLabels`.
    */
   priority?: number;
+  /** Default 1. Tier 2 is tagged on the emitted text; the library does not hide it. */
+  labelTier?: 1 | 2;
+  /** "small" uses LABEL_STYLES.minor; omit or "base" keeps the role default. */
+  labelSize?: 'small' | 'base';
 }
 
 /**
@@ -2334,6 +2358,7 @@ function textPathElement(
   id: string,
   offsetPct: number,
   geographic: boolean,
+  tier?: 1 | 2,
 ): string {
   const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
   // `data-label-for` names the place/layer id this text belongs to (2026-
@@ -2343,8 +2368,10 @@ function textPathElement(
   // the certainty filter hides that pin. Not a trusted selector fragment —
   // consumers must match it via dataset comparison (see the id-injection
   // finding on data-layer-id), never interpolate it into a CSS selector.
+  const tierClass = tier === 2 ? ' plate-label-tier2' : '';
+  const tierAttr = tier === 2 ? ' data-label-tier="2"' : '';
   return (
-    `<text class="plate-label plate-label-${role} plate-label-along" data-label-for="${escapeXml(id)}" ` +
+    `<text class="plate-label plate-label-${role} plate-label-along${tierClass}" data-label-for="${escapeXml(id)}"${tierAttr} ` +
     `font-family="var(--font-ui)" font-size="${style.size}" font-weight="${style.weight}"` +
     `${style.italic ? ' font-style="italic"' : ''}${tracking} fill="${style.fill}" ` +
     `paint-order="stroke" ${haloAttrs(geographic)} ` +
@@ -2365,11 +2392,14 @@ function labelElement(
   forceItalic: boolean,
   id: string,
   geographic: boolean,
+  tier?: 1 | 2,
 ): string {
   const italic = style.italic || forceItalic;
   const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
+  const tierClass = tier === 2 ? ' plate-label-tier2' : '';
+  const tierAttr = tier === 2 ? ' data-label-tier="2"' : '';
   return (
-    `<text class="plate-label plate-label-${role}" data-label-for="${escapeXml(id)}" x="${round1(c.x)}" y="${round1(c.y)}" ` +
+    `<text class="plate-label plate-label-${role}${tierClass}" data-label-for="${escapeXml(id)}"${tierAttr} x="${round1(c.x)}" y="${round1(c.y)}" ` +
     `text-anchor="${c.anchor}" font-family="var(--font-ui)" font-size="${style.size}" ` +
     `font-weight="${style.weight}"${italic ? ' font-style="italic"' : ''}${tracking} ` +
     `fill="${style.fill}" paint-order="stroke" ${haloAttrs(geographic)}` +
@@ -2495,7 +2525,8 @@ function layoutLabels(
     const dedupeKey = req.text.trim().toLocaleLowerCase();
     if (lettered.has(dedupeKey)) continue;
     lettered.add(dedupeKey);
-    const style = req.styleOverride ? { ...LABEL_STYLES[req.role], ...req.styleOverride } : LABEL_STYLES[req.role];
+    const roleStyle = req.labelSize === 'small' ? LABEL_STYLES.minor : LABEL_STYLES[req.role];
+    const style = req.styleOverride ? { ...roleStyle, ...req.styleOverride } : roleStyle;
     const textWidth = estimateLabelWidth(labelText(req.text, style), style);
 
     // A linear feature is named along its own run whenever the run is long
@@ -2523,7 +2554,7 @@ function layoutLabels(
         const guidePts = smoothSize ? thinForTextPathGuide(oriented) : oriented;
         const guideD = smoothSize ? smoothPathD(guidePts, false, smoothSize) : pathD(guidePts, false);
         defs.push(`<path id="${req.pathId}" d="${guideD}" fill="none" stroke="none"/>`);
-        parts.push(textPathElement(req.text, req.pathId, style, req.role, req.id, frac * 100, geographic));
+        parts.push(textPathElement(req.text, req.pathId, style, req.role, req.id, frac * 100, geographic, req.labelTier));
         placed.push(box);
         boxesById.push({ id: req.id, box });
         continue;
@@ -2589,7 +2620,7 @@ function layoutLabels(
     if (!req.centred && (req.conjectural || detached)) {
       parts.push(leaderElement(req.anchorBox, box, !!req.conjectural, req.id));
     }
-    parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic));
+    parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic, req.labelTier));
     placed.push(box);
     boxesById.push({ id: req.id, box });
   }
@@ -5107,6 +5138,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
             text: mapLabelText(place.name),
             role: cls,
             anchorBox: [x, y, x, y],
+            labelTier: place.labelTier,
+            labelSize: place.labelSize,
           });
         }
         continue;
@@ -5132,6 +5165,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         role: cls,
         anchorBox: dotBBox(x, y, r),
         styleOverride: cls === 'settlement' ? SETTLEMENT_RANK_STYLE[place.rank ?? 2] : undefined,
+        labelTier: place.labelTier,
+        labelSize: place.labelSize,
         // Item 7's label budget: only the two least load-bearing prints on a
         // geographic sheet — a rank-3 settlement (the minor headlands and
         // allied towns) and a feature (a hill, tumulus, cape) — are eligible
@@ -5176,7 +5211,14 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       // centred over its own shape, which is where an area name belongs. Same
       // rule and same reason as the geographic branch above.
       if (!layerPlaceIds.has(place.id)) {
-        pinLabelRequests.push({ id: place.id, text: mapLabelText(place.name), role: cls, anchorBox: [x, y, x, y] });
+        pinLabelRequests.push({
+          id: place.id,
+          text: mapLabelText(place.name),
+          role: cls,
+          anchorBox: [x, y, x, y],
+          labelTier: place.labelTier,
+          labelSize: place.labelSize,
+        });
       }
     } else {
       // Everything else carries a mark. Note that `water` does here where it
@@ -5192,7 +5234,14 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         ),
       );
       features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: dotBBox(x, y, r) });
-      pinLabelRequests.push({ id: place.id, text: mapLabelText(place.name), role: cls, anchorBox: dotBBox(x, y, r) });
+      pinLabelRequests.push({
+        id: place.id,
+        text: mapLabelText(place.name),
+        role: cls,
+        anchorBox: dotBBox(x, y, r),
+        labelTier: place.labelTier,
+        labelSize: place.labelSize,
+      });
       legendEntries.push(certaintyDotLegendEntry(place.certainty ?? 'certain'));
     }
     // No "every position is conjectural" row. It is true of every mark on the
@@ -5226,6 +5275,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       conjectural: layer.style === 'poem',
       path: rendered.labelPath,
       pathId: `${safeIdFragment(opts.idPrefix)}-lp-${safeIdFragment(layer.id)}`,
+      labelTier: layer.labelTier,
+      labelSize: layer.labelSize,
     });
   }
 

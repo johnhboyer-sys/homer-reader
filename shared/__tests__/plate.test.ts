@@ -193,11 +193,15 @@ describe('parsePlate', () => {
   // requirement — demanding one would demand a coordinate for something
   // that has none (mirrors apparatus_places.py's validate_plate exactly).
 
-  it('parses a schematic plate with no bbox, unit-space layers (live seed plate: trojan-plain-schematic.json)', () => {
+  it('parses the live trojan-plain-schematic.json as a bboxed schematic plate (east-up, right margin)', () => {
     const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
+    const geo = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
     const plate = parsePlate(raw);
     expect(plate.kind).toBe('schematic');
-    expect(plate.bbox).toBeUndefined();
+    expect(plate.bbox).toEqual(geo.bbox);
+    expect(plate.rotationDeg).toBe(90);
+    expect(plate.marginRight).toBe(340);
+    expect(plate.size[0] - (plate.marginRight ?? 0)).toBe(1120);
     expect(plate.layers.length).toBeGreaterThan(0);
   });
 
@@ -770,15 +774,15 @@ describe('renderLayer: data-layer-id names the layer that drew each element, aux
   });
 });
 
-describe('renderPlate: schematic plates without bbox (gap 1)', () => {
-  it('renders the live trojan-plain-schematic.json (unit-space layers, no bbox), mapping u,v across plate.size', () => {
+describe('renderPlate: schematic plates (gap 1)', () => {
+  it('renders the live trojan-plain-schematic.json into a map frame inset by the right margin', () => {
     const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
     const plate = parsePlate(raw);
     const result = renderPlate(plate, []);
     expect(result.svg).toContain(`viewBox="0 0 ${plate.size[0]} ${plate.size[1]}"`);
-    expect(result.features.length).toBe(plate.layers.length);
-    expect(result.viewport.width).toBe(plate.size[0]);
+    expect(result.viewport.width).toBe(plate.size[0] - (plate.marginRight ?? 0));
     expect(result.viewport.height).toBe(plate.size[1]);
+    expect(plate.rotationDeg).toBe(90);
   });
 
   it('renders the live shield-of-achilles.json (bands only, no layers, no bbox) without throwing', () => {
@@ -856,14 +860,23 @@ describe('renderPlate: a label never seats on open water (d0c4e947d regression)'
     );
     const result = renderPlate(plate, allPlaces);
 
-    const seaLayer = plate.layers.find((l) => l.id === 'sea')!;
+    const seaLayer = plate.layers.find((l) => l.id === 'sea-modern')!;
     expect(seaLayer.polygon).toBeDefined();
-    const [width, height] = plate.size;
-    const seaPolygon: [number, number][] = seaLayer.polygon!.map(([u, v]) => [u * width, v * height]);
+    const seaPolygon: [number, number][] = seaLayer.polygon!.map((p) => project(p as [number, number], result.viewport));
+
+    const mound = plate.layers.find((l) => l.id === 'mound-of-patroclus')!;
+    const moundPx = project(mound.path![0] as [number, number], result.viewport);
+    expect(pointInPolygon(moundPx, seaPolygon), 'the mound itself must sit on land').toBe(false);
 
     const box = result.labelBoxes['mound-of-patroclus'];
     expect(box).toBeDefined();
-    expect(boxTouchesPolygon(box, seaPolygon)).toBe(false);
+    // The headland sits against a surveyed coastline, so a box/centre-in-sea
+    // test (written for the old unit-space sea strip) grazes water along the
+    // beach. The regression was a name sent out onto the open Hellespont:
+    // the label must stay near its own mark.
+    const cx = (box![0] + box![2]) / 2;
+    const cy = (box![1] + box![3]) / 2;
+    expect(Math.hypot(cx - moundPx[0], cy - moundPx[1])).toBeLessThan(150);
   });
 });
 
@@ -1321,12 +1334,15 @@ describe('computeCamera: label box framing + sheet clamp (postcard camera)', () 
     // Mirrors the real apparatus/places.json record verbatim (name, kind,
     // plateAnchors, positionBasis) — not a shortened stand-in — so the
     // measured label width is the real one, not a synthetic best case.
+    const gaz = (JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[]).find(
+      (p) => p.id === 'achaean-assembly-place',
+    )!;
     const place: PlatePlace = {
       id: 'achaean-assembly-place',
       name: "The assembly and law-place, with the gods' altars",
       certainty: 'certain',
       kind: 'camp',
-      plateAnchors: { 'trojan-plain-schematic': [0.52, 0.748] },
+      plateAnchors: gaz.plateAnchors,
       positionBasis: 'conjectural',
     };
     const result = renderPlate(plate, [place]);
@@ -2018,6 +2034,69 @@ describe('renderPlate: frame, scale and legend', () => {
     const svg = renderPlate(testPlate, [troy, scamander]).svg;
     expect(svg).toContain('data-label-for="troy"');
     expect(svg).toContain('data-label-for="scamander-mouth"');
+  });
+
+  it('a tier-2 place label carries data-label-tier="2" and class plate-label-tier2', () => {
+    const place: PlatePlace = {
+      id: 'oak',
+      name: 'Oak',
+      coords: [39.95, 26.2],
+      certainty: 'certain',
+      kind: 'settlement',
+      labelTier: 2,
+    };
+    const svg = renderPlate(testPlate, [place]).svg;
+    const tag = svg.match(/<text class="plate-label[^"]*" data-label-for="oak"[^>]*>/)?.[0];
+    expect(tag, svg).toBeTruthy();
+    expect(tag).toContain('data-label-tier="2"');
+    expect(tag).toContain('plate-label-tier2');
+  });
+
+  it('a default (tier-1) place label carries neither the tier attribute nor the tier class', () => {
+    const place: PlatePlace = {
+      id: 'oak',
+      name: 'Oak',
+      coords: [39.95, 26.2],
+      certainty: 'certain',
+      kind: 'settlement',
+    };
+    const svg = renderPlate(testPlate, [place]).svg;
+    const tag = svg.match(/<text class="plate-label[^"]*" data-label-for="oak"[^>]*>/)?.[0];
+    expect(tag).toBeTruthy();
+    expect(tag).not.toContain('data-label-tier');
+    expect(tag).not.toContain('plate-label-tier2');
+  });
+
+  it('labelSize small uses the minor style (9.5px) instead of the settlement default (13.5px)', () => {
+    const base: PlatePlace = {
+      id: 'oak',
+      name: 'Oak',
+      coords: [39.95, 26.2],
+      certainty: 'certain',
+      kind: 'settlement',
+    };
+    const smallSvg = renderPlate(testPlate, [{ ...base, labelSize: 'small' }]).svg;
+    const defaultSvg = renderPlate(testPlate, [base]).svg;
+    const smallTag = smallSvg.match(/<text class="plate-label[^"]*" data-label-for="oak"[^>]*>/)?.[0];
+    const defaultTag = defaultSvg.match(/<text class="plate-label[^"]*" data-label-for="oak"[^>]*>/)?.[0];
+    expect(smallTag).toContain('font-size="9.5"');
+    expect(defaultTag).toContain('font-size="13.5"');
+  });
+
+  it('parsePlate accepts labelTier 1|2 and labelSize small|base on a layer, and rejects others', () => {
+    const layer = {
+      id: 'r',
+      kind: 'region' as const,
+      polygon: [
+        [39.9, 26.15],
+        [39.91, 26.16],
+        [39.9, 26.17],
+      ] as [number, number][],
+    };
+    expect(() => parsePlate({ ...testPlate, layers: [{ ...layer, labelTier: 2, labelSize: 'small' }] })).not.toThrow();
+    expect(() => parsePlate({ ...testPlate, layers: [{ ...layer, labelTier: 1, labelSize: 'base' }] })).not.toThrow();
+    expect(() => parsePlate({ ...testPlate, layers: [{ ...layer, labelTier: 3 as 1 }] })).toThrow(/labelTier/);
+    expect(() => parsePlate({ ...testPlate, layers: [{ ...layer, labelSize: 'tiny' as 'small' }] })).toThrow(/labelSize/);
   });
 
   it('moves the legend out of a corner that already holds labels/pins, picking whichever corner overlaps least (occlusion finding, 2026-07-30: on trojan-plain-schematic the hardcoded bottom-right corner sat on top of four Achilles\'-end labels)', () => {
@@ -3212,7 +3291,7 @@ describe('renderPlate: groundOpacity wash', () => {
   });
 });
 
-// The ground layers on trojan-plain-schematic-v2.json are a copy of the
+// The ground layers on trojan-plain-schematic.json are a copy of the
 // geographic sheet, kept in sync by scripts/sync-schematic-ground.py. The
 // gazetteer-side geographic sheet is the source of truth.
 const SCHEMATIC_V2_GROUND_IDS = [
@@ -3245,19 +3324,19 @@ const SCHEMATIC_V2_GROUND_IDS = [
   'aegean',
 ] as const;
 
-describe('trojan-plain-schematic-v2 ground layers match the geographic sheet', () => {
+describe('trojan-plain-schematic ground layers match the geographic sheet', () => {
   it('deep-equals each of the listed ground layers by id', () => {
     const geo = JSON.parse(
       readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain.json'), 'utf-8'),
     );
-    const v2 = JSON.parse(
-      readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain-schematic-v2.json'), 'utf-8'),
+    const schematic = JSON.parse(
+      readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain-schematic.json'), 'utf-8'),
     );
     const geoById = new Map((geo.layers as { id: string }[]).map((l) => [l.id, l]));
-    const v2ById = new Map((v2.layers as { id: string }[]).map((l) => [l.id, l]));
+    const schematicById = new Map((schematic.layers as { id: string }[]).map((l) => [l.id, l]));
     for (const id of SCHEMATIC_V2_GROUND_IDS) {
       expect(
-        v2ById.get(id),
+        schematicById.get(id),
         'the gazetteer-side geographic sheet is the source of truth; run the sync script',
       ).toEqual(geoById.get(id));
     }
@@ -3275,7 +3354,7 @@ describe('trojan-plain-schematic-v2 ground layers match the geographic sheet', (
 // "Coordinate space is declared by the PRESENCE of a bbox, not by kind"
 // comment already states. Each defect below traces to exactly that
 // kind-vs-bbox conflation.
-const V2_SEED_PLATE_PATH = '../apparatus/plates/trojan-plain-schematic-v2.json';
+const V2_SEED_PLATE_PATH = '../apparatus/plates/trojan-plain-schematic.json';
 
 describe('trojan-plain-schematic-v2: river textPath guides are thinned, not raw (2026-09-02, "Sca m ander")', () => {
   const raw = JSON.parse(readFileSync(path.resolve(process.cwd(), V2_SEED_PLATE_PATH), 'utf-8'));
@@ -3334,17 +3413,21 @@ describe('trojan-plain-schematic-v2: the legend fits its own margin band (2026-0
   const plate = parsePlate(JSON.parse(readFileSync(path.resolve(process.cwd(), V2_SEED_PLATE_PATH), 'utf-8')));
   const svg = renderPlate(plate, []).svg;
 
-  it('every legend row text\'s estimated right edge sits inside the sheet, with room to spare', () => {
+  it('the long barrier legend row wraps instead of clipping past the sheet', () => {
     const panelMatch = svg.match(/<rect class="plate-legend-panel" x="([-\d.]+)"/);
     expect(panelMatch).toBeTruthy();
-    const rowTexts = [...svg.matchAll(/<text x="([-\d.]+)" y="[-\d.]+" font-family="var\(--font-ui\)" font-size="9\.5" fill="var\(--text\)">([^<]*)<\/text>/g)];
-    // Also account for wrapped rows (rendered as <text><tspan x="…">…) —
-    // every tspan under a legend text carries the same x, so checking those
-    // too catches a wrap-path regression as well as the single-line one.
-    const tspanTexts = [...svg.matchAll(/<tspan x="([-\d.]+)" y="[-\d.]+">([^<]*)<\/tspan>/g)];
-    const all = [...rowTexts, ...tspanTexts];
-    expect(all.length).toBeGreaterThan(0);
-    for (const m of all) {
+    const legend = svg.match(/<g class="plate-legend">([\s\S]*?)<\/g>/);
+    expect(legend, 'legend group missing').toBeTruthy();
+    const chunk = legend![1];
+    expect(chunk).toMatch(/Sandy barrier/);
+    expect(chunk).toMatch(/width not surveyed/);
+    const rowTexts = [...chunk.matchAll(/<text x="([-\d.]+)" y="[-\d.]+" font-family="var\(--font-ui\)" font-size="9\.5" fill="var\(--text\)">([^<]*)<\/text>/g)];
+    const tspanTexts = [...chunk.matchAll(/<tspan x="([-\d.]+)" y="[-\d.]+">([^<]*)<\/tspan>/g)];
+    const barrier = [...rowTexts, ...tspanTexts].filter((m) =>
+      /Sandy barrier|reconstructed|width not surveyed/.test(m[2]),
+    );
+    expect(barrier.length).toBeGreaterThan(0);
+    for (const m of barrier) {
       const x = Number(m[1]);
       const text = m[2];
       const estRightEdge = x + text.length * 9.5 * 0.54;
