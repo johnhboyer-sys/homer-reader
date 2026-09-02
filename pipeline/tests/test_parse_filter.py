@@ -424,3 +424,91 @@ def test_no_shipped_token_still_reads_by_a_ghost():
     assert showing == [], (
         f"{len(showing)} tokens would be shown a ghost lemma: {showing[:5]}"
     )
+
+
+# ── homograph ranking: the top card names the wrong word ────────────────────
+
+def test_pistos_reads_as_trusty_not_liquid():
+    """ὅρκια πιστά are trusty oaths, not liquid ones.
+
+    LSJ has two πιστός entries and Morpheus offers both: πιστός (A)
+    "(πιπίσκω) = ποτός, liquid" (its only citation is A. Pr. 480) and πιστός
+    (B) "to be trusted or believed", whose own entry cites Il. 15.331. Every
+    one of the 24 occurrences in the two poems is (B) — ὅρκια πιστά, πιστὸν
+    ἑταῖρον, πιστότατος. Morpheus ranked (A) first on πιστός/πιστότατος and
+    the glossless cross-reference stub πιστόν ("v. πιστός (B) III.") first on
+    πιστά/πιστόν.
+    """
+    parses = [
+        {"lemma": "pisto/n", "gloss": "", "parse": "neut nom/voc/acc pl",
+         "lsj": ["pisto/n"], "cunliffe": []},
+        {"lemma": "pisto/s1", "gloss": "liquid", "parse": "neut nom/voc/acc pl",
+         "lsj": ["pisto/s1"], "cunliffe": []},
+        {"lemma": "pisto/s2", "gloss": "to be trusted or believed",
+         "parse": "neut nom/voc/acc pl", "lsj": ["pisto/s2"], "cunliffe": []},
+    ]
+
+    out = apply_morphology_override(parses, "pista/")
+
+    assert out[0]["lemma"] == "pisto/s2"
+    assert out[0]["parse"] == "neut nom/voc/acc pl", "kept its own parse"
+    assert out[0]["lsj"] == ["pisto/s2"], "kept its lexicon link"
+    assert len(out) == len(parses), "the displaced readings are only demoted"
+
+
+def test_sakos_is_a_shield_not_a_hair_sack():
+    # σάκος ἠΰτε πύργον, Il. 7.219: Ajax's body-shield. Morpheus ranks σάκκος
+    # first — LSJ's "coarse cloth of hair", cited from the LXX, the Apocalypse
+    # and Herodotus, never from Homer.
+    parses = [
+        {"lemma": "sa/kkos", "gloss": "coarse cloth of hair", "parse": "masc nom sg",
+         "lsj": ["sa/kkos"], "cunliffe": []},
+        {"lemma": "sa/kos", "gloss": "coarse cloth of hair",
+         "parse": "neut nom/voc/acc sg", "lsj": ["sa/kos"], "cunliffe": ["sa/kos"]},
+    ]
+
+    out = apply_morphology_override(parses, "sa/kos")
+
+    assert out[0]["lsj"] == ["sa/kos"], "links to LSJ σάκος 'shield, Il. 7.222'"
+    assert out[0]["parse"] == "neut nom/voc/acc sg"
+
+
+def test_no_override_invents_a_reading_over_the_shipped_corpus():
+    """The tables re-rank Morpheus's own analyses; they never fabricate one.
+
+    Over every shipped token whose surface carries an override, the promoted
+    front reading must be one Morpheus itself offered for that surface —
+    identical lemma, parse and lexicon links — or else the documented in-place
+    repair, which changes the gloss/lemma of the existing front reading and no
+    morphology. Nothing may be left empty either way.
+    """
+    import json
+    dist = ROOT / "build" / "dist"
+    if not (dist / "iliad").is_dir():
+        import pytest
+        pytest.skip("requires a local build/dist")
+
+    invented, emptied = [], []
+    for work in ("iliad", "odyssey"):
+        path = dist / work / "analyses.json"
+        if not path.exists():
+            continue
+        analyses = json.loads(path.read_text(encoding="utf-8"))
+        for surface in MORPHOLOGY_OVERRIDES:
+            parses = analyses.get(surface)
+            if not parses:
+                continue
+            out = apply_morphology_override([dict(p) for p in parses], surface)
+            if not out:
+                emptied.append((work, surface))
+                continue
+            top = out[0]
+            promoted = any(
+                p["lemma"] == top["lemma"] and p["parse"] == top["parse"]
+                and p["lsj"] == top["lsj"] for p in parses
+            )
+            repaired_in_place = top["parse"] == parses[0]["parse"]
+            if not (promoted or repaired_in_place):
+                invented.append((work, surface, top["lemma"], top["parse"]))
+    assert emptied == [], f"override emptied a token: {emptied}"
+    assert invented == [], f"override invented a reading: {invented}"

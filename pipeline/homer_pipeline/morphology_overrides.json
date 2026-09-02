@@ -220,5 +220,215 @@
     "lemma": "mh=tis",
     "gloss": "wisdom, skill, craft",
     "justification": "All four occurrences of this surface form (Il. 23.315, 316, 318; Od. 13.299) are the epic dative of μῆτις 'wisdom, skill, craft', contracted from μήτιϊ — LSJ s.v. μῆτις notes 'Ep. μήτῑ for μήτιϊ, Hom.' and cites these exact lines ('μήτι . . μέγ' ἀμείνων ἠὲ βίηφι' Il. 23.315; 'μήτι . . καὶ κέρδεσιν' Od. 13.299). Morpheus ranks μήτις = μηδείς ('no one', an old Doric/Cretan form for μηδείς; Morpheus's gloss is corrupted to 'do I') first instead. μήτις = μή τις is itself genuinely Homeric elsewhere (Il. 12.272), so the lemma is NOT a ghost and must not be dropped corpus-wide — only this surface form, where the correct μῆτις reading is already present as a lower-ranked Morpheus candidate, is promoted."
+  },
+  {
+    "surface": "pista/",
+    "lemma": "pisto/s2",
+    "gloss": "to be trusted or believed",
+    "justification": "πιστά is πιστός (B) 'trusty' — LSJ's πιστός (B) entry cites this very use, 'of persons, faithful, trusty, ἑταῖρος Il. 15.331'. All 24 occurrences of this adjective in the two poems are that word: ὅρκια πιστά 'trusty oaths' (Il. 2.124, 3.73, 3.94, 3.245, 3.252, 3.256, 3.269, 3.280, 3.323, 4.157, 7.351, 19.191, 22.262; Od. 24.483), πιστὸν/πιστὸς ἑταῖρον/ἑταῖρος 'trusty comrade' (Il. 15.331, 15.437, 17.500, 17.557, 17.589, 18.235, 18.460; Od. 15.539), πιστότατος (Il. 16.147), οὐκέτι πιστὰ γυναιξίν (Od. 11.456). Not one is πιστός (A), LSJ's '(πιπίσκω) = ποτός, liquid', whose only citation is Aeschylus Pr. 480. Morpheus ranks πιστόν first here — LSJ s.v. is the bare cross-reference 'πιστόν, τό, v. πιστός (B) III.', glossless — with πιστός (A) 'liquid' next. The πιστός (B) analysis is already among Morpheus's own readings in the identical case/number slot, so this promotes it rather than relabelling anything."
+  },
+  {
+    "surface": "pisto/n",
+    "lemma": "pisto/s2",
+    "gloss": "to be trusted or believed",
+    "justification": "πιστόν is πιστός (B) 'trusty' — LSJ's πιστός (B) entry cites this very use, 'of persons, faithful, trusty, ἑταῖρος Il. 15.331'. All 24 occurrences of this adjective in the two poems are that word: ὅρκια πιστά 'trusty oaths' (Il. 2.124, 3.73, 3.94, 3.245, 3.252, 3.256, 3.269, 3.280, 3.323, 4.157, 7.351, 19.191, 22.262; Od. 24.483), πιστὸν/πιστὸς ἑταῖρον/ἑταῖρος 'trusty comrade' (Il. 15.331, 15.437, 17.500, 17.557, 17.589, 18.235, 18.460; Od. 15.539), πιστότατος (Il. 16.147), οὐκέτι πιστὰ γυναιξίν (Od. 11.456). Not one is πιστός (A), LSJ's '(πιπίσκω) = ποτός, liquid', whose only citation is Aeschylus Pr. 480. Morpheus ranks πιστόν first here — LSJ s.v. is the bare cross-reference 'πιστόν, τό, v. πιστός (B) III.', glossless — with πιστός (A) 'liquid' next. The πιστός (B) analysis is already among Morpheus's own readings in the identical case/number slot, so this promotes it rather than relabelling anything."
+  },
+  {
+    "surface": "pisto/s",
+    "lemma": "pisto/s2",
+    "gloss": "to be trusted or believed",
+    "justification": "πιστός is πιστός (B) 'trusty' — LSJ's πιστός (B) entry cites this very use, 'of persons, faithful, trusty, ἑταῖρος Il. 15.331'. All 24 occurrences of this adjective in the two poems are that word: ὅρκια πιστά 'trusty oaths' (Il. 2.124, 3.73, 3.94, 3.245, 3.252, 3.256, 3.269, 3.280, 3.323, 4.157, 7.351, 19.191, 22.262; Od. 24.483), πιστὸν/πιστὸς ἑταῖρον/ἑταῖρος 'trusty comrade' (Il. 15.331, 15.437, 17.500, 17.557, 17.589, 18.235, 18.460; Od. 15.539), πιστότατος (Il. 16.147), οὐκέτι πιστὰ γυναιξίν (Od. 11.456). Not one is πιστός (A), LSJ's '(πιπίσκω) = ποτός, liquid', whose only citation is Aeschylus Pr. 480. Morpheus ranks πιστός (A) 'liquid' first here, so the card for Il. 15.437 πιστὸς ἑταῖρος read 'liquid'. The πιστός (B) analysis is already among Morpheus's own readings in the identical case/number slot, so this promotes it rather than relabelling anything."
+  },
+  {
+    "surface": "pisto/tatos",
+    "lemma": "pisto/s2",
+    "gloss": "to be trusted or believed",
+    "justification": "πιστότατος is πιστός (B) 'trusty' — LSJ's πιστός (B) entry cites this very use, 'of persons, faithful, trusty, ἑταῖρος Il. 15.331'. All 24 occurrences of this adjective in the two poems are that word: ὅρκια πιστά 'trusty oaths' (Il. 2.124, 3.73, 3.94, 3.245, 3.252, 3.256, 3.269, 3.280, 3.323, 4.157, 7.351, 19.191, 22.262; Od. 24.483), πιστὸν/πιστὸς ἑταῖρον/ἑταῖρος 'trusty comrade' (Il. 15.331, 15.437, 17.500, 17.557, 17.589, 18.235, 18.460; Od. 15.539), πιστότατος (Il. 16.147), οὐκέτι πιστὰ γυναιξίν (Od. 11.456). Not one is πιστός (A), LSJ's '(πιπίσκω) = ποτός, liquid', whose only citation is Aeschylus Pr. 480. Morpheus ranks πιστός (A) 'liquid' first here; LSJ's πιστός (B) entry lists 'Sup. πιστότατος' expressly. The πιστός (B) analysis is already among Morpheus's own readings in the identical case/number slot, so this promotes it rather than relabelling anything."
+  },
+  {
+    "surface": "oi)=non",
+    "lemma": "oi)=nos",
+    "gloss": "wine",
+    "justification": "οἶνον is οἶνος 'wine' — LSJ s.v. cites Homer throughout (αἶθοψ οἶνος Il. 1.462, μέλας Od. 9.196, μελιηδής Il. 4.346). Morpheus ranks the neuter οἶνον first, whose whole LSJ entry is 'οἶνον, τό, in pl., οἶνα· τὰ τῆς ἀμπέλου φύλλα, Hsch.' — vine LEAVES, a Hesychius gloss, with no gloss of its own in the data. All 117 occurrences of these four forms are the drink: e.g. Il. 1.462 ἐπὶ δ' αἴθοπα οἶνον, Il. 3.295 οἶνον δ' ἐκ κρητῆρος ἀφυσσόμενοι. οἶνος is already Morpheus's own reading in the identical slot."
+  },
+  {
+    "surface": "oi)/noio",
+    "lemma": "oi)=nos",
+    "gloss": "wine",
+    "justification": "οἴνοιο is οἶνος 'wine' — LSJ s.v. cites Homer throughout (αἶθοψ οἶνος Il. 1.462, μέλας Od. 9.196, μελιηδής Il. 4.346). Morpheus ranks the neuter οἶνον first, whose whole LSJ entry is 'οἶνον, τό, in pl., οἶνα· τὰ τῆς ἀμπέλου φύλλα, Hsch.' — vine LEAVES, a Hesychius gloss, with no gloss of its own in the data. All 117 occurrences of these four forms are the drink: e.g. Il. 8.232 πίνοντες κρητῆρας ἐπιστεφέας οἴνοιο, Il. 9.706 σίτου καὶ οἴνοιο. οἶνος is already Morpheus's own reading in the identical slot."
+  },
+  {
+    "surface": "oi)/nou",
+    "lemma": "oi)=nos",
+    "gloss": "wine",
+    "justification": "οἴνου is οἶνος 'wine' — LSJ s.v. cites Homer throughout (αἶθοψ οἶνος Il. 1.462, μέλας Od. 9.196, μελιηδής Il. 4.346). Morpheus ranks the neuter οἶνον first, whose whole LSJ entry is 'οἶνον, τό, in pl., οἶνα· τὰ τῆς ἀμπέλου φύλλα, Hsch.' — vine LEAVES, a Hesychius gloss, with no gloss of its own in the data. All 117 occurrences of these four forms are the drink: the genitive of the same drink. οἶνος is already Morpheus's own reading in the identical slot."
+  },
+  {
+    "surface": "oi)/nw|",
+    "lemma": "oi)=nos",
+    "gloss": "wine",
+    "justification": "οἴνῳ is οἶνος 'wine' — LSJ s.v. cites Homer throughout (αἶθοψ οἶνος Il. 1.462, μέλας Od. 9.196, μελιηδής Il. 4.346). Morpheus ranks the neuter οἶνον first, whose whole LSJ entry is 'οἶνον, τό, in pl., οἶνα· τὰ τῆς ἀμπέλου φύλλα, Hsch.' — vine LEAVES, a Hesychius gloss, with no gloss of its own in the data. All 117 occurrences of these four forms are the drink: the dative of the same drink. οἶνος is already Morpheus's own reading in the identical slot."
+  },
+  {
+    "surface": "danaw=n",
+    "lemma": "*danaoi/",
+    "gloss": "the Danaans",
+    "justification": "Δαναῶν is the genitive plural of Δαναοί, one of Homer's three names for the Greeks — all 71 occurrences (Il. 1.56 κήδετο γὰρ Δαναῶν, 1.90, 1.258, 1.444 ὑπὲρ Δαναῶν, and so on). Morpheus ranks Δανάη first, and the LSJ entry that lemma resolves to is not the heroine but 'Δανάη, ἡ, = δάφνη, Ps.-Dsc. 4.145' — a laurel-plant name from Pseudo-Dioscorides, glossless in the data. Δαναοί masc gen pl is already Morpheus's own second reading in the identical slot."
+  },
+  {
+    "surface": "sa/kos",
+    "lemma": "sa/kos",
+    "gloss": "shield",
+    "justification": "σάκος is the great body-shield — LSJ s.v. σάκος 'shield, Il. 7.222, 18.478, 20.268', which is Ajax's σάκος ἠΰτε πύργον (Il. 7.219, 7.222) and Achilles' new shield. Morpheus ranks σάκκος first, whose LSJ entry is 'coarse cloth of hair, esp. of goats' hair' cited from the Apocalypse, the LXX and Herodotus, never from Homer. All 52 occurrences of this form are the shield. σάκος neut nom/acc sg is already Morpheus's own reading in the identical slot. (The promoted reading still carries a wrong gloss, 'coarse cloth of hair', inherited from the σάκκος entry — a gloss defect upstream of this table, reported separately; the lemma and the LSJ link are correct after this promotion.)"
+  },
+  {
+    "surface": "ei)dw/s",
+    "lemma": "oi)=da",
+    "gloss": "knowing, skilled in",
+    "justification": "εἰδώς is the perfect participle of οἶδα, 'knowing, skilled in' — τόξων ἐῢ εἰδώς 'well skilled in the bow' (Il. 2.718, 4.196), εὖ εἰδὼς ἀγόρευε (Il. 1.385), εἰδὼς παντοίους τε δόλους of Odysseus (Il. 3.202). All 45 occurrences are that participle. Morpheus ranks εἰδοί first, whose whole LSJ entry is 'εἰδοί or ἰδοί, ῶν, αἱ, = Lat. Idus' — the Roman Ides, attested in Dionysius of Halicarnassus, Plutarch and a Carthaginian defixio, glossless in the data and read here as a Doric accusative plural. οἶδα's perfect participle is already Morpheus's own second reading."
+  },
+  {
+    "surface": "kroni/wn",
+    "lemma": "*kroni/wn",
+    "gloss": "son of Cronos",
+    "justification": "Κρονίων is Zeus, 'son of Cronos', nominative singular — Il. 1.528 νεῦσε Κρονίων, 2.419, 2.670, 3.302. All 42 occurrences are that name. Morpheus ranks Κρόνια first, whose LSJ entry is the bare cross-reference 'Κρόνια, ων, τά, v. Κρόνιος' — the Attic festival, glossless in the data — and reads the form as its neuter genitive plural. Κρονίων masc nom/voc sg is already among Morpheus's own readings."
+  },
+  {
+    "surface": "qea/wn",
+    "lemma": "qea/",
+    "gloss": "goddess",
+    "justification": "θεάων is the epic genitive plural of θεά 'goddess' — δῖα θεάων 'bright among goddesses' (Il. 5.381, 6.305 and passim), Il. 4.7 ἀρηγόνες εἰσὶ θεάων. All 39 occurrences are that noun. Morpheus ranks θέα 'seeing, looking at' (LSJ θέα, from θεάομαι, cited from Herodotus, Sophocles and Plato) first. θεά fem gen pl is already Morpheus's own reading in the identical slot. This is the same defect the θεῶν/θεοῖσι family in parse_filter._HOMERIC_LEMMA_FAMILIES already repairs, on a form that family does not cover — and here the right target is θεά, not θεός."
+  },
+  {
+    "surface": "pa=sai",
+    "lemma": "pa=s",
+    "gloss": "all",
+    "justification": "πᾶσαι is the feminine nominative plural of πᾶς — πᾶσαι δ' ὠΐγνυντο πύλαι 'all the gates were opened' (Il. 2.809), αἳ δ' ἅμα πᾶσαι (Il. 6.133), Il. 3.412, 4.525. All 38 occurrences are that adjective. Morpheus ranks πάομαι 'get, acquire' first, reading the form as a Doric aorist middle imperative — a verb LSJ marks 'mostly Dor., Arc., and poet.' and cites from Aeschylus, Theognis and Callimachus, never from Homer. πᾶς fem nom/voc pl is already Morpheus's own second reading."
+  },
+  {
+    "surface": "a)lkh=s",
+    "lemma": "a)lkh/",
+    "gloss": "strength, valour",
+    "justification": "ἀλκῆς is ἀλκή 'strength, valour' — θούριδος ἀλκῆς 'furious valour' is a formula of the Iliad (4.234, 4.418, 5.718, 6.112 μνήσασθε δὲ θούριδος ἀλκῆς, and passim). All 38 occurrences of these two forms are that noun. Morpheus ranks ἀλκάζω first, whose whole LSJ entry is 'ἀλκάζω, put forth strength or prowess, EM 56.11, 66.10' plus a Hesychius gloss — a verb known only from the Etymologicum Magnum and Hesychius — read here as a Doric future indicative. ἀλκή is already Morpheus's own reading in the identical slot."
+  },
+  {
+    "surface": "a)lkh=|",
+    "lemma": "a)lkh/",
+    "gloss": "strength, valour",
+    "justification": "ἀλκῇ is ἀλκή 'strength, valour' — θούριδος ἀλκῆς 'furious valour' is a formula of the Iliad (4.234, 4.418, 5.718, 6.112 μνήσασθε δὲ θούριδος ἀλκῆς, and passim). All 38 occurrences of these two forms are that noun. Morpheus ranks ἀλκάζω first, whose whole LSJ entry is 'ἀλκάζω, put forth strength or prowess, EM 56.11, 66.10' plus a Hesychius gloss — a verb known only from the Etymologicum Magnum and Hesychius — read here as a Doric future indicative. ἀλκή is already Morpheus's own reading in the identical slot."
+  },
+  {
+    "surface": "koni/h|si",
+    "lemma": "koni/a",
+    "gloss": "dust",
+    "justification": "κονίῃσι is κονίη (LSJ headword κονία) 'dust' — ἐν κονίῃσι 'in the dust' is where Homer's dying men fall (Il. 4.482, 4.522, 4.536, 17.315; Od. 18.98), and LSJ s.v. κονία cites these very lines. All 67 occurrences of the seven forms of this noun are that word. Morpheus ranks κόνιος first, an adjective 'dusty' whose LSJ entry cites only Pindar (N. 9.43) and Pausanias — never Homer. κονία is already Morpheus's own reading in the identical case and number."
+  },
+  {
+    "surface": "koni/h|sin",
+    "lemma": "koni/a",
+    "gloss": "dust",
+    "justification": "κονίῃσιν is κονίη (LSJ headword κονία) 'dust' — ἐν κονίῃσι 'in the dust' is where Homer's dying men fall (Il. 4.482, 4.522, 4.536, 17.315; Od. 18.98), and LSJ s.v. κονία cites these very lines. All 67 occurrences of the seven forms of this noun are that word. Morpheus ranks κόνιος first, an adjective 'dusty' whose LSJ entry cites only Pindar (N. 9.43) and Pausanias — never Homer. κονία is already Morpheus's own reading in the identical case and number."
+  },
+  {
+    "surface": "koni/hs",
+    "lemma": "koni/a",
+    "gloss": "dust",
+    "justification": "κονίης is κονίη (LSJ headword κονία) 'dust' — ἐν κονίῃσι 'in the dust' is where Homer's dying men fall (Il. 4.482, 4.522, 4.536, 17.315; Od. 18.98), and LSJ s.v. κονία cites these very lines. All 67 occurrences of the seven forms of this noun are that word. Morpheus ranks κόνιος first, an adjective 'dusty' whose LSJ entry cites only Pindar (N. 9.43) and Pausanias — never Homer. κονία is already Morpheus's own reading in the identical case and number."
+  },
+  {
+    "surface": "koni/h|",
+    "lemma": "koni/a",
+    "gloss": "dust",
+    "justification": "κονίῃ is κονίη (LSJ headword κονία) 'dust' — ἐν κονίῃσι 'in the dust' is where Homer's dying men fall (Il. 4.482, 4.522, 4.536, 17.315; Od. 18.98), and LSJ s.v. κονία cites these very lines. All 67 occurrences of the seven forms of this noun are that word. Morpheus ranks κόνιος first, an adjective 'dusty' whose LSJ entry cites only Pindar (N. 9.43) and Pausanias — never Homer. κονία is already Morpheus's own reading in the identical case and number."
+  },
+  {
+    "surface": "koni/hn",
+    "lemma": "koni/a",
+    "gloss": "dust",
+    "justification": "κονίην is κονίη (LSJ headword κονία) 'dust' — ἐν κονίῃσι 'in the dust' is where Homer's dying men fall (Il. 4.482, 4.522, 4.536, 17.315; Od. 18.98), and LSJ s.v. κονία cites these very lines. All 67 occurrences of the seven forms of this noun are that word. Morpheus ranks κόνιος first, an adjective 'dusty' whose LSJ entry cites only Pindar (N. 9.43) and Pausanias — never Homer. κονία is already Morpheus's own reading in the identical case and number."
+  },
+  {
+    "surface": "koni/h",
+    "lemma": "koni/a",
+    "gloss": "dust",
+    "justification": "κονίη is κονίη (LSJ headword κονία) 'dust' — ἐν κονίῃσι 'in the dust' is where Homer's dying men fall (Il. 4.482, 4.522, 4.536, 17.315; Od. 18.98), and LSJ s.v. κονία cites these very lines. All 67 occurrences of the seven forms of this noun are that word. Morpheus ranks κόνιος first, an adjective 'dusty' whose LSJ entry cites only Pindar (N. 9.43) and Pausanias — never Homer. κονία is already Morpheus's own reading in the identical case and number."
+  },
+  {
+    "surface": "koni/h|s",
+    "lemma": "koni/a",
+    "gloss": "dust",
+    "justification": "κονίῃς is κονίη (LSJ headword κονία) 'dust' — ἐν κονίῃσι 'in the dust' is where Homer's dying men fall (Il. 4.482, 4.522, 4.536, 17.315; Od. 18.98), and LSJ s.v. κονία cites these very lines. All 67 occurrences of the seven forms of this noun are that word. Morpheus ranks κόνιος first, an adjective 'dusty' whose LSJ entry cites only Pindar (N. 9.43) and Pausanias — never Homer. κονία is already Morpheus's own reading in the identical case and number."
+  },
+  {
+    "surface": "kei=tai",
+    "lemma": "kei=mai",
+    "gloss": "lie, be laid",
+    "justification": "κεῖται is κεῖμαι 'lie, be laid' — τεύχεα μέν οἱ κεῖται ἐπὶ χθονί, Il. 3.195; κεῖται δ' ἐν θαλάμῳ, Il. 4.143 (61 occurrences). Morpheus ranks κέω first, whose whole LSJ entry is the cross-reference 'κέω, v. κείω' followed by unrelated Hesychius glosses. κείω 'wish to lie down' IS Homeric (ὄρσο κέων, Od. 7.342), so κέω is NOT dropped corpus-wide as a ghost — only these finite and infinitive forms of κεῖμαι, where κεῖμαι's own analysis in the identical slot is already among Morpheus's readings, are promoted. The elided κεῖτ' is deliberately left alone: it is the imperfect κεῖτο, and the first κεῖμαι analysis Morpheus offers for it is the present."
+  },
+  {
+    "surface": "kei=to",
+    "lemma": "kei=mai",
+    "gloss": "lie, be laid",
+    "justification": "κεῖτο is κεῖμαι 'lie, be laid' — the imperfect, 'he/it lay' (28 occurrences). Morpheus ranks κέω first, whose whole LSJ entry is the cross-reference 'κέω, v. κείω' followed by unrelated Hesychius glosses. κείω 'wish to lie down' IS Homeric (ὄρσο κέων, Od. 7.342), so κέω is NOT dropped corpus-wide as a ghost — only these finite and infinitive forms of κεῖμαι, where κεῖμαι's own analysis in the identical slot is already among Morpheus's readings, are promoted. The elided κεῖτ' is deliberately left alone: it is the imperfect κεῖτο, and the first κεῖμαι analysis Morpheus offers for it is the present."
+  },
+  {
+    "surface": "kei=sqai",
+    "lemma": "kei=mai",
+    "gloss": "lie, be laid",
+    "justification": "κεῖσθαι is κεῖμαι 'lie, be laid' — the present infinitive (9 occurrences). Morpheus ranks κέω first, whose whole LSJ entry is the cross-reference 'κέω, v. κείω' followed by unrelated Hesychius glosses. κείω 'wish to lie down' IS Homeric (ὄρσο κέων, Od. 7.342), so κέω is NOT dropped corpus-wide as a ghost — only these finite and infinitive forms of κεῖμαι, where κεῖμαι's own analysis in the identical slot is already among Morpheus's readings, are promoted. The elided κεῖτ' is deliberately left alone: it is the imperfect κεῖτο, and the first κεῖμαι analysis Morpheus offers for it is the present."
+  },
+  {
+    "surface": "kei/mhn",
+    "lemma": "kei=mai",
+    "gloss": "lie, be laid",
+    "justification": "κείμην is κεῖμαι 'lie, be laid' — the first-person imperfect (4 occurrences). Morpheus ranks κέω first, whose whole LSJ entry is the cross-reference 'κέω, v. κείω' followed by unrelated Hesychius glosses. κείω 'wish to lie down' IS Homeric (ὄρσο κέων, Od. 7.342), so κέω is NOT dropped corpus-wide as a ghost — only these finite and infinitive forms of κεῖμαι, where κεῖμαι's own analysis in the identical slot is already among Morpheus's readings, are promoted. The elided κεῖτ' is deliberately left alone: it is the imperfect κεῖτο, and the first κεῖμαι analysis Morpheus offers for it is the present."
+  },
+  {
+    "surface": "ke/ontai",
+    "lemma": "kei=mai",
+    "gloss": "lie, be laid",
+    "justification": "κέονται is κεῖμαι 'lie, be laid' — εἵματ' ἐνὶ μεγάροισι κέονται, Il. 22.510; Od. 11.341, 16.232 — the epic third plural LSJ records s.v. κεῖμαι. Morpheus ranks κέω first, whose whole LSJ entry is the cross-reference 'κέω, v. κείω' followed by unrelated Hesychius glosses. κείω 'wish to lie down' IS Homeric (ὄρσο κέων, Od. 7.342), so κέω is NOT dropped corpus-wide as a ghost — only these finite and infinitive forms of κεῖμαι, where κεῖμαι's own analysis in the identical slot is already among Morpheus's readings, are promoted. The elided κεῖτ' is deliberately left alone: it is the imperfect κεῖτο, and the first κεῖμαι analysis Morpheus offers for it is the present."
+  },
+  {
+    "surface": "kei/meq'",
+    "lemma": "kei=mai",
+    "gloss": "lie, be laid",
+    "justification": "κείμεθ' is κεῖμαι 'lie, be laid' — the first-person plural present (3 occurrences). Morpheus ranks κέω first, whose whole LSJ entry is the cross-reference 'κέω, v. κείω' followed by unrelated Hesychius glosses. κείω 'wish to lie down' IS Homeric (ὄρσο κέων, Od. 7.342), so κέω is NOT dropped corpus-wide as a ghost — only these finite and infinitive forms of κεῖμαι, where κεῖμαι's own analysis in the identical slot is already among Morpheus's readings, are promoted. The elided κεῖτ' is deliberately left alone: it is the imperfect κεῖτο, and the first κεῖμαι analysis Morpheus offers for it is the present."
+  },
+  {
+    "surface": "kei=nto",
+    "lemma": "kei=mai",
+    "gloss": "lie, be laid",
+    "justification": "κεῖντο is κεῖμαι 'lie, be laid' — the third-plural imperfect. Morpheus ranks κέω first, whose whole LSJ entry is the cross-reference 'κέω, v. κείω' followed by unrelated Hesychius glosses. κείω 'wish to lie down' IS Homeric (ὄρσο κέων, Od. 7.342), so κέω is NOT dropped corpus-wide as a ghost — only these finite and infinitive forms of κεῖμαι, where κεῖμαι's own analysis in the identical slot is already among Morpheus's readings, are promoted. The elided κεῖτ' is deliberately left alone: it is the imperfect κεῖτο, and the first κεῖμαι analysis Morpheus offers for it is the present."
+  },
+  {
+    "surface": "kei/meqa",
+    "lemma": "kei=mai",
+    "gloss": "lie, be laid",
+    "justification": "κείμεθα is κεῖμαι 'lie, be laid' — the first-person plural present. Morpheus ranks κέω first, whose whole LSJ entry is the cross-reference 'κέω, v. κείω' followed by unrelated Hesychius glosses. κείω 'wish to lie down' IS Homeric (ὄρσο κέων, Od. 7.342), so κέω is NOT dropped corpus-wide as a ghost — only these finite and infinitive forms of κεῖμαι, where κεῖμαι's own analysis in the identical slot is already among Morpheus's readings, are promoted. The elided κεῖτ' is deliberately left alone: it is the imperfect κεῖτο, and the first κεῖμαι analysis Morpheus offers for it is the present."
+  },
+  {
+    "surface": "kei/sqw",
+    "lemma": "kei=mai",
+    "gloss": "lie, be laid",
+    "justification": "κείσθω is κεῖμαι 'lie, be laid' — the third-singular present imperative. Morpheus ranks κέω first, whose whole LSJ entry is the cross-reference 'κέω, v. κείω' followed by unrelated Hesychius glosses. κείω 'wish to lie down' IS Homeric (ὄρσο κέων, Od. 7.342), so κέω is NOT dropped corpus-wide as a ghost — only these finite and infinitive forms of κεῖμαι, where κεῖμαι's own analysis in the identical slot is already among Morpheus's readings, are promoted. The elided κεῖτ' is deliberately left alone: it is the imperfect κεῖτο, and the first κεῖμαι analysis Morpheus offers for it is the present."
+  },
+  {
+    "surface": "ke/sket'",
+    "lemma": "kei=mai",
+    "gloss": "lie, be laid",
+    "justification": "κέσκετ' is κεῖμαι 'lie, be laid' — κέσκετ' ἐνὶ μεγάροισι, Od. 21.41 — the iterative imperfect of κεῖμαι, of the bow that used to lie in the hall. Morpheus ranks κέω first, whose whole LSJ entry is the cross-reference 'κέω, v. κείω' followed by unrelated Hesychius glosses. κείω 'wish to lie down' IS Homeric (ὄρσο κέων, Od. 7.342), so κέω is NOT dropped corpus-wide as a ghost — only these finite and infinitive forms of κεῖμαι, where κεῖμαι's own analysis in the identical slot is already among Morpheus's readings, are promoted. The elided κεῖτ' is deliberately left alone: it is the imperfect κεῖτο, and the first κεῖμαι analysis Morpheus offers for it is the present."
+  },
+  {
+    "surface": "pa/sasqai",
+    "lemma": "pate/omai",
+    "gloss": "eat, taste",
+    "justification": "πάσασθαι here is πατέομαι 'eat, taste': οὔτ' ἐς δαῖτ' ἰέναι οὔτ' ἐν μεγάροισι πάσασθαι (Il. 9.487), ἀλλὰ πάσασθαι ἄνωχθι (Il. 19.160), δόσαν λωτοῖο πάσασθαι (Od. 9.93) — in every one of the three occurrences the sense is eating, twice with a partitive genitive of the food. Morpheus ranks πάομαι 'get, acquire' first (LSJ: 'mostly Dor., Arc., and poet.', cited from Aeschylus, Theognis, Callimachus, Theocritus — not Homer) and πάσσω 'sprinkle' second. πατέομαι's aorist middle infinitive is already Morpheus's own third reading, in the identical slot."
+  },
+  {
+    "surface": "nho/s",
+    "lemma": "nau=s",
+    "gloss": "ship",
+    "justification": "νηός/νηὸς is the epic genitive singular of ναῦς 'ship' — ἐκ δὲ Χρυσηῒς νηὸς βῆ (Il. 1.439), παρὰ πρυμνήσια νηός (Il. 1.476), νηὸς ἐϋσσέλμοιο μελαίνης (Il. 2.170). Morpheus ranks ναός 'temple' first. apparatus_vocab.HOMOGRAPH_LEMMA already corrects this surface for the vocabulary lists, on the verified finding that every occurrence of νηός/νηῶν/νεῶν in the two poems is a ship (Cunliffe s.v. ναῦς); parse_filter._HOMERIC_LEMMA_FAMILIES covers νηῶν and νεῶν for the word popup but not νηός, so all 96 occurrences of this form still opened a card reading 'temple'. ναῦς fem gen sg (epic) is already Morpheus's own second reading. The purely-temple forms νηόν/νηῷ/νηούς carry no ναῦς analysis and are deliberately untouched."
   }
 ]
