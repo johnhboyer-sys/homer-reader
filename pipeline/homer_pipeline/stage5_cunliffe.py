@@ -175,6 +175,42 @@ def unglue_refs(definition: str) -> str:
     return _GLUED_ABBR_RE.sub(" ", definition)
 
 
+# Two references the 1924 page does not state correctly, and the only two in
+# the corpus that no rule can reach — every other wrong reference was a parsing
+# fault, fixable by reading the text properly. These are faults IN the text.
+#
+# Correcting a printed source is a departure from this edition's default, which
+# is to reproduce what Cunliffe set (the "Of." mis-scan in ἐπιτρέχω is kept
+# verbatim for exactly that reason). It is done here, on John's ruling, only
+# because both targets are established from our own Greek rather than inferred,
+# and because the alternative is shipping a live link to the wrong line.
+#
+# Each correction records the evidence that fixes it. Replacement is literal
+# and anchored to the entry, so neither can fire anywhere else.
+_SOURCE_MISSCANS: dict[str, tuple[str, str]] = {
+    # "Pple. οἰμώξας Il. 5.68, Il. 16.290, Il. 20.417, Od. Il.529, Il. 22.34"
+    # — a scan of two abbreviations over one another, in an ordered run that
+    # places it between books 20 and 22. Il. 21.529 reads "ὃ δ' οἰμώξας ἀπὸ
+    # πύργου βαῖνε χαμᾶζε": the participle this entry is listing, in the book
+    # the ordering requires. Od. 5.529 does not exist — Odyssey 5 ends at 493.
+    "oi)mw/zw": ("Od. Il.529", "Il. 21.529"),
+    # "κύων Ὠρίωνος, Sirius 22.29" — no abbreviation at all, so the digits
+    # expand against the last reference (Od. 5.274) and point into Odyssey 5.
+    # Il. 22.29 reads "ὅν τε κύν' Ὠρίωνος ἐπίκλησιν καλέουσι", which is the
+    # phrase Cunliffe is glossing, in the Sirius simile of Il. 22.26-31.
+    "w)ri/wn": ("Sirius 22.29", "Sirius Il. 22.29"),
+}
+
+
+def fix_source_misscan(key: str, definition: str) -> str:
+    """Repair the two references the 1924 text itself states wrongly."""
+    fix = _SOURCE_MISSCANS.get(key)
+    if fix is None:
+        return definition
+    printed, corrected = fix
+    return definition.replace(printed, corrected, 1)
+
+
 def _link_plain_refs(escaped: str) -> str:
     """Link full references in an already-escaped run of definition text."""
     def one(m: re.Match[str]) -> str:
@@ -1160,7 +1196,7 @@ def to_t8(key: str, headword: str, definition: str, resolve=None) -> dict:
     # Before anything measures this string: the scan lost the space in front
     # of 94 work abbreviations, and every rule below reads the result as one
     # word — see unglue_refs.
-    definition = unglue_refs(definition)
+    definition = fix_source_misscan(key, unglue_refs(definition))
     p = split_senses(definition)
     roman = {d["at"]: d["n"] for d in p["divisions"]}
     if not p["senses"]:

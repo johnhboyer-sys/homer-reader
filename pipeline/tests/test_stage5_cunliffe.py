@@ -1249,3 +1249,32 @@ def test_a_continuation_still_expands_after_the_glued_reference_fix():
     # The pin the glue fix must not disturb: "Il. 19.35, 75" is Il. 19.75.
     segs = sc.split_evidence("Il. 19.35, 75")
     assert segs[0]["au"] == ["Il. 19.35", "Il. 19.75"]
+
+
+def test_the_two_misstated_references_point_at_the_lines_cunliffe_means():
+    """The only two references in the corpus no parsing rule can reach, because
+    the 1924 text itself states them wrongly.
+
+    Both targets are established from our own Greek, not inferred. Il. 21.529
+    is "ὃ δ' οἰμώξας ἀπὸ πύργου βαῖνε χαμᾶζε" — the participle οἰμώζω is
+    listing, in the only book its ordered run (20.417 … 22.34) leaves room for;
+    Od. 5.529 does not exist, Odyssey 5 ending at 493. Il. 22.29 is "ὅν τε κύν'
+    Ὠρίωνος ἐπίκλησιν καλέουσι", the phrase Ὠρίων glosses as Sirius.
+
+    Correcting a printed source is this edition's exception, not its habit: the
+    mis-scanned "Of." in ἐπιτρέχω is kept verbatim, because dropping a letter
+    loses content. These two are repaired because a wrong live link is worse
+    than a wrong glyph, and because the right line is known rather than guessed.
+    """
+    oim = sc.fix_source_misscan(
+        "oi)mw/zw",
+        "Pple. οἰμώξας Il. 5.68, Il. 16.290, Il. 20.417, Od. Il.529, Il. 22.34")
+    assert "Il. 21.529" in oim and "Od. Il.529" not in oim
+
+    ori = sc.fix_source_misscan(
+        "w)ri/wn",
+        "The constellation Il. 14.486, 488: Od. 5.274. κύων Ὠρίωνος, Sirius 22.29 .")
+    assert "Sirius Il. 22.29" in ori
+
+    # Anchored to the entry: the same printed string elsewhere is left alone.
+    assert sc.fix_source_misscan("a)/gw", "Sirius 22.29") == "Sirius 22.29"
