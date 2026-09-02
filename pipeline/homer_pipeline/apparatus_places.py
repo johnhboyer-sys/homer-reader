@@ -561,18 +561,10 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                 )
                 continue
             a, b = pair
-            # Coordinate space is declared by the bbox, not by kind: a
-            # geographic extent (one that does not live inside the unit
-            # square) means lat/lon. A schematic plate with no bbox, or
-            # with a dummy unit bbox [0,0,1,1], stays in unit [u, v]
-            # space — that dummy is how several existing fixtures declare
-            # "I am unit space" without omitting the field.
-            use_bbox = min_lat is not None and (
-                min_lat < -_BBOX_EPS
-                or max_lat > 1 + _BBOX_EPS
-                or min_lon < -_BBOX_EPS
-                or max_lon > 1 + _BBOX_EPS
-            )
+            # Coordinate space is declared by the PRESENCE of a bbox, not by
+            # kind: a plate that carries a bbox projects lat/lon; a plate
+            # with none (schematic, always) stays in unit [u, v] space.
+            use_bbox = min_lat is not None
             if use_bbox:
                 if not (
                     min_lat - _BBOX_EPS <= a <= max_lat + _BBOX_EPS

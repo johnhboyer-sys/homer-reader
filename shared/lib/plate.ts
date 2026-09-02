@@ -630,10 +630,9 @@ function parseLayer(raw: unknown, plate: { kind: PlateKind; bbox?: [number, numb
     trace: geometryArray('trace'),
   };
 
-  // Coordinate space is declared by the bbox, not by kind: a geographic
-  // extent (one that does not live inside the unit square) means lat/lon;
-  // no bbox, or a dummy unit bbox on a schematic plate, stays 0..1.
-  if (plate.bbox && isGeographicBBox(plate.bbox)) {
+  // Coordinate space is declared by the PRESENCE of a bbox, not by kind: a
+  // plate that carries a bbox projects lat/lon; a plate with none stays 0..1.
+  if (plate.bbox) {
     assertPointsInBBox(layer, plate.bbox);
   } else {
     assertPointsInUnitRange(layer);
@@ -3275,25 +3274,19 @@ function hypsometricKeyMarkup(plate: Plate, width: number, height: number): stri
 
 // ── Projection ───────────────────────────────────────────────────────────
 
-// A bbox that extends outside the unit square is a geographic extent
-// (Aegean lat/lon). A dummy unit bbox ([0,0,1,1] on a schematic plate) is
-// not — those plates stay in unit [u, v] space, which is how they were
-// authored. Coordinate space follows the bbox, not `kind`.
-function isGeographicBBox(bbox: [number, number, number, number]): boolean {
-  const [minLat, minLon, maxLat, maxLon] = bbox;
-  const eps = 1e-9;
-  return minLat < -eps || maxLat > 1 + eps || minLon < -eps || maxLon > 1 + eps;
-}
-
+// Coordinate space is declared by the PRESENCE of a bbox, not by `kind` and
+// not by the bbox's own extent: a plate that carries a bbox projects its
+// points as lat/lon through geo.ts; a plate with no bbox treats them as unit
+// [u, v]. A schematic plate that wants unit space simply omits bbox.
 function usesLatLon(plate: { bbox?: [number, number, number, number] }): boolean {
-  return plate.bbox !== undefined && isGeographicBBox(plate.bbox);
+  return plate.bbox !== undefined;
 }
 
-// Projects one plate point into plate-pixel space. A sheet with a geographic
-// bbox runs the point through geo.ts's project() — the same projection that
-// places gazetteer pins. A sheet without one (or with only a dummy unit bbox)
-// treats the point as a unit [u, v] pair (0..1, top-left origin, same sense
-// as SVG y-down) scaled directly by plate.size.
+// Projects one plate point into plate-pixel space. A sheet with a bbox runs
+// the point through geo.ts's project() — the same projection that places
+// gazetteer pins. A sheet without one treats the point as a unit [u, v] pair
+// (0..1, top-left origin, same sense as SVG y-down) scaled directly by
+// plate.size.
 function projectPoint(plate: Plate, p: PlatePoint, viewport: Viewport): [number, number] {
   if (!usesLatLon(plate)) {
     return [p[0] * plate.size[0], p[1] * plate.size[1]];

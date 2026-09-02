@@ -251,3 +251,40 @@ describe('viewport rotation (rotationDeg)', () => {
     expect(vp.rotationDeg).toBe(0);
   });
 });
+
+describe('rotation on the real trojan-plain bbox (Troy vs Sigeion, and scale-bar isotropy)', () => {
+  // Real production bbox and place coordinates — apparatus/plates/trojan-plain.json's
+  // bbox, and Troy / Sigeion from apparatus/places.json. Under east-up
+  // (rotationDeg 90) a point further EAST projects ABOVE centre and a point
+  // further NORTH projects LEFT of centre (see the rotationDeg=90 test above).
+  // Troy [39.957, 26.239] sits east of Sigeion [39.9835, 26.1809], which in
+  // turn sits north of Troy (higher latitude).
+  const TROJAN_PLAIN_BBOX: [number, number, number, number] = [39.86, 26.1, 40.05, 26.38];
+  const TROY: [number, number] = [39.957, 26.239];
+  const SIGEION: [number, number] = [39.9835, 26.1809];
+
+  it('at θ=90, Troy (further east) projects above Sigeion, and Sigeion (further north) projects left of Troy', () => {
+    const vp = viewportFromBBox(TROJAN_PLAIN_BBOX, [800, 600], 90);
+    const [xTroy, yTroy] = project(TROY, vp);
+    const [xSigeion, ySigeion] = project(SIGEION, vp);
+    expect(yTroy).toBeLessThan(ySigeion);
+    expect(xSigeion).toBeLessThan(xTroy);
+  });
+
+  it("the scale bar's px→km reading (driven by viewport.scale) is the same in every direction on the sheet, at any rotation — not stretched along one axis", () => {
+    for (const theta of [0, 37, 90, 163]) {
+      const vp = viewportFromBBox(TROJAN_PLAIN_BBOX, [800, 600], theta);
+      const cosLat = Math.cos((vp.centerLat * Math.PI) / 180);
+      // Two 0.01°-equivalent offsets from centre — one pure "east", one pure
+      // "north" — sized in cos-corrected degree terms so they represent the
+      // same on-the-ground distance.
+      const east: [number, number] = [vp.centerLat, vp.centerLon + 0.01];
+      const north: [number, number] = [vp.centerLat + 0.01 * cosLat, vp.centerLon];
+      const [ex, ey] = project(east, vp);
+      const [nx, ny] = project(north, vp);
+      const pxEast = Math.hypot(ex - vp.width / 2, ey - vp.height / 2);
+      const pxNorth = Math.hypot(nx - vp.width / 2, ny - vp.height / 2);
+      expect(pxEast).toBeCloseTo(pxNorth, 6);
+    }
+  });
+});

@@ -117,7 +117,6 @@ const schematicPlate: Plate = {
   title: 'Shield',
   kind: 'schematic',
   status: 'draft',
-  bbox: [0, 0, 1, 1],
   size: [200, 200],
   layers: [],
 };
