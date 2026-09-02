@@ -499,6 +499,15 @@ export interface PlateResult {
   // by computeCamera so a framed focus's label — not just its pin — fits
   // inside the camera window.
   labelBoxes: Record<string, LabelBox>;
+  // The MAP frame's own size in plate px — `[size[0] - marginRight, size[1]]`
+  // — as opposed to `Plate.size`, which is the whole SHEET including the
+  // margin band a schematic plate reserves for its legend/scene key (stage
+  // 5a, 2026-09-02). A caller sizing a viewport/aspect-ratio box or deriving
+  // a locator rect from `viewport`/`camera` wants THIS, not `plate.size`:
+  // the margin band draws no map content, so reserving `plate.size`'s own
+  // (wider) ratio leaves a blank band down one side. Equal to `plate.size`
+  // whenever `marginRight` is unset (every geographic plate today).
+  frame: [number, number];
 }
 
 export interface Camera {
@@ -2387,6 +2396,24 @@ const LABEL_HALO_WIDTH = 0.65;
 export const RELIEF_HALO_WIDTH = 2.6;
 export const RELIEF_HALO_OPACITY = 0.72;
 
+// `--plate-schematic-ink` (stage 5a, 2026-09-02): a schematic sheet washes
+// every area/relief fill it draws to `Plate.groundOpacity` (renderPlate's
+// `plate-ground-wash` group) — labels print over that SOFTENED colour, not
+// the ramp step's own full-strength hex. `--text-mid` composited over the
+// darkest washed relief step measured 4.36:1 in dark theme, under the AA
+// 4.5:1 floor for text (CLAUDE.md's accessibility rule binds in both
+// themes, no exception) — and the same compositing puts light theme just
+// under it too at the ramp's own top step (4.27:1), a near-miss nobody had
+// measured yet. `--plate-schematic-ink` replaces `--text-mid` on a
+// schematic sheet's own labels ONLY (see shared/__tests__/plate-map-
+// contrast.test.ts's ramp-under-wash suite for the derivation); a geographic
+// sheet's `--text-mid` is untouched — its halo is wide/opaque enough to BE
+// the background (RELIEF_HALO_WIDTH/OPACITY above), which is why it never
+// had this problem.
+function schematicInkFill(fill: string, geographic: boolean): string {
+  return !geographic && fill === 'var(--text-mid)' ? 'var(--plate-schematic-ink)' : fill;
+}
+
 /** Halo paint attributes for a label, per plate kind (see the constants above). */
 function haloAttrs(geographic: boolean): string {
   const width = geographic ? RELIEF_HALO_WIDTH : LABEL_HALO_WIDTH;
@@ -2417,7 +2444,7 @@ function textPathElement(
   return (
     `<text class="plate-label plate-label-${role} plate-label-along${tierClass}" data-label-for="${escapeXml(id)}"${tierAttr} ` +
     `font-family="var(--font-ui)" font-size="${style.size}" font-weight="${style.weight}"` +
-    `${style.italic ? ' font-style="italic"' : ''}${tracking} fill="${style.fill}" ` +
+    `${style.italic ? ' font-style="italic"' : ''}${tracking} fill="${schematicInkFill(style.fill, geographic)}" ` +
     `paint-order="stroke" ${haloAttrs(geographic)} ` +
     `dy="-3.5" style="font-variant-ligatures:none">` +
     // startOffset is normally the run's own straightest window (see
@@ -2446,7 +2473,7 @@ function labelElement(
     `<text class="plate-label plate-label-${role}${tierClass}" data-label-for="${escapeXml(id)}"${tierAttr} x="${round1(c.x)}" y="${round1(c.y)}" ` +
     `text-anchor="${c.anchor}" font-family="var(--font-ui)" font-size="${style.size}" ` +
     `font-weight="${style.weight}"${italic ? ' font-style="italic"' : ''}${tracking} ` +
-    `fill="${style.fill}" paint-order="stroke" ${haloAttrs(geographic)}` +
+    `fill="${schematicInkFill(style.fill, geographic)}" paint-order="stroke" ${haloAttrs(geographic)}` +
     `>${escapeXml(labelText(text, style))}</text>`
   );
 }
@@ -2468,14 +2495,22 @@ function labelElement(
 // postcard `.plate-hidden` pass) can hide its leader in the same query
 // instead of leaving a dangling dashed line pointing at nothing once the
 // name it explains is gone.
-function leaderElement(anchorBox: Box, box: Box, dashed: boolean, id: string): string {
+function leaderElement(anchorBox: Box, box: Box, dashed: boolean, id: string, tier?: 1 | 2): string {
   const ax = (anchorBox[0] + anchorBox[2]) / 2;
   const ay = (anchorBox[1] + anchorBox[3]) / 2;
   const bx = box[0] < ax ? box[2] : box[0];
   const by = (box[1] + box[3]) / 2;
   if (Math.hypot(bx - ax, by - ay) < 12) return '';
+  // Stamped from the label's OWN tier (stage 5a, 2026-09-02): a zoom-gated
+  // consumer (PlatePanel/Reader's Chart Room postcard) hides a tier-2
+  // label below its zoom threshold and must hide the dashed/hairline line
+  // pointing at it in the same pass — the leader carries no tier of its
+  // own otherwise, so without this a hidden tier-2 name would leave its
+  // leader dangling on the sheet.
+  const tierClass = tier === 2 ? ' plate-leader-tier2' : '';
+  const tierAttr = tier === 2 ? ' data-label-tier="2"' : '';
   return (
-    `<path class="plate-leader" data-label-for="${escapeXml(id)}" d="M ${round1(ax)} ${round1(ay)} L ${round1(bx)} ${round1(by)}" ` +
+    `<path class="plate-leader${tierClass}" data-label-for="${escapeXml(id)}"${tierAttr} d="M ${round1(ax)} ${round1(ay)} L ${round1(bx)} ${round1(by)}" ` +
     `fill="none" stroke="var(--text-mid)" stroke-width="0.6" stroke-opacity="${dashed ? 1 : 0.7}"` +
     `${dashed ? ' stroke-dasharray="2 2"' : ''}/>`
   );
@@ -2662,7 +2697,7 @@ function layoutLabels(
     }
 
     if (!req.centred && (req.conjectural || detached)) {
-      parts.push(leaderElement(req.anchorBox, box, !!req.conjectural, req.id));
+      parts.push(leaderElement(req.anchorBox, box, !!req.conjectural, req.id, req.labelTier));
     }
     parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic, req.labelTier));
     placed.push(box);
@@ -5479,6 +5514,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     drawnByLayer,
     suppressedLabels: labels.suppressed,
     labelBoxes,
+    frame: [frameWidth, height],
   };
 }
 

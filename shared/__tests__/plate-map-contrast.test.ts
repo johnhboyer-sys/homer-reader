@@ -112,6 +112,11 @@ interface ThemeBlock {
   textMid: string;
   text: string;
   labelHalo: string;
+  // A schematic sheet's own ground-name ink (stage 5a, 2026-09-02) — see
+  // plate.ts's schematicInkFill. Declared only in `:root`/`:root[data-
+  // theme="dark"]`, same as --text-mid, hence the same readTokenOrRoot
+  // fallback.
+  schematicInk: string;
 }
 
 function readThemeBlock(name: string, selector: string): ThemeBlock {
@@ -136,6 +141,7 @@ function readThemeBlock(name: string, selector: string): ThemeBlock {
     textMid: readTokenOrRoot(block, '--text-mid'),
     text: readTokenOrRoot(block, '--text'),
     labelHalo: readToken(block, '--scene-map-label-halo'),
+    schematicInk: readTokenOrRoot(block, '--plate-schematic-ink'),
   };
 }
 
@@ -407,6 +413,50 @@ describe('hypsometric relief ramp (parsed from the real global.css)', () => {
           `${t.name}: --plate-${water} must be darker than --plate-relief-1`,
         ).toBe(true);
       }
+    }
+  });
+
+  // ── A schematic sheet's own ground wash (stage 5a, 2026-09-02) ─────────
+  //
+  // shared/lib/plate.ts wraps every area/relief fill on a plate whose JSON
+  // declares `groundOpacity < 1` in `<g class="plate-ground-wash"
+  // opacity="${groundOpacity}">` — the actual rendered colour under a label
+  // is the ramp step ALPHA-COMPOSITED over --scene-map-land at that
+  // opacity, not the step's own full-strength hex the tests above check.
+  // `--text-mid` (the token every OTHER label ink test above still checks)
+  // clears AA over the full-strength step but not over the washed one at
+  // the ramp's own top: 4.36:1 dark, 4.27:1 light, both under the 4.5:1
+  // floor. `--plate-schematic-ink` (plate.ts's schematicInkFill) is the
+  // fix, scoped to schematic sheets only — this is what keeps it honest.
+  //
+  // Reads groundOpacity from the REAL trojan-plain-schematic.json rather
+  // than hard-coding 0.55, so a future retune of the wash is caught here
+  // rather than silently invalidating the derivation.
+  const SCHEMATIC_PLATE_PATH = path.resolve(process.cwd(), '../apparatus/plates/trojan-plain-schematic.json');
+  const schematicPlateJson = JSON.parse(fs.readFileSync(SCHEMATIC_PLATE_PATH, 'utf-8')) as { groundOpacity?: number };
+  const GROUND_OPACITY = schematicPlateJson.groundOpacity;
+
+  it('the live schematic plate actually declares a groundOpacity < 1 (precondition — a passing test below would be vacuous otherwise)', () => {
+    expect(GROUND_OPACITY, 'apparatus/plates/trojan-plain-schematic.json groundOpacity').toBeDefined();
+    expect(GROUND_OPACITY!).toBeGreaterThan(0);
+    expect(GROUND_OPACITY!).toBeLessThan(1);
+  });
+
+  /** A ramp step alpha-composited over the sheet's own ground at `GROUND_OPACITY` — what a label actually prints over. */
+  function washedOver(step: string, ground: string): string {
+    const [sr, sg, sb] = hexToRgb(step);
+    const [gr, gg, gb] = hexToRgb(ground);
+    const a = GROUND_OPACITY!;
+    const mix = (s: number, g: number) => Math.round(s * a + g * (1 - a));
+    return `#${[mix(sr, gr), mix(sg, gg), mix(sb, gb)].map((c) => c.toString(16).padStart(2, '0')).join('')}`;
+  }
+
+  it.each(LABEL_THEMES)('$name: the schematic ink clears AA over EVERY washed ramp step (Plate.groundOpacity composited over --scene-map-land)', (t) => {
+    for (const [i, step] of t.ramp.entries()) {
+      expect(
+        contrastRatio(t.schematicInk, washedOver(step, t.land)),
+        `--plate-schematic-ink over the washed --plate-relief-${i + 1}`,
+      ).toBeGreaterThanOrEqual(MIN_LABEL_CONTRAST);
     }
   });
 });

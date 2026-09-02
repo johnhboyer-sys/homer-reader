@@ -619,4 +619,87 @@ describe('PlatePanel', () => {
     await waitFor(() => expect(getByText(/hasn't been drawn yet/i)).toBeTruthy());
     expect(container.querySelector('svg')).toBeNull();
   });
+
+  // Tier-2 labels (stage 5a, 2026-09-02): a schematic sheet's minor names
+  // (Plate/PlatePlace.labelTier 2, plate.ts's plate-label-tier2/plate-
+  // leader-tier2 classes) are clutter at the panel's default zoom and only
+  // earn their place once the reader is actually zoomed in close. setupCamera
+  // toggles `.plate-zoomed` on the injected <svg> itself, gating a CSS rule
+  // (component style block) — same threshold (camK >= 2.5) and same
+  // mechanism (a class on the SVG root) as Reader.svelte's Chart Room
+  // postcard, so the two surfaces read as one behaviour, not two.
+  it('toggles .plate-zoomed on the svg root at camK >= 2.5, tracking the zoom-in button', async () => {
+    // happy-dom implements SVGGraphicsElement.getScreenCTM but not the
+    // SVGPoint.matrixTransform the click handler's cursor-anchored zoom math
+    // (zoomBy -> screenToWorld) needs — stubbed to null so screenToWorld
+    // takes its own "no real geometry yet" fallback (zoom factor applied,
+    // pan unchanged), the same degraded path a real browser takes on an
+    // SVG that hasn't been laid out. restoreMocks (vitest.config.ts) undoes
+    // this after the test.
+    vi.spyOn(SVGGraphicsElement.prototype, 'getScreenCTM').mockReturnValue(null);
+    mockFetchPlate.mockResolvedValue({
+      id: 'tier-plate',
+      title: 'Tier Plate',
+      kind: 'geographic',
+      status: 'reviewed',
+      bbox: [0, 0, 1, 1],
+      size: [100, 80],
+      layers: [],
+    });
+
+    const places = [
+      { id: 'major', name: 'Major Place', coords: [0.3, 0.3] as [number, number], certainty: 'certain' as const },
+      { id: 'minor', name: 'Minor Place', coords: [0.7, 0.7] as [number, number], certainty: 'certain' as const, labelTier: 2 as const },
+    ];
+
+    const { container, getByRole } = render(PlatePanel, {
+      props: { plateId: 'tier-plate', places, title: 'Tier Plate' },
+    });
+
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+    const svg = container.querySelector('svg') as SVGSVGElement;
+
+    // Precondition: the fixture actually drew a tier-2 label — a fixture
+    // that drew nothing would make the rest of this test meaningless.
+    const tier2Label = container.querySelector('[data-label-for="minor"].plate-label') as SVGElement;
+    expect(tier2Label).toBeTruthy();
+    expect(tier2Label).toHaveClass('plate-label-tier2');
+
+    expect(svg).not.toHaveClass('plate-zoomed');
+
+    const zoomIn = getByRole('button', { name: /zoom in/i });
+    // ZOOM_STEP is 1.25 (component const); 1.25^5 ≈ 3.05 clears the 2.5
+    // threshold from CAM_MIN_K (1).
+    for (let i = 0; i < 5; i++) zoomIn.click();
+
+    await waitFor(() => expect(svg).toHaveClass('plate-zoomed'));
+  });
+
+  it('zooms back out below 2.5 and drops .plate-zoomed again', async () => {
+    vi.spyOn(SVGGraphicsElement.prototype, 'getScreenCTM').mockReturnValue(null);
+    mockFetchPlate.mockResolvedValue({
+      id: 'tier-plate-2',
+      title: 'Tier Plate 2',
+      kind: 'geographic',
+      status: 'reviewed',
+      bbox: [0, 0, 1, 1],
+      size: [100, 80],
+      layers: [],
+    });
+
+    const { container, getByRole } = render(PlatePanel, {
+      props: { plateId: 'tier-plate-2', title: 'Tier Plate 2' },
+    });
+
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+    const svg = container.querySelector('svg') as SVGSVGElement;
+
+    const zoomIn = getByRole('button', { name: /zoom in/i });
+    for (let i = 0; i < 5; i++) zoomIn.click();
+    await waitFor(() => expect(svg).toHaveClass('plate-zoomed'));
+
+    const zoomOut = getByRole('button', { name: /zoom out/i });
+    for (let i = 0; i < 5; i++) zoomOut.click();
+    await waitFor(() => expect(svg).not.toHaveClass('plate-zoomed'));
+  });
 });

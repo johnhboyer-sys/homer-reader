@@ -1070,13 +1070,22 @@
     return l.kind === 'coast' || l.kind === 'river' || (l.kind === 'region' && (l.fill === 'sea' || l.fill === 'lagoon'));
   }
   interface LocatorFrame { x: number; y: number; w: number; h: number }
-  function locatorFrame(plate: Plate, camera: Camera | null): LocatorFrame | null {
+  // `frame`, not `plate.size` (item 2, stage 5a, 2026-09-02): `camera.tx`/
+  // `.scale` are computeCamera's own output, computed against `viewport`,
+  // which is already frame-width (not sheet-width) on a plate with a
+  // margin band — see plate.ts's renderPlate. `x`/`y` (an origin) stay
+  // correct read either way, since the frame and the sheet share the same
+  // top-left corner; only `w`/`h` (a SPAN) were wrong, scaled by the wider
+  // sheet width instead of the frame's own — the locator's frame rect used
+  // to mark a stretch of the overview wider than what the postcard, cropped
+  // to the frame, actually shows.
+  function locatorFrame(frame: [number, number], camera: Camera | null): LocatorFrame | null {
     if (!camera) return null;
     return {
       x: -camera.tx / camera.scale,
       y: -camera.ty / camera.scale,
-      w: plate.size[0] / camera.scale,
-      h: plate.size[1] / camera.scale,
+      w: frame[0] / camera.scale,
+      h: frame[1] / camera.scale,
     };
   }
 
@@ -1087,7 +1096,7 @@
         { idPrefix: `chart-locator-${work}-${bookNum}` },
       )
     : null;
-  $: iliadLocatorFrame = iliadPlate ? locatorFrame(iliadPlate, iliadPlateCamera) : null;
+  $: iliadLocatorFrame = iliadPlateRender ? locatorFrame(iliadPlateRender.frame, iliadPlateCamera) : null;
 
   $: schematicLocatorRender = schematicPlate
     ? renderPlate(
@@ -1096,7 +1105,7 @@
         { idPrefix: `chart-locator-schematic-${work}-${bookNum}` },
       )
     : null;
-  $: schematicLocatorFrame = schematicPlate ? locatorFrame(schematicPlate, schematicPlateCamera) : null;
+  $: schematicLocatorFrame = schematicPlateRender ? locatorFrame(schematicPlateRender.frame, schematicPlateCamera) : null;
 
   // Whichever path is live (new plate vs the old renderSceneMap box), "is
   // there a map to show at all" — drives the reserved-space/collapse
@@ -1107,10 +1116,19 @@
   // space at renderSceneMap's own 320x220 default (see global.css) — the
   // Trojan-plain plate's own size is a different shape, so override the
   // reserved aspect-ratio inline when it's the one showing.
-  $: chartMapAspectRatio = useIliadPlate && iliadPlate
-    ? `${iliadPlate.size[0]} / ${iliadPlate.size[1]}`
-    : useSchematicPlate && schematicPlate
-      ? `${schematicPlate.size[0]} / ${schematicPlate.size[1]}`
+  //
+  // `.frame`, not `.size` (item 2, stage 5a, 2026-09-02): the schematic
+  // sheet's `size` now includes its own 340px margin band (legend/scene
+  // key), and the postcard draws no margin content at all (FURNITURE_
+  // SELECTOR hides it) — reserving `size`'s wider ratio left a blank band
+  // down the postcard's right edge, ~30% of its width. `.frame` (plate.ts's
+  // PlateResult.frame) is the map content's own size, `size` on a plate
+  // with no `marginRight` (every geographic plate today, so useIliadPlate's
+  // branch is unaffected).
+  $: chartMapAspectRatio = useIliadPlate && iliadPlateRender
+    ? `${iliadPlateRender.frame[0]} / ${iliadPlateRender.frame[1]}`
+    : useSchematicPlate && schematicPlateRender
+      ? `${schematicPlateRender.frame[0]} / ${schematicPlateRender.frame[1]}`
       : null;
 
   interface PlateCameraParams {
@@ -1148,6 +1166,31 @@
   // so a pathological slot width can't blow a label up or down absurdly.
   const LABEL_DESCALE_MIN = 0.35;
   const LABEL_DESCALE_MAX = 2.2;
+  // Unzoomed ceiling (item 3, stage 5a, 2026-09-02): at camK===1 (the
+  // "whole plate, no single focus" postcard state — computeCamera's own
+  // identity camera, e.g. the schematic plain's own unzoomed name) `f`'s
+  // raw value regularly exceeds 2.2 at a normal ~220px slot (a 1120px-wide
+  // frame divided by a 220px slot alone asks for f≈5.1), so the 2.2 ceiling
+  // was landing type at ~4-5 CSS px — illegible. Raising LABEL_DESCALE_MAX
+  // itself was rejected: it is a general safety valve against a
+  // pathological slot (its own comment), and every OTHER zoom level's `f`
+  // already sits well under 2.2 (camK>1 shrinks the raw value), so a global
+  // raise would only ever matter here anyway — but naming it explicitly,
+  // gated on camK<=1, keeps the change legible as "the unzoomed case was
+  // wrong," not "the general clamp changed," and cannot alter a single
+  // already-correct zoomed scene. Sized so a settlement-role label (13.5px
+  // design size, the largest role a focus name typically uses) clears 10
+  // CSS px at a 220px slot on the live schematic frame (1120px): raw f =
+  // 1120/220 ≈ 5.09, and 13.5 * 5.09 * (220/1120) ≈ 13.5, comfortably past
+  // 10 — see the descale-floor test in components.test.ts.
+  const UNZOOMED_LABEL_DESCALE_MAX = 5.2;
+
+  /** The label counter-scale factor (see the comment above) — shared by updateLabelDescale and fitFocusLabelsToFrame, which must agree on it exactly (see the latter's own comment). */
+  function labelDescaleFactor(plateWidth: number, slotWidth: number, camK: number): number {
+    const raw = plateWidth / (slotWidth * camK);
+    const cap = camK <= 1 ? UNZOOMED_LABEL_DESCALE_MAX : LABEL_DESCALE_MAX;
+    return Math.min(cap, Math.max(LABEL_DESCALE_MIN, raw));
+  }
 
   // Applies the per-scene camera + focus dimming/label-hiding + label
   // descale to the ALREADY-RENDERED plate markup imperatively (querySelector,
@@ -1173,8 +1216,15 @@
   // the slot's corner underneath the locator inset. Both are hidden
   // unconditionally: this action only ever drives the postcard, never
   // PlatePanel's full-plate `/maps/` view, which still wants all of them.
+  // `.plate-scene-key` added (item 2, stage 5a, 2026-09-02): the schematic
+  // sheet's margin band furniture — its legend (`.plate-legend`, already
+  // here) and scene key both draw INTO the reclaimed margin band, and both
+  // must vanish from the postcard the same way the corner legend already
+  // does. `[data-layer-style="inset"]` already covers a margin-band inset
+  // panel (renderPlate wraps a margin inset the same way as a map-content
+  // one) — nothing new needed there.
   const FURNITURE_SELECTOR =
-    '[data-layer-style="inset"], .plate-legend, .plate-scale, .plate-north, .plate-hypsometric-key';
+    '[data-layer-style="inset"], .plate-legend, .plate-scale, .plate-north, .plate-hypsometric-key, .plate-scene-key';
 
   function applyPlateCamera(node: HTMLElement, params: PlateCameraParams) {
     let labelWrappers: { el: SVGGElement; x: number; y: number; id: string | null }[] = [];
@@ -1208,6 +1258,24 @@
       lastSvgEl = svgEl as SVGSVGElement | null;
       labelWrappers = [];
       if (!svgEl) return;
+      // Crop to the MAP FRAME, not the whole sheet (item 2, stage 5a,
+      // 2026-09-02): plate.ts's own `viewBox` always spans the full sheet
+      // (`0 0 ${width} ${height}`, margin band included — PlatePanel wants
+      // that, to show the legend/scene key it draws there), but the
+      // postcard's own box is now sized to the FRAME's ratio
+      // (chartMapAspectRatio, off PlateResult.frame). The two ratios only
+      // differ when marginRight > 0 (today, only the schematic sheet) — the
+      // default `xMidYMid meet` would then letterbox AND still show a
+      // sliver of the (furniture-hidden but still ground-filled) margin
+      // band down one side, rather than actually crop it. `slice` scales up
+      // to fill the box on the constraining axis and clips the overflow;
+      // `xMinYMin` anchors the kept corner to the FRAME's own origin (the
+      // margin sits at the sheet's right edge, `size[0] - marginRight`, so
+      // the overflow clipped away is the margin, never the map). On a plate
+      // with no margin (frame === size, marginRight 0/undefined) the two
+      // ratios already match and this is a no-op — verified for the
+      // geographic path in components.test.ts.
+      svgEl.setAttribute('preserveAspectRatio', 'xMinYMin slice');
       svgEl.querySelectorAll<SVGElement>(FURNITURE_SELECTOR).forEach((el) => el.classList.add('plate-hidden'));
       // The locator inset (chartLocatorInset, a sibling of `node` under the
       // same `.chart-plate-postcard`/`<a class="chart-plate-postcard">`) is
@@ -1253,8 +1321,7 @@
       if (!labelWrappers.length) return;
       const slotWidth = node.clientWidth || current.plateWidth || 1;
       const camK = current.camera?.scale ?? 1;
-      const raw = current.plateWidth / (slotWidth * camK);
-      const f = Math.min(LABEL_DESCALE_MAX, Math.max(LABEL_DESCALE_MIN, raw));
+      const f = labelDescaleFactor(current.plateWidth, slotWidth, camK);
       for (const { el, x, y } of labelWrappers) {
         el.setAttribute('transform', `translate(${x} ${y}) scale(${f}) translate(${-x} ${-y})`);
       }
@@ -1326,7 +1393,7 @@
       const { scale: camK, tx, ty } = cam;
       const S = slotWidth / p.plateWidth;
       if (!(camK > 0) || !Number.isFinite(tx) || !(S > 0)) return cam;
-      const f = Math.min(LABEL_DESCALE_MAX, Math.max(LABEL_DESCALE_MIN, p.plateWidth / (slotWidth * camK)));
+      const f = labelDescaleFactor(p.plateWidth, slotWidth, camK);
 
       // Worst-offender wins: the single largest correction needed among the
       // visible focus labels. A shift that fixes one label cannot always
@@ -1412,6 +1479,14 @@
         cameraG.style.transition = p.reduceMotion ? 'none' : 'transform 320ms ease';
         cameraG.style.transform = `translate(${effectiveCamera.tx}px, ${effectiveCamera.ty}px) scale(${effectiveCamera.scale})`;
       }
+      // Tier-2 labels hidden below a zoom threshold (item 1, stage 5a,
+      // 2026-09-02): `.plate-zoomed` on `node` itself (the `.chart-plate`
+      // element the CSS below is scoped under) gates the
+      // `.plate-label-tier2`/`.plate-leader-tier2` display:none rule. 2.5
+      // matches PlatePanel.svelte's own threshold (see that file) — the
+      // same "close enough to read the minor names" judgment applied to
+      // both surfaces.
+      node.classList.toggle('plate-zoomed', !!effectiveCamera && effectiveCamera.scale >= 2.5);
       const focusSet = new Set(p.focusIds);
       node.querySelectorAll<SVGElement>('[data-place-id]').forEach((el) => {
         const id = el.getAttribute('data-place-id');
@@ -1426,10 +1501,22 @@
       // leaderElement fix (2026-09-02, Codex finding) — now includes a
       // conjectural/detached label's dashed LEADER as well as its text, so
       // an omitted name never leaves a dangling line pointing at nothing.
+      //
+      // `.plate-focus-label` (item 1, stage 5a): the SAME focus test, kept
+      // as a class rather than only the inverse (`.plate-hidden`'s
+      // absence) — the tier-2 zoom rule below needs to know "this IS the
+      // one name the postcard is about" so it can override the hide, and
+      // "not currently hidden" is not the same claim: at an empty focus
+      // set (the schematic plain's own unzoomed name, focusSet.size===0)
+      // NOTHING is hidden either, but nothing there is "the" focus in the
+      // sense that should punch through the tier rule — only a genuine,
+      // non-empty focus match earns the override.
       node.querySelectorAll<SVGElement>('[data-label-for]').forEach((el) => {
         const id = el.getAttribute('data-label-for');
-        const hide = focusSet.size > 0 && !(id !== null && focusSet.has(id));
+        const isFocus = focusSet.size > 0 && id !== null && focusSet.has(id);
+        const hide = focusSet.size > 0 && !isFocus;
         el.classList.toggle('plate-hidden', hide);
+        el.classList.toggle('plate-focus-label', isFocus);
       });
       updateLabelDescale();
       updateLocatorFrame(p, effectiveCamera);
@@ -3175,7 +3262,7 @@
       >
         <div
           class="chart-plate"
-          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0], plateHeight: iliadPlate.size[1], labelBoxes: iliadPlateRender.labelBoxes }}
+          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlateRender.frame[0], plateHeight: iliadPlateRender.frame[1], labelBoxes: iliadPlateRender.labelBoxes }}
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html iliadPlateHtml}
@@ -3188,7 +3275,7 @@
       <div class="chart-plate-postcard">
         <div
           class="chart-plate"
-          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0], plateHeight: iliadPlate.size[1], labelBoxes: iliadPlateRender.labelBoxes }}
+          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlateRender.frame[0], plateHeight: iliadPlateRender.frame[1], labelBoxes: iliadPlateRender.labelBoxes }}
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html iliadPlateHtml}
@@ -3205,7 +3292,7 @@
     <div class="chart-plate-postcard">
       <div
         class="chart-plate"
-        use:applyPlateCamera={{ camera: schematicPlateCamera, focusIds: schematicFocusIds, ariaLabel: schematicPlateAriaLabel, reduceMotion, plateWidth: schematicPlate.size[0], plateHeight: schematicPlate.size[1], labelBoxes: schematicPlateRender.labelBoxes }}
+        use:applyPlateCamera={{ camera: schematicPlateCamera, focusIds: schematicFocusIds, ariaLabel: schematicPlateAriaLabel, reduceMotion, plateWidth: schematicPlateRender.frame[0], plateHeight: schematicPlateRender.frame[1], labelBoxes: schematicPlateRender.labelBoxes }}
       >
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html schematicPlateHtml}
@@ -4534,6 +4621,20 @@
      ghosted like a non-focus pin above — see applyPlateCamera's own comment
      for why the two get different treatments. */
   .chart-plate :global(.plate-hidden) { display: none; }
+  /* Tier-2 labels hidden below a zoom threshold (item 1, stage 5a,
+     2026-09-02): minor names are clutter at the postcard's normal,
+     moderate zoom — shown only once the camera is actually close (>=2.5,
+     `.plate-zoomed`, toggled in applyPlateCamera's apply()) or the label
+     IS the postcard's own single focus (`.plate-focus-label`, same place —
+     focus always wins over the tier rule, never the other way). A tier-2
+     label's LEADER (plate.ts's leaderElement, stamped the same way) hides
+     with it, never left dangling. */
+  .chart-plate :global(.plate-label-tier2),
+  .chart-plate :global(.plate-leader-tier2) { display: none; }
+  .chart-plate.plate-zoomed :global(.plate-label-tier2),
+  .chart-plate.plate-zoomed :global(.plate-leader-tier2),
+  .chart-plate :global(.plate-focus-label.plate-label-tier2),
+  .chart-plate :global(.plate-focus-label.plate-leader-tier2) { display: inline; }
 
   /* Postcard wrapper (parts C-F): the plate slot plus its locator inset,
      optionally a click-through link on the geographic path (part F) — see

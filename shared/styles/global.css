@@ -77,6 +77,22 @@
                                 ink shades (see docs/DESIGN.md); both pass AA (13.77:1 on
                                 --page-bg, 6.49:1 on --page-bg), so no third invented
                                 shade — deliberate collapse, not an oversight. */
+  /* A schematic plate's own ground-name ink (stage 5a, 2026-09-02) —
+     shared/lib/plate.ts's schematicInkFill swaps this in for --text-mid on
+     a schematic sheet's labels only, never a geographic one. Its own
+     labels print over Plate.groundOpacity's wash (a relief step composited
+     at 0.55 opacity onto --scene-map-land), which softens the ground
+     underneath every name; --text-mid over that composite clears AA
+     everywhere EXCEPT the ramp's own highest (least-washed-toward-land)
+     step, where light theme measured 4.27:1 and dark theme 4.36:1 — both
+     just under the 4.5:1 floor. Light is a hairline darker than --text-mid
+     (barely distinguishable) so it clears the same top step; dark needed a
+     real lift. Both verified against every one of the twelve ramp steps in
+     shared/__tests__/plate-map-contrast.test.ts, not just the worst one —
+     a schematic sheet's relief mapping always uses steps 1..12 regardless
+     of the sheet's own absolute elevation span (see plate.ts's
+     hypsometricStep), so a name can legitimately land on any of them. */
+  --plate-schematic-ink: #574854;
   --accent:       #6E1F3A;  /* Wine-dark --route-red / garnet: the single wayfinding/
                                 structural accent (nav hover, work-switcher, chapter-nav
                                 active, etc.) */
@@ -382,6 +398,12 @@
   --text:         #EDE6E8;  /* Wine-dark --ink dark (bone) */
   --text-mid:     #B7A9B4;  /* Wine-dark --ink-soft dark */
   --text-light:   #B7A9B4;  /* same collapse as light mode, see note above */
+  /* See the :root block's comment. Dark needed a real lift off --text-mid
+     (not a hairline nudge, unlike light) — the washed ramp's top step sits
+     at a MID luminance in dark theme (the ramp lightens with height, see
+     the hypsometric ramp block below), so a light ink loses most of its
+     separation from it exactly where light theme's ink loses least. */
+  --plate-schematic-ink: #DBD5DA;
   --accent:       #D59186;  /* Wine-dark --route-red dark: shifted off rose toward garnet/
                                 terracotta (John, 2026-07-21: "too much pink" — tempered,
                                 not re-paletted; contrast re-verified, see scratchpad
