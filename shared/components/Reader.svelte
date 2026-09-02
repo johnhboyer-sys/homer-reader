@@ -1412,6 +1412,14 @@
         cameraG.style.transition = p.reduceMotion ? 'none' : 'transform 320ms ease';
         cameraG.style.transform = `translate(${effectiveCamera.tx}px, ${effectiveCamera.ty}px) scale(${effectiveCamera.scale})`;
       }
+      // Tier-2 labels hidden below a zoom threshold (item 1, stage 5a,
+      // 2026-09-02): `.plate-zoomed` on `node` itself (the `.chart-plate`
+      // element the CSS below is scoped under) gates the
+      // `.plate-label-tier2`/`.plate-leader-tier2` display:none rule. 2.5
+      // matches PlatePanel.svelte's own threshold (see that file) — the
+      // same "close enough to read the minor names" judgment applied to
+      // both surfaces.
+      node.classList.toggle('plate-zoomed', !!effectiveCamera && effectiveCamera.scale >= 2.5);
       const focusSet = new Set(p.focusIds);
       node.querySelectorAll<SVGElement>('[data-place-id]').forEach((el) => {
         const id = el.getAttribute('data-place-id');
@@ -1426,10 +1434,22 @@
       // leaderElement fix (2026-09-02, Codex finding) — now includes a
       // conjectural/detached label's dashed LEADER as well as its text, so
       // an omitted name never leaves a dangling line pointing at nothing.
+      //
+      // `.plate-focus-label` (item 1, stage 5a): the SAME focus test, kept
+      // as a class rather than only the inverse (`.plate-hidden`'s
+      // absence) — the tier-2 zoom rule below needs to know "this IS the
+      // one name the postcard is about" so it can override the hide, and
+      // "not currently hidden" is not the same claim: at an empty focus
+      // set (the schematic plain's own unzoomed name, focusSet.size===0)
+      // NOTHING is hidden either, but nothing there is "the" focus in the
+      // sense that should punch through the tier rule — only a genuine,
+      // non-empty focus match earns the override.
       node.querySelectorAll<SVGElement>('[data-label-for]').forEach((el) => {
         const id = el.getAttribute('data-label-for');
-        const hide = focusSet.size > 0 && !(id !== null && focusSet.has(id));
+        const isFocus = focusSet.size > 0 && id !== null && focusSet.has(id);
+        const hide = focusSet.size > 0 && !isFocus;
         el.classList.toggle('plate-hidden', hide);
+        el.classList.toggle('plate-focus-label', isFocus);
       });
       updateLabelDescale();
       updateLocatorFrame(p, effectiveCamera);
@@ -4534,6 +4554,20 @@
      ghosted like a non-focus pin above — see applyPlateCamera's own comment
      for why the two get different treatments. */
   .chart-plate :global(.plate-hidden) { display: none; }
+  /* Tier-2 labels hidden below a zoom threshold (item 1, stage 5a,
+     2026-09-02): minor names are clutter at the postcard's normal,
+     moderate zoom — shown only once the camera is actually close (>=2.5,
+     `.plate-zoomed`, toggled in applyPlateCamera's apply()) or the label
+     IS the postcard's own single focus (`.plate-focus-label`, same place —
+     focus always wins over the tier rule, never the other way). A tier-2
+     label's LEADER (plate.ts's leaderElement, stamped the same way) hides
+     with it, never left dangling. */
+  .chart-plate :global(.plate-label-tier2),
+  .chart-plate :global(.plate-leader-tier2) { display: none; }
+  .chart-plate.plate-zoomed :global(.plate-label-tier2),
+  .chart-plate.plate-zoomed :global(.plate-leader-tier2),
+  .chart-plate :global(.plate-focus-label.plate-label-tier2),
+  .chart-plate :global(.plate-focus-label.plate-leader-tier2) { display: inline; }
 
   /* Postcard wrapper (parts C-F): the plate slot plus its locator inset,
      optionally a click-through link on the geographic path (part F) — see

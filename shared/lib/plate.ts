@@ -2468,14 +2468,22 @@ function labelElement(
 // postcard `.plate-hidden` pass) can hide its leader in the same query
 // instead of leaving a dangling dashed line pointing at nothing once the
 // name it explains is gone.
-function leaderElement(anchorBox: Box, box: Box, dashed: boolean, id: string): string {
+function leaderElement(anchorBox: Box, box: Box, dashed: boolean, id: string, tier?: 1 | 2): string {
   const ax = (anchorBox[0] + anchorBox[2]) / 2;
   const ay = (anchorBox[1] + anchorBox[3]) / 2;
   const bx = box[0] < ax ? box[2] : box[0];
   const by = (box[1] + box[3]) / 2;
   if (Math.hypot(bx - ax, by - ay) < 12) return '';
+  // Stamped from the label's OWN tier (stage 5a, 2026-09-02): a zoom-gated
+  // consumer (PlatePanel/Reader's Chart Room postcard) hides a tier-2
+  // label below its zoom threshold and must hide the dashed/hairline line
+  // pointing at it in the same pass — the leader carries no tier of its
+  // own otherwise, so without this a hidden tier-2 name would leave its
+  // leader dangling on the sheet.
+  const tierClass = tier === 2 ? ' plate-leader-tier2' : '';
+  const tierAttr = tier === 2 ? ' data-label-tier="2"' : '';
   return (
-    `<path class="plate-leader" data-label-for="${escapeXml(id)}" d="M ${round1(ax)} ${round1(ay)} L ${round1(bx)} ${round1(by)}" ` +
+    `<path class="plate-leader${tierClass}" data-label-for="${escapeXml(id)}"${tierAttr} d="M ${round1(ax)} ${round1(ay)} L ${round1(bx)} ${round1(by)}" ` +
     `fill="none" stroke="var(--text-mid)" stroke-width="0.6" stroke-opacity="${dashed ? 1 : 0.7}"` +
     `${dashed ? ' stroke-dasharray="2 2"' : ''}/>`
   );
@@ -2662,7 +2670,7 @@ function layoutLabels(
     }
 
     if (!req.centred && (req.conjectural || detached)) {
-      parts.push(leaderElement(req.anchorBox, box, !!req.conjectural, req.id));
+      parts.push(leaderElement(req.anchorBox, box, !!req.conjectural, req.id, req.labelTier));
     }
     parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic, req.labelTier));
     placed.push(box);

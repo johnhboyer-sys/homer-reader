@@ -336,6 +336,13 @@
     cameraG.setAttribute('transform', `translate(${camTx} ${camTy}) scale(${camK})`);
     updateLabelDescale();
     updateScaleBar();
+    // Tier-2 labels hidden below a zoom threshold (stage 5a, 2026-09-02):
+    // minor names (Plate/PlatePlace.labelTier 2) are clutter at this
+    // panel's default view — shown only once the reader is actually
+    // zoomed in close. `.plate-zoomed` on the SVG ROOT (not cameraG) gates
+    // a CSS rule below; 2.5 matches Reader.svelte's Chart Room postcard
+    // threshold, so the two surfaces read as one behaviour.
+    svgEl?.classList.toggle('plate-zoomed', camK >= 2.5);
   }
 
   function clampCamera(k: number, tx: number, ty: number): { k: number; tx: number; ty: number } {
@@ -728,6 +735,14 @@
      meant to magnify under zoom -- only .pp-label-descale (wrapped around
      every .plate-label by setupCamera) is ever given a counter-transform. */
   .pp-map :global(.pp-camera) { will-change: transform; }
+  /* Tier-2 labels (stage 5a, 2026-09-02): hidden until the panel is
+     actually zoomed in (`.plate-zoomed`, toggled on the svg root by
+     applyCamera at camK >= 2.5) -- a tier-2 label's own leader (plate.ts's
+     leaderElement) hides with it, never left dangling. */
+  .pp-map :global(svg .plate-label-tier2),
+  .pp-map :global(svg .plate-leader-tier2) { display: none; }
+  .pp-map :global(svg.plate-zoomed .plate-label-tier2),
+  .pp-map :global(svg.plate-zoomed .plate-leader-tier2) { display: inline; }
 
   .pp-cam-controls {
     position: absolute;

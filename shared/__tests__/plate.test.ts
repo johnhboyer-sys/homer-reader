@@ -2067,6 +2067,43 @@ describe('renderPlate: frame, scale and legend', () => {
     expect(tag).not.toContain('plate-label-tier2');
   });
 
+  // Stage 5a (2026-09-02): a zoom-gated consumer hides a tier-2 label below
+  // its threshold and must hide the dashed/hairline leader pointing at it
+  // in the same pass — the leader carried no tier of its own before this,
+  // so a hidden tier-2 name would leave a leader dangling on the sheet.
+  it('a tier-2 place\'s LEADER carries data-label-tier="2" and class plate-leader-tier2 too, when one is drawn', () => {
+    const crowd: PlatePlace[] = Array.from({ length: 12 }, (_, i) => ({
+      id: `crowded-${i}`,
+      name: `Crowded place ${i}`,
+      coords: [39.95, 26.2] as [number, number],
+      certainty: 'certain' as const,
+      labelTier: 2 as const,
+    }));
+    const result = renderPlate(testPlate, crowd);
+    expect(result.svg).toContain('class="plate-leader plate-leader-tier2"');
+    const leaderTag = result.svg.match(/<path class="plate-leader plate-leader-tier2"[^>]*>/)?.[0];
+    expect(leaderTag, result.svg).toBeTruthy();
+    expect(leaderTag).toContain('data-label-tier="2"');
+    // The leader still carries data-label-for, unchanged by this fix — a
+    // consumer hides it by matching that id, never by tier alone.
+    expect(leaderTag).toMatch(/data-label-for="crowded-\d+"/);
+  });
+
+  it('a tier-1 (default) place\'s leader carries neither the tier attribute nor the tier class', () => {
+    const crowd: PlatePlace[] = Array.from({ length: 12 }, (_, i) => ({
+      id: `crowded-${i}`,
+      name: `Crowded place ${i}`,
+      coords: [39.95, 26.2] as [number, number],
+      certainty: 'certain' as const,
+    }));
+    const result = renderPlate(testPlate, crowd);
+    expect(result.svg).toContain('class="plate-leader"');
+    const leaderTag = result.svg.match(/<path class="plate-leader"[^>]*>/)?.[0];
+    expect(leaderTag, result.svg).toBeTruthy();
+    expect(leaderTag).not.toContain('data-label-tier');
+    expect(leaderTag).not.toContain('plate-leader-tier2');
+  });
+
   it('labelSize small uses the minor style (9.5px) instead of the settlement default (13.5px)', () => {
     const base: PlatePlace = {
       id: 'oak',
