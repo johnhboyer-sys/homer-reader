@@ -3645,6 +3645,44 @@ function collectWaterBodies(plate: Plate, viewport: Viewport): WaterBody[] {
   return bodies;
 }
 
+// ── Reserving open water by its SHAPE, not its box (2026-09-02) ──────────
+// The label solver must keep names off open water (see the `denseBoxes`
+// push for WATER_FILLS in renderPlate's layer loop) — but a water region's
+// bounding BOX is the wrong reservation whenever the water isn't itself
+// box-shaped. On the Trojan Plain sheet the `sea-modern` layer traces the
+// Hellespont along one edge of the plate, so its bbox spans the sheet's
+// FULL HEIGHT and reserved the entire width of the plain as "water,"
+// burying four perfectly dry land labels (besik-sivritepe, kesik-tepe,
+// kum-tepe, uvecik-tepe) under the open-water suppression rule.
+//
+// The fix rasterizes the polygon: walk a grid over its bbox at
+// WATER_RESERVE_CELL spacing (the same subdivision lineworkExtent's
+// corridor uses), keep the cells whose CENTRE tests inside the ring set
+// (insideRings, the same even-odd test the coast itself is painted with),
+// and merge kept cells into horizontal runs per row so the solver still
+// sees a modest handful of boxes rather than one per cell. General to any
+// plate, any water layer — nothing here names a sheet.
+const WATER_RESERVE_CELL = LINEWORK_RESERVE_STEP;
+
+function waterReservationBoxes(rings: [number, number][][], bbox: Box): Box[] {
+  const [bx1, by1, bx2, by2] = bbox;
+  const out: Box[] = [];
+  for (let y = by1; y < by2; y += WATER_RESERVE_CELL) {
+    let runStart: number | null = null;
+    let x = bx1;
+    for (; x < bx2; x += WATER_RESERVE_CELL) {
+      const inside = insideRings(rings, [x + WATER_RESERVE_CELL / 2, y + WATER_RESERVE_CELL / 2]);
+      if (inside && runStart === null) runStart = x;
+      else if (!inside && runStart !== null) {
+        out.push([runStart, y, x, y + WATER_RESERVE_CELL]);
+        runStart = null;
+      }
+    }
+    if (runStart !== null) out.push([runStart, y, x, y + WATER_RESERVE_CELL]);
+  }
+  return out;
+}
+
 // ── The paint stack (2026-07-29) ─────────────────────────────────────────
 // The order layers are PAINTED in, which is deliberately not the order they
 // are authored in.
@@ -4539,15 +4577,33 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // reserves only the linework along the coast, never the sea itself, so
     // a crowded camp band sent "Patroclus: pyre, barrow, games" out past the
     // beach and onto the Hellespont — a false claim on a schematic register
-    // (a label asserts a place, and open sea is not a place). Same
-    // treatment as a ship row: the region/band layer's own bounding box,
-    // reserved whenever its fill is a water fill (see WATER_FILLS/
-    // collectWaterBodies), on every plate that draws one — a general rule,
+    // (a label asserts a place, and open sea is not a place). Reserved by
+    // SHAPE, not bounding box (see waterReservationBoxes): a water region's
+    // bbox is the wrong reservation whenever the water isn't itself
+    // box-shaped — on the Trojan Plain sheet `sea-modern` traces the
+    // Hellespont along one edge, so its bbox ate the sheet's full height,
+    // burying every land label in that half of the plate under this same
+    // rule (d7bf229cc). Reserving the true polygon instead lets a label sit
+    // anywhere that is actually dry — measured against the real
+    // trojan-plain.json sheet, this alone restores besik-sivritepe and
+    // uvecik-tepe; kesik-tepe and kum-tepe stay suppressed even now, because
+    // (verified directly, bypassing this grid) their own best candidate
+    // positions genuinely fall inside the sea/lagoon polygon — a true
+    // placement conflict the old box masked by suppressing everything
+    // nearby, not an artifact of the box this commit removes. Applies
+    // whenever a region/band layer's fill is a water fill — a general rule,
     // one place, not a per-sheet patch.
     const layerFill =
       layer.fill ?? (layer.kind === 'region' || layer.kind === 'band' ? DEFAULT_REGION_FILL : undefined);
     if (layerFill !== undefined && WATER_FILLS.has(layerFill)) {
-      denseBoxes.push({ box: rendered.feature.bbox, layerId: layer.id });
+      const rings = bodyRings(plate, layer, viewport);
+      if (rings.length > 0) {
+        for (const box of waterReservationBoxes(rings, rendered.feature.bbox)) {
+          denseBoxes.push({ box, layerId: layer.id });
+        }
+      } else {
+        denseBoxes.push({ box: rendered.feature.bbox, layerId: layer.id });
+      }
     }
     // The band kinds (see lineworkReserveHalfWidth): reserved as a corridor
     // following the run, never as a bounding rectangle. Purely rule-driven —
