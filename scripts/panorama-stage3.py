@@ -5901,7 +5901,7 @@ COVER_KEY_UNDRAWN = (
     "Not drawn: the thicket’s WIDTH — the channels lie under 20 m of alluvium, so the "
     "fringe follows the drawn course at an artist’s width, never a measured one. Ida’s "
     "timber as TREES (Il. 23.114–20; 14.287) — at 66 km one is a tenth of a pixel, so "
-    "the mountain is coloured wooded and nothing is planted on it. Reeds over the wet "
+    "the mountain is colored wooded and nothing is planted on it. Reeds over the wet "
     "delta — 21.351 names rush and galingale, 21.352 sites them at the river. Nothing "
     "on the dry fan — the epithets (6.315; 20.226) call it good soil, and no pattern."
 )
@@ -5973,7 +5973,7 @@ VEG_KEY = (
     ("RIVERBANK THICKET", "elm, willow, tamarisk over lotus, rush, galingale "
      "— Il. 21.350–52, growing ἅλις, “in abundance”, which is why it is drawn "
      "as thick as it is; one canopy here, its clumps when you come closer"),
-    ("IDA’S TIMBER", "δρῦς ὑψίκομοι, ἐλάτη — Il. 23.114–20; 14.287 — coloured "
+    ("IDA’S TIMBER", "δρῦς ὑψίκομοι, ἐλάτη — Il. 23.114–20; 14.287 — colored "
      "as a wooded mass, darker in the folds of its own sampled skyline; no "
      "tree drawn on it, no treeline claimed"),
     ("RIDGE SCRUB", "no line of the poem — the regional default above, now "
@@ -6044,7 +6044,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
     out.append(f'<text class="pp-l-region" x="{n1(bx)}" y="{n1(y0)}">'
                f'GROUND COVER</text>')
     out.append(f'<text class="pp-l-note" x="{n1(bx + 214)}" y="{n1(y0)}" '
-               f'fill-opacity="0.85">colour says what the ground is, '
+               f'fill-opacity="0.85">color says what the ground is, '
                f'not how high it is</text>')
     out.append(f'<text class="pp-l-region" x="{n1(sx0)}" y="{n1(y0)}">'
                f'SCALE</text>')
