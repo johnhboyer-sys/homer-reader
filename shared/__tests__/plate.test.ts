@@ -902,6 +902,57 @@ describe('renderPlate: the no-label-on-water rule binds the schematic register o
   });
 });
 
+// ── Geographic sheet geo-enrich labels (2026-09-02) ────────────────────────
+// John's ruling: add Beşik Bay, Thymbrios, Pınarbaşı, Ajax's tomb, the Kesik
+// cut, and the Aegean to the geographic Trojan Plain sheet. The gate is the
+// SET of placed ids (CLAUDE.md 2026-09-02: a positions-only diff cannot see
+// a dropped label). The 14 ids already on the sheet must all still place.
+
+const TROJAN_PLAIN_PREEXISTING_LABEL_IDS = [
+  'achaean-camp-zone',
+  'besik-sivritepe',
+  'callicolone',
+  'kesik-tepe',
+  'kum-tepe',
+  'lagoon-bronze',
+  'rhoiteion',
+  'scamander',
+  'scamandrian-plain',
+  'sigeion',
+  'simoeis',
+  'thymbra',
+  'troy',
+  'uvecik-tepe',
+] as const;
+
+const TROJAN_PLAIN_GEO_ENRICH_LABEL_IDS = [
+  'besik-bay',
+  'pinarbasi',
+  'tomb-of-ajax-in-tepe',
+  'kesik-basin',
+  'thymbrios',
+  'aegean',
+] as const;
+
+describe('renderPlate: geographic trojan-plain geo-enrich labels (2026-09-02)', () => {
+  it('places the new labels and keeps every pre-existing label id', () => {
+    const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
+    const plate = parsePlate(raw);
+    expect(plate.kind).toBe('geographic');
+    const allPlaces = (JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[]).filter(
+      (p) => (p as unknown as { maps?: string[] }).maps?.includes('troad-plain'),
+    );
+    const result = renderPlate(plate, allPlaces);
+
+    for (const id of TROJAN_PLAIN_PREEXISTING_LABEL_IDS) {
+      expect(result.labelBoxes[id], `pre-existing label "${id}" must still be placed`).toBeDefined();
+    }
+    for (const id of TROJAN_PLAIN_GEO_ENRICH_LABEL_IDS) {
+      expect(result.labelBoxes[id], `expected a labelBox for "${id}"`).toBeDefined();
+    }
+  });
+});
+
 describe('renderPlate: tumulus layer kind (gap 2)', () => {
   it('a tumulus layer emits the dome glyph, stroked in ink, not filled', () => {
     const plate: Plate = {
@@ -3117,7 +3168,7 @@ describe('renderPlate: groundOpacity wash', () => {
   });
 });
 
-// The 25 ground layers on trojan-plain-schematic-v2.json are a copy of the
+// The ground layers on trojan-plain-schematic-v2.json are a copy of the
 // geographic sheet, kept in sync by scripts/sync-schematic-ground.py. The
 // gazetteer-side geographic sheet is the source of truth.
 const SCHEMATIC_V2_GROUND_IDS = [
@@ -3146,10 +3197,12 @@ const SCHEMATIC_V2_GROUND_IDS = [
   'coast-modern',
   'scamander',
   'simoeis',
+  'besik-bay',
+  'aegean',
 ] as const;
 
 describe('trojan-plain-schematic-v2 ground layers match the geographic sheet', () => {
-  it('deep-equals each of the 25 ground layers by id', () => {
+  it('deep-equals each of the listed ground layers by id', () => {
     const geo = JSON.parse(
       readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain.json'), 'utf-8'),
     );

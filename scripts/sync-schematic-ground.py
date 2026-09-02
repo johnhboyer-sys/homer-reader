@@ -4,11 +4,11 @@ the schematic-v2 plate.
 
 The geographic sheet (`apparatus/plates/trojan-plain.json`) is the source of
 truth for coast, sea, relief, rivers, and the Bronze Age reconstruction.
-This script copies those 25 layers by id (not the Achaean camp zone) onto
+This script copies those ground layers by id (not the Achaean camp zone) onto
 `apparatus/plates/trojan-plain-schematic-v2.json` so the schematic plate
 draws the same ground, rotated east-up, with a right margin.
 
-Re-runnable: if the target already exists, only those 25 layers are
+Re-runnable: if the target already exists, only those listed layers are
 replaced by id; every other key and any extra layers stay put. On first
 run the document is created with the schematic-v2 skeleton.
 
@@ -58,6 +58,8 @@ GROUND_IDS = [
     "coast-modern",
     "scamander",
     "simoeis",
+    "besik-bay",
+    "aegean",
 ]
 
 NOTE = (

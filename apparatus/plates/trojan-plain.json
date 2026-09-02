@@ -8234,7 +8234,8 @@
           "cite": "Pleiades: Scamander.",
           "url": "https://pleiades.stoa.org/places/550871"
         }
-      ]
+      ],
+      "modernName": "Karamenderes"
     },
     {
       "id": "simoeis",
@@ -8345,6 +8346,61 @@
           "cite": "Strabo, Geography 13.1.",
           "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
         },
+        {
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+        }
+      ],
+      "modernName": "Dümrek Su"
+    },
+    {
+      "id": "besik-bay",
+      "kind": "region",
+      "placeId": "besik-bay",
+      "label": "Beşik Bay",
+      "default": "on",
+      "fill": "none",
+      "polygon": [
+        [39.9, 26.115],
+        [39.9, 26.145],
+        [39.912, 26.145],
+        [39.912, 26.115]
+      ],
+      "note": "Lettering zone over the modern sea in Beşik Bay, south of Beşik Tepe (39.9171 / 26.1591), the bay's north end. Draws nothing: the sea-modern polygon already is the water. Kraft, Rapp, Kayan and Luce 2003 read the Beşik embayment as a harbour and roadstead.",
+      "sources": [
+        {
+          "cite": "Kraft, John C., George Rapp, İlhan Kayan, and John V. Luce. \"Harbor areas at ancient Troy: Sedimentology and geomorphology complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163–66."
+        }
+      ]
+    },
+    {
+      "id": "aegean",
+      "kind": "region",
+      "label": "Aegean",
+      "default": "on",
+      "fill": "none",
+      "polygon": [
+        [40.035, 26.105],
+        [40.035, 26.145],
+        [40.048, 26.145],
+        [40.048, 26.105]
+      ],
+      "note": "Lettering zone over the sheet's north-west open sea (the Aegean off the Sigeion shore). Draws nothing: the sea-modern polygon already is the water."
+    },
+    {
+      "id": "kesik-basin",
+      "kind": "region",
+      "placeId": "kesik-basin",
+      "label": "Kesik cut (contested)",
+      "default": "on",
+      "fill": "none",
+      "polygon": [
+        [39.954, 26.163],
+        [39.954, 26.173],
+        [39.958, 26.173],
+        [39.958, 26.163]
+      ],
+      "note": "Label only, no linework. Cook 1973, 166 places the cut about 500 m south of Kesik Tepe (39.9608 / 26.1682). The lettering zone sits on that south side of the mound; the dossier forbids publishing the derived 39.956 / 26.168 as a survey coordinate.",
+      "sources": [
         {
           "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
         }
