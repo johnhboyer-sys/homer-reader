@@ -497,3 +497,82 @@ def test_validate_plate_bbox_tolerates_one_ulp_over_the_edge():
         {"id": "river-1", "kind": "river", "path": [[40.02 + 1e-10, 26.36]]}
     ])
     assert apparatus_places.validate_plate(plate, {}) == []
+
+
+# ── validate_places: `zone.polygon` (2026-09-02, camp-zone ruling 2e-iv) ────
+# There is no mechanism (checked shared/lib/plate.ts and this module) for a
+# plate layer to take its geometry FROM a gazetteer place's zone, so the
+# camp-zone polygon is authored twice: once on the layer that draws it
+# (apparatus/plates/trojan-plain.json's achaean-camp-zone layer) and once on
+# the gazetteer entry (apparatus/places.json's achaean-camp.zone) that is the
+# source of truth other plates (schematic, panorama) read to stay in sync.
+# These tests hold that duplication honest: the shape is validated, and the
+# equality test below fails loudly the moment the two drift.
+
+
+def test_validate_places_zone_polygon_must_be_at_least_three_pairs():
+    doc = {
+        "status": "draft",
+        "places": [_place(zone={"polygon": [[39.9, 26.1], [39.91, 26.11]]})],
+    }
+    problems = apparatus_places.validate_places(doc)
+    assert any("zone.polygon must have at least 3" in p for p in problems)
+
+
+def test_validate_places_zone_polygon_rejects_non_numeric_pair():
+    doc = {
+        "status": "draft",
+        "places": [
+            _place(
+                zone={
+                    "polygon": [
+                        [39.9, 26.1],
+                        [39.91, "26.11"],
+                        [39.92, 26.12],
+                    ]
+                }
+            )
+        ],
+    }
+    problems = apparatus_places.validate_places(doc)
+    assert any("zone.polygon[1] must be a 2-element numeric array" in p for p in problems)
+
+
+def test_validate_places_zone_polygon_rejects_non_list():
+    doc = {"status": "draft", "places": [_place(zone={"polygon": "not-a-list"})]}
+    problems = apparatus_places.validate_places(doc)
+    assert any("zone.polygon must be a list" in p for p in problems)
+
+
+def test_validate_places_zone_good_fixture_passes():
+    doc = {
+        "status": "draft",
+        "places": [
+            _place(zone={"polygon": [[39.9, 26.1], [39.91, 26.11], [39.92, 26.12]]})
+        ],
+    }
+    assert apparatus_places.validate_places(doc) == []
+
+
+def test_real_achaean_camp_zone_polygon_matches_the_plate_layer():
+    """The gazetteer is the source of truth (docstring above): this is the
+    guard that catches the two authored copies drifting apart, since no
+    layer-from-gazetteer consumer mechanism exists to make drift impossible
+    by construction."""
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    place = next(p for p in places_doc["places"] if p["id"] == "achaean-camp")
+    gazetteer_polygon = place["zone"]["polygon"]
+
+    plate_doc = json.loads(
+        (ROOT / "apparatus" / "plates" / "trojan-plain.json").read_text(encoding="utf-8")
+    )
+    layer = next(l for l in plate_doc["layers"] if l["id"] == "achaean-camp-zone")
+    layer_polygon = layer["polygon"]
+
+    assert gazetteer_polygon == layer_polygon, (
+        "apparatus/places.json's achaean-camp.zone.polygon is the source of "
+        "truth for the shared camp zone (ruling 2e-iv); it must match "
+        "apparatus/plates/trojan-plain.json's achaean-camp-zone layer "
+        "exactly, or the geographic, schematic and panorama plates will "
+        "draw the camp on different ground."
+    )

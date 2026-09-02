@@ -4592,30 +4592,31 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // block of beached ships. Handed to the label solver as furniture to keep
     // off, exactly like a pin marker.
     if (layer.kind === 'shipRow') denseBoxes.push({ box: rendered.feature.bbox, layerId: layer.id });
-    // Open water is not empty ground (2026-09-02, fixing the KNOWN, NOT
-    // FIXED regression logged at d0c4e947d): the shore corridor above
-    // reserves only the linework along the coast, never the sea itself, so
-    // a crowded camp band sent "Patroclus: pyre, barrow, games" out past the
-    // beach and onto the Hellespont — a false claim on a schematic register
-    // (a label asserts a place, and open sea is not a place). Reserved by
-    // SHAPE, not bounding box (see waterReservationBoxes): a water region's
-    // bbox is the wrong reservation whenever the water isn't itself
-    // box-shaped — on the Trojan Plain sheet `sea-modern` traces the
-    // Hellespont along one edge, so its bbox ate the sheet's full height,
-    // burying every land label in that half of the plate under this same
-    // rule (d7bf229cc). Reserving the true polygon instead lets a label sit
-    // anywhere that is actually dry — measured against the real
-    // trojan-plain.json sheet, this alone restores besik-sivritepe and
-    // uvecik-tepe; kesik-tepe and kum-tepe stay suppressed even now, because
-    // (verified directly, bypassing this grid) their own best candidate
-    // positions genuinely fall inside the sea/lagoon polygon — a true
-    // placement conflict the old box masked by suppressing everything
-    // nearby, not an artifact of the box this commit removes. Applies
-    // whenever a region/band layer's fill is a water fill — a general rule,
-    // one place, not a per-sheet patch.
+    // Open water is not empty ground ON A SCHEMATIC SHEET (2026-09-02,
+    // fixing the KNOWN, NOT FIXED regression logged at d0c4e947d): the shore
+    // corridor above reserves only the linework along the coast, never the
+    // sea itself, so a crowded camp band sent "Patroclus: pyre, barrow,
+    // games" out past the beach and onto the Hellespont — a false claim on
+    // a schematic register (a label asserts a place, and open sea is not a
+    // place). Reserved by SHAPE, not bounding box (see
+    // waterReservationBoxes): a water region's bbox is the wrong
+    // reservation whenever the water isn't itself box-shaped — on the
+    // Trojan Plain sheet `sea-modern` traces the Hellespont along one edge,
+    // so its bbox ate the sheet's full height.
+    //
+    // Scoped to `plate.kind === 'schematic'` (John's ruling 5, 2026-09-02):
+    // a GEOGRAPHIC sheet is a different register, and already draws coastal
+    // names over water with a leader line — reserving open water there
+    // wrongly suppressed kum-tepe and kesik-tepe on the real
+    // trojan-plain.json, whose only candidate positions sit over the
+    // sea/lagoon polygon; the schematic register's own no-label-on-water
+    // rule doesn't bind a sheet that draws leaders. besik-sivritepe and
+    // uvecik-tepe come along for free (they only needed the bbox-vs-shape
+    // fix, not the register scoping) — see
+    // shared/__tests__/plate.test.ts's parity test.
     const layerFill =
       layer.fill ?? (layer.kind === 'region' || layer.kind === 'band' ? DEFAULT_REGION_FILL : undefined);
-    if (layerFill !== undefined && WATER_FILLS.has(layerFill)) {
+    if (plate.kind === 'schematic' && layerFill !== undefined && WATER_FILLS.has(layerFill)) {
       const rings = bodyRings(plate, layer, viewport);
       if (rings.length > 0) {
         for (const box of waterReservationBoxes(rings, rendered.feature.bbox)) {
