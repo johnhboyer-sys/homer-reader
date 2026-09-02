@@ -3,11 +3,12 @@
   "title": "The Plain of Troy as the Iliad lays it out",
   "kind": "schematic",
   "status": "draft",
-  "size": [1320, 1265],
-  "marginRight": 200,
+  "size": [1460, 1265],
+  "marginRight": 340,
   "rotationDeg": 90,
   "groundOpacity": 0.55,
   "bbox": [39.86, 26.1, 40.05, 26.38],
+  "north": "True north",
   "sources": [
     {
       "cite": "Kraft, John C., Ilhan Kayan, and Oguz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209, no. 4458 (1980): 776-82."

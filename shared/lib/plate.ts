@@ -2541,6 +2541,36 @@ const LEGEND_ROW_H = 14;
 const LEGEND_SWATCH_W = 22;
 /** Gutter between the columns of a folded key. See legendMarkup. */
 const LEGEND_COLUMN_GAP = 16;
+/** Extra vertical space a wrapped legend entry's second (and later) line costs. See legendMarkup/wrapLegendText. */
+const LEGEND_WRAP_LINE_H = LEGEND_FONT + 2;
+
+// Wraps text at the last space that keeps a line under maxWidth px, using the
+// same LEGEND_FONT*0.54-per-character estimate legendMarkup's own sizing
+// already uses. `maxWidth = Infinity` (every caller except a right-margin
+// band) is a no-op — a corner legend grows its own panel to fit its text
+// rather than wrap it, so this only ever fires for a fixed-width band whose
+// own entry text has grown past what marginRight was sized for. Never
+// breaks a single unbreakable word; a line with no fitting break is
+// returned as one (still too-long) line, same as marginRight sizing itself
+// is the primary defense (see trojan-plain-schematic-v2, 2026-09-02, where
+// "Sandy barrier, reconstructed — width not surveyed" ran past the band).
+function wrapLegendText(text: string, maxWidth: number): string[] {
+  if (!Number.isFinite(maxWidth) || text.length * LEGEND_FONT * 0.54 <= maxWidth) return [text];
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let line = '';
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (line && candidate.length * LEGEND_FONT * 0.54 > maxWidth) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = candidate;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
 
 function legendLine(x: number, y: number, stroke: string, width: number, dash = '', opacity = 1): string {
   return (
@@ -2796,9 +2826,18 @@ function legendMarkup(
   for (const e of entries) if (!byKey.has(e.key)) byKey.set(e.key, e);
   if (byKey.size === 0) return '';
   const rows = [...byKey.values()].sort((a, b) => a.rank - b.rank || a.text.localeCompare(b.text));
-  const textW = Math.max(...rows.map((r) => r.text.length * LEGEND_FONT * 0.54));
   const padX = 8;
   const padY = 8;
+  // A right-margin band is a fixed-width strip the SHEET sized, not a panel
+  // that grows to fit its own text the way a corner legend's does — so a
+  // band's text has to fit THAT width instead. 12 mirrors the band's own x0
+  // offset below; 8 is a small edge buffer against font-metric estimation
+  // slop, so an estimate landing a little wide never itself clips the sheet
+  // edge. Infinity for a corner legend (marginRight === 0) makes
+  // wrapLegendText a no-op, leaving that path's output unchanged.
+  const bandTextMaxW = marginRight > 0 ? marginRight - 12 - 8 - padX * 2 - LEGEND_SWATCH_W - 7 : Infinity;
+  const wrappedLines = rows.map((r) => wrapLegendText(r.text, bandTextMaxW));
+  const textW = Math.min(Math.max(...rows.map((r) => r.text.length * LEGEND_FONT * 0.54)), bandTextMaxW);
   // Two columns once one column would run deeper than a quarter of the sheet
   // (2026-08-13). A thirteen-row key is 200px tall, and on a 780px plate there
   // is no corner that deep which is also empty — it simply moved from eating
@@ -2826,7 +2865,18 @@ function legendMarkup(
   }
   const perColumn = Math.ceil(rows.length / columns);
   const panelW = padX * 2 + colW * columns + (columns - 1) * LEGEND_COLUMN_GAP;
-  const panelH = padY * 2 + perColumn * LEGEND_ROW_H;
+  // Per-row height, not the uniform LEGEND_ROW_H: a wrapped entry (see
+  // wrappedLines above) needs its extra lines' worth of room too. Reduces to
+  // exactly the old `perColumn * LEGEND_ROW_H` whenever nothing wraps (every
+  // existing corner legend, and a band whose text still fits in one line),
+  // since `perColumn` rows is always the size of at least one column.
+  const rowHeights = rows.map((_, i) => LEGEND_ROW_H + Math.max(0, wrappedLines[i].length - 1) * LEGEND_WRAP_LINE_H);
+  const columnHeight = (col: number) => {
+    let h = 0;
+    for (let i = col * perColumn; i < Math.min(rows.length, (col + 1) * perColumn); i++) h += rowHeights[i];
+    return h;
+  };
+  const panelH = padY * 2 + Math.max(...Array.from({ length: columns }, (_, c) => columnHeight(c)));
   // A key that overruns its own sheet is worse than no key. Small schematic
   // devices (the Shield at 200px) have no room for one and no use for one —
   // they are not maps, and every band already carries its own label.
@@ -2857,15 +2907,34 @@ function legendMarkup(
       `height="${round1(panelH)}" rx="2" fill="var(--scene-map-label-halo)" fill-opacity="0.86" ` +
       `stroke="var(--flaxman-ink)" stroke-width="0.5" stroke-opacity="0.5"/>`,
   ];
+  const colCursor: number[] = new Array(columns).fill(y0 + padY);
   rows.forEach((row, i) => {
     const col = Math.floor(i / perColumn);
     const colX = x0 + padX + col * (colW + LEGEND_COLUMN_GAP);
-    const cy = y0 + padY + LEGEND_ROW_H * (i % perColumn) + LEGEND_ROW_H / 2;
+    const rowH = rowHeights[i];
+    const rowTop = colCursor[col];
+    colCursor[col] += rowH;
+    const cy = rowTop + rowH / 2;
     parts.push(row.swatch(colX, cy));
-    parts.push(
-      `<text x="${round1(colX + LEGEND_SWATCH_W + 7)}" y="${round1(cy + LEGEND_FONT * 0.35)}" ` +
-        `font-family="var(--font-ui)" font-size="${LEGEND_FONT}" fill="var(--text)">${escapeXml(row.text)}</text>`,
-    );
+    const lines = wrappedLines[i];
+    const textX = colX + LEGEND_SWATCH_W + 7;
+    if (lines.length <= 1) {
+      parts.push(
+        `<text x="${round1(textX)}" y="${round1(cy + LEGEND_FONT * 0.35)}" ` +
+          `font-family="var(--font-ui)" font-size="${LEGEND_FONT}" fill="var(--text)">${escapeXml(row.text)}</text>`,
+      );
+    } else {
+      // Wrapped: stack each line as its own tspan, the block centred on the
+      // row exactly as the single-line case centres its one baseline.
+      const blockH = (lines.length - 1) * LEGEND_WRAP_LINE_H;
+      const firstY = cy - blockH / 2 + LEGEND_FONT * 0.35;
+      const tspans = lines
+        .map((line, li) => `<tspan x="${round1(textX)}" y="${round1(firstY + li * LEGEND_WRAP_LINE_H)}">${escapeXml(line)}</tspan>`)
+        .join('');
+      parts.push(
+        `<text font-family="var(--font-ui)" font-size="${LEGEND_FONT}" fill="var(--text)">${tspans}</text>`,
+      );
+    }
   });
   return `<g class="plate-legend">${parts.join('')}</g>`;
 }
@@ -3215,7 +3284,17 @@ function hypsometricKeyMarkup(plate: Plate, width: number, height: number): stri
   // scale, is not drawn at all: a truncated scale is worse than none.
   if (panelW > width * 0.62) return '';
   const x0 = SCALE_X0 - padX;
-  const bottom = plate.kind === 'geographic' ? scalePanelTop(height) - 6 : height - LABEL_MARGIN - 4;
+  // Stack above the scale-bar-family panel whenever one is drawn at the sheet's
+  // own bottom-left — a real bbox (the geographic stades/km bar, scaleBarMarkup)
+  // or a declared pxPerMetre (the schematic metre bar, metreBarMarkup) — and
+  // only fall back to the sheet's own bottom margin when neither draws one.
+  // Gated on `kind` before this fix (2026-09-02): trojan-plain-schematic-v2 is
+  // `kind: "schematic"` but DOES carry a real bbox (the register is about the
+  // camp/road content, not the coordinate space — see usesLatLon's own
+  // comment), so the `kind`-only test put the key at the sheet's bottom
+  // margin, squarely on top of the geographic scale bar drawn there too.
+  const hasScaleBar = usesLatLon(plate) || plate.pxPerMetre !== undefined;
+  const bottom = hasScaleBar ? scalePanelTop(height) - 6 : height - LABEL_MARGIN - 4;
   const y0 = bottom - panelH;
   if (y0 < LABEL_MARGIN) return '';
 
@@ -4978,7 +5057,16 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       ...(plate.north ? [northArrowBox(plate.north, rotationDeg)] : []),
     ],
     plate.kind === 'geographic',
-    plate.kind === 'geographic' ? [frameWidth, height] : undefined,
+    // Thinning/smoothing the textPath GUIDE (see layoutLabels' own comment on
+    // this parameter) has to fire for ANY plate whose linework is real,
+    // densely-sampled survey/OSM data — that is what usesLatLon(plate) (bbox
+    // presence) actually tests, not `kind`. trojan-plain-schematic-v2 is
+    // `kind: "schematic"` (the register is about content, not coordinate
+    // space) but its rivers are the geographic sheet's own OSM polylines
+    // copied in by scripts/sync-schematic-ground.py — un-thinned, they hit
+    // the exact "scattered fragments" failure the 2026-08-10 LOOK-gate fix
+    // was written for (2026-09-02: "Scamander" as "Sca m ander").
+    usesLatLon(plate) ? [frameWidth, height] : undefined,
     denseBoxes,
   );
 

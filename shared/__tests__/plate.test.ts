@@ -3166,3 +3166,147 @@ describe('trojan-plain-schematic-v2 ground layers match the geographic sheet', (
     }
   });
 });
+
+// ── Stage 3b fixes: the real v2 sheet's furniture (2026-09-02) ─────────────
+//
+// trojan-plain-schematic-v2 is the first plate that is BOTH `kind:
+// "schematic"` (the register is about content — the camp/road layout Homer's
+// own text lays out — not coordinate space) AND carries a real bbox (it
+// projects the geographic sheet's own ground, rotated). Several places in
+// this file gated behaviour on `kind === 'geographic'` where the real test
+// should have been usesLatLon(plate)/bbox presence — the rule plate.ts's own
+// "Coordinate space is declared by the PRESENCE of a bbox, not by kind"
+// comment already states. Each defect below traces to exactly that
+// kind-vs-bbox conflation.
+const V2_SEED_PLATE_PATH = '../apparatus/plates/trojan-plain-schematic-v2.json';
+
+describe('trojan-plain-schematic-v2: river textPath guides are thinned, not raw (2026-09-02, "Sca m ander")', () => {
+  const raw = JSON.parse(readFileSync(path.resolve(process.cwd(), V2_SEED_PLATE_PATH), 'utf-8'));
+  const plate = parsePlate(raw);
+  // A river layer's name comes from its placeId fallback (neither carries an
+  // explicit `label`), so the gazetteer has to be passed for either to be
+  // lettered at all — same as the real render-plates.mjs harness's
+  // placesForSheet.
+  const rivers = (JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[]).filter(
+    (p) => p.id === 'scamander' || p.id === 'simoeis',
+  );
+  const result = renderPlate(plate, rivers);
+
+  it.each(['scamander', 'simoeis'])(
+    '%s: the guide has far fewer points than the raw stored river (thinned to >=10px segments, matching the geographic sheet)',
+    (id) => {
+      const rawPath = (plate.layers.find((l) => l.id === id) as { path: [number, number][] }).path;
+      const guideMatch = result.svg.match(new RegExp(`id="plate-lp-${id}" d="([^"]+)"`));
+      expect(guideMatch, `no textPath guide drawn for ${id}`).toBeTruthy();
+      const guidePointCount = (guideMatch![1].match(/[ML]/g) ?? []).length;
+      // An un-thinned guide (one point per raw vertex) is exactly what
+      // produced "Sca m ander": method="align" rotates every glyph to a
+      // noisy local tangent between near-coincident points. A thinned guide
+      // (>=10px between kept points, see TEXTPATH_GUIDE_MIN_SEGMENT) is a
+      // small fraction of the raw count, never a near 1:1 copy.
+      expect(guidePointCount).toBeLessThan(rawPath.length * 0.5);
+    },
+  );
+});
+
+describe('trojan-plain-schematic-v2: the hypsometric key stacks above the scale bar, not on top of it (2026-09-02)', () => {
+  const plate = parsePlate(JSON.parse(readFileSync(path.resolve(process.cwd(), V2_SEED_PLATE_PATH), 'utf-8')));
+  const svg = renderPlate(plate, []).svg;
+
+  const boxOf = (re: RegExp): [number, number, number, number] => {
+    const m = svg.match(re);
+    expect(m, `pattern not found: ${re}`).toBeTruthy();
+    const [, x, y, w, h] = m!.map(Number);
+    return [x, y, x + w, y + h];
+  };
+
+  it('the hypsometric panel and the scale panel do not overlap', () => {
+    const hyps = boxOf(/<rect class="plate-hypsometric-panel" x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"/);
+    const scale = boxOf(/<rect class="plate-scale-panel" x="([-\d.]+)" y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"/);
+    const intersects =
+      hyps[0] < scale[2] && hyps[2] > scale[0] && hyps[1] < scale[3] && hyps[3] > scale[1];
+    expect(intersects, `hypsometric ${JSON.stringify(hyps)} overlaps scale ${JSON.stringify(scale)}`).toBe(false);
+    // Not just non-overlapping — stacked, the key strictly above the bar
+    // (the geographic-sheet convention this schematic-but-bboxed sheet
+    // should share; see trojan-plain-light.png).
+    expect(hyps[3]).toBeLessThanOrEqual(scale[1]);
+  });
+});
+
+describe('trojan-plain-schematic-v2: the legend fits its own margin band (2026-09-02, "Sandy barrier… width not surveyed" clipped)', () => {
+  const plate = parsePlate(JSON.parse(readFileSync(path.resolve(process.cwd(), V2_SEED_PLATE_PATH), 'utf-8')));
+  const svg = renderPlate(plate, []).svg;
+
+  it('every legend row text\'s estimated right edge sits inside the sheet, with room to spare', () => {
+    const panelMatch = svg.match(/<rect class="plate-legend-panel" x="([-\d.]+)"/);
+    expect(panelMatch).toBeTruthy();
+    const rowTexts = [...svg.matchAll(/<text x="([-\d.]+)" y="[-\d.]+" font-family="var\(--font-ui\)" font-size="9\.5" fill="var\(--text\)">([^<]*)<\/text>/g)];
+    // Also account for wrapped rows (rendered as <text><tspan x="…">…) —
+    // every tspan under a legend text carries the same x, so checking those
+    // too catches a wrap-path regression as well as the single-line one.
+    const tspanTexts = [...svg.matchAll(/<tspan x="([-\d.]+)" y="[-\d.]+">([^<]*)<\/tspan>/g)];
+    const all = [...rowTexts, ...tspanTexts];
+    expect(all.length).toBeGreaterThan(0);
+    for (const m of all) {
+      const x = Number(m[1]);
+      const text = m[2];
+      const estRightEdge = x + text.length * 9.5 * 0.54;
+      expect(estRightEdge, `"${text}" estimated right edge ${estRightEdge} vs sheet width ${plate.size[0]}`).toBeLessThanOrEqual(
+        plate.size[0] - 12,
+      );
+    }
+  });
+});
+
+describe('trojan-plain-schematic-v2: north arrow renders, needle left, N upright (2026-09-02)', () => {
+  const plate = parsePlate(JSON.parse(readFileSync(path.resolve(process.cwd(), V2_SEED_PLATE_PATH), 'utf-8')));
+
+  it('the plate declares a north caption', () => {
+    expect(plate.north).toBeTruthy();
+  });
+
+  it('the rendered sheet carries the needle group, rotated -90deg (east-up, per rotationDeg: 90), fully inside the sheet', () => {
+    const svg = renderPlate(plate, []).svg;
+    expect(svg).toMatch(/class="plate-north"/);
+    expect(svg).toMatch(/transform="rotate\(-90 /);
+    const needleMatch = svg.match(/<g transform="rotate\(-90 ([\d.]+) ([\d.]+)\)">/);
+    expect(needleMatch).toBeTruthy();
+    const [, cx, cy] = needleMatch!.map(Number);
+    expect(cx).toBeGreaterThan(0);
+    expect(cx).toBeLessThan(plate.size[0]);
+    expect(cy).toBeGreaterThan(0);
+    expect(cy).toBeLessThan(plate.size[1]);
+  });
+});
+
+describe('legendMarkup: a right-margin band wraps an entry too long for it instead of clipping (synthetic)', () => {
+  const bandPlate: Plate = {
+    ...testPlate,
+    bbox: undefined,
+    marginRight: 120,
+    layers: [
+      { id: 'a', kind: 'region', legend: 'A very long legend entry that will not fit a 120px band on one line', fill: 'plain', polygon: [[0, 0], [0.1, 0], [0.1, 0.1], [0, 0.1]] },
+    ],
+  };
+  it('wraps the long entry across multiple tspans, each estimated within the band', () => {
+    const svg = renderPlate(bandPlate, []).svg;
+    const tspans = [...svg.matchAll(/<tspan x="([-\d.]+)" y="[-\d.]+">([^<]*)<\/tspan>/g)];
+    expect(tspans.length).toBeGreaterThan(1);
+    const panelMatch = svg.match(/<rect class="plate-legend-panel" x="([-\d.]+)" y="[-\d.]+" width="([\d.]+)"/);
+    expect(panelMatch).toBeTruthy();
+    const panelRight = Number(panelMatch![1]) + Number(panelMatch![2]);
+    expect(panelRight).toBeLessThanOrEqual(bandPlate.size[0]);
+  });
+
+  it('a short entry in the same band is untouched (still a single <text>, not wrapped)', () => {
+    const shortPlate: Plate = {
+      ...testPlate,
+      bbox: undefined,
+      marginRight: 120,
+      layers: [{ id: 'a', kind: 'region', legend: 'Short', fill: 'plain', polygon: [[0, 0], [0.1, 0], [0.1, 0.1], [0, 0.1]] }],
+    };
+    const svg = renderPlate(shortPlate, []).svg;
+    expect(svg).toContain('>Short</text>');
+    expect(svg).not.toContain('<tspan');
+  });
+});
