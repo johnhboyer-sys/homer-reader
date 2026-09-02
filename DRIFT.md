@@ -1032,3 +1032,22 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   framed on the same scene. Shared by both the schematic path (live) and the
   geographic path (flag-gated off, `CHART_ROOM_PLATE_ENABLED`). No
   plato-reader counterpart (Homer-only apparatus feature).
+
+## 2026-09-02 — Chart Room postcard: margin band + tier-2 labels (stage 5a)
+
+- `shared/components/Reader.svelte` — `applyPlateCamera`'s `apply()` toggles
+  `.plate-zoomed` (camera scale >= 2.5) and `.plate-focus-label` (the
+  scene's own single focus, which always wins over the tier rule) so a
+  CSS pair can hide `.plate-label-tier2`/`.plate-leader-tier2` below that
+  zoom threshold, mirroring `PlatePanel.svelte`'s own `.plate-zoomed`
+  toggle at the same threshold. `chartMapAspectRatio`/the three
+  `applyPlateCamera` params/`locatorFrame` all read `PlateResult.frame`
+  (plate.ts) instead of `Plate.size`, since the schematic sheet's `size`
+  now includes its own margin band; `ensureLabelWrappers` sets
+  `preserveAspectRatio="xMinYMin slice"` on the injected SVG so that band
+  is cropped, not letterboxed, when the two ratios diverge (a no-op on
+  every plate with no `marginRight`). `labelDescaleFactor` (new, shared by
+  `updateLabelDescale`/`fitFocusLabelsToFrame`) raises the descale ceiling
+  at `camK<=1` only, so an unzoomed postcard's label no longer lands at
+  ~4-5 CSS px. `FURNITURE_SELECTOR` gained `.plate-scene-key`. No
+  plato-reader counterpart (Homer-only apparatus feature).
