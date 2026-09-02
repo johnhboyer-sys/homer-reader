@@ -3912,3 +3912,276 @@ describe('legendMarkup: a right-margin band never folds into multiple columns (2
     expect(new Set(swatchXs).size).toBe(1);
   });
 });
+
+// ── Stage 5b: camp label declutter + wall/ditch/ship-rank geometry ─────────
+//
+// John's LOOK-gate verdict on the camp crop ("that's a mess"): six tier-1
+// labels stacked on ~450px of beach; the wall traced the shared camp zone's
+// own 37-vertex inland polygon edge instead of a line behind the sterns; the
+// ship ranks crossed the shoreline. The fix: exactly one camp-wide name
+// (`achaean-camp`) plus three sector names by holder (`station-of-achilles`,
+// `station-of-odysseus`, `station-of-ajax`) at tier 1 — every individual
+// feature (huts, the assembly, the wall-and-ditch pin) demoted to tier 2;
+// the wall/ditch rebuilt as a landward offset from the rearmost ship rank,
+// not the zone's own edge; every ship-rank vertex repositioned onto dry
+// land.
+
+function distToPolyline(p: [number, number], pts: [number, number][]): number {
+  let best = Infinity;
+  for (let i = 0; i < pts.length - 1; i++) best = Math.min(best, distToSegment(p, pts[i], pts[i + 1]));
+  return best;
+}
+
+// Same convention shipRow() uses internally: n = (-uy, ux) turned 90° from
+// the segment's own direction u. Verified against the live data (Python
+// prototype, stage 5b) that +n is seaward and -n is landward for every one
+// of the three camp shipRow baselines on this rotated (90°) sheet.
+function segmentNormal(a: [number, number], b: [number, number]): [number, number] {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const len = Math.hypot(dx, dy);
+  return [-dy / len, dx / len];
+}
+
+describe('renderPlate: camp label declutter (stage 5b)', () => {
+  const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
+  const plate = parsePlate(raw);
+  const allPlaces = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[];
+  const result = renderPlate(plate, allPlaces);
+
+  function labelTag(id: string): string | undefined {
+    const re = new RegExp(`<text[^>]*data-label-for="${id}"[^>]*>[\\s\\S]*?</text>`);
+    return result.svg.match(re)?.[0];
+  }
+
+  // toLocaleUpperCase (region role is set-caps) + the same '&apos;' escaping
+  // labelText/escapeXml apply, so this matches the literal rendered text.
+  function svgCaps(s: string): string {
+    return s.toLocaleUpperCase().replace(/'/g, '&apos;');
+  }
+
+  // The three sector zones are `region`-role layer labels, centred on their
+  // own polygon and lettered in caps (see LABEL_STYLES.region). `achaean-camp`
+  // is deliberately NOT one of these: a `region` reading of the same shared
+  // camp polygon was tried and withdrawn before this fix (see the "No id
+  // overrides on a schematic sheet" comment in shared/lib/plate.ts) because
+  // its centroid sits ON the ship/wall drawing it names, and — new finding,
+  // this stage — on top of `station-of-odysseus`'s own centroid only 24px
+  // away (both are "centred" requests; plate.ts's own label layout gives
+  // centred area labels no collision check against each other, see the
+  // Kesik-cut test above). So `achaean-camp` stays the place-level pin: a
+  // small settlement-class dot+label at its own hand-placed `plateAnchors`
+  // point, independent of any polygon centroid.
+  const TIER1_SECTOR_LABELS: Record<string, string> = {
+    'station-of-achilles': "Achilles' end",
+    'station-of-odysseus': 'The centre',
+    'station-of-ajax': "Ajax's end",
+  };
+
+  it('letters the three sector names (Achilles, the centre, Ajax) at tier 1, region-caps style', () => {
+    for (const [id, text] of Object.entries(TIER1_SECTOR_LABELS)) {
+      const tag = labelTag(id);
+      expect(tag, `expected a placed label for "${id}"`).toBeDefined();
+      expect(tag, `"${id}" must be tier 1 (no data-label-tier="2")`).not.toContain('data-label-tier="2"');
+      expect(tag, `"${id}" must letter "${text}"`).toContain(svgCaps(text));
+    }
+  });
+
+  it('letters the camp-wide name once, at tier 1, as a settlement pin (not caps, not duplicated)', () => {
+    const tag = labelTag('achaean-camp');
+    expect(tag, 'expected a placed label for "achaean-camp"').toBeDefined();
+    expect(tag, '"achaean-camp" must be tier 1').not.toContain('data-label-tier="2"');
+    // mapLabelText drops the leading article from a gazetteer name (see its
+    // own comment) — "The Achaean camp and ships" prints as "Achaean camp
+    // and ships", mixed case (a settlement pin, not region-caps lettering).
+    expect(tag, '"achaean-camp" is a settlement-class pin, set mixed case').toContain('Achaean camp and ships');
+    expect(tag, '"achaean-camp" must not be set in caps (that would be the withdrawn region reading)').not.toContain(
+      'ACHAEAN CAMP',
+    );
+  });
+
+  // The six items John's crop showed stacked at tier 1: the camp name and
+  // the assembly/wall-and-ditch/Achilles/Odysseus/Ajax pins. The camp name
+  // is re-asserted at tier 1 above (as the sole settlement pin) and the
+  // three sector holders are re-asserted above (via their own zone layer);
+  // everything else here is an individual feature and stays demoted.
+  const TIER2_INDIVIDUAL_FEATURES = [
+    'achaean-wall-and-ditch',
+    'achaean-assembly-place',
+    'hut-of-odysseus',
+    'hut-of-ajax',
+    'hut-of-achilles',
+  ];
+
+  it('demotes every individual camp feature (huts, the assembly, the wall-and-ditch pin) to tier 2', () => {
+    for (const id of TIER2_INDIVIDUAL_FEATURES) {
+      const tag = labelTag(id);
+      expect(tag, `expected a placed label for "${id}"`).toBeDefined();
+      expect(tag, `"${id}" must be tier 2`).toContain('data-label-tier="2"');
+    }
+  });
+
+  it('the camp-wide pin and the three sector names do not overprint each other', () => {
+    const ids = ['achaean-camp', 'station-of-achilles', 'station-of-odysseus', 'station-of-ajax'];
+    const boxes = ids.map((id) => {
+      const box = result.labelBoxes[id];
+      expect(box, `expected a labelBox for "${id}"`).toBeDefined();
+      return box!;
+    });
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const [a, b] = [boxes[i], boxes[j]];
+        const disjoint = a[2] < b[0] || b[2] < a[0] || a[3] < b[1] || b[3] < a[1];
+        expect(disjoint, `${ids[i]} box ${JSON.stringify(a)} overlaps ${ids[j]} box ${JSON.stringify(b)}`).toBe(
+          true,
+        );
+      }
+    }
+  });
+});
+
+describe('renderPlate: camp wall, ditch and ship ranks sit on the beach (stage 5b)', () => {
+  const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
+  const plate = parsePlate(raw);
+  const frameWidth = plate.size[0] - (plate.marginRight ?? 0);
+  const viewport = viewportFromBBox(plate.bbox!, [frameWidth, plate.size[1]], plate.rotationDeg);
+  const layerById = new Map(plate.layers.map((l) => [l.id, l]));
+
+  const SHIP_ROW_IDS = ['ships-achilles-end', 'ships-centre', 'ships-ajax-end'] as const;
+  const SHIP_RANK_GAP = 1.55; // must track shipRow()'s own constant, shared/lib/plate.ts
+
+  function rankLine(layer: PlateLayer): [number, number][][] {
+    const [a, b] = (layer.baseline ?? []).map((p) => project(p, viewport)) as [number, number][];
+    const [nx, ny] = segmentNormal(a, b);
+    const length = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const slotWidth = length / (layer.count ?? 1);
+    const baseHalfLen = Math.min(slotWidth, 32) * 0.46;
+    const rankSpacing = baseHalfLen * SHIP_RANK_GAP;
+    const rows = layer.rows ?? 1;
+    const lines: [number, number][][] = [];
+    for (let r = 0; r < rows; r++) {
+      const off = r * rankSpacing;
+      lines.push([
+        [a[0] + nx * off, a[1] + ny * off],
+        [b[0] + nx * off, b[1] + ny * off],
+      ]);
+    }
+    return lines;
+  }
+
+  it('every ship-rank vertex (all three ranks, all three stations) lies outside sea-modern', () => {
+    const sea = (layerById.get('sea-modern')!.polygon ?? []).map((p) => project(p, viewport)) as [number, number][];
+    for (const lid of SHIP_ROW_IDS) {
+      const ranks = rankLine(layerById.get(lid)!);
+      ranks.forEach((rank, r) => {
+        rank.forEach((pt) => {
+          expect(inPolygon(pt, sea), `${lid} rank ${r} vertex ${JSON.stringify(pt)} sits in the sea`).toBe(
+            false,
+          );
+        });
+      });
+    }
+  });
+
+  it('the seaward-most rank (last row) comes within 40m of the coast-modern shoreline', () => {
+    const coastRings = (layerById.get('coast-modern')!.rings ?? []) as PlatePoint[][];
+    const coastPx = coastRings.map((ring) => ring.map((p) => project(p, viewport)) as [number, number][]);
+    const pxPerMetre = viewport.scale / 111320;
+    for (const lid of SHIP_ROW_IDS) {
+      const layer = layerById.get(lid)!;
+      const ranks = rankLine(layer);
+      const lastRank = ranks[ranks.length - 1];
+      const dists = lastRank.map((pt) => Math.min(...coastPx.map((ring) => distToPolyline(pt, ring))) / pxPerMetre);
+      expect(Math.min(...dists), `${lid}'s seaward rank never comes within 40m of the shore`).toBeLessThanOrEqual(40);
+    }
+  });
+
+  it('the wall sits landward of the rearmost (row 0) ship rank, and the ditch landward of the wall', () => {
+    const pxPerMetre = viewport.scale / 111320;
+    // The three baselines, bridged end to end, stand in for "the beach line"
+    // at rank-3 (row 0) depth — see shipRow()'s own comment: row 0, the
+    // baseline itself, is the landward-most, first-hauled rank.
+    const row0Line = SHIP_ROW_IDS.flatMap((lid) => {
+      const [a, b] = (layerById.get(lid)!.baseline ?? []).map((p) => project(p, viewport)) as [number, number][];
+      return [a, b];
+    });
+
+    function minLandwardOffset(tracePoints: [number, number][], ref: [number, number][]): number {
+      let worst = Infinity;
+      for (const pt of tracePoints) {
+        // Nearest reference segment, then the signed perpendicular offset in
+        // that segment's own local frame (+n = seaward, matching shipRow()).
+        let bestD = Infinity;
+        let bestSeg: [[number, number], [number, number]] | undefined;
+        let bestClosest: [number, number] = pt;
+        for (let i = 0; i < ref.length - 1; i++) {
+          const a = ref[i];
+          const b = ref[i + 1];
+          const dx = b[0] - a[0];
+          const dy = b[1] - a[1];
+          const l2 = dx * dx + dy * dy;
+          const t = l2 < 1e-9 ? 0 : Math.max(0, Math.min(1, ((pt[0] - a[0]) * dx + (pt[1] - a[1]) * dy) / l2));
+          const closest: [number, number] = [a[0] + t * dx, a[1] + t * dy];
+          const d = Math.hypot(pt[0] - closest[0], pt[1] - closest[1]);
+          if (d < bestD) {
+            bestD = d;
+            bestSeg = [a, b];
+            bestClosest = closest;
+          }
+        }
+        const [nx, ny] = segmentNormal(bestSeg![0], bestSeg![1]);
+        const vx = pt[0] - bestClosest[0];
+        const vy = pt[1] - bestClosest[1];
+        const landward = -(vx * nx + vy * ny) / pxPerMetre; // positive == landward
+        worst = Math.min(worst, landward);
+      }
+      return worst;
+    }
+
+    const wallTrace = (layerById.get('achaean-wall')!.trace ?? []).map((p) => project(p, viewport)) as [
+      number,
+      number,
+    ][];
+    const ditchTrace = (layerById.get('achaean-ditch')!.trace ?? []).map((p) => project(p, viewport)) as [
+      number,
+      number,
+    ][];
+
+    const wallLandward = minLandwardOffset(wallTrace, row0Line);
+    expect(wallLandward, 'every achaean-wall vertex must be landward of rank 3 (row 0)').toBeGreaterThan(0);
+
+    const ditchLandward = minLandwardOffset(ditchTrace, wallTrace);
+    expect(ditchLandward, 'every achaean-ditch vertex must be landward of achaean-wall').toBeGreaterThan(0);
+  });
+
+  it('the wall turns by no more than 25° between consecutive vertices', () => {
+    const wallTrace = (layerById.get('achaean-wall')!.trace ?? []).map((p) => project(p, viewport)) as [
+      number,
+      number,
+    ][];
+    let maxTurn = 0;
+    for (let i = 1; i < wallTrace.length - 1; i++) {
+      const [ax, ay] = wallTrace[i - 1];
+      const [bx, by] = wallTrace[i];
+      const [cx, cy] = wallTrace[i + 1];
+      const v1 = [bx - ax, by - ay];
+      const v2 = [cx - bx, cy - by];
+      const n1 = Math.hypot(v1[0], v1[1]);
+      const n2 = Math.hypot(v2[0], v2[1]);
+      if (n1 < 1e-6 || n2 < 1e-6) continue;
+      const cos = Math.max(-1, Math.min(1, (v1[0] * v2[0] + v1[1] * v2[1]) / (n1 * n2)));
+      maxTurn = Math.max(maxTurn, (Math.acos(cos) * 180) / Math.PI);
+    }
+    expect(maxTurn, `wall turning angle ${maxTurn.toFixed(1)}° exceeds the 25° smoothness bar`).toBeLessThanOrEqual(
+      25,
+    );
+  });
+
+  it('thins the three main shipRow layers to 8 glyphs per rank (three ranks kept, Il. 14.30-36)', () => {
+    for (const lid of SHIP_ROW_IDS) {
+      const layer = layerById.get(lid)!;
+      expect(layer.count, `${lid} should carry 8 ships/rank`).toBe(8);
+      expect(layer.rows, `${lid} keeps three ranks`).toBe(3);
+    }
+  });
+});

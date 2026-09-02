@@ -8762,8 +8762,8 @@
       "kind": "camp",
       "plateAnchors": {
         "trojan-plain-schematic": [
-          39.951975,
-          26.17428888888889
+          39.959610192128615,
+          26.1869054896794
         ]
       },
       "positionBasis": "conjectural",
@@ -9082,7 +9082,7 @@
           "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
         }
       ],
-      "labelTier": 1,
+      "labelTier": 2,
       "labelSize": "small"
     },
     {
@@ -9252,7 +9252,7 @@
           "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
         }
       ],
-      "labelTier": 1,
+      "labelTier": 2,
       "labelSize": "small"
     },
     {
@@ -9325,7 +9325,7 @@
           "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
         }
       ],
-      "labelTier": 1,
+      "labelTier": 2,
       "labelSize": "small"
     },
     {
@@ -9394,7 +9394,7 @@
           "cite": "Leaf, Walter, ed. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902."
         }
       ],
-      "labelTier": 1,
+      "labelTier": 2,
       "labelSize": "small"
     },
     {
@@ -9541,7 +9541,7 @@
           "cite": "Leaf, Walter, ed. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902."
         }
       ],
-      "labelTier": 1,
+      "labelTier": 2,
       "labelSize": "small"
     },
     {
