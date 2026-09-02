@@ -2946,31 +2946,41 @@ def test_preset_a_resolves_to_the_settled_bay_camera(s3, restore_camera):
 
 def test_preset_b_looks_down_the_beach_from_off_the_centre_station(
         s3, restore_camera):
-    """The 2026-09-02 correction: B points from off the CENTRE station
-    toward the SOUTH station (down the shore's own line), not straight in
-    from the sea -- see plate_presets(). A nonzero setback is the fix for
-    the original setback=0 bug (near-pitch atan2(alt, setback) was 90
-    degrees straight down when setback was 0)."""
-    centre, _north, south = _axis_stations(s3)
-    vp = s3.ll_along(centre, s3.CAMP_SEAWARD_DEG, 2000.0)
-    heading = s3.pp._bearing_deg(vp, south)
+    """The 2026-09-02 FOURTH correction (composition fix, see
+    plate_presets()'s own docstring): B points from off the main
+    qualifying beach run's OWN midpoint (camp-axis -3978 m), not the whole
+    zone's geometric centre -- the third round's camera, aimed from the
+    zone centre, only caught that run's near edge (the true, elevation-
+    filtered berth set is fragmented; -3978 is the ~1.1 km contiguous
+    run's own middle). Heading is a literal 152 degrees rather than the
+    bearing to any named station -- the scratch solver found a heading
+    partway between abreast-of-pivot and the run's own south end reads
+    better than aiming exactly at either. A nonzero setback remains the
+    fix for the original setback=0 bug (near-pitch atan2(alt, setback) was
+    90 degrees straight down when setback was 0)."""
+    zone = _camp_polys()[2]
+    origin = s3.camp_origin(zone)
+    fleet_pivot = s3.camp_ll(origin, -3978.0, 0.0)
+    vp = s3.ll_along(fleet_pivot, s3.CAMP_SEAWARD_DEG, 900.0)
     _apply_plate(s3, "--plate", "B")
     assert s3.VIEWPOINT[0] == pytest.approx(vp[0], abs=1e-6)
     assert s3.VIEWPOINT[1] == pytest.approx(vp[1], abs=1e-6)
-    assert s3.HEADING_DEG == pytest.approx(heading, abs=0.05)
-    assert s3.ALT == pytest.approx(300.0)
-    assert s3.SETBACK == pytest.approx(1200.0)
-    assert s3.HFOV_DEG == pytest.approx(72.0)
+    assert s3.HEADING_DEG == pytest.approx(152.0)
+    assert s3.ALT == pytest.approx(160.0)
+    assert s3.SETBACK == pytest.approx(500.0)
+    assert s3.HFOV_DEG == pytest.approx(52.0)
     assert s3.RANGE_NEAR == pytest.approx(150.0)
 
 
 def test_preset_b_pitches_down_not_straight_down(s3, restore_camera):
     """The original bug (setback=0) pitched the camera 90 degrees down and
     drew 0 hulls in frame. Any nonzero, sane pitch is the regression gate;
-    see docs/PANORAMA-RESUME.md for why this preset's pitch (~7 degrees)
+    see docs/PANORAMA-RESUME.md for why this preset's pitch (~8.8 degrees)
     undershoots the 12-20 degree target plate A hits -- it was chosen for
-    keeping Ilios out of the 72-degree cone by azimuth over chasing a pitch
-    number, within this lane's render budget."""
+    keeping Ilios out of the 52-degree cone by azimuth (a huge, unspent
+    margin -- 65 degrees clear) while landing the ridge crest, the
+    waterline and the fleet's frame-width span where the composition
+    brief asked for them, over chasing a pitch number in isolation."""
     _apply_plate(s3, "--plate", "B")
     cam = s3.Camera.__new__(s3.Camera)
     cam.theta = math.radians(s3.HEADING_DEG)
@@ -2984,8 +2994,8 @@ def test_preset_b_pitches_down_not_straight_down(s3, restore_camera):
 def test_explicit_heading_overrides_the_preset(s3, restore_camera):
     _apply_plate(s3, "--plate", "B", "--heading", "95")
     assert s3.HEADING_DEG == pytest.approx(95.0)
-    assert s3.ALT == pytest.approx(300.0)
-    assert s3.SETBACK == pytest.approx(1200.0)
+    assert s3.ALT == pytest.approx(160.0)
+    assert s3.SETBACK == pytest.approx(500.0)
 
 
 def test_plate_titles_and_subtitles_are_exact(s3, restore_camera):

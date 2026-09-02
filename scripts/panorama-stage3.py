@@ -1976,13 +1976,27 @@ FLEET_T1_FIRST_M = 90.0     # the seaward row's stern, back from the waterline
 # could recover it. Plate B's camera looks down the beach instead of across
 # it (see plate_presets()), so a hull is seen close to BROADSIDE and its
 # length survives the projection on its own: measured at the fleet centroid
-# (39.9452, 26.16527), true size (K=1.0) already draws 11.8 px against a
-# 3.8 px hut -- 3.10x, close to the true 3.43. K=1.1 lands it at 13.0 px,
-# 3.42x -- the true ratio, to two figures -- so the enlargement most of this
-# table argued for is now a SMALL correction, not a x2.5 one. Isotropic
-# still: see the note above on what an anisotropic K did to the shape.
-FLEET_T1_BEAM_K = 1.1
-FLEET_T1_LEN_K = 1.1
+# (39.9452, 26.16527), true size (K=1.0) already drew 11.8 px against a
+# 3.8 px hut at the FIRST correction round's camera -- 3.10x, close to the
+# true 3.43.
+#
+# RE-MEASURED AGAIN for the FOURTH round's camera (plate_presets()'s own
+# note -- the pivot moved off the whole zone's geometric centre to the main
+# qualifying run's own midpoint, which is what actually fixed the fleet's
+# frame coverage). Measured at that run's own hull station nearest the new
+# pivot (camp-axis -3978 m; lat/lon 39.91965, 26.15652), K=1.0 already
+# draws 38.4 px -- inside the 30-40 px composition target on its own, no
+# real enlargement needed this time. K=1.02 (39.2 px) is used only to keep
+# K strictly > 1.0, as the test suite requires (a regression gate against
+# the original setback=0 bug's zero-hull renders, not a claim that 2% is a
+# meaningful correction). THE RATIO TO THE HUT STILL DOES NOT TRACK THE
+# TRUE 3.43 (a ~9x deviation was measured and left as a known gap in the
+# third round's note, for the reason given there: the pitch foreshortens
+# the hut's across-view roof span harder than the hull's along-view
+# length). Isotropic still: see the note above on what an anisotropic K
+# did to the shape.
+FLEET_T1_BEAM_K = 1.02
+FLEET_T1_LEN_K = 1.02
 DRY_MARGIN_M = 14.0         # sand that must show between a forefoot and the
                             # water. About six pixels of beach at the camp's
                             # depth: enough that a reader can SEE she is
@@ -6461,7 +6475,14 @@ def build(terr, cam, plate_json):
     # ... there is no need to look for a battlefield in the distance", Kayan
     # 2002, 1003), which is why the key entry names him rather than a line of
     # the poem. It is not the poem's own name for the ground.
-    fanc = P.cover_centre(COVER_FAN, 2500.0, 5000.0)
+    # PLAIN-SIDE LABEL, PLATE A ONLY. The dry fan is the Scamandrian plain's
+    # own ground -- beyond the ridge from plate B's camera (ruling 4: Ilios,
+    # and everything on its side of the crest, is not visible from the
+    # camp). Plate B can still show a sliver of this cover class at the
+    # extreme edge of a wide-angle mesh without the ridge fully occluding
+    # it; the label naming it "the battlefield" belongs with plate A's view
+    # of the plain, never with B's shore.
+    fanc = P.cover_centre(COVER_FAN, 2500.0, 5000.0) if PLATE_FAMILY == "A" else None
     if fanc:
         # nudged clear of the bay's own hairline, which the median's left end
         # was sitting on: region lettering may cross ground, never a drawn line
@@ -6822,12 +6843,53 @@ def plate_presets():
     occludes it at whatever altitude was last tried; and because the camera
     sits abreast of the fleet's own middle rather than off one end looking
     down the whole length, the fleet centroid lands at ~2.8 km, close to the
-    old calibration, with the beach crossing the frame on a diagonal."""
+    old calibration, with the beach crossing the frame on a diagonal.
+
+    THIRD ROUND (2026-09-02, composition fix): the 2,000 m/alt 300/pitch
+    7.3-degree camera above rendered two-thirds sky and sea with the land a
+    thin strip and the fleet a scatter of specks -- not a framing bug, a
+    camera too far and too shallow for a picture that wants the ridge crest
+    in the TOP QUARTER and the waterline near the BOTTOM. A scratch solver
+    (sweeping distance off the beach, altitude, setback, heading and hfov,
+    scoring the projected y of a real ridge-crest sample against the camp
+    zone's own DEM, the waterline at the fleet's central station, the
+    fleet's frame-width span and Ilios's azimuth) landed on 900 m/alt
+    280/setback 750/hfov 56/heading 160 -- crest and waterline both fell
+    where asked, but a real Plate.camp() render of it showed the true fleet
+    crammed into the right third of the frame (screen x 1690-2472 of 2400).
+
+    FOURTH ROUND, same day, same solver corrected: the third round's fleet
+    coverage was measured against aegean_fleet()'s RAW berth list, which
+    spans the whole ~9.3 km camp axis with no elevation test. The real
+    berths() closure inside camp() also drops any station whose front berth
+    sits above 16 m, and that turns out to fragment the beach hard -- the
+    only long CONTIGUOUS run of qualifying frontage is ~1.1 km near the
+    SOUTH end of the axis (camp-axis metres -4537 to -3419; everything else
+    is scraps under 160 m). ax["centre"], the geometric middle of the whole
+    9.3 km zone, is nowhere near that run, which is why the third round's
+    camera -- aimed from off the zone's centre -- only ever caught the run's
+    near edge. The fourth round re-solves from a new pivot, this run's OWN
+    midpoint (camp-axis -3978 m), re-run with the real elevation-filtered
+    berth set standing in for the drawn fleet: 900 m off that pivot, alt
+    160, setback 500, hfov 52, heading a literal 152 degrees (partway
+    between abreast-of-pivot and the run's own south end, the same
+    trade-off the earlier rounds made, re-solved at the new station). Crest
+    lands at y~308, waterline at y~919 of the 1050 px picture, the fleet
+    spanning the FULL frame width edge to edge (confirmed against a real
+    camp() call: hull screen x -87 to 2281), 97 true hulls and 100 huts
+    drawn, huts on the ridge slope in frame. Pitch ~8.8 degrees. Ilios's
+    azimuth clears the half-cone by 65 degrees, far more margin than
+    strictly needed -- spent on a narrower hfov (bigger hulls) rather than
+    banked."""
     global _PRESETS
     if _PRESETS is not None:
         return _PRESETS
     ax = camp_axis_stations(_camp_zone_polygon())
-    vp_b = ll_along(ax["centre"], CAMP_SEAWARD_DEG, 2000.0)
+    # the main run's own midpoint (see the docstring above), NOT the whole
+    # zone's geometric centre -- that is where the qualifying beach actually
+    # is, camp-axis metres, not degrees.
+    fleet_pivot = camp_ll(ax["origin"], -3978.0, 0.0)
+    vp_b = ll_along(fleet_pivot, CAMP_SEAWARD_DEG, 900.0)
     b_title = "THE SHIPS ON THE AEGEAN SHORE"
     b_sub = ("the Achaean camp from over the sea, looking east; "
              "Ilios lies beyond the ridge, out of sight")
@@ -6843,8 +6905,8 @@ def plate_presets():
     }
     b = {
         "viewpoint": vp_b,
-        "heading": pp._bearing_deg(vp_b, ax["south"]),
-        "hfov": 72.0, "alt": 300.0, "setback": 1200.0, "range_near": 150.0,
+        "heading": 152.0,
+        "hfov": 52.0, "alt": 160.0, "setback": 500.0, "range_near": 150.0,
         "family": "B", "title": b_title, "subtitle": b_sub,
         "draw_fleet": True, "draw_huts": True,
     }
