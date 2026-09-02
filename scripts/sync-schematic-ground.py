@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Synchronise ground layers from the geographic Trojan-plain sheet onto
-the schematic-v2 plate.
+the schematic plate.
 
 The geographic sheet (`apparatus/plates/trojan-plain.json`) is the source of
 truth for coast, sea, relief, rivers, and the Bronze Age reconstruction.
 This script copies those ground layers by id (not the Achaean camp zone) onto
-`apparatus/plates/trojan-plain-schematic-v2.json` so the schematic plate
+`apparatus/plates/trojan-plain-schematic.json` so the schematic plate
 draws the same ground, rotated east-up, with a right margin.
 
 Re-runnable: if the target already exists, only those listed layers are
@@ -29,7 +29,7 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SOURCE = os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")
-TARGET = os.path.join(REPO, "apparatus", "plates", "trojan-plain-schematic-v2.json")
+TARGET = os.path.join(REPO, "apparatus", "plates", "trojan-plain-schematic.json")
 
 # Paint order on the geographic sheet, minus achaean-camp-zone.
 GROUND_IDS = [
@@ -100,7 +100,7 @@ def _replace_block(layers: list, managed: set[str], new_layers: list) -> list:
 
 def _skeleton(sources: list) -> dict:
     return {
-        "id": "trojan-plain-schematic-v2",
+        "id": "trojan-plain-schematic",
         "title": "The Plain of Troy as the Iliad lays it out",
         "kind": "schematic",
         "status": "draft",

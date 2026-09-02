@@ -255,6 +255,14 @@
       // hierarchy (shared/lib/plate.ts's placeLabelClass/SETTLEMENT_RANK_STYLE).
       kind: raw.kind,
       rank: raw.rank,
+      // `labelTier`/`labelSize` (2026-09-02, stage 4b LOOK-gate fix): real
+      // fields too (docs/APPARATUS-SCHEMAS.md), same posture -- without them
+      // every place-anchored label on a schematic plate silently ignored its
+      // JSON `labelSize: "small"` demotion and rendered at full settlement
+      // size (13.5px/600), which is what made the Trojan-plain camp names
+      // read as bold and oversized next to the sheet's conjectural labels.
+      labelTier: raw.labelTier,
+      labelSize: raw.labelSize,
     };
   }
   // Two distinct scales, two distinct place sets (2026-07-28 fix): the

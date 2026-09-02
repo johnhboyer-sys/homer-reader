@@ -386,6 +386,25 @@ def test_validate_plate_rejects_scene_key_layer_id_that_is_not_a_layer():
     assert any("sceneKey" in p and "layerId" in p and "no-such" in p for p in problems)
 
 
+def test_validate_plate_accepts_suppress_layer_labels_naming_a_layer():
+    plate = _plate(suppressLayerLabels=["river-1"])
+    assert apparatus_places.validate_plate(plate, {}) == []
+
+
+def test_validate_plate_rejects_suppress_layer_labels_id_that_is_not_a_layer():
+    plate = _plate(suppressLayerLabels=["no-such"])
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any(
+        "suppressLayerLabels" in p and "no-such" in p for p in problems
+    )
+
+
+def test_validate_plate_rejects_suppress_layer_labels_that_is_not_a_list():
+    plate = _plate(suppressLayerLabels="river-1")
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("suppressLayerLabels must be a list" in p for p in problems)
+
+
 def test_validate_plate_schematic_needs_no_bbox():
     """A schematic plate has no geography, so demanding a bbox of it would be
     demanding a coordinate for something that has none. The Shield of Achilles
@@ -497,11 +516,11 @@ def test_real_places_and_trojan_plain_plate_validate_clean():
     assert plate_problems == [], plate_problems
 
 
-def test_real_trojan_plain_schematic_v2_plate_validates_clean():
+def test_real_trojan_plain_schematic_plate_validates_clean():
     places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
     places_by_id = {p["id"]: p for p in places_doc["places"]}
     plate_doc = json.loads(
-        (ROOT / "apparatus" / "plates" / "trojan-plain-schematic-v2.json").read_text(encoding="utf-8")
+        (ROOT / "apparatus" / "plates" / "trojan-plain-schematic.json").read_text(encoding="utf-8")
     )
     plate_problems = apparatus_places.validate_plate(plate_doc, places_by_id)
     assert plate_problems == [], plate_problems
@@ -557,6 +576,63 @@ def test_validate_plate_accepts_sea_region_fill():
         {"id": "sea", "kind": "region", "fill": "sea", "polygon": [[39.95, 26.20]]}
     ])
     assert apparatus_places.validate_plate(plate, {}) == []
+
+
+def test_validate_plate_accepts_zone_region_fill():
+    # "zone" (2026-09-02, stage 4b LOOK-gate fix): the apparatus's own
+    # lettered scene band, mirroring shared/lib/plate.ts's REGION_FILL_TOKENS.
+    plate = _plate(layers=[
+        {"id": "zone-a", "kind": "region", "fill": "zone", "polygon": [[39.95, 26.20]]}
+    ])
+    assert apparatus_places.validate_plate(plate, {}) == []
+
+
+def test_validate_places_accepts_label_tier_and_size():
+    assert apparatus_places.validate_places(
+        {"status": "draft", "places": [_place(labelTier=1, labelSize="small")]}
+    ) == []
+    assert apparatus_places.validate_places(
+        {"status": "draft", "places": [_place(labelTier=2, labelSize="base")]}
+    ) == []
+
+
+def test_validate_places_rejects_bad_label_tier_and_size():
+    problems = apparatus_places.validate_places(
+        {"status": "draft", "places": [_place(labelTier=3)]}
+    )
+    assert any("labelTier must be 1 or 2" in p for p in problems)
+    problems = apparatus_places.validate_places(
+        {"status": "draft", "places": [_place(labelSize="tiny")]}
+    )
+    assert any("labelSize must be 'small' or 'base'" in p for p in problems)
+
+
+def test_validate_plate_accepts_label_tier_and_size_on_a_layer():
+    plate = _plate(layers=[
+        {"id": "r", "kind": "region", "labelTier": 2, "labelSize": "small",
+         "polygon": [[39.90, 26.15], [39.91, 26.16], [39.90, 26.17]]}
+    ])
+    assert apparatus_places.validate_plate(plate, {}) == []
+    plate = _plate(layers=[
+        {"id": "r", "kind": "region", "labelTier": 1, "labelSize": "base",
+         "polygon": [[39.90, 26.15], [39.91, 26.16], [39.90, 26.17]]}
+    ])
+    assert apparatus_places.validate_plate(plate, {}) == []
+
+
+def test_validate_plate_rejects_bad_label_tier_and_size_on_a_layer():
+    plate = _plate(layers=[
+        {"id": "r", "kind": "region", "labelTier": 3,
+         "polygon": [[39.90, 26.15], [39.91, 26.16], [39.90, 26.17]]}
+    ])
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("labelTier must be 1 or 2" in p for p in problems)
+    plate = _plate(layers=[
+        {"id": "r", "kind": "region", "labelSize": "tiny",
+         "polygon": [[39.90, 26.15], [39.91, 26.16], [39.90, 26.17]]}
+    ])
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("labelSize must be 'small' or 'base'" in p for p in problems)
 
 
 # ── validate_plate: adversarial-review findings ─────────────────────────────
@@ -762,8 +838,8 @@ def test_real_plate_anchors_validate_against_every_real_plate():
     """The plateAnchors range check moved from validate_places into
     validate_plate (it must know whether THIS plate has a bbox). Prove it
     actually runs clean against the real gazetteer and every real plate,
-    the way preflight.py's loop does — including the ~30 places anchored
-    to trojan-plain-schematic, which has no bbox and so must stay 0..1."""
+    the way preflight.py's loop does — including the places anchored
+    to trojan-plain-schematic, whose bbox means those anchors are lat/lon."""
     places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
     places_by_id = {
         p["id"]: p
@@ -777,8 +853,8 @@ def test_real_plate_anchors_validate_against_every_real_plate():
         if isinstance(p.get("plateAnchors"), dict)
         and "trojan-plain-schematic" in p["plateAnchors"]
     )
-    assert schematic_anchor_count == 30, (
-        f"expected 30 places anchored to trojan-plain-schematic, found "
+    assert schematic_anchor_count == 35, (
+        f"expected 35 places anchored to trojan-plain-schematic, found "
         f"{schematic_anchor_count} — the plate list below assumes this "
         f"fixture count; update it if the gazetteer legitimately changed."
     )

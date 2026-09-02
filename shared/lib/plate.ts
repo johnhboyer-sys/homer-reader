@@ -110,6 +110,16 @@ const LAYER_KINDS: readonly LayerKind[] = [
 // whose extent nobody surveyed (see the `region` case in renderLayer).
 const REGION_FILL_TOKENS = {
   tint: 'var(--plate-tint)',
+  // A scene-key zone (2026-09-02, stage 4b LOOK-gate fix): the apparatus's OWN
+  // lettered scene band (the Iliad's camp/plain/citadel divisions, A-G), which
+  // must read as a faint tint over the ground it sits on, not as a second
+  // terrain. `tint` (above) is the sheet's one wash strong enough to READ as a
+  // feature in its own right (a claimed camp zone); a scene zone exists only
+  // to carry a letter and is drawn at a fraction of that strength, in the
+  // sheet's own neutral ground token rather than the accent colour, so seven
+  // stacked zones never outweigh the relief and coastline under them. See the
+  // `region` case in renderLayer for the dashed edge this token gets.
+  zone: 'var(--plate-plain)',
   // Surveyed masonry: a wall, a tower, a house block traced off an excavation
   // plan (2026-07-30, citadel plate). Its own register, not a decorative tint,
   // because on a plan of a dug site the difference between "these stones were
@@ -141,6 +151,10 @@ const DEFAULT_REGION_FILL: RegionFill = 'plain';
 // token itself, see shared/__tests__/plate-map-contrast.test.ts).
 const REGION_FILL_OPACITY: Record<RegionFill, number> = {
   tint: 0.35,
+  // 0.12 (stage 4b LOOK-gate fix): faint enough that the relief/coast under a
+  // scene zone stays legible, strong enough that the zone's own dashed edge
+  // still reads as an area, not just a line. See the token comment above.
+  zone: 0.12,
   // Opaque: masonry is a body of stone, not a wash over ground.
   masonry: 1,
   sea: 1,
@@ -256,6 +270,10 @@ export interface PlateLayer {
    * own projected points, exactly as before.
    */
   frame?: [number, number, number, number];
+  /** See PlatePlace.labelTier. Default 1. */
+  labelTier?: 1 | 2;
+  /** See PlatePlace.labelSize. */
+  labelSize?: 'small' | 'base';
 }
 
 // A schematic plate's concentric band (the Shield of Achilles). Mirrors
@@ -338,6 +356,20 @@ export interface Plate {
    * below the legend as `letter — title — ref`.
    */
   sceneKey?: PlateSceneKey[];
+  /**
+   * Layer ids whose fallback name (see PlateLayer.label: the gazetteer name
+   * of `placeId`, drawn when the layer has no `label` of its own) must NOT
+   * be lettered on THIS plate (2026-09-02, stage 4b LOOK-gate fix). Ground
+   * layers synced verbatim from a geographic sheet (scripts/sync-schematic-
+   * ground.py) carry a `placeId` that names the ridge/ground they ARE —
+   * right on the geographic sheet, where that name is the only one a reader
+   * gets, and wrong on a schematic sheet that already names the same place
+   * through its own gazetteer pin or feature glyph: a ground name a reader
+   * never gets to click floats free of everything drawn around it. Every id
+   * listed must be a layer of this plate (enforced in parsePlate/
+   * validate_plate, same posture as sceneKey's own layerId).
+   */
+  suppressLayerLabels?: string[];
 }
 
 export interface PlateSceneKey {
@@ -380,6 +412,14 @@ export interface PlatePlace {
    * rank 2, the ordinary case.
    */
   rank?: 1 | 2 | 3;
+  /**
+   * Label visibility tier. 1 (default) is always shown; 2 is tagged so a
+   * later Chart Room / plate-panel zoom threshold can hide it. The library
+   * itself does not hide anything.
+   */
+  labelTier?: 1 | 2;
+  /** "small" maps to LABEL_STYLES.minor; "base" (or omit) leaves the role's default. */
+  labelSize?: 'small' | 'base';
 }
 
 export interface PlateOptions {
@@ -611,6 +651,12 @@ function parseLayer(
   if (l.elevation !== undefined && !(isFiniteNumber(l.elevation) && l.elevation >= 0)) {
     fail(`layer "${l.id}" has a malformed "elevation" (must be a number >= 0)`);
   }
+  if (l.labelTier !== undefined && l.labelTier !== 1 && l.labelTier !== 2) {
+    fail(`layer "${l.id}" has a malformed "labelTier" (must be 1 or 2)`);
+  }
+  if (l.labelSize !== undefined && l.labelSize !== 'small' && l.labelSize !== 'base') {
+    fail(`layer "${l.id}" has a malformed "labelSize" (must be "small" or "base")`);
+  }
 
   const geometryArray = (key: string): PlatePoint[] | undefined => {
     if (l[key] === undefined) return undefined;
@@ -647,6 +693,8 @@ function parseLayer(
     count: isFiniteNumber(l.count) ? l.count : undefined,
     fill: typeof l.fill === 'string' && l.fill in REGION_FILL_TOKENS ? (l.fill as RegionFill) : undefined,
     elevation: isFiniteNumber(l.elevation) ? l.elevation : undefined,
+    labelTier: l.labelTier === 1 || l.labelTier === 2 ? l.labelTier : undefined,
+    labelSize: l.labelSize === 'small' || l.labelSize === 'base' ? l.labelSize : undefined,
     rings,
     path: geometryArray('path'),
     polygon: geometryArray('polygon'),
@@ -847,6 +895,21 @@ export function parsePlate(data: unknown): Plate {
     });
   }
 
+  let suppressLayerLabels: string[] | undefined;
+  if (d.suppressLayerLabels !== undefined) {
+    if (!Array.isArray(d.suppressLayerLabels)) fail('suppressLayerLabels must be an array');
+    const layerIds = new Set(layers.map((l) => l.id));
+    suppressLayerLabels = (d.suppressLayerLabels as unknown[]).map((raw, i) => {
+      if (typeof raw !== 'string' || !raw) {
+        fail(`suppressLayerLabels[${i}] must be a non-empty string`);
+      }
+      if (!layerIds.has(raw as string)) {
+        fail(`suppressLayerLabels[${i}] '${raw}' is not a layer of this plate`);
+      }
+      return raw as string;
+    });
+  }
+
   return {
     id: d.id,
     title: d.title,
@@ -864,6 +927,7 @@ export function parsePlate(data: unknown): Plate {
     layers,
     bands,
     sceneKey,
+    suppressLayerLabels,
   };
 }
 
@@ -2163,6 +2227,10 @@ interface LabelRequest {
    * return and `PlateResult.suppressedLabels`.
    */
   priority?: number;
+  /** Default 1. Tier 2 is tagged on the emitted text; the library does not hide it. */
+  labelTier?: 1 | 2;
+  /** "small" uses LABEL_STYLES.minor; omit or "base" keeps the role default. */
+  labelSize?: 'small' | 'base';
 }
 
 /**
@@ -2334,6 +2402,7 @@ function textPathElement(
   id: string,
   offsetPct: number,
   geographic: boolean,
+  tier?: 1 | 2,
 ): string {
   const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
   // `data-label-for` names the place/layer id this text belongs to (2026-
@@ -2343,8 +2412,10 @@ function textPathElement(
   // the certainty filter hides that pin. Not a trusted selector fragment —
   // consumers must match it via dataset comparison (see the id-injection
   // finding on data-layer-id), never interpolate it into a CSS selector.
+  const tierClass = tier === 2 ? ' plate-label-tier2' : '';
+  const tierAttr = tier === 2 ? ' data-label-tier="2"' : '';
   return (
-    `<text class="plate-label plate-label-${role} plate-label-along" data-label-for="${escapeXml(id)}" ` +
+    `<text class="plate-label plate-label-${role} plate-label-along${tierClass}" data-label-for="${escapeXml(id)}"${tierAttr} ` +
     `font-family="var(--font-ui)" font-size="${style.size}" font-weight="${style.weight}"` +
     `${style.italic ? ' font-style="italic"' : ''}${tracking} fill="${style.fill}" ` +
     `paint-order="stroke" ${haloAttrs(geographic)} ` +
@@ -2365,11 +2436,14 @@ function labelElement(
   forceItalic: boolean,
   id: string,
   geographic: boolean,
+  tier?: 1 | 2,
 ): string {
   const italic = style.italic || forceItalic;
   const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
+  const tierClass = tier === 2 ? ' plate-label-tier2' : '';
+  const tierAttr = tier === 2 ? ' data-label-tier="2"' : '';
   return (
-    `<text class="plate-label plate-label-${role}" data-label-for="${escapeXml(id)}" x="${round1(c.x)}" y="${round1(c.y)}" ` +
+    `<text class="plate-label plate-label-${role}${tierClass}" data-label-for="${escapeXml(id)}"${tierAttr} x="${round1(c.x)}" y="${round1(c.y)}" ` +
     `text-anchor="${c.anchor}" font-family="var(--font-ui)" font-size="${style.size}" ` +
     `font-weight="${style.weight}"${italic ? ' font-style="italic"' : ''}${tracking} ` +
     `fill="${style.fill}" paint-order="stroke" ${haloAttrs(geographic)}` +
@@ -2495,7 +2569,8 @@ function layoutLabels(
     const dedupeKey = req.text.trim().toLocaleLowerCase();
     if (lettered.has(dedupeKey)) continue;
     lettered.add(dedupeKey);
-    const style = req.styleOverride ? { ...LABEL_STYLES[req.role], ...req.styleOverride } : LABEL_STYLES[req.role];
+    const roleStyle = req.labelSize === 'small' ? LABEL_STYLES.minor : LABEL_STYLES[req.role];
+    const style = req.styleOverride ? { ...roleStyle, ...req.styleOverride } : roleStyle;
     const textWidth = estimateLabelWidth(labelText(req.text, style), style);
 
     // A linear feature is named along its own run whenever the run is long
@@ -2523,7 +2598,7 @@ function layoutLabels(
         const guidePts = smoothSize ? thinForTextPathGuide(oriented) : oriented;
         const guideD = smoothSize ? smoothPathD(guidePts, false, smoothSize) : pathD(guidePts, false);
         defs.push(`<path id="${req.pathId}" d="${guideD}" fill="none" stroke="none"/>`);
-        parts.push(textPathElement(req.text, req.pathId, style, req.role, req.id, frac * 100, geographic));
+        parts.push(textPathElement(req.text, req.pathId, style, req.role, req.id, frac * 100, geographic, req.labelTier));
         placed.push(box);
         boxesById.push({ id: req.id, box });
         continue;
@@ -2589,7 +2664,7 @@ function layoutLabels(
     if (!req.centred && (req.conjectural || detached)) {
       parts.push(leaderElement(req.anchorBox, box, !!req.conjectural, req.id));
     }
-    parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic));
+    parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic, req.labelTier));
     placed.push(box);
     boxesById.push({ id: req.id, box });
   }
@@ -2687,6 +2762,7 @@ const REGION_LEGEND_TEXT: Record<RegionFill, string> = {
   plain: 'Dry plain',
   land: 'Land',
   tint: 'Apparatus zone',
+  zone: 'Scene zone (lettered)',
   masonry: 'Masonry, surveyed',
   none: '',
 };
@@ -2942,8 +3018,17 @@ function legendMarkup(
   // for two columns is never folded into a panel that then overruns its own
   // frame and gets dropped entirely (which is what an unconditional fold did
   // to the 200px test fixtures — the key vanished rather than moved).
+  //
+  // A right-margin band never folds (2026-09-02, stage 4b LOOK-gate fix):
+  // `widthFor` is bounded by the FULL SHEET width, which on a plate with a
+  // narrow furniture band a two-column key comfortably clears even though
+  // the band itself cannot — the panel then starts at the band's x0 and
+  // runs past the sheet's own right edge. A band already wraps each row's
+  // text to `bandTextMaxW` above, so stacking single-column is the fold: it
+  // never needs the second dimension a corner legend does.
   let columns = 1;
   while (
+    marginRight === 0 &&
     columns < 3 &&
     heightFor(columns) > marginStrip &&
     widthFor(columns + 1) <= width - LABEL_MARGIN * 2
@@ -4763,19 +4848,26 @@ function renderLayer(
       // centimetre — so it gets the sheet's ink at a weight a reader can see
       // the offsets in, where a terrain patch only wants enough of a line to
       // hold its shape. Without it the wall bands read as a wash (2026-07-30).
-      const strokeToken = WATER_FILLS.has(fill)
-        ? 'var(--scene-map-coast)'
-        : fill === 'masonry'
-          ? 'var(--flaxman-ink)'
-          : fillToken;
-      const strokeWidth = fill === 'masonry' ? MASONRY_EDGE_WIDTH : 0.8;
+      // A scene zone's edge is the sheet's own ink, not the fill colour: it
+      // needs to read as a boundary drawn over the ground, the same register
+      // a conjectural pin's dashed ring already uses, never as a second
+      // terrain outline (2026-09-02, stage 4b LOOK-gate fix).
+      const strokeToken = fill === 'zone'
+        ? 'var(--text-mid)'
+        : WATER_FILLS.has(fill)
+          ? 'var(--scene-map-coast)'
+          : fill === 'masonry'
+            ? 'var(--flaxman-ink)'
+            : fillToken;
+      const strokeWidth = fill === 'masonry' ? MASONRY_EDGE_WIDTH : fill === 'zone' ? 0.6 : 0.8;
       const strokeOpacity =
-        fill === 'masonry' ? 0.85 : fill === 'tint' ? 1 : WATER_FILLS.has(fill) ? 0.7 : 0.5;
+        fill === 'masonry' ? 0.85 : fill === 'zone' ? 0.5 : fill === 'tint' ? 1 : WATER_FILLS.has(fill) ? 0.7 : 0.5;
+      const strokeDasharray = fill === 'zone' ? ' stroke-dasharray="3 2"' : '';
       markup = soft
         ? `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${d}" ` +
           `fill="${fillToken}" fill-opacity="${REGION_FILL_OPACITY[fill]}" stroke="none" filter="url(#${softId('marsh')})"/>`
         : `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${d}" ` +
-          `fill="${fillToken}" fill-opacity="${REGION_FILL_OPACITY[fill]}" stroke="${strokeToken}" stroke-width="${strokeWidth}" stroke-opacity="${strokeOpacity}" stroke-linejoin="round"/>`;
+          `fill="${fillToken}" fill-opacity="${REGION_FILL_OPACITY[fill]}" stroke="${strokeToken}" stroke-width="${strokeWidth}" stroke-opacity="${strokeOpacity}"${strokeDasharray} stroke-linejoin="round"/>`;
       break;
     }
     case 'tumulus': {
@@ -4880,7 +4972,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // reach belongs to the water's paint slot, and the water is drawn before
   // the river, so the two are assembled after the whole pass rather than
   // pushed as they are rendered.
-  const drawn: { layerId: string; markup: string; rank: number; kind: LayerKind }[] = [];
+  const drawn: { layerId: string; markup: string; rank: number; kind: LayerKind; fill?: RegionFill }[] = [];
   // A `frame`d inset whose frame sits in the margin band (frame.x >=
   // frameWidth) is furniture, not map content — same tier as the legend,
   // scale bar and north arrow. Its markup is pulled out of `drawn` (which
@@ -4903,6 +4995,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // Resolved AFTER the pin pass, because a feature is lettered once: a layer
   // whose `placeId` is also pinned on this sheet takes its name from the pin.
   const layerLabelCandidates: { layer: PlateLayer; rendered: RenderedLayer }[] = [];
+  // See Plate.suppressLayerLabels: a ground layer's own fallback name,
+  // withheld on this plate.
+  const suppressedLayerLabelIds = new Set(plate.suppressLayerLabels ?? []);
   // Named-inset / title-block panels (see insetMarkup). Handed to the legend's
   // corner chooser so the key cannot land on top of one — the same occlusion
   // rule that already keeps it off pins and labels. NOT handed to the label
@@ -4932,7 +5027,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     if (!rendered) continue;
     const isMarginInset = layer.style === 'inset' && layer.frame !== undefined && layer.frame[0] >= frameWidth;
     if (isMarginInset) marginInsetMarkup.push(rendered.markup);
-    else drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind });
+    else drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind, fill: layer.fill });
     for (const under of rendered.submerged ?? []) {
       const bucket = submergedByWater.get(under.layerId);
       if (bucket) bucket.push(under.markup);
@@ -5034,7 +5129,13 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
           const fills: string[] = [];
           const rest: string[] = [];
           for (const item of sortedDrawn) {
-            (AREA_LAYER_KINDS.has(item.kind) ? fills : rest).push(paintOf(item));
+            // A scene zone (fill: 'zone') is apparatus furniture over the
+            // ground, not the ground itself — it stays OUT of the washed
+            // group so its own (already low) opacity is the only dimming it
+            // gets, and it paints after every terrain fill rather than
+            // being flattened into the same dim layer as the relief under
+            // it (2026-09-02, stage 4b LOOK-gate fix).
+            (AREA_LAYER_KINDS.has(item.kind) && item.fill !== 'zone' ? fills : rest).push(paintOf(item));
           }
           return fills.length === 0
             ? rest
@@ -5107,6 +5208,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
             text: mapLabelText(place.name),
             role: cls,
             anchorBox: [x, y, x, y],
+            labelTier: place.labelTier,
+            labelSize: place.labelSize,
           });
         }
         continue;
@@ -5132,6 +5235,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         role: cls,
         anchorBox: dotBBox(x, y, r),
         styleOverride: cls === 'settlement' ? SETTLEMENT_RANK_STYLE[place.rank ?? 2] : undefined,
+        labelTier: place.labelTier,
+        labelSize: place.labelSize,
         // Item 7's label budget: only the two least load-bearing prints on a
         // geographic sheet — a rank-3 settlement (the minor headlands and
         // allied towns) and a feature (a hill, tumulus, cape) — are eligible
@@ -5176,7 +5281,14 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       // centred over its own shape, which is where an area name belongs. Same
       // rule and same reason as the geographic branch above.
       if (!layerPlaceIds.has(place.id)) {
-        pinLabelRequests.push({ id: place.id, text: mapLabelText(place.name), role: cls, anchorBox: [x, y, x, y] });
+        pinLabelRequests.push({
+          id: place.id,
+          text: mapLabelText(place.name),
+          role: cls,
+          anchorBox: [x, y, x, y],
+          labelTier: place.labelTier,
+          labelSize: place.labelSize,
+        });
       }
     } else {
       // Everything else carries a mark. Note that `water` does here where it
@@ -5192,7 +5304,14 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         ),
       );
       features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: dotBBox(x, y, r) });
-      pinLabelRequests.push({ id: place.id, text: mapLabelText(place.name), role: cls, anchorBox: dotBBox(x, y, r) });
+      pinLabelRequests.push({
+        id: place.id,
+        text: mapLabelText(place.name),
+        role: cls,
+        anchorBox: dotBBox(x, y, r),
+        labelTier: place.labelTier,
+        labelSize: place.labelSize,
+      });
       legendEntries.push(certaintyDotLegendEntry(place.certainty ?? 'certain'));
     }
     // No "every position is conjectural" row. It is true of every mark on the
@@ -5211,7 +5330,10 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   const labeledPointIds = new Set(pinLabelRequests.map((r) => r.id));
   const layerLabelRequests: LabelRequest[] = [];
   for (const { layer, rendered } of layerLabelCandidates) {
-    const gazName = layer.placeId && !labeledPointIds.has(layer.placeId) ? placeById.get(layer.placeId)?.name : undefined;
+    const gazName =
+      layer.placeId && !labeledPointIds.has(layer.placeId) && !suppressedLayerLabelIds.has(layer.id)
+        ? placeById.get(layer.placeId)?.name
+        : undefined;
     const fallback = gazName ? mapLabelText(gazName) : undefined;
     const text = layer.label ?? fallback;
     if (!text) continue;
@@ -5226,6 +5348,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       conjectural: layer.style === 'poem',
       path: rendered.labelPath,
       pathId: `${safeIdFragment(opts.idPrefix)}-lp-${safeIdFragment(layer.id)}`,
+      labelTier: layer.labelTier,
+      labelSize: layer.labelSize,
     });
   }
 
