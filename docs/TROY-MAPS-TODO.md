@@ -342,6 +342,31 @@ cross-family review of the session's commits (two infra-killed attempts);
 shield-of-achilles plate-level `sources` (now a validator error);
 `build:public` + preflight after the ἴστωρ re-emit.
 
+## Rulings 2026-09-02 (John, 12:06-12:08) — supersede the schematic-sheet design below
+
+1. **Schematic sheet = real ground + poem features.** The Pope-1716 flat
+   diagram is retired. The sheet takes the geographic plate's ground as a
+   muted base in the same projection (Bronze Age bay, both ridges, rivers on
+   their surveyed courses, relief, delta fan, marsh), so rivers and bay agree
+   with the other plates by construction; on it, the poem's features by the
+   poem's own relations, in a distinct conjectural symbology (the panorama's
+   register, already approved). Registers separate in symbology + legend,
+   not by drawing a different world.
+2. **Orientation: east up** — Pope's vantage kept (sea at the bottom, Troy at
+   the top, Ida on the horizon), matching the panorama's line of sight.
+3. **Labels must not collide.** Larger sheet, conjectural class one type
+   step smaller, zoom tiers for second-rank names; the "Ajax's end" inset and
+   the legend move to the margin. No fixed size mandated.
+4. **Camp on the Aegean flank on all three plates**, per 2e-iv (Sigeum ridge,
+   Kraft/Rapp/Kayan/Luce 2003 after Luce 1998): fleet, huts, wall and ditch
+   drawn from ONE shared zone polygon consumed by the geographic sheet, the
+   schematic sheet and the panorama. The panorama had beached the fleet on
+   the bay side — wrong. Panorama camera pulled seaward so the sight line
+   reads sea → ships → wall → ridge → bay → fan → Ilios.
+5. **No-label-on-water rule binds the schematic register only.** Geographic
+   sheets may set a coastal name over water with a leader (Kum Tepe, Kesik
+   Tepe come back).
+
 ## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
 
 Session paused here 2026-07-31; John picks up when he has reference examples
