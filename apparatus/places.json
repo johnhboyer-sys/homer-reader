@@ -9157,7 +9157,7 @@
         "troad-plain"
       ],
       "mentions": [],
-      "note": "The reading of the cut as the Achaean wall and ditch is Luce's (1998); Kraft, Rapp, Kayan & Luce 2003 print it, but the paper's citation for it — Kayan 1995 — does not contain it. The other readings, in hedge: a harbour candidate (Kraft, Kayan, Brückner and Rapp 2003, agreeing with Zangger only in the weak form that the embayments below the Sigeum ridge \"had excellent harbor potentials\"); an undecided, unfinished canal, on Kayan's own reading (2003, 2009); and late-Roman drainage, never completed — 'It seemed to us clear that the work was never completed' (Cook 1973, 166-67). A former marsh, drained in the 1960s, shown by drilling to have been a marine basin in the Early Bronze Age; Zangger's proposed rectangular basin, roughly 330 x 230 m, functioning as a naval station or trans-shipment point, is thin and presented as hypothesis only. The sheet letters it 'Kesik cut (contested)' with no linework. Cook 1973, 166 places the cut about 500 m south of Kesik Tepe; the dossier marks the derived point unusable as a published coordinate, so the label is anchored at Kesik Tepe itself (39.9608 / 26.1682).",
+      "note": "The reading of the cut as the Achaean wall and ditch is Luce's (1998); Kraft, Rapp, Kayan & Luce 2003 print it, but the paper's citation for it — Kayan 1995 — does not contain it. The other readings, in hedge: a harbour candidate (Kraft, Kayan, Brückner and Rapp 2003, agreeing with Zangger only in the weak form that the embayments below the Sigeum ridge \"had excellent harbor potentials\"); an undecided, unfinished canal, on Kayan's own reading (2003, 2009); and late-Roman drainage, never completed — 'It seemed to us clear that the work was never completed' (Cook 1973, 166-67). A former marsh, drained in the 1960s, shown by drilling to have been a marine basin in the Early Bronze Age; Zangger's proposed rectangular basin, roughly 330 x 230 m, functioning as a naval station or trans-shipment point, is thin and presented as hypothesis only. The sheet letters it 'Kesik cut (contested)' with no linework, in a lettering zone south of Kesik Tepe. Cook 1973, 166 places the cut about 500 m south of the mound; the dossier marks that derived point unusable as a published coordinate. The zone is centred further south still, clear of the Achaean-camp label it printed through when first centred nearer the mound.",
       "sources": [
         {
           "cite": "Luce, J. V. Celebrating Homer's Landscapes: Troy and Ithaca Revisited. New Haven: Yale University Press, 1998."
@@ -9469,7 +9469,7 @@
     },
     {
       "id": "thymbrios",
-      "name": "The Thymbrios river",
+      "name": "The Thymbrios",
       "certainty": "traditional",
       "tradition": "Strabo 13.1.35",
       "coords": [

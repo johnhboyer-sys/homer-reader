@@ -8394,12 +8394,12 @@
       "default": "on",
       "fill": "none",
       "polygon": [
-        [39.954, 26.163],
-        [39.954, 26.173],
-        [39.958, 26.173],
-        [39.958, 26.163]
+        [39.9358, 26.1682],
+        [39.9358, 26.1782],
+        [39.9398, 26.1782],
+        [39.9398, 26.1682]
       ],
-      "note": "Label only, no linework. Cook 1973, 166 places the cut about 500 m south of Kesik Tepe (39.9608 / 26.1682). The lettering zone sits on that south side of the mound; the dossier forbids publishing the derived 39.956 / 26.168 as a survey coordinate.",
+      "note": "Label only, no linework. Cook 1973, 166 places the cut about 500 m south of Kesik Tepe (39.9608 / 26.1682); the dossier forbids publishing the derived 39.956 / 26.168 as a survey coordinate. The lettering zone is centred further south again, at 39.938 / 26.173, than that derived point: a first placement there printed the label centred on the achaean-camp-zone layer's own bounding-box centre (39.9545 / 26.1728, coincidentally close), and the two centred region names — laid with no collision check against each other, see layoutLabels's own comment on why centred names go first — overprinted each other completely. The zone still reads as \"south of Kesik Tepe\"; it is not a second coordinate claim for the cut itself.",
       "sources": [
         {
           "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."

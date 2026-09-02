@@ -1801,6 +1801,17 @@ function placeLabelClass(place: PlatePlace, plateKind: PlateKind = 'geographic')
 /** Classes that never carry a marker on a geographic plate (item 3: "Regions, water and rivers get NO marker"). */
 const MARKERLESS_LABEL_CLASSES: ReadonlySet<LabelRole> = new Set<LabelRole>(['region', 'water', 'river']);
 
+// A place whose `coords` are deliberately another place's own point (2026-09-02
+// geo-enrich: tomb-of-ajax-in-tepe borrows Rhoiteion's, "not a survey of the
+// mound" per its own note — no independent point for İn Tepe has been
+// published). Drawing its dot too would put two discs on one pixel, the
+// second entirely hidden under the first — a marker that is present in the
+// DOM and invisible on the sheet is worse than none. It still prints its own
+// label, in the feature register, as a name attached to Rhoiteion's mark —
+// same idiom as a mountain's summit label carrying no dot (see `showDot`
+// below).
+const NO_OWN_MARKER_PLACE_IDS: ReadonlySet<string> = new Set<string>(['tomb-of-ajax-in-tepe']);
+
 // ── Lettering ────────────────────────────────────────────────────────────
 // A map with no names is not a map. This module emitted zero <text> elements
 // until 2026-07-28. The approach mirrors scenemap.ts's placeLabel + its
@@ -4931,7 +4942,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       // have, so its placement is byte-for-byte what it was before.
       const dotStyle = certaintyDotStyle(place.certainty);
       const r = cls === 'settlement' ? SETTLEMENT_DOT_R[place.rank ?? 2] : FEATURE_DOT_R;
-      const showDot = place.kind !== 'mountain';
+      const showDot = place.kind !== 'mountain' && !NO_OWN_MARKER_PLACE_IDS.has(place.id);
       if (showDot) {
         pinMarkupParts.push(dotMarkup(place.id, place.name, x, y, dotStyle, r));
         features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: dotBBox(x, y, r) });
