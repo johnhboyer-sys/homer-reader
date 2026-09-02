@@ -4438,6 +4438,28 @@ describe('renderPlate: featureKey (stage 5c)', () => {
       }
     }
 
+    // Zone letters (A, B, C…) are their own disc, drawn with the same
+    // badgeMarkup but placed at a fixed centroid outside the solver — a
+    // numeral badge must not be placed on top of one (review fix,
+    // 2026-09-02: badge 8 originally landed on zone A).
+    const zoneLetterBoxes = [...result.svg.matchAll(/<g class="plate-zone-letter">[\s\S]*?<\/g>/g)].map((m) => {
+      const circle = m[0].match(/<circle cx="([-\d.]+)" cy="([-\d.]+)" r="([-\d.]+)"/);
+      const cx = Number(circle?.[1]);
+      const cy = Number(circle?.[2]);
+      const r = Number(circle?.[3]);
+      const letter = m[0].match(/>([^<]*)<\/text>/)?.[1] ?? '';
+      return { letter, box: [cx - r, cy - r, cx + r, cy + r] as [number, number, number, number] };
+    });
+    expect(zoneLetterBoxes.length).toBeGreaterThan(0);
+    for (const badge of badgeBoxes) {
+      for (const zone of zoneLetterBoxes) {
+        expect(
+          boxesIntersect(badge.box, zone.box),
+          `badge ${badge.n} intersects zone letter ${zone.letter}`,
+        ).toBe(false);
+      }
+    }
+
     const pinCentres = new Map<string, [number, number]>();
     for (const m of result.svg.matchAll(/<g(?![^>]*plate-key-badge)[^>]*data-place-id="([^"]+)"[^>]*>[\s\S]*?<\/g>/g)) {
       const circle = m[0].match(/<circle cx="([-\d.]+)" cy="([-\d.]+)"/);

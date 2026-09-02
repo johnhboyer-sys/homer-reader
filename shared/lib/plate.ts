@@ -2265,12 +2265,20 @@ const BADGE_FAR_GAPS = [32, 48, 64];
 
 function placeKeyBadges(
   inputs: (LabelPlacementInput & { r: number })[],
-  options: LabelPlacementOptions,
+  // `avoidBoxes` seeds the same hard non-overlap check a badge already gets
+  // against every OTHER badge (`badgeHit`, below) — used for zone letters
+  // (`plate-zone-letter` discs), which share the badge's circular register
+  // but are placed independently, at a fixed centroid, before any numeral is
+  // laid. Without this a zone letter is only a soft `placedBoxes` cost, the
+  // same as any other reserved ink, and a numeral can still win a spot on
+  // top of it when every clear candidate is worse on other grounds (stage 5c
+  // review fix, 2026-09-02: badge 8 on zone A).
+  options: LabelPlacementOptions & { avoidBoxes?: Box[] },
 ): LabelPlacement[] {
   const placed = [...(options.placedBoxes ?? [])];
   const markerBoxes = options.markerBoxes ?? [];
   const results: LabelPlacement[] = [];
-  const badgeBoxes: Box[] = [];
+  const badgeBoxes: Box[] = [...(options.avoidBoxes ?? [])];
   for (const input of inputs) {
     const [x1, y1, x2, y2] = input.anchorBox;
     const cx = (x1 + x2) / 2;
@@ -5456,6 +5464,20 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     }
   }
 
+  // Zone letters (the lettered scene-zone discs, e.g. "A") share the numeral
+  // badges' visual register (badgeMarkup) but sit at a fixed spot — each
+  // zone polygon's own centroid — with no solver input of their own. Their
+  // boxes feed the name pass (layoutLabels, via denseBoxes below) as a
+  // reservation, AND the numeral-badge placer (placeKeyBadges, below) as a
+  // hard non-overlap (see its `avoidBoxes`) — so a numeral never lands on a
+  // letter (stage 5c review fix, 2026-09-02: badge 8 was drawn on top of
+  // zone A).
+  const zoneLetterR = LABEL_STYLES.minor.size * 0.8;
+  const zoneLetterBoxes: Box[] = zoneLetters.map(
+    (z): Box => [z.x - zoneLetterR, z.y - zoneLetterR, z.x + zoneLetterR, z.y + zoneLetterR],
+  );
+  for (const box of zoneLetterBoxes) denseBoxes.push({ box });
+
   // Into the paint stack (see paintRank). Array#sort is stable in every
   // engine this ships to, so layers sharing a rank keep the order the plate
   // file authored them in. A water layer's submerged river reaches travel
@@ -5731,6 +5753,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       margin: LABEL_MARGIN,
       markerBoxes: [...pinAnchors.values()],
       placedBoxes: denseBoxes.map((d) => d.box),
+      avoidBoxes: zoneLetterBoxes,
     },
   );
   const placementByN = new Map(badgePlacements.map((p) => [Number(p.id), p]));
