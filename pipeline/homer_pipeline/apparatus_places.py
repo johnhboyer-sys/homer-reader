@@ -147,6 +147,36 @@ def validate_places(doc: Any) -> list[str]:
         if sources is not None:
             problems += _validate_sources(sources, f"place {label}")
 
+        # `zone` (2026-09-02, camp-zone ruling 2e-iv): a gazetteer place's own
+        # attributed-zone polygon -- the source of truth a plate layer's
+        # matching polygon is checked against (see
+        # test_real_achaean_camp_zone_polygon_matches_the_plate_layer), since
+        # no layer-from-gazetteer geometry mechanism exists to make the two
+        # copies drift-proof by construction. Only `polygon`'s shape is
+        # checked here, matching this module's existing leniency toward
+        # `basis`/`source`/`note`-style descriptive fields it does not
+        # enumerate.
+        zone = place.get("zone")
+        if zone is not None:
+            if not isinstance(zone, dict):
+                problems.append(f"place {label}: zone must be an object")
+            else:
+                polygon = zone.get("polygon")
+                if not isinstance(polygon, list):
+                    problems.append(f"place {label}: zone.polygon must be a list")
+                elif len(polygon) < 3:
+                    problems.append(
+                        f"place {label}: zone.polygon must have at least 3 points, "
+                        f"got {len(polygon)}"
+                    )
+                else:
+                    for pi, pair in enumerate(polygon):
+                        if not _is_pair(pair):
+                            problems.append(
+                                f"place {label}: zone.polygon[{pi}] must be a "
+                                f"2-element numeric array"
+                            )
+
         plate_anchors = place.get("plateAnchors")
         position_basis = place.get("positionBasis")
         if plate_anchors is not None and position_basis != "conjectural":
