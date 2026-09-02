@@ -450,7 +450,10 @@ const DEFAULT_CAMERA_OPTIONS: Required<CameraOptions> = {
   padFraction: 0.12,
   maxScale: 8,
   places: [],
-  labelBoxes: {},
+  // Object.create(null), not {} -- same reasoning as renderPlate's own
+  // labelBoxes construction (see its comment): a caller-supplied focus id is
+  // never trusted to avoid real Object property names.
+  labelBoxes: Object.create(null),
 };
 
 // ── parsePlate ───────────────────────────────────────────────────────────
@@ -2270,14 +2273,19 @@ function labelElement(
 //     owner's calibration rules out ("omission is not honesty").
 // Never drawn when the name is already touching its feature — a leader across
 // 4px is clutter, not information.
-function leaderElement(anchorBox: Box, box: Box, dashed: boolean): string {
+// `data-label-for` (2026-09-02, Codex finding): stamped the same as the name
+// it belongs to, so a consumer omitting a non-focus label (Reader.svelte's
+// postcard `.plate-hidden` pass) can hide its leader in the same query
+// instead of leaving a dangling dashed line pointing at nothing once the
+// name it explains is gone.
+function leaderElement(anchorBox: Box, box: Box, dashed: boolean, id: string): string {
   const ax = (anchorBox[0] + anchorBox[2]) / 2;
   const ay = (anchorBox[1] + anchorBox[3]) / 2;
   const bx = box[0] < ax ? box[2] : box[0];
   const by = (box[1] + box[3]) / 2;
   if (Math.hypot(bx - ax, by - ay) < 12) return '';
   return (
-    `<path class="plate-leader" d="M ${round1(ax)} ${round1(ay)} L ${round1(bx)} ${round1(by)}" ` +
+    `<path class="plate-leader" data-label-for="${escapeXml(id)}" d="M ${round1(ax)} ${round1(ay)} L ${round1(bx)} ${round1(by)}" ` +
     `fill="none" stroke="var(--text-mid)" stroke-width="0.6" stroke-opacity="${dashed ? 1 : 0.7}"` +
     `${dashed ? ' stroke-dasharray="2 2"' : ''}/>`
   );
@@ -2463,7 +2471,7 @@ function layoutLabels(
     }
 
     if (!req.centred && (req.conjectural || detached)) {
-      parts.push(leaderElement(req.anchorBox, box, !!req.conjectural));
+      parts.push(leaderElement(req.anchorBox, box, !!req.conjectural, req.id));
     }
     parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic));
     placed.push(box);
@@ -4316,7 +4324,19 @@ function renderLayer(
       // primitive: an opaque framed panel that letters its own head. See
       // insetMarkup.
       if (layer.style === 'inset') {
-        markup = insetMarkup(layer.id, px, layer.label);
+        // Wrapped in its own group carrying `data-layer-id`/`data-layer-style`
+        // (2026-09-02, Reader.svelte postcard fix): insetMarkup's own parts —
+        // the panel rect, its double frame, the title/rule lines — are sheet
+        // FURNITURE (a title cartouche, a named side panel), not map content,
+        // but only the panel rect carries `data-feature-id` and the frame/rule
+        // elements carry no id at all, so a consumer could not previously
+        // select "every element this inset drew" the way it can for an
+        // ordinary layer (see withLayerId's own comment below). The postcard
+        // camera (Reader.svelte's applyPlateCamera) hides every
+        // `[data-layer-style="inset"]` group outright — it pans and crops
+        // with the map like any other camera-group content, which a postcard
+        // showing one subject and a locator must never do.
+        markup = `<g data-layer-id="${escapeXml(layer.id)}" data-layer-style="inset">${insetMarkup(layer.id, px, layer.label)}</g>`;
         break;
       }
       if (layer.style === 'poem') {
@@ -4828,7 +4848,18 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     neatlineMarkup(width, height) +
     `</svg>`;
 
-  const labelBoxes: Record<string, LabelBox> = {};
+  // `Object.create(null)` (2026-09-02, Codex finding): a place/layer id is
+  // apparatus data reachable from a user-facing query string (`/maps/
+  // ?focus=constructor`, `?focus=__proto__` — MapsPage sanitizes to an id
+  // charset but never rules out real JS Object property names). A plain
+  // `{}` here would let `labelBoxes['constructor']` resolve to
+  // Object.prototype.constructor instead of `undefined`, and computeCamera's
+  // own `if (!box) continue` doesn't catch a truthy inherited function —
+  // it destructures it as an array and throws. A null-prototype object has
+  // no inherited properties at all, so every lookup by an unset id is
+  // honestly `undefined` for every consumer (computeCamera and PlatePanel's
+  // own focusLabelBoxes both read this same value).
+  const labelBoxes: Record<string, LabelBox> = Object.create(null);
   for (const { id, box } of labels.boxes) labelBoxes[id] = box;
 
   return {

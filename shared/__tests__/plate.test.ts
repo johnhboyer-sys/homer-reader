@@ -999,6 +999,36 @@ describe('computeCamera', () => {
     expect(camera).toEqual({ scale: 1, tx: 0, ty: 0 });
   });
 
+  // Codex finding (2026-09-02): a focus id equal to a real Object property
+  // name is apparatus-adjacent data reachable through a user-facing query
+  // string (MapsPage's `?focus=` sanitizes to an id charset -- letters,
+  // digits, hyphens -- which "constructor" and "__proto__" both pass). A
+  // plain `{}` labelBoxes dictionary resolves `labelBoxes['constructor']` to
+  // Object.prototype.constructor (a function, not undefined) instead of
+  // "no entry" -- truthy, so the old `if (!box) continue` guard let it
+  // through, and destructuring a function as `[x1,y1,x2,y2]` threw. Fixed at
+  // the source (renderPlate's own labelBoxes, and CameraOptions' default) by
+  // building that dictionary with Object.create(null), which has no
+  // inherited properties to collide with.
+  it('an id equal to a real Object/Array property name contributes nothing, without throwing (reachable via /maps/?focus=constructor)', () => {
+    const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
+    const rendered = renderPlate(testPlate, [troy]);
+    for (const hostileId of ['constructor', '__proto__', 'toString', 'hasOwnProperty', 'valueOf']) {
+      // The default path: no labelBoxes option at all (DEFAULT_CAMERA_OPTIONS).
+      expect(() => computeCamera(testPlate, viewport, [hostileId], { places: [troy] })).not.toThrow();
+      expect(computeCamera(testPlate, viewport, [hostileId], { places: [troy] })).toEqual({ scale: 1, tx: 0, ty: 0 });
+
+      // The real path every caller (Reader.svelte, PlatePanel.svelte) uses:
+      // labelBoxes sourced straight from a renderPlate result.
+      expect(() =>
+        computeCamera(testPlate, viewport, [hostileId], { places: [troy], labelBoxes: rendered.labelBoxes }),
+      ).not.toThrow();
+      expect(
+        computeCamera(testPlate, viewport, [hostileId], { places: [troy], labelBoxes: rendered.labelBoxes }),
+      ).toEqual({ scale: 1, tx: 0, ty: 0 });
+    }
+  });
+
   it('a place with no coords contributes nothing (honesty rule) — an all-unlocated focus set falls back to identity', () => {
     const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
     const camera = computeCamera(testPlate, viewport, ['ghost-place'], { places: [ghost] });

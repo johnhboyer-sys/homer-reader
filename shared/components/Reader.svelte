@@ -1121,6 +1121,13 @@
     // The plate's own width in plate px (Plate.size[0]) — the label-descale
     // formula below needs it alongside the rendered slot's CSS width.
     plateWidth: number;
+    // renderPlate's own labelBoxes (plate.ts, 2026-09-02's label-framing
+    // commit) — the RENDERED box of each label, keyed by place/layer id.
+    // computeCamera already uses this to size the camera on a focus place's
+    // name, not just its pin; fitFocusLabelsToFrame below (defect B fix,
+    // 2026-09-02) uses the same data to catch what that framing still
+    // misses — see its own comment.
+    labelBoxes: Record<string, LabelBox>;
   }
 
   // Label descale (postcard design, part D): a plate.ts label is sized for
@@ -1149,8 +1156,23 @@
   // replace the `{@html}`'d SVG wholesale (a new book's render), which is
   // why label-wrapping below re-detects staleness by SVG identity rather
   // than wrapping only once for the action's whole lifetime.
+  // A postcard shows one subject and a locator — no title cartouche, no
+  // named side panel, no legend, no scale bar, no north arrow (John's
+  // design, 2026-07-30; the furniture gap caught in the orchestrator's
+  // 2026-09-02 screenshot review). `[data-layer-style="inset"]` is
+  // renderPlate's own group for a `style: 'inset'` LAYER (a title block, a
+  // named panel) — sheet furniture drawn as map CONTENT, inside
+  // `.plate-camera`, so without this it pans and crops with the frame. The
+  // other four are sheet CHROME, drawn outside the camera group at
+  // full-sheet size (see renderPlate's own tail) — left alone they sit at
+  // the slot's corner underneath the locator inset. Both are hidden
+  // unconditionally: this action only ever drives the postcard, never
+  // PlatePanel's full-plate `/maps/` view, which still wants all of them.
+  const FURNITURE_SELECTOR =
+    '[data-layer-style="inset"], .plate-legend, .plate-scale, .plate-north, .plate-hypsometric-key';
+
   function applyPlateCamera(node: HTMLElement, params: PlateCameraParams) {
-    let labelWrappers: { el: SVGGElement; x: number; y: number }[] = [];
+    let labelWrappers: { el: SVGGElement; x: number; y: number; id: string | null }[] = [];
     let lastSvgEl: SVGSVGElement | null = null;
     let current = params;
     let resizeObserver: ResizeObserver | undefined;
@@ -1162,13 +1184,30 @@
     // Re-run whenever the SVG subtree itself is a different element than
     // last time (first mount, or a book navigation that swapped the
     // `{@html}`'d content) — never on a same-book scene-paging update, where
-    // the SVG is unchanged and re-wrapping would double-wrap.
+    // the SVG is unchanged and re-wrapping would double-wrap. Sheet
+    // furniture is hidden here too (see FURNITURE_SELECTOR above): the set
+    // never changes between scenes, so it belongs with the rest of this
+    // once-per-SVG setup, not in every apply() below.
     function ensureLabelWrappers() {
       const svgEl = node.querySelector('svg');
       if (svgEl === lastSvgEl) return;
       lastSvgEl = svgEl as SVGSVGElement | null;
       labelWrappers = [];
       if (!svgEl) return;
+      svgEl.querySelectorAll<SVGElement>(FURNITURE_SELECTOR).forEach((el) => el.classList.add('plate-hidden'));
+      // The locator inset (chartLocatorInset, a sibling of `node` under the
+      // same `.chart-plate-postcard`/`<a class="chart-plate-postcard">`) is
+      // its OWN renderPlate() call, a static {@html} never routed through
+      // this action — but its coast/river layers earn the same legend row a
+      // full sheet's would, leaking a tiny illegible swatch into the
+      // locator's own corner (caught in this lane's browser smoke pass, not
+      // the original screenshot review). Same fix, same class, reusing the
+      // `.chart-locator :global(.plate-hidden)` CSS rule below rather than a
+      // second display:none rule declared by selector.
+      node.parentElement
+        ?.querySelector('.chart-locator svg')
+        ?.querySelectorAll<SVGElement>(FURNITURE_SELECTOR)
+        .forEach((el) => el.classList.add('plate-hidden'));
       svgEl.querySelectorAll<SVGTextElement>('.plate-label').forEach((textEl) => {
         const xAttr = textEl.getAttribute('x');
         const yAttr = textEl.getAttribute('y');
@@ -1192,7 +1231,7 @@
         wrapper.setAttribute('class', 'chart-label-descale');
         textEl.parentNode?.insertBefore(wrapper, textEl);
         wrapper.appendChild(textEl);
-        labelWrappers.push({ el: wrapper, x, y });
+        labelWrappers.push({ el: wrapper, x, y, id: textEl.getAttribute('data-label-for') });
       });
     }
 
@@ -1207,14 +1246,124 @@
       }
     }
 
+    // A focus place's own marker's plate-space X — read straight off the
+    // rendered `<circle cx>`/`<rect x width>` DOM rather than recomputing
+    // resolvePlacePosition (not exported, and this action shouldn't need to
+    // duplicate plate.ts's own pin-placement rules). Never build a selector
+    // string from `id` (apparatus data, hostile per CLAUDE.md's XSS/regex
+    // finding) — scan every `[data-place-id]` and compare in JS, the same
+    // pattern PlatePanel's applyLayerVisibility already uses for layer ids.
+    function pinPlateX(id: string): number | null {
+      for (const el of Array.from(node.querySelectorAll<SVGElement>('[data-place-id]'))) {
+        if (el.getAttribute('data-place-id') !== id) continue;
+        const marker = el.querySelector('circle, rect');
+        if (!marker) return null;
+        if (marker.tagName.toLowerCase() === 'circle') {
+          const cx = parseFloat(marker.getAttribute('cx') ?? '');
+          return Number.isFinite(cx) ? cx : null;
+        }
+        const x = parseFloat(marker.getAttribute('x') ?? '');
+        const w = parseFloat(marker.getAttribute('width') ?? '0');
+        return Number.isFinite(x) ? x + w / 2 : null;
+      }
+      return null;
+    }
+
+    // Defect B fix (2026-09-02, found in the orchestrator's screenshot
+    // review: "Assembly and law-place" reads "ssembly and law-place" in the
+    // ~220px desktop Reading Mode slot, whole in the ~360px mobile sheet).
+    //
+    // computeCamera (plate.ts) frames a focus id's pin AND its label box
+    // together, but it does so assuming the label paints at NATIVE plate
+    // scale — it has no way to know the postcard's actual slot width, a DOM
+    // quantity. updateLabelDescale above deliberately cancels the camera's
+    // own zoom back out of each label (so type reads at a constant, legible
+    // CSS size regardless of slot width or zoom — the whole point of `f`).
+    // Composing the two: a label's on-screen width, after descale, works out
+    // to exactly its own plate-unit width in CSS px — provably independent
+    // of camera scale or slot width (the algebra: descale's f is chosen so
+    // slotWidth/plateWidth * camK * f == 1 exactly, whenever f sits inside
+    // its own clamp). So a label simply wider than the slot overflows at
+    // ANY zoom computeCamera could have chosen; the mismatch cannot be fixed
+    // in computeCamera itself, only here, where the slot's real CSS width is
+    // known.
+    //
+    // Fixed by shifting the camera's TRANSLATION only, never its scale: a
+    // scale change would also shrink the pin and every other place on the
+    // sheet, and re-deriving that new scale's own centring is exactly the
+    // padding/clamp math computeCamera already owns. Nudging tx slides the
+    // whole frame sideways in screen space by a constant CSS-px amount,
+    // provably (every point's screen position is affine in tx) — so it
+    // moves the overflowing label back into the frame without resizing
+    // anything. The shift is then clamped so every focus PIN's own screen
+    // position stays inside the slot (with a fixed margin for its marker):
+    // if fully fixing the label would push the thing it names off the
+    // postcard, the pin wins and the label is left clipped a little rather
+    // than lose the pin entirely.
+    const LABEL_FIT_PAD = 6;
+    const PIN_FIT_MARGIN = 10;
+    function fitFocusLabelsToFrame(p: PlateCameraParams): Camera | null {
+      const cam = p.camera;
+      const slotWidth = node.clientWidth;
+      // A hidden/zero-width slot has no real frame to fit into — leave the
+      // camera exactly as computeCamera made it (existing behaviour) rather
+      // than reasoning about a fictional width.
+      if (!cam || !slotWidth || !p.plateWidth) return cam;
+      const { scale: camK, tx, ty } = cam;
+      const S = slotWidth / p.plateWidth;
+      if (!(camK > 0) || !Number.isFinite(tx) || !(S > 0)) return cam;
+      const f = Math.min(LABEL_DESCALE_MAX, Math.max(LABEL_DESCALE_MIN, p.plateWidth / (slotWidth * camK)));
+
+      // Worst-offender wins: the single largest correction needed among the
+      // visible focus labels. A shift that fixes one label cannot always
+      // also fix a second one overflowing the OPPOSITE edge — a real
+      // constraint of translating a frame that's already too small for
+      // everything in it — so this picks the label that needs the most help
+      // rather than attempting to satisfy several at once.
+      let dx = 0;
+      for (const { x: pivotX, id } of labelWrappers) {
+        if (!id || !p.focusIds.includes(id)) continue;
+        const box = p.labelBoxes[id];
+        if (!box) continue;
+        const screenOf = (plateX: number) => S * (camK * (pivotX + f * (plateX - pivotX)) + tx);
+        const left = Math.min(screenOf(box[0]), screenOf(box[2]));
+        const right = Math.max(screenOf(box[0]), screenOf(box[2]));
+        let need = 0;
+        if (left < LABEL_FIT_PAD) need = LABEL_FIT_PAD - left;
+        else if (right > slotWidth - LABEL_FIT_PAD) need = (slotWidth - LABEL_FIT_PAD) - right;
+        if (Math.abs(need) > Math.abs(dx)) dx = need;
+      }
+      if (dx === 0) return cam;
+
+      for (const id of p.focusIds) {
+        const pinX = pinPlateX(id);
+        if (pinX === null) continue;
+        const pinScreen = S * (camK * pinX + tx);
+        if (dx > 0 && pinScreen + dx > slotWidth - PIN_FIT_MARGIN) {
+          dx = Math.max(0, (slotWidth - PIN_FIT_MARGIN) - pinScreen);
+        } else if (dx < 0 && pinScreen + dx < PIN_FIT_MARGIN) {
+          dx = Math.min(0, PIN_FIT_MARGIN - pinScreen);
+        }
+      }
+      if (dx === 0) return cam;
+      return { scale: camK, tx: tx + dx / S, ty };
+    }
+
     function apply(p: PlateCameraParams) {
-      current = p;
       const svgEl = node.querySelector('svg');
       if (svgEl) svgEl.setAttribute('aria-label', p.ariaLabel);
+      ensureLabelWrappers();
+      const effectiveCamera = fitFocusLabelsToFrame(p);
+      // `current` (read by updateLabelDescale, and by a future ResizeObserver
+      // tick) is set once, from the EFFECTIVE camera — the fit fix above
+      // adjusts translation only, so `.scale` is unchanged, but assigning
+      // the real value here rather than `p` keeps `current` an honest record
+      // of what the DOM actually shows.
+      current = { ...p, camera: effectiveCamera };
       const cameraG = node.querySelector<SVGGElement>('.plate-camera');
-      if (cameraG && p.camera) {
+      if (cameraG && effectiveCamera) {
         cameraG.style.transition = p.reduceMotion ? 'none' : 'transform 320ms ease';
-        cameraG.style.transform = `translate(${p.camera.tx}px, ${p.camera.ty}px) scale(${p.camera.scale})`;
+        cameraG.style.transform = `translate(${effectiveCamera.tx}px, ${effectiveCamera.ty}px) scale(${effectiveCamera.scale})`;
       }
       const focusSet = new Set(p.focusIds);
       node.querySelectorAll<SVGElement>('[data-place-id]').forEach((el) => {
@@ -1225,13 +1374,16 @@
       // The postcard design (John, 2026-07-30): the sole focus place's own
       // name stays dark; every OTHER label is OMITTED, not merely ghosted
       // (`.plate-hidden` is display:none — see the pin dimming above for
-      // the contrasting "ghost, don't omit" treatment of pins).
+      // the contrasting "ghost, don't omit" treatment of pins). Matches
+      // every `[data-label-for]` element, which — since plate.ts's
+      // leaderElement fix (2026-09-02, Codex finding) — now includes a
+      // conjectural/detached label's dashed LEADER as well as its text, so
+      // an omitted name never leaves a dangling line pointing at nothing.
       node.querySelectorAll<SVGElement>('[data-label-for]').forEach((el) => {
         const id = el.getAttribute('data-label-for');
         const hide = focusSet.size > 0 && !(id !== null && focusSet.has(id));
         el.classList.toggle('plate-hidden', hide);
       });
-      ensureLabelWrappers();
       updateLabelDescale();
     }
 
@@ -2896,8 +3048,20 @@
       <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html svg}
       <svg class="chart-locator-overlay" viewBox="0 0 {size[0]} {size[1]}" width="100%" height="100%" focusable="false">
-        <!-- vector-effect keeps the frame a true 1px screen stroke regardless
-             of how much the viewBox is scaled down to fit the inset. -->
+        <!-- vector-effect keeps both strokes a true screen-px width
+             regardless of how much the viewBox is scaled down to fit the
+             inset. Two rects, halo first (2026-09-02, Codex finding): a
+             single --accent stroke measured 1.19-1.41:1 (light) and
+             1.03-1.73:1 (dark) against the lean locator's own coast/river
+             strokes where the frame happens to cross them -- well under the
+             3:1 AA floor for a non-text graphical object. The wider halo
+             rect underneath (--scene-map-label-halo, the same token that
+             already keeps a place-name legible over this exact ink) clears
+             6.99-12.4:1 against both --scene-map-coast and --plate-river in
+             both themes, and the --accent frame on top clears 7.17-10.2:1
+             against the halo itself, so the frame reads clearly against any
+             ground it crosses. -->
+        <rect class="chart-locator-frame-halo" x={frame.x} y={frame.y} width={frame.w} height={frame.h} vector-effect="non-scaling-stroke" />
         <rect class="chart-locator-frame" x={frame.x} y={frame.y} width={frame.w} height={frame.h} vector-effect="non-scaling-stroke" />
       </svg>
     </div>
@@ -2939,7 +3103,7 @@
       >
         <div
           class="chart-plate"
-          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0] }}
+          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0], labelBoxes: iliadPlateRender.labelBoxes }}
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html iliadPlateHtml}
@@ -2952,7 +3116,7 @@
       <div class="chart-plate-postcard">
         <div
           class="chart-plate"
-          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0] }}
+          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlate.size[0], labelBoxes: iliadPlateRender.labelBoxes }}
         >
           <!-- eslint-disable-next-line svelte/no-at-html-tags -->
           {@html iliadPlateHtml}
@@ -2969,7 +3133,7 @@
     <div class="chart-plate-postcard">
       <div
         class="chart-plate"
-        use:applyPlateCamera={{ camera: schematicPlateCamera, focusIds: schematicFocusIds, ariaLabel: schematicPlateAriaLabel, reduceMotion, plateWidth: schematicPlate.size[0] }}
+        use:applyPlateCamera={{ camera: schematicPlateCamera, focusIds: schematicFocusIds, ariaLabel: schematicPlateAriaLabel, reduceMotion, plateWidth: schematicPlate.size[0], labelBoxes: schematicPlateRender.labelBoxes }}
       >
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html schematicPlateHtml}
@@ -4324,7 +4488,23 @@
     box-shadow: 0 1px 4px color-mix(in srgb, var(--text) 25%, transparent);
   }
   .chart-locator :global(svg) { display: block; width: 100%; height: 100%; }
+  /* Furniture leak (2026-09-02, caught in the browser smoke pass for this
+     lane's fixes, not the original brief): the locator is its own
+     renderPlate() call (chartLocatorInset/isLocatorLayer above) -- its own
+     coast/river layers still earn a legend row the same way the main
+     sheet's do, which showed up as a tiny illegible swatch clipped into the
+     inset's own corner. ensureLabelWrappers (applyPlateCamera) now stamps
+     the same `.plate-hidden` on the locator's own legend/scale/north/
+     hypsometric-key elements as it does the main sheet's, alongside this
+     rule -- the main sheet's own hiding rule is scoped to `.chart-plate`
+     (see it below), which the locator sibling falls outside of, so it needs
+     the same rule under its own scope. */
+  .chart-locator :global(.plate-hidden) { display: none; }
   .chart-locator-overlay { position: absolute; inset: 0; pointer-events: none; }
+  /* Halo underneath, accent frame on top (see the template comment above) --
+     the halo is wider so it shows as a slim border around the accent line
+     rather than swallowing it. */
+  .chart-locator-frame-halo { fill: none; stroke: var(--scene-map-label-halo); stroke-width: 3; }
   .chart-locator-frame { fill: none; stroke: var(--accent); stroke-width: 1; }
 
   .chart-plate-caption {
