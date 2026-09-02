@@ -102,11 +102,38 @@ placement; ruling 4 in `docs/TROY-MAPS-TODO.md` § "Rulings 2026-09-02").
 - **Plate A, "The Bay and Ilios"** — the previous composition, looking
   east-south-east from above the camp. Fleet and huts off-plate (they sit
   behind the camera). Wall and ditch stay where they fall in frame.
-- **Plate B, "The Ships on the Aegean Shore"** — camera over the sea looking
-  at the flank. Fleet, huts, wall and ditch draw as now. Presets B1 and B2
-  are both stored; `B` aliases B1 until the orchestrator picks.
+- **Plate B, "The Ships on the Aegean Shore"** — camera over the sea, off the
+  camp zone's central station, looking down the shore toward its south
+  station. Fleet, huts, wall and ditch draw as now.
 
-`--plate A|B|B1|B2` applies the named camera before the existing camera
-flags, which still override. Outputs are `stage3-<plate>-full<tag>.{svg,png}`
-and `stage3-<plate>-camera-targets<tag>.json`. Nothing is copied into
+`--plate A|B` applies the named camera before the existing camera flags,
+which still override. Outputs are `stage3-<plate>-full<tag>.{svg,png}` and
+`stage3-<plate>-camera-targets<tag>.json`. Nothing is copied into
 `apparatus/`.
+
+### Correction round (2026-09-02, Sonnet review of the Grok-4.5 first pass)
+
+Grok's B1/B2 both shipped with `setback=0`, which pitches the camera's
+near-field straight down (`atan2(alt, 0) = 90°`) and drew 0 hulls in frame.
+Fixed by giving B a nonzero setback (see `plate_presets()`'s docstring for
+the full reasoning); B1/B2 are gone, replaced by a single `B` that points
+from off the CENTRE station toward the SOUTH station — down the beach's own
+line, not across it. That keeps Ilios out of the 72° cone by AZIMUTH (its
+bearing sits 75-90° off the camera's heading) rather than by hoping the
+ridge occludes it at whatever altitude, and puts the fleet centroid at
+about the same depth (~2.8 km) as the old single-plate calibration, so the
+hulls read as ships rather than dots. Its pitch (~7°) undershoots the
+12-20° a straight-in approach would give (plate A's is 13°) — accepted
+within this lane's render budget rather than spending more renders chasing
+the number, since Ilios-visibility and hull legibility were the binding
+constraints.
+
+The fleet enlargement table (`FLEET_T1_LEN_K`/`FLEET_T1_BEAM_K`, next to
+`FLEET_T1_PITCH_M`) was calibrated for the old single-plate camera, which
+viewed the fleet nearly end-on and needed a ×2.5 enlargement to keep a ship
+from foreshortening to nothing. Plate B's camera views the fleet close to
+broadside, so a hull's true length survives the projection: re-measured at
+the fleet centroid (39.9452, 26.16527), true size already draws a
+3.10:1 ship:hut ratio against the true 3.43:1, and ×1.1 lands it at 3.42:1.
+Reset from 2.5 to 1.1, isotropic (length and beam together, unchanged from
+Grok's reasoning on why that has to stay isotropic).

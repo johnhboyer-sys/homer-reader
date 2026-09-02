@@ -1970,10 +1970,19 @@ FLEET_T1_ROWS = 2           # of the true three. Two still reads as ranks
 FLEET_T1_ROW_M = 170.0      # and 170 m keeps a row's prows well clear of the
                             # row in front's sterns at 2.5x drawn length
 FLEET_T1_FIRST_M = 90.0     # the seaward row's stern, back from the waterline
-FLEET_T1_BEAM_K = 2.5
-FLEET_T1_LEN_K = 2.5        # THE SAME NUMBER, and that is the point. See the
-                            # table above: scaled together it is a ship, and
-                            # scaled apart it was a quill.
+# RE-MEASURED FOR PLATE B (2026-09-02 correction round). The table above was
+# built end-on, down the old single-plate camera's sight-line, where a
+# ship's 24 m LENGTH foreshortens to almost nothing and only enlargement
+# could recover it. Plate B's camera looks down the beach instead of across
+# it (see plate_presets()), so a hull is seen close to BROADSIDE and its
+# length survives the projection on its own: measured at the fleet centroid
+# (39.9452, 26.16527), true size (K=1.0) already draws 11.8 px against a
+# 3.8 px hut -- 3.10x, close to the true 3.43. K=1.1 lands it at 13.0 px,
+# 3.42x -- the true ratio, to two figures -- so the enlargement most of this
+# table argued for is now a SMALL correction, not a x2.5 one. Isotropic
+# still: see the note above on what an anisotropic K did to the shape.
+FLEET_T1_BEAM_K = 1.1
+FLEET_T1_LEN_K = 1.1
 DRY_MARGIN_M = 14.0         # sand that must show between a forefoot and the
                             # water. About six pixels of beach at the camp's
                             # depth: enough that a reader can SEE she is
@@ -6118,7 +6127,7 @@ def furniture(cam, terr, ship_depth, troy_depth):
             "four materials, and the poem names all "
             "four; at 1× the hulls are fewer than the beach holds and "
             f"×{FLEET_T1_LEN_K:g} oversize, length and beam alike — seen "
-            "end-on a ship draws a third of her size. True from 2× up")
+            "broadside, she reads near true size. True from 2× up")
     out.append(f'<text class="pp-l-note" x="{n1(sx0 + 148)}" y="{n1(camp_y)}" '
                f'fill-opacity="0.85">{esc(camp_gloss)}</text>')
     for i, (name, gloss) in enumerate(camp_key):
@@ -6791,13 +6800,34 @@ _PRESETS = None
 
 
 def plate_presets():
-    """Named cameras. B aliases B1. B1/B2 are computed from the camp zone."""
+    """Named cameras, computed from the camp zone.
+
+    B WAS SPECIFIED WITH setback=0, WHICH IS A BUG, NOT A CHOICE. Camera's
+    near-pitch is atan2(alt - view_z, setback): at setback 0 that is
+    atan2(alt, 0) = 90 degrees, straight down, which is why the first B1/B2
+    rendered nothing in frame (0 hulls). A camera needs BOTH a viewpoint (the
+    near-field aim point the pitch is measured to) and a nonzero setback (how
+    far behind it the camera sits) — see Camera.__init__.
+
+    THE SURVIVING B (2026-09-02 correction round) points down the beach, not
+    across it. Two candidates that pointed roughly perpendicular to the shore
+    — straight in from the sea at the camp's own latitude — put the fleet at
+    the same depth as the old single-plate calibration (~2.5 km) but with
+    Ilios inside the 72-degree cone (unwanted: ruling 4 says Ilios is not
+    visible from the camp) or, at a shallower pitch, spread the whole 9 km
+    frontage across the frame so thin the hulls read as dots. Pointed instead
+    from off the CENTRE station toward the SOUTH station — down the shore's
+    own line — Ilios's bearing sits ~75-90 degrees off the camera's heading,
+    well outside the half-cone, by AZIMUTH rather than by hoping the ridge
+    occludes it at whatever altitude was last tried; and because the camera
+    sits abreast of the fleet's own middle rather than off one end looking
+    down the whole length, the fleet centroid lands at ~2.8 km, close to the
+    old calibration, with the beach crossing the frame on a diagonal."""
     global _PRESETS
     if _PRESETS is not None:
         return _PRESETS
     ax = camp_axis_stations(_camp_zone_polygon())
-    vp_b1 = ll_along(ax["centre"], CAMP_SEAWARD_DEG, 2500.0)
-    vp_b2 = ll_along(ax["north"], CAMP_SEAWARD_DEG, 1800.0)
+    vp_b = ll_along(ax["centre"], CAMP_SEAWARD_DEG, 2000.0)
     b_title = "THE SHIPS ON THE AEGEAN SHORE"
     b_sub = ("the Achaean camp from over the sea, looking east; "
              "Ilios lies beyond the ridge, out of sight")
@@ -6811,18 +6841,14 @@ def plate_presets():
                      "looking east-south-east"),
         "draw_fleet": False, "draw_huts": False,
     }
-    b1 = {
-        "viewpoint": vp_b1,
-        "heading": pp._bearing_deg(vp_b1, ax["centre"]),
-        "hfov": 72.0, "alt": 600.0, "setback": 0.0, "range_near": 150.0,
+    b = {
+        "viewpoint": vp_b,
+        "heading": pp._bearing_deg(vp_b, ax["south"]),
+        "hfov": 72.0, "alt": 300.0, "setback": 1200.0, "range_near": 150.0,
         "family": "B", "title": b_title, "subtitle": b_sub,
         "draw_fleet": True, "draw_huts": True,
     }
-    b2 = dict(b1)
-    b2["viewpoint"] = vp_b2
-    b2["heading"] = pp._bearing_deg(vp_b2, ax["south"])
-    b2["alt"] = 700.0
-    _PRESETS = {"A": a, "B1": b1, "B2": b2, "B": dict(b1)}
+    _PRESETS = {"A": a, "B": b}
     return _PRESETS
 
 
@@ -6850,8 +6876,8 @@ def build_arg_parser():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out-dir", default=os.path.join(REPO, "build", "panorama"))
     ap.add_argument("--quick", action="store_true")
-    ap.add_argument("--plate", choices=("A", "B", "B1", "B2"), default="A",
-                    help="named camera+content preset (B aliases B1); "
+    ap.add_argument("--plate", choices=("A", "B"), default="A",
+                    help="named camera+content preset; "
                          "camera flags override the preset")
     ap.add_argument("--viewpoint", type=_parse_latlon, default=None,
                     metavar="LAT,LON",

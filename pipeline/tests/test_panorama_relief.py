@@ -2925,12 +2925,12 @@ def _apply_plate(s3, *argv):
     return ns
 
 
-def test_plate_flag_defaults_to_a_and_accepts_b_aliases(s3):
+def test_plate_flag_defaults_to_a_and_accepts_b(s3):
     ap = s3.build_arg_parser()
     assert ap.parse_args([]).plate == "A"
     assert ap.parse_args(["--plate", "B"]).plate == "B"
-    assert ap.parse_args(["--plate", "B1"]).plate == "B1"
-    assert ap.parse_args(["--plate", "B2"]).plate == "B2"
+    with pytest.raises(SystemExit):
+        ap.parse_args(["--plate", "B1"])
 
 
 def test_preset_a_resolves_to_the_settled_bay_camera(s3, restore_camera):
@@ -2944,51 +2944,48 @@ def test_preset_a_resolves_to_the_settled_bay_camera(s3, restore_camera):
     assert s3.RANGE_NEAR == pytest.approx(420.0)
 
 
-def test_preset_b1_is_2500_m_west_of_the_central_station(s3, restore_camera):
-    centre, _north, _south = _axis_stations(s3)
-    vp = s3.ll_along(centre, s3.CAMP_SEAWARD_DEG, 2500.0)
-    heading = s3.pp._bearing_deg(vp, centre)
-    _apply_plate(s3, "--plate", "B1")
-    assert s3.VIEWPOINT[0] == pytest.approx(vp[0], abs=1e-6)
-    assert s3.VIEWPOINT[1] == pytest.approx(vp[1], abs=1e-6)
-    assert s3.HEADING_DEG == pytest.approx(heading, abs=0.05)
-    assert s3.HEADING_DEG == pytest.approx(103.0, abs=2.0)
-    assert s3.ALT == pytest.approx(600.0)
-    assert s3.SETBACK == pytest.approx(0.0)
-    assert s3.HFOV_DEG == pytest.approx(72.0)
-    assert s3.RANGE_NEAR == pytest.approx(150.0)
-
-
-def test_preset_b2_looks_along_the_beach_from_the_north(s3, restore_camera):
-    _centre, north, south = _axis_stations(s3)
-    vp = s3.ll_along(north, s3.CAMP_SEAWARD_DEG, 1800.0)
+def test_preset_b_looks_down_the_beach_from_off_the_centre_station(
+        s3, restore_camera):
+    """The 2026-09-02 correction: B points from off the CENTRE station
+    toward the SOUTH station (down the shore's own line), not straight in
+    from the sea -- see plate_presets(). A nonzero setback is the fix for
+    the original setback=0 bug (near-pitch atan2(alt, setback) was 90
+    degrees straight down when setback was 0)."""
+    centre, _north, south = _axis_stations(s3)
+    vp = s3.ll_along(centre, s3.CAMP_SEAWARD_DEG, 2000.0)
     heading = s3.pp._bearing_deg(vp, south)
-    _apply_plate(s3, "--plate", "B2")
+    _apply_plate(s3, "--plate", "B")
     assert s3.VIEWPOINT[0] == pytest.approx(vp[0], abs=1e-6)
     assert s3.VIEWPOINT[1] == pytest.approx(vp[1], abs=1e-6)
     assert s3.HEADING_DEG == pytest.approx(heading, abs=0.05)
-    assert s3.ALT == pytest.approx(700.0)
-    assert s3.SETBACK == pytest.approx(0.0)
+    assert s3.ALT == pytest.approx(300.0)
+    assert s3.SETBACK == pytest.approx(1200.0)
     assert s3.HFOV_DEG == pytest.approx(72.0)
     assert s3.RANGE_NEAR == pytest.approx(150.0)
 
 
-def test_plate_b_aliases_b1(s3, restore_camera):
-    _apply_plate(s3, "--plate", "B1")
-    b1 = (s3.VIEWPOINT, s3.HEADING_DEG, s3.ALT, s3.SETBACK, s3.RANGE_NEAR)
+def test_preset_b_pitches_down_not_straight_down(s3, restore_camera):
+    """The original bug (setback=0) pitched the camera 90 degrees down and
+    drew 0 hulls in frame. Any nonzero, sane pitch is the regression gate;
+    see docs/PANORAMA-RESUME.md for why this preset's pitch (~7 degrees)
+    undershoots the 12-20 degree target plate A hits -- it was chosen for
+    keeping Ilios out of the 72-degree cone by azimuth over chasing a pitch
+    number, within this lane's render budget."""
     _apply_plate(s3, "--plate", "B")
-    assert s3.VIEWPOINT == pytest.approx(b1[0])
-    assert s3.HEADING_DEG == pytest.approx(b1[1])
-    assert s3.ALT == pytest.approx(b1[2])
-    assert s3.SETBACK == pytest.approx(b1[3])
-    assert s3.RANGE_NEAR == pytest.approx(b1[4])
+    cam = s3.Camera.__new__(s3.Camera)
+    cam.theta = math.radians(s3.HEADING_DEG)
+    cam.e = -s3.SETBACK * math.sin(cam.theta)
+    cam.n = -s3.SETBACK * math.cos(cam.theta)
+    near_angle = math.atan2(s3.ALT, s3.SETBACK)
+    assert math.degrees(near_angle) < 45.0
+    assert math.degrees(near_angle) > 0.0
 
 
 def test_explicit_heading_overrides_the_preset(s3, restore_camera):
     _apply_plate(s3, "--plate", "B", "--heading", "95")
     assert s3.HEADING_DEG == pytest.approx(95.0)
-    assert s3.ALT == pytest.approx(600.0)
-    assert s3.SETBACK == pytest.approx(0.0)
+    assert s3.ALT == pytest.approx(300.0)
+    assert s3.SETBACK == pytest.approx(1200.0)
 
 
 def test_plate_titles_and_subtitles_are_exact(s3, restore_camera):
