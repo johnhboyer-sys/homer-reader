@@ -134,6 +134,47 @@ _PLAIN_REF_RE = re.compile(r"\b(Il|Od)\.\s*(\d+)\.(\d+)")
 _ABBR_WORK = {"Il": "iliad", "Od": "odyssey"}
 
 
+# In 94 places the scan has LOST THE SPACE in front of a work abbreviation:
+# ἄγριος reads "wild creaturesIl. 5.52", αἶθοψ "bright, sparklingIl. 1.462",
+# καθίζω "Pple. καθίσσαςIl. 9.488". Every regex here matches the abbreviation
+# behind a `\b`, and after a letter — Latin or Greek — there is no word
+# boundary before "I" or "O", so the reference is never seen. What the parse
+# reads instead is two loose numbers, and _expand restores each of them to
+# whatever book the PREVIOUS full reference established: ἄγριος's one
+# "Il. 5.52" came out as a live "Il. 19.5" and a live "Il. 19.52", and αἶθοψ's
+# "Il. 4.495" as "Od. 24.4" and "Od. 24.495" — in the wrong poem. The English
+# in front of it went with them, into `g`, as though Homer had written "wild
+# creatures".
+#
+# Measured over both source volumes (11,416 entries): 94 occurrences in 84
+# entries, and every one of them is followed by a complete book.line
+# reference. Nothing else of the class occurs — no glued abbreviation without
+# a reference behind it (0), no reference with the next word glued to its END
+# (0), no "Il 5.52" with the stop missing (0), no lowercase "il."/"od." (0).
+# 3 of the 94 are glued to Greek rather than to English (καθίζω, κάνεον,
+# Αἴας) and one to a homonym numeral (Ἀθήνη-1Od. 7.80).
+#
+# The space is restored HERE, where a definition enters the parse, rather than
+# by loosening the `\b` in the three regexes that read the abbreviation. Not
+# because those three are hard to loosen, but because they are not the only
+# rules a glued word breaks: _quote_start, _evidence_start, _has_english,
+# _EN_RUN_RE, _split_head_run and split_forms all measure the same string and
+# all of them see "creaturesIl" as one word. Fixing the three that are easy to
+# find would leave the rest reading a word the dictionary does not contain,
+# and would leave the glue standing in front of the reader.
+#
+# Nothing is lost and nothing is emended: a space is INSERTED, and only where
+# the very next thing is a full reference. This is not the mis-scanned "Of."
+# below, which is a letter printed wrongly and is reproduced as printed — a
+# word separator that the page had and the scan dropped is not text.
+_GLUED_ABBR_RE = re.compile(r"(?<=\w)(?=(?:Il|Od)\.\s*\d+\.\d+)")
+
+
+def unglue_refs(definition: str) -> str:
+    """Restore the space the scan lost in front of a work abbreviation."""
+    return _GLUED_ABBR_RE.sub(" ", definition)
+
+
 def _link_plain_refs(escaped: str) -> str:
     """Link full references in an already-escaped run of definition text."""
     def one(m: re.Match[str]) -> str:
@@ -193,6 +234,10 @@ def linkify_definition(text: str, citations: list[dict]) -> str:
     WordPopup.svelte's click handler resolves the real href via the existing
     citation machinery (workPath + formatLocValue), the same way BekkerJump
     and CommandPalette do."""
+    # A reference the scan glued to the word before it is not matchable behind
+    # a `\b` — see unglue_refs. citations[] locates its refs by a sequential
+    # find, and the space goes in FRONT of the ref, so no ref span moves.
+    text = unglue_refs(text)
     parts: list[str] = []
     pos = 0
     for c in citations:
@@ -1112,6 +1157,10 @@ def to_t8(key: str, headword: str, definition: str, resolve=None) -> dict:
     `s` AND an empty numeral, and three quarters of this dictionary is a single
     unnumbered row — every one of which would sprout a dash it should not have.
     """
+    # Before anything measures this string: the scan lost the space in front
+    # of 94 work abbreviations, and every rule below reads the result as one
+    # word — see unglue_refs.
+    definition = unglue_refs(definition)
     p = split_senses(definition)
     roman = {d["at"]: d["n"] for d in p["divisions"]}
     if not p["senses"]:

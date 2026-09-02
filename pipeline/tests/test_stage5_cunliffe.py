@@ -1122,3 +1122,130 @@ def test_the_one_mis_scanned_connector_does_not_become_a_definition():
     # and the real "Of ..." senses either side are untouched
     zs = [_text(r.get("z") or "") for r in t8["rows"]]
     assert "Of dogs" in zs and "Of a spear, to pass over (and graze) something" in zs
+
+
+# ── a work abbreviation the scan glued to the word before it ───────────────
+
+def test_a_reference_glued_to_the_word_before_it_is_still_one_reference():
+    """ἄγριος, on its REAL source text.
+
+    The scan lost the space: the entry reads "wild creaturesIl. 5.52". Every
+    regex in the module matched the abbreviation behind a `\\b`, and after "s"
+    there is no word boundary before "I", so "Il." was never seen. The parse
+    read a loose 5 and a loose 52 instead, and restored each of them to the
+    book the reference before it had established — Il. 19, from "Applied to
+    flies Il. 19.30" — so the entry shipped TWO live citations, Il. 19.5 and
+    Il. 19.52, where Cunliffe printed one, and both pointed at lines that have
+    nothing to do with ἄγριος. The English went with them, into `g`, so the
+    quotation read "ἄγρια, wild creaturesIl." as though Homer had written it.
+    """
+    real = (
+        "ἄγριος -η, -ον and -ος, -ον [ἀγρός.] 1 Of animals, wild, untamed "
+        "Il. 3.24, Il. 4.106, Il. 8.338, Il. 9.539, Il. 15.271: Od. 9.119, "
+        "Od. 14.50. Applied to flies Il. 19.30. Absol. in neut. pl. ἄγρια, "
+        "wild creaturesIl. 5.52. 2 Of men, fierce, savage, raging Il. 6.97 = "
+        "278, Il. 8.96, Il. 21.314. Of Scylla Od. 12.119. 3 Not conforming "
+        "to the traditional order of society, uncivilized, barbarous, savage "
+        "Od. 1.199, Od. 2.19, Od. 6.120 = Od. 9.175 = Od. 13.201, Od. 7.206, "
+        "Od. 8.575, Od. 9.215, 494. 4 In gen., fierce, raging, ungoverned: "
+        "χόλος Il. 4.23, πτόλεμος Il. 17.737. Cf. Il. 8.460, Il. 9.629, "
+        "Il. 17.398, Il. 19.88, Il. 22.313: Od. 8.304. 5 Absol. in neut. pl. "
+        "ἄγρια, fierceness: ἀ. οἶδεν (has fierceness in his heart) "
+        "(see εἴδω III.12) Il. 24.41."
+    )
+    t8 = sc.to_t8("a)/grios", "ἄγριος", real)
+    cites = [e.get("c") for r in t8["rows"] for e in (r.get("ex") or [])]
+    cites += [c for r in t8["rows"] for c in (r.get("au") or [])]
+    assert "Il. 5.52" in cites
+    # the two the lost space fabricated
+    assert "Il. 19.5" not in cites
+    assert "Il. 19.52" not in cites
+    # and Cunliffe's own English is out of Homer's mouth
+    quote = next(e for r in t8["rows"] for e in (r.get("ex") or [])
+                 if "ἄγρια, wild creatures" in _text(e.get("g") or ""))
+    assert _text(quote["g"]) == "ἄγρια, wild creatures"
+    assert quote["c"] == "Il. 5.52"
+
+
+def test_a_glued_reference_does_not_move_a_citation_into_the_other_poem():
+    """αἶθοψ, on its REAL source text.
+
+    Two of its references are glued. The second, "gleamingIl. 4.495", falls
+    after a run of Odyssey citations ending "Od. 24.364", so the loose 4 and
+    495 were restored to Od. 24 — the entry shipped "Od. 24.4" and
+    "Od. 24.495" for a line in the ILIAD. A citation in the wrong poem is the
+    worst shape this defect takes, because nothing about the rendered link
+    says it is wrong.
+    """
+    real = (
+        "αἶθοψ -οπος [αἴθω + ὀπ-. See ὁράω.] Epithet of οἶνος, bright, "
+        "sparklingIl. 1.462, Il. 4.259, Il. 5.341, Il. 6.266, Il. 11.775, "
+        "Il. 14.5, Il. 16.226, 230, Il. 23.237, 250= Il. 24.791, Il. 24.641: "
+        "Od. 2.57 = Od. 17.536, Od. 3.459, Od. 7.295, Od. 9.360, Od. 12.19, "
+        "Od. 13.8, Od. 14.447, Od. 15.500, Od. 16.14, Od. 19.197, Od. 24.364. "
+        "Of χαλκός, bright, flashing, gleamingIl. 4.495 = Il. 5.562 = 681 = "
+        "Il. 17.3 = 87 = 592 = Il. 20.111, Il. 13.305, Il. 18.522, Il. 20.117 "
+        ": Od. 21.434. Of καπνός, fire-lit (i.e. reflecting the light of the "
+        "flame below) Od. 10.152."
+    )
+    t8 = sc.to_t8("ai)=qoy", "αἶθοψ", real)
+    cites = [e.get("c") for r in t8["rows"] for e in (r.get("ex") or [])]
+    cites += [c for r in t8["rows"] for c in (r.get("au") or [])]
+    assert "Il. 1.462" in cites and "Il. 4.495" in cites
+    assert "Od. 24.4" not in cites
+    assert "Od. 24.495" not in cites
+    # the run the glued reference opened still resets the book for the bare
+    # continuations behind it: "= 681" is Il. 5.681, not Od. anything
+    assert "Il. 5.681" in cites
+
+
+def test_a_glued_reference_inside_a_form_is_not_read_as_two_numbers():
+    """καθίζω, on its REAL source text.
+
+    The glue is inside the head run here, so it is `split_forms` that reads
+    it, not `split_evidence` — which is why the space is restored where the
+    definition ENTERS the parse rather than by loosening the three regexes
+    that happen to name the abbreviation. The participle shipped as the form
+    "καθίσσαςIl", with the reference behind it broken into the bare tokens
+    "9" and "488".
+    """
+    real = (
+        "καθίζω [καθ-, κατα- 1.] 3 pl. aor. κάθισαν Il. 19.280: Od. 4.659. "
+        "Imp. κάθισον Il. 3.68, Il. 7.49. Pple. καθίσσαςIl. 9.488. Fem. "
+        "καθίσᾱσα Od. 17.572. 1 To cause to seat oneself, bid be seated: μή "
+        "με κάθιζε Il. 6.360. Cf. Il. 3.68=Il. 7.49: Od. 4.659, Od. 17.572. "
+        "To cause (an assembly) to sit for business, bring (it) together "
+        "Od. 2.69. 2 To set, place: ἐπʼ ἐμοῖσι γούνεσσι καθίσσας Il. 9.488. "
+        "To seat or settle in an appointed place: κάθισαν γυναῖκας (brought "
+        "them to their new home) Il. 19.280. 3 To seat oneself, sit down: "
+        "ἔνθα καθῖζʼ Ἑλένη Il. 3.426. Cf. Il. 8.436, Il. 11.623, Il. 20.151: "
+        "ἐπὶ κληῗσι καθῖζον Od. 2.419=Od. 4.579, Od. 9.103 = 179 = 471 = "
+        "563=Od. 11.638=Od. 12.146=Od. 15.549, Od. 13.76, Od. 15.221. Cf. "
+        "Od. 5.326, Od. 8.6, 422, Od. 16.408, Od. 17.90, 256. 4 To have "
+        "one's seat, be seated, sit: ἂμ πέτρῃσι καθίζων Od. 5.156. Cf. "
+        "Il. 3.394, Il. 15.50."
+    )
+    t8 = sc.to_t8("kaqi/zw", "καθίζω", real)
+    assert ["Pple.", "καθίσσας"] in t8["f"]
+    assert "Il. 9.488" in t8["au"]
+    assert "9" not in t8["au"] and "488" not in t8["au"]
+
+
+def test_ungluing_a_reference_only_ever_inserts_a_space():
+    # The one thing this must not do is emend. It restores a word separator
+    # the page had and the scan dropped; every other character is untouched,
+    # and text that is already well formed comes back identical.
+    glued = "wild creaturesIl. 5.52. Cf. Od. 4.690."
+    assert sc.unglue_refs(glued) == "wild creatures Il. 5.52. Cf. Od. 4.690."
+    assert sc.unglue_refs(glued).replace(" ", "") == glued.replace(" ", "")
+    clean = "ἄγρια, wild creatures Il. 5.52, Il. 19.30: Od. 9.119."
+    assert sc.unglue_refs(clean) == clean
+    # only in front of a FULL reference: a bare continuation is not one, and
+    # neither is an abbreviation with no book and line behind it
+    assert sc.unglue_refs("Il. 19.35, 75") == "Il. 19.35, 75"
+
+
+def test_a_continuation_still_expands_after_the_glued_reference_fix():
+    # The pin the glue fix must not disturb: "Il. 19.35, 75" is Il. 19.75.
+    segs = sc.split_evidence("Il. 19.35, 75")
+    assert segs[0]["au"] == ["Il. 19.35", "Il. 19.75"]
