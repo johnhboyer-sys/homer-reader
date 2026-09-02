@@ -1018,3 +1018,17 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   label ink composited over the halo clears 4.5:1 on all twelve ramp steps and
   every flat terrain fill, in both complete theme pairings. Both confirmed
   failing against the pre-fix values.
+
+## 2026-09-02 — Chart Room postcard frame
+
+- `shared/components/Reader.svelte` — the Chart Room postcard (`applyPlateCamera`,
+  `chartPlateBody`/`chartLocatorInset` snippets): camera sized round the focus
+  place's pin AND its label box (`computeCamera`'s new `labelBoxes` option),
+  clamped to the sheet, `maxScale: 4`; non-focus pins ghosted and non-focus
+  labels omitted (`.plate-dimmed` / new `.plate-hidden`); a per-slot label
+  descale independent of PlatePanel.svelte's own `1/camK` (see that function's
+  comment for why the formula differs); a small full-sheet locator inset with
+  a frame rect; the geographic path additionally links through to `/maps/`
+  framed on the same scene. Shared by both the schematic path (live) and the
+  geographic path (flag-gated off, `CHART_ROOM_PLATE_ENABLED`). No
+  plato-reader counterpart (Homer-only apparatus feature).

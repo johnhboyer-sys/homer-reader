@@ -105,6 +105,26 @@
   }
   let activeTab: TabId = readMapParam();
 
+  // Chart Room click-through (Reader.svelte's postcard links here with
+  // `?focus=<comma-separated place ids>`) so the Troad/Trojan-plain panel
+  // opens already framed on the scene the reader came from. `focus` is a
+  // user-reachable query string -- CLAUDE.md treats those as hostile -- so
+  // it's sanitized here (id charset only, capped at 8) rather than trusted
+  // wholesale; PlatePanel's own computeCamera call additionally drops any id
+  // that doesn't resolve to real geometry on that plate.
+  const FOCUS_ID_RE = /^[A-Za-z0-9_-]+$/;
+  const MAX_FOCUS_IDS = 8;
+  function readFocusParam(): string[] {
+    const raw = new URLSearchParams(window.location.search).get('focus');
+    if (!raw) return [];
+    return raw
+      .split(',')
+      .map((id) => id.trim())
+      .filter((id) => FOCUS_ID_RE.test(id))
+      .slice(0, MAX_FOCUS_IDS);
+  }
+  const focusIds: string[] = readFocusParam();
+
   // Persist the active tab to `?map=` on every switch — same replaceState
   // idiom as setStoryMode below — so the URL a reader copies/reloads always
   // reflects what's on screen.
@@ -633,7 +653,7 @@
       </div>
 
       {#if troadView === 'drawn'}
-        <PlatePanel plateId="troad" places={troadRegionalPlatePlaces} title="The Troad" />
+        <PlatePanel plateId="troad" places={troadRegionalPlatePlaces} title="The Troad" {focusIds} />
       {:else}
         <LandmarkMap
           {base}
@@ -657,7 +677,7 @@
         most of the Iliad's fighting happens, crossed by the Scamander and
         Simoeis rivers.
       </p>
-      <PlatePanel plateId="trojan-plain" places={troadPlainPlatePlaces} title="The Trojan Plain" />
+      <PlatePanel plateId="trojan-plain" places={troadPlainPlatePlaces} title="The Trojan Plain" {focusIds} />
     </div>
   {:else if activeTab === 'wanderings'}
     <div id="mp-panel-wanderings" role="tabpanel" aria-labelledby="mp-tab-wanderings" tabindex="0" class="mp-panel">

@@ -424,6 +424,62 @@ describe('PlatePanel', () => {
     expect(ditchEl.style.display).not.toBe('none');
   });
 
+  it('focusIds (Chart Room postcard click-through, part F) frames the camera on a place, producing a non-identity transform clamped within the component\'s own CAM_MIN_K/CAM_MAX_K bounds', async () => {
+    mockFetchPlate.mockResolvedValue({
+      id: 'focus-plate',
+      title: 'Focus Plate',
+      kind: 'geographic',
+      status: 'reviewed',
+      bbox: [39.86, 26.12, 40.02, 26.36],
+      size: [400, 300],
+      layers: [],
+    });
+
+    const places = [
+      { id: 'a', name: 'Place A', coords: [39.9, 26.15] as [number, number], certainty: 'certain' as const },
+      { id: 'b', name: 'Place B', coords: [39.98, 26.33] as [number, number], certainty: 'certain' as const },
+    ];
+
+    const { container } = render(PlatePanel, {
+      props: { plateId: 'focus-plate', places, title: 'Focus Plate', focusIds: ['a'] },
+    });
+
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+    const cameraG = container.querySelector('.pp-camera') as SVGGElement;
+    expect(cameraG).toBeTruthy();
+    const transform = cameraG.getAttribute('transform') ?? '';
+    expect(transform).not.toBe('translate(0 0) scale(1)');
+    const match = transform.match(/translate\(([-\d.]+) ([-\d.]+)\) scale\(([\d.]+)\)/);
+    expect(match).not.toBeNull();
+    const k = Number(match![3]);
+    // clampCamera's own bounds (PlatePanel.svelte: CAM_MIN_K..CAM_MAX_K, 1..8).
+    expect(k).toBeGreaterThanOrEqual(1);
+    expect(k).toBeLessThanOrEqual(8);
+  });
+
+  it('an empty focusIds (the default) leaves the identity camera', async () => {
+    mockFetchPlate.mockResolvedValue({
+      id: 'focus-plate-2',
+      title: 'Focus Plate 2',
+      kind: 'geographic',
+      status: 'reviewed',
+      bbox: [0, 0, 1, 1],
+      size: [100, 80],
+      layers: [],
+    });
+
+    const places = [{ id: 'a', name: 'Place A', coords: [0.5, 0.5] as [number, number], certainty: 'certain' as const }];
+
+    const { container } = render(PlatePanel, {
+      // focusIds omitted -- exercises the `export let focusIds: string[] = []` default.
+      props: { plateId: 'focus-plate-2', places, title: 'Focus Plate 2' },
+    });
+
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+    const cameraG = container.querySelector('.pp-camera') as SVGGElement;
+    expect(cameraG.getAttribute('transform')).toBe('translate(0 0) scale(1)');
+  });
+
   it('degrades gracefully, not a crash or an empty box, when the plate file does not exist yet', async () => {
     mockFetchPlate.mockResolvedValue(null);
 

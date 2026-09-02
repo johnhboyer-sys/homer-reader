@@ -26,10 +26,13 @@
     parsePlate,
     renderPlate,
     scaleBarMarkup,
+    computeCamera,
     type PlatePlace,
     type PlateLayer,
     type Certainty,
     type Viewport,
+    type Plate,
+    type LabelBox,
   } from '@shared/lib/plate';
   import { renderShield, type ShieldPlate } from '@shared/lib/shield';
 
@@ -43,6 +46,13 @@
   // Human label used only in the "not yet drawn" message for a plate id with
   // no file -- never invented from the plate data (there isn't any yet).
   export let title = '';
+  // Frame the camera on these ids (place or layer, per computeCamera) rather
+  // than showing the whole sheet at load -- the Chart Room postcard's
+  // click-through (Reader.svelte links here with `?focus=<ids>`). Empty
+  // (the default) leaves the identity camera, exactly the old behaviour.
+  // Only ever consulted for a plate.ts `layers` plate -- the shield takes no
+  // camera at all.
+  export let focusIds: string[] = [];
 
   type Status = 'loading' | 'ready' | 'missing' | 'error';
   let status: Status = 'loading';
@@ -441,7 +451,13 @@
 
   $: aspectRatio = `${plateSize[0]} / ${plateSize[1]}`;
 
-  async function load(id: string, placesForPlate: PlatePlace[]) {
+  // Set only in the plate.ts (non-shield) branch of load() -- inputs
+  // computeCamera needs to frame `focusIds` once the camera is set up.
+  let focusPlate: Plate | undefined;
+  let focusViewport: Viewport | undefined;
+  let focusLabelBoxes: Record<string, LabelBox> = {};
+
+  async function load(id: string, placesForPlate: PlatePlace[], focusIdsForPlate: string[]) {
     status = 'loading';
     errorMessage = '';
     svgMarkup = '';
@@ -453,6 +469,9 @@
     hasConjectural = false;
     plateViewport = undefined;
     currentPlaces = placesForPlate;
+    focusPlate = undefined;
+    focusViewport = undefined;
+    focusLabelBoxes = {};
 
     try {
       const raw = await fetchPlate(id);
@@ -492,6 +511,9 @@
         const locatedCount =
           placesForPlate.length - result.unlocated.length - result.offCanvas.length - result.drawnByLayer.length;
         hasConjectural = plate.kind === 'schematic' && locatedCount > 0;
+        focusPlate = plate;
+        focusViewport = result.viewport;
+        focusLabelBoxes = result.labelBoxes;
       }
 
       status = 'ready';
@@ -499,15 +521,24 @@
       applyLayerVisibility();
       applyCertaintyVisibility();
       setupCamera();
+      if (focusIdsForPlate.length && focusPlate && focusViewport) {
+        const cam = computeCamera(focusPlate, focusViewport, focusIdsForPlate, {
+          places: placesForPlate,
+          labelBoxes: focusLabelBoxes,
+          maxScale: CAM_MAX_K,
+        });
+        setCamera(cam.scale, cam.tx, cam.ty);
+      }
     } catch (e) {
       status = 'error';
       errorMessage = e instanceof Error ? e.message : String(e);
     }
   }
 
-  // Re-fetches whenever the id changes (a mounted instance switching plates)
-  // as well as on first mount.
-  $: load(plateId, places);
+  // Re-fetches whenever the id, places, or focusIds changes (a mounted
+  // instance switching plates, or MapsPage picking up a new `?focus=`) as
+  // well as on first mount.
+  $: load(plateId, places, focusIds);
 </script>
 
 <div class="pp-root">

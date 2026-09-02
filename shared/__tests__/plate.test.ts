@@ -999,6 +999,36 @@ describe('computeCamera', () => {
     expect(camera).toEqual({ scale: 1, tx: 0, ty: 0 });
   });
 
+  // Codex finding (2026-09-02): a focus id equal to a real Object property
+  // name is apparatus-adjacent data reachable through a user-facing query
+  // string (MapsPage's `?focus=` sanitizes to an id charset -- letters,
+  // digits, hyphens -- which "constructor" and "__proto__" both pass). A
+  // plain `{}` labelBoxes dictionary resolves `labelBoxes['constructor']` to
+  // Object.prototype.constructor (a function, not undefined) instead of
+  // "no entry" -- truthy, so the old `if (!box) continue` guard let it
+  // through, and destructuring a function as `[x1,y1,x2,y2]` threw. Fixed at
+  // the source (renderPlate's own labelBoxes, and CameraOptions' default) by
+  // building that dictionary with Object.create(null), which has no
+  // inherited properties to collide with.
+  it('an id equal to a real Object/Array property name contributes nothing, without throwing (reachable via /maps/?focus=constructor)', () => {
+    const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
+    const rendered = renderPlate(testPlate, [troy]);
+    for (const hostileId of ['constructor', '__proto__', 'toString', 'hasOwnProperty', 'valueOf']) {
+      // The default path: no labelBoxes option at all (DEFAULT_CAMERA_OPTIONS).
+      expect(() => computeCamera(testPlate, viewport, [hostileId], { places: [troy] })).not.toThrow();
+      expect(computeCamera(testPlate, viewport, [hostileId], { places: [troy] })).toEqual({ scale: 1, tx: 0, ty: 0 });
+
+      // The real path every caller (Reader.svelte, PlatePanel.svelte) uses:
+      // labelBoxes sourced straight from a renderPlate result.
+      expect(() =>
+        computeCamera(testPlate, viewport, [hostileId], { places: [troy], labelBoxes: rendered.labelBoxes }),
+      ).not.toThrow();
+      expect(
+        computeCamera(testPlate, viewport, [hostileId], { places: [troy], labelBoxes: rendered.labelBoxes }),
+      ).toEqual({ scale: 1, tx: 0, ty: 0 });
+    }
+  });
+
   it('a place with no coords contributes nothing (honesty rule) — an all-unlocated focus set falls back to identity', () => {
     const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
     const camera = computeCamera(testPlate, viewport, ['ghost-place'], { places: [ghost] });
@@ -1025,6 +1055,152 @@ describe('computeCamera', () => {
     const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
     const camera = computeCamera(testPlate, viewport, ['troy'], { places: [troy], maxScale: 2 });
     expect(camera.scale).toBeLessThanOrEqual(2);
+  });
+});
+
+// The Chart Room postcard camera (2026-09-02): a camera sized round the
+// focus pin ALONE (the tests above) sliced 92/163 framed schematic scenes'
+// labels mid-word at the resulting zoom, and 45/163 panned past the sheet
+// into white. These cover the fix: labelBoxes widens the framed bbox to
+// include the focus's own rendered name, and computeCamera's own clamp
+// (never scale < 1, translation never past the sheet edge) replaces what
+// used to be the caller's problem.
+describe('computeCamera: label box framing + sheet clamp (postcard camera)', () => {
+  it('frames a focus place\'s rendered LABEL box, not just its pin — mirrors the pin-only test above', () => {
+    const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
+    const rendered = renderPlate(testPlate, [troy]);
+    const labelBox = rendered.labelBoxes['troy'];
+    expect(labelBox).toBeDefined();
+    const camera = computeCamera(testPlate, viewport, ['troy'], {
+      places: [troy],
+      labelBoxes: rendered.labelBoxes,
+    });
+    const [x1, y1, x2, y2] = labelBox!;
+    for (const [x, y] of [[x1, y1], [x2, y1], [x2, y2], [x1, y2]]) {
+      const outX = x * camera.scale + camera.tx;
+      const outY = y * camera.scale + camera.ty;
+      expect(outX).toBeGreaterThanOrEqual(-1e-6);
+      expect(outX).toBeLessThanOrEqual(testPlate.size[0] + 1e-6);
+      expect(outY).toBeGreaterThanOrEqual(-1e-6);
+      expect(outY).toBeLessThanOrEqual(testPlate.size[1] + 1e-6);
+    }
+  });
+
+  it('never zooms below 1 or pans past the sheet edge, for a focus point near each of the four corners (the 45/163 white-overrun regression)', () => {
+    const [minLat, minLon, maxLat, maxLon] = testPlate.bbox!;
+    // Just inside each corner, not exactly on it — a point exactly at the
+    // bbox edge is itself a degenerate case this isn't testing.
+    const corners: PlatePlace[] = [
+      { id: 'corner-nw', name: 'NW', coords: [maxLat - 0.002, minLon + 0.002], certainty: 'certain' },
+      { id: 'corner-ne', name: 'NE', coords: [maxLat - 0.002, maxLon - 0.002], certainty: 'certain' },
+      { id: 'corner-sw', name: 'SW', coords: [minLat + 0.002, minLon + 0.002], certainty: 'certain' },
+      { id: 'corner-se', name: 'SE', coords: [minLat + 0.002, maxLon - 0.002], certainty: 'certain' },
+    ];
+    const viewport = viewportFromBBox(testPlate.bbox!, testPlate.size);
+    const [W, H] = testPlate.size;
+    for (const corner of corners) {
+      const camera = computeCamera(testPlate, viewport, [corner.id], { places: [corner] });
+      expect(camera.scale).toBeGreaterThanOrEqual(1);
+      expect(camera.tx).toBeLessThanOrEqual(1e-6);
+      expect(camera.tx).toBeGreaterThanOrEqual(W - camera.scale * W - 1e-6);
+      expect(camera.ty).toBeLessThanOrEqual(1e-6);
+      expect(camera.ty).toBeGreaterThanOrEqual(H - camera.scale * H - 1e-6);
+    }
+  });
+
+  it('renderPlate.labelBoxes has an entry for every feature that got a label, and none for one the solver suppressed', () => {
+    // `kind: 'tomb'` resolves to the 'feature' label role (KIND_LABEL_CLASS),
+    // which is unconditionally suppression-eligible (priority: 1) on a
+    // geographic plate — piling ten long names on the same point is enough
+    // to force at least one below the SUPPRESS_OVERLAP_FRACTION floor.
+    const crowd: PlatePlace[] = Array.from({ length: 10 }, (_, i) => ({
+      id: `tomb-${i}`,
+      name: `Barrow of the Nameless Warrior Number ${i}`,
+      coords: [39.95, 26.2] as [number, number],
+      certainty: 'certain' as const,
+      kind: 'tomb',
+    }));
+    const result = renderPlate(testPlate, crowd);
+    expect(result.suppressedLabels.length).toBeGreaterThan(0); // sanity: the fixture actually triggers suppression
+    for (const p of crowd) {
+      if (result.suppressedLabels.includes(p.id)) expect(result.labelBoxes[p.id]).toBeUndefined();
+      else expect(result.labelBoxes[p.id]).toBeDefined();
+    }
+  });
+
+  it('the achaean-assembly-place worst case (370px label, the flattest camera-scale outlier measured) fits inside the camera frame it earns, off the REAL schematic plate', () => {
+    const plate = parsePlate(JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')));
+    // Mirrors the real apparatus/places.json record verbatim (name, kind,
+    // plateAnchors, positionBasis) — not a shortened stand-in — so the
+    // measured label width is the real one, not a synthetic best case.
+    const place: PlatePlace = {
+      id: 'achaean-assembly-place',
+      name: "The assembly and law-place, with the gods' altars",
+      certainty: 'certain',
+      kind: 'camp',
+      plateAnchors: { 'trojan-plain-schematic': [0.52, 0.748] },
+      positionBasis: 'conjectural',
+    };
+    const result = renderPlate(plate, [place]);
+    const labelBox = result.labelBoxes['achaean-assembly-place'];
+    expect(labelBox).toBeDefined();
+    const camera = computeCamera(plate, result.viewport, ['achaean-assembly-place'], {
+      places: [place],
+      labelBoxes: result.labelBoxes,
+      maxScale: 4, // Reader.svelte's own Chart Room ceiling (part B)
+    });
+    const [x1, y1, x2, y2] = labelBox!;
+    const [W, H] = plate.size;
+    for (const [x, y] of [[x1, y1], [x2, y1], [x2, y2], [x1, y2]]) {
+      const outX = x * camera.scale + camera.tx;
+      const outY = y * camera.scale + camera.ty;
+      expect(outX).toBeGreaterThanOrEqual(-1e-6);
+      expect(outX).toBeLessThanOrEqual(W + 1e-6);
+      expect(outY).toBeGreaterThanOrEqual(-1e-6);
+      expect(outY).toBeLessThanOrEqual(H + 1e-6);
+    }
+  });
+});
+
+function parseSvgFragment(markup: string): Element {
+  const scratch = document.createElement('div');
+  scratch.innerHTML = markup;
+  return scratch.firstElementChild!;
+}
+
+// Codex review finding (2026-09-02): Reader.svelte used to wrap the camera
+// group itself via a caller-side regex (wrapPlateCamera) that assumed the
+// document ended `</g></svg>` — wrong, since the legend/scale bar/north
+// arrow/hypsometric key/neatline are drawn AFTER the clip group closes (see
+// the SVG assembly's own comment on why), so the regex's closing `</g>`
+// never landed where intended and that furniture silently ended up panning
+// and scaling with the map. Fixed at the source: renderPlate itself now
+// emits the wrap when asked.
+describe('renderPlate: cameraGroup option', () => {
+  it('off by default — no .plate-camera at all (unchanged behavior for every existing caller, esp. PlatePanel.svelte, which builds its own client-side camera wrapper)', () => {
+    const result = renderPlate(testPlate, [troy]);
+    expect(result.svg).not.toContain('plate-camera');
+  });
+
+  it('wraps ground + layers + pins + labels in .plate-camera — the furniture (legend, scale bar, neatline) stays OUTSIDE it, never panning/scaling with the map', () => {
+    const result = renderPlate(testPlate, [troy], { cameraGroup: true });
+    const root = parseSvgFragment(result.svg);
+    const cameraG = root.querySelector('.plate-camera');
+    expect(cameraG).not.toBeNull();
+
+    // Map content IS inside .plate-camera.
+    expect(cameraG!.querySelector('.plate-ground')).not.toBeNull();
+    expect(cameraG!.querySelector('[data-place-id="troy"]')).not.toBeNull();
+
+    // Furniture is NOT inside .plate-camera...
+    expect(cameraG!.querySelector('.plate-neatline')).toBeNull();
+    expect(cameraG!.querySelector('.plate-scale')).toBeNull();
+    expect(cameraG!.querySelector('.plate-legend')).toBeNull();
+    // ...but IS still present in the document — never dropped, only moved
+    // outside the pannable group.
+    expect(root.querySelector('.plate-neatline')).not.toBeNull();
+    expect(root.querySelector('.plate-scale')).not.toBeNull();
+    expect(root.querySelector('.plate-legend')).not.toBeNull();
   });
 });
 

@@ -4,6 +4,7 @@ import Reader from '../components/Reader.svelte';
 import Search from '../components/Search.svelte';
 import { fetchPlaces, fetchJourneys, fetchCoastline, fetchPlate, type BookData, type RawBookData } from '../lib/data';
 import type { Work } from '../lib/works';
+import { parsePlate, renderPlate } from '../lib/plate';
 
 // These Reader tests need a real Work shape (translations, citation scheme)
 // for the 'EN'/'Isa' fixture ids they render — a bekker-scheme work with a
@@ -960,6 +961,461 @@ describe('Reader.svelte — Chart Room plate path stays off while CHART_ROOM_PLA
   });
 });
 
+// The postcard camera/focus/label machinery lives on the SCHEMATIC path
+// (live today — CHART_ROOM_PLATE_ENABLED gates only the geographic
+// trojan-plain plate, see the two describe blocks above and below). The
+// skipped geographic block below covers the same camera/no-rerender shape
+// for the flag-gated path; this block is its live counterpart, plus the new
+// postcard assertions (focus/ghost/omit, label descale wrapper, locator
+// inset) that block does not yet exercise (it predates the postcard design).
+describe('Reader.svelte — Chart Room SCHEMATIC plate postcard (live path, 2026-09-02)', () => {
+  const schematicFixture = {
+    id: 'trojan-plain-schematic',
+    title: 'The Troad, schematic',
+    kind: 'schematic',
+    status: 'draft',
+    size: [400, 300],
+    layers: [],
+  };
+
+  const anchorA = {
+    id: 'anchor-a', name: 'Anchor Alpha', certainty: 'certain' as const,
+    plateAnchors: { 'trojan-plain-schematic': [0.3, 0.4] as [number, number] }, positionBasis: 'conjectural' as const,
+  };
+  const anchorB = {
+    id: 'anchor-b', name: 'Anchor Beta', certainty: 'certain' as const,
+    plateAnchors: { 'trojan-plain-schematic': [0.7, 0.6] as [number, number] }, positionBasis: 'conjectural' as const,
+  };
+
+  const oneSceneBook = (placeIds: string[]): RawBookData => ({
+    book: 1,
+    scenes: [{ summary: 'A scene naming a schematic-only place.', startLine: 1, endLine: 3, places: placeIds }],
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: [1, 2, 3].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+        english: {
+          text: 'Scene text.',
+          notes: [],
+          markers: [],
+          bekker: [
+            { n: 1, offset: 0, real: true },
+            { n: 2, offset: 6, real: true },
+          ],
+        },
+      },
+    ],
+  });
+
+  afterEach(() => {
+    vi.mocked(fetchPlaces).mockReset();
+    vi.mocked(fetchJourneys).mockReset();
+    vi.mocked(fetchCoastline).mockReset();
+    vi.mocked(fetchPlate).mockReset();
+    vi.mocked(fetchPlaces).mockResolvedValue({ places: [] });
+    vi.mocked(fetchJourneys).mockResolvedValue({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValue(null);
+    vi.mocked(fetchPlate).mockResolvedValue(null);
+  });
+
+  it("frames the camera on the scene's focus place; only the focus pin stays undimmed and only its label stays shown", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(schematicFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA, anchorB] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    const svg = container.querySelector('.chart-plate svg')!;
+    expect(svg.getAttribute('aria-label')).toContain('Anchor Alpha');
+
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    expect(cameraG).toBeTruthy();
+    expect(cameraG.style.transform).not.toBe('translate(0px, 0px) scale(1)');
+
+    // The focus pin is undimmed; every other place's pin is ghosted.
+    expect(container.querySelector('[data-place-id="anchor-a"]')).not.toHaveClass('plate-dimmed');
+    expect(container.querySelector('[data-place-id="anchor-b"]')).toHaveClass('plate-dimmed');
+
+    // Postcard design part C: a non-focus LABEL is OMITTED (`.plate-hidden`,
+    // display:none) — a stricter treatment than the ghosted pin above.
+    expect(container.querySelector('[data-label-for="anchor-a"]')).not.toHaveClass('plate-hidden');
+    expect(container.querySelector('[data-label-for="anchor-b"]')).toHaveClass('plate-hidden');
+  });
+
+  it('wraps every .plate-label in a descale group (part D)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(schematicFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA, anchorB] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const labels = container.querySelectorAll('.plate-label');
+    expect(labels.length).toBeGreaterThan(0);
+    labels.forEach((label) => {
+      expect(label.parentElement).toHaveClass('chart-label-descale');
+    });
+  });
+
+  it('renders exactly one locator frame rect, and no click-through link on the schematic path (part E/F: no /maps/ tab exists for this plate)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(schematicFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    expect(container.querySelectorAll('rect.chart-locator-frame').length).toBe(1);
+    expect(container.querySelector('.chart-plate-postcard')?.tagName).toBe('DIV');
+
+    // Finding (2026-09-02, Codex review): a single --accent stroke measured
+    // under the 3:1 AA floor against the lean locator's own coast/river
+    // strokes where the frame crosses them. Fixed with a wider halo rect
+    // (--scene-map-label-halo) drawn UNDERNEATH the accent frame — both
+    // must be present, halo first in document order (so the accent stroke
+    // paints on top of it, not the other way around).
+    const overlay = container.querySelector('.chart-locator-overlay');
+    const children = overlay ? Array.from(overlay.children) : [];
+    // Svelte appends its own scoped-style hash class, so match on the
+    // authored class only rather than the full attribute value.
+    expect(children.map((el) => el.classList[0])).toEqual(['chart-locator-frame-halo', 'chart-locator-frame']);
+  });
+
+  it('does not re-render the plate SVG when paging between scenes, only the camera/focus (mirrors the skipped geographic test below)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(schematicFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA, anchorB] });
+
+    const twoSceneBook: RawBookData = {
+      book: 1,
+      scenes: [
+        { summary: 'Scene one summary.', startLine: 1, endLine: 3, places: ['anchor-a'] },
+        { summary: 'Scene two summary.', startLine: 4, endLine: 6, places: ['anchor-b'] },
+      ],
+      segments: [
+        {
+          id: 'seg1',
+          column: '1',
+          greek: [1, 2, 3, 4, 5, 6].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+          english: {
+            text: 'Scene one text. Scene two text.',
+            notes: [],
+            markers: [],
+            bekker: [
+              { n: 1, offset: 0, real: true },
+              { n: 4, offset: 'Scene one text. '.length, real: true },
+            ],
+          },
+        },
+      ],
+    };
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: twoSceneBook } });
+    await screen.findByText(/Scene 1 of 2/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    const svgBefore = container.querySelector('.chart-plate svg');
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    const transformBefore = cameraG.style.transform;
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).toContain('Anchor Alpha');
+
+    await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+    await screen.findByText(/Scene 2 of 2/i);
+
+    // Same SVG element — the base markup was never reassigned via {@html}.
+    expect(container.querySelector('.chart-plate svg')).toBe(svgBefore);
+    expect(cameraG.style.transform).not.toBe(transformBefore);
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).toContain('Anchor Beta');
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).not.toContain('Anchor Alpha');
+  });
+
+  // Defect A (2026-09-02, orchestrator screenshot review): the schematic
+  // sheet's title cartouche and named side panels are `style: 'inset'`
+  // LAYERS drawn inside `.plate-camera` -- without this fix they pan and
+  // crop with the map ("S IT OUT" fragment at the postcard's bottom-left).
+  // The legend/scale bar/north arrow/hypsometric key are sheet chrome drawn
+  // OUTSIDE the camera group at full-sheet size -- left alone they sit at
+  // the slot's corner, where the locator inset then overlaps them. A
+  // postcard shows one subject and a locator, never any of this.
+  it('hides every sheet-furniture element in the postcard: an inset layer, and the legend/scale/north/hypsometric-key chrome', async () => {
+    const furnitureFixture = {
+      id: 'trojan-plain-schematic',
+      title: 'The Troad, schematic',
+      kind: 'schematic',
+      status: 'draft',
+      size: [400, 300],
+      // A caption is what draws the north arrow at all (see plate.ts's own
+      // comment on Plate.north).
+      north: 'Approximate, after the survey grid',
+      // A schematic plate draws a scale bar only when it declares a scale.
+      pxPerMetre: 0.5,
+      layers: [
+        {
+          id: 'title-block', kind: 'region', style: 'inset',
+          polygon: [[0.02, 0.02], [0.3, 0.02], [0.3, 0.12], [0.02, 0.12]],
+          label: 'THE TROAD',
+        },
+        // A river layer earns a legend row (derivedLegendEntry).
+        { id: 'river-1', kind: 'river', path: [[0.1, 0.5], [0.9, 0.5]], width: 2 },
+        // Two DIFFERENT elevations are what makes hypsometricLevels (and so
+        // the hypsometric key) non-empty.
+        { id: 'relief-1', kind: 'relief', elevation: 100, polygon: [[0.6, 0.6], [0.7, 0.6], [0.7, 0.7], [0.6, 0.7]] },
+        { id: 'relief-2', kind: 'relief', elevation: 200, polygon: [[0.75, 0.6], [0.85, 0.6], [0.85, 0.7], [0.75, 0.7]] },
+      ],
+    };
+
+    vi.mocked(fetchPlate).mockResolvedValueOnce(furnitureFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    // Precondition: every furniture element actually rendered onto the
+    // sheet (this fixture is deliberately crafted to draw all four chrome
+    // registers plus one inset layer) — a selector matching nothing would
+    // make the assertions below pass vacuously.
+    const inset = container.querySelector('[data-layer-style="inset"]');
+    const legend = container.querySelector('.plate-legend');
+    const scale = container.querySelector('.plate-scale');
+    const north = container.querySelector('.plate-north');
+    const hypsometricKey = container.querySelector('.plate-hypsometric-key');
+    for (const el of [inset, legend, scale, north, hypsometricKey]) expect(el).toBeTruthy();
+
+    for (const el of [inset, legend, scale, north, hypsometricKey]) {
+      expect(el).toHaveClass('plate-hidden');
+    }
+    // The neatline is the one piece of furniture a postcard keeps.
+    expect(container.querySelector('.plate-neatline')).not.toHaveClass('plate-hidden');
+
+    // The locator inset is its OWN renderPlate() call (chartLocatorInset,
+    // a static {@html} sibling of `.chart-plate`, not itself `use:`d) — its
+    // coast/river layers still earn a legend row the same way the main
+    // sheet's do, found leaking a tiny illegible swatch into the locator's
+    // own corner during this lane's browser smoke pass. ensureLabelWrappers
+    // reaches into the sibling `.chart-locator` and stamps the same
+    // `.plate-hidden` class its main-sheet furniture pass uses.
+    const locatorLegend = container.querySelector('.chart-locator .plate-legend');
+    expect(locatorLegend).toBeTruthy();
+    expect(locatorLegend).toHaveClass('plate-hidden');
+  });
+
+  // Defect B (2026-09-02, orchestrator screenshot review): "Assembly and
+  // law-place" reads "ssembly and law-place" in the ~220px desktop Reading
+  // Mode inline slot. Reproduced with the REAL schematic layer/place data
+  // (apparatus/plates/trojan-plain-schematic.json's achaean-assembly-place
+  // layer, apparatus/places.json's matching entry) inlined as literals, not
+  // read from the corpus files, so this test stays independent of apparatus
+  // edits — see shared/__tests__/plate.test.ts's own SEED_PLATE_PATH tests
+  // for the corpus-reading style this deliberately does NOT use.
+  const assemblyLayer = {
+    id: 'achaean-assembly-place',
+    kind: 'region',
+    placeId: 'achaean-assembly-place',
+    polygon: [[0.458, 0.73], [0.582, 0.728], [0.582, 0.766], [0.458, 0.768]],
+  };
+  const assemblyPlace = {
+    id: 'achaean-assembly-place',
+    name: "The assembly and law-place, with the gods' altars",
+    certainty: 'certain' as const,
+    plateAnchors: { 'trojan-plain-schematic': [0.52, 0.748] as [number, number] },
+    positionBasis: 'conjectural' as const,
+  };
+  const narrowFixture = {
+    id: 'trojan-plain-schematic',
+    title: 'The Troad, schematic',
+    kind: 'schematic',
+    status: 'draft',
+    size: [960, 780],
+    layers: [assemblyLayer],
+  };
+  const twoAssemblySceneBook: RawBookData = {
+    book: 1,
+    scenes: [
+      { summary: 'Scene one summary.', startLine: 1, endLine: 3, places: ['achaean-assembly-place'] },
+      { summary: 'Scene two summary.', startLine: 4, endLine: 6, places: ['achaean-assembly-place'] },
+    ],
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: [1, 2, 3, 4, 5, 6].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+        english: {
+          text: 'Scene one text. Scene two text.',
+          notes: [],
+          markers: [],
+          bekker: [
+            { n: 1, offset: 0, real: true },
+            { n: 4, offset: 'Scene one text. '.length, real: true },
+          ],
+        },
+      },
+    ],
+  };
+
+  it("keeps the focus label's on-screen extent inside a narrow 220px slot (the reported clip)", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(narrowFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [assemblyPlace] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: twoAssemblySceneBook } });
+    await screen.findByText(/Scene 1 of 2/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const slotWidth = 220;
+    const chartPlateEl = container.querySelector('.chart-plate') as HTMLElement;
+    // The same mechanism the descale code reads (node.clientWidth) -- happy-
+    // dom lays out nothing, so this is stubbed directly on the element.
+    Object.defineProperty(chartPlateEl, 'clientWidth', { value: slotWidth, configurable: true });
+
+    // Force the action's `update()` to re-run (camera/focus are recomputed
+    // reactively on scene paging; a fresh scene produces a fresh Camera
+    // object even though this fixture names the same place both times) so
+    // it runs with the stub above already in place — mirrors the "does not
+    // re-render" test's own two-scene technique.
+    await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+    await screen.findByText(/Scene 2 of 2/i);
+
+    const cameraG = container.querySelector('.plate-camera') as SVGGElement;
+    const camMatch = cameraG.style.transform.match(/translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([-\d.]+)\)/);
+    expect(camMatch).not.toBeNull();
+    const [, txStr, , scaleStr] = camMatch!;
+    const camK = parseFloat(scaleStr);
+    const tx = parseFloat(txStr);
+
+    const labelText = container.querySelector('[data-label-for="achaean-assembly-place"]') as SVGTextElement;
+    const descaleWrapper = labelText.parentElement as SVGGElement;
+    expect(descaleWrapper).toHaveClass('chart-label-descale');
+    const wrapMatch = descaleWrapper
+      .getAttribute('transform')!
+      .match(/translate\(([-\d.]+) ([-\d.]+)\) scale\(([-\d.]+)\)/);
+    expect(wrapMatch).not.toBeNull();
+    const [, pivotXStr, , fStr] = wrapMatch!;
+    const pivotX = parseFloat(pivotXStr);
+    const f = parseFloat(fStr);
+
+    // The label's own box (plate units) -- computed independently via
+    // renderPlate/parsePlate on the same fixture, exactly as
+    // Reader.svelte's labelBoxes prop does, rather than trusting the fix
+    // under test to have reported it correctly.
+    const plate = parsePlate(narrowFixture);
+    const rendered = renderPlate(plate, [assemblyPlace], { idPrefix: 'test-extent' });
+    const box = rendered.labelBoxes['achaean-assembly-place'];
+    expect(box).toBeTruthy();
+
+    const S = slotWidth / plate.size[0];
+    const screenOf = (plateX: number) => S * (camK * (pivotX + f * (plateX - pivotX)) + tx);
+    const left = Math.min(screenOf(box[0]), screenOf(box[2]));
+    const right = Math.max(screenOf(box[0]), screenOf(box[2]));
+
+    expect(left).toBeGreaterThanOrEqual(0);
+    expect(right).toBeLessThanOrEqual(slotWidth);
+  });
+
+  it('does not throw or write a non-finite transform when the slot is hidden (clientWidth 0)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(narrowFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [assemblyPlace] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: twoAssemblySceneBook } });
+    await screen.findByText(/Scene 1 of 2/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const chartPlateEl = container.querySelector('.chart-plate') as HTMLElement;
+    Object.defineProperty(chartPlateEl, 'clientWidth', { value: 0, configurable: true });
+
+    await expect(
+      (async () => {
+        await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+        await screen.findByText(/Scene 2 of 2/i);
+      })(),
+    ).resolves.not.toThrow();
+
+    const cameraG = container.querySelector('.plate-camera') as SVGGElement;
+    expect(cameraG.style.transform).not.toContain('NaN');
+    expect(cameraG.style.transform).not.toContain('Infinity');
+    const camMatch = cameraG.style.transform.match(/translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([-\d.]+)\)/);
+    expect(camMatch).not.toBeNull();
+    expect(camMatch!.slice(1).every((n) => Number.isFinite(parseFloat(n)))).toBe(true);
+
+    const descaleWrapper = container.querySelector('.chart-label-descale');
+    if (descaleWrapper) {
+      const t = descaleWrapper.getAttribute('transform') ?? '';
+      expect(t).not.toContain('NaN');
+      expect(t).not.toContain('Infinity');
+    }
+  });
+
+  // Codex finding (2026-09-02): the omit pass hides a non-focus label's
+  // `<text>` but plate.ts's leader path used to carry no id at all, leaving
+  // a dangling dashed line pointing at nothing once the name it explained
+  // was gone. Fixed by stamping `data-label-for` on the leader too (see
+  // plate.ts's leaderElement) — Reader.svelte's existing `[data-label-for]`
+  // omit pass then already catches it, unchanged.
+  it('hides a non-focus label\'s leader line along with its name', async () => {
+    const crowdedFixture = {
+      id: 'trojan-plain-schematic',
+      title: 'The Troad, schematic',
+      kind: 'schematic',
+      status: 'draft',
+      size: [400, 300],
+      layers: [],
+    };
+    // Nine places packed into a ~1% square: dense enough that plate.ts's
+    // label solver detaches several names from their own pins and draws a
+    // leader back to the mark (measured with a throwaway script against
+    // this exact fixture shape before writing this test).
+    const crowd = Array.from({ length: 9 }, (_, i) => ({
+      id: `crowd-${i}`,
+      name: `Crowd ${i}`,
+      certainty: 'certain' as const,
+      plateAnchors: {
+        'trojan-plain-schematic': [0.3 + (i % 4) * 0.01, 0.4 + Math.floor(i / 4) * 0.01] as [number, number],
+      },
+      positionBasis: 'conjectural' as const,
+    }));
+
+    vi.mocked(fetchPlate).mockResolvedValueOnce(crowdedFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: crowd });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['crowd-0']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const leaders = container.querySelectorAll('path.plate-leader');
+    expect(leaders.length).toBeGreaterThan(0);
+    // A non-focus id that actually drew a leader (not every crowd member
+    // necessarily does — pick whichever one did, rather than assume a
+    // specific id, so this test isn't coupled to the label solver's exact
+    // placement choices).
+    const leaderId = leaders[0].getAttribute('data-label-for');
+    expect(leaderId).toBeTruthy();
+    expect(leaderId).not.toBe('crowd-0'); // the focus id stays visible
+
+    const matches = container.querySelectorAll(`[data-label-for="${leaderId}"]`);
+    // The name's own <text> and its leader <path> both carry the id.
+    expect(matches.length).toBe(2);
+    matches.forEach((el) => expect(el).toHaveClass('plate-hidden'));
+  });
+});
+
 // Chart Room plate path disabled (John, 2026-07-29 — see Reader.svelte's
 // CHART_ROOM_PLATE_ENABLED and docs/TROY-MAPS-HANDOFF-2.md §1): useIliadPlate
 // is forced false and the fetch-gating reactive above it never even calls
@@ -1202,5 +1658,33 @@ describe.skip('Reader.svelte — Chart Room per-scene plates (Iliad only, 2026-0
     await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
     const cameraG = container.querySelector('.plate-camera') as HTMLElement;
     expect(cameraG.style.transition).toBe('none');
+  });
+
+  // Postcard part F (2026-09-02): the geographic path's click-through to
+  // /maps/, framed on the scene. Belongs in THIS skipped block, not a live
+  // one — there is no way to exercise `useIliadPlate` without either
+  // flipping CHART_ROOM_PLATE_ENABLED in source (forbidden — John's
+  // research-gated call) or a test-only override this codebase has never
+  // had; every other test of this path is skipped for the identical reason.
+  // Activates verbatim, with its siblings, when the flag flips to true.
+  it('the postcard link is keyboard-reachable and named for its destination (John\'s click-through, part F)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [{ id: 'place-a', name: 'Place A', coords: [3, 3], certainty: 'certain' }],
+    });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['place-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const link = screen.getByRole('link', { name: 'Open the Trojan Plain plate framed on this scene' });
+    expect(link).toBeInTheDocument();
+    link.focus();
+    expect(document.activeElement).toBe(link);
+    expect(link.getAttribute('href')).toContain('/maps/?map=plain');
+    expect(link.getAttribute('href')).toContain('focus=place-a');
   });
 });

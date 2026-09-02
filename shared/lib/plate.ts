@@ -346,10 +346,26 @@ export interface PlatePlace {
 export interface PlateOptions {
   /** Prefix for internal element ids (clipPath). Set distinctly per instance when inlining more than one plate on the same page. */
   idPrefix?: string;
+  /**
+   * Wraps the PANNABLE content (ground + layers + pins + labels) in a
+   * `<g class="plate-camera">` a caller can transform for pan/zoom, in the
+   * markup itself rather than requiring the caller to splice the string
+   * (2026-09-02, replacing a caller-side regex that silently corrupted the
+   * furniture: it assumed the whole document ended `</g></svg>`, but the
+   * legend/scale bar/north arrow/hypsometric key/neatline are deliberately
+   * drawn OUTSIDE the clip group afterwards — see this function's own
+   * comment on why — so the regex's closing tag never landed where intended
+   * and that furniture ended up panning/scaling with the map instead of
+   * staying fixed chrome). Off by default: PlatePanel.svelte builds its own
+   * client-side camera wrapper via the DOM (setupCamera) and would
+   * double-wrap if this were also on.
+   */
+  cameraGroup?: boolean;
 }
 
 const DEFAULT_PLATE_OPTIONS: Required<PlateOptions> = {
   idPrefix: 'plate',
+  cameraGroup: false,
 };
 
 // A drawn layer or pin, in already-projected plate-pixel space — lets a
@@ -396,6 +412,14 @@ export interface PlateResult {
   // worse than an absent one, but the absence itself is never quiet. Always
   // empty for a schematic plate, which suppresses nothing.
   suppressedLabels: string[];
+  // The actual rendered rect of each id's label, in plate-pixel space — the
+  // only honest source of "how wide is this name on the sheet" (layoutLabels
+  // runs clamp/suppress/textPath branches after placeLabelCandidates, so
+  // that earlier candidate box can be wrong). Keyed by place/layer id; an id
+  // with no label at all (never requested, or suppressed) has no entry. Used
+  // by computeCamera so a framed focus's label — not just its pin — fits
+  // inside the camera window.
+  labelBoxes: Record<string, LabelBox>;
 }
 
 export interface Camera {
@@ -411,12 +435,25 @@ export interface CameraOptions {
   maxScale?: number;
   /** Gazetteer places `focusIds` may also match, by place id — resolved through the same honesty rules as renderPlate (see resolvePlacePosition): a place with no defensible position on this plate contributes nothing. */
   places?: PlatePlace[];
+  /**
+   * Rendered label rects (PlateResult.labelBoxes) for the same plate, keyed
+   * by place/layer id. For each focus id present here, its label's four
+   * corners are added to the framed bbox alongside its pin — otherwise the
+   * camera sizes itself on the pin alone and a long name slices mid-word at
+   * the resulting zoom. Omitted (or an id with no entry) means "frame the
+   * pin only," exactly the old behaviour.
+   */
+  labelBoxes?: Record<string, LabelBox>;
 }
 
 const DEFAULT_CAMERA_OPTIONS: Required<CameraOptions> = {
   padFraction: 0.12,
   maxScale: 8,
   places: [],
+  // Object.create(null), not {} -- same reasoning as renderPlate's own
+  // labelBoxes construction (see its comment): a caller-supplied focus id is
+  // never trusted to avoid real Object property names.
+  labelBoxes: Object.create(null),
 };
 
 // ── parsePlate ───────────────────────────────────────────────────────────
@@ -2236,14 +2273,19 @@ function labelElement(
 //     owner's calibration rules out ("omission is not honesty").
 // Never drawn when the name is already touching its feature — a leader across
 // 4px is clutter, not information.
-function leaderElement(anchorBox: Box, box: Box, dashed: boolean): string {
+// `data-label-for` (2026-09-02, Codex finding): stamped the same as the name
+// it belongs to, so a consumer omitting a non-focus label (Reader.svelte's
+// postcard `.plate-hidden` pass) can hide its leader in the same query
+// instead of leaving a dangling dashed line pointing at nothing once the
+// name it explains is gone.
+function leaderElement(anchorBox: Box, box: Box, dashed: boolean, id: string): string {
   const ax = (anchorBox[0] + anchorBox[2]) / 2;
   const ay = (anchorBox[1] + anchorBox[3]) / 2;
   const bx = box[0] < ax ? box[2] : box[0];
   const by = (box[1] + box[3]) / 2;
   if (Math.hypot(bx - ax, by - ay) < 12) return '';
   return (
-    `<path class="plate-leader" d="M ${round1(ax)} ${round1(ay)} L ${round1(bx)} ${round1(by)}" ` +
+    `<path class="plate-leader" data-label-for="${escapeXml(id)}" d="M ${round1(ax)} ${round1(ay)} L ${round1(bx)} ${round1(by)}" ` +
     `fill="none" stroke="var(--text-mid)" stroke-width="0.6" stroke-opacity="${dashed ? 1 : 0.7}"` +
     `${dashed ? ' stroke-dasharray="2 2"' : ''}/>`
   );
@@ -2299,9 +2341,14 @@ function layoutLabels(
   // label — which is the fix for "ACHAEAN WALL AND DITCH" printing straight
   // through the wall it names.
   reservedBoxes: ReservedBox[] = [],
-): { markup: string; defs: string; placedBoxes: Box[]; suppressed: string[] } {
+): { markup: string; defs: string; placedBoxes: Box[]; boxes: { id: string; box: LabelBox }[]; suppressed: string[] } {
   const reservedAll = reservedBoxes.map((r) => r.box);
   const placed: Box[] = [];
+  // Mirrors `placed`, but keeps the request id each box belongs to — the
+  // camera (computeCamera) needs "which box is achaean-assembly-place's
+  // label" and `placed` alone can't answer that. Only ever gains an entry
+  // where `placed` does (the two `placed.push(box)` sites below).
+  const boxesById: { id: string; box: LabelBox }[] = [];
   const parts: string[] = [];
   const defs: string[] = [];
   const suppressed: string[] = [];
@@ -2362,6 +2409,7 @@ function layoutLabels(
         defs.push(`<path id="${req.pathId}" d="${guideD}" fill="none" stroke="none"/>`);
         parts.push(textPathElement(req.text, req.pathId, style, req.role, req.id, frac * 100, geographic));
         placed.push(box);
+        boxesById.push({ id: req.id, box });
         continue;
       }
       // Too crowded along the line — fall through to point placement.
@@ -2423,15 +2471,22 @@ function layoutLabels(
     }
 
     if (!req.centred && (req.conjectural || detached)) {
-      parts.push(leaderElement(req.anchorBox, box, !!req.conjectural));
+      parts.push(leaderElement(req.anchorBox, box, !!req.conjectural, req.id));
     }
     parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic));
     placed.push(box);
+    boxesById.push({ id: req.id, box });
   }
   // Reservations lead, exactly as when they were seeded into `placed`: the
   // caller feeds this straight to the legend's corner chooser, which must go
   // on treating drawn linework as occupied sheet.
-  return { markup: parts.join(''), defs: defs.join(''), placedBoxes: [...reservedAll, ...placed], suppressed };
+  return {
+    markup: parts.join(''),
+    defs: defs.join(''),
+    placedBoxes: [...reservedAll, ...placed],
+    boxes: boxesById,
+    suppressed,
+  };
 }
 
 // ── Legend ───────────────────────────────────────────────────────────────
@@ -4269,7 +4324,19 @@ function renderLayer(
       // primitive: an opaque framed panel that letters its own head. See
       // insetMarkup.
       if (layer.style === 'inset') {
-        markup = insetMarkup(layer.id, px, layer.label);
+        // Wrapped in its own group carrying `data-layer-id`/`data-layer-style`
+        // (2026-09-02, Reader.svelte postcard fix): insetMarkup's own parts —
+        // the panel rect, its double frame, the title/rule lines — are sheet
+        // FURNITURE (a title cartouche, a named side panel), not map content,
+        // but only the panel rect carries `data-feature-id` and the frame/rule
+        // elements carry no id at all, so a consumer could not previously
+        // select "every element this inset drew" the way it can for an
+        // ordinary layer (see withLayerId's own comment below). The postcard
+        // camera (Reader.svelte's applyPlateCamera) hides every
+        // `[data-layer-style="inset"]` group outright — it pans and crops
+        // with the map like any other camera-group content, which a postcard
+        // showing one subject and a locator must never do.
+        markup = `<g data-layer-id="${escapeXml(layer.id)}" data-layer-style="inset">${insetMarkup(layer.id, px, layer.label)}</g>`;
         break;
       }
       if (layer.style === 'poem') {
@@ -4745,10 +4812,15 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       .join('') +
     `${labels.defs}</defs>` +
     `<g clip-path="url(#${clipId})">` +
+    // The pannable content only — legend and (below, outside the clip
+    // entirely) scale bar/north arrow/hypsometric key/neatline are fixed
+    // chrome and must NOT sit inside this group (see PlateOptions.cameraGroup).
+    (opts.cameraGroup ? '<g class="plate-camera">' : '') +
     `<rect class="plate-ground" x="0" y="0" width="${width}" height="${height}" fill="${GROUND_FILL_TOKENS[plate.ground ?? 'land']}"/>` +
     layerMarkup.join('') +
     pinMarkupParts.join('') +
     labels.markup +
+    (opts.cameraGroup ? '</g>' : '') +
     legendMarkup(legendEntries, width, height, [
       ...pinLabelRequests.map((request) => request.anchorBox),
       ...labels.placedBoxes,
@@ -4776,7 +4848,30 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     neatlineMarkup(width, height) +
     `</svg>`;
 
-  return { svg, viewport, features, unlocated, offCanvas, drawnByLayer, suppressedLabels: labels.suppressed };
+  // `Object.create(null)` (2026-09-02, Codex finding): a place/layer id is
+  // apparatus data reachable from a user-facing query string (`/maps/
+  // ?focus=constructor`, `?focus=__proto__` — MapsPage sanitizes to an id
+  // charset but never rules out real JS Object property names). A plain
+  // `{}` here would let `labelBoxes['constructor']` resolve to
+  // Object.prototype.constructor instead of `undefined`, and computeCamera's
+  // own `if (!box) continue` doesn't catch a truthy inherited function —
+  // it destructures it as an array and throws. A null-prototype object has
+  // no inherited properties at all, so every lookup by an unset id is
+  // honestly `undefined` for every consumer (computeCamera and PlatePanel's
+  // own focusLabelBoxes both read this same value).
+  const labelBoxes: Record<string, LabelBox> = Object.create(null);
+  for (const { id, box } of labels.boxes) labelBoxes[id] = box;
+
+  return {
+    svg,
+    viewport,
+    features,
+    unlocated,
+    offCanvas,
+    drawnByLayer,
+    suppressedLabels: labels.suppressed,
+    labelBoxes,
+  };
 }
 
 // ── Camera ───────────────────────────────────────────────────────────────
@@ -4835,6 +4930,16 @@ export function computeCamera(
     if (pos) points.push(pos);
   }
 
+  // A focus id's rendered label rect, where one exists — its four corners
+  // join the bbox so the camera frames the NAME, not just the pin (see
+  // CameraOptions.labelBoxes).
+  for (const id of focusIds) {
+    const box = opts.labelBoxes[id];
+    if (!box) continue;
+    const [x1, y1, x2, y2] = box;
+    points.push([x1, y1], [x2, y1], [x2, y2], [x1, y2]);
+  }
+
   if (points.length === 0) return { scale: 1, tx: 0, ty: 0 };
 
   const [minX, minY, maxX, maxY] = bboxOf(points);
@@ -4851,11 +4956,23 @@ export function computeCamera(
   const paddedW = bboxW + padW * 2;
   const paddedH = bboxH + padH * 2;
 
-  const scale = Math.min(viewport.width / paddedW, viewport.height / paddedH, opts.maxScale);
+  // Never zoom OUT past the whole sheet: a focus bbox bigger than the
+  // viewport (padded) would otherwise ask for scale < 1, which the clamp
+  // below then cannot satisfy without leaving white on both edges at once.
+  const scale = Math.max(1, Math.min(viewport.width / paddedW, viewport.height / paddedH, opts.maxScale));
   const centerX = (minX + maxX) / 2;
   const centerY = (minY + maxY) / 2;
-  const tx = viewport.width / 2 - scale * centerX;
-  const ty = viewport.height / 2 - scale * centerY;
+  let tx = viewport.width / 2 - scale * centerX;
+  let ty = viewport.height / 2 - scale * centerY;
+
+  // Clamp translation so the camera never pans past the sheet's own edge —
+  // the fix for the 45/163 white-overrun cases. At scale >= 1 the scaled
+  // sheet is always >= the viewport, so this always has room: tx in
+  // [viewport.width - scale*viewport.width, 0], same for ty.
+  const minTx = viewport.width - scale * viewport.width;
+  const minTy = viewport.height - scale * viewport.height;
+  tx = Math.min(0, Math.max(tx, minTx));
+  ty = Math.min(0, Math.max(ty, minTy));
 
   return { scale, tx, ty };
 }
