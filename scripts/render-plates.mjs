@@ -22,8 +22,16 @@
 //     --out build/plate-review/recut \
 //     --crop ida-ridge:39.60,26.60,39.80,26.90:4
 //
-// Repeat --crop for more than one window per run. --scale sets Chrome's
-// device-scale-factor (supersampling) for every shot in the run, default 2.
+// Usage — a crop in the plate's own pixel space (the lat/lon --crop cannot
+// address a window that is not geography, e.g. the right-margin legend band):
+//   node scripts/render-plates.mjs --sheet trojan-plain-schematic-v2 --theme light \
+//     --out build/plate-review/schematic-ground \
+//     --pxcrop camp-band:280,800,860,1080:3
+//
+// --places a,b,c keeps only those gazetteer ids after placesForSheet (the
+// tag lookup and toPlatePlace mapping stay). Repeat --crop or --pxcrop for
+// more than one window per run. --scale sets Chrome's device-scale-factor
+// (supersampling) for every shot in the run, default 2.
 //
 // Bundles are written to build/.render-plates-bundle/ (gitignored, rebuilt
 // every run) — never edits shared/lib/*.ts, only reads it.
@@ -63,6 +71,7 @@ const MAP_TAG = {
   troad: 'troad',
   'trojan-plain': 'troad-plain',
   'trojan-plain-schematic': 'troad-plain',
+  'trojan-plain-schematic-v2': 'troad-plain',
   'troy-citadel': 'troy-citadel',
 };
 
@@ -154,6 +163,7 @@ function parseArgs(argv) {
     scale: 2,
     crops: [], // { sheet, label, box: [minLat, minLon, maxLat, maxLon], zoom }
     pxcrops: [], // { label, box: [x0, y0, x1, y1], zoom } — plate-pixel space, see --pxcrop
+    places: null, // optional id filter applied after placesForSheet, see --places
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -161,6 +171,7 @@ function parseArgs(argv) {
     else if (a === '--theme') out.themes = argv[++i].split(',');
     else if (a === '--out') out.out = argv[++i];
     else if (a === '--scale') out.scale = Number(argv[++i]);
+    else if (a === '--places') out.places = argv[++i].split(',');
     else if (a === '--pxcrop') {
       // label:x0,y0,x1,y1:zoom — a crop in the plate's OWN pixel space. The
       // lat/lon --crop below cannot address a schematic sheet at all (it has no
@@ -199,7 +210,11 @@ async function main() {
   for (const sheet of args.sheets) {
     const raw = JSON.parse(readFileSync(path.join(PLATES_DIR, `${sheet}.json`), 'utf8'));
     const plate = plateMod.parsePlate(raw);
-    const places = placesForSheet(sheet);
+    let places = placesForSheet(sheet);
+    if (args.places) {
+      const want = new Set(args.places);
+      places = places.filter((p) => want.has(p.id));
+    }
     const result = plateMod.renderPlate(plate, places);
     const [plateW, plateH] = plate.size;
 

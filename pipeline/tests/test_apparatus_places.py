@@ -363,6 +363,16 @@ def test_real_places_and_trojan_plain_plate_validate_clean():
     assert plate_problems == [], plate_problems
 
 
+def test_real_trojan_plain_schematic_v2_plate_validates_clean():
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    places_by_id = {p["id"]: p for p in places_doc["places"]}
+    plate_doc = json.loads(
+        (ROOT / "apparatus" / "plates" / "trojan-plain-schematic-v2.json").read_text(encoding="utf-8")
+    )
+    plate_problems = apparatus_places.validate_plate(plate_doc, places_by_id)
+    assert plate_problems == [], plate_problems
+
+
 def test_validate_plate_accepts_tumulus_layer_kind():
     """The tombs of Ilos and Batieia are mounds on the plain, not ridges.
     The renderer draws them with a dome-in-section glyph; the enum has to
