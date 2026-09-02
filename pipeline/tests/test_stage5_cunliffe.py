@@ -1654,3 +1654,266 @@ def test_a_stop_inside_a_parenthesis_does_not_open_the_evidence():
     assert not any(_text(r.get("z") or "").endswith("Od.") for r in t8["rows"])
     assert any("(and in Od. 1.346, Od. 8.62, 471 of ἀοιδός)"
                in _text(r.get("z") or "") for r in t8["rows"])
+
+
+# ── Cunliffe's translation belongs in `e`, not beside the Greek ────────────
+# An example is {g, c, e}: `g` is what Homer wrote, `c` its reference, `e`
+# Cunliffe's translation of it. He gives that translation two ways — inside a
+# parenthesis after the Greek, or hung on a comma — and until this pass only
+# the first was lifted, and only where the parenthesis held no parenthesis of
+# its own.
+
+
+def _ex(t8):
+    return [(_text(it.get("g") or ""), it.get("e") or "")
+            for r in t8["rows"] for it in (r.get("ex") or [])]
+
+def test_a_nested_translation_is_lifted_out_of_homers_words():
+    """ἀλαόω, whole and real: the shortest entry of the shape.
+
+    "ὀφθαλμοῦ (of his (my) eye)" — Cunliffe's translation carries a
+    parenthesis of its own, and the pattern that lifted a translation stopped
+    at the first ")" and so matched nothing at all. The whole of it stayed in
+    `g`, where the reader is told Homer wrote it.
+    """
+    real = (
+        "ἀλαόω [ἀλαός]. (ἐξ-) To blind: ὀφθαλμοῦ (of his (my) eye) Od. "
+        "1.69, Od. 9.516."
+    )
+    t8 = sc.to_t8("a)lao/w", "ἀλαόω", real)
+    assert _ex(t8) == [("ὀφθαλμοῦ", "of his (my) eye")]
+
+def test_a_doubly_nested_translation_is_lifted_whole():
+    """ἀγρός, whole and real: the parenthesis opens on a parenthesis.
+
+    "ἐπʼ ἀγροῦ ((drawn up on the shore) in the country)" — the translation
+    STARTS with its own bracket, so a backwards read has to count depth
+    rather than stop at the first opener it meets.
+    """
+    real = (
+        "ἀγρός -οῦ, ὁ. 1 In pl., fields, lands: πίονες ἀγροί Il. "
+        "23.832. Cf. Od. 4.757, Od. 6.259, Od. 8.560, Od. 14.263 = Od. "
+        "17.432, Od. 15.504, Od. 16.150, Od. 17.18, 171. 2 In sing., a "
+        "farm: ἐπʼ ἀγροῦ Od. 1.190. Cf. Od. 11.188 (at the farm), Od. "
+        "16.27, 330, 383, Od. 17.182, Od. 23.139, 359, Od. 24.205, 212."
+        " So in pl.: ἀγρῶν (at the farm) Od. 4.640. 3 In sing., the "
+        "country: ἀγρῷ (in the country) Il. 5.137: ἐπʼ ἀγροῦ ((drawn up"
+        " on the shore) in the country) Od. 1.185 = Od. 24.308. Cf. Od."
+        " 4.517, Od. 5.489, Od. 18.358, Od. 22.47, Od. 24.150."
+    )
+    t8 = sc.to_t8("a)gro/s", "ἀγρός", real)
+    assert ("ἐπʼ ἀγροῦ", "(drawn up on the shore) in the country") in _ex(t8)
+
+def test_a_translation_after_a_comma_is_lifted_out_of_homers_words():
+    """αἶσα, whole and real: the comma tail.
+
+    "κατʼ αἶσαν, duly, fitly, properly" and "ὑπὲρ αἶσαν, unduly, unfitly,
+    improperly" are a quoted phrase and Cunliffe's gloss of it, joined by a
+    comma and nothing else. Both reached the reader as one run of mixed text.
+
+    The entry also carries a parenthesised translation whose brackets nest —
+    "ἔτι ἐλπίδος αἶσα ((there is) yet a portion for hope, room for hope)" —
+    so it exercises both halves of the lift at once.
+    """
+    real = (
+        "αἶσα -ης, ἡ. Orig. sense measure. 1 αἴσῃ, in the measure of, "
+        "at the value of: ἐν καρὸς αἴσῃ Il. 9.378. 2 (Due) measure. a "
+        "κατʼ αἶσαν, duly, fitly, properlyIl. 3.59 = Il. 6.333, Il. "
+        "10.445, Il. 17.716. b ὑπὲρ αἶσαν, unduly, unfitly, "
+        "improperlyIl. 3.59 = Il. 6.333. Beyond measure; hence, "
+        "preponderatingly: φέρτεροι ἦσαν Il. 16.780. 3 A share or "
+        "portion: ληΐδος αἶσαν Il. 18.327. Cf. Od. 5.40 = Od. 13.138. 4"
+        " One's portion or lot in life, one's fate or destiny: αἷσα τοι"
+        " μίνυνθά περ (thy lot in life is but for a little time) Il. "
+        "1.416, κακῇ σʼ αἴσῃ τέκον (with an evil fate before thee) 418,"
+        " κακῇ αἴσῃ τόξʼ ἑλόμην (in an evil hour) Il. 5.209, ὁμῇ "
+        "πεπρωμένον αἴσῃ (having his fate fixed with a like portion "
+        "before him, appointed to a like portion) Il. 15.209, "
+        "πεπρωμένον αἴσῃ (with a fate, i.e. death, before him, "
+        "appointed to death) Il. 16.441 = Il. 22.179, οὔ τοι αἶσα πόλιν"
+        " πέρθαι Il. 16.707, ἰῇ γιγνόμεθʼ αἴσῃ (under a like fate) Il. "
+        "22.477, εἴ μοι αἶσα τεθνάμεναι Il. 24.224, ἐν θανάτοιο αἴσῃ (a"
+        " lot consisting in death, i.e. death) Il. 24.428, 750: κακῇ "
+        "αἴσῃ οἴχετο (in an evil hour) Od. 19.259. Cf. Od. 5.113, 206, "
+        "288, Od. 8.511, Od. 13.306, Od. 14.359, Od. 15.276, Od. "
+        "23.315. Sim. ἔτι ἐλπίδος αἶσα ((there is) yet a portion for "
+        "hope, room for hope) Od. 16.101, Od. 19.84. 5 Fate that comes "
+        "upon or overtakes one, evil fate, doom, death: αἴσῃ ἐν ἀργαλέῃ"
+        " φθίσει Il. 22.61. Cf. Od. 9.52, Od. 11.61. 6 Fate or destiny "
+        "as decreed by a god: ὑπὲρ Διὸς αἶσαν Il. 17.321. So αἶσα "
+        "alone, the decrees of fate (cf. μοῖρα 7): ὑπὲρ αἶσαν Il. "
+        "6.487. This and (2) ((due) measure or estimation, (fitting) "
+        "place in a scale of honour) app. blended: τετιμῆσθαι Διὸς αἴσῃ"
+        " Il. 9.608. 7 Fate personified Il. 20.127: Od. 7.197."
+    )
+    t8 = sc.to_t8("ai)=sa", "αἶσα", real)
+    pairs = _ex(t8)
+    assert ("κατʼ αἶσαν", "duly, fitly, properly") in pairs
+    assert ("ὑπὲρ αἶσαν", "unduly, unfitly, improperly") in pairs
+    assert ("ἔτι ἐλπίδος αἶσα",
+            "(there is) yet a portion for hope, room for hope") in pairs
+
+def test_a_supplied_word_does_not_stop_the_comma_from_handing_over():
+    """ἀμφότερος, whole and real: a bracket inside the Greek, then the comma.
+
+    "ἀμφοτέρῃσι [χερσίν], with both hands" — the supplement Cunliffe puts in
+    square brackets is part of what he is quoting, and the comma after it is
+    still the comma that hands the phrase over to its translation.
+    """
+    real = (
+        "ἀμφότερος -η, -ον [ἄμφω.] 1 Both. a Of two persons, etc. In "
+        "dual or (more freq.) in pl. α Absol.: ἐξαίνυτο θυμὸν ἀμφοτέρω "
+        "Il. 5.156. Cf. Il. 3.208, Il. 4.38, Il. 5.261, Il. 7.3, etc.: "
+        "ἀμφοτέρους ἱέρευσεν Od. 14.74. Cf. Od. 3.37, Od. 11.212, Od. "
+        "18.17, Od. 8.214, etc. β With sb. or pron.: ἀμφοτέρω σθῶϊ Il. "
+        "7.280, ἐπʼ ἀμφοτέρους πόδας (one after the other) Il. 13.281. "
+        "Cf. Il. 4.521, Il. 5.163, Il. 8.115, Il. 12.382, etc.: "
+        "ἀμφοτέρῃσιν χερσίν Od. 4.116. Cf. Od. 3.136, Od. 4.282, Od. "
+        "5.414, Od. 12.239, etc. With sb. to be supplied: ἀμφοτέρῃσι "
+        "[χερσίν], with both hands Il. 5.416: Od. 10.264, Od. 11.594, "
+        "Od. 17.356, Od. 18.28. b In pl. of two groups of persons. α "
+        "Absol.: ἀμφοτέρων βέλεα Il. 8.67. Cf. Il. 3.416, Il. 4.16, Il."
+        " 6.120, Il. 13.303, etc.: φιλότητα μετʼ ἀμφοτέροισιν Od. "
+        "24.476. Cf. Od. 10.204, Od. 24.546. β With pron.: τοὺς "
+        "ἀμφοτέρους Il. 20.54. 2 In neut. ἀμφότερον as adv., both. "
+        "Followed by . . . τε . . . τε Il. 3.179, Il. 4.145. By . . . "
+        "τε καὶ . . . Il. 4.60 = Il. 18.365, Il. 13.166. By . . . τε . "
+        ". . δὲ . . . Il. 7.418. By καὶ Od. 14.505. By . . . τε καὶ . ."
+        " . καὶ . . . Od. 15.78."
+    )
+    t8 = sc.to_t8("a)mfo/teros", "ἀμφότερος", real)
+    assert ("ἀμφοτέρῃσι [χερσίν]", "with both hands") in _ex(t8)
+
+def test_a_form_and_an_apparatus_note_are_not_cut_at_a_comma():
+    """ἀκιδνός, whole and real: the comma that means none of these things.
+
+    "ἀκιδνότερος, -η App., of less account, less to be regarded" — the first
+    comma separates a comparative from its feminine ending, the second an
+    apparatus note from a gloss. None of the three is the boundary between
+    Homer's words and Cunliffe's translation of them.
+
+    Only the FIRST comma is ever considered, and it is refused because "-η"
+    behind it is Greek. Walking on to the next one would cut after "App." and
+    leave Cunliffe's apparatus standing in Homer's mouth; taking the last
+    would strand "-η App., of less account" in the translation field. Where
+    the first comma does not settle it, nothing does.
+    """
+    real = (
+        "ἀκιδνός In comp. ἀκιδνότερος, -η App., of less account, less "
+        "to be regarded Od. 5.217, Od. 8.169, Od. 18.130."
+    )
+    t8 = sc.to_t8("a)kidno/s", "ἀκιδνός", real)
+    assert _ex(t8) == [("ἀκιδνότερος, -η App., of less account, "
+                        "less to be regarded", "")]
+
+def test_a_translation_that_runs_back_into_greek_is_not_lifted():
+    """αἴθουσα, whole and real: the English that ends inside a Greek word.
+
+    "αἰθούσης θύρας, the gate of theαὐλή" — the scan lost the space before
+    αὐλή, and the gloss does not stop where English stops. The tail is not
+    all English, so the comma is refused and the run stays exactly as printed.
+    Not liftable: any cut here either breaks αὐλή off its article or puts
+    Greek in the translation field.
+    """
+    real = (
+        "αἴθουσα -ης, ἡ. 1 A portico or covered colonnade running round"
+        " the αὐλή Il. 6.243, Il. 20.11 (in the palace of Zeus), Il. "
+        "24.238 : Od. 8.57, Od. 20.176, 189, Od. 21.390, Od. 22.449. "
+        "Used as a sleeping-place for visitors : δέμνιʼ ὑπʼ αἰθούσῃ "
+        "θέμεναι Il. 24.644 (for Priam and the herald in the dwelling "
+        "of Achilles) := Od. 4.297 (for Telemachus and Peisistratus in "
+        "the house of Menelaus) = Od. 7.336 (for Odysseus in the palace"
+        " of Alcinous), ἐν λεχέεσσι ὑπʼ αἰθούσῃ Od. 3.399 (of "
+        "Telemachus in the house of Nestor) = Od. 7.345 (of Odysseus in"
+        " the palace of Alcinous). 2 A portico across the gateway of "
+        "the αὐλή: ὑπʼ αἰθούσῃ αὐλῆς Il. 9.472. Cf. Il. 24.323: Od. "
+        "3.493= Od. 15.146 = 191.–αἰθούσης θύρας, the gate of theαὐλή "
+        "Od. 18.102 (named thus from the portico across it)."
+    )
+    t8 = sc.to_t8("ai)/qousa", "αἴθουσα", real)
+    assert ("αἰθούσης θύρας, the gate of theαὐλή", "") in _ex(t8)
+
+def test_a_correlative_pair_is_not_cut_at_its_comma():
+    """τότε, whole and real: two halves of one Greek phrase, comma between.
+
+    "τοτὲ μὲν . . ., τοτὲ δὲ . . ., at one time . . ., at another . . ." —
+    the first comma falls INSIDE what Homer wrote. A rule reading the last
+    comma, or any comma whose tail merely looks English, cuts the correlative
+    in half.
+    """
+    real = (
+        "τότε 1 Then, at that time : καὶ τόθʼ ἅμαρτεν Il. 8.311, τῶν "
+        "τότε (of the men of that time) Il. 9.559. Cf. Il. 2.221, 699, "
+        "Il. 3.187, Il. 4.321, 427, etc. : Od. 3.219, 411, Od. 4.98, "
+        "Od. 6.12, Od. 8.74, 81, etc. 2 Then, after that, thereupon : "
+        "καὶ τότε δὴ θάρσησεν Il. 1.92. Cf. Il. 1.476, Il. 6.176, Il. "
+        "7.405, Il. 9.561, Il. 10.318, etc. : Od. 2.348, Od. 3.132, Od."
+        " 4.69, 480, Od. 5.391, etc. 3 Then, in that case or event, in "
+        "those circumstances : τότε κέν μιν πεπίθοιμεν Il. 1.100. Cf. "
+        "Il. 4.36, 182, Il. 13.344, Il. 22.108, etc. : Od. 11.112, Od. "
+        "12.54, etc. 4 Written oxytone, τοτέ, afterwards, again, at "
+        "another time : τοτὲ δʼ αὖτις ἔδυ νέφεα Il. 11.63. Cf. Il. "
+        "24.11.–τοτὲ μὲν . . ., τοτὲ δὲ . . ., at one time . . ., at "
+        "another . . .Od. 24.447."
+    )
+    t8 = sc.to_t8("to/te", "τότε", real)
+    assert any(g.startswith("τοτὲ μὲν . . ., τοτὲ δὲ . . .") and not e
+               for g, e in _ex(t8))
+
+def test_a_pointer_at_two_entries_is_not_cut_at_its_comma():
+    """Ἰθάκη, whole and real: a comma between two headwords.
+
+    "See also Ἀρέθουσα, Κόρακος πέτρη." is Cunliffe pointing at two entries,
+    and its comma has Greek on both sides of it. What refuses it is the
+    English WORD in front of the comma: his own prose is never the Greek half
+    of a quotation, so a head carrying one is not a head that can hand over.
+    """
+    real = (
+        "Ἰθάκη mod. Ithaki (ἀμφίαλος, εὐδείελος , ἐϋκτιμένη, κραναή , "
+        "παιπαλόεσσα, πίων δῆμος , τρηχεῖα, ὑπονήϊος ). The island home"
+        " of Odysseus, containing the mountain Neritum (Neium) Il. "
+        "2.632, Il. 3.201: Od. 1.18, Od. 2.167, Od. 3.81; its condition"
+        " described Od. 4.605; its position Od. 9.22; Od. 11.111, Od. "
+        "13.97; its features pointed out by Athene to Odysseus Od. "
+        "13.344 ; Od. 14.98, Od. 15.36, Od. 16.419, Od. 17.250, Od. "
+        "19.399, Od. 20.340, Od. 21.18, Od. 22.30, Od. 23.176, Od. "
+        "24.104, etc. Ἰθάκης πόλις (ἄστυ) Od. 10.416, Od. 18.2, Od. "
+        "22.223. πόλις alone Od. 1.185 , Od. 15.37, Od. 24.205, etc. "
+        "ἄστυ alone Od. 2.77, Od. 17.25, Od. 22.77, etc. Associated "
+        "with Doulichium, Same and Zacynthus Od. 1.247, Od. 9.21 , Od. "
+        "16.124, 251, Od. 19.132. Ἰθάκηνδε [-δε], to Ithaca Od. 1.163, "
+        "Od. 11.361, Od. 15.157, Od. 16.322. See also Ἀρέθουσα, Κόρακος"
+        " πέτρη."
+    )
+    t8 = sc.to_t8("i)qa/kh", "Ἰθάκη", real)
+    assert ("See also Ἀρέθουσα, Κόρακος πέτρη.", "") in _ex(t8)
+
+def test_a_translation_ending_in_greek_stays_beside_the_quotation():
+    """ἀγγελίη, whole and real: the shape this pass does NOT lift.
+
+    "ἀγγελίην ἐπὶ Tυδῆ στεῖλαν (dispatched him on a message; ἐπί adverbial.
+    ( ἐπί I.4))" — the parenthesis is read whole now that nesting is counted,
+    but Cunliffe has hung a cross-reference on the end of his own
+    translation, and it names ἐπί in Greek. Lifting it would put Greek in the
+    translation field, so the run is left as printed and the shape is
+    recorded here rather than half-solved. ἄγριος's "ἀ. οἶδεν (has fierceness
+    in his heart) (see εἴδω III.12)" is the same refusal.
+    """
+    real = (
+        "ἀγγελίη -ης, ἡ [ἄγγελος.] A message, news, tidings: ἀλεγεινῇ "
+        "Il. 2.787, ἐμὴν ἀγγελιην (about me) Il. 19.337. Cf. Il. 7.416,"
+        " Il. 15.174, etc.: πατρός (about your father) Od. 1.408. Cf. "
+        "Od. 1.414, Od. 2.30, Od. 14.374, Od. 24.48, etc. In cognate "
+        "acc.: ἀγγελίην ἐπὶ Tυδῆ στεῖλαν (dispatched him on a message; "
+        "ἐπί adverbial. ( ἐπί I.4)) Il. 4.384, ἀγγελίην ἐλθόντα (having"
+        " come on a message) Il. 11.140. In genit. denoting scope of "
+        "action: σεῦ ἕνεκʼ ἀγγελίης (on a message concerning thee) Il. "
+        "3.206, ἀγγελιης τευ (on a message concerning someone) Il. "
+        "13.252, ἀγγελίης οἴχνεσκεν (used to go with messages) Il. "
+        "15.640. (In the last five passages the word is also taken as a"
+        " masc. ἀγγελίης = ἄγγελος.)"
+    )
+    t8 = sc.to_t8("a)ggeli/h", "ἀγγελίη", real)
+    assert any(g.startswith("ἀγγελίην ἐπὶ Tυδῆ στεῖλαν (dispatched him")
+               and not e for g, e in _ex(t8))
+

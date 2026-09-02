@@ -617,7 +617,6 @@ def _holds_sense_ref(text: str) -> bool:
 # it as furniture cost 1,336 entries that signal. Dashes and "So" likewise carry
 # Cunliffe's own sequencing and stay in the text.
 _CONNECTOR_RE = re.compile(r"^[\s,.:;=]*(?:Cf\.|cf\.|and|=)?[\s,.:;=]*")
-_PAREN_RE = re.compile(r"\(([^)]*)\)\s*$")
 # Two or more English words running together. One is not enough to go on: a
 # lone "Absol." or "sc." is apparatus Cunliffe prints inside a quotation, and
 # a Greek quotation never carries a phrase.
@@ -700,15 +699,114 @@ def _expand(cite: str, book: str | None) -> tuple[str, str | None]:
     return cite, book
 
 
-def _split_gloss(body: str) -> tuple[str, str]:
-    """A quotation and the English translation Cunliffe parenthesises after it.
+def _trailing_paren(body: str) -> tuple[int, str] | None:
+    r"""The parenthesis that CLOSES a run, and what stands inside it.
 
-    Told apart from a quotation that simply ends inside brackets by having no
-    Greek in it.
+    Read backwards and counting depth, so a nested pair is seen whole. The
+    regex this replaced (`\(([^)]*)\)\s*$`) could not cross an inner ")" and
+    so matched NOTHING on a translation that carries a parenthesis of its own:
+    ἀλαόω's "ὀφθαλμοῦ (of his (my) eye)", ἀγρός's "ἐπʼ ἀγροῦ ((drawn up on the
+    shore) in the country)", †ἄημι's "θυμὸς ἄητο (was blown about (by gusts of
+    passion))". Cunliffe's translation stayed inside `g`, beside the Greek,
+    and the reader got one run of mixed text where the record has a field for
+    each.
     """
-    pm = _PAREN_RE.search(body)
-    if pm and not _GREEK_RE.search(pm.group(1)):
-        return body[:pm.start()].strip(), pm.group(1).strip()
+    s = body.rstrip()
+    if not s.endswith(")"):
+        return None
+    depth = 0
+    for i in range(len(s) - 1, -1, -1):
+        if s[i] == ")":
+            depth += 1
+        elif s[i] == "(":
+            depth -= 1
+            if depth == 0:
+                return i, s[i + 1:len(s) - 1]
+    return None
+
+
+def _comma_gloss(body: str) -> int | None:
+    """Where a comma hands a quotation over to its translation, or None.
+
+    Cunliffe also glosses a quoted phrase with no brackets at all — αἶσα's
+    "κατʼ αἶσαν, duly, fitly, properly", ἄλλῃ's "ἄλλος ἀ., one in one quarter,
+    one in another", ἀμφότερος's "ἀμφοτέρῃσι [χερσίν], with both hands". The
+    comma is the only mark there is, and a comma is the most overloaded
+    character in the dictionary, so the rule is written to REFUSE rather than
+    to guess.
+
+    Only the FIRST comma standing outside every bracket is ever considered,
+    and it must satisfy all of:
+
+      · GREEK IN FRONT OF IT, and no English WORD there (outside his
+        parentheses). Cunliffe's own prose is thereby refused outright —
+        Ἰθάκη's "See also Ἀρέθουσα, Κόρακος πέτρη" would otherwise put a
+        headword list in the translation field, and τόσος's "ὅσος . . . τόσος
+        . . . such as, as, etc." would cut its own gloss in half.
+      · NOTHING BUT ENGLISH BEHIND IT, all the way to the end, and a PHRASE of
+        it rather than a lone abbreviation.
+
+    That last condition is what defends ἀκιδνός, "ἀκιδνότερος, -η App., of
+    less account, less to be regarded", where the commas separate a FORM from
+    an APPARATUS NOTE from a gloss and none of them is the Greek/English
+    boundary. Its first comma has "-η" behind it, which is Greek, so the entry
+    is refused and nothing moves. A rule that walked on to the next comma
+    would cut after "App." and leave Cunliffe's apparatus standing in Homer's
+    mouth; one that took the LAST comma would strand "-η App., of less
+    account" in the translation. Where the first comma does not settle it,
+    nothing does, and the run is left exactly as he printed it.
+
+    The same refusal covers the shape where his English runs back INTO Greek —
+    αἴθουσα's "αἰθούσης θύρας, the gate of theαὐλή" (a space the scan lost),
+    μέλινος's "μέλινος οὐδός, app., a threshold of wood set upon the λάϊνος
+    οὐδός" — and the correlative pairs, τότε's "τοτὲ μὲν . . ., τοτὲ δὲ . . .,
+    at one time . . ., at another", ἔνθα, οὐ, where a naive comma rule would
+    cut between two halves of one Greek phrase.
+
+    A full reference in the tail refuses it too: `e` is escaped and `g` is
+    marked up, so moving a reference across would cost the reader the link.
+    """
+    depth = 0
+    at = None
+    for i, ch in enumerate(body):
+        if ch in "([":
+            depth += 1
+        elif ch in ")]":
+            depth = max(0, depth - 1)
+        elif ch == "," and not depth:
+            at = i
+            break
+    if at is None:
+        return None
+    head, tail = body[:at], body[at + 1:]
+    if not _GREEK_RE.search(head) or _EN_WORD_RE.search(_outside_parens(head)):
+        return None
+    if _GREEK_RE.search(tail) or not _EN_RUN_RE.search(tail):
+        return None
+    if _FULL_CITE_RE.search(tail):
+        return None
+    return at
+
+
+def _split_gloss(body: str) -> tuple[str, str]:
+    """A quotation and the English translation Cunliffe gives it.
+
+    He gives it two ways — parenthesised after the Greek, or hung on a comma —
+    and both are his translation of what he has just quoted, so both belong in
+    `e`, where the record renders them as a translation rather than as one run
+    of mixed text. Told apart from a quotation that simply ends inside brackets
+    by having no Greek in it.
+
+    The parenthesis is tried first and the comma only if it does not fire, so
+    that a run carrying both (ἐντός) keeps one translation rather than having
+    two spliced together with a separator this edition never printed.
+    """
+    pm = _trailing_paren(body)
+    if pm and not _GREEK_RE.search(pm[1]):
+        return body[:pm[0]].strip(), pm[1].strip()
+    at = _comma_gloss(body)
+    if at is not None:
+        return body[:at].strip(), body[at + 1:].strip()
     return body, ""
 
 
