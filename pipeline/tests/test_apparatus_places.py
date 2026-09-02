@@ -406,19 +406,15 @@ def test_validate_plate_band_lines_must_be_ordered_int_pair():
 
 
 def test_real_shield_of_achilles_plate_validates_clean():
-    """As of 2026-07-30 (hardening queue item 7, docs/TROY-MAPS-HANDOFF-3.md
-    #1) shield-of-achilles.json has no plate-level `sources` array -- flagged
-    here rather than invented from nothing (CLAUDE.md: never fabricate a
-    citation). This assertion documents the current gap machine-checkably;
-    once a real sources array is authored for this plate, tighten it back to
-    `== []`."""
+    """The plate carries a real plate-level `sources` array as of 2026-08-14
+    (9bf6e303f: Homer's own text, and Murray) -- so it must validate clean.
+    Until then this test pinned the "sources is required" gap; a plate that
+    loses its sources fails here again."""
     plate_doc = json.loads(
         (ROOT / "apparatus" / "plates" / "shield-of-achilles.json").read_text(encoding="utf-8")
     )
     problems = apparatus_places.validate_plate(plate_doc, {})
-    assert problems == [
-        "shield-of-achilles: sources is required (a non-empty plate-level sources array)"
-    ]
+    assert problems == []
 
 
 def test_validate_plate_rejects_numeric_or_empty_id_and_title():
