@@ -573,7 +573,7 @@ def test_camp_label_tiers_declutter_the_beach_crop():
     # a gazetteer name a demoted pin already claims.
     tier_1_sector_labels = {
         "station-of-achilles": "Achilles' end",
-        "station-of-odysseus": "The centre",
+        "station-of-odysseus": "The center",
         "station-of-ajax": "Ajax's end",
     }
     for layer_id, label in tier_1_sector_labels.items():

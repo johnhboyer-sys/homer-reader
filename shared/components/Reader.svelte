@@ -3854,7 +3854,7 @@
             Greek line numbers are exact. The translations carry no Bekker
             numbers of their own, so those beside the English are aligned to
             the Greek: <span class="bk-fixed">upright</span> = fixed (anchored
-            to this point in the text), <span class="bk-approx">italic grey</span>
+            to this point in the text), <span class="bk-approx">italic gray</span>
             = approximate (interpolated estimate).
           </div>
         {/if}

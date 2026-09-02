@@ -4032,11 +4032,11 @@ describe('renderPlate: camp label declutter (stage 5b)', () => {
   // point, independent of any polygon centroid.
   const TIER1_SECTOR_LABELS: Record<string, string> = {
     'station-of-achilles': "Achilles' end",
-    'station-of-odysseus': 'The centre',
+    'station-of-odysseus': 'The center',
     'station-of-ajax': "Ajax's end",
   };
 
-  it('letters the three sector names (Achilles, the centre, Ajax) at tier 1, region-caps style', () => {
+  it('letters the three sector names (Achilles, the center, Ajax) at tier 1, region-caps style', () => {
     for (const [id, text] of Object.entries(TIER1_SECTOR_LABELS)) {
       const tag = labelTag(id);
       expect(tag, `expected a placed label for "${id}"`).toBeDefined();
