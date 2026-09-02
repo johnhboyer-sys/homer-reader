@@ -431,6 +431,14 @@ And from his expanded set, the ones this project adopts:
   those two readers silently inherited the new token text. Grep your own repo's
   consumers and follow the call chain; a cross-family review found this one.
 
+- **A label-placement check that diffs moved boxes misses dropped labels**
+  (2026-09-02): the open-water reservation lane compared before/after
+  `labelBoxes` and reported "only Patroclus moved" — true, and four Trojan
+  Plain labels (Kum Tepe, Kesik Tepe, Üvecik Tepe, Beşik-Sivritepe) had been
+  suppressed outright, which a diff of positions cannot see. A Codex review
+  caught it. Any solver change gates on the SET of placed label ids per sheet
+  being unchanged (diff `data-label-for` in the rendered HTML), then on moves.
+
 - **Plan-mode Explore/Plan spawns ran on Fable** (2026-07-21, caught by John):
   the plan-mode workflow's built-in Explore/Plan agent types count as spawns —
   omitting `model:` inherits Fable there too. No explicit `model:`, no launch.
