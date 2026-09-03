@@ -386,6 +386,115 @@ def test_validate_plate_rejects_scene_key_layer_id_that_is_not_a_layer():
     assert any("sceneKey" in p and "layerId" in p and "no-such" in p for p in problems)
 
 
+def test_validate_plate_accepts_feature_key_naming_an_anchored_place_and_a_layer():
+    plate = _plate(
+        id="keyed-plate",
+        layers=[
+            {
+                "id": "mound",
+                "kind": "tumulus",
+                "path": [[39.90, 26.15]],
+            }
+        ],
+        featureKey=[
+            {
+                "title": "The camp and its wall",
+                "items": [
+                    {"placeId": "camp", "label": "The camp"},
+                    {"layerId": "mound", "label": "Patroclus"},
+                ],
+            }
+        ],
+    )
+    places = {
+        "camp": {
+            "id": "camp",
+            "plateAnchors": {"keyed-plate": [39.90, 26.15]},
+            "positionBasis": "conjectural",
+        }
+    }
+    assert apparatus_places.validate_plate(plate, places) == []
+
+
+def test_validate_plate_rejects_feature_key_empty_title():
+    plate = _plate(featureKey=[{"title": "  ", "items": [{"placeId": "camp"}]}])
+    problems = apparatus_places.validate_plate(plate, {"camp": {"id": "camp"}})
+    assert any("featureKey" in p and "title" in p for p in problems)
+
+
+def test_validate_plate_rejects_feature_key_item_with_both_ids():
+    plate = _plate(
+        layers=[{"id": "mound", "kind": "tumulus", "path": [[39.90, 26.15]]}],
+        featureKey=[
+            {
+                "title": "The camp and its wall",
+                "items": [{"placeId": "camp", "layerId": "mound"}],
+            }
+        ],
+    )
+    problems = apparatus_places.validate_plate(plate, {"camp": {"id": "camp"}})
+    assert any("featureKey" in p and "exactly one" in p for p in problems)
+
+
+def test_validate_plate_rejects_feature_key_item_with_neither_id():
+    plate = _plate(
+        featureKey=[{"title": "The camp and its wall", "items": [{"label": "The camp"}]}]
+    )
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("featureKey" in p and "exactly one" in p for p in problems)
+
+
+def test_validate_plate_rejects_feature_key_layer_id_that_is_not_a_layer():
+    plate = _plate(
+        featureKey=[
+            {
+                "title": "The camp and its wall",
+                "items": [{"layerId": "no-such", "label": "Patroclus"}],
+            }
+        ]
+    )
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("featureKey" in p and "layerId" in p and "no-such" in p for p in problems)
+
+
+def test_validate_plate_rejects_feature_key_place_id_not_anchored_on_this_plate():
+    plate = _plate(
+        id="keyed-plate",
+        featureKey=[
+            {
+                "title": "The camp and its wall",
+                "items": [{"placeId": "camp", "label": "The camp"}],
+            }
+        ],
+    )
+    places = {"camp": {"id": "camp"}}
+    problems = apparatus_places.validate_plate(plate, places)
+    assert any("featureKey" in p and "anchored" in p and "camp" in p for p in problems)
+
+
+def test_validate_plate_rejects_feature_key_duplicate_ids():
+    plate = _plate(
+        featureKey=[
+            {
+                "title": "The camp and its wall",
+                "items": [
+                    {"placeId": "camp", "label": "A"},
+                    {"placeId": "camp", "label": "B"},
+                ],
+            }
+        ],
+    )
+    places = {
+        "camp": {
+            "id": "camp",
+            "plateAnchors": {"testplate": [39.90, 26.15]},
+            "positionBasis": "conjectural",
+        }
+    }
+    problems = apparatus_places.validate_plate(plate, places)
+    assert any("featureKey" in p and "twice" in p for p in problems)
+
+
 def test_validate_plate_accepts_suppress_layer_labels_naming_a_layer():
     plate = _plate(suppressLayerLabels=["river-1"])
     assert apparatus_places.validate_plate(plate, {}) == []
@@ -568,18 +677,15 @@ def test_camp_label_tiers_declutter_the_beach_crop():
     achaean_camp_layer = layers_by_id["achaean-camp"]
     assert "label" not in achaean_camp_layer, "achaean-camp layer must not duplicate the settlement pin's name"
 
-    # The three sector zones (by holder) are the only OTHER tier-1 voices at
-    # the camp; each carries its own short `label` so it never falls back to
-    # a gazetteer name a demoted pin already claims.
-    tier_1_sector_labels = {
-        "station-of-achilles": "Achilles' end",
-        "station-of-odysseus": "The center",
-        "station-of-ajax": "Ajax's end",
-    }
-    for layer_id, label in tier_1_sector_labels.items():
+    # Stage 5c: sector captions leave the face. The polygons still draw;
+    # the holder names are now group headings in the numbered key.
+    for layer_id in (
+        "station-of-achilles",
+        "station-of-odysseus",
+        "station-of-ajax",
+    ):
         layer = layers_by_id[layer_id]
-        assert layer["labelTier"] == 1, f"{layer_id} must be labelTier 1"
-        assert layer["label"] == label, f"{layer_id} must carry its own sector label, not a gazetteer fallback"
+        assert "label" not in layer, f"{layer_id} must not letter a sector caption"
 
     # The three main shipRow layers keep three ranks (Il. 14.30-36) but thin
     # to 8 glyphs/rank (John: "I don't think we need so many ships in there").

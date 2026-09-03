@@ -1051,3 +1051,20 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   at `camK<=1` only, so an unzoomed postcard's label no longer lands at
   ~4-5 CSS px. `FURNITURE_SELECTOR` gained `.plate-scene-key`. No
   plato-reader counterpart (Homer-only apparatus feature).
+
+## 2026-09-02 — Chart Room postcard: numbered feature-key badges (stage 5c, part 2)
+
+- `shared/components/Reader.svelte` — `applyPlateCamera`'s `ensureLabelWrappers`
+  extends its descale-wrapper query from `.plate-label` to `.plate-label,
+  .plate-key-badge` (wrapping the badge GROUP, pivoted on its own `<circle
+  cx/cy>`, never its inner text — plate.ts's `badgeMarkup` stamps that text
+  with no class at all, so it can never double-match `.plate-label`); every
+  badge gets `tabindex="-1"` there too (33 tab stops inside the postcard's
+  one `<a>` would wreck its keyboard flow). `apply()`'s focus pass hides
+  every non-focus badge (`.plate-hidden`, the same OMIT-don't-ghost
+  treatment as a non-focus name) and excludes badges from the existing pin-
+  dimming pass (`[data-place-id]:not(.plate-key-badge)`) so a hidden badge
+  never also carries the now-moot `.plate-dimmed`. `FURNITURE_SELECTOR`
+  gained `.plate-feature-key` (belt-and-suspenders with the `slice` crop,
+  which already keeps this margin-band content out of frame). No
+  plato-reader counterpart (Homer-only apparatus feature).

@@ -105,6 +105,70 @@
       "layerId": "zone-g-the-circuit-of-the-chase"
     }
   ],
+  "featureKey": [
+    {
+      "title": "The camp and its wall",
+      "items": [
+        { "placeId": "achaean-wall-and-ditch", "label": "The wall and ditch" },
+        { "placeId": "wagon-gate", "label": "The chariot gate" }
+      ]
+    },
+    {
+      "title": "Achilles' end of the line",
+      "items": [
+        { "placeId": "hut-of-achilles", "label": "The hut of Achilles" },
+        { "layerId": "mound-of-patroclus", "label": "Patroclus: pyre, barrow and games" }
+      ]
+    },
+    {
+      "title": "Odysseus's ships, the assembly and altars",
+      "items": [
+        { "placeId": "hut-of-agamemnon", "label": "The hut of Agamemnon" },
+        { "placeId": "hut-of-nestor", "label": "The hut and ship of Nestor" },
+        { "placeId": "hut-of-odysseus", "label": "The ship and hut of Odysseus" },
+        { "placeId": "achaean-assembly-place", "label": "The assembly and altars" }
+      ]
+    },
+    {
+      "title": "Ajax's end of the line",
+      "items": [
+        { "placeId": "station-of-idomeneus", "label": "The station of Idomeneus" },
+        { "placeId": "ship-of-protesilaus", "label": "The ship of Protesilaus" },
+        { "placeId": "hut-of-ajax", "label": "The huts of Ajax" }
+      ]
+    },
+    {
+      "title": "Before the walls",
+      "items": [
+        { "placeId": "scaean-gate", "label": "The Scaean Gate" },
+        { "placeId": "great-tower-of-ilios", "label": "The great tower" },
+        { "placeId": "dardanian-gates", "label": "The Dardanian Gates" },
+        { "placeId": "oak-of-zeus", "label": "The oak" },
+        { "placeId": "fig-tree", "label": "The wild fig" },
+        { "placeId": "two-springs-of-scamander", "label": "The two springs" },
+        { "placeId": "washing-troughs", "label": "The washing-troughs" },
+        { "placeId": "lookout-skopie", "label": "The lookout" },
+        { "placeId": "batieia", "label": "Batieia" },
+        { "placeId": "tomb-of-hector", "label": "The tomb of Hector" },
+        { "placeId": "wagon-road", "label": "The wagon-road" }
+      ]
+    },
+    {
+      "title": "The plain",
+      "items": [
+        { "placeId": "wall-of-heracles", "label": "The heaped-up wall of Heracles" },
+        { "placeId": "ford-of-the-scamander", "label": "The ford" },
+        { "placeId": "road-to-the-ships", "label": "The road to the ships" },
+        { "placeId": "tomb-of-ilos", "label": "The tomb of Ilus" },
+        { "placeId": "fig-tree-mid-plain", "label": "The wild fig in mid-plain" },
+        { "placeId": "tomb-of-aesyetes", "label": "The barrow of Aesyetes" },
+        { "placeId": "trojan-camp", "label": "The Trojan bivouac" },
+        { "placeId": "thracian-camp", "label": "The camp of Rhesus and the Thracians" },
+        { "placeId": "scamander-simoeis-confluence", "label": "The confluence" },
+        { "layerId": "callicolone", "label": "Callicolone" }
+      ]
+    }
+  ],
   "layers": [
     {
       "id": "sea-modern",
@@ -9312,7 +9376,7 @@
         [39.92229, 26.17034],
         [39.92486, 26.16947]
       ],
-      "label": "Ajax's end",
+
       "note": "Ajax's sector — the extremity where the returning chariots come in, where Asius attacks and Idomeneus kills him, where the wall stands lowest and Hector breaks it, and where Protesilaus's ship burns (8.224–26; 12.117–19; 13.679–84; 15.704–8). Named by who holds it. THE HARD CALL: Ajax's own tomb tradition is at Rhoiteion on the Dardanelles shore (Strabo 13.1.30), which is not on this zone at all — it belongs to a camp reconstruction this sheet has not adopted.",
       "sources": [
         {
@@ -9343,7 +9407,7 @@
         [39.95587, 26.1709],
         [39.95869, 26.17181]
       ],
-      "label": "The center",
+
       "note": "The middle, at Odysseus's ships, with the assembly, the law-place and the gods' altars (8.222–26 = 11.5–9; 11.806–8). The one sector the poem places without ambiguity.",
       "sources": [
         {
@@ -9372,7 +9436,7 @@
         [39.99203, 26.18926],
         [39.9948, 26.1877]
       ],
-      "label": "Achilles' end",
+
       "note": "Achilles' sector, named by who holds it and never by a hand (ruling D1). The Sigeion extremity: Achilles' own mound stands here on the jutting headland by the broad Hellespont (Od. 24.80–84), the Ilian cult of Achilles was near Sigeium (Strabo 13.1.32), and Janko's compass fix puts Achilles' station 'W. towards the Sigeion headland' (IV, 130–31). Three independent lines on the same end of this zone.",
       "sources": [
         {
@@ -9534,7 +9598,7 @@
       "kind": "region",
       "style": "inset",
       "fill": "land",
-      "frame": [1132, 760, 316, 300],
+      "frame": [1132, 955, 316, 300],
       "polygon": [
         [0, 0],
         [1, 0],
@@ -9558,7 +9622,7 @@
       "id": "inset-ditch",
       "kind": "wall",
       "style": "inset",
-      "frame": [1132, 760, 316, 300],
+      "frame": [1132, 955, 316, 300],
       "note": "Outside the wall they dug the ditch, deep and wide and great, and planted stakes in it: ἔκτοσθεν δὲ βαθεῖαν ἐπ' αὐτῷ τάφρον ὄρυξαν / εὐρεῖαν μεγάλην, ἐν δὲ σκόλοπας κατέπηξαν (Il. 7.440-41).",
       "sources": [
         {
@@ -9582,7 +9646,7 @@
       "id": "inset-wall",
       "kind": "wall",
       "style": "inset",
-      "frame": [1132, 760, 316, 300],
+      "frame": [1132, 955, 316, 300],
       "note": "The wall with its high towers, a defense for the ships and for the men (Il. 7.436-37), built at the sterns of the first-hauled rank: τεῖχος ἐπὶ πρύμνῃσιν ἔδειμαν (14.32).",
       "sources": [
         {
@@ -9612,7 +9676,7 @@
       "id": "inset-chariot-gate",
       "kind": "route",
       "style": "inset",
-      "frame": [1132, 760, 316, 300],
+      "frame": [1132, 955, 316, 300],
       "note": "The gate the teams come back in through: Asius drives at it, νηῶν ἐπ' ἀριστερά, τῇ περ Ἀχαιοὶ ἐκ πεδίου νίσοντο σὺν ἵπποισιν καὶ ὄχεσφι (Il. 12.118-19), and Idomeneus kills him there (13.384-88). The gates were built wide on purpose, ὄφρα δι' αὐτάων ἱππηλασίη ὁδὸς εἴη (7.439). Whose left 12.118 means is disputed — Janko reads it from the Greek side, Hainsworth from Asius's — so the gate is labelled by the event and not by a hand.",
       "sources": [
         {
@@ -9637,7 +9701,7 @@
       "id": "inset-ships-ajax",
       "kind": "shipRow",
       "style": "inset",
-      "frame": [1132, 760, 316, 300],
+      "frame": [1132, 955, 316, 300],
       "note": "Ajax hauled his ships up at one extreme of the line, ἔσχατα, trusting in his manhood and the strength of his hands (Il. 8.224-26 = 11.7-9).",
       "sources": [
         {
@@ -9661,7 +9725,7 @@
       "id": "inset-ship-protesilaus",
       "kind": "shipRow",
       "style": "inset",
-      "frame": [1132, 760, 316, 300],
+      "frame": [1132, 955, 316, 300],
       "note": "ἔνθ' ἔσαν Αἴαντός τε νέες καὶ Πρωτεσιλάου (Il. 13.681) — the station where Hector, having burst the gates and the wall, holds his ground (13.679-81), and it is Protesilaus's own hull he fires (15.704-6). Drawn here rather than on the main sheet because at sheet scale a single named ship cannot be picked out of the rank without falsifying the spacing of every ship beside it. The crux stands unresolved: Patroclus, sallying from Achilles's ships at the far end of the line, reaches this same stern in one verse (16.286).",
       "sources": [
         {
@@ -9685,7 +9749,7 @@
       "id": "inset-ships-line",
       "kind": "shipRow",
       "style": "inset",
-      "frame": [1132, 760, 316, 300],
+      "frame": [1132, 955, 316, 300],
       "note": "The line running on toward the middle. Every ship past the five named stations stays an anonymous glyph: the poem does not station the Catalogue along the beach.",
       "sources": [
         {
@@ -9708,7 +9772,7 @@
       "id": "inset-shore",
       "kind": "route",
       "style": "inset",
-      "frame": [1132, 760, 316, 300],
+      "frame": [1132, 955, 316, 300],
       "note": "The same beach as the main sheet. Drawn with waterlines, whose gaps grow away from the shore because waves compress against it (Huffman 2010); the band of open sand between the seaward rank and the water is the ground the ships are launched across.",
       "sources": [
         {
@@ -9736,6 +9800,8 @@
   ],
   "suppressLayerLabels": [
     "relief-troy-ridge",
-    "relief-sigeion-ridge"
+    "relief-sigeion-ridge",
+    "chariot-course-turn-post",
+    "achaean-camp"
   ]
 }

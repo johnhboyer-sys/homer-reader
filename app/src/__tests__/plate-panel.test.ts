@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, waitFor } from '@testing-library/svelte';
+import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import PlatePanel from '../components/maps/PlatePanel.svelte';
 
 const mockFetchPlate = vi.fn();
@@ -701,5 +701,119 @@ describe('PlatePanel', () => {
     const zoomOut = getByRole('button', { name: /zoom out/i });
     for (let i = 0; i < 5; i++) zoomOut.click();
     await waitFor(() => expect(svg).not.toHaveClass('plate-zoomed'));
+  });
+
+  // Numbered feature key (stage 5c, part 2): the badge <-> key-row hover/
+  // focus wiring added to setupCamera/applyCertaintyVisibility. A minimal
+  // geographic fixture (marginRight > 0, one featureKey group of two
+  // coords-anchored places) is enough to exercise it -- the renderer's own
+  // badge placement/collision logic is shared/lib/plate.ts's job and is
+  // covered there (plate.test.ts's E1-E6, E9).
+  describe('featureKey: badge <-> key-row hover/focus', () => {
+    const featureKeyPlate = {
+      id: 'feature-key-plate',
+      title: 'Feature Key Plate',
+      kind: 'geographic' as const,
+      status: 'reviewed' as const,
+      bbox: [0, 0, 1, 1] as [number, number, number, number],
+      size: [200, 150] as [number, number],
+      marginRight: 60,
+      featureKey: [
+        {
+          title: 'Group One',
+          items: [
+            { placeId: 'alpha', label: 'Alpha place' },
+            { placeId: 'beta', label: 'Beta place' },
+          ],
+        },
+      ],
+      layers: [],
+    };
+    const places = [
+      { id: 'alpha', name: 'Alpha Place Full Name', coords: [0.2, 0.2] as [number, number], certainty: 'certain' as const },
+      { id: 'beta', name: 'Beta Place Full Name', coords: [0.8, 0.8] as [number, number], certainty: 'speculative' as const },
+    ];
+
+    it('badge DOM order equals key order, and every badge is a tab stop', async () => {
+      mockFetchPlate.mockResolvedValue(featureKeyPlate);
+      const { container } = render(PlatePanel, {
+        props: { plateId: 'feature-key-plate', places, title: 'Feature Key Plate' },
+      });
+      await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+      const badges = Array.from(container.querySelectorAll<SVGGElement>('.plate-key-badge'));
+      expect(badges.length).toBe(2);
+      expect(badges.map((b) => b.dataset.keyN)).toEqual(['1', '2']);
+      expect(badges.every((b) => b.getAttribute('tabindex') === '0')).toBe(true);
+    });
+
+    it('shows a tooltip with the full name + certainty tier on mouseenter and on focus, and Escape hides it', async () => {
+      mockFetchPlate.mockResolvedValue(featureKeyPlate);
+      const { container } = render(PlatePanel, {
+        props: { plateId: 'feature-key-plate', places, title: 'Feature Key Plate' },
+      });
+      await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+      const badge1 = container.querySelector<SVGGElement>('.plate-key-badge[data-key-n="1"]');
+      expect(badge1).toBeTruthy();
+      expect(container.querySelector('.pp-tip')).toBeNull();
+
+      await fireEvent.mouseEnter(badge1!);
+      await waitFor(() => expect(container.querySelector('.pp-tip')).toBeTruthy());
+      const tipText = container.querySelector('.pp-tip')?.textContent ?? '';
+      expect(tipText).toContain('Alpha Place Full Name');
+      expect(tipText).toContain('certain');
+
+      await fireEvent.mouseLeave(badge1!);
+      await waitFor(() => expect(container.querySelector('.pp-tip')).toBeNull());
+
+      await fireEvent.focusIn(badge1!);
+      await waitFor(() => expect(container.querySelector('.pp-tip')).toBeTruthy());
+
+      const mapDiv = container.querySelector('.pp-map') as Element;
+      await fireEvent.keyDown(mapDiv, { key: 'Escape' });
+      await waitFor(() => expect(container.querySelector('.pp-tip')).toBeNull());
+    });
+
+    it('hovering a key row highlights the matching badge (reverse direction)', async () => {
+      mockFetchPlate.mockResolvedValue(featureKeyPlate);
+      const { container } = render(PlatePanel, {
+        props: { plateId: 'feature-key-plate', places, title: 'Feature Key Plate' },
+      });
+      await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+      const row = container.querySelector<SVGElement>('.plate-key-row[data-key-n="1"]');
+      const badge1 = container.querySelector<SVGGElement>('.plate-key-badge[data-key-n="1"]');
+      expect(row).toBeTruthy();
+      expect(badge1).toBeTruthy();
+      expect(badge1).not.toHaveClass('plate-key-active');
+
+      await fireEvent.mouseEnter(row!);
+      await waitFor(() => expect(badge1).toHaveClass('plate-key-active'));
+      expect(container.querySelector('.pp-tip')?.textContent).toContain('Alpha Place Full Name');
+
+      await fireEvent.mouseLeave(row!);
+      await waitFor(() => expect(badge1).not.toHaveClass('plate-key-active'));
+    });
+
+    it('a hidden certainty tier hides its key row too, leaving a visible tier\'s row alone', async () => {
+      mockFetchPlate.mockResolvedValue(featureKeyPlate);
+      const { container, getByRole } = render(PlatePanel, {
+        props: { plateId: 'feature-key-plate', places, title: 'Feature Key Plate' },
+      });
+      await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+      const betaRows = () => Array.from(container.querySelectorAll<SVGElement>('.plate-key-row[data-key-n="2"]'));
+      const alphaRows = () => Array.from(container.querySelectorAll<SVGElement>('.plate-key-row[data-key-n="1"]'));
+      expect(betaRows().length).toBeGreaterThan(0);
+      betaRows().forEach((r) => expect(r.style.display).not.toBe('none'));
+
+      const speculativeToggle = getByRole('checkbox', { name: 'speculative' }) as HTMLInputElement;
+      expect(speculativeToggle.checked).toBe(true);
+      speculativeToggle.click();
+
+      await waitFor(() => betaRows().forEach((r) => expect(r.style.display).toBe('none')));
+      alphaRows().forEach((r) => expect(r.style.display).not.toBe('none'));
+    });
   });
 });

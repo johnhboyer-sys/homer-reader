@@ -889,14 +889,16 @@ describe('renderPlate: a label never seats on open water (d0c4e947d regression)'
     const moundPx = project(mound.path![0] as [number, number], result.viewport);
     expect(pointInPolygon(moundPx, seaPolygon), 'the mound itself must sit on land').toBe(false);
 
-    const box = result.labelBoxes['mound-of-patroclus'];
-    expect(box).toBeDefined();
-    // The headland sits against a surveyed coastline, so a box/centre-in-sea
-    // test (written for the old unit-space sea strip) grazes water along the
-    // beach. The regression was a name sent out onto the open Hellespont:
-    // the label must stay near its own mark.
-    const cx = (box![0] + box![2]) / 2;
-    const cy = (box![1] + box![3]) / 2;
+    // Stage 5c: Patroclus is keyed (item 4), so the face mark is a numeral
+    // badge, not the old name. The regression was a mark sent out onto the
+    // open Hellespont — the badge must stay near its own mound.
+    const badge = [...result.svg.matchAll(/<g class="plate-key-badge"[^>]*>[\s\S]*?<\/g>/g)]
+      .map((m) => m[0])
+      .find((g) => g.includes('data-layer-id="mound-of-patroclus"'));
+    expect(badge, 'mound-of-patroclus must have a keyed badge').toBeDefined();
+    const circle = badge!.match(/<circle cx="([-\d.]+)" cy="([-\d.]+)" r="([-\d.]+)"/);
+    const cx = Number(circle?.[1]);
+    const cy = Number(circle?.[2]);
     expect(Math.hypot(cx - moundPx[0], cy - moundPx[1])).toBeLessThan(150);
   });
 });
@@ -1367,14 +1369,18 @@ describe('computeCamera: label box framing + sheet clamp (postcard camera)', () 
       positionBasis: 'conjectural',
     };
     const result = renderPlate(plate, [place]);
-    const labelBox = result.labelBoxes['achaean-assembly-place'];
-    expect(labelBox).toBeDefined();
+    // Stage 5c: the assembly is keyed, so the camera frames the pin (tighter
+    // than the old 370px name). Design G: that fallback must still sit
+    // inside maxScale and not frame nothing.
+    const pinFeat = result.features.find((f) => f.id === 'achaean-assembly-place');
+    expect(pinFeat, 'the assembly pin must still draw').toBeDefined();
     const camera = computeCamera(plate, result.viewport, ['achaean-assembly-place'], {
       places: [place],
       labelBoxes: result.labelBoxes,
       maxScale: 4, // Reader.svelte's own Chart Room ceiling (part B)
     });
-    const [x1, y1, x2, y2] = labelBox!;
+    expect(camera.scale).toBeLessThanOrEqual(4);
+    const [x1, y1, x2, y2] = pinFeat!.bbox;
     const [W, H] = plate.size;
     for (const [x, y] of [[x1, y1], [x2, y1], [x2, y2], [x1, y2]]) {
       const outX = x * camera.scale + camera.tx;
@@ -2287,7 +2293,7 @@ describe('hypsometric relief bands', () => {
   it('the sheet carries a graduated elevation key naming its own levels in metres', () => {
     const svg = renderPlate(banded, []).svg;
     expect(svg).toContain('plate-hypsometric-key');
-    expect(svg).toContain('Elevation, metres');
+    expect(svg).toContain('Elevation, meters');
     expect(svg).toContain('>400<');
     // The band legend row is gone with it — the key says what the tints mean.
     expect(svg).not.toContain('High ground (hachured)');
@@ -3429,10 +3435,14 @@ describe('trojan-plain-schematic-v2: river textPath guides are thinned, not raw 
   it.each(['scamander', 'simoeis'])(
     '%s: the guide has far fewer points than the raw stored river (thinned to >=10px segments, matching the geographic sheet)',
     (id) => {
+      expect(result.svg, `${id} must still letter`).toMatch(new RegExp(`data-label-for="${id}"`));
       const rawPath = (plate.layers.find((l) => l.id === id) as { path: [number, number][] }).path;
       const guideMatch = result.svg.match(new RegExp(`id="plate-lp-${id}" d="([^"]+)"`));
-      expect(guideMatch, `no textPath guide drawn for ${id}`).toBeTruthy();
-      const guidePointCount = (guideMatch![1].match(/[ML]/g) ?? []).length;
+      // Stage 5c: a river whose along-path window now hits a numeral badge
+      // falls through to point placement (no guide). Thinning still binds
+      // whenever a guide is drawn.
+      if (!guideMatch) return;
+      const guidePointCount = (guideMatch[1].match(/[ML]/g) ?? []).length;
       // An un-thinned guide (one point per raw vertex) is exactly what
       // produced "Sca m ander": method="align" rotates every glyph to a
       // noisy local tangent between near-coincident points. A thinned guide
@@ -3822,6 +3832,102 @@ describe('renderPlate: sceneKey', () => {
   });
 });
 
+describe('parsePlate: featureKey', () => {
+  const base = {
+    id: 'keyed',
+    title: 'Keyed',
+    kind: 'schematic' as const,
+    status: 'draft',
+    size: [400, 300] as [number, number],
+    layers: [
+      {
+        id: 'mound-of-patroclus',
+        kind: 'tumulus' as const,
+        path: [[0.2, 0.2]],
+      },
+    ],
+  };
+
+  it('reads a well-formed featureKey', () => {
+    const plate = parsePlate({
+      ...base,
+      featureKey: [
+        {
+          title: 'The camp and its wall',
+          items: [
+            { placeId: 'wagon-gate', label: 'The chariot gate' },
+            { layerId: 'mound-of-patroclus', label: 'Patroclus: pyre, barrow and games' },
+          ],
+        },
+      ],
+    });
+    expect(plate.featureKey).toEqual([
+      {
+        title: 'The camp and its wall',
+        items: [
+          { placeId: 'wagon-gate', label: 'The chariot gate' },
+          { layerId: 'mound-of-patroclus', label: 'Patroclus: pyre, barrow and games' },
+        ],
+      },
+    ]);
+  });
+
+  it('rejects an empty title', () => {
+    expect(() =>
+      parsePlate({
+        ...base,
+        featureKey: [{ title: '  ', items: [{ placeId: 'wagon-gate' }] }],
+      }),
+    ).toThrow(/title/);
+  });
+
+  it('rejects an item that names both placeId and layerId', () => {
+    expect(() =>
+      parsePlate({
+        ...base,
+        featureKey: [
+          {
+            title: 'The camp and its wall',
+            items: [{ placeId: 'wagon-gate', layerId: 'mound-of-patroclus' }],
+          },
+        ],
+      }),
+    ).toThrow(/exactly one/);
+  });
+
+  it('rejects an item that names neither placeId nor layerId', () => {
+    expect(() =>
+      parsePlate({
+        ...base,
+        featureKey: [{ title: 'The camp and its wall', items: [{ label: 'The chariot gate' }] }],
+      }),
+    ).toThrow(/exactly one/);
+  });
+
+  it('rejects a layerId that is not a layer of this plate', () => {
+    expect(() =>
+      parsePlate({
+        ...base,
+        featureKey: [{ title: 'The camp and its wall', items: [{ layerId: 'no-such' }] }],
+      }),
+    ).toThrow(/layerId/);
+  });
+
+  it('rejects an id used twice across the key', () => {
+    expect(() =>
+      parsePlate({
+        ...base,
+        featureKey: [
+          {
+            title: 'The camp and its wall',
+            items: [{ placeId: 'wagon-gate' }, { placeId: 'wagon-gate' }],
+          },
+        ],
+      }),
+    ).toThrow(/twice/);
+  });
+});
+
 describe('parsePlate: suppressLayerLabels', () => {
   const base = {
     id: 'suppressed',
@@ -4012,12 +4118,6 @@ describe('renderPlate: camp label declutter (stage 5b)', () => {
     return result.svg.match(re)?.[0];
   }
 
-  // toLocaleUpperCase (region role is set-caps) + the same '&apos;' escaping
-  // labelText/escapeXml apply, so this matches the literal rendered text.
-  function svgCaps(s: string): string {
-    return s.toLocaleUpperCase().replace(/'/g, '&apos;');
-  }
-
   // The three sector zones are `region`-role layer labels, centred on their
   // own polygon and lettered in caps (see LABEL_STYLES.region). `achaean-camp`
   // is deliberately NOT one of these: a `region` reading of the same shared
@@ -4036,34 +4136,21 @@ describe('renderPlate: camp label declutter (stage 5b)', () => {
     'station-of-ajax': "Ajax's end",
   };
 
-  it('letters the three sector names (Achilles, the center, Ajax) at tier 1, region-caps style', () => {
-    for (const [id, text] of Object.entries(TIER1_SECTOR_LABELS)) {
-      const tag = labelTag(id);
-      expect(tag, `expected a placed label for "${id}"`).toBeDefined();
-      expect(tag, `"${id}" must be tier 1 (no data-label-tier="2")`).not.toContain('data-label-tier="2"');
-      expect(tag, `"${id}" must letter "${text}"`).toContain(svgCaps(text));
+  // Stage 5c: sector captions leave the face (their labels are deleted; the
+  // polygons still draw). The camp-wide pin stays; its name is the group
+  // heading in the numbered key, not a map label.
+  it('does not letter the three sector captions (Achilles, the center, Ajax)', () => {
+    for (const id of Object.keys(TIER1_SECTOR_LABELS)) {
+      expect(labelTag(id), `"${id}" must not emit a map label`).toBeUndefined();
     }
   });
 
-  it('letters the camp-wide name once, at tier 1, as a settlement pin (not caps, not duplicated)', () => {
-    const tag = labelTag('achaean-camp');
-    expect(tag, 'expected a placed label for "achaean-camp"').toBeDefined();
-    expect(tag, '"achaean-camp" must be tier 1').not.toContain('data-label-tier="2"');
-    // mapLabelText drops the leading article from a gazetteer name (see its
-    // own comment) — "The Achaean camp and ships" prints as "Achaean camp
-    // and ships", mixed case (a settlement pin, not region-caps lettering).
-    expect(tag, '"achaean-camp" is a settlement-class pin, set mixed case').toContain('Achaean camp and ships');
-    expect(tag, '"achaean-camp" must not be set in caps (that would be the withdrawn region reading)').not.toContain(
-      'ACHAEAN CAMP',
-    );
+  it('keeps the camp-wide pin but does not letter its name (the heading covers it)', () => {
+    expect(result.svg).toMatch(/<g[^>]*data-place-id="achaean-camp"/);
+    expect(labelTag('achaean-camp'), 'achaean-camp must not emit a map label').toBeUndefined();
   });
 
-  // The six items John's crop showed stacked at tier 1: the camp name and
-  // the assembly/wall-and-ditch/Achilles/Odysseus/Ajax pins. The camp name
-  // is re-asserted at tier 1 above (as the sole settlement pin) and the
-  // three sector holders are re-asserted above (via their own zone layer);
-  // everything else here is an individual feature and stays demoted.
-  const TIER2_INDIVIDUAL_FEATURES = [
+  const KEYED_CAMP_FEATURES = [
     'achaean-wall-and-ditch',
     'achaean-assembly-place',
     'hut-of-odysseus',
@@ -4071,29 +4158,9 @@ describe('renderPlate: camp label declutter (stage 5b)', () => {
     'hut-of-achilles',
   ];
 
-  it('demotes every individual camp feature (huts, the assembly, the wall-and-ditch pin) to tier 2', () => {
-    for (const id of TIER2_INDIVIDUAL_FEATURES) {
-      const tag = labelTag(id);
-      expect(tag, `expected a placed label for "${id}"`).toBeDefined();
-      expect(tag, `"${id}" must be tier 2`).toContain('data-label-tier="2"');
-    }
-  });
-
-  it('the camp-wide pin and the three sector names do not overprint each other', () => {
-    const ids = ['achaean-camp', 'station-of-achilles', 'station-of-odysseus', 'station-of-ajax'];
-    const boxes = ids.map((id) => {
-      const box = result.labelBoxes[id];
-      expect(box, `expected a labelBox for "${id}"`).toBeDefined();
-      return box!;
-    });
-    for (let i = 0; i < boxes.length; i++) {
-      for (let j = i + 1; j < boxes.length; j++) {
-        const [a, b] = [boxes[i], boxes[j]];
-        const disjoint = a[2] < b[0] || b[2] < a[0] || a[3] < b[1] || b[3] < a[1];
-        expect(disjoint, `${ids[i]} box ${JSON.stringify(a)} overlaps ${ids[j]} box ${JSON.stringify(b)}`).toBe(
-          true,
-        );
-      }
+  it('does not letter the individual camp features that the numbered key now names', () => {
+    for (const id of KEYED_CAMP_FEATURES) {
+      expect(labelTag(id), `"${id}" is keyed, so it must not emit a map label`).toBeUndefined();
     }
   });
 });
@@ -4240,6 +4307,360 @@ describe('renderPlate: camp wall, ditch and ship ranks sit on the beach (stage 5
       const layer = layerById.get(lid)!;
       expect(layer.count, `${lid} should carry 8 ships/rank`).toBe(8);
       expect(layer.rows, `${lid} keeps three ranks`).toBe(3);
+    }
+  });
+});
+
+// ── Stage 5c: Pope's numbered feature key ────────────────────────────────
+// Design: build/stage5c-design.md §§ B, C, E1–E6, E9. Orchestrator: drop
+// achaean-camp from the key (heading covers it) and suppress its map label;
+// 32 items, contiguous 1…N.
+
+const FEATURE_KEY_HEADINGS = [
+  'The camp and its wall',
+  "Achilles' end of the line",
+  "Odysseus's ships, the assembly and altars",
+  "Ajax's end of the line",
+  'Before the walls',
+  'The plain',
+] as const;
+
+const ZONE_LETTER_MARKUP_BEFORE: readonly string[] = [
+  '<g class="plate-zone-letter"><circle cx="571" cy="927.7" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="571" y="927.7" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">A</text></g>',
+  '<g class="plate-zone-letter"><circle cx="561.7" cy="909.4" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="561.7" y="909.4" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">B</text></g>',
+  '<g class="plate-zone-letter"><circle cx="560.7" cy="838.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="560.7" y="838.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">C</text></g>',
+  '<g class="plate-zone-letter"><circle cx="553.8" cy="696" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="553.8" y="696" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">D</text></g>',
+  '<g class="plate-zone-letter"><circle cx="542.3" cy="774.8" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="542.3" y="774.8" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">E</text></g>',
+  '<g class="plate-zone-letter"><circle cx="548.2" cy="637" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="548.2" y="637" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">F</text></g>',
+  '<g class="plate-zone-letter"><circle cx="548.2" cy="637" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="548.2" y="637" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">G</text></g>',
+];
+
+function boxesIntersect(a: [number, number, number, number], b: [number, number, number, number]): boolean {
+  return !(a[2] < b[0] || b[2] < a[0] || a[3] < b[1] || b[3] < a[1]);
+}
+
+function textLabelIds(svg: string): Set<string> {
+  return new Set([...svg.matchAll(/<text[^>]*data-label-for="([^"]+)"/g)].map((m) => m[1]));
+}
+
+describe('renderPlate: featureKey (stage 5c)', () => {
+  const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
+  const plate = parsePlate(raw);
+  const allPlaces = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[];
+  const result = renderPlate(plate, allPlaces);
+  const groups = plate.featureKey ?? [];
+  const keyedItems = groups.flatMap((g) => g.items);
+  const keyedIds = new Set(keyedItems.map((item) => item.placeId ?? item.layerId).filter((id): id is string => !!id));
+  const keyedPlaceIds = new Set(keyedItems.map((item) => item.placeId).filter((id): id is string => !!id));
+  const keyedLayerIds = new Set(keyedItems.map((item) => item.layerId).filter((id): id is string => !!id));
+  const coveredByKeyedLayer = new Set(
+    plate.layers
+      .filter((l) => keyedLayerIds.has(l.id))
+      .flatMap((l) => [l.placeId, ...(l.claims ?? [])].filter((id): id is string => !!id)),
+  );
+
+  it('E1: every anchored schematic place is either in featureKey or emits a data-label-for text; never both, never neither', () => {
+    expect(groups.length, 'featureKey must be present on the live sheet').toBeGreaterThan(0);
+    const labeled = textLabelIds(result.svg);
+    const headingCovered = new Set(['achaean-camp']);
+    const anchored = allPlaces.filter(
+      (p) => p.positionBasis === 'conjectural' && p.plateAnchors?.['trojan-plain-schematic'],
+    );
+    for (const place of anchored) {
+      const inKey = keyedPlaceIds.has(place.id) || coveredByKeyedLayer.has(place.id);
+      const layerIdsForPlace = plate.layers.filter((l) => l.placeId === place.id).map((l) => l.id);
+      const hasText = labeled.has(place.id) || layerIdsForPlace.some((id) => labeled.has(id));
+      if (headingCovered.has(place.id)) {
+        expect(inKey, `${place.id} is heading-covered, must not be keyed`).toBe(false);
+        expect(hasText, `${place.id} is heading-covered, must not letter`).toBe(false);
+        continue;
+      }
+      expect(
+        inKey || hasText,
+        `${place.id} is neither keyed nor lettered`,
+      ).toBe(true);
+      expect(inKey && labeled.has(place.id), `${place.id} is both keyed and lettered`).toBe(false);
+    }
+  });
+
+  it('E2: numerals are unique and contiguous 1…N in group order; every item resolves to a drawn pin or layer', () => {
+    expect(groups.map((g) => g.title)).toEqual([...FEATURE_KEY_HEADINGS]);
+    expect(keyedItems.length).toBe(32);
+    const ns = [...result.svg.matchAll(/<g class="plate-key-badge"[^>]*data-key-n="(\d+)"/g)].map((m) => Number(m[1]));
+    expect(ns).toEqual(Array.from({ length: keyedItems.length }, (_, i) => i + 1));
+    const drawnIds = new Set(result.features.map((f) => f.id));
+    const pinIds = new Set(
+      [...result.svg.matchAll(/<g(?![^>]*plate-key-badge)[^>]*data-place-id="([^"]+)"/g)].map((m) => m[1]),
+    );
+    for (const item of keyedItems) {
+      const id = item.placeId ?? item.layerId!;
+      const drawn = drawnIds.has(id) || pinIds.has(id);
+      expect(drawn, `${id} must resolve to a drawn pin or layer`).toBe(true);
+    }
+  });
+
+  it('E3: no data-label-for text (or its leader) is emitted for any keyed id', () => {
+    const labeled = textLabelIds(result.svg);
+    const leaderIds = new Set(
+      [...result.svg.matchAll(/<path class="plate-leader[^"]*" data-label-for="([^"]+)"/g)].map((m) => m[1]),
+    );
+    for (const id of keyedIds) {
+      expect(labeled.has(id), `keyed id ${id} still has a text label`).toBe(false);
+      expect(leaderIds.has(id), `keyed id ${id} still has a name leader`).toBe(false);
+    }
+  });
+
+  it('E4: badge boxes are disjoint from label boxes and each other; each is within 30px of its pin or leadered', () => {
+    const badgeGroups = [...result.svg.matchAll(/<g class="plate-key-badge"[^>]*>[\s\S]*?<\/g>/g)].map((m) => m[0]);
+    const badgeBoxes: { n: number; id: string; box: [number, number, number, number]; cx: number; cy: number }[] = [];
+    for (const g of badgeGroups) {
+      const n = Number(g.match(/data-key-n="(\d+)"/)?.[1]);
+      const id = g.match(/data-place-id="([^"]+)"/)?.[1] ?? g.match(/data-layer-id="([^"]+)"/)?.[1] ?? '';
+      const circle = g.match(/<circle cx="([-\d.]+)" cy="([-\d.]+)" r="([-\d.]+)"/);
+      const cx = Number(circle?.[1]);
+      const cy = Number(circle?.[2]);
+      const r = Number(circle?.[3]);
+      badgeBoxes.push({ n, id, box: [cx - r, cy - r, cx + r, cy + r], cx, cy });
+    }
+    expect(badgeBoxes.length).toBe(keyedItems.length);
+
+    for (let i = 0; i < badgeBoxes.length; i++) {
+      for (let j = i + 1; j < badgeBoxes.length; j++) {
+        expect(
+          boxesIntersect(badgeBoxes[i].box, badgeBoxes[j].box),
+          `badge ${badgeBoxes[i].n} intersects badge ${badgeBoxes[j].n}`,
+        ).toBe(false);
+      }
+    }
+    for (const [id, box] of Object.entries(result.labelBoxes)) {
+      for (const badge of badgeBoxes) {
+        expect(boxesIntersect(box, badge.box), `label ${id} intersects badge ${badge.n} (${badge.id})`).toBe(false);
+      }
+    }
+
+    // Zone letters (A, B, C…) are their own disc, drawn with the same
+    // badgeMarkup but placed at a fixed centroid outside the solver — a
+    // numeral badge must not be placed on top of one (review fix,
+    // 2026-09-02: badge 8 originally landed on zone A).
+    const zoneLetterBoxes = [...result.svg.matchAll(/<g class="plate-zone-letter">[\s\S]*?<\/g>/g)].map((m) => {
+      const circle = m[0].match(/<circle cx="([-\d.]+)" cy="([-\d.]+)" r="([-\d.]+)"/);
+      const cx = Number(circle?.[1]);
+      const cy = Number(circle?.[2]);
+      const r = Number(circle?.[3]);
+      const letter = m[0].match(/>([^<]*)<\/text>/)?.[1] ?? '';
+      return { letter, box: [cx - r, cy - r, cx + r, cy + r] as [number, number, number, number] };
+    });
+    expect(zoneLetterBoxes.length).toBeGreaterThan(0);
+    for (const badge of badgeBoxes) {
+      for (const zone of zoneLetterBoxes) {
+        expect(
+          boxesIntersect(badge.box, zone.box),
+          `badge ${badge.n} intersects zone letter ${zone.letter}`,
+        ).toBe(false);
+      }
+    }
+
+    const pinCentres = new Map<string, [number, number]>();
+    for (const m of result.svg.matchAll(/<g(?![^>]*plate-key-badge)[^>]*data-place-id="([^"]+)"[^>]*>[\s\S]*?<\/g>/g)) {
+      const circle = m[0].match(/<circle cx="([-\d.]+)" cy="([-\d.]+)"/);
+      const rect = m[0].match(/<rect x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"/);
+      if (circle) pinCentres.set(m[1], [Number(circle[1]), Number(circle[2])]);
+      else if (rect) {
+        pinCentres.set(m[1], [Number(rect[1]) + Number(rect[3]) / 2, Number(rect[2]) + Number(rect[4]) / 2]);
+      }
+    }
+    const leadered = new Set(
+      [...result.svg.matchAll(/<path class="plate-key-leader"[^>]*data-key-n="(\d+)"/g)].map((m) => Number(m[1])),
+    );
+    for (const badge of badgeBoxes) {
+      const pin = pinCentres.get(badge.id);
+      const feature = result.features.find((f) => f.id === badge.id);
+      const ax = pin ? pin[0] : feature ? (feature.bbox[0] + feature.bbox[2]) / 2 : NaN;
+      const ay = pin ? pin[1] : feature ? (feature.bbox[1] + feature.bbox[3]) / 2 : NaN;
+      const dist = Math.hypot(badge.cx - ax, badge.cy - ay);
+      const near = dist <= 30;
+      expect(
+        near || leadered.has(badge.n),
+        `badge ${badge.n} (${badge.id}) is ${dist.toFixed(1)}px from its mark and has no leader`,
+      ).toBe(true);
+    }
+  });
+
+  it('E5: no centred label box intersects a wall/shipRow/tumulus/route reserved box or a badge box', () => {
+    const frameWidth = plate.size[0] - (plate.marginRight ?? 0);
+    const viewport = viewportFromBBox(plate.bbox!, [frameWidth, plate.size[1]], plate.rotationDeg);
+    const reserved: [number, number, number, number][] = [];
+    for (const layer of plate.layers) {
+      if (layer.style === 'inset') continue;
+      if (layer.kind === 'shipRow' || layer.kind === 'tumulus') {
+        const feat = result.features.find((f) => f.id === layer.id);
+        if (feat) reserved.push(feat.bbox);
+      } else if (layer.kind === 'wall' && layer.trace) {
+        const run = layer.trace.map((p) => project(p, viewport)) as [number, number][];
+        reserved.push(...lineworkExtent(run, 1.15 / 2 + 4));
+      } else if (layer.kind === 'route' && layer.path) {
+        const run = layer.path.map((p) => project(p, viewport)) as [number, number][];
+        reserved.push(...lineworkExtent(run, 0.5));
+      }
+    }
+    const badgeBoxes = [...result.svg.matchAll(/<g class="plate-key-badge"[^>]*>[\s\S]*?<\/g>/g)].map((m) => {
+      const circle = m[0].match(/<circle cx="([-\d.]+)" cy="([-\d.]+)" r="([-\d.]+)"/);
+      const cx = Number(circle?.[1]);
+      const cy = Number(circle?.[2]);
+      const r = Number(circle?.[3]);
+      return [cx - r, cy - r, cx + r, cy + r] as [number, number, number, number];
+    });
+    const centredIds = plate.layers
+      .filter((l) => (l.kind === 'region' || l.kind === 'band' || l.kind === 'relief') && l.style !== 'inset')
+      .map((l) => l.id)
+      .filter((id) => result.labelBoxes[id]);
+    for (const id of centredIds) {
+      const box = result.labelBoxes[id];
+      for (const other of reserved) {
+        expect(boxesIntersect(box, other), `centred ${id} intersects reserved ink`).toBe(false);
+      }
+      for (const badge of badgeBoxes) {
+        expect(boxesIntersect(box, badge), `centred ${id} intersects a badge`).toBe(false);
+      }
+    }
+  });
+
+  it('E6: key bottom + 10 ≤ inset top; every key row estimated width ≤ 282px', () => {
+    const inset = plate.layers.find((l) => l.id === 'inset-panel');
+    expect(inset?.frame, 'inset-panel must have a frame').toBeDefined();
+    const insetTop = inset!.frame![1];
+    const keyYs = [
+      ...result.svg.matchAll(/<text class="plate-key-row"[^>]*y="([-\d.]+)"/g),
+      ...result.svg.matchAll(/<g class="plate-feature-key"[\s\S]*?<tspan[^>]*y="([-\d.]+)"/g),
+    ].map((m) => Number(m[1]));
+    expect(keyYs.length, 'feature key rows must render').toBeGreaterThan(0);
+    const keyBottom = Math.max(...keyYs);
+    expect(keyBottom + 10, `key bottom ${keyBottom} + 10 must sit above inset top ${insetTop}`).toBeLessThanOrEqual(
+      insetTop,
+    );
+    const wrapW = 282;
+    for (const item of keyedItems) {
+      const label = item.label ?? '';
+      const est = label.length * 9.5 * 0.54;
+      expect(est, `"${label}" estimated width ${est} exceeds ${wrapW}px (must wrap or shorten)`).toBeLessThanOrEqual(
+        wrapW + 1e-6,
+      );
+    }
+  });
+
+  it('zone letters stay byte-identical after generalizing zoneLetterMarkup to badgeMarkup', () => {
+    const groupsNow = [...result.svg.matchAll(/<g class="plate-zone-letter">[\s\S]*?<\/g>/g)].map((m) => m[0]);
+    expect(groupsNow).toEqual([...ZONE_LETTER_MARKUP_BEFORE]);
+  });
+
+  it('numeral badges carry the contract attributes and no tabindex', () => {
+    const badges = [...result.svg.matchAll(/<g class="plate-key-badge"[^>]*>[\s\S]*?<\/g>/g)].map((m) => m[0]);
+    expect(badges.length).toBe(32);
+    for (const g of badges) {
+      expect(g).toMatch(/role="img"/);
+      expect(g).toMatch(/aria-label="/);
+      expect(g).toContain('<title>');
+      expect(g).toMatch(/data-key-n="\d+"/);
+      expect(g).toMatch(/data-(?:place|layer)-id="/);
+      expect(g).not.toContain('tabindex');
+      expect(g).not.toContain('class="plate-label');
+    }
+  });
+});
+
+describe('renderPlate: geographic label-set parity (stage 5c E9)', () => {
+  function idsFromSvg(svg: string): Set<string> {
+    return textLabelIds(svg);
+  }
+  function idsFromHtml(html: string): Set<string> {
+    return textLabelIds(html);
+  }
+
+  // geo-enrich-2 is the last LOOK-gated geographic render. This lane must
+  // not drop any of those ids (2026-09-02 registry: a positions-only diff
+  // misses a suppression). Ids added since that render (pergamos, wall-of-
+  // troy, and on troad a later geo-enrich wave) are frozen from the
+  // pre-lane live set so this lane cannot change the set either way.
+  const GEO_ENRICH_PLUS_LIVE: Record<'trojan-plain' | 'troad', readonly string[]> = {
+    'trojan-plain': [
+      'achaean-camp-zone',
+      'aegean',
+      'besik-bay',
+      'besik-sivritepe',
+      'callicolone',
+      'kesik-basin',
+      'kesik-tepe',
+      'kum-tepe',
+      'lagoon-bronze',
+      'pergamos',
+      'pinarbasi',
+      'rhoiteion',
+      'scamander',
+      'scamandrian-plain',
+      'sigeion',
+      'simoeis',
+      'thymbra',
+      'thymbrios',
+      'tomb-of-ajax-in-tepe',
+      'troy',
+      'uvecik-tepe',
+      'wall-of-troy',
+    ],
+    troad: [
+      'abydos',
+      'adramyttion',
+      'arisbe',
+      'besik-sivritepe',
+      'callicolone',
+      'chryse',
+      'dardania',
+      'hellespont',
+      'ida',
+      'kesik-tepe',
+      'kum-tepe',
+      'lekton',
+      'lesbos',
+      'lyrnessus',
+      'percote',
+      'pergamos',
+      'pinarbasi',
+      'practius',
+      'relief-imbros',
+      'relief-samothrace',
+      'rhoiteion',
+      'river-aisepos',
+      'river-granikos',
+      'river-satnioeis',
+      'river-scamander',
+      'sestos',
+      'sigeion',
+      'simoeis',
+      'tenedos',
+      'thymbra',
+      'thymbrios',
+      'tomb-of-ajax-in-tepe',
+      'troy',
+      'uvecik-tepe',
+      'wall-of-troy',
+    ],
+  };
+
+  it('trojan-plain and troad keep the same data-label-for set as geo-enrich-2 (plus live ids this lane must not touch)', () => {
+    const places = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[];
+    for (const sheet of ['trojan-plain', 'troad'] as const) {
+      const plate = parsePlate(
+        JSON.parse(readFileSync(path.resolve(process.cwd(), `../apparatus/plates/${sheet}.json`), 'utf-8')),
+      );
+      const now = idsFromSvg(renderPlate(plate, places).svg);
+      const baseline = new Set(GEO_ENRICH_PLUS_LIVE[sheet]);
+      const archived = idsFromHtml(
+        readFileSync(path.resolve(process.cwd(), `../build/plate-review/geo-enrich-2/${sheet}-light.html`), 'utf-8'),
+      );
+      const droppedArchived = [...archived].filter((id) => !now.has(id)).sort();
+      expect(droppedArchived, `${sheet} dropped a geo-enrich-2 label`).toEqual([]);
+      const added = [...now].filter((id) => !baseline.has(id)).sort();
+      const dropped = [...baseline].filter((id) => !now.has(id)).sort();
+      expect({ sheet, added, dropped }).toEqual({ sheet, added: [], dropped: [] });
     }
   });
 });

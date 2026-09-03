@@ -192,6 +192,24 @@
       const id = el.dataset.labelFor;
       el.style.display = id && (hidden.has(id) || hiddenLayers.has(id)) ? 'none' : '';
     });
+    // Numbered feature key (stage 5c): a badge already matches the
+    // `[data-place-id]`/`[data-layer-id]` passes above (it carries exactly
+    // one of those two attributes, same as a pin or a layer), so hiding a
+    // tier already hides the badge itself. The key ROW is separate DOM (the
+    // right-margin text list) named only by data-key-n -- find it by
+    // matching that badge's own data-key-n, so the key never keeps
+    // numbering a feature the certainty filter just hid.
+    const hiddenKeyNs = new Set<string>();
+    mapEl.querySelectorAll<SVGElement>('.plate-key-badge').forEach((badge) => {
+      const pid = badge.dataset.placeId;
+      const lid = badge.dataset.layerId;
+      const isHidden = (pid && hidden.has(pid)) || (lid && hiddenLayers.has(lid));
+      if (isHidden && badge.dataset.keyN) hiddenKeyNs.add(badge.dataset.keyN);
+    });
+    mapEl.querySelectorAll<SVGElement>('.plate-key-row').forEach((row) => {
+      const n = row.dataset.keyN;
+      row.style.display = n && hiddenKeyNs.has(n) ? 'none' : '';
+    });
   }
 
   function toggleCertainty(tier: Certainty, on: boolean) {
@@ -230,6 +248,133 @@
   let dragPointerId: number | null = null;
   let dragStart = { x: 0, y: 0, tx: 0, ty: 0 };
 
+  // ── Numbered feature key (stage 5c): badge <-> key-row hover/focus ──────
+  // A `.plate-key-badge` (plate.ts's numeral disc) is a hover/focus target
+  // the same as a Greek token elsewhere in the reader; the matching
+  // `.plate-key-row` (the right-margin text list) lights up with it, and
+  // the reverse (hovering the row lights the badge and its pin). Always
+  // matched via `dataset.keyN`/`dataset.placeId`/`dataset.layerId`
+  // comparisons, never a selector built from plate data (Finding 8,
+  // 2026-07-28's rule applies to badges' ids exactly as it does to layer
+  // ids).
+  let mapFrameEl: HTMLDivElement | undefined;
+  let tipVisible = false;
+  let tipText = '';
+  let tipLeft = 0;
+  let tipTop = 0;
+  let activeBadgeEl: SVGGElement | null = null;
+  let activeRowEls: SVGElement[] = [];
+  let activePinEl: SVGGElement | null = null;
+
+  function badgeCertainty(el: SVGGElement): Certainty | undefined {
+    const placeId = el.dataset.placeId;
+    if (placeId) return currentPlaces.find((p) => p.id === placeId)?.certainty;
+    const layerId = el.dataset.layerId;
+    if (layerId) {
+      const layer = plateLayers.find((l) => l.id === layerId);
+      if (layer?.placeId) return currentPlaces.find((p) => p.id === layer.placeId)?.certainty;
+    }
+    return undefined;
+  }
+
+  // The pin/dot a badge stands in for -- a separate element (dotMarkup)
+  // carrying the SAME data-place-id/data-layer-id, but never the
+  // plate-key-badge class, so `:not(.plate-key-badge)` alone tells the two
+  // apart without re-deriving a selector from the id itself.
+  function findPin(el: SVGGElement): SVGGElement | null {
+    if (!mapEl) return null;
+    const placeId = el.dataset.placeId;
+    const layerId = el.dataset.layerId;
+    let found: SVGGElement | null = null;
+    mapEl.querySelectorAll<SVGGElement>('[data-place-id], [data-layer-id]').forEach((candidate) => {
+      if (found || candidate.classList.contains('plate-key-badge')) return;
+      if (placeId && candidate.dataset.placeId === placeId) found = candidate;
+      else if (layerId && candidate.dataset.layerId === layerId) found = candidate;
+    });
+    return found;
+  }
+
+  function showTooltip(el: SVGGElement) {
+    const label = el.getAttribute('aria-label') ?? '';
+    const tier = badgeCertainty(el);
+    tipText = tier ? `${label} (${tier})` : label;
+    const frameRect = mapFrameEl?.getBoundingClientRect();
+    const badgeRect = el.getBoundingClientRect();
+    if (frameRect) {
+      tipLeft = badgeRect.left - frameRect.left + badgeRect.width / 2;
+      tipTop = badgeRect.top - frameRect.top;
+    }
+    tipVisible = true;
+  }
+
+  function hideTooltip() {
+    tipVisible = false;
+  }
+
+  function setActiveBadge(el: SVGGElement | null) {
+    activeBadgeEl?.classList.remove('plate-key-active');
+    for (const row of activeRowEls) row.classList.remove('plate-key-active');
+    activePinEl?.classList.remove('plate-key-active');
+    activeBadgeEl = el;
+    activeRowEls = [];
+    activePinEl = null;
+    if (!el || !mapEl) return;
+    el.classList.add('plate-key-active');
+    const n = el.dataset.keyN;
+    if (n) {
+      mapEl.querySelectorAll<SVGElement>('.plate-key-row').forEach((row) => {
+        if (row.dataset.keyN === n) {
+          row.classList.add('plate-key-active');
+          activeRowEls.push(row);
+        }
+      });
+    }
+    activePinEl = findPin(el);
+    activePinEl?.classList.add('plate-key-active');
+  }
+
+  function activateBadge(el: SVGGElement) {
+    setActiveBadge(el);
+    showTooltip(el);
+  }
+
+  function deactivateBadge() {
+    setActiveBadge(null);
+    hideTooltip();
+  }
+
+  function findBadgeByKeyN(n: string): SVGGElement | null {
+    if (!mapEl) return null;
+    let found: SVGGElement | null = null;
+    mapEl.querySelectorAll<SVGGElement>('.plate-key-badge').forEach((b) => {
+      if (!found && b.dataset.keyN === n) found = b;
+    });
+    return found;
+  }
+
+  // Bound directly in setupCamera (imperative addEventListener, same as
+  // every other camera wiring here) rather than Svelte `on:` -- these
+  // elements live inside the {@html}-injected SVG, recreated wholesale on
+  // every load(), so there is nothing stale to clean up between loads.
+  function wireFeatureKey() {
+    if (!mapEl) return;
+    mapEl.querySelectorAll<SVGGElement>('.plate-key-badge').forEach((badge) => {
+      badge.setAttribute('tabindex', '0');
+      badge.addEventListener('mouseenter', () => activateBadge(badge));
+      badge.addEventListener('mouseleave', () => deactivateBadge());
+      badge.addEventListener('focusin', () => activateBadge(badge));
+      badge.addEventListener('focusout', () => deactivateBadge());
+    });
+    mapEl.querySelectorAll<SVGElement>('.plate-key-row').forEach((row) => {
+      row.addEventListener('mouseenter', () => {
+        const n = row.dataset.keyN;
+        const badge = n ? findBadgeByKeyN(n) : null;
+        if (badge) activateBadge(badge);
+      });
+      row.addEventListener('mouseleave', () => deactivateBadge());
+    });
+  }
+
   function svgFragmentFromMarkup(markup: string): Element | null {
     // Same trick Svelte's own {@html} relies on to parse a raw SVG string:
     // the HTML parser only promotes `<g>`/`<path>`/etc. into the SVG
@@ -251,6 +396,10 @@
     camTx = 0;
     camTy = 0;
     dragPointerId = null;
+    activeBadgeEl = null;
+    activeRowEls = [];
+    activePinEl = null;
+    tipVisible = false;
   }
 
   // Wraps the clip-path group's children in a new inner `<g class="pp-
@@ -311,6 +460,7 @@
     });
     labelWrappers = wrappers;
 
+    wireFeatureKey();
     applyCamera();
   }
 
@@ -439,6 +589,14 @@
     if (!cameraG) return;
     const step = PAN_STEP_SCREEN_PX / camK;
     switch (e.key) {
+      case 'Escape':
+        // Clears the numbered-key tooltip/highlight only -- never
+        // preventDefault/stopPropagation, so Escape still does whatever a
+        // browser or an ancestor widget expects of it (the panel's own pan/
+        // zoom keys below are unaffected either way, since they're other
+        // cases in this same switch).
+        if (activeBadgeEl) deactivateBadge();
+        break;
       case '+':
       case '=':
         e.preventDefault();
@@ -581,7 +739,7 @@
   {:else}
     <div class="pp-body">
       <div class="pp-map-col">
-        <div class="pp-map-frame">
+        <div class="pp-map-frame" bind:this={mapFrameEl}>
           <!-- svelte-ignore a11y_no_noninteractive_tabindex -- role="application" is not in
                svelte's built-in "interactive roles" list (its ARIA superclass is `structure`,
                not `widget`), but this IS a custom keyboard-driven widget by design: drag to
@@ -611,6 +769,9 @@
             <button type="button" class="pp-cam-btn" on:click={resetCamera} aria-label="Reset map view">Reset</button>
             <button type="button" class="pp-cam-btn" on:click={() => zoomBy(ZOOM_STEP)} aria-label="Zoom in">+</button>
           </div>
+          {#if tipVisible}
+            <div class="pp-tip" role="tooltip" style="left: {tipLeft}px; top: {tipTop}px;">{tipText}</div>
+          {/if}
         </div>
 
         {#if layerCategories.length}
@@ -766,6 +927,43 @@
   }
   .pp-cam-btn:hover { border-color: var(--accent); color: var(--accent); }
   .pp-cam-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Numbered feature key (stage 5c): tooltip is an HTML element positioned
+     from the badge's own getBoundingClientRect() (see showTooltip) --
+     never SVG <text>, so font/AA/tokens are the same as the rest of the
+     chrome, not the map's own halo-stroked lettering. */
+  .pp-tip {
+    position: absolute;
+    transform: translate(-50%, calc(-100% - 8px));
+    max-width: 220px;
+    padding: 0.3rem 0.5rem;
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    line-height: 1.3;
+    color: var(--text);
+    background: var(--col-bg);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    pointer-events: none;
+    z-index: 1;
+    white-space: normal;
+  }
+  /* Badge <-> key-row hover/focus (wireFeatureKey): a badge's own circle
+     gets the accent stroke a Greek token's hover state already uses
+     elsewhere in the reader; the matching key row and pin get the same
+     accent, so all three read as one highlighted feature. */
+  .pp-map :global(.plate-key-badge.plate-key-active circle) {
+    stroke: var(--accent);
+    stroke-width: 1.6;
+  }
+  .pp-map :global(.plate-key-badge:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .pp-map :global(.plate-key-row.plate-key-active) { fill: var(--accent); font-weight: 600; }
+  .pp-map :global([data-place-id].plate-key-active:not(.plate-key-badge) circle),
+  .pp-map :global([data-layer-id].plate-key-active:not(.plate-key-badge) circle) {
+    stroke: var(--accent);
+    stroke-width: 2;
+  }
 
   .pp-toggles { display: flex; flex-wrap: wrap; gap: 0.8rem; font-family: var(--font-ui); font-size: 0.8rem; color: var(--text); }
   .pp-toggle { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }

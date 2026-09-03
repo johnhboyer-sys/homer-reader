@@ -800,6 +800,79 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                         f"layer of this plate"
                     )
 
+    # Numbered feature key (stage 5c). Sibling of sceneKey: groups of
+    # place/layer ids lettered as numerals. Validation mirrors parsePlate.
+    feature_key = doc.get("featureKey")
+    if feature_key is not None:
+        if not isinstance(feature_key, list):
+            problems.append(f"{label}: featureKey must be a list")
+        else:
+            seen_key_ids: set[str] = set()
+            for gi, group in enumerate(feature_key):
+                if not isinstance(group, dict):
+                    problems.append(f"{label}: featureKey[{gi}] must be an object")
+                    continue
+                title = group.get("title")
+                if not isinstance(title, str) or not title.strip():
+                    problems.append(
+                        f"{label}: featureKey[{gi}].title must be a non-empty string"
+                    )
+                items = group.get("items")
+                if items is None:
+                    continue
+                if not isinstance(items, list):
+                    problems.append(f"{label}: featureKey[{gi}].items must be a list")
+                    continue
+                for ii, item in enumerate(items):
+                    if not isinstance(item, dict):
+                        problems.append(
+                            f"{label}: featureKey[{gi}].items[{ii}] must be an object"
+                        )
+                        continue
+                    place_id = item.get("placeId")
+                    layer_id = item.get("layerId")
+                    has_place = isinstance(place_id, str) and bool(place_id)
+                    has_layer = isinstance(layer_id, str) and bool(layer_id)
+                    if has_place == has_layer:
+                        problems.append(
+                            f"{label}: featureKey[{gi}].items[{ii}] must name "
+                            f"exactly one of placeId/layerId"
+                        )
+                    key_id: str | None = None
+                    if has_layer:
+                        if layer_id not in seen_layer_ids:
+                            problems.append(
+                                f"{label}: featureKey[{gi}].items[{ii}].layerId "
+                                f"{layer_id!r} is not a layer of this plate"
+                            )
+                        key_id = layer_id
+                    elif has_place:
+                        place = places_by_id.get(place_id)
+                        anchors = (
+                            place.get("plateAnchors")
+                            if isinstance(place, dict)
+                            else None
+                        )
+                        anchored = (
+                            isinstance(anchors, dict)
+                            and isinstance(plate_id, str)
+                            and plate_id in anchors
+                        )
+                        if not anchored:
+                            problems.append(
+                                f"{label}: featureKey[{gi}].items[{ii}].placeId "
+                                f"{place_id!r} is not anchored on this plate"
+                            )
+                        key_id = place_id
+                    if key_id is not None:
+                        if key_id in seen_key_ids:
+                            problems.append(
+                                f"{label}: featureKey[{gi}].items[{ii}] id "
+                                f"{key_id!r} appears twice"
+                            )
+                        else:
+                            seen_key_ids.add(key_id)
+
     # See Plate.suppressLayerLabels in shared/lib/plate.ts, which this
     # mirrors: layer ids whose fallback name (the gazetteer name of
     # `placeId`, drawn when the layer has no `label` of its own) must not be
