@@ -2637,11 +2637,43 @@ interface BadgeSeat {
   leader?: Segment;
 }
 
+/** One leg of a wall's trace, with its own tight bbox — see WallObstacle. */
+interface WallLeg {
+  p1: [number, number];
+  p2: [number, number];
+  bbox: Box;
+}
+
+/**
+ * A wall/ditch layer's drawn ink, as the DISC placer sees it (2026-09-03,
+ * ruling 9 round 4) — `legs` the same pixel trace the renderer drew, cut into
+ * its individual segments so a badge far down the coast doesn't pay for a
+ * check against the whole curve (a first cut stored one bbox for the WHOLE
+ * trace, and a long wall's bbox covers most of the camp, so nearly every
+ * badge near it "matched" and the placer walked all ~30 segments for each —
+ * measured: 480,000+ segment checks and +350ms on the cold render. Per-leg
+ * boxes let the neighbourhood filter (see `near` in `seatBadge`) keep only
+ * the few legs actually close to a given badge). `side`/`halfWidths` are
+ * what `discClearsWallInk` needs to measure clearance on the correct side.
+ * `ownerId` is the featureKey id (`placeId ?? layerId`) this wall's own
+ * numeral is keyed under, when it has one — the one badge exempt from this
+ * wall's own line.
+ */
+interface WallObstacle {
+  legs: WallLeg[];
+  side: 1 | -1;
+  halfWidths: [number, number];
+  ownerId?: string;
+}
+
 function placeKeyBadges(
   // `ownMarker` is the drawn dot this numeral belongs to, where one exists (a
   // layer-anchored item has none). It is the one mark the badge may sit on —
   // ruling 9, 2026-09-03.
-  inputs: (LabelPlacementInput & { r: number; ownMarker?: Box })[],
+  // `ownWalls` are the wall obstacles THIS numeral is keyed to (see
+  // WallObstacle.ownerId) — exempt from its own drawn line, the same way
+  // `ownMarker` exempts a badge from the dot it numbers.
+  inputs: (LabelPlacementInput & { r: number; ownMarker?: Box; ownWalls?: WallObstacle[] })[],
   // `avoidDiscs` seeds the same hard non-overlap check a badge already gets
   // against every OTHER badge — used for zone letters (`plate-zone-letter`
   // discs), which share the badge's circular register but are placed
@@ -2662,11 +2694,18 @@ function placeKeyBadges(
   // the name solver already refuses to make. A LEADER may cross water — it
   // makes no claim, it only points — and forbidding it would leave a numeral
   // whose mark stands on a spit with nowhere on the ladder to go.
+  // `avoidWalls` is every fortification's own drawn ink (ruling 9 round 4,
+  // 2026-09-03): a HARD obstacle for a disc, same as water — a numeral is
+  // never checked against it on a candidate whose input names it as one of
+  // `ownWalls`. A LEADER may cross a wall — ruling 9 forbids a leader crossing
+  // a badge, a pin or another leader, never linework, and the citadel's gates
+  // stand ON the wall ring their leaders must reach.
   options: LabelPlacementOptions & {
     avoidDiscs?: Disc[];
     avoidMarkers?: Box[];
     avoidLabelBoxes?: Box[];
     avoidWater?: Box[];
+    avoidWalls?: WallObstacle[];
     /**
      * Lay the sheet ONCE, in the first order, and skip the search over the
      * rest. Used by the reservation pass (see renderPlate): its seats are
@@ -2682,6 +2721,7 @@ function placeKeyBadges(
   const avoidMarkers = options.avoidMarkers ?? [];
   const avoidLabelBoxes = options.avoidLabelBoxes ?? [];
   const avoidWater = options.avoidWater ?? [];
+  const avoidWalls = options.avoidWalls ?? [];
   const zoneDiscs = options.avoidDiscs ?? [];
   const reservedBoxes = options.placedBoxes ?? [];
 
@@ -2723,6 +2763,13 @@ function placeKeyBadges(
     const nearPlaced = placed.filter(near);
     const nearLabels = avoidLabelBoxes.filter(near);
     const nearWater = avoidWater.filter(near);
+    // Flattened to LEGS, not walls (see WallObstacle's own comment): a badge
+    // near one bend of a long wall must not pay for every OTHER leg of it.
+    const nearWallLegs = avoidWalls.flatMap((w) =>
+      input.ownWalls?.includes(w)
+        ? []
+        : w.legs.filter((l) => near(l.bbox)).map((l) => ({ p1: l.p1, p2: l.p2, side: w.side, halfWidths: w.halfWidths })),
+    );
     const nearMarkerBoxes = markerBoxes.filter(near);
     const foreignMarkers = avoidMarkers.filter((m) => m !== input.ownMarker && near(m));
     // A leader BEGINS at its own mark, and on the schematic sheet eight pairs
@@ -2851,6 +2898,14 @@ function placeKeyBadges(
       for (const name of nearLabels) if (boxesTouch(circle, name, BADGE_CLEARANCE)) violations++;
       // Ruling 5's water rule, on the disc only (see `avoidWater`).
       for (const wet of nearWater) if (boxesTouch(circle, wet, BADGE_WATER_CLEARANCE)) violations++;
+      // Ruling 9 round 4's wall rule, on the disc only (see `avoidWalls`) — a
+      // LEADER may still cross a wall, same as it crosses a route or a
+      // contour.
+      for (const leg of nearWallLegs) {
+        if (!wallLegClears(leg.p1[0], leg.p1[1], leg.p2[0], leg.p2[1], leg.side, leg.halfWidths, bcx, bcy, input.r)) {
+          violations++;
+        }
+      }
       if (leader) {
         for (const marker of leaderMarkers) if (segmentHitsBox(leader, marker, BADGE_CLEARANCE)) violations++;
         // Leaders were never checked against the names (2026-09-03 review,
@@ -3140,13 +3195,39 @@ interface BadgePlacementSolution {
 const BADGE_SOLUTION_CACHE_LIMIT = 4;
 const badgeSolutionCache = new WeakMap<Plate, Map<string, BadgePlacementSolution>>();
 
+// The obstacle-bearing layers a moved anchor can silently stale the cache
+// against (2026-09-03, ruling 9 round 3, Grok finding 4): a tumulus, a ship
+// row and a wall are the three kinds `renderPlate` turns into glyph/wall
+// obstacles for the badge placer (see `glyphBoxes`/`wallBoxes` above). Their
+// OWN geometry — not just which places resolve where — decides whether a
+// cached seat is still honest.
+const BADGE_CACHE_LAYER_KINDS = new Set<LayerKind>(['tumulus', 'shipRow', 'wall']);
+
+function badgeLayerSignature(plate: Plate): string {
+  return plate.layers
+    .filter((l) => BADGE_CACHE_LAYER_KINDS.has(l.kind))
+    .map((l) => `${l.id}@${(l.path ?? l.baseline ?? l.trace ?? []).map((p) => p.join(',')).join(';')}`)
+    .join('|');
+}
+
 function badgeSolutionKey(plate: Plate, places: PlatePlace[]): string {
   // Id AND anchor: two calls with the same id list but a moved anchor are two
   // different sheets, and a key that could not tell them apart would be a
   // wrong-drawing bug rather than a slow one.
-  return places
-    .map((p) => `${p.id}@${(p.plateAnchors?.[plate.id] ?? p.coords ?? []).join(',')}`)
-    .join('|');
+  //
+  // Widened (2026-09-03, ruling 9 round 3, Grok finding 4) with
+  // `badgeLayerSignature`: the cache is keyed on the plate OBJECT (see above),
+  // so mutating `plate.layers` in place — moving a tumulus, redrawing a ship
+  // row, re-tracing a wall — on that SAME object left the inner key
+  // unchanged (it only ever looked at `places`) and served a stale seat
+  // computed against the OLD geometry. Measured: moving the Callicolone
+  // mound and re-rendering kept badge 32 exactly where the first render put
+  // it, still centred on where the mound used to be.
+  return (
+    places.map((p) => `${p.id}@${(p.plateAnchors?.[plate.id] ?? p.coords ?? []).join(',')}`).join('|') +
+    '::' +
+    badgeLayerSignature(plate)
+  );
 }
 
 // A label eligible for suppression (LabelRequest.priority set) is dropped
@@ -4050,17 +4131,24 @@ function legendCornerBox(corner: LegendCorner, panelW: number, panelH: number, w
 // corner exactly as before. On its own halo-coloured panel so it stays
 // legible over whatever terrain falls under it. Returns '' when there is
 // nothing to key.
+//
+// Also returns its own chosen `box` (2026-09-03, ruling 9 round 3, Grok
+// finding 3): the badge placer had no obstacle for the legend/scale/
+// hypsometric panels at all, so nothing kept a numeral off them except luck —
+// E7's furniture check already did (see `markFurnitureBoxes` in
+// plate.test.ts). `null` when there is nothing to key, same as an empty
+// `markup`.
 function legendMarkup(
   entries: LegendEntry[],
   width: number,
   height: number,
   avoidBoxes: Box[] = [],
   marginRight = 0,
-): { markup: string; bottom: number } {
+): { markup: string; bottom: number; box: Box | null } {
   const emptyBottom = marginRight > 0 ? 12 : 0;
   const byKey = new Map<string, LegendEntry>();
   for (const e of entries) if (!byKey.has(e.key)) byKey.set(e.key, e);
-  if (byKey.size === 0) return { markup: '', bottom: emptyBottom };
+  if (byKey.size === 0) return { markup: '', bottom: emptyBottom, box: null };
   const rows = [...byKey.values()].sort((a, b) => a.rank - b.rank || codePointCompare(a.text, b.text));
   const padX = 8;
   const padY = 8;
@@ -4127,7 +4215,7 @@ function legendMarkup(
   // devices (the Shield at 200px) have no room for one and no use for one —
   // they are not maps, and every band already carries its own label.
   if (panelW > width - LABEL_MARGIN * 2 || panelH > height - LABEL_MARGIN * 2) {
-    return { markup: '', bottom: emptyBottom };
+    return { markup: '', bottom: emptyBottom, box: null };
   }
 
   let x0: number;
@@ -4184,7 +4272,11 @@ function legendMarkup(
       );
     }
   });
-  return { markup: `<g class="plate-legend">${parts.join('')}</g>`, bottom: y0 + panelH };
+  return {
+    markup: `<g class="plate-legend">${parts.join('')}</g>`,
+    bottom: y0 + panelH,
+    box: [x0, y0, x0 + panelW, y0 + panelH],
+  };
 }
 
 function badgeMarkup(
@@ -4693,9 +4785,18 @@ const HYPS_FONT = 8;
 /** At most this many numerals under the bar, always including the summit. */
 const HYPS_MAX_TICKS = 5;
 
-function hypsometricKeyMarkup(plate: Plate, width: number, height: number): string {
+/**
+ * Just the panel geometry `hypsometricKeyMarkup` below draws — extracted
+ * (2026-09-03, ruling 9 round 3, Grok finding 3) so the badge placer can know
+ * where this panel WILL sit before `hypsometricKeyMarkup` itself is called,
+ * without duplicating the layout arithmetic (and risking the two drifting
+ * apart). `null` under the exact conditions `hypsometricKeyMarkup` draws
+ * nothing: fewer than two levels, too wide for the sheet, or no vertical room
+ * above the scale-bar family.
+ */
+function hypsometricKeyBox(plate: Plate, width: number, height: number): Box | null {
   const levels = hypsometricLevels(plate);
-  if (levels.length < 2) return '';
+  if (levels.length < 2) return null;
   const barW = (levels.length + 1) * HYPS_CELL_W;
   const padX = 6;
   const padY = 5;
@@ -4704,7 +4805,7 @@ function hypsometricKeyMarkup(plate: Plate, width: number, height: number): stri
   const panelH = padY * 2 + titleH + HYPS_CELL_H + 3 + HYPS_FONT;
   // A key wider than the sheet can spare, or with no room above the bar
   // scale, is not drawn at all: a truncated scale is worse than none.
-  if (panelW > width * 0.62) return '';
+  if (panelW > width * 0.62) return null;
   const x0 = SCALE_X0 - padX;
   // Stack above the scale-bar-family panel whenever one is drawn at the sheet's
   // own bottom-left — a real bbox (the geographic stades/km bar, scaleBarMarkup)
@@ -4718,7 +4819,21 @@ function hypsometricKeyMarkup(plate: Plate, width: number, height: number): stri
   const hasScaleBar = usesLatLon(plate) || plate.pxPerMetre !== undefined;
   const bottom = hasScaleBar ? scalePanelTop(height) - 6 : height - LABEL_MARGIN - 4;
   const y0 = bottom - panelH;
-  if (y0 < LABEL_MARGIN) return '';
+  if (y0 < LABEL_MARGIN) return null;
+  return [x0, y0, x0 + panelW, y0 + panelH];
+}
+
+function hypsometricKeyMarkup(plate: Plate, width: number, height: number): string {
+  const box = hypsometricKeyBox(plate, width, height);
+  if (!box) return '';
+  const levels = hypsometricLevels(plate);
+  const padX = 6;
+  const padY = 5;
+  const titleH = HYPS_FONT + 3;
+  const [x0, y0, x1, y1] = box;
+  const panelW = x1 - x0;
+  const panelH = y1 - y0;
+  const barW = panelW - padX * 2;
 
   const barX = x0 + padX;
   const barY = y0 + padY + titleH;
@@ -5603,7 +5718,13 @@ function linearRun(plate: Plate, layer: PlateLayer, viewport: Viewport): [number
 //     spend the solver's freedom on a collision nobody can see.
 // Adding a kind here is the whole extension mechanism; nothing below is
 // aware of any particular plate.
-function lineworkReserveHalfWidth(layer: PlateLayer): number | undefined {
+//
+// Exported (2026-09-03, ruling 9 round 3, Grok finding 1) so plate.test.ts's
+// E7 check can measure a badge's clearance from a wall's corridor with the
+// SAME half-width the renderer itself reserves, rather than importing or
+// re-deriving STROKE_WEIGHT/WALL_TICK_LENGTH and risking the two drifting
+// apart.
+export function lineworkReserveHalfWidth(layer: PlateLayer): number | undefined {
   switch (layer.kind) {
     case 'coast':
       // The shoreline stroke, plus the outermost waterline running beside it.
@@ -5618,6 +5739,106 @@ function lineworkReserveHalfWidth(layer: PlateLayer): number | undefined {
     default:
       return undefined;
   }
+}
+
+/**
+ * The wall's own drawn INK, not the wider corridor `lineworkReserveHalfWidth`
+ * reserves for a NAME (2026-09-03, ruling 9 round 4). A plain wall's ticks
+ * stand off only ONE side of the trace (see wallGlyph/traceSide) — the tick
+ * itself starts ON the centreline and reaches WALL_TICK_LENGTH plus its own
+ * stroke's half-width, which is the wall's real extent on that side; the
+ * OTHER side has nothing past the wall's own centred stroke. So this is a
+ * PAIR, `[towardTickSide, awayFromTickSide]`, each with a 1px clearance so a
+ * disc doesn't kiss the stroke — never a single symmetric number, which is
+ * what let the previous guard (using `lineworkReserveHalfWidth` for both
+ * sides) call a disc 9.19px from the centreline, on the side with NO tick,
+ * an offender. A restored wall is a band, faced on both sides alike, so its
+ * pair is symmetric. Returns undefined for anything that isn't a wall.
+ */
+export function wallInkHalfWidth(layer: PlateLayer): [number, number] | undefined {
+  if (layer.kind !== 'wall') return undefined;
+  const CLEARANCE = 1;
+  if (layer.style === 'restored' && layer.width !== undefined) {
+    const half = layer.width / 2 + STROKE_WEIGHT.restoredFace / 2 + CLEARANCE;
+    return [half, half];
+  }
+  if (layer.style === 'restored') {
+    // The dotted register (see the `restored`-without-`width` branch of
+    // renderLayer): a fine line, no ticks, so both sides match.
+    const half = RESTORED_LINE_WIDTH / 2 + CLEARANCE;
+    return [half, half];
+  }
+  const tickSide = WALL_TICK_LENGTH + STROKE_WEIGHT.tick / 2 + CLEARANCE;
+  const otherSide = STROKE_WEIGHT.wall / 2 + CLEARANCE;
+  return [tickSide, otherSide];
+}
+
+/**
+ * Whether a disc of radius `r` centred at `(px, py)` clears a wall's drawn
+ * ink — a true point-to-segment distance against each leg of the wall's own
+ * rendered trace, checked on the correct side (`halfWidths` is the pair
+ * `wallInkHalfWidth` returns, `side` the same `traceSide` sign `wallGlyph`
+ * draws its ticks with). NOT `lineworkExtent`'s axis-aligned boxes: those
+ * inflate a segment's bounding box by the half-width on BOTH axes rather
+ * than the true perpendicular offset, which over-reaches badly on a shallow
+ * diagonal leg — measured on the live sheet, a disc 9.19px from the
+ * achaean-wall centreline (comfortably clear of even the 4.375px tick band)
+ * still landed inside that boxed corridor. This is what the placer uses to
+ * make a wall a HARD obstacle (see renderPlate) and what plate.test.ts's E7
+ * guard checks against, so the two cannot disagree by construction.
+ */
+/**
+ * The single-LEG math `discClearsWallInk` walks the whole trace with — split
+ * out so the badge placer's hot path (see `nearWallLegs` in `seatBadge`) can
+ * call it directly on its own pre-filtered legs without wrapping each pair
+ * back into a `points` array first. Same function either way, so the two
+ * callers cannot drift apart; this exists for allocation, not for a second
+ * definition of the geometry.
+ */
+function wallLegClears(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  side: 1 | -1,
+  halfWidths: [number, number],
+  px: number,
+  py: number,
+  r: number,
+): boolean {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len2 = dx * dx + dy * dy;
+  if (len2 < 1e-9) return true;
+  const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / len2));
+  const nx = x1 + t * dx;
+  const ny = y1 + t * dy;
+  const dist = Math.hypot(px - nx, py - ny);
+  // Which side of THIS leg the point falls on, by the same sign convention
+  // wallGlyph's tick normal uses (nx = -uy*side, ny = ux*side): the dot of
+  // (point - leg start) with that normal has the sign of `side * cross`,
+  // where `cross` is the 2D cross product of the leg direction and the
+  // vector to the point.
+  const cross = dx * (py - y1) - dy * (px - x1);
+  const towardTick = cross === 0 || Math.sign(cross) === side;
+  const half = towardTick ? halfWidths[0] : halfWidths[1];
+  return dist >= half + r;
+}
+
+export function discClearsWallInk(
+  points: [number, number][],
+  side: 1 | -1,
+  halfWidths: [number, number],
+  px: number,
+  py: number,
+  r: number,
+): boolean {
+  for (let i = 0; i + 1 < points.length; i++) {
+    const [x1, y1] = points[i];
+    const [x2, y2] = points[i + 1];
+    if (!wallLegClears(x1, y1, x2, y2, side, halfWidths, px, py, r)) return false;
+  }
+  return true;
 }
 
 /**
@@ -6467,7 +6688,28 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // along it. A glyph's own leader is exempt for free — it starts at the
   // glyph's own centre, and seatBadge already drops any marker the leader
   // begins inside.
+  //
+  // Widened (2026-09-03, ruling 9 round 3, Grok's independent collision count):
+  // this used to collect a tumulus/shipRow's block ONLY when something on the
+  // sheet keyed it, which is what a badge's own numeral needs to find its
+  // exemption — but it is also the sheet's only record that the block is an
+  // OBSTACLE at all, and an unkeyed one is still ink on the sheet. The Achaean
+  // camp draws three shipRow ranks and keys none of them individually (the
+  // whole camp is one heading), so their hulls were invisible to every OTHER
+  // badge too: numerals 3, 6 and 7 were drawn straight across them, and a
+  // leader crossed a fourth. Every shipRow/tumulus block is an obstacle now,
+  // keyed or not — no exemption is added for the newly-unkeyed ones, because a
+  // glyph's disc is never exempt from its own drawing anyway (only its
+  // leader, purely geometrically, is — see above); an unkeyed block simply has
+  // no badge that could ever have qualified for that exemption in the first
+  // place.
   const glyphBoxes: Box[] = [];
+  // A fortification's own drawn ink, as a HARD obstacle for badge discs and
+  // zone letters (2026-09-03, ruling 9 round 4) — see WallObstacle and
+  // discClearsWallInk. Built in the layer loop below, alongside the softer
+  // `denseBoxes` corridor `lineworkReserveHalfWidth` still feeds the name
+  // solver.
+  const wallObstacles: WallObstacle[] = [];
   const legendEntries: LegendEntry[] = [];
   const sceneKeyByLayer = new Map((plate.sceneKey ?? []).map((row) => [row.layerId, row]));
   // `px` is the zone's own projected polygon, kept so a letter whose centroid
@@ -6572,12 +6814,10 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     }
     // See glyphBoxes above. A shipRow's `feature.bbox` IS its drawn block
     // (renderLayer feeds it shipRowExtent's corners); a tumulus's is its
-    // anchor point, so the dome is measured here with tumulusExtent.
-    if (
-      layer.style !== 'inset' &&
-      (layer.kind === 'tumulus' || layer.kind === 'shipRow') &&
-      [layer.id, layer.placeId, ...(layer.claims ?? [])].some((id) => !!id && keyedIds.has(id))
-    ) {
+    // anchor point, so the dome is measured here with tumulusExtent. Every
+    // layer of these two kinds is an obstacle now (2026-09-03, ruling 9 round
+    // 3), not only a keyed one.
+    if (layer.style !== 'inset' && (layer.kind === 'tumulus' || layer.kind === 'shipRow')) {
       if (layer.kind === 'tumulus') {
         for (const p of projectPoints(plate, layer.path ?? [], viewport)) glyphBoxes.push(tumulusExtent(p));
       } else {
@@ -6637,6 +6877,36 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     if (halfWidth !== undefined) {
       for (const run of lineworkRuns(plate, layer, viewport)) {
         for (const box of lineworkExtent(run, halfWidth)) denseBoxes.push({ box, layerId: layer.id });
+      }
+    }
+    // The wall's own drawn ink (2026-09-03, ruling 9 round 4): a HARD
+    // obstacle for numeral badges and zone-letter discs, at the actual ink
+    // extent (wallInkHalfWidth) rather than the wider `halfWidth` reserve
+    // above — see WallObstacle/discClearsWallInk for why a true
+    // point-to-segment check replaces lineworkExtent's boxes for this one.
+    // An inset wall is furniture inside a panel, not ink on the map face, so
+    // it is excluded, the same scope `markWallLines` (plate.test.ts) checks.
+    if (layer.kind === 'wall' && layer.style !== 'inset') {
+      const wallHalfWidths = wallInkHalfWidth(layer);
+      const [wallRun] = lineworkRuns(plate, layer, viewport);
+      if (wallHalfWidths && wallRun && wallRun.length >= 2) {
+        const legs: WallLeg[] = [];
+        for (let i = 0; i + 1 < wallRun.length; i++) {
+          const [p1, p2] = [wallRun[i], wallRun[i + 1]];
+          legs.push({
+            p1,
+            p2,
+            bbox: [Math.min(p1[0], p2[0]), Math.min(p1[1], p2[1]), Math.max(p1[0], p2[0]), Math.max(p1[1], p2[1])],
+          });
+        }
+        wallObstacles.push({
+          legs,
+          side: traceSide(wallRun),
+          halfWidths: wallHalfWidths,
+          ownerId: [layer.id, layer.placeId, ...(layer.claims ?? [])].find(
+            (id): id is string => !!id && keyedIds.has(id),
+          ),
+        });
       }
     }
     if (layer.style === 'inset') insetBoxes.push(rendered.feature.bbox);
@@ -6991,7 +7261,13 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       return (
         zoneLetterDiscs.every((d) => Math.hypot(x - d.cx, y - d.cy) >= zoneLetterR + d.r + BADGE_CLEARANCE) &&
         zoneLetterMarks.every((m) => !boxesTouch(box, m, BADGE_CLEARANCE)) &&
-        waterBoxes.every((w) => !boxesTouch(box, w, BADGE_WATER_CLEARANCE))
+        waterBoxes.every((w) => !boxesTouch(box, w, BADGE_WATER_CLEARANCE)) &&
+        // Ruling 9 round 4: a wall's own ink is a hard obstacle for a zone
+        // letter too — a lettered zone is never keyed to a single wall trace
+        // the way a numeral is, so there is no owner exemption here.
+        wallObstacles.every((w) =>
+          w.legs.every((l) => discClearsWallInk([l.p1, l.p2], w.side, w.halfWidths, x, y, zoneLetterR)),
+        )
       );
     };
     let { x, y } = zone;
@@ -7105,6 +7381,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     fontSize: 2 * m.r,
     r: m.r,
     ownMarker: drawnMarkBoxes.get(m.id),
+    // The wall(s) this numeral is itself keyed to (see WallObstacle.ownerId)
+    // — exempt from their own drawn line, ruling 9 round 4.
+    ownWalls: wallObstacles.filter((w) => w.ownerId === m.id),
   }));
   const badgeOptions = {
     width: frameWidth,
@@ -7117,7 +7396,26 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     avoidDiscs: zoneLetterDiscs,
     avoidMarkers: [...drawnMarkBoxes.values(), ...glyphBoxes],
     avoidWater: waterBoxes,
+    avoidWalls: wallObstacles,
   };
+  // Sheet furniture whose position is fixed BEFORE any label or badge is laid
+  // — an inset's own frame, the north arrow, the geographic scale bar, the
+  // hypsometric key — handed to the badge placer as a hard obstacle the same
+  // way E7 already checks it (2026-09-03, ruling 9 round 3, Grok finding 3):
+  // nothing previously stopped a numeral from landing on one of these panels
+  // except that they and the badges happened not to collide. The legend is
+  // NOT here: its own corner depends on where the labels land, so it joins
+  // pass 2's furniture set once `labels` exists (see below) rather than this
+  // static one both passes share.
+  const staticFurnitureBoxes: Box[] = [
+    ...insetBoxes,
+    ...(plate.north ? [northArrowBox(plate.north, rotationDeg)] : []),
+    ...(usesLatLon(plate) ? [scaleBarBox(frameWidth, height)] : []),
+    ...(() => {
+      const box = hypsometricKeyBox(plate, width, height);
+      return box ? [box] : [];
+    })(),
+  ];
   // Pass 1, against the centred area names only — those are all the label
   // geometry that is knowable before layoutLabels runs. Its job is to reserve
   // honest room for the name pass; pass 2, below, is what gets drawn.
@@ -7126,7 +7424,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       cached?.pass1 ??
       placeKeyBadges(badgeInputs, {
         ...badgeOptions,
-        avoidLabelBoxes: centredNameBoxes,
+        avoidLabelBoxes: [...centredNameBoxes, ...staticFurnitureBoxes],
         firstOrderOnly: true,
       }).map((s) => s.placement)
     ).map((p) => [Number(p.id), p]),
@@ -7179,6 +7477,26 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     denseBoxes,
   );
 
+  // Moved ahead of pass 2 (2026-09-03, ruling 9 round 3, Grok finding 3): the
+  // legend's own corner depends only on the pins, the now-finished labels and
+  // the static furniture above — nothing pass 2 computes — so it can be laid
+  // out here and its box handed to the badge placer as one more hard
+  // obstacle, closing the gap E7 already checked (a numeral could still land
+  // on the legend panel; nothing in the placer knew the panel existed).
+  // `sceneKeyMarkup` moves with it only because it reads `legend.bottom`.
+  const legend = legendMarkup(
+    legendEntries,
+    width,
+    height,
+    [
+      ...pinLabelRequests.map((request) => request.anchorBox),
+      ...labels.placedBoxes,
+      ...staticFurnitureBoxes,
+    ],
+    marginRight,
+  );
+  const sceneKey = sceneKeyMarkup(plate.sceneKey, width, marginRight, legend.bottom);
+
   // Pass 2 (ruling 9, 2026-09-03). A name's position carries meaning and, once
   // laid, cannot move; a numeral's position carries none and has three hundred
   // seats to pick from — so the numeral yields, and it can only do that once
@@ -7189,7 +7507,12 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     cached?.pass2 ??
     placeKeyBadges(badgeInputs, {
       ...badgeOptions,
-      avoidLabelBoxes: [...centredNameBoxes, ...labels.boxes.map((b) => b.box)],
+      avoidLabelBoxes: [
+        ...centredNameBoxes,
+        ...labels.boxes.map((b) => b.box),
+        ...staticFurnitureBoxes,
+        ...(legend.box ? [legend.box] : []),
+      ],
     })
       // The drop rule (2026-09-03 review, finding 6). Everything above is a
       // search for a clear seat; where the search fails — every order tried,
@@ -7310,20 +7633,6 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // safeIdFragment), rather than interpolating it raw.
   const clipId = `${safeIdFragment(opts.idPrefix)}-clip`;
   const ariaLabel = escapeXml(plate.title);
-  const legend = legendMarkup(
-    legendEntries,
-    width,
-    height,
-    [
-      ...pinLabelRequests.map((request) => request.anchorBox),
-      ...labels.placedBoxes,
-      ...insetBoxes,
-      ...(plate.north ? [northArrowBox(plate.north, rotationDeg)] : []),
-      ...(usesLatLon(plate) ? [scaleBarBox(frameWidth, height)] : []),
-    ],
-    marginRight,
-  );
-  const sceneKey = sceneKeyMarkup(plate.sceneKey, width, marginRight, legend.bottom);
   const featureKeyBlock = featureKeyMarkup(
     keyedGroups,
     width,
