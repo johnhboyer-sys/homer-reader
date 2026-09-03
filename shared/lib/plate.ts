@@ -3033,13 +3033,39 @@ interface BadgePlacementSolution {
 const BADGE_SOLUTION_CACHE_LIMIT = 4;
 const badgeSolutionCache = new WeakMap<Plate, Map<string, BadgePlacementSolution>>();
 
+// The obstacle-bearing layers a moved anchor can silently stale the cache
+// against (2026-09-03, ruling 9 round 3, Grok finding 4): a tumulus, a ship
+// row and a wall are the three kinds `renderPlate` turns into glyph/wall
+// obstacles for the badge placer (see `glyphBoxes`/`wallBoxes` above). Their
+// OWN geometry — not just which places resolve where — decides whether a
+// cached seat is still honest.
+const BADGE_CACHE_LAYER_KINDS = new Set<LayerKind>(['tumulus', 'shipRow', 'wall']);
+
+function badgeLayerSignature(plate: Plate): string {
+  return plate.layers
+    .filter((l) => BADGE_CACHE_LAYER_KINDS.has(l.kind))
+    .map((l) => `${l.id}@${(l.path ?? l.baseline ?? l.trace ?? []).map((p) => p.join(',')).join(';')}`)
+    .join('|');
+}
+
 function badgeSolutionKey(plate: Plate, places: PlatePlace[]): string {
   // Id AND anchor: two calls with the same id list but a moved anchor are two
   // different sheets, and a key that could not tell them apart would be a
   // wrong-drawing bug rather than a slow one.
-  return places
-    .map((p) => `${p.id}@${(p.plateAnchors?.[plate.id] ?? p.coords ?? []).join(',')}`)
-    .join('|');
+  //
+  // Widened (2026-09-03, ruling 9 round 3, Grok finding 4) with
+  // `badgeLayerSignature`: the cache is keyed on the plate OBJECT (see above),
+  // so mutating `plate.layers` in place — moving a tumulus, redrawing a ship
+  // row, re-tracing a wall — on that SAME object left the inner key
+  // unchanged (it only ever looked at `places`) and served a stale seat
+  // computed against the OLD geometry. Measured: moving the Callicolone
+  // mound and re-rendering kept badge 32 exactly where the first render put
+  // it, still centred on where the mound used to be.
+  return (
+    places.map((p) => `${p.id}@${(p.plateAnchors?.[plate.id] ?? p.coords ?? []).join(',')}`).join('|') +
+    '::' +
+    badgeLayerSignature(plate)
+  );
 }
 
 // A label eligible for suppression (LabelRequest.priority set) is dropped
@@ -3910,17 +3936,24 @@ function legendCornerBox(corner: LegendCorner, panelW: number, panelH: number, w
 // corner exactly as before. On its own halo-coloured panel so it stays
 // legible over whatever terrain falls under it. Returns '' when there is
 // nothing to key.
+//
+// Also returns its own chosen `box` (2026-09-03, ruling 9 round 3, Grok
+// finding 3): the badge placer had no obstacle for the legend/scale/
+// hypsometric panels at all, so nothing kept a numeral off them except luck —
+// E7's furniture check already did (see `markFurnitureBoxes` in
+// plate.test.ts). `null` when there is nothing to key, same as an empty
+// `markup`.
 function legendMarkup(
   entries: LegendEntry[],
   width: number,
   height: number,
   avoidBoxes: Box[] = [],
   marginRight = 0,
-): { markup: string; bottom: number } {
+): { markup: string; bottom: number; box: Box | null } {
   const emptyBottom = marginRight > 0 ? 12 : 0;
   const byKey = new Map<string, LegendEntry>();
   for (const e of entries) if (!byKey.has(e.key)) byKey.set(e.key, e);
-  if (byKey.size === 0) return { markup: '', bottom: emptyBottom };
+  if (byKey.size === 0) return { markup: '', bottom: emptyBottom, box: null };
   const rows = [...byKey.values()].sort((a, b) => a.rank - b.rank || codePointCompare(a.text, b.text));
   const padX = 8;
   const padY = 8;
@@ -3986,7 +4019,7 @@ function legendMarkup(
   // devices (the Shield at 200px) have no room for one and no use for one —
   // they are not maps, and every band already carries its own label.
   if (panelW > width - LABEL_MARGIN * 2 || panelH > height - LABEL_MARGIN * 2) {
-    return { markup: '', bottom: emptyBottom };
+    return { markup: '', bottom: emptyBottom, box: null };
   }
 
   let x0: number;
@@ -4043,7 +4076,11 @@ function legendMarkup(
       );
     }
   });
-  return { markup: `<g class="plate-legend">${parts.join('')}</g>`, bottom: y0 + panelH };
+  return {
+    markup: `<g class="plate-legend">${parts.join('')}</g>`,
+    bottom: y0 + panelH,
+    box: [x0, y0, x0 + panelW, y0 + panelH],
+  };
 }
 
 function badgeMarkup(
@@ -4545,9 +4582,18 @@ const HYPS_FONT = 8;
 /** At most this many numerals under the bar, always including the summit. */
 const HYPS_MAX_TICKS = 5;
 
-function hypsometricKeyMarkup(plate: Plate, width: number, height: number): string {
+/**
+ * Just the panel geometry `hypsometricKeyMarkup` below draws — extracted
+ * (2026-09-03, ruling 9 round 3, Grok finding 3) so the badge placer can know
+ * where this panel WILL sit before `hypsometricKeyMarkup` itself is called,
+ * without duplicating the layout arithmetic (and risking the two drifting
+ * apart). `null` under the exact conditions `hypsometricKeyMarkup` draws
+ * nothing: fewer than two levels, too wide for the sheet, or no vertical room
+ * above the scale-bar family.
+ */
+function hypsometricKeyBox(plate: Plate, width: number, height: number): Box | null {
   const levels = hypsometricLevels(plate);
-  if (levels.length < 2) return '';
+  if (levels.length < 2) return null;
   const barW = (levels.length + 1) * HYPS_CELL_W;
   const padX = 6;
   const padY = 5;
@@ -4556,7 +4602,7 @@ function hypsometricKeyMarkup(plate: Plate, width: number, height: number): stri
   const panelH = padY * 2 + titleH + HYPS_CELL_H + 3 + HYPS_FONT;
   // A key wider than the sheet can spare, or with no room above the bar
   // scale, is not drawn at all: a truncated scale is worse than none.
-  if (panelW > width * 0.62) return '';
+  if (panelW > width * 0.62) return null;
   const x0 = SCALE_X0 - padX;
   // Stack above the scale-bar-family panel whenever one is drawn at the sheet's
   // own bottom-left — a real bbox (the geographic stades/km bar, scaleBarMarkup)
@@ -4570,7 +4616,21 @@ function hypsometricKeyMarkup(plate: Plate, width: number, height: number): stri
   const hasScaleBar = usesLatLon(plate) || plate.pxPerMetre !== undefined;
   const bottom = hasScaleBar ? scalePanelTop(height) - 6 : height - LABEL_MARGIN - 4;
   const y0 = bottom - panelH;
-  if (y0 < LABEL_MARGIN) return '';
+  if (y0 < LABEL_MARGIN) return null;
+  return [x0, y0, x0 + panelW, y0 + panelH];
+}
+
+function hypsometricKeyMarkup(plate: Plate, width: number, height: number): string {
+  const box = hypsometricKeyBox(plate, width, height);
+  if (!box) return '';
+  const levels = hypsometricLevels(plate);
+  const padX = 6;
+  const padY = 5;
+  const titleH = HYPS_FONT + 3;
+  const [x0, y0, x1, y1] = box;
+  const panelW = x1 - x0;
+  const panelH = y1 - y0;
+  const barW = panelW - padX * 2;
 
   const barX = x0 + padX;
   const barY = y0 + padY + titleH;
@@ -5326,7 +5386,13 @@ function linearRun(plate: Plate, layer: PlateLayer, viewport: Viewport): [number
 //     spend the solver's freedom on a collision nobody can see.
 // Adding a kind here is the whole extension mechanism; nothing below is
 // aware of any particular plate.
-function lineworkReserveHalfWidth(layer: PlateLayer): number | undefined {
+//
+// Exported (2026-09-03, ruling 9 round 3, Grok finding 1) so plate.test.ts's
+// E7 check can measure a badge's clearance from a wall's corridor with the
+// SAME half-width the renderer itself reserves, rather than importing or
+// re-deriving STROKE_WEIGHT/WALL_TICK_LENGTH and risking the two drifting
+// apart.
+export function lineworkReserveHalfWidth(layer: PlateLayer): number | undefined {
   switch (layer.kind) {
     case 'coast':
       // The shoreline stroke, plus the outermost waterline running beside it.
@@ -6110,6 +6176,21 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // along it. A glyph's own leader is exempt for free — it starts at the
   // glyph's own centre, and seatBadge already drops any marker the leader
   // begins inside.
+  //
+  // Widened (2026-09-03, ruling 9 round 3, Grok's independent collision count):
+  // this used to collect a tumulus/shipRow's block ONLY when something on the
+  // sheet keyed it, which is what a badge's own numeral needs to find its
+  // exemption — but it is also the sheet's only record that the block is an
+  // OBSTACLE at all, and an unkeyed one is still ink on the sheet. The Achaean
+  // camp draws three shipRow ranks and keys none of them individually (the
+  // whole camp is one heading), so their hulls were invisible to every OTHER
+  // badge too: numerals 3, 6 and 7 were drawn straight across them, and a
+  // leader crossed a fourth. Every shipRow/tumulus block is an obstacle now,
+  // keyed or not — no exemption is added for the newly-unkeyed ones, because a
+  // glyph's disc is never exempt from its own drawing anyway (only its
+  // leader, purely geometrically, is — see above); an unkeyed block simply has
+  // no badge that could ever have qualified for that exemption in the first
+  // place.
   const glyphBoxes: Box[] = [];
   const legendEntries: LegendEntry[] = [];
   const sceneKeyByLayer = new Map((plate.sceneKey ?? []).map((row) => [row.layerId, row]));
@@ -6173,12 +6254,10 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     }
     // See glyphBoxes above. A shipRow's `feature.bbox` IS its drawn block
     // (renderLayer feeds it shipRowExtent's corners); a tumulus's is its
-    // anchor point, so the dome is measured here with tumulusExtent.
-    if (
-      layer.style !== 'inset' &&
-      (layer.kind === 'tumulus' || layer.kind === 'shipRow') &&
-      [layer.id, layer.placeId, ...(layer.claims ?? [])].some((id) => !!id && keyedIds.has(id))
-    ) {
+    // anchor point, so the dome is measured here with tumulusExtent. Every
+    // layer of these two kinds is an obstacle now (2026-09-03, ruling 9 round
+    // 3), not only a keyed one.
+    if (layer.style !== 'inset' && (layer.kind === 'tumulus' || layer.kind === 'shipRow')) {
       if (layer.kind === 'tumulus') {
         for (const p of projectPoints(plate, layer.path ?? [], viewport)) glyphBoxes.push(tumulusExtent(p));
       } else {
@@ -6654,6 +6733,24 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     avoidMarkers: [...drawnMarkBoxes.values(), ...glyphBoxes],
     avoidWater: waterBoxes,
   };
+  // Sheet furniture whose position is fixed BEFORE any label or badge is laid
+  // — an inset's own frame, the north arrow, the geographic scale bar, the
+  // hypsometric key — handed to the badge placer as a hard obstacle the same
+  // way E7 already checks it (2026-09-03, ruling 9 round 3, Grok finding 3):
+  // nothing previously stopped a numeral from landing on one of these panels
+  // except that they and the badges happened not to collide. The legend is
+  // NOT here: its own corner depends on where the labels land, so it joins
+  // pass 2's furniture set once `labels` exists (see below) rather than this
+  // static one both passes share.
+  const staticFurnitureBoxes: Box[] = [
+    ...insetBoxes,
+    ...(plate.north ? [northArrowBox(plate.north, rotationDeg)] : []),
+    ...(usesLatLon(plate) ? [scaleBarBox(frameWidth, height)] : []),
+    ...(() => {
+      const box = hypsometricKeyBox(plate, width, height);
+      return box ? [box] : [];
+    })(),
+  ];
   // Pass 1, against the centred area names only — those are all the label
   // geometry that is knowable before layoutLabels runs. Its job is to reserve
   // honest room for the name pass; pass 2, below, is what gets drawn.
@@ -6662,7 +6759,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       cached?.pass1 ??
       placeKeyBadges(badgeInputs, {
         ...badgeOptions,
-        avoidLabelBoxes: centredNameBoxes,
+        avoidLabelBoxes: [...centredNameBoxes, ...staticFurnitureBoxes],
         firstOrderOnly: true,
       }).map((s) => s.placement)
     ).map((p) => [Number(p.id), p]),
@@ -6715,6 +6812,26 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     denseBoxes,
   );
 
+  // Moved ahead of pass 2 (2026-09-03, ruling 9 round 3, Grok finding 3): the
+  // legend's own corner depends only on the pins, the now-finished labels and
+  // the static furniture above — nothing pass 2 computes — so it can be laid
+  // out here and its box handed to the badge placer as one more hard
+  // obstacle, closing the gap E7 already checked (a numeral could still land
+  // on the legend panel; nothing in the placer knew the panel existed).
+  // `sceneKeyMarkup` moves with it only because it reads `legend.bottom`.
+  const legend = legendMarkup(
+    legendEntries,
+    width,
+    height,
+    [
+      ...pinLabelRequests.map((request) => request.anchorBox),
+      ...labels.placedBoxes,
+      ...staticFurnitureBoxes,
+    ],
+    marginRight,
+  );
+  const sceneKey = sceneKeyMarkup(plate.sceneKey, width, marginRight, legend.bottom);
+
   // Pass 2 (ruling 9, 2026-09-03). A name's position carries meaning and, once
   // laid, cannot move; a numeral's position carries none and has three hundred
   // seats to pick from — so the numeral yields, and it can only do that once
@@ -6725,7 +6842,12 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     cached?.pass2 ??
     placeKeyBadges(badgeInputs, {
       ...badgeOptions,
-      avoidLabelBoxes: [...centredNameBoxes, ...labels.boxes.map((b) => b.box)],
+      avoidLabelBoxes: [
+        ...centredNameBoxes,
+        ...labels.boxes.map((b) => b.box),
+        ...staticFurnitureBoxes,
+        ...(legend.box ? [legend.box] : []),
+      ],
     })
       // The drop rule (2026-09-03 review, finding 6). Everything above is a
       // search for a clear seat; where the search fails — every order tried,
@@ -6787,20 +6909,6 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // safeIdFragment), rather than interpolating it raw.
   const clipId = `${safeIdFragment(opts.idPrefix)}-clip`;
   const ariaLabel = escapeXml(plate.title);
-  const legend = legendMarkup(
-    legendEntries,
-    width,
-    height,
-    [
-      ...pinLabelRequests.map((request) => request.anchorBox),
-      ...labels.placedBoxes,
-      ...insetBoxes,
-      ...(plate.north ? [northArrowBox(plate.north, rotationDeg)] : []),
-      ...(usesLatLon(plate) ? [scaleBarBox(frameWidth, height)] : []),
-    ],
-    marginRight,
-  );
-  const sceneKey = sceneKeyMarkup(plate.sceneKey, width, marginRight, legend.bottom);
   const featureKeyBlock = featureKeyMarkup(
     keyedGroups,
     width,

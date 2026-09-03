@@ -19,6 +19,7 @@ import {
   hypsometricStep,
   scaleBarMarkup,
   lineworkExtent,
+  lineworkReserveHalfWidth,
   type Plate,
   type PlatePlace,
   type PlateLayer,
@@ -4462,10 +4463,16 @@ const FEATURE_KEY_HEADINGS = [
 // Moved once more on 2026-09-03, by the review's finding 2: D ("the fan before
 // Troy") stood on the Bay of Troy, which ruling 5 forbids in the schematic
 // register, so it falls through its own polygon to the nearest open DRY
-// sample. It is the only letter that moved.
+// sample.
+//
+// A and B moved again the same day (ruling 9 round 3): `glyphBoxes` now
+// counts an UNKEYED shipRow as an obstacle too (see the comment on
+// `glyphBoxes` in plate.ts), and both letters' old spots sat over one of the
+// Achaean camp's three ship-row blocks, which nothing had ever told the zone
+// letter pass about before. C through G are unmoved.
 const ZONE_LETTER_MARKUP: readonly string[] = [
-  '<g class="plate-zone-letter"><circle cx="571" cy="927.7" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="571" y="927.7" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">A</text></g>',
-  '<g class="plate-zone-letter"><circle cx="603.6" cy="907.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="603.6" y="907.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">B</text></g>',
+  '<g class="plate-zone-letter"><circle cx="602.7" cy="922.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="602.7" y="922.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">A</text></g>',
+  '<g class="plate-zone-letter"><circle cx="603.6" cy="903.4" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="603.6" y="903.4" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">B</text></g>',
   '<g class="plate-zone-letter"><circle cx="560.7" cy="838.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="560.7" y="838.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">C</text></g>',
   '<g class="plate-zone-letter"><circle cx="585.8" cy="706.4" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="585.8" y="706.4" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">D</text></g>',
   '<g class="plate-zone-letter"><circle cx="566.6" cy="797.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="566.6" y="797.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">E</text></g>',
@@ -4612,21 +4619,32 @@ function discHitsRing(ring: [number, number][], cx: number, cy: number, r: numbe
 }
 
 /**
- * The painted extent of a layer-drawn GLYPH that a numbered key item names —
- * a tumulus mound, a row of beached ships. `drawnMarkBoxes` in plate.ts only
- * ever held place DOTS, so these had no obstacle at all: badge 32 was drawn
- * across the Callicolone mound, which is the one thing on the sheet it exists
- * to point at. `owner` is the keyed id the glyph belongs to; its own leader
+ * The painted extent of a layer-drawn GLYPH — a tumulus mound, a row of
+ * beached ships. `drawnMarkBoxes` in plate.ts only ever held place DOTS, so
+ * these had no obstacle at all: badge 32 was drawn across the Callicolone
+ * mound, which is the one thing on the sheet it exists to point at. `owner`
+ * is the keyed id the glyph belongs to, when it has one; its own leader
  * starts inside the glyph and is exempt, its own disc is not.
+ *
+ * Widened (2026-09-03, ruling 9 round 3, Grok's independent collision count):
+ * this used to require `owner` — a numbered key item naming the glyph — before
+ * counting it as an obstacle at all, which is right for the EXEMPTION but
+ * wrong for the obstacle itself: the Achaean camp draws three `shipRow` ranks
+ * under one heading, with no item keying any single one, so all three were
+ * invisible here and badges 3, 6 and 7 were drawn straight across them (a
+ * leader crossed a fourth). Every layer of a glyph kind is now an obstacle
+ * whether or not anything keys it; `owner` stays `undefined` for the unkeyed
+ * ones, which correctly grants no badge an exemption from them.
  *
  * Only the compact kinds. A wall or a route is keyed too, but its ink is a
  * corridor running the length of the sheet, and its own numeral has to sit
  * somewhere along it — a bounding box there would be a reservation over
- * ground the badge is entitled to.
+ * ground the badge is entitled to (see `markWallLines` below for how a wall's
+ * corridor is checked instead).
  */
 const GLYPH_LAYER_KINDS = new Set(['tumulus', 'shipRow']);
 
-function markGlyphBoxes(svg: string, plate: Plate): { id: string; owner: string; box: [number, number, number, number] }[] {
+function markGlyphBoxes(svg: string, plate: Plate): { id: string; owner?: string; box: [number, number, number, number] }[] {
   const keyed = new Set<string>();
   for (const group of plate.featureKey ?? []) {
     for (const item of group.items) {
@@ -4634,18 +4652,72 @@ function markGlyphBoxes(svg: string, plate: Plate): { id: string; owner: string;
       if (id) keyed.add(id);
     }
   }
-  const out: { id: string; owner: string; box: [number, number, number, number] }[] = [];
+  const out: { id: string; owner?: string; box: [number, number, number, number] }[] = [];
   for (const layer of plate.layers) {
     if (layer.style === 'inset' || !GLYPH_LAYER_KINDS.has(layer.kind)) continue;
     const owner = [layer.id, layer.placeId, ...(layer.claims ?? [])].find(
       (id): id is string => !!id && keyed.has(id),
     );
-    if (!owner) continue;
     const pts = layerPaths(svg, layer.id).flat();
     if (!pts.length) continue;
     const xs = pts.map((p) => p[0]);
     const ys = pts.map((p) => p[1]);
     out.push({ id: layer.id, owner, box: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] });
+  }
+  return out;
+}
+
+/**
+ * The Achaean wall's (and any other wall's) own corridor, checked as a
+ * polyline rather than a bounding box — see the comment on `GLYPH_LAYER_KINDS`
+ * above for why a wall cannot be treated as a compact glyph. Read off the
+ * SAME rendered centreline the renderer draws (`plate-layer-wall` /
+ * `plate-layer-wall-restored(-line)?`), with the clearance measured by
+ * `lineworkReserveHalfWidth` — plate.ts's own real reserved half-width for
+ * this exact layer (2026-09-03, ruling 9 round 3, Grok finding 1).
+ *
+ * This is VERIFICATION, not an obstacle the placer enforces: `renderPlate`
+ * gives a wall's corridor only the soft `denseBoxes` cost it always had (a
+ * name may still cross it when nothing clearer is on offer), never a hard
+ * `avoidMarkers` entry. Tried as a hard obstacle and measured, twice: even
+ * with a `wallId`-scoped exemption (so a gate structurally IN a wall, like
+ * the Scaean Gate, is not stranded by its own corridor) and a softening
+ * rule where a wall's band geometrically overlaps a keyed shipRow's block,
+ * the Achaean camp and the citadel's tiny wall-of-troy ring are crowded
+ * enough that making the wall hard still dropped between two and eleven
+ * numerals, for zero live benefit — this very check already passes clean
+ * with the wall soft, so the "badge 6 on the wall stroke" Grok reported does
+ * not reproduce once the ship-hull fix (this round's primary task, see
+ * `GLYPH_LAYER_KINDS`'s own comment) is in place. It also cost ~90% of the
+ * cold render (measured: 751ms to ~1.4s) by forcing a second full solve on
+ * every render that could not seat every numeral strictly, which was every
+ * render of the live sheet. This function exists so a FUTURE regression —
+ * some other change putting a badge back on a wall — is still caught.
+ */
+function markWallLines(svg: string, plate: Plate): { id: string; owner?: string; halfWidth: number; points: [number, number][] }[] {
+  const keyed = new Set<string>();
+  for (const group of plate.featureKey ?? []) {
+    for (const item of group.items) {
+      const id = item.placeId ?? item.layerId;
+      if (id) keyed.add(id);
+    }
+  }
+  const out: { id: string; owner?: string; halfWidth: number; points: [number, number][] }[] = [];
+  for (const layer of plate.layers) {
+    if (layer.style === 'inset' || layer.kind !== 'wall') continue;
+    const halfWidth = lineworkReserveHalfWidth(layer);
+    if (halfWidth === undefined) continue;
+    const re = new RegExp(
+      `<path data-feature-id="${layer.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}" class="plate-layer plate-layer-wall(?:-restored(?:-line)?)?"[^>]*d="([^"]+)"`,
+    );
+    const m = svg.match(re);
+    if (!m) continue;
+    const points = pathPoints(m[1]);
+    if (points.length < 2) continue;
+    const owner = [layer.id, layer.placeId, ...(layer.claims ?? [])].find(
+      (id): id is string => !!id && keyed.has(id),
+    );
+    out.push({ id: layer.id, owner, halfWidth, points });
   }
   return out;
 }
@@ -4674,7 +4746,17 @@ function markFurnitureBoxes(svg: string): { id: string; box: [number, number, nu
     const [x, y, w, h] = [Number(m[3]), Number(m[4]), Number(m[5]), Number(m[6])];
     out.push({ id: m[1] || m[2], box: [x, y, x + w, y + h] });
   }
-  const north = svg.match(/<g class="plate-north">([\s\S]*?)<\/g><\/g>/);
+  // Fixed (2026-09-03, ruling 9 round 3, Grok finding 2): the schematic
+  // sheet's needle is rotated, so its markup nests one `<g transform>` inside
+  // `<g class="plate-north">` — `<g class="plate-north"><g transform>…</g>
+  // <text>…</text><text>…</text></g>` — and the old regex, which wanted TWO
+  // `</g>` immediately back to back, never matched that (or the unrotated
+  // form, which has only one `</g>` total). Matched instead up through the
+  // caption `<text>`'s own close, which every north-arrow markup — rotated or
+  // not — always emits right before the ONE `</g>` that closes `plate-north`.
+  const north = svg.match(
+    /<g class="plate-north">([\s\S]*?<text class="plate-north-caption"[^>]*>[\s\S]*?<\/text>)<\/g>/,
+  );
   if (north) {
     const pts = [...north[1].matchAll(/ d="([^"]+)"/g)].flatMap((m) => pathPoints(m[1]));
     if (pts.length) {
@@ -4847,6 +4929,40 @@ function badgeOverlapOffenders(
       // glyph's OWN numeral still gets a line back to its mound.
       if (originInside(leader, glyph.box)) continue;
       if (segmentHitsBox(leader, glyph.box)) offenders.push(`leader/glyph: ${leader.label} crosses glyph ${glyph.id}`);
+    }
+  }
+
+  // Wall corridors (2026-09-03, ruling 9 round 3, Grok finding 1): a
+  // VERIFICATION check, not enforcement of a placer obstacle — see
+  // `markWallLines`'s own comment for why the placer keeps a wall's corridor
+  // as the soft cost it always was. Checked as the SAME segmented boxes
+  // `lineworkExtent` produces, at the SAME half-width `lineworkReserveHalfWidth`
+  // computes for this exact layer, so if the placer ever DOES treat a wall as
+  // hard, this cannot disagree with what it protects. Numerals only — a zone
+  // letter has no leader and this check exists for the disc Grok found sitting
+  // on the stroke, not to extend zone-letter coverage. The wall's own numeral
+  // is exempt from its own corridor; every other numeral is not.
+  for (const wall of markWallLines(svg, plate)) {
+    const wallBoxes = lineworkExtent(wall.points, wall.halfWidth);
+    for (const disc of numerals) {
+      if (wall.owner && disc.id === wall.owner) continue;
+      for (const box of wallBoxes) {
+        if (boxesIntersect([disc.cx - disc.r, disc.cy - disc.r, disc.cx + disc.r, disc.cy + disc.r], box)) {
+          offenders.push(`disc/wall: ${disc.label} sits on wall ${wall.id}`);
+          break;
+        }
+      }
+    }
+    for (const leader of leaders) {
+      const own = discByN.get(leader.n);
+      if (wall.owner && own?.id === wall.owner) continue;
+      for (const box of wallBoxes) {
+        if (originInside(leader, box)) continue;
+        if (segmentHitsBox(leader, box)) {
+          offenders.push(`leader/wall: ${leader.label} crosses wall ${wall.id}`);
+          break;
+        }
+      }
     }
   }
 
@@ -5322,5 +5438,45 @@ describe('renderPlate: geographic label-set parity (stage 5c E9)', () => {
       const dropped = [...baseline].filter((id) => !now.has(id)).sort();
       expect({ sheet, added, dropped }).toEqual({ sheet, added: [], dropped: [] });
     }
+  });
+});
+
+// Ruling 9 round 3 (2026-09-03, Grok finding 4): the badge placement cache is
+// a WeakMap keyed on the PLATE OBJECT, with an inner key covering only which
+// places resolve where — so mutating `plate.layers` on that same object
+// (moving a tumulus, redrawing a ship row, re-tracing a wall) left the cache
+// unable to tell the two renders apart and served the FIRST render's seats
+// against the SECOND render's geometry. Grok moved the Callicolone mound and
+// re-rendered; badge 32 stayed exactly where the first render put it, still
+// centred on the mound's old position.
+describe('renderPlate: mutating a glyph layer on the same plate object gets a fresh badge solution (round 3, finding 4)', () => {
+  it('moving the Callicolone tumulus in place moves its own badge on the next render', () => {
+    const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
+    const plate = parsePlate(raw);
+    const allPlaces = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[];
+
+    const before = renderPlate(plate, allPlaces);
+    const badgeAt = (svg: string) => {
+      const m = svg.match(/<g class="plate-key-badge"[^>]*data-layer-id="callicolone"[^>]*>[\s\S]*?<circle cx="([-\d.]+)" cy="([-\d.]+)"/);
+      expect(m, 'badge 32 (callicolone) must render').toBeTruthy();
+      return [Number(m![1]), Number(m![2])] as const;
+    };
+    const beforePos = badgeAt(before.svg);
+
+    // Mutate the SAME layer object the plate already carries — not a fresh
+    // plate — so the WeakMap's outer key (the plate object itself) is
+    // unchanged and only the inner, place-keyed cache key is what could catch
+    // this.
+    const layer = plate.layers.find((l) => l.id === 'callicolone');
+    expect(layer, 'fixture must still carry the callicolone layer').toBeTruthy();
+    layer!.path = [[39.9565 + 0.01, 26.3395 + 0.01]];
+
+    const after = renderPlate(plate, allPlaces);
+    const afterPos = badgeAt(after.svg);
+
+    expect(afterPos, 'moving the mound must move its own badge — a stale cached seat would not').not.toEqual(
+      beforePos,
+    );
+    expect(badgeOverlapOffenders(after.svg, plate, after), 'the re-rendered sheet must still clear E7').toEqual([]);
   });
 });
