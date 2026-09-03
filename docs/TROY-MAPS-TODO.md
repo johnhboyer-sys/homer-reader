@@ -405,10 +405,12 @@ shield-of-achilles plate-level `sources` (now a validator error);
     the zone outlines from the map face").** The seven scene zones A–G are
     routing machinery, not something the reader learns from; their dashed
     polygons put editorial boundaries on the face at the weight of the
-    roads. The zone LETTER stays on the face; the outline is drawn only when
-    that zone is the focus (hover or focus on its letter or key row in the
-    plate panel; the Chart Room postcard for a scene in that zone). The
-    chase circuit stays as the drawn feature it already is.
+    roads. The zone LETTER stays on the face, because it names areas that
+    have no point and lets the scene key say where a scene is. The outline
+    is never drawn (John, 15:55: "why is the zone a focus for readers?" —
+    it is not; a hover reveal was over-engineering). The polygon stays as
+    data: the Chart Room camera frames a scene on it. The chase circuit
+    stays as the drawn feature it already is.
 
 ## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
 
