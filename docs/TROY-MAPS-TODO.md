@@ -412,6 +412,21 @@ shield-of-achilles plate-level `sources` (now a validator error);
     data: the Chart Room camera frames a scene on it. The chase circuit
     stays as the drawn feature it already is.
 
+12. **The citadel inset is where the sheet supplements (John, 2026-09-03
+    16:22: "the citadel insert is too coarse grained. this is where we need
+    to supplement").** The inset as first built was a plan of gates and
+    rings, empty inside the wall and with no ground under it. It becomes the
+    citadel plate the July session ruled and never drew: the surveyed Troy
+    VI circuit as muted ground (ruling 1's pattern, Dörpfeld's trace from
+    the July WIP), and on it the poem's city — the house of Priam with the
+    agora at his doors (Il. 2.788), the houses of Hector and Paris in the
+    high city (6.313–317), the temple of Athena (6.297), Apollo's shrine in
+    Pergamos (5.446), the street armature down to the gates, the great
+    tower, the weak point of the wall by the fig tree (6.433–439), the oak
+    and the springs outside. Every feature by the poem's relations, cited,
+    tiered; nothing surveyed placed at a guessed coordinate. The July pickup
+    gate (references first) is satisfied by today's two style sheets.
+
 ## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
 
 Session paused here 2026-07-31; John picks up when he has reference examples
