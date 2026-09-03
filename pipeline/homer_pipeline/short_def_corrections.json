@@ -250,5 +250,12 @@
     "prefer": "shine",
     "source": "lsj",
     "justification": "φάε δὲ χρυσόθρονος Ἠώς, 'and golden-throned Dawn shone' (Od. 14.502) — the sole occurrence. Morpheus's gloss belongs to a different root."
+  },
+  {
+    "lemma": "e)/mpas",
+    "morpheus": "alike",
+    "prefer": "nevertheless, all the same",
+    "source": "editorial",
+    "justification": "38 occurrences, all of the Epic adverb ἔμπης. In Homer it is concessive: eight are the idiom of a concessive participle with περ — χατέουσί περ ἔμπης (Il. 9.518), πίνοντά περ ἔμπης (Il. 14.1), καὶ τεθνηῶτά περ ἔμπης (Il. 17.229), ἀχέουσά περ ἔμπης (Od. 15.361) — and ten more open a line with ἀλλ' ἔμπης or ἀλλὰ καὶ ἔμπης (Il. 2.297, 8.33, 19.422; Od. 4.100, 16.147, 20.311, 23.83). Morpheus's 'alike' is LSJ's first sense, = ὁμοίως, which fits at most two of the 38 (Il. 17.632, 14.174) and misreads the rest. LSJ's own entry for the adverb (key e)/mpa_s1) yields no short def at all — it opens on dialect forms — and the 'all' the derivation does produce comes from ἔμπας (B) (key e)/mpas2), an adjective attested once in a first-century Boeotian inscription and marked dubious there. Neither source supplies the Homeric sense, hence source=editorial."
   }
 ]

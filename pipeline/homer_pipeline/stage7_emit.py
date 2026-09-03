@@ -100,6 +100,39 @@ def load_short_def_corrections(path: Path = _CORRECTION_PATH) -> dict[str, dict]
 SHORT_DEF_CORRECTIONS = load_short_def_corrections()
 
 
+# LSJ wraps a coined rendering in scare-quotes or brackets and runs a sense on
+# from an em-dash. Morpheus's glosses are LSJ-derived upstream, so a few arrive
+# with that punctuation still attached: "‘the joy of men’", "[five years old]",
+# "—have no care for". This is typography, not sense — five lemmata, 17
+# occurrences, measured over both works — so it is a rule, not five entries on
+# the reviewed correction list, which is about what a word means.
+_GLOSS_WRAPPERS = {"[": "]", "\u2018": "\u2019", "\u201c": "\u201d"}
+_LEADING_DASH = re.compile(r"^[-\u2010-\u2015]+\s*")
+
+
+def _clean_gloss_typography(gloss: str) -> str:
+    """Peel punctuation that wraps or leads the WHOLE gloss, nothing else.
+
+    A parenthesis carrying part of the sense — "accompany, come on (with)",
+    "(of a wound) deep" — is untouched: only a wrapper whose mark appears
+    nowhere inside is peeled, and only a dash at the very front.
+    """
+    cleaned = original = gloss.strip()
+    while len(cleaned) > 2 and _GLOSS_WRAPPERS.get(cleaned[0]) == cleaned[-1]:
+        inner = cleaned[1:-1].strip()
+        if not inner or cleaned[0] in inner or cleaned[-1] in inner:
+            break
+        cleaned = inner
+    cleaned = _LEADING_DASH.sub("", cleaned).strip()
+    # Nothing typographic to peel: hand back the gloss EXACTLY as it came.
+    # Returning the stripped copy would retrim ~300 occurrences of trailing
+    # whitespace ("go slowly ", "both . . ") that this rule was not asked to
+    # touch, and a whitespace sweep is a separate change from a punctuation one.
+    if not cleaned or cleaned == original:
+        return gloss
+    return cleaned
+
+
 def _normalized_gloss(value: str) -> str:
     normalized = " ".join(value.lower().split())
     while normalized and (
@@ -366,6 +399,7 @@ def merge_short_def(
     correct answers). A disagreement is replaced only where a Homerist has
     reviewed it and recorded the verdict in short_def_corrections.json.
     """
+    gloss = _clean_gloss_typography(gloss)
     normalized_gloss = _normalized_gloss(gloss)
     if not normalized_gloss:
         return _empty_gloss_def(lemma, candidate_keys, short_defs)

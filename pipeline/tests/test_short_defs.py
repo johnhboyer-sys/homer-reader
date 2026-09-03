@@ -10,7 +10,11 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "pipeline"))
 
 from homer_pipeline.config import Manifest
-from homer_pipeline.stage5_lsj import derive_short_def
+from homer_pipeline.stage5_lsj import (
+    derive_short_def,
+    fold_key,
+    lemma_candidates,
+)
 from homer_pipeline.stage7_emit import (
     SHORT_DEF_CORRECTIONS,
     merge_short_def,
@@ -530,6 +534,14 @@ _REAL_ENTRY_KEYS = (
     "oi)=da",
     "tre/fw",
     "dai/s2",
+    "*kh/r",
+    "kh=r",
+    "suno/xwka",
+    "e)fomarte/w",
+    "boulu_to/s",
+    "zwa/gria",
+    "e)/mpa_s1",
+    "e)/mpas2",
 )
 
 
@@ -704,12 +716,19 @@ def test_ou_still_falls_back_to_morpheus():
     )
 
 
-def test_ego_is_the_one_editorial_correction():
-    """Neither source glosses ἐγώ "I": LSJ's first sense treats ἔγωγε, and
-    Morpheus repeats it. 2,877 occurrences, and no rule reaches them."""
-    editorial = [e for e in SHORT_DEF_CORRECTIONS.values() if e["source"] == "editorial"]
-    assert [e["lemma"] for e in editorial] == ["e)gw/"]
-    assert editorial[0]["prefer"] == "I"
+def test_the_editorial_corrections_are_the_ones_no_source_supplies():
+    """source=editorial is reserved for a lemma BOTH sources get wrong.
+
+    ἐγώ: LSJ's first sense treats ἔγωγε and Morpheus repeats it, so neither
+    offers "I" (2,877 occurrences). ἔμπης: LSJ's adverb entry yields no short
+    def, and the "all" it does derive belongs to a different word.
+    """
+    editorial = {
+        lemma: e["prefer"]
+        for lemma, e in SHORT_DEF_CORRECTIONS.items()
+        if e["source"] == "editorial"
+    }
+    assert editorial == {"e)gw/": "I", "e)/mpas": "nevertheless, all the same"}
 
 
 @pytest.mark.parametrize(
@@ -720,3 +739,168 @@ def test_lsj_sourced_corrections_quote_the_real_entry(lemma, key):
     grc.lsj.xml, the file stage 5 reads."""
     assert SHORT_DEF_CORRECTIONS[lemma]["source"] == "lsj"
     assert SHORT_DEF_CORRECTIONS[lemma]["prefer"] == derive_short_def(_real_entry(key))
+
+
+# ── κήρ: the lemma reached the wrong entry, not the wrong sense ─────────────
+# Morpheus's lemma for the death-spirit is kh/r. LSJ heads that word Κήρ, whose
+# Perseus key carries the capital marker: *kh/r. No lowercase kh/r exists, so
+# the exact and base lookups both miss and the accent-blind fold lookup takes
+# over — and fold_key erases the very mark that separates κήρ from κῆρ.
+
+
+def test_folding_conflates_ker_the_doom_with_ker_the_heart():
+    """Why the fold fallback cannot be trusted to pick this entry."""
+    assert fold_key("kh/r") == fold_key("kh=r") == "khr"
+
+
+def test_lemma_candidates_offers_the_capitalized_headword_before_folding():
+    """LSJ heads a capitalized word with *; Morpheus's lemma has no *."""
+    cands = lemma_candidates("kh/r")
+
+    assert ("exact", "*kh/r") in cands
+    assert cands.index(("exact", "*kh/r")) < cands.index(("fold", "khr"))
+
+
+def test_lemma_candidates_do_not_double_the_capital_marker():
+    """A lemma LSJ already capitalizes needs no second asterisk."""
+    assert ("exact", "**kh/r") not in lemma_candidates("*kh/r")
+
+
+def test_the_two_kers_are_two_entries():
+    """The death-spirit and the heart are different words with different defs.
+
+    76 corpus tokens of the doom word (κῆρα, κῆρας, κῆρες, κῆρε, κηρί, κηρός)
+    carried lsj: ["kh=r"] and so opened κῆρ "heart" — Achilles' heart on the
+    Κῆρες of death.
+    """
+    assert derive_short_def(_real_entry("*kh/r")) == "the goddess of death or doom"
+    assert derive_short_def(_real_entry("kh=r")) == "heart"
+
+
+def test_merge_short_def_extends_the_doom_gloss_from_its_own_entry():
+    """With the right key the Morpheus gloss extends; with the wrong one it
+    cannot, which is how the defect stayed invisible on the card."""
+    short_defs = {"*kh/r": "the goddess of death or doom", "kh=r": "heart"}
+
+    assert (
+        merge_short_def("the goddess of death", "kh/r", ["*kh/r"], short_defs)
+        == "the goddess of death or doom"
+    )
+    assert (
+        merge_short_def("the goddess of death", "kh/r", ["kh=r"], short_defs)
+        == "the goddess of death"
+    )
+
+
+def test_the_heart_word_keeps_its_own_entry():
+    """κῆρι and the heart reading of κῆρ' are lemma kh=r, which matches
+    exactly — the capitalized candidate never runs for them."""
+    assert lemma_candidates("kh=r")[0] == ("exact", "kh=r")
+
+
+# ── An unbalanced delimiter is a broken fragment, not a definition ──────────
+# derive_short_def lifts the leading italic run, and LSJ sometimes opens a
+# parenthesis inside that run and closes it outside — or closes one it opened
+# before it. The result is a fragment; the entry is better off with no short
+# def at all, falling back to whatever Morpheus supplies.
+
+
+@pytest.mark.parametrize("key", ["boulu_to/s", "zwa/gria"])
+def test_derive_short_def_refuses_a_run_that_straddles_a_delimiter(key):
+    """βουλυτός's parenthesis closes two citations later, and ζωάγρια's run
+    opens inside LSJ's etymology bracket. Neither can be repaired."""
+    assert derive_short_def(_real_entry(key)) == ""
+
+
+@pytest.mark.parametrize(
+    ("key", "expected"),
+    [
+        ("suno/xwka", "to be σύνοχος (joined together)"),
+        ("e)fomarte/w", "accompany, come on (with)"),
+    ],
+)
+def test_derive_short_def_keeps_a_closing_bracket_the_stripper_would_eat(
+    key, expected
+):
+    """The other half of the class was self-inflicted: LSJ writes "(with),"
+    and peeling every trailing mark took the bracket with the comma."""
+    assert derive_short_def(_real_entry(key)) == expected
+
+
+def test_derive_short_def_keeps_a_balanced_parenthesis():
+    """Only the unrepairable case is refused; a whole parenthetical is fine."""
+    div2 = etree.fromstring(
+        "<div2><head>head</head><sense><i>come on (with a rush),</i>"
+        "</sense></div2>"
+    )
+
+    assert derive_short_def(div2) == "come on (with a rush)"
+
+
+# ── Typographic junk on the Morpheus gloss ─────────────────────────────────
+# Morpheus's glosses are themselves LSJ-derived upstream, and a few arrive with
+# the surrounding punctuation still attached: a leading em-dash from a run-on
+# entry, or the brackets and scare-quotes LSJ puts round a coined rendering.
+# This is typography, not sense, so it is a rule and not a correction entry.
+
+
+@pytest.mark.parametrize(
+    ("gloss", "expected"),
+    [
+        ("—have no care for, be neglectful of", "have no care for, be neglectful of"),
+        ("-sift, strain", "sift, strain"),
+        ("[five years old]", "five years old"),
+        ("‘the joy of men’", "the joy of men"),
+        ("‘pitting’", "pitting"),
+    ],
+)
+def test_merge_short_def_strips_edge_typography_from_the_gloss(gloss, expected):
+    assert merge_short_def(gloss, "x", [], {}) == expected
+
+
+@pytest.mark.parametrize(
+    "gloss",
+    [
+        "not",
+        "thicken or congeal",
+        "well-greaved",
+        "accompany, come on (with)",
+        "(of a wound) deep",
+        "a kind of hawk",
+    ],
+)
+def test_merge_short_def_leaves_ordinary_glosses_alone(gloss):
+    """The rule may only remove punctuation that wraps or leads the whole
+    gloss — never a parenthetical that carries part of the sense."""
+    assert merge_short_def(gloss, "x", [], {}) == gloss
+
+
+def test_stripping_typography_lets_the_lsj_def_match_instead_of_extend():
+    """ἠθέω: Morpheus "-sift, strain" and LSJ "sift, strain" are the same
+    gloss, and only the dash made them look different."""
+    assert (
+        merge_short_def("-sift, strain", "h)qe/w", ["h)qe/w"], {"h)qe/w": "sift, strain"})
+        == "sift, strain"
+    )
+
+
+# ── ἔμπης: both sources wrong ───────────────────────────────────────────────
+
+
+def test_empes_is_corrected_to_the_concessive_sense():
+    """38 corpus occurrences; ἀλλ' ἔμπης and "…περ ἔμπης" account for most."""
+    entry = SHORT_DEF_CORRECTIONS["e)/mpas"]
+
+    assert entry["source"] == "editorial"
+    assert entry["morpheus"] == "alike"
+    assert merge_short_def("alike", "e)/mpas", ["e)/mpa_s1", "e)/mpas2"], {}) == (
+        entry["prefer"]
+    )
+
+
+def test_neither_source_supplies_the_empes_gloss():
+    """LSJ's own entry for the Epic adverb yields no short def at all, and the
+    "all" the derivation does produce belongs to ἔμπας (B), a first-century
+    Boeotian adjective that is a different word."""
+    assert derive_short_def(_real_entry("e)/mpa_s1")) == ""
+    assert derive_short_def(_real_entry("e)/mpas2")) == "all"

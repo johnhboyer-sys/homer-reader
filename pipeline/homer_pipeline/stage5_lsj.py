@@ -62,6 +62,7 @@ _LEAD_ARTICLE = re.compile(
 )
 # A trailing homonym label — "= ἄπειρος (A):—" — is not a dangling article.
 _HOMONYM_LABEL = re.compile(r"\(\s*[A-Z]\s*\)\s*$")
+_CLOSERS = {")": "(", "]": "[", "}": "{"}
 _HAS_VOWEL = re.compile(r"[aeiouyAEIOUY]")
 # Latin-script words only: a gloss may legitimately quote Greek
 # ("armed with θώραξ"), and Greek carries no ASCII vowel.
@@ -86,6 +87,16 @@ def lemma_candidates(lemma: str) -> list[tuple[str, str]]:
     compounds carry hyphens and extra accents (a)nti/-bla/ptw).
     """
     cands = [("exact", lemma), ("base", base_key(lemma))]
+    # LSJ marks a capitalized headword with a leading *, and Morpheus's lemma
+    # does not carry it: the death-spirit κήρ is Morpheus's kh/r and LSJ's
+    # *kh/r. Without this candidate the lookup falls through to the fold, and
+    # fold_key erases the accent that is the only thing separating κήρ from
+    # κῆρ "heart" — so 76 tokens of the Κῆρες opened Achilles' heart. Ranked
+    # above the fold because it preserves accent and breathing; measured over
+    # both works, it changes four lemmata and no fold match it should keep.
+    if not lemma.startswith("*"):
+        capitalized = f"*{lemma}"
+        cands += [("exact", capitalized), ("base", base_key(capitalized))]
     fold = fold_key(lemma)
     cands.append(("fold", fold))
     if fold.endswith("ws"):
@@ -146,6 +157,19 @@ def entry_html(div2) -> str:
     return "".join(parts).strip()
 
 
+def _closes_an_opener(value: str) -> bool:
+    """Does value end on a delimiter that closes one still open before it?"""
+    closer = value[-1]
+    opener = _CLOSERS.get(closer)
+    if opener is None:
+        return False
+    return value.count(opener, 0, -1) > value.count(closer, 0, -1)
+
+
+def _delimiters_balance(value: str) -> bool:
+    return all(value.count(a) == value.count(b) for a, b in _CLOSERS.items())
+
+
 def _strip_edge_punctuation(value: str) -> str:
     while value and (
         value[0].isspace() or unicodedata.category(value[0]).startswith("P")
@@ -154,6 +178,11 @@ def _strip_edge_punctuation(value: str) -> str:
     while value and (
         value[-1].isspace() or unicodedata.category(value[-1]).startswith("P")
     ):
+        # LSJ closes a parenthesis inside the italic run and puts the comma
+        # after it: "come on (with)," — peeling every trailing mark would eat
+        # the bracket and leave a fragment. Stop at a closer that is doing work.
+        if _closes_an_opener(value):
+            break
         value = value[:-1]
     return value
 
@@ -213,6 +242,12 @@ def derive_short_def(div2) -> str:
     # and the noun is untranslated Greek outside the italic run: the derivation
     # would end on a stranded article. Give up rather than ship broken English.
     if _DANGLING_ARTICLE.search(short_def):
+        return ""
+    # The run can straddle a delimiter LSJ opened or closed outside the
+    # italics: βουλυτός's "(early afternoon," closes only after two citations,
+    # and ζωάγρια's run begins inside the etymology parenthesis. What comes out
+    # is a fragment, so the entry is better off with no short def at all.
+    if not _delimiters_balance(short_def):
         return ""
     # A definition this long is one continuous italic clause (technical terms
     # like kefalaiwth/s), never a joined run — cutting it would reintroduce the
