@@ -2552,6 +2552,13 @@ interface ReservedBox {
   layerId?: string;
   /** When set, this reservation binds only centred area names (stage 5c). */
   areaOnly?: boolean;
+  /**
+   * When set, the numeral-badge placer ignores this reservation (2026-09-03,
+   * design lane): the camp's ship band, which a numeral sits ON at its pin
+   * rather than flees from. Distinct from areaOnly, which the badge pass
+   * has always honoured as a soft cost for tumuli and routes.
+   */
+  badgeFree?: boolean;
 }
 
 function polylineLength(pts: [number, number][]): number {
@@ -5642,7 +5649,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       // band against badges only sent 6 and 8 out to sea on long leaders,
       // the beach seaward of the band being narrower than a disc.
       for (const box of lineworkExtent(mid, SHIP_LIGHT_RANK_PITCH * (layer.rows ?? 1) * 0.5 + 1)) {
-        denseBoxes.push({ box, layerId: layer.id, areaOnly: true });
+        denseBoxes.push({ box, layerId: layer.id, areaOnly: true, badgeFree: true });
       }
     } else if (layer.kind === 'shipRow') denseBoxes.push({ box: rendered.feature.bbox, layerId: layer.id });
     if (plate.kind === 'schematic' && layer.kind === 'tumulus') {
@@ -6025,9 +6032,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       height,
       margin: LABEL_MARGIN,
       markerBoxes: [...pinAnchors.values()],
-      // An areaOnly reservation binds centred area names, not badges (the
-      // same filter the name pass applies; 2026-09-03, design lane).
-      placedBoxes: denseBoxes.filter((d) => !d.areaOnly).map((d) => d.box),
+      placedBoxes: denseBoxes.filter((d) => !d.badgeFree).map((d) => d.box),
       avoidBoxes: zoneLetterBoxes,
     },
   );
