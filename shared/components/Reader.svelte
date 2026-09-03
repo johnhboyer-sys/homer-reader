@@ -1223,8 +1223,14 @@
   // does. `[data-layer-style="inset"]` already covers a margin-band inset
   // panel (renderPlate wraps a margin inset the same way as a map-content
   // one) — nothing new needed there.
+  // `.plate-feature-key` added (stage 5c, part 2, 2026-09-02): the numbered
+  // key added alongside the lettered scene key is the same margin-band
+  // furniture, drawn at the same `x0 = width - marginRight + 12` column —
+  // it sits outside the FRAME the `slice` crop below keeps, so it would
+  // never actually paint even without this, but it gets the same explicit
+  // class-hide as scene key rather than relying only on that crop.
   const FURNITURE_SELECTOR =
-    '[data-layer-style="inset"], .plate-legend, .plate-scale, .plate-north, .plate-hypsometric-key, .plate-scene-key';
+    '[data-layer-style="inset"], .plate-legend, .plate-scale, .plate-north, .plate-hypsometric-key, .plate-scene-key, .plate-feature-key';
 
   function applyPlateCamera(node: HTMLElement, params: PlateCameraParams) {
     let labelWrappers: { el: SVGGElement; x: number; y: number; id: string | null }[] = [];
@@ -1290,30 +1296,67 @@
         ?.querySelector('.chart-locator svg')
         ?.querySelectorAll<SVGElement>(FURNITURE_SELECTOR)
         .forEach((el) => el.classList.add('plate-hidden'));
-      svgEl.querySelectorAll<SVGTextElement>('.plate-label').forEach((textEl) => {
-        const xAttr = textEl.getAttribute('x');
-        const yAttr = textEl.getAttribute('y');
+      // Numbered feature key (stage 5c, part 2): a `.plate-key-badge` is a
+      // small numeral disc, the same descale-under-zoom treatment as a
+      // `.plate-label` name — but it's a `<g>` (circle + text), not a bare
+      // `<text>`, and its own inner text carries NO class at all
+      // (badgeMarkup's textClass: '', shared/lib/plate.ts) precisely so it
+      // can never match `.plate-label` and get wrapped a second time here.
+      // The selector below wraps the GROUP, matching the design's own
+      // warning against double-wrapping the text inside it.
+      svgEl.querySelectorAll<SVGGraphicsElement>('.plate-label, .plate-key-badge').forEach((el) => {
+        const isBadge = el.classList.contains('plate-key-badge');
         let x: number;
         let y: number;
-        if (xAttr !== null && yAttr !== null) {
-          x = parseFloat(xAttr);
-          y = parseFloat(yAttr);
-        } else if (typeof textEl.getBBox === 'function') {
-          // happy-dom (vitest) implements no getBBox at all — guarded so a
-          // textPath label (the only case with no x/y) never throws in
-          // tests; it simply gets no descale wrapper there, same as any
-          // other jsdom/happy-dom rendering gap.
-          const bbox = textEl.getBBox();
-          x = bbox.x + bbox.width / 2;
-          y = bbox.y + bbox.height / 2;
+        if (isBadge) {
+          // Pivot = the badge's own circle centre, not a text x/y (a badge
+          // has none) — falls back to getBBox the same way a textPath name
+          // does when even that isn't available (happy-dom).
+          const circle = el.querySelector('circle');
+          const cx = circle?.getAttribute('cx');
+          const cy = circle?.getAttribute('cy');
+          if (cx !== null && cy !== null && cx !== undefined && cy !== undefined) {
+            x = parseFloat(cx);
+            y = parseFloat(cy);
+          } else if (typeof el.getBBox === 'function') {
+            const bbox = el.getBBox();
+            x = bbox.x + bbox.width / 2;
+            y = bbox.y + bbox.height / 2;
+          } else {
+            return;
+          }
+          // Tab stops inside the postcard's single `<a>` would wreck its
+          // keyboard flow (design, part 2) — every badge, focus one
+          // included, since the postcard names its one focus place under
+          // the frame already; nothing inside the map itself needs to be
+          // reachable by Tab here (contrast PlatePanel.svelte's full-plate
+          // view, where each badge IS its own tab stop).
+          el.setAttribute('tabindex', '-1');
         } else {
-          return;
+          const textEl = el as unknown as SVGTextElement;
+          const xAttr = textEl.getAttribute('x');
+          const yAttr = textEl.getAttribute('y');
+          if (xAttr !== null && yAttr !== null) {
+            x = parseFloat(xAttr);
+            y = parseFloat(yAttr);
+          } else if (typeof textEl.getBBox === 'function') {
+            // happy-dom (vitest) implements no getBBox at all — guarded so a
+            // textPath label (the only case with no x/y) never throws in
+            // tests; it simply gets no descale wrapper there, same as any
+            // other jsdom/happy-dom rendering gap.
+            const bbox = textEl.getBBox();
+            x = bbox.x + bbox.width / 2;
+            y = bbox.y + bbox.height / 2;
+          } else {
+            return;
+          }
         }
         const wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         wrapper.setAttribute('class', 'chart-label-descale');
-        textEl.parentNode?.insertBefore(wrapper, textEl);
-        wrapper.appendChild(textEl);
-        labelWrappers.push({ el: wrapper, x, y, id: textEl.getAttribute('data-label-for') });
+        el.parentNode?.insertBefore(wrapper, el);
+        wrapper.appendChild(el);
+        const id = el.getAttribute('data-label-for') ?? el.getAttribute('data-place-id') ?? el.getAttribute('data-layer-id');
+        labelWrappers.push({ el: wrapper, x, y, id });
       });
     }
 
@@ -1488,7 +1531,12 @@
       // both surfaces.
       node.classList.toggle('plate-zoomed', !!effectiveCamera && effectiveCamera.scale >= 2.5);
       const focusSet = new Set(p.focusIds);
-      node.querySelectorAll<SVGElement>('[data-place-id]').forEach((el) => {
+      // `:not(.plate-key-badge)` (stage 5c, part 2): a badge also carries
+      // `data-place-id`/`data-layer-id`, but it gets its OWN, stricter
+      // focus treatment below (hidden outright, not dimmed) — excluded here
+      // so a non-focus badge never carries both `plate-dimmed` (unused,
+      // since it's `display:none`) and `plate-hidden` at once.
+      node.querySelectorAll<SVGElement>('[data-place-id]:not(.plate-key-badge)').forEach((el) => {
         const id = el.getAttribute('data-place-id');
         const dim = focusSet.size > 0 && !(id !== null && focusSet.has(id));
         el.classList.toggle('plate-dimmed', dim);
@@ -1517,6 +1565,20 @@
         const hide = focusSet.size > 0 && !isFocus;
         el.classList.toggle('plate-hidden', hide);
         el.classList.toggle('plate-focus-label', isFocus);
+      });
+      // Numbered feature key (stage 5c, part 2): a badge is content the
+      // same as a name is — OMITTED when it isn't the postcard's one
+      // subject, not merely ghosted the way a non-focus PIN is above (a
+      // badge carries no separate name text of its own for a reader to
+      // still make out at low opacity, so dimming it would just be visual
+      // noise). Matches the `[data-label-for]` treatment immediately above,
+      // by the same `.plate-hidden` class; the focus badge is left exactly
+      // as lit as its pin.
+      node.querySelectorAll<SVGElement>('.plate-key-badge').forEach((el) => {
+        const id = el.getAttribute('data-place-id') ?? el.getAttribute('data-layer-id');
+        const isFocus = focusSet.size > 0 && id !== null && focusSet.has(id);
+        const hide = focusSet.size > 0 && !isFocus;
+        el.classList.toggle('plate-hidden', hide);
       });
       updateLabelDescale();
       updateLocatorFrame(p, effectiveCamera);

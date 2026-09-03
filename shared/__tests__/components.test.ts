@@ -1065,6 +1065,52 @@ describe('Reader.svelte — Chart Room SCHEMATIC plate postcard (live path, 2026
     });
   });
 
+  // Numbered feature key (stage 5c, part 2, 2026-09-02): the postcard's own
+  // treatment of `.plate-key-badge` — content the descale/focus/tab-flow
+  // rules above already give `.plate-label`, extended to cover the badge.
+  it('badges: the focus badge stays lit, every non-focus badge is hidden, each gets exactly one descale wrapper, and all carry tabindex="-1"', async () => {
+    const featureKeyFixture = { ...schematicFixture, marginRight: 80, featureKey: [
+      { title: 'Group', items: [
+        { placeId: 'anchor-a', label: 'Anchor A' },
+        { placeId: 'anchor-b', label: 'Anchor B' },
+      ] },
+    ] };
+    vi.mocked(fetchPlate).mockResolvedValueOnce(featureKeyFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA, anchorB] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const badges = container.querySelectorAll('.plate-key-badge');
+    expect(badges.length).toBe(2);
+
+    // Part D: never a tab stop inside the postcard's own single link.
+    badges.forEach((b) => expect(b.getAttribute('tabindex')).toBe('-1'));
+
+    // Exactly one descale wrapper per badge — its own inner <text> carries
+    // no `.plate-label` class (badgeMarkup's textClass: '', plate.ts), so
+    // the group is wrapped once, never twice.
+    badges.forEach((b) => {
+      expect(b.parentElement).toHaveClass('chart-label-descale');
+      let wrapperCount = 0;
+      for (let el: Element | null = b.parentElement; el; el = el.parentElement) {
+        if (el.classList.contains('chart-label-descale')) wrapperCount += 1;
+      }
+      expect(wrapperCount).toBe(1);
+    });
+
+    const badgeA = container.querySelector('.plate-key-badge[data-place-id="anchor-a"]');
+    const badgeB = container.querySelector('.plate-key-badge[data-place-id="anchor-b"]');
+    expect(badgeA).toBeTruthy();
+    expect(badgeB).toBeTruthy();
+    expect(badgeA).not.toHaveClass('plate-hidden');
+    expect(badgeB).toHaveClass('plate-hidden');
+  });
+
   it('renders exactly one locator frame rect, and no click-through link on the schematic path (part E/F: no /maps/ tab exists for this plate)', async () => {
     vi.mocked(fetchPlate).mockResolvedValueOnce(schematicFixture as never);
     vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA] });
