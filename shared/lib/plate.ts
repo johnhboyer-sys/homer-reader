@@ -131,6 +131,11 @@ const REGION_FILL_TOKENS = {
   // edge, so a wall band reads as built stone with a drawn face instead of a
   // wash. See the `region` case in renderLayer for the edge.
   masonry: 'var(--plate-masonry)',
+  // The same surveyed masonry drawn as GROUND (2026-09-03, ruling 13): the
+  // citadel panel's circuit, towers and houses at a lower opacity and a
+  // lighter edge, so the poem's city drawn over them carries the weight.
+  // Same token, same legend row as `masonry`.
+  'masonry-ground': 'var(--plate-masonry)',
   sea: 'var(--scene-map-sea)',
   lagoon: 'var(--plate-lagoon)',
   land: 'var(--scene-map-land)',
@@ -157,6 +162,7 @@ const REGION_FILL_OPACITY: Record<RegionFill, number> = {
   zone: 0.12,
   // Opaque: masonry is a body of stone, not a wash over ground.
   masonry: 1,
+  'masonry-ground': 0.42,
   sea: 1,
   lagoon: 1,
   land: 1,
@@ -262,6 +268,19 @@ export interface PlateLayer {
   polygon?: PlatePoint[];
   baseline?: PlatePoint[];
   trace?: PlatePoint[];
+  /**
+   * `style: "plan"` only (2026-09-03, ruling 13): a building drawn as an
+   * engraved plan. `polygon` and `rings` are its main walls, `lines` its thin
+   * partitions, `columns` its column rows (a dot every `columnM` metres),
+   * `solids` its filled pieces (antae, a seat, an altar). Walls are `wallM`
+   * metres thick and scale with the viewport, so one layer is a hairline on
+   * the map face and a wall in the citadel panel.
+   */
+  lines?: PlatePoint[][];
+  columns?: PlatePoint[][];
+  solids?: PlatePoint[][];
+  wallM?: number;
+  columnM?: number;
   /**
    * `style: "inset"` only. Panel rectangle in SHEET PIXELS `[x, y, w, h]`.
    * When present, `polygon`/`path` are unit coordinates inside this frame
@@ -749,13 +768,19 @@ function parseLayer(
     }
     return l[key] as PlatePoint[];
   };
-  const ringsRaw = l.rings;
-  let rings: PlatePoint[][] | undefined;
-  if (ringsRaw !== undefined) {
-    if (!Array.isArray(ringsRaw) || !ringsRaw.every((r) => Array.isArray(r) && r.every(isPoint))) {
-      fail(`layer "${l.id}" has a malformed "rings" field`);
+  const ringList = (key: string): PlatePoint[][] | undefined => {
+    const raw = l[key];
+    if (raw === undefined) return undefined;
+    if (!Array.isArray(raw) || !raw.every((r) => Array.isArray(r) && r.every(isPoint))) {
+      fail(`layer "${l.id}" has a malformed "${key}" field`);
     }
-    rings = ringsRaw as PlatePoint[][];
+    return raw as PlatePoint[][];
+  };
+  const rings = ringList('rings');
+  for (const key of ['wallM', 'columnM'] as const) {
+    if (l[key] !== undefined && !(isFiniteNumber(l[key]) && (l[key] as number) > 0)) {
+      fail(`layer "${l.id}" has a malformed "${key}" (must be a number > 0)`);
+    }
   }
 
   const layer: PlateLayer = {
@@ -784,6 +809,11 @@ function parseLayer(
     polygon: geometryArray('polygon'),
     baseline: geometryArray('baseline'),
     trace: geometryArray('trace'),
+    lines: ringList('lines'),
+    columns: ringList('columns'),
+    solids: ringList('solids'),
+    wallM: isFiniteNumber(l.wallM) ? l.wallM : undefined,
+    columnM: isFiniteNumber(l.columnM) ? l.columnM : undefined,
   };
 
   if (l.frame !== undefined) {
@@ -3790,6 +3820,7 @@ const REGION_LEGEND_TEXT: Record<RegionFill, string> = {
   tint: 'Apparatus zone',
   zone: 'Scene zone (lettered)',
   masonry: 'Masonry, surveyed',
+  'masonry-ground': 'Masonry, surveyed',
   none: '',
 };
 
@@ -3829,6 +3860,19 @@ function derivedLegendEntry(layer: PlateLayer): LegendEntry | undefined {
   // a temple, a street. Wording mirrors the conjectural-pin row the schematic
   // sheets already use, because it is the same claim about the same kind of
   // knowledge; the swatch is a scrap of the drawing, an open dashed outline.
+  // A building drawn as a plan from the poem's own description (ruling 13):
+  // the swatch is a scrap of one — a wall bar with a column row beside it.
+  if (layer.style === 'plan') {
+    return {
+      key: 'plan',
+      rank: 8.9,
+      text: 'Building drawn from the poem, not surveyed',
+      swatch: (x, y) =>
+        `<rect x="${round1(x + 1)}" y="${round1(y - 4)}" width="${LEGEND_SWATCH_W - 2}" height="8" ` +
+        `fill="none" stroke="var(--text-mid)" stroke-width="2"/>` +
+        `<path d="${[6, 11, 16].map((o) => circlePath(x + o, y, 0.9)).join(' ')}" fill="var(--text-mid)" stroke="none"/>`,
+    };
+  }
   if (layer.style === 'poem') {
     return {
       key: 'poem',
@@ -3925,9 +3969,12 @@ function regionFillLegendEntry(fill: RegionFill): LegendEntry | undefined {
   // A `none` region draws nothing, so it keys nothing — its name on the sheet
   // is the whole of its claim.
   if (fill === 'none') return undefined;
+  // `masonry-ground` is `masonry` at a quieter opacity, not a second claim:
+  // one row keys both.
+  const keyFill = fill === 'masonry-ground' ? 'masonry' : fill;
   return {
-    key: `region-${fill}`,
-    rank: 20 + Object.keys(REGION_FILL_TOKENS).indexOf(fill),
+    key: `region-${keyFill}`,
+    rank: 20 + Object.keys(REGION_FILL_TOKENS).indexOf(keyFill),
     text: REGION_LEGEND_TEXT[fill],
     swatch: (x, y) =>
       legendSwatchRect(
@@ -5151,6 +5198,62 @@ const RESTORED_LINE_DASH = '1 3.2';
 const POEM_STROKE_WIDTH = 0.95;
 const POEM_DASHARRAY = '4 3';
 
+// ── The plan register (`style: "plan"`, 2026-09-03, ruling 13) ───────────
+// A building the poem describes, drawn the way an engraved city plan draws
+// one: walls as solid bars at their thickness in metres, partitions at half
+// that, a colonnade as a row of dots, an anta or a seat as a filled piece.
+// Solid in the conjectural ink (`--text-mid`), never in the survey's masonry
+// tone: the poem's walls are as solid as Dörpfeld's, and the ink says which is
+// which. Everything is in metres and scales with the viewport, so the same
+// layer drawn on the map face at 1/32 of the panel's scale is under
+// PLAN_MIN_WALL_PX wide and draws nothing but its outline reservation.
+const PLAN_WALL_M = 1.2;
+const PLAN_COLUMN_M = 2.4;
+const PLAN_COLUMN_R_M = 0.45;
+const PLAN_MIN_WALL_PX = 0.35;
+
+function circlePath(cx: number, cy: number, r: number): string {
+  return `M ${round1(cx - r)} ${round1(cy)} a ${round1(r)} ${round1(r)} 0 1 0 ${round1(2 * r)} 0 a ${round1(r)} ${round1(r)} 0 1 0 ${round1(-2 * r)} 0 Z`;
+}
+
+/**
+ * Column centres along a run, one every `spacing` px, the row centred on the
+ * run so the end columns stand clear of whatever the run ends at. A run
+ * shorter than one spacing gets one column at its middle.
+ */
+export function columnDots(run: [number, number][], spacing: number): [number, number][] {
+  if (run.length < 2 || !(spacing > 0)) return [];
+  const seg: number[] = [];
+  let total = 0;
+  for (let i = 1; i < run.length; i++) {
+    const d = Math.hypot(run[i][0] - run[i - 1][0], run[i][1] - run[i - 1][1]);
+    seg.push(d);
+    total += d;
+  }
+  const n = Math.max(1, Math.floor(total / spacing) + 1);
+  const pad = (total - (n - 1) * spacing) / 2;
+  const out: [number, number][] = [];
+  for (let k = 0; k < n; k++) {
+    let t = pad + k * spacing;
+    let i = 0;
+    while (i < seg.length - 1 && t > seg[i]) {
+      t -= seg[i];
+      i++;
+    }
+    const f = seg[i] > 0 ? Math.min(1, t / seg[i]) : 0;
+    out.push([run[i][0] + (run[i + 1][0] - run[i][0]) * f, run[i][1] + (run[i + 1][1] - run[i][1]) * f]);
+  }
+  return out;
+}
+
+/** Sheet pixels per metre of ground at `lat`, under this viewport; 0 on a plate with no bbox. */
+function pxPerMetre(plate: Plate, viewport: Viewport, at: PlatePoint): number {
+  if (!plate.bbox) return 0;
+  const a = projectPoint(plate, at, viewport);
+  const b = projectPoint(plate, [at[0] + 1 / 111320, at[1]], viewport);
+  return Math.hypot(b[0] - a[0], b[1] - a[1]);
+}
+
 // ── Layer rendering ──────────────────────────────────────────────────────
 
 // Which lettering register a layer's own name belongs to (see LABEL_STYLES).
@@ -5378,7 +5481,7 @@ function paintRank(layer: PlateLayer): number {
   // And the poem goes under the restoration, for the same reason one step
   // further out: it is the least evidenced of the three registers, so where it
   // meets either of the others, the other is what a reader sees.
-  if (layer.style === 'poem') return 2.4;
+  if (layer.style === 'poem' || layer.style === 'plan') return 2.4;
   return 3;
 }
 
@@ -6052,6 +6155,42 @@ function renderLayer(
         markup = `<g data-layer-id="${escapeXml(layer.id)}" data-layer-style="inset">${insetMarkup(layer.id, px, layer.label, layer.frame)}</g>`;
         break;
       }
+      if (layer.style === 'plan') {
+        const ppm = pxPerMetre(plate, viewport, layer.polygon![0]);
+        const wallPx = (layer.wallM ?? PLAN_WALL_M) * ppm;
+        const walls = [px, ...(layer.rings ?? []).map((r) => collect(r))].filter((p) => p.length >= 3);
+        const thin = (layer.lines ?? []).map((r) => collect(r)).filter((p) => p.length >= 2);
+        const solids = (layer.solids ?? []).map((r) => collect(r)).filter((p) => p.length >= 3);
+        const dots = (layer.columns ?? [])
+          .map((r) => collect(r))
+          .flatMap((run) => columnDots(run, (layer.columnM ?? PLAN_COLUMN_M) * ppm));
+        const ink = 'var(--text-mid)';
+        const id = escapeXml(layer.id);
+        if (wallPx < PLAN_MIN_WALL_PX) {
+          // Too small to be a plan at this scale (the map face): the outline
+          // holds the feature's place and draws nothing.
+          markup = `<path data-feature-id="${id}" class="plate-layer plate-layer-plan" d="${pathD(px, true)}" fill="none" stroke="none"/>`;
+          break;
+        }
+        markup =
+          `<path data-feature-id="${id}" class="plate-layer plate-layer-plan" ` +
+          `d="${walls.map((p) => pathD(p, true)).join(' ')}" fill="none" stroke="${ink}" ` +
+          `stroke-width="${round1(wallPx)}" stroke-linejoin="miter"/>` +
+          (thin.length
+            ? `<path data-feature-id="${id}-lines" class="plate-layer plate-layer-plan-lines" ` +
+              `d="${thin.map((p) => pathD(p, false)).join(' ')}" fill="none" stroke="${ink}" ` +
+              `stroke-width="${round1(wallPx * 0.5)}" stroke-linecap="butt"/>`
+            : '') +
+          (solids.length
+            ? `<path data-feature-id="${id}-solids" class="plate-layer plate-layer-plan-solids" ` +
+              `d="${solids.map((p) => pathD(p, true)).join(' ')}" fill="${ink}" stroke="none"/>`
+            : '') +
+          (dots.length
+            ? `<path data-feature-id="${id}-columns" class="plate-layer plate-layer-plan-columns" ` +
+              `d="${dots.map(([x, y]) => circlePath(x, y, Math.max(0.6, PLAN_COLUMN_R_M * ppm))).join(' ')}" fill="${ink}" stroke="none"/>`
+            : '') ;
+        break;
+      }
       if (layer.style === 'poem') {
         const parts = [px, ...(layer.rings ?? []).map((r) => collect(r))].filter((p) => p.length >= 3);
         markup =
@@ -6106,12 +6245,23 @@ function renderLayer(
         ? 'var(--text-mid)'
         : WATER_FILLS.has(fill)
           ? 'var(--scene-map-coast)'
-          : fill === 'masonry'
+          : fill === 'masonry' || fill === 'masonry-ground'
             ? 'var(--flaxman-ink)'
             : fillToken;
-      const strokeWidth = fill === 'masonry' ? MASONRY_EDGE_WIDTH : fill === 'zone' ? 0.6 : 0.8;
+      const strokeWidth =
+        fill === 'masonry' ? MASONRY_EDGE_WIDTH : fill === 'masonry-ground' ? 0.7 : fill === 'zone' ? 0.6 : 0.8;
       const strokeOpacity =
-        fill === 'masonry' ? 0.85 : fill === 'zone' ? 0.5 : fill === 'tint' ? 1 : WATER_FILLS.has(fill) ? 0.7 : 0.5;
+        fill === 'masonry'
+          ? 0.85
+          : fill === 'masonry-ground'
+            ? 0.45
+            : fill === 'zone'
+              ? 0.5
+              : fill === 'tint'
+                ? 1
+                : WATER_FILLS.has(fill)
+                  ? 0.7
+                  : 0.5;
       const strokeDasharray = fill === 'zone' ? ' stroke-dasharray="3 2"' : '';
       markup = soft
         ? `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${d}" ` +
@@ -6182,7 +6332,7 @@ function renderLayer(
     // the `region` role is 15.5px letterspaced caps, the register PERGAMOS is
     // set in, and "House of Priam" set that way would be both grander than the
     // claim and wider than the summit.
-    labelRole: layer.style === 'poem' ? 'settlement' : layerLabelRole(layer.kind, plate.kind),
+    labelRole: layer.style === 'poem' || layer.style === 'plan' ? 'settlement' : layerLabelRole(layer.kind, plate.kind),
     labelPath: isArea ? undefined : linearRun(plate, layer, viewport),
     labelArea: isArea && allPixelPoints.length >= 3 ? allPixelPoints : undefined,
     submerged,

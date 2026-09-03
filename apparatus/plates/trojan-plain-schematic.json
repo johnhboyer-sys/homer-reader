@@ -3,8 +3,8 @@
   "title": "The Plain of Troy as the Iliad lays it out",
   "kind": "schematic",
   "status": "draft",
-  "size": [2208, 1600],
-  "marginRight": 792,
+  "size": [2288, 1600],
+  "marginRight": 872,
   "rotationDeg": 90,
   "groundOpacity": 0.55,
   "bbox": [39.86, 26.1, 40.05, 26.38],
@@ -109,79 +109,202 @@
     {
       "title": "The camp and its wall",
       "items": [
-        { "placeId": "achaean-wall-and-ditch", "label": "The wall and ditch" },
-        { "placeId": "wagon-gate", "label": "The chariot gate" }
+        {
+          "placeId": "achaean-wall-and-ditch",
+          "label": "The wall and ditch"
+        },
+        {
+          "placeId": "wagon-gate",
+          "label": "The chariot gate"
+        }
       ]
     },
     {
       "title": "Achilles' end of the line",
       "items": [
-        { "placeId": "hut-of-achilles", "label": "The hut of Achilles" },
-        { "layerId": "mound-of-patroclus", "label": "Patroclus: pyre, barrow and games" }
+        {
+          "placeId": "hut-of-achilles",
+          "label": "The hut of Achilles"
+        },
+        {
+          "layerId": "mound-of-patroclus",
+          "label": "Patroclus: pyre, barrow and games"
+        }
       ]
     },
     {
       "title": "Odysseus's ships, the assembly and altars",
       "items": [
-        { "placeId": "hut-of-agamemnon", "label": "The hut of Agamemnon" },
-        { "placeId": "hut-of-nestor", "label": "The hut and ship of Nestor" },
-        { "placeId": "hut-of-odysseus", "label": "The ship and hut of Odysseus" },
-        { "placeId": "achaean-assembly-place", "label": "The assembly and altars" }
+        {
+          "placeId": "hut-of-agamemnon",
+          "label": "The hut of Agamemnon"
+        },
+        {
+          "placeId": "hut-of-nestor",
+          "label": "The hut and ship of Nestor"
+        },
+        {
+          "placeId": "hut-of-odysseus",
+          "label": "The ship and hut of Odysseus"
+        },
+        {
+          "placeId": "achaean-assembly-place",
+          "label": "The assembly and altars"
+        }
       ]
     },
     {
       "title": "Ajax's end of the line",
       "items": [
-        { "placeId": "station-of-idomeneus", "label": "The station of Idomeneus" },
-        { "placeId": "ship-of-protesilaus", "label": "The ship of Protesilaus" },
-        { "placeId": "hut-of-ajax", "label": "The huts of Ajax" }
+        {
+          "placeId": "station-of-idomeneus",
+          "label": "The station of Idomeneus"
+        },
+        {
+          "placeId": "ship-of-protesilaus",
+          "label": "The ship of Protesilaus"
+        },
+        {
+          "placeId": "hut-of-ajax",
+          "label": "The huts of Ajax"
+        }
       ]
     },
     {
       "title": "Inside the walls (see inset)",
       "inset": "citadel-city-panel",
       "items": [
-        { "placeId": "scaean-gate", "label": "The Scaean Gate" },
-        { "placeId": "great-tower-of-ilios", "label": "The great tower" },
-        { "placeId": "dardanian-gates", "label": "The Dardanian Gates" },
-        { "layerId": "citadel-terrace-ring-inner", "label": "Pergamos, within the highest terrace" },
-        { "layerId": "citadel-poem-temple-of-athena", "label": "The temple of Athena" },
-        { "layerId": "citadel-poem-shrine-of-apollo", "label": "The shrine of Apollo" },
-        { "layerId": "citadel-poem-house-of-priam", "label": "The house of Priam" },
-        { "layerId": "citadel-poem-agora", "label": "The assembly at Priam’s doors" },
-        { "layerId": "citadel-poem-house-of-hector", "label": "The house of Hector" },
-        { "layerId": "citadel-poem-house-of-paris", "label": "The house of Paris" },
-        { "layerId": "citadel-poem-way-to-south-gate", "label": "The streets down to the gates" },
-        { "layerId": "citadel-weak-wall", "label": "The wall open to assault" }
+        {
+          "placeId": "scaean-gate",
+          "label": "The Scaean Gate"
+        },
+        {
+          "placeId": "great-tower-of-ilios",
+          "label": "The great tower"
+        },
+        {
+          "placeId": "dardanian-gates",
+          "label": "The Dardanian Gates"
+        },
+        {
+          "layerId": "citadel-terrace-ring-inner",
+          "label": "Pergamos, within the highest terrace"
+        },
+        {
+          "layerId": "citadel-poem-temple-of-athena",
+          "label": "The temple of Athena"
+        },
+        {
+          "layerId": "citadel-poem-shrine-of-apollo",
+          "label": "The shrine of Apollo"
+        },
+        {
+          "layerId": "citadel-poem-house-of-priam",
+          "label": "The house of Priam"
+        },
+        {
+          "layerId": "citadel-poem-agora",
+          "label": "The assembly at Priam’s doors"
+        },
+        {
+          "layerId": "citadel-poem-house-of-hector",
+          "label": "The house of Hector"
+        },
+        {
+          "layerId": "citadel-poem-house-of-paris",
+          "label": "The house of Paris"
+        },
+        {
+          "layerId": "citadel-poem-way-to-south-gate",
+          "label": "The streets down to the gates"
+        },
+        {
+          "layerId": "citadel-weak-wall",
+          "label": "The wall open to assault"
+        }
       ]
     },
     {
       "title": "Before the walls (see inset)",
       "inset": "citadel-inset-panel",
       "items": [
-        { "placeId": "oak-of-zeus", "label": "The oak" },
-        { "placeId": "fig-tree", "label": "The wild fig" },
-        { "placeId": "two-springs-of-scamander", "label": "The two springs" },
-        { "placeId": "washing-troughs", "label": "The washing-troughs" },
-        { "placeId": "lookout-skopie", "label": "The lookout" },
-        { "placeId": "batieia", "label": "Batieia" },
-        { "placeId": "tomb-of-hector", "label": "The tomb of Hector" },
-        { "placeId": "wagon-road", "label": "The wagon-road" }
+        {
+          "placeId": "oak-of-zeus",
+          "label": "The oak"
+        },
+        {
+          "placeId": "fig-tree",
+          "label": "The wild fig"
+        },
+        {
+          "placeId": "two-springs-of-scamander",
+          "label": "The two springs"
+        },
+        {
+          "placeId": "washing-troughs",
+          "label": "The washing-troughs"
+        },
+        {
+          "placeId": "lookout-skopie",
+          "label": "The lookout"
+        },
+        {
+          "placeId": "batieia",
+          "label": "Batieia"
+        },
+        {
+          "placeId": "tomb-of-hector",
+          "label": "The tomb of Hector"
+        },
+        {
+          "placeId": "wagon-road",
+          "label": "The wagon-road"
+        }
       ]
     },
     {
       "title": "The plain",
       "items": [
-        { "placeId": "wall-of-heracles", "label": "The heaped-up wall of Heracles" },
-        { "placeId": "ford-of-the-scamander", "label": "The ford" },
-        { "placeId": "road-to-the-ships", "label": "The road to the ships" },
-        { "placeId": "tomb-of-ilos", "label": "The tomb of Ilus" },
-        { "placeId": "fig-tree-mid-plain", "label": "The wild fig in mid-plain" },
-        { "placeId": "tomb-of-aesyetes", "label": "The barrow of Aesyetes" },
-        { "placeId": "trojan-camp", "label": "The Trojan bivouac" },
-        { "placeId": "thracian-camp", "label": "The camp of Rhesus and the Thracians" },
-        { "placeId": "scamander-simoeis-confluence", "label": "The confluence" },
-        { "layerId": "callicolone", "label": "Callicolone" }
+        {
+          "placeId": "wall-of-heracles",
+          "label": "The heaped-up wall of Heracles"
+        },
+        {
+          "placeId": "ford-of-the-scamander",
+          "label": "The ford"
+        },
+        {
+          "placeId": "road-to-the-ships",
+          "label": "The road to the ships"
+        },
+        {
+          "placeId": "tomb-of-ilos",
+          "label": "The tomb of Ilus"
+        },
+        {
+          "placeId": "fig-tree-mid-plain",
+          "label": "The wild fig in mid-plain"
+        },
+        {
+          "placeId": "tomb-of-aesyetes",
+          "label": "The barrow of Aesyetes"
+        },
+        {
+          "placeId": "trojan-camp",
+          "label": "The Trojan bivouac"
+        },
+        {
+          "placeId": "thracian-camp",
+          "label": "The camp of Rhesus and the Thracians"
+        },
+        {
+          "placeId": "scamander-simoeis-confluence",
+          "label": "The confluence"
+        },
+        {
+          "layerId": "callicolone",
+          "label": "Callicolone"
+        }
       ]
     }
   ],
@@ -8874,7 +8997,9 @@
     {
       "id": "wagon-road",
       "insetOf": "citadel-inset-panel",
-      "claims": ["wagon-road"],
+      "claims": [
+        "wagon-road"
+      ],
       "kind": "route",
       "placeId": "wagon-road",
       "path": [
@@ -9260,7 +9385,9 @@
     {
       "id": "batieia",
       "insetOf": "citadel-inset-panel",
-      "claims": ["batieia"],
+      "claims": [
+        "batieia"
+      ],
       "kind": "tumulus",
       "placeId": "batieia",
       "path": [
@@ -9284,7 +9411,9 @@
     {
       "id": "tomb-of-hector",
       "insetOf": "citadel-inset-panel",
-      "claims": ["tomb-of-hector"],
+      "claims": [
+        "tomb-of-hector"
+      ],
       "kind": "tumulus",
       "placeId": "tomb-of-hector",
       "path": [
@@ -9620,7 +9749,7 @@
       "kind": "region",
       "style": "inset",
       "fill": "land",
-      "frame": [1828, 40, 316, 300],
+      "frame": [1908, 40, 316, 300],
       "polygon": [
         [0, 0],
         [1, 0],
@@ -9644,7 +9773,7 @@
       "id": "inset-ditch",
       "kind": "wall",
       "style": "inset",
-      "frame": [1828, 40, 316, 300],
+      "frame": [1908, 40, 316, 300],
       "note": "Outside the wall they dug the ditch, deep and wide and great, and planted stakes in it: ἔκτοσθεν δὲ βαθεῖαν ἐπ' αὐτῷ τάφρον ὄρυξαν / εὐρεῖαν μεγάλην, ἐν δὲ σκόλοπας κατέπηξαν (Il. 7.440-41).",
       "sources": [
         {
@@ -9668,7 +9797,7 @@
       "id": "inset-wall",
       "kind": "wall",
       "style": "inset",
-      "frame": [1828, 40, 316, 300],
+      "frame": [1908, 40, 316, 300],
       "note": "The wall with its high towers, a defense for the ships and for the men (Il. 7.436-37), built at the sterns of the first-hauled rank: τεῖχος ἐπὶ πρύμνῃσιν ἔδειμαν (14.32).",
       "sources": [
         {
@@ -9698,7 +9827,7 @@
       "id": "inset-chariot-gate",
       "kind": "route",
       "style": "inset",
-      "frame": [1828, 40, 316, 300],
+      "frame": [1908, 40, 316, 300],
       "note": "The gate the teams come back in through: Asius drives at it, νηῶν ἐπ' ἀριστερά, τῇ περ Ἀχαιοὶ ἐκ πεδίου νίσοντο σὺν ἵπποισιν καὶ ὄχεσφι (Il. 12.118-19), and Idomeneus kills him there (13.384-88). The gates were built wide on purpose, ὄφρα δι' αὐτάων ἱππηλασίη ὁδὸς εἴη (7.439). Whose left 12.118 means is disputed — Janko reads it from the Greek side, Hainsworth from Asius's — so the gate is labelled by the event and not by a hand.",
       "sources": [
         {
@@ -9723,7 +9852,7 @@
       "id": "inset-ships-ajax",
       "kind": "shipRow",
       "style": "inset",
-      "frame": [1828, 40, 316, 300],
+      "frame": [1908, 40, 316, 300],
       "note": "Ajax hauled his ships up at one extreme of the line, ἔσχατα, trusting in his manhood and the strength of his hands (Il. 8.224-26 = 11.7-9).",
       "sources": [
         {
@@ -9747,7 +9876,7 @@
       "id": "inset-ship-protesilaus",
       "kind": "shipRow",
       "style": "inset",
-      "frame": [1828, 40, 316, 300],
+      "frame": [1908, 40, 316, 300],
       "note": "ἔνθ' ἔσαν Αἴαντός τε νέες καὶ Πρωτεσιλάου (Il. 13.681) — the station where Hector, having burst the gates and the wall, holds his ground (13.679-81), and it is Protesilaus's own hull he fires (15.704-6). Drawn here rather than on the main sheet because at sheet scale a single named ship cannot be picked out of the rank without falsifying the spacing of every ship beside it. The crux stands unresolved: Patroclus, sallying from Achilles's ships at the far end of the line, reaches this same stern in one verse (16.286).",
       "sources": [
         {
@@ -9771,7 +9900,7 @@
       "id": "inset-ships-line",
       "kind": "shipRow",
       "style": "inset",
-      "frame": [1828, 40, 316, 300],
+      "frame": [1908, 40, 316, 300],
       "note": "The line running on toward the middle. Every ship past the five named stations stays an anonymous glyph: the poem does not station the Catalogue along the beach.",
       "sources": [
         {
@@ -9794,7 +9923,7 @@
       "id": "inset-shore",
       "kind": "route",
       "style": "inset",
-      "frame": [1828, 40, 316, 300],
+      "frame": [1908, 40, 316, 300],
       "note": "The same beach as the main sheet. Drawn with waterlines, whose gaps grow away from the shore because waves compress against it (Huffman 2010); the band of open sand between the seaward rank and the water is the ground the ships are launched across.",
       "sources": [
         {
@@ -9824,14 +9953,18 @@
       "kind": "region",
       "style": "inset",
       "fill": "land",
-      "frame": [1776, 400, 420, 560],
-      "insetBBox": [39.956156, 26.237646, 39.957844, 26.240354],
-      "label": "Inside the walls|The poem’s city on Dörpfeld’s citadel, thirty-two times the sheet|Il. 2.788–789 · 5.446 · 6.242–250 · 6.297–311 · 6.433–439",
-      "note": "The citadel at the only scale that lets the poem's own city be drawn on it. Two registers meet here and are never mixed. Under everything is the surveyed ground: the Troy VI fortification wall as Dörpfeld traced it on Tafel V, its terrace fronts, and the three excavated gates — the one measured thing on the panel. On it stands what the Iliad says is inside: the house of Priam with the assembly at his doors, the houses of Hector and of Paris on the height beside it, the temple of Athena and Apollo's shrine in Pergamos, the streets down to the gates, and the one stretch of wall Andromache calls open to assault. Each of those is drawn in the poem's open dash and placed by a relation the poem states — inside, on the height, at the doors, by the fig tree — never at a coordinate anybody has measured. Where the survey stops, the wall goes hollow: the north and north-west, where the poem's traffic runs, was cut away for the precinct of Athena of Ilion and is Dörpfeld's restoration, not his survey. The Scaean Gate and the great tower stand on that lost stretch, which is the honest place for them; the Dardanian Gates stand on the excavated South Gate VI T, where Dörpfeld put them.",
+      "frame": [1776, 400, 500, 620],
+      "insetBBox": [39.956156, 26.237781, 39.957844, 26.240219],
+      "label": "Inside the walls|The poem's city on the Troy VI citadel, about 38 times the scale of the sheet|Il. 2.788–789 · 5.446 · 6.242–250 · 6.297–311 · 6.433–439",
+      "note": "The citadel at the scale that lets the poem's city be drawn on it. Two registers, never mixed. The ground is the survey: the Troy VI wall, towers, gates and houses as Dörpfeld traced them on Tafel V, drawn quiet, and his two restored terrace fronts. On it, in the conjectural ink, the city the Iliad describes: the house of Priam with its colonnaded court and its chambers, the assembly ground at its doors, the houses of Hector and Paris beside it, the temple of Athena and the shrine of Apollo on the height, the streets down to the Scaean and Dardanian gates, houses filling the terraces, and the stretch of wall open to assault by the fig tree. Each named building is placed by a relation the poem states and sized by what the poem says of it; none is at a measured position. The north and north-west wall is Dörpfeld's restoration, not his survey; the Scaean Gate and the great tower stand on it at his north-west corner, the Dardanian Gates on the excavated South Gate VI T.",
       "sources": [
         {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V and vol. 2, pp. 610–11, 630, 650.",
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
           "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Vol. 2, p. 610, Figur 470, “Ergänzter Plan der Burg Troja mit Umgebung”.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp/page/n223"
         },
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -9855,7 +9988,7 @@
     {
       "id": "citadel-circuit-west",
       "kind": "region",
-      "fill": "masonry",
+      "fill": "masonry-ground",
       "legend": "Masonry, surveyed (Dörpfeld 1902)",
       "polygon": [
         [39.957011, 26.237894],
@@ -9973,7 +10106,7 @@
         [39.957009, 26.237881],
         [39.957011, 26.237894]
       ],
-      "note": "The fortification wall of Troy VI as the spade found it: Dörpfeld's own trace, off Tafel V, “der Grundriss aller bisher aufgedeckten Mauern der VI. Schicht, also der Ruinen des homerischen Troja” — the ground plan of every wall of the sixth layer uncovered so far, that is, of the ruins of Homer's Troy (1902, 2:650). About 191 by 168 m across, and a polygon, not a ring: “im Äusseren sehen wir die Linie der Mauer als Polygon aus geraden Stücken von fast gleicher Länge gebildet” (2:611), the line of the wall built outside of straight stretches of almost equal length. This is the only measured thing on the panel, and everything the poem sets inside is set on it. It is laid on the sheet at the scale Tafel V is printed to, centered on the sheet's own citadel center; Dörpfeld oriented his plates to the magnetic north line of the 1890s, and no correction to true north is applied here because none was verified.",
+      "note": "The west wall, from the north-west point where the surveyed circuit ends to the West Gate VI U. Unwrought stone, older than the ashlar of the south and east stretches (Dörpfeld 1902, 2:611). House VI A stands against its inner face and is drawn with it. The fortification wall of Troy VI as Dörpfeld surveyed it, from Tafel V. About 191 by 168 m across. The line is a polygon of straight lengths, not a curve (Dörpfeld 1902, 2:611). This is the measured ground of the panel; everything the poem sets inside is placed on it. The plate is laid on the sheet at Tafel V's own scale, centered on the sheet's center for Ilios, with no rotation: Tafel V is printed to the magnetic north of the 1890s and no correction was verified.",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
@@ -9985,7 +10118,7 @@
     {
       "id": "citadel-circuit-south",
       "kind": "region",
-      "fill": "masonry",
+      "fill": "masonry-ground",
       "legend": "Masonry, surveyed (Dörpfeld 1902)",
       "polygon": [
         [39.956712, 26.238088],
@@ -10158,7 +10291,7 @@
         [39.956698, 26.238068],
         [39.956711, 26.238087]
       ],
-      "note": "The fortification wall of Troy VI as the spade found it: Dörpfeld's own trace, off Tafel V, “der Grundriss aller bisher aufgedeckten Mauern der VI. Schicht, also der Ruinen des homerischen Troja” — the ground plan of every wall of the sixth layer uncovered so far, that is, of the ruins of Homer's Troy (1902, 2:650). About 191 by 168 m across, and a polygon, not a ring: “im Äusseren sehen wir die Linie der Mauer als Polygon aus geraden Stücken von fast gleicher Länge gebildet” (2:611), the line of the wall built outside of straight stretches of almost equal length. This is the only measured thing on the panel, and everything the poem sets inside is set on it. It is laid on the sheet at the scale Tafel V is printed to, centered on the sheet's own citadel center; Dörpfeld oriented his plates to the magnetic north line of the 1890s, and no correction to true north is applied here because none was verified.",
+      "note": "The south wall, from the West Gate VI U past the South Gate VI T and its tower VI i. The fortification wall of Troy VI as Dörpfeld surveyed it, from Tafel V. About 191 by 168 m across. The line is a polygon of straight lengths, not a curve (Dörpfeld 1902, 2:611). This is the measured ground of the panel; everything the poem sets inside is placed on it. The plate is laid on the sheet at Tafel V's own scale, centered on the sheet's center for Ilios, with no rotation: Tafel V is printed to the magnetic north of the 1890s and no correction was verified.",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
@@ -10170,7 +10303,7 @@
     {
       "id": "citadel-circuit-southeast-east",
       "kind": "region",
-      "fill": "masonry",
+      "fill": "masonry-ground",
       "legend": "Masonry, surveyed (Dörpfeld 1902)",
       "polygon": [
         [39.956975, 26.240005],
@@ -10305,7 +10438,7 @@
         [39.956965, 26.240002],
         [39.956975, 26.240004]
       ],
-      "note": "The fortification wall of Troy VI as the spade found it: Dörpfeld's own trace, off Tafel V, “der Grundriss aller bisher aufgedeckten Mauern der VI. Schicht, also der Ruinen des homerischen Troja” — the ground plan of every wall of the sixth layer uncovered so far, that is, of the ruins of Homer's Troy (1902, 2:650). About 191 by 168 m across, and a polygon, not a ring: “im Äusseren sehen wir die Linie der Mauer als Polygon aus geraden Stücken von fast gleicher Länge gebildet” (2:611), the line of the wall built outside of straight stretches of almost equal length. This is the only measured thing on the panel, and everything the poem sets inside is set on it. It is laid on the sheet at the scale Tafel V is printed to, centered on the sheet's own citadel center; Dörpfeld oriented his plates to the magnetic north line of the 1890s, and no correction to true north is applied here because none was verified.",
+      "note": "The south-east and east wall, with the great east tower VI h and the East Gate VI S. The fortification wall of Troy VI as Dörpfeld surveyed it, from Tafel V. About 191 by 168 m across. The line is a polygon of straight lengths, not a curve (Dörpfeld 1902, 2:611). This is the measured ground of the panel; everything the poem sets inside is placed on it. The plate is laid on the sheet at Tafel V's own scale, centered on the sheet's center for Ilios, with no rotation: Tafel V is printed to the magnetic north of the 1890s and no correction was verified.",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
@@ -10317,7 +10450,7 @@
     {
       "id": "citadel-circuit-northeast",
       "kind": "region",
-      "fill": "masonry",
+      "fill": "masonry-ground",
       "legend": "Masonry, surveyed (Dörpfeld 1902)",
       "polygon": [
         [39.957263, 26.240029],
@@ -10404,7 +10537,7 @@
         [39.957259, 26.240026],
         [39.957262, 26.240029]
       ],
-      "note": "The fortification wall of Troy VI as the spade found it: Dörpfeld's own trace, off Tafel V, “der Grundriss aller bisher aufgedeckten Mauern der VI. Schicht, also der Ruinen des homerischen Troja” — the ground plan of every wall of the sixth layer uncovered so far, that is, of the ruins of Homer's Troy (1902, 2:650). About 191 by 168 m across, and a polygon, not a ring: “im Äusseren sehen wir die Linie der Mauer als Polygon aus geraden Stücken von fast gleicher Länge gebildet” (2:611), the line of the wall built outside of straight stretches of almost equal length. This is the only measured thing on the panel, and everything the poem sets inside is set on it. It is laid on the sheet at the scale Tafel V is printed to, centered on the sheet's own citadel center; Dörpfeld oriented his plates to the magnetic north line of the 1890s, and no correction to true north is applied here because none was verified.",
+      "note": "The north-east wall and the great tower VI g, where the surveyed circuit ends. The fortification wall of Troy VI as Dörpfeld surveyed it, from Tafel V. About 191 by 168 m across. The line is a polygon of straight lengths, not a curve (Dörpfeld 1902, 2:611). This is the measured ground of the panel; everything the poem sets inside is placed on it. The plate is laid on the sheet at Tafel V's own scale, centered on the sheet's center for Ilios, with no rotation: Tafel V is printed to the magnetic north of the 1890s and no correction was verified.",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
@@ -10511,7 +10644,7 @@
         [39.957398, 26.240019],
         [39.957362, 26.240071]
       ],
-      "note": "The north and north-west wall — restored, never surveyed. Not a stone of it has been seen: this side was cut away for the precinct of Athena of Ilion long before a spade came. Dörpfeld would not put it on his survey plan — “den ganzen nördlichen und nordwestlichen Teil der Burgmauer, von dem keine Spur erhalten ist, habe ich deshalb auch nicht einmal durch punktirte Linien anzudeuten gewagt” (1902, 2:650), of the whole northern and north-western part of the citadel wall, of which no trace survives, he did not dare even to suggest the line with dots. He did restore it on his own conjectural plan, Fig. 470, and it is that restoration and nobody else's that is drawn here, hollow, at the width of the surveyed masonry it continues. The width is a drawing convention, not a measurement. This is the stretch the poem's traffic runs through, and it is the stretch that is gone.",
+      "note": "The north and north-west wall, restored and never surveyed. No trace of it survives; the ground was cut away for the precinct of Athena of Ilion. Dörpfeld left it off his survey plan (1902, 2:650) and restored it on Fig. 470; the line here is that restoration, drawn open at the width of the surveyed masonry it continues. The width is a convention, not a measurement. The Scaean Gate and the great tower are placed on this stretch, at Dörpfeld's north-west corner.",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Vol. 2, p. 610, Figur 470, “Ergänzter Plan der Burg Troja mit Umgebung”.",
@@ -10712,7 +10845,7 @@
         [39.956988, 26.238049],
         [39.957013, 26.23804]
       ],
-      "note": "The outer of the two lines Dörpfeld ruled inside the citadel on his restored plan (Fig. 470), standing back from the wall face by seven to thirteen meters all round. He gives them no key, and the plan of the ground says what they are: the citadel was built as terraces rising toward the center, each held up by a retaining wall with the houses standing on the level behind it, and this is the front of the first of them. What lies between it and the masonry is the ring street — “im Innern finden wir eine breite Ringstrasse, mehrere zum Centrum der Burg gerichtete Querstrassen” (1902, 2:611), a broad ring street with several cross streets running in toward the center — the circulation that lets defenders reach any stretch of the circuit without crossing built-up ground. He drew the line dotted, which on his sheets means restored: the terrace fronts went with everything else above the courses that survived. The east terrace houses stand across it here because they stand across it on his own plate. Lifted from Fig. 470 by the same plane similarity that carries the restored north circuit onto this sheet — scale and shift only, no rotation — and drawn in the same open register at a lighter weight, because it is the same kind of claim: the excavator’s line, not the excavator’s measurement. This is the ring Homer’s Trojans keep running: the women go up through the city to the temple ἐν πόλει ἄκρῃ (Il. 6.297), and Hector comes down from it to the Scaean Gate by the way everyone in the poem uses and nobody in the poem describes.",
+      "note": "The outer of the two terrace fronts Dörpfeld ruled inside the citadel on Fig. 470, seven to thirteen meters in from the wall. The citadel rose in terraces, each held by a retaining wall with houses on the level behind it; between this front and the wall is the ring street, with cross streets running in to the center (Dörpfeld 1902, 2:611). Restored, not measured: drawn dotted, as he drew it. Lifted from Fig. 470 by the same scale and shift as the restored circuit.",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Vol. 2, p. 610, Figur 470, “Ergänzter Plan der Burg Troja mit Umgebung” — the excavator’s own restored plan of the citadel, with north arrow and 0–200 m scale bar.",
@@ -10913,7 +11046,7 @@
         [39.956993, 26.238256],
         [39.957012, 26.238255]
       ],
-      "note": "The inner line of Fig. 470: the front of the highest terrace Dörpfeld would draw at all, ringing the top of the mound. Inside it is Pergamos, and inside it there is nothing to plan — the Hellenistic and Roman levelling for the precinct of Athena of Ilion cut the summit off and took Troy VI’s topmost terrace with it, which is why this line is the last thing on the sheet before the name. Restored, after Fig. 470, on the same fit as the north circuit and drawn in the same open register: not a course of it was measured. What stood within it is the part of the city the Iliad names most — Apollo’s temple Περγάμῳ εἰν ἱερῇ (5.446), the houses of Priam and of Hector (6.317), the roof Paris comes striding down from (6.512) — and the part the excavation cannot reach.",
+      "note": "The inner terrace front of Fig. 470, the highest Dörpfeld drew. Inside it is Pergamos, the summit; the Hellenistic and Roman leveling for the precinct of Athena removed Troy VI's top terrace, so nothing surveyed stands within this line. Restored, not measured. The poem's temples and the houses of Priam, Hector and Paris are drawn inside it (Il. 5.446, 6.297, 6.317).",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Vol. 2, p. 610, Figur 470, “Ergänzter Plan der Burg Troja mit Umgebung” — the excavator’s own restored plan of the citadel, with north arrow and 0–200 m scale bar.",
@@ -10936,7 +11069,7 @@
         [39.956396, 26.239414],
         [39.956396, 26.239238]
       ],
-      "note": "The South Gate, VI T — 3.20 to 3.35 m broad, its roadway paved and carrying a drainage channel half a meter deep and 0.30 to 0.40 m wide (Tolman and Scoggin 1903), flanked by tower VI i. Dörpfeld took it for the main gate: “das Hauptthor der VI. Burg ist wahrscheinlich das Süd-Thor VI T gewesen”, and identified it with Homer's Dardanian Gates, on the reasoning that Dardania lay toward Ida in the south-east — “ich ohne Zögern das Thor VI T als das dardanische bezeichnet ... habe” (1902, 2:630). The identification is his reading of the poem against the ground, not a find: no gate at Hisarlık has been shown to be a gate Homer names. Hector keeps breaking for the Dardanian Gates during the chase, hoping to get in under the well-built towers (Il. 22.194-95).",
+      "note": "The South Gate, VI T: 3.20 to 3.35 m broad, paved, with a drain (Tolman and Scoggin 1903), flanked by tower VI i. Dörpfeld took it for the main gate and identified it with the Dardanian Gates, because Dardania lay toward Ida in the south-east (1902, 2:630). The identification is his reading of the poem against the ground, not a find. Hector makes for the Dardanian Gates during the chase (Il. 22.194–95).",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
@@ -10959,7 +11092,7 @@
         [39.956661, 26.238143],
         [39.956661, 26.238049]
       ],
-      "note": "The West Gate, VI U, with an opening about 2.50 m across (Tolman and Scoggin 1903). During the life of Troy VI it was walled up: Dörpfeld draws the blocking across the passage in hatching, so the defenders closed their own gate — the sort of fact a plan records and a poem does not. Nothing is drawn here but the name. A gate is a gap in the masonry, and masonry is what this plate traces.",
+      "note": "The West Gate, VI U, about 2.50 m wide (Tolman and Scoggin 1903). It was walled up during the life of Troy VI: Dörpfeld draws the blocking across the passage. No street of the poem is drawn to it for that reason.",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
@@ -10982,7 +11115,871 @@
         [39.956953, 26.240094],
         [39.956953, 26.24]
       ],
-      "note": "The East Gate, VI S — a passage about 2 m wide and a door only about 1.80 m broad (Tolman and Scoggin 1903), reached along the corridor between the wall and the outer arm drawn beside it, with steps and a ramp carrying the way up inside. Dörpfeld sections it at his Fig. 41, “das Ost-Thor in der VI. Schicht (VI S) und in der VII. Schicht (VII S)”. He allowed that Homer's Scaean Gate “kann ... weiter östlich gelegen haben und würde dann vielleicht mit dem Nordost-Thor zusammenfallen” (1902, 2:630) — might have lain further east and coincided with the north-east gate. Allowed, not shown.",
+      "note": "The East Gate, VI S: a passage about 2 m wide and a door about 1.80 m broad (Tolman and Scoggin 1903), reached along the corridor between the wall and the outer arm beside it, with steps and a ramp inside. Dörpfeld allowed that the Scaean Gate might have lain further east and coincided with the north-east gate (1902, 2:630); he did not draw it there.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ],
+      "insetOf": "citadel-city-panel"
+    },
+    {
+      "id": "citadel-tower-vi-g",
+      "kind": "region",
+      "fill": "masonry-ground",
+      "legend": "Masonry, surveyed (Dörpfeld 1902)",
+      "polygon": [
+        [39.957412, 26.240033],
+        [39.957412, 26.24004],
+        [39.957398, 26.240053],
+        [39.957377, 26.240065],
+        [39.957374, 26.240073],
+        [39.957347, 26.240088],
+        [39.957338, 26.240098],
+        [39.957298, 26.240112],
+        [39.957295, 26.240117],
+        [39.957281, 26.24012],
+        [39.95728, 26.240123],
+        [39.957263, 26.240126],
+        [39.95725, 26.240088],
+        [39.957222, 26.240088],
+        [39.957219, 26.240075],
+        [39.95722, 26.240062],
+        [39.957239, 26.240063],
+        [39.957245, 26.240058],
+        [39.95726, 26.240054],
+        [39.957264, 26.240066],
+        [39.95727, 26.240069],
+        [39.957273, 26.240063],
+        [39.957313, 26.24005],
+        [39.95732, 26.240045],
+        [39.957322, 26.240038],
+        [39.957333, 26.240035],
+        [39.957364, 26.240009],
+        [39.957364, 26.240005],
+        [39.957361, 26.240004],
+        [39.95736, 26.240008],
+        [39.957355, 26.240008],
+        [39.957353, 26.240014],
+        [39.957347, 26.240015],
+        [39.957313, 26.240038],
+        [39.957308, 26.240038],
+        [39.957306, 26.240044],
+        [39.95729, 26.240044],
+        [39.95729, 26.240034],
+        [39.957285, 26.240031],
+        [39.957281, 26.240008],
+        [39.957276, 26.240003],
+        [39.957269, 26.239976],
+        [39.957263, 26.239968],
+        [39.957265, 26.239953],
+        [39.957272, 26.239952],
+        [39.95728, 26.239944],
+        [39.957289, 26.239959],
+        [39.957288, 26.239972],
+        [39.957291, 26.239973],
+        [39.957296, 26.239989],
+        [39.957298, 26.240007],
+        [39.957307, 26.240008],
+        [39.957319, 26.240001],
+        [39.957331, 26.239992],
+        [39.957333, 26.239984],
+        [39.957332, 26.239983],
+        [39.95732, 26.23995],
+        [39.957307, 26.239951],
+        [39.957299, 26.23996],
+        [39.957289, 26.239959],
+        [39.95728, 26.239944],
+        [39.95728, 26.239939],
+        [39.957322, 26.239914],
+        [39.957331, 26.239913],
+        [39.957335, 26.239921],
+        [39.957341, 26.239953],
+        [39.957346, 26.239959],
+        [39.957361, 26.239945],
+        [39.957368, 26.239947],
+        [39.957368, 26.239952],
+        [39.957379, 26.239967],
+        [39.957379, 26.239972],
+        [39.957382, 26.239973],
+        [39.957382, 26.239978],
+        [39.957411, 26.240032]
+      ],
+      "note": "Tower VI g, the largest on the circuit, with the surviving north-east end of the wall: 18 m broad, projecting 8 m (Tolman and Scoggin 1903). A shaft inside it reached water. The surveyed circuit ends north of it. Not identified with any tower the poem names. Traced from Dörpfeld's Tafel V and laid on the sheet at the plate's own scale; every vertex is his line.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ],
+      "insetOf": "citadel-city-panel"
+    },
+    {
+      "id": "citadel-wall-vi-r",
+      "kind": "region",
+      "fill": "masonry-ground",
+      "legend": "Masonry, surveyed (Dörpfeld 1902)",
+      "polygon": [
+        [39.957454, 26.24],
+        [39.957453, 26.240032],
+        [39.957449, 26.240056],
+        [39.957445, 26.240056],
+        [39.95744, 26.240046],
+        [39.957442, 26.240032],
+        [39.957444, 26.240031],
+        [39.957442, 26.239977],
+        [39.957433, 26.239953],
+        [39.957415, 26.239918],
+        [39.957415, 26.23991],
+        [39.957415, 26.239888],
+        [39.957419, 26.239879],
+        [39.957425, 26.239879],
+        [39.957426, 26.239911],
+        [39.957435, 26.239932],
+        [39.95744, 26.239938],
+        [39.957446, 26.239963],
+        [39.95745, 26.239965],
+        [39.957449, 26.239979],
+        [39.957452, 26.239985],
+        [39.957453, 26.239999]
+      ],
+      "note": "VI R, the northernmost surviving piece of Troy VI masonry, outside the wall line beyond tower VI g, in Dörpfeld's square K 3. Everything north and west of it was cut away for the precinct of Athena. Traced from Dörpfeld's Tafel V and laid on the sheet at the plate's own scale; every vertex is his line.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ],
+      "insetOf": "citadel-city-panel"
+    },
+    {
+      "id": "citadel-house-vi-m",
+      "kind": "region",
+      "fill": "masonry-ground",
+      "legend": "Masonry, surveyed (Dörpfeld 1902)",
+      "polygon": [
+        [39.956736, 26.238467],
+        [39.956734, 26.238485],
+        [39.956731, 26.238491],
+        [39.956726, 26.238492],
+        [39.956722, 26.238521],
+        [39.956714, 26.238537],
+        [39.956713, 26.238556],
+        [39.956706, 26.238568],
+        [39.956684, 26.238633],
+        [39.956639, 26.238613],
+        [39.956636, 26.238608],
+        [39.956608, 26.238596],
+        [39.956574, 26.238573],
+        [39.956553, 26.238566],
+        [39.956552, 26.238556],
+        [39.956567, 26.238511],
+        [39.956573, 26.238505],
+        [39.956582, 26.238469],
+        [39.956588, 26.238454],
+        [39.956591, 26.238453],
+        [39.956609, 26.238395],
+        [39.956611, 26.238393],
+        [39.956627, 26.238346],
+        [39.95664, 26.238316],
+        [39.956647, 26.238289],
+        [39.956651, 26.238283],
+        [39.956658, 26.238289],
+        [39.956663, 26.238289],
+        [39.95669, 26.238315],
+        [39.956682, 26.238321],
+        [39.956677, 26.238321],
+        [39.956674, 26.238317],
+        [39.956665, 26.238312],
+        [39.956665, 26.238307],
+        [39.95666, 26.238308],
+        [39.956636, 26.238375],
+        [39.956636, 26.238386],
+        [39.956672, 26.238406],
+        [39.956672, 26.238399],
+        [39.956675, 26.238397],
+        [39.956682, 26.238371],
+        [39.956689, 26.238363],
+        [39.956697, 26.238333],
+        [39.956696, 26.238332],
+        [39.956682, 26.238321],
+        [39.95669, 26.238315],
+        [39.956711, 26.238324],
+        [39.956712, 26.23833],
+        [39.956708, 26.23835],
+        [39.956698, 26.23837],
+        [39.956675, 26.238439],
+        [39.956663, 26.23846],
+        [39.95666, 26.238482],
+        [39.956654, 26.238488],
+        [39.956651, 26.238502],
+        [39.956641, 26.238496],
+        [39.956664, 26.238422],
+        [39.956663, 26.238421],
+        [39.956627, 26.238401],
+        [39.956626, 26.238408],
+        [39.95662, 26.238415],
+        [39.956618, 26.238431],
+        [39.956613, 26.238438],
+        [39.956601, 26.238477],
+        [39.956611, 26.238478],
+        [39.956627, 26.238491],
+        [39.956641, 26.238496],
+        [39.956651, 26.238502],
+        [39.956674, 26.238516],
+        [39.956679, 26.238523],
+        [39.956672, 26.238536],
+        [39.956661, 26.238533],
+        [39.95666, 26.23854],
+        [39.956652, 26.238543],
+        [39.956647, 26.238535],
+        [39.956649, 26.238524],
+        [39.956647, 26.238521],
+        [39.956644, 26.238521],
+        [39.956643, 26.23853],
+        [39.956639, 26.238533],
+        [39.956635, 26.238531],
+        [39.956631, 26.238523],
+        [39.956621, 26.238526],
+        [39.956618, 26.238522],
+        [39.956604, 26.23852],
+        [39.956603, 26.238527],
+        [39.956596, 26.238527],
+        [39.956595, 26.238498],
+        [39.956592, 26.238498],
+        [39.956576, 26.238545],
+        [39.956576, 26.238549],
+        [39.956582, 26.238553],
+        [39.956621, 26.238571],
+        [39.956625, 26.238575],
+        [39.956677, 26.238604],
+        [39.956682, 26.238604],
+        [39.956693, 26.238565],
+        [39.956692, 26.238565],
+        [39.95669, 26.23856],
+        [39.956683, 26.238558],
+        [39.956683, 26.238549],
+        [39.956681, 26.238548],
+        [39.956677, 26.238549],
+        [39.956672, 26.238562],
+        [39.956669, 26.238562],
+        [39.956668, 26.238551],
+        [39.956672, 26.238536],
+        [39.956679, 26.238523],
+        [39.956687, 26.238523],
+        [39.956693, 26.23853],
+        [39.956705, 26.238531],
+        [39.956711, 26.238536],
+        [39.956716, 26.238521],
+        [39.956715, 26.238503],
+        [39.956702, 26.238495],
+        [39.956702, 26.238489],
+        [39.956708, 26.238485],
+        [39.956716, 26.23849],
+        [39.956725, 26.23849],
+        [39.956728, 26.238471],
+        [39.956735, 26.238467]
+      ],
+      "note": "House VI M, about 29 by 21 m, the largest surveyed building inside the circuit, on its own terrace above the south wall. Megaron plan with an open court between wings. Traced from Dörpfeld's Tafel V and laid on the sheet at the plate's own scale; every vertex is his line.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ],
+      "insetOf": "citadel-city-panel"
+    },
+    {
+      "id": "citadel-house-vi-b",
+      "kind": "region",
+      "fill": "masonry-ground",
+      "legend": "Masonry, surveyed (Dörpfeld 1902)",
+      "polygon": [
+        [39.957235, 26.238142],
+        [39.957235, 26.238157],
+        [39.957228, 26.23817],
+        [39.957225, 26.23817],
+        [39.957214, 26.238157],
+        [39.957214, 26.238151],
+        [39.957209, 26.238145],
+        [39.957209, 26.23814],
+        [39.957203, 26.238138],
+        [39.957184, 26.238104],
+        [39.95718, 26.238103],
+        [39.957178, 26.238095],
+        [39.957167, 26.23808],
+        [39.957164, 26.238071],
+        [39.957155, 26.238063],
+        [39.957155, 26.238059],
+        [39.95715, 26.23805],
+        [39.957147, 26.23805],
+        [39.957142, 26.238036],
+        [39.957128, 26.23803],
+        [39.957118, 26.238044],
+        [39.95711, 26.238049],
+        [39.957109, 26.238054],
+        [39.957101, 26.238059],
+        [39.957093, 26.23807],
+        [39.957072, 26.238088],
+        [39.957056, 26.238106],
+        [39.957054, 26.238114],
+        [39.957057, 26.238116],
+        [39.957059, 26.238129],
+        [39.957071, 26.238141],
+        [39.957071, 26.238148],
+        [39.957076, 26.238153],
+        [39.95708, 26.238153],
+        [39.95708, 26.238159],
+        [39.957098, 26.238184],
+        [39.957098, 26.238188],
+        [39.957105, 26.238193],
+        [39.957116, 26.238217],
+        [39.957123, 26.238223],
+        [39.957126, 26.238234],
+        [39.957146, 26.238266],
+        [39.957148, 26.238273],
+        [39.957143, 26.238293],
+        [39.957139, 26.238293],
+        [39.957128, 26.238276],
+        [39.957127, 26.238268],
+        [39.95712, 26.238262],
+        [39.957119, 26.238255],
+        [39.957113, 26.238253],
+        [39.957109, 26.238239],
+        [39.957102, 26.238234],
+        [39.957072, 26.238184],
+        [39.957064, 26.238179],
+        [39.957061, 26.238165],
+        [39.95704, 26.238137],
+        [39.95702, 26.238101],
+        [39.957012, 26.238094],
+        [39.957012, 26.238088],
+        [39.957008, 26.238086],
+        [39.957005, 26.238076],
+        [39.956994, 26.238063],
+        [39.956992, 26.238048],
+        [39.957002, 26.238037],
+        [39.957007, 26.238037],
+        [39.957027, 26.238067],
+        [39.957032, 26.238082],
+        [39.957039, 26.238087],
+        [39.957039, 26.238093],
+        [39.957047, 26.238096],
+        [39.957048, 26.238088],
+        [39.957052, 26.238088],
+        [39.957064, 26.238072],
+        [39.957068, 26.238072],
+        [39.957075, 26.238061],
+        [39.957082, 26.238058],
+        [39.957083, 26.238053],
+        [39.957086, 26.238052],
+        [39.957088, 26.238046],
+        [39.957098, 26.23804],
+        [39.957103, 26.238032],
+        [39.957104, 26.238025],
+        [39.95711, 26.238025],
+        [39.957113, 26.238019],
+        [39.957117, 26.238017],
+        [39.957119, 26.238006],
+        [39.957118, 26.237996],
+        [39.957113, 26.237994],
+        [39.957111, 26.237985],
+        [39.957103, 26.237978],
+        [39.957101, 26.237965],
+        [39.957095, 26.237963],
+        [39.957095, 26.237959],
+        [39.957089, 26.237953],
+        [39.957091, 26.237938],
+        [39.957097, 26.237937],
+        [39.957101, 26.237929],
+        [39.957105, 26.23793],
+        [39.957127, 26.237969],
+        [39.957137, 26.237979],
+        [39.957138, 26.237985],
+        [39.957142, 26.237985],
+        [39.957144, 26.237995],
+        [39.95716, 26.238022],
+        [39.957167, 26.238027],
+        [39.957173, 26.238044],
+        [39.957177, 26.238046],
+        [39.95719, 26.238069],
+        [39.957194, 26.238069],
+        [39.957194, 26.23808],
+        [39.957198, 26.238081],
+        [39.957203, 26.238093],
+        [39.957208, 26.238097],
+        [39.957221, 26.238119],
+        [39.957221, 26.238129],
+        [39.957228, 26.238132],
+        [39.957228, 26.238139],
+        [39.957234, 26.238142]
+      ],
+      "note": "House VI b, in the north-west, on the highest ground where Troy VI still stood. Arms of walling, cut off where the leveling for the precinct of Athena begins. Traced from Dörpfeld's Tafel V and laid on the sheet at the plate's own scale; every vertex is his line.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ],
+      "insetOf": "citadel-city-panel"
+    },
+    {
+      "id": "citadel-houses-vi-c-terrace",
+      "kind": "region",
+      "fill": "masonry-ground",
+      "legend": "Masonry, surveyed (Dörpfeld 1902)",
+      "polygon": [
+        [39.957204, 26.239591],
+        [39.957204, 26.239606],
+        [39.9572, 26.239608],
+        [39.95713, 26.239593],
+        [39.957092, 26.23958],
+        [39.957087, 26.239582],
+        [39.957011, 26.239766],
+        [39.957011, 26.239772],
+        [39.956997, 26.239784],
+        [39.956996, 26.239783],
+        [39.956924, 26.239736],
+        [39.956921, 26.23974],
+        [39.956921, 26.239746],
+        [39.956918, 26.239747],
+        [39.956911, 26.239772],
+        [39.956901, 26.239787],
+        [39.956902, 26.239797],
+        [39.956911, 26.2398],
+        [39.956915, 26.239807],
+        [39.95695, 26.239828],
+        [39.956954, 26.239834],
+        [39.956976, 26.239843],
+        [39.956984, 26.239827],
+        [39.956984, 26.239819],
+        [39.95699, 26.239812],
+        [39.956997, 26.239784],
+        [39.957011, 26.239772],
+        [39.957017, 26.239776],
+        [39.957017, 26.239782],
+        [39.957006, 26.239809],
+        [39.956992, 26.239857],
+        [39.956986, 26.239865],
+        [39.956984, 26.239883],
+        [39.956975, 26.239882],
+        [39.956958, 26.239871],
+        [39.956915, 26.239839],
+        [39.956881, 26.239818],
+        [39.956876, 26.239814],
+        [39.956877, 26.239799],
+        [39.956873, 26.2398],
+        [39.956873, 26.239808],
+        [39.95687, 26.23981],
+        [39.956867, 26.239823],
+        [39.956863, 26.239825],
+        [39.956862, 26.239835],
+        [39.956852, 26.239835],
+        [39.956851, 26.239839],
+        [39.956846, 26.23984],
+        [39.956846, 26.239848],
+        [39.956843, 26.239849],
+        [39.956842, 26.239866],
+        [39.956838, 26.239869],
+        [39.956838, 26.239879],
+        [39.956835, 26.239885],
+        [39.956827, 26.239884],
+        [39.956824, 26.239878],
+        [39.956817, 26.239881],
+        [39.95681, 26.239879],
+        [39.956808, 26.239875],
+        [39.956808, 26.23986],
+        [39.95682, 26.23986],
+        [39.95682, 26.239847],
+        [39.956823, 26.23984],
+        [39.956836, 26.239845],
+        [39.956844, 26.239838],
+        [39.956844, 26.23983],
+        [39.956816, 26.239805],
+        [39.956785, 26.239783],
+        [39.956774, 26.23977],
+        [39.956739, 26.239744],
+        [39.956744, 26.239727],
+        [39.956759, 26.2397],
+        [39.956771, 26.239669],
+        [39.956778, 26.239663],
+        [39.956778, 26.239656],
+        [39.956795, 26.239622],
+        [39.956803, 26.239622],
+        [39.956817, 26.239632],
+        [39.956829, 26.239645],
+        [39.956844, 26.239652],
+        [39.956847, 26.239658],
+        [39.956865, 26.239671],
+        [39.956867, 26.239675],
+        [39.956866, 26.239685],
+        [39.956863, 26.23969],
+        [39.956858, 26.239691],
+        [39.956809, 26.239651],
+        [39.956799, 26.239649],
+        [39.956798, 26.239659],
+        [39.956771, 26.239708],
+        [39.956765, 26.239728],
+        [39.956851, 26.239794],
+        [39.956856, 26.239795],
+        [39.956857, 26.239787],
+        [39.956866, 26.239772],
+        [39.956866, 26.239766],
+        [39.956873, 26.239756],
+        [39.956877, 26.239738],
+        [39.956887, 26.239719],
+        [39.956886, 26.239713],
+        [39.956873, 26.239702],
+        [39.956878, 26.239686],
+        [39.956885, 26.239686],
+        [39.95691, 26.239708],
+        [39.95691, 26.239717],
+        [39.956906, 26.239718],
+        [39.956905, 26.239728],
+        [39.956912, 26.239722],
+        [39.956912, 26.239715],
+        [39.956923, 26.239709],
+        [39.956962, 26.239608],
+        [39.956973, 26.239588],
+        [39.957003, 26.239506],
+        [39.957012, 26.239508],
+        [39.95701, 26.239535],
+        [39.957022, 26.23954],
+        [39.957037, 26.239555],
+        [39.957048, 26.239558],
+        [39.95707, 26.239577],
+        [39.957066, 26.23959],
+        [39.957065, 26.23959],
+        [39.957039, 26.239572],
+        [39.957037, 26.239568],
+        [39.957028, 26.239565],
+        [39.957024, 26.239558],
+        [39.957003, 26.23955],
+        [39.956945, 26.239691],
+        [39.956945, 26.239697],
+        [39.956955, 26.239701],
+        [39.956956, 26.239705],
+        [39.956964, 26.239708],
+        [39.956966, 26.239712],
+        [39.956995, 26.239731],
+        [39.957008, 26.239736],
+        [39.957013, 26.239717],
+        [39.957021, 26.239706],
+        [39.957023, 26.239694],
+        [39.957034, 26.239674],
+        [39.957034, 26.239668],
+        [39.95706, 26.239612],
+        [39.957066, 26.23959],
+        [39.95707, 26.239577],
+        [39.957074, 26.239576],
+        [39.957081, 26.23956],
+        [39.957086, 26.23956],
+        [39.957095, 26.239566],
+        [39.957147, 26.239583],
+        [39.957156, 26.23958],
+        [39.957164, 26.239506],
+        [39.957176, 26.239506],
+        [39.95717, 26.239583],
+        [39.957204, 26.23959]
+      ],
+      "note": "The east terrace block: houses VI D, VI C, VI E and VI F, drawn together as they stand on Tafel V. The double circles Dörpfeld draws in these rooms are storage jars sunk in the floors (1902, 2:649). Traced from Dörpfeld's Tafel V and laid on the sheet at the plate's own scale; every vertex is his line.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ],
+      "insetOf": "citadel-city-panel"
+    },
+    {
+      "id": "citadel-house-vi-q",
+      "kind": "region",
+      "fill": "masonry-ground",
+      "legend": "Masonry, surveyed (Dörpfeld 1902)",
+      "polygon": [
+        [39.95728, 26.239777],
+        [39.957279, 26.239786],
+        [39.957273, 26.239789],
+        [39.957264, 26.239787],
+        [39.957253, 26.239771],
+        [39.957228, 26.239752],
+        [39.957227, 26.239758],
+        [39.957232, 26.239767],
+        [39.957232, 26.239774],
+        [39.957226, 26.239778],
+        [39.957225, 26.239782],
+        [39.957206, 26.239793],
+        [39.957204, 26.239799],
+        [39.9572, 26.239799],
+        [39.957178, 26.239819],
+        [39.957174, 26.239819],
+        [39.957173, 26.239823],
+        [39.95716, 26.239828],
+        [39.957144, 26.239848],
+        [39.957134, 26.239852],
+        [39.957132, 26.239857],
+        [39.957113, 26.239869],
+        [39.957112, 26.239874],
+        [39.957104, 26.239875],
+        [39.957101, 26.239858],
+        [39.957111, 26.239847],
+        [39.957147, 26.239822],
+        [39.957166, 26.239804],
+        [39.95717, 26.239804],
+        [39.957172, 26.239797],
+        [39.957178, 26.239797],
+        [39.957194, 26.239779],
+        [39.957215, 26.239766],
+        [39.957216, 26.23976],
+        [39.957198, 26.239724],
+        [39.957196, 26.239714],
+        [39.957186, 26.239705],
+        [39.95708, 26.239791],
+        [39.957073, 26.239789],
+        [39.957071, 26.239779],
+        [39.957126, 26.239734],
+        [39.957141, 26.239728],
+        [39.957152, 26.239712],
+        [39.957158, 26.239711],
+        [39.95719, 26.239684],
+        [39.957198, 26.239688],
+        [39.957208, 26.239718],
+        [39.957223, 26.239739],
+        [39.957229, 26.239733],
+        [39.957235, 26.239733],
+        [39.957248, 26.239748],
+        [39.957253, 26.239749],
+        [39.957259, 26.23976],
+        [39.95728, 26.239776]
+      ],
+      "note": "House VI Q, the north-easternmost terrace house to survive. North of it the cutting for the temple of Athena of Ilion begins. Traced from Dörpfeld's Tafel V and laid on the sheet at the plate's own scale; every vertex is his line.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ],
+      "insetOf": "citadel-city-panel"
+    },
+    {
+      "id": "citadel-house-vi-o",
+      "kind": "region",
+      "fill": "masonry-ground",
+      "legend": "Masonry, surveyed (Dörpfeld 1902)",
+      "polygon": [
+        [39.956894, 26.239566],
+        [39.956893, 26.239575],
+        [39.956884, 26.239592],
+        [39.956879, 26.239594],
+        [39.956858, 26.239628],
+        [39.956854, 26.239628],
+        [39.956816, 26.239589],
+        [39.956811, 26.239589],
+        [39.956801, 26.239605],
+        [39.956791, 26.239604],
+        [39.956771, 26.239589],
+        [39.956761, 26.239574],
+        [39.956757, 26.239574],
+        [39.956756, 26.23956],
+        [39.95676, 26.239559],
+        [39.956791, 26.239591],
+        [39.956796, 26.23959],
+        [39.956807, 26.239571],
+        [39.956807, 26.239565],
+        [39.956777, 26.239531],
+        [39.956777, 26.239517],
+        [39.956783, 26.239514],
+        [39.956794, 26.239528],
+        [39.956803, 26.239531],
+        [39.956818, 26.23951],
+        [39.956824, 26.23951],
+        [39.956828, 26.239518],
+        [39.956809, 26.239542],
+        [39.956813, 26.239559],
+        [39.956819, 26.239561],
+        [39.956854, 26.2396],
+        [39.956858, 26.2396],
+        [39.956864, 26.239592],
+        [39.956882, 26.239561],
+        [39.956894, 26.239565]
+      ],
+      "note": "House VI O, on the lower east terrace, between the terrace houses and the ring street. Traced from Dörpfeld's Tafel V and laid on the sheet at the plate's own scale; every vertex is his line.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ],
+      "insetOf": "citadel-city-panel"
+    },
+    {
+      "id": "citadel-house-vi-g-block",
+      "kind": "region",
+      "fill": "masonry-ground",
+      "legend": "Masonry, surveyed (Dörpfeld 1902)",
+      "polygon": [
+        [39.956746, 26.239698],
+        [39.956745, 26.239706],
+        [39.956732, 26.239724],
+        [39.956729, 26.239734],
+        [39.956724, 26.239739],
+        [39.956715, 26.239758],
+        [39.956707, 26.239765],
+        [39.956697, 26.239759],
+        [39.956726, 26.239711],
+        [39.956727, 26.239705],
+        [39.956726, 26.239704],
+        [39.956716, 26.239694],
+        [39.956712, 26.239694],
+        [39.956694, 26.239722],
+        [39.956688, 26.239737],
+        [39.956684, 26.239739],
+        [39.956682, 26.239747],
+        [39.956697, 26.239759],
+        [39.956707, 26.239765],
+        [39.956704, 26.239773],
+        [39.956699, 26.239777],
+        [39.956699, 26.239783],
+        [39.956695, 26.239783],
+        [39.956616, 26.239708],
+        [39.956596, 26.239686],
+        [39.956587, 26.239681],
+        [39.956547, 26.239643],
+        [39.956546, 26.23963],
+        [39.956554, 26.239625],
+        [39.956606, 26.239674],
+        [39.956607, 26.239679],
+        [39.956612, 26.23968],
+        [39.956645, 26.239713],
+        [39.956655, 26.239719],
+        [39.956667, 26.239734],
+        [39.956676, 26.239727],
+        [39.956687, 26.239704],
+        [39.956699, 26.23969],
+        [39.9567, 26.23968],
+        [39.956682, 26.239659],
+        [39.956673, 26.239655],
+        [39.956668, 26.239664],
+        [39.956663, 26.239664],
+        [39.956637, 26.239642],
+        [39.956634, 26.239633],
+        [39.956642, 26.239629],
+        [39.956643, 26.239624],
+        [39.956604, 26.239589],
+        [39.956587, 26.239569],
+        [39.956591, 26.239557],
+        [39.956597, 26.239554],
+        [39.956612, 26.239571],
+        [39.956638, 26.239593],
+        [39.956655, 26.239613],
+        [39.956661, 26.239614],
+        [39.956663, 26.23962],
+        [39.956692, 26.239645],
+        [39.956745, 26.239697]
+      ],
+      "note": "House VI G and its neighbors on the lower east terrace. The open ground between them and the wall is Dörpfeld's ring street (1902, 2:611). Traced from Dörpfeld's Tafel V and laid on the sheet at the plate's own scale; every vertex is his line.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ],
+      "insetOf": "citadel-city-panel"
+    },
+    {
+      "id": "citadel-tower-vi-h",
+      "kind": "region",
+      "fill": "none",
+      "polygon": [
+        [39.956676, 26.23986],
+        [39.956676, 26.239988],
+        [39.95655, 26.239988],
+        [39.95655, 26.23986]
+      ],
+      "note": "The great east tower, VI h: over 11 m broad, projecting 8 m, front wall about 3 m thick (Tolman and Scoggin 1903). Its footprint is drawn with the wall. Not identified with the poem's great tower.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ],
+      "insetOf": "citadel-city-panel"
+    },
+    {
+      "id": "citadel-tower-vi-i",
+      "kind": "region",
+      "fill": "none",
+      "polygon": [
+        [39.956361, 26.239309],
+        [39.956361, 26.239426],
+        [39.956271, 26.239426],
+        [39.956271, 26.239309]
+      ],
+      "note": "The south tower, VI i, beside the South Gate: front wall 4.40 m broad, side walls 2.20 m thick (Tolman and Scoggin 1903). Its footprint is drawn with the wall.",
+      "sources": [
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        }
+      ],
+      "insetOf": "citadel-city-panel"
+    },
+    {
+      "id": "citadel-house-vi-a",
+      "kind": "region",
+      "fill": "none",
+      "polygon": [
+        [39.956962, 26.238008],
+        [39.956962, 26.238195],
+        [39.956818, 26.238195],
+        [39.956818, 26.238008]
+      ],
+      "note": "House VI A, built against the inner face of the west wall: a hall with an antechamber, on the megaron plan of the Troy VI houses. Its masonry is drawn with the wall, as on Tafel V.",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
@@ -10998,15 +11995,233 @@
     {
       "id": "citadel-poem-house-of-priam",
       "kind": "region",
-      "style": "poem",
+      "style": "plan",
       "fill": "none",
       "polygon": [
-        [39.957318, 26.238506],
-        [39.957421, 26.239141],
-        [39.957078, 26.239236],
-        [39.956975, 26.238601]
+        [39.956834, 26.23873],
+        [39.956834, 26.239223],
+        [39.957409, 26.239223],
+        [39.957409, 26.23873]
       ],
-      "note": "The house of Priam, where the poem puts it and where nobody has dug. Hector comes to it Πριάμοιο δόμον περικαλλέ’ ... ξεστῇς αἰθούσῃσι τετυγμένον, the beautiful house built with polished colonnades; inside were fifty chambers of polished stone built close to one another, where Priam’s sons slept beside their wives, and across the court, facing them, twelve roofed chambers for the husbands of his daughters (Il. 6.242-50). That is a court with a range of building on either side, and it is drawn here as that and no more: the outer line is the wall of the αὐλή, the inner one the open court within it. Sixty-two chambers is a larger house than anything the spade has found inside this circuit — House VI M, the biggest, is about 29 by 21 m and would stand inside one wing of it. The position is the poem’s: the houses of Priam, Hector and Paris are ἐν πόλει ἄκρῃ, on the city height (6.317), and the height is the ground the Athena precinct later cut away. No stone of any of it has been seen. Size and shape are drawn to the poem’s own description; the point on the sheet is not a coordinate.",
+      "rings": [
+        [
+          [39.956906, 26.238842],
+          [39.956906, 26.239117],
+          [39.957283, 26.239117],
+          [39.957283, 26.238842]
+        ],
+        [
+          [39.957283, 26.238906],
+          [39.957283, 26.239223],
+          [39.957409, 26.239223],
+          [39.957409, 26.238906]
+        ]
+      ],
+      "lines": [
+        [
+          [39.956906, 26.238786],
+          [39.957283, 26.238786]
+        ],
+        [
+          [39.956929, 26.23873],
+          [39.956929, 26.238842]
+        ],
+        [
+          [39.956953, 26.23873],
+          [39.956953, 26.238842]
+        ],
+        [
+          [39.956976, 26.23873],
+          [39.956976, 26.238842]
+        ],
+        [
+          [39.957, 26.23873],
+          [39.957, 26.238842]
+        ],
+        [
+          [39.957024, 26.23873],
+          [39.957024, 26.238842]
+        ],
+        [
+          [39.957047, 26.23873],
+          [39.957047, 26.238842]
+        ],
+        [
+          [39.957071, 26.23873],
+          [39.957071, 26.238842]
+        ],
+        [
+          [39.957094, 26.23873],
+          [39.957094, 26.238842]
+        ],
+        [
+          [39.957118, 26.23873],
+          [39.957118, 26.238842]
+        ],
+        [
+          [39.957141, 26.23873],
+          [39.957141, 26.238842]
+        ],
+        [
+          [39.957165, 26.23873],
+          [39.957165, 26.238842]
+        ],
+        [
+          [39.957189, 26.23873],
+          [39.957189, 26.238842]
+        ],
+        [
+          [39.957212, 26.23873],
+          [39.957212, 26.238842]
+        ],
+        [
+          [39.957236, 26.23873],
+          [39.957236, 26.238842]
+        ],
+        [
+          [39.957259, 26.23873],
+          [39.957259, 26.238842]
+        ],
+        [
+          [39.957346, 26.23873],
+          [39.957346, 26.238906]
+        ],
+        [
+          [39.957283, 26.23876],
+          [39.957409, 26.23876]
+        ],
+        [
+          [39.957283, 26.238789],
+          [39.957409, 26.238789]
+        ],
+        [
+          [39.957283, 26.238818],
+          [39.957409, 26.238818]
+        ],
+        [
+          [39.957283, 26.238848],
+          [39.957409, 26.238848]
+        ],
+        [
+          [39.957283, 26.238877],
+          [39.957409, 26.238877]
+        ],
+        [
+          [39.956834, 26.238766],
+          [39.956906, 26.238766]
+        ],
+        [
+          [39.956834, 26.238801],
+          [39.956906, 26.238801]
+        ],
+        [
+          [39.956834, 26.238836],
+          [39.956906, 26.238836]
+        ],
+        [
+          [39.956834, 26.238871],
+          [39.956906, 26.238871]
+        ],
+        [
+          [39.956834, 26.238906],
+          [39.956906, 26.238906]
+        ],
+        [
+          [39.956906, 26.238842],
+          [39.956906, 26.238941]
+        ],
+        [
+          [39.956937, 26.239117],
+          [39.956937, 26.239223]
+        ],
+        [
+          [39.956969, 26.239117],
+          [39.956969, 26.239223]
+        ],
+        [
+          [39.957, 26.239117],
+          [39.957, 26.239223]
+        ],
+        [
+          [39.957031, 26.239117],
+          [39.957031, 26.239223]
+        ],
+        [
+          [39.957063, 26.239117],
+          [39.957063, 26.239223]
+        ],
+        [
+          [39.957094, 26.239117],
+          [39.957094, 26.239223]
+        ],
+        [
+          [39.957126, 26.239117],
+          [39.957126, 26.239223]
+        ],
+        [
+          [39.957157, 26.239117],
+          [39.957157, 26.239223]
+        ],
+        [
+          [39.957189, 26.239117],
+          [39.957189, 26.239223]
+        ],
+        [
+          [39.95722, 26.239117],
+          [39.95722, 26.239223]
+        ],
+        [
+          [39.957252, 26.239117],
+          [39.957252, 26.239223]
+        ],
+        [
+          [39.956834, 26.238941],
+          [39.956906, 26.238941]
+        ],
+        [
+          [39.956834, 26.239012],
+          [39.956906, 26.239012]
+        ],
+        [
+          [39.956906, 26.239012],
+          [39.956906, 26.239117]
+        ],
+        [
+          [39.957319, 26.238906],
+          [39.957319, 26.239223]
+        ]
+      ],
+      "columns": [
+        [
+          [39.956927, 26.23887],
+          [39.957261, 26.23887]
+        ],
+        [
+          [39.956927, 26.239089],
+          [39.957261, 26.239089]
+        ],
+        [
+          [39.956927, 26.23887],
+          [39.956927, 26.239089]
+        ],
+        [
+          [39.957261, 26.23887],
+          [39.957261, 26.239089]
+        ]
+      ],
+      "solids": [
+        [
+          [39.957368, 26.23908],
+          [39.957377, 26.239075],
+          [39.95738, 26.239064],
+          [39.957377, 26.239054],
+          [39.957368, 26.239049],
+          [39.95736, 26.239054],
+          [39.957357, 26.239064],
+          [39.95736, 26.239075]
+        ]
+      ],
+      "note": "The house of Priam, drawn to Il. 6.242–50: a house built with polished colonnades; inside it fifty chambers of polished stone built close to one another, where his sons slept with their wives; across the court, facing them, twelve roofed chambers for his daughters' husbands. Drawn as a colonnaded court with the fifty chambers in ranges on the west, north-west and south-west sides, the twelve in one range on the east, the hall at the north end, and the gateway (πρόθυρον, 24.323) on the south front opening on the assembly ground. The storeroom east of the gateway is Hecuba's (6.288). Position: on the city height (6.317), inside Dörpfeld's inner terrace front, where the leveling for the precinct of Athena removed everything. The overall size, about 42 by 64 m, follows from the count of chambers at about 3 m each; nothing here is measured. House VI M, the largest surveyed building inside the circuit, is 29 by 21 m.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -11016,14 +12231,6 @@
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
           "url": "https://archive.org/details/trojaundilionerg02dorp"
         }
-      ],
-      "rings": [
-        [
-          [39.957252, 26.238652],
-          [39.957316, 26.239042],
-          [39.957144, 26.23909],
-          [39.95708, 26.238699]
-        ]
       ],
       "insetOf": "citadel-city-panel"
     },
@@ -11033,20 +12240,16 @@
       "style": "poem",
       "fill": "none",
       "polygon": [
-        [39.956937, 26.238595],
-        [39.957018, 26.239095],
-        [39.956835, 26.239146],
-        [39.956753, 26.238647]
+        [39.956641, 26.238766],
+        [39.956641, 26.239164],
+        [39.956825, 26.239164],
+        [39.956825, 26.238766]
       ],
-      "note": "The assembly ground, at Priam’s doors. When Iris comes to Troy with Zeus’s message she finds the Trojans in session: οἳ δ’ ἀγορὰς ἀγόρευον ἐπὶ Πριάμοιο θύρῃσι / πάντες ὁμηγερέες ἠμὲν νέοι ἠδὲ γέροντες — all gathered, young and old, holding assembly at Priam’s doors (Il. 2.788-89). The poem gives the assembly no building and no walls, only a place: outside the palace door. It is drawn as open ground against the palace’s south front, which is the whole of what the line supports.",
+      "note": "The assembly ground. The Trojans hold assembly at Priam's doors (Il. 2.788–89; 7.345–46, in the upper city). The poem gives it no building; it is drawn as open ground against the south front of the house, where the gateway opens. The two streets to the gates leave from it.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
           "url": "https://archive.org/details/iliadmurray01homeuoft"
-        },
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
-          "url": "https://archive.org/details/trojaundilionerg02dorp"
         }
       ],
       "insetOf": "citadel-city-panel"
@@ -11054,15 +12257,55 @@
     {
       "id": "citadel-poem-house-of-hector",
       "kind": "region",
-      "style": "poem",
+      "style": "plan",
       "fill": "none",
       "polygon": [
-        [39.957321, 26.239156],
-        [39.957369, 26.239447],
-        [39.957213, 26.239491],
-        [39.957166, 26.239199]
+        [39.957157, 26.239246],
+        [39.957157, 26.23948],
+        [39.957292, 26.23948],
+        [39.957292, 26.239246]
       ],
-      "note": "The house of Hector, named with the other two on the height: Paris built his own δώματα ἐγγύθι τε Πριάμοιο καὶ Ἕκτορος ἐν πόλει ἄκρῃ, near Priam’s and Hector’s, on the city height (Il. 6.316-17). This is the house Hector comes to and does not find Andromache in — she has gone up to the great tower — and the house he leaves for the last time by the same road down through the well-built streets (6.390-91). Drawn beside Priam’s because the poem says beside; the size is a house’s, not a measurement.",
+      "rings": [
+        [
+          [39.957157, 26.23934],
+          [39.957157, 26.23948],
+          [39.957292, 26.23948],
+          [39.957292, 26.23934]
+        ]
+      ],
+      "lines": [
+        [
+          [39.957157, 26.239375],
+          [39.957292, 26.239375]
+        ],
+        [
+          [39.957157, 26.239434],
+          [39.957216, 26.239434]
+        ],
+        [
+          [39.957216, 26.239434],
+          [39.957216, 26.23948]
+        ]
+      ],
+      "columns": [
+        [
+          [39.957208, 26.239323],
+          [39.957241, 26.239323]
+        ]
+      ],
+      "solids": [
+        [
+          [39.957235, 26.239415],
+          [39.957241, 26.239412],
+          [39.957243, 26.239404],
+          [39.957241, 26.239397],
+          [39.957235, 26.239394],
+          [39.95723, 26.239397],
+          [39.957227, 26.239404],
+          [39.95723, 26.239412]
+        ]
+      ],
+      "note": "The house of Hector, on the city height beside Priam's (Il. 6.317). Hector comes to it and finds Andromache gone to the tower (6.370–73) and leaves it by the streets down to the gate (6.390–93). Drawn as the house type the poem gives Paris: court, porch, hall and chamber (6.316). The size is a house's; the position is beside Priam's because the poem says beside.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -11078,15 +12321,55 @@
     {
       "id": "citadel-poem-house-of-paris",
       "kind": "region",
-      "style": "poem",
+      "style": "plan",
       "fill": "none",
       "polygon": [
-        [39.957009, 26.239154],
-        [39.957054, 26.23943],
-        [39.956906, 26.239471],
-        [39.956861, 26.239195]
+        [39.956888, 26.23948],
+        [39.956888, 26.239246],
+        [39.957022, 26.239246],
+        [39.957022, 26.23948]
       ],
-      "note": "The house of Paris, the one building in Troy whose making the poem describes. He built it himself, καλά, τά ῥ’ αὐτὸς ἔτευξε σὺν ἀνδράσιν οἳ τότ’ ἄριστοι / ἦσαν ἐνὶ Τροίῃ ... τέκτονες ἄνδρες — with the men who were then the best builders in Troy — and they made him θάλαμον καὶ δῶμα καὶ αὐλήν, a chamber and a hall and a court, near Priam’s house and Hector’s, on the city height (Il. 6.313-17). Chamber, hall and court is a megaron with a yard, which is also the plan of every house Dörpfeld dug inside this wall; that agreement is worth noting and is not evidence of position.",
+      "rings": [
+        [
+          [39.956888, 26.239387],
+          [39.956888, 26.239246],
+          [39.957022, 26.239246],
+          [39.957022, 26.239387]
+        ]
+      ],
+      "lines": [
+        [
+          [39.956888, 26.239352],
+          [39.957022, 26.239352]
+        ],
+        [
+          [39.956888, 26.239293],
+          [39.956946, 26.239293]
+        ],
+        [
+          [39.956946, 26.239293],
+          [39.956946, 26.239246]
+        ]
+      ],
+      "columns": [
+        [
+          [39.956939, 26.239403],
+          [39.956971, 26.239403]
+        ]
+      ],
+      "solids": [
+        [
+          [39.956966, 26.239312],
+          [39.956972, 26.239315],
+          [39.956974, 26.239322],
+          [39.956972, 26.23933],
+          [39.956966, 26.239333],
+          [39.95696, 26.23933],
+          [39.956958, 26.239322],
+          [39.95696, 26.239315]
+        ]
+      ],
+      "note": "The house of Paris. He built it with the best builders in Troy: a chamber, a hall and a court, near Priam's house and Hector's, on the city height (Il. 6.313–17). Drawn as that: a walled court in front, a porch with two columns, an anteroom, a hall with its hearth, and the chamber beside the hall. That is also the plan of the Troy VI houses Dörpfeld dug (VI A, VI B, VI C); the agreement is noted and is not evidence of position.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -11102,22 +12385,48 @@
     {
       "id": "citadel-poem-temple-of-athena",
       "kind": "region",
-      "style": "poem",
+      "style": "plan",
       "fill": "none",
       "polygon": [
-        [39.957342, 26.238347],
-        [39.957382, 26.238597],
-        [39.957267, 26.238629],
-        [39.957226, 26.238379]
+        [39.957202, 26.238437],
+        [39.957202, 26.238602],
+        [39.957283, 26.238602],
+        [39.957283, 26.238437]
       ],
-      "note": "The temple of Athena, ἐν πόλει ἄκρῃ. Hecuba takes the largest and most beautiful robe from her store and carries it up with the Trojan women: αἳ δ’ ὅτε νηὸν ἵκανον Ἀθήνης ἐν πόλει ἄκρῃ, and Theano, whom the Trojans had made Athena’s priestess, opened the doors to them (Il. 6.297-300). The poem locates it on the height and says nothing of its size or plan. What stood on this ground in historical times was the precinct of Athena of Ilion — and the levelling for it is what destroyed the Bronze-Age summit, so that the one building the Iliad puts here is the one the excavation can never test.",
+      "columns": [
+        [
+          [39.957232, 26.238654],
+          [39.957253, 26.238654]
+        ]
+      ],
+      "solids": [
+        [
+          [39.957272, 26.238602],
+          [39.957272, 26.238672],
+          [39.957283, 26.238672],
+          [39.957283, 26.238602]
+        ],
+        [
+          [39.957202, 26.238602],
+          [39.957202, 26.238672],
+          [39.957213, 26.238672],
+          [39.957213, 26.238602]
+        ],
+        [
+          [39.957234, 26.238454],
+          [39.957234, 26.238473],
+          [39.957252, 26.238473],
+          [39.957252, 26.238454]
+        ]
+      ],
+      "note": "The temple of Athena in the upper city (Il. 6.297; 6.88). Theano opens its doors and lays the robe on the goddess's knees (6.298–303): a building with doors and a seated cult image. Drawn as a temple in antis, cella and porch, with the seat marked at the back; the poem gives no plan and no size, and the ground it stood on was removed by the leveling for the later precinct of Athena of Ilion. Faces east, toward the house of Priam.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
           "url": "https://archive.org/details/iliadmurray01homeuoft"
         },
         {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Vol. 2, pp. 610–11, 630, 649–51.",
           "url": "https://archive.org/details/trojaundilionerg02dorp"
         }
       ],
@@ -11126,15 +12435,227 @@
     {
       "id": "citadel-poem-shrine-of-apollo",
       "kind": "region",
-      "style": "poem",
+      "style": "plan",
       "fill": "none",
       "polygon": [
-        [39.956987, 26.238351],
-        [39.957023, 26.238575],
-        [39.95692, 26.238603],
-        [39.956883, 26.23838]
+        [39.956659, 26.239398],
+        [39.956659, 26.239305],
+        [39.956731, 26.239305],
+        [39.956731, 26.239398]
       ],
-      "note": "The shrine of Apollo in Pergamos. Apollo carries Aeneas out of the fighting and sets him down Περγάμῳ εἰν ἱερῇ, ὅθι οἱ νηός γε τέτυκτο — in holy Pergamos, where his own temple was built — and Leto and Artemis heal him ἐν μεγάλῳ ἀδύτῳ, in the great inner chamber (Il. 5.446-48). Hector swears to hang the armor of the man he kills πρὸτι νηὸν Ἀπόλλωνος ἑκάτοιο, at the temple of far-shooting Apollo (7.83). An ἄδυτον called great is the only dimension the poem gives, and it is not one; the outline here is a shrine’s, set on the height with the rest.",
+      "lines": [
+        [
+          [39.956659, 26.239357],
+          [39.956731, 26.239357]
+        ]
+      ],
+      "columns": [
+        [
+          [39.956684, 26.239252],
+          [39.956705, 26.239252]
+        ]
+      ],
+      "solids": [
+        [
+          [39.95672, 26.239305],
+          [39.95672, 26.239234],
+          [39.956731, 26.239234],
+          [39.956731, 26.239305]
+        ],
+        [
+          [39.956659, 26.239305],
+          [39.956659, 26.239234],
+          [39.956669, 26.239234],
+          [39.956669, 26.239305]
+        ]
+      ],
+      "note": "The shrine of Apollo in Pergamos, where his temple was built (Il. 5.446); Leto and Artemis heal Aeneas in its great inner chamber (5.448); Hector swears to hang armor at it (7.83). Drawn as a shrine with a porch, a front room and the inner chamber (ἄδυτον) behind. The size is a shrine's; the position is on the height with the rest.",
+      "sources": [
+        {
+          "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
+          "url": "https://archive.org/details/iliadmurray01homeuoft"
+        }
+      ],
+      "insetOf": "citadel-city-panel"
+    },
+    {
+      "id": "citadel-fabric-terrace",
+      "kind": "region",
+      "style": "plan",
+      "fill": "none",
+      "polygon": [
+        [39.957227, 26.239655],
+        [39.957262, 26.239737],
+        [39.957348, 26.239673],
+        [39.957313, 26.239592]
+      ],
+      "rings": [
+        [
+          [39.957314, 26.239551],
+          [39.957369, 26.239628],
+          [39.957461, 26.239515],
+          [39.957405, 26.239439]
+        ],
+        [
+          [39.957403, 26.239392],
+          [39.957456, 26.239436],
+          [39.957499, 26.239347],
+          [39.957446, 26.239303]
+        ],
+        [
+          [39.957441, 26.23927],
+          [39.957526, 26.239307],
+          [39.957561, 26.239174],
+          [39.957476, 26.239137]
+        ],
+        [
+          [39.957497, 26.239116],
+          [39.957577, 26.23912],
+          [39.957583, 26.238945],
+          [39.957502, 26.23894]
+        ],
+        [
+          [39.957526, 26.238895],
+          [39.957595, 26.238873],
+          [39.957574, 26.238759],
+          [39.957505, 26.238781]
+        ],
+        [
+          [39.957523, 26.238745],
+          [39.957588, 26.238704],
+          [39.957545, 26.238588],
+          [39.95748, 26.238629]
+        ],
+        [
+          [39.957486, 26.238588],
+          [39.957549, 26.238521],
+          [39.957469, 26.238394],
+          [39.957407, 26.238461]
+        ],
+        [
+          [39.957011, 26.238208],
+          [39.957008, 26.238126],
+          [39.956927, 26.238131],
+          [39.95693, 26.238213]
+        ],
+        [
+          [39.956912, 26.238252],
+          [39.956897, 26.238174],
+          [39.956793, 26.238208],
+          [39.956807, 26.238286]
+        ],
+        [
+          [39.95666, 26.238651],
+          [39.956589, 26.2386],
+          [39.956523, 26.238753],
+          [39.956594, 26.238805]
+        ],
+        [
+          [39.956593, 26.23884],
+          [39.956522, 26.238822],
+          [39.956506, 26.238938],
+          [39.956576, 26.238955]
+        ],
+        [
+          [39.956527, 26.239297],
+          [39.956465, 26.239346],
+          [39.956516, 26.239456],
+          [39.956578, 26.239408]
+        ]
+      ],
+      "lines": [
+        [
+          [39.957237, 26.23968],
+          [39.957324, 26.239616]
+        ],
+        [
+          [39.957336, 26.239582],
+          [39.957427, 26.239469]
+        ],
+        [
+          [39.957424, 26.23941],
+          [39.957467, 26.23932]
+        ],
+        [
+          [39.957471, 26.239283],
+          [39.957506, 26.23915]
+        ],
+        [
+          [39.957501, 26.239296],
+          [39.957535, 26.239163]
+        ],
+        [
+          [39.957518, 26.239229],
+          [39.957544, 26.239241]
+        ],
+        [
+          [39.957521, 26.239117],
+          [39.957527, 26.238942]
+        ],
+        [
+          [39.957554, 26.238886],
+          [39.957533, 26.238772]
+        ],
+        [
+          [39.957542, 26.238733],
+          [39.9575, 26.238616]
+        ],
+        [
+          [39.957511, 26.238561],
+          [39.957432, 26.238434]
+        ],
+        [
+          [39.957009, 26.238175],
+          [39.956929, 26.23818]
+        ],
+        [
+          [39.956907, 26.238225],
+          [39.956802, 26.238259]
+        ],
+        [
+          [39.956902, 26.238197],
+          [39.956797, 26.238232]
+        ],
+        [
+          [39.956849, 26.238214],
+          [39.956845, 26.238191]
+        ],
+        [
+          [39.956638, 26.238636],
+          [39.956573, 26.238789]
+        ],
+        [
+          [39.956565, 26.238833],
+          [39.956548, 26.238948]
+        ],
+        [
+          [39.956508, 26.239312],
+          [39.956559, 26.239422]
+        ]
+      ],
+      "columns": [
+        [
+          [39.957264, 26.239643],
+          [39.957286, 26.239627]
+        ],
+        [
+          [39.957511, 26.239045],
+          [39.957513, 26.239012]
+        ],
+        [
+          [39.957516, 26.238696],
+          [39.957505, 26.238666]
+        ],
+        [
+          [39.956622, 26.238706],
+          [39.95661, 26.238734]
+        ],
+        [
+          [39.956537, 26.239345],
+          [39.95655, 26.239373]
+        ]
+      ],
+      "note": "Houses on the first terrace, unnamed. The poem calls Ilios well-built and wide-streeted and has Hector go down through its streets (Il. 6.391; 2.12, 2.29); Dörpfeld's terrace houses (VI A, VI B, VI C–F, VI G, VI M, VI O, VI Q) show the house type and the placing, short side to the wall. These fill the terrace the survey leaves empty so the citadel reads as a built city. Their number, size and position are the drawing's, not evidence; none stands on surveyed masonry, and the ring street and the two streets to the gates are kept open.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -11142,6 +12663,76 @@
         },
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Vol. 2, pp. 610–11, 630, 649–51.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp"
+        }
+      ],
+      "insetOf": "citadel-city-panel"
+    },
+    {
+      "id": "citadel-fabric-summit",
+      "kind": "region",
+      "style": "plan",
+      "fill": "none",
+      "polygon": [
+        [39.957022, 26.238484],
+        [39.957022, 26.238648],
+        [39.957103, 26.238648],
+        [39.957103, 26.238484]
+      ],
+      "rings": [
+        [
+          [39.956901, 26.238578],
+          [39.956901, 26.238695],
+          [39.956973, 26.238695],
+          [39.956973, 26.238578]
+        ],
+        [
+          [39.956775, 26.239264],
+          [39.956775, 26.239416],
+          [39.956847, 26.239416],
+          [39.956847, 26.239264]
+        ]
+      ],
+      "lines": [
+        [
+          [39.957022, 26.238534],
+          [39.957103, 26.238534]
+        ],
+        [
+          [39.956901, 26.238625],
+          [39.956973, 26.238625]
+        ],
+        [
+          [39.956775, 26.239317],
+          [39.956847, 26.239317]
+        ],
+        [
+          [39.956775, 26.23937],
+          [39.956847, 26.23937]
+        ],
+        [
+          [39.956811, 26.23937],
+          [39.956811, 26.239416]
+        ]
+      ],
+      "columns": [
+        [
+          [39.95705, 26.238518],
+          [39.957075, 26.238518]
+        ]
+      ],
+      "note": "Houses on the summit beside the named buildings, unnamed. The same claim as the terrace houses: the poem's city is built up, and these show it. Nothing about them is evidence.",
+      "sources": [
+        {
+          "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
+          "url": "https://archive.org/details/iliadmurray01homeuoft"
+        },
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Vol. 2, pp. 610–11, 630, 649–51.",
           "url": "https://archive.org/details/trojaundilionerg02dorp"
         }
       ],
@@ -11152,44 +12743,45 @@
       "kind": "route",
       "style": "poem",
       "path": [
-        [39.956788, 26.238929],
-        [39.956692, 26.239057],
-        [39.956586, 26.239179],
-        [39.956488, 26.239275],
-        [39.956445, 26.239326]
+        [39.956641, 26.238965],
+        [39.956551, 26.239082],
+        [39.956497, 26.239188],
+        [39.956434, 26.239328]
       ],
-      "note": "A street from the assembly ground down to the South Gate. Hector goes out of the house τὴν αὐτὴν ὁδὸν αὖτις ἐϋκτιμένας κατ’ ἀγυιάς — back by the same road, down the well-built streets — and εὖτε πύλας ἵκανε διερχόμενος μέγα ἄστυ, and when he reached the gates, having come through the great city (Il. 6.391-92). The poem is explicit that there is a made street from the houses on the height to the gate and that Hector uses it twice; it names no course. The line drawn here follows the citadel's own logic instead: it runs radially, crossing both of Dörpfeld’s terrace fronts and the ring street between them, which is what his own “mehrere zum Centrum der Burg gerichtete Querstrassen” (1902, 2:611) — several cross streets directed toward the center of the citadel — describes. Where it meets surveyed masonry it passes behind it.",
+      "note": "The street from the assembly ground down to the South Gate VI T, which Dörpfeld identified with the Dardanian Gates. Hector goes back by the same road, down the well-built streets, and comes to the gates through the great city (Il. 6.391–92). The poem names no course; the line runs radially, crossing both terrace fronts, as Dörpfeld describes the cross streets (1902, 2:611). It passes between House VI M and the VI G block, both surveyed.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
           "url": "https://archive.org/details/iliadmurray01homeuoft"
         },
         {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Vol. 2, pp. 610–11, 630, 649–51.",
           "url": "https://archive.org/details/trojaundilionerg02dorp"
         }
       ],
       "insetOf": "citadel-city-panel"
     },
     {
-      "id": "citadel-poem-way-to-west-gate",
+      "id": "citadel-poem-way-to-scaean-gate",
       "kind": "route",
       "style": "poem",
       "path": [
-        [39.957092, 26.238554],
-        [39.956982, 26.238413],
-        [39.956872, 26.238286],
-        [39.956776, 26.238174],
-        [39.956712, 26.238107]
+        [39.956784, 26.238766],
+        [39.956856, 26.238578],
+        [39.956982, 26.238414],
+        [39.957108, 26.238344],
+        [39.957305, 26.23832],
+        [39.957431, 26.238227],
+        [39.957511, 26.238165]
       ],
-      "note": "A second street, from the palace down to the West Gate VI U, on the same reasoning as the way to the south gate: a radial cross street cutting the terraces, the pattern Dörpfeld describes inside the wall. No third street is drawn to the East Gate VI S, and the absence is the honest result rather than an oversight — the ground between the height and that gate is the built-up terrace quarter, house against house on Dörpfeld's own plate, and the approach to VI S is the blind corridor between the wall and its outer arm. There is no line to draw there that would not run through excavated buildings.",
+      "note": "The street from the assembly ground down to the Scaean Gate, the way the poem's traffic uses: Hector to Andromache (Il. 6.393), Priam's wagon out to the plain (24.696–717), the chariots out to the fighting (3.263). The gate is placed at the north-west corner of the restored wall after Dörpfeld's Fig. 470, and the street runs there from the assembly ground, west of the house of Priam and the temple of Athena, east of House VI b. No course is given by the poem. No street is drawn to the West Gate VI U, which was walled up in Troy VI, or to the East Gate VI S, whose approach runs through surveyed houses.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
           "url": "https://archive.org/details/iliadmurray01homeuoft"
         },
         {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Vol. 2, pp. 610–11, 630, 649–51.",
           "url": "https://archive.org/details/trojaundilionerg02dorp"
         }
       ],
@@ -11274,7 +12866,7 @@
         [39.956683, 26.238079],
         [39.956684, 26.238075]
       ],
-      "note": "The one stretch of wall the poem singles out. Andromache tells Hector to station the host παρ' ἐρινεόν, ἔνθα μάλιστα / ἀμβατός ἐστι πόλις καὶ ἐπίδρομον ἔπλετο τεῖχος — by the wild fig, where the city is most climbable and the wall open to assault; three times the best of the Achaeans have already tried it there (Il. 6.433–39). She gives the place by the tree and by nothing else, and the tree stands out to the south-west on this sheet, so the stretch drawn is the south-west curtain. The relation is the poem's; the arc is where that relation lands on Dörpfeld's circuit. Leaf notes the difficulty the line makes for anyone who wants the fig tree far from the wall.",
+      "note": "The stretch of wall the poem singles out. Andromache tells Hector to station the host by the wild fig, where the city is most climbable and the wall open to assault; the best of the Achaeans have tried it there three times (Il. 6.433–39). The place is given by the tree and by nothing else. The fig stands to the south-west on this sheet, so the stretch drawn is the south-west curtain. Leaf notes the difficulty the lines make for anyone who puts the fig tree far from the wall.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -11295,7 +12887,7 @@
       "kind": "region",
       "style": "inset",
       "fill": "land",
-      "frame": [1776, 1020, 420, 420],
+      "frame": [1776, 1080, 500, 500],
       "insetBBox": [39.95162, 26.23381, 39.96117, 26.24419],
       "polygon": [
         [0, 0],

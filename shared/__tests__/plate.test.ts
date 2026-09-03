@@ -203,8 +203,9 @@ describe('parsePlate', () => {
     // Two furniture columns since ruling 12 (2026-09-03): the keys keep the
     // 340px measure they were designed at, the second column carries the three
     // inset panels. The MAP frame is unchanged at 1416 — the sheet grew to the
-    // right only, so nothing on the face moved.
-    expect(plate.marginRight).toBe(792);
+    // right only, so nothing on the face moved. Grew again for ruling 13 (the
+    // citadel panel widened to 500 to hold the city plan): 792 -> 872.
+    expect(plate.marginRight).toBe(872);
     expect(plate.size[0] - (plate.marginRight ?? 0)).toBe(1416);
     expect(plate.layers.length).toBeGreaterThan(0);
   });

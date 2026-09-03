@@ -70,7 +70,10 @@ LAYER_KIND_ENUM = {
 # token, distinct from "tint" (a decorative wash strong enough to read as a
 # feature, e.g. a claimed camp zone) so seven stacked scene zones never
 # outweigh the relief and coastline under them.
-REGION_FILL_ENUM = {"tint", "zone", "masonry", "sea", "lagoon", "land", "marsh", "plain", "none"}
+# "masonry-ground" (2026-09-03, ruling 13) is the same surveyed masonry drawn
+# quieter as the ground under the poem's city; shared/lib/plate.ts keys it on
+# the masonry legend row.
+REGION_FILL_ENUM = {"tint", "zone", "masonry", "masonry-ground", "sea", "lagoon", "land", "marsh", "plain", "none"}
 # What the bare sheet is under every layer, per the same contract.
 GROUND_ENUM = {"land", "sea"}
 STOCHASTIC_STYLES = {"stipple", "hachure"}
@@ -78,7 +81,9 @@ STOCHASTIC_STYLES = {"stipple", "hachure"}
 # Layer fields that carry coordinate geometry. "rings" nests one level deeper
 # than the rest: a list of rings, each ring a list of [a, b] pairs. The flat
 # fields are a plain list of pairs.
-_RING_FIELDS = ("rings",)
+# `lines`, `columns` and `solids` are the plan register's extra ring lists
+# (shared/lib/plate.ts, `style: "plan"`, 2026-09-03): same shape as `rings`.
+_RING_FIELDS = ("rings", "lines", "columns", "solids")
 _FLAT_COORD_FIELDS = ("path", "polygon", "baseline", "trace")
 
 

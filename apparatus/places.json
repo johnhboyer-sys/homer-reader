@@ -7693,12 +7693,12 @@
       "name": "The Scaean Gate",
       "greek": "Σκαιαὶ πύλαι",
       "certainty": "speculative",
-      "tradition": "No agreed candidate at Hisarlık; discussed against Troy VI's South Gate and west gate since Dörpfeld (1902) and Cook (1973)",
+      "tradition": "Placed at the north-west corner of the citadel after Dörpfeld's restored plan (1902, 2:610, Fig. 470, marked by him as conjectural) and Leaf (1912), who argues from the view over the plain for the north-west angle; no excavated gate is agreed to be it",
       "kind": "gate",
       "plateAnchors": {
         "trojan-plain-schematic": [
-          39.957011,
-          26.237894
+          39.957511,
+          26.238165
         ]
       },
       "positionBasis": "conjectural",
@@ -7788,16 +7788,17 @@
           ]
         }
       ],
-      "note": "The gate of the poem: the elders sit above it with Helen (3.145-149), Hector meets Andromache going out through it (6.393), the fighting rages round it all day (18.453), and Hector foresees his own death before it (22.360) — always paired with the oak (6.237 = 9.354 = 11.170).",
+      "note": "The gate of the poem: the elders sit above it with Helen (3.145–149), Hector meets Andromache going out through it (6.393), the fighting is around it all day (18.453), and Hector foresees his death before it (22.360); always paired with the oak (6.237 = 9.354 = 11.170). On the schematic sheet it is drawn at the north-west corner of Dörpfeld's restored wall, with the great tower beside it, the placement Dörpfeld himself calls a conjecture (1902, 2:610) and Leaf supports from the ground (1912, 151–58). The alternatives: Dörpfeld's own second thought, the north-east gate beside tower VI g (2:630); and, against him, the surviving South Gate VI T, which he identifies with the Dardanian Gates and which site guides call the Scaean without a scholarly source. The north and north-west wall is destroyed, so no gate found on the ground can be this one.",
       "sources": [
         {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion. 2 vols. Athens: Beck & Barth, 1902. Vol. 2, pp. 609–10, 630, and Fig. 470.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp/page/n223"
+        },
+        {
+          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912. Pp. 151–58."
+        },
+        {
           "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
-        },
-        {
-          "cite": "Dörpfeld, Wilhelm. Troja und Ilion. 2 vols. Athens: Beck & Barth, 1902."
-        },
-        {
-          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912."
         }
       ],
       "labelTier": 1,
@@ -7891,12 +7892,12 @@
       "name": "The great tower of Ilios",
       "greek": "πύργος μέγας Ἰλίου",
       "certainty": "speculative",
-      "tradition": "No specific tower securely identified; discussed as part of the Scaean Gate complex since Leaf (1912)",
+      "tradition": "Treated with the Scaean Gate as one work since Leaf (1912); drawn beside the gate on Dörpfeld's restored north-west wall, on the attackers' left as Tolman and Scoggin (1903) describe it; no surveyed tower is identified with it",
       "kind": "tower",
       "plateAnchors": {
         "trojan-plain-schematic": [
-          39.957293,
-          26.237984
+          39.957596,
+          26.238327
         ]
       },
       "positionBasis": "conjectural",
@@ -7962,10 +7963,18 @@
           ]
         }
       ],
-      "note": "The vantage point of the poem's civilian scenes: the elders and Helen stand on it (3.153-154), Andromache runs to it (6.386), Priam watches Achilles drive the Trojans in from it (21.526), and Hector sets his shield against 'the jutting tower' as he waits for Achilles (22.97).",
+      "note": "The tower of the poem's civilian scenes: the elders and Helen on it (3.153–154), Andromache runs to it (6.386), Priam watches from it (21.526), Hector leans his shield against the jutting tower (22.97). It stands over the Scaean Gate and looks down the road to the camp (22.462–65). Drawn beside the gate on the restored north-west wall; the surveyed towers VI g and VI h are not identified with it.",
       "sources": [
         {
-          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912."
+          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912. Pp. 151–58."
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
+        },
+        {
+          "cite": "Dörpfeld, Wilhelm. Troja und Ilion. 2 vols. Athens: Beck & Barth, 1902. Vol. 2, pp. 609–10 and Fig. 470.",
+          "url": "https://archive.org/details/trojaundilionerg02dorp/page/n223"
         }
       ],
       "labelTier": 2,
