@@ -5230,7 +5230,9 @@ export function columnDots(run: [number, number][], spacing: number): [number, n
     seg.push(d);
     total += d;
   }
-  const n = Math.max(1, Math.floor(total / spacing) + 1);
+  // A run of exactly k spacings carries k + 1 columns: the epsilon keeps a
+  // 2.4 m run at 2.4 m spacing from rounding down to one column.
+  const n = Math.max(1, Math.floor(total / spacing + 1e-6) + 1);
   const pad = (total - (n - 1) * spacing) / 2;
   const out: [number, number][] = [];
   for (let k = 0; k < n; k++) {

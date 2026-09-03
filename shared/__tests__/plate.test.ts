@@ -19,6 +19,7 @@ import {
   hypsometricStep,
   scaleBarMarkup,
   lineworkExtent,
+  columnDots,
   type Plate,
   type PlatePlace,
   type PlateLayer,
@@ -5554,5 +5555,213 @@ describe('renderPlate: geographic label-set parity (stage 5c E9)', () => {
       const dropped = [...baseline].filter((id) => !now.has(id)).sort();
       expect({ sheet, added, dropped }).toEqual({ sheet, added: [], dropped: [] });
     }
+  });
+});
+
+// ── The plan register and the quiet masonry (ruling 13, 2026-09-03) ──────
+// John, on the first citadel supplement's six dashed rectangles: "c'mon" and
+// "fill in the city!" A building the poem describes is drawn as an engraved
+// plan (walls at their thickness in metres, partitions, column rows, seats),
+// and the survey under it drops to ground.
+describe('columnDots', () => {
+  it('spaces columns evenly and centres the row on the run', () => {
+    expect(columnDots([[0, 0], [10, 0]], 4)).toEqual([[1, 0], [5, 0], [9, 0]]);
+  });
+  it('a run shorter than one spacing gets one column at its middle', () => {
+    expect(columnDots([[0, 0], [2, 0]], 4)).toEqual([[1, 0]]);
+  });
+  it('walks a bent run by arc length', () => {
+    expect(columnDots([[0, 0], [4, 0], [4, 4]], 4)).toEqual([[0, 0], [4, 0], [4, 4]]);
+  });
+  it('returns nothing for a degenerate run or spacing', () => {
+    expect(columnDots([[0, 0]], 4)).toEqual([]);
+    expect(columnDots([[0, 0], [1, 0]], 0)).toEqual([]);
+  });
+});
+
+describe('renderPlate: the plan register (style "plan")', () => {
+  // A 222 m window at 400 x 300: about 1.35 px per metre, so a 2 m wall is
+  // 2.7 px of bar. The Troad-scale fixture below is 0.017 px per metre, where
+  // the same layer must draw nothing but its outline reservation.
+  const TIGHT: [number, number, number, number] = [39.956, 26.238, 39.958, 26.24];
+  const planLayer: PlateLayer = {
+    id: 'plan-1',
+    kind: 'region',
+    style: 'plan',
+    fill: 'none',
+    wallM: 2,
+    columnM: 3,
+    polygon: [
+      [39.9568, 26.2385],
+      [39.9568, 26.2395],
+      [39.9572, 26.2395],
+      [39.9572, 26.2385],
+    ],
+    rings: [
+      [
+        [39.9569, 26.2387],
+        [39.9569, 26.2393],
+        [39.9571, 26.2393],
+        [39.9571, 26.2387],
+      ],
+    ],
+    lines: [[[39.9568, 26.239], [39.9572, 26.239]]],
+    columns: [[[39.95695, 26.2388], [39.95695, 26.2392]]],
+    solids: [
+      [
+        [39.95705, 26.2388],
+        [39.95705, 26.23885],
+        [39.9571, 26.23885],
+        [39.9571, 26.2388],
+      ],
+    ],
+  };
+  const tight: Plate = { ...testPlate, bbox: TIGHT, layers: [planLayer] };
+
+  it('parses the plan fields, and rejects a non-positive wallM', () => {
+    const parsed = parsePlate(JSON.parse(JSON.stringify(tight)));
+    const l = parsed.layers[0];
+    expect(l.lines?.length).toBe(1);
+    expect(l.columns?.length).toBe(1);
+    expect(l.solids?.length).toBe(1);
+    expect(l.wallM).toBe(2);
+    expect(() => parsePlate({ ...JSON.parse(JSON.stringify(tight)), layers: [{ ...planLayer, wallM: 0 }] })).toThrow(/wallM/);
+    expect(() => parsePlate({ ...JSON.parse(JSON.stringify(tight)), layers: [{ ...planLayer, lines: 'nope' }] })).toThrow(/lines/);
+  });
+
+  it('draws walls as bars at wallM metres in the conjectural ink, partitions at half, columns as dots, solids filled', () => {
+    const svg = renderPlate(tight, []).svg;
+    const viewport = viewportFromBBox(TIGHT, SIZE, 0);
+    const a = project([39.957, 26.239], viewport);
+    const b = project([39.957 + 1 / 111320, 26.239], viewport);
+    const ppm = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const walls = svg.match(/<path data-feature-id="plan-1" class="plate-layer plate-layer-plan" d="[^"]+" fill="none" stroke="var\(--text-mid\)" stroke-width="([\d.]+)"/);
+    expect(walls).toBeTruthy();
+    expect(Number(walls![1])).toBeCloseTo(2 * ppm, 0);
+    const thin = svg.match(/data-feature-id="plan-1-lines"[^>]*stroke-width="([\d.]+)"/);
+    expect(Number(thin![1])).toBeCloseTo(ppm, 0);
+    expect(svg).toMatch(/data-feature-id="plan-1-solids"[^>]*fill="var\(--text-mid\)"/);
+    const dots = svg.match(/data-feature-id="plan-1-columns"[^>]* d="([^"]+)"/);
+    expect(dots).toBeTruthy();
+    // 0.0004 deg of longitude at 39.957 N is about 34 m: at 3 m spacing, twelve columns.
+    expect((dots![1].match(/ a /g) ?? []).length / 2).toBe(12);
+    // Two wall rings in one path: the house and the court.
+    expect((walls![0].match(/ Z/g) ?? []).length).toBe(2);
+  });
+
+  it('at a scale where the wall is under a third of a pixel it draws only its outline reservation', () => {
+    const svg = renderPlate({ ...testPlate, layers: [planLayer] }, []).svg;
+    expect(svg).toMatch(/data-feature-id="plan-1" class="plate-layer plate-layer-plan" d="[^"]+" fill="none" stroke="none"/);
+    expect(svg).not.toContain('plan-1-columns');
+  });
+
+  it('keys one legend row for the plan register, distinct from the poem dash', () => {
+    const svg = renderPlate(tight, []).svg;
+    expect(svg).toContain('Building drawn from the poem, not surveyed');
+  });
+});
+
+describe('renderPlate: masonry-ground', () => {
+  const square = (dlat: number): [number, number][] => [
+    [39.9 + dlat, 26.2],
+    [39.9 + dlat, 26.21],
+    [39.91 + dlat, 26.21],
+    [39.91 + dlat, 26.2],
+  ];
+  const plate: Plate = {
+    ...testPlate,
+    layers: [
+      { id: 'm', kind: 'region', fill: 'masonry', legend: 'Masonry, surveyed (Dörpfeld 1902)', polygon: square(0) },
+      { id: 'g', kind: 'region', fill: 'masonry-ground', legend: 'Masonry, surveyed (Dörpfeld 1902)', polygon: square(0.02) },
+    ],
+  };
+  it('draws the masonry token at 0.42 opacity with a lighter ink edge', () => {
+    const svg = renderPlate(plate, []).svg;
+    expect(svg).toMatch(/data-feature-id="g"[^>]*fill="var\(--plate-masonry\)" fill-opacity="0.42" stroke="var\(--flaxman-ink\)" stroke-width="0.7" stroke-opacity="0.45"/);
+    expect(svg).toMatch(/data-feature-id="m"[^>]*fill-opacity="1" stroke="var\(--flaxman-ink\)" stroke-width="1" stroke-opacity="0.85"/);
+  });
+  it('keys on the masonry row: one legend row for both', () => {
+    const svg = renderPlate(plate, []).svg;
+    expect((svg.match(/Masonry, surveyed \(Dörpfeld 1902\)/g) ?? []).length).toBe(1);
+  });
+  it('is rejected by the fill whitelist under any other spelling', () => {
+    expect(() => parsePlate({ ...plate, layers: [{ ...plate.layers[1], fill: 'masonry_ground' }] })).toThrow(/fill/);
+  });
+});
+
+describe('the citadel panel draws the poem’s city as a built fabric (ruling 13)', () => {
+  const plate = parsePlate(JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')));
+  const inPanel = plate.layers.filter((l) => l.insetOf === 'citadel-city-panel');
+  const plans = inPanel.filter((l) => l.style === 'plan');
+  const survey = inPanel
+    .filter((l) => l.fill === 'masonry-ground')
+    .map((l) => l.polygon as [number, number][]);
+  const ringOuter = plate.layers.find((l) => l.id === 'citadel-terrace-ring-outer')!.trace as [number, number][];
+  const inside = (p: [number, number], poly: [number, number][]) => {
+    let hit = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const [yi, xi] = poly[i];
+      const [yj, xj] = poly[j];
+      if (yi > p[0] !== yj > p[0] && p[1] < ((xj - xi) * (p[0] - yi)) / (yj - yi) + xi) hit = !hit;
+    }
+    return hit;
+  };
+  const vertices = (l: PlateLayer): [number, number][] =>
+    [l.polygon ?? [], ...(l.rings ?? []), ...(l.lines ?? []), ...(l.columns ?? []), ...(l.solids ?? [])].flat() as [number, number][];
+
+  it('draws the six named buildings and the two fabric layers as plans, on Dörpfeld’s ported houses', () => {
+    expect(plans.map((l) => l.id).sort()).toEqual(
+      [
+        'citadel-fabric-summit',
+        'citadel-fabric-terrace',
+        'citadel-poem-house-of-hector',
+        'citadel-poem-house-of-paris',
+        'citadel-poem-house-of-priam',
+        'citadel-poem-shrine-of-apollo',
+        'citadel-poem-temple-of-athena',
+      ].sort(),
+    );
+    expect(survey.length).toBeGreaterThanOrEqual(12); // four circuit arcs, VI g, VI R, and six house blocks
+    // Priam’s house is a court with colonnades and more than one wall ring.
+    const priam = plans.find((l) => l.id === 'citadel-poem-house-of-priam')!;
+    expect(priam.columns!.length).toBe(4);
+    expect(priam.rings!.length).toBeGreaterThanOrEqual(2);
+    // The fabric is many houses in one layer, and says so.
+    const terrace = plans.find((l) => l.id === 'citadel-fabric-terrace')!;
+    expect(terrace.rings!.length).toBeGreaterThanOrEqual(10);
+    expect(terrace.note).toMatch(/not evidence/);
+  });
+
+  it('every plan vertex lies within the outer terrace front, and none inside surveyed masonry', () => {
+    for (const l of plans) {
+      for (const v of vertices(l)) {
+        expect(inside(v, ringOuter), `${l.id} vertex ${v} is outside the outer terrace front`).toBe(true);
+        for (const s of survey) {
+          expect(inside(v, s), `${l.id} vertex ${v} is inside surveyed masonry`).toBe(false);
+        }
+      }
+    }
+  });
+
+  it('the Scaean Gate and the great tower stand at the north-west corner of the restored circuit (ruling 14)', () => {
+    const places = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[];
+    const cos = Math.cos((39.957 * Math.PI) / 180);
+    // Angle from east, counter-clockwise, so the north-west quadrant is 90-180.
+    for (const [id, lo, hi] of [
+      ['scaean-gate', 120, 165],
+      ['great-tower-of-ilios', 120, 165],
+    ] as const) {
+      const [lat, lon] = places.find((p) => p.id === id)!.plateAnchors!['trojan-plain-schematic'] as [number, number];
+      const bearing = (Math.atan2(lat - 39.957, (lon - 26.239) * cos) * 180) / Math.PI;
+      const deg = (bearing + 360) % 360;
+      expect(deg, `${id} bears ${deg.toFixed(0)} deg from the centre`).toBeGreaterThan(lo);
+      expect(deg).toBeLessThan(hi);
+    }
+    const scaean = places.find((p) => p.id === 'scaean-gate')!;
+    expect(scaean.certainty).toBe('speculative');
+    expect(scaean.tradition).toMatch(/Fig\. 470/);
+    // The street of the poem runs to it, and no street runs to the walled-up West Gate.
+    expect(plate.layers.some((l) => l.id === 'citadel-poem-way-to-scaean-gate')).toBe(true);
+    expect(plate.layers.some((l) => l.id === 'citadel-poem-way-to-west-gate')).toBe(false);
   });
 });

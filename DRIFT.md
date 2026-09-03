@@ -1138,3 +1138,13 @@ ring, empty inside the wall and with no ground under it.
   group, not the single one `groups.find(g => g.inset)` assumed. The three
   tests pinning `citadel-inset-wall` are replaced by two on the surveyed
   circuit: its size and shape, and the three gate anchors landing on it.
+- `shared/lib/plate.ts` — **the plan register and the quiet masonry**
+  (2026-09-03, ruling 13, the citadel city). `style: "plan"` on a region draws
+  a building as an engraved plan: `polygon`/`rings` as wall bars `wallM`
+  metres thick, `lines` at half that, `columns` as dots every `columnM`
+  metres (`columnDots`, exported), `solids` filled — in the conjectural ink,
+  scaled by the viewport (`pxPerMetre`), so the map-face copy of a citadel
+  building draws only its outline reservation. `fill: "masonry-ground"` is
+  `masonry` at 0.42 opacity with a lighter edge, keyed on the masonry legend
+  row. parseLayer grows `lines`/`columns`/`solids`/`wallM`/`columnM`;
+  paintRank and the label role treat `plan` as `poem`.
