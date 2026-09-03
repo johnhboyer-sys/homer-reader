@@ -206,6 +206,12 @@ non-negotiable.
   `chrome-mac/chrome-headless-shell -> headless_shell`) rather than editing the
   script; the cache dir also gets wiped by other tooling, so re-check before a
   render lane.
+  When the cache dir is gone entirely (2026-09-03), skip the download: put a
+  two-line `#!/bin/sh` wrapper that `exec`s `/Applications/Google Chrome.app/
+  Contents/MacOS/Google Chrome "$@"` at
+  `chromium_headless_shell-local/chrome-headless-shell-mac-arm64/chrome-headless-shell`.
+  A symlink does NOT work — Chrome resolves its Framework relative to the
+  symlink's own path and aborts with dlopen.
 - Test gotcha (2026-07-27): in `shared/` vitest (jsdom), `import.meta.url`
   resolves relative URLs against Vite's HTTP base, NOT the filesystem — so
   `fs.existsSync(new URL('../../x', import.meta.url))` is always false and a
