@@ -1294,6 +1294,7 @@ def _validate_global_apparatus_emits(
             }
 
     plates_src_dir = apparatus_scenes.APPARATUS_DIR / "plates"
+    plate_ids: set[str] = set()
     if plates_src_dir.exists():
         for plate_path in sorted(plates_src_dir.glob("*.json")):
             try:
@@ -1303,6 +1304,8 @@ def _validate_global_apparatus_emits(
                 continue
             for msg in apparatus_places.validate_plate(plate_doc, places_by_id):
                 problems.append(("-", plate_path.name, msg))
+            doc_id = plate_doc.get("id") if isinstance(plate_doc, dict) else None
+            plate_ids.add(doc_id if isinstance(doc_id, str) and doc_id else plate_path.stem)
             plate_dist = data_dir / "plates" / plate_path.name
             if not plate_dist.exists():
                 problems.append(
@@ -1315,6 +1318,15 @@ def _validate_global_apparatus_emits(
                     json.loads(plate_dist.read_text(encoding="utf-8"))
                 except Exception as exc:
                     problems.append(("-", plate_path.name, f"invalid JSON: {exc}"))
+
+    # A place's plateAnchors keys named against real plate ids: validate_plate
+    # above only range-checks the anchor keyed to THAT plate's own id, so a
+    # key naming a plate that doesn't exist at all (a typo like
+    # "trojan-plain-schematicc") would otherwise pass silently. Checked here,
+    # once both the gazetteer and the full plate set are in hand.
+    # (2026-09-03, stage 6 review)
+    for msg in apparatus_places.validate_plate_anchors(places_by_id, plate_ids):
+        problems.append(("-", "places.json", msg))
 
     # Phase P7a: referential integrity for a scene's optional `places[]`
     # (authored gazetteer ids, see shared/lib/scene-place.ts) against the

@@ -34,6 +34,13 @@ PROSE_KEYS = {
     "epithets",
     # formula-glosses.json: { "glosses": { <greek>: <english> } }
     "glosses",
+    # F4, 2026-09-03 stage 6 review: plate legends, scene/book locations, and
+    # compass labels are reader-facing prose too and were falling through
+    # the walk unchecked.
+    "legend",
+    "location",
+    "north",
+    "where",
 }
 
 SKIP_KEYS = {"sources", "cite"}
@@ -200,6 +207,22 @@ def _walk(obj, *, in_prose: bool, file: Path, path: str, hits: list[str]) -> Non
             if len(snippet) > 160:
                 snippet = snippet[:157] + "..."
             hits.append(f"{rel} {path}: {unique} — {snippet}")
+
+
+def test_walk_flags_british_spelling_under_the_widened_keys():
+    # F4, 2026-09-03 stage 6 review: reproduces the finding directly -- before
+    # PROSE_KEYS grew "legend"/"location"/"north"/"where", a British spelling
+    # sitting under any of these reader-facing keys walked past unflagged.
+    doc = {
+        "legend": "Masonry, colour surveyed (Dörpfeld 1902)",
+        "location": "Overlooking the harbour",
+        "north": "Grey arrow, upper right",
+        "where": ["A neighbour citadel"],
+    }
+    hits: list[str] = []
+    _walk(doc, in_prose=False, file=APPARATUS / "places.json", path="", hits=hits)
+    flagged_keys = {h.split(" ", 1)[1].split(":", 1)[0] for h in hits}
+    assert flagged_keys == {"legend", "location", "north", "where[0]"}
 
 
 def test_apparatus_prose_is_american_english():
