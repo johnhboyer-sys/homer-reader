@@ -9117,6 +9117,7 @@
     {
       "id": "ships-ajax-end",
       "kind": "shipRow",
+      "style": "light",
       "placeId": "achaean-camp",
       "rows": 3,
       "count": 8,
@@ -9142,6 +9143,7 @@
     {
       "id": "ships-centre",
       "kind": "shipRow",
+      "style": "light",
       "placeId": "achaean-camp",
       "rows": 3,
       "count": 8,
@@ -9164,6 +9166,7 @@
     {
       "id": "ships-achilles-end",
       "kind": "shipRow",
+      "style": "light",
       "placeId": "achaean-camp",
       "rows": 3,
       "count": 8,

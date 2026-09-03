@@ -1337,7 +1337,27 @@ export function waterlines(rings: [number, number][][], opts: WaterlineOptions):
 
 export interface ShipRowOptions {
   seed: number;
+  /**
+   * `'light'` draws each hull at SHIP_LIGHT_SCALE of the default length
+   * (shipcomp option 1, 2026-09-02: "the ships are still too big and too
+   * ugly and obtrusive"). Only the drawn hull shrinks — the per-ship slot
+   * and the perpendicular rank spacing are computed from the UNSCALED
+   * half-length, exactly as the default style, so a smaller glyph in the
+   * same slot reads as an open texture rather than a denser one, and every
+   * position/extent invariant (shore distance, wall-landward-of-ranks,
+   * shipRowExtent's reserved box) holds unchanged for either style. The
+   * renderer (case 'shipRow' in renderLayer) pairs this with an outline
+   * instead of a solid fill.
+   */
+  style?: 'light';
 }
+
+// Hull length as a fraction of the default when `style: "light"` — see
+// ShipRowOptions.style.
+const SHIP_LIGHT_SCALE = 0.6;
+// Hulls drawn per rank when `style: "light"` (down from the default 8) —
+// see ShipRowOptions.style.
+const SHIP_LIGHT_MAX_PER_RANK = 6;
 
 // Small stylized beached-ship glyphs — a curved hull with a raised, kicked
 // prow, plus a mast — spaced along `baseline`, stacked in `rows` ranks
@@ -1388,6 +1408,18 @@ export function shipRow(baseline: [PlatePoint, PlatePoint], rows: number, count:
   // enlargement that enlarged nothing. It now binds only where it was meant to.
   const baseHalfLen = Math.min(slotWidth, 32) * 0.46;
   const rankSpacing = baseHalfLen * SHIP_RANK_GAP;
+  // `style: "light"` shrinks only the drawn hull (below), never slot
+  // positions or rankSpacing — see ShipRowOptions.style.
+  const isLight = opts.style === 'light';
+  const hullHalfLen = isLight ? baseHalfLen * SHIP_LIGHT_SCALE : baseHalfLen;
+  // Six per rank, not eight (shipcomp option 1): drawn as a THINNING of the
+  // same `count`-slot grid, not a smaller `count` — reducing `count` itself
+  // widens slotWidth, which widens baseHalfLen/rankSpacing above and pushes
+  // the seaward rank toward (and in one station, into) the sea. Skipping
+  // slots keeps every rank exactly where the default style puts it and
+  // reads as WIDER along-baseline spacing purely because fewer hulls sit on
+  // the same grid — which is the "texture, not objects" effect asked for.
+  const drawCount = isLight ? Math.min(count, SHIP_LIGHT_MAX_PER_RANK) : count;
 
   // A hull is authored in local (u = along the ship, v = across it) space,
   // then mapped into world space via the same affine frame (dir, nrm) used
@@ -1406,13 +1438,16 @@ export function shipRow(baseline: [PlatePoint, PlatePoint], rows: number, count:
     const rankOffset = r * rankSpacing;
     const stagger = (r % 2) * slotWidth * 0.5;
     const rankScale = 1 + r * SHIP_RANK_DEPTH;
-    for (let i = 0; i < count; i++) {
+    for (let d = 0; d < drawCount; d++) {
+      // Evenly-spaced slot indices out of the full `count`-slot grid
+      // (identity when drawCount === count, the default-style case).
+      const i = drawCount > 1 ? Math.round((d * (count - 1)) / (drawCount - 1)) : Math.floor((count - 1) / 2);
       const along = slotWidth * (i + 0.5) + stagger;
       if (along > len) continue; // the staggered rank's last slot falls off the end of the line
       const bx = x1 + ux * along + nx * rankOffset;
       const by = y1 + uy * along + ny * rankOffset;
 
-      const L = baseHalfLen * rankScale * (0.93 + rand() * 0.14);
+      const L = hullHalfLen * rankScale * (0.93 + rand() * 0.14);
       // A long, shallow crescent: hull about four and a half times its own
       // depth, prow swept up, stern a little higher still — the aphlaston.
       // Tuned at 3x on a crop, twice: too fat and it is a leaf, too deep and
@@ -4150,6 +4185,8 @@ const STROKE_WEIGHT = {
 const MASONRY_EDGE_WIDTH = 1;
 /** The silhouette of a pictorial hill profile (`style: "profile"`). See the `relief` case. */
 const PROFILE_OUTLINE_WIDTH = 0.9;
+/** A `shipRow` hull's outline, `style: "light"` only (shipcomp option 1). At 1x sheet scale. */
+const SHIP_LIGHT_STROKE_WIDTH = 0.6;
 
 // ── The named inset (`region`/`band` with `style: "inset"`, 2026-08-13) ────
 // The Landmark's third map tier — locator, main sheet, NAMED inset — and the
@@ -5024,7 +5061,8 @@ function renderLayer(
       if (px.length < 2) return undefined;
       const rows = layer.rows ?? 1;
       const count = layer.count ?? 1;
-      const d = shipRow([px[0], px[1]], rows, count, { seed });
+      const light = layer.style === 'light';
+      const d = shipRow([px[0], px[1]], rows, count, { seed, style: light ? 'light' : undefined });
       // The BLOCK of ink the ranks actually cover, pushed in as geometry
       // (2026-08-13). Before this a ship row's bbox was the bbox of its two
       // BASELINE points — a hairline — so both the feature box and the label
@@ -5033,9 +5071,15 @@ function renderLayer(
       // "Hut of Agamemnon" each printed through the ships they were naming
       // beside. The corners come from shipRowExtent, which is computed in the
       // same frame shipRow() draws in, so this is the drawing's own box and not
-      // an estimate of it.
+      // an estimate of it. shipRowExtent is unaffected by `style` — see its
+      // own comment — so this stays the drawing's reserved box for either.
       for (const corner of shipRowExtent([px[0], px[1]], rows, count)) allPixelPoints.push(corner);
-      markup = `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-shiprow" d="${d}" fill="var(--flaxman-ink)" stroke="none"/>`;
+      // `style: "light"` draws a thin ink OUTLINE, no fill (shipcomp option
+      // 1, 2026-09-02: "too big and too ugly and obtrusive"). The default
+      // stays the solid silhouette every other sheet/inset still draws.
+      markup = light
+        ? `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-shiprow-light" d="${d}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${SHIP_LIGHT_STROKE_WIDTH}" stroke-linejoin="round"/>`
+        : `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-shiprow" d="${d}" fill="var(--flaxman-ink)" stroke="none"/>`;
       break;
     }
     case 'wall': {
