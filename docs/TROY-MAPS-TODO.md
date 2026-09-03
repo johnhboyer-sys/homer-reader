@@ -401,6 +401,15 @@ shield-of-achilles plate-level `sources` (now a validator error);
     click-through; the Chart Room postcard frames the inset for citadel
     scenes.
 
+11. **Zone outlines come off the map face (John, 2026-09-03 15:54: "Drop
+    the zone outlines from the map face").** The seven scene zones A–G are
+    routing machinery, not something the reader learns from; their dashed
+    polygons put editorial boundaries on the face at the weight of the
+    roads. The zone LETTER stays on the face; the outline is drawn only when
+    that zone is the focus (hover or focus on its letter or key row in the
+    plate panel; the Chart Room postcard for a scene in that zone). The
+    chase circuit stays as the drawn feature it already is.
+
 ## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
 
 Session paused here 2026-07-31; John picks up when he has reference examples
