@@ -859,4 +859,31 @@ describe('PlatePanel', () => {
 
     expect(container.querySelector('svg')?.getAttribute('aria-label')).toBe('Plate B');
   });
+
+  it('ignores a stale fetch REJECTION: the older fetch failing late must not paint an error over the newer plate', async () => {
+    let rejectA: (reason: unknown) => void = () => {};
+    let resolveB: (value: unknown) => void = () => {};
+    const pendingA = new Promise((_resolve, reject) => { rejectA = reject; });
+    const pendingB = new Promise((resolve) => { resolveB = resolve; });
+    mockFetchPlate.mockImplementation((id: string) => (id === 'plate-a' ? pendingA : pendingB));
+
+    const plateB = {
+      id: 'plate-b', title: 'Plate B', kind: 'geographic', status: 'reviewed',
+      bbox: [0, 0, 1, 1], size: [100, 80], layers: [],
+    };
+
+    const { container, rerender } = render(PlatePanel, {
+      props: { plateId: 'plate-a', places: [], title: 'Plate A' },
+    });
+    await rerender({ plateId: 'plate-b', places: [], title: 'Plate B' });
+
+    resolveB(plateB);
+    await waitFor(() => expect(container.querySelector('svg')?.getAttribute('aria-label')).toBe('Plate B'));
+
+    rejectA(new Error('plate-a fell over'));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(container.querySelector('.pp-error')).toBeNull();
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).toBe('Plate B');
+  });
 });
