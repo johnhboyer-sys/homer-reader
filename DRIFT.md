@@ -1104,3 +1104,37 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
 - `pipeline/homer_pipeline/apparatus_places.py` — validates `insetBBox`,
   `insetOf` and `featureKey[].inset`, mirroring parsePlate.
 - No plato-reader counterpart (Homer-only apparatus feature).
+
+## The citadel inset becomes a citadel plate (2026-09-03, ruling 12)
+
+John: "the citadel insert is too coarse grained. this is where we need to
+supplement." The inset built that morning was a plan of gates and a derived
+ring, empty inside the wall and with no ground under it.
+
+- `shared/lib/plate.ts` — **the furniture band's TEXT measure is capped**
+  (`MARGIN_TEXT_COLUMN` = 340, `bandTextWidth`). A margin only has to be as
+  wide as its widest block, and the schematic sheet now needs a SECOND column
+  of inset panels beside its keys, so `marginRight` doubles to 792. Letting
+  the legend, the scene key and the feature key follow it would stretch every
+  row to a 600px measure. A measure is a typographic constant; the surplus
+  margin is panel room. 340 is what the sheet was designed at, so nothing
+  rendered before this moves. Only `trojan-plain-schematic.json` declares a
+  `marginRight` at all.
+- `apparatus/plates/trojan-plain-schematic.json` — the sheet grows to the
+  RIGHT only (1756 → 2208 wide, `marginRight` 340 → 792), so the MAP frame
+  stays 1416 × 1600 and every face label and face numeral is byte-identical.
+  Two furniture columns: keys left, the three inset panels right.
+  `citadel-inset-wall` — the poem ring derived from `wall-of-troy` ÷ 1.55 —
+  is DELETED, replaced by Dörpfeld's own surveyed Troy VI circuit ported from
+  `troy-citadel.json` at that plate's `pxPerMetre`, centred on the sheet's own
+  centre for Ilios. A second projected window, `citadel-city-panel`, carries
+  it at 32× the sheet with the poem's city on it; the key group splits into
+  "Inside the walls" (12) and "Before the walls" (8).
+- `shared/__tests__/plate.test.ts` — E4 measures a badge to the nearest point
+  ON its line, not to its nearest VERTEX (a rotated 106 × 133px house read a
+  badge 12px off one side as 49px adrift). E6 was "key bottom + 10 ≤ inset
+  top", the one-column rule; the claim that survives is that the keys and the
+  panels do not collide, stacked OR side by side. E8/E9 loop over every routed
+  group, not the single one `groups.find(g => g.inset)` assumed. The three
+  tests pinning `citadel-inset-wall` are replaced by two on the surveyed
+  circuit: its size and shape, and the three gate anchors landing on it.

@@ -200,7 +200,11 @@ describe('parsePlate', () => {
     expect(plate.kind).toBe('schematic');
     expect(plate.bbox).toEqual(geo.bbox);
     expect(plate.rotationDeg).toBe(90);
-    expect(plate.marginRight).toBe(340);
+    // Two furniture columns since ruling 12 (2026-09-03): the keys keep the
+    // 340px measure they were designed at, the second column carries the three
+    // inset panels. The MAP frame is unchanged at 1416 — the sheet grew to the
+    // right only, so nothing on the face moved.
+    expect(plate.marginRight).toBe(792);
     expect(plate.size[0] - (plate.marginRight ?? 0)).toBe(1416);
     expect(plate.layers.length).toBeGreaterThan(0);
   });
@@ -4446,6 +4450,7 @@ const FEATURE_KEY_HEADINGS = [
   "Achilles' end of the line",
   "Odysseus's ships, the assembly and altars",
   "Ajax's end of the line",
+  'Inside the walls (see inset)',
   'Before the walls (see inset)',
   'The plain',
 ] as const;
@@ -4906,16 +4911,15 @@ function badgeOverlapOffenders(
   return offenders;
 }
 
-// The one piece of DERIVED geometry the citadel inset adds, and the check that
-// keeps it honest. `wall-of-troy` draws the circuit about 55% larger than the
-// gate anchors were laid against — its own note says so, and at sheet scale it
-// has to, or the ring vanishes under the zone letter sharing its centre. At
-// four times that scale the inflation would put the Scaean Gate, the great
-// tower and the Dardanian Gates INSIDE the city wall, so the inset draws
-// `citadel-inset-wall`: every vertex of wall-of-troy's own trace divided by
-// that stated 55%, nothing measured afresh. If either trace is ever edited and
-// the two stop agreeing — or the gates stop landing on the line — this fires.
-describe('the citadel inset draws the circuit the gate anchors were laid against', () => {
+// The citadel panel's GROUND, and the checks that keep it honest. Ruling 12
+// (John, 2026-09-03: "the citadel insert is too coarse grained") replaced the
+// derived poem ring — a circle got by dividing `wall-of-troy` by the 55% its
+// own note declares — with the surveyed thing itself: Dörpfeld's Troy VI
+// circuit off Tafel V, ported from troy-citadel.json at that plate's own
+// pxPerMetre and laid on the sheet's own centre for Ilios. A survey has a size
+// and a shape, and both are assertable; the three gate anchors then have to
+// land ON it, or the panel draws a gate floating off its wall.
+describe('the citadel inset draws the surveyed Troy VI circuit', () => {
   const plate = parsePlate(JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')));
   const places = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[];
   const CENTRE: [number, number] = [39.957, 26.239];
@@ -4924,18 +4928,38 @@ describe('the citadel inset draws the circuit the gate anchors were laid against
   const radius = ([lat, lon]: [number, number]) => Math.hypot(lat - CENTRE[0], (lon - CENTRE[1]) * cos);
   const meanRadius = (pts: [number, number][]) => pts.reduce((a, p) => a + radius(p), 0) / pts.length;
   const trace = (id: string) => plate.layers.find((l) => l.id === id)!.trace as [number, number][];
+  // Every vertex the panel draws for the circuit: the four surveyed arcs, plus
+  // the north/north-west stretch Dörpfeld restored and never surveyed.
+  const circuit: [number, number][] = [
+    'citadel-circuit-west',
+    'citadel-circuit-south',
+    'citadel-circuit-southeast-east',
+    'citadel-circuit-northeast',
+  ]
+    .flatMap((id) => plate.layers.find((l) => l.id === id)!.polygon as [number, number][])
+    .concat(trace('citadel-circuit-restored'));
 
-  it('is wall-of-troy contracted by the 55% its own note declares', () => {
-    const ratio = meanRadius(trace('wall-of-troy')) / meanRadius(trace('citadel-inset-wall'));
-    expect(ratio).toBeCloseTo(1.55, 2);
+  it('is Dörpfeld’s circuit at Tafel V’s own scale — about 191 by 168 m', () => {
+    const lats = circuit.map((p) => p[0]);
+    const lons = circuit.map((p) => p[1]);
+    const northSouth = (Math.max(...lats) - Math.min(...lats)) * METRES_PER_DEG_LAT;
+    const eastWest = (Math.max(...lons) - Math.min(...lons)) * METRES_PER_DEG_LAT * cos;
+    expect(northSouth).toBeGreaterThan(160);
+    expect(northSouth).toBeLessThan(180);
+    expect(eastWest).toBeGreaterThan(182);
+    expect(eastWest).toBeLessThan(200);
+    // A polygon of straight stretches, not a ring: Dörpfeld 1902, 2:611. The
+    // old derived circle had a constant radius; this one does not.
+    const radii = circuit.map((p) => radius(p) * METRES_PER_DEG_LAT);
+    expect(Math.max(...radii) - Math.min(...radii)).toBeGreaterThan(20);
   });
 
   it('puts the Scaean Gate, the great tower and the Dardanian Gates on the line', () => {
-    const wall = meanRadius(trace('citadel-inset-wall')) * METRES_PER_DEG_LAT;
     for (const id of ['scaean-gate', 'great-tower-of-ilios', 'dardanian-gates']) {
       const anchor = places.find((p) => p.id === id)!.plateAnchors!['trojan-plain-schematic'] as [number, number];
-      const off = radius(anchor) * METRES_PER_DEG_LAT - wall;
-      expect(Math.abs(off), `${id} is ${off.toFixed(1)} m off the circuit`).toBeLessThan(10);
+      const off =
+        Math.min(...circuit.map((p) => Math.hypot(p[0] - anchor[0], (p[1] - anchor[1]) * cos))) * METRES_PER_DEG_LAT;
+      expect(off, `${id} is ${off.toFixed(1)} m off the drawn circuit`).toBeLessThan(10);
     }
   });
 
@@ -4990,7 +5014,7 @@ describe('renderPlate: featureKey (stage 5c)', () => {
 
   it('E2: numerals are unique and contiguous 1…N in group order; every item resolves to a drawn pin or layer', () => {
     expect(groups.map((g) => g.title)).toEqual([...FEATURE_KEY_HEADINGS]);
-    expect(keyedItems.length).toBe(32);
+    expect(keyedItems.length).toBe(41);
     const ns = [...result.svg.matchAll(/<g class="plate-key-badge"[^>]*data-key-n="(\d+)"/g)].map((m) => Number(m[1]));
     // Sorted, not in document order: a group routed into an inset (ruling 10)
     // draws its numerals with the panel, in the furniture stream after the
@@ -5098,10 +5122,20 @@ describe('renderPlate: featureKey (stage 5c)', () => {
       if (pin) {
         dist = Math.hypot(badge.cx - pin[0], badge.cy - pin[1]);
       } else if (drawnId) {
+        // To the nearest point ON the line, not to its nearest VERTEX
+        // (2026-09-03, ruling 12's citadel panel): the house of Priam is a
+        // rotated rectangle 106 x 133px, so a badge seated 12px off the middle
+        // of one side measured 49px to the nearest corner and read as adrift.
+        // The claim was always "the numeral sits at its mark"; a vertex is not
+        // the mark, the drawn line is.
         dist = Math.min(
-          ...layerPaths(result.svg, drawnId)
-            .flat()
-            .map(([px, py]) => Math.hypot(badge.cx - px, badge.cy - py)),
+          ...layerPaths(result.svg, drawnId).map((line) =>
+            line.length === 1
+              ? Math.hypot(badge.cx - line[0][0], badge.cy - line[0][1])
+              : Math.min(
+                  ...line.slice(1).map((_, i) => distToSegment([badge.cx, badge.cy], line[i], line[i + 1])),
+                ),
+          ),
         );
       } else if (feature) {
         dist = Math.hypot(
@@ -5158,20 +5192,30 @@ describe('renderPlate: featureKey (stage 5c)', () => {
     }
   });
 
-  it('E6: key bottom + 10 ≤ inset top; every key row estimated width ≤ 282px', () => {
-    const inset = plate.layers.find((l) => l.id === 'inset-panel');
-    expect(inset?.frame, 'inset-panel must have a frame').toBeDefined();
-    const insetTop = inset!.frame![1];
+  // Was "key bottom + 10 ≤ inset top", which is the one-column rule. Ruling 12
+  // (2026-09-03) gives the margin two columns — keys on the left at their own
+  // 340px measure, the three panels on the right — so the keys and the panels
+  // no longer stack, they sit side by side. The claim that survives is the one
+  // that always mattered: the key text and the panels do not collide. Stacked
+  // or beside, either separation satisfies it.
+  it('E6: the keys never collide with a panel; every key row estimated width ≤ 282px', () => {
     const keyYs = [
       ...result.svg.matchAll(/<text class="plate-key-row"[^>]*y="([-\d.]+)"/g),
       ...result.svg.matchAll(/<g class="plate-feature-key"[\s\S]*?<tspan[^>]*y="([-\d.]+)"/g),
     ].map((m) => Number(m[1]));
     expect(keyYs.length, 'feature key rows must render').toBeGreaterThan(0);
     const keyBottom = Math.max(...keyYs);
-    expect(keyBottom + 10, `key bottom ${keyBottom} + 10 must sit above inset top ${insetTop}`).toBeLessThanOrEqual(
-      insetTop,
-    );
     const wrapW = 282;
+    const keyRight = plate.size[0] - (plate.marginRight ?? 0) + 12 + 8 + wrapW + 22;
+    const panels = plate.layers.filter((l) => l.style === 'inset' && l.frame);
+    expect(panels.length, 'the sheet must carry inset panels').toBeGreaterThan(0);
+    for (const panel of panels) {
+      const [fx, fy] = panel.frame!;
+      expect(
+        keyBottom + 10 <= fy || keyRight <= fx,
+        `key block (bottom ${keyBottom}, right ${keyRight.toFixed(0)}) collides with panel ${panel.id} at ${fx},${fy}`,
+      ).toBe(true);
+    }
     for (const item of keyedItems) {
       const label = item.label ?? '';
       const est = label.length * 9.5 * 0.54;
@@ -5207,52 +5251,70 @@ describe('renderPlate: featureKey (stage 5c)', () => {
   // prove it is in the panel at all, and that the face was actually cleared —
   // an inset that draws a second copy while the spider stays would pass every
   // overlap check and fix nothing.
-  it('E8: every numeral of an inset group is drawn inside its panel, with its leader', () => {
-    const group = groups.find((g) => g.inset);
-    expect(group, 'the sheet must route a group into an inset').toBeTruthy();
-    const panel = plate.layers.find((l) => l.id === group!.inset);
-    const [fx, fy, fw, fh] = panel!.frame!;
-    const insetNs = new Set<number>();
+  // Two routed groups since ruling 12 (2026-09-03): "Inside the walls" into the
+  // citadel panel, "Before the walls" into the ground panel below it. Each
+  // group's numerals belong to ITS panel and to no other.
+  const insetGroupNs = () => {
+    const out = new Map<string, Set<number>>();
     let n = 0;
     for (const g of groups) {
-      for (const item of g.items) {
+      for (const _item of g.items) {
         n += 1;
-        if (g === group) insetNs.add(n);
+        if (!g.inset) continue;
+        const set = out.get(g.inset) ?? new Set<number>();
+        set.add(n);
+        out.set(g.inset, set);
       }
     }
-    expect(insetNs.size).toBe(11);
-    const inPanel = (x: number, y: number) => x >= fx && x <= fx + fw && y >= fy && y <= fy + fh;
-    const seen = new Set<number>();
-    for (const disc of markDiscs(result.svg, 'plate-key-badge')) {
-      const num = Number(disc.label.slice('badge '.length, disc.label.indexOf(' (')));
-      if (!insetNs.has(num)) {
-        expect(inPanel(disc.cx, disc.cy), `face numeral ${num} is inside the inset panel`).toBe(false);
-        continue;
+    return out;
+  };
+
+  it('E8: every numeral of an inset group is drawn inside its panel, with its leader', () => {
+    const byPanel = insetGroupNs();
+    expect(byPanel.size, 'the sheet must route groups into insets').toBe(2);
+    expect([...byPanel.values()].reduce((a, s) => a + s.size, 0)).toBe(20);
+    const anyInset = new Set([...byPanel.values()].flatMap((s) => [...s]));
+    for (const [panelId, insetNs] of byPanel) {
+      const panel = plate.layers.find((l) => l.id === panelId);
+      const [fx, fy, fw, fh] = panel!.frame!;
+      const inPanel = (x: number, y: number) => x >= fx && x <= fx + fw && y >= fy && y <= fy + fh;
+      const seen = new Set<number>();
+      for (const disc of markDiscs(result.svg, 'plate-key-badge')) {
+        const num = Number(disc.label.slice('badge '.length, disc.label.indexOf(' (')));
+        if (!insetNs.has(num)) {
+          expect(inPanel(disc.cx, disc.cy), `numeral ${num} is inside panel ${panelId}, which is not its own`).toBe(
+            false,
+          );
+          continue;
+        }
+        seen.add(num);
+        expect(inPanel(disc.cx - disc.r, disc.cy - disc.r), `numeral ${num} runs out of ${panelId}`).toBe(true);
+        expect(inPanel(disc.cx + disc.r, disc.cy + disc.r), `numeral ${num} runs out of ${panelId}`).toBe(true);
       }
-      seen.add(num);
-      expect(inPanel(disc.cx - disc.r, disc.cy - disc.r), `numeral ${num} runs out of its panel`).toBe(true);
-      expect(inPanel(disc.cx + disc.r, disc.cy + disc.r), `numeral ${num} runs out of its panel`).toBe(true);
+      expect([...seen].sort((a, b) => a - b)).toEqual([...insetNs].sort((a, b) => a - b));
+      for (const leader of markKeyLeaders(result.svg)) {
+        if (!insetNs.has(Number(leader.n))) continue;
+        expect(
+          inPanel(leader.ax, leader.ay) && inPanel(leader.bx, leader.by),
+          `leader ${leader.n} leaves ${panelId}`,
+        ).toBe(true);
+      }
     }
-    expect([...seen].sort((a, b) => a - b)).toEqual([...insetNs].sort((a, b) => a - b));
-    for (const leader of markKeyLeaders(result.svg)) {
-      if (!insetNs.has(Number(leader.n))) continue;
-      expect(inPanel(leader.ax, leader.ay) && inPanel(leader.bx, leader.by), `leader ${leader.n} leaves its panel`).toBe(
-        true,
-      );
-    }
+    expect(anyInset.size).toBe(20);
   });
 
-  it("E9: the inset group's marks are off the map face; the citadel keeps its wall and its zone letters", () => {
-    const group = groups.find((g) => g.inset)!;
-    const panel = plate.layers.find((l) => l.id === group.inset)!;
-    const [fx, fy] = panel.frame!;
+  it("E9: the inset groups' marks are off the map face; the citadel keeps its wall and its zone letters", () => {
     const frameWidth = plate.size[0] - (plate.marginRight ?? 0);
-    expect(fx).toBeGreaterThanOrEqual(frameWidth);
-    for (const item of group.items) {
-      const id = item.placeId ?? item.layerId!;
-      for (const pin of markPins(result.svg)) {
-        if (pin.id !== id) continue;
-        expect(pin.box[0] >= fx && pin.box[1] >= fy, `${id} is still marked on the map face`).toBe(true);
+    for (const group of groups.filter((g) => g.inset)) {
+      const panel = plate.layers.find((l) => l.id === group.inset)!;
+      const [fx, fy] = panel.frame!;
+      expect(fx).toBeGreaterThanOrEqual(frameWidth);
+      for (const item of group.items) {
+        const id = item.placeId ?? item.layerId!;
+        for (const pin of markPins(result.svg)) {
+          if (pin.id !== id) continue;
+          expect(pin.box[0] >= fx && pin.box[1] >= fy, `${id} is still marked on the map face`).toBe(true);
+        }
       }
     }
     // The one mark the ruling leaves at Ilios, and the letters.
@@ -5262,7 +5324,7 @@ describe('renderPlate: featureKey (stage 5c)', () => {
 
   it('numeral badges carry the contract attributes and no tabindex', () => {
     const badges = [...result.svg.matchAll(/<g class="plate-key-badge"[^>]*>[\s\S]*?<\/g>/g)].map((m) => m[0]);
-    expect(badges.length).toBe(32);
+    expect(badges.length).toBe(41);
     for (const g of badges) {
       expect(g).toMatch(/role="img"/);
       expect(g).toMatch(/aria-label="/);

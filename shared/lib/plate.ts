@@ -3715,6 +3715,22 @@ const LEGEND_COLUMN_GAP = 16;
 /** Extra vertical space a wrapped legend entry's second (and later) line costs. See legendMarkup/wrapLegendText. */
 const LEGEND_WRAP_LINE_H = LEGEND_FONT + 2;
 
+/**
+ * The furniture band's TEXT measure, in plate px — the width the legend, the
+ * scene key and the feature key wrap to, however wide `marginRight` is.
+ *
+ * A margin only has to be as wide as its widest block, and once a sheet needs
+ * a SECOND column of inset panels beside its keys (trojan-plain-schematic,
+ * 2026-09-03: the citadel wants a panel of its own next to the one for the
+ * ground before the walls) the margin doubles. Letting the text follow it
+ * would stretch every key row to a 600px measure — unreadable, and nothing
+ * about a line of type wants to be that long. A measure is a typographic
+ * constant; the surplus margin is panel room, not text room. 340 is the
+ * measure the sheet was designed at, so nothing rendered today moves.
+ */
+const MARGIN_TEXT_COLUMN = 340;
+const bandTextWidth = (marginRight: number): number => Math.min(marginRight, MARGIN_TEXT_COLUMN);
+
 // Wraps text at the last space that keeps a line under maxWidth px, using the
 // same LEGEND_FONT*0.54-per-character estimate legendMarkup's own sizing
 // already uses. `maxWidth = Infinity` (every caller except a right-margin
@@ -4008,7 +4024,8 @@ function legendMarkup(
   // slop, so an estimate landing a little wide never itself clips the sheet
   // edge. Infinity for a corner legend (marginRight === 0) makes
   // wrapLegendText a no-op, leaving that path's output unchanged.
-  const bandTextMaxW = marginRight > 0 ? marginRight - 12 - 8 - padX * 2 - LEGEND_SWATCH_W - 7 : Infinity;
+  const bandTextMaxW =
+    marginRight > 0 ? bandTextWidth(marginRight) - 12 - 8 - padX * 2 - LEGEND_SWATCH_W - 7 : Infinity;
   const wrappedLines = rows.map((r) => wrapLegendText(r.text, bandTextMaxW));
   const textW = Math.min(Math.max(...rows.map((r) => r.text.length * LEGEND_FONT * 0.54)), bandTextMaxW);
   // Two columns once one column would run deeper than a quarter of the sheet
@@ -4166,7 +4183,7 @@ function sceneKeyMarkup(
   const padX = 8;
   const padY = 8;
   const x0 = width - marginRight + 12;
-  const textMaxW = marginRight - 12 - 8 - padX * 2;
+  const textMaxW = bandTextWidth(marginRight) - 12 - 8 - padX * 2;
   const textX = x0 + padX;
   let y = legendBottom + 10 + padY;
   const parts: string[] = [];
@@ -4223,7 +4240,7 @@ function featureKeyMarkup(
   if (!groups?.length || marginRight <= 0) return { markup: '', bottom: sceneKeyBottom };
   const padX = 8;
   const x0 = width - marginRight + 12;
-  const wrapW = marginRight - 12 - 8 - padX * 2 - FEATURE_KEY_LABEL_GAP;
+  const wrapW = bandTextWidth(marginRight) - 12 - 8 - padX * 2 - FEATURE_KEY_LABEL_GAP;
   const nX = x0 + padX + FEATURE_KEY_N_COL;
   const labelX = x0 + padX + FEATURE_KEY_LABEL_GAP;
   const headingX = x0 + padX;

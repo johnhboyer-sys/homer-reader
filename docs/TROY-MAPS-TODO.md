@@ -427,6 +427,29 @@ shield-of-achilles plate-level `sources` (now a validator error);
     tiered; nothing surveyed placed at a guessed coordinate. The July pickup
     gate (references first) is satisfied by today's two style sheets.
 
+    **BUILT 2026-09-03 (branch `claude/citadel-inset`), John's calls open.**
+    The sheet grew to the right only (1756 → 2208 px, `marginRight` 340 → 792),
+    so the map frame is unchanged at 1416 × 1600 and every face label and face
+    numeral is byte-identical. The margin now has two columns: keys left, the
+    three panels right. Two projected windows instead of one — **Inside the
+    walls** (32× the sheet) and **Before the walls** (6×). The derived poem
+    ring (`wall-of-troy` ÷ 1.55) is gone; the ground is Dörpfeld's surveyed
+    Troy VI circuit and terrace fronts, ported from `troy-citadel.json` at that
+    plate's own `pxPerMetre` and centred on the sheet's existing centre for
+    Ilios, with the lost north/north-west stretch hollow, after his Fig. 470.
+    On it, the poem's city in the open-dash register: Priam's house with its
+    court and the assembly at his doors, the houses of Hector and Paris, the
+    temple of Athena, Apollo's shrine, the two streets down to the gates, and
+    the stretch of wall Andromache calls open to assault. Open for John:
+    (a) the Dardanian Gates moved onto the excavated South Gate VI T and rose
+    to `traditional` (Dörpfeld 1902, 2:630; Tolman & Scoggin 1903), per
+    RESEARCH-CITADEL §5's own plate consequence; (b) the Scaean Gate was only
+    snapped radially onto the circuit at its existing bearing, which puts it at
+    the seam where the survey stops — Dörpfeld's own placement is further round
+    to the north-west (Fig. 470, *vermutungsweise*), and the pin can move;
+    (c) Pergamos carries no outline of its own — its numeral sits on Dörpfeld's
+    inner terrace front, the only line anyone has drawn for it.
+
 ## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
 
 Session paused here 2026-07-31; John picks up when he has reference examples
