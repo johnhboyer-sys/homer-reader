@@ -1068,3 +1068,39 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   gained `.plate-feature-key` (belt-and-suspenders with the `slice` crop,
   which already keeps this margin-band content out of frame). No
   plato-reader counterpart (Homer-only apparatus feature).
+
+## 2026-09-03 — The citadel as a projected-window inset; zone outlines dropped (rulings 10, 11)
+
+- `shared/lib/plate.ts` — **a framed `style: "inset"` panel can be a projected
+  WINDOW, not just a free drawing.** `PlateLayer.insetBBox` declares the ground
+  a panel shows; `PlateLayer.insetOf` names that panel from an ordinary layer,
+  which is then drawn a SECOND time through the window from its own lat/lon
+  geometry (feature id `<id>--inset`), so no geometry is duplicated in the
+  plate file and the two drawings of one feature cannot drift.
+  `PlateFeatureKeyGroup.inset` routes a whole key group's pins and numerals
+  into the panel: they are solved by the same `placeKeyBadges`, in the panel's
+  own rectangle translated to its origin, and emitted with the margin
+  furniture rather than inside `.plate-camera`. The translation rides on the
+  Viewport's `width`/`height` (which `project` uses only as the centre of the
+  frame it draws into), so `project`, `projectPoints`, `resolvePlacePosition`
+  and `renderLayer` all work inside an inset unchanged. `insetContentRect`
+  derives the drawing rectangle from the panel's own title-block arithmetic,
+  so window content can never be laid under the head. Window contents paint
+  AFTER every panel — a panel is a 0.97-opaque rect, and a copy pushed into
+  `marginInsetMarkup` in its source layer's paint slot comes out a ghost.
+- `shared/lib/plate.ts` — **a scene zone's outline is never drawn** (ruling 11).
+  The polygon still feeds the letter's seat, the reservations, `PlateResult`
+  and the Chart Room camera; only the ink and its now-meaningless legend row
+  go. Suppressed in `renderPlate`'s layer loop (`isSceneZone`), not in
+  `renderLayer`, so the zone keeps every other effect it had.
+- `shared/__tests__/plate.test.ts` — E7's parse extended (a numeral wholly
+  inside an inset panel is ON that panel's map, not fouling furniture; a
+  window's redrawn glyphs are obstacles); E2 sorts (an inset group paints
+  last); E4 measures a line-keyed numeral against the drawn line, not against
+  the centre of the box round it; new E8/E9 (every inset numeral inside its
+  panel with its leader; the group's marks off the face) and three tests
+  pinning `citadel-inset-wall` as `wall-of-troy` divided by the 55% its own
+  note declares.
+- `pipeline/homer_pipeline/apparatus_places.py` — validates `insetBBox`,
+  `insetOf` and `featureKey[].inset`, mirroring parsePlate.
+- No plato-reader counterpart (Homer-only apparatus feature).
