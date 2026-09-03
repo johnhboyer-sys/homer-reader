@@ -382,6 +382,15 @@ shield-of-achilles plate-level `sources` (now a validator error);
    18:06, "we're not English").** Quoted titles and quotations keep their
    source's spelling; "Catalogue of Ships" stays as the established title.
 
+9. **Nothing overlaps (John, 2026-09-03 13:21, circling badge B with the
+   leader of 8 through it and 1's leader into it): "let's not have things
+   overlap."** Numeral badges, zone letters, leaders, pins and glyphs keep
+   clear of one another. A leader never crosses a badge, a pin or another
+   leader; a badge never sits on a pin that is not its own. Where a badge
+   cannot be placed clear, it moves further out on a longer leader rather
+   than overlapping; the placer gates on a machine check of the rendered
+   SVG, not on a look.
+
 ## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
 
 Session paused here 2026-07-31; John picks up when he has reference examples
