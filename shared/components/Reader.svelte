@@ -1112,6 +1112,15 @@
   // gating at all three consuming template sites exactly the way
   // `currentPlateMap` alone used to.
   $: hasChartMap = useIliadPlate ? !!iliadPlateRender : useSchematicPlate ? !!schematicPlateRender : !!currentPlateMap;
+  // 2026-09-03, stage 6 review (F2): hasChartMap alone goes false for the gap
+  // between the gazetteer resolving a schematic-only scene and the (separate,
+  // lazy) trojan-plain-schematic.json fetch landing — the map slot collapsed
+  // and popped back in. True only mid-fetch for a scene that DOES resolve to
+  // the schematic plate; false once that settles ready/unavailable, or when
+  // the scene never routed here at all, so a genuine "no map" case still
+  // collapses immediately as before.
+  $: schematicPending = work === 'iliad' && !!currentPlateResolution?.schematic
+    && schematicPlateLoadState !== 'ready' && schematicPlateLoadState !== 'unavailable';
   // The map-slot boxes (.reading-plate-map / .scene-context-map) reserve
   // space at renderSceneMap's own 320x220 default (see global.css) — the
   // Trojan-plain plate's own size is a different shape, so override the
@@ -3322,6 +3331,12 @@
         href={iliadPlateLinkHref}
         aria-label="Open the Trojan Plain plate framed on this scene"
       >
+        <!-- 2026-09-03, stage 6 review (F1): a draft plate painted with no
+             draft badge on this postcard; PlatePanel.svelte already shows
+             one for the same status, reused verbatim here. -->
+        {#if iliadPlate.status === 'draft'}
+          <span class="draft-badge chart-plate-draft-badge" title="AI-drafted apparatus, pending review">Draft</span>
+        {/if}
         <div
           class="chart-plate"
           use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlateRender.frame[0], plateHeight: iliadPlateRender.frame[1], labelBoxes: iliadPlateRender.labelBoxes }}
@@ -3335,6 +3350,10 @@
       </a>
     {:else}
       <div class="chart-plate-postcard">
+        <!-- 2026-09-03, stage 6 review (F1): see the linked postcard above. -->
+        {#if iliadPlate.status === 'draft'}
+          <span class="draft-badge chart-plate-draft-badge" title="AI-drafted apparatus, pending review">Draft</span>
+        {/if}
         <div
           class="chart-plate"
           use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlateRender.frame[0], plateHeight: iliadPlateRender.frame[1], labelBoxes: iliadPlateRender.labelBoxes }}
@@ -3352,6 +3371,11 @@
     {/if}
   {:else if useSchematicPlate && schematicPlateRender && schematicPlate}
     <div class="chart-plate-postcard">
+      <!-- 2026-09-03, stage 6 review (F1): the live schematic path had no
+           draft badge at all — see the linked postcard's comment above. -->
+      {#if schematicPlate.status === 'draft'}
+        <span class="draft-badge chart-plate-draft-badge" title="AI-drafted apparatus, pending review">Draft</span>
+      {/if}
       <div
         class="chart-plate"
         use:applyPlateCamera={{ camera: schematicPlateCamera, focusIds: schematicFocusIds, ariaLabel: schematicPlateAriaLabel, reduceMotion, plateWidth: schematicPlateRender.frame[0], plateHeight: schematicPlateRender.frame[1], labelBoxes: schematicPlateRender.labelBoxes }}
@@ -3745,8 +3769,8 @@
        this accepts on a session's very first scene view. -->
   {#snippet readingSceneHead(s: Scene, idx: number, total: number)}
     <header class="reading-scene-head">
-      <div class="reading-plate" class:reading-plate-nomap={plateDataLoaded && !hasChartMap}>
-        {#if !plateDataLoaded || hasChartMap}
+      <div class="reading-plate" class:reading-plate-nomap={plateDataLoaded && !hasChartMap && !schematicPending}>
+        {#if !plateDataLoaded || hasChartMap || schematicPending}
           <div class="reading-plate-map" style={chartMapAspectRatio ? `aspect-ratio: ${chartMapAspectRatio};` : undefined}>
             {@render chartPlateBody()}
           </div>
@@ -3883,7 +3907,7 @@
           <span class="scene-context-place-name">{scenePanelPlaceName}</span>
           {#if scenePanelCertainty}<span class="scene-context-certainty">{scenePanelCertainty}</span>{/if}
         </div>
-        {#if !plateDataLoaded || hasChartMap}
+        {#if !plateDataLoaded || hasChartMap || schematicPending}
           <div class="scene-context-map" class:pending={!hasChartMap} style={chartMapAspectRatio ? `aspect-ratio: ${chartMapAspectRatio};` : undefined}>
             {@render chartPlateBody()}
           </div>
@@ -4098,7 +4122,7 @@
     </button>
     <div class="scene-context-sheet-details" id="scene-context-sheet-details" aria-hidden={!sceneSheetOpen} inert={!sceneSheetOpen}>
       <div class="scene-context-sheet-label">Chart Room</div>
-      {#if !plateDataLoaded || hasChartMap}
+      {#if !plateDataLoaded || hasChartMap || schematicPending}
         <div class="scene-context-map" class:pending={!hasChartMap} style={chartMapAspectRatio ? `aspect-ratio: ${chartMapAspectRatio};` : undefined}>
           {@render chartPlateBody()}
         </div>
@@ -4706,6 +4730,12 @@
   .chart-plate-postcard { position: relative; display: block; width: 100%; height: 100%; color: inherit; text-decoration: none; }
   a.chart-plate-postcard:hover .chart-plate { outline: 1px solid var(--accent); outline-offset: -1px; }
   a.chart-plate-postcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  /* 2026-09-03, stage 6 review (F1): pin the shared .draft-badge (global.css;
+     unchanged) to the postcard's top-left corner, opposite the locator inset
+     (bottom-right) — a solid ground behind it keeps the badge's own AA
+     contrast (measured against --page-bg) intact over whatever map ink sits
+     underneath, in both themes. */
+  .chart-plate-draft-badge { position: absolute; top: 0.35rem; left: 0.35rem; z-index: 1; background: var(--page-bg); }
 
   /* Locator inset (part E): a small unframed full-sheet map in the
      postcard's own bottom-right corner, ~28% of its width, with a frame

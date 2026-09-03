@@ -1588,6 +1588,79 @@ describe('Reader.svelte — Chart Room SCHEMATIC plate postcard (live path, 2026
     expect(matches.length).toBe(2);
     matches.forEach((el) => expect(el).toHaveClass('plate-hidden'));
   });
+
+  // 2026-09-03, stage 6 review (F1, BLOCKER): schematicFixture above already
+  // declares `status: 'draft'` and, before this fix, chartPlateBody rendered
+  // no draft badge anywhere -- an AI-drafted plate painted as finished. The
+  // house rule (CLAUDE.md "Apparatus honesty") requires a discreet badge on
+  // draft apparatus; PlatePanel.svelte already shows one for this same
+  // status (app/src/components/maps/PlatePanel.svelte:~730) -- this asserts
+  // the postcard reuses the identical markup/class/title.
+  it('shows the shared draft badge on the postcard when the plate itself is draft (F1)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(schematicFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const badge = container.querySelector('.chart-plate-postcard .draft-badge');
+    expect(badge).not.toBeNull();
+    expect(badge?.textContent).toBe('Draft');
+    expect(badge?.getAttribute('title')).toMatch(/AI-drafted apparatus/i);
+  });
+
+  it('shows no draft badge on the postcard once the plate is no longer draft (F1, negative case)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce({ ...schematicFixture, status: 'reviewed' } as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    expect(container.querySelector('.chart-plate-postcard .draft-badge')).toBeNull();
+  });
+
+  // 2026-09-03, stage 6 review (F2, MINOR): `hasChartMap` treats a
+  // schematic-only scene as "no map" for the gap between the gazetteer
+  // (fetchPlaces) resolving and the separate, lazy trojan-plain-schematic.json
+  // fetch landing -- before this fix the map slot collapsed
+  // (`reading-plate-nomap`) and then popped back in once the plate arrived.
+  // `fetchPlate` is left unresolved here (a manually-controlled promise) to
+  // hold the component in exactly that window; `fetchPlate` having been
+  // called with the schematic id is the observable proof that the gazetteer
+  // has already resolved (Reader.svelte's ensureSchematicPlate reactive is
+  // itself gated on `currentPlateResolution?.schematic`, which needs
+  // `plateDataLoaded`).
+  it('keeps the map slot reserved while the schematic plate itself is still loading, after the gazetteer has already resolved (F2)', async () => {
+    let resolveFetch: (value: unknown) => void = () => {};
+    const pending = new Promise((resolve) => { resolveFetch = resolve; });
+    vi.mocked(fetchPlate).mockReturnValueOnce(pending as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(fetchPlate).toHaveBeenCalledWith('trojan-plain-schematic'));
+
+    // The gazetteer has resolved but the schematic plate JSON has not --
+    // the slot must stay reserved, not collapse.
+    expect(container.querySelector('.reading-plate')).not.toHaveClass('reading-plate-nomap');
+    expect(container.querySelector('.reading-plate-map')).not.toBeNull();
+    expect(container.querySelector('.chart-plate svg')).toBeNull();
+
+    resolveFetch(schematicFixture);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    expect(container.querySelector('.reading-plate')).not.toHaveClass('reading-plate-nomap');
+  });
 });
 
 // Stage 5a (2026-09-02): the schematic sheet became a real-ground, east-up
