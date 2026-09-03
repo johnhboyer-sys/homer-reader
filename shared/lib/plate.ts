@@ -573,6 +573,16 @@ function isFiniteNumber(n: unknown): n is number {
   return typeof n === 'number' && Number.isFinite(n);
 }
 
+// Finding F5 (stage 6 review, 2026-09-03): String.localeCompare's collation
+// order depends on the runtime locale, so a solver that breaks placement
+// ties by sorting ids/text with it can order candidates differently on
+// SSR (Node's default locale) versus a browser with a different one —
+// the same plate, not byte-identical. A plain code-point comparator has
+// no locale to disagree about.
+function codePointCompare(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
 function isPoint(p: unknown): p is PlatePoint {
   return Array.isArray(p) && p.length === 2 && isFiniteNumber(p[0]) && isFiniteNumber(p[1]);
 }
@@ -656,7 +666,13 @@ function parseLayer(
   if (typeof l.kind !== 'string' || !LAYER_KINDS.includes(l.kind as LayerKind)) {
     fail(`unknown layer kind "${String(l.kind)}" in layer "${l.id}"`);
   }
-  if (l.fill !== undefined && (typeof l.fill !== 'string' || !(l.fill in REGION_FILL_TOKENS))) {
+  // Finding F1 (stage 6 review, 2026-09-03): `in` also matches inherited
+  // Object.prototype names ("constructor", "toString", "valueOf",
+  // "__proto__", ...), so `fill: "constructor"` passed this "whitelist" and
+  // renderLayer's REGION_FILL_TOKENS[fill]/REGION_LEGEND_TEXT[fill] read the
+  // native Function off the prototype instead of failing closed.
+  // Object.hasOwn scopes the check to REGION_FILL_TOKENS's own keys.
+  if (l.fill !== undefined && (typeof l.fill !== 'string' || !Object.hasOwn(REGION_FILL_TOKENS, l.fill))) {
     fail(`layer "${l.id}" has an unknown fill "${String(l.fill)}" (must be one of ${Object.keys(REGION_FILL_TOKENS).join(', ')})`);
   }
   // Finding 3 (schema drift, 2026-07-28): an invalid `default` used to be
@@ -719,7 +735,7 @@ function parseLayer(
     shading: typeof l.shading === 'string' ? l.shading : undefined,
     rows: isFiniteNumber(l.rows) ? l.rows : undefined,
     count: isFiniteNumber(l.count) ? l.count : undefined,
-    fill: typeof l.fill === 'string' && l.fill in REGION_FILL_TOKENS ? (l.fill as RegionFill) : undefined,
+    fill: typeof l.fill === 'string' && Object.hasOwn(REGION_FILL_TOKENS, l.fill) ? (l.fill as RegionFill) : undefined,
     elevation: isFiniteNumber(l.elevation) ? l.elevation : undefined,
     labelTier: l.labelTier === 1 || l.labelTier === 2 ? l.labelTier : undefined,
     labelSize: l.labelSize === 'small' || l.labelSize === 'base' ? l.labelSize : undefined,
@@ -847,6 +863,13 @@ export function parsePlate(data: unknown): Plate {
   }
   if (d.marginRight !== undefined && !(isFiniteNumber(d.marginRight) && d.marginRight >= 0)) {
     fail('marginRight must be a number >= 0');
+  }
+  // Finding F4 (stage 6 review, 2026-09-03): `frameWidth = width -
+  // marginRight` (renderPlate) goes negative once marginRight reaches the
+  // sheet's own width, and the map frame projects off-canvas. Reject at
+  // parse rather than let it through to a negative viewport.
+  if (d.marginRight !== undefined && (d.marginRight as number) >= size[0]) {
+    fail('marginRight must be less than size[0] (it would leave no map frame)');
   }
   if (d.groundOpacity !== undefined && !(isFiniteNumber(d.groundOpacity) && d.groundOpacity > 0 && d.groundOpacity <= 1)) {
     fail('groundOpacity must be a number in (0, 1]');
@@ -2031,15 +2054,27 @@ const SCHEMATIC_KIND_LABEL_CLASS: Record<string, LabelRole> = {
 // station") is right and the drawing still says otherwise.
 const SCHEMATIC_LABEL_CLASS_OVERRIDE: Record<string, LabelRole> = {};
 
+// Finding F2 (stage 6 review, 2026-09-03): `place.id`/`place.kind` are plain
+// strings straight off apparatus data (see PlatePlace above), so a bracket
+// lookup on an ordinary object resolves an inherited Object.prototype member
+// for "constructor"/"toString"/"__proto__"/etc. instead of `undefined` — the
+// same trap renderPlate's own `labelBoxes` already guards against with
+// Object.create(null) (see its comment). The tables below keep their small,
+// hand-authored key sets as plain literals; `ownLookup` scopes each READ to
+// the table's own keys so an untrusted id or kind can never inherit a hit.
+function ownLookup<T>(table: Record<string, T>, key: string | undefined): T | undefined {
+  return key !== undefined && Object.hasOwn(table, key) ? table[key] : undefined;
+}
+
 function placeLabelClass(place: PlatePlace, plateKind: PlateKind = 'geographic'): LabelRole {
   if (plateKind === 'schematic') {
     return (
-      SCHEMATIC_LABEL_CLASS_OVERRIDE[place.id] ??
-      (place.kind ? SCHEMATIC_KIND_LABEL_CLASS[place.kind] : undefined) ??
+      ownLookup(SCHEMATIC_LABEL_CLASS_OVERRIDE, place.id) ??
+      ownLookup(SCHEMATIC_KIND_LABEL_CLASS, place.kind) ??
       'settlement'
     );
   }
-  return LABEL_CLASS_OVERRIDE[place.id] ?? (place.kind ? KIND_LABEL_CLASS[place.kind] : undefined) ?? 'settlement';
+  return ownLookup(LABEL_CLASS_OVERRIDE, place.id) ?? ownLookup(KIND_LABEL_CLASS, place.kind) ?? 'settlement';
 }
 
 /** Classes that never carry a marker on a geographic plate (item 3: "Regions, water and rivers get NO marker"). */
@@ -2149,7 +2184,11 @@ function estimateLabelWidth(text: string, style: LabelStyle): number {
 }
 
 function labelText(text: string, style: LabelStyle): string {
-  return style.caps ? text.toLocaleUpperCase() : text;
+  // Finding F5 (stage 6 review, 2026-09-03): toLocaleUpperCase() reads the
+  // runtime locale ('Ilios'.toLocaleUpperCase('tr-TR') === 'ILİOS'), so the
+  // same plate rendered SSR (Node's default locale) and in a tr-TR browser
+  // disagreed byte-for-byte. toUpperCase() is locale-independent.
+  return style.caps ? text.toUpperCase() : text;
 }
 
 // The gazetteer's `name` is a CATALOGUE entry — "Kesik Tepe (the 'Demetrius
@@ -2168,8 +2207,9 @@ function mapLabelText(name: string): string {
   const deArticled = base.replace(/^[Tt]he\s+/, '');
   if (!deArticled) return base;
   // "The wall of Troy" -> "Wall of Troy": dropping the article must not leave
-  // a lowercase initial on a map label.
-  return deArticled[0].toLocaleUpperCase() + deArticled.slice(1);
+  // a lowercase initial on a map label. toUpperCase(), not toLocaleUpperCase()
+  // — see labelText's comment (finding F5, stage 6 review, 2026-09-03).
+  return deArticled[0].toUpperCase() + deArticled.slice(1);
 }
 
 function boxesOverlap(a: Box, b: Box, pad = 1.5): boolean {
@@ -2271,7 +2311,7 @@ export function placeLabelCandidates(
   const markerBoxes = options.markerBoxes ?? [];
   const results: LabelPlacement[] = [];
 
-  for (const input of [...inputs].sort((a, b) => a.id.localeCompare(b.id))) {
+  for (const input of [...inputs].sort((a, b) => codePointCompare(a.id, b.id))) {
     const candidates = labelCandidates(input.anchorBox, input.fontSize);
     let best: LabelPlacement | undefined;
     for (let index = 0; index < candidates.length; index++) {
@@ -2752,7 +2792,7 @@ function layoutLabels(
   const parts: string[] = [];
   const defs: string[] = [];
   const suppressed: string[] = [];
-  const byId = (a: LabelRequest, b: LabelRequest) => a.id.localeCompare(b.id);
+  const byId = (a: LabelRequest, b: LabelRequest) => codePointCompare(a.id, b.id);
   // Priority (see LabelRequest.priority) orders the non-centred group too, so
   // a high-priority name claims a clean candidate before a low-priority one
   // is even tried — the low-priority request is then the one left holding a
@@ -3227,7 +3267,7 @@ function legendMarkup(
   const byKey = new Map<string, LegendEntry>();
   for (const e of entries) if (!byKey.has(e.key)) byKey.set(e.key, e);
   if (byKey.size === 0) return { markup: '', bottom: emptyBottom };
-  const rows = [...byKey.values()].sort((a, b) => a.rank - b.rank || a.text.localeCompare(b.text));
+  const rows = [...byKey.values()].sort((a, b) => a.rank - b.rank || codePointCompare(a.text, b.text));
   const padX = 8;
   const padY = 8;
   // A right-margin band is a fixed-width strip the SHEET sized, not a panel
@@ -4252,7 +4292,9 @@ function insetMarkup(
         `font-family="var(--font-ui)" font-size="${size}" font-weight="${head ? 600 : 400}" ` +
         `letter-spacing="${head ? round1(size * 0.14) : 0}" fill="var(--text${head ? '' : '-mid'})" ` +
         `paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="2" ` +
-        `stroke-linejoin="round">${escapeXml(head ? line.toLocaleUpperCase() : line)}</text>`,
+        // toUpperCase(), not toLocaleUpperCase() -- finding F5 (stage 6
+        // review, 2026-09-03): see labelText's comment above.
+        `stroke-linejoin="round">${escapeXml(head ? line.toUpperCase() : line)}</text>`,
     );
   });
   if (lines.length) {
@@ -5767,14 +5809,40 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
 
   const badgeMeta: { n: number; item: PlateFeatureKeyItem; id: string; r: number; anchorBox: Box; longName: string }[] =
     [];
+  // Finding F3 (stage 6 review, 2026-09-03): an unanchored featureKey item
+  // used to keep its numeral (keyN incremented before the anchor check) and
+  // its key row (featureKeyMarkup walked plate.featureKey directly, never
+  // told which items the badge pass had dropped) — a ghost name in the
+  // margin with no badge on the sheet, and every numeral after it off by
+  // one from what actually got drawn. `keyedGroups` is built ONCE, from
+  // only the items that resolve to a real anchor, and drives BOTH the
+  // badges below and featureKeyMarkup, so a numeral is dense and a printed
+  // key row always has a mark. A dropped placeId item is recorded in
+  // `unlocated`, the same honesty channel every other unpositioned place
+  // already reports through (a dropped layerId item has none — parsePlate
+  // already requires layerId to name a real layer, see apparatus_places.py).
+  const keyedGroups: PlateFeatureKeyGroup[] = [];
   let keyN = 0;
   for (const group of plate.featureKey ?? []) {
+    const keptItems: PlateFeatureKeyItem[] = [];
     for (const item of group.items) {
-      keyN += 1;
       const id = item.placeId ?? item.layerId!;
       const rendered = renderedById.get(id);
       const anchorBox = pinAnchors.get(id) ?? rendered?.labelAnchor ?? rendered?.feature.bbox;
-      if (!anchorBox) continue;
+      if (!anchorBox) {
+        if (item.placeId) {
+          const place = placeById.get(item.placeId);
+          // The main location-resolution loop above already pushes this
+          // same place into `unlocated` when it has no anchor at all — only
+          // add it here when featureKey is the FIRST thing to notice
+          // (e.g. `drawnByLayer` claimed it, so the main loop never
+          // reached `unlocated` for it).
+          if (place && !unlocated.includes(place)) unlocated.push(place);
+        }
+        continue;
+      }
+      keyN += 1;
+      keptItems.push(item);
       const r = numeralBadgeRadius(keyN);
       const layer = item.layerId ? plate.layers.find((l) => l.id === item.layerId) : undefined;
       const longName = item.placeId
@@ -5782,6 +5850,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         : (layer?.label ?? (layer?.placeId ? placeById.get(layer.placeId)?.name : undefined) ?? item.label ?? id);
       badgeMeta.push({ n: keyN, item, id, r, anchorBox, longName });
     }
+    if (keptItems.length) keyedGroups.push({ title: group.title, items: keptItems });
   }
   const badgePlacements = placeKeyBadges(
     badgeMeta.map((m) => ({
@@ -5884,7 +5953,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     marginRight,
   );
   const sceneKey = sceneKeyMarkup(plate.sceneKey, width, marginRight, legend.bottom);
-  const featureKeyBlock = featureKeyMarkup(plate.featureKey, width, marginRight, sceneKey.bottom);
+  const featureKeyBlock = featureKeyMarkup(keyedGroups, width, marginRight, sceneKey.bottom);
 
   const svg =
     `<svg viewBox="0 0 ${width} ${height}" width="100%" height="100%" role="img" aria-label="${ariaLabel}" xmlns="http://www.w3.org/2000/svg">` +

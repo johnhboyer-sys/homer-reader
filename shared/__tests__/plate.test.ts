@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { project, viewportFromBBox } from '../lib/geo';
 import {
   parsePlate,
@@ -359,6 +359,44 @@ describe('renderPlate: determinism', () => {
   });
 });
 
+// Finding F5 (stage 6 review, 2026-09-03): toLocaleUpperCase()/localeCompare()
+// read the runtime locale, so the same plate rendered SSR (Node's default
+// locale) versus a browser set to e.g. tr-TR could disagree byte-for-byte —
+// determinism the previous block's own test claims, undermined by two calls
+// that read outside process state. Spying across a full render (which
+// exercises labelText's caps path and the label solver's id-sort) proves
+// neither is reachable any more.
+describe('renderPlate: locale-independent output (F5, stage 6 review)', () => {
+  it('never calls String.prototype.toLocaleUpperCase during renderPlate', () => {
+    const spy = vi.spyOn(String.prototype, 'toLocaleUpperCase');
+    renderPlate(testPlate, [troy, scamander]);
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it('never calls String.prototype.localeCompare during renderPlate', () => {
+    const spy = vi.spyOn(String.prototype, 'localeCompare');
+    renderPlate(testPlate, [troy, scamander]);
+    expect(spy).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it('uppercases a caps-styled label with toUpperCase, not toLocaleUpperCase (region role, kind "island")', () => {
+    const lowerNamePlace: PlatePlace = {
+      id: 'lower-name-place',
+      name: 'island of ida',
+      kind: 'island',
+      coords: [39.9, 26.2],
+      certainty: 'certain',
+    };
+    const result = renderPlate(testPlate, [lowerNamePlace]);
+    expect(result.labelBoxes['lower-name-place']).toBeDefined();
+    const match = result.svg.match(/<text[^>]*data-label-for="lower-name-place"[^>]*>([^<]*)<\/text>/);
+    expect(match).not.toBeNull();
+    expect(match![1]).toBe('ISLAND OF IDA');
+  });
+});
+
 // ── Finding 7 (2026-07-28): the old colour test only checked that fills/
 // strokes were SHAPED like var(--...) references, never that the token
 // NAME they named was actually defined — a fabricated var(--...) passed
@@ -642,6 +680,48 @@ describe('renderPlate: XSS', () => {
   it('falls back to a safe default id when idPrefix is empty', () => {
     const result = renderPlate(testPlate, [], { idPrefix: '' });
     expect(result.svg).toContain('clipPath id="plate-clip"');
+  });
+
+  // Finding F2 (stage 6 review, 2026-09-03): placeLabelClass looked up
+  // place.id/place.kind — plain strings off apparatus data — on ordinary
+  // object literals, so a value matching a real Object.prototype member name
+  // resolved to the inherited function instead of `undefined`, and
+  // LABEL_STYLES[role] then threw on a role that was never a LabelRole at
+  // all. Mirrors the already-fixed labelBoxes trap (renderPlate's own
+  // Object.create(null) comment).
+  it.each(['constructor', 'toString', 'valueOf', 'hasOwnProperty', '__proto__'] as const)(
+    'a place with kind "%s" does not crash renderPlate and falls back to the settlement label class',
+    (kind) => {
+      const hostile: PlatePlace = { id: 'hostile-kind', name: 'Hostile Kind', coords: [39.957, 26.239], kind };
+      let svg = '';
+      expect(() => {
+        svg = renderPlate(testPlate, [hostile]).svg;
+      }).not.toThrow();
+      expect(svg).toContain('plate-label-settlement');
+    },
+  );
+
+  it.each(['constructor', 'toString', 'valueOf', 'hasOwnProperty', '__proto__'] as const)(
+    'a place with id "%s" does not crash renderPlate (geographic plate)',
+    (id) => {
+      const hostile: PlatePlace = { id, name: 'Hostile Id', coords: [39.957, 26.239] };
+      expect(() => renderPlate(testPlate, [hostile])).not.toThrow();
+    },
+  );
+
+  it('a schematic-plate place with kind "constructor" does not crash renderPlate', () => {
+    const hostile: PlatePlace = {
+      id: 'hostile-schematic',
+      name: 'Hostile',
+      kind: 'constructor',
+      plateAnchors: { shield: [0.5, 0.5] },
+      positionBasis: 'conjectural',
+    };
+    let svg = '';
+    expect(() => {
+      svg = renderPlate(schematicPlate, [hostile]).svg;
+    }).not.toThrow();
+    expect(svg).toContain('plate-label-settlement');
   });
 });
 
@@ -1126,6 +1206,29 @@ describe('renderPlate: region fill role (gap 3)', () => {
     };
     expect(() => parsePlate(bad)).toThrow(/unknown fill/);
   });
+
+  // Finding F1 (stage 6 review, 2026-09-03): the whitelist check used
+  // `l.fill in REGION_FILL_TOKENS`, and `in` also matches inherited
+  // Object.prototype members. "constructor" (a real property of every plain
+  // object) used to pass this "whitelist" clean, and renderLayer's
+  // REGION_FILL_TOKENS[fill] then read the native Function constructor off
+  // the prototype instead of a CSS token string — a hostile fill must be
+  // rejected at parse the same as any other unknown one.
+  it.each(['constructor', 'toString', 'valueOf', 'hasOwnProperty', '__proto__'] as const)(
+    'rejects fill: "%s" as an unknown fill, not an inherited Object.prototype member',
+    (fill) => {
+      const bad = {
+        id: 'x',
+        title: 'X',
+        kind: 'geographic',
+        status: 'draft',
+        bbox: BBOX,
+        size: SIZE,
+        layers: [{ id: 'hostile', kind: 'region', fill, polygon: [[39.9, 26.15], [39.92, 26.3], [39.88, 26.3]] }],
+      };
+      expect(() => parsePlate(bad)).toThrow(/unknown fill/);
+    },
+  );
 });
 
 describe('computeCamera', () => {
@@ -1803,6 +1906,15 @@ describe('global.css: relief hachure ink is intentionally under-contrasted in da
 
   it('the two light theme blocks (:root default and data-theme="light") agree with each other (unchanged by this lane)', () => {
     expect(lightThemeContrast).toBeCloseTo(lightContrast, 3);
+  });
+
+  // Finding F6 (stage 6 review, 2026-09-03): --plate-schematic-ink was
+  // defined at :root (light) and at :root[data-theme="dark"], but missing
+  // from THIS block -- a reader on system dark theme with no explicit
+  // data-theme (:root:not([data-theme])) fell through to the light-tuned
+  // value and lost contrast. Must match the explicit dark-theme value.
+  it('--plate-schematic-ink is defined in the OS-dark block and matches :root[data-theme="dark"]', () => {
+    expect(readToken(darkMedia, '--plate-schematic-ink')).toBe(readToken(darkTheme, '--plate-schematic-ink'));
   });
 });
 
@@ -3220,6 +3332,19 @@ describe('parsePlate: rotationDeg, marginRight, groundOpacity', () => {
     expect(() => parsePlate({ ...base, marginRight: -1 })).toThrow(/marginRight/);
   });
 
+  // Finding F4 (stage 6 review, 2026-09-03): marginRight >= size[0] used to
+  // parse clean; renderPlate's frameWidth = width - marginRight then went
+  // zero or negative and the map frame projected off-canvas.
+  it('rejects a marginRight equal to or greater than size[0]', () => {
+    expect(() => parsePlate({ ...base, marginRight: SIZE[0] })).toThrow(/marginRight/);
+    expect(() => parsePlate({ ...base, marginRight: SIZE[0] + 100 })).toThrow(/marginRight/);
+  });
+
+  it('accepts a marginRight just under size[0]', () => {
+    const plate = parsePlate({ ...base, marginRight: SIZE[0] - 1 });
+    expect(plate.marginRight).toBe(SIZE[0] - 1);
+  });
+
   it('rejects a groundOpacity outside (0, 1]', () => {
     expect(() => parsePlate({ ...base, groundOpacity: 0 })).toThrow(/groundOpacity/);
     expect(() => parsePlate({ ...base, groundOpacity: 1.5 })).toThrow(/groundOpacity/);
@@ -4565,6 +4690,67 @@ describe('renderPlate: featureKey (stage 5c)', () => {
       expect(g).not.toContain('tabindex');
       expect(g).not.toContain('class="plate-label');
     }
+  });
+});
+
+// Finding F3 (stage 6 review, 2026-09-03): a featureKey item whose place
+// never resolves to an anchor on THIS plate (no plateAnchors entry) used to
+// keep its numbered key row and skip its numeral -- badges [1], key rows
+// [1, 2], row 2 naming a feature the sheet never drew. `keyedGroups` is now
+// built once from only the items that resolved, so both the badges and the
+// key text derive from the same list.
+describe('renderPlate: featureKey drops an unanchored item cleanly (F3, stage 6 review)', () => {
+  const anchored: PlatePlace = {
+    id: 'fk-anchored',
+    name: 'Anchored Place',
+    certainty: 'certain',
+    plateAnchors: { shield: [0.4, 0.4] },
+    positionBasis: 'conjectural',
+  };
+  const ghost: PlatePlace = {
+    id: 'fk-ghost',
+    name: 'Ghost Place',
+    certainty: 'certain',
+    // No plateAnchors entry for "shield" -- never resolves to a position on
+    // this plate, the same shape as the finding's own repro.
+  };
+  const plate: Plate = {
+    ...schematicPlate,
+    size: [300, 300],
+    marginRight: 100,
+    featureKey: [
+      {
+        title: 'Group',
+        items: [
+          { placeId: 'fk-anchored', label: 'Anchoredkey' },
+          { placeId: 'fk-ghost', label: 'Ghostkey' },
+        ],
+      },
+    ],
+  };
+
+  it('numerals stay dense (no gap for the dropped item)', () => {
+    const result = renderPlate(plate, [anchored, ghost]);
+    const ns = [...result.svg.matchAll(/<g class="plate-key-badge"[^>]*data-key-n="(\d+)"/g)].map((m) => Number(m[1]));
+    expect(ns).toEqual([1]);
+  });
+
+  it('the dropped item prints no key row and no badge', () => {
+    const result = renderPlate(plate, [anchored, ghost]);
+    expect(result.svg).not.toContain('Ghostkey');
+    expect(result.svg).not.toContain('data-place-id="fk-ghost"');
+  });
+
+  it('the kept item still prints its key row and badge', () => {
+    const result = renderPlate(plate, [anchored, ghost]);
+    expect(result.svg).toContain('Anchoredkey');
+    expect(result.svg).toContain('data-place-id="fk-anchored" data-key-n="1"');
+  });
+
+  it('the dropped place is recorded in unlocated exactly once (not duplicated with the main honesty pass)', () => {
+    const result = renderPlate(plate, [anchored, ghost]);
+    const ghostEntries = result.unlocated.filter((p) => p.id === 'fk-ghost');
+    expect(ghostEntries.length).toBe(1);
   });
 });
 
