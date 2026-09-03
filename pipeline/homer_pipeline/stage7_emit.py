@@ -59,6 +59,47 @@ _ROMAN_SUFFIXES = {
 }
 
 
+_CORRECTION_PATH = Path(__file__).with_name("short_def_corrections.json")
+
+
+def load_short_def_corrections(path: Path = _CORRECTION_PATH) -> dict[str, dict]:
+    """Load the reviewed per-lemma gloss corrections.
+
+    derive_short_def checks the SHAPE of an LSJ definition, never its sense,
+    and the def it derives comes from the entry's FIRST sense — which for a
+    Homeric reader is sometimes the wrong one (τρέφω's "thicken or congeal" is
+    real LSJ and wrong for Homer). So a blanket "prefer LSJ on disagreement"
+    is unsafe, and this file is the reviewed alternative: one entry per lemma,
+    each judged by a Homerist against the poems.
+
+    ``morpheus`` records the gloss the correction replaces. The correction only
+    fires when that string still matches, so a change upstream in Morpheus
+    lapses the entry instead of silently redirecting it at different text.
+    ``source`` is "lsj" when the preferred text is LSJ's own derived short def
+    and "editorial" when neither source supplies it.
+    """
+    entries = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(entries, list):
+        raise ValueError(f"{path}: expected a JSON list")
+
+    required = {"lemma", "morpheus", "prefer", "source", "justification"}
+    corrections: dict[str, dict] = {}
+    for entry in entries:
+        if not isinstance(entry, dict) or set(entry) != required:
+            raise ValueError(f"{path}: every correction needs exactly {sorted(required)}")
+        if not all(isinstance(value, str) and value for value in entry.values()):
+            raise ValueError(f"{path}: correction values must be non-empty strings")
+        if entry["source"] not in ("lsj", "editorial"):
+            raise ValueError(f"{path}: unknown source for {entry['lemma']}")
+        if entry["lemma"] in corrections:
+            raise ValueError(f"{path}: duplicate lemma {entry['lemma']}")
+        corrections[entry["lemma"]] = entry
+    return corrections
+
+
+SHORT_DEF_CORRECTIONS = load_short_def_corrections()
+
+
 def _normalized_gloss(value: str) -> str:
     normalized = " ".join(value.lower().split())
     while normalized and (
@@ -311,12 +352,27 @@ def _empty_gloss_def(
 
 
 def merge_short_def(
-    gloss: str, lemma: str, candidate_keys: list[str], short_defs: dict[str, str]
+    gloss: str,
+    lemma: str,
+    candidate_keys: list[str],
+    short_defs: dict[str, str],
+    corrections: dict[str, dict] = SHORT_DEF_CORRECTIONS,
 ) -> str:
-    """Conservatively extend a truncated Morpheus gloss from an LSJ definition."""
+    """Conservatively extend a truncated Morpheus gloss from an LSJ definition.
+
+    Extension is the only automatic replacement: an LSJ def that merely
+    disagrees with Morpheus is not thereby righter (δαῖς "meal" and δαΐς
+    "torch" carry the same Morpheus gloss and the same LSJ def, with opposite
+    correct answers). A disagreement is replaced only where a Homerist has
+    reviewed it and recorded the verdict in short_def_corrections.json.
+    """
     normalized_gloss = _normalized_gloss(gloss)
     if not normalized_gloss:
         return _empty_gloss_def(lemma, candidate_keys, short_defs)
+
+    correction = corrections.get(lemma)
+    if correction and _normalized_gloss(correction["morpheus"]) == normalized_gloss:
+        return correction["prefer"]
 
     candidates = sorted(candidate_keys, key=lambda key: key != lemma)
     extensions = []

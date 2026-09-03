@@ -42,6 +42,30 @@ _FOLD_STRIP = re.compile(r"[0-9_^\-/=\\|+]")
 _CONNECTIVE = re.compile(r"^[\s,;]*(?:(?:or|and)[\s,;]*)?$", re.IGNORECASE)
 _DANGLING_CONNECTIVE = re.compile(r"(?:\s*[,;]\s*)?\b(?:or|and)\s*$", re.IGNORECASE)
 _DANGLING_ARTICLE = re.compile(r"\b(?:an?|the)$", re.IGNORECASE)
+# Applied to the material BEFORE the run: when the lead-in names a LINGUISTIC
+# ENTITY — "the negative of <i>fact</i> and <i>statement</i>" (οὐ), "Pythag.
+# name for <i>nine</i>" (Ἑκάεργος) — the italics are the object of LSJ's own
+# metalanguage, and lifting them out yields a sentence fragment, not a gloss.
+# A bare preposition does NOT govern that way: "in Hom. always of <i>wild</i>
+# animals" is ἀγρότερος's real definition, and "expld. by Hsch. as <i>wrought
+# with much pains</i>" is μορόεις's. Refusing every lead-in that ended on
+# of/for/as/to was measured over the whole dictionary: it fired on 23 of the
+# 8,700 corpus entries and was wrong on 15 of them. These three nouns are the
+# governors actually attested in the cases it got right.
+_GOVERNING_LEAD = re.compile(r"\b(?:negative|name|sense)\s+(?:of|for)$", re.IGNORECASE)
+# "a kind of <i>hawk</i>", "a <i>narrow space</i>": the article and the
+# classifier belong TO the definition, so they are absorbed, not refused —
+# but only when nothing but a label precedes them. ἐπί's "to denote the" is a
+# sentence still in progress, and its article governs nothing we can lift.
+_LEAD_ARTICLE = re.compile(
+    r"(?:^|[,;:.\u2014]\s*)((?:an?|the)(?: kind of| sort of| species of)?)$"
+)
+# A trailing homonym label — "= ἄπειρος (A):—" — is not a dangling article.
+_HOMONYM_LABEL = re.compile(r"\(\s*[A-Z]\s*\)\s*$")
+_HAS_VOWEL = re.compile(r"[aeiouyAEIOUY]")
+# Latin-script words only: a gloss may legitimately quote Greek
+# ("armed with θώραξ"), and Greek carries no ASCII vowel.
+_LATIN_WORD = re.compile(r"[A-Za-z\u00c0-\u024f\u1e00-\u1eff]{2,}")
 
 
 def base_key(key: str) -> str:
@@ -134,6 +158,14 @@ def _strip_edge_punctuation(value: str) -> str:
     return value
 
 
+def _lead_in(body, children, first_i) -> str:
+    """The text of the sense that precedes its first italic run."""
+    lead = body.text or ""
+    for child in children[:first_i]:
+        lead += "".join(child.itertext()) + (child.tail or "")
+    return " ".join(lead.split())
+
+
 def derive_short_def(div2) -> str:
     """Derive a compact definition from an LSJ entry's leading italic run."""
     sense = next((el for el in div2.iter() if el.tag == "sense"), None)
@@ -141,6 +173,18 @@ def derive_short_def(div2) -> str:
     children = list(body)
     first_i = next((i for i, child in enumerate(children) if child.tag == "i"), None)
     if first_i is None:
+        return ""
+
+    # The run has to START the definition. When the lead-in names a linguistic
+    # entity the run is its object — οὐ "the negative of <i>fact</i> and
+    # <i>statement</i>" — and the italics are emphasis inside LSJ's own prose,
+    # not a sense. Labels that merely introduce a sense pass untouched.
+    lead = _HOMONYM_LABEL.sub("", _lead_in(body, children, first_i))
+    lead = _strip_edge_punctuation(lead)
+    article = _LEAD_ARTICLE.search(lead)
+    if article:
+        lead = lead[: article.start()].rstrip()
+    if _GOVERNING_LEAD.search(lead):
         return ""
 
     parts = ["".join(children[first_i].itertext())]
@@ -151,8 +195,18 @@ def derive_short_def(div2) -> str:
         parts.extend((previous.tail or "", "".join(child.itertext())))
         previous = child
 
+    # A bound morph is etymology, not a definition: μέμονα's first sense opens
+    # inside the etymological parenthesis "(fr. <i>mṇ</i>-)", and the hyphen
+    # after the run says so. The reconstructed root is not English either.
+    if (previous.tail or "").lstrip().startswith("-"):
+        return ""
+
     short_def = " ".join("".join(parts).split())
     short_def = _strip_edge_punctuation(short_def)
+    if article:
+        short_def = f"{article.group(1)} {short_def}"
+    if not all(_HAS_VOWEL.search(w) for w in _LATIN_WORD.findall(short_def)):
+        return ""
     short_def = _DANGLING_CONNECTIVE.sub("", short_def)
     short_def = _strip_edge_punctuation(short_def)
     # Adjectives in -ikos/-ios are glossed "of or belonging to a <Greek noun>",
