@@ -391,6 +391,16 @@ shield-of-achilles plate-level `sources` (now a validator error);
    than overlapping; the placer gates on a machine check of the rendered
    SVG, not on a look.
 
+10. **The citadel is an inset (John, 2026-09-03 15:24: "Citadel should be
+    an insert (or click to zoom in or something)").** Eleven poem features
+    sit inside 25 px at Ilios; a ring of eleven numerals around them reads
+    as a spider. The schematic sheet carries a margin inset of the citadel
+    at larger scale, as Ajax's end already does, with the citadel group's
+    numerals placed INSIDE the inset; on the map face the citadel keeps one
+    mark and its zone letter. The plate panel's pan and zoom is the
+    click-through; the Chart Room postcard frames the inset for citadel
+    scenes.
+
 ## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
 
 Session paused here 2026-07-31; John picks up when he has reference examples
