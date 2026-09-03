@@ -442,6 +442,20 @@ shield-of-achilles plate-level `sources` (now a validator error);
     register still distinguishes them from the survey, by line style, not by
     faintness. The survey never outshouts the poem (rule of 2026-07-30).
 
+    **Fill in the city (John, 17:18): the poem's city carries the weight,
+    and it cannot while it is outline. The citadel is drawn as a built
+    fabric — houses on the terraces, walls solid, streets between — with the
+    named structures called out, not six boxes on empty ground.**
+
+14. **Citadel identifications are the lane's educated guess from the
+    research (John, 2026-09-03 17:19: "i have no idea which citadel
+    identifications we should use. go with what we figured out from the
+    research and make an educated guess").** For the citadel only, the
+    human gate on contested identifications is delegated: the lane decides
+    from RESEARCH-CITADEL (§5 for the gates) and Dörpfeld, states the
+    choice and the alternative in the note, and the tier and `tradition`
+    carry the honesty. John reviews the result, not each call.
+
 ## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
 
 Session paused here 2026-07-31; John picks up when he has reference examples
