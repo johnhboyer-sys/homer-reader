@@ -1361,26 +1361,116 @@ export function waterlines(rings: [number, number][][], opts: WaterlineOptions):
 export interface ShipRowOptions {
   seed: number;
   /**
-   * `'light'` draws each hull at SHIP_LIGHT_SCALE of the default length
-   * (shipcomp option 1, 2026-09-02: "the ships are still too big and too
-   * ugly and obtrusive"). Only the drawn hull shrinks — the per-ship slot
-   * and the perpendicular rank spacing are computed from the UNSCALED
-   * half-length, exactly as the default style, so a smaller glyph in the
-   * same slot reads as an open texture rather than a denser one, and every
-   * position/extent invariant (shore distance, wall-landward-of-ranks,
-   * shipRowExtent's reserved box) holds unchanged for either style. The
-   * renderer (case 'shipRow' in renderLayer) pairs this with an outline
-   * instead of a solid fill.
+   * `'light'` is the schematic camp's fleet (design lane, 2026-09-03,
+   * replacing shipcomp option 1 of 2026-09-02): one small open crescent,
+   * identical for every ship, at a fixed pitch along the baseline and a fixed
+   * pitch between ranks, so three ranks read as one textured band and never
+   * as portraits — Pope's beach rank and Choiseul-Gouffier's camp inset both
+   * draw the fleet that way. The baseline may be a POLYLINE (the wall trace
+   * offset seaward, so the rearmost rank's sterns sit at the wall, Il.
+   * 14.30–32); `count` is ignored, the pitch is fitted to the line's length.
+   * The seed is unused: a stamped repeat is the point here, not a lie. The
+   * default style is untouched (the named inset and the legend still use it).
    */
   style?: 'light';
 }
 
-// Hull length as a fraction of the default when `style: "light"` — see
-// ShipRowOptions.style.
-const SHIP_LIGHT_SCALE = 0.6;
-// Hulls drawn per rank when `style: "light"` (down from the default 8) —
-// see ShipRowOptions.style.
-const SHIP_LIGHT_MAX_PER_RANK = 6;
+// The light mark, at 1x sheet scale. The hull is capped at a lowercase
+// letter of the smallest label (LABEL_STYLES.minor, 9.5px): the reference
+// sheets' rule is "half the x-height of the smallest label", and 4.5px is
+// where the mark stops competing with a numeral and starts reading as
+// texture (2026-09-03, design lane; iter1 crop at 3x).
+const SHIP_LIGHT_HULL_LEN = 4.5;
+const SHIP_LIGHT_PITCH = 9; // along the rank, ship to ship; a hut sits between each pair
+const SHIP_LIGHT_RANK_PITCH = 3.75; // between ranks
+// How far the mark rises above / dips below its rank line: the stern post
+// (aphlaston) inland, the keel belly seaward. Read by shipRowExtent.
+const SHIP_LIGHT_UP = 1.0;
+const SHIP_LIGHT_DOWN = 0.6;
+// The hut: an open gable, apex inland, the same stroke as the hull. Huts and
+// ships alternate along every rank, each man's hut by his own ship (Leaf on
+// Il. 15.409; κλισίαι καὶ νῆες throughout), so the camp is one texture of two
+// marks and not a fleet with a village behind it.
+const HUT_HALF_WIDTH = 1.0;
+const HUT_HEIGHT = 1.4;
+
+// Arc-length walk along a polyline: position and unit tangent at `s`.
+function polylineCursor(pts: PlatePoint[]): { length: number; at(s: number): [number, number, number, number] } {
+  const cum = [0];
+  for (let i = 0; i + 1 < pts.length; i++) cum.push(cum[i] + Math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]));
+  const length = cum[cum.length - 1];
+  return {
+    length,
+    at(s) {
+      const t = Math.max(0, Math.min(length, s));
+      let i = 0;
+      while (i + 2 < cum.length && cum[i + 1] < t) i++;
+      const segLen = cum[i + 1] - cum[i] || 1;
+      const f = (t - cum[i]) / segLen;
+      const ux = (pts[i + 1][0] - pts[i][0]) / segLen;
+      const uy = (pts[i + 1][1] - pts[i][1]) / segLen;
+      return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * f, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * f, ux, uy];
+    },
+  };
+}
+
+/**
+ * The rank lines a light ship row draws along: rank 0 is the baseline
+ * itself (the rearmost, first-hauled rank, at the wall), each further rank
+ * SHIP_LIGHT_RANK_PITCH to the left of travel — seaward, when the baseline
+ * is authored north to south as the camp's are. Exported so the live-sheet
+ * tests measure the geometry the drawing uses rather than a copy of it.
+ */
+export function shipRankLines(baseline: PlatePoint[], rows: number): [number, number][][] {
+  const out: [number, number][][] = [];
+  for (let r = 0; r < rows; r++) out.push(offsetPolyline(baseline, r * SHIP_LIGHT_RANK_PITCH));
+  return out;
+}
+
+function shipRowLight(baseline: PlatePoint[], rows: number): string {
+  const cur = polylineCursor(baseline);
+  if (cur.length < 1e-9 || rows < 1) return '';
+  // Pitch fitted to the line so the last slot is a whole one: three stations
+  // authored end to end then meet with the same gap they carry inside.
+  const n = Math.max(1, Math.round(cur.length / SHIP_LIGHT_PITCH));
+  const pitch = cur.length / n;
+  const L = SHIP_LIGHT_HULL_LEN / 2;
+  const parts: string[] = [];
+  for (let r = 0; r < rows; r++) {
+    // Alternate ranks staggered by half a pitch: προκρόσσας (Il. 14.35),
+    // drawn up in echelon, which is also what lets three ranks this close
+    // read as three.
+    const stagger = (r % 2) * pitch * 0.5;
+    for (let i = 0; i < n; i++) {
+      const s = pitch * (i + 0.5) + stagger;
+      if (s > cur.length + 1e-6) continue;
+      const [px, py, ux, uy] = cur.at(s);
+      const nx = -uy;
+      const ny = ux;
+      const off = r * SHIP_LIGHT_RANK_PITCH;
+      const bx = px + nx * off;
+      const by = py + ny * off;
+      const w = (u: number, v: number): string => `${round1(bx + ux * u + nx * v)} ${round1(by + uy * u + ny * v)}`;
+      // An open crescent seen broadside: the stern post a little higher than
+      // the prow, the keel bellying seaward. Tips inland, keel to the sea.
+      parts.push(`M ${w(-L, -SHIP_LIGHT_UP)} Q ${w(0, SHIP_LIGHT_DOWN * 3)} ${w(L, -SHIP_LIGHT_UP * 0.7)}`);
+      // The hut, half a pitch on; the last slot of a rank has none, so a
+      // station ends on a ship and the next begins with one.
+      if (i + 1 < n || stagger === 0) {
+        const [hx, hy, hux, huy] = cur.at(s + pitch * 0.5);
+        if (s + pitch * 0.5 <= cur.length + 1e-6) {
+          const hnx = -huy;
+          const hny = hux;
+          const cx = hx + hnx * off;
+          const cy = hy + hny * off;
+          const h = (u: number, v: number): string => `${round1(cx + hux * u + hnx * v)} ${round1(cy + huy * u + hny * v)}`;
+          parts.push(`M ${h(-HUT_HALF_WIDTH, 0)} L ${h(0, -HUT_HEIGHT)} L ${h(HUT_HALF_WIDTH, 0)}`);
+        }
+      }
+    }
+  }
+  return parts.join(' ');
+}
 
 // Small stylized beached-ship glyphs — a curved hull with a raised, kicked
 // prow, plus a mast — spaced along `baseline`, stacked in `rows` ranks
@@ -1411,7 +1501,9 @@ const SHIP_LIGHT_MAX_PER_RANK = 6;
 // randomness left in the glyph.
 const SHIP_RANK_GAP = 1.55; // in hull half-lengths
 const SHIP_RANK_DEPTH = 0.06; // per-rank size gain toward the viewer
-export function shipRow(baseline: [PlatePoint, PlatePoint], rows: number, count: number, opts: ShipRowOptions): string {
+export function shipRow(baseline: PlatePoint[], rows: number, count: number, opts: ShipRowOptions): string {
+  if (opts.style === 'light') return shipRowLight(baseline, rows);
+  if (baseline.length < 2) return '';
   const [[x1, y1], [x2, y2]] = baseline;
   const dx = x2 - x1;
   const dy = y2 - y1;
@@ -1431,18 +1523,8 @@ export function shipRow(baseline: [PlatePoint, PlatePoint], rows: number, count:
   // enlargement that enlarged nothing. It now binds only where it was meant to.
   const baseHalfLen = Math.min(slotWidth, 32) * 0.46;
   const rankSpacing = baseHalfLen * SHIP_RANK_GAP;
-  // `style: "light"` shrinks only the drawn hull (below), never slot
-  // positions or rankSpacing — see ShipRowOptions.style.
-  const isLight = opts.style === 'light';
-  const hullHalfLen = isLight ? baseHalfLen * SHIP_LIGHT_SCALE : baseHalfLen;
-  // Six per rank, not eight (shipcomp option 1): drawn as a THINNING of the
-  // same `count`-slot grid, not a smaller `count` — reducing `count` itself
-  // widens slotWidth, which widens baseHalfLen/rankSpacing above and pushes
-  // the seaward rank toward (and in one station, into) the sea. Skipping
-  // slots keeps every rank exactly where the default style puts it and
-  // reads as WIDER along-baseline spacing purely because fewer hulls sit on
-  // the same grid — which is the "texture, not objects" effect asked for.
-  const drawCount = isLight ? Math.min(count, SHIP_LIGHT_MAX_PER_RANK) : count;
+  const hullHalfLen = baseHalfLen;
+  const drawCount = count;
 
   // A hull is authored in local (u = along the ship, v = across it) space,
   // then mapped into world space via the same affine frame (dir, nrm) used
@@ -1506,7 +1588,17 @@ export function shipRow(baseline: [PlatePoint, PlatePoint], rows: number, count:
 // same (dir, nrm) frame the glyphs are laid out in. Kept next to shipRow so
 // the two cannot drift — every constant here is read from the block above.
 // `up` is the prow-lift-and-mast side, `down` the direction the ranks recede.
-export function shipRowExtent(baseline: [PlatePoint, PlatePoint], rows: number, count: number): [number, number][] {
+export function shipRowExtent(baseline: PlatePoint[], rows: number, count: number, style?: 'light'): [number, number][] {
+  if (style === 'light') {
+    // The band the crescents cover: stern posts above rank 0, keel bellies
+    // below the last rank, mitred along the polyline like the ranks themselves.
+    if (baseline.length < 2 || rows < 1) return [];
+    return [
+      ...offsetPolyline(baseline, -(SHIP_LIGHT_UP + 0.5)),
+      ...offsetPolyline(baseline, (rows - 1) * SHIP_LIGHT_RANK_PITCH + SHIP_LIGHT_DOWN + 0.5),
+    ];
+  }
+  if (baseline.length < 2) return [];
   const [[x1, y1], [x2, y2]] = baseline;
   const dx = x2 - x1;
   const dy = y2 - y1;
@@ -1695,13 +1787,10 @@ export function wallBandGlyph(trace: PlatePoint[], width: number): WallBandGlyph
  */
 const WALL_TICK_LENGTH = 4;
 
-export function wallGlyph(trace: PlatePoint[]): WallGlyphResult {
+export function wallGlyph(trace: PlatePoint[], tickLen: number = WALL_TICK_LENGTH, side: 1 | -1 = traceSide(trace)): WallGlyphResult {
   if (trace.length < 2) return { line: '', ticks: '' };
 
-  const side = traceSide(trace);
-
   const tickSpacing = 12;
-  const tickLen = WALL_TICK_LENGTH;
   const lineParts: string[] = [`M ${round1(trace[0][0])} ${round1(trace[0][1])}`];
   const tickParts: string[] = [];
   let carry = 0;
@@ -3159,8 +3248,28 @@ function derivedLegendEntry(layer: PlateLayer): LegendEntry | undefined {
             `fill="none" stroke="var(--flaxman-ink)" stroke-width="${STROKE_WEIGHT.restoredHatch}" stroke-opacity="0.6"/>`,
         };
       }
+      if (layer.style === 'ditch') {
+        return {
+          key: 'ditch',
+          rank: 5.2,
+          text: 'Ditch',
+          swatch: (x, y) =>
+            `<path d="M ${round1(x)} ${round1(y - DITCH_HALF_WIDTH)} h ${LEGEND_SWATCH_W} M ${round1(x)} ${round1(y + DITCH_HALF_WIDTH)} h ${LEGEND_SWATCH_W}" ` +
+            `fill="none" stroke="var(--flaxman-ink)" stroke-width="${DITCH_LINE_WIDTH}"/>`,
+        };
+      }
       return { key: 'wall', rank: 5, text: 'Fortification', swatch: (x, y) => legendLine(x, y, 'var(--flaxman-ink)', STROKE_WEIGHT.wall) };
     case 'shipRow':
+      if (layer.style === 'light') {
+        return {
+          key: 'shipRow-light',
+          rank: 6,
+          text: 'Ships and huts, beached',
+          swatch: (x, y) =>
+            `<path d="${shipRow([[x + 1, y + 1], [x + LEGEND_SWATCH_W - 1, y + 1]], 1, 1, { seed: 7, style: 'light' })}" ` +
+            `fill="none" stroke="var(--flaxman-ink)" stroke-width="${SHIP_LIGHT_STROKE_WIDTH}" stroke-linejoin="round"/>`,
+        };
+      }
       return { key: 'shipRow', rank: 6, text: 'Beached ships', swatch: (x, y) => `<path d="${shipRow([[x + 2, y + 2], [x + 20, y + 2]], 1, 2, { seed: 7 })}" fill="var(--flaxman-ink)" stroke="none"/>` };
     case 'tumulus':
       return { key: 'tumulus', rank: 7, text: 'Tumulus', swatch: (x, y) => `<path d="${tumulus([x + LEGEND_SWATCH_W / 2, y + 3], { radius: 6 })}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${STROKE_WEIGHT.tumulus}"/>` };
@@ -4225,8 +4334,21 @@ const STROKE_WEIGHT = {
 const MASONRY_EDGE_WIDTH = 1;
 /** The silhouette of a pictorial hill profile (`style: "profile"`). See the `relief` case. */
 const PROFILE_OUTLINE_WIDTH = 0.9;
-/** A `shipRow` hull's outline, `style: "light"` only (shipcomp option 1). At 1x sheet scale. */
-const SHIP_LIGHT_STROKE_WIDTH = 0.6;
+/** The light ship mark's stroke (design lane, 2026-09-03). At 1x sheet scale. */
+const SHIP_LIGHT_STROKE_WIDTH = 0.45;
+
+// The camp's earthworks (2026-09-03, design lane). The Achaean wall and
+// ditch sat 150 m apart as two default tick-walls at STROKE_WEIGHT.wall and
+// fused into the heaviest line on the sheet, above the coast. Three ink
+// weights step down across the camp block: numerals and leaders, then wall
+// and ditch, then ships and huts. `rampart` is the tick-wall at the second
+// weight with shorter ticks (the towers, Il. 7.437); `ditch` is a thin
+// double line and nothing else — a trench is two edges, not a face.
+const RAMPART_LINE_WIDTH = 0.8;
+const RAMPART_TICK_WIDTH = 0.45;
+const RAMPART_TICK_LENGTH = 2.5;
+const DITCH_LINE_WIDTH = 0.5;
+const DITCH_HALF_WIDTH = 0.7;
 
 // ── The named inset (`region`/`band` with `style: "inset"`, 2026-08-13) ────
 // The Landmark's third map tier — locator, main sheet, NAMED inset — and the
@@ -4674,6 +4796,8 @@ function lineworkReserveHalfWidth(layer: PlateLayer): number | undefined {
       // A restored wall is a BAND of its own declared width; a plain one is a
       // line with ticks standing off one side. Both measured from the glyph
       // routines that draw them, so the two cannot drift apart.
+      if (layer.style === 'ditch') return DITCH_HALF_WIDTH + DITCH_LINE_WIDTH;
+      if (layer.style === 'rampart') return RAMPART_LINE_WIDTH / 2 + RAMPART_TICK_LENGTH;
       return layer.style === 'restored' && layer.width !== undefined
         ? layer.width / 2 + STROKE_WEIGHT.restoredFace
         : STROKE_WEIGHT.wall / 2 + WALL_TICK_LENGTH;
@@ -5104,7 +5228,7 @@ function renderLayer(
       const rows = layer.rows ?? 1;
       const count = layer.count ?? 1;
       const light = layer.style === 'light';
-      const d = shipRow([px[0], px[1]], rows, count, { seed, style: light ? 'light' : undefined });
+      const d = shipRow(px, rows, count, { seed, style: light ? 'light' : undefined });
       // The BLOCK of ink the ranks actually cover, pushed in as geometry
       // (2026-08-13). Before this a ship row's bbox was the bbox of its two
       // BASELINE points — a hairline — so both the feature box and the label
@@ -5113,12 +5237,12 @@ function renderLayer(
       // "Hut of Agamemnon" each printed through the ships they were naming
       // beside. The corners come from shipRowExtent, which is computed in the
       // same frame shipRow() draws in, so this is the drawing's own box and not
-      // an estimate of it. shipRowExtent is unaffected by `style` — see its
-      // own comment — so this stays the drawing's reserved box for either.
-      for (const corner of shipRowExtent([px[0], px[1]], rows, count)) allPixelPoints.push(corner);
-      // `style: "light"` draws a thin ink OUTLINE, no fill (shipcomp option
-      // 1, 2026-09-02: "too big and too ugly and obtrusive"). The default
-      // stays the solid silhouette every other sheet/inset still draws.
+      // an estimate of it. For the light band (2026-09-03) it is the band's
+      // two mitred edges along the whole polyline.
+      for (const corner of shipRowExtent(px, rows, count, light ? 'light' : undefined)) allPixelPoints.push(corner);
+      // `style: "light"` is a thin ink stroke, no fill (2026-09-03, design
+      // lane; see ShipRowOptions). The default stays the solid silhouette
+      // every other sheet/inset still draws.
       markup = light
         ? `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-shiprow-light" d="${d}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${SHIP_LIGHT_STROKE_WIDTH}" stroke-linejoin="round"/>`
         : `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-shiprow" d="${d}" fill="var(--flaxman-ink)" stroke="none"/>`;
@@ -5150,6 +5274,26 @@ function renderLayer(
             ? `<path data-feature-id="${escapeXml(layer.id)}-hatch" class="plate-layer plate-layer-wall-restored-hatch" ` +
               `d="${hatch}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${STROKE_WEIGHT.restoredHatch}" ` +
               `stroke-opacity="0.6" stroke-linecap="round"/>`
+            : '');
+        break;
+      }
+      if (layer.style === 'ditch') {
+        const d = [offsetPolyline(px, -DITCH_HALF_WIDTH), offsetPolyline(px, DITCH_HALF_WIDTH)].map((e) => pathD(e, false)).join(' ');
+        markup =
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-ditch" d="${d}" fill="none" ` +
+          `stroke="var(--flaxman-ink)" stroke-width="${DITCH_LINE_WIDTH}" stroke-linejoin="round"/>`;
+        break;
+      }
+      if (layer.style === 'rampart') {
+        // Ticks stand on the LEFT of travel — the side the ship ranks are
+        // laid on when the trace is authored north to south like the
+        // baselines — so they sit inside the camp, the way the citadel's
+        // ticks sit inside its ring, and clear of the ditch outside.
+        const { line, ticks } = wallGlyph(px, RAMPART_TICK_LENGTH, 1);
+        markup =
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-rampart" d="${line}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${RAMPART_LINE_WIDTH}" stroke-linejoin="round"/>` +
+          (ticks
+            ? `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-rampart-ticks" d="${ticks}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${RAMPART_TICK_WIDTH}"/>`
             : '');
         break;
       }
@@ -5484,7 +5628,23 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // IS the drawing rather than a bounding rectangle around a thin line: a
     // block of beached ships. Handed to the label solver as furniture to keep
     // off, exactly like a pin marker.
-    if (layer.kind === 'shipRow') denseBoxes.push({ box: rendered.feature.bbox, layerId: layer.id });
+    if (layer.kind === 'shipRow' && layer.style === 'light' && layer.baseline) {
+      // The light band follows a curved polyline, so its bbox over-reserves
+      // the land inside the curve by several band-heights and the numeral
+      // badges fled onto the water (2026-09-03, design lane: badges 3 and 4
+      // at Achilles' end). Reserve the band itself: short boxes along its
+      // middle rank, one band-height wide.
+      const run = shipRankLines(projectPoints(plate, layer.baseline, viewport), layer.rows ?? 1);
+      const mid = run[Math.floor((run.length - 1) / 2)];
+      // areaOnly: a centred caption never prints over the fleet (ruling 7,
+      // 2026-09-02) but a numeral badge sits AT its pin, over the texture,
+      // the way Pope's letters sit on the things they name — reserving the
+      // band against badges only sent 6 and 8 out to sea on long leaders,
+      // the beach seaward of the band being narrower than a disc.
+      for (const box of lineworkExtent(mid, SHIP_LIGHT_RANK_PITCH * (layer.rows ?? 1) * 0.5 + 1)) {
+        denseBoxes.push({ box, layerId: layer.id, areaOnly: true });
+      }
+    } else if (layer.kind === 'shipRow') denseBoxes.push({ box: rendered.feature.bbox, layerId: layer.id });
     if (plate.kind === 'schematic' && layer.kind === 'tumulus') {
       denseBoxes.push({ box: rendered.feature.bbox, layerId: layer.id, areaOnly: true });
     }
@@ -5865,7 +6025,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       height,
       margin: LABEL_MARGIN,
       markerBoxes: [...pinAnchors.values()],
-      placedBoxes: denseBoxes.map((d) => d.box),
+      // An areaOnly reservation binds centred area names, not badges (the
+      // same filter the name pass applies; 2026-09-03, design lane).
+      placedBoxes: denseBoxes.filter((d) => !d.areaOnly).map((d) => d.box),
       avoidBoxes: zoneLetterBoxes,
     },
   );

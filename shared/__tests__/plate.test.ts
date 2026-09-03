@@ -7,6 +7,7 @@ import {
   renderPlate,
   computeCamera,
   hachure,
+  shipRankLines,
   shipRow,
   wallGlyph,
   tumulus,
@@ -1110,6 +1111,53 @@ describe('renderPlate: geographic trojan-plain geo-enrich labels (2026-09-02)', 
     expect(ownMarker, 'tomb-of-ajax-in-tepe must not draw its own marker over Rhoiteion\'s').toBeUndefined();
     const rhoiteionMarker = result.features.find((f) => f.id === 'rhoiteion' && f.type === 'place');
     expect(rhoiteionMarker, 'rhoiteion must keep its own marker').toBeDefined();
+  });
+});
+
+describe('renderLayer: the camp earthworks — rampart and ditch wall styles (2026-09-03, design lane)', () => {
+  const trace: PlatePoint[] = [[39.95, 26.18], [39.96, 26.19], [39.97, 26.19]];
+  function render(style?: string) {
+    const plate = parsePlate({
+      ...testPlate,
+      layers: [{ id: 'w', kind: 'wall', trace, ...(style ? { style } : {}) }],
+    });
+    return renderPlate(plate, [], { idPrefix: 'earth' }).svg;
+  }
+
+  it('a rampart is the tick-wall at the second ink weight: a 0.8 line and 0.45 ticks on the left of travel, lighter than STROKE_WEIGHT.wall', () => {
+    const svg = render('rampart');
+    // Ticks on the left of travel regardless of the trace's winding: the
+    // same trace reversed puts them on the other side of the sheet.
+    const back = renderPlate(parsePlate({ ...testPlate, layers: [{ id: 'w', kind: 'wall', trace: [...trace].reverse(), style: 'rampart' }] }), [], { idPrefix: 'earth' }).svg;
+    const tick = (svgText: string) => svgText.match(/plate-layer-rampart-ticks" d="M ([-\d.]+) ([-\d.]+) L ([-\d.]+) ([-\d.]+)/)!;
+    const a = tick(svg);
+    const b = tick(back);
+    const sideA = Math.sign((Number(a[3]) - Number(a[1])) * 1 + (Number(a[4]) - Number(a[2])) * 0); // x-component of the first tick
+    const sideB = Math.sign((Number(b[3]) - Number(b[1])) * 1 + (Number(b[4]) - Number(b[2])) * 0);
+    expect(sideA).not.toBe(sideB);
+    expect(svg).toMatch(/class="plate-layer plate-layer-rampart" d="M [^"]+" fill="none" stroke="var\(--flaxman-ink\)" stroke-width="0.8"/);
+    expect(svg).toMatch(/class="plate-layer plate-layer-rampart-ticks" d="M [^"]+" fill="none" stroke="var\(--flaxman-ink\)" stroke-width="0.45"/);
+    expect(svg).not.toMatch(/plate-layer-wall"/);
+  });
+
+  it('a ditch is two hairlines and nothing else: two open subpaths at 0.5, no ticks', () => {
+    const svg = render('ditch');
+    const m = svg.match(/class="plate-layer plate-layer-ditch" d="([^"]+)" fill="none" stroke="var\(--flaxman-ink\)" stroke-width="0.5"/);
+    expect(m).toBeTruthy();
+    expect((m![1].match(/M/g) ?? []).length).toBe(2);
+    expect(svg).not.toMatch(/-ticks"/);
+  });
+
+  it('the default wall is untouched: the same markup as before, at STROKE_WEIGHT.wall with 0.75 ticks', () => {
+    const svg = render();
+    expect(svg).toMatch(/class="plate-layer plate-layer-wall" d="M [^"]+" fill="none" stroke="var\(--flaxman-ink\)" stroke-width="1.15"/);
+    expect(svg).toMatch(/class="plate-layer plate-layer-wall-ticks" d="M [^"]+" fill="none" stroke="var\(--flaxman-ink\)" stroke-width="0.75"/);
+  });
+
+  it('a ditch earns its own legend row; a rampart shares the fortification row', () => {
+    expect(render('ditch')).toContain('>Ditch<');
+    expect(render('rampart')).toContain('>Fortification<');
+    expect(render('rampart')).not.toContain('>Ditch<');
   });
 });
 
@@ -4298,25 +4346,14 @@ describe('renderPlate: camp wall, ditch and ship ranks sit on the beach (stage 5
   const layerById = new Map(plate.layers.map((l) => [l.id, l]));
 
   const SHIP_ROW_IDS = ['ships-achilles-end', 'ships-centre', 'ships-ajax-end'] as const;
-  const SHIP_RANK_GAP = 1.55; // must track shipRow()'s own constant, shared/lib/plate.ts
 
+  // The rank lines the drawing itself walks (2026-09-03, design lane: the
+  // light style is a fixed-pitch band along a polyline baseline, so the test
+  // reads shipRankLines rather than re-deriving a two-point rank from
+  // `count`, which the light style no longer has).
   function rankLine(layer: PlateLayer): [number, number][][] {
-    const [a, b] = (layer.baseline ?? []).map((p) => project(p, viewport)) as [number, number][];
-    const [nx, ny] = segmentNormal(a, b);
-    const length = Math.hypot(b[0] - a[0], b[1] - a[1]);
-    const slotWidth = length / (layer.count ?? 1);
-    const baseHalfLen = Math.min(slotWidth, 32) * 0.46;
-    const rankSpacing = baseHalfLen * SHIP_RANK_GAP;
-    const rows = layer.rows ?? 1;
-    const lines: [number, number][][] = [];
-    for (let r = 0; r < rows; r++) {
-      const off = r * rankSpacing;
-      lines.push([
-        [a[0] + nx * off, a[1] + ny * off],
-        [b[0] + nx * off, b[1] + ny * off],
-      ]);
-    }
-    return lines;
+    const base = (layer.baseline ?? []).map((p) => project(p, viewport)) as [number, number][];
+    return shipRankLines(base, layer.rows ?? 1);
   }
 
   it('every ship-rank vertex (all three ranks, all three stations) lies outside sea-modern', () => {
@@ -4333,16 +4370,13 @@ describe('renderPlate: camp wall, ditch and ship ranks sit on the beach (stage 5
     }
   });
 
-  it('the seaward-most rank (last row) comes within 40m of the coast-modern shoreline', () => {
-    const coastRings = (layerById.get('coast-modern')!.rings ?? []) as PlatePoint[][];
-    const coastPx = coastRings.map((ring) => ring.map((p) => project(p, viewport)) as [number, number][]);
+  it('the rearmost rank (row 0) stands within 80m of the wall: τεῖχος ἐπὶ πρύμνῃσιν, Il. 14.32 (2026-09-03, design lane; replaces the shore-hugging claim, which a wall-anchored band on a 300–500m beach cannot also meet)', () => {
     const pxPerMetre = viewport.scale / 111320;
+    const wallTrace = (layerById.get('achaean-wall')!.trace ?? []).map((p) => project(p, viewport)) as [number, number][];
     for (const lid of SHIP_ROW_IDS) {
-      const layer = layerById.get(lid)!;
-      const ranks = rankLine(layer);
-      const lastRank = ranks[ranks.length - 1];
-      const dists = lastRank.map((pt) => Math.min(...coastPx.map((ring) => distToPolyline(pt, ring))) / pxPerMetre);
-      expect(Math.min(...dists), `${lid}'s seaward rank never comes within 40m of the shore`).toBeLessThanOrEqual(40);
+      const row0 = rankLine(layerById.get(lid)!)[0];
+      const worst = Math.max(...row0.map((pt) => distToPolyline(pt, wallTrace) / pxPerMetre));
+      expect(worst, `${lid}'s rearmost rank drifts from the wall`).toBeLessThanOrEqual(80);
     }
   });
 
@@ -4351,10 +4385,9 @@ describe('renderPlate: camp wall, ditch and ship ranks sit on the beach (stage 5
     // The three baselines, bridged end to end, stand in for "the beach line"
     // at rank-3 (row 0) depth — see shipRow()'s own comment: row 0, the
     // baseline itself, is the landward-most, first-hauled rank.
-    const row0Line = SHIP_ROW_IDS.flatMap((lid) => {
-      const [a, b] = (layerById.get(lid)!.baseline ?? []).map((p) => project(p, viewport)) as [number, number][];
-      return [a, b];
-    });
+    const row0Line = SHIP_ROW_IDS.flatMap(
+      (lid) => (layerById.get(lid)!.baseline ?? []).map((p) => project(p, viewport)) as [number, number][],
+    );
 
     function minLandwardOffset(tracePoints: [number, number][], ref: [number, number][]): number {
       let worst = Infinity;
@@ -4427,12 +4460,32 @@ describe('renderPlate: camp wall, ditch and ship ranks sit on the beach (stage 5
     );
   });
 
-  it('thins the three main shipRow layers to 8 glyphs per rank (three ranks kept, Il. 14.30-36)', () => {
+  it('the three stations are one unbroken fleet: light style, three ranks, polyline baselines meeting end to end (Il. 14.30-36; 2026-09-03, design lane)', () => {
     for (const lid of SHIP_ROW_IDS) {
       const layer = layerById.get(lid)!;
-      expect(layer.count, `${lid} should carry 8 ships/rank`).toBe(8);
+      expect(layer.style, `${lid} is the light band`).toBe('light');
       expect(layer.rows, `${lid} keeps three ranks`).toBe(3);
+      expect(layer.count, `${lid}: the light style has no count`).toBeUndefined();
     }
+    for (let i = 0; i + 1 < SHIP_ROW_IDS.length; i++) {
+      const a = layerById.get(SHIP_ROW_IDS[i])!.baseline!;
+      const b = layerById.get(SHIP_ROW_IDS[i + 1])!.baseline!;
+      expect(a[a.length - 1], `${SHIP_ROW_IDS[i]} must abut ${SHIP_ROW_IDS[i + 1]}`).toEqual(b[0]);
+    }
+  });
+
+  it('every station draws the same mark at the same pitch (identical marks, not portraits)', () => {
+    const svg = renderPlate(plate, [], { idPrefix: 'camp' }).svg;
+    const pitches = SHIP_ROW_IDS.map((lid) => {
+      const m = svg.match(new RegExp(`<path data-feature-id="${lid}" class="plate-layer plate-layer-shiprow-light" d="([^"]+)"`));
+      expect(m, `${lid} renders as the light band`).toBeTruthy();
+      const marks = m![1].split(' Q ').length - 1; // ships carry the keel curve; huts are two straight strokes
+      const base = (layerById.get(lid)!.baseline ?? []).map((p) => project(p, viewport)) as [number, number][];
+      let len = 0;
+      for (let i = 0; i + 1 < base.length; i++) len += Math.hypot(base[i + 1][0] - base[i][0], base[i + 1][1] - base[i][1]);
+      return len / (marks / 3); // px per mark per rank
+    });
+    for (const p of pitches) expect(Math.abs(p - pitches[0]) / pitches[0]).toBeLessThan(0.08);
   });
 });
 

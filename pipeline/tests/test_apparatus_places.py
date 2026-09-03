@@ -788,12 +788,20 @@ def test_camp_label_tiers_declutter_the_beach_crop():
         layer = layers_by_id[layer_id]
         assert "label" not in layer, f"{layer_id} must not letter a sector caption"
 
-    # The three main shipRow layers keep three ranks (Il. 14.30-36) but thin
-    # to 8 glyphs/rank (John: "I don't think we need so many ships in there").
-    for ship_layer_id in ("ships-achilles-end", "ships-centre", "ships-ajax-end"):
+    # The three main shipRow layers keep three ranks (Il. 14.30-36). Since
+    # 2026-09-03 (design lane) they are the light style: a fixed-pitch band
+    # along a polyline baseline derived from the wall trace, so `count` is
+    # gone and the three baselines meet end to end (one unbroken fleet,
+    # 14.35-36) — Achilles' end north, the middle, Ajax's end south.
+    stations = ("ships-achilles-end", "ships-centre", "ships-ajax-end")
+    for ship_layer_id in stations:
         layer = layers_by_id[ship_layer_id]
         assert layer["rows"] == 3
-        assert layer["count"] == 8
+        assert layer["style"] == "light"
+        assert "count" not in layer, f"{ship_layer_id}: the light style has no count"
+        assert len(layer["baseline"]) >= 2
+    for a, b in zip(stations, stations[1:]):
+        assert layers_by_id[a]["baseline"][-1] == layers_by_id[b]["baseline"][0], f"{a} and {b} must abut"
 
 
 def test_validate_plate_accepts_tumulus_layer_kind():

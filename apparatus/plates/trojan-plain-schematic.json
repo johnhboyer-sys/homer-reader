@@ -8938,6 +8938,7 @@
     {
       "id": "achaean-ditch",
       "kind": "wall",
+      "style": "ditch",
       "placeId": "achaean-wall-and-ditch",
       "trace": [
         [39.99511, 26.18826],
@@ -8988,6 +8989,7 @@
     {
       "id": "achaean-wall",
       "kind": "wall",
+      "style": "rampart",
       "placeId": "achaean-wall-and-ditch",
       "trace": [
         [39.995156, 26.188033],
@@ -9120,10 +9122,22 @@
       "style": "light",
       "placeId": "achaean-camp",
       "rows": 3,
-      "count": 8,
       "baseline": [
-        [39.925837, 26.161371],
-        [39.915137, 26.164641]
+        [39.938575, 26.167809],
+        [39.937989, 26.167616],
+        [39.934192, 26.165977],
+        [39.930973, 26.164124],
+        [39.927819, 26.162912],
+        [39.924783, 26.162381],
+        [39.92187, 26.162538],
+        [39.919132, 26.163371],
+        [39.916822, 26.16419],
+        [39.914892, 26.165003],
+        [39.913335, 26.165822],
+        [39.912185, 26.166624],
+        [39.911344, 26.167212],
+        [39.910782, 26.167605],
+        [39.910502, 26.167801]
       ],
       "note": "The ships and huts at the other extremity — Ajax's end, where the returning chariots come in and where the wall stands lowest. Three ranks; the rearmost rank's sterns carry the wall.",
       "sources": [
@@ -9146,10 +9160,15 @@
       "style": "light",
       "placeId": "achaean-camp",
       "rows": 3,
-      "count": 8,
       "baseline": [
-        [39.961858, 26.173134],
-        [39.938878, 26.168754]
+        [39.967474, 26.175443],
+        [39.966505, 26.175035],
+        [39.962756, 26.173788],
+        [39.958339, 26.172593],
+        [39.953252, 26.171447],
+        [39.947513, 26.170353],
+        [39.942431, 26.169076],
+        [39.938575, 26.167809]
       ],
       "note": "The middle of the line, at Odysseus's ships, from which a shout carries both ways, ἐν μεσσάτῳ ... γεγωνέμεν ἀμφοτέρωσε (8.222–26 = 11.5–9). Three ranks as elsewhere.",
       "sources": [
@@ -9169,10 +9188,20 @@
       "style": "light",
       "placeId": "achaean-camp",
       "rows": 3,
-      "count": 8,
       "baseline": [
-        [39.990875, 26.184056],
-        [39.974095, 26.178286]
+        [39.995441, 26.187382],
+        [39.995165, 26.187175],
+        [39.994612, 26.186763],
+        [39.993784, 26.186145],
+        [39.992644, 26.185297],
+        [39.990713, 26.184289],
+        [39.988036, 26.183144],
+        [39.984598, 26.18185],
+        [39.980399, 26.180405],
+        [39.976498, 26.179005],
+        [39.972886, 26.177645],
+        [39.969563, 26.176324],
+        [39.967474, 26.175443]
       ],
       "note": "The ships and huts at the Sigeion extremity of the line — Achilles' end. Ranks drawn three deep, the rearmost hauled furthest inland with its sterns at the wall (14.30–36); huts and ships alternate, each man's hut by his own ship (Leaf 1902 on 15.409). Anonymous prow glyphs: the poem names positions, never counts them along the beach.",
       "sources": [
