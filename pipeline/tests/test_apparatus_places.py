@@ -968,6 +968,29 @@ def test_validate_plate_rejects_bad_label_tier_and_size_on_a_layer():
     assert any("labelSize must be 'small' or 'base'" in p for p in problems)
 
 
+# 2026-09-03 review, finding 5: a layer had no certainty tier of its own,
+# right for drawn geometry and wrong for a layer that IS a claim (the
+# citadel's poem-drawn buildings have no gazetteer place of their own to
+# carry a tier through). Mirrors CERTAINTY_TIERS, the same set validate_places
+# already enforces on a place.
+def test_validate_plate_accepts_certainty_on_a_layer():
+    for tier in sorted(apparatus_places.CERTAINTY_TIERS):
+        plate = _plate(layers=[
+            {"id": "r", "kind": "region", "certainty": tier,
+             "polygon": [[39.90, 26.15], [39.91, 26.16], [39.90, 26.17]]}
+        ])
+        assert apparatus_places.validate_plate(plate, {}) == [], tier
+
+
+def test_validate_plate_rejects_unknown_certainty_on_a_layer():
+    plate = _plate(layers=[
+        {"id": "r", "kind": "region", "certainty": "confirmed",
+         "polygon": [[39.90, 26.15], [39.91, 26.16], [39.90, 26.17]]}
+    ])
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("certainty must be one of" in p for p in problems)
+
+
 # ── validate_plate: adversarial-review findings ─────────────────────────────
 
 

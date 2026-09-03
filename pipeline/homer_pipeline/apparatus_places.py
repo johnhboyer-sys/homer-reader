@@ -672,6 +672,20 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                 f"{sorted(REGION_FILL_ENUM)}, got {fill!r}"
             )
 
+        # A layer's own certainty tier (2026-09-03, review finding 5), mirroring
+        # PlatePlace's own certainty check above — for a layer that IS itself a
+        # claim (the citadel's poem-drawn buildings, which have no gazetteer
+        # place of their own to carry a tier through). Unlike the place check,
+        # a tier here does not require a `tradition`: the layer's `note` and
+        # `sources` already carry the poem citation that puts it at
+        # `speculative`.
+        certainty = layer.get("certainty")
+        if certainty is not None and certainty not in CERTAINTY_TIERS:
+            problems.append(
+                f"{label}: layer {layer_label} certainty must be one of "
+                f"{sorted(CERTAINTY_TIERS)}, got {certainty!r}"
+            )
+
         # A relief band's contour level in metres (2026-07-29). Its presence
         # is what puts the layer in the hypsometric register in
         # shared/lib/plate.ts -- filled from the sheet's elevation ramp and

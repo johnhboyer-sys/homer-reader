@@ -69,6 +69,13 @@ export type { Viewport } from './geo';
 
 export type Certainty = 'certain' | 'traditional' | 'speculative' | 'mythical';
 
+// Mirrors apparatus_places.py's CERTAINTY_TIERS. Used to validate
+// PlateLayer.certainty (2026-09-03, review finding 5) — PlatePlace.certainty
+// is read straight off apparatus/places.json, already validated there by the
+// Python gazetteer check, so this module has never needed its own copy of
+// the set until a layer, not just a place, could carry a tier.
+const CERTAINTY_TIERS: readonly Certainty[] = ['certain', 'traditional', 'speculative', 'mythical'];
+
 export type PlateKind = 'geographic' | 'schematic';
 
 export type LayerKind =
@@ -245,6 +252,16 @@ export interface PlateLayer {
   legend?: string;
   note?: string;
   sources?: PlateSource[];
+  /**
+   * A layer's own certainty tier (2026-09-03, review finding 5), mirroring
+   * `PlatePlace.certainty`. Most layers are drawn geometry with no claim of
+   * their own to tier; this exists for the ones that ARE a claim — the
+   * citadel's poem-drawn buildings and streets carry no gazetteer place of
+   * their own to tier them through, and are `speculative`: placed by the
+   * poem's stated relations (beside, at the doors of, down to), not at a
+   * measured position.
+   */
+  certainty?: Certainty;
   default?: 'on' | 'off';
   style?: string;
   width?: number;
@@ -760,6 +777,9 @@ function parseLayer(
   if (l.labelSize !== undefined && l.labelSize !== 'small' && l.labelSize !== 'base') {
     fail(`layer "${l.id}" has a malformed "labelSize" (must be "small" or "base")`);
   }
+  if (l.certainty !== undefined && !CERTAINTY_TIERS.includes(l.certainty as Certainty)) {
+    fail(`layer "${l.id}" has an unknown certainty "${String(l.certainty)}" (must be one of ${CERTAINTY_TIERS.join(', ')})`);
+  }
 
   const geometryArray = (key: string): PlatePoint[] | undefined => {
     if (l[key] === undefined) return undefined;
@@ -794,6 +814,7 @@ function parseLayer(
     legend: typeof l.legend === 'string' && l.legend.trim() ? l.legend : undefined,
     note: typeof l.note === 'string' ? l.note : undefined,
     sources: parseSources(l.sources, l.id),
+    certainty: CERTAINTY_TIERS.includes(l.certainty as Certainty) ? (l.certainty as Certainty) : undefined,
     default: l.default === 'on' || l.default === 'off' ? l.default : undefined,
     style: typeof l.style === 'string' ? l.style : undefined,
     width: isFiniteNumber(l.width) ? l.width : undefined,
@@ -2926,7 +2947,13 @@ function placeKeyBadges(
         if (pointSegmentDistance(bcx, bcy, other) < input.r + BADGE_CLEARANCE) violations++;
         if (leader && segmentsCross(leader, other)) violations++;
       }
-      const offView = offViewBoxArea(box, options.width, options.height, options.margin);
+      // Finding 6 (2026-09-03 review): a badge's own radius is the padding it
+      // needs from the frame, not a flat few px — a two-digit numeral's disc
+      // is wider than INSET_BADGE_MARGIN, so the flat constant let one sit
+      // tight to the panel edge (badge 29, Batieia). `options.margin` still
+      // sets the floor (LABEL_MARGIN on the map face, already bigger than any
+      // radius), so the face pass is unchanged.
+      const offView = offViewBoxArea(box, options.width, options.height, Math.max(options.margin, input.r));
       const collisions = violations + (offView > 0 ? 1 : 0);
       // A candidate that already collides more than the incumbent cannot win
       // whatever its penalty is (the comparison is collisions-major), so the
@@ -6632,7 +6659,14 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // Marks drawn inside a window: their own dots, and the glyph boxes of the
   // layers redrawn in there. Both are obstacles for that window's numerals,
   // and neither is one for the face's.
-  const insetContentMarkup: string[] = [];
+  //
+  // Finding 7 (2026-09-03 review): kept per-window rather than one flat
+  // array, so each window's copies can be wrapped in that window's own
+  // clip-path (see insetClipId below) — an `insetOf` layer's geometry is the
+  // SAME lat/lon points reprojected through the window's own viewport, which
+  // is fitted to that window's bbox but not clamped to it, so geometry that
+  // runs past the bbox draws past the panel's frame with nothing to stop it.
+  const insetContentByWindow = new Map<string, string[]>();
   const insetPinMarkup: string[] = [];
   const insetGlyphBoxes = new Map<string, Box[]>();
   const insetPinAnchors = new Map<string, { win: InsetWindow; box: Box }>();
@@ -6763,7 +6797,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         // window's contents are always drawn ON its own panel (the first
         // render of this put the citadel's wall and wagon-road ring under a
         // 0.97-opaque rect and they came out as ghosts).
-        insetContentMarkup.push(copy.markup);
+        const bucket = insetContentByWindow.get(win.id);
+        if (bucket) bucket.push(copy.markup);
+        else insetContentByWindow.set(win.id, [copy.markup]);
         renderedInWindow.set(layer.id, { win, rendered: copy });
         // A real drawn feature on this sheet, at its own id — so a consumer
         // (and E4) can find the mark a window's numeral actually points at.
@@ -7632,6 +7668,26 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // in an SVG element id — sanitize it the same way shield.ts does (see
   // safeIdFragment), rather than interpolating it raw.
   const clipId = `${safeIdFragment(opts.idPrefix)}-clip`;
+  // Finding 7 (2026-09-03 review): an inset window's viewport is FITTED to
+  // its `insetBBox`, not clamped to it — a layer whose lat/lon geometry runs
+  // past that bbox (a wall trace, a route) draws past the panel's own frame,
+  // with nothing upstream to stop it. Same id-safety posture as `clipId`
+  // above: one clip-path per window, its rect the window's own drawing
+  // rectangle, applied to that window's projected copies only.
+  const insetClipId = (winId: string) => `${safeIdFragment(opts.idPrefix)}-inset-clip-${safeIdFragment(winId)}`;
+  const insetClipDefs = [...windows.values()]
+    .map((win) => {
+      const [x, y, w, h] = win.rect;
+      return `<clipPath id="${insetClipId(win.id)}"><rect x="${round1(x)}" y="${round1(y)}" width="${round1(w)}" height="${round1(h)}"/></clipPath>`;
+    })
+    .join('');
+  const insetContentMarkup = [...windows.values()]
+    .map((win) => {
+      const parts = insetContentByWindow.get(win.id);
+      if (!parts || !parts.length) return '';
+      return `<g clip-path="url(#${insetClipId(win.id)})">${parts.join('')}</g>`;
+    })
+    .join('');
   const ariaLabel = escapeXml(plate.title);
   const featureKeyBlock = featureKeyMarkup(
     keyedGroups,
@@ -7653,6 +7709,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
           `<feGaussianBlur stdDeviation="${SOFT_BLUR[k]}"/></filter>`,
       )
       .join('') +
+    insetClipDefs +
     `${labels.defs}</defs>` +
     `<g clip-path="url(#${clipId})">` +
     // The pannable content only — legend and (below, outside the clip
@@ -7672,7 +7729,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // sheet, never panned or cropped by the camera, exactly like the legend
     // below. See marginInsetMarkup above.
     marginInsetMarkup.join('') +
-    insetContentMarkup.join('') +
+    insetContentMarkup +
     insetPinMarkup.join('') +
     insetBadgeParts.join('') +
     furnitureZoneLetters

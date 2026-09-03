@@ -2285,6 +2285,29 @@ describe('renderPlate: frame, scale and legend', () => {
     expect(() => parsePlate({ ...testPlate, layers: [{ ...layer, labelSize: 'tiny' as 'small' }] })).toThrow(/labelSize/);
   });
 
+  // 2026-09-03 review, finding 5: a layer had no honesty tier of its own —
+  // fine for drawn geometry, wrong for a layer that IS a claim (the
+  // citadel's poem-drawn buildings, which have no gazetteer place of their
+  // own to carry PlatePlace.certainty through). Mirrors that same enum.
+  it('parsePlate accepts a layer certainty tier and rejects an unknown one', () => {
+    const layer = {
+      id: 'r',
+      kind: 'region' as const,
+      polygon: [
+        [39.9, 26.15],
+        [39.91, 26.16],
+        [39.9, 26.17],
+      ] as [number, number][],
+    };
+    for (const tier of ['certain', 'traditional', 'speculative', 'mythical'] as const) {
+      const parsed = parsePlate({ ...testPlate, layers: [{ ...layer, certainty: tier }] });
+      expect(parsed.layers[0].certainty).toBe(tier);
+    }
+    expect(() => parsePlate({ ...testPlate, layers: [{ ...layer, certainty: 'confirmed' as 'certain' }] })).toThrow(
+      /certainty/,
+    );
+  });
+
   it('moves the legend out of a corner that already holds labels/pins, picking whichever corner overlaps least (occlusion finding, 2026-07-30: on trojan-plain-schematic the hardcoded bottom-right corner sat on top of four Achilles\'-end labels)', () => {
     const size: [number, number] = [400, 300];
     const crowded: Plate = { ...schematicPlate, size, layers: [] };
@@ -3841,6 +3864,94 @@ describe('renderPlate: inset layer frame in sheet pixels', () => {
         ],
       }),
     ).toThrow(/frame/);
+  });
+});
+
+// 2026-09-03 review, finding 7: an insetOf layer is the SAME lat/lon points
+// reprojected through the window's own viewport, which is fitted to the
+// window's insetBBox but never clamped to it — geometry running past that
+// bbox used to draw straight past the panel's own frame with nothing
+// upstream to stop it (the live citadel sheet happens to be clean, which is
+// why this went unnoticed). Fixed with one <clipPath> per window, applied to
+// that window's projected copies.
+describe('renderPlate: an insetOf layer overrunning its window is clipped to the panel (finding 7)', () => {
+  it('emits a clip-path for the window and wraps the overrunning copy in a group that references it', () => {
+    const plate = parsePlate({
+      id: 'inset-clip-test',
+      title: 'Inset clip test',
+      kind: 'geographic',
+      status: 'draft',
+      bbox: BBOX,
+      size: [400, 300],
+      layers: [
+        {
+          id: 'panel',
+          kind: 'region',
+          style: 'inset',
+          frame: [20, 20, 120, 120],
+          insetBBox: [39.95, 26.2, 39.97, 26.22],
+          polygon: [
+            [0, 0],
+            [1, 0],
+            [1, 1],
+            [0, 1],
+          ],
+        },
+        {
+          id: 'overrun',
+          kind: 'wall',
+          insetOf: 'panel',
+          // Runs from well outside the window's bbox to well outside it on
+          // the other side — guaranteed to draw past the panel frame if
+          // nothing clips it.
+          trace: [
+            [39.87, 26.13],
+            [40.0, 26.35],
+          ],
+        },
+      ],
+    });
+    const { svg } = renderPlate(plate, []);
+    const clipMatch = svg.match(/<clipPath id="([^"]*inset-clip[^"]*)"><rect [^/]*\/><\/clipPath>/);
+    expect(clipMatch, 'a per-window clip-path must be emitted').toBeTruthy();
+    const clipId = clipMatch![1];
+    const wrapped = new RegExp(`<g clip-path="url\\(#${clipId}\\)">[\\s\\S]*?data-feature-id="overrun--inset"`);
+    expect(svg, 'the overrunning copy must be drawn inside a group referencing that clip-path').toMatch(wrapped);
+  });
+});
+
+// 2026-09-03 review, finding 6: INSET_BADGE_MARGIN (3px) is a flat constant,
+// smaller than most numeral discs' own radius (6px minimum, more for a
+// two-digit number) — so a badge could sit as close as 3px from its panel's
+// drawing rectangle, less than one radius, and badge 29 (Batieia) did. The
+// fix makes the margin the badge's OWN radius, so its disc keeps a full
+// radius of air inside the panel on every side.
+describe('inset numeral discs keep a full radius of padding inside their panel (finding 6)', () => {
+  it('on the live schematic sheet, every inset badge disc sits at least its own radius inside its panel', () => {
+    const plate = parsePlate(JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')));
+    const places = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[];
+    const { svg } = renderPlate(plate, places);
+    const clipRects = [...svg.matchAll(/<clipPath id="([^"]*inset-clip[^"]*)"><rect x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"\/><\/clipPath>/g)].map(
+      ([, id, x, y, w, h]) => ({ id, x: Number(x), y: Number(y), w: Number(w), h: Number(h) }),
+    );
+    expect(clipRects.length).toBeGreaterThan(0);
+    const discs = [...svg.matchAll(/<g class="plate-key-badge"[^>]*data-key-n="(\d+)"[^>]*>[\s\S]*?<circle cx="([-\d.]+)" cy="([-\d.]+)" r="([-\d.]+)"/g)].map(
+      ([, n, cx, cy, r]) => ({ n: Number(n), cx: Number(cx), cy: Number(cy), r: Number(r) }),
+    );
+    expect(discs.length).toBeGreaterThan(0);
+    // round1 rounds emitted coordinates to one decimal — allow that much slack.
+    const SLACK = 0.15;
+    let checked = 0;
+    for (const d of discs) {
+      const panel = clipRects.find((c) => d.cx >= c.x - 1 && d.cx <= c.x + c.w + 1 && d.cy >= c.y - 1 && d.cy <= c.y + c.h + 1);
+      if (!panel) continue; // a map-face badge, not one seated in a window
+      checked++;
+      expect(d.cx - d.r, `badge ${d.n} left edge`).toBeGreaterThanOrEqual(panel.x + d.r - SLACK);
+      expect(d.cx + d.r, `badge ${d.n} right edge`).toBeLessThanOrEqual(panel.x + panel.w - d.r + SLACK);
+      expect(d.cy - d.r, `badge ${d.n} top edge`).toBeGreaterThanOrEqual(panel.y + d.r - SLACK);
+      expect(d.cy + d.r, `badge ${d.n} bottom edge`).toBeLessThanOrEqual(panel.y + panel.h - d.r + SLACK);
+    }
+    expect(checked, 'at least one inset badge must have been checked').toBeGreaterThan(0);
   });
 });
 
@@ -5864,6 +5975,77 @@ describe('the citadel panel draws the poem’s city as a built fabric (ruling 13
         expect(inside(v, ringOuter), `${l.id} vertex ${v} is outside the outer terrace front`).toBe(true);
         for (const s of survey) {
           expect(inside(v, s), `${l.id} vertex ${v} is inside surveyed masonry`).toBe(false);
+        }
+      }
+    }
+  });
+
+  it('the poem-drawn layers carry their own certainty tier (2026-09-03 review, finding 5)', () => {
+    // These layers have no gazetteer place of their own to carry
+    // PlatePlace.certainty through — they ARE the claim, placed by the
+    // poem's stated relations rather than a measured position, which is
+    // exactly what `speculative` means.
+    const poemLayerIds = [
+      'citadel-poem-house-of-priam',
+      'citadel-poem-agora',
+      'citadel-poem-house-of-hector',
+      'citadel-poem-house-of-paris',
+      'citadel-poem-temple-of-athena',
+      'citadel-poem-shrine-of-apollo',
+      'citadel-weak-wall',
+      'citadel-poem-way-to-south-gate',
+      'citadel-poem-way-to-scaean-gate',
+    ];
+    for (const id of poemLayerIds) {
+      const layer = plate.layers.find((l) => l.id === id);
+      expect(layer, `layer ${id} must exist`).toBeTruthy();
+      expect(layer!.certainty, `layer ${id} certainty`).toBe('speculative');
+    }
+  });
+
+  it('no fabric house intersects surveyed masonry — full polygon test, not vertices only (2026-09-03 review, findings 8-9)', () => {
+    // The vertex-in-polygon test above (`inside`) only catches an overlap
+    // where one polygon's own CORNER lands inside the other. Two
+    // similarly-sized rectangles that cross near a shared edge, with neither
+    // one's corners inside the other, pass that test clean and still
+    // overlap — which is exactly the shape fabric ring house 9 made against
+    // surveyed House VI A, and ring house 12 against Gate VI T (both counted
+    // as drawn on the sheet; this file's `rings` array is 0-indexed, so
+    // index 8 and 11). `survey` above also only covers `fill:
+    // 'masonry-ground'` layers, and VI A and the gates are drawn `fill:
+    // 'none'` (an outline, no wash), so they never entered that check at
+    // all. This test uses real segment-intersection, against every surveyed
+    // house, tower, gate and circuit arc regardless of fill.
+    const allSurvey = inPanel
+      .filter((l) => /^citadel-(houses?-vi-|tower-vi-|gate-vi-|circuit-)/.test(l.id) && Array.isArray(l.polygon))
+      .map((l) => l.polygon as [number, number][]);
+    expect(allSurvey.length).toBeGreaterThan(survey.length); // picks up the fill:'none' gates/houses/towers `survey` misses
+    const orient = (a: [number, number], b: [number, number], c: [number, number]) =>
+      (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+    const segsCross = (p1: [number, number], p2: [number, number], p3: [number, number], p4: [number, number]) => {
+      const d1 = orient(p3, p4, p1);
+      const d2 = orient(p3, p4, p2);
+      const d3 = orient(p1, p2, p3);
+      const d4 = orient(p1, p2, p4);
+      return ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0));
+    };
+    const polysIntersect = (a: [number, number][], b: [number, number][]) => {
+      for (let i = 0; i < a.length; i++) {
+        for (let j = 0; j < b.length; j++) {
+          if (segsCross(a[i], a[(i + 1) % a.length], b[j], b[(j + 1) % b.length])) return true;
+        }
+      }
+      return a.some((p) => inside(p, b)) || b.some((p) => inside(p, a));
+    };
+    const terrace = plans.find((l) => l.id === 'citadel-fabric-terrace')!;
+    const summit = plans.find((l) => l.id === 'citadel-fabric-summit')!;
+    // Finding 3 (count): 12 terrace + 5 summit = 17 fabric houses.
+    expect(terrace.rings!.length).toBe(12);
+    expect(summit.rings!.length).toBe(5);
+    for (const fab of [terrace, summit]) {
+      for (const [i, ring] of (fab.rings ?? []).entries()) {
+        for (const s of allSurvey) {
+          expect(polysIntersect(ring, s), `${fab.id} house ${i} intersects surveyed masonry`).toBe(false);
         }
       }
     }
