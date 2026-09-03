@@ -641,7 +641,15 @@
   let focusViewport: Viewport | undefined;
   let focusLabelBoxes: Record<string, LabelBox> = {};
 
+  // 2026-09-03, stage 6 review (F3): `load` has no sequence check, so a
+  // slower earlier fetch (kicked off before `plateId` changed) can resolve
+  // AFTER the newer one and paint the wrong plate/camera. Not a current click
+  // path (MapsPage mounts one instance per tab) but a trap for any future
+  // caller that flips `plateId` on a live instance. Bump on every call;
+  // ignore a completion whose generation has gone stale.
+  let loadGeneration = 0;
   async function load(id: string, placesForPlate: PlatePlace[], focusIdsForPlate: string[]) {
+    const generation = ++loadGeneration;
     status = 'loading';
     errorMessage = '';
     svgMarkup = '';
@@ -659,6 +667,10 @@
 
     try {
       const raw = await fetchPlate(id);
+      // Stale completion: `plateId` moved on again while this fetch was in
+      // flight, and a newer `load()` call already claimed the generation.
+      // Drop this result rather than let it paint over the newer one.
+      if (generation !== loadGeneration) return;
       if (!raw) {
         status = 'missing';
         return;
@@ -702,6 +714,7 @@
 
       status = 'ready';
       await tick();
+      if (generation !== loadGeneration) return;
       applyLayerVisibility();
       applyCertaintyVisibility();
       setupCamera();

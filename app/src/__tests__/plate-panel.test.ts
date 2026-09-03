@@ -816,4 +816,47 @@ describe('PlatePanel', () => {
       alphaRows().forEach((r) => expect(r.style.display).not.toBe('none'));
     });
   });
+
+  // 2026-09-03, stage 6 review (F3, MINOR): `$: load(plateId, places,
+  // focusIds)` (~line 733) had no sequence check, so a slower earlier fetch
+  // can still complete AFTER a newer one and paint the wrong plate. Not a
+  // current click path (MapsPage mounts one instance per tab), but a trap
+  // for any future caller that flips `plateId` on a live instance -- this
+  // pins the fix (a generation counter bumped in `load`, stale completions
+  // ignored). Plate A's fetch is deliberately resolved LAST, after B's.
+  it('ignores a stale fetch completion: plateId moves on before the slower earlier fetch resolves', async () => {
+    let resolveA: (value: unknown) => void = () => {};
+    let resolveB: (value: unknown) => void = () => {};
+    const pendingA = new Promise((resolve) => { resolveA = resolve; });
+    const pendingB = new Promise((resolve) => { resolveB = resolve; });
+    mockFetchPlate.mockImplementation((id: string) => (id === 'plate-a' ? pendingA : pendingB));
+
+    const plateA = {
+      id: 'plate-a', title: 'Plate A', kind: 'geographic', status: 'reviewed',
+      bbox: [0, 0, 1, 1], size: [100, 80], layers: [],
+    };
+    const plateB = {
+      id: 'plate-b', title: 'Plate B', kind: 'geographic', status: 'reviewed',
+      bbox: [0, 0, 1, 1], size: [100, 80], layers: [],
+    };
+
+    const { container, rerender } = render(PlatePanel, {
+      props: { plateId: 'plate-a', places: [], title: 'Plate A' },
+    });
+
+    // plateId moves to B while A's fetch is still in flight.
+    await rerender({ plateId: 'plate-b', places: [], title: 'Plate B' });
+
+    // B (the newer id) resolves first; assert it painted.
+    resolveB(plateB);
+    await waitFor(() => expect(container.querySelector('svg')?.getAttribute('aria-label')).toBe('Plate B'));
+
+    // A (the older, slower id) resolves last. Its own generation is stale by
+    // now -- give its .then() continuation a turn to run, then confirm it
+    // did NOT overwrite B's render.
+    resolveA(plateA);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).toBe('Plate B');
+  });
 });
