@@ -409,6 +409,47 @@ def test_validate_plate_rejects_scene_key_layer_id_that_is_not_a_layer():
     assert any("sceneKey" in p and "layerId" in p and "no-such" in p for p in problems)
 
 
+def test_validate_plate_rejects_duplicate_scene_key_letter():
+    # F3, 2026-09-03 stage 6 review: two rows sharing a letter draw one
+    # glyph on the sheet for two different keyed rows.
+    plate = _plate(
+        layers=[
+            {
+                "id": "zone-camp",
+                "kind": "region",
+                "polygon": [[39.90, 26.15], [39.92, 26.18], [39.90, 26.20]],
+            },
+            {"id": "mound", "kind": "tumulus", "path": [[39.90, 26.15]]},
+        ],
+        sceneKey=[
+            {"letter": "A", "title": "The camp", "ref": "Il. 8.222–26", "layerId": "zone-camp"},
+            {"letter": "A", "title": "The mound", "ref": "Il. 23.245", "layerId": "mound"},
+        ],
+    )
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any(
+        "sceneKey" in p and "'A'" in p and "more than once" in p for p in problems
+    )
+
+
+def test_validate_plate_accepts_distinct_scene_key_letters():
+    plate = _plate(
+        layers=[
+            {
+                "id": "zone-camp",
+                "kind": "region",
+                "polygon": [[39.90, 26.15], [39.92, 26.18], [39.90, 26.20]],
+            },
+            {"id": "mound", "kind": "tumulus", "path": [[39.90, 26.15]]},
+        ],
+        sceneKey=[
+            {"letter": "A", "title": "The camp", "ref": "Il. 8.222–26", "layerId": "zone-camp"},
+            {"letter": "B", "title": "The mound", "ref": "Il. 23.245", "layerId": "mound"},
+        ],
+    )
+    assert apparatus_places.validate_plate(plate, {}) == []
+
+
 def test_validate_plate_accepts_feature_key_naming_an_anchored_place_and_a_layer():
     plate = _plate(
         id="keyed-plate",
@@ -656,6 +697,43 @@ def test_real_trojan_plain_schematic_plate_validates_clean():
     )
     plate_problems = apparatus_places.validate_plate(plate_doc, places_by_id)
     assert plate_problems == [], plate_problems
+
+
+# ── validate_plate_anchors: plateAnchors keys against the real plate set ────
+# (F3, 2026-09-03 stage 6 review)
+
+
+def test_validate_plate_anchors_rejects_unknown_plate_id():
+    places_by_id = {
+        "camp": {"id": "camp", "plateAnchors": {"trojan-plain-schematicc": [0.2, 0.4]}}
+    }
+    problems = apparatus_places.validate_plate_anchors(
+        places_by_id, {"trojan-plain-schematic"}
+    )
+    assert any("trojan-plain-schematicc" in p and "camp" in p for p in problems)
+
+
+def test_validate_plate_anchors_accepts_known_plate_id():
+    places_by_id = {
+        "camp": {"id": "camp", "plateAnchors": {"trojan-plain-schematic": [0.2, 0.4]}}
+    }
+    assert (
+        apparatus_places.validate_plate_anchors(places_by_id, {"trojan-plain-schematic"})
+        == []
+    )
+
+
+def test_validate_plate_anchors_ignores_places_without_plate_anchors():
+    places_by_id = {"camp": {"id": "camp"}}
+    assert apparatus_places.validate_plate_anchors(places_by_id, set()) == []
+
+
+def test_real_place_anchors_resolve_against_the_real_plate_set():
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    places_by_id = {p["id"]: p for p in places_doc["places"]}
+    plate_ids = {p.stem for p in (ROOT / "apparatus" / "plates").glob("*.json")}
+    problems = apparatus_places.validate_plate_anchors(places_by_id, plate_ids)
+    assert problems == [], problems
 
 
 def test_camp_label_tiers_declutter_the_beach_crop():

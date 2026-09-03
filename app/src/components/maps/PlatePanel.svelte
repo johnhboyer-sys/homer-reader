@@ -727,6 +727,9 @@
         setCamera(cam.scale, cam.tx, cam.ty);
       }
     } catch (e) {
+      // 2026-09-03, stage 6 verification: a stale REJECTION must be dropped
+      // too, or an old fetch failing late paints an error over the newer load.
+      if (generation !== loadGeneration) return;
       status = 'error';
       errorMessage = e instanceof Error ? e.message : String(e);
     }

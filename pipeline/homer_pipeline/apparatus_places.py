@@ -786,6 +786,10 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
         if not isinstance(scene_key, list):
             problems.append(f"{label}: sceneKey must be a list")
         else:
+            # A duplicate letter would draw two rows in the printed key for
+            # one glyph on the sheet, indistinguishable to the reader.
+            # (2026-09-03, stage 6 review)
+            seen_scene_letters: set[str] = set()
             for i, row in enumerate(scene_key):
                 if not isinstance(row, dict):
                     problems.append(f"{label}: sceneKey[{i}] must be an object")
@@ -795,6 +799,13 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                     problems.append(
                         f"{label}: sceneKey[{i}].letter must be 1 or 2 characters"
                     )
+                elif letter in seen_scene_letters:
+                    problems.append(
+                        f"{label}: sceneKey[{i}].letter {letter!r} is used more "
+                        f"than once"
+                    )
+                else:
+                    seen_scene_letters.add(letter)
                 title = row.get("title")
                 if not isinstance(title, str) or not title.strip():
                     problems.append(
@@ -950,4 +961,36 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                     f"= [{a}, {b}] must be a unit [u, v] pair in 0..1"
                 )
 
+    return problems
+
+
+def validate_plate_anchors(
+    places_by_id: dict[str, Any], plate_ids: set[str]
+) -> list[str]:
+    """Check every place's `plateAnchors` keys against the full set of plate
+    ids that actually exist. `validate_plate` only ever sees ONE plate, so it
+    can range-check the anchor keyed to that plate's own id but cannot tell a
+    typo'd key (naming a plate that doesn't exist at all) from one meant for
+    a sibling sheet. Call once, after every apparatus/plates/*.json has been
+    loaded, with the full set of loaded plate ids. (2026-09-03, stage 6
+    review)
+    """
+    problems: list[str] = []
+    for place_key, place in places_by_id.items():
+        if not isinstance(place, dict):
+            continue
+        anchors = place.get("plateAnchors")
+        if not isinstance(anchors, dict):
+            continue
+        place_label = (
+            place["id"]
+            if isinstance(place.get("id"), str) and place["id"]
+            else place_key
+        )
+        for plate_key in anchors:
+            if plate_key not in plate_ids:
+                problems.append(
+                    f"place {place_label}: plateAnchors[{plate_key!r}] names a "
+                    f"plate id that does not exist"
+                )
     return problems
