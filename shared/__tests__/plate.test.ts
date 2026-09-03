@@ -20,6 +20,9 @@ import {
   scaleBarMarkup,
   lineworkExtent,
   lineworkReserveHalfWidth,
+  wallInkHalfWidth,
+  discClearsWallInk,
+  traceSide,
   type Plate,
   type PlatePlace,
   type PlateLayer,
@@ -4668,33 +4671,31 @@ function markGlyphBoxes(svg: string, plate: Plate): { id: string; owner?: string
 }
 
 /**
- * The Achaean wall's (and any other wall's) own corridor, checked as a
+ * The Achaean wall's (and any other wall's) own drawn INK, checked as a
  * polyline rather than a bounding box — see the comment on `GLYPH_LAYER_KINDS`
  * above for why a wall cannot be treated as a compact glyph. Read off the
  * SAME rendered centreline the renderer draws (`plate-layer-wall` /
  * `plate-layer-wall-restored(-line)?`), with the clearance measured by
- * `lineworkReserveHalfWidth` — plate.ts's own real reserved half-width for
- * this exact layer (2026-09-03, ruling 9 round 3, Grok finding 1).
+ * `wallInkHalfWidth` — plate.ts's own real INK extent for this exact layer,
+ * NOT `lineworkReserveHalfWidth`'s wider name-reservation corridor (2026-09-03,
+ * ruling 9 round 4: that wider, symmetric half-width called a disc 9.19px
+ * from the achaean-wall centreline — clear of even the 4.375px tick band, on
+ * the side with no tick at all — an offender).
  *
- * This is VERIFICATION, not an obstacle the placer enforces: `renderPlate`
- * gives a wall's corridor only the soft `denseBoxes` cost it always had (a
- * name may still cross it when nothing clearer is on offer), never a hard
- * `avoidMarkers` entry. Tried as a hard obstacle and measured, twice: even
- * with a `wallId`-scoped exemption (so a gate structurally IN a wall, like
- * the Scaean Gate, is not stranded by its own corridor) and a softening
- * rule where a wall's band geometrically overlaps a keyed shipRow's block,
- * the Achaean camp and the citadel's tiny wall-of-troy ring are crowded
- * enough that making the wall hard still dropped between two and eleven
- * numerals, for zero live benefit — this very check already passes clean
- * with the wall soft, so the "badge 6 on the wall stroke" Grok reported does
- * not reproduce once the ship-hull fix (this round's primary task, see
- * `GLYPH_LAYER_KINDS`'s own comment) is in place. It also cost ~90% of the
- * cold render (measured: 751ms to ~1.4s) by forcing a second full solve on
- * every render that could not seat every numeral strictly, which was every
- * render of the live sheet. This function exists so a FUTURE regression —
- * some other change putting a badge back on a wall — is still caught.
+ * This is VERIFICATION, not a SEPARATE obstacle the placer enforces on its
+ * own terms: `renderPlate` now gives a wall's own ink (this same extent) as a
+ * HARD obstacle for numeral badges and zone-letter discs (ruling 9 round 4;
+ * round 3's attempt, at the wider reserve half-width and lineworkExtent's
+ * axis-aligned boxes, stranded badges and doubled the cold render — the boxes
+ * over-reach on a shallow diagonal leg, which is the same defect that made
+ * the wide half-width flag badge 5 here). This function exists so a FUTURE
+ * regression — some other change putting a badge back on a wall — is still
+ * caught, at the SAME extent the placer now protects.
  */
-function markWallLines(svg: string, plate: Plate): { id: string; owner?: string; halfWidth: number; points: [number, number][] }[] {
+function markWallLines(
+  svg: string,
+  plate: Plate,
+): { id: string; owner?: string; side: 1 | -1; halfWidths: [number, number]; points: [number, number][] }[] {
   const keyed = new Set<string>();
   for (const group of plate.featureKey ?? []) {
     for (const item of group.items) {
@@ -4702,11 +4703,12 @@ function markWallLines(svg: string, plate: Plate): { id: string; owner?: string;
       if (id) keyed.add(id);
     }
   }
-  const out: { id: string; owner?: string; halfWidth: number; points: [number, number][] }[] = [];
+  const out: { id: string; owner?: string; side: 1 | -1; halfWidths: [number, number]; points: [number, number][] }[] =
+    [];
   for (const layer of plate.layers) {
     if (layer.style === 'inset' || layer.kind !== 'wall') continue;
-    const halfWidth = lineworkReserveHalfWidth(layer);
-    if (halfWidth === undefined) continue;
+    const halfWidths = wallInkHalfWidth(layer);
+    if (halfWidths === undefined) continue;
     const re = new RegExp(
       `<path data-feature-id="${layer.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}" class="plate-layer plate-layer-wall(?:-restored(?:-line)?)?"[^>]*\\sd="([^"]+)"`,
     );
@@ -4717,7 +4719,7 @@ function markWallLines(svg: string, plate: Plate): { id: string; owner?: string;
     const owner = [layer.id, layer.placeId, ...(layer.claims ?? [])].find(
       (id): id is string => !!id && keyed.has(id),
     );
-    out.push({ id: layer.id, owner, halfWidth, points });
+    out.push({ id: layer.id, owner, side: traceSide(points), halfWidths, points });
   }
   return out;
 }
@@ -4932,30 +4934,30 @@ function badgeOverlapOffenders(
     }
   }
 
-  // Wall corridors (2026-09-03, ruling 9 round 3, Grok finding 1): a
-  // VERIFICATION check, not enforcement of a placer obstacle — see
-  // `markWallLines`'s own comment for why the placer keeps a wall's corridor
-  // as the soft cost it always was. Checked as the SAME segmented boxes
-  // `lineworkExtent` produces, at the SAME half-width `lineworkReserveHalfWidth`
-  // computes for this exact layer, so if the placer ever DOES treat a wall as
-  // hard, this cannot disagree with what it protects. Numerals only — a zone
-  // letter has no leader and this check exists for the disc Grok found sitting
-  // on the stroke, not to extend zone-letter coverage. The wall's own numeral
-  // is exempt from its own corridor; every other numeral is not.
+  // Wall ink (2026-09-03, ruling 9 round 4; originally round 3, Grok finding
+  // 1): a VERIFICATION check, and now one that agrees BY CONSTRUCTION with
+  // what the placer enforces — see `markWallLines`'s own comment. Checked as
+  // a true point-to-segment distance against each leg (`discClearsWallInk`),
+  // at the SAME per-side half-widths `wallInkHalfWidth` computes for this
+  // exact layer — never `lineworkExtent`'s axis-aligned boxes, which
+  // over-reach on a shallow diagonal leg (that is what made the wide,
+  // symmetric `lineworkReserveHalfWidth` flag a disc 9.19px from the
+  // centreline, comfortably clear of the ink, as round 3's regression here).
+  // Numerals only — a zone letter has no leader and this check exists for the
+  // disc Grok found sitting on the stroke, not to extend zone-letter
+  // coverage (the placer itself does keep zone letters off a wall's ink; see
+  // renderPlate). The wall's own numeral is exempt from its own line; every
+  // other numeral is not.
   const wallLines = markWallLines(svg, plate);
   // 2026-09-03, ruling 9 round 3 review: the guard once parsed zero walls
   // (its regex took the id= inside data-layer-id for the d= attribute) and
   // passed vacuously. A sheet that draws a wall must yield at least one.
   if (plate.layers.some((l) => l.kind === 'wall' && l.style !== 'inset')) expect(wallLines.length).toBeGreaterThan(0);
   for (const wall of wallLines) {
-    const wallBoxes = lineworkExtent(wall.points, wall.halfWidth);
     for (const disc of numerals) {
       if (wall.owner && disc.id === wall.owner) continue;
-      for (const box of wallBoxes) {
-        if (boxesIntersect([disc.cx - disc.r, disc.cy - disc.r, disc.cx + disc.r, disc.cy + disc.r], box)) {
-          offenders.push(`disc/wall: ${disc.label} sits on wall ${wall.id}`);
-          break;
-        }
+      if (!discClearsWallInk(wall.points, wall.side, wall.halfWidths, disc.cx, disc.cy, disc.r)) {
+        offenders.push(`disc/wall: ${disc.label} sits on wall ${wall.id}`);
       }
     }
     // Leaders are NOT checked against walls (2026-09-03, round 3 review):
