@@ -4458,11 +4458,16 @@ const FEATURE_KEY_HEADINGS = [
 // ("the walls of Troy") and G ("the circuit of the chase") were drawn at the
 // SAME point, one letter invisible under the other, and four of the seven sat
 // on a pin. The lock stays, on the placed positions.
+//
+// Moved once more on 2026-09-03, by the review's finding 2: D ("the fan before
+// Troy") stood on the Bay of Troy, which ruling 5 forbids in the schematic
+// register, so it falls through its own polygon to the nearest open DRY
+// sample. It is the only letter that moved.
 const ZONE_LETTER_MARKUP: readonly string[] = [
   '<g class="plate-zone-letter"><circle cx="571" cy="927.7" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="571" y="927.7" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">A</text></g>',
   '<g class="plate-zone-letter"><circle cx="603.6" cy="907.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="603.6" y="907.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">B</text></g>',
   '<g class="plate-zone-letter"><circle cx="560.7" cy="838.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="560.7" y="838.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">C</text></g>',
-  '<g class="plate-zone-letter"><circle cx="520.3" cy="696.4" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="520.3" y="696.4" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">D</text></g>',
+  '<g class="plate-zone-letter"><circle cx="585.8" cy="706.4" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="585.8" y="706.4" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">D</text></g>',
   '<g class="plate-zone-letter"><circle cx="566.6" cy="797.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="566.6" y="797.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">E</text></g>',
   '<g class="plate-zone-letter"><circle cx="527.4" cy="629.4" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="527.4" y="629.4" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">F</text></g>',
   '<g class="plate-zone-letter"><circle cx="535.8" cy="616.3" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="535.8" y="616.3" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">G</text></g>',
@@ -4519,10 +4524,17 @@ function markDiscs(svg: string, className: string): MarkDisc[] {
   return out;
 }
 
-/** The drawn pin/dot marks: a `<g data-place-id>` that is NOT one of the badge groups. */
+/**
+ * The drawn pin/dot marks: a `<g data-place-id>` that is NOT one of the badge
+ * groups. Keyed off the two badge class names rather than off "carries no
+ * class at all" (the 2026-09-03 review's finding 1): a pin group that ever
+ * gains a class of its own would have gone silently invisible to this check.
+ */
 function markPins(svg: string): { id: string; box: [number, number, number, number] }[] {
   const out: { id: string; box: [number, number, number, number] }[] = [];
-  for (const m of svg.matchAll(/<g (?![^>]*class=)[^>]*data-place-id="([^"]+)"[^>]*>([\s\S]*?)<\/g>/g)) {
+  for (const m of svg.matchAll(
+    /<g (?![^>]*class="plate-(?:key-badge|zone-letter)")[^>]*data-place-id="([^"]+)"[^>]*>([\s\S]*?)<\/g>/g,
+  )) {
     const circle = m[2].match(/<circle cx="([-\d.]+)" cy="([-\d.]+)" r="([-\d.]+)"/);
     const rect = m[2].match(/<rect x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"/);
     if (circle) {
@@ -4531,6 +4543,144 @@ function markPins(svg: string): { id: string; box: [number, number, number, numb
     } else if (rect) {
       const [x, y, w, h] = [Number(rect[1]), Number(rect[2]), Number(rect[3]), Number(rect[4])];
       out.push({ id: m[1], box: [x, y, x + w, y + h] });
+    }
+  }
+  return out;
+}
+
+// ── The rest of what the sheet actually draws (2026-09-03 review, finding 1)
+// The first cut of this check saw four classes of ink — badge discs, zone
+// letters, key leaders, place pins — and nothing else, so it passed a sheet
+// green while four leaders ran through the word "Ilios" and badge 32 sat on
+// the Callicolone mound it was pointing at. Everything below is read off the
+// SAME rendered SVG; the plate is consulted only to say WHICH drawn feature
+// is water and which is keyed, never for a position.
+
+/** Every coordinate pair in a path `d`, in order — the drawn geometry itself. */
+function pathPoints(d: string): [number, number][] {
+  return [...d.matchAll(/(-?\d+(?:\.\d+)?)[ ,](-?\d+(?:\.\d+)?)/g)].map(
+    (m) => [Number(m[1]), Number(m[2])] as [number, number],
+  );
+}
+
+/** Every `<path data-feature-id="id" class="plate-layer …">` drawn for one layer. */
+function layerPaths(svg: string, layerId: string): [number, number][][] {
+  const re = new RegExp(
+    `<path data-feature-id="${layerId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}" class="plate-layer[^"]*" d="([^"]+)"`,
+    'g',
+  );
+  // A `d` may hold several subpaths; each `M` starts a new ring.
+  return [...svg.matchAll(re)].flatMap((m) =>
+    m[1]
+      .split('M')
+      .map((chunk) => pathPoints(chunk))
+      .filter((ring) => ring.length >= 3),
+  );
+}
+
+const WATER_FILL_NAMES = new Set(['sea', 'lagoon']);
+
+/** The drawn water bodies (ruling 5's register), as rings in plate pixels. */
+function markWaterRings(svg: string, plate: Plate): { id: string; ring: [number, number][] }[] {
+  const out: { id: string; ring: [number, number][] }[] = [];
+  for (const layer of plate.layers) {
+    if (layer.style === 'inset') continue;
+    const fill = layer.fill ?? (layer.kind === 'region' || layer.kind === 'band' ? 'plain' : undefined);
+    if (fill === undefined || !WATER_FILL_NAMES.has(fill)) continue;
+    for (const ring of layerPaths(svg, layer.id)) out.push({ id: layer.id, ring });
+  }
+  return out;
+}
+
+function pointInRing(ring: [number, number][], px: number, py: number): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if (yi > py !== yj > py && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+function discHitsRing(ring: [number, number][], cx: number, cy: number, r: number): boolean {
+  if (pointInRing(ring, cx, cy)) return true;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const seg: MarkSeg = { label: '', n: '', ax: ring[j][0], ay: ring[j][1], bx: ring[i][0], by: ring[i][1] };
+    if (pointSegDistance(cx, cy, seg) < r) return true;
+  }
+  return false;
+}
+
+/**
+ * The painted extent of a layer-drawn GLYPH that a numbered key item names —
+ * a tumulus mound, a row of beached ships. `drawnMarkBoxes` in plate.ts only
+ * ever held place DOTS, so these had no obstacle at all: badge 32 was drawn
+ * across the Callicolone mound, which is the one thing on the sheet it exists
+ * to point at. `owner` is the keyed id the glyph belongs to; its own leader
+ * starts inside the glyph and is exempt, its own disc is not.
+ *
+ * Only the compact kinds. A wall or a route is keyed too, but its ink is a
+ * corridor running the length of the sheet, and its own numeral has to sit
+ * somewhere along it — a bounding box there would be a reservation over
+ * ground the badge is entitled to.
+ */
+const GLYPH_LAYER_KINDS = new Set(['tumulus', 'shipRow']);
+
+function markGlyphBoxes(svg: string, plate: Plate): { id: string; owner: string; box: [number, number, number, number] }[] {
+  const keyed = new Set<string>();
+  for (const group of plate.featureKey ?? []) {
+    for (const item of group.items) {
+      const id = item.placeId ?? item.layerId;
+      if (id) keyed.add(id);
+    }
+  }
+  const out: { id: string; owner: string; box: [number, number, number, number] }[] = [];
+  for (const layer of plate.layers) {
+    if (layer.style === 'inset' || !GLYPH_LAYER_KINDS.has(layer.kind)) continue;
+    const owner = [layer.id, layer.placeId, ...(layer.claims ?? [])].find(
+      (id): id is string => !!id && keyed.has(id),
+    );
+    if (!owner) continue;
+    const pts = layerPaths(svg, layer.id).flat();
+    if (!pts.length) continue;
+    const xs = pts.map((p) => p[0]);
+    const ys = pts.map((p) => p[1]);
+    out.push({ id: layer.id, owner, box: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] });
+  }
+  return out;
+}
+
+/**
+ * The placed NAME boxes. Which names the sheet actually prints is read off the
+ * SVG (`data-label-for`); their rects come from `PlateResult.labelBoxes`,
+ * which the module documents as the only honest source of a laid label's
+ * width — a `<text>` element carries no measured extent.
+ */
+function markNameBoxes(svg: string, result: { labelBoxes: Record<string, [number, number, number, number]> }) {
+  const out: { id: string; box: [number, number, number, number] }[] = [];
+  for (const id of textLabelIds(svg)) {
+    const box = result.labelBoxes[id];
+    if (box) out.push({ id, box });
+  }
+  return out;
+}
+
+/** Sheet furniture drawn over the map face: the panels, and the north arrow. */
+function markFurnitureBoxes(svg: string): { id: string; box: [number, number, number, number] }[] {
+  const out: { id: string; box: [number, number, number, number] }[] = [];
+  const re =
+    /<rect(?: data-feature-id="([^"]*)")? class="(?:plate-layer )?(plate-legend-panel|plate-scale-panel|plate-hypsometric-panel|plate-layer-inset-panel)"[^>]*x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"/g;
+  for (const m of svg.matchAll(re)) {
+    const [x, y, w, h] = [Number(m[3]), Number(m[4]), Number(m[5]), Number(m[6])];
+    out.push({ id: m[1] || m[2], box: [x, y, x + w, y + h] });
+  }
+  const north = svg.match(/<g class="plate-north">([\s\S]*?)<\/g><\/g>/);
+  if (north) {
+    const pts = [...north[1].matchAll(/ d="([^"]+)"/g)].flatMap((m) => pathPoints(m[1]));
+    if (pts.length) {
+      const xs = pts.map((p) => p[0]);
+      const ys = pts.map((p) => p[1]);
+      out.push({ id: 'north arrow', box: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] });
     }
   }
   return out;
@@ -4576,6 +4726,23 @@ function segmentHitsBox(s: MarkSeg, box: [number, number, number, number]): bool
   return t0 <= t1;
 }
 
+/**
+ * How far outside a box the origin of a leader may lie and still count as
+ * starting INSIDE it (see the exemptions below). It exists so this check and
+ * the placer agree: the placer tests its leaders against every obstacle grown
+ * by BADGE_CLEARANCE (0.4px, chosen to survive the 0.1px the emitted path
+ * rounds to) and exempts an origin inside that grown box, while this check
+ * tests the box as drawn. Without the same tolerance here, a mark 0.14px
+ * outside a name box would be exempt to the placer and an offender here, and
+ * no seat on the sheet could satisfy both.
+ */
+const LEADER_ORIGIN_TOLERANCE = 0.5;
+
+function originInside(s: MarkSeg, box: [number, number, number, number]): boolean {
+  const t = LEADER_ORIGIN_TOLERANCE;
+  return s.ax >= box[0] - t && s.ax <= box[2] + t && s.ay >= box[1] - t && s.ay <= box[3] + t;
+}
+
 function segmentsCross(a: MarkSeg, b: MarkSeg): boolean {
   const side = (px: number, py: number, qx: number, qy: number, rx: number, ry: number) =>
     (qx - px) * (ry - py) - (qy - py) * (rx - px);
@@ -4587,12 +4754,22 @@ function segmentsCross(a: MarkSeg, b: MarkSeg): boolean {
 }
 
 /** Every ruling-9 violation on a rendered sheet, named. Empty means the sheet is clean. */
-function badgeOverlapOffenders(svg: string): string[] {
+function badgeOverlapOffenders(
+  svg: string,
+  plate: Plate,
+  result: { labelBoxes: Record<string, [number, number, number, number]> },
+): string[] {
   const numerals = markDiscs(svg, 'plate-key-badge');
   const zones = markDiscs(svg, 'plate-zone-letter');
   const discs = [...numerals, ...zones];
   const pins = markPins(svg);
   const leaders = markKeyLeaders(svg);
+  // Ruling 5: the no-label-on-water rule binds the SCHEMATIC register only —
+  // a geographic sheet sets coastal names over water with a leader by design.
+  const water = plate.kind === 'schematic' ? markWaterRings(svg, plate) : [];
+  const glyphs = markGlyphBoxes(svg, plate);
+  const names = markNameBoxes(svg, result);
+  const furniture = markFurnitureBoxes(svg);
   const discByN = new Map(
     numerals.map((d) => [d.label.slice('badge '.length, d.label.indexOf(' (')), d] as const),
   );
@@ -4632,9 +4809,7 @@ function badgeOverlapOffenders(svg: string): string[] {
       // to reach it, and no placement could avoid it. The marks sitting on
       // each other is its own defect, in the poem's own positions, and the
       // placer has no business moving those.
-      if (leader.ax >= pin.box[0] && leader.ax <= pin.box[2] && leader.ay >= pin.box[1] && leader.ay <= pin.box[3]) {
-        continue;
-      }
+      if (originInside(leader, pin.box)) continue;
       if (segmentHitsBox(leader, pin.box)) offenders.push(`leader/pin: ${leader.label} crosses pin ${pin.id}`);
     }
   }
@@ -4643,6 +4818,49 @@ function badgeOverlapOffenders(svg: string): string[] {
       if (segmentsCross(leaders[i], leaders[j])) {
         offenders.push(`leader/leader: ${leaders[i].label} crosses ${leaders[j].label}`);
       }
+    }
+  }
+
+  // Water (schematic register only). A numeral on the bay asserts a feature
+  // where there is open sea, which is exactly the false claim the name solver
+  // already refuses to make (ruling 5, 2026-09-02). A LEADER may cross water —
+  // it draws no claim, it only points — so only the discs are checked, and the
+  // badge disc IS its leader's far end.
+  for (const disc of discs) {
+    for (const body of water) {
+      if (discHitsRing(body.ring, disc.cx, disc.cy, disc.r)) {
+        offenders.push(`disc/water: ${disc.label} sits on ${body.id}`);
+      }
+    }
+  }
+
+  // Layer-drawn glyphs. A badge over the mound it numbers hides the mound.
+  for (const glyph of glyphs) {
+    for (const disc of discs) {
+      if (boxesIntersect([disc.cx - disc.r, disc.cy - disc.r, disc.cx + disc.r, disc.cy + disc.r], glyph.box)) {
+        offenders.push(`disc/glyph: ${disc.label} covers glyph ${glyph.id}`);
+      }
+    }
+    for (const leader of leaders) {
+      // Same exemption the pins get: a leader whose origin is already inside
+      // the ink is not crossing the sheet to reach it. That is how a keyed
+      // glyph's OWN numeral still gets a line back to its mound.
+      if (originInside(leader, glyph.box)) continue;
+      if (segmentHitsBox(leader, glyph.box)) offenders.push(`leader/glyph: ${leader.label} crosses glyph ${glyph.id}`);
+    }
+  }
+
+  // Placed names and sheet furniture. A name's position carries meaning and
+  // cannot move; the numeral's carries none, so the numeral is what yields.
+  for (const target of [...names, ...furniture]) {
+    for (const disc of discs) {
+      if (boxesIntersect([disc.cx - disc.r, disc.cy - disc.r, disc.cx + disc.r, disc.cy + disc.r], target.box)) {
+        offenders.push(`disc/name: ${disc.label} overlaps ${target.id}`);
+      }
+    }
+    for (const leader of leaders) {
+      if (originInside(leader, target.box)) continue;
+      if (segmentHitsBox(leader, target.box)) offenders.push(`leader/name: ${leader.label} crosses ${target.id}`);
     }
   }
   return offenders;
@@ -4856,14 +5074,15 @@ describe('renderPlate: featureKey (stage 5c)', () => {
   // Ruling 9 (John, 2026-09-03 13:21, circling zone letter B with a numeral's
   // leader driven straight through it and another's ending inside it): "let's
   // not have things overlap." Gated on the rendered SVG, not on a look.
-  it('E7: nothing overlaps — no disc on a disc or a foreign pin, no leader through a disc, a pin or another leader', () => {
-    expect(badgeOverlapOffenders(result.svg)).toEqual([]);
+  it('E7: nothing overlaps — no disc on a disc, a foreign pin, water, a glyph, a name or furniture; no leader through any of them', () => {
+    expect(badgeOverlapOffenders(result.svg, plate, result)).toEqual([]);
   });
 
   it('E7b: the geographic sheets pass the same check', () => {
     for (const p of [SEED_PLATE_PATH, '../apparatus/plates/troad.json']) {
-      const sheet = renderPlate(parsePlate(JSON.parse(readFileSync(p, 'utf-8'))), allPlaces);
-      expect(badgeOverlapOffenders(sheet.svg), p).toEqual([]);
+      const sheetPlate = parsePlate(JSON.parse(readFileSync(p, 'utf-8')));
+      const sheet = renderPlate(sheetPlate, allPlaces);
+      expect(badgeOverlapOffenders(sheet.svg, sheetPlate, sheet), p).toEqual([]);
     }
   });
 
@@ -4884,6 +5103,67 @@ describe('renderPlate: featureKey (stage 5c)', () => {
       expect(g).not.toContain('tabindex');
       expect(g).not.toContain('class="plate-label');
     }
+  });
+});
+
+// Ruling 9's last line of defence (2026-09-03 review, finding 6): a numeral
+// the placer cannot seat clear used to be DRAWN ANYWAY, on top of whatever it
+// collided with, because seatBadge always returned a best. It now comes off
+// the map face and says so. The live sheets never reach this — they place all
+// thirty-two — so it is exercised here on a plate built to make placement
+// impossible: one schematic sheet that is open water from edge to edge, which
+// ruling 5 forbids a numeral to sit on, with three keyed features on it.
+describe('renderPlate: an unplaceable numeral is dropped and reported, never drawn overlapping (finding 6)', () => {
+  const drowned: PlatePlace[] = [1, 2, 3].map((n) => ({
+    id: `sunk-${n}`,
+    name: `Sunk ${n}`,
+    certainty: 'certain' as const,
+    plateAnchors: { shield: [0.3 + n * 0.1, 0.5] },
+    positionBasis: 'conjectural' as const,
+  }));
+  const plate: Plate = {
+    ...schematicPlate,
+    size: [300, 300],
+    marginRight: 100,
+    layers: [
+      {
+        id: 'all-sea',
+        kind: 'region',
+        fill: 'sea',
+        polygon: [
+          [0, 0],
+          [1, 0],
+          [1, 1],
+          [0, 1],
+        ],
+      },
+    ],
+    featureKey: [
+      { title: 'Group', items: drowned.map((p, i) => ({ placeId: p.id, label: `Sunkkey${i + 1}` })) },
+    ],
+  };
+  const result = renderPlate(plate, drowned);
+
+  it('draws no badge it cannot place clear', () => {
+    expect([...result.svg.matchAll(/<g class="plate-key-badge"/g)].length).toBe(0);
+  });
+
+  it('reports every dropped numeral in unplacedKeyNumerals', () => {
+    expect(result.unplacedKeyNumerals).toEqual([1, 2, 3]);
+  });
+
+  it('keeps the key rows, marked unplaced', () => {
+    expect(result.svg).toContain('Sunkkey1');
+    const rows = [...result.svg.matchAll(/<text class="plate-key-row" data-key-n="(\d+)" data-unplaced="1"/g)];
+    expect([...new Set(rows.map((m) => Number(m[1])))]).toEqual([1, 2, 3]);
+  });
+
+  it('leaves the sheet clean by E7', () => {
+    expect(badgeOverlapOffenders(result.svg, plate, result)).toEqual([]);
+  });
+
+  it('renders rather than throwing', () => {
+    expect(result.svg.startsWith('<svg')).toBe(true);
   });
 });
 
