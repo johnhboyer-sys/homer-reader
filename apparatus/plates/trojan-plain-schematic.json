@@ -110,7 +110,8 @@
       "title": "The camp and its wall",
       "items": [
         { "placeId": "achaean-wall-and-ditch", "label": "The wall and ditch" },
-        { "placeId": "wagon-gate", "label": "The chariot gate" }
+        { "placeId": "wagon-gate", "label": "The chariot gate" },
+        { "layerId": "ships-band", "label": "The ships, drawn up in three lines" }
       ]
     },
     {
@@ -9115,16 +9116,24 @@
       "labelSize": "small"
     },
     {
-      "id": "ships-ajax-end",
-      "kind": "shipRow",
-      "placeId": "achaean-camp",
-      "rows": 3,
-      "count": 8,
-      "baseline": [
-        [39.925837, 26.161371],
-        [39.915137, 26.164641]
+      "id": "ships-band",
+      "kind": "region",
+      "style": "hatch",
+      "polygon": [
+        [39.990783, 26.184509],
+        [39.974003, 26.178739],
+        [39.961789, 26.173755],
+        [39.938809, 26.169375],
+        [39.925889, 26.16166],
+        [39.915189, 26.16493],
+        [39.914642, 26.161883],
+        [39.925342, 26.158613],
+        [39.939541, 26.162831],
+        [39.962521, 26.167211],
+        [39.974969, 26.173961],
+        [39.991749, 26.179731]
       ],
-      "note": "The ships and huts at the other extremity — Ajax's end, where the returning chariots come in and where the wall stands lowest. Three ranks; the rearmost rank's sterns carry the wall.",
+      "note": "The whole beach the fleet is drawn up on, in place of three named ranks: Achilles' end (Sigeion), the middle of the line at Odysseus's ships (ἐν μεσσάτῳ ... γεγωνέμεν ἀμφοτέρωσε, 8.222–26 = 11.5–9), and Ajax's end, where the returning chariots come in and where the wall stands lowest. Three ranks deep the whole run (14.30–36), the rearmost hauled furthest inland with its sterns at the wall; huts and ships alternate, each man's hut by his own ship (Leaf 1902 on 15.409). The band is this run's own footprint, not a new claim — see the Ajax's-end inset for the ships drawn as ships.",
       "sources": [
         {
           "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
@@ -9135,53 +9144,7 @@
         {
           "cite": "Leaf, Walter, ed. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902."
         }
-      ],
-      "labelTier": 2,
-      "labelSize": "small"
-    },
-    {
-      "id": "ships-centre",
-      "kind": "shipRow",
-      "placeId": "achaean-camp",
-      "rows": 3,
-      "count": 8,
-      "baseline": [
-        [39.961858, 26.173134],
-        [39.938878, 26.168754]
-      ],
-      "note": "The middle of the line, at Odysseus's ships, from which a shout carries both ways, ἐν μεσσάτῳ ... γεγωνέμεν ἀμφοτέρωσε (8.222–26 = 11.5–9). Three ranks as elsewhere.",
-      "sources": [
-        {
-          "cite": "Hainsworth, Bryan. The Iliad: A Commentary, Volume III: Books 9–12. Cambridge: Cambridge University Press, 1993."
-        },
-        {
-          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
-        }
-      ],
-      "labelTier": 2,
-      "labelSize": "small"
-    },
-    {
-      "id": "ships-achilles-end",
-      "kind": "shipRow",
-      "placeId": "achaean-camp",
-      "rows": 3,
-      "count": 8,
-      "baseline": [
-        [39.990875, 26.184056],
-        [39.974095, 26.178286]
-      ],
-      "note": "The ships and huts at the Sigeion extremity of the line — Achilles' end. Ranks drawn three deep, the rearmost hauled furthest inland with its sterns at the wall (14.30–36); huts and ships alternate, each man's hut by his own ship (Leaf 1902 on 15.409). Anonymous prow glyphs: the poem names positions, never counts them along the beach.",
-      "sources": [
-        {
-          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
-        },
-        {
-          "cite": "Leaf, Walter, ed. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902."
-        }
-      ],
-      "labelTier": 2,
-      "labelSize": "small"
+      ]
     },
     {
       "id": "mound-of-patroclus",

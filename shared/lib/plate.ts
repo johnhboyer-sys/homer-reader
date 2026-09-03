@@ -3093,6 +3093,20 @@ function derivedLegendEntry(layer: PlateLayer): LegendEntry | undefined {
       return { key: 'route', rank: 8, text: 'Route', swatch: (x, y) => legendLine(x, y, 'var(--accent-light)', STROKE_WEIGHT.route, '1 4') };
     case 'region':
     case 'band':
+      // `style: "hatch"` draws no whitelisted fill (see the `region`/`band`
+      // case in renderLayer), so it keys its own row rather than falling
+      // through to regionFillLegendEntry, which would key the UNUSED
+      // `layer.fill ?? DEFAULT_REGION_FILL` default ('plain') and show a
+      // swatch that doesn't match what the sheet actually draws.
+      if (layer.style === 'hatch') {
+        return {
+          key: 'region-hatch',
+          rank: 6,
+          text: 'Beached ships',
+          swatch: (x, y) =>
+            `<path d="${[3, 8, 13, 18].map((o) => `M ${round1(x + o)} ${round1(y + 5)} l 5 -6`).join(' ')}" fill="none" stroke="var(--flaxman-ink)" stroke-width="${HATCH_WEIGHT}" stroke-opacity="${HATCH_OPACITY}"/>`,
+        };
+      }
       return regionFillLegendEntry(layer.fill ?? DEFAULT_REGION_FILL);
     default:
       return undefined;
@@ -4150,6 +4164,13 @@ const STROKE_WEIGHT = {
 const MASONRY_EDGE_WIDTH = 1;
 /** The silhouette of a pictorial hill profile (`style: "profile"`). See the `relief` case. */
 const PROFILE_OUTLINE_WIDTH = 0.9;
+// A `region`/`band` layer's `style: "hatch"` texture (shipcomp option 2). Wider
+// spacing and a lighter weight than relief's hachure — this stands for many
+// small ships, not a shaded slope, and must read as an open texture rather
+// than a solid tone at sheet scale.
+const HATCH_SPACING = 10;
+const HATCH_WEIGHT = 0.9;
+const HATCH_OPACITY = 0.35;
 
 // ── The named inset (`region`/`band` with `style: "inset"`, 2026-08-13) ────
 // The Landmark's third map tier — locator, main sheet, NAMED inset — and the
@@ -5138,6 +5159,23 @@ function renderLayer(
           `stroke-linejoin="round" stroke-linecap="round"/>`;
         break;
       }
+      // A texture, not a terrain claim (`style: "hatch"`, shipcomp option 2,
+      // 2026-09-02, Pope's own register): a light diagonal hachure in the
+      // sheet's own ink, at low opacity, with no fill body under it and no
+      // edge — unlike every REGION_FILL_TOKENS fill below, it names no
+      // ground and carries no colour, so it never enters that whitelist.
+      // Reuses hachure() exactly as the `relief` case does for its overlay
+      // strokes, at a fixed diagonal (not the shape's own principal axis,
+      // which relief uses to read as a ridge — a beach-parallel band has no
+      // ridge to follow) and a wider spacing than relief's, so a few dozen
+      // ships' worth of ink reads as texture rather than as a comb.
+      if (layer.style === 'hatch') {
+        const d = hachure(px, { seed, angleDeg: 45, spacing: HATCH_SPACING, weight: HATCH_WEIGHT });
+        markup =
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}-hatch" ` +
+          `d="${d}" fill="var(--flaxman-ink)" fill-opacity="${HATCH_OPACITY}" stroke="none"/>`;
+        break;
+      }
       // A region/band layer names the TERRAIN it is (plain, marsh, lagoon,
       // sea, land) through the closed REGION_FILL_TOKENS whitelist — never a
       // pass-through of the JSON value, so a plate file can never inject CSS.
@@ -5729,10 +5767,27 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       keyN += 1;
       const id = item.placeId ?? item.layerId!;
       const rendered = renderedById.get(id);
-      const anchorBox = pinAnchors.get(id) ?? rendered?.labelAnchor ?? rendered?.feature.bbox;
+      const layer = item.layerId ? plate.layers.find((l) => l.id === item.layerId) : undefined;
+      let anchorBox = pinAnchors.get(id) ?? rendered?.labelAnchor ?? rendered?.feature.bbox;
+      // A wide AREA layer's own labelAnchor/bbox spans its whole extent (see
+      // renderLayer: `isArea` sets `labelAnchor = bbox`), which is right for
+      // the name solver (it works from the box's edges outward) and wrong
+      // for a numeral badge, whose candidate ring is anchored close to the
+      // box's own corners — on a box hundreds of px wide that lands the
+      // badge far from the box's CENTRE, which is where E4 measures "near
+      // its mark" from (2026-09-02, shipcomp option 2: ships-band, the
+      // beach-spanning hatch band, is the first AREA layer ever keyed by
+      // layerId — every prior layerId key item, e.g. callicolone, is a
+      // tumulus). Same fix zone letters already use: badge off the area's
+      // own centre point, not its full span.
+      if (anchorBox && layer && AREA_LAYER_KINDS.has(layer.kind) && !pinAnchors.has(id)) {
+        const [ax1, ay1, ax2, ay2] = anchorBox;
+        const acx = (ax1 + ax2) / 2;
+        const acy = (ay1 + ay2) / 2;
+        anchorBox = [acx, acy, acx, acy];
+      }
       if (!anchorBox) continue;
       const r = numeralBadgeRadius(keyN);
-      const layer = item.layerId ? plate.layers.find((l) => l.id === item.layerId) : undefined;
       const longName = item.placeId
         ? (placeById.get(item.placeId)?.name ?? item.label ?? id)
         : (layer?.label ?? (layer?.placeId ? placeById.get(layer.placeId)?.name : undefined) ?? item.label ?? id);

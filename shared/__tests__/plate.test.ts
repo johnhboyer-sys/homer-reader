@@ -4385,7 +4385,10 @@ describe('renderPlate: featureKey (stage 5c)', () => {
 
   it('E2: numerals are unique and contiguous 1…N in group order; every item resolves to a drawn pin or layer', () => {
     expect(groups.map((g) => g.title)).toEqual([...FEATURE_KEY_HEADINGS]);
-    expect(keyedItems.length).toBe(32);
+    // 33, not 32 (shipcomp option 2, 2026-09-02): "The camp and its wall"
+    // gained a third item, ships-band, keying the ships now drawn as one
+    // hatched region instead of three shipRow layers.
+    expect(keyedItems.length).toBe(33);
     const ns = [...result.svg.matchAll(/<g class="plate-key-badge"[^>]*data-key-n="(\d+)"/g)].map((m) => Number(m[1]));
     expect(ns).toEqual(Array.from({ length: keyedItems.length }, (_, i) => i + 1));
     const drawnIds = new Set(result.features.map((f) => f.id));
@@ -4555,7 +4558,7 @@ describe('renderPlate: featureKey (stage 5c)', () => {
 
   it('numeral badges carry the contract attributes and no tabindex', () => {
     const badges = [...result.svg.matchAll(/<g class="plate-key-badge"[^>]*>[\s\S]*?<\/g>/g)].map((m) => m[0]);
-    expect(badges.length).toBe(32);
+    expect(badges.length).toBe(33); // see E2's own comment: ships-band adds one
     for (const g of badges) {
       expect(g).toMatch(/role="img"/);
       expect(g).toMatch(/aria-label="/);
