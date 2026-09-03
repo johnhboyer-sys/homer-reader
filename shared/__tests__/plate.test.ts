@@ -4708,7 +4708,7 @@ function markWallLines(svg: string, plate: Plate): { id: string; owner?: string;
     const halfWidth = lineworkReserveHalfWidth(layer);
     if (halfWidth === undefined) continue;
     const re = new RegExp(
-      `<path data-feature-id="${layer.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}" class="plate-layer plate-layer-wall(?:-restored(?:-line)?)?"[^>]*d="([^"]+)"`,
+      `<path data-feature-id="${layer.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}" class="plate-layer plate-layer-wall(?:-restored(?:-line)?)?"[^>]*\\sd="([^"]+)"`,
     );
     const m = svg.match(re);
     if (!m) continue;
@@ -4942,7 +4942,12 @@ function badgeOverlapOffenders(
   // letter has no leader and this check exists for the disc Grok found sitting
   // on the stroke, not to extend zone-letter coverage. The wall's own numeral
   // is exempt from its own corridor; every other numeral is not.
-  for (const wall of markWallLines(svg, plate)) {
+  const wallLines = markWallLines(svg, plate);
+  // 2026-09-03, ruling 9 round 3 review: the guard once parsed zero walls
+  // (its regex took the id= inside data-layer-id for the d= attribute) and
+  // passed vacuously. A sheet that draws a wall must yield at least one.
+  if (plate.layers.some((l) => l.kind === 'wall' && l.style !== 'inset')) expect(wallLines.length).toBeGreaterThan(0);
+  for (const wall of wallLines) {
     const wallBoxes = lineworkExtent(wall.points, wall.halfWidth);
     for (const disc of numerals) {
       if (wall.owner && disc.id === wall.owner) continue;
@@ -4953,17 +4958,12 @@ function badgeOverlapOffenders(
         }
       }
     }
-    for (const leader of leaders) {
-      const own = discByN.get(leader.n);
-      if (wall.owner && own?.id === wall.owner) continue;
-      for (const box of wallBoxes) {
-        if (originInside(leader, box)) continue;
-        if (segmentHitsBox(leader, box)) {
-          offenders.push(`leader/wall: ${leader.label} crosses wall ${wall.id}`);
-          break;
-        }
-      }
-    }
+    // Leaders are NOT checked against walls (2026-09-03, round 3 review):
+    // ruling 9 forbids a leader crossing a badge, a pin or another leader,
+    // not linework — leaders cross roads and contours everywhere, and the
+    // citadel's gates sit ON the wall ring, so their leaders must cross it
+    // to reach any seat. Once the regex above actually parsed walls, a
+    // leader clause here named eighteen such crossings; it was a wrong claim.
   }
 
   // Placed names and sheet furniture. A name's position carries meaning and
