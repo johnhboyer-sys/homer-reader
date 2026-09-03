@@ -2237,6 +2237,23 @@ function labelBox(c: LabelPoint, textWidth: number, style: Pick<LabelStyle, 'siz
   return [x1, c.y - style.size * 0.8, x1 + textWidth, c.y + style.size * 0.25];
 }
 
+/**
+ * The box a CENTRED name takes: an area name is set at its own shape's middle,
+ * and that position is the name's meaning, so unlike every other label it
+ * cannot be moved to dodge anything. Shared with the badge placer, which runs
+ * before layoutLabels and has to know where these names are going to land in
+ * order to yield to them (ruling 9, 2026-09-03) — one definition so the two
+ * passes can never disagree about it.
+ */
+function centredLabelBox(req: Pick<LabelRequest, 'anchorBox' | 'text' | 'role' | 'labelSize' | 'styleOverride'>): Box {
+  const roleStyle = req.labelSize === 'small' ? LABEL_STYLES.minor : LABEL_STYLES[req.role];
+  const style = req.styleOverride ? { ...roleStyle, ...req.styleOverride } : roleStyle;
+  const textWidth = estimateLabelWidth(labelText(req.text, style), style);
+  const cx = (req.anchorBox[0] + req.anchorBox[2]) / 2;
+  const cy = (req.anchorBox[1] + req.anchorBox[3]) / 2;
+  return labelBox({ x: cx, y: cy + style.size * 0.3, anchor: 'middle' }, textWidth, style);
+}
+
 // Imhof's ranking, via the 2024 reassessment cited in the cartography
 // dossier: top-right > right > top > bottom > left. His reason is that Latin
 // ascenders outnumber descenders, so a name set above a point sits visually
@@ -2338,27 +2355,190 @@ export function placeLabelCandidates(
 // any clear candidate exists.
 const BADGE_FAR_GAPS = [32, 48, 64];
 
+// Ruling 9 (John, 2026-09-03, circling zone letter B with one numeral's leader
+// driven through it and another's ending inside it: "let's not have things
+// overlap"): where no ring above can seat a badge clear, it goes FURTHER OUT
+// on a longer leader rather than overlapping. Radial, not compass: the eight
+// points above give a numeral in the citadel cluster (eleven pins inside 25px)
+// only eight corridors to escape through, and every one of them crosses
+// something. Sixteen directions and six ladder rungs is what it takes for the
+// hard checks below to stay satisfiable there.
+// Short rungs, many directions — NOT the other way round. A long leader is
+// not a safer leader: it crosses more of the sheet, so it meets more pins and
+// more leaders, and measured here a 230px escape ring failed every one of its
+// sixteen directions. What a numeral in a dense cluster actually needs is a
+// narrow corridor a few px wide, which only angular resolution finds.
+const BADGE_ESCAPE_GAPS = [26, 30, 34, 38, 43, 48, 54, 60, 68, 76, 86, 96, 108, 122, 138, 156, 175];
+const BADGE_ESCAPE_DIRS = 36;
+/** How close a drawn mark has to be to count toward a numeral's crowding. */
+const BADGE_CROWDING_RADIUS = 60;
+/**
+ * Nothing beyond this from a numeral's mark can collide with it, so seatBadge
+ * filters its obstacles to this neighbourhood. MUST stay comfortably above the
+ * longest BADGE_ESCAPE_GAPS rung plus a disc radius, or a badge on the outer
+ * ring would be checked against a set that does not reach it.
+ */
+const BADGE_NEIGHBOURHOOD = 260;
+/** How much nearer its mark a re-seated badge must land for the move to be worth it, in px. */
+const BADGE_TIGHTEN_MARGIN = 8;
+/** How many times a still-colliding badge is re-seated against the finished sheet. */
+const BADGE_REPAIR_ROUNDS = 4;
+/** Clearance past which a zone-letter seat counts as simply open; see the placer. */
+const ZONE_LETTER_OPEN_ENOUGH = 30;
+/** Interior-sample density for a zone letter that cannot take its own centroid. */
+const ZONE_LETTER_SAMPLE_GRID = 24;
+/** Ruling-9 clearance, in px. Bigger than the 0.1px the emitted path rounds to. */
+const BADGE_CLEARANCE = 0.4;
+
+interface Disc {
+  cx: number;
+  cy: number;
+  r: number;
+}
+
+interface Segment {
+  ax: number;
+  ay: number;
+  bx: number;
+  by: number;
+}
+
+function pointSegmentDistance(px: number, py: number, s: Segment): number {
+  const dx = s.bx - s.ax;
+  const dy = s.by - s.ay;
+  const len2 = dx * dx + dy * dy;
+  const t = len2 === 0 ? 0 : Math.max(0, Math.min(1, ((px - s.ax) * dx + (py - s.ay) * dy) / len2));
+  return Math.hypot(px - (s.ax + t * dx), py - (s.ay + t * dy));
+}
+
+/** Liang–Barsky: does the segment enter the axis-aligned box at all? */
+function segmentHitsBox(s: Segment, box: Box, pad: number): boolean {
+  let t0 = 0;
+  let t1 = 1;
+  const dx = s.bx - s.ax;
+  const dy = s.by - s.ay;
+  const p = [-dx, dx, -dy, dy];
+  const q = [s.ax - (box[0] - pad), box[2] + pad - s.ax, s.ay - (box[1] - pad), box[3] + pad - s.ay];
+  for (let i = 0; i < 4; i++) {
+    if (p[i] === 0) {
+      if (q[i] < 0) return false;
+    } else {
+      const t = q[i] / p[i];
+      if (p[i] < 0) t0 = Math.max(t0, t);
+      else t1 = Math.min(t1, t);
+    }
+  }
+  return t0 <= t1;
+}
+
+function segmentsCross(a: Segment, b: Segment): boolean {
+  const side = (px: number, py: number, qx: number, qy: number, rx: number, ry: number) =>
+    (qx - px) * (ry - py) - (qy - py) * (rx - px);
+  const d1 = side(a.ax, a.ay, a.bx, a.by, b.ax, b.ay);
+  const d2 = side(a.ax, a.ay, a.bx, a.by, b.bx, b.by);
+  const d3 = side(b.ax, b.ay, b.bx, b.by, a.ax, a.ay);
+  const d4 = side(b.ax, b.ay, b.bx, b.by, a.bx, a.by);
+  return d1 > 0 !== d2 > 0 && d3 > 0 !== d4 > 0;
+}
+
+function boxesTouch(a: Box, b: Box, pad: number): boolean {
+  return !(a[2] + pad < b[0] || b[2] + pad < a[0] || a[3] + pad < b[1] || b[3] + pad < a[1]);
+}
+
+/**
+ * The leader a badge at `box` would draw from `anchorBox`, or undefined when
+ * none is drawn. MUST agree with keyLeaderElement and with renderPlate's
+ * `candidateIndex >= NEAR_CANDIDATE_COUNT` gate — the placer is checking the
+ * line the sheet will actually carry, so a second formula here would gate on
+ * a leader that does not exist (ruling 9, 2026-09-03).
+ */
+function badgeLeaderSegment(anchorBox: Box, box: Box, candidateIndex: number): Segment | undefined {
+  if (candidateIndex < NEAR_CANDIDATE_COUNT) return undefined;
+  const ax = (anchorBox[0] + anchorBox[2]) / 2;
+  const ay = (anchorBox[1] + anchorBox[3]) / 2;
+  const bx = box[0] < ax ? box[2] : box[0];
+  const by = (box[1] + box[3]) / 2;
+  if (Math.hypot(bx - ax, by - ay) < 12) return undefined;
+  return { ax, ay, bx, by };
+}
+
+interface BadgeSeat {
+  placement: LabelPlacement;
+  violations: number;
+  disc: Disc;
+  leader?: Segment;
+}
+
 function placeKeyBadges(
-  inputs: (LabelPlacementInput & { r: number })[],
-  // `avoidBoxes` seeds the same hard non-overlap check a badge already gets
-  // against every OTHER badge (`badgeHit`, below) — used for zone letters
-  // (`plate-zone-letter` discs), which share the badge's circular register
-  // but are placed independently, at a fixed centroid, before any numeral is
-  // laid. Without this a zone letter is only a soft `placedBoxes` cost, the
-  // same as any other reserved ink, and a numeral can still win a spot on
-  // top of it when every clear candidate is worse on other grounds (stage 5c
-  // review fix, 2026-09-02: badge 8 on zone A).
-  options: LabelPlacementOptions & { avoidBoxes?: Box[] },
+  // `ownMarker` is the drawn dot this numeral belongs to, where one exists (a
+  // layer-anchored item has none). It is the one mark the badge may sit on —
+  // ruling 9, 2026-09-03.
+  inputs: (LabelPlacementInput & { r: number; ownMarker?: Box })[],
+  // `avoidDiscs` seeds the same hard non-overlap check a badge already gets
+  // against every OTHER badge — used for zone letters (`plate-zone-letter`
+  // discs), which share the badge's circular register but are placed
+  // independently, at their zone's own centroid, before any numeral is laid.
+  // Without this a zone letter is only a soft `placedBoxes` cost, the same as
+  // any other reserved ink, and a numeral can still win a spot on top of it
+  // when every clear candidate is worse on other grounds (stage 5c review fix,
+  // 2026-09-02: badge 8 on zone A).
+  // `avoidMarkers` is every drawn mark on the sheet: a hard obstacle for the
+  // discs and the leaders both, where `markerBoxes` stays what it was, the
+  // soft cost every label solver on this sheet already pays.
+  // `avoidLabelBoxes` are the centred area names (see centredLabelBox): they
+  // cannot move, and a numeral has three hundred seats to choose from, so the
+  // numeral is the one that yields.
+  options: LabelPlacementOptions & { avoidDiscs?: Disc[]; avoidMarkers?: Box[]; avoidLabelBoxes?: Box[] },
 ): LabelPlacement[] {
-  const placed = [...(options.placedBoxes ?? [])];
   const markerBoxes = options.markerBoxes ?? [];
-  const results: LabelPlacement[] = [];
-  const badgeBoxes: Box[] = [...(options.avoidBoxes ?? [])];
-  for (const input of inputs) {
+  const avoidMarkers = options.avoidMarkers ?? [];
+  const avoidLabelBoxes = options.avoidLabelBoxes ?? [];
+  const zoneDiscs = options.avoidDiscs ?? [];
+  const reservedBoxes = options.placedBoxes ?? [];
+
+  /**
+   * The best seat for one numeral against a given obstacle set. `discs` and
+   * `leaders` are what the REST of the sheet carries — never this badge's own
+   * — so the same function serves the first pass and the repair pass below.
+   */
+  const seatBadge = (
+    input: (typeof inputs)[number],
+    discs: Disc[],
+    leaders: Segment[],
+    placed: Box[],
+  ): BadgeSeat | undefined => {
     const [x1, y1, x2, y2] = input.anchorBox;
     const cx = (x1 + x2) / 2;
     const cy = (y1 + y2) / 2;
     const half = input.fontSize * 0.36;
+    // Nothing further from the mark than the longest escape ring can bear on
+    // this badge, so every obstacle list is filtered to a neighbourhood ONCE
+    // per badge rather than re-scanned per candidate — three hundred
+    // candidates against a whole sheet's reserved ink is otherwise the
+    // difference between a 40ms render and a three-second one (measured,
+    // 2026-09-03).
+    const near = (box: Box) =>
+      box[0] <= cx + BADGE_NEIGHBOURHOOD &&
+      box[2] >= cx - BADGE_NEIGHBOURHOOD &&
+      box[1] <= cy + BADGE_NEIGHBOURHOOD &&
+      box[3] >= cy - BADGE_NEIGHBOURHOOD;
+    const nearDiscs = discs.filter((d) => near([d.cx - d.r, d.cy - d.r, d.cx + d.r, d.cy + d.r]));
+    const nearLeaders = leaders.filter((l) => pointSegmentDistance(cx, cy, l) <= BADGE_NEIGHBOURHOOD);
+    const nearPlaced = placed.filter(near);
+    const nearLabels = avoidLabelBoxes.filter(near);
+    const nearMarkerBoxes = markerBoxes.filter(near);
+    const foreignMarkers = avoidMarkers.filter((m) => m !== input.ownMarker && near(m));
+    // A leader BEGINS at its own mark, and on the schematic sheet eight pairs
+    // of marks physically overlap — the citadel cluster puts eleven dots
+    // inside 25px, closer together than their own 2.6px radius. A leader out
+    // of one of those starts inside its neighbour whatever direction it takes,
+    // so no placement could clear it, and counting it would only make the
+    // solver give up and overlap something it COULD have avoided. Ruling 9
+    // says a leader never CROSSES a pin; a line whose origin already lies
+    // inside a mark is not crossing the sheet to reach it. Marks sitting on
+    // each other is a fact about the poem's own positions, and this module
+    // does not get to move them (2026-09-03).
+    const leaderMarkers = foreignMarkers.filter((m) => !(cx >= m[0] && cx <= m[2] && cy >= m[1] && cy <= m[3]));
     const extra: LabelCandidate[] = [];
     for (const gap of BADGE_FAR_GAPS) {
       extra.push(
@@ -2372,33 +2552,204 @@ function placeKeyBadges(
         { position: 'SW', x: x1 - gap, y: y2 + gap + input.fontSize * 0.6, anchor: 'end' },
       );
     }
-    const all = [...labelCandidates(input.anchorBox, input.fontSize), ...extra];
-    let bestClear: LabelPlacement | undefined;
-    let bestAny: LabelPlacement | undefined;
-    for (let index = 0; index < all.length; index++) {
-      const candidate = all[index];
+    // The escape ladder: a disc centred on a ring around the mark. Expressed
+    // as a candidate whose labelBox IS the disc's bounding box, so everything
+    // downstream (the leader's attachment edge, the reserved box) reads it
+    // exactly as it reads a ring candidate.
+    const escapes: LabelCandidate[] = [];
+    for (const gap of BADGE_ESCAPE_GAPS) {
+      for (let k = 0; k < BADGE_ESCAPE_DIRS; k++) {
+        // From NE (Imhof's first choice) clockwise, so the ladder keeps the
+        // ring order's own preference and stays deterministic.
+        const theta = -Math.PI / 4 + (k * 2 * Math.PI) / BADGE_ESCAPE_DIRS;
+        escapes.push({
+          position: 'E',
+          x: cx + gap * Math.cos(theta) - input.textWidth / 2,
+          y: cy + gap * Math.sin(theta) + input.fontSize * 0.275,
+          anchor: 'start',
+        });
+      }
+    }
+    const candidates = [...labelCandidates(input.anchorBox, input.fontSize), ...extra, ...escapes];
+    let best: BadgeSeat | undefined;
+    let bestScore = Infinity;
+    for (let index = 0; index < candidates.length; index++) {
+      const candidate = candidates[index];
       const box = labelBox(candidate, input.textWidth, { size: input.fontSize });
       const bcx = (box[0] + box[2]) / 2;
       const bcy = (box[1] + box[3]) / 2;
       const circle: Box = [bcx - input.r, bcy - input.r, bcx + input.r, bcy + input.r];
-      const badgeHit = badgeBoxes.some((other) => boxesOverlap(circle, other)) ? 1 : 0;
-      const labelOverlap = placed.reduce((total, other) => total + overlapArea(box, other), 0);
-      const markerOverlap = markerBoxes.reduce((total, marker) => total + overlapArea(box, marker), 0);
+      const leader = badgeLeaderSegment(input.anchorBox, box, index);
+      // Ruling 9's claims, COUNTED rather than short-circuited: a sheet with
+      // no clear seat anywhere still takes the least-bad candidate instead of
+      // the first one tried, and the count is what the repair pass improves on.
+      let violations = 0;
+      for (const other of nearDiscs) {
+        // Both tests, because they catch different failures: the box overlap
+        // is what E4 has always asserted (two discs whose bounding squares
+        // touch corner to corner read as crowded even where the circles
+        // clear), the centre distance is ruling 9's own claim about the discs.
+        if (
+          boxesOverlap(circle, [other.cx - other.r, other.cy - other.r, other.cx + other.r, other.cy + other.r], BADGE_CLEARANCE) ||
+          Math.hypot(bcx - other.cx, bcy - other.cy) < input.r + other.r + BADGE_CLEARANCE
+        ) {
+          violations++;
+        }
+        if (leader && pointSegmentDistance(other.cx, other.cy, leader) < other.r + BADGE_CLEARANCE) violations++;
+      }
+      for (const marker of foreignMarkers) if (boxesTouch(circle, marker, BADGE_CLEARANCE)) violations++;
+      for (const name of nearLabels) if (boxesTouch(circle, name, BADGE_CLEARANCE)) violations++;
+      if (leader) {
+        for (const marker of leaderMarkers) if (segmentHitsBox(leader, marker, BADGE_CLEARANCE)) violations++;
+      }
+      for (const other of nearLeaders) {
+        // A disc dropped onto a leader already drawn is the same defect seen
+        // from the other side, and the first pass only sees it here: the badge
+        // that owns that leader was placed before this one existed.
+        if (pointSegmentDistance(bcx, bcy, other) < input.r + BADGE_CLEARANCE) violations++;
+        if (leader && segmentsCross(leader, other)) violations++;
+      }
       const offView = offViewBoxArea(box, options.width, options.height, options.margin);
-      const penalty = offView * 10_000 + labelOverlap * 1_000 + markerOverlap * 100 + badgeHit * 100_000 + index / 1_000;
-      const placement = { id: input.id, candidate, candidateIndex: index, box, penalty };
-      if (!bestAny || placement.penalty < bestAny.penalty) bestAny = placement;
-      if (badgeHit === 0 && (!bestClear || placement.penalty < bestClear.penalty)) bestClear = placement;
+      const collisions = violations + (offView > 0 ? 1 : 0);
+      // A candidate that already collides more than the incumbent cannot win
+      // whatever its penalty is (the score is collisions-major), so the cost
+      // of measuring the penalty — a scan of every reserved box near the mark,
+      // three hundred times per badge — is simply not paid for it.
+      if (collisions * 1e9 >= bestScore) continue;
+      const labelOverlap = nearPlaced.reduce((total, other) => total + overlapArea(box, other), 0);
+      const markerOverlap = nearMarkerBoxes.reduce((total, marker) => total + overlapArea(box, marker), 0);
+      // Distance from the mark is a cost, not just a tiebreak (ruling 9,
+      // 2026-09-03). A numeral is a pointer: the further it sits from the pin
+      // it numbers, the less it points, and every leader it needs to say so is
+      // one more line the numerals after it have to dodge. Weighted so a badge
+      // crosses a couple of px^2 of reserved ink rather than fly 50px further.
+      const reach = Math.hypot(bcx - cx, bcy - cy);
+      const penalty = offView * 10_000 + labelOverlap * 1_000 + markerOverlap * 100 + reach * 60 + index / 1_000;
+      // A badge off the neatline is not clear either — flinging a numeral past
+      // the frame to dodge a pin trades one defect for a worse one, so an
+      // off-frame seat counts as a collision of its own.
+      const score = collisions * 1e9 + penalty;
+      if (score < bestScore) {
+        bestScore = score;
+        best = {
+          placement: { id: input.id, candidate, candidateIndex: index, box, penalty },
+          violations: collisions,
+          disc: { cx: bcx, cy: bcy, r: input.r },
+          leader,
+        };
+      }
     }
-    const chosen = bestClear ?? bestAny;
-    if (!chosen) continue;
-    results.push(chosen);
-    placed.push(chosen.box);
-    const cxb = (chosen.box[0] + chosen.box[2]) / 2;
-    const cyb = (chosen.box[1] + chosen.box[3]) / 2;
-    badgeBoxes.push([cxb - input.r, cyb - input.r, cxb + input.r, cyb + input.r]);
+    return best;
+  };
+
+  // Ruling 9 (2026-09-03). Greedy placement is order-dependent, and no single
+  // order clears every sheet: laid in numeral order the citadel leaves badges
+  // 16 and 21 with crossing leaders, and neither can fix it alone — each one's
+  // only clear seat is where the other is standing. So the sheet is laid three
+  // times, in three orders, and the cleanest result wins. Most-crowded-first
+  // is the standard heuristic for a packing problem and is tried first: the
+  // numerals with the fewest options choose while there is still room. The
+  // other two are there because a heuristic that happens to fail is not an
+  // argument for accepting an overlap — and the comparison is a machine count
+  // of collisions, so an added order can only ever improve the answer.
+  const markerCentre = (m: Box) => [(m[0] + m[2]) / 2, (m[1] + m[3]) / 2] as const;
+  const crowding = inputs.map((input) => {
+    const cx = (input.anchorBox[0] + input.anchorBox[2]) / 2;
+    const cy = (input.anchorBox[1] + input.anchorBox[3]) / 2;
+    return avoidMarkers.filter((m) => {
+      const [mx, my] = markerCentre(m);
+      return Math.hypot(mx - cx, my - cy) < BADGE_CROWDING_RADIUS;
+    }).length;
+  });
+  const numeralOrder = inputs.map((_, i) => i);
+  const orders: number[][] = [
+    [...numeralOrder].sort((a, b) => crowding[b] - crowding[a] || a - b),
+    numeralOrder,
+    [...numeralOrder].reverse(),
+  ];
+
+  const layOut = (idxOrder: number[]): (BadgeSeat | undefined)[] => {
+    const seats: (BadgeSeat | undefined)[] = new Array(inputs.length);
+    const placed = [...reservedBoxes];
+    const discs: Disc[] = [...zoneDiscs];
+    const leaders: Segment[] = [];
+    for (const i of idxOrder) {
+      const seat = seatBadge(inputs[i], discs, leaders, placed);
+      seats[i] = seat;
+      if (!seat) continue;
+      placed.push(seat.placement.box);
+      discs.push(seat.disc);
+      if (seat.leader) leaders.push(seat.leader);
+    }
+
+    // Repair. The pass above is half blind: badge 18 chooses against the
+    // eleven discs and leaders laid before it and knows nothing of the
+    // fourteen still to come, so it can be left with no clear seat where one
+    // exists against the FINISHED sheet. Each still-colliding badge is
+    // re-seated against every other badge's committed seat, and kept only when
+    // its count of violations strictly falls — which both terminates the loop
+    // and stops it trading one overlap for another.
+    const reachOf = (seat: BadgeSeat, i: number) => {
+      const b = inputs[i].anchorBox;
+      return Math.hypot(seat.disc.cx - (b[0] + b[2]) / 2, seat.disc.cy - (b[1] + b[3]) / 2);
+    };
+    for (let round = 0; round < BADGE_REPAIR_ROUNDS; round++) {
+      let improved = false;
+      for (let i = 0; i < inputs.length; i++) {
+        const seat = seats[i];
+        // A badge that is clear AND already sitting close to its mark has
+        // nothing to gain from either rule below, and re-seating all thirty-two
+        // every round is most of this pass's cost.
+        if (!seat || (seat.violations === 0 && reachOf(seat, i) <= BADGE_TIGHTEN_MARGIN * 2)) continue;
+        const otherDiscs = [...zoneDiscs];
+        const otherLeaders: Segment[] = [];
+        const otherBoxes = [...reservedBoxes];
+        for (let j = 0; j < seats.length; j++) {
+          const s = seats[j];
+          if (!s || j === i) continue;
+          otherDiscs.push(s.disc);
+          otherBoxes.push(s.placement.box);
+          if (s.leader) otherLeaders.push(s.leader);
+        }
+        const reseated = seatBadge(inputs[i], otherDiscs, otherLeaders, otherBoxes);
+        if (!reseated) continue;
+        // Two reasons to take the new seat. Fewer collisions, obviously. And
+        // a materially SHORTER leader at no cost in collisions: the order
+        // search below picks whichever pass leaves the sheet cleanest, and the
+        // order that wins can perfectly well have sent a numeral that was
+        // never in trouble sixty px out for nothing. A numeral far from its
+        // pin is a numeral that has stopped pointing (ruling 9, 2026-09-03).
+        // Distance is measured from the mark, not read off the score, so the
+        // comparison is between two seats and not between two obstacle sets;
+        // and it must IMPROVE by a real margin, which is what terminates the
+        // loop.
+        const closer = reachOf(reseated, i) < reachOf(seat, i) - BADGE_TIGHTEN_MARGIN;
+        if (reseated.violations < seat.violations || (reseated.violations === seat.violations && closer)) {
+          seats[i] = reseated;
+          improved = true;
+        }
+      }
+      if (!improved) break;
+    }
+    return seats;
+  };
+
+  // The count of collisions the sheet still carries, and nothing else: the
+  // choice between orders is a machine count, never a matter of taste.
+  const cost = (candidate: (BadgeSeat | undefined)[]) =>
+    candidate.reduce((total, s) => total + (s ? s.violations : 0), 0);
+  let seats = layOut(orders[0]);
+  let seatsCost = cost(seats);
+  for (let i = 1; i < orders.length && seatsCost > 0; i++) {
+    const alternative = layOut(orders[i]);
+    const alternativeCost = cost(alternative);
+    if (alternativeCost < seatsCost) {
+      seats = alternative;
+      seatsCost = alternativeCost;
+    }
   }
-  return results;
+
+  return seats.filter((s): s is BadgeSeat => !!s).map((s) => s.placement);
 }
 
 // A label eligible for suppression (LabelRequest.priority set) is dropped
@@ -2863,7 +3214,7 @@ function layoutLabels(
       const cx = (req.anchorBox[0] + req.anchorBox[2]) / 2;
       const cy = (req.anchorBox[1] + req.anchorBox[3]) / 2;
       chosen = { x: cx, y: cy + style.size * 0.3, anchor: 'middle' };
-      box = labelBox(chosen, textWidth, style);
+      box = centredLabelBox(req);
       if (blocking.some((p) => boxesOverlap(p, box)) && req.area && req.area.length >= 3) {
         let found = false;
         for (const [px, py] of interiorSamplePoints(req.area, [cx, cy])) {
@@ -4724,10 +5075,14 @@ function polygonArea(pts: [number, number][]): number {
   return Math.abs(a) / 2;
 }
 
-function interiorSamplePoints(polygon: [number, number][], centroid: [number, number]): [number, number][] {
+// `n` is the sample grid's density; 8 is what the centred-name fallback has
+// always used and stays the default. Zone letters pass a finer grid (ruling 9,
+// 2026-09-03): a small zone drawn tight around the feature it names — "the
+// walls of Troy" — has only a handful of 8×8 samples inside it at all, and
+// every one of them can land on a pin.
+function interiorSamplePoints(polygon: [number, number][], centroid: [number, number], n = 8): [number, number][] {
   if (polygon.length < 3) return [];
   const [minX, minY, maxX, maxY] = bboxOf(polygon);
-  const n = 8;
   const out: [number, number][] = [];
   for (let i = 1; i < n; i++) {
     for (let j = 1; j < n; j++) {
@@ -5433,10 +5788,13 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   const denseBoxes: ReservedBox[] = [];
   const legendEntries: LegendEntry[] = [];
   const sceneKeyByLayer = new Map((plate.sceneKey ?? []).map((row) => [row.layerId, row]));
-  const zoneLetters: { letter: string; x: number; y: number }[] = [];
+  // `px` is the zone's own projected polygon, kept so a letter whose centroid
+  // is already occupied can fall through its INTERIOR (ruling 9, 2026-09-03) —
+  // a letter that leaves the tract it names would be worse than an overlap.
+  const zoneLetters: { letter: string; x: number; y: number; px: [number, number][] }[] = [];
   // A zone letter for a margin inset's own polygon is furniture too (see
   // marginInsetMarkup above) — it must move with its panel, not with the map.
-  const furnitureZoneLetters: { letter: string; x: number; y: number }[] = [];
+  const furnitureZoneLetters: { letter: string; x: number; y: number; px: [number, number][] }[] = [];
   // The blurred-edge filters (see SOFT_BLUR). Each is declared only when
   // something on the sheet actually uses it, so a plate with no indefinite
   // features emits exactly what it did before.
@@ -5471,7 +5829,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
             )
           : projectPoints(plate, layer.polygon, viewport);
       const [cx, cy] = polygonCentroid(px);
-      (isMarginInset ? furnitureZoneLetters : zoneLetters).push({ letter: keyRow.letter, x: cx, y: cy });
+      (isMarginInset ? furnitureZoneLetters : zoneLetters).push({ letter: keyRow.letter, x: cx, y: cy, px });
     }
     if (layer.placeId) layerPlaceIds.add(layer.placeId);
     // One ground, several names — see PlateLayer.claims. Claimed places are
@@ -5550,20 +5908,6 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     }
   }
 
-  // Zone letters (the lettered scene-zone discs, e.g. "A") share the numeral
-  // badges' visual register (badgeMarkup) but sit at a fixed spot — each
-  // zone polygon's own centroid — with no solver input of their own. Their
-  // boxes feed the name pass (layoutLabels, via denseBoxes below) as a
-  // reservation, AND the numeral-badge placer (placeKeyBadges, below) as a
-  // hard non-overlap (see its `avoidBoxes`) — so a numeral never lands on a
-  // letter (stage 5c review fix, 2026-09-02: badge 8 was drawn on top of
-  // zone A).
-  const zoneLetterR = LABEL_STYLES.minor.size * 0.8;
-  const zoneLetterBoxes: Box[] = zoneLetters.map(
-    (z): Box => [z.x - zoneLetterR, z.y - zoneLetterR, z.x + zoneLetterR, z.y + zoneLetterR],
-  );
-  for (const box of zoneLetterBoxes) denseBoxes.push({ box });
-
   // Into the paint stack (see paintRank). Array#sort is stable in every
   // engine this ships to, so layers sharing a rank keep the order the plate
   // file authored them in. A water layer's submerged river reaches travel
@@ -5600,6 +5944,13 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   const unlocated: PlatePlace[] = [];
   const drawnByLayer: PlatePlace[] = [];
   const pinMarkupParts: string[] = [];
+  // The marks ACTUALLY DRAWN, by place id — not every label anchor. Ruling 9
+  // (2026-09-03) makes "keep clear of a pin" a hard constraint on badges,
+  // zone letters and leaders, and the thing to keep clear of is the dot on the
+  // sheet: a markerless class (a region, a river carried by its own layer)
+  // has a label anchor but no ink, and reserving a corridor around one would
+  // push badges away from nothing at all.
+  const drawnMarkBoxes = new Map<string, Box>();
   const pinLabelRequests: LabelRequest[] = [];
   for (const place of places) {
     // A place a layer claims IS that feature, however well anchored it is:
@@ -5677,6 +6028,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       const showDot = place.kind !== 'mountain' && !NO_OWN_MARKER_PLACE_IDS.has(place.id);
       if (showDot) {
         pinMarkupParts.push(dotMarkup(place.id, place.name, x, y, dotStyle, r));
+        drawnMarkBoxes.set(place.id, dotBBox(x, y, r));
         features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: dotBBox(x, y, r) });
       }
       pinLabelRequests.push({
@@ -5753,6 +6105,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
           '<g data-position-basis="conjectural" ',
         ),
       );
+      drawnMarkBoxes.set(place.id, dotBBox(x, y, r));
       features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: dotBBox(x, y, r) });
       pinLabelRequests.push({
         id: place.id,
@@ -5807,6 +6160,74 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   const pinAnchors = new Map<string, Box>();
   for (const req of pinLabelRequests) pinAnchors.set(req.id, req.anchorBox);
 
+  // Zone letters (the lettered scene-zone discs, e.g. "A") share the numeral
+  // badges' visual register (badgeMarkup) and sit at their zone polygon's own
+  // centroid. Their boxes feed the name pass (layoutLabels, via denseBoxes
+  // below) as a reservation, AND the numeral-badge placer (placeKeyBadges,
+  // below) as a hard non-overlap (see its `avoidDiscs`) — so a numeral never
+  // lands on a letter (stage 5c review fix, 2026-09-02: badge 8 was drawn on
+  // top of zone A).
+  //
+  // Ruling 9 (2026-09-03) moved this pass down here, below the marks: a
+  // centroid is not always free. Two zones can share one — on the Trojan-plain
+  // schematic F ("the walls of Troy") and G ("the circuit of the chase") are
+  // both centred on Ilios, and their discs coincided EXACTLY, so one letter
+  // was simply invisible under the other — and a zone named for a feature has
+  // its centroid on that feature's own pin more often than not (F sat on four
+  // of them). A letter that cannot take its centroid falls through its own
+  // polygon's interior samples, nearest first, exactly the way a centred area
+  // name already does; it never leaves the tract it letters.
+  const zoneLetterR = LABEL_STYLES.minor.size * 0.8;
+  const zoneLetterDiscs: Disc[] = [];
+  const placedZoneLetters: { letter: string; x: number; y: number }[] = [];
+  for (const zone of zoneLetters) {
+    const clear = (x: number, y: number): boolean =>
+      zoneLetterDiscs.every((d) => Math.hypot(x - d.cx, y - d.cy) >= zoneLetterR + d.r + BADGE_CLEARANCE) &&
+      [...drawnMarkBoxes.values()].every(
+        (m) => !boxesTouch([x - zoneLetterR, y - zoneLetterR, x + zoneLetterR, y + zoneLetterR], m, BADGE_CLEARANCE),
+      );
+    let { x, y } = zone;
+    if (!clear(x, y) && zone.px.length >= 3) {
+      // Not the first clear sample but the most OPEN one — the nearest clear
+      // spot to a blocked centroid is, by construction, just outside the
+      // crowd that blocked it, which is precisely where a numeral's leader
+      // then has to get past it (ruling 9, 2026-09-03: zone F, shoved a few px
+      // off the Ilios cluster, stood in the only westward corridor badge 22
+      // had). Openness is capped, so any comfortably clear spot counts the
+      // same and the tie goes to the sample nearest the centroid — the letter
+      // still means the zone's middle, not its edge.
+      let bestScore = -Infinity;
+      for (const [sx, sy] of interiorSamplePoints(zone.px, [zone.x, zone.y], ZONE_LETTER_SAMPLE_GRID)) {
+        if (!clear(sx, sy)) continue;
+        let nearestMark = Infinity;
+        for (const m of drawnMarkBoxes.values()) {
+          const nx = Math.max(m[0], Math.min(sx, m[2]));
+          const ny = Math.max(m[1], Math.min(sy, m[3]));
+          nearestMark = Math.min(nearestMark, Math.hypot(sx - nx, sy - ny));
+        }
+        const score = Math.min(nearestMark, ZONE_LETTER_OPEN_ENOUGH) - Math.hypot(sx - zone.x, sy - zone.y) * 0.5;
+        if (score > bestScore) {
+          bestScore = score;
+          x = sx;
+          y = sy;
+        }
+      }
+    }
+    zoneLetterDiscs.push({ cx: x, cy: y, r: zoneLetterR });
+    placedZoneLetters.push({ letter: zone.letter, x, y });
+  }
+  for (const d of zoneLetterDiscs) denseBoxes.push({ box: [d.cx - d.r, d.cy - d.r, d.cx + d.r, d.cy + d.r] });
+
+  // The centred area names, as they will be laid (see centredLabelBox). Built
+  // here because layoutLabels runs AFTER the badges and a name set at its
+  // shape's own middle has nowhere else to go — ruling 9, 2026-09-03: badge 16
+  // took a clear seat that "Wall of Troy" then had to print straight through.
+  const centredNameBoxes: Box[] = [];
+  for (const req of layerLabelRequests) {
+    if (!req.centred || keyedIds.has(req.id) || !req.text.trim()) continue;
+    centredNameBoxes.push(centredLabelBox(req));
+  }
+
   const badgeMeta: { n: number; item: PlateFeatureKeyItem; id: string; r: number; anchorBox: Box; longName: string }[] =
     [];
   // Finding F3 (stage 6 review, 2026-09-03): an unanchored featureKey item
@@ -5852,52 +6273,41 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     }
     if (keptItems.length) keyedGroups.push({ title: group.title, items: keptItems });
   }
-  const badgePlacements = placeKeyBadges(
-    badgeMeta.map((m) => ({
-      id: String(m.n).padStart(3, '0'),
-      anchorBox: m.anchorBox,
-      textWidth: 2 * m.r,
-      fontSize: 2 * m.r,
-      r: m.r,
-    })),
-    {
-      width: frameWidth,
-      height,
-      margin: LABEL_MARGIN,
-      markerBoxes: [...pinAnchors.values()],
-      placedBoxes: denseBoxes.map((d) => d.box),
-      avoidBoxes: zoneLetterBoxes,
-    },
+  const badgeInputs = badgeMeta.map((m) => ({
+    id: String(m.n).padStart(3, '0'),
+    anchorBox: m.anchorBox,
+    textWidth: 2 * m.r,
+    fontSize: 2 * m.r,
+    r: m.r,
+    ownMarker: drawnMarkBoxes.get(m.id),
+  }));
+  const badgeOptions = {
+    width: frameWidth,
+    height,
+    margin: LABEL_MARGIN,
+    markerBoxes: [...pinAnchors.values()],
+    placedBoxes: denseBoxes.map((d) => d.box),
+    avoidDiscs: zoneLetterDiscs,
+    avoidMarkers: [...drawnMarkBoxes.values()],
+  };
+  // Pass 1, against the centred area names only — those are all the label
+  // geometry that is knowable before layoutLabels runs. Its job is to reserve
+  // honest room for the name pass; pass 2, below, is what gets drawn.
+  const placementByN1 = new Map(
+    placeKeyBadges(badgeInputs, { ...badgeOptions, avoidLabelBoxes: centredNameBoxes }).map((p) => [Number(p.id), p]),
   );
-  const placementByN = new Map(badgePlacements.map((p) => [Number(p.id), p]));
-  const badgeParts: string[] = [];
-  const geographicHalo = plate.kind === 'geographic';
+  // Reserved so the names keep off the numerals — the placement they keep off
+  // is the FIRST pass's, which is the one this reservation is honest about;
+  // the second pass below can only move a badge somewhere the names then
+  // vacated anyway (ruling 9, 2026-09-03).
+  const badgePad = 4;
   for (const meta of badgeMeta) {
-    const best = placementByN.get(meta.n);
-    const box = best?.box ?? meta.anchorBox;
+    const box = placementByN1.get(meta.n)?.box ?? meta.anchorBox;
     const cx = (box[0] + box[2]) / 2;
     const cy = (box[1] + box[3]) / 2;
-    if (best && best.candidateIndex >= NEAR_CANDIDATE_COUNT) {
-      badgeParts.push(keyLeaderElement(meta.anchorBox, box, meta.n));
-    }
-    const badgePad = 4;
     denseBoxes.push({
       box: [cx - meta.r - badgePad, cy - meta.r - badgePad, cx + meta.r + badgePad, cy + meta.r + badgePad],
     });
-    const aria = `${meta.n}. ${meta.longName}`;
-    const idAttr = meta.item.placeId
-      ? ` data-place-id="${escapeXml(meta.item.placeId)}"`
-      : ` data-layer-id="${escapeXml(meta.item.layerId!)}"`;
-    badgeParts.push(
-      badgeMarkup(String(meta.n), cx, cy, geographicHalo, {
-        r: meta.r,
-        className: 'plate-key-badge',
-        fontSize: NUMERAL_BADGE_FONT,
-        textClass: '',
-        attrs: `${idAttr} data-key-n="${meta.n}" role="img" aria-label="${escapeXml(aria)}"`,
-        title: aria,
-      }),
-    );
   }
 
   const pinRequestsForLayout = pinLabelRequests.filter((r) => !silentIds.has(r.id));
@@ -5933,6 +6343,44 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     usesLatLon(plate) ? [frameWidth, height] : undefined,
     denseBoxes,
   );
+
+  // Pass 2 (ruling 9, 2026-09-03). A name's position carries meaning and, once
+  // laid, cannot move; a numeral's position carries none and has three hundred
+  // seats to pick from — so the numeral yields, and it can only do that once
+  // the names are actually down. The same solver, re-run with the finished
+  // label boxes added to its hard obstacle set. What made this necessary: badge
+  // 16 took a seat "Ilios" then had to print 0.8px into (E4).
+  const placementByN = new Map(
+    placeKeyBadges(badgeInputs, {
+      ...badgeOptions,
+      avoidLabelBoxes: [...centredNameBoxes, ...labels.boxes.map((b) => b.box)],
+    }).map((p) => [Number(p.id), p]),
+  );
+  const badgeParts: string[] = [];
+  const geographicHalo = plate.kind === 'geographic';
+  for (const meta of badgeMeta) {
+    const best = placementByN.get(meta.n);
+    const box = best?.box ?? meta.anchorBox;
+    const cx = (box[0] + box[2]) / 2;
+    const cy = (box[1] + box[3]) / 2;
+    if (best && best.candidateIndex >= NEAR_CANDIDATE_COUNT) {
+      badgeParts.push(keyLeaderElement(meta.anchorBox, box, meta.n));
+    }
+    const aria = `${meta.n}. ${meta.longName}`;
+    const idAttr = meta.item.placeId
+      ? ` data-place-id="${escapeXml(meta.item.placeId)}"`
+      : ` data-layer-id="${escapeXml(meta.item.layerId!)}"`;
+    badgeParts.push(
+      badgeMarkup(String(meta.n), cx, cy, geographicHalo, {
+        r: meta.r,
+        className: 'plate-key-badge',
+        fontSize: NUMERAL_BADGE_FONT,
+        textClass: '',
+        attrs: `${idAttr} data-key-n="${meta.n}" role="img" aria-label="${escapeXml(aria)}"`,
+        title: aria,
+      }),
+    );
+  }
 
   // Finding 8 (2026-07-28): idPrefix is caller-supplied and lands directly
   // in an SVG element id — sanitize it the same way shield.ts does (see
@@ -5978,7 +6426,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     pinMarkupParts.join('') +
     labels.markup +
     badgeParts.join('') +
-    zoneLetters
+    placedZoneLetters
       .map((z) => zoneLetterMarkup(z.letter, z.x, z.y, plate.kind === 'geographic'))
       .join('') +
     (opts.cameraGroup ? '</g>' : '') +

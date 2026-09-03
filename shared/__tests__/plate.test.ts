@@ -4450,14 +4450,22 @@ const FEATURE_KEY_HEADINGS = [
   'The plain',
 ] as const;
 
-const ZONE_LETTER_MARKUP_BEFORE: readonly string[] = [
+// The zone letters as ruling 9 leaves them (John, 2026-09-03: "let's not have
+// things overlap"). This fixture used to record the raw polygon centroids and
+// was named ...BEFORE because it locked in a pure refactor — generalizing
+// zoneLetterMarkup to badgeMarkup — as changing nothing. That refactor is
+// still unchanged; what moved is the seats, and it had to: at the centroids F
+// ("the walls of Troy") and G ("the circuit of the chase") were drawn at the
+// SAME point, one letter invisible under the other, and four of the seven sat
+// on a pin. The lock stays, on the placed positions.
+const ZONE_LETTER_MARKUP: readonly string[] = [
   '<g class="plate-zone-letter"><circle cx="571" cy="927.7" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="571" y="927.7" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">A</text></g>',
-  '<g class="plate-zone-letter"><circle cx="561.7" cy="909.4" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="561.7" y="909.4" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">B</text></g>',
+  '<g class="plate-zone-letter"><circle cx="603.6" cy="907.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="603.6" y="907.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">B</text></g>',
   '<g class="plate-zone-letter"><circle cx="560.7" cy="838.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="560.7" y="838.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">C</text></g>',
-  '<g class="plate-zone-letter"><circle cx="553.8" cy="696" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="553.8" y="696" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">D</text></g>',
-  '<g class="plate-zone-letter"><circle cx="542.3" cy="774.8" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="542.3" y="774.8" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">E</text></g>',
-  '<g class="plate-zone-letter"><circle cx="548.2" cy="637" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="548.2" y="637" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">F</text></g>',
-  '<g class="plate-zone-letter"><circle cx="548.2" cy="637" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="548.2" y="637" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">G</text></g>',
+  '<g class="plate-zone-letter"><circle cx="520.3" cy="696.4" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="520.3" y="696.4" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">D</text></g>',
+  '<g class="plate-zone-letter"><circle cx="566.6" cy="797.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="566.6" y="797.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">E</text></g>',
+  '<g class="plate-zone-letter"><circle cx="527.4" cy="629.4" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="527.4" y="629.4" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">F</text></g>',
+  '<g class="plate-zone-letter"><circle cx="535.8" cy="616.3" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="535.8" y="616.3" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">G</text></g>',
 ];
 
 function boxesIntersect(a: [number, number, number, number], b: [number, number, number, number]): boolean {
@@ -4466,6 +4474,178 @@ function boxesIntersect(a: [number, number, number, number], b: [number, number,
 
 function textLabelIds(svg: string): Set<string> {
   return new Set([...svg.matchAll(/<text[^>]*data-label-for="([^"]+)"/g)].map((m) => m[1]));
+}
+
+// ── Ruling 9's machine check (John, 2026-09-03: "let's not have things
+// overlap") ────────────────────────────────────────────────────────────────
+// Read back off the RENDERED SVG, not off the placer's own bookkeeping: the
+// ruling gates on what the sheet actually draws. Four claims, one per class of
+// collision John's circle covered — a numeral badge or zone letter on another
+// disc, a badge on someone else's pin, a leader through a disc it does not
+// belong to or through a pin, and two leaders crossing.
+interface MarkDisc {
+  label: string;
+  id: string;
+  cx: number;
+  cy: number;
+  r: number;
+}
+interface MarkSeg {
+  label: string;
+  n: string;
+  ax: number;
+  ay: number;
+  bx: number;
+  by: number;
+}
+
+function markDiscs(svg: string, className: string): MarkDisc[] {
+  const out: MarkDisc[] = [];
+  const re = new RegExp(`<g class="${className}"([^>]*)>([\\s\\S]*?)<\\/g>`, 'g');
+  for (const m of svg.matchAll(re)) {
+    const circle = m[2].match(/<circle cx="([-\d.]+)" cy="([-\d.]+)" r="([-\d.]+)"/);
+    if (!circle) continue;
+    const id = m[1].match(/data-place-id="([^"]+)"/)?.[1] ?? m[1].match(/data-layer-id="([^"]+)"/)?.[1] ?? '';
+    const n = m[1].match(/data-key-n="(\d+)"/)?.[1];
+    const letter = m[2].match(/>([^<]*)<\/text>/)?.[1] ?? '';
+    out.push({
+      label: n ? `badge ${n} (${id})` : `zone letter ${letter}`,
+      id,
+      cx: Number(circle[1]),
+      cy: Number(circle[2]),
+      r: Number(circle[3]),
+    });
+  }
+  return out;
+}
+
+/** The drawn pin/dot marks: a `<g data-place-id>` that is NOT one of the badge groups. */
+function markPins(svg: string): { id: string; box: [number, number, number, number] }[] {
+  const out: { id: string; box: [number, number, number, number] }[] = [];
+  for (const m of svg.matchAll(/<g (?![^>]*class=)[^>]*data-place-id="([^"]+)"[^>]*>([\s\S]*?)<\/g>/g)) {
+    const circle = m[2].match(/<circle cx="([-\d.]+)" cy="([-\d.]+)" r="([-\d.]+)"/);
+    const rect = m[2].match(/<rect x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"/);
+    if (circle) {
+      const [x, y, r] = [Number(circle[1]), Number(circle[2]), Number(circle[3])];
+      out.push({ id: m[1], box: [x - r, y - r, x + r, y + r] });
+    } else if (rect) {
+      const [x, y, w, h] = [Number(rect[1]), Number(rect[2]), Number(rect[3]), Number(rect[4])];
+      out.push({ id: m[1], box: [x, y, x + w, y + h] });
+    }
+  }
+  return out;
+}
+
+function markKeyLeaders(svg: string): MarkSeg[] {
+  const re = /<path class="plate-key-leader" data-key-n="(\d+)" d="M ([-\d.]+) ([-\d.]+) L ([-\d.]+) ([-\d.]+)"/g;
+  return [...svg.matchAll(re)].map((m) => ({
+    label: `leader ${m[1]}`,
+    n: m[1],
+    ax: Number(m[2]),
+    ay: Number(m[3]),
+    bx: Number(m[4]),
+    by: Number(m[5]),
+  }));
+}
+
+function pointSegDistance(px: number, py: number, s: MarkSeg): number {
+  const dx = s.bx - s.ax;
+  const dy = s.by - s.ay;
+  const len2 = dx * dx + dy * dy;
+  const t = len2 === 0 ? 0 : Math.max(0, Math.min(1, ((px - s.ax) * dx + (py - s.ay) * dy) / len2));
+  return Math.hypot(px - (s.ax + t * dx), py - (s.ay + t * dy));
+}
+
+/** Liang–Barsky: does the segment enter the axis-aligned box at all? */
+function segmentHitsBox(s: MarkSeg, box: [number, number, number, number]): boolean {
+  let t0 = 0;
+  let t1 = 1;
+  const dx = s.bx - s.ax;
+  const dy = s.by - s.ay;
+  const p = [-dx, dx, -dy, dy];
+  const q = [s.ax - box[0], box[2] - s.ax, s.ay - box[1], box[3] - s.ay];
+  for (let i = 0; i < 4; i++) {
+    if (p[i] === 0) {
+      if (q[i] < 0) return false;
+    } else {
+      const t = q[i] / p[i];
+      if (p[i] < 0) t0 = Math.max(t0, t);
+      else t1 = Math.min(t1, t);
+    }
+  }
+  return t0 <= t1;
+}
+
+function segmentsCross(a: MarkSeg, b: MarkSeg): boolean {
+  const side = (px: number, py: number, qx: number, qy: number, rx: number, ry: number) =>
+    (qx - px) * (ry - py) - (qy - py) * (rx - px);
+  const d1 = side(a.ax, a.ay, a.bx, a.by, b.ax, b.ay);
+  const d2 = side(a.ax, a.ay, a.bx, a.by, b.bx, b.by);
+  const d3 = side(b.ax, b.ay, b.bx, b.by, a.ax, a.ay);
+  const d4 = side(b.ax, b.ay, b.bx, b.by, a.bx, a.by);
+  return d1 > 0 !== d2 > 0 && d3 > 0 !== d4 > 0;
+}
+
+/** Every ruling-9 violation on a rendered sheet, named. Empty means the sheet is clean. */
+function badgeOverlapOffenders(svg: string): string[] {
+  const numerals = markDiscs(svg, 'plate-key-badge');
+  const zones = markDiscs(svg, 'plate-zone-letter');
+  const discs = [...numerals, ...zones];
+  const pins = markPins(svg);
+  const leaders = markKeyLeaders(svg);
+  const discByN = new Map(
+    numerals.map((d) => [d.label.slice('badge '.length, d.label.indexOf(' (')), d] as const),
+  );
+  const offenders: string[] = [];
+
+  for (let i = 0; i < discs.length; i++) {
+    for (let j = i + 1; j < discs.length; j++) {
+      const gap = Math.hypot(discs[i].cx - discs[j].cx, discs[i].cy - discs[j].cy) - discs[i].r - discs[j].r;
+      if (gap < 0) offenders.push(`disc/disc: ${discs[i].label} overlaps ${discs[j].label}`);
+    }
+  }
+  for (const disc of discs) {
+    for (const pin of pins) {
+      if (pin.id === disc.id) continue; // its own mark: a badge may sit on the pin it numbers
+      const nx = Math.max(pin.box[0], Math.min(disc.cx, pin.box[2]));
+      const ny = Math.max(pin.box[1], Math.min(disc.cy, pin.box[3]));
+      if (Math.hypot(disc.cx - nx, disc.cy - ny) < disc.r) {
+        offenders.push(`disc/pin: ${disc.label} sits on pin ${pin.id}`);
+      }
+    }
+  }
+  for (const leader of leaders) {
+    const own = discByN.get(leader.n);
+    for (const disc of discs) {
+      if (own && disc === own) continue; // the leader ends ON its own badge, by construction
+      if (pointSegDistance(disc.cx, disc.cy, leader) < disc.r) {
+        offenders.push(`leader/disc: ${leader.label} crosses ${disc.label}`);
+      }
+    }
+    for (const pin of pins) {
+      if (own && pin.id === own.id) continue; // it starts at its own mark
+      // A mark the leader BEGINS inside. Eight pairs of dots on the schematic
+      // sheet physically overlap — the citadel puts eleven inside 25px, closer
+      // than their own radius — so a leader out of one starts inside its
+      // neighbour whichever way it goes. Ruling 9 forbids a leader CROSSING a
+      // pin; a line whose origin is already in there is not crossing the sheet
+      // to reach it, and no placement could avoid it. The marks sitting on
+      // each other is its own defect, in the poem's own positions, and the
+      // placer has no business moving those.
+      if (leader.ax >= pin.box[0] && leader.ax <= pin.box[2] && leader.ay >= pin.box[1] && leader.ay <= pin.box[3]) {
+        continue;
+      }
+      if (segmentHitsBox(leader, pin.box)) offenders.push(`leader/pin: ${leader.label} crosses pin ${pin.id}`);
+    }
+  }
+  for (let i = 0; i < leaders.length; i++) {
+    for (let j = i + 1; j < leaders.length; j++) {
+      if (segmentsCross(leaders[i], leaders[j])) {
+        offenders.push(`leader/leader: ${leaders[i].label} crosses ${leaders[j].label}`);
+      }
+    }
+  }
+  return offenders;
 }
 
 describe('renderPlate: featureKey (stage 5c)', () => {
@@ -4673,9 +4853,23 @@ describe('renderPlate: featureKey (stage 5c)', () => {
     }
   });
 
-  it('zone letters stay byte-identical after generalizing zoneLetterMarkup to badgeMarkup', () => {
+  // Ruling 9 (John, 2026-09-03 13:21, circling zone letter B with a numeral's
+  // leader driven straight through it and another's ending inside it): "let's
+  // not have things overlap." Gated on the rendered SVG, not on a look.
+  it('E7: nothing overlaps — no disc on a disc or a foreign pin, no leader through a disc, a pin or another leader', () => {
+    expect(badgeOverlapOffenders(result.svg)).toEqual([]);
+  });
+
+  it('E7b: the geographic sheets pass the same check', () => {
+    for (const p of [SEED_PLATE_PATH, '../apparatus/plates/troad.json']) {
+      const sheet = renderPlate(parsePlate(JSON.parse(readFileSync(p, 'utf-8'))), allPlaces);
+      expect(badgeOverlapOffenders(sheet.svg), p).toEqual([]);
+    }
+  });
+
+  it('zone letters stay byte-identical to their recorded placement', () => {
     const groupsNow = [...result.svg.matchAll(/<g class="plate-zone-letter">[\s\S]*?<\/g>/g)].map((m) => m[0]);
-    expect(groupsNow).toEqual([...ZONE_LETTER_MARKUP_BEFORE]);
+    expect(groupsNow).toEqual([...ZONE_LETTER_MARKUP]);
   });
 
   it('numeral badges carry the contract attributes and no tabindex', () => {
