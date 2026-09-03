@@ -546,6 +546,22 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
         not isinstance(size, list) or len(size) != 2 or not all(_is_number(v) and v > 0 for v in size)
     ):
         problems.append(f"{label}: size must be a 2-element array of positive numbers")
+        size = None
+
+    # Finding F4 (stage 6 review, 2026-09-03): this check did not exist on the
+    # Python side at all — a plate.json with marginRight >= size[0] passed
+    # preflight clean, and only failed at render time in shared/lib/plate.ts
+    # (frameWidth = width - marginRight goes negative, and the map frame
+    # projects off-canvas). Mirrors parsePlate's own marginRight checks.
+    margin_right = doc.get("marginRight")
+    if margin_right is not None:
+        if not _is_number(margin_right) or margin_right < 0:
+            problems.append(f"{label}: marginRight must be a number >= 0, got {margin_right!r}")
+        elif isinstance(size, list) and len(size) == 2 and margin_right >= size[0]:
+            problems.append(
+                f"{label}: marginRight {margin_right} must be less than size[0] {size[0]} "
+                f"(it would leave no map frame)"
+            )
 
     # Plate pixels per metre of ground: a schematic plate's declaration that it
     # IS drawn to a true and constant scale, which is what lets the renderer draw

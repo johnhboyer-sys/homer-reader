@@ -215,6 +215,29 @@ def test_validate_plate_rejects_non_list_claims():
     assert any("layer town claims" in p for p in problems)
 
 
+# Finding F4 (stage 6 review, 2026-09-03): marginRight was not checked
+# against size[0] at all on the Python side; a plate whose margin ate the
+# whole sheet width (or more) passed preflight clean and only broke at
+# render time in shared/lib/plate.ts (frameWidth = width - marginRight goes
+# negative).
+def test_validate_plate_rejects_margin_right_at_size_width():
+    plate = _plate(marginRight=880)  # equals size[0], leaves no map frame
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("marginRight" in p and "must be less than size[0]" in p for p in problems)
+
+
+def test_validate_plate_rejects_margin_right_over_size_width():
+    plate = _plate(marginRight=1000)  # exceeds size[0] = 880
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("marginRight" in p and "must be less than size[0]" in p for p in problems)
+
+
+def test_validate_plate_accepts_margin_right_under_size_width():
+    plate = _plate(marginRight=200)
+    problems = apparatus_places.validate_plate(plate, {})
+    assert problems == []
+
+
 def test_validate_plate_schematic_rejects_lat_lon_coordinates():
     # Coordinate space is declared by the PRESENCE of bbox, not by kind or
     # by the bbox's own extent — a schematic plate that wants unit space

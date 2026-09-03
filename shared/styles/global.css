@@ -385,6 +385,11 @@
     --plate-relief-12:      #86734B;
     --plate-contour:        #C2B189; /* band hairline, dark: lighter than every ramp step,
                                      see the :root block's comment */
+    /* Finding F6 (stage 6 review, 2026-09-03): missing from this block, so a
+       system-dark reader (no explicit data-theme) fell through to the :root
+       value tuned for LIGHT ground and lost contrast. Matches
+       :root[data-theme="dark"]'s value below. */
+    --plate-schematic-ink:  #DBD5DA;
   }
 }
 
