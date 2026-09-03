@@ -427,6 +427,21 @@ shield-of-achilles plate-level `sources` (now a validator error);
     tiered; nothing surveyed placed at a guessed coordinate. The July pickup
     gate (references first) is satisfied by today's two style sheets.
 
+13. **Buildings are drawn as buildings (John, 2026-09-03 17:18, on the
+    first supplement's six dashed rectangles: "c'mon").** Inside the walls
+    the register is an engraved city plan, not a diagram. The ground carries
+    Dörpfeld's surveyed Troy VI houses, towers and gates (VI A, B, C, G, M,
+    O, Q — already traced in the July citadel plate) as quiet plans on the
+    terraces. The poem's structures are drawn with the detail the poem gives
+    and with the weight of the subject: the house of Priam as a court with
+    colonnades of polished stone and the fifty chambers in a row and the
+    twelve across the court (6.242–250); the temple of Athena as a temple
+    plan with the seated goddess (6.297–311); Apollo's shrine; the houses of
+    Hector and Paris as houses (6.313–317: hall, chamber, court); the agora
+    as open ground before Priam's doors; streets between houses. Conjectural
+    register still distinguishes them from the survey, by line style, not by
+    faintness. The survey never outshouts the poem (rule of 2026-07-30).
+
 ## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
 
 Session paused here 2026-07-31; John picks up when he has reference examples
