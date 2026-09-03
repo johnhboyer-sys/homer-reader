@@ -590,6 +590,11 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
 
     needs_seed = False
     seen_layer_ids: set[str] = set()
+    # Layer ids that are framed inset panels with an insetBBox, and the
+    # `insetOf` / `featureKey[].inset` references that must name one. Both are
+    # resolved after the layer loop, because a reference may point forward.
+    inset_panel_ids: set[str] = set()
+    inset_of_refs: list[tuple[str, str]] = []
     for i, layer in enumerate(layers):
         if not isinstance(layer, dict):
             problems.append(f"{label}: layers[{i}] must be an object")
@@ -737,6 +742,57 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                         )
                     elif style == "inset":
                         framed_inset = True
+                        if isinstance(layer.get("insetBBox"), list):
+                            inset_panel_ids.add(layer_id)
+
+        # A framed inset panel may be a PROJECTED WINDOW rather than a free
+        # drawing (ruling 10, 2026-09-03): `insetBBox` is the ground it shows,
+        # and sibling layers naming it in `insetOf` are drawn from their own
+        # lat/lon geometry through that window. Mirrors parsePlate's checks in
+        # shared/lib/plate.ts -- two implementations of one contract.
+        inset_bbox = layer.get("insetBBox")
+        if inset_bbox is not None:
+            if (
+                not isinstance(inset_bbox, list)
+                or len(inset_bbox) != 4
+                or not all(_is_number(v) for v in inset_bbox)
+            ):
+                problems.append(
+                    f"{label}: layer {layer_label} insetBBox must be a 4-element "
+                    f"numeric array [minLat, minLon, maxLat, maxLon]"
+                )
+            elif not framed_inset:
+                problems.append(
+                    f"{label}: layer {layer_label} has an insetBBox but is not a "
+                    f"framed inset panel"
+                )
+            elif min_lat is None:
+                problems.append(
+                    f"{label}: layer {layer_label} has an insetBBox but the plate "
+                    f"has no bbox"
+                )
+            elif not (inset_bbox[2] > inset_bbox[0] and inset_bbox[3] > inset_bbox[1]):
+                problems.append(
+                    f"{label}: layer {layer_label} insetBBox must have maxLat > "
+                    f"minLat and maxLon > minLon"
+                )
+        inset_of = layer.get("insetOf")
+        if inset_of is not None:
+            if not isinstance(inset_of, str) or not inset_of:
+                problems.append(
+                    f"{label}: layer {layer_label} insetOf must be a layer id"
+                )
+            elif frame is not None:
+                problems.append(
+                    f"{label}: layer {layer_label} cannot carry both frame and insetOf"
+                )
+            elif style == "inset":
+                problems.append(
+                    f"{label}: layer {layer_label} cannot be both an inset panel "
+                    f"and insetOf one"
+                )
+            else:
+                inset_of_refs.append((layer_label, inset_of))
 
         for field, pair, path_desc in _iter_layer_coords(layer, label, layer_label, problems):
             if not _is_pair(pair):
@@ -777,6 +833,13 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                         f"{label}: layer {layer_label} {field}{path_desc} = [{a}, {b}] "
                         f"must be a unit [u, v] pair in 0..1"
                     )
+
+    for layer_label, ref in inset_of_refs:
+        if ref not in inset_panel_ids:
+            problems.append(
+                f"{label}: layer {layer_label} insetOf {ref!r} is not a framed "
+                f"inset panel with an insetBBox"
+            )
 
     if needs_seed and "seed" not in doc:
         problems.append(f"{label}: seed is required (a layer uses a stochastic style)")
@@ -850,6 +913,19 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                 if not isinstance(items, list):
                     problems.append(f"{label}: featureKey[{gi}].items must be a list")
                     continue
+                # Ruling 10: this group's marks and numerals are drawn inside
+                # the named panel instead of on the map face.
+                group_inset = group.get("inset")
+                if group_inset is not None:
+                    if not isinstance(group_inset, str) or not group_inset:
+                        problems.append(
+                            f"{label}: featureKey[{gi}].inset must be a layer id"
+                        )
+                    elif group_inset not in inset_panel_ids:
+                        problems.append(
+                            f"{label}: featureKey[{gi}].inset {group_inset!r} is not "
+                            f"a framed inset panel with an insetBBox"
+                        )
                 for ii, item in enumerate(items):
                     if not isinstance(item, dict):
                         problems.append(

@@ -270,6 +270,29 @@ export interface PlateLayer {
    * own projected points, exactly as before.
    */
   frame?: [number, number, number, number];
+  /**
+   * A framed `style: "inset"` panel that is a PROJECTED WINDOW rather than a
+   * free drawing: `[minLat, minLon, maxLat, maxLon]`, the ground the panel
+   * shows, at the sheet's own rotation. Sibling layers naming this panel in
+   * `insetOf` are drawn from their ordinary lat/lon geometry through that
+   * window, and a `featureKey` group naming it in `inset` puts its pins and
+   * its numerals inside the panel instead of on the map face (ruling 10,
+   * 2026-09-03: eleven poem features sit inside 25px at Ilios, and a ring of
+   * eleven numerals round them reads as a spider).
+   *
+   * The panel's OWN `polygon` stays unit coordinates — it is the rectangle,
+   * not a feature — so `insetBBox` changes nothing about how the panel is
+   * drawn, only what its children mean.
+   */
+  insetBBox?: [number, number, number, number];
+  /**
+   * "Also draw me inside that inset panel." Names a layer with `insetBBox`.
+   * The layer keeps its ordinary lat/lon geometry and its ordinary place on
+   * the map face; a SECOND copy is drawn through the panel's window, with
+   * `--inset` appended to its feature id. No geometry is duplicated in the
+   * plate file, so the two drawings can never drift apart.
+   */
+  insetOf?: string;
   /** See PlatePlace.labelTier. Default 1. */
   labelTier?: 1 | 2;
   /** See PlatePlace.labelSize. */
@@ -396,6 +419,14 @@ export interface PlateFeatureKeyItem {
 export interface PlateFeatureKeyGroup {
   title: string;
   items: PlateFeatureKeyItem[];
+  /**
+   * Ruling 10 (John, 2026-09-03). The id of a `style: "inset"` layer carrying
+   * an `insetBBox`: this group's marks and numerals are drawn INSIDE that
+   * panel, at the panel's own scale, and never on the map face. The key rows
+   * are unchanged — the numerals stay dense and in group order across the
+   * whole sheet, whichever surface each one is drawn on.
+   */
+  inset?: string;
 }
 
 // Mirrors the fields of apparatus/places.json this module needs, trimmed the
@@ -770,6 +801,33 @@ function parseLayer(
     layer.frame = frame;
   }
 
+  // A projected-window inset (see PlateLayer.insetBBox). Only meaningful on a
+  // framed inset panel, and only on a sheet that has a bbox of its own to be
+  // a window INTO — a window on a unit-space plate would be two coordinate
+  // systems with no relation between them.
+  if (l.insetBBox !== undefined) {
+    if (!Array.isArray(l.insetBBox) || l.insetBBox.length !== 4 || !l.insetBBox.every(isFiniteNumber)) {
+      fail(`layer "${l.id}" has a malformed "insetBBox" (must be [minLat, minLon, maxLat, maxLon])`);
+    }
+    if (layer.style !== 'inset' || !layer.frame) {
+      fail(`layer "${l.id}" has an "insetBBox" but is not a framed inset panel`);
+    }
+    if (!plate.bbox) fail(`layer "${l.id}" has an "insetBBox" but the plate has no bbox`);
+    const b = l.insetBBox as [number, number, number, number];
+    if (!(b[2] > b[0] && b[3] > b[1])) {
+      fail(`layer "${l.id}" insetBBox must have maxLat > minLat and maxLon > minLon`);
+    }
+    layer.insetBBox = b;
+  }
+  if (l.insetOf !== undefined) {
+    if (typeof l.insetOf !== 'string' || !l.insetOf) {
+      fail(`layer "${l.id}" has a malformed "insetOf" (must be a layer id)`);
+    }
+    if (layer.frame) fail(`layer "${l.id}" cannot carry both "frame" and "insetOf"`);
+    if (layer.style === 'inset') fail(`layer "${l.id}" cannot be both an inset panel and "insetOf" one`);
+    layer.insetOf = l.insetOf;
+  }
+
   // Coordinate space is declared by the PRESENCE of a bbox, not by kind: a
   // plate that carries a bbox projects lat/lon; a plate with none stays 0..1.
   // A framed inset is the exception: its polygon/path are unit coordinates
@@ -922,6 +980,16 @@ export function parsePlate(data: unknown): Plate {
     fail('seed is required when a layer uses a stochastic style (stipple/hachure)');
   }
 
+  // The panels a projected-window inset can be hung off (PlateLayer.insetBBox).
+  // Resolved once here because both `insetOf` and `featureKey[].inset` name one
+  // and neither can be checked while a single layer is being parsed.
+  const insetPanelIds = new Set(layers.filter((l) => l.insetBBox && l.frame).map((l) => l.id));
+  for (const l of layers) {
+    if (l.insetOf && !insetPanelIds.has(l.insetOf)) {
+      fail(`layer "${l.id}" insetOf '${l.insetOf}' is not a framed inset panel with an insetBBox`);
+    }
+  }
+
   const bands = d.bands !== undefined ? parseBands(d.bands, d.id) : undefined;
 
   let sceneKey: PlateSceneKey[] | undefined;
@@ -992,7 +1060,14 @@ export function parsePlate(data: unknown): Plate {
         if (typeof item.label === 'string') parsed.label = item.label;
         return parsed;
       });
-      return { title: group.title as string, items };
+      const inset = typeof group.inset === 'string' && group.inset ? group.inset : undefined;
+      if (group.inset !== undefined && !inset) {
+        fail(`featureKey[${gi}].inset must be a layer id`);
+      }
+      if (inset && !insetPanelIds.has(inset)) {
+        fail(`featureKey[${gi}].inset '${inset}' is not a framed inset panel with an insetBBox`);
+      }
+      return inset ? { title: group.title as string, items, inset } : { title: group.title as string, items };
     });
   }
 
@@ -3029,6 +3104,8 @@ interface BadgePlacementSolution {
   zoneLetters: { letter: string; x: number; y: number }[];
   pass1: LabelPlacement[];
   pass2: LabelPlacement[];
+  /** The numerals seated inside a projected-window inset (ruling 10). */
+  insets: LabelPlacement[];
 }
 const BADGE_SOLUTION_CACHE_LIMIT = 4;
 const badgeSolutionCache = new WeakMap<Plate, Map<string, BadgePlacementSolution>>();
@@ -4124,6 +4201,13 @@ const FEATURE_KEY_ROW_PITCH = 12;
 const FEATURE_KEY_N_COL = 16;
 const FEATURE_KEY_LABEL_GAP = 22;
 const NUMERAL_BADGE_FONT = 8.5;
+/**
+ * How far a numeral seated inside an inset must stay from that inset's own
+ * drawing rectangle. Smaller than the sheet's LABEL_MARGIN because the
+ * rectangle is already inset from the panel by INSET_PAD: this is the last
+ * hairline of air inside the panel, not a page margin.
+ */
+const INSET_BADGE_MARGIN = 3;
 
 function featureKeyMarkup(
   groups: PlateFeatureKeyGroup[] | undefined,
@@ -4967,6 +5051,77 @@ function insetMarkup(
   }
   return parts.join('');
 }
+
+/**
+ * The drawing rectangle inside a framed inset panel: the panel less its pad on
+ * three sides and less the head strip its own title block occupies. Derived
+ * from exactly the arithmetic insetMarkup letters the head with, so content
+ * can never be drawn under the title — the author picks the WINDOW, never has
+ * to leave room for the lettering by hand.
+ */
+function insetContentRect(
+  frame: [number, number, number, number],
+  label: string | undefined,
+): [number, number, number, number] {
+  const [x0, y0, w, h] = frame;
+  const lines = (label ?? '').split('|').map((s) => s.trim()).filter(Boolean);
+  let top = y0;
+  if (lines.length) {
+    let baseline = y0 + INSET_PAD + INSET_HEAD_SIZE;
+    for (let i = 1; i < lines.length; i++) baseline += INSET_SUB_SIZE + INSET_LINE_GAP;
+    top = baseline + (lines.length > 1 ? INSET_SUB_SIZE : INSET_HEAD_SIZE) * 0.55;
+  }
+  const x = x0 + INSET_PAD;
+  const y = top + INSET_PAD;
+  return [x, y, w - INSET_PAD * 2, y0 + h - INSET_PAD - y];
+}
+
+/**
+ * A Viewport that projects lat/lon straight into an inset's drawing rectangle,
+ * in the SHEET's own pixel space — so `project`, `projectPoints`,
+ * `resolvePlacePosition` and `renderLayer` all work inside an inset with no
+ * second code path and no per-call offset to forget.
+ *
+ * The translation rides on `width`/`height`, which `project` uses ONLY as the
+ * centre of the frame it draws into (`x = width/2 + …`). Setting them to
+ * `2·x0 + w` and `2·y0 + h` puts that centre at the rectangle's own centre,
+ * which is the translation, exactly. `unproject` reads them the same way, so
+ * the round trip still holds. Nothing else in this module reads a viewport's
+ * width/height (the scale bar takes the frame size as its own argument).
+ */
+function insetWindowViewport(
+  rect: [number, number, number, number],
+  bbox: [number, number, number, number],
+  rotationDeg: number,
+): Viewport {
+  const [x0, y0, w, h] = rect;
+  const fitted = viewportFromBBox(bbox, [w, h], rotationDeg);
+  return { ...fitted, width: 2 * x0 + w, height: 2 * y0 + h };
+}
+
+/** A framed inset panel that is a projected window (PlateLayer.insetBBox). */
+interface InsetWindow {
+  id: string;
+  frame: [number, number, number, number];
+  rect: [number, number, number, number];
+  viewport: Viewport;
+}
+
+function insetWindows(plate: Plate): Map<string, InsetWindow> {
+  const out = new Map<string, InsetWindow>();
+  for (const layer of plate.layers) {
+    if (layer.style !== 'inset' || !layer.frame || !layer.insetBBox) continue;
+    const rect = insetContentRect(layer.frame, layer.label);
+    out.set(layer.id, {
+      id: layer.id,
+      frame: layer.frame,
+      rect,
+      viewport: insetWindowViewport(rect, layer.insetBBox, plate.rotationDeg ?? 0),
+    });
+  }
+  return out;
+}
+
 /** The dotted register a restored line takes when it has no width to be drawn at. */
 const RESTORED_LINE_WIDTH = 0.85;
 const RESTORED_LINE_DASH = '1 3.2';
@@ -6059,6 +6214,39 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // instead, or a margin postcard would pan and crop with the map, defeating
   // the whole point of giving it a fixed sheet-pixel frame.
   const marginInsetMarkup: string[] = [];
+  // The projected-window insets of this sheet (PlateLayer.insetBBox), and the
+  // marks/numerals that belong inside one instead of on the map face
+  // (ruling 10, 2026-09-03). Everything drawn into a window is furniture in
+  // exactly the sense marginInsetMarkup means: sheet pixels, never panned.
+  const windows = insetWindows(plate);
+  // Keyed by PLACE id only: a place id and a layer id can be the same string
+  // on this sheet (`wagon-road` is both), and only the place is marked here —
+  // a keyed LAYER is already drawn in the window by its own `insetOf`.
+  const windowByKeyedPlaceId = new Map<string, InsetWindow>();
+  for (const group of plate.featureKey ?? []) {
+    const win = group.inset ? windows.get(group.inset) : undefined;
+    if (!win) continue;
+    for (const item of group.items) {
+      if (item.placeId) windowByKeyedPlaceId.set(item.placeId, win);
+    }
+  }
+  // A place a windowed layer DRAWS (its own placeId, or one it `claims`): the
+  // numeral belongs on that drawing, not on a mark of its own.
+  const insetLayerByDrawnPlaceId = new Map<string, string>();
+  for (const layer of plate.layers) {
+    if (!layer.insetOf) continue;
+    for (const id of [layer.placeId, ...(layer.claims ?? [])]) {
+      if (id) insetLayerByDrawnPlaceId.set(id, layer.id);
+    }
+  }
+  // Marks drawn inside a window: their own dots, and the glyph boxes of the
+  // layers redrawn in there. Both are obstacles for that window's numerals,
+  // and neither is one for the face's.
+  const insetContentMarkup: string[] = [];
+  const insetPinMarkup: string[] = [];
+  const insetGlyphBoxes = new Map<string, Box[]>();
+  const insetPinAnchors = new Map<string, { win: InsetWindow; box: Box }>();
+  const renderedInWindow = new Map<string, { win: InsetWindow; rendered: RenderedLayer }>();
   const submergedByWater = new Map<string, string[]>();
   const waters = collectWaterBodies(plate, viewport);
   // Every place id actually carried by a rendered layer (Problem 2, gap
@@ -6134,8 +6322,50 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     if (!rendered) continue;
     renderedById.set(layer.id, rendered);
     const isMarginInset = layer.style === 'inset' && layer.frame !== undefined && layer.frame[0] >= frameWidth;
+    // Ruling 11 (John, 2026-09-03, amended 15:54): "drop the zone outlines
+    // from the map face" — a scene zone's own dashed polygon is never drawn.
+    // Its LETTER stays, and so does the polygon, in the plate and in
+    // PlateResult, because that is what the Chart Room camera frames a scene
+    // on. Only the ink goes. Suppressed here rather than in renderLayer so
+    // the zone keeps every other effect it has (its letter's seat, its
+    // reservations, its feature record) exactly as before.
+    const isSceneZone = sceneKeyByLayer.has(layer.id);
     if (isMarginInset) marginInsetMarkup.push(rendered.markup);
-    else drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind, fill: layer.fill });
+    else if (!isSceneZone) {
+      drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind, fill: layer.fill });
+    }
+    // "Also draw me inside that inset" (PlateLayer.insetOf). A SECOND render
+    // of the same lat/lon geometry through the panel's window, emitted as
+    // furniture. The copy takes a distinct feature id so nothing downstream
+    // can confuse the two drawings of one feature, and it contributes no
+    // label request, no legend row and no pin: it is the same feature, drawn
+    // twice at two scales, named once.
+    const win = layer.insetOf ? windows.get(layer.insetOf) : undefined;
+    if (win) {
+      const copyId = `${layer.id}--inset`;
+      const copy = renderLayer(plate, { ...layer, id: copyId, insetOf: undefined }, win.viewport, softId, []);
+      if (copy) {
+        // NOT into marginInsetMarkup: a panel is an OPAQUE rectangle, and the
+        // layer this copy belongs to is authored wherever its own subject
+        // belongs in the paint stack — which is above the panel for some and
+        // below it for others. Held apart and emitted after every panel, so a
+        // window's contents are always drawn ON its own panel (the first
+        // render of this put the citadel's wall and wagon-road ring under a
+        // 0.97-opaque rect and they came out as ghosts).
+        insetContentMarkup.push(copy.markup);
+        renderedInWindow.set(layer.id, { win, rendered: copy });
+        // A real drawn feature on this sheet, at its own id — so a consumer
+        // (and E4) can find the mark a window's numeral actually points at.
+        features.push(copy.feature);
+        if (layer.kind === 'tumulus' || layer.kind === 'shipRow') {
+          const boxes =
+            layer.kind === 'tumulus'
+              ? projectPoints(plate, layer.path ?? [], win.viewport).map((p) => tumulusExtent(p))
+              : [copy.feature.bbox];
+          insetGlyphBoxes.set(win.id, [...(insetGlyphBoxes.get(win.id) ?? []), ...boxes]);
+        }
+      }
+    }
     for (const under of rendered.submerged ?? []) {
       const bucket = submergedByWater.get(under.layerId);
       if (bucket) bucket.push(under.markup);
@@ -6242,7 +6472,11 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     }
     if (layer.style === 'inset') insetBoxes.push(rendered.feature.bbox);
     else if (layer.label || layer.placeId) layerLabelCandidates.push({ layer, rendered });
-    const legend = layerLegendEntry(layer);
+    // A scene zone draws no ink now (ruling 11), so it keys none: a swatch
+    // for a wash that appears nowhere on the sheet is a legend row that
+    // teaches a reader something false. The letters are keyed by the scene
+    // key below them, which is where they were always explained.
+    const legend = isSceneZone ? undefined : layerLegendEntry(layer);
     if (legend) legendEntries.push(legend);
     // A coast layer that fills its rings also keys the terrain it encloses.
     if (layer.kind === 'coast' && layer.fill) {
@@ -6303,6 +6537,44 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       drawnByLayer.push(place);
       continue;
     }
+    // Ruling 10 (2026-09-03): a place keyed into a group with an `inset` is
+    // marked INSIDE that panel, at the panel's own scale, and not on the map
+    // face at all — eleven marks inside 25px is not a drawing of eleven
+    // places. It is the same anchor, projected through the window; nothing
+    // about the poem's positions moves. The face keeps the citadel's own
+    // wall and its zone letter, which is the one mark the ruling leaves there.
+    const insetWin = windowByKeyedPlaceId.get(place.id);
+    if (insetWin) {
+      const insetPos = resolvePlacePosition(plate, place, insetWin.viewport);
+      if (!insetPos) {
+        (layerPlaceIds.has(place.id) ? drawnByLayer : unlocated).push(place);
+        continue;
+      }
+      const [ix, iy] = insetPos;
+      const [rx, ry, rw, rh] = insetWin.rect;
+      if (ix < rx || ix > rx + rw || iy < ry || iy > ry + rh) {
+        // The window is too tight to hold a mark the key still numbers. Same
+        // honesty channel as a place off the sheet's own canvas.
+        offCanvas.push(place);
+        continue;
+      }
+      located.push(place);
+      const insetCls = placeLabelClass(place, 'schematic');
+      const insetR = insetCls === 'settlement' ? SETTLEMENT_DOT_R[place.rank ?? 2] : FEATURE_DOT_R;
+      insetPinMarkup.push(
+        dotMarkup(place.id, place.name, ix, iy, certaintyDotStyle(place.certainty), insetR).replace(
+          '<g ',
+          '<g data-position-basis="conjectural" ',
+        ),
+      );
+      const insetBox = dotBBox(ix, iy, insetR);
+      drawnMarkBoxes.set(place.id, insetBox);
+      insetPinAnchors.set(place.id, { win: insetWin, box: insetBox });
+      features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: insetBox });
+      legendEntries.push(certaintyDotLegendEntry(place.certainty ?? 'certain'));
+      continue;
+    }
+
     const pos = resolvePlacePosition(plate, place, viewport);
     if (!pos) {
       // A place with no defensible pin position may still be visibly drawn
@@ -6502,6 +6774,10 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
 
   const pinAnchors = new Map<string, Box>();
   for (const req of pinLabelRequests) pinAnchors.set(req.id, req.anchorBox);
+  // A mark inside a window never entered pinLabelRequests (it letters nothing
+  // — its name is in the key), so its anchor is joined here. This is what the
+  // badge pass reads to find the mark a numeral belongs to.
+  for (const [id, { box }] of insetPinAnchors) pinAnchors.set(id, box);
 
   // The placement solution, if this exact sheet has been laid before (see
   // badgeSolutionCache). Looked up HERE because the zone letters are the first
@@ -6591,8 +6867,16 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     centredNameBoxes.push(centredLabelBox(req));
   }
 
-  const badgeMeta: { n: number; item: PlateFeatureKeyItem; id: string; r: number; anchorBox: Box; longName: string }[] =
-    [];
+  const badgeMeta: {
+    n: number;
+    item: PlateFeatureKeyItem;
+    id: string;
+    r: number;
+    anchorBox: Box;
+    longName: string;
+    // The window this numeral is drawn inside, where its group named one.
+    win?: InsetWindow;
+  }[] = [];
   // Finding F3 (stage 6 review, 2026-09-03): an unanchored featureKey item
   // used to keep its numeral (keyN incremented before the anchor check) and
   // its key row (featureKeyMarkup walked plate.featureKey directly, never
@@ -6609,10 +6893,18 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   let keyN = 0;
   for (const group of plate.featureKey ?? []) {
     const keptItems: PlateFeatureKeyItem[] = [];
+    const groupWindow = group.inset ? windows.get(group.inset) : undefined;
     for (const item of group.items) {
       const id = item.placeId ?? item.layerId!;
       const rendered = renderedById.get(id);
-      const anchorBox = pinAnchors.get(id) ?? rendered?.labelAnchor ?? rendered?.feature.bbox;
+      // Inside a window, the anchor is the mark drawn IN THERE: the pin
+      // (joined into pinAnchors above) or, for a keyed layer, its own second
+      // drawing. Never the face's copy — a numeral in the panel pointing at
+      // the map face would be a leader across the whole sheet.
+      const inWindow = renderedInWindow.get(insetLayerByDrawnPlaceId.get(id) ?? id);
+      const anchorBox = groupWindow
+        ? (insetPinAnchors.get(id)?.box ?? inWindow?.rendered.labelAnchor ?? inWindow?.rendered.feature.bbox)
+        : (pinAnchors.get(id) ?? rendered?.labelAnchor ?? rendered?.feature.bbox);
       if (!anchorBox) {
         if (item.placeId) {
           const place = placeById.get(item.placeId);
@@ -6632,11 +6924,12 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       const longName = item.placeId
         ? (placeById.get(item.placeId)?.name ?? item.label ?? id)
         : (layer?.label ?? (layer?.placeId ? placeById.get(layer.placeId)?.name : undefined) ?? item.label ?? id);
-      badgeMeta.push({ n: keyN, item, id, r, anchorBox, longName });
+      badgeMeta.push({ n: keyN, item, id, r, anchorBox, longName, win: groupWindow });
     }
     if (keptItems.length) keyedGroups.push({ title: group.title, items: keptItems });
   }
-  const badgeInputs = badgeMeta.map((m) => ({
+  const faceBadgeMeta = badgeMeta.filter((m) => !m.win);
+  const badgeInputs = faceBadgeMeta.map((m) => ({
     id: String(m.n).padStart(3, '0'),
     anchorBox: m.anchorBox,
     textWidth: 2 * m.r,
@@ -6648,7 +6941,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     width: frameWidth,
     height,
     margin: LABEL_MARGIN,
-    markerBoxes: [...pinAnchors.values()],
+    // The face's own marks. A mark drawn inside a window is not on the face
+    // and cannot crowd anything there.
+    markerBoxes: [...pinAnchors].filter(([id]) => !insetPinAnchors.has(id)).map(([, box]) => box),
     placedBoxes: denseBoxes.map((d) => d.box),
     avoidDiscs: zoneLetterDiscs,
     avoidMarkers: [...drawnMarkBoxes.values(), ...glyphBoxes],
@@ -6672,7 +6967,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // the second pass below can only move a badge somewhere the names then
   // vacated anyway (ruling 9, 2026-09-03).
   const badgePad = 4;
-  for (const meta of badgeMeta) {
+  for (const meta of faceBadgeMeta) {
     const box = placementByN1.get(meta.n)?.box ?? meta.anchorBox;
     const cx = (box[0] + box[2]) / 2;
     const cy = (box[1] + box[3]) / 2;
@@ -6739,6 +7034,60 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       .filter((seat) => seat.violations === 0)
       .map((seat) => seat.placement);
   const placementByN = new Map(pass2.map((p) => [Number(p.id), p]));
+
+  // The numerals that live inside a window (ruling 10). Solved by the SAME
+  // placer, in the window's own rectangle translated to its origin — so
+  // every rule the face's numerals obey (clear of its neighbours, clear of
+  // every mark that is not its own, on a leader when it cannot sit close,
+  // dropped rather than drawn overlapping) holds inside the panel too, and
+  // the ladder can never walk a badge out through the frame. There is no
+  // second pass: a window carries no laid names for a numeral to yield to.
+  const insetPlacements = new Map<number, LabelPlacement>();
+  const insetPass = cached?.insets ?? [];
+  if (cached?.insets) {
+    for (const p of cached.insets) insetPlacements.set(Number(p.id), p);
+  } else {
+    for (const win of windows.values()) {
+      const mine = badgeMeta.filter((m) => m.win === win);
+      if (!mine.length) continue;
+      const [rx, ry, rw, rh] = win.rect;
+      const shift = (b: Box): Box => [b[0] - rx, b[1] - ry, b[2] - rx, b[3] - ry];
+      const marks = mine.map((m) => shift(m.anchorBox));
+      const seats = placeKeyBadges(
+        mine.map((m) => ({
+          id: String(m.n).padStart(3, '0'),
+          anchorBox: shift(m.anchorBox),
+          textWidth: 2 * m.r,
+          fontSize: 2 * m.r,
+          r: m.r,
+          ownMarker: drawnMarkBoxes.has(m.id) ? shift(drawnMarkBoxes.get(m.id)!) : undefined,
+        })),
+        {
+          width: rw,
+          height: rh,
+          margin: INSET_BADGE_MARGIN,
+          markerBoxes: marks,
+          placedBoxes: [],
+          avoidDiscs: [],
+          avoidMarkers: [...marks, ...(insetGlyphBoxes.get(win.id) ?? []).map(shift)],
+          avoidWater: [],
+          avoidLabelBoxes: [],
+        },
+      );
+      for (const seat of seats) {
+        if (seat.violations !== 0) continue;
+        const p = seat.placement;
+        const b = p.box;
+        const placed: LabelPlacement = {
+          ...p,
+          box: [b[0] + rx, b[1] + ry, b[2] + rx, b[3] + ry],
+        };
+        insetPlacements.set(Number(p.id), placed);
+        insetPass.push(placed);
+      }
+    }
+  }
+  for (const [n, p] of insetPlacements) placementByN.set(n, p);
   const unplacedKeyNumerals = badgeMeta.map((m) => m.n).filter((n) => !placementByN.has(n));
   if (!cached) {
     let bucket = badgeSolutionCache.get(plate);
@@ -6753,24 +7102,29 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       zoneLetters: placedZoneLetters,
       pass1: [...placementByN1.values()],
       pass2,
+      insets: insetPass,
     });
   }
   const badgeParts: string[] = [];
+  // A numeral seated inside a window is drawn with its panel, outside the
+  // camera group — it is part of that panel, and a panel does not pan.
+  const insetBadgeParts: string[] = [];
   const geographicHalo = plate.kind === 'geographic';
   for (const meta of badgeMeta) {
     const best = placementByN.get(meta.n);
     if (!best) continue;
+    const into = meta.win ? insetBadgeParts : badgeParts;
     const box = best.box;
     const cx = (box[0] + box[2]) / 2;
     const cy = (box[1] + box[3]) / 2;
     if (best.candidateIndex >= NEAR_CANDIDATE_COUNT) {
-      badgeParts.push(keyLeaderElement(meta.anchorBox, box, meta.n));
+      into.push(keyLeaderElement(meta.anchorBox, box, meta.n));
     }
     const aria = `${meta.n}. ${meta.longName}`;
     const idAttr = meta.item.placeId
       ? ` data-place-id="${escapeXml(meta.item.placeId)}"`
       : ` data-layer-id="${escapeXml(meta.item.layerId!)}"`;
-    badgeParts.push(
+    into.push(
       badgeMarkup(String(meta.n), cx, cy, geographicHalo, {
         r: meta.r,
         className: 'plate-key-badge',
@@ -6840,6 +7194,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // sheet, never panned or cropped by the camera, exactly like the legend
     // below. See marginInsetMarkup above.
     marginInsetMarkup.join('') +
+    insetContentMarkup.join('') +
+    insetPinMarkup.join('') +
+    insetBadgeParts.join('') +
     furnitureZoneLetters
       .map((z) => zoneLetterMarkup(z.letter, z.x, z.y, plate.kind === 'geographic'))
       .join('') +

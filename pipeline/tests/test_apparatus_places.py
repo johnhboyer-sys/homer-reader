@@ -689,6 +689,69 @@ def test_real_places_and_trojan_plain_plate_validate_clean():
     assert plate_problems == [], plate_problems
 
 
+def _schematic_plate() -> dict:
+    return json.loads(
+        (ROOT / "apparatus" / "plates" / "trojan-plain-schematic.json").read_text(encoding="utf-8")
+    )
+
+
+def _schematic_places() -> dict:
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    return {p["id"]: p for p in places_doc["places"]}
+
+
+# Ruling 10 (2026-09-03): the citadel is a margin inset, so a framed inset
+# panel may declare `insetBBox` (the ground it shows), layers may name it in
+# `insetOf`, and a featureKey group may route its numerals into it with
+# `inset`. All three are references, and a typo in one silently drops content
+# off the sheet -- which is what these check.
+def test_inset_of_must_name_a_framed_inset_panel():
+    plate = _schematic_plate()
+    for layer in plate["layers"]:
+        if layer.get("insetOf"):
+            layer["insetOf"] = "no-such-panel"
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("insetOf 'no-such-panel'" in p for p in problems), problems
+
+
+def test_feature_key_group_inset_must_name_a_framed_inset_panel():
+    plate = _schematic_plate()
+    for group in plate["featureKey"]:
+        if group.get("inset"):
+            group["inset"] = "no-such-panel"
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("inset 'no-such-panel'" in p for p in problems), problems
+
+
+def test_inset_bbox_must_be_well_formed_and_on_a_framed_panel():
+    plate = _schematic_plate()
+    for layer in plate["layers"]:
+        if layer.get("insetBBox"):
+            layer["insetBBox"] = [1, 2, 3]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("insetBBox must be a 4-element" in p for p in problems), problems
+
+    plate = _schematic_plate()
+    for layer in plate["layers"]:
+        if layer.get("insetBBox"):
+            layer.pop("frame")
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any(
+        "citadel-inset-panel has an insetBBox but is not a framed inset panel" in p
+        for p in problems
+    ), problems
+
+
+def test_inset_bbox_must_not_be_inverted():
+    plate = _schematic_plate()
+    for layer in plate["layers"]:
+        if layer.get("insetBBox"):
+            lat0, lon0, lat1, lon1 = layer["insetBBox"]
+            layer["insetBBox"] = [lat1, lon1, lat0, lon0]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("maxLat > minLat" in p for p in problems), problems
+
+
 def test_real_trojan_plain_schematic_plate_validates_clean():
     places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
     places_by_id = {p["id"]: p for p in places_doc["places"]}

@@ -201,7 +201,7 @@ describe('parsePlate', () => {
     expect(plate.bbox).toEqual(geo.bbox);
     expect(plate.rotationDeg).toBe(90);
     expect(plate.marginRight).toBe(340);
-    expect(plate.size[0] - (plate.marginRight ?? 0)).toBe(1120);
+    expect(plate.size[0] - (plate.marginRight ?? 0)).toBe(1416);
     expect(plate.layers.length).toBeGreaterThan(0);
   });
 
@@ -4446,7 +4446,7 @@ const FEATURE_KEY_HEADINGS = [
   "Achilles' end of the line",
   "Odysseus's ships, the assembly and altars",
   "Ajax's end of the line",
-  'Before the walls',
+  'Before the walls (see inset)',
   'The plain',
 ] as const;
 
@@ -4463,14 +4463,20 @@ const FEATURE_KEY_HEADINGS = [
 // Troy") stood on the Bay of Troy, which ruling 5 forbids in the schematic
 // register, so it falls through its own polygon to the nearest open DRY
 // sample. It is the only letter that moved.
+//
+// Re-recorded 2026-09-03 for the citadel inset (ruling 10): the sheet is
+// larger — 1756x1600, the map face 1416 wide, so the margin can carry a
+// second inset — and every seat moved with it. The map face's aspect is
+// unchanged (frameWidth/height still matches the bbox's own), so this is one
+// uniform enlargement of the same solution, not a re-solve.
 const ZONE_LETTER_MARKUP: readonly string[] = [
-  '<g class="plate-zone-letter"><circle cx="571" cy="927.7" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="571" y="927.7" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">A</text></g>',
-  '<g class="plate-zone-letter"><circle cx="603.6" cy="907.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="603.6" y="907.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">B</text></g>',
-  '<g class="plate-zone-letter"><circle cx="560.7" cy="838.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="560.7" y="838.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">C</text></g>',
-  '<g class="plate-zone-letter"><circle cx="585.8" cy="706.4" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="585.8" y="706.4" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">D</text></g>',
-  '<g class="plate-zone-letter"><circle cx="566.6" cy="797.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="566.6" y="797.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">E</text></g>',
-  '<g class="plate-zone-letter"><circle cx="527.4" cy="629.4" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="527.4" y="629.4" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">F</text></g>',
-  '<g class="plate-zone-letter"><circle cx="535.8" cy="616.3" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="535.8" y="616.3" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">G</text></g>',
+  '<g class="plate-zone-letter"><circle cx="721.9" cy="1173.3" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="721.9" y="1173.3" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">A</text></g>',
+  '<g class="plate-zone-letter"><circle cx="739" cy="1169.1" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="739" y="1169.1" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">B</text></g>',
+  '<g class="plate-zone-letter"><circle cx="708.9" cy="1060.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="708.9" y="1060.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">C</text></g>',
+  '<g class="plate-zone-letter"><circle cx="734.2" cy="880.8" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="734.2" y="880.8" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">D</text></g>',
+  '<g class="plate-zone-letter"><circle cx="654.9" cy="972.1" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="654.9" y="972.1" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">E</text></g>',
+  '<g class="plate-zone-letter"><circle cx="693.1" cy="805.7" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="693.1" y="805.7" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">F</text></g>',
+  '<g class="plate-zone-letter"><circle cx="677.4" cy="805.7" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="677.4" y="805.7" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">G</text></g>',
 ];
 
 function boxesIntersect(a: [number, number, number, number], b: [number, number, number, number]): boolean {
@@ -4641,11 +4647,16 @@ function markGlyphBoxes(svg: string, plate: Plate): { id: string; owner: string;
       (id): id is string => !!id && keyed.has(id),
     );
     if (!owner) continue;
-    const pts = layerPaths(svg, layer.id).flat();
-    if (!pts.length) continue;
-    const xs = pts.map((p) => p[0]);
-    const ys = pts.map((p) => p[1]);
-    out.push({ id: layer.id, owner, box: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] });
+    // `${id}--inset` is renderPlate's second drawing of a layer that carries
+    // `insetOf` (ruling 10). It is ink on the sheet like any other, and the
+    // numerals inside the panel must keep off it.
+    for (const id of [layer.id, ...(layer.insetOf ? [`${layer.id}--inset`] : [])]) {
+      const pts = layerPaths(svg, id).flat();
+      if (!pts.length) continue;
+      const xs = pts.map((p) => p[0]);
+      const ys = pts.map((p) => p[1]);
+      out.push({ id, owner, box: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] });
+    }
   }
   return out;
 }
@@ -4666,13 +4677,15 @@ function markNameBoxes(svg: string, result: { labelBoxes: Record<string, [number
 }
 
 /** Sheet furniture drawn over the map face: the panels, and the north arrow. */
-function markFurnitureBoxes(svg: string): { id: string; box: [number, number, number, number] }[] {
-  const out: { id: string; box: [number, number, number, number] }[] = [];
+function markFurnitureBoxes(
+  svg: string,
+): { id: string; kind: string; box: [number, number, number, number] }[] {
+  const out: { id: string; kind: string; box: [number, number, number, number] }[] = [];
   const re =
     /<rect(?: data-feature-id="([^"]*)")? class="(?:plate-layer )?(plate-legend-panel|plate-scale-panel|plate-hypsometric-panel|plate-layer-inset-panel)"[^>]*x="([-\d.]+)" y="([-\d.]+)" width="([-\d.]+)" height="([-\d.]+)"/g;
   for (const m of svg.matchAll(re)) {
     const [x, y, w, h] = [Number(m[3]), Number(m[4]), Number(m[5]), Number(m[6])];
-    out.push({ id: m[1] || m[2], box: [x, y, x + w, y + h] });
+    out.push({ id: m[1] || m[2], kind: m[2], box: [x, y, x + w, y + h] });
   }
   const north = svg.match(/<g class="plate-north">([\s\S]*?)<\/g><\/g>/);
   if (north) {
@@ -4680,7 +4693,11 @@ function markFurnitureBoxes(svg: string): { id: string; box: [number, number, nu
     if (pts.length) {
       const xs = pts.map((p) => p[0]);
       const ys = pts.map((p) => p[1]);
-      out.push({ id: 'north arrow', box: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] });
+      out.push({
+        id: 'north arrow',
+        kind: 'plate-north',
+        box: [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)],
+      });
     }
   }
   return out;
@@ -4852,19 +4869,84 @@ function badgeOverlapOffenders(
 
   // Placed names and sheet furniture. A name's position carries meaning and
   // cannot move; the numeral's carries none, so the numeral is what yields.
-  for (const target of [...names, ...furniture]) {
+  // An inset panel is a sheet within the sheet (ruling 10): the numerals of a
+  // featureKey group routed into one are drawn INSIDE it, and a mark wholly
+  // within a panel is a mark ON that panel's own little map, not a mark
+  // fouling a piece of furniture. Anything sticking out is still an offender,
+  // which is the check that matters — the ladder must not walk a numeral
+  // through the frame.
+  const insetPanel = (target: { kind: string }) => target.kind === 'plate-layer-inset-panel';
+  const inside = (box: [number, number, number, number], outer: [number, number, number, number]) =>
+    box[0] >= outer[0] && box[1] >= outer[1] && box[2] <= outer[2] && box[3] <= outer[3];
+  for (const target of [...names.map((n) => ({ ...n, kind: 'name' })), ...furniture]) {
     for (const disc of discs) {
-      if (boxesIntersect([disc.cx - disc.r, disc.cy - disc.r, disc.cx + disc.r, disc.cy + disc.r], target.box)) {
+      const discBox: [number, number, number, number] = [
+        disc.cx - disc.r,
+        disc.cy - disc.r,
+        disc.cx + disc.r,
+        disc.cy + disc.r,
+      ];
+      if (insetPanel(target) && inside(discBox, target.box)) continue;
+      if (boxesIntersect(discBox, target.box)) {
         offenders.push(`disc/name: ${disc.label} overlaps ${target.id}`);
       }
     }
     for (const leader of leaders) {
       if (originInside(leader, target.box)) continue;
+      if (
+        insetPanel(target) &&
+        inside([leader.ax, leader.ay, leader.ax, leader.ay], target.box) &&
+        inside([leader.bx, leader.by, leader.bx, leader.by], target.box)
+      ) {
+        continue;
+      }
       if (segmentHitsBox(leader, target.box)) offenders.push(`leader/name: ${leader.label} crosses ${target.id}`);
     }
   }
   return offenders;
 }
+
+// The one piece of DERIVED geometry the citadel inset adds, and the check that
+// keeps it honest. `wall-of-troy` draws the circuit about 55% larger than the
+// gate anchors were laid against — its own note says so, and at sheet scale it
+// has to, or the ring vanishes under the zone letter sharing its centre. At
+// four times that scale the inflation would put the Scaean Gate, the great
+// tower and the Dardanian Gates INSIDE the city wall, so the inset draws
+// `citadel-inset-wall`: every vertex of wall-of-troy's own trace divided by
+// that stated 55%, nothing measured afresh. If either trace is ever edited and
+// the two stop agreeing — or the gates stop landing on the line — this fires.
+describe('the citadel inset draws the circuit the gate anchors were laid against', () => {
+  const plate = parsePlate(JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')));
+  const places = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[];
+  const CENTRE: [number, number] = [39.957, 26.239];
+  const cos = Math.cos((CENTRE[0] * Math.PI) / 180);
+  const METRES_PER_DEG_LAT = 111320;
+  const radius = ([lat, lon]: [number, number]) => Math.hypot(lat - CENTRE[0], (lon - CENTRE[1]) * cos);
+  const meanRadius = (pts: [number, number][]) => pts.reduce((a, p) => a + radius(p), 0) / pts.length;
+  const trace = (id: string) => plate.layers.find((l) => l.id === id)!.trace as [number, number][];
+
+  it('is wall-of-troy contracted by the 55% its own note declares', () => {
+    const ratio = meanRadius(trace('wall-of-troy')) / meanRadius(trace('citadel-inset-wall'));
+    expect(ratio).toBeCloseTo(1.55, 2);
+  });
+
+  it('puts the Scaean Gate, the great tower and the Dardanian Gates on the line', () => {
+    const wall = meanRadius(trace('citadel-inset-wall')) * METRES_PER_DEG_LAT;
+    for (const id of ['scaean-gate', 'great-tower-of-ilios', 'dardanian-gates']) {
+      const anchor = places.find((p) => p.id === id)!.plateAnchors!['trojan-plain-schematic'] as [number, number];
+      const off = radius(anchor) * METRES_PER_DEG_LAT - wall;
+      expect(Math.abs(off), `${id} is ${off.toFixed(1)} m off the circuit`).toBeLessThan(10);
+    }
+  });
+
+  it('would have put all three inside the wall the map face draws', () => {
+    const drawn = meanRadius(trace('wall-of-troy')) * METRES_PER_DEG_LAT;
+    for (const id of ['scaean-gate', 'great-tower-of-ilios', 'dardanian-gates']) {
+      const anchor = places.find((p) => p.id === id)!.plateAnchors!['trojan-plain-schematic'] as [number, number];
+      expect(radius(anchor) * METRES_PER_DEG_LAT).toBeLessThan(drawn);
+    }
+  });
+});
 
 describe('renderPlate: featureKey (stage 5c)', () => {
   const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
@@ -4910,7 +4992,13 @@ describe('renderPlate: featureKey (stage 5c)', () => {
     expect(groups.map((g) => g.title)).toEqual([...FEATURE_KEY_HEADINGS]);
     expect(keyedItems.length).toBe(32);
     const ns = [...result.svg.matchAll(/<g class="plate-key-badge"[^>]*data-key-n="(\d+)"/g)].map((m) => Number(m[1]));
-    expect(ns).toEqual(Array.from({ length: keyedItems.length }, (_, i) => i + 1));
+    // Sorted, not in document order: a group routed into an inset (ruling 10)
+    // draws its numerals with the panel, in the furniture stream after the
+    // map face, so 12-22 are emitted last. The claim is that the numerals are
+    // unique and contiguous 1…N — the printed key's own order, which
+    // featureKeyMarkup walks — not the order the SVG happens to paint them.
+    expect(new Set(ns).size, 'a numeral is drawn twice').toBe(ns.length);
+    expect([...ns].sort((a, b) => a - b)).toEqual(Array.from({ length: keyedItems.length }, (_, i) => i + 1));
     const drawnIds = new Set(result.features.map((f) => f.id));
     const pinIds = new Set(
       [...result.svg.matchAll(/<g(?![^>]*plate-key-badge)[^>]*data-place-id="([^"]+)"/g)].map((m) => m[1]),
@@ -4997,10 +5085,32 @@ describe('renderPlate: featureKey (stage 5c)', () => {
     );
     for (const badge of badgeBoxes) {
       const pin = pinCentres.get(badge.id);
-      const feature = result.features.find((f) => f.id === badge.id);
-      const ax = pin ? pin[0] : feature ? (feature.bbox[0] + feature.bbox[2]) / 2 : NaN;
-      const ay = pin ? pin[1] : feature ? (feature.bbox[1] + feature.bbox[3]) / 2 : NaN;
-      const dist = Math.hypot(badge.cx - ax, badge.cy - ay);
+      // A numeral keyed to a LINE — a wall, a ring road — points at the line,
+      // not at the middle of the rectangle round it: measured against the
+      // drawn geometry, so "22, the wagon-road" sitting on the ring counts as
+      // being at its mark, while the same badge at the ring's empty centre
+      // (where its place anchor is) does not.
+      const drawnId = [`${badge.id}--inset`, badge.id].find((id) => layerPaths(result.svg, id).length > 0);
+      const feature =
+        result.features.find((f) => f.id === `${badge.id}--inset`) ??
+        result.features.find((f) => f.id === badge.id);
+      let dist: number;
+      if (pin) {
+        dist = Math.hypot(badge.cx - pin[0], badge.cy - pin[1]);
+      } else if (drawnId) {
+        dist = Math.min(
+          ...layerPaths(result.svg, drawnId)
+            .flat()
+            .map(([px, py]) => Math.hypot(badge.cx - px, badge.cy - py)),
+        );
+      } else if (feature) {
+        dist = Math.hypot(
+          badge.cx - (feature.bbox[0] + feature.bbox[2]) / 2,
+          badge.cy - (feature.bbox[1] + feature.bbox[3]) / 2,
+        );
+      } else {
+        dist = NaN;
+      }
       const near = dist <= 30;
       expect(
         near || leadered.has(badge.n),
@@ -5089,6 +5199,65 @@ describe('renderPlate: featureKey (stage 5c)', () => {
   it('zone letters stay byte-identical to their recorded placement', () => {
     const groupsNow = [...result.svg.matchAll(/<g class="plate-zone-letter">[\s\S]*?<\/g>/g)].map((m) => m[0]);
     expect(groupsNow).toEqual([...ZONE_LETTER_MARKUP]);
+  });
+
+  // Ruling 10 (John, 2026-09-03): "the citadel is an inset". The group's
+  // numerals go INSIDE the panel; the map face keeps one mark and its zone
+  // letter. E7 above proves nothing in the panel overlaps anything; these two
+  // prove it is in the panel at all, and that the face was actually cleared —
+  // an inset that draws a second copy while the spider stays would pass every
+  // overlap check and fix nothing.
+  it('E8: every numeral of an inset group is drawn inside its panel, with its leader', () => {
+    const group = groups.find((g) => g.inset);
+    expect(group, 'the sheet must route a group into an inset').toBeTruthy();
+    const panel = plate.layers.find((l) => l.id === group!.inset);
+    const [fx, fy, fw, fh] = panel!.frame!;
+    const insetNs = new Set<number>();
+    let n = 0;
+    for (const g of groups) {
+      for (const item of g.items) {
+        n += 1;
+        if (g === group) insetNs.add(n);
+      }
+    }
+    expect(insetNs.size).toBe(11);
+    const inPanel = (x: number, y: number) => x >= fx && x <= fx + fw && y >= fy && y <= fy + fh;
+    const seen = new Set<number>();
+    for (const disc of markDiscs(result.svg, 'plate-key-badge')) {
+      const num = Number(disc.label.slice('badge '.length, disc.label.indexOf(' (')));
+      if (!insetNs.has(num)) {
+        expect(inPanel(disc.cx, disc.cy), `face numeral ${num} is inside the inset panel`).toBe(false);
+        continue;
+      }
+      seen.add(num);
+      expect(inPanel(disc.cx - disc.r, disc.cy - disc.r), `numeral ${num} runs out of its panel`).toBe(true);
+      expect(inPanel(disc.cx + disc.r, disc.cy + disc.r), `numeral ${num} runs out of its panel`).toBe(true);
+    }
+    expect([...seen].sort((a, b) => a - b)).toEqual([...insetNs].sort((a, b) => a - b));
+    for (const leader of markKeyLeaders(result.svg)) {
+      if (!insetNs.has(Number(leader.n))) continue;
+      expect(inPanel(leader.ax, leader.ay) && inPanel(leader.bx, leader.by), `leader ${leader.n} leaves its panel`).toBe(
+        true,
+      );
+    }
+  });
+
+  it("E9: the inset group's marks are off the map face; the citadel keeps its wall and its zone letters", () => {
+    const group = groups.find((g) => g.inset)!;
+    const panel = plate.layers.find((l) => l.id === group.inset)!;
+    const [fx, fy] = panel.frame!;
+    const frameWidth = plate.size[0] - (plate.marginRight ?? 0);
+    expect(fx).toBeGreaterThanOrEqual(frameWidth);
+    for (const item of group.items) {
+      const id = item.placeId ?? item.layerId!;
+      for (const pin of markPins(result.svg)) {
+        if (pin.id !== id) continue;
+        expect(pin.box[0] >= fx && pin.box[1] >= fy, `${id} is still marked on the map face`).toBe(true);
+      }
+    }
+    // The one mark the ruling leaves at Ilios, and the letters.
+    expect(result.svg).toContain('data-feature-id="wall-of-troy"');
+    expect([...result.svg.matchAll(/<g class="plate-zone-letter">/g)].length).toBe(plate.sceneKey!.length);
   });
 
   it('numeral badges carry the contract attributes and no tabindex', () => {
