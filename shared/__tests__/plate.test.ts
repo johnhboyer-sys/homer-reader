@@ -4679,8 +4679,8 @@ const FEATURE_KEY_HEADINGS = [
   "Achilles' end of the line",
   "Odysseus's ships, the assembly and altars",
   "Ajax's end of the line",
-  'Inside the walls (see inset)',
-  'Before the walls (see inset)',
+  'Pergamos, the citadel (see inset)',
+  'Ilios, the lower city and the ground before the walls (see inset)',
   'The plain',
 ] as const;
 
@@ -6183,6 +6183,149 @@ describe('the citadel panel draws the poem’s city as a built fabric (ruling 13
     // The street of the poem runs to it, and no street runs to the walled-up West Gate.
     expect(plate.layers.some((l) => l.id === 'citadel-poem-way-to-scaean-gate')).toBe(true);
     expect(plate.layers.some((l) => l.id === 'citadel-poem-way-to-west-gate')).toBe(false);
+  });
+});
+
+// Ruling 13 applied to the lower city (2026-09-03, John: "where's the rest of
+// the buildings?"): the Ilios panel carries the poem's city as a built fabric
+// between the citadel's foot and the Troy VI ditch. The fabric is the
+// drawing's, not evidence, and it must keep off everything on that panel that
+// IS evidence or IS the poem's own placed mark: the ditch, the circuit, the
+// wagon-road ring, the gate street, and the marks of the group's places.
+describe('the Ilios panel draws the lower city as a built fabric (ruling 13, lower city)', () => {
+  const plate = parsePlate(JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')));
+  const allPlaces = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[];
+  const inPanel = plate.layers.filter((l) => l.insetOf === 'citadel-inset-panel');
+  const fabric = plate.layers.find((l) => l.id === 'ilios-lower-city')!;
+  const street = plate.layers.find((l) => l.id === 'ilios-gate-street')!;
+  // `status` is a record-level field parsePlate does not carry onto a layer;
+  // the draft flag is read off the file itself.
+  const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')).layers as { id: string; status?: string }[];
+  const rawStatus = (id: string) => raw.find((l) => l.id === id)?.status;
+  const houses = (): [number, number][][] => [fabric.polygon as [number, number][], ...(fabric.rings as [number, number][][])];
+  const inside = (p: [number, number], poly: [number, number][]) => {
+    let hit = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const [yi, xi] = poly[i];
+      const [yj, xj] = poly[j];
+      if (yi > p[0] !== yj > p[0] && p[1] < ((xj - xi) * (p[0] - yi)) / (yj - yi) + xi) hit = !hit;
+    }
+    return hit;
+  };
+  const orient = (a: [number, number], b: [number, number], c: [number, number]) =>
+    (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+  const segsCross = (p1: [number, number], p2: [number, number], p3: [number, number], p4: [number, number]) => {
+    const d1 = orient(p3, p4, p1);
+    const d2 = orient(p3, p4, p2);
+    const d3 = orient(p1, p2, p3);
+    const d4 = orient(p1, p2, p4);
+    return ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0));
+  };
+  const ringCrossesLine = (ring: [number, number][], line: [number, number][], closed: boolean) => {
+    const n = closed ? line.length : line.length - 1;
+    for (let i = 0; i < ring.length; i++) {
+      for (let j = 0; j < n; j++) {
+        if (segsCross(ring[i], ring[(i + 1) % ring.length], line[j], line[(j + 1) % line.length])) return true;
+      }
+    }
+    return false;
+  };
+
+  it('is drawn in the plan register, tiered, drafted, and says it is not evidence', () => {
+    expect(fabric.style).toBe('plan');
+    expect(fabric.certainty).toBe('speculative');
+    expect(rawStatus(fabric.id)).toBe('draft');
+    expect(fabric.rings!.length).toBeGreaterThanOrEqual(60);
+    expect(fabric.lines!.length).toBeGreaterThanOrEqual(150);
+    expect(fabric.note).toMatch(/not evidence/);
+    expect(fabric.note).toMatch(/Blindow/);
+    expect(street.style).toBe('poem');
+    expect(street.certainty).toBe('speculative');
+    expect(rawStatus(street.id)).toBe('draft');
+    // The street runs from the South Gate VI T to the passage through the ditch.
+    const gateT = plate.layers.find((l) => l.id === 'citadel-gate-vi-t')!.polygon!;
+    const [t0] = street.path!;
+    expect(Math.hypot(t0[0] - gateT[0][0], (t0[1] - gateT[0][1]) * 0.766) * 111320).toBeLessThan(40);
+    const westLip = plate.layers.find((l) => l.id === 'troy-vi-ditch-inner')!.trace![0];
+    const eastLip = plate.layers.find((l) => l.id === 'troy-vi-ditch-inner-east')!.trace!.at(-1)!;
+    const end = street.path!.at(-1)!;
+    expect(end[1]).toBeGreaterThan(westLip[1]);
+    expect(end[1]).toBeLessThan(eastLip[1]);
+  });
+
+  it('no house crosses the ditch, the citadel circuit, the wagon-road, or the gate street', () => {
+    const polylines: [string, [number, number][], boolean][] = [];
+    for (const l of inPanel) {
+      if (l.id === fabric.id) continue;
+      if (l.kind === 'wall' && l.trace) polylines.push([l.id, l.trace as [number, number][], false]);
+      if (l.kind === 'region' && l.polygon && l.id !== 'citadel-inset-panel') polylines.push([l.id, l.polygon as [number, number][], true]);
+      if (l.kind === 'route' && l.path) polylines.push([l.id, l.path as [number, number][], false]);
+    }
+    expect(polylines.map(([id]) => id)).toEqual(
+      expect.arrayContaining(['troy-vi-ditch-inner', 'troy-vi-ditch-inner-east', 'troy-vi-ditch-inner-north', 'citadel-circuit-south-outer-view', 'wagon-road', 'ilios-gate-street']),
+    );
+    for (const [i, house] of houses().entries()) {
+      for (const [id, line, closed] of polylines) {
+        expect(ringCrossesLine(house, line, closed), `house ${i} crosses ${id}`).toBe(false);
+        if (closed) {
+          expect(house.some((p) => inside(p, line)), `house ${i} lies inside ${id}`).toBe(false);
+        }
+      }
+    }
+  });
+
+  it("no house stands on a mark of the group's places, and every house is inside the wagon-road ring", () => {
+    const group = plate.featureKey!.find((g) => g.inset === 'citadel-inset-panel')!;
+    const marks = group.items
+      .map((it) => it.placeId && allPlaces.find((p) => p.id === it.placeId)?.plateAnchors?.['trojan-plain-schematic'])
+      .filter((a): a is [number, number] => Array.isArray(a));
+    expect(marks.length).toBeGreaterThanOrEqual(7);
+    const cos = Math.cos((39.957 * Math.PI) / 180);
+    const metres = (a: [number, number], b: [number, number]) =>
+      Math.hypot((a[0] - b[0]) * 111320, (a[1] - b[1]) * 111320 * cos);
+    for (const [i, house] of houses().entries()) {
+      for (const m of marks) {
+        expect(inside(m, house), `house ${i} stands on a mark at ${m}`).toBe(false);
+        for (const v of house) expect(metres(v, m), `house ${i} is within 20 m of the mark at ${m}`).toBeGreaterThan(20);
+      }
+      for (const v of house) expect(metres(v, [39.957, 26.239]), `house ${i} is outside the wagon-road ring`).toBeLessThan(400);
+    }
+  });
+
+  it('inside a window, no numeral disc sits on plan ink it is not keyed to (ruling 9 on the fabric)', () => {
+    const result = renderPlate(plate, allPlaces);
+    expect(result.unplacedKeyNumerals).toEqual([]);
+    const ink: { owner: string; half: number; runs: [number, number][][] }[] = [];
+    const re = /<path data-feature-id="([^"]+?)--inset(-lines)?" class="plate-layer plate-layer-plan(?:-lines)?" d="([^"]+)"[^>]*?stroke-width="([\d.]+)"/g;
+    for (const m of result.svg.matchAll(re)) {
+      const runs = m[3]
+        .split(/M\s*/)
+        .filter((s) => s.trim())
+        .map((s) => [...s.matchAll(/(-?[\d.]+)\s+(-?[\d.]+)/g)].map((n) => [Number(n[1]), Number(n[2])] as [number, number]))
+        .map((pts) => (/Z\s*$/i.test(m[3]) ? [...pts, pts[0]] : pts));
+      ink.push({ owner: m[1], half: Number(m[4]) / 2, runs });
+    }
+    expect(ink.some((k) => k.owner === 'ilios-lower-city')).toBe(true);
+    const segDist = (px: number, py: number, a: [number, number], b: [number, number]) => {
+      const dx = b[0] - a[0];
+      const dy = b[1] - a[1];
+      const l2 = dx * dx + dy * dy;
+      const t = l2 < 1e-9 ? 0 : Math.max(0, Math.min(1, ((px - a[0]) * dx + (py - a[1]) * dy) / l2));
+      return Math.hypot(px - (a[0] + t * dx), py - (a[1] + t * dy));
+    };
+    for (const disc of markDiscs(result.svg, 'plate-key-badge')) {
+      for (const k of ink) {
+        if (k.owner === disc.id) continue;
+        for (const run of k.runs) {
+          for (let i = 0; i + 1 < run.length; i++) {
+            expect(
+              segDist(disc.cx, disc.cy, run[i], run[i + 1]) + 0.05,
+              `${disc.label} sits on the plan ink of ${k.owner}`,
+            ).toBeGreaterThanOrEqual(disc.r + k.half);
+          }
+        }
+      }
+    }
   });
 });
 

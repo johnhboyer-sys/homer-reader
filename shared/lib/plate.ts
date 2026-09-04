@@ -6718,6 +6718,17 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   const insetContentByWindow = new Map<string, string[]>();
   const insetPinMarkup: string[] = [];
   const insetGlyphBoxes = new Map<string, Box[]>();
+  // Plan ink drawn inside a window (2026-09-03, ruling 9 on the Ilios panel:
+  // the lower city is a built fabric, and a numeral must not sit on a house).
+  // Each wall ring and partition of a `style: "plan"` layer redrawn in a window
+  // becomes a hard disc obstacle for THAT window's numerals, at its drawn
+  // stroke width, the same WallObstacle a fortification's ink is on the face.
+  // A numeral keyed to the building itself is exempt from its own walls
+  // (ownerId), as a badge is from the wall it numbers. A leader may still
+  // cross it: ruling 9 forbids a leader crossing a badge, a pin or another
+  // leader, never linework. On the map face a plan layer draws nothing (its
+  // walls are under PLAN_MIN_WALL_PX there), so it is no obstacle there.
+  const insetWallObstacles = new Map<string, WallObstacle[]>();
   const insetPinAnchors = new Map<string, { win: InsetWindow; box: Box }>();
   const renderedInWindow = new Map<string, { win: InsetWindow; rendered: RenderedLayer }>();
   const submergedByWater = new Map<string, string[]>();
@@ -6850,6 +6861,37 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         if (bucket) bucket.push(copy.markup);
         else insetContentByWindow.set(win.id, [copy.markup]);
         renderedInWindow.set(layer.id, { win, rendered: copy });
+        if (layer.style === 'plan' && layer.polygon && layer.polygon.length >= 3) {
+          const wallPx = (layer.wallM ?? PLAN_WALL_M) * pxPerMetre(plate, win.viewport, layer.polygon[0]);
+          if (wallPx >= PLAN_MIN_WALL_PX) {
+            const ownerId = [layer.id, layer.placeId, ...(layer.claims ?? [])].find(
+              (id): id is string => !!id && keyedIds.has(id),
+            );
+            const runs: { pts: [number, number][]; half: number }[] = [];
+            for (const ring of [layer.polygon, ...(layer.rings ?? [])]) {
+              const pts = projectPoints(plate, ring, win.viewport);
+              if (pts.length >= 3) runs.push({ pts: [...pts, pts[0]], half: wallPx / 2 });
+            }
+            for (const line of layer.lines ?? []) {
+              const pts = projectPoints(plate, line, win.viewport);
+              if (pts.length >= 2) runs.push({ pts, half: wallPx / 4 });
+            }
+            const bucket = insetWallObstacles.get(win.id) ?? [];
+            for (const { pts, half } of runs) {
+              const legs: WallLeg[] = [];
+              for (let i = 0; i + 1 < pts.length; i++) {
+                const [p1, p2] = [pts[i], pts[i + 1]];
+                legs.push({
+                  p1,
+                  p2,
+                  bbox: [Math.min(p1[0], p2[0]), Math.min(p1[1], p2[1]), Math.max(p1[0], p2[0]), Math.max(p1[1], p2[1])],
+                });
+              }
+              bucket.push({ legs, side: 1, halfWidths: [half, half], ownerId });
+            }
+            insetWallObstacles.set(win.id, bucket);
+          }
+        }
         // A real drawn feature on this sheet, at its own id — so a consumer
         // (and E4) can find the mark a window's numeral actually points at.
         features.push(copy.feature);
@@ -7630,6 +7672,16 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       const [rx, ry, rw, rh] = win.rect;
       const shift = (b: Box): Box => [b[0] - rx, b[1] - ry, b[2] - rx, b[3] - ry];
       const marks = mine.map((m) => shift(m.anchorBox));
+      // The window's plan ink (see insetWallObstacles), in the window's own
+      // frame like every other obstacle handed to this call.
+      const walls: WallObstacle[] = (insetWallObstacles.get(win.id) ?? []).map((w) => ({
+        ...w,
+        legs: w.legs.map((l) => ({
+          p1: [l.p1[0] - rx, l.p1[1] - ry] as [number, number],
+          p2: [l.p2[0] - rx, l.p2[1] - ry] as [number, number],
+          bbox: shift(l.bbox),
+        })),
+      }));
       const seats = placeKeyBadges(
         mine.map((m) => ({
           id: String(m.n).padStart(3, '0'),
@@ -7638,6 +7690,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
           fontSize: 2 * m.r,
           r: m.r,
           ownMarker: drawnMarkBoxes.has(m.id) ? shift(drawnMarkBoxes.get(m.id)!) : undefined,
+          ownWalls: walls.filter((w) => w.ownerId === m.id),
         })),
         {
           width: rw,
@@ -7647,6 +7700,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
           placedBoxes: [],
           avoidDiscs: [],
           avoidMarkers: [...marks, ...(insetGlyphBoxes.get(win.id) ?? []).map(shift)],
+          avoidWalls: walls,
           avoidWater: [],
           avoidLabelBoxes: [],
         },

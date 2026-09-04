@@ -470,6 +470,35 @@ shield-of-achilles plate-level `sources` (now a validator error);
     fabric — houses on the terraces, walls solid, streets between — with the
     named structures called out, not six boxes on empty ground.**
 
+    **The lower city, 2026-09-03 (John, on the ditch panel: "where's the
+    rest of the buildings?"). Applied to the ground between the citadel and
+    the Troy VI ditch on the same branch.** The "Before the walls" panel
+    carries the lower city as the same plan register: blocks of houses on
+    terraces stepping down from the wall, party walls between houses, streets
+    between blocks, a ring street at the wall's foot, one street from the
+    South Gate VI T to the passage through the ditch, open ground before the
+    gates and around the oak, the springs and the washing-troughs. The blocks
+    stop at the ditch on the west, at the wagon-road on the south (the poem
+    runs it outside the town, 22.146), and where the survey's line stops —
+    the ditch's proven north end at square p12, and its last unambiguous
+    finding at F28/G27 south of the citadel — with a thinning fringe of
+    houses along the wall beyond. Nothing is drawn from the recorded but
+    undrawn north-east continuation (TROY-VI-DITCH.md §5.7); the fabric only
+    keeps inside it. Every house is the drawing's; the layer note says so and
+    cites the magnetometry's finding of no Bronze Age buildings apart from the
+    stone houses near the citadel (Blindow, Hübner, and Jansen 2014, 689) and
+    Kolb 2004 on the argued density. Plan ink inside a window is now a hard
+    obstacle for that window's numerals (plate.ts, `insetWallObstacles`),
+    so ruling 9 binds against the fabric too.
+
+    **Naming — orchestrator's proposal, John's reading pending
+    (2026-09-03).** The poem distinguishes Pergamos, the height with Priam's
+    house and the temples (5.446, 6.512, 24.700), from Ilios, the whole
+    walled city with its streets (6.391). The two panels take those names:
+    "Inside the walls" → **Pergamos** (the citadel), "Before the walls" →
+    **Ilios** (the lower city inside the Troy VI ditch, and the ground before
+    the walls). The key groups follow. No numeral was added or renumbered.
+
 14. **Citadel identifications are the lane's educated guess from the
     research (John, 2026-09-03 17:19: "i have no idea which citadel
     identifications we should use. go with what we figured out from the
