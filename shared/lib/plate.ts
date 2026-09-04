@@ -2335,7 +2335,21 @@ export interface LabelPlacementOptions {
   margin: number;
   markerBoxes?: LabelBox[];
   placedBoxes?: LabelBox[];
+  /**
+   * Open water on a schematic sheet (2026-09-03, ruling 5 rescinded): a SOFT
+   * avoidance, not a reservation — weighted like a marker box (see
+   * WATER_OVERLAP_WEIGHT), so a name still lands on water rather than being
+   * dropped or forced off its own feature when no land seat is available.
+   */
+  waterBoxes?: Box[];
 }
+
+// Same cost class as a marker box (WATER_OVERLAP_WEIGHT === the marker
+// weight below, ten times cheaper than colliding with another name): water
+// is a preference to avoid, not a forbidden zone (ruling 5 rescinded,
+// 2026-09-03 — "a silly ruling... likely because of bad placement, instead
+// of a better placer").
+const WATER_OVERLAP_WEIGHT = 100;
 
 function offViewBoxArea(box: Box, width: number, height: number, margin: number): number {
   const visibleWidth = Math.max(0, Math.min(box[2], width - margin) - Math.max(box[0], margin));
@@ -2362,8 +2376,10 @@ export function placeLabelCandidates(
       const box = labelBox(candidate, input.textWidth, { size: input.fontSize });
       const labelOverlap = placed.reduce((total, other) => total + overlapArea(box, other), 0);
       const markerOverlap = markerBoxes.reduce((total, marker) => total + overlapArea(box, marker), 0);
+      const waterOverlap = (options.waterBoxes ?? []).reduce((total, w) => total + overlapArea(box, w), 0);
       const offView = offViewBoxArea(box, options.width, options.height, options.margin);
-      const penalty = offView * 10_000 + labelOverlap * 1_000 + markerOverlap * 100 + index / 1_000;
+      const penalty =
+        offView * 10_000 + labelOverlap * 1_000 + markerOverlap * 100 + waterOverlap * WATER_OVERLAP_WEIGHT + index / 1_000;
       const placement = { id: input.id, candidate, candidateIndex: index, box, penalty };
       if (!best || placement.penalty < best.penalty) best = placement;
     }
@@ -3502,6 +3518,13 @@ function layoutLabels(
   // label — which is the fix for "ACHAEAN WALL AND DITCH" printing straight
   // through the wall it names.
   reservedBoxes: ReservedBox[] = [],
+  // Open water on a schematic sheet (2026-09-03, ruling 5 rescinded): a SOFT
+  // cost for every name except the one lettering this exact body of water
+  // (the owner exemption below, same pattern as `layerId` above) — never a
+  // reservation, so a name with no clear land seat still gets placed rather
+  // than pushed off its own feature. Empty on a geographic sheet, which
+  // already draws coastal names over water with a leader by design.
+  waterCost: ReservedBox[] = [],
 ): { markup: string; defs: string; placedBoxes: Box[]; boxes: { id: string; box: LabelBox }[]; suppressed: string[] } {
   const reservedAll = reservedBoxes.filter((r) => !r.areaOnly).map((r) => r.box);
   const reservedArea = reservedBoxes.map((r) => r.box);
@@ -3537,6 +3560,12 @@ function layoutLabels(
     // owner exemption below — with no reservations it is `placed`, exactly as
     // before.
     const blocking = [...placed, ...(req.centred ? reservedArea : reservedAll)];
+    // Water this name pays a soft cost to sit on — every body except its own
+    // (a water body's own name owes nothing for sitting on the water it
+    // names; see waterCost's own comment). `req.id` is the layer id for a
+    // layer-driven request (the only kind a water body's name ever is), the
+    // same id waterCostBoxes was tagged with above.
+    const waterBoxesForReq = waterCost.filter((w) => w.layerId !== req.id).map((w) => w.box);
     if (!req.text.trim()) continue;
     const dedupeKey = req.text.trim().toLocaleLowerCase();
     if (lettered.has(dedupeKey)) continue;
@@ -3614,7 +3643,7 @@ function layoutLabels(
         if (!found) {
           const beside = placeLabelCandidates(
             [{ id: req.id, anchorBox: req.anchorBox, textWidth, fontSize: style.size }],
-            { width, height, margin, markerBoxes, placedBoxes: blocking },
+            { width, height, margin, markerBoxes, placedBoxes: blocking, waterBoxes: waterBoxesForReq },
           )[0];
           if (beside && !blocking.some((p) => boxesOverlap(p, beside.box))) {
             chosen = beside.candidate;
@@ -3630,7 +3659,7 @@ function layoutLabels(
       const candidates = labelCandidates(req.anchorBox, style.size);
       const best = placeLabelCandidates(
         [{ id: req.id, anchorBox: req.anchorBox, textWidth, fontSize: style.size }],
-        { width, height, margin, markerBoxes, placedBoxes: blocking },
+        { width, height, margin, markerBoxes, placedBoxes: blocking, waterBoxes: waterBoxesForReq },
       )[0];
       // A name that had to travel to the outer candidate ring gets a hairline
       // leader back to its own mark.
@@ -6317,10 +6346,25 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // Drawn ink a name must not be laid across: solid blocks (a ship row) and
   // band-along-a-line corridors (a shore, a fortification). See the loop below.
   const denseBoxes: ReservedBox[] = [];
-  // Open water, rasterized (see the WATER_FILLS push below). A hard obstacle
-  // for badge discs and zone letters on a SCHEMATIC sheet only; empty
-  // everywhere else, which is ruling 5.
+  // Open water, rasterized (see the WATER_FILLS push below). Still a HARD
+  // obstacle for badge discs and zone letters on a SCHEMATIC sheet only
+  // (ruling 9's own "nothing overlaps" — a numeral asserts a feature, same as
+  // a name, and cannot sit in the sea). Ruling 5, which used to justify this
+  // for NAMES too, is rescinded (2026-09-03): a name's own relation to water
+  // is now `waterCostBoxes` below, a soft cost, not a reservation.
   const waterBoxes: Box[] = [];
+  // The same rasterized cells as `waterBoxes`, kept apart and WITH their
+  // owning layer id (2026-09-03, ruling 5 rescinded — "a silly ruling...
+  // instead of a better placer"): a name's own body of water costs it
+  // nothing to sit on (see the owner exemption in layoutLabels), but any
+  // other name pays a soft, avoidable cost for a candidate that overlaps
+  // open water, the same cost class a marker box already gets (ten times
+  // cheaper to overprint than another name) — never a hard ban, so a name
+  // with no clear land seat still gets a place on the sheet rather than
+  // being pushed off its own feature (the "Bay of Troy" defect this
+  // replaces: reserved against its OWN water, the name was shoved onto the
+  // ridge with a leader back into the bay it names).
+  const waterCostBoxes: ReservedBox[] = [];
   // The painted extent of a layer-drawn GLYPH — a tumulus mound, a row of
   // beached ships. `drawnMarkBoxes` below holds place DOTS only, so a numeral
   // keyed to a layer (Callicolone, the mound of Patroclus) or to a place whose
@@ -6433,27 +6477,20 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         }
       }
     }
-    // Open water is not empty ground ON A SCHEMATIC SHEET (2026-09-02,
-    // fixing the KNOWN, NOT FIXED regression logged at d0c4e947d): the shore
-    // corridor above reserves only the linework along the coast, never the
-    // sea itself, so a crowded camp band sent "Patroclus: pyre, barrow,
-    // games" out past the beach and onto the Hellespont — a false claim on
-    // a schematic register (a label asserts a place, and open sea is not a
-    // place). Reserved by SHAPE, not bounding box (see
-    // waterReservationBoxes): a water region's bbox is the wrong
-    // reservation whenever the water isn't itself box-shaped — on the
-    // Trojan Plain sheet `sea-modern` traces the Hellespont along one edge,
-    // so its bbox ate the sheet's full height.
+    // Open water on a SCHEMATIC SHEET (2026-09-02, originally fixing the
+    // regression logged at d0c4e947d, REVISED 2026-09-03 when ruling 5 was
+    // rescinded): a name asserting a place in open sea is still a false
+    // claim, but the fix is a soft cost in the placer's own hand, not a
+    // reservation the placer cannot see past — a reservation banned "Bay of
+    // Troy" from the bay it names. Rasterized by SHAPE, not bounding box
+    // (see waterReservationBoxes): a water region's bbox is the wrong
+    // extent whenever the water isn't itself box-shaped — on the Trojan
+    // Plain sheet `sea-modern` traces the Hellespont along one edge, so its
+    // bbox ate the sheet's full height.
     //
-    // Scoped to `plate.kind === 'schematic'` (John's ruling 5, 2026-09-02):
-    // a GEOGRAPHIC sheet is a different register, and already draws coastal
-    // names over water with a leader line — reserving open water there
-    // wrongly suppressed kum-tepe and kesik-tepe on the real
-    // trojan-plain.json, whose only candidate positions sit over the
-    // sea/lagoon polygon; the schematic register's own no-label-on-water
-    // rule doesn't bind a sheet that draws leaders. besik-sivritepe and
-    // uvecik-tepe come along for free (they only needed the bbox-vs-shape
-    // fix, not the register scoping) — see
+    // Scoped to `plate.kind === 'schematic'`: a GEOGRAPHIC sheet already
+    // draws coastal names over water with a leader line by design (Sigeion,
+    // Kum Tepe, Kesik Tepe), so it gets no water cost at all here — see
     // shared/__tests__/plate.test.ts's parity test.
     const layerFill =
       layer.fill ?? (layer.kind === 'region' || layer.kind === 'band' ? DEFAULT_REGION_FILL : undefined);
@@ -6462,12 +6499,13 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       const cells =
         rings.length > 0 ? waterReservationBoxes(rings, rendered.feature.bbox) : [rendered.feature.bbox];
       for (const box of cells) {
-        denseBoxes.push({ box, layerId: layer.id });
-        // The same cells again, kept apart: for a NAME they are a soft cost
-        // among many, for a numeral badge or a zone letter they are a hard
-        // obstacle (ruling 5, via the 2026-09-03 review's finding 2 — zone
-        // letter D stood on the Bay of Troy, and E7 could not see water at
-        // all).
+        // A NAME pays a soft cost (see waterCostBoxes above; zero for this
+        // layer's own name, via the owner exemption in layoutLabels). A
+        // numeral badge or zone letter still treats the same cells as a hard
+        // obstacle (ruling 9's "nothing overlaps" — the 2026-09-03 review's
+        // finding 2: zone letter D stood on the Bay of Troy, and E7 could not
+        // see water at all).
+        waterCostBoxes.push({ box, layerId: layer.id });
         waterBoxes.push(box);
       }
     }
@@ -7011,6 +7049,10 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // was written for (2026-09-02: "Scamander" as "Sca m ander").
     usesLatLon(plate) ? [frameWidth, height] : undefined,
     denseBoxes,
+    // Open water (schematic sheets only; empty on a geographic one) — a soft
+    // cost for every other name, zero for a water body's own (ruling 5
+    // rescinded, 2026-09-03). See waterCostBoxes above.
+    waterCostBoxes,
   );
 
   // Moved ahead of pass 2 (2026-09-03, ruling 9 round 3, Grok finding 3): the

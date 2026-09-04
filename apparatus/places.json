@@ -8540,8 +8540,8 @@
       "kind": "river",
       "plateAnchors": {
         "trojan-plain-schematic": [
-          39.9885,
-          26.2221
+          39.9684,
+          26.2094
         ]
       },
       "positionBasis": "conjectural",
@@ -8574,7 +8574,7 @@
           ]
         }
       ],
-      "note": "ῥοὰς Σιμόεις συμβάλλετον ἠδὲ Σκάμανδρος, 'where the Simoeis and Scamander join their streams' (5.774) — Hera unyokes her horses here, and Simoeis makes ambrosia grow for them, a real divine landmark inside the poem. Where the junction is, the poem will not settle. 5.773-774 has the two rivers meeting as one comes to Troy, close under the city and so cutting it off from the camp; Book 21 drives half the rout across the plain toward the city and half into the water, and 6.4 sets the fighting between the two streams. Leaf states the conflict and leaves it (Troy: A Study in Homeric Geography, 37). The schematic anchor follows 5.774 and puts the junction in the plain under the city, while the sheet draws the two rivers to separate mouths - the disagreement is left standing, not averaged.",
+      "note": "ῥοὰς Σιμόεις συμβάλλετον ἠδὲ Σκάμανδρος, 'where the Simoeis and Scamander join their streams' (5.774): Hera unyokes her horses here, and Book 6 sets the fighting between the two rivers at the same place (6.4). The poem gives the confluence as a landmark but does not fix it on a map -- 5.773-774 puts it close under the city, and nothing else in the text checks that against a coordinate. On this sheet's Bronze Age shoreline (2026-09-03, ruling 5's anchor review) the Simoeis and Scamander reach the bay through separate mouths, so there is no single point on the reconstructed rivers to put the pin on. The pin instead marks the head of the bay between the two mouths, the nearest point on land to where both would enter if they did meet -- a marker for the landmark 5.774 and 6.4 name, not a claim about where the rivers actually joined. The rivers' course has also shifted with the delta's six-millennia progradation (Kraft, Rapp, Kayan, and Luce 2003), so no fixed Bronze Age location is recoverable regardless. Tier stays speculative.",
       "sources": [
         {
           "cite": "Kraft, John C., George Rapp, İlhan Kayan, and John V. Luce. \"Harbor areas at ancient Troy: Sedimentology and geomorphology complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163–66."
@@ -8740,8 +8740,8 @@
       "kind": "camp",
       "plateAnchors": {
         "trojan-plain-schematic": [
-          39.959610192128615,
-          26.1869054896794
+          39.950054,
+          26.172799
         ]
       },
       "positionBasis": "conjectural",
