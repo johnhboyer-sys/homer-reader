@@ -845,3 +845,226 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
     shard fetch — a feature this reader already had.
   Cunliffe still reads its own shards, on tap only; its presentation is a later
   question (John, 2026-08-30).
+
+## 2026-07-28 — cross-epic phrases, grammar scoped to one book
+
+- `shared/components/Phrases.svelte` — added a cross-epic filter: one predicate
+  over `row[3]` (the work count the browse shard already carries) inside
+  `scanShards`, beside the existing `dropCommon` test. No fetch, no new stream.
+  Tests: `phrases.test.ts` gained one-work fixture rows, without which the
+  toggle passes vacuously — every prior fixture row was a two-work row.
+- `shared/components/Search.svelte` — relaxes the sibling's combo-only rule for
+  grammar, but ONLY scoped to a single work + book, where the query is
+  selective (Iliad 9 `number:dual` = 184 words against 3,785 across the poem).
+  Calls `searchGrammar`, which the sibling exports and never uses. Adds a
+  `GrammarCtx` submitted-scope snapshot — query/work/book captured before the
+  first await — because reusing the live filter controls as scope let a cleared
+  book widen the set while the header still claimed the old certainty (four P1s
+  from a GPT-5.6-Sol review). Scope changes RE-RUN, never re-filter. Also adds
+  a per-token ambiguity marker (`mark.ambiguous`, `esc`/`escAttr` on the
+  `{@html}` path) and a `gr=` URL param. Marked Experimental in the UI.
+- `shared/__tests__/grammar-search.test.ts`, `grammar-ui.test.ts` — new. The
+  engine tests alone would pass against a fully reverted `Search.svelte`; the
+  UI tests are the ones that bite, and 8 of 9 were confirmed failing pre-fix.
+
+## 2026-07-29 — hypsometric relief on the two DEM-contoured Troy plates
+
+- `shared/lib/plate.ts` — a second relief register, chosen by a new
+  `elevation` field on a `relief` layer. With it, the band is filled from a
+  twelve-step ramp (`--plate-relief-1..12`) keyed to the RANK of its elevation
+  among the elevations on the same plate, edged with a `--plate-contour`
+  hairline, and drawn as quadratic curves through segment midpoints
+  (`smoothClosedPathD`) rather than as the DP-simplified polygon it is stored
+  as; without it, the old hachure path is untouched, which is what the
+  hand-authored schematic and citadel plates still use. Adds
+  `hypsometricLevels` / `hypsometricStep` (exported, unit-tested) and a
+  graduated elevation key in the margin (`hypsometricKeyMarkup`), which
+  replaces the contoured plates' "High ground (hachured)" legend row. Also:
+  `stipple()` defaults retuned four times finer (dots resolved into countable
+  blobs at the 3x zoom the panel reaches), and `REGION_FILL_OPACITY.marsh`
+  0.9 -> 0.55 so the delta swamp reads as a wash over terrain.
+- `shared/styles/global.css` — 12 ramp tokens + `--plate-contour` in all four
+  theme blocks, per theme and NOT mirrored (light darkens with height, dark
+  lightens out of its near-black ground). `--plate-river` retuned in both
+  themes (light #1F5878 -> #1A4C6A, dark #86BBD8 -> #B4DAEF) to keep 3:1 over
+  every ramp step: a river descends the whole ramp.
+- `shared/__tests__/plate-map-contrast.test.ts`, `plate.test.ts` — the ramp's
+  own guards: monotonic luminance, >= 2:1 end to end, no seam at the sheet
+  ground, river over every step, coast over the lowest three, water darker
+  than step 1, and the hachure register still alive for elevation-less relief.
+
+## 2026-07-29 — the curve pass, and the two soft registers
+
+- `shared/lib/plate.ts` — `smoothClosedPathD` generalised to `smoothPathD`
+  (open lines too, and frame-aware) and applied to EVERY measured line on a
+  geographic sheet: coast, region, band and river, not relief alone. Two
+  vertices are never rounded — the endpoints of an open line, and any vertex
+  within `FRAME_EPS` of the sheet edge, because a vertex on the neatline is
+  where the clip cut the geometry, not where the ground turns (without that,
+  rounding `sea-modern`'s corners pulled the water off the frame). Schematic
+  plates are exempt. Measured deviation from the stored line: 215 m worst
+  case on the Bronze Age shore, against the 275 m generalisation the line
+  already declares — asserted, in metres, in `plate.test.ts`, along with the
+  shore's own calibration (1.2 km north of Hisarlık).
+- `shared/lib/plate.ts` — `stipple()` and `circlePathD()` DELETED, and the
+  coast `stipple` style replaced by `approximate`: a blurred wide stroke with
+  an opaque hairline down its middle. Dots resolve into countable marks at the
+  3x zoom this panel reaches however fine they are tuned (they were retuned
+  four times); a blur is the same drawing at every magnification, and a fuzzy
+  edge is the claim a reconstructed shoreline wants to make anyway.
+- `shared/lib/plate.ts` — two new region registers. `fill: "marsh"` now draws
+  with NO outline and through a blur, because a wetland margin is indefinite
+  and a crisp edge round it claims a precision that exists nowhere in the
+  evidence. `fill: "none"` (new value, mirrored in `apparatus_places.py`'s
+  `REGION_FILL_ENUM`) draws nothing at all — a lettering zone for a named
+  tract of country whose extent nobody surveyed. Both are declared through one
+  `<filter>` per strength in `<defs>`, emitted only when the sheet uses it;
+  neither carries any colour, so the theming contract is untouched.
+- `scripts/prep-terrain-contours.py` — `delta-swamp` re-derived from the DEM
+  (contour band 10–15 m plus a 1.2 % slope threshold, minus the lagoon, keeping
+  only the component connected to the bay head) in place of a strip cut by
+  literal lat/lon filters, three of whose four sides were the filter rather
+  than the ground.
+
+## 2026-07-29 — rivers under water, and pins that are not holes
+
+- `shared/lib/plate.ts` — **a river is painted beneath any water it crosses.**
+  Our rivers are modern OSM watercourses whose lower reaches cross ground that
+  was under water in 1200 BC, so the Scamander and the Simoeis ran north past
+  the reconstructed shoreline and out into the lagoon. The fix is paint ORDER,
+  not a cut: `collectWaterBodies` + `runsWhere` split each river at the edge of
+  every water body on the sheet and hand the submerged reach to that water
+  layer's own paint slot, under its fill. Nothing is discarded — the union of
+  what is drawn is still the surveyed course — and because the water is what
+  hides the reach, the mouth follows the layer toggles with no component
+  change: switch the lagoon off and the river runs on to the modern mouth.
+  No plate field configures it (nothing to author, nothing to forget, nothing
+  for `apparatus_places.py` to drift on). A reach drowned by a `ground: "sea"`
+  sheet is dropped, the ground being the bottom of the paint stack. `marsh` is
+  not water: the delta swamp is still crossed. `smoothPathD` factored into
+  `smoothFrame` + a new `smoothPolyline`, so the clip is computed against the
+  DRAWN curve rather than the polyline behind it (at a sharp inlet the
+  smoothing pulls back further than the line weight, and the river poked out
+  into the water). River ends are butt caps now, not round: a round cap put
+  half a line-width of ink past the mouth.
+- `shared/lib/plate.ts` — **every pin is opaque.** Three of the four certainty
+  tiers carried their meaning as a HOLE (`fill: none`, or a 0.16 wash), so at
+  3.5x a pin over the hypsometric ramp had contour lines running through the
+  middle of it. Same register, carried by an inner mark in
+  `--scene-map-label-halo` instead: solid / closed ring / broken ring / broken
+  outline. The pin is one closed outline (`pinBodyPath`) rather than a circle
+  plus a triangle, which is seamless only while the fill is transparent. Legend
+  swatches draw the actual pin. A deliberate divergence from `scenemap.ts` and
+  `LandmarkMap.svelte`, which are unchanged (small dots, flat insets).
+- `apparatus/plates/trojan-plain.json`, `troad.json` — three layer notes only
+  (`scamander`, `simoeis`, `river-scamander`). No geometry touched: the Bronze
+  Age shore, barrier and lagoon are byte-identical, asserted in `plate.test.ts`.
+  The Simoeis' note now states BOTH its ends — the OSM survey stops a kilometre
+  short of the Karamenderes, and its last kilometre is under the reconstructed
+  lagoon — because "the survey stops here" and "the water began here" are
+  different claims and neither may impersonate the other.
+- `shared/__tests__/plate.test.ts` — 27 new tests; 12 of them confirmed failing
+  against the pre-fix renderer.
+
+## 2026-07-29 — the sandy bar ends where it stops being a bar
+
+- `shared/lib/plate.ts` — **`runsWhere` cuts at the crossings, not at the
+  vertices.** It sampled the water test at a river's own vertices, so any dry
+  reach shorter than the gap between two of them opened no run and was drawn by
+  nobody: measured, 141 m of the Karamenderes crossing the sandy bar between
+  the Bronze Age lagoon and the modern sea, inside one 255 m segment.
+  `WaterBody` now carries its boundary `edges`, a new `segmentCrossings` solves
+  the segment/segment intersection in closed form, and each piece is decided by
+  its MIDPOINT — a point that cannot sit on a boundary. `crossingPoint` and
+  `CROSSING_BISECTIONS` deleted with it: an exact crossing needs no bisection.
+- `shared/__tests__/plate.test.ts` — the three river-reach tests re-stated for
+  the corrected drawing (the Scamander is four reaches, not three), plus one
+  new property test — every stretch of a stored river lands in some paint slot
+  — confirmed failing against the pre-fix renderer.
+
+## 2026-08-14 — the halo has to be the label's background, or it is decoration
+
+- `shared/lib/plate.ts` — **the fixed-pair contrast argument was measuring a
+  pair no reader sees.** The `LABEL_STYLES` comment reasoned about every name
+  as `--text-mid` over `--scene-map-label-halo` — 7.48:1 light, 8.15:1 dark, so
+  the lettering "passed". But at `LABEL_HALO_WIDTH` 0.65px the halo covers
+  about a third of a CSS pixel outside the glyph, so on a geographic sheet the
+  real surround is the twelve-step hypsometric ramp. Sampling the rendered PNGs
+  (`scripts/measure-label-contrast.mjs`, new) put **17 of 28 region/feature
+  labels below 4.5:1** — MOUNT IDA 2.50:1, CALLICOLONE 2.06:1, THYMBRA 2.56:1
+  in dark theme; light was no better (MOUNT IDA 4.10:1, THRACIAN SAMOS 4.18:1).
+  No ink can fix it: the dark ramp's pale steps sit where pure white reaches
+  only 4.60:1 and pure black 4.56:1, so the ceiling is under AA from BOTH
+  directions and any flat ink trades one failing set of steps for another.
+  New `RELIEF_HALO_WIDTH` 2.6 / `RELIEF_HALO_OPACITY` 0.72, applied through
+  `haloAttrs()` on geographic plates only. The 2.5px halo retired 2026-08-10
+  ("kill the white halo") was OPAQUE, and opacity — never width — is what made
+  it read as its own shape; at 0.72 the contour hairlines and the ramp step
+  still show through the stroke, so it dims the terrain around the letterforms
+  instead of punching a hole in it. Every ink token is unchanged, so the
+  grey-demotes / weight-promotes hierarchy is untouched. **Schematic sheets
+  keep the 0.65px hairline: `trojan-plain-schematic.json` and
+  `troy-citadel.json` render byte-identical, asserted.** After: 26 of 28 clear
+  4.5:1. The two that do not are KESIK TEPE in both themes, which is lettered
+  across the shoreline glow rather than across terrain — a placement problem
+  the halo cannot reach, and John's call whether to move the name.
+- `scripts/measure-label-contrast.mjs` — new. Renders the real plates through
+  the shipped renderer, reads each label's laid-out rect out of the page, and
+  samples the actual PNG pixels one glyph-stem out. Standard library only: the
+  PNG decoder is `zlib` plus the scanline filters, no image dependency.
+- `shared/__tests__/plate.test.ts`, `plate-map-contrast.test.ts` — the two
+  halves of the guard: the emitter carries the wide translucent halo on
+  geographic sheets and the untouched hairline on schematic ones; and every
+  label ink composited over the halo clears 4.5:1 on all twelve ramp steps and
+  every flat terrain fill, in both complete theme pairings. Both confirmed
+  failing against the pre-fix values.
+
+## 2026-09-02 — Chart Room postcard frame
+
+- `shared/components/Reader.svelte` — the Chart Room postcard (`applyPlateCamera`,
+  `chartPlateBody`/`chartLocatorInset` snippets): camera sized round the focus
+  place's pin AND its label box (`computeCamera`'s new `labelBoxes` option),
+  clamped to the sheet, `maxScale: 4`; non-focus pins ghosted and non-focus
+  labels omitted (`.plate-dimmed` / new `.plate-hidden`); a per-slot label
+  descale independent of PlatePanel.svelte's own `1/camK` (see that function's
+  comment for why the formula differs); a small full-sheet locator inset with
+  a frame rect; the geographic path additionally links through to `/maps/`
+  framed on the same scene. Shared by both the schematic path (live) and the
+  geographic path (flag-gated off, `CHART_ROOM_PLATE_ENABLED`). No
+  plato-reader counterpart (Homer-only apparatus feature).
+
+## 2026-09-02 — Chart Room postcard: margin band + tier-2 labels (stage 5a)
+
+- `shared/components/Reader.svelte` — `applyPlateCamera`'s `apply()` toggles
+  `.plate-zoomed` (camera scale >= 2.5) and `.plate-focus-label` (the
+  scene's own single focus, which always wins over the tier rule) so a
+  CSS pair can hide `.plate-label-tier2`/`.plate-leader-tier2` below that
+  zoom threshold, mirroring `PlatePanel.svelte`'s own `.plate-zoomed`
+  toggle at the same threshold. `chartMapAspectRatio`/the three
+  `applyPlateCamera` params/`locatorFrame` all read `PlateResult.frame`
+  (plate.ts) instead of `Plate.size`, since the schematic sheet's `size`
+  now includes its own margin band; `ensureLabelWrappers` sets
+  `preserveAspectRatio="xMinYMin slice"` on the injected SVG so that band
+  is cropped, not letterboxed, when the two ratios diverge (a no-op on
+  every plate with no `marginRight`). `labelDescaleFactor` (new, shared by
+  `updateLabelDescale`/`fitFocusLabelsToFrame`) raises the descale ceiling
+  at `camK<=1` only, so an unzoomed postcard's label no longer lands at
+  ~4-5 CSS px. `FURNITURE_SELECTOR` gained `.plate-scene-key`. No
+  plato-reader counterpart (Homer-only apparatus feature).
+
+## 2026-09-02 — Chart Room postcard: numbered feature-key badges (stage 5c, part 2)
+
+- `shared/components/Reader.svelte` — `applyPlateCamera`'s `ensureLabelWrappers`
+  extends its descale-wrapper query from `.plate-label` to `.plate-label,
+  .plate-key-badge` (wrapping the badge GROUP, pivoted on its own `<circle
+  cx/cy>`, never its inner text — plate.ts's `badgeMarkup` stamps that text
+  with no class at all, so it can never double-match `.plate-label`); every
+  badge gets `tabindex="-1"` there too (33 tab stops inside the postcard's
+  one `<a>` would wreck its keyboard flow). `apply()`'s focus pass hides
+  every non-focus badge (`.plate-hidden`, the same OMIT-don't-ghost
+  treatment as a non-focus name) and excludes badges from the existing pin-
+  dimming pass (`[data-place-id]:not(.plate-key-badge)`) so a hidden badge
+  never also carries the now-moot `.plate-dimmed`. `FURNITURE_SELECTOR`
+  gained `.plate-feature-key` (belt-and-suspenders with the `slice` crop,
+  which already keeps this margin-band content out of frame). No
+  plato-reader counterpart (Homer-only apparatus feature).

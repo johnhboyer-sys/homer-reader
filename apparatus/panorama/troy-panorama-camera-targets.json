@@ -1,0 +1,686 @@
+{
+  "id": "panorama-ships-bay-ilios",
+  "title": "The Ships, the Bay, and Ilios",
+  "status": "draft",
+  "frame": {
+    "w": 2400,
+    "h": 1350,
+    "pictureH": 1050
+  },
+  "camera": {
+    "viewpoint": [
+      39.925,
+      26.1585
+    ],
+    "headingDeg": 90.0,
+    "hfovDeg": 72.0,
+    "altM": 1100.0,
+    "setbackM": 1700.0,
+    "pitchDegDown": 18.67,
+    "verticalExaggerationCurve": "C",
+    "verticalExaggerationNearRate": 4.0,
+    "verticalExaggerationScaleM": 150.0,
+    "verticalExaggerationFloor": 0.7229,
+    "verticalExaggeration": "Vertical exaggeration 4× at the shore, easing to 0.72× on the high ground — applied as a rate, so higher ground always draws higher. Built heights TRUE."
+  },
+  "note": "Camera targets for the Chart Room 'postcard' frames. Each row is sized round its own subject AND its label box, so no crop slices a label; showTiers says which level-of-detail tiers a frame turns on, so a frame pins only its own subject. Labels carry class plate-label and must be counter-scaled (pp-label-descale) — type never magnifies. A locator inset showing this rectangle against the full frame is the caller's job.",
+  "stats": {
+    "cells_tested": 202986,
+    "cells_visible": 101961,
+    "coast_necks": {
+      "lagoon-bronze": 0,
+      "sea-modern": 2
+    },
+    "coast_dev_m": {
+      "lagoon-bronze": 10.7,
+      "sea-modern": 13.2
+    },
+    "cover_cells": {
+      "fan": 35645,
+      "ridge": 18269,
+      "open": 48047,
+      "drowned": 0
+    },
+    "shadow_raster": 801,
+    "shadow_secs": 0.9,
+    "shaded_cells": 68765,
+    "shade_islands_filtered": 7595,
+    "river_dev_m": 15.820961900208195,
+    "scrub_dens_mean": 0.459,
+    "scrub_bare_frac": 0.626,
+    "scrub_forest_skirts": 0,
+    "scrub_mass_loops": 82,
+    "veg_bank": 747,
+    "veg_bank_runs": 54,
+    "veg_scrub": 1514,
+    "wall_mid": [
+      -1507.157289952253,
+      609.8966402839791
+    ],
+    "hulls": 140,
+    "hulls_t1": 28,
+    "hulls_miltos": 12,
+    "huts": 523,
+    "ship_depth": 1804.0,
+    "beach_frontage_m": 3016,
+    "obj_shadows": 691,
+    "fleet_centroid": [
+      39.9452,
+      26.16527
+    ],
+    "fleet_centroid_screen": [
+      -295.3,
+      822.8,
+      2479.8
+    ],
+    "wall_at": [
+      39.95402,
+      26.1698
+    ],
+    "ditch_at": [
+      39.95406,
+      26.16958
+    ],
+    "ilios": {
+      "topM": 38.01,
+      "baseM": 10.35,
+      "reliefM": 27.66,
+      "apparentM": 97.25,
+      "prominencePx": 19.31
+    }
+  },
+  "targets": [
+    {
+      "id": "ilios",
+      "name": "Ilios",
+      "greek": "Ἴλιος",
+      "tier": 1,
+      "positionBasis": "measured",
+      "citation": "Il. 3.145-153; 6.386; 22.97",
+      "tradition": null,
+      "rule": "Hisarlık, apparatus/places.json 'troy'.",
+      "at": [
+        39.957,
+        26.239
+      ],
+      "frame": {
+        "x": 503.0,
+        "y": 314.6,
+        "depthM": 8427.1
+      },
+      "camera": {
+        "cx": 523.6,
+        "cy": 303.6,
+        "zoom": 3.33
+      },
+      "showTiers": [
+        1
+      ]
+    },
+    {
+      "id": "scamander",
+      "name": "Scamander",
+      "greek": "Σκάμανδρος / Ξάνθος",
+      "tier": 1,
+      "positionBasis": "measured",
+      "citation": "Il. 6.4; 14.433; 21.1-2",
+      "tradition": null,
+      "rule": "On the drawn (modern) channel, OSM. The Bronze Age bed is not this line and is not drawn.",
+      "at": [
+        39.9295,
+        26.2445
+      ],
+      "frame": {
+        "x": 1107.2,
+        "y": 321.5,
+        "depthM": 8900.2
+      },
+      "camera": {
+        "cx": 1112.8,
+        "cy": 321.5,
+        "zoom": 1.87
+      },
+      "showTiers": [
+        1
+      ]
+    },
+    {
+      "id": "bay-of-troy",
+      "name": "the bay of Troy",
+      "greek": "",
+      "tier": 1,
+      "positionBasis": "reconstructed",
+      "citation": "Kraft, Kayan and Erol 1980; Kayan 1995",
+      "tradition": null,
+      "rule": "The reconstructed Late Bronze Age embayment (lagoon-bronze).",
+      "at": [
+        39.988,
+        26.206
+      ],
+      "frame": {
+        "x": -795.1,
+        "y": 440.0,
+        "depthM": 5796.0
+      },
+      "camera": {
+        "cx": -795.1,
+        "cy": 440.0,
+        "zoom": 1.87
+      },
+      "showTiers": [
+        1
+      ]
+    },
+    {
+      "id": "ida",
+      "name": "MOUNT IDA",
+      "greek": "Ἴδη",
+      "tier": 1,
+      "positionBasis": "measured",
+      "citation": "Il. 8.47-48; 14.283-285",
+      "tradition": null,
+      "rule": "Kaz Dağı summit; skyline sampled from the Troad DEM.",
+      "at": [
+        39.6995,
+        26.8653
+      ],
+      "frame": {
+        "x": 1906.7,
+        "y": 97.5,
+        "depthM": 58565.7
+      },
+      "camera": {
+        "cx": 1906.7,
+        "cy": 97.5,
+        "zoom": 1.62
+      },
+      "showTiers": [
+        1
+      ]
+    },
+    {
+      "id": "simoeis",
+      "name": "Simoeis",
+      "greek": "Σιμόεις",
+      "tier": 2,
+      "positionBasis": "traditional",
+      "citation": "Il. 5.774; 6.4",
+      "tradition": "Equation with the Dümrek Su, following Strabo 13.1; accepted by Leaf, Cook and Luce.",
+      "rule": "On the drawn channel.",
+      "at": [
+        39.972,
+        26.29
+      ],
+      "frame": {
+        "x": 513.2,
+        "y": 253.2,
+        "depthM": 12560.2
+      },
+      "camera": {
+        "cx": 518.8,
+        "cy": 253.2,
+        "zoom": 1.87
+      },
+      "showTiers": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "ford-of-the-scamander",
+      "name": "the ford",
+      "greek": "πόρος ποταμοῖο",
+      "tier": 2,
+      "positionBasis": "conjectural",
+      "citation": "Il. 14.433 = 21.1-2 = 24.692-693",
+      "tradition": null,
+      "rule": "Where the wagon-road, laid from Ilios toward the camp, meets the drawn channel. The crossing is named by a repeated formula; its ground is unrecoverable — the delta has prograded past it.",
+      "at": [
+        39.93003,
+        26.23178
+      ],
+      "frame": {
+        "x": 1082.8,
+        "y": 346.7,
+        "depthM": 7869.6
+      },
+      "camera": {
+        "cx": 1089.4,
+        "cy": 346.7,
+        "zoom": 3.58
+      },
+      "showTiers": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "rhoiteion",
+      "name": "RHOITEION",
+      "greek": "Ῥοίτειον",
+      "tier": 2,
+      "positionBasis": "measured",
+      "citation": "Il. 14.31-36 (a beach between two headlands; the headlands are not named in the poem)",
+      "tradition": null,
+      "rule": "Baba Kale spur, apparatus/places.json 'rhoiteion'.",
+      "at": [
+        40.01,
+        26.303
+      ],
+      "frame": {
+        "x": 46.6,
+        "y": 209.3,
+        "depthM": 13526.8
+      },
+      "camera": {
+        "cx": 46.6,
+        "cy": 209.3,
+        "zoom": 1.62
+      },
+      "showTiers": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "sigeion",
+      "name": "SIGEION",
+      "greek": "Σίγειον",
+      "tier": 2,
+      "positionBasis": "measured",
+      "citation": "Il. 14.31-36 (as above)",
+      "tradition": null,
+      "rule": "apparatus/places.json 'sigeion'.",
+      "at": [
+        39.9835,
+        26.1809
+      ],
+      "frame": {
+        "x": -1676.5,
+        "y": 570.4,
+        "depthM": 3733.0
+      },
+      "camera": {
+        "cx": -1676.5,
+        "cy": 570.4,
+        "zoom": 1.62
+      },
+      "showTiers": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "callicolone",
+      "name": "Callicolone",
+      "greek": "Καλλικολώνη",
+      "tier": 2,
+      "positionBasis": "traditional",
+      "citation": "Il. 20.53; 20.151",
+      "tradition": "Spratt/Forchhammer identification, editorial ruling 2026-07-30.",
+      "rule": "Kara Tepe, the surveyed peak 8.5 km east of Troy (207 m).",
+      "at": [
+        39.9565,
+        26.3395
+      ],
+      "frame": {
+        "x": 848.2,
+        "y": 178.0,
+        "depthM": 16433.7
+      },
+      "camera": {
+        "cx": 854.8,
+        "cy": 178.0,
+        "zoom": 3.58
+      },
+      "showTiers": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "achaean-wall",
+      "name": "the wall of the Achaeans",
+      "greek": "τεῖχος",
+      "tier": 2,
+      "positionBasis": "conjectural",
+      "citation": "Il. 7.436-441; 12.17-24; 14.30-36",
+      "tradition": null,
+      "rule": "On the Aegean (outer) flank of the Sigeum ridge, 60 m landward of the rearmost sterns, after Kraft, Rapp, Kayan and Luce 2003; the beach uses the modern coastline, no Bronze Age reconstruction of the outer coast being published in our sources.",
+      "at": [
+        39.95402,
+        26.1698
+      ],
+      "frame": {
+        "x": -666.8,
+        "y": 744.0,
+        "depthM": 2853.3
+      },
+      "camera": {
+        "cx": -1110.2,
+        "cy": 699.0,
+        "zoom": 2.21
+      },
+      "showTiers": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "throsmos",
+      "name": "the rising ground of the plain",
+      "greek": "θρωσμὸς πεδίοιο",
+      "tier": 2,
+      "positionBasis": "conjectural",
+      "citation": "Il. 10.160; 11.56; 20.3",
+      "tradition": null,
+      "rule": "On the plain between the ford and the city, where the Trojans bivouac and form up.",
+      "at": [
+        39.94191,
+        26.23496
+      ],
+      "frame": {
+        "x": 818.2,
+        "y": 340.6,
+        "depthM": 8128.5
+      },
+      "camera": {
+        "cx": 818.2,
+        "cy": 340.6,
+        "zoom": 1.62
+      },
+      "showTiers": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "delta-swamp",
+      "name": "marsh and wet delta",
+      "greek": "",
+      "tier": 2,
+      "positionBasis": "reconstructed",
+      "citation": "Kayan 1995; 2002",
+      "tradition": null,
+      "rule": "Margin indefinite by construction — drawn with no outline.",
+      "at": [
+        39.97,
+        26.247
+      ],
+      "frame": {
+        "x": 293.0,
+        "y": 319.4,
+        "depthM": 9106.7
+      },
+      "camera": {
+        "cx": 293.0,
+        "cy": 319.4,
+        "zoom": 1.62
+      },
+      "showTiers": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "scaean-gate",
+      "name": "the Scaean Gate and the oak",
+      "greek": "Σκαιαὶ πύλαι / φηγός",
+      "tier": 3,
+      "positionBasis": "conjectural",
+      "citation": "Il. 3.145; 6.237 = 9.354 = 11.170; 5.693; 7.60",
+      "tradition": null,
+      "rule": "At the west face of the circuit, where the wagon-road leaves it. No agreed candidate at Hisarlık; the gate and the oak are one formulaic pair and are drawn as one mark.",
+      "at": [
+        39.95568,
+        26.23865
+      ],
+      "frame": {
+        "x": 529.8,
+        "y": 317.4,
+        "depthM": 8401.9
+      },
+      "camera": {
+        "cx": 529.8,
+        "cy": 313.4,
+        "zoom": 3.58
+      },
+      "showTiers": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "lookout-skopie",
+      "name": "the lookout",
+      "greek": "σκοπιή",
+      "tier": 3,
+      "positionBasis": "conjectural",
+      "citation": "Il. 22.145",
+      "tradition": null,
+      "rule": "First of the three things the chase passes on the wagon-road.",
+      "at": [
+        39.95285,
+        26.23789
+      ],
+      "frame": {
+        "x": 587.8,
+        "y": 324.9,
+        "depthM": 8350.3
+      },
+      "camera": {
+        "cx": 587.8,
+        "cy": 324.9,
+        "zoom": 3.58
+      },
+      "showTiers": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "fig-tree",
+      "name": "the wild fig tree",
+      "greek": "ἐρινεός",
+      "tier": 3,
+      "positionBasis": "conjectural",
+      "citation": "Il. 6.433; 11.167; 22.145",
+      "tradition": null,
+      "rule": "Second on the chase-route, 'always out from under the wall'.",
+      "at": [
+        39.95059,
+        26.23728
+      ],
+      "frame": {
+        "x": 635.2,
+        "y": 334.9,
+        "depthM": 8315.2
+      },
+      "camera": {
+        "cx": 635.2,
+        "cy": 334.9,
+        "zoom": 3.58
+      },
+      "showTiers": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "two-springs-of-scamander",
+      "name": "the two springs",
+      "greek": "κρουνὼ καλλιρρόω",
+      "tier": 3,
+      "positionBasis": "conjectural",
+      "citation": "Il. 22.147-152",
+      "tradition": null,
+      "rule": "Third on the chase-route: one warm, steaming; one cold as hail.",
+      "at": [
+        39.94757,
+        26.23648
+      ],
+      "frame": {
+        "x": 697.7,
+        "y": 334.8,
+        "depthM": 8247.1
+      },
+      "camera": {
+        "cx": 697.7,
+        "cy": 334.8,
+        "zoom": 3.58
+      },
+      "showTiers": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "tomb-of-ilos",
+      "name": "the tomb of Ilus",
+      "greek": "σῆμα Ἴλου",
+      "tier": 3,
+      "positionBasis": "conjectural",
+      "citation": "Il. 10.415; 11.166-167; 11.371-372; 24.349",
+      "tradition": null,
+      "rule": "Out on the plain between the ford and the fig tree: the rout at 11.166-170 runs past the tomb, over mid-plain, past the fig, to the city, and that order is the only fix there is.",
+      "at": [
+        39.93436,
+        26.23295
+      ],
+      "frame": {
+        "x": 984.2,
+        "y": 344.6,
+        "depthM": 7964.4
+      },
+      "camera": {
+        "cx": 984.2,
+        "cy": 344.6,
+        "zoom": 3.58
+      },
+      "showTiers": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "wagon-road",
+      "name": "the wagon-road",
+      "greek": "ἀμαξιτός",
+      "tier": 3,
+      "positionBasis": "conjectural",
+      "citation": "Il. 22.146",
+      "tradition": null,
+      "rule": "The single organizing line of the plain, from the Scaean Gate past the lookout, the fig tree and the springs.",
+      "at": [
+        39.94115,
+        26.23476
+      ],
+      "frame": {
+        "x": 834.5,
+        "y": 341.4,
+        "depthM": 8112.7
+      },
+      "camera": {
+        "cx": 845.7,
+        "cy": 341.4,
+        "zoom": 2.28
+      },
+      "showTiers": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "batieia",
+      "name": "Batieia",
+      "greek": "Βατίεια",
+      "tier": 3,
+      "positionBasis": "conjectural",
+      "citation": "Il. 2.811-815",
+      "tradition": null,
+      "rule": "'Before the city, out in the plain, standing clear, with a way round it on either side' — off the road, on the city side.",
+      "at": [
+        39.9468,
+        26.22886
+      ],
+      "frame": {
+        "x": 675.8,
+        "y": 354.8,
+        "depthM": 7634.3
+      },
+      "camera": {
+        "cx": 675.8,
+        "cy": 354.8,
+        "zoom": 3.58
+      },
+      "showTiers": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "wall-of-heracles",
+      "name": "the wall of Heracles",
+      "greek": "τεῖχος Ἡρακλῆος",
+      "tier": 3,
+      "positionBasis": "conjectural",
+      "citation": "Il. 20.145-148",
+      "tradition": null,
+      "rule": "The pro-Greek gods' seat, Callicolone's opposite number across the divine grandstand; on the plain between the camp and the city. A mythical place, on the map with confidence.",
+      "at": [
+        39.92842,
+        26.24069
+      ],
+      "frame": {
+        "x": 1126.8,
+        "y": 327.2,
+        "depthM": 8589.0
+      },
+      "camera": {
+        "cx": 1116.8,
+        "cy": 327.2,
+        "zoom": 3.58
+      },
+      "showTiers": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "id": "ships",
+      "name": "the ships",
+      "greek": "νῆες",
+      "tier": 1,
+      "positionBasis": "conjectural",
+      "citation": "Il. 14.30-36; 8.222-26",
+      "tradition": null,
+      "rule": "Fleet centroid on the Aegean (outer) flank of the Sigeum ridge.",
+      "at": [
+        39.9452,
+        26.16527
+      ],
+      "frame": {
+        "x": -295.3,
+        "y": 822.8,
+        "depthM": 2479.8
+      },
+      "camera": {
+        "cx": -295.3,
+        "cy": 822.8,
+        "zoom": 1.62
+      },
+      "showTiers": [
+        1,
+        2
+      ]
+    }
+  ]
+}
