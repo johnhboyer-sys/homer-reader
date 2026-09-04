@@ -366,10 +366,13 @@ shield-of-achilles plate-level `sources` (now a validator error);
 5. **No-label-on-water rule binds the schematic register only.** Geographic
    sheets may set a coastal name over water with a leader (Kum Tepe, Kesik
    Tepe come back).
-   **Amended (John, 2026-09-03 19:04, "why is the Bay of Troy not over the
-   water"):** the rule keeps PLACE names off the water; a body of water's
-   own name sits on that water, with no leader. The solver had reserved the
-   bay against its own name and pushed it onto the ridge.
+   **Rescinded (John, 2026-09-03 19:05: "a silly ruling that was likely
+   because of bad placement").** It was: the Patroclus label had drifted
+   onto the sea, and the answer was a rule instead of a better placer. With
+   ruling 9's placer in, water is a soft cost for a land feature's name, not
+   a reservation; a water body's own name sits on that water with no
+   leader; a coastal name may sit over water with a leader when that reads
+   best. No register-specific ban.
 
 6. **Dense clusters use Pope's method (John, 18:06):** on the schematic
    sheet the camp and the citadel's features carry NUMERALS at the pin, a
