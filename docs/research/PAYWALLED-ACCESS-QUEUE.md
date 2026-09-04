@@ -142,9 +142,18 @@ only — never committed, never republished.
     → TROAD-TOPOGRAPHY §6.
 14. **Messmer 2014, Abb. 2 at print resolution** (Troia grid letter→easting —
     closes the one open half of the citadel grid mapping). → CITADEL §6 item 1.
-15. **Blindow, Hübner & Jansen 2014, Abb. 12–13 at print resolution** (lower-
-    city ditch linework; in copyright — read, cite facts, do not trace).
-    → CITADEL §6 item 2.
+    **NO LONGER LOAD-BEARING (2026-09-03):** the letter→easting mapping was read
+    off Blindow–Hübner–Jansen Abb. 13's own margin instead and checked against
+    three coordinates in that chapter's prose — E = 8700 + 20·i at a column's
+    west edge. Abb. 2 would only confirm it. Left listed as a nice-to-have.
+15. ✅ **CLOSED 2026-09-03.** **Blindow, Hübner & Jansen 2014, Abb. 12–13 at print
+    resolution** (lower-city ditch linework; in copyright — read, cite facts, do
+    not trace). The open-access PDF renders Abb. 13 legibly at 1200 dpi, which
+    is enough to read positions against its printed grid; no print copy needed.
+    The chapter was read in full and the ditch drawn on the schematic sheet from
+    recorded coordinates at a stated tolerance, never traced. Facts, vertex
+    table, georeference and the copyright reasoning:
+    `docs/research/TROY-VI-DITCH.md`. → CITADEL §6 item 2.
 
 ## Tier 3 — completes the record
 

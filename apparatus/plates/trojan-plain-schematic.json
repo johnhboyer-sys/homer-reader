@@ -259,6 +259,10 @@
         {
           "placeId": "wagon-road",
           "label": "The wagon-road"
+        },
+        {
+          "layerId": "troy-vi-ditch-inner",
+          "label": "The ditch of the lower city, Troy VI"
         }
       ]
     },
@@ -13770,6 +13774,117 @@
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
           "url": "https://archive.org/details/trojaundilionerg02dorp"
+        }
+      ],
+      "insetOf": "citadel-inset-panel"
+    },
+    {
+      "id": "troy-vi-ditch-inner",
+      "kind": "wall",
+      "certainty": "certain",
+      "trace": [
+        [39.953242, 26.237413],
+        [39.953324, 26.236803],
+        [39.953437, 26.236377],
+        [39.953264, 26.235999],
+        [39.953238, 26.23565],
+        [39.953303, 26.234936],
+        [39.953628, 26.234449],
+        [39.953892, 26.234098]
+      ],
+      "note": "The ditch of the lower city, and the boundary of Troy at its greatest extent. A ditch cut into the limestone rock about 3 m wide and up to 2 m deep, which filled in Troy VI with eroded surface soil — that fill is what makes it read as a positive magnetic anomaly. Magnetometry between 1988 and 2007 followed about 700 m of it round the south and west of the lower settlement; the excavators take it for the outer limit of the Bronze Age settled area in late Troy VI. This southern arm is the stretch the survey settles: it runs west to east for some 340 m, and the sondage that first proved it, in squares z29 and A29, dated the fill to Troy VI. The gap at its east end is the passage through the ditch, found by excavation in square y28/29 with the postholes of a palisade behind it; the real break is a few meters wide and is drawn here at the width of the square. The chapter reports that reading the ditch as a defensive work, or as an obstacle to Late Bronze Age chariots, is not unanimously accepted, and declines to argue the point; the cutting, its date and its course are what the survey establishes. Inside this line stands the Ilios the poem walks through, its well-built streets and the assembly at Priam’s doors (Il. 6.391, 2.788), on and below the citadel drawn above. Every position here is either a coordinate the chapter prints or a reading taken off the grid of its Abb. 13, good to about ±10 m; the line is built from those positions and is not a trace of the published drawing.",
+      "sources": [
+        {
+          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof north-east of square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
+          "url": "https://publikationen.uni-tuebingen.de/xmlui/handle/10900/73573"
+        },
+        {
+          "cite": "Messmer, Eberhard. “Grundlagenvermessung als Basis für ein archäologisches Informationssystem in Troia.” Studia Troica 2 (1992): 71–82 — the survey grid the coordinates above belong to, cited by Blindow, Hübner and Jansen for its 5.509° rotation from geographic north."
+        },
+        {
+          "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
+          "url": "https://archive.org/details/iliadmurray01homeuoft"
+        }
+      ],
+      "insetOf": "citadel-inset-panel"
+    },
+    {
+      "id": "troy-vi-ditch-inner-east",
+      "kind": "wall",
+      "certainty": "certain",
+      "trace": [
+        [39.95343, 26.239094],
+        [39.953394, 26.238969],
+        [39.953292, 26.2387],
+        [39.953249, 26.238352],
+        [39.953205, 26.237888],
+        [39.953206, 26.237652]
+      ],
+      "note": "The same surveyed ditch, east of the gate passage, running on to square F28. That is the last point at which the magnetometry could follow it: beyond F28 the shallower Hellenistic and Roman foundations drown the weak Bronze Age signal, and geoelectrics, electromagnetics and ground radar all failed on the water-bearing limestone. The ditch does go on — an electromagnetic anomaly in square G27 was tested by excavation in 2006 and the ditch was there — but no course north-east of F28 is drawn here, because none is established.",
+      "sources": [
+        {
+          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof north-east of square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
+          "url": "https://publikationen.uni-tuebingen.de/xmlui/handle/10900/73573"
+        }
+      ],
+      "insetOf": "citadel-inset-panel"
+    },
+    {
+      "id": "troy-vi-ditch-inner-north",
+      "kind": "wall",
+      "certainty": "certain",
+      "trace": [
+        [39.956071, 26.235059],
+        [39.955801, 26.23507],
+        [39.955525, 26.23501],
+        [39.955106, 26.234851]
+      ],
+      "note": "Where the ditch turns north up the west side of the lower city. From the point the chapter gives as N 10510, E 8980 in the excavation grid, a very weak positive anomaly runs in a shallow arc northward and crosses the trace of the Hellenistic city wall in square p12, where a sondage found the same Troy VI ditch, filled in. Earlier accounts joined the inner ditch to the outer system further south, at N 10320, E 8900, and that junction was argued in print; a later analysis of the anomalies replaced it with this turn to the north, which the excavation project has used since.",
+      "sources": [
+        {
+          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof north-east of square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
+          "url": "https://publikationen.uni-tuebingen.de/xmlui/handle/10900/73573"
+        }
+      ],
+      "insetOf": "citadel-inset-panel"
+    },
+    {
+      "id": "troy-vi-ditch-inner-unproved",
+      "kind": "wall",
+      "style": "restored",
+      "certainty": "speculative",
+      "trace": [
+        [39.955106, 26.234851],
+        [39.954717, 26.234606],
+        [39.954295, 26.234283],
+        [39.953892, 26.234098]
+      ],
+      "note": "The stretch the survey does not settle. Between the surveyed southern arm and the northern one, several positive lineaments run side by side and the chapter states plainly that the exact course of the ditch through this ground is not established. The dotted line is the excavators’ own interpolation between two things they did establish, drawn in the surveyor's ink but not surveyed.",
+      "sources": [
+        {
+          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof north-east of square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
+          "url": "https://publikationen.uni-tuebingen.de/xmlui/handle/10900/73573"
+        }
+      ],
+      "insetOf": "citadel-inset-panel"
+    },
+    {
+      "id": "troy-vi-ditch-outer",
+      "kind": "wall",
+      "style": "restored",
+      "certainty": "speculative",
+      "trace": [
+        [39.953201, 26.233326],
+        [39.953049, 26.233592],
+        [39.952887, 26.233848],
+        [39.952724, 26.234092],
+        [39.95258, 26.234345]
+      ],
+      "note": "The outer ditch, and probably the later one. In 1994 a second ditch anomaly was found south-west of the first, at square g28. The sondage that followed found another U-shaped cut in the rock whose fill dates it to Troy VII, later than the inner ditch, with a Roman V-shaped ditch dug down into it afterward. The excavators suggest the ditch was carried further out as the settled area grew in Troy VII — which would make this, not the inner line, the edge of the town in the years the poem sets its war. Only this short stretch can be told apart from the Hellenistic and Roman ditches that run beside it down the same slope, so only this stretch is drawn; the chapter's question mark on its date is kept here.",
+      "sources": [
+        {
+          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof north-east of square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
+          "url": "https://publikationen.uni-tuebingen.de/xmlui/handle/10900/73573"
         }
       ],
       "insetOf": "citadel-inset-panel"

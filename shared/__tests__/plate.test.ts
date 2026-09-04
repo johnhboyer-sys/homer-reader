@@ -5365,7 +5365,7 @@ describe('renderPlate: featureKey (stage 5c)', () => {
 
   it('E2: numerals are unique and contiguous 1…N in group order; every item resolves to a drawn pin or layer', () => {
     expect(groups.map((g) => g.title)).toEqual([...FEATURE_KEY_HEADINGS]);
-    expect(keyedItems.length).toBe(41);
+    expect(keyedItems.length).toBe(42);
     const ns = [...result.svg.matchAll(/<g class="plate-key-badge"[^>]*data-key-n="(\d+)"/g)].map((m) => Number(m[1]));
     // Sorted, not in document order: a group routed into an inset (ruling 10)
     // draws its numerals with the panel, in the furniture stream after the
@@ -5623,7 +5623,7 @@ describe('renderPlate: featureKey (stage 5c)', () => {
   it('E8: every numeral of an inset group is drawn inside its panel, with its leader', () => {
     const byPanel = insetGroupNs();
     expect(byPanel.size, 'the sheet must route groups into insets').toBe(2);
-    expect([...byPanel.values()].reduce((a, s) => a + s.size, 0)).toBe(20);
+    expect([...byPanel.values()].reduce((a, s) => a + s.size, 0)).toBe(21);
     const anyInset = new Set([...byPanel.values()].flatMap((s) => [...s]));
     for (const [panelId, insetNs] of byPanel) {
       const panel = plate.layers.find((l) => l.id === panelId);
@@ -5651,7 +5651,7 @@ describe('renderPlate: featureKey (stage 5c)', () => {
         ).toBe(true);
       }
     }
-    expect(anyInset.size).toBe(20);
+    expect(anyInset.size).toBe(21);
   });
 
   it("E9: the inset groups' marks are off the map face; the citadel keeps its wall and its zone letters", () => {
@@ -5675,7 +5675,7 @@ describe('renderPlate: featureKey (stage 5c)', () => {
 
   it('numeral badges carry the contract attributes and no tabindex', () => {
     const badges = [...result.svg.matchAll(/<g class="plate-key-badge"[^>]*>[\s\S]*?<\/g>/g)].map((m) => m[0]);
-    expect(badges.length).toBe(41);
+    expect(badges.length).toBe(42);
     for (const g of badges) {
       expect(g).toMatch(/role="img"/);
       expect(g).toMatch(/aria-label="/);
