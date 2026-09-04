@@ -463,6 +463,15 @@ shield-of-achilles plate-level `sources` (now a validator error);
     choice and the alternative in the note, and the tier and `tradition`
     carry the honesty. John reviews the result, not each call.
 
+15. **The bar is "sing," not "good enough" (John, 2026-09-04 00:08, on the
+    first Ilios panel: "Better.").** Next session, in this order: (a) the
+    citadel drawn to scale and FILLED inside the Ilios panel — the Pergamos
+    content at Ilios scale, not the empty circuit; (b) more color in the
+    panel grounds — they are flat parchment; the mound's slope, the plain,
+    the rock of the ditch, vegetation, in the sheet's own palette (color is
+    free, 2026-07-28); (c) more detail throughout. The walls are right; keep
+    them. "we aren't at good enough yet."
+
 ## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
 
 Session paused here 2026-07-31; John picks up when he has reference examples
