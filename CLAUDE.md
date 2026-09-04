@@ -116,6 +116,14 @@ non-negotiable.
   `codex-code-mode-host` there ("missing executable", not a 401). Diagnose
   with `ps aux | grep codex` (start times before the upgrade); kill the
   app-server and broker; the next rescue call spawns the new binary.
+- **Codex spend rule (John, 2026-09-04 00:01, after six runs in fifteen
+  minutes drained the 5-hour window and a stalled forwarder tried to launch a
+  seventh on its own):** every codex-rescue brief says, verbatim, "ONE Codex
+  run. Do not retry, resume, or launch a second task for any reason; if the
+  run fails or stalls, report the error and stop." Codex lanes run one at a
+  time, never in parallel; a failed run is diagnosed by the orchestrator
+  before any relaunch. The workspace's 5-hour window is a shared token
+  budget: a dead run still spent its prompt.
 
 - Pipeline gotcha (2026-07-21, cost an Iliad re-emit): `build/stage1` is a
   per-run working dir — running `stage1` then `stage7` alone against a stale
