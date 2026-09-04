@@ -110,6 +110,12 @@ non-negotiable.
   bound to the old account and every run fails with "token could not be
   refreshed" — clear that state dir and start a `--fresh` thread. `codex login
   status` saying "Logged in" is not sufficient evidence the plugin runtime works.
+- Codex gotcha (2026-09-03, cost three review lanes): after `brew upgrade codex`
+  the plugin's `codex app-server` and its `app-server-broker` keep running from
+  the DELETED old Caskroom directory and every run dies spawning
+  `codex-code-mode-host` there ("missing executable", not a 401). Diagnose
+  with `ps aux | grep codex` (start times before the upgrade); kill the
+  app-server and broker; the next rescue call spawns the new binary.
 
 - Pipeline gotcha (2026-07-21, cost an Iliad re-emit): `build/stage1` is a
   per-run working dir — running `stage1` then `stage7` alone against a stale
