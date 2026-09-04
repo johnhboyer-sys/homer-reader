@@ -1815,11 +1815,24 @@ export function wallBandGlyph(trace: PlatePoint[], width: number): WallBandGlyph
   // The slant: each stroke runs from one face to the other one band-width
   // further along, so it lies at about 45° to the wall all the way round and
   // stays a hatch rather than becoming a ladder of rungs.
-  for (let s = spacing; s <= total - width - 1; s += spacing) {
+  //
+  // Starts at the trace's own beginning (s = 0), not one `spacing` in: the
+  // faces above are drawn the FULL length of the trace, so stopping the hatch
+  // short left a bare, unhatched run of open double-line at each end — read,
+  // where it fell beside rather than under the surveyed masonry it meets, as
+  // a stray mark rather than a restored wall (2026-09-03, citadel wall-fix,
+  // the circuit-restored stub at the West Gate). A final stroke pinned to
+  // `total` closes the far end the same way, so the hatch reaches exactly as
+  // far as the faces do at both ends — centreline and hatch end together.
+  let s = 0;
+  for (; s < total; s += spacing) {
     const a = at(left, s);
     const b = at(right, s + width);
     parts.push(`M ${round1(a[0])} ${round1(a[1])} L ${round1(b[0])} ${round1(b[1])}`);
   }
+  const aEnd = at(left, total);
+  const bEnd = at(right, total);
+  parts.push(`M ${round1(aEnd[0])} ${round1(aEnd[1])} L ${round1(bEnd[0])} ${round1(bEnd[1])}`);
   return { faces, hatch: parts.join(' ') };
 }
 
@@ -5174,6 +5187,15 @@ const STROKE_WEIGHT = {
 
 /** The drawn face of a surveyed masonry band. See the `region` case in renderLayer. */
 const MASONRY_EDGE_WIDTH = 1;
+/**
+ * A `kind: "wall", style: "poem"` stretch (2026-09-03, citadel wall-fix): the
+ * poem names a STRETCH of a real fortification, not a wall of its own, so it
+ * is drawn as a highlight over that stretch rather than a second fortification
+ * — one stroke, no ticks, slightly heavier than the surveyed masonry's own
+ * edge (MASONRY_EDGE_WIDTH) so the highlighted run reads against it. See the
+ * `wall` case in renderLayer.
+ */
+const POEM_WALL_HIGHLIGHT_WIDTH = 1.5;
 /** The silhouette of a pictorial hill profile (`style: "profile"`). See the `relief` case. */
 const PROFILE_OUTLINE_WIDTH = 0.9;
 /** A `shipRow` hull's outline, `style: "light"` only (shipcomp option 1). At 1x sheet scale. */
@@ -5758,8 +5780,11 @@ export function lineworkReserveHalfWidth(layer: PlateLayer): number | undefined 
       return (layer.width ?? STROKE_WEIGHT.coast) / 2 + DEFAULT_WATERLINE_OFFSETS[DEFAULT_WATERLINE_OFFSETS.length - 1];
     case 'wall':
       // A restored wall is a BAND of its own declared width; a plain one is a
-      // line with ticks standing off one side. Both measured from the glyph
-      // routines that draw them, so the two cannot drift apart.
+      // line with ticks standing off one side; a poem-style highlight is a
+      // single centred stroke with no ticks at all (see the `wall` case in
+      // renderLayer). All three measured from the glyph/markup that actually
+      // draws them, so this cannot drift from what is on the sheet.
+      if (layer.style === 'poem') return POEM_WALL_HIGHLIGHT_WIDTH / 2;
       return layer.style === 'restored' && layer.width !== undefined
         ? layer.width / 2 + STROKE_WEIGHT.restoredFace
         : STROKE_WEIGHT.wall / 2 + WALL_TICK_LENGTH;
@@ -5785,6 +5810,12 @@ export function lineworkReserveHalfWidth(layer: PlateLayer): number | undefined 
 export function wallInkHalfWidth(layer: PlateLayer): [number, number] | undefined {
   if (layer.kind !== 'wall') return undefined;
   const CLEARANCE = 1;
+  if (layer.style === 'poem') {
+    // A highlight, faced alike on both sides — no tick to stand off one of
+    // them (see the `wall` case in renderLayer and POEM_WALL_HIGHLIGHT_WIDTH).
+    const half = POEM_WALL_HIGHLIGHT_WIDTH / 2 + CLEARANCE;
+    return [half, half];
+  }
   if (layer.style === 'restored' && layer.width !== undefined) {
     const half = layer.width / 2 + STROKE_WEIGHT.restoredFace / 2 + CLEARANCE;
     return [half, half];
@@ -6317,6 +6348,24 @@ function renderLayer(
     case 'wall': {
       const px = collect(layer.trace);
       if (px.length < 2) return undefined;
+      // The poem's register (2026-09-03, citadel wall-fix): a `style: "poem"`
+      // wall never invents a fortification of its own — every one so far
+      // names a stretch of a wall that IS surveyed or restored elsewhere on
+      // the sheet (e.g. citadel-weak-wall, Il. 6.433-39, over the surveyed
+      // south curtain). Drawing it with the plain wall's tick glyph
+      // (wallGlyph) treats it as a second fortification and the ticks flip
+      // side at every jog in the trace, which reads as a scribble laid over
+      // the real masonry. A highlight — one stroke, no ticks, the poem's
+      // conjectural ink, slightly heavier than the masonry edge beside it —
+      // says the true thing: this claim is about WHICH stretch, not a wall
+      // of its own.
+      if (layer.style === 'poem') {
+        markup =
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-wall-poem" ` +
+          `d="${pathD(px, false)}" fill="none" stroke="var(--text-mid)" ` +
+          `stroke-width="${POEM_WALL_HIGHLIGHT_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>`;
+        break;
+      }
       if (layer.style === 'restored' && layer.width === undefined) {
         // The restoration register at its lightest: a fine dotted line, which is
         // what a restored feature gets when it HAS no width to be drawn at —

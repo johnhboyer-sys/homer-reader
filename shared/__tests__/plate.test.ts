@@ -9,6 +9,7 @@ import {
   hachure,
   shipRow,
   wallGlyph,
+  wallBandGlyph,
   tumulus,
   waterlines,
   labelCandidates,
@@ -1596,6 +1597,49 @@ describe('draw primitives', () => {
     const a = wallGlyph([[0, 0], [50, 0], [50, 30]]);
     const b = wallGlyph([[0, 0], [50, 0], [50, 30]]);
     expect(a).toEqual(b);
+  });
+
+  it('wallBandGlyph’s hatch reaches the same ends as its faces (2026-09-03, citadel wall-fix: the circuit-restored stub at the West Gate)', () => {
+    // A straight trace keeps offsetPolyline's two faces straight too, so the
+    // faces' own start/end points are trivial to read back out of `faces`.
+    const trace: [number, number][] = [[0, 0], [200, 0]];
+    const width = 10;
+    const { faces, hatch } = wallBandGlyph(trace, width);
+    expect(hatch).not.toBe('');
+
+    // `faces` pairs its numbers with a comma ("M0,5"), `hatch` with a space
+    // ("M 0 5") — pull every number out in order and pair them up so both
+    // read the same way.
+    const points = (s: string) => {
+      const nums = [...s.matchAll(/-?[\d.]+/g)].map((m) => Number(m[0]));
+      const pts: [number, number][] = [];
+      for (let i = 0; i + 1 < nums.length; i += 2) pts.push([nums[i], nums[i + 1]]);
+      return pts;
+    };
+    // `faces` is "M x,y L x,y" (left) + " " + "M x,y L x,y" (right): four
+    // points in order — left's start, left's end, right's start, right's end.
+    const facePoints = points(faces);
+    const leftStart = facePoints[0];
+    const rightEnd = facePoints[3];
+
+    // `hatch` is a run of "M x,y L x,y" strokes; the first point of the first
+    // stroke and the last point of the last stroke are what matter here.
+    const hatchPoints = points(hatch);
+    const firstStrokeStart = hatchPoints[0];
+    const lastStrokeEnd = hatchPoints[hatchPoints.length - 1];
+
+    // The hatch's very first point sits ON the left face's own start — no
+    // bare, unhatched run at the near end (the faces are drawn the FULL
+    // trace, so the old hatch, starting one `spacing` in, left a stretch of
+    // open double-line with no crosshatch, which read as a stray mark rather
+    // than a restored wall wherever it fell beside rather than under the
+    // masonry it was meeting).
+    expect(firstStrokeStart[0]).toBeCloseTo(leftStart[0], 0);
+    expect(firstStrokeStart[1]).toBeCloseTo(leftStart[1], 0);
+    // And its last point sits ON the right face's own end — the far end
+    // closes the same way, so centreline and hatch end together.
+    expect(lastStrokeEnd[0]).toBeCloseTo(rightEnd[0], 0);
+    expect(lastStrokeEnd[1]).toBeCloseTo(rightEnd[1], 0);
   });
 
   it('tumulus produces a dome profile with nested shading arcs, not a bare circle', () => {
@@ -3917,6 +3961,74 @@ describe('renderPlate: an insetOf layer overrunning its window is clipped to the
     const clipId = clipMatch![1];
     const wrapped = new RegExp(`<g clip-path="url\\(#${clipId}\\)">[\\s\\S]*?data-feature-id="overrun--inset"`);
     expect(svg, 'the overrunning copy must be drawn inside a group referencing that clip-path').toMatch(wrapped);
+  });
+});
+
+// 2026-09-03, citadel wall-fix: a `kind: "wall", style: "poem"` layer never
+// invents a fortification of its own — every one so far (citadel-weak-wall,
+// Il. 6.433-39) names a stretch of a wall that IS surveyed or restored
+// elsewhere on the sheet. Drawing it with the plain wall's tick glyph treated
+// it as a second fortification, and the ticks flip side at every jog in the
+// trace, which on the live sheet reads as a scribble laid over the real
+// masonry it was meant to highlight (the "wall open to assault" defect,
+// citadel-city-panel). The fix is a highlight: one stroke, no ticks.
+describe('renderPlate: a poem-style wall highlights a stretch, it never draws a second fortification (2026-09-03, citadel wall-fix)', () => {
+  const plate = parsePlate({
+    id: 'poem-wall-test',
+    title: 'Poem wall test',
+    kind: 'schematic',
+    status: 'draft',
+    bbox: [39.95, 26.23, 39.96, 26.24],
+    size: [400, 300],
+    layers: [
+      {
+        id: 'panel',
+        kind: 'region',
+        style: 'inset',
+        frame: [20, 20, 200, 200],
+        insetBBox: [39.9555, 26.2375, 39.957, 26.2395],
+        polygon: [
+          [0, 0],
+          [1, 0],
+          [1, 1],
+          [0, 1],
+        ],
+      },
+      {
+        id: 'weak-stretch',
+        kind: 'wall',
+        style: 'poem',
+        insetOf: 'panel',
+        trace: [
+          [39.9561, 26.238],
+          [39.9563, 26.2382],
+          [39.9565, 26.2385],
+        ],
+      },
+    ],
+  });
+  const { svg } = renderPlate(plate, []);
+
+  it('emits no tick paths, on the face or inside the panel', () => {
+    expect(svg).not.toContain('plate-layer-wall-ticks');
+  });
+
+  it('draws a single stroked path in the poem register, not a wall-band or plain-wall glyph', () => {
+    const onFace = svg.match(/<path data-feature-id="weak-stretch"[^>]*\/>/);
+    const inPanel = svg.match(/<path data-feature-id="weak-stretch--inset"[^>]*\/>/);
+    expect(onFace, 'the face copy must render').toBeTruthy();
+    expect(inPanel, 'the panel copy must render').toBeTruthy();
+    for (const el of [onFace![0], inPanel![0]]) {
+      expect(el).toContain('plate-layer-wall-poem');
+      expect(el).toContain('stroke="var(--text-mid)"');
+      expect(el).not.toContain('plate-layer-wall-restored');
+      expect(el).not.toContain('plate-layer-wall"'); // the plain fortification class
+    }
+    // Exactly one <path> per copy — no separate tick element alongside it
+    // (the old wallGlyph markup emitted a second <path> sharing the same
+    // data-feature-id for its ticks).
+    expect(svg.match(/data-feature-id="weak-stretch"/g)).toHaveLength(1);
+    expect(svg.match(/data-feature-id="weak-stretch--inset"/g)).toHaveLength(1);
   });
 });
 
