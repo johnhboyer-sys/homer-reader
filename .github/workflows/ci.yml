@@ -61,16 +61,12 @@ jobs:
       - name: Run tests
         run: cd shared && npm test
 
-      # NO `npm run check` step yet, deliberately. svelte-check reports 8 errors
-      # on this commit and reported the same 8 before the sanitizer port, so it
-      # would arrive permanently red and be ignored — worse than absent. They are
-      # five `allowImportingTsExtensions` complaints (lib/tick-chunks.ts,
-      # __tests__/real-book-loader.ts, scripts/scene-paging-audit.ts) and three
-      # tuple-cast errors in __tests__/word-popup.test.ts. Fix those, then add:
-      #   - name: Typecheck
-      #     run: cd shared && npm run check
-      # `tsc` does not read .svelte files, so until then nothing here typechecks
-      # a component.
+      # svelte-check, not tsc: tsc does not read .svelte files, so this is the
+      # only step that typechecks a component. It was held out of the first CI
+      # commit because the repo carried 8 errors; those are fixed and this now
+      # runs clean over 879 files.
+      - name: Typecheck
+        run: cd shared && npm run check
 
   pipeline:
     name: pipeline

@@ -35,7 +35,7 @@ import { fileURLToPath } from 'node:url';
 // `.ts` extension so `node --experimental-strip-types` (the audit CLI) resolves
 // this runtime import; vitest's bundler resolution accepts it too. (The
 // scene-paging import below is type-only — erased before resolution.)
-import { alignGroups, flowParts } from '../lib/tick-chunks.ts';
+import { alignGroups, flowParts } from '../lib/tick-chunks';
 // `.ts` extension here too (see above) — resolveBoundaryOverrides/
 // selectBoundaryOverrideEntries are runtime imports now, not type-only.
 import {
@@ -45,7 +45,7 @@ import {
   type SceneBoundaryOverrideFile,
   type SceneRange,
   type SceneReadingChunk,
-} from '../lib/scene-paging.ts';
+} from '../lib/scene-paging';
 
 // Read directly via readFileSync/JSON.parse (not a static `import … json`) so
 // this module resolves identically under vitest's bundler AND under

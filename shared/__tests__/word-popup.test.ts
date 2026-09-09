@@ -23,15 +23,23 @@ vi.mock('../lib/data', async (importOriginal) => {
 // The dictionary entry itself is served by grammata over the network. Stub the
 // module so the popup's contract with it can be asserted without a fetch — above
 // all that it is handed the KEY and never the surface form.
-const grammataLookup = vi.fn(async () => {});
+const grammataLookup = vi.fn(
+  async (_word: string, _el: HTMLElement, _opts: Record<string, string>) => {},
+);
 // renderEntry is what draws a Cunliffe record. Stubbed so the popup's contract
 // with it can be asserted — which record, and which options — without a fetch.
-const grammataRender = vi.fn((_rec: unknown, el: HTMLElement) => {
+const grammataRender = vi.fn((
+  _rec: { head: string },
+  el: HTMLElement,
+  _opts: { abbr: boolean; logeion: boolean; citation: (t: string) => string | null },
+) => {
   el.innerHTML = '<article class="t8-entry">rendered</article>';
 });
 vi.mock('https://grammata.pages.dev/t8/lookup.js', () => ({
-  lookup: (...args: unknown[]) => grammataLookup(...(args as [])),
-  renderEntry: (...args: unknown[]) => grammataRender(...(args as [never, never])),
+  lookup: (...args: unknown[]) =>
+    grammataLookup(...(args as Parameters<typeof grammataLookup>)),
+  renderEntry: (...args: unknown[]) =>
+    grammataRender(...(args as Parameters<typeof grammataRender>)),
   T8_SCHEMA_VERSION: 1,
 }));
 
@@ -91,7 +99,7 @@ describe('WordPopup.svelte — the entry opens under the card tapped', () => {
 
     await fireEvent.click(screen.getByRole('button', { name: 'LSJ' }));
     await waitFor(() => expect(grammataLookup).toHaveBeenCalled());
-    const [word, , opts] = grammataLookup.mock.calls[0] as [string, HTMLElement, Record<string, string>];
+    const [word, , opts] = grammataLookup.mock.calls[0];
     expect(word).toBe('');
     // logeion:false — grammata suppresses its own header link, so the card's
     // tab row is the only one. Their option; it defaults on for other hosts.
@@ -112,7 +120,7 @@ describe('WordPopup.svelte — the entry opens under the card tapped', () => {
     const cunliffeTab = screen.getByRole('button', { name: 'Cunliffe' });
     await fireEvent.click(cunliffeTab);
     await waitFor(() => expect(grammataRender).toHaveBeenCalled());
-    const [rec] = grammataRender.mock.calls[0] as [{ head: string }];
+    const [rec] = grammataRender.mock.calls[0];
     expect(rec.head).toBe('μῆνις');
     // The entry sits INSIDE the card it belongs to, not below the whole stack.
     expect(container.querySelector('.analysis-card .card-entry')).toBeInTheDocument();
@@ -134,8 +142,7 @@ describe('WordPopup.svelte — the entry opens under the card tapped', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Cunliffe' }));
     await waitFor(() => expect(grammataRender).toHaveBeenCalled());
 
-    const [, , opts] = grammataRender.mock.calls[0] as [unknown, unknown, {
-      abbr: boolean; logeion: boolean; citation: (t: string) => string | null }];
+    const [, , opts] = grammataRender.mock.calls[0];
     // abbr:false — grammata's table is LSJ-shaped and Cunliffe's conventions
     // are narrower; a wrong expansion is worse than none.
     expect(opts.abbr).toBe(false);
