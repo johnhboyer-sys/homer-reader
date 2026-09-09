@@ -17,7 +17,7 @@
 // `.ts` extension so `node --experimental-strip-types` (the scene-paging audit
 // CLI, which imports this transitively) resolves this runtime import; vitest's
 // bundler resolution accepts it too. The scene-paging import is type-only.
-import { snapTicksToSpeechStarts } from './speech-snap.ts';
+import { snapTicksToSpeechStarts } from './speech-snap';
 import type { SceneFlowPart } from './scene-paging';
 
 // A flowing-prose part: either a text run (n null) or a Bekker margin marker
