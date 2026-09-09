@@ -1,0 +1,105 @@
+# Ported from plato-reader's ci.yml (2026-09-09). This repo had no CI at all —
+# `git log --all -- .github` was empty — so homer-reader#31, a sanitizer change,
+# was merged on a local test run alone. Every job below was run against this
+# commit before the workflow was written; none of them is aspirational.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    name: app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: cd app && npm ci
+
+      - name: Run tests
+        run: cd app && npm test
+
+      - name: Verify @shared imports resolve
+        run: node scripts/verify-shared-imports.mjs
+
+  shared:
+    name: shared
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: shared/package-lock.json
+
+      - name: Install dependencies
+        run: cd shared && npm ci
+
+      - name: Run tests
+        run: cd shared && npm test
+
+      # NO `npm run check` step yet, deliberately. svelte-check reports 8 errors
+      # on this commit and reported the same 8 before the sanitizer port, so it
+      # would arrive permanently red and be ignored — worse than absent. They are
+      # five `allowImportingTsExtensions` complaints (lib/tick-chunks.ts,
+      # __tests__/real-book-loader.ts, scripts/scene-paging-audit.ts) and three
+      # tuple-cast errors in __tests__/word-popup.test.ts. Fix those, then add:
+      #   - name: Typecheck
+      #     run: cd shared && npm run check
+      # `tsc` does not read .svelte files, so until then nothing here typechecks
+      # a component.
+
+  pipeline:
+    name: pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install pipeline dependencies
+        run: cd pipeline && uv sync
+
+      - name: Run corpus preflight fixture
+        run: |
+          cd pipeline
+          uv run python -m homer_pipeline.preflight \
+            tests/fixtures/preflight/valid/data \
+            tests/fixtures/preflight/valid/manifests
+
+      # No tolerance for pytest's exit 5 here, unlike the workflow this was
+      # ported from: this repo has 28 test files and 470 passing tests, so a run
+      # that collects nothing means something broke. aristotle-reader removed
+      # the same clause from its own CI on 2026-09-07 for that reason.
+      - name: Run pipeline tests
+        run: cd pipeline && uv run --with pytest pytest
