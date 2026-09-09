@@ -31,6 +31,10 @@
 // every one of the 137 distinct location strings across all 790 scenes, see
 // scratchpad/il-scenes-dump.txt and od-scenes-dump.txt) maps only the strings
 // that identify a single gazetteer place with confidence. Precedence:
+//   0. `scene.places[]` (Phase P7a: authored gazetteer ids, carried onto
+//      Scene.places — see shared/lib/data.ts) — a scene naming its places
+//      directly beats even the curated dictionary, since it is ground truth
+//      authored against the real gazetteer rather than inferred from prose.
 //   1. SETTING_DICTIONARY, keyed on the scene's own `place` prose (checked
 //      book-scoped first, then work-wide) — authored ground truth wins.
 //   2. journeys.json leg timeline (unchanged mechanism, kept because the
@@ -69,6 +73,13 @@ export interface RawPlace {
   certainty?: Certainty;
   coords?: [number, number];
   mentions?: PlaceMention[];
+  // A SCHEMATIC plate's unit-space [u, v] anchor for this place, keyed by
+  // plate id, plus the honesty marker required alongside it — see
+  // resolveSchematic below and shared/lib/plate.ts's resolvePlacePosition,
+  // which enforces the same "anchor without positionBasis is unlocated"
+  // rule for the plate's own geometry. Never a real-world coordinate.
+  plateAnchors?: Record<string, [number, number]>;
+  positionBasis?: 'conjectural';
 }
 
 export interface PlacesFile {
@@ -104,12 +115,73 @@ export interface SceneTimelineEntry {
 }
 
 export interface ScenePlaceResolution {
-  place: ScenePlace;
+  place: ScenePlace; // first resolved place (may be coordless — unchanged meaning, existing single-pin callers)
+  // Phase P7a: every resolved, LOCATED (coords-bearing) place for the scene —
+  // plural because an authored scene.places[] (precedence step 0) can name
+  // more than one. Coordless/unresolved ids never appear here (never
+  // force-pin). For steps 1/2 this is at most a singleton mirroring `place`.
+  places: ScenePlace[];
   route?: RouteLeg;
+  // Queue item 3b (2026-07-30): set only when `places` above is EMPTY (no
+  // coords-bearing place at all — the live renderSceneMap/currentPlateMap
+  // path has nothing to draw) but at least one of the scene's resolved
+  // places anchors onto the Troad schematic plate. See resolveSchematic.
+  schematic?: SchematicResolution;
 }
 
 function toScenePlace(raw: RawPlace): ScenePlace {
   return { id: raw.id, name: raw.name, coords: raw.coords, certainty: raw.certainty };
+}
+
+// ── Schematic-only routing (queue item 3b, 2026-07-30) ──────────────────────
+//
+// The Troad SCHEMATIC plate (apparatus/plates/trojan-plain-schematic.json)
+// carries `plateAnchors` for ~30 poem places that have no defensible
+// real-world coordinate at all (the Scaean Gate, the oak of Zeus, the ford of
+// the Scamander, each captain's hut...). Those places reach a scene only
+// through scene.places[] (precedence step 0 below) — a scene naming only
+// anchored places has no coords-bearing place, so `places` above comes back
+// empty and the live Chart Room map draws nothing for it. This lets such a
+// scene route to the schematic plate instead.
+//
+// Only step 0 needs this: SETTING_DICTIONARY and the journey-leg timeline are
+// keyed to real geographic places (troy, ithaca, scheria, sparta, pylos,
+// olympus, the Apologoi's wandering stops), never to a schematic-only anchor
+// id — confirmed against the corpus (2026-07-30): none of the anchored ids
+// appear in either. If that ever changes, this helper still applies wherever
+// it's called; it isn't wired into steps 1/2 because nothing there currently
+// produces a RawPlace worth checking.
+//
+// `scamandrian-plain` is a deliberate special case: its own places.json note
+// says it takes no anchor because "a pin would put the plain at one point of
+// itself" — the plate draws it as a lettering-zone LAYER, not a point. A
+// scene naming it must show the sheet UNZOOMED (no camera focus), never try
+// to frame a nonexistent point; `unzoomed: true` overrides `focusIds` for
+// exactly that reason (a caller must show the whole sheet, not frame on
+// whatever else the scene also names).
+export const SCHEMATIC_PLATE_ID = 'trojan-plain-schematic';
+const SCHEMATIC_UNZOOMED_PLACE_IDS = new Set(['scamandrian-plain']);
+
+export interface SchematicResolution {
+  plateId: string;
+  // Place ids to camera-frame on (plateAnchors-bearing hits only). Ignore
+  // these and show the whole sheet when `unzoomed` is true.
+  focusIds: string[];
+  unzoomed: boolean;
+}
+
+function isSchematicAnchor(raw: RawPlace): boolean {
+  return raw.plateAnchors?.[SCHEMATIC_PLATE_ID] !== undefined && raw.positionBasis === 'conjectural';
+}
+
+function resolveSchematic(raws: RawPlace[]): SchematicResolution | undefined {
+  const hits = raws.filter((r) => isSchematicAnchor(r) || SCHEMATIC_UNZOOMED_PLACE_IDS.has(r.id));
+  if (hits.length === 0) return undefined;
+  return {
+    plateId: SCHEMATIC_PLATE_ID,
+    focusIds: hits.filter(isSchematicAnchor).map((r) => r.id),
+    unzoomed: hits.some((r) => SCHEMATIC_UNZOOMED_PLACE_IDS.has(r.id)),
+  };
 }
 
 // ── Curated setting dictionary ──────────────────────────────────────────────
@@ -431,8 +503,14 @@ export function buildSceneTimeline(
 
 // Resolves each scene in `scenes` (already in document order) to its current
 // place. Precedence per scene:
+//   0. scene.places[] — authored gazetteer ids (Phase P7a). Ids absent from
+//      the gazetteer are dropped (preflight's referential-integrity check
+//      makes that impossible in practice, so this layer never throws over
+//      it); a resolved-but-coordless id still counts for `place` (same
+//      honest-degradation posture as steps 1/2) but is excluded from
+//      `places` (never force-pin a mythical-tier id).
 //   1. SETTING_DICTIONARY, keyed on the scene's own authored `place` prose —
-//      authored ground truth, checked first because it beats any inference.
+//      authored ground truth, checked next because it beats any inference.
 //   2. The journey-leg timeline built above: the LAST leg-arrival at or
 //      before the scene's startLine (a wandering stop's own leg, not a
 //      mention).
@@ -455,9 +533,25 @@ export function resolveScenePlaces(
 ): (ScenePlaceResolution | null)[] {
   const byId = new Map<string, RawPlace>(placesFile.places.map((p) => [p.id, p]));
   return scenes.map((scene) => {
+    const authored = (scene.places ?? [])
+      .map((id) => byId.get(id))
+      .filter((p): p is RawPlace => p !== undefined);
+    if (authored.length > 0) {
+      const located = authored.filter((p) => p.coords !== undefined);
+      const schematic = located.length === 0 ? resolveSchematic(authored) : undefined;
+      return {
+        place: toScenePlace(authored[0]),
+        places: located.map(toScenePlace),
+        ...(schematic ? { schematic } : {}),
+      };
+    }
+
     const dictionaryHit = lookupSettingDictionary(work, book, scene.place, scene.startLine, byId);
     if (dictionaryHit) {
-      return { place: toScenePlace(dictionaryHit) };
+      return {
+        place: toScenePlace(dictionaryHit),
+        places: dictionaryHit.coords !== undefined ? [toScenePlace(dictionaryHit)] : [],
+      };
     }
     if (dictionaryHit === null) {
       return null; // explicit dictionary verdict: open water, no honest pin — journey fallback would hijack.
@@ -476,7 +570,11 @@ export function resolveScenePlaces(
         : entry;
     }
     if (!best) return null; // no dictionary hit, no journey-leg cover — honest null, not a fabricated anchor.
-    return { place: best.place, route: best.route };
+    return {
+      place: best.place,
+      places: best.place.coords !== undefined ? [best.place] : [],
+      route: best.route,
+    };
   });
 }
 

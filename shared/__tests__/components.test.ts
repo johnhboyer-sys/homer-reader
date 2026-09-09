@@ -1,9 +1,10 @@
-import { fireEvent, render, screen, within } from '@testing-library/svelte';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Reader from '../components/Reader.svelte';
 import Search from '../components/Search.svelte';
-import type { BookData, RawBookData } from '../lib/data';
+import { fetchPlaces, fetchJourneys, fetchCoastline, fetchPlate, type BookData, type RawBookData } from '../lib/data';
 import type { Work } from '../lib/works';
+import { parsePlate, renderPlate } from '../lib/plate';
 
 // These Reader tests need a real Work shape (translations, citation scheme)
 // for the 'EN'/'Isa' fixture ids they render — a bekker-scheme work with a
@@ -106,6 +107,22 @@ vi.mock('../lib/data', async (importOriginal) => {
     // lookup presentation renders without a network fetch.
     lookupWord: vi.fn(async () => ({ analyses: [], lsj: [], cunliffe: [] })),
     fetchLemmata: vi.fn(async () => ({})),
+    // Reading Mode's figure-plate payload (Reader.svelte's ensurePlateData) —
+    // default to empty/absent so the pre-existing scene-paging tests above,
+    // which never assert on the plate map, see it degrade to "no map"
+    // exactly as the real fetch would on a build with no gazetteer copied in
+    // yet. The Reader.svelte scene-map gating test below overrides these
+    // per-call via vi.mocked(...).mockResolvedValueOnce.
+    fetchPlaces: vi.fn(async () => ({ places: [] })),
+    fetchJourneys: vi.fn(async () => ({ journeys: [] })),
+    fetchCoastline: vi.fn(async () => null),
+    // Chart Room per-scene plates (Reader.svelte's ensureIliadPlate) — default
+    // to "no plate on the server" so every pre-existing Iliad/reading test
+    // above degrades to the old renderSceneMap path exactly as it did before
+    // this fetch existed (Reader.svelte's own fallback rule). The Iliad plate
+    // describe block below overrides this per-call via
+    // vi.mocked(fetchPlate).mockResolvedValueOnce.
+    fetchPlate: vi.fn(async () => null),
   };
 });
 
@@ -739,5 +756,1438 @@ describe('Reader.svelte — Reading Mode scene paging (John, 2026-07-18)', () =>
     expect(container.querySelector('.reading-scene-head')).toBeNull();
     expect(container.querySelector('.reading-scene-nav')).toBeNull();
     expect(container.querySelectorAll('.scene-chip')).toHaveLength(0);
+  });
+});
+
+describe('Reader.svelte — Chart Room scene map gates on ANY resolved place (2026-07-28, finding 4)', () => {
+  // Reproduces the reported latent bug: a scene authored with
+  // `places: [unlocatedId, locatedId]` resolves `place` (shared/lib/
+  // scene-place.ts's ScenePlaceResolution) to the FIRST id — the unlocated
+  // one — while `places` (every resolved, coords-bearing id) still carries
+  // the second, mappable one. Before the fix, Reader.svelte's
+  // `currentPlateMap` gated on `place.coords` alone and rendered no map at
+  // all despite a perfectly mappable place; the fix gates on `places`
+  // instead. This test only exercises Reader.svelte's own gating — the
+  // `place`/`places` split itself is shared/lib/scene-place.ts's job and is
+  // covered in shared/__tests__/scene-place.test.ts.
+  const bookData: RawBookData = {
+    book: 1,
+    scenes: [
+      {
+        summary: 'A scene naming an unlocated place first, a located one second.',
+        startLine: 1,
+        endLine: 3,
+        places: ['no-coords-place', 'has-coords-place'],
+      },
+    ],
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: [1, 2, 3].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+        // Reading Mode only pages by scene when the translation carries real
+        // (>1) bekker ticks (Reader.svelte's readingHasSceneAnchors) — a
+        // markerless translation falls back to its own "aligned at book
+        // level only" notice, with no scene head/plate at all, which would
+        // make this test vacuous. Two real ticks are enough to satisfy the
+        // gate; same posture as the scene-paging describe block above.
+        english: {
+          text: 'Scene text.',
+          notes: [],
+          markers: [],
+          bekker: [
+            { n: 1, offset: 0, real: true },
+            { n: 2, offset: 6, real: true },
+          ],
+        },
+      },
+    ],
+  };
+
+  afterEach(() => {
+    vi.mocked(fetchPlaces).mockReset();
+    vi.mocked(fetchJourneys).mockReset();
+    vi.mocked(fetchCoastline).mockReset();
+    // Restore the file-level defaults (empty gazetteer/journeys, no
+    // coastline) other describe blocks rely on.
+    vi.mocked(fetchPlaces).mockResolvedValue({ places: [] });
+    vi.mocked(fetchJourneys).mockResolvedValue({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValue(null);
+  });
+
+  it('renders the scene map when `place` is coordless but `places` has a mappable entry', async () => {
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [
+        { id: 'no-coords-place', name: 'No Coords Place', certainty: 'mythical' }, // no coords: place.coords is undefined
+        { id: 'has-coords-place', name: 'Has Coords Place', coords: [10, 20], certainty: 'certain' },
+      ],
+    });
+    vi.mocked(fetchJourneys).mockResolvedValueOnce({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValueOnce({ bbox: [0, 0, 1, 1], rings: [] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData } });
+    // The reading-mode translation's real bekker ticks split "Scene text."
+    // across two `.bk-seg` spans (at the tick boundary) — wait on the scene
+    // head itself (proof `readingHasSceneAnchors` passed and paging is
+    // live) rather than a text match that would miss the split.
+    await screen.findByText(/Scene 1 of 1/i);
+
+    // The map slot renders an actual map (not the "collapsed, no map" state)
+    // once plate data resolves, even though `place` itself is coordless.
+    await waitFor(() => expect(container.querySelector('.reading-plate-map svg')).toBeTruthy());
+    expect(container.querySelector('.reading-plate')).not.toHaveClass('reading-plate-nomap');
+
+    const svg = container.querySelector('.reading-plate-map svg');
+    expect(svg?.getAttribute('aria-label')).toContain('Has Coords Place');
+    expect(svg?.getAttribute('aria-label')).not.toContain('No Coords Place');
+  });
+
+  it('still shows no map when every resolved place for the scene is coordless (unchanged honest-null behavior)', async () => {
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [
+        { id: 'no-coords-place', name: 'No Coords Place', certainty: 'mythical' },
+        { id: 'also-no-coords', name: 'Also No Coords', certainty: 'speculative' },
+      ],
+    });
+    vi.mocked(fetchJourneys).mockResolvedValueOnce({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValueOnce({ bbox: [0, 0, 1, 1], rings: [] });
+
+    const allCoordless: RawBookData = {
+      ...bookData,
+      scenes: [{ ...bookData.scenes![0], places: ['no-coords-place', 'also-no-coords'] }],
+    };
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: allCoordless } });
+    // The reading-mode translation's real bekker ticks split "Scene text."
+    // across two `.bk-seg` spans (at the tick boundary) — wait on the scene
+    // head itself (proof `readingHasSceneAnchors` passed and paging is
+    // live) rather than a text match that would miss the split.
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.reading-plate')).toHaveClass('reading-plate-nomap'));
+    expect(container.querySelector('.reading-plate-map')).toBeNull();
+  });
+});
+
+describe('Reader.svelte — Chart Room plate path stays off while CHART_ROOM_PLATE_ENABLED is false (John, 2026-07-29)', () => {
+  // Reader.svelte's CHART_ROOM_PLATE_ENABLED const gates BOTH the
+  // ensureIliadPlate() fetch reactive and useIliadPlate — while it's false
+  // (current state, pending the research-first rebuild — see
+  // docs/TROY-MAPS-HANDOFF-2.md §1), an Iliad scene must fall back to the
+  // same renderSceneMap path Odyssey scenes use, even when fetchPlate WOULD
+  // resolve a ready plate. Ready-plate mock cribbed from the skipped
+  // describe block below (:812-); the point of this test is that mock is
+  // never touched while the flag is off.
+  const trojanPlainFixture = {
+    id: 'trojan-plain',
+    title: 'The Trojan Plain',
+    kind: 'geographic',
+    status: 'draft',
+    bbox: [0, 0, 10, 10],
+    size: [400, 300],
+    layers: [],
+  };
+
+  const bookData: RawBookData = {
+    book: 1,
+    scenes: [
+      {
+        summary: 'A scene naming a located place.',
+        startLine: 1,
+        endLine: 3,
+        places: ['has-coords-place'],
+      },
+    ],
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: [1, 2, 3].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+        english: {
+          text: 'Scene text.',
+          notes: [],
+          markers: [],
+          bekker: [
+            { n: 1, offset: 0, real: true },
+            { n: 2, offset: 6, real: true },
+          ],
+        },
+      },
+    ],
+  };
+
+  afterEach(() => {
+    vi.mocked(fetchPlaces).mockReset();
+    vi.mocked(fetchJourneys).mockReset();
+    vi.mocked(fetchCoastline).mockReset();
+    vi.mocked(fetchPlate).mockReset();
+    vi.mocked(fetchPlaces).mockResolvedValue({ places: [] });
+    vi.mocked(fetchJourneys).mockResolvedValue({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValue(null);
+    vi.mocked(fetchPlate).mockResolvedValue(null);
+  });
+
+  it('chart-room plate path stays off while CHART_ROOM_PLATE_ENABLED is false (falls back to scene map even with a ready plate)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [{ id: 'has-coords-place', name: 'Has Coords Place', coords: [3, 3], certainty: 'certain' }],
+    });
+    vi.mocked(fetchJourneys).mockResolvedValueOnce({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValueOnce({ bbox: [0, 0, 1, 1], rings: [] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData } });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    // The fallback renderSceneMap path renders — same as an Odyssey scene
+    // would — proving the plate path never took over.
+    await waitFor(() => expect(container.querySelector('.reading-plate-map svg')).toBeTruthy());
+    expect(container.querySelector('.chart-plate')).toBeNull();
+
+    // The gate is on the FETCH itself, not just the render: ensureIliadPlate
+    // must never even run while the flag is off (Reader.svelte's fetch-
+    // gating reactive), so fetchPlate('trojan-plain') — the illustrated
+    // GEOGRAPHIC plate — is never called despite a ready plate waiting in
+    // the mock. fetchPlate('trojan-plain-schematic') is a SEPARATE,
+    // unflagged fetch (queue item 3b, 2026-07-30's schematic-only routing —
+    // see shared/components/Reader.svelte's ensureSchematicPlate) and is
+    // expected to fire regardless; this scene resolves to a coords-bearing
+    // place, so its resolution carries no `schematic` field and the
+    // schematic plate never activates either — the fallback renderSceneMap
+    // assertion above already proves that.
+    expect(fetchPlate).not.toHaveBeenCalledWith('trojan-plain');
+  });
+});
+
+// The postcard camera/focus/label machinery lives on the SCHEMATIC path
+// (live today — CHART_ROOM_PLATE_ENABLED gates only the geographic
+// trojan-plain plate, see the two describe blocks above and below). The
+// skipped geographic block below covers the same camera/no-rerender shape
+// for the flag-gated path; this block is its live counterpart, plus the new
+// postcard assertions (focus/ghost/omit, label descale wrapper, locator
+// inset) that block does not yet exercise (it predates the postcard design).
+describe('Reader.svelte — Chart Room SCHEMATIC plate postcard (live path, 2026-09-02)', () => {
+  const schematicFixture = {
+    id: 'trojan-plain-schematic',
+    title: 'The Troad, schematic',
+    kind: 'schematic',
+    status: 'draft',
+    size: [400, 300],
+    layers: [],
+  };
+
+  const anchorA = {
+    id: 'anchor-a', name: 'Anchor Alpha', certainty: 'certain' as const,
+    plateAnchors: { 'trojan-plain-schematic': [0.3, 0.4] as [number, number] }, positionBasis: 'conjectural' as const,
+  };
+  const anchorB = {
+    id: 'anchor-b', name: 'Anchor Beta', certainty: 'certain' as const,
+    plateAnchors: { 'trojan-plain-schematic': [0.7, 0.6] as [number, number] }, positionBasis: 'conjectural' as const,
+  };
+
+  const oneSceneBook = (placeIds: string[]): RawBookData => ({
+    book: 1,
+    scenes: [{ summary: 'A scene naming a schematic-only place.', startLine: 1, endLine: 3, places: placeIds }],
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: [1, 2, 3].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+        english: {
+          text: 'Scene text.',
+          notes: [],
+          markers: [],
+          bekker: [
+            { n: 1, offset: 0, real: true },
+            { n: 2, offset: 6, real: true },
+          ],
+        },
+      },
+    ],
+  });
+
+  afterEach(() => {
+    vi.mocked(fetchPlaces).mockReset();
+    vi.mocked(fetchJourneys).mockReset();
+    vi.mocked(fetchCoastline).mockReset();
+    vi.mocked(fetchPlate).mockReset();
+    vi.mocked(fetchPlaces).mockResolvedValue({ places: [] });
+    vi.mocked(fetchJourneys).mockResolvedValue({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValue(null);
+    vi.mocked(fetchPlate).mockResolvedValue(null);
+  });
+
+  it("frames the camera on the scene's focus place; only the focus pin stays undimmed and only its label stays shown", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(schematicFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA, anchorB] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    const svg = container.querySelector('.chart-plate svg')!;
+    expect(svg.getAttribute('aria-label')).toContain('Anchor Alpha');
+
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    expect(cameraG).toBeTruthy();
+    expect(cameraG.style.transform).not.toBe('translate(0px, 0px) scale(1)');
+
+    // The focus pin is undimmed; every other place's pin is ghosted.
+    expect(container.querySelector('[data-place-id="anchor-a"]')).not.toHaveClass('plate-dimmed');
+    expect(container.querySelector('[data-place-id="anchor-b"]')).toHaveClass('plate-dimmed');
+
+    // Postcard design part C: a non-focus LABEL is OMITTED (`.plate-hidden`,
+    // display:none) — a stricter treatment than the ghosted pin above.
+    expect(container.querySelector('[data-label-for="anchor-a"]')).not.toHaveClass('plate-hidden');
+    expect(container.querySelector('[data-label-for="anchor-b"]')).toHaveClass('plate-hidden');
+  });
+
+  it('wraps every .plate-label in a descale group (part D)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(schematicFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA, anchorB] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const labels = container.querySelectorAll('.plate-label');
+    expect(labels.length).toBeGreaterThan(0);
+    labels.forEach((label) => {
+      expect(label.parentElement).toHaveClass('chart-label-descale');
+    });
+  });
+
+  // Numbered feature key (stage 5c, part 2, 2026-09-02): the postcard's own
+  // treatment of `.plate-key-badge` — content the descale/focus/tab-flow
+  // rules above already give `.plate-label`, extended to cover the badge.
+  it('badges: the focus badge stays lit, every non-focus badge is hidden, each gets exactly one descale wrapper, and all carry tabindex="-1"', async () => {
+    const featureKeyFixture = { ...schematicFixture, marginRight: 80, featureKey: [
+      { title: 'Group', items: [
+        { placeId: 'anchor-a', label: 'Anchor A' },
+        { placeId: 'anchor-b', label: 'Anchor B' },
+      ] },
+    ] };
+    vi.mocked(fetchPlate).mockResolvedValueOnce(featureKeyFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA, anchorB] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const badges = container.querySelectorAll('.plate-key-badge');
+    expect(badges.length).toBe(2);
+
+    // Part D: never a tab stop inside the postcard's own single link.
+    badges.forEach((b) => expect(b.getAttribute('tabindex')).toBe('-1'));
+
+    // Exactly one descale wrapper per badge — its own inner <text> carries
+    // no `.plate-label` class (badgeMarkup's textClass: '', plate.ts), so
+    // the group is wrapped once, never twice.
+    badges.forEach((b) => {
+      expect(b.parentElement).toHaveClass('chart-label-descale');
+      let wrapperCount = 0;
+      for (let el: Element | null = b.parentElement; el; el = el.parentElement) {
+        if (el.classList.contains('chart-label-descale')) wrapperCount += 1;
+      }
+      expect(wrapperCount).toBe(1);
+    });
+
+    const badgeA = container.querySelector('.plate-key-badge[data-place-id="anchor-a"]');
+    const badgeB = container.querySelector('.plate-key-badge[data-place-id="anchor-b"]');
+    expect(badgeA).toBeTruthy();
+    expect(badgeB).toBeTruthy();
+    expect(badgeA).not.toHaveClass('plate-hidden');
+    expect(badgeB).toHaveClass('plate-hidden');
+  });
+
+  it('renders exactly one locator frame rect, and no click-through link on the schematic path (part E/F: no /maps/ tab exists for this plate)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(schematicFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    expect(container.querySelectorAll('rect.chart-locator-frame').length).toBe(1);
+    expect(container.querySelector('.chart-plate-postcard')?.tagName).toBe('DIV');
+
+    // Finding (2026-09-02, Codex review): a single --accent stroke measured
+    // under the 3:1 AA floor against the lean locator's own coast/river
+    // strokes where the frame crosses them. Fixed with a wider halo rect
+    // (--scene-map-label-halo) drawn UNDERNEATH the accent frame — both
+    // must be present, halo first in document order (so the accent stroke
+    // paints on top of it, not the other way around).
+    const overlay = container.querySelector('.chart-locator-overlay');
+    const children = overlay ? Array.from(overlay.children) : [];
+    // Svelte appends its own scoped-style hash class, so match on the
+    // authored class only rather than the full attribute value.
+    expect(children.map((el) => el.classList[0])).toEqual(['chart-locator-frame-halo', 'chart-locator-frame']);
+  });
+
+  it('does not re-render the plate SVG when paging between scenes, only the camera/focus (mirrors the skipped geographic test below)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(schematicFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA, anchorB] });
+
+    const twoSceneBook: RawBookData = {
+      book: 1,
+      scenes: [
+        { summary: 'Scene one summary.', startLine: 1, endLine: 3, places: ['anchor-a'] },
+        { summary: 'Scene two summary.', startLine: 4, endLine: 6, places: ['anchor-b'] },
+      ],
+      segments: [
+        {
+          id: 'seg1',
+          column: '1',
+          greek: [1, 2, 3, 4, 5, 6].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+          english: {
+            text: 'Scene one text. Scene two text.',
+            notes: [],
+            markers: [],
+            bekker: [
+              { n: 1, offset: 0, real: true },
+              { n: 4, offset: 'Scene one text. '.length, real: true },
+            ],
+          },
+        },
+      ],
+    };
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: twoSceneBook } });
+    await screen.findByText(/Scene 1 of 2/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    const svgBefore = container.querySelector('.chart-plate svg');
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    const transformBefore = cameraG.style.transform;
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).toContain('Anchor Alpha');
+
+    await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+    await screen.findByText(/Scene 2 of 2/i);
+
+    // Same SVG element — the base markup was never reassigned via {@html}.
+    expect(container.querySelector('.chart-plate svg')).toBe(svgBefore);
+    expect(cameraG.style.transform).not.toBe(transformBefore);
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).toContain('Anchor Beta');
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).not.toContain('Anchor Alpha');
+  });
+
+  // Defect A (2026-09-02, orchestrator screenshot review): the schematic
+  // sheet's title cartouche and named side panels are `style: 'inset'`
+  // LAYERS drawn inside `.plate-camera` -- without this fix they pan and
+  // crop with the map ("S IT OUT" fragment at the postcard's bottom-left).
+  // The legend/scale bar/north arrow/hypsometric key are sheet chrome drawn
+  // OUTSIDE the camera group at full-sheet size -- left alone they sit at
+  // the slot's corner, where the locator inset then overlaps them. A
+  // postcard shows one subject and a locator, never any of this.
+  it('hides every sheet-furniture element in the postcard: an inset layer, and the legend/scale/north/hypsometric-key chrome', async () => {
+    const furnitureFixture = {
+      id: 'trojan-plain-schematic',
+      title: 'The Troad, schematic',
+      kind: 'schematic',
+      status: 'draft',
+      size: [400, 300],
+      // A caption is what draws the north arrow at all (see plate.ts's own
+      // comment on Plate.north).
+      north: 'Approximate, after the survey grid',
+      // A schematic plate draws a scale bar only when it declares a scale.
+      pxPerMetre: 0.5,
+      layers: [
+        {
+          id: 'title-block', kind: 'region', style: 'inset',
+          polygon: [[0.02, 0.02], [0.3, 0.02], [0.3, 0.12], [0.02, 0.12]],
+          label: 'THE TROAD',
+        },
+        // A river layer earns a legend row (derivedLegendEntry).
+        { id: 'river-1', kind: 'river', path: [[0.1, 0.5], [0.9, 0.5]], width: 2 },
+        // Two DIFFERENT elevations are what makes hypsometricLevels (and so
+        // the hypsometric key) non-empty.
+        { id: 'relief-1', kind: 'relief', elevation: 100, polygon: [[0.6, 0.6], [0.7, 0.6], [0.7, 0.7], [0.6, 0.7]] },
+        { id: 'relief-2', kind: 'relief', elevation: 200, polygon: [[0.75, 0.6], [0.85, 0.6], [0.85, 0.7], [0.75, 0.7]] },
+      ],
+    };
+
+    vi.mocked(fetchPlate).mockResolvedValueOnce(furnitureFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    // Precondition: every furniture element actually rendered onto the
+    // sheet (this fixture is deliberately crafted to draw all four chrome
+    // registers plus one inset layer) — a selector matching nothing would
+    // make the assertions below pass vacuously.
+    const inset = container.querySelector('[data-layer-style="inset"]');
+    const legend = container.querySelector('.plate-legend');
+    const scale = container.querySelector('.plate-scale');
+    const north = container.querySelector('.plate-north');
+    const hypsometricKey = container.querySelector('.plate-hypsometric-key');
+    for (const el of [inset, legend, scale, north, hypsometricKey]) expect(el).toBeTruthy();
+
+    for (const el of [inset, legend, scale, north, hypsometricKey]) {
+      expect(el).toHaveClass('plate-hidden');
+    }
+    // The neatline is the one piece of furniture a postcard keeps.
+    expect(container.querySelector('.plate-neatline')).not.toHaveClass('plate-hidden');
+
+    // The locator inset is its OWN renderPlate() call (chartLocatorInset,
+    // a static {@html} sibling of `.chart-plate`, not itself `use:`d) — its
+    // coast/river layers still earn a legend row the same way the main
+    // sheet's do, found leaking a tiny illegible swatch into the locator's
+    // own corner during this lane's browser smoke pass. ensureLabelWrappers
+    // reaches into the sibling `.chart-locator` and stamps the same
+    // `.plate-hidden` class its main-sheet furniture pass uses.
+    const locatorLegend = container.querySelector('.chart-locator .plate-legend');
+    expect(locatorLegend).toBeTruthy();
+    expect(locatorLegend).toHaveClass('plate-hidden');
+  });
+
+  // Defect B (2026-09-02, orchestrator screenshot review): "Assembly and
+  // law-place" reads "ssembly and law-place" in the ~220px desktop Reading
+  // Mode inline slot. Reproduced with the REAL schematic layer/place data
+  // (apparatus/plates/trojan-plain-schematic.json's achaean-assembly-place
+  // layer, apparatus/places.json's matching entry) inlined as literals, not
+  // read from the corpus files, so this test stays independent of apparatus
+  // edits — see shared/__tests__/plate.test.ts's own SEED_PLATE_PATH tests
+  // for the corpus-reading style this deliberately does NOT use.
+  const assemblyLayer = {
+    id: 'achaean-assembly-place',
+    kind: 'region',
+    placeId: 'achaean-assembly-place',
+    polygon: [[0.458, 0.73], [0.582, 0.728], [0.582, 0.766], [0.458, 0.768]],
+  };
+  const assemblyPlace = {
+    id: 'achaean-assembly-place',
+    name: "The assembly and law-place, with the gods' altars",
+    certainty: 'certain' as const,
+    plateAnchors: { 'trojan-plain-schematic': [0.52, 0.748] as [number, number] },
+    positionBasis: 'conjectural' as const,
+  };
+  const narrowFixture = {
+    id: 'trojan-plain-schematic',
+    title: 'The Troad, schematic',
+    kind: 'schematic',
+    status: 'draft',
+    size: [960, 780],
+    layers: [assemblyLayer],
+  };
+  const twoAssemblySceneBook: RawBookData = {
+    book: 1,
+    scenes: [
+      { summary: 'Scene one summary.', startLine: 1, endLine: 3, places: ['achaean-assembly-place'] },
+      { summary: 'Scene two summary.', startLine: 4, endLine: 6, places: ['achaean-assembly-place'] },
+    ],
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: [1, 2, 3, 4, 5, 6].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+        english: {
+          text: 'Scene one text. Scene two text.',
+          notes: [],
+          markers: [],
+          bekker: [
+            { n: 1, offset: 0, real: true },
+            { n: 4, offset: 'Scene one text. '.length, real: true },
+          ],
+        },
+      },
+    ],
+  };
+
+  it("keeps the focus label's on-screen extent inside a narrow 220px slot (the reported clip)", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(narrowFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [assemblyPlace] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: twoAssemblySceneBook } });
+    await screen.findByText(/Scene 1 of 2/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const slotWidth = 220;
+    const chartPlateEl = container.querySelector('.chart-plate') as HTMLElement;
+    // The same mechanism the descale code reads (node.clientWidth) -- happy-
+    // dom lays out nothing, so this is stubbed directly on the element.
+    Object.defineProperty(chartPlateEl, 'clientWidth', { value: slotWidth, configurable: true });
+
+    // Force the action's `update()` to re-run (camera/focus are recomputed
+    // reactively on scene paging; a fresh scene produces a fresh Camera
+    // object even though this fixture names the same place both times) so
+    // it runs with the stub above already in place — mirrors the "does not
+    // re-render" test's own two-scene technique.
+    await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+    await screen.findByText(/Scene 2 of 2/i);
+
+    const cameraG = container.querySelector('.plate-camera') as SVGGElement;
+    const camMatch = cameraG.style.transform.match(/translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([-\d.]+)\)/);
+    expect(camMatch).not.toBeNull();
+    const [, txStr, , scaleStr] = camMatch!;
+    const camK = parseFloat(scaleStr);
+    const tx = parseFloat(txStr);
+
+    const labelText = container.querySelector('[data-label-for="achaean-assembly-place"]') as SVGTextElement;
+    const descaleWrapper = labelText.parentElement as SVGGElement;
+    expect(descaleWrapper).toHaveClass('chart-label-descale');
+    const wrapMatch = descaleWrapper
+      .getAttribute('transform')!
+      .match(/translate\(([-\d.]+) ([-\d.]+)\) scale\(([-\d.]+)\)/);
+    expect(wrapMatch).not.toBeNull();
+    const [, pivotXStr, , fStr] = wrapMatch!;
+    const pivotX = parseFloat(pivotXStr);
+    const f = parseFloat(fStr);
+
+    // The label's own box (plate units) -- computed independently via
+    // renderPlate/parsePlate on the same fixture, exactly as
+    // Reader.svelte's labelBoxes prop does, rather than trusting the fix
+    // under test to have reported it correctly.
+    const plate = parsePlate(narrowFixture);
+    const rendered = renderPlate(plate, [assemblyPlace], { idPrefix: 'test-extent' });
+    const box = rendered.labelBoxes['achaean-assembly-place'];
+    expect(box).toBeTruthy();
+
+    const S = slotWidth / plate.size[0];
+    const screenOf = (plateX: number) => S * (camK * (pivotX + f * (plateX - pivotX)) + tx);
+    const left = Math.min(screenOf(box[0]), screenOf(box[2]));
+    const right = Math.max(screenOf(box[0]), screenOf(box[2]));
+
+    expect(left).toBeGreaterThanOrEqual(0);
+    expect(right).toBeLessThanOrEqual(slotWidth);
+  });
+
+  // 2026-09-02 review finding 1: the ResizeObserver handler updated the
+  // label descale factor but never re-ran fitFocusLabelsToFrame -- a
+  // postcard that fit at one slot width (the mobile sheet, ~360px per the
+  // original commit's own description of this exact fixture) clips again
+  // once the rail or viewport narrows, because the OLD translation stands
+  // while the label grows relative to the (now narrower) frame. Reuses the
+  // narrowFixture/assemblyPlace fixtures and the same independent-box
+  // verification technique as the scene-paging test above, but drives the
+  // narrowing through the ResizeObserver callback the mock stores
+  // (shared/__tests__/setup.ts's `__resizeCallback`), never through a scene
+  // change -- proving the fix runs on a plain resize, not just on apply().
+  it("re-fits the focus label on a RESIZE alone (no scene change) when the slot narrows", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(narrowFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [assemblyPlace] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: twoAssemblySceneBook } });
+    await screen.findByText(/Scene 1 of 2/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const chartPlateEl = container.querySelector('.chart-plate') as HTMLElement;
+    // Establish "fits at one slot width" first: stub clientWidth, then force
+    // a fresh apply() via scene paging (mirrors the test above) so the
+    // camera is genuinely fit for 360px before the resize under test.
+    Object.defineProperty(chartPlateEl, 'clientWidth', { value: 360, configurable: true });
+    await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+    await screen.findByText(/Scene 2 of 2/i);
+
+    // Narrow WITHOUT any scene change -- a rail/viewport resize -- and
+    // invoke the stored ResizeObserver callback directly rather than
+    // Svelte's own action `update()`.
+    const slotWidth = 220;
+    Object.defineProperty(chartPlateEl, 'clientWidth', { value: slotWidth, configurable: true });
+    const resizeCallback = (chartPlateEl as unknown as { __resizeCallback?: () => void }).__resizeCallback;
+    expect(resizeCallback).toBeTruthy();
+    resizeCallback!();
+
+    const cameraG = container.querySelector('.plate-camera') as SVGGElement;
+    const camMatch = cameraG.style.transform.match(/translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([-\d.]+)\)/);
+    expect(camMatch).not.toBeNull();
+    const [, txStr, , scaleStr] = camMatch!;
+    const camK = parseFloat(scaleStr);
+    const tx = parseFloat(txStr);
+
+    const labelText = container.querySelector('[data-label-for="achaean-assembly-place"]') as SVGTextElement;
+    const descaleWrapper = labelText.parentElement as SVGGElement;
+    expect(descaleWrapper).toHaveClass('chart-label-descale');
+    const wrapMatch = descaleWrapper
+      .getAttribute('transform')!
+      .match(/translate\(([-\d.]+) ([-\d.]+)\) scale\(([-\d.]+)\)/);
+    expect(wrapMatch).not.toBeNull();
+    const [, pivotXStr, , fStr] = wrapMatch!;
+    const pivotX = parseFloat(pivotXStr);
+    const f = parseFloat(fStr);
+
+    // The label's own box (plate units) -- computed independently, exactly
+    // as the scene-paging test above does, rather than trusting the fix
+    // under test to have reported it correctly.
+    const plate = parsePlate(narrowFixture);
+    const rendered = renderPlate(plate, [assemblyPlace], { idPrefix: 'test-resize-extent' });
+    const box = rendered.labelBoxes['achaean-assembly-place'];
+    expect(box).toBeTruthy();
+
+    const S = slotWidth / plate.size[0];
+    const screenOf = (plateX: number) => S * (camK * (pivotX + f * (plateX - pivotX)) + tx);
+    const left = Math.min(screenOf(box[0]), screenOf(box[2]));
+    const right = Math.max(screenOf(box[0]), screenOf(box[2]));
+
+    expect(left).toBeGreaterThanOrEqual(0);
+    expect(right).toBeLessThanOrEqual(slotWidth);
+  });
+
+  // 2026-09-02 review finding 2: the locator frame rect used the camera
+  // BEFORE fitFocusLabelsToFrame's shift, while the postcard itself renders
+  // the shifted camera -- so once a long focus label forced a translation
+  // shift, the locator rectangle kept marking the pre-fit view instead of
+  // where the main map actually points. Reuses narrowFixture/assemblyPlace
+  // (a fit that DOES shift tx at a narrow slot, per the test above) and
+  // asserts the rect's x equals -tx/scale of the camera actually applied.
+  it("derives the locator frame rect from the camera actually APPLIED (post-fit), not the pre-fit camera", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(narrowFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [assemblyPlace] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: twoAssemblySceneBook } });
+    await screen.findByText(/Scene 1 of 2/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const chartPlateEl = container.querySelector('.chart-plate') as HTMLElement;
+    const slotWidth = 220;
+    Object.defineProperty(chartPlateEl, 'clientWidth', { value: slotWidth, configurable: true });
+    await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+    await screen.findByText(/Scene 2 of 2/i);
+
+    const cameraG = container.querySelector('.plate-camera') as SVGGElement;
+    const camMatch = cameraG.style.transform.match(/translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([-\d.]+)\)/);
+    expect(camMatch).not.toBeNull();
+    const [, txStr, tyStr, scaleStr] = camMatch!;
+    const appliedTx = parseFloat(txStr);
+    const appliedTy = parseFloat(tyStr);
+    const appliedScale = parseFloat(scaleStr);
+
+    // Precondition: the fit actually shifted the camera at this narrow slot
+    // width -- otherwise this test would pass vacuously whether or not the
+    // locator reads the applied camera (pre-fit and post-fit tx would be
+    // identical). computeCamera's own pre-fit tx is not directly observable
+    // here, but the label-extent test above already proves this exact
+    // fixture/slot-width combination requires a shift to keep the label in
+    // frame, so `appliedTx` is guaranteed to differ from the raw
+    // computeCamera output for this scene.
+    const frameRect = container.querySelector('rect.chart-locator-frame') as SVGRectElement;
+    expect(frameRect).toBeTruthy();
+    const haloRect = container.querySelector('rect.chart-locator-frame-halo') as SVGRectElement;
+    expect(haloRect).toBeTruthy();
+
+    const expectedX = -appliedTx / appliedScale;
+    const expectedY = -appliedTy / appliedScale;
+    const expectedW = narrowFixture.size[0] / appliedScale;
+    const expectedH = narrowFixture.size[1] / appliedScale;
+
+    for (const rect of [frameRect, haloRect]) {
+      expect(parseFloat(rect.getAttribute('x')!)).toBeCloseTo(expectedX, 6);
+      expect(parseFloat(rect.getAttribute('y')!)).toBeCloseTo(expectedY, 6);
+      expect(parseFloat(rect.getAttribute('width')!)).toBeCloseTo(expectedW, 6);
+      expect(parseFloat(rect.getAttribute('height')!)).toBeCloseTo(expectedH, 6);
+    }
+  });
+
+  it('does not throw or write a non-finite transform when the slot is hidden (clientWidth 0)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(narrowFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [assemblyPlace] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: twoAssemblySceneBook } });
+    await screen.findByText(/Scene 1 of 2/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const chartPlateEl = container.querySelector('.chart-plate') as HTMLElement;
+    Object.defineProperty(chartPlateEl, 'clientWidth', { value: 0, configurable: true });
+
+    await expect(
+      (async () => {
+        await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+        await screen.findByText(/Scene 2 of 2/i);
+      })(),
+    ).resolves.not.toThrow();
+
+    const cameraG = container.querySelector('.plate-camera') as SVGGElement;
+    expect(cameraG.style.transform).not.toContain('NaN');
+    expect(cameraG.style.transform).not.toContain('Infinity');
+    const camMatch = cameraG.style.transform.match(/translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([-\d.]+)\)/);
+    expect(camMatch).not.toBeNull();
+    expect(camMatch!.slice(1).every((n) => Number.isFinite(parseFloat(n)))).toBe(true);
+
+    const descaleWrapper = container.querySelector('.chart-label-descale');
+    if (descaleWrapper) {
+      const t = descaleWrapper.getAttribute('transform') ?? '';
+      expect(t).not.toContain('NaN');
+      expect(t).not.toContain('Infinity');
+    }
+  });
+
+  // Codex finding (2026-09-02): the omit pass hides a non-focus label's
+  // `<text>` but plate.ts's leader path used to carry no id at all, leaving
+  // a dangling dashed line pointing at nothing once the name it explained
+  // was gone. Fixed by stamping `data-label-for` on the leader too (see
+  // plate.ts's leaderElement) — Reader.svelte's existing `[data-label-for]`
+  // omit pass then already catches it, unchanged.
+  it('hides a non-focus label\'s leader line along with its name', async () => {
+    const crowdedFixture = {
+      id: 'trojan-plain-schematic',
+      title: 'The Troad, schematic',
+      kind: 'schematic',
+      status: 'draft',
+      size: [400, 300],
+      layers: [],
+    };
+    // Nine places packed into a ~1% square: dense enough that plate.ts's
+    // label solver detaches several names from their own pins and draws a
+    // leader back to the mark (measured with a throwaway script against
+    // this exact fixture shape before writing this test).
+    const crowd = Array.from({ length: 9 }, (_, i) => ({
+      id: `crowd-${i}`,
+      name: `Crowd ${i}`,
+      certainty: 'certain' as const,
+      plateAnchors: {
+        'trojan-plain-schematic': [0.3 + (i % 4) * 0.01, 0.4 + Math.floor(i / 4) * 0.01] as [number, number],
+      },
+      positionBasis: 'conjectural' as const,
+    }));
+
+    vi.mocked(fetchPlate).mockResolvedValueOnce(crowdedFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: crowd });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['crowd-0']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const leaders = container.querySelectorAll('path.plate-leader');
+    expect(leaders.length).toBeGreaterThan(0);
+    // A non-focus id that actually drew a leader (not every crowd member
+    // necessarily does — pick whichever one did, rather than assume a
+    // specific id, so this test isn't coupled to the label solver's exact
+    // placement choices).
+    const leaderId = leaders[0].getAttribute('data-label-for');
+    expect(leaderId).toBeTruthy();
+    expect(leaderId).not.toBe('crowd-0'); // the focus id stays visible
+
+    const matches = container.querySelectorAll(`[data-label-for="${leaderId}"]`);
+    // The name's own <text> and its leader <path> both carry the id.
+    expect(matches.length).toBe(2);
+    matches.forEach((el) => expect(el).toHaveClass('plate-hidden'));
+  });
+
+  // 2026-09-03, stage 6 review (F1, BLOCKER): schematicFixture above already
+  // declares `status: 'draft'` and, before this fix, chartPlateBody rendered
+  // no draft badge anywhere -- an AI-drafted plate painted as finished. The
+  // house rule (CLAUDE.md "Apparatus honesty") requires a discreet badge on
+  // draft apparatus; PlatePanel.svelte already shows one for this same
+  // status (app/src/components/maps/PlatePanel.svelte:~730) -- this asserts
+  // the postcard reuses the identical markup/class/title.
+  it('shows the shared draft badge on the postcard when the plate itself is draft (F1)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(schematicFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const badge = container.querySelector('.chart-plate-postcard .draft-badge');
+    expect(badge).not.toBeNull();
+    expect(badge?.textContent).toBe('Draft');
+    expect(badge?.getAttribute('title')).toMatch(/AI-drafted apparatus/i);
+  });
+
+  it('shows no draft badge on the postcard once the plate is no longer draft (F1, negative case)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce({ ...schematicFixture, status: 'reviewed' } as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    expect(container.querySelector('.chart-plate-postcard .draft-badge')).toBeNull();
+  });
+
+  // 2026-09-03, stage 6 review (F2, MINOR): `hasChartMap` treats a
+  // schematic-only scene as "no map" for the gap between the gazetteer
+  // (fetchPlaces) resolving and the separate, lazy trojan-plain-schematic.json
+  // fetch landing -- before this fix the map slot collapsed
+  // (`reading-plate-nomap`) and then popped back in once the plate arrived.
+  // `fetchPlate` is left unresolved here (a manually-controlled promise) to
+  // hold the component in exactly that window; `fetchPlate` having been
+  // called with the schematic id is the observable proof that the gazetteer
+  // has already resolved (Reader.svelte's ensureSchematicPlate reactive is
+  // itself gated on `currentPlateResolution?.schematic`, which needs
+  // `plateDataLoaded`).
+  it('keeps the map slot reserved while the schematic plate itself is still loading, after the gazetteer has already resolved (F2)', async () => {
+    let resolveFetch: (value: unknown) => void = () => {};
+    const pending = new Promise((resolve) => { resolveFetch = resolve; });
+    vi.mocked(fetchPlate).mockReturnValueOnce(pending as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(fetchPlate).toHaveBeenCalledWith('trojan-plain-schematic'));
+
+    // The gazetteer has resolved but the schematic plate JSON has not --
+    // the slot must stay reserved, not collapse.
+    expect(container.querySelector('.reading-plate')).not.toHaveClass('reading-plate-nomap');
+    expect(container.querySelector('.reading-plate-map')).not.toBeNull();
+    expect(container.querySelector('.chart-plate svg')).toBeNull();
+
+    resolveFetch(schematicFixture);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    expect(container.querySelector('.reading-plate')).not.toHaveClass('reading-plate-nomap');
+  });
+});
+
+// Stage 5a (2026-09-02): the schematic sheet became a real-ground, east-up
+// plate with a reclaimed margin band (marginRight 340) and tier-2 labels
+// (labelTier). Four gaps this lane closes in the Chart Room postcard: tier-2
+// labels never hide/show by zoom, the postcard's own aspect-ratio box used
+// the whole SHEET (margin band included) rather than the map FRAME, the
+// label-descale clamp landed an unzoomed postcard's type at ~4-5 CSS px, and
+// the FURNITURE_SELECTOR omit pass never named the margin band's scene key.
+describe('Reader.svelte — Chart Room SCHEMATIC plate postcard, stage 5a (2026-09-02: margin band + tier-2 labels)', () => {
+  const oneSceneBook = (placeIds: string[]): RawBookData => ({
+    book: 1,
+    scenes: [{ summary: 'A scene naming a schematic-only place.', startLine: 1, endLine: 3, places: placeIds }],
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: [1, 2, 3].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+        english: {
+          text: 'Scene text.',
+          notes: [],
+          markers: [],
+          bekker: [
+            { n: 1, offset: 0, real: true },
+            { n: 2, offset: 6, real: true },
+          ],
+        },
+      },
+    ],
+  });
+
+  afterEach(() => {
+    vi.mocked(fetchPlaces).mockReset();
+    vi.mocked(fetchJourneys).mockReset();
+    vi.mocked(fetchCoastline).mockReset();
+    vi.mocked(fetchPlate).mockReset();
+    vi.mocked(fetchPlaces).mockResolvedValue({ places: [] });
+    vi.mocked(fetchJourneys).mockResolvedValue({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValue(null);
+    vi.mocked(fetchPlate).mockResolvedValue(null);
+  });
+
+  // frame = [400 - 100, 300] = [300, 300] — deliberately a DIFFERENT ratio
+  // from size (400/300 vs 300/300), so a test that read `plate.size`
+  // instead of `.frame` would be caught rather than passing by coincidence.
+  const marginFixture = {
+    id: 'trojan-plain-schematic',
+    title: 'The Troad, schematic',
+    kind: 'schematic',
+    status: 'draft',
+    size: [400, 300],
+    marginRight: 100,
+    layers: [{ id: 'river-1', kind: 'river', path: [[0.1, 0.5], [0.6, 0.5]], width: 2 }],
+    sceneKey: [{ letter: 'A', title: 'Some feature', ref: 'Il. 1.1', layerId: 'river-1' }],
+  };
+  const marginAnchor = {
+    id: 'anchor-a', name: 'Anchor Alpha', certainty: 'certain' as const,
+    // u=0.3 of size[0]=400 -> plate-px 120, comfortably inside the 300px
+    // frame (u < frameWidth/size[0] = 0.75) -- a focus point actually ON
+    // the map, not in the reclaimed margin band.
+    plateAnchors: { 'trojan-plain-schematic': [0.3, 0.4] as [number, number] }, positionBasis: 'conjectural' as const,
+  };
+
+  it("reserves the map FRAME's aspect ratio in the postcard's slot, not the whole sheet's (blank-margin-band fix)", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(marginFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [marginAnchor] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const slot = container.querySelector('.reading-plate-map') as HTMLElement;
+    expect(slot).toBeTruthy();
+    // NOT '400 / 300' (plate.size) -- the frame's own [300, 300].
+    expect(slot.style.aspectRatio).toBe('300 / 300');
+  });
+
+  it("crops the injected SVG to the map frame (preserveAspectRatio xMinYMin slice), so the margin band is clipped rather than letterboxed", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(marginFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [marginAnchor] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const svg = container.querySelector('.chart-plate svg') as SVGSVGElement;
+    expect(svg.getAttribute('preserveAspectRatio')).toBe('xMinYMin slice');
+  });
+
+  it('hides the margin band\'s scene key, the one furniture element the earlier lane\'s FURNITURE_SELECTOR missed', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(marginFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [marginAnchor] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const sceneKey = container.querySelector('.plate-scene-key');
+    // Precondition: the fixture actually drew a scene key -- a selector
+    // matching nothing would make the next assertion pass vacuously.
+    expect(sceneKey).toBeTruthy();
+    expect(sceneKey).toHaveClass('plate-hidden');
+  });
+
+  it("derives the locator frame rect's width/height from the map FRAME, not the whole sheet — the sheet-width version marks a wider stretch of the overview than the postcard actually shows", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(marginFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [marginAnchor] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const cameraG = container.querySelector('.plate-camera') as SVGGElement;
+    const camMatch = cameraG.style.transform.match(/translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([-\d.]+)\)/);
+    expect(camMatch).not.toBeNull();
+    const [, , , scaleStr] = camMatch!;
+    const appliedScale = parseFloat(scaleStr);
+    // Precondition: a real zoom, or width/scale === width/1 for both
+    // hypotheses and the test would pass vacuously either way.
+    expect(appliedScale).toBeGreaterThan(1);
+
+    const frameRect = container.querySelector('rect.chart-locator-frame') as SVGRectElement;
+    expect(frameRect).toBeTruthy();
+    const frameW = frameRect.getAttribute('width')!;
+    // frame[0] = 400 - 100 = 300 -- NOT plate.size[0] = 400.
+    const expectedW = (marginFixture.size[0] - marginFixture.marginRight) / appliedScale;
+    const wrongW = marginFixture.size[0] / appliedScale;
+    expect(parseFloat(frameW)).toBeCloseTo(expectedW, 6);
+    expect(parseFloat(frameW)).not.toBeCloseTo(wrongW, 6);
+  });
+
+  // Tier-2 labels (item 1): hidden below a zoom threshold, EXCEPT the
+  // postcard's own single focus label, which always shows (the focus pass
+  // wins over the tier rule). Two far corner anchors force the identity
+  // camera (scale 1, unzoomed) exactly as computeCamera's own degenerate
+  // case does for a genuinely un-zoomable bbox -- see plate.ts's
+  // computeCamera for why a focus bbox padded past the viewport clamps to
+  // scale 1 rather than < 1.
+  const tier1Corner = {
+    id: 'corner-a', name: 'Corner A', certainty: 'certain' as const,
+    plateAnchors: { 'trojan-plain-schematic': [0.05, 0.05] as [number, number] }, positionBasis: 'conjectural' as const,
+  };
+  const tier2Corner = {
+    id: 'corner-b', name: 'Corner B', certainty: 'certain' as const,
+    plateAnchors: { 'trojan-plain-schematic': [0.95, 0.95] as [number, number] }, positionBasis: 'conjectural' as const,
+    labelTier: 2 as const,
+  };
+  const unzoomableFixture = {
+    id: 'trojan-plain-schematic',
+    title: 'The Troad, schematic',
+    kind: 'schematic',
+    status: 'draft',
+    size: [400, 300],
+    layers: [],
+  };
+
+  it('shows a tier-2 label when it is the scene\'s own focus, even fully zoomed out (focus wins over the tier rule)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(unzoomableFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [tier1Corner, tier2Corner] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['corner-a', 'corner-b']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const cameraG = container.querySelector('.plate-camera') as SVGGElement;
+    // Precondition: genuinely unzoomed (scale 1) -- a scale >= 2.5 here
+    // would make the assertions below pass whether or not "focus wins" is
+    // actually wired up.
+    expect(cameraG.style.transform).toContain('scale(1)');
+
+    const chartPlateEl = container.querySelector('.chart-plate') as HTMLElement;
+    expect(chartPlateEl).not.toHaveClass('plate-zoomed');
+
+    const tier2Label = container.querySelector('text[data-label-for="corner-b"]') as SVGElement;
+    expect(tier2Label).toBeTruthy();
+    expect(tier2Label).toHaveClass('plate-label-tier2');
+    expect(tier2Label).toHaveClass('plate-focus-label');
+    expect(tier2Label).not.toHaveClass('plate-hidden');
+  });
+
+  // Item 3: the label-descale clamp's unzoomed ceiling. size [1120, 1265]
+  // mirrors the LIVE schematic sheet's own map-frame dimensions (1460 sheet
+  // - 340 margin = 1120) -- the exact ratio (plateWidth/slotWidth ≈ 5.09 at
+  // a 220px slot) the reported ~4-5 CSS px defect measured against, a ratio
+  // a smaller synthetic fixture would not reproduce.
+  const wideUnzoomedFixture = {
+    id: 'trojan-plain-schematic',
+    title: 'The Troad, schematic',
+    kind: 'schematic',
+    status: 'draft',
+    size: [1120, 1265],
+    layers: [],
+  };
+  const wideCornerA = {
+    id: 'wide-a', name: 'Wide Corner A', certainty: 'certain' as const,
+    plateAnchors: { 'trojan-plain-schematic': [0.05, 0.05] as [number, number] }, positionBasis: 'conjectural' as const,
+  };
+  const wideCornerB = {
+    id: 'wide-b', name: 'Wide Corner B', certainty: 'certain' as const,
+    plateAnchors: { 'trojan-plain-schematic': [0.95, 0.95] as [number, number] }, positionBasis: 'conjectural' as const,
+  };
+
+  it('renders an unzoomed postcard label at least 10 CSS px at a 220px slot (the descale-clamp floor)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(wideUnzoomedFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [wideCornerA, wideCornerB] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['wide-a', 'wide-b']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const cameraG = container.querySelector('.plate-camera') as SVGGElement;
+    const camMatch = cameraG.style.transform.match(/scale\(([-\d.]+)\)/);
+    expect(camMatch).not.toBeNull();
+    const camK = parseFloat(camMatch![1]);
+    expect(camK).toBe(1); // precondition: genuinely unzoomed
+
+    const slotWidth = 220;
+    const chartPlateEl = container.querySelector('.chart-plate') as HTMLElement;
+    Object.defineProperty(chartPlateEl, 'clientWidth', { value: slotWidth, configurable: true });
+    const resizeCallback = (chartPlateEl as unknown as { __resizeCallback?: () => void }).__resizeCallback;
+    expect(resizeCallback).toBeTruthy();
+    resizeCallback!();
+
+    const label = container.querySelector('text[data-label-for="wide-a"]') as SVGTextElement;
+    expect(label).toBeTruthy();
+    const designPx = parseFloat(label.getAttribute('font-size')!);
+    expect(designPx).toBeGreaterThan(0);
+
+    const descaleWrapper = label.parentElement as SVGGElement;
+    expect(descaleWrapper).toHaveClass('chart-label-descale');
+    const fMatch = descaleWrapper.getAttribute('transform')!.match(/scale\(([-\d.]+)\)/);
+    expect(fMatch).not.toBeNull();
+    const f = parseFloat(fMatch![1]);
+
+    const plateWidth = wideUnzoomedFixture.size[0];
+    const apparentPx = designPx * f * (slotWidth / plateWidth) * camK;
+    expect(apparentPx).toBeGreaterThanOrEqual(10);
+  });
+});
+
+// Chart Room plate path disabled (John, 2026-07-29 — see Reader.svelte's
+// CHART_ROOM_PLATE_ENABLED and docs/TROY-MAPS-HANDOFF-2.md §1): useIliadPlate
+// is forced false and the fetch-gating reactive above it never even calls
+// ensureIliadPlate, so `.chart-plate` never renders and every Iliad scene
+// falls to the `currentPlateMap`/nomap fallback exactly like Odyssey — the
+// fetch/camera/dimming/no-rerender/reduced-motion internals this block's 6
+// tests exercise are all unreachable while the flag is off (see the active
+// guard test above, which pins that behavior). Skipped rather than rewritten
+// so the coverage comes back verbatim when the flag flips to true.
+describe.skip('Reader.svelte — Chart Room per-scene plates (Iliad only, 2026-07-28)', () => {
+  // A minimal, geographically valid plate.ts fixture (shared/lib/plate.ts's
+  // parsePlate/renderPlate) standing in for apparatus/plates/trojan-plain.json
+  // — no layers needed (this suite is about the CAMERA/FOCUS/DIMMING wiring
+  // in Reader.svelte, not plate.ts's own rendering, which is
+  // shared/__tests__/plate.test.ts's job).
+  const trojanPlainFixture = {
+    id: 'trojan-plain',
+    title: 'The Trojan Plain',
+    kind: 'geographic',
+    status: 'draft',
+    bbox: [0, 0, 10, 10],
+    size: [400, 300],
+    layers: [],
+  };
+
+  const oneSceneBook = (placeIds: string[]): RawBookData => ({
+    book: 1,
+    scenes: [{ summary: 'A scene naming places.', startLine: 1, endLine: 3, places: placeIds }],
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: [1, 2, 3].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+        // Two real bekker ticks — same posture as the describe block above:
+        // Reading Mode only pages by scene (readingHasSceneAnchors) with a
+        // real per-line alignment signal.
+        english: {
+          text: 'Scene text.',
+          notes: [],
+          markers: [],
+          bekker: [
+            { n: 1, offset: 0, real: true },
+            { n: 2, offset: 6, real: true },
+          ],
+        },
+      },
+    ],
+  });
+
+  afterEach(() => {
+    vi.mocked(fetchPlaces).mockReset();
+    vi.mocked(fetchJourneys).mockReset();
+    vi.mocked(fetchCoastline).mockReset();
+    vi.mocked(fetchPlate).mockReset();
+    vi.mocked(fetchPlaces).mockResolvedValue({ places: [] });
+    vi.mocked(fetchJourneys).mockResolvedValue({ journeys: [] });
+    vi.mocked(fetchCoastline).mockResolvedValue(null);
+    vi.mocked(fetchPlate).mockResolvedValue(null);
+  });
+
+  it("frames the camera on an Iliad scene's multiple resolved places, undimmed", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [
+        { id: 'place-a', name: 'Place A', coords: [3, 3], certainty: 'certain' },
+        { id: 'place-b', name: 'Place B', coords: [7, 7], certainty: 'certain' },
+      ],
+    });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['place-a', 'place-b']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    const svg = container.querySelector('.chart-plate svg')!;
+    expect(svg.getAttribute('role')).toBe('img');
+    expect(svg.getAttribute('aria-label')).toContain('Place A');
+    expect(svg.getAttribute('aria-label')).toContain('Place B');
+
+    // A real camera move away from the identity (whole-plate) transform —
+    // proof the frame is actually keyed to the two resolved places, not just
+    // showing the whole sheet.
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    expect(cameraG).toBeTruthy();
+    expect(cameraG.style.transform).not.toBe('translate(0px, 0px) scale(1)');
+
+    // Both focused places are drawn and neither is dimmed (the "rest of the
+    // plate dims" rule only applies to places OUTSIDE the current focus set).
+    expect(container.querySelector('[data-place-id="place-a"]')).not.toHaveClass('plate-dimmed');
+    expect(container.querySelector('[data-place-id="place-b"]')).not.toHaveClass('plate-dimmed');
+  });
+
+  it("still renders the base plate, unframed, with an honest caption when the scene's named place has no fixed position", async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [{ id: 'no-coords-place', name: 'No Coords Place', certainty: 'mythical' }],
+    });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['no-coords-place']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    expect(container.querySelector('.chart-plate-caption')?.textContent).toBe(
+      "This scene's named places have no fixed position on this plate.",
+    );
+    // computeCamera's own identity camera (plate.ts: "if NO id resolves to
+    // any geometry, this returns {scale:1,tx:0,ty:0}") — the whole plate,
+    // never a fabricated frame.
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    expect(cameraG.style.transform).toBe('translate(0px, 0px) scale(1)');
+  });
+
+  it('gives the same honest caption when the resolved place has real coordinates but falls outside this plate\'s own frame', async () => {
+    // A real, located place (mirrors Olympus/Chryse/Lemnos — real Iliad
+    // scene-dictionary targets nowhere near the Troad) whose coordinates
+    // simply aren't on THIS 0..10/0..10 sheet: renderPlate buckets it as
+    // off-canvas, never drawing a pin for it, so it must not count as a
+    // focusable id either — otherwise computeCamera would zoom the whole
+    // plate in on empty parchment trying to frame a point off the canvas.
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [{ id: 'far-place', name: 'Far Place', coords: [500, 500], certainty: 'certain' }],
+    });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['far-place']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    expect(container.querySelector('.chart-plate-caption')?.textContent).toBe(
+      "This scene's named places have no fixed position on this plate.",
+    );
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    expect(cameraG.style.transform).toBe('translate(0px, 0px) scale(1)');
+  });
+
+  it('leaves Odyssey scenes on the existing renderSceneMap path, and never fetches the plate', async () => {
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [{ id: 'has-coords-place', name: 'Has Coords Place', coords: [10, 20], certainty: 'certain' }],
+    });
+    vi.mocked(fetchCoastline).mockResolvedValueOnce({ bbox: [0, 0, 1, 1], rings: [] });
+
+    window.history.replaceState(null, '', '/odyssey/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'odyssey', bookNum: 1, bookData: oneSceneBook(['has-coords-place']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.reading-plate-map svg')).toBeTruthy());
+    expect(container.querySelector('.chart-plate')).toBeNull();
+    expect(fetchPlate).not.toHaveBeenCalled();
+  });
+
+  it('does not re-render the plate SVG when paging between scenes, only the camera/focus', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [
+        { id: 'place-a', name: 'Place A', coords: [3, 3], certainty: 'certain' },
+        { id: 'place-b', name: 'Place B', coords: [7, 7], certainty: 'certain' },
+      ],
+    });
+
+    const twoSceneBook: RawBookData = {
+      book: 1,
+      scenes: [
+        { summary: 'Scene one summary.', startLine: 1, endLine: 3, places: ['place-a'] },
+        { summary: 'Scene two summary.', startLine: 4, endLine: 6, places: ['place-b'] },
+      ],
+      segments: [
+        {
+          id: 'seg1',
+          column: '1',
+          greek: [1, 2, 3, 4, 5, 6].map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+          english: {
+            text: 'Scene one text. Scene two text.',
+            notes: [],
+            markers: [],
+            bekker: [
+              { n: 1, offset: 0, real: true },
+              { n: 4, offset: 'Scene one text. '.length, real: true },
+            ],
+          },
+        },
+      ],
+    };
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: twoSceneBook } });
+    await screen.findByText(/Scene 1 of 2/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    const svgBefore = container.querySelector('.chart-plate svg');
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    const transformBefore = cameraG.style.transform;
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).toContain('Place A');
+
+    await fireEvent.click(screen.getByRole('button', { name: /Next scene/i }));
+    await screen.findByText(/Scene 2 of 2/i);
+
+    // Same SVG element — the base markup was never reassigned via {@html}.
+    expect(container.querySelector('.chart-plate svg')).toBe(svgBefore);
+    // The camera itself DID move, and the aria-label now names the other
+    // scene's place — proof the per-scene update ran, imperatively, on the
+    // very same DOM node.
+    expect(cameraG.style.transform).not.toBe(transformBefore);
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).toContain('Place B');
+    expect(container.querySelector('svg')?.getAttribute('aria-label')).not.toContain('Place A');
+  });
+
+  it('snaps the camera instead of animating it under prefers-reduced-motion', async () => {
+    vi.spyOn(window, 'matchMedia').mockImplementation((query: string) => ({
+      matches: query.includes('prefers-reduced-motion'),
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }) as MediaQueryList);
+
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [{ id: 'place-a', name: 'Place A', coords: [3, 3], certainty: 'certain' }],
+    });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['place-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    const cameraG = container.querySelector('.plate-camera') as HTMLElement;
+    expect(cameraG.style.transition).toBe('none');
+  });
+
+  // Postcard part F (2026-09-02): the geographic path's click-through to
+  // /maps/, framed on the scene. Belongs in THIS skipped block, not a live
+  // one — there is no way to exercise `useIliadPlate` without either
+  // flipping CHART_ROOM_PLATE_ENABLED in source (forbidden — John's
+  // research-gated call) or a test-only override this codebase has never
+  // had; every other test of this path is skipped for the identical reason.
+  // Activates verbatim, with its siblings, when the flag flips to true.
+  it('the postcard link is keyboard-reachable and named for its destination (John\'s click-through, part F)', async () => {
+    vi.mocked(fetchPlate).mockResolvedValueOnce(trojanPlainFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({
+      places: [{ id: 'place-a', name: 'Place A', coords: [3, 3], certainty: 'certain' }],
+    });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['place-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+
+    const link = screen.getByRole('link', { name: 'Open the Trojan Plain plate framed on this scene' });
+    expect(link).toBeInTheDocument();
+    link.focus();
+    expect(document.activeElement).toBe(link);
+    expect(link.getAttribute('href')).toContain('/maps/?map=plain');
+    expect(link.getAttribute('href')).toContain('focus=place-a');
   });
 });

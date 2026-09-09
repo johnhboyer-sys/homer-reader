@@ -1322,8 +1322,21 @@
     // not-locatable list beside/below the map, not the canvas itself.
     map = L.map(el, { scrollWheelZoom: true, worldCopyJump: false, keyboard: false }).setView([37, 24], 6);
     L.tileLayer('https://cawm.lib.uiowa.edu/tiles/{z}/{x}/{y}.png', {
-      maxZoom: 12,
+      // maxZoom reconciled with the fitBounds cap above (maxZoom: 8) --
+      // maxNativeZoom: 7 tells Leaflet the CAWM tile server has no real
+      // tiles past z7, so zoom levels beyond that upscale the z7 tile
+      // instead of requesting a level the server doesn't serve (previously
+      // maxZoom: 12 with no maxNativeZoom meant every z8-12 request came
+      // back net::ERR_ABORTED and Leaflet never retries -- panel went
+      // blank; see docs/TROY-MAPS-HANDOFF-2.md §1).
+      maxZoom: 8,
+      maxNativeZoom: 7,
       attribution: CAWM_ATTRIBUTION,
+      // 1x1 transparent PNG data URI (no network fetch) -- any tile that
+      // still fails to load (network flake, not the z8-12 bug above) shows
+      // as blank map background instead of the browser's broken-image icon.
+      errorTileUrl:
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
     }).addTo(map);
     // Keep story-mode caption cards + route arrows (plain DOM, not Leaflet
     // layers) in pixel sync through pans/zooms, including the animated
