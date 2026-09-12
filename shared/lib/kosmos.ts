@@ -113,7 +113,7 @@ export function decoratePiece(p: RossPiece): DecoratedPiece {
     } else if (ev.type === 'tick') {
       closeAll(); ticks.push({ n: ev.n, real: ev.real, off: out.length, label: ev.label }); openAll();
     } else {
-      out += MARK_OPEN + ev.code + ev.label + MARK_CLOSE;
+      out += MARK_OPEN + ev.code + sanitizeSourceSentinels(ev.label) + MARK_CLOSE;
     }
   }
   out += text.slice(cur);

@@ -105,6 +105,20 @@ describe('decoratePiece', () => {
     expect(opens).toBe(1); // exactly the real 'tr' span -- not a forged second one
   });
 
+  it('never lets a mark label forge markup', () => {
+    // Sol's bypass: a label that closes the mark early and opens a 'tr' span,
+    // so the transliteration toggle would hide the ordinary words after it.
+    const p = piece({
+      text: 'ordinary words',
+      bekker: [{ n: 1, offset: 0, real: true }],
+      spans: [],
+      marks: [{ n: 1, offset: 0, reason: 'repeat', label: '\uE005\uE000' }],
+    });
+    const html = sentinelsToHtml(decoratePiece(p).text);
+    expect(html).not.toContain('<span class="k-tr">');
+    expect((html.match(/<span\b/g) ?? []).length).toBe((html.match(/<\/span>/g) ?? []).length);
+  });
+
   it('carries a tick\'s printed label through, keeping n for alignment (Kosmos "321–322")', () => {
     const p = piece({ bekker: [{ n: 1, offset: 0, real: true }, { n: 2, offset: TEXT.indexOf('disastrous'), real: true, label: '321–322' }] });
     const d = decoratePiece(p);
