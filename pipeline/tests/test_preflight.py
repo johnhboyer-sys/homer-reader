@@ -686,3 +686,25 @@ def test_validate_third_bekker_n_outside_book_lines_fails():
     }
     problems = _third_bekker_problems(segment, {1, 10})
     assert any("is not a Greek line of this book" in p for p in problems)
+
+
+def test_validate_third_bekker_offset_going_backwards_fails_even_though_n_climbs():
+    # Tuple comparison ((1, 0), (5, 100), (10, 50)) reads as strictly
+    # increasing lexicographically -- n climbs at every step -- even though
+    # offset falls back from 100 to 50 at the third tick, which cannot
+    # happen in real text (offsets only move forward through a piece).
+    # Both n and offset must independently strictly increase.
+    segment = {
+        "third": [
+            {
+                "text": "0" * 200,
+                "bekker": [
+                    {"n": 1, "offset": 0},
+                    {"n": 5, "offset": 100},
+                    {"n": 10, "offset": 50},
+                ],
+            }
+        ]
+    }
+    problems = _third_bekker_problems(segment, {1, 5, 10})
+    assert any("not strictly increasing" in p for p in problems), problems
