@@ -32,6 +32,11 @@ class WorkManifest:
 # Python set. An unknown translation id fails preflight; missing/empty
 # allowlist also fails. See _validate_public_domain_allowlist.
 PUBLIC_DOMAIN_ALLOWLIST_PATH = Path(__file__).with_name("public_domain_translations.yaml")
+# Creative Commons texts (John, 2026-09-12): a second, separate list whose
+# every entry carries its licence and attribution. See load_cc_translations.
+CC_TRANSLATIONS_PATH = Path(__file__).with_name("cc_translations.yaml")
+CC_REQUIRED_STRINGS = ("translator", "license_name", "license_url", "attribution")
+CC_REQUIRED_LISTS = ("revisers", "source_urls")
 
 
 def validate(data_dir: Path, manifests_dir: Path) -> list[Problem]:
@@ -498,7 +503,55 @@ def _validate_books(
                 _validate_chapter_starts(manifest, name, seg_id or f"segments[{i}]", segment, line_numbers, anchors, book["n"], column, problems, bekker_native)
             else:
                 _validate_third_bekker(manifest, name, seg_id or f"segments[{i}]", segment, line_numbers, problems)
+                _validate_overlay_bekker(manifest, name, seg_id or f"segments[{i}]", segment, line_numbers, problems)
     return segments_by_book_col, anchors, token_keys
+
+
+def _validate_overlay_bekker(
+    manifest: WorkManifest,
+    file_name: str,
+    seg_id: str,
+    segment: dict[str, Any],
+    line_numbers: set[int],
+    problems: list[Problem],
+) -> None:
+    """segment.overlays[<id>][*].bekker, verse-line works (today: the Kosmos
+    verse groups). Each tick cuts a group that the reader sets beside the
+    Greek from line `n`, so the same rules as the Pope ticks apply: `n` is a
+    Greek line of this book, `offset` lies inside the piece text, and (n,
+    offset) strictly increases. Kosmos's printed numbers that name no Greek
+    line are carried as `marks`, never as ticks."""
+    overlays = segment.get("overlays")
+    if not overlays:
+        return
+    if not isinstance(overlays, dict):
+        problems.append((manifest.work_id, file_name, f"{seg_id}: overlays must be an object"))
+        return
+    for tid, pieces in overlays.items():
+        where = f"{seg_id}: overlays.{tid}"
+        if not isinstance(pieces, list):
+            problems.append((manifest.work_id, file_name, f"{where} must be a list"))
+            continue
+        for pi, piece in enumerate(pieces):
+            if not isinstance(piece, dict):
+                problems.append((manifest.work_id, file_name, f"{where}[{pi}] must be an object"))
+                continue
+            text = piece.get("text")
+            text_len = len(text) if isinstance(text, str) else 0
+            prev: tuple[int, int] | None = None
+            for ti, tick in enumerate(piece.get("bekker") or []):
+                n = tick.get("n") if isinstance(tick, dict) else None
+                offset = tick.get("offset") if isinstance(tick, dict) else None
+                if not isinstance(n, int) or not isinstance(offset, int):
+                    problems.append((manifest.work_id, file_name, f"{where}[{pi}].bekker[{ti}] needs integer n and offset"))
+                    continue
+                if n not in line_numbers:
+                    problems.append((manifest.work_id, file_name, f"{where}[{pi}].bekker[{ti}] n={n} is not a Greek line of this book"))
+                if not (0 <= offset < text_len):
+                    problems.append((manifest.work_id, file_name, f"{where}[{pi}].bekker[{ti}] offset={offset} is outside the piece text (length {text_len})"))
+                if prev is not None and (n, offset) <= prev:
+                    problems.append((manifest.work_id, file_name, f"{where}[{pi}].bekker (n, offset) is not strictly increasing at index {ti}"))
+                prev = (n, offset)
 
 
 def _collect_token_keys(
@@ -914,6 +967,45 @@ def load_public_domain_allowlist(path: Path | None = None) -> dict[str, dict[str
     return allowed
 
 
+def load_cc_translations(path: Path | None = None) -> dict[str, dict[str, Any]]:
+    """Load the Creative Commons translation list (cc_translations.yaml).
+
+    Fail-closed like load_public_domain_allowlist: a missing file, a bad
+    shape, an empty list, a duplicate id, or an entry missing any licence or
+    attribution field raises ValueError, which the caller reports as a
+    preflight problem."""
+    path = path or CC_TRANSLATIONS_PATH
+    if not path.is_file():
+        raise ValueError(f"Creative Commons translation list missing: {path}")
+    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ValueError("Creative Commons translation list root must be an object")
+    entries = raw.get("translations")
+    if not isinstance(entries, list) or not entries:
+        raise ValueError("Creative Commons translation list translations must be a non-empty list")
+    out: dict[str, dict[str, Any]] = {}
+    for i, item in enumerate(entries):
+        if not isinstance(item, dict):
+            raise ValueError(f"Creative Commons translation list translations[{i}] must be an object")
+        tid = item.get("id")
+        if not isinstance(tid, str) or not tid:
+            raise ValueError(f"Creative Commons translation list translations[{i}].id must be a non-empty string")
+        if tid in out:
+            raise ValueError(f"Creative Commons translation list has duplicate id {tid!r}")
+        for key in CC_REQUIRED_STRINGS:
+            if not isinstance(item.get(key), str) or not item.get(key).strip():
+                raise ValueError(f"Creative Commons translation list {tid!r}: {key} must be a non-empty string")
+        for key in CC_REQUIRED_LISTS:
+            val = item.get(key)
+            if not isinstance(val, list) or not val or not all(isinstance(v, str) and v.strip() for v in val):
+                raise ValueError(f"Creative Commons translation list {tid!r}: {key} must be a non-empty list of strings")
+        for key in ("license_url",):
+            if not item[key].startswith("https://"):
+                raise ValueError(f"Creative Commons translation list {tid!r}: {key} must be an https URL")
+        out[tid] = {k: item[k] for k in (*CC_REQUIRED_STRINGS, *CC_REQUIRED_LISTS)}
+    return out
+
+
 def manifest_translation_ids(data: dict[str, Any]) -> list[tuple[str, str]]:
     """Collect (slot, id) pairs for every translation declared under english.*.
 
@@ -941,27 +1033,38 @@ def _validate_public_domain_allowlist(
     problems: list[Problem],
     *,
     allowlist_path: Path | None = None,
+    cc_list_path: Path | None = None,
 ) -> None:
-    """Fail-closed: every english.*.id on the active manifest must be allowlisted.
+    """Fail-closed: every english.*.id on the active manifest must be on the
+    public-domain allowlist or on the Creative Commons list.
 
     Runs regardless of whether a -public.yaml exists. The old private-content
     check only asked "is anything marked private?"; this asks "is everything
     explicitly permitted?" so a private-only manifest that gains a copyrighted
-    translation cannot pass preflight by accident.
+    translation cannot pass preflight by accident. Either list failing to load
+    (missing, empty, or — for the CC list — an entry without its licence and
+    attribution) is itself a problem.
     """
     allowlist_label = (allowlist_path or PUBLIC_DOMAIN_ALLOWLIST_PATH).name
+    cc_label = (cc_list_path or CC_TRANSLATIONS_PATH).name
     try:
         allowed = load_public_domain_allowlist(allowlist_path)
     except Exception as exc:
         problems.append((manifest.work_id, allowlist_label, str(exc)))
         return
+    try:
+        cc_allowed = load_cc_translations(cc_list_path)
+    except Exception as exc:
+        problems.append((manifest.work_id, cc_label, str(exc)))
+        return
     for slot, tid in manifest_translation_ids(manifest.data):
-        if tid not in allowed:
+        if tid not in allowed and tid not in cc_allowed:
             problems.append(
                 (
                     manifest.work_id,
                     manifest.path.name,
-                    f"translation id {tid!r} ({slot}) is not on the public-domain allowlist",
+                    f"translation id {tid!r} ({slot}) is not on the public-domain allowlist "
+                    f"or the Creative Commons list",
                 )
             )
 
@@ -1314,6 +1417,7 @@ def translation_tick_counts(data_dir: Path, work_id: str) -> dict[int, dict[str,
         murray = 0
         butler = 0
         pope = 0
+        extra: dict[str, int] = {}
         for segment in doc.get("segments", []) or []:
             if not isinstance(segment, dict):
                 continue
@@ -1326,7 +1430,15 @@ def translation_tick_counts(data_dir: Path, work_id: str) -> dict[int, dict[str,
             for piece in segment.get("third") or []:
                 if isinstance(piece, dict):
                     pope += len(piece.get("bekker") or [])
-        counts[book] = {"murray": murray, "butler": butler, "pope": pope}
+            # Further overlays (the Kosmos verse groups), keyed by their id —
+            # present in the counts only when the book carries them.
+            overlays = segment.get("overlays")
+            if isinstance(overlays, dict):
+                for tid, pieces in overlays.items():
+                    for piece in pieces or []:
+                        if isinstance(piece, dict):
+                            extra[tid] = extra.get(tid, 0) + len(piece.get("bekker") or [])
+        counts[book] = {"murray": murray, "butler": butler, "pope": pope, **extra}
     return counts
 
 

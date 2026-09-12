@@ -3,6 +3,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
 import yaml
 
 from homer_pipeline.preflight import WorkManifest, _validate_manifest_schema, _validate_third_bekker
@@ -588,6 +589,83 @@ def test_preflight_allowlist_accepts_murray_butler_pope():
         problems: list = []
         _validate_public_domain_allowlist(manifest, problems)
         assert problems == [], f"{name}: unexpected allowlist problems: {problems}"
+
+
+# ── Creative Commons translation list (John, 2026-09-12) ───────────────────
+
+_CC_ENTRY = {
+    "id": "kosmos",
+    "translator": "Samuel Butler",
+    "revisers": ["Soo-Young Kim", "Kelly McCray", "Gregory Nagy", "Timothy Power"],
+    "license_name": "CC BY-NC-ND 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "source_urls": ["https://kosmossociety.org/homeric-iliad/"],
+    "attribution": "Butler, revised by Kim, McCray, Nagy, and Power. CC BY-NC-ND 3.0.",
+}
+
+
+def _manifest_with_overlay(tid: str):
+    data = _load_manifest("Iliad.yaml")
+    data["english"]["overlays"] = [{"id": tid, "model": "kosmos", "name": "x", "source": "x"}]
+    return WorkManifest(work_id=data["work"]["id"], path=MANIFESTS / "Iliad.yaml", data=data)
+
+
+def _cc_problems(tmp_path, entries, tid="kosmos") -> list[str]:
+    from homer_pipeline.preflight import _validate_public_domain_allowlist
+
+    path = tmp_path / "cc.yaml"
+    path.write_text(yaml.safe_dump({"translations": entries}, allow_unicode=True), encoding="utf-8")
+    problems: list = []
+    _validate_public_domain_allowlist(_manifest_with_overlay(tid), problems, cc_list_path=path)
+    return [p[2] for p in problems]
+
+
+def test_cc_list_valid_entry_passes(tmp_path):
+    assert _cc_problems(tmp_path, [_CC_ENTRY]) == []
+
+
+@pytest.mark.parametrize("missing", ["translator", "revisers", "license_name", "license_url", "source_urls", "attribution"])
+def test_cc_list_entry_missing_a_field_fails(tmp_path, missing):
+    entry = {k: v for k, v in _CC_ENTRY.items() if k != missing}
+    messages = _cc_problems(tmp_path, [entry])
+    assert any(missing in m for m in messages), messages
+
+
+def test_cc_list_empty_revisers_fails(tmp_path):
+    messages = _cc_problems(tmp_path, [{**_CC_ENTRY, "revisers": []}])
+    assert any("revisers" in m for m in messages), messages
+
+
+def test_cc_list_missing_file_fails(tmp_path):
+    from homer_pipeline.preflight import _validate_public_domain_allowlist
+
+    problems: list = []
+    _validate_public_domain_allowlist(
+        _manifest_with_overlay("kosmos"), problems, cc_list_path=tmp_path / "absent.yaml")
+    assert any("missing" in p[2] for p in problems), problems
+
+
+def test_id_on_neither_list_fails(tmp_path):
+    messages = _cc_problems(tmp_path, [_CC_ENTRY], tid="quilliam")
+    assert any("quilliam" in m and "Creative Commons" in m for m in messages), messages
+
+
+def test_real_cc_list_carries_kosmos_and_not_the_pd_list():
+    from homer_pipeline.preflight import load_cc_translations, load_public_domain_allowlist
+
+    cc = load_cc_translations()
+    assert "kosmos" in cc and "kosmos" not in load_public_domain_allowlist()
+    assert cc["kosmos"]["license_url"] == "https://creativecommons.org/licenses/by-nc-nd/3.0/"
+
+
+def test_translation_tick_counts_include_overlays(tmp_path):
+    from homer_pipeline.preflight import translation_tick_counts
+
+    doc = _book_with_ticks(1, 2, 1)
+    doc["segments"][0]["overlays"] = {"kosmos": [{"bekker": [{"n": 1, "offset": 0, "real": True}] * 3}]}
+    (tmp_path / "w").mkdir()
+    (tmp_path / "w" / "book-01.json").write_text(json.dumps(doc), encoding="utf-8")
+    assert translation_tick_counts(tmp_path, "w")[1]["kosmos"] == 3
 
 
 def test_tick_coverage_violations_missing_book_counts_as_zero():
