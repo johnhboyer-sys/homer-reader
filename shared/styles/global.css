@@ -4657,3 +4657,43 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   box-shadow: none;
   border-left: 1px solid var(--border);
 }
+
+/* ── Kosmos verse groups (works.ts `verseGroups`, 2026-09-12) ──────────
+   Both view: one row per group — the Greek span beside the English Kosmos
+   prints between two of its line numbers (Reader.svelte's .verse-groups
+   branch). Each .align-group takes the .seg-row's own column template and
+   gutter by inheritance, so the rows line up with every other Both view;
+   on a phone the groups stack like the Murray alignment groups do. */
+.reader-body.view-both .seg-row.verse-groups { display: block; }
+.reader-body.view-both .verse-groups .align-group {
+  display: grid;
+  grid-template-columns: inherit;
+  column-gap: inherit;
+}
+.reader-body.view-both .verse-groups .align-group + .align-group { margin-top: 0.6rem; }
+@media (max-width: 680px) {
+  .reader-body.view-both .verse-groups.stacked-both .align-group { display: block; }
+}
+/* The "Show bracketed Greek" setting: hides the transliteration brackets
+   (lib/kosmos.ts `tr` spans) and nothing else. */
+.reader-body.hide-translit .k-tr { display: none; }
+/* A printed Kosmos number that does not cut a group (a repeat, a misprint,
+   or Il. 9.460): kept in place, set small and quiet. --text-mid on
+   --page-bg is 6.4:1 light, 7.1:1 dark (AA). */
+.k-mark {
+  font-family: var(--font-ui);
+  font-size: 0.72em;
+  color: var(--text-mid);
+  margin-right: 0.3em;
+  font-variant-numeric: tabular-nums;
+  cursor: help;
+}
+/* A Creative Commons text's credit + licence link beside its label. */
+.trans-licence {
+  font-family: var(--font-ui);
+  font-size: 0.85em;
+  color: var(--text-mid);
+  margin-left: 0.5em;
+}
+.trans-licence a { color: inherit; text-decoration: underline; }
+.settings-trans .trans-licence { display: block; margin: 0.35rem 0 0; }

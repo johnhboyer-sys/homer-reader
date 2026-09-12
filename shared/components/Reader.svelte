@@ -10,6 +10,7 @@
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { classifySpeech, realLinesFromSegments, speechLabel } from '../lib/speeches';
   import { flowParts, alignGroups } from '../lib/tick-chunks';
+  import { decoratePiece, sentinelsToHtml } from '../lib/kosmos';
   import { bookAudio, hasAudio, effectiveChunks, licenseLabel, chunkAriaLabel, itemPageUrl, type AudioManifest, type AudioChunk, type AudioBookEntry } from '../lib/audio';
   import { scansionDisplay, scansionKey } from '../lib/scansion';
   import { greekFold } from '../lib/search';
@@ -90,6 +91,10 @@
     ...(thirdSlot ? [thirdSlot.id] : []),
   ]);
   const secondaries = translations.filter(t => t.slot !== 'english');
+  // Translations shown as verse groups (works.ts `verseGroups` — the Kosmos
+  // revision of Butler): the English is cut at each of its own printed line
+  // numbers and set beside that Greek span.
+  const verseGroupIds = new Set(translations.filter(t => t.verseGroups).map(t => t.id));
   const canCompare = translations.length >= 2;
   // Overlay pieces for a translation in a segment, selected by its slot.
   const piecesFor = (seg: Segment, t: TranslationRef | undefined | null): RossPiece[] => {
@@ -509,7 +514,10 @@
   // alignGroups call below) — snapping exists to correct MILESTONE-tick
   // drift near a speech's true opening line, and applying it to an anchor
   // that's already correct could only knock it off target.
-  $: readingTransCuratedTicks = !!translations.find(t => t.id === readingTransId)?.curatedTicks;
+  // A verse-group translation's ticks are its own printed line numbers, just
+  // as exact, so they are never snapped either.
+  $: readingTransCuratedTicks = !!translations.find(t => t.id === readingTransId)?.curatedTicks
+    || verseGroupIds.has(readingTransId);
 
   // ── Reading Mode scene paging ─────────────────────────────────────────────
   // The scene Reading Mode currently pages to (0-based into `scenes`),
@@ -920,6 +928,12 @@
   // too heavy for a reader toggle's lazy fetch, so the pipeline emit is
   // split the same way book-<NN>.json already is); re-fetched on every book
   // switch while the toggle stays on.
+  // Kosmos verse groups: show the revisers' bracketed Greek ([mēnis]) — on by
+  // default; off hides those brackets only (lib/kosmos.ts's `tr` spans), never
+  // the editorial ones ([= Apollo], [Agamemnon]). A CSS class on .reader-body.
+  const TRANSLIT_KEY = 'reader-translit';
+  let translitOn = true;
+  function saveTranslit() { try { localStorage.setItem(TRANSLIT_KEY, String(translitOn)); } catch {} }
   const METER_KEY = 'reader-meter';
   let meterOn = false;
   function saveMeter() { try { localStorage.setItem(METER_KEY, String(meterOn)); } catch {} }
@@ -1441,8 +1455,10 @@
     // Sidenote [[sN]] and figure [[figN]] markers are rendered elsewhere (the
     // right rail / an inline figure), so strip them from the prose flow.
     text = text.replace(/\s*\[\[(?:s|fig)\d+\]\]\s*/g, ' ');
-    if (!hlEngTerms.length) return esc(text);
-    return highlightPrefixMatches(text, hlEngTerms);
+    // sentinelsToHtml: the Kosmos standoff (lib/kosmos.ts) becomes markup only
+    // after escaping; a no-op for every other translation.
+    if (!hlEngTerms.length) return sentinelsToHtml(esc(text));
+    return sentinelsToHtml(highlightPrefixMatches(text, hlEngTerms));
   }
   // §Phase-3 B5: the printed number is stored as `display`; identity is the
   // (scope, number) pair encoded in the label — continuous scope's label IS
@@ -1709,8 +1725,14 @@
     // so any number of overlays render (the 'third'/footnote-bearing one also
     // carries diagram tables).
     const secPieces = secondaries.map((t) => ({ t, pieces: piecesFor(seg, t) }));
-    const flowOf = (p: RossPiece | undefined): FlowPart[] =>
-      (!p || !p.text) ? [] : flowParts(p.text, (p.bekker ?? []).map(t => ({ n: t.n, real: t.real, off: t.offset })));
+    // decoratePiece writes a piece's standoff (the Kosmos brackets, italics
+    // and non-break line numbers) into its text as sentinels, rebasing the
+    // ticks; a piece without standoff comes back unchanged.
+    const flowOf = (p: RossPiece | undefined): FlowPart[] => {
+      if (!p || !p.text) return [];
+      const d = decoratePiece(p);
+      return flowParts(d.text, d.ticks);
+    };
     const pieceCont = (pieces: RossPiece[]) => pieces.find(p => p.cont) ?? pieces[0];
     const pieceFor = (pieces: RossPiece[], chapter: string | null) =>
       pieces.find(p => !p.cont && p.chapter === chapter);
@@ -1892,6 +1914,8 @@
     if (savedSpeeches !== null) speechesOn = savedSpeeches === 'true';
     const savedMeter = (() => { try { return localStorage.getItem(METER_KEY); } catch { return null; } })();
     if (savedMeter !== null) meterOn = savedMeter === 'true';
+    const savedTranslit = (() => { try { return localStorage.getItem(TRANSLIT_KEY); } catch { return null; } })();
+    if (savedTranslit !== null) translitOn = savedTranslit === 'true';
     const savedAudio = (() => { try { return localStorage.getItem(AUDIO_KEY); } catch { return null; } })();
     if (savedAudio !== null) audioOn = savedAudio === 'true';
     const savedChartRoom = (() => { try { return localStorage.getItem(CHART_ROOM_KEY); } catch { return null; } })();
@@ -2408,6 +2432,16 @@
   </div>
 {/snippet}
 
+<!-- A Creative Commons text's credit + licence link (works.ts `licence`),
+     shown wherever the reader labels that translation — the controls strip,
+     compare labels and the settings picker, so it sits at the top level.
+     Nothing for a public-domain text. -->
+{#snippet licenceNote(t: TranslationRef | null | undefined)}
+  {#if t?.licence}
+    <span class="trans-licence">{t.licence.credit} · <a href={t.licence.url} rel="license noopener noreferrer" target="_blank">{t.licence.name}</a></span>
+  {/if}
+{/snippet}
+
 {#snippet printControl()}
   {#if chaptersInBook.length > 1}
     <div class="print-menu">
@@ -2555,6 +2589,7 @@
        group's tick-bounded slice on the phone-stacked layout. -->
   {#snippet flowProse(parts: FlowPart[], transId: string, otables: OTables)}
     {#if fnTransIds.has(transId)}
+      {@const rparts = attachTicks(parts, new Set((otables[transId] ?? []).map(t => t.n)))}
       <div
         class="ross-prose"
         on:mouseover={onFootnoteOver}
@@ -2567,10 +2602,16 @@
         on:keydown={onFootnoteClick}
         role="presentation"
       >
-        {#each attachTicks(parts, new Set((otables[transId] ?? []).map(t => t.n))) as part}
+        {#each rparts as part, pi}
           {#if part.text === '\n'}
             <br class="para-br" />
           {:else if part.text !== null}
+            {#if part.tick && pi > 0 && verseGroupIds.has(transId) && rparts[pi - 1].text !== '\n' && !rparts[pi - 1].para}
+              <!-- A verse-group translation outside the grouped Both view
+                   (English-only, Reading Mode, compare): each group still
+                   starts on its own line, at its own printed number. -->
+              <br class="para-br k-group-br" />
+            {/if}
             <span class="bk-seg"
               >{#if part.tick}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.n}</span
                 >{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(part.text, transId)}</span>
@@ -2734,7 +2775,7 @@
             {/each}
           </div>
           <div class="english-col" data-trans={leftId}>
-            {#if trans === 'compare'}<div class="col-label">{transById(compareLeft)?.short ?? 'English'}</div>{/if}
+            {#if trans === 'compare'}<div class="col-label">{transById(compareLeft)?.short ?? 'English'}{@render licenceNote(transById(compareLeft))}</div>{/if}
             {#each row.ticks as t}<span class="sect-tick eng-tick" data-etick={t} aria-hidden="true">{t}</span>{/each}
             <!-- The (single / left) column shows the primary translation inline
                  (its full et/dialogue/sub structure) or, for an alternate id,
@@ -2791,7 +2832,7 @@
                primary or an alternate — pick the renderer by id. -->
           {#if trans === 'compare' && view !== 'greek'}
             <div class="ross-col" data-trans={compareRight}>
-              <div class="col-label">{transById(compareRight)?.short ?? ''}</div>
+              <div class="col-label">{transById(compareRight)?.short ?? ''}{@render licenceNote(transById(compareRight))}</div>
               {#if compareRight === engSlot?.id}{@render primaryEng(row, ri)}{:else}{@render altEng(row, ri, compareRight)}{/if}
             </div>
           {/if}
@@ -2904,6 +2945,7 @@
     class:word-open={!!popup}
     class:speeches-on={speechesOn}
     class:audio-on={audioOn}
+    class:hide-translit={!translitOn}
     style="--fs-greek:{fsGreek}rem;--fs-english:{fsEng}rem;--lh-greek:{lhGreek};--lh-english:{lhEng};--colw-scale:{colScale};--fs-scale:{fsScale}"
     on:copy={handleCopy}>
     <!-- Screen-reader announcement of a posture change (Scholar ⇄ Reading). -->
@@ -2917,12 +2959,12 @@
           {#if greekSrc}<span class="rc-greek">{greekSrc.full}</span>{/if}
         {:else if trans === 'compare'}
           {#if view === 'both'}<span class="rc-col-spacer" aria-hidden="true"></span>{/if}
-          <span class="rc-col-name">{citeShort(transById(compareLeft))}</span>
-          <span class="rc-col-name">{citeShort(transById(compareRight))}</span>
+          <span class="rc-col-name">{citeShort(transById(compareLeft))}{@render licenceNote(transById(compareLeft))}</span>
+          <span class="rc-col-name">{citeShort(transById(compareRight))}{@render licenceNote(transById(compareRight))}</span>
         {:else if view === 'both'}
-          <span class="rc-pair">{pairText}</span>
+          <span class="rc-pair">{pairText}{@render licenceNote(selectedTrans)}</span>
         {:else if selectedTrans}
-          <span class="rc-full">{selectedTrans.name}</span>
+          <span class="rc-full">{selectedTrans.name}{@render licenceNote(selectedTrans)}</span>
         {/if}
       </div>
       <div class="rc-controls">
@@ -3059,7 +3101,30 @@
           {#if block.chapter && !(bi === 0 && leadChapter)}
             {@render chapterHead(block)}
           {/if}
-          {#if phoneWidth && view === 'both' && trans !== 'compare' && epicVerse}
+          {@const groupFlow = view === 'both' && verseGroupIds.has(trans) ? (block.oflows[trans] ?? []) : []}
+          {#if groupFlow.length}
+            <!-- Both view, a verse-group translation (the Kosmos revision of
+                 Butler): one row per group — the Greek lines from this
+                 group's printed number up to the next, beside the English
+                 Kosmos prints between those two numbers. The groups come from
+                 alignGroups, the same unit the phone stacking below uses, fed
+                 this translation's own flow and NO speech starts: its ticks
+                 are its own numbers and must not move. No per-line split
+                 inside a group (the honesty constraint above). Side by side
+                 on a wide screen, stacked on a phone (.stacked-both). -->
+            <div class="seg-row verse-groups" class:stacked-both={phoneWidth} data-chapter={block.currentChapter}>
+              {#each alignGroups(block.lines, groupFlow, []) as group, gi (gi)}
+                <div class="align-group">
+                  <div class="greek-col" lang="grc">
+                    {@render greekLinesRender(seg, group.lines)}
+                  </div>
+                  <div class="english-col" data-trans={trans}>
+                    {@render flowProse(group.flowParts, trans, block.otables)}
+                  </div>
+                </div>
+              {/each}
+            </div>
+          {:else if phoneWidth && view === 'both' && trans !== 'compare' && epicVerse}
             <!-- Both view, phone width (John's ruling, 2026-07-18): interleaved
                  ALIGNMENT GROUPS instead of squeezed parallel columns — Greek
                  wrapped to 1–2 words/line otherwise. Each group is a run of
@@ -3097,7 +3162,7 @@
                  left compare column. Prose laid out beside its Bekker-line
                  gutter — real anchors full weight, estimates lighter/italic. -->
             <div class="english-col" data-trans={trans === 'compare' ? compareLeft : trans}>
-              {#if trans === 'compare'}<div class="col-label">{transById(compareLeft)?.short ?? 'English'}</div>{/if}
+              {#if trans === 'compare'}<div class="col-label">{transById(compareLeft)?.short ?? 'English'}{@render licenceNote(transById(compareLeft))}</div>{/if}
               {#if isUnpairedDialogue(seg)}
                 <!-- A dialogue segment whose turns did not reconcile (and a
                      narrated work's said-bearing chunk): the English renders as
@@ -3127,7 +3192,7 @@
                  first (hidden in Greek-only). -->
             {#if trans === 'compare' && view !== 'greek'}
               <div class="ross-col" data-trans={compareRight}>
-                <div class="col-label">{transById(compareRight)?.short ?? ''}</div>
+                <div class="col-label">{transById(compareRight)?.short ?? ''}{@render licenceNote(transById(compareRight))}</div>
                 {@render transFlow(block, compareRight)}
               </div>
             {/if}
@@ -3278,6 +3343,7 @@
             {/each}
           </select>
         </label>
+        {@render licenceNote(transById(pickValue))}
       </div>
     {/if}
     {#if canCompare}
@@ -3418,6 +3484,23 @@
         </span>
         <span class="settings-pill">
           <input type="checkbox" bind:checked={meterOn} on:change={saveMeter} aria-label="Show computed hexameter scansion beside each Greek line, in Scholar view" />
+          <span class="settings-pill-track"></span>
+          <span class="settings-pill-thumb"></span>
+        </span>
+      </label>
+    </div>
+    {/if}
+
+    {#if verseGroupIds.size}
+    <div class="settings-section">
+      <div class="settings-section-label">Kosmos</div>
+      <label class="settings-check-row">
+        <span class="settings-check-name">
+          Show bracketed Greek
+          <span class="settings-check-hint">The revisers' transliterations, such as [mēnis]; their other brackets, such as [= Apollo], always show</span>
+        </span>
+        <span class="settings-pill">
+          <input type="checkbox" bind:checked={translitOn} on:change={saveTranslit} aria-label="Show the Kosmos revisers' bracketed Greek transliterations" />
           <span class="settings-pill-track"></span>
           <span class="settings-pill-thumb"></span>
         </span>

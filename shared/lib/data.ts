@@ -133,6 +133,11 @@ export interface RossPiece {
   // anchored to the Bekker line `n` of the segment it belongs to; rendered as a
   // grid after that segment's row.
   tables?: { n: number; rows: string[][] }[];
+  // Kosmos verse groups (stage1_kosmos): standoff over `text` — `tr` a
+  // transliteration bracket, `ed` an editorial bracket, `em` italics — and
+  // the printed line numbers that do not cut a group. See lib/kosmos.ts.
+  spans?: [number, number, 'tr' | 'ed' | 'em'][];
+  marks?: { n: number; offset: number; label: string; reason: string }[];
 }
 
 // A speaker-turn event in a Stephanus dialogue (Plato): the interlocutor whose
