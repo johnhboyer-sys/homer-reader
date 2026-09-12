@@ -2613,12 +2613,12 @@
               <br class="para-br k-group-br" />
             {/if}
             <span class="bk-seg"
-              >{#if part.tick}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.label ?? part.tick.n}</span
+              >{#if part.tick && !verseGroupIds.has(transId)}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.label ?? part.tick.n}</span
                 >{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(part.text, transId)}</span>
           {:else if part.para}
             <br class="para-br" />
           {:else}
-            <span class="bk-num" class:approx={!part.real}>{part.label ?? part.n}</span>
+            {#if !verseGroupIds.has(transId)}<span class="bk-num" class:approx={!part.real}>{part.label ?? part.n}</span>{/if}
             {#each (otables[transId] ?? []).filter(t => t.n === part.n) as tbl}
               <table class="eng-table"><tbody>
                 {#each tbl.rows as trow}

@@ -42,12 +42,6 @@ function sanitizeSourceSentinels(s: string): string {
 
 // Reason codes travel as one character after MARK_OPEN.
 const REASON_CODE: Record<string, string> = { repeat: 'r', 'out-of-sequence': 'o', 'not-in-greek': 'g', 'at-end': 'e' };
-const REASON_TITLE: Record<string, string> = {
-  r: 'Kosmos prints this line number again here; the groups do not break at it.',
-  o: 'Kosmos prints this line number out of sequence (a misprint); the groups do not break at it.',
-  g: 'Kosmos numbers a line that this Greek text does not carry; the groups do not break at it.',
-  e: 'Kosmos prints the book’s last line number after its last words; no group starts here.',
-};
 
 export interface DecoratedPiece {
   text: string;
@@ -126,8 +120,10 @@ export function decoratePiece(p: RossPiece): DecoratedPiece {
 export function sentinelsToHtml(escaped: string): string {
   if (!/[\uE000-\uE005]/.test(escaped)) return escaped;
   return escaped
-    .replace(/\uE004([roge])([^\uE005]*)\uE005/g, (_m, code: string, label: string) =>
-      `<span class="k-mark${code === 'e' ? ' k-mark-end' : ''}" title="${REASON_TITLE[code]}">${label}</span>`)
+    // A non-break mark (a printed number that does not cut a group) carries
+    // no on-screen number of its own; drop it whole, leaving the surrounding
+    // words untouched.
+    .replace(/\uE004[roge][^\uE005]*\uE005/g, '')
     .replace(/\uE000/g, '<span class="k-tr">')
     .replace(/\uE001/g, '</span>')
     .replace(/\uE002/g, '<em>')

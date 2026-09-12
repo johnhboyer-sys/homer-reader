@@ -52,12 +52,14 @@ describe('decoratePiece', () => {
     }
   });
 
-  it('renders a non-break mark inline without cutting a group', () => {
+  it('drops a non-break mark from rendering, leaving no trace and no gap', () => {
     const p = piece({ marks: [{ n: 460, offset: TEXT.indexOf('goddess'), label: '460', reason: 'not-in-greek' }] });
     const d = decoratePiece(p);
     expect(d.ticks.map(t => t.n)).toEqual([1, 2]);
     const html = renderRuns(p).join('');
-    expect(html).toMatch(/<span class="k-mark" title="[^"]+">460<\/span>goddess/);
+    expect(html).not.toContain('k-mark');
+    expect(html).not.toContain('460');
+    expect(html).toContain(', goddess,');
   });
 
   it('is a no-op for a piece without standoff', () => {

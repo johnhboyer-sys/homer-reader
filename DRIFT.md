@@ -857,21 +857,24 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   numbers that do not cut a verse group) for the Kosmos overlay; `bekker`'s
   tick shape gained an optional `label`, the printed group number when it
   differs from `n` (Il. 7's "321–322" is the only one across both epics) —
-  `n` still anchors the Greek alignment, `label` is what the reader shows.
-  See `shared/lib/kosmos.ts`.
+  `n` still anchors the Greek alignment; `label` is kept as data (citation,
+  tests) but a verse-group text never renders its own tick numbers (see
+  Reader.svelte below). See `shared/lib/kosmos.ts`.
 - `shared/components/Reader.svelte` — imports `shared/lib/kosmos.ts`
   (`decoratePiece`/`sentinelsToHtml`) to turn a Kosmos piece's standoff into
   markup after escaping; a `verseGroupIds` set and a `k-group-br` paragraph
   break so a verse-group translation starts each group on its own line
   outside the grouped Both view; a `translitOn` setting hiding the `tr`
   brackets only; a `licenceNote` snippet showing a Creative Commons text's
-  credit next to its label wherever the reader names it; `attachTicks`'s
-  `RenderPart.tick` and the `.bk-num` render carry a tick's `label` through
-  and display it in place of `n` when present.
+  credit next to its label wherever the reader names it; `flowProse` skips
+  the `.bk-num` render entirely for a verse-group translation's own ticks (in
+  every view) — the group alignment stands on its own, with no group-number
+  or non-breaking-mark digits printed beside the English.
 - `shared/styles/global.css` — new "Kosmos verse groups" section: the
-  `.verse-groups`/`.align-group` Both-view row layout, `.k-tr` hide rule for
-  the transliteration toggle, `.k-mark` styling for a non-breaking printed
-  number, and `.trans-licence` for the Creative Commons credit line.
+  `.verse-groups`/`.align-group` Both-view row layout (no margin between
+  groups — a group's row height already matches the Greek line pitch when
+  its English fits on one line) and `.k-tr` hide rule for the transliteration
+  toggle, plus `.trans-licence` for the Creative Commons credit line.
 - `app/src/pages/attribution.astro` — new "Kosmos Society Revision of
   Butler" section (full CC BY-NC-ND 3.0 credit, licence link, and how the
   reader groups its printed line numbers) plus a `licence` badge rendered

@@ -4670,27 +4670,20 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   grid-template-columns: inherit;
   column-gap: inherit;
 }
-.reader-body.view-both .verse-groups .align-group + .align-group { margin-top: 0.6rem; }
+/* No margin between groups: a group's own row height already matches the
+   Greek line pitch when its English fits on one line (both columns share
+   the same computed line-height), so consecutive single-line groups read at
+   the same pitch as plain Greek verse lines elsewhere in the reader. A gap
+   below a group's Greek only appears where its English genuinely wraps to
+   more lines than the Greek span — the row stretches to the taller column,
+   not from any added margin. */
+.reader-body.view-both .verse-groups .align-group + .align-group { margin-top: 0; }
 @media (max-width: 680px) {
   .reader-body.view-both .verse-groups.stacked-both .align-group { display: block; }
 }
 /* The "Show bracketed Greek" setting: hides the transliteration brackets
    (lib/kosmos.ts `tr` spans) and nothing else. */
 .reader-body.hide-translit .k-tr { display: none; }
-/* A printed Kosmos number that does not cut a group (a repeat, a misprint,
-   or Il. 9.460): kept in place, set small and quiet. --text-mid on
-   --page-bg is 6.4:1 light, 7.1:1 dark (AA). */
-.k-mark {
-  font-family: var(--font-ui);
-  font-size: 0.72em;
-  color: var(--text-mid);
-  margin-right: 0.3em;
-  font-variant-numeric: tabular-nums;
-  cursor: help;
-}
-/* The number Kosmos prints after a book's last words follows the final
-   period with no space in the text; the source shows one. */
-.k-mark-end { margin-left: 0.3em; }
 /* A Creative Commons text's credit + licence link beside its label. */
 .trans-licence {
   font-family: var(--font-ui);
