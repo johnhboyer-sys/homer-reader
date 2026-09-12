@@ -27,8 +27,10 @@ data (ticks and marks), not as deletions:
     ``<sub>167</sub>`` in Il. 9), ``out-of-sequence`` (a number lower than one
     already passed, e.g. ``[95]`` among the 190s of Il. 17 — a misprint for
     195) and ``not-in-greek`` (Il. 9.460, which falls in 9.458–461, lines
-    Allen omits; see the manifest's expected_line_gaps). The reader shows a
-    mark inline, muted; it never cuts a group.
+    Allen omits; see the manifest's expected_line_gaps) and ``at-end`` (a
+    number printed after a book's last words, Il. 16 "…from the field.
+    [867]", which has no English to open). The reader shows a mark inline,
+    muted; it never cuts a group.
   - ``spans`` ``[start, end, kind]`` — standoff over the text: ``tr`` a
     transliteration bracket (``[mēnis]``: the bracket holds italic Greek and
     does not open with "="; plus the two unitalicised ones, ``[moira]`` and
@@ -282,7 +284,9 @@ def parse_book(book: int, book_html: str, greek_lines: set[int], gap_lines: set[
     for off, label in nums:
         n = int(re.match(r"\d+", label).group(0))
         reason = None
-        if n not in greek_lines:
+        if off >= len(text):
+            reason = "at-end"  # Il. 16 closes "…from the field. [867]"
+        elif n not in greek_lines:
             reason = "not-in-greek"
             if n not in gap_lines:
                 raise ValueError(f"kosmos book {book}: printed number {n} is neither a Greek line nor a declared gap")

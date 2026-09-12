@@ -117,6 +117,9 @@ def test_every_group_maps_to_existing_greek_lines(parsed, work):
         assert ticks[0]["offset"] == 0 and ticks[0]["n"] == min(lines[b])
         for t in ticks:
             assert t["n"] in lines[b], f"{work} {b}: tick {t['n']} has no Greek line"
+            # A group needs English: its tick must sit inside the text
+            # (preflight's overlay check refuses offset == len(text)).
+            assert t["offset"] < len(parsed[work][b]["text"]), f"{work} {b}: tick {t['n']} opens an empty group"
         pairs = [(t["n"], t["offset"]) for t in ticks]
         assert all(a[0] < b_[0] and a[1] < b_[1] for a, b_ in zip(pairs, pairs[1:])), f"{work} {b}"
 
@@ -143,6 +146,15 @@ def test_iliad_9_460_is_a_mark_in_the_declared_gap(parsed):
     others = [(w, b, m["n"]) for w in WORKS for b in range(1, 25)
               for m in parsed[w][b]["marks"] if m["reason"] == "not-in-greek"]
     assert others == [("Iliad", 9, 460)]
+
+
+def test_iliad_16_closing_867_is_a_mark(parsed):
+    # Il. 16 ends "…bore Automedon swiftly from the field. [867]": the book's
+    # last line number printed after its last words. No English follows it,
+    # so it cannot open a group; the [865] group already runs to 867.
+    r = parsed["Iliad"][16]
+    assert {(m["n"], m["reason"]) for m in r["marks"]} >= {(867, "at-end")}
+    assert r["bekker"][-1]["n"] == 865
 
 
 def test_known_misprints_are_marks_not_breaks(parsed):
