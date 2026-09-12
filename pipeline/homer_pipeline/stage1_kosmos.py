@@ -71,6 +71,26 @@ _FN_NAME = re.compile(r"^(\d+)fn(\d+)$")
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _WS = re.compile(r"[ \t\r\n\f]+")
 
+# shared/lib/kosmos.ts reserves U+E000-U+E005 (TR_OPEN..MARK_CLOSE) to write
+# its own standoff markup into a piece's text as sentinel characters, then
+# turns them into tags AFTER html-escaping the run. Its decoratePiece now
+# neutralizes a pre-existing sentinel-range character defensively, but this
+# stage — the only place that ever reads the source's raw HTML — is where
+# such a character (e.g. a numeric character reference the page happened to
+# carry) should be caught and refused outright, loudly, rather than silently
+# encoded away downstream. Built via chr() rather than a literal \u escape so
+# the source of this file never itself contains one of these code points.
+_SENTINEL_LO, _SENTINEL_HI = 0xE000, 0xE005
+_SENTINEL_RE = re.compile("[" + chr(_SENTINEL_LO) + "-" + chr(_SENTINEL_HI) + "]")
+
+
+def _check_no_sentinels(book: int, text: str, where: str) -> None:
+    if _SENTINEL_RE.search(text):
+        raise ValueError(
+            f"kosmos book {book}: {where} contains a character in U+{_SENTINEL_LO:04X}-U+{_SENTINEL_HI:04X}, "
+            "the private-use range shared/lib/kosmos.ts reserves for its own generated markup"
+        )
+
 
 def source_path(work_id: str) -> Path:
     return SOURCES_DIR / "kosmos" / f"homeric-{work_id}.html"
@@ -325,6 +345,9 @@ def parse_book(book: int, book_html: str, greek_lines: set[int], gap_lines: set[
         pos = ro
     out.append(text[pos:])
     final = "".join(out)
+    _check_no_sentinels(book, final, "the extracted text")
+    for note in notes.values():
+        _check_no_sentinels(book, note, "a footnote")
     # A marker sits after the word it annotates: spans ending at the ref keep
     # their end; points at the ref move past it.
     spans = sorted(([shift(s, True), shift(e, False), k] for s, e, k in spans), key=lambda x: (x[0], -x[1]))

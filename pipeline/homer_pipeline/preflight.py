@@ -549,7 +549,13 @@ def _validate_overlay_bekker(
                     problems.append((manifest.work_id, file_name, f"{where}[{pi}].bekker[{ti}] n={n} is not a Greek line of this book"))
                 if not (0 <= offset < text_len):
                     problems.append((manifest.work_id, file_name, f"{where}[{pi}].bekker[{ti}] offset={offset} is outside the piece text (length {text_len})"))
-                if prev is not None and (n, offset) <= prev:
+                # Tuple comparison alone lets offset go backwards as long as n
+                # keeps climbing (e.g. (1,0),(5,100),(10,50) compares as
+                # increasing lexicographically) — require n AND offset each
+                # strictly increasing on their own (no existing Murray/
+                # Butler/Pope/Kosmos tick data has an offset tie or reversal;
+                # see the 2026-09-12 preflight audit).
+                if prev is not None and (n <= prev[0] or offset <= prev[1]):
                     problems.append((manifest.work_id, file_name, f"{where}[{pi}].bekker (n, offset) is not strictly increasing at index {ti}"))
                 prev = (n, offset)
 
@@ -1058,7 +1064,21 @@ def _validate_public_domain_allowlist(
         problems.append((manifest.work_id, cc_label, str(exc)))
         return
     for slot, tid in manifest_translation_ids(manifest.data):
-        if tid not in allowed and tid not in cc_allowed:
+        on_pd, on_cc = tid in allowed, tid in cc_allowed
+        if on_pd and on_cc:
+            # Fail-closed the other way too: an id on both lists could be
+            # validated through the public-domain path while actually being
+            # the restricted CC text (or vice versa) — never let one id do
+            # both jobs.
+            problems.append(
+                (
+                    manifest.work_id,
+                    manifest.path.name,
+                    f"translation id {tid!r} ({slot}) is on both the public-domain allowlist "
+                    f"and the Creative Commons list",
+                )
+            )
+        elif not on_pd and not on_cc:
             problems.append(
                 (
                     manifest.work_id,

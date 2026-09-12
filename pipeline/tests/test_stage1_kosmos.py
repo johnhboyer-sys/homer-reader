@@ -164,6 +164,29 @@ def test_known_misprints_are_marks_not_breaks(parsed):
     assert [t for t in il[7]["bekker"] if t["n"] == 321][0]["label"] == "321–322"
 
 
+def test_source_sentinel_character_fails_loudly():
+    """shared/lib/kosmos.ts reserves U+E000-U+E005 (TR_OPEN..MARK_CLOSE) for
+    the standoff markup it writes into a piece's own text; a source character
+    already in that range (here, a numeric character reference the page
+    happened to carry -- &#57344; decodes to U+E000) would be indistinguishable
+    from one the reader generated, forging a <span class="k-tr"> or an
+    unbalanced tag once it reached sentinelsToHtml. The pipeline must refuse
+    this loudly rather than pass it through. Built via chr(), not a literal
+    \\u escape, so this test file never itself contains the code point."""
+    sentinel = chr(0xE000)
+    assert ord(sentinel) == 57344
+    book_html = "<p>Anger &#57344;goddess, sing it.</p>"
+    with pytest.raises(ValueError, match="U\\+E000"):
+        k.parse_book(1, book_html, {1, 2, 3}, set())
+
+
+def test_real_sources_carry_no_sentinel_characters():
+    """The current Kosmos sources contain none of these characters (verified
+    directly, not just asserted) -- parse_work succeeds for both works."""
+    for work in WORKS:
+        k.parse_work(Manifest.for_work(work))
+
+
 def test_bracket_kinds(parsed):
     text = parsed["Iliad"][1]["text"]
     kinds = {text[s:e]: kind for s, e, kind in parsed["Iliad"][1]["spans"] if kind != "em"}

@@ -25,6 +25,21 @@ type Kind = 'tr' | 'em';
 const OPEN: Record<Kind, string> = { tr: TR_OPEN, em: EM_OPEN };
 const CLOSE: Record<Kind, string> = { tr: TR_CLOSE, em: EM_CLOSE };
 
+// A character in TR_OPEN..MARK_CLOSE's private-use range that was already
+// present in the SOURCE text (a forged or corrupted numeric character
+// reference in the HTML — stage1_kosmos.py now refuses to emit one, but this
+// module must not trust that) is indistinguishable from a sentinel WE insert
+// below: sentinelsToHtml can't tell them apart, so a literal one would forge
+// a <span class="k-tr"> (or leave a tag unbalanced). Replace any pre-existing
+// occurrence with the Unicode replacement character before we write a single
+// sentinel of our own — same length, so every offset computed against the
+// original text (ticks, marks, spans) still lands in the right place.
+const SOURCE_SENTINEL_RE = new RegExp(`[${TR_OPEN}-${MARK_CLOSE}]`, 'g');
+const REPLACEMENT_CHAR = String.fromCharCode(0xfffd);
+function sanitizeSourceSentinels(s: string): string {
+  return s.replace(SOURCE_SENTINEL_RE, REPLACEMENT_CHAR);
+}
+
 // Reason codes travel as one character after MARK_OPEN.
 const REASON_CODE: Record<string, string> = { repeat: 'r', 'out-of-sequence': 'o', 'not-in-greek': 'g', 'at-end': 'e' };
 const REASON_TITLE: Record<string, string> = {
@@ -36,21 +51,25 @@ const REASON_TITLE: Record<string, string> = {
 
 export interface DecoratedPiece {
   text: string;
-  ticks: { n: number; real: boolean; off: number }[];
+  ticks: { n: number; real: boolean; off: number; label?: string }[];
 }
 
 type Event =
   | { pos: number; order: number; type: 'close'; id: number }
   | { pos: number; order: number; type: 'open'; id: number }
   | { pos: number; order: number; type: 'break' }
-  | { pos: number; order: number; type: 'tick'; n: number; real: boolean }
+  | { pos: number; order: number; type: 'tick'; n: number; real: boolean; label?: string }
   | { pos: number; order: number; type: 'mark'; label: string; code: string };
 
 // Text + ticks with the piece's standoff written in as sentinels. A piece
 // without spans or marks comes back unchanged (same text, same offsets).
 export function decoratePiece(p: RossPiece): DecoratedPiece {
-  const text = p.text;
-  const baseTicks = (p.bekker ?? []).map(t => ({ n: t.n, real: t.real, off: t.offset }));
+  // Neutralize any sentinel-range character the source text already carried
+  // BEFORE we insert any of our own (see SOURCE_SENTINEL_RE above) — this
+  // must run even on the no-standoff fast path below, since that path
+  // returns the text unchanged and it can still reach sentinelsToHtml.
+  const text = sanitizeSourceSentinels(p.text);
+  const baseTicks = (p.bekker ?? []).map(t => ({ n: t.n, real: t.real, off: t.offset, label: t.label }));
   const spans = (p.spans ?? []).filter(s => s[2] === 'tr' || s[2] === 'em');
   const marks = p.marks ?? [];
   if (!spans.length && !marks.length) return { text, ticks: baseTicks };
@@ -67,7 +86,7 @@ export function decoratePiece(p: RossPiece): DecoratedPiece {
     events.push({ pos: e, order: 0, type: 'close', id });
   });
   for (let i = 0; i < text.length; i++) if (text[i] === '\n') events.push({ pos: i, order: 1, type: 'break' });
-  for (const t of baseTicks) events.push({ pos: t.off, order: 2, type: 'tick', n: t.n, real: t.real });
+  for (const t of baseTicks) events.push({ pos: t.off, order: 2, type: 'tick', n: t.n, real: t.real, label: t.label });
   for (const m of marks) events.push({ pos: m.offset, order: 4, type: 'mark', label: m.label, code: REASON_CODE[m.reason] ?? 'o' });
   const len = (id: number) => spans[id][1] - spans[id][0];
   events.sort((a, b) => a.pos - b.pos || a.order - b.order
@@ -92,7 +111,7 @@ export function decoratePiece(p: RossPiece): DecoratedPiece {
     } else if (ev.type === 'break') {
       closeAll(); out += '\n'; cur = ev.pos + 1; openAll();
     } else if (ev.type === 'tick') {
-      closeAll(); ticks.push({ n: ev.n, real: ev.real, off: out.length }); openAll();
+      closeAll(); ticks.push({ n: ev.n, real: ev.real, off: out.length, label: ev.label }); openAll();
     } else {
       out += MARK_OPEN + ev.code + ev.label + MARK_CLOSE;
     }

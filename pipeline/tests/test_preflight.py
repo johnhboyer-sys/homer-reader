@@ -6,7 +6,12 @@ from pathlib import Path
 import pytest
 import yaml
 
-from homer_pipeline.preflight import WorkManifest, _validate_manifest_schema, _validate_third_bekker
+from homer_pipeline.preflight import (
+    WorkManifest,
+    _validate_manifest_schema,
+    _validate_overlay_bekker,
+    _validate_third_bekker,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -650,6 +655,31 @@ def test_id_on_neither_list_fails(tmp_path):
     assert any("quilliam" in m and "Creative Commons" in m for m in messages), messages
 
 
+def test_id_on_both_lists_fails(tmp_path):
+    """An id present on BOTH lists must be rejected, not waved through as
+    public domain because it also happens to satisfy the CC check. Without
+    this, a restricted CC text (or a copyrighted one) could be validated
+    through the public-domain path simply by also appearing on that list."""
+    from homer_pipeline.preflight import _validate_public_domain_allowlist
+
+    pd_path = tmp_path / "pd.yaml"
+    pd_path.write_text(
+        yaml.safe_dump(
+            {"translations": [{"id": "kosmos", "translator": "Samuel Butler", "year": 1898, "note": "test"}]},
+            allow_unicode=True,
+        ),
+        encoding="utf-8",
+    )
+    cc_path = tmp_path / "cc.yaml"
+    cc_path.write_text(yaml.safe_dump({"translations": [_CC_ENTRY]}, allow_unicode=True), encoding="utf-8")
+    problems: list = []
+    _validate_public_domain_allowlist(
+        _manifest_with_overlay("kosmos"), problems, allowlist_path=pd_path, cc_list_path=cc_path
+    )
+    messages = [p[2] for p in problems]
+    assert any("kosmos" in m and "both" in m for m in messages), messages
+
+
 def test_real_cc_list_carries_kosmos_and_not_the_pd_list():
     from homer_pipeline.preflight import load_cc_translations, load_public_domain_allowlist
 
@@ -764,3 +794,74 @@ def test_validate_third_bekker_n_outside_book_lines_fails():
     }
     problems = _third_bekker_problems(segment, {1, 10})
     assert any("is not a Greek line of this book" in p for p in problems)
+
+
+# --- _validate_overlay_bekker: tuple-comparison tick order (2026-09-12) -----
+
+def _overlay_bekker_problems(segment: dict, line_numbers: set) -> list[str]:
+    manifest = WorkManifest(work_id="iliad", path=MANIFESTS / "Iliad.yaml", data={})
+    problems: list = []
+    _validate_overlay_bekker(manifest, "01.json", "seg-1", segment, line_numbers, problems)
+    return [message for _work, _file, message in problems]
+
+
+def test_validate_overlay_bekker_valid_ticks_pass():
+    segment = {
+        "overlays": {
+            "kosmos": [
+                {
+                    "text": "0" * 200,
+                    "bekker": [
+                        {"n": 1, "offset": 0},
+                        {"n": 5, "offset": 50},
+                        {"n": 10, "offset": 100},
+                    ],
+                }
+            ]
+        }
+    }
+    assert _overlay_bekker_problems(segment, {1, 5, 10}) == []
+
+
+def test_validate_overlay_bekker_offset_going_backwards_fails_even_though_n_climbs():
+    # Tuple comparison ((1, 0), (5, 100), (10, 50)) reads as strictly
+    # increasing lexicographically -- n climbs at every step -- even though
+    # offset falls back from 100 to 50 at the third tick, which cannot
+    # happen in real text (offsets only move forward through a piece).
+    # Both n and offset must independently strictly increase.
+    segment = {
+        "overlays": {
+            "kosmos": [
+                {
+                    "text": "0" * 200,
+                    "bekker": [
+                        {"n": 1, "offset": 0},
+                        {"n": 5, "offset": 100},
+                        {"n": 10, "offset": 50},
+                    ],
+                }
+            ]
+        }
+    }
+    problems = _overlay_bekker_problems(segment, {1, 5, 10})
+    assert any("not strictly increasing" in p for p in problems), problems
+
+
+def test_validate_overlay_bekker_duplicate_offset_with_higher_n_fails():
+    # Same defect class, the tie form: n climbs but offset repeats exactly.
+    segment = {
+        "overlays": {
+            "kosmos": [
+                {
+                    "text": "0" * 200,
+                    "bekker": [
+                        {"n": 1, "offset": 0},
+                        {"n": 5, "offset": 50},
+                        {"n": 10, "offset": 50},
+                    ],
+                }
+            ]
+        }
+    }
+    problems = _overlay_bekker_problems(segment, {1, 5, 10})
+    assert any("not strictly increasing" in p for p in problems), problems

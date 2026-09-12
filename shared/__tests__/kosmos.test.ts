@@ -62,8 +62,58 @@ describe('decoratePiece', () => {
 
   it('is a no-op for a piece without standoff', () => {
     const plain: RossPiece = { chapter: '1', cont: false, text: 'Sing, O goddess', bekker: [{ n: 1, offset: 0, real: true }] };
-    expect(decoratePiece(plain)).toEqual({ text: 'Sing, O goddess', ticks: [{ n: 1, real: true, off: 0 }] });
+    expect(decoratePiece(plain)).toEqual({ text: 'Sing, O goddess', ticks: [{ n: 1, real: true, off: 0, label: undefined }] });
     expect(sentinelsToHtml('a &amp; b')).toBe('a &amp; b');
+  });
+
+  // A character in kosmos.ts's own private-use sentinel range (TR_OPEN..
+  // MARK_CLOSE) is written into the string via String.fromCharCode rather
+  // than a \u escape literal, so this test file never itself contains the
+  // code point kosmos.ts reserves for its generated markup.
+  const FORGED_SENTINEL = String.fromCharCode(0xe000); // == kosmos.ts's TR_OPEN
+
+  it('never lets a literal source character forge markup (no standoff — the fast path)', () => {
+    // stage1_kosmos.py now refuses a source character in this range, but
+    // decoratePiece must not trust that: a piece with no spans/marks takes
+    // the early-return path, which used to hand the raw text straight to
+    // sentinelsToHtml unexamined.
+    const text = `Anger ${FORGED_SENTINEL}goddess, sing it.`;
+    const p: RossPiece = { chapter: '1', cont: false, text, bekker: [{ n: 1, offset: 0, real: true }] };
+    const d = decoratePiece(p);
+    expect(d.text).not.toContain(FORGED_SENTINEL);
+    expect(sentinelsToHtml(d.text)).not.toContain('<span class="k-tr">');
+  });
+
+  it('never lets a literal source character forge markup (a real span forces the full processing path)', () => {
+    // An 'ed' span alone would be filtered out (decoratePiece only tracks
+    // 'tr'/'em'), which would silently retake the no-standoff fast path
+    // above -- use a real 'tr' span so this genuinely exercises the
+    // open/close event machinery alongside the forged character. Because
+    // FORGED_SENTINEL is the same code point decoratePiece legitimately
+    // writes to open a 'tr' span, "d.text doesn't contain it" is the wrong
+    // assertion here (the real span's own opener does contain it) -- the
+    // real symptom is an extra, unmatched opener: before the fix, the forged
+    // character contributes a SECOND <span class="k-tr"> with no closing
+    // </span> of its own, unbalancing the rendered run.
+    const text = `Anger ${FORGED_SENTINEL}goddess, [mēnis] sing it.`;
+    const p = piece({ text, bekker: [{ n: 1, offset: 0, real: true }], spans: [[text.indexOf('[m'), text.indexOf('] sing') + 1, 'tr']] });
+    const d = decoratePiece(p);
+    const html = sentinelsToHtml(d.text);
+    const opens = (html.match(/<(span|em)\b/g) ?? []).length;
+    const closes = (html.match(/<\/(span|em)>/g) ?? []).length;
+    expect(opens).toBe(closes);
+    expect(opens).toBe(1); // exactly the real 'tr' span -- not a forged second one
+  });
+
+  it('carries a tick\'s printed label through, keeping n for alignment (Kosmos "321–322")', () => {
+    const p = piece({ bekker: [{ n: 1, offset: 0, real: true }, { n: 2, offset: TEXT.indexOf('disastrous'), real: true, label: '321–322' }] });
+    const d = decoratePiece(p);
+    expect(d.ticks[0].label).toBeUndefined();
+    expect(d.ticks[1]).toMatchObject({ n: 2, label: '321–322' });
+
+    const flow = flowParts(d.text, d.ticks);
+    const tickPart = flow.find(part => part.n === 2);
+    expect(tickPart?.label).toBe('321–322');
   });
 });
 

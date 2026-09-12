@@ -1556,7 +1556,7 @@
   // marks. (It also keeps `.para-br + .bk-seg` adjacency intact when a tick
   // lands exactly on a paragraph start.) Ticks with an attached table — or
   // with no following text run — keep the standalone rendering.
-  type RenderPart = FlowPart & { tick?: { n: number; real: boolean } };
+  type RenderPart = FlowPart & { tick?: { n: number; real: boolean; label?: string } };
   function attachTicks(parts: FlowPart[], tableNs: Set<number> = new Set()): RenderPart[] {
     const isText = (p: FlowPart | undefined): p is FlowPart => !!p && p.text !== null && p.text !== '\n';
     const isBreak = (p: FlowPart | undefined): boolean => !!p && (p.text === '\n' || p.para === true);
@@ -1567,7 +1567,7 @@
       if (isTick && part.n !== null && !tableNs.has(part.n)) {
         const next = parts[i + 1];
         if (isText(next)) {
-          out.push({ ...next, tick: { n: part.n, real: part.real } });
+          out.push({ ...next, tick: { n: part.n, real: part.real, label: part.label } });
           i += 1;
           continue;
         }
@@ -1577,7 +1577,7 @@
         // previous-line attachment this helper exists to prevent).
         if (isBreak(next) && isText(parts[i + 2])) {
           out.push(next);
-          out.push({ ...parts[i + 2], tick: { n: part.n, real: part.real } });
+          out.push({ ...parts[i + 2], tick: { n: part.n, real: part.real, label: part.label } });
           i += 2;
           continue;
         }
@@ -2613,12 +2613,12 @@
               <br class="para-br k-group-br" />
             {/if}
             <span class="bk-seg"
-              >{#if part.tick}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.n}</span
+              >{#if part.tick}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.label ?? part.tick.n}</span
                 >{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(part.text, transId)}</span>
           {:else if part.para}
             <br class="para-br" />
           {:else}
-            <span class="bk-num" class:approx={!part.real}>{part.n}</span>
+            <span class="bk-num" class:approx={!part.real}>{part.label ?? part.n}</span>
             {#each (otables[transId] ?? []).filter(t => t.n === part.n) as tbl}
               <table class="eng-table"><tbody>
                 {#each tbl.rows as trow}
