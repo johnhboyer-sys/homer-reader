@@ -127,7 +127,7 @@ export function sentinelsToHtml(escaped: string): string {
   if (!/[\uE000-\uE005]/.test(escaped)) return escaped;
   return escaped
     .replace(/\uE004([roge])([^\uE005]*)\uE005/g, (_m, code: string, label: string) =>
-      `<span class="k-mark" title="${REASON_TITLE[code]}">${label}</span>`)
+      `<span class="k-mark${code === 'e' ? ' k-mark-end' : ''}" title="${REASON_TITLE[code]}">${label}</span>`)
     .replace(/\uE000/g, '<span class="k-tr">')
     .replace(/\uE001/g, '</span>')
     .replace(/\uE002/g, '<em>')

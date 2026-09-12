@@ -4688,6 +4688,9 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
   font-variant-numeric: tabular-nums;
   cursor: help;
 }
+/* The number Kosmos prints after a book's last words follows the final
+   period with no space in the text; the source shows one. */
+.k-mark-end { margin-left: 0.3em; }
 /* A Creative Commons text's credit + licence link beside its label. */
 .trans-licence {
   font-family: var(--font-ui);
