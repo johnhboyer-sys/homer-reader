@@ -43,6 +43,14 @@ function sanitizeSourceSentinels(s: string): string {
 // Reason codes travel as one character after MARK_OPEN.
 const REASON_CODE: Record<string, string> = { repeat: 'r', 'out-of-sequence': 'o', 'not-in-greek': 'g', 'at-end': 'e' };
 
+// A verse group's printed number is shown by the same rule Reader.svelte
+// uses for the Greek column's line numbers (`showLineNum`): line 1, or every
+// fifth line. Exported so both columns share one predicate and a test can
+// exercise it without mounting the component.
+export function showsGroupNumber(n: number): boolean {
+  return n === 1 || n % 5 === 0;
+}
+
 export interface DecoratedPiece {
   text: string;
   ticks: { n: number; real: boolean; off: number; label?: string }[];

@@ -317,17 +317,109 @@ def test_load_break_corrections_requires_about_and_corrections(tmp_path):
         k.load_break_corrections(path)
 
 
-def test_all_shipped_break_corrections_resolve_uniquely(parsed):
-    """Every entry in the shipped kosmos_break_corrections.json resolves
-    against the vendored source for its work -- the `parsed` fixture already
-    ran parse_work (which calls _apply_break_corrections) for both works, so
-    if any entry had failed to resolve, building this fixture would have
-    raised before this test runs. Here we also confirm none were silently
-    skipped (e.g. an id naming a work/book this corpus doesn't have)."""
+def _books_without_corrections(work: str) -> dict[int, dict]:
+    """Extract a work's books exactly as parse_work does, but WITHOUT calling
+    _apply_break_corrections -- so a caller can resolve corrections exactly
+    once, against unmodified ticks, instead of on top of ticks parse_work
+    already moved."""
+    manifest = Manifest.for_work(work)
+    lines, gaps = k.greek_line_sets(manifest)
+    page = k.source_path(manifest.work_id).read_text(encoding="utf-8")
+    return {
+        b: k.parse_book(b, h, lines[b], gaps.get(b, set()))
+        for b, h in k.split_books(page).items()
+    }
+
+
+def test_all_shipped_break_corrections_resolve_uniquely():
+    """Every entry in the shipped kosmos_break_corrections.json resolves,
+    exactly once, against its work's UNMODIFIED ticks -- not the ticks
+    parse_work already moved, which would make a 'reviewed' entry look
+    unresolvable the second time (its tick already sits at the corrected
+    offset). Also confirms none were silently skipped (e.g. an id naming a
+    work/book this corpus doesn't have)."""
     corrections = k.load_break_corrections()
     assert len(corrections) == 40
     resolved_total: set[str] = set()
     for work, abbr in (("Iliad", "il"), ("Odyssey", "od")):
-        books = k.parse_work(Manifest.for_work(work))
+        books = _books_without_corrections(work)
         resolved_total |= k._apply_break_corrections(abbr, books)
     assert resolved_total == set(corrections)
+
+
+def test_double_application_breaks_once_an_entry_is_reviewed(tmp_path, monkeypatch):
+    """Regression guard for the bug the previous version of the test above
+    had: it called parse_work (which already applies corrections once
+    internally) and then called _apply_break_corrections a SECOND time on
+    the same books. That was silent while every shipped entry was 'draft' --
+    a draft never moves a tick -- but breaks as soon as one entry is
+    'reviewed': the second pass finds the tick already sitting at the
+    corrected offset and raises. Flip the real il.5.20 entry to 'reviewed'
+    in a temp copy to demonstrate this, so nobody reintroduces the
+    double-application pattern."""
+    raw = json.loads(k._CORRECTIONS_PATH.read_text(encoding="utf-8"))
+    entry = next(e for e in raw["corrections"] if e["id"] == "il.5.20")
+    entry["status"] = "reviewed"
+    tmp_file = tmp_path / "corrections.json"
+    tmp_file.write_text(json.dumps(raw), encoding="utf-8")
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", k.load_break_corrections(tmp_file))
+
+    books = k.parse_work(Manifest.for_work("Iliad"))  # applies once, moves il.5.20's tick
+    with pytest.raises(ValueError, match="current offset"):
+        k._apply_break_corrections("il", books)  # the bug: applying a second time
+
+
+def test_reviewed_shipped_correction_moves_the_real_tick(tmp_path, monkeypatch):
+    """Real-text check for a shipped, reviewed correction: flip il.5.20 to
+    'reviewed' in a temp copy of the corrections file, run it through
+    parse_work (production's single-application path), and confirm the tick
+    lands exactly where move_to_before starts in the real extracted Iliad 5
+    text -- and that flipping the status leaves the text byte-for-byte
+    unchanged."""
+    raw = json.loads(k._CORRECTIONS_PATH.read_text(encoding="utf-8"))
+    entry = next(e for e in raw["corrections"] if e["id"] == "il.5.20")
+    assert entry["status"] == "draft"
+    move_to_before = entry["move_to_before"]
+    entry["status"] = "reviewed"
+    tmp_file = tmp_path / "corrections.json"
+    tmp_file.write_text(json.dumps(raw), encoding="utf-8")
+
+    draft_books = k.parse_work(Manifest.for_work("Iliad"))  # shipped file, all draft
+
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", k.load_break_corrections(tmp_file))
+    reviewed_books = k.parse_work(Manifest.for_work("Iliad"))  # il.5.20 now reviewed
+
+    text = reviewed_books[5]["text"]
+    assert text == draft_books[5]["text"]  # the text itself never changes
+    tick20 = next(t for t in reviewed_books[5]["bekker"] if t["n"] == 20)
+    assert tick20["offset"] == text.index(move_to_before)
+
+
+def test_adjacent_reviewed_corrections_do_not_depend_on_file_order(monkeypatch):
+    """Two neighbouring reviewed corrections each resolve against the
+    OTHER's offset (as a boundary), so the order they are processed in used
+    to change the result -- or make one of them fail outright. Resolving in
+    (book, line) order, not file order, must give the identical result
+    whichever order MOVE_CORRECTIONS itself iterates in."""
+    text = "zero one the dog ran here the dog sat two the dog ran three four"
+    ticks = [
+        {"n": 19, "offset": 0},
+        {"n": 20, "offset": text.index("one")},
+        {"n": 21, "offset": text.index("two")},
+        {"n": 22, "offset": text.index("four")},
+    ]
+    forward = {
+        "il.5.20": {"move_to_before": "the dog sat", "status": "reviewed"},
+        "il.5.21": {"move_to_before": "the dog ran", "status": "reviewed"},
+    }
+    reverse = dict(reversed(list(forward.items())))
+
+    books_forward = {5: {"text": text, "bekker": copy.deepcopy(ticks)}}
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", forward)
+    k._apply_break_corrections("il", books_forward)
+
+    books_reverse = {5: {"text": text, "bekker": copy.deepcopy(ticks)}}
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", reverse)
+    k._apply_break_corrections("il", books_reverse)  # must not raise, must match forward
+
+    assert books_forward[5]["bekker"] == books_reverse[5]["bekker"]

@@ -10,7 +10,7 @@
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { classifySpeech, realLinesFromSegments, speechLabel } from '../lib/speeches';
   import { flowParts, alignGroups } from '../lib/tick-chunks';
-  import { decoratePiece, sentinelsToHtml } from '../lib/kosmos';
+  import { decoratePiece, sentinelsToHtml, showsGroupNumber } from '../lib/kosmos';
   import { bookAudio, hasAudio, effectiveChunks, licenseLabel, chunkAriaLabel, itemPageUrl, type AudioManifest, type AudioChunk, type AudioBookEntry } from '../lib/audio';
   import { scansionDisplay, scansionKey } from '../lib/scansion';
   import { greekFold } from '../lib/search';
@@ -2609,16 +2609,18 @@
             {#if part.tick && pi > 0 && verseGroupIds.has(transId) && rparts[pi - 1].text !== '\n' && !rparts[pi - 1].para}
               <!-- A verse-group translation outside the grouped Both view
                    (English-only, Reading Mode, compare): each group still
-                   starts on its own line, at its own printed number. -->
+                   starts on its own line; its printed number shows exactly
+                   where the Greek column's would (showsGroupNumber, matching
+                   showLineNum) -- not necessarily every group's own number. -->
               <br class="para-br k-group-br" />
             {/if}
             <span class="bk-seg"
-              >{#if part.tick && (!verseGroupIds.has(transId) || part.tick.n % 5 === 0)}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.label ?? part.tick.n}</span
+              >{#if part.tick && (!verseGroupIds.has(transId) || showsGroupNumber(part.tick.n))}<span class="bk-num" class:approx={!part.tick.real}>{part.tick.label ?? part.tick.n}</span
                 >{/if}<!-- eslint-disable-next-line svelte/no-at-html-tags -->{@html renderThird(part.text, transId)}</span>
           {:else if part.para}
             <br class="para-br" />
           {:else}
-            {#if !verseGroupIds.has(transId) || (part.n != null && part.n % 5 === 0)}<span class="bk-num" class:approx={!part.real}>{part.label ?? part.n}</span>{/if}
+            {#if !verseGroupIds.has(transId) || (part.n != null && showsGroupNumber(part.n))}<span class="bk-num" class:approx={!part.real}>{part.label ?? part.n}</span>{/if}
             {#each (otables[transId] ?? []).filter(t => t.n === part.n) as tbl}
               <table class="eng-table"><tbody>
                 {#each tbl.rows as trow}

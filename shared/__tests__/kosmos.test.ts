@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decoratePiece, sentinelsToHtml, stripSentinels } from '../lib/kosmos';
+import { decoratePiece, sentinelsToHtml, showsGroupNumber, stripSentinels } from '../lib/kosmos';
 import { flowParts, alignGroups } from '../lib/tick-chunks';
 import type { RossPiece } from '../lib/data';
 
@@ -130,6 +130,20 @@ describe('decoratePiece', () => {
     const flow = flowParts(d.text, d.ticks);
     const tickPart = flow.find(part => part.n === 2);
     expect(tickPart?.label).toBe('321–322');
+  });
+});
+
+describe('showsGroupNumber', () => {
+  it('matches Reader.svelte\'s Greek-column rule (showLineNum): line 1, or every fifth line', () => {
+    // Il. 1's Kosmos group opens at line 1, which the Greek column always
+    // numbers -- the English side must show it too, not just multiples of 5.
+    expect(showsGroupNumber(1)).toBe(true);
+    expect(showsGroupNumber(5)).toBe(true);
+    expect(showsGroupNumber(10)).toBe(true);
+    expect(showsGroupNumber(2)).toBe(false);
+    expect(showsGroupNumber(3)).toBe(false);
+    expect(showsGroupNumber(4)).toBe(false);
+    expect(showsGroupNumber(6)).toBe(false);
   });
 });
 

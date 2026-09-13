@@ -858,8 +858,8 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   tick shape gained an optional `label`, the printed group number when it
   differs from `n` (Il. 7's "321–322" is the only one across both epics) —
   `n` still anchors the Greek alignment; `label` is kept as data (citation,
-  tests) but a verse-group text renders a tick number only on a multiple of
-  five (see Reader.svelte below). See `shared/lib/kosmos.ts`.
+  tests) but a verse-group text renders a tick number only on line 1 or a
+  multiple of five (see Reader.svelte below). See `shared/lib/kosmos.ts`.
 - `shared/components/Reader.svelte` — imports `shared/lib/kosmos.ts`
   (`decoratePiece`/`sentinelsToHtml`) to turn a Kosmos piece's standoff into
   markup after escaping; a `verseGroupIds` set and a `k-group-br` paragraph
@@ -867,8 +867,9 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   outside the grouped Both view; a `translitOn` setting hiding the `tr`
   brackets only; a `licenceNote` snippet showing a Creative Commons text's
   credit next to its label wherever the reader names it; `flowProse` renders
-  a verse-group translation's `.bk-num` only when the tick falls on a
-  multiple of five (in every view), matching the Greek column; other group
+  a verse-group translation's `.bk-num` only when the tick falls on line 1 or
+  a multiple of five (in every view), matching the Greek column (`kosmos.ts`'s
+  `showsGroupNumber`); other group
   numbers and non-breaking-mark digits are not printed beside the English.
 - `shared/styles/global.css` — new "Kosmos verse groups" section: the
   `.verse-groups`/`.align-group` Both-view row layout (no margin between

@@ -411,14 +411,23 @@ MOVE_CORRECTIONS = load_break_corrections()
 def _apply_break_corrections(work_abbr: str, books: dict[int, dict]) -> set[str]:
     """Resolve every correction for this work against its book's ticks, in
     place. Every entry is resolved (so a broken draft fails the build now);
-    only a 'reviewed' entry's offset is actually moved. Returns the ids
-    resolved, for tests to check nothing was silently skipped."""
-    resolved: set[str] = set()
+    only a 'reviewed' entry's offset is actually moved. Entries are resolved
+    in (book, line) order rather than the corrections file's own order, so
+    two neighbouring 'reviewed' entries -- each one's segment bounded by the
+    other's tick -- give the same result regardless of how the file lists
+    them. Returns the ids resolved, for tests to check nothing was silently
+    skipped."""
+    ordered: list[tuple[int, int, str, dict]] = []
     for cid, entry in MOVE_CORRECTIONS.items():
         w, book_s, n_s = _CORRECTION_ID_RE.match(cid).groups()
         if w != work_abbr:
             continue
-        book, n = int(book_s), int(n_s)
+        ordered.append((int(book_s), int(n_s), cid, entry))
+    ordered.sort(key=lambda e: (e[0], e[1]))
+
+    resolved: set[str] = set()
+    touched_books: set[int] = set()
+    for book, n, cid, entry in ordered:
         if book not in books:
             raise ValueError(f"kosmos break correction {cid}: book {book} does not exist")
         text = books[book]["text"]
@@ -444,7 +453,17 @@ def _apply_break_corrections(work_abbr: str, books: dict[int, dict]) -> set[str]
             raise ValueError(f"kosmos break correction {cid}: new offset matches the current offset")
         if entry["status"] == "reviewed":
             ticks[idx]["offset"] = new_offset
+            touched_books.add(book)
         resolved.add(cid)
+
+    for book in touched_books:
+        ticks = books[book]["bekker"]
+        for prev, cur in zip(ticks, ticks[1:]):
+            if not (prev["n"] < cur["n"] and prev["offset"] < cur["offset"]):
+                raise ValueError(
+                    f"kosmos break corrections: book {book}'s ticks are no longer strictly "
+                    f"increasing after corrections (n {prev['n']}->{cur['n']}, "
+                    f"offset {prev['offset']}->{cur['offset']})")
     return resolved
 
 
