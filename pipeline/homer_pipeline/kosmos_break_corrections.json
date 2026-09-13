@@ -1,0 +1,325 @@
+{
+ "about": "These correct where a Kosmos verse-group break falls. Butler sometimes numbers a line a few words before the English that actually opens it, and each entry names the phrase the break should move to instead. They move a break; they never change a word. Only entries marked reviewed take effect -- draft entries are still checked against the text, so a bad one fails the build now, but they change no output until the owner flips draft to reviewed.",
+ "corrections": [
+  {
+   "id": "il.5.20",
+   "move_to_before": "Idaios did not dare",
+   "greek": "G19 ὦσε δ' ἀφ' ἵππων; G20 Ἰδαῖος δ' ἀπόρουσε",
+   "reason": "G19 ὦσε δ' ἀφ' ἵππων is 'fell from his chariot'; G20 begins Ἰδαῖος, so the English after the new break begins with 'Idaios'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.5.45",
+   "move_to_before": "Mighty spear-renowned Idomeneus",
+   "greek": "G44 εἰληλούθει; G45 Ἰδομενεὺς δουρικλυτὸς",
+   "reason": "G44 ends εἰληλούθει ('come from Tarne'); G45 begins Ἰδομενεὺς δουρικλυτὸς, which is 'Mighty spear-renowned Idomeneus'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.5.295",
+   "move_to_before": "The horses started aside",
+   "greek": "G294 ἤριπε δ' ἐξ ὀχέων; G295 παρέτρεσσαν δέ οἱ ἵπποι",
+   "reason": "G294 ἤριπε δ' ἐξ ὀχέων is 'as he fell heavily to the ground'; G295 παρέτρεσσαν δέ οἱ ἵπποι is 'The horses started aside', while αἰόλα παμφανόωντα is only the enjambed adjective of τεύχε' already in 'glistening armor'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.5.395",
+   "move_to_before": "So, also, did huge Hādēs",
+   "greek": "G394 ἀνήκεστον λάβεν ἄλγος; G395 τλῆ δ' Ἀΐδης ... πελώριος",
+   "reason": "G394 ends ἀνήκεστον λάβεν ἄλγος ('her pain'); G395 begins τλῆ δ' Ἀΐδης ... πελώριος, which is 'So, also, did huge Hādēs'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.5.645",
+   "move_to_before": "For all your strength",
+   "greek": "G645 ἐλθόντ' ἐκ Λυκίης, οὐδ' εἰ μάλα καρτερός ἐσσι",
+   "reason": "G645 ἐλθόντ' ἐκ Λυκίης, οὐδ' εἰ μάλα καρτερός ἐσσι is the whole of 'For all your strength, and all your coming from Lycia', which now sits before the G645 break.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.8.15",
+   "move_to_before": "where the gates are iron",
+   "greek": "G14 ὑπὸ χθονός ἐστι βέρεθρον; G15 ἔνθα σιδήρειαί τε πύλαι καὶ χάλκεος οὐδός",
+   "reason": "G14 ὑπὸ χθονός ἐστι βέρεθρον is 'under the earth'; G15 ἔνθα σιδήρειαί τε πύλαι καὶ χάλκεος οὐδός is 'where the gates are iron and the floor bronze'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.8.20",
+   "move_to_before": "hold on to it, all you gods and goddesses",
+   "greek": "G19 σειρὴν χρυσείην ... κρεμάσαντες; G20 πάντές τ' ἐξάπτεσθε θεοὶ πᾶσαί τε θέαιναι",
+   "reason": "G19 κρεμάσαντες finishes 'Hang a golden cord from the sky'; G20 πάντές τ' ἐξάπτεσθε θεοὶ πᾶσαί τε θέαιναι is the whole of 'hold on to it, all you gods and goddesses'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.8.55",
+   "move_to_before": "The Trojans on the other hand",
+   "greek": "G55 Τρῶες δ' αὖθ' ἑτέρωθεν ἀνὰ πτόλιν ὁπλίζοντο",
+   "reason": "G55 begins Τρῶες and the whole clause ἀνὰ πτόλιν ὁπλίζοντο is 'The Trojans on the other hand likewise armed themselves throughout the city', which NOW strands after splitting off 'The Trojans'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.8.125",
+   "move_to_before": "but let him lie for all his sorrow",
+   "greek": "G124 Ἕκτορα δ' αἰνὸν ἄχος πύκασε φρένας ἡνιόχοιο; G125 τὸν μὲν ἔπειτ' εἴασε",
+   "reason": "G124 Ἕκτορα δ' αἰνὸν ἄχος ... ἡνιόχοιο is 'Hector was greatly grieved at the loss of his charioteer'; G125 τὸν μὲν ἔπειτ' εἴασε is 'but let him lie'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.8.330",
+   "move_to_before": "Ajax saw that his brother had fallen",
+   "greek": "G330 Αἴας δ' οὐκ ἀμέλησε κασιγνήτοιο πεσόντος",
+   "reason": "G330 begins Αἴας δ' οὐκ ἀμέλησε κασιγνήτοιο πεσόντος, which is 'Ajax saw that his brother had fallen', so 'Ajax' must start the G330 chunk.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.9.35",
+   "move_to_before": "and said that I was a coward",
+   "greek": "G35 φὰς ἔμεν ἀπτόλεμον καὶ ἀνάλκιδα; G36 ἴσασ' Ἀργείων ἠμὲν νέοι ἠδὲ γέροντες",
+   "reason": "G35 φὰς ἔμεν ἀπτόλεμον καὶ ἀνάλκιδα is 'and said that I was a coward and no warrior'; NOW instead splits G36 νέοι ἠδὲ γέροντες ('young and old').",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.12.205",
+   "move_to_before": "whereon the bird being in pain",
+   "greek": "G204 κατὰ στῆθος παρὰ δειρὴν; G205 ὃ δ' ἀπὸ ἕθεν ἧκε χαμᾶζε",
+   "reason": "G204 κατὰ στῆθος παρὰ δειρὴν is 'on the neck and breast'; G205 ὃ δ' ἀπὸ ἕθεν ἧκε χαμᾶζε is 'let it fall', while ἰδνωθεὶς ὀπίσω is already rendered earlier as the writhing.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.12.135",
+   "move_to_before": "even so did",
+   "greek": "G135 ὣς ἄρα τὼ χείρεσσι πεποιθότες ἠδὲ βίηφι",
+   "reason": "G135 begins ὣς ἄρα, which is 'even so did', so that phrase must start the G135 chunk rather than sit before the break.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.13.130",
+   "move_to_before": "They made a living fence",
+   "greek": "G129 ἔμιμνον; G130 φράξαντες δόρυ δουρί, σάκος σάκεϊ",
+   "reason": "G129 ends ἔμιμνον ('awaiting'); G130 begins φράξαντες, which is 'They made a living fence, spear to spear, shield to shield'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.13.175",
+   "move_to_before": "he had gone back",
+   "greek": "G174 νέες ἤλυθον ἀμφιέλισσαι; G175 ἂψ ἐς Ἴλιον ἦλθε",
+   "reason": "G174 is the coming of the ships; G175 begins ἂψ ἐς Ἴλιον ἦλθε, the whole of 'he had gone back to Ilion', which NOW splits after 'gone back'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.13.190",
+   "move_to_before": "Ajax threw a spear",
+   "greek": "G189 Ἀμφιμάχοιο; G190 Αἴας δ' ὁρμηθέντος ὀρέξατο δουρὶ φαεινῷ",
+   "reason": "G190 begins Αἴας δ' ... ὀρέξατο δουρί, which is 'Ajax threw a spear at him', so 'Ajax' belongs after the G190 break.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.13.200",
+   "move_to_before": "high above the ground",
+   "greek": "G199 ἀνὰ ῥωπήϊα πυκνὰ; G200 ὑψοῦ ὑπὲρ γαίης μετὰ γαμφηλῇσιν ἔχοντε",
+   "reason": "G199 ends ῥωπήϊα πυκνὰ ('thick brushwood'); G200 begins ὑψοῦ ὑπὲρ γαίης, which is 'high above the ground in their jaws'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.13.215",
+   "move_to_before": "Poseidon spoke in the likeness",
+   "greek": "G214 ἔτι γὰρ πολέμοιο μενοίνα; G215 τὸν δὲ προσέφη κρείων ἐνοσίχθων",
+   "reason": "G214 ἔτι γὰρ πολέμοιο μενοίνα is 'still thirsting for battle'; G215 τὸν δὲ προσέφη κρείων ἐνοσίχθων is 'Poseidon spoke', with ἀντιάαν fused into the thirsting clause.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.13.225",
+   "move_to_before": "but it seems to be",
+   "greek": "G224 οὔτέ τις ὄκνῳ; G225 ἀλλά που οὕτω",
+   "reason": "G224 ends οὔτέ τις ὄκνῳ ('nor slackness'); NOW splits that G224 pair, while G225's new colon ἀλλά που οὕτω is 'but it seems', with εἴκων ἀνδύεται fused into the slackness clause.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.13.250",
+   "move_to_before": "why have you left the field",
+   "greek": "G249 φίλταθ' ἑταίρων; G250 τίπτ' ἦλθες πόλεμόν τε λιπών",
+   "reason": "G249 ends φίλταθ' ἑταίρων ('best of comrades'); G250 begins τίπτ' ἦλθες, which is 'why have you left the field'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.13.300",
+   "move_to_before": "goes with him",
+   "greek": "G299 κρατερὸς καὶ ἀταρβὴς; G300 ἕσπετο",
+   "reason": "G299 ends κρατερὸς καὶ ἀταρβὴς ('strong and dauntless'); G300 begins ἕσπετο, which is 'goes with him'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.13.459",
+   "move_to_before": "to go and fetch Aeneas",
+   "greek": "G458 δοάσσατο κέρδιον εἶναι; G459 βῆναι ἐπ' Αἰνείαν",
+   "reason": "G458 δοάσσατο κέρδιον εἶναι is 'he thought it best'; G459 begins βῆναι ἐπ' Αἰνείαν, which is 'to go and fetch Aeneas'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.13.575",
+   "move_to_before": "and his eyes were veiled in darkness",
+   "greek": "G574 ἐκ χροὸς ἔγχος ἀνεσπάσατ'; G575 τὸν δὲ σκότος ὄσσε κάλυψε",
+   "reason": "G574 ἐκ χροὸς ἔγχος ἀνεσπάσατ' is the whole of 'drew the spear out of his body', which NOW splits; G575 τὸν δὲ σκότος ὄσσε κάλυψε is 'his eyes were veiled in darkness', with delayed ἥρως Μηριόνης already rendered.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.13.595",
+   "move_to_before": "the spear went right through",
+   "greek": "G595 ἀντικρὺ διὰ χειρὸς ἐλήλατο χάλκεον ἔγχος",
+   "reason": "G595 ἀντικρὺ διὰ χειρὸς ἐλήλατο χάλκεον ἔγχος is 'the spear went right through his hand'; NOW leaves 'the spear' (ἔγχος) before the G595 break.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.13.680",
+   "move_to_before": "after breaking through the serried ranks",
+   "greek": "G679 πύλας καὶ τεῖχος ἐσᾶλτο; G680 ῥηξάμενος",
+   "reason": "G679 πύλας καὶ τεῖχος ἐσᾶλτο is 'the gates and the wall', one compound object that NOW splits; G680 begins ῥηξάμενος, which is 'after breaking through'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.13.710",
+   "move_to_before": "comrades followed the son of Telamon",
+   "greek": "G709 πολλοί τε καὶ ἐσθλοὶ; G710 λαοὶ ἕπονθ' ἕταροι",
+   "reason": "G709 πολλοί τε καὶ ἐσθλοὶ is 'Many and brave'; G710 begins λαοὶ ἕπονθ' ἕταροι, which is 'comrades followed'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.16.35",
+   "move_to_before": "and the sheer cliffs begot you",
+   "greek": "G34 γλαυκὴ δέ σε τίκτε θάλασσα; G35 πέτραι τ' ἠλίβατοι, ὅτι τοι νόος ἐστὶν ἀπηνής",
+   "reason": "G35 begins πέτραι τ' ἠλίβατοι, which is 'and the sheer cliffs begot you'; NOW leaves that G35 start before the break and begins G35 at ὅτι τοι νόος ('so cruel and remorseless').",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.17.35",
+   "move_to_before": "for the death of my brother over whom you vaunted",
+   "greek": "G34 τείσεις; G35 γνωτὸν ἐμὸν τὸν ἔπεφνες, ἐπευχόμενος δ' ἀγορεύεις",
+   "reason": "G34 ends τείσεις ('shall you pay'); G35 γνωτὸν ἐμὸν τὸν ἔπεφνες, ἐπευχόμενος δ' ἀγορεύεις is 'for the death of my brother over whom you vaunted', which NOW places before the G35 break.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.17.255",
+   "move_to_before": "that Patroklos should become meat and morsel for Trojan hounds",
+   "greek": "G254 νεμεσιζέσθω δ' ἐνὶ θυμῷ; G255 Πάτροκλον Τρῳῇσι κυσὶν μέλπηθρα γενέσθαι",
+   "reason": "G254 νεμεσιζέσθω δ' ἐνὶ θυμῷ is 'and think it shame'; G255 Πάτροκλον ... γενέσθαι is 'that Patroklos should become meat and morsel for Trojan hounds'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.19.240",
+   "move_to_before": "Lykomedes son of Kreontes",
+   "greek": "G239 Μηριόνην τε; G240 Κρειοντιάδην Λυκομήδεα καὶ Μελάνιππον",
+   "reason": "G239 ends Μηριόνην τε; G240 begins Κρειοντιάδην Λυκομήδεα, which is 'Lykomedes son of Kreontes', a single name NOW splits after 'Lykomedes'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.21.10",
+   "move_to_before": "and the banks rang again",
+   "greek": "G9 ἐν δ' ἔπεσον ... βράχε δ' αἰπὰ ῥέεθρα; G10 ὄχθαι δ' ἀμφὶ περὶ μεγάλ' ἴαχον",
+   "reason": "G9 ἐν δ' ἔπεσον ... βράχε δ' αἰπὰ ῥέεθρα is 'fell into it with a great uproar. The waters resounded'; G10 ὄχθαι ... ἴαχον is 'the banks rang again'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.21.90",
+   "move_to_before": "Your spear slew noble Polydoros",
+   "greek": "G89 σὺ δ' ἄμφω δειροτομήσεις; G90 ἤτοι τὸν πρώτοισι μετὰ πρυλέεσσι δάμασσας",
+   "reason": "G89 σὺ δ' ἄμφω δειροτομήσεις is 'both of whom you will have slain'; G90 ἤτοι τὸν πρώτοισι ... δάμασσας begins the Polydoros killing that follows the period.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.21.180",
+   "move_to_before": "He struck him in the belly near the navel",
+   "greek": "G180 γαστέρα γάρ μιν τύψε παρ' ὀμφαλόν",
+   "reason": "G180 γαστέρα γάρ μιν τύψε παρ' ὀμφαλόν is 'He struck him in the belly near the navel', which NOW leaves before the G180 break.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.21.215",
+   "move_to_before": "for the gods are ever with you",
+   "greek": "G214 περὶ δ' αἴσυλα ῥέζεις; G215 αἰεὶ γάρ τοι ἀμύνουσιν θεοὶ αὐτοί",
+   "reason": "G214 περὶ δ' αἴσυλα ῥέζεις is 'so do you also in wickedness'; G215 αἰεὶ γάρ τοι ἀμύνουσιν θεοὶ αὐτοί is 'for the gods are ever with you', with ἀνδρῶν fused into the wickedness clause.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.21.235",
+   "move_to_before": "He swelled his stream into a torrent",
+   "greek": "G234 ὃ δ' ἐπέσσυτο οἴδματι θύων; G235 πάντα δ' ὄρινε ῥέεθρα κυκώμενος",
+   "reason": "G234 ὃ δ' ἐπέσσυτο οἴδματι θύων is 'the river raised a high wave and attacked him'; G235 πάντα δ' ὄρινε ῥέεθρα κυκώμενος is 'He swelled his stream into a torrent'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.21.335",
+   "move_to_before": "in a mighty gale from the sea",
+   "greek": "G335 ἐξ ἁλόθεν χαλεπὴν ὄρσουσα θύελλαν; G336 ἥ κεν ἀπὸ Τρώων κεφαλὰς καὶ τεύχεα κήαι",
+   "reason": "G335 ἐξ ἁλόθεν χαλεπὴν ... θύελλαν is 'in a mighty gale from the sea'; G336 ἥ κεν ... κήαι is 'that shall bear the flames against the heads and armor'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.21.350",
+   "move_to_before": "He burned the elms the willows and the tamarisks",
+   "greek": "G349 ὃ δ' ἐς ποταμὸν τρέψε φλόγα παμφανόωσαν; G350 καίοντο πτελέαι τε καὶ ἰτέαι ἠδὲ μυρῖκαι",
+   "reason": "G349 ὃ δ' ἐς ποταμὸν τρέψε φλόγα is 'Then he turned tongues of fire on to the river'; G350 καίοντο πτελέαι is 'He burned the elms'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.21.385",
+   "move_to_before": "but a furious quarrel broke out among the other gods",
+   "greek": "G385 ἐν δ' ἄλλοισι θεοῖσιν ἔρις πέσε βεβριθυῖα",
+   "reason": "G385 ἐν δ' ἄλλοισι θεοῖσιν ἔρις πέσε βεβριθυῖα is 'a furious quarrel broke out among the other gods', which NOW places wholly before the G385 break.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.21.540",
+   "move_to_before": "Right for the city and the high wall",
+   "greek": "G539 ἵνα λοιγὸν ἀλάλκοι; G540 οἳ δ' ἰθὺς πόλιος καὶ τείχεος ὑψηλοῖο",
+   "reason": "G539 ἵνα λοιγὸν ἀλάλκοι is 'and protect them'; G540 οἳ δ' ἰθὺς πόλιος καὶ τείχεος ὑψηλοῖο is 'Right for the city and the high wall'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  },
+  {
+   "id": "il.23.325",
+   "move_to_before": "and keeps his eye well on the man in front of him",
+   "greek": "G324 ὅππως τὸ πρῶτον τανύσῃ βοέοισιν ἱμᾶσιν; G325 τὸν προὔχοντα δοκεύει",
+   "reason": "G324 ὅππως τὸ πρῶτον τανύσῃ βοέοισιν ἱμᾶσιν is the whole of 'the precise moment at which to pull the rein'; G325 τὸν προὔχοντα δοκεύει is 'keeps his eye well on the man in front of him'.",
+   "checked_by": ["Sonnet reviewer", "Grok (confirmed)"],
+   "status": "draft"
+  }
+ ]
+}

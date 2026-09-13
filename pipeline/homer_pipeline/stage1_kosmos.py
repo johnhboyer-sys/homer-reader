@@ -63,6 +63,11 @@ TRANSLATION_ID = "kosmos"
 # unitalicised bracket is an English insertion ([Agamemnon], [from battle]).
 UNITALICISED_TRANSLIT = {"moira", "philos"}
 
+_CORRECTIONS_PATH = Path(__file__).with_name("kosmos_break_corrections.json")
+_CORRECTION_ID_RE = re.compile(r"^(il|od)\.(\d+)\.(\d+)$")
+_WORK_ABBR = {"iliad": "il", "odyssey": "od"}
+_STATUSES = {"draft", "reviewed"}
+
 _BOOK_HEAD = re.compile(r'<h2[^>]*>\s*Homeric\s*<em>\w+</em>\s*<br\s*/?>\s*Rhapsody\s+(\d+)\s*</h2>', re.S)
 _PARA = re.compile(r"<p(\s[^>]*)?>(.*?)</p>", re.S)
 _LINE_NUM = re.compile(r"\[\s*(\d+)\s*\]")
@@ -374,6 +379,75 @@ def parse_book(book: int, book_html: str, greek_lines: set[int], gap_lines: set[
     }
 
 
+def load_break_corrections(path: Path = _CORRECTIONS_PATH) -> dict[str, dict]:
+    """Load and validate the owner-reviewable Kosmos break-move file.
+
+    Validates everything that doesn't need a book's text: id shape, no
+    duplicate ids, a real status, and a move_to_before of at least three
+    words. Resolving an id against its book's ticks happens in
+    _apply_break_corrections, for every entry regardless of status."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict) or "about" not in data or "corrections" not in data:
+        raise ValueError(f"{path}: expected an object with 'about' and 'corrections'")
+    corrections: dict[str, dict] = {}
+    for entry in data["corrections"]:
+        cid = entry.get("id")
+        if not isinstance(cid, str) or not _CORRECTION_ID_RE.fullmatch(cid):
+            raise ValueError(f"{path}: bad correction id {cid!r}")
+        if cid in corrections:
+            raise ValueError(f"{path}: duplicate correction id {cid!r}")
+        if entry.get("status") not in _STATUSES:
+            raise ValueError(f"{path}: correction {cid}: bad status {entry.get('status')!r}")
+        move_to_before = entry.get("move_to_before")
+        if not isinstance(move_to_before, str) or len(move_to_before.split()) < 3:
+            raise ValueError(f"{path}: correction {cid}: move_to_before must be at least three words")
+        corrections[cid] = entry
+    return corrections
+
+
+MOVE_CORRECTIONS = load_break_corrections()
+
+
+def _apply_break_corrections(work_abbr: str, books: dict[int, dict]) -> set[str]:
+    """Resolve every correction for this work against its book's ticks, in
+    place. Every entry is resolved (so a broken draft fails the build now);
+    only a 'reviewed' entry's offset is actually moved. Returns the ids
+    resolved, for tests to check nothing was silently skipped."""
+    resolved: set[str] = set()
+    for cid, entry in MOVE_CORRECTIONS.items():
+        w, book_s, n_s = _CORRECTION_ID_RE.match(cid).groups()
+        if w != work_abbr:
+            continue
+        book, n = int(book_s), int(n_s)
+        if book not in books:
+            raise ValueError(f"kosmos break correction {cid}: book {book} does not exist")
+        text = books[book]["text"]
+        ticks = books[book]["bekker"]
+        idx = next((i for i, t in enumerate(ticks) if t["n"] == n), None)
+        if idx is None:
+            raise ValueError(f"kosmos break correction {cid}: no tick for line {n}")
+        if idx == 0:
+            raise ValueError(f"kosmos break correction {cid}: line {n} is the first tick of the book")
+        lo = ticks[idx - 1]["offset"]
+        hi = ticks[idx + 1]["offset"] if idx + 1 < len(ticks) else len(text)
+        needle = entry["move_to_before"]
+        segment = text[lo:hi]
+        count = segment.count(needle)
+        if count != 1:
+            raise ValueError(
+                f"kosmos break correction {cid}: expected exactly one match of {needle!r} "
+                f"between the neighbouring ticks, found {count}")
+        new_offset = lo + segment.index(needle)
+        if not (lo < new_offset < hi):
+            raise ValueError(f"kosmos break correction {cid}: match is not strictly inside the neighbouring ticks")
+        if new_offset == ticks[idx]["offset"]:
+            raise ValueError(f"kosmos break correction {cid}: new offset matches the current offset")
+        if entry["status"] == "reviewed":
+            ticks[idx]["offset"] = new_offset
+        resolved.add(cid)
+    return resolved
+
+
 def greek_line_sets(manifest: Manifest, spine: dict | None = None) -> tuple[dict[int, set[int]], dict[int, set[int]]]:
     """(book -> Greek line numbers, book -> declared-gap line numbers). From the
     spine when given; otherwise from the manifest's book ends and gaps."""
@@ -394,10 +468,13 @@ def greek_line_sets(manifest: Manifest, spine: dict | None = None) -> tuple[dict
 def parse_work(manifest: Manifest, spine: dict | None = None) -> dict[int, dict]:
     page = source_path(manifest.work_id).read_text(encoding="utf-8")
     lines, gaps = greek_line_sets(manifest, spine)
-    return {
+    books = {
         b: parse_book(b, h, lines[b], gaps.get(b, set()))
         for b, h in split_books(page).items()
     }
+    work_abbr = _WORK_ABBR[manifest.work_id]
+    _apply_break_corrections(work_abbr, books)
+    return books
 
 
 def run(manifest: Manifest, spine: dict) -> dict:

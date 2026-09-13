@@ -11,7 +11,9 @@ line numbers, which the stage turns into ticks and marks rather than text.
 
 from __future__ import annotations
 
+import copy
 import html
+import json
 import re
 from pathlib import Path
 
@@ -199,3 +201,133 @@ def test_bracket_kinds(parsed):
         br = sorted((s, e) for s, e, kind in r["spans"] if kind != "em")
         assert all(r["text"][s] == "[" and r["text"][e - 1] == "]" for s, e in br)
         assert all(a[1] <= b_[0] for a, b_ in zip(br, br[1:]))
+
+
+# --- kosmos_break_corrections.json: load_break_corrections and _apply_break_corrections ---
+
+
+def _books(text: str, ticks: list[tuple[int, int]]) -> dict[int, dict]:
+    return {5: {"text": text, "bekker": [{"n": n, "offset": o} for n, o in ticks]}}
+
+
+def test_reviewed_correction_moves_tick_to_exact_offset(monkeypatch):
+    text = "AAA BBB CCC Idaios did not dare DDD"
+    books = _books(text, [(19, 0), (20, 8), (21, 36)])
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", {
+        "il.5.20": {"move_to_before": "Idaios did not dare", "status": "reviewed"},
+    })
+    resolved = k._apply_break_corrections("il", books)
+    assert resolved == {"il.5.20"}
+    tick20 = next(t for t in books[5]["bekker"] if t["n"] == 20)
+    assert tick20["offset"] == text.index("Idaios did not dare") == 12
+
+
+def test_draft_correction_changes_nothing(monkeypatch):
+    text = "AAA BBB CCC Idaios did not dare DDD"
+    books = _books(text, [(19, 0), (20, 8), (21, 36)])
+    before = copy.deepcopy(books)
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", {
+        "il.5.20": {"move_to_before": "Idaios did not dare", "status": "draft"},
+    })
+    resolved = k._apply_break_corrections("il", books)
+    assert resolved == {"il.5.20"}
+    assert books == before
+
+
+def test_no_such_tick_raises(monkeypatch):
+    books = _books("AAA BBB CCC", [(19, 0), (21, 8)])
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", {
+        "il.5.20": {"move_to_before": "no such phrase", "status": "draft"},
+    })
+    with pytest.raises(ValueError, match="il.5.20"):
+        k._apply_break_corrections("il", books)
+
+
+def test_first_tick_of_book_raises(monkeypatch):
+    books = _books("AAA BBB CCC", [(19, 0), (20, 4)])
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", {
+        "il.5.19": {"move_to_before": "AAA BBB CCC", "status": "draft"},
+    })
+    with pytest.raises(ValueError, match="first tick"):
+        k._apply_break_corrections("il", books)
+
+
+def test_zero_matches_raises(monkeypatch):
+    books = _books("AAA BBB CCC DDD", [(19, 0), (20, 8), (21, 16)])
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", {
+        "il.5.20": {"move_to_before": "not present here", "status": "draft"},
+    })
+    with pytest.raises(ValueError, match="found 0"):
+        k._apply_break_corrections("il", books)
+
+
+def test_multiple_matches_raises(monkeypatch):
+    text = "the dog ran, then the dog slept"
+    books = _books(text, [(19, 0), (20, 8), (21, len(text))])
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", {
+        "il.5.20": {"move_to_before": "the dog", "status": "draft"},
+    })
+    with pytest.raises(ValueError, match="found 2"):
+        k._apply_break_corrections("il", books)
+
+
+def test_unchanged_offset_raises(monkeypatch):
+    text = "AAA Idaios did not dare CCC"
+    books = _books(text, [(19, 0), (20, 4), (21, len(text))])
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", {
+        "il.5.20": {"move_to_before": "Idaios did not dare", "status": "draft"},
+    })
+    with pytest.raises(ValueError, match="current offset"):
+        k._apply_break_corrections("il", books)
+
+
+def test_unknown_book_raises(monkeypatch):
+    books = _books("AAA BBB CCC", [(19, 0), (20, 4)])
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", {
+        "il.9.20": {"move_to_before": "not there", "status": "draft"},
+    })
+    with pytest.raises(ValueError, match="book 9"):
+        k._apply_break_corrections("il", books)
+
+
+@pytest.mark.parametrize("bad_entry, match", [
+    ({"id": "bogus", "move_to_before": "one two three", "status": "draft"}, "bad correction id"),
+    ({"id": "il.5.999", "move_to_before": "one two three", "status": "sideways"}, "bad status"),
+    ({"id": "il.5.999", "move_to_before": "one two", "status": "draft"}, "at least three words"),
+])
+def test_load_break_corrections_rejects_bad_entries(tmp_path, bad_entry, match):
+    path = tmp_path / "corrections.json"
+    path.write_text(json.dumps({"about": "x", "corrections": [bad_entry]}), encoding="utf-8")
+    with pytest.raises(ValueError, match=match):
+        k.load_break_corrections(path)
+
+
+def test_load_break_corrections_rejects_duplicate_id(tmp_path):
+    path = tmp_path / "corrections.json"
+    entry = {"id": "il.5.20", "move_to_before": "one two three", "status": "draft"}
+    path.write_text(json.dumps({"about": "x", "corrections": [entry, dict(entry)]}), encoding="utf-8")
+    with pytest.raises(ValueError, match="duplicate"):
+        k.load_break_corrections(path)
+
+
+def test_load_break_corrections_requires_about_and_corrections(tmp_path):
+    path = tmp_path / "corrections.json"
+    path.write_text(json.dumps({"corrections": []}), encoding="utf-8")
+    with pytest.raises(ValueError, match="about"):
+        k.load_break_corrections(path)
+
+
+def test_all_shipped_break_corrections_resolve_uniquely(parsed):
+    """Every entry in the shipped kosmos_break_corrections.json resolves
+    against the vendored source for its work -- the `parsed` fixture already
+    ran parse_work (which calls _apply_break_corrections) for both works, so
+    if any entry had failed to resolve, building this fixture would have
+    raised before this test runs. Here we also confirm none were silently
+    skipped (e.g. an id naming a work/book this corpus doesn't have)."""
+    corrections = k.load_break_corrections()
+    assert len(corrections) == 40
+    resolved_total: set[str] = set()
+    for work, abbr in (("Iliad", "il"), ("Odyssey", "od")):
+        books = k.parse_work(Manifest.for_work(work))
+        resolved_total |= k._apply_break_corrections(abbr, books)
+    assert resolved_total == set(corrections)
