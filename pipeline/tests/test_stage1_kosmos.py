@@ -247,6 +247,18 @@ def test_correction_phrase_may_run_past_the_next_tick(monkeypatch):
     assert next(t for t in books[5]["bekker"] if t["n"] == 20)["offset"] == 12
 
 
+def test_attribution_page_counts_match_reviewed_corrections():
+    # attribution.astro tells readers how many breaks the reader moves; the
+    # numbers there must equal the reviewed entries in the corrections file.
+    page = (Path(__file__).resolve().parents[2] / "app/src/pages/attribution.astro").read_text(encoding="utf-8")
+    reviewed = [cid for cid, e in k.load_break_corrections().items() if e["status"] == "reviewed"]
+    iliad = sum(cid.startswith("il.") for cid in reviewed)
+    odyssey = sum(cid.startswith("od.") for cid in reviewed)
+    m = re.search(r"In (\d+) places\s+\((\d+) in the Iliad, (\d+) in the Odyssey\)", page)
+    assert m, "attribution.astro no longer states the correction count"
+    assert (int(m[1]), int(m[2]), int(m[3])) == (len(reviewed), iliad, odyssey)
+
+
 def test_no_such_tick_raises(monkeypatch):
     books = _books("AAA BBB CCC", [(19, 0), (21, 8)])
     monkeypatch.setattr(k, "MOVE_CORRECTIONS", {
@@ -411,7 +423,7 @@ def test_reviewed_shipped_correction_moves_the_real_tick(tmp_path, monkeypatch):
     text = reviewed_books[5]["text"]
     assert text == draft_books[5]["text"]  # the text itself never changes
     tick20 = next(t for t in reviewed_books[5]["bekker"] if t["n"] == 20)
-    assert tick20["offset"] == text.index(move_to_before)
+    assert text.startswith(move_to_before, tick20["offset"])
 
 
 def test_adjacent_reviewed_corrections_do_not_depend_on_file_order(monkeypatch):

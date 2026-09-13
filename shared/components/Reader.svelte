@@ -2342,11 +2342,12 @@
     toks[j].focus();
   }
 
-  // Show line number only for multiples of 5 (and line 1). Suppressed entirely
+  // Show line number only for line 1 and multiples of 5 — the same rule
+  // (showsGroupNumber) the English verse-group numbers use. Suppressed entirely
   // for non-Bekker works whose synthetic line numbers aren't meaningful.
   function showLineNum(n: number): string {
     if (hideLineNums) return '';
-    if (n === 1 || n % 5 === 0) return String(n);
+    if (showsGroupNumber(n)) return String(n);
     return '';
   }
 

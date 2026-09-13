@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { decoratePiece, sentinelsToHtml, showsGroupNumber, stripSentinels } from '../lib/kosmos';
 import { flowParts, alignGroups } from '../lib/tick-chunks';
 import type { RossPiece } from '../lib/data';
@@ -144,6 +146,13 @@ describe('showsGroupNumber', () => {
     expect(showsGroupNumber(3)).toBe(false);
     expect(showsGroupNumber(4)).toBe(false);
     expect(showsGroupNumber(6)).toBe(false);
+  });
+
+  it('is the only copy of the rule in Reader.svelte (Greek column and both English sites)', () => {
+    // process.cwd() is shared/ under vitest; see CLAUDE.md on import.meta.url.
+    const src = readFileSync(path.resolve(process.cwd(), 'components/Reader.svelte'), 'utf8');
+    expect(src).not.toMatch(/n === 1 \|\| n % 5 === 0/);
+    expect((src.match(/showsGroupNumber\(/g) ?? []).length).toBeGreaterThanOrEqual(3);
   });
 });
 
