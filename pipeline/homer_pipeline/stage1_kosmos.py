@@ -440,13 +440,17 @@ def _apply_break_corrections(work_abbr: str, books: dict[int, dict]) -> set[str]
         lo = ticks[idx - 1]["offset"]
         hi = ticks[idx + 1]["offset"] if idx + 1 < len(ticks) else len(text)
         needle = entry["move_to_before"]
-        segment = text[lo:hi]
-        count = segment.count(needle)
+        # Only the match's START must fall between the neighbouring ticks; the
+        # phrase itself may run on past the next tick. A match starting AT the
+        # previous tick still counts toward ambiguity (and is then rejected
+        # below as not strictly inside).
+        starts = [i for i in range(lo, hi) if text.startswith(needle, i)]
+        count = len(starts)
         if count != 1:
             raise ValueError(
                 f"kosmos break correction {cid}: expected exactly one match of {needle!r} "
                 f"between the neighbouring ticks, found {count}")
-        new_offset = lo + segment.index(needle)
+        new_offset = starts[0]
         if not (lo < new_offset < hi):
             raise ValueError(f"kosmos break correction {cid}: match is not strictly inside the neighbouring ticks")
         if new_offset == ticks[idx]["offset"]:

@@ -4677,7 +4677,10 @@ body.toc-open .toc-sidebar { transform: translateX(0); }
    below a group's Greek only appears where its English genuinely wraps to
    more lines than the Greek span — the row stretches to the taller column,
    not from any added margin. */
-.reader-body.view-both .verse-groups .align-group + .align-group { margin-top: 0; }
+@media (min-width: 681px) {
+  /* Side-by-side rows only; the stacked phone layout keeps its own gap. */
+  .reader-body.view-both .verse-groups .align-group + .align-group { margin-top: 0; }
+}
 @media (max-width: 680px) {
   .reader-body.view-both .verse-groups.stacked-both .align-group { display: block; }
 }

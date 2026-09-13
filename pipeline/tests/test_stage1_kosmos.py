@@ -234,6 +234,19 @@ def test_draft_correction_changes_nothing(monkeypatch):
     assert books == before
 
 
+def test_correction_phrase_may_run_past_the_next_tick(monkeypatch):
+    # Only the match's start must lie between the neighbouring ticks: here
+    # "Idaios did not dare" starts at 12, inside (0, 20), but ends at 31,
+    # past tick 21 at 20. The old search required the whole phrase to fit.
+    text = "AAA BBB CCC Idaios did not dare DDD"
+    books = _books(text, [(19, 0), (20, 8), (21, 20)])
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", {
+        "il.5.20": {"move_to_before": "Idaios did not dare", "status": "reviewed"},
+    })
+    assert k._apply_break_corrections("il", books) == {"il.5.20"}
+    assert next(t for t in books[5]["bekker"] if t["n"] == 20)["offset"] == 12
+
+
 def test_no_such_tick_raises(monkeypatch):
     books = _books("AAA BBB CCC", [(19, 0), (21, 8)])
     monkeypatch.setattr(k, "MOVE_CORRECTIONS", {
