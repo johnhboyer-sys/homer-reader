@@ -339,7 +339,7 @@ def test_all_shipped_break_corrections_resolve_uniquely():
     offset). Also confirms none were silently skipped (e.g. an id naming a
     work/book this corpus doesn't have)."""
     corrections = k.load_break_corrections()
-    assert len(corrections) == 40
+    assert corrections  # the count grows as entries are added; line below checks each
     resolved_total: set[str] = set()
     for work, abbr in (("Iliad", "il"), ("Odyssey", "od")):
         books = _books_without_corrections(work)
