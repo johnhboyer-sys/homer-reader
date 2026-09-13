@@ -376,18 +376,24 @@ def test_reviewed_shipped_correction_moves_the_real_tick(tmp_path, monkeypatch):
     lands exactly where move_to_before starts in the real extracted Iliad 5
     text -- and that flipping the status leaves the text byte-for-byte
     unchanged."""
+    # Build both states from the shipped entry, whatever its shipped status:
+    # every correction draft (nothing moves), then only il.5.20 reviewed.
     raw = json.loads(k._CORRECTIONS_PATH.read_text(encoding="utf-8"))
+    for e in raw["corrections"]:
+        e["status"] = "draft"
+    draft_file = tmp_path / "draft.json"
+    draft_file.write_text(json.dumps(raw), encoding="utf-8")
     entry = next(e for e in raw["corrections"] if e["id"] == "il.5.20")
-    assert entry["status"] == "draft"
     move_to_before = entry["move_to_before"]
     entry["status"] = "reviewed"
-    tmp_file = tmp_path / "corrections.json"
-    tmp_file.write_text(json.dumps(raw), encoding="utf-8")
+    reviewed_file = tmp_path / "reviewed.json"
+    reviewed_file.write_text(json.dumps(raw), encoding="utf-8")
 
-    draft_books = k.parse_work(Manifest.for_work("Iliad"))  # shipped file, all draft
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", k.load_break_corrections(draft_file))
+    draft_books = k.parse_work(Manifest.for_work("Iliad"))  # nothing moved
 
-    monkeypatch.setattr(k, "MOVE_CORRECTIONS", k.load_break_corrections(tmp_file))
-    reviewed_books = k.parse_work(Manifest.for_work("Iliad"))  # il.5.20 now reviewed
+    monkeypatch.setattr(k, "MOVE_CORRECTIONS", k.load_break_corrections(reviewed_file))
+    reviewed_books = k.parse_work(Manifest.for_work("Iliad"))  # only il.5.20 moved
 
     text = reviewed_books[5]["text"]
     assert text == draft_books[5]["text"]  # the text itself never changes

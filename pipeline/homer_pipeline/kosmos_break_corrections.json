@@ -8,9 +8,10 @@
    "reason": "G19 ὦσε δ' ἀφ' ἵππων is 'fell from his chariot'; G20 begins Ἰδαῖος, so the English after the new break begins with 'Idaios'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.5.45",
@@ -19,9 +20,10 @@
    "reason": "G44 ends εἰληλούθει ('come from Tarne'); G45 begins Ἰδομενεὺς δουρικλυτὸς, which is 'Mighty spear-renowned Idomeneus'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.5.295",
@@ -30,9 +32,10 @@
    "reason": "G294 ἤριπε δ' ἐξ ὀχέων is 'as he fell heavily to the ground'; G295 παρέτρεσσαν δέ οἱ ἵπποι is 'The horses started aside', while αἰόλα παμφανόωντα is only the enjambed adjective of τεύχε' already in 'glistening armor'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.5.395",
@@ -41,9 +44,10 @@
    "reason": "G394 ends ἀνήκεστον λάβεν ἄλγος ('her pain'); G395 begins τλῆ δ' Ἀΐδης ... πελώριος, which is 'So, also, did huge Hādēs'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.5.645",
@@ -52,9 +56,10 @@
    "reason": "G645 ἐλθόντ' ἐκ Λυκίης, οὐδ' εἰ μάλα καρτερός ἐσσι is the whole of 'For all your strength, and all your coming from Lycia', which now sits before the G645 break.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.8.15",
@@ -63,9 +68,10 @@
    "reason": "G14 ὑπὸ χθονός ἐστι βέρεθρον is 'under the earth'; G15 ἔνθα σιδήρειαί τε πύλαι καὶ χάλκεος οὐδός is 'where the gates are iron and the floor bronze'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.8.20",
@@ -74,9 +80,10 @@
    "reason": "G19 κρεμάσαντες finishes 'Hang a golden cord from the sky'; G20 πάντές τ' ἐξάπτεσθε θεοὶ πᾶσαί τε θέαιναι is the whole of 'hold on to it, all you gods and goddesses'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.8.55",
@@ -85,9 +92,10 @@
    "reason": "G55 begins Τρῶες and the whole clause ἀνὰ πτόλιν ὁπλίζοντο is 'The Trojans on the other hand likewise armed themselves throughout the city', which NOW strands after splitting off 'The Trojans'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.8.125",
@@ -96,9 +104,10 @@
    "reason": "G124 Ἕκτορα δ' αἰνὸν ἄχος ... ἡνιόχοιο is 'Hector was greatly grieved at the loss of his charioteer'; G125 τὸν μὲν ἔπειτ' εἴασε is 'but let him lie'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.8.330",
@@ -107,9 +116,10 @@
    "reason": "G330 begins Αἴας δ' οὐκ ἀμέλησε κασιγνήτοιο πεσόντος, which is 'Ajax saw that his brother had fallen', so 'Ajax' must start the G330 chunk.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.9.35",
@@ -118,9 +128,10 @@
    "reason": "G35 φὰς ἔμεν ἀπτόλεμον καὶ ἀνάλκιδα is 'and said that I was a coward and no warrior'; NOW instead splits G36 νέοι ἠδὲ γέροντες ('young and old').",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.12.205",
@@ -129,9 +140,10 @@
    "reason": "G204 κατὰ στῆθος παρὰ δειρὴν is 'on the neck and breast'; G205 ὃ δ' ἀπὸ ἕθεν ἧκε χαμᾶζε is 'let it fall', while ἰδνωθεὶς ὀπίσω is already rendered earlier as the writhing.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.12.135",
@@ -140,9 +152,10 @@
    "reason": "G135 begins ὣς ἄρα, which is 'even so did', so that phrase must start the G135 chunk rather than sit before the break.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.13.130",
@@ -151,9 +164,10 @@
    "reason": "G129 ends ἔμιμνον ('awaiting'); G130 begins φράξαντες, which is 'They made a living fence, spear to spear, shield to shield'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.13.175",
@@ -162,9 +176,10 @@
    "reason": "G174 is the coming of the ships; G175 begins ἂψ ἐς Ἴλιον ἦλθε, the whole of 'he had gone back to Ilion', which NOW splits after 'gone back'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.13.190",
@@ -173,9 +188,10 @@
    "reason": "G190 begins Αἴας δ' ... ὀρέξατο δουρί, which is 'Ajax threw a spear at him', so 'Ajax' belongs after the G190 break.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.13.200",
@@ -184,9 +200,10 @@
    "reason": "G199 ends ῥωπήϊα πυκνὰ ('thick brushwood'); G200 begins ὑψοῦ ὑπὲρ γαίης, which is 'high above the ground in their jaws'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.13.215",
@@ -195,9 +212,10 @@
    "reason": "G214 ἔτι γὰρ πολέμοιο μενοίνα is 'still thirsting for battle'; G215 τὸν δὲ προσέφη κρείων ἐνοσίχθων is 'Poseidon spoke', with ἀντιάαν fused into the thirsting clause.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.13.225",
@@ -206,9 +224,10 @@
    "reason": "G224 ends οὔτέ τις ὄκνῳ ('nor slackness'); NOW splits that G224 pair, while G225's new colon ἀλλά που οὕτω is 'but it seems', with εἴκων ἀνδύεται fused into the slackness clause.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.13.250",
@@ -217,9 +236,10 @@
    "reason": "G249 ends φίλταθ' ἑταίρων ('best of comrades'); G250 begins τίπτ' ἦλθες, which is 'why have you left the field'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.13.300",
@@ -228,9 +248,10 @@
    "reason": "G299 ends κρατερὸς καὶ ἀταρβὴς ('strong and dauntless'); G300 begins ἕσπετο, which is 'goes with him'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.13.459",
@@ -239,9 +260,10 @@
    "reason": "G458 δοάσσατο κέρδιον εἶναι is 'he thought it best'; G459 begins βῆναι ἐπ' Αἰνείαν, which is 'to go and fetch Aeneas'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.13.575",
@@ -250,9 +272,10 @@
    "reason": "G574 ἐκ χροὸς ἔγχος ἀνεσπάσατ' is the whole of 'drew the spear out of his body', which NOW splits; G575 τὸν δὲ σκότος ὄσσε κάλυψε is 'his eyes were veiled in darkness', with delayed ἥρως Μηριόνης already rendered.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.13.595",
@@ -261,9 +284,10 @@
    "reason": "G595 ἀντικρὺ διὰ χειρὸς ἐλήλατο χάλκεον ἔγχος is 'the spear went right through his hand'; NOW leaves 'the spear' (ἔγχος) before the G595 break.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.13.680",
@@ -272,9 +296,10 @@
    "reason": "G679 πύλας καὶ τεῖχος ἐσᾶλτο is 'the gates and the wall', one compound object that NOW splits; G680 begins ῥηξάμενος, which is 'after breaking through'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.13.710",
@@ -283,9 +308,10 @@
    "reason": "G709 πολλοί τε καὶ ἐσθλοὶ is 'Many and brave'; G710 begins λαοὶ ἕπονθ' ἕταροι, which is 'comrades followed'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.16.35",
@@ -294,9 +320,10 @@
    "reason": "G35 begins πέτραι τ' ἠλίβατοι, which is 'and the sheer cliffs begot you'; NOW leaves that G35 start before the break and begins G35 at ὅτι τοι νόος ('so cruel and remorseless').",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.17.35",
@@ -305,9 +332,10 @@
    "reason": "G34 ends τείσεις ('shall you pay'); G35 γνωτὸν ἐμὸν τὸν ἔπεφνες, ἐπευχόμενος δ' ἀγορεύεις is 'for the death of my brother over whom you vaunted', which NOW places before the G35 break.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.17.255",
@@ -316,9 +344,10 @@
    "reason": "G254 νεμεσιζέσθω δ' ἐνὶ θυμῷ is 'and think it shame'; G255 Πάτροκλον ... γενέσθαι is 'that Patroklos should become meat and morsel for Trojan hounds'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.19.240",
@@ -327,9 +356,10 @@
    "reason": "G239 ends Μηριόνην τε; G240 begins Κρειοντιάδην Λυκομήδεα, which is 'Lykomedes son of Kreontes', a single name NOW splits after 'Lykomedes'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.21.10",
@@ -338,9 +368,10 @@
    "reason": "G9 ἐν δ' ἔπεσον ... βράχε δ' αἰπὰ ῥέεθρα is 'fell into it with a great uproar. The waters resounded'; G10 ὄχθαι ... ἴαχον is 'the banks rang again'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.21.90",
@@ -349,9 +380,10 @@
    "reason": "G89 σὺ δ' ἄμφω δειροτομήσεις is 'both of whom you will have slain'; G90 ἤτοι τὸν πρώτοισι ... δάμασσας begins the Polydoros killing that follows the period.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.21.180",
@@ -360,9 +392,10 @@
    "reason": "G180 γαστέρα γάρ μιν τύψε παρ' ὀμφαλόν is 'He struck him in the belly near the navel', which NOW leaves before the G180 break.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.21.215",
@@ -371,9 +404,10 @@
    "reason": "G214 περὶ δ' αἴσυλα ῥέζεις is 'so do you also in wickedness'; G215 αἰεὶ γάρ τοι ἀμύνουσιν θεοὶ αὐτοί is 'for the gods are ever with you', with ἀνδρῶν fused into the wickedness clause.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.21.235",
@@ -382,9 +416,10 @@
    "reason": "G234 ὃ δ' ἐπέσσυτο οἴδματι θύων is 'the river raised a high wave and attacked him'; G235 πάντα δ' ὄρινε ῥέεθρα κυκώμενος is 'He swelled his stream into a torrent'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.21.335",
@@ -393,9 +428,10 @@
    "reason": "G335 ἐξ ἁλόθεν χαλεπὴν ... θύελλαν is 'in a mighty gale from the sea'; G336 ἥ κεν ... κήαι is 'that shall bear the flames against the heads and armor'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.21.350",
@@ -404,9 +440,10 @@
    "reason": "G349 ὃ δ' ἐς ποταμὸν τρέψε φλόγα is 'Then he turned tongues of fire on to the river'; G350 καίοντο πτελέαι is 'He burned the elms'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.21.385",
@@ -415,9 +452,10 @@
    "reason": "G385 ἐν δ' ἄλλοισι θεοῖσιν ἔρις πέσε βεβριθυῖα is 'a furious quarrel broke out among the other gods', which NOW places wholly before the G385 break.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.21.540",
@@ -426,9 +464,10 @@
    "reason": "G539 ἵνα λοιγὸν ἀλάλκοι is 'and protect them'; G540 οἳ δ' ἰθὺς πόλιος καὶ τείχεος ὑψηλοῖο is 'Right for the city and the high wall'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "il.23.325",
@@ -437,9 +476,10 @@
    "reason": "G324 ὅππως τὸ πρῶτον τανύσῃ βοέοισιν ἱμᾶσιν is the whole of 'the precise moment at which to pull the rein'; G325 τὸν προὔχοντα δοκεύει is 'keeps his eye well on the man in front of him'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.2.180",
@@ -448,9 +488,10 @@
    "reason": "G180 ταῦτα δʼ ἐγὼ σέο πολλὸν ἀμείνων μαντεύεσθαι is the whole clause 'I can read these omens myself much better than you can', which NOW splits after 'myself'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.2.220",
@@ -459,9 +500,10 @@
    "reason": "G219 ἔτι τλαίην ἐνιαυτόν is 'yet another twelve months'; G220 εἰ δέ κε τεθνηῶτος ἀκούσω is 'If on the other hand I hear of his death'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.2.305",
@@ -470,9 +512,10 @@
    "reason": "G304 ἔργον τε ἔπος τε is the pair 'neither in word nor deed'; G305 ἀλλά μοι ἐσθιέμεν καὶ πινέμεν is 'but eat and drink'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.3.205",
@@ -481,9 +524,10 @@
    "reason": "G204 καὶ ἐσσομένοισι πυθέσθαι is 'even to future generations'; G205 αἲ γὰρ ἐμοὶ τοσσήνδε θεοὶ δύναμιν περιθεῖεν is 'Would that the gods might grant me'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.3.280",
@@ -492,9 +536,10 @@
    "reason": "G279 ends Φοῖβος Ἀπόλλων; G280 οἷς ἀγανοῖς βελέεσσιν is the whole phrase 'with his painless shafts', which NOW splits after 'painless'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.3.285",
@@ -503,9 +548,10 @@
    "reason": "G284 κατέσχετʼ is 'had to wait'; G285 begins the purpose clause ὄφρʼ ἕταρον θάπτοι = 'in order to bury his comrade'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.3.325",
@@ -514,9 +560,10 @@
    "reason": "G324 δίφρος τε καὶ ἵπποι is 'a chariot...horses'; G325 πὰρ δέ τοι υἷες ἐμοί is 'and here are my sons'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.3.425",
@@ -525,9 +572,10 @@
    "reason": "G424 πάντας ἰὼν ἑτάρους ἀγέτω, λιπέτω δὲ δύʼ οἴους is the whole crew instruction now sitting after NOW; G425 εἷς δʼ αὖ χρυσοχόον Λαέρκεα is 'Some one else will run and fetch Laerkeus the goldsmith'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.3.440",
@@ -536,9 +584,10 @@
    "reason": "G439 κεράων is 'by the horns'; G440 χέρνιβα δέ σφʼ Ἄρητος is 'Aretos fetched water'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.4.10",
@@ -547,9 +596,10 @@
    "reason": "G9 οἷσιν ἄνασσεν is 'was reigning'; G10 υἱέι δὲ Σπάρτηθεν Ἀλέκτορος ἤγετο κούρην is 'For his only son he had found a bride from Sparta'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.4.570",
@@ -558,9 +608,10 @@
    "reason": "G569 γαμβρὸς Διός ἐσσι is 'Zeus' son-in-law'; G570 ὣς εἰπὼν ὑπὸ πόντον ἐδύσετο is 'As he spoke he dived under the waves'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.4.585",
@@ -569,9 +620,10 @@
    "reason": "G584 ἵνʼ ἄσβεστον κλέος εἴη is 'that his kleos might be inextinguishable'; G585 ταῦτα τελευτήσας νεόμην is 'after which I had a quick passage home'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.5.175",
@@ -580,9 +632,10 @@
    "reason": "G174 σχεδίῃ περάαν is 'put to sea on a raft', which NOW wrongly starts 175; G175 τὸ δʼ οὐδʼ ἐπὶ νῆες ἐῖσαι is 'Not even a well-found ship'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.6.160",
@@ -591,9 +644,10 @@
    "reason": "G159 οἶκόνδʼ ἀγάγηται is 'takes you to his own home'; G160 οὐ γάρ πω τοιοῦτον ἴδον is 'I never yet saw'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.6.320",
@@ -602,9 +656,10 @@
    "reason": "G320 begins ἀμφίπολοί τʼ Ὀδυσεύς τε as one compound subject, so 'Odysseus' belongs after the break with 'the maids'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.7.10",
@@ -613,9 +668,10 @@
    "reason": "G9 Ἀπείρηθεν νέες ἤγαγον is 'brought by sea from Apeira'; G10 Ἀλκινόῳ δʼ αὐτὴν γέρας ἔξελον is 'chosen as a prize for Alkinoos'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.7.20",
@@ -624,9 +680,10 @@
    "reason": "G19 ἀντεβόλησε θεά is 'she came towards him'; G20 παρθενικῇ ἐικυῖα is 'in the likeness of a little girl'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.7.130",
@@ -635,9 +692,10 @@
    "reason": "G129 ἀνὰ κῆπον ἅπαντα is 'throughout the whole garden'; G130 ἡ δʼ ἑτέρωθεν is 'while the other'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.8.60",
@@ -646,9 +704,10 @@
    "reason": "G59 δυοκαίδεκα μῆλʼ ἱέρευσεν is 'a dozen sheep'; G60 begins ὀκτὼ δʼ ἀργιόδοντας ὕας = 'eight full grown pigs'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.8.305",
@@ -657,9 +716,10 @@
    "reason": "G304 ἔστη δʼ ἐν προθύροισι is 'stood in the vestibule'; G305 σμερδαλέον δʼ ἐβόησε is 'making a dreadful noise as he shouted'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.8.330",
@@ -668,9 +728,10 @@
    "reason": "G329 κιχάνει τοι βραδὺς ὠκύν is 'the weak confound the strong'; G330 ὡς καὶ νῦν Ἥφαιστος is 'See how limping Hephaistos'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.8.420",
@@ -679,9 +740,10 @@
    "reason": "G419 δεξάμενοι δʼ ἄρα παῖδες is 'his sons received them'; G420 μητρὶ παρʼ αἰδοίῃ ἔθεσαν is 'placed them under their mother's charge'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.8.575",
@@ -690,9 +752,10 @@
    "reason": "G574 αὐτούς τε πόλιάς τʼ is 'the peoples themselves, and of their cities'; G575 ἠμὲν ὅσοι χαλεποί τε καὶ ἄγριοι is 'who were hostile, savage'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.10.215",
@@ -701,9 +764,10 @@
    "reason": "G214 ἀλλʼ ἄρα τοί γε is 'but'; G215 οὐρῇσιν μακρῇσι περισσαίνοντες is 'wagged their great tails'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.11.50",
@@ -712,9 +776,10 @@
    "reason": "G49 νεκύων ἀμενηνὰ κάρηνα is 'the poor feckless spirits'; G50 αἵματος ἆσσον ἴμεν is 'come near the blood'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.13.30",
@@ -723,9 +788,10 @@
    "reason": "G29 ends παμφανόωντα modifying ἠέλιον ('the sun'); G30 begins δῦναι ἐπειγόμενος, which is 'as though to hasten his setting'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.13.75",
@@ -734,9 +800,10 @@
    "reason": "G74 ends ἵνα νήγρετον εὕδοι ('that he might sleep soundly'); G75 begins πρυμνῆς, which is 'in the stern'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.13.105",
@@ -745,9 +812,10 @@
    "reason": "G104 ends αἱ νηϊάδες καλέονται ('who are called Naiads'); G105 begins ἐν δὲ κρητῆρές τε, which is 'There are mixing-bowls within it'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.13.125",
@@ -756,9 +824,10 @@
    "reason": "G124 ends ἐπελθὼν δηλήσαιτο ('steal them before Odysseus awoke'); G125 begins αὐτοὶ δʼ αὖτʼ οἶκόνδε πάλιν κίον, which is 'and then they made the best of their way home again'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.13.245",
@@ -767,9 +836,10 @@
    "reason": "G244 ends ἐν δέ τε οἶνος ('and also wine'); G245 αἰεὶ δʼ ὄμβρος ἔχει τεθαλυῖά τʼ ἐέρση is 'for it is watered both by rain and dew', while enjambed γίγνεται is already in 'grows'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.16.95",
@@ -778,9 +848,10 @@
    "reason": "G94 ends τοιούτου ἐόντος ('as you are'); G95 begins εἰπέ μοι, which is 'Tell me'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.16.155",
@@ -789,9 +860,10 @@
    "reason": "G154 ends ὁ δʼ εἵλετο χερσὶ πέδιλα ('took his sandals'); G155 begins δησάμενος δʼ ὑπὸ ποσσὶ πόλινδʼ ἴεν, which is 'bound them to his feet, and started for the town'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.16.215",
@@ -800,9 +872,10 @@
    "reason": "G214 ends ὀδύρετο, δάκρυα λείβων ('and wept'); G215 ἀμφοτέροισι δὲ τοῖσιν ὑφʼ ἵμερος ὦρτο γόοιο is 'They were both so much moved'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.16.340",
@@ -811,9 +884,10 @@
    "reason": "G339 πάνθʼ ὅσα οἱ φίλος υἱὸς ἀνώγει μυθήσασθαι is 'her son had bidden him tell her'; G340 αὐτὰρ ἐπεὶ δὴ πᾶσαν ἐφημοσύνην ἀπέειπε is 'When he had given his message'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.17.50",
@@ -822,9 +896,10 @@
    "reason": "G49 εἰς ὑπερῷʼ ἀναβᾶσα σὺν ἀμφιπόλοισι γυναιξὶν is 'go upstairs with your maids'; G50 begins εὔχεο πᾶσι θεοῖσι τεληέσσας ἑκατόμβας, which is 'and promise full and sufficient hecatombs'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.17.85",
@@ -833,9 +908,10 @@
    "reason": "G84 ends ἦγεν ἐς οἶκον ('took Theoklymenos to his own house'); G85 αὐτὰρ ἐπεί ῥʼ ἵκοντο δόμους εὖ ναιετάοντας is 'When they got there'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.17.210",
@@ -844,9 +920,10 @@
    "reason": "G209 ends κατὰ δὲ ψυχρὸν ῥέεν ὕδωρ ('the clear cold water came down to it'); G210 begins ὑψόθεν ἐκ πέτρης, which is 'from a rock high up'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.18.30",
@@ -855,9 +932,10 @@
    "reason": "G29 ends συὸς ὣς ληϊβοτείρης ('like so many boar's tusks'); G30 begins ζῶσαι νῦν, which is 'Get ready, therefore'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.19.340",
@@ -866,9 +944,10 @@
    "reason": "G339 ends δολιχηρέτμοιο ('to go on shipboard'); G340 κείω δʼ ὡς τὸ πάρος περ ἀΰπνους νύκτας ἴαυον is 'I will lie as I have lain on many a sleepless night hitherto', while NOW starts 340 with G341 πολλὰς γὰρ δὴ νύκτας.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.22.110",
@@ -877,9 +956,10 @@
    "reason": "G109 ὅθι οἱ κλυτὰ τεύχεα κεῖτο is 'where the armor was kept'; G110 ἔνθεν τέσσαρα μὲν σάκεʼ ἔξελε is 'He chose four shields'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.22.115",
@@ -888,9 +968,10 @@
    "reason": "G114 δυέσθην τεύχεα καλά is the whole of 'put on their armor'; G115 ἔσταν δʼ ἀμφʼ Ὀδυσῆα is 'and took their places near resourceful Odysseus'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.22.275",
@@ -899,9 +980,10 @@
    "reason": "G274 ends σταθμὸν ἐϋσταθέος μεγάροιο ('a bearing-post of the hall'); G275 ἄλλος δὲ θύρην is 'another went against the door', while enjambed βεβλήκειν is already in 'hit'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.22.325",
@@ -910,9 +992,10 @@
    "reason": "G324 ἄλοχόν τε φίλην σπέσθαι καὶ τέκνα τεκέσθαι is the whole of 'marry my wife and have children by her'; G325 τῷ οὐκ ἂν θάνατόν γε δυσηλεγέα προφύγοισθα is 'Therefore you shall die'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   },
   {
    "id": "od.23.270",
@@ -921,9 +1004,10 @@
    "reason": "G269 οἳ οὐκ ἴσασι θάλασσαν is 'have never heard of the sea'; G270 οὐδέ θʼ ἅλεσσι μεμιγμένον εἶδαρ ἔδουσιν is 'and do not even mix salt with their food', while enjambed ἀνέρες is already in 'the people'.",
    "checked_by": [
     "Sonnet reviewer",
-    "Grok (confirmed)"
+    "Grok (confirmed)",
+    "John (approved 2026-09-12)"
    ],
-   "status": "draft"
+   "status": "reviewed"
   }
  ]
 }

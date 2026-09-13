@@ -259,11 +259,19 @@ const jsonLd = {
       The revisers number every fifth line and many lines between. The reader
       breaks the English at each of those numbers and sets each group beside
       the Greek lines it translates; it does not divide a group any further,
-      and it prints a line number beside the English only at every fifth
-      line, as the Greek column does. Where Kosmos prints a number
+      and it prints a line number beside the English only at line 1 and
+      every fifth line, as the Greek column does. Where Kosmos prints a number
       twice, out of order, after a book's last words, or for a line this
       Greek text lacks (Il. 9.460, in lines 9.458–461, which Allen omits),
       no group breaks there.
+    </p>
+    <p>
+      In 84 places (40 in the Iliad, 44 in the Odyssey) Kosmos prints a
+      number a few words before or after the point where its Greek line
+      begins in the English. There the reader starts the group at the right
+      word instead. Each of these was checked against the Greek; no word of
+      the translation is changed. The list is kept in the site's source, in
+      <code>pipeline/homer_pipeline/kosmos_break_corrections.json</code>.
     </p>
     <blockquote>
       <em>Homeric Iliad</em> and <em>Homeric Odyssey</em>. Translated by
