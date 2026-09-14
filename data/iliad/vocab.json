@@ -205,6 +205,11 @@
     "gloss": "word, speech"
    },
    {
+    "lemma": "oi)=da",
+    "count": 11,
+    "gloss": "know, have knowledge of, be acquainted with"
+   },
+   {
     "lemma": "a)/ge",
     "count": 10,
     "gloss": "come on!"
@@ -223,11 +228,6 @@
     "lemma": "au)=qi",
     "count": 10,
     "gloss": "on the spot, here, there"
-   },
-   {
-    "lemma": "oi)=da",
-    "count": 10,
-    "gloss": "behold!"
    },
    {
     "lemma": "a(ge/omai",
@@ -287,9 +287,9 @@
     "gloss": "anything gotten, piece of property, possession"
    },
    {
-    "lemma": "pisto/n",
+    "lemma": "pisto/s2",
     "count": 8,
-    "gloss": "trusty, faithful"
+    "gloss": "to be trusted or believed"
    },
    {
     "lemma": "a)rno/s",
@@ -469,6 +469,11 @@
     "gloss": "stir up, egg on, encourage"
    },
    {
+    "lemma": "oi)=da",
+    "count": 7,
+    "gloss": "know, have knowledge of, be acquainted with"
+   },
+   {
     "lemma": "pei/qw",
     "count": 7,
     "gloss": "persuade"
@@ -502,11 +507,6 @@
     "lemma": "ai(=ma",
     "count": 6,
     "gloss": "blood"
-   },
-   {
-    "lemma": "be/los",
-    "count": 6,
-    "gloss": "missile"
    }
   ],
   "5": [
@@ -521,6 +521,11 @@
     "gloss": "strong, stout, mighty"
    },
    {
+    "lemma": "qea/",
+    "count": 17,
+    "gloss": "goddess"
+   },
+   {
     "lemma": "w)=mos",
     "count": 17,
     "gloss": "the shoulder with the upper arm"
@@ -529,11 +534,6 @@
     "lemma": "xa/lkeos",
     "count": 16,
     "gloss": "of copper or bronze, brazen"
-   },
-   {
-    "lemma": "qea/",
-    "count": 15,
-    "gloss": "goddess"
    },
    {
     "lemma": "me/nos",
@@ -748,6 +748,11 @@
     "gloss": "busied about, busy"
    },
    {
+    "lemma": "a)mu/mwn",
+    "count": 6,
+    "gloss": "blameless, noble, excellent"
+   },
+   {
     "lemma": "e)/rgon",
     "count": 6,
     "gloss": "work"
@@ -756,14 +761,14 @@
     "lemma": "eu)/xomai",
     "count": 6,
     "gloss": "pray"
-   },
-   {
-    "lemma": "eu)=",
-    "count": 6,
-    "gloss": "well"
    }
   ],
   "7": [
+   {
+    "lemma": "oi)=da",
+    "count": 10,
+    "gloss": "know, have knowledge of, be acquainted with"
+   },
    {
     "lemma": "a)/nac",
     "count": 9,
@@ -773,11 +778,6 @@
     "lemma": "mu=qos",
     "count": 9,
     "gloss": "word, speech"
-   },
-   {
-    "lemma": "oi)=da",
-    "count": 9,
-    "gloss": "behold!"
    },
    {
     "lemma": "ou(=tos",
@@ -1622,6 +1622,11 @@
     "gloss": "and not"
    },
    {
+    "lemma": "sa/kos",
+    "count": 10,
+    "gloss": "shield"
+   },
+   {
     "lemma": "gai=a",
     "count": 9,
     "gloss": "land, country"
@@ -1645,11 +1650,6 @@
     "lemma": "teu=xos",
     "count": 9,
     "gloss": "tool, implement"
-   },
-   {
-    "lemma": "a)/y",
-    "count": 8,
-    "gloss": "backwards, back again"
    }
   ],
   "14": [
@@ -1811,6 +1811,11 @@
     "gloss": "stay, wait"
    },
    {
+    "lemma": "oi)=da",
+    "count": 11,
+    "gloss": "know, have knowledge of, be acquainted with"
+   },
+   {
     "lemma": "teu/xw",
     "count": 11,
     "gloss": "make ready, make"
@@ -1874,11 +1879,6 @@
     "lemma": "no/os",
     "count": 8,
     "gloss": "mind"
-   },
-   {
-    "lemma": "oi)=da",
-    "count": 8,
-    "gloss": "behold!"
    },
    {
     "lemma": "sth=qos",
@@ -1998,11 +1998,6 @@
     "gloss": "overpower"
    },
    {
-    "lemma": "ko/nios",
-    "count": 9,
-    "gloss": "dusty"
-   },
-   {
     "lemma": "su/n",
     "count": 9,
     "gloss": "with"
@@ -2031,6 +2026,11 @@
     "lemma": "faeino/s",
     "count": 8,
     "gloss": "shining, radiant"
+   },
+   {
+    "lemma": "frone/w",
+    "count": 8,
+    "gloss": "to be minded"
    }
   ],
   "17": [
@@ -2197,6 +2197,11 @@
     "gloss": "fire"
    },
    {
+    "lemma": "qea/",
+    "count": 10,
+    "gloss": "goddess"
+   },
+   {
     "lemma": "ti/qhmi",
     "count": 10,
     "gloss": "set, put, place"
@@ -2220,6 +2225,11 @@
     "lemma": "kefalh/",
     "count": 9,
     "gloss": "head"
+   },
+   {
+    "lemma": "kei=mai",
+    "count": 9,
+    "gloss": "to be laid"
    },
    {
     "lemma": "mh/thr",
@@ -2275,16 +2285,6 @@
     "lemma": "ei)/domai",
     "count": 7,
     "gloss": "to be seen, appear"
-   },
-   {
-    "lemma": "fu/w",
-    "count": 7,
-    "gloss": "bring forth, produce, put forth"
-   },
-   {
-    "lemma": "i(ka/nw",
-    "count": 7,
-    "gloss": "come"
    }
   ],
   "19": [
@@ -2433,7 +2433,7 @@
    {
     "lemma": "oi)=da",
     "count": 9,
-    "gloss": "behold!"
+    "gloss": "know, have knowledge of, be acquainted with"
    },
    {
     "lemma": "a)qa/natos",
@@ -2583,6 +2583,11 @@
     "gloss": "kindle"
    },
    {
+    "lemma": "peda/w",
+    "count": 10,
+    "gloss": "bind with fetters"
+   },
+   {
     "lemma": "pri/n",
     "count": 10,
     "gloss": "before, until"
@@ -2606,6 +2611,11 @@
     "lemma": "me/nos",
     "count": 9,
     "gloss": "might, force"
+   },
+   {
+    "lemma": "r(o/os",
+    "count": 9,
+    "gloss": "stream, flow of water, current"
    },
    {
     "lemma": "u(/dwr",
@@ -2648,23 +2658,14 @@
     "gloss": "drag, draw"
    },
    {
+    "lemma": "kei=mai",
+    "count": 7,
+    "gloss": "to be laid"
+   },
+   {
     "lemma": "pau/w",
     "count": 7,
     "gloss": "make to end"
-   },
-   {
-    "lemma": "peda/w",
-    "count": 7,
-    "gloss": "bind with fetters"
-   },
-   {
-    "lemma": "r(o/on",
-    "count": 7
-   },
-   {
-    "lemma": "baqudi/nhs",
-    "count": 6,
-    "gloss": "deep-eddying"
    }
   ],
   "22": [
@@ -2759,6 +2760,11 @@
     "gloss": "come into a new state of being"
    },
    {
+    "lemma": "kei=mai",
+    "count": 7,
+    "gloss": "to be laid"
+   },
+   {
     "lemma": "me/maa",
     "count": 7,
     "gloss": "be eager, press on"
@@ -2787,11 +2793,6 @@
     "lemma": "xa/lkeos",
     "count": 7,
     "gloss": "of copper or bronze, brazen"
-   },
-   {
-    "lemma": "e)ru/w",
-    "count": 6,
-    "gloss": "drag, draw"
    }
   ],
   "23": [
@@ -2876,6 +2877,11 @@
     "gloss": "as great as, how great"
    },
    {
+    "lemma": "peda/w",
+    "count": 10,
+    "gloss": "bind with fetters"
+   },
+   {
     "lemma": "pu=r",
     "count": 10,
     "gloss": "fire"
@@ -2914,11 +2920,6 @@
     "lemma": "deu/teros",
     "count": 9,
     "gloss": "second"
-   },
-   {
-    "lemma": "pe/dion",
-    "count": 9,
-    "gloss": "plain"
    }
   ],
   "24": [
@@ -3038,14 +3039,14 @@
     "gloss": "woman"
    },
    {
+    "lemma": "kei=mai",
+    "count": 9,
+    "gloss": "to be laid"
+   },
+   {
     "lemma": "mu=qos",
     "count": 9,
     "gloss": "word, speech"
-   },
-   {
-    "lemma": "o)fqalmo/s",
-    "count": 9,
-    "gloss": "eye"
    }
   ]
  }

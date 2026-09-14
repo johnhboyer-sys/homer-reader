@@ -48,6 +48,11 @@
     "gloss": "to be conscious, in full possession of oneʼs faculties"
    },
    {
+    "lemma": "qea/",
+    "count": 8,
+    "gloss": "goddess"
+   },
+   {
     "lemma": "te/rpw",
     "count": 8,
     "gloss": "delight, gladden, cheer"
@@ -76,11 +81,6 @@
     "lemma": "mh/thr",
     "count": 7,
     "gloss": "mother"
-   },
-   {
-    "lemma": "qea/",
-    "count": 7,
-    "gloss": "goddess"
    },
    {
     "lemma": "a)/ge",
@@ -135,6 +135,11 @@
     "gloss": "wooer, suitor"
    },
    {
+    "lemma": "oi)=da",
+    "count": 13,
+    "gloss": "know, have knowledge of, be acquainted with"
+   },
+   {
     "lemma": "e)/rgon",
     "count": 11,
     "gloss": "work"
@@ -153,11 +158,6 @@
     "lemma": "o)/llumi",
     "count": 9,
     "gloss": "destroy, make an end of"
-   },
-   {
-    "lemma": "oi)=da",
-    "count": 9,
-    "gloss": "behold!"
    },
    {
     "lemma": "a(/pas",
@@ -240,19 +240,19 @@
     "gloss": "speak among, address"
    },
    {
-    "lemma": "oi)=non",
+    "lemma": "oi)=nos",
     "count": 6,
     "gloss": "wine"
+   },
+   {
+    "lemma": "oi)=os",
+    "count": 6,
+    "gloss": "alone, lonely"
    },
    {
     "lemma": "pote/",
     "count": 6,
     "gloss": "at some time"
-   },
-   {
-    "lemma": "punqa/nomai",
-    "count": 6,
-    "gloss": "learn"
    }
   ],
   "3": [
@@ -292,7 +292,7 @@
     "gloss": "as great as, how great"
    },
    {
-    "lemma": "oi)=non",
+    "lemma": "oi)=nos",
     "count": 9,
     "gloss": "wine"
    },
@@ -379,10 +379,15 @@
    {
     "lemma": "dai/s3",
     "count": 6,
-    "gloss": "fire-brand, pine-torch"
+    "gloss": "meal, banquet"
    }
   ],
   "4": [
+   {
+    "lemma": "oi)=da",
+    "count": 18,
+    "gloss": "know, have knowledge of, be acquainted with"
+   },
    {
     "lemma": "dw=ma",
     "count": 17,
@@ -417,11 +422,6 @@
     "lemma": "a)mei/bw",
     "count": 14,
     "gloss": "change, exchange"
-   },
-   {
-    "lemma": "oi)=da",
-    "count": 14,
-    "gloss": "behold!"
    },
    {
     "lemma": "pri/n",
@@ -521,6 +521,11 @@
     "gloss": "sea"
    },
    {
+    "lemma": "qea/",
+    "count": 21,
+    "gloss": "goddess"
+   },
+   {
     "lemma": "gai=a",
     "count": 19,
     "gloss": "land, country"
@@ -546,19 +551,9 @@
     "gloss": "day"
    },
    {
-    "lemma": "qe/a",
-    "count": 11,
-    "gloss": "seeing, looking at"
-   },
-   {
     "lemma": "patri/s",
     "count": 10,
     "gloss": "of oneʼs fathers"
-   },
-   {
-    "lemma": "qea/",
-    "count": 10,
-    "gloss": "goddess"
    },
    {
     "lemma": "a)qa/natos",
@@ -609,6 +604,11 @@
     "lemma": "megalh/twr",
     "count": 7,
     "gloss": "greathearted"
+   },
+   {
+    "lemma": "oi)=da",
+    "count": 7,
+    "gloss": "know, have knowledge of, be acquainted with"
    },
    {
     "lemma": "pe/mpw",
@@ -957,6 +957,11 @@
     "gloss": "urge, drive on"
    },
    {
+    "lemma": "oi)=da",
+    "count": 9,
+    "gloss": "know, have knowledge of, be acquainted with"
+   },
+   {
     "lemma": "teu/xw",
     "count": 9,
     "gloss": "make ready, make"
@@ -975,11 +980,6 @@
     "lemma": "me/nos",
     "count": 8,
     "gloss": "might, force"
-   },
-   {
-    "lemma": "oi)=da",
-    "count": 8,
-    "gloss": "behold!"
    },
    {
     "lemma": "po/lis",
@@ -1034,6 +1034,11 @@
     "gloss": "each"
    },
    {
+    "lemma": "oi)=nos",
+    "count": 13,
+    "gloss": "wine"
+   },
+   {
     "lemma": "i(kne/omai",
     "count": 12,
     "gloss": "come"
@@ -1062,11 +1067,6 @@
     "lemma": "o)fqalmo/s",
     "count": 10,
     "gloss": "eye"
-   },
-   {
-    "lemma": "oi)=non",
-    "count": 10,
-    "gloss": "wine"
    },
    {
     "lemma": "su/n",
@@ -1114,11 +1114,6 @@
     "gloss": "at which time, when"
    },
    {
-    "lemma": "ke/w",
-    "count": 8,
-    "gloss": "to lie down"
-   },
-   {
     "lemma": "to/sos",
     "count": 8,
     "gloss": "so great, so vast"
@@ -1142,6 +1137,11 @@
     "lemma": "au)ti/ka",
     "count": 7,
     "gloss": "forthwith, at once, in a moment"
+   },
+   {
+    "lemma": "ce/nos1",
+    "count": 7,
+    "gloss": "guest-friend"
    }
   ],
   "10": [
@@ -1174,6 +1174,11 @@
     "lemma": "patri/s",
     "count": 11,
     "gloss": "of oneʼs fathers"
+   },
+   {
+    "lemma": "qea/",
+    "count": 11,
+    "gloss": "goddess"
    },
    {
     "lemma": "i(kne/omai",
@@ -1264,11 +1269,6 @@
     "lemma": "eu)na/w",
     "count": 7,
     "gloss": "lay"
-   },
-   {
-    "lemma": "h(=mai",
-    "count": 7,
-    "gloss": "to be seated, sit"
    }
   ],
   "11": [
@@ -1313,6 +1313,11 @@
     "gloss": "mother"
    },
    {
+    "lemma": "a)mu/mwn",
+    "count": 9,
+    "gloss": "blameless, noble, excellent"
+   },
+   {
     "lemma": "e)/rgon",
     "count": 9,
     "gloss": "work"
@@ -1335,7 +1340,7 @@
    {
     "lemma": "pw",
     "count": 9,
-    "gloss": "where?"
+    "gloss": "up to this time, yet"
    },
    {
     "lemma": "au)ti/ka",
@@ -1381,11 +1386,6 @@
     "lemma": "a)ei/",
     "count": 7,
     "gloss": "ever, always"
-   },
-   {
-    "lemma": "a)mu/mwn",
-    "count": 7,
-    "gloss": "blameless, noble, excellent"
    },
    {
     "lemma": "boulh/",
@@ -1614,7 +1614,7 @@
    {
     "lemma": "oi)=da",
     "count": 6,
-    "gloss": "behold!"
+    "gloss": "know, have knowledge of, be acquainted with"
    },
    {
     "lemma": "pa/sxw",
@@ -1749,6 +1749,16 @@
     "gloss": "where"
    },
    {
+    "lemma": "oi)=da",
+    "count": 7,
+    "gloss": "know, have knowledge of, be acquainted with"
+   },
+   {
+    "lemma": "oi)=nos",
+    "count": 7,
+    "gloss": "wine"
+   },
+   {
     "lemma": "a(/pas",
     "count": 6,
     "gloss": "quite all, the whole"
@@ -1767,16 +1777,6 @@
     "lemma": "file/w",
     "count": 6,
     "gloss": "love, regard with affection"
-   },
-   {
-    "lemma": "gai=a",
-    "count": 6,
-    "gloss": "land, country"
-   },
-   {
-    "lemma": "ke/w",
-    "count": 6,
-    "gloss": "to lie down"
    }
   ],
   "15": [
@@ -1983,6 +1983,11 @@
     "gloss": "mine"
    },
    {
+    "lemma": "oi)/omai",
+    "count": 7,
+    "gloss": "forebode, presage"
+   },
+   {
     "lemma": "prosei=pon",
     "count": 7,
     "gloss": "speak to"
@@ -2026,11 +2031,6 @@
     "lemma": "ge/rwn",
     "count": 6,
     "gloss": "old man"
-   },
-   {
-    "lemma": "h(me/teros",
-    "count": 6,
-    "gloss": "our"
    }
   ],
   "17": [
@@ -2087,7 +2087,7 @@
    {
     "lemma": "dai/s3",
     "count": 10,
-    "gloss": "fire-brand, pine-torch"
+    "gloss": "meal, banquet"
    },
    {
     "lemma": "pro/sfhmi",
@@ -2130,6 +2130,11 @@
     "gloss": "beautiful"
    },
    {
+    "lemma": "oi)=da",
+    "count": 8,
+    "gloss": "know, have knowledge of, be acquainted with"
+   },
+   {
     "lemma": "prosauda/w",
     "count": 8,
     "gloss": "speak to, address, accost"
@@ -2153,11 +2158,6 @@
     "lemma": "a)/nwga",
     "count": 7,
     "gloss": "command, order"
-   },
-   {
-    "lemma": "ai)/",
-    "count": 7,
-    "gloss": "if; would that"
    }
   ],
   "18": [
@@ -2396,7 +2396,7 @@
    {
     "lemma": "oi)=da",
     "count": 8,
-    "gloss": "behold!"
+    "gloss": "know, have knowledge of, be acquainted with"
    },
    {
     "lemma": "pote/",
@@ -2481,7 +2481,7 @@
     "gloss": "heart"
    },
    {
-    "lemma": "oi)=non",
+    "lemma": "oi)=nos",
     "count": 6,
     "gloss": "wine"
    },
@@ -2511,6 +2511,16 @@
     "gloss": "forebode, presage"
    },
    {
+    "lemma": "oi)=da",
+    "count": 5,
+    "gloss": "know, have knowledge of, be acquainted with"
+   },
+   {
+    "lemma": "qea/",
+    "count": 5,
+    "gloss": "goddess"
+   },
+   {
     "lemma": "si=tos",
     "count": 5,
     "gloss": "grain"
@@ -2529,16 +2539,6 @@
     "lemma": "a)llh/lwn",
     "count": 4,
     "gloss": "of one another, to one another, one another"
-   },
-   {
-    "lemma": "ai)/c",
-    "count": 4,
-    "gloss": "goat"
-   },
-   {
-    "lemma": "dai/s3",
-    "count": 4,
-    "gloss": "fire-brand, pine-torch"
    }
   ],
   "21": [
@@ -2593,6 +2593,11 @@
     "gloss": "bodily strength, force"
    },
    {
+    "lemma": "kei=mai",
+    "count": 8,
+    "gloss": "to be laid"
+   },
+   {
     "lemma": "oi)=kos",
     "count": 8,
     "gloss": "house"
@@ -2606,11 +2611,6 @@
     "lemma": "kalo/s",
     "count": 7,
     "gloss": "beautiful"
-   },
-   {
-    "lemma": "ke/w",
-    "count": 7,
-    "gloss": "to lie down"
    },
    {
     "lemma": "pote/",
@@ -2819,7 +2819,7 @@
    {
     "lemma": "oi)=da",
     "count": 8,
-    "gloss": "behold!"
+    "gloss": "know, have knowledge of, be acquainted with"
    },
    {
     "lemma": "oi)=kos",
@@ -2854,7 +2854,7 @@
    {
     "lemma": "pw",
     "count": 7,
-    "gloss": "where?"
+    "gloss": "up to this time, yet"
    },
    {
     "lemma": "sh=ma",
@@ -2969,6 +2969,11 @@
     "gloss": "well"
    },
    {
+    "lemma": "oi)=da",
+    "count": 9,
+    "gloss": "know, have knowledge of, be acquainted with"
+   },
+   {
     "lemma": "po/lis",
     "count": 9,
     "gloss": "city"
@@ -3034,19 +3039,14 @@
     "gloss": "beautiful"
    },
    {
-    "lemma": "ke/w",
-    "count": 7,
-    "gloss": "to lie down"
-   },
-   {
     "lemma": "metei=pon",
     "count": 7,
     "gloss": "speak among, address"
    },
    {
-    "lemma": "oi)=da",
+    "lemma": "pro/sfhmi",
     "count": 7,
-    "gloss": "behold!"
+    "gloss": "speak to, address"
    }
   ]
  }
