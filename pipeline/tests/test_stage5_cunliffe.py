@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "pipeline"))
 
@@ -1941,11 +1943,106 @@ def test_the_note_rules_do_not_behead_a_word_that_merely_starts_with_so():
     assert not any(z.strip().startswith("mething") for z in zs), zs
     assert any("something to serve as a basis" in z for z in zs), zs
 
-    # The mark itself still works where it really is one.
+    # The mark itself still works where it really is one: end of text,
+    # punctuation, or a citation. "So" followed by a word is running text.
     assert sc._LEADING_NOTE_RE.match("So ")
     assert sc._LEADING_NOTE_RE.match("So. ")
     assert not sc._LEADING_NOTE_RE.match("Something")
     assert not sc._LEADING_NOTE_RE.match("Source, origin")
+    assert not sc._LEADING_NOTE_RE.match("Soothing")
+    assert not sc._LEADING_NOTE_RE.match("So as")
+    assert not sc._LEADING_NOTE_RE.match("So that")
+    assert not sc._LEADING_NOTE_RE.match("So in")
+    assert not sc._LEADING_NOTE_RE.match("So with")
+
+
+AEIKELIWS = (
+    "ἀεικελίως [adv. fr. ἀεικέλιος.] 1 In unseemly wise Od. 16.109 = Od. "
+    "20.319. 2 So as to impair one's vigour Od. 8.231."
+)
+AKLEIWS = (
+    "ἀκλειῶς [adv. fr. ἀκλεής. Doubtless for ἀκλεεῶς.] 1 In inglorious wise: "
+    "μὴ ἀ. ἀπολοίμην Il. 22.304. 2 So that no tidings come: ἀ. μιν ἅρπυιαι "
+    "ἀνηρείψαντο Od. 1.241 = Od. 14.371."
+)
+KAKWS = (
+    "κακῶς [adv. fr. κακός.] 1 In evil case or plight, miserably, with "
+    "suffering: νοστήσομεν Il. 2.253. Cf. Il. 5.698, Il. 21.460: Od. 9.534, "
+    "Od. 11.114=Od. 12.141. Intensifying a vb. indicating suffering: κ. "
+    "πάσχοντος Od. 16.275. Sim.: αὐχμεῖς κ. Od. 24.250. In impers. construction "
+    "of being in evil case, of things going badly with one: Κουρήτεσσι κ. ἦν "
+    "Il. 9.551. Cf. Il. 9.324. 2 So as to bring suffering or sore trouble upon "
+    "one: ἐξ ἵππων βῆσε κ. Il. 5.164. Cf. Od. 18.75 (sorely). 3 With evil "
+    "intent, with malice in one's heart: κ. φρονέουσιν Od. 18.168. With "
+    "disregard of right, with violence, abuse, insult: κ. ἀφίει Il. 1.25= 379. "
+    "Cf. Od. 2.203, 266, Od. 4.766, Od. 17.394.–κ. ῥέζειν τινά, to treat one "
+    "with despite, do him wrong: κ. οἵ πέρ μιν ἔρεζον μνηστῆρες Il. 23.56. 4 "
+    "So as to bring trouble on oneself, in an evil hour: κ. τοξάζεαι Od. 22.27."
+)
+ANGCHISTOS = (
+    "ἄγχιστος [superl. fr. ἄγχι.] 1 In neut. ἄγχιστον as adv., nearest. With "
+    "dat.: ἀ. αὐτῷ Od. 5.280. 2 So in pl. ἄγχιστα a Most nearly Il. 20.18 "
+    "(see δαίω1 2). b With regard to resemblance, most closely, very closely. "
+    "With dat.: Νέστορι ἀ. ἐῴκει Il. 2.58. Cf. Il. 14.474: Od. 6.152, Od. "
+    "13.80."
+)
+THESKELOS = (
+    "θέσκελος [the first element seems to be the same as in θέσ-φατος.] 1 "
+    "App., marvellous, wondrous, or the like: ἔργα Il. 3.130: Od. 11.374, "
+    "610.– 2 So in neut. θέσκελον as adv., marvellously, in wondrous wise: "
+    "ἔϊκτο θέσκελον αὐτῷ Il. 23.107."
+)
+RHIS = (
+    "ῥίς ῥινός, ἡ (an initial consonant app. lost). 1 The nose : ἀμβροσίνη "
+    "ὑπὸ ῥῖνα θῆκεν Od. 4.445. Cf. Il. 5.291, Il. 13.616 : Od. 18.86. 2 So in "
+    "pl., the nose (as containing the two nostrils) : ἀπʼ οὔατα ῥῖνάς τʼ "
+    "ἀμήσαντες Od. 21.301. Cf. Il. 14.467, Il. 16.503, Il. 23.395 : Od. "
+    "22.475. With special reference to the nostrils : αἷμʼ ἀνὰ στόμα καὶ "
+    "κατὰ ῥῖνας πρῆσεν Il. 16.349. Cf. Il. 19.39, Il. 23.777 : Od. 5.456, "
+    "Od. 22.18, Od. 24.318."
+)
+NEMESAO = (
+    "νεμεσάω νεμεσσάω [νέμεσις.] 1 To be righteously indignant or vexed, to "
+    "conceive, feel or express blame or censure, utter reproach Il. 4.507, "
+    "Il. 8.198, Il. 10.145 = Il. 16.22, Il. 13.293 : Od. 17.481 = Od. 21.285. "
+    "With dat.: ἄλλῃ νεμεσῶ Od. 6.286. Cf. Il. 13.16 = 353, Il. 23.494 : Od. "
+    "2.101 = Od. 19.146 = Od. 24.136, Od. 21.147. With dat. and with the cause "
+    "expressed by a pple. : οὐ νεμεσῶ Ἀγαμέμνονι ὀτρύνοντι μάχεσθαι Il. 4.413. "
+    "By an acc. : μή μοι τόδε νεμέσσα, οὕνεκα . . . Od. 23.213. By an infin.: "
+    "μή μοι νεμεσήσετε τείσασθαι . . . Il. 15.115. 2 So in mid. and in aor. "
+    "pass. in mid. sense : πᾶσι νεμεσσηθεῖσα μετηύδα (her feelings getting "
+    "the better of her) Il. 15.103, νεμεσσηθείς χʼ ὑποείξω (though indignant, "
+    "repressing my indignation) 211. Cf. Il. 15.227 : νεμεσσῶμαι δέ τʼ ἀκούων "
+    "Od. 21.169. Cf. Od. 1.228, Od. 19.264. The cause expressed by an acc. : "
+    "ὃς νεμεσσᾶται κακὰ ἔργα Od. 14.284. By acc. and infin.: νεμεσσήθη ξεῖνον "
+    "δηθὰ θύρῃσιν ἐφεστάμεν Od. 1.119. Cf. Od. 18.227. By infin. alone : "
+    "νεμεσσῶμαί γʼ οὐδὲν κλαίειν . . . (I say nothing against it) Od. 4.195. "
+    "With dat. : τῷ νεμέσσηθεν Il. 2.223. Cf. Il. 10.115, 129, Il. 13.119, "
+    "Il. 17.93, 100, Il. 24.53 : Od. 1.158, Od. 15.69, Od. 19.121. 3 In sim. "
+    "forms, to be dissatisfied or displeased with oneself : νεμεσσήθητε θυμῷ "
+    "(think shame (to stand idle)) Il. 16.544. Cf. Od. 2.64. With infin. Od. "
+    "4.158."
+)
+
+
+def test_so_opening_a_sense_is_running_text_not_a_closing_note():
+    """A sense that begins 'So as|that|in|with' is Cunliffe defining, not
+    closing the list above. The opening 'So' used to move onto the previous
+    sense's citation list, beheading the definition."""
+    cases = (
+        ("a)eikeli/ws", "ἀεικελίως", AEIKELIWS, "2", "So as to impair"),
+        ("a)kleiw=s", "ἀκλειῶς", AKLEIWS, "2", "So that no tidings come"),
+        ("kakw=s", "κακῶς", KAKWS, "2", "So as to bring suffering"),
+        ("a)/gxistos", "ἄγχιστος", ANGCHISTOS, "2", "So in pl."),
+        ("qe/skelos", "θέσκελος", THESKELOS, "2", "So in neut."),
+        ("r(i/s", "ῥίς", RHIS, "2", "So in pl."),
+        ("nemesa/w", "νεμεσάω", NEMESAO, "2", "So in mid."),
+    )
+    for key, head, body, n, prefix in cases:
+        t8 = sc.to_t8(key, head, body)
+        rows = [r for r in t8["rows"] if r.get("n") == n]
+        assert rows, (key, [_text(r.get("z") or "") for r in t8["rows"]])
+        assert _text(rows[0]["z"]).startswith(prefix), (key, _text(rows[0]["z"]))
 
 
 # ── a line range is one reference, not a reference and a loose digit ────────
@@ -1966,25 +2063,185 @@ ASTU = (
 )
 
 
+def test_a_pointer_to_another_headword_sense_is_not_this_entrys_sense():
+    """ἄστυ / δαιτύς, whole and real.
+
+    'πόλις 1' and 'δαίς 1' point at another entry's sense 1. Taking the digit
+    as this entry's own sense 1 left ἄστυ with a fake sense whose body opened
+    'Il. 21.607' and a head that ended '(used as = πόλις '.
+    """
+    out = sc.split_senses(ASTU)
+    assert out["senses"] == []
+    assert "(used as = πόλις 1 Il. 21.607:" in out["head"]
+    assert "see πόλις (2))" in out["head"]
+
+    daitus = "δαιτύς -ύος, ἡ = δαίς 1 Il. 22.496."
+    out2 = sc.split_senses(daitus)
+    assert out2["senses"] == []
+    assert out2["head"] == daitus
+
+
+ANTHROPOS = (
+    "ἄνθρωπος -ου, ὁ 1 a A human being, a man (seldom in sing. and never of a "
+    "particular man): ἐσσομένοισι μετʼ ἀνθρώποισιν Il. 3.287, μυὼν ἀνθρώπου "
+    "Il. 16.315. Cf. Il. 6.14, Il. 9.134, Il. 10.213, Il. 13.733, etc.: πολλῶν "
+    "ἀνθρώπων ἄστεα Od. 1.3, ὃς ἀνθρώπους ἐκέκαστο (all men) Od. 19.395. Cf. "
+    "Od. 19.395. Cf. Od. 1.183, Od. 3.48, Od. 6.259, Od. 7.23, etc. For μεροπες "
+    "ἄνθρωποι see μέροπες. b Mankind, man: οὐδὲν ἀκιδνότερον ἀνθρώπου Od. "
+    "18.130. c Quasi-pronominal = one, anyone: ὅ κε στυγέῃσιν ἰδὼν ἀ. ἔχοντά "
+    "[σε] Od. 13.400. d With a qualifying sb.: ἀ. ὁδίτης Il. 16.263. Cf. Il. "
+    "24.202: Od. 7.32, Od. 13.123. 2 Specifically, a man as distinguished from "
+    "a god: οὔτε θεῶν οὔτʼ ἀνθρώπων Il. 1.548. Cf. Il. 2.669, Il. 5.442, Il. "
+    "6.180, Il. 8.27, etc.: νέμεσις ἐξ ἀνθρώπων ἔσσεται Od. 2.136. Cf. Od. "
+    "13.110, Od. 14.179, Od. 20.112, Od. 22.346, etc. With words indicative of "
+    "mortality: θνητός Il. 1.339, Il. 14.199, etc.: Od. 1.219, Od. 5.32, "
+    "etc.– καταθνητός Il. 6.123: Od. 3.114, Od. 9.502, etc."
+)
+AUTAR = (
+    "αὐτάρ ἀτάρ 1 Adversative particle, but. a αὐτάρ Il. 1.118, 333, 488, Il. "
+    "2.224, etc.: Od. 1.57, 200, 303, 397, etc. b ἀτάρ Il. 1.166, Il. 4.29, Il. "
+    "5.29, Il. 6.125, Il. 11.614, etc.: Od. 2.122, Od. 3.298, Od. 4.32, Od. "
+    "17.307, etc. 2 Particle of transition or continuation. a αὐτάρ: οὐρῆας μὲν "
+    "πρῶτον ἐπῴχετο, αὐ. ἔπειτα . . . Il. 1.51. Cf. Il. 1.282, Il. 2.103, 105, "
+    "107, etc.: Od. 1.9, 123, Od. 6.132, Od. 8.38, etc. b ἀτάρ: μάψ, ἀ. οὐ κατὰ "
+    "κόσμον (yea) Il. 2.214. Cf. Il. 1.506, Il. 2.313, Il. 3.268, Il. 4.484, "
+    "etc.: Od. 1.181, 419, Od. 2.240, Od. 3.138, etc. 3 ἀτάρ introducing a "
+    "statement or injunction: Ἕκτορ, ἀ. σὺ πόλινδε μετέρχεο Il. 6.86. Cf. Il. "
+    "6.429, Il. 22.331: Od. 4.236.–αὐτάρ introd. an apodosis Il. 3.290, Il. "
+    "22.390."
+)
+TALANTON = (
+    "τάλαντον τό 1 In pl., a pair of scales, a balance: ὥς τε τάλαντα γυνὴ "
+    "χερνῆτις [ἔχει] Il. 12.433. The scales of Zeus: χρύσεια πατὴρ ἐτίταινε "
+    "τάλαντα Il. 8.69=Il. 22.209. Cf. Il. 16.658 (figuratively), Il. 19.223. 2 "
+    "A definite weight (of gold) of uncertain amount, a talent (of gold): δέκα "
+    "χρυσοῖο τάλαντα Il. 9.122= 264. Cf. Il. 18.507, Il. 19.247, Il. 23.269, "
+    "614, Il. 24.232: Od. 4.129, 526, Od. 8.393, Od. 9.202, Od. 24.274."
+)
+CHLOROS = (
+    "χλωρός -ή, -όν. An adjective of colour of somewhat indeterminate sense. 1 "
+    "Applied to what we call green. Still green, freshly cut: ῥῶπας Od. 16.47. "
+    "Cf. Od. 9.320, 379. 2 To what we call yellow: μέλι Il. 11.631: Od. 10.234. "
+    "3 In reference to the hue of the countenance, livid, pallid: χλωρὸς "
+    "(χλωροὶ) ὑπαὶ δείους Il. 10.376, Il. 15.4. Epithet of δέος Il. 7.479, Il. "
+    "8.77, Il. 17.67: Od. 11.43, 633, Od. 12.243, Od. 22.42, Od. 24.450, 533."
+)
+EPIEIKTOS = (
+    "ἐπιεικτός -όν [app. ἐπι- 4 + (ϝ)είκω2. For the form cf. νεμεσητός 2.] "
+    "Always with neg., giving senses 1 Unyielding, indomitable: μένος οὐκ "
+    "ἐπιεικτόν Od. 19.493. 2 Ungovernable, not to be restrained: μένος Il. "
+    "5.892. 3 Irresistible: σθένος Il. 8.32. 4 Irrepressible: πένθος Il. 16.549. "
+    "5 Intolerable, unendurable: ἔργα Od. 8.307."
+)
+EN_PREFIX = (
+    "ἐν- Also in forms εἰν-, ἐνι-, and in assimilated forms ἐγ-, ἐμ-. 1 In (in "
+    "local and immaterial senses). Also (as in ἔνορχος, ἐνῶπα) indicating the "
+    "presence in something of what is indicated by the second element. 2 Into "
+    "(in local and immaterial senses). 3 On, upon, on to; also in hostile "
+    "sense. 4 Among. 5 Towards. 6 Intensive (commonly not appreciably affecting "
+    "the sense)."
+)
+ANCHOU = (
+    "ἀγχοῦ [ἄγχι.] = ἄγχι 1 Il. 2.172, Il. 4.203, etc.: Od. 4.25, Od. 5.159, "
+    "Od. 17.526, Od. 19.271, etc. With genit.: πυλάων Il. 24.709: κυκλώπων Od. "
+    "6.5."
+)
+SPLANCHNA = (
+    "σπλάγχνα τά. The entrails (such as the heart, liver and spleen) of an "
+    "animal killed as under ἱερεύω 1 or (2) : ἐπεὶ σπλάγχνα πάσαντο Il. 1.464 = "
+    "Il. 2.427 : = Od. 3.461 = Od. 12.364. Cf. Il. 2.426 : Od. 3.9, 40, Od. "
+    "20.252, 260."
+)
+KUNEH = (
+    "κυνέη -ης, ἡ [commonly taken as fem. of κύνεος (sc. δορά, hide) in sense a "
+    "helmet, originally of dogskin.] A helmet Il. 3.316, Il. 5.743, 845 (the "
+    "cap of darkness, the name Ἀΐδης (Ἀ(ϝ)ίδης) here preserving its orig. "
+    "sense the Invisible, fr. α- 1 + (ϝ)ιδ-, εἴδω), Il. 10.261, Il. 12.384, Il. "
+    "16.793, etc. : Od. 10.206, Od. 14.276, Od. 22.111, 123, 145. With "
+    "adjectives of material : ταυρείην Il. 10.257, κτιδέην 335, 458: πάγχαλκος "
+    "Od. 18.378, πάγχαλκον Od. 22.102. A cap worn in ordinary life : αἰγείην "
+    "Od. 24.231."
+)
+DEUTE = (
+    "δεῦτε = δεῦρο. Used in dual and pl. contexts. 1 = δεῦρο 1 elliptically: δ. "
+    "καί μʼ ἀμύνετε Il. 13.481. Cf. Od. 8.307. 2 = δεῦρο 3: δ. δύω μοι ἕπεσθον "
+    "Il. 22.450. With ἄγε Od. 8.11. 3 = δεῦρο 4 (with or without ἄγετε): δ. "
+    "ἴομεν Il. 14.128. Cf. Il. 7.350: Od. 2.410, Od. 8.133."
+)
+
+
+@pytest.mark.parametrize(
+    "body, expected",
+    [
+        (ANTHROPOS, ["1", "2"]),
+        (AUTAR, ["1", "2", "3"]),
+        (TALANTON, ["1", "2"]),
+        (CHLOROS, ["1", "2", "3"]),
+        (EPIEIKTOS, ["1", "2", "3", "4", "5"]),
+        (EN_PREFIX, ["1", "2", "3", "4", "5", "6"]),
+    ],
+    ids=["anthropos", "autar", "talanton", "chloros", "epieiktos", "en-"],
+)
+def test_a_real_sense_1_after_a_head_form_is_kept(body, expected):
+    """A sense 1 after this entry's own head form, article, variant, or
+    English 'sense' is this entry's numbering, not a pointer."""
+    assert [s["n"] for s in sc.split_senses(body)["senses"]] == expected
+
+
+@pytest.mark.parametrize(
+    "body, expected",
+    [
+        (ANCHOU, []),
+        (ASTU, []),
+        ("δαιτύς -ύος, ἡ = δαίς 1 Il. 22.496.", []),
+        (SPLANCHNA, []),
+        (KUNEH, []),
+        (DEUTE, ["1", "2", "3"]),
+    ],
+    ids=["anchou", "astu", "daitus", "splanchna", "kuneh", "deute"],
+)
+def test_a_pointer_number_is_not_this_entrys_sense(body, expected):
+    """'= ἄγχι 1', 'as under ἱερεύω 1', 'fr. α- 1', '= δεῦρο 4' point at
+    another entry's sense. δεῦτε keeps its own 1, 2, 3."""
+    assert [s["n"] for s in sc.split_senses(body)["senses"]] == expected
+
+
 def test_a_line_range_does_not_expand_its_tail_into_a_second_reference():
     """ἄστυ, whole and real.
 
-    Three ranges, and every tail became a live link to a line the entry never
-    cites: Od. 6.8, Od. 8.5, Od. 14.3. The hyphen between the two halves
-    reached the citation list as a bare "-".
+    Three ranges sit inside the parenthesis that points at πόλις 1. They are
+    running text, not this entry's citation list: the tails must not become
+    live links to Od. 6.8, Od. 8.5, Od. 14.3, and the hyphen must not land as
+    a citation of its own. After the pointer is left in the head, the
+    parenthesis stays whole and each range is still printed whole.
     """
     t8 = sc.to_t8("a)/stu", "ἄστυ", ASTU)
+    assert sc.split_senses(ASTU)["senses"] == []
+    assert all((r.get("n") or "") == "" for r in t8["rows"])
+
+    text = _all_text(t8)
+    assert "(used as = πόλις 1 Il. 21.607:" in text
+    assert "see πόλις (2))" in text
+    for printed in ("Od. 6.177-8", "Od. 8.524-5", "Od. 14.472-3"):
+        assert printed in text, printed
+
     cites = _cites(t8)
     for ghost in ("Od. 6.8", "Od. 8.5", "Od. 14.3"):
         assert ghost not in cites, ghost
     assert "-" not in cites
-    # the range is kept as Cunliffe printed it, whole
-    for printed in ("Od. 6.177-8", "Od. 8.524-5", "Od. 14.472-3"):
-        assert printed in cites, printed
-    # and the references around it are untouched
-    assert "Il. 21.607" in cites
     assert "Il. 4.121" in cites          # the genuine bare continuation
     assert "Od. 22.223" in cites
+
+
+def test_a_line_range_in_running_text_is_linked_whole():
+    """Od. 6.177-8 as Cunliffe printed it in ἄστυ: the link covers the range,
+    data-line stays the opening line."""
+    html = sc._link_plain_refs("Od. 6.177-8")
+    assert 'data-work="odyssey"' in html
+    assert 'data-book="6"' in html
+    assert 'data-line="177"' in html
+    assert ">Od. 6.177-8</a>" in html
+    assert "-8" not in html.replace(">Od. 6.177-8</a>", "")
 
 
 NIREUS = (

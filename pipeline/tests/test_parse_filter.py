@@ -308,6 +308,26 @@ def test_an_override_still_repairs_in_place_when_the_lemma_is_absent():
     assert out[0]["gloss"] == "not"
 
 
+def test_nhos_override_promotes_naus_ship():
+    """νηός on this surface is ναῦς 'ship'.
+
+    Exception: Il. 5.446 Περγάμῳ εἰν ἱερῇ, ὅθι οἱ νηός γε τέτυκτο, where
+    νηός is the nominative of νηός/ναός 'temple'. Overrides are keyed by
+    surface and cannot exempt that line.
+    """
+    parses = [
+        {"lemma": "nao/s", "gloss": "temple", "parse": "masc nom sg",
+         "lsj": ["nao/s"], "cunliffe": ["nao/s"]},
+        {"lemma": "nau=s", "gloss": "ship", "parse": "fem gen sg (epic)",
+         "lsj": ["nau=s"], "cunliffe": ["nau=s"]},
+    ]
+    out = apply_morphology_override(parses, "nho/s")
+    assert out[0]["lemma"] == "nau=s"
+    assert out[0]["gloss"] == "ship"
+    assert out[0]["parse"].startswith("fem gen sg")
+    assert any(p["lemma"] == "nao/s" for p in out)
+
+
 def test_faros_ghost_is_dropped_beside_correctly_glossed_pharos_cloth():
     # φάρος bundles two non-Homeric LSJ senses under one Morpheus lemma: LSJ's
     # φάρος (A) "= φάρυγξ [throat], Lyc. 154" and φάρος (B) "plough, Alcm.

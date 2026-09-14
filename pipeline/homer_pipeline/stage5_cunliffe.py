@@ -130,7 +130,7 @@ _TRAIL_PUNCT = " ,.;:"
 # citations[] pass already resolves those from their urns, and guessing which
 # book a loose number belongs to is how a citation silently points at the wrong
 # line.
-_PLAIN_REF_RE = re.compile(r"\b(Il|Od)\.\s*(\d+)\.(\d+)")
+_PLAIN_REF_RE = re.compile(r"\b(Il|Od)\.\s*(\d+)\.(\d+)(?:-\d+)?")
 _ABBR_WORK = {"Il": "iliad", "Od": "odyssey"}
 
 
@@ -346,6 +346,33 @@ _FULL_CITE_RE = re.compile(r"\b(?:Il|Od)\.\s*\d+\.\d+")
 # inside a quotation ("σκεψάμενος ἐς νῆʼ ἁ. καὶ μεθʼ ἑταίρους"), not a sentence
 # end. Reading those as boundaries cut 3,179 quotations in half.
 _ABBREV_TAIL_RE = re.compile(r"(^|\s)[\u0370-\u03ff\u1f00-\u1fff]{1,3}[ʼ’]?$")
+# A pointer at another headword's numbered sense: "= πόλις 1",
+# "as under ἱερεύω 1", "fr. α- 1". Not this entry's own "ὁ 1" / "ἀτάρ 1".
+# _XREF_CUE_RE is not reused: it does not match fr./cf. and it matches
+# "sense(s)", which is English prose before a real sense 1.
+_POINTER_CUE_TAIL_RE = re.compile(
+    r"(?:=|\b(?:as\s+under|under|fr\.|cf\.|see))$", re.I
+)
+
+
+def _is_greek_headword_token(token: str) -> bool:
+    """A token that is a Greek word, not an etymology remnant ("ἀεικέλιος.]")."""
+    return bool(_GREEK_RE.match(token)) and not re.search(
+        r"[^\u0370-\u03ff\u1f00-\u1fff\-ʼ’]", token
+    )
+
+
+def _is_headword_sense_pointer(definition: str, at: int) -> bool:
+    """The digit at `at` points at another headword's sense, not this entry's."""
+    prev = definition[:at].rstrip()
+    parts = prev.split()
+    if not parts:
+        return False
+    last = parts[-1]
+    if not _is_greek_headword_token(last):
+        return False
+    before = prev[: len(prev) - len(last)].rstrip()
+    return bool(_POINTER_CUE_TAIL_RE.search(before))
 
 
 def split_senses(definition: str) -> dict:
@@ -388,6 +415,8 @@ def split_senses(definition: str) -> dict:
         if _MORPH_RE.match(definition[at + len(m.group(1)):].lstrip()):
             continue
         after = at + len(m.group(1))
+        if _is_headword_sense_pointer(definition, at):
+            continue
         ws = len(definition[after:]) - len(definition[after:].lstrip())
         cands.append({"at": at, "n": int(m.group(1)), "end": after + ws})
 
@@ -674,7 +703,10 @@ _EN_RUN_RE = re.compile(r"[A-Za-z]{2,}(?:[.,;:]?\s+[A-Za-z]{2,})+")
 # A note at the FRONT of some prose belongs to the citation list before it, not
 # to the definition it precedes: "etc. Absol. with the article" opened a sense
 # reading "etc. Absol. …" (John, on seeing it). Peeled off and handed back.
-_LEADING_NOTE_RE = re.compile(r"^(?:[\s.:,;–-]*(?:etc\.?|So\b|and so on))+[\s.:,;–-]*")
+_LEADING_NOTE_RE = re.compile(
+    r"^(?:[\s.:,;–-]*(?:etc\.?|So(?=\s*(?:$|[.,:;–-]|Il\.|Od\.|\d))|and so on))"
+    r"+[\s.:,;–-]*"
+)
 
 
 # Cunliffe's own "and so on" marks. Kept in the text, never given a row.

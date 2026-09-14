@@ -583,6 +583,10 @@ def test_derive_short_def_keeps_a_definition_after_a_bare_of():
     assert derive_short_def(_real_entry("a)gro/teros")) == "wild"
 
 
+@pytest.mark.xfail(
+    strict=True,
+    reason="_GOVERNING_LEAD in stage5_lsj.py treats 'sense of' as governing the italic run",
+)
 def test_derive_short_def_still_drops_thalos():
     """θάλος: "= θαλλός, but only nom. and acc. in metaph. sense of <i>scion,
     child</i>" — a real definition, and the rule drops it anyway.
@@ -594,7 +598,7 @@ def test_derive_short_def_still_drops_thalos():
     pretending there is none. Morpheus glosses θάλος "scion, child" — the same
     string — so the card does not change.
     """
-    assert derive_short_def(_real_entry("qa/los")) == ""
+    assert derive_short_def(_real_entry("qa/los")) == "scion, child"
 
 
 def test_derive_short_def_keeps_a_run_introduced_by_a_grammatical_label():
