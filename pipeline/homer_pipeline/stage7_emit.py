@@ -59,6 +59,80 @@ _ROMAN_SUFFIXES = {
 }
 
 
+_CORRECTION_PATH = Path(__file__).with_name("short_def_corrections.json")
+
+
+def load_short_def_corrections(path: Path = _CORRECTION_PATH) -> dict[str, dict]:
+    """Load the reviewed per-lemma gloss corrections.
+
+    derive_short_def checks the SHAPE of an LSJ definition, never its sense,
+    and the def it derives comes from the entry's FIRST sense — which for a
+    Homeric reader is sometimes the wrong one (τρέφω's "thicken or congeal" is
+    real LSJ and wrong for Homer). So a blanket "prefer LSJ on disagreement"
+    is unsafe, and this file is the reviewed alternative: one entry per lemma,
+    each judged by a Homerist against the poems.
+
+    ``morpheus`` records the gloss the correction replaces. The correction only
+    fires when that string still matches, so a change upstream in Morpheus
+    lapses the entry instead of silently redirecting it at different text.
+    ``source`` is "lsj" when the preferred text is LSJ's own derived short def
+    and "editorial" when neither source supplies it.
+    """
+    entries = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(entries, list):
+        raise ValueError(f"{path}: expected a JSON list")
+
+    required = {"lemma", "morpheus", "prefer", "source", "justification"}
+    corrections: dict[str, dict] = {}
+    for entry in entries:
+        if not isinstance(entry, dict) or set(entry) != required:
+            raise ValueError(f"{path}: every correction needs exactly {sorted(required)}")
+        if not all(isinstance(value, str) and value for value in entry.values()):
+            raise ValueError(f"{path}: correction values must be non-empty strings")
+        if entry["source"] not in ("lsj", "editorial"):
+            raise ValueError(f"{path}: unknown source for {entry['lemma']}")
+        if entry["lemma"] in corrections:
+            raise ValueError(f"{path}: duplicate lemma {entry['lemma']}")
+        corrections[entry["lemma"]] = entry
+    return corrections
+
+
+SHORT_DEF_CORRECTIONS = load_short_def_corrections()
+
+
+# LSJ wraps a coined rendering in scare-quotes or brackets and runs a sense on
+# from an em-dash. Morpheus's glosses are LSJ-derived upstream, so a few arrive
+# with that punctuation still attached: "‘the joy of men’", "[five years old]",
+# "—have no care for". This is typography, not sense — five lemmata, 17
+# occurrences, measured over both works — so it is a rule, not five entries on
+# the reviewed correction list, which is about what a word means.
+_GLOSS_WRAPPERS = {"[": "]", "\u2018": "\u2019", "\u201c": "\u201d"}
+_LEADING_DASH = re.compile(r"^[-\u2010-\u2015]+\s*")
+
+
+def _clean_gloss_typography(gloss: str) -> str:
+    """Peel punctuation that wraps or leads the WHOLE gloss, nothing else.
+
+    A parenthesis carrying part of the sense — "accompany, come on (with)",
+    "(of a wound) deep" — is untouched: only a wrapper whose mark appears
+    nowhere inside is peeled, and only a dash at the very front.
+    """
+    cleaned = original = gloss.strip()
+    while len(cleaned) > 2 and _GLOSS_WRAPPERS.get(cleaned[0]) == cleaned[-1]:
+        inner = cleaned[1:-1].strip()
+        if not inner or cleaned[0] in inner or cleaned[-1] in inner:
+            break
+        cleaned = inner
+    cleaned = _LEADING_DASH.sub("", cleaned).strip()
+    # Nothing typographic to peel: hand back the gloss EXACTLY as it came.
+    # Returning the stripped copy would retrim ~300 occurrences of trailing
+    # whitespace ("go slowly ", "both . . ") that this rule was not asked to
+    # touch, and a whitespace sweep is a separate change from a punctuation one.
+    if not cleaned or cleaned == original:
+        return gloss
+    return cleaned
+
+
 def _normalized_gloss(value: str) -> str:
     normalized = " ".join(value.lower().split())
     while normalized and (
@@ -186,8 +260,18 @@ def _target_variants(target: str) -> list[str]:
     return variants
 
 
-def _resolve_cross_ref_target(target: str, short_defs: dict[str, str]) -> str | None:
-    """One-hop only: adopt the referent's short def, or refuse on ambiguity."""
+def _resolve_cross_ref_target(
+    target: str,
+    short_defs: dict[str, str],
+    origin_keys: frozenset[str] = frozenset(),
+) -> str | None:
+    """One-hop only: adopt the referent's short def, or refuse on ambiguity.
+
+    ``origin_keys`` are the pointing lemma's own LSJ keys, already known to
+    carry no short def. They are excluded from the vote below: a stub is a stub
+    because it has no definition of its own, so its silence is not a dissent
+    (πλοῦτος, τό "= πλοῦτος, ὁ" must not veto its own referent).
+    """
     variants = _target_variants(target)
     if not variants:
         return None
@@ -213,17 +297,23 @@ def _resolve_cross_ref_target(target: str, short_defs: dict[str, str]) -> str | 
             if pattern.match(key):
                 seen.add(key)
                 candidate_keys.append(key)
-    if not candidate_keys:
+    voters = [key for key in candidate_keys if key not in origin_keys]
+    if not voters:
         return None
 
-    resolved = {
-        d
-        for key in candidate_keys
-        if (d := _short_def_for_key(key, short_defs))
-    }
-    if len(resolved) == 1:
-        return resolved.pop()
-    return None
+    # A "v. X" pointer names a HEADWORD, not one of its numbered homonyms. When
+    # LSJ splits X into several entries the pointer does not choose between
+    # them, so a lone short def wins only because its rivals happen to lack one
+    # — an accident of derive_short_def's coverage, not evidence. ἕ "v. οὗ" is
+    # the case in point: ou(=1 is the adverb "where" and ou(=2 the pronoun with
+    # no short def, so counting *definitions found* elects "where" unopposed.
+    # Count *entries* instead: every homonym under the referent must speak, and
+    # they must agree.
+    defs = [_short_def_for_key(key, short_defs) for key in voters]
+    resolved = {d for d in defs if d}
+    if len(resolved) != 1 or any(d is None for d in defs):
+        return None
+    return resolved.pop()
 
 
 def _empty_gloss_def(
@@ -254,10 +344,17 @@ def _empty_gloss_def(
     if len(unique) > 1:
         return ""
 
-    # Cross-ref stubs are the numbered homonyms (du/w2, la/w1, …). Unnumbered
-    # "v. X" pointers often mean "see under X" (paradigm entry), not "synonym
-    # of X" — following those ships the wrong sense (ἕ → οὗ "where"). Restrict
-    # one-hop resolution to keys that end in a digit.
+    # Cross-ref stubs are the numbered homonyms (du/w2, la/w1, …). Lifting this
+    # to unnumbered stubs too was measured over both works (2026-09-01): it adds
+    # a definition to 129 surface forms / 538 top-analysis token occurrences,
+    # of which only ~49% are right. The failures are not cross-ref failures —
+    # they are ghost lemmata ranked first (Δαναῶν's top analysis is Δανάη, whose
+    # LSJ entry is "= δάφνη"; the correct Δαναοί sits second WITH its gloss) and
+    # one junk short def (μέμαα → μέμονα → "mṇ", 115 occurrences). Today the
+    # blank line is the only signal that the top analysis is junk, so filling it
+    # trades a visibly incomplete card for a confidently wrong one. Keep the
+    # restriction until ranking and derive_short_def are fixed; what protects ἕ
+    # is the homonym guard in _resolve_cross_ref_target, not this digit test.
     stub_targets: list[str] = []
     for key in ordered:
         if not re.search(r"\d+$", key):
@@ -274,8 +371,9 @@ def _empty_gloss_def(
     unique_targets: list[str] = list(dict.fromkeys(stub_targets))
     if not unique_targets:
         return ""
+    origin_keys = frozenset(ordered)
     resolved = {
-        target: _resolve_cross_ref_target(target, short_defs)
+        target: _resolve_cross_ref_target(target, short_defs, origin_keys)
         for target in unique_targets
     }
     nonempty = {d for d in resolved.values() if d}
@@ -287,12 +385,28 @@ def _empty_gloss_def(
 
 
 def merge_short_def(
-    gloss: str, lemma: str, candidate_keys: list[str], short_defs: dict[str, str]
+    gloss: str,
+    lemma: str,
+    candidate_keys: list[str],
+    short_defs: dict[str, str],
+    corrections: dict[str, dict] = SHORT_DEF_CORRECTIONS,
 ) -> str:
-    """Conservatively extend a truncated Morpheus gloss from an LSJ definition."""
+    """Conservatively extend a truncated Morpheus gloss from an LSJ definition.
+
+    Extension is the only automatic replacement: an LSJ def that merely
+    disagrees with Morpheus is not thereby righter (δαῖς "meal" and δαΐς
+    "torch" carry the same Morpheus gloss and the same LSJ def, with opposite
+    correct answers). A disagreement is replaced only where a Homerist has
+    reviewed it and recorded the verdict in short_def_corrections.json.
+    """
+    gloss = _clean_gloss_typography(gloss)
     normalized_gloss = _normalized_gloss(gloss)
     if not normalized_gloss:
         return _empty_gloss_def(lemma, candidate_keys, short_defs)
+
+    correction = corrections.get(lemma)
+    if correction and _normalized_gloss(correction["morpheus"]) == normalized_gloss:
+        return correction["prefer"]
 
     candidates = sorted(candidate_keys, key=lambda key: key != lemma)
     extensions = []
