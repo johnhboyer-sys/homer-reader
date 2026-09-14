@@ -157,7 +157,7 @@
  ],
  "analyses": {
   "token_keys": 20411,
-  "parses_dropped": 747
+  "parses_dropped": 795
  },
  "lsj": {
   "lemmata_needed": 8168,
@@ -168,10 +168,12 @@
  },
  "cunliffe": {
   "lemmata_needed": 8168,
-  "cunliffe_entries_kept": 6108,
-  "cunliffe_rows_kept_lex": 5279,
-  "cunliffe_rows_kept_hompers": 1225,
+  "cunliffe_entries_kept": 6142,
+  "cunliffe_rows_kept_lex": 5308,
+  "cunliffe_rows_kept_hompers": 1230,
   "shards": 24,
-  "lemmata_without_entry": 1811
+  "lemmata_without_entry": 1811,
+  "cunliffe_entries_pulled_in_by_xref": 34,
+  "cunliffe_t8_rows": 22726
  }
 }

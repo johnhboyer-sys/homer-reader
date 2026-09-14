@@ -1176,10 +1176,6 @@
     "gloss": "of oneʼs fathers"
    },
    {
-    "lemma": "e)fama/w",
-    "count": 10
-   },
-   {
     "lemma": "i(kne/omai",
     "count": 10,
     "gloss": "come"
@@ -1268,6 +1264,11 @@
     "lemma": "eu)na/w",
     "count": 7,
     "gloss": "lay"
+   },
+   {
+    "lemma": "h(=mai",
+    "count": 7,
+    "gloss": "to be seated, sit"
    }
   ],
   "11": [
@@ -1322,10 +1323,6 @@
     "gloss": "suffer, permit"
    },
    {
-    "lemma": "e)fama/w",
-    "count": 9
-   },
-   {
     "lemma": "kalo/s",
     "count": 9,
     "gloss": "beautiful"
@@ -1369,6 +1366,11 @@
     "lemma": "qnh/skw",
     "count": 8,
     "gloss": "die"
+   },
+   {
+    "lemma": "xe/w",
+    "count": 8,
+    "gloss": "pour out, let flow"
    },
    {
     "lemma": "a)/nac",
@@ -2773,6 +2775,11 @@
     "gloss": "feathered, winged"
    },
    {
+    "lemma": "xe/w",
+    "count": 7,
+    "gloss": "pour out, let flow"
+   },
+   {
     "lemma": "a)konti/zw",
     "count": 6,
     "gloss": "hurl a javelin"
@@ -2786,11 +2793,6 @@
     "lemma": "e)ru/w",
     "count": 6,
     "gloss": "drag, draw"
-   },
-   {
-    "lemma": "eu)staqh/s",
-    "count": 6,
-    "gloss": "well-based, well-built"
    }
   ],
   "23": [

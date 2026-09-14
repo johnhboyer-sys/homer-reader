@@ -8,6 +8,11 @@
     "gloss": "at some time"
    },
    {
+    "lemma": "ou)/te",
+    "count": 14,
+    "gloss": "and not"
+   },
+   {
     "lemma": "ge/ras",
     "count": 13,
     "gloss": "gift of honour"
@@ -16,6 +21,16 @@
     "lemma": "pei/qw",
     "count": 13,
     "gloss": "persuade"
+   },
+   {
+    "lemma": "e)qe/lw",
+    "count": 11,
+    "gloss": "to be willing"
+   },
+   {
+    "lemma": "ou(=tos",
+    "count": 11,
+    "gloss": "this"
    },
    {
     "lemma": "a(/ls",
@@ -48,9 +63,9 @@
     "gloss": "mine"
    },
    {
-    "lemma": "ma/xomai",
+    "lemma": "mu=qos",
     "count": 10,
-    "gloss": "fight"
+    "gloss": "word, speech"
    },
    {
     "lemma": "basileu/s",
@@ -111,20 +126,6 @@
     "lemma": "oi)/omai",
     "count": 8,
     "gloss": "forebode, presage"
-   },
-   {
-    "lemma": "po/lemos",
-    "count": 8,
-    "gloss": "war"
-   },
-   {
-    "lemma": "su/n",
-    "count": 8,
-    "gloss": "with"
-   },
-   {
-    "lemma": "xa/w",
-    "count": 8
    }
   ],
   "2": [
@@ -184,11 +185,6 @@
     "gloss": "again, anew, afresh, once more"
    },
    {
-    "lemma": "po/lemos",
-    "count": 12,
-    "gloss": "war"
-   },
-   {
     "lemma": "ti/ktw",
     "count": 12,
     "gloss": "bring into the world, engender"
@@ -202,6 +198,11 @@
     "lemma": "e(/kastos",
     "count": 11,
     "gloss": "each"
+   },
+   {
+    "lemma": "mu=qos",
+    "count": 11,
+    "gloss": "word, speech"
    },
    {
     "lemma": "a)/ge",
@@ -266,16 +267,6 @@
     "gloss": "oath"
    },
    {
-    "lemma": "e)/gxos",
-    "count": 10,
-    "gloss": "spear, lance"
-   },
-   {
-    "lemma": "ma/xomai",
-    "count": 10,
-    "gloss": "fight"
-   },
-   {
     "lemma": "e(/pomai",
     "count": 8,
     "gloss": "to be or come after, follow"
@@ -301,11 +292,6 @@
     "gloss": "trusty, faithful"
    },
    {
-    "lemma": "po/lemos",
-    "count": 8,
-    "gloss": "war"
-   },
-   {
     "lemma": "a)rno/s",
     "count": 7,
     "gloss": "lamb, sheep"
@@ -321,9 +307,19 @@
     "gloss": "on account of"
    },
    {
+    "lemma": "gi/gnomai",
+    "count": 7,
+    "gloss": "come into a new state of being"
+   },
+   {
     "lemma": "me/sos",
     "count": 7,
     "gloss": "middle, in the middle"
+   },
+   {
+    "lemma": "mu=qos",
+    "count": 7,
+    "gloss": "word, speech"
    },
    {
     "lemma": "o(po/teros",
@@ -371,6 +367,11 @@
     "gloss": "backwards"
    },
    {
+    "lemma": "ou(=tos",
+    "count": 6,
+    "gloss": "this"
+   },
+   {
     "lemma": "ou)=n",
     "count": 6,
     "gloss": "certainly, in fact"
@@ -383,29 +384,19 @@
   ],
   "4": [
    {
-    "lemma": "po/lemos",
-    "count": 14,
-    "gloss": "war"
-   },
-   {
     "lemma": "sth=qos",
     "count": 11,
     "gloss": "breast"
    },
    {
-    "lemma": "ma/xomai",
-    "count": 10,
-    "gloss": "fight"
-   },
-   {
-    "lemma": "o)/rnumi",
-    "count": 10,
-    "gloss": "stir, stir up"
-   },
-   {
     "lemma": "prosauda/w",
     "count": 10,
     "gloss": "speak to, address, accost"
+   },
+   {
+    "lemma": "e)qe/lw",
+    "count": 9,
+    "gloss": "to be willing"
    },
    {
     "lemma": "h)/toi",
@@ -426,6 +417,11 @@
     "lemma": "e(/pomai",
     "count": 8,
     "gloss": "to be or come after, follow"
+   },
+   {
+    "lemma": "gi/gnomai",
+    "count": 8,
+    "gloss": "come into a new state of being"
    },
    {
     "lemma": "o(/rkion",
@@ -506,29 +502,14 @@
     "lemma": "ai(=ma",
     "count": 6,
     "gloss": "blood"
+   },
+   {
+    "lemma": "be/los",
+    "count": 6,
+    "gloss": "missile"
    }
   ],
   "5": [
-   {
-    "lemma": "ma/xomai",
-    "count": 24,
-    "gloss": "fight"
-   },
-   {
-    "lemma": "do/ru",
-    "count": 21,
-    "gloss": "stem, tree"
-   },
-   {
-    "lemma": "e)/gxos",
-    "count": 20,
-    "gloss": "spear, lance"
-   },
-   {
-    "lemma": "po/lemos",
-    "count": 19,
-    "gloss": "war"
-   },
    {
     "lemma": "dia/",
     "count": 18,
@@ -558,6 +539,11 @@
     "lemma": "me/nos",
     "count": 14,
     "gloss": "might, force"
+   },
+   {
+    "lemma": "ou)/te",
+    "count": 14,
+    "gloss": "and not"
    },
    {
     "lemma": "ma/xh",
@@ -595,11 +581,6 @@
     "gloss": "chariot-board"
    },
    {
-    "lemma": "o)/rnumi",
-    "count": 11,
-    "gloss": "stir, stir up"
-   },
-   {
     "lemma": "o)cu/s2",
     "count": 11,
     "gloss": "sharp, keen"
@@ -633,6 +614,26 @@
     "lemma": "a)spi/s",
     "count": 9,
     "gloss": "shield"
+   },
+   {
+    "lemma": "dama/zw",
+    "count": 9,
+    "gloss": "overpower"
+   },
+   {
+    "lemma": "h(ni/a1",
+    "count": 9,
+    "gloss": "reins"
+   },
+   {
+    "lemma": "makro/s",
+    "count": 9,
+    "gloss": "long"
+   },
+   {
+    "lemma": "me/maa",
+    "count": 9,
+    "gloss": "be eager, press on"
    }
   ],
   "6": [
@@ -652,11 +653,6 @@
     "gloss": "city"
    },
    {
-    "lemma": "ma/xomai",
-    "count": 10,
-    "gloss": "fight"
-   },
-   {
     "lemma": "a)/stu",
     "count": 9,
     "gloss": "town"
@@ -667,14 +663,14 @@
     "gloss": "woman"
    },
    {
+    "lemma": "me/garon",
+    "count": 9,
+    "gloss": "large room, hall"
+   },
+   {
     "lemma": "me/nos",
     "count": 9,
     "gloss": "might, force"
-   },
-   {
-    "lemma": "po/lemos",
-    "count": 9,
-    "gloss": "war"
    },
    {
     "lemma": "a)/ristos",
@@ -692,14 +688,29 @@
     "gloss": "if; would that"
    },
    {
-    "lemma": "e)/gxos",
+    "lemma": "ou)/te",
     "count": 8,
-    "gloss": "spear, lance"
+    "gloss": "and not"
    },
    {
     "lemma": "pote/",
     "count": 8,
     "gloss": "at some time"
+   },
+   {
+    "lemma": "ti/qhmi",
+    "count": 8,
+    "gloss": "set, put, place"
+   },
+   {
+    "lemma": "e)qe/lw",
+    "count": 7,
+    "gloss": "to be willing"
+   },
+   {
+    "lemma": "gi/gnomai",
+    "count": 7,
+    "gloss": "come into a new state of being"
    },
    {
     "lemma": "koruqai/olos",
@@ -750,43 +761,33 @@
     "lemma": "eu)=",
     "count": 6,
     "gloss": "well"
-   },
-   {
-    "lemma": "genea/",
-    "count": 6,
-    "gloss": "race, family"
-   },
-   {
-    "lemma": "h)=mar",
-    "count": 6,
-    "gloss": "day"
    }
   ],
   "7": [
-   {
-    "lemma": "ma/xomai",
-    "count": 15,
-    "gloss": "fight"
-   },
-   {
-    "lemma": "po/lemos",
-    "count": 10,
-    "gloss": "war"
-   },
    {
     "lemma": "a)/nac",
     "count": 9,
     "gloss": "lord, master"
    },
    {
-    "lemma": "e)/gxos",
+    "lemma": "mu=qos",
     "count": 9,
-    "gloss": "spear, lance"
+    "gloss": "word, speech"
    },
    {
     "lemma": "oi)=da",
     "count": 9,
     "gloss": "behold!"
+   },
+   {
+    "lemma": "ou(=tos",
+    "count": 9,
+    "gloss": "this"
+   },
+   {
+    "lemma": "e)qe/lw",
+    "count": 8,
+    "gloss": "to be willing"
    },
    {
     "lemma": "me/sos",
@@ -799,11 +800,6 @@
     "gloss": "victory"
    },
    {
-    "lemma": "o)/rnumi",
-    "count": 8,
-    "gloss": "stir, stir up"
-   },
-   {
     "lemma": "ai)/",
     "count": 7,
     "gloss": "if; would that"
@@ -812,6 +808,11 @@
     "lemma": "e(/kastos",
     "count": 7,
     "gloss": "each"
+   },
+   {
+    "lemma": "gi/gnomai",
+    "count": 7,
+    "gloss": "come into a new state of being"
    },
    {
     "lemma": "h)/toi",
@@ -901,11 +902,6 @@
     "gloss": "carriage"
    },
    {
-    "lemma": "po/lemos",
-    "count": 12,
-    "gloss": "war"
-   },
-   {
     "lemma": "a(/rma",
     "count": 9,
     "gloss": "chariot"
@@ -926,6 +922,11 @@
     "gloss": "dread, horrible"
    },
    {
+    "lemma": "e)qe/lw",
+    "count": 8,
+    "gloss": "to be willing"
+   },
+   {
     "lemma": "lu/w",
     "count": 8,
     "gloss": "loosen"
@@ -934,6 +935,11 @@
     "lemma": "me/nos",
     "count": 8,
     "gloss": "might, force"
+   },
+   {
+    "lemma": "mu=qos",
+    "count": 8,
+    "gloss": "word, speech"
    },
    {
     "lemma": "xru/seos",
@@ -956,6 +962,11 @@
     "gloss": "old man"
    },
    {
+    "lemma": "gi/gnomai",
+    "count": 7,
+    "gloss": "come into a new state of being"
+   },
+   {
     "lemma": "h)/toi",
     "count": 7,
     "gloss": "truly, now surely"
@@ -971,9 +982,9 @@
     "gloss": "take"
    },
    {
-    "lemma": "ma/xomai",
+    "lemma": "ou(=tos",
     "count": 7,
-    "gloss": "fight"
+    "gloss": "this"
    },
    {
     "lemma": "sth=qos",
@@ -986,11 +997,6 @@
     "gloss": "on board"
    },
    {
-    "lemma": "e)/gxos",
-    "count": 6,
-    "gloss": "spear, lance"
-   },
-   {
     "lemma": "koma/w",
     "count": 6,
     "gloss": "let the hair grow long"
@@ -999,11 +1005,6 @@
     "lemma": "o(/sos",
     "count": 6,
     "gloss": "as great as, how great"
-   },
-   {
-    "lemma": "o)/rnumi",
-    "count": 6,
-    "gloss": "stir, stir up"
    },
    {
     "lemma": "pu=r",
@@ -1028,9 +1029,19 @@
     "gloss": "old man"
    },
    {
+    "lemma": "e)qe/lw",
+    "count": 16,
+    "gloss": "to be willing"
+   },
+   {
     "lemma": "dw=ron",
     "count": 15,
     "gloss": "gift, present, gift of honour"
+   },
+   {
+    "lemma": "mu=qos",
+    "count": 14,
+    "gloss": "word, speech"
    },
    {
     "lemma": "gunh/",
@@ -1056,6 +1067,11 @@
     "lemma": "pu=r",
     "count": 12,
     "gloss": "fire"
+   },
+   {
+    "lemma": "ou(=tos",
+    "count": 11,
+    "gloss": "this"
    },
    {
     "lemma": "xo/los",
@@ -1093,6 +1109,11 @@
     "gloss": "with"
    },
    {
+    "lemma": "ti/qhmi",
+    "count": 9,
+    "gloss": "set, put, place"
+   },
+   {
     "lemma": "e(pta/",
     "count": 8,
     "gloss": "seven"
@@ -1101,6 +1122,11 @@
     "lemma": "e)/rgon",
     "count": 8,
     "gloss": "work"
+   },
+   {
+    "lemma": "gi/gnomai",
+    "count": 8,
+    "gloss": "come into a new state of being"
    },
    {
     "lemma": "i(kne/omai",
@@ -1116,31 +1142,6 @@
     "lemma": "li/ssomai",
     "count": 8,
     "gloss": "beg, pray"
-   },
-   {
-    "lemma": "me/nw",
-    "count": 8,
-    "gloss": "stay, wait"
-   },
-   {
-    "lemma": "mh/thr",
-    "count": 8,
-    "gloss": "mother"
-   },
-   {
-    "lemma": "pou/s",
-    "count": 8,
-    "gloss": "foot"
-   },
-   {
-    "lemma": "tima/w",
-    "count": 8,
-    "gloss": "honour, revere, reverence"
-   },
-   {
-    "lemma": "xru/seos",
-    "count": 8,
-    "gloss": "golden"
    }
   ],
   "10": [
@@ -1148,6 +1149,11 @@
     "lemma": "dia/",
     "count": 14,
     "gloss": "in a line"
+   },
+   {
+    "lemma": "e)qe/lw",
+    "count": 13,
+    "gloss": "to be willing"
    },
    {
     "lemma": "nu/c",
@@ -1158,6 +1164,11 @@
     "lemma": "eu(/dw",
     "count": 12,
     "gloss": "sleep"
+   },
+   {
+    "lemma": "ou(=tos",
+    "count": 12,
+    "gloss": "this"
    },
    {
     "lemma": "strato/s",
@@ -1200,6 +1211,11 @@
     "gloss": "driver or rider of horses, horseman, knight"
    },
    {
+    "lemma": "mu=qos",
+    "count": 8,
+    "gloss": "word, speech"
+   },
+   {
     "lemma": "pro/sfhmi",
     "count": 8,
     "gloss": "speak to, address"
@@ -1208,6 +1224,11 @@
     "lemma": "prosei=pon",
     "count": 8,
     "gloss": "speak to"
+   },
+   {
+    "lemma": "ti/qhmi",
+    "count": 8,
+    "gloss": "set, put, place"
    },
    {
     "lemma": "a)/nac",
@@ -1223,11 +1244,6 @@
     "lemma": "a)na/",
     "count": 7,
     "gloss": "on board"
-   },
-   {
-    "lemma": "do/ru",
-    "count": 7,
-    "gloss": "stem, tree"
    },
    {
     "lemma": "e(/nnumi",
@@ -1253,43 +1269,13 @@
     "lemma": "lei/pw",
     "count": 7,
     "gloss": "leave, quit"
-   },
-   {
-    "lemma": "me/nw",
-    "count": 7,
-    "gloss": "stay, wait"
-   },
-   {
-    "lemma": "mhde/",
-    "count": 7,
-    "gloss": "and not"
-   },
-   {
-    "lemma": "su/n",
-    "count": 7,
-    "gloss": "with"
    }
   ],
   "11": [
    {
-    "lemma": "do/ru",
-    "count": 30,
-    "gloss": "stem, tree"
-   },
-   {
-    "lemma": "po/lemos",
-    "count": 19,
-    "gloss": "war"
-   },
-   {
     "lemma": "e(/pomai",
     "count": 16,
     "gloss": "to be or come after, follow"
-   },
-   {
-    "lemma": "o)/rnumi",
-    "count": 15,
-    "gloss": "stir, stir up"
    },
    {
     "lemma": "ai(=ma",
@@ -1335,11 +1321,6 @@
     "lemma": "di/fros",
     "count": 10,
     "gloss": "chariot-board"
-   },
-   {
-    "lemma": "e)/gxos",
-    "count": 10,
-    "gloss": "spear, lance"
    },
    {
     "lemma": "e)a/w",
@@ -1395,6 +1376,26 @@
     "lemma": "poimh/n",
     "count": 9,
     "gloss": "herdsman"
+   },
+   {
+    "lemma": "w)=mos",
+    "count": 9,
+    "gloss": "the shoulder with the upper arm"
+   },
+   {
+    "lemma": "w)ku/s",
+    "count": 9,
+    "gloss": "quick, swift, fleet"
+   },
+   {
+    "lemma": "a)/gw",
+    "count": 8,
+    "gloss": "lead, carry, fetch, bring"
+   },
+   {
+    "lemma": "dai/frwn",
+    "count": 8,
+    "gloss": "warlike, fiery"
    }
   ],
   "12": [
@@ -1414,29 +1415,9 @@
     "gloss": "break asunder, rend, shatter"
    },
    {
-    "lemma": "ma/xomai",
-    "count": 11,
-    "gloss": "fight"
-   },
-   {
-    "lemma": "po/lemos",
-    "count": 11,
-    "gloss": "war"
-   },
-   {
-    "lemma": "do/ru",
-    "count": 10,
-    "gloss": "stem, tree"
-   },
-   {
     "lemma": "e(/pomai",
     "count": 10,
     "gloss": "to be or come after, follow"
-   },
-   {
-    "lemma": "o)/rnumi",
-    "count": 10,
-    "gloss": "stir, stir up"
    },
    {
     "lemma": "pei/qw",
@@ -1484,6 +1465,11 @@
     "gloss": "strong, stout, mighty"
    },
    {
+    "lemma": "ou)/te",
+    "count": 8,
+    "gloss": "and not"
+   },
+   {
     "lemma": "su/n",
     "count": 8,
     "gloss": "with"
@@ -1522,33 +1508,28 @@
     "lemma": "eu)qu/s1",
     "count": 6,
     "gloss": "straight, direct"
+   },
+   {
+    "lemma": "me/maa",
+    "count": 6,
+    "gloss": "be eager, press on"
+   },
+   {
+    "lemma": "pi/ptw",
+    "count": 6,
+    "gloss": "fall down"
+   },
+   {
+    "lemma": "w(=de",
+    "count": 6,
+    "gloss": "in this wise, thus"
    }
   ],
   "13": [
    {
-    "lemma": "do/ru",
-    "count": 30,
-    "gloss": "stem, tree"
-   },
-   {
-    "lemma": "po/lemos",
-    "count": 28,
-    "gloss": "war"
-   },
-   {
-    "lemma": "e)/gxos",
-    "count": 27,
-    "gloss": "spear, lance"
-   },
-   {
     "lemma": "xa/lkeos",
     "count": 24,
     "gloss": "of copper or bronze, brazen"
-   },
-   {
-    "lemma": "pou/s",
-    "count": 19,
-    "gloss": "foot"
    },
    {
     "lemma": "pi/ptw",
@@ -1564,11 +1545,6 @@
     "lemma": "a)spi/s",
     "count": 14,
     "gloss": "shield"
-   },
-   {
-    "lemma": "ma/xomai",
-    "count": 14,
-    "gloss": "fight"
    },
    {
     "lemma": "a)/ristos",
@@ -1606,11 +1582,6 @@
     "gloss": "long"
    },
    {
-    "lemma": "o)/rnumi",
-    "count": 11,
-    "gloss": "stir, stir up"
-   },
-   {
     "lemma": "sth=qos",
     "count": 11,
     "gloss": "breast"
@@ -1646,9 +1617,39 @@
     "gloss": "set in motion, urge on, cheer on"
    },
    {
+    "lemma": "ou)/te",
+    "count": 10,
+    "gloss": "and not"
+   },
+   {
     "lemma": "gai=a",
     "count": 9,
     "gloss": "land, country"
+   },
+   {
+    "lemma": "gi/gnomai",
+    "count": 9,
+    "gloss": "come into a new state of being"
+   },
+   {
+    "lemma": "o(/milos",
+    "count": 9,
+    "gloss": "any assembled crowd, throng of people"
+   },
+   {
+    "lemma": "pou/",
+    "count": 9,
+    "gloss": "somewhere; perhaps"
+   },
+   {
+    "lemma": "teu=xos",
+    "count": 9,
+    "gloss": "tool, implement"
+   },
+   {
+    "lemma": "a)/y",
+    "count": 8,
+    "gloss": "backwards, back again"
    }
   ],
   "14": [
@@ -1658,19 +1659,9 @@
     "gloss": "friendship, love, affection"
    },
    {
-    "lemma": "po/lemos",
-    "count": 11,
-    "gloss": "war"
-   },
-   {
     "lemma": "teu/xw",
     "count": 10,
     "gloss": "make ready, make"
-   },
-   {
-    "lemma": "e)/gxos",
-    "count": 9,
-    "gloss": "spear, lance"
    },
    {
     "lemma": "pei/qw",
@@ -1691,11 +1682,6 @@
     "lemma": "ou)ta/w",
     "count": 8,
     "gloss": "wound, hurt, hit"
-   },
-   {
-    "lemma": "pou/s",
-    "count": 8,
-    "gloss": "foot"
    },
    {
     "lemma": "o(/sos",
@@ -1763,6 +1749,11 @@
     "gloss": "leave, quit"
    },
    {
+    "lemma": "ou(=tos",
+    "count": 6,
+    "gloss": "this"
+   },
+   {
     "lemma": "po/tnia",
     "count": 6,
     "gloss": "mistress, queen"
@@ -1776,6 +1767,16 @@
     "lemma": "a(/pas",
     "count": 5,
     "gloss": "quite all, the whole"
+   },
+   {
+    "lemma": "a)/nac",
+    "count": 5,
+    "gloss": "lord, master"
+   },
+   {
+    "lemma": "a)llh/lwn",
+    "count": 5,
+    "gloss": "of one another, to one another, one another"
    }
   ],
   "15": [
@@ -1783,16 +1784,6 @@
     "lemma": "ma/xh",
     "count": 13,
     "gloss": "battle, combat"
-   },
-   {
-    "lemma": "do/ru",
-    "count": 12,
-    "gloss": "stem, tree"
-   },
-   {
-    "lemma": "ma/xomai",
-    "count": 12,
-    "gloss": "fight"
    },
    {
     "lemma": "o)tru/nw",
@@ -1835,11 +1826,6 @@
     "gloss": "back, back again"
    },
    {
-    "lemma": "e)/gxos",
-    "count": 10,
-    "gloss": "spear, lance"
-   },
-   {
     "lemma": "ke/lomai",
     "count": 10,
     "gloss": "urge, exhort, command"
@@ -1850,6 +1836,11 @@
     "gloss": "might, force"
    },
    {
+    "lemma": "ou)/te",
+    "count": 10,
+    "gloss": "and not"
+   },
+   {
     "lemma": "w)=mos",
     "count": 10,
     "gloss": "the shoulder with the upper arm"
@@ -1858,11 +1849,6 @@
     "lemma": "a)/nac",
     "count": 9,
     "gloss": "lord, master"
-   },
-   {
-    "lemma": "po/lemos",
-    "count": 9,
-    "gloss": "war"
    },
    {
     "lemma": "pu=r",
@@ -1895,27 +1881,32 @@
     "gloss": "behold!"
    },
    {
-    "lemma": "pou/s",
-    "count": 8,
-    "gloss": "foot"
-   },
-   {
     "lemma": "sth=qos",
     "count": 8,
     "gloss": "breast"
+   },
+   {
+    "lemma": "a)qa/natos",
+    "count": 7,
+    "gloss": "undying, immortal"
+   },
+   {
+    "lemma": "bi/a",
+    "count": 7,
+    "gloss": "bodily strength, force"
+   },
+   {
+    "lemma": "du/namai",
+    "count": 7,
+    "gloss": "to be able, strong enough"
+   },
+   {
+    "lemma": "feu/gw",
+    "count": 7,
+    "gloss": "flee, take flight"
    }
   ],
   "16": [
-   {
-    "lemma": "do/ru",
-    "count": 29,
-    "gloss": "stem, tree"
-   },
-   {
-    "lemma": "e)/gxos",
-    "count": 23,
-    "gloss": "spear, lance"
-   },
    {
     "lemma": "w)=mos",
     "count": 19,
@@ -1927,19 +1918,9 @@
     "gloss": "of copper or bronze, brazen"
    },
    {
-    "lemma": "ma/xomai",
-    "count": 16,
-    "gloss": "fight"
-   },
-   {
     "lemma": "kratero/s",
     "count": 14,
     "gloss": "strong, stout, mighty"
-   },
-   {
-    "lemma": "po/lemos",
-    "count": 13,
-    "gloss": "war"
    },
    {
     "lemma": "a(/ma",
@@ -2030,14 +2011,29 @@
     "lemma": "a)/y",
     "count": 8,
     "gloss": "backwards, back again"
+   },
+   {
+    "lemma": "a)ei/",
+    "count": 8,
+    "gloss": "ever, always"
+   },
+   {
+    "lemma": "e)lau/nw",
+    "count": 8,
+    "gloss": "drive, set in motion"
+   },
+   {
+    "lemma": "eu)/xomai",
+    "count": 8,
+    "gloss": "pray"
+   },
+   {
+    "lemma": "faeino/s",
+    "count": 8,
+    "gloss": "shining, radiant"
    }
   ],
   "17": [
-   {
-    "lemma": "ma/xomai",
-    "count": 21,
-    "gloss": "fight"
-   },
    {
     "lemma": "dia/",
     "count": 19,
@@ -2047,16 +2043,6 @@
     "lemma": "nekro/s",
     "count": 18,
     "gloss": "corpse"
-   },
-   {
-    "lemma": "do/ru",
-    "count": 17,
-    "gloss": "stem, tree"
-   },
-   {
-    "lemma": "po/lemos",
-    "count": 17,
-    "gloss": "war"
    },
    {
     "lemma": "teu/xw",
@@ -2082,11 +2068,6 @@
     "lemma": "teu=xos",
     "count": 14,
     "gloss": "tool, implement"
-   },
-   {
-    "lemma": "e)/gxos",
-    "count": 12,
-    "gloss": "spear, lance"
    },
    {
     "lemma": "ma/xh",
@@ -2134,9 +2115,9 @@
     "gloss": "sharp, keen"
    },
    {
-    "lemma": "pou/s",
+    "lemma": "ou)/te",
     "count": 9,
-    "gloss": "foot"
+    "gloss": "and not"
    },
    {
     "lemma": "prosauda/w",
@@ -2157,6 +2138,26 @@
     "lemma": "e(/kastos",
     "count": 8,
     "gloss": "each"
+   },
+   {
+    "lemma": "e)/lpw",
+    "count": 8,
+    "gloss": "cause to hope"
+   },
+   {
+    "lemma": "gi/gnomai",
+    "count": 8,
+    "gloss": "come into a new state of being"
+   },
+   {
+    "lemma": "kratero/s",
+    "count": 8,
+    "gloss": "strong, stout, mighty"
+   },
+   {
+    "lemma": "pro/maxos",
+    "count": 8,
+    "gloss": "fighting before or in front"
    }
   ],
   "18": [
@@ -2164,11 +2165,6 @@
     "lemma": "kalo/s",
     "count": 16,
     "gloss": "beautiful"
-   },
-   {
-    "lemma": "pou/s",
-    "count": 15,
-    "gloss": "foot"
    },
    {
     "lemma": "teu/xw",
@@ -2201,9 +2197,24 @@
     "gloss": "fire"
    },
    {
+    "lemma": "ti/qhmi",
+    "count": 10,
+    "gloss": "set, put, place"
+   },
+   {
     "lemma": "bou=s",
     "count": 9,
     "gloss": "bullock, bull, ox, or cow"
+   },
+   {
+    "lemma": "e)qe/lw",
+    "count": 9,
+    "gloss": "to be willing"
+   },
+   {
+    "lemma": "gi/gnomai",
+    "count": 9,
+    "gloss": "come into a new state of being"
    },
    {
     "lemma": "kefalh/",
@@ -2214,11 +2225,6 @@
     "lemma": "mh/thr",
     "count": 9,
     "gloss": "mother"
-   },
-   {
-    "lemma": "po/lemos",
-    "count": 9,
-    "gloss": "war"
    },
    {
     "lemma": "du/o",
@@ -2279,11 +2285,6 @@
     "lemma": "i(ka/nw",
     "count": 7,
     "gloss": "come"
-   },
-   {
-    "lemma": "ma/xomai",
-    "count": 7,
-    "gloss": "fight"
    }
   ],
   "19": [
@@ -2291,11 +2292,6 @@
     "lemma": "dw=ron",
     "count": 11,
     "gloss": "gift, present, gift of honour"
-   },
-   {
-    "lemma": "po/lemos",
-    "count": 11,
-    "gloss": "war"
    },
    {
     "lemma": "h)=mar",
@@ -2316,11 +2312,6 @@
     "lemma": "a)ei/",
     "count": 8,
     "gloss": "ever, always"
-   },
-   {
-    "lemma": "pou/s",
-    "count": 8,
-    "gloss": "foot"
    },
    {
     "lemma": "a)/nac",
@@ -2348,6 +2339,11 @@
     "gloss": "mine"
    },
    {
+    "lemma": "e)qe/lw",
+    "count": 7,
+    "gloss": "to be willing"
+   },
+   {
     "lemma": "gunh/",
     "count": 7,
     "gloss": "woman"
@@ -2366,6 +2362,11 @@
     "lemma": "pri/n",
     "count": 7,
     "gloss": "before, until"
+   },
+   {
+    "lemma": "ti/qhmi",
+    "count": 7,
+    "gloss": "set, put, place"
    },
    {
     "lemma": "a)a/w",
@@ -2398,42 +2399,22 @@
     "gloss": "remind, put in mind"
    },
    {
+    "lemma": "mu=qos",
+    "count": 6,
+    "gloss": "word, speech"
+   },
+   {
+    "lemma": "ou(=tos",
+    "count": 6,
+    "gloss": "this"
+   },
+   {
     "lemma": "pro/sfhmi",
     "count": 6,
     "gloss": "speak to, address"
-   },
-   {
-    "lemma": "qnh/skw",
-    "count": 6,
-    "gloss": "die"
-   },
-   {
-    "lemma": "xa/lkeos",
-    "count": 6,
-    "gloss": "of copper or bronze, brazen"
    }
   ],
   "20": [
-   {
-    "lemma": "e)/gxos",
-    "count": 15,
-    "gloss": "spear, lance"
-   },
-   {
-    "lemma": "do/ru",
-    "count": 14,
-    "gloss": "stem, tree"
-   },
-   {
-    "lemma": "ma/xomai",
-    "count": 14,
-    "gloss": "fight"
-   },
-   {
-    "lemma": "po/lemos",
-    "count": 11,
-    "gloss": "war"
-   },
    {
     "lemma": "keleu/w",
     "count": 10,
@@ -2453,11 +2434,6 @@
     "lemma": "oi)=da",
     "count": 9,
     "gloss": "behold!"
-   },
-   {
-    "lemma": "pou/s",
-    "count": 9,
-    "gloss": "foot"
    },
    {
     "lemma": "a)qa/natos",
@@ -2500,9 +2476,9 @@
     "gloss": "might, force"
    },
    {
-    "lemma": "o)/rnumi",
+    "lemma": "ou(=tos",
     "count": 7,
-    "gloss": "stir, stir up"
+    "gloss": "this"
    },
    {
     "lemma": "qnhto/s",
@@ -2535,9 +2511,34 @@
     "gloss": "race, family"
    },
    {
+    "lemma": "gi/gnomai",
+    "count": 6,
+    "gloss": "come into a new state of being"
+   },
+   {
     "lemma": "me/maa",
     "count": 6,
     "gloss": "be eager, press on"
+   },
+   {
+    "lemma": "me/sos",
+    "count": 6,
+    "gloss": "middle, in the middle"
+   },
+   {
+    "lemma": "megalh/twr",
+    "count": 6,
+    "gloss": "greathearted"
+   },
+   {
+    "lemma": "o(ra/w",
+    "count": 6,
+    "gloss": "I know"
+   },
+   {
+    "lemma": "o)cu/s2",
+    "count": 6,
+    "gloss": "sharp, keen"
    }
   ],
   "21": [
@@ -2557,11 +2558,6 @@
     "gloss": "beautiful"
    },
    {
-    "lemma": "pou/s",
-    "count": 13,
-    "gloss": "foot"
-   },
-   {
     "lemma": "pu=r",
     "count": 12,
     "gloss": "fire"
@@ -2570,16 +2566,6 @@
     "lemma": "r(ei=qron",
     "count": 12,
     "gloss": "that which flows, a river, stream"
-   },
-   {
-    "lemma": "do/ru",
-    "count": 11,
-    "gloss": "stem, tree"
-   },
-   {
-    "lemma": "e)/gxos",
-    "count": 11,
-    "gloss": "spear, lance"
    },
    {
     "lemma": "go/nu",
@@ -2627,6 +2613,11 @@
     "gloss": "water"
    },
    {
+    "lemma": "e)qe/lw",
+    "count": 8,
+    "gloss": "to be willing"
+   },
+   {
     "lemma": "kratero/s",
     "count": 8,
     "gloss": "strong, stout, mighty"
@@ -2657,14 +2648,23 @@
     "gloss": "drag, draw"
    },
    {
-    "lemma": "ma/xomai",
-    "count": 7,
-    "gloss": "fight"
-   },
-   {
     "lemma": "pau/w",
     "count": 7,
     "gloss": "make to end"
+   },
+   {
+    "lemma": "peda/w",
+    "count": 7,
+    "gloss": "bind with fetters"
+   },
+   {
+    "lemma": "r(o/on",
+    "count": 7
+   },
+   {
+    "lemma": "baqudi/nhs",
+    "count": 6,
+    "gloss": "deep-eddying"
    }
   ],
   "22": [
@@ -2677,11 +2677,6 @@
     "lemma": "po/lis",
     "count": 12,
     "gloss": "city"
-   },
-   {
-    "lemma": "pou/s",
-    "count": 12,
-    "gloss": "foot"
    },
    {
     "lemma": "ku/wn",
@@ -2704,14 +2699,14 @@
     "gloss": "stay, wait"
    },
    {
-    "lemma": "e)/gxos",
-    "count": 9,
-    "gloss": "spear, lance"
-   },
-   {
     "lemma": "go/nu",
     "count": 9,
     "gloss": "knee"
+   },
+   {
+    "lemma": "ou(=tos",
+    "count": 9,
+    "gloss": "this"
    },
    {
     "lemma": "pu/lh",
@@ -2759,6 +2754,11 @@
     "gloss": "old man"
    },
    {
+    "lemma": "gi/gnomai",
+    "count": 7,
+    "gloss": "come into a new state of being"
+   },
+   {
     "lemma": "me/maa",
     "count": 7,
     "gloss": "be eager, press on"
@@ -2789,26 +2789,21 @@
     "gloss": "of copper or bronze, brazen"
    },
    {
-    "lemma": "do/ru",
+    "lemma": "e)ru/w",
     "count": 6,
-    "gloss": "stem, tree"
+    "gloss": "drag, draw"
    }
   ],
   "23": [
    {
+    "lemma": "ti/qhmi",
+    "count": 33,
+    "gloss": "set, put, place"
+   },
+   {
     "lemma": "a)=qlon",
     "count": 26,
     "gloss": "prize of contest"
-   },
-   {
-    "lemma": "o)/rnumi",
-    "count": 24,
-    "gloss": "stir, stir up"
-   },
-   {
-    "lemma": "pou/s",
-    "count": 19,
-    "gloss": "foot"
    },
    {
     "lemma": "a)/gw",
@@ -2819,6 +2814,11 @@
     "lemma": "a)gw/n",
     "count": 15,
     "gloss": "gathering, assembly"
+   },
+   {
+    "lemma": "mu=qos",
+    "count": 15,
+    "gloss": "word, speech"
    },
    {
     "lemma": "a(/rma",
@@ -2849,6 +2849,11 @@
     "lemma": "keleu/w",
     "count": 13,
     "gloss": "urge, drive on"
+   },
+   {
+    "lemma": "ou(=tos",
+    "count": 13,
+    "gloss": "this"
    },
    {
     "lemma": "bou=s",
@@ -2914,11 +2919,6 @@
     "lemma": "pe/dion",
     "count": 9,
     "gloss": "plain"
-   },
-   {
-    "lemma": "pei/qw",
-    "count": 9,
-    "gloss": "persuade"
    }
   ],
   "24": [
@@ -2931,6 +2931,11 @@
     "lemma": "a)/gw",
     "count": 19,
     "gloss": "lead, carry, fetch, bring"
+   },
+   {
+    "lemma": "ou)/te",
+    "count": 17,
+    "gloss": "and not"
    },
    {
     "lemma": "a)/stu",
@@ -2961,6 +2966,11 @@
     "lemma": "lu/w",
     "count": 12,
     "gloss": "loosen"
+   },
+   {
+    "lemma": "me/garon",
+    "count": 12,
+    "gloss": "large room, hall"
    },
    {
     "lemma": "mimnh/skw",
@@ -3028,24 +3038,14 @@
     "gloss": "woman"
    },
    {
+    "lemma": "mu=qos",
+    "count": 9,
+    "gloss": "word, speech"
+   },
+   {
     "lemma": "o)fqalmo/s",
     "count": 9,
     "gloss": "eye"
-   },
-   {
-    "lemma": "oi)=os",
-    "count": 9,
-    "gloss": "alone, lonely"
-   },
-   {
-    "lemma": "pri/n",
-    "count": 9,
-    "gloss": "before, until"
-   },
-   {
-    "lemma": "ti/ktw",
-    "count": 9,
-    "gloss": "bring into the world, engender"
    }
   ]
  }
