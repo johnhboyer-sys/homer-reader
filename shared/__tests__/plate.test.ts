@@ -5258,6 +5258,20 @@ describe('renderPlate: featureKey (stage 5c)', () => {
     expect(groupsNow).toEqual([...ZONE_LETTER_MARKUP]);
   });
 
+  // 2026-09-15 (John): beside numeral 7 two "location secure" dots touched —
+  // the ship and hut of Odysseus and the assembly with the altars, two places
+  // the poem puts together (11.806-808) but names separately. They must read
+  // as two marks.
+  it('the ship of Odysseus and the assembly are two dots that do not touch', () => {
+    const dots = new Map(markPins(result.svg).map((p) => [p.id, p.box] as const));
+    const a = dots.get('hut-of-odysseus');
+    const b = dots.get('achaean-assembly-place');
+    expect(a && b, 'both dots are drawn').toBeTruthy();
+    const gap = Math.hypot((a![0] + a![2]) / 2 - (b![0] + b![2]) / 2, (a![1] + a![3]) / 2 - (b![1] + b![3]) / 2) -
+      (a![2] - a![0]) / 2 - (b![2] - b![0]) / 2;
+    expect(gap).toBeGreaterThanOrEqual(2);
+  });
+
   // Ruling 11 (John, 2026-09-03): the zone outlines never draw; the letters
   // stay, and so does each zone's polygon as data (the Chart Room camera
   // frames a scene on it).
