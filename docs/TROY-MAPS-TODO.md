@@ -472,6 +472,24 @@ shield-of-achilles plate-level `sources` (now a validator error);
     free, 2026-07-28); (c) more detail throughout. The walls are right; keep
     them. "we aren't at good enough yet."
 
+16. **The geographic Trojan Plain sheet is retired (John, 2026-09-15,
+    13:22).** It showed the same ground as the schematic sheet, north-up
+    instead of east-up, without the poem's 32 keyed features and 7 lettered
+    zones. The Maps page's Trojan Plain tab now shows the schematic sheet,
+    and the Chart Room's schematic postcard links to it
+    (`/maps/?map=plain&focus=…`). The sites the geographic sheet drew that
+    the schematic did not (Sigeion, the tomb of Ajax at İn Tepe, Kum Tepe,
+    Kesik Tepe, Beşik-Sivritepe, Üvecik Tepe, Pınarbaşı, the Thymbrios, the
+    Kesik cut) are now a layer of the schematic, "Later tradition and
+    survey". It is off by default and the reader switches it on. Each site
+    is drawn from its gazetteer record, with its certainty tier's mark and a
+    small italic name, and has no numeral. Rhoiteion was already named on
+    the sheet. The Troad sheet stays as the wide view. Follow-up: delete the
+    geographic sheet's files (`apparatus/plates/trojan-plain.json` and what
+    only it uses) and the geographic Chart Room code path
+    (`CHART_ROOM_PLATE_ENABLED` in Reader.svelte, with the reader's fetch of
+    `trojan-plain`).
+
 ## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
 
 Session paused here 2026-07-31; John picks up when he has reference examples

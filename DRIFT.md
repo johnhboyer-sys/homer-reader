@@ -1068,3 +1068,20 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   gained `.plate-feature-key` (belt-and-suspenders with the `slice` crop,
   which already keeps this margin-band content out of frame). No
   plato-reader counterpart (Homer-only apparatus feature).
+
+## 2026-09-15 — Geographic Trojan Plain retired; layer groups on the schematic (ruling 16)
+
+- `shared/lib/plate.ts` — `Plate.layerGroups` + `PlateOptions.showLayerGroups`:
+  optional layers (places at their own coords with the tier's dot, a small
+  italic name, no numeral; plus plate layers) drawn only when shown; a hidden
+  group's places report as `PlateResult.layerGroupHidden`. The badge cache key
+  includes the shown groups. Also: scene-zone outlines and their legend row
+  are no longer drawn (ruling 11, ported from claude/citadel-inset's tip), and
+  the north arrow's "N" and caption are laid along the rotated needle
+  (`northArrowLayout`) instead of rotated with it.
+- `app/src/components/maps/PlatePanel.svelte` — one checkbox per layer group;
+  switching re-renders and keeps the camera; group sites get the numeral
+  tooltip on hover/focus.
+- `shared/components/Reader.svelte` — the schematic postcard is a link to
+  `/maps/?map=plain&focus=…`. No plato-reader counterpart for any of these
+  (Homer-only apparatus features).
