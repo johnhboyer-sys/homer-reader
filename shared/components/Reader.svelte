@@ -10,7 +10,7 @@
   import { assignSpeakerSlots, collectDisplayOrder } from '../lib/speaker-colors';
   import { classifySpeech, realLinesFromSegments, speechLabel } from '../lib/speeches';
   import { flowParts, alignGroups } from '../lib/tick-chunks';
-  import { decoratePiece, sentinelsToHtml, showsGroupNumber } from '../lib/kosmos';
+  import { decoratePiece, dropMarkSentinels, sentinelsToHtml, showsGroupNumber } from '../lib/kosmos';
   import { bookAudio, hasAudio, effectiveChunks, licenseLabel, chunkAriaLabel, itemPageUrl, type AudioManifest, type AudioChunk, type AudioBookEntry } from '../lib/audio';
   import { scansionDisplay, scansionKey } from '../lib/scansion';
   import { greekFold } from '../lib/search';
@@ -1456,9 +1456,11 @@
     // right rail / an inline figure), so strip them from the prose flow.
     text = text.replace(/\s*\[\[(?:s|fig)\d+\]\]\s*/g, ' ');
     // sentinelsToHtml: the Kosmos standoff (lib/kosmos.ts) becomes markup only
-    // after escaping; a no-op for every other translation.
+    // after escaping; a no-op for every other translation. Drop mark sentinels
+    // before highlighting so a term that prefixes the kind letter cannot wrap
+    // the hidden label and keep it from being dropped (ND text).
     if (!hlEngTerms.length) return sentinelsToHtml(esc(text));
-    return sentinelsToHtml(highlightPrefixMatches(text, hlEngTerms));
+    return sentinelsToHtml(highlightPrefixMatches(dropMarkSentinels(text), hlEngTerms));
   }
   // §Phase-3 B5: the printed number is stored as `display`; identity is the
   // (scope, number) pair encoded in the label — continuous scope's label IS

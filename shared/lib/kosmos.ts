@@ -123,15 +123,19 @@ export function decoratePiece(p: RossPiece): DecoratedPiece {
   return { text: out, ticks };
 }
 
+// A non-break mark (a printed number that does not cut a group) carries
+// no on-screen number of its own; drop it whole, leaving the surrounding
+// words untouched. Must run BEFORE highlightPrefixMatches: wrapping the
+// kind letter in <mark> would break the drop regex and leak the label.
+export function dropMarkSentinels(s: string): string {
+  return s.replace(/\uE004[roge][^\uE005]*\uE005/g, '');
+}
+
 // Sentinels -> markup, AFTER the run has been escaped. Safe to run on any
 // string: text without sentinels is returned unchanged.
 export function sentinelsToHtml(escaped: string): string {
   if (!/[\uE000-\uE005]/.test(escaped)) return escaped;
-  return escaped
-    // A non-break mark (a printed number that does not cut a group) carries
-    // no on-screen number of its own; drop it whole, leaving the surrounding
-    // words untouched.
-    .replace(/\uE004[roge][^\uE005]*\uE005/g, '')
+  return dropMarkSentinels(escaped)
     .replace(/\uE000/g, '<span class="k-tr">')
     .replace(/\uE001/g, '</span>')
     .replace(/\uE002/g, '<em>')
@@ -141,5 +145,5 @@ export function sentinelsToHtml(escaped: string): string {
 // Plain text of a decorated string (sentinels and mark labels removed) — for
 // tests and anything that needs the words alone.
 export function stripSentinels(s: string): string {
-  return s.replace(/\uE004[roge][^\uE005]*\uE005/g, '').replace(/[\uE000-\uE005]/g, '');
+  return dropMarkSentinels(s).replace(/[\uE000-\uE005]/g, '');
 }

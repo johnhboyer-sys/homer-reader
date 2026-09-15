@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { decoratePiece, sentinelsToHtml, showsGroupNumber, stripSentinels } from '../lib/kosmos';
+import { decoratePiece, dropMarkSentinels, sentinelsToHtml, showsGroupNumber, stripSentinels } from '../lib/kosmos';
 import { flowParts, alignGroups } from '../lib/tick-chunks';
+import { highlightPrefixMatches } from '../lib/text';
 import type { RossPiece } from '../lib/data';
 
 // Il. 1.1–2 as the pipeline emits it (stage1_kosmos): brackets and italics
@@ -62,6 +63,37 @@ describe('decoratePiece', () => {
     expect(html).not.toContain('k-mark');
     expect(html).not.toContain('460');
     expect(html).toContain(', goddess,');
+  });
+
+  // Reader.svelte highlightEng: dropMarkSentinels, then highlightPrefixMatches,
+  // then sentinelsToHtml. Dropping first keeps a term that prefixes the mark
+  // sentinel's letters (g/r/o/e + label) from wrapping them in <mark> and
+  // leaking the hidden label into a no-derivatives translation.
+  it('does not expose a hidden mark label when a highlight term prefixes the sentinel', () => {
+    const MARK_OPEN = String.fromCharCode(0xe004);
+    const MARK_CLOSE = String.fromCharCode(0xe005);
+    const cases: { reason: string; term: string; label: string }[] = [
+      { reason: 'not-in-greek', term: 'g', label: '460' },
+      { reason: 'not-in-greek', term: 'g4', label: '460' },
+      { reason: 'not-in-greek', term: 'g460', label: '460' },
+      { reason: 'repeat', term: 'r', label: '12' },
+      { reason: 'out-of-sequence', term: 'o', label: '99' },
+      { reason: 'at-end', term: 'e', label: '7' },
+    ];
+    for (const { reason, term, label } of cases) {
+      const p = piece({ marks: [{ n: Number(label), offset: TEXT.indexOf('goddess'), label, reason }] });
+      const text = decoratePiece(p).text;
+      const html = sentinelsToHtml(highlightPrefixMatches(dropMarkSentinels(text), [term]));
+      expect(html, `term ${term} / ${reason}`).not.toContain(`${term[0]}${label}`);
+      expect(html, `term ${term} / ${reason}`).not.toContain(label);
+      expect(html, `term ${term} / ${reason}`).not.toContain(MARK_OPEN);
+      expect(html, `term ${term} / ${reason}`).not.toContain(MARK_CLOSE);
+    }
+  });
+
+  it('drops mark sentinels before highlighting in Reader.svelte', () => {
+    const src = readFileSync(path.resolve(process.cwd(), 'components/Reader.svelte'), 'utf8');
+    expect(src).toMatch(/highlightPrefixMatches\(dropMarkSentinels\(text\)/);
   });
 
   it('is a no-op for a piece without standoff', () => {
