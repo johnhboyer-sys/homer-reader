@@ -3654,6 +3654,46 @@ describe('trojan-plain-schematic-v2: north arrow renders, needle left, N upright
     expect(cy).toBeGreaterThan(0);
     expect(cy).toBeLessThan(plate.size[1]);
   });
+
+  // 2026-09-15 (John): on the east-up sheet the "N" sat against the needle's
+  // point and the centred "True north" caption ran straight across the
+  // horizontal needle. Measured off the rendered SVG: the needle's drawn
+  // extent (its path points, rotated as the SVG rotates them), the "N" and
+  // the caption, each an estimated text box, must not touch.
+  it('the "N" and the caption stand clear of the rotated needle and of each other', () => {
+    const svg = renderPlate(plate, []).svg;
+    const group = svg.match(/<g class="plate-north">[\s\S]*?<\/text><\/g>/)![0];
+    const [, rcx, rcy] = group.match(/rotate\(-90 ([\d.]+) ([\d.]+)\)/)!.map(Number);
+    const pts = [...group.matchAll(/ d="([^"]+)"/g)].flatMap((m) =>
+      [...m[1].matchAll(/(-?[\d.]+) (-?[\d.]+)/g)].map((p) => [Number(p[1]), Number(p[2])] as [number, number]),
+    );
+    // rotate(-90 cx cy): (x, y) -> (cx + (y - cy), cy - (x - cx))
+    const rotated = pts.map(([x, y]) => [rcx + (y - rcy), rcy - (x - rcx)] as [number, number]);
+    const needle: [number, number, number, number] = [
+      Math.min(...rotated.map((p) => p[0])),
+      Math.min(...rotated.map((p) => p[1])),
+      Math.max(...rotated.map((p) => p[0])),
+      Math.max(...rotated.map((p) => p[1])),
+    ];
+    const textBox = (cls: string): [number, number, number, number] => {
+      const m = group.match(
+        new RegExp(`<text class="${cls}" x="([-\\d.]+)" y="([-\\d.]+)" text-anchor="(\\w+)"[^>]*font-size="([\\d.]+)"[^>]*>([^<]*)</text>`),
+      )!;
+      const [x, y, anchor, size, text] = [Number(m[1]), Number(m[2]), m[3], Number(m[4]), m[5]];
+      const w = text.length * size * 0.62;
+      const x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
+      return [x0, y - size * 0.72, x0 + w, y + size * 0.2];
+    };
+    const n = textBox('plate-north-label');
+    const caption = textBox('plate-north-caption');
+    expect(boxesIntersect(n, needle), `N ${n} touches needle ${needle}`).toBe(false);
+    expect(boxesIntersect(caption, needle), `caption ${caption} touches needle ${needle}`).toBe(false);
+    expect(boxesIntersect(caption, n), 'caption touches N').toBe(false);
+    for (const b of [n, caption]) {
+      expect(b[0]).toBeGreaterThan(0);
+      expect(b[1]).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe('legendMarkup: a right-margin band wraps an entry too long for it instead of clipping (synthetic)', () => {
@@ -5216,6 +5256,22 @@ describe('renderPlate: featureKey (stage 5c)', () => {
   it('zone letters stay byte-identical to their recorded placement', () => {
     const groupsNow = [...result.svg.matchAll(/<g class="plate-zone-letter">[\s\S]*?<\/g>/g)].map((m) => m[0]);
     expect(groupsNow).toEqual([...ZONE_LETTER_MARKUP]);
+  });
+
+  // Ruling 11 (John, 2026-09-03): the zone outlines never draw; the letters
+  // stay, and so does each zone's polygon as data (the Chart Room camera
+  // frames a scene on it).
+  it('ruling 11: no scene-zone outline is drawn and no legend row keys one, but every zone letter is on the face', () => {
+    const zoneIds = (plate.sceneKey ?? []).map((row) => row.layerId);
+    expect(zoneIds.length).toBe(7);
+    const drawnLayerIds = new Set([...result.svg.matchAll(/data-layer-id="([^"]+)"/g)].map((m) => m[1]));
+    for (const id of zoneIds) {
+      expect(drawnLayerIds.has(id), `zone ${id} is still drawn`).toBe(false);
+      expect(result.features.some((f) => f.id === id), `zone ${id} lost its feature record`).toBe(true);
+    }
+    expect(result.svg).not.toContain('Scene zone (lettered)');
+    const letters = [...result.svg.matchAll(/<g class="plate-zone-letter">[\s\S]*?>([A-Z])<\/text>/g)].map((m) => m[1]);
+    expect(letters.sort()).toEqual(['A', 'B', 'C', 'D', 'E', 'F', 'G']);
   });
 
   it('numeral badges carry the contract attributes and no tabindex', () => {

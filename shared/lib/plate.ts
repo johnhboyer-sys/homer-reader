@@ -4586,31 +4586,70 @@ function rotateAbout(x: number, y: number, cx: number, cy: number, deg: number):
   return [cx + dx * c - dy * s, cy + dx * s + dy * c];
 }
 
+const NORTH_N_FONT = NORTH_FONT + 1.5;
+const NORTH_N_GAP = 4;
+
+/**
+ * Where the needle, its "N" and its caption sit, for any rotation. The "N"
+ * stands just beyond the needle's TIP, along the needle's own axis, and
+ * anchors on the side facing away from it; the caption sits centred UNDER the
+ * needle's drawn extent. For a north-up sheet this is exactly the old layout
+ * (N 4px above the tip, caption under the base). It replaces rotating the two
+ * text anchor points with the needle (2026-09-15): on the east-up Trojan
+ * Plain sheet that put a centred caption straight across the now-horizontal
+ * needle and the "N" against its point.
+ */
+function northArrowLayout(caption: string, rotationDeg: number) {
+  const cx = northArrowCx(caption);
+  const top = NORTH_TOP;
+  const base = top + NORTH_NEEDLE_H;
+  const cy = top + NORTH_NEEDLE_H / 2;
+  const rot = (x: number, y: number): [number, number] => (rotationDeg ? rotateAbout(x, y, cx, cy, rotationDeg) : [x, y]);
+  const tip = rot(cx, top);
+  const needlePts = [tip, rot(cx - NORTH_HALF_W, base), rot(cx + NORTH_HALF_W, base)];
+  const needleBox: Box = [
+    Math.min(...needlePts.map((p) => p[0])),
+    Math.min(...needlePts.map((p) => p[1])),
+    Math.max(...needlePts.map((p) => p[0])),
+    Math.max(...needlePts.map((p) => p[1])),
+  ];
+  const ux = (tip[0] - cx) / (NORTH_NEEDLE_H / 2);
+  const uy = (tip[1] - cy) / (NORTH_NEEDLE_H / 2);
+  const nAnchor: LabelAnchor = ux > 0.5 ? 'start' : ux < -0.5 ? 'end' : 'middle';
+  const nW = NORTH_N_FONT * 0.72;
+  let nX = tip[0] + ux * NORTH_N_GAP;
+  let nY: number;
+  if (nAnchor === 'middle') {
+    nX = tip[0];
+    nY = uy <= 0 ? tip[1] - NORTH_N_GAP : tip[1] + NORTH_N_GAP + NORTH_N_FONT * 0.72;
+  } else {
+    nY = tip[1] + NORTH_N_FONT * 0.36;
+  }
+  const nX0 = nAnchor === 'start' ? nX : nAnchor === 'end' ? nX - nW : nX - nW / 2;
+  const nBox: Box = [nX0, nY - NORTH_N_FONT * 0.72, nX0 + nW, nY];
+  const capX = cx;
+  const capY = needleBox[3] + NORTH_FONT + 3;
+  const half = northCaptionHalf(caption);
+  const captionBox: Box = [capX - half, capY - NORTH_FONT * 0.8, capX + half, capY + NORTH_FONT * 0.25];
+  return { cx, cy, needleBox, nX, nY, nAnchor, nBox, capX, capY, captionBox };
+}
+
 /** The sheet space the arrow and its caption occupy, for the legend to avoid. */
 function northArrowBox(caption: string, rotationDeg = 0): Box {
   const cx = northArrowCx(caption);
   const half = northCaptionHalf(caption);
-  const box: Box = [cx - half, NORTH_TOP - NORTH_FONT - 6, cx + half, NORTH_TOP + NORTH_NEEDLE_H + NORTH_FONT + 6];
-  if (!rotationDeg) return box;
-  const cy = NORTH_TOP + NORTH_NEEDLE_H / 2;
-  const [x0, y0, x1, y1] = box;
-  const corners: [number, number][] = [
-    rotateAbout(x0, y0, cx, cy, rotationDeg),
-    rotateAbout(x1, y0, cx, cy, rotationDeg),
-    rotateAbout(x1, y1, cx, cy, rotationDeg),
-    rotateAbout(x0, y1, cx, cy, rotationDeg),
-  ];
-  let minX = Infinity;
-  let minY = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
-  for (const [x, y] of corners) {
-    if (x < minX) minX = x;
-    if (y < minY) minY = y;
-    if (x > maxX) maxX = x;
-    if (y > maxY) maxY = y;
+  if (!rotationDeg) {
+    return [cx - half, NORTH_TOP - NORTH_FONT - 6, cx + half, NORTH_TOP + NORTH_NEEDLE_H + NORTH_FONT + 6];
   }
-  return [minX, minY, maxX, maxY];
+  const g = northArrowLayout(caption, rotationDeg);
+  const boxes = [g.needleBox, g.nBox, g.captionBox];
+  const pad = 3;
+  return [
+    Math.min(...boxes.map((b) => b[0])) - pad,
+    Math.min(...boxes.map((b) => b[1])) - pad,
+    Math.max(...boxes.map((b) => b[2])) + pad,
+    Math.max(...boxes.map((b) => b[3])) + pad,
+  ];
 }
 
 function northArrowMarkup(caption: string, rotationDeg = 0): string {
@@ -4628,10 +4667,9 @@ function northArrowMarkup(caption: string, rotationDeg = 0): string {
   const needleGroup = rotationDeg
     ? `<g transform="rotate(${-rotationDeg} ${round1(cx)} ${round1(cy)})">${needles}</g>`
     : needles;
-  const [nX, nY] = rotationDeg ? rotateAbout(cx, top - 4, cx, cy, rotationDeg) : [cx, top - 4];
-  const [cX, cY] = rotationDeg
-    ? rotateAbout(cx, base + NORTH_FONT + 3, cx, cy, rotationDeg)
-    : [cx, base + NORTH_FONT + 3];
+  const layout = northArrowLayout(caption, rotationDeg);
+  const [nX, nY] = [layout.nX, layout.nY];
+  const [cX, cY] = [layout.capX, layout.capY];
   return (
     `<g class="plate-north">` +
     // The two halves of the needle: the leading one solid, the trailing one
@@ -4640,8 +4678,8 @@ function northArrowMarkup(caption: string, rotationDeg = 0): string {
     // group about the needle centre so the N glyph and caption can stay
     // upright at the rotated tip / base.
     needleGroup +
-    `<text class="plate-north-label" x="${round1(nX)}" y="${round1(nY)}" text-anchor="middle" ` +
-    `font-family="var(--font-ui)" font-size="${NORTH_FONT + 1.5}" letter-spacing="1" ` +
+    `<text class="plate-north-label" x="${round1(nX)}" y="${round1(nY)}" text-anchor="${layout.nAnchor}" ` +
+    `font-family="var(--font-ui)" font-size="${NORTH_N_FONT}" letter-spacing="1" ` +
     `fill="var(--text)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="2" ` +
     `stroke-linejoin="round">N</text>` +
     `<text class="plate-north-caption" x="${round1(cX)}" y="${round1(cY)}" text-anchor="middle" ` +
@@ -6420,8 +6458,19 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     if (!rendered) continue;
     renderedById.set(layer.id, rendered);
     const isMarginInset = layer.style === 'inset' && layer.frame !== undefined && layer.frame[0] >= frameWidth;
+    // Ruling 11 (John, 2026-09-03, amended 15:54): "drop the zone outlines
+    // from the map face" — a scene zone's own dashed polygon is never drawn.
+    // Its LETTER stays, and so does the polygon, in the plate and in
+    // PlateResult, because that is what the Chart Room camera frames a scene
+    // on. Only the ink goes. Suppressed here rather than in renderLayer so
+    // the zone keeps every other effect it has (its letter's seat, its
+    // reservations, its feature record) exactly as before. Ported from
+    // claude/citadel-inset's tip (2026-09-15).
+    const isSceneZone = sceneKeyByLayer.has(layer.id);
     if (isMarginInset) marginInsetMarkup.push(rendered.markup);
-    else drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind, fill: layer.fill });
+    else if (!isSceneZone) {
+      drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind, fill: layer.fill });
+    }
     for (const under of rendered.submerged ?? []) {
       const bucket = submergedByWater.get(under.layerId);
       if (bucket) bucket.push(under.markup);
@@ -6550,7 +6599,11 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     }
     if (layer.style === 'inset') insetBoxes.push(rendered.feature.bbox);
     else if (layer.label || layer.placeId) layerLabelCandidates.push({ layer, rendered });
-    const legend = layerLegendEntry(layer);
+    // A scene zone draws no ink now (ruling 11), so it keys none: a swatch
+    // for a wash that appears nowhere on the sheet is a legend row that
+    // teaches a reader something false. The letters are keyed by the scene
+    // key below them, which is where they were always explained.
+    const legend = isSceneZone ? undefined : layerLegendEntry(layer);
     if (legend) legendEntries.push(legend);
     // A coast layer that fills its rings also keys the terrain it encloses.
     if (layer.kind === 'coast' && layer.fill) {
