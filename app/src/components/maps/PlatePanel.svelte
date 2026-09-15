@@ -32,6 +32,7 @@
     type Certainty,
     type Viewport,
     type Plate,
+    type PlateLayerGroup,
     type LabelBox,
   } from '@shared/lib/plate';
   import { renderShield, type ShieldPlate } from '@shared/lib/shield';
@@ -218,6 +219,34 @@
     applyCertaintyVisibility();
   }
 
+  // ── Layer groups (plate.ts Plate.layerGroups, 2026-09-15) ──────────────
+  // An optional layer the reader switches on — the schematic plain's "Later
+  // tradition and survey", off by default. Unlike the category and certainty
+  // toggles, which hide already-drawn elements, a group changes what the
+  // placer has to keep clear of (its names and dots are obstacles for the
+  // numerals), so switching one RE-RENDERS the sheet and keeps the camera
+  // where the reader left it. Its own state, apart from `certaintyVisible`:
+  // the certainty filter still applies to the group's marks afterwards.
+  let layerGroups: PlateLayerGroup[] = [];
+  let groupVisible: Record<string, boolean> = {};
+  let renderedPlate: Plate | undefined;
+
+  function shownGroupIds(): string[] {
+    return layerGroups.filter((g) => groupVisible[g.id]).map((g) => g.id);
+  }
+
+  async function toggleGroup(id: string, on: boolean) {
+    groupVisible = { ...groupVisible, [id]: on };
+    if (!renderedPlate) return;
+    const [k, tx, ty] = [camK, camTx, camTy];
+    paintPlate(renderedPlate, currentPlaces);
+    await tick();
+    applyLayerVisibility();
+    applyCertaintyVisibility();
+    setupCamera();
+    setCamera(k, tx, ty);
+  }
+
   // ── Camera: pan/zoom ─────────────────────────────────────────────────────
   // A pure CSS-style transform (`translate(tx,ty) scale(k)`) on a `<g>`
   // wrapped around the rendered content, INSIDE the sheet's own clip-path
@@ -294,9 +323,11 @@
     return found;
   }
 
-  function showTooltip(el: SVGGElement) {
+  function showTooltip(el: SVGElement) {
     const label = el.getAttribute('aria-label') ?? '';
-    const tier = badgeCertainty(el);
+    // A layer-group site's aria-label already names its tier (plate.ts
+    // traditionHoverText); a numeral's does not.
+    const tier = el.classList.contains('plate-tradition-target') ? undefined : badgeCertainty(el as SVGGElement);
     tipText = tier ? `${label} (${tier})` : label;
     const frameRect = mapFrameEl?.getBoundingClientRect();
     const badgeRect = el.getBoundingClientRect();
@@ -376,6 +407,16 @@
       row.addEventListener('mouseleave', () => deactivateBadge());
       row.addEventListener('focusin', light);
       row.addEventListener('focusout', () => deactivateBadge());
+    });
+    // Layer-group sites (a dot, or the name of a site with no dot): the same
+    // hover/focus tooltip a numeral gets, carrying who identified the site
+    // and when, as the gazetteer records it.
+    mapEl.querySelectorAll<SVGElement>('.plate-tradition-target').forEach((site) => {
+      site.setAttribute('tabindex', '0');
+      site.addEventListener('mouseenter', () => showTooltip(site));
+      site.addEventListener('mouseleave', () => hideTooltip());
+      site.addEventListener('focusin', () => showTooltip(site));
+      site.addEventListener('focusout', () => hideTooltip());
     });
   }
 
@@ -670,6 +711,38 @@
   // caller that flips `plateId` on a live instance. Bump on every call;
   // ignore a completion whose generation has gone stale.
   let loadGeneration = 0;
+
+  // One render of a parsed plate.ts plate into the panel's state — shared by
+  // load() and toggleGroup(), which re-renders with a different set of layer
+  // groups shown.
+  function paintPlate(plate: Plate, placesForPlate: PlatePlace[]) {
+    const result = renderPlate(plate, placesForPlate, { showLayerGroups: shownGroupIds() });
+    renderedPlate = plate;
+    svgMarkup = result.svg;
+    plateTitle = plate.title;
+    isDraft = plate.status === 'draft';
+    plateSize = plate.size;
+    plateViewport = plate.kind === 'geographic' ? result.viewport : undefined;
+    unlocated = result.unlocated;
+    offCanvas = result.offCanvas;
+    drawnByLayer = result.drawnByLayer;
+    plateLayers = plate.layers;
+    // Pinned/located count only -- `drawnByLayer` places are visibly
+    // drawn but never pinned, so they must not inflate this the way
+    // they would if only unlocated/offCanvas were subtracted; nor must a
+    // place behind a layer-group switch.
+    const locatedCount =
+      placesForPlate.length -
+      result.unlocated.length -
+      result.offCanvas.length -
+      result.drawnByLayer.length -
+      result.layerGroupHidden.length;
+    hasConjectural = plate.kind === 'schematic' && locatedCount > 0;
+    focusPlate = plate;
+    focusViewport = result.viewport;
+    focusLabelBoxes = result.labelBoxes;
+  }
+
   async function load(id: string, placesForPlate: PlatePlace[], focusIdsForPlate: string[]) {
     const generation = ++loadGeneration;
     status = 'loading';
@@ -680,6 +753,9 @@
     drawnByLayer = [];
     plateLayers = [];
     layerCategories = [];
+    layerGroups = [];
+    groupVisible = {};
+    renderedPlate = undefined;
     hasConjectural = false;
     plateViewport = undefined;
     currentPlaces = placesForPlate;
@@ -710,28 +786,12 @@
         plateSize = shield.size;
       } else {
         const plate = parsePlate(raw);
-        const result = renderPlate(plate, placesForPlate);
-        svgMarkup = result.svg;
-        plateTitle = plate.title;
-        isDraft = plate.status === 'draft';
-        plateSize = plate.size;
-        plateViewport = plate.kind === 'geographic' ? result.viewport : undefined;
-        unlocated = result.unlocated;
-        offCanvas = result.offCanvas;
-        drawnByLayer = result.drawnByLayer;
-        plateLayers = plate.layers;
+        layerGroups = plate.layerGroups ?? [];
+        groupVisible = Object.fromEntries(layerGroups.map((g) => [g.id, g.default !== 'off']));
+        paintPlate(plate, placesForPlate);
         const present = new Set(plate.layers.map((l) => layerCategory(l)).filter((c): c is LayerCategory => c !== null));
         layerCategories = CATEGORY_ORDER.filter((c) => present.has(c));
         categoryVisible = { relief: true, river: true, coast: true };
-        // Pinned/located count only -- `drawnByLayer` places are visibly
-        // drawn but never pinned, so they must not inflate this the way
-        // they would if only unlocated/offCanvas were subtracted.
-        const locatedCount =
-          placesForPlate.length - result.unlocated.length - result.offCanvas.length - result.drawnByLayer.length;
-        hasConjectural = plate.kind === 'schematic' && locatedCount > 0;
-        focusPlate = plate;
-        focusViewport = result.viewport;
-        focusLabelBoxes = result.labelBoxes;
       }
 
       status = 'ready';
@@ -837,6 +897,21 @@
                   on:change={(e) => toggleCertainty(tier, (e.currentTarget as HTMLInputElement).checked)}
                 />
                 {tier}
+              </label>
+            {/each}
+          </div>
+        {/if}
+
+        {#if layerGroups.length}
+          <div class="pp-toggles pp-layer-groups" role="group" aria-label="Optional layers">
+            {#each layerGroups as group (group.id)}
+              <label class="pp-toggle">
+                <input
+                  type="checkbox"
+                  checked={groupVisible[group.id] === true}
+                  on:change={(e) => toggleGroup(group.id, (e.currentTarget as HTMLInputElement).checked)}
+                />
+                Show {group.title.toLowerCase()}
               </label>
             {/each}
           </div>
@@ -999,6 +1074,7 @@
   .pp-map :global(.plate-key-badge:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
   .pp-map :global(.plate-key-row.plate-key-active) { fill: var(--accent); font-weight: 600; }
   .pp-map :global(.plate-key-row:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .pp-map :global(.plate-tradition-target:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
   .pp-map :global([data-place-id].plate-key-active:not(.plate-key-badge) circle),
   .pp-map :global([data-layer-id].plate-key-active:not(.plate-key-badge) circle) {
     stroke: var(--accent);

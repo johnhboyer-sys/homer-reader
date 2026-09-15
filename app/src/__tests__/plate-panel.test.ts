@@ -75,6 +75,65 @@ describe('PlatePanel', () => {
     expect(container.querySelectorAll('.pp-toggles .pp-toggle').length).toBe(1 + 4); // shoreline + 4 certainty tiers
   });
 
+  // 2026-09-15: a plate's layer group ("Later tradition and survey" on the
+  // schematic plain) is off by default, drawn by one keyboard-operable
+  // checkbox, and its state is its own: the certainty filter still applies to
+  // the group's marks once they are drawn.
+  it('keeps a default-off layer group hidden until its checkbox is ticked, and keeps it apart from the certainty filter', async () => {
+    mockFetchPlate.mockResolvedValue({
+      id: 'group-plate',
+      title: 'Group Plate',
+      kind: 'geographic',
+      status: 'draft',
+      bbox: [0, 0, 1, 1],
+      size: [200, 160],
+      layers: [
+        { id: 'cut', kind: 'region', placeId: 'cut', label: 'The cut', fill: 'none', polygon: [[0.1, 0.6], [0.1, 0.8], [0.2, 0.8], [0.2, 0.6]] },
+      ],
+      layerGroups: [{ id: 'later', title: 'Later tradition and survey', default: 'off', placeIds: ['mound'], layerIds: ['cut'] }],
+    });
+    const places = [
+      { id: 'mound', name: 'Mound', coords: [0.5, 0.5] as [number, number], certainty: 'traditional' as const, tradition: 'Named so by a traveler in 1785' },
+      { id: 'town', name: 'Town', coords: [0.3, 0.3] as [number, number], certainty: 'certain' as const },
+    ];
+    const { container, getByRole, queryByText } = render(PlatePanel, {
+      props: { plateId: 'group-plate', places, title: 'Group Plate' },
+    });
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+    const toggle = getByRole('checkbox', { name: 'Show later tradition and survey' }) as HTMLInputElement;
+    expect(toggle.checked).toBe(false);
+    expect(container.querySelector('[data-place-id="mound"]')).toBeNull();
+    expect(container.querySelector('[data-label-for="cut"]')).toBeNull();
+    expect(container.querySelector('[data-place-id="town"]')).toBeTruthy();
+    // Behind the switch is not "named, not drawn".
+    expect(queryByText('Mound')).toBeNull();
+
+    toggle.focus();
+    expect(document.activeElement).toBe(toggle);
+    toggle.click();
+    await waitFor(() => expect(container.querySelector('[data-place-id="mound"]')).toBeTruthy());
+    expect(toggle.checked).toBe(true);
+    const mound = container.querySelector('[data-place-id="mound"]') as SVGElement;
+    expect(mound.getAttribute('tabindex')).toBe('0');
+    expect(mound.getAttribute('aria-label')).toBe('Mound. Traditional identification: Named so by a traveler in 1785.');
+    expect(container.querySelector('[data-label-for="cut"]')).toBeTruthy();
+
+    // Focus shows the tradition as a tooltip.
+    await fireEvent.focusIn(mound);
+    await waitFor(() => expect(container.querySelector('.pp-tip')?.textContent).toContain('Named so by a traveler in 1785'));
+
+    // The certainty filter is separate state: hiding "traditional" hides the
+    // group's traditional mark and leaves the group switched on.
+    const traditional = getByRole('checkbox', { name: 'traditional' }) as HTMLInputElement;
+    traditional.click();
+    await waitFor(() => expect((container.querySelector('[data-place-id="mound"]') as SVGElement).style.display).toBe('none'));
+    expect(toggle.checked).toBe(true);
+    toggle.click();
+    await waitFor(() => expect(container.querySelector('[data-place-id="mound"]')).toBeNull());
+    expect(traditional.checked).toBe(false);
+  });
+
   it('filters pins (and their labels) by certainty tier, and leaves the certainty filter off a plate with no places', async () => {
     mockFetchPlate.mockResolvedValue({
       id: 'certainty-plate',

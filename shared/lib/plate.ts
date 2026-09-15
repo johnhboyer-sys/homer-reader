@@ -6828,6 +6828,13 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       drawnByLayer.push(place);
       continue;
     }
+    // A place of a layer group the caller did not show draws nothing — even
+    // one with coords on a geographic sheet — unless a drawn layer carries
+    // it anyway (Sigeion's ridge), in which case it reports as it always did.
+    if (hiddenGroupPlaceIds.has(place.id) && !layerPlaceIds.has(place.id)) {
+      layerGroupHidden.push(place);
+      continue;
+    }
     // A shown layer-group place is drawn at its own surveyed `coords`, on a
     // schematic sheet too: the schematic's ground is the real ground in the
     // same projection (ruling 1, 2026-09-02), and these marks sit in their
@@ -6845,8 +6852,6 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       // gets its own bucket rather than landing in `unlocated`.
       if (layerPlaceIds.has(place.id)) {
         drawnByLayer.push(place);
-      } else if (hiddenGroupPlaceIds.has(place.id)) {
-        layerGroupHidden.push(place);
       } else {
         unlocated.push(place);
       }

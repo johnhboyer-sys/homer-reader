@@ -1164,7 +1164,11 @@ describe('Reader.svelte — Chart Room SCHEMATIC plate postcard (live path, 2026
     expect(badgeB).toHaveClass('plate-hidden');
   });
 
-  it('renders exactly one locator frame rect, and no click-through link on the schematic path (part E/F: no /maps/ tab exists for this plate)', async () => {
+  // Replaced 2026-09-15: this test used to assert there was NO click-through
+  // on the schematic path, because /maps/ had no tab for the schematic plate.
+  // John retired the geographic sheet and the Trojan Plain tab now mounts the
+  // schematic, so the postcard links there like the geographic path does.
+  it('renders exactly one locator frame rect, and the schematic postcard links to the Trojan Plain tab framed on the scene', async () => {
     vi.mocked(fetchPlate).mockResolvedValueOnce(schematicFixture as never);
     vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA] });
 
@@ -1176,7 +1180,11 @@ describe('Reader.svelte — Chart Room SCHEMATIC plate postcard (live path, 2026
     await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
 
     expect(container.querySelectorAll('rect.chart-locator-frame').length).toBe(1);
-    expect(container.querySelector('.chart-plate-postcard')?.tagName).toBe('DIV');
+    const link = screen.getByRole('link', { name: 'Open the Trojan Plain plate framed on this scene' });
+    expect(link).toBe(container.querySelector('.chart-plate-postcard'));
+    expect(link.getAttribute('href')).toContain('/maps/?map=plain&focus=anchor-a');
+    link.focus();
+    expect(document.activeElement).toBe(link);
 
     // Finding (2026-09-02, Codex review): a single --accent stroke measured
     // under the 3:1 AA floor against the lean locator's own coast/river

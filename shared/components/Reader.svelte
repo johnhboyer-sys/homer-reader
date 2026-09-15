@@ -955,9 +955,9 @@
       ? `${iliadPlate.title}, showing ${iliadPlateFocusNames.join(', ')}`
       : iliadPlate.title;
 
-  // The Trojan-plain plate is the one geographic path with a real `/maps/`
-  // tab to link to (MapsPage.svelte's `plain` tab; there is no tab for the
-  // schematic plate — see the schematic postcard branch below). `focusIds`
+  // The Trojan-plain plate's click-through to MapsPage.svelte's `plain` tab
+  // (which mounts the schematic sheet since 2026-09-15; the schematic
+  // postcard links there too — see schematicPlateLinkHref below). `focusIds`
   // is user-visible in the resulting URL, but it is built here from the
   // gazetteer's own place ids, not from anything user-supplied, so no extra
   // sanitizing is needed beyond what MapsPage's own reader does on the way
@@ -1035,6 +1035,13 @@
   $: schematicFocusIds = currentPlateResolution?.schematic?.unzoomed
     ? []
     : (currentPlateResolution?.schematic?.focusIds ?? []);
+  // The postcard's click-through (2026-09-15): the Maps page's Trojan Plain
+  // tab now mounts this schematic sheet, so the postcard links there in the
+  // same URL shape as the geographic path above, framed on the same places
+  // (none for an unzoomed scene, which opens the whole sheet).
+  $: schematicPlateLinkHref = useSchematicPlate
+    ? `${BASE}/maps/?map=plain${schematicFocusIds.length ? `&focus=${schematicFocusIds.map(encodeURIComponent).join(',')}` : ''}`
+    : null;
   // Same maxScale/labelBoxes treatment as iliadPlateCamera above — this is
   // the path measured at the clamp for 92/163 scenes (see that comment).
   $: schematicPlateCamera = schematicPlate && schematicPlateRender
@@ -3329,8 +3336,9 @@
      above) additionally links through to the full pan/zoom /maps/ panel,
      framed on the same scene; the schematic path (live today) gets every
      other postcard element — moderate-zoom camera, focus/ghost/omit, label
-     descale, locator inset — but no link, because /maps/ has no tab for the
-     schematic plate (John's open decision, noted at that constant). -->
+     descale, locator inset — and, since John retired the geographic sheet
+     (2026-09-15) and the Maps page's Trojan Plain tab became the schematic,
+     the same click-through (schematicPlateLinkHref). -->
 {#snippet chartPlateBody()}
   {#if useIliadPlate && iliadPlateRender && iliadPlate}
     {#if iliadPlateLinkHref}
@@ -3378,7 +3386,11 @@
       <p class="chart-plate-caption">This scene's named places have no fixed position on this plate.</p>
     {/if}
   {:else if useSchematicPlate && schematicPlateRender && schematicPlate}
-    <div class="chart-plate-postcard">
+    <a
+      class="chart-plate-postcard"
+      href={schematicPlateLinkHref}
+      aria-label="Open the Trojan Plain plate framed on this scene"
+    >
       <!-- 2026-09-03, stage 6 review (F1): the live schematic path had no
            draft badge at all — see the linked postcard's comment above. -->
       {#if schematicPlate.status === 'draft'}
@@ -3394,7 +3406,7 @@
       {#if schematicLocatorRender}
         {@render chartLocatorInset(schematicPlate.size, schematicLocatorRender.svg, schematicLocatorFrame)}
       {/if}
-    </div>
+    </a>
   {:else if currentPlateMap}
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html currentPlateMap.svg}
