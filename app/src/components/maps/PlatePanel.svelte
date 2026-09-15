@@ -366,12 +366,16 @@
       badge.addEventListener('focusout', () => deactivateBadge());
     });
     mapEl.querySelectorAll<SVGElement>('.plate-key-row').forEach((row) => {
-      row.addEventListener('mouseenter', () => {
+      row.setAttribute('tabindex', '0');
+      const light = () => {
         const n = row.dataset.keyN;
         const badge = n ? findBadgeByKeyN(n) : null;
         if (badge) activateBadge(badge);
-      });
+      };
+      row.addEventListener('mouseenter', light);
       row.addEventListener('mouseleave', () => deactivateBadge());
+      row.addEventListener('focusin', light);
+      row.addEventListener('focusout', () => deactivateBadge());
     });
   }
 
@@ -438,24 +442,42 @@
     // centre is the next best pivot -- getBBox() is defined in the
     // element's own user space regardless of any ancestor transform, so
     // it's safe to read before or after the camera group exists.
+    // Numbered badges are `<g>` discs (circle + text), not bare `<text>`:
+    // wrap the GROUP, pivoted on the circle centre, so they counter-scale
+    // under zoom the same way names do and stay seated on the same anchor.
     const wrappers: { el: SVGGElement; x: number; y: number }[] = [];
-    camera.querySelectorAll<SVGTextElement>('.plate-label').forEach((textEl) => {
-      const xAttr = textEl.getAttribute('x');
-      const yAttr = textEl.getAttribute('y');
+    camera.querySelectorAll<SVGGraphicsElement>('.plate-label, .plate-key-badge').forEach((el) => {
+      const isBadge = el.classList.contains('plate-key-badge');
       let x: number;
       let y: number;
-      if (xAttr !== null && yAttr !== null) {
-        x = parseFloat(xAttr);
-        y = parseFloat(yAttr);
+      if (isBadge) {
+        const circle = el.querySelector('circle');
+        const cx = circle?.getAttribute('cx');
+        const cy = circle?.getAttribute('cy');
+        if (cx !== null && cy !== null && cx !== undefined && cy !== undefined) {
+          x = parseFloat(cx);
+          y = parseFloat(cy);
+        } else {
+          const bbox = el.getBBox();
+          x = bbox.x + bbox.width / 2;
+          y = bbox.y + bbox.height / 2;
+        }
       } else {
-        const bbox = textEl.getBBox();
-        x = bbox.x + bbox.width / 2;
-        y = bbox.y + bbox.height / 2;
+        const xAttr = el.getAttribute('x');
+        const yAttr = el.getAttribute('y');
+        if (xAttr !== null && yAttr !== null) {
+          x = parseFloat(xAttr);
+          y = parseFloat(yAttr);
+        } else {
+          const bbox = el.getBBox();
+          x = bbox.x + bbox.width / 2;
+          y = bbox.y + bbox.height / 2;
+        }
       }
       const wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       wrapper.setAttribute('class', 'pp-label-descale');
-      textEl.parentNode?.insertBefore(wrapper, textEl);
-      wrapper.appendChild(textEl);
+      el.parentNode?.insertBefore(wrapper, el);
+      wrapper.appendChild(el);
       wrappers.push({ el: wrapper, x, y });
     });
     labelWrappers = wrappers;
@@ -910,7 +932,8 @@
   .pp-map :global(svg) { display: block; width: 100%; height: 100%; }
   /* The camera group's own contents (ships, waterlines, relief, pins) are
      meant to magnify under zoom -- only .pp-label-descale (wrapped around
-     every .plate-label by setupCamera) is ever given a counter-transform. */
+     every .plate-label and .plate-key-badge by setupCamera) is ever given a
+     counter-transform. */
   .pp-map :global(.pp-camera) { will-change: transform; }
   /* Tier-2 labels (stage 5a, 2026-09-02): hidden until the panel is
      actually zoomed in (`.plate-zoomed`, toggled on the svg root by
@@ -975,6 +998,7 @@
   }
   .pp-map :global(.plate-key-badge:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
   .pp-map :global(.plate-key-row.plate-key-active) { fill: var(--accent); font-weight: 600; }
+  .pp-map :global(.plate-key-row:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
   .pp-map :global([data-place-id].plate-key-active:not(.plate-key-badge) circle),
   .pp-map :global([data-layer-id].plate-key-active:not(.plate-key-badge) circle) {
     stroke: var(--accent);

@@ -433,7 +433,15 @@ const _plateCache = new Map<string, Promise<PlateFile | null>>();
 export function fetchPlate(id: string): Promise<PlateFile | null> {
   const cached = _plateCache.get(id);
   if (cached) return cached;
-  const p = fetch(`${ROOT()}/plates/${id}.json`).then((r) => (r.ok ? r.json() : null)) as Promise<PlateFile | null>;
+  const p = fetch(`${ROOT()}/plates/${id}.json`)
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => {
+      // A 404/500 resolves to null (honest "not yet drawn"). Do not cache that
+      // miss: a later need — a transient network blip, a plate that landed
+      // after this session started — must hit the network again.
+      if (data == null && _plateCache.get(id) === p) _plateCache.delete(id);
+      return data;
+    }) as Promise<PlateFile | null>;
   p.catch(() => { if (_plateCache.get(id) === p) _plateCache.delete(id); });
   _plateCache.set(id, p);
   return p;

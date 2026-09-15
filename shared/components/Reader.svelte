@@ -1000,9 +1000,17 @@
   // coords-bearing place but does have a schematic anchor (see its own
   // comment above). A scene that never needs this plate now never fetches
   // it; paging to one that does still fetches lazily, on demand.
-  $: if (mounted && work === 'iliad' && scenes.length && schematicPlateLoadState === 'idle'
+  $: schematicPlateNeeded = mounted && work === 'iliad' && scenes.length
     && !!currentPlateResolution?.schematic
-    && (reading || sceneSheetOpen || (chartRoomOpen && !scenePanelMobile))) ensureSchematicPlate();
+    && (reading || sceneSheetOpen || (chartRoomOpen && !scenePanelMobile));
+  $: if (schematicPlateNeeded && schematicPlateLoadState === 'idle') ensureSchematicPlate();
+  // A failed or null fetch must not disable the postcard for the rest of the
+  // session. Drop the remembered failure once the plate is no longer needed
+  // so the next time it is, we fetch again. Stay on 'unavailable' while the
+  // need holds so a persistent miss does not retry in a loop.
+  $: if (!schematicPlateNeeded && schematicPlateLoadState === 'unavailable') {
+    schematicPlateLoadState = 'idle';
+  }
 
   $: useSchematicPlate = work === 'iliad' && schematicPlateLoadState === 'ready' && !!schematicPlate
     && !!currentPlateResolution?.schematic;

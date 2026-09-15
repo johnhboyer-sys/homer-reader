@@ -154,6 +154,59 @@ describe('Search.svelte', () => {
     // searchbox persists after the search runs.
     expect(screen.getByLabelText('Greek')).toBeInTheDocument();
   });
+
+  // A request-sequence guard: if the reader submits a second query while the
+  // first search is still in flight, the slower first completion must not
+  // replace the later query's results. The Search button is disabled while
+  // loading, so the second submit is fired on the form itself (Enter on the
+  // field, or a test driving the same on:submit handler).
+  it('ignores a stale search completion: a slower earlier query must not overwrite a later one', async () => {
+    const { search } = await import('../lib/search');
+    let resolveStale: (value: unknown) => void = () => {};
+    let resolveFresh: (value: unknown) => void = () => {};
+    const stale = new Promise((resolve) => { resolveStale = resolve; });
+    const fresh = new Promise((resolve) => { resolveFresh = resolve; });
+    vi.mocked(search)
+      .mockReturnValueOnce(stale as never)
+      .mockReturnValueOnce(fresh as never);
+
+    const { container } = render(Search);
+    const form = container.querySelector('.search-form') as HTMLFormElement;
+    const greek = screen.getByLabelText('Greek');
+
+    await fireEvent.input(greek, { target: { value: 'stale-query' } });
+    await fireEvent.submit(form);
+    await fireEvent.input(greek, { target: { value: 'fresh-query' } });
+    await fireEvent.submit(form);
+
+    expect(search).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(search).mock.calls[0][0]).toBe('stale-query');
+    expect(vi.mocked(search).mock.calls[1][0]).toBe('fresh-query');
+
+    const hit = (id: string) => ({
+      work: 'iliad',
+      meta: { id, book: 1, column: '1', greek_head: id, greek_tokens: id, english_head: `${id} hit` },
+      grkMatch: true,
+      engMatch: false,
+      grkPositions: [0],
+      engPositions: [],
+    });
+
+    // Fresh (later) query resolves first. failedWorks is painted before the
+    // per-page book fetch, so it is a stable signal even if renderPage is slow.
+    resolveFresh({ results: [hit('fresh')], failedWorks: ['fresh-work'] });
+    await waitFor(() => expect(container.textContent).toMatch(/fresh-work/));
+
+    // Stale (earlier) query resolves last. Its completion must be dropped.
+    // Do not use waitFor here: without the guard, a waitFor that accepts the
+    // *current* (still-fresh) DOM would pass before the stale assignment
+    // flushes. Wait a macrotask so a missing guard would have overwritten.
+    resolveStale({ results: [hit('stale')], failedWorks: ['stale-work'] });
+    await new Promise((resolve) => setTimeout(resolve, 25));
+
+    expect(container.textContent).toMatch(/fresh-work/);
+    expect(container.textContent).not.toMatch(/stale-work/);
+  });
 });
 
 describe('Reader.svelte', () => {
@@ -1660,6 +1713,41 @@ describe('Reader.svelte — Chart Room SCHEMATIC plate postcard (live path, 2026
     resolveFetch(schematicFixture);
     await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
     expect(container.querySelector('.reading-plate')).not.toHaveClass('reading-plate-nomap');
+  });
+
+  // A transient fetch failure must not disable the postcard for the rest of
+  // the session: do not remember unavailable across a later need. Leave
+  // reading mode (plate no longer needed) and re-enter; the second need
+  // must fetch again and render.
+  it('retries the schematic plate fetch after a rejected first attempt, rather than remembering the failure for the session', async () => {
+    vi.mocked(fetchPlate)
+      .mockRejectedValueOnce(new Error('network blip'))
+      .mockResolvedValueOnce(schematicFixture as never);
+    vi.mocked(fetchPlaces).mockResolvedValueOnce({ places: [anchorA] });
+
+    window.history.replaceState(null, '', '/iliad/book/1?mode=reading');
+    const { container } = render(Reader, {
+      props: { work: 'iliad', bookNum: 1, bookData: oneSceneBook(['anchor-a']) },
+    });
+    await screen.findByText(/Scene 1 of 1/i);
+    await waitFor(() => expect(fetchPlate).toHaveBeenCalledTimes(1));
+
+    // Existing fallback: no schematic postcard, map slot collapses. Wait
+    // for unavailable (not just "svg still absent") so a later re-entry
+    // is a real retry rather than a race against the first catch.
+    await waitFor(() => expect(container.querySelector('.reading-plate')).toHaveClass('reading-plate-nomap'));
+    expect(container.querySelector('.chart-plate svg')).toBeNull();
+
+    // Leave reading mode (schematic plate no longer needed) then re-enter.
+    // Await each key so Svelte flushes the idle-reset before the next need.
+    await fireEvent.keyDown(window, { key: 'r' });
+    await waitFor(() => expect(container.querySelector('.reader-body')).not.toHaveClass('reading-mode'));
+    await fireEvent.keyDown(window, { key: 'r' });
+    await waitFor(() => expect(container.querySelector('.reader-body')).toHaveClass('reading-mode'));
+
+    await waitFor(() => expect(fetchPlate).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(container.querySelector('.chart-plate svg')).toBeTruthy());
+    expect(container.querySelector('.chart-plate svg')?.getAttribute('aria-label')).toMatch(/Troad, schematic/i);
   });
 });
 

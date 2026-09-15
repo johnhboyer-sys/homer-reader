@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { activeSceneIndex, cunliffeShard, fetchBook, fetchCunliffeShard, fetchFootnotes, fetchLsjShard, fetchRepetitions, invalidateBookCache, lookupWord, lsjShard, normalizeBookData, parseBekker, parseLocation, resolveBekker, stripBookForClient, type Scene } from '../lib/data';
+import { activeSceneIndex, cunliffeShard, fetchBook, fetchCunliffeShard, fetchFootnotes, fetchLsjShard, fetchPlate, fetchRepetitions, invalidateBookCache, lookupWord, lsjShard, normalizeBookData, parseBekker, parseLocation, resolveBekker, stripBookForClient, type Scene } from '../lib/data';
 
 function mockFetch(map: Record<string, unknown>) {
   vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
@@ -324,5 +324,24 @@ describe('fetch and lookup helpers', () => {
       expect(cunliffeShard(key)).toBe(expected);
       expect(lsjShard(key)).toBe(expected);
     }
+  });
+
+  it('does not cache a missing plate: a later fetchPlate call hits the network again', async () => {
+    const plate = {
+      id: 'retry-plate-b4',
+      title: 'Retry Plate',
+      kind: 'geographic',
+      status: 'draft',
+      bbox: [0, 0, 1, 1],
+      size: [10, 10],
+      layers: [],
+    };
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce({ ok: false, status: 500, json: async () => ({}) } as Response)
+      .mockResolvedValueOnce({ ok: true, json: async () => plate } as Response);
+
+    await expect(fetchPlate('retry-plate-b4')).resolves.toBeNull();
+    await expect(fetchPlate('retry-plate-b4')).resolves.toMatchObject({ id: 'retry-plate-b4' });
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
 });

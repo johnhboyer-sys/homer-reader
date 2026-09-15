@@ -775,6 +775,61 @@ describe('PlatePanel', () => {
       await waitFor(() => expect(container.querySelector('.pp-tip')).toBeNull());
     });
 
+    it('counter-scales numbered badges under zoom the same way labels are counter-scaled', async () => {
+      vi.spyOn(SVGGraphicsElement.prototype, 'getScreenCTM').mockReturnValue(null);
+      mockFetchPlate.mockResolvedValue(featureKeyPlate);
+      const { container, getByRole } = render(PlatePanel, {
+        props: { plateId: 'feature-key-plate', places, title: 'Feature Key Plate' },
+      });
+      await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+      const badge = container.querySelector('.plate-key-badge');
+      expect(badge).toBeTruthy();
+      const badgeWrapper = badge!.parentElement;
+      expect(badgeWrapper).toBeTruthy();
+      expect(badgeWrapper).toHaveClass('pp-label-descale');
+      // Identity camera: no counter-scale yet.
+      expect(badgeWrapper!.getAttribute('transform') ?? '').toBe('');
+
+      const zoomIn = getByRole('button', { name: /zoom in/i });
+      zoomIn.click(); // ZOOM_STEP 1.25 → inv = 0.8
+
+      // Pivot-then-scale-then-unpivot keeps the disc seated on the same
+      // anchor while undoing the camera scale, matching .plate-label.
+      await waitFor(() =>
+        expect(badgeWrapper!.getAttribute('transform') ?? '')
+          .toMatch(/translate\([^)]+\) scale\(0\.8\) translate\([^)]+\)/),
+      );
+      const labelWrapper = Array.from(container.querySelectorAll<SVGGElement>('.pp-label-descale'))
+        .find((el) => !el.querySelector('.plate-key-badge'));
+      if (labelWrapper) {
+        expect(labelWrapper.getAttribute('transform') ?? '').toMatch(/scale\(0\.8\)/);
+      }
+    });
+
+    it('key rows are keyboard-focusable and focusing one highlights the matching badge the same way hover does', async () => {
+      mockFetchPlate.mockResolvedValue(featureKeyPlate);
+      const { container } = render(PlatePanel, {
+        props: { plateId: 'feature-key-plate', places, title: 'Feature Key Plate' },
+      });
+      await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+      const row = container.querySelector<SVGElement>('.plate-key-row[data-key-n="1"]');
+      const badge1 = container.querySelector<SVGGElement>('.plate-key-badge[data-key-n="1"]');
+      expect(row).toBeTruthy();
+      expect(badge1).toBeTruthy();
+      expect(row?.getAttribute('tabindex')).toBe('0');
+      expect(badge1).not.toHaveClass('plate-key-active');
+
+      await fireEvent.focusIn(row!);
+      await waitFor(() => expect(badge1).toHaveClass('plate-key-active'));
+      expect(row).toHaveClass('plate-key-active');
+
+      await fireEvent.focusOut(row!);
+      await waitFor(() => expect(badge1).not.toHaveClass('plate-key-active'));
+      expect(row).not.toHaveClass('plate-key-active');
+    });
+
     it('hovering a key row highlights the matching badge (reverse direction)', async () => {
       mockFetchPlate.mockResolvedValue(featureKeyPlate);
       const { container } = render(PlatePanel, {
