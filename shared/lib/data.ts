@@ -127,12 +127,20 @@ export interface RossPiece {
   text: string;
   cont: boolean;
   // Interpolated Bekker-line ticks down this slice (all estimates — Ross has no
-  // milestones of its own). Same shape as EnglishChunk.bekker.
-  bekker?: { n: number; offset: number; real: boolean }[];
+  // milestones of its own). Same shape as EnglishChunk.bekker, plus an
+  // optional `label`: Kosmos's own printed group number when it differs from
+  // `n` (e.g. Il. 7's "321–322") — see lib/kosmos.ts. `n` still anchors the
+  // Greek alignment; `label` is what the reader shows.
+  bekker?: { n: number; offset: number; real: boolean; label?: string }[];
   // Structured diagram tables (e.g. Ackrill's squares of opposition), each
   // anchored to the Bekker line `n` of the segment it belongs to; rendered as a
   // grid after that segment's row.
   tables?: { n: number; rows: string[][] }[];
+  // Kosmos verse groups (stage1_kosmos): standoff over `text` — `tr` a
+  // transliteration bracket, `ed` an editorial bracket, `em` italics — and
+  // the printed line numbers that do not cut a group. See lib/kosmos.ts.
+  spans?: [number, number, 'tr' | 'ed' | 'em'][];
+  marks?: { n: number; offset: number; label: string; reason: string }[];
 }
 
 // A speaker-turn event in a Stephanus dialogue (Plato): the interlocutor whose

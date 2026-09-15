@@ -199,6 +199,7 @@ const jsonLd = {
               <li>
                 {t.name}
                 {t.private && <span class="licence-badge local">local only</span>}
+                {t.licence && <span class="licence-badge cc">{t.licence.name}</span>}
               </li>
             ))}
           </ul>
@@ -236,6 +237,51 @@ const jsonLd = {
       If you hold rights to any text shown here and wish it removed, please get in
       touch.
     </p>
+
+    <h2>
+      Kosmos Society Revision of Butler
+      <span class="licence-badge cc">CC BY-NC-ND 3.0</span>
+    </h2>
+    <p>
+      A fourth English text, carried under a Creative Commons licence rather
+      than as public domain: Samuel Butler's translation of the
+      <em>Iliad</em> and <em>Odyssey</em> as revised by Soo-Young Kim, Kelly
+      McCray, Gregory Nagy, and Timothy Power for the
+      <a href="https://kosmossociety.org/text-library/">Kosmos Society</a>
+      of the Center for Hellenic Studies, Harvard University. It is licensed
+      <a href="https://creativecommons.org/licenses/by-nc-nd/3.0/">
+        Creative Commons Attribution-NonCommercial-NoDerivs 3.0</a>, and is
+      reproduced here without change: the revisers' bracketed Greek, their
+      bracketed insertions and their notes are all kept. A reader setting can
+      hide the bracketed Greek words from view; it hides nothing else.
+    </p>
+    <p>
+      The revisers number every fifth line and many lines between. The reader
+      breaks the English at each of those numbers and sets each group beside
+      the Greek lines it translates; it does not divide a group any further,
+      and it prints a line number beside the English only at line 1 and
+      every fifth line, as the Greek column does. Where Kosmos prints a number
+      twice, out of order, after a book's last words, or for a line this
+      Greek text lacks (Il. 9.460, in lines 9.458–461, which Allen omits),
+      no group breaks there.
+    </p>
+    <p>
+      In 84 places (40 in the Iliad, 44 in the Odyssey) Kosmos prints a
+      number a few words before or after the point where its Greek line
+      begins in the English. There the reader starts the group at the right
+      word instead. Each of these was checked against the Greek; no word of
+      the translation is changed. The list is kept in the site's source, in
+      <code>pipeline/homer_pipeline/kosmos_break_corrections.json</code>.
+    </p>
+    <blockquote>
+      <em>Homeric Iliad</em> and <em>Homeric Odyssey</em>. Translated by
+      Samuel Butler; revised by Soo-Young Kim, Kelly McCray, Gregory Nagy, and
+      Timothy Power. Kosmos Society, Center for Hellenic Studies, Harvard
+      University.
+      <a href="https://kosmossociety.org/homeric-iliad/">kosmossociety.org/homeric-iliad/</a>;
+      <a href="https://kosmossociety.org/homeric-odyssey/">kosmossociety.org/homeric-odyssey/</a>.
+      <a href="https://creativecommons.org/licenses/by-nc-nd/3.0/">CC BY-NC-ND 3.0</a>.
+    </blockquote>
 
     <h2>Vulgate Line Numbering</h2>
     <p>

@@ -892,6 +892,19 @@ def run(manifest: Manifest) -> Path:
             src = SOURCES_DIR / prim["dir"] / "footnotes.json"
             if src.exists():
                 shutil.copy(src, out_dir / "footnotes.json")
+    # Overlay translations' notes (the Kosmos revision of Butler, keyed
+    # "kosmos.<book>.<n>") join the same footnotes.json the popup reads.
+    overlay_footnotes_path = BUILD_DIR / "stage1" / "overlay_footnotes.json"
+    if overlay_footnotes_path.exists():
+        extra = json.loads(overlay_footnotes_path.read_text(encoding="utf-8"))
+        if extra:
+            fn_out = out_dir / "footnotes.json"
+            merged = json.loads(fn_out.read_text(encoding="utf-8")) if fn_out.exists() else {}
+            clash = sorted(set(merged) & set(extra))
+            if clash:
+                raise RuntimeError(f"{manifest.work_id}: overlay footnote keys clash: {clash[:5]}")
+            merged.update(extra)
+            fn_out.write_text(json.dumps(merged, ensure_ascii=False), encoding="utf-8")
     prim = (manifest.data.get("english") or {}).get("primary") or {}
     if prim.get("dir"):
         for source_name, output_name in (
@@ -1008,6 +1021,10 @@ def run(manifest: Manifest) -> Path:
     # Verse-line works only: milestone parsing anomalies + coverage holes for
     # both translations (see stage1_perseus_milestone_english). Absent for
     # non-verse-line works, so this copy is conditional.
+    # The Kosmos overlay's per-book counts and its non-break marks.
+    kosmos_report = BUILD_DIR / "stage1" / "kosmos_report.json"
+    if kosmos_report.exists():
+        shutil.copy(kosmos_report, reports / f"kosmos_report_{manifest.work_id}.json")
     milestone_report = BUILD_DIR / "stage1" / "milestone_report.json"
     if milestone_report.exists():
         shutil.copy(

@@ -3,9 +3,15 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
 import yaml
 
-from homer_pipeline.preflight import WorkManifest, _validate_manifest_schema, _validate_third_bekker
+from homer_pipeline.preflight import (
+    WorkManifest,
+    _validate_manifest_schema,
+    _validate_overlay_bekker,
+    _validate_third_bekker,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -590,6 +596,108 @@ def test_preflight_allowlist_accepts_murray_butler_pope():
         assert problems == [], f"{name}: unexpected allowlist problems: {problems}"
 
 
+# ── Creative Commons translation list (John, 2026-09-12) ───────────────────
+
+_CC_ENTRY = {
+    "id": "kosmos",
+    "translator": "Samuel Butler",
+    "revisers": ["Soo-Young Kim", "Kelly McCray", "Gregory Nagy", "Timothy Power"],
+    "license_name": "CC BY-NC-ND 3.0",
+    "license_url": "https://creativecommons.org/licenses/by-nc-nd/3.0/",
+    "source_urls": ["https://kosmossociety.org/homeric-iliad/"],
+    "attribution": "Butler, revised by Kim, McCray, Nagy, and Power. CC BY-NC-ND 3.0.",
+}
+
+
+def _manifest_with_overlay(tid: str):
+    data = _load_manifest("Iliad.yaml")
+    data["english"]["overlays"] = [{"id": tid, "model": "kosmos", "name": "x", "source": "x"}]
+    return WorkManifest(work_id=data["work"]["id"], path=MANIFESTS / "Iliad.yaml", data=data)
+
+
+def _cc_problems(tmp_path, entries, tid="kosmos") -> list[str]:
+    from homer_pipeline.preflight import _validate_public_domain_allowlist
+
+    path = tmp_path / "cc.yaml"
+    path.write_text(yaml.safe_dump({"translations": entries}, allow_unicode=True), encoding="utf-8")
+    problems: list = []
+    _validate_public_domain_allowlist(_manifest_with_overlay(tid), problems, cc_list_path=path)
+    return [p[2] for p in problems]
+
+
+def test_cc_list_valid_entry_passes(tmp_path):
+    assert _cc_problems(tmp_path, [_CC_ENTRY]) == []
+
+
+@pytest.mark.parametrize("missing", ["translator", "revisers", "license_name", "license_url", "source_urls", "attribution"])
+def test_cc_list_entry_missing_a_field_fails(tmp_path, missing):
+    entry = {k: v for k, v in _CC_ENTRY.items() if k != missing}
+    messages = _cc_problems(tmp_path, [entry])
+    assert any(missing in m for m in messages), messages
+
+
+def test_cc_list_empty_revisers_fails(tmp_path):
+    messages = _cc_problems(tmp_path, [{**_CC_ENTRY, "revisers": []}])
+    assert any("revisers" in m for m in messages), messages
+
+
+def test_cc_list_missing_file_fails(tmp_path):
+    from homer_pipeline.preflight import _validate_public_domain_allowlist
+
+    problems: list = []
+    _validate_public_domain_allowlist(
+        _manifest_with_overlay("kosmos"), problems, cc_list_path=tmp_path / "absent.yaml")
+    assert any("missing" in p[2] for p in problems), problems
+
+
+def test_id_on_neither_list_fails(tmp_path):
+    messages = _cc_problems(tmp_path, [_CC_ENTRY], tid="quilliam")
+    assert any("quilliam" in m and "Creative Commons" in m for m in messages), messages
+
+
+def test_id_on_both_lists_fails(tmp_path):
+    """An id present on BOTH lists must be rejected, not waved through as
+    public domain because it also happens to satisfy the CC check. Without
+    this, a restricted CC text (or a copyrighted one) could be validated
+    through the public-domain path simply by also appearing on that list."""
+    from homer_pipeline.preflight import _validate_public_domain_allowlist
+
+    pd_path = tmp_path / "pd.yaml"
+    pd_path.write_text(
+        yaml.safe_dump(
+            {"translations": [{"id": "kosmos", "translator": "Samuel Butler", "year": 1898, "note": "test"}]},
+            allow_unicode=True,
+        ),
+        encoding="utf-8",
+    )
+    cc_path = tmp_path / "cc.yaml"
+    cc_path.write_text(yaml.safe_dump({"translations": [_CC_ENTRY]}, allow_unicode=True), encoding="utf-8")
+    problems: list = []
+    _validate_public_domain_allowlist(
+        _manifest_with_overlay("kosmos"), problems, allowlist_path=pd_path, cc_list_path=cc_path
+    )
+    messages = [p[2] for p in problems]
+    assert any("kosmos" in m and "both" in m for m in messages), messages
+
+
+def test_real_cc_list_carries_kosmos_and_not_the_pd_list():
+    from homer_pipeline.preflight import load_cc_translations, load_public_domain_allowlist
+
+    cc = load_cc_translations()
+    assert "kosmos" in cc and "kosmos" not in load_public_domain_allowlist()
+    assert cc["kosmos"]["license_url"] == "https://creativecommons.org/licenses/by-nc-nd/3.0/"
+
+
+def test_translation_tick_counts_include_overlays(tmp_path):
+    from homer_pipeline.preflight import translation_tick_counts
+
+    doc = _book_with_ticks(1, 2, 1)
+    doc["segments"][0]["overlays"] = {"kosmos": [{"bekker": [{"n": 1, "offset": 0, "real": True}] * 3}]}
+    (tmp_path / "w").mkdir()
+    (tmp_path / "w" / "book-01.json").write_text(json.dumps(doc), encoding="utf-8")
+    assert translation_tick_counts(tmp_path, "w")[1]["kosmos"] == 3
+
+
 def test_tick_coverage_violations_missing_book_counts_as_zero():
     from homer_pipeline.preflight import tick_coverage_violations
 
@@ -686,6 +794,77 @@ def test_validate_third_bekker_n_outside_book_lines_fails():
     }
     problems = _third_bekker_problems(segment, {1, 10})
     assert any("is not a Greek line of this book" in p for p in problems)
+
+
+# --- _validate_overlay_bekker: tuple-comparison tick order (2026-09-12) -----
+
+def _overlay_bekker_problems(segment: dict, line_numbers: set) -> list[str]:
+    manifest = WorkManifest(work_id="iliad", path=MANIFESTS / "Iliad.yaml", data={})
+    problems: list = []
+    _validate_overlay_bekker(manifest, "01.json", "seg-1", segment, line_numbers, problems)
+    return [message for _work, _file, message in problems]
+
+
+def test_validate_overlay_bekker_valid_ticks_pass():
+    segment = {
+        "overlays": {
+            "kosmos": [
+                {
+                    "text": "0" * 200,
+                    "bekker": [
+                        {"n": 1, "offset": 0},
+                        {"n": 5, "offset": 50},
+                        {"n": 10, "offset": 100},
+                    ],
+                }
+            ]
+        }
+    }
+    assert _overlay_bekker_problems(segment, {1, 5, 10}) == []
+
+
+def test_validate_overlay_bekker_offset_going_backwards_fails_even_though_n_climbs():
+    # Tuple comparison ((1, 0), (5, 100), (10, 50)) reads as strictly
+    # increasing lexicographically -- n climbs at every step -- even though
+    # offset falls back from 100 to 50 at the third tick, which cannot
+    # happen in real text (offsets only move forward through a piece).
+    # Both n and offset must independently strictly increase.
+    segment = {
+        "overlays": {
+            "kosmos": [
+                {
+                    "text": "0" * 200,
+                    "bekker": [
+                        {"n": 1, "offset": 0},
+                        {"n": 5, "offset": 100},
+                        {"n": 10, "offset": 50},
+                    ],
+                }
+            ]
+        }
+    }
+    problems = _overlay_bekker_problems(segment, {1, 5, 10})
+    assert any("not strictly increasing" in p for p in problems), problems
+
+
+def test_validate_overlay_bekker_duplicate_offset_with_higher_n_fails():
+    # Same defect class, the tie form: n climbs but offset repeats exactly.
+    segment = {
+        "overlays": {
+            "kosmos": [
+                {
+                    "text": "0" * 200,
+                    "bekker": [
+                        {"n": 1, "offset": 0},
+                        {"n": 5, "offset": 50},
+                        {"n": 10, "offset": 50},
+                    ],
+                }
+            ]
+        }
+    }
+    problems = _overlay_bekker_problems(segment, {1, 5, 10})
+    assert any("not strictly increasing" in p for p in problems), problems
 
 
 def test_validate_third_bekker_offset_going_backwards_fails_even_though_n_climbs():

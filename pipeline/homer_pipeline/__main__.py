@@ -32,7 +32,8 @@ def _stage1(manifest):
             spine_path = stage1_perseus_greek.run(manifest)
             reader_label = "perseus-grc, verse-line"
         spine = json.loads(spine_path.read_text(encoding="utf-8"))
-        for scratch in ("third_chunks.json", "third_footnotes.json", "overlays.json"):
+        for scratch in ("third_chunks.json", "third_footnotes.json", "overlays.json",
+                        "overlay_footnotes.json", "kosmos_report.json"):
             (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
         n_lines = sum(len(s["lines"]) for s in spine["segments"])
         skipped = spine.get("skipped_line_attrs") or {}
@@ -84,6 +85,18 @@ def _stage1(manifest):
                 print(f"  WARNING: {len(result['sentence_warnings'])} sentence-boundary warning(s):")
                 for msg in result["sentence_warnings"][:10]:
                     print(f"    {msg}")
+        # Fourth text: the Kosmos Society revision of Butler (CC BY-NC-ND),
+        # cut into verse groups at its own printed line numbers — see
+        # stage1_kosmos's module docstring. Writes overlays.json.
+        if any(o.get("model") == "kosmos"
+               for o in (manifest.data.get("english") or {}).get("overlays") or []):
+            from . import stage1_kosmos
+
+            result = stage1_kosmos.run(manifest, spine)
+            print(f"  overlay (kosmos, verse groups): books={result['books']} "
+                  f"breaks={result['breaks']} marks={result['marks']} "
+                  f"footnotes={result['footnotes']} translit={result['translit']} "
+                  f"editorial={result['editorial']}")
         return
 
     from . import stage1_greek
@@ -95,7 +108,7 @@ def _stage1(manifest):
     # left by a previous work's build so stage7 never emits a stale overlay. It
     # is rewritten below only when this work declares english.secondary.
     for scratch in ("ross_chunks.json", "third_chunks.json", "third_footnotes.json",
-                    "overlays.json"):
+                    "overlays.json", "overlay_footnotes.json", "kosmos_report.json"):
         (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
 
     # Section-scheme works can opt into a parallel Perseus Stephanus TEI pass.
