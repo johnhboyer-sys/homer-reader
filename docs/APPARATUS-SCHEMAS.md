@@ -68,6 +68,326 @@ localization exists (then keep certainty `mythical` and put the localization
 in `tradition`). NEVER invent an identification. `maps`: which of
 `ships | troad | wanderings | greece` panels show it.
 
+A place record may also carry `plateAnchors` (an object mapping plate id to a
+`[u, v]` unit pair in 0..1, for placing the feature on a schematic plate that
+has no defensible lat/lon) and `positionBasis: "conjectural"` — the two are
+required together, never one without the other; that pairing is the honesty
+mechanism for a feature drawn without real-world coordinates. A place tagged
+for a plate (its `maps` array carries an entry starting with `troad-plain` or
+`troy-citadel`) additionally requires `kind` (see the plate schema below) and
+at least one `sources` entry — the legacy (pre-plate) 280 records are exempt
+from both.
+
+## plates/\<id\>.json (per plate: `apparatus/plates/<id>.json`)
+
+Illustrated, hand-drawn Landmark-style map plates (the Trojan plain, the
+Troad, the Troy citadel, Achilles' shield). Plate *geometry* is authored here
+in lat/lon (`kind: "geographic"`) or unit-space (`kind: "schematic"`) JSON,
+validated by `pipeline/homer_pipeline/apparatus_places.py`'s `validate_plate`
+(cross-checked against the gazetteer's `validate_places`) and shipped
+verbatim to `build/dist/plates/<id>.json` by `scripts/build-public.mjs`.
+Projecting this geometry into rendered SVG is a later phase, not this schema.
+
+```json
+{
+  "id": "trojan-plain",
+  "title": "The Trojan Plain",
+  "kind": "geographic",
+  "status": "draft",
+  "seed": 20260728,
+  "bbox": [39.86, 26.12, 40.02, 26.36],
+  "size": [880, 620],
+  "layers": [
+    {
+      "id": "coast-bronze",
+      "kind": "coast",
+      "style": "stipple",
+      "default": "on",
+      "rings": [[[39.98, 26.18], [39.97, 26.19]]],
+      "note": "Reconstructed c.1200 BC shoreline; provisional pending the cartography phase.",
+      "sources": [
+        {"cite": "Kraft, John C., Ilhan Kayan, and Oğuz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209 (1980): 776-82."}
+      ]
+    },
+    {
+      "id": "scamander",
+      "kind": "river",
+      "placeId": "scamander",
+      "path": [[39.90, 26.15], [39.95, 26.20]],
+      "width": 2.2
+    }
+  ]
+}
+```
+
+`kind` (plate-level): `geographic` (layers use real `[lat, lon]` pairs,
+contained in `bbox`) | `schematic` (unit `[u, v]` pairs in 0..1, no geography).
+
+A **geographic** plate must carry `bbox` and `layers`: it is drawn by
+projecting lat/lon through `shared/lib/geo.ts`, so it has to declare the extent
+it projects into.
+
+A **schematic** plate carries neither — demanding a `bbox` of it would be
+demanding a coordinate for something that has none. It must declare at least
+one of:
+- `bands` — concentric rings, used by `shield-of-achilles.json`, each
+  `{id, title, greek, lines: [from, to], summary, ring}`. Band ids are unique.
+- `layers` — the same layer shapes as a geographic plate, but with unit `[u, v]`
+  coordinates. This is how the Trojan plain is drawn *as the poem lays it out*
+  (the camp order of Il. 8.222-26, the road and its waypoints) rather than as
+  survey knows it. See CLAUDE.md's two-register rule.
+
+`bbox`: `[minLat, minLon, maxLat, maxLon]`. `size`: `[widthPx, heightPx]`.
+`seed`: required whenever any layer uses a stochastic draw style (`stipple`,
+`hachure`) — determinism for the render phase.
+
+Layer `kind`: `coast | river | relief | shipRow | wall | route | region |
+band | tumulus`. Optional per layer: `placeId` (must resolve in the
+gazetteer), `note`, `sources` (same cite/url shape as places.json, Chicago
+citation rule), `default` (`"on" | "off"` for a toggleable layer), `style`,
+`width`, `shading`, `rows`, `count`, `fill` (`region`/`band`/`coast`, see
+below), `elevation` (`relief`, see below),
+`label` (see below), and the coordinate-geometry fields `rings` (a list of rings, each a
+list of pairs), `path`, `polygon`, `baseline`, `trace` (each a flat list of
+pairs). Apparatus honesty: geometry not yet sourced from real cartography
+must say so in `note` rather than presenting placeholder points as surveyed.
+
+`tumulus` draws a burial-mound glyph (a dome profile with nested shading
+arcs, e.g. the tombs of Ilos and Batieia) at one point per entry in its
+`path` field — reusing that existing flat coordinate field rather than
+inventing a new one, so it needs no separate geometry-field wiring on
+either side of the schema. **Not yet in the pipeline's `LAYER_KIND_ENUM`**
+(`pipeline/homer_pipeline/apparatus_places.py`) — a plate JSON file using
+`kind: "tumulus"` will fail `validate_plate` until that enum is updated to
+match.
+
+### Coast `style`: three registers, three drawings
+
+A `coast` layer's `style` says what KIND of claim its line is, and each draws
+differently enough to be told apart without the legend:
+
+| `style` | drawing | claim |
+|---|---|---|
+| *(absent)* | solid stroke, `--scene-map-coast`, no blur | a **surveyed** waterline |
+| `approximate` | wide blurred band + an opaque hairline down its middle | a **reconstructed** shoreline; the hairline carries WCAG 1.4.11, since a wash may not be relied on for contrast |
+| `waterline` | solid stroke plus tapering offset waterlines | a surveyed coast in the engraved register |
+| `barrier` | a wide **blurred band with no hairline**, filled `--plate-relief-1` | not a shoreline at all: a **sandy bar**, i.e. a body of ground with water on both sides |
+
+`barrier` was added 2026-07-29 for `barrier-bronze`, the bar that closed the
+Bronze Age lagoon off from the open sea. It is authored as a `coast` layer
+because its geometry is a contour line (the 5 m level running east across the
+bay mouth), and drawn as a line it read at zoom as a river running out across
+the water. Three things make it ground instead:
+
+- **It is filled in the sheet's lowest hypsometric step** (`--plate-relief-1`)
+  rather than in a new sand token. That is what a sand bar is — the lowest land
+  on the plate — and it inherits the ramp's existing contrast guards, which
+  already assert the palest step is 1.5:1 clear of sea and lagoon in every
+  theme (`shared/__tests__/plate-map-contrast.test.ts`).
+- **No hairline down its middle.** That mark is precisely what made it read as
+  a watercourse.
+- **Its edges are blurred, not drawn.** The stored line locates the bar's AXIS;
+  nothing surveys how wide the bar was, so the band's width is a symbol and the
+  blur says so — the same argument the wetland's margin is made with.
+
+### Relief: hypsometric bands vs hachures (`elevation`)
+
+A `relief` layer draws in one of two registers, and the field that chooses
+between them is `elevation` — the contour level in metres above sea level the
+body was cut at (a number ≥ 0; sea level itself is legal).
+
+- **With `elevation`** — the **hypsometric** register, for relief cut from a
+  DEM. The layer is filled from a twelve-step graduated ramp
+  (`--plate-relief-1` … `--plate-relief-12`) and edged with a hairline
+  (`--plate-contour`). Nothing is hachured. The step a band gets is its RANK
+  among the distinct elevations on the SAME plate: the lowest takes step 1,
+  which is tuned to sit within about 1.05:1 of the sheet's own ground colour
+  so the first band has no visible seam, and the highest takes step 12. The
+  ramp is therefore keyed to each sheet's own relief range, as a physical
+  map's always is — the same tint means 320 m on the Trojan plain and 1400 m
+  on the Troad, and each sheet draws its own graduated key in the margin
+  saying so. Such a layer may carry either one `polygon` (a named landform)
+  or `rings` (several disjoint bodies at one level sharing one layer, so a
+  sheet does not need sixty layers with sixty notes). Bands must be listed in
+  ASCENDING elevation: that is the paint order, and a higher band lies inside
+  a lower one.
+- **Without `elevation`** — the **hachure** register, for relief authored by
+  hand (`trojan-plain-schematic.json`, `troy-citadel.json`). One `polygon`,
+  filled `--plate-upland`, hachured in `--flaxman-hachure` at a density read
+  out of how the plate's relief polygons nest.
+
+The division is the historical one: hachuring was the SUBSTITUTE for
+hypsometric tinting where no elevation data existed. Where there is a DEM
+(`scripts/prep-terrain-contours.py`), use the ramp. The `shading:
+"form-lines"` value is retired on the two contoured sheets for the same
+reason — it claimed the extent was sketched, and it is contoured.
+
+### Land and water (the `ground` + `fill` contract)
+
+**The renderer never guesses which shape is water.** A plate says so, in two
+fields, and a plate that says neither draws land-coloured shapes on a
+land-coloured sheet — which is exactly the "it's just shapes, no geography"
+defect of 2026-07-28.
+
+`ground` (plate level, optional, `"land" | "sea"`, default `"land"`): what the
+bare sheet is under every layer.
+
+- **Mostly-dry extent** (the Trojan plain): leave the default, and draw each
+  body of water as a `region` layer with `fill: "sea"` or `fill: "lagoon"`.
+- **Coastal/marine extent** (the Troad): declare `"ground": "sea"`, and give
+  each `coast` layer whose rings are CLOSED landmasses `"fill": "land"`. The
+  rings are then filled `evenodd` under the shoreline — the same construction
+  `shared/lib/scenemap.ts` uses for the Mediterranean coastline. **The rings
+  must actually close**, or the fill leaks across the sheet.
+
+`fill` (layer level, optional) names the TERRAIN a `region`/`band` layer is, or
+the terrain a `coast` layer's rings enclose. Closed whitelist in
+`shared/lib/plate.ts` — never a pass-through of the JSON value, so a plate file
+can never inject arbitrary CSS into the emitted SVG:
+
+| `fill` | token | role |
+|---|---|---|
+| `plain` (**default**) | `--plate-plain` | dry usable ground |
+| `marsh` | `--plate-marsh` | wetland, wet delta |
+| `lagoon` | `--plate-lagoon` | shallow/silting water |
+| `sea` | `--scene-map-sea` | open water |
+| `land` | `--scene-map-land` | landmass on a `ground: "sea"` plate |
+| `tint` | `--plate-tint` | translucent **apparatus zone** (e.g. "the Achaean camp") |
+
+The default **changed 2026-07-28** from `tint` to `plain`. `--plate-tint`
+resolves to `var(--accent-light)`, the site's wine wayfinding accent, so every
+undeclared landform was painted in the UI highlight colour. A landform is not a
+highlight: terrain is the default and the accent wash is opt-in.
+
+**The pipeline validator mirrors this table exactly.**
+`pipeline/homer_pipeline/apparatus_places.py` carries `REGION_FILL_ENUM` (all
+seven roles) and `GROUND_ENUM`, checked in `validate_plate`. The two
+implementations of this schema have drifted more than once: if a fill role or
+a ground value is ever added on one side, it is added on the other in the same
+change, or `build:public` rejects a plate the renderer draws perfectly well.
+
+#### Paint order is the renderer's, not the array's
+
+**The order of the `layers` array does NOT decide what covers what.** The
+renderer sorts every layer into a fixed four-slot paint stack (`paintRank` in
+`shared/lib/plate.ts`) and the array order only breaks ties:
+
+| slot | what | why |
+|---|---|---|
+| 0 | `fill: "land"` bodies | a landmass IS the ground its relief sits on, so it goes under the bands |
+| 1 | `relief` | land only, and never over water |
+| 2 | water bodies (`fill: "sea"`, `"lagoon"`) | painted **after** relief |
+| 3 | everything else | `marsh`, coasts, rivers, walls, ship rows, tumuli, `none` lettering zones |
+
+Why slot 2 comes after slot 1 (2026-07-29): these sheets carry **two
+independent derivations of "where the land ends"** — the hypsometric bands are
+contour polygons cut from the SRTM terrain grid
+(`scripts/prep-terrain-contours.py`), the shorelines are traced from the
+Copernicus GLO-30 water-body mask (`scripts/prep-troad-basemap.py`) — and the
+two were generalised with different tolerances. They cannot be made to agree to
+the metre. `sea-modern` was authored first, under everything, so the lowest band
+overshot the drawn coast and left a pale cream fringe standing on the water,
+outboard of the coast stroke (151 sheet pixels on the plain sheet; 0 after).
+Painting the water later makes that unrepresentable without re-cutting,
+clipping or buffering any geometry — the same principle as the drowned river
+reaches below: **where two honest drawings collide, the one that is water wins,
+and it wins by being painted later.**
+
+Three things this does not change, and one it will not:
+
+- **Bands still list in ascending elevation.** The sort is stable, so within a
+  slot the plate file still decides.
+- **A submerged river reach travels with the water that hides it** — the reach
+  is keyed to the water layer's id, so moving the water later moves the reach
+  under it too.
+- **`marsh` is never swept into the water group.** The delta swamp is a
+  *translucent wash over terrain*, with the contours reading through it and a
+  gradational margin; it belongs in slot 3, above the relief, and it is not
+  open water.
+- On a `ground: "sea"` plate the sea is the bare sheet, which no ordering can
+  move. A band overshooting a coast there paints on the ground — measured at 19
+  anti-aliased pixels on the whole Troad sheet, invisible at 10x, so relief is
+  **not** clipped to the landmass. If a future sheet's derivations disagree by
+  more than a line-width, clip; the ordering fix is the cheaper one and it is
+  enough here.
+
+#### Rivers, and where they stop
+
+**A river is painted BENEATH any water it crosses.** No field configures this
+and none should: it is a property of the drawing, not a claim in the data, so
+there is nothing to author, nothing to forget on the next river, and nothing
+for the two implementations of this schema to drift on. The renderer splits a
+`river` layer at the edge of every water body on the sheet (`fill: "sea"` /
+`"lagoon"`, plus the whole sheet when `ground: "sea"`) and hands each submerged
+reach to that water layer's own paint slot, immediately under its fill.
+
+Why it matters: our rivers are modern OSM watercourses, and their lower reaches
+cross ground that was under water in 1200 BC. Drawn over the reconstructed
+lagoon they asserted a Bronze Age river exactly where the plate's own evidence
+says there was sea.
+
+Three consequences worth knowing when authoring a sheet:
+
+- **Nothing is cut from the data.** The union of what is drawn is still exactly
+  the surveyed course; only the paint order changes. A river's mouth is
+  therefore a function of *which shoreline you are drawing* — switch the
+  reconstructed lagoon off and the water that was hiding the reach goes with
+  it, so the river runs on to the modern mouth. The clip follows the layer
+  toggles for free, because the water itself is what hides the reach.
+- **A water fill must stay opaque** (`sea`, `lagoon` — see the opacity table in
+  `shared/lib/plate.ts`). A translucent water body would leak the drowned river
+  back through it.
+- **`marsh` is not water for this purpose.** A channel through a wetland is a
+  channel; the Scamander crossing the delta swamp draws over it, as it should.
+  A reach drowned by a `ground: "sea"` sheet is simply not drawn — the ground
+  is the bottom of the paint stack, and it carries no toggle.
+
+If a river's drawn end is now somewhere its `note` did not anticipate, **fix the
+note**: `simoeis` on the plain sheet stops at two different places (the Bronze
+Age shore with the reconstruction on, the end of the OSM survey with it off),
+and its note says both, because "the survey stops here" and "the water began
+here" are different claims and neither may be allowed to impersonate the other.
+
+### Lettering
+
+`label` (layer level, optional): the name to letter onto the sheet for this
+feature. When absent, the renderer falls back to the gazetteer name of
+`placeId` — and only when that place is not itself pinned on this plate, so a
+feature is lettered once, not twice. Author `label` whenever the gazetteer name
+is a catalogue entry rather than a map label: "Kesik Tepe (the 'Demetrius
+tumulus'), claimed tomb of Achilles" is the former. (Gazetteer-derived names are
+shortened to their head form automatically; the full name still rides on the
+pin's `<title>`.)
+
+**Pins carry the certainty tier as an inner mark, never as a hole** (changed
+2026-07-29). A map symbol is never transparent to its own basemap: three of the
+four tiers used to be drawn `fill: none` or as a 0.16 wash, so at 3.5x a pin
+over the hypsometric ramp had contour lines running straight through the middle
+of it. Every tier now has an opaque body — `--accent` for a location the
+gazetteer stands behind, `--text-mid` for one it does not — and the tier is
+carried by shape, in the sheet's own label-halo colour:
+
+| `certainty` | symbol |
+|---|---|
+| `certain` | solid, no inner mark |
+| `traditional` | solid + a closed inner ring |
+| `speculative` | solid + a broken inner ring |
+| `mythical` | solid + a broken outline |
+
+A `positionBasis: "conjectural"` pin keeps its own dashed outline on top of
+whichever tier it is. This is a deliberate divergence from `shared/lib/scenemap.ts`
+and `LandmarkMap.svelte`, which draw small dots on flat insets and are unchanged.
+
+Linear layers (`river`, `coast`, `wall`, `route`) are named ALONG their own run
+with `<textPath>` when the run is long enough to carry the name; area layers
+(`region`, `band`, `relief`) are named across their extent in letterspaced
+caps. Neither needs any extra authoring — both come from `label`/`placeId`.
+
+The renderer also draws a **double neatline**, a **bar scale** computed from the
+plate's own viewport (stades over kilometres, geographic plates only), and a
+**legend derived from what the sheet actually drew** — every register on the map
+appears in the key, and every row in the key can be found on the map.
+
 ## characters.json (single file `apparatus/characters.json`)
 
 ```json

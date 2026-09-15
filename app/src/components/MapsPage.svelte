@@ -34,8 +34,15 @@
   } from '@shared/lib/maps';
   import { workPath } from '@shared/lib/works';
   import { formatLocValue } from '@shared/lib/citation';
+  import type { PlatePlace } from '@shared/lib/plate';
   import LandmarkMap from './maps/LandmarkMap.svelte';
   import ContingentPanel from './maps/ContingentPanel.svelte';
+  // Illustrated plates (P4) -- pure SVG, no Leaflet import anywhere in its
+  // module graph (see that file's own doc comment). Statically imported here
+  // alongside LandmarkMap: both already live inside this same client:only
+  // island, so this changes nothing about which pages ever load Leaflet --
+  // see the bundle-boundary comment in app/src/pages/maps/index.astro.
+  import PlatePanel from './maps/PlatePanel.svelte';
   // Vite/Astro JSON import (tsconfig resolveJsonModule: true) -- the same
   // "load the raw apparatus file at build time" posture as
   // places.json/catalogue.json/characters.json in
@@ -81,6 +88,7 @@
   const TABS = [
     { id: 'ships', label: 'Ships (Catalogue)' },
     { id: 'troad', label: 'Troad' },
+    { id: 'plain', label: 'Trojan Plain' },
     { id: 'wanderings', label: 'Wanderings' },
     { id: 'greece', label: 'Greece' },
     { id: 'journeys', label: 'Journeys' },
@@ -96,6 +104,26 @@
     return TABS.some((t) => t.id === raw) ? (raw as TabId) : 'ships';
   }
   let activeTab: TabId = readMapParam();
+
+  // Chart Room click-through (Reader.svelte's postcard links here with
+  // `?focus=<comma-separated place ids>`) so the Troad/Trojan-plain panel
+  // opens already framed on the scene the reader came from. `focus` is a
+  // user-reachable query string -- CLAUDE.md treats those as hostile -- so
+  // it's sanitized here (id charset only, capped at 8) rather than trusted
+  // wholesale; PlatePanel's own computeCamera call additionally drops any id
+  // that doesn't resolve to real geometry on that plate.
+  const FOCUS_ID_RE = /^[A-Za-z0-9_-]+$/;
+  const MAX_FOCUS_IDS = 8;
+  function readFocusParam(): string[] {
+    const raw = new URLSearchParams(window.location.search).get('focus');
+    if (!raw) return [];
+    return raw
+      .split(',')
+      .map((id) => id.trim())
+      .filter((id) => FOCUS_ID_RE.test(id))
+      .slice(0, MAX_FOCUS_IDS);
+  }
+  const focusIds: string[] = readFocusParam();
 
   // Persist the active tab to `?map=` on every switch — same replaceState
   // idiom as setStoryMode below — so the URL a reader copies/reloads always
@@ -113,6 +141,13 @@
   ] as const;
   type ShipSubtab = (typeof SHIP_SUBTABS)[number]['id'];
   let shipSubtab: ShipSubtab = 'achaean';
+
+  // Troad tab: illustrated plate by default (John's decision, P4), with a
+  // Drawn/Tiles toggle to the existing Leaflet map for real-world
+  // orientation. Same "Map/Story" toggle visual language as the Wanderings
+  // tab below (.mp-story-toggle/.mp-story-btn) -- reused verbatim rather
+  // than inventing a second toggle style.
+  let troadView: 'drawn' | 'tiles' = 'drawn';
 
   let sort: CatalogueSort = 'catalogue';
   let selectedAchaean: string | null = null;
@@ -191,6 +226,60 @@
     return splitByCoords(placesForMap(places, tag)).unlocated;
   }
   const troadPlaces = splitByCoords(placesForMap(places, 'troad'));
+  // The Troad plates overlay Troad-tagged places as the Tiles view, trimmed
+  // to the fields plate.ts's PlatePlace actually reads -- renderPlate does
+  // its own honesty resolution (coords in/out of the plate's frame), so this
+  // is deliberately the full tagged set, not pre-split by coords.
+  //
+  // `plateAnchors`/`positionBasis` are read off the raw apparatus record via
+  // a cast, not added to maps.ts's Place interface (out of this task's
+  // scope) -- they are real fields on the JSON (docs/APPARATUS-SCHEMAS.md),
+  // just not ones the Ships/Wanderings/Greece tabs' own Place-typed code
+  // needs to know about. Without them every schematic-plate pin (the
+  // citadel's conjectural Scaean Gate etc.) resolved to undefined (2026-07-28
+  // bug) -- resolvePlacePosition (shared/lib/plate.ts) needs both to place a
+  // pin on a plate with no defensible real-world coordinate.
+  function toPlatePlace(p: Place): PlatePlace {
+    const raw = p as unknown as PlatePlace;
+    return {
+      id: p.id,
+      name: p.name,
+      coords: p.coords,
+      certainty: p.certainty,
+      plateAnchors: raw.plateAnchors,
+      positionBasis: raw.positionBasis,
+      // `kind`/`rank` (2026-08-10, landmark-label lane): real fields on the
+      // apparatus JSON (apparatus/places.json), not on maps.ts's Place
+      // interface, same posture as plateAnchors/positionBasis above -- they
+      // drive the five geographic-plate label classes and settlement
+      // hierarchy (shared/lib/plate.ts's placeLabelClass/SETTLEMENT_RANK_STYLE).
+      kind: raw.kind,
+      rank: raw.rank,
+      // `labelTier`/`labelSize` (2026-09-02, stage 4b LOOK-gate fix): real
+      // fields too (docs/APPARATUS-SCHEMAS.md), same posture -- without them
+      // every place-anchored label on a schematic plate silently ignored its
+      // JSON `labelSize: "small"` demotion and rendered at full settlement
+      // size (13.5px/600), which is what made the Trojan-plain camp names
+      // read as bold and oversized next to the sheet's conjectural labels.
+      labelTier: raw.labelTier,
+      labelSize: raw.labelSize,
+    };
+  }
+  // Two distinct scales, two distinct place sets (2026-07-28 fix): the
+  // regional Troad sheet (theatre-wide -- Ida, the islands, the Hellespont
+  // towns, the towns Achilles sacked) and the Trojan-plain sheet (Troy and
+  // its furniture, the camp, the promontories closing the bay, the
+  // plain-scale rivers and landmarks) are tagged separately in
+  // places.json's `maps` arrays (`troad` vs `troad-plain`) precisely so a
+  // sheet only carries what reads at its own scale -- Troy and Scamander
+  // legitimately carry both tags (Ida and the Hellespont read at both scales
+  // too, but fall outside the Trojan-plain plate's small frame regardless,
+  // so they stay troad-only -- see the places.json edit's own note).
+  // Feeding one 44-place `troad` set to both plates crammed regional-scale
+  // and plain-scale labels onto the same small Hisarlık-area frame; see the
+  // Troad/Trojan-plain PlatePanel calls below.
+  const troadRegionalPlatePlaces: PlatePlace[] = placesForMap(places, 'troad').map(toPlatePlace);
+  const troadPlainPlatePlaces: PlatePlace[] = placesForMap(places, 'troad-plain').map(toPlatePlace);
   const wanderingsPlaces = splitByCoords(placesForMap(places, 'wanderings'));
   const greecePlaces = splitByCoords(placesForMap(places, 'greece'));
   const wanderingsRouteStations = wanderingsRoute(places);
@@ -565,19 +654,38 @@
         with the Achaean camp and ships, and Mount Ida rising to the
         southeast.
       </p>
-      <LandmarkMap
-        {base}
-        ariaLabel="Map of the Troad: places near Troy"
-        items={troadPlaces.located.map((p) => ({ id: p.id, place: p }))}
-      />
-      <details class="mp-unlocated" open={troadPlaces.unlocated.length > 0}>
-        <summary>Not locatable ({troadPlaces.unlocated.length})</summary>
-        <ul>
-          {#each troadPlaces.unlocated as p}
-            <li><span lang="grc">{p.greek}</span> {p.name} <span class="mp-tier-word">({p.certainty})</span></li>
-          {/each}
-        </ul>
-      </details>
+
+      <div class="mp-story-toggle" role="group" aria-label="Troad view">
+        <button type="button" class="mp-story-btn" aria-pressed={troadView === 'drawn'} on:click={() => (troadView = 'drawn')}>Drawn</button>
+        <button type="button" class="mp-story-btn" aria-pressed={troadView === 'tiles'} on:click={() => (troadView = 'tiles')}>Tiles</button>
+      </div>
+
+      {#if troadView === 'drawn'}
+        <PlatePanel plateId="troad" places={troadRegionalPlatePlaces} title="The Troad" {focusIds} />
+      {:else}
+        <LandmarkMap
+          {base}
+          ariaLabel="Map of the Troad: places near Troy"
+          items={troadPlaces.located.map((p) => ({ id: p.id, place: p }))}
+        />
+        <details class="mp-unlocated" open={troadPlaces.unlocated.length > 0}>
+          <summary>Not locatable ({troadPlaces.unlocated.length})</summary>
+          <ul>
+            {#each troadPlaces.unlocated as p}
+              <li><span lang="grc">{p.greek}</span> {p.name} <span class="mp-tier-word">({p.certainty})</span></li>
+            {/each}
+          </ul>
+        </details>
+      {/if}
+    </div>
+  {:else if activeTab === 'plain'}
+    <div id="mp-panel-plain" role="tabpanel" aria-labelledby="mp-tab-plain" tabindex="0" class="mp-panel">
+      <p class="mp-route-note">
+        The Trojan plain: the open ground between the city and the sea where
+        most of the Iliad's fighting happens, crossed by the Scamander and
+        Simoeis rivers.
+      </p>
+      <PlatePanel plateId="trojan-plain" places={troadPlainPlatePlaces} title="The Trojan Plain" {focusIds} />
     </div>
   {:else if activeTab === 'wanderings'}
     <div id="mp-panel-wanderings" role="tabpanel" aria-labelledby="mp-tab-wanderings" tabindex="0" class="mp-panel">
@@ -720,7 +828,7 @@
         </ul>
       </details>
     </div>
-  {:else}
+  {:else if activeTab === 'journeys'}
     <div id="mp-panel-journeys" role="tabpanel" aria-labelledby="mp-tab-journeys" tabindex="0" class="mp-panel">
       <p class="mp-route-note">
         The four homecomings (nostoi) Homer narrates. Odysseus's own route

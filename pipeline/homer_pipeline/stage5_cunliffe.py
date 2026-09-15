@@ -27,7 +27,7 @@ from html import escape
 from pathlib import Path
 
 from .config import BUILD_DIR, SOURCES_DIR, Manifest
-from .stage5_lsj import base_key, fold_key, needed_lemmata, shard_letter
+from .stage5_lsj import base_key, breathing_swap, fold_key, needed_lemmata, shard_letter
 
 _SOURCES = (
     ("lex", "cunliffe-1-lex.jsonl"),
@@ -84,10 +84,11 @@ def cunliffe_candidates(lemma: str) -> list[tuple[str, str]]:
     """Ranked (index, value) lookups for a lemma against Cunliffe keys.
 
     Adapts stage5_lsj.lemma_candidates: same exact/digit-stripped-base/accent
-    -fold core, plus two Cunliffe-specific fallbacks — destarring a
-    capitalized (proper-noun) lemma, and the Ionic alpha/eta alternation —
-    since Cunliffe's headword conventions diverge from LSJ's in exactly those
-    two ways (see module docstring and `_ionic_variants`)."""
+    -fold/breathing-swap core (see stage5_lsj.breathing_swap), plus two
+    Cunliffe-specific fallbacks — destarring a capitalized (proper-noun)
+    lemma, and the Ionic alpha/eta alternation — since Cunliffe's headword
+    conventions diverge from LSJ's in exactly those two ways (see module
+    docstring and `_ionic_variants`)."""
     cands: list[tuple[str, str]] = [("exact", lemma), ("base", base_key(lemma))]
     fold = fold_key(lemma)
     cands.append(("fold", fold))
@@ -97,6 +98,9 @@ def cunliffe_candidates(lemma: str) -> list[tuple[str, str]]:
         cands.append(("fold", fold[:-4] + "teon"))
     for v in _ionic_variants(fold):
         cands.append(("fold", v))
+    swapped = breathing_swap(fold)
+    if swapped:
+        cands.append(("fold", swapped))
     destarred = destar_key(lemma)
     if destarred is not None:
         cands.append(("exact", destarred))
@@ -105,6 +109,9 @@ def cunliffe_candidates(lemma: str) -> list[tuple[str, str]]:
         cands.append(("fold", dfold))
         for v in _ionic_variants(dfold):
             cands.append(("fold", v))
+        dswapped = breathing_swap(dfold)
+        if dswapped:
+            cands.append(("fold", dswapped))
     return cands
 
 

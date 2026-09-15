@@ -183,11 +183,38 @@ const jsonLd = {
         the description and the search finds the words.
       </p>
       <p>
-        Grammar works only as one term beside another, never as a search on
-        its own. A single grammatical description alone — every plural, say —
-        matches too much of the text to be a real question. Paired with a word
-        or phrase, it becomes one: <em>this word near a verb in a past
-        tense</em> is a question the tool can answer.
+        A grammatical description on its own — every plural, say — matches too
+        much of the text to be a real question. So it needs something to narrow
+        it, and there are two ways to do that. Paired with a word or phrase it
+        becomes a question: <em>this word near a verb in a past tense</em>. Or
+        pin it to a single book, using the panel headed <em>Grammar, scoped to
+        one book</em>, and ask what a whole book does with one form.
+      </p>
+      <p>
+        Here is the second kind at work. The dual is the form Greek uses for
+        exactly two, and Homer uses it where later Greek would not. In
+        <em>Iliad</em> 9 it makes trouble: Agamemnon sends three envoys to
+        Achilles, yet as they go the poem speaks of them in the dual, as though
+        they were two. Readers have argued over it since antiquity. You can go
+        and look:
+        <a href={`${base}/search?gr=number:dual&w=iliad&b=9`}>every dual form in
+        <em>Iliad</em> 9</a>.
+      </p>
+      <p>
+        What comes back is not a list of duals, and the page says so. Most of
+        those words could be dual and could equally be something else — the
+        ending does not always decide — and only a few are certainly dual. Those
+        few are marked, the count above the results tells you how many, and the
+        rest carry a dotted underline naming the other readings they allow. The
+        certain ones are worth your attention: they are the forms the old
+        quarrel is actually about.
+      </p>
+      <p class="guide-note">
+        Searching by grammar alone is new here, and marked
+        <em>experimental</em> on the page. It works, and the counts above the
+        results are computed from the text rather than estimated — but the
+        wording and the marks may still change. Treat what it reports as
+        something to check, not something to cite.
       </p>
       <p class="guide-note">
         There is no setting for "noun" or "verb". Some words in Greek do the

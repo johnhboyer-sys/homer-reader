@@ -128,6 +128,16 @@ def validate_scenes_list(
             )
         if not isinstance(scene.get("location"), str) or not scene["location"].strip():
             problems.append(f"book {book_n}: scenes[{i}].location must be a non-empty string")
+        places = scene.get("places")
+        if places is not None and (
+            not isinstance(places, list)
+            or not places
+            or not all(isinstance(p, str) and p.strip() for p in places)
+        ):
+            problems.append(
+                f"book {book_n}: scenes[{i}].places must be a non-empty list of non-empty "
+                f"strings when present"
+            )
         day_number = scene.get("dayNumber")
         if day_number is not None and not isinstance(day_number, int):
             problems.append(f"book {book_n}: scenes[{i}].dayNumber must be an integer or null")
@@ -330,7 +340,11 @@ def emit_book_apparatus(book: dict) -> dict:
     becomes `day` (the field ReaderShell actually reads). `draft` is a single
     book-level flag (Apparatus honesty: the UI's discreet draft badge keys off
     it) plus `scenes[]` for the marginal scene chips, carried verbatim
-    (lines/summary/location/dayNumber, per docs/APPARATUS-SCHEMAS.md)."""
+    (lines/summary/location/dayNumber, per docs/APPARATUS-SCHEMAS.md). A
+    scene's optional `places` (Phase P7a: authored gazetteer ids, see
+    shared/lib/scene-place.ts) is carried through when present and omitted
+    entirely when absent — never emitted as `"places": []` — so books with no
+    authored places re-emit byte-identical."""
     out: dict = {}
     if book.get("argument"):
         out["argument"] = book["argument"]
@@ -343,15 +357,19 @@ def emit_book_apparatus(book: dict) -> dict:
     if book.get("days"):
         out["day"] = book["days"]
     out["draft"] = book.get("status", "draft") == "draft"
-    out["scenes"] = [
-        {
+
+    def emit_scene(scene: dict) -> dict:
+        out_scene = {
             "lines": scene["lines"],
             "summary": scene["summary"],
             "location": scene["location"],
             "dayNumber": scene.get("dayNumber"),
         }
-        for scene in book.get("scenes", [])
-    ]
+        if scene.get("places"):
+            out_scene["places"] = list(scene["places"])
+        return out_scene
+
+    out["scenes"] = [emit_scene(scene) for scene in book.get("scenes", [])]
     return out
 
 

@@ -22,13 +22,12 @@
 // --scene-map-label-halo, --text-mid, --text, --accent, --accent-light,
 // --font-ui.
 //
-// Projection: equirectangular (Plate Carrée), recentered per scene at the
-// fitted viewport's own midpoint, with longitude scaled by cos(centerLat) so
-// East-West distances read proportionally at Mediterranean latitudes (a pin
-// at 36N isn't stretched the same as one at 45N). This is the simplest
-// projection that keeps local shapes undistorted enough for a small
-// "suggestive, not cartographic" panel map at a ~2-6 degree span — no need
-// for a true conformal projection at this scale/purpose.
+// Projection (equirectangular, cos(centerLat)-scaled longitude) and viewport
+// fitting live in shared/lib/geo.ts — factored out so a second consumer (an
+// illustrated-plate renderer) can share the exact same math. This module
+// imports and re-exports `LatLon`, `Viewport`, `project`, `unproject`, and
+// `fitViewport` from there so existing importers of scenemap.ts are
+// unaffected; see geo.ts for the projection's own explanatory comment.
 //
 // Apparatus honesty (CLAUDE.md hard rule): a place with no `coords` is never
 // force-pinned or force-routed. renderSceneMap() silently skips unlocatable
@@ -36,7 +35,11 @@
 // `from` (or `to`) has no coords into a short, visually distinct symbolic
 // stub rather than drawing a line to a fabricated position.
 
-export type LatLon = [number, number]; // [lat, lon] — matches apparatus/places.json `coords`
+import { project, unproject, fitViewport } from './geo';
+import type { LatLon, Viewport } from './geo';
+
+export { project, unproject, fitViewport } from './geo';
+export type { LatLon, Viewport } from './geo';
 
 export type Certainty = 'certain' | 'traditional' | 'speculative' | 'mythical';
 
@@ -87,84 +90,6 @@ export const DEFAULT_SCENE_MAP_OPTIONS: Required<SceneMapOptions> = {
   fontSizePx: 11,
   idPrefix: 'scenemap',
 };
-
-// Fallback camera center used ONLY when fitViewport() is given zero located
-// places (defensive edge case — callers should normally always have at least
-// the scene's own location). The Aegean/Ionian center is a plain rendering
-// default, not a claimed identification of anything.
-const FALLBACK_CENTER: LatLon = [37.9, 23.7];
-
-export interface Viewport {
-  width: number;
-  height: number;
-  centerLat: number;
-  centerLon: number;
-  latSpan: number; // degrees
-  lonSpan: number; // degrees of longitude (pre cos-correction)
-  scale: number; // px per (cos-corrected) degree
-}
-
-// ── Projection ───────────────────────────────────────────────────────────
-
-export function project(latlon: LatLon, viewport: Viewport): [number, number] {
-  const [lat, lon] = latlon;
-  const cosLat = Math.cos((viewport.centerLat * Math.PI) / 180);
-  const x = viewport.width / 2 + (lon - viewport.centerLon) * cosLat * viewport.scale;
-  const y = viewport.height / 2 - (lat - viewport.centerLat) * viewport.scale;
-  return [x, y];
-}
-
-// Inverse of project(); exercised by the round-trip test. Not used by
-// rendering itself.
-export function unproject(point: [number, number], viewport: Viewport): LatLon {
-  const [x, y] = point;
-  const cosLat = Math.cos((viewport.centerLat * Math.PI) / 180);
-  const lon = viewport.centerLon + (x - viewport.width / 2) / (cosLat * viewport.scale);
-  const lat = viewport.centerLat - (y - viewport.height / 2) / viewport.scale;
-  return [lat, lon];
-}
-
-// ── Viewport fitting ─────────────────────────────────────────────────────
-
-// Fits a viewport around `places`' located coords (unlocated places are
-// ignored here — never force-pinned). Applies `padFraction` padding around
-// the raw bbox and enforces `minExtentDeg` as a floor on both spans, so a
-// single pin still renders with meaningful surrounding coastline instead of
-// zooming to a point.
-export function fitViewport(places: ScenePlace[], options: SceneMapOptions = {}): Viewport {
-  const opts = { ...DEFAULT_SCENE_MAP_OPTIONS, ...options };
-  const located = places.filter((p): p is ScenePlace & { coords: LatLon } => !!p.coords);
-
-  let centerLat: number;
-  let centerLon: number;
-  let rawLatSpan = 0;
-  let rawLonSpan = 0;
-
-  if (located.length === 0) {
-    [centerLat, centerLon] = FALLBACK_CENTER;
-  } else {
-    const lats = located.map((p) => p.coords[0]);
-    const lons = located.map((p) => p.coords[1]);
-    const minLat = Math.min(...lats);
-    const maxLat = Math.max(...lats);
-    const minLon = Math.min(...lons);
-    const maxLon = Math.max(...lons);
-    centerLat = (minLat + maxLat) / 2;
-    centerLon = (minLon + maxLon) / 2;
-    rawLatSpan = maxLat - minLat;
-    rawLonSpan = maxLon - minLon;
-  }
-
-  const latSpan = Math.max(rawLatSpan * (1 + opts.padFraction * 2), opts.minExtentDeg);
-  const lonSpan = Math.max(rawLonSpan * (1 + opts.padFraction * 2), opts.minExtentDeg);
-
-  const cosLat = Math.cos((centerLat * Math.PI) / 180);
-  const scaleX = opts.width / (lonSpan * Math.max(cosLat, 0.01));
-  const scaleY = opts.height / latSpan;
-  const scale = Math.min(scaleX, scaleY);
-
-  return { width: opts.width, height: opts.height, centerLat, centerLon, latSpan, lonSpan, scale };
-}
 
 // ── Coastline ────────────────────────────────────────────────────────────
 

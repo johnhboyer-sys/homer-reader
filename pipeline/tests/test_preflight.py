@@ -423,6 +423,77 @@ def test_validate_global_apparatus_emits_flags_missing_characters_and_repetition
     assert any("repetitions.json was not emitted" in m for m in messages)
 
 
+# ── Phase P7a: scene.places[] referential integrity against places.json ────
+
+
+def _write_places_json(apparatus_dir: Path, ids: list[str]) -> None:
+    doc = {"places": [{"id": pid, "name": pid.title(), "coords": [0, 0]} for pid in ids]}
+    (apparatus_dir / "places.json").write_text(json.dumps(doc), encoding="utf-8")
+
+
+def _write_canonical_scenes(scenes_dir: Path, work_id: str, places: list[str]) -> None:
+    scenes_dir.mkdir(exist_ok=True)
+    scene = _scene(1, 10)
+    scene["places"] = places
+    doc = {
+        "work": work_id, "status": "draft",
+        "books": [{"book": 1, "argument": "A.", "where": ["Troy"], "who": ["A"],
+                   "days": "1", "scenes": [scene]}],
+    }
+    (scenes_dir / f"{work_id}.json").write_text(json.dumps(doc), encoding="utf-8")
+
+
+def test_global_apparatus_emits_accepts_scene_places_that_resolve(tmp_path, monkeypatch):
+    from homer_pipeline import apparatus_scenes
+    from homer_pipeline.preflight import WorkManifest, _validate_global_apparatus_emits
+
+    apparatus_dir = tmp_path / "apparatus"
+    apparatus_dir.mkdir()
+    _write_places_json(apparatus_dir, ["troy", "olympus"])
+    monkeypatch.setattr(apparatus_scenes, "APPARATUS_DIR", apparatus_dir)
+    scenes_dir = tmp_path / "scenes"
+    _write_canonical_scenes(scenes_dir, "iliad", ["troy", "olympus"])
+    monkeypatch.setattr(apparatus_scenes, "SCENES_DIR", scenes_dir)
+
+    manifest = WorkManifest(
+        work_id="iliad", path=MANIFESTS / "Iliad.yaml",
+        data={"citation": {"scheme": "verse-line"}, "books": []},
+    )
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    problems: list = []
+    _validate_global_apparatus_emits(data_dir, [manifest], problems)
+    messages = [p[2] for p in problems]
+    assert not any("places id" in m for m in messages)
+
+
+def test_global_apparatus_emits_flags_dangling_scene_place_id(tmp_path, monkeypatch):
+    from homer_pipeline import apparatus_scenes
+    from homer_pipeline.preflight import WorkManifest, _validate_global_apparatus_emits
+
+    apparatus_dir = tmp_path / "apparatus"
+    apparatus_dir.mkdir()
+    _write_places_json(apparatus_dir, ["troy"])
+    monkeypatch.setattr(apparatus_scenes, "APPARATUS_DIR", apparatus_dir)
+    scenes_dir = tmp_path / "scenes"
+    _write_canonical_scenes(scenes_dir, "iliad", ["troy", "no-such-place"])
+    monkeypatch.setattr(apparatus_scenes, "SCENES_DIR", scenes_dir)
+
+    manifest = WorkManifest(
+        work_id="iliad", path=MANIFESTS / "Iliad.yaml",
+        data={"citation": {"scheme": "verse-line"}, "books": []},
+    )
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    problems: list = []
+    _validate_global_apparatus_emits(data_dir, [manifest], problems)
+    messages = [p[2] for p in problems]
+    matches = [m for m in messages if "no-such-place" in m]
+    assert len(matches) == 1
+    assert "book 1" in matches[0]
+    assert "1-10" in matches[0]
+
+
 def test_validate_global_apparatus_emits_skips_non_verse_corpora(tmp_path, monkeypatch):
     from homer_pipeline import apparatus_scenes
     from homer_pipeline.preflight import WorkManifest, _validate_global_apparatus_emits

@@ -85,6 +85,41 @@ def test_validate_scenes_list_detects_out_of_bounds_line():
     assert any("nonexistent/out-of-range" in p for p in problems)
 
 
+# ── validate_scenes_list: optional `places` (Phase P7a) ─────────────────────
+
+
+def test_validate_scenes_list_accepts_scene_with_no_places_key():
+    scenes = [_scene(1, 10)]
+    assert apparatus_scenes.validate_scenes_list(scenes, 1, 10, []) == []
+
+
+def test_validate_scenes_list_accepts_scene_with_valid_places_list():
+    scene = _scene(1, 10)
+    scene["places"] = ["troy", "olympus"]
+    assert apparatus_scenes.validate_scenes_list([scene], 1, 10, []) == []
+
+
+def test_validate_scenes_list_rejects_non_list_places():
+    scene = _scene(1, 10)
+    scene["places"] = "troy"
+    problems = apparatus_scenes.validate_scenes_list([scene], 1, 10, [])
+    assert any("places" in p for p in problems)
+
+
+def test_validate_scenes_list_rejects_empty_places_list():
+    scene = _scene(1, 10)
+    scene["places"] = []
+    problems = apparatus_scenes.validate_scenes_list([scene], 1, 10, [])
+    assert any("places" in p for p in problems)
+
+
+def test_validate_scenes_list_rejects_blank_string_in_places():
+    scene = _scene(1, 10)
+    scene["places"] = ["troy", "  "]
+    problems = apparatus_scenes.validate_scenes_list([scene], 1, 10, [])
+    assert any("places" in p for p in problems)
+
+
 # ── merge_staging: fixtures on disk, temp STAGING_DIR ───────────────────────
 
 
@@ -188,6 +223,29 @@ def test_emit_book_apparatus_omits_empty_optional_fields():
     assert "day" not in out
     assert out["draft"] is True
     assert out["scenes"] == []
+
+
+def test_emit_book_apparatus_carries_places_when_present():
+    scene = _scene(1, 7, summary="Proem.", location="proem", day=None)
+    scene["places"] = ["troy", "olympus"]
+    book = {"book": 1, "status": "draft", "argument": "The wrath of Achilles.",
+            "where": ["Troy"], "who": ["Achilles"], "days": "1", "scenes": [scene]}
+    out = apparatus_scenes.emit_book_apparatus(book)
+    assert out["scenes"] == [
+        {"lines": [1, 7], "summary": "Proem.", "location": "proem", "dayNumber": None,
+         "places": ["troy", "olympus"]}
+    ]
+
+
+def test_emit_book_apparatus_omits_places_key_when_absent():
+    scene = _scene(1, 7, summary="Proem.", location="proem", day=None)
+    book = {"book": 1, "status": "draft", "argument": "The wrath of Achilles.",
+            "where": ["Troy"], "who": ["Achilles"], "days": "1", "scenes": [scene]}
+    out = apparatus_scenes.emit_book_apparatus(book)
+    assert out["scenes"] == [
+        {"lines": [1, 7], "summary": "Proem.", "location": "proem", "dayNumber": None}
+    ]
+    assert "places" not in out["scenes"][0]
 
 
 # ── run(): partial coverage tolerance (missing staging, missing emit target) ─
