@@ -5,6 +5,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "pipeline"))
 
 from homer_pipeline.parse_filter import (
+    GHOST_LEMMA,
     MORPHOLOGY_OVERRIDES,
     apply_morphology_override,
     filter_parses,
@@ -251,6 +252,53 @@ def test_an_override_promotes_the_real_analysis_rather_than_relabelling_one():
     assert any(p["lemma"] == "xa/zomai" for p in out)
 
 
+def test_elea_ghost_is_dropped_when_eleeo_reads_the_form():
+    # ἐλεάω: LSJ's whole entry is "later form of ἐλεέω, EM 327.29, LXX Pr.
+    # 21.26" -- not attested before the Etymologicum Magnum / Septuagint. It
+    # is Morpheus's FIRST analysis on every Homeric occurrence, always with
+    # the identical parse ἐλεέω also carries for the same slot, so dropping
+    # it changes no morphology, only the lemma tag.
+    parses = [
+        {"lemma": "e)lea/w", "gloss": "", "parse": "aor subj mid 2nd sg (attic ionic)",
+         "lsj": ["e)lea/w"]},
+        {"lemma": "e)lee/w", "gloss": "to have pity on, show mercy to",
+         "parse": "aor subj mid 2nd sg", "lsj": ["e)lee/w"]},
+    ]
+    assert [p["lemma"] for p in filter_parses(parses)] == ["e)lee/w"]
+
+
+def test_elea_ghost_is_kept_rather_than_stranding_the_token():
+    only = [{"lemma": "e)lea/w", "gloss": "", "parse": "aor ind act 3rd sg",
+             "lsj": ["e)lea/w"]}]
+    assert filter_parses(only) == only
+
+
+def test_apechthomai_ghost_is_dropped_and_apechthanomai_keeps_its_own_aorist_parse():
+    # ἀπέχθομαι: LSJ's whole entry is "later form of ἀπεχθάνομαι". Morpheus
+    # reads the Homeric aorist middle ἀπήχθετο as ἀπέχθομαι's own PRESENT-
+    # stem imperfect -- but LSJ's ἀπεχθάνομαι entry itself cites this exact
+    # form as that verb's aorist ("ἀπήχθετο πᾶσι θεοῖσι", Il. 6.140) and notes
+    # Homer uses the verb "always in aor." Dropping the ghost does not
+    # relabel anything: it removes the mismatched imperfect parse outright,
+    # and ἀπεχθάνομαι's own aorist parse -- already correctly tagged -- takes
+    # its place.
+    parses = [
+        {"lemma": "a)pe/xqomai", "gloss": "", "parse": "imperf ind mp 3rd sg",
+         "lsj": ["a)pe/xqomai"]},
+        {"lemma": "a)pexqa/nomai", "gloss": "to be hated, incur hatred",
+         "parse": "aor ind mid 3rd sg", "lsj": ["a)pexqa/nomai"]},
+    ]
+    out = filter_parses(parses)
+    assert [p["lemma"] for p in out] == ["a)pexqa/nomai"]
+    assert out[0]["parse"] == "aor ind mid 3rd sg", "kept its own aorist parse"
+
+
+def test_apechthomai_ghost_is_kept_rather_than_stranding_the_token():
+    only = [{"lemma": "a)pe/xqomai", "gloss": "", "parse": "pres subj mp 3rd sg",
+             "lsj": ["a)pe/xqomai"]}]
+    assert filter_parses(only) == only
+
+
 def test_an_override_still_repairs_in_place_when_the_lemma_is_absent():
     # The negative particle: Morpheus's gloss comes through as "u" and there is
     # no better candidate to promote.
@@ -258,3 +306,229 @@ def test_an_override_still_repairs_in_place_when_the_lemma_is_absent():
                "parse": "proclitic indeclform (adverb)", "lsj": ["ou)"], "cunliffe": []}]
     out = apply_morphology_override(parses, "ou)")
     assert out[0]["gloss"] == "not"
+
+
+def test_nhos_override_promotes_naus_ship():
+    """νηός on this surface is ναῦς 'ship'.
+
+    Exception: Il. 5.446 Περγάμῳ εἰν ἱερῇ, ὅθι οἱ νηός γε τέτυκτο, where
+    νηός is the nominative of νηός/ναός 'temple'. Overrides are keyed by
+    surface and cannot exempt that line.
+    """
+    parses = [
+        {"lemma": "nao/s", "gloss": "temple", "parse": "masc nom sg",
+         "lsj": ["nao/s"], "cunliffe": ["nao/s"]},
+        {"lemma": "nau=s", "gloss": "ship", "parse": "fem gen sg (epic)",
+         "lsj": ["nau=s"], "cunliffe": ["nau=s"]},
+    ]
+    out = apply_morphology_override(parses, "nho/s")
+    assert out[0]["lemma"] == "nau=s"
+    assert out[0]["gloss"] == "ship"
+    assert out[0]["parse"].startswith("fem gen sg")
+    assert any(p["lemma"] == "nao/s" for p in out)
+
+
+def test_faros_ghost_is_dropped_beside_correctly_glossed_pharos_cloth():
+    # φάρος bundles two non-Homeric LSJ senses under one Morpheus lemma: LSJ's
+    # φάρος (A) "= φάρυγξ [throat], Lyc. 154" and φάρος (B) "plough, Alcm.
+    # 23.61 ... Antim." -- both riding the one parse whose lsj field reads
+    # ["fa/ros1", "fa/ros2"]. Its gloss here is itself a data bug, borrowed
+    # from an unrelated third entry (φᾶρος (A), the real word). Dropping it
+    # leaves φᾶρος "a large piece of cloth, web" (Od. 5.258, Il. 2.43)
+    # standing under its own, correctly tagged and correctly glossed entry.
+    parses = [
+        {"lemma": "fa/ros", "gloss": "a large piece of cloth, web",
+         "parse": "neut dat sg", "lsj": ["fa/ros1", "fa/ros2"]},
+        {"lemma": "fa=ros", "gloss": "a large piece of cloth, web",
+         "parse": "neut dat sg", "lsj": ["fa=ros1"]},
+    ]
+    out = filter_parses(parses)
+    assert [p["lemma"] for p in out] == ["fa=ros"]
+    assert out[0]["gloss"] == "a large piece of cloth, web"
+
+
+def test_faros_ghost_is_kept_rather_than_stranding_the_token():
+    only = [{"lemma": "fa/ros", "gloss": "a large piece of cloth, web",
+             "parse": "neut nom/voc/acc pl (epic ionic)",
+             "lsj": ["fa/ros1", "fa/ros2"]}]
+    assert filter_parses(only) == only
+
+
+def test_kleitos_ghost_is_dropped_beside_correctly_tagged_kleitos_renowned():
+    # κλεῖτος bundles two non-Homeric LSJ senses the same way: κλεῖτος (A)
+    # "poet. for κλέος, Alcm. 96, cf. Hsch." and κλεῖτος (B) "= [κλίτος], pl.
+    # κλείτεα A.R. 1.599" -- neither Homeric, both blank-glossed, both riding
+    # the one parse whose lsj field reads ["klei=tos1", "klei=tos2"].
+    # Dropping it leaves κλειτός "renowned, famous" (Il. 3.451's κλειτοὶ
+    # ἐπίκουροι) standing under its own correctly tagged entries.
+    parses = [
+        {"lemma": "klei=tos", "gloss": "",
+         "parse": "neut gen pl (attic epic doric)",
+         "lsj": ["klei=tos1", "klei=tos2"]},
+        {"lemma": "kleito/s", "gloss": "renowned, famous",
+         "parse": "fem gen pl", "lsj": ["kleito/s1"]},
+        {"lemma": "kleito/s", "gloss": "renowned, famous",
+         "parse": "masc/neut gen pl", "lsj": ["kleito/s1"]},
+    ]
+    out = filter_parses(parses)
+    assert [p["lemma"] for p in out] == ["kleito/s", "kleito/s"]
+
+
+def test_kleitos_ghost_is_kept_rather_than_stranding_the_token():
+    only = [{"lemma": "klei=tos", "gloss": "", "parse": "neut nom/voc/acc sg",
+             "lsj": ["klei=tos1", "klei=tos2"]}]
+    assert filter_parses(only) == only
+
+
+def test_mhti_override_promotes_metis_dative_over_medeis_ghost_reading():
+    # μήτι at Il. 23.315, 316, 318 and Od. 13.299 -- its only four occurrences
+    # -- is the epic dative of μῆτις "wisdom, skill, craft", contracted from
+    # μήτιϊ (LSJ s.v. μῆτις: "Ep. μήτῑ for μήτιϊ, Hom.", citing these exact
+    # lines). Morpheus ranks μήτις = μηδείς ("no one") first instead, gloss
+    # corrupted to "do I". μήτις = μή τις is itself genuinely Homeric
+    # elsewhere (Il. 12.272), so the lemma is not ghosted -- only this
+    # surface form is overridden, promoting the μῆτις reading Morpheus
+    # already offers rather than relabelling the μηδείς entry.
+    parses = [
+        {"lemma": "mh/tis", "gloss": "do I", "parse": "indeclform (adverb)",
+         "lsj": ["mh/ti^s"], "cunliffe": ["mh=tis"]},
+        {"lemma": "mh/tis", "gloss": "do I", "parse": "nom/voc/acc sg",
+         "lsj": ["mh/ti^s"], "cunliffe": ["mh=tis"]},
+        {"lemma": "mh=tis", "gloss": "wisdom, skill, craft",
+         "parse": "fem dat sg (epic doric ionic aeolic)",
+         "lsj": ["mh=tis"], "cunliffe": ["mh=tis"]},
+    ]
+    resolved = resolve_parses(parses, short_defs={}, token_key="mh/ti")
+    assert resolved[0]["lemma"] == "mh=tis"
+    assert resolved[0]["gloss"] == "wisdom, skill, craft"
+    assert resolved[0]["parse"].startswith("fem dat sg"), "kept its own parse"
+    # the μηδείς reading is not destroyed, only demoted
+    assert any(p["lemma"] == "mh/tis" for p in resolved)
+
+
+def test_no_shipped_token_still_reads_by_a_ghost():
+    """The invariant a ghost addition can actually violate.
+
+    `filter_parses` is guarded — it drops ghosts only when a non-ghost remains —
+    so a ghost can never leave a token with NO reading, and a test asserting
+    that passes by construction. What it CAN do is leave a token reading by the
+    ghost itself: a form whose only analysis is the ghost keeps it, and the
+    reader is shown a lemma that is not a Homeric word.
+
+    That is the check worth having, and the one that can see a lemma added to
+    GHOST_LEMMA since the last build: `build/dist` is already filtered, so a
+    test that only reads it is blind until a rebuild has shipped the damage.
+    Re-running the filter over the shipped analyses exercises the CURRENT set
+    against the real corpus.
+
+    Both ghosts added on 2026-09-01 pass because every form naming them also
+    names its real sibling — ἐλεάω always beside ἐλεέω, ἀπέχθομαι always beside
+    ἀπεχθάνομαι. A future ghost without that property fails here.
+    """
+    import json
+    dist = ROOT / "build" / "dist"
+    if not (dist / "iliad").is_dir():
+        import pytest
+        pytest.skip("requires a local build/dist")
+    showing = []
+    for work in ("iliad", "odyssey"):
+        f = dist / work / "analyses.json"
+        if not f.exists():
+            continue
+        for key, entries in json.loads(f.read_text(encoding="utf-8")).items():
+            if not entries:
+                continue
+            kept = filter_parses(list(entries))
+            if any(p.get("lemma") in GHOST_LEMMA for p in kept):
+                showing.append((work, key))
+    assert showing == [], (
+        f"{len(showing)} tokens would be shown a ghost lemma: {showing[:5]}"
+    )
+
+
+# ── homograph ranking: the top card names the wrong word ────────────────────
+
+def test_pistos_reads_as_trusty_not_liquid():
+    """ὅρκια πιστά are trusty oaths, not liquid ones.
+
+    LSJ has two πιστός entries and Morpheus offers both: πιστός (A)
+    "(πιπίσκω) = ποτός, liquid" (its only citation is A. Pr. 480) and πιστός
+    (B) "to be trusted or believed", whose own entry cites Il. 15.331. Every
+    one of the 24 occurrences in the two poems is (B) — ὅρκια πιστά, πιστὸν
+    ἑταῖρον, πιστότατος. Morpheus ranked (A) first on πιστός/πιστότατος and
+    the glossless cross-reference stub πιστόν ("v. πιστός (B) III.") first on
+    πιστά/πιστόν.
+    """
+    parses = [
+        {"lemma": "pisto/n", "gloss": "", "parse": "neut nom/voc/acc pl",
+         "lsj": ["pisto/n"], "cunliffe": []},
+        {"lemma": "pisto/s1", "gloss": "liquid", "parse": "neut nom/voc/acc pl",
+         "lsj": ["pisto/s1"], "cunliffe": []},
+        {"lemma": "pisto/s2", "gloss": "to be trusted or believed",
+         "parse": "neut nom/voc/acc pl", "lsj": ["pisto/s2"], "cunliffe": []},
+    ]
+
+    out = apply_morphology_override(parses, "pista/")
+
+    assert out[0]["lemma"] == "pisto/s2"
+    assert out[0]["parse"] == "neut nom/voc/acc pl", "kept its own parse"
+    assert out[0]["lsj"] == ["pisto/s2"], "kept its lexicon link"
+    assert len(out) == len(parses), "the displaced readings are only demoted"
+
+
+def test_sakos_is_a_shield_not_a_hair_sack():
+    # σάκος ἠΰτε πύργον, Il. 7.219: Ajax's body-shield. Morpheus ranks σάκκος
+    # first — LSJ's "coarse cloth of hair", cited from the LXX, the Apocalypse
+    # and Herodotus, never from Homer.
+    parses = [
+        {"lemma": "sa/kkos", "gloss": "coarse cloth of hair", "parse": "masc nom sg",
+         "lsj": ["sa/kkos"], "cunliffe": []},
+        {"lemma": "sa/kos", "gloss": "coarse cloth of hair",
+         "parse": "neut nom/voc/acc sg", "lsj": ["sa/kos"], "cunliffe": ["sa/kos"]},
+    ]
+
+    out = apply_morphology_override(parses, "sa/kos")
+
+    assert out[0]["lsj"] == ["sa/kos"], "links to LSJ σάκος 'shield, Il. 7.222'"
+    assert out[0]["parse"] == "neut nom/voc/acc sg"
+
+
+def test_no_override_invents_a_reading_over_the_shipped_corpus():
+    """The tables re-rank Morpheus's own analyses; they never fabricate one.
+
+    Over every shipped token whose surface carries an override, the promoted
+    front reading must be one Morpheus itself offered for that surface —
+    identical lemma, parse and lexicon links — or else the documented in-place
+    repair, which changes the gloss/lemma of the existing front reading and no
+    morphology. Nothing may be left empty either way.
+    """
+    import json
+    dist = ROOT / "build" / "dist"
+    if not (dist / "iliad").is_dir():
+        import pytest
+        pytest.skip("requires a local build/dist")
+
+    invented, emptied = [], []
+    for work in ("iliad", "odyssey"):
+        path = dist / work / "analyses.json"
+        if not path.exists():
+            continue
+        analyses = json.loads(path.read_text(encoding="utf-8"))
+        for surface in MORPHOLOGY_OVERRIDES:
+            parses = analyses.get(surface)
+            if not parses:
+                continue
+            out = apply_morphology_override([dict(p) for p in parses], surface)
+            if not out:
+                emptied.append((work, surface))
+                continue
+            top = out[0]
+            promoted = any(
+                p["lemma"] == top["lemma"] and p["parse"] == top["parse"]
+                and p["lsj"] == top["lsj"] for p in parses
+            )
+            repaired_in_place = top["parse"] == parses[0]["parse"]
+            if not (promoted or repaired_in_place):
+                invented.append((work, surface, top["lemma"], top["parse"]))
+    assert emptied == [], f"override emptied a token: {emptied}"
+    assert invented == [], f"override invented a reading: {invented}"

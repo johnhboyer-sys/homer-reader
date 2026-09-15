@@ -42,6 +42,31 @@ _FOLD_STRIP = re.compile(r"[0-9_^\-/=\\|+]")
 _CONNECTIVE = re.compile(r"^[\s,;]*(?:(?:or|and)[\s,;]*)?$", re.IGNORECASE)
 _DANGLING_CONNECTIVE = re.compile(r"(?:\s*[,;]\s*)?\b(?:or|and)\s*$", re.IGNORECASE)
 _DANGLING_ARTICLE = re.compile(r"\b(?:an?|the)$", re.IGNORECASE)
+# Applied to the material BEFORE the run: when the lead-in names a LINGUISTIC
+# ENTITY — "the negative of <i>fact</i> and <i>statement</i>" (οὐ), "Pythag.
+# name for <i>nine</i>" (Ἑκάεργος) — the italics are the object of LSJ's own
+# metalanguage, and lifting them out yields a sentence fragment, not a gloss.
+# A bare preposition does NOT govern that way: "in Hom. always of <i>wild</i>
+# animals" is ἀγρότερος's real definition, and "expld. by Hsch. as <i>wrought
+# with much pains</i>" is μορόεις's. Refusing every lead-in that ended on
+# of/for/as/to was measured over the whole dictionary: it fired on 23 of the
+# 8,700 corpus entries and was wrong on 15 of them. These three nouns are the
+# governors actually attested in the cases it got right.
+_GOVERNING_LEAD = re.compile(r"\b(?:negative|name|sense)\s+(?:of|for)$", re.IGNORECASE)
+# "a kind of <i>hawk</i>", "a <i>narrow space</i>": the article and the
+# classifier belong TO the definition, so they are absorbed, not refused —
+# but only when nothing but a label precedes them. ἐπί's "to denote the" is a
+# sentence still in progress, and its article governs nothing we can lift.
+_LEAD_ARTICLE = re.compile(
+    r"(?:^|[,;:.\u2014]\s*)((?:an?|the)(?: kind of| sort of| species of)?)$"
+)
+# A trailing homonym label — "= ἄπειρος (A):—" — is not a dangling article.
+_HOMONYM_LABEL = re.compile(r"\(\s*[A-Z]\s*\)\s*$")
+_CLOSERS = {")": "(", "]": "[", "}": "{"}
+_HAS_VOWEL = re.compile(r"[aeiouyAEIOUY]")
+# Latin-script words only: a gloss may legitimately quote Greek
+# ("armed with θώραξ"), and Greek carries no ASCII vowel.
+_LATIN_WORD = re.compile(r"[A-Za-z\u00c0-\u024f\u1e00-\u1eff]{2,}")
 
 
 def base_key(key: str) -> str:
@@ -62,6 +87,16 @@ def lemma_candidates(lemma: str) -> list[tuple[str, str]]:
     compounds carry hyphens and extra accents (a)nti/-bla/ptw).
     """
     cands = [("exact", lemma), ("base", base_key(lemma))]
+    # LSJ marks a capitalized headword with a leading *, and Morpheus's lemma
+    # does not carry it: the death-spirit κήρ is Morpheus's kh/r and LSJ's
+    # *kh/r. Without this candidate the lookup falls through to the fold, and
+    # fold_key erases the accent that is the only thing separating κήρ from
+    # κῆρ "heart" — so 76 tokens of the Κῆρες opened Achilles' heart. Ranked
+    # above the fold because it preserves accent and breathing; measured over
+    # both works, it changes four lemmata and no fold match it should keep.
+    if not lemma.startswith("*"):
+        capitalized = f"*{lemma}"
+        cands += [("exact", capitalized), ("base", base_key(capitalized))]
     fold = fold_key(lemma)
     cands.append(("fold", fold))
     if fold.endswith("ws"):
@@ -122,6 +157,19 @@ def entry_html(div2) -> str:
     return "".join(parts).strip()
 
 
+def _closes_an_opener(value: str) -> bool:
+    """Does value end on a delimiter that closes one still open before it?"""
+    closer = value[-1]
+    opener = _CLOSERS.get(closer)
+    if opener is None:
+        return False
+    return value.count(opener, 0, -1) > value.count(closer, 0, -1)
+
+
+def _delimiters_balance(value: str) -> bool:
+    return all(value.count(a) == value.count(b) for a, b in _CLOSERS.items())
+
+
 def _strip_edge_punctuation(value: str) -> str:
     while value and (
         value[0].isspace() or unicodedata.category(value[0]).startswith("P")
@@ -130,8 +178,21 @@ def _strip_edge_punctuation(value: str) -> str:
     while value and (
         value[-1].isspace() or unicodedata.category(value[-1]).startswith("P")
     ):
+        # LSJ closes a parenthesis inside the italic run and puts the comma
+        # after it: "come on (with)," — peeling every trailing mark would eat
+        # the bracket and leave a fragment. Stop at a closer that is doing work.
+        if _closes_an_opener(value):
+            break
         value = value[:-1]
     return value
+
+
+def _lead_in(body, children, first_i) -> str:
+    """The text of the sense that precedes its first italic run."""
+    lead = body.text or ""
+    for child in children[:first_i]:
+        lead += "".join(child.itertext()) + (child.tail or "")
+    return " ".join(lead.split())
 
 
 def derive_short_def(div2) -> str:
@@ -143,6 +204,18 @@ def derive_short_def(div2) -> str:
     if first_i is None:
         return ""
 
+    # The run has to START the definition. When the lead-in names a linguistic
+    # entity the run is its object — οὐ "the negative of <i>fact</i> and
+    # <i>statement</i>" — and the italics are emphasis inside LSJ's own prose,
+    # not a sense. Labels that merely introduce a sense pass untouched.
+    lead = _HOMONYM_LABEL.sub("", _lead_in(body, children, first_i))
+    lead = _strip_edge_punctuation(lead)
+    article = _LEAD_ARTICLE.search(lead)
+    if article:
+        lead = lead[: article.start()].rstrip()
+    if _GOVERNING_LEAD.search(lead):
+        return ""
+
     parts = ["".join(children[first_i].itertext())]
     previous = children[first_i]
     for child in children[first_i + 1 :]:
@@ -151,14 +224,30 @@ def derive_short_def(div2) -> str:
         parts.extend((previous.tail or "", "".join(child.itertext())))
         previous = child
 
+    # A bound morph is etymology, not a definition: μέμονα's first sense opens
+    # inside the etymological parenthesis "(fr. <i>mṇ</i>-)", and the hyphen
+    # after the run says so. The reconstructed root is not English either.
+    if (previous.tail or "").lstrip().startswith("-"):
+        return ""
+
     short_def = " ".join("".join(parts).split())
     short_def = _strip_edge_punctuation(short_def)
+    if article:
+        short_def = f"{article.group(1)} {short_def}"
+    if not all(_HAS_VOWEL.search(w) for w in _LATIN_WORD.findall(short_def)):
+        return ""
     short_def = _DANGLING_CONNECTIVE.sub("", short_def)
     short_def = _strip_edge_punctuation(short_def)
     # Adjectives in -ikos/-ios are glossed "of or belonging to a <Greek noun>",
     # and the noun is untranslated Greek outside the italic run: the derivation
     # would end on a stranded article. Give up rather than ship broken English.
     if _DANGLING_ARTICLE.search(short_def):
+        return ""
+    # The run can straddle a delimiter LSJ opened or closed outside the
+    # italics: βουλυτός's "(early afternoon," closes only after two citations,
+    # and ζωάγρια's run begins inside the etymology parenthesis. What comes out
+    # is a fragment, so the entry is better off with no short def at all.
+    if not _delimiters_balance(short_def):
         return ""
     # A definition this long is one continuous italic clause (technical terms
     # like kefalaiwth/s), never a joined run — cutting it would reintroduce the

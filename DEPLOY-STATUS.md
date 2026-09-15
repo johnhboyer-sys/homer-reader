@@ -3,6 +3,72 @@
 Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). No deploys have
 occurred; deploying, the GitHub remote, and the first push are John-gated.
 
+## Deploy — 2026-09-14 (second): the lexicon repairs, PR #37
+
+gh-pages `1c7bdc67a` → `9d711223b` (source: main `84dea54df`, CI green). Same
+recipe as the first deploy of the day: full `npm run build:public` in a clean
+worktree at `origin/main`.
+
+What shipped: PR #37 — Cunliffe parse fixes, LSJ short-definition corrections,
+Morpheus re-ranking of 35 surfaces, more ghost lemmata — and the fixes from its
+cross-family review (Grok-4.5). The review found seven problems; G1–G5 are fixed:
+- a number after "= <Greek word>" (or "as under / fr. / cf. / see") is a pointer
+  at that word's sense, not the entry's own sense — 16 Cunliffe entries change,
+  all such pointers (ἄστυ, δαιτύς, ἀγχοῦ, …);
+- "So as to / So that / So in pl." stays with the sense it opens (164 entries;
+  no entry gains or loses a "So");
+- a line range in running text is linked whole;
+- νηός stays ναῦς "ship"; **Il. 5.446 is a known exception** (ναός "temple"),
+  because overrides are keyed by surface form and cannot exempt one line.
+G6 is unchanged on purpose (the οὐ, μή, ἵππος overrides depend on it); G7
+(θάλος's gloss) is a strict xfail, not reader-facing while Morpheus supplies the
+gloss. The Odyssey forms were not checked: its TLG XML is absent from the
+checkout.
+
+Gates: preflight ok; shared LSJ and Cunliffe coverage ok; 48/48 books carry
+scenes; 4,687 pages, 330,694 links, **0 broken**.
+
+Deletions, read by category: 22 lemma pages and their data files for ghost or
+mis-ranked lemmata (θέραψ, ἐλεάω, ἀπέχθομαι, the village οἴη, …), with 5 added
+for the right words (ἐλεέω, ἀπεχθάνομαι, νεῖκος, κονία, καλός); one rehashed
+bundle. Commit: 286 files.
+
+Live-verified after Pages built `9d711223b`: home, `/iliad/book/5/`,
+`/lemma/eleeo/`, `/lemma/apechthanomai/` 200; `/lemma/eleao/` and
+`/lemma/theraps/` 404; the live `index.html` and `data/cunliffe-t8/a.json` are
+byte-identical to the build's.
+
+## Deploy — 2026-09-14: twelve merged PRs since August 19
+
+gh-pages `7e2926339` → `1c7bdc67a` (source: main `f28e0f970`, CI green).
+Full `npm run build:public` in a clean worktree at `origin/main` (Node 22.23.1;
+`build` and `pipeline/.venv` symlinked from the main checkout), so the data came
+from main's pipeline code and no unmerged branch reached the site.
+
+What shipped: PRs #23–#28 and #30–#35 — the LSJ forms block, quantity mark,
+grammata port and Logeion flag; the Cunliffe restyle; χάω and ἐφαμάω dropped as
+ghost lemmata; lemma pages mounting grammata's T8 entry; the sanitizer and
+betacode port; CI, the svelte-check fixes and the Pope-tick preflight. PR #29
+(plates, Chart Room postcard) is still open and did not ship.
+
+Gates: preflight ok; shared LSJ and Cunliffe coverage ok; 48/48 books carry
+scenes; 4,704 pages, 331,353 links, **0 broken**.
+
+Deletions, read by category before committing: 33 rehashed `_astro` bundles;
+the lemma pages and data for χάω and ἐφαμάω (PR #28); and **`data/plates/`**
+(five JSONs). The plates were swept into the August 19 deploy from the shared
+`build/dist`; main's code never reads them, and they carry draft apparatus, so
+they came off. Commit: 4,856 files (48 added, 32 deleted).
+
+Live-verified after Pages built `1c7bdc67a`: home, `/iliad/book/1/`,
+`/lemma/menis/` and `/search/` 200; `/lemma/chao/` 404; the live `index.html`
+is byte-identical to the build's.
+
+Not shipped: the 29 lexicon commits on `claude/integration-2026-09-01` (Cunliffe
+parse fixes, LSJ short definitions, Morpheus re-ranking, more ghost lemmata) —
+now PR #37, reviewed by Grok with fixes at `cd13c0ba3`. They are pipeline
+changes, so the next deploy needs a full `build:public`.
+
 ## Deploy — 2026-08-19: the LSJ sense hierarchy, and one quotation per line
 
 gh-pages `350799e11` → `7e29263` (source: main `3eee452d6`, PR #22). App-only

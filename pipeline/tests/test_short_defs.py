@@ -1,4 +1,6 @@
+import re
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 import pytest
@@ -7,8 +9,17 @@ from lxml import etree
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "pipeline"))
 
-from homer_pipeline.stage5_lsj import derive_short_def
-from homer_pipeline.stage7_emit import merge_short_def, resolve_parses
+from homer_pipeline.config import Manifest
+from homer_pipeline.stage5_lsj import (
+    derive_short_def,
+    fold_key,
+    lemma_candidates,
+)
+from homer_pipeline.stage7_emit import (
+    SHORT_DEF_CORRECTIONS,
+    merge_short_def,
+    resolve_parses,
+)
 import homer_pipeline.stage7_emit as stage7_emit
 
 
@@ -400,3 +411,500 @@ def test_a_lone_homonym_definition_still_extends_and_stays_one_box():
 
     assert merge_short_def("sample", "poth/", keys, defs) == "sample of wine"
     assert len({defs[k] for k in keys if defs.get(k)}) == 1
+
+
+def test_cross_ref_refuses_when_referent_headword_is_split(monkeypatch):
+    """ἕ is the LSJ stub "ἕ, v. οὗ", and οὗ is two entries: the adverb ou(=1
+    "where" and the pronoun ou(=2, which has no derived short def.
+
+    Counting *definitions found* elects "where" unopposed and would ship an
+    adverb of place as the sense of οἱ / οἵ / οὗ / ἕθεν / ἕο — 2,053 top-analysis
+    token occurrences across both poems. Counting *entries* refuses, because the
+    pronoun homonym never spoke.
+    """
+    entries = {
+        "e(/": {"html": '<b class="lsj-head">ἕ</b>, v. οὗ.'},
+        "ou(=1": {
+            "html": '<b class="lsj-head">οὗ</b>, gen. of relat. Pron.',
+            "short": "where",
+        },
+        "ou(=2": {"html": '<b class="lsj-head">οὗ</b>, οἷ, ἕ,'},
+    }
+    monkeypatch.setattr(stage7_emit, "_LSJ_ENTRY_CACHE", entries)
+    assert stage7_emit._resolve_cross_ref_target("οὗ", {}) is None
+
+    # The refusal is the split headword, not an unfindable referent: drop the
+    # definitionless homonym and the very same pointer resolves.
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {k: v for k, v in entries.items() if k != "ou(=2"},
+    )
+    assert stage7_emit._resolve_cross_ref_target("οὗ", {}) == "where"
+
+    # Nor is it "more than one entry" on its own — homonyms that agree resolve.
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {
+            **{k: v for k, v in entries.items() if k != "ou(=2"},
+            "ou(=2": {"html": '<b class="lsj-head">οὗ</b>', "short": "where"},
+        },
+    )
+    assert stage7_emit._resolve_cross_ref_target("οὗ", {}) == "where"
+
+
+def test_merge_short_def_keeps_he_blank(monkeypatch):
+    """ἕ ships with no definition, and for a stated reason.
+
+    The digit restriction below _empty_gloss_def's own-key pass already skips
+    the unnumbered key e(/, so the second stanza uses a numbered key to reach
+    the stub path: what refuses there is the homonym guard, which is what must
+    keep holding if the digit restriction is ever lifted.
+    """
+    monkeypatch.setattr(
+        stage7_emit,
+        "_LSJ_ENTRY_CACHE",
+        {
+            "e(/": {"html": '<b class="lsj-head">ἕ</b>, v. οὗ.'},
+            "e(/1": {"html": '<b class="lsj-head">ἕ</b>, v. οὗ.'},
+            "ou(=1": {"html": '<b class="lsj-head">οὗ</b>', "short": "where"},
+            "ou(=2": {"html": '<b class="lsj-head">οὗ</b>, οἷ, ἕ,'},
+        },
+    )
+
+    assert merge_short_def("", "e(/", ["e(/"], {}) == ""
+    assert merge_short_def("", "e(/1", ["e(/1"], {}) == ""
+
+
+# The cases below run on the WHOLE entry, read from the same grc.lsj.xml that
+# stage 5 reads. Abridged fixtures are reconstructions, and a reconstruction has
+# already hidden a defect in this lane's history (ἄατος, 2026-09-01): a test can
+# then pass on text the pipeline never sees. Nothing here is retyped.
+_LSJ_KEY_RE = re.compile(r'<div2 [^>]*key="([^"]*)"')
+
+
+@lru_cache(maxsize=1)
+def _real_lsj_entries() -> dict[str, str]:
+    """Every div2 fragment this module asserts on, verbatim from grc.lsj.xml.
+
+    The file is not one XML document (no root element) but a stream of div2
+    fragments, so it is scanned line-wise exactly as stage5_lsj.run does.
+    """
+    path = Manifest.for_work("Iliad").diogenes_data() / "grc.lsj.xml"
+    if not path.exists():
+        return {}
+    wanted = set(_REAL_ENTRY_KEYS)
+    out: dict[str, str] = {}
+    buf: list[str] = []
+    key = ""
+    want = False
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            if "<div2 " in line:
+                m = _LSJ_KEY_RE.search(line)
+                key = m.group(1) if m else ""
+                want = key in wanted and key not in out
+                buf = []
+            if want:
+                buf.append(line)
+                if "</div2>" in line:
+                    fragment = "".join(buf)
+                    start = fragment.index("<div2 ")
+                    end = fragment.rindex("</div2>") + len("</div2>")
+                    out[key] = fragment[start:end]
+                    want = False
+                    if len(out) == len(wanted):
+                        break
+    return out
+
+
+_REAL_ENTRY_KEYS = (
+    "ou)",
+    "a)lla/",
+    "ki/rkos",
+    "me/mona",
+    "a)gro/teros",
+    "*(eka/ergos",
+    "qa/los",
+    "ga/r",
+    "pa=s1",
+    "e)k",
+    "oi)=nos",
+    "oi)=da",
+    "tre/fw",
+    "dai/s2",
+    "*kh/r",
+    "kh=r",
+    "suno/xwka",
+    "e)fomarte/w",
+    "boulu_to/s",
+    "zwa/gria",
+    "e)/mpa_s1",
+    "e)/mpas2",
+)
+
+
+def _real_entry(key: str):
+    entries = _real_lsj_entries()
+    if not entries:
+        pytest.skip("grc.lsj.xml not present (manifest sources.diogenes_data)")
+    assert key in entries, f"{key} not found in grc.lsj.xml"
+    return etree.fromstring(entries[key])
+
+
+def test_derive_short_def_refuses_italics_governed_by_the_lead_in():
+    """οὐ: LSJ italicises words INSIDE its prose, and the run is a fragment.
+
+    "the negative of <i>fact</i> and <i>statement</i>" yielded the short def
+    "fact and statement" on 1,456 corpus occurrences — the commonest wrong
+    gloss in the dictionary. Morpheus supplies the right one, "not".
+    """
+    assert derive_short_def(_real_entry("ou)")) == ""
+
+
+def test_derive_short_def_refuses_a_name_for_a_number():
+    """Ἑκάεργος: "Pythag. name for <i>nine</i>" is the same defect as οὐ's.
+
+    The lead-in names a linguistic entity ("name for"), so the italic is what
+    is being named, not what the headword means.
+    """
+    assert derive_short_def(_real_entry("*(eka/ergos")) == ""
+
+
+def test_derive_short_def_keeps_a_definition_after_a_bare_of():
+    """ἀγρότερος: "in <author>Hom.</author> always of <i>wild</i> animals".
+
+    A bare "of" before the run governs the CLASS being described, not the run:
+    "wild" is the Homeric gloss and LSJ gives no other. The first version of
+    the οὐ rule refused every lead-in ending on of/for/as/to and lost this one
+    along with 14 more sound definitions, 61 corpus occurrences between them.
+    """
+    assert derive_short_def(_real_entry("a)gro/teros")) == "wild"
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason="_GOVERNING_LEAD in stage5_lsj.py treats 'sense of' as governing the italic run",
+)
+def test_derive_short_def_still_drops_thalos():
+    """θάλος: "= θαλλός, but only nom. and acc. in metaph. sense of <i>scion,
+    child</i>" — a real definition, and the rule drops it anyway.
+
+    "sense of" is on the list because περ's "a shortd. form of περί (q. v.) in
+    the sense of <i>very much, however much</i>" attributes that sense to περί,
+    not to περ, on 534 occurrences. The two shapes are identical and no signal
+    in the entry separates them, so this test records the cost rather than
+    pretending there is none. Morpheus glosses θάλος "scion, child" — the same
+    string — so the card does not change.
+    """
+    assert derive_short_def(_real_entry("qa/los")) == "scion, child"
+
+
+def test_derive_short_def_keeps_a_run_introduced_by_a_grammatical_label():
+    """ἀλλά: a label ("in simple oppositions,") does not govern the run."""
+    assert derive_short_def(_real_entry("a)lla/")) == "but"
+
+
+def test_derive_short_def_absorbs_a_leading_article():
+    """κίρκος: "a kind of" belongs to the definition, not to the lead-in."""
+    assert derive_short_def(_real_entry("ki/rkos")) == "a kind of hawk or falcon"
+
+
+def test_derive_short_def_refuses_an_etymological_root():
+    """μέμονα: its first <sense> opens inside the etymology parenthesis.
+
+    "(fr. <sense><i>mṇ</i>-), cogn. with μένος" made the Proto-Indo-European
+    root the entry's definition, and stage7 propagated it to μεμαώς.
+    """
+    assert derive_short_def(_real_entry("me/mona")) == ""
+
+
+@pytest.mark.parametrize(
+    ("key", "expected"),
+    [("a)lla/", "but"), ("ga/r", "for"), ("pa=s1", "all"), ("e)k", "from out of")],
+)
+def test_derive_short_def_leaves_the_commonest_entries_alone(key, expected):
+    """The regression guard: four of the highest-frequency entries in Homer."""
+    assert derive_short_def(_real_entry(key)) == expected
+
+
+# ── The reviewed correction list ────────────────────────────────────────────
+# derive_short_def checks shape, not sense, and reads the entry's FIRST sense.
+# So "prefer LSJ wherever the two disagree" is unsafe, and the corrections file
+# is the reviewed alternative. These tests pin both halves: the corrections
+# fire, and everything outside the list keeps the old conservative behaviour.
+
+
+def test_short_def_corrections_are_a_reviewed_list_not_a_rule():
+    assert SHORT_DEF_CORRECTIONS
+    for lemma, entry in SHORT_DEF_CORRECTIONS.items():
+        assert entry["lemma"] == lemma
+        assert entry["source"] in ("lsj", "editorial")
+        assert entry["justification"].strip()
+        assert entry["prefer"] != entry["morpheus"]
+
+
+@pytest.mark.parametrize(
+    ("lemma", "morpheus", "prefer"),
+    [
+        ("oi)=nos", "the ace", "wine"),
+        ("oi)=da", "behold!", "know, have knowledge of, be acquainted with"),
+        ("pw", "where?", "up to this time, yet"),
+        ("pws", "how?", "in any way, at all, by any means"),
+        ("dai/s3", "fire-brand, pine-torch", "meal, banquet"),
+        ("fo/bos", "having a horror of water, having hydrophobia", "panic flight"),
+    ],
+)
+def test_merge_short_def_applies_a_reviewed_correction(lemma, morpheus, prefer):
+    assert merge_short_def(morpheus, lemma, [lemma], {lemma: prefer}) == prefer
+
+
+def test_every_correction_fires_on_the_gloss_it_records():
+    """The list is inert unless each entry's recorded Morpheus gloss is live."""
+    for lemma, entry in SHORT_DEF_CORRECTIONS.items():
+        assert (
+            merge_short_def(entry["morpheus"], lemma, [lemma], {})
+            == entry["prefer"]
+        )
+
+
+def test_a_correction_lapses_when_the_morpheus_gloss_changes():
+    """Guard against silently redirecting the correction at different text.
+
+    If Morpheus ships a new gloss for οἶνος, the reviewed verdict no longer
+    applies to it, and the entry must go back through review rather than
+    overwrite whatever arrived.
+    """
+    assert merge_short_def("wine-jar", "oi)=nos", ["oi)=nos"], {}) == "wine-jar"
+
+
+def test_merge_short_def_leaves_trepho_untouched():
+    """The counterexample that ruled out preferring LSJ on disagreement.
+
+    LSJ's first sense of τρέφω is "thicken or congeal" — real, shape-clean, and
+    wrong for Homer. It is not on the reviewed list, so the correction path
+    must not touch it; the prefix-extension rule alone governs it, exactly as
+    before.
+    """
+    assert "tre/fw" not in SHORT_DEF_CORRECTIONS
+    derived = derive_short_def(_real_entry("tre/fw"))
+    assert derived == "thicken or congeal"
+    assert (
+        merge_short_def("thicken", "tre/fw", ["tre/fw"], {"tre/fw": derived})
+        == derived
+    )
+
+
+def test_merge_short_def_keeps_the_torch_sense_of_dais():
+    """δαΐς "torch" and δαίς "meal" share a Morpheus gloss AND an LSJ def.
+
+    Both lemma buckets carry Morpheus's "fire-brand, pine-torch" and both
+    resolve to LSJ dai/s2 "meal, banquet". dai/s3 (δαῖτα, δαιτός, δαιτί) is
+    corrected; dai/s1 (δαΐδας, δαΐδων) is the torch and keeps Morpheus. No
+    rule can separate them, which is the case for a reviewed list.
+    """
+    meal = derive_short_def(_real_entry("dai/s2"))
+    assert meal == "meal, banquet"
+    assert "dai/s1" not in SHORT_DEF_CORRECTIONS
+    torch = "fire-brand, pine-torch"
+    assert merge_short_def(torch, "dai/s1", ["dai/s2"], {"dai/s2": meal}) == torch
+    assert merge_short_def(torch, "dai/s3", ["dai/s2"], {"dai/s2": meal}) == meal
+
+
+def test_ou_still_falls_back_to_morpheus():
+    """οὐ is 1,456 occurrences of the commonest wrong LSJ short def."""
+    assert "ou)" not in SHORT_DEF_CORRECTIONS
+    assert (
+        merge_short_def("not", "ou)", ["ou)"], {"ou)": "fact and statement"}) == "not"
+    )
+
+
+def test_the_editorial_corrections_are_the_ones_no_source_supplies():
+    """source=editorial is reserved for a lemma BOTH sources get wrong.
+
+    ἐγώ: LSJ's first sense treats ἔγωγε and Morpheus repeats it, so neither
+    offers "I" (2,877 occurrences). ἔμπης: LSJ's adverb entry yields no short
+    def, and the "all" it does derive belongs to a different word.
+    """
+    editorial = {
+        lemma: e["prefer"]
+        for lemma, e in SHORT_DEF_CORRECTIONS.items()
+        if e["source"] == "editorial"
+    }
+    assert editorial == {"e)gw/": "I", "e)/mpas": "nevertheless, all the same"}
+
+
+@pytest.mark.parametrize(
+    ("lemma", "key"), [("oi)=nos", "oi)=nos"), ("oi)=da", "oi)=da")]
+)
+def test_lsj_sourced_corrections_quote_the_real_entry(lemma, key):
+    """prefer is LSJ's own derived def, not a paraphrase — checked against
+    grc.lsj.xml, the file stage 5 reads."""
+    assert SHORT_DEF_CORRECTIONS[lemma]["source"] == "lsj"
+    assert SHORT_DEF_CORRECTIONS[lemma]["prefer"] == derive_short_def(_real_entry(key))
+
+
+# ── κήρ: the lemma reached the wrong entry, not the wrong sense ─────────────
+# Morpheus's lemma for the death-spirit is kh/r. LSJ heads that word Κήρ, whose
+# Perseus key carries the capital marker: *kh/r. No lowercase kh/r exists, so
+# the exact and base lookups both miss and the accent-blind fold lookup takes
+# over — and fold_key erases the very mark that separates κήρ from κῆρ.
+
+
+def test_folding_conflates_ker_the_doom_with_ker_the_heart():
+    """Why the fold fallback cannot be trusted to pick this entry."""
+    assert fold_key("kh/r") == fold_key("kh=r") == "khr"
+
+
+def test_lemma_candidates_offers_the_capitalized_headword_before_folding():
+    """LSJ heads a capitalized word with *; Morpheus's lemma has no *."""
+    cands = lemma_candidates("kh/r")
+
+    assert ("exact", "*kh/r") in cands
+    assert cands.index(("exact", "*kh/r")) < cands.index(("fold", "khr"))
+
+
+def test_lemma_candidates_do_not_double_the_capital_marker():
+    """A lemma LSJ already capitalizes needs no second asterisk."""
+    assert ("exact", "**kh/r") not in lemma_candidates("*kh/r")
+
+
+def test_the_two_kers_are_two_entries():
+    """The death-spirit and the heart are different words with different defs.
+
+    76 corpus tokens of the doom word (κῆρα, κῆρας, κῆρες, κῆρε, κηρί, κηρός)
+    carried lsj: ["kh=r"] and so opened κῆρ "heart" — Achilles' heart on the
+    Κῆρες of death.
+    """
+    assert derive_short_def(_real_entry("*kh/r")) == "the goddess of death or doom"
+    assert derive_short_def(_real_entry("kh=r")) == "heart"
+
+
+def test_merge_short_def_extends_the_doom_gloss_from_its_own_entry():
+    """With the right key the Morpheus gloss extends; with the wrong one it
+    cannot, which is how the defect stayed invisible on the card."""
+    short_defs = {"*kh/r": "the goddess of death or doom", "kh=r": "heart"}
+
+    assert (
+        merge_short_def("the goddess of death", "kh/r", ["*kh/r"], short_defs)
+        == "the goddess of death or doom"
+    )
+    assert (
+        merge_short_def("the goddess of death", "kh/r", ["kh=r"], short_defs)
+        == "the goddess of death"
+    )
+
+
+def test_the_heart_word_keeps_its_own_entry():
+    """κῆρι and the heart reading of κῆρ' are lemma kh=r, which matches
+    exactly — the capitalized candidate never runs for them."""
+    assert lemma_candidates("kh=r")[0] == ("exact", "kh=r")
+
+
+# ── An unbalanced delimiter is a broken fragment, not a definition ──────────
+# derive_short_def lifts the leading italic run, and LSJ sometimes opens a
+# parenthesis inside that run and closes it outside — or closes one it opened
+# before it. The result is a fragment; the entry is better off with no short
+# def at all, falling back to whatever Morpheus supplies.
+
+
+@pytest.mark.parametrize("key", ["boulu_to/s", "zwa/gria"])
+def test_derive_short_def_refuses_a_run_that_straddles_a_delimiter(key):
+    """βουλυτός's parenthesis closes two citations later, and ζωάγρια's run
+    opens inside LSJ's etymology bracket. Neither can be repaired."""
+    assert derive_short_def(_real_entry(key)) == ""
+
+
+@pytest.mark.parametrize(
+    ("key", "expected"),
+    [
+        ("suno/xwka", "to be σύνοχος (joined together)"),
+        ("e)fomarte/w", "accompany, come on (with)"),
+    ],
+)
+def test_derive_short_def_keeps_a_closing_bracket_the_stripper_would_eat(
+    key, expected
+):
+    """The other half of the class was self-inflicted: LSJ writes "(with),"
+    and peeling every trailing mark took the bracket with the comma."""
+    assert derive_short_def(_real_entry(key)) == expected
+
+
+def test_derive_short_def_keeps_a_balanced_parenthesis():
+    """Only the unrepairable case is refused; a whole parenthetical is fine."""
+    div2 = etree.fromstring(
+        "<div2><head>head</head><sense><i>come on (with a rush),</i>"
+        "</sense></div2>"
+    )
+
+    assert derive_short_def(div2) == "come on (with a rush)"
+
+
+# ── Typographic junk on the Morpheus gloss ─────────────────────────────────
+# Morpheus's glosses are themselves LSJ-derived upstream, and a few arrive with
+# the surrounding punctuation still attached: a leading em-dash from a run-on
+# entry, or the brackets and scare-quotes LSJ puts round a coined rendering.
+# This is typography, not sense, so it is a rule and not a correction entry.
+
+
+@pytest.mark.parametrize(
+    ("gloss", "expected"),
+    [
+        ("—have no care for, be neglectful of", "have no care for, be neglectful of"),
+        ("-sift, strain", "sift, strain"),
+        ("[five years old]", "five years old"),
+        ("‘the joy of men’", "the joy of men"),
+        ("‘pitting’", "pitting"),
+    ],
+)
+def test_merge_short_def_strips_edge_typography_from_the_gloss(gloss, expected):
+    assert merge_short_def(gloss, "x", [], {}) == expected
+
+
+@pytest.mark.parametrize(
+    "gloss",
+    [
+        "not",
+        "thicken or congeal",
+        "well-greaved",
+        "accompany, come on (with)",
+        "(of a wound) deep",
+        "a kind of hawk",
+    ],
+)
+def test_merge_short_def_leaves_ordinary_glosses_alone(gloss):
+    """The rule may only remove punctuation that wraps or leads the whole
+    gloss — never a parenthetical that carries part of the sense."""
+    assert merge_short_def(gloss, "x", [], {}) == gloss
+
+
+def test_stripping_typography_lets_the_lsj_def_match_instead_of_extend():
+    """ἠθέω: Morpheus "-sift, strain" and LSJ "sift, strain" are the same
+    gloss, and only the dash made them look different."""
+    assert (
+        merge_short_def("-sift, strain", "h)qe/w", ["h)qe/w"], {"h)qe/w": "sift, strain"})
+        == "sift, strain"
+    )
+
+
+# ── ἔμπης: both sources wrong ───────────────────────────────────────────────
+
+
+def test_empes_is_corrected_to_the_concessive_sense():
+    """38 corpus occurrences; ἀλλ' ἔμπης and "…περ ἔμπης" account for most."""
+    entry = SHORT_DEF_CORRECTIONS["e)/mpas"]
+
+    assert entry["source"] == "editorial"
+    assert entry["morpheus"] == "alike"
+    assert merge_short_def("alike", "e)/mpas", ["e)/mpa_s1", "e)/mpas2"], {}) == (
+        entry["prefer"]
+    )
+
+
+def test_neither_source_supplies_the_empes_gloss():
+    """LSJ's own entry for the Epic adverb yields no short def at all, and the
+    "all" the derivation does produce belongs to ἔμπας (B), a first-century
+    Boeotian adjective that is a different word."""
+    assert derive_short_def(_real_entry("e)/mpa_s1")) == ""
+    assert derive_short_def(_real_entry("e)/mpas2")) == "all"
