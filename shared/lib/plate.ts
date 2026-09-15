@@ -376,6 +376,25 @@ export interface Plate {
    * validate_plate, same posture as sceneKey's own layerId).
    */
   suppressLayerLabels?: string[];
+  /**
+   * Optional layers a reader switches on (2026-09-15, John: the geographic
+   * Trojan Plain sheet retired, its tradition sites folded into the
+   * schematic as "Later tradition and survey", off by default). A group
+   * names gazetteer places, drawn at their own `coords` with the certainty
+   * tier's dot and a small italic name and no numeral, and layers of this
+   * plate, drawn only while the group is shown. A group that is not shown
+   * draws nothing and reserves nothing. See PlateOptions.showLayerGroups.
+   */
+  layerGroups?: PlateLayerGroup[];
+}
+
+export interface PlateLayerGroup {
+  id: string;
+  title: string;
+  /** Whether the group draws when the caller names no groups. Default 'on'. */
+  default?: 'on' | 'off';
+  placeIds: string[];
+  layerIds: string[];
 }
 
 export interface PlateSceneKey {
@@ -439,6 +458,12 @@ export interface PlatePlace {
   labelTier?: 1 | 2;
   /** "small" maps to LABEL_STYLES.minor; "base" (or omit) leaves the role's default. */
   labelSize?: 'small' | 'base';
+  /**
+   * The gazetteer's own `tradition` text (who identified the site, and when).
+   * Read only for a place drawn by a shown layer group (see
+   * Plate.layerGroups), where it becomes the mark's hover and focus text.
+   */
+  tradition?: string;
 }
 
 export interface PlateOptions {
@@ -459,9 +484,14 @@ export interface PlateOptions {
    * double-wrap if this were also on.
    */
   cameraGroup?: boolean;
+  /**
+   * Ids of `Plate.layerGroups` to draw. Omitted, each group follows its own
+   * `default`; given (even empty), exactly these groups draw.
+   */
+  showLayerGroups?: string[];
 }
 
-const DEFAULT_PLATE_OPTIONS: Required<PlateOptions> = {
+const DEFAULT_PLATE_OPTIONS: Required<Omit<PlateOptions, 'showLayerGroups'>> = {
   idPrefix: 'plate',
   cameraGroup: false,
 };
@@ -501,6 +531,11 @@ export interface PlateResult {
   // this map?" deserves a yes, not an absence. Never pinned — this bucket
   // only ever holds places carried by geometry, not markers.
   drawnByLayer: PlatePlace[];
+  // A place that belongs to a layer group (Plate.layerGroups) the caller did
+  // not show, and that nothing else on the sheet draws. It has a position; it
+  // is behind a switch. Kept apart from `unlocated`, whose claim ("no
+  // defensible position") would be false for Sigeion or Kum Tepe.
+  layerGroupHidden: PlatePlace[];
   // Ids (place or layer) whose label was DROPPED rather than printed
   // illegibly — only ever an id that opted into suppression via
   // LabelRequest.priority (geographic settlement rank 3 / feature, see
@@ -1011,6 +1046,46 @@ export function parsePlate(data: unknown): Plate {
     });
   }
 
+  let layerGroups: PlateLayerGroup[] | undefined;
+  if (d.layerGroups !== undefined) {
+    if (!Array.isArray(d.layerGroups)) fail('layerGroups must be an array');
+    const layerIds = new Set(layers.map((l) => l.id));
+    const seenGroupIds = new Set<string>();
+    const groupedLayerIds = new Set<string>();
+    const idList = (raw: unknown, where: string): string[] => {
+      if (!Array.isArray(raw)) fail(`${where} must be an array`);
+      return (raw as unknown[]).map((v, i) => {
+        if (typeof v !== 'string' || !v) fail(`${where}[${i}] must be a non-empty string`);
+        return v as string;
+      });
+    };
+    layerGroups = (d.layerGroups as unknown[]).map((raw, gi) => {
+      if (!raw || typeof raw !== 'object') fail(`layerGroups[${gi}] must be an object`);
+      const g = raw as Record<string, unknown>;
+      if (typeof g.id !== 'string' || !g.id) fail(`layerGroups[${gi}].id must be a non-empty string`);
+      if (seenGroupIds.has(g.id as string)) fail(`layerGroups[${gi}].id '${g.id}' appears twice`);
+      seenGroupIds.add(g.id as string);
+      if (typeof g.title !== 'string' || !g.title.trim()) fail(`layerGroups[${gi}].title must be a non-empty string`);
+      if (g.default !== undefined && g.default !== 'on' && g.default !== 'off') {
+        fail(`layerGroups[${gi}].default must be 'on' or 'off'`);
+      }
+      const placeIds = idList(g.placeIds ?? [], `layerGroups[${gi}].placeIds`);
+      const groupLayerIds = idList(g.layerIds ?? [], `layerGroups[${gi}].layerIds`);
+      for (const id of groupLayerIds) {
+        if (!layerIds.has(id)) fail(`layerGroups[${gi}].layerIds '${id}' is not a layer of this plate`);
+        if (groupedLayerIds.has(id)) fail(`layerGroups[${gi}].layerIds '${id}' is already in another group`);
+        groupedLayerIds.add(id);
+      }
+      return {
+        id: g.id as string,
+        title: g.title as string,
+        ...(g.default !== undefined ? { default: g.default as 'on' | 'off' } : {}),
+        placeIds,
+        layerIds: groupLayerIds,
+      };
+    });
+  }
+
   return {
     id: d.id,
     title: d.title,
@@ -1030,6 +1105,7 @@ export function parsePlate(data: unknown): Plate {
     sceneKey,
     featureKey,
     suppressLayerLabels,
+    layerGroups,
   };
 }
 
@@ -1980,6 +2056,49 @@ function dotBBox(x: number, y: number, r: number): [number, number, number, numb
 // reads as the biggest mark on the sheet by BOTH registers, not just one.
 const SETTLEMENT_DOT_R: Record<1 | 2 | 3, number> = { 1: 4, 2: 3.2, 3: 2.6 };
 const FEATURE_DOT_R = 2.6;
+
+// ── Layer-group sites (Plate.layerGroups, 2026-09-15) ────────────────────
+// Later tradition and survey on the schematic sheet: the certainty tier's own
+// dot at a size below every poem mark, and a small italic name in the sheet's
+// muted ink. Never a numeral — these are not in Pope's key, and the poem stays
+// the subject.
+const TRADITION_DOT_R = 2.2;
+const TRADITION_LABEL_STYLE: LabelStyle = {
+  size: 9.5,
+  weight: 400,
+  italic: true,
+  caps: false,
+  tracking: 0.02,
+  fill: 'var(--text-mid)',
+};
+
+/** "Kum Tepe. Traditional identification: Schliemann attached …" — the data's own words, nothing added. */
+function traditionHoverText(place: PlatePlace | undefined, fallback: string): string {
+  if (!place) return fallback;
+  const tier = CERTAINTY_LEGEND_TEXT[place.certainty ?? 'certain'];
+  const tradition = place.tradition?.trim();
+  const body = tradition ? `${tier}: ${tradition}` : tier;
+  return `${place.name}. ${body}${/[.!?]$/.test(body) ? '' : '.'}`;
+}
+
+function traditionDotMarkup(id: string, groupId: string, hover: string, x: number, y: number, style: DotStyle): string {
+  return (
+    `<g class="plate-tradition-site plate-tradition-target" data-place-id="${escapeXml(id)}" ` +
+    `data-layer-group="${escapeXml(groupId)}" role="img" aria-label="${escapeXml(hover)}">` +
+    `<title>${escapeXml(hover)}</title>${dotSymbol(x, y, style, TRADITION_DOT_R)}</g>`
+  );
+}
+
+function layerGroupLegendEntry(group: PlateLayerGroup): LegendEntry {
+  return {
+    key: `layer-group-${group.id}`,
+    rank: 50,
+    text: group.title,
+    swatch: (x, y) =>
+      `<text x="${round1(x + 3)}" y="${round1(y + 3.3)}" font-family="var(--font-ui)" font-size="9.5" ` +
+      `font-style="italic" fill="var(--plate-schematic-ink)">Aa</text>`,
+  };
+}
 
 // ── Label class (geographic places only) ────────────────────────────────
 // Which of the five Landmark classes — region / water / river / settlement /
@@ -3190,6 +3309,17 @@ interface LabelRequest {
    * rather than sitting on reserved ink.
    */
   area?: [number, number][];
+  /**
+   * A layer-group name's hover text (Plate.layerGroups): emitted as the
+   * label's own <title>, with class `plate-label-tradition`.
+   */
+  hover?: string;
+  /**
+   * The name is itself the hover/focus target (a site with no dot of its
+   * own): it carries `plate-tradition-target`, role="img" and `hover` as its
+   * aria-label, which a viewer makes focusable.
+   */
+  hoverTarget?: boolean;
 }
 
 /**
@@ -3416,17 +3546,24 @@ function labelElement(
   id: string,
   geographic: boolean,
   tier?: 1 | 2,
+  hover?: string,
+  hoverTarget?: boolean,
 ): string {
   const italic = style.italic || forceItalic;
   const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
   const tierClass = tier === 2 ? ' plate-label-tier2' : '';
   const tierAttr = tier === 2 ? ' data-label-tier="2"' : '';
+  // A layer-group name (see LabelRequest.hover): its own tooltip, and — when
+  // no dot carries the site — the focus target too.
+  const hoverClass = hover ? ` plate-label-tradition${hoverTarget ? ' plate-tradition-target' : ''}` : '';
+  const hoverAttr = hover && hoverTarget ? ` role="img" aria-label="${escapeXml(hover)}"` : '';
+  const hoverTitle = hover ? `<title>${escapeXml(hover)}</title>` : '';
   return (
-    `<text class="plate-label plate-label-${role}${tierClass}" data-label-for="${escapeXml(id)}"${tierAttr} x="${round1(c.x)}" y="${round1(c.y)}" ` +
+    `<text class="plate-label plate-label-${role}${tierClass}${hoverClass}" data-label-for="${escapeXml(id)}"${tierAttr}${hoverAttr} x="${round1(c.x)}" y="${round1(c.y)}" ` +
     `text-anchor="${c.anchor}" font-family="var(--font-ui)" font-size="${style.size}" ` +
     `font-weight="${style.weight}"${italic ? ' font-style="italic"' : ''}${tracking} ` +
     `fill="${schematicInkFill(style.fill, geographic)}" paint-order="stroke" ${haloAttrs(geographic)}` +
-    `>${escapeXml(labelText(text, style))}</text>`
+    `>${hoverTitle}${escapeXml(labelText(text, style))}</text>`
   );
 }
 
@@ -3707,7 +3844,9 @@ function layoutLabels(
     } else if (req.centred && detached) {
       parts.push(leaderElement(req.anchorBox, box, false, req.id, req.labelTier));
     }
-    parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic, req.labelTier));
+    parts.push(
+      labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic, req.labelTier, req.hover, req.hoverTarget),
+    );
     placed.push(box);
     boxesById.push({ id: req.id, box });
   }
@@ -6333,6 +6472,27 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     ? viewportFromBBox(plate.bbox, [frameWidth, height], rotationDeg)
     : unitViewport(plate.size);
 
+  // Layer groups (Plate.layerGroups): which of them draw on this render. A
+  // group not shown draws nothing and reserves nothing, so the sheet lays out
+  // exactly as if it did not exist.
+  const layerGroups = plate.layerGroups ?? [];
+  const shownGroupIds = new Set(
+    options.showLayerGroups ?? layerGroups.filter((g) => g.default !== 'off').map((g) => g.id),
+  );
+  const shownGroups = layerGroups.filter((g) => shownGroupIds.has(g.id));
+  const hiddenGroups = layerGroups.filter((g) => !shownGroupIds.has(g.id));
+  const hiddenGroupLayerIds = new Set(hiddenGroups.flatMap((g) => g.layerIds));
+  const groupOfLayer = new Map(shownGroups.flatMap((g) => g.layerIds.map((id) => [id, g] as const)));
+  const groupOfPlace = new Map(shownGroups.flatMap((g) => g.placeIds.map((id) => [id, g] as const)));
+  const hiddenGroupPlaceIds = new Set(
+    hiddenGroups.flatMap((g) => [
+      ...g.placeIds,
+      ...g.layerIds
+        .map((id) => plate.layers.find((l) => l.id === id)?.placeId)
+        .filter((id): id is string => !!id),
+    ]),
+  );
+
   const features: RenderedFeature[] = [];
   // Each drawn layer's own markup, in paint order, plus the reaches of other
   // layers that must be drawn UNDER it (see WaterBody): a river's submerged
@@ -6454,6 +6614,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     barrier: plate.layers.some((l) => l.kind === 'coast' && l.style === 'barrier'),
   };
   for (const layer of plate.layers) {
+    if (hiddenGroupLayerIds.has(layer.id)) continue;
     const rendered = renderLayer(plate, layer, viewport, softId, waters);
     if (!rendered) continue;
     renderedById.set(layer.id, rendered);
@@ -6605,6 +6766,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // key below them, which is where they were always explained.
     const legend = isSceneZone ? undefined : layerLegendEntry(layer);
     if (legend) legendEntries.push(legend);
+    const layerGroup = groupOfLayer.get(layer.id);
+    if (layerGroup) legendEntries.push(layerGroupLegendEntry(layerGroup));
     // A coast layer that fills its rings also keys the terrain it encloses.
     if (layer.kind === 'coast' && layer.fill) {
       const fillEntry = regionFillLegendEntry(layer.fill);
@@ -6647,6 +6810,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   const offCanvas: PlatePlace[] = [];
   const unlocated: PlatePlace[] = [];
   const drawnByLayer: PlatePlace[] = [];
+  const layerGroupHidden: PlatePlace[] = [];
   const pinMarkupParts: string[] = [];
   // The marks ACTUALLY DRAWN, by place id — not every label anchor. Ruling 9
   // (2026-09-03) makes "keep clear of a pin" a hard constraint on badges,
@@ -6664,7 +6828,16 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       drawnByLayer.push(place);
       continue;
     }
-    const pos = resolvePlacePosition(plate, place, viewport);
+    // A shown layer-group place is drawn at its own surveyed `coords`, on a
+    // schematic sheet too: the schematic's ground is the real ground in the
+    // same projection (ruling 1, 2026-09-02), and these marks sit in their
+    // own register, apart from the poem's conjectural anchors.
+    const groupOf = groupOfPlace.get(place.id);
+    const pos = groupOf
+      ? place.coords
+        ? projectPoint(plate, place.coords, viewport)
+        : undefined
+      : resolvePlacePosition(plate, place, viewport);
     if (!pos) {
       // A place with no defensible pin position may still be visibly drawn
       // via a layer's own geometry (see `drawnByLayer`'s doc comment above)
@@ -6672,6 +6845,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       // gets its own bucket rather than landing in `unlocated`.
       if (layerPlaceIds.has(place.id)) {
         drawnByLayer.push(place);
+      } else if (hiddenGroupPlaceIds.has(place.id)) {
+        layerGroupHidden.push(place);
       } else {
         unlocated.push(place);
       }
@@ -6691,6 +6866,46 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       continue;
     }
     located.push(place);
+
+    if (groupOf) {
+      // Later tradition and survey (Plate.layerGroups). The dot follows the
+      // geographic sheet's own rule for which classes carry one: a river
+      // (the Thymbrios) is a name only. NO_OWN_MARKER_PLACE_IDS does not
+      // apply here: on this sheet Rhoiteion is named by its ridge and draws
+      // no dot, so the tomb of Ajax carries its own tier's mark at its own
+      // recorded point instead of hanging its name on a "location secure"
+      // dot it would then seem to share.
+      const hover = traditionHoverText(place, place.name);
+      const markerless = MARKERLESS_LABEL_CLASSES.has(placeLabelClass(place));
+      let anchorBox: Box = [x, y, x, y];
+      if (!markerless) {
+        anchorBox = dotBBox(x, y, TRADITION_DOT_R);
+        pinMarkupParts.push(traditionDotMarkup(place.id, groupOf.id, hover, x, y, certaintyDotStyle(place.certainty)));
+        drawnMarkBoxes.set(place.id, anchorBox);
+        features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: anchorBox });
+        legendEntries.push(certaintyDotLegendEntry(place.certainty ?? 'certain'));
+      }
+      legendEntries.push(layerGroupLegendEntry(groupOf));
+      // Lettered once: a place a drawn layer of this sheet already names
+      // (Rhoiteion, lettered by its ridge) keeps that name and gets no
+      // second one here.
+      const letteredByLayer = layerLabelCandidates.some(
+        ({ layer }) =>
+          layer.placeId === place.id && !suppressedLayerLabelIds.has(layer.id) && !keyedIds.has(layer.id),
+      );
+      if (!letteredByLayer) {
+        pinLabelRequests.push({
+          id: place.id,
+          text: mapLabelText(place.name),
+          role: 'minor',
+          anchorBox,
+          styleOverride: TRADITION_LABEL_STYLE,
+          hover,
+          hoverTarget: markerless,
+        });
+      }
+      continue;
+    }
 
     if (plate.kind === 'geographic') {
       // Five Landmark classes, not one flat "settlement" for every located
@@ -6858,6 +7073,15 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       labelTier: layer.labelTier,
       labelSize: layer.labelSize,
       area: rendered.labelArea,
+      // A layer-group layer (the Kesik cut) letters in the group's own small
+      // italic register, and its name is its hover/focus target.
+      ...(groupOfLayer.has(layer.id)
+        ? {
+            styleOverride: TRADITION_LABEL_STYLE,
+            hover: traditionHoverText(layer.placeId ? placeById.get(layer.placeId) : undefined, text),
+            hoverTarget: true,
+          }
+        : {}),
     });
   }
 
@@ -6867,7 +7091,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // The placement solution, if this exact sheet has been laid before (see
   // badgeSolutionCache). Looked up HERE because the zone letters are the first
   // thing the search produces and everything after depends on them.
-  const solutionKey = badgeSolutionKey(plate, places);
+  // The shown layer groups are part of the sheet: their marks and names are
+  // obstacles the badges were seated around.
+  const solutionKey = `${badgeSolutionKey(plate, places)}::groups=${shownGroups.map((g) => g.id).join(',')}`;
   const cached = badgeSolutionCache.get(plate)?.get(solutionKey);
 
   // Zone letters (the lettered scene-zone discs, e.g. "A") share the numeral
@@ -7289,6 +7515,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     unlocated,
     offCanvas,
     drawnByLayer,
+    layerGroupHidden,
     suppressedLabels: labels.suppressed,
     unplacedKeyNumerals,
     labelBoxes,

@@ -5561,3 +5561,118 @@ describe('renderPlate: mutating a glyph layer on the same plate object gets a fr
     expect(badgeOverlapOffenders(after.svg, plate, after), 'the re-rendered sheet must still clear E7').toEqual([]);
   });
 });
+
+// 2026-09-15 (John): the geographic Trojan Plain sheet is retired and its
+// tradition sites fold into the schematic as "Later tradition and survey",
+// its own layer group, off by default.
+describe('trojan-plain-schematic: the "Later tradition and survey" layer group', () => {
+  const plate = parsePlate(JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')));
+  const allPlaces = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[];
+  const placeById = new Map(allPlaces.map((p) => [p.id, p]));
+  const group = plate.layerGroups?.find((g) => g.id === 'later-tradition');
+  const off = renderPlate(plate, allPlaces);
+  const on = renderPlate(plate, allPlaces, { showLayerGroups: ['later-tradition'] });
+  const placeIds = group?.placeIds ?? [];
+  const siteIds = [...placeIds, ...(group?.layerIds ?? [])];
+  const traditionLabel = (svg: string, id: string) =>
+    svg.match(new RegExp(`<text class="plate-label[^"]*plate-label-tradition[^"]*" data-label-for="${id}"[^>]*>[\\s\\S]*?</text>`))?.[0];
+
+  it('is declared off by default, with the sites the geographic sheet drew and the Kesik cut, each from its gazetteer record', () => {
+    expect(group?.default).toBe('off');
+    expect([...placeIds].sort()).toEqual(
+      ['besik-sivritepe', 'kesik-tepe', 'kum-tepe', 'pinarbasi', 'sigeion', 'thymbrios', 'tomb-of-ajax-in-tepe', 'uvecik-tepe'],
+    );
+    expect(group?.layerIds).toEqual(['kesik-basin']);
+    for (const id of placeIds) {
+      const place = placeById.get(id);
+      expect(place?.coords, `${id} has coords`).toBeTruthy();
+      expect(place?.certainty, `${id} has a tier`).toBeTruthy();
+      if (place?.certainty === 'traditional') expect(place.tradition, `${id} names its tradition`).toBeTruthy();
+    }
+  });
+
+  it('draws nothing unless asked: no mark, no name, no legend row; its places are behind the switch, not "unlocated"', () => {
+    expect(off.svg).not.toContain('data-layer-group');
+    expect(off.svg).not.toContain('plate-label-tradition');
+    expect(off.svg).not.toContain('Later tradition and survey');
+    expect(renderPlate(plate, allPlaces, { showLayerGroups: [] }).svg).toBe(off.svg);
+    const labelled = textLabelIds(off.svg);
+    for (const id of siteIds) expect(labelled.has(id), `${id} lettered with the layer off`).toBe(false);
+    const hidden = new Set(off.layerGroupHidden.map((p) => p.id));
+    const unlocated = new Set(off.unlocated.map((p) => p.id));
+    for (const id of siteIds) {
+      expect(unlocated.has(id), `${id} reported as unlocated`).toBe(false);
+      // Sigeion is carried by its own ridge layer whichever way the switch is.
+      if (id !== 'sigeion') expect(hidden.has(id), `${id} not reported as behind the switch`).toBe(true);
+    }
+  });
+
+  it('shown: each site has its tier\'s dot (none for the Thymbrios), a small italic name, no numeral, and its tradition as hover text', () => {
+    const pins = new Map(markPins(on.svg).map((p) => [p.id, p.box] as const));
+    for (const id of placeIds) {
+      const place = placeById.get(id)!;
+      const label = traditionLabel(on.svg, id);
+      expect(label, `${id} is lettered in the tradition register`).toBeTruthy();
+      expect(label).toContain('font-size="9.5"');
+      expect(label).toContain('font-style="italic"');
+      if (id === 'thymbrios') {
+        expect(pins.has(id), 'a river is a name, not a dot').toBe(false);
+        expect(label).toContain('plate-tradition-target');
+        expect(label).toContain(`aria-label="${place.name}. Traditional identification: ${place.tradition}."`);
+        continue;
+      }
+      const box = pins.get(id);
+      expect(box, `${id} has a dot`).toBeTruthy();
+      expect((box![2] - box![0]) / 2, `${id}'s dot is smaller than every poem mark`).toBeLessThan(2.6);
+      const mark = on.svg.match(new RegExp(`<g class="plate-tradition-site[^"]*" data-place-id="${id}"[^>]*>[\\s\\S]*?</g>`))?.[0];
+      expect(mark).toContain('data-layer-group="later-tradition"');
+      if (place.tradition) expect(mark).toContain(place.tradition.replace(/'/g, '&apos;').slice(0, 30));
+    }
+    expect(traditionLabel(on.svg, 'kesik-basin')).toContain('Kesik cut (contested)');
+    const badgeIds = new Set(markDiscs(on.svg, 'plate-key-badge').map((d) => d.id));
+    for (const id of siteIds) expect(badgeIds.has(id), `${id} carries a numeral`).toBe(false);
+    expect(markDiscs(on.svg, 'plate-key-badge').length).toBe(32);
+    expect(on.unplacedKeyNumerals).toEqual([]);
+    expect(on.svg).toContain('>Later tradition and survey<');
+    expect(on.svg).toContain('>Traditional identification<');
+  });
+
+  it('E7 holds with the layer on', () => {
+    expect(badgeOverlapOffenders(on.svg, plate, on)).toEqual([]);
+  });
+
+  it('with the layer on, its names and dots touch no other name, numeral, zone letter or pin', () => {
+    const discBox = (d: { cx: number; cy: number; r: number }): [number, number, number, number] => [
+      d.cx - d.r, d.cy - d.r, d.cx + d.r, d.cy + d.r,
+    ];
+    const discs = [...markDiscs(on.svg, 'plate-key-badge'), ...markDiscs(on.svg, 'plate-zone-letter')].map((d) => ({
+      id: d.label,
+      box: discBox(d),
+    }));
+    const pins = markPins(on.svg);
+    const offenders: string[] = [];
+    for (const id of siteIds) {
+      const own = on.labelBoxes[id];
+      const ownPin = pins.find((p) => p.id === id)?.box;
+      const others = [
+        ...Object.entries(on.labelBoxes).filter(([o]) => o !== id).map(([o, box]) => ({ id: `name ${o}`, box })),
+        ...discs,
+        ...pins.filter((p) => p.id !== id).map((p) => ({ id: `pin ${p.id}`, box: p.box })),
+      ];
+      for (const o of others) {
+        if (own && boxesIntersect(own, o.box)) offenders.push(`name ${id} / ${o.id}`);
+        if (ownPin && !o.id.startsWith('name ') && boxesIntersect(ownPin, o.box)) offenders.push(`dot ${id} / ${o.id}`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('E6 still holds with the layer on: the longer legend does not push the feature key into the inset', () => {
+    const inset = plate.layers.find((l) => l.id === 'inset-panel')!;
+    const keyYs = [...on.svg.matchAll(/<g class="plate-feature-key"[\s\S]*?<tspan[^>]*y="([-\d.]+)"/g), ...on.svg.matchAll(/<text class="plate-key-row"[^>]*y="([-\d.]+)"/g)].map(
+      (m) => Number(m[1]),
+    );
+    expect(keyYs.length).toBeGreaterThan(0);
+    expect(Math.max(...keyYs) + 10).toBeLessThanOrEqual(inset.frame![1]);
+  });
+});

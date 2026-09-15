@@ -578,6 +578,39 @@ def test_validate_plate_rejects_suppress_layer_labels_that_is_not_a_list():
     assert any("suppressLayerLabels must be a list" in p for p in problems)
 
 
+def test_validate_plate_accepts_a_layer_group_naming_real_places_and_layers():
+    plate = _plate(
+        layerGroups=[
+            {"id": "later", "title": "Later tradition", "default": "off",
+             "placeIds": ["sigeion"], "layerIds": ["river-1"]}
+        ]
+    )
+    assert apparatus_places.validate_plate(plate, {"sigeion": {"id": "sigeion"}}) == []
+
+
+def test_validate_plate_rejects_layer_group_unknown_place_and_layer():
+    plate = _plate(
+        layerGroups=[
+            {"id": "later", "title": "Later", "placeIds": ["no-place"], "layerIds": ["no-layer"]}
+        ]
+    )
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("'no-place' is not a gazetteer place" in p for p in problems)
+    assert any("'no-layer' is not a layer of this plate" in p for p in problems)
+
+
+def test_validate_plate_rejects_layer_group_bad_default_and_shared_layer():
+    plate = _plate(
+        layerGroups=[
+            {"id": "a", "title": "A", "default": "maybe", "layerIds": ["river-1"]},
+            {"id": "b", "title": "B", "layerIds": ["river-1"]},
+        ]
+    )
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("default must be 'on' or 'off'" in p for p in problems)
+    assert any("already in another group" in p for p in problems)
+
+
 def test_validate_plate_schematic_needs_no_bbox():
     """A schematic plate has no geography, so demanding a bbox of it would be
     demanding a coordinate for something that has none. The Shield of Achilles

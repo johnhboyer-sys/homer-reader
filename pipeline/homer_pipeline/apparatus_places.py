@@ -923,6 +923,56 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                         f"not a layer of this plate"
                     )
 
+    # See Plate.layerGroups in shared/lib/plate.ts, which this mirrors:
+    # optional layers a reader switches on (2026-09-15, the schematic
+    # plain's "Later tradition and survey"). Each names gazetteer places and
+    # layers of this plate; a layer belongs to at most one group.
+    layer_groups = doc.get("layerGroups")
+    if layer_groups is not None:
+        if not isinstance(layer_groups, list):
+            problems.append(f"{label}: layerGroups must be a list")
+        else:
+            seen_group_ids: set[str] = set()
+            grouped_layer_ids: set[str] = set()
+            for gi, group in enumerate(layer_groups):
+                where = f"{label}: layerGroups[{gi}]"
+                if not isinstance(group, dict):
+                    problems.append(f"{where} must be an object")
+                    continue
+                group_id = group.get("id")
+                if not isinstance(group_id, str) or not group_id:
+                    problems.append(f"{where}.id must be a non-empty string")
+                elif group_id in seen_group_ids:
+                    problems.append(f"{where}.id {group_id!r} appears twice")
+                else:
+                    seen_group_ids.add(group_id)
+                title = group.get("title")
+                if not isinstance(title, str) or not title.strip():
+                    problems.append(f"{where}.title must be a non-empty string")
+                if "default" in group and group.get("default") not in ("on", "off"):
+                    problems.append(f"{where}.default must be 'on' or 'off'")
+                for key in ("placeIds", "layerIds"):
+                    ids = group.get(key, [])
+                    if not isinstance(ids, list):
+                        problems.append(f"{where}.{key} must be a list")
+                        continue
+                    for i, ref in enumerate(ids):
+                        if not isinstance(ref, str) or not ref:
+                            problems.append(f"{where}.{key}[{i}] must be a non-empty string")
+                        elif key == "placeIds" and ref not in places_by_id:
+                            problems.append(f"{where}.placeIds[{i}] {ref!r} is not a gazetteer place")
+                        elif key == "layerIds":
+                            if ref not in seen_layer_ids:
+                                problems.append(
+                                    f"{where}.layerIds[{i}] {ref!r} is not a layer of this plate"
+                                )
+                            elif ref in grouped_layer_ids:
+                                problems.append(
+                                    f"{where}.layerIds[{i}] {ref!r} is already in another group"
+                                )
+                            else:
+                                grouped_layer_ids.add(ref)
+
     # plateAnchors range belongs here, not in validate_places: a schematic
     # plate with a bbox authors lat/lon anchors, a plate without one stays
     # in unit 0..1. Only a pair keyed to THIS plate's id is this plate's
