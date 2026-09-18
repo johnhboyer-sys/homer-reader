@@ -218,6 +218,13 @@ a comment at the top of `shared/styles/global.css` (just above `:root`).
   in-scope for a rebrand pass (PWA install name, offline page) and low-risk.
   (`app/public/robots.txt` is plato-only source; Homer has no counterpart under
   `app/public/` — do not treat as a diverged twin.)
+  Behavioural divergence since 2026-09-17: `sw.js`'s cache writes are handed to
+  `event.waitUntil()` instead of being started and abandoned, so a read page or
+  book JSON cannot be lost to worker termination (plato still has the abandoned
+  `cache.put`; found by Sol reviewing PR #39, fixed here). `networkFirst`/
+  `cacheFirst` therefore take the fetch event, not the request. Guarded by
+  Homer-only `shared/__tests__/service-worker.test.ts`, which runs `sw.js` in a
+  fake worker scope.
 - Grep sweep (case-insensitive "plato") on rendered `dist/` output found only
   two justified remainders: LSJ dictionary entries and lemma pages that
   legitimately cite the classical author "Plato" (LSJ usage citations, e.g.
