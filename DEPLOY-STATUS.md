@@ -38,6 +38,54 @@ Live-verified after Pages built `9d711223b`: home, `/iliad/book/5/`,
 `/lemma/theraps/` 404; the live `index.html` and `data/cunliffe-t8/a.json` are
 byte-identical to the build's.
 
+## Deploy — 2026-09-18: the service worker keeps its cache writes
+
+gh-pages `44c636010` → `a4c7135fa` (source: main `71fb22876`). Same worktree and
+method as yesterday's deploy.
+
+PR #40, and nothing else of substance. `networkFirst` and `cacheFirst` started a
+`cache.put` and returned the response without awaiting it or holding the event
+open, so the browser could terminate the worker before the write landed — a page
+or book JSON the reader had already read could be missing on a later offline
+visit, against the worker's own promise that anything you have read is available
+offline. Both strategies now take the fetch event and hand the write to
+`event.waitUntil`. Awaiting the put would have fixed the lifetime equally well
+but would have sat the cache write in front of the response; `waitUntil` leaves
+reader-facing latency unchanged. Found by Sol while reviewing PR #39, fixed by a
+separate session, reviewed cross-family by Grok-4.5.
+
+**`VERSION` deliberately stayed at `v3`.** `activate` deletes every cache whose
+key starts with `CACHE_PREFIX` and is not `VERSION`, so a bump here would have
+wiped exactly the accumulated pages and book JSONs the change exists to
+preserve. Taken with yesterday's deploy, the rule is: **bump when data or
+referenced assets change, never when only worker behaviour changes.** Yesterday
+Kosmos changed the data and the bump to `v3` was required; today nothing the
+HTML references moved. The new worker still takes over without a bump — `sw.js`
+changed, so the browser installs it, and `skipWaiting` with `clients.claim`
+hands it control. Entries already in `v3` were written by the old worker, so
+some reads may be missing from it; those heal on the reader's next online visit
+to those URLs.
+
+Also in the commit, and **not** a content change: 48 Cunliffe shards under
+`data/cunliffe/` and `data/cunliffe-t8/`. Every one is parsed-identical to the
+previous deploy and identical in byte length (`data/cunliffe/a.json` is 792,009
+bytes in both); only the JSON key order moved — first key `a(martoeph/s` before,
+`a)gkulomh/ths` after. Verified by parsing all 48 against `HEAD` before
+committing, and confirmed live afterwards that `data/cunliffe/m.json` still
+resolves `mh=nis`. So the shard builder's output is order-non-deterministic
+across rebuilds. Harmless to readers, which look up by key, but it puts 48
+spurious files in every deploy diff and makes reading a deploy by category
+harder. Queued as its own task; unrelated to PR #40.
+
+Gates: preflight ok; 4,686 pages built, 4,687 crawled; 335,303 links and 148,144
+anchors checked, **0 broken**; 934 tests pass (shared 932, app 2 — three new
+service-worker tests that run the real `sw.js` in a fake worker scope).
+
+Live-verified after Pages built `a4c7135fa`: `sw.js` carries
+`event.waitUntil(cache.put(...))` at both call sites with `VERSION` still `v3`,
+and parses clean under `node --check`; home, `/search/`, `/maps/`,
+`/iliad/book/1/`, `/odyssey/book/1/`, `/lemma/`, `/vocabulary/` all 200.
+
 ## Deploy — 2026-09-17: Astro 7, and Kosmos Butler goes live
 
 gh-pages `9d711223b` → `44c636010` (source: main `000caa232`). Full
