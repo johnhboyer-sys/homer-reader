@@ -45,7 +45,9 @@ interface Harness {
   puts: string[];
 }
 
-function loadSw({ responseOk = true }: { responseOk?: boolean } = {}): Harness {
+function loadSw(
+  { responseOk = true, type = 'basic' }: { responseOk?: boolean; type?: string } = {},
+): Harness {
   const listeners = new Map<string, (event: unknown) => void>();
   const put = defer<void>();
   const puts: string[] = [];
@@ -68,7 +70,7 @@ function loadSw({ responseOk = true }: { responseOk?: boolean } = {}): Harness {
   const caches = { open: async () => cache, keys: async () => [], delete: async () => true };
   const fetchImpl = async () => ({
     ok: responseOk,
-    type: 'basic',
+    type,
     marker: 'network',
     clone: () => ({ marker: 'clone' }),
   });
@@ -129,12 +131,36 @@ describe('service worker cache writes are tied to the event lifetime', () => {
 
   it('holds the event open for font writes too', async () => {
     const sw = loadSw();
-    const event = sw.fetchEvent('https://fonts.gstatic.com/s/gfsdidot/v1/font.woff2');
+    const url = 'https://fonts.gstatic.com/s/gfsdidot/v1/font.woff2';
+    const event = sw.fetchEvent(url);
 
     await expect(event.response).resolves.toMatchObject({ marker: 'network' });
+    expect(sw.puts).toEqual([url]);
+
     expect(event.waits).toHaveLength(1);
     expect(await pending(event.waits[0])).toBe(true);
+
     sw.put.resolve();
+    expect(await pending(event.waits[0])).toBe(false);
+  });
+
+  // A cross-origin font arrives as an opaque response: ok is false, and
+  // cacheFirst caches it on the `type === 'opaque'` arm instead. That arm needs
+  // its own case — with a 'basic' response the first condition short-circuits
+  // and the arm is never reached.
+  it('holds the event open for an opaque cross-origin response', async () => {
+    const sw = loadSw({ responseOk: false, type: 'opaque' });
+    const url = 'https://fonts.gstatic.com/s/gfsdidot/v1/font.woff2';
+    const event = sw.fetchEvent(url);
+
+    await expect(event.response).resolves.toMatchObject({ type: 'opaque' });
+    expect(sw.puts).toEqual([url]);
+
+    expect(event.waits).toHaveLength(1);
+    expect(await pending(event.waits[0])).toBe(true);
+
+    sw.put.resolve();
+    expect(await pending(event.waits[0])).toBe(false);
   });
 
   it('does not write, or extend the event, for a failed response', async () => {
