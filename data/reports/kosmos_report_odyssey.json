@@ -1,0 +1,239 @@
+{
+ "1": {
+  "printed_numbers": 133,
+  "breaks": 133,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 52,
+  "editorial_brackets": 12
+ },
+ "2": {
+  "printed_numbers": 90,
+  "breaks": 90,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 23,
+  "editorial_brackets": 2
+ },
+ "3": {
+  "printed_numbers": 112,
+  "breaks": 111,
+  "implied_start": false,
+  "marks": [
+   {
+    "n": 120,
+    "offset": 6089,
+    "label": "120",
+    "reason": "repeat"
+   }
+  ],
+  "footnotes": 0,
+  "translit_brackets": 31,
+  "editorial_brackets": 9
+ },
+ "4": {
+  "printed_numbers": 215,
+  "breaks": 214,
+  "implied_start": false,
+  "marks": [
+   {
+    "n": 240,
+    "offset": 13467,
+    "label": "240",
+    "reason": "out-of-sequence"
+   }
+  ],
+  "footnotes": 0,
+  "translit_brackets": 66,
+  "editorial_brackets": 7
+ },
+ "5": {
+  "printed_numbers": 121,
+  "breaks": 121,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 24,
+  "editorial_brackets": 3
+ },
+ "6": {
+  "printed_numbers": 68,
+  "breaks": 68,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 15,
+  "editorial_brackets": 3
+ },
+ "7": {
+  "printed_numbers": 79,
+  "breaks": 79,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 15,
+  "editorial_brackets": 0
+ },
+ "8": {
+  "printed_numbers": 221,
+  "breaks": 221,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 106,
+  "editorial_brackets": 19
+ },
+ "9": {
+  "printed_numbers": 121,
+  "breaks": 121,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 37,
+  "editorial_brackets": 2
+ },
+ "10": {
+  "printed_numbers": 128,
+  "breaks": 128,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 23,
+  "editorial_brackets": 5
+ },
+ "11": {
+  "printed_numbers": 177,
+  "breaks": 177,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 61,
+  "editorial_brackets": 9
+ },
+ "12": {
+  "printed_numbers": 104,
+  "breaks": 104,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 22,
+  "editorial_brackets": 3
+ },
+ "13": {
+  "printed_numbers": 119,
+  "breaks": 118,
+  "implied_start": false,
+  "marks": [
+   {
+    "n": 155,
+    "offset": 8989,
+    "label": "155",
+    "reason": "repeat"
+   }
+  ],
+  "footnotes": 0,
+  "translit_brackets": 34,
+  "editorial_brackets": 6
+ },
+ "14": {
+  "printed_numbers": 114,
+  "breaks": 114,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 34,
+  "editorial_brackets": 0
+ },
+ "15": {
+  "printed_numbers": 114,
+  "breaks": 114,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 19,
+  "editorial_brackets": 0
+ },
+ "16": {
+  "printed_numbers": 133,
+  "breaks": 133,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 32,
+  "editorial_brackets": 13
+ },
+ "17": {
+  "printed_numbers": 135,
+  "breaks": 135,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 33,
+  "editorial_brackets": 1
+ },
+ "18": {
+  "printed_numbers": 93,
+  "breaks": 93,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 36,
+  "editorial_brackets": 0
+ },
+ "19": {
+  "printed_numbers": 161,
+  "breaks": 161,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 49,
+  "editorial_brackets": 14
+ },
+ "20": {
+  "printed_numbers": 84,
+  "breaks": 84,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 18,
+  "editorial_brackets": 1
+ },
+ "21": {
+  "printed_numbers": 90,
+  "breaks": 90,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 33,
+  "editorial_brackets": 1
+ },
+ "22": {
+  "printed_numbers": 102,
+  "breaks": 102,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 15,
+  "editorial_brackets": 1
+ },
+ "23": {
+  "printed_numbers": 80,
+  "breaks": 80,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 31,
+  "editorial_brackets": 2
+ },
+ "24": {
+  "printed_numbers": 166,
+  "breaks": 166,
+  "implied_start": false,
+  "marks": [],
+  "footnotes": 0,
+  "translit_brackets": 62,
+  "editorial_brackets": 11
+ }
+}
