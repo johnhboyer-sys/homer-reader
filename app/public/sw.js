@@ -25,7 +25,7 @@
 // (username.github.io) is shared with sibling project sites (e.g.
 // aristotle-reader), whose caches must not be collateral damage.
 const CACHE_PREFIX = 'homer-reader-';
-const VERSION = CACHE_PREFIX + 'v2';
+const VERSION = CACHE_PREFIX + 'v3';
 const SCOPE_PATH = new URL(self.registration.scope).pathname; // e.g. /homer-reader/
 const OFFLINE_URL = SCOPE_PATH + 'offline.html';
 
