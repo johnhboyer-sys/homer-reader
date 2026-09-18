@@ -38,6 +38,79 @@ Live-verified after Pages built `9d711223b`: home, `/iliad/book/5/`,
 `/lemma/theraps/` 404; the live `index.html` and `data/cunliffe-t8/a.json` are
 byte-identical to the build's.
 
+## Deploy — 2026-09-17: Astro 7, and Kosmos Butler goes live
+
+gh-pages `9d711223b` → `44c636010` (source: main `000caa232`). Full
+`npm run build:public` on `origin/main` in the astro-7 worktree (Node 22.23.1;
+`build` and `pipeline/.venv` symlinked from the main checkout), so the data came
+from main's pipeline code.
+
+What shipped, two things. **PR #39**, the Astro 6.4.6 → 7.3.3 and
+`@astrojs/svelte` 8.1.2 → 9.0.1 upgrade, with `compressHTML: true` pinned
+because Astro 7's new `'jsx'` default strips whitespace between inline elements
+on separate source lines and ran words together on every page. And **PR #36**,
+Kosmos Butler — the CC-licensed Kosmos Society revision of Butler as a fourth
+English text in verse groups — merged 2026-09-15 and never deployed until now.
+
+**A bug that was live until this deploy is now fixed.** Astro 6 wrote the search
+bundle as `_astro/Search.<hash>.css` while `/search/index.html` asked for
+`_astro/search.<hash>.css`. macOS's case-insensitive filesystem hid the
+collision; GitHub Pages did not, so the search page had been shipping unstyled.
+Verified before: `Search.RIHTUUc4.css` 200, `search.RIHTUUc4.css` 404. Verified
+after: the referenced lowercase file 200s, the old capitalised one is gone, and
+the live page loads 771 CSS rules.
+
+How the upgrade was checked: both Astro versions were built **from the same
+commit** and compared page by page. Visible text identical on 4,687/4,687.
+Head (title/meta/link/JSON-LD) and body attributes — after normalising Astro's
+`data-astro-cid-*`, Svelte scope classes, island `uid` and content hashes —
+differ on exactly 2 pages, and both differences are improvements: `/maps` sheds
+`Reader.css` (6 KB) and `Search.css` (18 KB), dead CSS that Astro 6
+over-included because the page is one `client:only` island it could not see
+into; and the home page's `og:title`/`twitter:title` now escape `&` as `&amp;`
+where Astro 6 emitted a bare `&`. Sitemap URL set and robots.txt identical.
+
+Reviewed by GPT-5.6-Sol, which returned five findings and SHIP WITH FIXES. Two
+were actionable and both were verified here before applying:
+
+- **Service worker cache `v2` → `v3`.** The earlier judgement that the asset
+  rehash needed no bump considered only the assets, not the corpus change
+  riding along. Kosmos arrives as an overlay inside the **same** book JSON URL
+  (`Reader.svelte` reads `seg.overlays?.[t.id]`, and `ensureFullBook` fetches
+  the book lazily), and `/data/` is network-first. So a reader who cached a book
+  before the deploy, loaded the new page online, then went offline and selected
+  Kosmos would have been served the stale JSON and seen a **blank translation
+  with no error**. `sw.js`'s own header already required a bump whenever corpus
+  data changes; this was that case.
+- **Node floor `>=22.12.0` → `>=22.19.0`.** Astro 7 pulls `unifont` →
+  `undici@8.10.2`, whose engines field demands 22.19. Astro 6's lockfile had no
+  `undici` at all. It built here only because this machine runs 22.23.1, and
+  CI's floating `node-version: 22` resolves to a current release, so neither
+  would have caught it.
+
+Sol's third finding — `cache.put` in `sw.js` is neither awaited nor wrapped in
+`event.waitUntil`, so the "anything you have read is available offline" promise
+is not actually guaranteed — is real but pre-existing and outside the PR's blast
+radius. It is queued as its own task, not fixed here.
+
+Gates: preflight ok; shared LSJ and Cunliffe coverage ok; 4,686 pages built,
+4,687 crawled; 335,303 links and 148,144 anchors checked, **0 broken**; 931
+tests pass (shared 929, app 2). One pre-existing non-fatal pipeline warning
+stands: Odyssey speech 931's `l_fi 10.456` is not a real vulgate line.
+
+Deletions, read by category before committing: all 43 are rehashed `_astro`
+bundles. Additions are 33 rehashed bundles plus
+`data/reports/kosmos_report_{iliad,odyssey}.json` — per-book counts only, no
+corpus text, consistent with the reports `data/reports/` already publishes.
+Commit: 4,784 modified, 35 added, 43 deleted, 2 renamed.
+
+Live-verified after Pages built `44c636010`: home, `/search/`, `/maps/`,
+`/iliad/book/1/`, `/odyssey/book/1/`, `/vocabulary/`, `/lemma/` all 200;
+`/about` 301 → 200. `sw.js` serves `v3`. `/data/iliad/book-01.json` carries the
+`kosmos` overlay. All four translations appear in the reader, and Kosmos renders
+with its bracketed glosses (`[Agamemnon]`, `[= Apollo]`) intact, as the ND
+licence requires, above its attribution line.
+
 ## Deploy — 2026-09-14: twelve merged PRs since August 19
 
 gh-pages `7e2926339` → `1c7bdc67a` (source: main `f28e0f970`, CI green).
