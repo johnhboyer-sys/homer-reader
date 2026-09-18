@@ -755,7 +755,9 @@ def _merge_shared_cunliffe() -> None:
             merged.update(src)
         else:
             merged = src
-        dest.write_text(json.dumps(merged, ensure_ascii=False), encoding="utf-8")
+        dest.write_text(
+            json.dumps(merged, ensure_ascii=False, sort_keys=True), encoding="utf-8"
+        )
 
 
 def _merge_shared_cunliffe_t8() -> None:
@@ -779,7 +781,9 @@ def _merge_shared_cunliffe_t8() -> None:
             merged.update(src)
         else:
             merged = src
-        dest.write_text(json.dumps(merged, ensure_ascii=False), encoding="utf-8")
+        dest.write_text(
+            json.dumps(merged, ensure_ascii=False, sort_keys=True), encoding="utf-8"
+        )
 
 
 def run(manifest: Manifest) -> Path:

@@ -1,3 +1,6 @@
+import json
+import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -2400,3 +2403,115 @@ def test_a_note_in_front_of_a_closing_run_does_not_hide_its_sub_sense():
         assert row["lv"] == 2, headword
         # the note is not dropped — it joins the list it closes
         assert "etc." not in _text(row["z"]), headword
+
+
+# ── shard emission is byte-stable across runs ───────────────────────────────
+
+# stage5 builds each shard by walking `wanted`, a set of keys. Set iteration
+# order over strings moves with PYTHONHASHSEED, so every rebuild wrote the
+# same entries under a different key order — 48 files rewritten byte-different
+# and parsed-identical on each deploy, which buries a real data change in
+# noise. The driver runs the real `run()` in a child process so the seed can
+# be set, since a seed only takes effect at interpreter start.
+_SHARD_DRIVER = """
+import sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+from homer_pipeline import stage5_cunliffe as sc
+sc.BUILD_DIR = Path(sys.argv[2])
+sc.SOURCES_DIR = Path(sys.argv[3])
+sc.run(None)
+"""
+
+_LEX_ROWS = [
+    ("a)gorh/", "ἀγορή", "An assembly of the people."),
+    ("a)/nax", "ἄναξ", "A lord or master."),
+    ("a)spi/s", "ἀσπίς", "A shield."),
+    ("a)/rgurow", "ἄργυρος", "Silver."),
+    ("a)ndrofo/nos", "ἀνδροφόνος", "Man-slaying."),
+    ("a)e/kwn", "ἀέκων", "Unwilling."),
+    ("a)/ludis", "ἄλυδις", "In a throng."),
+    ("a)kwh/", "ἀκωή", "A hearing."),
+    ("a)/rista", "ἄριστα", "Best, adv."),
+    ("a)/gxi", "ἄγχι", "Near, hard by."),
+]
+
+
+def _seed_cunliffe_inputs(root: Path) -> None:
+    """A build tree holding just what stage5_cunliffe.run reads: the stage4
+    lemmata it selects by, and the two source volumes."""
+    stage4 = root / "build" / "stage4"
+    stage4.mkdir(parents=True, exist_ok=True)
+    analyses = {
+        f"Il.1.{i}": [{"lemma": key}] for i, (key, _, _) in enumerate(_LEX_ROWS)
+    }
+    (stage4 / "analyses.json").write_text(json.dumps(analyses), encoding="utf-8")
+    src = root / "sources" / "cunliffe"
+    src.mkdir(parents=True, exist_ok=True)
+    (src / "cunliffe-1-lex.jsonl").write_text(
+        "".join(
+            json.dumps(
+                {"key": key, "headword": head, "definition": definition,
+                 "citations": []},
+                ensure_ascii=False,
+            ) + "\n"
+            for key, head, definition in _LEX_ROWS
+        ),
+        encoding="utf-8",
+    )
+    (src / "cunliffe-2-hompers.jsonl").write_text("", encoding="utf-8")
+
+
+def _build_shards(root: Path, seed: str) -> None:
+    env = dict(os.environ, PYTHONHASHSEED=seed)
+    subprocess.run(
+        [sys.executable, "-c", _SHARD_DRIVER,
+         str(ROOT / "pipeline"), str(root / "build"), str(root / "sources")],
+        env=env, check=True, capture_output=True,
+    )
+
+
+@pytest.mark.parametrize("subdir", ["cunliffe", "cunliffe-t8"])
+def test_shards_are_byte_identical_across_hash_seeds(tmp_path, subdir):
+    seeds = ("0", "1", "2", "3")
+    written = []
+    for seed in seeds:
+        root = tmp_path / f"seed{seed}"
+        _seed_cunliffe_inputs(root)
+        _build_shards(root, seed)
+        shard = root / "build" / "stage5" / subdir / "a.json"
+        written.append(shard.read_bytes())
+    # sanity: the fixture really produced the entries we are ordering
+    assert len(json.loads(written[0])) == len(_LEX_ROWS)
+    for seed, blob in zip(seeds[1:], written[1:]):
+        assert blob == written[0], f"{subdir}/a.json differs at seed {seed}"
+
+
+def test_shared_merge_writes_the_same_bytes_whatever_order_it_reads(tmp_path):
+    """The file that actually ships is the merged one under build/dist. It is
+    written key-sorted, so it does not inherit an order from whichever work
+    built first or from a dist left over from an earlier run."""
+    from homer_pipeline import stage7_emit as s7
+
+    entries = {
+        key: {"key": key, "head": head, "html": f"<p>{definition}</p>",
+              "src": "lex"}
+        for key, head, definition in _LEX_ROWS
+    }
+    written = []
+    for order in (list(entries), list(reversed(list(entries)))):
+        root = tmp_path / f"order{len(written)}"
+        (root / "stage5" / "cunliffe").mkdir(parents=True)
+        (root / "stage5" / "cunliffe" / "a.json").write_text(
+            json.dumps({k: entries[k] for k in order}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        old = s7.BUILD_DIR
+        s7.BUILD_DIR = root
+        try:
+            s7._merge_shared_cunliffe()
+        finally:
+            s7.BUILD_DIR = old
+        written.append((root / "dist" / "cunliffe" / "a.json").read_bytes())
+    assert json.loads(written[0]).keys() == entries.keys()
+    assert written[0] == written[1]
