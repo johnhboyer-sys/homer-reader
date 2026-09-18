@@ -1864,7 +1864,10 @@ def run(manifest: Manifest) -> Path:
     t8_shards: dict[str, dict] = defaultdict(dict)
     kept_lex = 0
     kept_hompers = 0
-    for key in wanted:
+    # sorted, not set order: `wanted` is a set of strings, so walking it bare
+    # laid the entries down in PYTHONHASHSEED order and every rebuild rewrote
+    # all 48 shards byte-different and parsed-identical.
+    for key in sorted(wanted):
         rows = rows_by_key[key]
         shards[shard_letter(key)][key] = {
             "key": key,
