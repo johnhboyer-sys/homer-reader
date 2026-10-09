@@ -1455,6 +1455,34 @@ def test_validate_plate_status_must_be_draft_or_reviewed():
     assert apparatus_places.validate_plate(_plate(status="reviewed"), {}) == []
 
 
+def test_validate_status_of_a_non_string_type_is_a_problem_not_a_crash():
+    # An unhashable status (list/dict) used to raise TypeError in `in STATUS_ENUM`.
+    for bad in ([], ["draft"], {}, {"a": 1}):
+        problems = apparatus_places.validate_places({"status": bad, "places": [_place()]})
+        assert any("status must be" in p for p in problems), bad
+        problems = apparatus_places.validate_plate(_plate(status=bad), {})
+        assert any("status must be" in p for p in problems), bad
+
+
+def test_validate_plate_feature_key_region_with_no_fill_and_no_outline_is_invisible():
+    # The renderer draws fill="none" stroke="none" for a plain region/band with
+    # fill "none"; only style "inset" or "poem" draws something regardless.
+    polygon = [[39.90, 26.15], [39.91, 26.16], [39.92, 26.15]]
+    for kind in ("region", "band"):
+        plate = _plate(
+            layers=[{"id": "x", "kind": kind, "fill": "none", "polygon": polygon}],
+            featureKey=[{"title": "T", "items": [{"layerId": "x"}]}],
+        )
+        problems = apparatus_places.validate_plate(plate, {})
+        assert any("featureKey" in p and "drawable geometry" in p for p in problems), kind
+        for style in ("inset", "poem"):
+            plate = _plate(
+                layers=[{"id": "x", "kind": kind, "fill": "none", "style": style, "polygon": polygon}],
+                featureKey=[{"title": "T", "items": [{"layerId": "x"}]}],
+            )
+            assert not any("drawable geometry" in p for p in apparatus_places.validate_plate(plate, {})), (kind, style)
+
+
 def test_validate_plate_feature_key_layer_needs_drawable_geometry():
     # (kind, layer fields that leave nothing for the renderer to draw)
     cases = {

@@ -795,10 +795,15 @@
         // A focus id inside a group switches that group on: the site would
         // otherwise be framed on a sheet that does not draw it.
         const focused = new Set(focusIdsForPlate);
+        // The renderer hides a grouped layer's own `placeId` with the group too.
+        const layerPlaceId = new Map(plate.layers.map((l) => [l.id, l.placeId]));
         groupVisible = Object.fromEntries(
           layerGroups.map((g) => [
             g.id,
-            g.default !== 'off' || [...g.placeIds, ...g.layerIds].some((pid) => focused.has(pid)),
+            g.default !== 'off' ||
+              [...g.placeIds, ...g.layerIds, ...g.layerIds.map((lid) => layerPlaceId.get(lid))].some(
+                (pid) => pid !== undefined && focused.has(pid),
+              ),
           ]),
         );
         paintPlate(plate, placesForPlate);

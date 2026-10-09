@@ -710,6 +710,32 @@ describe('PlatePanel', () => {
     await waitFor(() => expect(camera.getAttribute('transform')).not.toBe('translate(0 0) scale(1)'));
   });
 
+  // GPT-6-Sol review: the switch-on matched only a group's placeIds and layerIds,
+  // but the renderer also hides the `placeId` a grouped LAYER carries.
+  it('a focus id that is the placeId of a grouped layer switches the default-off group on', async () => {
+    mockFetchPlate.mockResolvedValue({
+      id: 'group-layer-place',
+      title: 'Group Layer Place',
+      kind: 'geographic',
+      status: 'draft',
+      bbox: [0, 0, 1, 1],
+      size: [200, 160],
+      layers: [
+        { id: 'cut', kind: 'region', placeId: 'cut-place', label: 'The cut', fill: 'none', polygon: [[0.1, 0.6], [0.1, 0.8], [0.2, 0.8], [0.2, 0.6]] },
+      ],
+      layerGroups: [{ id: 'later', title: 'Later tradition and survey', default: 'off', placeIds: [], layerIds: ['cut'] }],
+    });
+    const places = [
+      { id: 'cut-place', name: 'Cut', coords: [0.15, 0.7] as [number, number], certainty: 'traditional' as const, tradition: 'Named so by a traveler' },
+    ];
+    const { container, getByRole } = render(PlatePanel, {
+      props: { plateId: 'group-layer-place', places, title: 'Group Layer Place', focusIds: ['cut-place'] },
+    });
+    await waitFor(() => expect(container.querySelector('.pp-camera')).toBeTruthy());
+    const toggle = getByRole('checkbox', { name: 'Show later tradition and survey' }) as HTMLInputElement;
+    await waitFor(() => expect(toggle.checked).toBe(true));
+  });
+
   it('an empty focusIds (the default) leaves the identity camera', async () => {
     mockFetchPlate.mockResolvedValue({
       id: 'focus-plate-2',

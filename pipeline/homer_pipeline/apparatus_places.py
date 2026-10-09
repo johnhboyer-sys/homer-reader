@@ -212,7 +212,8 @@ def validate_places(doc: Any) -> list[str]:
         return ["places.json: places must be a list"]
 
     problems: list[str] = []
-    if doc.get("status") not in STATUS_ENUM:
+    status = doc.get("status")
+    if not isinstance(status, str) or status not in STATUS_ENUM:
         problems.append(
             f"places.json: status must be one of {sorted(STATUS_ENUM)}, "
             f"got {doc.get('status')!r}"
@@ -450,6 +451,13 @@ def _layer_has_drawable_geometry(layer: dict) -> bool:
         return _point_count(layer.get("polygon")) >= 3 or any(
             _point_count(r) >= 3 for r in rings
         )
+    if kind in ("region", "band") and layer.get("fill") == "none" and layer.get("style") not in (
+        "inset",
+        "poem",
+    ):
+        # renderLayer emits fill="none" stroke="none" for this: a named,
+        # invisible zone. Only the inset and poem styles draw regardless of fill.
+        return False
     if kind in ("relief", "region", "band"):
         return _point_count(layer.get("polygon")) >= 3
     return False
@@ -571,7 +579,9 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                         f"integers with from <= to"
                     )
 
-    if "status" in doc and doc.get("status") not in STATUS_ENUM:
+    if "status" in doc and (
+        not isinstance(doc.get("status"), str) or doc.get("status") not in STATUS_ENUM
+    ):
         problems.append(
             f"{label}: status must be one of {sorted(STATUS_ENUM)}, "
             f"got {doc.get('status')!r}"
