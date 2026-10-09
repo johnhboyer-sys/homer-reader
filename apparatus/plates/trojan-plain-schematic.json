@@ -7331,7 +7331,7 @@
       "note": "The shallow lagoon of about 1200 BC: the water held behind the Late Bronze Age barrier after the sea-level fall. RE-DERIVED 2026-08-11 (John's ruling) after an Opus review found the shipped polygon was a ray-casting artifact, not a coastline: it was assembled by stitching a shore-contour arc, a barrier-contour arc and a Sigeion-ridge arc into a closed ring and filling it by point-in-polygon test -- a construction that never checked whether the ring's INTERIOR was actually low ground. It was not: measured, the old polygon covered 16.4 km2, 25% of it south of 39.975 N on the Sigeion ridge itself, median DEM 7.8 m but a MAXIMUM of 35.1 m -- flooding part of a ridge the sheet's own relief layer draws as dry land, with a southern lobe sitting 1.2-2.3 km west of Hisarlik, contradicting this layer's own prior note ('it stops at the bay head... south of that the 10 m contour bounds floodplain, not water') and the plate note ('the embayment lies north and north-west of Hisarlik'). The fix removes the artifact by construction rather than by clipping: the region is now every DEM cell at or below 10 m (SRTM, AWS Terrain Tiles, the sheet's pinned bronze-age grid: blur 10, decimate 2) reachable by 4-connected flood fill from the published bay head (39.9582, 26.2062; Kayan 2003), kept only if that growth reaches the sheet's own modern-sea polygon -- confirmed connected water, not an isolated pocket. A cell 35 m up cannot enter a <=10 m flood fill, so the ridge cannot appear in the result. See this run's report for the new area, % south of 39.975 N and max sampled elevation. Kayan (2003, following Kayan and Kraft's cores) is explicit that this was never a deep bay: 'There is no beach or lagoon formation. Instead, sediments indicate swampy or seasonally wet environments' over most of the delta (Kayan 2003, 390), and 'no barrier lineaments are evident on the lower Scamander delta' beyond the one this sheet draws at Beshik, not here (Kraft et al. 2003b, 164) -- a barrier-and-lagoon belongs at Beshik Bay, and the Scamander-front barrier this sheet draws is the only one the record supports, dated to about 2000 BP by the same authors, later than the Trojan War setting. Ground this fix removes from 'water' is not therefore dry: Kayan (2019) and this sheet's own delta-swamp layer already carry it as swampy, seasonally wet ground -- except immediately at Troy's western foot, where Kayan (2002, 1003) found a dry, sand-covered delta fan: 'there is no need to look for a battlefield in the distance,' while the plain further west 'was generally wet or covered by swamps... not suitable for passage or battle.' That dry fan, not the lagoon, is the battlefield. Troy overlooks a wetland, a lagoon and a distant sea, not a deep-water bay.",
       "sources": [
         {
-          "cite": "Kayan, Ilhan. \"Geoarchaeological Interpretations of the 'Troian Bay.'\" In Troia and the Troad: Scientific Approaches, edited by Gunther A. Wagner, Ernst Pernicka, and Hans-Peter Uerpmann. Berlin: Springer, 2003."
+          "cite": "Kayan, İlhan, Ertuğ Öner, Levent Uncu, Beycan Hocaoğlu, and Serdar Vardar. \"Geoarchaeological Interpretations of the 'Troian Bay.'\" In Troia and the Troad: Scientific Approaches, edited by Günther A. Wagner, Ernst Pernicka, and Hans-Peter Uerpmann, 379–401. Berlin: Springer, 2003."
         },
         {
           "cite": "Terrain Tiles on AWS Open Data (Tilezen/Mapzen `elevation-tiles-prod`), terrarium-encoded SRTM. SRTM data courtesy of the U.S. Geological Survey.",
@@ -7548,7 +7548,7 @@
           "cite": "Kraft, John C., Ilhan Kayan, and Oguz Erol. \"Geomorphic Reconstructions in the Environs of Ancient Troy.\" Science 209, no. 4458 (1980): 776-82."
         },
         {
-          "cite": "Kayan, Ilhan. \"Geoarchaeological Interpretations of the 'Troian Bay.'\" In Troia and the Troad: Scientific Approaches, edited by Gunther A. Wagner, Ernst Pernicka, and Hans-Peter Uerpmann. Berlin: Springer, 2003."
+          "cite": "Kayan, İlhan, Ertuğ Öner, Levent Uncu, Beycan Hocaoğlu, and Serdar Vardar. \"Geoarchaeological Interpretations of the 'Troian Bay.'\" In Troia and the Troad: Scientific Approaches, edited by Günther A. Wagner, Ernst Pernicka, and Hans-Peter Uerpmann, 379–401. Berlin: Springer, 2003."
         },
         {
           "cite": "Kraft, John C., George Rapp, Ilhan Kayan, and John V. Luce. \"Harbor Areas at Ancient Troy: Sedimentology and Geomorphology Complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163-66."
@@ -9747,210 +9747,6 @@
       ],
       "labelTier": 2,
       "labelSize": "small"
-    },
-    {
-      "id": "inset-panel",
-      "kind": "region",
-      "style": "inset",
-      "fill": "land",
-      "frame": [1908, 40, 316, 300],
-      "polygon": [
-        [0, 0],
-        [1, 0],
-        [1, 1],
-        [0, 1]
-      ],
-      "label": "Ajax's end of the line|The sector where Hector breaks the wall|Il. 8.222–226 · 12.118–119 · 13.679–684 · 15.704–708",
-      "note": "The Landmark's third map tier: a named inset, not a numbered one. It carries the order the main sheet has no room to name — ditch, wall, sterns of the rearmost rank, three ranks receding, beach, sea — at a size where the wall's low point (13.682–84), the chariot gate and Protesilaus's ship can each be labelled. The order is the main sheet's exactly; only the spacing is opened.",
-      "sources": [
-        {
-          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
-        },
-        {
-          "cite": "Leaf, Walter, ed. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902."
-        }
-      ],
-      "labelTier": 1,
-      "labelSize": "small"
-    },
-    {
-      "id": "inset-ditch",
-      "kind": "wall",
-      "style": "inset",
-      "frame": [1908, 40, 316, 300],
-      "note": "Outside the wall they dug the ditch, deep and wide and great, and planted stakes in it: ἔκτοσθεν δὲ βαθεῖαν ἐπ' αὐτῷ τάφρον ὄρυξαν / εὐρεῖαν μεγάλην, ἐν δὲ σκόλοπας κατέπηξαν (Il. 7.440-41).",
-      "sources": [
-        {
-          "cite": "Leaf, Walter, ed. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902."
-        },
-        {
-          "cite": "Porter, James I. \"Making and Unmaking: The Achaean Wall and the Limits of Fictionality in Homeric Criticism.\" Classics@ 3, no. 1. Center for Hellenic Studies."
-        }
-      ],
-      "labelTier": 1,
-      "labelSize": "small",
-      "label": "The ditch",
-      "trace": [
-        [0.013953, 0.271622],
-        [0.294574, 0.274324],
-        [0.643411, 0.276216],
-        [0.986047, 0.277838]
-      ]
-    },
-    {
-      "id": "inset-wall",
-      "kind": "wall",
-      "style": "inset",
-      "frame": [1908, 40, 316, 300],
-      "note": "The wall with its high towers, a defense for the ships and for the men (Il. 7.436-37), built at the sterns of the first-hauled rank: τεῖχος ἐπὶ πρύμνῃσιν ἔδειμαν (14.32).",
-      "sources": [
-        {
-          "cite": "Porter, James I. \"Making and Unmaking: The Achaean Wall and the Limits of Fictionality in Homeric Criticism.\" Classics@ 3, no. 1. Center for Hellenic Studies."
-        },
-        {
-          "cite": "Strabo. Geography 13.1.36."
-        },
-        {
-          "cite": "Leaf, Walter, ed. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902."
-        },
-        {
-          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
-        }
-      ],
-      "labelTier": 1,
-      "labelSize": "small",
-      "label": "The wall, at the sterns",
-      "trace": [
-        [0.013953, 0.360811],
-        [0.294574, 0.363514],
-        [0.643411, 0.365405],
-        [0.986047, 0.367027]
-      ]
-    },
-    {
-      "id": "inset-chariot-gate",
-      "kind": "route",
-      "style": "inset",
-      "frame": [1908, 40, 316, 300],
-      "note": "The gate the teams come back in through: Asius drives at it, νηῶν ἐπ' ἀριστερά, τῇ περ Ἀχαιοὶ ἐκ πεδίου νίσοντο σὺν ἵπποισιν καὶ ὄχεσφι (Il. 12.118-19), and Idomeneus kills him there (13.384-88). The gates were built wide on purpose, ὄφρα δι' αὐτάων ἱππηλασίη ὁδὸς εἴη (7.439). Whose left 12.118 means is disputed — Janko reads it from the Greek side, Hainsworth from Asius's — so the gate is labelled by the event and not by a hand.",
-      "sources": [
-        {
-          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
-        },
-        {
-          "cite": "Kraft, John C., George Rapp, İlhan Kayan, and John V. Luce. \"Harbor areas at ancient Troy: Sedimentology and geomorphology complement Homer's Iliad.\" Geology 31, no. 2 (2003): 163–66."
-        }
-      ],
-      "labelTier": 1,
-      "labelSize": "small",
-      "label": "Chariot gate",
-      "path": [
-        [0.796512, 0.240541],
-        [0.80155, 0.271622],
-        [0.806202, 0.305405],
-        [0.810853, 0.367027],
-        [0.815504, 0.410811]
-      ]
-    },
-    {
-      "id": "inset-ships-ajax",
-      "kind": "shipRow",
-      "style": "inset",
-      "frame": [1908, 40, 316, 300],
-      "note": "Ajax hauled his ships up at one extreme of the line, ἔσχατα, trusting in his manhood and the strength of his hands (Il. 8.224-26 = 11.7-9).",
-      "sources": [
-        {
-          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
-        },
-        {
-          "cite": "Leaf, Walter, ed. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902."
-        }
-      ],
-      "labelTier": 1,
-      "labelSize": "small",
-      "label": "Ajax’s ships",
-      "rows": 3,
-      "count": 3,
-      "baseline": [
-        [0.013953, 0.502703],
-        [0.294574, 0.502703]
-      ]
-    },
-    {
-      "id": "inset-ship-protesilaus",
-      "kind": "shipRow",
-      "style": "inset",
-      "frame": [1908, 40, 316, 300],
-      "note": "ἔνθ' ἔσαν Αἴαντός τε νέες καὶ Πρωτεσιλάου (Il. 13.681) — the station where Hector, having burst the gates and the wall, holds his ground (13.679-81), and it is Protesilaus's own hull he fires (15.704-6). Drawn here rather than on the main sheet because at sheet scale a single named ship cannot be picked out of the rank without falsifying the spacing of every ship beside it. The crux stands unresolved: Patroclus, sallying from Achilles's ships at the far end of the line, reaches this same stern in one verse (16.286).",
-      "sources": [
-        {
-          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
-        },
-        {
-          "cite": "Leaf, Walter, ed. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902."
-        }
-      ],
-      "labelTier": 1,
-      "labelSize": "small",
-      "label": "Protesilaus’s ship",
-      "rows": 3,
-      "count": 1,
-      "baseline": [
-        [0.325581, 0.502703],
-        [0.426357, 0.502703]
-      ]
-    },
-    {
-      "id": "inset-ships-line",
-      "kind": "shipRow",
-      "style": "inset",
-      "frame": [1908, 40, 316, 300],
-      "note": "The line running on toward the middle. Every ship past the five named stations stays an anonymous glyph: the poem does not station the Catalogue along the beach.",
-      "sources": [
-        {
-          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
-        },
-        {
-          "cite": "Leaf, Walter, ed. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902."
-        }
-      ],
-      "labelTier": 1,
-      "labelSize": "small",
-      "rows": 3,
-      "count": 5,
-      "baseline": [
-        [0.457364, 0.502703],
-        [0.922481, 0.502703]
-      ]
-    },
-    {
-      "id": "inset-shore",
-      "kind": "route",
-      "style": "inset",
-      "frame": [1908, 40, 316, 300],
-      "note": "The same beach as the main sheet. Drawn with waterlines, whose gaps grow away from the shore because waves compress against it (Huffman 2010); the band of open sand between the seaward rank and the water is the ground the ships are launched across.",
-      "sources": [
-        {
-          "cite": "Janko, Richard. The Iliad: A Commentary, Volume IV: Books 13–16. Cambridge: Cambridge University Press, 1994."
-        },
-        {
-          "cite": "Leaf, Walter, ed. The Iliad. 2nd ed. 2 vols. London: Macmillan, 1900–1902."
-        },
-        {
-          "cite": "Huffman, Daniel P. \"On Waterlines: Arguments for their Employment, Advice on their Generation.\" Cartographic Perspectives 66 (Fall 2010): 23–30.",
-          "url": "https://cartographicperspectives.org/index.php/journal/article/download/cp66-huffman/pdf/815"
-        }
-      ],
-      "labelTier": 1,
-      "labelSize": "small",
-      "path": [
-        [0.013953, 0.778378],
-        [0.255814, 0.788649],
-        [0.527132, 0.794054],
-        [0.75969, 0.796216],
-        [0.986047, 0.797297]
-      ],
-      "label": "The beach"
     },
     {
       "id": "citadel-city-panel",
@@ -15629,5 +15425,23 @@
     "relief-sigeion-ridge",
     "chariot-course-turn-post",
     "achaean-camp"
+  ],
+  "layerGroups": [
+    {
+      "id": "later-tradition",
+      "title": "Later tradition and survey",
+      "default": "off",
+      "placeIds": [
+        "sigeion",
+        "tomb-of-ajax-in-tepe",
+        "kum-tepe",
+        "kesik-tepe",
+        "besik-sivritepe",
+        "uvecik-tepe",
+        "pinarbasi",
+        "thymbrios",
+        "kesik-basin"
+      ]
+    }
   ]
 }

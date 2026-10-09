@@ -127,12 +127,20 @@ export interface RossPiece {
   text: string;
   cont: boolean;
   // Interpolated Bekker-line ticks down this slice (all estimates — Ross has no
-  // milestones of its own). Same shape as EnglishChunk.bekker.
-  bekker?: { n: number; offset: number; real: boolean }[];
+  // milestones of its own). Same shape as EnglishChunk.bekker, plus an
+  // optional `label`: Kosmos's own printed group number when it differs from
+  // `n` (e.g. Il. 7's "321–322") — see lib/kosmos.ts. `n` still anchors the
+  // Greek alignment; `label` is what the reader shows.
+  bekker?: { n: number; offset: number; real: boolean; label?: string }[];
   // Structured diagram tables (e.g. Ackrill's squares of opposition), each
   // anchored to the Bekker line `n` of the segment it belongs to; rendered as a
   // grid after that segment's row.
   tables?: { n: number; rows: string[][] }[];
+  // Kosmos verse groups (stage1_kosmos): standoff over `text` — `tr` a
+  // transliteration bracket, `ed` an editorial bracket, `em` italics — and
+  // the printed line numbers that do not cut a group. See lib/kosmos.ts.
+  spans?: [number, number, 'tr' | 'ed' | 'em'][];
+  marks?: { n: number; offset: number; label: string; reason: string }[];
 }
 
 // A speaker-turn event in a Stephanus dialogue (Plato): the interlocutor whose
@@ -433,7 +441,15 @@ const _plateCache = new Map<string, Promise<PlateFile | null>>();
 export function fetchPlate(id: string): Promise<PlateFile | null> {
   const cached = _plateCache.get(id);
   if (cached) return cached;
-  const p = fetch(`${ROOT()}/plates/${id}.json`).then((r) => (r.ok ? r.json() : null)) as Promise<PlateFile | null>;
+  const p = fetch(`${ROOT()}/plates/${id}.json`)
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => {
+      // A 404/500 resolves to null (honest "not yet drawn"). Do not cache that
+      // miss: a later need — a transient network blip, a plate that landed
+      // after this session started — must hit the network again.
+      if (data == null && _plateCache.get(id) === p) _plateCache.delete(id);
+      return data;
+    }) as Promise<PlateFile | null>;
   p.catch(() => { if (_plateCache.get(id) === p) _plateCache.delete(id); });
   _plateCache.set(id, p);
   return p;

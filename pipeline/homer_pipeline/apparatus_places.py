@@ -29,6 +29,19 @@ from typing import Any
 
 CERTAINTY_TIERS = {"certain", "traditional", "speculative", "mythical"}
 
+# The only status values the codebase uses: "draft" (AI-drafted, shows the
+# draft badge) until John flips it to "reviewed". PlatePanel's badge tests
+# `status === 'draft'`, so a typo like "Draft" would silently drop the badge.
+STATUS_ENUM = {"draft", "reviewed"}
+
+# Plate ids the site requests by name, hand-kept because the only other source
+# of truth is TS/Svelte code. test_preflight.py parses those sources
+# (MapsPage.svelte plateId=, Reader.svelte fetchPlate(), scene-place.ts
+# SCHEMATIC_PLATE_ID) and asserts this set agrees. preflight fails when any
+# is missing from apparatus/plates/. troy-citadel and shield-of-achilles are
+# not requested by any page today, so they are not listed.
+SITE_PLATE_IDS = frozenset({"troad", "trojan-plain", "trojan-plain-schematic"})
+
 PLACE_KIND_ENUM = {
     "settlement", "river", "mountain", "hill", "island", "promontory",
     "region", "plain", "harbour", "strait",
@@ -204,6 +217,12 @@ def validate_places(doc: Any) -> list[str]:
         return ["places.json: places must be a list"]
 
     problems: list[str] = []
+    status = doc.get("status")
+    if not isinstance(status, str) or status not in STATUS_ENUM:
+        problems.append(
+            f"places.json: status must be one of {sorted(STATUS_ENUM)}, "
+            f"got {doc.get('status')!r}"
+        )
     seen_ids: set[str] = set()
     for i, place in enumerate(places):
         if not isinstance(place, dict):
@@ -325,7 +344,19 @@ def validate_places(doc: Any) -> list[str]:
                 f"place {label}: labelSize must be 'small' or 'base', got {label_size!r}"
             )
 
-        maps = place.get("maps") if isinstance(place.get("maps"), list) else []
+        # shared/lib/maps.ts placesForMap calls `p.maps.includes(tag)` on every
+        # place and Place.maps is a required string[] -- absent or null crashes
+        # the maps page.
+        maps = place.get("maps")
+        if not isinstance(maps, list):
+            problems.append(f"place {label}: maps must be a list of strings")
+            maps = []
+        else:
+            for mi, tag in enumerate(maps):
+                if not isinstance(tag, str) or not tag:
+                    problems.append(
+                        f"place {label}: maps[{mi}] must be a non-empty string"
+                    )
         tagged_for_plate = any(
             isinstance(tag, str) and tag.startswith(PLATE_TAG_PREFIXES) for tag in maps
         )
@@ -397,6 +428,46 @@ def _iter_layer_coords(layer: dict, label: str, layer_label: str, problems: list
             continue
         for pi, pair in enumerate(coords):
             yield field, pair, f"[{pi}]"
+
+
+def _point_count(value: Any) -> int:
+    return len(value) if isinstance(value, list) else 0
+
+
+def _layer_has_drawable_geometry(layer: dict) -> bool:
+    """Whether shared/lib/plate.ts renderLayer would draw anything for this
+    layer. Mirrors its per-kind minimums: it returns undefined (draws
+    nothing) below them. A featureKey row for such a layer prints a numeral
+    with no mark on the sheet."""
+    kind = layer.get("kind")
+    rings = layer.get("rings")
+    rings = rings if isinstance(rings, list) else []
+    if kind == "coast":
+        return len(rings) > 0
+    if kind in ("river", "route"):
+        return _point_count(layer.get("path")) >= 2
+    if kind == "shipRow":
+        return _point_count(layer.get("baseline")) >= 2
+    if kind == "wall":
+        return _point_count(layer.get("trace")) >= 2
+    if kind == "tumulus":
+        return _point_count(layer.get("path")) >= 1
+    if kind == "relief" and layer.get("elevation") is not None:
+        return _point_count(layer.get("polygon")) >= 3 or any(
+            _point_count(r) >= 3 for r in rings
+        )
+    if kind in ("region", "band") and layer.get("fill") == "none" and layer.get("style") not in (
+        "inset",
+        "poem",
+        "plan",
+    ):
+        # renderLayer emits fill="none" stroke="none" for this: a named,
+        # invisible zone. Only the inset, poem and plan styles draw regardless
+        # of fill (a plan draws its walls as bars, whatever its fill).
+        return False
+    if kind in ("relief", "region", "band"):
+        return _point_count(layer.get("polygon")) >= 3
+    return False
 
 
 def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
@@ -515,8 +586,13 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                         f"integers with from <= to"
                     )
 
-    if "status" in doc and (not isinstance(doc.get("status"), str) or not doc["status"].strip()):
-        problems.append(f"{label}: status must be a non-empty string")
+    if "status" in doc and (
+        not isinstance(doc.get("status"), str) or doc.get("status") not in STATUS_ENUM
+    ):
+        problems.append(
+            f"{label}: status must be one of {sorted(STATUS_ENUM)}, "
+            f"got {doc.get('status')!r}"
+        )
 
     # Plate-level sources: every plate is a scholarly artefact, not just its
     # individually-tagged places/layers, so it must cite what it drew from.
@@ -600,6 +676,7 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
     # resolved after the layer loop, because a reference may point forward.
     inset_panel_ids: set[str] = set()
     inset_of_refs: list[tuple[str, str]] = []
+    layers_by_id: dict[str, dict] = {}
     for i, layer in enumerate(layers):
         if not isinstance(layer, dict):
             problems.append(f"{label}: layers[{i}] must be an object")
@@ -616,6 +693,7 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
             problems.append(f"plate {label}: duplicate layer id {layer_id!r}")
         else:
             seen_layer_ids.add(layer_id)
+            layers_by_id[layer_id] = layer
 
         # Every one of these next three fields does an `in`-test against a
         # set or dict. A list-valued field (e.g. `"kind": ["river"]`) used to
@@ -967,6 +1045,13 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                                 f"{label}: featureKey[{gi}].items[{ii}].layerId "
                                 f"{layer_id!r} is not a layer of this plate"
                             )
+                        elif not _layer_has_drawable_geometry(layers_by_id[layer_id]):
+                            problems.append(
+                                f"{label}: featureKey[{gi}].items[{ii}].layerId "
+                                f"{layer_id!r} has no drawable geometry (its "
+                                f"{layers_by_id[layer_id].get('kind')!r} layer would "
+                                f"draw nothing, leaving a key row with no mark)"
+                            )
                         key_id = layer_id
                     elif has_place:
                         place = places_by_id.get(place_id)
@@ -1017,6 +1102,56 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                         f"{label}: suppressLayerLabels[{i}] {layer_id!r} is "
                         f"not a layer of this plate"
                     )
+
+    # See Plate.layerGroups in shared/lib/plate.ts, which this mirrors:
+    # optional layers a reader switches on (2026-09-15, the schematic
+    # plain's "Later tradition and survey"). Each names gazetteer places and
+    # layers of this plate; a layer belongs to at most one group.
+    layer_groups = doc.get("layerGroups")
+    if layer_groups is not None:
+        if not isinstance(layer_groups, list):
+            problems.append(f"{label}: layerGroups must be a list")
+        else:
+            seen_group_ids: set[str] = set()
+            grouped_layer_ids: set[str] = set()
+            for gi, group in enumerate(layer_groups):
+                where = f"{label}: layerGroups[{gi}]"
+                if not isinstance(group, dict):
+                    problems.append(f"{where} must be an object")
+                    continue
+                group_id = group.get("id")
+                if not isinstance(group_id, str) or not group_id:
+                    problems.append(f"{where}.id must be a non-empty string")
+                elif group_id in seen_group_ids:
+                    problems.append(f"{where}.id {group_id!r} appears twice")
+                else:
+                    seen_group_ids.add(group_id)
+                title = group.get("title")
+                if not isinstance(title, str) or not title.strip():
+                    problems.append(f"{where}.title must be a non-empty string")
+                if "default" in group and group.get("default") not in ("on", "off"):
+                    problems.append(f"{where}.default must be 'on' or 'off'")
+                for key in ("placeIds", "layerIds"):
+                    ids = group.get(key, [])
+                    if not isinstance(ids, list):
+                        problems.append(f"{where}.{key} must be a list")
+                        continue
+                    for i, ref in enumerate(ids):
+                        if not isinstance(ref, str) or not ref:
+                            problems.append(f"{where}.{key}[{i}] must be a non-empty string")
+                        elif key == "placeIds" and ref not in places_by_id:
+                            problems.append(f"{where}.placeIds[{i}] {ref!r} is not a gazetteer place")
+                        elif key == "layerIds":
+                            if ref not in seen_layer_ids:
+                                problems.append(
+                                    f"{where}.layerIds[{i}] {ref!r} is not a layer of this plate"
+                                )
+                            elif ref in grouped_layer_ids:
+                                problems.append(
+                                    f"{where}.layerIds[{i}] {ref!r} is already in another group"
+                                )
+                            else:
+                                grouped_layer_ids.add(ref)
 
     # plateAnchors range belongs here, not in validate_places: a schematic
     # plate with a bbox authors lat/lon anchors, a plate without one stays

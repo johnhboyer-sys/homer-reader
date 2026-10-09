@@ -39,6 +39,11 @@ export interface SceneFlowPart {
   n: number | null;
   real: boolean;
   para?: boolean;
+  // A tick's printed group number when it differs from `n` (Kosmos: Il. 7's
+  // "321–322" — see lib/kosmos.ts). `n` still anchors the Greek alignment;
+  // `label`, when present, is what the reader displays. Absent for every
+  // other tick source.
+  label?: string;
 }
 
 export interface SceneOTable {

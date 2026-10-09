@@ -66,6 +66,9 @@
   let expanded = new Set<string>();
   let loading = false;                    // running the index search
   let searched = false;
+  // Only the latest doSearch() completion may paint. A slower earlier query
+  // resolving after a later one used to overwrite the later results.
+  let searchGeneration = 0;
   let error = '';
   let failedWorks: string[] = [];         // works whose index didn't load this run
   // Which control produced the results on screen — the widening button only
@@ -878,6 +881,7 @@
   async function doSearch(e?: Event) {
     e?.preventDefault();
     if (!grkQuery.trim() && !engQuery.trim()) return;
+    const generation = ++searchGeneration;
     loading = true;
     error = '';
     failedWorks = [];
@@ -898,16 +902,19 @@
           : [],
       };
       const outcome = await search(grkQuery, engQuery, grkMode, engMode, langOp, works, matchMode);
+      if (generation !== searchGeneration) return;
       rawResults = outcome.results;
       failedWorks = outcome.failedWorks ?? [];
       resultsSource = 'main';
       searched = true;
       await applyResultsPipeline();
+      if (generation !== searchGeneration) return;
       updateUrl();
     } catch (err) {
+      if (generation !== searchGeneration) return;
       error = err instanceof Error ? err.message : String(err);
     } finally {
-      loading = false;
+      if (generation === searchGeneration) loading = false;
     }
   }
 

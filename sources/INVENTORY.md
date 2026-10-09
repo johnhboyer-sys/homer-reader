@@ -38,6 +38,21 @@ are eng3/eng4 (verified via __cts__.xml). Attribute Perseus on the About page.
   (1725–26; Odyssey co-authored with Broome/Fenton — translation note must
   disclose, per PROMPT.md).
 
+## kosmos/ — Kosmos Society (Center for Hellenic Studies), fetched 2026-09-12 (CC BY-NC-ND 3.0)
+
+Samuel Butler's translation revised by Soo-Young Kim, Kelly McCray, Gregory
+Nagy and Timothy Power. Not public domain: carried under John's CC exception
+(CLAUDE.md, 2026-09-12) and listed on
+`pipeline/homer_pipeline/cc_translations.yaml`, never on the public-domain
+list. Licence per https://kosmossociety.org/text-library/ :
+https://creativecommons.org/licenses/by-nc-nd/3.0/ (NoDerivs: shown verbatim,
+brackets and notes included).
+
+| File | Source URL | Content | SHA-256 |
+|---|---|---|---|
+| homeric-iliad.html | https://kosmossociety.org/homeric-iliad/ | Iliad, Rhapsodies 1–24, saved page | 31b7f7ba0274c670f10b758d89399088dbdfedffe01d39439d207122e51164b7 |
+| homeric-odyssey.html | https://kosmossociety.org/homeric-odyssey/ | Odyssey, Rhapsodies 1–24, saved page | d7b08f0b30bfbb185ed24184552cc81c08b9d388a7375d1b2a3ebb2fed4ee60f |
+
 ## naturalearth/ — Natural Earth 1:50m land polygons (public domain)
 
 - mediterranean-coastline.json — Mediterranean-basin coastline, clipped +

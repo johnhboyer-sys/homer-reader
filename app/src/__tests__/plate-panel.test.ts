@@ -75,6 +75,65 @@ describe('PlatePanel', () => {
     expect(container.querySelectorAll('.pp-toggles .pp-toggle').length).toBe(1 + 4); // shoreline + 4 certainty tiers
   });
 
+  // 2026-09-15: a plate's layer group ("Later tradition and survey" on the
+  // schematic plain) is off by default, drawn by one keyboard-operable
+  // checkbox, and its state is its own: the certainty filter still applies to
+  // the group's marks once they are drawn.
+  it('keeps a default-off layer group hidden until its checkbox is ticked, and keeps it apart from the certainty filter', async () => {
+    mockFetchPlate.mockResolvedValue({
+      id: 'group-plate',
+      title: 'Group Plate',
+      kind: 'geographic',
+      status: 'draft',
+      bbox: [0, 0, 1, 1],
+      size: [200, 160],
+      layers: [
+        { id: 'cut', kind: 'region', placeId: 'cut', label: 'The cut', fill: 'none', polygon: [[0.1, 0.6], [0.1, 0.8], [0.2, 0.8], [0.2, 0.6]] },
+      ],
+      layerGroups: [{ id: 'later', title: 'Later tradition and survey', default: 'off', placeIds: ['mound'], layerIds: ['cut'] }],
+    });
+    const places = [
+      { id: 'mound', name: 'Mound', coords: [0.5, 0.5] as [number, number], certainty: 'traditional' as const, tradition: 'Named so by a traveler in 1785' },
+      { id: 'town', name: 'Town', coords: [0.3, 0.3] as [number, number], certainty: 'certain' as const },
+    ];
+    const { container, getByRole, queryByText } = render(PlatePanel, {
+      props: { plateId: 'group-plate', places, title: 'Group Plate' },
+    });
+    await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+    const toggle = getByRole('checkbox', { name: 'Show later tradition and survey' }) as HTMLInputElement;
+    expect(toggle.checked).toBe(false);
+    expect(container.querySelector('[data-place-id="mound"]')).toBeNull();
+    expect(container.querySelector('[data-label-for="cut"]')).toBeNull();
+    expect(container.querySelector('[data-place-id="town"]')).toBeTruthy();
+    // Behind the switch is not "named, not drawn".
+    expect(queryByText('Mound')).toBeNull();
+
+    toggle.focus();
+    expect(document.activeElement).toBe(toggle);
+    toggle.click();
+    await waitFor(() => expect(container.querySelector('[data-place-id="mound"]')).toBeTruthy());
+    expect(toggle.checked).toBe(true);
+    const mound = container.querySelector('[data-place-id="mound"]') as SVGElement;
+    expect(mound.getAttribute('tabindex')).toBe('0');
+    expect(mound.getAttribute('aria-label')).toBe('Mound. Traditional identification: Named so by a traveler in 1785.');
+    expect(container.querySelector('[data-label-for="cut"]')).toBeTruthy();
+
+    // Focus shows the tradition as a tooltip.
+    await fireEvent.focusIn(mound);
+    await waitFor(() => expect(container.querySelector('.pp-tip')?.textContent).toContain('Named so by a traveler in 1785'));
+
+    // The certainty filter is separate state: hiding "traditional" hides the
+    // group's traditional mark and leaves the group switched on.
+    const traditional = getByRole('checkbox', { name: 'traditional' }) as HTMLInputElement;
+    traditional.click();
+    await waitFor(() => expect((container.querySelector('[data-place-id="mound"]') as SVGElement).style.display).toBe('none'));
+    expect(toggle.checked).toBe(true);
+    toggle.click();
+    await waitFor(() => expect(container.querySelector('[data-place-id="mound"]')).toBeNull());
+    expect(traditional.checked).toBe(false);
+  });
+
   it('filters pins (and their labels) by certainty tier, and leaves the certainty filter off a plate with no places', async () => {
     mockFetchPlate.mockResolvedValue({
       id: 'certainty-plate',
@@ -586,6 +645,97 @@ describe('PlatePanel', () => {
     expect(k).toBeLessThanOrEqual(8);
   });
 
+  // GPT-6-Sol review finding 1: setupCamera moved every child of the sheet's
+  // clip group into the pannable camera except the legend, so a margin inset,
+  // the scene key and the feature key (sheet furniture, drawn in the margin)
+  // panned and zoomed with the map. They must stay fixed beside the legend.
+  it('keeps the margin inset, scene key and feature key outside the pannable camera group', async () => {
+    mockFetchPlate.mockResolvedValue({
+      id: 'furniture-plate',
+      title: 'Furniture Plate',
+      kind: 'schematic',
+      status: 'draft',
+      bbox: [0, 0, 1, 1],
+      size: [500, 300],
+      marginRight: 200,
+      layers: [
+        {
+          id: 'locator',
+          kind: 'region',
+          style: 'inset',
+          label: 'Locator',
+          frame: [320, 20, 160, 120],
+          polygon: [[0.25, 0.25], [0.75, 0.25], [0.75, 0.75], [0.25, 0.75]],
+        },
+        { id: 'ridge', kind: 'region', label: 'Ridge', polygon: [[0.1, 0.1], [0.4, 0.1], [0.4, 0.4], [0.1, 0.4]] },
+      ],
+      sceneKey: [{ letter: 'A', title: 'Inner box', ref: 'Il. 1.1', layerId: 'locator' }],
+    });
+    const { container } = render(PlatePanel, {
+      props: { plateId: 'furniture-plate', places: [], title: 'Furniture Plate' },
+    });
+    await waitFor(() => expect(container.querySelector('.pp-camera')).toBeTruthy());
+    const camera = container.querySelector('.pp-camera') as SVGGElement;
+
+    // Map content is inside the camera...
+    expect(camera.querySelector('[data-layer-id="ridge"]')).not.toBeNull();
+    // ...the sheet's margin furniture is not, but is still on the sheet.
+    for (const selector of ['[data-layer-id="locator"]', '.plate-scene-key', '.plate-feature-key', '.plate-legend']) {
+      expect(camera.querySelector(selector), `${selector} must not pan with the map`).toBeNull();
+    }
+    expect(container.querySelector('[data-layer-id="locator"]')).not.toBeNull();
+    expect(container.querySelector('.plate-scene-key')).not.toBeNull();
+    expect(container.querySelector('.plate-legend')).not.toBeNull();
+  });
+
+  // GPT-6-Sol review finding 2: a focus id naming a "Later tradition and
+  // survey" site left the camera on the whole sheet, because computeCamera
+  // knew nothing of layer groups. Loading with such a focus now switches the
+  // group on (the site would otherwise be framed but not drawn) and frames it.
+  it('a focus id inside a default-off layer group switches the group on and frames the site', async () => {
+    mockFetchPlate.mockResolvedValue(
+      JSON.parse(readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain-schematic.json'), 'utf-8')),
+    );
+    const places = JSON.parse(
+      readFileSync(path.resolve(process.cwd(), '../apparatus/places.json'), 'utf-8'),
+    ).places;
+    const { container, getByRole } = render(PlatePanel, {
+      props: { plateId: 'trojan-plain-schematic', places, title: 'Plain', focusIds: ['kum-tepe'] },
+    });
+    await waitFor(() => expect(container.querySelector('.pp-camera')).toBeTruthy());
+    const toggle = getByRole('checkbox', { name: 'Show later tradition and survey' }) as HTMLInputElement;
+    await waitFor(() => expect(toggle.checked).toBe(true));
+    await waitFor(() => expect(container.querySelector('[data-place-id="kum-tepe"]')).toBeTruthy());
+    const camera = container.querySelector('.pp-camera') as SVGGElement;
+    await waitFor(() => expect(camera.getAttribute('transform')).not.toBe('translate(0 0) scale(1)'));
+  });
+
+  // GPT-6-Sol review: the switch-on matched only a group's placeIds and layerIds,
+  // but the renderer also hides the `placeId` a grouped LAYER carries.
+  it('a focus id that is the placeId of a grouped layer switches the default-off group on', async () => {
+    mockFetchPlate.mockResolvedValue({
+      id: 'group-layer-place',
+      title: 'Group Layer Place',
+      kind: 'geographic',
+      status: 'draft',
+      bbox: [0, 0, 1, 1],
+      size: [200, 160],
+      layers: [
+        { id: 'cut', kind: 'region', placeId: 'cut-place', label: 'The cut', fill: 'none', polygon: [[0.1, 0.6], [0.1, 0.8], [0.2, 0.8], [0.2, 0.6]] },
+      ],
+      layerGroups: [{ id: 'later', title: 'Later tradition and survey', default: 'off', placeIds: [], layerIds: ['cut'] }],
+    });
+    const places = [
+      { id: 'cut-place', name: 'Cut', coords: [0.15, 0.7] as [number, number], certainty: 'traditional' as const, tradition: 'Named so by a traveler' },
+    ];
+    const { container, getByRole } = render(PlatePanel, {
+      props: { plateId: 'group-layer-place', places, title: 'Group Layer Place', focusIds: ['cut-place'] },
+    });
+    await waitFor(() => expect(container.querySelector('.pp-camera')).toBeTruthy());
+    const toggle = getByRole('checkbox', { name: 'Show later tradition and survey' }) as HTMLInputElement;
+    await waitFor(() => expect(toggle.checked).toBe(true));
+  });
+
   it('an empty focusIds (the default) leaves the identity camera', async () => {
     mockFetchPlate.mockResolvedValue({
       id: 'focus-plate-2',
@@ -773,6 +923,61 @@ describe('PlatePanel', () => {
       const mapDiv = container.querySelector('.pp-map') as Element;
       await fireEvent.keyDown(mapDiv, { key: 'Escape' });
       await waitFor(() => expect(container.querySelector('.pp-tip')).toBeNull());
+    });
+
+    it('counter-scales numbered badges under zoom the same way labels are counter-scaled', async () => {
+      vi.spyOn(SVGGraphicsElement.prototype, 'getScreenCTM').mockReturnValue(null);
+      mockFetchPlate.mockResolvedValue(featureKeyPlate);
+      const { container, getByRole } = render(PlatePanel, {
+        props: { plateId: 'feature-key-plate', places, title: 'Feature Key Plate' },
+      });
+      await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+      const badge = container.querySelector('.plate-key-badge');
+      expect(badge).toBeTruthy();
+      const badgeWrapper = badge!.parentElement;
+      expect(badgeWrapper).toBeTruthy();
+      expect(badgeWrapper).toHaveClass('pp-label-descale');
+      // Identity camera: no counter-scale yet.
+      expect(badgeWrapper!.getAttribute('transform') ?? '').toBe('');
+
+      const zoomIn = getByRole('button', { name: /zoom in/i });
+      zoomIn.click(); // ZOOM_STEP 1.25 → inv = 0.8
+
+      // Pivot-then-scale-then-unpivot keeps the disc seated on the same
+      // anchor while undoing the camera scale, matching .plate-label.
+      await waitFor(() =>
+        expect(badgeWrapper!.getAttribute('transform') ?? '')
+          .toMatch(/translate\([^)]+\) scale\(0\.8\) translate\([^)]+\)/),
+      );
+      const labelWrapper = Array.from(container.querySelectorAll<SVGGElement>('.pp-label-descale'))
+        .find((el) => !el.querySelector('.plate-key-badge'));
+      if (labelWrapper) {
+        expect(labelWrapper.getAttribute('transform') ?? '').toMatch(/scale\(0\.8\)/);
+      }
+    });
+
+    it('key rows are keyboard-focusable and focusing one highlights the matching badge the same way hover does', async () => {
+      mockFetchPlate.mockResolvedValue(featureKeyPlate);
+      const { container } = render(PlatePanel, {
+        props: { plateId: 'feature-key-plate', places, title: 'Feature Key Plate' },
+      });
+      await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());
+
+      const row = container.querySelector<SVGElement>('.plate-key-row[data-key-n="1"]');
+      const badge1 = container.querySelector<SVGGElement>('.plate-key-badge[data-key-n="1"]');
+      expect(row).toBeTruthy();
+      expect(badge1).toBeTruthy();
+      expect(row?.getAttribute('tabindex')).toBe('0');
+      expect(badge1).not.toHaveClass('plate-key-active');
+
+      await fireEvent.focusIn(row!);
+      await waitFor(() => expect(badge1).toHaveClass('plate-key-active'));
+      expect(row).toHaveClass('plate-key-active');
+
+      await fireEvent.focusOut(row!);
+      await waitFor(() => expect(badge1).not.toHaveClass('plate-key-active'));
+      expect(row).not.toHaveClass('plate-key-active');
     });
 
     it('hovering a key row highlights the matching badge (reverse direction)', async () => {

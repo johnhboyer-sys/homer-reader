@@ -263,6 +263,9 @@
       // read as bold and oversized next to the sheet's conjectural labels.
       labelTier: raw.labelTier,
       labelSize: raw.labelSize,
+      // `tradition` (2026-09-15): the hover/focus text of a site in the
+      // schematic plain's "Later tradition and survey" layer group.
+      tradition: raw.tradition,
     };
   }
   // Two distinct scales, two distinct place sets (2026-07-28 fix): the
@@ -685,7 +688,11 @@
         most of the Iliad's fighting happens, crossed by the Scamander and
         Simoeis rivers.
       </p>
-      <PlatePanel plateId="trojan-plain" places={troadPlainPlatePlaces} title="The Trojan Plain" {focusIds} />
+      <!-- The schematic sheet (John, 2026-09-15): the geographic Trojan Plain
+           sheet is retired; its tradition sites are this sheet's optional
+           "Later tradition and survey" layer. The Chart Room postcard links
+           here with `?map=plain&focus=<ids>`. -->
+      <PlatePanel plateId="trojan-plain-schematic" places={troadPlainPlatePlaces} title="The Trojan Plain" {focusIds} />
     </div>
   {:else if activeTab === 'wanderings'}
     <div id="mp-panel-wanderings" role="tabpanel" aria-labelledby="mp-tab-wanderings" tabindex="0" class="mp-panel">

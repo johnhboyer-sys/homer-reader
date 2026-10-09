@@ -3,6 +3,193 @@
 Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). No deploys have
 occurred; deploying, the GitHub remote, and the first push are John-gated.
 
+## Deploy — 2026-09-14 (second): the lexicon repairs, PR #37
+
+gh-pages `1c7bdc67a` → `9d711223b` (source: main `84dea54df`, CI green). Same
+recipe as the first deploy of the day: full `npm run build:public` in a clean
+worktree at `origin/main`.
+
+What shipped: PR #37 — Cunliffe parse fixes, LSJ short-definition corrections,
+Morpheus re-ranking of 35 surfaces, more ghost lemmata — and the fixes from its
+cross-family review (Grok-4.5). The review found seven problems; G1–G5 are fixed:
+- a number after "= <Greek word>" (or "as under / fr. / cf. / see") is a pointer
+  at that word's sense, not the entry's own sense — 16 Cunliffe entries change,
+  all such pointers (ἄστυ, δαιτύς, ἀγχοῦ, …);
+- "So as to / So that / So in pl." stays with the sense it opens (164 entries;
+  no entry gains or loses a "So");
+- a line range in running text is linked whole;
+- νηός stays ναῦς "ship"; **Il. 5.446 is a known exception** (ναός "temple"),
+  because overrides are keyed by surface form and cannot exempt one line.
+G6 is unchanged on purpose (the οὐ, μή, ἵππος overrides depend on it); G7
+(θάλος's gloss) is a strict xfail, not reader-facing while Morpheus supplies the
+gloss. The Odyssey forms were not checked: its TLG XML is absent from the
+checkout.
+
+Gates: preflight ok; shared LSJ and Cunliffe coverage ok; 48/48 books carry
+scenes; 4,687 pages, 330,694 links, **0 broken**.
+
+Deletions, read by category: 22 lemma pages and their data files for ghost or
+mis-ranked lemmata (θέραψ, ἐλεάω, ἀπέχθομαι, the village οἴη, …), with 5 added
+for the right words (ἐλεέω, ἀπεχθάνομαι, νεῖκος, κονία, καλός); one rehashed
+bundle. Commit: 286 files.
+
+Live-verified after Pages built `9d711223b`: home, `/iliad/book/5/`,
+`/lemma/eleeo/`, `/lemma/apechthanomai/` 200; `/lemma/eleao/` and
+`/lemma/theraps/` 404; the live `index.html` and `data/cunliffe-t8/a.json` are
+byte-identical to the build's.
+
+## Deploy — 2026-09-18: the service worker keeps its cache writes
+
+gh-pages `44c636010` → `a4c7135fa` (source: main `71fb22876`). Same worktree and
+method as yesterday's deploy.
+
+PR #40, and nothing else of substance. `networkFirst` and `cacheFirst` started a
+`cache.put` and returned the response without awaiting it or holding the event
+open, so the browser could terminate the worker before the write landed — a page
+or book JSON the reader had already read could be missing on a later offline
+visit, against the worker's own promise that anything you have read is available
+offline. Both strategies now take the fetch event and hand the write to
+`event.waitUntil`. Awaiting the put would have fixed the lifetime equally well
+but would have sat the cache write in front of the response; `waitUntil` leaves
+reader-facing latency unchanged. Found by Sol while reviewing PR #39, fixed by a
+separate session, reviewed cross-family by Grok-4.5.
+
+**`VERSION` deliberately stayed at `v3`.** `activate` deletes every cache whose
+key starts with `CACHE_PREFIX` and is not `VERSION`, so a bump here would have
+wiped exactly the accumulated pages and book JSONs the change exists to
+preserve. Taken with yesterday's deploy, the rule is: **bump when data or
+referenced assets change, never when only worker behaviour changes.** Yesterday
+Kosmos changed the data and the bump to `v3` was required; today nothing the
+HTML references moved. The new worker still takes over without a bump — `sw.js`
+changed, so the browser installs it, and `skipWaiting` with `clients.claim`
+hands it control. Entries already in `v3` were written by the old worker, so
+some reads may be missing from it; those heal on the reader's next online visit
+to those URLs.
+
+Also in the commit, and **not** a content change: 48 Cunliffe shards under
+`data/cunliffe/` and `data/cunliffe-t8/`. Every one is parsed-identical to the
+previous deploy and identical in byte length (`data/cunliffe/a.json` is 792,009
+bytes in both); only the JSON key order moved — first key `a(martoeph/s` before,
+`a)gkulomh/ths` after. Verified by parsing all 48 against `HEAD` before
+committing, and confirmed live afterwards that `data/cunliffe/m.json` still
+resolves `mh=nis`. So the shard builder's output is order-non-deterministic
+across rebuilds. Harmless to readers, which look up by key, but it puts 48
+spurious files in every deploy diff and makes reading a deploy by category
+harder. Queued as its own task; unrelated to PR #40.
+
+Gates: preflight ok; 4,686 pages built, 4,687 crawled; 335,303 links and 148,144
+anchors checked, **0 broken**; 934 tests pass (shared 932, app 2 — three new
+service-worker tests that run the real `sw.js` in a fake worker scope).
+
+Live-verified after Pages built `a4c7135fa`: `sw.js` carries
+`event.waitUntil(cache.put(...))` at both call sites with `VERSION` still `v3`,
+and parses clean under `node --check`; home, `/search/`, `/maps/`,
+`/iliad/book/1/`, `/odyssey/book/1/`, `/lemma/`, `/vocabulary/` all 200.
+
+## Deploy — 2026-09-17: Astro 7, and Kosmos Butler goes live
+
+gh-pages `9d711223b` → `44c636010` (source: main `000caa232`). Full
+`npm run build:public` on `origin/main` in the astro-7 worktree (Node 22.23.1;
+`build` and `pipeline/.venv` symlinked from the main checkout), so the data came
+from main's pipeline code.
+
+What shipped, two things. **PR #39**, the Astro 6.4.6 → 7.3.3 and
+`@astrojs/svelte` 8.1.2 → 9.0.1 upgrade, with `compressHTML: true` pinned
+because Astro 7's new `'jsx'` default strips whitespace between inline elements
+on separate source lines and ran words together on every page. And **PR #36**,
+Kosmos Butler — the CC-licensed Kosmos Society revision of Butler as a fourth
+English text in verse groups — merged 2026-09-15 and never deployed until now.
+
+**A bug that was live until this deploy is now fixed.** Astro 6 wrote the search
+bundle as `_astro/Search.<hash>.css` while `/search/index.html` asked for
+`_astro/search.<hash>.css`. macOS's case-insensitive filesystem hid the
+collision; GitHub Pages did not, so the search page had been shipping unstyled.
+Verified before: `Search.RIHTUUc4.css` 200, `search.RIHTUUc4.css` 404. Verified
+after: the referenced lowercase file 200s, the old capitalised one is gone, and
+the live page loads 771 CSS rules.
+
+How the upgrade was checked: both Astro versions were built **from the same
+commit** and compared page by page. Visible text identical on 4,687/4,687.
+Head (title/meta/link/JSON-LD) and body attributes — after normalising Astro's
+`data-astro-cid-*`, Svelte scope classes, island `uid` and content hashes —
+differ on exactly 2 pages, and both differences are improvements: `/maps` sheds
+`Reader.css` (6 KB) and `Search.css` (18 KB), dead CSS that Astro 6
+over-included because the page is one `client:only` island it could not see
+into; and the home page's `og:title`/`twitter:title` now escape `&` as `&amp;`
+where Astro 6 emitted a bare `&`. Sitemap URL set and robots.txt identical.
+
+Reviewed by GPT-5.6-Sol, which returned five findings and SHIP WITH FIXES. Two
+were actionable and both were verified here before applying:
+
+- **Service worker cache `v2` → `v3`.** The earlier judgement that the asset
+  rehash needed no bump considered only the assets, not the corpus change
+  riding along. Kosmos arrives as an overlay inside the **same** book JSON URL
+  (`Reader.svelte` reads `seg.overlays?.[t.id]`, and `ensureFullBook` fetches
+  the book lazily), and `/data/` is network-first. So a reader who cached a book
+  before the deploy, loaded the new page online, then went offline and selected
+  Kosmos would have been served the stale JSON and seen a **blank translation
+  with no error**. `sw.js`'s own header already required a bump whenever corpus
+  data changes; this was that case.
+- **Node floor `>=22.12.0` → `>=22.19.0`.** Astro 7 pulls `unifont` →
+  `undici@8.10.2`, whose engines field demands 22.19. Astro 6's lockfile had no
+  `undici` at all. It built here only because this machine runs 22.23.1, and
+  CI's floating `node-version: 22` resolves to a current release, so neither
+  would have caught it.
+
+Sol's third finding — `cache.put` in `sw.js` is neither awaited nor wrapped in
+`event.waitUntil`, so the "anything you have read is available offline" promise
+is not actually guaranteed — is real but pre-existing and outside the PR's blast
+radius. It is queued as its own task, not fixed here.
+
+Gates: preflight ok; shared LSJ and Cunliffe coverage ok; 4,686 pages built,
+4,687 crawled; 335,303 links and 148,144 anchors checked, **0 broken**; 931
+tests pass (shared 929, app 2). One pre-existing non-fatal pipeline warning
+stands: Odyssey speech 931's `l_fi 10.456` is not a real vulgate line.
+
+Deletions, read by category before committing: all 43 are rehashed `_astro`
+bundles. Additions are 33 rehashed bundles plus
+`data/reports/kosmos_report_{iliad,odyssey}.json` — per-book counts only, no
+corpus text, consistent with the reports `data/reports/` already publishes.
+Commit: 4,784 modified, 35 added, 43 deleted, 2 renamed.
+
+Live-verified after Pages built `44c636010`: home, `/search/`, `/maps/`,
+`/iliad/book/1/`, `/odyssey/book/1/`, `/vocabulary/`, `/lemma/` all 200;
+`/about` 301 → 200. `sw.js` serves `v3`. `/data/iliad/book-01.json` carries the
+`kosmos` overlay. All four translations appear in the reader, and Kosmos renders
+with its bracketed glosses (`[Agamemnon]`, `[= Apollo]`) intact, as the ND
+licence requires, above its attribution line.
+
+## Deploy — 2026-09-14: twelve merged PRs since August 19
+
+gh-pages `7e2926339` → `1c7bdc67a` (source: main `f28e0f970`, CI green).
+Full `npm run build:public` in a clean worktree at `origin/main` (Node 22.23.1;
+`build` and `pipeline/.venv` symlinked from the main checkout), so the data came
+from main's pipeline code and no unmerged branch reached the site.
+
+What shipped: PRs #23–#28 and #30–#35 — the LSJ forms block, quantity mark,
+grammata port and Logeion flag; the Cunliffe restyle; χάω and ἐφαμάω dropped as
+ghost lemmata; lemma pages mounting grammata's T8 entry; the sanitizer and
+betacode port; CI, the svelte-check fixes and the Pope-tick preflight. PR #29
+(plates, Chart Room postcard) is still open and did not ship.
+
+Gates: preflight ok; shared LSJ and Cunliffe coverage ok; 48/48 books carry
+scenes; 4,704 pages, 331,353 links, **0 broken**.
+
+Deletions, read by category before committing: 33 rehashed `_astro` bundles;
+the lemma pages and data for χάω and ἐφαμάω (PR #28); and **`data/plates/`**
+(five JSONs). The plates were swept into the August 19 deploy from the shared
+`build/dist`; main's code never reads them, and they carry draft apparatus, so
+they came off. Commit: 4,856 files (48 added, 32 deleted).
+
+Live-verified after Pages built `1c7bdc67a`: home, `/iliad/book/1/`,
+`/lemma/menis/` and `/search/` 200; `/lemma/chao/` 404; the live `index.html`
+is byte-identical to the build's.
+
+Not shipped: the 29 lexicon commits on `claude/integration-2026-09-01` (Cunliffe
+parse fixes, LSJ short definitions, Morpheus re-ranking, more ghost lemmata) —
+now PR #37, reviewed by Grok with fixes at `cd13c0ba3`. They are pipeline
+changes, so the next deploy needs a full `build:public`.
+
 ## Deploy — 2026-08-19: the LSJ sense hierarchy, and one quotation per line
 
 gh-pages `350799e11` → `7e29263` (source: main `3eee452d6`, PR #22). App-only

@@ -23,6 +23,16 @@ non-negotiable.
   (1715–26), Autenrieth, LSJ, Cunliffe (1924). NEVER: Lattimore, Fitzgerald,
   Fagles, Lombardo, Wilson, M. L. West's editorial text, anything from the print
   Landmark series. archive.org "NOT_IN_COPYRIGHT" can be Canada-only — verify US.
+  **CC exception (John, 2026-09-12): Creative Commons texts are in, with their
+  attributions.** First case: the Kosmos Society revision of Butler (Kim,
+  McCray, Nagy, Power; CC BY-NC-ND 3.0), a fourth text beside the 1898/1900
+  Butler, **rendered as verse groups, not prose** (John, same day): Kosmos
+  numbers only every 5th line plus scattered extras (~25% of lines), so the
+  English breaks at each Kosmos number and sits beside that Greek span — no
+  invented per-line breaks. ND means verbatim: bracketed Greek and footnotes stay (a reader
+  toggle may hide the brackets); no corrections or trimming. CC texts live on
+  their own preflight list with license + attribution, never on
+  `public_domain_translations.yaml`.
 - **Vulgate lineation is sacred.** Never renumber. Numbering gaps and
   bracketed/athetized lines are preserved verbatim; a verifier asserts monotonic
   numbering with recorded, expected gaps per book.
@@ -110,6 +120,20 @@ non-negotiable.
   bound to the old account and every run fails with "token could not be
   refreshed" — clear that state dir and start a `--fresh` thread. `codex login
   status` saying "Logged in" is not sufficient evidence the plugin runtime works.
+- Codex gotcha (2026-09-03, cost three review lanes): after `brew upgrade codex`
+  the plugin's `codex app-server` and its `app-server-broker` keep running from
+  the DELETED old Caskroom directory and every run dies spawning
+  `codex-code-mode-host` there ("missing executable", not a 401). Diagnose
+  with `ps aux | grep codex` (start times before the upgrade); kill the
+  app-server and broker; the next rescue call spawns the new binary.
+- **Codex spend rule (John, 2026-09-04 00:01, after six runs in fifteen
+  minutes drained the 5-hour window and a stalled forwarder tried to launch a
+  seventh on its own):** every codex-rescue brief says, verbatim, "ONE Codex
+  run. Do not retry, resume, or launch a second task for any reason; if the
+  run fails or stalls, report the error and stop." Codex lanes run one at a
+  time, never in parallel; a failed run is diagnosed by the orchestrator
+  before any relaunch. The workspace's 5-hour window is a shared token
+  budget: a dead run still spent its prompt.
 
 - Pipeline gotcha (2026-07-21, cost an Iliad re-emit): `build/stage1` is a
   per-run working dir — running `stage1` then `stage7` alone against a stale

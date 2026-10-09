@@ -32,6 +32,7 @@
     type Certainty,
     type Viewport,
     type Plate,
+    type PlateLayerGroup,
     type LabelBox,
   } from '@shared/lib/plate';
   import { renderShield, type ShieldPlate } from '@shared/lib/shield';
@@ -218,6 +219,34 @@
     applyCertaintyVisibility();
   }
 
+  // ── Layer groups (plate.ts Plate.layerGroups, 2026-09-15) ──────────────
+  // An optional layer the reader switches on — the schematic plain's "Later
+  // tradition and survey", off by default. Unlike the category and certainty
+  // toggles, which hide already-drawn elements, a group changes what the
+  // placer has to keep clear of (its names and dots are obstacles for the
+  // numerals), so switching one RE-RENDERS the sheet and keeps the camera
+  // where the reader left it. Its own state, apart from `certaintyVisible`:
+  // the certainty filter still applies to the group's marks afterwards.
+  let layerGroups: PlateLayerGroup[] = [];
+  let groupVisible: Record<string, boolean> = {};
+  let renderedPlate: Plate | undefined;
+
+  function shownGroupIds(): string[] {
+    return layerGroups.filter((g) => groupVisible[g.id]).map((g) => g.id);
+  }
+
+  async function toggleGroup(id: string, on: boolean) {
+    groupVisible = { ...groupVisible, [id]: on };
+    if (!renderedPlate) return;
+    const [k, tx, ty] = [camK, camTx, camTy];
+    paintPlate(renderedPlate, currentPlaces);
+    await tick();
+    applyLayerVisibility();
+    applyCertaintyVisibility();
+    setupCamera();
+    setCamera(k, tx, ty);
+  }
+
   // ── Camera: pan/zoom ─────────────────────────────────────────────────────
   // A pure CSS-style transform (`translate(tx,ty) scale(k)`) on a `<g>`
   // wrapped around the rendered content, INSIDE the sheet's own clip-path
@@ -294,9 +323,11 @@
     return found;
   }
 
-  function showTooltip(el: SVGGElement) {
+  function showTooltip(el: SVGElement) {
     const label = el.getAttribute('aria-label') ?? '';
-    const tier = badgeCertainty(el);
+    // A layer-group site's aria-label already names its tier (plate.ts
+    // traditionHoverText); a numeral's does not.
+    const tier = el.classList.contains('plate-tradition-target') ? undefined : badgeCertainty(el as SVGGElement);
     tipText = tier ? `${label} (${tier})` : label;
     const frameRect = mapFrameEl?.getBoundingClientRect();
     const badgeRect = el.getBoundingClientRect();
@@ -366,12 +397,26 @@
       badge.addEventListener('focusout', () => deactivateBadge());
     });
     mapEl.querySelectorAll<SVGElement>('.plate-key-row').forEach((row) => {
-      row.addEventListener('mouseenter', () => {
+      row.setAttribute('tabindex', '0');
+      const light = () => {
         const n = row.dataset.keyN;
         const badge = n ? findBadgeByKeyN(n) : null;
         if (badge) activateBadge(badge);
-      });
+      };
+      row.addEventListener('mouseenter', light);
       row.addEventListener('mouseleave', () => deactivateBadge());
+      row.addEventListener('focusin', light);
+      row.addEventListener('focusout', () => deactivateBadge());
+    });
+    // Layer-group sites (a dot, or the name of a site with no dot): the same
+    // hover/focus tooltip a numeral gets, carrying who identified the site
+    // and when, as the gazetteer records it.
+    mapEl.querySelectorAll<SVGElement>('.plate-tradition-target').forEach((site) => {
+      site.setAttribute('tabindex', '0');
+      site.addEventListener('mouseenter', () => showTooltip(site));
+      site.addEventListener('mouseleave', () => hideTooltip());
+      site.addEventListener('focusin', () => showTooltip(site));
+      site.addEventListener('focusout', () => hideTooltip());
     });
   }
 
@@ -402,10 +447,10 @@
     tipVisible = false;
   }
 
-  // Wraps the clip-path group's children in a new inner `<g class="pp-
-  // camera">` (see the doc comment above for why it can't just be the
-  // clip-path element's own transform), pulls the legend out as a sibling
-  // so it stays fixed, and wraps every `.plate-label` text node in its own
+  // Takes the sheet's `<g class="plate-camera">` as the pannable `pp-camera`
+  // group (see the doc comment above for why it can't just be the clip-path
+  // element's own transform; the legend, margin inset and keys stay fixed
+  // outside it), and wraps every `.plate-label` text node in its own
   // counter-scale group so labels never magnify under zoom (part 3: ships,
   // waterlines and every other drawn feature DO magnify; only text does
   // not). Re-run after every load() -- {@html} recreates the whole SVG
@@ -420,16 +465,21 @@
     if (!outerG) return;
     clipG = outerG;
 
-    const legendEl = outerG.querySelector(':scope > g.plate-legend');
-    const camera = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    camera.setAttribute('class', 'pp-camera');
-    const children = Array.from(outerG.children);
-    for (const child of children) {
-      if (child === legendEl) continue;
-      camera.appendChild(child);
+    // renderPlate's own `.plate-camera` group (cameraGroup: true) holds the
+    // map face only; the margin inset, legend, scene key and feature key sit
+    // beside it and stay fixed. A shield plate has no such group: its camera
+    // takes everything but the legend.
+    let camera = outerG.querySelector(':scope > g.plate-camera') as SVGGElement | null;
+    if (!camera) {
+      const legendEl = outerG.querySelector(':scope > g.plate-legend');
+      camera = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      for (const child of Array.from(outerG.children)) {
+        if (child !== legendEl) camera.appendChild(child);
+      }
+      outerG.appendChild(camera);
+      if (legendEl) outerG.appendChild(legendEl);
     }
-    outerG.appendChild(camera);
-    if (legendEl) outerG.appendChild(legendEl);
+    camera.classList.add('pp-camera');
     cameraG = camera;
 
     // A label's own x/y attribute is its exact anchor point (text-anchor
@@ -438,24 +488,42 @@
     // centre is the next best pivot -- getBBox() is defined in the
     // element's own user space regardless of any ancestor transform, so
     // it's safe to read before or after the camera group exists.
+    // Numbered badges are `<g>` discs (circle + text), not bare `<text>`:
+    // wrap the GROUP, pivoted on the circle centre, so they counter-scale
+    // under zoom the same way names do and stay seated on the same anchor.
     const wrappers: { el: SVGGElement; x: number; y: number }[] = [];
-    camera.querySelectorAll<SVGTextElement>('.plate-label').forEach((textEl) => {
-      const xAttr = textEl.getAttribute('x');
-      const yAttr = textEl.getAttribute('y');
+    camera.querySelectorAll<SVGGraphicsElement>('.plate-label, .plate-key-badge').forEach((el) => {
+      const isBadge = el.classList.contains('plate-key-badge');
       let x: number;
       let y: number;
-      if (xAttr !== null && yAttr !== null) {
-        x = parseFloat(xAttr);
-        y = parseFloat(yAttr);
+      if (isBadge) {
+        const circle = el.querySelector('circle');
+        const cx = circle?.getAttribute('cx');
+        const cy = circle?.getAttribute('cy');
+        if (cx !== null && cy !== null && cx !== undefined && cy !== undefined) {
+          x = parseFloat(cx);
+          y = parseFloat(cy);
+        } else {
+          const bbox = el.getBBox();
+          x = bbox.x + bbox.width / 2;
+          y = bbox.y + bbox.height / 2;
+        }
       } else {
-        const bbox = textEl.getBBox();
-        x = bbox.x + bbox.width / 2;
-        y = bbox.y + bbox.height / 2;
+        const xAttr = el.getAttribute('x');
+        const yAttr = el.getAttribute('y');
+        if (xAttr !== null && yAttr !== null) {
+          x = parseFloat(xAttr);
+          y = parseFloat(yAttr);
+        } else {
+          const bbox = el.getBBox();
+          x = bbox.x + bbox.width / 2;
+          y = bbox.y + bbox.height / 2;
+        }
       }
       const wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       wrapper.setAttribute('class', 'pp-label-descale');
-      textEl.parentNode?.insertBefore(wrapper, textEl);
-      wrapper.appendChild(textEl);
+      el.parentNode?.insertBefore(wrapper, el);
+      wrapper.appendChild(el);
       wrappers.push({ el: wrapper, x, y });
     });
     labelWrappers = wrappers;
@@ -648,6 +716,38 @@
   // caller that flips `plateId` on a live instance. Bump on every call;
   // ignore a completion whose generation has gone stale.
   let loadGeneration = 0;
+
+  // One render of a parsed plate.ts plate into the panel's state — shared by
+  // load() and toggleGroup(), which re-renders with a different set of layer
+  // groups shown.
+  function paintPlate(plate: Plate, placesForPlate: PlatePlace[]) {
+    const result = renderPlate(plate, placesForPlate, { showLayerGroups: shownGroupIds(), cameraGroup: true });
+    renderedPlate = plate;
+    svgMarkup = result.svg;
+    plateTitle = plate.title;
+    isDraft = plate.status === 'draft';
+    plateSize = plate.size;
+    plateViewport = plate.kind === 'geographic' ? result.viewport : undefined;
+    unlocated = result.unlocated;
+    offCanvas = result.offCanvas;
+    drawnByLayer = result.drawnByLayer;
+    plateLayers = plate.layers;
+    // Pinned/located count only -- `drawnByLayer` places are visibly
+    // drawn but never pinned, so they must not inflate this the way
+    // they would if only unlocated/offCanvas were subtracted; nor must a
+    // place behind a layer-group switch.
+    const locatedCount =
+      placesForPlate.length -
+      result.unlocated.length -
+      result.offCanvas.length -
+      result.drawnByLayer.length -
+      result.layerGroupHidden.length;
+    hasConjectural = plate.kind === 'schematic' && locatedCount > 0;
+    focusPlate = plate;
+    focusViewport = result.viewport;
+    focusLabelBoxes = result.labelBoxes;
+  }
+
   async function load(id: string, placesForPlate: PlatePlace[], focusIdsForPlate: string[]) {
     const generation = ++loadGeneration;
     status = 'loading';
@@ -658,6 +758,9 @@
     drawnByLayer = [];
     plateLayers = [];
     layerCategories = [];
+    layerGroups = [];
+    groupVisible = {};
+    renderedPlate = undefined;
     hasConjectural = false;
     plateViewport = undefined;
     currentPlaces = placesForPlate;
@@ -688,28 +791,25 @@
         plateSize = shield.size;
       } else {
         const plate = parsePlate(raw);
-        const result = renderPlate(plate, placesForPlate);
-        svgMarkup = result.svg;
-        plateTitle = plate.title;
-        isDraft = plate.status === 'draft';
-        plateSize = plate.size;
-        plateViewport = plate.kind === 'geographic' ? result.viewport : undefined;
-        unlocated = result.unlocated;
-        offCanvas = result.offCanvas;
-        drawnByLayer = result.drawnByLayer;
-        plateLayers = plate.layers;
+        layerGroups = plate.layerGroups ?? [];
+        // A focus id inside a group switches that group on: the site would
+        // otherwise be framed on a sheet that does not draw it.
+        const focused = new Set(focusIdsForPlate);
+        // The renderer hides a grouped layer's own `placeId` with the group too.
+        const layerPlaceId = new Map(plate.layers.map((l) => [l.id, l.placeId]));
+        groupVisible = Object.fromEntries(
+          layerGroups.map((g) => [
+            g.id,
+            g.default !== 'off' ||
+              [...g.placeIds, ...g.layerIds, ...g.layerIds.map((lid) => layerPlaceId.get(lid))].some(
+                (pid) => pid !== undefined && focused.has(pid),
+              ),
+          ]),
+        );
+        paintPlate(plate, placesForPlate);
         const present = new Set(plate.layers.map((l) => layerCategory(l)).filter((c): c is LayerCategory => c !== null));
         layerCategories = CATEGORY_ORDER.filter((c) => present.has(c));
         categoryVisible = { relief: true, river: true, coast: true };
-        // Pinned/located count only -- `drawnByLayer` places are visibly
-        // drawn but never pinned, so they must not inflate this the way
-        // they would if only unlocated/offCanvas were subtracted.
-        const locatedCount =
-          placesForPlate.length - result.unlocated.length - result.offCanvas.length - result.drawnByLayer.length;
-        hasConjectural = plate.kind === 'schematic' && locatedCount > 0;
-        focusPlate = plate;
-        focusViewport = result.viewport;
-        focusLabelBoxes = result.labelBoxes;
       }
 
       status = 'ready';
@@ -723,6 +823,7 @@
           places: placesForPlate,
           labelBoxes: focusLabelBoxes,
           maxScale: CAM_MAX_K,
+          showLayerGroups: shownGroupIds(),
         });
         setCamera(cam.scale, cam.tx, cam.ty);
       }
@@ -820,6 +921,21 @@
           </div>
         {/if}
 
+        {#if layerGroups.length}
+          <div class="pp-toggles pp-layer-groups" role="group" aria-label="Optional layers">
+            {#each layerGroups as group (group.id)}
+              <label class="pp-toggle">
+                <input
+                  type="checkbox"
+                  checked={groupVisible[group.id] === true}
+                  on:change={(e) => toggleGroup(group.id, (e.currentTarget as HTMLInputElement).checked)}
+                />
+                Show {group.title.toLowerCase()}
+              </label>
+            {/each}
+          </div>
+        {/if}
+
         <div class="pp-legend" aria-label="Certainty legend">
           <span class="pp-legend-item"><span class="pp-mark certain" aria-hidden="true"></span>certain</span>
           <span class="pp-legend-item"><span class="pp-mark traditional" aria-hidden="true"></span>traditional</span>
@@ -910,7 +1026,8 @@
   .pp-map :global(svg) { display: block; width: 100%; height: 100%; }
   /* The camera group's own contents (ships, waterlines, relief, pins) are
      meant to magnify under zoom -- only .pp-label-descale (wrapped around
-     every .plate-label by setupCamera) is ever given a counter-transform. */
+     every .plate-label and .plate-key-badge by setupCamera) is ever given a
+     counter-transform. */
   .pp-map :global(.pp-camera) { will-change: transform; }
   /* Tier-2 labels (stage 5a, 2026-09-02): hidden until the panel is
      actually zoomed in (`.plate-zoomed`, toggled on the svg root by
@@ -975,6 +1092,8 @@
   }
   .pp-map :global(.plate-key-badge:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
   .pp-map :global(.plate-key-row.plate-key-active) { fill: var(--accent); font-weight: 600; }
+  .pp-map :global(.plate-key-row:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .pp-map :global(.plate-tradition-target:focus-visible) { outline: 2px solid var(--accent); outline-offset: 1px; }
   .pp-map :global([data-place-id].plate-key-active:not(.plate-key-badge) circle),
   .pp-map :global([data-layer-id].plate-key-active:not(.plate-key-badge) circle) {
     stroke: var(--accent);

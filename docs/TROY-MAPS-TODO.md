@@ -366,6 +366,13 @@ shield-of-achilles plate-level `sources` (now a validator error);
 5. **No-label-on-water rule binds the schematic register only.** Geographic
    sheets may set a coastal name over water with a leader (Kum Tepe, Kesik
    Tepe come back).
+   **Rescinded (John, 2026-09-03 19:05: "a silly ruling that was likely
+   because of bad placement").** It was: the Patroclus label had drifted
+   onto the sea, and the answer was a rule instead of a better placer. With
+   ruling 9's placer in, water is a soft cost for a land feature's name, not
+   a reservation; a water body's own name sits on that water with no
+   leader; a coastal name may sit over water with a leader when that reads
+   best. No register-specific ban.
 
 6. **Dense clusters use Pope's method (John, 18:06):** on the schematic
    sheet the camp and the citadel's features carry NUMERALS at the pin, a
@@ -507,6 +514,33 @@ shield-of-achilles plate-level `sources` (now a validator error);
     from RESEARCH-CITADEL (§5 for the gates) and Dörpfeld, states the
     choice and the alternative in the note, and the tier and `tradition`
     carry the honesty. John reviews the result, not each call.
+
+15. **The bar is "sing," not "good enough" (John, 2026-09-04 00:08, on the
+    first Ilios panel: "Better.").** Next session, in this order: (a) the
+    citadel drawn to scale and FILLED inside the Ilios panel — the Pergamos
+    content at Ilios scale, not the empty circuit; (b) more color in the
+    panel grounds — they are flat parchment; the mound's slope, the plain,
+    the rock of the ditch, vegetation, in the sheet's own palette (color is
+    free, 2026-07-28); (c) more detail throughout. The walls are right; keep
+    them. "we aren't at good enough yet."
+
+16. **The geographic Trojan Plain sheet is retired (John, 2026-09-15,
+    13:22).** It showed the same ground as the schematic sheet, north-up
+    instead of east-up, without the poem's 32 keyed features and 7 lettered
+    zones. The Maps page's Trojan Plain tab now shows the schematic sheet,
+    and the Chart Room's schematic postcard links to it
+    (`/maps/?map=plain&focus=…`). The sites the geographic sheet drew that
+    the schematic did not (Sigeion, the tomb of Ajax at İn Tepe, Kum Tepe,
+    Kesik Tepe, Beşik-Sivritepe, Üvecik Tepe, Pınarbaşı, the Thymbrios, the
+    Kesik cut) are now a layer of the schematic, "Later tradition and
+    survey". It is off by default and the reader switches it on. Each site
+    is drawn from its gazetteer record, with its certainty tier's mark and a
+    small italic name, and has no numeral. Rhoiteion was already named on
+    the sheet. The Troad sheet stays as the wide view. Follow-up: delete the
+    geographic sheet's files (`apparatus/plates/trojan-plain.json` and what
+    only it uses) and the geographic Chart Room code path
+    (`CHART_ROOM_PLATE_ENABLED` in Reader.svelte, with the reader's fetch of
+    `trojan-plain`).
 
 ## Chart Room diagnosis (John live, 2026-07-30 22:33-22:39 — findings only, NOTHING built)
 

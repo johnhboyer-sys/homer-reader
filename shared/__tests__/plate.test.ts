@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { project, viewportFromBBox } from '../lib/geo';
@@ -28,6 +28,7 @@ import {
   type Plate,
   type PlatePlace,
   type PlateLayer,
+  type PlatePoint,
 } from '../lib/plate';
 
 const SEED_PLATE_PATH = '../apparatus/plates/trojan-plain.json';
@@ -3727,6 +3728,46 @@ describe('trojan-plain-schematic-v2: north arrow renders, needle left, N upright
     expect(cy).toBeGreaterThan(0);
     expect(cy).toBeLessThan(plate.size[1]);
   });
+
+  // 2026-09-15 (John): on the east-up sheet the "N" sat against the needle's
+  // point and the centred "True north" caption ran straight across the
+  // horizontal needle. Measured off the rendered SVG: the needle's drawn
+  // extent (its path points, rotated as the SVG rotates them), the "N" and
+  // the caption, each an estimated text box, must not touch.
+  it('the "N" and the caption stand clear of the rotated needle and of each other', () => {
+    const svg = renderPlate(plate, []).svg;
+    const group = svg.match(/<g class="plate-north">[\s\S]*?<\/text><\/g>/)![0];
+    const [, rcx, rcy] = group.match(/rotate\(-90 ([\d.]+) ([\d.]+)\)/)!.map(Number);
+    const pts = [...group.matchAll(/ d="([^"]+)"/g)].flatMap((m) =>
+      [...m[1].matchAll(/(-?[\d.]+) (-?[\d.]+)/g)].map((p) => [Number(p[1]), Number(p[2])] as [number, number]),
+    );
+    // rotate(-90 cx cy): (x, y) -> (cx + (y - cy), cy - (x - cx))
+    const rotated = pts.map(([x, y]) => [rcx + (y - rcy), rcy - (x - rcx)] as [number, number]);
+    const needle: [number, number, number, number] = [
+      Math.min(...rotated.map((p) => p[0])),
+      Math.min(...rotated.map((p) => p[1])),
+      Math.max(...rotated.map((p) => p[0])),
+      Math.max(...rotated.map((p) => p[1])),
+    ];
+    const textBox = (cls: string): [number, number, number, number] => {
+      const m = group.match(
+        new RegExp(`<text class="${cls}" x="([-\\d.]+)" y="([-\\d.]+)" text-anchor="(\\w+)"[^>]*font-size="([\\d.]+)"[^>]*>([^<]*)</text>`),
+      )!;
+      const [x, y, anchor, size, text] = [Number(m[1]), Number(m[2]), m[3], Number(m[4]), m[5]];
+      const w = text.length * size * 0.62;
+      const x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
+      return [x0, y - size * 0.72, x0 + w, y + size * 0.2];
+    };
+    const n = textBox('plate-north-label');
+    const caption = textBox('plate-north-caption');
+    expect(boxesIntersect(n, needle), `N ${n} touches needle ${needle}`).toBe(false);
+    expect(boxesIntersect(caption, needle), `caption ${caption} touches needle ${needle}`).toBe(false);
+    expect(boxesIntersect(caption, n), 'caption touches N').toBe(false);
+    for (const b of [n, caption]) {
+      expect(b[0]).toBeGreaterThan(0);
+      expect(b[1]).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe('legendMarkup: a right-margin band wraps an entry too long for it instead of clipping (synthetic)', () => {
@@ -4717,8 +4758,12 @@ const FEATURE_KEY_HEADINGS = [
 // against the merged geometry rather than assembled from either side's
 // recorded numbers. A, F and G moved from both sides' prior recordings; B, C,
 // D and E landed back on the same seats either side had already recorded.
+//
+// A moved once more (2026-10-09) when PR #29's achaean-camp anchor fix was
+// merged in: that anchor now sits inside zone A and is a real obstacle the
+// letter pass has to clear. B through G are unaffected on this sheet.
 const ZONE_LETTER_MARKUP: readonly string[] = [
-  '<g class="plate-zone-letter"><circle cx="762" cy="1166.9" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="762" y="1166.9" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">A</text></g>',
+  '<g class="plate-zone-letter"><circle cx="762" cy="1149.8" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="762" y="1149.8" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">A</text></g>',
   '<g class="plate-zone-letter"><circle cx="739" cy="1169.1" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="739" y="1169.1" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">B</text></g>',
   '<g class="plate-zone-letter"><circle cx="708.9" cy="1060.6" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="708.9" y="1060.6" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">C</text></g>',
   '<g class="plate-zone-letter"><circle cx="734.2" cy="880.8" r="7.6" fill="var(--scene-map-label-halo)" fill-opacity="0.86" stroke="var(--text-mid)" stroke-width="0.7"/><text class="plate-zone-letter" x="734.2" y="880.8" text-anchor="middle" dominant-baseline="central" font-family="var(--font-ui)" font-size="9.5" font-weight="600" fill="var(--text-mid)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="0.65" stroke-linejoin="round">D</text></g>',
@@ -5550,12 +5595,16 @@ describe('renderPlate: featureKey (stage 5c)', () => {
   // that always mattered: the key text and the panels do not collide. Stacked
   // or beside, either separation satisfies it.
   it('E6: the keys never collide with a panel; every key row estimated width ≤ 282px', () => {
+    const sheetBottom = plate.size[1];
     const keyYs = [
       ...result.svg.matchAll(/<text class="plate-key-row"[^>]*y="([-\d.]+)"/g),
       ...result.svg.matchAll(/<g class="plate-feature-key"[\s\S]*?<tspan[^>]*y="([-\d.]+)"/g),
     ].map((m) => Number(m[1]));
     expect(keyYs.length, 'feature key rows must render').toBeGreaterThan(0);
     const keyBottom = Math.max(...keyYs);
+    expect(keyBottom + 10, `key bottom ${keyBottom} + 10 must sit above sheet bottom ${sheetBottom}`).toBeLessThanOrEqual(
+      sheetBottom,
+    );
     const wrapW = 282;
     const keyRight = plate.size[0] - (plate.marginRight ?? 0) + 12 + 8 + wrapW + 22;
     const panels = plate.layers.filter((l) => l.style === 'inset' && l.frame);
@@ -5671,6 +5720,36 @@ describe('renderPlate: featureKey (stage 5c)', () => {
     // The one mark the ruling leaves at Ilios, and the letters.
     expect(result.svg).toContain('data-feature-id="wall-of-troy"');
     expect([...result.svg.matchAll(/<g class="plate-zone-letter">/g)].length).toBe(plate.sceneKey!.length);
+  });
+
+  // 2026-09-15 (John): beside numeral 7 two "location secure" dots touched —
+  // the ship and hut of Odysseus and the assembly with the altars, two places
+  // the poem puts together (11.806-808) but names separately. They must read
+  // as two marks.
+  it('the ship of Odysseus and the assembly are two dots that do not touch', () => {
+    const dots = new Map(markPins(result.svg).map((p) => [p.id, p.box] as const));
+    const a = dots.get('hut-of-odysseus');
+    const b = dots.get('achaean-assembly-place');
+    expect(a && b, 'both dots are drawn').toBeTruthy();
+    const gap = Math.hypot((a![0] + a![2]) / 2 - (b![0] + b![2]) / 2, (a![1] + a![3]) / 2 - (b![1] + b![3]) / 2) -
+      (a![2] - a![0]) / 2 - (b![2] - b![0]) / 2;
+    expect(gap).toBeGreaterThanOrEqual(2);
+  });
+
+  // Ruling 11 (John, 2026-09-03): the zone outlines never draw; the letters
+  // stay, and so does each zone's polygon as data (the Chart Room camera
+  // frames a scene on it).
+  it('ruling 11: no scene-zone outline is drawn and no legend row keys one, but every zone letter is on the face', () => {
+    const zoneIds = (plate.sceneKey ?? []).map((row) => row.layerId);
+    expect(zoneIds.length).toBe(7);
+    const drawnLayerIds = new Set([...result.svg.matchAll(/data-layer-id="([^"]+)"/g)].map((m) => m[1]));
+    for (const id of zoneIds) {
+      expect(drawnLayerIds.has(id), `zone ${id} is still drawn`).toBe(false);
+      expect(result.features.some((f) => f.id === id), `zone ${id} lost its feature record`).toBe(true);
+    }
+    expect(result.svg).not.toContain('Scene zone (lettered)');
+    const letters = [...result.svg.matchAll(/<g class="plate-zone-letter">[\s\S]*?>([A-Z])<\/text>/g)].map((m) => m[1]);
+    expect(letters.sort()).toEqual(['A', 'B', 'C', 'D', 'E', 'F', 'G']);
   });
 
   it('numeral badges carry the contract attributes and no tabindex', () => {
@@ -5895,11 +5974,17 @@ describe('renderPlate: geographic label-set parity (stage 5c E9)', () => {
       );
       const now = idsFromSvg(renderPlate(plate, places).svg);
       const baseline = new Set(GEO_ENRICH_PLUS_LIVE[sheet]);
-      const archived = idsFromHtml(
-        readFileSync(path.resolve(process.cwd(), `../build/plate-review/geo-enrich-2/${sheet}-light.html`), 'utf-8'),
-      );
-      const droppedArchived = [...archived].filter((id) => !now.has(id)).sort();
-      expect(droppedArchived, `${sheet} dropped a geo-enrich-2 label`).toEqual([]);
+      // The geo-enrich-2 renders are a local review archive under build/, never
+      // committed, so CI has none. Compare against them where they exist; the
+      // committed baseline below is checked everywhere.
+      const archivePath = path.resolve(process.cwd(), `../build/plate-review/geo-enrich-2/${sheet}-light.html`);
+      if (existsSync(archivePath)) {
+        const archived = idsFromHtml(readFileSync(archivePath, 'utf-8'));
+        const droppedArchived = [...archived].filter((id) => !now.has(id)).sort();
+        expect(droppedArchived, `${sheet} dropped a geo-enrich-2 label`).toEqual([]);
+      } else {
+        console.warn(`plate.test: no geo-enrich-2 archive at ${archivePath}; checking the committed baseline only`);
+      }
       const added = [...now].filter((id) => !baseline.has(id)).sort();
       const dropped = [...baseline].filter((id) => !now.has(id)).sort();
       expect({ sheet, added, dropped }).toEqual({ sheet, added: [], dropped: [] });
@@ -6366,5 +6451,152 @@ describe('renderPlate: mutating a glyph layer on the same plate object gets a fr
       beforePos,
     );
     expect(badgeOverlapOffenders(after.svg, plate, after), 'the re-rendered sheet must still clear E7').toEqual([]);
+    // Two cold solves of the whole sheet (the cache cannot help, by design),
+    // and the citadel panels roughly double what each solve places.
+  }, 20_000);
+});
+
+// 2026-09-15 (John): the geographic Trojan Plain sheet is retired and its
+// tradition sites fold into the schematic as "Later tradition and survey",
+// its own layer group, off by default.
+describe('trojan-plain-schematic: the "Later tradition and survey" layer group', () => {
+  const plate = parsePlate(JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')));
+  const allPlaces = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[];
+  const placeById = new Map(allPlaces.map((p) => [p.id, p]));
+  const group = plate.layerGroups?.find((g) => g.id === 'later-tradition');
+  const off = renderPlate(plate, allPlaces);
+  const on = renderPlate(plate, allPlaces, { showLayerGroups: ['later-tradition'] });
+  const placeIds = group?.placeIds ?? [];
+  const siteIds = [...placeIds, ...(group?.layerIds ?? [])];
+  const traditionLabel = (svg: string, id: string) =>
+    svg.match(new RegExp(`<text class="plate-label[^"]*plate-label-tradition[^"]*" data-label-for="${id}"[^>]*>[\\s\\S]*?</text>`))?.[0];
+
+  it('is declared off by default, with the sites the geographic sheet drew, each from its gazetteer record', () => {
+    expect(group?.default).toBe('off');
+    expect([...placeIds].sort()).toEqual(
+      [
+        'besik-sivritepe', 'kesik-basin', 'kesik-tepe', 'kum-tepe', 'pinarbasi', 'sigeion', 'thymbrios',
+        'tomb-of-ajax-in-tepe', 'uvecik-tepe',
+      ],
+    );
+    // The Kesik cut's label-only layer is gone (John, 2026-10-09: it lettered
+    // nothing drawn); the group carries places only. The Kesik basin stays in
+    // the list with no coords, so the record is behind the switch like the
+    // other later-tradition sites.
+    expect(group?.layerIds).toEqual([]);
+    for (const id of placeIds) {
+      if (id === 'kesik-basin') continue;
+      const place = placeById.get(id);
+      expect(place?.coords, `${id} has coords`).toBeTruthy();
+      expect(place?.certainty, `${id} has a tier`).toBeTruthy();
+      if (place?.certainty === 'traditional') expect(place.tradition, `${id} names its tradition`).toBeTruthy();
+    }
+  });
+
+  it('computeCamera frames a shown group site from its surveyed coordinates, and ignores it while the group is off (as renderPlate does)', () => {
+    const id = 'kum-tepe';
+    expect(placeIds).toContain(id);
+    const identity = { scale: 1, tx: 0, ty: 0 };
+    const hidden = computeCamera(plate, on.viewport, [id], { places: allPlaces, labelBoxes: off.labelBoxes });
+    expect(hidden).toEqual(identity);
+    // No label boxes: the pin alone must carry the framing.
+    const shown = computeCamera(plate, on.viewport, [id], {
+      places: allPlaces,
+      showLayerGroups: ['later-tradition'],
+    });
+    expect(shown.scale).toBeGreaterThan(1);
+    // The framed site lands inside the sheet.
+    const [x, y] = on.features.find((f) => f.id === id)!.bbox;
+    expect(x * shown.scale + shown.tx).toBeGreaterThanOrEqual(0);
+    expect(x * shown.scale + shown.tx).toBeLessThanOrEqual(on.frame[0]);
+    expect(y * shown.scale + shown.ty).toBeGreaterThanOrEqual(0);
+    expect(y * shown.scale + shown.ty).toBeLessThanOrEqual(on.frame[1]);
+  });
+
+  it('draws nothing unless asked: no mark, no name, no legend row; its places are behind the switch, not "unlocated"', () => {
+    expect(off.svg).not.toContain('data-layer-group');
+    expect(off.svg).not.toContain('plate-label-tradition');
+    expect(off.svg).not.toContain('Later tradition and survey');
+    expect(renderPlate(plate, allPlaces, { showLayerGroups: [] }).svg).toBe(off.svg);
+    const labelled = textLabelIds(off.svg);
+    for (const id of siteIds) expect(labelled.has(id), `${id} lettered with the layer off`).toBe(false);
+    const hidden = new Set(off.layerGroupHidden.map((p) => p.id));
+    const unlocated = new Set(off.unlocated.map((p) => p.id));
+    for (const id of siteIds) {
+      expect(unlocated.has(id), `${id} reported as unlocated`).toBe(false);
+      // Sigeion is carried by its own ridge layer whichever way the switch is.
+      if (id !== 'sigeion') expect(hidden.has(id), `${id} not reported as behind the switch`).toBe(true);
+    }
+  });
+
+  it('shown: each site has its tier\'s dot (none for the Thymbrios), a small italic name, no numeral, and its tradition as hover text', () => {
+    const pins = new Map(markPins(on.svg).map((p) => [p.id, p.box] as const));
+    // The Kesik basin has no coords and no drawing: shown, it is named, not drawn.
+    expect(on.unlocated.map((p) => p.id)).toContain('kesik-basin');
+    expect(pins.has('kesik-basin')).toBe(false);
+    for (const id of placeIds.filter((pid) => pid !== 'kesik-basin')) {
+      const place = placeById.get(id)!;
+      const label = traditionLabel(on.svg, id);
+      expect(label, `${id} is lettered in the tradition register`).toBeTruthy();
+      expect(label).toContain('font-size="9.5"');
+      expect(label).toContain('font-style="italic"');
+      if (id === 'thymbrios') {
+        expect(pins.has(id), 'a river is a name, not a dot').toBe(false);
+        expect(label).toContain('plate-tradition-target');
+        expect(label).toContain(`aria-label="${place.name}. Traditional identification: ${place.tradition}."`);
+        continue;
+      }
+      const box = pins.get(id);
+      expect(box, `${id} has a dot`).toBeTruthy();
+      expect((box![2] - box![0]) / 2, `${id}'s dot is smaller than every poem mark`).toBeLessThan(2.6);
+      const mark = on.svg.match(new RegExp(`<g class="plate-tradition-site[^"]*" data-place-id="${id}"[^>]*>[\\s\\S]*?</g>`))?.[0];
+      expect(mark).toContain('data-layer-group="later-tradition"');
+      if (place.tradition) expect(mark).toContain(place.tradition.replace(/'/g, '&apos;').slice(0, 30));
+    }
+    expect(on.svg).not.toContain('Kesik cut');
+    const badgeIds = new Set(markDiscs(on.svg, 'plate-key-badge').map((d) => d.id));
+    for (const id of siteIds) expect(badgeIds.has(id), `${id} carries a numeral`).toBe(false);
+    expect(markDiscs(on.svg, 'plate-key-badge').length).toBe(42);
+    expect(on.unplacedKeyNumerals).toEqual([]);
+    expect(on.svg).toContain('>Later tradition and survey<');
+    expect(on.svg).toContain('>Traditional identification<');
+  });
+
+  it('E7 holds with the layer on', () => {
+    expect(badgeOverlapOffenders(on.svg, plate, on)).toEqual([]);
+  });
+
+  it('with the layer on, its names and dots touch no other name, numeral, zone letter or pin', () => {
+    const discBox = (d: { cx: number; cy: number; r: number }): [number, number, number, number] => [
+      d.cx - d.r, d.cy - d.r, d.cx + d.r, d.cy + d.r,
+    ];
+    const discs = [...markDiscs(on.svg, 'plate-key-badge'), ...markDiscs(on.svg, 'plate-zone-letter')].map((d) => ({
+      id: d.label,
+      box: discBox(d),
+    }));
+    const pins = markPins(on.svg);
+    const offenders: string[] = [];
+    for (const id of siteIds) {
+      const own = on.labelBoxes[id];
+      const ownPin = pins.find((p) => p.id === id)?.box;
+      const others = [
+        ...Object.entries(on.labelBoxes).filter(([o]) => o !== id).map(([o, box]) => ({ id: `name ${o}`, box })),
+        ...discs,
+        ...pins.filter((p) => p.id !== id).map((p) => ({ id: `pin ${p.id}`, box: p.box })),
+      ];
+      for (const o of others) {
+        if (own && boxesIntersect(own, o.box)) offenders.push(`name ${id} / ${o.id}`);
+        if (ownPin && !o.id.startsWith('name ') && boxesIntersect(ownPin, o.box)) offenders.push(`dot ${id} / ${o.id}`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('E6 still holds with the layer on: the longer legend does not push the feature key off the sheet', () => {
+    const keyYs = [...on.svg.matchAll(/<g class="plate-feature-key"[\s\S]*?<tspan[^>]*y="([-\d.]+)"/g), ...on.svg.matchAll(/<text class="plate-key-row"[^>]*y="([-\d.]+)"/g)].map(
+      (m) => Number(m[1]),
+    );
+    expect(keyYs.length).toBeGreaterThan(0);
+    expect(Math.max(...keyYs) + 10).toBeLessThanOrEqual(plate.size[1]);
   });
 });

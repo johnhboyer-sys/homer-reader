@@ -435,6 +435,25 @@ export interface Plate {
    * validate_plate, same posture as sceneKey's own layerId).
    */
   suppressLayerLabels?: string[];
+  /**
+   * Optional layers a reader switches on (2026-09-15, John: the geographic
+   * Trojan Plain sheet retired, its tradition sites folded into the
+   * schematic as "Later tradition and survey", off by default). A group
+   * names gazetteer places, drawn at their own `coords` with the certainty
+   * tier's dot and a small italic name and no numeral, and layers of this
+   * plate, drawn only while the group is shown. A group that is not shown
+   * draws nothing and reserves nothing. See PlateOptions.showLayerGroups.
+   */
+  layerGroups?: PlateLayerGroup[];
+}
+
+export interface PlateLayerGroup {
+  id: string;
+  title: string;
+  /** Whether the group draws when the caller names no groups. Default 'on'. */
+  default?: 'on' | 'off';
+  placeIds: string[];
+  layerIds: string[];
 }
 
 export interface PlateSceneKey {
@@ -506,6 +525,12 @@ export interface PlatePlace {
   labelTier?: 1 | 2;
   /** "small" maps to LABEL_STYLES.minor; "base" (or omit) leaves the role's default. */
   labelSize?: 'small' | 'base';
+  /**
+   * The gazetteer's own `tradition` text (who identified the site, and when).
+   * Read only for a place drawn by a shown layer group (see
+   * Plate.layerGroups), where it becomes the mark's hover and focus text.
+   */
+  tradition?: string;
 }
 
 export interface PlateOptions {
@@ -526,9 +551,14 @@ export interface PlateOptions {
    * double-wrap if this were also on.
    */
   cameraGroup?: boolean;
+  /**
+   * Ids of `Plate.layerGroups` to draw. Omitted, each group follows its own
+   * `default`; given (even empty), exactly these groups draw.
+   */
+  showLayerGroups?: string[];
 }
 
-const DEFAULT_PLATE_OPTIONS: Required<PlateOptions> = {
+const DEFAULT_PLATE_OPTIONS: Required<Omit<PlateOptions, 'showLayerGroups'>> = {
   idPrefix: 'plate',
   cameraGroup: false,
 };
@@ -568,6 +598,11 @@ export interface PlateResult {
   // this map?" deserves a yes, not an absence. Never pinned — this bucket
   // only ever holds places carried by geometry, not markers.
   drawnByLayer: PlatePlace[];
+  // A place that belongs to a layer group (Plate.layerGroups) the caller did
+  // not show, and that nothing else on the sheet draws. It has a position; it
+  // is behind a switch. Kept apart from `unlocated`, whose claim ("no
+  // defensible position") would be false for Sigeion or Kum Tepe.
+  layerGroupHidden: PlatePlace[];
   // Ids (place or layer) whose label was DROPPED rather than printed
   // illegibly — only ever an id that opted into suppression via
   // LabelRequest.priority (geographic settlement rank 3 / feature, see
@@ -627,9 +662,16 @@ export interface CameraOptions {
    * pin only," exactly the old behaviour.
    */
   labelBoxes?: Record<string, LabelBox>;
+  /**
+   * Ids of `Plate.layerGroups` drawn on the sheet being framed — pass the
+   * same list given to renderPlate. A place of a SHOWN group is framed at its
+   * surveyed `coords`, as renderPlate draws it; a place of a hidden group
+   * resolves by the ordinary rule below. Omitted, each group follows its own `default`.
+   */
+  showLayerGroups?: string[];
 }
 
-const DEFAULT_CAMERA_OPTIONS: Required<CameraOptions> = {
+const DEFAULT_CAMERA_OPTIONS: Required<Omit<CameraOptions, 'showLayerGroups'>> = {
   padFraction: 0.12,
   maxScale: 8,
   places: [],
@@ -1137,6 +1179,46 @@ export function parsePlate(data: unknown): Plate {
     });
   }
 
+  let layerGroups: PlateLayerGroup[] | undefined;
+  if (d.layerGroups !== undefined) {
+    if (!Array.isArray(d.layerGroups)) fail('layerGroups must be an array');
+    const layerIds = new Set(layers.map((l) => l.id));
+    const seenGroupIds = new Set<string>();
+    const groupedLayerIds = new Set<string>();
+    const idList = (raw: unknown, where: string): string[] => {
+      if (!Array.isArray(raw)) fail(`${where} must be an array`);
+      return (raw as unknown[]).map((v, i) => {
+        if (typeof v !== 'string' || !v) fail(`${where}[${i}] must be a non-empty string`);
+        return v as string;
+      });
+    };
+    layerGroups = (d.layerGroups as unknown[]).map((raw, gi) => {
+      if (!raw || typeof raw !== 'object') fail(`layerGroups[${gi}] must be an object`);
+      const g = raw as Record<string, unknown>;
+      if (typeof g.id !== 'string' || !g.id) fail(`layerGroups[${gi}].id must be a non-empty string`);
+      if (seenGroupIds.has(g.id as string)) fail(`layerGroups[${gi}].id '${g.id}' appears twice`);
+      seenGroupIds.add(g.id as string);
+      if (typeof g.title !== 'string' || !g.title.trim()) fail(`layerGroups[${gi}].title must be a non-empty string`);
+      if (g.default !== undefined && g.default !== 'on' && g.default !== 'off') {
+        fail(`layerGroups[${gi}].default must be 'on' or 'off'`);
+      }
+      const placeIds = idList(g.placeIds ?? [], `layerGroups[${gi}].placeIds`);
+      const groupLayerIds = idList(g.layerIds ?? [], `layerGroups[${gi}].layerIds`);
+      for (const id of groupLayerIds) {
+        if (!layerIds.has(id)) fail(`layerGroups[${gi}].layerIds '${id}' is not a layer of this plate`);
+        if (groupedLayerIds.has(id)) fail(`layerGroups[${gi}].layerIds '${id}' is already in another group`);
+        groupedLayerIds.add(id);
+      }
+      return {
+        id: g.id as string,
+        title: g.title as string,
+        ...(g.default !== undefined ? { default: g.default as 'on' | 'off' } : {}),
+        placeIds,
+        layerIds: groupLayerIds,
+      };
+    });
+  }
+
   return {
     id: d.id,
     title: d.title,
@@ -1156,6 +1238,7 @@ export function parsePlate(data: unknown): Plate {
     sceneKey,
     featureKey,
     suppressLayerLabels,
+    layerGroups,
   };
 }
 
@@ -2120,6 +2203,49 @@ function dotBBox(x: number, y: number, r: number): [number, number, number, numb
 const SETTLEMENT_DOT_R: Record<1 | 2 | 3, number> = { 1: 4, 2: 3.2, 3: 2.6 };
 const FEATURE_DOT_R = 2.6;
 
+// ── Layer-group sites (Plate.layerGroups, 2026-09-15) ────────────────────
+// Later tradition and survey on the schematic sheet: the certainty tier's own
+// dot at a size below every poem mark, and a small italic name in the sheet's
+// muted ink. Never a numeral — these are not in Pope's key, and the poem stays
+// the subject.
+const TRADITION_DOT_R = 2.2;
+const TRADITION_LABEL_STYLE: LabelStyle = {
+  size: 9.5,
+  weight: 400,
+  italic: true,
+  caps: false,
+  tracking: 0.02,
+  fill: 'var(--text-mid)',
+};
+
+/** "Kum Tepe. Traditional identification: Schliemann attached …" — the data's own words, nothing added. */
+function traditionHoverText(place: PlatePlace | undefined, fallback: string): string {
+  if (!place) return fallback;
+  const tier = CERTAINTY_LEGEND_TEXT[place.certainty ?? 'certain'];
+  const tradition = place.tradition?.trim();
+  const body = tradition ? `${tier}: ${tradition}` : tier;
+  return `${place.name}. ${body}${/[.!?]$/.test(body) ? '' : '.'}`;
+}
+
+function traditionDotMarkup(id: string, groupId: string, hover: string, x: number, y: number, style: DotStyle): string {
+  return (
+    `<g class="plate-tradition-site plate-tradition-target" data-place-id="${escapeXml(id)}" ` +
+    `data-layer-group="${escapeXml(groupId)}" role="img" aria-label="${escapeXml(hover)}">` +
+    `<title>${escapeXml(hover)}</title>${dotSymbol(x, y, style, TRADITION_DOT_R)}</g>`
+  );
+}
+
+function layerGroupLegendEntry(group: PlateLayerGroup): LegendEntry {
+  return {
+    key: `layer-group-${group.id}`,
+    rank: 50,
+    text: group.title,
+    swatch: (x, y) =>
+      `<text x="${round1(x + 3)}" y="${round1(y + 3.3)}" font-family="var(--font-ui)" font-size="9.5" ` +
+      `font-style="italic" fill="var(--plate-schematic-ink)">Aa</text>`,
+  };
+}
+
 // ── Label class (geographic places only) ────────────────────────────────
 // Which of the five Landmark classes — region / water / river / settlement /
 // feature — a place prints as. Derived from the gazetteer's own fine-grained
@@ -2356,8 +2482,8 @@ function labelText(text: string, style: LabelStyle): string {
   return style.caps ? text.toUpperCase() : text;
 }
 
-// The gazetteer's `name` is a CATALOGUE entry — "Kesik Tepe (the 'Demetrius
-// tumulus'), claimed tomb of Achilles", "Scamander (Xanthus)". Lettered onto
+// The gazetteer's `name` is a CATALOGUE entry — "Kesik Tepe (St. Demetrius'
+// Tepe), the travelers' tomb of Antilochus", "Scamander (Xanthus)". Lettered onto
 // the sheet verbatim it runs across half the plain and collides with its
 // neighbours (measured, 2026-07-28: the first render of this lane). A map
 // label is the short form: the head of the name, before the first
@@ -2474,7 +2600,21 @@ export interface LabelPlacementOptions {
   margin: number;
   markerBoxes?: LabelBox[];
   placedBoxes?: LabelBox[];
+  /**
+   * Open water on a schematic sheet (2026-09-03, ruling 5 rescinded): a SOFT
+   * avoidance, not a reservation — weighted like a marker box (see
+   * WATER_OVERLAP_WEIGHT), so a name still lands on water rather than being
+   * dropped or forced off its own feature when no land seat is available.
+   */
+  waterBoxes?: Box[];
 }
+
+// Same cost class as a marker box (WATER_OVERLAP_WEIGHT === the marker
+// weight below, ten times cheaper than colliding with another name): water
+// is a preference to avoid, not a forbidden zone (ruling 5 rescinded,
+// 2026-09-03 — "a silly ruling... likely because of bad placement, instead
+// of a better placer").
+const WATER_OVERLAP_WEIGHT = 100;
 
 function offViewBoxArea(box: Box, width: number, height: number, margin: number): number {
   const visibleWidth = Math.max(0, Math.min(box[2], width - margin) - Math.max(box[0], margin));
@@ -2501,8 +2641,10 @@ export function placeLabelCandidates(
       const box = labelBox(candidate, input.textWidth, { size: input.fontSize });
       const labelOverlap = placed.reduce((total, other) => total + overlapArea(box, other), 0);
       const markerOverlap = markerBoxes.reduce((total, marker) => total + overlapArea(box, marker), 0);
+      const waterOverlap = (options.waterBoxes ?? []).reduce((total, w) => total + overlapArea(box, w), 0);
       const offView = offViewBoxArea(box, options.width, options.height, options.margin);
-      const penalty = offView * 10_000 + labelOverlap * 1_000 + markerOverlap * 100 + index / 1_000;
+      const penalty =
+        offView * 10_000 + labelOverlap * 1_000 + markerOverlap * 100 + waterOverlap * WATER_OVERLAP_WEIGHT + index / 1_000;
       const placement = { id: input.id, candidate, candidateIndex: index, box, penalty };
       if (!best || placement.penalty < best.penalty) best = placement;
     }
@@ -2802,7 +2944,14 @@ function placeKeyBadges(
     const nearWallLegs = avoidWalls.flatMap((w) =>
       input.ownWalls?.includes(w)
         ? []
-        : w.legs.filter((l) => near(l.bbox)).map((l) => ({ p1: l.p1, p2: l.p2, side: w.side, halfWidths: w.halfWidths })),
+        : w.legs.filter((l) => near(l.bbox)).map((l) => {
+            // The leg's box grown by the widest it can be from a disc centre
+            // and still touch: a centre outside it clears the leg without the
+            // projection (the legs of a city plan are many and short).
+            const pad = Math.max(w.halfWidths[0], w.halfWidths[1]) + input.r;
+            const hit: Box = [l.bbox[0] - pad, l.bbox[1] - pad, l.bbox[2] + pad, l.bbox[3] + pad];
+            return { p1: l.p1, p2: l.p2, side: w.side, halfWidths: w.halfWidths, hit };
+          }),
     );
     const nearMarkerBoxes = markerBoxes.filter(near);
     const foreignMarkers = avoidMarkers.filter((m) => m !== input.ownMarker && near(m));
@@ -2882,7 +3031,12 @@ function placeKeyBadges(
     let bestCollisions = Infinity;
     let bestStray = Infinity;
     let bestPenalty = Infinity;
-    for (let index = 0; index < candidates.length; index++) {
+    // Collisions only ever add up, and a candidate with more of them than the
+    // incumbent is discarded below whatever else it scores, so the counting
+    // stops as soon as that is certain. Same answer, fewer tests: inside the
+    // Ilios panel a disc is checked against every wall leg of the city plan,
+    // and most of six hundred escape rungs land on a wall (2026-10-09).
+    candidates: for (let index = 0; index < candidates.length; index++) {
       const candidate = candidates[index];
       const box = labelBox(candidate, input.textWidth, { size: input.fontSize });
       const bcx = (box[0] + box[2]) / 2;
@@ -2932,12 +3086,17 @@ function placeKeyBadges(
       for (const name of nearLabels) if (boxesTouch(circle, name, BADGE_CLEARANCE)) violations++;
       // Ruling 5's water rule, on the disc only (see `avoidWater`).
       for (const wet of nearWater) if (boxesTouch(circle, wet, BADGE_WATER_CLEARANCE)) violations++;
+      // `nearestForeign` is complete by here (it is read only for a candidate
+      // that survives), so an early exit cannot change the stray tier.
+      if (violations > bestCollisions) continue;
       // Ruling 9 round 4's wall rule, on the disc only (see `avoidWalls`) — a
       // LEADER may still cross a wall, same as it crosses a route or a
       // contour.
       for (const leg of nearWallLegs) {
+        if (bcx < leg.hit[0] || bcx > leg.hit[2] || bcy < leg.hit[1] || bcy > leg.hit[3]) continue;
         if (!wallLegClears(leg.p1[0], leg.p1[1], leg.p2[0], leg.p2[1], leg.side, leg.halfWidths, bcx, bcy, input.r)) {
           violations++;
+          if (violations > bestCollisions) continue candidates;
         }
       }
       if (leader) {
@@ -3321,6 +3480,17 @@ interface LabelRequest {
    * rather than sitting on reserved ink.
    */
   area?: [number, number][];
+  /**
+   * A layer-group name's hover text (Plate.layerGroups): emitted as the
+   * label's own <title>, with class `plate-label-tradition`.
+   */
+  hover?: string;
+  /**
+   * The name is itself the hover/focus target (a site with no dot of its
+   * own): it carries `plate-tradition-target`, role="img" and `hover` as its
+   * aria-label, which a viewer makes focusable.
+   */
+  hoverTarget?: boolean;
 }
 
 /**
@@ -3547,17 +3717,24 @@ function labelElement(
   id: string,
   geographic: boolean,
   tier?: 1 | 2,
+  hover?: string,
+  hoverTarget?: boolean,
 ): string {
   const italic = style.italic || forceItalic;
   const tracking = style.tracking ? ` letter-spacing="${round1(style.size * style.tracking)}"` : '';
   const tierClass = tier === 2 ? ' plate-label-tier2' : '';
   const tierAttr = tier === 2 ? ' data-label-tier="2"' : '';
+  // A layer-group name (see LabelRequest.hover): its own tooltip, and — when
+  // no dot carries the site — the focus target too.
+  const hoverClass = hover ? ` plate-label-tradition${hoverTarget ? ' plate-tradition-target' : ''}` : '';
+  const hoverAttr = hover && hoverTarget ? ` role="img" aria-label="${escapeXml(hover)}"` : '';
+  const hoverTitle = hover ? `<title>${escapeXml(hover)}</title>` : '';
   return (
-    `<text class="plate-label plate-label-${role}${tierClass}" data-label-for="${escapeXml(id)}"${tierAttr} x="${round1(c.x)}" y="${round1(c.y)}" ` +
+    `<text class="plate-label plate-label-${role}${tierClass}${hoverClass}" data-label-for="${escapeXml(id)}"${tierAttr}${hoverAttr} x="${round1(c.x)}" y="${round1(c.y)}" ` +
     `text-anchor="${c.anchor}" font-family="var(--font-ui)" font-size="${style.size}" ` +
     `font-weight="${style.weight}"${italic ? ' font-style="italic"' : ''}${tracking} ` +
     `fill="${schematicInkFill(style.fill, geographic)}" paint-order="stroke" ${haloAttrs(geographic)}` +
-    `>${escapeXml(labelText(text, style))}</text>`
+    `>${hoverTitle}${escapeXml(labelText(text, style))}</text>`
   );
 }
 
@@ -3649,6 +3826,13 @@ function layoutLabels(
   // label — which is the fix for "ACHAEAN WALL AND DITCH" printing straight
   // through the wall it names.
   reservedBoxes: ReservedBox[] = [],
+  // Open water on a schematic sheet (2026-09-03, ruling 5 rescinded): a SOFT
+  // cost for every name except the one lettering this exact body of water
+  // (the owner exemption below, same pattern as `layerId` above) — never a
+  // reservation, so a name with no clear land seat still gets placed rather
+  // than pushed off its own feature. Empty on a geographic sheet, which
+  // already draws coastal names over water with a leader by design.
+  waterCost: ReservedBox[] = [],
 ): { markup: string; defs: string; placedBoxes: Box[]; boxes: { id: string; box: LabelBox }[]; suppressed: string[] } {
   const reservedAll = reservedBoxes.filter((r) => !r.areaOnly).map((r) => r.box);
   const reservedArea = reservedBoxes.map((r) => r.box);
@@ -3684,6 +3868,12 @@ function layoutLabels(
     // owner exemption below — with no reservations it is `placed`, exactly as
     // before.
     const blocking = [...placed, ...(req.centred ? reservedArea : reservedAll)];
+    // Water this name pays a soft cost to sit on — every body except its own
+    // (a water body's own name owes nothing for sitting on the water it
+    // names; see waterCost's own comment). `req.id` is the layer id for a
+    // layer-driven request (the only kind a water body's name ever is), the
+    // same id waterCostBoxes was tagged with above.
+    const waterBoxesForReq = waterCost.filter((w) => w.layerId !== req.id).map((w) => w.box);
     if (!req.text.trim()) continue;
     const dedupeKey = req.text.trim().toLocaleLowerCase();
     if (lettered.has(dedupeKey)) continue;
@@ -3761,7 +3951,7 @@ function layoutLabels(
         if (!found) {
           const beside = placeLabelCandidates(
             [{ id: req.id, anchorBox: req.anchorBox, textWidth, fontSize: style.size }],
-            { width, height, margin, markerBoxes, placedBoxes: blocking },
+            { width, height, margin, markerBoxes, placedBoxes: blocking, waterBoxes: waterBoxesForReq },
           )[0];
           if (beside && !blocking.some((p) => boxesOverlap(p, beside.box))) {
             chosen = beside.candidate;
@@ -3777,7 +3967,7 @@ function layoutLabels(
       const candidates = labelCandidates(req.anchorBox, style.size);
       const best = placeLabelCandidates(
         [{ id: req.id, anchorBox: req.anchorBox, textWidth, fontSize: style.size }],
-        { width, height, margin, markerBoxes, placedBoxes: blocking },
+        { width, height, margin, markerBoxes, placedBoxes: blocking, waterBoxes: waterBoxesForReq },
       )[0];
       // A name that had to travel to the outer candidate ring gets a hairline
       // leader back to its own mark.
@@ -3825,7 +4015,9 @@ function layoutLabels(
     } else if (req.centred && detached) {
       parts.push(leaderElement(req.anchorBox, box, false, req.id, req.labelTier));
     }
-    parts.push(labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic, req.labelTier));
+    parts.push(
+      labelElement(req.text, chosen, style, req.role, !!req.conjectural, req.id, geographic, req.labelTier, req.hover, req.hoverTarget),
+    );
     placed.push(box);
     boxesById.push({ id: req.id, box });
   }
@@ -4745,31 +4937,70 @@ function rotateAbout(x: number, y: number, cx: number, cy: number, deg: number):
   return [cx + dx * c - dy * s, cy + dx * s + dy * c];
 }
 
+const NORTH_N_FONT = NORTH_FONT + 1.5;
+const NORTH_N_GAP = 4;
+
+/**
+ * Where the needle, its "N" and its caption sit, for any rotation. The "N"
+ * stands just beyond the needle's TIP, along the needle's own axis, and
+ * anchors on the side facing away from it; the caption sits centred UNDER the
+ * needle's drawn extent. For a north-up sheet this is exactly the old layout
+ * (N 4px above the tip, caption under the base). It replaces rotating the two
+ * text anchor points with the needle (2026-09-15): on the east-up Trojan
+ * Plain sheet that put a centred caption straight across the now-horizontal
+ * needle and the "N" against its point.
+ */
+function northArrowLayout(caption: string, rotationDeg: number) {
+  const cx = northArrowCx(caption);
+  const top = NORTH_TOP;
+  const base = top + NORTH_NEEDLE_H;
+  const cy = top + NORTH_NEEDLE_H / 2;
+  const rot = (x: number, y: number): [number, number] => (rotationDeg ? rotateAbout(x, y, cx, cy, rotationDeg) : [x, y]);
+  const tip = rot(cx, top);
+  const needlePts = [tip, rot(cx - NORTH_HALF_W, base), rot(cx + NORTH_HALF_W, base)];
+  const needleBox: Box = [
+    Math.min(...needlePts.map((p) => p[0])),
+    Math.min(...needlePts.map((p) => p[1])),
+    Math.max(...needlePts.map((p) => p[0])),
+    Math.max(...needlePts.map((p) => p[1])),
+  ];
+  const ux = (tip[0] - cx) / (NORTH_NEEDLE_H / 2);
+  const uy = (tip[1] - cy) / (NORTH_NEEDLE_H / 2);
+  const nAnchor: LabelAnchor = ux > 0.5 ? 'start' : ux < -0.5 ? 'end' : 'middle';
+  const nW = NORTH_N_FONT * 0.72;
+  let nX = tip[0] + ux * NORTH_N_GAP;
+  let nY: number;
+  if (nAnchor === 'middle') {
+    nX = tip[0];
+    nY = uy <= 0 ? tip[1] - NORTH_N_GAP : tip[1] + NORTH_N_GAP + NORTH_N_FONT * 0.72;
+  } else {
+    nY = tip[1] + NORTH_N_FONT * 0.36;
+  }
+  const nX0 = nAnchor === 'start' ? nX : nAnchor === 'end' ? nX - nW : nX - nW / 2;
+  const nBox: Box = [nX0, nY - NORTH_N_FONT * 0.72, nX0 + nW, nY];
+  const capX = cx;
+  const capY = needleBox[3] + NORTH_FONT + 3;
+  const half = northCaptionHalf(caption);
+  const captionBox: Box = [capX - half, capY - NORTH_FONT * 0.8, capX + half, capY + NORTH_FONT * 0.25];
+  return { cx, cy, needleBox, nX, nY, nAnchor, nBox, capX, capY, captionBox };
+}
+
 /** The sheet space the arrow and its caption occupy, for the legend to avoid. */
 function northArrowBox(caption: string, rotationDeg = 0): Box {
   const cx = northArrowCx(caption);
   const half = northCaptionHalf(caption);
-  const box: Box = [cx - half, NORTH_TOP - NORTH_FONT - 6, cx + half, NORTH_TOP + NORTH_NEEDLE_H + NORTH_FONT + 6];
-  if (!rotationDeg) return box;
-  const cy = NORTH_TOP + NORTH_NEEDLE_H / 2;
-  const [x0, y0, x1, y1] = box;
-  const corners: [number, number][] = [
-    rotateAbout(x0, y0, cx, cy, rotationDeg),
-    rotateAbout(x1, y0, cx, cy, rotationDeg),
-    rotateAbout(x1, y1, cx, cy, rotationDeg),
-    rotateAbout(x0, y1, cx, cy, rotationDeg),
-  ];
-  let minX = Infinity;
-  let minY = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
-  for (const [x, y] of corners) {
-    if (x < minX) minX = x;
-    if (y < minY) minY = y;
-    if (x > maxX) maxX = x;
-    if (y > maxY) maxY = y;
+  if (!rotationDeg) {
+    return [cx - half, NORTH_TOP - NORTH_FONT - 6, cx + half, NORTH_TOP + NORTH_NEEDLE_H + NORTH_FONT + 6];
   }
-  return [minX, minY, maxX, maxY];
+  const g = northArrowLayout(caption, rotationDeg);
+  const boxes = [g.needleBox, g.nBox, g.captionBox];
+  const pad = 3;
+  return [
+    Math.min(...boxes.map((b) => b[0])) - pad,
+    Math.min(...boxes.map((b) => b[1])) - pad,
+    Math.max(...boxes.map((b) => b[2])) + pad,
+    Math.max(...boxes.map((b) => b[3])) + pad,
+  ];
 }
 
 function northArrowMarkup(caption: string, rotationDeg = 0): string {
@@ -4787,10 +5018,9 @@ function northArrowMarkup(caption: string, rotationDeg = 0): string {
   const needleGroup = rotationDeg
     ? `<g transform="rotate(${-rotationDeg} ${round1(cx)} ${round1(cy)})">${needles}</g>`
     : needles;
-  const [nX, nY] = rotationDeg ? rotateAbout(cx, top - 4, cx, cy, rotationDeg) : [cx, top - 4];
-  const [cX, cY] = rotationDeg
-    ? rotateAbout(cx, base + NORTH_FONT + 3, cx, cy, rotationDeg)
-    : [cx, base + NORTH_FONT + 3];
+  const layout = northArrowLayout(caption, rotationDeg);
+  const [nX, nY] = [layout.nX, layout.nY];
+  const [cX, cY] = [layout.capX, layout.capY];
   return (
     `<g class="plate-north">` +
     // The two halves of the needle: the leading one solid, the trailing one
@@ -4799,8 +5029,8 @@ function northArrowMarkup(caption: string, rotationDeg = 0): string {
     // group about the needle centre so the N glyph and caption can stay
     // upright at the rotated tip / base.
     needleGroup +
-    `<text class="plate-north-label" x="${round1(nX)}" y="${round1(nY)}" text-anchor="middle" ` +
-    `font-family="var(--font-ui)" font-size="${NORTH_FONT + 1.5}" letter-spacing="1" ` +
+    `<text class="plate-north-label" x="${round1(nX)}" y="${round1(nY)}" text-anchor="${layout.nAnchor}" ` +
+    `font-family="var(--font-ui)" font-size="${NORTH_N_FONT}" letter-spacing="1" ` +
     `fill="var(--text)" paint-order="stroke" stroke="var(--scene-map-label-halo)" stroke-width="2" ` +
     `stroke-linejoin="round">N</text>` +
     `<text class="plate-north-caption" x="${round1(cX)}" y="${round1(cY)}" text-anchor="middle" ` +
@@ -6379,7 +6609,7 @@ function renderLayer(
           `stroke-opacity="0.75" stroke-linecap="round" stroke-linejoin="round"/>`;
         break;
       }
-      if (layer.style === 'restored') {
+      if (layer.style === 'restored' && layer.width !== undefined) {
         const { faces, hatch } = wallBandGlyph(px, layer.width);
         markup =
           `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-wall-restored" ` +
@@ -6666,6 +6896,27 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     ? viewportFromBBox(plate.bbox, [frameWidth, height], rotationDeg)
     : unitViewport(plate.size);
 
+  // Layer groups (Plate.layerGroups): which of them draw on this render. A
+  // group not shown draws nothing and reserves nothing, so the sheet lays out
+  // exactly as if it did not exist.
+  const layerGroups = plate.layerGroups ?? [];
+  const shownGroupIds = new Set(
+    options.showLayerGroups ?? layerGroups.filter((g) => g.default !== 'off').map((g) => g.id),
+  );
+  const shownGroups = layerGroups.filter((g) => shownGroupIds.has(g.id));
+  const hiddenGroups = layerGroups.filter((g) => !shownGroupIds.has(g.id));
+  const hiddenGroupLayerIds = new Set(hiddenGroups.flatMap((g) => g.layerIds));
+  const groupOfLayer = new Map(shownGroups.flatMap((g) => g.layerIds.map((id) => [id, g] as const)));
+  const groupOfPlace = new Map(shownGroups.flatMap((g) => g.placeIds.map((id) => [id, g] as const)));
+  const hiddenGroupPlaceIds = new Set(
+    hiddenGroups.flatMap((g) => [
+      ...g.placeIds,
+      ...g.layerIds
+        .map((id) => plate.layers.find((l) => l.id === id)?.placeId)
+        .filter((id): id is string => !!id),
+    ]),
+  );
+
   const features: RenderedFeature[] = [];
   // Each drawn layer's own markup, in paint order, plus the reaches of other
   // layers that must be drawn UNDER it (see WaterBody): a river's submerged
@@ -6768,10 +7019,25 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // Drawn ink a name must not be laid across: solid blocks (a ship row) and
   // band-along-a-line corridors (a shore, a fortification). See the loop below.
   const denseBoxes: ReservedBox[] = [];
-  // Open water, rasterized (see the WATER_FILLS push below). A hard obstacle
-  // for badge discs and zone letters on a SCHEMATIC sheet only; empty
-  // everywhere else, which is ruling 5.
+  // Open water, rasterized (see the WATER_FILLS push below). Still a HARD
+  // obstacle for badge discs and zone letters on a SCHEMATIC sheet only
+  // (ruling 9's own "nothing overlaps" — a numeral asserts a feature, same as
+  // a name, and cannot sit in the sea). Ruling 5, which used to justify this
+  // for NAMES too, is rescinded (2026-09-03): a name's own relation to water
+  // is now `waterCostBoxes` below, a soft cost, not a reservation.
   const waterBoxes: Box[] = [];
+  // The same rasterized cells as `waterBoxes`, kept apart and WITH their
+  // owning layer id (2026-09-03, ruling 5 rescinded — "a silly ruling...
+  // instead of a better placer"): a name's own body of water costs it
+  // nothing to sit on (see the owner exemption in layoutLabels), but any
+  // other name pays a soft, avoidable cost for a candidate that overlaps
+  // open water, the same cost class a marker box already gets (ten times
+  // cheaper to overprint than another name) — never a hard ban, so a name
+  // with no clear land seat still gets a place on the sheet rather than
+  // being pushed off its own feature (the "Bay of Troy" defect this
+  // replaces: reserved against its OWN water, the name was shoved onto the
+  // ridge with a leader back into the bay it names).
+  const waterCostBoxes: ReservedBox[] = [];
   // The painted extent of a layer-drawn GLYPH — a tumulus mound, a row of
   // beached ships. `drawnMarkBoxes` below holds place DOTS only, so a numeral
   // keyed to a layer (Callicolone, the mound of Patroclus) or to a place whose
@@ -6823,6 +7089,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     barrier: plate.layers.some((l) => l.kind === 'coast' && l.style === 'barrier'),
   };
   for (const layer of plate.layers) {
+    if (hiddenGroupLayerIds.has(layer.id)) continue;
     const rendered = renderLayer(plate, layer, viewport, softId, waters);
     if (!rendered) continue;
     renderedById.set(layer.id, rendered);
@@ -6833,7 +7100,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // PlateResult, because that is what the Chart Room camera frames a scene
     // on. Only the ink goes. Suppressed here rather than in renderLayer so
     // the zone keeps every other effect it has (its letter's seat, its
-    // reservations, its feature record) exactly as before.
+    // reservations, its feature record) exactly as before. Ported from
+    // claude/citadel-inset's tip (2026-09-15).
     const isSceneZone = sceneKeyByLayer.has(layer.id);
     if (isMarginInset) marginInsetMarkup.push(rendered.markup);
     else if (!isSceneZone) {
@@ -6959,27 +7227,20 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         }
       }
     }
-    // Open water is not empty ground ON A SCHEMATIC SHEET (2026-09-02,
-    // fixing the KNOWN, NOT FIXED regression logged at d0c4e947d): the shore
-    // corridor above reserves only the linework along the coast, never the
-    // sea itself, so a crowded camp band sent "Patroclus: pyre, barrow,
-    // games" out past the beach and onto the Hellespont — a false claim on
-    // a schematic register (a label asserts a place, and open sea is not a
-    // place). Reserved by SHAPE, not bounding box (see
-    // waterReservationBoxes): a water region's bbox is the wrong
-    // reservation whenever the water isn't itself box-shaped — on the
-    // Trojan Plain sheet `sea-modern` traces the Hellespont along one edge,
-    // so its bbox ate the sheet's full height.
+    // Open water on a SCHEMATIC SHEET (2026-09-02, originally fixing the
+    // regression logged at d0c4e947d, REVISED 2026-09-03 when ruling 5 was
+    // rescinded): a name asserting a place in open sea is still a false
+    // claim, but the fix is a soft cost in the placer's own hand, not a
+    // reservation the placer cannot see past — a reservation banned "Bay of
+    // Troy" from the bay it names. Rasterized by SHAPE, not bounding box
+    // (see waterReservationBoxes): a water region's bbox is the wrong
+    // extent whenever the water isn't itself box-shaped — on the Trojan
+    // Plain sheet `sea-modern` traces the Hellespont along one edge, so its
+    // bbox ate the sheet's full height.
     //
-    // Scoped to `plate.kind === 'schematic'` (John's ruling 5, 2026-09-02):
-    // a GEOGRAPHIC sheet is a different register, and already draws coastal
-    // names over water with a leader line — reserving open water there
-    // wrongly suppressed kum-tepe and kesik-tepe on the real
-    // trojan-plain.json, whose only candidate positions sit over the
-    // sea/lagoon polygon; the schematic register's own no-label-on-water
-    // rule doesn't bind a sheet that draws leaders. besik-sivritepe and
-    // uvecik-tepe come along for free (they only needed the bbox-vs-shape
-    // fix, not the register scoping) — see
+    // Scoped to `plate.kind === 'schematic'`: a GEOGRAPHIC sheet already
+    // draws coastal names over water with a leader line by design (Sigeion,
+    // Kum Tepe, Kesik Tepe), so it gets no water cost at all here — see
     // shared/__tests__/plate.test.ts's parity test.
     const layerFill =
       layer.fill ?? (layer.kind === 'region' || layer.kind === 'band' ? DEFAULT_REGION_FILL : undefined);
@@ -6988,12 +7249,13 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       const cells =
         rings.length > 0 ? waterReservationBoxes(rings, rendered.feature.bbox) : [rendered.feature.bbox];
       for (const box of cells) {
-        denseBoxes.push({ box, layerId: layer.id });
-        // The same cells again, kept apart: for a NAME they are a soft cost
-        // among many, for a numeral badge or a zone letter they are a hard
-        // obstacle (ruling 5, via the 2026-09-03 review's finding 2 — zone
-        // letter D stood on the Bay of Troy, and E7 could not see water at
-        // all).
+        // A NAME pays a soft cost (see waterCostBoxes above; zero for this
+        // layer's own name, via the owner exemption in layoutLabels). A
+        // numeral badge or zone letter still treats the same cells as a hard
+        // obstacle (ruling 9's "nothing overlaps" — the 2026-09-03 review's
+        // finding 2: zone letter D stood on the Bay of Troy, and E7 could not
+        // see water at all).
+        waterCostBoxes.push({ box, layerId: layer.id });
         waterBoxes.push(box);
       }
     }
@@ -7044,6 +7306,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // key below them, which is where they were always explained.
     const legend = isSceneZone ? undefined : layerLegendEntry(layer);
     if (legend) legendEntries.push(legend);
+    const layerGroup = groupOfLayer.get(layer.id);
+    if (layerGroup) legendEntries.push(layerGroupLegendEntry(layerGroup));
     // A coast layer that fills its rings also keys the terrain it encloses.
     if (layer.kind === 'coast' && layer.fill) {
       const fillEntry = regionFillLegendEntry(layer.fill);
@@ -7086,6 +7350,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   const offCanvas: PlatePlace[] = [];
   const unlocated: PlatePlace[] = [];
   const drawnByLayer: PlatePlace[] = [];
+  const layerGroupHidden: PlatePlace[] = [];
   const pinMarkupParts: string[] = [];
   // The marks ACTUALLY DRAWN, by place id — not every label anchor. Ruling 9
   // (2026-09-03) makes "keep clear of a pin" a hard constraint on badges,
@@ -7101,6 +7366,13 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // one (see PlateLayer.claims). It keeps its anchor for scene framing.
     if (claimedByLayer.has(place.id)) {
       drawnByLayer.push(place);
+      continue;
+    }
+    // A place of a layer group the caller did not show draws nothing — even
+    // one with coords on a geographic sheet — unless a drawn layer carries
+    // it anyway (Sigeion's ridge), in which case it reports as it always did.
+    if (hiddenGroupPlaceIds.has(place.id) && !layerPlaceIds.has(place.id)) {
+      layerGroupHidden.push(place);
       continue;
     }
     // Ruling 10 (2026-09-03): a place keyed into a group with an `inset` is
@@ -7141,7 +7413,16 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       continue;
     }
 
-    const pos = resolvePlacePosition(plate, place, viewport);
+    // A shown layer-group place is drawn at its own surveyed `coords`, on a
+    // schematic sheet too: the schematic's ground is the real ground in the
+    // same projection (ruling 1, 2026-09-02), and these marks sit in their
+    // own register, apart from the poem's conjectural anchors.
+    const groupOf = groupOfPlace.get(place.id);
+    const pos = groupOf
+      ? place.coords
+        ? projectPoint(plate, place.coords, viewport)
+        : undefined
+      : resolvePlacePosition(plate, place, viewport);
     if (!pos) {
       // A place with no defensible pin position may still be visibly drawn
       // via a layer's own geometry (see `drawnByLayer`'s doc comment above)
@@ -7168,6 +7449,46 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       continue;
     }
     located.push(place);
+
+    if (groupOf) {
+      // Later tradition and survey (Plate.layerGroups). The dot follows the
+      // geographic sheet's own rule for which classes carry one: a river
+      // (the Thymbrios) is a name only. NO_OWN_MARKER_PLACE_IDS does not
+      // apply here: on this sheet Rhoiteion is named by its ridge and draws
+      // no dot, so the tomb of Ajax carries its own tier's mark at its own
+      // recorded point instead of hanging its name on a "location secure"
+      // dot it would then seem to share.
+      const hover = traditionHoverText(place, place.name);
+      const markerless = MARKERLESS_LABEL_CLASSES.has(placeLabelClass(place));
+      let anchorBox: Box = [x, y, x, y];
+      if (!markerless) {
+        anchorBox = dotBBox(x, y, TRADITION_DOT_R);
+        pinMarkupParts.push(traditionDotMarkup(place.id, groupOf.id, hover, x, y, certaintyDotStyle(place.certainty)));
+        drawnMarkBoxes.set(place.id, anchorBox);
+        features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: anchorBox });
+        legendEntries.push(certaintyDotLegendEntry(place.certainty ?? 'certain'));
+      }
+      legendEntries.push(layerGroupLegendEntry(groupOf));
+      // Lettered once: a place a drawn layer of this sheet already names
+      // (Rhoiteion, lettered by its ridge) keeps that name and gets no
+      // second one here.
+      const letteredByLayer = layerLabelCandidates.some(
+        ({ layer }) =>
+          layer.placeId === place.id && !suppressedLayerLabelIds.has(layer.id) && !keyedIds.has(layer.id),
+      );
+      if (!letteredByLayer) {
+        pinLabelRequests.push({
+          id: place.id,
+          text: mapLabelText(place.name),
+          role: 'minor',
+          anchorBox,
+          styleOverride: TRADITION_LABEL_STYLE,
+          hover,
+          hoverTarget: markerless,
+        });
+      }
+      continue;
+    }
 
     if (plate.kind === 'geographic') {
       // Five Landmark classes, not one flat "settlement" for every located
@@ -7335,6 +7656,15 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       labelTier: layer.labelTier,
       labelSize: layer.labelSize,
       area: rendered.labelArea,
+      // A layer-group layer (the Kesik cut) letters in the group's own small
+      // italic register, and its name is its hover/focus target.
+      ...(groupOfLayer.has(layer.id)
+        ? {
+            styleOverride: TRADITION_LABEL_STYLE,
+            hover: traditionHoverText(layer.placeId ? placeById.get(layer.placeId) : undefined, text),
+            hoverTarget: true,
+          }
+        : {}),
     });
   }
 
@@ -7348,7 +7678,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // The placement solution, if this exact sheet has been laid before (see
   // badgeSolutionCache). Looked up HERE because the zone letters are the first
   // thing the search produces and everything after depends on them.
-  const solutionKey = badgeSolutionKey(plate, places);
+  // The shown layer groups are part of the sheet: their marks and names are
+  // obstacles the badges were seated around.
+  const solutionKey = `${badgeSolutionKey(plate, places)}::groups=${shownGroups.map((g) => g.id).join(',')}`;
   const cached = badgeSolutionCache.get(plate)?.get(solutionKey);
 
   // Zone letters (the lettered scene-zone discs, e.g. "A") share the numeral
@@ -7602,6 +7934,10 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // was written for (2026-09-02: "Scamander" as "Sca m ander").
     usesLatLon(plate) ? [frameWidth, height] : undefined,
     denseBoxes,
+    // Open water (schematic sheets only; empty on a geographic one) — a soft
+    // cost for every other name, zero for a water body's own (ruling 5
+    // rescinded, 2026-09-03). See waterCostBoxes above.
+    waterCostBoxes,
   );
 
   // Moved ahead of pass 2 (2026-09-03, ruling 9 round 3, Grok finding 3): the
@@ -7880,6 +8216,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     unlocated,
     offCanvas,
     drawnByLayer,
+    layerGroupHidden,
     suppressedLabels: labels.suppressed,
     unplacedKeyNumerals,
     labelBoxes,
@@ -7937,9 +8274,21 @@ export function computeCamera(
     }
   }
 
+  // A shown layer-group place sits at its own surveyed coords, on a schematic
+  // sheet too — the same rule renderPlate draws it by (see `groupOfPlace`).
+  const shownGroupIds = new Set(
+    options.showLayerGroups ?? (plate.layerGroups ?? []).filter((g) => g.default !== 'off').map((g) => g.id),
+  );
+  const groupPlaceIds = new Set(
+    (plate.layerGroups ?? []).filter((g) => shownGroupIds.has(g.id)).flatMap((g) => g.placeIds),
+  );
   for (const place of opts.places) {
     if (!idSet.has(place.id)) continue;
-    const pos = resolvePlacePosition(plate, place, viewport);
+    const pos = groupPlaceIds.has(place.id)
+      ? place.coords
+        ? projectPoint(plate, place.coords, viewport)
+        : undefined
+      : resolvePlacePosition(plate, place, viewport);
     if (pos) points.push(pos);
   }
 

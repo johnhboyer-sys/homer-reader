@@ -37,7 +37,25 @@ export interface TranslationRef {
   // move it off its intended scene boundary. Absent/false = ordinary dense
   // milestone ticks (Murray, Butler), speech-snapped as usual.
   curatedTicks?: true;
+  // Set when this translation is shown as VERSE GROUPS (the Kosmos revision
+  // of Butler, 2026-09-12): its ticks are the translation's own printed line
+  // numbers, and the reader cuts the English at each one and sets it beside
+  // that Greek span — never snapped to a speech start, never split per line.
+  verseGroups?: true;
+  // A text carried under a Creative Commons licence rather than as public
+  // domain (pipeline/homer_pipeline/cc_translations.yaml): the credit and
+  // licence link the reader shows wherever it labels this text.
+  licence?: { credit: string; name: string; url: string; source: string };
 }
+
+// The Kosmos Society revision of Butler, CC BY-NC-ND 3.0 (see
+// cc_translations.yaml; the attribution page carries the full credit).
+const KOSMOS_LICENCE = {
+  credit: 'Butler, rev. Kim, McCray, Nagy & Power · Kosmos Society',
+  name: 'CC BY-NC-ND 3.0',
+  url: 'https://creativecommons.org/licenses/by-nc-nd/3.0/',
+  source: 'https://kosmossociety.org/text-library/',
+};
 
 // A gap in a work's book sequence worth annotating in the reader (e.g. the
 // Aristotelian Eudemian Ethics' "common books", shared with the Nicomachean
@@ -166,6 +184,7 @@ export const WORKS: Work[] = [
       { id: 'murray', name: 'A. T. Murray (Loeb, 1924–25)', short: 'Murray', slot: 'english', footnotes: true },
       { id: 'butler', name: 'Samuel Butler (1898)', short: 'Butler', slot: 'ross' },
       { id: 'pope', name: 'Alexander Pope (literary translation, scene-aligned), 1715–20', short: 'Pope', slot: 'third', curatedTicks: true },
+      { id: 'kosmos', name: 'Samuel Butler, revised by Kim, McCray, Nagy and Power (Kosmos Society, CC BY-NC-ND 3.0)', short: 'Kosmos', slot: 'overlay', footnotes: true, verseGroups: true, licence: { ...KOSMOS_LICENCE, source: 'https://kosmossociety.org/homeric-iliad/' } },
     ],
     blurb: 'The wrath of Achilles and the war at Troy.',
     citation: { scheme: 'verse-line' },
@@ -186,6 +205,7 @@ export const WORKS: Work[] = [
       { id: 'murray', name: 'A. T. Murray (Loeb, 1919)', short: 'Murray', slot: 'english', footnotes: true },
       { id: 'butler', name: 'Samuel Butler (1900)', short: 'Butler', slot: 'ross' },
       { id: 'pope', name: 'Alexander Pope (literary translation, scene-aligned), 1725–26', short: 'Pope', slot: 'third', curatedTicks: true },
+      { id: 'kosmos', name: 'Samuel Butler, revised by Kim, McCray, Nagy and Power (Kosmos Society, CC BY-NC-ND 3.0)', short: 'Kosmos', slot: 'overlay', footnotes: true, verseGroups: true, licence: { ...KOSMOS_LICENCE, source: 'https://kosmossociety.org/homeric-odyssey/' } },
     ],
     blurb: 'The long homecoming of Odysseus from Troy to Ithaca.',
     citation: { scheme: 'verse-line' },

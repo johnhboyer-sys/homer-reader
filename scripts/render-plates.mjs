@@ -36,6 +36,13 @@
 // labelTier === 2 label and its leader, so a full-sheet review shows what a
 // reader sees unzoomed; crops always render every tier regardless.
 //
+// --show-layer-group a,b draws those Plate.layerGroups (e.g. the schematic
+// plain's `later-tradition`, off by default) on every shot in the run, as
+// PlatePanel's "Show later tradition and survey" toggle does; each PNG's name
+// gains `-<group ids>` so it does not overwrite the default render:
+//   node scripts/render-plates.mjs --sheet trojan-plain-schematic --theme light,dark \
+//     --tiers 1 --out build/plate-review/tradition --show-layer-group later-tradition
+//
 // Bundles are written to build/.render-plates-bundle/ (gitignored, rebuilt
 // every run) — never edits shared/lib/*.ts, only reads it.
 
@@ -119,6 +126,7 @@ function toPlatePlace(p) {
     rank: p.rank,
     labelTier: p.labelTier,
     labelSize: p.labelSize,
+    tradition: p.tradition,
   };
 }
 
@@ -195,6 +203,7 @@ function parseArgs(argv) {
     // flag existed. The solver still reserves a hidden label's box — this
     // flag changes what paints, not what the layout solver sees.
     tiers: 'all',
+    showLayerGroups: null, // see --show-layer-group
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -203,6 +212,7 @@ function parseArgs(argv) {
     else if (a === '--out') out.out = argv[++i];
     else if (a === '--scale') out.scale = Number(argv[++i]);
     else if (a === '--places') out.places = argv[++i].split(',');
+    else if (a === '--show-layer-group') out.showLayerGroups = argv[++i].split(',');
     else if (a === '--tiers') {
       const v = argv[++i];
       if (v !== '1' && v !== 'all') throw new Error(`--tiers must be "1" or "all", got ${v}`);
@@ -251,13 +261,16 @@ async function main() {
       const want = new Set(args.places);
       places = places.filter((p) => want.has(p.id));
     }
-    const result = plateMod.renderPlate(plate, places);
+    const renderOpts = args.showLayerGroups ? { showLayerGroups: args.showLayerGroups } : {};
+    const result = plateMod.renderPlate(plate, places, renderOpts);
     const [plateW, plateH] = plate.size;
+    // `sheet` carries the layer-group suffix into every filename below.
+    const base = args.showLayerGroups ? `${sheet}-${args.showLayerGroups.join('+')}` : sheet;
 
     for (const theme of args.themes) {
       const html = pageHtml(result.svg, theme, plateW, plateH, args.tiers === '1');
-      const htmlPath = path.join(outDir, `${sheet}-${theme}.html`);
-      const pngPath = path.join(outDir, `${sheet}-${theme}.png`);
+      const htmlPath = path.join(outDir, `${base}-${theme}.html`);
+      const pngPath = path.join(outDir, `${base}-${theme}.png`);
       writeFileSync(htmlPath, html);
       shoot(chromeBin, htmlPath, pngPath, plateW, plateH, args.scale);
       written.push(pngPath);
@@ -268,8 +281,8 @@ async function main() {
       const [x0, y0, x1, y1] = crop.box;
       for (const theme of args.themes) {
         const { html, cw, ch } = cropHtml(result.svg, theme, plateW, plateH, x0, y0, x1, y1, crop.zoom);
-        const htmlPath = path.join(outDir, `${sheet}-crop-${crop.label}-${theme}.html`);
-        const pngPath = path.join(outDir, `${sheet}-crop-${crop.label}-${theme}.png`);
+        const htmlPath = path.join(outDir, `${base}-crop-${crop.label}-${theme}.html`);
+        const pngPath = path.join(outDir, `${base}-crop-${crop.label}-${theme}.png`);
         writeFileSync(htmlPath, html);
         shoot(chromeBin, htmlPath, pngPath, cw, ch, args.scale);
         written.push(pngPath);
@@ -287,10 +300,10 @@ async function main() {
       const x0 = Math.min(...xs), x1 = Math.max(...xs);
       const y0 = Math.min(...ys), y1 = Math.max(...ys);
       for (const theme of args.themes) {
-        const htmlSvg = plateMod.renderPlate(plate, places).svg; // fresh markup, same content
+        const htmlSvg = plateMod.renderPlate(plate, places, renderOpts).svg; // fresh markup, same content
         const { html, cw, ch } = cropHtml(htmlSvg, theme, plateW, plateH, x0, y0, x1, y1, crop.zoom);
-        const htmlPath = path.join(outDir, `${sheet}-crop-${crop.label}-${theme}.html`);
-        const pngPath = path.join(outDir, `${sheet}-crop-${crop.label}-${theme}.png`);
+        const htmlPath = path.join(outDir, `${base}-crop-${crop.label}-${theme}.html`);
+        const pngPath = path.join(outDir, `${base}-crop-${crop.label}-${theme}.png`);
         writeFileSync(htmlPath, html);
         shoot(chromeBin, htmlPath, pngPath, cw, ch, args.scale);
         written.push(pngPath);

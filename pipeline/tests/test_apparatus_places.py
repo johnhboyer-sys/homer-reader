@@ -578,6 +578,39 @@ def test_validate_plate_rejects_suppress_layer_labels_that_is_not_a_list():
     assert any("suppressLayerLabels must be a list" in p for p in problems)
 
 
+def test_validate_plate_accepts_a_layer_group_naming_real_places_and_layers():
+    plate = _plate(
+        layerGroups=[
+            {"id": "later", "title": "Later tradition", "default": "off",
+             "placeIds": ["sigeion"], "layerIds": ["river-1"]}
+        ]
+    )
+    assert apparatus_places.validate_plate(plate, {"sigeion": {"id": "sigeion"}}) == []
+
+
+def test_validate_plate_rejects_layer_group_unknown_place_and_layer():
+    plate = _plate(
+        layerGroups=[
+            {"id": "later", "title": "Later", "placeIds": ["no-place"], "layerIds": ["no-layer"]}
+        ]
+    )
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("'no-place' is not a gazetteer place" in p for p in problems)
+    assert any("'no-layer' is not a layer of this plate" in p for p in problems)
+
+
+def test_validate_plate_rejects_layer_group_bad_default_and_shared_layer():
+    plate = _plate(
+        layerGroups=[
+            {"id": "a", "title": "A", "default": "maybe", "layerIds": ["river-1"]},
+            {"id": "b", "title": "B", "layerIds": ["river-1"]},
+        ]
+    )
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("default must be 'on' or 'off'" in p for p in problems)
+    assert any("already in another group" in p for p in problems)
+
+
 def test_validate_plate_schematic_needs_no_bbox():
     """A schematic plate has no geography, so demanding a bbox of it would be
     demanding a coordinate for something that has none. The Shield of Achilles
@@ -1374,3 +1407,216 @@ def test_real_places_mentions_pass_the_line_bounds_check():
         p for p in apparatus_places.validate_places(places_doc) if "mentions[" in p
     ]
     assert problems == [], problems
+
+
+# ── No schematic anchor or route vertex sits in open water (2026-09-03) ─────
+# The Bronze Age lagoon (`lagoon-bronze`) is the schematic sheet's own
+# reconstruction of the Late Bronze Age bay. A `plateAnchors` entry that
+# lands a pin inside it draws a place IN THE WATER -- caught for
+# `scamander-simoeis-confluence` (the reconstructed rivers' closest approach
+# fell inside the bay) and `achaean-camp` (its anchor was the pre-ruling-4
+# bay-side position; the camp itself now draws from `achaean-camp.zone` on
+# the Aegean flank, ruling 4). Both are fixed as data below; this test is the
+# general check so a future anchor or route regresses loudly instead of
+# quietly drawing a pin or a road in the sea.
+
+
+def _point_in_polygon(pt, polygon):
+    """Ray-casting point-in-polygon, even-odd rule. Mirrors shared/lib/
+    plate.ts's private `pointInPolygon` and shared/__tests__/plate.test.ts's
+    own copy, so the two suites agree about what "inside the lagoon" means."""
+    px, py = pt
+    inside = False
+    n = len(polygon)
+    j = n - 1
+    for i in range(n):
+        xi, yi = polygon[i]
+        xj, yj = polygon[j]
+        if (yi > py) != (yj > py) and px < (xj - xi) * (py - yi) / (yj - yi) + xi:
+            inside = not inside
+        j = i
+    return inside
+
+
+def _lagoon_bronze_polygon():
+    plate_doc = json.loads(
+        (ROOT / "apparatus" / "plates" / "trojan-plain-schematic.json").read_text(encoding="utf-8")
+    )
+    layers_by_id = {layer["id"]: layer for layer in plate_doc["layers"]}
+    return layers_by_id["lagoon-bronze"]["polygon"], plate_doc
+
+
+def test_no_schematic_anchor_sits_inside_the_bronze_age_lagoon():
+    lagoon, _ = _lagoon_bronze_polygon()
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    offenders = []
+    for place in places_doc["places"]:
+        anchor = place.get("plateAnchors", {}).get("trojan-plain-schematic")
+        if anchor and _point_in_polygon(anchor, lagoon):
+            offenders.append((place["id"], anchor))
+    assert offenders == [], f"anchor(s) inside lagoon-bronze: {offenders}"
+
+
+def test_no_schematic_route_vertex_sits_inside_the_bronze_age_lagoon():
+    lagoon, plate_doc = _lagoon_bronze_polygon()
+    offenders = []
+    for layer in plate_doc["layers"]:
+        if layer.get("kind") != "route":
+            continue
+        for vertex in layer.get("path") or []:
+            if _point_in_polygon(vertex, lagoon):
+                offenders.append((layer["id"], vertex))
+    assert offenders == [], f"route vertex/vertices inside lagoon-bronze: {offenders}"
+
+
+def test_confluence_anchor_moved_off_the_bay_it_used_to_sit_in():
+    """The specific regression: the confluence anchor used to be the two
+    reconstructed rivers' closest approach, which falls inside the bay. The
+    fix derives a new anchor -- the point on land nearest the two rivers'
+    mouths -- from the `simoeis`/`scamander` layers and the lagoon polygon,
+    not an eyeballed coordinate; this only re-asserts the specific place
+    named in the fix, on top of the general sweep above."""
+    lagoon, _ = _lagoon_bronze_polygon()
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    places_by_id = {p["id"]: p for p in places_doc["places"]}
+    anchor = places_by_id["scamander-simoeis-confluence"]["plateAnchors"]["trojan-plain-schematic"]
+    assert not _point_in_polygon(anchor, lagoon), f"confluence anchor {anchor} still sits in the bay"
+
+
+def test_achaean_camp_anchor_sits_in_its_own_zone_on_the_aegean_flank():
+    """The camp's schematic anchor must agree with where the camp is
+    actually drawn -- `achaean-camp.zone.polygon` (ruling 4, the Aegean
+    flank) -- not the retired bay-side position. Derived as the zone
+    polygon's own area-weighted centroid (shoelace formula), not eyeballed."""
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    places_by_id = {p["id"]: p for p in places_doc["places"]}
+    camp = places_by_id["achaean-camp"]
+    anchor = camp["plateAnchors"]["trojan-plain-schematic"]
+    zone = camp["zone"]["polygon"]
+    assert _point_in_polygon(anchor, zone), f"achaean-camp anchor {anchor} must sit inside its own zone"
+
+    lagoon, _ = _lagoon_bronze_polygon()
+    assert not _point_in_polygon(anchor, lagoon), f"achaean-camp anchor {anchor} still sits in the bay"
+
+
+# ── Sol review (2026-10-09): validator gaps on maps, status, featureKey ─────
+
+
+def test_validate_places_rejects_non_list_maps():
+    # The site calls `p.maps.includes(tag)` on every place (shared/lib/maps.ts
+    # placesForMap), so a null/string/absent `maps` is a runtime crash.
+    for bad in (None, "troad", {"a": 1}):
+        doc = {"status": "draft", "places": [_place(maps=bad)]}
+        problems = apparatus_places.validate_places(doc)
+        assert any("maps must be a list" in p for p in problems), bad
+
+
+def test_validate_places_rejects_absent_maps():
+    place = _place()
+    del place["maps"]
+    problems = apparatus_places.validate_places({"status": "draft", "places": [place]})
+    assert any("maps must be a list" in p for p in problems)
+
+
+def test_validate_places_rejects_non_string_map_tag():
+    doc = {"status": "draft", "places": [_place(maps=["troad", 3])]}
+    problems = apparatus_places.validate_places(doc)
+    assert any("maps[1]" in p for p in problems)
+
+
+def test_validate_places_status_must_be_draft_or_reviewed():
+    for bad in ("Draft", "", "final", None, 3):
+        problems = apparatus_places.validate_places({"status": bad, "places": [_place()]})
+        assert any("status must be" in p for p in problems), bad
+    problems = apparatus_places.validate_places({"places": [_place()]})
+    assert any("status must be" in p for p in problems)
+    for good in ("draft", "reviewed"):
+        assert apparatus_places.validate_places({"status": good, "places": [_place()]}) == []
+
+
+def test_validate_plate_status_must_be_draft_or_reviewed():
+    for bad in ("Draft", "wip", "published"):
+        problems = apparatus_places.validate_plate(_plate(status=bad), {})
+        assert any("status must be" in p for p in problems), bad
+    assert apparatus_places.validate_plate(_plate(status="reviewed"), {}) == []
+
+
+def test_validate_status_of_a_non_string_type_is_a_problem_not_a_crash():
+    # An unhashable status (list/dict) used to raise TypeError in `in STATUS_ENUM`.
+    for bad in ([], ["draft"], {}, {"a": 1}):
+        problems = apparatus_places.validate_places({"status": bad, "places": [_place()]})
+        assert any("status must be" in p for p in problems), bad
+        problems = apparatus_places.validate_plate(_plate(status=bad), {})
+        assert any("status must be" in p for p in problems), bad
+
+
+def test_validate_plate_feature_key_region_with_no_fill_and_no_outline_is_invisible():
+    # The renderer draws fill="none" stroke="none" for a plain region/band with
+    # fill "none"; only style "inset" or "poem" draws something regardless.
+    polygon = [[39.90, 26.15], [39.91, 26.16], [39.92, 26.15]]
+    for kind in ("region", "band"):
+        plate = _plate(
+            layers=[{"id": "x", "kind": kind, "fill": "none", "polygon": polygon}],
+            featureKey=[{"title": "T", "items": [{"layerId": "x"}]}],
+        )
+        problems = apparatus_places.validate_plate(plate, {})
+        assert any("featureKey" in p and "drawable geometry" in p for p in problems), kind
+        for style in ("inset", "poem"):
+            plate = _plate(
+                layers=[{"id": "x", "kind": kind, "fill": "none", "style": style, "polygon": polygon}],
+                featureKey=[{"title": "T", "items": [{"layerId": "x"}]}],
+            )
+            assert not any("drawable geometry" in p for p in apparatus_places.validate_plate(plate, {})), (kind, style)
+
+
+def test_validate_plate_feature_key_layer_needs_drawable_geometry():
+    # (kind, layer fields that leave nothing for the renderer to draw)
+    cases = {
+        "river": {"path": [[39.90, 26.15]]},  # needs >= 2 points
+        "route": {},
+        "wall": {"trace": [[39.90, 26.15]]},
+        "shipRow": {"baseline": []},
+        "region": {"polygon": [[39.90, 26.15], [39.91, 26.16]]},  # needs >= 3
+        "band": {},
+        "relief": {"polygon": []},
+        "coast": {"rings": []},
+        "tumulus": {"path": []},  # needs >= 1
+    }
+    for kind, geometry in cases.items():
+        plate = _plate(
+            layers=[{"id": "x", "kind": kind, **geometry}],
+            featureKey=[{"title": "T", "items": [{"layerId": "x"}]}],
+        )
+        problems = apparatus_places.validate_plate(plate, {})
+        assert any("featureKey" in p and "drawable geometry" in p for p in problems), kind
+
+
+def test_validate_plate_feature_key_layer_with_geometry_passes():
+    good = {
+        "river": {"path": [[39.90, 26.15], [39.95, 26.20]]},
+        "tumulus": {"path": [[39.90, 26.15]]},
+        "region": {"polygon": [[39.90, 26.15], [39.91, 26.16], [39.92, 26.15]]},
+        "coast": {"rings": [[[39.90, 26.15], [39.91, 26.16]]]},
+        "wall": {"trace": [[39.90, 26.15], [39.91, 26.16]]},
+    }
+    for kind, geometry in good.items():
+        plate = _plate(
+            layers=[{"id": "x", "kind": kind, **geometry}],
+            featureKey=[{"title": "T", "items": [{"layerId": "x"}]}],
+        )
+        assert apparatus_places.validate_plate(plate, {}) == [], kind
+
+
+def test_validate_plate_feature_key_relief_band_counts_a_drawable_ring():
+    plate = _plate(
+        layers=[
+            {
+                "id": "x",
+                "kind": "relief",
+                "elevation": 50,
+                "rings": [[[39.90, 26.15], [39.91, 26.16], [39.92, 26.15]]],
+            }
+        ],
+        featureKey=[{"title": "T", "items": [{"layerId": "x"}]}],
+    )
+    assert apparatus_places.validate_plate(plate, {}) == []
