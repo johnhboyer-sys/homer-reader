@@ -429,6 +429,77 @@ def test_validate_global_apparatus_emits_flags_missing_characters_and_repetition
     assert any("repetitions.json was not emitted" in m for m in messages)
 
 
+# ── Phase P7a: scene.places[] referential integrity against places.json ────
+
+
+def _write_places_json(apparatus_dir: Path, ids: list[str]) -> None:
+    doc = {"places": [{"id": pid, "name": pid.title(), "coords": [0, 0]} for pid in ids]}
+    (apparatus_dir / "places.json").write_text(json.dumps(doc), encoding="utf-8")
+
+
+def _write_canonical_scenes(scenes_dir: Path, work_id: str, places: list[str]) -> None:
+    scenes_dir.mkdir(exist_ok=True)
+    scene = _scene(1, 10)
+    scene["places"] = places
+    doc = {
+        "work": work_id, "status": "draft",
+        "books": [{"book": 1, "argument": "A.", "where": ["Troy"], "who": ["A"],
+                   "days": "1", "scenes": [scene]}],
+    }
+    (scenes_dir / f"{work_id}.json").write_text(json.dumps(doc), encoding="utf-8")
+
+
+def test_global_apparatus_emits_accepts_scene_places_that_resolve(tmp_path, monkeypatch):
+    from homer_pipeline import apparatus_scenes
+    from homer_pipeline.preflight import WorkManifest, _validate_global_apparatus_emits
+
+    apparatus_dir = tmp_path / "apparatus"
+    apparatus_dir.mkdir()
+    _write_places_json(apparatus_dir, ["troy", "olympus"])
+    monkeypatch.setattr(apparatus_scenes, "APPARATUS_DIR", apparatus_dir)
+    scenes_dir = tmp_path / "scenes"
+    _write_canonical_scenes(scenes_dir, "iliad", ["troy", "olympus"])
+    monkeypatch.setattr(apparatus_scenes, "SCENES_DIR", scenes_dir)
+
+    manifest = WorkManifest(
+        work_id="iliad", path=MANIFESTS / "Iliad.yaml",
+        data={"citation": {"scheme": "verse-line"}, "books": []},
+    )
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    problems: list = []
+    _validate_global_apparatus_emits(data_dir, [manifest], problems)
+    messages = [p[2] for p in problems]
+    assert not any("places id" in m for m in messages)
+
+
+def test_global_apparatus_emits_flags_dangling_scene_place_id(tmp_path, monkeypatch):
+    from homer_pipeline import apparatus_scenes
+    from homer_pipeline.preflight import WorkManifest, _validate_global_apparatus_emits
+
+    apparatus_dir = tmp_path / "apparatus"
+    apparatus_dir.mkdir()
+    _write_places_json(apparatus_dir, ["troy"])
+    monkeypatch.setattr(apparatus_scenes, "APPARATUS_DIR", apparatus_dir)
+    scenes_dir = tmp_path / "scenes"
+    _write_canonical_scenes(scenes_dir, "iliad", ["troy", "no-such-place"])
+    monkeypatch.setattr(apparatus_scenes, "SCENES_DIR", scenes_dir)
+
+    manifest = WorkManifest(
+        work_id="iliad", path=MANIFESTS / "Iliad.yaml",
+        data={"citation": {"scheme": "verse-line"}, "books": []},
+    )
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    problems: list = []
+    _validate_global_apparatus_emits(data_dir, [manifest], problems)
+    messages = [p[2] for p in problems]
+    matches = [m for m in messages if "no-such-place" in m]
+    assert len(matches) == 1
+    assert "book 1" in matches[0]
+    assert "1-10" in matches[0]
+
+
 def test_validate_global_apparatus_emits_skips_non_verse_corpora(tmp_path, monkeypatch):
     from homer_pipeline import apparatus_scenes
     from homer_pipeline.preflight import WorkManifest, _validate_global_apparatus_emits
@@ -887,3 +958,102 @@ def test_validate_third_bekker_offset_going_backwards_fails_even_though_n_climbs
     }
     problems = _third_bekker_problems(segment, {1, 5, 10})
     assert any("not strictly increasing" in p for p in problems), problems
+
+
+# ── Sol review (2026-10-09): plate-set gaps ─────────────────────────────────
+
+
+def _plate_preflight_problems(tmp_path, monkeypatch, plates: dict[str, dict] | None):
+    """Run _validate_global_apparatus_emits against a scratch apparatus dir.
+    `plates` maps filename -> document; None means no plates/ folder at all.
+    Every plate is also copied into the scratch data dir."""
+    from homer_pipeline import apparatus_scenes
+    from homer_pipeline.preflight import WorkManifest, _validate_global_apparatus_emits
+
+    apparatus_dir = tmp_path / "apparatus"
+    apparatus_dir.mkdir()
+    _write_places_json(apparatus_dir, ["troy"])
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    if plates is not None:
+        (apparatus_dir / "plates").mkdir()
+        (data_dir / "plates").mkdir()
+        for name, doc in plates.items():
+            text = json.dumps(doc)
+            (apparatus_dir / "plates" / name).write_text(text, encoding="utf-8")
+            (data_dir / "plates" / name).write_text(text, encoding="utf-8")
+    monkeypatch.setattr(apparatus_scenes, "APPARATUS_DIR", apparatus_dir)
+    monkeypatch.setattr(apparatus_scenes, "SCENES_DIR", tmp_path / "scenes")
+    manifest = WorkManifest(
+        work_id="iliad", path=MANIFESTS / "Iliad.yaml",
+        data={"citation": {"scheme": "verse-line"}, "books": []},
+    )
+    problems: list = []
+    _validate_global_apparatus_emits(data_dir, [manifest], problems)
+    return [p[2] for p in problems]
+
+
+def _good_plate(plate_id: str) -> dict:
+    return {
+        "id": plate_id, "title": "T", "kind": "geographic", "status": "draft",
+        "seed": 1, "bbox": [39.86, 26.12, 40.02, 26.36], "size": [880, 620],
+        "layers": [{"id": "r", "kind": "river", "path": [[39.9, 26.15], [39.95, 26.2]]}],
+        "sources": [{"cite": "A Book."}],
+    }
+
+
+def test_preflight_fails_when_plates_folder_is_missing(tmp_path, monkeypatch):
+    messages = _plate_preflight_problems(tmp_path, monkeypatch, None)
+    assert any("apparatus/plates" in m and "missing" in m for m in messages)
+
+
+def test_preflight_fails_when_a_site_plate_is_absent(tmp_path, monkeypatch):
+    from homer_pipeline.apparatus_places import SITE_PLATE_IDS
+
+    keep = sorted(SITE_PLATE_IDS)[1:]
+    dropped = sorted(SITE_PLATE_IDS)[0]
+    plates = {f"{pid}.json": _good_plate(pid) for pid in keep}
+    messages = _plate_preflight_problems(tmp_path, monkeypatch, plates)
+    assert any(dropped in m and "site requests" in m for m in messages)
+
+
+def test_preflight_accepts_every_site_plate_present(tmp_path, monkeypatch):
+    from homer_pipeline.apparatus_places import SITE_PLATE_IDS
+
+    plates = {f"{pid}.json": _good_plate(pid) for pid in SITE_PLATE_IDS}
+    messages = _plate_preflight_problems(tmp_path, monkeypatch, plates)
+    assert not any("site requests" in m or "apparatus/plates" in m for m in messages)
+
+
+def test_preflight_fails_when_plate_id_differs_from_filename(tmp_path, monkeypatch):
+    from homer_pipeline.apparatus_places import SITE_PLATE_IDS
+
+    plates = {f"{pid}.json": _good_plate(pid) for pid in SITE_PLATE_IDS}
+    victim = sorted(SITE_PLATE_IDS)[0]
+    plates[f"{victim}.json"]["id"] = "something-else"
+    messages = _plate_preflight_problems(tmp_path, monkeypatch, plates)
+    assert any(victim in m and "something-else" in m and "filename" in m for m in messages)
+
+
+def test_site_plate_ids_match_the_ts_sources():
+    """SITE_PLATE_IDS is a hand-kept list, so tie it to the TS/Svelte code
+    that actually requests plates: every `fetchPlate('x')`, `plateId="x"` and
+    SCHEMATIC_PLATE_ID literal in the site must be in the list, and vice
+    versa."""
+    import re
+
+    from homer_pipeline.apparatus_places import SITE_PLATE_IDS
+
+    sources = [
+        ROOT / "app" / "src" / "components" / "MapsPage.svelte",
+        ROOT / "shared" / "components" / "Reader.svelte",
+        ROOT / "shared" / "lib" / "scene-place.ts",
+    ]
+    found: set[str] = set()
+    for path in sources:
+        text = path.read_text(encoding="utf-8")
+        found |= set(re.findall(r"fetchPlate\(\s*['\"]([\w-]+)['\"]", text))
+        found |= set(re.findall(r"\bplateId=\"([\w-]+)\"", text))
+        found |= set(re.findall(r"SCHEMATIC_PLATE_ID\s*=\s*['\"]([\w-]+)['\"]", text))
+    assert found, "found no plate ids in the TS/Svelte sources; update this regex"
+    assert found == set(SITE_PLATE_IDS)

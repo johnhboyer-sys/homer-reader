@@ -32,8 +32,14 @@ const shards: Record<string, Record<string, NgramRow>> = {
   'form/t': {
     "ton d' apameibomenos": [3, 55, 1179.2, 2],
     'te kai': [2, 526, 1494.3, 2],
+    // Only one poem: the cross-epic toggle's discriminating case. Every other
+    // fixture row above is in both, which would make the toggle a no-op test.
+    'te monon': [2, 8, 12.0, 1],
   },
-  'english/o': { 'odysseus of many wiles': [4, 92, 2044.8, 2] },
+  'english/o': {
+    'odysseus of many wiles': [4, 92, 2044.8, 2],
+    'odysseus of ithaca': [3, 6, 9.4, 1],
+  },
 };
 
 // One book of three five-token verses. `te kai` stands at offset 3 (inside verse
@@ -96,6 +102,7 @@ const GREEK = {
   hnTe: 'ην τε',
   surface: "τον δ' απαμειβομενος",
   teKai: 'τε και',
+  teMonon: 'τε μονον',
 };
 
 // A phrase can appear twice on the page — once as a row, once named in the note
@@ -279,5 +286,65 @@ describe('Phrases: the within-one-verse toggle', () => {
     // The book, with no verse: '1', not '1.1'.
     expect(link).toHaveTextContent(/^1$/);
     expect(link.getAttribute('href')).toContain('/odyssey/book/1?loc=1');
+  });
+});
+
+describe('Phrases: the cross-epic toggle', () => {
+  beforeEach(() => {
+    shardCalls.length = 0;
+    occCalls.length = 0;
+    vi.spyOn(globalThis, 'fetch').mockImplementation(() =>
+      Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response));
+  });
+  afterEach(() => vi.restoreAllMocks());
+
+  function toggle() {
+    return screen.getByRole('checkbox', { name: /both poems/ });
+  }
+
+  // τε και stands in both poems; τε μόνον is the fixture's one-poem row —
+  // the case the toggle exists to remove.
+  it('is off by default, and removes the one-poem row when ticked', async () => {
+    render(Phrases);
+    await type('te');
+    expect(toggle()).not.toBeChecked();
+    expect(await findRow(GREEK.teKai)).toBeInTheDocument();
+    expect(await findRow(GREEK.teMonon)).toBeInTheDocument();
+    const countBefore = await screen.findByText(/of 2 matching phrases/);
+    expect(countBefore).toBeInTheDocument();
+
+    await fireEvent.click(toggle());
+    expect(screen.queryByText(GREEK.teMonon, { selector: '.phrase-greek' })).toBeNull();
+    expect(await findRow(GREEK.teKai)).toBeInTheDocument();
+    expect(await screen.findByText(/of 1 matching phrases/)).toBeInTheDocument();
+  });
+
+  // The toggle reads a work count the shard row already carries, so ticking it
+  // asks for no further shard or occurrence fetch.
+  it('fetches nothing extra when ticked', async () => {
+    render(Phrases);
+    await type('te');
+    await findRow(GREEK.teKai);
+    const callsBefore = shardCalls.length;
+    await fireEvent.click(toggle());
+    await screen.findByText(/of 1 matching phrases/);
+    expect(shardCalls).toHaveLength(callsBefore);
+    expect(occCalls).toHaveLength(0);
+  });
+
+  // The stream this toggle exists for is Greek, but it applies to English too.
+  it('also narrows the English stream', async () => {
+    render(Phrases);
+    await fireEvent.click(screen.getByRole('radio', { name: 'English translation' }));
+    await type('odysseus of');
+    await screen.findByText('odysseus of ithaca', { selector: '.phrase-english' });
+    await screen.findByText(/of 2 matching phrases/);
+
+    await fireEvent.click(toggle());
+    expect(screen.queryByText('odysseus of ithaca', { selector: '.phrase-english' })).toBeNull();
+    expect(
+      await screen.findByText('odysseus of many wiles', { selector: '.phrase-english' }),
+    ).toBeInTheDocument();
+    await screen.findByText(/of 1 matching phrases/);
   });
 });
