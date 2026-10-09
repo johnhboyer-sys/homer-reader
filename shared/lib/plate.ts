@@ -6232,7 +6232,7 @@ function renderLayer(
           `stroke-opacity="0.75" stroke-linecap="round" stroke-linejoin="round"/>`;
         break;
       }
-      if (layer.style === 'restored') {
+      if (layer.style === 'restored' && layer.width !== undefined) {
         const { faces, hatch } = wallBandGlyph(px, layer.width);
         markup =
           `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-wall-restored" ` +

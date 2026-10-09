@@ -26,6 +26,7 @@ import {
   type Plate,
   type PlatePlace,
   type PlateLayer,
+  type PlatePoint,
 } from '../lib/plate';
 
 const SEED_PLATE_PATH = '../apparatus/plates/trojan-plain.json';

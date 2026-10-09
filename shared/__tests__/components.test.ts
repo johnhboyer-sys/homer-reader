@@ -1405,7 +1405,7 @@ describe('Reader.svelte — Chart Room SCHEMATIC plate postcard (live path, 2026
     const tx = parseFloat(txStr);
 
     const labelText = container.querySelector('[data-label-for="achaean-assembly-place"]') as SVGTextElement;
-    const descaleWrapper = labelText.parentElement as SVGGElement;
+    const descaleWrapper = labelText.parentElement as unknown as SVGGElement;
     expect(descaleWrapper).toHaveClass('chart-label-descale');
     const wrapMatch = descaleWrapper
       .getAttribute('transform')!
@@ -1478,7 +1478,7 @@ describe('Reader.svelte — Chart Room SCHEMATIC plate postcard (live path, 2026
     const tx = parseFloat(txStr);
 
     const labelText = container.querySelector('[data-label-for="achaean-assembly-place"]') as SVGTextElement;
-    const descaleWrapper = labelText.parentElement as SVGGElement;
+    const descaleWrapper = labelText.parentElement as unknown as SVGGElement;
     expect(descaleWrapper).toHaveClass('chart-label-descale');
     const wrapMatch = descaleWrapper
       .getAttribute('transform')!
@@ -2003,7 +2003,7 @@ describe('Reader.svelte — Chart Room SCHEMATIC plate postcard, stage 5a (2026-
     const designPx = parseFloat(label.getAttribute('font-size')!);
     expect(designPx).toBeGreaterThan(0);
 
-    const descaleWrapper = label.parentElement as SVGGElement;
+    const descaleWrapper = label.parentElement as unknown as SVGGElement;
     expect(descaleWrapper).toHaveClass('chart-label-descale');
     const fMatch = descaleWrapper.getAttribute('transform')!.match(/scale\(([-\d.]+)\)/);
     expect(fMatch).not.toBeNull();
