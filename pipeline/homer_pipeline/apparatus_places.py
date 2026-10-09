@@ -29,6 +29,19 @@ from typing import Any
 
 CERTAINTY_TIERS = {"certain", "traditional", "speculative", "mythical"}
 
+# The only status values the codebase uses: "draft" (AI-drafted, shows the
+# draft badge) until John flips it to "reviewed". PlatePanel's badge tests
+# `status === 'draft'`, so a typo like "Draft" would silently drop the badge.
+STATUS_ENUM = {"draft", "reviewed"}
+
+# Plate ids the site requests by name, hand-kept because the only other source
+# of truth is TS/Svelte code. test_preflight.py parses those sources
+# (MapsPage.svelte plateId=, Reader.svelte fetchPlate(), scene-place.ts
+# SCHEMATIC_PLATE_ID) and asserts this set agrees. preflight fails when any
+# is missing from apparatus/plates/. troy-citadel and shield-of-achilles are
+# not requested by any page today, so they are not listed.
+SITE_PLATE_IDS = frozenset({"troad", "trojan-plain", "trojan-plain-schematic"})
+
 PLACE_KIND_ENUM = {
     "settlement", "river", "mountain", "hill", "island", "promontory",
     "region", "plain", "harbour", "strait",
@@ -199,6 +212,11 @@ def validate_places(doc: Any) -> list[str]:
         return ["places.json: places must be a list"]
 
     problems: list[str] = []
+    if doc.get("status") not in STATUS_ENUM:
+        problems.append(
+            f"places.json: status must be one of {sorted(STATUS_ENUM)}, "
+            f"got {doc.get('status')!r}"
+        )
     seen_ids: set[str] = set()
     for i, place in enumerate(places):
         if not isinstance(place, dict):
@@ -320,7 +338,19 @@ def validate_places(doc: Any) -> list[str]:
                 f"place {label}: labelSize must be 'small' or 'base', got {label_size!r}"
             )
 
-        maps = place.get("maps") if isinstance(place.get("maps"), list) else []
+        # shared/lib/maps.ts placesForMap calls `p.maps.includes(tag)` on every
+        # place and Place.maps is a required string[] -- absent or null crashes
+        # the maps page.
+        maps = place.get("maps")
+        if not isinstance(maps, list):
+            problems.append(f"place {label}: maps must be a list of strings")
+            maps = []
+        else:
+            for mi, tag in enumerate(maps):
+                if not isinstance(tag, str) or not tag:
+                    problems.append(
+                        f"place {label}: maps[{mi}] must be a non-empty string"
+                    )
         tagged_for_plate = any(
             isinstance(tag, str) and tag.startswith(PLATE_TAG_PREFIXES) for tag in maps
         )
@@ -392,6 +422,37 @@ def _iter_layer_coords(layer: dict, label: str, layer_label: str, problems: list
             continue
         for pi, pair in enumerate(coords):
             yield field, pair, f"[{pi}]"
+
+
+def _point_count(value: Any) -> int:
+    return len(value) if isinstance(value, list) else 0
+
+
+def _layer_has_drawable_geometry(layer: dict) -> bool:
+    """Whether shared/lib/plate.ts renderLayer would draw anything for this
+    layer. Mirrors its per-kind minimums: it returns undefined (draws
+    nothing) below them. A featureKey row for such a layer prints a numeral
+    with no mark on the sheet."""
+    kind = layer.get("kind")
+    rings = layer.get("rings")
+    rings = rings if isinstance(rings, list) else []
+    if kind == "coast":
+        return len(rings) > 0
+    if kind in ("river", "route"):
+        return _point_count(layer.get("path")) >= 2
+    if kind == "shipRow":
+        return _point_count(layer.get("baseline")) >= 2
+    if kind == "wall":
+        return _point_count(layer.get("trace")) >= 2
+    if kind == "tumulus":
+        return _point_count(layer.get("path")) >= 1
+    if kind == "relief" and layer.get("elevation") is not None:
+        return _point_count(layer.get("polygon")) >= 3 or any(
+            _point_count(r) >= 3 for r in rings
+        )
+    if kind in ("relief", "region", "band"):
+        return _point_count(layer.get("polygon")) >= 3
+    return False
 
 
 def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
@@ -510,8 +571,11 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                         f"integers with from <= to"
                     )
 
-    if "status" in doc and (not isinstance(doc.get("status"), str) or not doc["status"].strip()):
-        problems.append(f"{label}: status must be a non-empty string")
+    if "status" in doc and doc.get("status") not in STATUS_ENUM:
+        problems.append(
+            f"{label}: status must be one of {sorted(STATUS_ENUM)}, "
+            f"got {doc.get('status')!r}"
+        )
 
     # Plate-level sources: every plate is a scholarly artefact, not just its
     # individually-tagged places/layers, so it must cite what it drew from.
@@ -590,6 +654,7 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
 
     needs_seed = False
     seen_layer_ids: set[str] = set()
+    layers_by_id: dict[str, dict] = {}
     for i, layer in enumerate(layers):
         if not isinstance(layer, dict):
             problems.append(f"{label}: layers[{i}] must be an object")
@@ -606,6 +671,7 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
             problems.append(f"plate {label}: duplicate layer id {layer_id!r}")
         else:
             seen_layer_ids.add(layer_id)
+            layers_by_id[layer_id] = layer
 
         # Every one of these next three fields does an `in`-test against a
         # set or dict. A list-valued field (e.g. `"kind": ["river"]`) used to
@@ -871,6 +937,13 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                             problems.append(
                                 f"{label}: featureKey[{gi}].items[{ii}].layerId "
                                 f"{layer_id!r} is not a layer of this plate"
+                            )
+                        elif not _layer_has_drawable_geometry(layers_by_id[layer_id]):
+                            problems.append(
+                                f"{label}: featureKey[{gi}].items[{ii}].layerId "
+                                f"{layer_id!r} has no drawable geometry (its "
+                                f"{layers_by_id[layer_id].get('kind')!r} layer would "
+                                f"draw nothing, leaving a key row with no mark)"
                             )
                         key_id = layer_id
                     elif has_place:

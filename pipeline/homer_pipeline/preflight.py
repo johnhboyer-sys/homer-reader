@@ -1424,7 +1424,12 @@ def _validate_global_apparatus_emits(
 
     plates_src_dir = apparatus_scenes.APPARATUS_DIR / "plates"
     plate_ids: set[str] = set()
-    if plates_src_dir.exists():
+    if not plates_src_dir.is_dir():
+        problems.append(
+            ("-", "plates", "apparatus/plates/ is missing; the site requests "
+             f"{sorted(apparatus_places.SITE_PLATE_IDS)}")
+        )
+    else:
         for plate_path in sorted(plates_src_dir.glob("*.json")):
             try:
                 plate_doc = json.loads(plate_path.read_text(encoding="utf-8"))
@@ -1434,6 +1439,13 @@ def _validate_global_apparatus_emits(
             for msg in apparatus_places.validate_plate(plate_doc, places_by_id):
                 problems.append(("-", plate_path.name, msg))
             doc_id = plate_doc.get("id") if isinstance(plate_doc, dict) else None
+            if isinstance(doc_id, str) and doc_id and doc_id != plate_path.stem:
+                problems.append(
+                    ("-", plate_path.name,
+                     f"plate id {doc_id!r} does not match its filename "
+                     f"(expected {plate_path.stem!r}); the site fetches "
+                     f"plates/<id>.json by id")
+                )
             plate_ids.add(doc_id if isinstance(doc_id, str) and doc_id else plate_path.stem)
             plate_dist = data_dir / "plates" / plate_path.name
             if not plate_dist.exists():
@@ -1447,6 +1459,13 @@ def _validate_global_apparatus_emits(
                     json.loads(plate_dist.read_text(encoding="utf-8"))
                 except Exception as exc:
                     problems.append(("-", plate_path.name, f"invalid JSON: {exc}"))
+        for site_id in sorted(apparatus_places.SITE_PLATE_IDS):
+            if not (plates_src_dir / f"{site_id}.json").is_file():
+                problems.append(
+                    ("-", f"{site_id}.json",
+                     f"the site requests plate {site_id!r} but "
+                     f"apparatus/plates/{site_id}.json does not exist")
+                )
 
     # A place's plateAnchors keys named against real plate ids: validate_plate
     # above only range-checks the anchor keyed to THAT plate's own id, so a
