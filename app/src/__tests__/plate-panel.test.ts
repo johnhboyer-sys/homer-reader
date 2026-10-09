@@ -645,6 +645,71 @@ describe('PlatePanel', () => {
     expect(k).toBeLessThanOrEqual(8);
   });
 
+  // GPT-6-Sol review finding 1: setupCamera moved every child of the sheet's
+  // clip group into the pannable camera except the legend, so a margin inset,
+  // the scene key and the feature key (sheet furniture, drawn in the margin)
+  // panned and zoomed with the map. They must stay fixed beside the legend.
+  it('keeps the margin inset, scene key and feature key outside the pannable camera group', async () => {
+    mockFetchPlate.mockResolvedValue({
+      id: 'furniture-plate',
+      title: 'Furniture Plate',
+      kind: 'schematic',
+      status: 'draft',
+      bbox: [0, 0, 1, 1],
+      size: [500, 300],
+      marginRight: 200,
+      layers: [
+        {
+          id: 'locator',
+          kind: 'region',
+          style: 'inset',
+          label: 'Locator',
+          frame: [320, 20, 160, 120],
+          polygon: [[0.25, 0.25], [0.75, 0.25], [0.75, 0.75], [0.25, 0.75]],
+        },
+        { id: 'ridge', kind: 'region', label: 'Ridge', polygon: [[0.1, 0.1], [0.4, 0.1], [0.4, 0.4], [0.1, 0.4]] },
+      ],
+      sceneKey: [{ letter: 'A', title: 'Inner box', ref: 'Il. 1.1', layerId: 'locator' }],
+    });
+    const { container } = render(PlatePanel, {
+      props: { plateId: 'furniture-plate', places: [], title: 'Furniture Plate' },
+    });
+    await waitFor(() => expect(container.querySelector('.pp-camera')).toBeTruthy());
+    const camera = container.querySelector('.pp-camera') as SVGGElement;
+
+    // Map content is inside the camera...
+    expect(camera.querySelector('[data-layer-id="ridge"]')).not.toBeNull();
+    // ...the sheet's margin furniture is not, but is still on the sheet.
+    for (const selector of ['[data-layer-id="locator"]', '.plate-scene-key', '.plate-feature-key', '.plate-legend']) {
+      expect(camera.querySelector(selector), `${selector} must not pan with the map`).toBeNull();
+    }
+    expect(container.querySelector('[data-layer-id="locator"]')).not.toBeNull();
+    expect(container.querySelector('.plate-scene-key')).not.toBeNull();
+    expect(container.querySelector('.plate-legend')).not.toBeNull();
+  });
+
+  // GPT-6-Sol review finding 2: a focus id naming a "Later tradition and
+  // survey" site left the camera on the whole sheet, because computeCamera
+  // knew nothing of layer groups. Loading with such a focus now switches the
+  // group on (the site would otherwise be framed but not drawn) and frames it.
+  it('a focus id inside a default-off layer group switches the group on and frames the site', async () => {
+    mockFetchPlate.mockResolvedValue(
+      JSON.parse(readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain-schematic.json'), 'utf-8')),
+    );
+    const places = JSON.parse(
+      readFileSync(path.resolve(process.cwd(), '../apparatus/places.json'), 'utf-8'),
+    ).places;
+    const { container, getByRole } = render(PlatePanel, {
+      props: { plateId: 'trojan-plain-schematic', places, title: 'Plain', focusIds: ['kum-tepe'] },
+    });
+    await waitFor(() => expect(container.querySelector('.pp-camera')).toBeTruthy());
+    const toggle = getByRole('checkbox', { name: 'Show later tradition and survey' }) as HTMLInputElement;
+    await waitFor(() => expect(toggle.checked).toBe(true));
+    await waitFor(() => expect(container.querySelector('[data-place-id="kum-tepe"]')).toBeTruthy());
+    const camera = container.querySelector('.pp-camera') as SVGGElement;
+    await waitFor(() => expect(camera.getAttribute('transform')).not.toBe('translate(0 0) scale(1)'));
+  });
+
   it('an empty focusIds (the default) leaves the identity camera', async () => {
     mockFetchPlate.mockResolvedValue({
       id: 'focus-plate-2',

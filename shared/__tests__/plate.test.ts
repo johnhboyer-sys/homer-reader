@@ -5592,6 +5592,26 @@ describe('trojan-plain-schematic: the "Later tradition and survey" layer group',
     }
   });
 
+  it('computeCamera frames a shown group site from its surveyed coordinates, and ignores it while the group is off (as renderPlate does)', () => {
+    const id = 'kum-tepe';
+    expect(placeIds).toContain(id);
+    const identity = { scale: 1, tx: 0, ty: 0 };
+    const hidden = computeCamera(plate, on.viewport, [id], { places: allPlaces, labelBoxes: off.labelBoxes });
+    expect(hidden).toEqual(identity);
+    // No label boxes: the pin alone must carry the framing.
+    const shown = computeCamera(plate, on.viewport, [id], {
+      places: allPlaces,
+      showLayerGroups: ['later-tradition'],
+    });
+    expect(shown.scale).toBeGreaterThan(1);
+    // The framed site lands inside the sheet.
+    const [x, y] = on.features.find((f) => f.id === id)!.bbox;
+    expect(x * shown.scale + shown.tx).toBeGreaterThanOrEqual(0);
+    expect(x * shown.scale + shown.tx).toBeLessThanOrEqual(on.frame[0]);
+    expect(y * shown.scale + shown.ty).toBeGreaterThanOrEqual(0);
+    expect(y * shown.scale + shown.ty).toBeLessThanOrEqual(on.frame[1]);
+  });
+
   it('draws nothing unless asked: no mark, no name, no legend row; its places are behind the switch, not "unlocated"', () => {
     expect(off.svg).not.toContain('data-layer-group');
     expect(off.svg).not.toContain('plate-label-tradition');

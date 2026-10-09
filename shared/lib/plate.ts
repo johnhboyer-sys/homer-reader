@@ -595,9 +595,16 @@ export interface CameraOptions {
    * pin only," exactly the old behaviour.
    */
   labelBoxes?: Record<string, LabelBox>;
+  /**
+   * Ids of `Plate.layerGroups` drawn on the sheet being framed — pass the
+   * same list given to renderPlate. A place of a SHOWN group is framed at its
+   * surveyed `coords`, as renderPlate draws it; a place of a hidden group
+   * resolves by the ordinary rule below. Omitted, each group follows its own `default`.
+   */
+  showLayerGroups?: string[];
 }
 
-const DEFAULT_CAMERA_OPTIONS: Required<CameraOptions> = {
+const DEFAULT_CAMERA_OPTIONS: Required<Omit<CameraOptions, 'showLayerGroups'>> = {
   padFraction: 0.12,
   maxScale: 8,
   places: [],
@@ -7578,9 +7585,21 @@ export function computeCamera(
     }
   }
 
+  // A shown layer-group place sits at its own surveyed coords, on a schematic
+  // sheet too — the same rule renderPlate draws it by (see `groupOfPlace`).
+  const shownGroupIds = new Set(
+    options.showLayerGroups ?? (plate.layerGroups ?? []).filter((g) => g.default !== 'off').map((g) => g.id),
+  );
+  const groupPlaceIds = new Set(
+    (plate.layerGroups ?? []).filter((g) => shownGroupIds.has(g.id)).flatMap((g) => g.placeIds),
+  );
   for (const place of opts.places) {
     if (!idSet.has(place.id)) continue;
-    const pos = resolvePlacePosition(plate, place, viewport);
+    const pos = groupPlaceIds.has(place.id)
+      ? place.coords
+        ? projectPoint(plate, place.coords, viewport)
+        : undefined
+      : resolvePlacePosition(plate, place, viewport);
     if (pos) points.push(pos);
   }
 

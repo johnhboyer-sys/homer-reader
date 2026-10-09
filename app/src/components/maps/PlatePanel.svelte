@@ -447,10 +447,10 @@
     tipVisible = false;
   }
 
-  // Wraps the clip-path group's children in a new inner `<g class="pp-
-  // camera">` (see the doc comment above for why it can't just be the
-  // clip-path element's own transform), pulls the legend out as a sibling
-  // so it stays fixed, and wraps every `.plate-label` text node in its own
+  // Takes the sheet's `<g class="plate-camera">` as the pannable `pp-camera`
+  // group (see the doc comment above for why it can't just be the clip-path
+  // element's own transform; the legend, margin inset and keys stay fixed
+  // outside it), and wraps every `.plate-label` text node in its own
   // counter-scale group so labels never magnify under zoom (part 3: ships,
   // waterlines and every other drawn feature DO magnify; only text does
   // not). Re-run after every load() -- {@html} recreates the whole SVG
@@ -465,16 +465,21 @@
     if (!outerG) return;
     clipG = outerG;
 
-    const legendEl = outerG.querySelector(':scope > g.plate-legend');
-    const camera = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    camera.setAttribute('class', 'pp-camera');
-    const children = Array.from(outerG.children);
-    for (const child of children) {
-      if (child === legendEl) continue;
-      camera.appendChild(child);
+    // renderPlate's own `.plate-camera` group (cameraGroup: true) holds the
+    // map face only; the margin inset, legend, scene key and feature key sit
+    // beside it and stay fixed. A shield plate has no such group: its camera
+    // takes everything but the legend.
+    let camera = outerG.querySelector(':scope > g.plate-camera') as SVGGElement | null;
+    if (!camera) {
+      const legendEl = outerG.querySelector(':scope > g.plate-legend');
+      camera = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      for (const child of Array.from(outerG.children)) {
+        if (child !== legendEl) camera.appendChild(child);
+      }
+      outerG.appendChild(camera);
+      if (legendEl) outerG.appendChild(legendEl);
     }
-    outerG.appendChild(camera);
-    if (legendEl) outerG.appendChild(legendEl);
+    camera.classList.add('pp-camera');
     cameraG = camera;
 
     // A label's own x/y attribute is its exact anchor point (text-anchor
@@ -716,7 +721,7 @@
   // load() and toggleGroup(), which re-renders with a different set of layer
   // groups shown.
   function paintPlate(plate: Plate, placesForPlate: PlatePlace[]) {
-    const result = renderPlate(plate, placesForPlate, { showLayerGroups: shownGroupIds() });
+    const result = renderPlate(plate, placesForPlate, { showLayerGroups: shownGroupIds(), cameraGroup: true });
     renderedPlate = plate;
     svgMarkup = result.svg;
     plateTitle = plate.title;
@@ -787,7 +792,15 @@
       } else {
         const plate = parsePlate(raw);
         layerGroups = plate.layerGroups ?? [];
-        groupVisible = Object.fromEntries(layerGroups.map((g) => [g.id, g.default !== 'off']));
+        // A focus id inside a group switches that group on: the site would
+        // otherwise be framed on a sheet that does not draw it.
+        const focused = new Set(focusIdsForPlate);
+        groupVisible = Object.fromEntries(
+          layerGroups.map((g) => [
+            g.id,
+            g.default !== 'off' || [...g.placeIds, ...g.layerIds].some((pid) => focused.has(pid)),
+          ]),
+        );
         paintPlate(plate, placesForPlate);
         const present = new Set(plate.layers.map((l) => layerCategory(l)).filter((c): c is LayerCategory => c !== null));
         layerCategories = CATEGORY_ORDER.filter((c) => present.has(c));
@@ -805,6 +818,7 @@
           places: placesForPlate,
           labelBoxes: focusLabelBoxes,
           maxScale: CAM_MAX_K,
+          showLayerGroups: shownGroupIds(),
         });
         setCamera(cam.scale, cam.tx, cam.ty);
       }
