@@ -5582,12 +5582,18 @@ describe('trojan-plain-schematic: the "Later tradition and survey" layer group',
   it('is declared off by default, with the sites the geographic sheet drew, each from its gazetteer record', () => {
     expect(group?.default).toBe('off');
     expect([...placeIds].sort()).toEqual(
-      ['besik-sivritepe', 'kesik-tepe', 'kum-tepe', 'pinarbasi', 'sigeion', 'thymbrios', 'tomb-of-ajax-in-tepe', 'uvecik-tepe'],
+      [
+        'besik-sivritepe', 'kesik-basin', 'kesik-tepe', 'kum-tepe', 'pinarbasi', 'sigeion', 'thymbrios',
+        'tomb-of-ajax-in-tepe', 'uvecik-tepe',
+      ],
     );
     // The Kesik cut's label-only layer is gone (John, 2026-10-09: it lettered
-    // nothing drawn); the group carries places only.
+    // nothing drawn); the group carries places only. The Kesik basin stays in
+    // the list with no coords, so the record is behind the switch like the
+    // other later-tradition sites.
     expect(group?.layerIds).toEqual([]);
     for (const id of placeIds) {
+      if (id === 'kesik-basin') continue;
       const place = placeById.get(id);
       expect(place?.coords, `${id} has coords`).toBeTruthy();
       expect(place?.certainty, `${id} has a tier`).toBeTruthy();
@@ -5633,7 +5639,10 @@ describe('trojan-plain-schematic: the "Later tradition and survey" layer group',
 
   it('shown: each site has its tier\'s dot (none for the Thymbrios), a small italic name, no numeral, and its tradition as hover text', () => {
     const pins = new Map(markPins(on.svg).map((p) => [p.id, p.box] as const));
-    for (const id of placeIds) {
+    // The Kesik basin has no coords and no drawing: shown, it is named, not drawn.
+    expect(on.unlocated.map((p) => p.id)).toContain('kesik-basin');
+    expect(pins.has('kesik-basin')).toBe(false);
+    for (const id of placeIds.filter((pid) => pid !== 'kesik-basin')) {
       const place = placeById.get(id)!;
       const label = traditionLabel(on.svg, id);
       expect(label, `${id} is lettered in the tradition register`).toBeTruthy();

@@ -2343,8 +2343,8 @@ function labelText(text: string, style: LabelStyle): string {
   return style.caps ? text.toUpperCase() : text;
 }
 
-// The gazetteer's `name` is a CATALOGUE entry — "Kesik Tepe (the 'Demetrius
-// tumulus'), claimed tomb of Achilles", "Scamander (Xanthus)". Lettered onto
+// The gazetteer's `name` is a CATALOGUE entry — "Kesik Tepe (St. Demetrius'
+// Tepe), the travelers' tomb of Antilochus", "Scamander (Xanthus)". Lettered onto
 // the sheet verbatim it runs across half the plain and collides with its
 // neighbours (measured, 2026-07-28: the first render of this lane). A map
 // label is the short form: the head of the name, before the first

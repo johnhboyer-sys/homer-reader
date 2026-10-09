@@ -52,4 +52,35 @@ describe('MapsPage: the Trojan Plain tab', () => {
     const kesik = container.querySelector('#mp-panel-plain [data-place-id="kesik-tepe"]')!;
     expect(kesik.getAttribute('aria-label')).toContain('Antilochus');
   }, 60000);
+
+  // John, 2026-10-09: the "Kesik cut (contested)" label came off the sheet, but
+  // the gazetteer record `kesik-basin` still carries `troad-plain`, so it fell
+  // into "Named, not drawn" on every load. It belongs behind the same switch as
+  // the other later-tradition sites.
+  it('lists the Kesik basin under "Named, not drawn" only once the tradition layer is on', async () => {
+    const schematic = readJson('../apparatus/plates/trojan-plain-schematic.json');
+    mockFetchPlate.mockImplementation(async (id: string) => (id === 'trojan-plain-schematic' ? schematic : null));
+    window.history.replaceState(null, '', '/maps/?map=plain');
+
+    const { container, getByRole } = render(MapsPage, {
+      props: { base: '', places: readJson('../apparatus/places.json').places, achaean: [], trojan: [], characters: [] },
+    });
+    await waitFor(() => expect(container.querySelector('#mp-panel-plain svg')).toBeTruthy(), { timeout: 20000 });
+    const panel = container.querySelector('#mp-panel-plain') as HTMLElement;
+
+    const toggle = getByRole('checkbox', { name: 'Show later tradition and survey' }) as HTMLInputElement;
+    expect(toggle.checked).toBe(false);
+    expect(panel.textContent).not.toContain('Kesik basin');
+
+    toggle.click();
+    await waitFor(() => expect(panel.querySelector('[data-place-id="kum-tepe"]')).toBeTruthy(), { timeout: 20000 });
+    const section = Array.from(panel.querySelectorAll('.pp-unlocated')).find((el) =>
+      /Named, not drawn/.test(el.querySelector('h3')?.textContent ?? ''),
+    );
+    expect(section?.textContent).toContain('Kesik basin');
+
+    toggle.click();
+    await waitFor(() => expect(panel.querySelector('[data-place-id="kum-tepe"]')).toBeNull(), { timeout: 20000 });
+    expect(panel.textContent).not.toContain('Kesik basin');
+  }, 60000);
 });
