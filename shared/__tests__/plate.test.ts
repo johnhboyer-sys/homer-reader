@@ -17,6 +17,7 @@ import {
   orientPathForReading,
   reliefHachureParams,
   hypsometricLevels,
+  insetCopyId,
   hypsometricStep,
   scaleBarMarkup,
   lineworkExtent,
@@ -4005,6 +4006,86 @@ describe('renderPlate: an insetOf layer overrunning its window is clipped to the
   });
 });
 
+// Ruling 15 (John, 2026-09-04): the citadel drawn to scale INSIDE the Ilios
+// panel, the same houses as the Pergamos panel. `insetOf` takes a list, and a
+// layer is drawn once per panel it names. `insetOnly` ground (the Ilios
+// window's own elevation bands) is drawn in its panel and nowhere else, and
+// never re-tints the face: the face's ramp is keyed to the face's levels.
+describe('renderPlate: one layer in two panels; panel-only ground (ruling 15)', () => {
+  const panel = (id: string, frame: [number, number, number, number]) => ({
+    id,
+    kind: 'region',
+    style: 'inset',
+    frame,
+    insetBBox: [39.955, 26.236, 39.959, 26.242],
+    polygon: [
+      [0, 0],
+      [1, 0],
+      [1, 1],
+      [0, 1],
+    ],
+  });
+  const plate = parsePlate({
+    id: 'two-panel-test',
+    title: 'Two panel test',
+    kind: 'geographic',
+    status: 'draft',
+    bbox: BBOX,
+    size: [600, 300],
+    layers: [
+      panel('near', [20, 20, 200, 200]),
+      panel('far', [300, 20, 200, 200]),
+      { id: 'face-band', kind: 'relief', elevation: 10, polygon: [[39.9, 26.15], [39.9, 26.3], [40.0, 26.3], [40.0, 26.15]] },
+      { id: 'face-top', kind: 'relief', elevation: 40, polygon: [[39.95, 26.2], [39.95, 26.25], [39.96, 26.25], [39.96, 26.2]] },
+      {
+        id: 'house',
+        kind: 'region',
+        fill: 'masonry',
+        insetOf: ['near', 'far'],
+        polygon: [[39.9565, 26.2385], [39.9565, 26.2392], [39.9572, 26.2392], [39.9572, 26.2385]],
+      },
+      {
+        id: 'panel-ground',
+        kind: 'relief',
+        elevation: 35,
+        insetOf: 'far',
+        insetOnly: true,
+        polygon: [[39.9555, 26.237], [39.9555, 26.241], [39.9585, 26.241], [39.9585, 26.237]],
+      },
+    ],
+  });
+  const { svg, features } = renderPlate(plate, []);
+
+  it('draws a listed layer once on the face and once in each panel, under distinct ids', () => {
+    expect(plate.layers.find((l) => l.id === 'house')!.insetOf).toEqual(['near', 'far']);
+    for (const id of ['house', 'house--inset', 'house--inset-far']) {
+      expect(svg, id).toContain(`data-feature-id="${id}"`);
+      expect(features.some((f) => f.id === id), `${id} feature record`).toBe(true);
+    }
+  });
+
+  it('draws an insetOnly layer in its panel only, and keeps it out of the face ramp', () => {
+    expect(svg).toContain('data-feature-id="panel-ground--inset"');
+    expect(svg).not.toContain('data-feature-id="panel-ground"');
+    expect(features.some((f) => f.id === 'panel-ground')).toBe(false);
+    expect(hypsometricLevels(plate)).toEqual([10, 40]);
+  });
+
+  it('rejects insetOnly without insetOf, and a malformed insetOf list', () => {
+    const base = { id: 't', title: 't', kind: 'geographic', status: 'draft', bbox: BBOX, size: [600, 300] };
+    const ground = { id: 'g', kind: 'relief', elevation: 5, polygon: [[39.9, 26.2], [39.9, 26.3], [40, 26.3]] };
+    expect(() => parsePlate({ ...base, layers: [panel('near', [20, 20, 200, 200]), { ...ground, insetOnly: true }] })).toThrow(
+      /insetOnly/,
+    );
+    expect(() =>
+      parsePlate({ ...base, layers: [panel('near', [20, 20, 200, 200]), { ...ground, insetOf: ['near', 'near'] }] }),
+    ).toThrow(/insetOf/);
+    expect(() => parsePlate({ ...base, layers: [panel('near', [20, 20, 200, 200]), { ...ground, insetOf: [] }] })).toThrow(
+      /insetOf/,
+    );
+  });
+});
+
 // 2026-09-03, citadel wall-fix: a `kind: "wall", style: "poem"` layer never
 // invents a fortification of its own — every one so far (citadel-weak-wall,
 // Il. 6.433-39) names a stretch of a wall that IS surveyed or restored
@@ -4950,10 +5031,10 @@ function markGlyphBoxes(svg: string, plate: Plate): { id: string; owner?: string
     const owner = [layer.id, layer.placeId, ...(layer.claims ?? [])].find(
       (id): id is string => !!id && keyed.has(id),
     );
-    // `${id}--inset` is renderPlate's second drawing of a layer that carries
-    // `insetOf` (ruling 10). It is ink on the sheet like any other, and the
+    // `${id}--inset` (and `--inset-<panel>`) is renderPlate's drawing of a
+    // layer that carries `insetOf` (ruling 10) inside each panel it names. It is ink on the sheet like any other, and the
     // numerals inside the panel must keep off it.
-    for (const id of [layer.id, ...(layer.insetOf ? [`${layer.id}--inset`] : [])]) {
+    for (const id of [layer.id, ...(layer.insetOf ?? []).map((panel, i) => insetCopyId(layer.id, panel, i))]) {
       const pts = layerPaths(svg, id).flat();
       if (!pts.length) continue;
       const xs = pts.map((p) => p[0]);
@@ -6125,7 +6206,7 @@ describe('renderPlate: masonry-ground', () => {
 
 describe('the citadel panel draws the poem’s city as a built fabric (ruling 13)', () => {
   const plate = parsePlate(JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')));
-  const inPanel = plate.layers.filter((l) => l.insetOf === 'citadel-city-panel');
+  const inPanel = plate.layers.filter((l) => l.insetOf?.includes('citadel-city-panel'));
   const plans = inPanel.filter((l) => l.style === 'plan');
   const survey = inPanel
     .filter((l) => l.fill === 'masonry-ground')
@@ -6280,7 +6361,7 @@ describe('the citadel panel draws the poem’s city as a built fabric (ruling 13
 describe('the Ilios panel draws the lower city as a built fabric (ruling 13, lower city)', () => {
   const plate = parsePlate(JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')));
   const allPlaces = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[];
-  const inPanel = plate.layers.filter((l) => l.insetOf === 'citadel-inset-panel');
+  const inPanel = plate.layers.filter((l) => l.insetOf?.includes('citadel-inset-panel'));
   const fabric = plate.layers.find((l) => l.id === 'ilios-lower-city')!;
   const street = plate.layers.find((l) => l.id === 'ilios-gate-street')!;
   // `status` is a record-level field parsePlate does not carry onto a layer;

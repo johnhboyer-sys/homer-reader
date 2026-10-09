@@ -143,6 +143,11 @@ const REGION_FILL_TOKENS = {
   // lighter edge, so the poem's city drawn over them carries the weight.
   // Same token, same legend row as `masonry`.
   'masonry-ground': 'var(--plate-masonry)',
+  // Roofed space in the poem's plan register (ruling 15, 2026-09-04): the
+  // floor of a house the poem's city is drawn with, so a block of houses
+  // reads as built mass against the open ground of its streets and courts.
+  // Only `style: "plan"` draws it (see PlateLayer.open).
+  built: 'var(--plate-built)',
   sea: 'var(--scene-map-sea)',
   lagoon: 'var(--plate-lagoon)',
   land: 'var(--scene-map-land)',
@@ -170,6 +175,7 @@ const REGION_FILL_OPACITY: Record<RegionFill, number> = {
   // Opaque: masonry is a body of stone, not a wash over ground.
   masonry: 1,
   'masonry-ground': 0.42,
+  built: 1,
   sea: 1,
   lagoon: 1,
   land: 1,
@@ -322,13 +328,44 @@ export interface PlateLayer {
    */
   insetBBox?: [number, number, number, number];
   /**
-   * "Also draw me inside that inset panel." Names a layer with `insetBBox`.
-   * The layer keeps its ordinary lat/lon geometry and its ordinary place on
-   * the map face; a SECOND copy is drawn through the panel's window, with
-   * `--inset` appended to its feature id. No geometry is duplicated in the
-   * plate file, so the two drawings can never drift apart.
+   * "Also draw me inside that inset panel." Names a layer with `insetBBox`,
+   * or a list of them. The layer keeps its ordinary lat/lon geometry and its
+   * ordinary place on the map face; a further copy is drawn through each
+   * panel's window, with `--inset` appended to its feature id in the first
+   * panel listed and `--inset-<panel id>` in any other (insetCopyId). No
+   * geometry is duplicated in the plate file, so the drawings can never drift
+   * apart. A list exists for the citadel (ruling 15, 2026-09-04): the same
+   * houses are drawn at Pergamos scale and again, to scale, inside Ilios.
+   * In the plate file a single id may be written as a bare string; parsed,
+   * it is always a list.
    */
-  insetOf?: string;
+  insetOf?: string[];
+  /**
+   * With `insetOf`: drawn ONLY through its window(s), never on the map face.
+   * For the ground a panel needs at its own scale (the elevation bands of the
+   * Ilios window, the rock of the ditch) that the face already draws in its
+   * own way: a second, finer drawing of the same ground under the face's
+   * would contradict it. Such a layer adds no feature, label, pin or obstacle
+   * to the face, and its relief elevations stay out of the face's ramp
+   * (hypsometricLevels), so it can never re-tint the sheet.
+   */
+  insetOnly?: boolean;
+  /**
+   * `style: "plan"` with `fill: "built"`: indexes into `rings` of the open
+   * courts (the αὐλή of Priam's house, 6.242-50, of Hector's and Paris's,
+   * 6.316). The building's polygon and every other ring are roofed and take
+   * the floor fill; a court is left as open ground.
+   */
+  open?: number[];
+  /**
+   * `kind: "wall"`, `style: "cut"`: the drawn width of a rock-cut ditch, in
+   * metres on the ground, so the band keeps its proportion in every window
+   * it is drawn through. A drawing width, which the layer's note squares
+   * with the measured one.
+   */
+  widthM?: number;
+  /** `style: "scrub"`: the spacing of the scrub marks, metres on the ground. */
+  spacingM?: number;
   /** See PlatePlace.labelTier. Default 1. */
   labelTier?: 1 | 2;
   /** See PlatePlace.labelSize. */
@@ -839,7 +876,7 @@ function parseLayer(
     return raw as PlatePoint[][];
   };
   const rings = ringList('rings');
-  for (const key of ['wallM', 'columnM'] as const) {
+  for (const key of ['wallM', 'columnM', 'widthM', 'spacingM'] as const) {
     if (l[key] !== undefined && !(isFiniteNumber(l[key]) && (l[key] as number) > 0)) {
       fail(`layer "${l.id}" has a malformed "${key}" (must be a number > 0)`);
     }
@@ -877,7 +914,19 @@ function parseLayer(
     solids: ringList('solids'),
     wallM: isFiniteNumber(l.wallM) ? l.wallM : undefined,
     columnM: isFiniteNumber(l.columnM) ? l.columnM : undefined,
+    widthM: isFiniteNumber(l.widthM) ? l.widthM : undefined,
+    spacingM: isFiniteNumber(l.spacingM) ? l.spacingM : undefined,
   };
+  if (l.open !== undefined) {
+    const n = rings?.length ?? 0;
+    if (
+      !Array.isArray(l.open) ||
+      !l.open.every((i: unknown) => Number.isInteger(i) && (i as number) >= 0 && (i as number) < n)
+    ) {
+      fail(`layer "${l.id}" has a malformed "open" (must list indexes into its own "rings")`);
+    }
+    layer.open = [...l.open];
+  }
 
   if (l.frame !== undefined) {
     if (!Array.isArray(l.frame) || l.frame.length !== 4 || !l.frame.every(isFiniteNumber)) {
@@ -913,12 +962,23 @@ function parseLayer(
     layer.insetBBox = b;
   }
   if (l.insetOf !== undefined) {
-    if (typeof l.insetOf !== 'string' || !l.insetOf) {
-      fail(`layer "${l.id}" has a malformed "insetOf" (must be a layer id)`);
+    const refs = typeof l.insetOf === 'string' ? [l.insetOf] : l.insetOf;
+    if (
+      !Array.isArray(refs) ||
+      refs.length === 0 ||
+      !refs.every((r: unknown) => typeof r === 'string' && r) ||
+      new Set(refs).size !== refs.length
+    ) {
+      fail(`layer "${l.id}" has a malformed "insetOf" (must be a layer id or a list of distinct layer ids)`);
     }
     if (layer.frame) fail(`layer "${l.id}" cannot carry both "frame" and "insetOf"`);
     if (layer.style === 'inset') fail(`layer "${l.id}" cannot be both an inset panel and "insetOf" one`);
-    layer.insetOf = l.insetOf;
+    layer.insetOf = [...refs];
+  }
+  if (l.insetOnly !== undefined) {
+    if (l.insetOnly !== true) fail(`layer "${l.id}" has a malformed "insetOnly" (must be true or absent)`);
+    if (!layer.insetOf) fail(`layer "${l.id}" is "insetOnly" but names no "insetOf" panel`);
+    layer.insetOnly = true;
   }
 
   // Coordinate space is declared by the PRESENCE of a bbox, not by kind: a
@@ -1078,8 +1138,10 @@ export function parsePlate(data: unknown): Plate {
   // and neither can be checked while a single layer is being parsed.
   const insetPanelIds = new Set(layers.filter((l) => l.insetBBox && l.frame).map((l) => l.id));
   for (const l of layers) {
-    if (l.insetOf && !insetPanelIds.has(l.insetOf)) {
-      fail(`layer "${l.id}" insetOf '${l.insetOf}' is not a framed inset panel with an insetBBox`);
+    for (const ref of l.insetOf ?? []) {
+      if (!insetPanelIds.has(ref)) {
+        fail(`layer "${l.id}" insetOf '${ref}' is not a framed inset panel with an insetBBox`);
+      }
     }
   }
 
@@ -1917,6 +1979,109 @@ export function wallBandGlyph(trace: PlatePoint[], width: number): WallBandGlyph
   const bEnd = at(right, total);
   parts.push(`M ${round1(aEnd[0])} ${round1(aEnd[1])} L ${round1(bEnd[0])} ${round1(bEnd[1])}`);
   return { faces, hatch: parts.join(' ') };
+}
+
+export interface CutGlyphResult {
+  /** The cutting's floor, a closed band between the two faces. */
+  band: string;
+  /** The two lips of the cut, as one `d` of two open subpaths. */
+  faces: string;
+  /** Short strokes from each lip toward the floor: the cut's two banks. */
+  banks: string;
+}
+
+// A DITCH CUT IN THE ROCK (ruling 15, 2026-09-04: "the rock of the ditch").
+// The engineer's and the excavator's sign for a cutting: two lips, the
+// floor between them in the rock's own colour, and short strokes down each
+// bank. A fortification's tick glyph said "a wall stands here", which the
+// survey never found; what it found is a trench in the calcareous sandstone,
+// up to 3 m wide and 1.5-2 m deep (Blindow, Hübner and Jansen 2014, 666-67,
+// 687). Width is the caller's, in plate pixels — see PlateLayer.widthM.
+export function cutGlyph(trace: PlatePoint[], width: number): CutGlyphResult {
+  if (trace.length < 2 || !(width > 0)) return { band: '', faces: '', banks: '' };
+  const half = width / 2;
+  const left = offsetPolyline(trace, half);
+  const right = offsetPolyline(trace, -half);
+  const band = pathD([...left, ...[...right].reverse()], true);
+  const faces = `${pathD(left, false)} ${pathD(right, false)}`;
+  const cum: number[] = [0];
+  for (let i = 0; i + 1 < trace.length; i++) {
+    cum.push(cum[i] + Math.hypot(trace[i + 1][0] - trace[i][0], trace[i + 1][1] - trace[i][1]));
+  }
+  const total = cum[cum.length - 1];
+  const at = (pts: [number, number][], t: number): [number, number] => {
+    let i = 1;
+    while (i < cum.length - 1 && cum[i] < t) i++;
+    const f = (t - cum[i - 1]) / (cum[i] - cum[i - 1] || 1);
+    return [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f];
+  };
+  // Sparse: at the spacing of a ladder's rungs the cut reads as a railway.
+  const step = Math.max(width * 1.5, 3);
+  const parts: string[] = [];
+  for (let t = step / 2; t < total; t += step) {
+    const a = at(left, t);
+    const b = at(right, t);
+    // Each bank's stroke runs a third of the way to the other lip.
+    for (const [p, q] of [
+      [a, b],
+      [b, a],
+    ] as const) {
+      const e: [number, number] = [p[0] + (q[0] - p[0]) * 0.3, p[1] + (q[1] - p[1]) * 0.3];
+      parts.push(`M ${round1(p[0])} ${round1(p[1])} L ${round1(e[0])} ${round1(e[1])}`);
+    }
+  }
+  return { band, faces, banks: parts.join(' ') };
+}
+
+/**
+ * Scrub marks (ruling 15, `style: "scrub"`): small open rings on a jittered
+ * grid `spacing` px apart, kept where they fall inside the rings (even-odd,
+ * so a ring inside a ring is a clearing). Seeded, so a sheet draws the same
+ * marks every time.
+ */
+export function scrubMarks(rings: [number, number][][], spacing: number, r: number, seed: number): string {
+  const all = rings.flat();
+  if (!all.length || !(spacing > 0)) return '';
+  const xs = all.map((p) => p[0]);
+  const ys = all.map((p) => p[1]);
+  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const rand = mulberry32(seed);
+  const out: string[] = [];
+  let row = 0;
+  for (let y = y0; y <= y1; y += spacing * 0.87, row++) {
+    for (let x = x0 + (row % 2 ? spacing / 2 : 0); x <= x1; x += spacing) {
+      const p: [number, number] = [x + (rand() - 0.5) * spacing * 0.7, y + (rand() - 0.5) * spacing * 0.7];
+      let inside = false;
+      for (const ring of rings) if (pointInPolygon(p, ring)) inside = !inside;
+      if (inside) out.push(circlePath(p[0], p[1], r * (0.8 + rand() * 0.4)));
+    }
+  }
+  return out.join(' ');
+}
+
+/**
+ * A tree crown in plan (ruling 15, `style: "tree"`): the ring drawn with a
+ * scalloped edge, each side bowed outward, which is how a site plan shows a
+ * tree that stands on it.
+ */
+export function crownPath(ring: [number, number][]): string {
+  if (ring.length < 3) return '';
+  const cx = ring.reduce((a, p) => a + p[0], 0) / ring.length;
+  const cy = ring.reduce((a, p) => a + p[1], 0) / ring.length;
+  const parts = [`M ${round1(ring[0][0])} ${round1(ring[0][1])}`];
+  for (let i = 0; i < ring.length; i++) {
+    const a = ring[i];
+    const b = ring[(i + 1) % ring.length];
+    const mx = (a[0] + b[0]) / 2;
+    const my = (a[1] + b[1]) / 2;
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const ox = mx - cx;
+    const oy = my - cy;
+    const on = Math.hypot(ox, oy) || 1;
+    const k = len * 0.45;
+    parts.push(`Q ${round1(mx + (ox / on) * k)} ${round1(my + (oy / on) * k)} ${round1(b[0])} ${round1(b[1])}`);
+  }
+  return `${parts.join(' ')} Z`;
 }
 
 /**
@@ -4134,6 +4299,7 @@ const REGION_LEGEND_TEXT: Record<RegionFill, string> = {
   zone: 'Scene zone (lettered)',
   masonry: 'Masonry, surveyed',
   'masonry-ground': 'Masonry, surveyed',
+  built: 'Building drawn from the poem, not surveyed',
   none: '',
 };
 
@@ -4175,6 +4341,45 @@ function derivedLegendEntry(layer: PlateLayer): LegendEntry | undefined {
   // knowledge; the swatch is a scrap of the drawing, an open dashed outline.
   // A building drawn as a plan from the poem's own description (ruling 13):
   // the swatch is a scrap of one — a wall bar with a column row beside it.
+  if (layer.kind === 'wall' && layer.style === 'cut') {
+    return {
+      key: 'wall-cut',
+      rank: 5.7,
+      text: 'Ditch cut in the rock',
+      swatch: (x, y) => {
+        const { band, faces, banks } = cutGlyph([[x + 1, y], [x + LEGEND_SWATCH_W - 1, y]], 6);
+        return (
+          `<path d="${band}" fill="var(--plate-rock)" stroke="none"/>` +
+          `<path d="${banks}" fill="none" stroke="var(--flaxman-ink)" stroke-width="0.5" stroke-opacity="0.55"/>` +
+          `<path d="${faces}" fill="none" stroke="var(--flaxman-ink)" stroke-width="0.7"/>`
+        );
+      },
+    };
+  }
+  if (layer.style === 'scrub') {
+    return {
+      key: 'scrub',
+      rank: 21.5,
+      text: 'Scrub on the open slopes — assumed, not recorded',
+      swatch: (x, y) =>
+        `<path d="${[3, 9, 15, 21, 6, 12, 18].map((o, i) => circlePath(x + o, y + (i < 4 ? -2 : 2.5), 1.4)).join(' ')}" ` +
+        `fill="none" stroke="var(--plate-scrub)" stroke-width="0.7"/>`,
+    };
+  }
+  if (layer.style === 'tree') {
+    return {
+      key: 'tree',
+      rank: 21.6,
+      text: 'A tree the poem names',
+      swatch: (x, y) => {
+        const ring: [number, number][] = Array.from({ length: 7 }, (_, i) => {
+          const a = (i / 7) * 2 * Math.PI;
+          return [x + LEGEND_SWATCH_W / 2 + 4.2 * Math.cos(a), y + 4.2 * Math.sin(a)];
+        });
+        return `<path d="${crownPath(ring)}" fill="var(--plate-scrub)" fill-opacity="0.45" stroke="var(--plate-scrub)" stroke-width="0.8"/>`;
+      },
+    };
+  }
   if (layer.style === 'plan') {
     return {
       key: 'plan',
@@ -4182,7 +4387,7 @@ function derivedLegendEntry(layer: PlateLayer): LegendEntry | undefined {
       text: 'Building drawn from the poem, not surveyed',
       swatch: (x, y) =>
         `<rect x="${round1(x + 1)}" y="${round1(y - 4)}" width="${LEGEND_SWATCH_W - 2}" height="8" ` +
-        `fill="none" stroke="var(--text-mid)" stroke-width="2"/>` +
+        `fill="var(--plate-built)" stroke="var(--text-mid)" stroke-width="2"/>` +
         `<path d="${[6, 11, 16].map((o) => circlePath(x + o, y, 0.9)).join(' ')}" fill="var(--text-mid)" stroke="none"/>`,
     };
   }
@@ -5602,6 +5807,11 @@ const POEM_DASHARRAY = '4 3';
 // layer drawn on the map face at 1/32 of the panel's scale is under
 // PLAN_MIN_WALL_PX wide and draws nothing but its outline reservation.
 const PLAN_WALL_M = 1.2;
+/** A rock-cut ditch's default drawing width, metres (see PlateLayer.widthM). */
+const CUT_DEFAULT_WIDTH_M = 3;
+/** Scrub marks' default spacing on the ground, and the closest they may be drawn. */
+const SCRUB_SPACING_M = 12;
+const SCRUB_MIN_SPACING_PX = 3;
 const PLAN_COLUMN_M = 2.4;
 const PLAN_COLUMN_R_M = 0.45;
 const PLAN_MIN_WALL_PX = 0.35;
@@ -6161,6 +6371,17 @@ function lineworkRuns(plate: Plate, layer: PlateLayer, viewport: Viewport): [num
 // (or a relief layer with no siblings surviving projection) has nothing to
 // compare against and gets the gentle end outright, not a divide-by-zero.
 
+/** Twice-halved shoelace sum, signed: its sign gives a ring's winding. */
+function polygonSignedArea(pts: [number, number][]): number {
+  let a = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const [x1, y1] = pts[i];
+    const [x2, y2] = pts[(i + 1) % pts.length];
+    a += x1 * y2 - x2 * y1;
+  }
+  return a / 2;
+}
+
 function polygonArea(pts: [number, number][]): number {
   let a = 0;
   for (let i = 0; i < pts.length; i++) {
@@ -6262,11 +6483,20 @@ const RELIEF_RAMP_STEPS = 12;
 const RELIEF_CONTOUR_WIDTH = 0.45;
 const RELIEF_CONTOUR_OPACITY = 0.42;
 
-/** Every distinct relief elevation on a plate, ascending. Empty on a plate whose relief is hand-authored. */
+/**
+ * The feature id of a layer's drawing inside an inset window (see
+ * PlateLayer.insetOf). The first panel a layer names keeps the plain
+ * `--inset` suffix it has always had; any further panel is named in the id.
+ */
+export function insetCopyId(layerId: string, panelId: string, index: number): string {
+  return index === 0 ? `${layerId}--inset` : `${layerId}--inset-${panelId}`;
+}
+
+/** Every distinct relief elevation on the map face, ascending (a panel-only band, `insetOnly`, is tinted against these but never adds one). Empty on a plate whose relief is hand-authored. */
 export function hypsometricLevels(plate: Plate): number[] {
   const seen = new Set<number>();
   for (const l of plate.layers) {
-    if (l.kind === 'relief' && l.elevation !== undefined) seen.add(l.elevation);
+    if (l.kind === 'relief' && l.elevation !== undefined && !l.insetOnly) seen.add(l.elevation);
   }
   return [...seen].sort((a, b) => a - b);
 }
@@ -6596,6 +6826,19 @@ function renderLayer(
           `stroke-width="${POEM_WALL_HIGHLIGHT_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>`;
         break;
       }
+      if (layer.style === 'cut') {
+        const widthPx = Math.max(0.8, (layer.widthM ?? CUT_DEFAULT_WIDTH_M) * pxPerMetre(plate, viewport, layer.trace![0]));
+        const { band, faces, banks } = cutGlyph(px, widthPx);
+        const id = escapeXml(layer.id);
+        markup =
+          `<path data-feature-id="${id}" class="plate-layer plate-layer-wall-cut" d="${band}" ` +
+          `fill="var(--plate-rock)" stroke="none"/>` +
+          `<path data-feature-id="${id}-banks" class="plate-layer plate-layer-wall-cut-banks" d="${banks}" ` +
+          `fill="none" stroke="var(--flaxman-ink)" stroke-width="0.35" stroke-opacity="0.55" stroke-linecap="round"/>` +
+          `<path data-feature-id="${id}-lips" class="plate-layer plate-layer-wall-cut-lips" d="${faces}" ` +
+          `fill="none" stroke="var(--flaxman-ink)" stroke-width="0.55" stroke-opacity="0.85" stroke-linejoin="round"/>`;
+        break;
+      }
       if (layer.style === 'restored' && layer.width === undefined) {
         // The restoration register at its lightest: a fine dotted line, which is
         // what a restored feature gets when it HAS no width to be drawn at —
@@ -6701,7 +6944,23 @@ function renderLayer(
           markup = `<path data-feature-id="${id}" class="plate-layer plate-layer-plan" d="${pathD(px, true)}" fill="none" stroke="none"/>`;
           break;
         }
+        // Roofed space (`fill: "built"`): the polygon and every ring not listed
+        // in `open`, wound one way; the open courts wound the other, so the
+        // nonzero fill leaves a court open inside the house round it.
+        let floor = '';
+        if (layer.fill === 'built') {
+          const open = new Set(layer.open ?? []);
+          const wound = walls.map((p, i) => {
+            const cw = polygonSignedArea(p) > 0;
+            const wantCw = !(i > 0 && open.has(i - 1));
+            return cw === wantCw ? p : [...p].reverse();
+          });
+          floor =
+            `<path data-feature-id="${id}-floor" class="plate-layer plate-layer-plan-floor" ` +
+            `d="${wound.map((p) => pathD(p, true)).join(' ')}" fill="var(--plate-built)" stroke="none"/>`;
+        }
         markup =
+          floor +
           `<path data-feature-id="${id}" class="plate-layer plate-layer-plan" ` +
           `d="${walls.map((p) => pathD(p, true)).join(' ')}" fill="none" stroke="${ink}" ` +
           `stroke-width="${round1(wallPx)}" stroke-linejoin="miter"/>` +
@@ -6718,6 +6977,33 @@ function renderLayer(
             ? `<path data-feature-id="${id}-columns" class="plate-layer plate-layer-plan-columns" ` +
               `d="${dots.map(([x, y]) => circlePath(x, y, Math.max(0.6, PLAN_COLUMN_R_M * ppm))).join(' ')}" fill="${ink}" stroke="none"/>`
             : '') ;
+        break;
+      }
+      if (layer.style === 'scrub') {
+        const ppm = pxPerMetre(plate, viewport, layer.polygon![0]);
+        const spacing = (layer.spacingM ?? SCRUB_SPACING_M) * ppm;
+        const rings = [px, ...(layer.rings ?? []).map((r) => collect(r))].filter((p) => p.length >= 3);
+        const id = escapeXml(layer.id);
+        // Below a few pixels apart the marks are a grey wash, not scrub:
+        // the outline holds the place and nothing is drawn (the map face).
+        const d = spacing >= SCRUB_MIN_SPACING_PX ? scrubMarks(rings, spacing, Math.max(0.55, spacing * 0.13), seed) : '';
+        // A faint wash of the scrub's own colour under the marks, so the slope
+        // reads as covered ground before the marks are made out one by one.
+        const wash = rings.map((p) => lineD(p, true)).join(' ');
+        markup = d
+          ? `<path data-feature-id="${id}-wash" class="plate-layer plate-layer-scrub-wash" d="${wash}" ` +
+            `fill="var(--plate-scrub)" fill-opacity="0.07" fill-rule="evenodd" stroke="none"/>` +
+            `<path data-feature-id="${id}" class="plate-layer plate-layer-scrub" d="${d}" ` +
+            `fill="none" stroke="var(--plate-scrub)" stroke-width="0.45" stroke-opacity="0.9"/>`
+          : `<path data-feature-id="${id}" class="plate-layer plate-layer-scrub" d="${pathD(px, true)}" fill="none" stroke="none"/>`;
+        break;
+      }
+      if (layer.style === 'tree') {
+        const id = escapeXml(layer.id);
+        markup =
+          `<path data-feature-id="${id}" class="plate-layer plate-layer-tree" d="${crownPath(px)}" ` +
+          `fill="var(--plate-scrub)" fill-opacity="0.45" stroke="var(--plate-scrub)" stroke-width="0.8" ` +
+          `stroke-linejoin="round"/>`;
         break;
       }
       if (layer.style === 'poem') {
@@ -7088,34 +7374,17 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     marsh: plate.layers.some((l) => l.fill === 'marsh'),
     barrier: plate.layers.some((l) => l.kind === 'coast' && l.style === 'barrier'),
   };
-  for (const layer of plate.layers) {
-    if (hiddenGroupLayerIds.has(layer.id)) continue;
-    const rendered = renderLayer(plate, layer, viewport, softId, waters);
-    if (!rendered) continue;
-    renderedById.set(layer.id, rendered);
-    const isMarginInset = layer.style === 'inset' && layer.frame !== undefined && layer.frame[0] >= frameWidth;
-    // Ruling 11 (John, 2026-09-03, amended 15:54): "drop the zone outlines
-    // from the map face" — a scene zone's own dashed polygon is never drawn.
-    // Its LETTER stays, and so does the polygon, in the plate and in
-    // PlateResult, because that is what the Chart Room camera frames a scene
-    // on. Only the ink goes. Suppressed here rather than in renderLayer so
-    // the zone keeps every other effect it has (its letter's seat, its
-    // reservations, its feature record) exactly as before. Ported from
-    // claude/citadel-inset's tip (2026-09-15).
-    const isSceneZone = sceneKeyByLayer.has(layer.id);
-    if (isMarginInset) marginInsetMarkup.push(rendered.markup);
-    else if (!isSceneZone) {
-      drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind, fill: layer.fill });
-    }
+  const drawInWindows = (layer: PlateLayer) => {
     // "Also draw me inside that inset" (PlateLayer.insetOf). A SECOND render
     // of the same lat/lon geometry through the panel's window, emitted as
     // furniture. The copy takes a distinct feature id so nothing downstream
     // can confuse the two drawings of one feature, and it contributes no
     // label request, no legend row and no pin: it is the same feature, drawn
     // twice at two scales, named once.
-    const win = layer.insetOf ? windows.get(layer.insetOf) : undefined;
-    if (win) {
-      const copyId = `${layer.id}--inset`;
+    for (const [w, winId] of (layer.insetOf ?? []).entries()) {
+      const win = windows.get(winId);
+      if (!win) continue;
+      const copyId = insetCopyId(layer.id, winId, w);
       const copy = renderLayer(plate, { ...layer, id: copyId, insetOf: undefined }, win.viewport, softId, []);
       if (copy) {
         // NOT into marginInsetMarkup: a panel is an OPAQUE rectangle, and the
@@ -7128,7 +7397,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         const bucket = insetContentByWindow.get(win.id);
         if (bucket) bucket.push(copy.markup);
         else insetContentByWindow.set(win.id, [copy.markup]);
-        renderedInWindow.set(layer.id, { win, rendered: copy });
+        renderedInWindow.set(`${win.id}\u0000${layer.id}`, { win, rendered: copy });
         if (layer.style === 'plan' && layer.polygon && layer.polygon.length >= 3) {
           const wallPx = (layer.wallM ?? PLAN_WALL_M) * pxPerMetre(plate, win.viewport, layer.polygon[0]);
           if (wallPx >= PLAN_MIN_WALL_PX) {
@@ -7172,6 +7441,35 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
         }
       }
     }
+  };
+  for (const layer of plate.layers) {
+    if (hiddenGroupLayerIds.has(layer.id)) continue;
+    // See PlateLayer.insetOnly: ground drawn in its panel(s) and nowhere else.
+    if (layer.insetOnly) {
+      drawInWindows(layer);
+      // Its symbol is on the sheet, inside a panel, so it keys like any other.
+      const legend = layerLegendEntry(layer);
+      if (legend) legendEntries.push(legend);
+      continue;
+    }
+    const rendered = renderLayer(plate, layer, viewport, softId, waters);
+    if (!rendered) continue;
+    renderedById.set(layer.id, rendered);
+    const isMarginInset = layer.style === 'inset' && layer.frame !== undefined && layer.frame[0] >= frameWidth;
+    // Ruling 11 (John, 2026-09-03, amended 15:54): "drop the zone outlines
+    // from the map face" — a scene zone's own dashed polygon is never drawn.
+    // Its LETTER stays, and so does the polygon, in the plate and in
+    // PlateResult, because that is what the Chart Room camera frames a scene
+    // on. Only the ink goes. Suppressed here rather than in renderLayer so
+    // the zone keeps every other effect it has (its letter's seat, its
+    // reservations, its feature record) exactly as before. Ported from
+    // claude/citadel-inset's tip (2026-09-15).
+    const isSceneZone = sceneKeyByLayer.has(layer.id);
+    if (isMarginInset) marginInsetMarkup.push(rendered.markup);
+    else if (!isSceneZone) {
+      drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind, fill: layer.fill });
+    }
+    drawInWindows(layer);
     for (const under of rendered.submerged ?? []) {
       const bucket = submergedByWater.get(under.layerId);
       if (bucket) bucket.push(under.markup);
@@ -7805,7 +8103,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       // (joined into pinAnchors above) or, for a keyed layer, its own second
       // drawing. Never the face's copy — a numeral in the panel pointing at
       // the map face would be a leader across the whole sheet.
-      const inWindow = renderedInWindow.get(insetLayerByDrawnPlaceId.get(id) ?? id);
+      const inWindow = groupWindow
+        ? renderedInWindow.get(`${groupWindow.id}\u0000${insetLayerByDrawnPlaceId.get(id) ?? id}`)
+        : undefined;
       const anchorBox = groupWindow
         ? (insetPinAnchors.get(id)?.box ?? inWindow?.rendered.labelAnchor ?? inWindow?.rendered.feature.bbox)
         : (pinAnchors.get(id) ?? rendered?.labelAnchor ?? rendered?.feature.bbox);

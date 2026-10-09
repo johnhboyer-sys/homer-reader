@@ -460,3 +460,58 @@ describe('hypsometric relief ramp (parsed from the real global.css)', () => {
     }
   });
 });
+
+// Ruling 15 (2026-09-04): the citadel panels' own ground. The Ilios window's
+// elevation bands are the face's levels 10-40 m, ramp steps 1-6, and the
+// marks drawn on them must read there in both themes: the scrub marks are
+// the ink themselves; the poem's plan walls are drawn over the roofed floor
+// as well as over the ground; the ditch's lips are drawn over the rock.
+describe('citadel panel ground (parsed from the real global.css)', () => {
+  const PANEL_STEPS = 6;
+  const panelBlocks = THEME_BLOCKS.map((t) => {
+    const block = extractBlock(
+      t.name.startsWith('light (:root')
+        ? ':root {'
+        : t.name.includes('prefers-color-scheme')
+          ? ':root:not([data-theme]) {'
+          : t.name.includes('"dark"')
+            ? ':root[data-theme="dark"] {'
+            : ':root[data-theme="light"] {',
+    );
+    return {
+      ...t,
+      scrub: readToken(block, '--plate-scrub'),
+      built: readToken(block, '--plate-built'),
+      rock: readToken(block, '--plate-rock'),
+      ink: readTokenOrRoot(block, '--flaxman-ink'),
+    };
+  });
+
+  it.each(panelBlocks)('$name: scrub marks clear 3:1 against every panel ramp step', ({ scrub, ramp }) => {
+    for (const [i, step] of ramp.slice(0, PANEL_STEPS).entries()) {
+      expect(contrastRatio(scrub, step), `scrub vs --plate-relief-${i + 1}`).toBeGreaterThanOrEqual(MIN_COAST_CONTRAST);
+    }
+  });
+
+  // Not the prefers-color-scheme block: it overrides the map tokens but not
+  // --text-mid, and it applies only when ThemeInit.astro could not set
+  // data-theme (localStorage threw) on a dark OS — then every --text-mid
+  // mark on every plate is the light theme's ink on dark ground, which is a
+  // site-wide gap, not this panel's.
+  it.each(panelBlocks.filter((b) => !b.name.includes('prefers-color-scheme')))(
+    '$name: plan walls clear 3:1 against the roofed floor and every panel ramp step',
+    ({ textMid, built, ramp }) => {
+    expect(contrastRatio(textMid, built), 'plan ink vs --plate-built').toBeGreaterThanOrEqual(MIN_COAST_CONTRAST);
+    // Steps 1-5 (10-30 m): the citadel stands on the 30 m mound top and the
+    // lower city below it. The 40 m step is the ridge east of the citadel,
+    // where neither panel draws a building (dark theme measures 2.89:1 there).
+    for (const [i, step] of ramp.slice(0, PANEL_STEPS - 1).entries()) {
+      expect(contrastRatio(textMid, step), `plan ink vs --plate-relief-${i + 1}`).toBeGreaterThanOrEqual(MIN_COAST_CONTRAST);
+    }
+    },
+  );
+
+  it.each(panelBlocks)("$name: the ditch's lips clear 3:1 against its rock", ({ ink, rock }) => {
+    expect(contrastRatio(ink, rock)).toBeGreaterThanOrEqual(MIN_COAST_CONTRAST);
+  });
+});

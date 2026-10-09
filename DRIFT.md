@@ -1218,3 +1218,20 @@ ring, empty inside the wall and with no ground under it.
 - `pipeline/homer_pipeline/apparatus_places.py` — `_layer_has_drawable_geometry`
   counts `style: "plan"` as drawn whatever its fill, as renderLayer does.
 - No plato-reader counterpart (Homer-only apparatus feature).
+
+## 2026-10-09 — The citadel panels' ground and city (ruling 15)
+
+- `shared/lib/plate.ts` — `PlateLayer.insetOf` takes a list (a layer drawn in
+  each panel it names; feature ids `--inset`, then `--inset-<panel>`,
+  `insetCopyId`), and `insetOnly` draws a layer in its panel(s) and never on
+  the map face, keeping its elevation out of the face's ramp. New registers for
+  the panels: `kind: "wall", style: "cut"` (a rock-cut ditch: rock floor, lips,
+  bank strokes, `widthM`), `fill: "built"` on a plan (roofed floor; `open`
+  rings are courts), `style: "scrub"` (seeded marks, `spacingM`) and
+  `style: "tree"` (a crown in plan), each with its legend row.
+- `shared/styles/global.css` — `--plate-built`, `--plate-rock`,
+  `--plate-scrub` in all four theme blocks; contrast pinned in
+  plate-map-contrast.test.ts.
+- `pipeline/homer_pipeline/apparatus_places.py` — mirrors list `insetOf`,
+  `insetOnly`, `open` and the `built` fill.
+- No plato-reader counterpart (Homer-only apparatus feature).

@@ -747,6 +747,31 @@ def test_inset_of_must_name_a_framed_inset_panel():
     assert any("insetOf 'no-such-panel'" in p for p in problems), problems
 
 
+# Ruling 15 (2026-09-04): one layer may be drawn in several panels, and a
+# panel's own ground may be drawn in it alone (`insetOnly`).
+def test_inset_of_accepts_a_list_and_checks_every_entry():
+    plate = _schematic_plate()
+    layer = next(l for l in plate["layers"] if l.get("insetOf") == "citadel-city-panel")
+    layer["insetOf"] = ["citadel-city-panel", "citadel-inset-panel"]
+    assert apparatus_places.validate_plate(plate, _schematic_places()) == []
+    layer["insetOf"] = ["citadel-city-panel", "no-such-panel"]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("insetOf 'no-such-panel'" in p for p in problems), problems
+    layer["insetOf"] = ["citadel-city-panel", "citadel-city-panel"]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("list of distinct layer ids" in p for p in problems), problems
+
+
+def test_inset_only_needs_an_inset_of_panel():
+    plate = _schematic_plate()
+    layer = next(l for l in plate["layers"] if l.get("insetOf"))
+    layer["insetOnly"] = True
+    assert apparatus_places.validate_plate(plate, _schematic_places()) == []
+    del layer["insetOf"]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("insetOnly but names no insetOf panel" in p for p in problems), problems
+
+
 def test_feature_key_group_inset_must_name_a_framed_inset_panel():
     plate = _schematic_plate()
     for group in plate["featureKey"]:

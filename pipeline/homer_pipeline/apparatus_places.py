@@ -86,7 +86,11 @@ LAYER_KIND_ENUM = {
 # "masonry-ground" (2026-09-03, ruling 13) is the same surveyed masonry drawn
 # quieter as the ground under the poem's city; shared/lib/plate.ts keys it on
 # the masonry legend row.
-REGION_FILL_ENUM = {"tint", "zone", "masonry", "masonry-ground", "sea", "lagoon", "land", "marsh", "plain", "none"}
+# "built" (2026-10-09, ruling 15) is the roofed floor of a building in the
+# poem's plan register; `open` lists the rings that are open courts.
+REGION_FILL_ENUM = {
+    "tint", "zone", "masonry", "masonry-ground", "built", "sea", "lagoon", "land", "marsh", "plain", "none",
+}
 # What the bare sheet is under every layer, per the same contract.
 GROUND_ENUM = {"land", "sea"}
 STOCHASTIC_STYLES = {"stipple", "hachure"}
@@ -874,10 +878,19 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                     f"minLat and maxLon > minLon"
                 )
         inset_of = layer.get("insetOf")
+        # One panel id, or a list of distinct ones (the citadel is drawn in
+        # both Pergamos and Ilios) -- mirrors parsePlate.
+        inset_refs = [inset_of] if isinstance(inset_of, str) else inset_of
         if inset_of is not None:
-            if not isinstance(inset_of, str) or not inset_of:
+            if (
+                not isinstance(inset_refs, list)
+                or not inset_refs
+                or not all(isinstance(r, str) and r for r in inset_refs)
+                or len(set(inset_refs)) != len(inset_refs)
+            ):
                 problems.append(
-                    f"{label}: layer {layer_label} insetOf must be a layer id"
+                    f"{label}: layer {layer_label} insetOf must be a layer id "
+                    f"or a list of distinct layer ids"
                 )
             elif frame is not None:
                 problems.append(
@@ -889,7 +902,26 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                     f"and insetOf one"
                 )
             else:
-                inset_of_refs.append((layer_label, inset_of))
+                inset_of_refs.extend((layer_label, ref) for ref in inset_refs)
+        open_rings = layer.get("open")
+        if open_rings is not None:
+            n_rings = len(layer.get("rings") or [])
+            if not isinstance(open_rings, list) or not all(
+                isinstance(i, int) and not isinstance(i, bool) and 0 <= i < n_rings for i in open_rings
+            ):
+                problems.append(
+                    f"{label}: layer {layer_label} open must list indexes into its own rings"
+                )
+        inset_only = layer.get("insetOnly")
+        if inset_only is not None:
+            if inset_only is not True:
+                problems.append(
+                    f"{label}: layer {layer_label} insetOnly must be true or absent"
+                )
+            elif inset_of is None:
+                problems.append(
+                    f"{label}: layer {layer_label} is insetOnly but names no insetOf panel"
+                )
 
         for field, pair, path_desc in _iter_layer_coords(layer, label, layer_label, problems):
             if not _is_pair(pair):
