@@ -188,7 +188,7 @@ function shoot(chromeBin, htmlPath, pngPath, width, height, scale) {
 
 function parseArgs(argv) {
   const out = {
-    sheets: ['troad'],
+    sheets: ['troad', 'trojan-plain-schematic'],
     themes: ['light', 'dark'],
     out: path.join('build', 'plate-review', 'recut'),
     scale: 2,

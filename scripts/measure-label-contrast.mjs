@@ -375,7 +375,7 @@ function placesForSheet(sheet) {
 }
 
 function parseArgs(argv) {
-  const out = { sheets: ['troad'], themes: ['light', 'dark'], json: null, all: false };
+  const out = { sheets: ['troad', 'trojan-plain-schematic'], themes: ['light', 'dark'], json: null, all: false };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--sheet') out.sheets = argv[++i].split(',');
     else if (argv[i] === '--theme') out.themes = argv[++i].split(',');
