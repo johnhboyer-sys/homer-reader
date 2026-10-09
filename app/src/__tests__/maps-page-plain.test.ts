@@ -47,6 +47,9 @@ describe('MapsPage: the Trojan Plain tab', () => {
       timeout: 20000,
     });
     const kum = container.querySelector('#mp-panel-plain [data-place-id="kum-tepe"]')!;
-    expect(kum.getAttribute('aria-label')).toContain('Schliemann');
+    expect(kum.getAttribute('aria-label')).toContain('Kum Tepe');
+    // A traditional site carries its tradition into the accessible name.
+    const kesik = container.querySelector('#mp-panel-plain [data-place-id="kesik-tepe"]')!;
+    expect(kesik.getAttribute('aria-label')).toContain('Antilochus');
   }, 60000);
 });
