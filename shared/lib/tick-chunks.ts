@@ -17,7 +17,7 @@
 // `.ts` extension so `node --experimental-strip-types` (the scene-paging audit
 // CLI, which imports this transitively) resolves this runtime import; vitest's
 // bundler resolution accepts it too. The scene-paging import is type-only.
-import { snapTicksToSpeechStarts } from './speech-snap.ts';
+import { snapTicksToSpeechStarts } from './speech-snap';
 import type { SceneFlowPart } from './scene-paging';
 
 // A flowing-prose part: either a text run (n null) or a Bekker margin marker
@@ -27,10 +27,10 @@ export type FlowPart = SceneFlowPart;
 // Flowing prose with Bekker numbers floated into the margin at their EXACT
 // offsets (no row break, no in-text number, no sentence-boundary snapping).
 // Used for precisely-placed translations like the gloss-aligned Ross.
-export function flowParts(text: string, ticks: { n: number; real: boolean; off: number }[], paraOffsets: number[] = []): FlowPart[] {
+export function flowParts(text: string, ticks: { n: number; real: boolean; off: number; label?: string }[], paraOffsets: number[] = []): FlowPart[] {
   const ts = [
     ...ticks.map(t => ({ ...t, para: false })),
-    ...paraOffsets.map(off => ({ n: 0, real: false, off, para: true })),
+    ...paraOffsets.map(off => ({ n: 0, real: false, off, para: true, label: undefined as string | undefined })),
   ].sort((a, b) => a.off - b.off || Number(a.para) - Number(b.para));
   const parts: FlowPart[] = [];
   let cur = 0;
@@ -47,7 +47,7 @@ export function flowParts(text: string, ticks: { n: number; real: boolean; off: 
     if (t.para) {
       parts.push({ text: null, n: null, real: false, para: true });
     } else {
-      parts.push({ text: null, n: t.n, real: t.real });
+      parts.push({ text: null, n: t.n, real: t.real, label: t.label });
     }
   }
   if (cur < text.length) addText(text.slice(cur));

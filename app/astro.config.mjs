@@ -14,6 +14,10 @@ export default defineConfig({
   // Astro.site, so this changes no existing links.
   site: 'https://johnhboyer-sys.github.io', // project-pages launch (John, 2026-07-18 late: Homer is a SUBPAGE, /homer-reader/, not the user-site root)
   base: '/homer-reader/',
+  // Astro 7 changed the default to 'jsx', which strips whitespace between
+  // inline elements on separate lines — it ran words together on every page
+  // ("Back to the corpusSearch"). `true` keeps the Astro 6 behaviour.
+  compressHTML: true,
   integrations: [
     svelte(),
     sitemap(),

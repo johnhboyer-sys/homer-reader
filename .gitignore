@@ -1,4 +1,10 @@
 node_modules/
+# Without the slashless form a SYMLINK named node_modules is not ignored — git
+# only treats the trailing-slash pattern as matching a directory. One was
+# committed to shared/ on 2026-09-09 that way (a worktree pointing at the main
+# checkout's install, absolute path and all), which would dangle on any other
+# machine and on a CI runner.
+node_modules
 build
 build/
 dist/

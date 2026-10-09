@@ -1,0 +1,31 @@
+# Creative Commons translation list (John, 2026-09-12 — CLAUDE.md's CC
+# exception). A translation id on this list may appear in a work manifest
+# although it is not public domain, because its licence lets this site carry
+# it with attribution. It is never also put on public_domain_translations.yaml.
+#
+# Preflight is FAIL-CLOSED here as on the public-domain list: a missing or
+# unreadable file, an empty list, or an entry missing any field below fails
+# the build. Every field is required:
+#
+# id           — must match english.*.id in the work YAML manifests
+# translator   — the original translator
+# revisers     — the people whose revision this text is (non-empty list)
+# license_name — the licence, as its deed names it
+# license_url  — the licence deed
+# source_urls  — where the text was taken from (non-empty list)
+# attribution  — the credit line the site shows with the text
+
+translations:
+  - id: kosmos
+    translator: "Samuel Butler"
+    revisers:
+      - "Soo-Young Kim"
+      - "Kelly McCray"
+      - "Gregory Nagy"
+      - "Timothy Power"
+    license_name: "Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY-NC-ND 3.0)"
+    license_url: "https://creativecommons.org/licenses/by-nc-nd/3.0/"
+    source_urls:
+      - "https://kosmossociety.org/homeric-iliad/"
+      - "https://kosmossociety.org/homeric-odyssey/"
+    attribution: "Homeric Iliad and Homeric Odyssey, translated by Samuel Butler, revised by Soo-Young Kim, Kelly McCray, Gregory Nagy, and Timothy Power. Kosmos Society, Center for Hellenic Studies, Harvard University. CC BY-NC-ND 3.0."

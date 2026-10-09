@@ -28,8 +28,8 @@ import {
   sentenceEndOffsets,
   sentenceSnapScenePages,
   type SceneFlowChunk,
-} from '../lib/scene-paging.ts';
-import { loadRealBoundaryOverrides, loadRealBook, type RealTranslation } from '../__tests__/real-book-loader.ts';
+} from '../lib/scene-paging';
+import { loadRealBoundaryOverrides, loadRealBook, type RealTranslation } from '../__tests__/real-book-loader';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

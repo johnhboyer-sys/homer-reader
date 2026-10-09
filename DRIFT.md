@@ -218,6 +218,13 @@ a comment at the top of `shared/styles/global.css` (just above `:root`).
   in-scope for a rebrand pass (PWA install name, offline page) and low-risk.
   (`app/public/robots.txt` is plato-only source; Homer has no counterpart under
   `app/public/` — do not treat as a diverged twin.)
+  Behavioural divergence since 2026-09-17: `sw.js`'s cache writes are handed to
+  `event.waitUntil()` instead of being started and abandoned, so a read page or
+  book JSON cannot be lost to worker termination (plato still has the abandoned
+  `cache.put`; found by Sol reviewing PR #39, fixed here). `networkFirst`/
+  `cacheFirst` therefore take the fetch event, not the request. Guarded by
+  Homer-only `shared/__tests__/service-worker.test.ts`, which runs `sw.js` in a
+  fake worker scope.
 - Grep sweep (case-insensitive "plato") on rendered `dist/` output found only
   two justified remainders: LSJ dictionary entries and lemma pages that
   legitimately cite the classical author "Plato" (LSJ usage citations, e.g.
@@ -845,6 +852,40 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
     shard fetch — a feature this reader already had.
   Cunliffe still reads its own shards, on tap only; its presentation is a later
   question (John, 2026-08-30).
+- `shared/lib/works.ts` — the Kosmos Society revision of Butler (2026-09-12,
+  CC BY-NC-ND 3.0; see CLAUDE.md's CC exception): `TranslationRef` gained
+  `verseGroups?: true` (this text's ticks are its own printed line numbers,
+  never speech-snapped) and `licence?: {credit, name, url, source}` (any
+  Creative Commons text, not just this one); both epics' translation lists
+  gained a `kosmos` overlay entry carrying that licence block.
+- `shared/lib/data.ts` — `RossPiece` gained `spans` (standoff over its text:
+  transliteration/editorial brackets, italics) and `marks` (printed line
+  numbers that do not cut a verse group) for the Kosmos overlay; `bekker`'s
+  tick shape gained an optional `label`, the printed group number when it
+  differs from `n` (Il. 7's "321–322" is the only one across both epics) —
+  `n` still anchors the Greek alignment; `label` is kept as data (citation,
+  tests) but a verse-group text renders a tick number only on line 1 or a
+  multiple of five (see Reader.svelte below). See `shared/lib/kosmos.ts`.
+- `shared/components/Reader.svelte` — imports `shared/lib/kosmos.ts`
+  (`decoratePiece`/`sentinelsToHtml`) to turn a Kosmos piece's standoff into
+  markup after escaping; a `verseGroupIds` set and a `k-group-br` paragraph
+  break so a verse-group translation starts each group on its own line
+  outside the grouped Both view; a `translitOn` setting hiding the `tr`
+  brackets only; a `licenceNote` snippet showing a Creative Commons text's
+  credit next to its label wherever the reader names it; `flowProse` renders
+  a verse-group translation's `.bk-num` only when the tick falls on line 1 or
+  a multiple of five (in every view), matching the Greek column (`kosmos.ts`'s
+  `showsGroupNumber`); other group
+  numbers and non-breaking-mark digits are not printed beside the English.
+- `shared/styles/global.css` — new "Kosmos verse groups" section: the
+  `.verse-groups`/`.align-group` Both-view row layout (no margin between
+  groups — a group's row height already matches the Greek line pitch when
+  its English fits on one line) and `.k-tr` hide rule for the transliteration
+  toggle, plus `.trans-licence` for the Creative Commons credit line.
+- `app/src/pages/attribution.astro` — new "Kosmos Society Revision of
+  Butler" section (full CC BY-NC-ND 3.0 credit, licence link, and how the
+  reader groups its printed line numbers) plus a `licence` badge rendered
+  next to any translation that carries one.
 
 ## 2026-07-28 — cross-epic phrases, grammar scoped to one book
 

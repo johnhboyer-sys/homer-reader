@@ -41,6 +41,14 @@ english:
     id: pope
     name: "Alexander Pope (1725-26)"
     source: "pope/pope-odyssey.txt"
+  # Fourth text (John, 2026-09-12): the Kosmos Society revision of Butler,
+  # CC BY-NC-ND 3.0 — on cc_translations.yaml, not the public-domain list.
+  # Verse groups cut at Kosmos's own printed line numbers (stage1_kosmos).
+  overlays:
+    - id: kosmos
+      model: kosmos
+      name: "Samuel Butler, revised by Kim, McCray, Nagy and Power (Kosmos Society)"
+      source: "kosmos/homeric-odyssey.html"
 
 # Verified vulgate numbering skips in perseus-grc2 (lines absent from the TEI).
 # Shape matches scheme.validate_line_sequence: after → next within `book`.
