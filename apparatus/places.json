@@ -9734,9 +9734,9 @@
     },
     {
       "id": "kesik-tepe",
-      "name": "Kesik Tepe (the 'Demetrius tumulus'), claimed tomb of Achilles",
+      "name": "Kesik Tepe (St. Demetrius' Tepe), the travelers' tomb of Antilochus",
       "certainty": "traditional",
-      "tradition": "Fourth-century BC and later hero-cult identification with Achilles' tomb (Arrian, Anabasis 1.12)",
+      "tradition": "The travelers' tomb of Antilochus (Cook 1973, 165–66), after Strabo 13.1.32, who names monuments of Patroclus and Antilochus near Sigeion",
       "coords": [
         39.9608,
         26.1682
@@ -9746,11 +9746,14 @@
         "troad-plain"
       ],
       "mentions": [],
-      "note": "The most impressive mound on the Trojan plain, close to ancient Sigeion. By the 4th century BC it was regarded as Achilles' tomb, and Arrian reports Alexander sacrificing to Achilles on landing near Sigeion. The coordinate is from Vici.org and has not been checked against a published survey plan.",
+      "note": "A conspicuous mound on the coastal ridge south of Yenişehir, near the low waist of the ridge at Taşlı Burun. The Greeks of the district called it St. Demetrius' tepe after a chapel at its foot. Forchhammer and Ulrichs judged the mound natural. Schliemann took it for the tomb of Festus in 1868, then probed it with Virchow and Burnouf in 1879 and found \"a natural tertiary hump with never more than 5 ft. of earth on top\" (Cook 1973, 165–66). The coordinate is from Vici.org and has not been checked against a published survey plan.",
       "sources": [
         {
-          "cite": "Livius.org, s.v. \"Troy 5.\"",
-          "url": "https://www.livius.org/articles/place/troy/troy-5/"
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973, 165–66."
+        },
+        {
+          "cite": "Strabo. Geography 13.1.32.",
+          "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
         },
         {
           "cite": "Vici.org, s.v. \"Kesik Tepe.\"",
@@ -9763,9 +9766,9 @@
     },
     {
       "id": "besik-sivritepe",
-      "name": "Beşik-Sivritepe (Achilleion), claimed tomb of Achilles",
+      "name": "Beşik-Sivritepe, claimed tomb of Achilles",
       "certainty": "traditional",
-      "tradition": "Hellenistic hero cult of Achilles at the Achilleion sanctuary, Beşik-Yassıtepe",
+      "tradition": "One of the rival tombs of Achilles (Burgess, \"Tumuli of Achilles\"): the tumulus beside Achilleion, the town Pliny puts next to the tomb (Natural History 5.125), with Achilleion placed on the neighboring cape of Beşika Burnu and its mound, Beşik-Yassıtepe (Pleiades 550401)",
       "coords": [
         39.9171,
         26.1591
@@ -9775,7 +9778,7 @@
         "troad-plain"
       ],
       "mentions": [],
-      "note": "A Hellenistic tumulus roughly 2 km SSW of Yeniköy at the north end of Beşik Bay, associated with the Achilleion sanctuary — a rival 'tomb of Achilles' to Kesik Tepe, which is itself the evidence that these are competing cult claims, not burials.",
+      "note": "A conical tumulus at the north end of Beşik Bay, about 2 km SSW of Yeniköy; its present cone is Hellenistic (Rose and Körpe 2016). The town of Achilleion was the Mytileneans' base in their war with Athens over Sigeion (Herodotus 5.94) and, by Pliny's account, their foundation (Natural History 5.125). The rival localization is at Cape Sigeion: Strabo puts a temple and monument of Achilles near Sigeion (13.1.32), and from Lechevalier's map of 1791 the travelers marked the tomb on a tumulus there (Burgess), which this sheet does not draw. Arrian has Alexander garland the tomb of Achilles (Anabasis 1.12.1) but does not say which mound.",
       "sources": [
         {
           "cite": "Vici.org, s.v. \"Beşik-Sivritepe.\"",
@@ -9783,14 +9786,34 @@
         },
         {
           "cite": "Rose, C. Brian, and Reyhan Körpe. \"The Tumuli of Troy and the Troad.\" In Tumulus as Sema, edited by Olivier Henry and Ute Kelp. Berlin: De Gruyter, 2016."
+        },
+        {
+          "cite": "Pleiades. \"Achilleion.\" Place 550401.",
+          "url": "https://pleiades.stoa.org/places/550401"
+        },
+        {
+          "cite": "Pliny the Elder. Natural History 5.125."
+        },
+        {
+          "cite": "Herodotus. Histories 5.94."
+        },
+        {
+          "cite": "Strabo. Geography 13.1.32.",
+          "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
+        },
+        {
+          "cite": "Arrian. Anabasis of Alexander 1.12.1."
+        },
+        {
+          "cite": "Burgess, Jonathan S. \"Tumuli of Achilles.\" Classics@ 3. Center for Hellenic Studies.",
+          "url": "https://classics-at.chs.harvard.edu/classics3-jonathan-s-burgess-tumuli-of-achilles/"
         }
       ]
     },
     {
       "id": "kum-tepe",
       "name": "Kum Tepe",
-      "certainty": "traditional",
-      "tradition": "Schliemann attached the tomb of Achilles — the Achilleum of the ancient sources — to this mound; the mound itself is a prehistoric settlement höyük",
+      "certainty": "certain",
       "coords": [
         39.9936,
         26.1926
@@ -9801,7 +9824,7 @@
         "troad-plain"
       ],
       "mentions": [],
-      "note": "A settlement mound at the foot of the Sigeion ridge near the Hellespont entrance, on the shoreline of the mid-Holocene Kumtepe embayment — occupied from the Neolithic, millennia before the poem's horizon, and long on dry ground by the Late Bronze Age (the embayment's marine phase dates to 5500-7000 BP). Schliemann took it for the tomb of Achilles; Rose and Körpe's survey work shows such mounds in the Troad are settlement mounds, not tumuli. The coordinate is corroborated independently by Vici.org and OpenStreetMap.",
+      "note": "A settlement mound at the foot of the Sigeion ridge near the Hellespont entrance, on the shoreline of the mid-Holocene Kumtepe embayment — occupied from the Neolithic, millennia before the poem's horizon, and long on dry ground by the Late Bronze Age (the embayment's marine phase dates to 5500-7000 BP). A trial excavation in 1934 established the prehistoric settlement (Sperling 1976). The coordinate is from Vici.org and OpenStreetMap and has not been checked against an excavation plan.",
       "sources": [
         {
           "cite": "Vici.org, s.v. \"Kum Tepe.\"",
@@ -9812,7 +9835,7 @@
           "url": "https://www.openstreetmap.org/node/7979325496"
         },
         {
-          "cite": "Rose, C. Brian, and Reyhan Körpe. \"The Tumuli of Troy and the Troad.\" In Tumulus as Sema, edited by Olivier Henry and Ute Kelp. Berlin: De Gruyter, 2016."
+          "cite": "Sperling, Jerome. \"Kum Tepe in the Troad: Trial Excavation, 1934.\" Hesperia 45, no. 4 (1976): 305–64."
         },
         {
           "cite": "Kayan, İlhan. \"Geoarchaeological Research at Troia and Its Environs.\" In Troia 1987–2012: Grabungen und Forschungen I — Forschungsgeschichte, Methoden und Landschaft, Teil 2, edited by Ernst Pernicka, Charles Brian Rose, and Peter Jablonka, 694–727. Studia Troica Monographien 5. Bonn: Habelt, 2014."
@@ -9845,6 +9868,9 @@
           "url": "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0198:book%3D13:chapter%3D1"
         },
         {
+          "cite": "Pliny the Elder. Natural History 5.125."
+        },
+        {
           "cite": "Rose, C. Brian. The Archaeology of Greek and Roman Troy. Cambridge: Cambridge University Press, 2014."
         }
       ]
@@ -9852,7 +9878,8 @@
     {
       "id": "uvecik-tepe",
       "name": "Üvecik Tepe",
-      "certainty": "certain",
+      "certainty": "traditional",
+      "tradition": "Schliemann's identification (1879) of the mound as the tumulus Caracalla raised for Festus (Herodian 4.8), from late-Roman sherds in his shafts; Lechevalier and his followers had taken it for the tomb of Aesyetes (Il. 2.793)",
       "coords": [
         39.9003,
         26.1992
@@ -9862,11 +9889,20 @@
         "troad-plain"
       ],
       "mentions": [],
-      "note": "South of Troy on the road to Alexandria Troas — and not a heroic tomb at all. It is the tomb of Festus, a favorite of Caracalla, himself a great admirer of Achilles; built c. 214 AD, it became the largest tumulus in the Troad. A clean illustration of how the Homeric landscape kept being manufactured under Rome.",
+      "note": "South of Troy on the road to Alexandria Troas, and the greatest of the Trojan tumuli (Cook 1973, 172). Not a heroic tomb: Schliemann's shafts found pottery he judged late Roman, and he took the mound for the tomb Caracalla, a great admirer of Achilles, built c. 214 AD for Festus — his favorite in Cook's account, his freedman in Leaf's and Pleiades'. Lechevalier and his followers had recognized it as the tomb of Aesyetes, from which Polites kept watch for the Trojans (Il. 2.791–94).",
       "sources": [
         {
           "cite": "Pleiades. \"Uvecik Tepe.\" Place 897256486.",
           "url": "https://pleiades.stoa.org/places/897256486"
+        },
+        {
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973, 172."
+        },
+        {
+          "cite": "Herodian. History of the Empire 4.8."
+        },
+        {
+          "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912, 26."
         },
         {
           "cite": "Livius.org, s.v. \"Troy 5.\"",
@@ -9892,11 +9928,15 @@
         "troad-plain"
       ],
       "mentions": [],
-      "note": "Not named in the Iliad. A later Greek settlement at the mouth of the Scamander, forming the northwest corner of the Troad and the traditional western headland of the Achaean beach.",
+      "note": "Not named in the Iliad. A later Greek city on the ridge at Yenişehir, near the mouth of the Scamander; the promontory below it forms the northwest corner of the Troad and the traditional western headland of the Achaean beach. The dot is the city's Pleiades point.",
       "sources": [
         {
           "cite": "Pleiades. \"Sigeion.\" Place 550877.",
           "url": "https://pleiades.stoa.org/places/550877"
+        },
+        {
+          "cite": "Pleiades. \"Sigeion\" (promontory). Place 550878.",
+          "url": "https://pleiades.stoa.org/places/550878"
         },
         {
           "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
@@ -9978,7 +10018,7 @@
       "id": "pinarbasi",
       "name": "Pınarbaşı",
       "certainty": "traditional",
-      "tradition": "Lechevalier's identification (1785) of the Kirk Göz springs at Bunarbashi as Homer's two springs, and of Ballı Dağ as Troy — the rival site until Schliemann",
+      "tradition": "Lechevalier's identification (1785) of the Kirk Göz springs at Bunarbashi as Homer's two springs, and of Ballı Dağ as Troy — the favored site until Calvert's and Schliemann's excavations at Hisarlık in the 1860s and 1870s",
       "coords": [
         39.888,
         26.2715
@@ -9988,7 +10028,7 @@
         "troad-plain"
       ],
       "mentions": [],
-      "note": "The Kirk Göz ('forty springs') at Pınarbaşı, called Bounarbachi in the eighteenth century: Lechevalier's 1785 identification of Homer's two springs (Il. 22.147-152) and of Ballı Dağ as Troy, the rival site until Schliemann dug at Hisarlık. Cook 1973, 141–46 (section 6, 'The Springs of Pınarbaşı') records that travellers with thermometers found no appreciable hot/cold contrast there. Wolkersdorfer et al. 2021 measured 18 of the 40 springs at 17.4–18.5 °C, ordinary groundwater, and could not verify Lechevalier's pair. The coordinate 39.8880 / 26.2715 is a modern-village proxy from OSM/Nominatim for Pınarbaşı (Ezine), noted as such in RESEARCH-PALEOGEOGRAPHY.md — not a surveyed spring-head.",
+      "note": "The Kirk Göz ('forty springs') at Pınarbaşı, called Bounarbachi in the eighteenth century: Lechevalier's 1785 identification of Homer's two springs (Il. 22.147-152) and of Ballı Dağ as Troy, the favored site until Calvert and then Schliemann dug at Hisarlık in the 1860s and 1870s. Cook 1973, 141–46 (section 6, 'The Springs of Pınarbaşı') records that travelers with thermometers found no appreciable hot/cold contrast there. Wolkersdorfer et al. 2021 measured 18 of the 40 springs at 17.4–18.5 °C, ordinary groundwater, and could not verify Lechevalier's pair. The coordinate 39.8880 / 26.2715 is a modern-village proxy from OSM/Nominatim for Pınarbaşı (Ezine), noted as such in RESEARCH-PALEOGEOGRAPHY.md — not a surveyed spring-head.",
       "sources": [
         {
           "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973, 141–46."
@@ -9996,20 +10036,22 @@
         {
           "cite": "Wolkersdorfer, Christian, Susanne Stadler, Anja Bretzler, Claudia Müller, and Claudia Zedler. \"Hydrochemical investigations to locate Homer's hot and cold springs of Troia (Troy)/Turkey.\" CATENA 200 (2021): 105070.",
           "url": "https://doi.org/10.1016/j.catena.2020.105070"
+        },
+        {
+          "cite": "Allen, Susan Heuck. Finding the Walls of Troy: Frank Calvert and Heinrich Schliemann at Hisarlık. Berkeley: University of California Press, 1999."
         }
       ]
     },
     {
       "id": "kesik-basin",
       "name": "The Kesik basin / Kesik cut",
-      "certainty": "speculative",
-      "tradition": "The feature — an artificial-looking cut through the 40 m Yeniköy ridge west of the plain — is certain; every reading of its purpose is speculative and contested",
-      "kind": "harbour",
+      "certainty": "certain",
+      "kind": "plain",
       "maps": [
         "troad-plain"
       ],
       "mentions": [],
-      "note": "The reading of the cut as the Achaean wall and ditch is Luce's (1998); Kraft, Rapp, Kayan & Luce 2003 print it, but the paper's citation for it — Kayan 1995 — does not contain it. The other readings, in hedge: a harbor candidate (Kraft, Kayan, Brückner and Rapp 2003, agreeing with Zangger only in the weak form that the embayments below the Sigeum ridge \"had excellent harbor potentials\"); an undecided, unfinished canal, on Kayan's own reading (2003, 2009); and late-Roman drainage, never completed — 'It seemed to us clear that the work was never completed' (Cook 1973, 166-67). A former marsh, drained in the 1960s, shown by drilling to have been a marine basin in the Early Bronze Age; Zangger's proposed rectangular basin, roughly 330 x 230 m, functioning as a naval station or trans-shipment point, is thin and presented as hypothesis only. The sheet letters it 'Kesik cut (contested)' with no linework, in a lettering zone south of Kesik Tepe. Cook 1973, 166 places the cut about 500 m south of the mound; the dossier marks that derived point unusable as a published coordinate. The zone is centered further south still, clear of the Achaean-camp label it printed through when first centered nearer the mound.",
+      "note": "A trough through the coastal ridge west of the plain, at the ridge's lowest point about 500 m south of Kesik Tepe; Cook puts its floor perhaps 12–15 m above sea level (Cook 1973, 166), and Kayan's survey puts the bedrock threshold at 13 m (Kayan 2009). East of the ridge lies the Kesik plain, the 'Lisgar' marsh of Spratt's map, which Cook found drained and cultivated (Cook 1973, 166). Drilling shows a small marine inlet there that had silted to swamp by about 4000–3500 BP, too early for a harbor in the time of Troia VI (Kayan 2009). Cook took the trough for an artificial drainage cut, offered the foundation of Constantine's new city as the occasion, and judged that 'the work was never completed' (Cook 1973, 167). Kayan finds it was never a waterway and leaves its origin open, leaning to a natural trough on a fault line over human widening (Kayan 1995, 2003, 2009). Luce read the cut as the Achaean wall and ditch (Luce 1998); Kraft, Rapp, Kayan and Luce 2003 print that reading with a citation to Kayan 1995, which does not contain it. Zangger argues for artificial harbor works at Troy (Zangger, \"Searching for the Ports of Troy\"); with Mutlu he proposes, as a working hypothesis, a port basin linked to the Aegean by a slipway (Zangger and Mutlu 2015). Kraft, Kayan, Brückner and Rapp 2003 grant only that the embayments below the Sigeion ridge \"had excellent harbor potentials.\" The schematic sheet does not draw or letter the feature.",
       "sources": [
         {
           "cite": "Luce, J. V. Celebrating Homer's Landscapes: Troy and Ithaca Revisited. New Haven: Yale University Press, 1998."
@@ -10030,15 +10072,15 @@
           "cite": "Kayan, İlhan. \"Kesik Plain and Alacalıgöl Mound: An Assessment of the Paleogeography around Troia.\" Studia Troica 18 (2009): 105-28."
         },
         {
-          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973."
+          "cite": "Cook, J. M. The Troad: An Archaeological and Topographical Study. Oxford: Clarendon Press, 1973, 165–67."
         },
         {
           "cite": "Zangger, Eberhard. \"Searching for the Ports of Troy.\" Academia.edu.",
           "url": "https://www.academia.edu/31276138/Searching_for_the_Ports_of_Troy"
         },
         {
-          "cite": "Jablonka, Peter, and İlhan Kayan. \"Artificial Ports and Water Engineering at Troy: A Geoarchaeological Working Hypothesis.\" ResearchGate.",
-          "url": "https://www.researchgate.net/publication/283762579_Artificial_Ports_and_Water_Engineering_at_Troy_A_Geoarchaeological_Working_Hypothesis"
+          "cite": "Zangger, Eberhard, and Serdal Mutlu. \"Artificial Ports and Water Engineering at Troy: A Geoarchaeological Working Hypothesis.\" OLBA 23 (2015): 553–89.",
+          "url": "https://dergipark.org.tr/tr/pub/olba/issue/47140/593189"
         }
       ]
     },

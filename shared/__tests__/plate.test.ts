@@ -5215,18 +5215,19 @@ describe('renderPlate: featureKey (stage 5c)', () => {
     }
   });
 
-  it('E6: key bottom + 10 ≤ inset top; every key row estimated width ≤ 282px', () => {
-    const inset = plate.layers.find((l) => l.id === 'inset-panel');
-    expect(inset?.frame, 'inset-panel must have a frame').toBeDefined();
-    const insetTop = inset!.frame![1];
+  // The Ajax's-end inset that used to sit below the key is gone (John,
+  // 2026-10-09: "not very helpful"), so the key's floor is the sheet's own
+  // bottom edge.
+  it('E6: key bottom + 10 ≤ sheet bottom; every key row estimated width ≤ 282px', () => {
+    const sheetBottom = plate.size[1];
     const keyYs = [
       ...result.svg.matchAll(/<text class="plate-key-row"[^>]*y="([-\d.]+)"/g),
       ...result.svg.matchAll(/<g class="plate-feature-key"[\s\S]*?<tspan[^>]*y="([-\d.]+)"/g),
     ].map((m) => Number(m[1]));
     expect(keyYs.length, 'feature key rows must render').toBeGreaterThan(0);
     const keyBottom = Math.max(...keyYs);
-    expect(keyBottom + 10, `key bottom ${keyBottom} + 10 must sit above inset top ${insetTop}`).toBeLessThanOrEqual(
-      insetTop,
+    expect(keyBottom + 10, `key bottom ${keyBottom} + 10 must sit above sheet bottom ${sheetBottom}`).toBeLessThanOrEqual(
+      sheetBottom,
     );
     const wrapW = 282;
     for (const item of keyedItems) {
@@ -5577,12 +5578,14 @@ describe('trojan-plain-schematic: the "Later tradition and survey" layer group',
   const traditionLabel = (svg: string, id: string) =>
     svg.match(new RegExp(`<text class="plate-label[^"]*plate-label-tradition[^"]*" data-label-for="${id}"[^>]*>[\\s\\S]*?</text>`))?.[0];
 
-  it('is declared off by default, with the sites the geographic sheet drew and the Kesik cut, each from its gazetteer record', () => {
+  it('is declared off by default, with the sites the geographic sheet drew, each from its gazetteer record', () => {
     expect(group?.default).toBe('off');
     expect([...placeIds].sort()).toEqual(
       ['besik-sivritepe', 'kesik-tepe', 'kum-tepe', 'pinarbasi', 'sigeion', 'thymbrios', 'tomb-of-ajax-in-tepe', 'uvecik-tepe'],
     );
-    expect(group?.layerIds).toEqual(['kesik-basin']);
+    // The Kesik cut's label-only layer is gone (John, 2026-10-09: it lettered
+    // nothing drawn); the group carries places only.
+    expect(group?.layerIds).toEqual([]);
     for (const id of placeIds) {
       const place = placeById.get(id);
       expect(place?.coords, `${id} has coords`).toBeTruthy();
@@ -5628,7 +5631,7 @@ describe('trojan-plain-schematic: the "Later tradition and survey" layer group',
       expect(mark).toContain('data-layer-group="later-tradition"');
       if (place.tradition) expect(mark).toContain(place.tradition.replace(/'/g, '&apos;').slice(0, 30));
     }
-    expect(traditionLabel(on.svg, 'kesik-basin')).toContain('Kesik cut (contested)');
+    expect(on.svg).not.toContain('Kesik cut');
     const badgeIds = new Set(markDiscs(on.svg, 'plate-key-badge').map((d) => d.id));
     for (const id of siteIds) expect(badgeIds.has(id), `${id} carries a numeral`).toBe(false);
     expect(markDiscs(on.svg, 'plate-key-badge').length).toBe(32);
@@ -5667,12 +5670,11 @@ describe('trojan-plain-schematic: the "Later tradition and survey" layer group',
     expect(offenders).toEqual([]);
   });
 
-  it('E6 still holds with the layer on: the longer legend does not push the feature key into the inset', () => {
-    const inset = plate.layers.find((l) => l.id === 'inset-panel')!;
+  it('E6 still holds with the layer on: the longer legend does not push the feature key off the sheet', () => {
     const keyYs = [...on.svg.matchAll(/<g class="plate-feature-key"[\s\S]*?<tspan[^>]*y="([-\d.]+)"/g), ...on.svg.matchAll(/<text class="plate-key-row"[^>]*y="([-\d.]+)"/g)].map(
       (m) => Number(m[1]),
     );
     expect(keyYs.length).toBeGreaterThan(0);
-    expect(Math.max(...keyYs) + 10).toBeLessThanOrEqual(inset.frame![1]);
+    expect(Math.max(...keyYs) + 10).toBeLessThanOrEqual(plate.size[1]);
   });
 });
