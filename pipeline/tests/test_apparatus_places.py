@@ -1411,3 +1411,98 @@ def test_achaean_camp_anchor_sits_in_its_own_zone_on_the_aegean_flank():
 
     lagoon, _ = _lagoon_bronze_polygon()
     assert not _point_in_polygon(anchor, lagoon), f"achaean-camp anchor {anchor} still sits in the bay"
+
+
+# ── Sol review (2026-10-09): validator gaps on maps, status, featureKey ─────
+
+
+def test_validate_places_rejects_non_list_maps():
+    # The site calls `p.maps.includes(tag)` on every place (shared/lib/maps.ts
+    # placesForMap), so a null/string/absent `maps` is a runtime crash.
+    for bad in (None, "troad", {"a": 1}):
+        doc = {"status": "draft", "places": [_place(maps=bad)]}
+        problems = apparatus_places.validate_places(doc)
+        assert any("maps must be a list" in p for p in problems), bad
+
+
+def test_validate_places_rejects_absent_maps():
+    place = _place()
+    del place["maps"]
+    problems = apparatus_places.validate_places({"status": "draft", "places": [place]})
+    assert any("maps must be a list" in p for p in problems)
+
+
+def test_validate_places_rejects_non_string_map_tag():
+    doc = {"status": "draft", "places": [_place(maps=["troad", 3])]}
+    problems = apparatus_places.validate_places(doc)
+    assert any("maps[1]" in p for p in problems)
+
+
+def test_validate_places_status_must_be_draft_or_reviewed():
+    for bad in ("Draft", "", "final", None, 3):
+        problems = apparatus_places.validate_places({"status": bad, "places": [_place()]})
+        assert any("status must be" in p for p in problems), bad
+    problems = apparatus_places.validate_places({"places": [_place()]})
+    assert any("status must be" in p for p in problems)
+    for good in ("draft", "reviewed"):
+        assert apparatus_places.validate_places({"status": good, "places": [_place()]}) == []
+
+
+def test_validate_plate_status_must_be_draft_or_reviewed():
+    for bad in ("Draft", "wip", "published"):
+        problems = apparatus_places.validate_plate(_plate(status=bad), {})
+        assert any("status must be" in p for p in problems), bad
+    assert apparatus_places.validate_plate(_plate(status="reviewed"), {}) == []
+
+
+def test_validate_plate_feature_key_layer_needs_drawable_geometry():
+    # (kind, layer fields that leave nothing for the renderer to draw)
+    cases = {
+        "river": {"path": [[39.90, 26.15]]},  # needs >= 2 points
+        "route": {},
+        "wall": {"trace": [[39.90, 26.15]]},
+        "shipRow": {"baseline": []},
+        "region": {"polygon": [[39.90, 26.15], [39.91, 26.16]]},  # needs >= 3
+        "band": {},
+        "relief": {"polygon": []},
+        "coast": {"rings": []},
+        "tumulus": {"path": []},  # needs >= 1
+    }
+    for kind, geometry in cases.items():
+        plate = _plate(
+            layers=[{"id": "x", "kind": kind, **geometry}],
+            featureKey=[{"title": "T", "items": [{"layerId": "x"}]}],
+        )
+        problems = apparatus_places.validate_plate(plate, {})
+        assert any("featureKey" in p and "drawable geometry" in p for p in problems), kind
+
+
+def test_validate_plate_feature_key_layer_with_geometry_passes():
+    good = {
+        "river": {"path": [[39.90, 26.15], [39.95, 26.20]]},
+        "tumulus": {"path": [[39.90, 26.15]]},
+        "region": {"polygon": [[39.90, 26.15], [39.91, 26.16], [39.92, 26.15]]},
+        "coast": {"rings": [[[39.90, 26.15], [39.91, 26.16]]]},
+        "wall": {"trace": [[39.90, 26.15], [39.91, 26.16]]},
+    }
+    for kind, geometry in good.items():
+        plate = _plate(
+            layers=[{"id": "x", "kind": kind, **geometry}],
+            featureKey=[{"title": "T", "items": [{"layerId": "x"}]}],
+        )
+        assert apparatus_places.validate_plate(plate, {}) == [], kind
+
+
+def test_validate_plate_feature_key_relief_band_counts_a_drawable_ring():
+    plate = _plate(
+        layers=[
+            {
+                "id": "x",
+                "kind": "relief",
+                "elevation": 50,
+                "rings": [[[39.90, 26.15], [39.91, 26.16], [39.92, 26.15]]],
+            }
+        ],
+        featureKey=[{"title": "T", "items": [{"layerId": "x"}]}],
+    )
+    assert apparatus_places.validate_plate(plate, {}) == []
