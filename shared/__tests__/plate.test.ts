@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { project, viewportFromBBox } from '../lib/geo';
@@ -5512,11 +5512,17 @@ describe('renderPlate: geographic label-set parity (stage 5c E9)', () => {
       );
       const now = idsFromSvg(renderPlate(plate, places).svg);
       const baseline = new Set(GEO_ENRICH_PLUS_LIVE[sheet]);
-      const archived = idsFromHtml(
-        readFileSync(path.resolve(process.cwd(), `../build/plate-review/geo-enrich-2/${sheet}-light.html`), 'utf-8'),
-      );
-      const droppedArchived = [...archived].filter((id) => !now.has(id)).sort();
-      expect(droppedArchived, `${sheet} dropped a geo-enrich-2 label`).toEqual([]);
+      // The geo-enrich-2 renders are a local review archive under build/, never
+      // committed, so CI has none. Compare against them where they exist; the
+      // committed baseline below is checked everywhere.
+      const archivePath = path.resolve(process.cwd(), `../build/plate-review/geo-enrich-2/${sheet}-light.html`);
+      if (existsSync(archivePath)) {
+        const archived = idsFromHtml(readFileSync(archivePath, 'utf-8'));
+        const droppedArchived = [...archived].filter((id) => !now.has(id)).sort();
+        expect(droppedArchived, `${sheet} dropped a geo-enrich-2 label`).toEqual([]);
+      } else {
+        console.warn(`plate.test: no geo-enrich-2 archive at ${archivePath}; checking the committed baseline only`);
+      }
       const added = [...now].filter((id) => !baseline.has(id)).sort();
       const dropped = [...baseline].filter((id) => !now.has(id)).sort();
       expect({ sheet, added, dropped }).toEqual({ sheet, added: [], dropped: [] });
