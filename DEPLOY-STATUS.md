@@ -3,6 +3,71 @@
 Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). No deploys have
 occurred; deploying, the GitHub remote, and the first push are John-gated.
 
+## Deploy — 2026-10-09: the Troy plates go live, PR #29
+
+gh-pages `a4c7135fa` → `185b233f5` (source: main `d889ada81`, CI green). Full
+`npm run build:public` on main, detached in the `plates-ship` worktree (Node
+22.23.1; `build` and `pipeline/.venv` symlinked from the main checkout).
+`~/Developer/homer-reader-site` was gone, so it was recreated with `git worktree
+add` on `gh-pages`. The rsync `--delete` removed `gh-pages`' own `.gitignore`;
+I restored it before the commit. Add `--exclude .gitignore` next time.
+
+**What shipped (PR #29).**
+- **The Maps page.** The Trojan Plain tab shows the schematic sheet: the poem's
+  features on real ground, east-up, with Pope's numbered key. The geographic
+  sheet's sites form an off-by-default "Later tradition and survey" layer.
+  A `focus=` link to one of those sites switches the layer on.
+- **The Chart Room postcard.** Each Iliad scene is framed on the sheet, and
+  links through to `/maps/?map=plain&focus=…`.
+- **From July 28.** The cross-epic dual search and the phrases filter, which
+  had sat on the branch since then.
+
+The 14 Grok findings on the tradition records were corrected by Opus. Grok
+rechecked the result twice: three citation errors and a Pliny word-order slip
+turned up and were fixed. John approved the six identification changes
+(listed in the PR #29 description) on 2026-10-09. Per his rulings the same
+day, the Ajax's-end inset and the "Kesik cut (contested)" label are gone.
+
+**Review.** GPT-6-Sol reviewed the renderer, the Maps page, the pipeline and
+preflight: 9 findings, then 3 more in the fixes. All were fixed by Sonnet
+with tests that fail before the fix, and Sol confirmed them closed. Preflight
+now checks every plate the site requests, and requires a plate's `id` to
+match its filename. A plate or gazetteer `status` outside draft/reviewed now
+fails validation, so the draft badge cannot silently disappear.
+
+**`VERSION` → `v4`.** Data changed at existing URLs (`places.json`, the scene
+apparatus), so this follows the bump rule from the September deploys.
+
+**Diff by category.**
+- About 4,780 HTML pages: new asset hashes only.
+- 27 `_astro` files.
+- `data/plates/` (5 new files).
+- `data/places.json`.
+- 48 Cunliffe shards: a one-time change to the stable key order from #43.
+- Minor `data/lsj`, `data/lemmata` and Odyssey grammar-index updates from
+  main.
+
+`data/plates/troy-citadel.json` (the July citadel WIP) is in the data folder
+because build:public copies every plate. No page requests it. The
+Pergamos/Ilios citadel panels are not in this deploy; they follow as their own
+PR after the ruling-15 design pass.
+
+Gates:
+- Preflight ok.
+- 4,686 pages built; 335,501 links and 148,343 anchors checked, **0 broken**.
+- Tests: shared 1386, app 38, pytest 994. svelte-check 0 errors.
+
+Live-verified after Pages built `185b233f5`:
+- Home, `/maps/`, `/iliad/book/6/`, `/odyssey/book/1/`, `/search/`, `/lemma/`,
+  `/attribution/` and both new data files return 200.
+- `sw.js` serves `v4`.
+- Live `places.json` has Kesik Tepe as the travelers' tomb of Antilochus.
+- The live schematic plate has no inset layers and no Kesik label.
+- The attribution page cites *CATENA* 200 (2021).
+- In the browser, `/maps/?map=plain&focus=kum-tepe` switches the tradition
+  layer on and frames Kum Tepe at scale 8, with the keys fixed off the
+  camera, the draft badge showing and no console errors.
+
 ## Deploy — 2026-09-14 (second): the lexicon repairs, PR #37
 
 gh-pages `1c7bdc67a` → `9d711223b` (source: main `84dea54df`, CI green). Same
