@@ -1681,7 +1681,10 @@ def patch_troad(g: Grid, gr: Grid) -> tuple[int, int]:
 
 
 def patch_plain(g: Grid, gr: Grid, gb: Grid | None = None) -> tuple[int, int]:
-    path = os.path.join(PLATES_DIR, "trojan-plain.json")
+    # The plain's ground lives on the schematic sheet since the geographic
+    # sheet was retired (John, 2026-09-15); "trojan-plain" below stays the
+    # name of the terrain extent in SHEETS.
+    path = os.path.join(PLATES_DIR, "trojan-plain-schematic.json")
     with open(path, encoding="utf-8") as f:
         plate = json.load(f)
     by_id = {l["id"]: l for l in plate["layers"]}

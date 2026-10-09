@@ -505,8 +505,8 @@ COAST_STEP_M = 30.0      # the source posting, so the filter sees one feature
 # connectivity defect in the source polygon and not a landform.
 #
 # THE DATA IS NOT THIS FILE'S TO REPAIR. lagoon-bronze lives in
-# apparatus/plates/trojan-plain.json and scripts/fix-lagoon-connectivity.py
-# owns its flood fill; both are outside this lane. What IS this file's to
+# apparatus/plates/trojan-plain-schematic.json and
+# scripts/fix-lagoon-connectivity.py owns its flood fill; both are outside this lane. What IS this file's to
 # decide is whether a plate may assert a landform NARROWER THAN THE INK IT IS
 # DRAWN WITH -- the tongue's neck is under a pixel at 6 km, and the coast
 # stroke, the approximate-shore hairline and two waterlines are laid across
@@ -4489,7 +4489,7 @@ class Plate:
         # ── A RIVER THAT STOPS SHORT OF THE WATER ────────────────────────
         # The Scamander ran down the sand spit and ended in mid-ground, a
         # blunt stub with beach on every side. The channel data was never the
-        # problem: apparatus/plates/trojan-plain.json's `scamander` path has
+        # problem: the plain sheet's `scamander` path has
         # 170 vertices and 43 of them lie INSIDE lagoon-bronze, so the survey
         # line reaches the reconstructed bay and crosses it. What ended short
         # was the DRAWING -- the run was cut at the last vertex outside the
@@ -5355,7 +5355,7 @@ class Plate:
             # STATION ACCEPTANCE IS BY THE SHORE WALK ALONE, not by
             # near_camp's polygon-vertex blob (ruling 4 diagnosis,
             # 2026-09-02): the zone polygon is the RIDGE LANDFORM's own
-            # outline (apparatus/plates/trojan-plain.json note on
+            # outline (see the retired geographic sheet's note on
             # achaean-camp-zone), 600-900 m wide station to station because
             # it is a real hill, not a thin crest line -- so a berth's
             # near_camp() eastward walk (capped at 1000 m) missed it at
@@ -6874,12 +6874,27 @@ def output_stem(plate, kind, tag=""):
 
 
 def _camp_zone_polygon():
-    path = os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")
+    """The shared camp zone: apparatus/places.json's achaean-camp.zone, the
+    source of truth every plate draws the camp from (ruling 2e-iv)."""
+    path = os.path.join(REPO, "apparatus", "places.json")
     with open(path) as f:
-        for layer in json.load(f)["layers"]:
-            if layer["id"] == "achaean-camp-zone":
-                return layer["polygon"]
-    raise KeyError("achaean-camp-zone")
+        for place in json.load(f)["places"]:
+            if place["id"] == "achaean-camp":
+                return place["zone"]["polygon"]
+    raise KeyError("achaean-camp")
+
+
+def _plain_ground():
+    """The Trojan Plain's ground layers, from trojan-plain-schematic.json,
+    plus the camp zone as an `achaean-camp-zone` layer. The geographic sheet
+    this was read from until its retirement (John, 2026-09-15) carried both;
+    the ground layers were identical on the two sheets and the zone was a
+    copy of the gazetteer's."""
+    path = os.path.join(REPO, "apparatus", "plates", "trojan-plain-schematic.json")
+    with open(path) as f:
+        doc = json.load(f)
+    doc["layers"].append({"id": "achaean-camp-zone", "polygon": _camp_zone_polygon()})
+    return doc
 
 
 _PRESETS = None
@@ -7130,8 +7145,7 @@ def main():
 
     terr = Terrain()
     cam = Camera(terr.plain)
-    with open(os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")) as f:
-        plate_json = json.load(f)
+    plate_json = _plain_ground()
 
     prom = troy_prominence(terr, cam) if PLATE_FAMILY == "A" else {}
     if prom:

@@ -16,7 +16,7 @@ Two things this stage does that Stage 1B did not:
      line-and-tint register the map plates already use: flat hypsometric
      tone bands (shared/styles/global.css --plate-relief-1..12), hairline
      contours between them (--plate-contour), and real water -- the
-     reconstructed Bronze Age bay (apparatus/plates/trojan-plain.json's
+     reconstructed Bronze Age bay (apparatus/plates/trojan-plain-schematic.json's
      lagoon-bronze polygon, --plate-lagoon) over the modern open sea
      (sea-modern polygon, --scene-map-sea) -- plus the Scamander and
      Simoeis courses (sources/openstreetmap/trojan-plain-rivers.json,
@@ -134,10 +134,10 @@ THEMES = {
 }
 
 
-# ── data loaders (READ-ONLY; apparatus/plates/trojan-plain.json and
+# ── data loaders (READ-ONLY; apparatus/plates/trojan-plain-schematic.json and
 # sources/openstreetmap/trojan-plain-rivers.json are not touched) ───────
 def _load_trojan_plain_layers():
-    path = os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")
+    path = os.path.join(REPO, "apparatus", "plates", "trojan-plain-schematic.json")
     with open(path) as f:
         d = json.load(f)
     return {l["id"]: l for l in d["layers"]}
@@ -333,8 +333,8 @@ def render(theme_name: str, out_path: str, verbose: bool = True):
 
     # ── water classification, per vertex: 0=land, 1=lagoon (Bronze Age
     # bay), 2=sea (modern open sea, drawn as the base the reconstruction
-    # sits over -- exactly the layering apparatus/plates/trojan-plain.json's
-    # own sea-modern note specifies: "Drawn first, under every other
+    # sits over -- exactly the layering the sea-modern layer's
+    # own note specifies: "Drawn first, under every other
     # layer"). Priority: lagoon over sea over land. ────────────────────
     valid = ~np.isnan(elev)
     ni, nj = elev.shape
@@ -479,8 +479,8 @@ def render(theme_name: str, out_path: str, verbose: bool = True):
                     draw_line(img, x0, y0, x1, y1, T["contour"], width=1, alpha=0.55)
 
     # ── rivers: Scamander and Simoeis, clipped where they enter the
-    # reconstructed Bronze Age bay (each layer's own note in
-    # trojan-plain.json: with the bay shown, the surveyed course -- which
+    # reconstructed Bronze Age bay (each layer's own note on the plain
+    # sheet: with the bay shown, the surveyed course -- which
     # continues to the modern mouth -- is not drawn past the point where
     # the ground it crosses was open water in 1200 BC). ─────────────────
     def draw_river(points_latlon, color):

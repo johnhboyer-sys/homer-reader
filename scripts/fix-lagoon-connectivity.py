@@ -35,7 +35,8 @@ Method:
      inside the mask (a direct check that the artifact is gone: it must not
      exceed ~10 m by construction).
   5. Patch `shore-bronze` (open landward arc) and `lagoon-bronze` (closed
-     polygon) in apparatus/plates/trojan-plain.json. `barrier-bronze` and
+     polygon) in apparatus/plates/trojan-plain-schematic.json (the geographic
+     sheet this first patched was retired 2026-09-15). `barrier-bronze` and
      `delta-swamp` are left untouched -- out of this job's scope.
 
 Usage:
@@ -52,7 +53,7 @@ import os
 from array import array
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PLATE_PATH = os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")
+PLATE_PATH = os.path.join(REPO, "apparatus", "plates", "trojan-plain-schematic.json")
 
 
 def _load_ptc():

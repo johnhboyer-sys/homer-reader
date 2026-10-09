@@ -876,8 +876,13 @@ def main():
 
     terr = Terrain()
     cam = Camera(terr.plain)
-    with open(os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")) as f:
+    # Ground from the schematic sheet, the camp zone from the gazetteer: the
+    # geographic sheet that carried both was retired (John, 2026-09-15).
+    with open(os.path.join(REPO, "apparatus", "plates", "trojan-plain-schematic.json")) as f:
         plate = json.load(f)
+    with open(os.path.join(REPO, "apparatus", "places.json")) as f:
+        camp = next(p for p in json.load(f)["places"] if p["id"] == "achaean-camp")
+    plate["layers"].append({"id": "achaean-camp-zone", "polygon": camp["zone"]["polygon"]})
 
     print(f"pitch {math.degrees(cam.pitch):.2f} deg down; focal {FOCAL:.1f}; "
           f"horizon y={H / 2 - FOCAL * math.tan(-cam.pitch) * -1:.0f}")
