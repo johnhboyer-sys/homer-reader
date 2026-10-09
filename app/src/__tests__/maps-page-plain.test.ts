@@ -32,7 +32,8 @@ describe('MapsPage: the Trojan Plain tab', () => {
     await waitFor(() => expect(container.querySelector('#mp-panel-plain svg')).toBeTruthy(), { timeout: 20000 });
 
     expect(mockFetchPlate).toHaveBeenCalledWith('trojan-plain-schematic');
-    expect(mockFetchPlate).not.toHaveBeenCalledWith('trojan-plain');
+    // The schematic is the only plate the Trojan Plain tab requests.
+    expect(new Set(mockFetchPlate.mock.calls.map((c) => c[0]))).toEqual(new Set(['trojan-plain-schematic']));
     const svg = container.querySelector('#mp-panel-plain svg')!;
     expect(svg.getAttribute('aria-label')).toBe(schematic.title);
     // Framed on the focused place, not the whole sheet.

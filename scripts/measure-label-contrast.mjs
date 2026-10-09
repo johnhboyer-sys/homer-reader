@@ -88,7 +88,6 @@ const TERRAIN_RING = [HALO_CLEAR_PX, HALO_CLEAR_PX + 3];
 // Same map tag table as scripts/render-plates.mjs.
 const MAP_TAG = {
   troad: 'troad',
-  'trojan-plain': 'troad-plain',
   'trojan-plain-schematic': 'troad-plain',
   'troy-citadel': 'troy-citadel',
 };
@@ -376,7 +375,7 @@ function placesForSheet(sheet) {
 }
 
 function parseArgs(argv) {
-  const out = { sheets: ['troad', 'trojan-plain'], themes: ['light', 'dark'], json: null, all: false };
+  const out = { sheets: ['troad'], themes: ['light', 'dark'], json: null, all: false };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--sheet') out.sheets = argv[++i].split(',');
     else if (argv[i] === '--theme') out.themes = argv[++i].split(',');
