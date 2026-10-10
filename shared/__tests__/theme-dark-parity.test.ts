@@ -1,102 +1,46 @@
-// A reader whose OS is dark but whose page carries no data-theme attribute
-// (ThemeInit could not run or could not read storage) must get the SAME dark
-// declarations as an explicit data-theme="dark". The two lists live in
-// shared/styles/global.css as separate rules, so this test parses the real
-// file and fails the moment they drift apart. Explicit data-theme="light" and
-// data-theme="dark" must keep winning over the OS.
+// Theme policy (app/src/components/ThemeInit.astro): the page is LIGHT unless
+// the reader chooses dark. The OS colour scheme is never followed, and a page
+// that carries no data-theme (no script, or storage blocked) is light too
+// (John, 2026-10-10). So no `prefers-color-scheme: dark` rule may restyle the
+// page: such a rule would give a dark OS a dark page whenever data-theme is
+// absent. Dark styling hangs on :root[data-theme="dark"] only.
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const css = fs
-  .readFileSync(path.resolve(process.cwd(), 'styles/global.css'), 'utf-8')
-  .replace(/\/\*[\s\S]*?\*\//g, '');
+const ROOTS = [path.resolve(process.cwd(), 'styles'), path.resolve(process.cwd(), 'components'), path.resolve(process.cwd(), '../app/src')];
+const EXT = /\.(css|astro|svelte)$/;
+const SKIP = new Set(['node_modules', 'dist', '.astro']);
 
-/** The brace-balanced body of every `{` that follows a top-level prelude. */
-function topLevel(text: string): { prelude: string; body: string }[] {
-  const out: { prelude: string; body: string }[] = [];
-  let i = 0;
-  while (i < text.length) {
-    const open = text.indexOf('{', i);
-    if (open === -1) break;
-    let depth = 0;
-    let j = open;
-    for (; j < text.length; j++) {
-      if (text[j] === '{') depth++;
-      else if (text[j] === '}' && --depth === 0) break;
-    }
-    out.push({ prelude: text.slice(i, open).trim(), body: text.slice(open + 1, j) });
-    i = j + 1;
-  }
-  return out;
+function walk(dir: string): string[] {
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+    if (SKIP.has(e.name)) return [];
+    const p = path.join(dir, e.name);
+    return e.isDirectory() ? walk(p) : EXT.test(e.name) ? [p] : [];
+  });
 }
 
-/** property -> value, splitting on `;` outside parentheses and quotes. */
-function declarations(body: string): Map<string, string> {
-  const map = new Map<string, string>();
-  let depth = 0;
-  let quote = '';
-  let start = 0;
-  const flush = (end: number) => {
-    const d = body.slice(start, end).trim();
-    const c = d.indexOf(':');
-    if (c > 0) map.set(d.slice(0, c).trim(), d.slice(c + 1).replace(/\s+/g, ' ').trim());
-    start = end + 1;
-  };
-  for (let k = 0; k < body.length; k++) {
-    const ch = body[k];
-    if (quote) {
-      if (ch === quote) quote = '';
-    } else if (ch === '"' || ch === "'") quote = ch;
-    else if (ch === '(') depth++;
-    else if (ch === ')') depth--;
-    else if (ch === ';' && depth === 0) flush(k);
-  }
-  flush(body.length);
-  return map;
-}
+const stripComments = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/<!--[\s\S]*?-->/g, '');
+const DARK_OS = /prefers-color-scheme\s*:\s*dark/;
 
-function merged(rules: { body: string }[]): Map<string, string> {
-  const all = new Map<string, string>();
-  for (const r of rules) for (const [k, v] of declarations(r.body)) all.set(k, v);
-  return all;
-}
+describe('theme policy: the OS dark preference never styles the page', () => {
+  const files = ROOTS.flatMap(walk);
 
-const rules = topLevel(css);
-const darkRules = rules.filter((r) => r.prelude === ':root[data-theme="dark"]');
-const mediaRules = rules
-  .filter((r) => r.prelude === '@media (prefers-color-scheme: dark)')
-  .flatMap((r) => topLevel(r.body))
-  .filter((r) => r.prelude === ':root:not([data-theme])');
-
-describe('dark theme: explicit data-theme="dark" vs. dark OS with no data-theme', () => {
-  const dark = merged(darkRules);
-  const media = merged(mediaRules);
-
-  it('finds both lists in global.css', () => {
-    expect(dark.size).toBeGreaterThan(40);
-    expect(media.size).toBeGreaterThan(0);
+  it('scans global.css and the app sources', () => {
+    expect(files.some((f) => f.endsWith(path.join('styles', 'global.css')))).toBe(true);
+    expect(files.some((f) => f.endsWith('index.astro'))).toBe(true);
   });
 
-  it('the no-data-theme block declares every property the data-theme="dark" blocks declare', () => {
-    const missing = [...dark.keys()].filter((k) => !media.has(k));
-    expect(missing).toEqual([]);
+  it('no `prefers-color-scheme: dark` rule exists in any .css, .astro or .svelte file', () => {
+    const hits = files
+      .filter((f) => DARK_OS.test(stripComments(fs.readFileSync(f, 'utf-8'))))
+      .map((f) => path.relative(process.cwd(), f));
+    expect(hits).toEqual([]);
   });
 
-  it('every shared property has the same value', () => {
-    const differ = [...dark.keys()]
-      .filter((k) => media.has(k) && media.get(k) !== dark.get(k))
-      .map((k) => `${k}: dark=${dark.get(k)} media=${media.get(k)}`);
-    expect(differ).toEqual([]);
-  });
-
-  it('the no-data-theme block adds nothing the dark theme lacks', () => {
-    const extra = [...media.keys()].filter((k) => !dark.has(k));
-    expect(extra).toEqual([]);
-  });
-
-  it('the no-data-theme block only applies when data-theme is absent, so an explicit choice wins', () => {
-    expect(mediaRules.length).toBeGreaterThan(0);
-    expect(css).toContain(':root[data-theme="light"] {');
+  it('global.css sets no tokens on an unstamped root (:root:not([data-theme]))', () => {
+    const css = stripComments(fs.readFileSync(path.resolve(process.cwd(), 'styles/global.css'), 'utf-8'));
+    expect(css).not.toMatch(/:root:not\(\[data-theme\]\)/);
   });
 });

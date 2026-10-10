@@ -148,13 +148,12 @@ function readThemeBlock(name: string, selector: string): ThemeBlock {
 /** Must match RELIEF_RAMP_STEPS in shared/lib/plate.ts. */
 const RAMP_STEPS = 12;
 
-// The four theme blocks that declare the scene-map/plate tokens (see
+// The three theme blocks that declare the scene-map/plate tokens (see
 // CLAUDE.md's brief for this defect: lines 89-92 / 171-174 / 195-198 /
 // 222-225 as of 2026-07-28 — selectors below, not line numbers, so this
 // survives the file being edited around them).
 const THEME_BLOCKS: ThemeBlock[] = [
   readThemeBlock('light (:root default)', ':root {'),
-  readThemeBlock('dark (prefers-color-scheme, no data-theme)', ':root:not([data-theme]) {'),
   readThemeBlock('dark (data-theme="dark")', ':root[data-theme="dark"] {'),
   readThemeBlock('light (data-theme="light")', ':root[data-theme="light"] {'),
 ];
@@ -368,8 +367,6 @@ describe('hypsometric relief ramp (parsed from the real global.css)', () => {
     return `#${[mix(hr, tr), mix(hg, tg), mix(hb, tb)].map((c) => c.toString(16).padStart(2, '0')).join('')}`;
   }
 
-  // The no-data-theme dark block now carries the lettering inks too (see
-  // theme-dark-parity.test.ts), so all four blocks pair a full theme.
   const LABEL_THEMES = THEME_BLOCKS;
 
   it.each(LABEL_THEMES)('$name: every label ink clears AA over the halo on EVERY ramp step', (t) => {
@@ -468,11 +465,9 @@ describe('citadel panel ground (parsed from the real global.css)', () => {
     const block = extractBlock(
       t.name.startsWith('light (:root')
         ? ':root {'
-        : t.name.includes('prefers-color-scheme')
-          ? ':root:not([data-theme]) {'
-          : t.name.includes('"dark"')
-            ? ':root[data-theme="dark"] {'
-            : ':root[data-theme="light"] {',
+        : t.name.includes('"dark"')
+          ? ':root[data-theme="dark"] {'
+          : ':root[data-theme="light"] {',
     );
     return {
       ...t,
