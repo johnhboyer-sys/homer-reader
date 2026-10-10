@@ -6876,8 +6876,9 @@ def output_stem(plate, kind, tag=""):
 def _camp_zone_polygon():
     """The camp zone: apparatus/places.json's achaean-camp.zone (ruling
     2e-iv). The retired geographic sheet's achaean-camp-zone layer was an
-    exact copy of it. The schematic sheet does not draw this polygon; it
-    has its own camp layers, so editing the zone changes the panorama only."""
+    exact copy of it, and the schematic sheet's `achaean-camp` layer still
+    is one: editing the zone here changes the panorama, and the schematic's
+    copy has to be edited to match."""
     path = os.path.join(REPO, "apparatus", "places.json")
     with open(path) as f:
         for place in json.load(f)["places"]:
