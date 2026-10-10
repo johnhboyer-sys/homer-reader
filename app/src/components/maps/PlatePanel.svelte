@@ -244,6 +244,7 @@
     applyLayerVisibility();
     applyCertaintyVisibility();
     setupCamera();
+    scanPanels();
     setCamera(k, tx, ty);
   }
 
@@ -699,6 +700,236 @@
     }
   }
 
+  // ── Citadel panels: Enlarge buttons and the full-size dialog ────────────
+  // A framed `style: "inset"` panel in the sheet's right margin (the schematic
+  // plain's Pergamos and Ilios) is sheet furniture: it sits outside the
+  // pannable camera, so it never pans or zooms, and on a laptop it shows at
+  // 100-240 px. Each gets one HTML button laid over its title strip (the
+  // content below stays free for the numeral badges' hover and focus) and a
+  // native <dialog> that shows the same drawing large. The dialog's drawing is
+  // a CLONE of the panel's rendered SVG, not a second render: what the reader
+  // sees enlarged is exactly what the sheet drew, filters and certainty tiers
+  // included.
+  type PanelHandle = {
+    id: string;
+    title: string;
+    caption: string;
+    // The frame in sheet (viewBox) units, and the title strip's share of the sheet.
+    box: [number, number, number, number];
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  };
+  let panels: PanelHandle[] = [];
+  // The share of the sheet's width the right margin band takes, so the zoom
+  // controls can stop where the map face stops (see .pp-cam-controls).
+  let faceInsetPct = 0;
+  let dialogEl: HTMLDialogElement | undefined;
+  let dialogBodyEl: HTMLDivElement | undefined;
+  let dialogTitle = '';
+  let dialogAspect = 1;
+  let dialogOpener: HTMLElement | null = null;
+  let cloneSeq = 0;
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function scanPanels() {
+    panels = [];
+    if (!clipG || !svgEl) return;
+    const vb = (svgEl.getAttribute('viewBox') ?? '').trim().split(/\s+/).map(Number);
+    if (vb.length !== 4 || vb.some((n) => !Number.isFinite(n)) || vb[2] <= 0 || vb[3] <= 0) return;
+    const found: PanelHandle[] = [];
+    clipG.querySelectorAll<SVGGElement>(':scope > g[data-layer-id]').forEach((g) => {
+      const rect = g.querySelector(':scope > rect.plate-layer-inset-panel');
+      const id = g.dataset.layerId;
+      if (!rect || !id) return;
+      // The name comes from the plate data (the layer's `label`, first line),
+      // never from the rendered, upper-cased title text.
+      const label = plateLayers.find((l) => l.id === id)?.label ?? '';
+      const lines = label.split('|').map((t) => t.trim()).filter(Boolean);
+      if (!lines.length) return;
+      const [x, y, w, h] = ['x', 'y', 'width', 'height'].map((a) => Number(rect.getAttribute(a)));
+      if (![x, y, w, h].every(Number.isFinite) || w <= 0 || h <= 0) return;
+      // The title strip runs from the panel's top to just under its lettering.
+      let lastBaseline = y + 20;
+      g.querySelectorAll('text.plate-inset-title').forEach((t) => {
+        const ty = Number(t.getAttribute('y'));
+        if (Number.isFinite(ty)) lastBaseline = Math.max(lastBaseline, ty);
+      });
+      const stripH = Math.min(h, lastBaseline + 5 - y);
+      found.push({
+        id,
+        title: lines[0],
+        caption: lines.join('. '),
+        box: [x, y, w, h],
+        left: ((x - vb[0]) / vb[2]) * 100,
+        top: ((y - vb[1]) / vb[3]) * 100,
+        width: (w / vb[2]) * 100,
+        height: (stripH / vb[3]) * 100,
+      });
+    });
+    panels = found;
+  }
+
+  // Where a sheet-level mark sits, read off its own geometry. plate.ts draws
+  // a numeral disc as a circle, a leader as a path, and a pin as whichever
+  // shape its certainty tier takes: a circle (dot), a rect (the speculative
+  // open square) or a teardrop path whose last point is its tip. A pin's
+  // anchor is the first of those shapes found, so none is skipped.
+  function markAnchor(el: Element): [number, number] | null {
+    const pt = (x: number, y: number): [number, number] | null => (Number.isFinite(x) && Number.isFinite(y) ? [x, y] : null);
+    const num = (e: Element, a: string) => Number(e.getAttribute(a));
+    const circle = el.tagName === 'circle' ? el : el.querySelector('circle');
+    if (circle) return pt(num(circle, 'cx'), num(circle, 'cy'));
+    const rect = el.tagName === 'rect' ? el : el.querySelector('rect');
+    if (rect) return pt(num(rect, 'x') + num(rect, 'width') / 2, num(rect, 'y') + num(rect, 'height') / 2);
+    const path = el.tagName === 'path' ? el : el.querySelector('path');
+    const d = path?.getAttribute('d') ?? '';
+    const m = /^M\s*(-?[\d.]+)[\s,]+(-?[\d.]+)/.exec(d);
+    if (!m) return null;
+    // A teardrop pin ends at its tip ("... L x y Z"); a leader has no L.
+    const tip = el.tagName === 'path' ? null : /L\s*(-?[\d.]+)[\s,]+(-?[\d.]+)\s*Z/.exec(d);
+    return tip ? pt(Number(tip[1]), Number(tip[2])) : pt(Number(m[1]), Number(m[2]));
+  }
+
+  function insideBox(pt: [number, number] | null, box: [number, number, number, number]): boolean {
+    return !!pt && pt[0] >= box[0] && pt[0] <= box[0] + box[2] && pt[1] >= box[1] && pt[1] <= box[1] + box[3];
+  }
+
+  // Everything the sheet draws for one panel, in paint order: its frame group,
+  // the clipped group of its window's ground, and the numerals, leaders and
+  // pins seated inside it. They are separate children of the sheet's clip
+  // group (plate.ts emits a panel in pieces so the ground paints over the
+  // opaque frame), so they are found by where they sit.
+  function panelMembers(panel: PanelHandle, byId: Map<string, Element>): Element[] {
+    if (!clipG) return [];
+    const out: Element[] = [];
+    for (const child of Array.from(clipG.children)) {
+      if (child.classList.contains('plate-camera') || child.classList.contains('pp-camera')) continue;
+      if (child.matches('g[data-layer-id]') && child.querySelector(':scope > rect.plate-layer-inset-panel')) {
+        if (child.getAttribute('data-layer-id') === panel.id) out.push(child);
+        continue;
+      }
+      const clipRef = /^url\(#([^)]+)\)$/.exec(child.getAttribute('clip-path') ?? '');
+      if (clipRef) {
+        const r = byId.get(clipRef[1])?.querySelector('rect');
+        const x = Number(r?.getAttribute('x'));
+        const y = Number(r?.getAttribute('y'));
+        const w = Number(r?.getAttribute('width'));
+        const h = Number(r?.getAttribute('height'));
+        if (r && [x, y, w, h].every(Number.isFinite) && insideBox([x + w / 2, y + h / 2], panel.box)) out.push(child);
+        continue;
+      }
+      if (child.matches('.plate-key-badge, .plate-key-leader, g[data-place-id]') && insideBox(markAnchor(child), panel.box)) {
+        out.push(child);
+      }
+    }
+    return out;
+  }
+
+  // A reference to another element in the sheet's SVG: url(#id) in any
+  // attribute, or href="#id".
+  function referencedIds(el: Element): string[] {
+    const ids: string[] = [];
+    for (const attr of Array.from(el.attributes)) {
+      for (const m of attr.value.matchAll(/url\(#([^)\s'"]+)\)/g)) ids.push(m[1]);
+      if ((attr.name === 'href' || attr.name === 'xlink:href') && attr.value.startsWith('#')) ids.push(attr.value.slice(1));
+    }
+    return ids;
+  }
+
+  // Builds the dialog's SVG: the panel's pieces plus every def they reach
+  // (clipPaths, filters, patterns, markers, text paths), viewBox set to the
+  // panel frame. Every id in the clone is rewritten under a prefix unique to
+  // this opening, and every reference with it, so nothing in the dialog
+  // duplicates an id on the page.
+  function buildPanelClone(panel: PanelHandle): SVGSVGElement | null {
+    if (!svgEl) return null;
+    const byId = new Map<string, Element>();
+    svgEl.querySelectorAll('[id]').forEach((el) => byId.set(el.id, el));
+
+    const prefix = `pp-enlarge-${++cloneSeq}-`;
+    const [x, y, w, h] = panel.box;
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('xmlns', SVG_NS);
+    svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', panel.caption);
+    svg.setAttribute('class', 'pp-dialog-svg');
+    const defs = document.createElementNS(SVG_NS, 'defs');
+    const body = document.createElementNS(SVG_NS, 'g');
+    svg.append(defs, body);
+    for (const member of panelMembers(panel, byId)) body.append(member.cloneNode(true));
+
+    // Pull in the defs the pieces reach, and the defs those reach in turn.
+    const copied = new Set<string>();
+    const inside = new Set<string>();
+    body.querySelectorAll('[id]').forEach((el) => inside.add(el.id));
+    const pending: Element[] = [body];
+    while (pending.length) {
+      const root = pending.pop()!;
+      const all = [root, ...Array.from(root.querySelectorAll('*'))];
+      for (const el of all) {
+        for (const id of referencedIds(el)) {
+          if (copied.has(id) || inside.has(id)) continue;
+          const src = byId.get(id);
+          if (!src) continue;
+          copied.add(id);
+          const copy = src.cloneNode(true) as Element;
+          defs.append(copy);
+          pending.push(copy);
+        }
+      }
+    }
+
+    // Rewrite ids, then references to them. A click, a tab stop or a hover
+    // tip in the dialog would do nothing, so the clone is not focusable.
+    const own = new Set<string>();
+    svg.querySelectorAll('[id]').forEach((el) => own.add(el.id));
+    svg.querySelectorAll('*').forEach((el) => {
+      el.removeAttribute('tabindex');
+      if (el.id) el.setAttribute('id', prefix + el.id);
+      for (const attr of Array.from(el.attributes)) {
+        if (attr.name === 'id') continue;
+        let v = attr.value.replace(/url\(#([^)\s'"]+)\)/g, (m, id) => (own.has(id) ? `url(#${prefix}${id})` : m));
+        if ((attr.name === 'href' || attr.name === 'xlink:href') && v.startsWith('#') && own.has(v.slice(1))) {
+          v = `#${prefix}${v.slice(1)}`;
+        }
+        if (v !== attr.value) el.setAttribute(attr.name, v);
+      }
+    });
+    return svg;
+  }
+
+  async function openPanel(panel: PanelHandle, opener: HTMLElement) {
+    if (!dialogEl || !dialogBodyEl) return;
+    const svg = buildPanelClone(panel);
+    if (!svg) return;
+    dialogOpener = opener;
+    dialogTitle = panel.title;
+    dialogAspect = panel.box[2] / panel.box[3];
+    dialogBodyEl.replaceChildren(svg);
+    // The title binds to aria-label through Svelte; wait for the DOM to take
+    // it so the dialog has its name when it opens.
+    await tick();
+    if (!dialogEl) return;
+    dialogEl.showModal();
+    dialogEl.querySelector<HTMLElement>('.pp-dialog-close')?.focus();
+  }
+
+  function closePanel() {
+    dialogEl?.close();
+  }
+
+  // Fires on Esc, the close button and any other close: drop the clone (its
+  // ids leave the page) and hand focus back to the button that opened it.
+  function onDialogClose() {
+    dialogBodyEl?.replaceChildren();
+    dialogOpener?.focus();
+    dialogOpener = null;
+  }
+
   let mapEl: HTMLDivElement | undefined;
 
   $: aspectRatio = `${plateSize[0]} / ${plateSize[1]}`;
@@ -727,6 +958,7 @@
     plateTitle = plate.title;
     isDraft = plate.status === 'draft';
     plateSize = plate.size;
+    faceInsetPct = plate.size[0] > 0 ? Math.max(0, ((plate.size[0] - result.frame[0]) / plate.size[0]) * 100) : 0;
     plateViewport = plate.kind === 'geographic' ? result.viewport : undefined;
     unlocated = result.unlocated;
     offCanvas = result.offCanvas;
@@ -757,6 +989,8 @@
     offCanvas = [];
     drawnByLayer = [];
     plateLayers = [];
+    panels = [];
+    faceInsetPct = 0;
     layerCategories = [];
     layerGroups = [];
     groupVisible = {};
@@ -789,6 +1023,7 @@
         plateTitle = shield.title;
         isDraft = shield.status === 'draft';
         plateSize = shield.size;
+        faceInsetPct = 0;
       } else {
         const plate = parsePlate(raw);
         layerGroups = plate.layerGroups ?? [];
@@ -818,6 +1053,7 @@
       applyLayerVisibility();
       applyCertaintyVisibility();
       setupCamera();
+      scanPanels();
       if (focusIdsForPlate.length && focusPlate && focusViewport) {
         const cam = computeCamera(focusPlate, focusViewport, focusIdsForPlate, {
           places: placesForPlate,
@@ -881,7 +1117,21 @@
             <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html svgMarkup}
           </div>
-          <div class="pp-cam-controls" role="group" aria-label="Zoom controls">
+          {#each panels as panel (panel.id)}
+            <button
+              type="button"
+              class="pp-panel-enlarge"
+              style="left: {panel.left}%; top: {panel.top}%; width: {panel.width}%; height: {panel.height}%;"
+              aria-label="Enlarge {panel.title}"
+              aria-haspopup="dialog"
+              on:click={(e) => openPanel(panel, e.currentTarget)}
+            >
+              <svg class="pp-enlarge-glyph" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                <path d="M7 1h4v4M11 1 7 5M5 11H1V7M1 11l4-4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          {/each}
+          <div class="pp-cam-controls" style="--pp-face-inset: {faceInsetPct}%;" role="group" aria-label="Zoom controls">
             <button type="button" class="pp-cam-btn" on:click={() => zoomBy(1 / ZOOM_STEP)} aria-label="Zoom out">&minus;</button>
             <button type="button" class="pp-cam-btn" on:click={resetCamera} aria-label="Reset map view">Reset</button>
             <button type="button" class="pp-cam-btn" on:click={() => zoomBy(ZOOM_STEP)} aria-label="Zoom in">+</button>
@@ -994,6 +1244,22 @@
       {/if}
     </div>
   {/if}
+  <!-- Full-size view of one citadel panel (see openPanel). Native <dialog>:
+       showModal() makes the rest of the page inert, Esc closes it, and the
+       close handler returns focus to the Enlarge button. -->
+  <dialog
+    class="pp-dialog"
+    bind:this={dialogEl}
+    aria-label={dialogTitle}
+    style="--pp-dialog-aspect: {dialogAspect};"
+    on:close={onDialogClose}
+  >
+    <div class="pp-dialog-head">
+      <h2 class="pp-dialog-title">{dialogTitle}</h2>
+      <button type="button" class="pp-dialog-close" on:click={closePanel}>Close</button>
+    </div>
+    <div class="pp-dialog-body" bind:this={dialogBodyEl}></div>
+  </dialog>
 </div>
 
 <style>
@@ -1040,7 +1306,10 @@
 
   .pp-cam-controls {
     position: absolute;
-    right: 0.5rem;
+    /* Over the map face, not the sheet: --pp-face-inset is the right margin
+       band's share of the sheet's width (set inline), so the controls end
+       where the face ends and never cover a panel, key or legend. */
+    right: calc(var(--pp-face-inset, 0%) + 0.5rem);
     bottom: 0.5rem;
     display: flex;
     gap: 0.3rem;
@@ -1060,6 +1329,69 @@
   }
   .pp-cam-btn:hover { border-color: var(--accent); color: var(--accent); }
   .pp-cam-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Enlarge button: laid over a citadel panel's title strip. Transparent, so
+     the panel's own lettering shows; the glyph sits at the strip's right end,
+     clear of the title. */
+  .pp-panel-enlarge {
+    position: absolute;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 0.3rem 0.35rem;
+    margin: 0;
+    background: transparent;
+    color: var(--text-mid);
+    border: 1px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .pp-panel-enlarge:hover { border-color: var(--accent); color: var(--accent); }
+  .pp-panel-enlarge:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; color: var(--accent); }
+  .pp-enlarge-glyph { width: 0.8rem; height: 0.8rem; flex: none; }
+
+  /* The dialog is as tall as the viewport allows and as wide as the panel's
+     aspect asks (--pp-dialog-aspect is width / height), never wider than the
+     viewport. The 6rem allowance is the head strip plus the dialog's margin. */
+  .pp-dialog {
+    /* The site's reset zeroes margins, which would pin a modal dialog to the
+       top-left; auto centres it in the viewport again. */
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--popup-bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    max-width: none;
+    max-height: none;
+    width: min(96vw, calc((100vh - 6rem) * var(--pp-dialog-aspect, 1)));
+    width: min(96vw, calc((100dvh - 6rem) * var(--pp-dialog-aspect, 1)));
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  }
+  .pp-dialog::backdrop { background: rgba(0, 0, 0, 0.4); }
+  .pp-dialog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0.75rem;
+  }
+  .pp-dialog-title { margin: 0; font-size: 1.05rem; color: var(--text); }
+  .pp-dialog-close {
+    padding: 0.25rem 0.7rem;
+    font-family: var(--font-ui);
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: var(--col-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .pp-dialog-close:hover { border-color: var(--accent); color: var(--accent); }
+  .pp-dialog-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pp-dialog-body :global(svg) { display: block; width: 100%; height: auto; }
 
   /* Numbered feature key (stage 5c): tooltip is an HTML element positioned
      from the badge's own getBoundingClientRect() (see showTooltip) --
