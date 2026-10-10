@@ -3,6 +3,38 @@
 Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). No deploys have
 occurred; deploying, the GitHub remote, and the first push are John-gated.
 
+## Deploy — 2026-10-10 (third): an unstamped page is always light, PR #50
+
+gh-pages `7711cdc77` → `f533f0b3e` (source: main `d5ea0c230`, CI green). Same
+method as the morning deploys. The diff touches every page (the theme script
+is inline in each), plus `_astro/global.*.css` and the homepage CSS. No data
+changed, so `VERSION` stays `v5`.
+
+**What shipped (PR #50).**
+- **Policy:** the site is light unless the reader chooses dark, and never
+  follows the OS. John ruled on 2026-10-10 that a page with no theme stamp is
+  light too.
+- **Script:** `ThemeInit` now stamps `data-theme` even when `localStorage`
+  throws, i.e. when storage is blocked.
+- **Stylesheet:** every `prefers-color-scheme: dark` rule is gone. Before, on a
+  dark OS with no stamp (storage blocked, or JS off), a partial dark block
+  turned the maps and the homepage banner dark on an otherwise light page.
+- **Guard test:** it fails if any style or script source names the OS-dark
+  media query again.
+- **Normal visits:** they were always stamped, so they are unaffected.
+- **Also merged, doc only:** #51 salvaged six documents from the closed
+  July draft #16 (`AGENTS.md` deliberately left out).
+
+Gates: preflight ok · 4,686 pages · 0 broken of 335,501 links.
+
+Live-verified on the home page:
+- It loads stamped `light`. With the stamp removed, the computed tokens are
+  still the light values (`--page-bg` #e7e7e9, `--text-mid` #5b4c58,
+  `--accent` #6e1f3a, `--plate-lagoon` #87aeb8).
+- `data-theme="dark"` gives the dark values.
+- No live stylesheet contains a `prefers-color-scheme: dark` rule.
+- No console errors.
+
 ## Deploy — 2026-10-10 (second): open a citadel panel full size, PR #49
 
 gh-pages `77ebcc41f` → `7711cdc77` (source: main `f2c7fbf7d`, CI green). Same
