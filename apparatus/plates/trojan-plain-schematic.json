@@ -9168,10 +9168,10 @@
           [39.963685, 26.233077]
         ]
       ],
-      "note": "Ground above 10 m inside the two citadel panels, traced from the same SRTM terrain tiles as the sheet's own relief (zoom 15, 4 blur passes) at the sheet's own contour levels, so its tint means what the face's does. The modern surface: the excavated mound and the plain as it stands now, several meters higher at the western foot than in the Bronze Age.",
+      "note": "Ground above 10 m inside the two citadel panels, traced from the same SRTM terrain tiles as the sheet's own relief (zoom 15, 4 blur passes) at the sheet's own contour levels, so its tint means what the face's does. The modern surface: the excavated mound, and a plain that has since built up over its Bronze Age surface (RESEARCH-PALEOGEOGRAPHY.md, the Kraft–Kayan sections).",
       "sources": [
         {
-          "cite": "Terrain Tiles on AWS (Mapzen/Tilezen terrarium encoding; SRTM over the Troad).",
+          "cite": "Terrain Tiles on AWS Open Data (Tilezen/Mapzen `elevation-tiles-prod`), terrarium-encoded SRTM. SRTM data courtesy of the U.S. Geological Survey.",
           "url": "https://registry.opendata.aws/terrain-tiles/"
         }
       ]
@@ -9342,10 +9342,10 @@
           [39.960306, 26.246629]
         ]
       ],
-      "note": "Ground above 15 m inside the two citadel panels, traced from the same SRTM terrain tiles as the sheet's own relief (zoom 15, 4 blur passes) at the sheet's own contour levels, so its tint means what the face's does. The modern surface: the excavated mound and the plain as it stands now, several meters higher at the western foot than in the Bronze Age.",
+      "note": "Ground above 15 m inside the two citadel panels, traced from the same SRTM terrain tiles as the sheet's own relief (zoom 15, 4 blur passes) at the sheet's own contour levels, so its tint means what the face's does. The modern surface: the excavated mound, and a plain that has since built up over its Bronze Age surface (RESEARCH-PALEOGEOGRAPHY.md, the Kraft–Kayan sections).",
       "sources": [
         {
-          "cite": "Terrain Tiles on AWS (Mapzen/Tilezen terrarium encoding; SRTM over the Troad).",
+          "cite": "Terrain Tiles on AWS Open Data (Tilezen/Mapzen `elevation-tiles-prod`), terrarium-encoded SRTM. SRTM data courtesy of the U.S. Geological Survey.",
           "url": "https://registry.opendata.aws/terrain-tiles/"
         }
       ]
@@ -9536,10 +9536,10 @@
           [39.959614, 26.246672]
         ]
       ],
-      "note": "Ground above 20 m inside the two citadel panels, traced from the same SRTM terrain tiles as the sheet's own relief (zoom 15, 4 blur passes) at the sheet's own contour levels, so its tint means what the face's does. The modern surface: the excavated mound and the plain as it stands now, several meters higher at the western foot than in the Bronze Age.",
+      "note": "Ground above 20 m inside the two citadel panels, traced from the same SRTM terrain tiles as the sheet's own relief (zoom 15, 4 blur passes) at the sheet's own contour levels, so its tint means what the face's does. The modern surface: the excavated mound, and a plain that has since built up over its Bronze Age surface (RESEARCH-PALEOGEOGRAPHY.md, the Kraft–Kayan sections).",
       "sources": [
         {
-          "cite": "Terrain Tiles on AWS (Mapzen/Tilezen terrarium encoding; SRTM over the Troad).",
+          "cite": "Terrain Tiles on AWS Open Data (Tilezen/Mapzen `elevation-tiles-prod`), terrarium-encoded SRTM. SRTM data courtesy of the U.S. Geological Survey.",
           "url": "https://registry.opendata.aws/terrain-tiles/"
         }
       ]
@@ -9706,10 +9706,10 @@
           [39.959092, 26.243491]
         ]
       ],
-      "note": "Ground above 25 m inside the two citadel panels, traced from the same SRTM terrain tiles as the sheet's own relief (zoom 15, 4 blur passes) at the sheet's own contour levels, so its tint means what the face's does. The modern surface: the excavated mound and the plain as it stands now, several meters higher at the western foot than in the Bronze Age.",
+      "note": "Ground above 25 m inside the two citadel panels, traced from the same SRTM terrain tiles as the sheet's own relief (zoom 15, 4 blur passes) at the sheet's own contour levels, so its tint means what the face's does. The modern surface: the excavated mound, and a plain that has since built up over its Bronze Age surface (RESEARCH-PALEOGEOGRAPHY.md, the Kraft–Kayan sections).",
       "sources": [
         {
-          "cite": "Terrain Tiles on AWS (Mapzen/Tilezen terrarium encoding; SRTM over the Troad).",
+          "cite": "Terrain Tiles on AWS Open Data (Tilezen/Mapzen `elevation-tiles-prod`), terrarium-encoded SRTM. SRTM data courtesy of the U.S. Geological Survey.",
           "url": "https://registry.opendata.aws/terrain-tiles/"
         }
       ]
@@ -9908,10 +9908,10 @@
           [39.958794, 26.243072]
         ]
       ],
-      "note": "Ground above 30 m inside the two citadel panels, traced from the same SRTM terrain tiles as the sheet's own relief (zoom 15, 4 blur passes) at the sheet's own contour levels, so its tint means what the face's does. The modern surface: the excavated mound and the plain as it stands now, several meters higher at the western foot than in the Bronze Age.",
+      "note": "Ground above 30 m inside the two citadel panels, traced from the same SRTM terrain tiles as the sheet's own relief (zoom 15, 4 blur passes) at the sheet's own contour levels, so its tint means what the face's does. The modern surface: the excavated mound, and a plain that has since built up over its Bronze Age surface (RESEARCH-PALEOGEOGRAPHY.md, the Kraft–Kayan sections).",
       "sources": [
         {
-          "cite": "Terrain Tiles on AWS (Mapzen/Tilezen terrarium encoding; SRTM over the Troad).",
+          "cite": "Terrain Tiles on AWS Open Data (Tilezen/Mapzen `elevation-tiles-prod`), terrarium-encoded SRTM. SRTM data courtesy of the U.S. Geological Survey.",
           "url": "https://registry.opendata.aws/terrain-tiles/"
         }
       ]
@@ -10044,10 +10044,10 @@
           [39.954572, 26.246037]
         ]
       ],
-      "note": "Ground above 40 m inside the two citadel panels, traced from the same SRTM terrain tiles as the sheet's own relief (zoom 15, 4 blur passes) at the sheet's own contour levels, so its tint means what the face's does. The modern surface: the excavated mound and the plain as it stands now, several meters higher at the western foot than in the Bronze Age.",
+      "note": "Ground above 40 m inside the two citadel panels, traced from the same SRTM terrain tiles as the sheet's own relief (zoom 15, 4 blur passes) at the sheet's own contour levels, so its tint means what the face's does. The modern surface: the excavated mound, and a plain that has since built up over its Bronze Age surface (RESEARCH-PALEOGEOGRAPHY.md, the Kraft–Kayan sections).",
       "sources": [
         {
-          "cite": "Terrain Tiles on AWS (Mapzen/Tilezen terrarium encoding; SRTM over the Troad).",
+          "cite": "Terrain Tiles on AWS Open Data (Tilezen/Mapzen `elevation-tiles-prod`), terrarium-encoded SRTM. SRTM data courtesy of the U.S. Geological Survey.",
           "url": "https://registry.opendata.aws/terrain-tiles/"
         }
       ]
