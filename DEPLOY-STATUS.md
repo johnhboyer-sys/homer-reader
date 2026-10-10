@@ -3,6 +3,83 @@
 Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). No deploys have
 occurred; deploying, the GitHub remote, and the first push are John-gated.
 
+## Deploy — 2026-10-10 (second): open a citadel panel full size, PR #49
+
+gh-pages `77ebcc41f` → `7711cdc77` (source: main `f2c7fbf7d`, CI green). Same
+method as the morning deploy. The diff is the Maps page only: `maps/index.html`
+and the MapsPage JS and CSS.
+
+**What shipped (PR #49).**
+- **Zoom controls:** the − / Reset / + buttons now end where the map face ends,
+  so they no longer cover the Ilios panel.
+- **Enlarge:** each citadel panel has an "Enlarge <panel>" button. It opens a
+  native dialog with a clone of the panel's SVG (ground, plan, pins of every
+  certainty shape, badges and leaders), with ids rewritten so none is
+  duplicated.
+- **Review:** GPT-6-Sol found 3 defects, among them speculative square pins
+  dropped from the clone. All are fixed with tests, and Sol confirmed them
+  closed.
+- **No `VERSION` bump:** JS and CSS only, and both are content-hashed.
+
+Gates: preflight ok · 4,686 pages · 0 broken of 335,501 links.
+
+Live-verified on `/maps/?map=plain` at 1024×768:
+- The page shows two buttons, "Enlarge Pergamos" and "Enlarge Ilios".
+- The zoom controls end at x=380 and the panel frames start at x=484, so they
+  don't overlap.
+- The Pergamos dialog opens with its name and 6 pins, and the page has 0
+  duplicate ids with it open.
+- On close, focus returns to the button. No console errors.
+
+## Deploy — 2026-10-10: the citadel panels, PR #47 (and PR #46)
+
+gh-pages `185b233f5` → `77ebcc41f` (source: main `6e9006fb0`, CI green). Full
+`npm run build:public` on main, detached in the `plates-ship` worktree, the same
+method as yesterday. The rsync now excludes `.gitignore`, so `gh-pages` keeps its own.
+
+**What shipped.**
+- **PR #47: the Pergamos and Ilios panels on the schematic Trojan Plain sheet,
+  finished to ruling 15.**
+  - **Pergamos:** the poem's high city drawn on Dörpfeld's surveyed Troy VI
+    ground, in its own register: Priam's house and court, the temple of Athena,
+    Apollo's shrine, the houses of Hector and Paris, the agora and the streets.
+  - **Ilios:** the citadel to scale, 87 house blocks of the lower city inside
+    the Troy VI ditch, and colored ground. The elevation bands come from the
+    sheet's own SRTM contours, the ditch is drawn as a rock cut, and the scrub
+    is keyed as assumed.
+  - **Approval:** John passed checkpoint 1 on 2026-10-09 ("Good, finish and
+    ship").
+  - **Reviews:** GPT-6-Sol found 9 code defects and Grok-4.7 found 39 content
+    findings, all fixed except one the note already covers.
+  - **Generators:** committed under `scripts/`.
+- **PR #46: the retired geographic Trojan Plain sheet deleted.**
+  - **Readers:** see no change. `data/plates/trojan-plain.json` now 404s,
+    which is expected.
+  - **Ground layers:** the schematic is now their source of truth.
+
+**`VERSION` → `v5`.** The plate JSON changed at its existing URL, and an older
+bundle cannot parse the new list-valued `insetOf`.
+
+**Diff by category.** About 4,680 HTML pages have new asset hashes only, plus
+9 `_astro` files, `data/places.json`, `data/plates/trojan-plain-schematic.json`,
+the deleted `trojan-plain.json` and `sw.js`. No Cunliffe shards changed this
+time, which confirms the #43 determinism fix holds.
+
+Gates: preflight ok · 4,686 pages · 335,501 links and 148,343 anchors, **0
+broken** · CI green on #47.
+
+Live-verified after Pages built `77ebcc41f`:
+- Home, `/maps/`, `/iliad/book/6/` and `/iliad/book/22/` return 200, and
+  `sw.js` serves `v5`.
+- The live plate has 118 layers: 10 drawn only in the panels, 8 plan layers
+  and 3 rock-cut ditch layers.
+- In the browser, `/maps/?map=plain` draws both panels, PERGAMOS and ILIOS,
+  outside the pannable map, with the Ilios ground bands present, the draft
+  badge showing and no console errors.
+- Noted, not fixed: the map's zoom controls (− Reset +) sit over the bottom
+  of the Ilios panel. On a laptop each panel shows at about 100–240 px wide,
+  the size problem John set aside as a separate reader change.
+
 ## Deploy — 2026-10-09: the Troy plates go live, PR #29
 
 gh-pages `a4c7135fa` → `185b233f5` (source: main `d889ada81`, CI green). Full
