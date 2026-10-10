@@ -494,6 +494,17 @@ def _point_in_ring(pt: list, ring: list) -> bool:
     return inside
 
 
+def _rings_cross(a: list, b: list) -> bool:
+    """Whether any edge of ring `a` properly crosses an edge of ring `b`."""
+    def o(p, q, r):
+        return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
+    for p1, p2 in zip(a, a[1:] + a[:1]):
+        for q1, q2 in zip(b, b[1:] + b[:1]):
+            if o(p1, p2, q1) * o(p1, p2, q2) < 0 and o(q1, q2, p1) * o(q1, q2, p2) < 0:
+                return True
+    return False
+
+
 def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
     """Validate one apparatus/plates/<id>.json document. `places_by_id` is
     the gazetteer's id -> place dict, used to resolve layer `placeId`
@@ -938,7 +949,12 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                 poly = layer.get("polygon") or []
                 for i in open_rings:
                     ring = layer["rings"][i]
-                    if not poly or not all(_is_pair(p) and _point_in_ring(p, poly) for p in ring):
+                    # A malformed polygon or ring is reported by the coordinate
+                    # checks below; this check only runs on well-formed pairs.
+                    if not (isinstance(poly, list) and isinstance(ring, list)
+                            and all(_is_pair(p) for p in poly) and all(_is_pair(p) for p in ring)):
+                        continue
+                    if not poly or not all(_point_in_ring(p, poly) for p in ring) or _rings_cross(ring, poly):
                         problems.append(
                             f"{label}: layer {layer_label} open ring {i} must lie inside the layer's own polygon"
                         )

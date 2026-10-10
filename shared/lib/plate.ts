@@ -944,10 +944,20 @@ function parseLayer(
           Math.min(a[1], b[1]) - 1e-9 <= p[1] && p[1] <= Math.max(a[1], b[1]) + 1e-9;
         return within && Math.abs(cross) <= 1e-12;
       });
+    // ...and no court edge properly crossing a house edge (a concave house).
+    const crosses = (a: PlatePoint, b: PlatePoint, c: PlatePoint, e: PlatePoint) => {
+      const o = (p: PlatePoint, q: PlatePoint, r: PlatePoint) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+      return o(a, b, c) * o(a, b, e) < 0 && o(c, e, a) * o(c, e, b) < 0;
+    };
+    const edgesOf = (r: PlatePoint[]) => r.map((p, k) => [p, r[(k + 1) % r.length]] as const);
     for (const i of l.open as number[]) {
       const ring = rings![i];
       const poly = layer.polygon;
-      if (!poly || !ring.every((p) => pointInPolygon(p, poly) || onEdge(p, poly))) {
+      if (
+        !poly ||
+        !ring.every((p) => pointInPolygon(p, poly) || onEdge(p, poly)) ||
+        edgesOf(ring).some(([a, b]) => edgesOf(poly).some(([c, e]) => crosses(a, b, c, e)))
+      ) {
         fail(`layer "${l.id}" open ring ${i} must lie inside the layer's own polygon`);
       }
     }

@@ -4234,6 +4234,34 @@ describe('renderPlate: panel machinery, Sol review fixes (2026-10-09)', () => {
     expect(() => house([square(39.9575, 26.2405, 0.0002)], [0])).toThrow(/must lie inside/);
     expect(() => house([square(39.9567, 26.2387, 0.0006)], [0])).toThrow(/must lie inside/);
   });
+
+  it('finding 6 (second confirm pass): a court whose corners are inside a concave house but whose edge leaves it is rejected', () => {
+    // An L-shaped house; the court's corners are all inside, its long edge
+    // crosses the notch.
+    const L = [
+      [39.9565, 26.2385],
+      [39.9565, 26.2393],
+      [39.9569, 26.2393],
+      [39.9569, 26.2389],
+      [39.9573, 26.2389],
+      [39.9573, 26.2385],
+    ];
+    const court = [
+      [39.9566, 26.2386],
+      [39.9566, 26.2392],
+      [39.9568, 26.2392],
+      [39.9572, 26.2386],
+    ];
+    expect(() =>
+      parsePlate({
+        ...base,
+        layers: [
+          panel('near', [20, 20, 200, 200]),
+          { id: 'h', kind: 'region', style: 'plan', fill: 'built', insetOf: 'near', polygon: L, rings: [court], open: [0] },
+        ],
+      }),
+    ).toThrow(/must lie inside/);
+  });
 });
 
 // 2026-09-03, citadel wall-fix: a `kind: "wall", style: "poem"` layer never

@@ -789,6 +789,14 @@ def test_an_open_court_must_lie_inside_its_house():
     assert any("must lie inside the layer's own polygon" in p for p in problems), problems
 
 
+def test_a_malformed_polygon_beside_an_open_court_is_reported_not_raised():
+    plate = _schematic_plate()
+    layer = next(l for l in plate["layers"] if l.get("open"))
+    layer["polygon"] = [[39.95, 26.24], "not a pair", [39.951, 26.241]]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert problems, "the malformed polygon must be reported"
+
+
 def test_a_layer_id_may_not_equal_a_panel_copy_id():
     plate = _schematic_plate()
     layer = next(l for l in plate["layers"] if l.get("insetOf"))
