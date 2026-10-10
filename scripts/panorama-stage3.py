@@ -6878,7 +6878,9 @@ def _camp_zone_polygon():
     2e-iv). The retired geographic sheet's achaean-camp-zone layer was an
     exact copy of it, and the schematic sheet's `achaean-camp` layer still
     is one: editing the zone here changes the panorama, and the schematic's
-    copy has to be edited to match."""
+    copy has to be edited to match. pipeline/tests/test_apparatus_places.py::
+    test_schematic_achaean_camp_layer_matches_the_gazetteer_zone fails until
+    it is."""
     path = os.path.join(REPO, "apparatus", "places.json")
     with open(path) as f:
         for place in json.load(f)["places"]:
