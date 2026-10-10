@@ -759,7 +759,11 @@ function assertPointsInBBox(
       );
     }
   };
-  for (const ring of layer.rings ?? []) for (const p of ring) check(p);
+  // `lines`, `columns` and `solids` are the plan register's ring lists, held
+  // to the same bounds as `rings` (apparatus_places.py's _RING_FIELDS).
+  for (const list of [layer.rings, layer.lines, layer.columns, layer.solids]) {
+    for (const ring of list ?? []) for (const p of ring) check(p);
+  }
   for (const p of layer.path ?? []) check(p);
   for (const p of layer.polygon ?? []) check(p);
   for (const p of layer.baseline ?? []) check(p);
@@ -782,7 +786,11 @@ function assertPointsInUnitRange(layer: PlateLayer): void {
       );
     }
   };
-  for (const ring of layer.rings ?? []) for (const p of ring) check(p);
+  // `lines`, `columns` and `solids` are the plan register's ring lists, held
+  // to the same bounds as `rings` (apparatus_places.py's _RING_FIELDS).
+  for (const list of [layer.rings, layer.lines, layer.columns, layer.solids]) {
+    for (const ring of list ?? []) for (const p of ring) check(p);
+  }
   for (const p of layer.path ?? []) check(p);
   for (const p of layer.polygon ?? []) check(p);
   for (const p of layer.baseline ?? []) check(p);
@@ -978,6 +986,11 @@ function parseLayer(
   if (l.insetOnly !== undefined) {
     if (l.insetOnly !== true) fail(`layer "${l.id}" has a malformed "insetOnly" (must be true or absent)`);
     if (!layer.insetOf) fail(`layer "${l.id}" is "insetOnly" but names no "insetOf" panel`);
+    // Panel ground, not a place: a place drawn only in a panel is a key
+    // group's job (featureKey[].inset), which marks it there and nowhere else.
+    if (layer.placeId || layer.claims?.length) {
+      fail(`layer "${l.id}" is "insetOnly" and cannot carry a "placeId" or "claims"`);
+    }
     layer.insetOnly = true;
   }
 
@@ -1117,6 +1130,16 @@ export function parsePlate(data: unknown): Plate {
       throw new Error(`plate ${d.id}: duplicate layer id '${layer.id}'`);
     }
     seenLayerIds.add(layer.id);
+  }
+  // A panel copy's feature id (insetCopyId) must not be some other layer's
+  // own id, or two drawings would answer to one id.
+  for (const layer of layers) {
+    for (const [i, panel] of (layer.insetOf ?? []).entries()) {
+      const copyId = insetCopyId(layer.id, panel, i);
+      if (seenLayerIds.has(copyId)) {
+        throw new Error(`plate ${d.id}: layer id '${copyId}' collides with the panel copy of layer '${layer.id}'`);
+      }
+    }
   }
 
   // Finding 3 (schema drift, 2026-07-28): seed is required whenever any
@@ -6930,7 +6953,13 @@ function renderLayer(
       if (layer.style === 'plan') {
         const ppm = pxPerMetre(plate, viewport, layer.polygon![0]);
         const wallPx = (layer.wallM ?? PLAN_WALL_M) * ppm;
-        const walls = [px, ...(layer.rings ?? []).map((r) => collect(r))].filter((p) => p.length >= 3);
+        // Each ring keeps its index into `rings` (-1 for the polygon), which is
+        // what `open` names, through the filter that drops degenerate rings.
+        const indexed = [
+          { p: px, ring: -1 },
+          ...(layer.rings ?? []).map((r, ring) => ({ p: collect(r), ring })),
+        ].filter(({ p }) => p.length >= 3);
+        const walls = indexed.map(({ p }) => p);
         const thin = (layer.lines ?? []).map((r) => collect(r)).filter((p) => p.length >= 2);
         const solids = (layer.solids ?? []).map((r) => collect(r)).filter((p) => p.length >= 3);
         const dots = (layer.columns ?? [])
@@ -6950,11 +6979,15 @@ function renderLayer(
         let floor = '';
         if (layer.fill === 'built') {
           const open = new Set(layer.open ?? []);
-          const wound = walls.map((p, i) => {
-            const cw = polygonSignedArea(p) > 0;
-            const wantCw = !(i > 0 && open.has(i - 1));
-            return cw === wantCw ? p : [...p].reverse();
-          });
+          // A court only cuts a hole in the house it lies in; one outside the
+          // polygon has no roof to be open under, so it is simply not floored.
+          const wound = indexed
+            .filter(({ p, ring }) => !open.has(ring) || pointInPolygon(p[0], px))
+            .map(({ p, ring }) => {
+              const cw = polygonSignedArea(p) > 0;
+              const wantCw = !open.has(ring);
+              return cw === wantCw ? p : [...p].reverse();
+            });
           floor =
             `<path data-feature-id="${id}-floor" class="plate-layer plate-layer-plan-floor" ` +
             `d="${wound.map((p) => pathD(p, true)).join(' ')}" fill="var(--plate-built)" stroke="none"/>`;
@@ -7235,11 +7268,15 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   }
   // A place a windowed layer DRAWS (its own placeId, or one it `claims`): the
   // numeral belongs on that drawing, not on a mark of its own.
+  // Keyed by panel AND place: a place may be drawn by one layer in one panel
+  // and by another in a second panel.
   const insetLayerByDrawnPlaceId = new Map<string, string>();
+  const panelPlaceKey = (panelId: string, placeId: string) => `${panelId}\u0000${placeId}`;
   for (const layer of plate.layers) {
-    if (!layer.insetOf) continue;
-    for (const id of [layer.placeId, ...(layer.claims ?? [])]) {
-      if (id) insetLayerByDrawnPlaceId.set(id, layer.id);
+    for (const panelId of layer.insetOf ?? []) {
+      for (const id of [layer.placeId, ...(layer.claims ?? [])]) {
+        if (id) insetLayerByDrawnPlaceId.set(panelPlaceKey(panelId, id), layer.id);
+      }
     }
   }
   // Marks drawn inside a window: their own dots, and the glyph boxes of the
@@ -8104,7 +8141,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       // drawing. Never the face's copy — a numeral in the panel pointing at
       // the map face would be a leader across the whole sheet.
       const inWindow = groupWindow
-        ? renderedInWindow.get(`${groupWindow.id}\u0000${insetLayerByDrawnPlaceId.get(id) ?? id}`)
+        ? renderedInWindow.get(
+            `${groupWindow.id}\u0000${insetLayerByDrawnPlaceId.get(panelPlaceKey(groupWindow.id, id)) ?? id}`,
+          )
         : undefined;
       const anchorBox = groupWindow
         ? (insetPinAnchors.get(id)?.box ?? inWindow?.rendered.labelAnchor ?? inWindow?.rendered.feature.bbox)

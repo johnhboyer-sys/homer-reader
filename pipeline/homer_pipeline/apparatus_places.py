@@ -922,6 +922,10 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                 problems.append(
                     f"{label}: layer {layer_label} is insetOnly but names no insetOf panel"
                 )
+            elif layer.get("placeId") or layer.get("claims"):
+                problems.append(
+                    f"{label}: layer {layer_label} is insetOnly and cannot carry a placeId or claims"
+                )
 
         for field, pair, path_desc in _iter_layer_coords(layer, label, layer_label, problems):
             if not _is_pair(pair):
@@ -962,6 +966,21 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                         f"{label}: layer {layer_label} {field}{path_desc} = [{a}, {b}] "
                         f"must be a unit [u, v] pair in 0..1"
                     )
+
+    # A panel copy's feature id (shared/lib/plate.ts insetCopyId: `<id>--inset`
+    # in the first panel, `<id>--inset-<panel>` in the others) must not be
+    # some other layer's own id.
+    for layer in layers:
+        if not isinstance(layer, dict) or not isinstance(layer.get("id"), str):
+            continue
+        refs = layer.get("insetOf")
+        refs = [refs] if isinstance(refs, str) else refs if isinstance(refs, list) else []
+        for i, ref in enumerate(refs):
+            copy_id = f"{layer['id']}--inset" if i == 0 else f"{layer['id']}--inset-{ref}"
+            if copy_id in seen_layer_ids:
+                problems.append(
+                    f"{label}: layer id {copy_id!r} collides with the panel copy of layer {layer['id']!r}"
+                )
 
     for layer_label, ref in inset_of_refs:
         if ref not in inset_panel_ids:

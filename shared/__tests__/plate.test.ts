@@ -4086,6 +4086,139 @@ describe('renderPlate: one layer in two panels; panel-only ground (ruling 15)', 
   });
 });
 
+// GPT-6-Sol review of the citadel PR (2026-10-09): six defects in the panel
+// machinery, one test each.
+describe('renderPlate: panel machinery, Sol review fixes (2026-10-09)', () => {
+  const panel = (id: string, frame: [number, number, number, number]) => ({
+    id,
+    kind: 'region',
+    style: 'inset',
+    frame,
+    insetBBox: [39.955, 26.236, 39.959, 26.242],
+    polygon: [
+      [0, 0],
+      [1, 0],
+      [1, 1],
+      [0, 1],
+    ],
+  });
+  const base = { id: 'sol-fix-test', title: 'Sol fix test', kind: 'geographic', status: 'draft', bbox: BBOX, size: [600, 300] };
+  const square = (lat: number, lon: number, d: number) => [
+    [lat, lon],
+    [lat, lon + d],
+    [lat + d, lon + d],
+    [lat + d, lon],
+  ];
+
+  it('finding 1: a plan point outside the bbox fails in `lines`, `columns` and `solids` as in `rings`', () => {
+    for (const field of ['lines', 'columns', 'solids']) {
+      expect(() =>
+        parsePlate({
+          ...base,
+          layers: [
+            { id: 'h', kind: 'region', style: 'plan', polygon: square(39.957, 26.239, 0.0002), [field]: [[[39.957, 26.239], [41.5, 26.239], [39.958, 26.24]]] },
+          ],
+        }),
+        field,
+      ).toThrow(/outside the plate bbox/);
+    }
+  });
+
+  it("finding 2: a layer id that equals another layer's panel copy id is rejected", () => {
+    expect(() =>
+      parsePlate({
+        ...base,
+        layers: [
+          panel('near', [20, 20, 200, 200]),
+          { id: 'house', kind: 'region', fill: 'masonry', insetOf: 'near', polygon: square(39.957, 26.239, 0.0002) },
+          { id: 'house--inset', kind: 'region', fill: 'masonry', polygon: square(39.957, 26.239, 0.0002) },
+        ],
+      }),
+    ).toThrow(/collides with the panel copy/);
+  });
+
+  it("finding 3: a place drawn by one layer in each of two panels keeps its numeral on its own panel's drawing", () => {
+    const plate = parsePlate({
+      ...base,
+      featureKey: [{ title: 'Panel A', inset: 'near', items: [{ placeId: 'x', label: 'X' }] }],
+      layers: [
+        panel('near', [20, 20, 200, 200]),
+        panel('far', [300, 20, 200, 200]),
+        { id: 'in-near', kind: 'region', fill: 'masonry', placeId: 'x', insetOf: 'near', polygon: square(39.9565, 26.2385, 0.0004) },
+        { id: 'in-far', kind: 'region', fill: 'masonry', placeId: 'x', insetOf: 'far', polygon: square(39.9565, 26.2385, 0.0004) },
+      ],
+    });
+    // No coords: the place is drawn only by its layers, never pinned.
+    const result = renderPlate(plate, [{ id: 'x', name: 'X', certainty: 'certain' }]);
+    expect(result.unplacedKeyNumerals).toEqual([]);
+    const disc = markDiscs(result.svg, 'plate-key-badge')[0];
+    expect(disc, 'the numeral is drawn').toBeTruthy();
+    expect(disc.cx >= 20 && disc.cx <= 220 && disc.cy >= 20 && disc.cy <= 220, 'inside panel "near"').toBe(true);
+  });
+
+  it('finding 4: an insetOnly layer may not carry a place', () => {
+    for (const extra of [{ placeId: 'x' }, { claims: ['x'] }]) {
+      expect(() =>
+        parsePlate({
+          ...base,
+          layers: [
+            panel('near', [20, 20, 200, 200]),
+            { id: 'g', kind: 'region', fill: 'masonry', insetOf: 'near', insetOnly: true, polygon: square(39.957, 26.239, 0.0002), ...extra },
+          ],
+        }),
+      ).toThrow(/insetOnly/);
+    }
+  });
+
+  // The floor path's subpaths, each with its signed area (sign = winding).
+  const floorWindings = (svg: string, id: string) => {
+    const d = svg.match(new RegExp(`data-feature-id="${id}-floor"[^>]* d="([^"]+)"`))![1];
+    return d
+      .split('M')
+      .filter((sub) => /\d/.test(sub))
+      .map((sub) => {
+        const nums = sub.match(/-?[\d.]+/g)!.map(Number);
+        const pts: [number, number][] = [];
+        for (let i = 0; i + 1 < nums.length; i += 2) pts.push([nums[i], nums[i + 1]]);
+        let a = 0;
+        for (let i = 0; i < pts.length; i++) {
+          const [x1, y1] = pts[i];
+          const [x2, y2] = pts[(i + 1) % pts.length];
+          a += x1 * y2 - x2 * y1;
+        }
+        return Math.sign(a);
+      });
+  };
+  const house = (rings: unknown[], open: number[]) =>
+    parsePlate({
+      ...base,
+      layers: [
+        panel('near', [20, 20, 200, 200]),
+        {
+          id: 'h',
+          kind: 'region',
+          style: 'plan',
+          fill: 'built',
+          insetOf: 'near',
+          polygon: square(39.9565, 26.2385, 0.0004),
+          rings,
+          open,
+        },
+      ],
+    });
+
+  it('finding 5: `open` names a court by its own index even when an earlier ring is too short to draw', () => {
+    const plate = house([[[39.9566, 26.2386], [39.9567, 26.2387]], square(39.9566, 26.2386, 0.0002)], [1]);
+    const [outer, court] = floorWindings(renderPlate(plate, []).svg, 'h--inset');
+    expect(court, 'the court winds against the house, so the nonzero fill leaves it open').toBe(-outer);
+  });
+
+  it('finding 6: an open court outside the house is not floored', () => {
+    const plate = house([square(39.9575, 26.2405, 0.0002)], [0]);
+    expect(floorWindings(renderPlate(plate, []).svg, 'h--inset')).toHaveLength(1);
+  });
+});
+
 // 2026-09-03, citadel wall-fix: a `kind: "wall", style: "poem"` layer never
 // invents a fortification of its own — every one so far (citadel-weak-wall,
 // Il. 6.433-39) names a stretch of a wall that IS surveyed or restored

@@ -772,6 +772,24 @@ def test_inset_only_needs_an_inset_of_panel():
     assert any("insetOnly but names no insetOf panel" in p for p in problems), problems
 
 
+def test_inset_only_layer_cannot_carry_a_place():
+    plate = _schematic_plate()
+    layer = next(l for l in plate["layers"] if l.get("insetOnly"))
+    layer["placeId"] = "scaean-gate"
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("insetOnly and cannot carry a placeId" in p for p in problems), problems
+
+
+def test_a_layer_id_may_not_equal_a_panel_copy_id():
+    plate = _schematic_plate()
+    layer = next(l for l in plate["layers"] if l.get("insetOf"))
+    clash = dict(layer, id=f"{layer['id']}--inset")
+    clash.pop("insetOf"); clash.pop("insetOnly", None)
+    plate["layers"].append(clash)
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("collides with the panel copy" in p for p in problems), problems
+
+
 def test_feature_key_group_inset_must_name_a_framed_inset_panel():
     plate = _schematic_plate()
     for group in plate["featureKey"]:
