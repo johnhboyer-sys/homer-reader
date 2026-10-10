@@ -206,7 +206,7 @@ for pid, tid, r, note in [
      "The oak of Zeus (φηγός), at the Scaean gates (Il. 6.237, 9.354, 11.170). Drawn as a single tree at "
      "the oak's place on this sheet; the poem gives its place by the gate and nothing of its size."),
     ("fig-tree", "ilios-tree-fig", 11,
-     "The wild fig (ἐρινεός), by the wall where it is most open to assault (Il. 6.433–34, 22.145); the fig at 11.167 is another, out in the mid-plain. Drawn "
+     "The wild fig (ἐρινεός), by the wall where it is most open to assault (Il. 6.433–34); the chase runs past it under the wall (22.145–46). The fig named at 11.167 stands out in the mid-plain, and Leaf (1912, 42) takes it for a second tree. Drawn "
      "as a single tree at the fig's place on this sheet; the poem gives nothing of its size."),
 ]:
     c = places[pid]["plateAnchors"]["trojan-plain-schematic"]
@@ -216,6 +216,8 @@ for pid, tid, r, note in [
         "certainty": "speculative",
         "polygon": circle(c, r),
         "note": note,
-        "sources": L["citadel-poem-house-of-priam"]["sources"][:1],
+        "sources": L["citadel-poem-house-of-priam"]["sources"][:1] + (
+            [{"cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912. P. 42."}]
+            if pid == "fig-tree" else []),
     })
 json.dump(out, sys.stdout, ensure_ascii=False)
