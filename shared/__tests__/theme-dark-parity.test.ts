@@ -8,9 +8,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const ROOTS = [path.resolve(process.cwd(), 'styles'), path.resolve(process.cwd(), 'components'), path.resolve(process.cwd(), '../app/src')];
-const EXT = /\.(css|astro|svelte)$/;
-const SKIP = new Set(['node_modules', 'dist', '.astro']);
+const ROOTS = [
+  path.resolve(process.cwd(), 'styles'),
+  path.resolve(process.cwd(), 'components'),
+  path.resolve(process.cwd(), 'lib'),
+  path.resolve(process.cwd(), '../app/src'),
+];
+// Scripts too: a matchMedia('(prefers-color-scheme: dark)') check would follow the OS as surely as a CSS rule.
+const EXT = /\.(css|astro|svelte|ts|js|mjs)$/;
+// Tests may name the media query to emulate it; they do not style the page.
+const SKIP = new Set(['node_modules', 'dist', '.astro', '__tests__']);
 
 function walk(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
@@ -21,8 +28,10 @@ function walk(dir: string): string[] {
   });
 }
 
-const stripComments = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/<!--[\s\S]*?-->/g, '');
-const DARK_OS = /prefers-color-scheme\s*:\s*dark/;
+const stripComments = (s: string) =>
+  s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/<!--[\s\S]*?-->/g, '').replace(/^\s*\/\/.*$/gm, '');
+// CSS media features are case-insensitive.
+const DARK_OS = /prefers-color-scheme\s*:\s*dark/i;
 
 describe('theme policy: the OS dark preference never styles the page', () => {
   const files = ROOTS.flatMap(walk);
@@ -32,7 +41,7 @@ describe('theme policy: the OS dark preference never styles the page', () => {
     expect(files.some((f) => f.endsWith('index.astro'))).toBe(true);
   });
 
-  it('no `prefers-color-scheme: dark` rule exists in any .css, .astro or .svelte file', () => {
+  it('no `prefers-color-scheme: dark` rule or query exists in any style or script source', () => {
     const hits = files
       .filter((f) => DARK_OS.test(stripComments(fs.readFileSync(f, 'utf-8'))))
       .map((f) => path.relative(process.cwd(), f));
