@@ -474,6 +474,26 @@ def _layer_has_drawable_geometry(layer: dict) -> bool:
     return False
 
 
+def _point_in_ring(pt: list, ring: list) -> bool:
+    """Even-odd point-in-polygon on [a, b] pairs (shared/lib/plate.ts
+    pointInPolygon), counting a point on an edge as inside, as parsePlate's
+    `open` check does."""
+    x, y = pt
+    for (x1, y1), (x2, y2) in zip(ring, ring[1:] + ring[:1]):
+        cross = (x2 - x1) * (y - y1) - (y2 - y1) * (x - x1)
+        if (
+            abs(cross) <= 1e-12
+            and min(x1, x2) - 1e-9 <= x <= max(x1, x2) + 1e-9
+            and min(y1, y2) - 1e-9 <= y <= max(y1, y2) + 1e-9
+        ):
+            return True
+    inside = False
+    for (x1, y1), (x2, y2) in zip(ring, ring[1:] + ring[:1]):
+        if (y1 > y) != (y2 > y) and x < (x2 - x1) * (y - y1) / (y2 - y1) + x1:
+            inside = not inside
+    return inside
+
+
 def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
     """Validate one apparatus/plates/<id>.json document. `places_by_id` is
     the gazetteer's id -> place dict, used to resolve layer `placeId`
@@ -912,6 +932,16 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                 problems.append(
                     f"{label}: layer {layer_label} open must list indexes into its own rings"
                 )
+            else:
+                # A court is open ground inside a house: every vertex within
+                # the polygon (mirrors parsePlate).
+                poly = layer.get("polygon") or []
+                for i in open_rings:
+                    ring = layer["rings"][i]
+                    if not poly or not all(_is_pair(p) and _point_in_ring(p, poly) for p in ring):
+                        problems.append(
+                            f"{label}: layer {layer_label} open ring {i} must lie inside the layer's own polygon"
+                        )
         inset_only = layer.get("insetOnly")
         if inset_only is not None:
             if inset_only is not True:
@@ -970,6 +1000,7 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
     # A panel copy's feature id (shared/lib/plate.ts insetCopyId: `<id>--inset`
     # in the first panel, `<id>--inset-<panel>` in the others) must not be
     # some other layer's own id.
+    seen_ids = set(seen_layer_ids)
     for layer in layers:
         if not isinstance(layer, dict) or not isinstance(layer.get("id"), str):
             continue
@@ -977,10 +1008,11 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
         refs = [refs] if isinstance(refs, str) else refs if isinstance(refs, list) else []
         for i, ref in enumerate(refs):
             copy_id = f"{layer['id']}--inset" if i == 0 else f"{layer['id']}--inset-{ref}"
-            if copy_id in seen_layer_ids:
+            if copy_id in seen_ids:
                 problems.append(
-                    f"{label}: layer id {copy_id!r} collides with the panel copy of layer {layer['id']!r}"
+                    f"{label}: id {copy_id!r} of the panel copy of layer {layer['id']!r} is already taken"
                 )
+            seen_ids.add(copy_id)
 
     for layer_label, ref in inset_of_refs:
         if ref not in inset_panel_ids:

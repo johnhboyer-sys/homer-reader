@@ -933,6 +933,24 @@ function parseLayer(
     ) {
       fail(`layer "${l.id}" has a malformed "open" (must list indexes into its own "rings")`);
     }
+    // A court is open ground INSIDE a house: every vertex within the polygon
+    // or on its edge (a court often shares the house's outer wall).
+    const onEdge = (p: PlatePoint, poly: PlatePoint[]) =>
+      poly.some((a, k) => {
+        const b = poly[(k + 1) % poly.length];
+        const cross = (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0]);
+        const within =
+          Math.min(a[0], b[0]) - 1e-9 <= p[0] && p[0] <= Math.max(a[0], b[0]) + 1e-9 &&
+          Math.min(a[1], b[1]) - 1e-9 <= p[1] && p[1] <= Math.max(a[1], b[1]) + 1e-9;
+        return within && Math.abs(cross) <= 1e-12;
+      });
+    for (const i of l.open as number[]) {
+      const ring = rings![i];
+      const poly = layer.polygon;
+      if (!poly || !ring.every((p) => pointInPolygon(p, poly) || onEdge(p, poly))) {
+        fail(`layer "${l.id}" open ring ${i} must lie inside the layer's own polygon`);
+      }
+    }
     layer.open = [...l.open];
   }
 
@@ -1133,12 +1151,14 @@ export function parsePlate(data: unknown): Plate {
   }
   // A panel copy's feature id (insetCopyId) must not be some other layer's
   // own id, or two drawings would answer to one id.
+  const seenIds = new Set(seenLayerIds);
   for (const layer of layers) {
     for (const [i, panel] of (layer.insetOf ?? []).entries()) {
       const copyId = insetCopyId(layer.id, panel, i);
-      if (seenLayerIds.has(copyId)) {
-        throw new Error(`plate ${d.id}: layer id '${copyId}' collides with the panel copy of layer '${layer.id}'`);
+      if (seenIds.has(copyId)) {
+        throw new Error(`plate ${d.id}: id '${copyId}' of the panel copy of layer '${layer.id}' is already taken`);
       }
+      seenIds.add(copyId);
     }
   }
 
@@ -6979,15 +6999,13 @@ function renderLayer(
         let floor = '';
         if (layer.fill === 'built') {
           const open = new Set(layer.open ?? []);
-          // A court only cuts a hole in the house it lies in; one outside the
-          // polygon has no roof to be open under, so it is simply not floored.
-          const wound = indexed
-            .filter(({ p, ring }) => !open.has(ring) || pointInPolygon(p[0], px))
-            .map(({ p, ring }) => {
-              const cw = polygonSignedArea(p) > 0;
-              const wantCw = !open.has(ring);
-              return cw === wantCw ? p : [...p].reverse();
-            });
+          // parsePlate guarantees a court lies inside the polygon, so winding it
+          // against the house leaves exactly the court open.
+          const wound = indexed.map(({ p, ring }) => {
+            const cw = polygonSignedArea(p) > 0;
+            const wantCw = !open.has(ring);
+            return cw === wantCw ? p : [...p].reverse();
+          });
           floor =
             `<path data-feature-id="${id}-floor" class="plate-layer plate-layer-plan-floor" ` +
             `d="${wound.map((p) => pathD(p, true)).join(' ')}" fill="var(--plate-built)" stroke="none"/>`;

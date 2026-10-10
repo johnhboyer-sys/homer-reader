@@ -4134,7 +4134,23 @@ describe('renderPlate: panel machinery, Sol review fixes (2026-10-09)', () => {
           { id: 'house--inset', kind: 'region', fill: 'masonry', polygon: square(39.957, 26.239, 0.0002) },
         ],
       }),
-    ).toThrow(/collides with the panel copy/);
+    ).toThrow(/is already taken/);
+  });
+
+  it('finding 2 (confirm pass): two panel copies may not share an id either', () => {
+    // `x` in panels p and q--inset copies to `x--inset-q--inset`; so does
+    // `x--inset-q` in panel p.
+    expect(() =>
+      parsePlate({
+        ...base,
+        layers: [
+          panel('p', [20, 20, 200, 200]),
+          panel('q--inset', [300, 20, 200, 200]),
+          { id: 'x', kind: 'region', fill: 'masonry', insetOf: ['p', 'q--inset'], polygon: square(39.957, 26.239, 0.0002) },
+          { id: 'x--inset-q', kind: 'region', fill: 'masonry', insetOf: 'p', polygon: square(39.957, 26.239, 0.0002) },
+        ],
+      }),
+    ).toThrow(/is already taken/);
   });
 
   it("finding 3: a place drawn by one layer in each of two panels keeps its numeral on its own panel's drawing", () => {
@@ -4213,9 +4229,10 @@ describe('renderPlate: panel machinery, Sol review fixes (2026-10-09)', () => {
     expect(court, 'the court winds against the house, so the nonzero fill leaves it open').toBe(-outer);
   });
 
-  it('finding 6: an open court outside the house is not floored', () => {
-    const plate = house([square(39.9575, 26.2405, 0.0002)], [0]);
-    expect(floorWindings(renderPlate(plate, []).svg, 'h--inset')).toHaveLength(1);
+  it('finding 6: an open court must lie wholly inside its house', () => {
+    // Wholly outside, and starting inside but running out of it.
+    expect(() => house([square(39.9575, 26.2405, 0.0002)], [0])).toThrow(/must lie inside/);
+    expect(() => house([square(39.9567, 26.2387, 0.0006)], [0])).toThrow(/must lie inside/);
   });
 });
 

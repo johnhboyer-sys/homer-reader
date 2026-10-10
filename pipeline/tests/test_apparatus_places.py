@@ -780,6 +780,15 @@ def test_inset_only_layer_cannot_carry_a_place():
     assert any("insetOnly and cannot carry a placeId" in p for p in problems), problems
 
 
+def test_an_open_court_must_lie_inside_its_house():
+    plate = _schematic_plate()
+    layer = next(l for l in plate["layers"] if l.get("open"))
+    lat, lon = layer["polygon"][0]
+    layer["rings"][layer["open"][0]] = [[lat + 0.01, lon], [lat + 0.01, lon + 0.001], [lat + 0.011, lon]]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("must lie inside the layer's own polygon" in p for p in problems), problems
+
+
 def test_a_layer_id_may_not_equal_a_panel_copy_id():
     plate = _schematic_plate()
     layer = next(l for l in plate["layers"] if l.get("insetOf"))
@@ -787,7 +796,7 @@ def test_a_layer_id_may_not_equal_a_panel_copy_id():
     clash.pop("insetOf"); clash.pop("insetOnly", None)
     plate["layers"].append(clash)
     problems = apparatus_places.validate_plate(plate, _schematic_places())
-    assert any("collides with the panel copy" in p for p in problems), problems
+    assert any("is already taken" in p for p in problems), problems
 
 
 def test_feature_key_group_inset_must_name_a_framed_inset_panel():
