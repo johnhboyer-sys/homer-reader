@@ -772,17 +772,25 @@
     panels = found;
   }
 
-  // Where a sheet-level mark sits, read off its own geometry: a numeral
-  // disc's circle, a pin's circle, or the start of a leader path.
+  // Where a sheet-level mark sits, read off its own geometry. plate.ts draws
+  // a numeral disc as a circle, a leader as a path, and a pin as whichever
+  // shape its certainty tier takes: a circle (dot), a rect (the speculative
+  // open square) or a teardrop path whose last point is its tip. A pin's
+  // anchor is the first of those shapes found, so none is skipped.
   function markAnchor(el: Element): [number, number] | null {
+    const pt = (x: number, y: number): [number, number] | null => (Number.isFinite(x) && Number.isFinite(y) ? [x, y] : null);
+    const num = (e: Element, a: string) => Number(e.getAttribute(a));
     const circle = el.tagName === 'circle' ? el : el.querySelector('circle');
-    if (circle) {
-      const cx = Number(circle.getAttribute('cx'));
-      const cy = Number(circle.getAttribute('cy'));
-      return Number.isFinite(cx) && Number.isFinite(cy) ? [cx, cy] : null;
-    }
-    const m = /^M\s*(-?[\d.]+)[\s,]+(-?[\d.]+)/.exec(el.getAttribute('d') ?? '');
-    return m ? [Number(m[1]), Number(m[2])] : null;
+    if (circle) return pt(num(circle, 'cx'), num(circle, 'cy'));
+    const rect = el.tagName === 'rect' ? el : el.querySelector('rect');
+    if (rect) return pt(num(rect, 'x') + num(rect, 'width') / 2, num(rect, 'y') + num(rect, 'height') / 2);
+    const path = el.tagName === 'path' ? el : el.querySelector('path');
+    const d = path?.getAttribute('d') ?? '';
+    const m = /^M\s*(-?[\d.]+)[\s,]+(-?[\d.]+)/.exec(d);
+    if (!m) return null;
+    // A teardrop pin ends at its tip ("... L x y Z"); a leader has no L.
+    const tip = el.tagName === 'path' ? null : /L\s*(-?[\d.]+)[\s,]+(-?[\d.]+)\s*Z/.exec(d);
+    return tip ? pt(Number(tip[1]), Number(tip[2])) : pt(Number(m[1]), Number(m[2]));
   }
 
   function insideBox(pt: [number, number] | null, box: [number, number, number, number]): boolean {
@@ -894,7 +902,7 @@
     return svg;
   }
 
-  function openPanel(panel: PanelHandle, opener: HTMLElement) {
+  async function openPanel(panel: PanelHandle, opener: HTMLElement) {
     if (!dialogEl || !dialogBodyEl) return;
     const svg = buildPanelClone(panel);
     if (!svg) return;
@@ -902,6 +910,10 @@
     dialogTitle = panel.title;
     dialogAspect = panel.box[2] / panel.box[3];
     dialogBodyEl.replaceChildren(svg);
+    // The title binds to aria-label through Svelte; wait for the DOM to take
+    // it so the dialog has its name when it opens.
+    await tick();
+    if (!dialogEl) return;
     dialogEl.showModal();
     dialogEl.querySelector<HTMLElement>('.pp-dialog-close')?.focus();
   }

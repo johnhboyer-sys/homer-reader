@@ -1100,8 +1100,8 @@ describe('PlatePanel', () => {
 // bottom-right corner, which is the Ilios panel's lower edge.
 describe('PlatePanel: the schematic plain\'s citadel panels', () => {
   const PANELS = [
-    { layerId: 'citadel-city-panel', name: 'Pergamos', featurePrefix: 'citadel-' },
-    { layerId: 'citadel-inset-panel', name: 'Ilios', featurePrefix: 'ilios-ground-' },
+    { layerId: 'citadel-city-panel', name: 'Pergamos', featurePrefix: 'citadel-', speculativePin: 'great-tower-of-ilios' },
+    { layerId: 'citadel-inset-panel', name: 'Ilios', featurePrefix: 'ilios-ground-', speculativePin: 'oak-of-zeus' },
   ];
 
   async function renderPlain(waitForEnlarge = true) {
@@ -1110,8 +1110,13 @@ describe('PlatePanel: the schematic plain\'s citadel panels', () => {
     );
     mockFetchPlate.mockReset();
     mockFetchPlate.mockResolvedValue(raw);
+    // The real gazetteer, so the sheet draws its pins, numeral badges and
+    // leaders inside the panels, as it does on the live page.
+    const places = JSON.parse(
+      readFileSync(path.resolve(process.cwd(), '../apparatus/places.json'), 'utf-8'),
+    ).places;
     const view = render(PlatePanel, {
-      props: { plateId: 'trojan-plain-schematic', title: 'The Trojan Plain' },
+      props: { plateId: 'trojan-plain-schematic', places, title: 'The Trojan Plain' },
     });
     await waitFor(() => expect(view.container.querySelector('svg')).toBeTruthy());
     if (waitForEnlarge) await waitFor(() => expect(view.container.querySelector('.pp-panel-enlarge')).toBeTruthy());
@@ -1206,6 +1211,80 @@ describe('PlatePanel: the schematic plain\'s citadel panels', () => {
       expect(document.activeElement).toBe(btn);
     });
   }
+
+  // GPT-6-Sol review finding 1: the clone found a pin only through a <circle>,
+  // so a speculative pin (an open square, a <rect>) was left out of the dialog
+  // while its numeral badge stayed. Expected marks are read off the SHEET, by
+  // where each sits relative to the panel frame, independent of the component.
+  function sheetMarksIn(container: HTMLElement, layerId: string) {
+    const svg = container.querySelector('.pp-map > svg') as SVGSVGElement;
+    const frame = svg.querySelector(`g[data-layer-id="${layerId}"] > rect.plate-layer-inset-panel`)!;
+    const [fx, fy, fw, fh] = ['x', 'y', 'width', 'height'].map((a) => Number(frame.getAttribute(a)));
+    const centre = (el: Element): [number, number] | null => {
+      const c = el.querySelector('circle');
+      if (c) return [Number(c.getAttribute('cx')), Number(c.getAttribute('cy'))];
+      const r = el.querySelector('rect');
+      if (r) return [Number(r.getAttribute('x')) + Number(r.getAttribute('width')) / 2, Number(r.getAttribute('y')) + Number(r.getAttribute('height')) / 2];
+      return null;
+    };
+    const inside = (pt: [number, number] | null) =>
+      !!pt && pt[0] >= fx && pt[0] <= fx + fw && pt[1] >= fy && pt[1] <= fy + fh;
+    const camera = svg.querySelector('.pp-camera, .plate-camera')!;
+    const sheet = Array.from(camera.parentElement!.children).filter((c) => c !== camera);
+    const pins: string[] = [];
+    const badges: string[] = [];
+    for (const el of sheet) {
+      if (el.matches('.plate-key-badge')) {
+        if (inside(centre(el))) badges.push(el.getAttribute('data-place-id') ?? el.textContent ?? '');
+      } else if (el.matches('g[data-place-id]') && inside(centre(el))) {
+        pins.push(el.getAttribute('data-place-id')!);
+      }
+    }
+    return { pins, badges };
+  }
+
+  for (const p of PANELS) {
+    it(`Enlarge ${p.name} keeps every pin and badge the sheet draws inside the panel, speculative square pins too`, async () => {
+      const { getByRole, container } = await renderPlain();
+      const expected = sheetMarksIn(container, p.layerId);
+      expect(expected.pins).toContain(p.speculativePin);
+      expect(expected.badges.length).toBeGreaterThan(0);
+
+      (getByRole('button', { name: `Enlarge ${p.name}` }) as HTMLButtonElement).click();
+      const dialog = (await waitFor(() => {
+        const d = container.querySelector('dialog[open]');
+        expect(d).toBeTruthy();
+        return d;
+      })) as HTMLDialogElement;
+
+      // The named speculative pin is a square (<rect>), not a circle.
+      const named = dialog.querySelector(`g[data-place-id="${p.speculativePin}"]:not(.plate-key-badge)`);
+      expect(named?.querySelector('rect')).toBeTruthy();
+      expect(named?.querySelector('circle')).toBeNull();
+      for (const id of expected.pins) {
+        expect(dialog.querySelector(`g[data-place-id="${id}"]:not(.plate-key-badge)`)).toBeTruthy();
+      }
+      const cloneBadges = Array.from(dialog.querySelectorAll('.plate-key-badge')).map((b) => b.getAttribute('data-place-id') ?? b.textContent ?? '');
+      expect(cloneBadges.sort()).toEqual(expected.badges.sort());
+    });
+  }
+
+  it('the dialog has its accessible name by the time it is open', async () => {
+    const { getByRole, container } = await renderPlain();
+    let nameAtOpen: string | null | undefined;
+    const orig = HTMLDialogElement.prototype.showModal;
+    HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement) {
+      nameAtOpen = this.getAttribute('aria-label');
+      return orig.call(this);
+    };
+    try {
+      (getByRole('button', { name: 'Enlarge Pergamos' }) as HTMLButtonElement).click();
+      await waitFor(() => expect(container.querySelector('dialog[open]')).toBeTruthy());
+      expect(nameAtOpen).toBe('Pergamos');
+    } finally {
+      HTMLDialogElement.prototype.showModal = orig;
+    }
+  });
 
   it('a native close (what Esc does) returns focus to the Enlarge button too', async () => {
     const { getByRole, container } = await renderPlain();
