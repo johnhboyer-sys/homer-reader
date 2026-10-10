@@ -1092,3 +1092,133 @@ describe('PlatePanel', () => {
     expect(container.querySelector('svg')?.getAttribute('aria-label')).toBe('Plate B');
   });
 });
+
+// 2026-10-10: the schematic plain's two citadel panels (Pergamos, Ilios) are
+// sheet furniture in the right margin -- about 100-240 px wide on a laptop,
+// too small to read. Each gets an Enlarge button and a modal view built from
+// the same rendered SVG. The zoom controls used to sit on the sheet's
+// bottom-right corner, which is the Ilios panel's lower edge.
+describe('PlatePanel: the schematic plain\'s citadel panels', () => {
+  const PANELS = [
+    { layerId: 'citadel-city-panel', name: 'Pergamos', featurePrefix: 'citadel-' },
+    { layerId: 'citadel-inset-panel', name: 'Ilios', featurePrefix: 'ilios-ground-' },
+  ];
+
+  async function renderPlain(waitForEnlarge = true) {
+    const raw = JSON.parse(
+      readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain-schematic.json'), 'utf-8'),
+    );
+    mockFetchPlate.mockReset();
+    mockFetchPlate.mockResolvedValue(raw);
+    const view = render(PlatePanel, {
+      props: { plateId: 'trojan-plain-schematic', title: 'The Trojan Plain' },
+    });
+    await waitFor(() => expect(view.container.querySelector('svg')).toBeTruthy());
+    if (waitForEnlarge) await waitFor(() => expect(view.container.querySelector('.pp-panel-enlarge')).toBeTruthy());
+    return { ...view, raw };
+  }
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('the zoom controls are anchored over the map face, not the right-margin panels', async () => {
+    const { container, raw } = await renderPlain(false);
+    const controls = container.querySelector('.pp-cam-controls') as HTMLElement;
+    expect(controls).toBeTruthy();
+    // HTML, outside the sheet's SVG and so outside every panel group.
+    expect(controls.closest('svg')).toBeNull();
+    expect(controls.closest('[data-layer-id]')).toBeNull();
+    // jsdom/happy-dom have no layout, so assert the mechanism: the controls'
+    // right edge is held back from the sheet's right edge by exactly the
+    // margin band's share of the sheet, so they end where the map face ends.
+    const vbWidth = Number((container.querySelector('.pp-map > svg') as SVGSVGElement).getAttribute('viewBox')!.split(/\s+/)[2]);
+    const inset = controls.style.getPropertyValue('--pp-face-inset');
+    expect(inset).toMatch(/%$/);
+    expect(parseFloat(inset)).toBeCloseTo((raw.marginRight / vbWidth) * 100, 1);
+    expect(parseFloat(inset)).toBeGreaterThan(30);
+    // Keeps its accessible names.
+    for (const name of ['Zoom out', 'Reset map view', 'Zoom in']) {
+      expect(controls.querySelector(`button[aria-label="${name}"]`)).toBeTruthy();
+    }
+  });
+
+  it('each panel has an Enlarge button named from its title in the plate data', async () => {
+    const { getByRole, container } = await renderPlain();
+    for (const p of PANELS) {
+      const btn = getByRole('button', { name: `Enlarge ${p.name}` });
+      expect(btn.tagName).toBe('BUTTON');
+      // HTML control beside the map, not inside the sheet SVG: a click on it
+      // must not start a map pan.
+      expect(btn.closest('.pp-map')).toBeNull();
+    }
+    expect(container.querySelectorAll('.pp-panel-enlarge').length).toBe(2);
+  });
+
+  for (const p of PANELS) {
+    it(`Enlarge ${p.name} opens a dialog named for the panel, with a clone of its ground and no duplicate ids`, async () => {
+      const { getByRole, container } = await renderPlain();
+      const btn = getByRole('button', { name: `Enlarge ${p.name}` }) as HTMLButtonElement;
+      btn.focus();
+      btn.click();
+
+      const dialog = (await waitFor(() => {
+        const d = container.querySelector('dialog[open]');
+        expect(d).toBeTruthy();
+        return d;
+      })) as HTMLDialogElement;
+      expect(dialog.getAttribute('aria-label')).toBe(p.name);
+      expect(dialog.querySelector('svg')).toBeTruthy();
+      // The panel's own frame and its ground are in the clone.
+      expect(dialog.querySelector(`[data-layer-id="${p.layerId}"]`)).toBeTruthy();
+      expect(dialog.querySelector(`[data-feature-id^="${p.featurePrefix}"]`)).toBeTruthy();
+      // The clone is the panel alone: not the other panel, not the map face.
+      const other = PANELS.find((q) => q !== p)!;
+      expect(dialog.querySelector(`[data-layer-id="${other.layerId}"]`)).toBeNull();
+      expect(dialog.querySelector('.plate-camera, .pp-camera')).toBeNull();
+
+      // No id in the dialog repeats one outside it (or inside it), and every
+      // reference in the clone resolves to an id inside the dialog.
+      const outside = new Set<string>();
+      container.querySelectorAll('[id]').forEach((el) => {
+        if (!dialog.contains(el)) outside.add(el.id);
+      });
+      const inside = Array.from(dialog.querySelectorAll('[id]')).map((el) => el.id);
+      expect(new Set(inside).size).toBe(inside.length);
+      for (const id of inside) expect(outside.has(id)).toBe(false);
+      const insideSet = new Set(inside);
+      dialog.querySelectorAll('*').forEach((el) => {
+        for (const attr of Array.from(el.attributes)) {
+          for (const m of attr.value.matchAll(/url\(#([^)]+)\)/g)) expect(insideSet.has(m[1])).toBe(true);
+          if ((attr.name === 'href' || attr.name === 'xlink:href') && attr.value.startsWith('#')) {
+            expect(insideSet.has(attr.value.slice(1))).toBe(true);
+          }
+        }
+      });
+      // The panel's clipped ground kept its clip, now pointing at the copy.
+      expect(dialog.querySelector('g[clip-path^="url(#"]')).toBeTruthy();
+
+      // Close button closes it and focus goes back to the opener.
+      const close = getByRole('button', { name: /close/i });
+      expect(dialog.contains(close)).toBe(true);
+      close.click();
+      await waitFor(() => expect(container.querySelector('dialog[open]')).toBeNull());
+      expect(document.activeElement).toBe(btn);
+    });
+  }
+
+  it('a native close (what Esc does) returns focus to the Enlarge button too', async () => {
+    const { getByRole, container } = await renderPlain();
+    const btn = getByRole('button', { name: 'Enlarge Ilios' }) as HTMLButtonElement;
+    btn.focus();
+    btn.click();
+    const dialog = (await waitFor(() => {
+      const d = container.querySelector('dialog[open]');
+      expect(d).toBeTruthy();
+      return d;
+    })) as HTMLDialogElement;
+    dialog.close();
+    await waitFor(() => expect(container.querySelector('dialog[open]')).toBeNull());
+    expect(document.activeElement).toBe(btn);
+  });
+});
