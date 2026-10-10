@@ -11069,7 +11069,7 @@
         [39.956477, 26.236621],
         [39.956523, 26.236725]
       ],
-      "note": "The oak of Zeus (φηγός), at the Scaean gates (Il. 6.237, 9.354, 11.170, 21.549). Drawn as a single tree at the oak's place on this sheet; the poem gives its place by the gate and nothing of its size.",
+      "note": "The oak of Zeus (φηγός), at the Scaean gates (Il. 6.237, 9.354, 11.170). Drawn as a single tree at the oak's place on this sheet; the poem gives its place by the gate and nothing of its size.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -11096,7 +11096,7 @@
         [39.954363, 26.235712],
         [39.954396, 26.235789]
       ],
-      "note": "The wild fig (ἐρινεός), by the wall where it is most open to assault (Il. 6.433–34; 11.167, 22.145). Drawn as a single tree at the fig's place on this sheet; the poem gives nothing of its size.",
+      "note": "The wild fig (ἐρινεός), by the wall where it is most open to assault (Il. 6.433–34, 22.145); the fig at 11.167 is another, out in the mid-plain. Drawn as a single tree at the fig's place on this sheet; the poem gives nothing of its size.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -11503,7 +11503,7 @@
       "path": [
         [39.9522, 26.2355]
       ],
-      "note": "The steep isolated mound in front of the city, standing apart in the plain and clear on every side — αἰπεῖα κολώνη ἐν πεδίῳ ἀπάνευθε περίδρομος ἔνθα καὶ ἔνθα — which men call Batieia and the gods the barrow of dancing Myrine, and where the Trojans and their allies drew up in their companies (2.811–15). Placed on the dry fan at the citadel's western foot, in front of the city and outside the wagon-road ring, off the road: between the ring and the mid-plain, on the city side, which is what προπάροιθε πόλιος with ἐν πεδίῳ and ἀπάνευθε jointly give. Strabo lists it among the places 'pointed out' on the plain in his own day (13.1.34).",
+      "note": "The steep isolated mound in front of the city, standing apart in the plain and clear on every side — αἰπεῖα κολώνη ἐν πεδίῳ ἀπάνευθε περίδρομος ἔνθα καὶ ἔνθα — which men call Batieia and the gods the barrow of dancing Myrine, and where the Trojans and their allies drew up in their companies (2.811–15). Placed on the dry fan at the citadel's western foot, in front of the city and outside the wagon-road ring, off the road: between the ring and the mid-plain, on the city side, which is what προπάροιθε πόλιος with ἐν πεδίῳ and ἀπάνευθε jointly give. The side of the city is the drawing's: the poem does not say which side the mound stands on. Strabo lists it among the places 'pointed out' on the plain in his own day (13.1.34).",
       "sources": [
         {
           "cite": "Strabo. Geography 13.1.34."
@@ -12012,11 +12012,15 @@
         [39.957009, 26.237881],
         [39.957011, 26.237894]
       ],
-      "note": "The west wall, from the north-west point where the surveyed circuit ends to the West Gate VI U. Unwrought stone, older than the ashlar of the south and east stretches (Dörpfeld 1902, 2:611). House VI A stands against its inner face and is drawn with it. The fortification wall of Troy VI as Dörpfeld surveyed it, from Tafel V. About 191 by 168 m across. The line is a polygon of straight lengths, not a curve (Dörpfeld 1902, 2:611). This is the measured ground of the panel; everything the poem sets inside is placed on it. The plate is laid on the sheet at Tafel V's own scale, centered on the sheet's center for Ilios, with no rotation: Tafel V is printed to the magnetic north of the 1890s and no correction was verified.",
+      "note": "The west wall, from the north-west point where the surveyed circuit ends to the West Gate VI U. Built of smaller and poorer stones than the east wall, and the south wall and towers are finer still (Tolman and Scoggin 1903, §§11, 14–15). House VI A stands against its inner face and is drawn with it. The fortification wall of Troy VI as Dörpfeld surveyed it, from Tafel V. About 191 by 168 m across. The line is a polygon of straight lengths, not a curve (Dörpfeld 1902, 2:611). This is the measured ground of the panel; everything the poem sets inside is placed on it. The plate is laid on the sheet at Tafel V's own scale, centered on the sheet's center for Ilios, with no rotation: Tafel V is printed to the magnetic north of the 1890s and no correction was verified.",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
           "url": "https://archive.org/details/trojaundilionerg02dorp"
+        },
+        {
+          "cite": "Tolman, Herbert Cushing, and Gilbert Campbell Scoggin. Mycenaean Troy: Based on Dörpfeld's Excavations in the Sixth of the Nine Buried Cities at Hissarlik. New York: American Book Company, 1903.",
+          "url": "https://en.wikisource.org/wiki/Mycenaean_Troy"
         }
       ],
       "insetOf": "citadel-city-panel"
@@ -13299,7 +13303,7 @@
         [39.956728, 26.238471],
         [39.956735, 26.238467]
       ],
-      "note": "House VI M, about 29 by 21 m, the largest surveyed building inside the circuit, on its own terrace above the south wall. Megaron plan with an open court between wings. Traced from Dörpfeld's Tafel V and laid on the sheet at the plate's own scale; every vertex is his line.",
+      "note": "House VI M, about 29 by 21 m, the largest surveyed building inside the circuit, on its own terrace above the south wall. L-shaped, with an open court between its wings. Traced from Dörpfeld's Tafel V and laid on the sheet at the plate's own scale; every vertex is his line.",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Tafel V, “Troja VI, die Burg der mykenischen Zeit, das Troja Homers”, 1:800.",
@@ -14216,7 +14220,7 @@
           [39.95723, 26.239412]
         ]
       ],
-      "note": "The house of Hector, on the city height beside Priam's (Il. 6.317). Hector comes to it and finds Andromache gone to the tower (6.370–73) and leaves it by the streets down to the gate (6.390–93). Drawn as the house type the poem gives Paris: court, porch, hall and chamber (6.316). The size is a house's; the position is beside Priam's because the poem says beside.",
+      "note": "The house of Hector, on the city height beside Priam's (Il. 6.317). Hector comes to it and finds Andromache gone to the tower (6.370–73) and leaves it by the streets down to the gate (6.390–93). Drawn on the plan the poem gives Paris's house, chamber, hall and court (6.316), with a porch before the hall that the drawing adds. The size is a house's; the position is beside Priam's because the poem says beside.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -14282,7 +14286,7 @@
           [39.95696, 26.239315]
         ]
       ],
-      "note": "The house of Paris. He built it with the best builders in Troy: a chamber, a hall and a court, near Priam's house and Hector's, on the city height (Il. 6.313–17). Drawn as that: a walled court in front, a porch with two columns, an anteroom, a hall with its hearth, and the chamber beside the hall. That is also the plan of the Troy VI houses Dörpfeld dug (VI A, VI B, VI C); the agreement is noted and is not evidence of position.",
+      "note": "The house of Paris. He built it with the best builders in Troy: a chamber, a hall and a court, near Priam's house and Hector's, on the city height (Il. 6.313–17). Drawn as that, filled out on the plan of the megaron-like Troy VI houses Dörpfeld dug (VI A, VI B, VI C): a walled court in front, a porch with two columns, an anteroom, a hall with its hearth, and the chamber beside the hall. The porch, anteroom and hearth are the drawing's; the likeness to VI A–C is noted and is not evidence of position.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -14333,7 +14337,7 @@
           [39.957252, 26.238454]
         ]
       ],
-      "note": "The temple of Athena in the upper city (Il. 6.297; 6.88). Theano opens its doors and lays the robe on the goddess's knees (6.298–303): a building with doors and a seated cult image. Drawn as a temple in antis, cella and porch, with the seat marked at the back; the poem gives no plan and no size, and the ground it stood on was removed by the leveling for the later precinct of Athena of Ilion. Faces east, toward the house of Priam.",
+      "note": "The temple of Athena in the upper city (Il. 6.297; 6.88). Theano opens its doors and lays the robe on the goddess's knees (6.298–303): a building with doors and a seated cult image. Drawn as a temple in antis, cella and porch, with the seat marked at the back; the poem gives no plan and no size, and the ground it stood on was removed by the leveling for the later precinct of Athena of Ilion. Drawn facing east, toward the house of Priam; the poem does not say which way it faced.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -14570,7 +14574,7 @@
           [39.956579, 26.239369]
         ]
       ],
-      "note": "Houses on the first terrace, unnamed. The poem calls Ilios well-built and wide-streeted and has Hector go down through its streets (Il. 6.391; 2.12, 2.29); Dörpfeld's terrace houses (VI A, VI B, VI C–F, VI G, VI M, VI O, VI Q) show the house type and the placing, short side to the wall. These fill the terrace the survey leaves empty so the citadel reads as a built city. Their number, size and position are the drawing's, not evidence; none stands on surveyed masonry, and the ring street and the two streets to the gates are kept open.",
+      "note": "Houses on the first terrace, unnamed. The poem calls Ilios wide-streeted (Il. 2.12, 2.29) and its streets well-built (6.391); Dörpfeld's terrace houses (VI A, VI B, VI C–F, VI G, VI M, VI O, VI Q) show the house type and the placing, short side to the wall. These fill the terrace the survey leaves empty so the citadel reads as a built city. Their number, size and position are the drawing's, not evidence; none stands on surveyed masonry, and the ring street and the two streets to the gates are kept open.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -14698,7 +14702,7 @@
         [39.956497, 26.239188],
         [39.956434, 26.239328]
       ],
-      "note": "The street from the assembly ground down to the South Gate VI T, which Dörpfeld identified with the Dardanian Gates. Hector goes back by the same road, down the well-built streets, and comes to the gates through the great city (Il. 6.391–92). The poem names no course; the line runs radially, crossing both terrace fronts, as Dörpfeld describes the cross streets (1902, 2:611). It passes between House VI M and the VI G block, both surveyed.",
+      "note": "The street from the assembly ground down to the South Gate VI T, which Dörpfeld identified with the Dardanian Gates. The poem names no street to the Dardanian Gates; this one is drawn on the pattern of the way Hector takes through the well-built streets to the Scaean gates (Il. 6.390–93), and the poem gives no course for either; the line runs radially, crossing both terrace fronts, as Dörpfeld describes the cross streets (1902, 2:611). It passes between House VI M and the VI G block, both surveyed.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -14725,7 +14729,7 @@
         [39.957431, 26.238227],
         [39.957511, 26.238165]
       ],
-      "note": "The street from the assembly ground down to the Scaean Gate, the way the poem's traffic uses: Hector goes down through the city and out this gate, meeting Andromache there (Il. 6.391–393); Priam and Idaeus drive out through it to the plain for the oath-taking (3.263); Hector's body comes back the other way, the wagon carried up through the gate into the city, where the whole city gathers to meet it (24.696–717). The gate is placed at the north-west corner of the restored wall after Dörpfeld's Fig. 470, and the street runs there from the assembly ground, west of the house of Priam and the temple of Athena, east of House VI b. No course is given by the poem. No street is drawn to the West Gate VI U, which was walled up in Troy VI, or to the East Gate VI S, whose approach runs through surveyed houses.",
+      "note": "The street from the assembly ground down to the Scaean Gate, the way the poem's traffic uses: Hector goes back through the city to this gate and meets Andromache there as he is about to go out (Il. 6.390–94); Priam and Antenor drive out through it to the plain for the oath-taking (3.261–63). When Hector's body comes back, the whole city meets it at the gates (24.707–17), which the poem does not name. The gate is placed at the north-west corner of the restored wall after Dörpfeld's Fig. 470, and the street runs there from the assembly ground, west of the house of Priam and the temple of Athena, east of House VI b. No course is given by the poem. No street is drawn to the West Gate VI U, which was walled up in Troy VI, or to the East Gate VI S, whose approach runs through surveyed houses.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",
@@ -14801,7 +14805,7 @@
         [0, 1]
       ],
       "label": "Ilios|The lower city inside the Troy VI ditch, and the ground before the walls, about 7 times the sheet|Il. 3.145–160 · 6.237–241 · 22.145–157 · 22.208–213",
-      "note": "The poem distinguishes Pergamos, the height with Priam's house and the temples (Il. 5.446, 6.512, 24.700), from Ilios, the whole walled city with its streets (6.391); the panel above is the one, this panel the other. The features the poem sets outside the city sit within 25 pixels of one another at sheet scale, so this panel draws them again at about seven times the scale, with the numerals for this group placed here instead of on the map face. It is a projection of the sheet's own coordinates through a window, not a second drawing, so nothing in here can disagree with what the map face shows. The wagon-road ring, Batieia and the tomb of Hector are the SAME layers, drawn a second time through that window; the citadel in the middle is the surveyed Troy VI circuit the panel above draws at five times this panel's scale; the ditch is the Troy VI lower-city boundary by the survey's coordinates. Between the two, the lower city of Ilios is drawn as the poem's city: blocks of houses on terraces below the wall, streets between them, one street from the South Gate to the passage through the ditch, open ground before the gates. On the face the citadel keeps its wall and its zone letter; every numeral for this group is in here.",
+      "note": "The poem distinguishes the height, Pergamos (Il. 5.446, 6.512, 24.700) or the upper city, where Athena's temple, the houses of Hector and Paris and the assembly at Priam's doors stand (6.88, 6.317, 7.345), from the wide-streeted city below (2.12; its streets, 6.391); the panel above is the one, this panel the other. The features the poem sets outside the city sit within 25 pixels of one another at sheet scale, so this panel draws them again at about seven times the scale, with the numerals for this group placed here instead of on the map face. It is a projection of the sheet's own coordinates through a window, not a second drawing, so nothing in here can disagree with what the map face shows. The wagon-road ring, Batieia and the tomb of Hector are the SAME layers, drawn a second time through that window; the citadel in the middle is the surveyed Troy VI circuit the panel above draws at five times this panel's scale; the ditch is the Troy VI lower-city boundary by the survey's coordinates. Between the two, the lower city of Ilios is drawn as the poem's city: blocks of houses on terraces below the wall, streets between them, one street from the South Gate to the passage through the ditch, open ground before the gates. On the face the citadel keeps its wall and its zone letter; every numeral for this group is in here.",
       "sources": [
         {
           "cite": "Leaf, Walter. Troy: A Study in Homeric Geography. London: Macmillan, 1912."
@@ -15470,7 +15474,7 @@
         [39.957398, 26.240019],
         [39.957362, 26.240071]
       ],
-      "note": "The same surveyed circuit the panel above draws, projected a second time through this wider window: Dörpfeld's Troy VI wall off Tafel V, about 191 by 168 m, so that the oak, the fig tree, the springs and the wagon-road ring are read off the city they belong to and not off empty ground. At this scale the wall is two pixels thick and carries no gates; the panel above is where it is legible.",
+      "note": "The north and north-west stretch of the circuit that Dörpfeld restored on Fig. 470 and never surveyed, projected a second time through this wider window, so that the oak, the fig tree, the springs and the wagon-road ring are read off the city they belong to and not off empty ground. At this scale it is two pixels thick; the panel above is where it is legible.",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Vol. 2, p. 610, Figur 470, “Ergänzter Plan der Burg Troja mit Umgebung”.",
@@ -15670,7 +15674,7 @@
         [39.956988, 26.238049],
         [39.957013, 26.23804]
       ],
-      "note": "The same surveyed circuit the panel above draws, projected a second time through this wider window: Dörpfeld's Troy VI wall off Tafel V, about 191 by 168 m, so that the oak, the fig tree, the springs and the wagon-road ring are read off the city they belong to and not off empty ground. At this scale the wall is two pixels thick and carries no gates; the panel above is where it is legible.",
+      "note": "The outer terrace front Dörpfeld restored on Fig. 470 (dotted there, never measured), projected a second time through this wider window, so that the oak, the fig tree, the springs and the wagon-road ring are read off the city they belong to and not off empty ground. At this scale it is two pixels thick; the panel above is where it is legible.",
       "sources": [
         {
           "cite": "Dörpfeld, Wilhelm. Troja und Ilion: Ergebnisse der Ausgrabungen in den vorhistorischen und historischen Schichten von Ilion, 1870–1894. 2 vols. Athens: Beck & Barth, 1902. Vol. 2, p. 610, Figur 470, “Ergänzter Plan der Burg Troja mit Umgebung” — the excavator’s own restored plan of the citadel, with north arrow and 0–200 m scale bar.",
@@ -15699,10 +15703,10 @@
         [39.953628, 26.234449],
         [39.953892, 26.234098]
       ],
-      "note": "The ditch of the lower city, and the boundary of Troy at its greatest extent. A ditch cut into the calcareous sandstone about 3 m wide and up to 2 m deep, which filled in Troy VI with eroded surface soil — that fill is what makes it read as a positive magnetic anomaly. Magnetometry between 1988 and 2007 followed about 700 m of it round the south and west of the lower settlement; the excavators take it for the outer limit of the Bronze Age settled area in late Troy VI. This southern arm is the stretch the survey settles: it runs west to east for some 340 m, and the sondage that first proved it, in squares z29 and A29, dated the fill to Troy VI. The gap at its east end is the passage through the ditch, found by excavation in square y28/29 with the postholes of a palisade behind it; the real break is a few meters wide and is drawn here at the width of the square. The chapter reports that reading the ditch as a defensive work, or as an obstacle to Late Bronze Age chariots, is not unanimously accepted, and declines to argue the point; the cutting, its date and its course are what the survey establishes. Inside this line stands the Ilios the poem walks through, its well-built streets and the assembly at Priam’s doors (Il. 6.391, 2.788), on and below the citadel drawn above. Every position here is either a coordinate the chapter prints or a reading taken off the grid of its Abb. 13, good to about ±10 m; the line is built from those positions and is not a trace of the published drawing. Drawn 8 m wide in the rock's own color so that the cutting reads at panel scale; the cut itself is about 3 m.",
+      "note": "The ditch of the lower city, which the excavators take for the outer boundary of the settled area in late Troy VI. A ditch cut into the calcareous sandstone about 3 m wide and up to 2 m deep, which filled in Troy VI with eroded surface soil — that fill is what makes it read as a positive magnetic anomaly. Magnetometry between 1989 and 2007 followed about 700 m of it round the south and west of the lower settlement; the excavators take it for the outer limit of the Bronze Age settled area in late Troy VI. This southern arm is the stretch the survey settles: it runs west to east for some 340 m, and the sondage that first proved it, in squares z29 and A29, dated the fill to Troy VI. The gap at the west end of the stretch first found (E 9170–9270) is the passage through the ditch, found by excavation in square y28/29 with the postholes of a palisade behind it; the real break is a few meters wide and is drawn here at the width of the square. The chapter reports that reading the ditch as a defensive work, or as an obstacle to Late Bronze Age chariots, is not unanimously accepted, and declines to argue the point; the cutting, its date and its course are what the survey establishes. Inside this line stands the Ilios the poem walks through, its well-built streets (Il. 6.391) and the assembly at Priam’s doors (2.788), on and below the citadel drawn above. Every position here is either a coordinate the chapter prints or a reading taken off the grid of its Abb. 13, good to about ±10 m; the line is built from those positions and is not a trace of the published drawing. Drawn 8 m wide in the rock's own color so that the cutting reads at panel scale; the cut itself is about 3 m.",
       "sources": [
         {
-          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof north-east of square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
+          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof just north of the anomaly in square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
           "url": "https://publikationen.uni-tuebingen.de/xmlui/handle/10900/73573"
         },
         {
@@ -15732,7 +15736,7 @@
       "note": "The same surveyed ditch, east of the gate passage, running on to square F28. That is the last point at which the magnetometry could follow it: beyond F28 the shallower Hellenistic and Roman foundations drown the weak Bronze Age signal, and geoelectrics, electromagnetics and ground radar all failed on the water-bearing limestone. The ditch does go on — an electromagnetic anomaly in square G27 was tested by excavation in 2006 and the ditch was there — but no course north-east of F28 is drawn here, because none is established.",
       "sources": [
         {
-          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof north-east of square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
+          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof just north of the anomaly in square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
           "url": "https://publikationen.uni-tuebingen.de/xmlui/handle/10900/73573"
         }
       ],
@@ -15753,7 +15757,7 @@
       "note": "Where the ditch turns north up the west side of the lower city. From the point the chapter gives as N 10510, E 8980 in the excavation grid, a very weak positive anomaly runs in a shallow arc northward and crosses the trace of the Hellenistic city wall in square p12, where a sondage found the same Troy VI ditch, filled in. Earlier accounts joined the inner ditch to the outer system further south, at N 10320, E 8900, and that junction was argued in print; a later analysis of the anomalies replaced it with this turn to the north, which the excavation project has used since.",
       "sources": [
         {
-          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof north-east of square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
+          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof just north of the anomaly in square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
           "url": "https://publikationen.uni-tuebingen.de/xmlui/handle/10900/73573"
         }
       ],
@@ -15773,7 +15777,7 @@
       "note": "The stretch the survey does not settle. Between the surveyed southern arm and the northern one, several positive lineaments run side by side and the chapter states plainly that the exact course of the ditch through this ground is not established. The dotted line is the excavators’ own interpolation between two things they did establish, drawn in the surveyor's ink but not surveyed.",
       "sources": [
         {
-          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof north-east of square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
+          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof just north of the anomaly in square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
           "url": "https://publikationen.uni-tuebingen.de/xmlui/handle/10900/73573"
         }
       ],
@@ -15791,10 +15795,10 @@
         [39.952724, 26.234092],
         [39.95258, 26.234345]
       ],
-      "note": "The outer ditch, and probably the later one. In 1994 a second ditch anomaly was found south-west of the first, at square g28. The sondage that followed found another U-shaped cut in the rock whose fill dates it to Troy VII, later than the inner ditch, with a Roman V-shaped ditch dug down into it afterward. The excavators suggest the ditch was carried further out as the settled area grew in Troy VII — which would make this, not the inner line, the edge of the town in the years the poem sets its war. Only this short stretch can be told apart from the Hellenistic and Roman ditches that run beside it down the same slope, so only this stretch is drawn; the chapter's question mark on its date is kept here.",
+      "note": "The outer ditch, and probably the later one. In 1994 a second ditch anomaly was found south-west of the first, at square g28. The sondage that followed found another U-shaped cut in the rock whose fill dates it to Troy VII, later than the inner ditch, with a Roman V-shaped ditch dug down into it afterward. The excavators suggest the ditch was carried further out as the settled area grew in Troy VII. Only this short stretch can be told apart from the Hellenistic and Roman ditches that run beside it down the same slope, so only this stretch is drawn; the chapter's question mark on its date is kept here.",
       "sources": [
         {
-          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof north-east of square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
+          "cite": "Blindow, Norbert, Christian Hübner, and Hans Günter Jansen. “Geophysikalische Prospektion.” In Troia 1987–2012: Grabungen und Forschungen I, Studia Troica Monographien 5. Tübingen, 2014. Pages 666–67 (summary), 680 n. 23 (the grid), 686–88 (the Late Bronze Age rock ditches), 690 (the 2006 proof just north of the anomaly in square G27), and Abb. 13, “Interpretation der Hauptstrukturen der Magnetik-Prospektion”, p. 681.",
           "url": "https://publikationen.uni-tuebingen.de/xmlui/handle/10900/73573"
         }
       ],
@@ -17480,7 +17484,7 @@
           [39.953588, 26.238667]
         ]
       ],
-      "note": "The lower city of Ilios, drawn as the poem's city on the ground the survey bounds. The Iliad calls Ilios wide-streeted (Il. 2.12, 2.29, 2.66, 2.141, 9.28, 14.88) and well-built, and has Hector go down through its well-built streets from the height to the gates (6.391); the Trojans hold assembly at Priam's doors in the upper city (2.788, 7.345–46), which makes the height one quarter of a larger city. Here that city fills the ground between the citadel's foot and the Troy VI ditch, in the same plan register as the houses on the citadel terraces above: blocks of houses on terraces stepping down from the wall, party walls between the houses, streets between the blocks, a ring street at the foot of the wall, and one main street from the South Gate VI T down to the passage through the ditch. The blocks stop at the wagon-road on the south, which the poem runs outside the town (22.146), and at the ditch on the west; they stop where the survey's line stops, at the ditch's proven north end and at square G27 south of the citadel, with a fringe of houses along the wall beyond. Open ground is kept before the gates: at the South Gate, around the oak below the Scaean side, and around the springs and the washing-troughs by the ditch gate. The blocks are the drawing's, not evidence. Magnetometry over the lower city found no Bronze Age building structures apart from the stone houses near the citadel, and the excavators take the Bronze Age houses to have been of perishable material (Blindow, Hübner, and Jansen 2014, 689); how densely the lower city was settled is argued (Kolb 2004). The ground the ditch encloses is the survey's; every house on it is the poem's.",
+      "note": "The lower city of Ilios, drawn as the poem's city on the ground the survey bounds. The Iliad calls Ilios wide-streeted (Il. 2.12, 2.29, 2.66, 2.141, 9.28, 14.88) and has Hector go back through its well-built streets and the great city to the Scaean gates (6.390–93); the Trojans hold assembly at Priam's doors in the upper city (2.788, 7.345–46). Here that city fills the ground between the citadel's foot and the Troy VI ditch, in the same plan register as the houses on the citadel terraces above: blocks of houses on terraces stepping down from the wall, party walls between the houses, streets between the blocks, a ring street at the foot of the wall, and one main street from the South Gate VI T down to the passage through the ditch. The blocks stop at the wagon-road on the south, which the poem runs outside the town (22.146), and at the ditch on the west; they stop where the survey's line stops, at the ditch's proven north end and at square G27 south of the citadel, with a fringe of houses along the wall beyond. Open ground is kept before the gates: at the South Gate, around the oak below the Scaean side, and around the springs and the washing-troughs by the ditch gate. The blocks are the drawing's, not evidence. Magnetometry over the lower city found no Bronze Age building structures apart from the stone houses near the citadel, and the excavators take the Bronze Age houses to have been of perishable material (Blindow, Hübner, and Jansen 2014, 689); how densely the lower city was settled is argued (Kolb 2004). The ground the ditch encloses is the survey's; every house on it is the poem's.",
       "sources": [
         {
           "cite": "Homer. Iliad. Edited by A. T. Murray. 2 vols. Loeb Classical Library. London: Heinemann; New York: Putnam, 1924–25.",

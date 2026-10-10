@@ -203,10 +203,10 @@ out = [
 ]
 for pid, tid, r, note in [
     ("oak-of-zeus", "ilios-tree-oak", 15,
-     "The oak of Zeus (φηγός), at the Scaean gates (Il. 6.237, 9.354, 11.170, 21.549). Drawn as a single tree at "
+     "The oak of Zeus (φηγός), at the Scaean gates (Il. 6.237, 9.354, 11.170). Drawn as a single tree at "
      "the oak's place on this sheet; the poem gives its place by the gate and nothing of its size."),
     ("fig-tree", "ilios-tree-fig", 11,
-     "The wild fig (ἐρινεός), by the wall where it is most open to assault (Il. 6.433–34; 11.167, 22.145). Drawn "
+     "The wild fig (ἐρινεός), by the wall where it is most open to assault (Il. 6.433–34, 22.145); the fig at 11.167 is another, out in the mid-plain. Drawn "
      "as a single tree at the fig's place on this sheet; the poem gives nothing of its size."),
 ]:
     c = places[pid]["plateAnchors"]["trojan-plain-schematic"]
