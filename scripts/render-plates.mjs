@@ -79,7 +79,6 @@ const GLOBAL_CSS = path.join(SHARED, 'styles', 'global.css');
 // wired anyway so this harness fetches the same place set the UI will.
 const MAP_TAG = {
   troad: 'troad',
-  'trojan-plain': 'troad-plain',
   'trojan-plain-schematic': 'troad-plain',
   'troy-citadel': 'troy-citadel',
 };
@@ -189,7 +188,7 @@ function shoot(chromeBin, htmlPath, pngPath, width, height, scale) {
 
 function parseArgs(argv) {
   const out = {
-    sheets: ['troad', 'trojan-plain'],
+    sheets: ['troad', 'trojan-plain-schematic'],
     themes: ['light', 'dark'],
     out: path.join('build', 'plate-review', 'recut'),
     scale: 2,

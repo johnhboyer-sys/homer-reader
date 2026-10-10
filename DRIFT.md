@@ -1126,3 +1126,12 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
 - `shared/components/Reader.svelte` — the schematic postcard is a link to
   `/maps/?map=plain&focus=…`. No plato-reader counterpart for any of these
   (Homer-only apparatus features).
+
+## 2026-10-09 — The geographic Trojan Plain sheet's files removed (ruling 16 follow-up)
+
+- `shared/components/Reader.svelte` — the geographic Chart Room path is gone:
+  `CHART_ROOM_PLATE_ENABLED`, the Iliad plate fetch/render/camera/locator/link
+  and its template branch. The schematic postcard and the `renderSceneMap`
+  fallback are the only two map paths. No plato-reader counterpart.
+- `shared/lib/plate.ts`, `app/src/components/maps/PlatePanel.svelte` — comments
+  only (references to the deleted sheet).

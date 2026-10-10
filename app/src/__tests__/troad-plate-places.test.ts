@@ -1,7 +1,7 @@
 // Regression test for the 2026-07-28 Troad/Trojan-plain label pile-up: the
 // Troad tab (regional, `troad`-tagged places, the `troad.json` plate) and the
 // Trojan Plain tab (plain scale, `troad-plain`-tagged places, the
-// `trojan-plain.json` plate) must draw genuinely different, scale-appropriate
+// `trojan-plain-schematic.json` plate) must draw genuinely different, scale-appropriate
 // place sets -- see MapsPage.svelte's troadRegionalPlatePlaces /
 // troadPlainPlatePlaces. This locks in the editorial call made in
 // apparatus/places.json's `maps` arrays so a future edit can't silently pile

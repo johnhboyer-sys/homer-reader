@@ -4006,7 +4006,7 @@ function derivedLegendEntry(layer: PlateLayer): LegendEntry | undefined {
   switch (layer.kind) {
     case 'coast': {
       // The soft-band register is this project's honest treatment of a
-      // RECONSTRUCTED shoreline (see trojan-plain.json's own note); a plain
+      // RECONSTRUCTED shoreline (see shore-bronze's own note); a plain
       // stroked coast is a surveyed one. Two different claims, two rows.
       // The swatch fakes the blur with three stacked strokes rather than
       // referencing the filter: at legend size the steps are invisible, and
@@ -7334,8 +7334,8 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // densely-sampled survey/OSM data — that is what usesLatLon(plate) (bbox
     // presence) actually tests, not `kind`. trojan-plain-schematic-v2 is
     // `kind: "schematic"` (the register is about content, not coordinate
-    // space) but its rivers are the geographic sheet's own OSM polylines
-    // copied in by scripts/sync-schematic-ground.py — un-thinned, they hit
+    // space) but its rivers are OSM polylines, first drawn for the
+    // (since retired) geographic sheet — un-thinned, they hit
     // the exact "scattered fragments" failure the 2026-08-10 LOOK-gate fix
     // was written for (2026-09-02: "Scamander" as "Sca m ander").
     usesLatLon(plate) ? [frameWidth, height] : undefined,

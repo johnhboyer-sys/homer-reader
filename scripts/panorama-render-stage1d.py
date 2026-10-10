@@ -54,8 +54,8 @@ Two defects this stage fixes that Stage 1C did not:
   2. Ida (68.7 km out) is real terrain nobody can grid at 60 m resolution
      over that distance. Drawn separately: a fan of bearings around the
      true bearing to Ida (117.6 deg absolute, +13.6 deg off heading) sampled
-     against the TROAD sheet (zoom 11, ~183 m/px, covers Ida — trojan-plain's
-     own grid does not reach that far east), at VE 1.0 (real elevation, no
+     against the TROAD sheet (zoom 11, ~183 m/px, covers Ida — the plain
+     sheet's own grid does not reach that far east), at VE 1.0 (real elevation, no
      exaggeration -- see the world-z note), giving a real horizon silhouette
      rather than a hand-drawn bump. Projected with the SAME camera used for
      the near scene (real ALT, same forward/right/up/focal), so it sits at
@@ -190,7 +190,7 @@ THEMES = {
 
 # ── data loaders (READ-ONLY) ────────────────────────────────────────────
 def _load_trojan_plain_layers():
-    path = os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")
+    path = os.path.join(REPO, "apparatus", "plates", "trojan-plain-schematic.json")
     with open(path) as f:
         d = json.load(f)
     return {l["id"]: l for l in d["layers"]}

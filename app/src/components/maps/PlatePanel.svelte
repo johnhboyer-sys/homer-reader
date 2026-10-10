@@ -94,7 +94,7 @@
   // Replaces the old one-checkbox-per-layer debug panel (up to 28 boxes on
   // troad.json) with exactly three, grouped by `PlateLayer.kind` -- the
   // honest, renderer-defined category, not a guess from the id string (real
-  // plates don't consistently prefix ids by kind: trojan-plain.json's own
+  // plates don't consistently prefix ids by kind: trojan-plain-schematic.json's own
   // river layers are just `scamander` / `simoeis`, no `river-` prefix).
   type LayerCategory = 'relief' | 'river' | 'coast';
   const CATEGORY_LABEL: Record<LayerCategory, string> = { relief: 'relief', river: 'rivers', coast: 'shoreline' };

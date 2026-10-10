@@ -784,7 +784,7 @@ def test_the_masks_are_the_plate_s_own_layers_never_re_derived(s3):
                                "relief-rhoiteion-ridge")
     assert s3.PLAIN_LAYER == "scamandrian-plain"
     assert s3.SWAMP_LAYER == "delta-swamp"
-    plate = os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")
+    plate = os.path.join(REPO, "apparatus", "plates", "trojan-plain-schematic.json")
     if not os.path.exists(plate):
         pytest.skip("plate JSON not present")
     import json
@@ -1543,7 +1543,7 @@ def test_the_rampart_keeps_its_towers(s3):
 # "The Scamander does not connect to the water" (John, 2026-08-14): on the sand
 # spit at the head of the bay the channel ran down the spit and simply stopped,
 # short of the shore, in the middle of dry ground. The channel DATA was never
-# short -- apparatus/plates/trojan-plain.json's `scamander` path has 170
+# short -- the plain sheet's `scamander` path has 170
 # vertices and 43 of them lie inside lagoon-bronze. rivers_svg draws a river on
 # land only, and it was cutting the run at the last VERTEX outside the water on
 # a path whose vertices are 122 m apart (625 m at worst), so the mouth was left
@@ -1551,12 +1551,19 @@ def test_the_rampart_keeps_its_towers(s3):
 
 
 def _plate_layers():
-    p = os.path.join(REPO, "apparatus", "plates", "trojan-plain.json")
+    """The ground layers the panorama reads (trojan-plain-schematic.json)
+    plus the camp zone from apparatus/places.json, under the layer id the
+    scripts use -- the same assembly as panorama-stage3.py's _plain_ground."""
+    p = os.path.join(REPO, "apparatus", "plates", "trojan-plain-schematic.json")
     if not os.path.exists(p):
-        pytest.skip("trojan-plain.json not present")
+        pytest.skip("trojan-plain-schematic.json not present")
     import json
     with open(p) as f:
-        return {l["id"]: l for l in json.load(f)["layers"]}
+        lay = {l["id"]: l for l in json.load(f)["layers"]}
+    with open(os.path.join(REPO, "apparatus", "places.json")) as f:
+        camp = next(x for x in json.load(f)["places"] if x["id"] == "achaean-camp")
+    lay["achaean-camp-zone"] = {"id": "achaean-camp-zone", "polygon": camp["zone"]["polygon"]}
+    return lay
 
 
 def _dry_runs_of(s3, rid):
@@ -2728,7 +2735,7 @@ def test_the_true_fleet_hull_count_is_at_least_200(s3):
     """Diagnosis 2026-09-02 (ruling 4): the pre-move (bay-side) true fleet
     drew 258 hulls; near_camp's polygon-vertex blob was gating berths
     against the ridge-LANDFORM zone (not a thin crest — 600-900 m wide
-    station to station, apparatus/plates/trojan-plain.json's own note on
+    station to station, the retired geographic sheet's own note on
     achaean-camp-zone) for no reason connected to whether a berth is a sane
     place to stand a ship, rejecting ~1/4 of otherwise-good stations. Camera
     framing aside (a single render only ever shows a slice of 9 km), the
@@ -2856,17 +2863,18 @@ def test_the_camp_key_names_the_outer_flank_and_the_modern_coast(s3):
     colliding with the key above it, diagnosed 2026-09-02) and the
     modern-coast caveat; the citation itself carries in the DATA, per
     CLAUDE.md's apparatus-sourcing rule ("every sourced claim carries its
-    citation in the data, not just the prose") — the achaean-camp-zone
-    layer's own `sources`, asserted below."""
+    citation in the data, not just the prose") — the camp zone's own
+    `source` in apparatus/places.json (achaean-camp.zone), asserted below."""
     key = " ".join(n + " " + g for n, g in s3.CAMP_KEY) + " " + s3.DRAWN_MARKS
     assert "Kraft" in key and "2003" in key
     assert "outer" in key.lower() or "Aegean" in key
     assert "modern" in key.lower()
-    lay = _plate_layers()
-    zone_cites = " ".join(s["cite"] for s in lay["achaean-camp-zone"]["sources"])
-    assert KRAFT_2003 in zone_cites, (
-        "the full Kraft 2003 citation is missing from the achaean-camp-zone "
-        "layer's own sources — the sheet's short form has nothing to point at")
+    import json
+    with open(os.path.join(REPO, "apparatus", "places.json")) as f:
+        camp = next(x for x in json.load(f)["places"] if x["id"] == "achaean-camp")
+    assert KRAFT_2003 in camp["zone"]["source"], (
+        "the full Kraft 2003 citation is missing from achaean-camp.zone's "
+        "own source — the sheet's short form has nothing to point at")
     src = open(STAGE3).read()
     wp = src.split('add("achaean-wall"', 1)[1].split("add(", 1)[0]
     assert "embayment" not in wp, "the wall note still explains the old bay beach"
