@@ -401,6 +401,34 @@
        value tuned for LIGHT ground and lost contrast. Matches
        :root[data-theme="dark"]'s value below. */
     --plate-schematic-ink:  #DBD5DA;
+    /* The rest of :root[data-theme="dark"] (2026-10-10): this block once carried
+       only the map and plate tokens, so a dark-OS page with no data-theme
+       (ThemeInit unable to read storage, or no script) drew the plates dark on
+       a LIGHT page, with light-theme --text-mid and --accent. Every
+       declaration below repeats the data-theme="dark" block; the parity test
+       shared/__tests__/theme-dark-parity.test.ts fails if the two drift. */
+    --col-bg:       #211828;
+    --page-bg:      #181120;
+    --text:         #EDE6E8;
+    --text-mid:     #B7A9B4;
+    --text-light:   #B7A9B4;
+    --accent:       #D59186;
+    --accent-light: #E4B3AA;
+    --border:       #3A2C38;
+    --popup-bg:     #211828;
+    --popup-shadow: 0 6px 28px rgba(0,0,0,.55);
+    --greek-hover:        color-mix(in srgb, var(--accent) 14%, transparent);
+    --greek-hover-border: color-mix(in srgb, var(--accent) 24%, transparent);
+    --greek-active:       color-mix(in srgb, var(--accent) 26%, var(--page-bg));
+    --rule-strong:  #C17067;
+    --draft:        #8FB0C9;
+    --on-accent:    #0d1415;
+    --input-bg:     #1d2426;
+    --hit-bg:       rgba(255, 196, 110, 0.28);
+    --target-bg:    rgba(255, 196, 110, 0.14);
+    --mark-bg:      rgba(255, 196, 110, 0.30);
+    --error:        #f08a82;
+    color-scheme:   dark;
   }
 }
 
@@ -2081,6 +2109,12 @@ select {
 :root[data-theme="dark"] {
   --spk-0: #e2906e; --spk-1: #97a8e6; --spk-2: #9fbb66; --spk-3: #d68cc2;
   --spk-4: #d2a24c; --spk-5: #5fb6c1; --spk-6: #e28a9a; --spk-7: #a99ae8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --spk-0: #e2906e; --spk-1: #97a8e6; --spk-2: #9fbb66; --spk-3: #d68cc2;
+    --spk-4: #d2a24c; --spk-5: #5fb6c1; --spk-6: #e28a9a; --spk-7: #a99ae8;
+  }
 }
 .turn-flow.spk-color .speaker[data-spk="0"] { color: var(--spk-0); }
 .turn-flow.spk-color .speaker[data-spk="1"] { color: var(--spk-1); }

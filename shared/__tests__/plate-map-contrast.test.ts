@@ -368,13 +368,9 @@ describe('hypsometric relief ramp (parsed from the real global.css)', () => {
     return `#${[mix(hr, tr), mix(hg, tg), mix(hb, tb)].map((c) => c.toString(16).padStart(2, '0')).join('')}`;
   }
 
-  // Only the two blocks that pair a full theme. `:root:not([data-theme])` sets
-  // DARK map tokens under a dark OS while inheriting the LIGHT lettering inks
-  // from `:root` — a combination app/src/components/ThemeInit.astro prevents
-  // (it stamps data-theme light|dark in <head> before paint, defaulting to
-  // light whatever the OS says), so asserting it would be asserting a state
-  // the site never renders.
-  const LABEL_THEMES = THEME_BLOCKS.filter((t) => t.name.startsWith('light (:root default)') || t.name === 'dark (data-theme="dark")');
+  // The no-data-theme dark block now carries the lettering inks too (see
+  // theme-dark-parity.test.ts), so all four blocks pair a full theme.
+  const LABEL_THEMES = THEME_BLOCKS;
 
   it.each(LABEL_THEMES)('$name: every label ink clears AA over the halo on EVERY ramp step', (t) => {
     for (const inkKey of LABEL_INK_KEYS) {
@@ -493,12 +489,7 @@ describe('citadel panel ground (parsed from the real global.css)', () => {
     }
   });
 
-  // Not the prefers-color-scheme block: it overrides the map tokens but not
-  // --text-mid, and it applies only when ThemeInit.astro could not set
-  // data-theme (localStorage threw) on a dark OS — then every --text-mid
-  // mark on every plate is the light theme's ink on dark ground, which is a
-  // site-wide gap, not this panel's.
-  it.each(panelBlocks.filter((b) => !b.name.includes('prefers-color-scheme')))(
+  it.each(panelBlocks)(
     '$name: plan walls clear 3:1 against the roofed floor and every panel ramp step',
     ({ textMid, built, ramp }) => {
     expect(contrastRatio(textMid, built), 'plan ink vs --plate-built').toBeGreaterThanOrEqual(MIN_COAST_CONTRAST);
