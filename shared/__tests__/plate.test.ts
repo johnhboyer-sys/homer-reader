@@ -1862,7 +1862,6 @@ describe('global.css: relief hachure ink is intentionally under-contrasted in da
   }
 
   const light = extractBlock(':root {');
-  const darkMedia = extractBlock(':root:not([data-theme]) {');
   const darkTheme = extractBlock(':root[data-theme="dark"] {');
   const lightTheme = extractBlock(':root[data-theme="light"] {');
 
@@ -1870,7 +1869,6 @@ describe('global.css: relief hachure ink is intentionally under-contrasted in da
   const lightThemeContrast = contrastRatio(readToken(lightTheme, '--flaxman-hachure'), readToken(lightTheme, '--plate-upland'));
 
   it.each([
-    ['dark (prefers-color-scheme)', darkMedia],
     ['dark (data-theme="dark")', darkTheme],
   ])('%s: hachure-vs-upland contrast is LOWER than light\'s, not matched to it, and still clears the 4.5:1 floor', (_name, block) => {
     const darkContrast = contrastRatio(readToken(block, '--flaxman-hachure'), readToken(block, '--plate-upland'));
@@ -1881,15 +1879,6 @@ describe('global.css: relief hachure ink is intentionally under-contrasted in da
 
   it('the two light theme blocks (:root default and data-theme="light") agree with each other (unchanged by this lane)', () => {
     expect(lightThemeContrast).toBeCloseTo(lightContrast, 3);
-  });
-
-  // Finding F6 (stage 6 review, 2026-09-03): --plate-schematic-ink was
-  // defined at :root (light) and at :root[data-theme="dark"], but missing
-  // from THIS block -- a reader on system dark theme with no explicit
-  // data-theme (:root:not([data-theme])) fell through to the light-tuned
-  // value and lost contrast. Must match the explicit dark-theme value.
-  it('--plate-schematic-ink is defined in the OS-dark block and matches :root[data-theme="dark"]', () => {
-    expect(readToken(darkMedia, '--plate-schematic-ink')).toBe(readToken(darkTheme, '--plate-schematic-ink'));
   });
 });
 

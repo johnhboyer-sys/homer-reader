@@ -398,17 +398,6 @@ const supportHref = `${base}/support`;
       background: linear-gradient(158deg, var(--hero-bg-1) 0%, var(--hero-bg-2) 42%, var(--hero-bg-mid) 50%, var(--hero-bg-2) 58%, var(--hero-bg-3) 100%);
     }
     .hero .dusk-hide { display: none; }
-    @media (prefers-color-scheme: dark) {
-      .hero {
-        --hero-bg-1: #0B1526;
-        --hero-bg-2: #101E33;
-        --hero-bg-3: #172846;
-        --hero-bg-mid: var(--hero-bg-2);
-        --hero-point-mult: 1;
-        --hero-fire-scale: 1;
-      }
-      .hero .dusk-hide { display: inline; }
-    }
     :root[data-theme="dark"] .hero {
       --hero-bg-1: #0B1526;
       --hero-bg-2: #101E33;

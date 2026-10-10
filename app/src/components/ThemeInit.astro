@@ -5,11 +5,13 @@
 ---
 <script is:inline>
   (function () {
+    var theme = 'light';
     try {
-      var saved = localStorage.getItem('ne-theme');
-      document.documentElement.dataset.theme = saved === 'dark' ? 'dark' : 'light';
+      if (localStorage.getItem('ne-theme') === 'dark') theme = 'dark';
     } catch (e) {
-      /* localStorage unavailable: fall back to light (CSS default). */
+      /* localStorage blocked: keep the light default, and still stamp it so a
+         dark OS never lands in the no-data-theme state. */
     }
+    document.documentElement.dataset.theme = theme;
   })();
 </script>

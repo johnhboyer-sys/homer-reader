@@ -1,7 +1,8 @@
 ---
 // Night-mode toggle button. The icon shows the theme you'll switch TO:
 // a moon in light mode, a sun in dark mode. Choice is persisted in localStorage
-// and, until the reader makes an explicit choice, the OS preference is followed.
+// and the page is light until the reader chooses dark: the OS preference is
+// never followed (see ThemeInit.astro).
 ---
 <button
   type="button"

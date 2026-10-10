@@ -148,13 +148,12 @@ function readThemeBlock(name: string, selector: string): ThemeBlock {
 /** Must match RELIEF_RAMP_STEPS in shared/lib/plate.ts. */
 const RAMP_STEPS = 12;
 
-// The four theme blocks that declare the scene-map/plate tokens (see
+// The three theme blocks that declare the scene-map/plate tokens (see
 // CLAUDE.md's brief for this defect: lines 89-92 / 171-174 / 195-198 /
 // 222-225 as of 2026-07-28 — selectors below, not line numbers, so this
 // survives the file being edited around them).
 const THEME_BLOCKS: ThemeBlock[] = [
   readThemeBlock('light (:root default)', ':root {'),
-  readThemeBlock('dark (prefers-color-scheme, no data-theme)', ':root:not([data-theme]) {'),
   readThemeBlock('dark (data-theme="dark")', ':root[data-theme="dark"] {'),
   readThemeBlock('light (data-theme="light")', ':root[data-theme="light"] {'),
 ];
@@ -368,13 +367,7 @@ describe('hypsometric relief ramp (parsed from the real global.css)', () => {
     return `#${[mix(hr, tr), mix(hg, tg), mix(hb, tb)].map((c) => c.toString(16).padStart(2, '0')).join('')}`;
   }
 
-  // Only the two blocks that pair a full theme. `:root:not([data-theme])` sets
-  // DARK map tokens under a dark OS while inheriting the LIGHT lettering inks
-  // from `:root` — a combination app/src/components/ThemeInit.astro prevents
-  // (it stamps data-theme light|dark in <head> before paint, defaulting to
-  // light whatever the OS says), so asserting it would be asserting a state
-  // the site never renders.
-  const LABEL_THEMES = THEME_BLOCKS.filter((t) => t.name.startsWith('light (:root default)') || t.name === 'dark (data-theme="dark")');
+  const LABEL_THEMES = THEME_BLOCKS;
 
   it.each(LABEL_THEMES)('$name: every label ink clears AA over the halo on EVERY ramp step', (t) => {
     for (const inkKey of LABEL_INK_KEYS) {
@@ -472,11 +465,9 @@ describe('citadel panel ground (parsed from the real global.css)', () => {
     const block = extractBlock(
       t.name.startsWith('light (:root')
         ? ':root {'
-        : t.name.includes('prefers-color-scheme')
-          ? ':root:not([data-theme]) {'
-          : t.name.includes('"dark"')
-            ? ':root[data-theme="dark"] {'
-            : ':root[data-theme="light"] {',
+        : t.name.includes('"dark"')
+          ? ':root[data-theme="dark"] {'
+          : ':root[data-theme="light"] {',
     );
     return {
       ...t,
@@ -493,12 +484,7 @@ describe('citadel panel ground (parsed from the real global.css)', () => {
     }
   });
 
-  // Not the prefers-color-scheme block: it overrides the map tokens but not
-  // --text-mid, and it applies only when ThemeInit.astro could not set
-  // data-theme (localStorage threw) on a dark OS — then every --text-mid
-  // mark on every plate is the light theme's ink on dark ground, which is a
-  // site-wide gap, not this panel's.
-  it.each(panelBlocks.filter((b) => !b.name.includes('prefers-color-scheme')))(
+  it.each(panelBlocks)(
     '$name: plan walls clear 3:1 against the roofed floor and every panel ramp step',
     ({ textMid, built, ramp }) => {
     expect(contrastRatio(textMid, built), 'plan ink vs --plate-built').toBeGreaterThanOrEqual(MIN_COAST_CONTRAST);
