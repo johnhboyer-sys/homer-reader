@@ -1198,11 +1198,27 @@ def test_validate_plate_bbox_tolerates_one_ulp_over_the_edge():
 
 
 # ── validate_places: `zone.polygon` (2026-09-02, camp-zone ruling 2e-iv) ────
-# apparatus/places.json's achaean-camp.zone is the one authored copy of the
-# camp-zone polygon, the source of truth the panorama reads. (The retired
-# geographic sheet carried a second copy as its achaean-camp-zone layer,
-# and a test here held the two equal; both went with the sheet, 2026-09-15.)
-# These tests validate its shape.
+# apparatus/places.json's achaean-camp.zone is the source of truth for the
+# camp-zone polygon, and the panorama reads it directly. The schematic sheet's
+# `achaean-camp` layer is a second, exact copy that the first test below holds
+# equal. (The retired geographic sheet carried a third copy as its
+# achaean-camp-zone layer, held equal by a test that went with the sheet,
+# 2026-09-15.) The rest of these tests validate the zone's shape.
+
+
+def test_schematic_achaean_camp_layer_matches_the_gazetteer_zone():
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    zone = next(p for p in places_doc["places"] if p["id"] == "achaean-camp")["zone"]["polygon"]
+    plate_doc = json.loads(
+        (ROOT / "apparatus" / "plates" / "trojan-plain-schematic.json").read_text(encoding="utf-8")
+    )
+    layer = next(layer for layer in plate_doc["layers"] if layer["id"] == "achaean-camp")["polygon"]
+    assert layer == zone, (
+        "apparatus/plates/trojan-plain-schematic.json layer `achaean-camp` polygon "
+        "differs from apparatus/places.json place `achaean-camp` zone.polygon. "
+        "places.json is the source of truth (ruling 2e-iv): edit the schematic "
+        "layer to match it, not the other way round."
+    )
 
 
 def test_validate_places_zone_polygon_must_be_at_least_three_pairs():
