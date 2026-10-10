@@ -2650,7 +2650,19 @@ function lastIndexOfClass(svg: string, cls: string): number {
 
 describe('the paint stack: a land band can never render over water', () => {
   const livePlain = parsePlate(JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')));
-  const plainSvg = renderPlate(livePlain, []).svg;
+  const fullSvg = renderPlate(livePlain, []).svg;
+  // The MAP FACE's paint stack. The citadel panels' own ground (ruling 15,
+  // `insetOnly` relief bands) is drawn after the face, on the panels, inside
+  // each panel's clip group — after every panel, or an opaque panel would
+  // cover it — so it is measured separately below, not as face relief.
+  const panelStart = fullSvg.search(/<g clip-path="url\(#[^"]*inset-clip-/);
+  const plainSvg = panelStart >= 0 ? fullSvg.slice(0, panelStart) : fullSvg;
+
+  it('the panels\' ground bands are drawn inside their panel groups, after the face', () => {
+    expect(panelStart, 'the live sheet has inset panels').toBeGreaterThan(-1);
+    expect(fullSvg.indexOf('data-feature-id="ilios-ground-0010--inset"')).toBeGreaterThan(panelStart);
+    expect(plainSvg).not.toContain('ilios-ground-');
+  });
 
   it('on the live plain sheet, every relief band is emitted before every water body', () => {
     const lastRelief = lastIndexOfClass(plainSvg, 'plate-layer-relief-band');
