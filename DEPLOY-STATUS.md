@@ -3,6 +3,34 @@
 Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). No deploys have
 occurred; deploying, the GitHub remote, and the first push are John-gated.
 
+## Deploy — 2026-10-10 (second): open a citadel panel full size, PR #49
+
+gh-pages `77ebcc41f` → `7711cdc77` (source: main `f2c7fbf7d`, CI green). Same
+method as the morning deploy. The diff is the Maps page only: `maps/index.html`
+and the MapsPage JS and CSS.
+
+**What shipped (PR #49).**
+- **Zoom controls:** the − / Reset / + buttons now end where the map face ends,
+  so they no longer cover the Ilios panel.
+- **Enlarge:** each citadel panel has an "Enlarge <panel>" button. It opens a
+  native dialog with a clone of the panel's SVG (ground, plan, pins of every
+  certainty shape, badges and leaders), with ids rewritten so none is
+  duplicated.
+- **Review:** GPT-6-Sol found 3 defects, among them speculative square pins
+  dropped from the clone. All are fixed with tests, and Sol confirmed them
+  closed.
+- **No `VERSION` bump:** JS and CSS only, and both are content-hashed.
+
+Gates: preflight ok · 4,686 pages · 0 broken of 335,501 links.
+
+Live-verified on `/maps/?map=plain` at 1024×768:
+- The page shows two buttons, "Enlarge Pergamos" and "Enlarge Ilios".
+- The zoom controls end at x=380 and the panel frames start at x=484, so they
+  don't overlap.
+- The Pergamos dialog opens with its name and 6 pins, and the page has 0
+  duplicate ids with it open.
+- On close, focus returns to the button. No console errors.
+
 ## Deploy — 2026-10-10: the citadel panels, PR #47 (and PR #46)
 
 gh-pages `185b233f5` → `77ebcc41f` (source: main `6e9006fb0`, CI green). Full
