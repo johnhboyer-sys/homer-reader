@@ -1127,6 +1127,115 @@ action posture, `Jump to…` from 775. **≥1040** full labels with icons, segme
   `/maps/?map=plain&focus=…`. No plato-reader counterpart for any of these
   (Homer-only apparatus features).
 
+## 2026-09-03 — The citadel as a projected-window inset; zone outlines dropped (rulings 10, 11)
+
+- `shared/lib/plate.ts` — **a framed `style: "inset"` panel can be a projected
+  WINDOW, not just a free drawing.** `PlateLayer.insetBBox` declares the ground
+  a panel shows; `PlateLayer.insetOf` names that panel from an ordinary layer,
+  which is then drawn a SECOND time through the window from its own lat/lon
+  geometry (feature id `<id>--inset`), so no geometry is duplicated in the
+  plate file and the two drawings of one feature cannot drift.
+  `PlateFeatureKeyGroup.inset` routes a whole key group's pins and numerals
+  into the panel: they are solved by the same `placeKeyBadges`, in the panel's
+  own rectangle translated to its origin, and emitted with the margin
+  furniture rather than inside `.plate-camera`. The translation rides on the
+  Viewport's `width`/`height` (which `project` uses only as the centre of the
+  frame it draws into), so `project`, `projectPoints`, `resolvePlacePosition`
+  and `renderLayer` all work inside an inset unchanged. `insetContentRect`
+  derives the drawing rectangle from the panel's own title-block arithmetic,
+  so window content can never be laid under the head. Window contents paint
+  AFTER every panel — a panel is a 0.97-opaque rect, and a copy pushed into
+  `marginInsetMarkup` in its source layer's paint slot comes out a ghost.
+- `shared/lib/plate.ts` — **a scene zone's outline is never drawn** (ruling 11).
+  The polygon still feeds the letter's seat, the reservations, `PlateResult`
+  and the Chart Room camera; only the ink and its now-meaningless legend row
+  go. Suppressed in `renderPlate`'s layer loop (`isSceneZone`), not in
+  `renderLayer`, so the zone keeps every other effect it had.
+- `shared/__tests__/plate.test.ts` — E7's parse extended (a numeral wholly
+  inside an inset panel is ON that panel's map, not fouling furniture; a
+  window's redrawn glyphs are obstacles); E2 sorts (an inset group paints
+  last); E4 measures a line-keyed numeral against the drawn line, not against
+  the centre of the box round it; new E8/E9 (every inset numeral inside its
+  panel with its leader; the group's marks off the face) and three tests
+  pinning `citadel-inset-wall` as `wall-of-troy` divided by the 55% its own
+  note declares.
+- `pipeline/homer_pipeline/apparatus_places.py` — validates `insetBBox`,
+  `insetOf` and `featureKey[].inset`, mirroring parsePlate.
+- No plato-reader counterpart (Homer-only apparatus feature).
+
+## The citadel inset becomes a citadel plate (2026-09-03, ruling 12)
+
+John: "the citadel insert is too coarse grained. this is where we need to
+supplement." The inset built that morning was a plan of gates and a derived
+ring, empty inside the wall and with no ground under it.
+
+- `shared/lib/plate.ts` — **the furniture band's TEXT measure is capped**
+  (`MARGIN_TEXT_COLUMN` = 340, `bandTextWidth`). A margin only has to be as
+  wide as its widest block, and the schematic sheet now needs a SECOND column
+  of inset panels beside its keys, so `marginRight` doubles to 792. Letting
+  the legend, the scene key and the feature key follow it would stretch every
+  row to a 600px measure. A measure is a typographic constant; the surplus
+  margin is panel room. 340 is what the sheet was designed at, so nothing
+  rendered before this moves. Only `trojan-plain-schematic.json` declares a
+  `marginRight` at all.
+- `apparatus/plates/trojan-plain-schematic.json` — the sheet grows to the
+  RIGHT only (1756 → 2208 wide, `marginRight` 340 → 792), so the MAP frame
+  stays 1416 × 1600 and every face label and face numeral is byte-identical.
+  Two furniture columns: keys left, the three inset panels right.
+  `citadel-inset-wall` — the poem ring derived from `wall-of-troy` ÷ 1.55 —
+  is DELETED, replaced by Dörpfeld's own surveyed Troy VI circuit ported from
+  `troy-citadel.json` at that plate's `pxPerMetre`, centred on the sheet's own
+  centre for Ilios. A second projected window, `citadel-city-panel`, carries
+  it at 32× the sheet with the poem's city on it; the key group splits into
+  "Inside the walls" (12) and "Before the walls" (8).
+- `shared/__tests__/plate.test.ts` — E4 measures a badge to the nearest point
+  ON its line, not to its nearest VERTEX (a rotated 106 × 133px house read a
+  badge 12px off one side as 49px adrift). E6 was "key bottom + 10 ≤ inset
+  top", the one-column rule; the claim that survives is that the keys and the
+  panels do not collide, stacked OR side by side. E8/E9 loop over every routed
+  group, not the single one `groups.find(g => g.inset)` assumed. The three
+  tests pinning `citadel-inset-wall` are replaced by two on the surveyed
+  circuit: its size and shape, and the three gate anchors landing on it.
+- `shared/lib/plate.ts` — **the plan register and the quiet masonry**
+  (2026-09-03, ruling 13, the citadel city). `style: "plan"` on a region draws
+  a building as an engraved plan: `polygon`/`rings` as wall bars `wallM`
+  metres thick, `lines` at half that, `columns` as dots every `columnM`
+  metres (`columnDots`, exported), `solids` filled — in the conjectural ink,
+  scaled by the viewport (`pxPerMetre`), so the map-face copy of a citadel
+  building draws only its outline reservation. `fill: "masonry-ground"` is
+  `masonry` at 0.42 opacity with a lighter edge, keyed on the masonry legend
+  row. parseLayer grows `lines`/`columns`/`solids`/`wallM`/`columnM`;
+  paintRank and the label role treat `plan` as `poem`.
+
+## 2026-10-09 — PR #29 merged into the citadel branch; the numeral solver's wall test made cheap
+
+- `shared/lib/plate.ts` — `placeKeyBadges`' seat search stops counting a
+  candidate's collisions once it already has more than the incumbent, and
+  rejects a wall leg by its padded box before projecting onto it. Same seats
+  (every recorded placement in plate.test.ts is unchanged); the cold
+  schematic render falls from ~5 s to ~1.3 s, most of it in the Ilios panel,
+  where each numeral was tested against all 751 wall legs of the city plan.
+- `pipeline/homer_pipeline/apparatus_places.py` — `_layer_has_drawable_geometry`
+  counts `style: "plan"` as drawn whatever its fill, as renderLayer does.
+- No plato-reader counterpart (Homer-only apparatus feature).
+
+## 2026-10-09 — The citadel panels' ground and city (ruling 15)
+
+- `shared/lib/plate.ts` — `PlateLayer.insetOf` takes a list (a layer drawn in
+  each panel it names; feature ids `--inset`, then `--inset-<panel>`,
+  `insetCopyId`), and `insetOnly` draws a layer in its panel(s) and never on
+  the map face, keeping its elevation out of the face's ramp. New registers for
+  the panels: `kind: "wall", style: "cut"` (a rock-cut ditch: rock floor, lips,
+  bank strokes, `widthM`), `fill: "built"` on a plan (roofed floor; `open`
+  rings are courts), `style: "scrub"` (seeded marks, `spacingM`) and
+  `style: "tree"` (a crown in plan), each with its legend row.
+- `shared/styles/global.css` — `--plate-built`, `--plate-rock`,
+  `--plate-scrub` in all four theme blocks; contrast pinned in
+  plate-map-contrast.test.ts.
+- `pipeline/homer_pipeline/apparatus_places.py` — mirrors list `insetOf`,
+  `insetOnly`, `open` and the `built` fill.
+- No plato-reader counterpart (Homer-only apparatus feature).
+
 ## 2026-10-09 — The geographic Trojan Plain sheet's files removed (ruling 16 follow-up)
 
 - `shared/components/Reader.svelte` — the geographic Chart Room path is gone:

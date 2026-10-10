@@ -348,6 +348,27 @@ transverse-Mercator (WGS84, CM 27°, k=1, FE 500 000) on the same table puts all
 between **39.9533–39.9593 N and 26.2331–26.2458 E** — on Hisarlık, inside the World
 Heritage polygon's bounding box as traced in OpenStreetMap (§4.2).
 
+**Claim 3a — 5.02° and 5.509° are the SAME rotation, and the sign is now fixed
+(2026-09-03, the `claude/citadel-inset` ditch lane).** Blindow, Hübner and Jansen 2014,
+680 n. 23, citing Messmer 1992, 71, state that both grids are rotated **5.509° from
+geographic north (WGS84)**. That was read as superseding Claim 3's fitted 5.01987°. It
+does not: the two measure the rotation against different norths, and the difference is
+the meridian convergence at Troy, γ = (λ − λ₀)·sin φ = (26.2390 − 27)·sin 39.9570° =
+−0.4887°. So 5.01987 + 0.4887 = **5.5086°**, the chapter's figure to within 0.0004°.
+SDK87 grid north is 5.509° **west** of true north and 5.020° west of Gauß-Krüger grid
+north. The sign follows from applying Claim 3's parameters as
+`E_gk = tx + s(y·cos θ − x·sin θ)`, `N_gk = ty + s(x·cos θ + y·sin θ)` (x = SDK87
+northing, y = SDK87 easting), which reproduces the one raw pair printed above —
+point 100014 — to **1 mm** in both axes; the opposite sign misses by 1.9 km.
+Claim 3 is therefore **confirmed, not superseded**, and the two published numbers
+corroborate each other. Also corrected the same day: Claim 4's formula gives the row's
+**southern edge**, not the row — row *n* spans N (10820 − 20n) down to (10800 − 20n) —
+and the **column half is now solved** (E = 8700 + 20·i at the column's west edge, i
+indexing a b c … z A … Z AA … with no j/J/JJ), read off Abb. 13's own bottom margin and
+checked against three coordinates in that chapter's prose. Full working, the derivation
+of the whole ditch, and the residual against this repo's drawn citadel:
+`docs/research/TROY-VI-DITCH.md`.
+
 **What this buys the rebuild.** Tafel V's 20 m grid is not decoration; it is the same net
 that is now tied to ITRF97. A trace of Tafel V can be placed in WGS84 in either of two
 ways:
@@ -763,10 +784,13 @@ Ordered by what each settles.
   a point-identity check. The §2 transform is verified internally (3 mm residuals on 36
   published pairs); the absolute tie to visible structures is **not** verified by this lane.
   A rebuild must fit control features itself.
-- **The column half of the grid mapping.** "mn15 (N 10500, E 8950)" gives one square-to-metre
+- ~~**The column half of the grid mapping.** "mn15 (N 10500, E 8950)" gives one square-to-metre
   pair, and the row formula checks against it exactly. The column reading depends on whether
   "mn" is one column or a span of two, and on where the 20 m column boundaries fall relative
-  to E 8950. **Not resolved.** See §6 item 1.
+  to E 8950. **Not resolved.** See §6 item 1.~~
+  **RESOLVED 2026-09-03** (Claim 3a above): the column boundaries were read off Abb. 13's
+  own lettered margin at 1200 dpi and checked against three coordinates in that chapter's
+  prose. Messmer Abb. 2 (§6 item 1) would only confirm it.
 - **The popular identification of the South Gate as the Scaean.** Widely stated on the
   ground and in guides; **no scholarly source for it was located by this lane.** Do not
   attribute it to a scholar until one is found. The `tradition` field must not be filled

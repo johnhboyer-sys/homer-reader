@@ -715,6 +715,129 @@ def test_real_places_validate_clean():
     assert place_problems == [], place_problems
 
 
+def _schematic_plate() -> dict:
+    return json.loads(
+        (ROOT / "apparatus" / "plates" / "trojan-plain-schematic.json").read_text(encoding="utf-8")
+    )
+
+
+def _schematic_places() -> dict:
+    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
+    return {p["id"]: p for p in places_doc["places"]}
+
+
+# Ruling 10 (2026-09-03): the citadel is a margin inset, so a framed inset
+# panel may declare `insetBBox` (the ground it shows), layers may name it in
+# `insetOf`, and a featureKey group may route its numerals into it with
+# `inset`. All three are references, and a typo in one silently drops content
+# off the sheet -- which is what these check.
+def test_inset_of_must_name_a_framed_inset_panel():
+    plate = _schematic_plate()
+    for layer in plate["layers"]:
+        if layer.get("insetOf"):
+            layer["insetOf"] = "no-such-panel"
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("insetOf 'no-such-panel'" in p for p in problems), problems
+
+
+# Ruling 15 (2026-09-04): one layer may be drawn in several panels, and a
+# panel's own ground may be drawn in it alone (`insetOnly`).
+def test_inset_of_accepts_a_list_and_checks_every_entry():
+    plate = _schematic_plate()
+    layer = next(l for l in plate["layers"] if l.get("insetOf") == "citadel-city-panel")
+    layer["insetOf"] = ["citadel-city-panel", "citadel-inset-panel"]
+    assert apparatus_places.validate_plate(plate, _schematic_places()) == []
+    layer["insetOf"] = ["citadel-city-panel", "no-such-panel"]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("insetOf 'no-such-panel'" in p for p in problems), problems
+    layer["insetOf"] = ["citadel-city-panel", "citadel-city-panel"]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("list of distinct layer ids" in p for p in problems), problems
+
+
+def test_inset_only_needs_an_inset_of_panel():
+    plate = _schematic_plate()
+    layer = next(l for l in plate["layers"] if l.get("insetOf"))
+    layer["insetOnly"] = True
+    assert apparatus_places.validate_plate(plate, _schematic_places()) == []
+    del layer["insetOf"]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("insetOnly but names no insetOf panel" in p for p in problems), problems
+
+
+def test_inset_only_layer_cannot_carry_a_place():
+    plate = _schematic_plate()
+    layer = next(l for l in plate["layers"] if l.get("insetOnly"))
+    layer["placeId"] = "scaean-gate"
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("insetOnly and cannot carry a placeId" in p for p in problems), problems
+
+
+def test_an_open_court_must_lie_inside_its_house():
+    plate = _schematic_plate()
+    layer = next(l for l in plate["layers"] if l.get("open"))
+    lat, lon = layer["polygon"][0]
+    layer["rings"][layer["open"][0]] = [[lat + 0.01, lon], [lat + 0.01, lon + 0.001], [lat + 0.011, lon]]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("must lie inside the layer's own polygon" in p for p in problems), problems
+
+
+def test_a_malformed_polygon_beside_an_open_court_is_reported_not_raised():
+    plate = _schematic_plate()
+    layer = next(l for l in plate["layers"] if l.get("open"))
+    layer["polygon"] = [[39.95, 26.24], "not a pair", [39.951, 26.241]]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert problems, "the malformed polygon must be reported"
+
+
+def test_a_layer_id_may_not_equal_a_panel_copy_id():
+    plate = _schematic_plate()
+    layer = next(l for l in plate["layers"] if l.get("insetOf"))
+    clash = dict(layer, id=f"{layer['id']}--inset")
+    clash.pop("insetOf"); clash.pop("insetOnly", None)
+    plate["layers"].append(clash)
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("is already taken" in p for p in problems), problems
+
+
+def test_feature_key_group_inset_must_name_a_framed_inset_panel():
+    plate = _schematic_plate()
+    for group in plate["featureKey"]:
+        if group.get("inset"):
+            group["inset"] = "no-such-panel"
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("inset 'no-such-panel'" in p for p in problems), problems
+
+
+def test_inset_bbox_must_be_well_formed_and_on_a_framed_panel():
+    plate = _schematic_plate()
+    for layer in plate["layers"]:
+        if layer.get("insetBBox"):
+            layer["insetBBox"] = [1, 2, 3]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("insetBBox must be a 4-element" in p for p in problems), problems
+
+    plate = _schematic_plate()
+    for layer in plate["layers"]:
+        if layer.get("insetBBox"):
+            layer.pop("frame")
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any(
+        "citadel-inset-panel has an insetBBox but is not a framed inset panel" in p
+        for p in problems
+    ), problems
+
+
+def test_inset_bbox_must_not_be_inverted():
+    plate = _schematic_plate()
+    for layer in plate["layers"]:
+        if layer.get("insetBBox"):
+            lat0, lon0, lat1, lon1 = layer["insetBBox"]
+            layer["insetBBox"] = [lat1, lon1, lat0, lon0]
+    problems = apparatus_places.validate_plate(plate, _schematic_places())
+    assert any("maxLat > minLat" in p for p in problems), problems
+
+
 def test_real_trojan_plain_schematic_plate_validates_clean():
     places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
     places_by_id = {p["id"]: p for p in places_doc["places"]}
@@ -929,6 +1052,29 @@ def test_validate_plate_rejects_bad_label_tier_and_size_on_a_layer():
     ])
     problems = apparatus_places.validate_plate(plate, {})
     assert any("labelSize must be 'small' or 'base'" in p for p in problems)
+
+
+# 2026-09-03 review, finding 5: a layer had no certainty tier of its own,
+# right for drawn geometry and wrong for a layer that IS a claim (the
+# citadel's poem-drawn buildings have no gazetteer place of their own to
+# carry a tier through). Mirrors CERTAINTY_TIERS, the same set validate_places
+# already enforces on a place.
+def test_validate_plate_accepts_certainty_on_a_layer():
+    for tier in sorted(apparatus_places.CERTAINTY_TIERS):
+        plate = _plate(layers=[
+            {"id": "r", "kind": "region", "certainty": tier,
+             "polygon": [[39.90, 26.15], [39.91, 26.16], [39.90, 26.17]]}
+        ])
+        assert apparatus_places.validate_plate(plate, {}) == [], tier
+
+
+def test_validate_plate_rejects_unknown_certainty_on_a_layer():
+    plate = _plate(layers=[
+        {"id": "r", "kind": "region", "certainty": "confirmed",
+         "polygon": [[39.90, 26.15], [39.91, 26.16], [39.90, 26.17]]}
+    ])
+    problems = apparatus_places.validate_plate(plate, {})
+    assert any("certainty must be one of" in p for p in problems)
 
 
 # ── validate_plate: adversarial-review findings ─────────────────────────────

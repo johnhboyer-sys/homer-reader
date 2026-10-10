@@ -69,6 +69,13 @@ export type { Viewport } from './geo';
 
 export type Certainty = 'certain' | 'traditional' | 'speculative' | 'mythical';
 
+// Mirrors apparatus_places.py's CERTAINTY_TIERS. Used to validate
+// PlateLayer.certainty (2026-09-03, review finding 5) — PlatePlace.certainty
+// is read straight off apparatus/places.json, already validated there by the
+// Python gazetteer check, so this module has never needed its own copy of
+// the set until a layer, not just a place, could carry a tier.
+const CERTAINTY_TIERS: readonly Certainty[] = ['certain', 'traditional', 'speculative', 'mythical'];
+
 export type PlateKind = 'geographic' | 'schematic';
 
 export type LayerKind =
@@ -131,6 +138,16 @@ const REGION_FILL_TOKENS = {
   // edge, so a wall band reads as built stone with a drawn face instead of a
   // wash. See the `region` case in renderLayer for the edge.
   masonry: 'var(--plate-masonry)',
+  // The same surveyed masonry drawn as GROUND (2026-09-03, ruling 13): the
+  // citadel panel's circuit, towers and houses at a lower opacity and a
+  // lighter edge, so the poem's city drawn over them carries the weight.
+  // Same token, same legend row as `masonry`.
+  'masonry-ground': 'var(--plate-masonry)',
+  // Roofed space in the poem's plan register (ruling 15, 2026-09-04): the
+  // floor of a house the poem's city is drawn with, so a block of houses
+  // reads as built mass against the open ground of its streets and courts.
+  // Only `style: "plan"` draws it (see PlateLayer.open).
+  built: 'var(--plate-built)',
   sea: 'var(--scene-map-sea)',
   lagoon: 'var(--plate-lagoon)',
   land: 'var(--scene-map-land)',
@@ -157,6 +174,8 @@ const REGION_FILL_OPACITY: Record<RegionFill, number> = {
   zone: 0.12,
   // Opaque: masonry is a body of stone, not a wash over ground.
   masonry: 1,
+  'masonry-ground': 0.42,
+  built: 1,
   sea: 1,
   lagoon: 1,
   land: 1,
@@ -239,6 +258,16 @@ export interface PlateLayer {
   legend?: string;
   note?: string;
   sources?: PlateSource[];
+  /**
+   * A layer's own certainty tier (2026-09-03, review finding 5), mirroring
+   * `PlatePlace.certainty`. Most layers are drawn geometry with no claim of
+   * their own to tier; this exists for the ones that ARE a claim — the
+   * citadel's poem-drawn buildings and streets carry no gazetteer place of
+   * their own to tier them through, and are `speculative`: placed by the
+   * poem's stated relations (beside, at the doors of, down to), not at a
+   * measured position.
+   */
+  certainty?: Certainty;
   default?: 'on' | 'off';
   style?: string;
   width?: number;
@@ -263,6 +292,19 @@ export interface PlateLayer {
   baseline?: PlatePoint[];
   trace?: PlatePoint[];
   /**
+   * `style: "plan"` only (2026-09-03, ruling 13): a building drawn as an
+   * engraved plan. `polygon` and `rings` are its main walls, `lines` its thin
+   * partitions, `columns` its column rows (a dot every `columnM` metres),
+   * `solids` its filled pieces (antae, a seat, an altar). Walls are `wallM`
+   * metres thick and scale with the viewport, so one layer is a hairline on
+   * the map face and a wall in the citadel panel.
+   */
+  lines?: PlatePoint[][];
+  columns?: PlatePoint[][];
+  solids?: PlatePoint[][];
+  wallM?: number;
+  columnM?: number;
+  /**
    * `style: "inset"` only. Panel rectangle in SHEET PIXELS `[x, y, w, h]`.
    * When present, `polygon`/`path` are unit coordinates inside this frame
    * (0..1 across its width/height), so a panel can sit in the margin band
@@ -270,6 +312,60 @@ export interface PlateLayer {
    * own projected points, exactly as before.
    */
   frame?: [number, number, number, number];
+  /**
+   * A framed `style: "inset"` panel that is a PROJECTED WINDOW rather than a
+   * free drawing: `[minLat, minLon, maxLat, maxLon]`, the ground the panel
+   * shows, at the sheet's own rotation. Sibling layers naming this panel in
+   * `insetOf` are drawn from their ordinary lat/lon geometry through that
+   * window, and a `featureKey` group naming it in `inset` puts its pins and
+   * its numerals inside the panel instead of on the map face (ruling 10,
+   * 2026-09-03: eleven poem features sit inside 25px at Ilios, and a ring of
+   * eleven numerals round them reads as a spider).
+   *
+   * The panel's OWN `polygon` stays unit coordinates — it is the rectangle,
+   * not a feature — so `insetBBox` changes nothing about how the panel is
+   * drawn, only what its children mean.
+   */
+  insetBBox?: [number, number, number, number];
+  /**
+   * "Also draw me inside that inset panel." Names a layer with `insetBBox`,
+   * or a list of them. The layer keeps its ordinary lat/lon geometry and its
+   * ordinary place on the map face; a further copy is drawn through each
+   * panel's window, with `--inset` appended to its feature id in the first
+   * panel listed and `--inset-<panel id>` in any other (insetCopyId). No
+   * geometry is duplicated in the plate file, so the drawings can never drift
+   * apart. A list exists for the citadel (ruling 15, 2026-09-04): the same
+   * houses are drawn at Pergamos scale and again, to scale, inside Ilios.
+   * In the plate file a single id may be written as a bare string; parsed,
+   * it is always a list.
+   */
+  insetOf?: string[];
+  /**
+   * With `insetOf`: drawn ONLY through its window(s), never on the map face.
+   * For the ground a panel needs at its own scale (the elevation bands of the
+   * Ilios window, the rock of the ditch) that the face already draws in its
+   * own way: a second, finer drawing of the same ground under the face's
+   * would contradict it. Such a layer adds no feature, label, pin or obstacle
+   * to the face, and its relief elevations stay out of the face's ramp
+   * (hypsometricLevels), so it can never re-tint the sheet.
+   */
+  insetOnly?: boolean;
+  /**
+   * `style: "plan"` with `fill: "built"`: indexes into `rings` of the open
+   * courts (the αὐλή of Priam's house, 6.242-50, of Hector's and Paris's,
+   * 6.316). The building's polygon and every other ring are roofed and take
+   * the floor fill; a court is left as open ground.
+   */
+  open?: number[];
+  /**
+   * `kind: "wall"`, `style: "cut"`: the drawn width of a rock-cut ditch, in
+   * metres on the ground, so the band keeps its proportion in every window
+   * it is drawn through. A drawing width, which the layer's note squares
+   * with the measured one.
+   */
+  widthM?: number;
+  /** `style: "scrub"`: the spacing of the scrub marks, metres on the ground. */
+  spacingM?: number;
   /** See PlatePlace.labelTier. Default 1. */
   labelTier?: 1 | 2;
   /** See PlatePlace.labelSize. */
@@ -415,6 +511,14 @@ export interface PlateFeatureKeyItem {
 export interface PlateFeatureKeyGroup {
   title: string;
   items: PlateFeatureKeyItem[];
+  /**
+   * Ruling 10 (John, 2026-09-03). The id of a `style: "inset"` layer carrying
+   * an `insetBBox`: this group's marks and numerals are drawn INSIDE that
+   * panel, at the panel's own scale, and never on the map face. The key rows
+   * are unchanged — the numerals stay dense and in group order across the
+   * whole sheet, whichever surface each one is drawn on.
+   */
+  inset?: string;
 }
 
 // Mirrors the fields of apparatus/places.json this module needs, trimmed the
@@ -655,7 +759,11 @@ function assertPointsInBBox(
       );
     }
   };
-  for (const ring of layer.rings ?? []) for (const p of ring) check(p);
+  // `lines`, `columns` and `solids` are the plan register's ring lists, held
+  // to the same bounds as `rings` (apparatus_places.py's _RING_FIELDS).
+  for (const list of [layer.rings, layer.lines, layer.columns, layer.solids]) {
+    for (const ring of list ?? []) for (const p of ring) check(p);
+  }
   for (const p of layer.path ?? []) check(p);
   for (const p of layer.polygon ?? []) check(p);
   for (const p of layer.baseline ?? []) check(p);
@@ -678,7 +786,11 @@ function assertPointsInUnitRange(layer: PlateLayer): void {
       );
     }
   };
-  for (const ring of layer.rings ?? []) for (const p of ring) check(p);
+  // `lines`, `columns` and `solids` are the plan register's ring lists, held
+  // to the same bounds as `rings` (apparatus_places.py's _RING_FIELDS).
+  for (const list of [layer.rings, layer.lines, layer.columns, layer.solids]) {
+    for (const ring of list ?? []) for (const p of ring) check(p);
+  }
   for (const p of layer.path ?? []) check(p);
   for (const p of layer.polygon ?? []) check(p);
   for (const p of layer.baseline ?? []) check(p);
@@ -752,6 +864,9 @@ function parseLayer(
   if (l.labelSize !== undefined && l.labelSize !== 'small' && l.labelSize !== 'base') {
     fail(`layer "${l.id}" has a malformed "labelSize" (must be "small" or "base")`);
   }
+  if (l.certainty !== undefined && !CERTAINTY_TIERS.includes(l.certainty as Certainty)) {
+    fail(`layer "${l.id}" has an unknown certainty "${String(l.certainty)}" (must be one of ${CERTAINTY_TIERS.join(', ')})`);
+  }
 
   const geometryArray = (key: string): PlatePoint[] | undefined => {
     if (l[key] === undefined) return undefined;
@@ -760,13 +875,19 @@ function parseLayer(
     }
     return l[key] as PlatePoint[];
   };
-  const ringsRaw = l.rings;
-  let rings: PlatePoint[][] | undefined;
-  if (ringsRaw !== undefined) {
-    if (!Array.isArray(ringsRaw) || !ringsRaw.every((r) => Array.isArray(r) && r.every(isPoint))) {
-      fail(`layer "${l.id}" has a malformed "rings" field`);
+  const ringList = (key: string): PlatePoint[][] | undefined => {
+    const raw = l[key];
+    if (raw === undefined) return undefined;
+    if (!Array.isArray(raw) || !raw.every((r) => Array.isArray(r) && r.every(isPoint))) {
+      fail(`layer "${l.id}" has a malformed "${key}" field`);
     }
-    rings = ringsRaw as PlatePoint[][];
+    return raw as PlatePoint[][];
+  };
+  const rings = ringList('rings');
+  for (const key of ['wallM', 'columnM', 'widthM', 'spacingM'] as const) {
+    if (l[key] !== undefined && !(isFiniteNumber(l[key]) && (l[key] as number) > 0)) {
+      fail(`layer "${l.id}" has a malformed "${key}" (must be a number > 0)`);
+    }
   }
 
   const layer: PlateLayer = {
@@ -780,6 +901,7 @@ function parseLayer(
     legend: typeof l.legend === 'string' && l.legend.trim() ? l.legend : undefined,
     note: typeof l.note === 'string' ? l.note : undefined,
     sources: parseSources(l.sources, l.id),
+    certainty: CERTAINTY_TIERS.includes(l.certainty as Certainty) ? (l.certainty as Certainty) : undefined,
     default: l.default === 'on' || l.default === 'off' ? l.default : undefined,
     style: typeof l.style === 'string' ? l.style : undefined,
     width: isFiniteNumber(l.width) ? l.width : undefined,
@@ -795,7 +917,52 @@ function parseLayer(
     polygon: geometryArray('polygon'),
     baseline: geometryArray('baseline'),
     trace: geometryArray('trace'),
+    lines: ringList('lines'),
+    columns: ringList('columns'),
+    solids: ringList('solids'),
+    wallM: isFiniteNumber(l.wallM) ? l.wallM : undefined,
+    columnM: isFiniteNumber(l.columnM) ? l.columnM : undefined,
+    widthM: isFiniteNumber(l.widthM) ? l.widthM : undefined,
+    spacingM: isFiniteNumber(l.spacingM) ? l.spacingM : undefined,
   };
+  if (l.open !== undefined) {
+    const n = rings?.length ?? 0;
+    if (
+      !Array.isArray(l.open) ||
+      !l.open.every((i: unknown) => Number.isInteger(i) && (i as number) >= 0 && (i as number) < n)
+    ) {
+      fail(`layer "${l.id}" has a malformed "open" (must list indexes into its own "rings")`);
+    }
+    // A court is open ground INSIDE a house: every vertex within the polygon
+    // or on its edge (a court often shares the house's outer wall).
+    const onEdge = (p: PlatePoint, poly: PlatePoint[]) =>
+      poly.some((a, k) => {
+        const b = poly[(k + 1) % poly.length];
+        const cross = (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0]);
+        const within =
+          Math.min(a[0], b[0]) - 1e-9 <= p[0] && p[0] <= Math.max(a[0], b[0]) + 1e-9 &&
+          Math.min(a[1], b[1]) - 1e-9 <= p[1] && p[1] <= Math.max(a[1], b[1]) + 1e-9;
+        return within && Math.abs(cross) <= 1e-12;
+      });
+    // ...and no court edge properly crossing a house edge (a concave house).
+    const crosses = (a: PlatePoint, b: PlatePoint, c: PlatePoint, e: PlatePoint) => {
+      const o = (p: PlatePoint, q: PlatePoint, r: PlatePoint) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+      return o(a, b, c) * o(a, b, e) < 0 && o(c, e, a) * o(c, e, b) < 0;
+    };
+    const edgesOf = (r: PlatePoint[]) => r.map((p, k) => [p, r[(k + 1) % r.length]] as const);
+    for (const i of l.open as number[]) {
+      const ring = rings![i];
+      const poly = layer.polygon;
+      if (
+        !poly ||
+        !ring.every((p) => pointInPolygon(p, poly) || onEdge(p, poly)) ||
+        edgesOf(ring).some(([a, b]) => edgesOf(poly).some(([c, e]) => crosses(a, b, c, e)))
+      ) {
+        fail(`layer "${l.id}" open ring ${i} must lie inside the layer's own polygon`);
+      }
+    }
+    layer.open = [...l.open];
+  }
 
   if (l.frame !== undefined) {
     if (!Array.isArray(l.frame) || l.frame.length !== 4 || !l.frame.every(isFiniteNumber)) {
@@ -810,6 +977,49 @@ function parseLayer(
       fail(`layer "${l.id}" frame lies outside the sheet`);
     }
     layer.frame = frame;
+  }
+
+  // A projected-window inset (see PlateLayer.insetBBox). Only meaningful on a
+  // framed inset panel, and only on a sheet that has a bbox of its own to be
+  // a window INTO — a window on a unit-space plate would be two coordinate
+  // systems with no relation between them.
+  if (l.insetBBox !== undefined) {
+    if (!Array.isArray(l.insetBBox) || l.insetBBox.length !== 4 || !l.insetBBox.every(isFiniteNumber)) {
+      fail(`layer "${l.id}" has a malformed "insetBBox" (must be [minLat, minLon, maxLat, maxLon])`);
+    }
+    if (layer.style !== 'inset' || !layer.frame) {
+      fail(`layer "${l.id}" has an "insetBBox" but is not a framed inset panel`);
+    }
+    if (!plate.bbox) fail(`layer "${l.id}" has an "insetBBox" but the plate has no bbox`);
+    const b = l.insetBBox as [number, number, number, number];
+    if (!(b[2] > b[0] && b[3] > b[1])) {
+      fail(`layer "${l.id}" insetBBox must have maxLat > minLat and maxLon > minLon`);
+    }
+    layer.insetBBox = b;
+  }
+  if (l.insetOf !== undefined) {
+    const refs = typeof l.insetOf === 'string' ? [l.insetOf] : l.insetOf;
+    if (
+      !Array.isArray(refs) ||
+      refs.length === 0 ||
+      !refs.every((r: unknown) => typeof r === 'string' && r) ||
+      new Set(refs).size !== refs.length
+    ) {
+      fail(`layer "${l.id}" has a malformed "insetOf" (must be a layer id or a list of distinct layer ids)`);
+    }
+    if (layer.frame) fail(`layer "${l.id}" cannot carry both "frame" and "insetOf"`);
+    if (layer.style === 'inset') fail(`layer "${l.id}" cannot be both an inset panel and "insetOf" one`);
+    layer.insetOf = [...refs];
+  }
+  if (l.insetOnly !== undefined) {
+    if (l.insetOnly !== true) fail(`layer "${l.id}" has a malformed "insetOnly" (must be true or absent)`);
+    if (!layer.insetOf) fail(`layer "${l.id}" is "insetOnly" but names no "insetOf" panel`);
+    // Panel ground, not a place: a place drawn only in a panel is a key
+    // group's job (featureKey[].inset), which marks it there and nowhere else.
+    if (layer.placeId || layer.claims?.length) {
+      fail(`layer "${l.id}" is "insetOnly" and cannot carry a "placeId" or "claims"`);
+    }
+    layer.insetOnly = true;
   }
 
   // Coordinate space is declared by the PRESENCE of a bbox, not by kind: a
@@ -949,6 +1159,18 @@ export function parsePlate(data: unknown): Plate {
     }
     seenLayerIds.add(layer.id);
   }
+  // A panel copy's feature id (insetCopyId) must not be some other layer's
+  // own id, or two drawings would answer to one id.
+  const seenIds = new Set(seenLayerIds);
+  for (const layer of layers) {
+    for (const [i, panel] of (layer.insetOf ?? []).entries()) {
+      const copyId = insetCopyId(layer.id, panel, i);
+      if (seenIds.has(copyId)) {
+        throw new Error(`plate ${d.id}: id '${copyId}' of the panel copy of layer '${layer.id}' is already taken`);
+      }
+      seenIds.add(copyId);
+    }
+  }
 
   // Finding 3 (schema drift, 2026-07-28): seed is required whenever any
   // layer's `style` selects a stochastic primitive — see STOCHASTIC_STYLES in
@@ -962,6 +1184,18 @@ export function parsePlate(data: unknown): Plate {
   const needsSeed = layers.some((l) => l.style === 'stipple' || l.style === 'hachure');
   if (needsSeed && !isFiniteNumber(d.seed)) {
     fail('seed is required when a layer uses a stochastic style (stipple/hachure)');
+  }
+
+  // The panels a projected-window inset can be hung off (PlateLayer.insetBBox).
+  // Resolved once here because both `insetOf` and `featureKey[].inset` name one
+  // and neither can be checked while a single layer is being parsed.
+  const insetPanelIds = new Set(layers.filter((l) => l.insetBBox && l.frame).map((l) => l.id));
+  for (const l of layers) {
+    for (const ref of l.insetOf ?? []) {
+      if (!insetPanelIds.has(ref)) {
+        fail(`layer "${l.id}" insetOf '${ref}' is not a framed inset panel with an insetBBox`);
+      }
+    }
   }
 
   const bands = d.bands !== undefined ? parseBands(d.bands, d.id) : undefined;
@@ -1034,7 +1268,14 @@ export function parsePlate(data: unknown): Plate {
         if (typeof item.label === 'string') parsed.label = item.label;
         return parsed;
       });
-      return { title: group.title as string, items };
+      const inset = typeof group.inset === 'string' && group.inset ? group.inset : undefined;
+      if (group.inset !== undefined && !inset) {
+        fail(`featureKey[${gi}].inset must be a layer id`);
+      }
+      if (inset && !insetPanelIds.has(inset)) {
+        fail(`featureKey[${gi}].inset '${inset}' is not a framed inset panel with an insetBBox`);
+      }
+      return inset ? { title: group.title as string, items, inset } : { title: group.title as string, items };
     });
   }
 
@@ -1772,12 +2013,128 @@ export function wallBandGlyph(trace: PlatePoint[], width: number): WallBandGlyph
   // The slant: each stroke runs from one face to the other one band-width
   // further along, so it lies at about 45° to the wall all the way round and
   // stays a hatch rather than becoming a ladder of rungs.
-  for (let s = spacing; s <= total - width - 1; s += spacing) {
+  //
+  // Starts at the trace's own beginning (s = 0), not one `spacing` in: the
+  // faces above are drawn the FULL length of the trace, so stopping the hatch
+  // short left a bare, unhatched run of open double-line at each end — read,
+  // where it fell beside rather than under the surveyed masonry it meets, as
+  // a stray mark rather than a restored wall (2026-09-03, citadel wall-fix,
+  // the circuit-restored stub at the West Gate). A final stroke pinned to
+  // `total` closes the far end the same way, so the hatch reaches exactly as
+  // far as the faces do at both ends — centreline and hatch end together.
+  let s = 0;
+  for (; s < total; s += spacing) {
     const a = at(left, s);
     const b = at(right, s + width);
     parts.push(`M ${round1(a[0])} ${round1(a[1])} L ${round1(b[0])} ${round1(b[1])}`);
   }
+  const aEnd = at(left, total);
+  const bEnd = at(right, total);
+  parts.push(`M ${round1(aEnd[0])} ${round1(aEnd[1])} L ${round1(bEnd[0])} ${round1(bEnd[1])}`);
   return { faces, hatch: parts.join(' ') };
+}
+
+export interface CutGlyphResult {
+  /** The cutting's floor, a closed band between the two faces. */
+  band: string;
+  /** The two lips of the cut, as one `d` of two open subpaths. */
+  faces: string;
+  /** Short strokes from each lip toward the floor: the cut's two banks. */
+  banks: string;
+}
+
+// A DITCH CUT IN THE ROCK (ruling 15, 2026-09-04: "the rock of the ditch").
+// The engineer's and the excavator's sign for a cutting: two lips, the
+// floor between them in the rock's own colour, and short strokes down each
+// bank. A fortification's tick glyph said "a wall stands here", which the
+// survey never found; what it found is a trench in the calcareous sandstone,
+// up to 3 m wide and 1.5-2 m deep (Blindow, Hübner and Jansen 2014, 666-67,
+// 687). Width is the caller's, in plate pixels — see PlateLayer.widthM.
+export function cutGlyph(trace: PlatePoint[], width: number): CutGlyphResult {
+  if (trace.length < 2 || !(width > 0)) return { band: '', faces: '', banks: '' };
+  const half = width / 2;
+  const left = offsetPolyline(trace, half);
+  const right = offsetPolyline(trace, -half);
+  const band = pathD([...left, ...[...right].reverse()], true);
+  const faces = `${pathD(left, false)} ${pathD(right, false)}`;
+  const cum: number[] = [0];
+  for (let i = 0; i + 1 < trace.length; i++) {
+    cum.push(cum[i] + Math.hypot(trace[i + 1][0] - trace[i][0], trace[i + 1][1] - trace[i][1]));
+  }
+  const total = cum[cum.length - 1];
+  const at = (pts: [number, number][], t: number): [number, number] => {
+    let i = 1;
+    while (i < cum.length - 1 && cum[i] < t) i++;
+    const f = (t - cum[i - 1]) / (cum[i] - cum[i - 1] || 1);
+    return [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f];
+  };
+  // Sparse: at the spacing of a ladder's rungs the cut reads as a railway.
+  const step = Math.max(width * 1.5, 3);
+  const parts: string[] = [];
+  for (let t = step / 2; t < total; t += step) {
+    const a = at(left, t);
+    const b = at(right, t);
+    // Each bank's stroke runs a third of the way to the other lip.
+    for (const [p, q] of [
+      [a, b],
+      [b, a],
+    ] as const) {
+      const e: [number, number] = [p[0] + (q[0] - p[0]) * 0.3, p[1] + (q[1] - p[1]) * 0.3];
+      parts.push(`M ${round1(p[0])} ${round1(p[1])} L ${round1(e[0])} ${round1(e[1])}`);
+    }
+  }
+  return { band, faces, banks: parts.join(' ') };
+}
+
+/**
+ * Scrub marks (ruling 15, `style: "scrub"`): small open rings on a jittered
+ * grid `spacing` px apart, kept where they fall inside the rings (even-odd,
+ * so a ring inside a ring is a clearing). Seeded, so a sheet draws the same
+ * marks every time.
+ */
+export function scrubMarks(rings: [number, number][][], spacing: number, r: number, seed: number): string {
+  const all = rings.flat();
+  if (!all.length || !(spacing > 0)) return '';
+  const xs = all.map((p) => p[0]);
+  const ys = all.map((p) => p[1]);
+  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const rand = mulberry32(seed);
+  const out: string[] = [];
+  let row = 0;
+  for (let y = y0; y <= y1; y += spacing * 0.87, row++) {
+    for (let x = x0 + (row % 2 ? spacing / 2 : 0); x <= x1; x += spacing) {
+      const p: [number, number] = [x + (rand() - 0.5) * spacing * 0.7, y + (rand() - 0.5) * spacing * 0.7];
+      let inside = false;
+      for (const ring of rings) if (pointInPolygon(p, ring)) inside = !inside;
+      if (inside) out.push(circlePath(p[0], p[1], r * (0.8 + rand() * 0.4)));
+    }
+  }
+  return out.join(' ');
+}
+
+/**
+ * A tree crown in plan (ruling 15, `style: "tree"`): the ring drawn with a
+ * scalloped edge, each side bowed outward, which is how a site plan shows a
+ * tree that stands on it.
+ */
+export function crownPath(ring: [number, number][]): string {
+  if (ring.length < 3) return '';
+  const cx = ring.reduce((a, p) => a + p[0], 0) / ring.length;
+  const cy = ring.reduce((a, p) => a + p[1], 0) / ring.length;
+  const parts = [`M ${round1(ring[0][0])} ${round1(ring[0][1])}`];
+  for (let i = 0; i < ring.length; i++) {
+    const a = ring[i];
+    const b = ring[(i + 1) % ring.length];
+    const mx = (a[0] + b[0]) / 2;
+    const my = (a[1] + b[1]) / 2;
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const ox = mx - cx;
+    const oy = my - cy;
+    const on = Math.hypot(ox, oy) || 1;
+    const k = len * 0.45;
+    parts.push(`Q ${round1(mx + (ox / on) * k)} ${round1(my + (oy / on) * k)} ${round1(b[0])} ${round1(b[1])}`);
+  }
+  return `${parts.join(' ')} Z`;
 }
 
 /**
@@ -2805,7 +3162,14 @@ function placeKeyBadges(
     const nearWallLegs = avoidWalls.flatMap((w) =>
       input.ownWalls?.includes(w)
         ? []
-        : w.legs.filter((l) => near(l.bbox)).map((l) => ({ p1: l.p1, p2: l.p2, side: w.side, halfWidths: w.halfWidths })),
+        : w.legs.filter((l) => near(l.bbox)).map((l) => {
+            // The leg's box grown by the widest it can be from a disc centre
+            // and still touch: a centre outside it clears the leg without the
+            // projection (the legs of a city plan are many and short).
+            const pad = Math.max(w.halfWidths[0], w.halfWidths[1]) + input.r;
+            const hit: Box = [l.bbox[0] - pad, l.bbox[1] - pad, l.bbox[2] + pad, l.bbox[3] + pad];
+            return { p1: l.p1, p2: l.p2, side: w.side, halfWidths: w.halfWidths, hit };
+          }),
     );
     const nearMarkerBoxes = markerBoxes.filter(near);
     const foreignMarkers = avoidMarkers.filter((m) => m !== input.ownMarker && near(m));
@@ -2885,7 +3249,12 @@ function placeKeyBadges(
     let bestCollisions = Infinity;
     let bestStray = Infinity;
     let bestPenalty = Infinity;
-    for (let index = 0; index < candidates.length; index++) {
+    // Collisions only ever add up, and a candidate with more of them than the
+    // incumbent is discarded below whatever else it scores, so the counting
+    // stops as soon as that is certain. Same answer, fewer tests: inside the
+    // Ilios panel a disc is checked against every wall leg of the city plan,
+    // and most of six hundred escape rungs land on a wall (2026-10-09).
+    candidates: for (let index = 0; index < candidates.length; index++) {
       const candidate = candidates[index];
       const box = labelBox(candidate, input.textWidth, { size: input.fontSize });
       const bcx = (box[0] + box[2]) / 2;
@@ -2935,12 +3304,17 @@ function placeKeyBadges(
       for (const name of nearLabels) if (boxesTouch(circle, name, BADGE_CLEARANCE)) violations++;
       // Ruling 5's water rule, on the disc only (see `avoidWater`).
       for (const wet of nearWater) if (boxesTouch(circle, wet, BADGE_WATER_CLEARANCE)) violations++;
+      // `nearestForeign` is complete by here (it is read only for a candidate
+      // that survives), so an early exit cannot change the stray tier.
+      if (violations > bestCollisions) continue;
       // Ruling 9 round 4's wall rule, on the disc only (see `avoidWalls`) — a
       // LEADER may still cross a wall, same as it crosses a route or a
       // contour.
       for (const leg of nearWallLegs) {
+        if (bcx < leg.hit[0] || bcx > leg.hit[2] || bcy < leg.hit[1] || bcy > leg.hit[3]) continue;
         if (!wallLegClears(leg.p1[0], leg.p1[1], leg.p2[0], leg.p2[1], leg.side, leg.halfWidths, bcx, bcy, input.r)) {
           violations++;
+          if (violations > bestCollisions) continue candidates;
         }
       }
       if (leader) {
@@ -2963,7 +3337,13 @@ function placeKeyBadges(
         if (pointSegmentDistance(bcx, bcy, other) < input.r + BADGE_CLEARANCE) violations++;
         if (leader && segmentsCross(leader, other)) violations++;
       }
-      const offView = offViewBoxArea(box, options.width, options.height, options.margin);
+      // Finding 6 (2026-09-03 review): a badge's own radius is the padding it
+      // needs from the frame, not a flat few px — a two-digit numeral's disc
+      // is wider than INSET_BADGE_MARGIN, so the flat constant let one sit
+      // tight to the panel edge (badge 29, Batieia). `options.margin` still
+      // sets the floor (LABEL_MARGIN on the map face, already bigger than any
+      // radius), so the face pass is unchanged.
+      const offView = offViewBoxArea(box, options.width, options.height, Math.max(options.margin, input.r));
       const collisions = violations + (offView > 0 ? 1 : 0);
       // A candidate that already collides more than the incumbent cannot win
       // whatever its penalty is (the comparison is collisions-major), so the
@@ -3226,6 +3606,8 @@ interface BadgePlacementSolution {
   zoneLetters: { letter: string; x: number; y: number }[];
   pass1: LabelPlacement[];
   pass2: LabelPlacement[];
+  /** The numerals seated inside a projected-window inset (ruling 10). */
+  insets: LabelPlacement[];
 }
 const BADGE_SOLUTION_CACHE_LIMIT = 4;
 const badgeSolutionCache = new WeakMap<Plate, Map<string, BadgePlacementSolution>>();
@@ -3894,6 +4276,22 @@ const LEGEND_COLUMN_GAP = 16;
 /** Extra vertical space a wrapped legend entry's second (and later) line costs. See legendMarkup/wrapLegendText. */
 const LEGEND_WRAP_LINE_H = LEGEND_FONT + 2;
 
+/**
+ * The furniture band's TEXT measure, in plate px — the width the legend, the
+ * scene key and the feature key wrap to, however wide `marginRight` is.
+ *
+ * A margin only has to be as wide as its widest block, and once a sheet needs
+ * a SECOND column of inset panels beside its keys (trojan-plain-schematic,
+ * 2026-09-03: the citadel wants a panel of its own next to the one for the
+ * ground before the walls) the margin doubles. Letting the text follow it
+ * would stretch every key row to a 600px measure — unreadable, and nothing
+ * about a line of type wants to be that long. A measure is a typographic
+ * constant; the surplus margin is panel room, not text room. 340 is the
+ * measure the sheet was designed at, so nothing rendered today moves.
+ */
+const MARGIN_TEXT_COLUMN = 340;
+const bandTextWidth = (marginRight: number): number => Math.min(marginRight, MARGIN_TEXT_COLUMN);
+
 // Wraps text at the last space that keeps a line under maxWidth px, using the
 // same LEGEND_FONT*0.54-per-character estimate legendMarkup's own sizing
 // already uses. `maxWidth = Infinity` (every caller except a right-margin
@@ -3953,6 +4351,8 @@ const REGION_LEGEND_TEXT: Record<RegionFill, string> = {
   tint: 'Apparatus zone',
   zone: 'Scene zone (lettered)',
   masonry: 'Masonry, surveyed',
+  'masonry-ground': 'Masonry, surveyed',
+  built: 'Building drawn from the poem, not surveyed',
   none: '',
 };
 
@@ -3992,6 +4392,58 @@ function derivedLegendEntry(layer: PlateLayer): LegendEntry | undefined {
   // a temple, a street. Wording mirrors the conjectural-pin row the schematic
   // sheets already use, because it is the same claim about the same kind of
   // knowledge; the swatch is a scrap of the drawing, an open dashed outline.
+  // A building drawn as a plan from the poem's own description (ruling 13):
+  // the swatch is a scrap of one — a wall bar with a column row beside it.
+  if (layer.kind === 'wall' && layer.style === 'cut') {
+    return {
+      key: 'wall-cut',
+      rank: 5.7,
+      text: 'Ditch cut in the rock',
+      swatch: (x, y) => {
+        const { band, faces, banks } = cutGlyph([[x + 1, y], [x + LEGEND_SWATCH_W - 1, y]], 6);
+        return (
+          `<path d="${band}" fill="var(--plate-rock)" stroke="none"/>` +
+          `<path d="${banks}" fill="none" stroke="var(--flaxman-ink)" stroke-width="0.5" stroke-opacity="0.55"/>` +
+          `<path d="${faces}" fill="none" stroke="var(--flaxman-ink)" stroke-width="0.7"/>`
+        );
+      },
+    };
+  }
+  if (layer.style === 'scrub') {
+    return {
+      key: 'scrub',
+      rank: 21.5,
+      text: 'Scrub on the open slopes — assumed, not recorded',
+      swatch: (x, y) =>
+        `<path d="${[3, 9, 15, 21, 6, 12, 18].map((o, i) => circlePath(x + o, y + (i < 4 ? -2 : 2.5), 1.4)).join(' ')}" ` +
+        `fill="none" stroke="var(--plate-scrub)" stroke-width="0.7"/>`,
+    };
+  }
+  if (layer.style === 'tree') {
+    return {
+      key: 'tree',
+      rank: 21.6,
+      text: 'A tree the poem names',
+      swatch: (x, y) => {
+        const ring: [number, number][] = Array.from({ length: 7 }, (_, i) => {
+          const a = (i / 7) * 2 * Math.PI;
+          return [x + LEGEND_SWATCH_W / 2 + 4.2 * Math.cos(a), y + 4.2 * Math.sin(a)];
+        });
+        return `<path d="${crownPath(ring)}" fill="var(--plate-scrub)" fill-opacity="0.45" stroke="var(--plate-scrub)" stroke-width="0.8"/>`;
+      },
+    };
+  }
+  if (layer.style === 'plan') {
+    return {
+      key: 'plan',
+      rank: 8.9,
+      text: 'Building drawn from the poem, not surveyed',
+      swatch: (x, y) =>
+        `<rect x="${round1(x + 1)}" y="${round1(y - 4)}" width="${LEGEND_SWATCH_W - 2}" height="8" ` +
+        `fill="var(--plate-built)" stroke="var(--text-mid)" stroke-width="2"/>` +
+        `<path d="${[6, 11, 16].map((o) => circlePath(x + o, y, 0.9)).join(' ')}" fill="var(--text-mid)" stroke="none"/>`,
+    };
+  }
   if (layer.style === 'poem') {
     return {
       key: 'poem',
@@ -4088,9 +4540,12 @@ function regionFillLegendEntry(fill: RegionFill): LegendEntry | undefined {
   // A `none` region draws nothing, so it keys nothing — its name on the sheet
   // is the whole of its claim.
   if (fill === 'none') return undefined;
+  // `masonry-ground` is `masonry` at a quieter opacity, not a second claim:
+  // one row keys both.
+  const keyFill = fill === 'masonry-ground' ? 'masonry' : fill;
   return {
-    key: `region-${fill}`,
-    rank: 20 + Object.keys(REGION_FILL_TOKENS).indexOf(fill),
+    key: `region-${keyFill}`,
+    rank: 20 + Object.keys(REGION_FILL_TOKENS).indexOf(keyFill),
     text: REGION_LEGEND_TEXT[fill],
     swatch: (x, y) =>
       legendSwatchRect(
@@ -4194,7 +4649,8 @@ function legendMarkup(
   // slop, so an estimate landing a little wide never itself clips the sheet
   // edge. Infinity for a corner legend (marginRight === 0) makes
   // wrapLegendText a no-op, leaving that path's output unchanged.
-  const bandTextMaxW = marginRight > 0 ? marginRight - 12 - 8 - padX * 2 - LEGEND_SWATCH_W - 7 : Infinity;
+  const bandTextMaxW =
+    marginRight > 0 ? bandTextWidth(marginRight) - 12 - 8 - padX * 2 - LEGEND_SWATCH_W - 7 : Infinity;
   const wrappedLines = rows.map((r) => wrapLegendText(r.text, bandTextMaxW));
   const textW = Math.min(Math.max(...rows.map((r) => r.text.length * LEGEND_FONT * 0.54)), bandTextMaxW);
   // Two columns once one column would run deeper than a quarter of the sheet
@@ -4356,7 +4812,7 @@ function sceneKeyMarkup(
   const padX = 8;
   const padY = 8;
   const x0 = width - marginRight + 12;
-  const textMaxW = marginRight - 12 - 8 - padX * 2;
+  const textMaxW = bandTextWidth(marginRight) - 12 - 8 - padX * 2;
   const textX = x0 + padX;
   let y = legendBottom + 10 + padY;
   const parts: string[] = [];
@@ -4391,6 +4847,13 @@ const FEATURE_KEY_ROW_PITCH = 12;
 const FEATURE_KEY_N_COL = 16;
 const FEATURE_KEY_LABEL_GAP = 22;
 const NUMERAL_BADGE_FONT = 8.5;
+/**
+ * How far a numeral seated inside an inset must stay from that inset's own
+ * drawing rectangle. Smaller than the sheet's LABEL_MARGIN because the
+ * rectangle is already inset from the panel by INSET_PAD: this is the last
+ * hairline of air inside the panel, not a page margin.
+ */
+const INSET_BADGE_MARGIN = 3;
 
 function featureKeyMarkup(
   groups: PlateFeatureKeyGroup[] | undefined,
@@ -4406,7 +4869,7 @@ function featureKeyMarkup(
   if (!groups?.length || marginRight <= 0) return { markup: '', bottom: sceneKeyBottom };
   const padX = 8;
   const x0 = width - marginRight + 12;
-  const wrapW = marginRight - 12 - 8 - padX * 2 - FEATURE_KEY_LABEL_GAP;
+  const wrapW = bandTextWidth(marginRight) - 12 - 8 - padX * 2 - FEATURE_KEY_LABEL_GAP;
   const nX = x0 + padX + FEATURE_KEY_N_COL;
   const labelX = x0 + padX + FEATURE_KEY_LABEL_GAP;
   const headingX = x0 + padX;
@@ -5212,6 +5675,15 @@ const STROKE_WEIGHT = {
 
 /** The drawn face of a surveyed masonry band. See the `region` case in renderLayer. */
 const MASONRY_EDGE_WIDTH = 1;
+/**
+ * A `kind: "wall", style: "poem"` stretch (2026-09-03, citadel wall-fix): the
+ * poem names a STRETCH of a real fortification, not a wall of its own, so it
+ * is drawn as a highlight over that stretch rather than a second fortification
+ * — one stroke, no ticks, slightly heavier than the surveyed masonry's own
+ * edge (MASONRY_EDGE_WIDTH) so the highlighted run reads against it. See the
+ * `wall` case in renderLayer.
+ */
+const POEM_WALL_HIGHLIGHT_WIDTH = 1.5;
 /** The silhouette of a pictorial hill profile (`style: "profile"`). See the `relief` case. */
 const PROFILE_OUTLINE_WIDTH = 0.9;
 /** A `shipRow` hull's outline, `style: "light"` only (shipcomp option 1). At 1x sheet scale. */
@@ -5295,6 +5767,77 @@ function insetMarkup(
   }
   return parts.join('');
 }
+
+/**
+ * The drawing rectangle inside a framed inset panel: the panel less its pad on
+ * three sides and less the head strip its own title block occupies. Derived
+ * from exactly the arithmetic insetMarkup letters the head with, so content
+ * can never be drawn under the title — the author picks the WINDOW, never has
+ * to leave room for the lettering by hand.
+ */
+function insetContentRect(
+  frame: [number, number, number, number],
+  label: string | undefined,
+): [number, number, number, number] {
+  const [x0, y0, w, h] = frame;
+  const lines = (label ?? '').split('|').map((s) => s.trim()).filter(Boolean);
+  let top = y0;
+  if (lines.length) {
+    let baseline = y0 + INSET_PAD + INSET_HEAD_SIZE;
+    for (let i = 1; i < lines.length; i++) baseline += INSET_SUB_SIZE + INSET_LINE_GAP;
+    top = baseline + (lines.length > 1 ? INSET_SUB_SIZE : INSET_HEAD_SIZE) * 0.55;
+  }
+  const x = x0 + INSET_PAD;
+  const y = top + INSET_PAD;
+  return [x, y, w - INSET_PAD * 2, y0 + h - INSET_PAD - y];
+}
+
+/**
+ * A Viewport that projects lat/lon straight into an inset's drawing rectangle,
+ * in the SHEET's own pixel space — so `project`, `projectPoints`,
+ * `resolvePlacePosition` and `renderLayer` all work inside an inset with no
+ * second code path and no per-call offset to forget.
+ *
+ * The translation rides on `width`/`height`, which `project` uses ONLY as the
+ * centre of the frame it draws into (`x = width/2 + …`). Setting them to
+ * `2·x0 + w` and `2·y0 + h` puts that centre at the rectangle's own centre,
+ * which is the translation, exactly. `unproject` reads them the same way, so
+ * the round trip still holds. Nothing else in this module reads a viewport's
+ * width/height (the scale bar takes the frame size as its own argument).
+ */
+function insetWindowViewport(
+  rect: [number, number, number, number],
+  bbox: [number, number, number, number],
+  rotationDeg: number,
+): Viewport {
+  const [x0, y0, w, h] = rect;
+  const fitted = viewportFromBBox(bbox, [w, h], rotationDeg);
+  return { ...fitted, width: 2 * x0 + w, height: 2 * y0 + h };
+}
+
+/** A framed inset panel that is a projected window (PlateLayer.insetBBox). */
+interface InsetWindow {
+  id: string;
+  frame: [number, number, number, number];
+  rect: [number, number, number, number];
+  viewport: Viewport;
+}
+
+function insetWindows(plate: Plate): Map<string, InsetWindow> {
+  const out = new Map<string, InsetWindow>();
+  for (const layer of plate.layers) {
+    if (layer.style !== 'inset' || !layer.frame || !layer.insetBBox) continue;
+    const rect = insetContentRect(layer.frame, layer.label);
+    out.set(layer.id, {
+      id: layer.id,
+      frame: layer.frame,
+      rect,
+      viewport: insetWindowViewport(rect, layer.insetBBox, plate.rotationDeg ?? 0),
+    });
+  }
+  return out;
+}
+
 /** The dotted register a restored line takes when it has no width to be drawn at. */
 const RESTORED_LINE_WIDTH = 0.85;
 const RESTORED_LINE_DASH = '1 3.2';
@@ -5306,6 +5849,69 @@ const RESTORED_LINE_DASH = '1 3.2';
  */
 const POEM_STROKE_WIDTH = 0.95;
 const POEM_DASHARRAY = '4 3';
+
+// ── The plan register (`style: "plan"`, 2026-09-03, ruling 13) ───────────
+// A building the poem describes, drawn the way an engraved city plan draws
+// one: walls as solid bars at their thickness in metres, partitions at half
+// that, a colonnade as a row of dots, an anta or a seat as a filled piece.
+// Solid in the conjectural ink (`--text-mid`), never in the survey's masonry
+// tone: the poem's walls are as solid as Dörpfeld's, and the ink says which is
+// which. Everything is in metres and scales with the viewport, so the same
+// layer drawn on the map face at 1/32 of the panel's scale is under
+// PLAN_MIN_WALL_PX wide and draws nothing but its outline reservation.
+const PLAN_WALL_M = 1.2;
+/** A rock-cut ditch's default drawing width, metres (see PlateLayer.widthM). */
+const CUT_DEFAULT_WIDTH_M = 3;
+/** Scrub marks' default spacing on the ground, and the closest they may be drawn. */
+const SCRUB_SPACING_M = 12;
+const SCRUB_MIN_SPACING_PX = 3;
+const PLAN_COLUMN_M = 2.4;
+const PLAN_COLUMN_R_M = 0.45;
+const PLAN_MIN_WALL_PX = 0.35;
+
+function circlePath(cx: number, cy: number, r: number): string {
+  return `M ${round1(cx - r)} ${round1(cy)} a ${round1(r)} ${round1(r)} 0 1 0 ${round1(2 * r)} 0 a ${round1(r)} ${round1(r)} 0 1 0 ${round1(-2 * r)} 0 Z`;
+}
+
+/**
+ * Column centres along a run, one every `spacing` px, the row centred on the
+ * run so the end columns stand clear of whatever the run ends at. A run
+ * shorter than one spacing gets one column at its middle.
+ */
+export function columnDots(run: [number, number][], spacing: number): [number, number][] {
+  if (run.length < 2 || !(spacing > 0)) return [];
+  const seg: number[] = [];
+  let total = 0;
+  for (let i = 1; i < run.length; i++) {
+    const d = Math.hypot(run[i][0] - run[i - 1][0], run[i][1] - run[i - 1][1]);
+    seg.push(d);
+    total += d;
+  }
+  // A run of exactly k spacings carries k + 1 columns: the epsilon keeps a
+  // 2.4 m run at 2.4 m spacing from rounding down to one column.
+  const n = Math.max(1, Math.floor(total / spacing + 1e-6) + 1);
+  const pad = (total - (n - 1) * spacing) / 2;
+  const out: [number, number][] = [];
+  for (let k = 0; k < n; k++) {
+    let t = pad + k * spacing;
+    let i = 0;
+    while (i < seg.length - 1 && t > seg[i]) {
+      t -= seg[i];
+      i++;
+    }
+    const f = seg[i] > 0 ? Math.min(1, t / seg[i]) : 0;
+    out.push([run[i][0] + (run[i + 1][0] - run[i][0]) * f, run[i][1] + (run[i + 1][1] - run[i][1]) * f]);
+  }
+  return out;
+}
+
+/** Sheet pixels per metre of ground at `lat`, under this viewport; 0 on a plate with no bbox. */
+function pxPerMetre(plate: Plate, viewport: Viewport, at: PlatePoint): number {
+  if (!plate.bbox) return 0;
+  const a = projectPoint(plate, at, viewport);
+  const b = projectPoint(plate, [at[0] + 1 / 111320, at[1]], viewport);
+  return Math.hypot(b[0] - a[0], b[1] - a[1]);
+}
 
 // ── Layer rendering ──────────────────────────────────────────────────────
 
@@ -5534,7 +6140,7 @@ function paintRank(layer: PlateLayer): number {
   // And the poem goes under the restoration, for the same reason one step
   // further out: it is the least evidenced of the three registers, so where it
   // meets either of the others, the other is what a reader sees.
-  if (layer.style === 'poem') return 2.4;
+  if (layer.style === 'poem' || layer.style === 'plan') return 2.4;
   return 3;
 }
 
@@ -5667,8 +6273,11 @@ export function lineworkReserveHalfWidth(layer: PlateLayer): number | undefined 
       return (layer.width ?? STROKE_WEIGHT.coast) / 2 + DEFAULT_WATERLINE_OFFSETS[DEFAULT_WATERLINE_OFFSETS.length - 1];
     case 'wall':
       // A restored wall is a BAND of its own declared width; a plain one is a
-      // line with ticks standing off one side. Both measured from the glyph
-      // routines that draw them, so the two cannot drift apart.
+      // line with ticks standing off one side; a poem-style highlight is a
+      // single centred stroke with no ticks at all (see the `wall` case in
+      // renderLayer). All three measured from the glyph/markup that actually
+      // draws them, so this cannot drift from what is on the sheet.
+      if (layer.style === 'poem') return POEM_WALL_HIGHLIGHT_WIDTH / 2;
       return layer.style === 'restored' && layer.width !== undefined
         ? layer.width / 2 + STROKE_WEIGHT.restoredFace
         : STROKE_WEIGHT.wall / 2 + WALL_TICK_LENGTH;
@@ -5694,6 +6303,12 @@ export function lineworkReserveHalfWidth(layer: PlateLayer): number | undefined 
 export function wallInkHalfWidth(layer: PlateLayer): [number, number] | undefined {
   if (layer.kind !== 'wall') return undefined;
   const CLEARANCE = 1;
+  if (layer.style === 'poem') {
+    // A highlight, faced alike on both sides — no tick to stand off one of
+    // them (see the `wall` case in renderLayer and POEM_WALL_HIGHLIGHT_WIDTH).
+    const half = POEM_WALL_HIGHLIGHT_WIDTH / 2 + CLEARANCE;
+    return [half, half];
+  }
   if (layer.style === 'restored' && layer.width !== undefined) {
     const half = layer.width / 2 + STROKE_WEIGHT.restoredFace / 2 + CLEARANCE;
     return [half, half];
@@ -5809,6 +6424,17 @@ function lineworkRuns(plate: Plate, layer: PlateLayer, viewport: Viewport): [num
 // (or a relief layer with no siblings surviving projection) has nothing to
 // compare against and gets the gentle end outright, not a divide-by-zero.
 
+/** Twice-halved shoelace sum, signed: its sign gives a ring's winding. */
+function polygonSignedArea(pts: [number, number][]): number {
+  let a = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const [x1, y1] = pts[i];
+    const [x2, y2] = pts[(i + 1) % pts.length];
+    a += x1 * y2 - x2 * y1;
+  }
+  return a / 2;
+}
+
 function polygonArea(pts: [number, number][]): number {
   let a = 0;
   for (let i = 0; i < pts.length; i++) {
@@ -5910,11 +6536,20 @@ const RELIEF_RAMP_STEPS = 12;
 const RELIEF_CONTOUR_WIDTH = 0.45;
 const RELIEF_CONTOUR_OPACITY = 0.42;
 
-/** Every distinct relief elevation on a plate, ascending. Empty on a plate whose relief is hand-authored. */
+/**
+ * The feature id of a layer's drawing inside an inset window (see
+ * PlateLayer.insetOf). The first panel a layer names keeps the plain
+ * `--inset` suffix it has always had; any further panel is named in the id.
+ */
+export function insetCopyId(layerId: string, panelId: string, index: number): string {
+  return index === 0 ? `${layerId}--inset` : `${layerId}--inset-${panelId}`;
+}
+
+/** Every distinct relief elevation on the map face, ascending (a panel-only band, `insetOnly`, is tinted against these but never adds one). Empty on a plate whose relief is hand-authored. */
 export function hypsometricLevels(plate: Plate): number[] {
   const seen = new Set<number>();
   for (const l of plate.layers) {
-    if (l.kind === 'relief' && l.elevation !== undefined) seen.add(l.elevation);
+    if (l.kind === 'relief' && l.elevation !== undefined && !l.insetOnly) seen.add(l.elevation);
   }
   return [...seen].sort((a, b) => a - b);
 }
@@ -6226,6 +6861,37 @@ function renderLayer(
     case 'wall': {
       const px = collect(layer.trace);
       if (px.length < 2) return undefined;
+      // The poem's register (2026-09-03, citadel wall-fix): a `style: "poem"`
+      // wall never invents a fortification of its own — every one so far
+      // names a stretch of a wall that IS surveyed or restored elsewhere on
+      // the sheet (e.g. citadel-weak-wall, Il. 6.433-39, over the surveyed
+      // south curtain). Drawing it with the plain wall's tick glyph
+      // (wallGlyph) treats it as a second fortification and the ticks flip
+      // side at every jog in the trace, which reads as a scribble laid over
+      // the real masonry. A highlight — one stroke, no ticks, the poem's
+      // conjectural ink, slightly heavier than the masonry edge beside it —
+      // says the true thing: this claim is about WHICH stretch, not a wall
+      // of its own.
+      if (layer.style === 'poem') {
+        markup =
+          `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-wall-poem" ` +
+          `d="${pathD(px, false)}" fill="none" stroke="var(--text-mid)" ` +
+          `stroke-width="${POEM_WALL_HIGHLIGHT_WIDTH}" stroke-linecap="round" stroke-linejoin="round"/>`;
+        break;
+      }
+      if (layer.style === 'cut') {
+        const widthPx = Math.max(0.8, (layer.widthM ?? CUT_DEFAULT_WIDTH_M) * pxPerMetre(plate, viewport, layer.trace![0]));
+        const { band, faces, banks } = cutGlyph(px, widthPx);
+        const id = escapeXml(layer.id);
+        markup =
+          `<path data-feature-id="${id}" class="plate-layer plate-layer-wall-cut" d="${band}" ` +
+          `fill="var(--plate-rock)" stroke="none"/>` +
+          `<path data-feature-id="${id}-banks" class="plate-layer plate-layer-wall-cut-banks" d="${banks}" ` +
+          `fill="none" stroke="var(--flaxman-ink)" stroke-width="0.35" stroke-opacity="0.55" stroke-linecap="round"/>` +
+          `<path data-feature-id="${id}-lips" class="plate-layer plate-layer-wall-cut-lips" d="${faces}" ` +
+          `fill="none" stroke="var(--flaxman-ink)" stroke-width="0.55" stroke-opacity="0.85" stroke-linejoin="round"/>`;
+        break;
+      }
       if (layer.style === 'restored' && layer.width === undefined) {
         // The restoration register at its lightest: a fine dotted line, which is
         // what a restored feature gets when it HAS no width to be drawn at —
@@ -6314,6 +6980,93 @@ function renderLayer(
         markup = `<g data-layer-id="${escapeXml(layer.id)}" data-layer-style="inset">${insetMarkup(layer.id, px, layer.label, layer.frame)}</g>`;
         break;
       }
+      if (layer.style === 'plan') {
+        const ppm = pxPerMetre(plate, viewport, layer.polygon![0]);
+        const wallPx = (layer.wallM ?? PLAN_WALL_M) * ppm;
+        // Each ring keeps its index into `rings` (-1 for the polygon), which is
+        // what `open` names, through the filter that drops degenerate rings.
+        const indexed = [
+          { p: px, ring: -1 },
+          ...(layer.rings ?? []).map((r, ring) => ({ p: collect(r), ring })),
+        ].filter(({ p }) => p.length >= 3);
+        const walls = indexed.map(({ p }) => p);
+        const thin = (layer.lines ?? []).map((r) => collect(r)).filter((p) => p.length >= 2);
+        const solids = (layer.solids ?? []).map((r) => collect(r)).filter((p) => p.length >= 3);
+        const dots = (layer.columns ?? [])
+          .map((r) => collect(r))
+          .flatMap((run) => columnDots(run, (layer.columnM ?? PLAN_COLUMN_M) * ppm));
+        const ink = 'var(--text-mid)';
+        const id = escapeXml(layer.id);
+        if (wallPx < PLAN_MIN_WALL_PX) {
+          // Too small to be a plan at this scale (the map face): the outline
+          // holds the feature's place and draws nothing.
+          markup = `<path data-feature-id="${id}" class="plate-layer plate-layer-plan" d="${pathD(px, true)}" fill="none" stroke="none"/>`;
+          break;
+        }
+        // Roofed space (`fill: "built"`): the polygon and every ring not listed
+        // in `open`, wound one way; the open courts wound the other, so the
+        // nonzero fill leaves a court open inside the house round it.
+        let floor = '';
+        if (layer.fill === 'built') {
+          const open = new Set(layer.open ?? []);
+          // parsePlate guarantees a court lies inside the polygon, so winding it
+          // against the house leaves exactly the court open.
+          const wound = indexed.map(({ p, ring }) => {
+            const cw = polygonSignedArea(p) > 0;
+            const wantCw = !open.has(ring);
+            return cw === wantCw ? p : [...p].reverse();
+          });
+          floor =
+            `<path data-feature-id="${id}-floor" class="plate-layer plate-layer-plan-floor" ` +
+            `d="${wound.map((p) => pathD(p, true)).join(' ')}" fill="var(--plate-built)" stroke="none"/>`;
+        }
+        markup =
+          floor +
+          `<path data-feature-id="${id}" class="plate-layer plate-layer-plan" ` +
+          `d="${walls.map((p) => pathD(p, true)).join(' ')}" fill="none" stroke="${ink}" ` +
+          `stroke-width="${round1(wallPx)}" stroke-linejoin="miter"/>` +
+          (thin.length
+            ? `<path data-feature-id="${id}-lines" class="plate-layer plate-layer-plan-lines" ` +
+              `d="${thin.map((p) => pathD(p, false)).join(' ')}" fill="none" stroke="${ink}" ` +
+              `stroke-width="${round1(wallPx * 0.5)}" stroke-linecap="butt"/>`
+            : '') +
+          (solids.length
+            ? `<path data-feature-id="${id}-solids" class="plate-layer plate-layer-plan-solids" ` +
+              `d="${solids.map((p) => pathD(p, true)).join(' ')}" fill="${ink}" stroke="none"/>`
+            : '') +
+          (dots.length
+            ? `<path data-feature-id="${id}-columns" class="plate-layer plate-layer-plan-columns" ` +
+              `d="${dots.map(([x, y]) => circlePath(x, y, Math.max(0.6, PLAN_COLUMN_R_M * ppm))).join(' ')}" fill="${ink}" stroke="none"/>`
+            : '') ;
+        break;
+      }
+      if (layer.style === 'scrub') {
+        const ppm = pxPerMetre(plate, viewport, layer.polygon![0]);
+        const spacing = (layer.spacingM ?? SCRUB_SPACING_M) * ppm;
+        const rings = [px, ...(layer.rings ?? []).map((r) => collect(r))].filter((p) => p.length >= 3);
+        const id = escapeXml(layer.id);
+        // Below a few pixels apart the marks are a grey wash, not scrub:
+        // the outline holds the place and nothing is drawn (the map face).
+        const d = spacing >= SCRUB_MIN_SPACING_PX ? scrubMarks(rings, spacing, Math.max(0.55, spacing * 0.13), seed) : '';
+        // A faint wash of the scrub's own colour under the marks, so the slope
+        // reads as covered ground before the marks are made out one by one.
+        const wash = rings.map((p) => lineD(p, true)).join(' ');
+        markup = d
+          ? `<path data-feature-id="${id}-wash" class="plate-layer plate-layer-scrub-wash" d="${wash}" ` +
+            `fill="var(--plate-scrub)" fill-opacity="0.07" fill-rule="evenodd" stroke="none"/>` +
+            `<path data-feature-id="${id}" class="plate-layer plate-layer-scrub" d="${d}" ` +
+            `fill="none" stroke="var(--plate-scrub)" stroke-width="0.45" stroke-opacity="0.9"/>`
+          : `<path data-feature-id="${id}" class="plate-layer plate-layer-scrub" d="${pathD(px, true)}" fill="none" stroke="none"/>`;
+        break;
+      }
+      if (layer.style === 'tree') {
+        const id = escapeXml(layer.id);
+        markup =
+          `<path data-feature-id="${id}" class="plate-layer plate-layer-tree" d="${crownPath(px)}" ` +
+          `fill="var(--plate-scrub)" fill-opacity="0.45" stroke="var(--plate-scrub)" stroke-width="0.8" ` +
+          `stroke-linejoin="round"/>`;
+        break;
+      }
       if (layer.style === 'poem') {
         const parts = [px, ...(layer.rings ?? []).map((r) => collect(r))].filter((p) => p.length >= 3);
         markup =
@@ -6368,12 +7121,23 @@ function renderLayer(
         ? 'var(--text-mid)'
         : WATER_FILLS.has(fill)
           ? 'var(--scene-map-coast)'
-          : fill === 'masonry'
+          : fill === 'masonry' || fill === 'masonry-ground'
             ? 'var(--flaxman-ink)'
             : fillToken;
-      const strokeWidth = fill === 'masonry' ? MASONRY_EDGE_WIDTH : fill === 'zone' ? 0.6 : 0.8;
+      const strokeWidth =
+        fill === 'masonry' ? MASONRY_EDGE_WIDTH : fill === 'masonry-ground' ? 0.7 : fill === 'zone' ? 0.6 : 0.8;
       const strokeOpacity =
-        fill === 'masonry' ? 0.85 : fill === 'zone' ? 0.5 : fill === 'tint' ? 1 : WATER_FILLS.has(fill) ? 0.7 : 0.5;
+        fill === 'masonry'
+          ? 0.85
+          : fill === 'masonry-ground'
+            ? 0.45
+            : fill === 'zone'
+              ? 0.5
+              : fill === 'tint'
+                ? 1
+                : WATER_FILLS.has(fill)
+                  ? 0.7
+                  : 0.5;
       const strokeDasharray = fill === 'zone' ? ' stroke-dasharray="3 2"' : '';
       markup = soft
         ? `<path data-feature-id="${escapeXml(layer.id)}" class="plate-layer plate-layer-${layer.kind}" d="${d}" ` +
@@ -6444,7 +7208,7 @@ function renderLayer(
     // the `region` role is 15.5px letterspaced caps, the register PERGAMOS is
     // set in, and "House of Priam" set that way would be both grander than the
     // claim and wider than the summit.
-    labelRole: layer.style === 'poem' ? 'settlement' : layerLabelRole(layer.kind, plate.kind),
+    labelRole: layer.style === 'poem' || layer.style === 'plan' ? 'settlement' : layerLabelRole(layer.kind, plate.kind),
     labelPath: isArea ? undefined : linearRun(plate, layer, viewport),
     labelArea: isArea && allPixelPoints.length >= 3 ? allPixelPoints : undefined,
     submerged,
@@ -6514,6 +7278,61 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // instead, or a margin postcard would pan and crop with the map, defeating
   // the whole point of giving it a fixed sheet-pixel frame.
   const marginInsetMarkup: string[] = [];
+  // The projected-window insets of this sheet (PlateLayer.insetBBox), and the
+  // marks/numerals that belong inside one instead of on the map face
+  // (ruling 10, 2026-09-03). Everything drawn into a window is furniture in
+  // exactly the sense marginInsetMarkup means: sheet pixels, never panned.
+  const windows = insetWindows(plate);
+  // Keyed by PLACE id only: a place id and a layer id can be the same string
+  // on this sheet (`wagon-road` is both), and only the place is marked here —
+  // a keyed LAYER is already drawn in the window by its own `insetOf`.
+  const windowByKeyedPlaceId = new Map<string, InsetWindow>();
+  for (const group of plate.featureKey ?? []) {
+    const win = group.inset ? windows.get(group.inset) : undefined;
+    if (!win) continue;
+    for (const item of group.items) {
+      if (item.placeId) windowByKeyedPlaceId.set(item.placeId, win);
+    }
+  }
+  // A place a windowed layer DRAWS (its own placeId, or one it `claims`): the
+  // numeral belongs on that drawing, not on a mark of its own.
+  // Keyed by panel AND place: a place may be drawn by one layer in one panel
+  // and by another in a second panel.
+  const insetLayerByDrawnPlaceId = new Map<string, string>();
+  const panelPlaceKey = (panelId: string, placeId: string) => `${panelId}\u0000${placeId}`;
+  for (const layer of plate.layers) {
+    for (const panelId of layer.insetOf ?? []) {
+      for (const id of [layer.placeId, ...(layer.claims ?? [])]) {
+        if (id) insetLayerByDrawnPlaceId.set(panelPlaceKey(panelId, id), layer.id);
+      }
+    }
+  }
+  // Marks drawn inside a window: their own dots, and the glyph boxes of the
+  // layers redrawn in there. Both are obstacles for that window's numerals,
+  // and neither is one for the face's.
+  //
+  // Finding 7 (2026-09-03 review): kept per-window rather than one flat
+  // array, so each window's copies can be wrapped in that window's own
+  // clip-path (see insetClipId below) — an `insetOf` layer's geometry is the
+  // SAME lat/lon points reprojected through the window's own viewport, which
+  // is fitted to that window's bbox but not clamped to it, so geometry that
+  // runs past the bbox draws past the panel's frame with nothing to stop it.
+  const insetContentByWindow = new Map<string, string[]>();
+  const insetPinMarkup: string[] = [];
+  const insetGlyphBoxes = new Map<string, Box[]>();
+  // Plan ink drawn inside a window (2026-09-03, ruling 9 on the Ilios panel:
+  // the lower city is a built fabric, and a numeral must not sit on a house).
+  // Each wall ring and partition of a `style: "plan"` layer redrawn in a window
+  // becomes a hard disc obstacle for THAT window's numerals, at its drawn
+  // stroke width, the same WallObstacle a fortification's ink is on the face.
+  // A numeral keyed to the building itself is exempt from its own walls
+  // (ownerId), as a badge is from the wall it numbers. A leader may still
+  // cross it: ruling 9 forbids a leader crossing a badge, a pin or another
+  // leader, never linework. On the map face a plan layer draws nothing (its
+  // walls are under PLAN_MIN_WALL_PX there), so it is no obstacle there.
+  const insetWallObstacles = new Map<string, WallObstacle[]>();
+  const insetPinAnchors = new Map<string, { win: InsetWindow; box: Box }>();
+  const renderedInWindow = new Map<string, { win: InsetWindow; rendered: RenderedLayer }>();
   const submergedByWater = new Map<string, string[]>();
   const waters = collectWaterBodies(plate, viewport);
   // Every place id actually carried by a rendered layer (Problem 2, gap
@@ -6620,8 +7439,84 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     marsh: plate.layers.some((l) => l.fill === 'marsh'),
     barrier: plate.layers.some((l) => l.kind === 'coast' && l.style === 'barrier'),
   };
+  const drawInWindows = (layer: PlateLayer) => {
+    // "Also draw me inside that inset" (PlateLayer.insetOf). A SECOND render
+    // of the same lat/lon geometry through the panel's window, emitted as
+    // furniture. The copy takes a distinct feature id so nothing downstream
+    // can confuse the two drawings of one feature, and it contributes no
+    // label request, no legend row and no pin: it is the same feature, drawn
+    // twice at two scales, named once.
+    for (const [w, winId] of (layer.insetOf ?? []).entries()) {
+      const win = windows.get(winId);
+      if (!win) continue;
+      const copyId = insetCopyId(layer.id, winId, w);
+      const copy = renderLayer(plate, { ...layer, id: copyId, insetOf: undefined }, win.viewport, softId, []);
+      if (copy) {
+        // NOT into marginInsetMarkup: a panel is an OPAQUE rectangle, and the
+        // layer this copy belongs to is authored wherever its own subject
+        // belongs in the paint stack — which is above the panel for some and
+        // below it for others. Held apart and emitted after every panel, so a
+        // window's contents are always drawn ON its own panel (the first
+        // render of this put the citadel's wall and wagon-road ring under a
+        // 0.97-opaque rect and they came out as ghosts).
+        const bucket = insetContentByWindow.get(win.id);
+        if (bucket) bucket.push(copy.markup);
+        else insetContentByWindow.set(win.id, [copy.markup]);
+        renderedInWindow.set(`${win.id}\u0000${layer.id}`, { win, rendered: copy });
+        if (layer.style === 'plan' && layer.polygon && layer.polygon.length >= 3) {
+          const wallPx = (layer.wallM ?? PLAN_WALL_M) * pxPerMetre(plate, win.viewport, layer.polygon[0]);
+          if (wallPx >= PLAN_MIN_WALL_PX) {
+            const ownerId = [layer.id, layer.placeId, ...(layer.claims ?? [])].find(
+              (id): id is string => !!id && keyedIds.has(id),
+            );
+            const runs: { pts: [number, number][]; half: number }[] = [];
+            for (const ring of [layer.polygon, ...(layer.rings ?? [])]) {
+              const pts = projectPoints(plate, ring, win.viewport);
+              if (pts.length >= 3) runs.push({ pts: [...pts, pts[0]], half: wallPx / 2 });
+            }
+            for (const line of layer.lines ?? []) {
+              const pts = projectPoints(plate, line, win.viewport);
+              if (pts.length >= 2) runs.push({ pts, half: wallPx / 4 });
+            }
+            const bucket = insetWallObstacles.get(win.id) ?? [];
+            for (const { pts, half } of runs) {
+              const legs: WallLeg[] = [];
+              for (let i = 0; i + 1 < pts.length; i++) {
+                const [p1, p2] = [pts[i], pts[i + 1]];
+                legs.push({
+                  p1,
+                  p2,
+                  bbox: [Math.min(p1[0], p2[0]), Math.min(p1[1], p2[1]), Math.max(p1[0], p2[0]), Math.max(p1[1], p2[1])],
+                });
+              }
+              bucket.push({ legs, side: 1, halfWidths: [half, half], ownerId });
+            }
+            insetWallObstacles.set(win.id, bucket);
+          }
+        }
+        // A real drawn feature on this sheet, at its own id — so a consumer
+        // (and E4) can find the mark a window's numeral actually points at.
+        features.push(copy.feature);
+        if (layer.kind === 'tumulus' || layer.kind === 'shipRow') {
+          const boxes =
+            layer.kind === 'tumulus'
+              ? projectPoints(plate, layer.path ?? [], win.viewport).map((p) => tumulusExtent(p))
+              : [copy.feature.bbox];
+          insetGlyphBoxes.set(win.id, [...(insetGlyphBoxes.get(win.id) ?? []), ...boxes]);
+        }
+      }
+    }
+  };
   for (const layer of plate.layers) {
     if (hiddenGroupLayerIds.has(layer.id)) continue;
+    // See PlateLayer.insetOnly: ground drawn in its panel(s) and nowhere else.
+    if (layer.insetOnly) {
+      drawInWindows(layer);
+      // Its symbol is on the sheet, inside a panel, so it keys like any other.
+      const legend = layerLegendEntry(layer);
+      if (legend) legendEntries.push(legend);
+      continue;
+    }
     const rendered = renderLayer(plate, layer, viewport, softId, waters);
     if (!rendered) continue;
     renderedById.set(layer.id, rendered);
@@ -6639,6 +7534,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     else if (!isSceneZone) {
       drawn.push({ layerId: layer.id, markup: rendered.markup, rank: paintRank(layer), kind: layer.kind, fill: layer.fill });
     }
+    drawInWindows(layer);
     for (const under of rendered.submerged ?? []) {
       const bucket = submergedByWater.get(under.layerId);
       if (bucket) bucket.push(under.markup);
@@ -6842,6 +7738,44 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       layerGroupHidden.push(place);
       continue;
     }
+    // Ruling 10 (2026-09-03): a place keyed into a group with an `inset` is
+    // marked INSIDE that panel, at the panel's own scale, and not on the map
+    // face at all — eleven marks inside 25px is not a drawing of eleven
+    // places. It is the same anchor, projected through the window; nothing
+    // about the poem's positions moves. The face keeps the citadel's own
+    // wall and its zone letter, which is the one mark the ruling leaves there.
+    const insetWin = windowByKeyedPlaceId.get(place.id);
+    if (insetWin) {
+      const insetPos = resolvePlacePosition(plate, place, insetWin.viewport);
+      if (!insetPos) {
+        (layerPlaceIds.has(place.id) ? drawnByLayer : unlocated).push(place);
+        continue;
+      }
+      const [ix, iy] = insetPos;
+      const [rx, ry, rw, rh] = insetWin.rect;
+      if (ix < rx || ix > rx + rw || iy < ry || iy > ry + rh) {
+        // The window is too tight to hold a mark the key still numbers. Same
+        // honesty channel as a place off the sheet's own canvas.
+        offCanvas.push(place);
+        continue;
+      }
+      located.push(place);
+      const insetCls = placeLabelClass(place, 'schematic');
+      const insetR = insetCls === 'settlement' ? SETTLEMENT_DOT_R[place.rank ?? 2] : FEATURE_DOT_R;
+      insetPinMarkup.push(
+        dotMarkup(place.id, place.name, ix, iy, certaintyDotStyle(place.certainty), insetR).replace(
+          '<g ',
+          '<g data-position-basis="conjectural" ',
+        ),
+      );
+      const insetBox = dotBBox(ix, iy, insetR);
+      drawnMarkBoxes.set(place.id, insetBox);
+      insetPinAnchors.set(place.id, { win: insetWin, box: insetBox });
+      features.push({ id: place.id, type: 'place', kind: place.certainty ?? 'certain', bbox: insetBox });
+      legendEntries.push(certaintyDotLegendEntry(place.certainty ?? 'certain'));
+      continue;
+    }
+
     // A shown layer-group place is drawn at its own surveyed `coords`, on a
     // schematic sheet too: the schematic's ground is the real ground in the
     // same projection (ruling 1, 2026-09-02), and these marks sit in their
@@ -7099,6 +8033,10 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
 
   const pinAnchors = new Map<string, Box>();
   for (const req of pinLabelRequests) pinAnchors.set(req.id, req.anchorBox);
+  // A mark inside a window never entered pinLabelRequests (it letters nothing
+  // — its name is in the key), so its anchor is joined here. This is what the
+  // badge pass reads to find the mark a numeral belongs to.
+  for (const [id, { box }] of insetPinAnchors) pinAnchors.set(id, box);
 
   // The placement solution, if this exact sheet has been laid before (see
   // badgeSolutionCache). Looked up HERE because the zone letters are the first
@@ -7196,8 +8134,16 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     centredNameBoxes.push(centredLabelBox(req));
   }
 
-  const badgeMeta: { n: number; item: PlateFeatureKeyItem; id: string; r: number; anchorBox: Box; longName: string }[] =
-    [];
+  const badgeMeta: {
+    n: number;
+    item: PlateFeatureKeyItem;
+    id: string;
+    r: number;
+    anchorBox: Box;
+    longName: string;
+    // The window this numeral is drawn inside, where its group named one.
+    win?: InsetWindow;
+  }[] = [];
   // Finding F3 (stage 6 review, 2026-09-03): an unanchored featureKey item
   // used to keep its numeral (keyN incremented before the anchor check) and
   // its key row (featureKeyMarkup walked plate.featureKey directly, never
@@ -7214,10 +8160,22 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   let keyN = 0;
   for (const group of plate.featureKey ?? []) {
     const keptItems: PlateFeatureKeyItem[] = [];
+    const groupWindow = group.inset ? windows.get(group.inset) : undefined;
     for (const item of group.items) {
       const id = item.placeId ?? item.layerId!;
       const rendered = renderedById.get(id);
-      const anchorBox = pinAnchors.get(id) ?? rendered?.labelAnchor ?? rendered?.feature.bbox;
+      // Inside a window, the anchor is the mark drawn IN THERE: the pin
+      // (joined into pinAnchors above) or, for a keyed layer, its own second
+      // drawing. Never the face's copy — a numeral in the panel pointing at
+      // the map face would be a leader across the whole sheet.
+      const inWindow = groupWindow
+        ? renderedInWindow.get(
+            `${groupWindow.id}\u0000${insetLayerByDrawnPlaceId.get(panelPlaceKey(groupWindow.id, id)) ?? id}`,
+          )
+        : undefined;
+      const anchorBox = groupWindow
+        ? (insetPinAnchors.get(id)?.box ?? inWindow?.rendered.labelAnchor ?? inWindow?.rendered.feature.bbox)
+        : (pinAnchors.get(id) ?? rendered?.labelAnchor ?? rendered?.feature.bbox);
       if (!anchorBox) {
         if (item.placeId) {
           const place = placeById.get(item.placeId);
@@ -7237,11 +8195,12 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       const longName = item.placeId
         ? (placeById.get(item.placeId)?.name ?? item.label ?? id)
         : (layer?.label ?? (layer?.placeId ? placeById.get(layer.placeId)?.name : undefined) ?? item.label ?? id);
-      badgeMeta.push({ n: keyN, item, id, r, anchorBox, longName });
+      badgeMeta.push({ n: keyN, item, id, r, anchorBox, longName, win: groupWindow });
     }
     if (keptItems.length) keyedGroups.push({ title: group.title, items: keptItems });
   }
-  const badgeInputs = badgeMeta.map((m) => ({
+  const faceBadgeMeta = badgeMeta.filter((m) => !m.win);
+  const badgeInputs = faceBadgeMeta.map((m) => ({
     id: String(m.n).padStart(3, '0'),
     anchorBox: m.anchorBox,
     textWidth: 2 * m.r,
@@ -7256,7 +8215,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     width: frameWidth,
     height,
     margin: LABEL_MARGIN,
-    markerBoxes: [...pinAnchors.values()],
+    // The face's own marks. A mark drawn inside a window is not on the face
+    // and cannot crowd anything there.
+    markerBoxes: [...pinAnchors].filter(([id]) => !insetPinAnchors.has(id)).map(([, box]) => box),
     placedBoxes: denseBoxes.map((d) => d.box),
     avoidDiscs: zoneLetterDiscs,
     avoidMarkers: [...drawnMarkBoxes.values(), ...glyphBoxes],
@@ -7299,7 +8260,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // the second pass below can only move a badge somewhere the names then
   // vacated anyway (ruling 9, 2026-09-03).
   const badgePad = 4;
-  for (const meta of badgeMeta) {
+  for (const meta of faceBadgeMeta) {
     const box = placementByN1.get(meta.n)?.box ?? meta.anchorBox;
     const cx = (box[0] + box[2]) / 2;
     const cy = (box[1] + box[3]) / 2;
@@ -7395,6 +8356,72 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       .filter((seat) => seat.violations === 0)
       .map((seat) => seat.placement);
   const placementByN = new Map(pass2.map((p) => [Number(p.id), p]));
+
+  // The numerals that live inside a window (ruling 10). Solved by the SAME
+  // placer, in the window's own rectangle translated to its origin — so
+  // every rule the face's numerals obey (clear of its neighbours, clear of
+  // every mark that is not its own, on a leader when it cannot sit close,
+  // dropped rather than drawn overlapping) holds inside the panel too, and
+  // the ladder can never walk a badge out through the frame. There is no
+  // second pass: a window carries no laid names for a numeral to yield to.
+  const insetPlacements = new Map<number, LabelPlacement>();
+  const insetPass = cached?.insets ?? [];
+  if (cached?.insets) {
+    for (const p of cached.insets) insetPlacements.set(Number(p.id), p);
+  } else {
+    for (const win of windows.values()) {
+      const mine = badgeMeta.filter((m) => m.win === win);
+      if (!mine.length) continue;
+      const [rx, ry, rw, rh] = win.rect;
+      const shift = (b: Box): Box => [b[0] - rx, b[1] - ry, b[2] - rx, b[3] - ry];
+      const marks = mine.map((m) => shift(m.anchorBox));
+      // The window's plan ink (see insetWallObstacles), in the window's own
+      // frame like every other obstacle handed to this call.
+      const walls: WallObstacle[] = (insetWallObstacles.get(win.id) ?? []).map((w) => ({
+        ...w,
+        legs: w.legs.map((l) => ({
+          p1: [l.p1[0] - rx, l.p1[1] - ry] as [number, number],
+          p2: [l.p2[0] - rx, l.p2[1] - ry] as [number, number],
+          bbox: shift(l.bbox),
+        })),
+      }));
+      const seats = placeKeyBadges(
+        mine.map((m) => ({
+          id: String(m.n).padStart(3, '0'),
+          anchorBox: shift(m.anchorBox),
+          textWidth: 2 * m.r,
+          fontSize: 2 * m.r,
+          r: m.r,
+          ownMarker: drawnMarkBoxes.has(m.id) ? shift(drawnMarkBoxes.get(m.id)!) : undefined,
+          ownWalls: walls.filter((w) => w.ownerId === m.id),
+        })),
+        {
+          width: rw,
+          height: rh,
+          margin: INSET_BADGE_MARGIN,
+          markerBoxes: marks,
+          placedBoxes: [],
+          avoidDiscs: [],
+          avoidMarkers: [...marks, ...(insetGlyphBoxes.get(win.id) ?? []).map(shift)],
+          avoidWalls: walls,
+          avoidWater: [],
+          avoidLabelBoxes: [],
+        },
+      );
+      for (const seat of seats) {
+        if (seat.violations !== 0) continue;
+        const p = seat.placement;
+        const b = p.box;
+        const placed: LabelPlacement = {
+          ...p,
+          box: [b[0] + rx, b[1] + ry, b[2] + rx, b[3] + ry],
+        };
+        insetPlacements.set(Number(p.id), placed);
+        insetPass.push(placed);
+      }
+    }
+  }
+  for (const [n, p] of insetPlacements) placementByN.set(n, p);
   const unplacedKeyNumerals = badgeMeta.map((m) => m.n).filter((n) => !placementByN.has(n));
   if (!cached) {
     let bucket = badgeSolutionCache.get(plate);
@@ -7409,24 +8436,29 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
       zoneLetters: placedZoneLetters,
       pass1: [...placementByN1.values()],
       pass2,
+      insets: insetPass,
     });
   }
   const badgeParts: string[] = [];
+  // A numeral seated inside a window is drawn with its panel, outside the
+  // camera group — it is part of that panel, and a panel does not pan.
+  const insetBadgeParts: string[] = [];
   const geographicHalo = plate.kind === 'geographic';
   for (const meta of badgeMeta) {
     const best = placementByN.get(meta.n);
     if (!best) continue;
+    const into = meta.win ? insetBadgeParts : badgeParts;
     const box = best.box;
     const cx = (box[0] + box[2]) / 2;
     const cy = (box[1] + box[3]) / 2;
     if (best.candidateIndex >= NEAR_CANDIDATE_COUNT) {
-      badgeParts.push(keyLeaderElement(meta.anchorBox, box, meta.n));
+      into.push(keyLeaderElement(meta.anchorBox, box, meta.n));
     }
     const aria = `${meta.n}. ${meta.longName}`;
     const idAttr = meta.item.placeId
       ? ` data-place-id="${escapeXml(meta.item.placeId)}"`
       : ` data-layer-id="${escapeXml(meta.item.layerId!)}"`;
-    badgeParts.push(
+    into.push(
       badgeMarkup(String(meta.n), cx, cy, geographicHalo, {
         r: meta.r,
         className: 'plate-key-badge',
@@ -7442,6 +8474,26 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
   // in an SVG element id — sanitize it the same way shield.ts does (see
   // safeIdFragment), rather than interpolating it raw.
   const clipId = `${safeIdFragment(opts.idPrefix)}-clip`;
+  // Finding 7 (2026-09-03 review): an inset window's viewport is FITTED to
+  // its `insetBBox`, not clamped to it — a layer whose lat/lon geometry runs
+  // past that bbox (a wall trace, a route) draws past the panel's own frame,
+  // with nothing upstream to stop it. Same id-safety posture as `clipId`
+  // above: one clip-path per window, its rect the window's own drawing
+  // rectangle, applied to that window's projected copies only.
+  const insetClipId = (winId: string) => `${safeIdFragment(opts.idPrefix)}-inset-clip-${safeIdFragment(winId)}`;
+  const insetClipDefs = [...windows.values()]
+    .map((win) => {
+      const [x, y, w, h] = win.rect;
+      return `<clipPath id="${insetClipId(win.id)}"><rect x="${round1(x)}" y="${round1(y)}" width="${round1(w)}" height="${round1(h)}"/></clipPath>`;
+    })
+    .join('');
+  const insetContentMarkup = [...windows.values()]
+    .map((win) => {
+      const parts = insetContentByWindow.get(win.id);
+      if (!parts || !parts.length) return '';
+      return `<g clip-path="url(#${insetClipId(win.id)})">${parts.join('')}</g>`;
+    })
+    .join('');
   const ariaLabel = escapeXml(plate.title);
   const featureKeyBlock = featureKeyMarkup(
     keyedGroups,
@@ -7463,6 +8515,7 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
           `<feGaussianBlur stdDeviation="${SOFT_BLUR[k]}"/></filter>`,
       )
       .join('') +
+    insetClipDefs +
     `${labels.defs}</defs>` +
     `<g clip-path="url(#${clipId})">` +
     // The pannable content only — legend and (below, outside the clip
@@ -7482,6 +8535,9 @@ export function renderPlate(plate: Plate, places: PlatePlace[], options: PlateOp
     // sheet, never panned or cropped by the camera, exactly like the legend
     // below. See marginInsetMarkup above.
     marginInsetMarkup.join('') +
+    insetContentMarkup +
+    insetPinMarkup.join('') +
+    insetBadgeParts.join('') +
     furnitureZoneLetters
       .map((z) => zoneLetterMarkup(z.letter, z.x, z.y, plate.kind === 'geographic'))
       .join('') +

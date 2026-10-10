@@ -83,7 +83,14 @@ LAYER_KIND_ENUM = {
 # token, distinct from "tint" (a decorative wash strong enough to read as a
 # feature, e.g. a claimed camp zone) so seven stacked scene zones never
 # outweigh the relief and coastline under them.
-REGION_FILL_ENUM = {"tint", "zone", "masonry", "sea", "lagoon", "land", "marsh", "plain", "none"}
+# "masonry-ground" (2026-09-03, ruling 13) is the same surveyed masonry drawn
+# quieter as the ground under the poem's city; shared/lib/plate.ts keys it on
+# the masonry legend row.
+# "built" (2026-10-09, ruling 15) is the roofed floor of a building in the
+# poem's plan register; `open` lists the rings that are open courts.
+REGION_FILL_ENUM = {
+    "tint", "zone", "masonry", "masonry-ground", "built", "sea", "lagoon", "land", "marsh", "plain", "none",
+}
 # What the bare sheet is under every layer, per the same contract.
 GROUND_ENUM = {"land", "sea"}
 STOCHASTIC_STYLES = {"stipple", "hachure"}
@@ -91,7 +98,9 @@ STOCHASTIC_STYLES = {"stipple", "hachure"}
 # Layer fields that carry coordinate geometry. "rings" nests one level deeper
 # than the rest: a list of rings, each ring a list of [a, b] pairs. The flat
 # fields are a plain list of pairs.
-_RING_FIELDS = ("rings",)
+# `lines`, `columns` and `solids` are the plan register's extra ring lists
+# (shared/lib/plate.ts, `style: "plan"`, 2026-09-03): same shape as `rings`.
+_RING_FIELDS = ("rings", "lines", "columns", "solids")
 _FLAT_COORD_FIELDS = ("path", "polygon", "baseline", "trace")
 
 
@@ -454,12 +463,45 @@ def _layer_has_drawable_geometry(layer: dict) -> bool:
     if kind in ("region", "band") and layer.get("fill") == "none" and layer.get("style") not in (
         "inset",
         "poem",
+        "plan",
     ):
         # renderLayer emits fill="none" stroke="none" for this: a named,
-        # invisible zone. Only the inset and poem styles draw regardless of fill.
+        # invisible zone. Only the inset, poem and plan styles draw regardless
+        # of fill (a plan draws its walls as bars, whatever its fill).
         return False
     if kind in ("relief", "region", "band"):
         return _point_count(layer.get("polygon")) >= 3
+    return False
+
+
+def _point_in_ring(pt: list, ring: list) -> bool:
+    """Even-odd point-in-polygon on [a, b] pairs (shared/lib/plate.ts
+    pointInPolygon), counting a point on an edge as inside, as parsePlate's
+    `open` check does."""
+    x, y = pt
+    for (x1, y1), (x2, y2) in zip(ring, ring[1:] + ring[:1]):
+        cross = (x2 - x1) * (y - y1) - (y2 - y1) * (x - x1)
+        if (
+            abs(cross) <= 1e-12
+            and min(x1, x2) - 1e-9 <= x <= max(x1, x2) + 1e-9
+            and min(y1, y2) - 1e-9 <= y <= max(y1, y2) + 1e-9
+        ):
+            return True
+    inside = False
+    for (x1, y1), (x2, y2) in zip(ring, ring[1:] + ring[:1]):
+        if (y1 > y) != (y2 > y) and x < (x2 - x1) * (y - y1) / (y2 - y1) + x1:
+            inside = not inside
+    return inside
+
+
+def _rings_cross(a: list, b: list) -> bool:
+    """Whether any edge of ring `a` properly crosses an edge of ring `b`."""
+    def o(p, q, r):
+        return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
+    for p1, p2 in zip(a, a[1:] + a[:1]):
+        for q1, q2 in zip(b, b[1:] + b[:1]):
+            if o(p1, p2, q1) * o(p1, p2, q2) < 0 and o(q1, q2, p1) * o(q1, q2, p2) < 0:
+                return True
     return False
 
 
@@ -664,6 +706,11 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
 
     needs_seed = False
     seen_layer_ids: set[str] = set()
+    # Layer ids that are framed inset panels with an insetBBox, and the
+    # `insetOf` / `featureKey[].inset` references that must name one. Both are
+    # resolved after the layer loop, because a reference may point forward.
+    inset_panel_ids: set[str] = set()
+    inset_of_refs: list[tuple[str, str]] = []
     layers_by_id: dict[str, dict] = {}
     for i, layer in enumerate(layers):
         if not isinstance(layer, dict):
@@ -736,6 +783,20 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
             problems.append(
                 f"{label}: layer {layer_label} fill must be one of "
                 f"{sorted(REGION_FILL_ENUM)}, got {fill!r}"
+            )
+
+        # A layer's own certainty tier (2026-09-03, review finding 5), mirroring
+        # PlatePlace's own certainty check above — for a layer that IS itself a
+        # claim (the citadel's poem-drawn buildings, which have no gazetteer
+        # place of their own to carry a tier through). Unlike the place check,
+        # a tier here does not require a `tradition`: the layer's `note` and
+        # `sources` already carry the poem citation that puts it at
+        # `speculative`.
+        certainty = layer.get("certainty")
+        if certainty is not None and certainty not in CERTAINTY_TIERS:
+            problems.append(
+                f"{label}: layer {layer_label} certainty must be one of "
+                f"{sorted(CERTAINTY_TIERS)}, got {certainty!r}"
             )
 
         # A relief band's contour level in metres (2026-07-29). Its presence
@@ -813,6 +874,104 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                         )
                     elif style == "inset":
                         framed_inset = True
+                        if isinstance(layer.get("insetBBox"), list):
+                            inset_panel_ids.add(layer_id)
+
+        # A framed inset panel may be a PROJECTED WINDOW rather than a free
+        # drawing (ruling 10, 2026-09-03): `insetBBox` is the ground it shows,
+        # and sibling layers naming it in `insetOf` are drawn from their own
+        # lat/lon geometry through that window. Mirrors parsePlate's checks in
+        # shared/lib/plate.ts -- two implementations of one contract.
+        inset_bbox = layer.get("insetBBox")
+        if inset_bbox is not None:
+            if (
+                not isinstance(inset_bbox, list)
+                or len(inset_bbox) != 4
+                or not all(_is_number(v) for v in inset_bbox)
+            ):
+                problems.append(
+                    f"{label}: layer {layer_label} insetBBox must be a 4-element "
+                    f"numeric array [minLat, minLon, maxLat, maxLon]"
+                )
+            elif not framed_inset:
+                problems.append(
+                    f"{label}: layer {layer_label} has an insetBBox but is not a "
+                    f"framed inset panel"
+                )
+            elif min_lat is None:
+                problems.append(
+                    f"{label}: layer {layer_label} has an insetBBox but the plate "
+                    f"has no bbox"
+                )
+            elif not (inset_bbox[2] > inset_bbox[0] and inset_bbox[3] > inset_bbox[1]):
+                problems.append(
+                    f"{label}: layer {layer_label} insetBBox must have maxLat > "
+                    f"minLat and maxLon > minLon"
+                )
+        inset_of = layer.get("insetOf")
+        # One panel id, or a list of distinct ones (the citadel is drawn in
+        # both Pergamos and Ilios) -- mirrors parsePlate.
+        inset_refs = [inset_of] if isinstance(inset_of, str) else inset_of
+        if inset_of is not None:
+            if (
+                not isinstance(inset_refs, list)
+                or not inset_refs
+                or not all(isinstance(r, str) and r for r in inset_refs)
+                or len(set(inset_refs)) != len(inset_refs)
+            ):
+                problems.append(
+                    f"{label}: layer {layer_label} insetOf must be a layer id "
+                    f"or a list of distinct layer ids"
+                )
+            elif frame is not None:
+                problems.append(
+                    f"{label}: layer {layer_label} cannot carry both frame and insetOf"
+                )
+            elif style == "inset":
+                problems.append(
+                    f"{label}: layer {layer_label} cannot be both an inset panel "
+                    f"and insetOf one"
+                )
+            else:
+                inset_of_refs.extend((layer_label, ref) for ref in inset_refs)
+        open_rings = layer.get("open")
+        if open_rings is not None:
+            n_rings = len(layer.get("rings") or [])
+            if not isinstance(open_rings, list) or not all(
+                isinstance(i, int) and not isinstance(i, bool) and 0 <= i < n_rings for i in open_rings
+            ):
+                problems.append(
+                    f"{label}: layer {layer_label} open must list indexes into its own rings"
+                )
+            else:
+                # A court is open ground inside a house: every vertex within
+                # the polygon (mirrors parsePlate).
+                poly = layer.get("polygon") or []
+                for i in open_rings:
+                    ring = layer["rings"][i]
+                    # A malformed polygon or ring is reported by the coordinate
+                    # checks below; this check only runs on well-formed pairs.
+                    if not (isinstance(poly, list) and isinstance(ring, list)
+                            and all(_is_pair(p) for p in poly) and all(_is_pair(p) for p in ring)):
+                        continue
+                    if not poly or not all(_point_in_ring(p, poly) for p in ring) or _rings_cross(ring, poly):
+                        problems.append(
+                            f"{label}: layer {layer_label} open ring {i} must lie inside the layer's own polygon"
+                        )
+        inset_only = layer.get("insetOnly")
+        if inset_only is not None:
+            if inset_only is not True:
+                problems.append(
+                    f"{label}: layer {layer_label} insetOnly must be true or absent"
+                )
+            elif inset_of is None:
+                problems.append(
+                    f"{label}: layer {layer_label} is insetOnly but names no insetOf panel"
+                )
+            elif layer.get("placeId") or layer.get("claims"):
+                problems.append(
+                    f"{label}: layer {layer_label} is insetOnly and cannot carry a placeId or claims"
+                )
 
         for field, pair, path_desc in _iter_layer_coords(layer, label, layer_label, problems):
             if not _is_pair(pair):
@@ -853,6 +1012,30 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                         f"{label}: layer {layer_label} {field}{path_desc} = [{a}, {b}] "
                         f"must be a unit [u, v] pair in 0..1"
                     )
+
+    # A panel copy's feature id (shared/lib/plate.ts insetCopyId: `<id>--inset`
+    # in the first panel, `<id>--inset-<panel>` in the others) must not be
+    # some other layer's own id.
+    seen_ids = set(seen_layer_ids)
+    for layer in layers:
+        if not isinstance(layer, dict) or not isinstance(layer.get("id"), str):
+            continue
+        refs = layer.get("insetOf")
+        refs = [refs] if isinstance(refs, str) else refs if isinstance(refs, list) else []
+        for i, ref in enumerate(refs):
+            copy_id = f"{layer['id']}--inset" if i == 0 else f"{layer['id']}--inset-{ref}"
+            if copy_id in seen_ids:
+                problems.append(
+                    f"{label}: id {copy_id!r} of the panel copy of layer {layer['id']!r} is already taken"
+                )
+            seen_ids.add(copy_id)
+
+    for layer_label, ref in inset_of_refs:
+        if ref not in inset_panel_ids:
+            problems.append(
+                f"{label}: layer {layer_label} insetOf {ref!r} is not a framed "
+                f"inset panel with an insetBBox"
+            )
 
     if needs_seed and "seed" not in doc:
         problems.append(f"{label}: seed is required (a layer uses a stochastic style)")
@@ -926,6 +1109,19 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
                 if not isinstance(items, list):
                     problems.append(f"{label}: featureKey[{gi}].items must be a list")
                     continue
+                # Ruling 10: this group's marks and numerals are drawn inside
+                # the named panel instead of on the map face.
+                group_inset = group.get("inset")
+                if group_inset is not None:
+                    if not isinstance(group_inset, str) or not group_inset:
+                        problems.append(
+                            f"{label}: featureKey[{gi}].inset must be a layer id"
+                        )
+                    elif group_inset not in inset_panel_ids:
+                        problems.append(
+                            f"{label}: featureKey[{gi}].inset {group_inset!r} is not "
+                            f"a framed inset panel with an insetBBox"
+                        )
                 for ii, item in enumerate(items):
                     if not isinstance(item, dict):
                         problems.append(
