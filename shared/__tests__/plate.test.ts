@@ -32,15 +32,12 @@ import {
   type PlatePoint,
 } from '../lib/plate';
 
-const SEED_PLATE_PATH = '../apparatus/plates/trojan-plain.json';
 const SCHEMATIC_SEED_PLATE_PATH = '../apparatus/plates/trojan-plain-schematic.json';
 const SHIELD_SEED_PLATE_PATH = '../apparatus/plates/shield-of-achilles.json';
 
-// A synthetic geographic plate fixture — deliberately NOT the live
-// apparatus/plates/trojan-plain.json content for most tests (that file is
-// read once below, in its own smoke test, since another lane is mid-flight
-// on apparatus/places.json and this suite must not depend on its
-// stability). bbox mirrors the seed plate's Troad-scale span.
+// A synthetic geographic plate fixture — deliberately NOT a live plate's
+// content for most tests, so this suite does not depend on the stability of
+// apparatus/places.json. bbox mirrors the Trojan Plain's Troad-scale span.
 const BBOX: [number, number, number, number] = [39.86, 26.12, 40.02, 26.36];
 const SIZE: [number, number] = [400, 300];
 
@@ -153,14 +150,6 @@ const anchorForOtherPlate: PlatePlace = {
 };
 
 describe('parsePlate', () => {
-  it('parses the live seed plate (apparatus/plates/trojan-plain.json)', () => {
-    const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
-    const plate = parsePlate(raw);
-    expect(plate.id).toBe('trojan-plain');
-    expect(plate.kind).toBe('geographic');
-    expect(plate.layers.length).toBeGreaterThanOrEqual(2);
-  });
-
   it('rejects a plate missing bbox', () => {
     const bad = { id: 'x', title: 'X', kind: 'geographic', status: 'draft', size: [100, 100], layers: [] };
     expect(() => parsePlate(bad)).toThrow(/missing bbox/);
@@ -203,10 +192,9 @@ describe('parsePlate', () => {
 
   it('parses the live trojan-plain-schematic.json as a bboxed schematic plate (east-up, right margin)', () => {
     const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
-    const geo = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
     const plate = parsePlate(raw);
     expect(plate.kind).toBe('schematic');
-    expect(plate.bbox).toEqual(geo.bbox);
+    expect(plate.bbox).toEqual([39.86, 26.1, 40.05, 26.38]);
     expect(plate.rotationDeg).toBe(90);
     // Two furniture columns since ruling 12 (2026-09-03): the keys keep the
     // 340px measure they were designed at, the second column carries the three
@@ -827,8 +815,8 @@ describe('renderLayer: data-layer-id names the layer that drew each element, aux
     }
   });
 
-  it('an auxiliary element (a suffixed feature id) carries the PARENT layer id, not its own suffixed id (real trojan-plain.json: shore-bronze / shore-bronze-band)', () => {
-    const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
+  it('an auxiliary element (a suffixed feature id) carries the PARENT layer id, not its own suffixed id (real trojan-plain-schematic.json: shore-bronze / shore-bronze-band)', () => {
+    const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
     const plate = parsePlate(raw);
     const svg = renderPlate(plate, []).svg;
     const baseMatch = svg.match(/data-feature-id="shore-bronze"[^>]*data-layer-id="([^"]*)"/);
@@ -1012,12 +1000,13 @@ describe('renderPlate: the no-label-on-water rule binds the schematic register o
   // only, that same overlap is no longer a defect on a geographic sheet: a
   // coastal name sitting over open water, with a leader to its point, is
   // exactly what this register draws (John's ruling 5: "Kum Tepe, Kesik Tepe
-  // come back"). So all four now regain a labelBox on the real
-  // trojan-plain.json — the SET of placed ids is the gate here, per the
+  // come back"). So all four now regain a labelBox on a real geographic
+  // sheet — the Troad, since the geographic Trojan Plain sheet was retired
+  // (ruling 16, 2026-09-15) — the SET of placed ids is the gate here, per the
   // 2026-09-02 CLAUDE.md lesson that a positions-only diff cannot see a
   // dropped (or regained) label.
-  it('regains kum-tepe and kesik-tepe on the geographic trojan-plain sheet, alongside besik-sivritepe and uvecik-tepe', () => {
-    const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
+  it('regains kum-tepe and kesik-tepe on the geographic Troad sheet, alongside besik-sivritepe and uvecik-tepe', () => {
+    const raw = JSON.parse(readFileSync('../apparatus/plates/troad.json', 'utf-8'));
     const plate = parsePlate(raw);
     expect(plate.kind).toBe('geographic');
     const allPlaces = (JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[]).filter(
@@ -1031,88 +1020,18 @@ describe('renderPlate: the no-label-on-water rule binds the schematic register o
   });
 });
 
-// ── Geographic sheet geo-enrich labels (2026-09-02) ────────────────────────
-// John's ruling: add Beşik Bay, Thymbrios, Pınarbaşı, Ajax's tomb, the Kesik
-// cut, and the Aegean to the geographic Trojan Plain sheet. The gate is the
-// SET of placed ids (CLAUDE.md 2026-09-02: a positions-only diff cannot see
-// a dropped label). The 14 ids already on the sheet must all still place.
+// ── A place that borrows another's point (geo-enrich, 2026-09-02) ─────────
+// Moved to the Troad sheet when the geographic Trojan Plain sheet was retired
+// (John, 2026-09-15, ruling 16).
 
-const TROJAN_PLAIN_PREEXISTING_LABEL_IDS = [
-  'achaean-camp-zone',
-  'besik-sivritepe',
-  'callicolone',
-  'kesik-tepe',
-  'kum-tepe',
-  'lagoon-bronze',
-  'rhoiteion',
-  'scamander',
-  'scamandrian-plain',
-  'sigeion',
-  'simoeis',
-  'thymbra',
-  'troy',
-  'uvecik-tepe',
-] as const;
-
-const TROJAN_PLAIN_GEO_ENRICH_LABEL_IDS = [
-  'besik-bay',
-  'pinarbasi',
-  'tomb-of-ajax-in-tepe',
-  'kesik-basin',
-  'thymbrios',
-  'aegean',
-] as const;
-
-describe('renderPlate: geographic trojan-plain geo-enrich labels (2026-09-02)', () => {
-  it('places the new labels and keeps every pre-existing label id', () => {
-    const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
-    const plate = parsePlate(raw);
-    expect(plate.kind).toBe('geographic');
-    const allPlaces = (JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[]).filter(
-      (p) => (p as unknown as { maps?: string[] }).maps?.includes('troad-plain'),
-    );
-    const result = renderPlate(plate, allPlaces);
-
-    for (const id of TROJAN_PLAIN_PREEXISTING_LABEL_IDS) {
-      expect(result.labelBoxes[id], `pre-existing label "${id}" must still be placed`).toBeDefined();
-    }
-    for (const id of TROJAN_PLAIN_GEO_ENRICH_LABEL_IDS) {
-      expect(result.labelBoxes[id], `expected a labelBox for "${id}"`).toBeDefined();
-    }
-  });
-
-  // Both `achaean-camp-zone` and `kesik-basin` are `centred` region requests
-  // — laid at their own polygon's bounding-box centre with NO collision check
-  // against each other (layoutLabels's own comment: "Area (`centred`) names
-  // are laid first... a point name yields to them"). The first cut of the
-  // kesik-basin polygon landed its centroid on top of achaean-camp-zone's,
-  // and the two labels printed through each other. The fix moved the zone
-  // further south; this pins the two boxes disjoint so a future edit to
-  // either polygon that reintroduces the collision fails loudly.
-  it('the Kesik cut lettering zone does not overprint the Achaean camp label', () => {
-    const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
-    const plate = parsePlate(raw);
-    const allPlaces = (JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[]).filter(
-      (p) => (p as unknown as { maps?: string[] }).maps?.includes('troad-plain'),
-    );
-    const result = renderPlate(plate, allPlaces);
-    const camp = result.labelBoxes['achaean-camp-zone'];
-    const kesik = result.labelBoxes['kesik-basin'];
-    expect(camp, 'achaean-camp-zone must place').toBeDefined();
-    expect(kesik, 'kesik-basin must place').toBeDefined();
-    const disjoint = camp[2] < kesik[0] || kesik[2] < camp[0] || camp[3] < kesik[1] || kesik[3] < camp[1];
-    expect(disjoint, `camp box ${JSON.stringify(camp)} and kesik box ${JSON.stringify(kesik)} must not overlap`).toBe(
-      true,
-    );
-  });
-
+describe('renderPlate: a place drawn at another place\'s point', () => {
   // tomb-of-ajax-in-tepe's `coords` are deliberately Rhoiteion's own point
   // (its note: "This is Rhoiteion's coordinate, not a survey of the mound").
   // Drawing both places' dots put two discs on one pixel, the second
   // (open, traditional-tier) entirely hidden under Rhoiteion's solid one —
   // present in the DOM, invisible on the sheet. It still gets its own label.
   it('tomb-of-ajax-in-tepe prints its label but draws no marker of its own', () => {
-    const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
+    const raw = JSON.parse(readFileSync('../apparatus/plates/troad.json', 'utf-8'));
     const plate = parsePlate(raw);
     const allPlaces = (JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[]).filter(
       (p) => (p as unknown as { maps?: string[] }).maps?.includes('troad-plain'),
@@ -2514,7 +2433,8 @@ describe('hypsometric relief bands', () => {
 // Every measured line on a geographic sheet is now drawn as a curve rather
 // than as the polygon it is stored as (smoothPathD in plate.ts, 2026-07-29).
 // The whole objection to doing that to a coastline is that smoothing might
-// move it, and the Bronze Age shore on apparatus/plates/trojan-plain.json is
+// move it, and the Bronze Age shore (`shore-bronze`, now carried by
+// apparatus/plates/trojan-plain-schematic.json) is
 // a calibrated line: it was derived from the 10 m contour BECAUSE that level
 // passes 1.2 km north of Hisarlık, where Kraft, Rapp, Kayan and Luce put the
 // bay head, and the 8 m and 12 m contours (2.8 km and 0.7 km) are both
@@ -2526,9 +2446,23 @@ describe('hypsometric relief bands', () => {
 // built entirely out of midpoints, so smoothing commutes with projection:
 // measuring the deviation in plate pixels and converting by the sheet's own
 // scale is exact, not an approximation.
+//
+// The geographic Trojan Plain sheet these tests were written against was
+// retired (John, 2026-09-15, docs/TROY-MAPS-TODO.md ruling 16). Its ground
+// layers live on in trojan-plain-schematic.json, which draws them east-up
+// and without the curve pass, so the tests lay the two layers they measure
+// back on a north-up geographic plate of the retired sheet's bbox and size.
 describe('the curve pass does not move the Bronze Age shoreline', () => {
-  const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
-  const livePlate = parsePlate(raw);
+  const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
+  const livePlate = parsePlate({
+    id: 'plain-ground',
+    title: 'The Trojan Plain ground, north-up',
+    kind: 'geographic',
+    status: 'draft',
+    bbox: raw.bbox,
+    size: [880, 779],
+    layers: raw.layers.filter((l: PlateLayer) => l.id === 'sea-modern' || l.id === 'shore-bronze'),
+  });
   const viewport = viewportFromBBox(livePlate.bbox!, livePlate.size);
   // Metres per plate pixel, from the plate's own projection: one degree of
   // latitude is 111_320 m and the viewport scales latitude by `scale`.
@@ -2642,7 +2576,7 @@ describe('the curve pass does not move the Bronze Age shoreline', () => {
 });
 
 describe('the soft registers: an indefinite edge drawn as one', () => {
-  const raw = JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8'));
+  const raw = JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8'));
   const livePlate = parsePlate(raw);
   // With the gazetteer, so a layer whose only name comes from its `placeId`
   // is actually lettered (the `none` region's whole purpose).
@@ -2715,7 +2649,7 @@ function lastIndexOfClass(svg: string, cls: string): number {
 }
 
 describe('the paint stack: a land band can never render over water', () => {
-  const livePlain = parsePlate(JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8')));
+  const livePlain = parsePlate(JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')));
   const plainSvg = renderPlate(livePlain, []).svg;
 
   it('on the live plain sheet, every relief band is emitted before every water body', () => {
@@ -2739,7 +2673,7 @@ describe('the paint stack: a land band can never render over water', () => {
       id: 'band', kind: 'relief', elevation: 10,
       polygon: [[39.9, 26.16], [39.9, 26.2], [39.94, 26.2], [39.94, 26.16]],
     };
-    // Authored water-first, exactly as trojan-plain.json still is.
+    // Authored water-first, exactly as trojan-plain-schematic.json still is.
     const svg = renderPlate({ ...testPlate, layers: [sea, band] }, []).svg;
     expect(svg.indexOf('data-feature-id="band"')).toBeLessThan(svg.indexOf('data-feature-id="sea"'));
   });
@@ -2788,7 +2722,7 @@ describe('the paint stack: a land band can never render over water', () => {
 // lowest ground, with a blurred margin because its width was never surveyed.
 
 describe('the sandy barrier draws as ground, not as a watercourse', () => {
-  const livePlain = parsePlate(JSON.parse(readFileSync(SEED_PLATE_PATH, 'utf-8')));
+  const livePlain = parsePlate(JSON.parse(readFileSync(SCHEMATIC_SEED_PLATE_PATH, 'utf-8')));
   const svg = renderPlate(livePlain, []).svg;
   const barrier = svg.match(/data-feature-id="barrier-bronze"[^>]*>/)![0];
 
@@ -2956,7 +2890,7 @@ describe('renderLayer: a river is painted beneath the water it crosses', () => {
 });
 
 describe('the live plain sheet: the rivers stop at the Bronze Age shore', () => {
-  const plate = parsePlate(JSON.parse(readFileSync(path.resolve(process.cwd(), SEED_PLATE_PATH), 'utf-8')));
+  const plate = parsePlate(JSON.parse(readFileSync(path.resolve(process.cwd(), SCHEMATIC_SEED_PLATE_PATH), 'utf-8')));
   const svg = renderPlate(plate, []).svg;
   const lagoonRing = pointsOf(pathsFor(svg, 'lagoon-bronze')[0]);
 
@@ -2992,7 +2926,7 @@ describe('the live plain sheet: the rivers stop at the Bronze Age shore', () => 
     // The defect above, stated as the general property it violated. The union
     // of everything drawn — own slot and submerged alike — must cover the
     // whole stored polyline.
-    const viewport = viewportFromBBox(plate.bbox!, plate.size);
+    const viewport = renderPlate(plate, []).viewport;
     for (const id of ['scamander', 'simoeis']) {
       const stored = plate.layers
         .find((l) => l.id === id)!
@@ -3041,7 +2975,7 @@ describe('the live plain sheet: the rivers stop at the Bronze Age shore', () => 
   it('the calibrated Bronze Age geometry is untouched by the clip', () => {
     // Clipping rivers against the shore must not move the shore. These are
     // the three lines the 10 m calibration is carried by.
-    const before = JSON.parse(readFileSync(path.resolve(process.cwd(), SEED_PLATE_PATH), 'utf-8'));
+    const before = JSON.parse(readFileSync(path.resolve(process.cwd(), SCHEMATIC_SEED_PLATE_PATH), 'utf-8'));
     for (const id of ['shore-bronze', 'barrier-bronze', 'lagoon-bronze']) {
       const layer = before.layers.find((l: PlateLayer) => l.id === id)!;
       const live = plate.layers.find((l) => l.id === id)!;
@@ -3181,7 +3115,7 @@ describe('renderPlate: a marker is never transparent to its own basemap', () => 
 // not scholarship. This is the guard.
 describe('the live Trojan-plain sheet: the barrier is where its note says it is', () => {
   const plate = parsePlate(
-    JSON.parse(readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain.json'), 'utf-8')),
+    JSON.parse(readFileSync(path.resolve(process.cwd(), SCHEMATIC_SEED_PLATE_PATH), 'utf-8')),
   );
   const layer = (id: string) => plate.layers.find((l) => l.id === id)!;
   const ringsOf = (id: string): [number, number][][] => {
@@ -3556,58 +3490,6 @@ describe('renderPlate: groundOpacity wash', () => {
 
   it('emits no wash group when groundOpacity is omitted', () => {
     expect(renderPlate(testPlate, []).svg).not.toContain('plate-ground-wash');
-  });
-});
-
-// The ground layers on trojan-plain-schematic.json are a copy of the
-// geographic sheet, kept in sync by scripts/sync-schematic-ground.py. The
-// gazetteer-side geographic sheet is the source of truth.
-const SCHEMATIC_V2_GROUND_IDS = [
-  'sea-modern',
-  'scamandrian-plain',
-  'relief-band-0010',
-  'relief-band-0015',
-  'relief-band-0020',
-  'relief-band-0025',
-  'relief-band-0030',
-  'relief-band-0040',
-  'relief-band-0060',
-  'relief-band-0100',
-  'relief-band-0150',
-  'relief-band-0200',
-  'relief-band-0320',
-  'relief-sigeion-ridge',
-  'relief-plain-south',
-  'relief-troy-ridge',
-  'relief-rhoiteion-ridge',
-  'relief-plain-east-200',
-  'lagoon-bronze',
-  'delta-swamp',
-  'shore-bronze',
-  'barrier-bronze',
-  'coast-modern',
-  'scamander',
-  'simoeis',
-  'besik-bay',
-  'aegean',
-] as const;
-
-describe('trojan-plain-schematic ground layers match the geographic sheet', () => {
-  it('deep-equals each of the listed ground layers by id', () => {
-    const geo = JSON.parse(
-      readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain.json'), 'utf-8'),
-    );
-    const schematic = JSON.parse(
-      readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain-schematic.json'), 'utf-8'),
-    );
-    const geoById = new Map((geo.layers as { id: string }[]).map((l) => [l.id, l]));
-    const schematicById = new Map((schematic.layers as { id: string }[]).map((l) => [l.id, l]));
-    for (const id of SCHEMATIC_V2_GROUND_IDS) {
-      expect(
-        schematicById.get(id),
-        'the gazetteer-side geographic sheet is the source of truth; run the sync script',
-      ).toEqual(geoById.get(id));
-    }
   });
 });
 
@@ -5891,12 +5773,10 @@ describe('renderPlate: featureKey (stage 5c)', () => {
     expect(badgeOverlapOffenders(result.svg, plate, result)).toEqual([]);
   });
 
-  it('E7b: the geographic sheets pass the same check', () => {
-    for (const p of [SEED_PLATE_PATH, '../apparatus/plates/troad.json']) {
-      const sheetPlate = parsePlate(JSON.parse(readFileSync(p, 'utf-8')));
-      const sheet = renderPlate(sheetPlate, allPlaces);
-      expect(badgeOverlapOffenders(sheet.svg, sheetPlate, sheet), p).toEqual([]);
-    }
+  it('E7b: the geographic Troad sheet passes the same check', () => {
+    const sheetPlate = parsePlate(JSON.parse(readFileSync('../apparatus/plates/troad.json', 'utf-8')));
+    const sheet = renderPlate(sheetPlate, allPlaces);
+    expect(badgeOverlapOffenders(sheet.svg, sheetPlate, sheet)).toEqual([]);
   });
 
   it('zone letters stay byte-identical to their recorded placement', () => {
@@ -6161,31 +6041,7 @@ describe('renderPlate: geographic label-set parity (stage 5c E9)', () => {
   // misses a suppression). Ids added since that render (pergamos, wall-of-
   // troy, and on troad a later geo-enrich wave) are frozen from the
   // pre-lane live set so this lane cannot change the set either way.
-  const GEO_ENRICH_PLUS_LIVE: Record<'trojan-plain' | 'troad', readonly string[]> = {
-    'trojan-plain': [
-      'achaean-camp-zone',
-      'aegean',
-      'besik-bay',
-      'besik-sivritepe',
-      'callicolone',
-      'kesik-basin',
-      'kesik-tepe',
-      'kum-tepe',
-      'lagoon-bronze',
-      'pergamos',
-      'pinarbasi',
-      'rhoiteion',
-      'scamander',
-      'scamandrian-plain',
-      'sigeion',
-      'simoeis',
-      'thymbra',
-      'thymbrios',
-      'tomb-of-ajax-in-tepe',
-      'troy',
-      'uvecik-tepe',
-      'wall-of-troy',
-    ],
+  const GEO_ENRICH_PLUS_LIVE: Record<'troad', readonly string[]> = {
     troad: [
       'abydos',
       'adramyttion',
@@ -6225,9 +6081,9 @@ describe('renderPlate: geographic label-set parity (stage 5c E9)', () => {
     ],
   };
 
-  it('trojan-plain and troad keep the same data-label-for set as geo-enrich-2 (plus live ids this lane must not touch)', () => {
+  it('troad keeps the same data-label-for set as geo-enrich-2 (plus live ids this lane must not touch)', () => {
     const places = JSON.parse(readFileSync('../apparatus/places.json', 'utf-8')).places as PlatePlace[];
-    for (const sheet of ['trojan-plain', 'troad'] as const) {
+    for (const sheet of ['troad'] as const) {
       const plate = parsePlate(
         JSON.parse(readFileSync(path.resolve(process.cwd(), `../apparatus/plates/${sheet}.json`), 'utf-8')),
       );

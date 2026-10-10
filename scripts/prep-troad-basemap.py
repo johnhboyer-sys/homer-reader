@@ -2,7 +2,8 @@
 """Build the coastlines, islands and rivers of the two Troad map plates from
 real survey data.
 
-WHY THIS EXISTS. `apparatus/plates/trojan-plain.json` and `troad.json` used to
+WHY THIS EXISTS. The Trojan Plain sheet (since 2026-09-15 the plain's ground
+lives on `apparatus/plates/trojan-plain-schematic.json`) and `troad.json` used to
 carry hand-typed coordinate arrays -- 5 to 17 vertices a feature. Hand-typed
 coordinates cannot make a map: ten times as many of them is a smoother blob,
 not the Troad. This script replaces that geometry with measurements. Nothing
@@ -1276,7 +1277,9 @@ def main():
 
 def update_plates(plain_coast, plain_sea, plain_rivers, troad_coast, troad_rivers):
     print("Rewriting plates:")
-    doc = load_plate("trojan-plain")
+    # The plain's ground lives on the schematic sheet since the geographic
+    # sheet was retired (John, 2026-09-15); "trojan-plain" stays the config key.
+    doc = load_plate("trojan-plain-schematic")
     ensure_layers(doc, "trojan-plain")
     ensure_sources(doc, "trojan-plain")
     set_layer(doc, "trojan-plain", "coast-modern", "rings",
@@ -1291,8 +1294,8 @@ def update_plates(plain_coast, plain_sea, plain_rivers, troad_coast, troad_river
     for layer_id, pts in plain_rivers.items():
         if pts:
             set_layer(doc, "trojan-plain", layer_id, "path", rnd(pts))
-    save_plate("trojan-plain", doc)
-    print("  trojan-plain.json")
+    save_plate("trojan-plain-schematic", doc)
+    print("  trojan-plain-schematic.json")
 
     doc = load_plate("troad")
     ensure_layers(doc, "troad")

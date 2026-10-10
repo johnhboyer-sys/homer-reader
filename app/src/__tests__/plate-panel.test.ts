@@ -480,7 +480,7 @@ describe('PlatePanel', () => {
     expect(container.querySelector('.pp-unlocated')).toBeNull();
   });
 
-  it('the "Show shoreline" category toggle hides a layer\'s auxiliaries too (real trojan-plain.json: shore-bronze -> shore-bronze-band)', async () => {
+  it('the "Show shoreline" category toggle hides a layer\'s auxiliaries too (real trojan-plain-schematic.json: shore-bronze -> shore-bronze-band)', async () => {
     // shore-bronze is a `coast` layer drawn `style: "approximate"` -- besides
     // its own `data-feature-id="shore-bronze"` line, plate.ts also emits a
     // separate `data-feature-id="shore-bronze-band"` element (the reconstructed
@@ -493,12 +493,12 @@ describe('PlatePanel', () => {
     // exactly three category toggles), but the underlying data-layer-id
     // matching this guards is unchanged and still worth pinning down.
     const raw = JSON.parse(
-      readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain.json'), 'utf-8'),
+      readFileSync(path.resolve(process.cwd(), '../apparatus/plates/trojan-plain-schematic.json'), 'utf-8'),
     );
     mockFetchPlate.mockResolvedValue(raw);
 
     const { container, getByRole } = render(PlatePanel, {
-      props: { plateId: 'trojan-plain', title: 'The Trojan Plain' },
+      props: { plateId: 'trojan-plain-schematic', title: 'The Trojan Plain' },
     });
 
     await waitFor(() => expect(container.querySelector('svg')).toBeTruthy());

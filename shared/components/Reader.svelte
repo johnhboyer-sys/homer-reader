@@ -836,144 +836,6 @@
   $: scenePanelPlaceName = currentPlateResolution?.place.name ?? scenePanelScene?.place ?? 'Place not recorded';
   $: scenePanelCertainty = currentPlateResolution?.place.certainty ?? null;
 
-  // ── Chart Room per-scene plates (Iliad only, 2026-07-28) ────────────────
-  // John's approved design: ONE shared Trojan-plain base plate (shared/lib/
-  // plate.ts's apparatus/plates/trojan-plain.json) for every Iliad scene,
-  // rather than a bespoke drawing per scene. The Odyssey keeps the existing
-  // renderSceneMap path above (currentPlateMap) untouched — no gazetteer pin
-  // set exists for it here, and it isn't this brief's problem to solve.
-  //
-  // Lazy like ensurePlateData above: the plate JSON is fetched only once the
-  // Chart Room/Reading Mode surface that shows it is actually open — never a
-  // static import, never at build time (this component ships on every one
-  // of the 4705 built pages).
-  let iliadPlateLoadState: 'idle' | 'loading' | 'ready' | 'unavailable' = 'idle';
-  let iliadPlate: Plate | null = null;
-  async function ensureIliadPlate(): Promise<void> {
-    if (iliadPlateLoadState !== 'idle') return;
-    iliadPlateLoadState = 'loading';
-    try {
-      const raw = await fetchPlate('trojan-plain');
-      if (!raw) { iliadPlateLoadState = 'unavailable'; return; }
-      iliadPlate = parsePlate(raw);
-      iliadPlateLoadState = 'ready';
-    } catch {
-      // fetchPlate failure/malformed data: fall back to the existing
-      // renderSceneMap path (see useIliadPlate below) rather than showing
-      // nothing.
-      iliadPlateLoadState = 'unavailable';
-    }
-  }
-  // Chart Room plate path disabled pending research-first rebuild (John,
-  // 2026-07-29) — see docs/TROY-MAPS-HANDOFF-2.md §1. Flip this back to
-  // `true` to restore the plate path once that work lands. Declared here
-  // (rather than by useIliadPlate below, where it's also read) so the
-  // fetch-gating reactive right below never even loads the plate JSON
-  // while the flag is off.
-  const CHART_ROOM_PLATE_ENABLED = false;
-  $: if (CHART_ROOM_PLATE_ENABLED && mounted && work === 'iliad' && scenes.length && iliadPlateLoadState === 'idle'
-    && (reading || sceneSheetOpen || (chartRoomOpen && !scenePanelMobile))) ensureIliadPlate();
-
-  // Every distinct, LOCATED place named anywhere in this book's scenes
-  // (deduplicated by id) — the pin set baked into the once-per-book base
-  // render. Depends only on scenePlaceResolutions (book-level: recomputed
-  // when scenes/gazetteer/journeys change), never on scenePanelIndex, so
-  // this — and everything derived from it below that isn't explicitly keyed
-  // to the current scene — stays stable across scene paging.
-  $: bookPlatePlaces = ((): PlatePlace[] => {
-    const byId = new Map<string, PlatePlace>();
-    for (const res of scenePlaceResolutions) {
-      if (!res) continue;
-      for (const p of res.places) if (!byId.has(p.id)) byId.set(p.id, p);
-    }
-    return [...byId.values()];
-  })();
-
-  // A non-null resolution is required before switching to the plate path —
-  // a scene with NO resolved place at all (no authored places[], no
-  // dictionary hit, no journey-leg cover) keeps showing no map whatsoever,
-  // the same honest behavior currentPlateMap already has (never invent an
-  // "it's probably Troy" fallback — CLAUDE.md apparatus honesty).
-  // CHART_ROOM_PLATE_ENABLED (declared above, by ensureIliadPlate) keeps
-  // this false regardless of load state while the plate path is disabled.
-  $: useIliadPlate = CHART_ROOM_PLATE_ENABLED && work === 'iliad' && iliadPlateLoadState === 'ready' && !!iliadPlate && !!currentPlateResolution;
-
-  // The base plate itself — geometry + every book-wide pin — rendered ONCE
-  // per book: this reactive statement's only dependencies (iliadPlate,
-  // bookPlatePlaces) are book-scoped, never scene-scoped, so paging between
-  // scenes never re-runs renderPlate or reassigns iliadPlateHtml below (the
-  // regression the brief calls out: {@html} tears down and rebuilds its DOM
-  // subtree whenever the bound expression's VALUE changes, so the per-scene
-  // camera/focus must be applied imperatively instead — see
-  // applyPlateCamera).
-  $: iliadPlateRender = iliadPlate
-    ? renderPlate(iliadPlate, bookPlatePlaces, { idPrefix: `chart-plate-${work}-${bookNum}`, cameraGroup: true })
-    : null;
-  // `cameraGroup: true` (plate.ts, 2026-09-02) has renderPlate itself wrap
-  // the pannable content in `<g class="plate-camera">` — replacing a
-  // caller-side regex (wrapPlateCamera) that assumed the document ended
-  // `</g></svg>` and silently mis-wrapped once the furniture (legend/scale
-  // bar/north arrow/key/neatline) is emitted after the clip group, panning
-  // and scaling chrome that must stay fixed. Recomputed only when
-  // iliadPlateRender itself changes — i.e. once per book, not per scene.
-  $: iliadPlateHtml = iliadPlateRender?.svg ?? '';
-
-  // Which of THIS plate's rendered features are place pins actually drawn on
-  // the canvas (renderPlate's `features` list carries a `type:'place'`
-  // entry only for its `located` bucket — see plate.ts's renderPlate). A
-  // scene's resolved place can have real coordinates yet still fall off this
-  // specific sheet (Olympus, Chryse, Lemnos are all real Iliad
-  // scene-dictionary targets nowhere near the Troad) — computeCamera has no
-  // way to know that on its own, and would otherwise zoom the whole plate in
-  // on empty parchment trying to frame a point outside the canvas. Filtering
-  // the focus set to this plate's own located ids folds BOTH honesty cases
-  // (no coords at all / coords elsewhere) into one "nothing to frame here"
-  // state below.
-  $: iliadPlateLocatedIds = new Set(
-    (iliadPlateRender?.features ?? []).filter((f) => f.type === 'place').map((f) => f.id),
-  );
-  $: iliadPlateFocusIds = (currentPlateResolution?.places ?? [])
-    .map((p) => p.id)
-    .filter((id) => iliadPlateLocatedIds.has(id));
-  $: iliadPlateFocusNames = (currentPlateResolution?.places ?? [])
-    .filter((p) => iliadPlateLocatedIds.has(p.id))
-    .map((p) => p.name);
-  // computeCamera itself already returns the identity {scale:1,tx:0,ty:0}
-  // camera (the whole plate) when no id in focusIds resolves — this is just
-  // that same "nothing resolved" state, named, so the template can show an
-  // honest caption instead of a silently unframed map.
-  $: iliadPlateAllUnlocated = !!currentPlateResolution && iliadPlateFocusIds.length === 0;
-  // maxScale: 4 (John's postcard design, 2026-07-30) — the library default
-  // (8) is what drove 92/163 framed schematic scenes to the clamp and a
-  // 120x97 plate-px window that sliced labels mid-word; 4 is a moderate
-  // zoom other callers (the full pan/zoom /maps/ panel) don't share, so it's
-  // passed here rather than changed in plate.ts's own default.
-  // `labelBoxes: iliadPlateRender.labelBoxes` (plate.ts, 2026-09-02) sizes
-  // the camera on the focus place's LABEL too, not just its pin.
-  $: iliadPlateCamera = iliadPlate && iliadPlateRender
-    ? computeCamera(iliadPlate, iliadPlateRender.viewport, iliadPlateFocusIds, {
-        places: bookPlatePlaces,
-        labelBoxes: iliadPlateRender.labelBoxes,
-        maxScale: 4,
-      })
-    : null;
-  $: iliadPlateAriaLabel = !iliadPlate
-    ? ''
-    : iliadPlateFocusNames.length
-      ? `${iliadPlate.title}, showing ${iliadPlateFocusNames.join(', ')}`
-      : iliadPlate.title;
-
-  // The Trojan-plain plate's click-through to MapsPage.svelte's `plain` tab
-  // (which mounts the schematic sheet since 2026-09-15; the schematic
-  // postcard links there too — see schematicPlateLinkHref below). `focusIds`
-  // is user-visible in the resulting URL, but it is built here from the
-  // gazetteer's own place ids, not from anything user-supplied, so no extra
-  // sanitizing is needed beyond what MapsPage's own reader does on the way
-  // in.
-  $: iliadPlateLinkHref = useIliadPlate && iliadPlate
-    ? `${BASE}/maps/?map=plain${iliadPlateFocusIds.length ? `&focus=${iliadPlateFocusIds.map(encodeURIComponent).join(',')}` : ''}`
-    : null;
-
   // ── Chart Room SCHEMATIC plate (queue item 3b, 2026-07-30) ───────────────
   // Routes the Chart Room to the Troad schematic plate (apparatus/plates/
   // trojan-plain-schematic.json, shared/lib/scene-place.ts's
@@ -982,9 +844,9 @@
   // `places` is empty (no coords-bearing place, so currentPlateMap below has
   // nothing to draw) but at least one place carries a plateAnchors point on
   // this plate, or is the sheet's own scamandrian-plain lettering zone.
-  // Deliberately INDEPENDENT of CHART_ROOM_PLATE_ENABLED above — that flag
-  // still gates only the illustrated GEOGRAPHIC trojan-plain plate; the
-  // geographic routing is unchanged by this feature.
+  // Lazy: the plate JSON is fetched only once the Chart Room/Reading Mode
+  // surface that shows it is actually open — never a static import, never
+  // at build time (this component ships on every built page).
   let schematicPlateLoadState: 'idle' | 'loading' | 'ready' | 'unavailable' = 'idle';
   let schematicPlate: Plate | null = null;
   async function ensureSchematicPlate(): Promise<void> {
@@ -999,8 +861,7 @@
       schematicPlateLoadState = 'unavailable';
     }
   }
-  // Gated the same way ensureIliadPlate is above (a Chart-Room-showing
-  // surface must actually be open), PLUS (2026-09-02 fix — Codex review: the
+  // Gated on a Chart-Room-showing surface actually being open, PLUS (2026-09-02 fix — Codex review: the
   // old condition fetched trojan-plain-schematic.json on every Iliad scene a
   // surface was open for, even ones that resolve to the geographic plate or
   // to nothing) the current scene's own resolution must actually route here
@@ -1024,8 +885,7 @@
     && !!currentPlateResolution?.schematic;
 
   // Every corpus-wide place anchored onto this plate (the ~30 poem places —
-  // small enough to bake once, not worth book-scoping like bookPlatePlaces
-  // above) plus scamandrian-plain itself, included anchor-less so its `name`
+  // small enough to bake once, not worth book-scoping) plus scamandrian-plain itself, included anchor-less so its `name`
   // is available for the aria-label below even though it draws no pin
   // (resolvePlacePosition returns undefined for it — plate.ts's own honesty
   // rule, unchanged here).
@@ -1044,14 +904,22 @@
     ? []
     : (currentPlateResolution?.schematic?.focusIds ?? []);
   // The postcard's click-through (2026-09-15): the Maps page's Trojan Plain
-  // tab now mounts this schematic sheet, so the postcard links there in the
-  // same URL shape as the geographic path above, framed on the same places
-  // (none for an unzoomed scene, which opens the whole sheet).
+  // tab now mounts this schematic sheet, so the postcard links there,
+  // framed on the same places (none for an unzoomed scene, which opens the
+  // whole sheet). `focusIds` is user-visible in the resulting URL, but it is
+  // built here from the gazetteer's own place ids, not from anything
+  // user-supplied, so no extra sanitizing is needed beyond what MapsPage's
+  // own reader does on the way in.
   $: schematicPlateLinkHref = useSchematicPlate
     ? `${BASE}/maps/?map=plain${schematicFocusIds.length ? `&focus=${schematicFocusIds.map(encodeURIComponent).join(',')}` : ''}`
     : null;
-  // Same maxScale/labelBoxes treatment as iliadPlateCamera above — this is
-  // the path measured at the clamp for 92/163 scenes (see that comment).
+  // maxScale: 4 (John's postcard design, 2026-07-30) — the library default
+  // (8) is what drove 92/163 framed schematic scenes to the clamp and a
+  // 120x97 plate-px window that sliced labels mid-word; 4 is a moderate
+  // zoom other callers (the full pan/zoom /maps/ panel) don't share, so it's
+  // passed here rather than changed in plate.ts's own default.
+  // `labelBoxes` (plate.ts, 2026-09-02) sizes the camera on the focus
+  // place's LABEL too, not just its pin.
   $: schematicPlateCamera = schematicPlate && schematicPlateRender
     ? computeCamera(schematicPlate, schematicPlateRender.viewport, schematicFocusIds, {
         places: schematicPlatePlaces,
@@ -1082,13 +950,13 @@
   // the full render's label-placement solver alone costs O(labels^2) at a
   // size never meant to be read at ~28% of the postcard's width. Measured:
   // 1.9ms/30KB for the lean render below vs 22ms/204KB for the full one.
-  // Book-scoped like iliadPlateRender/schematicPlateRender (recomputed only
+  // Book-scoped like schematicPlateRender (recomputed only
   // when the plate itself changes, not per scene) — the frame rect alone is
   // scene-scoped, via the *Camera values already computed above.
   function isLocatorLayer(l: PlateLayer): boolean {
     // `region`/fill:'sea'|'lagoon' is how open water is actually drawn on
-    // these plates (verified against apparatus/plates/trojan-plain.json: its
-    // bay is a `region` layer, not `coast`) — a lean plate that dropped it
+    // these plates (verified against apparatus/plates/trojan-plain-schematic.json:
+    // its sea and lagoon are `region` layers, not `coast`) — a lean plate that dropped it
     // would render as bare parchment with no shoreline at all.
     return l.kind === 'coast' || l.kind === 'river' || (l.kind === 'region' && (l.fill === 'sea' || l.fill === 'lagoon'));
   }
@@ -1112,15 +980,6 @@
     };
   }
 
-  $: iliadLocatorRender = iliadPlate
-    ? renderPlate(
-        { ...iliadPlate, layers: iliadPlate.layers.filter(isLocatorLayer) },
-        [],
-        { idPrefix: `chart-locator-${work}-${bookNum}` },
-      )
-    : null;
-  $: iliadLocatorFrame = iliadPlateRender ? locatorFrame(iliadPlateRender.frame, iliadPlateCamera) : null;
-
   $: schematicLocatorRender = schematicPlate
     ? renderPlate(
         { ...schematicPlate, layers: schematicPlate.layers.filter(isLocatorLayer) },
@@ -1130,11 +989,11 @@
     : null;
   $: schematicLocatorFrame = schematicPlateRender ? locatorFrame(schematicPlateRender.frame, schematicPlateCamera) : null;
 
-  // Whichever path is live (new plate vs the old renderSceneMap box), "is
+  // Whichever path is live (schematic plate vs the renderSceneMap box), "is
   // there a map to show at all" — drives the reserved-space/collapse
   // gating at all three consuming template sites exactly the way
   // `currentPlateMap` alone used to.
-  $: hasChartMap = useIliadPlate ? !!iliadPlateRender : useSchematicPlate ? !!schematicPlateRender : !!currentPlateMap;
+  $: hasChartMap = useSchematicPlate ? !!schematicPlateRender : !!currentPlateMap;
   // 2026-09-03, stage 6 review (F2): hasChartMap alone goes false for the gap
   // between the gazetteer resolving a schematic-only scene and the (separate,
   // lazy) trojan-plain-schematic.json fetch landing — the map slot collapsed
@@ -1155,13 +1014,10 @@
   // SELECTOR hides it) — reserving `size`'s wider ratio left a blank band
   // down the postcard's right edge, ~30% of its width. `.frame` (plate.ts's
   // PlateResult.frame) is the map content's own size, `size` on a plate
-  // with no `marginRight` (every geographic plate today, so useIliadPlate's
-  // branch is unaffected).
-  $: chartMapAspectRatio = useIliadPlate && iliadPlateRender
-    ? `${iliadPlateRender.frame[0]} / ${iliadPlateRender.frame[1]}`
-    : useSchematicPlate && schematicPlateRender
-      ? `${schematicPlateRender.frame[0]} / ${schematicPlateRender.frame[1]}`
-      : null;
+  // with no `marginRight`.
+  $: chartMapAspectRatio = useSchematicPlate && schematicPlateRender
+    ? `${schematicPlateRender.frame[0]} / ${schematicPlateRender.frame[1]}`
+    : null;
 
   interface PlateCameraParams {
     camera: Camera | null;
@@ -1230,8 +1086,8 @@
   // camera/dimming WITHOUT touching the `{@html}`-injected SVG's innerHTML,
   // which would tear down and rebuild the DOM every scene change. `update`
   // fires whenever the action's argument object is recreated (every
-  // scene-scoped reactive change); iliadPlateHtml/schematicPlateHtml — the
-  // base markup — are book-scoped, never scene-scoped, so Svelte never
+  // scene-scoped reactive change); schematicPlateHtml — the
+  // base markup — is book-scoped, never scene-scoped, so Svelte never
   // re-sets innerHTML here on scene paging — but book navigation DOES
   // replace the `{@html}`'d SVG wholesale (a new book's render), which is
   // why label-wrapping below re-detects staleness by SVG identity rather
@@ -1311,8 +1167,7 @@
       // margin sits at the sheet's right edge, `size[0] - marginRight`, so
       // the overflow clipped away is the margin, never the map). On a plate
       // with no margin (frame === size, marginRight 0/undefined) the two
-      // ratios already match and this is a no-op — verified for the
-      // geographic path in components.test.ts.
+      // ratios already match and this is a no-op.
       svgEl.setAttribute('preserveAspectRatio', 'xMinYMin slice');
       svgEl.querySelectorAll<SVGElement>(FURNITURE_SELECTOR).forEach((el) => el.classList.add('plate-hidden'));
       // The locator inset (chartLocatorInset, a sibling of `node` under the
@@ -1509,9 +1364,9 @@
     // from its own static {@html} render never routed through this action
     // — the same sibling reach ensureLabelWrappers already uses to hide the
     // locator's own furniture leak above. Its frame rect (`.chart-locator-
-    // frame`/`-halo`) is first painted by Svelte from `iliadLocatorFrame`/
+    // frame`/`-halo`) is first painted by Svelte from
     // `schematicLocatorFrame`, computed at the template level from the
-    // PRE-fit camera (`iliadPlateCamera`/`schematicPlateCamera` — the same
+    // PRE-fit camera (`schematicPlateCamera` — the same
     // camera `params.camera` carries in here) — wrong whenever
     // fitFocusLabelsToFrame has shifted `tx` (2026-09-02 review finding 2:
     // the rect kept marking the pre-fit view after a long focus label
@@ -3355,81 +3210,30 @@
      Chart Room sheet, both SIBLING top-level blocks after it — so this
      snippet has to live at the true template root to be visible to all
      three, not nested inside any one of them) — see
-     hasChartMap/useIliadPlate/useSchematicPlate/currentPlateMap above): an
-     Iliad scene with a resolved, on-sheet place draws the once-per-book
-     Trojan-plain base plate, camera-framed on that scene (applyPlateCamera,
-     imperative — the SVG itself never re-renders on scene paging); an Iliad
-     scene whose resolved place(s) don't land on this sheet gets the same
-     base plate, unframed, with an honest caption; an Iliad scene whose
-     resolved places are schematic-only (queue item 3b — no coords-bearing
-     place, but at least one plateAnchors hit or scamandrian-plain) draws the
-     Troad SCHEMATIC plate instead, camera-framed the same way (or unzoomed
-     for scamandrian-plain); anything else (Odyssey always, or
-     Iliad before/without a successful plate fetch) falls back to the
-     existing renderSceneMap box unchanged.
+     hasChartMap/useSchematicPlate/currentPlateMap above): an Iliad scene
+     whose resolved places are schematic-only (queue item 3b — no
+     coords-bearing place, but at least one plateAnchors hit or
+     scamandrian-plain) draws the Troad SCHEMATIC plate, camera-framed on
+     that scene (applyPlateCamera, imperative — the SVG itself never
+     re-renders on scene paging) or unzoomed for scamandrian-plain; anything
+     else (Odyssey always, or Iliad before/without a successful plate fetch)
+     falls back to the existing renderSceneMap box unchanged.
 
-     Postcard treatment (John's design, 2026-07-30): the geographic path
-     (`useIliadPlate`, currently flag-gated off — see CHART_ROOM_PLATE_ENABLED
-     above) additionally links through to the full pan/zoom /maps/ panel,
-     framed on the same scene; the schematic path (live today) gets every
-     other postcard element — moderate-zoom camera, focus/ghost/omit, label
-     descale, locator inset — and, since John retired the geographic sheet
-     (2026-09-15) and the Maps page's Trojan Plain tab became the schematic,
-     the same click-through (schematicPlateLinkHref). -->
+     Postcard treatment (John's design, 2026-07-30): moderate-zoom camera,
+     focus/ghost/omit, label descale, locator inset — and, since John
+     retired the geographic sheet (2026-09-15) and the Maps page's Trojan
+     Plain tab became the schematic, a click-through to the full pan/zoom
+     /maps/ panel framed on the same scene (schematicPlateLinkHref). -->
 {#snippet chartPlateBody()}
-  {#if useIliadPlate && iliadPlateRender && iliadPlate}
-    {#if iliadPlateLinkHref}
-      <a
-        class="chart-plate-postcard"
-        href={iliadPlateLinkHref}
-        aria-label="Open the Trojan Plain plate framed on this scene"
-      >
-        <!-- 2026-09-03, stage 6 review (F1): a draft plate painted with no
-             draft badge on this postcard; PlatePanel.svelte already shows
-             one for the same status, reused verbatim here. -->
-        {#if iliadPlate.status === 'draft'}
-          <span class="draft-badge chart-plate-draft-badge" title="AI-drafted apparatus, pending review">Draft</span>
-        {/if}
-        <div
-          class="chart-plate"
-          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlateRender.frame[0], plateHeight: iliadPlateRender.frame[1], labelBoxes: iliadPlateRender.labelBoxes }}
-        >
-          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {@html iliadPlateHtml}
-        </div>
-        {#if iliadLocatorRender}
-          {@render chartLocatorInset(iliadPlate.size, iliadLocatorRender.svg, iliadLocatorFrame)}
-        {/if}
-      </a>
-    {:else}
-      <div class="chart-plate-postcard">
-        <!-- 2026-09-03, stage 6 review (F1): see the linked postcard above. -->
-        {#if iliadPlate.status === 'draft'}
-          <span class="draft-badge chart-plate-draft-badge" title="AI-drafted apparatus, pending review">Draft</span>
-        {/if}
-        <div
-          class="chart-plate"
-          use:applyPlateCamera={{ camera: iliadPlateCamera, focusIds: iliadPlateFocusIds, ariaLabel: iliadPlateAriaLabel, reduceMotion, plateWidth: iliadPlateRender.frame[0], plateHeight: iliadPlateRender.frame[1], labelBoxes: iliadPlateRender.labelBoxes }}
-        >
-          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-          {@html iliadPlateHtml}
-        </div>
-        {#if iliadLocatorRender}
-          {@render chartLocatorInset(iliadPlate.size, iliadLocatorRender.svg, iliadLocatorFrame)}
-        {/if}
-      </div>
-    {/if}
-    {#if iliadPlateAllUnlocated}
-      <p class="chart-plate-caption">This scene's named places have no fixed position on this plate.</p>
-    {/if}
-  {:else if useSchematicPlate && schematicPlateRender && schematicPlate}
+  {#if useSchematicPlate && schematicPlateRender && schematicPlate}
     <a
       class="chart-plate-postcard"
       href={schematicPlateLinkHref}
       aria-label="Open the Trojan Plain plate framed on this scene"
     >
-      <!-- 2026-09-03, stage 6 review (F1): the live schematic path had no
-           draft badge at all — see the linked postcard's comment above. -->
+      <!-- 2026-09-03, stage 6 review (F1): a draft plate painted with no
+           draft badge on this postcard; PlatePanel.svelte already shows
+           one for the same status, reused verbatim here. -->
       {#if schematicPlate.status === 'draft'}
         <span class="draft-badge chart-plate-draft-badge" title="AI-drafted apparatus, pending review">Draft</span>
       {/if}
@@ -4831,10 +4635,9 @@
   .chart-plate :global(.plate-focus-label.plate-leader-tier2) { display: inline; }
 
   /* Postcard wrapper (parts C-F): the plate slot plus its locator inset,
-     optionally a click-through link on the geographic path (part F) — see
-     chartPlateBody's own comment for which path gets the link. An <a> here
-     must look and behave like the plain <div> the schematic path renders,
-     not like inline link text. */
+     inside the click-through link (part F) — see chartPlateBody's own
+     comment. The <a> must look and behave like a plain block, not like
+     inline link text. */
   .chart-plate-postcard { position: relative; display: block; width: 100%; height: 100%; color: inherit; text-decoration: none; }
   a.chart-plate-postcard:hover .chart-plate { outline: 1px solid var(--accent); outline-offset: -1px; }
   a.chart-plate-postcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -4879,14 +4682,6 @@
      rather than swallowing it. */
   .chart-locator-frame-halo { fill: none; stroke: var(--scene-map-label-halo); stroke-width: 3; }
   .chart-locator-frame { fill: none; stroke: var(--accent); stroke-width: 1; }
-
-  .chart-plate-caption {
-    margin: 0.5rem 0 0;
-    font-family: var(--font-ui);
-    font-size: 0.72rem;
-    font-style: italic;
-    color: var(--text-mid);
-  }
 
   .scene-context-sheet { display: none; }
 

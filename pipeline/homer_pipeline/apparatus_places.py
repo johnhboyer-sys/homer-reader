@@ -40,7 +40,7 @@ STATUS_ENUM = {"draft", "reviewed"}
 # SCHEMATIC_PLATE_ID) and asserts this set agrees. preflight fails when any
 # is missing from apparatus/plates/. troy-citadel and shield-of-achilles are
 # not requested by any page today, so they are not listed.
-SITE_PLATE_IDS = frozenset({"troad", "trojan-plain", "trojan-plain-schematic"})
+SITE_PLATE_IDS = frozenset({"troad", "trojan-plain-schematic"})
 
 PLACE_KIND_ENUM = {
     "settlement", "river", "mountain", "hill", "island", "promontory",
@@ -1182,8 +1182,8 @@ def validate_plate(doc: Any, places_by_id: dict[str, Any]) -> list[str]:
     # See Plate.suppressLayerLabels in shared/lib/plate.ts, which this
     # mirrors: layer ids whose fallback name (the gazetteer name of
     # `placeId`, drawn when the layer has no `label` of its own) must not be
-    # lettered on this plate -- a ground layer synced verbatim from a
-    # geographic sheet (scripts/sync-schematic-ground.py) carrying a name
+    # lettered on this plate -- a ground layer carried over verbatim from
+    # the retired geographic sheet, carrying a name
     # the schematic sheet already gives through its own pin or glyph.
     suppress_layer_labels = doc.get("suppressLayerLabels")
     if suppress_layer_labels is not None:

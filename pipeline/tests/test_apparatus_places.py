@@ -86,7 +86,7 @@ def test_validate_places_source_url_must_be_http():
 def test_validate_places_plate_anchors_without_position_basis_rejected():
     # Range is no longer this validator's job: a lat/lon pair is a legal
     # shape here. Pairing with positionBasis still is.
-    doc = {"status": "draft", "places": [_place(plateAnchors={"trojan-plain": [39.95, 26.20]})]}
+    doc = {"status": "draft", "places": [_place(plateAnchors={"trojan-plain-schematic": [39.95, 26.20]})]}
     problems = apparatus_places.validate_places(doc)
     assert any("positionBasis is not 'conjectural'" in p for p in problems)
 
@@ -104,7 +104,7 @@ def test_validate_places_plate_anchors_with_position_basis_passes():
         "status": "draft",
         "places": [
             _place(
-                plateAnchors={"trojan-plain": [39.95, 26.20]},
+                plateAnchors={"trojan-plain-schematic": [39.95, 26.20]},
                 positionBasis="conjectural",
             )
         ],
@@ -117,13 +117,13 @@ def test_validate_places_plate_anchors_must_be_a_2_number_list():
         "status": "draft",
         "places": [
             _place(
-                plateAnchors={"trojan-plain": [0.5]},
+                plateAnchors={"trojan-plain-schematic": [0.5]},
                 positionBasis="conjectural",
             )
         ],
     }
     problems = apparatus_places.validate_places(doc)
-    assert any("plateAnchors['trojan-plain'] must be a 2-element numeric array" in p for p in problems)
+    assert any("plateAnchors['trojan-plain-schematic'] must be a 2-element numeric array" in p for p in problems)
 
 
 def test_validate_places_grandfathers_legacy_records_without_kind_or_sources():
@@ -709,17 +709,10 @@ def test_validate_plate_bbox_min_must_be_less_than_max():
 # ── positive test: the real corpus validates clean ──────────────────────────
 
 
-def test_real_places_and_trojan_plain_plate_validate_clean():
+def test_real_places_validate_clean():
     places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
     place_problems = apparatus_places.validate_places(places_doc)
     assert place_problems == [], place_problems
-
-    places_by_id = {p["id"]: p for p in places_doc["places"]}
-    plate_doc = json.loads(
-        (ROOT / "apparatus" / "plates" / "trojan-plain.json").read_text(encoding="utf-8")
-    )
-    plate_problems = apparatus_places.validate_plate(plate_doc, places_by_id)
-    assert plate_problems == [], plate_problems
 
 
 def _schematic_plate() -> dict:
@@ -1205,14 +1198,11 @@ def test_validate_plate_bbox_tolerates_one_ulp_over_the_edge():
 
 
 # ── validate_places: `zone.polygon` (2026-09-02, camp-zone ruling 2e-iv) ────
-# There is no mechanism (checked shared/lib/plate.ts and this module) for a
-# plate layer to take its geometry FROM a gazetteer place's zone, so the
-# camp-zone polygon is authored twice: once on the layer that draws it
-# (apparatus/plates/trojan-plain.json's achaean-camp-zone layer) and once on
-# the gazetteer entry (apparatus/places.json's achaean-camp.zone) that is the
-# source of truth other plates (schematic, panorama) read to stay in sync.
-# These tests hold that duplication honest: the shape is validated, and the
-# equality test below fails loudly the moment the two drift.
+# apparatus/places.json's achaean-camp.zone is the one authored copy of the
+# camp-zone polygon, the source of truth the panorama reads. (The retired
+# geographic sheet carried a second copy as its achaean-camp-zone layer,
+# and a test here held the two equal; both went with the sheet, 2026-09-15.)
+# These tests validate its shape.
 
 
 def test_validate_places_zone_polygon_must_be_at_least_three_pairs():
@@ -1257,30 +1247,6 @@ def test_validate_places_zone_good_fixture_passes():
         ],
     }
     assert apparatus_places.validate_places(doc) == []
-
-
-def test_real_achaean_camp_zone_polygon_matches_the_plate_layer():
-    """The gazetteer is the source of truth (docstring above): this is the
-    guard that catches the two authored copies drifting apart, since no
-    layer-from-gazetteer consumer mechanism exists to make drift impossible
-    by construction."""
-    places_doc = json.loads((ROOT / "apparatus" / "places.json").read_text(encoding="utf-8"))
-    place = next(p for p in places_doc["places"] if p["id"] == "achaean-camp")
-    gazetteer_polygon = place["zone"]["polygon"]
-
-    plate_doc = json.loads(
-        (ROOT / "apparatus" / "plates" / "trojan-plain.json").read_text(encoding="utf-8")
-    )
-    layer = next(l for l in plate_doc["layers"] if l["id"] == "achaean-camp-zone")
-    layer_polygon = layer["polygon"]
-
-    assert gazetteer_polygon == layer_polygon, (
-        "apparatus/places.json's achaean-camp.zone.polygon is the source of "
-        "truth for the shared camp zone (ruling 2e-iv); it must match "
-        "apparatus/plates/trojan-plain.json's achaean-camp-zone layer "
-        "exactly, or the geographic, schematic and panorama plates will "
-        "draw the camp on different ground."
-    )
 
 
 def test_real_plate_anchors_validate_against_every_real_plate():

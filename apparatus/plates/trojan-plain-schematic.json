@@ -60,7 +60,7 @@
       "url": "https://www.openstreetmap.org/copyright"
     }
   ],
-  "note": "Ground layers are synchronised from trojan-plain.json by scripts/sync-schematic-ground.py; do not edit them here.",
+  "note": "Ground layers are maintained here; the geographic sheet was retired 2026-09-15.",
   "sceneKey": [
     {
       "letter": "A",

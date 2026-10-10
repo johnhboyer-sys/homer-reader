@@ -253,7 +253,7 @@ describe('viewport rotation (rotationDeg)', () => {
 });
 
 describe('rotation on the real trojan-plain bbox (Troy vs Sigeion, and scale-bar isotropy)', () => {
-  // Real production bbox and place coordinates — apparatus/plates/trojan-plain.json's
+  // Real production bbox and place coordinates — apparatus/plates/trojan-plain-schematic.json's
   // bbox, and Troy / Sigeion from apparatus/places.json. Under east-up
   // (rotationDeg 90) a point further EAST projects ABOVE centre and a point
   // further NORTH projects LEFT of centre (see the rotationDeg=90 test above).

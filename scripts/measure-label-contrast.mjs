@@ -88,7 +88,6 @@ const TERRAIN_RING = [HALO_CLEAR_PX, HALO_CLEAR_PX + 3];
 // Same map tag table as scripts/render-plates.mjs.
 const MAP_TAG = {
   troad: 'troad',
-  'trojan-plain': 'troad-plain',
   'trojan-plain-schematic': 'troad-plain',
   'troy-citadel': 'troy-citadel',
 };
@@ -376,7 +375,7 @@ function placesForSheet(sheet) {
 }
 
 function parseArgs(argv) {
-  const out = { sheets: ['troad', 'trojan-plain'], themes: ['light', 'dark'], json: null, all: false };
+  const out = { sheets: ['troad', 'trojan-plain-schematic'], themes: ['light', 'dark'], json: null, all: false };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--sheet') out.sheets = argv[++i].split(',');
     else if (argv[i] === '--theme') out.themes = argv[++i].split(',');
@@ -428,7 +427,8 @@ async function main() {
   console.log(`\nRendered-pixel label contrast — AA floor ${AA_FLOOR}:1 on ADJACENT`);
   console.log(`  ADJACENT = ${ADJACENT_RING[0]}-${ADJACENT_RING[1]} device px off the glyph (the halo, if it is thick enough to be one)`);
   console.log(`  TERRAIN  = ${TERRAIN_RING[0]}-${TERRAIN_RING[1]} device px out (what the label really sits on)\n`);
-  console.log(`  ${pad('sheet', 14)}${pad('theme', 6)}${pad('label', 26)}${pad('role', 11)}${pad('adjacent', 20)}${pad('worst', 10)}terrain`);
+  const sheetW = Math.max(5, ...shown.map((r) => r.sheet.length)) + 1;
+  console.log(`  ${pad('sheet', sheetW + 2)}${pad('theme', 6)}${pad('label', 26)}${pad('role', 11)}${pad('adjacent', 20)}${pad('worst', 10)}terrain`);
   let failures = 0;
   for (const r of shown) {
     const ok = (r.adjacent?.ratio ?? 0) >= AA_FLOOR;
@@ -436,7 +436,7 @@ async function main() {
     const adj = r.adjacent ? `${r.adjacent.ratio.toFixed(2)}:1 ${r.adjacent.hex}` : '—';
     const wst = r.adjacentWorst ? `${r.adjacentWorst.ratio.toFixed(2)}:1` : '—';
     const ter = r.terrain ? `${r.terrain.ratio.toFixed(2)}:1 ${r.terrain.hex}` : '—';
-    console.log(`  ${ok ? ' ' : '!'} ${pad(r.sheet, 13)}${pad(r.theme, 6)}${pad(r.text.slice(0, 25), 26)}${pad(r.role, 11)}${pad(adj, 20)}${pad(wst, 10)}${ter}`);
+    console.log(`  ${ok ? ' ' : '!'} ${pad(r.sheet, sheetW)}${pad(r.theme, 6)}${pad(r.text.slice(0, 25), 26)}${pad(r.role, 11)}${pad(adj, 20)}${pad(wst, 10)}${ter}`);
   }
   console.log(`\n  ${shown.length - failures}/${shown.length} labels clear ${AA_FLOOR}:1 on the adjacent ring` +
     (failures ? ` — ${failures} BELOW` : ''));

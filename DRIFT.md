@@ -1235,3 +1235,12 @@ ring, empty inside the wall and with no ground under it.
 - `pipeline/homer_pipeline/apparatus_places.py` — mirrors list `insetOf`,
   `insetOnly`, `open` and the `built` fill.
 - No plato-reader counterpart (Homer-only apparatus feature).
+
+## 2026-10-09 — The geographic Trojan Plain sheet's files removed (ruling 16 follow-up)
+
+- `shared/components/Reader.svelte` — the geographic Chart Room path is gone:
+  `CHART_ROOM_PLATE_ENABLED`, the Iliad plate fetch/render/camera/locator/link
+  and its template branch. The schematic postcard and the `renderSceneMap`
+  fallback are the only two map paths. No plato-reader counterpart.
+- `shared/lib/plate.ts`, `app/src/components/maps/PlatePanel.svelte` — comments
+  only (references to the deleted sheet).
