@@ -3,6 +3,24 @@
 Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). No deploys have
 occurred; deploying, the GitHub remote, and the first push are John-gated.
 
+## Deploy — 2026-10-21 (second): Attribution byline links to johnhboyer.com, PR #56
+
+gh-pages `a4c752715` → `1b0cd12a2` (source: main `b35b0b294`). Same method.
+The deploy diff is one file, `attribution/index.html`.
+
+**What shipped (PR #56).** "Site by John H. Boyer" on /attribution/ now
+links to https://johnhboyer.com/, not x.com. It was the site's only link to
+John's X account; the Homer site has no Aristotle link to update.
+Codex (GPT-6.1-Sol, medium) review: no findings.
+
+**Also today, outside this repo.** The `johnhboyer-sys.github.io` root
+redirect now points straight at https://homer.johnhboyer.com/ (its README
+says so), and the sitemap is submitted under the `johnhboyer.com` Domain
+property in Search Console.
+
+Gates: preflight ok · 4,686 pages · 0 broken of 335,501 links.
+Live-verified: /attribution/ serves the new href.
+
 ## Deploy — 2026-10-21: the site moves to homer.johnhboyer.com, PR #54
 
 gh-pages `f533f0b3e` → `a4c752715` (source: main `e10798663`). Same method
