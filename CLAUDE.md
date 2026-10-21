@@ -80,10 +80,16 @@ non-negotiable.
 - Git flow (John, 2026-07-17; two-remote split 2026-07-18; CORRECTED
   2026-07-21 after a deploy push bounced): `github.com/johnhboyer-sys/
   homer-reader` (remote `origin`) is now PUBLIC and serves the site itself —
-  Pages from its own `gh-pages` branch at /homer-reader/. Deploys push
+  Pages from its own `gh-pages` branch. Since 2026-10-21 (John) it serves
+  at the root of **https://homer.johnhboyer.com** — Cloudflare holds only
+  the DNS record (CNAME to johnhboyer-sys.github.io, DNS only, grey cloud);
+  `app/public/CNAME` keeps the domain set on every deploy, and old
+  github.io/homer-reader/ URLs 301 to it. Deploys push
   `gh-pages` to **origin** (worktree `~/Developer/homer-reader-site`). The
   `johnhboyer-sys.github.io` repo (remote `deploy`) holds ONLY the root
-  redirect to /homer-reader/ — never push site deploys there.
+  redirect to /homer-reader/ — never push site deploys there. Never put a
+  custom domain on that repo: every project site without its own domain
+  (plato-reader) would move under it.
   Commit as we go, **push promptly after every commit** (backup). PR bundling at the orchestrator's judgment
   (John): PR #1 = claude/build → main umbrella (phases 0–3 + scenes);
   subsequent coherent units get branches off claude/build with stacked PRs

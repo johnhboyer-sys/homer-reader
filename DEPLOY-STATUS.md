@@ -3,6 +3,39 @@
 Ledger for John. One-off GitHub Pages build (no Cloudflare/R2). No deploys have
 occurred; deploying, the GitHub remote, and the first push are John-gated.
 
+## Deploy — 2026-10-21: the site moves to homer.johnhboyer.com, PR #54
+
+gh-pages `f533f0b3e` → `a4c752715` (source: main `e10798663`). Same method
+as before: fresh worktree off main, `npm run build:public`, rsync into
+`homer-reader-site`. No data changed, so `VERSION` stays `v5`.
+
+**What shipped (PR #54).**
+- **Address:** the site now serves at the root of
+  `https://homer.johnhboyer.com` (John, 2026-10-21). Hosting is still GitHub
+  Pages; Cloudflare holds only the DNS record (CNAME `homer` →
+  `johnhboyer-sys.github.io`, DNS only).
+- **Build:** `astro.config` `site` is the new origin and `base` is `/`.
+  Canonicals, `og:image`, the sitemap and robots.txt follow from these.
+- **`app/public/CNAME`:** ships in every build, so a deploy never clears the
+  domain.
+- **Link checker:** its base is now empty.
+- **Old links:** `johnhboyer-sys.github.io/homer-reader/…` returns 301 to the
+  same path on the new domain, which then upgrades to HTTPS.
+- **Homepage:** johnhboyer.com now links to the new address (Cloudflare
+  Worker `johnhboyer`, version `22f947af`).
+
+Gates: preflight ok · 4,686 pages · 0 broken of 335,501 links · no `//`
+URLs in any HTML or JS · Codex (GPT-6.1-Sol, medium) review of the diff: no
+findings.
+
+Live-verified:
+- Pages settings: domain `homer.johnhboyer.com`, certificate approved,
+  HTTPS enforced.
+- `/`, `/iliad/book/1/` and `/data/iliad/columns.json` return 200 over HTTPS.
+- robots.txt names `https://homer.johnhboyer.com/sitemap-index.xml`.
+- Before deploy, the same build served from a root path rendered Iliad 1 and
+  loaded lexicon data on a token click with no failed requests.
+
 ## Deploy — 2026-10-10 (third): an unstamped page is always light, PR #50
 
 gh-pages `7711cdc77` → `f533f0b3e` (source: main `d5ea0c230`, CI green). Same
