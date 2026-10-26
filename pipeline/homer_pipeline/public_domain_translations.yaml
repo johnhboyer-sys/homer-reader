@@ -24,7 +24,7 @@ translations:
   - id: butler
     translator: "Samuel Butler"
     year: 1898
-    note: "Iliad (1898) and Odyssey (1900); published before 1931, public domain in the US."
+    note: "Iliad (1898) and Odyssey (1900); published before 1931, public domain in the US. Odyssey text: Wikisource scan transcription of the 1900 Longmans printing (sources/butler/)."
 
   - id: pope
     translator: "Alexander Pope"

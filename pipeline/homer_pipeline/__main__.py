@@ -18,7 +18,8 @@ def _stage1(manifest):
     # work.greek_source_kind ("tlg" = Diogenes TLG verse-mode export, Allen
     # 1931 for the Iliad; default/absent = Perseus grc2 TEI, still the
     # Odyssey's source). Then (Phase 2) the milestoned Perseus English pass
-    # (Murray primary, Butler secondary) runs the same way for both.
+    # (Murray primary, Butler secondary) runs the same way for both — except
+    # the Odyssey's Butler, read from the Wikisource scan (see below).
     if sch.name == "verse-line":
         greek_kind = manifest.data["work"].get("greek_source_kind") or "perseus"
         if greek_kind == "tlg":
@@ -33,7 +34,8 @@ def _stage1(manifest):
             reader_label = "perseus-grc, verse-line"
         spine = json.loads(spine_path.read_text(encoding="utf-8"))
         for scratch in ("third_chunks.json", "third_footnotes.json", "overlays.json",
-                        "overlay_footnotes.json", "kosmos_report.json"):
+                        "overlay_footnotes.json", "kosmos_report.json",
+                        "butler_footnotes.json", "butler_report.json"):
             (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
         n_lines = sum(len(s["lines"]) for s in spine["segments"])
         skipped = spine.get("skipped_line_attrs") or {}
@@ -48,7 +50,20 @@ def _stage1(manifest):
         if (manifest.data.get("english") or {}).get("primary"):
             from . import stage1_perseus_milestone_english as mseng
 
-            result = mseng.run(manifest, spine)
+            # Butler's own text from the Wikisource scan (Odyssey,
+            # english.secondary.model: wikisource) replaces the milestone
+            # pass for the secondary slot: the milestone module sees the
+            # manifest without it, and stage1_butler_wikisource writes
+            # ross_chunks.json after it.
+            eng = manifest.data["english"]
+            ws_butler = (eng.get("secondary") or {}).get("model") == "wikisource"
+            ms_manifest = (
+                Manifest({**manifest.data,
+                          "english": {k: v for k, v in eng.items() if k != "secondary"}},
+                         manifest.path)
+                if ws_butler else manifest
+            )
+            result = mseng.run(ms_manifest, spine)
             for tid, s in result["summary"].items():
                 loeb = (
                     f" loeb_notes_applied={s['loeb_notes_applied']} "
@@ -60,6 +75,16 @@ def _stage1(manifest):
                 print(f"  english ({tid}, milestone): chunks={s['chunks']} "
                       f"footnotes={s.get('footnotes', 0)} anomalies={s['anomalies']} "
                       f"coverage_holes={s['holes']}{loeb}")
+            if ws_butler:
+                from . import stage1_butler_wikisource
+
+                s = stage1_butler_wikisource.run(manifest, spine)
+                print(f"  english ({eng['secondary']['id']}, wikisource): books={s['books']} "
+                      f"plines={s['plines_distinct']} ticks={s['ticks']} "
+                      f"footnotes={s['footnotes']} argument_notes={s['argument_notes']} "
+                      f"errata={s['errata']} sic={s['sic']} sic_bare={s['sic_bare']} "
+                      f"pline_errata={s['pline_errata']} plates_dropped={s['plates_dropped']} "
+                      f"anomalies={s['anomalies']}")
         else:
             for scratch in ("ross_chunks.json",):
                 (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
