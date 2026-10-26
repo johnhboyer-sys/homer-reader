@@ -78,8 +78,8 @@ exactly, all 24 books (1,028). Footnotes reconcile: raw `<ref follow=…>` is
 the continuation of a note across a page break (same note); the assembled
 pages' extra list items are Wikisource's corrigenda, not Butler's notes.
 
-Corrections in the wikitext — the pipeline needs a rule for each (open,
-John's call):
+Corrections in the wikitext — John, 2026-10-26: apply the corrected reading
+for BOTH `{{errata}}` and `{{SIC}}`, and list every change applied:
 - `{{errata|printed|corrected|…#Corrigenda}}` (Odyssey 8): from the 1900
   book's OWN corrigenda list — Butler's intended text.
 - `{{SIC|printed|correct}}` (25 across both works): typos flagged by

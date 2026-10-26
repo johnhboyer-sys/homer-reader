@@ -39,6 +39,12 @@ non-negotiable.
   Source the real 1898/1900 text (`sources/butler/`, provenance in
   `sources/INVENTORY.md`); keep Butler's own footnotes. PG #2199 carries none,
   so check a scan-backed source (Wikisource) for notes before calling it done.
+  Decisions (John, 2026-10-26): ship the Odyssey (Wikisource scan, complete)
+  first; then fill Iliad XIV.487-XXIV from Gutenberg #2199's words with
+  Perseus milestones at paragraph starts (rule tested on Books III-XIII
+  first), the missing notes marked missing, not hidden. Apply BOTH Butler's
+  own corrigenda (`{{errata}}`) and the transcribers' `{{SIC}}` fixes, each
+  listed. Details: `sources/INVENTORY.md` (butler/).
 - **Vulgate lineation is sacred.** Never renumber. Numbering gaps and
   bracketed/athetized lines are preserved verbatim; a verifier asserts monotonic
   numbering with recorded, expected gaps per book.
