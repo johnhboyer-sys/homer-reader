@@ -38,6 +38,25 @@ are eng3/eng4 (verified via __cts__.xml). Attribute Perseus on the About page.
   (1725–26; Odyssey co-authored with Broome/Fenton — translation note must
   disclose, per PROMPT.md).
 
+## butler/ — Samuel Butler's own translations, unrevised (PD)
+
+Added 2026-10-26. The `perseus/*-eng4.xml` files the site has shown as "Butler"
+are NOT Butler's text: their TEI headers read "Revised edition… Revised by
+Timothy Power, Gregory Nagy" (Latin names → Greek, ~500 bracketed Greek glosses
+per work). Reader report on X, same day: Od. 1.1 should read "that ingenious
+hero", not "that many-sided hero". These files are the replacement source.
+
+| File | Content | Source | SHA-256 |
+|---|---|---|---|
+| butler-iliad.txt | Iliad, Samuel Butler (1898), PG #2199, verbatim incl. PG header/licence | GITenberg/the-iliad_2199 @ f12180f6 (2018-10-21), `2199.txt` | 5d38105365b7c13918244b52d067e06ebd095c74eb18f6fcf99abb16748cbe33 |
+| butler-odyssey.txt | Odyssey, Samuel Butler (1900) | PENDING — en.wikisource.org and gutenberg.org are blocked from the cloud session; GITenberg has no #1727 mirror | — |
+
+Checks on butler-iliad.txt: "Ulysses" 128, "Jove" 475, "Minerva" 162, "Juno"
+124, "Odysseus" 0 (the Power–Nagy file: 0 / 0 / 0 / 0 / 124). One "Zeus" (Il.
+18, "Now, however, Zeus") is Butler's own and stays. The GITenberg copy dates
+from 2018; cross-check it against current PG #2199 or Wikisource *The Iliad
+(Butler)* once either host is reachable.
+
 ## kosmos/ — Kosmos Society (Center for Hellenic Studies), fetched 2026-09-12 (CC BY-NC-ND 3.0)
 
 Samuel Butler's translation revised by Soo-Young Kim, Kelly McCray, Gregory
