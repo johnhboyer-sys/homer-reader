@@ -88,6 +88,12 @@ for BOTH `{{errata}}` and `{{SIC}}`, and list every change applied:
 - `{{Tooltip|…|This sentence continues in Book N.}}`: Butler's book divisions
   split a few sentences from the Greek's; alignment must expect it.
 
+Power–Nagy revision (Perseus `*-eng4.xml`) — John, 2026-10-26: dropped from
+the site once real Butler is in. Measured on Book 1: it keeps 81% (Od.) of
+Butler's words in order, Kosmos 76%, and the two revisions share 83-86% of
+their wording; Kosmos is the finished form of the same work. The files stay
+here as the source of Perseus line markers for Iliad XIV.487-XXIV only.
+
 Notes: John, 2026-10-26 — keep Butler's own footnotes. butler-iliad.txt has
 NONE (no markers or note blocks in the .txt; the PG HTML has only an unused
 `P.footnote` style), so if the 1898 printing carried notes, this transcription

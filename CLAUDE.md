@@ -44,7 +44,10 @@ non-negotiable.
   Perseus milestones at paragraph starts (rule tested on Books III-XIII
   first), the missing notes marked missing, not hidden. Apply BOTH Butler's
   own corrigenda (`{{errata}}`) and the transcribers' `{{SIC}}` fixes, each
-  listed. Details: `sources/INVENTORY.md` (butler/).
+  listed. The Power–Nagy revision leaves the site (John, same day: Kosmos is
+  its finished form, 83-86% the same wording); its Perseus files stay in
+  `sources/perseus/` only as the source of Iliad XV-XXIV line markers.
+  Details: `sources/INVENTORY.md` (butler/).
 - **Vulgate lineation is sacred.** Never renumber. Numbering gaps and
   bracketed/athetized lines are preserved verbatim; a verifier asserts monotonic
   numbering with recorded, expected gaps per book.
