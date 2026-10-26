@@ -63,6 +63,7 @@ def _plain(text: str) -> str:
     """Independent reduction: corrections applied, templates to their last
     argument (layout ones to nothing), links to their label."""
     text = re.sub(r"\{\{errata\|[^{}|]*\|([^{}|]*)[^{}]*\}\}", r"\1", text)
+    text = text.replace("{{SIC|no man|Noman}}", "no man")    # SIC_KEEP_PRINTED
     text = re.sub(r"\{\{(?:SIC|sic)\|[^{}|]*\|([^{}|]*)\}\}", r"\1", text)
     text = re.sub(r"\{\{(?:SIC|sic)\}\}", "", text)
     text = re.sub(r"\{\{Tooltip\|([^{}|]*)\|[^{}]*\}\}", r"\1", text)
@@ -202,7 +203,9 @@ def test_errata_and_sic_applied(parsed):
         where = r["text"] + "".join(html.unescape(v) for v in r["notes"].values())
         assert e["applied"] in where, e
     t9 = parsed["books"][9]["text"]
-    assert "Noman is killing me by fraud; Noman is killing me by force" in t9
+    assert "Noman is killing me by fraud; no man is killing me by force" in t9
+    kept = [e for e in log["sic"] if e["applied"] == e["printed"]]
+    assert [(e["book"], e["page"], e["printed"]) for e in kept] == [(9, 152, "no man")]
     assert "deal rigorously with me" in parsed["books"][2]["text"]
 
 

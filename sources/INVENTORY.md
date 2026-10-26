@@ -85,6 +85,10 @@ for BOTH `{{errata}}` and `{{SIC}}`, and list every change applied:
 - `{{SIC|printed|correct}}` (25 across both works): typos flagged by
   Wikisource transcribers, printed text left showing ("glitering", Greek
   accents in notes, a cross-reference "225" for 325).
+  One exception (pending John's confirmation, 2026-10-26): Od. 9.408,
+  "Noman is killing me by fraud; no man is killing me by force", keeps
+  Butler's lowercase "no man", which renders the pun in οὐδὲ βίηφιν
+  (`SIC_KEEP_PRINTED` in `stage1_butler_wikisource.py`).
 - `{{Tooltip|…|This sentence continues in Book N.}}`: Butler's book divisions
   split a few sentences from the Greek's; alignment must expect it.
 

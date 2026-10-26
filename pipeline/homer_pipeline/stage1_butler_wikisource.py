@@ -41,7 +41,8 @@ Decisions, each one visible in ``butler_report.json``:
     carries no number starts at its first Greek line, offset 0.
   - ``{{errata|printed|corrected|…}}`` (Butler's own corrigenda) and
     ``{{SIC|printed|correct}}`` (the transcribers' typo flags): the corrected
-    reading is applied, both kinds (John, 2026-10-26), and every change is
+    reading is applied, both kinds (John, 2026-10-26), except where
+    ``SIC_KEEP_PRINTED`` keeps Butler's deliberate printing; every change is
     listed with its page (one ``{{SIC}}`` sits in a plate caption and leaves
     with its plate; it is listed ``in_plate``). A bare ``{{sic}}`` has no correction to apply; the
     printed text stands and the flag is listed.
@@ -107,6 +108,12 @@ _ERRATA = re.compile(r"\{\{errata\|([^{}|]*)\|([^{}|]*)(?:\|[^{}]*)?\}\}")
 _SIC = re.compile(r"\{\{(?:SIC|sic)\|([^{}|]*)\|([^{}|]*)\}\}")
 _SIC_BARE = re.compile(r"\{\{(?:SIC|sic)\}\}")
 _TOOLTIP = re.compile(r"\{\{Tooltip\|([^{}|]*)\|([^{}|]*)\}\}")
+
+# {{SIC}} flags where Butler's printing is deliberate and stands, keyed by
+# (book, scan page, printed). Od. 9.408: "Noman is killing me by fraud; no
+# man is killing me by force" renders the Οὖτις / οὐδέ pun in οὐδὲ βίηφιν;
+# the transcribers flagged the lowercase as a slip.
+SIC_KEEP_PRINTED = {(9, 152, "no man")}
 
 # Sentinels (private-use / control characters never present in the source).
 _S_PLINE = "\x01"   # \x01<n>\x01 — a printed line number
@@ -185,8 +192,9 @@ def apply_corrections(body: str, page: int, book: int, log: dict, plate: bool = 
         return m.group(2)
 
     def sic(m):
-        rec("sic", m, m.group(1), m.group(2))
-        return m.group(2)
+        used = m.group(1) if (book, page, m.group(1)) in SIC_KEEP_PRINTED else m.group(2)
+        rec("sic", m, m.group(1), used)
+        return used
 
     def sic_bare(m):
         ctx = re.sub(r"\s+", " ", body[max(0, m.start() - 40):m.start()])
