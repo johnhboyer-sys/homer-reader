@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/sve
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Reader from '../components/Reader.svelte';
 import Search from '../components/Search.svelte';
-import { fetchPlaces, fetchJourneys, fetchCoastline, fetchPlate, type BookData, type RawBookData } from '../lib/data';
+import { fetchBook, fetchPlaces, fetchJourneys, fetchCoastline, fetchPlate, type BookData, type RawBookData } from '../lib/data';
 import type { Work } from '../lib/works';
 import { parsePlate, renderPlate } from '../lib/plate';
 
@@ -1982,5 +1982,82 @@ describe('Reader.svelte — Chart Room SCHEMATIC plate postcard, stage 5a (2026-
     const plateWidth = wideUnzoomedFixture.size[0];
     const apparentPx = designPx * f * (slotWidth / plateWidth) * camK;
     expect(apparentPx).toBeGreaterThanOrEqual(10);
+  });
+});
+
+describe('Reader.svelte — phone Both view renders the CHOSEN translation (X bug report, 2026-10-26)', () => {
+  // Phone width + Both view interleaves Greek with English in alignment
+  // groups (the stacked-both branch). That branch fed alignGroups the
+  // primary flow (Murray) whatever translation was picked, so choosing
+  // Butler or Pope relabelled the column (data-trans) and kept Murray's text:
+  // "Samuel Butler translation does not appear to load ... Pope translation
+  // also doesn't load". Same shape as the verse-line fixture above: the real
+  // 'iliad' registry work (epicVerse; butler = ross slot, pope = third slot).
+  const lines = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const book: BookData = {
+    book: 1,
+    segments: [
+      {
+        id: 'seg1',
+        column: '1',
+        greek: lines.map((n) => ({ n, text: `g${n}`, tokens: [{ t: `g${n}`, o: 0, k: `g${n}` }] })),
+        english: {
+          text: 'MurrayOne text. MurrayTwo text.',
+          notes: [],
+          markers: [],
+          bekker: [{ n: 1, offset: 0, real: true }, { n: 6, offset: 16, real: true }],
+        },
+        ross: [{
+          chapter: '1', cont: false,
+          text: 'ButlerOne text. ButlerTwo text.',
+          bekker: [{ n: 1, offset: 0, real: true }, { n: 6, offset: 16, real: true }],
+        }],
+        third: [{ chapter: '1', cont: false, text: 'PopeOne text.', bekker: [{ n: 1, offset: 0, real: true }] }],
+      } as unknown as BookData['segments'][number],
+    ],
+  };
+
+  const phoneMatchMedia = () => {
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: query.includes('max-width: 680px'), media: query, onchange: null,
+      addListener: vi.fn(), removeListener: vi.fn(),
+      addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
+    })) as unknown as typeof window.matchMedia;
+  };
+  const original = window.matchMedia;
+  afterEach(() => { window.matchMedia = original; });
+
+  for (const [trans, shown, hidden] of [
+    ['butler', 'ButlerOne', 'MurrayOne'],
+    ['pope', 'PopeOne', 'MurrayOne'],
+    ['murray', 'MurrayOne', 'ButlerOne'],
+  ] as const) {
+    it(`?trans=${trans} shows ${shown} in the stacked groups, not ${hidden}`, async () => {
+      phoneMatchMedia();
+      window.history.replaceState(null, '', `/iliad/book/1?view=both&trans=${trans}`);
+      const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: book } });
+      await waitFor(() => expect(container.querySelector('.stacked-both .english-col')).not.toBeNull());
+      const cols = Array.from(container.querySelectorAll('.stacked-both .english-col'));
+      const text = cols.map((c) => c.textContent).join(' ');
+      expect(cols.every((c) => c.getAttribute('data-trans') === trans)).toBe(true);
+      expect(text).toContain(shown);
+      expect(text).not.toContain(hidden);
+    });
+  }
+
+  it('keeps the Greek and shows the loading state while a picked translation is still fetching', async () => {
+    phoneMatchMedia();
+    // The token-stripped SSR prop drops ross/third; the full book never
+    // arrives here, so the reader must stay in its loading state.
+    vi.mocked(fetchBook).mockReturnValueOnce(new Promise(() => {}));
+    window.history.replaceState(null, '', '/iliad/book/1?view=both&trans=butler');
+    const stripped = {
+      ...book,
+      tokensStripped: true,
+      segments: book.segments.map(({ ross: _r, third: _t, ...seg }) => seg),
+    } as unknown as BookData;
+    const { container } = render(Reader, { props: { work: 'iliad', bookNum: 1, bookData: stripped } });
+    await screen.findByText(/Loading/);
+    expect(container.querySelectorAll('.greek-line')).toHaveLength(lines.length);
   });
 });
