@@ -1,10 +1,25 @@
 # Butler's printed marginal line numbers ({{pline}} on Wikisource) that are
-# misprints in the printed book itself, not transcription slips: the scan pages
-# below show them as printed (p. 76 validated by two proofreaders; p. 232 the
-# transcriber gave the repeat an id= to keep two identical numbers apart).
+# misprints in the printed books themselves, not transcription slips: Iliad
+# p. 57 and Odyssey p. 76 are validated (two proofreaders); on Odyssey p. 232
+# the transcriber gave the repeat an id= to keep two identical numbers apart.
+#
+# Not an erratum: Wikisource writes a {{pline}} that falls at a page break at
+# the foot of one page AND the top of the next (Il. 14.445, scan pp. 255-256).
+# That is one marker; the parser counts adjacent duplicates across a page
+# boundary once. Occurrence counts below are after that collapse.
 # The source files stay verbatim; the alignment stage applies these, matched by
 # work + book + printed number + occurrence (1-based, in book order).
 # Each fix is checked against the Greek (sources/perseus/*-grc2.xml).
+
+iliad:
+  - book: 2
+    printed: 811
+    occurrence: 1
+    correct: 807
+    scan_page: "Page:The Iliad of Homer (Butler).djvu/57"
+    english: "Thus she spoke, but Hector knew that it was the goddess"
+    greek: "2.807 ὣς ἔφαθʼ, Ἕκτωρ δʼ οὔ τι θεᾶς ἔπος ἠγνοίησεν,"
+    why: "Two 811s on one page; the second correctly sits on 2.811 (the mound Batieia)."
 
 odyssey:
   - book: 4

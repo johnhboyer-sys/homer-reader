@@ -49,13 +49,28 @@ hero", not "that many-sided hero". These files are the replacement source.
 | File | Content | Source | SHA-256 |
 |---|---|---|---|
 | butler-iliad.txt | Iliad, Samuel Butler (1898), PG #2199, verbatim incl. PG header/licence | GITenberg/the-iliad_2199 @ f12180f6 (2018-10-21), `2199.txt` | 5d38105365b7c13918244b52d067e06ebd095c74eb18f6fcf99abb16748cbe33 |
-| butler-odyssey.txt | Odyssey, Samuel Butler (1900) | PENDING — en.wikisource.org and gutenberg.org are blocked from the cloud session; GITenberg has no #1727 mirror | — |
+| wikisource/iliad/page-NNN.wiki | Iliad, Butler (1898), raw wikitext of the scan-backed Page: transcriptions, scan pp. 21-256 = Books I-XIII complete, XIV to l. 486 | https://en.wikisource.org/wiki/Index:The_Iliad_of_Homer_(Butler).djvu, fetched 2026-10-26 via `index.php?action=raw` | per file in `wikisource/iliad/MANIFEST.tsv` |
+| wikisource/odyssey/ | Odyssey, Butler (1900), same form, scan pp. 25-359 | https://en.wikisource.org/wiki/Index:The_Odyssey_(Butler).djvu — fetch in progress | — |
 
 Checks on butler-iliad.txt: "Ulysses" 128, "Jove" 475, "Minerva" 162, "Juno"
 124, "Odysseus" 0 (the Power–Nagy file: 0 / 0 / 0 / 0 / 124). One "Zeus" (Il.
 18, "Now, however, Zeus") is Butler's own and stays. The GITenberg copy dates
 from 2018; cross-check it against current PG #2199 or Wikisource *The Iliad
 (Butler)* once either host is reachable.
+
+Wikisource (2026-10-26). Both scans carry Butler's own MARGINAL GREEK LINE
+NUMBERS (`{{pline|N|l}}`, one per paragraph), so the English aligns to the
+Greek from Butler's own numbers, not borrowed Perseus milestones; misprints in
+them are listed in `pline-errata.yaml`. Footnotes are `<ref>` (Iliad: 16 in
+Books I-XIV; Odyssey: 207). Each page's header (`<noinclude>`) records its
+proofreading level (3 proofread, 4 validated, 1 not proofread) and last
+proofreader; MANIFEST.tsv lists both with each file's SHA-256. Revision ids
+are NOT recorded: the Wikimedia API answers 429 from the cloud session's
+shared egress, and action=raw carries none — the checksum + fetch date pin
+the text instead. Iliad coverage gap: scan pp. 257-440 (Books XIV l. 487 to
+XXIV) have no transcription on Wikisource; its main-namespace Iliad text is
+NOT scan-backed and is edited (Il. 1.1 "rage" for Butler's "anger"), so it
+is not a source. Scan pp. 247-254 (Book XIV) are level 1, not proofread.
 
 Notes: John, 2026-10-26 — keep Butler's own footnotes. butler-iliad.txt has
 NONE (no markers or note blocks in the .txt; the PG HTML has only an unused
