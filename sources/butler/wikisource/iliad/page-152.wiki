@@ -1,0 +1,10 @@
+<noinclude><pagequality level="3" user="Prosody" /></noinclude>{{dhr}}
+{{c|{{larger|BOOK IX}}}}
+
+{{c|{{smaller|The Embassy to Achilles.}}}}
+
+{{sc|Thus}} did the Trojans watch. But Panic, comrade of blood-stained Rout, had taken fast hold of the Achæans, and their princes were all of them in despair. As when the two winds that blow from Thrace—the north and the northwest—spring up of a sudden and rouse the fury of the main—in a moment the dark waves uprear their heads and scatter their sea-wrack in all directions—even thus troubled were the hearts of the Achæans.
+
+{{pline|9|l}}The son of Atreus in dismay bade the heralds call the people to a council man by man, but not to cry the matter aloud; he made haste also himself to call them, and they sat sorry at heart in their assembly. Agamemnon shed tears as it were a running stream or cataract on the side of some sheer cliff; and thus, with many a heavy sigh he spoke to the Achæans. "My friends," said he, "princes and councillors of the Argives, the hand of heaven has been laid heavily upon me. Cruel Jove gave me his solemn promise that I should sack the city of Troy before returning, but he has played me false, and is now bidding me go ingloriously back to Argos with the loss of much people. Such is the will of Jove, who has laid many a proud city in the dust as he will yet lay others, for his power is above all. Now, therefore, let us all do as I say and sail back to our own country, for we shall not take Troy."
+
+{{pline|29|l}}Thus he spoke, and the sons of the Achæans for a long while sat sorrowful there, but they all held their peace, till at last Diomed of the loud battle-cry made answer saying, "Son of Atreus, I will chide your folly, as is my right in<noinclude>{{c|132}}</noinclude>

@@ -1,0 +1,25 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XXIII
+ | previous   = [[../Book XXII|Book XXII]]
+ | next       = [[../Book XXIV|Book XXIV]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XXIII.
+    | filename = Odyssey 23 homer butler.ogg
+    | filesize = 15.66 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=336 to=345 />
+
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/ψ]]
+[[es:Odisea: Canto XXIII]]
+[[fr:L’Odyssée/23]]
+[[it:Odissea/Libro XXIII]]
+[[ru:Одиссея/Песнь двадцать третья]]

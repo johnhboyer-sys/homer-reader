@@ -1,0 +1,25 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XVIII
+ | previous   = [[../Book XVII|Book XVII]]
+ | next       = [[../Book XIX|Book XIX]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XVIII.
+    | filename = Odyssey 18 homer butler.ogg
+    | filesize = 11.85 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=271 to=281 />
+
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/σ]]
+[[es:Odisea: Canto XVIII]]
+[[fr:L’Odyssée/18]]
+[[it:Odissea/Libro XVIII]]
+[[ru:Одиссея/Песнь восемнадцатая]]

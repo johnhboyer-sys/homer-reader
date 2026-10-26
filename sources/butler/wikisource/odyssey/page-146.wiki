@@ -1,0 +1,8 @@
+<noinclude><pagequality level="4" user="Jasonanaggie" /></noinclude>{{block center|width=480px|
+[[File:Odyssey (Butler) Grotta di Polifemo exterior.png|center|480px]]
+{{c|{{smaller|OUTSIDE VIEW OF THE GROTTA EMILIANA, ALSO CURRENTLY CALLED<br />"LA GROTTA DI POLIFEMO."}}}}
+{{dhr}}
+[[File:Odyssey (Butler) Grotta di Polifemo interior.png|center|480px]]
+{{c|{{smaller|SHEEPFOLD INSIDE THE GROTTA DI POLIFEMO.}}}}
+{{fine|(''To face p''. 113).}}}}
+{{nop}}<noinclude></noinclude>

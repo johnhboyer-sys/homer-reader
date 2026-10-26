@@ -1,0 +1,7 @@
+<noinclude><pagequality level="4" user="Jasonanaggie" /></noinclude>{{block center|
+[[File:Odyssey (Butler) Map of Trapani.png|center|480px]]
+{{right|{{x-smaller|''Walker & Boutall sc''.}}}}
+{{c|{{smaller|MAP OF TRAPANI AND ITS IMMEDIATE NEIGHBOURHOOD.}}}}
+{{fine|(''To face p''. 80).}}
+}}
+{{nop}}<noinclude></noinclude>

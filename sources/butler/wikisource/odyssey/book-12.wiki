@@ -1,0 +1,29 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XII
+ | previous   = [[../Book XI|Book XI]]
+ | next       = [[../Book XIII|Book XIII]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XII.
+    | filename = Odyssey 12 homer butler.ogg
+    | filesize = 16.13 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=189 to=201 />
+
+{{rule}}
+{{smallrefs}}
+
+
+{{smaller|Corrigenda:}}
+{{smallrefs|group="errata"}}
+
+[[el:Οδύσσεια/μ]]
+[[es:Odisea: Canto XII]]
+[[fr:L’Odyssée/12]]
+[[it:Odissea/Libro XII]]
+[[ru:Одиссея/Песнь двенадцатая]]

@@ -26,11 +26,11 @@
   "24": {"murray": 161, "butler": 66, "pope": 20, "kosmos": 218}
  },
  "odyssey": {
-  "1": {"murray": 89, "butler": 33, "pope": 15, "kosmos": 133},
+  "1": {"murray": 89, "butler": 32, "pope": 15, "kosmos": 133},
   "2": {"murray": 87, "butler": 35, "pope": 14, "kosmos": 90},
   "3": {"murray": 100, "butler": 38, "pope": 18, "kosmos": 111},
   "4": {"murray": 169, "butler": 81, "pope": 20, "kosmos": 214},
-  "5": {"murray": 99, "butler": 38, "pope": 15, "kosmos": 121},
+  "5": {"murray": 99, "butler": 37, "pope": 15, "kosmos": 121},
   "6": {"murray": 66, "butler": 26, "pope": 14, "kosmos": 68},
   "7": {"murray": 70, "butler": 29, "pope": 14, "kosmos": 79},
   "8": {"murray": 118, "butler": 50, "pope": 16, "kosmos": 221},
@@ -41,13 +41,13 @@
   "13": {"murray": 89, "butler": 38, "pope": 12, "kosmos": 118},
   "14": {"murray": 107, "butler": 35, "pope": 13, "kosmos": 114},
   "15": {"murray": 112, "butler": 48, "pope": 16, "kosmos": 114},
-  "16": {"murray": 96, "butler": 45, "pope": 14, "kosmos": 133},
+  "16": {"murray": 96, "butler": 44, "pope": 14, "kosmos": 133},
   "17": {"murray": 122, "butler": 63, "pope": 18, "kosmos": 135},
   "18": {"murray": 86, "butler": 41, "pope": 14, "kosmos": 93},
   "19": {"murray": 121, "butler": 39, "pope": 15, "kosmos": 161},
   "20": {"murray": 79, "butler": 36, "pope": 14, "kosmos": 84},
   "21": {"murray": 87, "butler": 42, "pope": 15, "kosmos": 90},
-  "22": {"murray": 101, "butler": 52, "pope": 18, "kosmos": 102},
+  "22": {"murray": 101, "butler": 50, "pope": 18, "kosmos": 102},
   "23": {"murray": 75, "butler": 29, "pope": 17, "kosmos": 80},
   "24": {"murray": 110, "butler": 45, "pope": 16, "kosmos": 166}
  }

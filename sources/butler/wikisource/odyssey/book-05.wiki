@@ -1,0 +1,28 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book V
+ | previous   = [[../Book IV|Book IV]]
+ | next       = [[../Book VI|Book VI]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book V.
+    | filename = Odyssey 05 homer butler.ogg
+    | filesize = 15.38 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=88 to=101 exclude="99, 100" />
+{{page break|label=}}
+<pages index="The Odyssey (Butler).djvu" include=99 />
+{{page break|label=}}
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/ε]]
+[[es:Odisea: Canto V]]
+[[fr:Odyssée-5]]
+[[fr:L'Odyssée-5]]
+[[it:Odissea/Libro V]]
+[[ru:Одиссея/Песнь пятая]]

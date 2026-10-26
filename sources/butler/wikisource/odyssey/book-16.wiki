@@ -1,0 +1,29 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XVI
+ | previous   = [[../Book XV|Book XV]]
+ | next       = [[../Book XVII|Book XVII]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XVI.
+    | filename = Odyssey 16 homer butler.ogg
+    | filesize = 15.24 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=243 to=254 />
+
+{{rule}}
+{{smallrefs}}
+
+
+{{smaller|Corrigendum:}}
+{{smallrefs|group="errata"}}
+
+[[el:Οδύσσεια/π]]
+[[es:Odisea: Canto XVI]]
+[[fr:L’Odyssée/16]]
+[[it:Odissea/Libro XVI]]
+[[ru:Одиссея/Песнь шестнадцатая]]

@@ -1,0 +1,14 @@
+<noinclude><pagequality level="4" user="JohnSon12a" />{{rh|18|TELEMACHUS AND EURYMACHUS.|[ODYSSEY}}</noinclude>father, who will find her a husband and provide her with all the marriage gifts so dear a daughter may expect. Till then we shall go on harassing him with our suit; for we fear no man, and care neither for him, with all his fine speeches, nor for any fortune-telling of yours. You may preach as much as you please, but we shall only hate you the more. We shall go back and continue to eat up Telemachus's estate without paying him, till such time as his mother leaves off tormenting us by keeping us day after day on the tip-toe of expectation, each vying with the other in his suit for a prize of such rare perfection. Besides we cannot go after the other women whom we should marry in due course, but for the way in which she treats us." 
+
+{{pline|208|l}}Then Telemachus said, "Eurymachus, and you other suitors, I shall say no more, and entreat you no further, for the gods and the people of Ithaca now know my story. Give me, then, a ship and a crew of twenty men to take me hither and thither, and I will go to Sparta and to Pylos in quest of my father who has so long been missing. Some one may tell me something, or (and people often hear things in this way) some heaven-sent message may direct me. If I can hear of him as alive and on his way home, I will put up with the waste you suitors will make for yet another twelve months. If on the other hand I hear of his death, I will return at once, celebrate his funeral rites with all due pomp, build a barrow to his memory, and make my mother marry again."
+
+{{pline|224|l}}With these words he sat down, and Mentor<ref>cf. Il. II. 76. {{polytonic|ἦ τοι ὅ ὧς εἰπὼν κατ᾽ ἄρ᾽ ἕζετο τοῖσι δ᾽ ἀνέστη}}<br />
+{{gap|6em}}{{polytonic|Νέστωρ, ὅς ῥα}}{{...|27}}<br />
+{{gap|6em}}{{polytonic|ὅ σφιν ἐὺ φρονέων ἀγορήσατο καὶ μετέειπεν}}.
+<P>The Odyssean passage runs—<br />
+{{fqm|gap=4em}}{{polytonic|ἦ τοι ὅ γ᾽ ὧς εἰπὼν κατ᾽ ἄρ᾽ ἕζετο τοῖσι δ᾽ ἀνέστη}}<br />
+{{gap|4em}}{{polytonic|Μεντωρ ὅς ῥ᾽}}{{...|30}}<br />
+{{gap|4em}}{{...|41}}<br />
+{{gap|4em}}{{polytonic|ὅ σφιν ἐὺ φρονέων ἀγορήσατο καὶ μετέειπεν}}."</P>
+<P>Is it possible not to suspect that the name Mentor was coined upon that of Mestor?</P></ref> who had been a friend of Ulysses, and had been left in charge of everything<noinclude>{{rule}}
+{{smallrefs}}</noinclude>

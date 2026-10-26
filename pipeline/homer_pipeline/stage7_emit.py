@@ -897,9 +897,13 @@ def run(manifest: Manifest) -> Path:
             if src.exists():
                 shutil.copy(src, out_dir / "footnotes.json")
     # Overlay translations' notes (the Kosmos revision of Butler, keyed
-    # "kosmos.<book>.<n>") join the same footnotes.json the popup reads.
-    overlay_footnotes_path = BUILD_DIR / "stage1" / "overlay_footnotes.json"
-    if overlay_footnotes_path.exists():
+    # "kosmos.<book>.<n>"; Butler's own Odyssey notes, "butler.<book>.<n>",
+    # from stage1_butler_wikisource) join the same footnotes.json the popup
+    # reads.
+    for name in ("overlay_footnotes.json", "butler_footnotes.json"):
+        overlay_footnotes_path = BUILD_DIR / "stage1" / name
+        if not overlay_footnotes_path.exists():
+            continue
         extra = json.loads(overlay_footnotes_path.read_text(encoding="utf-8"))
         if extra:
             fn_out = out_dir / "footnotes.json"

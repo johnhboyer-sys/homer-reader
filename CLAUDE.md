@@ -33,6 +33,21 @@ non-negotiable.
   toggle may hide the brackets); no corrections or trimming. CC texts live on
   their own preflight list with license + attribution, never on
   `public_domain_translations.yaml`.
+- **The Butler slot is Butler's own text, notes kept (John, 2026-10-26).**
+  Perseus `*-eng4.xml` is the Power–Nagy *revision* (header says so; Greek
+  names, ~500 bracketed glosses) and is NOT Butler — a reader caught it on X.
+  Source the real 1898/1900 text (`sources/butler/`, provenance in
+  `sources/INVENTORY.md`); keep Butler's own footnotes. PG #2199 carries none,
+  so check a scan-backed source (Wikisource) for notes before calling it done.
+  Decisions (John, 2026-10-26): ship the Odyssey (Wikisource scan, complete)
+  first; then fill Iliad XIV.487-XXIV from Gutenberg #2199's words with
+  Perseus milestones at paragraph starts (rule tested on Books III-XIII
+  first), the missing notes marked missing, not hidden. Apply BOTH Butler's
+  own corrigenda (`{{errata}}`) and the transcribers' `{{SIC}}` fixes, each
+  listed. The Power–Nagy revision leaves the site (John, same day: Kosmos is
+  its finished form, 83-86% the same wording); its Perseus files stay in
+  `sources/perseus/` only as the source of Iliad XV-XXIV line markers.
+  Details: `sources/INVENTORY.md` (butler/).
 - **Vulgate lineation is sacred.** Never renumber. Numbering gaps and
   bracketed/athetized lines are preserved verbatim; a verifier asserts monotonic
   numbering with recorded, expected gaps per book.

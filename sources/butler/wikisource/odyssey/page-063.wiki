@@ -1,0 +1,8 @@
+<noinclude><pagequality level="4" user="Jasonanaggie" /></noinclude>{{block center|
+[[File:Odyssey (Butler) Courtyard at Selinunte A.png|center|480px]]
+{{c|{{smaller|COURTYARD AT SELINUNTE.}}}}
+{{dhr}}
+[[File:Odyssey (Butler) Courtyard at Selinunte B.png|center|480px]]
+{{c|{{smaller|COURTYARD AT SELINUNTE.}}}}
+{{fine|(''To face p''. 38).}}}}
+{{nop}}<noinclude></noinclude>

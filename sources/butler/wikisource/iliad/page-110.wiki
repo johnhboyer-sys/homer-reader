@@ -1,0 +1,12 @@
+<noinclude><pagequality level="3" user="Prosody" /></noinclude>{{dhr}}
+{{c|{{larger|BOOK VI}}}}
+
+{{smaller block|{{c|Glaucus and Diomed—The story of Bellerophon—Hector and Andromache.}}}}
+
+{{sc|The}} fight between Trojans and Achæans was now left to rage as it would, and the tide of war surged hither and thither over the plain as they aimed their bronze-shod spears at one another between the streams of Simois and Xanthus.
+
+{{pline|5|l}}First, Ajax son of Telamon, tower of strength to the Achæans, broke a phalanx of the Trojans, and came to the assistance of his comrades by killing Acamas son of Eussorus, the best man among the Thracians, being both brave and of great stature. The spear struck the projecting peak of his helmet: its bronze point then went through his forehead into the brain, and darkness veiled his eyes.
+
+{{pline|12|l}}Then Diomed killed Axylus son of Teuthranus, a rich man who lived in the strong city of Arisbe, and was beloved by all men; for he had a house by the roadside, and entertained every one who passed; howbeit not one of his guests stood before him to save his life, and Diomed killed both him and his squire Calesius, who was then his charioteer—so the pair passed beneath the earth.
+
+{{pline|20|l}}Euryalus killed Dresus and Opheltius, and then went in pursuit of Æsepus and Pedasus, whom the naiad nymph Abarbarea had borne to noble Bucolion. Bucolion was eldest son to Laomedon, but he was a bastard. While tending his sheep he had converse with the nymph, and she conceived twin sons; these the son of Mecisteus now slew, and he stripped the armour from their shoulders.<noinclude>{{c|{{smaller|90}}}}</noinclude>

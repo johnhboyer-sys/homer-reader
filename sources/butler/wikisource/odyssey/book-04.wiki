@@ -1,0 +1,26 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book IV
+ | previous   = [[../Book III|Book III]]
+ | next       = [[../Book V|Book V]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book IV.
+    | filename = Odyssey 04 homer butler.ogg
+    | filesize = 21.86 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=65 to=87 />
+
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/δ]]
+[[es:Odisea: Canto IV]]
+[[fr:Odyssée-4]]
+[[fr:L'Odyssée-4]]
+[[it:Odissea/Libro IV]]
+[[ru:Одиссея/Песнь четвёртая]]

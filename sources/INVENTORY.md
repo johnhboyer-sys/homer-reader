@@ -38,6 +38,72 @@ are eng3/eng4 (verified via __cts__.xml). Attribute Perseus on the About page.
   (1725–26; Odyssey co-authored with Broome/Fenton — translation note must
   disclose, per PROMPT.md).
 
+## butler/ — Samuel Butler's own translations, unrevised (PD)
+
+Added 2026-10-26. The `perseus/*-eng4.xml` files the site has shown as "Butler"
+are NOT Butler's text: their TEI headers read "Revised edition… Revised by
+Timothy Power, Gregory Nagy" (Latin names → Greek, ~500 bracketed Greek glosses
+per work). Reader report on X, same day: Od. 1.1 should read "that ingenious
+hero", not "that many-sided hero". These files are the replacement source.
+
+| File | Content | Source | SHA-256 |
+|---|---|---|---|
+| butler-iliad.txt | Iliad, Samuel Butler (1898), PG #2199, verbatim incl. PG header/licence | GITenberg/the-iliad_2199 @ f12180f6 (2018-10-21), `2199.txt` | 5d38105365b7c13918244b52d067e06ebd095c74eb18f6fcf99abb16748cbe33 |
+| wikisource/iliad/page-NNN.wiki | Iliad, Butler (1898), raw wikitext of the scan-backed Page: transcriptions, scan pp. 21-256 = Books I-XIII complete, XIV to l. 486 | https://en.wikisource.org/wiki/Index:The_Iliad_of_Homer_(Butler).djvu, fetched 2026-10-26 via `index.php?action=raw` | per file in `wikisource/iliad/MANIFEST.tsv` |
+| wikisource/odyssey/page-NNN.wiki + book-NN.wiki | Odyssey, Butler (1900), raw wikitext of scan pp. 25-359 (all 24 books; 230 proofread, 99 validated, 6 blank plates) + each book's `<pages>` wrapper (page ranges, excluded plates, `fromsection`/`tosection` splits) | https://en.wikisource.org/wiki/Index:The_Odyssey_(Butler).djvu, fetched 2026-10-26 via `index.php?action=raw` | per file in `wikisource/odyssey/MANIFEST.tsv` |
+
+Checks on butler-iliad.txt: "Ulysses" 128, "Jove" 475, "Minerva" 162, "Juno"
+124, "Odysseus" 0 (the Power–Nagy file: 0 / 0 / 0 / 0 / 124). One "Zeus" (Il.
+18, "Now, however, Zeus") is Butler's own and stays. The GITenberg copy dates
+from 2018; cross-check it against current PG #2199 or Wikisource *The Iliad
+(Butler)* once either host is reachable.
+
+Wikisource (2026-10-26). Both scans carry Butler's own MARGINAL GREEK LINE
+NUMBERS (`{{pline|N|l}}`, one per paragraph), so the English aligns to the
+Greek from Butler's own numbers, not borrowed Perseus milestones; misprints in
+them are listed in `pline-errata.yaml`. Footnotes are `<ref>` (Iliad: 16 in
+Books I-XIV; Odyssey: 207). Each page's header (`<noinclude>`) records its
+proofreading level (3 proofread, 4 validated, 1 not proofread) and last
+proofreader; MANIFEST.tsv lists both with each file's SHA-256. Revision ids
+are NOT recorded: the Wikimedia API answers 429 from the cloud session's
+shared egress, and action=raw carries none — the checksum + fetch date pin
+the text instead. Iliad coverage gap: scan pp. 257-440 (Books XIV l. 487 to
+XXIV) have no transcription on Wikisource; its main-namespace Iliad text is
+NOT scan-backed and is edited (Il. 1.1 "rage" for Butler's "anger"), so it
+is not a source. Scan pp. 247-254 (Book XIV) are level 1, not proofread.
+
+Odyssey checks (2026-10-26): assembling the raw pages through the book
+wrappers reproduces the assembled Wikisource book pages' line numbers
+exactly, all 24 books (1,028). Footnotes reconcile: raw `<ref follow=…>` is
+the continuation of a note across a page break (same note); the assembled
+pages' extra list items are Wikisource's corrigenda, not Butler's notes.
+
+Corrections in the wikitext — John, 2026-10-26: apply the corrected reading
+for BOTH `{{errata}}` and `{{SIC}}`, and list every change applied:
+- `{{errata|printed|corrected|…#Corrigenda}}` (Odyssey 8): from the 1900
+  book's OWN corrigenda list — Butler's intended text.
+- `{{SIC|printed|correct}}` (25 across both works): typos flagged by
+  Wikisource transcribers, printed text left showing ("glitering", Greek
+  accents in notes, a cross-reference "225" for 325).
+  One exception (pending John's confirmation, 2026-10-26): Od. 9.408,
+  "Noman is killing me by fraud; no man is killing me by force", keeps
+  Butler's lowercase "no man", which renders the pun in οὐδὲ βίηφιν
+  (`SIC_KEEP_PRINTED` in `stage1_butler_wikisource.py`).
+- `{{Tooltip|…|This sentence continues in Book N.}}`: Butler's book divisions
+  split a few sentences from the Greek's; alignment must expect it.
+
+Power–Nagy revision (Perseus `*-eng4.xml`) — John, 2026-10-26: dropped from
+the site once real Butler is in. Measured on Book 1: it keeps 81% (Od.) of
+Butler's words in order, Kosmos 76%, and the two revisions share 83-86% of
+their wording; Kosmos is the finished form of the same work. The files stay
+here as the source of Perseus line markers for Iliad XIV.487-XXIV only.
+
+Notes: John, 2026-10-26 — keep Butler's own footnotes. butler-iliad.txt has
+NONE (no markers or note blocks in the .txt; the PG HTML has only an unused
+`P.footnote` style), so if the 1898 printing carried notes, this transcription
+dropped them. Check Wikisource (scan-backed) for both works before the
+pipeline lane treats this file as complete.
+
 ## kosmos/ — Kosmos Society (Center for Hellenic Studies), fetched 2026-09-12 (CC BY-NC-ND 3.0)
 
 Samuel Butler's translation revised by Soo-Young Kim, Kelly McCray, Gregory

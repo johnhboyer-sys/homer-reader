@@ -1,0 +1,25 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XV
+ | previous   = [[../Book XIV|Book XIV]]
+ | next       = [[../Book XVI|Book XVI]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XV.
+    | filename = Odyssey 15 homer butler.ogg
+    | filesize = 16.93 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=228 to=242 />
+
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/ο]]
+[[es:Odisea: Canto XV]]
+[[fr:L’Odyssée/15]]
+[[it:Odissea/Libro XV]]
+[[ru:Одиссея/Песнь пятнадцатая]]

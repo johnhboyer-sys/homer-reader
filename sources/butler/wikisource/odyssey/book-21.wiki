@@ -1,0 +1,25 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XXI
+ | previous   = [[../Book XX|Book XX]]
+ | next       = [[../Book XXII|Book XXII]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XXI.
+    | filename = Odyssey 21 homer butler.ogg
+    | filesize = 15.43 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=310 to=321 />
+
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/φ]]
+[[es:Odisea: Canto XXI]]
+[[fr:L’Odyssée/21]]
+[[it:Odissea/Libro XXI]]
+[[ru:Одиссея/Песнь двадцать первая]]

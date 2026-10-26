@@ -1,0 +1,29 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XI
+ | previous   = [[../Book X|Book X]]
+ | next       = [[../Book XII|Book XII]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XI.
+    | filename = Odyssey 11 homer butler.ogg
+    | filesize = 22.14 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=173 to=188 />
+
+{{rule}}
+{{smallrefs}}
+
+
+{{smaller|Corrigendum:}}
+{{smallrefs|group="errata"}}
+
+[[el:Οδύσσεια/λ]]
+[[es:Odisea: Canto XI]]
+[[fr:L’Odyssée/11]]
+[[it:Odissea/Libro XI]]
+[[ru:Одиссея/Песнь одиннадцатая]]

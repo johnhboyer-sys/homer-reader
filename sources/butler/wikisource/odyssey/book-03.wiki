@@ -1,0 +1,28 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book III
+ | previous   = [[../Book II|Book II]]
+ | next       = [[../Book IV|Book IV]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book III.
+    | filename = Odyssey 03 homer butler.ogg
+    | filesize = 14.27 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=49 to=62 />
+{{page break|label=}}
+<pages index="The Odyssey (Butler).djvu" include=63 />
+{{page break|label=}}
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/γ]]
+[[es:Odisea: Canto III]]
+[[fr:Odyssée-3]]
+[[fr:L'Odyssée-3]]
+[[it:Odissea/Libro III]]
+[[ru:Одиссея/Песнь третья]]

@@ -1,0 +1,29 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XIX
+ | previous   = [[../Book XVIII|Book XVIII]]
+ | next       = [[../Book XX|Book XX]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XIX.
+    | filename = Odyssey 19 homer butler.ogg
+    | filesize = 16.82 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=282 to=289 tosection="s1" exclude="287,288" />
+{{page break|label=}}
+<pages index="The Odyssey (Butler).djvu" include=288 />
+{{page break|label=}}
+<pages index="The Odyssey (Butler).djvu" from=289 to=298 fromsection="s2" />
+
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/τ]]
+[[es:Odisea: Canto XIX]]
+[[fr:L’Odyssée/19]]
+[[it:Odissea/Libro XIX]]
+[[ru:Одиссея/Песнь девятнадцатая]]

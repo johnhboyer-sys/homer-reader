@@ -1,0 +1,25 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XXIV
+ | previous   = [[../Book XXIII|Book XXIII]]
+ | next       = [[../Appendix/]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XXIV.
+    | filename = Odyssey 24 homer butler.ogg
+    | filesize = 22.42 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=346 to=359 />
+
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/ω]]
+[[es:Odisea: Canto XXIV]]
+[[fr:L’Odyssée/24]]
+[[it:Odissea/Libro XXIV]]
+[[ru:Одиссея/Песнь двадцать четвёртая]]

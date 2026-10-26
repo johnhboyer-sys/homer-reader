@@ -203,7 +203,7 @@ export const WORKS: Work[] = [
     greekSource: PERSEUS_GREEK_SOURCE,
     translations: [
       { id: 'murray', name: 'A. T. Murray (Loeb, 1919)', short: 'Murray', slot: 'english', footnotes: true },
-      { id: 'butler', name: 'Samuel Butler (1900)', short: 'Butler', slot: 'ross' },
+      { id: 'butler', name: 'Samuel Butler (1900)', short: 'Butler', slot: 'ross', footnotes: true },
       { id: 'pope', name: 'Alexander Pope (literary translation, scene-aligned), 1725–26', short: 'Pope', slot: 'third', curatedTicks: true },
       { id: 'kosmos', name: 'Samuel Butler, revised by Kim, McCray, Nagy and Power (Kosmos Society, CC BY-NC-ND 3.0)', short: 'Kosmos', slot: 'overlay', footnotes: true, verseGroups: true, licence: { ...KOSMOS_LICENCE, source: 'https://kosmossociety.org/homeric-odyssey/' } },
     ],

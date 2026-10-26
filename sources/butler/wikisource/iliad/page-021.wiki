@@ -1,0 +1,13 @@
+<noinclude><pagequality level="4" user="Prosody" /></noinclude>{{dhr}}
+{{c|{{xx-larger|THE ILIAD OF HOMER}}
+{{dhr}}
+{{larger|BOOK I}}}}
+
+{{smaller block|{{hi|The quarrel between Agamemnon and Achilles—Achilles withdraws from the war, and sends his mother Thetis to ask Jove to help the Trojans—Scene between Jove and Juno on Olympus.}}}}
+
+{{sc|Sing}}, O goddess, the anger of Achilles son of Peleus, that brought countless ills upon the Achæans. Many a brave soul did it send hurrying down to Hades, and many a hero did it yield a prey to dogs and vultures, for so were the counsels of Jove fulfilled from the day on which the son of Atreus, king of men, and great Achilles, first fell out with one another.
+
+{{pline|8|l}}And which of the gods was it that set them on to quarrel? It was the son of Jove and Leto; for he was angry with the king and sent a pestilence upon the host to plague the people, because the son of Atreus had dishonoured Chryses his priest. Now Chryses had come to the ships of the Achæans to free his daughter, and had brought with him a great ransom: moreover he bore in his hand the sceptre of Apollo wreathed with a suppliant’s wreath, and he besought the Achæans, but most of all the two sons of Atreus, who were their chiefs.
+
+{{pline|17|l}}“Sons of Atreus,” he cried, “and all other Achæans, may the gods who dwell in Olympus grant you to sack the city of Priam, and to reach your homes in safety; but free my daughter, and accept a ransom for her, in reverence to Apollo, son of Jove.”
+{{nop}}<noinclude>{{rh|||A}}</noinclude>

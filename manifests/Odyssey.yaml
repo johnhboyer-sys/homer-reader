@@ -19,9 +19,9 @@ work:
 citation:
   scheme: verse-line
 
-# Phase 2: both translations come from the vendored Perseus TEI, aligned to
-# the Greek spine by their own <milestone unit="line"> anchors (Murray ~every
-# 5 lines with inline Loeb <note> footnotes; Butler sparser, ~10-15 lines).
+# Phase 2: Murray comes from the vendored Perseus TEI, aligned to the Greek
+# spine by its own <milestone unit="line"> anchors (~every 5 lines, with
+# inline Loeb <note> footnotes); Butler, see below.
 # `source` is a path under sources/. Murray fills the primary 'english' reader
 # slot; Butler fills the 'ross' overlay slot (see shared/lib/works.ts).
 english:
@@ -29,10 +29,15 @@ english:
     id: murray
     name: "A. T. Murray (Loeb, 1919)"
     source: "perseus/tlg0012.tlg002.perseus-eng3.xml"
+  # Butler is Butler's own 1900 text (John, 2026-10-26), read from the
+  # Wikisource scan transcription and aligned by Butler's own printed
+  # marginal line numbers (stage1_butler_wikisource) — not the Perseus
+  # eng4 file, which is the Power–Nagy revision.
   secondary:
     id: butler
+    model: wikisource
     name: "Samuel Butler (1900)"
-    source: "perseus/tlg0012.tlg002.perseus-eng4.xml"
+    source: "butler/wikisource/odyssey"
   # Phase 3: Pope's verse translation (Project Gutenberg #3160 plaintext),
   # 'third' overlay slot. Book-anchored only, not proportionally aligned
   # within a book — see stage1_pope.py's module docstring for the measured

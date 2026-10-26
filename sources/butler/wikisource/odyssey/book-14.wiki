@@ -1,0 +1,25 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XIV
+ | previous   = [[../Book XIII|Book XIII]]
+ | next       = [[../Book XV|Book XV]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XIV.
+    | filename = Odyssey 14 homer butler.ogg
+    | filesize = 17.75 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=215 to=227 />
+
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/ξ]]
+[[es:Odisea: Canto XIV]]
+[[fr:L’Odyssée/14]]
+[[it:Odissea/Libro XIV]]
+[[ru:Одиссея/Песнь четырнадцатая]]

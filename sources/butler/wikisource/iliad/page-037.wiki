@@ -1,0 +1,10 @@
+<noinclude><pagequality level="4" user="Prosody" /></noinclude>{{dhr}}
+{{c|{{larger|BOOK II}}}}
+
+{{hi|{{smaller block|Jove sends a lying dream to Agamemnon, who thereon calls the chiefs in assembly, and proposes to sound the mind of his army—In the end they march to fight—Catalogue of the Achæan and Trojan forces.}}}}
+
+{{sc|Now}} the other gods and the armed warriors on the plain slept soundly, but Jove was wakeful, for he was {{SIC|thinkiug|thinking}} how to do honour to Achilles, and destroy much people at the ships of the Achæans. In the end he deemed it would be best to send a lying dream to King Agamemnon; so he called one to him {{SIC|aud|and}} said to it, "Lying Dream, go to the ships of the Achæans, into the tent of Agamemnon, and say to him word for word as I now bid you. Tell him to get the Achæans instantly under arms, for he shall take Troy. There are no longer divided counsels among the gods; Juno has brought them to her own mind, and woe betides the Trojans."
+
+{{pline|16|l}}The dream went when it had heard its message, and soon reached the ships of the Achæans. It sought Agamemnon son of Atreus and found him in his tent, wrapped in a profound slumber. It hovered over his head in the likeness of Nestor, son of Neleus, whom Agamemnon honoured above all his councillors, and said:—
+
+{{pline|23|l}}"You are sleeping, son of Atreus; one who has the welfare of his host and so much other care upon his shoulders should dock his sleep. Hear me at once, for I come as a messenger from Jove, who, though he be not near, yet takes thought for you and pities you. He bids you get the Achæans instantly under arms, for you shall take Troy. There are no longer divided counsels among the gods; Juno has brought them over to her own mind, and woe betides the<noinclude>{{rh||17|B}}</noinclude>

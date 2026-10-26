@@ -1,0 +1,11 @@
+<noinclude><pagequality level="4" user="Jasonanaggie" /></noinclude>{{block center|width=480px|
+[[File:Odyssey (Butler) Map of the Aegadean Islands.png|center|480px]]
+{{right|{{x-smaller|''Walker & Boutall sc''.}}}}
+{{c|{{smaller|MAP OF THE ÆGADEAN, OR "GOAT" ISLANDS—FROM WHICH THE AUTHORESS IS REALLY DRAWING, AND IN RESPECT OF WHICH SHE IS ACCURATE. MARETTIMO WAS, FOR HER, ITHACA, AND THE ISOLA GRANDE, DULICHIUM—WHICH MEANS LONG AND NARROW.}}}}
+{{dhr}}
+[[File:Odyssey (Butler) Map of the Ionian Islands.png|center|480px]]
+{{right|{{x-smaller|''Walker & Boutall sc''.}}}}
+{{c|{{smaller|MAP OF THE IONIAN ISLANDS, WHICH THE AUTHORESS PROFESSES TO BE DESCRIBING BUT DOES NOT DESCRIBE.}}}}
+{{fine|(''To face p''. 108).}}
+}}
+{{nop}}<noinclude></noinclude>
