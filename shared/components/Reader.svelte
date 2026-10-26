@@ -3913,9 +3913,14 @@
                  speech rail, audio, meter and footnotes behave identically.
                  Compare mode keeps its existing (pre-existing, out of scope)
                  phone stacking; busse/sidenotes/figs don't apply to epicVerse
-                 works. -->
+                 works. Groups are cut from the CHOSEN translation's own flow
+                 (2026-10-26: block.flow here showed Murray under a Butler or
+                 Pope label), with the same speech-snap rule Reading Mode
+                 applies — trans is never 'compare' in this branch, so
+                 readingTransCuratedTicks describes it. -->
+            {@const stackFlow = trans === engSlot?.id ? block.flow : (block.oflows[trans] ?? [])}
             <div class="seg-row stacked-both" data-chapter={block.currentChapter}>
-              {#each alignGroups(block.lines, block.flow, bookSpeechStarts) as group, gi (gi)}
+              {#each alignGroups(block.lines, stackFlow, readingTransCuratedTicks ? [] : bookSpeechStarts) as group, gi (gi)}
                 <div class="align-group">
                   <div class="greek-col" lang="grc">
                     {@render greekLinesRender(seg, group.lines)}
