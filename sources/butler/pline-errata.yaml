@@ -1,0 +1,25 @@
+# Butler's printed marginal line numbers ({{pline}} on Wikisource) that are
+# misprints in the printed book itself, not transcription slips: the scan pages
+# below show them as printed (p. 76 validated by two proofreaders; p. 232 the
+# transcriber gave the repeat an id= to keep two identical numbers apart).
+# The source files stay verbatim; the alignment stage applies these, matched by
+# work + book + printed number + occurrence (1-based, in book order).
+# Each fix is checked against the Greek (sources/perseus/*-grc2.xml).
+
+odyssey:
+  - book: 4
+    printed: 245
+    occurrence: 1
+    correct: 425
+    scan_page: "Page:The Odyssey (Butler).djvu/76"
+    english: "Having so said she dived under the waves"
+    greek: "4.425 ὣς εἰποῦσʼ ὑπὸ πόντον ἐδύσετο κυμαίνοντα."
+    why: "Sits between 411 and 431; transposed digits."
+  - book: 15
+    printed: 169
+    occurrence: 2
+    correct: 179
+    scan_page: "Page:The Odyssey (Butler).djvu/232"
+    english: "\"May Jove so grant it,\" replied Telemachus"
+    greek: "15.179 τὴν δʼ αὖ Τηλέμαχος πεπνυμένος ἀντίον ηὔδα·"
+    why: "Second 169 in a row, before 182; 6 printed for 7."
