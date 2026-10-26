@@ -1,0 +1,29 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book X
+ | previous   = [[../Book IX|Book IX]]
+ | next       = [[../Book XI|Book XI]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book X.
+    | filename = Odyssey 10 homer butler.ogg
+    | filesize = 19.58 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=158 to=172 />
+
+{{rule}}
+{{smallrefs}}
+
+
+{{smaller|Corrigendum:}}
+{{smallrefs|group="errata"}}
+
+[[el:Οδύσσεια/κ]]
+[[es:Odisea: Canto X]]
+[[fr:L’Odyssée/10]]
+[[it:Odissea/Libro X]]
+[[ru:Одиссея/Песнь десятая]]

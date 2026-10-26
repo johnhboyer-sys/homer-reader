@@ -1,0 +1,25 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XVII
+ | previous   = [[../Book XVI|Book XVI]]
+ | next       = [[../Book XVIII|Book XVIII]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XVII.
+    | filename = Odyssey 17 homer butler.ogg
+    | filesize = 17.42 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=255 to=270 />
+
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/ρ]]
+[[es:Odisea: Canto XVII]]
+[[fr:L’Odyssée/17]]
+[[it:Odissea/Libro XVII]]
+[[ru:Одиссея/Песнь семнадцатая]]

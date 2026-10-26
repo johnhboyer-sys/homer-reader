@@ -1,0 +1,29 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XIII
+ | previous   = [[../Book XII|Book XII]]
+ | next       = [[../Book XIV|Book XIV]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XIII.
+    | filename = Odyssey 13 homer butler.ogg
+    | filesize = 13.94 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=202 to=214 />
+
+{{rule}}
+{{smallrefs}}
+
+
+{{smaller block|Corrigendum:
+: 1. ↑ Original: I venture was amended to "I venture: [[The Odyssey (Butler)#Corrigenda|detail]]}}<!-- This correction is nested within a footnote, and is thus more work to code properly than is worth doing for such a minor correction, namely the addition of opening quotes (inverted commas).
+
+[[el:Οδύσσεια/ν]]
+[[es:Odisea: Canto XIII]]
+[[fr:L’Odyssée/13]]
+[[it:Odissea/Libro XIII]]
+[[ru:Одиссея/Песнь тринадцатая]]

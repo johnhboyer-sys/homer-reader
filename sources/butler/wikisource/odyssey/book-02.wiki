@@ -1,0 +1,30 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book II
+ | previous   = [[../Book I|Book I]]
+ | next       = [[../Book III|Book III]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book II.
+    | filename = Odyssey 02 homer butler.ogg
+    | filesize = 13.08 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=37 to=48 />
+
+{{rule}}
+{{smallrefs}}
+
+
+{{smaller|Corrigendum:}}
+{{smallrefs|group="errata"}}
+
+[[el:Οδύσσεια/β]]
+[[es:Odisea: Canto II]]
+[[fr:Odyssée-2]]
+[[fr:L'Odyssée-2]]
+[[it:Odissea/Libro II]]
+[[ru:Одиссея/Песнь вторая]]

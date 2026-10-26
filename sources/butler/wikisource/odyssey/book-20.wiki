@@ -1,0 +1,25 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XX
+ | previous   = [[../Book XIX|Book XIX]]
+ | next       = [[../Book XXI|Book XXI]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XX.
+    | filename = Odyssey 20 homer butler.ogg
+    | filesize = 10.90 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=299 to=309 />
+
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/υ]]
+[[es:Odisea: Canto XX]]
+[[fr:L’Odyssée/20]]
+[[it:Odissea/Libro XX]]
+[[ru:Одиссея/Песнь двадцатая]]

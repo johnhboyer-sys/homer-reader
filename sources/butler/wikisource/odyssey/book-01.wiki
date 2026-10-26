@@ -1,0 +1,31 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book I
+ | previous   = [[../|Contents]]
+ | next       = [[../Book II/]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book I.
+    | filename = Odyssey 01 homer butler.ogg
+    | filesize = 12.81 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=25 to=36 />
+
+{{rule}}
+{{smallrefs}}
+
+
+{{smaller|Corrigendum:}}
+{{smallrefs|group="errata"}}
+
+[[el:Οδύσσεια/α]]
+[[es:Odisea: Canto I]]
+[[fr:Odyssée-1]]
+[[fr:L'Odyssée-1]]
+[[it:Odissea/Libro I]]
+[[ru:Одиссея/Песнь первая]]
+[[uk:Одіссея Пісня 1]]

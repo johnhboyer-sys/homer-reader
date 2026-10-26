@@ -1,0 +1,26 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book VII
+ | previous   = [[../Book VI|Book VI]]
+ | next       = [[../Book VIII|Book VIII]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book VII.
+    | filename = Odyssey 07 homer butler.ogg
+    | filesize = 10.33 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=113 to=122 />
+
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/η]]
+[[es:Odisea: Canto VII]]
+[[fr:Odyssée-7]]
+[[fr:L'Odyssée-7]]
+[[it:Odissea/Libro VII]]
+[[ru:Одиссея/Песнь седьмая]]

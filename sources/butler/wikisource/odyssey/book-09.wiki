@@ -1,0 +1,33 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book IX
+ | previous   = [[../Book VIII|Book VIII]]
+ | next       = [[../Book X|Book X]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book IX.
+    | filename = Odyssey 09 homer butler.ogg
+    | filesize = 21.29 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=138 to=141 tosection="s1" exclude="139, 140" />
+{{page break|label=}}
+<pages index="The Odyssey (Butler).djvu" include=139 />
+{{page break|label=}}
+<pages index="The Odyssey (Butler).djvu" from=141 fromsection="s2" to=147 tosection="s1" exclude="145, 146" />
+{{page break|label=}}
+<pages index="The Odyssey (Butler).djvu" include=146 />
+{{page break|label=}}
+<pages index="The Odyssey (Butler).djvu" from=147 fromsection="s2" to=157 />
+
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/ι]]
+[[es:Odisea: Canto IX]]
+[[fr:L’Odyssée/9]]
+[[it:Odissea/Libro IX]]
+[[ru:Одиссея/Песнь девятая]]

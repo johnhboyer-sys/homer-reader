@@ -1,0 +1,30 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book VIII
+ | previous   = [[../Book VII|Book VII]]
+ | next       = [[../Book IX|Book IX]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book VIII.
+    | filename = Odyssey 08 homer butler.ogg
+    | filesize = 14.91 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=123 to=137 />
+
+{{rule}}
+{{smallrefs}}
+
+
+{{smaller|Corrigendum:}}
+{{smallrefs|group="errata"}}
+
+[[el:Οδύσσεια/θ]]
+[[es:Odisea: Canto VIII]]
+[[fr:Odyssée-8]]
+[[fr:L'Odyssée-8]]
+[[it:Odissea/Libro VIII]]
+[[ru:Одиссея/Песнь восьмая]]

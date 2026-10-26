@@ -1,0 +1,25 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book XXII
+ | previous   = [[../Book XXI|Book XXI]]
+ | next       = [[../Book XXIII|Book XXIII]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book XXII.
+    | filename = Odyssey 22 homer butler.ogg
+    | filesize = 17.38 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=322 to=335 />
+
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/χ]]
+[[es:Odisea: Canto XXII]]
+[[fr:L’Odyssée/22]]
+[[it:Odissea/Libro XXII]]
+[[ru:Одиссея/Песнь двадцать вторая]]

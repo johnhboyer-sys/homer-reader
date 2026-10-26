@@ -1,0 +1,28 @@
+{{header
+ | title      = [[../|The Odyssey]]
+ | author     = Homer
+ | override_translator = [[Author:Samuel Butler (1835-1902)|Samuel Butler]]
+ | section    = Book VI
+ | previous   = [[../Book V|Book V]]
+ | next       = [[../Book VII|Book VII]]
+ | notes      = 
+   {{listen 
+    | title = Listen to Book VI.
+    | filename = Odyssey 06 homer butler.ogg
+    | filesize = 11.48 MB
+   }}
+}}{{default layout|Layout 2}}
+
+<pages index="The Odyssey (Butler).djvu" from=102 to=112 exclude="109, 110" />
+{{page break|label=}}
+<pages index="The Odyssey (Butler).djvu" include=109 />
+{{page break|label=}}
+{{rule}}
+{{smallrefs}}
+
+[[el:Οδύσσεια/ζ]]
+[[es:Odisea: Canto VI]]
+[[fr:Odyssée-6]]
+[[fr:L'Odyssée-6]]
+[[it:Odissea/Libro VI]]
+[[ru:Одиссея/Песнь шестая]]
