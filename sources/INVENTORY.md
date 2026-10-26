@@ -57,6 +57,12 @@ Checks on butler-iliad.txt: "Ulysses" 128, "Jove" 475, "Minerva" 162, "Juno"
 from 2018; cross-check it against current PG #2199 or Wikisource *The Iliad
 (Butler)* once either host is reachable.
 
+Notes: John, 2026-10-26 — keep Butler's own footnotes. butler-iliad.txt has
+NONE (no markers or note blocks in the .txt; the PG HTML has only an unused
+`P.footnote` style), so if the 1898 printing carried notes, this transcription
+dropped them. Check Wikisource (scan-backed) for both works before the
+pipeline lane treats this file as complete.
+
 ## kosmos/ — Kosmos Society (Center for Hellenic Studies), fetched 2026-09-12 (CC BY-NC-ND 3.0)
 
 Samuel Butler's translation revised by Soo-Young Kim, Kelly McCray, Gregory
