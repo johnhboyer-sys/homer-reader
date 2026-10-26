@@ -63,6 +63,7 @@ def _plain(text: str) -> str:
     """Independent reduction: corrections applied, templates to their last
     argument (layout ones to nothing), links to their label."""
     text = re.sub(r"\{\{errata\|[^{}|]*\|([^{}|]*)[^{}]*\}\}", r"\1", text)
+    text = text.replace("{{SIC|no man|Noman}}", "no man")      # declined (Od. 9.408)
     text = re.sub(r"\{\{(?:SIC|sic)\|[^{}|]*\|([^{}|]*)\}\}", r"\1", text)
     text = re.sub(r"\{\{(?:SIC|sic)\}\}", "", text)
     text = re.sub(r"\{\{Tooltip\|([^{}|]*)\|[^{}]*\}\}", r"\1", text)
@@ -193,7 +194,8 @@ def test_errata_and_sic_applied(parsed):
     raw = "".join((SRC / f"page-{p:03d}.wiki").read_text(encoding="utf-8")
                   for p in range(25, 360))
     assert len(log["errata"]) == len(re.findall(r"\{\{errata\|", raw)) == 8
-    assert len(log["sic"]) == len(re.findall(r"\{\{(?:SIC|sic)\|", raw)) == 15
+    assert len(log["sic"]) + len(log["sic_declined"]) == len(re.findall(r"\{\{(?:SIC|sic)\|", raw)) == 15
+    assert [(e["page"], e["printed"]) for e in log["sic_declined"]] == [(152, "no man")]
     assert len(log["sic_bare"]) == len(re.findall(r"\{\{(?:SIC|sic)\}\}", raw)) == 1
     assert len(log["tooltips"]) == len(re.findall(r"\{\{Tooltip\|", raw)) == 4
     assert [e["page"] for e in log["sic"] if e["in_plate"]] == [288]
@@ -202,7 +204,10 @@ def test_errata_and_sic_applied(parsed):
         where = r["text"] + "".join(html.unescape(v) for v in r["notes"].values())
         assert e["applied"] in where, e
     t9 = parsed["books"][9]["text"]
-    assert "Noman is killing me by fraud; Noman is killing me by force" in t9
+    # Od. 9.408: Butler's printed "no man" is his rendering of the Οὖτις /
+    # οὐδὲ βίηφιν play, not a misprint; the transcribers' {{SIC}} is declined
+    # (John, 2026-10-26).
+    assert "Noman is killing me by fraud; no man is killing me by force" in t9
     assert "deal rigorously with me" in parsed["books"][2]["text"]
 
 

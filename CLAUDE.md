@@ -44,7 +44,8 @@ non-negotiable.
   Perseus milestones at paragraph starts (rule tested on Books III-XIII
   first), the missing notes marked missing, not hidden. Apply BOTH Butler's
   own corrigenda (`{{errata}}`) and the transcribers' `{{SIC}}` fixes, each
-  listed. The Power–Nagy revision leaves the site (John, same day: Kosmos is
+  listed — except Od. 9.408, where Butler's "no man" is his rendering of the
+  Οὖτις pun and stays (John, same day; `DECLINED_SIC`). The Power–Nagy revision leaves the site (John, same day: Kosmos is
   its finished form, 83-86% the same wording); its Perseus files stay in
   `sources/perseus/` only as the source of Iliad XV-XXIV line markers.
   Details: `sources/INVENTORY.md` (butler/).

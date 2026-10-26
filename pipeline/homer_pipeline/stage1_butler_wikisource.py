@@ -44,7 +44,12 @@ Decisions, each one visible in ``butler_report.json``:
     reading is applied, both kinds (John, 2026-10-26), and every change is
     listed with its page (one ``{{SIC}}`` sits in a plate caption and leaves
     with its plate; it is listed ``in_plate``). A bare ``{{sic}}`` has no correction to apply; the
-    printed text stands and the flag is listed.
+    printed text stands and the flag is listed. One ``{{SIC}}`` is declined
+    (``DECLINED_SIC``, John, same day): at Od. 9.408 Butler printed "Noman is
+    killing me by fraud; no man is killing me by force", his rendering of the
+    Οὖτις / οὐδὲ βίηφιν play (the Cyclopes answer "if no man is attacking"),
+    which the transcribers flagged as a slip for "Noman". The printed reading
+    stands and is listed under ``sic_declined``.
   - ``{{Tooltip|text|note}}`` keeps ``text``; the notes say where Butler's
     book divisions split a sentence the Greek keeps whole, and are listed.
   - Each book opens with a heading ("BOOK I.") and Butler's one-line
@@ -168,6 +173,11 @@ def page_body(raw: str, fromsection: str | None, tosection: str | None) -> str:
     return _SECTION_TAG.sub("", body)
 
 
+# (page, printed, transcribers' correction) of {{SIC}} flags NOT applied: see
+# the module docstring.
+DECLINED_SIC = {(152, "no man", "Noman")}
+
+
 def _in_ref(body: str, pos: int) -> bool:
     before = body[:pos]
     return before.count("<ref") > before.count("</ref>")
@@ -185,6 +195,9 @@ def apply_corrections(body: str, page: int, book: int, log: dict, plate: bool = 
         return m.group(2)
 
     def sic(m):
+        if (page, m.group(1), m.group(2)) in DECLINED_SIC:
+            rec("sic_declined", m, m.group(1), m.group(1))
+            return m.group(1)
         rec("sic", m, m.group(1), m.group(2))
         return m.group(2)
 
@@ -493,7 +506,7 @@ def parse_book(src: Path, book: int, valid_lines: set[int], errata: list[dict],
 
 
 def _new_log() -> dict:
-    return {"errata": [], "sic": [], "sic_bare": [], "tooltips": [], "plates_dropped": [],
+    return {"errata": [], "sic": [], "sic_declined": [], "sic_bare": [], "tooltips": [], "plates_dropped": [],
             "note_continuations": [], "headings": {}, "arguments": {}, "argument_notes": [],
             "furniture_dropped": [], "prose_parabr_ignored": [], "prose_italics_dropped": 0,
             "pline_errata_applied": [], "anomalies": []}
@@ -550,6 +563,7 @@ def run(manifest: Manifest, spine: dict) -> dict:
         "argument_notes": len(log["argument_notes"]),
         "errata": len(log["errata"]),
         "sic": len(log["sic"]),
+        "sic_declined": len(log["sic_declined"]),
         "sic_bare": len(log["sic_bare"]),
         "pline_errata": len(log["pline_errata_applied"]),
         "plates_dropped": len(log["plates_dropped"]),

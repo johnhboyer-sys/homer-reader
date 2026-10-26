@@ -82,7 +82,8 @@ def _stage1(manifest):
                 print(f"  english ({eng['secondary']['id']}, wikisource): books={s['books']} "
                       f"plines={s['plines_distinct']} ticks={s['ticks']} "
                       f"footnotes={s['footnotes']} argument_notes={s['argument_notes']} "
-                      f"errata={s['errata']} sic={s['sic']} sic_bare={s['sic_bare']} "
+                      f"errata={s['errata']} sic={s['sic']} sic_declined={s['sic_declined']} "
+                      f"sic_bare={s['sic_bare']} "
                       f"pline_errata={s['pline_errata']} plates_dropped={s['plates_dropped']} "
                       f"anomalies={s['anomalies']}")
         else:
