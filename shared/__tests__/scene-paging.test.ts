@@ -316,6 +316,12 @@ describe('sentenceEndOffsets', () => {
     expect(text.slice(0, offsets[0])).toBe('He was braver than his father.[^1.9.1] ');
   });
 
+  it('treats terminator + closing quote + footnote marker + newline as a sentence end (real Butler 1900, Od. 23)', () => {
+    const text = 'continuing to protect her husband\'s property until he comes home."[^butler.23.3]\nThis was what they said';
+    const offsets = sentenceEndOffsets(text);
+    expect(text.slice(0, offsets[0])).toBe('continuing to protect her husband\'s property until he comes home."[^butler.23.3]\n');
+  });
+
   it('does not treat a footnote marker embedded mid-sentence (no terminator before it) as a boundary', () => {
     const text = 'From the time when[^1.1.1] first they parted in strife, the plan of Zeus was fulfilled.';
     expect(sentenceEndOffsets(text)).toEqual([text.length]);
@@ -816,7 +822,9 @@ describe('sentenceSnapScenePages — real Iliad 1 / Odyssey 9 data', () => {
       if (!loaded) return;
       const { chunks, scenes } = loaded;
       const pages = sentenceSnapScenePages(chunks, scenes, { applyHollowGuardrail: false });
-      const endsClean = (s: string) => !s.trim() || /[.?!]["'”’)]*$/.test(s.trimEnd());
+      // A page may end on a footnote marker after the terminator, as
+      // sentenceEndOffsets allows (Butler 1900: `home."[^butler.23.3]`).
+      const endsClean = (s: string) => !s.trim() || /[.?!]["'”’)]*(?:\[\^[^\]]*\])*$/.test(s.trimEnd());
       for (let i = 0; i < pages.length; i++) {
         const t = pages[i].flowParts.map((p) => p.text ?? '').join('');
         expect(endsClean(t), `${_label} scene ${i + 1} ends mid-sentence: "…${t.slice(-40)}"`).toBe(true);
@@ -1111,7 +1119,7 @@ describe('manual scene-boundary overrides (John, 2026-07-21)', () => {
     const pages = sentenceSnapScenePages(chunks, scenes, { boundaryOverrides });
     const scene2Text = pageTextOf(pages[1]).trim(); // scene 2 is index 1
     expect(scene2Text.endsWith(
-      'When she reached the suitors, she stood by one of the bearing-posts supporting the roof of the room, '
+      'When she reached the suitors, she stood by one of the bearing-posts supporting the roof of the cloister, '
       + 'holding a veil before her face, and with a maid on either side of her.',
     )).toBe(true);
     expect(scene2Text).not.toContain('Then she said');

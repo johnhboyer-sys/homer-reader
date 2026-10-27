@@ -1153,17 +1153,17 @@
     },
     {
       "book": 11,
-      "n": 628,
-      "anchor": "“Curious to view the kings of ancient days,",
-      "status": "verified",
-      "note": "Opus adjudication: Greek line 628 (but I abode there steadfastly, hoping some hero might yet come) begins here in Pope (“Resolved I stand”) right after Heracles departs at 627 (stalked away), so both contested anchors -- the Cerberus boast (~625) and Heracles first appearance (601) -- sit inside the prior scene span (568-627); the murrayOpening and the line number outrank the stale scene summary, which mislabels the encounter."
+      "n": 601,
+      "anchor": "“Now I the strength of Hercules behold,",
+      "status": "draft",
+      "note": "Scene ranges corrected 2026-10-27 (John): Heracles is his own scene, 601-627. Pope's paragraph opens on his first appearance (Greek 601, βίην Ἡρακληείην); his exit at 627 (“Thus he, nor deign'd for our reply to stay”) closes the scene."
     },
     {
       "book": 11,
-      "n": 636,
-      "anchor": "But swarms of spectres rose from deepest hell,",
+      "n": 628,
+      "anchor": "“Curious to view the kings of ancient days,",
       "status": "verified",
-      "note": "The countless throng of dead shrieking is the event that drives Odysseus to fear Persephone will loose the Gorgon, matching Murray's transition into 'lest... the head of the Gorgon' (anchor is mid-paragraph, not preceded by sentence-ending punctuation -- expected check5 warning)."
+      "note": "Opus adjudication: Greek line 628 (but I abode there steadfastly, hoping some hero might yet come) begins here in Pope (“Resolved I stand”) right after Heracles departs at 627 (stalked away). Since 2026-10-27 this opens the closing scene, 628-640; the old 636 anchor was dropped when that scene absorbed 628-635."
     },
     {
       "book": 12,
