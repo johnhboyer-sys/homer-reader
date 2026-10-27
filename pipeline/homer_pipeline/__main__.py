@@ -133,7 +133,8 @@ def _stage1(manifest):
     # left by a previous work's build so stage7 never emits a stale overlay. It
     # is rewritten below only when this work declares english.secondary.
     for scratch in ("ross_chunks.json", "third_chunks.json", "third_footnotes.json",
-                    "overlays.json", "overlay_footnotes.json", "kosmos_report.json"):
+                    "overlays.json", "overlay_footnotes.json", "kosmos_report.json",
+                    "butler_footnotes.json", "butler_report.json"):
         (BUILD_DIR / "stage1" / scratch).unlink(missing_ok=True)
 
     # Section-scheme works can opt into a parallel Perseus Stephanus TEI pass.

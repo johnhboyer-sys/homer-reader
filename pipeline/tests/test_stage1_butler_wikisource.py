@@ -240,11 +240,22 @@ def test_prose_round_trip(parsed):
 def test_notes_round_trip(parsed):
     for b, r in parsed["books"].items():
         src = "".join(_book_pages(b))
-        refs = [m.group(1) for m in re.finditer(r"<ref[^>]*>(.*?)</ref>", src, flags=re.S)]
-        out = "".join(html.unescape(re.sub(r"<[^>]+>", "", v)) for v in r["notes"].values())
-        out += "".join(html.unescape(re.sub(r"<[^>]+>", "", a["html"]))
-                       for a in parsed["log"]["argument_notes"] if a["book"] == b)
-        assert sorted(_squash(out)) == sorted(_squash(_plain("".join(refs)))), b
+        # One entry per note in source order; a follow= half joins its named note.
+        refs: list[str] = []
+        named: dict[str, int] = {}
+        for m in re.finditer(r"<ref(\s[^>]*)?>(.*?)</ref>", src, flags=re.S):
+            attrs = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1) or ""))
+            if "follow" in attrs:
+                refs[named[attrs["follow"]]] += m.group(2)
+                continue
+            if "name" in attrs:
+                named[attrs["name"]] = len(refs)
+            refs.append(m.group(2))
+        # The argument sits at the book's head, so its note comes first.
+        out = [html.unescape(re.sub(r"<[^>]+>", "", a["html"]))
+               for a in parsed["log"]["argument_notes"] if a["book"] == b]
+        out += [html.unescape(re.sub(r"<[^>]+>", "", v)) for v in r["notes"].values()]
+        assert [_squash(n) for n in out] == [_squash(_plain(n)) for n in refs], b
 
 
 def test_arguments_recorded_not_emitted(parsed):
