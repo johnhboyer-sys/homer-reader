@@ -40,13 +40,13 @@ non-negotiable.
   `sources/INVENTORY.md`); keep Butler's own footnotes. PG #2199 carries none,
   so check a scan-backed source (Wikisource) for notes before calling it done.
   Decisions (John, 2026-10-26): ship the Odyssey (Wikisource scan, complete)
-  first; then fill Iliad XIV.487-XXIV from Gutenberg #2199's words with
+  first; then fill Iliad XIV.486-XXIV (the scan transcription stops after 14.485) from Gutenberg #2199's words with
   Perseus milestones at paragraph starts (rule tested on Books III-XIII
   first), the missing notes marked missing, not hidden. Apply BOTH Butler's
   own corrigenda (`{{errata}}`) and the transcribers' `{{SIC}}` fixes, each
   listed. The Power–Nagy revision leaves the site (John, same day: Kosmos is
   its finished form, 83-86% the same wording); its Perseus files stay in
-  `sources/perseus/` only as the source of Iliad XV-XXIV line markers.
+  `sources/perseus/` only as the source of Iliad XIV.486-XXIV line markers.
   Details: `sources/INVENTORY.md` (butler/).
 - **Vulgate lineation is sacred.** Never renumber. Numbering gaps and
   bracketed/athetized lines are preserved verbatim; a verifier asserts monotonic

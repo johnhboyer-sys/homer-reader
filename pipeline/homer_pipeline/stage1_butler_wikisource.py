@@ -353,8 +353,14 @@ def note_html(raw: str, book: int, report: dict) -> str:
 def parse_book(src: Path, book: int, valid_lines: set[int], errata: list[dict],
                log: dict) -> dict:
     """One book -> {text, bekker, notes, plines, report bits}."""
-    raw = assemble_book(src, book, log)
+    return parse_assembled(assemble_book(src, book, log), book, valid_lines, errata, log)
 
+
+def parse_assembled(raw: str, book: int, valid_lines: set[int], errata: list[dict],
+                    log: dict) -> dict:
+    """A book's assembled, corrected wikitext -> {text, bekker, notes, plines,
+    report bits}. Shared with the Iliad stage (stage1_butler_iliad), which
+    assembles its scan pages its own way."""
     # Footnotes out first (they hold templates and can cross pages).
     notes_raw: list[str] = []
     named: dict[str, int] = {}

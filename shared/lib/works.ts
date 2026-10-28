@@ -182,7 +182,7 @@ export const WORKS: Work[] = [
     greekSource: TLG_ALLEN_GREEK_SOURCE,
     translations: [
       { id: 'murray', name: 'A. T. Murray (Loeb, 1924–25)', short: 'Murray', slot: 'english', footnotes: true },
-      { id: 'butler', name: 'Samuel Butler (1898)', short: 'Butler', slot: 'ross' },
+      { id: 'butler', name: 'Samuel Butler (1898)', short: 'Butler', slot: 'ross', footnotes: true },
       { id: 'pope', name: 'Alexander Pope (literary translation, scene-aligned), 1715–20', short: 'Pope', slot: 'third', curatedTicks: true },
       { id: 'kosmos', name: 'Samuel Butler, revised by Kim, McCray, Nagy and Power (Kosmos Society, CC BY-NC-ND 3.0)', short: 'Kosmos', slot: 'overlay', footnotes: true, verseGroups: true, licence: { ...KOSMOS_LICENCE, source: 'https://kosmossociety.org/homeric-iliad/' } },
     ],

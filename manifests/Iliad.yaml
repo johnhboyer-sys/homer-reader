@@ -49,10 +49,18 @@ english:
     id: murray
     name: "A. T. Murray (Loeb, 1924–25)"
     source: "perseus/tlg0012.tlg001.perseus-eng3.xml"
+  # Butler's own 1898 text (John, 2026-10-26; the Perseus eng4 file is the
+  # Power–Nagy revision): the Wikisource scan to XIV.485, aligned by Butler's
+  # printed line numbers, then Gutenberg #2199's words to the end with line
+  # numbers from the Perseus milestones at paragraph starts — see
+  # stage1_butler_iliad's module docstring.
   secondary:
     id: butler
+    model: wikisource+gutenberg
     name: "Samuel Butler (1898)"
-    source: "perseus/tlg0012.tlg001.perseus-eng4.xml"
+    source: "butler/wikisource/iliad"
+    gutenberg: "butler/butler-iliad.txt"
+    milestones: "perseus/tlg0012.tlg001.perseus-eng4.xml"
   # Phase 3: Pope's verse translation (Project Gutenberg #6130 plaintext),
   # 'third' overlay slot. Book-anchored only, not proportionally aligned
   # within a book — see stage1_pope.py's module docstring for the measured
