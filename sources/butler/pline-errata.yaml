@@ -20,6 +20,46 @@ iliad:
     english: "Thus she spoke, but Hector knew that it was the goddess"
     greek: "2.807 ὣς ἔφαθʼ, Ἕκτωρ δʼ οὔ τι θεᾶς ἔπος ἠγνοίησεν,"
     why: "Two 811s on one page; the second correctly sits on 2.811 (the mound Batieia)."
+  - book: 7
+    printed: 445
+    occurrence: 1
+    correct: 454
+    scan_page: "Page:The Iliad of Homer (Butler).djvu/135"
+    english: "Jove was displeased and answered"
+    greek: "7.454 τὸν δὲ μέγʼ ὀχθήσας προσέφη νεφεληγερέτα Ζεύς·"
+    why: "Digits transposed; follows 444, precedes 464. Uncorrected it would set Jove's reply beside Poseidon's speech (7.445-453)."
+  - book: 10
+    printed: 312
+    occurrence: 1
+    correct: 313
+    scan_page: "Page:The Iliad of Homer (Butler).djvu/178"
+    english: "They all held their peace"
+    greek: "10.313 ὣς ἔφαθʼ, οἳ δʼ ἄρα πάντες ἀκὴν ἐγένοντο σιωπῇ."
+    why: "One line early: 10.312 is the last line of Hector's speech."
+  - book: 12
+    printed: 387
+    occurrence: 1
+    correct: 378
+    scan_page: "Page:The Iliad of Homer (Butler).djvu/217"
+    english: "First, Ajax son of Telamon killed brave Epicles"
+    greek: "12.378 Αἴας δὲ πρῶτος Τελαμώνιος ἄνδρα κατέκτα"
+    why: "Digits transposed; follows 370, precedes 400. 12.387 is Teucer and Glaucus, later in the same paragraph."
+  - book: 13
+    printed: 582
+    occurrence: 1
+    correct: 581
+    scan_page: "Page:The Iliad of Homer (Butler).djvu/236"
+    english: "On this Menelaus was grieved"
+    greek: "13.581 Ἀτρεΐδην δʼ ἄχος εἷλε βοὴν ἀγαθὸν Μενέλαον·"
+    why: "One line late: the paragraph opens on Menelaus's grief, 13.581."
+  - book: 13
+    printed: 743
+    occurrence: 1
+    correct: 748
+    scan_page: "Page:The Iliad of Homer (Butler).djvu/241"
+    english: "Thus spoke Polydamas, and his words pleased Hector well"
+    greek: "13.748 ὣς φάτο Πουλυδάμας, ἅδε δʼ Ἕκτορι μῦθος ἀπήμων,"
+    why: "3 printed for 8; 13.743 is inside Polydamas's speech."
 
 odyssey:
   - book: 4

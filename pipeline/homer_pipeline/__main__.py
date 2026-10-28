@@ -55,8 +55,11 @@ def _stage1(manifest):
             # pass for the secondary slot: the milestone module sees the
             # manifest without it, and stage1_butler_wikisource writes
             # ross_chunks.json after it.
+            # The Iliad's Butler (model: wikisource+gutenberg) is the scan to
+            # XIV.485 and Gutenberg #2199 after it: stage1_butler_iliad.
             eng = manifest.data["english"]
-            ws_butler = (eng.get("secondary") or {}).get("model") == "wikisource"
+            butler_model = (eng.get("secondary") or {}).get("model")
+            ws_butler = butler_model in ("wikisource", "wikisource+gutenberg")
             ms_manifest = (
                 Manifest({**manifest.data,
                           "english": {k: v for k, v in eng.items() if k != "secondary"}},
@@ -75,7 +78,19 @@ def _stage1(manifest):
                 print(f"  english ({tid}, milestone): chunks={s['chunks']} "
                       f"footnotes={s.get('footnotes', 0)} anomalies={s['anomalies']} "
                       f"coverage_holes={s['holes']}{loeb}")
-            if ws_butler:
+            if butler_model == "wikisource+gutenberg":
+                from . import stage1_butler_iliad
+
+                s = stage1_butler_iliad.run(manifest, spine)
+                print(f"  english ({eng['secondary']['id']}, wikisource+gutenberg): "
+                      f"books={s['books']} scan_books={s['scan_books']} join={s['join']} "
+                      f"plines={s['plines_distinct']} ticks={s['ticks']} "
+                      f"(scan={s['ticks_scan']} rule={s['ticks_rule']}) "
+                      f"footnotes={s['footnotes']} books_missing_notes={s['books_missing_notes']} "
+                      f"sic={s['sic']} sic_bare={s['sic_bare']} pline_errata={s['pline_errata']} "
+                      f"scan_fixes={s['scan_fixes']} print_spellings={s['print_spellings']} "
+                      f"anomalies={s['anomalies']}")
+            elif ws_butler:
                 from . import stage1_butler_wikisource
 
                 s = stage1_butler_wikisource.run(manifest, spine)

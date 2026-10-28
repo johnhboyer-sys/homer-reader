@@ -67,7 +67,7 @@ proofreading level (3 proofread, 4 validated, 1 not proofread) and last
 proofreader; MANIFEST.tsv lists both with each file's SHA-256. Revision ids
 are NOT recorded: the Wikimedia API answers 429 from the cloud session's
 shared egress, and action=raw carries none — the checksum + fetch date pin
-the text instead. Iliad coverage gap: scan pp. 257-440 (Books XIV l. 487 to
+the text instead. Iliad coverage gap: scan pp. 257-440 (Books XIV l. 486 to
 XXIV) have no transcription on Wikisource; its main-namespace Iliad text is
 NOT scan-backed and is edited (Il. 1.1 "rage" for Butler's "anger"), so it
 is not a source. Scan pp. 247-254 (Book XIV) are level 1, not proofread.
@@ -96,13 +96,69 @@ Power–Nagy revision (Perseus `*-eng4.xml`) — John, 2026-10-26: dropped from
 the site once real Butler is in. Measured on Book 1: it keeps 81% (Od.) of
 Butler's words in order, Kosmos 76%, and the two revisions share 83-86% of
 their wording; Kosmos is the finished form of the same work. The files stay
-here as the source of Perseus line markers for Iliad XIV.487-XXIV only.
+here as the source of Perseus line markers for Iliad XIV.486-XXIV only.
+
+Iliad decisions (John, 2026-10-28): the rule's "paragraph start" is one of
+Butler's own paragraphs (Gutenberg pairs 1:1 with the scan's in I-XIII);
+fixes read off the page image stand even against a proofread page
+(`SCAN_FIXES`: Diocles p. 100, Idæus ×2 p. 133, Curetes p. 165 added; p. 114
+"fresh ones" is the print, Gutenberg's "vines" is not Butler); Butler's
+printed spellings restored in the Gutenberg books (`PRINT_SPELLINGS`, 42
+words, 411 places, each attested in his print).
+
+To do (John, 2026-10-28): Iliad XIV.486-XXIV is Gutenberg's text, not the
+scan. Measured against the scan for I-XIV.485, Gutenberg agrees on 99.81% of
+words (153 differences, mostly dropped words), so expect about that many
+unchecked slips in XV-XXIV, and Butler's footnotes for those books are
+missing. The fix is a transcription of scan pp. 257-440
+(Index:The Iliad of Homer (Butler).djvu, Wikisource) — ideally contributed
+back there — then switching those books to the scan path.
 
 Notes: John, 2026-10-26 — keep Butler's own footnotes. butler-iliad.txt has
 NONE (no markers or note blocks in the .txt; the PG HTML has only an unused
 `P.footnote` style), so if the 1898 printing carried notes, this transcription
 dropped them. Check Wikisource (scan-backed) for both works before the
-pipeline lane treats this file as complete.
+pipeline lane treats this file as complete. (Checked: the 1898 printing has
+notes, 16 of them in Books I-XIV; see below.)
+
+Iliad as shipped (2026-10-28, `stage1_butler_iliad`; manifest
+`english.secondary.model: wikisource+gutenberg`):
+- Books I-XIII and XIV.1-485: the scan pages above, aligned by Butler's
+  printed numbers (636 distinct; the Book 2 misprint 811 -> 807 from
+  `pline-errata.yaml`), his 16 footnotes kept, 8 `{{SIC}}` corrections applied;
+  `{{SIC|'}}` (p. 122, a stray printed quote, no reading offered) stands and
+  is listed. The 1898 printing also sets numbers beside the first and last
+  line of a page; Book XIV's transcribers keep them (Books I-XIII's do not),
+  so XIV has mid-paragraph ticks, and page-foot numbers put after a page's
+  last word are dropped (14.67, 146, 221, 296, 486; 14.445 is the
+  page-break duplicate).
+- Scan pp. 247-254 (level 1, raw OCR) are read through `SCAN_FIXES` in the
+  stage: 35 listed fixes (5 of them on level-3 pages: "cry of the battle"
+  and "seeps" on p. 244, a doubled page number on p. 245, "therefore." on
+  p. 246, "Satniödeis" on p. 256), each checked against the page image on
+  Wikimedia Commons (pp. 244-256 viewed), Gutenberg as second witness. The
+  OCR's running head and bare marginal digits on p. 254 are removed or read
+  as numbers; invented and lost paragraph breaks are corrected (14.183,
+  259, 277; pp. 247/249 end a paragraph).
+- The join is 14.486: the scan's last paragraph ("...to avenge his fall.")
+  is Gutenberg's paragraph 37 of Book XIV word for word, and Gutenberg's
+  paragraphs from "His taunts infuriated the Argives" on follow.
+- XIV.486-XXIV: butler-iliad.txt's words (PG `--` set as `—`, the capitals
+  PG uses for each book's small-capital opening word set in ordinary case,
+  ae/oe and straight quotes left as PG has them). Line numbers: the
+  Perseus eng4 milestones that open a Perseus `<p>` and fall, under a word
+  alignment, on a Gutenberg paragraph start. Measured on Books III-XIII
+  against Butler's printed numbers: 447 of his 453 reproduced at the same
+  paragraphs, 447 of the rule's 455 his (recall 0.987, precision 0.982);
+  Perseus's own extra `<p>` breaks (95 there) never carry one of his numbers.
+  458 ticks come from the rule (Book XIV: 3).
+- Gutenberg's fidelity, measured on I-XIV.485 against the scan: 99.81% of
+  the scan's 85,335 words in order; 153 differences, mostly words PG drops
+  (79 words, e.g. "the tops of [the oaks]", Il. 14.398) and
+  compound/spelling variants. Expect a similar rate of silent slips in
+  XV-XXIV, which no scan yet checks.
+- Butler's footnotes for XIV.486-XXIV are missing (11 books in the stage
+  report), stated on the attribution page.
 
 ## kosmos/ — Kosmos Society (Center for Hellenic Studies), fetched 2026-09-12 (CC BY-NC-ND 3.0)
 
