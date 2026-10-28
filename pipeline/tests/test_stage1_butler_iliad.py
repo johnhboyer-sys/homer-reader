@@ -185,6 +185,11 @@ def test_last_words(parsed):
     assert t.endswith("\nThus, then, did they celebrate the funeral of Hector tamer of horses.")
 
 
+def _restored(para: str) -> str:
+    """Gutenberg's paragraph with Butler's printed spellings (PRINT_SPELLINGS)."""
+    return bi._PRINT_WORD.sub(lambda m: bi.PRINT_SPELLINGS[m.group(1)], para)
+
+
 def test_join_in_book_fourteen(parsed, gut):
     """The scan's last paragraph is Gutenberg's paragraph 37 word for word;
     Gutenberg's paragraphs 38 on follow, once each, and Book XIV has exactly
@@ -198,7 +203,7 @@ def test_join_in_book_fourteen(parsed, gut):
     for k in range(40):
         assert bi.norm_words(paras[k])[:4] == bi.norm_words(g[k])[:4], k
     assert bi.norm_words(paras[36]) == bi.norm_words(g[36])
-    assert paras[37:] == g[37:]
+    assert paras[37:] == [_restored(p) for p in g[37:]]
     assert paras[36].endswith("to avenge his fall.”")
     assert paras[37].startswith("His taunts infuriated the Argives")
     tick = [t for t in parsed["books"][14]["bekker"] if t["n"] == 486]
@@ -210,13 +215,13 @@ def test_join_in_book_fourteen(parsed, gut):
 def test_gutenberg_books_are_gutenberg_words(parsed, gut):
     for b in range(15, 25):
         r = parsed["books"][b]
-        assert bi.norm_words(r["text"]) == bi.norm_words("\n".join(gut[b]["paras"])), b
+        assert bi.norm_words(r["text"]) == bi.norm_words("\n".join(map(_restored, gut[b]["paras"]))), b
         assert r["text"].count("\n") + 1 == len(gut[b]["paras"]), b
         assert r["notes"] == {}
     # PG's capitals for the print's small capitals are set in ordinary case.
     assert parsed["books"][15]["text"].startswith("But when their flight")
     assert parsed["books"][17]["text"].startswith("Brave Menelaus")
-    assert parsed["books"][20]["text"].startswith("Thus, then, did the Achaeans")
+    assert parsed["books"][20]["text"].startswith("Thus, then, did the Achæans")
 
 
 def test_missing_notes_recorded(parsed):
@@ -251,6 +256,15 @@ def test_corrections_accounted_for(parsed):
                 "HECTOR LEADS", "[iuad", "Satniödeis"):
         assert bad not in t14, bad
     assert "the knight Œneus" in t14 and "Satniöeis" in t14
+    # Slips on proofread pages, each read off the page image (John, 2026-10-28).
+    assert "father to Diocles" in parsed["books"][5]["text"]
+    assert "let Idæus go" in parsed["books"][7]["text"]
+    assert "Idæus went his way" in parsed["books"][7]["text"]
+    assert "the Curetes trying" in parsed["books"][9]["text"]
+    for b, bad in ((5, "Diodes"), (7, "Iæeus"), (9, "Ouretes")):
+        assert bad not in parsed["books"][b]["text"], bad
+    # The print reads "fresh ones" (p. 114); Gutenberg's "vines" is not Butler.
+    assert "buds forth with fresh ones" in parsed["books"][6]["text"]
 
 
 def test_footnotes_one_per_butler_note(parsed):
@@ -299,6 +313,9 @@ def test_scan_prose_round_trip(parsed, pages):
         src = ""
         for i, p in enumerate(pages[b]):
             body = _body(p)
+            for fp, old, new, _why in bi.SCAN_FIXES:
+                if fp == p:
+                    body = body.replace(old, new)
             if i == 0:
                 body = "\n\n".join(re.split(r"\n[ \t]*\n", body.strip())[2:])
             src += body
@@ -351,3 +368,28 @@ def test_run_writes_ross_chunks_shape(manifest, spine_lines, tmp_path, monkeypat
     assert summary["ticks"] == summary["ticks_scan"] + summary["ticks_rule"]
     assert report["ticks_by_book"] == {str(b): len(ross[f"{b}:{b}"][0]["bekker"])
                                        for b in range(1, 25)}
+
+
+def test_print_spellings_restored_in_gutenberg_books(parsed):
+    """PG flattens Butler's æ/œ and diaereses (John, 2026-10-28: restore).
+    Every table entry is a spelling Butler printed: in the Iliad scan, or
+    for a word the Iliad scan never prints, in the Odyssey scan."""
+    il_raw = "".join(_body(p) for p in range(bi.SCAN_FIRST, bi.SCAN_LAST + 1))
+    od_dir = SOURCES_DIR / "butler" / "wikisource" / "odyssey"
+    od_raw = "".join(f.read_text(encoding="utf-8") for f in sorted(od_dir.glob("page-*.wiki")))
+    word = lambda w: re.compile(r"(?<![A-Za-zæœÆŒëïöü])" + re.escape(w) + r"(?![A-Za-zæœÆŒëïöü])")
+    assert len(bi.PRINT_SPELLINGS) == 42
+    for plain, printed in bi.PRINT_SPELLINGS.items():
+        il_p, il_plain = len(word(printed).findall(il_raw)), len(word(plain).findall(il_raw))
+        if il_p:
+            assert il_p > il_plain, (plain, il_p, il_plain)
+        else:
+            assert il_plain == 0 and word(printed).search(od_raw), plain
+    for b in range(15, 25):
+        t = parsed["books"][b]["text"]
+        for plain in bi.PRINT_SPELLINGS:
+            assert not word(plain).search(t), (b, plain)
+    assert "Achæans" in parsed["books"][20]["text"]
+    t14 = parsed["books"][14]["text"]
+    assert "Achaeans" not in t14[t14.index("His taunts infuriated"):]
+    assert len(parsed["log"]["print_spellings"]) == 411

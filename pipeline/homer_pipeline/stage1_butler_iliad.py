@@ -70,8 +70,14 @@ paragraph after its "BOOK N" heading is Butler's argument (recorded, not
 emitted, as for the scan); PG's ``--`` is Butler's close-set em dash ``—``;
 the first word(s) of a book, which PG sets in capitals for the print's small
 capitals ("BUT when"), are set in ordinary case ("But when"), as the scan's
-``{{sc|But}}`` reduces. PG spells æ/œ as ae/oe and uses straight quotes; that
-is left as it is (restoring the ligatures word by word would be guessing).
+``{{sc|But}}`` reduces. PG flattens Butler's æ/œ and diaereses ("Achaeans"
+for his "Achæans"); ``PRINT_SPELLINGS`` restores them (John, 2026-10-28) for
+the words Butler is seen to print that way: in the Iliad scan, where the
+marked form outnumbers the plain one, or, for a word the Iliad scan never
+prints, in the Odyssey scan. A word with no printed evidence ("Pæonians"
+first occurs after the join) stays as PG has it, and so does a tie
+("Satnioeis", printed once each way). PG's straight quotes are left as they
+are.
 
 The Perseus rule (Phase A, measured on Books III-XIII against Butler's own
 printed numbers; numbers in the report): a Perseus milestone is a Butler
@@ -121,11 +127,77 @@ _FOOT_PLINE = re.compile(_PLINE_N + r"\s*$")
 _HEAD_PLINE = re.compile(r"^\s*" + _PLINE_N)
 _PLINE_SPACE = re.compile(r"[ \t]*(\{\{pline\|[^{}]*\}\})[ \t]+")
 
+# Butler's printed spellings for PG's flattened ones, applied to the
+# Gutenberg books only; see the module docstring.
+PRINT_SPELLINGS: dict[str, str] = {
+    "Achaean": "Achæan",
+    "Achaeans": "Achæans",
+    "Aeacus": "Æacus",
+    "aegis": "ægis",
+    "Aeneas": "Æneas",
+    "Aetolian": "Ætolian",
+    "Aetolians": "Ætolians",
+    "Ancaeus": "Ancæus",
+    "Andraemon": "Andræmon",
+    "Areilycus": "Areïlycus",
+    "Areithous": "Areïthoüs",
+    "Asteropaeus": "Asteropæus",
+    "Astynous": "Astynoüs",
+    "Autonous": "Autonoüs",
+    "Boeotian": "Bœotian",
+    "Boeotians": "Bœotians",
+    "Chimaera": "Chimæra",
+    "Coon": "Cöon",
+    "Deiphobus": "Deïphobus",
+    "Eetion": "Eëtion",
+    "Gygaean": "Gygæan",
+    "Haemon": "Hæmon",
+    "Hippothous": "Hippothoüs",
+    "Idaeus": "Idæus",
+    "Leitus": "Leïtus",
+    "Maera": "Mæra",
+    "Menoetius": "Menœtius",
+    "Mycenae": "Mycenæ",
+    "Noemon": "Noëmon",
+    "Oeneus": "Œneus",
+    "Oileus": "Oïleus",
+    "Paeonian": "Pæonian",
+    "Panthous": "Panthoüs",
+    "Periboea": "Peribœa",
+    "Phaenops": "Phænops",
+    "Phoebus": "Phœbus",
+    "Phoenicians": "Phœnicians",
+    "Phoenix": "Phœnix",
+    "Polypoetes": "Polypœtes",
+    "Pyraechmes": "Pyræchmes",
+    "Scaean": "Scæan",
+    "Selleis": "Selleïs",
+}
+_PRINT_WORD = re.compile(r"(?<![A-Za-zæœÆŒëïöü])(" + "|".join(sorted(PRINT_SPELLINGS, key=len, reverse=True))
+                         + r")(?![A-Za-zæœÆŒëïöü])")
+
+
+def _print_spellings(para: str, book: int, log: dict) -> str:
+    def sub(m):
+        log["print_spellings"].append({"book": book, "gutenberg": m.group(1),
+                                       "printed": PRINT_SPELLINGS[m.group(1)]})
+        return PRINT_SPELLINGS[m.group(1)]
+    return _PRINT_WORD.sub(sub, para)
+
+
 # Scan fixes: (page, transcribed, corrected, why). Level 1 (pp. 247-254) is
 # raw OCR; each fix is read off the page image (Wikimedia Commons, File:The
 # Iliad of Homer (Butler).djvu, page N), Gutenberg agreeing unless noted.
 # Level 3 entries correct a proofread page against its image.
 SCAN_FIXES: list[tuple[int, str, str, str]] = [
+    (100, "father to Diodes", "father to Diocles",
+     "level 3: the image prints \"Diocles\" (Gutenberg too); John, 2026-10-28"),
+    (133, "let Iæeus go", "let Idæus go",
+     "level 3: the image prints \"Idæus\" (Gutenberg Idaeus); John, 2026-10-28"),
+    (133, "daybreak Iæeus went", "daybreak Idæus went",
+     "level 3: the image prints \"Idæus\" (Gutenberg Idaeus); John, 2026-10-28"),
+    (165, "the Ouretes trying", "the Curetes trying",
+     "level 3: the image prints \"Curetes\" (Gutenberg too); John, 2026-10-28"),
     (244, "the cry of the battle", "the cry of battle",
      "level 3: the image prints \"cry of battle\" (Gutenberg too)"),
     (244, "wind seeps down", "wind sweeps down",
@@ -482,7 +554,8 @@ def _validate_ticks(raw: list[dict], book: int, valid_lines: set[int], log: dict
 def _new_log() -> dict:
     log = bw._new_log()
     log.update({"scan_fixes": [], "ocr_spacing_closed": {}, "join": {}, "rule": {},
-                "gutenberg_openings": [], "tick_sources": {}, "books_missing_notes": []})
+                "gutenberg_openings": [], "tick_sources": {}, "books_missing_notes": [],
+                "print_spellings": []})
     return log
 
 
@@ -524,6 +597,7 @@ def parse_work(manifest: Manifest, valid_lines_by_book: dict[int, set[int]]) -> 
                            "scan_paragraphs": scan_text.count("\n") + 1,
                            "gutenberg_paragraphs_matched": k0}
             rule = rule_numbers(pers[b], paras)
+            paras = paras[:k0] + [_print_spellings(p, b, log) for p in paras[k0:]]
             offs = _para_offsets(paras[k0:])
             base = len(scan_text) + 1
             last_n = r["bekker"][-1]["n"]
@@ -546,6 +620,7 @@ def parse_work(manifest: Manifest, valid_lines_by_book: dict[int, set[int]]) -> 
                                               "set": paras[0][:len(caps)]})
         log["arguments"][b] = gut[b]["argument"]
         rule = rule_numbers(pers[b], paras)
+        paras = [_print_spellings(p, b, log) for p in paras]
         offs = _para_offsets(paras)
         cand = [{"n": n, "offset": offs[k]} for n, k in rule["ticks"]]
         ticks = _validate_ticks(cand, b, valid, log)
@@ -608,6 +683,7 @@ def run(manifest: Manifest, spine: dict) -> dict:
         "sic_bare": len(log["sic_bare"]),
         "pline_errata": len(log["pline_errata_applied"]),
         "scan_fixes": len(log["scan_fixes"]),
+        "print_spellings": len(log["print_spellings"]),
         "anomalies": len(log["anomalies"]),
     }
     report = {

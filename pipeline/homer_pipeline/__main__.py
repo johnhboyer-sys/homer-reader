@@ -88,7 +88,8 @@ def _stage1(manifest):
                       f"(scan={s['ticks_scan']} rule={s['ticks_rule']}) "
                       f"footnotes={s['footnotes']} books_missing_notes={s['books_missing_notes']} "
                       f"sic={s['sic']} sic_bare={s['sic_bare']} pline_errata={s['pline_errata']} "
-                      f"scan_fixes={s['scan_fixes']} anomalies={s['anomalies']}")
+                      f"scan_fixes={s['scan_fixes']} print_spellings={s['print_spellings']} "
+                      f"anomalies={s['anomalies']}")
             elif ws_butler:
                 from . import stage1_butler_wikisource
 

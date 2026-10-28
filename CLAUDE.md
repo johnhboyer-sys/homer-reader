@@ -42,7 +42,12 @@ non-negotiable.
   Decisions (John, 2026-10-26): ship the Odyssey (Wikisource scan, complete)
   first; then fill Iliad XIV.486-XXIV (the scan transcription stops after 14.485) from Gutenberg #2199's words with
   Perseus milestones at paragraph starts (rule tested on Books III-XIII
-  first), the missing notes marked missing, not hidden. Apply BOTH Butler's
+  first), the missing notes marked missing, not hidden. "Paragraph start"
+  means one of BUTLER's paragraphs (John, 2026-10-28): Perseus adds its own
+  <p> breaks inside them, and none carries a Butler number. Scan fixes read
+  off the page image may override a proofread transcription (same day);
+  Gutenberg's flattened æ/œ/diaereses are restored from Butler's own print
+  (`PRINT_SPELLINGS`). Apply BOTH Butler's
   own corrigenda (`{{errata}}`) and the transcribers' `{{SIC}}` fixes, each
   listed. The Power–Nagy revision leaves the site (John, same day: Kosmos is
   its finished form, 83-86% the same wording); its Perseus files stay in

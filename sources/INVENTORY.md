@@ -98,6 +98,22 @@ Butler's words in order, Kosmos 76%, and the two revisions share 83-86% of
 their wording; Kosmos is the finished form of the same work. The files stay
 here as the source of Perseus line markers for Iliad XIV.486-XXIV only.
 
+Iliad decisions (John, 2026-10-28): the rule's "paragraph start" is one of
+Butler's own paragraphs (Gutenberg pairs 1:1 with the scan's in I-XIII);
+fixes read off the page image stand even against a proofread page
+(`SCAN_FIXES`: Diocles p. 100, Idæus ×2 p. 133, Curetes p. 165 added; p. 114
+"fresh ones" is the print, Gutenberg's "vines" is not Butler); Butler's
+printed spellings restored in the Gutenberg books (`PRINT_SPELLINGS`, 42
+words, 411 places, each attested in his print).
+
+To do (John, 2026-10-28): Iliad XIV.486-XXIV is Gutenberg's text, not the
+scan. Measured against the scan for I-XIV.485, Gutenberg agrees on 99.81% of
+words (153 differences, mostly dropped words), so expect about that many
+unchecked slips in XV-XXIV, and Butler's footnotes for those books are
+missing. The fix is a transcription of scan pp. 257-440
+(Index:The Iliad of Homer (Butler).djvu, Wikisource) — ideally contributed
+back there — then switching those books to the scan path.
+
 Notes: John, 2026-10-26 — keep Butler's own footnotes. butler-iliad.txt has
 NONE (no markers or note blocks in the .txt; the PG HTML has only an unused
 `P.footnote` style), so if the 1898 printing carried notes, this transcription
