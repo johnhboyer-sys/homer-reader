@@ -35,6 +35,7 @@ from .parse_filter import (
     rank_parses,
 )
 from .refs import column_key
+from .stage6_search import emit_translation_indexes
 
 
 def _load(rel: str):
@@ -996,6 +997,11 @@ def run(manifest: Manifest) -> Path:
         "grammar-col.bin",
     ]:
         shutil.copy(BUILD_DIR / "stage6" / f, out_dir / "search" / f)
+    # One English index per translation beyond the primary, from the books
+    # just written (stage6_search.emit_translation_indexes). Where each scene
+    # starts in their words (eng-chapters.json) comes later, from
+    # scripts/build-public.mjs, because it follows the reader's scene pages.
+    emit_translation_indexes(out_dir)
 
     work = manifest.data["work"]
     (out_dir / "manifest.json").write_text(
