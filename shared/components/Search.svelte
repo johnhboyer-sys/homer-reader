@@ -50,7 +50,7 @@
   import { isChapterSection } from '../lib/data';
   import { loadEngChapters, loadOffsets, offsetRef, type EngChapters, type Offsets } from '../lib/search';
   import { engHitCount, hitCount } from '../lib/search-pages';
-  import { chapterJoin, chapterPlaces, measure, paginatePlaces, type ChapterAt, type ChapterPlaces } from '../lib/chapter-pages';
+  import { allWordsJoin, chapterJoin, chapterPlaces, measure, paginatePlaces, type ChapterAt, type ChapterPlaces } from '../lib/chapter-pages';
   import {
     fetchBook,
     fetchChapters,
@@ -872,8 +872,11 @@
   // Each takes the places, the both-languages flag and the translation
   // filter as arguments, so a reactive count that calls it re-runs when they
   // change.
+  // "All words" is held to one scene first (allWordsJoin): a search section
+  // is a whole book, so the engine alone would take every term anywhere in it.
   function joined(results: SearchResult[], P: ChapterPlaces, both: boolean, op: LangOp): SearchResult[] {
-    return both && op === 'and' ? chapterJoin(results, P) : results;
+    const each = allWordsJoin(results, P);
+    return both && op === 'and' ? chapterJoin(each, P) : each;
   }
   // A Both search's results, joined by chapter: not the widened ones
   // ("any inflection"), which are a Greek search's.
@@ -1911,9 +1914,9 @@
   // Shared option list for the per-language mode selectors.
   // Each with the one-line gloss its menu shows under it.
   const MODE_OPTS: { v: SearchMode; l: string; g: string }[] = [
-    // Homer's search index has one segment per book, so the engine finds
-    // every word of an "all words" query anywhere in one book.
-    { v: 'all', l: 'All words', g: 'every word, anywhere in one book' },
+    // Every word in one scene: the engine finds them in one book (a search
+    // segment), and joined() holds them to a scene.
+    { v: 'all', l: 'All words', g: 'every word, in one scene' },
     { v: 'any', l: 'Any word', g: 'at least one of them' },
     { v: 'phrase', l: 'Exact phrase', g: 'these words, in this order' },
   ];

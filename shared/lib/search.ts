@@ -856,7 +856,9 @@ export type LangOp = 'and' | 'or';
 // A query with a unit of several words (a phrase, a hyphenated term) also
 // gives `matches`, the first word of each run the query matched, a run of
 // several words one match (John, 2026-11-11).
-export interface EngHit { translation: string; positions: number[]; matches?: number[] }
+// `units`: an "All words" query of several units, each unit's word positions
+// here, so allWordsJoin (lib/chapter-pages) can hold them to one scene.
+export interface EngHit { translation: string; positions: number[]; matches?: number[]; units?: number[][] }
 
 export interface SearchResult {
   work: string;           // which work this hit belongs to
@@ -884,6 +886,11 @@ export interface SearchResult {
   // and a window left with none of its own is not listed. Filtered as the
   // positions are (cutPositions in lib/result-views).
   windows?: number[][];
+  // An "All words" query of several Greek terms: each term's token positions
+  // here. A section is a whole book, so allWordsJoin (lib/chapter-pages)
+  // keeps only the scenes that hold every term. Filters cut grkPositions, not
+  // these: a position no longer among grkPositions does not count.
+  grkTerms?: number[][];
 }
 
 // Windows as SearchResult keeps them: a token two share is the first's, and
@@ -1119,7 +1126,7 @@ function englishMatch(
   units: string[][],
   engMode: SearchMode,
   forms: boolean,
-): { segs: Set<number>; positions: Map<number, number[]>; matches: Map<number, number[]> } {
+): { segs: Set<number>; positions: Map<number, number[]>; matches: Map<number, number[]>; units: Map<number, number[][]> } {
   const asked = engMode === 'phrase' ? [units.flat()] : units;
   const matches = asked.map(u => unitMatch(idx, u, forms));
   const segs = matches.map(m => m.segs).reduce(engMode === 'any' ? union : intersect);
@@ -1139,7 +1146,12 @@ function englishMatch(
     });
     if (seen.size) runs.set(si, [...seen.values()].sort((a, b) => a - b));
   }
-  return { segs, positions, matches: runs };
+  // "All words" of several units: each unit's words, for allWordsJoin to
+  // hold to one scene. A bare * stands in every scene, so it is not listed.
+  const each = engMode === 'all' ? matches.filter((_, i) => !(asked[i].length === 1 && asked[i][0] === '*')) : [];
+  const perUnit = new Map<number, number[][]>();
+  if (each.length > 1) for (const si of segs) perUnit.set(si, each.map(m => m.positions.get(si) ?? []));
+  return { segs, positions, matches: runs, units: perUnit };
 }
 
 // The same matches as greekPositions, but kept in the groups the query mode is
@@ -1389,11 +1401,12 @@ async function searchWork(
     sources.forEach((t, i) => {
       const idx = engIdxs[i];
       if (!idx) return;
-      const { segs: hits, positions, matches } = englishMatch(idx, engUnits, engMode, engForms);
+      const { segs: hits, positions, matches, units } = englishMatch(idx, engUnits, engMode, engForms);
       for (const si of hits) {
         engHits!.add(si);
         const hit: EngHit = { translation: t.id, positions: positions.get(si) ?? [] };
         if (matches.has(si)) hit.matches = matches.get(si);
+        if (units.has(si)) hit.units = units.get(si);
         const arr = engBySeg.get(si);
         if (arr) arr.push(hit);
         else engBySeg.set(si, [hit]);
@@ -1415,6 +1428,11 @@ async function searchWork(
   // A phrase's runs, each one match (its window), by segment.
   const isPhrase = grkMode === 'phrase' && grkTerms.length > 1;
   const runs = isPhrase && grkHits && grkIdx
+    ? greekGroups(grkIdx, grkTerms, grkMode, grkHits)
+    : new Map<number, number[][]>();
+  // "All words" of several terms: each term's words, for allWordsJoin to hold
+  // to one scene (a section is a whole book).
+  const termLists = grkMode === 'all' && grkTerms.length > 1 && grkHits && grkIdx
     ? greekGroups(grkIdx, grkTerms, grkMode, grkHits)
     : new Map<number, number[][]>();
   if (speaker && offsets) {
@@ -1493,6 +1511,7 @@ async function searchWork(
       ...(engHits ? { engHits: engBySeg.get(si) ?? [] } : {}),
       grkPositions: grkPos.get(si) ?? [],
       ...(isPhrase && grkHits?.has(si) ? { windows: ownWindows(runs.get(si) ?? []) } : {}),
+      ...(termLists.has(si) && grkHits?.has(si) ? { grkTerms: termLists.get(si) } : {}),
       ...(spokenBy.has(si) ? { speakers: spokenBy.get(si) } : {}),
     }));
   return { results, unsearched };

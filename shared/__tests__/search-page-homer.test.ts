@@ -6,6 +6,8 @@ import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Search from '../components/Search.svelte';
 import { CORPUS, HAVE_CORPUS, serveCorpus } from './serve-corpus';
+import { chapterPlaces, eachHit } from '../lib/chapter-pages';
+import { loadEngChapters, loadOffsets, search } from '../lib/search';
 
 // The first search in a file reads the corpus cold.
 vi.setConfig({ testTimeout: 60000 });
@@ -151,6 +153,43 @@ describe('joining the Greek and the English', () => {
     const n = Number((await counted()).match(/^(\d+) scenes/)![1]);
     expect(n).toBeGreaterThan(80);
     expect(n).toBeLessThan(94);
+  });
+});
+
+// The scenes that hold every one of `terms`, each searched alone and placed
+// by scene: what "All words" must count, worked out without the join.
+async function scenesHolding(lang: 'grk' | 'eng', terms: string[], translation?: string): Promise<number> {
+  const works = ['iliad', 'odyssey'];
+  const places = chapterPlaces(
+    new Map(await Promise.all(works.map(async w => [w, await loadOffsets(w)] as const))),
+    new Map(await Promise.all(works.map(async w => [w, await loadEngChapters(w)] as const))),
+  );
+  let common: Set<string> | null = null;
+  for (const t of terms) {
+    const { results } = await search(lang === 'grk' ? t : '', lang === 'eng' ? t : '', 'all', 'all', 'or', works, 'lemma', true);
+    const mine = new Set<string>();
+    for (const r of results) eachHit(r, places, (at, _l, tr) => { if (!translation || tr === translation) mine.add(at.key); });
+    common = common ? new Set([...common].filter(k => mine.has(k))) : mine;
+  }
+  return common!.size;
+}
+const scenesIn = (bar: string) => Number(bar.match(/^(\d+) scenes?/)?.[1] ?? 0);
+
+describe('"All words" means every word in one scene', () => {
+  it('ἄναξ ἀνδρῶν: counts only the scenes holding both, not the books', async () => {
+    open('g=ἄναξ ἀνδρῶν&gm=all');
+    const shown = scenesIn(await counted());
+    const want = await scenesHolding('grk', ['ἄναξ', 'ἀνδρῶν']);
+    console.info(`ἄναξ ἀνδρῶν, all words: ${shown} scenes (by scene: ${want})`);
+    expect(shown).toBe(want);
+  });
+
+  it('English all words in Murray: counts only the scenes holding both', async () => {
+    open('e=swift ships&em=all&t=murray');
+    const shown = scenesIn(await counted());
+    const want = await scenesHolding('eng', ['swift', 'ships'], 'murray');
+    console.info(`swift ships (Murray), all words: ${shown} scenes (by scene: ${want})`);
+    expect(shown).toBe(want);
   });
 });
 
