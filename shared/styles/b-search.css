@@ -33,6 +33,9 @@
   --sans: var(--font-ui);
   --read: var(--font-english);
   --tface: var(--font-display);
+  /* The bar's big count: Palatino's lining figures. Big Caslon's old-style
+     "1" reads as a capital I. */
+  --nface: var(--font-greek);
   --font-caps: var(--font-ui);
 }
 /* What the sister reader's b.css gave every page in its frame and the search
@@ -1182,11 +1185,11 @@
   .search-page .sx-icon { display: none; }
   .search-page :is(.sx-pg, .sx-save .sx-ico) { display: none; }
 
-  /* The count in Oswald, red, "instances" under it; Save search beside it. */
+  /* The count in Palatino, red, "instances" under it; Save search beside it. */
   .search-page .sx-head { padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
   .search-page .result-bar { flex-wrap: nowrap; align-items: flex-start; gap: 12px; }
   .search-page .result-count { min-width: 0; font: 600 20px/1.2 var(--sans); color: var(--ink); }
-  .search-page .rc-n { display: block; font: 700 56px/.95 var(--tface); color: var(--red-ink); font-variant-numeric: tabular-nums; }
+  .search-page .rc-n { display: block; font: 700 56px/.95 var(--nface); color: var(--red-ink); font-variant-numeric: lining-nums tabular-nums; }
   .search-page .rc-w { display: block; }
   .search-page .rc-p { display: none; }
   .search-page .sx-save {
@@ -1698,7 +1701,7 @@
   }
   /* The number as large as the row lets it be: a fifth of the screen for
      three digits, less for more. */
-  .search-page .rc-n { font: 700 min(46px, calc(150px / var(--d, 3)))/.95 var(--tface); color: var(--red-ink); font-variant-numeric: tabular-nums; }
+  .search-page .rc-n { font: 700 min(46px, calc(150px / var(--d, 3)))/.95 var(--nface); color: var(--red-ink); font-variant-numeric: lining-nums tabular-nums; }
   .search-page .rc-w { margin-top: 2px; white-space: nowrap; }
   .search-page .rc-p { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .search-page :is(.sx-icon, .sx-save) {
