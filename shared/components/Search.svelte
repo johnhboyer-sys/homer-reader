@@ -3671,9 +3671,9 @@
         await grammar;
         if (run !== searchRun) return;
       }
+      // The speech data (~350 KB) waits for a speech filter, or for the
+      // reader to reach for the Spoken-by menu: not every search needs it.
       await showResults(results);
-      // The speakers, for the speech filter's list, once the hits are up.
-      void ensureSpeechData();
     } catch (err) {
       if (run === searchRun) error = err instanceof Error ? err.message : String(err);
     } finally {
@@ -5283,7 +5283,7 @@
                   <span>Translations</span>{' '}<small>{transFilter ? transCounts.find(t => t.id === transFilter)?.short ?? transFilter : `All ${transCounts.length}`}</small>{' '}<span class="gt">›</span>
                 </button>
               {/if}
-              <button type="button" class="sx-nav" bind:this={menuRows.speech} on:click={() => openScreen('speech')}>
+              <button type="button" class="sx-nav" bind:this={menuRows.speech} on:click={() => { void ensureSpeechData(); openScreen('speech'); }}>
                 <span>Speech</span>{' '}<small>{speech ? speechLabel(speech, castById) : 'All lines'}</small>{' '}<span class="gt">›</span>
               </button>
               {#if formChoice}
@@ -5349,7 +5349,9 @@
                 <button type="button" class="i" class:on={speech?.kind === 'speeches'} aria-pressed={speech?.kind === 'speeches'} disabled={speechBusy}
                   on:click={() => setSpeech(speech?.kind === 'speeches' ? null : { kind: 'speeches' })}><span class="i-t">Speeches only</span>{#if speech?.kind === 'speeches'}<span class="i-x" aria-hidden="true">×</span>{/if}</button>
               </div>
-              <label class="sx-speaker">
+              <!-- The speakers load as a pointer nears the menu, or on focus:
+                   a native list opened empty would not fill in. -->
+              <label class="sx-speaker" on:pointerenter={() => void ensureSpeechData()}>
                 <span class="sx-speaker-l">Spoken by</span>
                 <span class="prox-sel"><span class="prox-selv" aria-hidden="true">{speech?.kind === 'speaker' ? speakerDisplayName(speech.id, castById) : 'anyone'}</span>
                   <select aria-label="Spoken by" disabled={speechBusy} value={speech?.kind === 'speaker' ? speech.id : ''}
