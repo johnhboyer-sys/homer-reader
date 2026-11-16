@@ -376,6 +376,7 @@ def _validate_work_data(data_dir: Path, manifest: WorkManifest, problems: list[P
     _validate_public_gating(manifest, loaded, problems)
     if verse:
         _validate_apparatus(manifest, data_dir, loaded, problems)
+        _validate_search_port(manifest.work_id, work_dir, problems)
 
 
 def _validate_emitted_manifest(manifest: WorkManifest, emitted: Any, problems: list[Problem]) -> None:
@@ -1141,6 +1142,137 @@ def _validate_apparatus(
     _validate_apparatus_epithets_emitted(manifest, data_dir, problems)
     _validate_apparatus_scansion_emitted(manifest, data_dir, problems)
     _validate_apparatus_vocab_emitted(manifest, data_dir, problems)
+
+
+def _validate_search_port(work_id: str, work_dir: Path, problems: list[Problem]) -> None:
+    """The files the ported search reads (docs/search-port/PLAN.md): one
+    English index per translation the books carry, each counting the same
+    words as the books (english_words); scene chapter_bounds in
+    search/offsets.json, one per scene of the emitted books, increasing, each
+    at its scene's first line; and search/eng-chapters.json, whose starts
+    increase and name the book's scenes in order."""
+    from .stage6_search import english_words, segment_translations, translation_index_name
+
+    search = work_dir / "search"
+
+    def load(name: str) -> Any:
+        path = search / name
+        if not path.exists():
+            problems.append((work_id, f"search/{name}", "missing: the ported search reads it"))
+            return None
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            problems.append((work_id, f"search/{name}", f"invalid JSON: {exc}"))
+            return None
+
+    books: list[dict] = []
+    for path in sorted(work_dir.glob("book-*.json")):
+        try:
+            books.append(json.loads(path.read_text(encoding="utf-8")))
+        except Exception:
+            continue  # reported by the book checks
+    meta = load("meta.json")
+    seg_idx = {str(m["id"]): i for i, m in enumerate(meta or [])}
+
+    # -- Indexes: words per segment, from the books and from each index.
+    expected: dict[str, dict[int, int]] = {}
+    scenes_of: dict[int, list[str]] = {}
+    seg_of_book: dict[int, int] = {}
+    for doc in books:
+        scenes_of[doc.get("book")] = [
+            f"{s['lines'][0]}-{s['lines'][1]}"
+            for s in ((doc.get("apparatus") or {}).get("scenes") or [])
+        ]
+        for seg in doc.get("segments") or []:
+            si = seg_idx.get(str(seg.get("id")))
+            if si is None:
+                continue
+            seg_of_book[doc.get("book")] = si
+            slots = {"english": [(seg.get("english") or {}).get("text") or ""]}
+            slots.update(segment_translations(seg))
+            for slot, texts in slots.items():
+                n = sum(len(english_words(t)) for t in texts)
+                if n:
+                    expected.setdefault(slot, {})[si] = n
+    present = {p.name for p in search.glob("english*.json")} if search.is_dir() else set()
+    for name in sorted(present - {translation_index_name(s) for s in expected}):
+        problems.append((work_id, f"search/{name}", "index for a translation the books do not carry"))
+    for slot, counts in sorted(expected.items()):
+        name = translation_index_name(slot)
+        index = load(name)
+        if index is None:
+            continue
+        got: dict[int, int] = {}
+        for plist in index.values():
+            for si, _pos in plist:
+                got[si] = got.get(si, 0) + 1
+        if got != counts:
+            bad = sorted(set(got) ^ set(counts) | {k for k in counts if got.get(k) != counts[k]})
+            problems.append((work_id, f"search/{name}",
+                             f"word counts disagree with the books at seg_idx {bad[:5]} "
+                             "(an index from another build?)"))
+
+    # -- Scene bounds.
+    offsets = load("offsets.json")
+    if offsets is not None:
+        by_book: dict[int, list[dict]] = {}
+        for b in offsets.get("chapter_bounds") or []:
+            by_book.setdefault(b.get("book"), []).append(b)
+        segs = offsets.get("segments") or []
+        base = offsets.get("seg_base_offset") or []
+        for book, names in sorted(scenes_of.items()):
+            bounds = by_book.get(book) or []
+            if not bounds:
+                problems.append((work_id, "search/offsets.json", f"book {book} has no scene bounds"))
+                continue
+            starts = [b["start"] for b in bounds]
+            if any(b <= a for a, b in zip(starts, starts[1:])):
+                problems.append((work_id, "search/offsets.json",
+                                 f"book {book}: scene bound starts do not increase"))
+            if [b["chapter"] for b in bounds] != names:
+                problems.append((work_id, "search/offsets.json",
+                                 f"book {book}: chapter_bounds do not match the book's scenes"))
+                continue
+            si = seg_of_book.get(book)
+            if si is None or si >= len(segs) or si >= len(base):
+                continue
+            for b in bounds:
+                local = b["start"] - base[si]
+                line = None
+                for n, count in segs[si]["line_runs"]:
+                    if local < count:
+                        line = n
+                        break
+                    local -= count
+                if str(line) != b["chapter"].split("-")[0]:
+                    problems.append((work_id, "search/offsets.json",
+                                     f"book {book}: bound {b['chapter']} starts at line {line}"))
+
+    # -- Where each scene starts in each translation's words.
+    eng = load("eng-chapters.json")
+    if eng is not None:
+        book_of_seg = {si: book for book, si in seg_of_book.items()}
+        for slot, counts in sorted(expected.items()):
+            per_seg = eng.get(slot)
+            if not isinstance(per_seg, dict):
+                problems.append((work_id, "search/eng-chapters.json", f"no entry for the {slot} translation"))
+                continue
+            for si, n in sorted(counts.items()):
+                starts = per_seg.get(str(si)) or []
+                names = scenes_of.get(book_of_seg.get(si), [])
+                where = f"{slot} book {book_of_seg.get(si)}"
+                if not starts or starts[0][0] != 0:
+                    problems.append((work_id, "search/eng-chapters.json", f"{where}: does not start at word 0"))
+                    continue
+                words = [w for w, _ in starts]
+                order = [names.index(c) if c in names else -1 for _, c in starts]
+                if any(b <= a for a, b in zip(words, words[1:])) or words[-1] >= n:
+                    problems.append((work_id, "search/eng-chapters.json",
+                                     f"{where}: word starts do not increase within the book's {n} words"))
+                if -1 in order or any(b <= a for a, b in zip(order, order[1:])):
+                    problems.append((work_id, "search/eng-chapters.json",
+                                     f"{where}: scenes are not the book's, in order, each once"))
 
 
 def _validate_apparatus_scenes_coverage(

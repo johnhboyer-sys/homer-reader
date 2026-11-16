@@ -270,7 +270,7 @@ class TestCheckOffsets:
             "token_count": 2,
             "seg_base_offset": [0],
             "segments": [{"book": 1, "column": "1", "line_runs": [[457, 1], [462, 1]]}],
-            "chapter_bounds": [],
+            "chapter_bounds": [{"book": 1, "chapter": "457-462", "start": 0, "accuracy": "exact"}],
         }
         result = check_offsets(
             offsets, segments, [{"book": 1, "after": 457, "next": 462}]
@@ -347,17 +347,21 @@ class TestCheckOffsets:
         assert not result["ok"]
         assert "line_runs do not match stage3 lines" in result["problems"][0]
 
-    def test_nonempty_chapter_bounds_is_rejected(self):
-        # Homer has no chapter analogue: chapter_bounds must always be [].
+    def test_empty_chapter_bounds_is_rejected(self):
+        # Replaces "nonempty chapter_bounds is rejected" (search port, 16 Nov
+        # 2026): the scenes are now Homer's chapters, and a book with none
+        # would leave the search nowhere to count its hits.
+        # test_search_port.py pins the bounds themselves.
         segments = [{"id": "1", "book": 1, "lines": [{"n": 1, "tokens": _tokens("a")}]}]
         offsets = {
             "token_count": 1,
             "seg_base_offset": [0],
             "segments": [{"book": 1, "column": "1", "line_runs": [[1, 1]]}],
-            "chapter_bounds": [{"book": 1, "chapter": 1, "start": 0}],
+            "chapter_bounds": [],
         }
         result = check_offsets(offsets, segments)
         assert not result["ok"]
+        assert "no scene bounds" in result["problems"][0]
 
 
 class TestCheckGrammar:

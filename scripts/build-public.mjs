@@ -53,6 +53,7 @@ const publicWorks = new Set(
 
 console.log('Cleaning generated public build output');
 rmSync(join(ROOT, 'build', 'dist'), { recursive: true, force: true });
+rmSync(join(ROOT, 'build', 'scene-pages'), { recursive: true, force: true });
 rmSync(join(ROOT, 'app', 'dist'), { recursive: true, force: true });
 
 for (const work of works) {
@@ -157,6 +158,18 @@ if (alignConfigs.length) {
     });
   }
 }
+
+// The search counts English hits by scene, in the scene whose Reading Mode
+// page shows the word (docs/search-port/PLAN.md). The pages come from the
+// reader's own paging code, so they are worked out in Node, over the finished
+// books and the speeches copied above; the pipeline then turns them into
+// word numbers with the search index's own word split (eng-chapters.json).
+console.log('\nPaging each translation by scene for the search');
+const scenePages = join(ROOT, 'build', 'scene-pages');
+run('node', ['--experimental-strip-types', join(ROOT, 'app', 'scripts', 'build-scene-pages.mjs'), dataDir, scenePages]);
+run(PY, ['-m', 'homer_pipeline.search_scenes', dataDir, scenePages], {
+  cwd: join(ROOT, 'pipeline'),
+});
 
 console.log('\nRunning corpus preflight validation');
 run(PY, ['-m', 'homer_pipeline.preflight', dataDir, MANIFESTS], {

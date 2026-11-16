@@ -70,9 +70,9 @@ def check_offsets(
     `scheme.validate_line_sequence` (the same function stage2's own line-gap
     check calls) means a renumbering defect here is caught by the very
     whitelist the manifest already declares, not a second, divergent one.
-    Aristotle's `chapter_bounds` accuracy bookkeeping has no Homeric analogue
-    and is intentionally not ported: Homer's offsets.json always emits
-    `chapter_bounds: []`.
+    Homer's `chapter_bounds` are its scenes (stage6 scene_chapter_bounds):
+    every book needs at least one, and within a book the starts must increase
+    and stay inside the book's own offsets.
     """
     base = offsets["seg_base_offset"]
     coords = offsets["segments"]
@@ -144,12 +144,30 @@ def check_offsets(
                 "vulgate line numbers, never a renumbered sequence)"
             )
 
-    bounds = offsets["chapter_bounds"]
-    if bounds:
-        problems.append(
-            f"chapter_bounds has {len(bounds)} entries; Homer has no chapter "
-            "analogue and must always emit an empty list"
-        )
+    # The scenes the search counts by. A book's span runs from its first
+    # segment's base to the next book's (or token_count).
+    book_span: dict[int, list[int]] = {}
+    if len(coords) == len(base):
+        for i, c in enumerate(coords):
+            end = base[i + 1] if i + 1 < len(base) else offsets["token_count"]
+            span = book_span.setdefault(c["book"], [base[i], end])
+            span[1] = end
+    bounds = offsets.get("chapter_bounds") or []
+    last_start: dict[int, int] = {}
+    for b in bounds:
+        book = b.get("book")
+        span = book_span.get(book)
+        if span is None:
+            problems.append(f"chapter_bounds: {b!r} names a book the offsets do not have")
+            continue
+        if not span[0] <= b["start"] < span[1]:
+            problems.append(f"chapter_bounds: {b!r} starts outside book {book} ({span})")
+        if book in last_start and b["start"] <= last_start[book]:
+            problems.append(f"chapter_bounds: book {book} starts do not increase at {b!r}")
+        last_start[book] = b["start"]
+    for book in book_span:
+        if book not in last_start:
+            problems.append(f"chapter_bounds: book {book} has no scene bounds")
 
     return {
         "token_count": offsets["token_count"],
