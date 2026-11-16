@@ -2082,11 +2082,6 @@
   .search-page .d6.has-join .sq-head.h-e { margin-top: 0; }
   .search-page .d6-in { flex-basis: 100%; }
 }
-@media (max-width: 387.98px) {
-  .search-page .d6-in .seg { flex-wrap: wrap; }
-  .search-page .d6-in .seg button:last-child { flex-basis: 100%; padding-left: 12px; margin-left: -12px; }
-  .search-page .d6-in .seg button:last-child::before { display: none; }
-}
 @media (max-width: 700px) {
   .search-page .sx-para .sx-para-sp { min-width: 0; }
   .search-page .sx-para .group-label:not(.grc) { order: 4; flex-basis: 100%; }
@@ -2268,7 +2263,9 @@ body:has(.search-page) { background: var(--page-bg); }
 }
 
 /* ── Homer's own controls, drawn as the page's others are ───────────────── */
-/* The book, beside In, once one poem is chosen: a menu like the editor's. */
+/* The book, beside In, once one poem is chosen: a menu like the editor's.
+   Homer's three scopes fit one line at 360px, so Aristotle's narrow-screen
+   wrap of the last one is gone. */
 .search-page .d6-in { flex-wrap: wrap; }
 .search-page .d6-book { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; }
 .search-page .d6-book > .lbl { color: var(--mid); font: 500 16px/1.3 var(--sans); }
