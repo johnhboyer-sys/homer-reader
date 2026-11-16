@@ -56,3 +56,26 @@ tests stay green or are replaced with a reason. Review: a Codex (GPT-6.1-Sol, me
   Greek words, give or take the English placement rule above.
 - Screenshots at 390, 360, 844 and 1440, both themes, old against new, for John.
 - `npm run build:public` passes: preflight, link check, 0 broken.
+
+## Where it stopped (16 Nov, 17:08, usage pause; Homer is off today's list)
+
+- **Merged into `claude/search-port`:** lane B, the engine (836c12c38); lane A, the data build (8d1d06817,
+  5acf6d700); the preflight fix from the Codex review of A+B (eeef7e3b1). That review (GPT-6.1-Sol, medium, run
+  directly through codex-companion) found 1,125,267 English word positions and their scenes with 0 mismatches;
+  its one finding is fixed.
+- **Not merged: `claude/search-port-page`** (worktree `.claude/worktrees/search-port-page`). Lane C ported the
+  page and styles (95dd42544, ce0232dd4, c0d076873). Lane C2 then made six fixes (16ea385d8 "All words" = one
+  scene; e5515598f "Show the whole scene"; 140f5dbe8 speech data only for a speech filter; baafa5e99 count
+  numeral in Palatino; bef10ede5 tests; 7f64ecb13 the Advanced guide) and was stopped before reporting. Its last
+  commit, 844c72c19, holds three test files never run to a known state (no-empty-page corpus walk).
+- **Counts on the new page** (`docs/search-port/search-counts-new.mjs`, before C2): θάλασσα 94 scenes / 119
+  hits; "sea" (Murray, exact) 225 / 398; θάλασσα + sea "and" 92 scenes (the reader-page placement; the 86 on the
+  first rulings page came from a rougher rule, since corrected).
+- **Next, in order:** run the full vitest suites, svelte-check and `npm run build` on the page branch; check C2's
+  six fixes and the WIP tests; re-run `search-counts-new.mjs` and explain every moved count; the two
+  wildcard-speed tests that failed under load (re-run idle); merge the page branch; `npm run build:public`;
+  screenshots at 390/360/844/1440, both themes, old against new; a Codex review of the page and styles (and of
+  eeef7e3b1); a PR with pictures for John.
+- **Open for John:** the proximity rule now measures each term from the first (Aristotle's 12 Nov rule; same
+  results for two terms); an "and" search over all four translations takes 22 pages for 94 scenes; running-text
+  mode stays hidden until `running.json` is built; old links with no `op` follow aristotle-reader's decision.
