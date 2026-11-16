@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { englishOccurrences, greekFold, search, searchPhraseVariants } from '../lib/search';
+import { englishQueryUnits, englishWords, greekFold, search, searchPhraseVariants } from '../lib/search';
 
 const meta = [
-  { id: 's1', book: 1, column: '1094a', greek_head: 'λόγος ἀρετή', greek_tokens: 'logos areth', english_head: 'virtue is a habit of choice' },
-  { id: 's2', book: 1, column: '1094b', greek_head: 'ψυχή λόγος', greek_tokens: 'yuxh logos', english_head: 'happiness and virtue together' },
-  { id: 's3', book: 2, column: '1100a', greek_head: 'τέχνη', greek_tokens: 'texnh', english_head: 'craft concerns making' },
+  { id: 's1', book: 1, column: '1094a' },
+  { id: 's2', book: 1, column: '1094b' },
+  { id: 's3', book: 2, column: '1100a' },
 ];
 
 const greekIndex = {
@@ -14,15 +14,18 @@ const greekIndex = {
   texnh: [[2, 0]],
 } satisfies Record<string, [number, number][]>;
 
+// The index shape since the port: {word: [[seg_idx, word_pos], ...]}.
+// s1 "virtue is a habit of choice", s2 "happiness and virtue together",
+// s3 "craft concerns making".
 const englishIndex = {
-  virtue: [0, 1],
-  habit: [0],
-  choice: [0],
-  happiness: [1],
-  and: [1],
-  craft: [2],
-  making: [2],
-} satisfies Record<string, number[]>;
+  virtue: [[0, 0], [1, 2]],
+  habit: [[0, 3]],
+  choice: [[0, 5]],
+  happiness: [[1, 0]],
+  and: [[1, 1]],
+  craft: [[2, 0]],
+  making: [[2, 2]],
+} satisfies Record<string, [number, number][]>;
 
 function json(data: unknown) {
   return Promise.resolve({ ok: true, json: () => Promise.resolve(data) } as Response);
@@ -102,7 +105,7 @@ describe('search', () => {
     // `happ* and virtue` looking for the literal token "happ".
     const hits = (await search('', 'happ* and virtue', 'phrase', 'phrase', 'and', ['TEngPhraseWild'])).results;
     expect(hits.map((r) => r.meta.id)).toEqual(['s2']);
-    expect(hits[0].engPositions).toEqual([0]);
+    expect(hits[0].engHits).toEqual([{ translation: 'english', positions: [0, 1, 2], matches: [0] }]);
   });
 
   it('combines Greek and English boxes with AND or OR', async () => {
@@ -205,7 +208,7 @@ describe('lemma search resolves an inflected word to its headword', () => {
 describe('searchPhraseVariants falls back to the typed word when the map does not record it', () => {
   // logos@0 and xyz@1 sit adjacent in one segment, so the phrase matches under
   // the one reading that pairs logos's headword with xyz exactly as typed.
-  const partialMeta = [{ id: 'p1', book: 1, column: '1', greek_head: '', greek_tokens: '', english_head: '' }];
+  const partialMeta = [{ id: 'p1', book: 1, column: '1', }];
   const partialIndex = {
     logos: [[0, 0]],
     xyz: [[0, 1]],
@@ -232,41 +235,16 @@ describe('searchPhraseVariants falls back to the typed word when the map does no
   });
 });
 
-describe('englishOccurrences', () => {
-  it('returns one offset per matching token (repeats counted)', () => {
-    // #11: "socrates" three times -> three offsets, not one.
-    const text = 'Socrates asked; then Socrates replied, and Socrates smiled.';
-    expect(englishOccurrences(text, ['socrates'], 'all')).toHaveLength(3);
-  });
-
-  it('finds a phrase whose occurrence is past the old 500-char cap', () => {
-    // #5: the phrase sits well beyond character 500; token-based matching still finds it.
-    const filler = 'word '.repeat(200);           // ~1000 chars
-    const text = `${filler}you shall avail yourself of it`;
-    const offs = englishOccurrences(text, ['shall', 'avail'], 'phrase');
-    expect(offs).toHaveLength(1);
-    expect(offs[0]).toBeGreaterThan(500);
-  });
-
-  it('matches whole tokens and prefix wildcards, not substrings', () => {
-    const text = 'virtue and virtues and virtuous';
-    expect(englishOccurrences(text, ['virtue'], 'all')).toHaveLength(1);   // not "virtues"/"virtuous"
-    expect(englishOccurrences(text, ['virtu*'], 'all')).toHaveLength(3);   // prefix hits all three
-  });
-
-  it('accepts the same wildcards the index does', () => {
-    const text = 'happiness and holiness';
-    expect(englishOccurrences(text, ['hap*ness'], 'all')).toHaveLength(1);
-    expect(englishOccurrences(text, ['h?liness'], 'all')).toHaveLength(1);
-  });
-});
-
-describe('search English occurrences (index integration)', () => {
+describe('English words and positions', () => {
   const longText = `${'filler word '.repeat(60)}the crux is that one shall avail nothing`;
-  const engMeta = [
-    { id: 's1', book: 1, column: '406a', greek_head: '', greek_tokens: '', english_head: longText },
-  ];
-  const engIndex = { shall: [0], avail: [0], filler: [0], word: [0], the: [0] };
+  const words = englishWords(longText).map(w => w.word);
+  const at = words.indexOf('shall');
+  const engMeta = [{ id: 's1', book: 1, column: '406a' }];
+  const engIndex = {
+    filler: words.flatMap((w, i) => (w === 'filler' ? [[0, i]] : [])),
+    word: words.flatMap((w, i) => (w === 'word' ? [[0, i]] : [])),
+    shall: [[0, at]], avail: [[0, at + 1]],
+  };
   beforeEach(() => {
     vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
       const path = String(url);
@@ -278,18 +256,56 @@ describe('search English occurrences (index integration)', () => {
   });
   afterEach(() => vi.restoreAllMocks());
 
-  it('phrase past char 500 is found (regression for the [:500] truncation)', async () => {
-    const idx = longText.toLowerCase().indexOf('shall avail');
-    expect(idx).toBeGreaterThan(500);
+  it('finds a phrase far past the old 500-character cap', async () => {
+    expect(longText.indexOf('shall avail')).toBeGreaterThan(500);
     const { results } = await search('', 'shall avail', 'all', 'phrase', 'and', ['TEng500']);
     expect(results).toHaveLength(1);
-    expect(results[0].engPositions).toEqual([idx]);
+    expect(results[0].engHits?.[0].matches).toEqual([at]);
   });
 
-  it('counts repeated English occurrences per segment', async () => {
+  it('counts every repeat of a word in a segment', async () => {
     const { results } = await search('', 'word', 'all', 'all', 'and', ['TEngCount']);
     expect(results).toHaveLength(1);
-    // "word" appears 60 times in the filler.
-    expect(results[0].engPositions).toHaveLength(60);
+    expect(results[0].engHits?.[0].positions).toHaveLength(60);
+  });
+});
+
+// A hyphenated query used to find nothing: the old englishFold stripped the
+// hyphen, so "rosy-fingered" was looked up as the one word "rosyfingered",
+// which the index never holds. The index splits at the hyphen (englishWords),
+// and a typed term splits the same way, its parts standing in a row.
+describe('a hyphenated English query', () => {
+  const text = 'Dawn came, rosy-fingered Dawn, and the sea was wine-dark.';
+  const words = englishWords(text).map(w => w.word);
+  const idx: Record<string, [number, number][]> = {};
+  words.forEach((w, i) => (idx[w] ??= []).push([0, i]));
+
+  beforeEach(() => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      const path = String(url);
+      if (path.endsWith('/meta.json')) return json([{ id: 'h1', book: 1, column: '1' }]);
+      if (path.endsWith('/english.json')) return json(idx);
+      if (path.endsWith('/greek_lemma.json') || path.endsWith('/greek_form.json')) return json({});
+      return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response);
+    });
+  });
+  afterEach(() => vi.restoreAllMocks());
+
+  it('splits at the hyphen, as the index does', () => {
+    expect(words).toContain('rosy');
+    expect(words).toContain('fingered');
+    expect(words).not.toContain('rosyfingered');
+    expect(englishQueryUnits('rosy-fingered dawn')).toEqual([['rosy', 'fingered'], ['dawn']]);
+  });
+
+  it('finds "rosy-fingered dawn" as the words "rosy-fingered Dawn"', async () => {
+    const { results } = await search('', 'rosy-fingered dawn', 'all', 'phrase', 'and', ['THyphen']);
+    expect(results.map(r => r.meta.id)).toEqual(['h1']);
+    expect(results[0].engHits?.[0].matches).toEqual([words.indexOf('rosy')]);
+  });
+
+  it('finds a hyphenated term alone, and a term whose parts are not in a row finds nothing', async () => {
+    expect((await search('', 'wine-dark', 'all', 'all', 'and', ['THyphen2'])).results).toHaveLength(1);
+    expect((await search('', 'dark-wine', 'all', 'all', 'and', ['THyphen3'])).results).toHaveLength(0);
   });
 });

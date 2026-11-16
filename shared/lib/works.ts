@@ -109,6 +109,9 @@ export interface Work {
   // work (ids of built works), surfaced in a "Commentary" section on the
   // landing page.
   commentaries?: string[];
+  // A narrator's name, for the speaker filter (search.ts). Unused here: Homer
+  // keeps its own line-span speaker filter (search-filters.ts).
+  narrator?: string;
   /** Authorship status. Absent ⇒ genuine. Drives the homepage/landing badge. */
   authenticity?: 'genuine' | 'dubious' | 'spurious';
   // Traditional stylometric/dramatic dating (early/middle/late Plato), shown
@@ -219,6 +222,12 @@ export function getWork(id: string): Work | undefined {
   return BY_ID.get(id);
 }
 
+/** The genuine works: no authenticity flag, or 'genuine'. The search URL's
+ * `auth` works value reads from the registry, never from a hand-written list. */
+export const AUTHENTIC_IDS: string[] = WORKS
+  .filter((w) => !w.authenticity || w.authenticity === 'genuine')
+  .map((w) => w.id);
+
 export function bookLabel(work: Work, n: number): string {
   return work.bookLabels[n - 1] ?? String(n);
 }
@@ -257,6 +266,13 @@ export function workLanding(workId: string): string {
 // translations — user imports, loaded from local files — via
 // globalThis.__ARISTOTLE_EXTRA_TRANSLATIONS__ ({workId: TranslationRef[]});
 // the site never sets it, so the static registry is unchanged there.
+// The translations the corpus build indexes for search: the registry's, gated
+// as visibleTranslations gates them, but without the runtime imports — those
+// live outside the build and have no index to search.
+export function searchableTranslations(work: Work): TranslationRef[] {
+  return work.translations.filter((t) => !t.private || SHOW_PRIVATE);
+}
+
 export function visibleTranslations(work: Work): TranslationRef[] {
   const extra = (globalThis as {
     __ARISTOTLE_EXTRA_TRANSLATIONS__?: Record<string, TranslationRef[]>;
@@ -381,6 +397,17 @@ export const WORK_GROUPS: WorkGroup[] = (() => {
   return groups;
 })();
 
+// The search's works picker: the home groups, then one more group for any
+// searchable work no group holds, named by its author. Homer's shelf holds
+// both epics, so today this is WORK_GROUPS.
+export const SEARCH_GROUPS: WorkGroup[] = (() => {
+  const grouped = new Set(WORK_GROUPS.flatMap((g) => g.ids));
+  const rest = WORKS.filter((w) => !grouped.has(w.id));
+  if (!rest.length) return WORK_GROUPS;
+  const label = [...new Set(rest.map((w) => w.author))].join(', ');
+  return [...WORK_GROUPS, { ref: '', label, ids: rest.map((w) => w.id) }];
+})();
+
 // Cross-work ordering for search results, matching the home page's SHELVES
 // flatten order (which differs from the raw WORKS/corpus order). Any real work
 // not referenced by SHELVES is appended in WORKS order so every searchable
@@ -391,3 +418,8 @@ export const WORK_ORDER: Map<string, number> = (() => {
   for (const w of WORKS) if (!order.includes(w.id)) order.push(w.id);
   return new Map(order.map((id, i) => [id, i]));
 })();
+
+// Homer's speaker filter reads speeches.json (line spans), not the
+// offsets.turn_bounds the shared engine's speaker panel needs, so that panel
+// stays off. The `spk` and `so` filters (search-filters.ts) are Homer's own.
+export const HAS_SPEAKERS = false;

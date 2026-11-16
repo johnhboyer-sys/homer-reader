@@ -7,6 +7,7 @@ import type { AudioManifest } from './audio';
 import { parseCoastline, type Coastline } from './scenemap';
 import type { PlacesFile, JourneysFile } from './scene-place';
 import type { Offsets } from './search';
+import { memoAsyncBy } from './memo';
 
 export interface Token {
   t: string;   // surface form (Unicode Greek)
@@ -16,6 +17,9 @@ export interface Token {
 
 export interface GreekLine {
   n: number;
+  // A lettered line (Bekker's 244b carries 5 and then 5a). Homer has none;
+  // the search engine reads the field when a corpus does.
+  sub?: string;
   text: string;
   joined?: boolean;
   tokens: Token[];
@@ -73,6 +77,10 @@ export interface FlowTurn {
   // Emitted for para-flow rows AND for dialogue turns with internal paragraphs
   // (Timaeus/Phaedo long speeches).
   ep?: number[] | null;
+  // `es`: section starts within this turn's English slice (`o` is the char
+  // offset where section `c` begins). Homer's turnFlow does not emit it; the
+  // search engine's turn-text code reads it when present.
+  es?: { o: number; c: string }[] | null;
   // `et`: embedded english.turns for a para-flow row — intra-row speech blocks
   // with lead-ins (dialogue nested inside a narrated paragraph row). `o` is the
   // char offset in the row's English slice where the embedded speech begins.
@@ -83,7 +91,7 @@ export interface FlowTurn {
   // is its whole English cell; when the row also carries English (a narration
   // lead, e.g. Lysis 203a) the stack follows it. Each speech has its own
   // lead-in, English text, and optional paragraph breaks.
-  sub?: { s: string | null; d: string | null; e: string; ep?: number[] | null }[] | null;
+  sub?: { s: string | null; d: string | null; e: string; ep?: number[] | null; es?: { o: number; c: string }[] | null }[] | null;
   // `alt`: this turn's text in ALTERNATE translations, keyed by translation id
   // (see shared/lib/works.ts TranslationRef.id). Populated by the post-stage7
   // turn aligner (pipeline/homer_pipeline/align_turns.py), which pairs each
@@ -91,7 +99,7 @@ export interface FlowTurn {
   // alternate inherits Stephanus anchoring. The reader's turn-by-turn compare
   // renders `alt[id].e` in the second column on this same row; `e` is null for
   // a reference turn the alternate has no match for (rendered as an em-dash).
-  alt?: Record<string, { e: string | null; ep?: number[] | null }> | null;
+  alt?: Record<string, { e: string | null; ep?: number[] | null; es?: { o: number; c: string }[] | null }> | null;
 }
 
 // A dialogue book's turn flow: the globally-paired, ordered turn list the
@@ -500,6 +508,10 @@ export function fetchScansion(work: string, book: number): Promise<Record<string
   _scansionCache.set(key, p);
   return p;
 }
+
+// The search engine's name for a translation slice (the sister repo's
+// `OverlayPiece`): Homer's Butler, Pope and Kosmos slices share this shape.
+export type OverlayPiece = RossPiece;
 
 export interface BookData {
   book: number;
@@ -1020,6 +1032,48 @@ export function fetchOffsets(work: string): Promise<Offsets> {
   p.catch(() => { if (_offsetsCache.get(work) === p) _offsetsCache.delete(work); });
   _offsetsCache.set(work, p);
   return p;
+}
+
+// The combo-search lemma picker: fold key -> the headwords a lemma slot can
+// match, commonest first, sharded by fold-initial letter. `slug` is present only
+// where the lemma has a reference page, which is where a gloss can be fetched.
+export interface LemmaCandidate { h: string; k: string; s?: string; }
+// `n` belongs to the fold key, not to any one headword: the index is
+// accent-folded, so several headwords can share a key that no search can split.
+export interface LemmaChoice { n: number; c: LemmaCandidate[]; }
+// Reject rather than resolving empty on a failed fetch: an empty object would
+// be cached as a real answer and the picker would report "no lemmas" for the
+// rest of the session.
+const _picker = memoAsyncBy<string, Record<string, LemmaChoice>>(letter =>
+  fetch(`${ROOT()}/lemma-picker/${letter}.json`).then(async r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status} for lemma-picker/${letter}.json`);
+    const shard = await r.json();
+    const first = Object.values(shard)[0] as LemmaChoice | undefined;
+    if (first && !Array.isArray((first as LemmaChoice).c)) {
+      throw new Error(`lemma-picker/${letter}.json is stale — rebuild the lemma data`);
+    }
+    return shard;
+  }));
+
+export function fetchLemmaPickerShard(letter: string): Promise<Record<string, LemmaChoice>> {
+  return _picker(letter);
+}
+
+// A lemma page's short glosses, fetched only when the picker needs one. A
+// missing page resolves (and caches) [] rather than throwing.
+const _glosses = memoAsyncBy<string, string[]>(slug =>
+  fetch(`${ROOT()}/lemmata/${slug}.json`)
+    .then(r => (r.ok ? r.json() : null))
+    .then(d => (d?.glosses ?? []) as string[]));
+
+export function fetchLemmaGlosses(slug: string): Promise<string[]> {
+  return _glosses(slug);
+}
+
+// The shared search page asks whether a work is cited by chapter.section (the
+// Athenian Constitution in the sister repo). No Homer work is.
+export function isChapterSection(_work: unknown): boolean {
+  return false;
 }
 
 export function lsjShard(key: string): string {

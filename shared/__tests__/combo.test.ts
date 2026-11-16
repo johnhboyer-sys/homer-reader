@@ -5,27 +5,20 @@ import { searchCombo, COMBO_WINDOW_DEFAULT, COMBO_WINDOW_MAX, type ComboOptions 
 //   book 1 = offsets 0-19   (chapter 1 = 0-9,  chapter 2 = 10-19)
 //   book 2 = offsets 20-39  (chapter 1 = 20-29, chapter 2 = 30-39)
 //   lines of 5 tokens throughout; 2 segments of 20 tokens each.
-//
-// Two deliberate departures from the real Homer build, both there to exercise
-// code the three readers share:
-//   - book 2 is split across TWO segments. In Homer a segment IS a book, so the
-//     column-boundary case below cannot arise today; the code that handles it is
-//     what keeps the sibling readers correct, and it stays covered.
-//   - chapter_bounds is populated. Homer's pipeline emits it empty, so the
-//     chapter unit and the crossChapter option are inert in the real corpus and
-//     the UI does not offer them — but the ported engine still implements them.
+// (Ported from the sister reader; Homer's own earlier version asserted the whole-match
+// window rule, which that reader changed on 12 Nov. See the port notes.)
 const meta = [
-  { id: '1:1', book: 1, column: '1', greek_head: '', greek_tokens: '', english_head: '' },
-  { id: '2:2a', book: 2, column: '2', greek_head: '', greek_tokens: '', english_head: '' },
-  { id: '2:2b', book: 2, column: '2', greek_head: '', greek_tokens: '', english_head: '' },
+  { id: '1:1000a', book: 1, column: '1000a' },
+  { id: '2:1001a', book: 2, column: '1001a' },
+  { id: '2:1001b', book: 2, column: '1001b' },
 ];
 const offsets = {
   token_count: 40,
   seg_base_offset: [0, 20, 30],
   segments: [
-    { book: 1, column: '1', line_runs: [[1, 5], [2, 5], [3, 5], [4, 5]] },
-    { book: 2, column: '2', line_runs: [[1, 5], [2, 5]] },
-    { book: 2, column: '2', line_runs: [[3, 5], [4, 5]] },
+    { book: 1, column: '1000a', line_runs: [[1, 5], [2, 5], [3, 5], [4, 5]] },
+    { book: 2, column: '1001a', line_runs: [[1, 5], [2, 5]] },
+    { book: 2, column: '1001b', line_runs: [[1, 5], [2, 5]] },
   ],
   book_bounds: [{ book: 1, start: 0 }, { book: 2, start: 20 }],
   chapter_bounds: [
@@ -55,9 +48,9 @@ const form: Record<string, [number, number][]> = {
   iota: [[0, 10]],
   kappa: [[0, 5], [0, 12]],
   lambda: [[0, 18]],
-  // Either side of the segment boundary at global 30, both inside book 2.
-  mu: [[1, 9]],    // global 29, last token of segment 2:2a
-  nu: [[2, 0]],    // global 30, first token of segment 2:2b
+  // Either side of the column boundary at global 30, both inside book 2.
+  mu: [[1, 9]],    // global 29, last token of 1001a
+  nu: [[2, 0]],    // global 30, first token of 1001b
 };
 
 function json(data: unknown) {
@@ -91,7 +84,7 @@ describe('searchCombo', () => {
   it('finds two terms inside the window and marks both tokens', async () => {
     const { results } = await searchCombo([slot('alpha'), slot('beta')], opts({ window: 5 }), ['C3']);
     expect(results).toHaveLength(1);
-    expect(results[0].meta.id).toBe('1:1');
+    expect(results[0].meta.id).toBe('1:1000a');
     expect(results[0].grkPositions).toEqual([2, 4]);
   });
 
@@ -124,27 +117,22 @@ describe('searchCombo', () => {
     expect(drop.results).toHaveLength(0);
   });
 
-  it('measures by verse when the unit is a line', async () => {
-    // alpha@2 and beta@4 share line 1 (offsets 0-4). This is the interesting
-    // unit for Homer: a formula is a within-verse phenomenon.
+  it('measures by line when the unit is a line', async () => {
+    // alpha@2 and beta@4 share line 1 (offsets 0-4).
     const { results } = await searchCombo([slot('alpha'), slot('beta')], opts({ unit: 'line' }), ['C10']);
     expect(results[0].grkPositions).toEqual([2, 4]);
-    // epsilon@8 is on line 2, so it shares no verse with alpha, however close.
+    // epsilon@8 is on line 2, so it shares no line with alpha, however close.
     const none = await searchCombo([slot('alpha'), slot('epsilon')], opts({ unit: 'line' }), ['C11']);
     expect(none.results).toHaveLength(0);
   });
 
-  it('measures by chapter when the unit is a chapter', async () => {
+  it('measures by chapter (a scene in Homer) when the unit is a chapter', async () => {
     // zeta@12 and eta@19 are 7 apart — outside the default 5-word window, but
-    // both sit in book 1 chapter 2 (offsets 10-19). Inert on the real corpus.
+    // both sit in book 1 chapter 2 (offsets 10-19).
     const { results } = await searchCombo([slot('zeta'), slot('eta')], opts({ unit: 'chapter' }), ['C12']);
-    expect(results).toHaveLength(1);
     expect(results[0].grkPositions).toEqual([12, 19]);
-    // epsilon@8 sits in chapter 1 of the same book (chapter 2 starts at 10);
-    // pairing it with eta@19 must NOT match under the chapter unit even
-    // though the word window is unbounded here (`reach = total` when
-    // unit !== 'words') — proving the chapter boundary itself is enforced,
-    // not merely that this pair's gap happens to fit under some window.
+    // Homer's test: epsilon@8 is in chapter 1 of the same book, so pairing it
+    // with eta@19 must NOT match under the chapter unit, whatever the window.
     const cross = await searchCombo([slot('epsilon'), slot('eta')], opts({ unit: 'chapter' }), ['C12b']);
     expect(cross.results).toHaveLength(0);
   });
@@ -168,7 +156,7 @@ describe('searchCombo', () => {
       [slot('iota'), slot('kappa'), slot('lambda')], opts({ window: 8 }), ['CG1'],
     );
     expect(results).toHaveLength(1);
-    expect(results[0].grkPositions).toEqual([10, 12, 18]);
+    expect(results[0].grkPositions).toEqual([5, 10, 12, 18]);
   });
 
   it('still rejects that group when the window is genuinely too small', async () => {
@@ -178,15 +166,13 @@ describe('searchCombo', () => {
     expect(results).toHaveLength(0);
   });
 
-  it('marks both halves of a window that crosses a segment boundary', async () => {
-    // mu@29 ends segment 2:2a and nu@30 opens 2:2b, same book. The match used
-    // to be filed under the first segment with nu dropped, so the reader saw a
-    // hit with one of its terms missing. Cannot arise in Homer today (segment ==
-    // book); kept because the same engine serves the sibling readers.
+  it('marks both halves of a window that crosses a column boundary', async () => {
+    // mu@29 ends column 1001a and nu@30 opens 1001b, same book. The match used
+    // to be filed under 1001a with nu dropped, so the reader saw a hit with one
+    // of its terms missing.
     const { results } = await searchCombo([slot('mu'), slot('nu')], opts({ window: 5 }), ['CX1']);
     expect(results.map((r) => [r.meta.id, r.grkPositions])).toEqual([
-      ['2:2a', [9]],
-      ['2:2b', [0]],
+      ['2:1001a', [9, 10]],
     ]);
   });
 
@@ -200,8 +186,8 @@ describe('searchCombo', () => {
   });
 
   it('lets two DIFFERENT slots match the same token', async () => {
-    // A lemma slot and a form slot both landing on alpha is the "μῆνις in the
-    // accusative" shape, and must keep working.
+    // A lemma slot and a form slot both landing on alpha is the "λόγος in the
+    // nominative" shape, and must keep working.
     const { results } = await searchCombo(
       [{ kind: 'lemma', terms: ['alpha'] }, slot('alpha')], opts({ window: 5 }), ['CD3'],
     );
@@ -222,18 +208,18 @@ describe('searchCombo', () => {
     expect(results).toHaveLength(0);
   });
 
-  // The window bounds the WHOLE match, not each slot's distance from the first
-  // one. Measured from slot 0 these two orderings disagree, and a window of W
-  // would quietly admit a span of 2W.
-  it('gives the same unordered result however the slots are ordered', async () => {
-    // alpha@2, beta@4, epsilon@8: the extent is 6, so W=5 must reject and W=6
-    // must accept, whichever slot is listed first.
-    for (const order of [['alpha', 'beta', 'epsilon'], ['beta', 'alpha', 'epsilon'], ['epsilon', 'beta', 'alpha']]) {
+  // The window bounds each slot's distance from the slot it is measured from
+  // (here the first), pair by pair and nothing more (John, 12 Nov). So which
+  // slot is listed first decides the reach a match needs.
+  it('measures each slot from the first slot, whichever is listed first', async () => {
+    // alpha@2, beta@4, epsilon@8. From alpha the farthest is epsilon, 6 away;
+    // from beta, epsilon, 4 away (alpha is 2); from epsilon, alpha, 6 away.
+    for (const [order, need] of [[['alpha', 'beta', 'epsilon'], 6], [['beta', 'alpha', 'epsilon'], 4], [['epsilon', 'beta', 'alpha'], 6]] as const) {
       const slots = order.map((t) => slot(t));
-      const tight = await searchCombo(slots, opts({ window: 5 }), [`CO5-${order[0]}`]);
-      expect(tight.results, `W=5 with ${order.join(',')}`).toHaveLength(0);
-      const loose = await searchCombo(slots, opts({ window: 6 }), [`CO6-${order[0]}`]);
-      expect(loose.results, `W=6 with ${order.join(',')}`).toHaveLength(1);
+      const tight = await searchCombo(slots, opts({ window: need - 1 }), [`CO5-${order[0]}`]);
+      expect(tight.results, `W=${need - 1} with ${order.join(',')}`).toHaveLength(0);
+      const loose = await searchCombo(slots, opts({ window: need }), [`CO6-${order[0]}`]);
+      expect(loose.results, `W=${need} with ${order.join(',')}`).toHaveLength(1);
     }
   });
 
@@ -256,12 +242,6 @@ describe('searchCombo', () => {
       { values: {}, certain: true },
       { values: {}, certain: true },
     ]);
-  });
-
-  it('leaves engPositions empty — a combo hit is a Greek hit', async () => {
-    const { results } = await searchCombo([slot('alpha'), slot('beta')], opts({ window: 5 }), ['CO9']);
-    expect(results[0].engPositions).toEqual([]);
-    expect(results[0].engMatch).toBe(false);
   });
 
   // Each later slot can be placed relative to the FIRST slot.
@@ -336,5 +316,47 @@ describe('searchCombo', () => {
       opts({ window: 5 }), ['C15'],
     );
     expect(results[0].grkPositions).toEqual([2, 3, 4]);
+  });
+});
+
+describe('slot identity', () => {
+  beforeEach(() => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      const path = String(url);
+      if (path.endsWith('/meta.json')) return json(meta);
+      if (path.endsWith('/offsets.json')) return json(offsets);
+      if (path.endsWith('/greek_form.json')) return json(form);
+      if (path.endsWith('/greek_lemma.json')) return json(form);
+      return Promise.resolve({ ok: false, status: 404, json: async () => ({}) } as Response);
+    });
+  });
+  afterEach(() => vi.restoreAllMocks());
+
+  it('reads two lemma slots with the same heads as the same slot, whatever the tick order', async () => {
+    // alpha occurs once. Two slots each asking for {alpha, beta} want two
+    // occurrences of the pair's members, so one alpha may not serve both —
+    // and the order the reader ticked them in does not make them different.
+    const { results } = await searchCombo(
+      [{ kind: 'lemma', terms: ['alpha', 'beta'] }, { kind: 'lemma', terms: ['beta', 'alpha'] }],
+      opts({ window: 5 }), ['CID1'],
+    );
+    // alpha@2 for one slot, beta@4 for the other: a real pair.
+    expect(results[0].grkPositions).toEqual([2, 4]);
+    // With only alpha available to both, nothing.
+    const none = await searchCombo(
+      [{ kind: 'lemma', terms: ['alpha', 'eta'] }, { kind: 'lemma', terms: ['eta', 'alpha'] }],
+      opts({ window: 5 }), ['CID2'],
+    );
+    expect(none.results).toHaveLength(0);
+  });
+
+  it('keeps a phrase slot ordered — "delta beta" and "beta delta" are two questions', async () => {
+    const { results } = await searchCombo(
+      [{ kind: 'phrase', terms: ['delta', 'beta'] }, { kind: 'phrase', terms: ['beta', 'delta'] }],
+      opts({ window: 5 }), ['CID3'],
+    );
+    // The run delta@3 beta@4 exists; the reversed run does not, so the pair fails —
+    // not because the slots were merged, but because the second has no hit.
+    expect(results).toHaveLength(0);
   });
 });
