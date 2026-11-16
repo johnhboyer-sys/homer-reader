@@ -45,13 +45,13 @@ it('keeps the lettered start when lastTok widens the window', () => {
     .toEqual(['6b', '7']);
 });
 
-async function open(positions: number[], params: string, data = book, index = offsets) {
+async function open(positions: number[], params: string, data = book, index = offsets, work = 'Int') {
   const { fetchBook, fetchChapters } = await import('../lib/data');
   const { search, loadOffsets } = await import('../lib/search');
   vi.mocked(fetchBook).mockResolvedValue(data);
   vi.mocked(fetchChapters).mockResolvedValue({ '1': [{ column: '2b', chapter: '1', line: '5', bekker: '2b' }] });
   vi.mocked(loadOffsets).mockResolvedValue(index);
-  const result: SearchResult = { work: 'Int', meta: { id: seg.id, book: 1, column: seg.column },
+  const result: SearchResult = { work, meta: { id: seg.id, book: 1, column: seg.column },
     grkMatch: true, engMatch: false, grkPositions: positions };
   vi.mocked(search).mockResolvedValue({ results: [result], failedWorks: [] });
   window.history.replaceState(null, '', `/search?g=γάμμα${params}`);
@@ -68,9 +68,12 @@ it('shows and marks the matched word on 6b at Context 1 line', async () => {
   expect(snippet.querySelector('mark')).toHaveTextContent('γάμμα');
 });
 
-// Fails on Homer's page: no paired English is drawn for this synthetic
-// lettered line. Not investigated; listed as open in the port report.
-it.skip('sizes the paired English from the 40-word line 6b', async () => {
+// Run on 'iliad': the fixture's work, Aristotle's 'Int', is not in Homer's
+// registry, so it has no translations and no paired English is drawn (the
+// cause of the skip lane C left here; the lettered line was not, as the same
+// case on an unlettered line 7 failed alike). Homer has no lettered lines
+// itself; the case still checks the sizing.
+it('sizes the paired English from the 40-word line 6b', async () => {
   const data: BookData = { book: 1, segments: [{ ...seg,
     greek: [line(6, 'ἄλφα'), line(6, Array(40).fill('γάμμα').join(' '), 'b')],
     english: { text: Array.from({ length: 100 }, (_, i) => `word${i}`).join(' '), notes: [], markers: [],
@@ -78,7 +81,7 @@ it.skip('sizes the paired English from the 40-word line 6b', async () => {
   }] };
   const index: Offsets = { ...offsets, token_count: 41,
     segments: [{ book: 1, column: '2b', line_runs: [[6, 1], [6, 40, 'b']] }] };
-  const { container } = await open([1], '&ctx=1', data, index);
+  const { container } = await open([1], '&ctx=1', data, index, 'iliad');
   const words = container.querySelector('.inst-pair-text')!.textContent!.match(/word\d+/g);
   expect(words).toHaveLength(56);
 });
@@ -104,3 +107,4 @@ it('links the 6b citation to the same lettered reader target as its snippet', as
   expect(citations.container.querySelector('.cite')).toHaveAttribute('href', href);
   expect((await import('../lib/data')).fetchBook).not.toHaveBeenCalled();
 });
+
