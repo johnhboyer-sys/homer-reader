@@ -60,10 +60,19 @@ export function bareTokenText(rendered: string): string {
 // Locate `t` in `text` at or after `from`, tolerating sigla printed inside the
 // word, and return its VERBATIM span (sigla included) so the rendered line
 // stays byte-identical to the source. Null when the word really isn't there.
+//
+// The match must be the LEFTMOST one at or after `from`, across both forms.
+// Tokens are consumed in document order behind a moving pointer, so binding one
+// to a later occurrence strands every token in between — they then fail to
+// locate and are dropped. A bare `indexOf` sees only unbracketed occurrences, so
+// on a line carrying both ("ἂ<>ν δὲ ἂν") it skips the bracketed first one and
+// binds to the last word, losing the two between. So: take the plain hit as an
+// upper BOUND and scan only the text before it for an earlier bracketed form —
+// which also keeps the scan cheap, since the bound is usually a few chars away.
 function locateToken(text: string, t: string, from: number): { start: number; end: number } | null {
   const plain = text.indexOf(t, from);
-  if (plain >= 0) return { start: plain, end: plain + t.length };
-  for (let s = from; s < text.length; s += 1) {
+  const limit = plain < 0 ? text.length : plain;
+  for (let s = from; s < limit; s += 1) {
     if (text[s] !== t[0]) continue;
     let i = s;
     let k = 0;
@@ -81,7 +90,8 @@ function locateToken(text: string, t: string, from: number): { start: number; en
     while (open > 0 && i < text.length && CLOSER.test(text[i])) { open -= 1; i += 1; }
     return { start: s, end: i };
   }
-  return null;
+  // Nothing bracketed earlier: the plain hit, if any, is the leftmost match.
+  return plain < 0 ? null : { start: plain, end: plain + t.length };
 }
 
 // Build the render parts for a Greek line. `text` is the line's verbatim text
@@ -193,11 +203,14 @@ export interface FlowRow {
   // instead of rendering as a one-sided row beside blank Greek. A residual
   // whose speaker DIFFERS still gets its own one-sided row (never
   // mis-attribute). Each continuation keeps its own `ep` paragraph breaks
-  // (Timaeus/Phaedo long residual speeches carry them — B2).
-  englishCont: { text: string; ep?: number[] | null }[];
+  // (Timaeus/Phaedo long residual speeches carry them — B2), and its own `es`
+  // section starts (offsets are relative to that continuation's own text).
+  englishCont: { text: string; ep?: number[] | null; es?: { o: number; c: string }[] | null }[];
   // Section tokens whose ticks fall inside this row's Greek — the reader
   // renders row-level gutter markers from these in English-only view (where
-  // the Greek cells, and so the exact tick lines, are hidden).
+  // the Greek cells, and so the exact tick lines, are hidden). Kept as the
+  // FALLBACK for turns with no `es` (pre-`es` built JSON): without offsets the
+  // reader can only show the row's opening section, not one tick per section.
   ticks: string[];
   // ── Flow-extension passthrough, carried verbatim from the FlowTurn (see
   // data.ts FlowTurn for semantics; `T[] | null` because the pipeline emits
@@ -205,14 +218,16 @@ export interface FlowRow {
   // paragraph-break offsets inside this row's English (para flows and long
   // dialogue speeches); `et` embeds english.turns as intra-row speech blocks
   // (para flows); `sub` stacks one-sided English speeches folded under this
-  // row (B4 residual rows — usually `english` is null).
+  // row (B4 residual rows — usually `english` is null); `es` are the Stephanus
+  // section starts inside this row's English, one per gutter citation tick.
   ep?: number[] | null;
+  es?: { o: number; c: string }[] | null;
   et?: { o: number; s: string | null; d: string | null }[] | null;
-  sub?: { s: string | null; d: string | null; e: string; ep?: number[] | null }[] | null;
+  sub?: { s: string | null; d: string | null; e: string; ep?: number[] | null; es?: { o: number; c: string }[] | null }[] | null;
   // Alternate-translation slices for this row, keyed by translation id (carried
   // verbatim from the FlowTurn; see data.ts). The reader's turn-by-turn compare
   // renders `alt[id].e` in the second column beside this row's primary English.
-  alt?: Record<string, { e: string | null; ep?: number[] | null }> | null;
+  alt?: Record<string, { e: string | null; ep?: number[] | null; es?: { o: number; c: string }[] | null }> | null;
 }
 
 // The whole book's Greek lines in document order, each carrying its column and
@@ -327,8 +342,8 @@ export function buildFlowRows(
         && (t.s === null || t.s === prev.speaker)) {
       // Preserve the residual's paragraph breaks: as a continuation they ride
       // the englishCont entry; as the row's main English they become row.ep.
-      if (prev.english) prev.englishCont.push({ text: t.e, ep: t.ep });
-      else { prev.english = t.e; prev.ep = t.ep; }
+      if (prev.english) prev.englishCont.push({ text: t.e, ep: t.ep, es: t.es });
+      else { prev.english = t.e; prev.ep = t.ep; prev.es = t.es; }
       return;
     }
     // A GREEK-BEARING residual whose English is entirely folded sub-speeches by
@@ -352,7 +367,7 @@ export function buildFlowRows(
         && t.sub.every((s) => s.s === prev.speaker && (s.d == null || s.d === prev.display))) {
       prev.greek.push(...greek);
       prev.ticks.push(...ticksOf(greek));
-      for (const s of t.sub) prev.englishCont.push({ text: s.e, ep: s.ep });
+      for (const s of t.sub) prev.englishCont.push({ text: s.e, ep: s.ep, es: s.es });
       return;
     }
     rows.push({
@@ -366,6 +381,7 @@ export function buildFlowRows(
       ticks: ticksOf(greek),
       // Paragraph-flow passthrough (undefined for dialogue turns).
       ep: t.ep,
+      es: t.es,
       et: t.et,
       sub: t.sub,
       // Alternate-translation slices (undefined until the turn aligner runs).

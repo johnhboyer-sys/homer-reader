@@ -180,8 +180,12 @@ export function schemeFor(work: string): CitationScheme {
 
 // The scroll-spy/resume/copy-citation string for a work's column (+ line):
 // "1097a15" (bekker), "17a" (stephanus — line, if given, is dropped).
-export function formatCite(work: string, column: string, line?: number | null): string {
-  return schemeFor(work).formatCitation(column, line);
+// `sub` is a lettered line's suffix (the search engine passes one when a corpus
+// has lettered lines; Homer's vulgate lines never do, so it is ignored unless
+// the scheme prints line numbers).
+export function formatCite(work: string, column: string, line?: number | null, sub?: string): string {
+  const base = schemeFor(work).formatCitation(column, line);
+  return sub && line != null && schemeFor(work).hasUserFacingLines ? base + sub : base;
 }
 
 // The `#`-prefixed hash for `history.replaceState` / a shareable link.
