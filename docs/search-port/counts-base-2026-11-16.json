@@ -1,0 +1,314 @@
+[
+  {
+    "name": "Greek lemma, μῆνις",
+    "url": "http://localhost:4610/search/?g=%CE%BC%E1%BF%86%CE%BD%CE%B9%CF%82",
+    "total": 22,
+    "pages": 1,
+    "groupsOnPage1": 15,
+    "shown": "22 instances"
+  },
+  {
+    "name": "Greek lemma, θάλασσα",
+    "url": "http://localhost:4610/search/?g=%CE%B8%CE%AC%CE%BB%CE%B1%CF%83%CF%83%CE%B1",
+    "total": 119,
+    "pages": 4,
+    "groupsOnPage1": 17,
+    "shown": "119 instances · page 1 of 4"
+  },
+  {
+    "name": "Greek exact form, θαλάσσης",
+    "url": "http://localhost:4610/search/",
+    "steps": [
+      [
+        "fill",
+        "#grk-input",
+        "θαλάσσης"
+      ],
+      [
+        "check",
+        "input[name=\"matchmode\"][value=\"form\"]"
+      ],
+      [
+        "run",
+        "form.search-form button[type=\"submit\"]"
+      ]
+    ],
+    "total": 87,
+    "pages": 3,
+    "groupsOnPage1": 20,
+    "shown": "87 instances · page 1 of 3"
+  },
+  {
+    "name": "Greek exact phrase, οἴνοπα πόντον",
+    "url": "http://localhost:4610/search/",
+    "steps": [
+      [
+        "fill",
+        "#grk-input",
+        "οἴνοπα πόντον"
+      ],
+      [
+        "check",
+        "input[name=\"grkmode\"][value=\"phrase\"]"
+      ],
+      [
+        "check",
+        "input[name=\"matchmode\"][value=\"form\"]"
+      ],
+      [
+        "run",
+        "form.search-form button[type=\"submit\"]"
+      ]
+    ],
+    "total": 20,
+    "pages": 1,
+    "groupsOnPage1": 10,
+    "shown": "20 instances"
+  },
+  {
+    "name": "Greek any word, ἄναξ ἀνδρῶν",
+    "url": "http://localhost:4610/search/",
+    "steps": [
+      [
+        "fill",
+        "#grk-input",
+        "ἄναξ ἀνδρῶν"
+      ],
+      [
+        "check",
+        "input[name=\"grkmode\"][value=\"any\"]"
+      ],
+      [
+        "run",
+        "form.search-form button[type=\"submit\"]"
+      ]
+    ],
+    "total": 1276,
+    "pages": 40,
+    "groupsOnPage1": 1,
+    "shown": "1276 instances · page 1 of 40"
+  },
+  {
+    "name": "Greek accents exactly, θεά",
+    "url": "http://localhost:4610/search/",
+    "steps": [
+      [
+        "fill",
+        "#grk-input",
+        "θεά"
+      ],
+      [
+        "check",
+        "input[name=\"matchmode\"][value=\"form\"]"
+      ],
+      [
+        "check",
+        ".mode-group input[type=\"checkbox\"]"
+      ],
+      [
+        "run",
+        "form.search-form button[type=\"submit\"]"
+      ]
+    ],
+    "total": 134,
+    "pages": 4,
+    "groupsOnPage1": 2,
+    "shown": "134 instances before accent filtering · page 1 of 4"
+  },
+  {
+    "name": "English word, sea",
+    "url": "http://localhost:4610/search/?e=sea",
+    "total": 398,
+    "pages": 11,
+    "groupsOnPage1": 5,
+    "shown": "398 instances · page 1 of 11"
+  },
+  {
+    "name": "English phrase, rosy-fingered dawn",
+    "url": "http://localhost:4610/search/",
+    "steps": [
+      [
+        "fill",
+        "#eng-input",
+        "rosy-fingered dawn"
+      ],
+      [
+        "check",
+        "input[name=\"engmode\"][value=\"phrase\"]"
+      ],
+      [
+        "run",
+        "form.search-form button[type=\"submit\"]"
+      ]
+    ],
+    "total": 0,
+    "pages": 0,
+    "groupsOnPage1": 0,
+    "shown": "No passages found."
+  },
+  {
+    "name": "English phrase, rosy fingered dawn (no hyphen)",
+    "url": "http://localhost:4610/search/",
+    "steps": [
+      [
+        "fill",
+        "#eng-input",
+        "rosy fingered dawn"
+      ],
+      [
+        "check",
+        "input[name=\"engmode\"][value=\"phrase\"]"
+      ],
+      [
+        "run",
+        "form.search-form button[type=\"submit\"]"
+      ]
+    ],
+    "total": 6,
+    "pages": 1,
+    "groupsOnPage1": 6,
+    "shown": "6 instances"
+  },
+  {
+    "name": "English word, fingered",
+    "url": "http://localhost:4610/search/?e=fingered",
+    "total": 27,
+    "pages": 1,
+    "groupsOnPage1": 18,
+    "shown": "27 instances"
+  },
+  {
+    "name": "Both, and: θάλασσα + sea",
+    "url": "http://localhost:4610/search/?g=%CE%B8%CE%AC%CE%BB%CE%B1%CF%83%CF%83%CE%B1&e=sea",
+    "total": 498,
+    "pages": 15,
+    "groupsOnPage1": 1,
+    "shown": "498 instances · page 1 of 15"
+  },
+  {
+    "name": "Both, or: θάλασσα + sea",
+    "url": "http://localhost:4610/search/",
+    "steps": [
+      [
+        "fill",
+        "#grk-input",
+        "θάλασσα"
+      ],
+      [
+        "fill",
+        "#eng-input",
+        "sea"
+      ],
+      [
+        "check",
+        "input[name=\"op\"][value=\"or\"]"
+      ],
+      [
+        "run",
+        "form.search-form button[type=\"submit\"]"
+      ]
+    ],
+    "total": 517,
+    "pages": 15,
+    "groupsOnPage1": 1,
+    "shown": "517 instances · page 1 of 15"
+  },
+  {
+    "name": "Work and book: Ὀδυσσεύς, Od. 9",
+    "url": "http://localhost:4610/search/?g=%E1%BD%88%CE%B4%CF%85%CF%83%CF%83%CE%B5%CF%8D%CF%82&w=odyssey&b=9",
+    "total": 6,
+    "pages": 1,
+    "groupsOnPage1": 1,
+    "shown": "6 instances"
+  },
+  {
+    "name": "Speaker: θεός spoken by Achilles",
+    "url": "http://localhost:4610/search/?g=%CE%B8%CE%B5%CF%8C%CF%82&spk=achilles",
+    "total": 34,
+    "pages": 1,
+    "groupsOnPage1": 10,
+    "shown": "34 instances"
+  },
+  {
+    "name": "Speeches only: θεός",
+    "url": "http://localhost:4610/search/?g=%CE%B8%CE%B5%CF%8C%CF%82&so=1",
+    "total": 543,
+    "pages": 1,
+    "groupsOnPage1": 48,
+    "shown": "543 instances"
+  },
+  {
+    "name": "Every form of one word: ἔπεα",
+    "url": "http://localhost:4610/search/",
+    "steps": [
+      [
+        "open",
+        "details.lemma-panel"
+      ],
+      [
+        "fill",
+        "#solo-word-input",
+        "ἔπεα"
+      ],
+      [
+        "run",
+        "details.lemma-panel button.search-btn"
+      ]
+    ],
+    "total": 452,
+    "pages": 14,
+    "groupsOnPage1": 3,
+    "shown": "452 instances · page 1 of 14"
+  },
+  {
+    "name": "Near: πούς near ὠκύς, 3 words",
+    "url": "http://localhost:4610/search/",
+    "steps": [
+      [
+        "open",
+        "details.combo-panel"
+      ],
+      [
+        "select",
+        "details.combo-panel .combo-slot:nth-of-type(1) select",
+        "lemma"
+      ],
+      [
+        "fill",
+        "details.combo-panel .combo-slot:nth-of-type(1) input[type=\"text\"]",
+        "πούς"
+      ],
+      [
+        "select",
+        "details.combo-panel .combo-slot:nth-of-type(2) select",
+        "lemma"
+      ],
+      [
+        "fill",
+        "details.combo-panel .combo-slot:nth-of-type(2) input[type=\"text\"]",
+        "ὠκύς"
+      ],
+      [
+        "fill",
+        "details.combo-panel .combo-window input",
+        "3"
+      ],
+      [
+        "run",
+        "details.combo-panel button.combo-search-btn"
+      ]
+    ],
+    "total": 82,
+    "pages": 3,
+    "groupsOnPage1": 7,
+    "shown": "82 instances · page 1 of 3"
+  },
+  {
+    "name": "Grammar in one book: optatives, Il. 1",
+    "url": "http://localhost:4610/search/?w=iliad&b=1&gr=mood%3Aopt",
+    "total": 54,
+    "pages": 1,
+    "groupsOnPage1": 1,
+    "shown": "54 words, 19 of them certainly opt."
+  }
+]
