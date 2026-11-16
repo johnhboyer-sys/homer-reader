@@ -1,0 +1,217 @@
+{
+ "unit_lengths_in_lines": {
+  "line": {
+   "units": 27794,
+   "mean": 1,
+   "median": 1.0,
+   "min": 1,
+   "max": 1
+  },
+  "run5": {
+   "units": 5572,
+   "mean": 5.0,
+   "median": 5.0,
+   "min": 1,
+   "max": 15
+  },
+  "para": {
+   "units": 713,
+   "mean": 39.0,
+   "median": 40,
+   "min": 14,
+   "max": 60
+  },
+  "scene": {
+   "units": 790,
+   "mean": 35.2,
+   "median": 33.0,
+   "min": 4,
+   "max": 149
+  },
+  "speech": {
+   "units": 1224,
+   "mean": 11.0,
+   "median": 7.0,
+   "min": 1,
+   "max": 331
+  },
+  "book": {
+   "units": 48,
+   "mean": 579.0,
+   "median": 546.0,
+   "min": 331,
+   "max": 909
+  }
+ },
+ "lines_total": 27794,
+ "lines_inside_a_top_level_speech": 13466,
+ "searches": [
+  {
+   "name": "μῆνις (Greek only)",
+   "greek_hits": 22,
+   "greek_hits_in_narrative": 10,
+   "units": {
+    "line": {
+     "greek": 22,
+     "greek_hits_outside": 0
+    },
+    "run5": {
+     "greek": 22,
+     "greek_hits_outside": 0
+    },
+    "para": {
+     "greek": 22,
+     "greek_hits_outside": 0
+    },
+    "scene": {
+     "greek": 22,
+     "greek_hits_outside": 0
+    },
+    "speech": {
+     "greek": 12,
+     "greek_hits_outside": 10
+    },
+    "book": {
+     "greek": 15,
+     "greek_hits_outside": 0
+    }
+   }
+  },
+  {
+   "name": "θάλασσα + sea",
+   "greek_hits": 119,
+   "greek_hits_in_narrative": 66,
+   "units": {
+    "line": {
+     "greek": 119,
+     "greek_hits_outside": 0
+    },
+    "run5": {
+     "greek": 113,
+     "greek_hits_outside": 0,
+     "english": 356,
+     "both": 110,
+     "either": 359,
+     "greek_only": 3,
+     "english_only": 246,
+     "english_hits_outside": 0,
+     "greek_hits_in_both": 116
+    },
+    "para": {
+     "greek": 95,
+     "greek_hits_outside": 0,
+     "english": 223,
+     "both": 92,
+     "either": 226,
+     "greek_only": 3,
+     "english_only": 131,
+     "english_hits_outside": 0,
+     "greek_hits_in_both": 116
+    },
+    "scene": {
+     "greek": 94,
+     "greek_hits_outside": 0,
+     "english": 225,
+     "both": 86,
+     "either": 233,
+     "greek_only": 8,
+     "english_only": 139,
+     "english_hits_outside": 0,
+     "greek_hits_in_both": 111
+    },
+    "speech": {
+     "greek": 33,
+     "greek_hits_outside": 66,
+     "english": 119,
+     "both": 30,
+     "either": 122,
+     "greek_only": 3,
+     "english_only": 89,
+     "english_hits_outside": 191,
+     "greek_hits_in_both": 50
+    },
+    "book": {
+     "greek": 38,
+     "greek_hits_outside": 0,
+     "english": 45,
+     "both": 38,
+     "either": 45,
+     "greek_only": 0,
+     "english_only": 7,
+     "english_hits_outside": 0,
+     "greek_hits_in_both": 119
+    }
+   },
+   "english_hits": 398,
+   "english_hits_in_narrative": 191
+  },
+  {
+   "name": "δάκρυον + tears",
+   "greek_hits": 103,
+   "greek_hits_in_narrative": 79,
+   "units": {
+    "line": {
+     "greek": 103,
+     "greek_hits_outside": 0
+    },
+    "run5": {
+     "greek": 98,
+     "greek_hits_outside": 0,
+     "english": 91,
+     "both": 73,
+     "either": 116,
+     "greek_only": 25,
+     "english_only": 18,
+     "english_hits_outside": 0,
+     "greek_hits_in_both": 77
+    },
+    "para": {
+     "greek": 82,
+     "greek_hits_outside": 0,
+     "english": 73,
+     "both": 62,
+     "either": 93,
+     "greek_only": 20,
+     "english_only": 11,
+     "english_hits_outside": 0,
+     "greek_hits_in_both": 80
+    },
+    "scene": {
+     "greek": 82,
+     "greek_hits_outside": 0,
+     "english": 75,
+     "both": 59,
+     "either": 98,
+     "greek_only": 23,
+     "english_only": 16,
+     "english_hits_outside": 0,
+     "greek_hits_in_both": 78
+    },
+    "speech": {
+     "greek": 23,
+     "greek_hits_outside": 79,
+     "english": 30,
+     "both": 16,
+     "either": 37,
+     "greek_only": 7,
+     "english_only": 14,
+     "english_hits_outside": 60,
+     "greek_hits_in_both": 17
+    },
+    "book": {
+     "greek": 34,
+     "greek_hits_outside": 0,
+     "english": 33,
+     "both": 31,
+     "either": 36,
+     "greek_only": 3,
+     "english_only": 2,
+     "english_hits_outside": 0,
+     "greek_hits_in_both": 99
+    }
+   },
+   "english_hits": 95,
+   "english_hits_in_narrative": 60
+  }
+ ]
+}
