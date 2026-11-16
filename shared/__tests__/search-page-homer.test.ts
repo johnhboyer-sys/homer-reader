@@ -6,6 +6,8 @@ import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Search from '../components/Search.svelte';
 import { CORPUS, HAVE_CORPUS, serveCorpus } from './serve-corpus';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { chapterPlaces, eachHit } from '../lib/chapter-pages';
 import { loadEngChapters, loadOffsets, search } from '../lib/search';
 
@@ -221,6 +223,29 @@ describe('"Show the whole scene"', () => {
     expect(english.querySelector('mark')?.textContent).toMatch(/sea/i);
     expect(li.querySelector('button.inst-less')?.textContent).toBe('Show less');
   });
+});
+
+describe('the guide (app/src/pages/advanced.astro)', () => {
+  const guide = readFileSync(path.resolve(process.cwd(), '../app/src/pages/advanced.astro'), 'utf8');
+  const page = readFileSync(path.resolve(process.cwd(), 'components/Search.svelte'), 'utf8');
+
+  it('has every section the search page links to', () => {
+    const ids = new Set([...guide.matchAll(/<section id="([^"]+)"/g)].map(m => m[1]));
+    const wanted = [...page.matchAll(/\/advanced#([\w-]+)/g)].map(m => m[1]);
+    expect(wanted.length).toBeGreaterThan(0);
+    for (const id of wanted) expect(ids, `#${id}`).toContain(id);
+    for (const [, id] of guide.matchAll(/href="#([\w-]+)"/g)) expect(ids, `#${id}`).toContain(id);
+  });
+
+  it('runs every search it links to, each finding something', async () => {
+    const links = [...guide.matchAll(/\$\{base\}\/search\/\?([^`]+)`/g)].map(m => m[1]);
+    expect(links.length).toBeGreaterThanOrEqual(5);
+    for (const query of links) {
+      document.body.innerHTML = '';
+      open(query);
+      expect(await counted(), query).toMatch(/^\d+ scenes?/);
+    }
+  }, 120000);
 });
 
 describe('hostile input', () => {
