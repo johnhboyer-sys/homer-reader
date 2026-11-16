@@ -86,6 +86,21 @@ export function englishPlace(
   };
 }
 
+/** The Greek line each of a translation's word positions stands at in a
+ * segment, read off its ticks as englishPlace reads a hit's line (an estimate
+ * between two ticks); null for a position past the text. Homer's speech
+ * filter holds English hits to the speech spans by this line. */
+export function englishLines(
+  seg: Segment,
+  t: Pick<TranslationRef, 'id' | 'slot'>,
+  positions: number[],
+): (number | null)[] {
+  const pieces = piecesOf(seg, t);
+  const words: { piece: number; start: number }[] = [];
+  pieces.forEach((p, i) => { for (const w of englishWords(p.text)) words.push({ piece: i, start: w.start }); });
+  return positions.map(p => (p >= 0 && p < words.length ? lineFor(seg, pieces[words[p].piece], words[p].start).line : null));
+}
+
 /** A translation's matched word positions in a segment, split by the chapter
  * each word stands in, in text order, so each chapter is credited with its
  * own hits. Positions that do not fit the text (an index from another build)
