@@ -27,6 +27,7 @@
     type LangOp,
     type MatchMode,
     type SearchResult,
+    type EnglishWord,
     type GrammarQuery,
     type SlotKind,
     type ComboSlot,
@@ -3066,8 +3067,82 @@
       const key = `${work}:${book}:${inst.column}:${inst.ch!.key}`;
       (bySection.get(key) ?? bySection.set(key, { work, book, column: inst.column, ch: inst.ch!.key, insts: [] }).get(key)!).insts.push(inst);
     }
-    // Homer's section is a whole book, and the page offers no whole-section
-    // context: no section is built.
+    // Homer's section is a whole book, so "more" opens the hit's scene
+    // instead (the chapter it is counted in, named "<start>-<end>"): its
+    // Greek lines, and each translation's words the pages count in it
+    // (eng-chapters), with the page's hits there marked.
+    // Each book's English in each translation, split into words once.
+    const sceneText = new Map<string, { texts: string[]; words: EnglishWord[][]; starts: number[]; total: number }>();
+    for (const { work, book, column, insts } of context === 's' ? [] : bySection.values()) {
+      const at = insts[0].ch!;
+      const [a, b] = at.chapter.split('-').map(Number);
+      const pair = `${work}:${book}`;
+      const seg = books.get(pair)!.segments.find(x => x.column === column);
+      if (!a || !b || !seg) continue;
+      const ix = pairsOf(pair, work);
+      const ts = translationsOf(work);
+      const grks = insts.filter(inst => inst.lang === 'grk').sort((x, y) => x.at! - y.at!);
+      const positions = grks.flatMap(inst => inst.toks ?? [inst.at!]);
+      // places.eng reads a result's work and section only.
+      const r = { work, meta: { id: seg.id, book, column }, grkMatch: false, engMatch: false, grkPositions: [] } as SearchResult;
+      const matched = new Map<string, number>();
+      for (const row of insts.flatMap(inst => inst.rows ?? [])) matched.set(row.translation, (matched.get(row.translation) ?? 0) + row.hits);
+      const rows: TransRow[] = [];
+      const unmarked: PairEnglish[] = [];
+      for (const t of ts) {
+        const key = `${pair}:${seg.id}:${t.id}`;
+        let split = sceneText.get(key);
+        if (!split) {
+          const texts = piecesOf(pair, ix, seg, t).map(piece => piece.text);
+          const words = texts.map(text => englishWords(text));
+          const starts: number[] = [];
+          const total = words.reduce((n, ws) => { starts.push(n); return n + ws.length; }, 0);
+          sceneText.set(key, split = { texts, words, starts, total });
+        }
+        const { texts, words, starts, total } = split;
+        // The scene's words run from the first counted in it to the first
+        // counted in a later scene: the scenes follow in word order.
+        const firstFrom = (order: number) => {
+          let lo = 0;
+          let hi = total;
+          while (lo < hi) {
+            const mid = (lo + hi) >> 1;
+            if (places.eng(r, t.id, mid).order >= order) hi = mid;
+            else lo = mid + 1;
+          }
+          return lo;
+        };
+        const from = firstFrom(at.order);
+        const to = firstFrom(at.order + 1);
+        if (from >= to) continue;
+        const html: string[] = [];
+        const plain: string[] = [];
+        texts.forEach((text, k) => {
+          const ws = words[k];
+          const lo = Math.max(from - starts[k], 0);
+          const hi = Math.min(to - starts[k], ws.length);
+          if (lo >= hi) return;
+          const part = text.slice(lo ? ws[lo].start : 0, hi < ws.length ? ws[hi].start : text.length);
+          const marks = new Set([...held.get(`${pair}:${t.id}:${seg.id}:${k}:${at.key}`) ?? []].filter(w => w >= lo && w < hi).map(w => w - lo));
+          html.push(markWordsHtml(part, marks).trim());
+          plain.push(plainEnglish(part).trim());
+        });
+        const jumpUrl = jumpFor(work, book, column, a, ts.length > 1 ? t.id : undefined);
+        if (matched.has(t.id)) rows.push({ translation: t.id, label: t.short, title: t.name, html: html.filter(Boolean).join(' '), jumpUrl, hits: matched.get(t.id)! });
+        unmarked.push({ translation: t.id, label: t.short, title: t.name, jumpUrl, text: plain.filter(Boolean).join(' ') });
+      }
+      const view: SectionView = {
+        seg: seg.id,
+        greek: sectionGreekHtml(work, seg, new Set(positions), line => line.n >= a && line.n <= b),
+        held: grks.flatMap(inst => inst.held ?? []).sort((x, y) => x.pos - y.pos),
+        rows,
+        pair: rows.length ? undefined : unmarked.length ? unmarked : undefined,
+      };
+      for (const inst of insts) {
+        inst.whole = view;
+        for (const f of inst.forms ?? []) f.whole = view;
+      }
+    }
     for (const { work, book, column, ch, insts } of context === 's' ? bySection.values() : []) {
       const pair = `${work}:${book}`;
       const seg = books.get(pair)!.segments.find(x => x.column === column);
@@ -3681,11 +3756,12 @@
   // well enough without its stops; a whole section does not.
   // Every fifth line carries its Bekker number, as the printed page does,
   // so a reader can find a word's line in an opened section (§7.5).
-  function sectionGreekHtml(work: string, seg: Segment, marked: Set<number>): string {
+  // `keep`: the lines to draw (a scene's), else all.
+  function sectionGreekHtml(work: string, seg: Segment, marked: Set<number>, keep: (line: Segment['greek'][number]) => boolean = () => true): string {
     const index = new Map<Token, number>();
     segTokens(seg).forEach((tok, i) => index.set(tok, i));
     const numbered = schemeFor(work).hasUserFacingLines;
-    return joinLines(seg.greek.map(line => {
+    return joinLines(seg.greek.filter(keep).map(line => {
       const html = lineRenderParts(line.text, line.tokens).map(part => {
         if (part.kind === 'text') return esc(part.text);
         if (part.kind !== 'token') return '';
@@ -4442,7 +4518,7 @@
               {/if}
               {#if !inst.isSection && inst.whole}
                 <button type="button" class="inst-more" aria-expanded={opened}
-                  on:click={() => toggleMore(inst)}>{opened ? 'Show less' : 'Show the whole section'}</button>
+                  on:click={() => toggleMore(inst)}>{opened ? 'Show less' : 'Show the whole scene'}</button>
               {/if}
             </div>
             {#if inst.speaker}

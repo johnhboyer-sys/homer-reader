@@ -184,12 +184,8 @@ export function chapterJoin(results: SearchResult[], places: ChapterPlaces): Sea
 export function allWordsJoin(results: SearchResult[], places: ChapterPlaces): SearchResult[] {
   // The scenes in which every list has a word still among `live`.
   const full = (lists: number[][], live: Set<number>, at: (p: number) => ChapterAt) => {
-    let keys: Set<string> | null = null;
-    for (const list of lists) {
-      const mine = new Set(list.filter(p => live.has(p)).map(p => at(p).key));
-      keys = keys ? new Set([...keys].filter(k => mine.has(k))) : mine;
-    }
-    return keys ?? new Set<string>();
+    const each = lists.map(list => new Set(list.filter(p => live.has(p)).map(p => at(p).key)));
+    return new Set([...each[0] ?? []].filter(k => each.every(keys => keys.has(k))));
   };
   return results.flatMap(r => {
     let left = r;

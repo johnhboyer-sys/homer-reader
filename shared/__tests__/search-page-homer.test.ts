@@ -164,14 +164,14 @@ async function scenesHolding(lang: 'grk' | 'eng', terms: string[], translation?:
     new Map(await Promise.all(works.map(async w => [w, await loadOffsets(w)] as const))),
     new Map(await Promise.all(works.map(async w => [w, await loadEngChapters(w)] as const))),
   );
-  let common: Set<string> | null = null;
+  const each: Set<string>[] = [];
   for (const t of terms) {
     const { results } = await search(lang === 'grk' ? t : '', lang === 'eng' ? t : '', 'all', 'all', 'or', works, 'lemma', true);
     const mine = new Set<string>();
     for (const r of results) eachHit(r, places, (at, _l, tr) => { if (!translation || tr === translation) mine.add(at.key); });
-    common = common ? new Set([...common].filter(k => mine.has(k))) : mine;
+    each.push(mine);
   }
-  return common!.size;
+  return [...each[0]].filter(k => each.every(keys => keys.has(k))).length;
 }
 const scenesIn = (bar: string) => Number(bar.match(/^(\d+) scenes?/)?.[1] ?? 0);
 
@@ -190,6 +190,36 @@ describe('"All words" means every word in one scene', () => {
     const want = await scenesHolding('eng', ['swift', 'ships'], 'murray');
     console.info(`swift ships (Murray), all words: ${shown} scenes (by scene: ${want})`);
     expect(shown).toBe(want);
+  });
+});
+
+describe('"Show the whole scene"', () => {
+  it('opens the hit\'s whole scene, Greek and English, with the hit marked', async () => {
+    open('g=θάλασσα&e=sea&w=iliad&b=1');
+    await counted();
+    const btn = await waitFor(() => {
+      const b = [...document.querySelectorAll<HTMLButtonElement>('button.inst-more')][0];
+      expect(b?.textContent).toBe('Show the whole scene');
+      return b;
+    });
+    expect(document.body.textContent).not.toMatch(/whole section/);
+    await fireEvent.click(btn);
+    const li = btn.closest('li.instance')!;
+    const greek = li.querySelector('.inst-snippet.greek')!;
+    // Il. 1.33-42 (Chryses at the shore), and not the lines either side.
+    expect(greek.textContent).toMatch(/ἔδεισεν/);
+    expect(greek.textContent).toMatch(/δάκρυα/);
+    expect(greek.textContent).not.toMatch(/ἐρέθιζε|εὐχόμενος/);
+    expect(greek.querySelector('mark')?.textContent).toMatch(/θαλάσσης/);
+    const english = li.querySelector('.inst-en')!;
+    expect(english.textContent).toMatch(/loud-resounding sea/);
+    expect(english.textContent).toMatch(/tears/);
+    // The English is the words the count puts in the scene (eng-chapters),
+    // whose edges are estimated within a translator's chunk: a line either
+    // side may come with it, but not the scenes beyond.
+    expect(english.textContent).not.toMatch(/old age come upon her|Down from the peaks/);
+    expect(english.querySelector('mark')?.textContent).toMatch(/sea/i);
+    expect(li.querySelector('button.inst-less')?.textContent).toBe('Show less');
   });
 });
 
