@@ -369,6 +369,16 @@ def test_gate_fails_when_scene_starts_do_not_increase(tmp_path):
     assert any("increase" in p for p in _gate(work))
 
 
+def test_gate_fails_when_a_scene_starts_inside_its_first_line(tmp_path):
+    # Codex review (16 Nov): a start one word into line 5 still named line 5,
+    # so the gate passed while the first word of line 5 fell in scene 1-4.
+    work = _gated_work(tmp_path)
+    offsets = _load(work, "offsets.json")
+    offsets["chapter_bounds"][1]["start"] = 13
+    (work / "search" / "offsets.json").write_text(json.dumps(offsets))
+    assert any("5-10" in p and "first word" in p for p in _gate(work))
+
+
 def test_gate_fails_when_a_book_has_no_scene_bounds(tmp_path):
     work = _gated_work(tmp_path)
     offsets = _load(work, "offsets.json")

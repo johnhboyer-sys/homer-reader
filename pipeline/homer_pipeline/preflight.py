@@ -1248,6 +1248,11 @@ def _validate_search_port(work_id: str, work_dir: Path, problems: list[Problem])
                 if str(line) != b["chapter"].split("-")[0]:
                     problems.append((work_id, "search/offsets.json",
                                      f"book {book}: bound {b['chapter']} starts at line {line}"))
+                elif local != 0:
+                    # Inside the right line but past its first word: the
+                    # words before the start would count in the scene before.
+                    problems.append((work_id, "search/offsets.json",
+                                     f"book {book}: bound {b['chapter']} is not at the first word of line {line}"))
 
     # -- Where each scene starts in each translation's words.
     eng = load("eng-chapters.json")
