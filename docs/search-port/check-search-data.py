@@ -11,7 +11,9 @@ Prints, and fails (exit 1) when an expected number does not hold:
 - "sea" in Murray: the hits in search/english.json (398, the site's count) and
   the distinct scenes they fall in through search/eng-chapters.json, beside
   unit-counts.py's 225 (which places a word by the line mark before it, not by
-  the reader's pages, so a small gap is expected).
+  the reader's pages, so a small gap is expected);
+- the lemma picker (lemma-picker/<letter>.json): every fold key of both
+  works' greek_lemma.json is listed, with the count of its postings.
 
 Usage: python3 docs/search-port/check-search-data.py [build/dist]
 """
@@ -38,6 +40,7 @@ def main() -> int:
     grk_scenes: set = set()
     sea_hits = 0
     sea_scenes: set = set()
+    postings: dict[str, int] = {}
     for work in WORKS:
         search = DIST / work / "search"
         offsets = load(search / "offsets.json")
@@ -76,6 +79,8 @@ def main() -> int:
 
         # θάλασσα: Greek hits by scene.
         lemma = load(search / "greek_lemma.json")
+        for key, posts in lemma.items():
+            postings[key] = postings.get(key, 0) + len(posts)
         for si, pos in lemma.get("qalassa", []):
             book = segs[si]["book"]
             grk_scenes.add((work, book, chapter_of(book, base[si] + pos)))
@@ -111,6 +116,14 @@ def main() -> int:
     print(f"sea (Murray): scenes through eng-chapters.json: {len(sea_scenes)}; "
           f"unit-counts.py (line mark before the word): {scene['english']} "
           f"(difference {len(sea_scenes) - scene['english']:+d})")
+
+    picker: dict = {}
+    for shard in sorted((DIST / "lemma-picker").glob("*.json")):
+        picker.update(load(shard))
+    wrong = [k for k, n in postings.items() if picker.get(k, {}).get("n") != n]
+    print(f"lemma picker: {len(picker)} fold keys; index keys missing or miscounted: {len(wrong)}"
+          + (f" {wrong[:5]}" if wrong else "") + f"; qalassa: {json.dumps(picker.get('qalassa'), ensure_ascii=False)}")
+    ok &= not wrong and len(picker) > 0
     return 0 if ok else 1
 
 
