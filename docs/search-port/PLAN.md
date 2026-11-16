@@ -9,6 +9,11 @@ the redesign search, plus PR #197, chapter counting). Groundwork: `diff-map.md`,
    scenes) take the place of Aristotle's chapters. "And" means both terms in the same scene.
 2. **Aristotle's search layout, in Homer's own theme.** Port the page and `b-search.css`; take colours, type and
    tokens from Homer's `global.css`, not from Aristotle's `b.css`.
+3. **"and/or" is the default join** (John, 16 Nov, for every reader: "make 'and/or' the default setting for when
+   search loads (it naturally suggests they can do greek only or english only OR both...)"). Wherever Greek and
+   English are joined, the page loads with the inclusive or, labelled "and/or", and "and" stays on offer. How old
+   links with no `op` keep their meaning is being settled in aristotle-reader: follow its answer, do not decide it
+   here.
 
 ## Design
 
