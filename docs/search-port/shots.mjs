@@ -39,7 +39,7 @@ const SIZES = [
 const READY = () => {
   const t = (document.querySelector('[role="status"]')?.textContent || '')
     + ' ' + (document.querySelector('.result-count')?.textContent || '');
-  return /\d[\d,]* (instances?|passages?|hits?|chapters?)|No passages found/.test(t);
+  return /\d[\d,]* (instances?|passages?|hits?|chapters?|words?)|No passages found/.test(t);
 };
 
 const { chromium } = resolvePlaywright();
@@ -55,13 +55,14 @@ try {
       await context.addInitScript(t => { try { localStorage.setItem('ne-theme', t); } catch {} }, theme);
       const page = await context.newPage();
       // A slow local server can make an index miss the page's load window, and
-      // the page then shows a "did not load" warning and a short count. Retry.
+      // the page then shows a warning ("did not load", "couldn't load", …) and a short
+      // count. Retry.
       for (let attempt = 1; ; attempt++) {
         await page.goto(new URL(flag('--path'), flag('--base')).href);
         await page.evaluate(() => document.fonts.ready);
         await page.waitForFunction(READY, null, { timeout: 120000 });
         await page.waitForLoadState('networkidle');
-        if (!(await page.evaluate(() => /did not load/i.test(document.body.innerText)))) break;
+        if (!(await page.evaluate(() => /Incomplete results|couldn['’]t load|didn['’]t load|did not load|failed to load/i.test(document.body.innerText)))) break;
         if (attempt === 3) throw new Error(`${label} ${theme}: an index did not load, three times`);
         console.warn(`${label} ${theme}: an index did not load; retrying`);
       }

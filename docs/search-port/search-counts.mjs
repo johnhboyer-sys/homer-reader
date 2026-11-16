@@ -69,6 +69,8 @@ const queries = [
 ];
 
 const COUNT = /^(?:([\d,]+) (?:instances?|words?)|No passages found)/;
+// The site's warnings for an index, a book's text or the speech data that failed to load.
+const PARTIAL = /Incomplete results|couldn['’]t load|didn['’]t load|did not load|failed to load/;
 // Playwright's own browser build may be missing from the cache (versions drift);
 // fall back to the installed Google Chrome.
 const { chromium } = resolvePlaywright();
@@ -105,14 +107,25 @@ try {
       // then re-filters once speech data arrives: wait for the fetches to end.
       if (params.spk || params.so) await page.waitForLoadState('networkidle', { timeout: 120000 });
       // Settled = the same text on four reads 500 ms apart.
-      for (let i = 0, same = 0; i < 40 && same < 3; i++) {
+      let same = 0;
+      for (let i = 0; i < 40 && same < 3; i++) {
         await page.waitForTimeout(500);
         const t = await page.locator('.result-count').first().textContent();
         same = t === last ? same + 1 : 0;
         last = t;
       }
+      if (same < 3) throw new Error(`the bar never settled (last read: ${last})`);
       const shown = last.trim().replace(/\s+/g, ' ');
       const m = shown.match(COUNT);
+      // The total is set before page 1's books load: wait for its groups.
+      if (m[1] && !/ words?\b/.test(shown)) {
+        await page.waitForFunction(() => document.querySelectorAll('.group-count').length > 0, null, { timeout: 120000 });
+        await page.waitForLoadState('networkidle');
+      }
+      // A failed index, book or speech file leaves a short count on screen with
+      // a warning beside it. Never record that as the baseline.
+      const warning = await page.evaluate((re) => document.body.innerText.match(new RegExp(re, 'i'))?.[0], PARTIAL.source);
+      if (warning) throw new Error(`partial results ("${warning}"); re-run`);
       const pages = shown.match(/page \d+ of (\d+)/i);
       const total = m[1] ? Number(m[1].replaceAll(',', '')) : 0;
       const groups = await page.locator('.group-count').count();

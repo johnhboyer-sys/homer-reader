@@ -8,9 +8,10 @@ Units:
   line    one verse line (Greek only: Murray's English marks every 5th line,
           so an English hit can be placed only within a five-line run)
   run5    the five-line run between two of Murray's line marks
-  para    one of Murray's English paragraphs (the Greek has none); its Greek
-          lines start at the line mark before the paragraph break, so its
-          edges are right to within five lines
+  para    one of Murray's English paragraphs (the Greek has none). Its edges
+          are rounded back to the line mark before each paragraph break, for
+          Greek and English hits alike, so they are right to within five lines
+          and a Greek word and its English share a paragraph
   scene   the reader's scenes (apparatus/scenes)
   speech  a top-level speech (DICES, level 0); hits outside any speech are
           counted as narrative, not as a unit
@@ -86,10 +87,6 @@ def para_starts(bk):
 def para_of_line(bk, line):
     starts = para_starts(bk)
     return bisect.bisect_right(starts, line) - 1
-
-
-def para_of_offset(bk, off):
-    return bisect.bisect_right(bk["para_offsets"], off) - 1
 
 
 def scene_of_line(bk, line):
@@ -203,7 +200,7 @@ def main():
                     bk = books[bn]
                     line = line_of_offset(bk, off)
                     e_keys["run5"].append((w, bn, line))
-                    e_keys["para"].append((w, bn, para_of_offset(bk, off)))
+                    e_keys["para"].append((w, bn, para_of_line(bk, line)))
                     e_keys["scene"].append(keyed((w, bn), scene_of_line(bk, line)))
                     e_keys["speech"].append(speech_of_line(by_book, bn, line))
                     e_keys["book"].append((w, bn))

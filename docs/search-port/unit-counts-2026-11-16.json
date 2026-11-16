@@ -100,13 +100,13 @@
     "para": {
      "greek": 95,
      "greek_hits_outside": 0,
-     "english": 223,
-     "both": 92,
-     "either": 226,
-     "greek_only": 3,
-     "english_only": 131,
+     "english": 222,
+     "both": 94,
+     "either": 223,
+     "greek_only": 1,
+     "english_only": 128,
      "english_hits_outside": 0,
-     "greek_hits_in_both": 116
+     "greek_hits_in_both": 118
     },
     "scene": {
      "greek": 94,
@@ -169,12 +169,12 @@
      "greek": 82,
      "greek_hits_outside": 0,
      "english": 73,
-     "both": 62,
-     "either": 93,
-     "greek_only": 20,
-     "english_only": 11,
+     "both": 64,
+     "either": 91,
+     "greek_only": 18,
+     "english_only": 9,
      "english_hits_outside": 0,
-     "greek_hits_in_both": 80
+     "greek_hits_in_both": 82
     },
     "scene": {
      "greek": 82,
