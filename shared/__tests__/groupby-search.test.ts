@@ -156,15 +156,27 @@ describe('By grammar: the headword over its paradigm', () => {
     await vi.waitFor(() => expect(heads(container)).toEqual([
       'αρετη 30 hits', 'Nominative or vocative singular ἀρετή 20 hits', 'Dative singular ἀρετῇ 10 hits',
     ]));
-    expect(await drawn(container)).toBe(20);
+    // Every page counted, by the books its rows link to: ten books to a page,
+    // each book's passage twice (nominative and dative). Page 2's headings
+    // are page 1's, so only its rows show it was drawn.
+    const booksDrawn = async () => {
+      await drawn(container);
+      return [...container.querySelectorAll('li.instance .inst-ref')]
+        .map(a => Number(a.getAttribute('href')?.match(/\/book\/(\d+)\?/)?.[1])).sort((a, b) => a - b);
+    };
+    const booksOn = (p: number) => Array.from({ length: 25 }, (_, i) => i + 1).filter(b => Math.ceil(b / 10) === p).flatMap(b => [b, b]);
+    const rows = [await drawn(container)];
+    expect(await booksDrawn()).toEqual(booksOn(1));
     for (const p of [2, 3]) {
       await fireEvent.click(screen.getAllByRole('button', { name: 'Next page' })[0]);
       await vi.waitFor(() => expect(document.querySelector('.pager-status')?.textContent).toBe(`Page ${p} of 3`));
+      await vi.waitFor(async () => expect(await booksDrawn()).toEqual(booksOn(p)));
+      rows.push(await drawn(container));
     }
+    expect(rows).toEqual([20, 20, 10]);
     await vi.waitFor(() => expect(heads(container)).toEqual([
       'αρετη 15 hits', 'Nominative or vocative singular ἀρετή 10 hits', 'Dative singular ἀρετῇ 5 hits',
     ]));
-    expect(await drawn(container)).toBe(10);
     // A filter lays the rows out again, from the first page: a row each, 20 on it.
     await fireEvent.click(within(screen.getByRole('group', { name: 'Narrow by grammar' })).getByRole('checkbox', { name: 'Case dat' }));
     await vi.waitFor(() => expect(heads(container)).toEqual(['αρετη 20 hits', 'Dative singular ἀρετῇ 20 hits']));
