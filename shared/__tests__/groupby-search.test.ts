@@ -82,6 +82,11 @@ const heads = (c: HTMLElement) => [...c.querySelectorAll('.group-head')].map(h =
   [...h.querySelectorAll('span:not(.caret)')].map(text).filter(Boolean).join(' '));
 const menu = () => within(screen.getByRole('group', { name: 'Group by' })).getAllByRole('radio')
   .map(r => `${text(r.closest('label'))}${(r as HTMLInputElement).checked ? ' ✓' : ''}`);
+// The rows a page draws, its paradigm rows (shut at first) opened.
+async function drawn(c: HTMLElement): Promise<number> {
+  for (const b of c.querySelectorAll<HTMLButtonElement>('.group-head[aria-expanded="false"]')) await fireEvent.click(b);
+  return c.querySelectorAll('li.instance').length;
+}
 const facetHeads = () => [...screen.getByRole('group', { name: 'Narrow by grammar' }).querySelectorAll('.gx-head')].map(text);
 const g = (q: string) => `/search?g=${encodeURIComponent(q)}`;
 
@@ -151,6 +156,7 @@ describe('By grammar: the headword over its paradigm', () => {
     await vi.waitFor(() => expect(heads(container)).toEqual([
       'αρετη 30 hits', 'Nominative or vocative singular ἀρετή 20 hits', 'Dative singular ἀρετῇ 10 hits',
     ]));
+    expect(await drawn(container)).toBe(20);
     for (const p of [2, 3]) {
       await fireEvent.click(screen.getAllByRole('button', { name: 'Next page' })[0]);
       await vi.waitFor(() => expect(document.querySelector('.pager-status')?.textContent).toBe(`Page ${p} of 3`));
@@ -158,6 +164,7 @@ describe('By grammar: the headword over its paradigm', () => {
     await vi.waitFor(() => expect(heads(container)).toEqual([
       'αρετη 15 hits', 'Nominative or vocative singular ἀρετή 10 hits', 'Dative singular ἀρετῇ 5 hits',
     ]));
+    expect(await drawn(container)).toBe(10);
     // A filter lays the rows out again, from the first page: a row each, 20 on it.
     await fireEvent.click(within(screen.getByRole('group', { name: 'Narrow by grammar' })).getByRole('checkbox', { name: 'Case dat' }));
     await vi.waitFor(() => expect(heads(container)).toEqual(['αρετη 20 hits', 'Dative singular ἀρετῇ 20 hits']));
