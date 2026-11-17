@@ -5,7 +5,11 @@
 // scenes (the unit since the port), the hits where the bar counts them, and
 // the pages, beside the old total from counts-base-2026-11-16.json.
 //
-// Usage: node docs/search-port/search-counts-new.mjs --base http://localhost:PORT --out FILE.json
+// Usage: node docs/search-port/search-counts-new.mjs --base http://localhost:PORT --out FILE.json [--pages]
+// --pages (ported from aristotle-reader PR #208): walk every page by the
+// pager's Next and record each page's rows in order, each as its scene and
+// citation (with its reader link), so two builds can be compared row for row
+// with search-counts-compare.mjs.
 // Serve a build of app/dist first (`npx astro preview` in app/, reading the
 // bound port from the log).
 import { createRequire } from 'node:module';
@@ -32,6 +36,7 @@ const flag = name => args[args.indexOf(name) + 1];
 if (!args.includes('--base') || !args.includes('--out')) throw new Error('Usage: --base URL --out FILE.json');
 const base = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'counts-base-2026-11-16.json'), 'utf8'));
 const oldTotal = name => base.find(r => r.name === name)?.shown;
+const walk = args.includes('--pages');
 
 // [name as in the baseline, the new page's parameters]. A row whose name the
 // baseline lacks is new (the old page searched Murray alone; the new searches
@@ -64,7 +69,52 @@ const queries = [
   ['Every form of one word: ἔπεα', { l: 'epos' }],
   ['Near: πούς near ὠκύς, 3 words', { c: ['l:pous', 'l:wkus'], cw: '3' }],
   ['Grammar in one book: optatives, Il. 1', { w: 'iliad', b: '1', gr: 'mood:opt' }],
+  // The two views whose rows split an instance (Search.svelte rowsIn): by
+  // form, one row per form; by grammar, one per headword it is filed under.
+  ['By form: ὁ, Il. 1, 20 a page', { g: 'ὁ', w: 'iliad', b: '1', ps: '20', v: 'form' }],
+  ['By grammar: ὁ and ὅς, Il. 1, 20 a page', { l: 'o,os', v: 'grammar', w: 'iliad', b: '1', ps: '20' }],
 ];
+
+// Every page's rows, from the first to the last, by the pager's Next. A row
+// is its scene (the heading above it), the group it is filed under by form or
+// by grammar, its citation and its reader link. By grammar each headword's
+// spellings open first: their rows are drawn only when open.
+async function pageRows(page) {
+  const rows = [];
+  for (let i = 1; ; i++) {
+    await page.waitForFunction(n => {
+      const status = document.querySelector('.pager-status')?.textContent ?? '';
+      const drawn = document.querySelectorAll('li.instance, button.sx-para').length > 0;
+      return drawn && !/Loading/.test(status) && (n === 1 ? !status || !/…/.test(status) : status.startsWith(`Page ${n} `));
+    }, i, { timeout: 120000 });
+    for (let k = 0; k < 50; k++) {
+      const shut = page.locator('button.sx-para[aria-expanded="false"]');
+      if (!(await shut.count())) break;
+      await shut.first().click();
+    }
+    rows.push(await page.evaluate(() => {
+      const t = el => el?.textContent?.replace(/\s+/g, ' ').trim() ?? '';
+      let group = '';
+      let para = '';
+      let scene = '';
+      const out = [];
+      for (const el of document.querySelectorAll('.sx-results h2 .group-head, button.sx-para, .sx-book, .sx-chap-n, li.instance')) {
+        if (el.matches('h2 .group-head')) { group = t(el.querySelector('.group-label, .work-name')); para = ''; scene = ''; continue; }
+        if (el.matches('button.sx-para')) { para = t(el.querySelector('.group-label')) + ' ' + t(el.querySelector('.sx-para-sp')); scene = ''; continue; }
+        if (el.matches('.sx-book')) { scene = ''; continue; }
+        if (el.matches('.sx-chap-n')) { scene = t(el); continue; }
+        const a = el.querySelector('a.inst-ref, a.cmp-ref, .cmp-ref');
+        const href = a?.getAttribute?.('href') ?? '';
+        out.push(`${group}${para ? ` / ${para.trim()}` : ''} | ${scene} | ${t(a)} | ${href.replace(/^https?:\/\/[^/]+/, '')}`);
+      }
+      return out;
+    }));
+    const next = page.locator('button.pager-next').first();
+    if (!(await next.count()) || await next.isDisabled()) break;
+    await next.click();
+  }
+  return rows;
+}
 
 const COUNT = /^(?:(\d[\d,]*) scenes?(?: (\d[\d,]*) hits?)?|No scenes found)/;
 const PARTIAL = /couldn['’]t load|didn['’]t load|did not load|failed to load/;
@@ -112,8 +162,10 @@ try {
       const pages = shown.match(/page \d+ of (\d+)/i);
       const scenes = m?.[1] ? Number(m[1].replaceAll(',', '')) : 0;
       const hits = m?.[2] ? Number(m[2].replaceAll(',', '')) : null;
-      results.push({ name, url, scenes, hits, pages: pages ? Number(pages[1]) : scenes ? 1 : 0, shown, before: oldTotal(name) ?? null });
-      console.log(`${name} → ${shown}${oldTotal(name) ? `   (old page: ${oldTotal(name)})` : ''}`);
+      const counts = { name, url, scenes, hits, pages: pages ? Number(pages[1]) : scenes ? 1 : 0, shown, before: oldTotal(name) ?? null };
+      if (walk) counts.rows = await pageRows(page);
+      results.push(counts);
+      console.log(`${name} → ${shown}${oldTotal(name) ? `   (old page: ${oldTotal(name)})` : ''}${walk ? `; ${counts.rows.flat().length} rows on ${counts.rows.length} pages` : ''}`);
     } catch (error) { throw new Error(`${name}: ${error.message}`, { cause: error }); }
   }
   writeFileSync(flag('--out'), JSON.stringify(results, null, 2) + '\n');

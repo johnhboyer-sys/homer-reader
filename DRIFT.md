@@ -1244,3 +1244,4 @@ ring, empty inside the wall and with no ground under it.
   fallback are the only two map paths. No plato-reader counterpart.
 - `shared/lib/plate.ts`, `app/src/components/maps/PlatePanel.svelte` — comments
   only (references to the deleted sheet).
+- `shared/components/Search.svelte`, `shared/lib/{data,english-place,paired-hit}.ts`, new `shared/lib/{row-table,greek-lines}.ts`, new `app/src/pages/data/[work]/rows.json.ts`, `shared/styles/b-search.css` (the phrase list's Show button, 44px wide) — the row table from aristotle-reader PR #208 (c61eee5b40): page 1 of a search reads only its own books, the phrase list reads its words when opened; Homer counts its table rows by work only (by form and by grammar still read their books). No plato-reader counterpart.

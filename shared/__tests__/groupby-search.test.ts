@@ -39,7 +39,8 @@ vi.mock('../lib/search', async (importOriginal) => {
 vi.mock('../lib/data', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../lib/data')>();
   const sections = [{ column: '70a', chapter: '70', line: '1' }, { column: '70b', chapter: '70', line: '1' }];
-  return { ...actual, fetchBook: vi.fn(async (_w: string, n: number) => book(n)), fetchChapters: vi.fn(async () => Object.fromEntries(Array.from({ length: 25 }, (_, i) => [String(i + 1), sections]))) };
+  // No row table: every book is read, as before it (lib/row-table).
+  return { ...actual, loadRowTable: vi.fn(async () => { throw new Error('no table'); }), fetchBook: vi.fn(async (_w: string, n: number) => book(n)), fetchChapters: vi.fn(async () => Object.fromEntries(Array.from({ length: 25 }, (_, i) => [String(i + 1), sections]))) };
 });
 
 afterEach(async () => {

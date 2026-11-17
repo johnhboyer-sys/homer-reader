@@ -35,6 +35,8 @@ vi.mock('../lib/data', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../lib/data')>();
   return {
     ...actual,
+    // No row table: every book is read, as before it (lib/row-table).
+    loadRowTable: vi.fn(async () => { throw new Error('no table'); }),
     fetchBook: vi.fn(async () => fixtureBook),
     fetchChapters: vi.fn(async () => ({ '1': [{ column: '70a', chapter: '70', line: '1' }] })),
   };
