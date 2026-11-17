@@ -1,6 +1,7 @@
 // No empty results page, on the real corpus: for each baseline query of
 // docs/search-port/search-counts-new.mjs (the two ἄναξ ἀνδρῶν
-// queries are in search-chapter-draw-homer-heavy, in a worker of their own:
+// queries are in search-chapter-draw-homer-heavy, and θάλασσα + sea in
+// search-chapter-draw-homer-both, each in a worker of its own:
 // together these walk most of the corpus), walk every page, and check that each
 // draws at least one row and that the scenes drawn over all the pages are the
 // bar's count. Pages are rows since aristotle-reader PR #201: every page but
@@ -16,8 +17,6 @@ walkSetup('search-chapter-draw-homer');
 describe('every results page draws rows, and they add up to the bar', () => {
   it.each([
     ['θάλασσα', 'g=θάλασσα'],
-    ['θάλασσα + sea, and', 'g=θάλασσα&e=sea&op=and'],
-    ['θάλασσα + sea, and/or', 'g=θάλασσα&e=sea&op=or'],
     ['every form of ἔπος', 'l=epos'],
     ['θεός, speeches only', 'g=θεός&spo=1'],
   ])('%s', async (_name, query) => {
