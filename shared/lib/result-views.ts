@@ -492,14 +492,23 @@ export interface ParadigmRow<T> {
 }
 export interface ParadigmBlock<T> { head: string; rows: ParadigmRow<T>[]; items: T[]; count: number }
 
+/** The headwords searched that an item is filed under (paradigmOf). */
+export function paradigmHeads(item: { readings?: Reading[]; formHeads?: string[] }, heads: string[]): string[] {
+  if (!heads.length) heads = [''];
+  const named = heads.filter(h => item.readings?.some(r => Object.hasOwn(r, 'lemma') && r.lemma.includes(h)));
+  const mapped = heads.filter(h => item.formHeads?.includes(h));
+  return named.length ? named : mapped.length ? mapped : heads.slice(0, 1);
+}
 /** The items of a dictionary-word search as paradigms: one block for each
  * headword searched (`heads`, in the order picked) that has hits, its rows
  * one for each form key (`group`), in paradigm order, then by hits, then as
  * met. An item's `readings` are those of the words it holds; it is filed
  * under the headwords its readings name, else those its form belongs to
  * (`formHeads`, from the lemma map), else the first searched. The English
- * items come back apart. */
-export function paradigmOf<T extends { group?: string; spellings?: string[]; hits: number; grk?: number; readings?: Reading[]; formHeads?: string[] }>(
+ * items come back apart.
+ * An item that names the one headword it is filed under (`under`: the
+ * results page's rows, a copy for each headword) goes there alone. */
+export function paradigmOf<T extends { group?: string; spellings?: string[]; hits: number; grk?: number; readings?: Reading[]; formHeads?: string[]; under?: string }>(
   items: T[],
   heads: string[],
   prefer?: ReadonlySet<string>,
@@ -509,9 +518,7 @@ export function paradigmOf<T extends { group?: string; spellings?: string[]; hit
   const rows = new Map<string, Map<string, { items: T[]; readings: Map<string, Reading>; spellings: string[]; count: number; grk: number }>>(heads.map(h => [h, new Map()]));
   for (const item of items) {
     if (item.group === undefined) { english.push(item); continue; }
-    const named = heads.filter(h => item.readings?.some(r => Object.hasOwn(r, 'lemma') && r.lemma.includes(h)));
-    const mapped = heads.filter(h => item.formHeads?.includes(h));
-    const own = named.length ? named : mapped.length ? mapped : heads.slice(0, 1);
+    const own = item.under !== undefined && heads.includes(item.under) ? [item.under] : paradigmHeads(item, heads);
     for (const h of own) {
       const block = rows.get(h)!;
       const row = block.get(item.group) ?? block.set(item.group, { items: [], readings: new Map(), spellings: [], count: 0, grk: 0 }).get(item.group)!;

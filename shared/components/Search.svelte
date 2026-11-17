@@ -86,7 +86,7 @@
   import WordPopup from './WordPopup.svelte';
   import {
     ambiguityNote, compareForms, cutPositions, facetCounts, facetKeep, formGroupsOf, formKey, grammarHitNote, hasFacets, orderHits, ownGrammar,
-    paradigmOf, refine, searchKind, viewsOffered, withTicked,
+    paradigmHeads, paradigmOf, refine, searchKind, viewsOffered, withTicked,
     type Facets, type PageSize, type ResultContext, type ResultSort, type ResultView,
   } from '../lib/result-views';
 
@@ -166,6 +166,9 @@
     // A whole section with hits of several forms: the section once for each
     // form, as the form and grammar views file it.
     forms?: Instance[];
+    // By grammar, a row's copy under one of its headwords (rowsIn): filed
+    // under that headword alone.
+    under?: string;
   }
   // One Greek word a hit holds. `oneOf` is a grammatical search's note on it,
   // stated as one-of-N when the parse does not settle the reading; absent when
@@ -696,7 +699,7 @@
   // moving to or from them lays the pages out again (rowsIn).
   function setView(next: ResultView) {
     popup = null;
-    const relay = splitView(next) !== splitView(view);
+    const relay = next !== view && (splitView(next) || splitView(view));
     view = next;
     if (lastSearch) writeUrl({ ...lastSearch, trans: transFilter, workFilter, xforms: [...excludedForms], view, facets, context, sort, pageSize }, 'replace');
     if (view === 'grammar') needGrammar();
@@ -1081,7 +1084,8 @@
   // shows when every book has (John, 16 Nov: "fill as books load").
   type Built = Awaited<ReturnType<typeof buildGroups>>;
   // `rows`: the book's rows by work; `split`, by form or by grammar.
-  interface RowBook { results: SearchResult[]; built?: Promise<Built>; rows?: number; split?: number; failed?: boolean }
+  // `done`: the book laid out, whose rows each view counts (rowsOf).
+  interface RowBook { results: SearchResult[]; built?: Promise<Built>; done?: Built; failed?: boolean }
   let rowBooks: RowBook[] = [];
   let pageTotal: number | null = 0;   // null while books are still being laid out
   let rowsRun = 0;                    // a new layout of the rows retires the old
@@ -1093,17 +1097,41 @@
   // A row as the view draws it: by form and by grammar, an instance holding
   // hits of several forms is filed once under each (sectionsFor), and is
   // that many rows; by work it is one (Codex review of the fold: by form,
-  // a page of 20 drew 47).
+  // a page of 20 drew 47). By grammar each Greek row is filed under every
+  // headword it belongs to (paradigmOf), a copy under each, each a row
+  // (Codex check of 09cee472c: ὁ and ὅς drew 25, 27, … to a page of 20).
   const splitView = (v: ResultView) => v === 'form' || v === 'grammar';
-  const rowsIn = (inst: Instance, v: ResultView): Instance[] => (splitView(v) && inst.forms) || [inst];
+  function rowsIn(inst: Instance, v: ResultView): Instance[] {
+    if (!splitView(v)) return [inst];
+    const parts = inst.forms ?? [inst];
+    if (v !== 'grammar') return parts;
+    const heads = headsSearched(lastSearch, hitForms);
+    return parts.flatMap(part => (part.lang === 'grk'
+      ? paradigmHeads(paradigmItem(part, grammarAt, hitForms), heads).map(under => ({ ...part, under }))
+      : [part]));
+  }
   const rowsOf = (b: Built, v: ResultView) => b.groups.reduce((n, g) => n + g.instances.reduce((m, inst) => m + rowsIn(inst, v).length, 0), 0);
-  const pagesFor = (books: RowBook[]) => Math.ceil(books.reduce((n, b) => n + ((splitView(view) ? b.split : b.rows) ?? 0), 0) / pageTarget(pageSize));
+  const pagesFor = (books: RowBook[]) => Math.ceil(books.reduce((n, b) => n + (b.done ? rowsOf(b.done, view) : 0), 0) / pageTarget(pageSize));
+  // By grammar the rows turn on the readings and the forms' headwords, which
+  // may load after the first page is drawn: when they come, the pages are
+  // laid out again. Only for the rows of the results now laid out.
+  let laidOut = 0;
+  let rowsGrammar: unknown[] = [];
+  $: relayGrammar(view, grammarAt, hitForms);
+  function relayGrammar(v: ResultView, at: Map<string, Reading[]>, forms: HitForms | null) {
+    if (v !== 'grammar' || (rowsGrammar[0] === at && rowsGrammar[1] === forms)) return;
+    rowsGrammar = [at, forms];
+    if (!rowBooks.length || laidOut !== layoutRun) return;
+    if (pageTotal !== null) pageTotal = pagesFor(rowBooks);
+    renderPage(pageIdx);
+  }
   function layOutRows(shown: SearchResult[]) {
     const by = new Map<string, SearchResult[]>();
     for (const r of shown) {
       const key = `${r.work}:${r.meta.book}`;
       (by.get(key) ?? by.set(key, []).get(key)!).push(r);
     }
+    laidOut = layoutRun;
     rowBooks = [...by.values()]
       .sort((a, b) => (WORK_ORDER.get(a[0].work) ?? 0) - (WORK_ORDER.get(b[0].work) ?? 0) || a[0].meta.book - b[0].meta.book)
       .map(results => ({ results }));
@@ -1130,8 +1158,7 @@
   function bookRows(b: RowBook, run: number): Promise<Built> {
     b.built ??= buildGroups(b.results, searchCtx, context).then(x => {
       if (run === rowsRun) {
-        b.rows = rowsOf(x, 'page');
-        b.split = rowsOf(x, 'form');
+        b.done = x;
         b.failed = x.failed.length > 0;
         if (pageTotal !== null) {
           pageTotal = pagesFor(rowBooks);
@@ -2515,6 +2542,14 @@
     const pick = raw.find(r => greekFold(r) === key);
     return (info[key] ?? (pick ? info[pick] : undefined))?.heads.split(' · ')[0] ?? betaToGreek(pick ?? key);
   };
+  // What files a Greek hit under its headwords by grammar (paradigmOf): the
+  // readings of the words it holds, and the headwords its form belongs to.
+  function paradigmItem(inst: Instance, at: Map<string, Reading[]>, forms: HitForms | null) {
+    return {
+      readings: (inst.held ?? []).flatMap(h => at.get(`${inst.work}:${inst.seg}:${h.pos}`) ?? []),
+      formHeads: inst.lang === 'grk' && inst.form ? forms?.headwords.get(inst.form) : undefined,
+    };
+  }
   function sectionsFor(groups: ChapterGroup[], v: ResultView, by: ResultSort, at: Map<string, Reading[]>, forms: HitForms | null, heads: string[], info: typeof pickInfo, raw: string[] = []): ViewSection[] {
     // The sort orders the page's hits before the view groups them; a form is
     // counted over the whole page.
@@ -2540,9 +2575,7 @@
         // The readings of the words a hit holds, and the headwords its form
         // belongs to, file it under its headword (paradigmOf).
         const { blocks, english } = paradigmOf(inOrder.map(item => ({
-          ...item,
-          readings: (item.inst.held ?? []).flatMap(h => at.get(`${item.inst.work}:${item.inst.seg}:${h.pos}`) ?? []),
-          formHeads: item.form ? forms?.headwords.get(item.form) : undefined,
+          ...item, ...paradigmItem(item.inst, at, forms), under: item.inst.under,
         })), heads, prefer);
         const englishKey = `${v}::english`;
         const englishHits = english.map(item => item.inst);

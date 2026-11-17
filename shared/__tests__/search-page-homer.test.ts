@@ -9,6 +9,7 @@ import { CORPUS, HAVE_CORPUS, serveCorpus } from './serve-corpus';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { chapterPlaces, eachHit } from '../lib/chapter-pages';
+import { formKey } from '../lib/result-views';
 import { loadEngChapters, loadOffsets, search } from '../lib/search';
 
 // The first search in a file reads the corpus cold.
@@ -309,40 +310,90 @@ describe('pages by rows, and the 100 page', () => {
 // drew 47 rows where it promised 20. (The review's "ὁ καί", any word, is
 // offered By work only; one word, ὁ, is offered By form.)
 describe('pages by rows, grouped by form', () => {
-  const pageRows = () => document.querySelectorAll('li.instance').length;
   const pagesOf = () => Number(status().match(/page \d+ of (\d+)/)?.[1] ?? 1);
-  async function walkForm(): Promise<number[]> {
+  // Every page of the search in view: the rows each page draws (every
+  // grouping opened, as a reader would open them), each row's reader link,
+  // the scene heading over it (By work), and its marked Greek forms.
+  async function walkRows(perPage: number) {
     await waitFor(() => expect(status()).toMatch(/page \d+ of \d+$/), { timeout: 60000 });
     const pages = pagesOf();
     const sizes: number[] = [];
+    const links: string[] = [];
+    const scenes = new Set<string>();
+    let forms = 0;
     for (let p = 1; p <= pages; p++) {
       if (p > 1) {
         await fireEvent.click(document.querySelector<HTMLButtonElement>('button.pager-next')!);
         await waitFor(() => expect(document.querySelector('.pager-status')?.textContent).toBe(`Page ${p} of ${pages}`), { timeout: 30000 });
       }
-      sizes.push(await waitFor(() => { const n = pageRows(); expect(n).toBeGreaterThan(0); return n; }, { timeout: 30000 }));
+      // By grammar the paradigm rows start shut: open them, then count.
+      await waitFor(() => expect(document.querySelectorAll('li.instance, .group-head[aria-expanded="false"]').length).toBeGreaterThan(0), { timeout: 30000 });
+      for (let shut; (shut = [...document.querySelectorAll<HTMLButtonElement>('.group-head[aria-expanded="false"]')]).length;) {
+        for (const b of shut) await fireEvent.click(b);
+      }
+      await waitFor(() => expect(document.querySelectorAll('li.instance').length).toBeGreaterThan(0), { timeout: 30000 });
+      let scene = '';
+      let n = 0;
+      for (const el of document.querySelectorAll('.sx-chap-n, li.instance')) {
+        if (el.matches('.sx-chap-n')) { scene = el.textContent?.trim() ?? ''; continue; }
+        n++;
+        const href = el.querySelector('.inst-ref')?.getAttribute('href') ?? '';
+        links.push(href);
+        if (scene) scenes.add(`${new URL(href, 'http://x').pathname}|${scene}`);
+        forms += new Set([...el.querySelectorAll('.inst-snippet.greek mark')].map(m => formKey(m.textContent ?? ''))).size;
+      }
+      sizes.push(n);
     }
-    return sizes;
+    expect(sizes.slice(0, -1).every(k => k === perPage), `rows a page: ${sizes}`).toBe(true);
+    expect(sizes.at(-1)!).toBeGreaterThan(0);
+    expect(sizes.at(-1)!).toBeLessThanOrEqual(perPage);
+    return { pages, sizes, links, scenes, forms, rows: sizes.reduce((a, b) => a + b, 0) };
+  }
+  // The same search By work: its rows, the scenes they are drawn under (all
+  // the bar counts), and the forms they hold, which By form draws a row each.
+  async function byWork(query: string) {
+    open(query);
+    const bar = await counted();
+    const w = await walkRows(20);
+    expect(w.scenes.size, `${query}: scenes drawn`).toBe(scenesIn(bar));
+    document.body.innerHTML = '';
+    return w;
   }
 
-  it('draws exactly 20 rows on every page but the last, from the address', async () => {
+  it('ὁ, Il. 1: every row By work drawn once for each of its forms, 20 a page', async () => {
+    const work = await byWork('g=ὁ&w=iliad&b=1&ps=20');
     open('g=ὁ&w=iliad&b=1&ps=20&v=form');
     await counted();
-    const sizes = await walkForm();
-    expect(sizes.slice(0, -1).every(n => n === 20), `rows a page: ${sizes}`).toBe(true);
-    expect(sizes.at(-1)!).toBeLessThanOrEqual(20);
-  }, 120000);
+    const form = await walkRows(20);
+    console.info(`ὁ, Il. 1: by work ${work.rows} rows holding ${work.forms} forms; by form ${form.rows} rows on ${form.pages} pages`);
+    expect(form.rows).toBe(work.forms);
+    expect([...new Set(form.links)].sort()).toEqual([...new Set(work.links)].sort());
+  }, 300000);
 
   it('lays the pages out again when the grouping turns to By form', async () => {
     open('g=ὁ&w=iliad&b=1&ps=20');
     await counted();
     await waitFor(() => expect(status()).toMatch(/page \d+ of \d+$/), { timeout: 60000 });
-    const byWork = pagesOf();
+    const byWorkPages = pagesOf();
     const radio = [...document.querySelectorAll<HTMLInputElement>('input[name="sx-view"]')].find(r => r.value === 'form')!;
     await fireEvent.click(radio);
-    await waitFor(() => expect(pageRows()).toBe(20), { timeout: 30000 });
-    await waitFor(() => expect(pagesOf()).toBeGreaterThan(byWork), { timeout: 30000 });
+    await waitFor(() => expect(document.querySelectorAll('li.instance')).toHaveLength(20), { timeout: 30000 });
+    await waitFor(() => expect(pagesOf()).toBeGreaterThan(byWorkPages), { timeout: 30000 });
   }, 120000);
+
+  // Codex check of 09cee472c: by grammar with two headwords, a form both
+  // own is drawn under each, and the pages counted it once (rows 25, 27, …).
+  it('two headwords by grammar: a form under both is two rows, 20 a page', async () => {
+    const work = await byWork('l=o,os&w=iliad&b=1&ps=20');
+    open('l=o,os&v=grammar&w=iliad&b=1&ps=20');
+    await counted();
+    // The readings load after the first page; the pages are laid out again then.
+    await waitFor(() => expect(document.querySelector('.sx-para')).not.toBeNull(), { timeout: 60000 });
+    const grammar = await walkRows(20);
+    console.info(`ὁ, ὅς, Il. 1: by work ${work.rows} rows; by grammar ${grammar.rows} rows on ${grammar.pages} pages`);
+    expect(grammar.rows).toBeGreaterThanOrEqual(work.forms);
+    expect([...new Set(grammar.links)].sort()).toEqual([...new Set(work.links)].sort());
+  }, 600000);
 });
 
 describe('the 100 page on a narrow screen', () => {
