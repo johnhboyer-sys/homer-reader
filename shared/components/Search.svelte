@@ -237,7 +237,7 @@
   // word where no work answers in more than one translation, since otherwise
   // the total counts translators.
   let counted = { chapters: 0, hits: null as number | null };
-  // A Both search's chapters by language, before the join: the rows under
+  // A Both search's chapters by language, before the languages are joined: the rows under
   // the count (John, 16 Nov), each lit when the switch lists it.
   let split: Measure | null = null;
   const OP_LABEL: Record<LangOp, string> = { and: 'and', or: 'and/or', xor: 'or' };
@@ -1184,7 +1184,9 @@
     // and comes straight here, before they catch up.
     const both = joinsBoth(lastSearch, searchCtx);
     const unjoined = narrowWork(narrow(withoutPhrases(withoutForms(results), asidePhrases, phraseTexts), transFilter, searchCtx), workFilter);
-    split = both ? measure(unjoined, places) : null;
+    // Measured as the bar is, after "All words" holds each language's
+    // terms to one scene (allWordsJoin), before the languages are joined.
+    split = both ? measure(allWordsJoin(unjoined, places), places) : null;
     const shown = joined(unjoined, places, both, searchCtx.langOp);
     totalInstances = shown.reduce((n, r) => n + hitCount(r), 0);
     counted = countOf(shown, places, !!lastSearch?.eng.trim() && !isBoth(lastSearch), transFilter);

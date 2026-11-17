@@ -152,6 +152,21 @@ describe('joining the Greek and the English', () => {
     expect(await counted()).toMatch(/^298 scenes/);
   });
 
+  // Codex review of the fold (lane F): the rows under the count were
+  // measured before "All words" held each language's terms to one scene, so
+  // they summed to 615 under a bar of 377.
+  it('measures the rows under the count after "All words", as the bar is', async () => {
+    open('g=ἄναξ ἀνδρῶν&e=sea&op=or');
+    const bar = await counted();
+    const rows = await waitFor(() => {
+      const r = [...document.querySelectorAll('.sx-split li')].map(li => [li.querySelector('.i-t')?.textContent, Number(li.querySelector('small')?.textContent)]);
+      expect(r).toHaveLength(3);
+      return r;
+    });
+    expect(rows).toEqual([['Greek and English', 61], ['Greek only', 79], ['English only', 237]]);
+    expect(scenesIn(bar)).toBe(61 + 79 + 237);
+  });
+
   it('op=and keeps the scenes that hold both', async () => {
     open('g=θάλασσα&e=sea&t=murray&op=and');
     const n = Number((await counted()).match(/^(\d+) scenes/)![1]);
