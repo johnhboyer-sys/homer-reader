@@ -691,12 +691,19 @@
     await loadGrammar(results);
     if (results === allResults) showResults(allResults);
   }
-  // Regroups the page in view; the results and the pages stay as they are.
+  // Regroups the page in view; the results stay as they are. By form and
+  // by grammar a row holding several forms is drawn once under each, so
+  // moving to or from them lays the pages out again (rowsIn).
   function setView(next: ResultView) {
     popup = null;
+    const relay = splitView(next) !== splitView(view);
     view = next;
     if (lastSearch) writeUrl({ ...lastSearch, trans: transFilter, workFilter, xforms: [...excludedForms], view, facets, context, sort, pageSize }, 'replace');
     if (view === 'grammar') needGrammar();
+    if (relay && rowBooks.length) {
+      if (pageTotal !== null) pageTotal = pagesFor(rowBooks);
+      renderPage(pageIdx);
+    }
   }
   // How much text a hit shows. Hits whose passages share words are one row,
   // so the rows are laid out again, and the page in view is drawn again.
@@ -1073,7 +1080,8 @@
   // page draws once the books through its last row have, and the page count
   // shows when every book has (John, 16 Nov: "fill as books load").
   type Built = Awaited<ReturnType<typeof buildGroups>>;
-  interface RowBook { results: SearchResult[]; built?: Promise<Built>; rows?: number; failed?: boolean }
+  // `rows`: the book's rows by work; `split`, by form or by grammar.
+  interface RowBook { results: SearchResult[]; built?: Promise<Built>; rows?: number; split?: number; failed?: boolean }
   let rowBooks: RowBook[] = [];
   let pageTotal: number | null = 0;   // null while books are still being laid out
   let rowsRun = 0;                    // a new layout of the rows retires the old
@@ -1082,8 +1090,14 @@
   $: paged = pageTotal === null ? pageIdx > 0 || moreRows : pageTotal > 1;
   $: pageOf = pageTotal === null ? '…' : String(pageTotal);
   $: lastPage = pageTotal === null ? !moreRows : pageIdx >= pageTotal - 1;
-  const rowsOf = (b: Built) => b.groups.reduce((n, g) => n + g.instances.length, 0);
-  const pagesFor = (books: RowBook[]) => Math.ceil(books.reduce((n, b) => n + (b.rows ?? 0), 0) / pageTarget(pageSize));
+  // A row as the view draws it: by form and by grammar, an instance holding
+  // hits of several forms is filed once under each (sectionsFor), and is
+  // that many rows; by work it is one (Codex review of the fold: by form,
+  // a page of 20 drew 47).
+  const splitView = (v: ResultView) => v === 'form' || v === 'grammar';
+  const rowsIn = (inst: Instance, v: ResultView): Instance[] => (splitView(v) && inst.forms) || [inst];
+  const rowsOf = (b: Built, v: ResultView) => b.groups.reduce((n, g) => n + g.instances.reduce((m, inst) => m + rowsIn(inst, v).length, 0), 0);
+  const pagesFor = (books: RowBook[]) => Math.ceil(books.reduce((n, b) => n + ((splitView(view) ? b.split : b.rows) ?? 0), 0) / pageTarget(pageSize));
   function layOutRows(shown: SearchResult[]) {
     const by = new Map<string, SearchResult[]>();
     for (const r of shown) {
@@ -1116,7 +1130,8 @@
   function bookRows(b: RowBook, run: number): Promise<Built> {
     b.built ??= buildGroups(b.results, searchCtx, context).then(x => {
       if (run === rowsRun) {
-        b.rows = rowsOf(x);
+        b.rows = rowsOf(x, 'page');
+        b.split = rowsOf(x, 'form');
         b.failed = x.failed.length > 0;
         if (pageTotal !== null) {
           pageTotal = pagesFor(rowBooks);
@@ -1137,6 +1152,7 @@
   // then the slice. Null when a newer layout has retired this one.
   async function pageRows(i: number, run: number): Promise<(Built & { more: boolean; total: number | null }) | null> {
     const n = pageTarget(pageSize);
+    const v = view;
     const from = i * n;
     const to = from + n;
     const picked: { g: ChapterGroup; inst: Instance }[] = [];
@@ -1148,12 +1164,12 @@
       for (const ahead of rowBooks.slice(k + 1, k + 4)) void bookRows(ahead, run);
       const b = await bookRows(rowBooks[k], run);
       if (run !== rowsRun) return null;
-      if (seen >= from || seen + rowsOf(b) > from) {
+      if (seen >= from || seen + rowsOf(b, v) > from) {
         failed.push(...b.failed);
         for (const [key, seg] of b.segs) segs.set(key, seg);
       }
-      for (const g of b.groups) for (const inst of g.instances) {
-        if (seen >= from && seen < to) picked.push({ g, inst });
+      for (const g of b.groups) for (const inst of g.instances) for (const row of rowsIn(inst, v)) {
+        if (seen >= from && seen < to) picked.push({ g, inst: row });
         seen++;
       }
     }

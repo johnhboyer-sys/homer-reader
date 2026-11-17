@@ -304,6 +304,47 @@ describe('pages by rows, and the 100 page', () => {
 // Codex review of the fold (lane F): below 961px the citation's width gave
 // way to its text, so the link heading an opened row ("1.34") was narrower
 // than a 44px target.
+// Codex review of the fold (lane F): by form, an instance holding hits of
+// several forms is drawn once under each, so a page laid out by instances
+// drew 47 rows where it promised 20. (The review's "ὁ καί", any word, is
+// offered By work only; one word, ὁ, is offered By form.)
+describe('pages by rows, grouped by form', () => {
+  const pageRows = () => document.querySelectorAll('li.instance').length;
+  const pagesOf = () => Number(status().match(/page \d+ of (\d+)/)?.[1] ?? 1);
+  async function walkForm(): Promise<number[]> {
+    await waitFor(() => expect(status()).toMatch(/page \d+ of \d+$/), { timeout: 60000 });
+    const pages = pagesOf();
+    const sizes: number[] = [];
+    for (let p = 1; p <= pages; p++) {
+      if (p > 1) {
+        await fireEvent.click(document.querySelector<HTMLButtonElement>('button.pager-next')!);
+        await waitFor(() => expect(document.querySelector('.pager-status')?.textContent).toBe(`Page ${p} of ${pages}`), { timeout: 30000 });
+      }
+      sizes.push(await waitFor(() => { const n = pageRows(); expect(n).toBeGreaterThan(0); return n; }, { timeout: 30000 }));
+    }
+    return sizes;
+  }
+
+  it('draws exactly 20 rows on every page but the last, from the address', async () => {
+    open('g=ὁ&w=iliad&b=1&ps=20&v=form');
+    await counted();
+    const sizes = await walkForm();
+    expect(sizes.slice(0, -1).every(n => n === 20), `rows a page: ${sizes}`).toBe(true);
+    expect(sizes.at(-1)!).toBeLessThanOrEqual(20);
+  }, 120000);
+
+  it('lays the pages out again when the grouping turns to By form', async () => {
+    open('g=ὁ&w=iliad&b=1&ps=20');
+    await counted();
+    await waitFor(() => expect(status()).toMatch(/page \d+ of \d+$/), { timeout: 60000 });
+    const byWork = pagesOf();
+    const radio = [...document.querySelectorAll<HTMLInputElement>('input[name="sx-view"]')].find(r => r.value === 'form')!;
+    await fireEvent.click(radio);
+    await waitFor(() => expect(pageRows()).toBe(20), { timeout: 30000 });
+    await waitFor(() => expect(pagesOf()).toBeGreaterThan(byWork), { timeout: 30000 });
+  }, 120000);
+});
+
 describe('the 100 page on a narrow screen', () => {
   it('keeps every citation at least 44px wide', () => {
     const css = readFileSync(path.resolve(process.cwd(), 'styles/b-search.css'), 'utf8');
